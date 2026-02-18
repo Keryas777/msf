@@ -6,7 +6,12 @@
     joueurs: "./data/joueurs.json",
   };
 
-  const ALLIANCE_EMOJI = { Zeus: "⚡️", Dionysos: "🍇", Poséidon: "🔱", Poseidon: "🔱" };
+  const ALLIANCE_EMOJI = {
+    Zeus: "⚡️",
+    Dionysos: "🍇",
+    Poséidon: "🔱",
+    Poseidon: "🔱",
+  };
 
   const qs = (s) => document.querySelector(s);
 
@@ -22,7 +27,6 @@
   let CHAR_MAP = new Map();
   let JOUEURS = [];
 
-  // cache-bust (GitHub Pages cache + Safari)
   const bust = (url) => {
     const u = new URL(url, window.location.href);
     u.searchParams.set("v", Date.now().toString());
@@ -35,30 +39,36 @@
     return res.json();
   }
 
+  // ✅ On n’affiche PLUS les OK, seulement les erreurs
   function setStatus(msg, isError = false) {
     if (!statusBox) return;
-    statusBox.textContent = msg || "";
-    statusBox.style.display = msg ? "block" : "none";
-    statusBox.dataset.type = isError ? "error" : "ok";
+    if (!msg || !isError) {
+      statusBox.textContent = "";
+      statusBox.style.display = "none";
+      statusBox.dataset.type = "";
+      return;
+    }
+    statusBox.textContent = msg;
+    statusBox.style.display = "block";
+    statusBox.dataset.type = "error";
   }
 
-  // normalize fort : minuscules + accents supprimés + tout sauf alnum
-  const normalizeKey = (s) => {
-    return (s ?? "")
+  const normalizeKey = (s) =>
+    (s ?? "")
       .toString()
       .trim()
       .toLowerCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // diacritiques
-      .replace(/[^a-z0-9]/g, ""); // retire espaces, tirets, underscores, parenthèses, etc.
-  };
+      .replace(/[\u0300-\u036f]/g, "") // enlève accents
+      .replace(/\s+/g, "")
+      .replace(/[-_]/g, "");
 
   function clearNode(el) {
     if (!el) return;
     while (el.firstChild) el.removeChild(el.firstChild);
   }
 
-  // ---- toast simple (tap sur portrait = nom complet)
+  // ===== Toast (tap pour nom complet) =====
   let toastTimer = null;
   function showToast(text) {
     if (!text) return;
@@ -66,50 +76,47 @@
     if (!t) {
       t = document.createElement("div");
       t.id = "toast";
-      t.style.position = "fixed";
-      t.style.left = "50%";
-      t.style.bottom = "18px";
-      t.style.transform = "translateX(-50%)";
-      t.style.padding = "10px 14px";
-      t.style.borderRadius = "999px";
-      t.style.background = "rgba(0,0,0,0.75)";
-      t.style.color = "white";
-      t.style.fontSize = "14px";
-      t.style.border = "1px solid rgba(255,255,255,0.15)";
-      t.style.backdropFilter = "blur(10px)";
-      t.style.zIndex = "9999";
-      t.style.maxWidth = "90vw";
-      t.style.whiteSpace = "nowrap";
-      t.style.overflow = "hidden";
-      t.style.textOverflow = "ellipsis";
-      t.style.opacity = "0";
-      t.style.transition = "opacity 120ms ease";
+      Object.assign(t.style, {
+        position: "fixed",
+        left: "50%",
+        bottom: "18px",
+        transform: "translateX(-50%)",
+        padding: "10px 14px",
+        borderRadius: "999px",
+        background: "rgba(0,0,0,0.75)",
+        color: "white",
+        fontSize: "14px",
+        border: "1px solid rgba(255,255,255,0.15)",
+        backdropFilter: "blur(10px)",
+        zIndex: "9999",
+        maxWidth: "90vw",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        opacity: "0",
+        transition: "opacity 120ms ease",
+      });
       document.body.appendChild(t);
     }
     t.textContent = text;
     requestAnimationFrame(() => (t.style.opacity = "1"));
     if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => (t.style.opacity = "0"), 950);
+    toastTimer = setTimeout(() => (t.style.opacity = "0"), 900);
   }
 
-  // ---- layout : 5 portraits / ligne, taille calculée, 0 scroll horizontal
-  function applyPortraitGridSizing() {
-    if (!portraitsWrap) return;
-    const cols = 5;
-    const gap = 10; // doit matcher ton CSS (portraits { gap: 10px })
-    const w = portraitsWrap.clientWidth || 360;
-    const tile = Math.floor((w - gap * (cols - 1)) / cols);
-
-    // clamp pour éviter trop petit / trop gros
-    const size = Math.max(56, Math.min(tile, 92));
-
-    portraitsWrap.style.display = "grid";
-    portraitsWrap.style.gap = `${gap}px`;
-    portraitsWrap.style.gridTemplateColumns = `repeat(${cols}, ${size}px)`;
-    portraitsWrap.style.justifyContent = "space-between";
+  // ===== Taille vignette portraits (0 scroll horizontal, 5 par ligne) =====
+  function computeTileSize(containerEl, columns = 5, gap = 10) {
+    const w = containerEl?.clientWidth || 360;
+    const totalGaps = gap * (columns - 1);
+    const size = Math.floor((w - totalGaps) / columns);
+    // limites raisonnables iPhone
+    return Math.max(52, Math.min(size, 92));
   }
 
-  // ---- data helpers
+  function applyTileSize(sizePx) {
+    document.documentElement.style.setProperty("--tile", `${sizePx}px`);
+  }
+
   function renderTeamOptions() {
     if (!teamSelect) return;
     teamSelect.innerHTML = "";
@@ -128,23 +135,8 @@
   }
 
   function findPortraitFor(name) {
-    const k = normalizeKey(name);
-    return CHAR_MAP.get(k) || null;
-  }
-
-  function buildCharacterMap(charsRaw) {
-    const map = new Map();
-
-    (Array.isArray(charsRaw) ? charsRaw : []).forEach((c) => {
-      const keys = [c?.id, c?.nameKey, c?.nameFr, c?.nameEn].filter(Boolean);
-      keys.forEach((k) => map.set(normalizeKey(k), c));
-
-      // bonus : si nameFr contient des espaces/parenthèses, on ajoute une version “compact”
-      if (c?.nameFr) map.set(normalizeKey(c.nameFr), c);
-      if (c?.nameEn) map.set(normalizeKey(c.nameEn), c);
-    });
-
-    return map;
+    const key = normalizeKey(name);
+    return CHAR_MAP.get(key) || null;
   }
 
   function renderSelectedTeam(teamName) {
@@ -155,7 +147,14 @@
     const teamObj = TEAMS.find((t) => t.team === teamName);
     if (!teamObj) return;
 
-    applyPortraitGridSizing();
+    // ✅ Force 5 vignettes sans scroll + pas de crop
+    const tile = computeTileSize(portraitsWrap, 5, 10);
+    applyTileSize(tile);
+
+    // petits styles inline pour être sûr (peu importe ton CSS)
+    portraitsWrap.style.display = "grid";
+    portraitsWrap.style.gridTemplateColumns = "repeat(5, minmax(0, 1fr))";
+    portraitsWrap.style.gap = "10px";
 
     (teamObj.characters || []).forEach((charName) => {
       const info = findPortraitFor(charName);
@@ -164,6 +163,15 @@
       card.className = "portraitCard";
       card.addEventListener("click", () => showToast(charName));
 
+      Object.assign(card.style, {
+        width: "100%",
+        borderRadius: "14px",
+        overflow: "hidden",
+        border: "1px solid rgba(255,255,255,.10)",
+        background: "rgba(20,22,24,.62)",
+        boxShadow: "0 6px 16px rgba(0,0,0,.35)",
+      });
+
       const img = document.createElement("img");
       img.className = "portraitImg";
       img.alt = charName;
@@ -171,47 +179,98 @@
       img.decoding = "async";
       img.referrerPolicy = "no-referrer";
 
-      // IMPORTANT: si portrait introuvable, on met une vignette neutre plutôt que src=""
-      if (info?.portraitUrl) {
-        img.src = info.portraitUrl;
-      } else {
-        img.src =
-          "data:image/svg+xml;charset=utf-8," +
-          encodeURIComponent(
-            `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256">
-              <rect width="100%" height="100%" fill="#141618"/>
-              <text x="50%" y="52%" font-family="system-ui,Segoe UI,Roboto" font-size="22" fill="rgba(255,255,255,.55)" text-anchor="middle">?</text>
-            </svg>`
-          );
-      }
+      // ✅ NO CROP : contain + carré
+      Object.assign(img.style, {
+        width: "100%",
+        height: "var(--tile)",
+        display: "block",
+        objectFit: "contain",
+        objectPosition: "center",
+        background: "rgba(255,255,255,.03)",
+      });
 
-      const label = document.createElement("div");
-      // ✅ classe qui match ton CSS
-      label.className = "portraitName";
-      // on affiche un nom court, mais le tap donnera le complet via toast
-      label.textContent = charName;
+      img.src = info?.portraitUrl || "";
 
       card.appendChild(img);
-      card.appendChild(label);
       portraitsWrap.appendChild(card);
     });
   }
 
-  function extractRows(maybe) {
-    if (Array.isArray(maybe)) return maybe;
-    if (maybe && Array.isArray(maybe.rows)) return maybe.rows;
-    if (maybe && Array.isArray(maybe.data)) return maybe.data;
+  // ===== Parsing JOUEURS ultra tolérant =====
+  function guessKeysFromObject(obj) {
+    const keys = Object.keys(obj || {});
+    const norm = keys.map((k) => [k, normalizeKey(k)]);
+    const joueurKey =
+      norm.find(([, nk]) => nk === "joueur" || nk === "joueurs" || nk.includes("joueur"))?.[0] ||
+      norm.find(([, nk]) => nk === "player" || nk.includes("player") || nk.includes("name"))?.[0];
+
+    const allianceKey =
+      norm.find(([, nk]) => nk === "alliance" || nk === "alliances" || nk.includes("alliance"))?.[0] ||
+      norm.find(([, nk]) => nk.includes("guild") || nk.includes("team"))?.[0];
+
+    return { joueurKey, allianceKey };
+  }
+
+  function parseJoueurs(raw) {
+    if (!Array.isArray(raw) || raw.length === 0) return [];
+
+    // Cas 1 : tableau d’objets
+    if (typeof raw[0] === "object" && !Array.isArray(raw[0])) {
+      const { joueurKey, allianceKey } = guessKeysFromObject(raw[0]);
+      return raw
+        .map((r) => {
+          const joueur = (r[joueurKey] ?? r.joueur ?? r.JOUEURS ?? r.Joueurs ?? "").toString().trim();
+          const alliance = (r[allianceKey] ?? r.alliance ?? r.ALLIANCES ?? r.Alliances ?? "").toString().trim();
+          return { joueur, alliance };
+        })
+        .filter((x) => x.joueur);
+    }
+
+    // Cas 2 : tableau de tableaux (CSV-like)
+    if (Array.isArray(raw[0])) {
+      const rows = raw;
+
+      // si première ligne = header
+      const header = rows[0].map((h) => normalizeKey(h));
+      const hasHeader = header.some((h) => h.includes("joueur") || h.includes("alliance"));
+
+      let start = 0;
+      let idxJ = 0;
+      let idxA = 1;
+
+      if (hasHeader) {
+        start = 1;
+        idxJ = header.findIndex((h) => h === "joueur" || h === "joueurs" || h.includes("joueur"));
+        idxA = header.findIndex((h) => h === "alliance" || h === "alliances" || h.includes("alliance"));
+        if (idxJ < 0) idxJ = 0;
+        if (idxA < 0) idxA = 1;
+      }
+
+      return rows
+        .slice(start)
+        .map((r) => ({
+          joueur: (r[idxJ] ?? "").toString().trim(),
+          alliance: (r[idxA] ?? "").toString().trim(),
+        }))
+        .filter((x) => x.joueur);
+    }
+
     return [];
   }
 
   function renderPlayers() {
     clearNode(playersWrap);
 
-    if (playersCount) playersCount.textContent = String(JOUEURS.length || 0);
-    if (!playersWrap || !JOUEURS.length) return;
+    const list = Array.isArray(JOUEURS) ? JOUEURS : [];
+    if (playersCount) playersCount.textContent = String(list.length || 0);
+    if (!playersWrap || !list.length) return;
 
-    // tri stable par alliance puis joueur (FR)
-    const sorted = [...JOUEURS].sort((a, b) => {
+    // chips responsives sans décalage
+    playersWrap.style.display = "flex";
+    playersWrap.style.flexWrap = "wrap";
+    playersWrap.style.gap = "10px";
+
+    const sorted = [...list].sort((a, b) => {
       const A = (a.alliance || "").toString();
       const B = (b.alliance || "").toString();
       if (A !== B) return A.localeCompare(B, "fr");
@@ -227,25 +286,28 @@
 
       const chip = document.createElement("div");
       chip.className = "playerChip";
+      chip.textContent = `${emoji}${joueur}`; // ✅ PAS d’espace après emoji
 
-      // version “propre” (CSS-friendly)
-      const e = document.createElement("span");
-      e.className = "emoji";
-      e.textContent = emoji;
-
-      const n = document.createElement("span");
-      n.className = "name";
-      n.textContent = joueur;
-
-      chip.appendChild(e);
-      chip.appendChild(n);
+      Object.assign(chip.style, {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "0px",
+        padding: "10px 14px",
+        borderRadius: "999px",
+        border: "1px solid rgba(255,255,255,.12)",
+        background: "rgba(0,0,0,.28)",
+        boxShadow: "0 6px 16px rgba(0,0,0,.35)",
+        color: "rgba(255,255,255,.92)",
+        fontWeight: "800",
+        letterSpacing: ".2px",
+      });
 
       playersWrap.appendChild(chip);
     });
   }
 
   async function refreshAll() {
-    setStatus("Chargement…");
+    setStatus("", false);
 
     try {
       const [teamsRaw, charsRaw, joueursRaw] = await Promise.all([
@@ -255,34 +317,30 @@
       ]);
 
       // Teams
-      TEAMS = extractRows(teamsRaw)
+      TEAMS = (teamsRaw || [])
         .map((t) => ({
-          team: (t.team ?? t.Team ?? "").toString().trim(),
+          team: (t.team ?? "").toString().trim(),
           characters: Array.isArray(t.characters)
             ? t.characters.map((c) => (c ?? "").toString().trim()).filter(Boolean)
-            : // tolère aussi character1..character5 si jamais
-              ["character1", "character2", "character3", "character4", "character5"]
-                .map((k) => (t[k] ?? "").toString().trim())
-                .filter(Boolean),
+            : [],
         }))
         .filter((t) => t.team);
 
-      // Characters map (blindé)
-      CHAR_MAP = buildCharacterMap(extractRows(charsRaw));
+      // Characters map
+      CHAR_MAP = new Map();
+      (charsRaw || []).forEach((c) => {
+        const keys = [c.id, c.nameKey, c.nameFr, c.nameEn].filter(Boolean);
+        keys.forEach((k) => CHAR_MAP.set(normalizeKey(k), c));
+      });
 
-      // Joueurs
-      JOUEURS = extractRows(joueursRaw).map((r) => ({
-        joueur: r.joueur ?? r.JOUEURS ?? r.Joueur ?? r.JOUEUR ?? "",
-        alliance: r.alliance ?? r.ALLIANCES ?? r.Alliance ?? r.ALLIANCE ?? "",
-      })).filter(r => (r.joueur ?? "").toString().trim());
+      // Joueurs (tolérant)
+      JOUEURS = parseJoueurs(joueursRaw);
 
       renderTeamOptions();
       renderPlayers();
 
       const selected = teamSelect?.value || "";
       if (selected) renderSelectedTeam(selected);
-
-      setStatus("OK ✅ Données chargées (teams / joueurs / personnages).", false);
     } catch (e) {
       console.error(e);
       setStatus(`Erreur ❌ ${e.message}`, true);
@@ -292,7 +350,7 @@
   btnRefresh?.addEventListener("click", refreshAll);
   teamSelect?.addEventListener("change", () => renderSelectedTeam(teamSelect.value));
   window.addEventListener("resize", () => {
-    applyPortraitGridSizing();
+    if (teamSelect?.value) renderSelectedTeam(teamSelect.value);
   });
 
   refreshAll();
