@@ -16,10 +16,9 @@ html, body{
   color: var(--text);
   background: var(--bg);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  overflow-x: hidden; /* 0 scroll horizontal */
 }
 
-/* ===== Fond noir + vignettage ===== */
+/* ===== Fond noir + filigranes ===== */
 body::before{
   content:"";
   position:fixed;
@@ -32,7 +31,7 @@ body::before{
     linear-gradient(180deg, #060708, #090a0c 60%, #050607);
 }
 
-/* ===== Filigranes aigles ===== */
+/* Couche “aigles” en filigrane */
 body::after{
   content:"";
   position:fixed;
@@ -46,82 +45,71 @@ body::after{
   background-position: 0 0;
 }
 
-/* fallback */
+/* Fallback si WebP non supporté (rare) */
 @supports not (background-image: url("./x.webp")) {
   body::after{ background-image: url("./eagle-pattern.min.png"); }
 }
 
-/* ===== App layout ===== */
+/* ===== App container ===== */
 .app{
-  padding: 12px;
-  display:flex;
-  flex-direction:column;
-  gap: 14px;
-  max-width: 980px;
-  margin: 0 auto;
+  min-height: 100vh;
 }
 
-/* ===== Header sticky ===== */
+/* ===== Header / topbar ===== */
 .header{
   position: sticky;
   top: 0;
   z-index: 10;
-
-  display:flex;
-  gap: 12px;
-  align-items: flex-start;
-  justify-content: space-between;
-
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-
-  background: rgba(8,9,10,.72);
   backdrop-filter: blur(10px);
-  box-shadow: var(--shadow);
+  background: rgba(8,9,10,.72);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 12px;
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  justify-content:space-between;
+  flex-wrap: wrap;
 }
 
 .headerLeft{
-  min-width: 0;
+  min-width: 240px;
 }
 
 .title{
   margin: 0;
   font-weight: 900;
   letter-spacing: .2px;
-  line-height: 1.05;
+  line-height: 1.02;
 }
 
 .subtitle{
-  margin: 6px 0 0 0;
+  margin: 8px 0 0;
   color: var(--muted);
   font-size: 13px;
-  line-height: 1.25;
+  max-width: 34ch;
 }
 
 .headerRight{
   display:flex;
-  flex-direction:column;
+  flex-direction: column;
   gap: 10px;
-  align-items: flex-end;
-  min-width: 180px;
+  align-items: flex-start;
 }
 
 .label{
   font-size: 12px;
   color: var(--muted2);
-  align-self: flex-start;
 }
 
 .select{
-  font-size: 16px;
-  padding: 10px 12px;
+  font-size:16px;
+  padding:10px 12px;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 12px;
   background: rgba(0,0,0,.35);
   color: var(--text);
+  min-width: 220px;
   outline: none;
-  width: min(320px, 72vw);
 }
 
 .select:focus{
@@ -130,30 +118,34 @@ body::after{
 }
 
 .btn{
-  font-size: 16px;
-  padding: 10px 14px;
+  font-size:16px;
+  padding:10px 14px;
   border: 1px solid rgba(255,255,255,.22);
   border-radius: 14px;
   background: rgba(255,255,255,.08);
   color: var(--text);
   cursor:pointer;
   box-shadow: var(--shadow);
-  width: fit-content;
+  width: 100%;
 }
+
 .btn:active{ transform: translateY(1px); }
 
 /* ===== Status ===== */
 .status{
-  background: rgba(0,0,0,.35);
+  margin: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 12px;
+  background: rgba(0,0,0,.22);
   box-shadow: var(--shadow);
-  color: var(--text);
+  white-space: pre-line;
+  color: var(--muted);
 }
 
-/* ===== Cards ===== */
+/* ===== Cards / Layout ===== */
 .card{
+  margin: 12px;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -163,9 +155,9 @@ body::after{
 
 .cardHeader{
   display:flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
   margin-bottom: 10px;
 }
 
@@ -176,91 +168,65 @@ body::after{
 }
 
 .chipCount{
-  border: 1px solid var(--border);
+  padding: 6px 10px;
   border-radius: 999px;
-  padding: 4px 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.25);
   color: var(--muted);
   font-size: 13px;
-  background: rgba(0,0,0,.22);
 }
 
-/* ===== Portraits grid (sans scroll horizontal) ===== */
+/* ===== Portraits ===== */
 .portraits{
   display:grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
-
-  /* Auto-fit : le navigateur calcule le nombre de colonnes sans déborder */
-  grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
 }
 
 .portraitCard{
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 16px;
   overflow:hidden;
   background: var(--panel2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  aspect-ratio: 1 / 1;
 }
 
 .portraitImg{
-  width:100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
+  width: 92%;
+  height: 92%;
+  object-fit: contain; /* évite de couper le haut */
   display:block;
-  background: rgba(255,255,255,.04);
+  background: rgba(255,255,255,.03);
 }
 
-.portraitName{
-  padding: 8px;
-  font-weight: 800;
-  font-size: 12px;
-  line-height: 1.15;
-  word-break: break-word;
-}
+/* (noms des personnages supprimés) */
+.portraitLabel{ display:none; }
 
-/* ===== Players chips ===== */
+/* ===== Players ===== */
+/* 1 joueur par ligne (comme tu veux à terme) */
 .players{
   display:flex;
-  flex-wrap:wrap;
+  flex-direction: column;
   gap: 10px;
 }
 
+/* ✅ AJOUT : style premium des chips joueurs */
 .playerChip{
-  display:inline-flex;
-  align-items:center;
-  gap: 8px;
-  padding: 10px 12px;
-  border:1px solid var(--border);
+  width: 100%;
+  padding: 10px 14px;
   border-radius: 999px;
-  background: rgba(0,0,0,.22);
-  box-shadow: 0 6px 16px rgba(0,0,0,.25);
-  max-width: 100%;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.35);
+  font-weight: 600;
+  font-size: 14px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
 }
 
-.playerChip .emoji{
-  flex: 0 0 auto;
-  filter: saturate(1.05);
-}
-
-.playerChip .name{
-  font-weight: 800;
-  white-space: nowrap;
-  overflow:hidden;
-  text-overflow: ellipsis;
-  max-width: 70vw;
-}
-
-/* ===== Mobile tweaks ===== */
-@media (max-width: 520px){
-  .header{
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .headerRight{
-    align-items: stretch;
-  }
-  .select{
-    width: 100%;
-  }
-  .btn{
-    width: 100%;
-  }
+/* ===== Mobile tweak ===== */
+@media (max-width: 420px){
+  .select { min-width: 200px; }
 }
