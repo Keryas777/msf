@@ -3,7 +3,7 @@ name: Fetch Rosters (Sheet)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "15 */6 * * *" # toutes les 6h (à :15) — ajuste si tu veux
+    - cron: "15 */6 * * *"
   push:
     paths:
       - "scripts/fetch-rosters.mjs"
@@ -27,7 +27,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
 
       - name: Fetch rosters JSON
         env:
