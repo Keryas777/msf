@@ -1,7 +1,7 @@
 const REPO_NAME = "msf";
 const BASE_PATH = location.hostname.includes("github.io") ? `/${REPO_NAME}` : "";
 
-const CHAR_JSON_URL = `${BASE_PATH}/data/msf-characters.json`;
+const CHAR_JSON_URL = `${BASE_PATH}/data/msf-characters.json`; // si tu mets dans docs/data, BASE_PATH + /data est OK
 const TEAMS_JSON_URL = `${BASE_PATH}/data/teams.json`;
 
 const teamSelect = document.getElementById("teamSelect");
