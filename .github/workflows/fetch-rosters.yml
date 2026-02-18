@@ -1,0 +1,40 @@
+name: Fetch Rosters (Sheet)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *" # toutes les 6h (à toi d'ajuster)
+
+permissions:
+  contents: write
+
+jobs:
+  fetch_rosters:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Fetch rosters JSON
+        env:
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+          SHEET_NAME: Rosters
+        run: |
+          node scripts/fetch-rosters.mjs
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add docs/data/rosters.json
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "Update rosters.json (Sheet)"
+            git push
+          fi
