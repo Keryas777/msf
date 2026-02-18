@@ -1,0 +1,43 @@
+name: Optimize watermark
+
+on:
+  push:
+    paths:
+      - "docs/eagle-pattern.png"
+      - ".github/workflows/optimize-watermark.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick webp
+
+      - name: Resize + convert to WebP (tile)
+        run: |
+          mkdir -p docs
+          # 1) on resize en tuile carrée (512x512) en gardant la transparence
+          magick docs/eagle-pattern.png -resize 512x512\> -strip -define png:color-type=6 docs/eagle-pattern.tile.png
+
+          # 2) WebP (transparence OK). Quality 60 est souvent parfait pour un filigrane.
+          cwebp -q 60 -m 6 -alpha_q 80 docs/eagle-pattern.tile.png -o docs/eagle-pattern.webp
+
+          # 3) Optionnel : PNG optimisé (fallback)
+          magick docs/eagle-pattern.tile.png -strip -define png:compression-level=9 docs/eagle-pattern.min.png
+
+          ls -lh docs/eagle-pattern.*
+
+      - name: Commit optimized assets
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add docs/eagle-pattern.webp docs/eagle-pattern.min.png docs/eagle-pattern.tile.png
+          git commit -m "Optimize watermark assets" || echo "No changes"
+          git push
