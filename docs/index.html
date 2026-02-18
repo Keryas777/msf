@@ -15,11 +15,10 @@
 </head>
 
 <body>
-
   <header class="topbar">
     <div class="brand">
       <div class="title">MSF – Teams Dashboard</div>
-      <div class="sub">Sheets (multi-onglets) + portraits officiels</div>
+      <div class="sub">Sélection d’équipe (depuis Google Sheets) + portraits officiels</div>
     </div>
 
     <div class="controls">
@@ -28,37 +27,28 @@
         <select id="teamSelect"></select>
       </div>
 
-      <div class="control">
-        <label>Filtre joueur</label>
-        <input id="playerFilter" placeholder="ex: Jérôme, Keryas…" />
-      </div>
-
       <button class="btn" id="refreshBtn">Rafraîchir</button>
     </div>
   </header>
 
   <main class="container">
-
     <!-- Header équipe -->
     <section class="teamHeader">
       <div id="teamName" class="teamName">—</div>
       <div id="teamGrid" class="teamGrid"></div>
     </section>
 
-    <!-- Classement -->
+    <!-- Zone résultats (on garde le bloc, mais il pourra servir ensuite) -->
     <section class="results">
       <div class="resultsHeader">
-        <div class="h">Classement joueurs (3 alliances)</div>
-        <div class="hint">Trié par puissance totale de l’équipe sélectionnée.</div>
+        <div class="h">Classement joueurs</div>
+        <div class="hint">À venir (onglet dédié plus tard).</div>
       </div>
 
       <div id="resultsList" class="resultsList"></div>
     </section>
-
   </main>
 
-  <!-- JS principal -->
   <script type="module" src="./app.js"></script>
-
 </body>
 </html>
