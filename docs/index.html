@@ -54,6 +54,11 @@
     </section>
   </main>
 
-  <script type="module" src="./app.js"></script>
+  <script type="module">
+  const s = document.createElement("script");
+  s.type = "module";
+  s.src = "./app.js?v=" + Date.now();
+  document.body.appendChild(s);
+</script>
 </body>
 </html>
