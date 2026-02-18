@@ -6,10 +6,8 @@
     <meta name="theme-color" content="#0b0c0d" />
     <title>Classement Inter-Alliances — Équipes MSF</title>
 
-    <!-- Cache-bust CSS (optionnel mais utile) -->
-    <link rel="stylesheet" href="./style.css?v=ts" />
+    <link id="mainCss" rel="stylesheet" href="./style.css" />
 
-    <!-- Petit confort iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   </head>
@@ -37,19 +35,15 @@
         </div>
       </header>
 
-      <!-- Status / erreurs -->
       <div id="statusBox" class="status" style="display:none;"></div>
 
-      <!-- Team block -->
       <section class="card">
         <div class="cardHeader">
           <h2 id="teamTitle" class="cardTitle">—</h2>
         </div>
-
         <div id="portraits" class="portraits"></div>
       </section>
 
-      <!-- Players block -->
       <section class="card">
         <div class="cardHeader">
           <h2 class="cardTitle">Joueurs du groupement (test)</h2>
@@ -57,25 +51,21 @@
             <span id="playersCount">0</span>
           </div>
         </div>
-
         <div id="players" class="players"></div>
       </section>
     </div>
 
-    <!-- Loader JS anti-cache (timestamp auto) -->
     <script>
       (function () {
-        // CSS cache-bust auto aussi (remplace ?v=ts)
-        const links = document.querySelectorAll('link[rel="stylesheet"]');
-        links.forEach(l => {
-          if (l.href.includes("v=ts")) {
-            l.href = l.href.replace("v=ts", "v=" + Date.now());
-          }
-        });
+        const v = Date.now();
 
-        // Charge app.js avec un timestamp
+        // Cache-bust CSS
+        const css = document.getElementById("mainCss");
+        css.href = "./style.css?v=" + v;
+
+        // Cache-bust JS
         const s = document.createElement("script");
-        s.src = "./app.js?v=" + Date.now();
+        s.src = "./app.js?v=" + v;
         s.defer = true;
         document.body.appendChild(s);
       })();
