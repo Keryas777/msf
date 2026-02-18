@@ -1,49 +1,30 @@
 /* docs/app.js
-   MSF – Classement Inter-Alliances (Équipes MSF)
-   - Teams from Google Sheets -> docs/data/teams.json
-   - Characters portraits -> docs/data/msf-characters.json
-   - Players/alliance -> docs/data/joueurs.json
+   - Ne crée PAS de nouveau layout.
+   - Réutilise les éléments existants (select, bouton, cartes).
 */
 
 (() => {
-  // ---------- Robust base path (works even if repo name changes) ----------
-  const BASE_PATH = new URL(".", location.href).pathname.replace(/\/$/, ""); // "/msf" typically
-
-  const jsonUrl = (p) => `${BASE_PATH}/data/${p}?t=${Date.now()}`; // cache-busting
+  const BASE_PATH = new URL(".", location.href).pathname.replace(/\/$/, "");
+  const jsonUrl = (p) => `${BASE_PATH}/data/${p}?t=${Date.now()}`;
 
   const URL_TEAMS = jsonUrl("teams.json");
   const URL_CHARS = jsonUrl("msf-characters.json");
   const URL_PLAYERS = jsonUrl("joueurs.json");
 
-  // ---------- Helpers ----------
   const $ = (sel) => document.querySelector(sel);
-
-  function el(tag, attrs = {}, children = []) {
-    const n = document.createElement(tag);
-    for (const [k, v] of Object.entries(attrs)) {
-      if (k === "class") n.className = v;
-      else if (k === "text") n.textContent = v;
-      else if (k === "html") n.innerHTML = v;
-      else if (k === "style") n.setAttribute("style", v);
-      else n.setAttribute(k, v);
-    }
-    for (const c of children) n.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
-    return n;
-  }
 
   async function fetchJson(url) {
     const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error(`HTTP ${res.status} on ${url}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status} sur ${url}`);
     return res.json();
   }
 
-  function normalizeKey(s) {
-    return String(s ?? "")
+  const normKey = (s) =>
+    String(s ?? "")
       .trim()
       .toLowerCase()
       .replace(/\s+/g, "")
       .replace(/[-_]/g, "");
-  }
 
   function emojiForAlliance(alliance) {
     const a = String(alliance ?? "").trim().toLowerCase();
@@ -53,126 +34,120 @@
     return "•";
   }
 
-  // ---------- Build / find UI ----------
-  function ensureUI() {
-    // Try existing IDs first (if you already have them in index.html)
-    let teamSelect = $("#teamSelect") || $("#team") || $("#selectTeam");
-    let refreshBtn = $("#refreshBtn") || $("#refresh") || $("#btnRefresh");
-    let teamCard = $("#teamCard") || $("#teamPreview") || $("#teamBox");
-    let playersCard = $("#playersCard") || $("#playersBox");
-
-    // If missing, create a minimal structure into body (won't break existing layout)
-    const root = $("#app") || $("main") || document.body;
-
-    if (!teamSelect) {
-      teamSelect = el("select", {
-        id: "teamSelect",
-        style:
-          "width:100%;padding:12px 14px;border-radius:14px;background:rgba(0,0,0,.25);color:#fff;border:1px solid rgba(255,255,255,.12);",
-      });
-    }
-    if (!refreshBtn) {
-      refreshBtn = el("button", {
-        id: "refreshBtn",
-        text: "Rafraîchir",
-        style:
-          "margin-top:10px;padding:10px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;",
-      });
-    }
-    if (!teamCard) {
-      teamCard = el("section", {
-        id: "teamCard",
-        style:
-          "margin-top:14px;padding:14px;border-radius:18px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.18);backdrop-filter: blur(10px);",
-      });
-    }
-    if (!playersCard) {
-      playersCard = el("section", {
-        id: "playersCard",
-        style:
-          "margin-top:14px;padding:14px;border-radius:18px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.18);backdrop-filter: blur(10px);",
-      });
-    }
-
-    // If we created them, mount them (only if not already in DOM)
-    if (!teamSelect.isConnected || !refreshBtn.isConnected || !teamCard.isConnected || !playersCard.isConnected) {
-      // Put them in a small panel if your HTML doesn't already provide it
-      const panel = el("section", {
-        id: "dynamicPanel",
-        style:
-          "max-width:920px;margin:0 auto;padding:14px;display:grid;grid-template-columns:1fr;gap:12px;",
-      });
-
-      const controls = el("section", {
-        style:
-          "padding:14px;border-radius:18px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.18);backdrop-filter: blur(10px);",
-      });
-
-      controls.appendChild(el("div", { style: "color:rgba(255,255,255,.7);font-size:13px;margin-bottom:6px;", text: "Équipe" }));
-      controls.appendChild(teamSelect);
-      controls.appendChild(refreshBtn);
-
-      panel.appendChild(controls);
-      panel.appendChild(teamCard);
-      panel.appendChild(playersCard);
-
-      root.appendChild(panel);
-    }
-
-    return { teamSelect, refreshBtn, teamCard, playersCard };
+  function findTeamSelect() {
+    return (
+      $("#teamSelect") ||
+      $("#team") ||
+      $("#selectTeam") ||
+      document.querySelector("select") // fallback: le 1er select de la page
+    );
   }
 
-  // ---------- Rendering ----------
-  function renderTeam(teamCard, teamObj, portraitsById, namesById) {
+  function findRefreshBtn() {
+    return (
+      $("#refreshBtn") ||
+      $("#refresh") ||
+      $("#btnRefresh") ||
+      Array.from(document.querySelectorAll("button")).find((b) =>
+        /rafraîchir/i.test(b.textContent || "")
+      )
+    );
+  }
+
+  // Carte "aperçu équipe" : on prend la première grosse carte avec un "—" visible
+  function findTeamCard() {
+    return (
+      $("#teamCard") ||
+      $("#teamPreview") ||
+      $("#teamBox") ||
+      Array.from(document.querySelectorAll("section,div")).find((e) =>
+        (e.textContent || "").trim() === "—"
+      )
+    );
+  }
+
+  // Carte "Classement joueurs" : on cherche un bloc qui contient ce texte
+  function findPlayersCard() {
+    return (
+      $("#playersCard") ||
+      $("#playersBox") ||
+      Array.from(document.querySelectorAll("section,div")).find((e) =>
+        (e.textContent || "").includes("Classement joueurs")
+      )
+    );
+  }
+
+  function clearAndSetTeamCard(teamCard, teamObj, portraitsById, namesById) {
+    // On écrase le contenu de la carte (ça remplace le "—")
     teamCard.innerHTML = "";
 
     if (!teamObj) {
-      teamCard.appendChild(el("div", { text: "—", style: "color:#fff;opacity:.7;font-size:16px;" }));
+      teamCard.textContent = "—";
       return;
     }
 
-    const title = el("div", {
-      text: teamObj.team,
-      style: "color:#fff;font-weight:800;font-size:22px;margin-bottom:12px;",
-    });
+    const title = document.createElement("div");
+    title.textContent = teamObj.team;
+    title.style.fontWeight = "800";
+    title.style.fontSize = "22px";
+    title.style.marginBottom = "12px";
 
-    const row = el("div", {
-      style: "display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start;",
-    });
+    const row = document.createElement("div");
+    row.style.display = "flex";
+    row.style.gap = "10px";
+    row.style.flexWrap = "wrap";
+    row.style.alignItems = "flex-start";
 
     for (const idOrName of teamObj.characters || []) {
       const key = String(idOrName ?? "").trim();
-      const portrait = portraitsById.get(normalizeKey(key));
-      const displayName = namesById.get(normalizeKey(key)) || key;
+      const portrait = portraitsById.get(normKey(key));
+      const displayName = namesById.get(normKey(key)) || key;
 
-      const img = el("img", {
-        src: portrait || "",
-        alt: displayName,
-        style:
-          "width:74px;height:74px;object-fit:cover;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);",
-      });
+      const card = document.createElement("div");
+      card.style.display = "flex";
+      card.style.flexDirection = "column";
+      card.style.alignItems = "center";
+      card.style.width = "78px";
 
-      // fallback if portrait missing
-      if (!portrait) {
-        img.removeAttribute("src");
-        img.setAttribute(
-          "style",
-          img.getAttribute("style") +
-            "display:flex;align-items:center;justify-content:center;"
-        );
+      const imgWrap = document.createElement("div");
+      imgWrap.style.width = "74px";
+      imgWrap.style.height = "74px";
+      imgWrap.style.borderRadius = "16px";
+      imgWrap.style.overflow = "hidden";
+      imgWrap.style.border = "1px solid rgba(255,255,255,.12)";
+      imgWrap.style.background = "rgba(255,255,255,.06)";
+
+      if (portrait) {
+        const img = document.createElement("img");
+        img.src = portrait;
+        img.alt = displayName;
+        img.style.width = "100%";
+        img.style.height = "100%";
+        img.style.objectFit = "cover";
+        imgWrap.appendChild(img);
+      } else {
+        const q = document.createElement("div");
+        q.textContent = "?";
+        q.style.width = "100%";
+        q.style.height = "100%";
+        q.style.display = "flex";
+        q.style.alignItems = "center";
+        q.style.justifyContent = "center";
+        q.style.opacity = ".7";
+        q.style.fontSize = "26px";
+        imgWrap.appendChild(q);
       }
 
-      const label = el("div", {
-        text: displayName,
-        style:
-          "margin-top:8px;color:#fff;font-size:13px;opacity:.9;max-width:74px;line-height:1.15;word-break:break-word;",
-      });
+      const label = document.createElement("div");
+      label.textContent = displayName;
+      label.style.marginTop = "8px";
+      label.style.fontSize = "13px";
+      label.style.lineHeight = "1.1";
+      label.style.textAlign = "center";
+      label.style.wordBreak = "break-word";
 
-      const card = el("div", { style: "display:flex;flex-direction:column;align-items:center;" }, [
-        portrait ? img : el("div", { style: "width:74px;height:74px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;color:#fff;opacity:.7;font-size:26px;", text: "?" }),
-        label,
-      ]);
-
+      card.appendChild(imgWrap);
+      card.appendChild(label);
       row.appendChild(card);
     }
 
@@ -180,17 +155,38 @@
     teamCard.appendChild(row);
   }
 
-  function renderPlayers(playersCard, players) {
+  function renderPlayersInCard(playersCard, players) {
+    // On garde le titre "Classement joueurs" existant si possible,
+    // mais on remplace le contenu "À venir" par notre liste test.
+    // Stratégie : on vide tout, puis on reconstruit un mini header + chips.
     playersCard.innerHTML = "";
 
-    const header = el("div", {
-      style: "display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px;",
-    }, [
-      el("div", { text: "Joueurs du groupement (test)", style: "color:#fff;font-weight:800;font-size:18px;" }),
-      el("div", { text: `${players.length}`, style: "color:rgba(255,255,255,.6);font-size:13px;" }),
-    ]);
+    const header = document.createElement("div");
+    header.style.display = "flex";
+    header.style.justifyContent = "space-between";
+    header.style.alignItems = "baseline";
+    header.style.gap = "10px";
+    header.style.marginBottom = "10px";
 
-    // Sort by alliance then name (nice to scan)
+    const hLeft = document.createElement("div");
+    hLeft.textContent = "Joueurs du groupement (test)";
+    hLeft.style.fontWeight = "800";
+    hLeft.style.fontSize = "18px";
+
+    const hRight = document.createElement("div");
+    hRight.textContent = String(players.length);
+    hRight.style.opacity = ".65";
+    hRight.style.fontSize = "13px";
+
+    header.appendChild(hLeft);
+    header.appendChild(hRight);
+
+    const wrap = document.createElement("div");
+    wrap.style.display = "flex";
+    wrap.style.flexWrap = "wrap";
+    wrap.style.gap = "8px";
+    wrap.style.alignItems = "center";
+
     const order = { zeus: 1, dionysos: 2, "poséidon": 3, poseidon: 3 };
     const sorted = [...players].sort((a, b) => {
       const aa = (a.alliance || "").toLowerCase();
@@ -201,19 +197,19 @@
       return String(a.player || "").localeCompare(String(b.player || ""), "fr", { sensitivity: "base" });
     });
 
-    const wrap = el("div", {
-      style: "display:flex;flex-wrap:wrap;gap:8px;align-items:center;",
-    });
-
     for (const p of sorted) {
       const emoji = emojiForAlliance(p.alliance);
-      const label = `${emoji}${String(p.player ?? "").trim()}`; // NO SPACE after emoji
-      const chip = el("div", {
-        text: label,
-        style:
-          "padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.22);color:#fff;font-size:14px;line-height:1;white-space:nowrap;",
-        title: `${p.player} — ${p.alliance}`,
-      });
+      const label = `${emoji}${String(p.player ?? "").trim()}`; // emoji collé
+
+      const chip = document.createElement("div");
+      chip.textContent = label;
+      chip.title = `${p.player} — ${p.alliance}`;
+      chip.style.padding = "8px 10px";
+      chip.style.borderRadius = "999px";
+      chip.style.border = "1px solid rgba(255,255,255,.12)";
+      chip.style.background = "rgba(0,0,0,.22)";
+      chip.style.whiteSpace = "nowrap";
+
       wrap.appendChild(chip);
     }
 
@@ -221,32 +217,40 @@
     playersCard.appendChild(wrap);
   }
 
-  // ---------- Main ----------
   async function init() {
-    const { teamSelect, refreshBtn, teamCard, playersCard } = ensureUI();
+    const teamSelect = findTeamSelect();
+    const refreshBtn = findRefreshBtn();
+    const teamCard = findTeamCard();
+    const playersCard = findPlayersCard();
 
-    // Load all JSON in parallel
+    if (!teamSelect || !refreshBtn || !teamCard || !playersCard) {
+      throw new Error(
+        "Je ne trouve pas les éléments de la page (select/bouton/cartes). " +
+          "Dis-moi si ton index.html a des IDs (teamSelect, refreshBtn, teamCard, playersCard)."
+      );
+    }
+
     const [teams, chars, players] = await Promise.all([
       fetchJson(URL_TEAMS),
       fetchJson(URL_CHARS),
       fetchJson(URL_PLAYERS),
     ]);
 
-    // Build maps for portraits + names
     const portraitsById = new Map();
     const namesById = new Map();
-
     for (const c of chars || []) {
-      const id = normalizeKey(c.id || c.nameKey || c.nameEn || c.nameFr);
+      const id = normKey(c.id || c.nameKey || c.nameEn || c.nameFr);
       if (!id) continue;
       if (c.portraitUrl) portraitsById.set(id, c.portraitUrl);
       const display = c.nameFr || c.nameEn || c.id || c.nameKey;
       if (display) namesById.set(id, display);
     }
 
-    // Populate team select
+    // Populate select
     teamSelect.innerHTML = "";
-    const opt0 = el("option", { value: "", text: "— Choisir une équipe —" });
+    const opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "— Choisir une équipe —";
     teamSelect.appendChild(opt0);
 
     const teamsSorted = [...(teams || [])].sort((a, b) =>
@@ -254,54 +258,38 @@
     );
 
     for (const t of teamsSorted) {
-      teamSelect.appendChild(el("option", { value: t.team, text: t.team }));
+      const o = document.createElement("option");
+      o.value = t.team;
+      o.textContent = t.team;
+      teamSelect.appendChild(o);
     }
 
-    // Render players list (independent of selected team for now)
-    renderPlayers(playersCard, players || []);
+    // Render players (test) in the existing "Classement joueurs" card
+    renderPlayersInCard(playersCard, players || []);
 
-    function renderSelected() {
+    const renderSelected = () => {
       const selectedName = teamSelect.value;
-      const teamObj = (teamsSorted || []).find((t) => t.team === selectedName) || null;
-      renderTeam(teamCard, teamObj, portraitsById, namesById);
-    }
+      const teamObj = teamsSorted.find((t) => t.team === selectedName) || null;
+      clearAndSetTeamCard(teamCard, teamObj, portraitsById, namesById);
+    };
 
     teamSelect.addEventListener("change", renderSelected);
     refreshBtn.addEventListener("click", () => location.reload());
 
-    // Auto-select first team if none selected (optional)
+    // Default selection
     if (!teamSelect.value && teamsSorted.length) {
       teamSelect.value = teamsSorted[0].team;
     }
     renderSelected();
   }
 
-  // Show a friendly error in UI
-  function showError(err) {
+  init().catch((err) => {
     console.error(err);
-    const { teamCard, playersCard } = ensureUI();
-    teamCard.innerHTML = "";
-    playersCard.innerHTML = "";
-
-    teamCard.appendChild(
-      el("div", {
-        text: "Erreur de chargement",
-        style: "color:#fff;font-weight:800;font-size:18px;margin-bottom:6px;",
-      })
-    );
-    teamCard.appendChild(
-      el("div", {
-        text: String(err?.message || err),
-        style: "color:rgba(255,255,255,.7);font-size:13px;line-height:1.35;",
-      })
-    );
-    playersCard.appendChild(
-      el("div", {
-        text: "Astuce : vérifie que data/joueurs.json existe bien sur le site.",
-        style: "color:rgba(255,255,255,.65);font-size:13px;",
-      })
-    );
-  }
-
-  init().catch(showError);
+    // Affiche l’erreur dans la carte du haut si possible
+    const teamCard = findTeamCard();
+    if (teamCard) {
+      teamCard.innerHTML = `<div style="font-weight:800;font-size:18px;margin-bottom:6px;">Erreur</div>
+      <div style="opacity:.75;font-size:13px;line-height:1.35;">${String(err.message || err)}</div>`;
+    }
+  });
 })();
