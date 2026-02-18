@@ -3,17 +3,13 @@ name: Fetch Teams (Sheet)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 */6 * * *"  # toutes les 6 heures (tu peux changer)
-  push:
-    paths:
-      - "scripts/fetch-teams.mjs"
-      - ".github/workflows/fetch-teams.yml"
+    - cron: "0 */6 * * *"
 
 permissions:
   contents: write
 
 jobs:
-  fetch:
+  fetch-teams:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,13 +18,17 @@ jobs:
         with:
           node-version: 20
 
-      - name: Fetch Teams from Google Sheets (CSV)
+      - name: Run fetch teams
         run: node scripts/fetch-teams.mjs
 
       - name: Commit & push if changed
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add data/teams.json
-          git commit -m "Update teams.json (Sheet)" || echo "No changes"
-          git push
+          git add docs/data/teams.json
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Update teams.json (Sheet)"
+            git push
+          fi
