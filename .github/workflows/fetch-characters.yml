@@ -15,7 +15,8 @@ jobs:
         with:
           node-version: 20
 
-      - run: node scripts/fetch-characters.mjs
+      - name: Fetch characters JSON
+        run: node scripts/fetch-characters.mjs
 
       - name: Commit & push if changed
         run: |
