@@ -2,11 +2,20 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MSF – Teams Dashboard</title>
-  <link rel="stylesheet" href="./style.css" />
+
+  <!-- CSS avec anti-cache automatique -->
+  <script>
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "./style.css?v=" + Date.now();
+    document.head.appendChild(link);
+  </script>
 </head>
+
 <body>
+
   <header class="topbar">
     <div class="brand">
       <div class="title">MSF – Teams Dashboard</div>
@@ -14,35 +23,42 @@
     </div>
 
     <div class="controls">
-      <label class="control">
-        <span>Équipe</span>
+      <div class="control">
+        <label>Équipe</label>
         <select id="teamSelect"></select>
-      </label>
+      </div>
 
-      <label class="control">
-        <span>Filtre joueur</span>
+      <div class="control">
+        <label>Filtre joueur</label>
         <input id="playerFilter" placeholder="ex: Jérôme, Keryas…" />
-      </label>
+      </div>
 
-      <button id="refreshBtn" class="btn">Rafraîchir</button>
+      <button class="btn" id="refreshBtn">Rafraîchir</button>
     </div>
   </header>
 
   <main class="container">
+
+    <!-- Header équipe -->
     <section class="teamHeader">
-      <div class="teamName" id="teamName">—</div>
-      <div class="teamGrid" id="teamGrid"></div>
+      <div id="teamName" class="teamName">—</div>
+      <div id="teamGrid" class="teamGrid"></div>
     </section>
 
+    <!-- Classement -->
     <section class="results">
       <div class="resultsHeader">
         <div class="h">Classement joueurs (3 alliances)</div>
         <div class="hint">Trié par puissance totale de l’équipe sélectionnée.</div>
       </div>
+
       <div id="resultsList" class="resultsList"></div>
     </section>
+
   </main>
 
+  <!-- JS principal -->
   <script type="module" src="./app.js"></script>
+
 </body>
 </html>
