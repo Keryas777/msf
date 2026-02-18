@@ -78,8 +78,9 @@ const out = list
   // nettoie les entrées bizarres
   .filter((x) => x.id && (x.nameFr || x.portraitUrl));
 
-fs.mkdirSync("data", { recursive: true });
-fs.writeFileSync("data/msf-characters.json", JSON.stringify(out, null, 2), "utf-8");
+await fs.mkdir("docs/data", { recursive: true });
+await fs.writeFile("docs/data/msf-characters.json", JSON.stringify(teams, null, 2), "utf-8");
+
 
 console.log(`OK: wrote ${out.length} characters -> data/msf-characters.json`);
 console.log("Sample:", out.slice(0, 5));
