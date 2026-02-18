@@ -2,11 +2,17 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const SHEET_ID = process.env.SHEET_ID; // même secret/env que pour teams/joueurs
+// Accepte plusieurs noms de variables (selon tes workflows existants)
+const SHEET_ID =
+  process.env.SHEET_ID ||
+  process.env.SPREADSHEET_ID ||
+  process.env.GOOGLE_SHEET_ID ||
+  process.env.SHEETID;
+
 const SHEET_NAME = process.env.SHEET_NAME || "Rosters";
 
 if (!SHEET_ID) {
-  console.error("Missing env SHEET_ID");
+  console.error("Missing env SHEET_ID (or SPREADSHEET_ID / GOOGLE_SHEET_ID)");
   process.exit(1);
 }
 
@@ -22,7 +28,6 @@ function normalizeKey(s) {
 }
 
 function parseCsvLine(line) {
-  // CSV Google "simple" : guillemets possibles, séparateur virgule
   const out = [];
   let cur = "";
   let inQ = false;
@@ -48,7 +53,6 @@ function parseCsvLine(line) {
 }
 
 function toInt(x) {
-  // gère "123 456" / "123,456" / "123"
   const s = (x ?? "").toString().trim();
   if (!s) return 0;
   const cleaned = s.replace(/\s/g, "").replace(/,/g, "");
@@ -62,27 +66,17 @@ async function main() {
     `/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
   const res = await fetch(url, { redirect: "follow" });
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status} when fetching CSV (${SHEET_NAME})`);
-  }
+  if (!res.ok) throw new Error(`HTTP ${res.status} fetching CSV (${SHEET_NAME})`);
 
   const csv = await res.text();
   const lines = csv.split(/\r?\n/).filter((l) => l.trim().length);
 
-  if (lines.length < 2) {
-    throw new Error("CSV seems empty or missing data rows.");
-  }
+  if (lines.length < 2) throw new Error("CSV empty / no data rows.");
 
-  const header = parseCsvLine(lines[0]).map((h) => h.trim());
-  // On s'appuie sur les positions que tu décris :
-  // A: joueur (index 0)
-  // B: personnage (index 1)
-  // D: power (index 3)
-  const idxName = 0;
-  const idxChar = 1;
-  const idxPower = 3;
+  // Indices fixes selon ta structure :
+  // A=0 (joueur), B=1 (personnage), D=3 (power)
+  const idxName = 0, idxChar = 1, idxPower = 3;
 
-  // rostersByPlayer[playerKey] = { player, chars: { charKey: power } }
   const byPlayer = new Map();
 
   for (let i = 1; i < lines.length; i++) {
@@ -96,10 +90,8 @@ async function main() {
     const pKey = normalizeKey(player);
     const cKey = normalizeKey(character);
 
-    if (!byPlayer.has(pKey)) {
-      byPlayer.set(pKey, { player, chars: {} });
-    }
-    // si doublon, on garde le max (sécurité)
+    if (!byPlayer.has(pKey)) byPlayer.set(pKey, { player, chars: {} });
+
     const cur = byPlayer.get(pKey).chars[cKey] ?? 0;
     byPlayer.get(pKey).chars[cKey] = Math.max(cur, power);
   }
