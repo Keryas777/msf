@@ -37,20 +37,16 @@ body::before{
 body::after{
   content:"";
   position:fixed;
-  inset:-20px;
+  inset:0;
   z-index:-1;
   pointer-events:none;
 
-  /* intensité du filigrane */
-  opacity: .22;
+  opacity: .18; /* ajuste ici */
 
-  background-image: url("./eagle-watermark.svg");
+  background-image: url("./00E91333-9E9F-44E5-9BE4-93AA78D3B650.png");
   background-repeat: repeat;
-  background-size: 360px 360px;
+  background-size: 420px 420px; /* ajuste taille ici */
   background-position: 0 0;
-
-  /* un léger flou donne un rendu plus “filigrane imprimé” */
-  filter: blur(.15px);
 }
 
 /* ===== Header / topbar ===== */
