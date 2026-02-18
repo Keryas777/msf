@@ -82,8 +82,8 @@ for (const r of grid.slice(1)) {
   teams.push({ team, characters: chars });
 }
 
-await fs.mkdir("data", { recursive: true });
-await fs.writeFile("data/teams.json", JSON.stringify(teams, null, 2), "utf8");
+await fs.mkdir("docs/data", { recursive: true });
+await fs.writeFile("docs/data/teams.json", JSON.stringify(teams, null, 2), "utf8");
 
 console.log(`OK: wrote ${teams.length} teams -> data/teams.json`);
 console.log("Sample:", teams.slice(0, 2));
