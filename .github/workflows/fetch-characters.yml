@@ -1,0 +1,26 @@
+name: Fetch MSF characters (API)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * 1"  # lundi 07:00 UTC
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: node scripts/fetch-characters.mjs
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add data/msf-characters.json
+          git commit -m "Update msf-characters.json (API)" || echo "No changes"
+          git push
