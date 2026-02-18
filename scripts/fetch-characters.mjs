@@ -1,86 +1,116 @@
-import fs from "node:fs";
+// scripts/fetch-characters.mjs
+import fs from "node:fs/promises";
 
-// 1) On tente directement la liste en FR (souvent ça marche)
-// 2) On récupère aussi la table de localisation FR "heroes" pour traduire si besoin
-const CHAR_URL = "https://api-prod.marvelstrikeforce.com/services/api/getCharacterList?lang=fr";
-const HEROES_FR_URL =
+const CHAR_LIST_URL =
+  "https://api-prod.marvelstrikeforce.com/services/api/getCharacterList?lang=fr";
+
+// On va aussi chercher la table "heroes" pour avoir un mapping de noms FR si besoin
+const LOC_HEROES_URL =
   "https://api-prod.marvelstrikeforce.com/services/api/getLocalization?tableId=heroes&lang=fr&format=json";
 
-function pick(obj, keys) {
-  for (const k of keys) if (obj && obj[k] != null) return obj[k];
-  return null;
+function safeStr(v) {
+  return typeof v === "string" ? v : v == null ? "" : String(v);
 }
 
-function toTable(maybe) {
-  // Certains endpoints renvoient { data: {...} }, d'autres {...}
-  return maybe?.data || maybe?.table || maybe || {};
+async function fetchJson(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  return await res.json();
 }
 
-function normalizeString(s) {
-  return typeof s === "string" ? s.replace(/\s+/g, " ").trim() : null;
+function buildLocMap(locJson) {
+  // La structure peut varier; on tente plusieurs formats courants
+  const map = new Map();
+
+  if (!locJson) return map;
+
+  // Format A: { data: { KEY: "Valeur" } }
+  if (locJson.data && typeof locJson.data === "object") {
+    for (const [k, v] of Object.entries(locJson.data)) map.set(k, safeStr(v));
+  }
+
+  // Format B: { entries: [{key,value}] }
+  if (Array.isArray(locJson.entries)) {
+    for (const e of locJson.entries) {
+      if (e?.key) map.set(e.key, safeStr(e.value));
+    }
+  }
+
+  // Format C: { localization: {...} }
+  if (locJson.localization && typeof locJson.localization === "object") {
+    for (const [k, v] of Object.entries(locJson.localization))
+      map.set(k, safeStr(v));
+  }
+
+  return map;
 }
 
-const [charsRes, heroesRes] = await Promise.all([
-  fetch(CHAR_URL),
-  fetch(HEROES_FR_URL),
-]);
+function pickPortraitUrl(c) {
+  // On essaye plusieurs champs possibles (selon versions)
+  const candidates = [
+    c.portraitUrl,
+    c.portrait,
+    c.portrait_image,
+    c.portraitImage,
+    c.portrait_icon,
+    c.portraitIcon,
+    c.image,
+    c.icon,
+  ].filter(Boolean);
 
-if (!charsRes.ok) throw new Error(`getCharacterList failed: ${charsRes.status}`);
-if (!heroesRes.ok) throw new Error(`heroes FR failed: ${heroesRes.status}`);
-
-const charsJson = await charsRes.json();
-const heroesJson = await heroesRes.json();
-
-const heroesTable = toTable(heroesJson);
-const list = charsJson?.data || charsJson?.characters || charsJson || [];
-
-if (!Array.isArray(list)) {
-  throw new Error("Unexpected getCharacterList format: expected an array at .data/.characters/root");
+  const u = candidates.find(x => typeof x === "string" && x.startsWith("http"));
+  return u || null;
 }
 
-const out = list
-  .map((c) => {
-    const id = pick(c, ["id", "characterId", "key", "internalName"]);
+async function main() {
+  const [charList, locHeroes] = await Promise.all([
+    fetchJson(CHAR_LIST_URL),
+    fetchJson(LOC_HEROES_URL).catch(() => null),
+  ]);
 
-    // Souvent name/displayName est déjà la bonne valeur (FR si lang=fr fonctionne)
-    const nameFromList = normalizeString(pick(c, ["name", "displayName"]));
+  const locMap = buildLocMap(locHeroes);
 
-    // Si l'API ne donne pas de clé de localisation, on utilise l'id (souvent compatible)
-    const nameKey =
-      pick(c, ["nameKey", "locKey", "localizationKey"]) ||
-      id;
+  // charList peut être { characters: [...] } ou directement [...]
+  const raw = Array.isArray(charList)
+    ? charList
+    : Array.isArray(charList?.characters)
+      ? charList.characters
+      : Array.isArray(charList?.data)
+        ? charList.data
+        : [];
 
-    const nameFromTable = nameKey && heroesTable[nameKey] ? normalizeString(heroesTable[nameKey]) : null;
+  const out = raw
+    .map(c => {
+      const id = safeStr(c.id || c.characterId || c.internalName || c.nameKey).trim();
+      if (!id) return null;
 
-    // Images : l'API MSF fournit déjà un portraitUrl complet (dans ton exemple c'est le cas)
-    const portraitUrl = pick(c, [
-      "portraitUrl",
-      "portrait",
-      "portraitImage",
-      "portrait_image",
-      "iconUrl",
-      "icon",
-      "avatarUrl",
-      "imageUrl",
-      "image",
-    ]);
+      // nameKey peut être un identifiant de loc (parfois égal à l'id)
+      const nameKey = safeStr(c.nameKey || c.name || id).trim();
 
-    const nameFr = nameFromList || nameFromTable || null;
+      // Nom FR : si l’API renvoie déjà le nom FR ok, sinon on tente la loc
+      const nameFrDirect = safeStr(c.nameFr || c.localizedName || c.displayName).trim();
+      const nameFr = nameFrDirect || locMap.get(nameKey) || locMap.get(id) || null;
 
-    return {
-      id: normalizeString(id),
-      nameKey: normalizeString(nameKey),
-      nameFr,
-      nameEn: null, // on ne force pas ici; si tu veux, on peut aussi récupérer un EN séparément plus tard
-      portraitUrl: normalizeString(portraitUrl),
-    };
-  })
-  // nettoie les entrées bizarres
-  .filter((x) => x.id && (x.nameFr || x.portraitUrl));
+      const portraitUrl = pickPortraitUrl(c) || null;
 
-await fs.mkdir("docs/data", { recursive: true });
-await fs.writeFile("docs/data/msf-characters.json", JSON.stringify(teams, null, 2), "utf-8");
+      return {
+        id,
+        nameKey,
+        nameFr,
+        nameEn: null,
+        portraitUrl,
+      };
+    })
+    .filter(Boolean);
 
+  await fs.mkdir("docs/data", { recursive: true });
+  await fs.writeFile("docs/data/msf-characters.json", JSON.stringify(out, null, 2), "utf8");
 
-console.log(`OK: wrote ${out.length} characters -> data/msf-characters.json`);
-console.log("Sample:", out.slice(0, 5));
+  console.log(`OK: wrote ${out.length} characters -> docs/data/msf-characters.json`);
+  console.log("Sample:", out.slice(0, 5));
+}
+
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
