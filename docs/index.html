@@ -1,64 +1,84 @@
 <!doctype html>
 <html lang="fr">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MSF – Teams Dashboard</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0c0d" />
+    <title>Classement Inter-Alliances — Équipes MSF</title>
 
-  <!-- CSS avec anti-cache automatique -->
-  <script>
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "./style.css?v=" + Date.now();
-    document.head.appendChild(link);
-  </script>
-</head>
+    <!-- Cache-bust CSS (optionnel mais utile) -->
+    <link rel="stylesheet" href="./style.css?v=ts" />
 
-<body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="title">
-  Classement Inter-Alliances<br>
-  <span class="title-sub">Équipes MSF</span>
-</div>
-<div class="sub">
-  Comparaison des performances d’une même équipe au sein du groupement
-</div>
+    <!-- Petit confort iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  </head>
+
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="headerLeft">
+          <h1 class="title">
+            Classement Inter-Alliances<br />
+            Équipes MSF
+          </h1>
+          <p class="subtitle">
+            Comparaison des performances d’une même équipe au sein du groupement
+          </p>
+        </div>
+
+        <div class="headerRight">
+          <label class="label" for="teamSelect">Équipe</label>
+          <select id="teamSelect" class="select">
+            <option value="">— Chargement… —</option>
+          </select>
+
+          <button id="refreshBtn" class="btn">Rafraîchir</button>
+        </div>
+      </header>
+
+      <!-- Status / erreurs -->
+      <div id="statusBox" class="status" style="display:none;"></div>
+
+      <!-- Team block -->
+      <section class="card">
+        <div class="cardHeader">
+          <h2 id="teamTitle" class="cardTitle">—</h2>
+        </div>
+
+        <div id="portraits" class="portraits"></div>
+      </section>
+
+      <!-- Players block -->
+      <section class="card">
+        <div class="cardHeader">
+          <h2 class="cardTitle">Joueurs du groupement (test)</h2>
+          <div class="chipCount">
+            <span id="playersCount">0</span>
+          </div>
+        </div>
+
+        <div id="players" class="players"></div>
+      </section>
     </div>
 
-    <div class="controls">
-      <div class="control">
-        <label>Équipe</label>
-        <select id="teamSelect"></select>
-      </div>
+    <!-- Loader JS anti-cache (timestamp auto) -->
+    <script>
+      (function () {
+        // CSS cache-bust auto aussi (remplace ?v=ts)
+        const links = document.querySelectorAll('link[rel="stylesheet"]');
+        links.forEach(l => {
+          if (l.href.includes("v=ts")) {
+            l.href = l.href.replace("v=ts", "v=" + Date.now());
+          }
+        });
 
-      <button class="btn" id="refreshBtn">Rafraîchir</button>
-    </div>
-  </header>
-
-  <main class="container">
-    <!-- Header équipe -->
-    <section class="teamHeader">
-      <div id="teamName" class="teamName">—</div>
-      <div id="teamGrid" class="teamGrid"></div>
-    </section>
-
-    <!-- Zone résultats (on garde le bloc, mais il pourra servir ensuite) -->
-    <section class="results">
-      <div class="resultsHeader">
-        <div class="h">Classement joueurs</div>
-        <div class="hint">À venir (onglet dédié plus tard).</div>
-      </div>
-
-      <div id="resultsList" class="resultsList"></div>
-    </section>
-  </main>
-
-  <script type="module">
-  const s = document.createElement("script");
-  s.type = "module";
-  s.src = "./app.js?v=" + Date.now();
-  document.body.appendChild(s);
-</script>
-</body>
+        // Charge app.js avec un timestamp
+        const s = document.createElement("script");
+        s.src = "./app.js?v=" + Date.now();
+        s.defer = true;
+        document.body.appendChild(s);
+      })();
+    </script>
+  </body>
 </html>
