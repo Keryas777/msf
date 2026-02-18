@@ -4,6 +4,7 @@
     teams: "./data/teams.json",
     characters: "./data/msf-characters.json",
     joueurs: "./data/joueurs.json",
+    rosters: "./data/rosters.json",
   };
 
   const ALLIANCE_EMOJI = {
@@ -19,13 +20,16 @@
   const btnRefresh = qs("#refreshBtn");
   const teamTitle = qs("#teamTitle");
   const portraitsWrap = qs("#portraits");
+
+  // On réutilise ce bloc pour le classement (1 joueur par ligne)
   const playersWrap = qs("#players");
   const playersCount = qs("#playersCount");
   const statusBox = qs("#statusBox");
 
   let TEAMS = [];
-  let CHAR_MAP = new Map();
-  let JOUEURS = [];
+  let CHAR_MAP = new Map(); // normalizeKey(anyKey) -> characterObj
+  let ALLIANCE_BY_PLAYER = new Map(); // "Keryas I" -> "Zeus"
+  let ROSTERS = []; // [{player, chars:{key:power}}]
 
   const bust = (url) => {
     const u = new URL(url, window.location.href);
@@ -39,10 +43,18 @@
     return res.json();
   }
 
-  function setStatus(msg) {
+  function setError(msg) {
     if (!statusBox) return;
     statusBox.textContent = msg || "";
     statusBox.style.display = msg ? "block" : "none";
+    statusBox.dataset.type = "error";
+  }
+
+  function clearError() {
+    if (!statusBox) return;
+    statusBox.textContent = "";
+    statusBox.style.display = "none";
+    statusBox.dataset.type = "ok";
   }
 
   const normalizeKey = (s) =>
@@ -50,8 +62,6 @@
       .toString()
       .trim()
       .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // enlève accents
       .replace(/\s+/g, "")
       .replace(/[-_]/g, "");
 
@@ -60,21 +70,11 @@
     while (el.firstChild) el.removeChild(el.firstChild);
   }
 
-  // === Team tiles : 5 portraits sans scroll horizontal, taille dynamique ===
-  function computeTileSize(containerEl, columns = 5) {
-    const w = containerEl?.clientWidth || 360;
-    const gap = 10;
-    const totalGaps = gap * (columns - 1);
-    const size = Math.floor((w - totalGaps) / columns);
-    return Math.max(56, Math.min(size, 96));
+  function formatNumber(n) {
+    const x = Number(n || 0);
+    return x.toLocaleString("fr-FR");
   }
 
-  function applyTeamGridSizing() {
-    const tile = computeTileSize(portraitsWrap, 5);
-    document.documentElement.style.setProperty("--tile", `${tile}px`);
-  }
-
-  // === Teams select ===
   function renderTeamOptions() {
     if (!teamSelect) return;
     teamSelect.innerHTML = "";
@@ -92,53 +92,22 @@
     });
   }
 
-  function findPortraitFor(name) {
+  function findCharacterInfo(name) {
     const key = normalizeKey(name);
     return CHAR_MAP.get(key) || null;
   }
 
-  // === Joueurs parsing (2 champs seulement, ultra tolérant) ===
-  function parseJoueurs(raw) {
-    if (!Array.isArray(raw) || raw.length === 0) return [];
-
-    // ✅ tableau d'objets
-    if (typeof raw[0] === "object" && !Array.isArray(raw[0])) {
-      const first = raw[0];
-      const keys = Object.keys(first);
-      const normPairs = keys.map((k) => [k, normalizeKey(k)]);
-
-      const joueurKey =
-        normPairs.find(([, nk]) => nk === "joueur" || nk === "joueurs" || nk.includes("joueur"))?.[0] ||
-        normPairs.find(([, nk]) => nk === "nom" || nk.includes("pseudo") || nk.includes("player") || nk.includes("name"))?.[0] ||
-        keys[0];
-
-      const allianceKey =
-        normPairs.find(([, nk]) => nk === "alliance" || nk === "alliances" || nk.includes("alliance"))?.[0] ||
-        normPairs.find(([, nk]) => nk.includes("guilde") || nk.includes("guild") || nk.includes("team"))?.[0] ||
-        keys[1];
-
-      return raw
-        .map((r) => ({
-          joueur: (r?.[joueurKey] ?? "").toString().trim(),
-          alliance: (r?.[allianceKey] ?? "").toString().trim(),
-        }))
-        .filter((x) => x.joueur);
+  function getRosterKeyForCharacter(charName) {
+    // 1) si on a un mapping characterObj, on privilégie ses clés “techniques”
+    const info = findCharacterInfo(charName);
+    if (info) {
+      const candidates = [info.id, info.nameKey, info.nameEn, info.nameFr, charName].filter(Boolean);
+      return normalizeKey(candidates[0]); // id/nameKey en premier
     }
-
-    // ✅ tableau de tableaux (2 colonnes)
-    if (Array.isArray(raw[0])) {
-      return raw
-        .map((r) => ({
-          joueur: (r?.[0] ?? "").toString().trim(),
-          alliance: (r?.[1] ?? "").toString().trim(),
-        }))
-        .filter((x) => x.joueur);
-    }
-
-    return [];
+    // 2) fallback: normalisation du nom de la team
+    return normalizeKey(charName);
   }
 
-  // === Render team portraits (SANS noms) ===
   function renderSelectedTeam(teamName) {
     clearNode(portraitsWrap);
     if (teamTitle) teamTitle.textContent = teamName || "—";
@@ -147,10 +116,9 @@
     const teamObj = TEAMS.find((t) => t.team === teamName);
     if (!teamObj) return;
 
-    applyTeamGridSizing();
-
-    (teamObj.characters || []).slice(0, 5).forEach((charName) => {
-      const info = findPortraitFor(charName);
+    // portraits uniquement (sans noms)
+    (teamObj.characters || []).forEach((charName) => {
+      const info = findCharacterInfo(charName);
 
       const card = document.createElement("div");
       card.className = "portraitCard";
@@ -162,50 +130,93 @@
       img.decoding = "async";
       img.referrerPolicy = "no-referrer";
       img.src = info?.portraitUrl || "";
-      // évite “haut coupé” côté rendu (si CSS a du cover)
-      img.style.objectFit = "contain";
-      img.style.background = "transparent";
 
       card.appendChild(img);
       portraitsWrap.appendChild(card);
     });
   }
 
-  // === Render players chips ===
-  function renderPlayers() {
+  function computeRanking(teamName) {
+    const teamObj = TEAMS.find((t) => t.team === teamName);
+    if (!teamObj) return [];
+
+    const rosterKeys = (teamObj.characters || []).map(getRosterKeyForCharacter);
+
+    // Pour accélérer : map player -> chars
+    const byPlayer = new Map();
+    for (const r of ROSTERS) {
+      const p = (r?.player ?? "").toString().trim();
+      if (!p) continue;
+      byPlayer.set(p, r.chars || {});
+    }
+
+    const results = [];
+    for (const [player, chars] of byPlayer.entries()) {
+      let total = 0;
+      for (const k of rosterKeys) {
+        const v = Number(chars?.[k] ?? 0);
+        total += Number.isFinite(v) ? v : 0;
+      }
+      results.push({ player, total });
+    }
+
+    results.sort((a, b) => b.total - a.total);
+    return results;
+  }
+
+  function renderRanking(teamName) {
     clearNode(playersWrap);
-    if (playersCount) playersCount.textContent = String(JOUEURS.length || 0);
-    if (!JOUEURS.length) return;
 
-    const sorted = [...JOUEURS].sort((a, b) => {
-      const A = (a.alliance || "").toString();
-      const B = (b.alliance || "").toString();
-      if (A !== B) return A.localeCompare(B, "fr");
-      return (a.joueur || "").toString().localeCompare((b.joueur || "").toString(), "fr");
-    });
+    if (!teamName) {
+      if (playersCount) playersCount.textContent = "0";
+      return;
+    }
 
-    sorted.forEach((row) => {
-      const joueur = (row.joueur ?? "").toString().trim();
-      const alliance = (row.alliance ?? "").toString().trim();
-      if (!joueur) return;
+    const ranking = computeRanking(teamName);
+    if (playersCount) playersCount.textContent = String(ranking.length || 0);
 
+    for (let i = 0; i < ranking.length; i++) {
+      const { player, total } = ranking[i];
+
+      const alliance = (ALLIANCE_BY_PLAYER.get(player) || "").toString().trim();
       const emoji = ALLIANCE_EMOJI[alliance] || "•";
-      const chip = document.createElement("div");
-      chip.className = "playerChip";
-      chip.textContent = `${emoji}${joueur}`; // PAS d’espace
-      playersWrap.appendChild(chip);
-    });
+
+      const row = document.createElement("div");
+      row.className = "rankRow";
+
+      const left = document.createElement("div");
+      left.className = "rankLeft";
+
+      const pos = document.createElement("div");
+      pos.className = "rankPos";
+      pos.textContent = String(i + 1);
+
+      const name = document.createElement("div");
+      name.className = "rankName";
+      name.textContent = `${emoji}${player}`; // PAS d’espace
+
+      left.appendChild(pos);
+      left.appendChild(name);
+
+      const right = document.createElement("div");
+      right.className = "rankPower";
+      right.textContent = formatNumber(total);
+
+      row.appendChild(left);
+      row.appendChild(right);
+      playersWrap.appendChild(row);
+    }
   }
 
   async function refreshAll() {
-    // on enlève le message "OK ✅ ..." -> pas de status en succès
-    setStatus("Chargement…");
+    clearError();
 
     try {
-      const [teamsRaw, charsRaw, joueursRaw] = await Promise.all([
+      const [teamsRaw, charsRaw, joueursRaw, rostersRaw] = await Promise.all([
         fetchJson(FILES.teams),
         fetchJson(FILES.characters),
         fetchJson(FILES.joueurs),
+        fetchJson(FILES.rosters),
       ]);
 
       // Teams
@@ -218,36 +229,51 @@
         }))
         .filter((t) => t.team);
 
-      // Characters map
+      // Characters map (clé -> objet)
       CHAR_MAP = new Map();
       (charsRaw || []).forEach((c) => {
         const keys = [c.id, c.nameKey, c.nameFr, c.nameEn].filter(Boolean);
         keys.forEach((k) => CHAR_MAP.set(normalizeKey(k), c));
       });
 
-      // Joueurs (2 champs uniquement)
-      JOUEURS = parseJoueurs(joueursRaw);
+      // Joueurs (2 champs seulement : joueur / alliance)
+      ALLIANCE_BY_PLAYER = new Map();
+      (joueursRaw || []).forEach((r) => {
+        const joueur = (r.joueur ?? r.player ?? r.name ?? "").toString().trim();
+        const alliance = (r.alliance ?? "").toString().trim();
+        if (joueur) ALLIANCE_BY_PLAYER.set(joueur, alliance);
+      });
+
+      // Rosters
+      ROSTERS = Array.isArray(rostersRaw) ? rostersRaw : [];
 
       renderTeamOptions();
-      renderPlayers();
 
-      // garde la sélection actuelle si possible
+      // Si rien sélectionné, on prend la 1ère team (confort)
+      if (teamSelect && !teamSelect.value && TEAMS.length) {
+        teamSelect.value = TEAMS[0].team;
+      }
+
       const selected = teamSelect?.value || "";
-      if (selected) renderSelectedTeam(selected);
-
-      // succès -> on cache le status
-      setStatus("");
+      renderSelectedTeam(selected);
+      renderRanking(selected);
     } catch (e) {
       console.error(e);
-      setStatus(`Erreur de chargement : ${e.message}`);
+      setError(`Erreur de chargement ❌\n${e.message}`);
+      // On nettoie l'affichage si ça casse
+      clearNode(portraitsWrap);
+      clearNode(playersWrap);
+      if (playersCount) playersCount.textContent = "0";
     }
   }
 
   btnRefresh?.addEventListener("click", refreshAll);
-  teamSelect?.addEventListener("change", () => renderSelectedTeam(teamSelect.value));
-  window.addEventListener("resize", applyTeamGridSizing);
 
-  // init
-  applyTeamGridSizing();
+  teamSelect?.addEventListener("change", () => {
+    const selected = teamSelect.value || "";
+    renderSelectedTeam(selected);
+    renderRanking(selected);
+  });
+
   refreshAll();
 })();
