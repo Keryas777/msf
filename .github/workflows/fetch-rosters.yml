@@ -3,9 +3,9 @@ name: Fetch Rosters (Sheet)
 on:
   workflow_dispatch:
 
-  # Toutes les 3 heures (à xx:15)
+  # Toutes les 3 heures (à xx:05)
   schedule:
-    - cron: "15 */3 * * *"
+    - cron: "5 */3 * * *"
 
   push:
     paths:
