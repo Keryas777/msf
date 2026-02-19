@@ -2,11 +2,17 @@ name: Fetch MSF Characters (API)
 
 on:
   workflow_dispatch:
+
+  # Toutes les 3 heures (à xx:10)
   schedule:
-    - cron: "0 4 * * *"   # Tous les jours à 04h00 UTC
+    - cron: "10 */3 * * *"
 
 permissions:
   contents: write
+
+concurrency:
+  group: fetch-characters
+  cancel-in-progress: true
 
 jobs:
   fetch-characters:
@@ -34,9 +40,7 @@ jobs:
 
           git add docs/data/msf-characters.json
 
-          if git diff --cached --quiet; then
-            echo "No changes detected"
-          else
-            git commit -m "Update msf-characters.json (API)"
-            git push
-          fi
+          git diff --cached --quiet && echo "No changes" && exit 0
+
+          git commit -m "Update msf-characters.json (auto 3h)"
+          git push
