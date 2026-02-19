@@ -38,7 +38,6 @@ body::after{
   z-index:-1;
   pointer-events:none;
   opacity:.12;
-
   background-image: url("./00E91333-9E9F-44E5-9BE4-93AA78D3B650.png");
   background-repeat: repeat;
   background-size: 420px 420px;
@@ -74,6 +73,7 @@ body::after{
 }
 
 .headerLeft{ min-width: 0; }
+
 .title{
   margin:0;
   font-weight: 900;
@@ -81,6 +81,7 @@ body::after{
   line-height: 1.02;
   font-size: 34px;
 }
+
 .subtitle{
   margin: 10px 0 0 0;
   color: var(--muted);
@@ -111,6 +112,7 @@ body::after{
   color: var(--text);
   outline: none;
 }
+
 .select:focus{
   border-color: rgba(255,255,255,.22);
   box-shadow: 0 0 0 3px rgba(255,255,255,.06);
@@ -126,6 +128,7 @@ body::after{
   cursor:pointer;
   box-shadow: var(--shadow);
 }
+
 .btn:active{ transform: translateY(1px); }
 
 /* ===== Status ===== */
@@ -176,7 +179,7 @@ body::after{
 }
 
 /* =========================================================
-   PORTRAITS ÉQUIPE — FIX
+   PORTRAITS ÉQUIPE
    - Grille 5 colonnes
    - Taille propre
    - AUCUN ROGNAGE : object-fit: contain
@@ -206,7 +209,7 @@ body::after{
 
 .portraitLabel{ display:none; }
 
-/* ===== Liste joueurs (chips) ===== */
+/* ===== Liste joueurs (ancienne version “chips”) ===== */
 .players{
   display:flex;
   flex-wrap: wrap;
@@ -224,31 +227,48 @@ body::after{
   white-space: nowrap;
 }
 
-/* ===== Classement (si tu l'affiches en lignes) ===== */
-.rankList{
+/* =========================================================
+   CLASSEMENT JOUEURS — FIX (1 joueur = 1 ligne)
+   Compatible avec:
+   - .rankList / .rankRow / .rankPower (ancien)
+   - .rankLine / .rankRight (nouveau)
+   ========================================================= */
+
+/* le container de la liste */
+.rankList,
+#players{
   display:flex;
   flex-direction:column;
   gap: 10px;
 }
 
+/* une ligne (nouveau + ancien) */
+.rankLine,
 .rankRow{
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap: 12px;
+
+  width: 100%;
   border:1px solid var(--border);
-  border-radius: 16px;
-  padding: 10px 12px;
+  border-radius: 999px;
+  padding: 10px 14px;
   background: rgba(0,0,0,.22);
 }
 
+/* bloc gauche: numéro + emoji + nom */
 .rankLeft{
   display:flex;
   align-items:center;
   gap: 10px;
-  min-width: 0;
+  min-width: 0;               /* ellipsis OK */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* numéro */
 .rankNum{
   width: 28px;
   text-align:right;
@@ -257,6 +277,7 @@ body::after{
   flex: 0 0 auto;
 }
 
+/* nom */
 .rankName{
   font-weight: 900;
   overflow: hidden;
@@ -264,11 +285,15 @@ body::after{
   white-space: nowrap;
 }
 
+/* puissance à droite (nouveau + ancien) */
+.rankRight,
 .rankPower{
+  margin-left:auto;
   font-weight: 900;
   letter-spacing: .3px;
   color: var(--text);
   flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 /* ===== Responsive ===== */
