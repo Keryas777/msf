@@ -3,29 +3,29 @@
     teams: "./data/teams.json",
     characters: "./data/msf-characters.json",
     joueurs: "./data/joueurs.json",
-    rosters: "./data/rosters.json"
+    rosters: "./data/rosters.json",
   };
 
   const ALLIANCE_EMOJI = {
     zeus: "⚡",
     dionysos: "🍇",
     poséidon: "🔱",
-    poseidon: "🔱"
+    poseidon: "🔱",
   };
 
   const qs = (s) => document.querySelector(s);
 
-  const teamSelect   = qs("#teamSelect");
-  const btnRefresh   = qs("#refreshBtn");
-  const teamTitle    = qs("#teamTitle");
+  const teamSelect = qs("#teamSelect");
+  const btnRefresh = qs("#refreshBtn");
+  const teamTitle = qs("#teamTitle");
   const portraitsWrap = qs("#portraits");
-  const playersWrap   = qs("#players");
-  const playersCount  = qs("#playersCount");
+  const playersWrap = qs("#players");
+  const playersCount = qs("#playersCount");
 
   let TEAMS = [];
-  let CHAR_MAP = new Map();
   let JOUEURS = [];
   let ROSTERS = [];
+  let CHAR_MAP = new Map();
 
   /* -------------------------------------------------- */
   /* Helpers                                            */
@@ -43,19 +43,60 @@
     return res.json();
   }
 
-  const normalize = (s) =>
+  // Normalisation "forte" pour matcher quasiment tout
+  const normalizeKey = (s) =>
     (s || "")
       .toString()
       .trim()
       .toLowerCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+      .replace(/[\u0300-\u036f]/g, "") // accents
+      .replace(/['".’]/g, "")          // apostrophes/quotes
+      .replace(/[^a-z0-9]+/g, "")      // espaces, tirets, underscores, etc.
+      .trim();
 
-  const formatPower = (n) =>
-    Number(n || 0).toLocaleString("de-DE"); // <-- séparateur avec points
+  const formatPower = (n) => Number(n || 0).toLocaleString("de-DE"); // 1.234.567
 
   function clear(el) {
+    if (!el) return;
     while (el.firstChild) el.removeChild(el.firstChild);
+  }
+
+  function addCharKey(key, obj) {
+    const k = normalizeKey(key);
+    if (!k) return;
+    if (!CHAR_MAP.has(k)) CHAR_MAP.set(k, obj);
+  }
+
+  function buildCharMap(charsRaw) {
+    CHAR_MAP = new Map();
+
+    (charsRaw || []).forEach((c) => {
+      // On essaie d’enregistrer un max de variantes
+      [
+        c.nameKey,
+        c.id,
+        c.name,
+        c.nameEn,
+        c.nameFr,
+        c.slug,
+        c.key,
+      ]
+        .filter(Boolean)
+        .forEach((k) => addCharKey(k, c));
+
+      // Bonus: si portraitUrl existe, on tente aussi le nom de fichier (souvent = key)
+      if (c.portraitUrl) {
+        const file = c.portraitUrl.split("/").pop() || "";
+        const base = file.replace(/\.(png|jpg|jpeg|webp)$/i, "");
+        addCharKey(base, c);
+      }
+    });
+  }
+
+  function findCharInfo(nameOrKey) {
+    const k = normalizeKey(nameOrKey);
+    return CHAR_MAP.get(k) || null;
   }
 
   /* -------------------------------------------------- */
@@ -64,30 +105,25 @@
 
   async function refreshAll() {
     try {
-      const [teamsRaw, charsRaw, joueursRaw, rostersRaw] =
-        await Promise.all([
-          fetchJson(FILES.teams),
-          fetchJson(FILES.characters),
-          fetchJson(FILES.joueurs),
-          fetchJson(FILES.rosters)
-        ]);
+      const [teamsRaw, charsRaw, joueursRaw, rostersRaw] = await Promise.all([
+        fetchJson(FILES.teams),
+        fetchJson(FILES.characters),
+        fetchJson(FILES.joueurs),
+        fetchJson(FILES.rosters),
+      ]);
 
       TEAMS = teamsRaw || [];
       JOUEURS = joueursRaw || [];
       ROSTERS = rostersRaw || [];
 
-      CHAR_MAP = new Map();
-      (charsRaw || []).forEach((c) => {
-        if (c.nameKey) {
-          CHAR_MAP.set(normalize(c.nameKey), c);
-        }
-      });
+      buildCharMap(charsRaw);
 
       renderTeamOptions();
-      renderPlayersRanking();
 
-      const selected = teamSelect?.value;
+      const selected = teamSelect?.value || "";
       if (selected) renderTeam(selected);
+
+      renderPlayersRanking(); // dépend de teamSelect + TEAMS + ROSTERS
 
     } catch (e) {
       console.error(e);
@@ -102,7 +138,6 @@
     if (!teamSelect) return;
 
     teamSelect.innerHTML = `<option value="">— Choisir —</option>`;
-
     TEAMS.forEach((t) => {
       const opt = document.createElement("option");
       opt.value = t.team;
@@ -113,23 +148,31 @@
 
   function renderTeam(teamName) {
     clear(portraitsWrap);
-    teamTitle.textContent = teamName;
+    if (teamTitle) teamTitle.textContent = teamName || "—";
+    if (!teamName) return;
 
-    const teamObj = TEAMS.find(t => t.team === teamName);
+    const teamObj = TEAMS.find((t) => t.team === teamName);
     if (!teamObj) return;
 
-    teamObj.characters.forEach(char => {
-      const key = normalize(char);
-      const info = CHAR_MAP.get(key);
+    (teamObj.characters || []).forEach((charName) => {
+      const info = findCharInfo(charName);
 
       const card = document.createElement("div");
       card.className = "portraitCard";
 
       const img = document.createElement("img");
       img.className = "portraitImg";
-      img.src = info?.portraitUrl || "";
-      img.alt = char;
+      img.alt = charName;
       img.loading = "lazy";
+
+      // Si pas trouvé, on met une image vide (évite l’ALT qui s’affiche en gros)
+      // + et on ajoute une classe "missing" si tu veux styliser plus tard
+      if (info?.portraitUrl) {
+        img.src = info.portraitUrl;
+      } else {
+        img.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="; // pixel transparent
+        card.classList.add("missing");
+      }
 
       card.appendChild(img);
       portraitsWrap.appendChild(card);
@@ -143,44 +186,49 @@
   function renderPlayersRanking() {
     clear(playersWrap);
 
-    if (!ROSTERS.length) return;
+    const selectedTeam = teamSelect?.value || "";
+    if (!selectedTeam) {
+      if (playersCount) playersCount.textContent = "0";
+      return;
+    }
 
-    const selectedTeam = teamSelect?.value;
-    if (!selectedTeam) return;
+    const teamObj = TEAMS.find((t) => t.team === selectedTeam);
+    if (!teamObj) {
+      if (playersCount) playersCount.textContent = "0";
+      return;
+    }
 
-    const teamObj = TEAMS.find(t => t.team === selectedTeam);
-    if (!teamObj) return;
+    if (!ROSTERS?.length) {
+      if (playersCount) playersCount.textContent = "0";
+      return;
+    }
 
     const ranking = [];
 
-    ROSTERS.forEach(playerRoster => {
+    // Pour chaque joueur, somme des 5 persos (les clés roster sont des nameKey)
+    ROSTERS.forEach((playerRoster) => {
       let total = 0;
 
-      teamObj.characters.forEach(char => {
-        const key = normalize(char);
-        total += playerRoster.chars?.[key] || 0;
+      (teamObj.characters || []).forEach((charDisplayName) => {
+        // On retrouve d'abord le perso via CHAR_MAP, puis on prend sa vraie clé roster (nameKey)
+        const info = findCharInfo(charDisplayName);
+        const rosterKey = info?.nameKey ? normalizeKey(info.nameKey) : normalizeKey(charDisplayName);
+
+        total += Number(playerRoster?.chars?.[rosterKey] || 0);
       });
 
-      ranking.push({
-        player: playerRoster.player,
-        power: total
-      });
+      ranking.push({ player: playerRoster.player, power: total });
     });
 
     ranking.sort((a, b) => b.power - a.power);
-
-    playersCount.textContent = ranking.length;
+    if (playersCount) playersCount.textContent = String(ranking.length);
 
     const list = document.createElement("div");
     list.className = "rankList";
 
     ranking.forEach((r, index) => {
-
-      const joueur = JOUEURS.find(j =>
-        normalize(j.player) === normalize(r.player)
-      );
-
-      const allianceKey = normalize(joueur?.alliance);
+      const joueurRow = JOUEURS.find((j) => normalizeKey(j.player) === normalizeKey(r.player));
+      const allianceKey = normalizeKey(joueurRow?.alliance);
       const emoji = ALLIANCE_EMOJI[allianceKey] || "•";
 
       const row = document.createElement("div");
@@ -216,6 +264,7 @@
   /* -------------------------------------------------- */
 
   btnRefresh?.addEventListener("click", refreshAll);
+
   teamSelect?.addEventListener("change", () => {
     renderTeam(teamSelect.value);
     renderPlayersRanking();
