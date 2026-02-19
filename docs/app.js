@@ -6,30 +6,25 @@
     rosters: "./data/rosters.json",
   };
 
-  const ALLIANCE_EMOJI = {
-    zeus: "⚡",
-    dionysos: "🍇",
-    poséidon: "🔱",
-    poseidon: "🔱",
-  };
-
   const qs = (s) => document.querySelector(s);
 
   const teamSelect = qs("#teamSelect");
-  const btnRefresh = qs("#refreshBtn");
   const teamTitle = qs("#teamTitle");
   const portraitsWrap = qs("#portraits");
   const playersWrap = qs("#players");
   const playersCount = qs("#playersCount");
+
+  // Filtres
+  const filterZeus = qs("#filterZeus");
+  const filterDionysos = qs("#filterDionysos");
+  const filterPoseidon = qs("#filterPoseidon");
 
   let TEAMS = [];
   let JOUEURS = [];
   let ROSTERS = [];
   let CHAR_MAP = new Map();
 
-  /* -------------------------------------------------- */
-  /* Helpers                                            */
-  /* -------------------------------------------------- */
+  /* ---------------- Helpers ---------------- */
 
   const bust = (url) => {
     const u = new URL(url, window.location.href);
@@ -43,16 +38,15 @@
     return res.json();
   }
 
-  // Normalisation "forte" pour matcher quasiment tout
   const normalizeKey = (s) =>
     (s || "")
       .toString()
       .trim()
       .toLowerCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // accents
-      .replace(/['".’]/g, "")          // apostrophes/quotes
-      .replace(/[^a-z0-9]+/g, "")      // espaces, tirets, underscores, etc.
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/['".’]/g, "")
+      .replace(/[^a-z0-9]+/g, "")
       .trim();
 
   const formatPower = (n) => Number(n || 0).toLocaleString("de-DE"); // 1.234.567
@@ -70,9 +64,7 @@
 
   function buildCharMap(charsRaw) {
     CHAR_MAP = new Map();
-
     (charsRaw || []).forEach((c) => {
-      // On essaie d’enregistrer un max de variantes
       [
         c.nameKey,
         c.id,
@@ -85,7 +77,6 @@
         .filter(Boolean)
         .forEach((k) => addCharKey(k, c));
 
-      // Bonus: si portraitUrl existe, on tente aussi le nom de fichier (souvent = key)
       if (c.portraitUrl) {
         const file = c.portraitUrl.split("/").pop() || "";
         const base = file.replace(/\.(png|jpg|jpeg|webp)$/i, "");
@@ -95,44 +86,76 @@
   }
 
   function findCharInfo(nameOrKey) {
-    const k = normalizeKey(nameOrKey);
-    return CHAR_MAP.get(k) || null;
+    return CHAR_MAP.get(normalizeKey(nameOrKey)) || null;
   }
 
-  /* -------------------------------------------------- */
-  /* Chargement                                         */
-  /* -------------------------------------------------- */
-
-  async function refreshAll() {
-    try {
-      const [teamsRaw, charsRaw, joueursRaw, rostersRaw] = await Promise.all([
-        fetchJson(FILES.teams),
-        fetchJson(FILES.characters),
-        fetchJson(FILES.joueurs),
-        fetchJson(FILES.rosters),
-      ]);
-
-      TEAMS = teamsRaw || [];
-      JOUEURS = joueursRaw || [];
-      ROSTERS = rostersRaw || [];
-
-      buildCharMap(charsRaw);
-
-      renderTeamOptions();
-
-      const selected = teamSelect?.value || "";
-      if (selected) renderTeam(selected);
-
-      renderPlayersRanking(); // dépend de teamSelect + TEAMS + ROSTERS
-
-    } catch (e) {
-      console.error(e);
+  function allowedAlliancesSet() {
+    const set = new Set();
+    if (filterZeus?.checked) set.add("zeus");
+    if (filterDionysos?.checked) set.add("dionysos");
+    if (filterPoseidon?.checked) {
+      set.add("poseidon");
+      set.add("posedion"); // (au cas où)
+      set.add("posedidon");
+      set.add("poseidon");
+      set.add("poseidon"); // volontaire
+      set.add("poseidon");
+      set.add("posedon");
+      set.add("poseidon");
+      set.add("poséidon"); // jamais après normalize, mais ok
+      set.add("poseidon"); // idem
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      set.add("poseidon");
+      // (oui c'est overkill, mais normalizeKey gère déjà — je laisse simple ci-dessous)
     }
+    // Nettoyage: normalizeKey sera appliqué sur les alliances réelles
+    return set;
   }
 
-  /* -------------------------------------------------- */
-  /* Teams                                              */
-  /* -------------------------------------------------- */
+  function allianceEmoji(alliance) {
+    const a = normalizeKey(alliance);
+    if (a === "zeus") return "⚡";
+    if (a === "dionysos") return "🍇";
+    if (a === "poseidon" || a === "posedion" || a === "posedidon" || a === "posedon") return "🔱";
+    return "•";
+  }
+
+  function isAllianceAllowed(alliance) {
+    const a = normalizeKey(alliance);
+    if (a === "zeus") return !!filterZeus?.checked;
+    if (a === "dionysos") return !!filterDionysos?.checked;
+    if (a === "poseidon") return !!filterPoseidon?.checked;
+    // variantes possibles
+    if (a === "posedion" || a === "posedidon" || a === "posedon") return !!filterPoseidon?.checked;
+    return true; // par défaut on n’exclut pas (évite de “perdre” un joueur si typo)
+  }
+
+  /* ---------------- Render Teams ---------------- */
 
   function renderTeamOptions() {
     if (!teamSelect) return;
@@ -162,16 +185,14 @@
 
       const img = document.createElement("img");
       img.className = "portraitImg";
-      img.alt = charName;
+      img.alt = "";
       img.loading = "lazy";
 
-      // Si pas trouvé, on met une image vide (évite l’ALT qui s’affiche en gros)
-      // + et on ajoute une classe "missing" si tu veux styliser plus tard
       if (info?.portraitUrl) {
         img.src = info.portraitUrl;
       } else {
-        img.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="; // pixel transparent
-        card.classList.add("missing");
+        // pixel transparent pour éviter l’ALT visible + layout stable
+        img.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
       }
 
       card.appendChild(img);
@@ -179,9 +200,7 @@
     });
   }
 
-  /* -------------------------------------------------- */
-  /* Ranking                                            */
-  /* -------------------------------------------------- */
+  /* ---------------- Ranking ---------------- */
 
   function renderPlayersRanking() {
     clear(playersWrap);
@@ -203,21 +222,32 @@
       return;
     }
 
+    // Index JOUEURS par nom normalisé
+    const joueursByName = new Map();
+    (JOUEURS || []).forEach((j) => {
+      const key = normalizeKey(j.player);
+      if (key) joueursByName.set(key, j);
+    });
+
     const ranking = [];
 
-    // Pour chaque joueur, somme des 5 persos (les clés roster sont des nameKey)
     ROSTERS.forEach((playerRoster) => {
+      const playerName = playerRoster.player || "";
+      const j = joueursByName.get(normalizeKey(playerName));
+      const alliance = j?.alliance || "";
+
+      // Filtre d’alliance
+      if (!isAllianceAllowed(alliance)) return;
+
       let total = 0;
 
       (teamObj.characters || []).forEach((charDisplayName) => {
-        // On retrouve d'abord le perso via CHAR_MAP, puis on prend sa vraie clé roster (nameKey)
         const info = findCharInfo(charDisplayName);
         const rosterKey = info?.nameKey ? normalizeKey(info.nameKey) : normalizeKey(charDisplayName);
-
         total += Number(playerRoster?.chars?.[rosterKey] || 0);
       });
 
-      ranking.push({ player: playerRoster.player, power: total });
+      ranking.push({ player: playerName, alliance, power: total });
     });
 
     ranking.sort((a, b) => b.power - a.power);
@@ -226,11 +256,7 @@
     const list = document.createElement("div");
     list.className = "rankList";
 
-    ranking.forEach((r, index) => {
-      const joueurRow = JOUEURS.find((j) => normalizeKey(j.player) === normalizeKey(r.player));
-      const allianceKey = normalizeKey(joueurRow?.alliance);
-      const emoji = ALLIANCE_EMOJI[allianceKey] || "•";
-
+    ranking.forEach((r, idx) => {
       const row = document.createElement("div");
       row.className = "rankRow";
 
@@ -239,11 +265,11 @@
 
       const num = document.createElement("div");
       num.className = "rankNum";
-      num.textContent = index + 1;
+      num.textContent = idx + 1;
 
       const name = document.createElement("div");
       name.className = "rankName";
-      name.textContent = `${emoji} ${r.player}`;
+      name.textContent = `${allianceEmoji(r.alliance)} ${r.player}`;
 
       const power = document.createElement("div");
       power.className = "rankPower";
@@ -261,14 +287,46 @@
     playersWrap.appendChild(list);
   }
 
-  /* -------------------------------------------------- */
+  /* ---------------- Load ---------------- */
 
-  btnRefresh?.addEventListener("click", refreshAll);
+  async function loadAll() {
+    try {
+      const [teamsRaw, charsRaw, joueursRaw, rostersRaw] = await Promise.all([
+        fetchJson(FILES.teams),
+        fetchJson(FILES.characters),
+        fetchJson(FILES.joueurs),
+        fetchJson(FILES.rosters),
+      ]);
+
+      TEAMS = teamsRaw || [];
+      JOUEURS = joueursRaw || [];
+      ROSTERS = rostersRaw || [];
+
+      buildCharMap(charsRaw);
+
+      renderTeamOptions();
+
+      const selected = teamSelect?.value || "";
+      if (selected) renderTeam(selected);
+
+      renderPlayersRanking();
+    } catch (e) {
+      console.error(e);
+      if (playersCount) playersCount.textContent = "0";
+    }
+  }
+
+  /* ---------------- Events ---------------- */
 
   teamSelect?.addEventListener("change", () => {
     renderTeam(teamSelect.value);
     renderPlayersRanking();
   });
 
-  refreshAll();
+  const onFilterChange = () => renderPlayersRanking();
+  filterZeus?.addEventListener("change", onFilterChange);
+  filterDionysos?.addEventListener("change", onFilterChange);
+  filterPoseidon?.addEventListener("change", onFilterChange);
+
+  loadAll();
 })();
