@@ -7,9 +7,8 @@
       content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
     />
     <meta name="theme-color" content="#0b0c0d" />
-    <title>Classement Inter-Alliances — Équipes MSF</title>
+    <title>Classement Teams Groupement</title>
 
-    <!-- Cache-bust CSS (auto remplacé par le loader) -->
     <link rel="stylesheet" href="./style.css?v=ts" />
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -20,12 +19,9 @@
     <div class="app">
       <header class="header">
         <div class="headerLeft">
-          <h1 class="title">
-            Classement Inter-Alliances<br />
-            Équipes MSF
-          </h1>
+          <h1 class="title">Classement Teams Groupement</h1>
           <p class="subtitle">
-            Comparaison des performances d’une même équipe au sein du groupement
+            Comparaison de la puissance d’une même équipe au sein du groupement
           </p>
         </div>
 
@@ -37,7 +33,6 @@
         </div>
       </header>
 
-      <!-- Team block -->
       <section class="card">
         <div class="cardHeader">
           <h2 id="teamTitle" class="cardTitle">—</h2>
@@ -46,7 +41,6 @@
         <div id="portraits" class="portraits"></div>
       </section>
 
-      <!-- Filtres alliances -->
       <section class="card filtersCard">
         <div class="filters" role="group" aria-label="Filtres alliances">
           <label class="filterToggle">
@@ -66,7 +60,6 @@
         </div>
       </section>
 
-      <!-- Players block (ranking) -->
       <section class="card">
         <div class="cardHeader">
           <div></div>
@@ -79,16 +72,13 @@
       </section>
     </div>
 
-    <!-- Loader JS anti-cache (timestamp auto) -->
     <script>
       (function () {
-        // CSS cache-bust auto aussi (remplace ?v=ts)
         const links = document.querySelectorAll('link[rel="stylesheet"]');
         links.forEach((l) => {
           if (l.href.includes("v=ts")) l.href = l.href.replace("v=ts", "v=" + Date.now());
         });
 
-        // Charge app.js avec un timestamp
         const s = document.createElement("script");
         s.src = "./app.js?v=" + Date.now();
         s.defer = true;
