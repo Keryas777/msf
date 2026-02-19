@@ -89,54 +89,6 @@
     return CHAR_MAP.get(normalizeKey(nameOrKey)) || null;
   }
 
-  function allowedAlliancesSet() {
-    const set = new Set();
-    if (filterZeus?.checked) set.add("zeus");
-    if (filterDionysos?.checked) set.add("dionysos");
-    if (filterPoseidon?.checked) {
-      set.add("poseidon");
-      set.add("posedion"); // (au cas où)
-      set.add("posedidon");
-      set.add("poseidon");
-      set.add("poseidon"); // volontaire
-      set.add("poseidon");
-      set.add("posedon");
-      set.add("poseidon");
-      set.add("poséidon"); // jamais après normalize, mais ok
-      set.add("poseidon"); // idem
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      set.add("poseidon");
-      // (oui c'est overkill, mais normalizeKey gère déjà — je laisse simple ci-dessous)
-    }
-    // Nettoyage: normalizeKey sera appliqué sur les alliances réelles
-    return set;
-  }
-
   function allianceEmoji(alliance) {
     const a = normalizeKey(alliance);
     if (a === "zeus") return "⚡";
@@ -149,10 +101,8 @@
     const a = normalizeKey(alliance);
     if (a === "zeus") return !!filterZeus?.checked;
     if (a === "dionysos") return !!filterDionysos?.checked;
-    if (a === "poseidon") return !!filterPoseidon?.checked;
-    // variantes possibles
-    if (a === "posedion" || a === "posedidon" || a === "posedon") return !!filterPoseidon?.checked;
-    return true; // par défaut on n’exclut pas (évite de “perdre” un joueur si typo)
+    if (a === "poseidon" || a === "posedion" || a === "posedidon" || a === "posedon") return !!filterPoseidon?.checked;
+    return true; // évite de “perdre” un joueur si valeur imprévue
   }
 
   /* ---------------- Render Teams ---------------- */
@@ -160,8 +110,13 @@
   function renderTeamOptions() {
     if (!teamSelect) return;
 
+    // tri alphabétique FR
+    const sorted = [...TEAMS].sort((a, b) =>
+      (a.team || "").localeCompare((b.team || ""), "fr", { sensitivity: "base" })
+    );
+
     teamSelect.innerHTML = `<option value="">— Choisir —</option>`;
-    TEAMS.forEach((t) => {
+    sorted.forEach((t) => {
       const opt = document.createElement("option");
       opt.value = t.team;
       opt.textContent = t.team;
@@ -191,7 +146,6 @@
       if (info?.portraitUrl) {
         img.src = info.portraitUrl;
       } else {
-        // pixel transparent pour éviter l’ALT visible + layout stable
         img.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
       }
 
