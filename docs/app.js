@@ -1,3 +1,4 @@
+// docs/app.js
 (() => {
   const FILES = {
     teams: "./data/teams.json",
@@ -6,29 +7,32 @@
     rosters: "./data/rosters.json",
   };
 
+  const ALLIANCE_EMOJI = { Zeus: "⚡️", Dionysos: "🍇", "Poséidon": "🔱", Poseidon: "🔱" };
+
   const qs = (s) => document.querySelector(s);
 
+  const modeSelect = qs("#modeSelect");
   const teamSelect = qs("#teamSelect");
+
   const teamTitle = qs("#teamTitle");
   const portraitsWrap = qs("#portraits");
+
   const playersWrap = qs("#players");
   const playersCount = qs("#playersCount");
 
-  // Filtres
   const filterZeus = qs("#filterZeus");
   const filterDionysos = qs("#filterDionysos");
   const filterPoseidon = qs("#filterPoseidon");
 
-  let TEAMS = [];
-  let JOUEURS = [];
-  let ROSTERS = [];
-  let CHAR_MAP = new Map();
-
-  /* ---------------- Helpers ---------------- */
+  let TEAMS = [];          // [{team, mode, characters[]}]
+  let CHAR_MAP = new Map(); // normalized name -> character obj (contains id + portraitUrl etc)
+  let JOUEURS = [];        // [{player, alliance}]
+  let ROSTERS = [];        // [{player, chars:{key:power}}]
+  let ROSTER_MAP = new Map(); // playerKey -> chars map
 
   const bust = (url) => {
     const u = new URL(url, window.location.href);
-    u.searchParams.set("v", Date.now());
+    u.searchParams.set("v", Date.now().toString());
     return u.toString();
   };
 
@@ -39,178 +43,185 @@
   }
 
   const normalizeKey = (s) =>
-    (s || "")
+    (s ?? "")
       .toString()
       .trim()
       .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/['".’]/g, "")
-      .replace(/[^a-z0-9]+/g, "")
-      .trim();
+      .replace(/\s+/g, "")
+      .replace(/[-_]/g, "")
+      .replace(/[’']/g, "");
 
-  const formatPower = (n) => Number(n || 0).toLocaleString("de-DE"); // 1.234.567
-
-  function clear(el) {
+  function clearNode(el) {
     if (!el) return;
     while (el.firstChild) el.removeChild(el.firstChild);
   }
 
-  function addCharKey(key, obj) {
-    const k = normalizeKey(key);
-    if (!k) return;
-    if (!CHAR_MAP.has(k)) CHAR_MAP.set(k, obj);
+  function formatThousandsDot(n) {
+    const num = Number(n);
+    if (!Number.isFinite(num)) return "0";
+    return Math.trunc(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
-  function buildCharMap(charsRaw) {
-    CHAR_MAP = new Map();
-    (charsRaw || []).forEach((c) => {
-      [
-        c.nameKey,
-        c.id,
-        c.name,
-        c.nameEn,
-        c.nameFr,
-        c.slug,
-        c.key,
-      ]
-        .filter(Boolean)
-        .forEach((k) => addCharKey(k, c));
+  function getSelectedModesAlliances() {
+    const modes = {
+      Zeus: !!filterZeus?.checked,
+      Dionysos: !!filterDionysos?.checked,
+      "Poséidon": !!filterPoseidon?.checked,
+      Poseidon: !!filterPoseidon?.checked,
+    };
+    return modes;
+  }
 
-      if (c.portraitUrl) {
-        const file = c.portraitUrl.split("/").pop() || "";
-        const base = file.replace(/\.(png|jpg|jpeg|webp)$/i, "");
-        addCharKey(base, c);
-      }
+  function getTeamListFilteredByMode() {
+    const selectedMode = (modeSelect?.value || "").trim();
+    if (!selectedMode) return [...TEAMS];
+    return TEAMS.filter((t) => (t.mode || "") === selectedMode);
+  }
+
+  function renderModeOptions() {
+    if (!modeSelect) return;
+
+    const modes = Array.from(
+      new Set(
+        TEAMS.map((t) => (t.mode || "").trim()).filter(Boolean)
+      )
+    ).sort((a, b) => a.localeCompare(b, "fr"));
+
+    modeSelect.innerHTML = "";
+
+    const allOpt = document.createElement("option");
+    allOpt.value = "";
+    allOpt.textContent = "Tous les modes";
+    modeSelect.appendChild(allOpt);
+
+    modes.forEach((m) => {
+      const opt = document.createElement("option");
+      opt.value = m;
+      opt.textContent = m;
+      modeSelect.appendChild(opt);
     });
   }
-
-  function findCharInfo(nameOrKey) {
-    return CHAR_MAP.get(normalizeKey(nameOrKey)) || null;
-  }
-
-  function allianceEmoji(alliance) {
-    const a = normalizeKey(alliance);
-    if (a === "zeus") return "⚡";
-    if (a === "dionysos") return "🍇";
-    if (a === "poseidon" || a === "posedion" || a === "posedidon" || a === "posedon") return "🔱";
-    return "•";
-  }
-
-  function isAllianceAllowed(alliance) {
-    const a = normalizeKey(alliance);
-    if (a === "zeus") return !!filterZeus?.checked;
-    if (a === "dionysos") return !!filterDionysos?.checked;
-    if (a === "poseidon" || a === "posedion" || a === "posedidon" || a === "posedon") return !!filterPoseidon?.checked;
-    return true; // évite de “perdre” un joueur si valeur imprévue
-  }
-
-  /* ---------------- Render Teams ---------------- */
 
   function renderTeamOptions() {
     if (!teamSelect) return;
 
-    // tri alphabétique FR
-    const sorted = [...TEAMS].sort((a, b) =>
-      (a.team || "").localeCompare((b.team || ""), "fr", { sensitivity: "base" })
-    );
+    const list = getTeamListFilteredByMode()
+      .slice()
+      .sort((a, b) => a.team.localeCompare(b.team, "fr"));
 
-    teamSelect.innerHTML = `<option value="">— Choisir —</option>`;
-    sorted.forEach((t) => {
+    const current = teamSelect.value || "";
+
+    teamSelect.innerHTML = "";
+
+    const opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "— Choisir une équipe —";
+    teamSelect.appendChild(opt0);
+
+    list.forEach((t) => {
       const opt = document.createElement("option");
       opt.value = t.team;
       opt.textContent = t.team;
       teamSelect.appendChild(opt);
     });
+
+    // si l'équipe sélectionnée n'existe plus dans ce mode -> reset
+    const stillExists = list.some((t) => t.team === current);
+    teamSelect.value = stillExists ? current : "";
   }
 
-  function renderTeam(teamName) {
-    clear(portraitsWrap);
+  function findPortraitFor(name) {
+    const key = normalizeKey(name);
+    return CHAR_MAP.get(key) || null;
+  }
+
+  function renderSelectedTeam(teamName) {
+    clearNode(portraitsWrap);
     if (teamTitle) teamTitle.textContent = teamName || "—";
     if (!teamName) return;
 
-    const teamObj = TEAMS.find((t) => t.team === teamName);
+    // IMPORTANT: on filtre par mode sélectionné pour éviter mismatch
+    const teamsFiltered = getTeamListFilteredByMode();
+    const teamObj = teamsFiltered.find((t) => t.team === teamName) || TEAMS.find((t) => t.team === teamName);
     if (!teamObj) return;
 
     (teamObj.characters || []).forEach((charName) => {
-      const info = findCharInfo(charName);
+      const info = findPortraitFor(charName);
 
       const card = document.createElement("div");
       card.className = "portraitCard";
 
       const img = document.createElement("img");
       img.className = "portraitImg";
-      img.alt = "";
+      img.alt = charName;
       img.loading = "lazy";
-
-      if (info?.portraitUrl) {
-        img.src = info.portraitUrl;
-      } else {
-        img.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
-      }
+      img.decoding = "async";
+      img.referrerPolicy = "no-referrer";
+      img.src = info?.portraitUrl || "";
 
       card.appendChild(img);
       portraitsWrap.appendChild(card);
     });
   }
 
-  /* ---------------- Ranking ---------------- */
+  // calcule puissance team pour un joueur: somme des persos présents (missing => 0)
+  function computeTeamPowerForPlayer(playerName, teamName) {
+    const playerKey = normalizeKey(playerName);
+    const charsMap = ROSTER_MAP.get(playerKey) || null;
+    if (!charsMap) return 0;
 
-  function renderPlayersRanking() {
-    clear(playersWrap);
+    const teamObj = TEAMS.find((t) => t.team === teamName);
+    if (!teamObj) return 0;
 
-    const selectedTeam = teamSelect?.value || "";
-    if (!selectedTeam) {
+    let sum = 0;
+
+    for (const charName of (teamObj.characters || [])) {
+      // on essaye de convertir le nom affiché -> clé roster (id)
+      const info = findPortraitFor(charName);
+      const rosterKey =
+        normalizeKey(info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName);
+
+      const val = charsMap[rosterKey];
+      if (Number.isFinite(Number(val))) sum += Number(val);
+      // sinon: perso non débloqué / pas présent => 0
+    }
+
+    return sum;
+  }
+
+  function renderRanking() {
+    clearNode(playersWrap);
+
+    const teamName = teamSelect?.value || "";
+    if (!teamName) {
       if (playersCount) playersCount.textContent = "0";
       return;
     }
 
-    const teamObj = TEAMS.find((t) => t.team === selectedTeam);
-    if (!teamObj) {
-      if (playersCount) playersCount.textContent = "0";
-      return;
-    }
+    const allianceEnabled = getSelectedModesAlliances();
 
-    if (!ROSTERS?.length) {
-      if (playersCount) playersCount.textContent = "0";
-      return;
-    }
+    // on construit le classement sur les joueurs filtrés par alliances cochées
+    const rows = JOUEURS
+      .filter((p) => {
+        const a = (p.alliance || "").trim();
+        // si alliance inconnue => on garde ? (ici: non)
+        return !!allianceEnabled[a];
+      })
+      .map((p) => {
+        const power = computeTeamPowerForPlayer(p.player, teamName);
+        return { ...p, power };
+      })
+      .sort((a, b) => b.power - a.power);
 
-    // Index JOUEURS par nom normalisé
-    const joueursByName = new Map();
-    (JOUEURS || []).forEach((j) => {
-      const key = normalizeKey(j.player);
-      if (key) joueursByName.set(key, j);
-    });
+    if (playersCount) playersCount.textContent = String(rows.length);
 
-    const ranking = [];
-
-    ROSTERS.forEach((playerRoster) => {
-      const playerName = playerRoster.player || "";
-      const j = joueursByName.get(normalizeKey(playerName));
-      const alliance = j?.alliance || "";
-
-      // Filtre d’alliance
-      if (!isAllianceAllowed(alliance)) return;
-
-      let total = 0;
-
-      (teamObj.characters || []).forEach((charDisplayName) => {
-        const info = findCharInfo(charDisplayName);
-        const rosterKey = info?.nameKey ? normalizeKey(info.nameKey) : normalizeKey(charDisplayName);
-        total += Number(playerRoster?.chars?.[rosterKey] || 0);
-      });
-
-      ranking.push({ player: playerName, alliance, power: total });
-    });
-
-    ranking.sort((a, b) => b.power - a.power);
-    if (playersCount) playersCount.textContent = String(ranking.length);
-
+    // container lignes
     const list = document.createElement("div");
     list.className = "rankList";
 
-    ranking.forEach((r, idx) => {
+    rows.forEach((r, idx) => {
+      const emoji = ALLIANCE_EMOJI[r.alliance] || "•";
+
       const row = document.createElement("div");
       row.className = "rankRow";
 
@@ -219,68 +230,112 @@
 
       const num = document.createElement("div");
       num.className = "rankNum";
-      num.textContent = idx + 1;
+      num.textContent = String(idx + 1);
 
       const name = document.createElement("div");
       name.className = "rankName";
-      name.textContent = `${allianceEmoji(r.alliance)} ${r.player}`;
-
-      const power = document.createElement("div");
-      power.className = "rankPower";
-      power.textContent = formatPower(r.power);
+      name.textContent = `${emoji}${r.player}`;
 
       left.appendChild(num);
       left.appendChild(name);
 
+      const power = document.createElement("div");
+      power.className = "rankPower";
+      power.textContent = formatThousandsDot(r.power);
+
       row.appendChild(left);
       row.appendChild(power);
-
       list.appendChild(row);
     });
 
     playersWrap.appendChild(list);
   }
 
-  /* ---------------- Load ---------------- */
-
-  async function loadAll() {
-    try {
-      const [teamsRaw, charsRaw, joueursRaw, rostersRaw] = await Promise.all([
-        fetchJson(FILES.teams),
-        fetchJson(FILES.characters),
-        fetchJson(FILES.joueurs),
-        fetchJson(FILES.rosters),
-      ]);
-
-      TEAMS = teamsRaw || [];
-      JOUEURS = joueursRaw || [];
-      ROSTERS = rostersRaw || [];
-
-      buildCharMap(charsRaw);
-
-      renderTeamOptions();
-
-      const selected = teamSelect?.value || "";
-      if (selected) renderTeam(selected);
-
-      renderPlayersRanking();
-    } catch (e) {
-      console.error(e);
-      if (playersCount) playersCount.textContent = "0";
-    }
+  function onModeChange() {
+    renderTeamOptions();
+    renderSelectedTeam(teamSelect.value || "");
+    renderRanking();
   }
 
-  /* ---------------- Events ---------------- */
+  function onTeamChange() {
+    renderSelectedTeam(teamSelect.value || "");
+    renderRanking();
+  }
 
-  teamSelect?.addEventListener("change", () => {
-    renderTeam(teamSelect.value);
-    renderPlayersRanking();
-  });
+  async function boot() {
+    const [teamsRaw, charsRaw, joueursRaw, rostersRaw] = await Promise.all([
+      fetchJson(FILES.teams),
+      fetchJson(FILES.characters),
+      fetchJson(FILES.joueurs),
+      fetchJson(FILES.rosters),
+    ]);
 
-  const onFilterChange = () => renderPlayersRanking();
-  filterZeus?.addEventListener("change", onFilterChange);
-  filterDionysos?.addEventListener("change", onFilterChange);
-  filterPoseidon?.addEventListener("change", onFilterChange);
+    // Characters map
+    CHAR_MAP = new Map();
+    (charsRaw || []).forEach((c) => {
+      const keys = [c.id, c.nameKey, c.nameFr, c.nameEn].filter(Boolean);
+      keys.forEach((k) => CHAR_MAP.set(normalizeKey(k), c));
+    });
 
-  loadAll();
+    // Teams (mode + team + characters[])
+    TEAMS = (teamsRaw || [])
+      .map((t) => {
+        const team = (t.team ?? t.Team ?? "").toString().trim();
+        const mode = (t.mode ?? t.Mode ?? "").toString().trim(); // <-- nouveau
+        const characters = Array.isArray(t.characters)
+          ? t.characters.map((c) => (c ?? "").toString().trim()).filter(Boolean)
+          : [];
+        return { team, mode, characters };
+      })
+      .filter((t) => t.team);
+
+    // Joueurs (2 champs: player + alliance)
+    JOUEURS = (joueursRaw || [])
+      .map((r) => ({
+        player: (r.player ?? r.joueur ?? r.JOUEURS ?? "").toString().trim(),
+        alliance: (r.alliance ?? r.ALLIANCES ?? "").toString().trim(),
+      }))
+      .filter((r) => r.player);
+
+    // Rosters (player + chars)
+    ROSTERS = (rostersRaw || [])
+      .map((r) => ({
+        player: (r.player ?? "").toString().trim(),
+        chars: r.chars && typeof r.chars === "object" ? r.chars : {},
+      }))
+      .filter((r) => r.player);
+
+    ROSTER_MAP = new Map();
+    for (const r of ROSTERS) {
+      // normalisation des clés chars: on stocke tout normalisé
+      const normChars = {};
+      for (const [k, v] of Object.entries(r.chars || {})) {
+        normChars[normalizeKey(k)] = v;
+      }
+      ROSTER_MAP.set(normalizeKey(r.player), normChars);
+    }
+
+    // Options de mode + équipes filtrées
+    renderModeOptions();
+
+    // mode par défaut = Tous
+    if (modeSelect) modeSelect.value = "";
+
+    renderTeamOptions();
+
+    // si tu veux garder une team déjà sélectionnée au reload, on tente
+    const defaultTeam = teamSelect?.value || "";
+    renderSelectedTeam(defaultTeam);
+    renderRanking();
+  }
+
+  // Events
+  modeSelect?.addEventListener("change", onModeChange);
+  teamSelect?.addEventListener("change", onTeamChange);
+
+  filterZeus?.addEventListener("change", renderRanking);
+  filterDionysos?.addEventListener("change", renderRanking);
+  filterPoseidon?.addEventListener("change", renderRanking);
+
+  boot().catch((e) => console.error(e));
 })();
