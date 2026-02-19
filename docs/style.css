@@ -18,7 +18,7 @@ html, body{
   font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 }
 
-/* ===== Fond noir + filigranes aigles (SVG répété) ===== */
+/* ===== Fond noir + filigranes aigles ===== */
 body::before{
   content:"";
   position:fixed;
@@ -38,6 +38,7 @@ body::after{
   z-index:-1;
   pointer-events:none;
   opacity:.12;
+
   background-image: url("./00E91333-9E9F-44E5-9BE4-93AA78D3B650.png");
   background-repeat: repeat;
   background-size: 420px 420px;
@@ -48,61 +49,69 @@ body::after{
   body::after{ background-image: url("./eagle-pattern.min.png"); }
 }
 
-/* ===== Header / topbar ===== */
-.topbar{
+/* ===== App layout ===== */
+.app{
+  padding: 12px;
+  display:flex;
+  flex-direction:column;
+  gap: 14px;
+}
+
+/* ===== Header ===== */
+.header{
   position: sticky;
   top: 0;
   z-index: 10;
   backdrop-filter: blur(10px);
   background: rgba(8,9,10,.72);
-  border-bottom: 1px solid var(--border);
-  padding: 12px 12px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px 14px;
   display:flex;
   gap:12px;
   align-items:flex-start;
   justify-content:space-between;
 }
 
-.brand .title{
+.headerLeft{ min-width: 0; }
+.title{
+  margin:0;
   font-weight: 900;
   letter-spacing: .2px;
+  line-height: 1.02;
+  font-size: 34px;
 }
-.brand .sub{
+.subtitle{
+  margin: 10px 0 0 0;
   color: var(--muted);
-  font-size: 13px;
-  margin-top: 4px;
+  font-size: 15px;
+  line-height: 1.25;
 }
 
-/* ===== Controls ===== */
-.controls{
-  display:flex;
-  gap:10px;
-  align-items:flex-end;
-  flex-wrap:wrap;
-}
-
-.control{
+.headerRight{
   display:flex;
   flex-direction:column;
-  gap:6px;
-  font-size:12px;
-  color: var(--muted2);
+  gap:10px;
+  align-items:stretch;
+  min-width: 220px;
 }
 
-.control select,
-.control input{
+.label{
+  font-size:12px;
+  color: var(--muted2);
+  margin-bottom: -6px;
+}
+
+.select{
   font-size:16px;
   padding:10px 12px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
   background: rgba(0,0,0,.35);
   color: var(--text);
-  min-width: 220px;
   outline: none;
 }
-
-.control select:focus,
-.control input:focus{
+.select:focus{
   border-color: rgba(255,255,255,.22);
   box-shadow: 0 0 0 3px rgba(255,255,255,.06);
 }
@@ -111,7 +120,7 @@ body::after{
   font-size:16px;
   padding:10px 14px;
   border: 1px solid rgba(255,255,255,.22);
-  border-radius: 14px;
+  border-radius: 16px;
   background: rgba(255,255,255,.08);
   color: var(--text);
   cursor:pointer;
@@ -119,123 +128,161 @@ body::after{
 }
 .btn:active{ transform: translateY(1px); }
 
-/* ===== Layout ===== */
-.container{
-  padding: 12px;
-  display:flex;
-  flex-direction:column;
-  gap: 14px;
-}
-
-.teamHeader,
-.results{
-  background: var(--panel);
+/* ===== Status ===== */
+.status{
+  background: rgba(0,0,0,.25);
   border: 1px solid var(--border);
   border-radius: 16px;
+  padding: 10px 12px;
+  box-shadow: var(--shadow);
+  color: var(--muted);
+  font-size: 14px;
+  white-space: pre-line;
+}
+
+/* ===== Cards ===== */
+.card{
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
   padding: 12px;
   box-shadow: var(--shadow);
 }
 
-.teamName{
-  font-weight: 900;
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-/* ===== Team portraits ===== */
-.teamGrid{
-  display:grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.teamCard{
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  overflow:hidden;
-  background: var(--panel2);
-}
-
-/* IMPORTANT : pas de rognage du haut */
-.teamCard img{
-  width:100%;
-  height:auto;
-  display:block;
-  object-fit: contain;
-  background: rgba(255,255,255,.04);
-}
-
-/* (si tu as encore un label ailleurs, il restera, mais tu n'en as plus besoin) */
-.teamCard .n{
-  display:none;
-}
-
-/* ===== Results ===== */
-.resultsHeader{
+.cardHeader{
   display:flex;
   align-items:baseline;
   justify-content:space-between;
   gap:10px;
   margin-bottom: 10px;
 }
-.resultsHeader .h{ font-weight: 900; }
-.resultsHeader .hint{ color: var(--muted); font-size: 13px; }
 
-.resultsList{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+.cardTitle{
+  margin:0;
+  font-weight: 900;
+  font-size: 22px;
 }
 
-/* ===== Classeur (1 joueur par ligne) ===== */
-/* Le JS utilise : rankRow / rankLeft / rankPos / rankName / rankPower */
+/* compteur (72) */
+.chipCount{
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.22);
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: var(--muted);
+  font-weight: 800;
+  min-width: 44px;
+  text-align: center;
+}
+
+/* =========================================================
+   PORTRAITS ÉQUIPE — FIX
+   - Grille 5 colonnes
+   - Taille propre
+   - AUCUN ROGNAGE : object-fit: contain
+   ========================================================= */
+.portraits{
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.portraitCard{
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--panel2);
+}
+
+/* carré fixe + pas de rognage */
+.portraitImg{
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;      /* <-- aucun rognage */
+  object-position: center;
+  display:block;
+  background: rgba(255,255,255,.04);
+}
+
+.portraitLabel{ display:none; }
+
+/* ===== Liste joueurs (chips) ===== */
+.players{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.playerChip{
+  border:1px solid var(--border);
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: rgba(0,0,0,.22);
+  font-weight: 900;
+  color: var(--text);
+  box-shadow: 0 8px 18px rgba(0,0,0,.25);
+  white-space: nowrap;
+}
+
+/* ===== Classement (si tu l'affiches en lignes) ===== */
+.rankList{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
 
 .rankRow{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:12px;
-  padding: 12px 12px;
+  gap: 12px;
   border:1px solid var(--border);
   border-radius: 16px;
+  padding: 10px 12px;
   background: rgba(0,0,0,.22);
 }
 
 .rankLeft{
   display:flex;
   align-items:center;
-  gap:10px;
+  gap: 10px;
   min-width: 0;
 }
 
-.rankPos{
-  width: 26px;
+.rankNum{
+  width: 28px;
   text-align:right;
-  font-weight: 900;
   color: var(--muted);
+  font-weight: 900;
   flex: 0 0 auto;
 }
 
 .rankName{
   font-weight: 900;
-  color: var(--text);
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 0;
+  white-space: nowrap;
 }
 
 .rankPower{
-  font-variant-numeric: tabular-nums;
-  letter-spacing: .2px;
-  color: var(--text);
   font-weight: 900;
+  letter-spacing: .3px;
+  color: var(--text);
   flex: 0 0 auto;
 }
 
-/* ===== Mobile tweak ===== */
+/* ===== Responsive ===== */
+@media (max-width: 520px){
+  .header{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .headerRight{
+    min-width: 0;
+  }
+}
+
 @media (max-width: 420px){
-  .control select, .control input { min-width: 200px; }
-  .rankRow{ padding: 10px 10px; }
-  .rankPos{ width: 22px; }
+  .title{ font-size: 32px; }
+  .portraits{ gap: 8px; }
 }
