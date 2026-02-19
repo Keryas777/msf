@@ -7,11 +7,12 @@
     rosters: "./data/rosters.json",
   };
 
+  // ✅ Mapping robuste (on gère accent + sans accent)
   const ALLIANCE_EMOJI = {
-    Zeus: "⚡️",
-    Dionysos: "🍇",
-    Poséidon: "🔱",
-    Poseidon: "🔱",
+    zeus: "⚡️",
+    dionysos: "🍇",
+    poseidon: "🔱",
+    poséidon: "🔱",
   };
 
   const qs = (s) => document.querySelector(s);
@@ -20,17 +21,16 @@
   const btnRefresh = qs("#refreshBtn");
   const teamTitle = qs("#teamTitle");
   const portraitsWrap = qs("#portraits");
-
-  // On réutilise ce bloc pour le classement (1 joueur par ligne)
   const playersWrap = qs("#players");
   const playersCount = qs("#playersCount");
   const statusBox = qs("#statusBox");
 
   let TEAMS = [];
-  let CHAR_MAP = new Map(); // normalizeKey(anyKey) -> characterObj
-  let ALLIANCE_BY_PLAYER = new Map(); // "Keryas I" -> "Zeus"
-  let ROSTERS = []; // [{player, chars:{key:power}}]
+  let CHAR_MAP = new Map();
+  let JOUEURS = [];
+  let ROSTERS = [];
 
+  // ---- Cache-bust ----
   const bust = (url) => {
     const u = new URL(url, window.location.href);
     u.searchParams.set("v", Date.now().toString());
@@ -43,38 +43,61 @@
     return res.json();
   }
 
-  function setError(msg) {
+  // ---- Status ----
+  function setStatus(msg, isError = false) {
     if (!statusBox) return;
     statusBox.textContent = msg || "";
     statusBox.style.display = msg ? "block" : "none";
-    statusBox.dataset.type = "error";
+    statusBox.dataset.type = isError ? "error" : "ok";
   }
 
-  function clearError() {
-    if (!statusBox) return;
-    statusBox.textContent = "";
-    statusBox.style.display = "none";
-    statusBox.dataset.type = "ok";
-  }
-
+  // ---- Normalizers ----
   const normalizeKey = (s) =>
     (s ?? "")
       .toString()
+      .normalize("NFKC")
       .trim()
       .toLowerCase()
       .replace(/\s+/g, "")
       .replace(/[-_]/g, "");
+
+  // ✅ FIX 1 : normalisation alliance (unicode/espaces invisibles)
+  function normAlliance(a) {
+    return (a ?? "")
+      .toString()
+      .normalize("NFKC")
+      .trim()
+      .replace(/\s+/g, " ")
+      .toLowerCase();
+  }
+
+  // ✅ FIX 2 : normalisation joueur (évite doublons/espaces invisibles)
+  function normPlayerName(p) {
+    return (p ?? "")
+      .toString()
+      .normalize("NFKC")
+      .trim()
+      .replace(/\s+/g, " ");
+  }
 
   function clearNode(el) {
     if (!el) return;
     while (el.firstChild) el.removeChild(el.firstChild);
   }
 
-  function formatNumber(n) {
-    const x = Number(n || 0);
-    return x.toLocaleString("fr-FR");
+  // ---- Responsive portraits (5 colonnes, 0 scroll horizontal) ----
+  function computeTileSize(containerEl, columns = 5, gap = 10) {
+    const w = containerEl?.clientWidth || 360;
+    const totalGaps = gap * (columns - 1);
+    const size = Math.floor((w - totalGaps) / columns);
+    return Math.max(56, Math.min(size, 96));
   }
 
+  function applyTileSize(sizePx) {
+    document.documentElement.style.setProperty("--tile", `${sizePx}px`);
+  }
+
+  // ---- Teams ----
   function renderTeamOptions() {
     if (!teamSelect) return;
     teamSelect.innerHTML = "";
@@ -92,20 +115,9 @@
     });
   }
 
-  function findCharacterInfo(name) {
+  function findPortraitFor(name) {
     const key = normalizeKey(name);
     return CHAR_MAP.get(key) || null;
-  }
-
-  function getRosterKeyForCharacter(charName) {
-    // 1) si on a un mapping characterObj, on privilégie ses clés “techniques”
-    const info = findCharacterInfo(charName);
-    if (info) {
-      const candidates = [info.id, info.nameKey, info.nameEn, info.nameFr, charName].filter(Boolean);
-      return normalizeKey(candidates[0]); // id/nameKey en premier
-    }
-    // 2) fallback: normalisation du nom de la team
-    return normalizeKey(charName);
   }
 
   function renderSelectedTeam(teamName) {
@@ -116,9 +128,11 @@
     const teamObj = TEAMS.find((t) => t.team === teamName);
     if (!teamObj) return;
 
-    // portraits uniquement (sans noms)
+    // taille dynamique
+    applyTileSize(computeTileSize(portraitsWrap, 5, 10));
+
     (teamObj.characters || []).forEach((charName) => {
-      const info = findCharacterInfo(charName);
+      const info = findPortraitFor(charName);
 
       const card = document.createElement("div");
       card.className = "portraitCard";
@@ -129,87 +143,130 @@
       img.loading = "lazy";
       img.decoding = "async";
       img.referrerPolicy = "no-referrer";
-      img.src = info?.portraitUrl || "";
+      img.src = info?.portraitUrl || ""; // si vide, CSS doit gérer un fallback
 
       card.appendChild(img);
       portraitsWrap.appendChild(card);
     });
   }
 
-  function computeRanking(teamName) {
-    const teamObj = TEAMS.find((t) => t.team === teamName);
-    if (!teamObj) return [];
+  // ---- Joueurs : liste simple (emoji + nom) ----
+  function renderPlayersListOnly() {
+    clearNode(playersWrap);
+    if (playersCount) playersCount.textContent = String(JOUEURS.length || 0);
+    if (!JOUEURS.length) return;
 
-    const rosterKeys = (teamObj.characters || []).map(getRosterKeyForCharacter);
+    const sorted = [...JOUEURS].sort((a, b) => {
+      const A = (a.alliance || "").toString();
+      const B = (b.alliance || "").toString();
+      if (A !== B) return A.localeCompare(B, "fr");
+      return (a.player || "").toString().localeCompare((b.player || "").toString(), "fr");
+    });
 
-    // Pour accélérer : map player -> chars
-    const byPlayer = new Map();
-    for (const r of ROSTERS) {
-      const p = (r?.player ?? "").toString().trim();
-      if (!p) continue;
-      byPlayer.set(p, r.chars || {});
-    }
+    sorted.forEach((row) => {
+      const player = normPlayerName(row.player);
+      const allianceKey = normAlliance(row.alliance);
+      if (!player) return;
 
-    const results = [];
-    for (const [player, chars] of byPlayer.entries()) {
-      let total = 0;
-      for (const k of rosterKeys) {
-        const v = Number(chars?.[k] ?? 0);
-        total += Number.isFinite(v) ? v : 0;
+      const emoji = ALLIANCE_EMOJI[allianceKey] || "•";
+
+      const chip = document.createElement("div");
+      chip.className = "playerChip";
+      chip.textContent = `${emoji}${player}`; // PAS d’espace
+      playersWrap.appendChild(chip);
+    });
+  }
+
+  // ---- ROSTERS : somme des 5 persos de l’équipe, classement décroissant ----
+  function computeTeamPowerForPlayer(rosterObj, teamChars) {
+    // rosterObj = { player: "...", chars: { "ironfist": 123, ... } }
+    const map = rosterObj?.chars || {};
+    let sum = 0;
+
+    for (const displayName of teamChars) {
+      // On convertit le nom affiché de l’équipe en clé roster (même logique que tes fetch scripts)
+      // Si dans ton rosters.json les clés sont déjà "shieldsupportheal" etc,
+      // il faut une correspondance fiable depuis msf-characters.json.
+      const info = findPortraitFor(displayName);
+      const key =
+        normalizeKey(info?.id || info?.nameKey || info?.nameEn || info?.nameFr || displayName);
+
+      const v = map[key];
+      if (typeof v === "number") sum += v;
+      else if (typeof v === "string") {
+        const n = Number(v);
+        if (Number.isFinite(n)) sum += n;
       }
-      results.push({ player, total });
     }
 
-    results.sort((a, b) => b.total - a.total);
-    return results;
+    return sum;
+  }
+
+  function buildAllianceMap() {
+    // Map playerName(normalized) -> allianceKey(normalized)
+    const m = new Map();
+    JOUEURS.forEach((j) => {
+      const p = normPlayerName(j.player);
+      if (!p) return;
+      m.set(p.toLowerCase(), normAlliance(j.alliance));
+    });
+    return m;
   }
 
   function renderRanking(teamName) {
-    clearNode(playersWrap);
-
+    // Si pas d’équipe => on affiche juste la liste
     if (!teamName) {
-      if (playersCount) playersCount.textContent = "0";
+      renderPlayersListOnly();
       return;
     }
 
-    const ranking = computeRanking(teamName);
-    if (playersCount) playersCount.textContent = String(ranking.length || 0);
+    const teamObj = TEAMS.find((t) => t.team === teamName);
+    if (!teamObj) {
+      renderPlayersListOnly();
+      return;
+    }
 
-    for (let i = 0; i < ranking.length; i++) {
-      const { player, total } = ranking[i];
+    const teamChars = teamObj.characters || [];
+    const allianceMap = buildAllianceMap();
 
-      const alliance = (ALLIANCE_BY_PLAYER.get(player) || "").toString().trim();
-      const emoji = ALLIANCE_EMOJI[alliance] || "•";
+    // On calcule un score pour chaque joueur présent dans rosters.json
+    const rows = (ROSTERS || [])
+      .map((r) => {
+        const player = normPlayerName(r.player);
+        const power = computeTeamPowerForPlayer(r, teamChars);
+        const allianceKey = allianceMap.get(player.toLowerCase()) || "";
+        return { player, allianceKey, power };
+      })
+      .filter((x) => x.player && Number.isFinite(x.power));
 
-      const row = document.createElement("div");
-      row.className = "rankRow";
+    rows.sort((a, b) => b.power - a.power);
+
+    clearNode(playersWrap);
+    if (playersCount) playersCount.textContent = String(rows.length || 0);
+
+    rows.forEach((row, idx) => {
+      const emoji = ALLIANCE_EMOJI[row.allianceKey] || "•";
+
+      const line = document.createElement("div");
+      line.className = "rankLine";
 
       const left = document.createElement("div");
       left.className = "rankLeft";
-
-      const pos = document.createElement("div");
-      pos.className = "rankPos";
-      pos.textContent = String(i + 1);
-
-      const name = document.createElement("div");
-      name.className = "rankName";
-      name.textContent = `${emoji}${player}`; // PAS d’espace
-
-      left.appendChild(pos);
-      left.appendChild(name);
+      left.textContent = `${idx + 1} ${emoji}${row.player}`; // 1 ⚡️Leenos
 
       const right = document.createElement("div");
-      right.className = "rankPower";
-      right.textContent = formatNumber(total);
+      right.className = "rankRight";
+      right.textContent = row.power.toLocaleString("fr-FR").replace(/\s/g, ""); // 8 889 004 -> 8889004
 
-      row.appendChild(left);
-      row.appendChild(right);
-      playersWrap.appendChild(row);
-    }
+      line.appendChild(left);
+      line.appendChild(right);
+      playersWrap.appendChild(line);
+    });
   }
 
+  // ---- Load all ----
   async function refreshAll() {
-    clearError();
+    setStatus(""); // tu voulais supprimer le OK => on cache tout
 
     try {
       const [teamsRaw, charsRaw, joueursRaw, rostersRaw] = await Promise.all([
@@ -229,50 +286,51 @@
         }))
         .filter((t) => t.team);
 
-      // Characters map (clé -> objet)
+      // Characters map (multi-keys -> object)
       CHAR_MAP = new Map();
       (charsRaw || []).forEach((c) => {
-        const keys = [c.id, c.nameKey, c.nameFr, c.nameEn].filter(Boolean);
+        const keys = [c.id, c.nameKey, c.nameFr, c.nameEn, c.name].filter(Boolean);
         keys.forEach((k) => CHAR_MAP.set(normalizeKey(k), c));
       });
 
-      // Joueurs (2 champs seulement : joueur / alliance)
-      ALLIANCE_BY_PLAYER = new Map();
-      (joueursRaw || []).forEach((r) => {
-        const joueur = (r.joueur ?? r.player ?? r.name ?? "").toString().trim();
-        const alliance = (r.alliance ?? "").toString().trim();
-        if (joueur) ALLIANCE_BY_PLAYER.set(joueur, alliance);
-      });
+      // Joueurs (✅ ton JSON = { player, alliance })
+      JOUEURS = (joueursRaw || []).map((r) => ({
+        player: normPlayerName(r.player),
+        alliance: (r.alliance ?? "").toString(),
+      }));
 
-      // Rosters
+      // Rosters (✅ ton JSON = { player, chars:{...} })
       ROSTERS = Array.isArray(rostersRaw) ? rostersRaw : [];
 
       renderTeamOptions();
 
-      // Si rien sélectionné, on prend la 1ère team (confort)
-      if (teamSelect && !teamSelect.value && TEAMS.length) {
-        teamSelect.value = TEAMS[0].team;
-      }
-
+      // Si une team est déjà choisie, on l’affiche et on classe
       const selected = teamSelect?.value || "";
-      renderSelectedTeam(selected);
-      renderRanking(selected);
+      if (selected) {
+        renderSelectedTeam(selected);
+        renderRanking(selected);
+      } else {
+        // pas d’équipe => on affiche juste la liste joueurs (emoji+nom)
+        renderSelectedTeam("");
+        renderPlayersListOnly();
+      }
     } catch (e) {
       console.error(e);
-      setError(`Erreur de chargement ❌\n${e.message}`);
-      // On nettoie l'affichage si ça casse
-      clearNode(portraitsWrap);
-      clearNode(playersWrap);
-      if (playersCount) playersCount.textContent = "0";
+      setStatus(`Erreur ❌\n${e.message}`, true);
     }
   }
 
+  // ---- Events ----
   btnRefresh?.addEventListener("click", refreshAll);
 
   teamSelect?.addEventListener("change", () => {
-    const selected = teamSelect.value || "";
+    const selected = teamSelect.value;
     renderSelectedTeam(selected);
     renderRanking(selected);
+  });
+
+  window.addEventListener("resize", () => {
+    applyTileSize(computeTileSize(portraitsWrap, 5, 10));
   });
 
   refreshAll();
