@@ -7,6 +7,13 @@
   --muted: rgba(255,255,255,.65);
   --muted2: rgba(255,255,255,.50);
   --shadow: 0 8px 24px rgba(0,0,0,.45);
+
+  /* états filtres */
+  --toggle-on-bg: rgba(255,255,255,.14);
+  --toggle-on-border: rgba(255,255,255,.22);
+  --toggle-off-bg: rgba(0,0,0,.18);
+  --toggle-off-border: rgba(255,255,255,.12);
+  --toggle-off-text: rgba(255,255,255,.86);
 }
 
 *{ box-sizing:border-box; }
@@ -16,6 +23,15 @@ html, body{
   color: var(--text);
   background: var(--bg);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+
+  /* anti scroll horizontal */
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
+body{
+  /* évite les “glissades” horizontales sur iOS */
+  touch-action: pan-y;
 }
 
 /* ===== Fond noir + filigranes aigles ===== */
@@ -38,7 +54,6 @@ body::after{
   z-index:-1;
   pointer-events:none;
   opacity:.12;
-
   background-image: url("./00E91333-9E9F-44E5-9BE4-93AA78D3B650.png");
   background-repeat: repeat;
   background-size: 420px 420px;
@@ -55,6 +70,7 @@ body::after{
   display:flex;
   flex-direction:column;
   gap: 14px;
+  max-width: 100%;
 }
 
 /* ===== Header ===== */
@@ -73,19 +89,21 @@ body::after{
   justify-content:space-between;
 }
 
-.headerLeft{ min-width: 0; }
+.headerLeft{ min-width: 0; text-align: center; flex: 1 1 auto; }
 .title{
   margin:0;
   font-weight: 900;
   letter-spacing: .2px;
   line-height: 1.02;
   font-size: 34px;
+  text-align: center;
 }
 .subtitle{
   margin: 10px 0 0 0;
   color: var(--muted);
   font-size: 15px;
   line-height: 1.25;
+  text-align: center;
 }
 
 .headerRight{
@@ -110,6 +128,7 @@ body::after{
   background: rgba(0,0,0,.35);
   color: var(--text);
   outline: none;
+  max-width: 100%;
 }
 .select:focus{
   border-color: rgba(255,255,255,.22);
@@ -123,6 +142,7 @@ body::after{
   border-radius: 18px;
   padding: 12px;
   box-shadow: var(--shadow);
+  max-width: 100%;
 }
 
 .cardHeader{
@@ -137,6 +157,8 @@ body::after{
   margin:0;
   font-weight: 900;
   font-size: 22px;
+  text-align: center;          /* <-- centré */
+  width: 100%;                 /* <-- prend toute la ligne */
 }
 
 /* compteur (72) */
@@ -183,26 +205,37 @@ body::after{
 
 .filters{
   display:flex;
-  gap:10px;
-  flex-wrap:wrap;
+  gap: 10px;
+  flex-wrap: nowrap;     /* <-- UNE ligne */
+  justify-content: space-between;
+  align-items: center;
 }
 
 .filterToggle{
   display:flex;
   align-items:center;
   gap:10px;
-  border:1px solid var(--border);
+  border:1px solid var(--toggle-off-border);
   border-radius: 999px;
   padding: 10px 12px;
-  background: rgba(0,0,0,.22);
+  background: var(--toggle-off-bg);
   font-weight: 900;
   user-select:none;
+  min-width: 0;
+  flex: 1 1 0;
+  justify-content: center;
+  color: var(--toggle-off-text);
 }
 
 .filterToggle input{
   width: 18px;
   height: 18px;
-  accent-color: #ffffff;
+  accent-color: #b8ff7a; /* très visible */
+}
+
+.filterToggle:has(input:checked){
+  background: var(--toggle-on-bg);
+  border-color: var(--toggle-on-border);
 }
 
 /* ===== Ranking (lignes) ===== */
@@ -221,6 +254,7 @@ body::after{
   border-radius: 16px;
   padding: 10px 12px;
   background: rgba(0,0,0,.22);
+  max-width: 100%;
 }
 
 .rankLeft{
@@ -266,4 +300,15 @@ body::after{
 @media (max-width: 420px){
   .title{ font-size: 32px; }
   .portraits{ gap: 8px; }
+
+  /* sur petits écrans, on compacte les filtres pour tenir sur 1 ligne */
+  .filterToggle{
+    padding: 9px 8px;
+    gap: 8px;
+    font-size: 14px;
+  }
+  .filterToggle input{
+    width: 16px;
+    height: 16px;
+  }
 }
