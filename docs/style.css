@@ -88,13 +88,12 @@ body::after{
 
 .headerLeft{ min-width: 0; text-align: center; flex: 1 1 auto; }
 
-/* --- titre 30% plus petit --- */
 .title{
   margin:0;
   font-weight: 900;
   letter-spacing: .2px;
   line-height: 1.05;
-  font-size: 24px;  /* ~ -30% */
+  font-size: 24px;
   text-align: center;
 }
 
@@ -228,48 +227,6 @@ body::after{
   accent-color: #b8ff7a;
 }
 
-/* --- contenu du filtre sur 2 lignes: emoji puis nom --- */
-.filterToggle span{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  line-height:1.05;
-  gap: 4px;
-}
-
-.filterToggle span::first-line{
-  /* rien à mettre, on gère via structure ci-dessous */
-}
-
-/* on “splitte” visuellement: emoji + nom via <span>…</span> en texte,
-   donc on stylise en supposant format "⚡ Zeus" etc.
-   -> on isole emoji avec un pseudo-élément en le dupliquant proprement côté HTML ? Non.
-   Donc on fait simple: on augmente l’emoji par selector sur le premier caractère. */
-.filterToggle span{
-  font-size: 14px;
-}
-.filterToggle span::before{
-  content: attr(data-emoji);
-  display:block;
-  font-size: 18px;
-  line-height: 1;
-}
-
-/* on remplace l’affichage du texte par juste le nom (sans emoji) */
-.filterToggle span{
-  position: relative;
-}
-.filterToggle span{
-  /* on masque l'emoji inclus dans le texte en le retirant côté HTML via JS? non.
-     Donc: on change le HTML? -> pas demandé ici.
-     Alternative: on accepte le texte tel quel, MAIS on le met sur 2 lignes en forçant un <br> via CSS impossible.
-     Donc on passe au plan propre: on ajuste le HTML dans app.js? non.
-     => Le plus simple: on modifie HTML: spans deviennent 2 lignes (emoji + nom). */
-}
-
-/* ✅ IMPORTANT: la version correcte est ci-dessous, en cohérence avec le HTML qu’on ajuste :
-   span contiendra 2 éléments .fEmoji + .fName.
-   (voir petit patch plus bas, sans casser le reste) */
 .fStack{
   display:flex;
   flex-direction:column;
@@ -280,7 +237,6 @@ body::after{
 .fEmoji{ font-size: 18px; line-height: 1; }
 .fName{ font-size: 13px; }
 
-/* états */
 .filterToggle:has(input:checked){
   background: var(--toggle-on-bg);
   border-color: var(--toggle-on-border);
