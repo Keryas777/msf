@@ -10,9 +10,8 @@ const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tq
   SHEET_NAME
 )}`;
 
-/**
- * Minimal CSV parser (handles quotes + commas + CRLF)
- */
+/* ---------------- CSV PARSER ---------------- */
+
 function parseCSV(text) {
   const rows = [];
   let row = [];
@@ -23,7 +22,6 @@ function parseCSV(text) {
     const ch = text[i];
     const next = text[i + 1];
 
-    // escaped quote inside quoted field
     if (ch === '"' && inQuotes && next === '"') {
       cell += '"';
       i++;
@@ -45,8 +43,7 @@ function parseCSV(text) {
       if (ch === "\r" && next === "\n") i++;
       row.push(cell);
       cell = "";
-      // avoid pushing final empty row
-      if (row.some((c) => c !== "")) rows.push(row);
+      if (row.some(c => c !== "")) rows.push(row);
       row = [];
       continue;
     }
@@ -54,96 +51,84 @@ function parseCSV(text) {
     cell += ch;
   }
 
-  // last cell
   row.push(cell);
-  if (row.some((c) => c !== "")) rows.push(row);
+  if (row.some(c => c !== "")) rows.push(row);
+
   return rows;
 }
 
-const norm = (x) => String(x ?? "").trim();
+const norm = x => String(x ?? "").trim();
 
-function headerIndexMap(headersRow) {
-  const map = new Map();
-  headersRow.forEach((h, idx) => map.set(norm(h).toLowerCase(), idx));
-  return map;
-}
-
-function getCell(row, idx) {
-  if (idx == null || idx < 0) return "";
-  return norm(row[idx]);
-}
+/* ---------------- MAIN ---------------- */
 
 async function main() {
-  const res = await fetch(url);
+  const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`HTTP ${res.status} fetching Teams CSV`);
-  const csv = await res.text();
 
+  const csv = await res.text();
   const grid = parseCSV(csv);
+
   if (!grid.length) throw new Error("Empty CSV");
 
-  const headers = grid[0];
-  const hmap = headerIndexMap(headers);
+  const headers = grid[0].map(h => norm(h).toLowerCase());
+  const idx = name => headers.indexOf(name.toLowerCase());
 
-  const iTeam = hmap.get("team");
-  const iMode = hmap.get("mode"); // may be missing in older sheets
+  const iTeam = idx("team");
+  const iMode = idx("mode");
 
-  const charIdx = [
-    hmap.get("character1"),
-    hmap.get("character2"),
-    hmap.get("character3"),
-    hmap.get("character4"),
-    hmap.get("character5"),
-  ];
+  const charIndexes = [
+    idx("character1"),
+    idx("character2"),
+    idx("character3"),
+    idx("character4"),
+    idx("character5")
+  ].filter(i => i >= 0);
 
-  if (iTeam == null) {
-    throw new Error(`Missing required header: team. Found: ${headers.join(", ")}`);
-  }
-
-  // At least character1..3 should exist as headers (you can have 3-man teams)
-  const haveSomeCharHeaders = charIdx.slice(0, 3).every((i) => typeof i === "number");
-  if (!haveSomeCharHeaders) {
-    throw new Error(
-      `Missing headers character1/2/3 (minimum). Found: ${headers.join(", ")}`
-    );
-  }
+  if (iTeam < 0) throw new Error("Missing header: team");
+  if (iMode < 0) throw new Error("Missing header: mode");
+  if (!charIndexes.length) throw new Error("No character columns found");
 
   const teams = [];
-  for (const r of grid.slice(1)) {
-    const team = getCell(r, iTeam);
+
+  for (const row of grid.slice(1)) {
+    const team = norm(row[iTeam]);
     if (!team) continue;
 
-    const mode = iMode != null ? getCell(r, iMode) : "";
+    const mode = norm(row[iMode]);
 
-    // Collect characters that exist (3..5)
-    const chars = charIdx
-      .map((i) => getCell(r, i))
+    // 🔥 accepte 1 à 5 persos
+    const characters = charIndexes
+      .map(i => norm(row[i]))
       .filter(Boolean);
 
-    // Skip if less than 3 characters (useless team)
-    if (chars.length < 3) continue;
+    if (characters.length === 0) continue;
 
     teams.push({
       team,
-      mode: mode || null, // keep null if empty to make it explicit
-      characters: chars,
+      mode,
+      characters
     });
   }
 
-  // Optional: stable order (team then mode) so diffs are clean
+  // tri propre pour stabilité des commits
   teams.sort((a, b) => {
-    const am = (a.mode || "").localeCompare(b.mode || "", "fr");
-    if (am !== 0) return am;
+    const m = a.mode.localeCompare(b.mode, "fr");
+    if (m !== 0) return m;
     return a.team.localeCompare(b.team, "fr");
   });
 
   await fs.mkdir("docs/data", { recursive: true });
-  await fs.writeFile("docs/data/teams.json", JSON.stringify(teams, null, 2), "utf8");
+  await fs.writeFile(
+    "docs/data/teams.json",
+    JSON.stringify(teams, null, 2),
+    "utf8"
+  );
 
-  console.log(`OK: wrote ${teams.length} teams -> docs/data/teams.json`);
-  console.log("Sample:", teams.slice(0, 3));
+  console.log(`✅ ${teams.length} teams written`);
+  console.log("Modes détectés :", [...new Set(teams.map(t => t.mode))]);
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error(err);
   process.exit(1);
 });
