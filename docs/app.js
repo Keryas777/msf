@@ -7,7 +7,12 @@
     rosters: "./data/rosters.json",
   };
 
-  const ALLIANCE_EMOJI = { Zeus: "⚡️", Dionysos: "🍇", "Poséidon": "🔱", Poseidon: "🔱" };
+  const ALLIANCE_EMOJI = {
+    Zeus: "⚡️",
+    Dionysos: "🍇",
+    "Poséidon": "🔱",
+    Poseidon: "🔱",
+  };
 
   const qs = (s) => document.querySelector(s);
 
@@ -24,11 +29,11 @@
   const filterDionysos = qs("#filterDionysos");
   const filterPoseidon = qs("#filterPoseidon");
 
-  let TEAMS = [];          // [{team, mode, characters[]}]
-  let CHAR_MAP = new Map(); // normalized name -> character obj (contains id + portraitUrl etc)
-  let JOUEURS = [];        // [{player, alliance}]
-  let ROSTERS = [];        // [{player, chars:{key:power}}]
-  let ROSTER_MAP = new Map(); // playerKey -> chars map
+  let TEAMS = [];            // [{team, mode, characters[]}]
+  let CHAR_MAP = new Map();  // normalized name -> character obj
+  let JOUEURS = [];          // [{player, alliance}]
+  let ROSTERS = [];          // [{player, chars:{key:power}}]
+  let ROSTER_MAP = new Map();// playerKey -> chars map
 
   const bust = (url) => {
     const u = new URL(url, window.location.href);
@@ -62,44 +67,52 @@
     return Math.trunc(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
-  function getSelectedModesAlliances() {
-    const modes = {
+  function getSelectedAlliances() {
+    return {
       Zeus: !!filterZeus?.checked,
       Dionysos: !!filterDionysos?.checked,
       "Poséidon": !!filterPoseidon?.checked,
       Poseidon: !!filterPoseidon?.checked,
     };
-    return modes;
   }
 
+  function getSelectedMode() {
+    return (modeSelect?.value || "").trim();
+  }
+
+  // ✅ NOUVEAU COMPORTEMENT :
+  // - si aucun mode sélectionné => on ne propose AUCUNE équipe
   function getTeamListFilteredByMode() {
-    const selectedMode = (modeSelect?.value || "").trim();
-    if (!selectedMode) return [...TEAMS];
-    return TEAMS.filter((t) => (t.mode || "") === selectedMode);
+    const selectedMode = getSelectedMode();
+    if (!selectedMode) return [];
+    return TEAMS.filter((t) => (t.mode || "").trim() === selectedMode);
   }
 
   function renderModeOptions() {
     if (!modeSelect) return;
 
     const modes = Array.from(
-      new Set(
-        TEAMS.map((t) => (t.mode || "").trim()).filter(Boolean)
-      )
+      new Set(TEAMS.map((t) => (t.mode || "").trim()).filter(Boolean))
     ).sort((a, b) => a.localeCompare(b, "fr"));
 
     modeSelect.innerHTML = "";
 
-    const allOpt = document.createElement("option");
-    allOpt.value = "";
-    allOpt.textContent = "Tous les modes";
-    modeSelect.appendChild(allOpt);
+    // ✅ Placeholder
+    const opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "— Choisir un mode de jeu —";
+    modeSelect.appendChild(opt0);
 
+    // Modes
     modes.forEach((m) => {
       const opt = document.createElement("option");
       opt.value = m;
       opt.textContent = m;
       modeSelect.appendChild(opt);
     });
+
+    // On force le placeholder par défaut
+    modeSelect.value = "";
   }
 
   function renderTeamOptions() {
@@ -108,8 +121,6 @@
     const list = getTeamListFilteredByMode()
       .slice()
       .sort((a, b) => a.team.localeCompare(b.team, "fr"));
-
-    const current = teamSelect.value || "";
 
     teamSelect.innerHTML = "";
 
@@ -125,9 +136,8 @@
       teamSelect.appendChild(opt);
     });
 
-    // si l'équipe sélectionnée n'existe plus dans ce mode -> reset
-    const stillExists = list.some((t) => t.team === current);
-    teamSelect.value = stillExists ? current : "";
+    // si mode pas choisi => on reset l'équipe
+    teamSelect.value = "";
   }
 
   function findPortraitFor(name) {
@@ -137,12 +147,13 @@
 
   function renderSelectedTeam(teamName) {
     clearNode(portraitsWrap);
+
     if (teamTitle) teamTitle.textContent = teamName || "—";
     if (!teamName) return;
 
-    // IMPORTANT: on filtre par mode sélectionné pour éviter mismatch
+    // on cherche dans le sous-ensemble du mode sélectionné
     const teamsFiltered = getTeamListFilteredByMode();
-    const teamObj = teamsFiltered.find((t) => t.team === teamName) || TEAMS.find((t) => t.team === teamName);
+    const teamObj = teamsFiltered.find((t) => t.team === teamName);
     if (!teamObj) return;
 
     (teamObj.characters || []).forEach((charName) => {
@@ -164,26 +175,27 @@
     });
   }
 
-  // calcule puissance team pour un joueur: somme des persos présents (missing => 0)
+  // somme des persos présents (absent/non débloqué => 0)
   function computeTeamPowerForPlayer(playerName, teamName) {
     const playerKey = normalizeKey(playerName);
     const charsMap = ROSTER_MAP.get(playerKey) || null;
     if (!charsMap) return 0;
 
-    const teamObj = TEAMS.find((t) => t.team === teamName);
+    // IMPORTANT : on prend l'équipe dans le mode filtré (évite ambiguité si team dupliquée)
+    const teamsFiltered = getTeamListFilteredByMode();
+    const teamObj = teamsFiltered.find((t) => t.team === teamName);
     if (!teamObj) return 0;
 
     let sum = 0;
 
-    for (const charName of (teamObj.characters || [])) {
-      // on essaye de convertir le nom affiché -> clé roster (id)
+    for (const charName of teamObj.characters || []) {
       const info = findPortraitFor(charName);
-      const rosterKey =
-        normalizeKey(info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName);
+      const rosterKey = normalizeKey(
+        info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName
+      );
 
       const val = charsMap[rosterKey];
       if (Number.isFinite(Number(val))) sum += Number(val);
-      // sinon: perso non débloqué / pas présent => 0
     }
 
     return sum;
@@ -192,19 +204,20 @@
   function renderRanking() {
     clearNode(playersWrap);
 
+    const selectedMode = getSelectedMode();
     const teamName = teamSelect?.value || "";
-    if (!teamName) {
+
+    // ✅ Si pas de mode OU pas d'équipe => rien
+    if (!selectedMode || !teamName) {
       if (playersCount) playersCount.textContent = "0";
       return;
     }
 
-    const allianceEnabled = getSelectedModesAlliances();
+    const allianceEnabled = getSelectedAlliances();
 
-    // on construit le classement sur les joueurs filtrés par alliances cochées
     const rows = JOUEURS
       .filter((p) => {
         const a = (p.alliance || "").trim();
-        // si alliance inconnue => on garde ? (ici: non)
         return !!allianceEnabled[a];
       })
       .map((p) => {
@@ -215,7 +228,6 @@
 
     if (playersCount) playersCount.textContent = String(rows.length);
 
-    // container lignes
     const list = document.createElement("div");
     list.className = "rankList";
 
@@ -252,8 +264,10 @@
   }
 
   function onModeChange() {
+    // reset équipe + UI
+    if (teamSelect) teamSelect.value = "";
     renderTeamOptions();
-    renderSelectedTeam(teamSelect.value || "");
+    renderSelectedTeam("");
     renderRanking();
   }
 
@@ -277,11 +291,11 @@
       keys.forEach((k) => CHAR_MAP.set(normalizeKey(k), c));
     });
 
-    // Teams (mode + team + characters[])
+    // Teams
     TEAMS = (teamsRaw || [])
       .map((t) => {
         const team = (t.team ?? t.Team ?? "").toString().trim();
-        const mode = (t.mode ?? t.Mode ?? "").toString().trim(); // <-- nouveau
+        const mode = (t.mode ?? t.Mode ?? "").toString().trim();
         const characters = Array.isArray(t.characters)
           ? t.characters.map((c) => (c ?? "").toString().trim()).filter(Boolean)
           : [];
@@ -289,7 +303,7 @@
       })
       .filter((t) => t.team);
 
-    // Joueurs (2 champs: player + alliance)
+    // Joueurs
     JOUEURS = (joueursRaw || [])
       .map((r) => ({
         player: (r.player ?? r.joueur ?? r.JOUEURS ?? "").toString().trim(),
@@ -297,7 +311,7 @@
       }))
       .filter((r) => r.player);
 
-    // Rosters (player + chars)
+    // Rosters
     ROSTERS = (rostersRaw || [])
       .map((r) => ({
         player: (r.player ?? "").toString().trim(),
@@ -307,7 +321,6 @@
 
     ROSTER_MAP = new Map();
     for (const r of ROSTERS) {
-      // normalisation des clés chars: on stocke tout normalisé
       const normChars = {};
       for (const [k, v] of Object.entries(r.chars || {})) {
         normChars[normalizeKey(k)] = v;
@@ -315,17 +328,12 @@
       ROSTER_MAP.set(normalizeKey(r.player), normChars);
     }
 
-    // Options de mode + équipes filtrées
+    // ✅ mode placeholder par défaut
     renderModeOptions();
 
-    // mode par défaut = Tous
-    if (modeSelect) modeSelect.value = "";
-
+    // ✅ tant qu'aucun mode : équipe vide
     renderTeamOptions();
-
-    // si tu veux garder une team déjà sélectionnée au reload, on tente
-    const defaultTeam = teamSelect?.value || "";
-    renderSelectedTeam(defaultTeam);
+    renderSelectedTeam("");
     renderRanking();
   }
 
