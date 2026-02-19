@@ -8,7 +8,6 @@
   --muted2: rgba(255,255,255,.50);
   --shadow: 0 8px 24px rgba(0,0,0,.45);
 
-  /* états filtres */
   --toggle-on-bg: rgba(255,255,255,.14);
   --toggle-on-border: rgba(255,255,255,.22);
   --toggle-off-bg: rgba(0,0,0,.18);
@@ -24,13 +23,11 @@ html, body{
   background: var(--bg);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 
-  /* anti scroll horizontal */
   overflow-x: hidden;
   overscroll-behavior-x: none;
 }
 
 body{
-  /* évite les “glissades” horizontales sur iOS */
   touch-action: pan-y;
 }
 
@@ -90,14 +87,17 @@ body::after{
 }
 
 .headerLeft{ min-width: 0; text-align: center; flex: 1 1 auto; }
+
+/* --- titre 30% plus petit --- */
 .title{
   margin:0;
   font-weight: 900;
   letter-spacing: .2px;
-  line-height: 1.02;
-  font-size: 34px;
+  line-height: 1.05;
+  font-size: 24px;  /* ~ -30% */
   text-align: center;
 }
+
 .subtitle{
   margin: 10px 0 0 0;
   color: var(--muted);
@@ -157,11 +157,10 @@ body::after{
   margin:0;
   font-weight: 900;
   font-size: 22px;
-  text-align: center;          /* <-- centré */
-  width: 100%;                 /* <-- prend toute la ligne */
+  text-align: center;
+  width: 100%;
 }
 
-/* compteur (72) */
 .chipCount{
   border: 1px solid var(--border);
   background: rgba(0,0,0,.22);
@@ -173,11 +172,7 @@ body::after{
   text-align: center;
 }
 
-/* =========================================================
-   PORTRAITS ÉQUIPE
-   - Grille 5 colonnes
-   - AUCUN ROGNAGE : object-fit: contain
-   ========================================================= */
+/* ===== PORTRAITS ÉQUIPE (no crop) ===== */
 .portraits{
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -206,9 +201,9 @@ body::after{
 .filters{
   display:flex;
   gap: 10px;
-  flex-wrap: nowrap;     /* <-- UNE ligne */
+  flex-wrap: nowrap;
   justify-content: space-between;
-  align-items: center;
+  align-items: stretch;
 }
 
 .filterToggle{
@@ -230,15 +225,68 @@ body::after{
 .filterToggle input{
   width: 18px;
   height: 18px;
-  accent-color: #b8ff7a; /* très visible */
+  accent-color: #b8ff7a;
 }
 
+/* --- contenu du filtre sur 2 lignes: emoji puis nom --- */
+.filterToggle span{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  line-height:1.05;
+  gap: 4px;
+}
+
+.filterToggle span::first-line{
+  /* rien à mettre, on gère via structure ci-dessous */
+}
+
+/* on “splitte” visuellement: emoji + nom via <span>…</span> en texte,
+   donc on stylise en supposant format "⚡ Zeus" etc.
+   -> on isole emoji avec un pseudo-élément en le dupliquant proprement côté HTML ? Non.
+   Donc on fait simple: on augmente l’emoji par selector sur le premier caractère. */
+.filterToggle span{
+  font-size: 14px;
+}
+.filterToggle span::before{
+  content: attr(data-emoji);
+  display:block;
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* on remplace l’affichage du texte par juste le nom (sans emoji) */
+.filterToggle span{
+  position: relative;
+}
+.filterToggle span{
+  /* on masque l'emoji inclus dans le texte en le retirant côté HTML via JS? non.
+     Donc: on change le HTML? -> pas demandé ici.
+     Alternative: on accepte le texte tel quel, MAIS on le met sur 2 lignes en forçant un <br> via CSS impossible.
+     Donc on passe au plan propre: on ajuste le HTML dans app.js? non.
+     => Le plus simple: on modifie HTML: spans deviennent 2 lignes (emoji + nom). */
+}
+
+/* ✅ IMPORTANT: la version correcte est ci-dessous, en cohérence avec le HTML qu’on ajuste :
+   span contiendra 2 éléments .fEmoji + .fName.
+   (voir petit patch plus bas, sans casser le reste) */
+.fStack{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap: 4px;
+  line-height: 1.05;
+}
+.fEmoji{ font-size: 18px; line-height: 1; }
+.fName{ font-size: 13px; }
+
+/* états */
 .filterToggle:has(input:checked){
   background: var(--toggle-on-bg);
   border-color: var(--toggle-on-border);
 }
 
-/* ===== Ranking (lignes) ===== */
+/* ===== Ranking ===== */
 .rankList{
   display:flex;
   flex-direction:column;
@@ -298,17 +346,17 @@ body::after{
 }
 
 @media (max-width: 420px){
-  .title{ font-size: 32px; }
+  .title{ font-size: 22px; }
   .portraits{ gap: 8px; }
 
-  /* sur petits écrans, on compacte les filtres pour tenir sur 1 ligne */
   .filterToggle{
     padding: 9px 8px;
     gap: 8px;
-    font-size: 14px;
   }
   .filterToggle input{
     width: 16px;
     height: 16px;
   }
+  .fEmoji{ font-size: 17px; }
+  .fName{ font-size: 12px; }
 }
