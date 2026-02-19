@@ -2,8 +2,11 @@ name: Fetch Rosters (Sheet)
 
 on:
   workflow_dispatch:
+
+  # Toutes les 3 heures (à xx:15)
   schedule:
-    - cron: "15 */6 * * *"
+    - cron: "15 */3 * * *"
+
   push:
     paths:
       - "scripts/fetch-rosters.mjs"
@@ -19,6 +22,7 @@ concurrency:
 jobs:
   fetch_rosters:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,5 +45,5 @@ jobs:
           git config user.email "github-actions@github.com"
           git add docs/data/rosters.json
           git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "Update rosters.json (Sheet)"
+          git commit -m "Update rosters.json (auto 3h)"
           git push
