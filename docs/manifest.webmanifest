@@ -1,9 +1,15 @@
 {
-  "name": "MSF Tools",
-  "short_name": "MSF",
+  "name": "LoSP",
+  "short_name": "LoSP",
   "start_url": "./home.html",
   "display": "standalone",
-  "background_color": "#070809",
+  "background_color": "#0b0c0d",
   "theme_color": "#0b0c0d",
-  "icons": []
+  "icons": [
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
