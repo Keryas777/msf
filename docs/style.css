@@ -13,6 +13,11 @@
   --toggle-off-bg: rgba(0,0,0,.18);
   --toggle-off-border: rgba(255,255,255,.12);
   --toggle-off-text: rgba(255,255,255,.86);
+
+  /* bar colors */
+  --bar-red: #ff4d4d;
+  --bar-orange: #ff9f1a;
+  --bar-green: #2ecc71;
 }
 
 *{ box-sizing:border-box; }
@@ -27,9 +32,7 @@ html, body{
   overscroll-behavior-x: none;
 }
 
-body{
-  touch-action: pan-y;
-}
+body{ touch-action: pan-y; }
 
 /* ===== Fond noir + filigranes aigles ===== */
 body::before{
@@ -75,18 +78,17 @@ body::after{
   position: sticky;
   top: 0;
   z-index: 10;
+
   backdrop-filter: blur(10px);
   background: rgba(8,9,10,.72);
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 14px 14px;
+
   display:flex;
   gap:12px;
   align-items:flex-start;
   justify-content:space-between;
-
-  /* ✅ pour placer le bouton home */
-  position: sticky;
 }
 
 /* ✅ bouton home */
@@ -114,111 +116,10 @@ body::after{
   backdrop-filter: blur(6px);
   transition:.15s;
 }
-
 .homeBtn:hover{
   background: rgba(255,255,255,.08);
   border-color: rgba(255,255,255,.25);
 }
-
-/* ✅ nécessaire pour absolute */
-.header{ position: sticky; }
-.header{ position: sticky; }
-.header{ position: sticky; }
-.header{ position: sticky; }
-
-/* (on force une seule vérité) */
-.header{
-  position: sticky;
-  top:0;
-}
-.header{
-  position: sticky;
-}
-.header{
-  position: sticky;
-}
-.header{
-  position: sticky;
-}
-/* ✅ correction finale : sticky + relative */
-.header{
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  position: sticky;
-}
-.header{
-  position: sticky;
-}
-.header{
-  position: sticky;
-}
-/* ✅ STOP : on pose la version propre */
-.header{
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  backdrop-filter: blur(10px);
-  background: rgba(8,9,10,.72);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 14px 14px;
-  display:flex;
-  gap:12px;
-  align-items:flex-start;
-  justify-content:space-between;
-
-  /* IMPORTANT */
-  position: sticky;
-}
-.header{
-  /* ✅ permet à .homeBtn (absolute) d’être calé sur le header */
-  position: sticky;
-}
-.header{
-  position: sticky;
-}
-/* ✅ version finale réelle : sticky + relative */
-.header{
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  backdrop-filter: blur(10px);
-  background: rgba(8,9,10,.72);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 14px 14px;
-  display:flex;
-  gap:12px;
-  align-items:flex-start;
-  justify-content:space-between;
-
-  /* clé */
-  position: sticky;
-}
-
-/* ⚠️ iOS/Safari : sticky + absolute fonctionne, mais on ajoute relative via pseudo wrapper: */
-.header{
-  /* ✅ pour l'absolu du home */
-  position: sticky;
-}
-.header{
-  /* on ne peut pas mettre sticky + relative séparés, donc on met relative via transform */
-  transform: translateZ(0);
-}
-.header{
-  /* et on met un contexte de positionnement */
-  position: sticky;
-}
-.header{
-  /* dernier mot */
-  position: sticky;
-}
-
-/* ✅ OK : en CSS on ne peut pas avoir sticky+relative distincts, donc on fait simple :
-   - on garde sticky
-   - on met le bouton en absolute, et ça marche dans la pratique
-*/
 
 /* ===== Header inner ===== */
 .headerLeft{ min-width: 0; text-align: center; flex: 1 1 auto; }
@@ -389,6 +290,7 @@ body::after{
   align-items:center;
   justify-content:space-between;
   gap: 12px;
+
   border:1px solid var(--border);
   border-radius: 16px;
   padding: 10px 12px;
@@ -401,6 +303,7 @@ body::after{
   align-items:center;
   gap: 10px;
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .rankNum{
@@ -416,6 +319,70 @@ body::after{
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+}
+
+/* ✅ Bloc 5 barres */
+.rankBars{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 5px;
+  flex: 0 0 auto;
+}
+
+.rankBar{
+  width: 4px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.18);
+  box-shadow: 0 4px 14px rgba(0,0,0,.45);
+  border: 1px solid rgba(255,255,255,.10);
+  position: relative;
+}
+
+/* couleurs */
+.rankBar.is-red{ background: var(--bar-red); }
+.rankBar.is-orange{ background: var(--bar-orange); }
+.rankBar.is-green{ background: var(--bar-green); }
+
+/* ✅ Tooltip CSS (desktop). Sur mobile, tu as aussi le title (long press). */
+.rankBar[data-tip]:hover::after{
+  content: attr(data-tip);
+  white-space: pre;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(100% + 10px);
+  z-index: 999;
+
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.78);
+  backdrop-filter: blur(8px);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.25;
+  box-shadow: 0 10px 26px rgba(0,0,0,.55);
+  max-width: 260px;
+  width: max-content;
+}
+
+/* Petite flèche */
+.rankBar[data-tip]:hover::before{
+  content:"";
+  position:absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(100% + 4px);
+  width: 10px;
+  height: 10px;
+  background: rgba(0,0,0,.78);
+  border-left: 1px solid rgba(255,255,255,.18);
+  border-top: 1px solid rgba(255,255,255,.18);
+  transform: translateX(-50%) rotate(45deg);
+  z-index: 1000;
 }
 
 .rankPower{
@@ -450,4 +417,12 @@ body::after{
   }
   .fEmoji{ font-size: 17px; }
   .fName{ font-size: 12px; }
+
+  .rankBar{
+    width: 4px;
+    height: 20px;
+  }
+  .rankBars{
+    gap: 4px;
+  }
 }
