@@ -18,7 +18,7 @@
   const THRESH = {
     level: 100,
     gear: 19,
-    iso: 13, // au moins une des 5 colonnes N-O-P-Q-R >= 13 => on stocke isoMax
+    iso: 13, // au moins une des 5 colonnes N-O-P-Q-R >= 13 => isoMax
   };
 
   const qs = (s) => document.querySelector(s);
@@ -36,11 +36,11 @@
   const filterDionysos = qs("#filterDionysos");
   const filterPoseidon = qs("#filterPoseidon");
 
-  let TEAMS = []; // [{team, mode, characters[]}]
-  let CHAR_MAP = new Map(); // normalized name -> character obj
-  let JOUEURS = []; // [{player, alliance}]
-  let ROSTERS = []; // [{player, chars:{key:number|{power,level,gear,isoMax}}, iso:{...}}]
-  let ROSTER_MAP = new Map(); // playerKey -> chars map
+  let TEAMS = [];              // [{team, mode, characters[]}]
+  let CHAR_MAP = new Map();    // normalized name -> character obj
+  let JOUEURS = [];            // [{player, alliance}]
+  let ROSTERS = [];            // [{player, chars:{key:number|{power,level,gear,isoMax}}}]
+  let ROSTER_MAP = new Map();  // playerKey -> chars map (keys normalisées)
 
   const bust = (url) => {
     const u = new URL(url, window.location.href);
@@ -244,16 +244,23 @@
       );
 
       const raw = charsMap[rosterKey];
-      const power = readCharPower(raw);
-      const present = power > 0; // règle simple "débloqué" : existe et power > 0
 
-      // on somme la power si présent
-      if (present) sum += power;
+      // ✅ Présence = la clé existe dans le roster (pas juste power > 0)
+      // (évite les faux "rouge" si power=0 ou donnée partielle)
+      const present = raw !== undefined && raw !== null;
+
+      const power = readCharPower(raw);
+
+      // On somme la power si présent (power peut être 0 si donnée bizarre => ok)
+      if (present && Number.isFinite(power)) sum += power;
 
       const level = readCharLevel(raw);
       const gear = readCharGear(raw);
       const isoMax = readCharIsoMax(raw);
 
+      // ✅ Rouge uniquement si absent.
+      // ✅ Orange si présent mais pas OK.
+      // ✅ Vert si présent et OK.
       let status = "red";
       if (present) {
         const ok =
@@ -317,19 +324,18 @@
       left.appendChild(num);
       left.appendChild(name);
 
-      // ✅ 5 barres statut
+      // ✅ 5 barres statut (mais si team < 5, on met des barres "empty" neutres)
       const bars = document.createElement("div");
       bars.className = "rankBars";
 
-      // on force exactement 5 barres (au cas où une team aurait moins/plus)
       const barsData = Array.isArray(r.bars) ? r.bars : [];
-      for (const b of barsData) {
-        const b = barsData[i] || { status: "red", tip: "—" };
+
+      for (let i = 0; i < 5; i++) {
+        const b = barsData[i] || { status: "empty", tip: "—" };
         const bar = document.createElement("span");
         bar.className = `rankBar is-${b.status}`;
         bar.setAttribute("role", "img");
         bar.setAttribute("aria-label", b.tip || "—");
-        // tooltip natif + tooltip CSS
         bar.title = b.tip || "";
         bar.dataset.tip = b.tip || "";
         bars.appendChild(bar);
