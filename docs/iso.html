@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
+    />
+    <meta name="theme-color" content="#0b0c0d" />
+    <title>ISO-8 (Reco vs Joueur)</title>
+
+    <link rel="stylesheet" href="./style.css?v=ts" />
+    <link rel="stylesheet" href="./iso.css?v=ts" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  </head>
+
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="headerLeft">
+          <h1 class="title">ISO-8 (Reco vs Joueur)</h1>
+          <p class="subtitle">
+            Compare tes ISO recommandés avec ceux choisis par un joueur, sur une équipe donnée
+          </p>
+        </div>
+
+        <div class="headerRight">
+          <label class="label" for="allianceSelect">Alliance</label>
+          <select id="allianceSelect" class="select">
+            <option value="">— Chargement… —</option>
+          </select>
+
+          <label class="label" for="playerSelect">Joueur</label>
+          <select id="playerSelect" class="select" disabled>
+            <option value="">— Choisir une alliance d’abord —</option>
+          </select>
+
+          <label class="label" for="teamSelect2">Équipe</label>
+          <select id="teamSelect2" class="select">
+            <option value="">— Chargement… —</option>
+          </select>
+        </div>
+      </header>
+
+      <section class="card">
+        <div class="cardHeader">
+          <h2 class="cardTitle">ISO-8 recommandés</h2>
+        </div>
+        <div id="recoPortraits" class="portraits isoPortraits"></div>
+      </section>
+
+      <section class="card">
+        <div class="cardHeader">
+          <h2 id="playerTitle" class="cardTitle">—</h2>
+        </div>
+        <div id="playerPortraits" class="portraits isoPortraits"></div>
+      </section>
+    </div>
+
+    <script>
+      (function () {
+        const links = document.querySelectorAll('link[rel="stylesheet"]');
+        links.forEach((l) => {
+          if (l.href.includes("v=ts")) l.href = l.href.replace("v=ts", "v=" + Date.now());
+        });
+
+        const s = document.createElement("script");
+        s.src = "./iso.js?v=" + Date.now();
+        s.defer = true;
+        document.body.appendChild(s);
+      })();
+    </script>
+  </body>
+</html>
