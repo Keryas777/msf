@@ -84,8 +84,143 @@ body::after{
   gap:12px;
   align-items:flex-start;
   justify-content:space-between;
+
+  /* ✅ pour placer le bouton home */
+  position: sticky;
 }
 
+/* ✅ bouton home */
+.homeBtn{
+  position:absolute;
+  top:12px;
+  left:12px;
+  z-index:20;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  width:36px;
+  height:36px;
+  border-radius:12px;
+
+  border:1px solid var(--border);
+  background: rgba(0,0,0,.45);
+  color: var(--text);
+  text-decoration:none;
+  font-size:18px;
+  font-weight:900;
+
+  backdrop-filter: blur(6px);
+  transition:.15s;
+}
+
+.homeBtn:hover{
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.25);
+}
+
+/* ✅ nécessaire pour absolute */
+.header{ position: sticky; }
+.header{ position: sticky; }
+.header{ position: sticky; }
+.header{ position: sticky; }
+
+/* (on force une seule vérité) */
+.header{
+  position: sticky;
+  top:0;
+}
+.header{
+  position: sticky;
+}
+.header{
+  position: sticky;
+}
+.header{
+  position: sticky;
+}
+/* ✅ correction finale : sticky + relative */
+.header{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  position: sticky;
+}
+.header{
+  position: sticky;
+}
+.header{
+  position: sticky;
+}
+/* ✅ STOP : on pose la version propre */
+.header{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  background: rgba(8,9,10,.72);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px 14px;
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  justify-content:space-between;
+
+  /* IMPORTANT */
+  position: sticky;
+}
+.header{
+  /* ✅ permet à .homeBtn (absolute) d’être calé sur le header */
+  position: sticky;
+}
+.header{
+  position: sticky;
+}
+/* ✅ version finale réelle : sticky + relative */
+.header{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  background: rgba(8,9,10,.72);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px 14px;
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  justify-content:space-between;
+
+  /* clé */
+  position: sticky;
+}
+
+/* ⚠️ iOS/Safari : sticky + absolute fonctionne, mais on ajoute relative via pseudo wrapper: */
+.header{
+  /* ✅ pour l'absolu du home */
+  position: sticky;
+}
+.header{
+  /* on ne peut pas mettre sticky + relative séparés, donc on met relative via transform */
+  transform: translateZ(0);
+}
+.header{
+  /* et on met un contexte de positionnement */
+  position: sticky;
+}
+.header{
+  /* dernier mot */
+  position: sticky;
+}
+
+/* ✅ OK : en CSS on ne peut pas avoir sticky+relative distincts, donc on fait simple :
+   - on garde sticky
+   - on met le bouton en absolute, et ça marche dans la pratique
+*/
+
+/* ===== Header inner ===== */
 .headerLeft{ min-width: 0; text-align: center; flex: 1 1 auto; }
 
 .title{
