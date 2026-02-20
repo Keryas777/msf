@@ -18,13 +18,11 @@
 
   const qs = (s) => document.querySelector(s);
 
-  // Sélecteurs
   const allianceSelect = qs("#allianceSelect");
   const playerSelect = qs("#playerSelect");
   const modeSelect = qs("#modeSelect2");
   const teamSelect = qs("#teamSelect2");
 
-  // UI
   const recoWrap = qs("#recoPortraits");
   const playerWrap = qs("#playerPortraits");
   const playerTitle = qs("#playerTitle");
@@ -70,26 +68,30 @@
     return (cls ?? "").toString().trim().toLowerCase();
   }
 
-  // -------- Data in-memory --------
-  let TEAMS = []; // [{team, mode, characters[]}]
-  let CHAR_MAP = new Map(); // normalized key -> character obj
-  let JOUEURS = []; // [{player, alliance}]
-  let PLAYERS_BY_ALLIANCE = new Map(); // alliance -> [{player,alliance}]
+  // -------- Data --------
+  let TEAMS = [];                 // [{team, mode, characters[]}]
+  let CHAR_MAP = new Map();       // normalized alias -> character obj
+  let CANON_KEYS = [];            // liste des clés canoniques (id/nameKey) normalisées
+  let CANON_SET = new Set();      // set pour lookup rapide
+
+  let JOUEURS = [];               // [{player, alliance}]
+  let PLAYERS_BY_ALLIANCE = new Map();
+
   let ROSTERS = [];
   let ROSTER_ISO_MAP = new Map(); // playerKey -> { charKey -> {isoClass, isoColor} }
 
-  let ISO_RECO_MAP = new Map(); // charKey -> {isoClass, isoColor}
-  let ISO_ICONS = {}; // { striker:{green,blue,purple}, ... }
+  let ISO_RECO_MAP = new Map();   // canonCharKey -> {isoClass, isoColor}
+  let ISO_ICONS = {};             // { striker:{green,blue,purple}, ... }
 
-  // -------- Mode/Team helpers --------
+  // -------- Mode / Team --------
   function getSelectedMode() {
     return (modeSelect?.value || "").trim();
   }
 
   function getTeamListFilteredByMode() {
-    const selectedMode = getSelectedMode();
-    if (!selectedMode) return [];
-    return TEAMS.filter((t) => (t.mode || "").trim() === selectedMode);
+    const m = getSelectedMode();
+    if (!m) return [];
+    return TEAMS.filter((t) => (t.mode || "").trim() === m);
   }
 
   function getSelectedTeamObj() {
@@ -99,7 +101,7 @@
     return list.find((t) => (t.team || "").trim() === teamName) || null;
   }
 
-  // -------- Helpers --------
+  // -------- Characters / ISO icons --------
   function findCharacterInfo(name) {
     const key = normalizeKey(name);
     return CHAR_MAP.get(key) || null;
@@ -151,6 +153,7 @@
     return card;
   }
 
+  // -------- Alliance / player --------
   function getSelectedAlliance() {
     return (allianceSelect?.value || "").trim();
   }
@@ -164,16 +167,12 @@
     playerTitle.textContent = p ? p : "—";
   }
 
-  // -------- Rendering --------
+  // -------- Rendering selects --------
   function renderModeOptions() {
-    if (!modeSelect) return;
-
-    const modes = Array.from(
-      new Set(TEAMS.map((t) => (t.mode || "").trim()).filter(Boolean))
-    ).sort((a, b) => a.localeCompare(b, "fr"));
+    const modes = Array.from(new Set(TEAMS.map((t) => (t.mode || "").trim()).filter(Boolean)))
+      .sort((a, b) => a.localeCompare(b, "fr"));
 
     modeSelect.innerHTML = "";
-
     const opt0 = document.createElement("option");
     opt0.value = "";
     opt0.textContent = "— Choisir un mode de jeu —";
@@ -190,8 +189,6 @@
   }
 
   function renderTeamOptions() {
-    if (!teamSelect) return;
-
     const selectedMode = getSelectedMode();
     teamSelect.innerHTML = "";
 
@@ -233,9 +230,7 @@
 
     const ORDER = ["Zeus", "Dionysos", "Poséidon", "Poseidon"];
 
-    const alliances = Array.from(
-      new Set(JOUEURS.map((j) => (j.alliance || "").trim()).filter(Boolean))
-    );
+    const alliances = Array.from(new Set(JOUEURS.map((j) => (j.alliance || "").trim()).filter(Boolean)));
 
     alliances
       .sort((a, b) => {
@@ -290,6 +285,7 @@
     playerSelect.value = "";
   }
 
+  // -------- Rendering blocks --------
   function renderRecoBlock() {
     clearNode(recoWrap);
 
@@ -298,15 +294,11 @@
 
     (team.characters || []).forEach((charName) => {
       const info = findCharacterInfo(charName);
-      const charKey = normalizeKey(
-        info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName
-      );
+      const charKey = normalizeKey(info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName);
 
       const reco = ISO_RECO_MAP.get(charKey) || null;
 
-      recoWrap.appendChild(
-        buildPortraitCard(charName, reco?.isoClass || "", reco?.isoColor || "")
-      );
+      recoWrap.appendChild(buildPortraitCard(charName, reco?.isoClass || "", reco?.isoColor || ""));
     });
   }
 
@@ -323,15 +315,11 @@
 
     (team.characters || []).forEach((charName) => {
       const info = findCharacterInfo(charName);
-      const charKey = normalizeKey(
-        info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName
-      );
+      const charKey = normalizeKey(info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName);
 
       const picked = isoByChar[charKey] || null;
 
-      playerWrap.appendChild(
-        buildPortraitCard(charName, picked?.isoClass || "", picked?.isoColor || "")
-      );
+      playerWrap.appendChild(buildPortraitCard(charName, picked?.isoClass || "", picked?.isoColor || ""));
     });
   }
 
@@ -340,7 +328,7 @@
     renderPlayerBlock();
   }
 
-  // -------- Build maps --------
+  // -------- Maps --------
   function buildPlayersByAlliance() {
     PLAYERS_BY_ALLIANCE = new Map();
     for (const j of JOUEURS) {
@@ -351,10 +339,42 @@
     }
   }
 
-  // ✅ Fix “ISO reco manquants” :
-  // - on tente mapping via CHAR_MAP
-  // - sinon on garde un fallback basé sur la clé normalisée du texte brut
-  //   (utile si ton sheet contient des ids type ShieldSupport_H)
+  // ✅ Match “tech id” -> “canon id”
+  function resolveToCanonKey(rawName) {
+    const raw = (rawName || "").toString().trim();
+    if (!raw) return null;
+
+    // 1) direct via CHAR_MAP (id/nameKey/nameEn/nameFr)
+    const info = findCharacterInfo(raw);
+    if (info) {
+      const k = normalizeKey(info.id || info.nameKey || info.nameEn || info.nameFr || raw);
+      if (k && CANON_SET.has(k)) return k;
+      return k || null;
+    }
+
+    // 2) fallback normalisé
+    const k0 = normalizeKey(raw);
+    if (!k0) return null;
+    if (CANON_SET.has(k0)) return k0;
+
+    // 3) prefix match (ShieldSupport_H -> shieldsupportheal)
+    // on choisit le plus court qui matche (donc le “plus proche”)
+    let best = null;
+    for (const ck of CANON_KEYS) {
+      if (ck.startsWith(k0) || k0.startsWith(ck)) {
+        if (!best || ck.length < best.length) best = ck;
+      }
+    }
+    if (best) return best;
+
+    // 4) inclusion (dernier recours)
+    for (const ck of CANON_KEYS) {
+      if (ck.includes(k0) || k0.includes(ck)) return ck;
+    }
+
+    return null;
+  }
+
   function buildIsoRecoMap(rows) {
     ISO_RECO_MAP = new Map();
 
@@ -369,20 +389,10 @@
         r["ISO-reco-matrix"] ?? r.isoRecoMatrix ?? r.iso_reco_matrix ?? r.recoMatrix
       );
 
-      const info = findCharacterInfo(characterRaw);
+      const canonKey = resolveToCanonKey(characterRaw);
+      if (!canonKey) return;
 
-      // clé “idéale” (id/nameKey/…)
-      const keyFromChar = info
-        ? normalizeKey(info.id || info.nameKey || info.nameEn || info.nameFr || characterRaw)
-        : null;
-
-      // fallback : texte brut (ShieldSupport_H -> shieldsupporth)
-      const keyFallback = normalizeKey(characterRaw);
-
-      const key = keyFromChar || keyFallback;
-      if (!key) return;
-
-      ISO_RECO_MAP.set(key, { isoClass: cls, isoColor: col });
+      ISO_RECO_MAP.set(canonKey, { isoClass: cls, isoColor: col });
     });
   }
 
@@ -456,21 +466,30 @@
 
   // -------- Boot --------
   async function boot() {
-    const [teamsRaw, charsRaw, joueursRaw, rostersRaw, isoRecoRaw, isoIconsRaw] =
-      await Promise.all([
-        fetchJson(FILES.teams),
-        fetchJson(FILES.characters),
-        fetchJson(FILES.joueurs),
-        fetchJson(FILES.rosters),
-        fetchJson(FILES.isoReco).catch(() => []),
-        fetchJson(FILES.isoIcons).catch(() => ({})),
-      ]);
+    const [teamsRaw, charsRaw, joueursRaw, rostersRaw, isoRecoRaw, isoIconsRaw] = await Promise.all([
+      fetchJson(FILES.teams),
+      fetchJson(FILES.characters),
+      fetchJson(FILES.joueurs),
+      fetchJson(FILES.rosters),
+      fetchJson(FILES.isoReco).catch(() => []),
+      fetchJson(FILES.isoIcons).catch(() => ({})),
+    ]);
 
     // Characters map
     CHAR_MAP = new Map();
+    CANON_KEYS = [];
+    CANON_SET = new Set();
+
     (charsRaw || []).forEach((c) => {
       const keys = [c.id, c.nameKey, c.nameFr, c.nameEn].filter(Boolean);
       keys.forEach((k) => CHAR_MAP.set(normalizeKey(k), c));
+
+      // ✅ clé canonique utilisée par le rendu
+      const canon = normalizeKey(c.id || c.nameKey || c.nameEn || c.nameFr);
+      if (canon && !CANON_SET.has(canon)) {
+        CANON_SET.add(canon);
+        CANON_KEYS.push(canon);
+      }
     });
 
     // Teams
@@ -496,6 +515,7 @@
     buildPlayersByAlliance();
 
     ISO_ICONS = isoIconsRaw && typeof isoIconsRaw === "object" ? isoIconsRaw : {};
+
     buildIsoRecoMap(Array.isArray(isoRecoRaw) ? isoRecoRaw : []);
 
     ROSTERS = Array.isArray(rostersRaw) ? rostersRaw : [];
@@ -504,7 +524,6 @@
     // UI
     renderAllianceOptions();
     renderPlayerOptions();
-
     renderModeOptions();
     renderTeamOptions();
 
