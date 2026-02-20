@@ -129,8 +129,8 @@
 
   /**
    * opts:
-   * - status: "warn" | "ok" | "" (overlay emoji)
-   * - statusTitle: string (tooltip)
+   * - status: "warn" | "ok" | ""  (badge emoji + halo)
+   * - statusTitle: string
    */
   function buildPortraitCard(charName, isoClass, isoColor, opts = {}) {
     const info = findCharacterInfo(charName);
@@ -141,13 +141,16 @@
     if (opts.status === "warn") card.classList.add("hasIsoWarn");
     if (opts.status === "ok") card.classList.add("hasIsoOk");
 
-    // Overlay status (⚠️ / ✅)
+    // ✅/⚠️ au-dessus (en dehors du portrait)
     if (opts.status === "warn" || opts.status === "ok") {
       const st = document.createElement("div");
       st.className = "isoStatus";
       st.textContent = opts.status === "ok" ? "✅" : "⚠️";
       if (opts.statusTitle) st.title = opts.statusTitle;
-      st.setAttribute("aria-label", opts.status === "ok" ? "ISO conforme" : "ISO différent");
+      st.setAttribute(
+        "aria-label",
+        opts.status === "ok" ? "ISO conforme" : "ISO différent"
+      );
       card.appendChild(st);
     }
 
@@ -367,7 +370,6 @@
       const recoCls = normalizeIsoClass(reco?.isoClass || "");
       const recoCol = normalizeIsoColor(reco?.isoColor || "");
 
-      // comparaison uniquement si reco existe
       const hasReco = !!recoCls;
       const hasPicked = !!pickedCls;
 
@@ -376,17 +378,20 @@
 
       if (hasReco) {
         const isMatch = hasPicked && pickedCls === recoCls && pickedCol === recoCol;
-        const isMismatch = !isMatch; // reco existe => soit match, soit mismatch
 
         if (isMatch) {
           status = "ok";
-          statusTitle = `Reco: ${prettyIsoClass(recoCls)} ${prettyIsoColor(recoCol)}\nJoueur: ${prettyIsoClass(
-            pickedCls
-          )} ${prettyIsoColor(pickedCol)}`;
-        } else if (isMismatch) {
+          statusTitle = `Reco: ${prettyIsoClass(recoCls)} ${prettyIsoColor(
+            recoCol
+          )}\nJoueur: ${prettyIsoClass(pickedCls)} ${prettyIsoColor(pickedCol)}`;
+        } else {
           status = "warn";
-          statusTitle = `Reco: ${prettyIsoClass(recoCls)} ${prettyIsoColor(recoCol)}\nJoueur: ${
-            hasPicked ? `${prettyIsoClass(pickedCls)} ${prettyIsoColor(pickedCol)}` : "—"
+          statusTitle = `Reco: ${prettyIsoClass(recoCls)} ${prettyIsoColor(
+            recoCol
+          )}\nJoueur: ${
+            hasPicked
+              ? `${prettyIsoClass(pickedCls)} ${prettyIsoColor(pickedCol)}`
+              : "—"
           }`;
         }
       }
@@ -418,12 +423,10 @@
     }
   }
 
-  // ✅ Match “tech id” -> “canon id”
   function resolveToCanonKey(rawName) {
     const raw = (rawName || "").toString().trim();
     if (!raw) return null;
 
-    // 1) direct via CHAR_MAP
     const info = findCharacterInfo(raw);
     if (info) {
       const k = normalizeKey(info.id || info.nameKey || info.nameEn || info.nameFr || raw);
@@ -431,12 +434,10 @@
       return k || null;
     }
 
-    // 2) fallback normalisé
     const k0 = normalizeKey(raw);
     if (!k0) return null;
     if (CANON_SET.has(k0)) return k0;
 
-    // 3) prefix match
     let best = null;
     for (const ck of CANON_KEYS) {
       if (ck.startsWith(k0) || k0.startsWith(ck)) {
@@ -445,7 +446,6 @@
     }
     if (best) return best;
 
-    // 4) inclusion
     for (const ck of CANON_KEYS) {
       if (ck.includes(k0) || k0.includes(ck)) return ck;
     }
@@ -453,13 +453,9 @@
     return null;
   }
 
-  // ✅ Supporte :
-  // A) ancien tableau de lignes
-  // B) format objet : { updatedAt, byCharacter: { key: {isoRecoClass, isoRecoMatrix} } }
   function buildIsoRecoMap(isoRecoRaw) {
     ISO_RECO_MAP = new Map();
 
-    // A) tableau de lignes
     if (Array.isArray(isoRecoRaw)) {
       (isoRecoRaw || []).forEach((r) => {
         const characterRaw = (r.character ?? r.Character ?? "").toString().trim();
@@ -480,7 +476,6 @@
       return;
     }
 
-    // B) objet byCharacter
     const byChar = isoRecoRaw?.byCharacter;
     if (!byChar || typeof byChar !== "object") return;
 
@@ -578,7 +573,6 @@
         fetchJson(FILES.isoIcons).catch(() => ({})),
       ]);
 
-    // Characters map
     CHAR_MAP = new Map();
     CANON_KEYS = [];
     CANON_SET = new Set();
@@ -594,7 +588,6 @@
       }
     });
 
-    // Teams
     TEAMS = (teamsRaw || [])
       .map((t) => {
         const team = (t.team ?? t.Team ?? "").toString().trim();
@@ -606,7 +599,6 @@
       })
       .filter((t) => t.team);
 
-    // Joueurs
     JOUEURS = (joueursRaw || [])
       .map((r) => ({
         player: (r.player ?? r.joueur ?? r.JOUEURS ?? "").toString().trim(),
@@ -623,7 +615,6 @@
     ROSTERS = Array.isArray(rostersRaw) ? rostersRaw : [];
     buildRosterIsoMap(ROSTERS);
 
-    // UI
     renderAllianceOptions();
     renderPlayerOptions();
     renderModeOptions();
