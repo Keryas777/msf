@@ -1,8 +1,8 @@
 /* docs/iso.css */
-/* Surcouches ISO : garde le look global, ajoute le “slot” icône + ⚠️ mismatch */
+/* Surcouches ISO : badge ISO + overlays centrés (✅ / ⚠️) */
 
 .portraits .portraitCard{
-  position: relative; /* nécessaire pour l’overlay ⚠️ */
+  position: relative; /* overlay */
   display:flex;
   flex-direction:column;
   overflow:hidden;
@@ -20,7 +20,7 @@
   min-height: 40px;
 }
 
-/* ✅ taille verrouillée (évite les icônes énormes) */
+/* ✅ taille verrouillée */
 .isoIcon{
   width: 22px !important;
   height: 22px !important;
@@ -38,14 +38,16 @@
   letter-spacing: .2px;
 }
 
-/* ===== ⚠️ Mismatch overlay ===== */
-.isoWarn{
+/* ===== Overlay centrée (✅ / ⚠️) ===== */
+.isoStatus{
   position:absolute;
   top: 6px;
+
+  /* ✅ centrage horizontal parfait */
   left: 50%;
   transform: translateX(-50%);
-  z-index: 3;
 
+  z-index: 3;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -61,10 +63,14 @@
   font-size: 16px;
   line-height: 1;
   user-select:none;
-  pointer-events:auto; /* pour garder le title */
+  pointer-events:auto; /* garde le title */
 }
 
-/* Petit renfort contraste sur la carte en warning (optionnel mais sympa) */
+/* petits renforts visuels (optionnels) */
 .hasIsoWarn .portraitImg{
   filter: saturate(1.05) contrast(1.05);
+}
+
+.hasIsoOk .portraitImg{
+  filter: saturate(1.03) contrast(1.03);
 }
