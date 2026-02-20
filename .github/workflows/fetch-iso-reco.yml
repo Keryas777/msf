@@ -1,0 +1,49 @@
+name: Fetch ISO Reco (Sheet)
+
+on:
+  workflow_dispatch:
+
+  # Toutes les 3 heures (à xx:20)
+  schedule:
+    - cron: "20 */3 * * *"
+
+  push:
+    paths:
+      - "scripts/fetch-iso-reco.mjs"
+      - ".github/workflows/fetch-iso-reco.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-iso-reco
+  cancel-in-progress: true
+
+jobs:
+  fetch_iso_reco:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Fetch iso-reco JSON
+        env:
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+          SHEET_NAME: ISO-reco
+        run: |
+          node scripts/fetch-iso-reco.mjs
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add docs/data/iso-reco.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "Update iso-reco.json (auto 3h)"
+          git push
