@@ -84,9 +84,11 @@
 
   // -------- Data --------
   let TEAMS = []; // [{team, mode, characters[]}]
-  let CHAR_MAP = new Map(); // normalized alias -> character obj
-  let CANON_KEYS = []; // liste des clés canoniques (id/nameKey) normalisées
-  let CANON_SET = new Set(); // set pour lookup rapide
+  let CHARS = [];
+  let CHAR_MAP = new Map();   // alias -> best char
+  let CHAR_MULTI = new Map(); // alias -> [chars]
+  let CANON_KEYS = [];
+  let CANON_SET = new Set();
 
   let JOUEURS = []; // [{player, alliance}]
   let PLAYERS_BY_ALLIANCE = new Map();
@@ -97,27 +99,49 @@
   let ISO_RECO_MAP = new Map(); // canonCharKey -> {isoClass, isoColor}
   let ISO_ICONS = {}; // { striker:{green,blue,purple}, ... }
 
-  // -------- Mode / Team --------
-  function getSelectedMode() {
-    return (modeSelect?.value || "").trim();
+  // -------- Canon / variants handling --------
+  function isVariantId(id) {
+    const s = (id ?? "").toString();
+    if (!s) return false;
+    return /(_props|_bbminn|_npc|_event|_raid|_trial|_campaign|_boss)$/i.test(s);
   }
 
-  function getTeamListFilteredByMode() {
-    const m = getSelectedMode();
-    if (!m) return [];
-    return TEAMS.filter((t) => (t.mode || "").trim() === m);
+  function scoreCharacterMatch(c, queryKey) {
+    const id = (c?.id ?? "").toString();
+    const nameKey = (c?.nameKey ?? "").toString();
+
+    const idKey = normalizeKey(id);
+    const nameKeyKey = normalizeKey(nameKey);
+
+    let score = 0;
+    if (idKey && idKey === queryKey) score += 1000;
+    if (nameKeyKey && nameKeyKey === queryKey) score += 900;
+    if (isVariantId(id)) score -= 200;
+    if (id && id.length <= 18) score += 10;
+    return score;
   }
 
-  function getSelectedTeamObj() {
-    const teamName = (teamSelect?.value || "").trim();
-    if (!teamName) return null;
-    const list = getTeamListFilteredByMode();
-    return list.find((t) => (t.team || "").trim() === teamName) || null;
-  }
-
-  // -------- Characters / ISO icons --------
   function findCharacterInfo(name) {
-    const key = normalizeKey(name);
+    const raw = (name ?? "").toString().trim();
+    if (!raw) return null;
+
+    const key = normalizeKey(raw);
+    if (!key) return null;
+
+    const list = CHAR_MULTI.get(key);
+    if (Array.isArray(list) && list.length) {
+      let best = list[0];
+      let bestScore = -Infinity;
+      for (const c of list) {
+        const sc = scoreCharacterMatch(c, key);
+        if (sc > bestScore) {
+          bestScore = sc;
+          best = c;
+        }
+      }
+      return best || null;
+    }
+
     return CHAR_MAP.get(key) || null;
   }
 
@@ -141,7 +165,7 @@
     if (opts.status === "warn") card.classList.add("hasIsoWarn");
     if (opts.status === "ok") card.classList.add("hasIsoOk");
 
-    // ✅/⚠️ au-dessus (en dehors du portrait)
+    // ✅/⚠️ au-dessus
     if (opts.status === "warn" || opts.status === "ok") {
       const st = document.createElement("div");
       st.className = "isoStatus";
@@ -186,6 +210,24 @@
 
     card.appendChild(badge);
     return card;
+  }
+
+  // -------- Mode / Team --------
+  function getSelectedMode() {
+    return (modeSelect?.value || "").trim();
+  }
+
+  function getTeamListFilteredByMode() {
+    const m = getSelectedMode();
+    if (!m) return [];
+    return TEAMS.filter((t) => (t.mode || "").trim() === m);
+  }
+
+  function getSelectedTeamObj() {
+    const teamName = (teamSelect?.value || "").trim();
+    if (!teamName) return null;
+    const list = getTeamListFilteredByMode();
+    return list.find((t) => (t.team || "").trim() === teamName) || null;
   }
 
   // -------- Alliance / player --------
@@ -333,11 +375,12 @@
 
     (team.characters || []).forEach((charName) => {
       const info = findCharacterInfo(charName);
-      const charKey = normalizeKey(
+      const key1 = normalizeKey(
         info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName
       );
+      const key2 = normalizeKey(charName);
 
-      const reco = ISO_RECO_MAP.get(charKey) || null;
+      const reco = ISO_RECO_MAP.get(key1) || ISO_RECO_MAP.get(key2) || null;
 
       recoWrap.appendChild(
         buildPortraitCard(charName, reco?.isoClass || "", reco?.isoColor || "")
@@ -358,12 +401,13 @@
 
     (team.characters || []).forEach((charName) => {
       const info = findCharacterInfo(charName);
-      const charKey = normalizeKey(
+      const key1 = normalizeKey(
         info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName
       );
+      const key2 = normalizeKey(charName);
 
-      const picked = isoByChar[charKey] || null;
-      const reco = ISO_RECO_MAP.get(charKey) || null;
+      const picked = isoByChar[key1] || isoByChar[key2] || null;
+      const reco = ISO_RECO_MAP.get(key1) || ISO_RECO_MAP.get(key2) || null;
 
       const pickedCls = normalizeIsoClass(picked?.isoClass || "");
       const pickedCol = normalizeIsoColor(picked?.isoColor || "");
@@ -573,13 +617,31 @@
         fetchJson(FILES.isoIcons).catch(() => ({})),
       ]);
 
+    CHARS = Array.isArray(charsRaw) ? charsRaw : [];
+
     CHAR_MAP = new Map();
+    CHAR_MULTI = new Map();
     CANON_KEYS = [];
     CANON_SET = new Set();
 
-    (charsRaw || []).forEach((c) => {
+    CHARS.forEach((c) => {
       const keys = [c.id, c.nameKey, c.nameFr, c.nameEn].filter(Boolean);
-      keys.forEach((k) => CHAR_MAP.set(normalizeKey(k), c));
+      keys.forEach((k) => {
+        const kk = normalizeKey(k);
+        if (!kk) return;
+
+        if (!CHAR_MULTI.has(kk)) CHAR_MULTI.set(kk, []);
+        CHAR_MULTI.get(kk).push(c);
+
+        const existing = CHAR_MAP.get(kk);
+        if (!existing) {
+          CHAR_MAP.set(kk, c);
+        } else {
+          const scNew = scoreCharacterMatch(c, kk);
+          const scOld = scoreCharacterMatch(existing, kk);
+          if (scNew > scOld) CHAR_MAP.set(kk, c);
+        }
+      });
 
       const canon = normalizeKey(c.id || c.nameKey || c.nameEn || c.nameFr);
       if (canon && !CANON_SET.has(canon)) {
@@ -609,7 +671,6 @@
     buildPlayersByAlliance();
 
     ISO_ICONS = isoIconsRaw && typeof isoIconsRaw === "object" ? isoIconsRaw : {};
-
     buildIsoRecoMap(isoRecoRaw);
 
     ROSTERS = Array.isArray(rostersRaw) ? rostersRaw : [];
