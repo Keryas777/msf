@@ -1,0 +1,49 @@
+.homeHeader{
+  text-align:center;
+}
+
+.homeGrid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.homeTile{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  gap:12px;
+
+  padding:24px 16px;
+  border-radius:20px;
+  border:1px solid var(--border);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+
+  text-decoration:none;
+  color: var(--text);
+  transition: .2s;
+}
+
+.homeTile:hover{
+  transform: translateY(-4px);
+  border-color: rgba(255,255,255,.25);
+  background: rgba(255,255,255,.04);
+}
+
+.tileIcon{
+  font-size:40px;
+}
+
+.tileTitle{
+  font-weight:900;
+  font-size:18px;
+}
+
+.tileDesc{
+  font-size:13px;
+  color: var(--muted);
+}
