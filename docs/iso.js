@@ -18,9 +18,12 @@
 
   const qs = (s) => document.querySelector(s);
 
+  // ✅ NOUVEAU : Mode puis Team (comme la page classement)
+  const modeSelect = qs("#modeSelect2");
+  const teamSelect = qs("#teamSelect2");
+
   const allianceSelect = qs("#allianceSelect");
   const playerSelect = qs("#playerSelect");
-  const teamSelect = qs("#teamSelect2");
 
   const recoWrap = qs("#recoPortraits");
   const playerWrap = qs("#playerPortraits");
@@ -69,7 +72,6 @@
 
   // -------- Data in-memory --------
   let TEAMS = [];               // [{team, mode, characters[]}]
-  let TEAM_OPTIONS = [];        // [{id,label,team,mode,characters[]}]
   let CHAR_MAP = new Map();     // normalized key -> character obj
   let JOUEURS = [];             // [{player, alliance}]
   let PLAYERS_BY_ALLIANCE = new Map(); // alliance -> [{player,alliance}]
@@ -78,6 +80,26 @@
 
   let ISO_RECO_MAP = new Map(); // charKey -> {isoClass, isoColor}
   let ISO_ICONS = {};           // { striker:{green,blue,purple}, ... }
+
+  // -------- Mode/Team helpers --------
+  function getSelectedMode() {
+    return (modeSelect?.value || "").trim();
+  }
+
+  // ✅ si aucun mode sélectionné => aucune team proposée
+  function getTeamListFilteredByMode() {
+    const selectedMode = getSelectedMode();
+    if (!selectedMode) return [];
+    return TEAMS.filter((t) => (t.mode || "").trim() === selectedMode);
+  }
+
+  function getSelectedTeamObj() {
+    const teamName = (teamSelect?.value || "").trim();
+    if (!teamName) return null;
+
+    const list = getTeamListFilteredByMode();
+    return list.find((t) => (t.team || "").trim() === teamName) || null;
+  }
 
   // -------- Helpers --------
   function findCharacterInfo(name) {
@@ -131,12 +153,6 @@
     return card;
   }
 
-  function getSelectedTeamOption() {
-    const id = (teamSelect?.value || "").trim();
-    if (!id) return null;
-    return TEAM_OPTIONS.find((t) => t.id === id) || null;
-  }
-
   function getSelectedAlliance() {
     return (allianceSelect?.value || "").trim();
   }
@@ -151,6 +167,64 @@
   }
 
   // -------- Rendering --------
+  function renderModeOptions() {
+    if (!modeSelect) return;
+
+    const modes = Array.from(
+      new Set(TEAMS.map((t) => (t.mode || "").trim()).filter(Boolean))
+    ).sort((a, b) => a.localeCompare(b, "fr"));
+
+    modeSelect.innerHTML = "";
+
+    const opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "— Choisir un mode de jeu —";
+    modeSelect.appendChild(opt0);
+
+    modes.forEach((m) => {
+      const opt = document.createElement("option");
+      opt.value = m;
+      opt.textContent = m;
+      modeSelect.appendChild(opt);
+    });
+
+    modeSelect.value = "";
+  }
+
+  function renderTeamOptions() {
+    if (!teamSelect) return;
+
+    const selectedMode = getSelectedMode();
+    teamSelect.innerHTML = "";
+
+    const opt0 = document.createElement("option");
+    opt0.value = "";
+
+    // ✅ si pas de mode => on ne propose aucune équipe
+    if (!selectedMode) {
+      opt0.textContent = "— Choisir un mode d’abord —";
+      teamSelect.appendChild(opt0);
+      teamSelect.value = "";
+      return;
+    }
+
+    opt0.textContent = "— Choisir une équipe —";
+    teamSelect.appendChild(opt0);
+
+    const list = getTeamListFilteredByMode()
+      .slice()
+      .sort((a, b) => (a.team || "").localeCompare((b.team || ""), "fr"));
+
+    list.forEach((t) => {
+      const opt = document.createElement("option");
+      opt.value = (t.team || "").trim();
+      opt.textContent = (t.team || "").trim();
+      teamSelect.appendChild(opt);
+    });
+
+    teamSelect.value = "";
+  }
+
   function renderAllianceOptions() {
     allianceSelect.innerHTML = "";
 
@@ -209,37 +283,15 @@
     playerSelect.value = "";
   }
 
-  function renderTeamOptions() {
-    teamSelect.innerHTML = "";
-
-    const opt0 = document.createElement("option");
-    opt0.value = "";
-    opt0.textContent = "— Choisir une équipe —";
-    teamSelect.appendChild(opt0);
-
-    TEAM_OPTIONS
-      .slice()
-      .sort((a, b) => a.label.localeCompare(b.label, "fr"))
-      .forEach((t) => {
-        const opt = document.createElement("option");
-        opt.value = t.id;
-        opt.textContent = t.label;
-        teamSelect.appendChild(opt);
-      });
-
-    teamSelect.value = "";
-  }
-
   function renderRecoBlock() {
     clearNode(recoWrap);
 
-    const team = getSelectedTeamOption();
+    const team = getSelectedTeamObj();
     if (!team) return;
 
     (team.characters || []).forEach((charName) => {
       const info = findCharacterInfo(charName);
 
-      // clé roster/iso : on tente plusieurs identifiants comme sur ta 1re page
       const charKey = normalizeKey(
         info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName
       );
@@ -258,7 +310,7 @@
     clearNode(playerWrap);
     setPlayerTitle();
 
-    const team = getSelectedTeamOption();
+    const team = getSelectedTeamObj();
     const player = getSelectedPlayer();
     if (!team || !player) return;
 
@@ -288,19 +340,6 @@
   }
 
   // -------- Build maps --------
-  function buildTeamOptions() {
-    // On conserve team + mode pour éviter ambiguïtés (équipes identiques dans plusieurs modes)
-    // Label : "Team — Mode" si mode existe, sinon "Team"
-    TEAM_OPTIONS = TEAMS.map((t) => {
-      const team = (t.team || "").trim();
-      const mode = (t.mode || "").trim();
-      const characters = Array.isArray(t.characters) ? t.characters : [];
-      const id = mode ? `${mode}||${team}` : `||${team}`;
-      const label = mode ? `${team} — ${mode}` : team;
-      return { id, label, team, mode, characters };
-    }).filter((t) => t.team);
-  }
-
   function buildPlayersByAlliance() {
     PLAYERS_BY_ALLIANCE = new Map();
     for (const j of JOUEURS) {
@@ -318,8 +357,12 @@
       const character = (r.character ?? r.Character ?? "").toString().trim();
       if (!character) return;
 
-      const cls = normalizeIsoClass(r["ISO-reco-class"] ?? r.isoRecoClass ?? r.iso_reco_class ?? r.recoClass);
-      const col = normalizeIsoColor(r["ISO-reco-matrix"] ?? r.isoRecoMatrix ?? r.iso_reco_matrix ?? r.recoMatrix);
+      const cls = normalizeIsoClass(
+        r["ISO-reco-class"] ?? r.isoRecoClass ?? r.iso_reco_class ?? r.recoClass
+      );
+      const col = normalizeIsoColor(
+        r["ISO-reco-matrix"] ?? r.isoRecoMatrix ?? r.iso_reco_matrix ?? r.recoMatrix
+      );
 
       const info = findCharacterInfo(character);
       const key = normalizeKey(
@@ -332,15 +375,6 @@
   }
 
   function buildRosterIsoMap(rostersRaw) {
-    // On supporte plusieurs structures pour être compatible “maintenant” et “plus tard”.
-    //
-    // Objectif final : ROSTER_ISO_MAP.get(playerKey)[charKey] = {isoClass, isoColor}
-    //
-    // Support :
-    // - r.iso : { charKey: {isoClass, isoColor} }
-    // - r.isoClass / r.isoMatrix : { charKey: "raider" } / { charKey: "purple" }
-    // - r.charsIsoClass / r.charsIsoMatrix : idem
-    // - OU rien (=> affichera "—")
     ROSTER_ISO_MAP = new Map();
 
     (rostersRaw || []).forEach((r) => {
@@ -350,7 +384,6 @@
       const pKey = normalizeKey(player);
       const out = {};
 
-      // 1) structure directe r.iso[charKey] = {isoClass, isoColor}
       if (r.iso && typeof r.iso === "object") {
         for (const [k, v] of Object.entries(r.iso)) {
           const ck = normalizeKey(k);
@@ -360,7 +393,6 @@
         }
       }
 
-      // 2) maps séparées (class/matrix)
       const clsMap =
         (r.isoClass && typeof r.isoClass === "object" && r.isoClass) ||
         (r.charsIsoClass && typeof r.charsIsoClass === "object" && r.charsIsoClass) ||
@@ -393,6 +425,20 @@
   }
 
   // -------- Events --------
+  function onModeChange() {
+    // ✅ comme dans classement : reset team + affichage
+    if (teamSelect) teamSelect.value = "";
+    renderTeamOptions();
+
+    clearNode(recoWrap);
+    clearNode(playerWrap);
+    renderAll();
+  }
+
+  function onTeamChange() {
+    renderAll();
+  }
+
   function onAllianceChange() {
     renderPlayerOptions();
     playerTitle.textContent = "—";
@@ -401,10 +447,6 @@
   }
 
   function onPlayerChange() {
-    renderAll();
-  }
-
-  function onTeamChange() {
     renderAll();
   }
 
@@ -422,8 +464,8 @@
       fetchJson(FILES.characters),
       fetchJson(FILES.joueurs),
       fetchJson(FILES.rosters),
-      fetchJson(FILES.isoReco).catch(() => []),     // si pas encore généré => page OK
-      fetchJson(FILES.isoIcons).catch(() => ({})),  // si pas encore présent => page OK
+      fetchJson(FILES.isoReco).catch(() => []),
+      fetchJson(FILES.isoIcons).catch(() => ({})),
     ]);
 
     // Characters map
@@ -444,8 +486,6 @@
         return { team, mode, characters };
       })
       .filter((t) => t.team);
-
-    buildTeamOptions();
 
     // Joueurs
     JOUEURS = (joueursRaw || [])
@@ -468,21 +508,22 @@
     buildRosterIsoMap(ROSTERS);
 
     // UI
+    renderModeOptions();     // ✅ d’abord
+    renderTeamOptions();     // ✅ vide tant que mode pas choisi
+
     renderAllianceOptions();
     renderPlayerOptions();
-    renderTeamOptions();
 
-    // reset titles
     playerTitle.textContent = "—";
-
-    // nothing selected by default
     clearNode(recoWrap);
     clearNode(playerWrap);
   }
 
+  modeSelect?.addEventListener("change", onModeChange);
+  teamSelect?.addEventListener("change", onTeamChange);
+
   allianceSelect?.addEventListener("change", onAllianceChange);
   playerSelect?.addEventListener("change", onPlayerChange);
-  teamSelect?.addEventListener("change", onTeamChange);
 
   boot().catch((e) => console.error(e));
 })();
