@@ -323,7 +323,7 @@
 
       // on force exactement 5 barres (au cas où une team aurait moins/plus)
       const barsData = Array.isArray(r.bars) ? r.bars : [];
-      for (let i = 0; i < 5; i++) {
+      for (const b of barsData) {
         const b = barsData[i] || { status: "red", tip: "—" };
         const bar = document.createElement("span");
         bar.className = `rankBar is-${b.status}`;
