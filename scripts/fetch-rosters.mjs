@@ -2,7 +2,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-// Accepte plusieurs noms de variables (selon tes workflows existants)
 const SHEET_ID =
   process.env.SHEET_ID ||
   process.env.SPREADSHEET_ID ||
@@ -73,7 +72,16 @@ function normIsoColor(x) {
   if (v === "vert") return "green";
   if (v === "bleu") return "blue";
   if (v === "violet") return "purple";
-  return v; // si déjà green/blue/purple ou autre
+  return v;
+}
+
+function computeIsoMax(cols, idxs) {
+  let m = 0;
+  for (const i of idxs) {
+    const v = toInt(cols[i]);
+    if (v > m) m = v;
+  }
+  return m;
 }
 
 async function main() {
@@ -89,20 +97,23 @@ async function main() {
 
   if (lines.length < 2) throw new Error("CSV empty / no data rows.");
 
-  // Indices fixes selon ton sheet:
-  // A=0 (joueur), B=1 (personnage), D=3 (power)
-  // L=11 (ISO Class), M=12 (ISO Matrix)
-  const idxName = 0;
-  const idxChar = 1;
-  const idxPower = 3;
-  const idxIsoClass = 11;
-  const idxIsoMatrix = 12;
+  // Indices fixes selon ton sheet (0-based)
+  const idxName = 0;       // A
+  const idxChar = 1;       // B
+  const idxLevel = 2;      // C
+  const idxPower = 3;      // D
+  const idxGear = 6;       // G
+
+  const idxIsoClass = 11;  // L (ISO class text)
+  const idxIsoMatrix = 12; // M (ISO color text)
+
+  const idxIsoCols = [13, 14, 15, 16, 17]; // N O P Q R -> valeurs iso (int)
 
   // byPlayer:
-  //  - chars: { charKey: power }
+  //  - chars: { charKey: {power, level, gear, isoMax} }
   //  - iso:   { charKey: { isoClass, isoColor } }
   //
-  // On garde l'entrée issue de la ligne au POWER max (comme avant).
+  // On conserve la ligne de POWER max pour chaque perso.
   const byPlayer = new Map();
 
   for (let i = 1; i < lines.length; i++) {
@@ -110,33 +121,53 @@ async function main() {
 
     const player = (cols[idxName] ?? "").toString().trim();
     const character = (cols[idxChar] ?? "").toString().trim();
+
+    if (!player || !character) continue;
+
     const power = toInt(cols[idxPower]);
+    const level = toInt(cols[idxLevel]);
+    const gear = toInt(cols[idxGear]);
+    const isoMax = computeIsoMax(cols, idxIsoCols);
 
     const isoClass = normIsoClass(cols[idxIsoClass]);
     const isoColor = normIsoColor(cols[idxIsoMatrix]);
-
-    if (!player || !character) continue;
 
     const pKey = normalizeKey(player);
     const cKey = normalizeKey(character);
 
     if (!byPlayer.has(pKey)) byPlayer.set(pKey, { player, chars: {}, iso: {} });
-
     const entry = byPlayer.get(pKey);
 
-    const prevPower = entry.chars[cKey] ?? 0;
+    const prev = entry.chars[cKey];
+    const prevPower = prev && typeof prev === "object" ? toInt(prev.power) : 0;
 
-    // si power plus grand -> on remplace power ET iso (cohérent)
-    if (power >= prevPower) {
-      entry.chars[cKey] = power;
+    // si power plus grand -> on remplace tout (cohérent)
+    if (power > prevPower) {
+      entry.chars[cKey] = { power, level, gear, isoMax };
 
-      // On écrit iso seulement si on a au moins une info (sinon on laisse vide)
       if (isoClass || isoColor) {
         entry.iso[cKey] = { isoClass: isoClass || "", isoColor: isoColor || "" };
-      } else {
-        // si on remplace par une ligne sans iso, on ne supprime pas l’ancienne
-        // (pour éviter de "perdre" l’info si la ligne power max n'a pas L/M)
-        // donc on ne touche pas entry.iso[cKey]
+      }
+      continue;
+    }
+
+    // si power égal -> on garde le meilleur "progress" (max) pour level/gear/isoMax
+    if (power === prevPower && prev && typeof prev === "object") {
+      prev.level = Math.max(toInt(prev.level), level);
+      prev.gear = Math.max(toInt(prev.gear), gear);
+      prev.isoMax = Math.max(toInt(prev.isoMax), isoMax);
+
+      // iso : si on a une info sur cette ligne et pas déjà, on la garde
+      if ((isoClass || isoColor) && !entry.iso[cKey]) {
+        entry.iso[cKey] = { isoClass: isoClass || "", isoColor: isoColor || "" };
+      }
+    }
+
+    // si prev absent (power==0) et power==0 => on peut quand même stocker les infos
+    if (!prev && power === 0) {
+      entry.chars[cKey] = { power, level, gear, isoMax };
+      if (isoClass || isoColor) {
+        entry.iso[cKey] = { isoClass: isoClass || "", isoColor: isoColor || "" };
       }
     }
   }
