@@ -1,16 +1,14 @@
 /* docs/iso.css */
-/* Surcouches ISO : garde le look global, ajoute le “slot” icône */
+/* Surcouches ISO : garde le look global, ajoute le “slot” icône + ⚠️ mismatch */
 
-.isoPortraits .portraitCard{
+.portraits .portraitCard{
+  position: relative; /* nécessaire pour l’overlay ⚠️ */
   display:flex;
   flex-direction:column;
   overflow:hidden;
 }
 
-.isoPortraits .portraitImg{
-  /* style.css: contain + aspect-ratio => ok */
-}
-
+/* Le badge ISO sous le portrait */
 .isoBadge{
   display:flex;
   align-items:center;
@@ -38,4 +36,35 @@
   color: var(--muted2);
   font-weight: 800;
   letter-spacing: .2px;
+}
+
+/* ===== ⚠️ Mismatch overlay ===== */
+.isoWarn{
+  position:absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+
+  background: rgba(0,0,0,.55);
+  border: 1px solid rgba(255,255,255,.22);
+  box-shadow: 0 6px 16px rgba(0,0,0,.45);
+
+  font-size: 16px;
+  line-height: 1;
+  user-select:none;
+  pointer-events:auto; /* pour garder le title */
+}
+
+/* Petit renfort contraste sur la carte en warning (optionnel mais sympa) */
+.hasIsoWarn .portraitImg{
+  filter: saturate(1.05) contrast(1.05);
 }
