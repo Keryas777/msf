@@ -169,8 +169,9 @@
 
   // -------- Rendering selects --------
   function renderModeOptions() {
-    const modes = Array.from(new Set(TEAMS.map((t) => (t.mode || "").trim()).filter(Boolean)))
-      .sort((a, b) => a.localeCompare(b, "fr"));
+    const modes = Array.from(
+      new Set(TEAMS.map((t) => (t.mode || "").trim()).filter(Boolean))
+    ).sort((a, b) => a.localeCompare(b, "fr"));
 
     modeSelect.innerHTML = "";
     const opt0 = document.createElement("option");
@@ -230,13 +231,16 @@
 
     const ORDER = ["Zeus", "Dionysos", "Poséidon", "Poseidon"];
 
-    const alliances = Array.from(new Set(JOUEURS.map((j) => (j.alliance || "").trim()).filter(Boolean)));
+    const alliances = Array.from(
+      new Set(JOUEURS.map((j) => (j.alliance || "").trim()).filter(Boolean))
+    );
 
     alliances
       .sort((a, b) => {
         const ia = ORDER.indexOf(a);
         const ib = ORDER.indexOf(b);
-        if (ia !== -1 || ib !== -1) return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+        if (ia !== -1 || ib !== -1)
+          return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
         return a.localeCompare(b, "fr");
       })
       .forEach((a) => {
@@ -294,11 +298,15 @@
 
     (team.characters || []).forEach((charName) => {
       const info = findCharacterInfo(charName);
-      const charKey = normalizeKey(info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName);
+      const charKey = normalizeKey(
+        info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName
+      );
 
       const reco = ISO_RECO_MAP.get(charKey) || null;
 
-      recoWrap.appendChild(buildPortraitCard(charName, reco?.isoClass || "", reco?.isoColor || ""));
+      recoWrap.appendChild(
+        buildPortraitCard(charName, reco?.isoClass || "", reco?.isoColor || "")
+      );
     });
   }
 
@@ -315,11 +323,15 @@
 
     (team.characters || []).forEach((charName) => {
       const info = findCharacterInfo(charName);
-      const charKey = normalizeKey(info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName);
+      const charKey = normalizeKey(
+        info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName
+      );
 
       const picked = isoByChar[charKey] || null;
 
-      playerWrap.appendChild(buildPortraitCard(charName, picked?.isoClass || "", picked?.isoColor || ""));
+      playerWrap.appendChild(
+        buildPortraitCard(charName, picked?.isoClass || "", picked?.isoColor || "")
+      );
     });
   }
 
@@ -357,8 +369,7 @@
     if (!k0) return null;
     if (CANON_SET.has(k0)) return k0;
 
-    // 3) prefix match (ShieldSupport_H -> shieldsupportheal)
-    // on choisit le plus court qui matche (donc le “plus proche”)
+    // 3) prefix match
     let best = null;
     for (const ck of CANON_KEYS) {
       if (ck.startsWith(k0) || k0.startsWith(ck)) {
@@ -367,7 +378,7 @@
     }
     if (best) return best;
 
-    // 4) inclusion (dernier recours)
+    // 4) inclusion
     for (const ck of CANON_KEYS) {
       if (ck.includes(k0) || k0.includes(ck)) return ck;
     }
@@ -375,25 +386,46 @@
     return null;
   }
 
-  function buildIsoRecoMap(rows) {
+  // ✅ Supporte :
+  // A) ancien tableau de lignes
+  // B) ton format actuel : { updatedAt, byCharacter: { key: {isoRecoClass, isoRecoMatrix} } }
+  function buildIsoRecoMap(isoRecoRaw) {
     ISO_RECO_MAP = new Map();
 
-    (rows || []).forEach((r) => {
-      const characterRaw = (r.character ?? r.Character ?? "").toString().trim();
-      if (!characterRaw) return;
+    // A) tableau de lignes
+    if (Array.isArray(isoRecoRaw)) {
+      (isoRecoRaw || []).forEach((r) => {
+        const characterRaw = (r.character ?? r.Character ?? "").toString().trim();
+        if (!characterRaw) return;
 
-      const cls = normalizeIsoClass(
-        r["ISO-reco-class"] ?? r.isoRecoClass ?? r.iso_reco_class ?? r.recoClass
-      );
-      const col = normalizeIsoColor(
-        r["ISO-reco-matrix"] ?? r.isoRecoMatrix ?? r.iso_reco_matrix ?? r.recoMatrix
-      );
+        const cls = normalizeIsoClass(
+          r["ISO-reco-class"] ?? r.isoRecoClass ?? r.iso_reco_class ?? r.recoClass
+        );
+        const col = normalizeIsoColor(
+          r["ISO-reco-matrix"] ?? r.isoRecoMatrix ?? r.iso_reco_matrix ?? r.recoMatrix
+        );
 
-      const canonKey = resolveToCanonKey(characterRaw);
-      if (!canonKey) return;
+        const canonKey = resolveToCanonKey(characterRaw);
+        if (!canonKey) return;
+
+        ISO_RECO_MAP.set(canonKey, { isoClass: cls, isoColor: col });
+      });
+      return;
+    }
+
+    // B) objet byCharacter (ton cas)
+    const byChar = isoRecoRaw?.byCharacter;
+    if (!byChar || typeof byChar !== "object") return;
+
+    for (const [charKeyRaw, v] of Object.entries(byChar)) {
+      const canonKey = resolveToCanonKey(charKeyRaw);
+      if (!canonKey) continue;
+
+      const cls = normalizeIsoClass(v?.isoRecoClass ?? v?.isoClass ?? v?.class);
+      const col = normalizeIsoColor(v?.isoRecoMatrix ?? v?.isoColor ?? v?.matrix);
 
       ISO_RECO_MAP.set(canonKey, { isoClass: cls, isoColor: col });
-    });
+    }
   }
 
   function buildRosterIsoMap(rostersRaw) {
@@ -428,11 +460,17 @@
         null;
 
       if (clsMap || colMap) {
-        const keys = new Set([...Object.keys(clsMap || {}), ...Object.keys(colMap || {})]);
+        const keys = new Set([
+          ...Object.keys(clsMap || {}),
+          ...Object.keys(colMap || {}),
+        ]);
         keys.forEach((k) => {
           const ck = normalizeKey(k);
           if (!ck) return;
-          out[ck] = { isoClass: normalizeIsoClass(clsMap?.[k]), isoColor: normalizeIsoColor(colMap?.[k]) };
+          out[ck] = {
+            isoClass: normalizeIsoClass(clsMap?.[k]),
+            isoColor: normalizeIsoColor(colMap?.[k]),
+          };
         });
       }
 
@@ -466,14 +504,16 @@
 
   // -------- Boot --------
   async function boot() {
-    const [teamsRaw, charsRaw, joueursRaw, rostersRaw, isoRecoRaw, isoIconsRaw] = await Promise.all([
-      fetchJson(FILES.teams),
-      fetchJson(FILES.characters),
-      fetchJson(FILES.joueurs),
-      fetchJson(FILES.rosters),
-      fetchJson(FILES.isoReco).catch(() => []),
-      fetchJson(FILES.isoIcons).catch(() => ({})),
-    ]);
+    const [teamsRaw, charsRaw, joueursRaw, rostersRaw, isoRecoRaw, isoIconsRaw] =
+      await Promise.all([
+        fetchJson(FILES.teams),
+        fetchJson(FILES.characters),
+        fetchJson(FILES.joueurs),
+        fetchJson(FILES.rosters),
+        // ✅ ton iso-reco.json est un OBJET => on fallback sur {} (pas [])
+        fetchJson(FILES.isoReco).catch(() => ({})),
+        fetchJson(FILES.isoIcons).catch(() => ({})),
+      ]);
 
     // Characters map
     CHAR_MAP = new Map();
@@ -484,7 +524,6 @@
       const keys = [c.id, c.nameKey, c.nameFr, c.nameEn].filter(Boolean);
       keys.forEach((k) => CHAR_MAP.set(normalizeKey(k), c));
 
-      // ✅ clé canonique utilisée par le rendu
       const canon = normalizeKey(c.id || c.nameKey || c.nameEn || c.nameFr);
       if (canon && !CANON_SET.has(canon)) {
         CANON_SET.add(canon);
@@ -514,9 +553,11 @@
 
     buildPlayersByAlliance();
 
-    ISO_ICONS = isoIconsRaw && typeof isoIconsRaw === "object" ? isoIconsRaw : {};
+    ISO_ICONS =
+      isoIconsRaw && typeof isoIconsRaw === "object" ? isoIconsRaw : {};
 
-    buildIsoRecoMap(Array.isArray(isoRecoRaw) ? isoRecoRaw : []);
+    // ✅ IMPORTANT : on lit ISO reco quel que soit le format (objet ou array)
+    buildIsoRecoMap(isoRecoRaw);
 
     ROSTERS = Array.isArray(rostersRaw) ? rostersRaw : [];
     buildRosterIsoMap(ROSTERS);
