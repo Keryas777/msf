@@ -1,11 +1,12 @@
 /* docs/iso.css */
-/* Surcouches ISO : badge ISO + overlays centrés (✅ / ⚠️) */
+/* Surcouches ISO : badge ISO + halos vert/jaune + emojis AU-DESSUS des portraits */
 
 .portraits .portraitCard{
-  position: relative; /* overlay */
+  position: relative;
   display:flex;
   flex-direction:column;
-  overflow:hidden;
+  overflow: visible; /* ✅ important : permet à l’emoji de dépasser au-dessus */
+  border-radius: 14px;
 }
 
 /* Le badge ISO sous le portrait */
@@ -38,16 +39,14 @@
   letter-spacing: .2px;
 }
 
-/* ===== Overlay centrée (✅ / ⚠️) ===== */
+/* ===== Emoji (✅ / ⚠️) AU-DESSUS du portrait ===== */
 .isoStatus{
   position:absolute;
-  top: 6px;
-
-  /* ✅ centrage horizontal parfait */
+  top: -14px;              /* ✅ au-dessus */
   left: 50%;
   transform: translateX(-50%);
+  z-index: 5;
 
-  z-index: 3;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -66,11 +65,25 @@
   pointer-events:auto; /* garde le title */
 }
 
-/* petits renforts visuels (optionnels) */
+/* ===== Halos autour des persos ===== */
+.hasIsoOk{
+  box-shadow:
+    0 0 0 2px rgba(120, 255, 150, .70),
+    0 0 22px rgba(120, 255, 150, .35),
+    0 8px 24px rgba(0,0,0,.45);
+}
+
+.hasIsoWarn{
+  box-shadow:
+    0 0 0 2px rgba(255, 220, 80, .75),
+    0 0 22px rgba(255, 220, 80, .38),
+    0 8px 24px rgba(0,0,0,.45);
+}
+
+/* petit renfort contraste (optionnel) */
 .hasIsoWarn .portraitImg{
   filter: saturate(1.05) contrast(1.05);
 }
-
 .hasIsoOk .portraitImg{
   filter: saturate(1.03) contrast(1.03);
 }
