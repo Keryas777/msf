@@ -14,6 +14,13 @@
     Poseidon: "🔱",
   };
 
+  // Paliers demandés
+  const THRESH = {
+    level: 100,
+    gear: 19,
+    iso: 13, // au moins une des 5 colonnes N-O-P-Q-R >= 13 => on stocke isoMax
+  };
+
   const qs = (s) => document.querySelector(s);
 
   const modeSelect = qs("#modeSelect");
@@ -29,11 +36,11 @@
   const filterDionysos = qs("#filterDionysos");
   const filterPoseidon = qs("#filterPoseidon");
 
-  let TEAMS = [];            // [{team, mode, characters[]}]
-  let CHAR_MAP = new Map();  // normalized name -> character obj
-  let JOUEURS = [];          // [{player, alliance}]
-  let ROSTERS = [];          // [{player, chars:{key:power}}]
-  let ROSTER_MAP = new Map();// playerKey -> chars map
+  let TEAMS = []; // [{team, mode, characters[]}]
+  let CHAR_MAP = new Map(); // normalized name -> character obj
+  let JOUEURS = []; // [{player, alliance}]
+  let ROSTERS = []; // [{player, chars:{key:number|{power,level,gear,isoMax}}, iso:{...}}]
+  let ROSTER_MAP = new Map(); // playerKey -> chars map
 
   const bust = (url) => {
     const u = new URL(url, window.location.href);
@@ -80,8 +87,7 @@
     return (modeSelect?.value || "").trim();
   }
 
-  // ✅ NOUVEAU COMPORTEMENT :
-  // - si aucun mode sélectionné => on ne propose AUCUNE équipe
+  // si aucun mode sélectionné => aucune équipe
   function getTeamListFilteredByMode() {
     const selectedMode = getSelectedMode();
     if (!selectedMode) return [];
@@ -97,13 +103,11 @@
 
     modeSelect.innerHTML = "";
 
-    // ✅ Placeholder
     const opt0 = document.createElement("option");
     opt0.value = "";
     opt0.textContent = "— Choisir un mode de jeu —";
     modeSelect.appendChild(opt0);
 
-    // Modes
     modes.forEach((m) => {
       const opt = document.createElement("option");
       opt.value = m;
@@ -111,7 +115,6 @@
       modeSelect.appendChild(opt);
     });
 
-    // On force le placeholder par défaut
     modeSelect.value = "";
   }
 
@@ -136,7 +139,6 @@
       teamSelect.appendChild(opt);
     });
 
-    // si mode pas choisi => on reset l'équipe
     teamSelect.value = "";
   }
 
@@ -151,7 +153,6 @@
     if (teamTitle) teamTitle.textContent = teamName || "—";
     if (!teamName) return;
 
-    // on cherche dans le sous-ensemble du mode sélectionné
     const teamsFiltered = getTeamListFilteredByMode();
     const teamObj = teamsFiltered.find((t) => t.team === teamName);
     if (!teamObj) return;
@@ -175,18 +176,66 @@
     });
   }
 
-  // somme des persos présents (absent/non débloqué => 0)
-  function computeTeamPowerForPlayer(playerName, teamName) {
+  // --- Lecture robuste des valeurs roster (ancien format number vs nouveau objet) ---
+  function readCharPower(val) {
+    if (val == null) return 0;
+    if (typeof val === "number") return Number.isFinite(val) ? val : 0;
+    if (typeof val === "string") {
+      const n = Number(val);
+      return Number.isFinite(n) ? n : 0;
+    }
+    if (typeof val === "object") {
+      const n = Number(val.power);
+      return Number.isFinite(n) ? n : 0;
+    }
+    return 0;
+  }
+
+  function readCharLevel(val) {
+    if (!val || typeof val !== "object") return 0;
+    const n = Number(val.level);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function readCharGear(val) {
+    if (!val || typeof val !== "object") return 0;
+    const n = Number(val.gear);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function readCharIsoMax(val) {
+    if (!val || typeof val !== "object") return 0;
+    const n = Number(val.isoMax);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function buildBarTooltip(charName, present, level, gear, isoMax) {
+    if (!present) return `${charName}\n❌ Non débloqué`;
+
+    const okLevel = level >= THRESH.level;
+    const okGear = gear >= THRESH.gear;
+    const okIso = isoMax >= THRESH.iso;
+
+    return [
+      charName,
+      `${okLevel ? "✅" : "⚠️"} Level : ${level || "—"} (≥ ${THRESH.level})`,
+      `${okGear ? "✅" : "⚠️"} Gear  : ${gear || "—"} (≥ ${THRESH.gear})`,
+      `${okIso ? "✅" : "⚠️"} ISO max: ${isoMax || "—"} (≥ ${THRESH.iso})`,
+    ].join("\n");
+  }
+
+  // Retourne { sum, bars:[{status:'red'|'orange'|'green', tip:string}] }
+  function computeTeamStatsForPlayer(playerName, teamName) {
     const playerKey = normalizeKey(playerName);
     const charsMap = ROSTER_MAP.get(playerKey) || null;
-    if (!charsMap) return 0;
+    if (!charsMap) return { sum: 0, bars: [] };
 
-    // IMPORTANT : on prend l'équipe dans le mode filtré (évite ambiguité si team dupliquée)
     const teamsFiltered = getTeamListFilteredByMode();
     const teamObj = teamsFiltered.find((t) => t.team === teamName);
-    if (!teamObj) return 0;
+    if (!teamObj) return { sum: 0, bars: [] };
 
     let sum = 0;
+    const bars = [];
 
     for (const charName of teamObj.characters || []) {
       const info = findPortraitFor(charName);
@@ -194,11 +243,29 @@
         info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName
       );
 
-      const val = charsMap[rosterKey];
-      if (Number.isFinite(Number(val))) sum += Number(val);
+      const raw = charsMap[rosterKey];
+      const power = readCharPower(raw);
+      const present = power > 0; // règle simple "débloqué" : existe et power > 0
+
+      // on somme la power si présent
+      if (present) sum += power;
+
+      const level = readCharLevel(raw);
+      const gear = readCharGear(raw);
+      const isoMax = readCharIsoMax(raw);
+
+      let status = "red";
+      if (present) {
+        const ok =
+          level >= THRESH.level && gear >= THRESH.gear && isoMax >= THRESH.iso;
+        status = ok ? "green" : "orange";
+      }
+
+      const tip = buildBarTooltip(charName, present, level, gear, isoMax);
+      bars.push({ status, tip });
     }
 
-    return sum;
+    return { sum, bars };
   }
 
   function renderRanking() {
@@ -207,7 +274,6 @@
     const selectedMode = getSelectedMode();
     const teamName = teamSelect?.value || "";
 
-    // ✅ Si pas de mode OU pas d'équipe => rien
     if (!selectedMode || !teamName) {
       if (playersCount) playersCount.textContent = "0";
       return;
@@ -221,8 +287,8 @@
         return !!allianceEnabled[a];
       })
       .map((p) => {
-        const power = computeTeamPowerForPlayer(p.player, teamName);
-        return { ...p, power };
+        const stats = computeTeamStatsForPlayer(p.player, teamName);
+        return { ...p, power: stats.sum, bars: stats.bars };
       })
       .sort((a, b) => b.power - a.power);
 
@@ -251,11 +317,30 @@
       left.appendChild(num);
       left.appendChild(name);
 
+      // ✅ 5 barres statut
+      const bars = document.createElement("div");
+      bars.className = "rankBars";
+
+      // on force exactement 5 barres (au cas où une team aurait moins/plus)
+      const barsData = Array.isArray(r.bars) ? r.bars : [];
+      for (let i = 0; i < 5; i++) {
+        const b = barsData[i] || { status: "red", tip: "—" };
+        const bar = document.createElement("span");
+        bar.className = `rankBar is-${b.status}`;
+        bar.setAttribute("role", "img");
+        bar.setAttribute("aria-label", b.tip || "—");
+        // tooltip natif + tooltip CSS
+        bar.title = b.tip || "";
+        bar.dataset.tip = b.tip || "";
+        bars.appendChild(bar);
+      }
+
       const power = document.createElement("div");
       power.className = "rankPower";
       power.textContent = formatThousandsDot(r.power);
 
       row.appendChild(left);
+      row.appendChild(bars);
       row.appendChild(power);
       list.appendChild(row);
     });
@@ -264,7 +349,6 @@
   }
 
   function onModeChange() {
-    // reset équipe + UI
     if (teamSelect) teamSelect.value = "";
     renderTeamOptions();
     renderSelectedTeam("");
@@ -319,6 +403,7 @@
       }))
       .filter((r) => r.player);
 
+    // Map player -> normalized chars keys
     ROSTER_MAP = new Map();
     for (const r of ROSTERS) {
       const normChars = {};
@@ -328,16 +413,12 @@
       ROSTER_MAP.set(normalizeKey(r.player), normChars);
     }
 
-    // ✅ mode placeholder par défaut
     renderModeOptions();
-
-    // ✅ tant qu'aucun mode : équipe vide
     renderTeamOptions();
     renderSelectedTeam("");
     renderRanking();
   }
 
-  // Events
   modeSelect?.addEventListener("change", onModeChange);
   teamSelect?.addEventListener("change", onTeamChange);
 
