@@ -26,6 +26,17 @@
         </div>
 
         <div class="headerRight">
+          <!-- ✅ NOUVEAU : Mode puis Équipe -->
+          <label class="label" for="modeSelect2">Mode</label>
+          <select id="modeSelect2" class="select">
+            <option value="">— Chargement… —</option>
+          </select>
+
+          <label class="label" for="teamSelect2">Équipe</label>
+          <select id="teamSelect2" class="select">
+            <option value="">— Chargement… —</option>
+          </select>
+
           <label class="label" for="allianceSelect">Alliance</label>
           <select id="allianceSelect" class="select">
             <option value="">— Chargement… —</option>
@@ -35,11 +46,6 @@
           <select id="playerSelect" class="select">
             <option value="">— Chargement… —</option>
           </select>
-
-          <label class="label" for="teamSelectIso">Équipe</label>
-          <select id="teamSelectIso" class="select">
-            <option value="">— Chargement… —</option>
-          </select>
         </div>
       </header>
 
@@ -47,14 +53,16 @@
         <div class="cardHeader">
           <h2 class="cardTitle">ISO-8 recommandés</h2>
         </div>
-        <div id="recoRow" class="portraits"></div>
+        <!-- ✅ ids attendus par iso.js -->
+        <div id="recoPortraits" class="portraits"></div>
       </section>
 
       <section class="card">
         <div class="cardHeader">
           <h2 id="playerTitle" class="cardTitle">—</h2>
         </div>
-        <div id="playerRow" class="portraits"></div>
+        <!-- ✅ ids attendus par iso.js -->
+        <div id="playerPortraits" class="portraits"></div>
       </section>
     </div>
 
