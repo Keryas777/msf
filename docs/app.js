@@ -37,7 +37,10 @@
   const filterPoseidon = qs("#filterPoseidon");
 
   let TEAMS = [];              // [{team, mode, characters[]}]
-  let CHAR_MAP = new Map();    // normalized name -> character obj
+  let CHARS = [];              // raw chars array
+  let CHAR_MAP = new Map();    // normalized alias -> "best" character object (heuristic)
+  let CHAR_MULTI = new Map();  // normalized alias -> [character objects] (for disambiguation)
+
   let JOUEURS = [];            // [{player, alliance}]
   let ROSTERS = [];            // [{player, chars:{key:number|{power,level,gear,isoMax}}}]
   let ROSTER_MAP = new Map();  // playerKey -> chars map (keys normalisées)
@@ -142,8 +145,60 @@
     teamSelect.value = "";
   }
 
+  // --------- Canon / variants handling ---------
+  function isVariantId(id) {
+    const s = (id ?? "").toString();
+    if (!s) return false;
+    // Mets ici les suffixes "techniques" qu'on veut éviter par défaut
+    return /(_props|_bbminn|_npc|_event|_raid|_trial|_campaign|_boss)$/i.test(s);
+  }
+
+  function scoreCharacterMatch(c, queryKey) {
+    // plus le score est haut, plus on préfère cette entrée
+    const id = (c?.id ?? "").toString();
+    const nameKey = (c?.nameKey ?? "").toString();
+
+    const idKey = normalizeKey(id);
+    const nameKeyKey = normalizeKey(nameKey);
+
+    let score = 0;
+
+    // match exact sur id ou nameKey -> très fort
+    if (idKey && idKey === queryKey) score += 1000;
+    if (nameKeyKey && nameKeyKey === queryKey) score += 900;
+
+    // pénalité si variant
+    if (isVariantId(id)) score -= 200;
+
+    // bonus si "id" est court (= souvent le vrai perso)
+    if (id && id.length <= 18) score += 10;
+
+    return score;
+  }
+
   function findPortraitFor(name) {
-    const key = normalizeKey(name);
+    const raw = (name ?? "").toString().trim();
+    if (!raw) return null;
+
+    const key = normalizeKey(raw);
+    if (!key) return null;
+
+    // 1) si on a une liste multi pour cette clé, on choisit le meilleur candidat
+    const list = CHAR_MULTI.get(key);
+    if (Array.isArray(list) && list.length) {
+      let best = list[0];
+      let bestScore = -Infinity;
+      for (const c of list) {
+        const sc = scoreCharacterMatch(c, key);
+        if (sc > bestScore) {
+          bestScore = sc;
+          best = c;
+        }
+      }
+      return best || null;
+    }
+
+    // 2) fallback : map simple (un seul objet)
     return CHAR_MAP.get(key) || null;
   }
 
@@ -239,19 +294,25 @@
 
     for (const charName of teamObj.characters || []) {
       const info = findPortraitFor(charName);
+
       const rosterKey = normalizeKey(
         info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName
       );
 
-      const raw = charsMap[rosterKey];
+      // ✅ lookup principal
+      let raw = charsMap[rosterKey];
+
+      // ✅ fallback : on retente avec le nom de l’équipe (ex: RocketRaccoon)
+      if (raw == null) {
+        const fallbackKey = normalizeKey(charName);
+        raw = charsMap[fallbackKey];
+      }
 
       // ✅ Présence = la clé existe dans le roster (pas juste power > 0)
-      // (évite les faux "rouge" si power=0 ou donnée partielle)
       const present = raw !== undefined && raw !== null;
 
       const power = readCharPower(raw);
 
-      // On somme la power si présent (power peut être 0 si donnée bizarre => ok)
       if (present && Number.isFinite(power)) sum += power;
 
       const level = readCharLevel(raw);
@@ -374,11 +435,33 @@
       fetchJson(FILES.rosters),
     ]);
 
-    // Characters map
+    // raw chars
+    CHARS = Array.isArray(charsRaw) ? charsRaw : [];
+
+    // Characters maps
     CHAR_MAP = new Map();
-    (charsRaw || []).forEach((c) => {
+    CHAR_MULTI = new Map();
+
+    CHARS.forEach((c) => {
       const keys = [c.id, c.nameKey, c.nameFr, c.nameEn].filter(Boolean);
-      keys.forEach((k) => CHAR_MAP.set(normalizeKey(k), c));
+      keys.forEach((k) => {
+        const kk = normalizeKey(k);
+        if (!kk) return;
+
+        // multi list
+        if (!CHAR_MULTI.has(kk)) CHAR_MULTI.set(kk, []);
+        CHAR_MULTI.get(kk).push(c);
+
+        // map "simple" : on garde le meilleur selon score
+        const existing = CHAR_MAP.get(kk);
+        if (!existing) {
+          CHAR_MAP.set(kk, c);
+        } else {
+          const scNew = scoreCharacterMatch(c, kk);
+          const scOld = scoreCharacterMatch(existing, kk);
+          if (scNew > scOld) CHAR_MAP.set(kk, c);
+        }
+      });
     });
 
     // Teams
