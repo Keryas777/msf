@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
+    />
+    <meta name="theme-color" content="#0b0c0d" />
+    <title>Accueil</title>
+
+    <link rel="stylesheet" href="./style.css?v=ts" />
+    <link rel="stylesheet" href="./home.css?v=ts" />
+  </head>
+
+  <body>
+    <div class="app">
+      <header class="header homeHeader">
+        <h1 class="title">Groupement MSF</h1>
+        <p class="subtitle">Outils internes du groupement</p>
+      </header>
+
+      <section class="homeGrid">
+        <a href="./index.html" class="homeTile">
+          <div class="tileIcon">📊</div>
+          <div class="tileTitle">Classement Teams</div>
+          <div class="tileDesc">
+            Comparer la puissance d’une équipe entre joueurs
+          </div>
+        </a>
+
+        <a href="./iso.html" class="homeTile">
+          <div class="tileIcon">💠</div>
+          <div class="tileTitle">ISO-8</div>
+          <div class="tileDesc">
+            Comparer ISO recommandés vs ISO joueur
+          </div>
+        </a>
+      </section>
+    </div>
+
+    <script>
+      (function () {
+        const links = document.querySelectorAll('link[rel="stylesheet"]');
+        links.forEach((l) => {
+          if (l.href.includes("v=ts"))
+            l.href = l.href.replace("v=ts", "v=" + Date.now());
+        });
+      })();
+    </script>
+  </body>
+</html>
