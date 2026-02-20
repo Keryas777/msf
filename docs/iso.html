@@ -7,10 +7,9 @@
       content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
     />
     <meta name="theme-color" content="#0b0c0d" />
-    <title>ISO-8 (Reco vs Joueur)</title>
+    <title>ISO-8</title>
 
     <link rel="stylesheet" href="./style.css?v=ts" />
-    <link rel="stylesheet" href="./iso.css?v=ts" />
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -19,11 +18,11 @@
   <body>
     <div class="app">
       <header class="header">
+        <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
+
         <div class="headerLeft">
-          <h1 class="title">ISO-8 (Reco vs Joueur)</h1>
-          <p class="subtitle">
-            Compare tes ISO recommandés avec ceux choisis par un joueur, sur une équipe donnée
-          </p>
+          <h1 class="title">ISO-8</h1>
+          <p class="subtitle">Recommandés vs choisis par le joueur</p>
         </div>
 
         <div class="headerRight">
@@ -33,12 +32,12 @@
           </select>
 
           <label class="label" for="playerSelect">Joueur</label>
-          <select id="playerSelect" class="select" disabled>
-            <option value="">— Choisir une alliance d’abord —</option>
+          <select id="playerSelect" class="select">
+            <option value="">— Chargement… —</option>
           </select>
 
-          <label class="label" for="teamSelect2">Équipe</label>
-          <select id="teamSelect2" class="select">
+          <label class="label" for="teamSelectIso">Équipe</label>
+          <select id="teamSelectIso" class="select">
             <option value="">— Chargement… —</option>
           </select>
         </div>
@@ -48,14 +47,14 @@
         <div class="cardHeader">
           <h2 class="cardTitle">ISO-8 recommandés</h2>
         </div>
-        <div id="recoPortraits" class="portraits isoPortraits"></div>
+        <div id="recoRow" class="portraits"></div>
       </section>
 
       <section class="card">
         <div class="cardHeader">
           <h2 id="playerTitle" class="cardTitle">—</h2>
         </div>
-        <div id="playerPortraits" class="portraits isoPortraits"></div>
+        <div id="playerRow" class="portraits"></div>
       </section>
     </div>
 
