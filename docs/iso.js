@@ -127,21 +127,28 @@
     return ISO_ICONS?.[cls]?.[col] || null;
   }
 
+  /**
+   * opts:
+   * - status: "warn" | "ok" | "" (overlay emoji)
+   * - statusTitle: string (tooltip)
+   */
   function buildPortraitCard(charName, isoClass, isoColor, opts = {}) {
     const info = findCharacterInfo(charName);
 
     const card = document.createElement("div");
     card.className = "portraitCard";
-    if (opts.warn) card.classList.add("hasIsoWarn");
 
-    // ⚠️ overlay
-    if (opts.warn) {
-      const warn = document.createElement("div");
-      warn.className = "isoWarn";
-      warn.textContent = "⚠️";
-      if (opts.warnTitle) warn.title = opts.warnTitle;
-      warn.setAttribute("aria-label", "ISO différent");
-      card.appendChild(warn);
+    if (opts.status === "warn") card.classList.add("hasIsoWarn");
+    if (opts.status === "ok") card.classList.add("hasIsoOk");
+
+    // Overlay status (⚠️ / ✅)
+    if (opts.status === "warn" || opts.status === "ok") {
+      const st = document.createElement("div");
+      st.className = "isoStatus";
+      st.textContent = opts.status === "ok" ? "✅" : "⚠️";
+      if (opts.statusTitle) st.title = opts.statusTitle;
+      st.setAttribute("aria-label", opts.status === "ok" ? "ISO conforme" : "ISO différent");
+      card.appendChild(st);
     }
 
     const img = document.createElement("img");
@@ -360,31 +367,36 @@
       const recoCls = normalizeIsoClass(reco?.isoClass || "");
       const recoCol = normalizeIsoColor(reco?.isoColor || "");
 
-      // ✅ règle mismatch :
-      // - on ne compare que si une reco existe
-      // - si le joueur n’a rien (ou partiel) => mismatch (car “pas le même”)
-      // - sinon mismatch si class ou couleur diffèrent
-      const hasReco = !!recoCls; // si tu mets une reco sans class => c’est vide => pas de warning
-      const hasPicked = !!pickedCls; // idem : class vide => on considère “non renseigné”
+      // comparaison uniquement si reco existe
+      const hasReco = !!recoCls;
+      const hasPicked = !!pickedCls;
 
-      const mismatch =
-        hasReco &&
-        (!hasPicked ||
-          pickedCls !== recoCls ||
-          normalizeIsoColor(picked?.isoColor) !== recoCol);
+      let status = "";
+      let statusTitle = "";
 
-      const warnTitle = mismatch
-        ? `Reco: ${prettyIsoClass(recoCls)} ${prettyIsoColor(recoCol)}\nJoueur: ${
+      if (hasReco) {
+        const isMatch = hasPicked && pickedCls === recoCls && pickedCol === recoCol;
+        const isMismatch = !isMatch; // reco existe => soit match, soit mismatch
+
+        if (isMatch) {
+          status = "ok";
+          statusTitle = `Reco: ${prettyIsoClass(recoCls)} ${prettyIsoColor(recoCol)}\nJoueur: ${prettyIsoClass(
+            pickedCls
+          )} ${prettyIsoColor(pickedCol)}`;
+        } else if (isMismatch) {
+          status = "warn";
+          statusTitle = `Reco: ${prettyIsoClass(recoCls)} ${prettyIsoColor(recoCol)}\nJoueur: ${
             hasPicked ? `${prettyIsoClass(pickedCls)} ${prettyIsoColor(pickedCol)}` : "—"
-          }`
-        : "";
+          }`;
+        }
+      }
 
       playerWrap.appendChild(
         buildPortraitCard(
           charName,
           picked?.isoClass || "",
           picked?.isoColor || "",
-          mismatch ? { warn: true, warnTitle } : {}
+          status ? { status, statusTitle } : {}
         )
       );
     });
@@ -411,12 +423,10 @@
     const raw = (rawName || "").toString().trim();
     if (!raw) return null;
 
-    // 1) direct via CHAR_MAP (id/nameKey/nameEn/nameFr)
+    // 1) direct via CHAR_MAP
     const info = findCharacterInfo(raw);
     if (info) {
-      const k = normalizeKey(
-        info.id || info.nameKey || info.nameEn || info.nameFr || raw
-      );
+      const k = normalizeKey(info.id || info.nameKey || info.nameEn || info.nameFr || raw);
       if (k && CANON_SET.has(k)) return k;
       return k || null;
     }
@@ -517,10 +527,7 @@
         null;
 
       if (clsMap || colMap) {
-        const keys = new Set([
-          ...Object.keys(clsMap || {}),
-          ...Object.keys(colMap || {}),
-        ]);
+        const keys = new Set([...Object.keys(clsMap || {}), ...Object.keys(colMap || {})]);
         keys.forEach((k) => {
           const ck = normalizeKey(k);
           if (!ck) return;
@@ -611,7 +618,6 @@
 
     ISO_ICONS = isoIconsRaw && typeof isoIconsRaw === "object" ? isoIconsRaw : {};
 
-    // ✅ support objet ou array
     buildIsoRecoMap(isoRecoRaw);
 
     ROSTERS = Array.isArray(rostersRaw) ? rostersRaw : [];
