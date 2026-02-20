@@ -1,0 +1,36 @@
+/* Surcouches ISO (garde le look existant, ajoute juste le “slot” icône) */
+
+.isoPortraits .portraitCard{
+  display:flex;
+  flex-direction:column;
+}
+
+.isoPortraits .portraitImg{
+  /* déjà en contain dans style.css : on garde */
+}
+
+.isoBadge{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--border);
+  background: rgba(0,0,0,.18);
+  min-height: 40px;
+}
+
+.isoIcon{
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display:block;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.35));
+}
+
+.isoMissing{
+  font-size: 12px;
+  color: var(--muted2);
+  font-weight: 800;
+  letter-spacing: .2px;
+}
