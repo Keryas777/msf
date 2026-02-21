@@ -294,12 +294,15 @@ body::after{
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items:center;
 
-  /* un poil plus d'air global */
-  gap: 10px;
+  /* ✅ un peu moins d'espace horizontal */
+  gap: 9px;
 
   border:1px solid var(--border);
   border-radius: 16px;
-  padding: 10px 12px;
+
+  /* ✅ récup pixels à gauche: padding-left réduit */
+  padding: 10px 12px 10px 9px;
+
   background: rgba(0,0,0,.22);
   max-width: 100%;
 }
@@ -307,12 +310,16 @@ body::after{
 .rankLeft{
   display:flex;
   align-items:center;
-  gap: 10px;
+
+  /* ✅ rang + nom plus serrés */
+  gap: 7px;
+
   min-width: 0;
 }
 
+/* ✅ rang un peu plus compact */
 .rankNum{
-  width: 28px;
+  width: 22px;
   text-align:right;
   color: var(--muted);
   font-weight: 900;
@@ -332,7 +339,6 @@ body::after{
   display:flex;
   align-items:center;
   justify-content:center;
-
   gap: 5px;
 
   /* ✅ pousse légèrement vers la droite */
@@ -397,15 +403,13 @@ body::after{
   z-index: 1000;
 }
 
-/* ✅ Power colonne fixe + chiffres alignés + un poil plus petit
-   -> réduit la largeur pour laisser + de place aux noms */
+/* ✅ Power colonne fixe + chiffres alignés + un poil plus petit */
 .rankPower{
   font-weight: 900;
   letter-spacing: .2px;
   color: var(--text);
   text-align: right;
 
-  /* ✅ plus étroit = + de place pour rankLeft */
   width: 104px;
   flex: 0 0 auto;
 
@@ -424,10 +428,17 @@ body::after{
   .headerRight{
     min-width: 0;
   }
+
+  .rankRow{
+    padding: 10px 12px 10px 8px;
+    gap: 8px;
+  }
+
   .rankBars{
     margin-left: 8px;
     width: 44px;
   }
+
   .rankPower{
     width: 96px;
     font-size: 13px;
@@ -448,6 +459,15 @@ body::after{
   }
   .fEmoji{ font-size: 17px; }
   .fName{ font-size: 12px; }
+
+  .rankRow{
+    padding: 10px 12px 10px 7px;
+    gap: 8px;
+  }
+
+  .rankNum{
+    width: 21px;
+  }
 
   .rankBar{
     width: 4px;
