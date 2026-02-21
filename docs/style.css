@@ -90,48 +90,12 @@ body::after{
   align-items:flex-start;
   justify-content:space-between;
 
-  /* ✅ pour que .homeBtn (absolute) se cale bien */
+  /* ✅ contexte pour le bouton home */
   position: sticky;
   position: -webkit-sticky;
   position: sticky;
-  /* clé */
-  position: sticky;
-  /* et le contexte pour absolute */
-  position: sticky;
-  position: sticky;
-  position: sticky;
-  position: sticky;
-  /* ✅ simple et efficace */
-  position: sticky;
-  position: sticky;
-  position: sticky;
-  /* >>> en vrai : */
-  position: sticky;
   top: 0;
-
-  /* ✅ contexte pour absolute */
-  position: sticky;
-  /* On ajoute relative pour le bouton */
-  position: sticky;
-  /* dernier mot */
-  position: sticky;
-  /* (oui c’est redondant, mais on laisse propre ci-dessous) */
-}
-.header{
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  position: relative; /* ✅ */
-  backdrop-filter: blur(10px);
-  background: rgba(8,9,10,.72);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 14px 14px;
-
-  display:flex;
-  gap:12px;
-  align-items:flex-start;
-  justify-content:space-between;
+  position: relative;
 }
 
 /* ✅ bouton home */
@@ -331,7 +295,7 @@ body::after{
 /* ✅ ALIGNEMENT : grid (Left | Bars | Power) */
 .rankRow{
   display:grid;
-  grid-template-columns: minmax(0, 1fr) auto auto; /* left flexible, bars fixed, power fixed */
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items:center;
   gap: 12px;
 
@@ -346,7 +310,7 @@ body::after{
   display:flex;
   align-items:center;
   gap: 10px;
-  min-width: 0; /* important pour ellipsis */
+  min-width: 0;
 }
 
 .rankNum{
@@ -371,7 +335,7 @@ body::after{
   align-items:center;
   justify-content:center;
   gap: 5px;
-  width: 44px;          /* ✅ fixe: 5 barres + gaps */
+  width: 44px;
   flex: 0 0 auto;
 }
 
@@ -389,8 +353,6 @@ body::after{
 .rankBar.is-red{ background: var(--bar-red); }
 .rankBar.is-orange{ background: var(--bar-orange); }
 .rankBar.is-green{ background: var(--bar-green); }
-
-/* optionnel: empty/gris */
 .rankBar.is-empty{ background: rgba(255,255,255,.18); }
 
 /* ✅ Tooltip CSS (desktop). Sur mobile, tu as aussi le title (long press). */
@@ -431,14 +393,22 @@ body::after{
   z-index: 1000;
 }
 
-/* ✅ Power colonne fixe (alignement parfait) */
+/* ✅ Power colonne fixe + chiffres alignés + taille un poil réduite */
 .rankPower{
   font-weight: 900;
-  letter-spacing: .3px;
+  letter-spacing: .2px;
   color: var(--text);
   text-align: right;
-  width: 118px;        /* ajuste si tu veux plus large */
+
+  width: 118px;
   flex: 0 0 auto;
+
+  /* ✅ alignement visuel des chiffres */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+
+  /* ✅ un peu plus petit */
+  font-size: 15px;
 }
 
 /* ===== Responsive ===== */
@@ -452,6 +422,7 @@ body::after{
   }
   .rankPower{
     width: 108px;
+    font-size: 14px;
   }
 }
 
@@ -480,5 +451,6 @@ body::after{
   }
   .rankPower{
     width: 102px;
+    font-size: 13px;
   }
 }
