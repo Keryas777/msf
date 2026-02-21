@@ -90,11 +90,7 @@ body::after{
   align-items:flex-start;
   justify-content:space-between;
 
-  /* ✅ contexte pour le bouton home */
-  position: sticky;
-  position: -webkit-sticky;
-  position: sticky;
-  top: 0;
+  /* contexte pour homeBtn */
   position: relative;
 }
 
@@ -297,7 +293,9 @@ body::after{
   display:grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items:center;
-  gap: 12px;
+
+  /* un poil plus d'air global */
+  gap: 10px;
 
   border:1px solid var(--border);
   border-radius: 16px;
@@ -329,13 +327,19 @@ body::after{
   white-space: nowrap;
 }
 
-/* ✅ Bloc 5 barres (colonne fixe) */
+/* ✅ Bloc 5 barres (décalé un peu à droite) */
 .rankBars{
   display:flex;
   align-items:center;
   justify-content:center;
+
   gap: 5px;
-  width: 44px;
+
+  /* ✅ pousse légèrement vers la droite */
+  margin-left: 10px;
+
+  /* largeur stable */
+  width: 46px;
   flex: 0 0 auto;
 }
 
@@ -393,22 +397,22 @@ body::after{
   z-index: 1000;
 }
 
-/* ✅ Power colonne fixe + chiffres alignés + taille un poil réduite */
+/* ✅ Power colonne fixe + chiffres alignés + un poil plus petit
+   -> réduit la largeur pour laisser + de place aux noms */
 .rankPower{
   font-weight: 900;
   letter-spacing: .2px;
   color: var(--text);
   text-align: right;
 
-  width: 118px;
+  /* ✅ plus étroit = + de place pour rankLeft */
+  width: 104px;
   flex: 0 0 auto;
 
-  /* ✅ alignement visuel des chiffres */
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 
-  /* ✅ un peu plus petit */
-  font-size: 15px;
+  font-size: 14px;
 }
 
 /* ===== Responsive ===== */
@@ -420,9 +424,13 @@ body::after{
   .headerRight{
     min-width: 0;
   }
+  .rankBars{
+    margin-left: 8px;
+    width: 44px;
+  }
   .rankPower{
-    width: 108px;
-    font-size: 14px;
+    width: 96px;
+    font-size: 13px;
   }
 }
 
@@ -447,10 +455,11 @@ body::after{
   }
   .rankBars{
     gap: 4px;
+    margin-left: 8px;
     width: 40px;
   }
   .rankPower{
-    width: 102px;
-    font-size: 13px;
+    width: 90px;
+    font-size: 12.5px;
   }
 }
