@@ -16,6 +16,9 @@
     Poseidon: "🔱",
   };
 
+  // ✅ Ordre forcé des modes de jeu (affichage dans le select)
+  const MODE_ORDER = ["Arène", "Raids", "Guerre", "Epreuve", "Battleworld", "Divers hors méta"];
+
   const qs = (s) => document.querySelector(s);
 
   const allianceSelect = qs("#allianceSelect");
@@ -248,7 +251,18 @@
   function renderModeOptions() {
     const modes = Array.from(
       new Set(TEAMS.map((t) => (t.mode || "").trim()).filter(Boolean))
-    ).sort((a, b) => a.localeCompare(b, "fr"));
+    );
+
+    // ✅ Tri selon MODE_ORDER, puis fallback alphabétique
+    modes.sort((a, b) => {
+      const ia = MODE_ORDER.indexOf(a);
+      const ib = MODE_ORDER.indexOf(b);
+
+      if (ia !== -1 || ib !== -1) {
+        return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+      }
+      return a.localeCompare(b, "fr");
+    });
 
     modeSelect.innerHTML = "";
     const opt0 = document.createElement("option");
