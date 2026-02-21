@@ -90,8 +90,7 @@ body::after{
   align-items:flex-start;
   justify-content:space-between;
 
-  /* contexte pour homeBtn */
-  position: relative;
+  position: relative; /* contexte homeBtn */
 }
 
 /* ✅ bouton home */
@@ -294,14 +293,14 @@ body::after{
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items:center;
 
-  /* ✅ un peu moins d'espace horizontal */
-  gap: 9px;
+  /* un poil plus compact */
+  gap: 8px;
 
   border:1px solid var(--border);
   border-radius: 16px;
 
-  /* ✅ récup pixels à gauche: padding-left réduit */
-  padding: 10px 12px 10px 9px;
+  /* ✅ encore + serré à gauche */
+  padding: 10px 12px 10px 6px;
 
   background: rgba(0,0,0,.22);
   max-width: 100%;
@@ -312,26 +311,32 @@ body::after{
   align-items:center;
 
   /* ✅ rang + nom plus serrés */
-  gap: 7px;
+  gap: 6px;
 
   min-width: 0;
 }
 
-/* ✅ rang un peu plus compact */
+/* ✅ rang plus compact + plus petit */
 .rankNum{
-  width: 22px;
+  width: 20px;
   text-align:right;
   color: var(--muted);
   font-weight: 900;
   flex: 0 0 auto;
+  font-size: 13px;
+  line-height: 1;
 }
 
+/* ✅ noms un poil plus petits pour gagner des pixels */
 .rankName{
   font-weight: 900;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  font-size: 15px;
+  line-height: 1.1;
 }
 
 /* ✅ Bloc 5 barres (décalé un peu à droite) */
@@ -341,10 +346,7 @@ body::after{
   justify-content:center;
   gap: 5px;
 
-  /* ✅ pousse légèrement vers la droite */
-  margin-left: 10px;
-
-  /* largeur stable */
+  margin-left: 12px; /* un poil plus à droite */
   width: 46px;
   flex: 0 0 auto;
 }
@@ -430,12 +432,21 @@ body::after{
   }
 
   .rankRow{
-    padding: 10px 12px 10px 8px;
+    padding: 10px 12px 10px 6px;
     gap: 8px;
   }
 
+  .rankNum{
+    width: 19px;
+    font-size: 12.5px;
+  }
+
+  .rankName{
+    font-size: 14.5px;
+  }
+
   .rankBars{
-    margin-left: 8px;
+    margin-left: 10px;
     width: 44px;
   }
 
@@ -461,23 +472,30 @@ body::after{
   .fName{ font-size: 12px; }
 
   .rankRow{
-    padding: 10px 12px 10px 7px;
-    gap: 8px;
+    padding: 10px 12px 10px 5px;
+    gap: 7px;
   }
 
   .rankNum{
-    width: 21px;
+    width: 18px;
+    font-size: 12px;
+  }
+
+  .rankName{
+    font-size: 14px;
   }
 
   .rankBar{
     width: 4px;
     height: 20px;
   }
+
   .rankBars{
     gap: 4px;
-    margin-left: 8px;
+    margin-left: 10px;
     width: 40px;
   }
+
   .rankPower{
     width: 90px;
     font-size: 12.5px;
