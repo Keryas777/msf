@@ -43,6 +43,11 @@
     return Number(String(x).replace(/[^\d]/g, "")) || 0;
   }
 
+  // ✅ Vrai “non vide” (évite le bug des cellules " " / "\n" / etc.)
+  function isNonEmptyCell(v) {
+    return typeof v === "string" ? v.trim() !== "" : !!v;
+  }
+
   // ---------- Data ----------
   let WAR = [];
   let JOUEURS = [];
@@ -185,19 +190,21 @@
     const row = getSelectedDefRow();
     const player = playerSelect.value;
 
+    if (playerChip) playerChip.textContent = player ? player : "—";
+
     if (!row || !player) {
       resultsCount.textContent = "0";
       return;
     }
 
-    // 🔥 FILTRE PRINCIPAL
+    // 🔥 FILTRE PRINCIPAL (avec le vrai fix)
     const rows = WAR
       .filter(
         (r) =>
           r.def_family === row.def_family &&
           r.def_variant === row.def_variant
       )
-      .filter((r) => r.atk_chars.some((c) => c)); // <-- LE FIX IMPORTANT
+      .filter((r) => r.atk_chars.some(isNonEmptyCell)); // ✅ FIX ICI
 
     // 🔥 Aucun counter réel
     if (!rows.length) {
@@ -206,18 +213,16 @@
       const empty = document.createElement("p");
       empty.className = "subtitle";
       empty.textContent = "Aucun counter renseigné pour cette défense.";
-
       resultsWrap.appendChild(empty);
       return;
     }
 
-    resultsCount.textContent = rows.length;
+    resultsCount.textContent = String(rows.length);
 
     rows.forEach((r) => {
       const div = document.createElement("div");
       div.className = "rankRow";
       div.textContent = r.atk_team || "Counter";
-
       resultsWrap.appendChild(div);
     });
   }
@@ -251,8 +256,8 @@
       fetchJson(FILES.joueurs),
     ]);
 
-    WAR = warRaw.map(normalizeWarRow);
-    JOUEURS = joueursRaw;
+    WAR = Array.isArray(warRaw) ? warRaw.map(normalizeWarRow) : [];
+    JOUEURS = Array.isArray(joueursRaw) ? joueursRaw : [];
 
     buildPlayersByAlliance();
 
@@ -261,5 +266,5 @@
     renderDefFamilyOptions();
   }
 
-  boot();
+  boot().catch((e) => console.error(e));
 })();
