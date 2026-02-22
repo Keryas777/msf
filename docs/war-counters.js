@@ -692,9 +692,9 @@
     const warArr = Array.isArray(warRaw) ? warRaw : [];
     WAR = warArr
       .map(normalizeWarRow)
-      .filter((r) => r.def_family && r.def_variant && r.atk_chars.length);
+      .filter((r) => r.def_family && r.def_variant);
 
-    // Render selects
+        // Render selects
     renderAllianceOptions();
     renderPlayerOptions();
     renderDefFamilyOptions();
