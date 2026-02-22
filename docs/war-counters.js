@@ -7,13 +7,6 @@
     rosters: "./data/rosters.json",
   };
 
-  const ALLIANCE_EMOJI = {
-    Zeus: "⚡️",
-    Dionysos: "🍇",
-    "Poséidon": "🔱",
-    Poseidon: "🔱",
-  };
-
   const qs = (s) => document.querySelector(s);
 
   const allianceSelect = qs("#allianceSelect");
@@ -37,7 +30,7 @@
   };
 
   async function fetchJson(url) {
-    const res = await fetch(bust(url), { cache: "no-store" });
+    const res = await fetch(bust(url));
     if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
     return res.json();
   }
@@ -45,285 +38,105 @@
   const normalizeKey = (s) =>
     (s ?? "")
       .toString()
-      .trim()
       .toLowerCase()
       .replace(/\s+/g, "")
-      .replace(/[-_]/g, "")
-      .replace(/[’']/g, "");
+      .replace(/[-_]/g, "");
 
   function clearNode(el) {
     if (!el) return;
     while (el.firstChild) el.removeChild(el.firstChild);
   }
 
-  function formatThousandsDot(n) {
-    const num = Number(n);
-    if (!Number.isFinite(num)) return "0";
-    return Math.trunc(num)
-      .toString()
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  }
-
-  // Tolérant: "6 500 000", "6.500.000", "6,500,000", "6500000"
   function parseNumberLoose(x) {
-    if (x == null) return 0;
-    if (typeof x === "number") return Number.isFinite(x) ? x : 0;
-
-    let s = String(x).trim();
-    if (!s) return 0;
-
-    s = s.replace(/\s|\u00A0/g, "");
-    const digits = s.replace(/[^\d]/g, "");
-    const n = Number(digits);
-    return Number.isFinite(n) ? n : 0;
-  }
-
-  function clampFinite(n) {
-    const x = Number(n);
-    return Number.isFinite(x) ? x : 0;
+    if (!x) return 0;
+    return Number(String(x).replace(/[^\d]/g, "")) || 0;
   }
 
   // ---------- Data ----------
-  let WAR = []; // rows normalisées
-  let CHARS = [];
-  let CHAR_MAP = new Map(); // alias -> best char
-  let CHAR_MULTI = new Map(); // alias -> [chars]
-
+  let WAR = [];
   let JOUEURS = [];
   let PLAYERS_BY_ALLIANCE = new Map();
 
-  // playerKey -> { charKey -> raw }
-  // raw = number OR {power, level, gear, isoMax}
-  let ROSTER_MAP = new Map();
-
-  // ---------- Character disambiguation (comme app.js) ----------
-  function isVariantId(id) {
-    const s = (id ?? "").toString();
-    if (!s) return false;
-    return /(_props|_bbminn|_npc|_event|_raid|_trial|_campaign|_boss)$/i.test(s);
-  }
-
-  function scoreCharacterMatch(c, queryKey) {
-    const id = (c?.id ?? "").toString();
-    const nameKey = (c?.nameKey ?? "").toString();
-
-    const idKey = normalizeKey(id);
-    const nameKeyKey = normalizeKey(nameKey);
-
-    let score = 0;
-    if (idKey && idKey === queryKey) score += 1000;
-    if (nameKeyKey && nameKeyKey === queryKey) score += 900;
-    if (isVariantId(id)) score -= 200;
-    if (id && id.length <= 18) score += 10;
-    return score;
-  }
-
-  function findCharacterInfo(name) {
-    const raw = (name ?? "").toString().trim();
-    if (!raw) return null;
-    const key = normalizeKey(raw);
-    if (!key) return null;
-
-    const list = CHAR_MULTI.get(key);
-    if (Array.isArray(list) && list.length) {
-      let best = list[0];
-      let bestScore = -Infinity;
-      for (const c of list) {
-        const sc = scoreCharacterMatch(c, key);
-        if (sc > bestScore) {
-          bestScore = sc;
-          best = c;
-        }
-      }
-      return best || null;
-    }
-
-    return CHAR_MAP.get(key) || null;
-  }
-
-  // ---------- Roster readers ----------
-  function readCharPower(val) {
-    if (val == null) return 0;
-    if (typeof val === "number") return Number.isFinite(val) ? val : 0;
-    if (typeof val === "string") {
-      const n = Number(val);
-      return Number.isFinite(n) ? n : 0;
-    }
-    if (typeof val === "object") {
-      const n = Number(val.power);
-      return Number.isFinite(n) ? n : 0;
-    }
-    return 0;
-  }
-
-  function getPlayerRoster(playerName) {
-    return ROSTER_MAP.get(normalizeKey(playerName)) || null;
-  }
-
-  // Lookup robuste : essaye (id/nameKey) puis fallback sur le texte brut
-  function lookupCharRawInRoster(rosterObj, charName) {
-    if (!rosterObj) return { raw: null, keyUsed: null };
-
-    const info = findCharacterInfo(charName);
-    const key1 = normalizeKey(
-      info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName
-    );
-    const key2 = normalizeKey(charName);
-
-    if (rosterObj[key1] !== undefined) return { raw: rosterObj[key1], keyUsed: key1 };
-    if (rosterObj[key2] !== undefined) return { raw: rosterObj[key2], keyUsed: key2 };
-
-    return { raw: null, keyUsed: null };
-  }
-
-  function sumTeamPowerForPlayer(playerName, charNames) {
-    const roster = getPlayerRoster(playerName);
-    if (!roster) return { sum: 0, perChar: [] };
-
-    let sum = 0;
-    const perChar = [];
-
-    for (const cn of charNames) {
-      const { raw } = lookupCharRawInRoster(roster, cn);
-
-      const present = raw !== null && raw !== undefined;
-      const p = present ? readCharPower(raw) : 0;
-
-      const pow = Number.isFinite(p) ? p : 0;
-      sum += pow;
-
-      perChar.push({ name: cn, present, power: pow });
-    }
-
-    return { sum, perChar };
-  }
-
-  // ---------- WarCounters parsing ----------
+  // ---------- Parsing ----------
   function normalizeWarRow(r) {
-    const mode = (r.mode ?? r.Mode ?? "Guerre").toString().trim();
-
-    const def_family = (r.def_family ?? r.defFamily ?? "").toString().trim();
-    const def_variant = (r.def_variant ?? r.defVariant ?? "").toString().trim();
-    const def_key = (r.def_key ?? r.defKey ?? "").toString().trim();
-
-    const atk_team = (r.atk_team ?? r.atkTeam ?? "").toString().trim();
-    const atk_key = (r.atk_key ?? r.atkKey ?? "").toString().trim();
-
-    const def_chars = [r.def_char1, r.def_char2, r.def_char3, r.def_char4, r.def_char5]
-      .map((x) => (x ?? "").toString().trim())
-      .filter(Boolean);
-
-    const atk_chars = [r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5]
-      .map((x) => (x ?? "").toString().trim())
-      .filter(Boolean);
-
-    const min_ok = parseNumberLoose(r.min_ratio_ok ?? r.minOk ?? r.ratio_ok);
-    const min_safe = parseNumberLoose(r.min_ratio_safe ?? r.minSafe ?? r.ratio_safe);
-
-    const notes = (r.notes ?? r.note ?? "").toString().trim();
-
     return {
-      mode,
-      def_family,
-      def_variant,
-      def_key,
-      def_chars,
-      atk_team,
-      atk_key,
-      atk_chars,
-      min_ratio_ok: min_ok || 0,
-      min_ratio_safe: min_safe || 0,
-      notes,
+      def_family: (r.def_family || "").trim(),
+      def_variant: (r.def_variant || "").trim(),
+      def_key: (r.def_key || "").trim(),
+
+      def_chars: [
+        r.def_char1,
+        r.def_char2,
+        r.def_char3,
+        r.def_char4,
+        r.def_char5,
+      ]
+        .map((x) => (x || "").trim())
+        .filter(Boolean),
+
+      atk_team: (r.atk_team || "").trim(),
+
+      // 🔥 IMPORTANT → on garde même vide
+      atk_chars: [
+        r.atk_char1,
+        r.atk_char2,
+        r.atk_char3,
+        r.atk_char4,
+        r.atk_char5,
+      ].map((x) => (x || "").trim()),
+
+      min_ratio_ok: parseNumberLoose(r.min_ratio_ok),
+      min_ratio_safe: parseNumberLoose(r.min_ratio_safe),
+
+      notes: (r.notes || "").trim(),
     };
   }
 
-  // ---------- Select rendering ----------
   function buildPlayersByAlliance() {
     PLAYERS_BY_ALLIANCE = new Map();
+
     for (const j of JOUEURS) {
-      const a = (j.alliance || "").trim();
-      if (!a) continue;
-      if (!PLAYERS_BY_ALLIANCE.has(a)) PLAYERS_BY_ALLIANCE.set(a, []);
-      PLAYERS_BY_ALLIANCE.get(a).push(j);
+      if (!PLAYERS_BY_ALLIANCE.has(j.alliance)) {
+        PLAYERS_BY_ALLIANCE.set(j.alliance, []);
+      }
+      PLAYERS_BY_ALLIANCE.get(j.alliance).push(j);
     }
   }
 
+  // ---------- Selects ----------
   function renderAllianceOptions() {
-    allianceSelect.innerHTML = "";
+    allianceSelect.innerHTML = "<option value=''>Alliance</option>";
 
-    const opt0 = document.createElement("option");
-    opt0.value = "";
-    opt0.textContent = "— Choisir une alliance —";
-    allianceSelect.appendChild(opt0);
+    const alliances = [...new Set(JOUEURS.map((j) => j.alliance))];
 
-    const ORDER = ["Zeus", "Dionysos", "Poséidon", "Poseidon"];
-    const alliances = Array.from(
-      new Set(JOUEURS.map((j) => (j.alliance || "").trim()).filter(Boolean))
-    );
-
-    alliances
-      .sort((a, b) => {
-        const ia = ORDER.indexOf(a);
-        const ib = ORDER.indexOf(b);
-        if (ia !== -1 || ib !== -1) return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-        return a.localeCompare(b, "fr");
-      })
-      .forEach((a) => {
-        const opt = document.createElement("option");
-        opt.value = a;
-        opt.textContent = `${ALLIANCE_EMOJI[a] || "•"} ${a}`.trim();
-        allianceSelect.appendChild(opt);
-      });
-
-    allianceSelect.value = "";
+    alliances.forEach((a) => {
+      const opt = document.createElement("option");
+      opt.value = a;
+      opt.textContent = a;
+      allianceSelect.appendChild(opt);
+    });
   }
 
   function renderPlayerOptions() {
-    const alliance = (allianceSelect?.value || "").trim();
+    const alliance = allianceSelect.value;
+    playerSelect.innerHTML = "<option value=''>Joueur</option>";
 
-    playerSelect.innerHTML = "";
-    if (!alliance) {
-      playerSelect.disabled = true;
-      const opt = document.createElement("option");
-      opt.value = "";
-      opt.textContent = "— Choisir une alliance d’abord —";
-      playerSelect.appendChild(opt);
-      playerSelect.value = "";
-      return;
-    }
+    if (!alliance) return;
 
-    const list = (PLAYERS_BY_ALLIANCE.get(alliance) || [])
-      .slice()
-      .sort((a, b) => a.player.localeCompare(b.player, "fr"));
+    const players = PLAYERS_BY_ALLIANCE.get(alliance) || [];
 
-    playerSelect.disabled = false;
-
-    const opt0 = document.createElement("option");
-    opt0.value = "";
-    opt0.textContent = "— Choisir un joueur —";
-    playerSelect.appendChild(opt0);
-
-    list.forEach((p) => {
+    players.forEach((p) => {
       const opt = document.createElement("option");
       opt.value = p.player;
       opt.textContent = p.player;
       playerSelect.appendChild(opt);
     });
-
-    playerSelect.value = "";
   }
 
   function renderDefFamilyOptions() {
-    defFamilySelect.innerHTML = "";
+    const families = [...new Set(WAR.map((r) => r.def_family))];
 
-    const opt0 = document.createElement("option");
-    opt0.value = "";
-    opt0.textContent = "— Choisir une famille —";
-    defFamilySelect.appendChild(opt0);
-
-    const families = Array.from(new Set(WAR.map((r) => (r.def_family || "").trim()).filter(Boolean))).sort(
-      (a, b) => a.localeCompare(b, "fr")
-    );
+    defFamilySelect.innerHTML = "<option value=''>Famille</option>";
 
     families.forEach((f) => {
       const opt = document.createElement("option");
@@ -331,268 +144,87 @@
       opt.textContent = f;
       defFamilySelect.appendChild(opt);
     });
-
-    defFamilySelect.value = "";
   }
 
   function renderDefVariantOptions() {
-    const fam = (defFamilySelect?.value || "").trim();
+    const fam = defFamilySelect.value;
 
-    defVariantSelect.innerHTML = "";
+    defVariantSelect.innerHTML = "<option value=''>Variante</option>";
 
-    const opt0 = document.createElement("option");
-    opt0.value = "";
+    const variants = WAR.filter((r) => r.def_family === fam).map(
+      (r) => r.def_variant
+    );
 
-    if (!fam) {
-      opt0.textContent = "— Choisir une famille d’abord —";
-      defVariantSelect.appendChild(opt0);
-      defVariantSelect.disabled = true;
-      defVariantSelect.value = "";
-      return;
-    }
-
-    defVariantSelect.disabled = false;
-    opt0.textContent = "— Choisir une variante —";
-    defVariantSelect.appendChild(opt0);
-
-    const variants = WAR.filter((r) => (r.def_family || "").trim() === fam)
-      .map((r) => (r.def_variant || "").trim())
-      .filter(Boolean);
-
-    Array.from(new Set(variants))
-      .sort((a, b) => a.localeCompare(b, "fr"))
-      .forEach((v) => {
-        const opt = document.createElement("option");
-        opt.value = v;
-        opt.textContent = v;
-        defVariantSelect.appendChild(opt);
-      });
-
-    defVariantSelect.value = "";
+    [...new Set(variants)].forEach((v) => {
+      const opt = document.createElement("option");
+      opt.value = v;
+      opt.textContent = v;
+      defVariantSelect.appendChild(opt);
+    });
   }
 
   function getSelectedDefRow() {
-    const fam = (defFamilySelect?.value || "").trim();
-    const vari = (defVariantSelect?.value || "").trim();
-    if (!fam || !vari) return null;
-
-    return (
-      WAR.find(
-        (r) =>
-          (r.def_family || "").trim() === fam &&
-          (r.def_variant || "").trim() === vari
-      ) || null
+    return WAR.find(
+      (r) =>
+        r.def_family === defFamilySelect.value &&
+        r.def_variant === defVariantSelect.value
     );
   }
 
-  // ---------- UI rendering ----------
+  // ---------- UI ----------
   function renderDefenseHeader() {
     clearNode(defPortraits);
 
     const row = getSelectedDefRow();
-    if (!row) {
-      defTitle.textContent = "—";
-      return;
-    }
+    if (!row) return;
 
-    defTitle.textContent = row.def_variant || row.def_family || "Défense";
+    defTitle.textContent = row.def_variant;
 
-    for (const cn of row.def_chars) {
-      const info = findCharacterInfo(cn);
-
-      const card = document.createElement("div");
-      card.className = "portraitCard";
-      card.title = cn;
-
-      const img = document.createElement("img");
-      img.className = "portraitImg";
-      img.alt = cn;
-      img.loading = "lazy";
-      img.decoding = "async";
-      img.referrerPolicy = "no-referrer";
-      img.src = info?.portraitUrl || "";
-
-      card.appendChild(img);
-      defPortraits.appendChild(card);
-    }
-  }
-
-  function computeVerdict(ratio, row) {
-    const ok = clampFinite(row.min_ratio_ok || 0);
-    const safe = clampFinite(row.min_ratio_safe || 0);
-
-    // Si pas de seuil renseigné => OK si ratio>=1
-    if (!ok && !safe) return ratio >= 1 ? "OK" : "NO";
-
-    if (safe && ratio >= safe) return "SAFE";
-    if (ok && ratio >= ok) return "OK";
-    return "NO";
-  }
-
-  function verdictToBarClass(verdict) {
-    if (verdict === "SAFE") return "is-green";
-    if (verdict === "OK") return "is-orange";
-    if (verdict === "NO") return "is-red";
-    return ""; // fallback
-  }
-
-  function makeResultCard({ atk_team, atk_chars, perChar, atkPower, ratio, verdict, notes, enemyPower }) {
-    const block = document.createElement("div");
-    // ✅ pas de style inline : on garde la structure clean
-
-    // Ligne "résumé" (look identique classement)
-    const row = document.createElement("div");
-    row.className = "rankRow";
-
-    const left = document.createElement("div");
-    left.className = "rankLeft";
-
-    const name = document.createElement("div");
-    name.className = "rankName";
-    name.textContent = atk_team || "Counter";
-
-    left.appendChild(name);
-
-    // “barres” : on réutilise rankBars + rankBar (1 seule barre)
-    const bars = document.createElement("div");
-    bars.className = "rankBars";
-
-    const bar = document.createElement("span");
-    bar.className = `rankBar ${verdictToBarClass(verdict)}`.trim();
-    bar.setAttribute("role", "img");
-    bar.setAttribute("aria-label", verdict);
-    bar.title = verdict;
-    bar.dataset.tip = verdict;
-    bars.appendChild(bar);
-
-    // Power (et ratio si enemyPower fourni)
-    const right = document.createElement("div");
-    right.className = "rankPower";
-
-    if (enemyPower > 0) {
-      right.textContent = `${formatThousandsDot(atkPower)}  x${ratio.toFixed(2)}`;
-    } else {
-      right.textContent = `${formatThousandsDot(atkPower)}`;
-    }
-
-    row.appendChild(left);
-    row.appendChild(bars);
-    row.appendChild(right);
-
-    // Portraits (mêmes classes que partout)
-    const grid = document.createElement("div");
-    grid.className = "portraits";
-
-    for (const cn of atk_chars) {
-      const info = findCharacterInfo(cn);
-      const pc = perChar.find((x) => x.name === cn) || { present: false, power: 0 };
-
-      const card = document.createElement("div");
-      card.className = "portraitCard";
-      card.title = pc.present
-        ? `${cn}\nPuissance: ${formatThousandsDot(pc.power)}`
-        : `${cn}\n⚠️ Pas trouvé dans le roster du joueur`;
-
-      const img = document.createElement("img");
-      img.className = "portraitImg";
-      img.alt = cn;
-      img.loading = "lazy";
-      img.decoding = "async";
-      img.referrerPolicy = "no-referrer";
-      img.src = info?.portraitUrl || "";
-
-      card.appendChild(img);
-      grid.appendChild(card);
-    }
-
-    block.appendChild(row);
-    block.appendChild(grid);
-
-    if (notes) {
-      // ✅ sans CSS additionnel : on fait simple
-      const notesRow = document.createElement("div");
-      notesRow.className = "subtitle";
-      notesRow.textContent = `📝 ${notes}`;
-      block.appendChild(notesRow);
-    }
-
-    return block;
+    row.def_chars.forEach((c) => {
+      const el = document.createElement("div");
+      el.className = "portraitCard";
+      el.textContent = c;
+      defPortraits.appendChild(el);
+    });
   }
 
   function renderResults() {
     clearNode(resultsWrap);
 
-    const player = (playerSelect?.value || "").trim();
-    const enemyPower = parseNumberLoose(enemyPowerInput?.value);
-    const defRow = getSelectedDefRow();
+    const row = getSelectedDefRow();
+    const player = playerSelect.value;
 
-    playerChip.textContent = player ? player : "—";
-
-    if (!defRow) {
+    if (!row || !player) {
       resultsCount.textContent = "0";
       return;
     }
 
-    if (!player) {
+    const rows = WAR.filter(
+      (r) =>
+        r.def_family === row.def_family &&
+        r.def_variant === row.def_variant
+    );
+
+    // 🔥 CAS IMPORTANT
+    if (!rows.length || rows.every((r) => r.atk_chars.every((c) => !c))) {
       resultsCount.textContent = "0";
-      const hint = document.createElement("p");
-      hint.className = "subtitle";
-      hint.textContent = "Choisis un joueur pour afficher les counters disponibles.";
-      resultsWrap.appendChild(hint);
+
+      const empty = document.createElement("p");
+      empty.className = "subtitle";
+      empty.textContent = "Aucun counter renseigné pour cette défense.";
+
+      resultsWrap.appendChild(empty);
       return;
     }
 
-    // Filtrage : 1) def_key si dispo, sinon famille+variante
-    const byKey = defRow.def_key ? WAR.filter((r) => r.def_key && r.def_key === defRow.def_key) : [];
-    const rows =
-      byKey.length > 0
-        ? byKey
-        : WAR.filter(
-            (r) =>
-              (r.def_family || "").trim() === (defRow.def_family || "").trim() &&
-              (r.def_variant || "").trim() === (defRow.def_variant || "").trim()
-          );
+    resultsCount.textContent = rows.length;
 
-    const computed = rows
-      .map((r) => {
-        const { sum: atkPower, perChar } = sumTeamPowerForPlayer(player, r.atk_chars);
-        const ratio = enemyPower > 0 ? atkPower / enemyPower : 1;
-        const verdict = enemyPower > 0 ? computeVerdict(ratio, r) : "OK";
-        return { row: r, atkPower, perChar, ratio, verdict };
-      })
-      .sort((a, b) => {
-        // SAFE > OK > NO, puis ratio desc, puis atkPower desc
-        const prio = (v) => (v === "SAFE" ? 2 : v === "OK" ? 1 : 0);
-        const d = prio(b.verdict) - prio(a.verdict);
-        if (d !== 0) return d;
-        const r = b.ratio - a.ratio;
-        if (r !== 0) return r;
-        return b.atkPower - a.atkPower;
-      });
+    rows.forEach((r) => {
+      const div = document.createElement("div");
+      div.className = "rankRow";
+      div.textContent = r.atk_team || "Counter";
 
-    resultsCount.textContent = String(computed.length);
-
-    if (!enemyPower || enemyPower <= 0) {
-      const hint = document.createElement("p");
-      hint.className = "subtitle";
-      hint.textContent =
-        "Astuce : saisis la puissance de la défense adverse pour afficher le ratio x1.05 / x1.15 et le verdict OK/SAFE.";
-      resultsWrap.appendChild(hint);
-    }
-
-    computed.forEach(({ row, atkPower, perChar, ratio, verdict }) => {
-      resultsWrap.appendChild(
-        makeResultCard({
-          atk_team: row.atk_team,
-          atk_chars: row.atk_chars,
-          perChar,
-          atkPower,
-          ratio,
-          verdict,
-          notes: row.notes,
-          enemyPower,
-        })
-      );
+      resultsWrap.appendChild(div);
     });
   }
 
@@ -602,116 +234,38 @@
   }
 
   // ---------- Events ----------
-  function onAllianceChange() {
+  allianceSelect.addEventListener("change", () => {
     renderPlayerOptions();
-    playerChip.textContent = "—";
     renderAll();
-  }
+  });
 
-  function onPlayerChange() {
-    renderAll();
-  }
+  playerSelect.addEventListener("change", renderAll);
 
-  function onDefFamilyChange() {
-    if (defVariantSelect) defVariantSelect.value = "";
+  defFamilySelect.addEventListener("change", () => {
     renderDefVariantOptions();
     renderAll();
-  }
+  });
 
-  function onDefVariantChange() {
-    renderAll();
-  }
+  defVariantSelect.addEventListener("change", renderAll);
 
-  let enemyDebounce = null;
-  function onEnemyPowerInput() {
-    if (enemyDebounce) clearTimeout(enemyDebounce);
-    enemyDebounce = setTimeout(() => renderResults(), 80);
-  }
+  enemyPowerInput.addEventListener("input", renderResults);
 
   // ---------- Boot ----------
   async function boot() {
-    const [warRaw, charsRaw, joueursRaw, rostersRaw] = await Promise.all([
+    const [warRaw, joueursRaw] = await Promise.all([
       fetchJson(FILES.warCounters),
-      fetchJson(FILES.characters),
       fetchJson(FILES.joueurs),
-      fetchJson(FILES.rosters),
     ]);
 
-    // Characters
-    CHARS = Array.isArray(charsRaw) ? charsRaw : [];
-    CHAR_MAP = new Map();
-    CHAR_MULTI = new Map();
-
-    CHARS.forEach((c) => {
-      const keys = [c.id, c.nameKey, c.nameFr, c.nameEn].filter(Boolean);
-      keys.forEach((k) => {
-        const kk = normalizeKey(k);
-        if (!kk) return;
-
-        if (!CHAR_MULTI.has(kk)) CHAR_MULTI.set(kk, []);
-        CHAR_MULTI.get(kk).push(c);
-
-        const existing = CHAR_MAP.get(kk);
-        if (!existing) {
-          CHAR_MAP.set(kk, c);
-        } else {
-          const scNew = scoreCharacterMatch(c, kk);
-          const scOld = scoreCharacterMatch(existing, kk);
-          if (scNew > scOld) CHAR_MAP.set(kk, c);
-        }
-      });
-    });
-
-    // Joueurs
-    JOUEURS = (joueursRaw || [])
-      .map((r) => ({
-        player: (r.player ?? r.joueur ?? r.JOUEURS ?? "").toString().trim(),
-        alliance: (r.alliance ?? r.ALLIANCES ?? "").toString().trim(),
-      }))
-      .filter((r) => r.player);
+    WAR = warRaw.map(normalizeWarRow);
+    JOUEURS = joueursRaw;
 
     buildPlayersByAlliance();
 
-    // Rosters -> map
-    const rostersArr = Array.isArray(rostersRaw) ? rostersRaw : [];
-    ROSTER_MAP = new Map();
-
-    for (const r of rostersArr) {
-      const p = (r.player ?? "").toString().trim();
-      if (!p) continue;
-
-      const normChars = {};
-      const chars = r.chars && typeof r.chars === "object" ? r.chars : {};
-      for (const [k, v] of Object.entries(chars)) {
-        normChars[normalizeKey(k)] = v;
-      }
-      ROSTER_MAP.set(normalizeKey(p), normChars);
-    }
-
-    // War rows
-    const warArr = Array.isArray(warRaw) ? warRaw : [];
-    WAR = warArr
-      .map(normalizeWarRow)
-      .filter((r) => r.def_family && r.def_variant);
-
-        // Render selects
     renderAllianceOptions();
     renderPlayerOptions();
     renderDefFamilyOptions();
-    renderDefVariantOptions();
-
-    // defaults
-    defVariantSelect.disabled = true;
-    playerChip.textContent = "—";
-    resultsCount.textContent = "0";
-    defTitle.textContent = "—";
   }
 
-  allianceSelect?.addEventListener("change", onAllianceChange);
-  playerSelect?.addEventListener("change", onPlayerChange);
-  defFamilySelect?.addEventListener("change", onDefFamilyChange);
-  defVariantSelect?.addEventListener("change", onDefVariantChange);
-  enemyPowerInput?.addEventListener("input", onEnemyPowerInput);
-
-  boot().catch((e) => console.error(e));
+  boot();
 })();
