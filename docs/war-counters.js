@@ -2,7 +2,6 @@
 (() => {
   const FILES = {
     warCounters: "./data/war-counters.json",
-    teams: "./data/teams.json",
     characters: "./data/msf-characters.json",
     joueurs: "./data/joueurs.json",
     rosters: "./data/rosters.json",
@@ -63,24 +62,37 @@
     return Math.trunc(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
+  // Tolérant: "6 500 000", "6.500.000", "6,500,000", "6500000"
   function parseNumberLoose(x) {
     if (x == null) return 0;
     if (typeof x === "number") return Number.isFinite(x) ? x : 0;
-    const s = String(x).replace(/\s/g, "").replace(/\./g, "").replace(/,/g, ".");
-    const n = Number(s);
+
+    let s = String(x).trim();
+    if (!s) return 0;
+
+    // on enlève espaces insécables/espaces
+    s = s.replace(/\s|\u00A0/g, "");
+
+    // si il y a des virgules + points, on suppose format "1,234,567"
+    // sinon si seulement des points, on suppose "1.234.567"
+    // au final, on garde juste les chiffres
+    const digits = s.replace(/[^\d]/g, "");
+    const n = Number(digits);
     return Number.isFinite(n) ? n : 0;
   }
 
   // ---------- Data ----------
-  let WAR = []; // rows
+  let WAR = []; // rows normalisées
   let CHARS = [];
-  let CHAR_MAP = new Map(); // alias -> best char
+  let CHAR_MAP = new Map();   // alias -> best char
   let CHAR_MULTI = new Map(); // alias -> [chars]
+
   let JOUEURS = [];
   let PLAYERS_BY_ALLIANCE = new Map();
 
-  let ROSTER_MAP = new Map(); // playerKey -> { charKey -> raw }
+  // playerKey -> { charKey -> raw }
   // raw = number OR {power, level, gear, isoMax}
+  let ROSTER_MAP = new Map();
 
   // ---------- Character disambiguation (comme app.js) ----------
   function isVariantId(id) {
@@ -123,6 +135,7 @@
       }
       return best || null;
     }
+
     return CHAR_MAP.get(key) || null;
   }
 
@@ -147,7 +160,7 @@
 
   // Lookup robuste : essaye (id/nameKey) puis fallback sur le texte brut
   function lookupCharRawInRoster(rosterObj, charName) {
-    if (!rosterObj) return null;
+    if (!rosterObj) return { raw: null, keyUsed: null };
 
     const info = findCharacterInfo(charName);
     const key1 = normalizeKey(
@@ -155,7 +168,10 @@
     );
     const key2 = normalizeKey(charName);
 
-    return rosterObj[key1] ?? rosterObj[key2] ?? null;
+    if (rosterObj[key1] !== undefined) return { raw: rosterObj[key1], keyUsed: key1 };
+    if (rosterObj[key2] !== undefined) return { raw: rosterObj[key2], keyUsed: key2 };
+
+    return { raw: null, keyUsed: null };
   }
 
   function sumTeamPowerForPlayer(playerName, charNames) {
@@ -166,11 +182,15 @@
     const perChar = [];
 
     for (const cn of charNames) {
-      const raw = lookupCharRawInRoster(roster, cn);
-      const present = raw !== undefined && raw !== null;
+      const { raw } = lookupCharRawInRoster(roster, cn);
+
+      // présence = la clé existe (raw !== null/undefined dans nos retours)
+      const present = raw !== null && raw !== undefined;
+
       const p = present ? readCharPower(raw) : 0;
       sum += Number.isFinite(p) ? p : 0;
-      perChar.push({ name: cn, present, power: p });
+
+      perChar.push({ name: cn, present, power: Number.isFinite(p) ? p : 0 });
     }
 
     return { sum, perChar };
@@ -178,7 +198,10 @@
 
   // ---------- WarCounters parsing ----------
   function normalizeWarRow(r) {
-    // tolérance à des noms de colonnes légèrement différents
+    // Colonnes attendues (ton onglet WarCounters) :
+    // mode, def_family, def_variant, def_key,
+    // def_char1..5, atk_team, atk_key, atk_char1..5,
+    // min_ratio_ok, min_ratio_safe, notes
     const mode = (r.mode ?? r.Mode ?? "Guerre").toString().trim();
 
     const def_family = (r.def_family ?? r.defFamily ?? "").toString().trim();
@@ -188,15 +211,11 @@
     const atk_team = (r.atk_team ?? r.atkTeam ?? "").toString().trim();
     const atk_key = (r.atk_key ?? r.atkKey ?? "").toString().trim();
 
-    const def_chars = [
-      r.def_char1, r.def_char2, r.def_char3, r.def_char4, r.def_char5,
-    ]
+    const def_chars = [r.def_char1, r.def_char2, r.def_char3, r.def_char4, r.def_char5]
       .map((x) => (x ?? "").toString().trim())
       .filter(Boolean);
 
-    const atk_chars = [
-      r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5,
-    ]
+    const atk_chars = [r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5]
       .map((x) => (x ?? "").toString().trim())
       .filter(Boolean);
 
@@ -320,6 +339,7 @@
 
   function renderDefVariantOptions() {
     const fam = (defFamilySelect?.value || "").trim();
+
     defVariantSelect.innerHTML = "";
 
     const opt0 = document.createElement("option");
@@ -357,9 +377,12 @@
     const fam = (defFamilySelect?.value || "").trim();
     const vari = (defVariantSelect?.value || "").trim();
     if (!fam || !vari) return null;
+
     return (
       WAR.find(
-        (r) => (r.def_family || "").trim() === fam && (r.def_variant || "").trim() === vari
+        (r) =>
+          (r.def_family || "").trim() === fam &&
+          (r.def_variant || "").trim() === vari
       ) || null
     );
   }
@@ -395,9 +418,25 @@
     }
   }
 
-  function makeResultCard({ atk_team, atk_chars, atkPower, ratio, verdict, notes }) {
+  function computeVerdict(ratio, row) {
+    const ok = Number(row.min_ratio_ok || 0);
+    const safe = Number(row.min_ratio_safe || 0);
+
+    // Si pas de seuil renseigné => OK si ratio>=1
+    if (!ok && !safe) return ratio >= 1 ? "OK" : "NO";
+
+    if (safe && ratio >= safe) return "SAFE";
+    if (ok && ratio >= ok) return "OK";
+    return "NO";
+  }
+
+  function makeResultCard({ atk_team, atk_chars, perChar, atkPower, ratio, verdict, notes }) {
+    const block = document.createElement("div");
+    block.style.marginBottom = "12px";
+
+    // Ligne "resume"
     const wrapper = document.createElement("div");
-    wrapper.className = "rankRow"; // on réutilise le style “row” existant
+    wrapper.className = "rankRow";
 
     const left = document.createElement("div");
     left.className = "rankLeft";
@@ -406,21 +445,19 @@
     title.className = "rankName";
     title.style.fontWeight = "900";
     title.textContent = atk_team || "Counter";
-
     left.appendChild(title);
 
-    // mini barres = “verdict”
     const bars = document.createElement("div");
     bars.className = "rankBars";
     bars.style.marginLeft = "auto";
 
     const bar = document.createElement("span");
-    bar.className = `rankBar is-${verdict === "SAFE" ? "green" : verdict === "OK" ? "orange" : "red"}`;
+    bar.className =
+      `rankBar is-${verdict === "SAFE" ? "green" : verdict === "OK" ? "orange" : "red"}`;
     bar.title = verdict;
     bar.dataset.tip = verdict;
     bars.appendChild(bar);
 
-    // Power + ratio
     const right = document.createElement("div");
     right.className = "rankPower";
     right.style.textAlign = "right";
@@ -432,15 +469,20 @@
     wrapper.appendChild(bars);
     wrapper.appendChild(right);
 
-    // portraits en dessous
+    // Portraits de l'équipe d'attaque (avec tooltip power)
     const grid = document.createElement("div");
     grid.className = "portraits";
     grid.style.marginTop = "10px";
 
     for (const cn of atk_chars) {
       const info = findCharacterInfo(cn);
+      const pc = perChar.find((x) => x.name === cn) || { present: false, power: 0 };
+
       const card = document.createElement("div");
       card.className = "portraitCard";
+      card.title = pc.present
+        ? `${cn}\nPuissance: ${formatThousandsDot(pc.power)}`
+        : `${cn}\n⚠️ Pas trouvé dans le roster du joueur`;
 
       const img = document.createElement("img");
       img.className = "portraitImg";
@@ -451,35 +493,41 @@
       img.src = info?.portraitUrl || "";
       card.appendChild(img);
 
+      // Petit “badge” power (lisible, sans toucher au CSS)
+      const badge = document.createElement("div");
+      badge.style.position = "absolute";
+      badge.style.right = "6px";
+      badge.style.bottom = "6px";
+      badge.style.padding = "3px 6px";
+      badge.style.borderRadius = "999px";
+      badge.style.fontSize = "11px";
+      badge.style.fontWeight = "900";
+      badge.style.border = "1px solid rgba(255,255,255,.14)";
+      badge.style.background = "rgba(0,0,0,.55)";
+      badge.style.backdropFilter = "blur(6px)";
+      badge.style.color = "rgba(255,255,255,.90)";
+      badge.textContent = pc.present ? formatThousandsDot(pc.power) : "—";
+
+      // On force un contexte "position relative" sur la card
+      card.style.position = "relative";
+      card.appendChild(badge);
+
       grid.appendChild(card);
     }
 
-    const notesEl = document.createElement("div");
-    notesEl.style.marginTop = "8px";
-    notesEl.style.color = "rgba(255,255,255,.70)";
-    notesEl.style.fontSize = "13px";
-    notesEl.style.lineHeight = "1.25";
-    notesEl.textContent = notes ? `📝 ${notes}` : "";
+    if (notes) {
+      const notesEl = document.createElement("div");
+      notesEl.style.marginTop = "8px";
+      notesEl.style.color = "rgba(255,255,255,.70)";
+      notesEl.style.fontSize = "13px";
+      notesEl.style.lineHeight = "1.25";
+      notesEl.textContent = `📝 ${notes}`;
+      block.appendChild(notesEl);
+    }
 
-    const block = document.createElement("div");
-    block.style.marginBottom = "12px";
     block.appendChild(wrapper);
     block.appendChild(grid);
-    if (notes) block.appendChild(notesEl);
-
     return block;
-  }
-
-  function computeVerdict(ratio, row) {
-    const ok = Number(row.min_ratio_ok || 0);
-    const safe = Number(row.min_ratio_safe || 0);
-
-    // Si pas de seuil renseigné => on met OK par défaut dès que ratio>=1
-    if (!ok && !safe) return ratio >= 1 ? "OK" : "NO";
-
-    if (safe && ratio >= safe) return "SAFE";
-    if (ok && ratio >= ok) return "OK";
-    return "NO";
   }
 
   function renderResults() {
@@ -487,7 +535,6 @@
 
     const player = (playerSelect?.value || "").trim();
     const enemyPower = parseNumberLoose(enemyPowerInput?.value);
-
     const defRow = getSelectedDefRow();
 
     playerChip.textContent = player ? player : "—";
@@ -496,6 +543,7 @@
       resultsCount.textContent = "0";
       return;
     }
+
     if (!player) {
       resultsCount.textContent = "0";
       const hint = document.createElement("div");
@@ -506,13 +554,16 @@
       return;
     }
 
-    // Toutes les lignes qui matchent la défense sélectionnée
-    const matches = WAR.filter((r) => r.def_key && r.def_key === defRow.def_key);
+    // Filtrage des lignes qui matchent la défense:
+    // 1) def_key si dispo
+    // 2) sinon famille+variante
+    const byKey = defRow.def_key
+      ? WAR.filter((r) => r.def_key && r.def_key === defRow.def_key)
+      : [];
 
-    // Si def_key pas rempli => fallback sur famille+variante
     const rows =
-      matches.length > 0
-        ? matches
+      byKey.length > 0
+        ? byKey
         : WAR.filter(
             (r) =>
               (r.def_family || "").trim() === (defRow.def_family || "").trim() &&
@@ -521,22 +572,23 @@
 
     const computed = rows
       .map((r) => {
-        const { sum: atkPower } = sumTeamPowerForPlayer(player, r.atk_chars);
-        const ratio = enemyPower > 0 ? atkPower / enemyPower : 0;
+        const { sum: atkPower, perChar } = sumTeamPowerForPlayer(player, r.atk_chars);
+        const ratio = enemyPower > 0 ? atkPower / enemyPower : 1;
         const verdict = enemyPower > 0 ? computeVerdict(ratio, r) : "OK";
-        return { row: r, atkPower, ratio, verdict };
+        return { row: r, atkPower, perChar, ratio, verdict };
       })
       .sort((a, b) => {
-        // Tri: verdict SAFE > OK > NO, puis ratio desc
+        // SAFE > OK > NO, puis ratio desc, puis atkPower desc
         const prio = (v) => (v === "SAFE" ? 2 : v === "OK" ? 1 : 0);
         const d = prio(b.verdict) - prio(a.verdict);
         if (d !== 0) return d;
-        return b.ratio - a.ratio;
+        const r = b.ratio - a.ratio;
+        if (r !== 0) return r;
+        return b.atkPower - a.atkPower;
       });
 
     resultsCount.textContent = String(computed.length);
 
-    // Si pas de puissance saisie, on affiche quand même (sans ratio)
     if (!enemyPower || enemyPower <= 0) {
       const hint = document.createElement("div");
       hint.style.color = "rgba(255,255,255,.70)";
@@ -547,14 +599,15 @@
       resultsWrap.appendChild(hint);
     }
 
-    computed.forEach(({ row, atkPower, ratio, verdict }) => {
+    computed.forEach(({ row, atkPower, perChar, ratio, verdict }) => {
       resultsWrap.appendChild(
         makeResultCard({
           atk_team: row.atk_team,
           atk_chars: row.atk_chars,
+          perChar,
           atkPower,
-          ratio: enemyPower > 0 ? ratio : 1,
-          verdict: enemyPower > 0 ? verdict : "OK",
+          ratio,
+          verdict,
           notes: row.notes,
         })
       );
@@ -578,6 +631,8 @@
   }
 
   function onDefFamilyChange() {
+    // reset variante + rerender liste
+    if (defVariantSelect) defVariantSelect.value = "";
     renderDefVariantOptions();
     renderAll();
   }
@@ -586,8 +641,11 @@
     renderAll();
   }
 
+  let enemyDebounce = null;
   function onEnemyPowerInput() {
-    renderResults();
+    // debounce léger (iOS)
+    if (enemyDebounce) clearTimeout(enemyDebounce);
+    enemyDebounce = setTimeout(() => renderResults(), 80);
   }
 
   // ---------- Boot ----------
@@ -637,6 +695,7 @@
     // Rosters -> map
     const rostersArr = Array.isArray(rostersRaw) ? rostersRaw : [];
     ROSTER_MAP = new Map();
+
     for (const r of rostersArr) {
       const p = (r.player ?? "").toString().trim();
       if (!p) continue;
@@ -651,7 +710,9 @@
 
     // War rows
     const warArr = Array.isArray(warRaw) ? warRaw : [];
-    WAR = warArr.map(normalizeWarRow).filter((r) => r.def_family && r.def_variant);
+    WAR = warArr
+      .map(normalizeWarRow)
+      .filter((r) => r.def_family && r.def_variant && r.atk_chars.length);
 
     // Render selects
     renderAllianceOptions();
