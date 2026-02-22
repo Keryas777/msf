@@ -28,7 +28,7 @@
   };
 
   async function fetchJson(url) {
-    const res = await fetch(bust(url));
+    const res = await fetch(bust(url), { cache: "no-store" });
     if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
     return res.json();
   }
@@ -39,13 +39,10 @@
   }
 
   function parseNumberLoose(x) {
-    if (!x) return 0;
-    return Number(String(x).replace(/[^\d]/g, "")) || 0;
-  }
-
-  // ✅ Vrai “non vide” (évite le bug des cellules " " / "\n" / etc.)
-  function isNonEmptyCell(v) {
-    return typeof v === "string" ? v.trim() !== "" : !!v;
+    if (x == null) return 0;
+    const s = String(x).trim();
+    if (!s) return 0;
+    return Number(s.replace(/[^\d]/g, "")) || 0;
   }
 
   // ---------- Data ----------
@@ -53,8 +50,26 @@
   let JOUEURS = [];
   let PLAYERS_BY_ALLIANCE = new Map();
 
+  // ---------- Helpers (FIX) ----------
+  // Une ligne est un "vrai counter" si:
+  // - soit atk_team est renseigné
+  // - soit au moins un atk_char est renseigné
+  function isRealCounterRow(r) {
+    const hasTeam = !!(r.atk_team && r.atk_team.trim());
+    const hasAnyAtkChar = Array.isArray(r.atk_chars) && r.atk_chars.some((c) => (c || "").trim());
+    return hasTeam || hasAnyAtkChar;
+  }
+
   // ---------- Parsing ----------
   function normalizeWarRow(r) {
+    const atkChars = [
+      r.atk_char1,
+      r.atk_char2,
+      r.atk_char3,
+      r.atk_char4,
+      r.atk_char5,
+    ].map((x) => (x == null ? "" : String(x)).trim());
+
     return {
       def_family: (r.def_family || "").trim(),
       def_variant: (r.def_variant || "").trim(),
@@ -67,19 +82,13 @@
         r.def_char4,
         r.def_char5,
       ]
-        .map((x) => (x || "").trim())
+        .map((x) => (x == null ? "" : String(x)).trim())
         .filter(Boolean),
 
       atk_team: (r.atk_team || "").trim(),
 
-      // IMPORTANT : on garde les cases vides mais on les nettoiera après
-      atk_chars: [
-        r.atk_char1,
-        r.atk_char2,
-        r.atk_char3,
-        r.atk_char4,
-        r.atk_char5,
-      ].map((x) => (x || "").trim()),
+      // IMPORTANT : on garde les cases vides (défense sans contre possible)
+      atk_chars: atkChars,
 
       min_ratio_ok: parseNumberLoose(r.min_ratio_ok),
       min_ratio_safe: parseNumberLoose(r.min_ratio_safe),
@@ -90,12 +99,13 @@
 
   function buildPlayersByAlliance() {
     PLAYERS_BY_ALLIANCE = new Map();
-
     for (const j of JOUEURS) {
-      if (!PLAYERS_BY_ALLIANCE.has(j.alliance)) {
-        PLAYERS_BY_ALLIANCE.set(j.alliance, []);
-      }
-      PLAYERS_BY_ALLIANCE.get(j.alliance).push(j);
+      const a = (j.alliance || "").trim();
+      const p = (j.player || "").trim();
+      if (!a || !p) continue;
+
+      if (!PLAYERS_BY_ALLIANCE.has(a)) PLAYERS_BY_ALLIANCE.set(a, []);
+      PLAYERS_BY_ALLIANCE.get(a).push({ alliance: a, player: p });
     }
   }
 
@@ -103,7 +113,9 @@
   function renderAllianceOptions() {
     allianceSelect.innerHTML = "<option value=''>Alliance</option>";
 
-    const alliances = [...new Set(JOUEURS.map((j) => j.alliance))];
+    const alliances = [...new Set(JOUEURS.map((j) => (j.alliance || "").trim()).filter(Boolean))].sort(
+      (a, b) => a.localeCompare(b, "fr")
+    );
 
     alliances.forEach((a) => {
       const opt = document.createElement("option");
@@ -114,12 +126,14 @@
   }
 
   function renderPlayerOptions() {
-    const alliance = allianceSelect.value;
+    const alliance = (allianceSelect.value || "").trim();
     playerSelect.innerHTML = "<option value=''>Joueur</option>";
 
     if (!alliance) return;
 
-    const players = PLAYERS_BY_ALLIANCE.get(alliance) || [];
+    const players = (PLAYERS_BY_ALLIANCE.get(alliance) || [])
+      .slice()
+      .sort((a, b) => a.player.localeCompare(b.player, "fr"));
 
     players.forEach((p) => {
       const opt = document.createElement("option");
@@ -130,7 +144,9 @@
   }
 
   function renderDefFamilyOptions() {
-    const families = [...new Set(WAR.map((r) => r.def_family))];
+    const families = [...new Set(WAR.map((r) => (r.def_family || "").trim()).filter(Boolean))].sort(
+      (a, b) => a.localeCompare(b, "fr")
+    );
 
     defFamilySelect.innerHTML = "<option value=''>Famille</option>";
 
@@ -140,30 +156,40 @@
       opt.textContent = f;
       defFamilySelect.appendChild(opt);
     });
+
+    // reset dépendants
+    defVariantSelect.innerHTML = "<option value=''>Variante</option>";
   }
 
   function renderDefVariantOptions() {
-    const fam = defFamilySelect.value;
+    const fam = (defFamilySelect.value || "").trim();
 
     defVariantSelect.innerHTML = "<option value=''>Variante</option>";
+    if (!fam) return;
 
-    const variants = WAR
-      .filter((r) => r.def_family === fam)
-      .map((r) => r.def_variant);
+    const variants = WAR.filter((r) => (r.def_family || "").trim() === fam)
+      .map((r) => (r.def_variant || "").trim())
+      .filter(Boolean);
 
-    [...new Set(variants)].forEach((v) => {
-      const opt = document.createElement("option");
-      opt.value = v;
-      opt.textContent = v;
-      defVariantSelect.appendChild(opt);
-    });
+    [...new Set(variants)]
+      .sort((a, b) => a.localeCompare(b, "fr"))
+      .forEach((v) => {
+        const opt = document.createElement("option");
+        opt.value = v;
+        opt.textContent = v;
+        defVariantSelect.appendChild(opt);
+      });
   }
 
   function getSelectedDefRow() {
-    return WAR.find(
-      (r) =>
-        r.def_family === defFamilySelect.value &&
-        r.def_variant === defVariantSelect.value
+    const fam = (defFamilySelect.value || "").trim();
+    const vari = (defVariantSelect.value || "").trim();
+    if (!fam || !vari) return null;
+
+    return (
+      WAR.find(
+        (r) => (r.def_family || "").trim() === fam && (r.def_variant || "").trim() === vari
+      ) || null
     );
   }
 
@@ -172,9 +198,12 @@
     clearNode(defPortraits);
 
     const row = getSelectedDefRow();
-    if (!row) return;
+    if (!row) {
+      defTitle.textContent = "—";
+      return;
+    }
 
-    defTitle.textContent = row.def_variant;
+    defTitle.textContent = row.def_variant || row.def_family || "Défense";
 
     row.def_chars.forEach((c) => {
       const el = document.createElement("div");
@@ -188,25 +217,25 @@
     clearNode(resultsWrap);
 
     const row = getSelectedDefRow();
-    const player = playerSelect.value;
+    const player = (playerSelect.value || "").trim();
 
-    if (playerChip) playerChip.textContent = player ? player : "—";
+    if (playerChip) playerChip.textContent = player || "—";
 
     if (!row || !player) {
       resultsCount.textContent = "0";
       return;
     }
 
-    // 🔥 FILTRE PRINCIPAL (avec le vrai fix)
+    // ✅ FIX: on ne garde que les vrais counters (team ou au moins 1 atk_char)
     const rows = WAR
       .filter(
         (r) =>
-          r.def_family === row.def_family &&
-          r.def_variant === row.def_variant
+          (r.def_family || "").trim() === (row.def_family || "").trim() &&
+          (r.def_variant || "").trim() === (row.def_variant || "").trim()
       )
-      .filter((r) => r.atk_chars.some(isNonEmptyCell)); // ✅ FIX ICI
+      .filter(isRealCounterRow);
 
-    // 🔥 Aucun counter réel
+    // Aucun counter réel => message
     if (!rows.length) {
       resultsCount.textContent = "0";
 
@@ -222,7 +251,14 @@
     rows.forEach((r) => {
       const div = document.createElement("div");
       div.className = "rankRow";
-      div.textContent = r.atk_team || "Counter";
+
+      // Affiche un libellé correct même si atk_team est vide
+      const label =
+        (r.atk_team || "").trim() ||
+        r.atk_chars.filter((c) => (c || "").trim()).join(" • ") ||
+        "Counter";
+
+      div.textContent = label;
       resultsWrap.appendChild(div);
     });
   }
@@ -256,7 +292,7 @@
       fetchJson(FILES.joueurs),
     ]);
 
-    WAR = Array.isArray(warRaw) ? warRaw.map(normalizeWarRow) : [];
+    WAR = (Array.isArray(warRaw) ? warRaw : []).map(normalizeWarRow);
     JOUEURS = Array.isArray(joueursRaw) ? joueursRaw : [];
 
     buildPlayersByAlliance();
@@ -264,6 +300,11 @@
     renderAllianceOptions();
     renderPlayerOptions();
     renderDefFamilyOptions();
+
+    // init UI
+    if (playerChip) playerChip.textContent = "—";
+    resultsCount.textContent = "0";
+    defTitle.textContent = "—";
   }
 
   boot().catch((e) => console.error(e));
