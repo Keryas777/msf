@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>LoSP — War Counters</title>
     <link rel="stylesheet" href="./style.css" />
-    <link rel="stylesheet" href="./war-counters.css" />
   </head>
 
   <body>
-    <a class="homeBtn" href="./index.html" aria-label="Accueil">⌂</a>
+    <!-- ✅ même rendu que la page classement -->
+    <a class="homeBtn" href="./index.html" aria-label="Accueil">🏠</a>
 
     <div class="app">
       <header class="header">
@@ -23,22 +23,22 @@
         <div class="headerRight">
           <div>
             <div class="label">Alliance</div>
-            <select id="allianceSelect" class="select"></select>
+            <select id="allianceSelect" class="select" aria-label="Alliance"></select>
           </div>
 
           <div>
             <div class="label">Joueur</div>
-            <select id="playerSelect" class="select"></select>
+            <select id="playerSelect" class="select" aria-label="Joueur"></select>
           </div>
 
           <div>
             <div class="label">Défense — Famille</div>
-            <select id="defFamilySelect" class="select"></select>
+            <select id="defFamilySelect" class="select" aria-label="Famille de défense"></select>
           </div>
 
           <div>
             <div class="label">Défense — Variante</div>
-            <select id="defVariantSelect" class="select"></select>
+            <select id="defVariantSelect" class="select" aria-label="Variante de défense"></select>
           </div>
 
           <div>
@@ -46,8 +46,15 @@
             <input
               id="enemyPower"
               class="select"
+              type="text"
               inputmode="numeric"
+              enterkeyhint="done"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
               placeholder="ex: 6500000"
+              aria-label="Puissance de la défense adverse"
+              pattern="[0-9\s\.\,]*"
             />
           </div>
         </div>
@@ -59,7 +66,7 @@
           <div class="chipCount" id="resultsCount">0</div>
         </div>
 
-        <div class="portraits" id="defPortraits"></div>
+        <div class="portraits" id="defPortraits" aria-label="Personnages de la défense"></div>
       </section>
 
       <section class="card">
@@ -68,7 +75,7 @@
           <div class="chipCount" id="playerChip">—</div>
         </div>
 
-        <div id="results"></div>
+        <div id="results" aria-label="Liste des counters disponibles"></div>
       </section>
     </div>
 
