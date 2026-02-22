@@ -59,7 +59,9 @@
   function formatThousandsDot(n) {
     const num = Number(n);
     if (!Number.isFinite(num)) return "0";
-    return Math.trunc(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return Math.trunc(num)
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
   // Tolérant: "6 500 000", "6.500.000", "6,500,000", "6500000"
@@ -70,21 +72,21 @@
     let s = String(x).trim();
     if (!s) return 0;
 
-    // on enlève espaces insécables/espaces
     s = s.replace(/\s|\u00A0/g, "");
-
-    // si il y a des virgules + points, on suppose format "1,234,567"
-    // sinon si seulement des points, on suppose "1.234.567"
-    // au final, on garde juste les chiffres
     const digits = s.replace(/[^\d]/g, "");
     const n = Number(digits);
     return Number.isFinite(n) ? n : 0;
   }
 
+  function clampFinite(n) {
+    const x = Number(n);
+    return Number.isFinite(x) ? x : 0;
+  }
+
   // ---------- Data ----------
   let WAR = []; // rows normalisées
   let CHARS = [];
-  let CHAR_MAP = new Map();   // alias -> best char
+  let CHAR_MAP = new Map(); // alias -> best char
   let CHAR_MULTI = new Map(); // alias -> [chars]
 
   let JOUEURS = [];
@@ -184,13 +186,13 @@
     for (const cn of charNames) {
       const { raw } = lookupCharRawInRoster(roster, cn);
 
-      // présence = la clé existe (raw !== null/undefined dans nos retours)
       const present = raw !== null && raw !== undefined;
-
       const p = present ? readCharPower(raw) : 0;
-      sum += Number.isFinite(p) ? p : 0;
 
-      perChar.push({ name: cn, present, power: Number.isFinite(p) ? p : 0 });
+      const pow = Number.isFinite(p) ? p : 0;
+      sum += pow;
+
+      perChar.push({ name: cn, present, power: pow });
     }
 
     return { sum, perChar };
@@ -198,10 +200,6 @@
 
   // ---------- WarCounters parsing ----------
   function normalizeWarRow(r) {
-    // Colonnes attendues (ton onglet WarCounters) :
-    // mode, def_family, def_variant, def_key,
-    // def_char1..5, atk_team, atk_key, atk_char1..5,
-    // min_ratio_ok, min_ratio_safe, notes
     const mode = (r.mode ?? r.Mode ?? "Guerre").toString().trim();
 
     const def_family = (r.def_family ?? r.defFamily ?? "").toString().trim();
@@ -323,9 +321,9 @@
     opt0.textContent = "— Choisir une famille —";
     defFamilySelect.appendChild(opt0);
 
-    const families = Array.from(
-      new Set(WAR.map((r) => (r.def_family || "").trim()).filter(Boolean))
-    ).sort((a, b) => a.localeCompare(b, "fr"));
+    const families = Array.from(new Set(WAR.map((r) => (r.def_family || "").trim()).filter(Boolean))).sort(
+      (a, b) => a.localeCompare(b, "fr")
+    );
 
     families.forEach((f) => {
       const opt = document.createElement("option");
@@ -404,6 +402,7 @@
 
       const card = document.createElement("div");
       card.className = "portraitCard";
+      card.title = cn;
 
       const img = document.createElement("img");
       img.className = "portraitImg";
@@ -412,15 +411,15 @@
       img.decoding = "async";
       img.referrerPolicy = "no-referrer";
       img.src = info?.portraitUrl || "";
-      card.appendChild(img);
 
+      card.appendChild(img);
       defPortraits.appendChild(card);
     }
   }
 
   function computeVerdict(ratio, row) {
-    const ok = Number(row.min_ratio_ok || 0);
-    const safe = Number(row.min_ratio_safe || 0);
+    const ok = clampFinite(row.min_ratio_ok || 0);
+    const safe = clampFinite(row.min_ratio_safe || 0);
 
     // Si pas de seuil renseigné => OK si ratio>=1
     if (!ok && !safe) return ratio >= 1 ? "OK" : "NO";
@@ -430,49 +429,59 @@
     return "NO";
   }
 
-  function makeResultCard({ atk_team, atk_chars, perChar, atkPower, ratio, verdict, notes }) {
-    const block = document.createElement("div");
-    block.style.marginBottom = "12px";
+  function verdictToBarClass(verdict) {
+    if (verdict === "SAFE") return "is-green";
+    if (verdict === "OK") return "is-orange";
+    if (verdict === "NO") return "is-red";
+    return ""; // fallback
+  }
 
-    // Ligne "resume"
-    const wrapper = document.createElement("div");
-    wrapper.className = "rankRow";
+  function makeResultCard({ atk_team, atk_chars, perChar, atkPower, ratio, verdict, notes, enemyPower }) {
+    const block = document.createElement("div");
+    // ✅ pas de style inline : on garde la structure clean
+
+    // Ligne "résumé" (look identique classement)
+    const row = document.createElement("div");
+    row.className = "rankRow";
 
     const left = document.createElement("div");
     left.className = "rankLeft";
 
-    const title = document.createElement("div");
-    title.className = "rankName";
-    title.style.fontWeight = "900";
-    title.textContent = atk_team || "Counter";
-    left.appendChild(title);
+    const name = document.createElement("div");
+    name.className = "rankName";
+    name.textContent = atk_team || "Counter";
 
+    left.appendChild(name);
+
+    // “barres” : on réutilise rankBars + rankBar (1 seule barre)
     const bars = document.createElement("div");
     bars.className = "rankBars";
-    bars.style.marginLeft = "auto";
 
     const bar = document.createElement("span");
-    bar.className =
-      `rankBar is-${verdict === "SAFE" ? "green" : verdict === "OK" ? "orange" : "red"}`;
+    bar.className = `rankBar ${verdictToBarClass(verdict)}`.trim();
+    bar.setAttribute("role", "img");
+    bar.setAttribute("aria-label", verdict);
     bar.title = verdict;
     bar.dataset.tip = verdict;
     bars.appendChild(bar);
 
+    // Power (et ratio si enemyPower fourni)
     const right = document.createElement("div");
     right.className = "rankPower";
-    right.style.textAlign = "right";
-    right.innerHTML = `${formatThousandsDot(atkPower)}<br><span style="opacity:.75;font-weight:800;font-size:12px;">x${ratio.toFixed(
-      2
-    )}</span>`;
 
-    wrapper.appendChild(left);
-    wrapper.appendChild(bars);
-    wrapper.appendChild(right);
+    if (enemyPower > 0) {
+      right.textContent = `${formatThousandsDot(atkPower)}  x${ratio.toFixed(2)}`;
+    } else {
+      right.textContent = `${formatThousandsDot(atkPower)}`;
+    }
 
-    // Portraits de l'équipe d'attaque (avec tooltip power)
+    row.appendChild(left);
+    row.appendChild(bars);
+    row.appendChild(right);
+
+    // Portraits (mêmes classes que partout)
     const grid = document.createElement("div");
     grid.className = "portraits";
-    grid.style.marginTop = "10px";
 
     for (const cn of atk_chars) {
       const info = findCharacterInfo(cn);
@@ -491,42 +500,22 @@
       img.decoding = "async";
       img.referrerPolicy = "no-referrer";
       img.src = info?.portraitUrl || "";
+
       card.appendChild(img);
-
-      // Petit “badge” power (lisible, sans toucher au CSS)
-      const badge = document.createElement("div");
-      badge.style.position = "absolute";
-      badge.style.right = "6px";
-      badge.style.bottom = "6px";
-      badge.style.padding = "3px 6px";
-      badge.style.borderRadius = "999px";
-      badge.style.fontSize = "11px";
-      badge.style.fontWeight = "900";
-      badge.style.border = "1px solid rgba(255,255,255,.14)";
-      badge.style.background = "rgba(0,0,0,.55)";
-      badge.style.backdropFilter = "blur(6px)";
-      badge.style.color = "rgba(255,255,255,.90)";
-      badge.textContent = pc.present ? formatThousandsDot(pc.power) : "—";
-
-      // On force un contexte "position relative" sur la card
-      card.style.position = "relative";
-      card.appendChild(badge);
-
       grid.appendChild(card);
     }
 
+    block.appendChild(row);
+    block.appendChild(grid);
+
     if (notes) {
-      const notesEl = document.createElement("div");
-      notesEl.style.marginTop = "8px";
-      notesEl.style.color = "rgba(255,255,255,.70)";
-      notesEl.style.fontSize = "13px";
-      notesEl.style.lineHeight = "1.25";
-      notesEl.textContent = `📝 ${notes}`;
-      block.appendChild(notesEl);
+      // ✅ sans CSS additionnel : on fait simple
+      const notesRow = document.createElement("div");
+      notesRow.className = "subtitle";
+      notesRow.textContent = `📝 ${notes}`;
+      block.appendChild(notesRow);
     }
 
-    block.appendChild(wrapper);
-    block.appendChild(grid);
     return block;
   }
 
@@ -546,21 +535,15 @@
 
     if (!player) {
       resultsCount.textContent = "0";
-      const hint = document.createElement("div");
-      hint.style.color = "rgba(255,255,255,.75)";
-      hint.style.fontWeight = "800";
+      const hint = document.createElement("p");
+      hint.className = "subtitle";
       hint.textContent = "Choisis un joueur pour afficher les counters disponibles.";
       resultsWrap.appendChild(hint);
       return;
     }
 
-    // Filtrage des lignes qui matchent la défense:
-    // 1) def_key si dispo
-    // 2) sinon famille+variante
-    const byKey = defRow.def_key
-      ? WAR.filter((r) => r.def_key && r.def_key === defRow.def_key)
-      : [];
-
+    // Filtrage : 1) def_key si dispo, sinon famille+variante
+    const byKey = defRow.def_key ? WAR.filter((r) => r.def_key && r.def_key === defRow.def_key) : [];
     const rows =
       byKey.length > 0
         ? byKey
@@ -590,12 +573,10 @@
     resultsCount.textContent = String(computed.length);
 
     if (!enemyPower || enemyPower <= 0) {
-      const hint = document.createElement("div");
-      hint.style.color = "rgba(255,255,255,.70)";
-      hint.style.fontSize = "13px";
-      hint.style.marginBottom = "10px";
+      const hint = document.createElement("p");
+      hint.className = "subtitle";
       hint.textContent =
-        "Astuce : saisis la puissance de la défense adverse pour afficher x1.05 / x1.15 et le verdict OK/SAFE.";
+        "Astuce : saisis la puissance de la défense adverse pour afficher le ratio x1.05 / x1.15 et le verdict OK/SAFE.";
       resultsWrap.appendChild(hint);
     }
 
@@ -609,6 +590,7 @@
           ratio,
           verdict,
           notes: row.notes,
+          enemyPower,
         })
       );
     });
@@ -631,7 +613,6 @@
   }
 
   function onDefFamilyChange() {
-    // reset variante + rerender liste
     if (defVariantSelect) defVariantSelect.value = "";
     renderDefVariantOptions();
     renderAll();
@@ -643,7 +624,6 @@
 
   let enemyDebounce = null;
   function onEnemyPowerInput() {
-    // debounce léger (iOS)
     if (enemyDebounce) clearTimeout(enemyDebounce);
     enemyDebounce = setTimeout(() => renderResults(), 80);
   }
