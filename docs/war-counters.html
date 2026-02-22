@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>LoSP — War Counters</title>
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./war-counters.css" />
+  </head>
+
+  <body>
+    <a class="homeBtn" href="./index.html" aria-label="Accueil">⌂</a>
+
+    <div class="app">
+      <header class="header">
+        <div class="headerLeft">
+          <h1 class="title">Counters de Guerre</h1>
+          <p class="subtitle">
+            Choisis une défense, un joueur, puis compare la puissance.
+          </p>
+        </div>
+
+        <div class="headerRight">
+          <div>
+            <div class="label">Alliance</div>
+            <select id="allianceSelect" class="select"></select>
+          </div>
+
+          <div>
+            <div class="label">Joueur</div>
+            <select id="playerSelect" class="select"></select>
+          </div>
+
+          <div>
+            <div class="label">Défense — Famille</div>
+            <select id="defFamilySelect" class="select"></select>
+          </div>
+
+          <div>
+            <div class="label">Défense — Variante</div>
+            <select id="defVariantSelect" class="select"></select>
+          </div>
+
+          <div>
+            <div class="label">Puissance défense adverse</div>
+            <input
+              id="enemyPower"
+              class="select"
+              inputmode="numeric"
+              placeholder="ex: 6500000"
+            />
+          </div>
+        </div>
+      </header>
+
+      <section class="card">
+        <div class="cardHeader">
+          <h2 class="cardTitle" id="defTitle">—</h2>
+          <div class="chipCount" id="resultsCount">0</div>
+        </div>
+
+        <div class="portraits" id="defPortraits"></div>
+      </section>
+
+      <section class="card">
+        <div class="cardHeader">
+          <h2 class="cardTitle">Recommandations</h2>
+          <div class="chipCount" id="playerChip">—</div>
+        </div>
+
+        <div id="results"></div>
+      </section>
+    </div>
+
+    <script src="./war-counters.js"></script>
+  </body>
+</html>
