@@ -1,21 +1,17 @@
 // scripts/sheets-war-counters.mjs
-// Convertit l'onglet "WarCounters" (Google Sheets) en docs/data/war-counters.json
-// Sans auth : utilise l'export CSV via gviz (le fichier doit être accessible en lecture via lien).
-
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const SHEET_ID = process.env.SHEET_ID;          // ex: "1AbC...xyz"
+const SHEET_ID = process.env.SHEET_ID;
 const SHEET_TAB = process.env.SHEET_TAB || "WarCounters";
 const OUT_FILE = process.env.OUT_FILE || "docs/data/war-counters.json";
 
 if (!SHEET_ID) {
-  console.error("❌ Missing env SHEET_ID. Exemple: SHEET_ID=1AbC... node scripts/sheets-war-counters.mjs");
+  console.error("❌ Missing env SHEET_ID.");
   process.exit(1);
 }
 
-function buildCsvUrl(sheetId, tabName) {
-  // gviz CSV export
+function csvUrl(sheetId, tabName) {
   const base = `https://docs.google.com/spreadsheets/d/${encodeURIComponent(sheetId)}/gviz/tq`;
   const params = new URLSearchParams({
     tqx: "out:csv",
@@ -24,188 +20,195 @@ function buildCsvUrl(sheetId, tabName) {
   return `${base}?${params.toString()}`;
 }
 
-// CSV parser simple (gère guillemets, virgules, CRLF)
+// CSV parser simple (supporte guillemets, virgules, lignes)
 function parseCsv(text) {
   const rows = [];
   let row = [];
   let cur = "";
+  let i = 0;
   let inQuotes = false;
 
-  for (let i = 0; i < text.length; i++) {
+  while (i < text.length) {
     const ch = text[i];
-    const next = text[i + 1];
 
     if (inQuotes) {
-      if (ch === '"' && next === '"') {
-        cur += '"';
-        i++;
-      } else if (ch === '"') {
+      if (ch === '"') {
+        if (text[i + 1] === '"') {
+          cur += '"';
+          i += 2;
+          continue;
+        }
         inQuotes = false;
-      } else {
-        cur += ch;
+        i += 1;
+        continue;
       }
+      cur += ch;
+      i += 1;
       continue;
     }
 
     if (ch === '"') {
       inQuotes = true;
+      i += 1;
       continue;
     }
 
     if (ch === ",") {
       row.push(cur);
       cur = "";
+      i += 1;
       continue;
     }
 
     if (ch === "\n") {
       row.push(cur);
-      cur = "";
-      // trim CR
-      if (row.length && typeof row[row.length - 1] === "string") {
-        row[row.length - 1] = row[row.length - 1].replace(/\r$/, "");
-      }
       rows.push(row);
       row = [];
+      cur = "";
+      i += 1;
+      continue;
+    }
+
+    if (ch === "\r") {
+      i += 1;
       continue;
     }
 
     cur += ch;
+    i += 1;
   }
 
   // last cell
-  row.push(cur.replace(/\r$/, ""));
-  rows.push(row);
+  row.push(cur);
+  // avoid pushing empty trailing row
+  if (row.some((c) => (c ?? "").trim() !== "")) rows.push(row);
 
-  // remove trailing empty last row if any
-  while (rows.length && rows[rows.length - 1].every((c) => !String(c ?? "").trim())) {
-    rows.pop();
-  }
   return rows;
 }
 
 function normalizeHeader(h) {
-  return String(h ?? "")
+  return (h ?? "")
+    .toString()
     .trim()
     .toLowerCase()
-    .replace(/\s+/g, "_")
-    .replace(/[’']/g, "")
-    .replace(/[^a-z0-9_]/g, "");
+    .replace(/\s+/g, "_");
 }
 
-function dedupeHeaders(headers) {
-  const seen = new Map();
-  return headers.map((h) => {
+function pick(rowObj, ...keys) {
+  for (const k of keys) {
+    if (rowObj[k] != null && String(rowObj[k]).trim() !== "") return String(rowObj[k]).trim();
+  }
+  return "";
+}
+
+function toRowObject(headers, row) {
+  const obj = {};
+  headers.forEach((h, idx) => {
     const key = h;
-    const n = (seen.get(key) || 0) + 1;
-    seen.set(key, n);
-    if (n === 1) return key;
-    return `${key}_${n}`;
+    const val = row[idx] ?? "";
+    obj[key] = val;
   });
-}
-
-function toNumberLoose(x) {
-  if (x == null) return 0;
-  const s = String(x).trim();
-  if (!s) return 0;
-  const digits = s.replace(/[^\d]/g, "");
-  const n = Number(digits);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function cleanCell(x) {
-  return String(x ?? "").trim();
-}
-
-function rowToWarCounter(obj) {
-  // On sort un format "propre" aligné avec ton war-counters.js
-  const def_chars = [
-    obj.def_char1,
-    obj.def_char2,
-    obj.def_char3,
-    obj.def_char4,
-    obj.def_char5,
-  ].map(cleanCell).filter(Boolean);
-
-  const atk_chars = [
-    obj.atk_char1,
-    obj.atk_char2,
-    obj.atk_char3,
-    obj.atk_char4,
-    obj.atk_char5,
-  ].map(cleanCell).filter(Boolean);
-
-  return {
-    def_family: cleanCell(obj.def_family),
-    def_variant: cleanCell(obj.def_variant),
-    def_key: cleanCell(obj.def_key),
-    def_char1: cleanCell(obj.def_char1),
-    def_char2: cleanCell(obj.def_char2),
-    def_char3: cleanCell(obj.def_char3),
-    def_char4: cleanCell(obj.def_char4),
-    def_char5: cleanCell(obj.def_char5),
-
-    atk_team: cleanCell(obj.atk_team),
-    atk_key: cleanCell(obj.atk_key),
-    atk_char1: cleanCell(obj.atk_char1),
-    atk_char2: cleanCell(obj.atk_char2),
-    atk_char3: cleanCell(obj.atk_char3),
-    atk_char4: cleanCell(obj.atk_char4),
-    atk_char5: cleanCell(obj.atk_char5),
-
-    min_ratio_ok: toNumberLoose(obj.min_ratio_ok),
-    min_ratio_safe: toNumberLoose(obj.min_ratio_safe),
-    notes: cleanCell(obj.notes),
-  };
+  return obj;
 }
 
 async function main() {
-  const url = buildCsvUrl(SHEET_ID, SHEET_TAB);
-  console.log(`[war-counters] fetch CSV: ${url}`);
+  const url = csvUrl(SHEET_ID, SHEET_TAB);
+  console.log(`[war-counters] Fetch CSV: ${url}`);
 
   const res = await fetch(url, { cache: "no-store" });
+  const text = await res.text();
+
   if (!res.ok) {
-    throw new Error(`Fetch failed: HTTP ${res.status} ${res.statusText}`);
+    console.error(`❌ HTTP ${res.status}`);
+    console.error(text.slice(0, 500));
+    process.exit(1);
   }
-  const csv = await res.text();
 
-  const rows = parseCsv(csv);
+  // Si c'est du HTML (login), on stoppe net au lieu de produire []
+  const head = text.slice(0, 200).toLowerCase();
+  if (head.includes("<html") || head.includes("<!doctype") || head.includes("accounts.google.com")) {
+    console.error("❌ The response looks like HTML (not CSV).");
+    console.error("➡️ Make sure the Google Sheet is readable publicly or published to the web.");
+    console.error(text.slice(0, 500));
+    process.exit(1);
+  }
+
+  const rows = parseCsv(text);
+  console.log(`[war-counters] CSV rows: ${rows.length}`);
+
   if (rows.length < 2) {
-    throw new Error("CSV seems empty (need header + at least 1 data row).");
+    console.error("❌ No data rows found (only headers or empty).");
+    console.error("First 300 chars:", text.slice(0, 300));
+    process.exit(1);
   }
 
-  // headers
-  let headers = rows[0].map(normalizeHeader);
-  headers = dedupeHeaders(headers);
+  const rawHeaders = rows[0];
+  const headers = rawHeaders.map(normalizeHeader);
 
-  // data rows
-  const out = [];
-  for (let i = 1; i < rows.length; i++) {
-    const r = rows[i];
-    const obj = {};
-    for (let c = 0; c < headers.length; c++) {
-      obj[headers[c]] = r[c] ?? "";
-    }
+  console.log("[war-counters] Headers:", headers.join(" | "));
+  console.log("[war-counters] Sample row:", rows[1]?.slice(0, 10).join(" | "));
 
-    const wc = rowToWarCounter(obj);
+  const dataRows = rows.slice(1).filter((r) => r.some((c) => (c ?? "").trim() !== ""));
 
-    // garde uniquement les lignes utiles
-    const hasMin =
-      wc.def_family && wc.def_variant && wc.atk_team &&
-      (wc.atk_char1 || wc.atk_char2 || wc.atk_char3 || wc.atk_char4 || wc.atk_char5);
+  const out = dataRows.map((r) => {
+    const o = toRowObject(headers, r);
 
-    if (hasMin) out.push(wc);
-  }
+    // colonnes attendues (exactes, en snake_case)
+    const def_family = pick(o, "def_family");
+    const def_variant = pick(o, "def_variant");
+    const def_key = pick(o, "def_key");
 
-  // write
-  const outPath = path.resolve(OUT_FILE);
-  await fs.mkdir(path.dirname(outPath), { recursive: true });
-  await fs.writeFile(outPath, JSON.stringify(out, null, 2), "utf-8");
+    const atk_team = pick(o, "atk_team");
+    const atk_key = pick(o, "atk_key");
 
-  console.log(`[war-counters] wrote ${out.length} rows -> ${OUT_FILE}`);
+    const def_char1 = pick(o, "def_char1");
+    const def_char2 = pick(o, "def_char2");
+    const def_char3 = pick(o, "def_char3");
+    const def_char4 = pick(o, "def_char4");
+    const def_char5 = pick(o, "def_char5");
+
+    const atk_char1 = pick(o, "atk_char1");
+    const atk_char2 = pick(o, "atk_char2");
+    const atk_char3 = pick(o, "atk_char3");
+    const atk_char4 = pick(o, "atk_char4");
+    const atk_char5 = pick(o, "atk_char5");
+
+    const min_ratio_ok = pick(o, "min_ratio_ok");
+    const min_ratio_safe = pick(o, "min_ratio_safe");
+    const notes = pick(o, "notes");
+
+    return {
+      def_family,
+      def_variant,
+      def_key,
+      def_char1,
+      def_char2,
+      def_char3,
+      def_char4,
+      def_char5,
+      atk_team,
+      atk_key,
+      atk_char1,
+      atk_char2,
+      atk_char3,
+      atk_char4,
+      atk_char5,
+      min_ratio_ok,
+      min_ratio_safe,
+      notes,
+    };
+  });
+
+  // optionnel : on filtre uniquement les lignes vides “totales”
+  const cleaned = out.filter((r) => r.def_family || r.def_variant || r.atk_team);
+
+  await fs.mkdir(path.dirname(OUT_FILE), { recursive: true });
+  await fs.writeFile(OUT_FILE, JSON.stringify(cleaned, null, 2), "utf8");
+
+  console.log(`[war-counters] Wrote ${cleaned.length} rows -> ${OUT_FILE}`);
 }
 
 main().catch((e) => {
-  console.error("❌ war-counters build failed:", e);
+  console.error("❌ Fatal:", e);
   process.exit(1);
 });
