@@ -2,9 +2,7 @@
 (() => {
   const FILES = {
     warCounters: "./data/war-counters.json",
-    characters: "./data/msf-characters.json",
     joueurs: "./data/joueurs.json",
-    rosters: "./data/rosters.json",
   };
 
   const qs = (s) => document.querySelector(s);
@@ -34,13 +32,6 @@
     if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
     return res.json();
   }
-
-  const normalizeKey = (s) =>
-    (s ?? "")
-      .toString()
-      .toLowerCase()
-      .replace(/\s+/g, "")
-      .replace(/[-_]/g, "");
 
   function clearNode(el) {
     if (!el) return;
@@ -76,7 +67,7 @@
 
       atk_team: (r.atk_team || "").trim(),
 
-      // 🔥 IMPORTANT → on garde même vide
+      // IMPORTANT : on garde les cases vides mais on les nettoiera après
       atk_chars: [
         r.atk_char1,
         r.atk_char2,
@@ -151,9 +142,9 @@
 
     defVariantSelect.innerHTML = "<option value=''>Variante</option>";
 
-    const variants = WAR.filter((r) => r.def_family === fam).map(
-      (r) => r.def_variant
-    );
+    const variants = WAR
+      .filter((r) => r.def_family === fam)
+      .map((r) => r.def_variant);
 
     [...new Set(variants)].forEach((v) => {
       const opt = document.createElement("option");
@@ -199,14 +190,17 @@
       return;
     }
 
-    const rows = WAR.filter(
-      (r) =>
-        r.def_family === row.def_family &&
-        r.def_variant === row.def_variant
-    );
+    // 🔥 FILTRE PRINCIPAL
+    const rows = WAR
+      .filter(
+        (r) =>
+          r.def_family === row.def_family &&
+          r.def_variant === row.def_variant
+      )
+      .filter((r) => r.atk_chars.some((c) => c)); // <-- LE FIX IMPORTANT
 
-    // 🔥 CAS IMPORTANT
-    if (!rows.length || rows.every((r) => r.atk_chars.every((c) => !c))) {
+    // 🔥 Aucun counter réel
+    if (!rows.length) {
       resultsCount.textContent = "0";
 
       const empty = document.createElement("p");
