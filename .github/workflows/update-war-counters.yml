@@ -1,0 +1,41 @@
+name: Update War Counters JSON
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "17 3 * * 1" # Lundi 03:17 UTC (≈ 04:17 FR hiver)
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build war-counters.json from Google Sheets
+        env:
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+          SHEET_TAB: WarCounters
+          OUT_FILE: docs/data/war-counters.json
+        run: |
+          node scripts/sheets-war-counters.mjs
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/war-counters.json
+          if git diff --cached --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git commit -m "Update war-counters.json"
+          git push
