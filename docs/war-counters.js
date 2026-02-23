@@ -56,8 +56,6 @@
       .replace(/[-_]/g, "")
       .replace(/[’']/g, "");
 
-  const parseNumber = (x) => Number(String(x ?? "").replace(/[^\d]/g, "")) || 0;
-
   function formatThousandsDot(n) {
     const num = Number(n);
     if (!Number.isFinite(num)) return "0";
@@ -71,7 +69,6 @@
     return String(s || "").replace(/[^\d]/g, "");
   }
 
-  // "7.500.000" while typing, no padding
   function formatThousandsDotFromDigits(d) {
     const s = digitsOnly(d);
     if (!s) return "";
@@ -86,7 +83,9 @@
   function setCaretByDigitsCount(input, digitsBefore) {
     const v = String(input?.value || "");
     if (!v) {
-      try { input.setSelectionRange(0, 0); } catch (_) {}
+      try {
+        input.setSelectionRange(0, 0);
+      } catch (_) {}
       return;
     }
     let seen = 0;
@@ -94,11 +93,15 @@
       if (/\d/.test(v[i])) seen++;
       if (seen >= digitsBefore) {
         const pos = i + 1;
-        try { input.setSelectionRange(pos, pos); } catch (_) {}
+        try {
+          input.setSelectionRange(pos, pos);
+        } catch (_) {}
         return;
       }
     }
-    try { input.setSelectionRange(v.length, v.length); } catch (_) {}
+    try {
+      input.setSelectionRange(v.length, v.length);
+    } catch (_) {}
   }
 
   // ---------- DATA ----------
@@ -122,12 +125,13 @@
       atk_team: (r.atk_team ?? "").toString().trim(),
 
       // IMPORTANT : on garde les cases vides
-      atk_chars: [r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5].map((x) =>
-        (x ?? "").toString().trim()
+      atk_chars: [r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5].map(
+        (x) => (x ?? "").toString().trim()
       ),
 
-      min_ok: parseFloat(String(r.min_ratio_ok).replace(",", ".")) || 0,
-      min_safe: parseFloat(String(r.min_ratio_safe).replace(",", ".")) || 0,
+      // ✅ ratios avec virgule FR (0,6) -> 0.6
+      min_ok: parseFloat(String(r.min_ratio_ok ?? "").replace(",", ".")) || 0,
+      min_safe: parseFloat(String(r.min_ratio_safe ?? "").replace(",", ".")) || 0,
 
       notes: (r.notes ?? "").toString().trim(),
     };
@@ -370,6 +374,13 @@
     return "is-red";
   }
 
+  function classRank(cls) {
+    // ✅ plus petit = plus safe
+    if (cls === "is-green") return 0;
+    if (cls === "is-orange") return 1;
+    return 2; // is-red
+  }
+
   function makeCounterCard({ teamName, power, ratio, cls, portraits, enemy }) {
     const card = document.createElement("div");
     card.className = `counterCard ${cls}`.trim();
@@ -448,32 +459,59 @@
       return;
     }
 
-    const rows = WAR.filter((r) => r.def_family === def.def_family && r.def_variant === def.def_variant).filter(
-      isRealCounter
-    );
+    const baseRows = WAR.filter(
+      (r) => r.def_family === def.def_family && r.def_variant === def.def_variant
+    ).filter(isRealCounter);
 
-    if (!rows.length) {
+    if (!baseRows.length) {
       if (resultsCount) resultsCount.textContent = "0";
       resultsWrap.innerHTML = `<p class="subtitle">Aucun counter renseigné</p>`;
       return;
     }
 
-    if (resultsCount) resultsCount.textContent = String(rows.length);
-
-    rows.forEach((r) => {
+    // ✅ enrichit chaque row avec power/ratio/class pour pouvoir trier
+    const rows = baseRows.map((r) => {
       const atkList = (r.atk_chars || []).filter((c) => (c || "").trim());
       const power = getPlayerPower(player, atkList);
-
-      const ratio = enemy > 0 ? power / enemy : 1;
+      const ratio = enemy > 0 ? power / enemy : 0;
       const cls = enemy > 0 ? getClass(ratio, r) : "is-orange";
+      return { r, atkList, power, ratio, cls };
+    });
 
+    // ✅ TRI AUTOMATIQUE : safe -> risqué
+    rows.sort((a, b) => {
+      // Si enemy renseigné: tri par classe puis ratio
+      if (enemy > 0) {
+        const ra = classRank(a.cls);
+        const rb = classRank(b.cls);
+        if (ra !== rb) return ra - rb;
+
+        // à classe égale, plus gros ratio d'abord
+        if (a.ratio !== b.ratio) return b.ratio - a.ratio;
+
+        // puis plus grosse power
+        if (a.power !== b.power) return b.power - a.power;
+      } else {
+        // sans enemy: on ne peut pas juger safe/risqué -> power desc
+        if (a.power !== b.power) return b.power - a.power;
+      }
+
+      // tie-break stable: nom d'équipe
+      const na = (a.r.atk_team || "Counter").toString();
+      const nb = (b.r.atk_team || "Counter").toString();
+      return na.localeCompare(nb, "fr", { sensitivity: "base" });
+    });
+
+    if (resultsCount) resultsCount.textContent = String(rows.length);
+
+    rows.forEach(({ r, atkList, power, ratio, cls }) => {
       const portraits = atkList.map((c) => getPortrait(c)).filter(Boolean);
 
       resultsWrap.appendChild(
         makeCounterCard({
           teamName: r.atk_team || "Counter",
           power,
-          ratio,
+          ratio: enemy > 0 ? ratio : 1,
           cls,
           portraits,
           enemy,
@@ -548,11 +586,6 @@
     if (resultsCount) resultsCount.textContent = "0";
     if (defTitle) defTitle.textContent = "—";
     if (playerChip) playerChip.textContent = "—";
-
-    // Optional: keep it empty on load (no forced mask)
-    // if (enemyPowerInput && enemyPowerInput.value) {
-    //   enemyPowerInput.value = formatThousandsDotFromDigits(enemyPowerInput.value);
-    // }
   }
 
   boot().catch((e) => console.error("[war-counters] boot error:", e));
