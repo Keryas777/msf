@@ -21,75 +21,74 @@ function csvUrl(sheetId, tabName) {
 }
 
 /**
- * Robust CSV parsing:
- * - Detects delimiter ("," vs ";") based on the header line
- * - Handles quotes + escaped quotes ("")
- * - Trims lines and removes BOM
- * Returns: { headers: string[], rows: Array<Record<string,string>> }
+ * IMPORTANT:
+ * - En FR, l’export CSV utilise très souvent ";" comme séparateur.
+ * - Les ratios contiennent des virgules (0,5) -> ça piège toute "détection par comptage".
+ * Donc: on détecte par présence explicite de ';' ou '\t', sinon ','.
  */
-function detectDelimiter(line) {
-  const commas = (line.match(/,/g) || []).length;
-  const semis = (line.match(/;/g) || []).length;
-  return semis > commas ? ";" : ",";
+function detectDelimiter(headerLine) {
+  const line = String(headerLine || "");
+  if (line.includes(";")) return ";";
+  if (line.includes("\t")) return "\t";
+  return ",";
 }
 
-function parseCsvLine(line, delim) {
-  const out = [];
-  let cur = "";
-  let inQuotes = false;
+function parseCsv(text) {
+  const raw = String(text || "").replace(/^\uFEFF/, ""); // BOM
+  const lines = raw.split(/\r?\n/);
 
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
+  // trouver la première ligne non vide (header)
+  const firstNonEmptyIdx = lines.findIndex((l) => String(l || "").trim() !== "");
+  if (firstNonEmptyIdx === -1) return { headers: [], rows: [], delim: "," };
 
-    if (ch === '"') {
-      // Escaped quote inside quoted field
-      if (inQuotes && line[i + 1] === '"') {
-        cur += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-      continue;
-    }
-
-    if (!inQuotes && ch === delim) {
-      out.push(cur);
-      cur = "";
-      continue;
-    }
-
-    cur += ch;
-  }
-
-  out.push(cur);
-  return out.map((s) => String(s ?? "").trim());
-}
-
-function parseCsvText(text) {
-  const lines = String(text || "")
-    .replace(/^\uFEFF/, "") // BOM
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0);
-
-  if (lines.length < 2) return { headers: [], rows: [] };
-
-  const delim = detectDelimiter(lines[0]);
-  const rawHeaders = parseCsvLine(lines[0], delim);
-
-  const headers = rawHeaders.map(normalizeHeader);
+  const headerLine = lines[firstNonEmptyIdx];
+  const delim = detectDelimiter(headerLine);
 
   const rows = [];
-  for (let i = 1; i < lines.length; i++) {
-    const cols = parseCsvLine(lines[i], delim);
-    const obj = {};
-    headers.forEach((h, idx) => {
-      obj[h] = cols[idx] ?? "";
-    });
-    rows.push(obj);
+  for (let li = firstNonEmptyIdx; li < lines.length; li++) {
+    const line = lines[li];
+    if (!line || !String(line).trim()) continue;
+
+    // parse d'une ligne CSV avec quotes
+    const out = [];
+    let cur = "";
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+
+      if (ch === '"') {
+        // "" -> quote échappée
+        if (inQuotes && line[i + 1] === '"') {
+          cur += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+        continue;
+      }
+
+      if (!inQuotes && ch === delim) {
+        out.push(cur);
+        cur = "";
+        continue;
+      }
+
+      cur += ch;
+    }
+    out.push(cur);
+
+    rows.push(out.map((s) => String(s ?? "").trim()));
   }
 
-  return { headers, rows, delim, rawHeaders };
+  if (rows.length === 0) return { headers: [], rows: [], delim };
+
+  const rawHeaders = rows[0];
+  const headers = rawHeaders.map(normalizeHeader);
+
+  const dataRows = rows.slice(1);
+
+  return { headers, rows: dataRows, delim, rawHeaders };
 }
 
 function normalizeHeader(h) {
@@ -99,23 +98,31 @@ function normalizeHeader(h) {
     .replace(/\s+/g, "_");
 }
 
-function pick(rowObj, ...keys) {
+function pick(obj, ...keys) {
   for (const k of keys) {
-    const v = rowObj?.[k];
+    const v = obj?.[k];
     if (v != null && String(v).trim() !== "") return String(v).trim();
   }
   return "";
 }
 
 function parseRatio(x) {
-  // Keep as string in JSON if you want, but normalize commas to dots
+  // On normalise juste "0,5" -> "0.5" (la page front gère déjà parseFloat avec replace, mais c'est propre)
   const s = String(x ?? "").trim();
   if (!s) return "";
   return s.replace(",", ".");
 }
 
-function isRowTotallyEmpty(o) {
-  return !Object.values(o || {}).some((v) => String(v ?? "").trim() !== "");
+function rowToObject(headers, row) {
+  const o = {};
+  headers.forEach((h, idx) => {
+    o[h] = row[idx] ?? "";
+  });
+  return o;
+}
+
+function isTotallyEmptyRow(obj) {
+  return !Object.values(obj || {}).some((v) => String(v ?? "").trim() !== "");
 }
 
 async function main() {
@@ -127,11 +134,11 @@ async function main() {
 
   if (!res.ok) {
     console.error(`❌ HTTP ${res.status}`);
-    console.error(text.slice(0, 500));
+    console.error(text.slice(0, 600));
     process.exit(1);
   }
 
-  // If it's HTML (login page), stop early
+  // Si c'est du HTML (login), on stoppe net
   const head = text.slice(0, 400).toLowerCase();
   if (head.includes("<html") || head.includes("<!doctype") || head.includes("accounts.google.com")) {
     console.error("❌ The response looks like HTML (not CSV).");
@@ -140,44 +147,47 @@ async function main() {
     process.exit(1);
   }
 
-  const { headers, rows, delim, rawHeaders } = parseCsvText(text);
+  const { headers, rows, delim, rawHeaders } = parseCsv(text);
 
   console.log(`[war-counters] Detected delimiter: ${JSON.stringify(delim)}`);
-  console.log(`[war-counters] CSV rows: ${rows.length}`);
+  console.log(`[war-counters] CSV data rows: ${rows.length}`);
   console.log(`[war-counters] Raw headers: ${rawHeaders?.join(" | ") || "(none)"}`);
   console.log(`[war-counters] Headers: ${headers.join(" | ")}`);
 
-  if (rows.length < 1) {
-    console.error("❌ No data rows found (only headers or empty).");
+  if (!headers.length || rows.length === 0) {
+    console.error("❌ No rows found after parsing.");
     console.error("First 300 chars:", text.slice(0, 300));
     process.exit(1);
   }
 
-  // Show a sample row (first non-empty row)
-  const sample = rows.find((r) => !isRowTotallyEmpty(r));
-  if (sample) {
-    const sampleKeys = Object.keys(sample).slice(0, 10);
+  // sample row (first non-empty)
+  const sampleRow = rows.find((r) => r.some((c) => String(c ?? "").trim() !== ""));
+  if (sampleRow) {
+    const sObj = rowToObject(headers, sampleRow);
     console.log(
       "[war-counters] Sample row:",
-      sampleKeys.map((k) => `${k}=${sample[k]}`).join(" | ")
+      ["def_family", "def_variant", "def_key", "atk_team", "atk_key"]
+        .map((k) => `${k}=${sObj[k] ?? ""}`)
+        .join(" | ")
     );
   }
 
   const mapped = rows
-    .filter((r) => !isRowTotallyEmpty(r))
+    .map((r) => rowToObject(headers, r))
+    .filter((o) => !isTotallyEmptyRow(o))
     .map((o) => {
       const def_family = pick(o, "def_family");
       const def_variant = pick(o, "def_variant");
       const def_key = pick(o, "def_key");
-
-      const atk_team = pick(o, "atk_team");
-      const atk_key = pick(o, "atk_key");
 
       const def_char1 = pick(o, "def_char1");
       const def_char2 = pick(o, "def_char2");
       const def_char3 = pick(o, "def_char3");
       const def_char4 = pick(o, "def_char4");
       const def_char5 = pick(o, "def_char5");
+
+      const atk_team = pick(o, "atk_team");
+      const atk_key = pick(o, "atk_key");
 
       const atk_char1 = pick(o, "atk_char1");
       const atk_char2 = pick(o, "atk_char2");
@@ -211,7 +221,7 @@ async function main() {
       };
     });
 
-  // Filter out fully useless lines (still keep lines with notes if they have a def/atk context)
+  // Filtre minimal: on garde les lignes qui ont au moins une "structure" de counter
   const cleaned = mapped.filter((r) => r.def_family || r.def_variant || r.atk_team || r.atk_key);
 
   await fs.mkdir(path.dirname(OUT_FILE), { recursive: true });
