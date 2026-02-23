@@ -66,14 +66,38 @@
       .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
-  // ✅ LIVE formatting helpers (enemy power)
-  function formatThousandsDotFromDigits(digitsStr) {
-    const s = String(digitsStr || "").replace(/[^\d]/g, "");
+  // ---------- Enemy power live formatting helpers ----------
+  function digitsOnly(s) {
+    return String(s || "").replace(/[^\d]/g, "");
+  }
+
+  function formatThousandsDotFromDigits(d) {
+    const s = digitsOnly(d);
     if (!s) return "";
     return s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
-  function getEnemyPowerDigits() {
-    return Number(String(enemyPowerInput?.value || "").replace(/[^\d]/g, "")) || 0;
+
+  function enemyPowerDigitsValue() {
+    return Number(digitsOnly(enemyPowerInput?.value || "")) || 0;
+  }
+
+  // iOS-friendly caret restore: keep "number of digits before caret"
+  function setCaretByDigitsCount(input, digitsBefore) {
+    const v = String(input.value || "");
+    if (!v) {
+      input.setSelectionRange(0, 0);
+      return;
+    }
+    let seen = 0;
+    for (let i = 0; i < v.length; i++) {
+      if (/\d/.test(v[i])) seen++;
+      if (seen >= digitsBefore) {
+        const pos = i + 1;
+        input.setSelectionRange(pos, pos);
+        return;
+      }
+    }
+    input.setSelectionRange(v.length, v.length);
   }
 
   // ---------- DATA ----------
@@ -97,8 +121,8 @@
       atk_team: (r.atk_team ?? "").toString().trim(),
 
       // IMPORTANT : on garde les cases vides
-      atk_chars: [r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5].map((x) =>
-        (x ?? "").toString().trim()
+      atk_chars: [r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5].map(
+        (x) => (x ?? "").toString().trim()
       ),
 
       min_ok: parseNumber(r.min_ratio_ok),
@@ -117,11 +141,13 @@
   function buildCharMap(chars) {
     CHAR_MAP = new Map();
     (Array.isArray(chars) ? chars : []).forEach((c) => {
-      [c?.id, c?.nameKey, c?.nameFr, c?.nameEn].filter(Boolean).forEach((k) => {
-        const kk = normalizeKey(k);
-        if (!kk) return;
-        if (!CHAR_MAP.has(kk)) CHAR_MAP.set(kk, c);
-      });
+      [c?.id, c?.nameKey, c?.nameFr, c?.nameEn]
+        .filter(Boolean)
+        .forEach((k) => {
+          const kk = normalizeKey(k);
+          if (!kk) return;
+          if (!CHAR_MAP.has(kk)) CHAR_MAP.set(kk, c);
+        });
     });
   }
 
@@ -180,7 +206,9 @@
     allianceSelect.appendChild(opt0);
 
     const ORDER = ["Zeus", "Dionysos", "Poséidon", "Poseidon"];
-    const alliances = [...new Set(JOUEURS.map((j) => (j.alliance ?? "").toString().trim()).filter(Boolean))];
+    const alliances = [
+      ...new Set(JOUEURS.map((j) => (j.alliance ?? "").toString().trim()).filter(Boolean)),
+    ];
 
     alliances
       .sort((a, b) => {
@@ -219,7 +247,9 @@
     opt0.textContent = "— Choisir un joueur —";
     playerSelect.appendChild(opt0);
 
-    const players = (PLAYERS_BY_ALLIANCE.get(a) || []).slice().sort((x, y) => x.player.localeCompare(y.player, "fr"));
+    const players = (PLAYERS_BY_ALLIANCE.get(a) || [])
+      .slice()
+      .sort((x, y) => x.player.localeCompare(y.player, "fr"));
 
     players.forEach((p) => {
       const opt = document.createElement("option");
@@ -238,7 +268,9 @@
     opt0.textContent = "— Choisir une famille —";
     defFamilySelect.appendChild(opt0);
 
-    const families = [...new Set(WAR.map((r) => r.def_family).filter(Boolean))].sort((a, b) => a.localeCompare(b, "fr"));
+    const families = [...new Set(WAR.map((r) => r.def_family).filter(Boolean))].sort((a, b) =>
+      a.localeCompare(b, "fr")
+    );
 
     families.forEach((f) => {
       const opt = document.createElement("option");
@@ -269,7 +301,9 @@
     opt0.textContent = "— Choisir une variante —";
     defVariantSelect.appendChild(opt0);
 
-    const variants = WAR.filter((r) => r.def_family === fam).map((r) => r.def_variant).filter(Boolean);
+    const variants = WAR.filter((r) => r.def_family === fam)
+      .map((r) => r.def_variant)
+      .filter(Boolean);
 
     [...new Set(variants)]
       .sort((a, b) => a.localeCompare(b, "fr"))
@@ -330,6 +364,7 @@
     const ok = Number(r.min_ok) || 0;
     const safe = Number(r.min_safe) || 0;
 
+    // Pas de seuil => règle simple
     if (!ok && !safe) return ratio >= 1 ? "is-orange" : "is-red";
 
     if (safe && ratio >= safe) return "is-green";
@@ -338,40 +373,42 @@
   }
 
   function makeCounterCard({ teamName, power, ratio, cls, portraits, enemy }) {
-    const row = document.createElement("div");
-    row.className = "rankRow";
+    const card = document.createElement("div");
+    card.className = `counterCard ${cls}`.trim();
+
+    const top = document.createElement("div");
+    top.className = "counterTop";
 
     const left = document.createElement("div");
-    left.className = "rankLeft";
-
-    const name = document.createElement("div");
-    name.className = "rankName";
-    name.textContent = teamName || "Counter";
-    left.appendChild(name);
-
-    const bars = document.createElement("div");
-    bars.className = "rankBars";
-
-    const bar = document.createElement("span");
-    bar.className = `rankBar ${cls}`.trim();
-    bar.title = cls.replace("is-", "").toUpperCase();
-    bars.appendChild(bar);
+    left.className = "counterName";
+    left.textContent = teamName || "Counter";
 
     const right = document.createElement("div");
-    right.className = "rankPower";
-    right.textContent = enemy > 0 ? `${formatThousandsDot(power)}  x${ratio.toFixed(2)}` : `${formatThousandsDot(power)}`;
+    right.className = "counterRight";
 
-    row.appendChild(left);
-    row.appendChild(bars);
-    row.appendChild(right);
+    const pow = document.createElement("div");
+    pow.className = "counterPower";
+    pow.textContent = formatThousandsDot(power);
 
-    // ✅ mini portraits (classes dédiées + NO CROP via object-fit contain)
+    right.appendChild(pow);
+
+    if (enemy > 0) {
+      const rr = document.createElement("div");
+      rr.className = "counterRatio";
+      rr.textContent = `x${ratio.toFixed(2)}`;
+      right.appendChild(rr);
+    }
+
+    top.appendChild(left);
+    top.appendChild(right);
+
     const wrap = document.createElement("div");
     wrap.className = "counterPortraits";
 
     portraits.forEach((src, idx) => {
-      const cardP = document.createElement("div");
-      cardP.className = "counterPortrait";
+      const p = document.createElement("div");
+      p.className = "counterPortrait";
+      p.title = `p${idx + 1}`;
 
       const img = document.createElement("img");
       img.className = "counterPortraitImg";
@@ -381,22 +418,14 @@
       img.referrerPolicy = "no-referrer";
       img.src = src || "";
 
-      // ✅ anti-crop “au cas où” (même si ton CSS change)
-      img.style.width = "100%";
-      img.style.height = "100%";
-      img.style.objectFit = "contain";
-      img.style.objectPosition = "center";
-      img.style.display = "block";
-
-      cardP.appendChild(img);
-      wrap.appendChild(cardP);
+      p.appendChild(img);
+      wrap.appendChild(p);
     });
 
-    const block = document.createElement("div");
-    block.appendChild(row);
-    block.appendChild(wrap);
+    card.appendChild(top);
+    card.appendChild(wrap);
 
-    return block;
+    return card;
   }
 
   function renderResults() {
@@ -404,7 +433,7 @@
 
     const def = getSelectedDef();
     const player = (playerSelect?.value ?? "").trim();
-    const enemy = getEnemyPowerDigits();
+    const enemy = enemyPowerDigitsValue();
 
     if (playerChip) playerChip.textContent = player || "—";
 
@@ -422,7 +451,9 @@
       return;
     }
 
-    const rows = WAR.filter((r) => r.def_family === def.def_family && r.def_variant === def.def_variant).filter(isRealCounter);
+    const rows = WAR.filter((r) => r.def_family === def.def_family && r.def_variant === def.def_variant).filter(
+      isRealCounter
+    );
 
     if (!rows.length) {
       if (resultsCount) resultsCount.textContent = "0";
@@ -476,20 +507,22 @@
 
   defVariantSelect?.addEventListener("change", renderAll);
 
-  // ✅ LIVE formatting (remplace l'ancien "input -> renderResults")
+  // ✅ LIVE formatting enemy power + render
   enemyPowerInput?.addEventListener("input", () => {
     if (!enemyPowerInput) return;
 
-    const prevLen = enemyPowerInput.value.length;
-    const prevPos = enemyPowerInput.selectionStart ?? prevLen;
+    const raw = String(enemyPowerInput.value || "");
+    const pos = enemyPowerInput.selectionStart ?? raw.length;
 
-    const digits = String(enemyPowerInput.value || "").replace(/[^\d]/g, "");
+    const digitsBefore = digitsOnly(raw.slice(0, pos)).length;
+    const digits = digitsOnly(raw);
+
     enemyPowerInput.value = formatThousandsDotFromDigits(digits);
-
-    const newLen = enemyPowerInput.value.length;
-    const delta = newLen - prevLen;
-    const newPos = Math.max(0, Math.min(newLen, prevPos + delta));
-    enemyPowerInput.setSelectionRange(newPos, newPos);
+    try {
+      setCaretByDigitsCount(enemyPowerInput, digitsBefore);
+    } catch (_) {
+      // ignore setSelectionRange errors
+    }
 
     renderResults();
   });
