@@ -550,3 +550,27 @@ body::after{
   border-radius:10px;
   object-fit:cover;
 }
+
+/* ===== Portraits counters (petits + en ligne) ===== */
+.counterPortraits{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:6px;
+}
+
+.counterPortrait{
+  width:42px;
+  height:42px;
+  border-radius:10px;
+  overflow:hidden;
+  border:1px solid var(--border);
+  background: var(--panel2);
+  flex: 0 0 auto;
+}
+
+.counterPortrait img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
