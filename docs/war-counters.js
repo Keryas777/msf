@@ -269,7 +269,7 @@
 
     const opt0 = document.createElement("option");
     opt0.value = "";
-    opt0.textContent = "— Choisir une famille —";
+    opt0.textContent = "— Choisir une team générique —";
     defFamilySelect.appendChild(opt0);
 
     const families = [...new Set(WAR.map((r) => r.def_family).filter(Boolean))].sort((a, b) =>
@@ -294,7 +294,7 @@
     opt0.value = "";
 
     if (!fam) {
-      opt0.textContent = "— Choisir une famille d’abord —";
+      opt0.textContent = "— Choisir une team générique d’abord —";
       defVariantSelect.appendChild(opt0);
       defVariantSelect.disabled = true;
       defVariantSelect.value = "";
