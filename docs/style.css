@@ -14,7 +14,6 @@
   --toggle-off-border: rgba(255,255,255,.12);
   --toggle-off-text: rgba(255,255,255,.86);
 
-  /* bar colors */
   --bar-red: #ff4d4d;
   --bar-orange: #ff9f1a;
   --bar-green: #2ecc71;
@@ -90,7 +89,7 @@ body::after{
   align-items:flex-start;
   justify-content:space-between;
 
-  position: relative; /* contexte homeBtn */
+  position: relative;
 }
 
 /* ✅ bouton home */
@@ -143,21 +142,24 @@ body::after{
   text-align: center;
 }
 
+/* ✅ Champs plus harmonieux + plus d'air entre label et input */
 .headerRight{
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:14px;              /* + d’espace global */
   align-items:stretch;
   min-width: 220px;
 }
 
 .label{
+  display:block;
   font-size:12px;
   color: var(--muted2);
-  margin-bottom: -6px;
+  margin: 0 0 6px 0;      /* ✅ plus de chevauchement */
 }
 
 .select{
+  width: 100%;            /* ✅ mêmes largeurs */
   font-size:16px;
   padding:10px 12px;
   border: 1px solid var(--border);
@@ -280,28 +282,22 @@ body::after{
   border-color: var(--toggle-on-border);
 }
 
-/* ===== Ranking ===== */
+/* ===== Ranking (conservé si tu l’utilises ailleurs) ===== */
 .rankList{
   display:flex;
   flex-direction:column;
   gap: 10px;
 }
 
-/* ✅ ALIGNEMENT : grid (Left | Bars | Power) */
 .rankRow{
   display:grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items:center;
-
-  /* un poil plus compact */
   gap: 8px;
 
   border:1px solid var(--border);
   border-radius: 16px;
-
-  /* ✅ encore + serré à gauche */
   padding: 10px 12px 10px 6px;
-
   background: rgba(0,0,0,.22);
   max-width: 100%;
 }
@@ -309,14 +305,10 @@ body::after{
 .rankLeft{
   display:flex;
   align-items:center;
-
-  /* ✅ rang + nom plus serrés */
   gap: 6px;
-
   min-width: 0;
 }
 
-/* ✅ rang plus compact + plus petit */
 .rankNum{
   width: 20px;
   text-align:right;
@@ -327,26 +319,22 @@ body::after{
   line-height: 1;
 }
 
-/* ✅ noms un poil plus petits pour gagner des pixels */
 .rankName{
   font-weight: 900;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-
   font-size: 15px;
   line-height: 1.1;
 }
 
-/* ✅ Bloc 5 barres (décalé un peu à droite) */
 .rankBars{
   display:flex;
   align-items:center;
   justify-content:center;
   gap: 5px;
-
-  margin-left: 12px; /* un poil plus à droite */
+  margin-left: 12px;
   width: 46px;
   flex: 0 0 auto;
 }
@@ -361,51 +349,11 @@ body::after{
   position: relative;
 }
 
-/* couleurs */
 .rankBar.is-red{ background: var(--bar-red); }
 .rankBar.is-orange{ background: var(--bar-orange); }
 .rankBar.is-green{ background: var(--bar-green); }
 .rankBar.is-empty{ background: rgba(255,255,255,.18); }
 
-/* ✅ Tooltip CSS (desktop). Sur mobile, tu as aussi le title (long press). */
-.rankBar[data-tip]:hover::after{
-  content: attr(data-tip);
-  white-space: pre;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: calc(100% + 10px);
-  z-index: 999;
-
-  padding: 8px 10px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,.18);
-  background: rgba(0,0,0,.78);
-  backdrop-filter: blur(8px);
-  color: var(--text);
-  font-size: 12px;
-  line-height: 1.25;
-  box-shadow: 0 10px 26px rgba(0,0,0,.55);
-  max-width: 260px;
-  width: max-content;
-}
-
-/* Petite flèche */
-.rankBar[data-tip]:hover::before{
-  content:"";
-  position:absolute;
-  left: 50%;
-  bottom: calc(100% + 4px);
-  width: 10px;
-  height: 10px;
-  background: rgba(0,0,0,.78);
-  border-left: 1px solid rgba(255,255,255,.18);
-  border-top: 1px solid rgba(255,255,255,.18);
-  transform: translateX(-50%) rotate(45deg);
-  z-index: 1000;
-}
-
-/* ✅ Power colonne fixe + chiffres alignés + un poil plus petit */
 .rankPower{
   font-weight: 900;
   letter-spacing: .2px;
@@ -502,61 +450,69 @@ body::after{
   }
 }
 
-/* ===== COUNTER CARDS ===== */
+/* ===== COUNTERS (nouvelle carte + halo) ===== */
 .counterCard{
   border:1px solid var(--border);
   border-radius:16px;
-  padding:10px;
+  padding:12px;
   display:flex;
   flex-direction:column;
-  gap:8px;
+  gap:10px;
+  background: rgba(0,0,0,.22);
 }
 
 /* halo */
 .counterCard.is-green{
-  box-shadow: 0 0 12px rgba(46,204,113,.5);
+  box-shadow: 0 0 14px rgba(46,204,113,.50);
 }
 .counterCard.is-orange{
-  box-shadow: 0 0 12px rgba(255,159,26,.5);
+  box-shadow: 0 0 14px rgba(255,159,26,.50);
 }
 .counterCard.is-red{
-  box-shadow: 0 0 12px rgba(255,77,77,.5);
+  box-shadow: 0 0 14px rgba(255,77,77,.50);
 }
 
 .counterTop{
   display:flex;
   justify-content:space-between;
-  align-items:center;
+  align-items:flex-start;
+  gap: 12px;
 }
 
 .counterName{
   font-weight:900;
   font-size:16px;
+  line-height: 1.1;
+}
+
+.counterRight{
+  text-align:right;
+  display:flex;
+  flex-direction:column;
+  gap: 2px;
+  flex: 0 0 auto;
 }
 
 .counterPower{
   font-weight:900;
   font-size:14px;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
+.counterRatio{
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* ===== Portraits counters (petits + multiples) ===== */
 .counterPortraits{
   display:flex;
-  gap:6px;
-}
-
-.portraitMini{
-  width:40px;
-  height:40px;
-  border-radius:10px;
-  object-fit:cover;
-}
-
-/* ===== Portraits counters (petits + en ligne) ===== */
-.counterPortraits{
-  display:flex;
-  gap:6px;
+  gap:8px;
   flex-wrap:wrap;
-  margin-top:6px;
 }
 
 .counterPortrait{
@@ -569,8 +525,10 @@ body::after{
   flex: 0 0 auto;
 }
 
-.counterPortrait img{
+.counterPortraitImg{
   width:100%;
   height:100%;
-  object-fit:contain;
+  object-fit:contain;   /* ✅ NO CROP */
+  object-position:center;
+  display:block;
 }
