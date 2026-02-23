@@ -66,30 +66,39 @@
       .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
-  // ---------- Enemy power masked input (8 digits) ----------
+  // ---------- Enemy power LIVE thousands formatting (NO MASK / NO PADDING) ----------
   function digitsOnly(s) {
     return String(s || "").replace(/[^\d]/g, "");
   }
 
-  // 00 000 000 (8 digits), groups: 2-3-3
-  function formatMaskedMillions(rawDigits, totalDigits = 8) {
-    const d = digitsOnly(rawDigits);
-    const trimmed = d.slice(-totalDigits);
-    const padded = trimmed.padStart(totalDigits, "0");
-    const sep = "\u202F"; // espace fine insécable
-    return `${padded.slice(0, 2)}${sep}${padded.slice(2, 5)}${sep}${padded.slice(5)}`;
+  // "7.500.000" while typing, no padding
+  function formatThousandsDotFromDigits(d) {
+    const s = digitsOnly(d);
+    if (!s) return "";
+    return s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
   function enemyPowerDigitsValue() {
     return Number(digitsOnly(enemyPowerInput?.value || "")) || 0;
   }
 
-  // Put caret at end (simple + stable on iOS with mask)
-  function caretToEnd(input) {
-    const end = (input?.value || "").length;
-    try {
-      input.setSelectionRange(end, end);
-    } catch (_) {}
+  // iOS-friendly caret restore: keep "number of digits before caret"
+  function setCaretByDigitsCount(input, digitsBefore) {
+    const v = String(input?.value || "");
+    if (!v) {
+      try { input.setSelectionRange(0, 0); } catch (_) {}
+      return;
+    }
+    let seen = 0;
+    for (let i = 0; i < v.length; i++) {
+      if (/\d/.test(v[i])) seen++;
+      if (seen >= digitsBefore) {
+        const pos = i + 1;
+        try { input.setSelectionRange(pos, pos); } catch (_) {}
+        return;
+      }
+    }
+    try { input.setSelectionRange(v.length, v.length); } catch (_) {}
   }
 
   // ---------- DATA ----------
@@ -495,14 +504,22 @@
 
   defVariantSelect?.addEventListener("change", renderAll);
 
-  // ✅ LIVE mask 8 digits (00 000 000) + render
+  // ✅ LIVE thousands formatting (no mask, no padding) + render
   enemyPowerInput?.addEventListener("input", () => {
     if (!enemyPowerInput) return;
 
-    const digits = digitsOnly(enemyPowerInput.value || "");
-    enemyPowerInput.value = formatMaskedMillions(digits, 8);
+    const raw = String(enemyPowerInput.value || "");
+    const pos = enemyPowerInput.selectionStart ?? raw.length;
 
-    caretToEnd(enemyPowerInput);
+    // how many digits were before caret (in the raw value)
+    const digitsBefore = digitsOnly(raw.slice(0, pos)).length;
+    const digits = digitsOnly(raw);
+
+    enemyPowerInput.value = formatThousandsDotFromDigits(digits);
+
+    // restore caret based on digits count (works well on iOS)
+    setCaretByDigitsCount(enemyPowerInput, digitsBefore);
+
     renderResults();
   });
 
@@ -532,10 +549,10 @@
     if (defTitle) defTitle.textContent = "—";
     if (playerChip) playerChip.textContent = "—";
 
-    // Optional: initialize mask display as 00 000 000 on load
-    if (enemyPowerInput && !enemyPowerInput.value) {
-      enemyPowerInput.value = formatMaskedMillions("", 8);
-    }
+    // Optional: keep it empty on load (no forced mask)
+    // if (enemyPowerInput && enemyPowerInput.value) {
+    //   enemyPowerInput.value = formatThousandsDotFromDigits(enemyPowerInput.value);
+    // }
   }
 
   boot().catch((e) => console.error("[war-counters] boot error:", e));
