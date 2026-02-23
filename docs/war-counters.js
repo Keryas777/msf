@@ -133,6 +133,7 @@
       min_ok: parseFloat(String(r.min_ratio_ok ?? "").replace(",", ".")) || 0,
       min_safe: parseFloat(String(r.min_ratio_safe ?? "").replace(",", ".")) || 0,
 
+      // ✅ notes (optionnel)
       notes: (r.notes ?? "").toString().trim(),
     };
   }
@@ -381,7 +382,7 @@
     return 2; // is-red
   }
 
-  function makeCounterCard({ teamName, power, ratio, cls, portraits, enemy }) {
+  function makeCounterCard({ teamName, power, ratio, cls, portraits, enemy, notes }) {
     const card = document.createElement("div");
     card.className = `counterCard ${cls}`.trim();
 
@@ -432,6 +433,20 @@
 
     card.appendChild(top);
     card.appendChild(wrap);
+
+    // ✅ Notes : seulement si présent, petit + italique (inline style pour éviter de toucher au CSS)
+    const noteText = (notes ?? "").toString().trim();
+    if (noteText) {
+      const note = document.createElement("div");
+      note.textContent = noteText;
+      note.setAttribute("aria-label", "Notes");
+      note.style.marginTop = "6px";
+      note.style.fontSize = "12px";
+      note.style.fontStyle = "italic";
+      note.style.lineHeight = "1.25";
+      note.style.color = "rgba(255,255,255,.70)";
+      card.appendChild(note);
+    }
 
     return card;
   }
@@ -515,6 +530,7 @@
           cls,
           portraits,
           enemy,
+          notes: r.notes || "",
         })
       );
     });
