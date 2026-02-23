@@ -20,75 +20,74 @@ function csvUrl(sheetId, tabName) {
   return `${base}?${params.toString()}`;
 }
 
-/**
- * IMPORTANT:
- * - En FR, l’export CSV utilise très souvent ";" comme séparateur.
- * - Les ratios contiennent des virgules (0,5) -> ça piège toute "détection par comptage".
- * Donc: on détecte par présence explicite de ';' ou '\t', sinon ','.
- */
-function detectDelimiter(headerLine) {
-  const line = String(headerLine || "");
-  if (line.includes(";")) return ";";
-  if (line.includes("\t")) return "\t";
-  return ",";
-}
-
-function parseCsv(text) {
-  const raw = String(text || "").replace(/^\uFEFF/, ""); // BOM
-  const lines = raw.split(/\r?\n/);
-
-  // trouver la première ligne non vide (header)
-  const firstNonEmptyIdx = lines.findIndex((l) => String(l || "").trim() !== "");
-  if (firstNonEmptyIdx === -1) return { headers: [], rows: [], delim: "," };
-
-  const headerLine = lines[firstNonEmptyIdx];
-  const delim = detectDelimiter(headerLine);
-
+// ------- CSV parser char-by-char (gère \n et \r, guillemets, etc.) -------
+function parseCsvWithDelimiter(text, delim) {
   const rows = [];
-  for (let li = firstNonEmptyIdx; li < lines.length; li++) {
-    const line = lines[li];
-    if (!line || !String(line).trim()) continue;
+  let row = [];
+  let cur = "";
+  let i = 0;
+  let inQuotes = false;
 
-    // parse d'une ligne CSV avec quotes
-    const out = [];
-    let cur = "";
-    let inQuotes = false;
+  const s = String(text || "").replace(/^\uFEFF/, ""); // remove BOM
 
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
+  while (i < s.length) {
+    const ch = s[i];
 
+    if (inQuotes) {
       if (ch === '"') {
-        // "" -> quote échappée
-        if (inQuotes && line[i + 1] === '"') {
+        if (s[i + 1] === '"') {
           cur += '"';
-          i++;
-        } else {
-          inQuotes = !inQuotes;
+          i += 2;
+          continue;
         }
+        inQuotes = false;
+        i += 1;
         continue;
       }
-
-      if (!inQuotes && ch === delim) {
-        out.push(cur);
-        cur = "";
-        continue;
-      }
-
       cur += ch;
+      i += 1;
+      continue;
     }
-    out.push(cur);
 
-    rows.push(out.map((s) => String(s ?? "").trim()));
+    if (ch === '"') {
+      inQuotes = true;
+      i += 1;
+      continue;
+    }
+
+    if (ch === delim) {
+      row.push(cur);
+      cur = "";
+      i += 1;
+      continue;
+    }
+
+    // newline (support \n, \r\n, \r)
+    if (ch === "\n" || ch === "\r") {
+      row.push(cur);
+      cur = "";
+
+      // push row if not totally empty
+      if (row.some((c) => String(c ?? "").trim() !== "")) rows.push(row);
+
+      row = [];
+
+      // eat \r\n
+      if (ch === "\r" && s[i + 1] === "\n") i += 2;
+      else i += 1;
+
+      continue;
+    }
+
+    cur += ch;
+    i += 1;
   }
 
-  if (rows.length === 0) return { headers: [], rows: [], delim };
+  // last cell
+  row.push(cur);
+  if (row.some((c) => String(c ?? "").trim() !== "")) rows.push(row);
 
-  const rawHeaders = rows[0];
-  const headers = rawHeaders.map(normalizeHeader);
-
-  const dataRows = rows.slice(1);
-
-  return { headers, rows: dataRows, delim, rawHeaders };
+  return rows.map((r) => r.map((c) => String(c ?? "").trim()));
 }
 
 function normalizeHeader(h) {
@@ -96,6 +95,56 @@ function normalizeHeader(h) {
     .trim()
     .toLowerCase()
     .replace(/\s+/g, "_");
+}
+
+function scoreHeaderRow(row) {
+  const set = new Set(row.map(normalizeHeader));
+  let score = 0;
+
+  // clés très attendues
+  if (set.has("def_family")) score += 5;
+  if (set.has("def_variant")) score += 5;
+  if (set.has("def_key")) score += 3;
+  if (set.has("atk_team")) score += 5;
+  if (set.has("atk_key")) score += 3;
+  if (set.has("min_ratio_ok")) score += 2;
+  if (set.has("min_ratio_safe")) score += 2;
+  if (set.has("notes")) score += 1;
+
+  // bonus si ça ressemble à un vrai header (assez de colonnes)
+  if (row.length >= 12) score += 2;
+  if (row.length >= 18) score += 2;
+
+  return score;
+}
+
+function detectBestDelimiter(text) {
+  const candidates = [",", ";", "\t"];
+  let best = { delim: ",", score: -1, rows: [] };
+
+  for (const d of candidates) {
+    const rows = parseCsvWithDelimiter(text, d);
+    if (!rows.length) continue;
+
+    // on cherche la première ligne non vide comme "header candidate"
+    const headerIdx = rows.findIndex((r) => r.some((c) => String(c ?? "").trim() !== ""));
+    if (headerIdx === -1) continue;
+
+    const headerRow = rows[headerIdx];
+    const score = scoreHeaderRow(headerRow);
+
+    if (score > best.score) best = { delim: d, score, rows };
+  }
+
+  return best;
+}
+
+function rowToObject(headers, row) {
+  const o = {};
+  headers.forEach((h, idx) => {
+    o[h] = row[idx] ?? "";
+  });
+  return o;
 }
 
 function pick(obj, ...keys) {
@@ -107,18 +156,9 @@ function pick(obj, ...keys) {
 }
 
 function parseRatio(x) {
-  // On normalise juste "0,5" -> "0.5" (la page front gère déjà parseFloat avec replace, mais c'est propre)
   const s = String(x ?? "").trim();
   if (!s) return "";
   return s.replace(",", ".");
-}
-
-function rowToObject(headers, row) {
-  const o = {};
-  headers.forEach((h, idx) => {
-    o[h] = row[idx] ?? "";
-  });
-  return o;
 }
 
 function isTotallyEmptyRow(obj) {
@@ -138,7 +178,7 @@ async function main() {
     process.exit(1);
   }
 
-  // Si c'est du HTML (login), on stoppe net
+  // HTML guard (login page)
   const head = text.slice(0, 400).toLowerCase();
   if (head.includes("<html") || head.includes("<!doctype") || head.includes("accounts.google.com")) {
     console.error("❌ The response looks like HTML (not CSV).");
@@ -147,23 +187,35 @@ async function main() {
     process.exit(1);
   }
 
-  const { headers, rows, delim, rawHeaders } = parseCsv(text);
+  const best = detectBestDelimiter(text);
+  const rows = best.rows;
 
-  console.log(`[war-counters] Detected delimiter: ${JSON.stringify(delim)}`);
-  console.log(`[war-counters] CSV data rows: ${rows.length}`);
-  console.log(`[war-counters] Raw headers: ${rawHeaders?.join(" | ") || "(none)"}`);
-  console.log(`[war-counters] Headers: ${headers.join(" | ")}`);
+  console.log(`[war-counters] Best delimiter: ${JSON.stringify(best.delim)} (score=${best.score})`);
+  console.log(`[war-counters] Total parsed rows: ${rows.length}`);
 
-  if (!headers.length || rows.length === 0) {
-    console.error("❌ No rows found after parsing.");
-    console.error("First 300 chars:", text.slice(0, 300));
+  if (rows.length < 2 || best.score < 6) {
+    console.error("❌ Could not confidently detect header row.");
+    console.error("First 800 chars:", text.slice(0, 800));
     process.exit(1);
   }
 
-  // sample row (first non-empty)
-  const sampleRow = rows.find((r) => r.some((c) => String(c ?? "").trim() !== ""));
-  if (sampleRow) {
-    const sObj = rowToObject(headers, sampleRow);
+  // header = first non-empty row
+  const headerIdx = rows.findIndex((r) => r.some((c) => String(c ?? "").trim() !== ""));
+  const rawHeaders = rows[headerIdx];
+  const headers = rawHeaders.map(normalizeHeader);
+
+  console.log("[war-counters] Raw headers:", rawHeaders.join(" | "));
+  console.log("[war-counters] Headers:", headers.join(" | "));
+
+  const dataRows = rows
+    .slice(headerIdx + 1)
+    .filter((r) => r.some((c) => String(c ?? "").trim() !== ""));
+
+  console.log(`[war-counters] CSV data rows: ${dataRows.length}`);
+
+  const sample = dataRows[0];
+  if (sample) {
+    const sObj = rowToObject(headers, sample);
     console.log(
       "[war-counters] Sample row:",
       ["def_family", "def_variant", "def_key", "atk_team", "atk_key"]
@@ -172,7 +224,7 @@ async function main() {
     );
   }
 
-  const mapped = rows
+  const mapped = dataRows
     .map((r) => rowToObject(headers, r))
     .filter((o) => !isTotallyEmptyRow(o))
     .map((o) => {
@@ -221,7 +273,7 @@ async function main() {
       };
     });
 
-  // Filtre minimal: on garde les lignes qui ont au moins une "structure" de counter
+  // filtre utile
   const cleaned = mapped.filter((r) => r.def_family || r.def_variant || r.atk_team || r.atk_key);
 
   await fs.mkdir(path.dirname(OUT_FILE), { recursive: true });
