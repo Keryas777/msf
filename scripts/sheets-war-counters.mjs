@@ -20,75 +20,80 @@ function csvUrl(sheetId, tabName) {
   return `${base}?${params.toString()}`;
 }
 
-// CSV parser simple (supporte guillemets, virgules, lignes)
-function parseCsv(text) {
-  const rows = [];
-  let row = [];
+/**
+ * Robust CSV parsing:
+ * - Detects delimiter ("," vs ";") based on the header line
+ * - Handles quotes + escaped quotes ("")
+ * - Trims lines and removes BOM
+ * Returns: { headers: string[], rows: Array<Record<string,string>> }
+ */
+function detectDelimiter(line) {
+  const commas = (line.match(/,/g) || []).length;
+  const semis = (line.match(/;/g) || []).length;
+  return semis > commas ? ";" : ",";
+}
+
+function parseCsvLine(line, delim) {
+  const out = [];
   let cur = "";
-  let i = 0;
   let inQuotes = false;
 
-  while (i < text.length) {
-    const ch = text[i];
-
-    if (inQuotes) {
-      if (ch === '"') {
-        if (text[i + 1] === '"') {
-          cur += '"';
-          i += 2;
-          continue;
-        }
-        inQuotes = false;
-        i += 1;
-        continue;
-      }
-      cur += ch;
-      i += 1;
-      continue;
-    }
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
 
     if (ch === '"') {
-      inQuotes = true;
-      i += 1;
+      // Escaped quote inside quoted field
+      if (inQuotes && line[i + 1] === '"') {
+        cur += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
       continue;
     }
 
-    if (ch === ",") {
-      row.push(cur);
+    if (!inQuotes && ch === delim) {
+      out.push(cur);
       cur = "";
-      i += 1;
-      continue;
-    }
-
-    if (ch === "\n") {
-      row.push(cur);
-      rows.push(row);
-      row = [];
-      cur = "";
-      i += 1;
-      continue;
-    }
-
-    if (ch === "\r") {
-      i += 1;
       continue;
     }
 
     cur += ch;
-    i += 1;
   }
 
-  // last cell
-  row.push(cur);
-  // avoid pushing empty trailing row
-  if (row.some((c) => (c ?? "").trim() !== "")) rows.push(row);
+  out.push(cur);
+  return out.map((s) => String(s ?? "").trim());
+}
 
-  return rows;
+function parseCsvText(text) {
+  const lines = String(text || "")
+    .replace(/^\uFEFF/, "") // BOM
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+
+  if (lines.length < 2) return { headers: [], rows: [] };
+
+  const delim = detectDelimiter(lines[0]);
+  const rawHeaders = parseCsvLine(lines[0], delim);
+
+  const headers = rawHeaders.map(normalizeHeader);
+
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = parseCsvLine(lines[i], delim);
+    const obj = {};
+    headers.forEach((h, idx) => {
+      obj[h] = cols[idx] ?? "";
+    });
+    rows.push(obj);
+  }
+
+  return { headers, rows, delim, rawHeaders };
 }
 
 function normalizeHeader(h) {
-  return (h ?? "")
-    .toString()
+  return String(h ?? "")
     .trim()
     .toLowerCase()
     .replace(/\s+/g, "_");
@@ -96,19 +101,21 @@ function normalizeHeader(h) {
 
 function pick(rowObj, ...keys) {
   for (const k of keys) {
-    if (rowObj[k] != null && String(rowObj[k]).trim() !== "") return String(rowObj[k]).trim();
+    const v = rowObj?.[k];
+    if (v != null && String(v).trim() !== "") return String(v).trim();
   }
   return "";
 }
 
-function toRowObject(headers, row) {
-  const obj = {};
-  headers.forEach((h, idx) => {
-    const key = h;
-    const val = row[idx] ?? "";
-    obj[key] = val;
-  });
-  return obj;
+function parseRatio(x) {
+  // Keep as string in JSON if you want, but normalize commas to dots
+  const s = String(x ?? "").trim();
+  if (!s) return "";
+  return s.replace(",", ".");
+}
+
+function isRowTotallyEmpty(o) {
+  return !Object.values(o || {}).some((v) => String(v ?? "").trim() !== "");
 }
 
 async function main() {
@@ -124,83 +131,88 @@ async function main() {
     process.exit(1);
   }
 
-  // Si c'est du HTML (login), on stoppe net au lieu de produire []
-  const head = text.slice(0, 200).toLowerCase();
+  // If it's HTML (login page), stop early
+  const head = text.slice(0, 400).toLowerCase();
   if (head.includes("<html") || head.includes("<!doctype") || head.includes("accounts.google.com")) {
     console.error("❌ The response looks like HTML (not CSV).");
     console.error("➡️ Make sure the Google Sheet is readable publicly or published to the web.");
-    console.error(text.slice(0, 500));
+    console.error(text.slice(0, 600));
     process.exit(1);
   }
 
-  const rows = parseCsv(text);
-  console.log(`[war-counters] CSV rows: ${rows.length}`);
+  const { headers, rows, delim, rawHeaders } = parseCsvText(text);
 
-  if (rows.length < 2) {
+  console.log(`[war-counters] Detected delimiter: ${JSON.stringify(delim)}`);
+  console.log(`[war-counters] CSV rows: ${rows.length}`);
+  console.log(`[war-counters] Raw headers: ${rawHeaders?.join(" | ") || "(none)"}`);
+  console.log(`[war-counters] Headers: ${headers.join(" | ")}`);
+
+  if (rows.length < 1) {
     console.error("❌ No data rows found (only headers or empty).");
     console.error("First 300 chars:", text.slice(0, 300));
     process.exit(1);
   }
 
-  const rawHeaders = rows[0];
-  const headers = rawHeaders.map(normalizeHeader);
+  // Show a sample row (first non-empty row)
+  const sample = rows.find((r) => !isRowTotallyEmpty(r));
+  if (sample) {
+    const sampleKeys = Object.keys(sample).slice(0, 10);
+    console.log(
+      "[war-counters] Sample row:",
+      sampleKeys.map((k) => `${k}=${sample[k]}`).join(" | ")
+    );
+  }
 
-  console.log("[war-counters] Headers:", headers.join(" | "));
-  console.log("[war-counters] Sample row:", rows[1]?.slice(0, 10).join(" | "));
+  const mapped = rows
+    .filter((r) => !isRowTotallyEmpty(r))
+    .map((o) => {
+      const def_family = pick(o, "def_family");
+      const def_variant = pick(o, "def_variant");
+      const def_key = pick(o, "def_key");
 
-  const dataRows = rows.slice(1).filter((r) => r.some((c) => (c ?? "").trim() !== ""));
+      const atk_team = pick(o, "atk_team");
+      const atk_key = pick(o, "atk_key");
 
-  const out = dataRows.map((r) => {
-    const o = toRowObject(headers, r);
+      const def_char1 = pick(o, "def_char1");
+      const def_char2 = pick(o, "def_char2");
+      const def_char3 = pick(o, "def_char3");
+      const def_char4 = pick(o, "def_char4");
+      const def_char5 = pick(o, "def_char5");
 
-    // colonnes attendues (exactes, en snake_case)
-    const def_family = pick(o, "def_family");
-    const def_variant = pick(o, "def_variant");
-    const def_key = pick(o, "def_key");
+      const atk_char1 = pick(o, "atk_char1");
+      const atk_char2 = pick(o, "atk_char2");
+      const atk_char3 = pick(o, "atk_char3");
+      const atk_char4 = pick(o, "atk_char4");
+      const atk_char5 = pick(o, "atk_char5");
 
-    const atk_team = pick(o, "atk_team");
-    const atk_key = pick(o, "atk_key");
+      const min_ratio_ok = parseRatio(pick(o, "min_ratio_ok"));
+      const min_ratio_safe = parseRatio(pick(o, "min_ratio_safe"));
+      const notes = pick(o, "notes");
 
-    const def_char1 = pick(o, "def_char1");
-    const def_char2 = pick(o, "def_char2");
-    const def_char3 = pick(o, "def_char3");
-    const def_char4 = pick(o, "def_char4");
-    const def_char5 = pick(o, "def_char5");
+      return {
+        def_family,
+        def_variant,
+        def_key,
+        def_char1,
+        def_char2,
+        def_char3,
+        def_char4,
+        def_char5,
+        atk_team,
+        atk_key,
+        atk_char1,
+        atk_char2,
+        atk_char3,
+        atk_char4,
+        atk_char5,
+        min_ratio_ok,
+        min_ratio_safe,
+        notes,
+      };
+    });
 
-    const atk_char1 = pick(o, "atk_char1");
-    const atk_char2 = pick(o, "atk_char2");
-    const atk_char3 = pick(o, "atk_char3");
-    const atk_char4 = pick(o, "atk_char4");
-    const atk_char5 = pick(o, "atk_char5");
-
-    const min_ratio_ok = pick(o, "min_ratio_ok");
-    const min_ratio_safe = pick(o, "min_ratio_safe");
-    const notes = pick(o, "notes");
-
-    return {
-      def_family,
-      def_variant,
-      def_key,
-      def_char1,
-      def_char2,
-      def_char3,
-      def_char4,
-      def_char5,
-      atk_team,
-      atk_key,
-      atk_char1,
-      atk_char2,
-      atk_char3,
-      atk_char4,
-      atk_char5,
-      min_ratio_ok,
-      min_ratio_safe,
-      notes,
-    };
-  });
-
-  // optionnel : on filtre uniquement les lignes vides “totales”
-  const cleaned = out.filter((r) => r.def_family || r.def_variant || r.atk_team);
+  // Filter out fully useless lines (still keep lines with notes if they have a def/atk context)
+  const cleaned = mapped.filter((r) => r.def_family || r.def_variant || r.atk_team || r.atk_key);
 
   await fs.mkdir(path.dirname(OUT_FILE), { recursive: true });
   await fs.writeFile(OUT_FILE, JSON.stringify(cleaned, null, 2), "utf8");
