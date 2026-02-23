@@ -491,7 +491,7 @@ body::after{
 #results{
   display:flex;
   flex-direction:column;
-  gap: 14px; /* ✅ espace entre cartes */
+  gap: 10px; /* ✅ espace entre cartes */
 }
 
 /* ✅ Fallback universel si jamais #results n’est pas le parent direct */
