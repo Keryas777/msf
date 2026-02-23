@@ -17,6 +17,11 @@
   --bar-red: #ff4d4d;
   --bar-orange: #ff9f1a;
   --bar-green: #2ecc71;
+
+  /* ✅ halo interne (évite tout chevauchement) */
+  --halo-green: rgba(46,204,113,.45);
+  --halo-orange: rgba(255,159,26,.45);
+  --halo-red: rgba(255,77,77,.45);
 }
 
 *{ box-sizing:border-box; }
@@ -213,19 +218,19 @@ body::after{
   min-width: 44px;
   text-align: center;
 
-  font-size: 13px; /* ✅ -1 */
+  font-size: 13px;
   line-height: 1.1;
 }
 
 /* ✅ “Recommandations” : -1 */
 .cardHeader h2.cardTitle{
-  font-size: 21px; /* ✅ 22 -> 21 */
+  font-size: 21px;
 }
 
 /* ✅ Chip joueur un peu plus long */
 #playerChip{
-  min-width: 88px;     /* ✅ plus long */
-  padding-left: 12px;  /* ✅ un poil plus “aéré” */
+  min-width: 88px;
+  padding-left: 12px;
   padding-right: 12px;
 
   overflow: hidden;
@@ -425,7 +430,6 @@ body::after{
     font-size: 13px;
   }
 
-  /* ✅ chips restent compacts sur mobile */
   .chipCount{ font-size: 12.5px; }
   .cardHeader h2.cardTitle{ font-size: 20px; }
   #playerChip{ min-width: 92px; }
@@ -481,7 +485,20 @@ body::after{
   #playerChip{ min-width: 96px; }
 }
 
-/* ===== COUNTERS (nouvelle carte + halo) ===== */
+/* ===== COUNTERS (cartes + halos) ===== */
+
+/* ✅ Le conteneur devient une colonne avec gap (au cas où) */
+#results{
+  display:flex;
+  flex-direction:column;
+  gap: 18px; /* ✅ espace entre cartes */
+}
+
+/* ✅ Fallback universel si jamais #results n’est pas le parent direct */
+.counterCard + .counterCard{
+  margin-top: 18px; /* ✅ espace même sans flex/gap */
+}
+
 .counterCard{
   border:1px solid var(--border);
   border-radius:16px;
@@ -490,18 +507,34 @@ body::after{
   flex-direction:column;
   gap:10px;
   background: rgba(0,0,0,.22);
+
+  /* ✅ halo interne => ne déborde jamais => plus de chevauchement */
+  position: relative;
+  overflow: hidden;
+
+  /* couleur par défaut */
+  --halo: rgba(255,255,255,.00);
 }
 
-/* halo */
-.counterCard.is-green{
-  box-shadow: 0 0 14px rgba(46,204,113,.50);
+/* halo interne (ne sort pas de la card) */
+.counterCard::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+
+  /* fine bordure interne + glow interne */
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.06),
+    inset 0 0 18px 0 var(--halo);
+  opacity: 1;
 }
-.counterCard.is-orange{
-  box-shadow: 0 0 14px rgba(255,159,26,.50);
-}
-.counterCard.is-red{
-  box-shadow: 0 0 14px rgba(255,77,77,.50);
-}
+
+/* couleurs */
+.counterCard.is-green{ --halo: var(--halo-green); }
+.counterCard.is-orange{ --halo: var(--halo-orange); }
+.counterCard.is-red{ --halo: var(--halo-red); }
 
 .counterTop{
   display:flex;
