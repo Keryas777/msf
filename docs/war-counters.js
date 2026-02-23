@@ -117,8 +117,8 @@
         (x ?? "").toString().trim()
       ),
 
-      min_ok: parseNumber(r.min_ratio_ok),
-      min_safe: parseNumber(r.min_ratio_safe),
+      min_ok: parseFloat(String(r.min_ratio_ok).replace(",", ".")) || 0,
+      min_safe: parseFloat(String(r.min_ratio_safe).replace(",", ".")) || 0,
 
       notes: (r.notes ?? "").toString().trim(),
     };
