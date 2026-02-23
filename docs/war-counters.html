@@ -68,16 +68,14 @@
         <div class="portraits" id="defPortraits" aria-label="Personnages de la défense"></div>
       </section>
 
-      <!-- ✅ Recommandations : joueur + compteur -->
+      <!-- ✅ Recommandations : compteur à gauche, titre centré, joueur à droite -->
       <section class="card">
-        <div class="cardHeader">
-          <h2 class="cardTitle">Recommandations</h2>
+        <div class="cardHeader cardHeader--reco">
+          <div class="chipCount chipCount--sm" id="resultsCount">0</div>
 
-          <!-- petite stack à droite (sans toucher au CSS) -->
-          <div style="display:flex; gap:10px; align-items:center;">
-            <div class="chipCount" id="playerChip">—</div>
-            <div class="chipCount" id="resultsCount">0</div>
-          </div>
+          <h2 class="cardTitle cardTitle--sm">Recommandations</h2>
+
+          <div class="chipCount chipCount--sm" id="playerChip">—</div>
         </div>
 
         <div id="results" aria-label="Liste des counters disponibles"></div>
