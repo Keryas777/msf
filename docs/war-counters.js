@@ -56,8 +56,7 @@
       .replace(/[-_]/g, "")
       .replace(/[’']/g, "");
 
-  const parseNumber = (x) =>
-    Number(String(x ?? "").replace(/[^\d]/g, "")) || 0;
+  const parseNumber = (x) => Number(String(x ?? "").replace(/[^\d]/g, "")) || 0;
 
   function formatThousandsDot(n) {
     const num = Number(n);
@@ -65,6 +64,16 @@
     return Math.trunc(num)
       .toString()
       .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+  // ✅ LIVE formatting helpers (enemy power)
+  function formatThousandsDotFromDigits(digitsStr) {
+    const s = String(digitsStr || "").replace(/[^\d]/g, "");
+    if (!s) return "";
+    return s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+  function getEnemyPowerDigits() {
+    return Number(String(enemyPowerInput?.value || "").replace(/[^\d]/g, "")) || 0;
   }
 
   // ---------- DATA ----------
@@ -88,8 +97,8 @@
       atk_team: (r.atk_team ?? "").toString().trim(),
 
       // IMPORTANT : on garde les cases vides
-      atk_chars: [r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5].map(
-        (x) => (x ?? "").toString().trim()
+      atk_chars: [r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5].map((x) =>
+        (x ?? "").toString().trim()
       ),
 
       min_ok: parseNumber(r.min_ratio_ok),
@@ -133,7 +142,7 @@
       Object.entries(chars).forEach(([k, v]) => {
         const kk = normalizeKey(k);
         if (!kk) return;
-        map[kk] = typeof v === "object" ? (Number(v.power) || 0) : (Number(v) || 0);
+        map[kk] = typeof v === "object" ? Number(v.power) || 0 : Number(v) || 0;
       });
 
       ROSTERS.set(normalizeKey(player), map);
@@ -210,9 +219,7 @@
     opt0.textContent = "— Choisir un joueur —";
     playerSelect.appendChild(opt0);
 
-    const players = (PLAYERS_BY_ALLIANCE.get(a) || []).slice().sort((x, y) =>
-      x.player.localeCompare(y.player, "fr")
-    );
+    const players = (PLAYERS_BY_ALLIANCE.get(a) || []).slice().sort((x, y) => x.player.localeCompare(y.player, "fr"));
 
     players.forEach((p) => {
       const opt = document.createElement("option");
@@ -231,9 +238,7 @@
     opt0.textContent = "— Choisir une famille —";
     defFamilySelect.appendChild(opt0);
 
-    const families = [...new Set(WAR.map((r) => r.def_family).filter(Boolean))].sort((a, b) =>
-      a.localeCompare(b, "fr")
-    );
+    const families = [...new Set(WAR.map((r) => r.def_family).filter(Boolean))].sort((a, b) => a.localeCompare(b, "fr"));
 
     families.forEach((f) => {
       const opt = document.createElement("option");
@@ -264,9 +269,7 @@
     opt0.textContent = "— Choisir une variante —";
     defVariantSelect.appendChild(opt0);
 
-    const variants = WAR.filter((r) => r.def_family === fam)
-      .map((r) => r.def_variant)
-      .filter(Boolean);
+    const variants = WAR.filter((r) => r.def_family === fam).map((r) => r.def_variant).filter(Boolean);
 
     [...new Set(variants)]
       .sort((a, b) => a.localeCompare(b, "fr"))
@@ -310,7 +313,6 @@
       img.decoding = "async";
       img.referrerPolicy = "no-referrer";
 
-      // fallback si portrait manquant
       img.onerror = () => {
         img.remove();
         const t = document.createElement("div");
@@ -328,7 +330,6 @@
     const ok = Number(r.min_ok) || 0;
     const safe = Number(r.min_safe) || 0;
 
-    // Si pas de seuils => simple règle
     if (!ok && !safe) return ratio >= 1 ? "is-orange" : "is-red";
 
     if (safe && ratio >= safe) return "is-green";
@@ -336,10 +337,9 @@
     return "is-red";
   }
 
-  function makeCounterCard({ teamName, power, ratio, cls, portraits }) {
-    const card = document.createElement("div");
-    // IMPORTANT: on réutilise ton design existant (rankRow + rankBars + rankBar + rankPower)
-    card.className = "rankRow";
+  function makeCounterCard({ teamName, power, ratio, cls, portraits, enemy }) {
+    const row = document.createElement("div");
+    row.className = "rankRow";
 
     const left = document.createElement("div");
     left.className = "rankLeft";
@@ -347,7 +347,6 @@
     const name = document.createElement("div");
     name.className = "rankName";
     name.textContent = teamName || "Counter";
-
     left.appendChild(name);
 
     const bars = document.createElement("div");
@@ -360,34 +359,41 @@
 
     const right = document.createElement("div");
     right.className = "rankPower";
-    right.textContent = enemyPowerInput?.value ? `${formatThousandsDot(power)}  x${ratio.toFixed(2)}` : `${formatThousandsDot(power)}`;
+    right.textContent = enemy > 0 ? `${formatThousandsDot(power)}  x${ratio.toFixed(2)}` : `${formatThousandsDot(power)}`;
 
-    card.appendChild(left);
-    card.appendChild(bars);
-    card.appendChild(right);
+    row.appendChild(left);
+    row.appendChild(bars);
+    row.appendChild(right);
 
-    // ✅ Le “petit détail” demandé : classes dédiées pour mini-portraits
+    // ✅ mini portraits (classes dédiées + NO CROP via object-fit contain)
     const wrap = document.createElement("div");
     wrap.className = "counterPortraits";
 
     portraits.forEach((src, idx) => {
       const cardP = document.createElement("div");
-      cardP.className = "counterPortrait"; // <-- le détail demandé
+      cardP.className = "counterPortrait";
 
       const img = document.createElement("img");
-      img.className = "portraitImg"; // on réutilise ton style d'image
+      img.className = "counterPortraitImg";
       img.alt = `p${idx + 1}`;
       img.loading = "lazy";
       img.decoding = "async";
       img.referrerPolicy = "no-referrer";
       img.src = src || "";
 
+      // ✅ anti-crop “au cas où” (même si ton CSS change)
+      img.style.width = "100%";
+      img.style.height = "100%";
+      img.style.objectFit = "contain";
+      img.style.objectPosition = "center";
+      img.style.display = "block";
+
       cardP.appendChild(img);
       wrap.appendChild(cardP);
     });
 
     const block = document.createElement("div");
-    block.appendChild(card);
+    block.appendChild(row);
     block.appendChild(wrap);
 
     return block;
@@ -398,7 +404,8 @@
 
     const def = getSelectedDef();
     const player = (playerSelect?.value ?? "").trim();
-    const enemy = parseNumber(enemyPowerInput?.value);
+    const enemy = getEnemyPowerDigits();
+
     if (playerChip) playerChip.textContent = player || "—";
 
     if (!def) {
@@ -415,9 +422,7 @@
       return;
     }
 
-    const rows = WAR.filter(
-      (r) => r.def_family === def.def_family && r.def_variant === def.def_variant
-    ).filter(isRealCounter);
+    const rows = WAR.filter((r) => r.def_family === def.def_family && r.def_variant === def.def_variant).filter(isRealCounter);
 
     if (!rows.length) {
       if (resultsCount) resultsCount.textContent = "0";
@@ -431,22 +436,21 @@
       const atkList = (r.atk_chars || []).filter((c) => (c || "").trim());
       const power = getPlayerPower(player, atkList);
 
-      // ratio: si enemy non saisi, on met 1 pour éviter x0.00
       const ratio = enemy > 0 ? power / enemy : 1;
-
       const cls = enemy > 0 ? getClass(ratio, r) : "is-orange";
 
       const portraits = atkList.map((c) => getPortrait(c)).filter(Boolean);
 
-      const card = makeCounterCard({
-        teamName: r.atk_team || "Counter",
-        power,
-        ratio,
-        cls,
-        portraits,
-      });
-
-      resultsWrap.appendChild(card);
+      resultsWrap.appendChild(
+        makeCounterCard({
+          teamName: r.atk_team || "Counter",
+          power,
+          ratio,
+          cls,
+          portraits,
+          enemy,
+        })
+      );
     });
   }
 
@@ -472,7 +476,23 @@
 
   defVariantSelect?.addEventListener("change", renderAll);
 
-  enemyPowerInput?.addEventListener("input", renderResults);
+  // ✅ LIVE formatting (remplace l'ancien "input -> renderResults")
+  enemyPowerInput?.addEventListener("input", () => {
+    if (!enemyPowerInput) return;
+
+    const prevLen = enemyPowerInput.value.length;
+    const prevPos = enemyPowerInput.selectionStart ?? prevLen;
+
+    const digits = String(enemyPowerInput.value || "").replace(/[^\d]/g, "");
+    enemyPowerInput.value = formatThousandsDotFromDigits(digits);
+
+    const newLen = enemyPowerInput.value.length;
+    const delta = newLen - prevLen;
+    const newPos = Math.max(0, Math.min(newLen, prevPos + delta));
+    enemyPowerInput.setSelectionRange(newPos, newPos);
+
+    renderResults();
+  });
 
   // ---------- BOOT ----------
   async function boot() {
