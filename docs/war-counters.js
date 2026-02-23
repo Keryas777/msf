@@ -66,38 +66,30 @@
       .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
-  // ---------- Enemy power live formatting helpers ----------
+  // ---------- Enemy power masked input (8 digits) ----------
   function digitsOnly(s) {
     return String(s || "").replace(/[^\d]/g, "");
   }
 
-  function formatThousandsDotFromDigits(d) {
-    const s = digitsOnly(d);
-    if (!s) return "";
-    return s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  // 00 000 000 (8 digits), groups: 2-3-3
+  function formatMaskedMillions(rawDigits, totalDigits = 8) {
+    const d = digitsOnly(rawDigits);
+    const trimmed = d.slice(-totalDigits);
+    const padded = trimmed.padStart(totalDigits, "0");
+    const sep = "\u202F"; // espace fine insécable
+    return `${padded.slice(0, 2)}${sep}${padded.slice(2, 5)}${sep}${padded.slice(5)}`;
   }
 
   function enemyPowerDigitsValue() {
     return Number(digitsOnly(enemyPowerInput?.value || "")) || 0;
   }
 
-  // iOS-friendly caret restore: keep "number of digits before caret"
-  function setCaretByDigitsCount(input, digitsBefore) {
-    const v = String(input.value || "");
-    if (!v) {
-      input.setSelectionRange(0, 0);
-      return;
-    }
-    let seen = 0;
-    for (let i = 0; i < v.length; i++) {
-      if (/\d/.test(v[i])) seen++;
-      if (seen >= digitsBefore) {
-        const pos = i + 1;
-        input.setSelectionRange(pos, pos);
-        return;
-      }
-    }
-    input.setSelectionRange(v.length, v.length);
+  // Put caret at end (simple + stable on iOS with mask)
+  function caretToEnd(input) {
+    const end = (input?.value || "").length;
+    try {
+      input.setSelectionRange(end, end);
+    } catch (_) {}
   }
 
   // ---------- DATA ----------
@@ -121,8 +113,8 @@
       atk_team: (r.atk_team ?? "").toString().trim(),
 
       // IMPORTANT : on garde les cases vides
-      atk_chars: [r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5].map(
-        (x) => (x ?? "").toString().trim()
+      atk_chars: [r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5].map((x) =>
+        (x ?? "").toString().trim()
       ),
 
       min_ok: parseNumber(r.min_ratio_ok),
@@ -206,9 +198,7 @@
     allianceSelect.appendChild(opt0);
 
     const ORDER = ["Zeus", "Dionysos", "Poséidon", "Poseidon"];
-    const alliances = [
-      ...new Set(JOUEURS.map((j) => (j.alliance ?? "").toString().trim()).filter(Boolean)),
-    ];
+    const alliances = [...new Set(JOUEURS.map((j) => (j.alliance ?? "").toString().trim()).filter(Boolean))];
 
     alliances
       .sort((a, b) => {
@@ -364,7 +354,6 @@
     const ok = Number(r.min_ok) || 0;
     const safe = Number(r.min_safe) || 0;
 
-    // Pas de seuil => règle simple
     if (!ok && !safe) return ratio >= 1 ? "is-orange" : "is-red";
 
     if (safe && ratio >= safe) return "is-green";
@@ -389,7 +378,6 @@
     const pow = document.createElement("div");
     pow.className = "counterPower";
     pow.textContent = formatThousandsDot(power);
-
     right.appendChild(pow);
 
     if (enemy > 0) {
@@ -507,23 +495,14 @@
 
   defVariantSelect?.addEventListener("change", renderAll);
 
-  // ✅ LIVE formatting enemy power + render
+  // ✅ LIVE mask 8 digits (00 000 000) + render
   enemyPowerInput?.addEventListener("input", () => {
     if (!enemyPowerInput) return;
 
-    const raw = String(enemyPowerInput.value || "");
-    const pos = enemyPowerInput.selectionStart ?? raw.length;
+    const digits = digitsOnly(enemyPowerInput.value || "");
+    enemyPowerInput.value = formatMaskedMillions(digits, 8);
 
-    const digitsBefore = digitsOnly(raw.slice(0, pos)).length;
-    const digits = digitsOnly(raw);
-
-    enemyPowerInput.value = formatThousandsDotFromDigits(digits);
-    try {
-      setCaretByDigitsCount(enemyPowerInput, digitsBefore);
-    } catch (_) {
-      // ignore setSelectionRange errors
-    }
-
+    caretToEnd(enemyPowerInput);
     renderResults();
   });
 
@@ -552,6 +531,11 @@
     if (resultsCount) resultsCount.textContent = "0";
     if (defTitle) defTitle.textContent = "—";
     if (playerChip) playerChip.textContent = "—";
+
+    // Optional: initialize mask display as 00 000 000 on load
+    if (enemyPowerInput && !enemyPowerInput.value) {
+      enemyPowerInput.value = formatMaskedMillions("", 8);
+    }
   }
 
   boot().catch((e) => console.error("[war-counters] boot error:", e));
