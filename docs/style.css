@@ -501,3 +501,52 @@ body::after{
     font-size: 12.5px;
   }
 }
+
+/* ===== COUNTER CARDS ===== */
+.counterCard{
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+/* halo */
+.counterCard.is-green{
+  box-shadow: 0 0 12px rgba(46,204,113,.5);
+}
+.counterCard.is-orange{
+  box-shadow: 0 0 12px rgba(255,159,26,.5);
+}
+.counterCard.is-red{
+  box-shadow: 0 0 12px rgba(255,77,77,.5);
+}
+
+.counterTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.counterName{
+  font-weight:900;
+  font-size:16px;
+}
+
+.counterPower{
+  font-weight:900;
+  font-size:14px;
+}
+
+.counterPortraits{
+  display:flex;
+  gap:6px;
+}
+
+.portraitMini{
+  width:40px;
+  height:40px;
+  border-radius:10px;
+  object-fit:cover;
+}
