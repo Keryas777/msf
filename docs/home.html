@@ -11,58 +11,79 @@
 
     <link rel="stylesheet" href="./style.css?v=ts" />
     <link rel="stylesheet" href="./home.css?v=ts" />
-    <link rel="manifest" href="./manifest.webmanifest">
-    <link rel="apple-touch-icon" href="./icon-512.PNG">
-    <meta name="apple-mobile-web-app-title" content="LoSP">
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icon-512.PNG" />
+    <meta name="apple-mobile-web-app-title" content="LoSP" />
   </head>
 
   <body>
     <div class="app">
-      <header class="header homeHeader">
-        <h1 class="title">
-          Groupement<br />
-          ⚡️🍇🔱 LoSP
-        </h1>
-        <p class="subtitle">Outils internes du groupement</p>
-      </header>
+      <header class="header homeHeader" aria-label="Accueil LoSP"></header>
 
-      <section class="homeGrid">
-
-        <!-- ✅ NOUVELLE TUILE WAR COUNTERS -->
-        <a href="./war-counters.html" class="homeTile">
-          <div class="tileIcon">⚔️</div>
-          <div class="tileTitle">War Counters</div>
-          <div class="tileDesc">
-            Trouve les meilleurs contres pour tes attaques
-          </div>
+      <section class="homeGrid" aria-label="Outils">
+        <!-- Contres GA -->
+        <a href="./war-counters.html" class="homeTile homeTile--contres">
+          <img
+            class="homeTileImg"
+            src="./Contres.webp"
+            alt="Contres GA"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="srOnly">Contres GA</span>
         </a>
 
-        <!-- EXISTANT -->
-        <a href="./index.html" class="homeTile">
-          <div class="tileIcon">📊</div>
-          <div class="tileTitle">Classement Teams</div>
-          <div class="tileDesc">
-            Comparer la puissance d’une équipe entre joueurs
-          </div>
+        <!-- Classement équipes -->
+        <a href="./index.html" class="homeTile homeTile--classement">
+          <img
+            class="homeTileImg"
+            src="./Classement.webp"
+            alt="Classement équipes"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="srOnly">Classement équipes</span>
         </a>
 
-        <a href="./iso.html" class="homeTile">
-          <div class="tileIcon">💠</div>
-          <div class="tileTitle">ISO-8</div>
-          <div class="tileDesc">
-            Comparer ISO recommandés vs ISO joueur
-          </div>
+        <!-- ISO-8 -->
+        <a href="./iso.html" class="homeTile homeTile--iso">
+          <img
+            class="homeTileImg"
+            src="./ISO-8.webp"
+            alt="ISO-8"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="srOnly">ISO-8</span>
         </a>
-
       </section>
     </div>
 
     <script>
+      // cache-bust css (comme avant)
       (function () {
         const links = document.querySelectorAll('link[rel="stylesheet"]');
         links.forEach((l) => {
           if (l.href.includes("v=ts"))
             l.href = l.href.replace("v=ts", "v=" + Date.now());
+        });
+      })();
+
+      // glow "dynamique" au tap/clic (iOS friendly)
+      (function () {
+        const tiles = document.querySelectorAll(".homeTile");
+        tiles.forEach((t) => {
+          const press = () => {
+            t.classList.add("is-pressed");
+            clearTimeout(t.__pressTimer);
+            t.__pressTimer = setTimeout(() => t.classList.remove("is-pressed"), 220);
+          };
+          const release = () => t.classList.remove("is-pressed");
+
+          t.addEventListener("pointerdown", press, { passive: true });
+          t.addEventListener("pointerup", release, { passive: true });
+          t.addEventListener("pointercancel", release, { passive: true });
+          t.addEventListener("mouseleave", release, { passive: true });
         });
       })();
     </script>
