@@ -9,8 +9,10 @@
     <meta name="theme-color" content="#0b0c0d" />
     <title>Accueil</title>
 
-    <link rel="stylesheet" href="./style.css?v=ts" />
-    <link rel="stylesheet" href="./home.css?v=ts" />
+    <!-- ✅ Pas de cache-bust en PWA (c'est le SW qui gère la version) -->
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./home.css" />
+
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icon-512.PNG" />
     <meta name="apple-mobile-web-app-title" content="LoSP" />
@@ -59,16 +61,49 @@
       </section>
     </div>
 
-    <script>
-      // cache-bust css (comme avant)
-      (function () {
-        const links = document.querySelectorAll('link[rel="stylesheet"]');
-        links.forEach((l) => {
-          if (l.href.includes("v=ts"))
-            l.href = l.href.replace("v=ts", "v=" + Date.now());
-        });
-      })();
+    <!-- Install Banner (iOS + Android) -->
+    <div id="installBanner" class="installBanner" hidden>
+      <div class="installLeft">
+        <div class="installIcon" aria-hidden="true">⬇️</div>
+        <div class="installText">
+          <div class="installTitle">Installer LoSP</div>
+          <div id="installSub" class="installSub">Ajoute LoSP sur ton écran d’accueil.</div>
+        </div>
+      </div>
 
+      <div class="installActions">
+        <button id="installHow" class="installBtn installBtnGhost" type="button" hidden>Comment faire</button>
+        <button id="installNow" class="installBtn" type="button" hidden>Installer</button>
+        <button id="installClose" class="installClose" type="button" aria-label="Fermer">✕</button>
+      </div>
+    </div>
+
+    <!-- iOS How-to modal -->
+    <div id="installModal" class="installModal" hidden>
+      <div class="installModalBackdrop" data-close="1"></div>
+      <div class="installModalCard" role="dialog" aria-modal="true" aria-labelledby="installModalTitle">
+        <div class="installModalTop">
+          <div id="installModalTitle" class="installModalTitle">Installer sur iPhone</div>
+          <button class="installClose" type="button" data-close="1" aria-label="Fermer">✕</button>
+        </div>
+
+        <ol class="installSteps">
+          <li>Appuie sur <b>Partager</b> <span class="installPill">⤴︎</span></li>
+          <li>Choisis <b>Sur l’écran d’accueil</b></li>
+          <li>Appuie sur <b>Ajouter</b></li>
+        </ol>
+
+        <div class="installTip">
+          Astuce : ensuite LoSP s’ouvre comme une vraie app (plein écran).
+        </div>
+
+        <div class="installModalActions">
+          <button class="installBtn" type="button" data-close="1">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
       // glow "dynamique" au tap/clic (iOS friendly)
       (function () {
         const tiles = document.querySelectorAll(".homeTile");
@@ -87,55 +122,16 @@
         });
       })();
     </script>
-    <!-- Install Banner (iOS + Android) -->
-<div id="installBanner" class="installBanner" hidden>
-  <div class="installLeft">
-    <div class="installIcon" aria-hidden="true">⬇️</div>
-    <div class="installText">
-      <div class="installTitle">Installer LoSP</div>
-      <div id="installSub" class="installSub">Ajoute LoSP sur ton écran d’accueil.</div>
-    </div>
-  </div>
 
-  <div class="installActions">
-    <button id="installHow" class="installBtn installBtnGhost" type="button" hidden>Comment faire</button>
-    <button id="installNow" class="installBtn" type="button" hidden>Installer</button>
-    <button id="installClose" class="installClose" type="button" aria-label="Fermer">✕</button>
-  </div>
-</div>
+    <script src="./install-banner.js"></script>
 
-<!-- iOS How-to modal -->
-<div id="installModal" class="installModal" hidden>
-  <div class="installModalBackdrop" data-close="1"></div>
-  <div class="installModalCard" role="dialog" aria-modal="true" aria-labelledby="installModalTitle">
-    <div class="installModalTop">
-      <div id="installModalTitle" class="installModalTitle">Installer sur iPhone</div>
-      <button class="installClose" type="button" data-close="1" aria-label="Fermer">✕</button>
-    </div>
-
-    <ol class="installSteps">
-      <li>Appuie sur <b>Partager</b> <span class="installPill">⤴︎</span></li>
-      <li>Choisis <b>Sur l’écran d’accueil</b></li>
-      <li>Appuie sur <b>Ajouter</b></li>
-    </ol>
-
-    <div class="installTip">
-      Astuce : ensuite LoSP s’ouvre comme une vraie app (plein écran).
-    </div>
-
-    <div class="installModalActions">
-      <button class="installBtn" type="button" data-close="1">OK</button>
-    </div>
-  </div>
-</div>
-
-<script src="./install-banner.js?v=ts"></script>
-<script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch(console.error);
-    });
-  }
-</script>
+    <script>
+      // ✅ SW registration
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(console.error);
+        });
+      }
+    </script>
   </body>
 </html>
