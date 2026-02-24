@@ -9,7 +9,7 @@
     <meta name="theme-color" content="#0b0c0d" />
     <title>Accueil</title>
 
-    <!-- ✅ Pas de cache-bust en PWA (c'est le SW qui gère la version) -->
+    <!-- ✅ Pas de cache-bust en PWA (le SW gère la version) -->
     <link rel="stylesheet" href="./style.css" />
     <link rel="stylesheet" href="./home.css" />
 
@@ -72,7 +72,9 @@
       </div>
 
       <div class="installActions">
-        <button id="installHow" class="installBtn installBtnGhost" type="button" hidden>Comment faire</button>
+        <button id="installHow" class="installBtn installBtnGhost" type="button" hidden>
+          Comment faire
+        </button>
         <button id="installNow" class="installBtn" type="button" hidden>Installer</button>
         <button id="installClose" class="installClose" type="button" aria-label="Fermer">✕</button>
       </div>
@@ -81,7 +83,12 @@
     <!-- iOS How-to modal -->
     <div id="installModal" class="installModal" hidden>
       <div class="installModalBackdrop" data-close="1"></div>
-      <div class="installModalCard" role="dialog" aria-modal="true" aria-labelledby="installModalTitle">
+      <div
+        class="installModalCard"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="installModalTitle"
+      >
         <div class="installModalTop">
           <div id="installModalTitle" class="installModalTitle">Installer sur iPhone</div>
           <button class="installClose" type="button" data-close="1" aria-label="Fermer">✕</button>
@@ -93,9 +100,7 @@
           <li>Appuie sur <b>Ajouter</b></li>
         </ol>
 
-        <div class="installTip">
-          Astuce : ensuite LoSP s’ouvre comme une vraie app (plein écran).
-        </div>
+        <div class="installTip">Astuce : ensuite LoSP s’ouvre comme une vraie app (plein écran).</div>
 
         <div class="installModalActions">
           <button class="installBtn" type="button" data-close="1">OK</button>
@@ -126,12 +131,29 @@
     <script src="./install-banner.js"></script>
 
     <script>
-      // ✅ SW registration
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(console.error);
+      // ✅ SW registration + update + auto-reload when new SW takes control
+      (function () {
+        if (!("serviceWorker" in navigator)) return;
+
+        let reloading = false;
+
+        // Quand un nouveau SW prend le contrôle, on recharge une seule fois
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          if (reloading) return;
+          reloading = true;
+          window.location.reload();
         });
-      }
+
+        window.addEventListener("load", async () => {
+          try {
+            const reg = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+            // Force check update au chargement (utile sur iOS)
+            if (reg && typeof reg.update === "function") reg.update();
+          } catch (e) {
+            console.error(e);
+          }
+        });
+      })();
     </script>
   </body>
 </html>
