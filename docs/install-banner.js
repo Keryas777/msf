@@ -9,11 +9,11 @@
 
   if (!banner || !btnClose) return;
 
-  // =========================
+  // -------------------------
   // Storage (définitif)
-  // =========================
-  const KEY_DISMISSED = "losp_install_dismissed_v2"; // "1"
-  const KEY_INSTALLED = "losp_install_installed_v2"; // "1"
+  // -------------------------
+  const KEY_DISMISSED = "losp_install_dismissed_v3"; // "1"
+  const KEY_INSTALLED = "losp_install_installed_v3"; // "1"
 
   const safeGet = (k) => {
     try { return localStorage.getItem(k); } catch { return null; }
@@ -22,15 +22,14 @@
     try { localStorage.setItem(k, v); } catch {}
   };
 
+  const wasDismissed = () => safeGet(KEY_DISMISSED) === "1";
+  const wasInstalled = () => safeGet(KEY_INSTALLED) === "1";
   const markDismissed = () => safeSet(KEY_DISMISSED, "1");
   const markInstalled = () => safeSet(KEY_INSTALLED, "1");
 
-  const wasDismissed = () => safeGet(KEY_DISMISSED) === "1";
-  const wasInstalled = () => safeGet(KEY_INSTALLED) === "1";
-
-  // =========================
+  // -------------------------
   // Platform detection
-  // =========================
+  // -------------------------
   const isIOS = () => {
     const ua = navigator.userAgent || "";
     const iOSDevice = /iPad|iPhone|iPod/.test(ua);
@@ -40,19 +39,51 @@
 
   const isStandalone = () => {
     const iosStandalone = window.navigator.standalone === true;
-    const mqlStandalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
+    const mqlStandalone =
+      window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
     return iosStandalone || mqlStandalone;
   };
 
-  // =========================
+  // -------------------------
+  // UI helpers
+  // -------------------------
+  const hardHide = () => {
+    // Hidden attribute should be enough, but we harden it.
+    banner.hidden = true;
+    banner.style.display = "none";
+  };
+
+  const showShell = () => {
+    banner.style.display = ""; // reset if previously forced
+    banner.hidden = false;
+
+    if (btnHow) btnHow.hidden = true;
+    if (btnNow) btnNow.hidden = true;
+  };
+
+  const shouldNeverShow = () => {
+    if (wasInstalled()) return true;
+
+    // Si on est déjà en standalone -> on marque installé et on ne montre jamais
+    if (isStandalone()) {
+      markInstalled();
+      return true;
+    }
+
+    // Si l’utilisateur a fermé -> on ne montre jamais
+    if (wasDismissed()) return true;
+
+    return false;
+  };
+
+  // -------------------------
   // Modal
-  // =========================
+  // -------------------------
   const openModal = () => {
     if (!modal) return;
     modal.hidden = false;
     document.documentElement.style.overflow = "hidden";
   };
-
   const closeModal = () => {
     if (!modal) return;
     modal.hidden = true;
@@ -64,30 +95,9 @@
     if (t && t.getAttribute && t.getAttribute("data-close") === "1") closeModal();
   });
 
-  // =========================
-  // Visibility helpers
-  // =========================
-  const hideBanner = () => { banner.hidden = true; };
-
-  const showBannerShell = () => {
-    banner.hidden = false;
-    if (btnHow) btnHow.hidden = true;
-    if (btnNow) btnNow.hidden = true;
-  };
-
-  const shouldNeverShow = () => {
-    if (wasInstalled()) return true;
-    if (isStandalone()) {
-      markInstalled();
-      return true;
-    }
-    if (wasDismissed()) return true;
-    return false;
-  };
-
-  // =========================
-  // Stable handlers (no stacking)
-  // =========================
+  // -------------------------
+  // Android prompt
+  // -------------------------
   let deferredPrompt = null;
 
   const onAndroidInstallClick = async () => {
@@ -108,23 +118,34 @@
 
     if (res && res.outcome === "accepted") {
       markInstalled();
-      hideBanner();
+      hardHide();
     }
   };
 
-  const onIOSHowClick = () => {
-    banner.classList.add("isActive");
-    openModal();
-    setTimeout(() => banner.classList.remove("isActive"), 220);
-  };
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
 
-  // =========================
-  // Show logic
-  // =========================
-  const showBanner = (mode) => {
     if (shouldNeverShow()) return;
+    show("android");
+  });
 
-    showBannerShell();
+  window.addEventListener("appinstalled", () => {
+    deferredPrompt = null;
+    markInstalled();
+    hardHide();
+  });
+
+  // -------------------------
+  // Show logic
+  // -------------------------
+  const show = (mode) => {
+    if (shouldNeverShow()) {
+      hardHide();
+      return;
+    }
+
+    showShell();
 
     if (mode === "android") {
       if (sub) sub.textContent = "Installe LoSP en 1 clic (Android).";
@@ -133,56 +154,68 @@
       btnNow?.removeEventListener("click", onAndroidInstallClick);
       btnNow?.addEventListener("click", onAndroidInstallClick);
     } else {
+      // iOS
       if (sub) sub.textContent = "Ajoute LoSP sur ton écran d’accueil (iPhone/iPad).";
       if (btnHow) btnHow.hidden = false;
 
-      btnHow?.removeEventListener("click", onIOSHowClick);
-      btnHow?.addEventListener("click", onIOSHowClick);
+      const onHow = (ev) => {
+        ev?.preventDefault?.();
+        banner.classList.add("isActive");
+        openModal();
+        setTimeout(() => banner.classList.remove("isActive"), 220);
+      };
+
+      // Important : pas de {once:true} ici, sinon après un reload ça peut coincer selon cache/sw
+      btnHow?.onclick = null;
+      btnHow?.addEventListener("click", onHow);
+      btnHow?.addEventListener("touchend", onHow, { passive: false });
     }
   };
 
-  // =========================
-  // Close banner => remember forever
-  // =========================
-  btnClose.addEventListener("click", () => {
+  // -------------------------
+  // Close handler (iOS safe)
+  // -------------------------
+  const onClose = (ev) => {
+    ev?.preventDefault?.();
+    ev?.stopPropagation?.();
     markDismissed();
-    hideBanner();
-  });
+    closeModal();
+    hardHide();
+  };
 
-  // If display-mode flips after A2HS, mark installed
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible" && isStandalone()) {
+  // triple-binding robuste iOS
+  btnClose.addEventListener("click", onClose);
+  btnClose.addEventListener("pointerup", onClose);
+  btnClose.addEventListener("touchend", onClose, { passive: false });
+
+  // -------------------------
+  // If user comes back and it's now standalone, mark installed
+  // -------------------------
+  const recheckStandalone = () => {
+    if (isStandalone()) {
       markInstalled();
-      hideBanner();
+      hardHide();
     }
+  };
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") recheckStandalone();
   });
+  window.addEventListener("focus", recheckStandalone);
 
-  // =========================
-  // Android prompt hooks
-  // =========================
-  window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-
-    if (shouldNeverShow()) return;
-    showBanner("android");
-  });
-
-  window.addEventListener("appinstalled", () => {
-    deferredPrompt = null;
-    markInstalled();
-    hideBanner();
-  });
-
-  // =========================
-  // Initial check (home)
-  // =========================
+  // -------------------------
+  // Init
+  // -------------------------
   if (shouldNeverShow()) {
-    hideBanner();
+    hardHide();
     return;
   }
 
   // iOS: show immediately
-  if (isIOS()) showBanner("ios");
+  if (isIOS()) {
+    // petite tempo pour éviter les “click weirdness” juste au load
+    setTimeout(() => show("ios"), 250);
+    return;
+  }
+
   // Android: wait for beforeinstallprompt
 })();
