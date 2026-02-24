@@ -130,6 +130,10 @@
     0 0 22px rgba(120,170,255,.22);
 }
 
+.installPill svg{
+  display:block;
+}
+
 /* ===== iOS Modal ===== */
 .installModal{
   position: fixed;
