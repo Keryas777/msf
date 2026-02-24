@@ -1,4 +1,3 @@
-// docs/install-banner.js
 (() => {
   const banner = document.getElementById("installBanner");
   const btnHow = document.getElementById("installHow");
@@ -9,15 +8,16 @@
 
   if (!banner || !btnClose) return;
 
-  // -------------------------
-  // Storage (définitif)
-  // -------------------------
-  const KEY_DISMISSED = "losp_install_dismissed_v3"; // "1"
-  const KEY_INSTALLED = "losp_install_installed_v3"; // "1"
+  // =========================
+  // Storage
+  // =========================
+  const KEY_DISMISSED = "losp_install_dismissed_v4";
+  const KEY_INSTALLED = "losp_install_installed_v4";
 
   const safeGet = (k) => {
     try { return localStorage.getItem(k); } catch { return null; }
   };
+
   const safeSet = (k, v) => {
     try { localStorage.setItem(k, v); } catch {}
   };
@@ -27,63 +27,58 @@
   const markDismissed = () => safeSet(KEY_DISMISSED, "1");
   const markInstalled = () => safeSet(KEY_INSTALLED, "1");
 
-  // -------------------------
-  // Platform detection
-  // -------------------------
+  // =========================
+  // Platform
+  // =========================
   const isIOS = () => {
     const ua = navigator.userAgent || "";
-    const iOSDevice = /iPad|iPhone|iPod/.test(ua);
-    const iPadOS = navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
-    return iOSDevice || iPadOS;
+    return /iPad|iPhone|iPod/.test(ua) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   };
 
   const isStandalone = () => {
-    const iosStandalone = window.navigator.standalone === true;
-    const mqlStandalone =
-      window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
-    return iosStandalone || mqlStandalone;
+    return window.navigator.standalone === true ||
+      (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
   };
 
-  // -------------------------
+  // =========================
   // UI helpers
-  // -------------------------
-  const hardHide = () => {
-    // Hidden attribute should be enough, but we harden it.
+  // =========================
+  const hide = () => {
     banner.hidden = true;
     banner.style.display = "none";
   };
 
   const showShell = () => {
-    banner.style.display = ""; // reset if previously forced
+    banner.style.display = "";
     banner.hidden = false;
 
     if (btnHow) btnHow.hidden = true;
     if (btnNow) btnNow.hidden = true;
   };
 
-  const shouldNeverShow = () => {
+  const shouldHideForever = () => {
     if (wasInstalled()) return true;
 
-    // Si on est déjà en standalone -> on marque installé et on ne montre jamais
     if (isStandalone()) {
       markInstalled();
       return true;
     }
 
-    // Si l’utilisateur a fermé -> on ne montre jamais
     if (wasDismissed()) return true;
 
     return false;
   };
 
-  // -------------------------
+  // =========================
   // Modal
-  // -------------------------
+  // =========================
   const openModal = () => {
     if (!modal) return;
     modal.hidden = false;
     document.documentElement.style.overflow = "hidden";
   };
+
   const closeModal = () => {
     if (!modal) return;
     modal.hidden = true;
@@ -91,16 +86,28 @@
   };
 
   modal?.addEventListener("click", (e) => {
-    const t = e.target;
-    if (t && t.getAttribute && t.getAttribute("data-close") === "1") closeModal();
+    if (e.target?.dataset?.close === "1") closeModal();
   });
 
-  // -------------------------
-  // Android prompt
-  // -------------------------
+  // =========================
+  // Android install
+  // =========================
   let deferredPrompt = null;
 
-  const onAndroidInstallClick = async () => {
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+    if (shouldHideForever()) return;
+    show("android");
+  });
+
+  window.addEventListener("appinstalled", () => {
+    markInstalled();
+    hide();
+  });
+
+  const onAndroidInstall = async () => {
     if (!deferredPrompt) return;
 
     banner.classList.add("isActive");
@@ -109,113 +116,83 @@
     let res = null;
     try {
       res = await deferredPrompt.userChoice;
-    } catch {
-      res = null;
-    }
+    } catch {}
 
-    deferredPrompt = null;
     banner.classList.remove("isActive");
+    deferredPrompt = null;
 
-    if (res && res.outcome === "accepted") {
+    if (res?.outcome === "accepted") {
       markInstalled();
-      hardHide();
+      hide();
     }
   };
 
-  window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-
-    if (shouldNeverShow()) return;
-    show("android");
-  });
-
-  window.addEventListener("appinstalled", () => {
-    deferredPrompt = null;
-    markInstalled();
-    hardHide();
-  });
-
-  // -------------------------
+  // =========================
   // Show logic
-  // -------------------------
+  // =========================
   const show = (mode) => {
-    if (shouldNeverShow()) {
-      hardHide();
+    if (shouldHideForever()) {
+      hide();
       return;
     }
 
     showShell();
 
     if (mode === "android") {
-      if (sub) sub.textContent = "Installe LoSP en 1 clic (Android).";
-      if (btnNow) btnNow.hidden = false;
-
-      btnNow?.removeEventListener("click", onAndroidInstallClick);
-      btnNow?.addEventListener("click", onAndroidInstallClick);
+      sub && (sub.textContent = "Installe LoSP en 1 clic (Android).");
+      if (btnNow) {
+        btnNow.hidden = false;
+        btnNow.onclick = onAndroidInstall;
+      }
     } else {
       // iOS
-      if (sub) sub.textContent = "Ajoute LoSP sur ton écran d’accueil (iPhone/iPad).";
-      if (btnHow) btnHow.hidden = false;
+      sub && (sub.textContent = "Ajoute LoSP sur ton écran d’accueil (iPhone/iPad).");
 
-      const onHow = (ev) => {
-        ev?.preventDefault?.();
-        banner.classList.add("isActive");
-        openModal();
-        setTimeout(() => banner.classList.remove("isActive"), 220);
-      };
-
-      // Important : pas de {once:true} ici, sinon après un reload ça peut coincer selon cache/sw
-      btnHow?.onclick = null;
-      btnHow?.addEventListener("click", onHow);
-      btnHow?.addEventListener("touchend", onHow, { passive: false });
+      if (btnHow) {
+        btnHow.hidden = false;
+        btnHow.onclick = () => {
+          banner.classList.add("isActive");
+          openModal();
+          setTimeout(() => banner.classList.remove("isActive"), 200);
+        };
+      }
     }
   };
 
-  // -------------------------
-  // Close handler (iOS safe)
-  // -------------------------
-  const onClose = (ev) => {
-    ev?.preventDefault?.();
-    ev?.stopPropagation?.();
+  // =========================
+  // Close button (FIX iOS)
+  // =========================
+  btnClose.onclick = () => {
     markDismissed();
     closeModal();
-    hardHide();
+    hide();
   };
 
-  // triple-binding robuste iOS
-  btnClose.addEventListener("click", onClose);
-  btnClose.addEventListener("pointerup", onClose);
-  btnClose.addEventListener("touchend", onClose, { passive: false });
-
-  // -------------------------
-  // If user comes back and it's now standalone, mark installed
-  // -------------------------
-  const recheckStandalone = () => {
+  // =========================
+  // Re-check (retour depuis ajout écran)
+  // =========================
+  const recheck = () => {
     if (isStandalone()) {
       markInstalled();
-      hardHide();
+      hide();
     }
   };
+
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") recheckStandalone();
+    if (document.visibilityState === "visible") recheck();
   });
-  window.addEventListener("focus", recheckStandalone);
 
-  // -------------------------
+  window.addEventListener("focus", recheck);
+
+  // =========================
   // Init
-  // -------------------------
-  if (shouldNeverShow()) {
-    hardHide();
+  // =========================
+  if (shouldHideForever()) {
+    hide();
     return;
   }
 
-  // iOS: show immediately
   if (isIOS()) {
-    // petite tempo pour éviter les “click weirdness” juste au load
-    setTimeout(() => show("ios"), 250);
-    return;
+    setTimeout(() => show("ios"), 300);
   }
-
-  // Android: wait for beforeinstallprompt
 })();
