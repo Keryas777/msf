@@ -83,6 +83,7 @@
     <!-- iOS How-to modal -->
     <div id="installModal" class="installModal" hidden>
       <div class="installModalBackdrop" data-close="1"></div>
+
       <div
         class="installModalCard"
         role="dialog"
@@ -95,13 +96,16 @@
         </div>
 
         <ol class="installSteps">
-          <li>Appuie sur <b>Partager</b> <span class="installPill">
-  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-    <path d="M12 16V4"></path>
-    <path d="M8 8l4-4 4 4"></path>
-    <rect x="4" y="12" width="16" height="8" rx="2"></rect>
-  </svg>
-</span>
+          <li>
+            Appuie sur <b>Partager</b>
+            <span class="installPill" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 16V4"></path>
+                <path d="M8 8l4-4 4 4"></path>
+                <rect x="4" y="12" width="16" height="8" rx="2"></rect>
+              </svg>
+            </span>
+          </li>
           <li>Choisis <b>Sur l’écran d’accueil</b></li>
           <li>Appuie sur <b>Ajouter</b></li>
         </ol>
@@ -143,7 +147,6 @@
 
         let reloading = false;
 
-        // Quand un nouveau SW prend le contrôle, on recharge une seule fois
         navigator.serviceWorker.addEventListener("controllerchange", () => {
           if (reloading) return;
           reloading = true;
@@ -153,7 +156,6 @@
         window.addEventListener("load", async () => {
           try {
             const reg = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
-            // Force check update au chargement (utile sur iOS)
             if (reg && typeof reg.update === "function") reg.update();
           } catch (e) {
             console.error(e);
