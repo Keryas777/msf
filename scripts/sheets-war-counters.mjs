@@ -2,23 +2,16 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const SHEET_ID = process.env.SHEET_ID;
-const SHEET_TAB = process.env.SHEET_TAB || "WarCounters";
+// ✅ Option 1 (recommandée) : lien CSV "Publié sur le Web"
+// Tu peux soit le laisser en dur ici, soit le passer via une variable d'env CSV_URL.
+const DEFAULT_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYKGvuHFRrB59aW6oMHBVFTRBdHhxxZP76YmwlpedoepMftwst1MfCwLg7pMLCPsGOpSrADdLzntQH/pub?gid=1440171156&single=true&output=csv";
+
+// ✅ Optionnel : si tu veux le surcharger via GitHub Actions
+const CSV_URL = process.env.CSV_URL || DEFAULT_CSV_URL;
+
+// (On garde ces options-là, utiles)
 const OUT_FILE = process.env.OUT_FILE || "docs/data/war-counters.json";
-
-if (!SHEET_ID) {
-  console.error("❌ Missing env SHEET_ID.");
-  process.exit(1);
-}
-
-function csvUrl(sheetId, tabName) {
-  const base = `https://docs.google.com/spreadsheets/d/${encodeURIComponent(sheetId)}/gviz/tq`;
-  const params = new URLSearchParams({
-    tqx: "out:csv",
-    sheet: tabName,
-  });
-  return `${base}?${params.toString()}`;
-}
 
 // ------- CSV parser char-by-char (gère \n, \r\n, \r + guillemets) -------
 function parseCsvWithDelimiter(text, delim) {
@@ -184,7 +177,8 @@ function isTotallyEmptyRow(obj) {
 }
 
 async function main() {
-  const url = csvUrl(SHEET_ID, SHEET_TAB);
+  // ✅ ICI : on utilise ton CSV publié sur le web
+  const url = CSV_URL;
   console.log(`[war-counters] Fetch CSV: ${url}`);
 
   const res = await fetch(url, { cache: "no-store" });
@@ -196,11 +190,11 @@ async function main() {
     process.exit(1);
   }
 
-  // HTML guard
+  // HTML guard (si Google renvoie une page au lieu du CSV)
   const head = text.slice(0, 400).toLowerCase();
   if (head.includes("<html") || head.includes("<!doctype") || head.includes("accounts.google.com")) {
     console.error("❌ The response looks like HTML (not CSV).");
-    console.error("➡️ Make sure the Google Sheet is readable publicly or published to the web.");
+    console.error("➡️ Check that your 'Publish to web' link outputs CSV.");
     console.error(text.slice(0, 600));
     process.exit(1);
   }
