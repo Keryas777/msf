@@ -43,171 +43,6 @@
   to{ transform: translateY(0); opacity: 1; }
 }
 
-.installLeft{
-  display:flex;
-  align-items:center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.installIcon{
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.12);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
-  flex: 0 0 auto;
-}
-
-.installText{ min-width:0; }
-.installTitle{
-  font-weight: 900;
-  font-size: 14px;
-  line-height: 1.1;
-}
-.installSub{
-  margin-top: 2px;
-  color: rgba(255,255,255,.70);
-  font-size: 12.5px;
-  line-height: 1.2;
-}
-
-.installActions{
-  display:flex;
-  align-items:center;
-  gap: 8px;
-  flex: 0 0 auto;
-}
-
-.installBtn{
-  border: 1px solid rgba(255,255,255,.18);
-  background: rgba(255,255,255,.10);
-  color: rgba(255,255,255,.92);
-  border-radius: 999px;
-  padding: 9px 12px;
-  font-weight: 900;
-  font-size: 13px;
-  cursor: pointer;
-  transition: .18s;
-  white-space: nowrap;
-}
-
-.installBtn:hover{
-  background: rgba(255,255,255,.16);
-  border-color: rgba(255,255,255,.26);
-  transform: translateY(-1px);
-}
-
-.installBtnGhost{
-  background: rgba(0,0,0,.18);
-}
-
-.installClose{
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(0,0,0,.18);
-  color: rgba(255,255,255,.90);
-  font-weight: 900;
-  cursor: pointer;
-  transition: .18s;
-}
-
-.installClose:hover{
-  background: rgba(255,255,255,.10);
-  border-color: rgba(255,255,255,.26);
-}
-
-.installBanner.isActive{
-  box-shadow:
-    0 18px 52px rgba(0,0,0,.60),
-    0 0 22px rgba(120,170,255,.22);
-}
-
-.installPill svg{
-  display:block;
-}
-
-/* ===== iOS Modal ===== */
-.installModal{
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-}
-
-.installModalBackdrop{
-  position:absolute;
-  inset:0;
-  background: rgba(0,0,0,.55);
-  backdrop-filter: blur(2px);
-}
-
-.installModalCard{
-  position:absolute;
-  left: 12px;
-  right: 12px;
-  bottom: calc(12px + env(safe-area-inset-bottom));
-
-  background: rgba(12,13,14,.90);
-  border: 1px solid rgba(255,255,255,.14);
-  border-radius: 18px;
-  box-shadow: 0 18px 60px rgba(0,0,0,.65);
-
-  padding: 12px;
-}
-
-.installModalTop{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap: 10px;
-}
-
-.installModalTitle{
-  font-weight: 900;
-  font-size: 16px;
-}
-
-.installSteps{
-  margin: 12px 0 10px 18px;
-  color: rgba(255,255,255,.88);
-}
-
-.installSteps li{
-  margin: 6px 0;
-  line-height: 1.25;
-}
-
-.installPill{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.06);
-  font-weight: 900;
-}
-
-.installTip{
-  color: rgba(255,255,255,.70);
-  font-size: 12.5px;
-  line-height: 1.2;
-  margin-top: 6px;
-}
-
-.installModalActions{
-  margin-top: 12px;
-  display:flex;
-  justify-content:flex-end;
-}
-
 /* ===== Header banner ===== */
 .homeHeader{
   position: relative;
@@ -233,7 +68,7 @@
   margin-top: 16px;
 }
 
-/* ===== TUILES (images) ===== */
+/* ===== TUILES ===== */
 .homeTile{
   position: relative;
   display:block;
@@ -251,22 +86,19 @@
 
   transform: translateZ(0);
   transition: transform .18s ease, filter .18s ease, border-color .18s ease;
-  -webkit-tap-highlight-color: transparent;
 
-  /* halos (par défaut) */
-  --glow: rgba(255,255,255,.20);
-  --glow-strong: rgba(255,255,255,.50);
+  /* glow par défaut */
+  --glow: rgba(255,255,255,.25);
+  --glow-strong: rgba(255,255,255,.60);
 }
 
 .homeTileImg{
   width: 100%;
   height: 100%;
-  display:block;
   object-fit: cover;
-  object-position: center;
 }
 
-/* Halo “de base” : plus visible + double couche légère */
+/* ===== HALO BASE ===== */
 .homeTile::after{
   content:"";
   position:absolute;
@@ -275,67 +107,71 @@
   pointer-events:none;
 
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.12),
-    0 0 14px rgba(0,0,0,0),
-    0 0 24px rgba(0,0,0,0);
+    inset 0 0 0 1px rgba(255,255,255,.14),
+    0 0 12px rgba(0,0,0,0),
+    0 0 28px rgba(0,0,0,0);
 
-  transition: box-shadow .18s ease, opacity .18s ease;
   opacity: .98;
+  transition: all .18s ease;
 }
 
+/* ===== HOVER ===== */
 .homeTile:hover{
-  transform: translateY(-2px) scale(1.01);
-  border-color: rgba(255,255,255,.30);
-  filter: brightness(1.08) contrast(1.04);
-}
-
-/* Hover : halo plus large + triple couche (vrai “glow”) */
-.homeTile:hover::after{
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.16),
-    0 0 22px var(--glow),
-    0 0 48px var(--glow),
-    0 0 84px rgba(0,0,0,0);
-}
-
-.homeTile:active{
-  transform: translateY(0px) scale(.99);
+  transform: translateY(-2px) scale(1.02);
+  border-color: rgba(255,255,255,.32);
   filter: brightness(1.10) contrast(1.05);
 }
 
-/* Pressed/active : halo “néon” bien marqué + plus épais */
-.homeTile.is-pressed::after,
-.homeTile:active::after{
+.homeTile:hover::after{
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.20),
-    0 0 28px var(--glow-strong),
-    0 0 64px var(--glow-strong),
-    0 0 110px var(--glow-strong);
+    inset 0 0 0 1px rgba(255,255,255,.18),
+    0 0 24px var(--glow),
+    0 0 56px var(--glow),
+    0 0 90px var(--glow);
 }
 
-/* ===== Couleurs par tuile ===== */
-/* ✅ Orange -> jaune-orangé (amber) pour ne plus se confondre avec le rouge */
+/* ===== ACTIVE ===== */
+.homeTile:active{
+  transform: scale(.98);
+  filter: brightness(1.12);
+}
+
+.homeTile:active::after,
+.homeTile.is-pressed::after{
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.22),
+    0 0 32px var(--glow-strong),
+    0 0 72px var(--glow-strong),
+    0 0 120px var(--glow-strong);
+}
+
+/* ===== COULEURS ===== */
+
+/* 🔥 JAUNE / AMBER (remplace ton orange) */
 .homeTile--contres{
-  --glow: rgba(255, 210, 60, .50);        /* amber */
-  --glow-strong: rgba(255, 210, 60, .82); /* punchy */
+  --glow: rgba(255, 215, 60, .65);
+  --glow-strong: rgba(255, 215, 60, .95);
 }
 
+/* 🔵 BLEU */
 .homeTile--classement{
-  --glow: rgba(60,170,255,.46);
-  --glow-strong: rgba(60,170,255,.78);
+  --glow: rgba(60,170,255,.55);
+  --glow-strong: rgba(60,170,255,.90);
 }
 
+/* 🟣 VIOLET */
 .homeTile--iso{
-  --glow: rgba(175,90,255,.46);
-  --glow-strong: rgba(175,90,255,.78);
+  --glow: rgba(175,90,255,.55);
+  --glow-strong: rgba(175,90,255,.90);
 }
 
+/* ===== RESPONSIVE ===== */
 @media (max-width: 420px){
   .homeHeader{ height: 120px; }
   .homeTile{ border-radius: 20px; }
 }
 
+/* ===== ACCESSIBILITÉ ===== */
 @media (prefers-reduced-motion: reduce){
   .homeTile, .homeTile::after{ transition: none !important; }
-  .installBanner{ animation: none !important; transform: none; opacity: 1; }
 }
