@@ -255,7 +255,7 @@
 
   /* halos (par défaut) */
   --glow: rgba(255,255,255,.20);
-  --glow-strong: rgba(255,255,255,.48);
+  --glow-strong: rgba(255,255,255,.50);
 }
 
 .homeTileImg{
@@ -266,7 +266,7 @@
   object-position: center;
 }
 
-/* Halo “de base” un peu plus présent qu’avant */
+/* Halo “de base” : plus visible + double couche légère */
 .homeTile::after{
   content:"";
   position:absolute;
@@ -275,56 +275,59 @@
   pointer-events:none;
 
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.10),
-    0 0 10px rgba(0,0,0,0);
+    inset 0 0 0 1px rgba(255,255,255,.12),
+    0 0 14px rgba(0,0,0,0),
+    0 0 24px rgba(0,0,0,0);
 
   transition: box-shadow .18s ease, opacity .18s ease;
-  opacity: .97;
+  opacity: .98;
 }
 
 .homeTile:hover{
   transform: translateY(-2px) scale(1.01);
-  border-color: rgba(255,255,255,.26);
-  filter: brightness(1.06) contrast(1.03);
+  border-color: rgba(255,255,255,.30);
+  filter: brightness(1.08) contrast(1.04);
 }
 
-/* Hover = halo plus large + double couche (plus “marqué”) */
+/* Hover : halo plus large + triple couche (vrai “glow”) */
 .homeTile:hover::after{
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.14),
-    0 0 18px var(--glow),
-    0 0 36px var(--glow);
+    inset 0 0 0 1px rgba(255,255,255,.16),
+    0 0 22px var(--glow),
+    0 0 48px var(--glow),
+    0 0 84px rgba(0,0,0,0);
 }
 
 .homeTile:active{
   transform: translateY(0px) scale(.99);
-  filter: brightness(1.08) contrast(1.04);
+  filter: brightness(1.10) contrast(1.05);
 }
 
-/* Pressed/active = halo encore plus fort */
+/* Pressed/active : halo “néon” bien marqué + plus épais */
 .homeTile.is-pressed::after,
 .homeTile:active::after{
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.18),
-    0 0 26px var(--glow-strong),
-    0 0 52px var(--glow-strong);
+    inset 0 0 0 1px rgba(255,255,255,.20),
+    0 0 28px var(--glow-strong),
+    0 0 64px var(--glow-strong),
+    0 0 110px var(--glow-strong);
 }
 
 /* ===== Couleurs par tuile ===== */
-/* ✅ Orange -> plus jaune (amber) pour mieux se différencier du rouge */
+/* ✅ Orange -> jaune-orangé (amber) pour ne plus se confondre avec le rouge */
 .homeTile--contres{
-  --glow: rgba(255, 200, 40, .42);        /* jaune-orangé */
-  --glow-strong: rgba(255, 200, 40, .70); /* plus punchy */
+  --glow: rgba(255, 210, 60, .50);        /* amber */
+  --glow-strong: rgba(255, 210, 60, .82); /* punchy */
 }
 
 .homeTile--classement{
-  --glow: rgba(60,170,255,.40);
-  --glow-strong: rgba(60,170,255,.68);
+  --glow: rgba(60,170,255,.46);
+  --glow-strong: rgba(60,170,255,.78);
 }
 
 .homeTile--iso{
-  --glow: rgba(175,90,255,.40);
-  --glow-strong: rgba(175,90,255,.68);
+  --glow: rgba(175,90,255,.46);
+  --glow-strong: rgba(175,90,255,.78);
 }
 
 @media (max-width: 420px){
