@@ -1,6 +1,6 @@
 /* HeaderHome.webp (bannière) + tuiles image + glow dynamique */
 
-/* Accessibilité */
+/* Accessibilité (texte masqué) */
 .srOnly{
   position:absolute !important;
   width:1px; height:1px;
@@ -11,7 +11,7 @@
   border:0;
 }
 
-/* ===== Install banner ===== */
+/* ===== Install banner (iOS + Android) ===== */
 .installBanner{
   position: fixed;
   left: 12px;
@@ -24,18 +24,15 @@
   justify-content:space-between;
   gap: 12px;
 
-  padding: 12px;
+  padding: 12px 12px;
   border-radius: 18px;
 
-  background: rgba(10,11,12,.82);
-  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(10,11,12,.78);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 16px 44px rgba(0,0,0,.55);
 
-  box-shadow:
-    0 18px 50px rgba(0,0,0,.65),
-    0 0 24px rgba(120,170,255,.25);
-
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 
   transform: translateY(18px);
   opacity: 0;
@@ -46,14 +43,19 @@
   to{ transform: translateY(0); opacity: 1; }
 }
 
-/* ===== Header ===== */
+/* ===== Header banner ===== */
 .homeHeader{
   position: relative;
+  padding: 0;
   border-radius: 18px;
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 
-  background: url("./HeaderHome.webp") center/cover no-repeat;
+  background-image: url("./HeaderHome.webp");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+
   height: 140px;
   overflow: hidden;
 }
@@ -73,31 +75,30 @@
   border-radius: 22px;
   overflow: hidden;
 
-  border: 1px solid rgba(255,255,255,.10);
-  background: rgba(0,0,0,.22);
-
-  box-shadow:
-    0 10px 28px rgba(0,0,0,.55);
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.18);
+  box-shadow: var(--shadow);
 
   text-decoration:none;
   color: var(--text);
 
   aspect-ratio: 1 / 1;
 
+  transform: translateZ(0);
   transition: transform .18s ease, filter .18s ease, border-color .18s ease;
 
-  /* glow global (plus lumineux) */
-  --glow: rgba(255,255,255,.35);
-  --glow-strong: rgba(255,255,255,.85);
+  /* Glow par défaut (plus fort qu’avant) */
+  --glow: rgba(255,255,255,.30);
+  --glow-strong: rgba(255,255,255,.75);
 }
 
 .homeTileImg{
-  width:100%;
-  height:100%;
-  object-fit:cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-/* ===== HALO BASE (VISIBLE MEME SANS HOVER) ===== */
+/* ===== HALO BASE (déjà visible, double couche) ===== */
 .homeTile::after{
   content:"";
   position:absolute;
@@ -105,63 +106,66 @@
   border-radius: inherit;
   pointer-events:none;
 
+  /* Base = on le voit même sans hover */
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.18),
+    inset 0 0 0 1px rgba(255,255,255,.16),
     0 0 18px var(--glow),
-    0 0 42px var(--glow);
+    0 0 42px rgba(0,0,0,0);
 
-  opacity:.9;
-  transition: all .18s ease;
+  opacity: .99;
+  transition: box-shadow .18s ease, opacity .18s ease;
 }
 
-/* ===== HOVER ===== */
+/* ===== HOVER (triple couche LARGE) ===== */
 .homeTile:hover{
-  transform: translateY(-3px) scale(1.03);
-  border-color: rgba(255,255,255,.35);
-  filter: brightness(1.15) contrast(1.08);
+  transform: translateY(-2px) scale(1.02);
+  border-color: rgba(255,255,255,.38);
+  filter: brightness(1.12) contrast(1.06);
 }
 
 .homeTile:hover::after{
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.22),
-    0 0 28px var(--glow),
-    0 0 64px var(--glow),
-    0 0 110px var(--glow);
+    inset 0 0 0 1px rgba(255,255,255,.20),
+    0 0 26px var(--glow),
+    0 0 72px var(--glow),
+    0 0 140px var(--glow);
 }
 
-/* ===== ACTIVE ===== */
+/* ===== ACTIVE (néon ultra visible) ===== */
 .homeTile:active{
-  transform: scale(.97);
-  filter: brightness(1.18);
+  transform: scale(.985);
+  filter: brightness(1.14) contrast(1.06);
 }
 
 .homeTile:active::after,
 .homeTile.is-pressed::after{
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.25),
-    0 0 36px var(--glow-strong),
-    0 0 80px var(--glow-strong),
-    0 0 140px var(--glow-strong);
+    inset 0 0 0 1px rgba(255,255,255,.24),
+    0 0 34px var(--glow-strong),
+    0 0 96px var(--glow-strong),
+    0 0 180px var(--glow-strong),
+    0 0 260px var(--glow-strong);
 }
 
 /* ===== COULEURS ===== */
 
-/* 🟡 JAUNE NÉON (vrai jaune, plus froid → séparation totale du rouge) */
+/* ⭐ VRAI JAUNE (pas orange) : très distinct du rouge */
 .homeTile--contres{
-  --glow: rgba(255, 235, 80, .85);
+  /* jaune clair lumineux */
+  --glow: rgba(255, 245, 120, .80);
   --glow-strong: rgba(255, 245, 120, 1);
 }
 
-/* 🔵 BLEU NÉON */
+/* 🔵 BLEU */
 .homeTile--classement{
-  --glow: rgba(80,190,255,.70);
-  --glow-strong: rgba(120,210,255,1);
+  --glow: rgba(80, 190, 255, .70);
+  --glow-strong: rgba(80, 190, 255, .98);
 }
 
-/* 🟣 VIOLET NÉON */
+/* 🟣 VIOLET */
 .homeTile--iso{
-  --glow: rgba(190,110,255,.70);
-  --glow-strong: rgba(210,140,255,1);
+  --glow: rgba(190, 110, 255, .70);
+  --glow-strong: rgba(190, 110, 255, .98);
 }
 
 /* ===== RESPONSIVE ===== */
@@ -172,7 +176,5 @@
 
 /* ===== ACCESSIBILITÉ ===== */
 @media (prefers-reduced-motion: reduce){
-  .homeTile, .homeTile::after{
-    transition: none !important;
-  }
+  .homeTile, .homeTile::after{ transition: none !important; }
 }
