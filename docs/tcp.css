@@ -1,0 +1,393 @@
+:root{
+  --bg: #070809;
+  --panel: rgba(20,22,24,.72);
+  --panel2: rgba(20,22,24,.62);
+  --border: rgba(255,255,255,.10);
+  --text: rgba(255,255,255,.92);
+  --muted: rgba(255,255,255,.65);
+  --muted2: rgba(255,255,255,.50);
+  --shadow: 0 8px 24px rgba(0,0,0,.45);
+
+  --toggle-on-bg: rgba(255,255,255,.14);
+  --toggle-on-border: rgba(255,255,255,.22);
+  --toggle-off-bg: rgba(0,0,0,.18);
+  --toggle-off-border: rgba(255,255,255,.12);
+  --toggle-off-text: rgba(255,255,255,.86);
+}
+
+*{ box-sizing:border-box; }
+
+html, body{
+  margin:0;
+  color: var(--text);
+  background: var(--bg);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
+body{ touch-action: pan-y; }
+
+/* ===== Fond noir + filigranes aigles ===== */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  background:
+    radial-gradient(1200px 700px at 10% 0%, rgba(255,255,255,.06), transparent 60%),
+    radial-gradient(1200px 700px at 90% 30%, rgba(255,255,255,.05), transparent 60%),
+    radial-gradient(900px 600px at 50% 100%, rgba(255,255,255,.04), transparent 60%),
+    linear-gradient(180deg, #060708, #090a0c 60%, #050607);
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.12;
+  background-image: url("./00E91333-9E9F-44E5-9BE4-93AA78D3B650.png");
+  background-repeat: repeat;
+  background-size: 420px 420px;
+  background-position: 0 0;
+}
+
+@supports not (background-image: url("./x.webp")) {
+  body::after{ background-image: url("./eagle-pattern.min.png"); }
+}
+
+/* ===== App layout ===== */
+.app{
+  padding: 12px;
+  display:flex;
+  flex-direction:column;
+  gap: 14px;
+  max-width: 100%;
+}
+
+/* ===== Header ===== */
+.header{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  backdrop-filter: blur(10px);
+  background: rgba(8,9,10,.72);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px 14px;
+
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  justify-content:space-between;
+
+  position: relative;
+}
+
+/* bouton home */
+.homeBtn{
+  position:absolute;
+  top:12px;
+  left:12px;
+  z-index:20;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  width:36px;
+  height:36px;
+  border-radius:12px;
+
+  border:1px solid var(--border);
+  background: rgba(0,0,0,.45);
+  color: var(--text);
+  text-decoration:none;
+  font-size:18px;
+  font-weight:900;
+
+  backdrop-filter: blur(6px);
+  transition:.15s;
+}
+.homeBtn:hover{
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.25);
+}
+
+.headerLeft{ min-width: 0; text-align: center; flex: 1 1 auto; }
+
+.title{
+  margin:0;
+  font-weight: 900;
+  letter-spacing: .2px;
+  line-height: 1.05;
+  font-size: 24px;
+  text-align: center;
+}
+
+.subtitle{
+  margin: 10px 0 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.25;
+  text-align: center;
+}
+
+/* ===== Cards ===== */
+.card{
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 12px;
+  box-shadow: var(--shadow);
+  max-width: 100%;
+}
+
+.cardHeader{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom: 10px;
+}
+
+/* Chip count */
+.chipCount{
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.22);
+  border-radius: 999px;
+
+  padding: 6px 10px;
+  color: var(--muted);
+  font-weight: 800;
+
+  min-width: 44px;
+  text-align: center;
+
+  font-size: 13px;
+  line-height: 1.1;
+}
+
+/* ===== Filtres alliances ===== */
+.filtersCard{ padding: 10px 12px; }
+
+.filters{
+  display:flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.filterToggle{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid var(--toggle-off-border);
+  border-radius: 999px;
+  padding: 10px 12px;
+  background: var(--toggle-off-bg);
+  font-weight: 900;
+  user-select:none;
+  min-width: 0;
+  flex: 1 1 0;
+  justify-content: center;
+  color: var(--toggle-off-text);
+}
+
+.filterToggle input{
+  width: 18px;
+  height: 18px;
+  accent-color: #b8ff7a;
+}
+
+.fStack{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap: 4px;
+  line-height: 1.05;
+}
+.fEmoji{ font-size: 18px; line-height: 1; }
+.fName{ font-size: 13px; }
+
+.filterToggle:has(input:checked){
+  background: var(--toggle-on-bg);
+  border-color: var(--toggle-on-border);
+}
+
+/* ===== Ranking TCP ===== */
+.players{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
+
+.rankRow{
+  display:grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items:center;
+  gap: 10px;
+
+  border:1px solid var(--border);
+  border-radius: 16px;
+  padding: 10px 12px 10px 10px;
+  background: rgba(0,0,0,.22);
+}
+
+.rankLeft{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.rankNum{
+  width: 22px;
+  text-align:right;
+  color: var(--muted);
+  font-weight: 900;
+  flex: 0 0 auto;
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* Avatar = icon + frame superposé */
+.rankAvatar{
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  overflow: hidden;
+  flex: 0 0 auto;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+}
+
+.rankAvatarIcon,
+.rankAvatarFrame{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  display:block;
+}
+
+.rankAvatarFrame{
+  pointer-events:none;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,.55));
+}
+
+/* Centre = emoji alliance + nom */
+.rankCenter{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.rankEmoji{
+  font-size: 18px;
+  line-height: 1;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,.55));
+}
+
+.rankName{
+  font-weight: 900;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+  line-height: 1.1;
+
+  /* “un peu plus centré” visuellement */
+  padding-top: 1px;
+}
+
+/* TCP aligné à droite */
+.rankPower{
+  font-weight: 900;
+  letter-spacing: .2px;
+  color: var(--text);
+  text-align: right;
+
+  width: 132px;
+  flex: 0 0 auto;
+
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+
+  font-size: 14px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 520px){
+  .header{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .rankRow{
+    padding: 10px 12px 10px 10px;
+    gap: 10px;
+  }
+
+  .rankNum{
+    width: 20px;
+    font-size: 12.5px;
+  }
+
+  .rankAvatar{
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+  }
+
+  .rankName{
+    font-size: 15px;
+  }
+
+  .rankPower{
+    width: 120px;
+    font-size: 13.5px;
+  }
+}
+
+@media (max-width: 420px){
+  .title{ font-size: 22px; }
+
+  .filterToggle{
+    padding: 9px 8px;
+    gap: 8px;
+  }
+  .filterToggle input{
+    width: 16px;
+    height: 16px;
+  }
+  .fEmoji{ font-size: 17px; }
+  .fName{ font-size: 12px; }
+
+  .rankAvatar{
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  .rankPower{
+    width: 110px;
+    font-size: 13px;
+  }
+
+  .chipCount{ font-size: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ scroll-behavior: auto !important; }
+}
