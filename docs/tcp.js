@@ -1,6 +1,7 @@
 /* docs/tcp.js
    Page: tcp.html
    Data: ./data/infos.json
+   Fix: frame derrière, icon devant (ordre + z-index côté CSS)
 */
 
 (() => {
@@ -18,14 +19,10 @@
   }
 
   // ---------- Alliance helpers ----------
-  // ⚠️ Ajuste si tes noms d’alliances dans l’onglet Joueurs sont différents
   const ALLIANCE_EMOJI = {
     zeus: "⚡",
     dionysos: "🍇",
-    "dionyso": "🍇",
     poseidon: "🔱",
-    "poséidon": "🔱",
-    "poséidon": "🔱", // cas accent combiné
   };
 
   function normalizeAlliance(a) {
@@ -52,8 +49,7 @@
     if (key === "zeus") return $filterZeus.checked;
     if (key === "dionysos") return $filterDionysos.checked;
     if (key === "poseidon") return $filterPoseidon.checked;
-    // si alliance inconnue, on l’affiche par défaut (ou change à false si tu préfères)
-    return true;
+    return true; // alliance inconnue affichée par défaut
   }
 
   // ---------- Formatting ----------
@@ -74,7 +70,6 @@
   function safeUrl(u) {
     const s = String(u ?? "").trim();
     if (!s) return "";
-    // permet http/https uniquement
     if (/^https?:\/\//i.test(s)) return s;
     return "";
   }
@@ -92,18 +87,19 @@
 
     const html = list
       .map((p, idx) => {
-        const name = escapeHtml(p.name);
+        const nameSafe = escapeHtml(p.name);
         const emoji = allianceEmoji(p.alliance);
 
         const icon = safeUrl(p.icon);
         const frame = safeUrl(p.frame);
 
-        // Avatar: si on n’a pas d’URL, on met un fallback simple
+        // ✅ FIX: frame derrière (1), icon devant (2)
+        // On met volontairement le frame en premier dans le DOM.
         const avatarHtml =
           icon || frame
-            ? `<div class="rankAvatar">
-                ${icon ? `<img class="rankAvatarIcon" src="${icon}" alt="" loading="lazy" decoding="async">` : ""}
+            ? `<div class="rankAvatar" aria-hidden="true">
                 ${frame ? `<img class="rankAvatarFrame" src="${frame}" alt="" loading="lazy" decoding="async">` : ""}
+                ${icon ? `<img class="rankAvatarIcon"  src="${icon}"  alt="" loading="lazy" decoding="async">` : ""}
               </div>`
             : `<div class="rankAvatar" aria-hidden="true"></div>`;
 
@@ -116,7 +112,7 @@
 
             <div class="rankCenter">
               <div class="rankEmoji" aria-label="Alliance">${emoji}</div>
-              <div class="rankName" title="${name}">${name}</div>
+              <div class="rankName" title="${nameSafe}">${nameSafe}</div>
             </div>
 
             <div class="rankPower">${formatNumberFR(p.tcp)}</div>
@@ -137,9 +133,7 @@
       return isAllianceEnabled(key);
     });
 
-    // tri TCP desc
     filtered.sort((a, b) => (b.tcp || 0) - (a.tcp || 0));
-
     render(filtered);
   }
 
@@ -152,7 +146,6 @@
       const data = await res.json();
       if (!Array.isArray(data)) throw new Error("infos.json is not an array");
 
-      // normalise/minimise surprises
       allPlayers = data
         .map((p) => ({
           name: String(p?.name ?? "").trim(),
@@ -163,7 +156,6 @@
         }))
         .filter((p) => p.name);
 
-      // listeners
       [$filterZeus, $filterDionysos, $filterPoseidon].forEach((cb) => {
         cb.addEventListener("change", applyFiltersAndRender);
       });
