@@ -39,16 +39,19 @@ jobs:
           JOUEURS_CSV_URL: ${{ secrets.JOUEURS_CSV_URL }}
         run: node scripts/sheets-infos.mjs
 
-      - name: Commit & push if changed
+            - name: Commit & push if changed
         run: |
-          if git diff --quiet -- docs/data/infos.json; then
-            echo "No changes in docs/data/infos.json"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # IMPORTANT: ajouter le fichier (sinon untracked => git diff ne voit rien)
+          git add -A docs/data/infos.json
+
+          # Si rien à commiter, on s'arrête proprement
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
             exit 0
           fi
 
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git add docs/data/infos.json
           git commit -m "Update infos.json"
           git push
