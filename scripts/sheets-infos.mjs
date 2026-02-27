@@ -1,12 +1,17 @@
 // scripts/sheets-infos.mjs
+// Génère docs/data/infos.json à partir du CSV "Infos" + l'alliance issue de docs/data/joueurs.json (fallback).
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const OUT_FILE = process.env.OUT_FILE || "docs/data/players-infos.json";
+// ✅ Sortie attendue
+const OUT_FILE = process.env.OUT_FILE || "docs/data/infos.json";
 
 // Option A (recommandé) : URLs "Publié sur le web"
 const INFOS_CSV_URL = process.env.INFOS_CSV_URL || "";
 const JOUEURS_CSV_URL = process.env.JOUEURS_CSV_URL || "";
+
+// ✅ Nouveau : fallback local si on ne veut/peut pas refetch "Joueurs"
+const JOUEURS_JSON_FILE = process.env.JOUEURS_JSON_FILE || "docs/data/joueurs.json";
 
 // Option B (fallback) : gviz/tq via SHEET_ID + onglets
 const SHEET_ID = process.env.SHEET_ID || "";
@@ -85,10 +90,7 @@ function parseCsvWithDelimiter(text, delim) {
 }
 
 function normalizeHeaderBasic(h) {
-  return String(h ?? "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "_");
+  return String(h ?? "").trim().toLowerCase().replace(/\s+/g, "_");
 }
 
 function repairHeaderCell(cell) {
@@ -108,7 +110,7 @@ function scoreHeaderRow(repairedHeaders) {
   if (set.has("war")) score += 1; // parfois "war_mvp" peut se casser
   if (set.has("war_mvp")) score += 6;
 
-  // Joueurs attendus
+  // Joueurs attendus (si on parse le CSV)
   if (set.has("alliance")) score += 4;
 
   if (repairedHeaders.filter(Boolean).length >= 6) score += 1;
@@ -169,7 +171,7 @@ function toInt(x) {
 }
 
 async function fetchCsv(url, label) {
-  console.log(`[players-infos] Fetch CSV (${label}): ${url}`);
+  console.log(`[infos] Fetch CSV (${label}): ${url}`);
   const res = await fetch(url, { cache: "no-store" });
   const text = await res.text();
 
@@ -194,8 +196,8 @@ function parseTableFromCsv(text, label) {
   const best = detectBestDelimiter(text);
   const rows = best.rows;
 
-  console.log(`[players-infos] Best delimiter (${label}): ${JSON.stringify(best.delim)} (score=${best.score})`);
-  console.log(`[players-infos] Total parsed rows (${label}): ${rows.length}`);
+  console.log(`[infos] Best delimiter (${label}): ${JSON.stringify(best.delim)} (score=${best.score})`);
+  console.log(`[infos] Total parsed rows (${label}): ${rows.length}`);
 
   if (rows.length < 2 || best.score < 6) {
     console.error(`❌ Could not confidently detect header row (${label}).`);
@@ -209,40 +211,72 @@ function parseTableFromCsv(text, label) {
   const rawHeaders = rows[headerIdx];
   const headers = rawHeaders.map(repairHeaderCell);
 
-  console.log(`[players-infos] Headers (${label}):`, headers.join(" | "));
+  console.log(`[infos] Headers (${label}):`, headers.join(" | "));
 
   const dataRows = rows
     .slice(headerIdx + 1)
     .filter((r) => r.some((c) => String(c ?? "").trim() !== ""));
 
-  const objects = dataRows.map((r) => rowToObject(headers, r));
-  return objects;
+  return dataRows.map((r) => rowToObject(headers, r));
 }
 
-async function main() {
-  // Resolve URLs
-  const infosUrl =
-    INFOS_CSV_URL ||
-    (SHEET_ID ? gvizCsvUrl(SHEET_ID, INFOS_TAB) : "");
+async function loadJoueursTable() {
+  // 1) CSV Joueurs explicite
   const joueursUrl =
     JOUEURS_CSV_URL ||
     (SHEET_ID ? gvizCsvUrl(SHEET_ID, JOUEURS_TAB) : "");
 
-  if (!infosUrl || !joueursUrl) {
-    console.error("❌ Missing CSV sources.");
-    console.error("➡️ Soit tu fournis INFOS_CSV_URL + JOUEURS_CSV_URL (recommandé), soit SHEET_ID + INFOS_TAB/JOUEURS_TAB.");
+  if (joueursUrl) {
+    const joueursCsv = await fetchCsv(joueursUrl, "Joueurs");
+    return parseTableFromCsv(joueursCsv, "Joueurs");
+  }
+
+  // 2) Fallback JSON local
+  try {
+    const raw = await fs.readFile(JOUEURS_JSON_FILE, "utf8");
+    const arr = JSON.parse(raw);
+
+    if (!Array.isArray(arr)) {
+      console.error(`❌ ${JOUEURS_JSON_FILE} is not an array.`);
+      process.exit(1);
+    }
+
+    // Normalise un peu : on renvoie des objets "comme un CSV parsé"
+    // (donc pick(row, "name", ...) marche)
+    console.log(`[infos] Using local joueurs JSON: ${JOUEURS_JSON_FILE} (${arr.length} rows)`);
+    return arr.map((r) => ({
+      ...r,
+      name: pick(r, "name", "player", "pseudo"),
+      alliance: pick(r, "alliance", "alliance_name", "alliance_nom", "team", "team_name"),
+    }));
+  } catch (e) {
+    console.error("❌ Missing CSV sources AND could not read local joueurs.json fallback.");
+    console.error(`➡️ Fournis JOUEURS_CSV_URL (ou SHEET_ID), ou assure-toi que ${JOUEURS_JSON_FILE} existe et est valide.`);
+    console.error(String(e?.message || e));
+    process.exit(1);
+  }
+}
+
+async function main() {
+  // Resolve Infos URL (obligatoire)
+  const infosUrl =
+    INFOS_CSV_URL ||
+    (SHEET_ID ? gvizCsvUrl(SHEET_ID, INFOS_TAB) : "");
+
+  if (!infosUrl) {
+    console.error("❌ Missing INFOS CSV source.");
+    console.error("➡️ Fournis INFOS_CSV_URL (recommandé) ou SHEET_ID + INFOS_TAB.");
     process.exit(1);
   }
 
-  // Fetch
+  // Fetch Infos
   const infosCsv = await fetchCsv(infosUrl, "Infos");
-  const joueursCsv = await fetchCsv(joueursUrl, "Joueurs");
-
-  // Parse
   const infos = parseTableFromCsv(infosCsv, "Infos");
-  const joueurs = parseTableFromCsv(joueursCsv, "Joueurs");
 
-  // Build alliance map from Joueurs tab
+  // Load Joueurs (CSV ou JSON local)
+  const joueurs = await loadJoueursTable();
+
+  // Build alliance map from Joueurs
   const allianceByName = new Map();
   for (const row of joueurs) {
     const name = pick(row, "name", "player", "pseudo");
@@ -255,16 +289,22 @@ async function main() {
   const out = infos
     .map((row) => {
       const name = pick(row, "name");
+      if (!name) return null;
+
       const tcp = toInt(pick(row, "tcp"));
       const warMvp = toInt(pick(row, "war_mvp", "war", "mvp", "war_m_v_p"));
 
-      if (!name) return null;
+      // Optionnel (mais utile pour tcp.html) : icon + frame si présents dans le CSV Infos
+      const icon = pick(row, "icon", "portrait", "avatar", "icon_url");
+      const frame = pick(row, "frame", "border", "frame_url");
 
       return {
         name,
         alliance: allianceByName.get(normalizeName(name)) || "",
         tcp,
         war_mvp: warMvp,
+        ...(icon ? { icon } : {}),
+        ...(frame ? { frame } : {}),
       };
     })
     .filter(Boolean);
@@ -273,13 +313,13 @@ async function main() {
   await fs.mkdir(path.dirname(OUT_FILE), { recursive: true });
   await fs.writeFile(OUT_FILE, JSON.stringify(out, null, 2), "utf8");
 
-  console.log(`[players-infos] Wrote ${out.length} rows -> ${OUT_FILE}`);
+  console.log(`[infos] Wrote ${out.length} rows -> ${OUT_FILE}`);
 
-  // Small debug: missing alliance
-  const missingAlliance = out.filter((r) => !r.alliance).slice(0, 8);
+  // Debug: missing alliance
+  const missingAlliance = out.filter((r) => !r.alliance).slice(0, 12);
   if (missingAlliance.length) {
     console.log(
-      `[players-infos] ⚠️ Missing alliance for ${missingAlliance.length} sample players:`,
+      `[infos] ⚠️ Missing alliance for ${missingAlliance.length} sample players:`,
       missingAlliance.map((r) => r.name).join(", ")
     );
   }
