@@ -1,16 +1,5 @@
 /* HeaderHome.webp (bannière) + tuiles image + glow dynamique */
 
-/* Accessibilité (texte masqué) */
-.srOnly{
-  position:absolute !important;
-  width:1px; height:1px;
-  padding:0; margin:-1px;
-  overflow:hidden;
-  clip: rect(0,0,0,0);
-  white-space:nowrap;
-  border:0;
-}
-
 /* ===== Install banner (iOS + Android) ===== */
 .installBanner{
   position: fixed;
@@ -61,12 +50,20 @@
 }
 
 /* ===== GRID ===== */
+/* Desktop/tablette : 3 colonnes fixes pour "laisser la 3e place vide" */
 .homeGrid{
   display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin-top: 16px;
+  align-items: stretch;
 }
+
+/* Placement voulu (2x2 + 3e colonne vide) */
+.homeTile--contres{ grid-column: 1; grid-row: 1; }
+.homeTile--iso{ grid-column: 2; grid-row: 1; }
+.homeTile--classement{ grid-column: 1; grid-row: 2; }
+.homeTile--tcp{ grid-column: 2; grid-row: 2; }
 
 /* ===== TUILES ===== */
 .homeTile{
@@ -87,7 +84,7 @@
   transform: translateZ(0);
   transition: transform .18s ease, filter .18s ease, border-color .18s ease;
 
-  /* Glow par défaut (plus fort qu’avant) */
+  /* Glow par défaut */
   --glow: rgba(255,255,255,.30);
   --glow-strong: rgba(255,255,255,.75);
 }
@@ -96,6 +93,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display:block;
 }
 
 /* ===== HALO BASE (déjà visible, double couche) ===== */
@@ -106,7 +104,6 @@
   border-radius: inherit;
   pointer-events:none;
 
-  /* Base = on le voit même sans hover */
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,.16),
     0 0 18px var(--glow),
@@ -116,7 +113,7 @@
   transition: box-shadow .18s ease, opacity .18s ease;
 }
 
-/* ===== HOVER (triple couche LARGE) ===== */
+/* ===== HOVER ===== */
 .homeTile:hover{
   transform: translateY(-2px) scale(1.02);
   border-color: rgba(255,255,255,.38);
@@ -131,7 +128,7 @@
     0 0 140px var(--glow);
 }
 
-/* ===== ACTIVE (néon ultra visible) ===== */
+/* ===== ACTIVE ===== */
 .homeTile:active{
   transform: scale(.985);
   filter: brightness(1.14) contrast(1.06);
@@ -149,26 +146,47 @@
 
 /* ===== COULEURS ===== */
 
-/* ⭐ VRAI JAUNE (pas orange) : très distinct du rouge */
+/* Contres GA (jaune) */
 .homeTile--contres{
-  /* jaune clair lumineux */
   --glow: rgba(255, 245, 120, .80);
   --glow-strong: rgba(255, 245, 120, 1);
 }
 
-/* 🔵 BLEU */
+/* Classement équipes (bleu) */
 .homeTile--classement{
   --glow: rgba(80, 190, 255, .70);
   --glow-strong: rgba(80, 190, 255, .98);
 }
 
-/* 🟣 VIOLET */
+/* ISO-8 (violet) */
 .homeTile--iso{
   --glow: rgba(190, 110, 255, .70);
   --glow-strong: rgba(190, 110, 255, .98);
 }
 
+/* TCP (jaune/or un peu plus chaud que Contres) */
+.homeTile--tcp{
+  --glow: rgba(255, 210, 90, .75);
+  --glow-strong: rgba(255, 210, 90, .98);
+}
+
 /* ===== RESPONSIVE ===== */
+/* Sur mobile : 2 colonnes (sinon 3 colonnes = trop serré) */
+@media (max-width: 720px){
+  .homeGrid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* On laisse le flux naturel (dans l'ordre du HTML) */
+  .homeTile--contres,
+  .homeTile--iso,
+  .homeTile--classement,
+  .homeTile--tcp{
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
 @media (max-width: 420px){
   .homeHeader{ height: 120px; }
   .homeTile{ border-radius: 20px; }
