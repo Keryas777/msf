@@ -3,10 +3,11 @@ name: Update infos.json
 on:
   workflow_dispatch:
   schedule:
-    - cron: "15 */6 * * *" # toutes les 6h (à 00:15, 06:15, 12:15, 18:15)
+    - cron: "15 */6 * * *" # toutes les 6h (00:15, 06:15, 12:15, 18:15)
   push:
     paths:
       - "scripts/sheets-infos.mjs"
+      - "docs/data/joueurs.json"
       - ".github/workflows/infos.yml"
 
 permissions:
@@ -31,27 +32,32 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Generate docs/data/infos.json
+      - name: Generate docs/data/infos.json (uses local joueurs.json)
         env:
           OUT_FILE: docs/data/infos.json
           INFOS_CSV_URL: https://docs.google.com/spreadsheets/d/e/2PACX-1vTYKGvuHFRrB59aW6oMHBVFTRBdHhxxZP76YmwlpedoepMftwst1MfCwLg7pMLCPsGOpSrADdLzntQH/pub?gid=2000709341&single=true&output=csv
-          # 🔁 Mets ici ton lien "Joueurs" publié sur le web (output=csv)
-          JOUEURS_CSV_URL: ${{ secrets.JOUEURS_CSV_URL }}
-        run: node scripts/sheets-infos.mjs
+          # Force l’usage du fichier local /docs/data/joueurs.json (pas de CSV, pas de secrets)
+          JOUEURS_JSON_FILE: docs/data/joueurs.json
+          # On vide volontairement JOUEURS_CSV_URL pour éviter toute dépendance à un secret
+          JOUEURS_CSV_URL: ""
+        run: |
+          node --version
+          test -f docs/data/joueurs.json || (echo "❌ docs/data/joueurs.json introuvable" && exit 1)
+          node scripts/sheets-infos.mjs
+          echo "----- git status after generation -----"
+          git status --porcelain
 
-            - name: Commit & push if changed
+      - name: Commit & push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # IMPORTANT: ajouter le fichier (sinon untracked => git diff ne voit rien)
           git add -A docs/data/infos.json
 
-          # Si rien à commiter, on s'arrête proprement
           if git diff --staged --quiet; then
             echo "No changes to commit."
             exit 0
           fi
 
           git commit -m "Update infos.json"
-          git push
+          git push origin HEAD:${GITHUB_REF_NAME}
