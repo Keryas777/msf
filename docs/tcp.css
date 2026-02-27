@@ -1,3 +1,8 @@
+/* docs/tcp.css
+   Page: tcp.html (Classement TCP)
+   Objectif: avatar + frame SANS crop, icon au 1er plan
+*/
+
 :root{
   --bg: #070809;
   --panel: rgba(20,22,24,.72);
@@ -256,7 +261,7 @@ body::after{
   line-height: 1;
 }
 
-/* Avatar = icon + frame superposé */
+/* ===== Avatar (frame derrière / icon devant) - SANS CROP ===== */
 .rankAvatar{
   position: relative;
   width: 44px;
@@ -264,8 +269,14 @@ body::after{
   border-radius: 14px;
   overflow: hidden;
   flex: 0 0 auto;
+
   border: 1px solid rgba(255,255,255,.12);
   background: rgba(255,255,255,.04);
+
+  /* petite vitre pour homogénéiser */
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.05),
+    0 10px 20px rgba(0,0,0,.35);
 }
 
 .rankAvatarIcon,
@@ -274,13 +285,34 @@ body::after{
   inset:0;
   width:100%;
   height:100%;
-  object-fit: cover;
   display:block;
 }
 
+/* Frame derrière: on veut tout voir => contain (pas cover) */
 .rankAvatarFrame{
+  z-index: 1;
+  object-fit: contain;
+  object-position: center;
   pointer-events:none;
+
+  /* un poil de respiration pour éviter que ça touche les bords */
+  padding: 2px;
+
   filter: drop-shadow(0 6px 16px rgba(0,0,0,.55));
+  opacity: .98;
+}
+
+/* Icon devant: on veut tout voir => contain + inset */
+.rankAvatarIcon{
+  z-index: 2;
+  object-fit: contain;
+  object-position: center;
+
+  /* c’est ça qui réduit l’icon et empêche le “trop gros” */
+  padding: 7px;
+
+  /* optionnel: micro-boost de lisibilité sans cramer */
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,.45));
 }
 
 /* Centre = emoji alliance + nom */
@@ -306,8 +338,6 @@ body::after{
   white-space: nowrap;
   font-size: 16px;
   line-height: 1.1;
-
-  /* “un peu plus centré” visuellement */
   padding-top: 1px;
 }
 
@@ -334,11 +364,6 @@ body::after{
     align-items:stretch;
   }
 
-  .rankRow{
-    padding: 10px 12px 10px 10px;
-    gap: 10px;
-  }
-
   .rankNum{
     width: 20px;
     font-size: 12.5px;
@@ -350,10 +375,10 @@ body::after{
     border-radius: 13px;
   }
 
-  .rankName{
-    font-size: 15px;
-  }
+  .rankAvatarFrame{ padding: 2px; }
+  .rankAvatarIcon{ padding: 6px; }
 
+  .rankName{ font-size: 15px; }
   .rankPower{
     width: 120px;
     font-size: 13.5px;
@@ -379,6 +404,9 @@ body::after{
     height: 40px;
     border-radius: 12px;
   }
+
+  .rankAvatarFrame{ padding: 2px; }
+  .rankAvatarIcon{ padding: 6px; }
 
   .rankPower{
     width: 110px;
