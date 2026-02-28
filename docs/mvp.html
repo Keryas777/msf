@@ -19,11 +19,22 @@
   <body>
     <div class="app">
       <header class="header">
+        <!-- ⬅️ retour page précédente -->
+        <button
+          type="button"
+          class="backBtn"
+          aria-label="Retour"
+          onclick="history.back()"
+        >⬅️</button>
+
+        <!-- 🏠 home (placé à droite via style.css) -->
         <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
 
         <div class="headerLeft">
           <h1 class="title">Classement MVP</h1>
-          <p class="subtitle">Classement du nombre de MVP glanés depuis le début du jeu (y compris en-dehors du groupement)</p>
+          <p class="subtitle">
+            Classement du nombre de MVP glanés depuis le début du jeu (y compris en-dehors du groupement)
+          </p>
         </div>
       </header>
 
