@@ -1,1 +1,111 @@
+<!-- /docs/classements.html -->
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
+    />
+    <meta name="theme-color" content="#0b0c0d" />
+    <title>Classements</title>
 
+    <!-- ✅ CSS global + page -->
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./classements.css" />
+
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icon-512.PNG" />
+    <meta name="apple-mobile-web-app-title" content="LoSP" />
+  </head>
+
+  <body>
+    <div class="app">
+      <header class="header rankingsHeader" aria-label="Classements">
+        <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
+      </header>
+
+      <section class="rankingsGrid" aria-label="Classements">
+        <!-- Teams -->
+        <a href="./index.html" class="rankingsTile rankingsTile--teams">
+          <img
+            class="rankingsTileImg"
+            src="./Teams.webp"
+            alt="Classement Teams"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="srOnly">Classement Teams</span>
+        </a>
+
+        <!-- MVP -->
+        <a href="./mvp.html" class="rankingsTile rankingsTile--mvp">
+          <img
+            class="rankingsTileImg"
+            src="./MVP.webp"
+            alt="Classement MVP"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="srOnly">Classement MVP</span>
+        </a>
+
+        <!-- TCP -->
+        <a href="./tcp.html" class="rankingsTile rankingsTile--tcp">
+          <img
+            class="rankingsTileImg"
+            src="./TCP.webp"
+            alt="Classement TCP"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="srOnly">Classement TCP</span>
+        </a>
+      </section>
+    </div>
+
+    <script>
+      // glow "dynamique" au tap/clic (iOS friendly) — identique à home
+      (function () {
+        const tiles = document.querySelectorAll(".rankingsTile");
+        tiles.forEach((t) => {
+          const press = () => {
+            t.classList.add("is-pressed");
+            clearTimeout(t.__pressTimer);
+            t.__pressTimer = setTimeout(() => t.classList.remove("is-pressed"), 220);
+          };
+          const release = () => t.classList.remove("is-pressed");
+
+          t.addEventListener("pointerdown", press, { passive: true });
+          t.addEventListener("pointerup", release, { passive: true });
+          t.addEventListener("pointercancel", release, { passive: true });
+          t.addEventListener("mouseleave", release, { passive: true });
+        });
+      })();
+    </script>
+
+    <script>
+      // ✅ SW registration + update + auto-reload when new SW takes control (comme home)
+      (function () {
+        if (!("serviceWorker" in navigator)) return;
+
+        let reloading = false;
+
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          if (reloading) return;
+          reloading = true;
+          window.location.reload();
+        });
+
+        window.addEventListener("load", async () => {
+          try {
+            const reg = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+            if (reg && typeof reg.update === "function") reg.update();
+          } catch (e) {
+            console.error(e);
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
