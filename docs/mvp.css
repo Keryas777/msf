@@ -97,7 +97,8 @@ body::after{
 .homeBtn{
   position:absolute;
   top:12px;
-  left:12px;
+  right:12px;
+  left:auto;
   z-index:20;
 
   display:flex;
