@@ -9,7 +9,9 @@
     <meta name="theme-color" content="#0b0c0d" />
     <title>Classement TCP — Groupement</title>
 
-    <link rel="stylesheet" href="./style.css?v=ts" />
+    <!-- ✅ CSS global -->
+    <link rel="stylesheet" href="./style.css" />
+    <!-- ✅ CSS page -->
     <link rel="stylesheet" href="./tcp.css?v=ts" />
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -20,15 +22,9 @@
   <body>
     <div class="app">
       <header class="header">
-        <!-- ⬅️ retour page précédente -->
-        <button
-          type="button"
-          class="backBtn"
-          aria-label="Retour"
-          onclick="history.back()"
-        >⬅️</button>
-
-        <!-- 🏠 home (désormais en haut à droite via style.css) -->
+        <!-- ✅ back à gauche -->
+        <button class="backBtn" type="button" aria-label="Retour">⬅️</button>
+        <!-- ✅ home à droite -->
         <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
 
         <div class="headerLeft">
@@ -59,20 +55,21 @@
       <section class="card">
         <div class="cardHeader">
           <div></div>
-          <div class="chipCount">
-            <span id="playersCount">0</span>
-          </div>
+          <div class="chipCount"><span id="playersCount">0</span></div>
         </div>
 
-        <!-- Liste classement TCP -->
-        <div id="players" class="players">
-          <!-- Le JS injectera des .rankRow ici -->
-        </div>
+        <div id="players" class="players"></div>
       </section>
     </div>
 
     <script>
       (function () {
+        // ✅ back button = history.back()
+        document.querySelectorAll(".backBtn").forEach((btn) => {
+          btn.addEventListener("click", () => history.back());
+        });
+
+        // cache-bust css page
         const links = document.querySelectorAll('link[rel="stylesheet"]');
         links.forEach((l) => {
           if (l.href.includes("v=ts")) l.href = l.href.replace("v=ts", "v=" + Date.now());
