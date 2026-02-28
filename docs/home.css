@@ -1,4 +1,6 @@
-/* HeaderHome.webp (bannière) + tuiles image + glow dynamique */
+/* /docs/home.css
+   HeaderHome.webp (bannière) + tuiles image + glow dynamique
+*/
 
 /* ===== Install banner (iOS + Android) ===== */
 .installBanner{
@@ -50,20 +52,14 @@
 }
 
 /* ===== GRID ===== */
-/* Desktop/tablette : 3 colonnes fixes pour "laisser la 3e place vide" */
+/* ✅ 2 colonnes (comme sur ta capture) */
 .homeGrid{
   display:grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin-top: 16px;
   align-items: stretch;
 }
-
-/* Placement voulu (2x2 + 3e colonne vide) */
-.homeTile--contres{ grid-column: 1; grid-row: 1; }
-.homeTile--iso{ grid-column: 2; grid-row: 1; }
-.homeTile--classement{ grid-column: 1; grid-row: 2; }
-.homeTile--tcp{ grid-column: 2; grid-row: 2; }
 
 /* ===== TUILES ===== */
 .homeTile{
@@ -96,7 +92,7 @@
   display:block;
 }
 
-/* ===== HALO BASE (déjà visible, double couche) ===== */
+/* ===== HALO BASE ===== */
 .homeTile::after{
   content:"";
   position:absolute;
@@ -152,7 +148,7 @@
   --glow-strong: rgba(255, 245, 120, 1);
 }
 
-/* Classement équipes (bleu) */
+/* Classements (bleu) */
 .homeTile--classement{
   --glow: rgba(80, 190, 255, .70);
   --glow-strong: rgba(80, 190, 255, .98);
@@ -164,29 +160,7 @@
   --glow-strong: rgba(190, 110, 255, .98);
 }
 
-/* TCP (jaune/or un peu plus chaud que Contres) */
-.homeTile--tcp{
-  --glow: rgba(255, 210, 90, .75);
-  --glow-strong: rgba(255, 210, 90, .98);
-}
-
 /* ===== RESPONSIVE ===== */
-/* Sur mobile : 2 colonnes (sinon 3 colonnes = trop serré) */
-@media (max-width: 720px){
-  .homeGrid{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  /* On laisse le flux naturel (dans l'ordre du HTML) */
-  .homeTile--contres,
-  .homeTile--iso,
-  .homeTile--classement,
-  .homeTile--tcp{
-    grid-column: auto;
-    grid-row: auto;
-  }
-}
-
 @media (max-width: 420px){
   .homeHeader{ height: 120px; }
   .homeTile{ border-radius: 20px; }
