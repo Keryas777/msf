@@ -13,12 +13,21 @@
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="manifest" href="./manifest.webmanifest" />
   </head>
 
   <body>
     <div class="app">
       <header class="header">
+        <!-- ⬅️ retour page précédente -->
+        <button
+          type="button"
+          class="backBtn"
+          aria-label="Retour"
+          onclick="history.back()"
+        >⬅️</button>
+
+        <!-- 🏠 home (désormais en haut à droite via style.css) -->
         <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
 
         <div class="headerLeft">
@@ -68,7 +77,6 @@
           if (l.href.includes("v=ts")) l.href = l.href.replace("v=ts", "v=" + Date.now());
         });
 
-        // plus tard : tcp.js (ou app.js étendu)
         const s = document.createElement("script");
         s.src = "./tcp.js?v=" + Date.now();
         s.defer = true;
