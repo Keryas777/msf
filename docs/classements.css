@@ -1,1 +1,158 @@
+/* /docs/classements.css
+   HeaderRankings.webp + tuiles image + glow dynamique (style home.css)
+*/
 
+/* Accessibilité (texte masqué) */
+.srOnly{
+  position:absolute !important;
+  width:1px; height:1px;
+  padding:0; margin:-1px;
+  overflow:hidden;
+  clip: rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+
+/* ===== Header banner ===== */
+.rankingsHeader{
+  position: relative;
+  padding: 0;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+
+  background-image: url("./HeaderRankings.webp");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+
+  height: 140px;
+  overflow: hidden;
+}
+
+/* ===== GRID ===== */
+/* Desktop/tablette : 3 colonnes fixes (place pour ajouter d'autres classements plus tard) */
+.rankingsGrid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+  align-items: stretch;
+}
+
+/* ===== TUILES ===== */
+.rankingsTile{
+  position: relative;
+  display:block;
+  border-radius: 22px;
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.18);
+  box-shadow: var(--shadow);
+
+  text-decoration:none;
+  color: var(--text);
+
+  aspect-ratio: 1 / 1;
+
+  transform: translateZ(0);
+  transition: transform .18s ease, filter .18s ease, border-color .18s ease;
+
+  /* Glow par défaut */
+  --glow: rgba(255,255,255,.30);
+  --glow-strong: rgba(255,255,255,.75);
+}
+
+.rankingsTileImg{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display:block;
+}
+
+/* ===== HALO BASE ===== */
+.rankingsTile::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius: inherit;
+  pointer-events:none;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.16),
+    0 0 18px var(--glow),
+    0 0 42px rgba(0,0,0,0);
+
+  opacity: .99;
+  transition: box-shadow .18s ease, opacity .18s ease;
+}
+
+/* ===== HOVER ===== */
+.rankingsTile:hover{
+  transform: translateY(-2px) scale(1.02);
+  border-color: rgba(255,255,255,.38);
+  filter: brightness(1.12) contrast(1.06);
+}
+
+.rankingsTile:hover::after{
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.20),
+    0 0 26px var(--glow),
+    0 0 72px var(--glow),
+    0 0 140px var(--glow);
+}
+
+/* ===== ACTIVE ===== */
+.rankingsTile:active{
+  transform: scale(.985);
+  filter: brightness(1.14) contrast(1.06);
+}
+
+.rankingsTile:active::after,
+.rankingsTile.is-pressed::after{
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.24),
+    0 0 34px var(--glow-strong),
+    0 0 96px var(--glow-strong),
+    0 0 180px var(--glow-strong),
+    0 0 260px var(--glow-strong);
+}
+
+/* ===== COULEURS (cohérentes avec tes icônes) ===== */
+
+/* Teams (vert) */
+.rankingsTile--teams{
+  --glow: rgba(90, 255, 160, .62);
+  --glow-strong: rgba(90, 255, 160, .98);
+}
+
+/* MVP (rouge) */
+.rankingsTile--mvp{
+  --glow: rgba(255, 85, 85, .62);
+  --glow-strong: rgba(255, 85, 85, .98);
+}
+
+/* TCP (or/jaune chaud) */
+.rankingsTile--tcp{
+  --glow: rgba(255, 210, 90, .72);
+  --glow-strong: rgba(255, 210, 90, .98);
+}
+
+/* ===== RESPONSIVE ===== */
+/* Sur mobile : 2 colonnes */
+@media (max-width: 720px){
+  .rankingsGrid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px){
+  .rankingsHeader{ height: 120px; }
+  .rankingsTile{ border-radius: 20px; }
+}
+
+/* ===== ACCESSIBILITÉ ===== */
+@media (prefers-reduced-motion: reduce){
+  .rankingsTile, .rankingsTile::after{ transition: none !important; }
+}
