@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
+    />
+    <meta name="theme-color" content="#0b0c0d" />
+    <title>Classement MVP — Groupement</title>
+
+    <link rel="stylesheet" href="./mvp.css?v=ts" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="./manifest.webmanifest">
+  </head>
+
+  <body>
+    <div class="app">
+      <header class="header">
+        <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
+
+        <div class="headerLeft">
+          <h1 class="title">Classement MVP</h1>
+          <p class="subtitle">Comparaison des performances en guerre (War MVP)</p>
+        </div>
+      </header>
+
+      <section class="card filtersCard">
+        <div class="filters" role="group" aria-label="Filtres alliances">
+          <label class="filterToggle">
+            <input id="filterZeus" type="checkbox" checked />
+            <span class="fStack"><span class="fEmoji">⚡</span><span class="fName">Zeus</span></span>
+          </label>
+
+          <label class="filterToggle">
+            <input id="filterDionysos" type="checkbox" checked />
+            <span class="fStack"><span class="fEmoji">🍇</span><span class="fName">Dionysos</span></span>
+          </label>
+
+          <label class="filterToggle">
+            <input id="filterPoseidon" type="checkbox" checked />
+            <span class="fStack"><span class="fEmoji">🔱</span><span class="fName">Poséidon</span></span>
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="cardHeader">
+          <div></div>
+          <div class="chipCount">
+            <span id="playersCount">0</span>
+          </div>
+        </div>
+
+        <div id="players" class="players"></div>
+      </section>
+    </div>
+
+    <script>
+      (function () {
+        const links = document.querySelectorAll('link[rel="stylesheet"]');
+        links.forEach((l) => {
+          if (l.href.includes("v=ts")) l.href = l.href.replace("v=ts", "v=" + Date.now());
+        });
+
+        const s = document.createElement("script");
+        s.src = "./mvp.js?v=" + Date.now();
+        s.defer = true;
+        document.body.appendChild(s);
+      })();
+    </script>
+  </body>
+</html>
