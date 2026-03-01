@@ -49,6 +49,11 @@
   /* ✅ marge interne entre bandeau et contenu (évite chevauchement) */
   --band-gap: 10px;
 
+  /* ✅ portraits counters : espacement + bornes taille */
+  --cp-gap: 8px;      /* espacement entre portraits (inchangé visuellement) */
+  --cp-min: 44px;     /* taille mini si petit écran */
+  --cp-max: 58px;     /* taille maxi pour remplir mieux la ligne */
+
   /* Home tiles glow (par tuile) */
   --tile-glow-red: rgba(255, 77, 77, .55);
   --tile-glow-blue: rgba(92, 182, 255, .55);
@@ -573,8 +578,8 @@ button.backBtn{
   border:1px solid var(--border);
   border-radius:18px;
 
-  /* ✅ place réservée pour le bandeau: 36px + 10px de marge interne */
-  padding: 12px 12px 12px calc(var(--band-w) + 10px);
+  /* ✅ place réservée pour le bandeau */
+  padding: 12px 12px 12px calc(var(--band-w) + var(--band-gap));
 
   display:flex;
   flex-direction:column;
@@ -597,7 +602,7 @@ button.backBtn{
   box-shadow: var(--shadow);
 }
 
-/* ✅ halo interne + bordure interne (renforcé) */
+/* ✅ halo interne + bordure interne */
 .counterCard::before{
   content:"";
   position:absolute;
@@ -611,7 +616,7 @@ button.backBtn{
   opacity: 1;
 }
 
-/* ✅ bandeau vertical + label (36px) */
+/* ✅ bandeau vertical + label */
 .counterCard::after{
   content: var(--label);
   position:absolute;
@@ -651,21 +656,18 @@ button.backBtn{
   --band: var(--band-green);
   --label: "SÛR";
 }
-
 .counterCard.is-yellow{
   --halo: var(--halo-yellow);
   --tint: var(--tint-yellow);
   --band: var(--band-yellow);
   --label: "PASSE";
 }
-
 .counterCard.is-orange{
   --halo: var(--halo-orange);
   --tint: var(--tint-orange);
   --band: var(--band-orange);
   --label: "RISQUÉ";
 }
-
 .counterCard.is-red{
   --halo: var(--halo-red);
   --tint: var(--tint-red);
@@ -710,19 +712,41 @@ button.backBtn{
   font-feature-settings: "tnum" 1;
 }
 
+/* =========================================================
+   ✅ COUNTER PORTRAITS : 1 SEULE LIGNE + TAILLE AUTO
+   - Remplit l’espace dispo
+   - Ne wrap jamais (1 ligne)
+   - OK si 3 portraits : ils restent à la même taille, juste plus d’air à droite
+   ========================================================= */
 .counterPortraits{
   display:flex;
-  gap:8px;
-  flex-wrap:wrap;
+  gap: var(--cp-gap);
+  flex-wrap: nowrap;            /* ✅ 1 seule ligne */
+  align-items: center;
+  min-width: 0;
+
+  /* Si jamais ça devient trop serré, on évite de casser la carte */
+  overflow: hidden;
 }
 
+/* Taille auto calculée comme si on devait en afficher 5,
+   donc ça remplit mieux quand il y a 5,
+   et ça ne devient pas énorme quand il y en a 3. */
 .counterPortrait{
-  width:48px;
-  height:48px;
+  --cp-size: clamp(
+    var(--cp-min),
+    calc((100% - (4 * var(--cp-gap))) / 5),
+    var(--cp-max)
+  );
+
+  width: var(--cp-size);
+  height: var(--cp-size);
+
   border-radius:10px;
   overflow:hidden;
   border:1px solid rgba(255,255,255,.12);
   background: var(--panel2);
+
   flex: 0 0 auto;
 }
 
