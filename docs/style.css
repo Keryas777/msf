@@ -44,7 +44,10 @@
   --band-red: rgba(var(--c-red), .98);
 
   /* ✅ largeur bandeau (UNIQUE SOURCE DE VÉRITÉ) */
-  --band-w: 36px;
+  --band-w: 25px;
+
+  /* ✅ marge interne entre bandeau et contenu (évite chevauchement) */
+  --band-gap: 10px;
 
   /* Home tiles glow (par tuile) */
   --tile-glow-red: rgba(255, 77, 77, .55);
