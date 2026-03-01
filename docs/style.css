@@ -54,6 +54,11 @@
   --cp-min: 44px;     /* taille mini si petit écran */
   --cp-max: 58px;     /* taille maxi pour remplir mieux la ligne */
 
+  /* ✅ portraits défense : mêmes règles (on réutilise cp-*) */
+  --dp-gap: var(--cp-gap);
+  --dp-min: var(--cp-min);
+  --dp-max: var(--cp-max);
+
   /* Home tiles glow (par tuile) */
   --tile-glow-red: rgba(255, 77, 77, .55);
   --tile-glow-blue: rgba(92, 182, 255, .55);
@@ -305,23 +310,43 @@ button.backBtn{
   white-space: nowrap;
 }
 
-/* ===== PORTRAITS ÉQUIPE (no crop) ===== */
+/* =========================================================
+   ✅ DEFENSE PORTRAITS : 1 SEULE LIGNE + TAILLE AUTO (comme counters)
+   - Remplit l’espace dispo
+   - Ne wrap jamais
+   - OK si 3 portraits : ils restent à la même taille (pas énormes)
+   ========================================================= */
 .portraits{
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
+  display:flex;
+  gap: var(--dp-gap);
+  flex-wrap: nowrap;            /* ✅ 1 seule ligne */
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;             /* évite que ça déborde sur mini écrans */
 }
 
+/* même calcul que counters : basé sur "comme s'il y en avait 5" */
 .portraitCard{
+  --dp-size: clamp(
+    var(--dp-min),
+    calc((100% - (4 * var(--dp-gap))) / 5),
+    var(--dp-max)
+  );
+
+  width: var(--dp-size);
+  height: var(--dp-size);
+
   border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
   background: var(--panel2);
+
+  flex: 0 0 auto;
 }
 
 .portraitImg{
   width: 100%;
-  aspect-ratio: 1 / 1;
+  height: 100%;
   object-fit: contain;
   object-position: center;
   display:block;
@@ -542,6 +567,8 @@ button.backBtn{
 
 @media (max-width: 420px){
   .title{ font-size: 22px; }
+
+  /* on garde l’espacement visuel similaire */
   .portraits{ gap: 8px; }
 
   .filterToggle{ padding: 9px 8px; gap: 8px; }
@@ -721,17 +748,12 @@ button.backBtn{
 .counterPortraits{
   display:flex;
   gap: var(--cp-gap);
-  flex-wrap: nowrap;            /* ✅ 1 seule ligne */
+  flex-wrap: nowrap;
   align-items: center;
   min-width: 0;
-
-  /* Si jamais ça devient trop serré, on évite de casser la carte */
   overflow: hidden;
 }
 
-/* Taille auto calculée comme si on devait en afficher 5,
-   donc ça remplit mieux quand il y a 5,
-   et ça ne devient pas énorme quand il y en a 3. */
 .counterPortrait{
   --cp-size: clamp(
     var(--cp-min),
