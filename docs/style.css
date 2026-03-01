@@ -16,14 +16,34 @@
 
   --bar-red: #ff4d4d;
   --bar-orange: #ff9f1a;
+  --bar-yellow: #ffd24a;
   --bar-green: #2ecc71;
 
-  /* ✅ halo interne (évite tout chevauchement) */
-  --halo-green: rgba(46,204,113,.45);
-  --halo-orange: rgba(255,159,26,.45);
-  --halo-red: rgba(255,77,77,.45);
+  /* ===== Counters: couleurs ===== */
+  --c-green: 46,204,113;
+  --c-yellow: 255,210,74;
+  --c-orange: 255,159,26;
+  --c-red: 255,77,77;
 
-  /* ✅ Home tiles glow (par tuile) */
+  /* Halo interne (plus marqué) */
+  --halo-green: rgba(var(--c-green), .50);
+  --halo-yellow: rgba(var(--c-yellow), .50);
+  --halo-orange: rgba(var(--c-orange), .50);
+  --halo-red: rgba(var(--c-red), .50);
+
+  /* Fond teinté (léger) */
+  --tint-green: rgba(var(--c-green), .16);
+  --tint-yellow: rgba(var(--c-yellow), .16);
+  --tint-orange: rgba(var(--c-orange), .16);
+  --tint-red: rgba(var(--c-red), .16);
+
+  /* Bandeau plein */
+  --band-green: rgba(var(--c-green), .98);
+  --band-yellow: rgba(var(--c-yellow), .98);
+  --band-orange: rgba(var(--c-orange), .98);
+  --band-red: rgba(var(--c-red), .98);
+
+  /* Home tiles glow (par tuile) */
   --tile-glow-red: rgba(255, 77, 77, .55);
   --tile-glow-blue: rgba(92, 182, 255, .55);
   --tile-glow-purple: rgba(180, 110, 255, .55);
@@ -103,6 +123,8 @@ body::after{
   z-index: 10;
 
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
   background: rgba(8,9,10,.72);
   border: 1px solid var(--border);
   border-radius: 18px;
@@ -117,7 +139,6 @@ body::after{
 }
 
 /* ===== Navigation buttons (header) ===== */
-/* ✅ Home button passe en haut à droite */
 .homeBtn,
 .backBtn{
   position:absolute;
@@ -147,11 +168,9 @@ body::after{
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ✅ Positions */
 .homeBtn{ right:12px; }
 .backBtn{ left:12px; }
 
-/* ✅ Hover/active */
 .homeBtn:hover,
 .backBtn:hover{
   background: rgba(255,255,255,.08);
@@ -162,7 +181,6 @@ body::after{
   transform: scale(.98);
 }
 
-/* ✅ Si backBtn est un <button>, on retire les styles par défaut */
 button.backBtn{
   appearance: none;
   -webkit-appearance: none;
@@ -191,7 +209,6 @@ button.backBtn{
   text-align: center;
 }
 
-/* ✅ Champs plus harmonieux + plus d'air entre label et input */
 .headerRight{
   display:flex;
   flex-direction:column;
@@ -249,7 +266,6 @@ button.backBtn{
   width: 100%;
 }
 
-/* ✅ Chips : plus petits (-1) */
 .chipCount{
   border: 1px solid var(--border);
   background: rgba(0,0,0,.22);
@@ -266,12 +282,8 @@ button.backBtn{
   line-height: 1.1;
 }
 
-/* ✅ “Recommandations” : -1 */
-.cardHeader h2.cardTitle{
-  font-size: 21px;
-}
+.cardHeader h2.cardTitle{ font-size: 21px; }
 
-/* ✅ Chip joueur un peu plus long */
 #playerChip{
   min-width: 88px;
   padding-left: 12px;
@@ -422,6 +434,7 @@ button.backBtn{
 
 .rankBar.is-red{ background: var(--bar-red); }
 .rankBar.is-orange{ background: var(--bar-orange); }
+.rankBar.is-yellow{ background: var(--bar-yellow); }
 .rankBar.is-green{ background: var(--bar-green); }
 .rankBar.is-empty{ background: rgba(255,255,255,.18); }
 
@@ -503,33 +516,13 @@ button.backBtn{
     flex-direction:column;
     align-items:stretch;
   }
-  .headerRight{
-    min-width: 0;
-  }
+  .headerRight{ min-width: 0; }
 
-  .rankRow{
-    padding: 10px 12px 10px 6px;
-    gap: 8px;
-  }
-
-  .rankNum{
-    width: 19px;
-    font-size: 12.5px;
-  }
-
-  .rankName{
-    font-size: 14.5px;
-  }
-
-  .rankBars{
-    margin-left: 10px;
-    width: 44px;
-  }
-
-  .rankPower{
-    width: 96px;
-    font-size: 13px;
-  }
+  .rankRow{ padding: 10px 12px 10px 6px; gap: 8px; }
+  .rankNum{ width: 19px; font-size: 12.5px; }
+  .rankName{ font-size: 14.5px; }
+  .rankBars{ margin-left: 10px; width: 44px; }
+  .rankPower{ width: 96px; font-size: 13px; }
 
   .chipCount{ font-size: 12.5px; }
   .cardHeader h2.cardTitle{ font-size: 20px; }
@@ -540,46 +533,17 @@ button.backBtn{
   .title{ font-size: 22px; }
   .portraits{ gap: 8px; }
 
-  .filterToggle{
-    padding: 9px 8px;
-    gap: 8px;
-  }
-  .filterToggle input{
-    width: 16px;
-    height: 16px;
-  }
+  .filterToggle{ padding: 9px 8px; gap: 8px; }
+  .filterToggle input{ width: 16px; height: 16px; }
   .fEmoji{ font-size: 17px; }
   .fName{ font-size: 12px; }
 
-  .rankRow{
-    padding: 10px 12px 10px 5px;
-    gap: 7px;
-  }
-
-  .rankNum{
-    width: 18px;
-    font-size: 12px;
-  }
-
-  .rankName{
-    font-size: 14px;
-  }
-
-  .rankBar{
-    width: 4px;
-    height: 20px;
-  }
-
-  .rankBars{
-    gap: 4px;
-    margin-left: 10px;
-    width: 40px;
-  }
-
-  .rankPower{
-    width: 90px;
-    font-size: 12.5px;
-  }
+  .rankRow{ padding: 10px 12px 10px 5px; gap: 7px; }
+  .rankNum{ width: 18px; font-size: 12px; }
+  .rankName{ font-size: 14px; }
+  .rankBar{ width: 4px; height: 20px; }
+  .rankBars{ gap: 4px; margin-left: 10px; width: 40px; }
+  .rankPower{ width: 90px; font-size: 12.5px; }
 
   .chipCount{ font-size: 12px; }
   .cardHeader h2.cardTitle{ font-size: 19px; }
@@ -590,32 +554,44 @@ button.backBtn{
   *{ scroll-behavior: auto !important; }
 }
 
-/* ===== COUNTERS (cartes + halos) ===== */
+/* ===== COUNTERS (cartes + indicateur fort) ===== */
 #results{
   display:flex;
   flex-direction:column;
   gap: 10px;
 }
 
-.counterCard + .counterCard{
-  margin-top: 18px;
-}
+.counterCard + .counterCard{ margin-top: 18px; }
 
 .counterCard{
   border:1px solid var(--border);
-  border-radius:16px;
-  padding:12px;
+  border-radius:18px;
+
+  /* ✅ on laisse de la place pour le bandeau */
+  padding: 12px 12px 12px 58px;
+
   display:flex;
   flex-direction:column;
   gap:10px;
-  background: rgba(0,0,0,.22);
 
   position: relative;
   overflow: hidden;
 
+  /* valeurs par défaut */
   --halo: rgba(255,255,255,.00);
+  --tint: rgba(255,255,255,.00);
+  --band: rgba(255,255,255,.00);
+  --label: "—";
+
+  /* ✅ fond teinté + dégradé doux (couleur -> noir) */
+  background:
+    linear-gradient(90deg, var(--tint) 0%, rgba(0,0,0,.22) 62%),
+    rgba(0,0,0,.22);
+
+  box-shadow: var(--shadow);
 }
 
+/* ✅ halo interne + bordure interne (renforcé) */
 .counterCard::before{
   content:"";
   position:absolute;
@@ -624,14 +600,75 @@ button.backBtn{
   pointer-events:none;
 
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.06),
-    inset 0 0 18px 0 var(--halo);
+    inset 0 0 0 1px rgba(255,255,255,.07),
+    inset 0 0 22px 0 var(--halo),
+    0 0 0 rgba(0,0,0,0);
   opacity: 1;
 }
 
-.counterCard.is-green{ --halo: var(--halo-green); }
-.counterCard.is-orange{ --halo: var(--halo-orange); }
-.counterCard.is-red{ --halo: var(--halo-red); }
+/* ✅ bandeau vertical + label */
+.counterCard::after{
+  content: var(--label);
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width: 46px;
+
+  background: var(--band);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  /* texte vertical lisible */
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+
+  font-weight: 1000;
+  letter-spacing: .12em;
+  font-size: 12px;
+
+  color: rgba(0,0,0,.88);
+  text-shadow: 0 1px 0 rgba(255,255,255,.22);
+
+  /* séparation nette mais “premium” */
+  box-shadow:
+    inset -1px 0 0 rgba(255,255,255,.20),
+    8px 0 22px rgba(0,0,0,.35);
+
+  border-top-left-radius: 18px;
+  border-bottom-left-radius: 18px;
+}
+
+/* ===== 4 états ===== */
+.counterCard.is-green{
+  --halo: var(--halo-green);
+  --tint: var(--tint-green);
+  --band: var(--band-green);
+  --label: "SÛR";
+}
+
+.counterCard.is-yellow{
+  --halo: var(--halo-yellow);
+  --tint: var(--tint-yellow);
+  --band: var(--band-yellow);
+  --label: "PASSE";
+}
+
+.counterCard.is-orange{
+  --halo: var(--halo-orange);
+  --tint: var(--tint-orange);
+  --band: var(--band-orange);
+  --label: "RISQUÉ";
+}
+
+.counterCard.is-red{
+  --halo: var(--halo-red);
+  --tint: var(--tint-red);
+  --band: var(--band-red);
+  --label: "ÉVITER";
+}
 
 .counterTop{
   display:flex;
@@ -641,8 +678,8 @@ button.backBtn{
 }
 
 .counterName{
-  font-weight:900;
-  font-size:16px;
+  font-weight: 1000;
+  font-size: 17px;
   line-height: 1.1;
 }
 
@@ -655,14 +692,14 @@ button.backBtn{
 }
 
 .counterPower{
-  font-weight:900;
-  font-size:14px;
+  font-weight: 1000;
+  font-size: 15px;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }
 
 .counterRatio{
-  font-weight: 800;
+  font-weight: 900;
   font-size: 13px;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
@@ -680,7 +717,7 @@ button.backBtn{
   height:42px;
   border-radius:10px;
   overflow:hidden;
-  border:1px solid var(--border);
+  border:1px solid rgba(255,255,255,.12);
   background: var(--panel2);
   flex: 0 0 auto;
 }
