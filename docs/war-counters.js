@@ -66,6 +66,23 @@
       .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
+  // Affichage “humain” pour les gros nombres : 5,2 M / 800 k
+  function formatCompactFR(n) {
+    const num = Number(n);
+    if (!Number.isFinite(num) || num <= 0) return "0";
+
+    if (num >= 1_000_000) {
+      const v = Math.round((num / 1_000_000) * 10) / 10; // 1 décimale
+      // 5.2 -> "5,2"
+      return `${String(v).replace(".", ",")} M`;
+    }
+    if (num >= 1_000) {
+      const v = Math.round(num / 1_000); // entier
+      return `${v} k`;
+    }
+    return String(Math.round(num));
+  }
+
   // ---------- Enemy power LIVE formatting (digits only + thousands dot) ----------
   function digitsOnly(s) {
     return String(s || "").replace(/[^\d]/g, "");
@@ -372,10 +389,9 @@
     const ok = Number(r.min_ok) || 0;
     const safe = Number(r.min_safe) || 0;
 
-    // fallback si rien n'est renseigné: on garde un comportement simple
+    // fallback si rien n'est renseigné: comportement simple
     if (!hard && !ok && !safe) return ratio >= 1 ? "is-yellow" : "is-red";
 
-    // ✅ ordre: safe > ok > hard > red
     if (safe && ratio >= safe) return "is-green";
     if (ok && ratio >= ok) return "is-yellow";
     if (hard && ratio >= hard) return "is-orange";
@@ -389,7 +405,35 @@
     return 3; // is-red
   }
 
-  function makeCounterCard({ teamName, power, ratio, cls, portraits, enemy, notes }) {
+  // --------- NEW: texte "Recommandé" + "marge / requis" (au lieu du ratio) ----------
+  function computeRecommendation(enemyPower, row, teamPower) {
+    const enemy = Number(enemyPower) || 0;
+    const ok = Number(row?.min_ok) || 0;
+
+    // si pas d'ennemi ou pas de seuil ok, on ne peut pas afficher un recommandé fiable
+    if (enemy <= 0 || ok <= 0) {
+      return {
+        show: false,
+        recommended: 0,
+        delta: 0,
+        line1: "",
+        line2: "",
+      };
+    }
+
+    const recommended = enemy * ok;
+    const delta = teamPower - recommended;
+
+    const recTxt = formatCompactFR(recommended);
+    const absTxt = formatCompactFR(Math.abs(delta));
+
+    const line1 = `Recommandé : ${recTxt} mini`;
+    const line2 = delta >= 0 ? `✅ ${absTxt} de marge` : `🚫 + ${absTxt} mini. requis`;
+
+    return { show: true, recommended, delta, line1, line2 };
+  }
+
+  function makeCounterCard({ teamName, power, cls, portraits, enemy, row, notes }) {
     const card = document.createElement("div");
     card.className = `counterCard ${cls}`.trim();
 
@@ -408,11 +452,21 @@
     pow.textContent = formatThousandsDot(power);
     right.appendChild(pow);
 
-    if (enemy > 0) {
-      const rr = document.createElement("div");
-      rr.className = "counterRatio";
-      rr.textContent = `x${ratio.toFixed(2)}`;
-      right.appendChild(rr);
+    // ✅ Remplace le ratio par :
+    // - Recommandé : X mini
+    // - ✅ marge / 🚫 requis
+    const rec = computeRecommendation(enemy, row, power);
+    if (rec.show) {
+      const l1 = document.createElement("div");
+      l1.className = "counterRatio"; // on réutilise le style (taille/couleur)
+      l1.textContent = rec.line1;
+
+      const l2 = document.createElement("div");
+      l2.className = "counterRatio"; // idem, même style
+      l2.textContent = rec.line2;
+
+      right.appendChild(l1);
+      right.appendChild(l2);
     }
 
     top.appendChild(left);
@@ -490,21 +544,31 @@
       return;
     }
 
+    // ✅ enrichit pour trier: ratio/class + delta recommandé (optionnel)
     const rows = baseRows.map((r) => {
       const atkList = (r.atk_chars || []).filter((c) => (c || "").trim());
       const power = getPlayerPower(player, atkList);
       const ratio = enemy > 0 ? power / enemy : 0;
       const cls = enemy > 0 ? getClass(ratio, r) : "is-yellow"; // sans enemy: neutre (prudence)
-      return { r, atkList, power, ratio, cls };
+
+      const rec = computeRecommendation(enemy, r, power);
+      const delta = rec.show ? rec.delta : 0;
+
+      return { r, atkList, power, ratio, cls, delta, hasRec: rec.show };
     });
 
     // ✅ TRI AUTOMATIQUE : safe -> risqué
+    // À classe égale, on trie par "marge" (delta) puis par power
     rows.sort((a, b) => {
       if (enemy > 0) {
         const ra = classRank(a.cls);
         const rb = classRank(b.cls);
         if (ra !== rb) return ra - rb;
 
+        // à classe égale: plus de marge d'abord (si recommandé dispo)
+        if (a.hasRec && b.hasRec && a.delta !== b.delta) return b.delta - a.delta;
+
+        // sinon fallback ratio/power
         if (a.ratio !== b.ratio) return b.ratio - a.ratio;
         if (a.power !== b.power) return b.power - a.power;
       } else {
@@ -518,17 +582,17 @@
 
     if (resultsCount) resultsCount.textContent = String(rows.length);
 
-    rows.forEach(({ r, atkList, power, ratio, cls }) => {
+    rows.forEach(({ r, atkList, power, cls }) => {
       const portraits = atkList.map((c) => getPortrait(c)).filter(Boolean);
 
       resultsWrap.appendChild(
         makeCounterCard({
           teamName: r.atk_team || "Counter",
           power,
-          ratio: enemy > 0 ? ratio : 1,
           cls,
           portraits,
           enemy,
+          row: r, // ✅ pour accéder à min_ok
           notes: r.notes || "",
         })
       );
