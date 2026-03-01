@@ -118,8 +118,11 @@ function scoreHeaderRow(repairedHeaders) {
   if (set.has("atk_team")) score += 5;
   if (set.has("atk_key")) score += 3;
 
+  // ✅ ratios (P,Q,R)
+  if (set.has("min_ratio_hard")) score += 2;
   if (set.has("min_ratio_ok")) score += 2;
   if (set.has("min_ratio_safe")) score += 2;
+
   if (set.has("notes")) score += 1;
 
   if (repairedHeaders.filter(Boolean).length >= 12) score += 2;
@@ -232,7 +235,7 @@ async function main() {
     const sObj = rowToObject(headers, sample);
     console.log(
       "[war-counters] Sample row:",
-      ["def_family", "def_variant", "def_key", "atk_team", "atk_key"]
+      ["def_family", "def_variant", "def_key", "atk_team", "atk_key", "min_ratio_hard", "min_ratio_ok", "min_ratio_safe"]
         .map((k) => `${k}=${sObj[k] ?? ""}`)
         .join(" | ")
     );
@@ -262,8 +265,11 @@ async function main() {
         atk_char4: pick(o, "atk_char4"),
         atk_char5: pick(o, "atk_char5"),
 
+        // ✅ ratios (P,Q,R)
+        min_ratio_hard: parseRatio(pick(o, "min_ratio_hard")),
         min_ratio_ok: parseRatio(pick(o, "min_ratio_ok")),
         min_ratio_safe: parseRatio(pick(o, "min_ratio_safe")),
+
         notes: pick(o, "notes"),
       };
     });
