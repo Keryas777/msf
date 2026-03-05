@@ -1,0 +1,51 @@
+name: Build rosters.json (from uploaded CSV)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "data_upload/rosters/*.csv"
+      - "scripts/rosters-from-csv.mjs"
+      - ".github/workflows/rosters-from-csv.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-rosters-json
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Generate docs/data/rosters.json from uploaded CSV files
+        run: |
+          node --version
+          ls -la data_upload/rosters || true
+          node scripts/rosters-from-csv.mjs
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A docs/data/rosters.json
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update rosters.json (from uploaded CSV)"
+          git push origin HEAD:${GITHUB_REF_NAME}
