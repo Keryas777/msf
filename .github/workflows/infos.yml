@@ -2,8 +2,10 @@ name: Update infos.json
 
 on:
   workflow_dispatch:
+
   schedule:
-    - cron: "15 */6 * * *" # toutes les 6h (00:15, 06:15, 12:15, 18:15)
+    - cron: "15 */6 * * *" # toutes les 6h
+
   push:
     paths:
       - "scripts/sheets-infos.mjs"
@@ -22,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -32,23 +35,36 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Generate docs/data/infos.json (uses local joueurs.json)
+      - name: Generate docs/data/infos.json
         env:
+
           OUT_FILE: docs/data/infos.json
-          INFOS_CSV_URL: https://docs.google.com/spreadsheets/d/e/2PACX-1vTYKGvuHFRrB59aW6oMHBVFTRBdHhxxZP76YmwlpedoepMftwst1MfCwLg7pMLCPsGOpSrADdLzntQH/pub?gid=2000709341&single=true&output=csv
-          # Force l’usage du fichier local /docs/data/joueurs.json (pas de CSV, pas de secrets)
+
+          # 3 onglets Infos
+          INFOS_ZEUS_CSV_URL: https://docs.google.com/spreadsheets/d/e/2PACX-1vTYKGvuHFRrB59aW6oMHBVFTRBdHhxxZP76YmwlpedoepMftwst1MfCwLg7pMLCPsGOpSrADdLzntQH/pub?gid=XXXXXXXX&single=true&output=csv
+
+          INFOS_DIONYSOS_CSV_URL: https://docs.google.com/spreadsheets/d/e/2PACX-1vTYKGvuHFRrB59aW6oMHBVFTRBdHhxxZP76YmwlpedoepMftwst1MfCwLg7pMLCPsGOpSrADdLzntQH/pub?gid=XXXXXXXX&single=true&output=csv
+
+          INFOS_POSEIDON_CSV_URL: https://docs.google.com/spreadsheets/d/e/2PACX-1vTYKGvuHFRrB59aW6oMHBVFTRBdHhxxZP76YmwlpedoepMftwst1MfCwLg7pMLCPsGOpSrADdLzntQH/pub?gid=XXXXXXXX&single=true&output=csv
+
+          # joueurs local
           JOUEURS_JSON_FILE: docs/data/joueurs.json
-          # On vide volontairement JOUEURS_CSV_URL pour éviter toute dépendance à un secret
           JOUEURS_CSV_URL: ""
+
         run: |
           node --version
+
           test -f docs/data/joueurs.json || (echo "❌ docs/data/joueurs.json introuvable" && exit 1)
+
           node scripts/sheets-infos.mjs
+
           echo "----- git status after generation -----"
           git status --porcelain
 
+
       - name: Commit & push if changed
         run: |
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
