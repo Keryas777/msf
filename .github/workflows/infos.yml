@@ -38,10 +38,14 @@ jobs:
         env:
           OUT_FILE: docs/data/infos.json
 
-          # 3 onglets Infos
-          INFOS_ZEUS_CSV_URL: https://docs.google.com/spreadsheets/d/e/2PACX-1vTYKGvuHFRrB59aW6oMHBVFTRBdHhxxZP76YmwlpedoepMftwst1MfCwLg7pMLCPsGOpSrADdLzntQH/pub?gid=799736684&single=true&output=csv
-          INFOS_DIONYSOS_CSV_URL: https://docs.google.com/spreadsheets/d/e/2PACX-1vTYKGvuHFRrB59aW6oMHBVFTRBdHhxxZP76YmwlpedoepMftwst1MfCwLg7pMLCPsGOpSrADdLzntQH/pub?gid=1862527085&single=true&output=csv
-          INFOS_POSEIDON_CSV_URL: https://docs.google.com/spreadsheets/d/e/2PACX-1vTYKGvuHFRrB59aW6oMHBVFTRBdHhxxZP76YmwlpedoepMftwst1MfCwLg7pMLCPsGOpSrADdLzntQH/pub?gid=1533167416&single=true&output=csv
+          # ✅ Option recommandée : GViz (lecture publique), PAS "Publier sur le web"
+          # Spreadsheet ID (le tien)
+          SHEET_ID: 1RxAokcQw7rhNigPj8VwipbRRf9PVNA6lJzIVqdMBAXQ
+
+          # GIDs des 3 onglets Infos
+          INFOS_ZEUS_GID: "799736684"
+          INFOS_DIONYSOS_GID: "1862527085"
+          INFOS_POSEIDON_GID: "1533167416"
 
           # joueurs local
           JOUEURS_JSON_FILE: docs/data/joueurs.json
