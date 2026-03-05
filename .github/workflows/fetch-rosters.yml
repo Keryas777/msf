@@ -26,18 +26,34 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - name: Fetch rosters JSON
+      - name: Fetch rosters JSON (3 onglets)
         env:
           SHEET_ID: ${{ secrets.SHEET_ID }}
-          SHEET_NAME: Rosters
+
+          # ✅ 3 onglets Rosters (gid)
+          ROSTERS_ZEUS_GID: "1765769046"
+          ROSTERS_DIONYSOS_GID: "1913647421"
+          ROSTERS_POSEIDON_GID: "266629021"
+
+          # (optionnel) si un jour tu veux override avec des URL directes
+          ROSTERS_ZEUS_CSV_URL: ""
+          ROSTERS_DIONYSOS_CSV_URL: ""
+          ROSTERS_POSEIDON_CSV_URL: ""
+
+          OUT_FILE: "docs/data/rosters.json"
         run: |
+          node --version
           node scripts/fetch-rosters.mjs
+          echo "----- git status after generation -----"
+          git status --porcelain
 
       - name: Commit & push if changed
         run: |
