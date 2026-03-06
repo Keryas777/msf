@@ -1,77 +1,236 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Upload roster Poseidon</title>
 <style>
-body{
-font-family:Arial;
-background:#111;
-color:white;
-text-align:center;
-padding:40px;
+:root{
+  --bg-top: #0a1622;
+  --bg-bottom: #050607;
+  --glow: rgba(92,182,255,.28);
+  --panel: rgba(0,0,0,.42);
+  --border: rgba(255,255,255,.12);
+  --text: rgba(255,255,255,.94);
+  --muted: rgba(255,255,255,.72);
+  --btn-bg: #6cbcff;
+  --btn-text: #111;
 }
+
+*{ box-sizing:border-box; }
+
+html,body{
+  margin:0;
+  min-height:100%;
+}
+
+body{
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top, var(--glow), transparent 42%),
+    linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+.card{
+  width:min(100%, 560px);
+  background: var(--panel);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:34px 24px 24px;
+  text-align:center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow:
+    0 12px 32px rgba(0,0,0,.45),
+    inset 0 0 28px var(--glow);
+}
+
+.logo{
+  width:120px;
+  max-width:50%;
+  height:auto;
+  display:block;
+  margin:0 auto 18px;
+  filter: drop-shadow(0 0 18px rgba(255,255,255,.10));
+}
+
+h1{
+  margin:0 0 12px;
+  font-size:36px;
+  line-height:1.05;
+  font-weight:900;
+}
+
+.sub{
+  margin:0 0 28px;
+  color:var(--muted);
+  font-size:16px;
+  line-height:1.4;
+}
+
+.stack{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.field{
+  text-align:left;
+}
+
+.label{
+  display:block;
+  margin:0 0 8px;
+  font-size:14px;
+  color:var(--muted);
+  font-weight:700;
+}
+
+input[type="file"],
+input[type="password"]{
+  width:100%;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,.06);
+  color:var(--text);
+  font-size:16px;
+  outline:none;
+}
+
+input[type="file"]{
+  padding:12px;
+}
+
+input[type="password"]{
+  padding:14px 16px;
+}
+
+input[type="password"]::placeholder{
+  color:rgba(255,255,255,.45);
+}
+
 button{
-padding:12px 20px;
-font-size:16px;
-cursor:pointer;
+  width:100%;
+  margin-top:4px;
+  padding:16px 18px;
+  border:none;
+  border-radius:16px;
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  font-size:18px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow: 0 8px 24px rgba(0,0,0,.28);
+}
+
+button:active{
+  transform:scale(.99);
+}
+
+#result{
+  margin-top:22px;
+  min-height:74px;
+  padding:16px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,.04);
+  text-align:left;
+  white-space:pre-wrap;
+  font-size:14px;
+  line-height:1.45;
+  color:var(--text);
+}
+
+@media (max-width:520px){
+  .card{
+    padding:28px 18px 18px;
+    border-radius:20px;
+  }
+
+  .logo{
+    width:96px;
+  }
+
+  h1{
+    font-size:30px;
+  }
+
+  .sub{
+    font-size:15px;
+    margin-bottom:22px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<h1>Upload roster – Poseidon</h1>
+<div class="card">
+  <img class="logo" src="../upload_poseidon.webp" alt="Poseidon">
 
-<input type="file" id="file" accept=".csv">
-<br><br>
+  <h1>Upload roster — Poseidon</h1>
+  <p class="sub">
+    Importe le fichier CSV roster de l’alliance Poseidon pour mettre à jour automatiquement les données.
+  </p>
 
-<input type="password" id="pwd" placeholder="Mot de passe">
-<br><br>
+  <div class="stack">
+    <div class="field">
+      <label class="label" for="file">Fichier CSV</label>
+      <input type="file" id="file" accept=".csv,text/csv">
+    </div>
 
-<button onclick="upload()">Upload</button>
+    <div class="field">
+      <label class="label" for="pwd">Mot de passe</label>
+      <input type="password" id="pwd" placeholder="Entrer le mot de passe">
+    </div>
 
-<pre id="result"></pre>
+    <button onclick="upload()">Uploader</button>
+  </div>
+
+  <pre id="result">En attente d’un fichier…</pre>
+</div>
 
 <script>
-
-const ENDPOINT =
-"https://msf-upload.deliriousfan7.workers.dev/poseidon";
+const ENDPOINT = "https://msf-upload.deliriousfan7.workers.dev/poseidon";
 
 async function upload(){
+  const file = document.getElementById("file").files[0];
+  const pwd = document.getElementById("pwd").value;
+  const result = document.getElementById("result");
 
-const file =
-document.getElementById("file").files[0];
+  if(!file){
+    result.textContent = "❌ Choisir un fichier CSV.";
+    return;
+  }
 
-const pwd =
-document.getElementById("pwd").value;
+  if(!pwd){
+    result.textContent = "❌ Entrer le mot de passe.";
+    return;
+  }
 
-if(!file){
-alert("Choisir un CSV");
-return;
+  result.textContent = "⏳ Lecture du fichier…";
+
+  const text = await file.text();
+
+  result.textContent = "⏳ Upload en cours…";
+
+  const res = await fetch(ENDPOINT,{
+    method:"POST",
+    headers:{
+      "Content-Type":"text/csv",
+      "x-upload-password":pwd
+    },
+    body:text
+  });
+
+  const out = await res.text();
+  result.textContent = out;
 }
-
-const text =
-await file.text();
-
-const res =
-await fetch(ENDPOINT,{
-method:"POST",
-headers:{
-"Content-Type":"text/csv",
-"x-upload-password":pwd
-},
-body:text
-});
-
-const out =
-await res.text();
-
-document.getElementById("result")
-.textContent = out;
-
-}
-
 </script>
 
 </body>
