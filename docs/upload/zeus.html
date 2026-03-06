@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Upload roster Zeus</title>
+<style>
+body{
+font-family:Arial;
+background:#111;
+color:white;
+text-align:center;
+padding:40px;
+}
+button{
+padding:12px 20px;
+font-size:16px;
+cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Upload roster – Zeus</h1>
+
+<input type="file" id="file" accept=".csv">
+<br><br>
+
+<input type="password" id="pwd" placeholder="Mot de passe">
+<br><br>
+
+<button onclick="upload()">Upload</button>
+
+<pre id="result"></pre>
+
+<script>
+
+const ENDPOINT =
+"https://msf-upload.deliriousfan7.workers.dev/zeus";
+
+async function upload(){
+
+const file =
+document.getElementById("file").files[0];
+
+const pwd =
+document.getElementById("pwd").value;
+
+if(!file){
+alert("Choisir un CSV");
+return;
+}
+
+const text =
+await file.text();
+
+const res =
+await fetch(ENDPOINT,{
+method:"POST",
+headers:{
+"Content-Type":"text/csv",
+"x-upload-password":pwd
+},
+body:text
+});
+
+const out =
+await res.text();
+
+document.getElementById("result")
+.textContent = out;
+
+}
+
+</script>
+
+</body>
+</html>
