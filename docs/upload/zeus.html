@@ -15,6 +15,12 @@
   --muted: rgba(255,255,255,.72);
   --btn-bg: #f2cf58;
   --btn-text: #111;
+  --ok-bg: rgba(46, 204, 113, .14);
+  --ok-border: rgba(46, 204, 113, .35);
+  --ok-text: #9df0bb;
+  --err-bg: rgba(255, 77, 77, .14);
+  --err-border: rgba(255, 77, 77, .35);
+  --err-text: #ffb1b1;
 }
 
 *{ box-sizing:border-box; }
@@ -132,6 +138,11 @@ button:active{
   transform:scale(.99);
 }
 
+button:disabled{
+  opacity:.65;
+  cursor:wait;
+}
+
 #result{
   margin-top:22px;
   min-height:74px;
@@ -144,6 +155,57 @@ button:active{
   font-size:14px;
   line-height:1.45;
   color:var(--text);
+}
+
+.resultBox{
+  border-radius:16px;
+  padding:16px;
+  border:1px solid var(--border);
+}
+
+.resultBox.ok{
+  background: var(--ok-bg);
+  border-color: var(--ok-border);
+  color: var(--ok-text);
+}
+
+.resultBox.error{
+  background: var(--err-bg);
+  border-color: var(--err-border);
+  color: var(--err-text);
+}
+
+.resultTitle{
+  font-size:18px;
+  font-weight:900;
+  margin:0 0 8px;
+}
+
+.resultText{
+  margin:0;
+  line-height:1.45;
+}
+
+details{
+  margin-top:14px;
+}
+
+summary{
+  cursor:pointer;
+  color:var(--muted);
+  font-weight:700;
+}
+
+.tech{
+  margin-top:10px;
+  padding:12px;
+  border-radius:12px;
+  background: rgba(255,255,255,.05);
+  border:1px solid var(--border);
+  color:var(--text);
+  white-space:pre-wrap;
+  font-size:13px;
+  line-height:1.4;
 }
 
 @media (max-width:520px){
@@ -189,47 +251,112 @@ button:active{
       <input type="password" id="pwd" placeholder="Entrer le mot de passe">
     </div>
 
-    <button onclick="upload()">Uploader</button>
+    <button id="uploadBtn" onclick="upload()">Uploader</button>
   </div>
 
-  <pre id="result">En attente d’un fichier…</pre>
+  <div id="result">En attente d’un fichier…</div>
 </div>
 
 <script>
 const ENDPOINT = "https://msf-upload.deliriousfan7.workers.dev/zeus";
 
+function escapeHtml(str){
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function showInfo(message){
+  document.getElementById("result").innerHTML = escapeHtml(message);
+}
+
+function showSuccess(data, rawText){
+  const alliance = data?.alliance || "zeus";
+  const players = data?.players ?? "?";
+  const file = data?.file || "";
+  const message = data?.message || "Upload terminé avec succès.";
+
+  document.getElementById("result").innerHTML = `
+    <div class="resultBox ok">
+      <div class="resultTitle">✅ Upload réussi</div>
+      <p class="resultText">
+        Alliance : <strong>${escapeHtml(alliance)}</strong><br>
+        Joueurs traités : <strong>${escapeHtml(players)}</strong><br>
+        Fichier mis à jour : <strong>${escapeHtml(file)}</strong><br>
+        ${escapeHtml(message)}
+      </p>
+      <details>
+        <summary>Détails techniques</summary>
+        <div class="tech">${escapeHtml(rawText)}</div>
+      </details>
+    </div>
+  `;
+}
+
+function showError(title, rawText){
+  document.getElementById("result").innerHTML = `
+    <div class="resultBox error">
+      <div class="resultTitle">❌ ${escapeHtml(title)}</div>
+      <p class="resultText">L’upload n’a pas abouti correctement.</p>
+      <details open>
+        <summary>Détails techniques</summary>
+        <div class="tech">${escapeHtml(rawText)}</div>
+      </details>
+    </div>
+  `;
+}
+
 async function upload(){
   const file = document.getElementById("file").files[0];
   const pwd = document.getElementById("pwd").value;
   const result = document.getElementById("result");
+  const btn = document.getElementById("uploadBtn");
 
   if(!file){
-    result.textContent = "❌ Choisir un fichier CSV.";
+    showError("Aucun fichier sélectionné", "Choisir un fichier CSV.");
     return;
   }
 
   if(!pwd){
-    result.textContent = "❌ Entrer le mot de passe.";
+    showError("Mot de passe manquant", "Entrer le mot de passe avant l’envoi.");
     return;
   }
 
-  result.textContent = "⏳ Lecture du fichier…";
+  btn.disabled = true;
+  showInfo("⏳ Lecture du fichier…");
 
-  const text = await file.text();
+  try{
+    const text = await file.text();
 
-  result.textContent = "⏳ Upload en cours…";
+    showInfo("⏳ Upload en cours…");
 
-  const res = await fetch(ENDPOINT,{
-    method:"POST",
-    headers:{
-      "Content-Type":"text/csv",
-      "x-upload-password":pwd
-    },
-    body:text
-  });
+    const res = await fetch(ENDPOINT,{
+      method:"POST",
+      headers:{
+        "Content-Type":"text/csv",
+        "x-upload-password":pwd
+      },
+      body:text
+    });
 
-  const out = await res.text();
-  result.textContent = out;
+    const rawText = await res.text();
+
+    let data = null;
+    try{
+      data = JSON.parse(rawText);
+    }catch(_){}
+
+    if(res.ok && data && data.ok){
+      showSuccess(data, rawText);
+    }else{
+      showError(`Erreur HTTP ${res.status}`, rawText);
+    }
+  }catch(err){
+    showError("Erreur réseau", String(err?.message || err));
+  }finally{
+    btn.disabled = false;
+  }
 }
 </script>
 
