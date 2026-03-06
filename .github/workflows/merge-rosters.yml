@@ -1,0 +1,59 @@
+name: Merge rosters.json
+
+on:
+  workflow_dispatch:
+
+  push:
+    paths:
+      - "docs/data/rosters_zeus.json"
+      - "docs/data/rosters_dionysos.json"
+      - "docs/data/rosters_poseidon.json"
+      - "scripts/merge-rosters.mjs"
+      - ".github/workflows/merge-rosters.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: merge-rosters-json
+  cancel-in-progress: true
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Merge alliance roster files into docs/data/rosters.json
+        env:
+          DATA_DIR: docs/data
+          OUT_FILE: docs/data/rosters.json
+        run: |
+          node --version
+          node scripts/merge-rosters.mjs
+          echo "----- git status after merge -----"
+          git status --porcelain
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add docs/data/rosters.json
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Merge rosters.json"
+          git push origin HEAD:${GITHUB_REF_NAME}
