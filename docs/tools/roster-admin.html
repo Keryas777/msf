@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Roster Admin</title>
+  <style>
+    :root{
+      --bg:#070809;
+      --panel:rgba(18,20,24,.82);
+      --panel2:rgba(255,255,255,.04);
+      --border:rgba(255,255,255,.10);
+      --text:rgba(255,255,255,.94);
+      --muted:rgba(255,255,255,.68);
+      --accent:#f0d35f;
+      --ok:rgba(46,204,113,.95);
+      --err:rgba(255,77,77,.95);
+      --shadow:0 12px 34px rgba(0,0,0,.42);
+    }
+
+    *{ box-sizing:border-box; }
+
+    html,body{
+      margin:0;
+      min-height:100%;
+      background:var(--bg);
+      color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    }
+
+    body{
+      background:
+        radial-gradient(900px 500px at 50% 0%, rgba(240,211,95,.10), transparent 55%),
+        linear-gradient(180deg, #0a0b0d, #060708);
+    }
+
+    .wrap{
+      width:min(1100px, 100%);
+      margin:0 auto;
+      padding:20px;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .header{
+      padding:22px 20px 18px;
+    }
+
+    h1{
+      margin:0;
+      font-size:32px;
+      line-height:1.05;
+      font-weight:900;
+    }
+
+    .sub{
+      margin:10px 0 0;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.4;
+    }
+
+    .toolbar{
+      display:grid;
+      grid-template-columns: 1fr 180px 150px;
+      gap:12px;
+      padding:16px 20px 20px;
+      align-items:end;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .label{
+      font-size:13px;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    input, select, button{
+      width:100%;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+
+    input, select{
+      padding:14px 16px;
+    }
+
+    button{
+      padding:14px 16px;
+      background:var(--accent);
+      color:#111;
+      font-weight:900;
+      cursor:pointer;
+      border:none;
+    }
+
+    button:active{
+      transform:scale(.99);
+    }
+
+    .status{
+      padding:14px 18px;
+      border-top:1px solid var(--border);
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.4;
+    }
+
+    .status.ok{ color:var(--ok); }
+    .status.err{ color:var(--err); }
+
+    .results{
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+    }
+
+    .playerCard{
+      padding:18px;
+    }
+
+    .playerTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:14px;
+      margin-bottom:14px;
+    }
+
+    .playerName{
+      font-size:28px;
+      font-weight:900;
+      line-height:1.05;
+      margin:0;
+    }
+
+    .playerMeta{
+      color:var(--muted);
+      font-size:14px;
+      margin-top:8px;
+      line-height:1.4;
+    }
+
+    .chip{
+      flex:0 0 auto;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--border);
+      color:var(--text);
+      font-size:13px;
+      font-weight:800;
+      text-transform:capitalize;
+    }
+
+    .chars{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap:12px;
+    }
+
+    .charCard{
+      background:var(--panel2);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .charName{
+      font-size:17px;
+      font-weight:900;
+      line-height:1.15;
+      margin:0 0 10px;
+      word-break:break-word;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:8px;
+      font-size:14px;
+    }
+
+    .stat{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:12px;
+      padding:8px 10px;
+    }
+
+    .statLabel{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:3px;
+    }
+
+    .empty{
+      padding:24px 18px;
+      text-align:center;
+      color:var(--muted);
+    }
+
+    .hidden{
+      display:none !important;
+    }
+
+    @media (max-width: 760px){
+      .wrap{ padding:14px; }
+      .toolbar{
+        grid-template-columns: 1fr;
+      }
+      h1{ font-size:28px; }
+      .playerName{ font-size:24px; }
+      .playerTop{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="wrap hidden">
+    <section class="card">
+      <div class="header">
+        <h1>Roster Admin</h1>
+        <p class="sub">
+          Recherche rapide dans <code>rosters.json</code> sans ouvrir le JSON brut.
+        </p>
+      </div>
+
+      <div class="toolbar">
+        <div class="field">
+          <label class="label" for="searchInput">Recherche joueur</label>
+          <input id="searchInput" type="text" placeholder="Nom, pseudo, playerKey…">
+        </div>
+
+        <div class="field">
+          <label class="label" for="allianceFilter">Alliance</label>
+          <select id="allianceFilter">
+            <option value="">Toutes</option>
+            <option value="zeus">Zeus</option>
+            <option value="dionysos">Dionysos</option>
+            <option value="poseidon">Poseidon</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="label" for="sortMode">Tri</label>
+          <select id="sortMode">
+            <option value="name">Nom</option>
+            <option value="tcp">TCP décroissant</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="status" class="status">Chargement…</div>
+    </section>
+
+    <section id="results" class="results"></section>
+  </div>
+
+  <script>
+    // =========================
+    // CONFIG
+    // =========================
+    const PAGE_PASSWORD = "CHANGE-MOI";
+    const ROSTERS_URL = "../data/rosters.json";
+
+    // =========================
+    // AUTH SIMPLE
+    // =========================
+    (function gate(){
+      const input = prompt("Mot de passe");
+      if(input !== PAGE_PASSWORD){
+        document.body.innerHTML = `
+          <div style="
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:24px;
+            color:white;
+            font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+            background:#070809;">
+            <div style="
+              width:min(420px,100%);
+              background:rgba(18,20,24,.82);
+              border:1px solid rgba(255,255,255,.10);
+              border-radius:22px;
+              padding:26px;
+              text-align:center;">
+              <div style="font-size:28px;font-weight:900;margin-bottom:10px;">Accès refusé</div>
+              <div style="color:rgba(255,255,255,.72);line-height:1.5;">
+                Mot de passe incorrect.
+              </div>
+            </div>
+          </div>
+        `;
+        throw new Error("Unauthorized");
+      }
+      document.getElementById("app").classList.remove("hidden");
+    })();
+
+    // =========================
+    // HELPERS
+    // =========================
+    function normalizeKey(s) {
+      return (s ?? "")
+        .toString()
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "")
+        .replace(/[-_]/g, "")
+        .replace(/[’']/g, "")
+        .replace(/[^a-z0-9]/g, "");
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+    }
+
+    function titleCaseCharKey(key){
+      return String(key || "")
+        .replace(/([a-z])([A-Z])/g, "$1 $2")
+        .replace(/([a-z])([0-9])/g, "$1 $2")
+        .replace(/([0-9])([a-z])/g, "$1 $2")
+        .replace(/[_-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function computeTcp(player){
+      const chars = player?.chars && typeof player.chars === "object" ? player.chars : {};
+      return Object.values(chars).reduce((sum, c) => sum + (Number(c?.power) || 0), 0);
+    }
+
+    function getAllianceLabel(v){
+      if(v === "zeus") return "Zeus";
+      if(v === "dionysos") return "Dionysos";
+      if(v === "poseidon") return "Poseidon";
+      return v || "—";
+    }
+
+    // =========================
+    // STATE
+    // =========================
+    let allRosters = [];
+
+    const statusEl = document.getElementById("status");
+    const resultsEl = document.getElementById("results");
+    const searchInput = document.getElementById("searchInput");
+    const allianceFilter = document.getElementById("allianceFilter");
+    const sortMode = document.getElementById("sortMode");
+
+    function setStatus(text, kind = ""){
+      statusEl.textContent = text;
+      statusEl.className = "status" + (kind ? " " + kind : "");
+    }
+
+    // =========================
+    // LOAD
+    // =========================
+    async function loadRosters(){
+      setStatus("Chargement de rosters.json…");
+
+      const res = await fetch(ROSTERS_URL, { cache: "no-store" });
+      if(!res.ok){
+        throw new Error(`Impossible de charger ${ROSTERS_URL} (HTTP ${res.status})`);
+      }
+
+      const data = await res.json();
+      if(!Array.isArray(data)){
+        throw new Error("Le fichier rosters.json n'est pas un tableau.");
+      }
+
+      allRosters = data;
+      setStatus(`${allRosters.length} joueurs chargés.`, "ok");
+      render();
+    }
+
+    // =========================
+    // FILTER + RENDER
+    // =========================
+    function getFilteredPlayers(){
+      const qRaw = searchInput.value.trim();
+      const q = normalizeKey(qRaw);
+      const alliance = allianceFilter.value;
+      const sort = sortMode.value;
+
+      let out = allRosters.filter(player => {
+        if(alliance && player?.alliance !== alliance) return false;
+
+        if(!q) return true;
+
+        const playerName = normalizeKey(player?.player || "");
+        const playerKey = normalizeKey(player?.playerKey || "");
+
+        return playerName.includes(q) || playerKey.includes(q);
+      });
+
+      if(sort === "tcp"){
+        out.sort((a,b) => computeTcp(b) - computeTcp(a));
+      } else {
+        out.sort((a,b) =>
+          String(a?.player || a?.playerKey || "").localeCompare(
+            String(b?.player || b?.playerKey || ""),
+            "fr",
+            { sensitivity: "base" }
+          )
+        );
+      }
+
+      return out;
+    }
+
+    function render(){
+      const players = getFilteredPlayers();
+
+      if(!players.length){
+        resultsEl.innerHTML = `
+          <section class="card empty">
+            Aucun joueur trouvé avec ces critères.
+          </section>
+        `;
+        return;
+      }
+
+      resultsEl.innerHTML = players.map(player => renderPlayer(player)).join("");
+    }
+
+    function renderPlayer(player){
+      const chars = player?.chars && typeof player.chars === "object" ? player.chars : {};
+      const iso = player?.iso && typeof player.iso === "object" ? player.iso : {};
+
+      const charEntries = Object.entries(chars)
+        .map(([charKey, stats]) => ({
+          charKey,
+          stats,
+          iso: iso[charKey] || {}
+        }))
+        .sort((a,b) => (Number(b.stats?.power) || 0) - (Number(a.stats?.power) || 0));
+
+      const tcp = computeTcp(player).toLocaleString("fr-FR");
+
+      return `
+        <section class="card playerCard">
+          <div class="playerTop">
+            <div>
+              <h2 class="playerName">${escapeHtml(player?.player || player?.playerKey || "Joueur inconnu")}</h2>
+              <div class="playerMeta">
+                PlayerKey : ${escapeHtml(player?.playerKey || "—")}<br>
+                TCP estimé : ${tcp}
+              </div>
+            </div>
+            <div class="chip">${escapeHtml(getAllianceLabel(player?.alliance || ""))}</div>
+          </div>
+
+          <div class="chars">
+            ${charEntries.map(({ charKey, stats, iso }) => `
+              <article class="charCard">
+                <h3 class="charName">${escapeHtml(titleCaseCharKey(charKey))}</h3>
+                <div class="stats">
+                  <div class="stat">
+                    <span class="statLabel">Power</span>
+                    ${Number(stats?.power || 0).toLocaleString("fr-FR")}
+                  </div>
+                  <div class="stat">
+                    <span class="statLabel">Level</span>
+                    ${escapeHtml(stats?.level ?? "—")}
+                  </div>
+                  <div class="stat">
+                    <span class="statLabel">Gear</span>
+                    ${escapeHtml(stats?.gear ?? "—")}
+                  </div>
+                  <div class="stat">
+                    <span class="statLabel">Iso max</span>
+                    ${escapeHtml(stats?.isoMax ?? "—")}
+                  </div>
+                  <div class="stat">
+                    <span class="statLabel">Iso class</span>
+                    ${escapeHtml(iso?.isoClass || "—")}
+                  </div>
+                  <div class="stat">
+                    <span class="statLabel">Iso color</span>
+                    ${escapeHtml(iso?.isoColor || "—")}
+                  </div>
+                </div>
+              </article>
+            `).join("")}
+          </div>
+        </section>
+      `;
+    }
+
+    searchInput.addEventListener("input", render);
+    allianceFilter.addEventListener("change", render);
+    sortMode.addEventListener("change", render);
+
+    loadRosters().catch(err => {
+      setStatus(String(err?.message || err), "err");
+      resultsEl.innerHTML = `
+        <section class="card empty">
+          Impossible de charger les rosters.
+        </section>
+      `;
+    });
+  </script>
+</body>
+</html>
