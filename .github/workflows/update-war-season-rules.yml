@@ -24,16 +24,19 @@ jobs:
       - name: Generate war-season-rules.json
         run: node scripts/fetch-war-season-rules.mjs
 
-      - name: Commit and push if file changed
-        run: |
-          if git diff --quiet -- docs/data/war-season-rules.json; then
-            echo "No changes detected in docs/data/war-season-rules.json"
-            exit 0
-          fi
+      - - name: Commit and push if file changed
+          run: |
+            echo "Git status before commit:"
+            git status --short
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            if [[ -z "$(git status --porcelain docs/data/war-season-rules.json)" ]]; then
+              echo "No changes detected in docs/data/war-season-rules.json"
+              exit 0
+            fi
 
-          git add docs/data/war-season-rules.json
-          git commit -m "chore: update war season rules json"
-          git push
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+            git add docs/data/war-season-rules.json
+            git commit -m "chore: update war season rules json"
+            git push
