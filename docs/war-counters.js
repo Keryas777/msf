@@ -4,6 +4,7 @@
   // Donc ici on pointe vers "./data/..." (PAS /docs/data)
   const FILES = {
     warCounters: "./data/war-counters.json",
+    warSeasonRules: "./data/war-season-rules.json",
     joueurs: "./data/joueurs.json",
     characters: "./data/msf-characters.json",
     rosters: "./data/rosters.json",
@@ -56,7 +57,9 @@
       .toLowerCase()
       .replace(/\s+/g, "")
       .replace(/[-_]/g, "")
-      .replace(/[’']/g, "");
+      .replace(/[’']/g, "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
 
   function formatThousandsDot(n) {
     const num = Number(n);
@@ -72,12 +75,11 @@
     if (!Number.isFinite(num) || num <= 0) return "0";
 
     if (num >= 1_000_000) {
-      const v = Math.round((num / 1_000_000) * 10) / 10; // 1 décimale
-      // 5.2 -> "5,2"
+      const v = Math.round((num / 1_000_000) * 10) / 10;
       return `${String(v).replace(".", ",")} M`;
     }
     if (num >= 1_000) {
-      const v = Math.round(num / 1_000); // entier
+      const v = Math.round(num / 1_000);
       return `${v} k`;
     }
     return String(Math.round(num));
@@ -129,6 +131,10 @@
   let ROSTERS = new Map(); // playerKey -> { charKey -> power }
   let PLAYERS_BY_ALLIANCE = new Map(); // alliance -> [{alliance,player}]
   let CHAR_MAP = new Map(); // charKey -> charObj
+  let WAR_SEASON_RULES = {
+    defaultMultiplier: 1.17,
+    rules: [],
+  };
 
   // ---------- PARSING ----------
   function normalizeWarRow(r) {
@@ -141,6 +147,7 @@
         .map((x) => (x ?? "").toString().trim())
         .filter(Boolean),
 
+      def_team: (r.def_team ?? "").toString().trim(),
       atk_team: (r.atk_team ?? "").toString().trim(),
 
       // IMPORTANT : on garde les cases vides (pour pouvoir gérer des compositions partielles)
@@ -160,6 +167,32 @@
   function isRealCounter(r) {
     if ((r.atk_team || "").trim()) return true;
     return Array.isArray(r.atk_chars) && r.atk_chars.some((c) => (c || "").trim());
+  }
+
+  function normalizeSeasonRules(data) {
+    const defaultMultiplier = Number(data?.defaultMultiplier) || 1.17;
+
+    const rules = Array.isArray(data?.rules)
+      ? data.rules
+          .filter((r) => r && r.active !== false)
+          .map((r) => ({
+            active: true,
+            ruleKey: (r.ruleKey ?? "").toString().trim(),
+            label: (r.label ?? "").toString().trim(),
+            multiplier: Number(r.multiplier) || defaultMultiplier,
+            requiredCount: Number(r.requiredCount) || 5,
+            membersNormalized: new Set(
+              (Array.isArray(r.members) ? r.members : [])
+                .map((m) => normalizeKey(m))
+                .filter(Boolean)
+            ),
+          }))
+      : [];
+
+    return {
+      defaultMultiplier,
+      rules,
+    };
   }
 
   // ---------- CHAR ----------
@@ -200,13 +233,44 @@
     });
   }
 
-  function getPlayerPower(player, chars) {
+  function getPlayerRawPower(player, chars) {
     const roster = ROSTERS.get(normalizeKey(player));
     if (!roster) return 0;
 
     return (Array.isArray(chars) ? chars : [])
       .filter((c) => (c || "").trim())
       .reduce((sum, c) => sum + (roster[normalizeKey(c)] || 0), 0);
+  }
+
+  function getMatchingSeasonRule(teamMembers) {
+    const selected = (Array.isArray(teamMembers) ? teamMembers : [])
+      .filter((c) => (c || "").trim())
+      .map((c) => normalizeKey(c));
+
+    if (!selected.length) return null;
+
+    const rules = Array.isArray(WAR_SEASON_RULES?.rules) ? WAR_SEASON_RULES.rules : [];
+
+    for (const rule of rules) {
+      const requiredCount = Number(rule.requiredCount) || 5;
+      if (selected.length !== requiredCount) continue;
+
+      const matchCount = selected.filter((member) => rule.membersNormalized.has(member)).length;
+
+      if (matchCount === requiredCount) {
+        return rule;
+      }
+    }
+
+    return null;
+  }
+
+  function getWarAdjustedPower(player, teamMembers) {
+    const rawPower = getPlayerRawPower(player, teamMembers);
+    const defaultMultiplier = Number(WAR_SEASON_RULES?.defaultMultiplier) || 1.17;
+    const matchedRule = getMatchingSeasonRule(teamMembers);
+    const multiplier = matchedRule ? Number(matchedRule.multiplier) || defaultMultiplier : defaultMultiplier;
+    return Math.round(rawPower * multiplier);
   }
 
   // ---------- SELECTS ----------
@@ -458,11 +522,11 @@
     const rec = computeRecommendation(enemy, row, power);
     if (rec.show) {
       const l1 = document.createElement("div");
-      l1.className = "counterRatio"; // on réutilise le style (taille/couleur)
+      l1.className = "counterRatio";
       l1.textContent = rec.line1;
 
       const l2 = document.createElement("div");
-      l2.className = "counterRatio"; // idem, même style
+      l2.className = "counterRatio";
       l2.textContent = rec.line2;
 
       right.appendChild(l1);
@@ -547,7 +611,7 @@
     // ✅ enrichit pour trier: ratio/class + delta recommandé (optionnel)
     const rows = baseRows.map((r) => {
       const atkList = (r.atk_chars || []).filter((c) => (c || "").trim());
-      const power = getPlayerPower(player, atkList);
+      const power = getWarAdjustedPower(player, atkList);
       const ratio = enemy > 0 ? power / enemy : 0;
       const cls = enemy > 0 ? getClass(ratio, r) : "is-yellow"; // sans enemy: neutre (prudence)
 
@@ -592,7 +656,7 @@
           cls,
           portraits,
           enemy,
-          row: r, // ✅ pour accéder à min_ok
+          row: r,
           notes: r.notes || "",
         })
       );
@@ -638,14 +702,16 @@
 
   // ---------- BOOT ----------
   async function boot() {
-    const [war, joueurs, chars, rosters] = await Promise.all([
+    const [war, warSeasonRules, joueurs, chars, rosters] = await Promise.all([
       fetchJson(FILES.warCounters),
+      fetchJson(FILES.warSeasonRules),
       fetchJson(FILES.joueurs),
       fetchJson(FILES.characters),
       fetchJson(FILES.rosters),
     ]);
 
     WAR = Array.isArray(war) ? war.map(normalizeWarRow) : [];
+    WAR_SEASON_RULES = normalizeSeasonRules(warSeasonRules);
     JOUEURS = Array.isArray(joueurs) ? joueurs : [];
 
     buildCharMap(chars);
