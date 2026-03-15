@@ -2,15 +2,14 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-// ✅ Option 1 (recommandée) : lien CSV "Publié sur le Web"
-// Tu peux soit le laisser en dur ici, soit le passer via une variable d'env CSV_URL.
+// ✅ Lien CSV "Publié sur le Web" de l'onglet Counters
 const DEFAULT_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYKGvuHFRrB59aW6oMHBVFTRBdHhxxZP76YmwlpedoepMftwst1MfCwLg7pMLCPsGOpSrADdLzntQH/pub?gid=1440171156&single=true&output=csv";
 
-// ✅ Optionnel : si tu veux le surcharger via GitHub Actions
+// ✅ Optionnel : surcharge via GitHub Actions si besoin
 const CSV_URL = process.env.CSV_URL || DEFAULT_CSV_URL;
 
-// (On garde ces options-là, utiles)
+// ✅ Fichier JSON généré
 const OUT_FILE = process.env.OUT_FILE || "docs/data/war-counters.json";
 
 // ------- CSV parser char-by-char (gère \n, \r\n, \r + guillemets) -------
@@ -60,12 +59,9 @@ function parseCsvWithDelimiter(text, delim) {
       row.push(cur);
       cur = "";
 
-      // push row if not totally empty
       if (row.some((c) => String(c ?? "").trim() !== "")) rows.push(row);
-
       row = [];
 
-      // eat \r\n
       if (ch === "\r" && s[i + 1] === "\n") i += 2;
       else i += 1;
 
@@ -76,7 +72,6 @@ function parseCsvWithDelimiter(text, delim) {
     i += 1;
   }
 
-  // last cell
   row.push(cur);
   if (row.some((c) => String(c ?? "").trim() !== "")) rows.push(row);
 
@@ -91,7 +86,7 @@ function normalizeHeaderBasic(h) {
 }
 
 /**
- * ✅ Répare tes headers Google Sheets :
+ * Répare les headers Google Sheets :
  * - "def_family Astral Astral ..." -> "def_family"
  * - "min_ratio_ok 0,5" -> "min_ratio_ok"
  * - "" -> ""
@@ -100,10 +95,7 @@ function repairHeaderCell(cell) {
   const raw = String(cell ?? "").trim();
   if (!raw) return "";
 
-  // take first token before first whitespace
   const firstToken = raw.split(/\s+/)[0] || "";
-
-  // normalize token only
   return normalizeHeaderBasic(firstToken);
 }
 
@@ -118,7 +110,6 @@ function scoreHeaderRow(repairedHeaders) {
   if (set.has("atk_team")) score += 5;
   if (set.has("atk_key")) score += 3;
 
-  // ✅ ratios (P,Q,R)
   if (set.has("min_ratio_hard")) score += 2;
   if (set.has("min_ratio_ok")) score += 2;
   if (set.has("min_ratio_safe")) score += 2;
@@ -155,7 +146,7 @@ function detectBestDelimiter(text) {
 function rowToObject(headers, row) {
   const o = {};
   headers.forEach((h, idx) => {
-    if (!h) return; // ignore empty header columns
+    if (!h) return;
     o[h] = row[idx] ?? "";
   });
   return o;
@@ -180,11 +171,16 @@ function isTotallyEmptyRow(obj) {
 }
 
 async function main() {
-  // ✅ ICI : on utilise ton CSV publié sur le web
-  const url = CSV_URL;
-  console.log(`[war-counters] Fetch CSV: ${url}`);
+  console.log(`[war-counters] Fetch CSV: ${CSV_URL}`);
 
-  const res = await fetch(url, { cache: "no-store" });
+  const res = await fetch(CSV_URL, {
+    cache: "no-store",
+    headers: {
+      "User-Agent": "losp-war-counters-fetcher",
+      Accept: "text/csv,text/plain;q=0.9,*/*;q=0.8",
+    },
+  });
+
   const text = await res.text();
 
   if (!res.ok) {
@@ -193,7 +189,7 @@ async function main() {
     process.exit(1);
   }
 
-  // HTML guard (si Google renvoie une page au lieu du CSV)
+  // Garde-fou : si Google renvoie du HTML au lieu du CSV
   const head = text.slice(0, 400).toLowerCase();
   if (head.includes("<html") || head.includes("<!doctype") || head.includes("accounts.google.com")) {
     console.error("❌ The response looks like HTML (not CSV).");
@@ -216,7 +212,6 @@ async function main() {
     process.exit(1);
   }
 
-  // header = first non-empty row
   const headerIdx = rows.findIndex((r) => r.some((c) => String(c ?? "").trim() !== ""));
   const rawHeaders = rows[headerIdx];
   const headers = rawHeaders.map(repairHeaderCell);
@@ -235,7 +230,16 @@ async function main() {
     const sObj = rowToObject(headers, sample);
     console.log(
       "[war-counters] Sample row:",
-      ["def_family", "def_variant", "def_key", "atk_team", "atk_key", "min_ratio_hard", "min_ratio_ok", "min_ratio_safe"]
+      [
+        "def_family",
+        "def_variant",
+        "def_key",
+        "atk_team",
+        "atk_key",
+        "min_ratio_hard",
+        "min_ratio_ok",
+        "min_ratio_safe",
+      ]
         .map((k) => `${k}=${sObj[k] ?? ""}`)
         .join(" | ")
     );
@@ -244,41 +248,37 @@ async function main() {
   const mapped = dataRows
     .map((r) => rowToObject(headers, r))
     .filter((o) => !isTotallyEmptyRow(o))
-    .map((o) => {
-      return {
-        def_family: pick(o, "def_family"),
-        def_variant: pick(o, "def_variant"),
-        def_key: pick(o, "def_key"),
+    .map((o) => ({
+      def_family: pick(o, "def_family"),
+      def_variant: pick(o, "def_variant"),
+      def_key: pick(o, "def_key"),
 
-        def_char1: pick(o, "def_char1"),
-        def_char2: pick(o, "def_char2"),
-        def_char3: pick(o, "def_char3"),
-        def_char4: pick(o, "def_char4"),
-        def_char5: pick(o, "def_char5"),
+      def_char1: pick(o, "def_char1"),
+      def_char2: pick(o, "def_char2"),
+      def_char3: pick(o, "def_char3"),
+      def_char4: pick(o, "def_char4"),
+      def_char5: pick(o, "def_char5"),
 
-        atk_team: pick(o, "atk_team"),
-        atk_key: pick(o, "atk_key"),
+      atk_team: pick(o, "atk_team"),
+      atk_key: pick(o, "atk_key"),
 
-        atk_char1: pick(o, "atk_char1"),
-        atk_char2: pick(o, "atk_char2"),
-        atk_char3: pick(o, "atk_char3"),
-        atk_char4: pick(o, "atk_char4"),
-        atk_char5: pick(o, "atk_char5"),
+      atk_char1: pick(o, "atk_char1"),
+      atk_char2: pick(o, "atk_char2"),
+      atk_char3: pick(o, "atk_char3"),
+      atk_char4: pick(o, "atk_char4"),
+      atk_char5: pick(o, "atk_char5"),
 
-        // ✅ ratios (P,Q,R)
-        min_ratio_hard: parseRatio(pick(o, "min_ratio_hard")),
-        min_ratio_ok: parseRatio(pick(o, "min_ratio_ok")),
-        min_ratio_safe: parseRatio(pick(o, "min_ratio_safe")),
+      min_ratio_hard: parseRatio(pick(o, "min_ratio_hard")),
+      min_ratio_ok: parseRatio(pick(o, "min_ratio_ok")),
+      min_ratio_safe: parseRatio(pick(o, "min_ratio_safe")),
 
-        notes: pick(o, "notes"),
-      };
-    });
+      notes: pick(o, "notes"),
+    }));
 
-  // filtre utile
   const cleaned = mapped.filter((r) => r.def_family || r.def_variant || r.atk_team || r.atk_key);
 
   await fs.mkdir(path.dirname(OUT_FILE), { recursive: true });
-  await fs.writeFile(OUT_FILE, JSON.stringify(cleaned, null, 2), "utf8");
+  await fs.writeFile(OUT_FILE, JSON.stringify(cleaned, null, 2) + "\n", "utf8");
 
   console.log(`[war-counters] Wrote ${cleaned.length} rows -> ${OUT_FILE}`);
 }
