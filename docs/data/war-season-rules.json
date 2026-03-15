@@ -1,0 +1,185 @@
+{
+  "version": 1,
+  "generatedAt": "2026-03-15T17:02:16.688Z",
+  "source": {
+    "type": "google_sheets_published_csv",
+    "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYKGvuHFRrB59aW6oMHBVFTRBdHhxxZP76YmwlpedoepMftwst1MfCwLg7pMLCPsGOpSrADdLzntQH/pub?gid=1782302584&single=true&output=csv"
+  },
+  "defaultMultiplier": 1.17,
+  "rules": [
+    {
+      "active": true,
+      "ruleKey": "mightyavengers",
+      "label": "Mighty Avengers",
+      "multiplier": 1.43,
+      "requiredCount": 5,
+      "members": [
+        "Vision",
+        "ScarletWitch",
+        "Hercules",
+        "InvisibleWoman",
+        "Falcon"
+      ],
+      "memberCount": 5,
+      "matchMode": "all_selected_members_in_rule_pool"
+    },
+    {
+      "active": true,
+      "ruleKey": "liberté",
+      "label": "Liberté",
+      "multiplier": 1.43,
+      "requiredCount": 5,
+      "members": [
+        "WarMachine",
+        "Patriot",
+        "FalconJoaquin",
+        "PeggyCarter",
+        "SamWilson"
+      ],
+      "memberCount": 5,
+      "matchMode": "all_selected_members_in_rule_pool"
+    },
+    {
+      "active": true,
+      "ruleKey": "impérissables",
+      "label": "Impérissables",
+      "multiplier": 1.43,
+      "requiredCount": 5,
+      "members": [
+        "ZombieIronMan",
+        "ZombieKestrel",
+        "ZombieScarletWitch",
+        "ZombieJuggernaut",
+        "Hela"
+      ],
+      "memberCount": 5,
+      "matchMode": "all_selected_members_in_rule_pool"
+    },
+    {
+      "active": true,
+      "ruleKey": "secretwarriors",
+      "label": "Secret Warriors",
+      "multiplier": 1.43,
+      "requiredCount": 5,
+      "members": [
+        "Negasonic",
+        "YoYo",
+        "Domino",
+        "Quake",
+        "PhantomRider"
+      ],
+      "memberCount": 5,
+      "matchMode": "all_selected_members_in_rule_pool"
+    },
+    {
+      "active": true,
+      "ruleKey": "aforce",
+      "label": "A-Force",
+      "multiplier": 1.43,
+      "requiredCount": 5,
+      "members": [
+        "SpiderWoman",
+        "CaptainMarvel",
+        "JessicaJones",
+        "NicoMinoru",
+        "Photon",
+        "Kahhori",
+        "MsMarvelClassic",
+        "Medusa",
+        "Wasp",
+        "Ironheart",
+        "MoonGirl"
+      ],
+      "memberCount": 11,
+      "matchMode": "all_selected_members_in_rule_pool"
+    }
+  ],
+  "byRuleKey": {
+    "mightyavengers": {
+      "active": true,
+      "ruleKey": "mightyavengers",
+      "label": "Mighty Avengers",
+      "multiplier": 1.43,
+      "requiredCount": 5,
+      "members": [
+        "Vision",
+        "ScarletWitch",
+        "Hercules",
+        "InvisibleWoman",
+        "Falcon"
+      ],
+      "memberCount": 5,
+      "matchMode": "all_selected_members_in_rule_pool"
+    },
+    "liberté": {
+      "active": true,
+      "ruleKey": "liberté",
+      "label": "Liberté",
+      "multiplier": 1.43,
+      "requiredCount": 5,
+      "members": [
+        "WarMachine",
+        "Patriot",
+        "FalconJoaquin",
+        "PeggyCarter",
+        "SamWilson"
+      ],
+      "memberCount": 5,
+      "matchMode": "all_selected_members_in_rule_pool"
+    },
+    "impérissables": {
+      "active": true,
+      "ruleKey": "impérissables",
+      "label": "Impérissables",
+      "multiplier": 1.43,
+      "requiredCount": 5,
+      "members": [
+        "ZombieIronMan",
+        "ZombieKestrel",
+        "ZombieScarletWitch",
+        "ZombieJuggernaut",
+        "Hela"
+      ],
+      "memberCount": 5,
+      "matchMode": "all_selected_members_in_rule_pool"
+    },
+    "secretwarriors": {
+      "active": true,
+      "ruleKey": "secretwarriors",
+      "label": "Secret Warriors",
+      "multiplier": 1.43,
+      "requiredCount": 5,
+      "members": [
+        "Negasonic",
+        "YoYo",
+        "Domino",
+        "Quake",
+        "PhantomRider"
+      ],
+      "memberCount": 5,
+      "matchMode": "all_selected_members_in_rule_pool"
+    },
+    "aforce": {
+      "active": true,
+      "ruleKey": "aforce",
+      "label": "A-Force",
+      "multiplier": 1.43,
+      "requiredCount": 5,
+      "members": [
+        "SpiderWoman",
+        "CaptainMarvel",
+        "JessicaJones",
+        "NicoMinoru",
+        "Photon",
+        "Kahhori",
+        "MsMarvelClassic",
+        "Medusa",
+        "Wasp",
+        "Ironheart",
+        "MoonGirl"
+      ],
+      "memberCount": 11,
+      "matchMode": "all_selected_members_in_rule_pool"
+    }
+  }
+}
