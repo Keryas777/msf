@@ -264,6 +264,10 @@
     }
   }
 
+  function modeRequiresSecondary(modeKey) {
+    return Boolean(getModeConfig(modeKey));
+  }
+
   function itemMatchesSecondary(item, modeKey, selectedSecondary) {
     if (!selectedSecondary) return true;
 
@@ -380,17 +384,19 @@
     const modeKey = getSelectedModeKey();
     const secondary = getSelectedSecondary();
 
-    // ✅ Correctif principal :
-    // tant qu'aucun mode de jeu n'est choisi, on n'affiche rien.
+    // ✅ Rien sans mode de jeu
     if (!mode || !modeKey) {
+      return [];
+    }
+
+    // ✅ Rien sans 2e sélecteur
+    if (modeRequiresSecondary(modeKey) && !secondary) {
       return [];
     }
 
     let rows = getActiveItems().filter((x) => x.modeKey === modeKey);
 
-    if (secondary) {
-      rows = rows.filter((x) => itemMatchesSecondary(x, modeKey, secondary));
-    }
+    rows = rows.filter((x) => itemMatchesSecondary(x, modeKey, secondary));
 
     rows = rows.slice().sort((a, b) => {
       const g = compareTierOrNatural(a.groupLabel, b.groupLabel);
@@ -643,7 +649,7 @@
     return card;
   }
 
-  function renderSummary(items) {
+  function renderSummary() {
     const mode = getSelectedMode();
     const modeKey = getSelectedModeKey();
     const secondary = getSelectedSecondary();
@@ -656,8 +662,12 @@
 
     currentTitle.textContent = modeLabel(mode);
 
-    if (!secondary) {
-      currentSubtitle.textContent = "Fais défiler les recommandations disponibles pour ce mode de jeu.";
+    // ✅ Rien n'est affiché tant que le 2e sélecteur obligatoire n'est pas choisi
+    if (modeRequiresSecondary(modeKey) && !secondary) {
+      const cfg = getModeConfig(modeKey);
+      currentSubtitle.textContent = cfg?.placeholder
+        ? cfg.placeholder.replace(/^—\s*|\s*—$/g, "")
+        : "Choisis un second filtre pour afficher les recommandations.";
       return;
     }
 
@@ -676,8 +686,14 @@
     clearNode(resultsWrap);
 
     const modeKey = getSelectedModeKey();
+    const secondary = getSelectedSecondary();
 
     if (!modeKey) {
+      return;
+    }
+
+    // ✅ Rien tant que le 2e sélecteur obligatoire n'est pas choisi
+    if (modeRequiresSecondary(modeKey) && !secondary) {
       return;
     }
 
@@ -756,7 +772,7 @@
 
   function renderResults() {
     const rows = getFilteredItems();
-    renderSummary(rows);
+    renderSummary();
     renderRowsWithSections(rows);
   }
 
