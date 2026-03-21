@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>LoSP — Conseils</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+
+  <body>
+    <a class="homeBtn" href="./home.html" aria-label="Accueil">🏠</a>
+
+    <div class="app">
+      <header class="header">
+        <div class="headerLeft">
+          <h1 class="title">Conseils</h1>
+          <p class="subtitle">
+            Meta conseillée par mode de jeu, mise à jour depuis Google Sheets.
+          </p>
+        </div>
+
+        <div class="headerRight">
+          <div>
+            <div class="label">Mode</div>
+            <select id="modeSelect" class="select" aria-label="Mode"></select>
+          </div>
+
+          <div>
+            <div class="label">Sous-mode</div>
+            <select id="subModeSelect" class="select" aria-label="Sous-mode"></select>
+          </div>
+
+          <div>
+            <div class="label">Groupe</div>
+            <select id="groupSelect" class="select" aria-label="Groupe"></select>
+          </div>
+        </div>
+      </header>
+
+      <section class="card">
+        <div class="cardHeader">
+          <h2 class="cardTitle" id="currentTitle">—</h2>
+        </div>
+
+        <p class="subtitle" id="currentSubtitle" style="margin-top:0">
+          Choisis un mode pour afficher les recommandations.
+        </p>
+      </section>
+
+      <section class="card">
+        <div class="cardHeader cardHeader--reco">
+          <div class="chipCount chipCount--sm" id="resultsCount">0</div>
+
+          <h2 class="cardTitle cardTitle--sm">Recommandations</h2>
+
+          <div class="chipCount chipCount--sm" id="selectionChip">—</div>
+        </div>
+
+        <div id="results" aria-label="Liste des équipes conseillées"></div>
+      </section>
+    </div>
+
+    <script src="./conseils.js"></script>
+  </body>
+</html>
