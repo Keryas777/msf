@@ -8,15 +8,15 @@
   const qs = (s) => document.querySelector(s);
 
   const modeSelect = qs("#modeSelect");
-  const subModeSelect = qs("#subModeSelect");
-  const groupSelect = qs("#groupSelect");
+  const secondarySelect = qs("#secondarySelect");
+
+  const secondaryField = qs("#secondaryField");
+  const secondaryLabel = qs("#secondaryLabel");
 
   const currentTitle = qs("#currentTitle");
   const currentSubtitle = qs("#currentSubtitle");
 
   const resultsWrap = qs("#results");
-  const resultsCount = qs("#resultsCount");
-  const selectionChip = qs("#selectionChip");
 
   const MODE_LABELS = {
     raids: "Raids",
@@ -31,9 +31,9 @@
     presentation: "Présentation",
     attaque: "Attaque",
     defense: "Défense",
-    zones: "Zones",
-    boss: "Boss",
     offense: "Attaque",
+    boss: "Boss",
+    zones: "Zones",
   };
 
   let ITEMS = [];
@@ -90,10 +90,6 @@
   function subModeLabel(subMode) {
     const k = String(subMode ?? "").trim();
     return SUBMODE_LABELS[k] || humanize(k);
-  }
-
-  function groupLabel(group) {
-    return humanize(group);
   }
 
   function compareNatural(a, b) {
@@ -197,7 +193,7 @@
     });
   }
 
-  // ---------- Selects ----------
+  // ---------- Data access ----------
   function getActiveItems() {
     return ITEMS.filter((x) => x.active);
   }
@@ -206,14 +202,87 @@
     return String(modeSelect?.value ?? "").trim();
   }
 
-  function getSelectedSubMode() {
-    return String(subModeSelect?.value ?? "").trim();
+  function getSelectedSecondary() {
+    return String(secondarySelect?.value ?? "").trim();
   }
 
-  function getSelectedGroup() {
-    return String(groupSelect?.value ?? "").trim();
+  function getModeConfig(mode) {
+    switch (mode) {
+      case "guerre":
+        return {
+          secondaryLabel: "Type",
+          secondaryOptions: ["attaque", "defense"],
+          placeholder: "— Choisir attaque ou défense —",
+        };
+
+      case "epreuve_cosmique":
+        return {
+          secondaryLabel: "Type",
+          secondaryOptions: ["attaque", "defense"],
+          placeholder: "— Choisir attaque ou défense —",
+        };
+
+      case "arene":
+        return {
+          secondaryLabel: "Type",
+          secondaryOptions: ["attaque", "defense"],
+          placeholder: "— Choisir attaque ou défense —",
+        };
+
+      case "battleworld":
+        return {
+          secondaryLabel: "Zone / Type",
+          secondaryOptions: ["Zone 1", "Zone 2", "Zone 3", "Boss"],
+          placeholder: "— Choisir une zone ou Boss —",
+        };
+
+      case "raids":
+        return {
+          secondaryLabel: "Type de raid",
+          secondaryOptions: [], // calculé dynamiquement
+          placeholder: "— Choisir un type de raid —",
+        };
+
+      default:
+        return null;
+    }
   }
 
+  function itemMatchesSecondary(item, mode, selectedSecondary) {
+    if (!selectedSecondary) return true;
+
+    if (mode === "battleworld") {
+      if (selectedSecondary === "Boss") {
+        return normalizeKey(item.subMode) === "boss";
+      }
+
+      return normalizeKey(item.groupLabel) === normalizeKey(selectedSecondary);
+    }
+
+    if (mode === "guerre" || mode === "epreuve_cosmique" || mode === "arene" || mode === "raids") {
+      return normalizeKey(item.subMode) === normalizeKey(selectedSecondary);
+    }
+
+    return true;
+  }
+
+  function getSecondaryOptionsForMode(mode) {
+    const cfg = getModeConfig(mode);
+    if (!cfg) return [];
+
+    if (mode === "raids") {
+      return [...new Set(
+        getActiveItems()
+          .filter((x) => x.mode === mode)
+          .map((x) => x.subMode)
+          .filter(Boolean)
+      )].sort(compareNatural);
+    }
+
+    return cfg.secondaryOptions.slice();
+  }
+
+  // ---------- Selects ----------
   function renderModeOptions() {
     if (!modeSelect) return;
 
@@ -231,7 +300,7 @@
 
     const opt0 = document.createElement("option");
     opt0.value = "";
-    opt0.textContent = "— Choisir un mode —";
+    opt0.textContent = "— Choisir un mode de jeu —";
     modeSelect.appendChild(opt0);
 
     modes.forEach((mode) => {
@@ -242,110 +311,64 @@
     });
   }
 
-  function renderSubModeOptions() {
-    if (!subModeSelect) return;
-
+  function renderSecondaryField() {
     const mode = getSelectedMode();
-    subModeSelect.innerHTML = "";
+
+    if (!secondaryField || !secondaryLabel || !secondarySelect) return;
+
+    secondarySelect.innerHTML = "";
 
     if (!mode) {
-      subModeSelect.disabled = true;
-      const opt = document.createElement("option");
-      opt.value = "";
-      opt.textContent = "— Choisir un mode d’abord —";
-      subModeSelect.appendChild(opt);
+      secondaryField.style.display = "none";
+      secondarySelect.disabled = true;
       return;
     }
 
-    const subModes = [
-      ...new Set(
-        getActiveItems()
-          .filter((x) => x.mode === mode)
-          .map((x) => x.subMode)
-          .filter(Boolean)
-      ),
-    ].sort(compareNatural);
+    const cfg = getModeConfig(mode);
+    const options = getSecondaryOptionsForMode(mode);
 
-    subModeSelect.disabled = false;
-
-    const opt0 = document.createElement("option");
-    opt0.value = "";
-    opt0.textContent = "— Tous les sous-modes —";
-    subModeSelect.appendChild(opt0);
-
-    subModes.forEach((subMode) => {
-      const opt = document.createElement("option");
-      opt.value = subMode;
-      opt.textContent = subModeLabel(subMode);
-      subModeSelect.appendChild(opt);
-    });
-  }
-
-  function renderGroupOptions() {
-    if (!groupSelect) return;
-
-    const mode = getSelectedMode();
-    const subMode = getSelectedSubMode();
-
-    groupSelect.innerHTML = "";
-
-    if (!mode) {
-      groupSelect.disabled = true;
-      const opt = document.createElement("option");
-      opt.value = "";
-      opt.textContent = "— Choisir un mode d’abord —";
-      groupSelect.appendChild(opt);
+    if (!cfg || !options.length) {
+      secondaryField.style.display = "none";
+      secondarySelect.disabled = true;
       return;
     }
 
-    let rows = getActiveItems().filter((x) => x.mode === mode);
-    if (subMode) rows = rows.filter((x) => x.subMode === subMode);
-
-    const groups = [...new Set(rows.map((x) => x.groupLabel).filter(Boolean))].sort(compareTierOrNatural);
-
-    groupSelect.disabled = false;
+    secondaryField.style.display = "";
+    secondaryLabel.textContent = cfg.secondaryLabel;
+    secondarySelect.disabled = false;
 
     const opt0 = document.createElement("option");
     opt0.value = "";
-    opt0.textContent = "— Tous les groupes —";
-    groupSelect.appendChild(opt0);
+    opt0.textContent = cfg.placeholder;
+    secondarySelect.appendChild(opt0);
 
-    groups.forEach((group) => {
+    options.forEach((value) => {
       const opt = document.createElement("option");
-      opt.value = group;
-      opt.textContent = groupLabel(group);
-      groupSelect.appendChild(opt);
+      opt.value = value;
+
+      if (mode === "battleworld") {
+        opt.textContent = value;
+      } else {
+        opt.textContent = subModeLabel(value);
+      }
+
+      secondarySelect.appendChild(opt);
     });
   }
 
   function setSmartDefaults() {
-    if (!modeSelect.value && modeSelect.options.length > 1) {
-      modeSelect.value = modeSelect.options[1].value;
-    }
-
-    renderSubModeOptions();
-
-    const mode = getSelectedMode();
-    if (mode && !subModeSelect.value) {
-      const subModes = [...new Set(getActiveItems().filter((x) => x.mode === mode).map((x) => x.subMode).filter(Boolean))];
-      if (subModes.length === 1) {
-        subModeSelect.value = subModes[0];
-      }
-    }
-
-    renderGroupOptions();
+    renderModeOptions();
+    renderSecondaryField();
   }
 
   function getFilteredItems() {
     const mode = getSelectedMode();
-    const subMode = getSelectedSubMode();
-    const group = getSelectedGroup();
+    const secondary = getSelectedSecondary();
 
     let rows = getActiveItems();
 
     if (mode) rows = rows.filter((x) => x.mode === mode);
-    if (subMode) rows = rows.filter((x) => x.subMode === subMode);
-    if (group) rows = rows.filter((x) => x.groupLabel === group);
+    if (secondary) rows = rows.filter((x) => itemMatchesSecondary(x, mode, secondary));
 
     rows = rows.slice().sort((a, b) => {
       const g = compareTierOrNatural(a.groupLabel, b.groupLabel);
@@ -579,9 +602,8 @@
         card.appendChild(flexWrap);
       }
     } else {
-      const portraits = item.fixedCharacters;
-      if (portraits.length) {
-        card.appendChild(createPortraitRow(portraits));
+      if (item.fixedCharacters.length) {
+        card.appendChild(createPortraitRow(item.fixedCharacters));
       }
     }
 
@@ -602,31 +624,32 @@
 
   function renderSummary(items) {
     const mode = getSelectedMode();
-    const subMode = getSelectedSubMode();
-    const group = getSelectedGroup();
+    const secondary = getSelectedSecondary();
 
     if (!mode) {
       currentTitle.textContent = "—";
-      currentSubtitle.textContent = "Choisis un mode pour afficher les recommandations.";
-      selectionChip.textContent = "—";
+      currentSubtitle.textContent = "Choisis un mode de jeu pour afficher les recommandations.";
       return;
     }
 
     currentTitle.textContent = modeLabel(mode);
 
-    const parts = [];
-    if (subMode) parts.push(subModeLabel(subMode));
-    if (group) parts.push(groupLabel(group));
+    if (!secondary) {
+      currentSubtitle.textContent = "Fais défiler les recommandations disponibles pour ce mode de jeu.";
+      return;
+    }
 
-    currentSubtitle.textContent =
-      parts.length > 0
-        ? parts.join(" • ")
-        : "Toutes les recommandations disponibles pour ce mode.";
+    if (mode === "battleworld") {
+      currentSubtitle.textContent = secondary === "Boss"
+        ? "Recommandations Battleworld pour les Boss."
+        : `Recommandations Battleworld pour ${secondary}.`;
+      return;
+    }
 
-    selectionChip.textContent = items.length > 0 ? (group ? groupLabel(group) : "Tous") : "—";
+    currentSubtitle.textContent = `${subModeLabel(secondary)} • ${modeLabel(mode)}`;
   }
 
-  function renderGroupedItems(rows) {
+  function renderRowsWithSections(rows) {
     clearNode(resultsWrap);
 
     if (!rows.length) {
@@ -634,86 +657,90 @@
       return;
     }
 
-    const selectedGroup = getSelectedGroup();
+    const mode = getSelectedMode();
 
-    const groups = [...new Set(rows.map((x) => x.groupLabel).filter(Boolean))];
-
-    // Si un groupe est sélectionné, on n'affiche pas son titre en grand bloc,
-    // seulement ses sous-groupes éventuels.
-    if (selectedGroup) {
-      renderOneGroup(rows, false);
-      return;
-    }
-
-    // Si plusieurs groupes visibles, on les sépare par titre
-    if (groups.length > 1) {
-      groups.sort(compareTierOrNatural).forEach((group) => {
-        const groupItems = rows.filter((x) => x.groupLabel === group);
-        resultsWrap.appendChild(createSectionTitle(groupLabel(group), 3));
-        renderOneGroup(groupItems, true);
+    if (mode === "guerre") {
+      const groups = [...new Set(rows.map((x) => x.groupLabel).filter(Boolean))].sort(compareTierOrNatural);
+      groups.forEach((group) => {
+        resultsWrap.appendChild(createSectionTitle(group, 3));
+        rows
+          .filter((x) => x.groupLabel === group)
+          .forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
       });
       return;
     }
 
-    renderOneGroup(rows, false);
-  }
-
-  function renderOneGroup(groupItems, insideMultiGroup) {
-    const subgroups = [...new Set(groupItems.map((x) => x.subgroupLabel).filter(Boolean))].sort(compareNatural);
-
-    // Items sans sous-groupe
-    const noSubgroupItems = groupItems.filter((x) => !x.subgroupLabel);
-
-    noSubgroupItems.forEach((item) => {
-      resultsWrap.appendChild(makeRecommendationCard(item));
-    });
-
-    if (noSubgroupItems.length && subgroups.length) {
-      const spacer = document.createElement("div");
-      spacer.style.height = "2px";
-      resultsWrap.appendChild(spacer);
+    if (mode === "epreuve_cosmique") {
+      const groups = [...new Set(rows.map((x) => x.groupLabel).filter(Boolean))].sort(compareNatural);
+      groups.forEach((group) => {
+        resultsWrap.appendChild(createSectionTitle(group, 3));
+        rows
+          .filter((x) => x.groupLabel === group)
+          .forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+      });
+      return;
     }
 
-    subgroups.forEach((subgroup) => {
-      if (!insideMultiGroup || subgroup) {
-        resultsWrap.appendChild(createSectionTitle(groupLabel(subgroup), 4));
+    if (mode === "battleworld") {
+      const subgroups = [...new Set(rows.map((x) => x.subgroupLabel).filter(Boolean))].sort(compareNatural);
+
+      const noSubgroup = rows.filter((x) => !x.subgroupLabel);
+      noSubgroup.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+
+      if (noSubgroup.length && subgroups.length) {
+        const spacer = document.createElement("div");
+        spacer.style.height = "2px";
+        resultsWrap.appendChild(spacer);
       }
 
-      const subgroupItems = groupItems.filter((x) => x.subgroupLabel === subgroup);
-      subgroupItems.forEach((item) => {
-        resultsWrap.appendChild(makeRecommendationCard(item));
+      subgroups.forEach((subgroup) => {
+        resultsWrap.appendChild(createSectionTitle(subgroup, 4));
+        rows
+          .filter((x) => x.subgroupLabel === subgroup)
+          .forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
       });
-    });
+      return;
+    }
+
+    if (mode === "arene") {
+      rows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+      return;
+    }
+
+    if (mode === "raids") {
+      const groups = [...new Set(rows.map((x) => x.groupLabel).filter(Boolean))].sort(compareNatural);
+
+      if (groups.length <= 1) {
+        rows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+        return;
+      }
+
+      groups.forEach((group) => {
+        resultsWrap.appendChild(createSectionTitle(group, 3));
+        rows
+          .filter((x) => x.groupLabel === group)
+          .forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+      });
+      return;
+    }
+
+    rows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
   }
 
   function renderResults() {
     const rows = getFilteredItems();
-    if (resultsCount) resultsCount.textContent = String(rows.length);
     renderSummary(rows);
-    renderGroupedItems(rows);
-  }
-
-  function renderAll() {
-    renderGroupOptions();
-    renderResults();
+    renderRowsWithSections(rows);
   }
 
   // ---------- Events ----------
   modeSelect?.addEventListener("change", () => {
-    if (subModeSelect) subModeSelect.value = "";
-    if (groupSelect) groupSelect.value = "";
-    renderSubModeOptions();
-    renderGroupOptions();
+    if (secondarySelect) secondarySelect.value = "";
+    renderSecondaryField();
     renderResults();
   });
 
-  subModeSelect?.addEventListener("change", () => {
-    if (groupSelect) groupSelect.value = "";
-    renderGroupOptions();
-    renderResults();
-  });
-
-  groupSelect?.addEventListener("change", renderResults);
+  secondarySelect?.addEventListener("change", renderResults);
 
   // ---------- Boot ----------
   async function boot() {
@@ -731,7 +758,6 @@
     ITEMS = rawItems.map(normalizeItem).filter((x) => x.active);
     buildCharMap(chars);
 
-    renderModeOptions();
     setSmartDefaults();
     renderResults();
   }
