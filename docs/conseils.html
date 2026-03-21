@@ -20,19 +20,14 @@
         </div>
 
         <div class="headerRight">
-          <div>
-            <div class="label">Mode</div>
-            <select id="modeSelect" class="select" aria-label="Mode"></select>
+          <div id="modeField">
+            <div class="label">Mode de jeu</div>
+            <select id="modeSelect" class="select" aria-label="Mode de jeu"></select>
           </div>
 
-          <div>
-            <div class="label">Sous-mode</div>
-            <select id="subModeSelect" class="select" aria-label="Sous-mode"></select>
-          </div>
-
-          <div>
-            <div class="label">Groupe</div>
-            <select id="groupSelect" class="select" aria-label="Groupe"></select>
+          <div id="secondaryField" style="display:none">
+            <div class="label" id="secondaryLabel">Type</div>
+            <select id="secondarySelect" class="select" aria-label="Filtre secondaire"></select>
           </div>
         </div>
       </header>
@@ -43,17 +38,13 @@
         </div>
 
         <p class="subtitle" id="currentSubtitle" style="margin-top:0">
-          Choisis un mode pour afficher les recommandations.
+          Choisis un mode de jeu pour afficher les recommandations.
         </p>
       </section>
 
       <section class="card">
-        <div class="cardHeader cardHeader--reco">
-          <div class="chipCount chipCount--sm" id="resultsCount">0</div>
-
+        <div class="cardHeader">
           <h2 class="cardTitle cardTitle--sm">Recommandations</h2>
-
-          <div class="chipCount chipCount--sm" id="selectionChip">—</div>
         </div>
 
         <div id="results" aria-label="Liste des équipes conseillées"></div>
