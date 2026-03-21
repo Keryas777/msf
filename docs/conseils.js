@@ -21,7 +21,7 @@
   const MODE_LABELS = {
     raids: "Raids",
     guerre: "Guerre",
-    epreuve_cosmique: "Épreuve cosmique",
+    epreuvecosmique: "Épreuve cosmique",
     battleworld: "Battleworld",
     arene: "Arène",
   };
@@ -31,7 +31,6 @@
     presentation: "Présentation",
     attaque: "Attaque",
     defense: "Défense",
-    offense: "Attaque",
     boss: "Boss",
     zones: "Zones",
   };
@@ -83,13 +82,13 @@
   }
 
   function modeLabel(mode) {
-    const k = String(mode ?? "").trim();
-    return MODE_LABELS[k] || humanize(k);
+    const k = normalizeKey(mode);
+    return MODE_LABELS[k] || humanize(mode);
   }
 
   function subModeLabel(subMode) {
-    const k = String(subMode ?? "").trim();
-    return SUBMODE_LABELS[k] || humanize(k);
+    const k = normalizeKey(subMode);
+    return SUBMODE_LABELS[k] || humanize(subMode);
   }
 
   function compareNatural(a, b) {
@@ -162,10 +161,19 @@
 
     return {
       active: r.active == null ? true : toBoolean(r.active),
+
       mode: String(r.mode ?? "").trim(),
+      modeKey: normalizeKey(r.mode ?? ""),
+
       subMode: String(r.subMode ?? r.sub_mode ?? "").trim(),
+      subModeKey: normalizeKey(r.subMode ?? r.sub_mode ?? ""),
+
       groupLabel: String(r.groupLabel ?? r.group_label ?? "").trim(),
+      groupKey: normalizeKey(r.groupLabel ?? r.group_label ?? ""),
+
       subgroupLabel: String(r.subgroupLabel ?? r.subgroup_label ?? "").trim(),
+      subgroupKey: normalizeKey(r.subgroupLabel ?? r.subgroup_label ?? ""),
+
       tier: String(r.tier ?? "").trim(),
       displayOrder: Number(String(r.displayOrder ?? r.display_order ?? "").replace(",", ".")) || 9999,
       layoutType,
@@ -202,12 +210,20 @@
     return String(modeSelect?.value ?? "").trim();
   }
 
+  function getSelectedModeKey() {
+    return normalizeKey(getSelectedMode());
+  }
+
   function getSelectedSecondary() {
     return String(secondarySelect?.value ?? "").trim();
   }
 
-  function getModeConfig(mode) {
-    switch (mode) {
+  function getSelectedSecondaryKey() {
+    return normalizeKey(getSelectedSecondary());
+  }
+
+  function getModeConfig(modeKey) {
+    switch (modeKey) {
       case "guerre":
         return {
           secondaryLabel: "Type",
@@ -215,7 +231,7 @@
           placeholder: "— Choisir attaque ou défense —",
         };
 
-      case "epreuve_cosmique":
+      case "epreuvecosmique":
         return {
           secondaryLabel: "Type",
           secondaryOptions: ["attaque", "defense"],
@@ -239,7 +255,7 @@
       case "raids":
         return {
           secondaryLabel: "Type de raid",
-          secondaryOptions: [], // calculé dynamiquement
+          secondaryOptions: [],
           placeholder: "— Choisir un type de raid —",
         };
 
@@ -248,35 +264,39 @@
     }
   }
 
-  function itemMatchesSecondary(item, mode, selectedSecondary) {
+  function itemMatchesSecondary(item, modeKey, selectedSecondary) {
     if (!selectedSecondary) return true;
 
-    if (mode === "battleworld") {
-      if (selectedSecondary === "Boss") {
-        return normalizeKey(item.subMode) === "boss";
+    const selectedSecondaryKey = normalizeKey(selectedSecondary);
+
+    if (modeKey === "battleworld") {
+      if (selectedSecondaryKey === "boss") {
+        return item.subModeKey === "boss";
       }
 
-      return normalizeKey(item.groupLabel) === normalizeKey(selectedSecondary);
+      return item.groupKey === selectedSecondaryKey;
     }
 
-    if (mode === "guerre" || mode === "epreuve_cosmique" || mode === "arene" || mode === "raids") {
-      return normalizeKey(item.subMode) === normalizeKey(selectedSecondary);
+    if (modeKey === "guerre" || modeKey === "epreuvecosmique" || modeKey === "arene" || modeKey === "raids") {
+      return item.subModeKey === selectedSecondaryKey;
     }
 
     return true;
   }
 
-  function getSecondaryOptionsForMode(mode) {
-    const cfg = getModeConfig(mode);
+  function getSecondaryOptionsForMode(modeKey) {
+    const cfg = getModeConfig(modeKey);
     if (!cfg) return [];
 
-    if (mode === "raids") {
-      return [...new Set(
-        getActiveItems()
-          .filter((x) => x.mode === mode)
-          .map((x) => x.subMode)
-          .filter(Boolean)
-      )].sort(compareNatural);
+    if (modeKey === "raids") {
+      return [
+        ...new Set(
+          getActiveItems()
+            .filter((x) => x.modeKey === modeKey)
+            .map((x) => x.subMode)
+            .filter(Boolean)
+        ),
+      ].sort(compareNatural);
     }
 
     return cfg.secondaryOptions.slice();
@@ -288,10 +308,10 @@
 
     const modes = [...new Set(getActiveItems().map((x) => x.mode).filter(Boolean))];
 
-    const ORDER = ["raids", "guerre", "epreuve_cosmique", "battleworld", "arene"];
+    const ORDER = ["raids", "guerre", "epreuvecosmique", "battleworld", "arene"];
     modes.sort((a, b) => {
-      const ia = ORDER.indexOf(a);
-      const ib = ORDER.indexOf(b);
+      const ia = ORDER.indexOf(normalizeKey(a));
+      const ib = ORDER.indexOf(normalizeKey(b));
       if (ia !== -1 || ib !== -1) return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
       return compareNatural(a, b);
     });
@@ -312,20 +332,20 @@
   }
 
   function renderSecondaryField() {
-    const mode = getSelectedMode();
+    const modeKey = getSelectedModeKey();
 
     if (!secondaryField || !secondaryLabel || !secondarySelect) return;
 
     secondarySelect.innerHTML = "";
 
-    if (!mode) {
+    if (!modeKey) {
       secondaryField.style.display = "none";
       secondarySelect.disabled = true;
       return;
     }
 
-    const cfg = getModeConfig(mode);
-    const options = getSecondaryOptionsForMode(mode);
+    const cfg = getModeConfig(modeKey);
+    const options = getSecondaryOptionsForMode(modeKey);
 
     if (!cfg || !options.length) {
       secondaryField.style.display = "none";
@@ -345,13 +365,7 @@
     options.forEach((value) => {
       const opt = document.createElement("option");
       opt.value = value;
-
-      if (mode === "battleworld") {
-        opt.textContent = value;
-      } else {
-        opt.textContent = subModeLabel(value);
-      }
-
+      opt.textContent = modeKey === "battleworld" ? value : subModeLabel(value);
       secondarySelect.appendChild(opt);
     });
   }
@@ -363,12 +377,20 @@
 
   function getFilteredItems() {
     const mode = getSelectedMode();
+    const modeKey = getSelectedModeKey();
     const secondary = getSelectedSecondary();
 
-    let rows = getActiveItems();
+    // ✅ Correctif principal :
+    // tant qu'aucun mode de jeu n'est choisi, on n'affiche rien.
+    if (!mode || !modeKey) {
+      return [];
+    }
 
-    if (mode) rows = rows.filter((x) => x.mode === mode);
-    if (secondary) rows = rows.filter((x) => itemMatchesSecondary(x, mode, secondary));
+    let rows = getActiveItems().filter((x) => x.modeKey === modeKey);
+
+    if (secondary) {
+      rows = rows.filter((x) => itemMatchesSecondary(x, modeKey, secondary));
+    }
 
     rows = rows.slice().sort((a, b) => {
       const g = compareTierOrNatural(a.groupLabel, b.groupLabel);
@@ -572,9 +594,8 @@
 
       if (item.flexItems.length) {
         const flexLabel = document.createElement("div");
-        flexLabel.textContent = item.flexSlots > 0
-          ? `Compléter avec ${item.flexSlots} parmi :`
-          : "Compléter avec :";
+        flexLabel.textContent =
+          item.flexSlots > 0 ? `Compléter avec ${item.flexSlots} parmi :` : "Compléter avec :";
         flexLabel.style.fontSize = "12px";
         flexLabel.style.fontWeight = "900";
         flexLabel.style.textTransform = "uppercase";
@@ -624,9 +645,10 @@
 
   function renderSummary(items) {
     const mode = getSelectedMode();
+    const modeKey = getSelectedModeKey();
     const secondary = getSelectedSecondary();
 
-    if (!mode) {
+    if (!mode || !modeKey) {
       currentTitle.textContent = "—";
       currentSubtitle.textContent = "Choisis un mode de jeu pour afficher les recommandations.";
       return;
@@ -639,10 +661,11 @@
       return;
     }
 
-    if (mode === "battleworld") {
-      currentSubtitle.textContent = secondary === "Boss"
-        ? "Recommandations Battleworld pour les Boss."
-        : `Recommandations Battleworld pour ${secondary}.`;
+    if (modeKey === "battleworld") {
+      currentSubtitle.textContent =
+        normalizeKey(secondary) === "boss"
+          ? "Recommandations Battleworld pour les Boss."
+          : `Recommandations Battleworld pour ${secondary}.`;
       return;
     }
 
@@ -652,14 +675,18 @@
   function renderRowsWithSections(rows) {
     clearNode(resultsWrap);
 
+    const modeKey = getSelectedModeKey();
+
+    if (!modeKey) {
+      return;
+    }
+
     if (!rows.length) {
       resultsWrap.innerHTML = `<p class="subtitle">Aucune recommandation disponible.</p>`;
       return;
     }
 
-    const mode = getSelectedMode();
-
-    if (mode === "guerre") {
+    if (modeKey === "guerre") {
       const groups = [...new Set(rows.map((x) => x.groupLabel).filter(Boolean))].sort(compareTierOrNatural);
       groups.forEach((group) => {
         resultsWrap.appendChild(createSectionTitle(group, 3));
@@ -670,7 +697,7 @@
       return;
     }
 
-    if (mode === "epreuve_cosmique") {
+    if (modeKey === "epreuvecosmique") {
       const groups = [...new Set(rows.map((x) => x.groupLabel).filter(Boolean))].sort(compareNatural);
       groups.forEach((group) => {
         resultsWrap.appendChild(createSectionTitle(group, 3));
@@ -681,7 +708,7 @@
       return;
     }
 
-    if (mode === "battleworld") {
+    if (modeKey === "battleworld") {
       const subgroups = [...new Set(rows.map((x) => x.subgroupLabel).filter(Boolean))].sort(compareNatural);
 
       const noSubgroup = rows.filter((x) => !x.subgroupLabel);
@@ -702,12 +729,12 @@
       return;
     }
 
-    if (mode === "arene") {
+    if (modeKey === "arene") {
       rows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
       return;
     }
 
-    if (mode === "raids") {
+    if (modeKey === "raids") {
       const groups = [...new Set(rows.map((x) => x.groupLabel).filter(Boolean))].sort(compareNatural);
 
       if (groups.length <= 1) {
