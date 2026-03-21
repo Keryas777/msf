@@ -1,0 +1,46 @@
+name: Update Team Recommendations JSON
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build team-recommendations.json from Google Sheets
+        env:
+          CSV_URL: https://docs.google.com/spreadsheets/d/1RxAokcQw7rhNigPj8VwipbRRf9PVNA6lJzIVqdMBAXQ/export?format=csv&gid=1800603285
+          OUT_FILE: docs/data/team-recommendations.json
+        run: |
+          node scripts/sheets-team-recommendations.mjs
+
+      - name: Show git status
+        run: git status --short
+
+      - name: Commit and push if changed
+        run: |
+          if [[ -z "$(git status --porcelain docs/data/team-recommendations.json)" ]]; then
+            echo "No changes detected in docs/data/team-recommendations.json"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add docs/data/team-recommendations.json
+          git commit -m "chore: update team-recommendations.json"
+          git push
