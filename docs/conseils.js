@@ -463,6 +463,39 @@
     return outer;
   }
 
+  // ✅ Nouvelle structure dédiée aux teams fixes
+  function createFixedPortraitRow(names, { isAlt = false } = {}) {
+    const wrap = document.createElement("div");
+    wrap.className = `recFixedPortraits${isAlt ? " recFixedPortraits--alt" : ""}`;
+
+    names.forEach((name, idx) => {
+      const p = document.createElement("div");
+      p.className = `recFixedPortrait${isAlt ? " recFixedPortrait--alt" : ""}`;
+      p.title = `p${idx + 1}`;
+
+      const img = document.createElement("img");
+      img.className = "recFixedPortraitImg";
+      img.alt = name;
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.referrerPolicy = "no-referrer";
+      img.src = getPortrait(name) || "";
+
+      img.onerror = () => {
+        p.innerHTML = "";
+        const fallback = document.createElement("div");
+        fallback.className = "recPortraitFallback";
+        fallback.textContent = name;
+        p.appendChild(fallback);
+      };
+
+      p.appendChild(img);
+      wrap.appendChild(p);
+    });
+
+    return wrap;
+  }
+
   function createPortraitRow(names, { isAlt = false } = {}) {
     const wrap = document.createElement("div");
     wrap.className = `recPortraits${isAlt ? " recPortraits--alt" : ""}`;
@@ -534,7 +567,7 @@
         card.appendChild(flexWrap);
       }
     } else if (item.fixedCharacters.length) {
-      card.appendChild(createPortraitRow(item.fixedCharacters, { isAlt }));
+      card.appendChild(createFixedPortraitRow(item.fixedCharacters, { isAlt }));
     }
 
     if (item.notes) {
