@@ -14,12 +14,12 @@
 
 /* ---------- GROUP LABEL (Nodes) ---------- */
 .recSectionTitle {
-  margin: 28px 0 14px 0;
+  margin: 24px 0 14px 0;
   font-weight: 1000;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
   line-height: 1.05;
   color: rgba(255, 255, 255, 0.98);
-  font-size: 26px;
+  font-size: 26px; /* ← SEULE vraie modif */
   text-align: center;
 }
 
