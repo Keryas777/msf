@@ -12,18 +12,19 @@
 
 /* ---------- Titres de sections ---------- */
 .recSectionTitle {
-  margin: 18px 0 10px 0;
-  font-weight: 900;
+  margin: 22px 0 12px 0;
+  font-weight: 1000;
   letter-spacing: 0.2px;
-  line-height: 1.1;
-  color: rgba(255, 255, 255, 0.95);
-  font-size: 18px;
+  line-height: 1.08;
+  color: rgba(255, 255, 255, 0.97);
+  font-size: 22px;
+  text-align: center;
 }
 
 .recSectionTitle--sm {
-  margin: 14px 0 8px 0;
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.88);
+  margin: 16px 0 10px 0;
+  font-size: 17px;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .recSpacer {
@@ -60,8 +61,11 @@
 
 /* ---------- Alternative ---------- */
 .recCard--alt {
-  padding: 11px 12px;
+  padding: 10px 11px;
   opacity: 0.9;
+  width: 85%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* ---------- Haut de carte ---------- */
@@ -87,7 +91,7 @@
 }
 
 .recCardName--alt {
-  font-size: 14.5px;
+  font-size: 14px;
 }
 
 .recCardTitle {
@@ -99,7 +103,7 @@
 }
 
 .recCardTitle--alt {
-  font-size: 11px;
+  font-size: 10px;
   color: rgba(255, 255, 255, 0.62);
 }
 
@@ -252,18 +256,20 @@
 
 .recCardNote--alt {
   margin-top: 6px;
-  font-size: 11px;
+  font-size: 10px;
   color: rgba(255, 255, 255, 0.62);
 }
 
 /* ---------- Mobile ---------- */
 @media (max-width: 520px) {
   .recSectionTitle {
-    font-size: 17px;
+    font-size: 20px;
+    margin: 20px 0 12px 0;
   }
 
   .recSectionTitle--sm {
-    font-size: 15px;
+    font-size: 16px;
+    margin: 15px 0 9px 0;
   }
 
   .recCard {
@@ -275,7 +281,8 @@
   }
 
   .recCard--alt {
-    padding: 10px 11px;
+    padding: 9px 10px;
+    width: 88%;
   }
 
   .recCardName {
@@ -283,17 +290,19 @@
   }
 
   .recCardName--alt {
-    font-size: 14px;
+    font-size: 13.5px;
   }
 }
 
 @media (max-width: 420px) {
   .recSectionTitle {
-    font-size: 16px;
+    font-size: 18px;
+    margin: 18px 0 10px 0;
   }
 
   .recSectionTitle--sm {
-    font-size: 14px;
+    font-size: 15px;
+    margin: 14px 0 8px 0;
   }
 
   .recCardTop {
@@ -306,7 +315,7 @@
   }
 
   .recCardName--alt {
-    font-size: 13.5px;
+    font-size: 13px;
   }
 
   .recCardTitle {
@@ -347,5 +356,9 @@
 
   .recCardNote--alt {
     font-size: 10px;
+  }
+
+  .recCard--alt {
+    width: 90%;
   }
 }
