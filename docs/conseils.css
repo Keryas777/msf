@@ -1,45 +1,387 @@
-/* Carte de base */
+/* docs/conseils.css */
+
+/* ---------- Titres de sections ---------- */
+.recSectionTitle {
+  margin: 18px 0 10px 0;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  line-height: 1.1;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 18px;
+}
+
+.recSectionTitle--sm {
+  margin: 14px 0 8px 0;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.recSpacer {
+  height: 2px;
+}
+
+/* ---------- Carte de base ---------- */
 .recCard {
   background: rgba(20, 22, 28, 0.9);
   border-radius: 16px;
   padding: 14px;
   margin-bottom: 14px;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 
-  /* glow discret */
   box-shadow:
-    0 0 0 rgba(0,0,0,0),
-    0 6px 18px rgba(0,0,0,0.35);
+    0 0 0 rgba(0, 0, 0, 0),
+    0 6px 18px rgba(0, 0, 0, 0.35);
+
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    opacity 0.16s ease;
 }
 
-/* Hover léger (optionnel mais propre) */
 .recCard:hover {
   transform: translateY(-1px);
   box-shadow:
-    0 8px 22px rgba(0,0,0,0.45);
+    0 8px 22px rgba(0, 0, 0, 0.45);
 }
 
-/* -------- PRINCIPALE -------- */
+/* ---------- Principale ---------- */
 .recCard--main {
-  transform: scale(1);
+  padding: 14px;
+  opacity: 1;
 }
 
-/* -------- ALTERNATIVE -------- */
+/* ---------- Alternative ---------- */
 .recCard--alt {
-  transform: scale(0.85); /* ≈ -15% */
-  opacity: 0.85;
+  padding: 11px 12px;
+  opacity: 0.9;
 }
 
-/* Portraits (on garde ton style existant mais on ajuste si besoin) */
-.recCard--alt .counterPortrait {
-  transform: scale(0.9);
+/* ---------- Haut de carte ---------- */
+.recCardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
-/* Titres */
-.recCard--main .counterName {
-  font-size: 16px;
+.recCardLeft {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
-.recCard--alt .counterName {
-  font-size: 14px;
+/* ---------- Nom / titre ---------- */
+.recCardName {
+  font-weight: 1000;
+  font-size: 17px;
+  line-height: 1.1;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.recCardName--alt {
+  font-size: 14.5px;
+}
+
+.recCardTitle {
+  margin-top: 4px;
+  font-weight: 900;
+  font-size: 12px;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.recCardTitle--alt {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/* ---------- Labels cœur / flex ---------- */
+.recMetaLabel {
+  margin-top: 4px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.recMetaLabel--alt {
+  font-size: 11px;
+  margin-bottom: 6px;
+  color: rgba(255, 255, 255, 0.64);
+}
+
+/* ---------- Rangées de portraits ---------- */
+.recPortraits {
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+  align-items: center;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.recPortraits::-webkit-scrollbar {
+  display: none;
+}
+
+.recPortraits--alt {
+  gap: 8px;
+}
+
+/* ---------- Bloc portrait + texte ---------- */
+.recPortraitBox {
+  width: 72px;
+  flex: 0 0 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.recPortraitBox--alt {
+  width: 62px;
+  flex: 0 0 62px;
+  gap: 3px;
+}
+
+/* ---------- Portrait ---------- */
+.recPortrait {
+  width: 58px;
+  height: 58px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(20, 22, 24, 0.62);
+  flex: 0 0 auto;
+}
+
+.recPortrait--alt {
+  width: 50px;
+  height: 50px;
+}
+
+.recPortraitImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.recPortraitFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* ---------- Nom sous portrait ---------- */
+.recPortraitName {
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.recPortraitName--alt {
+  font-size: 10px;
+}
+
+/* ---------- Note sous portrait ---------- */
+.recPortraitNote {
+  font-size: 11px;
+  font-style: italic;
+  line-height: 1.2;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.recPortraitNote--alt {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ---------- Flex wrap ---------- */
+.recFlexWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.recFlexWrap--alt {
+  gap: 10px;
+}
+
+/* ---------- Note globale carte ---------- */
+.recCardNote {
+  margin-top: 8px;
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.25;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.recCardNote--alt {
+  margin-top: 6px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 520px) {
+  .recSectionTitle {
+    font-size: 17px;
+  }
+
+  .recSectionTitle--sm {
+    font-size: 15px;
+  }
+
+  .recCard {
+    border-radius: 15px;
+  }
+
+  .recCard--main {
+    padding: 13px;
+  }
+
+  .recCard--alt {
+    padding: 10px 11px;
+  }
+
+  .recCardName {
+    font-size: 16px;
+  }
+
+  .recCardName--alt {
+    font-size: 14px;
+  }
+
+  .recPortraitBox {
+    width: 68px;
+    flex: 0 0 68px;
+  }
+
+  .recPortraitBox--alt {
+    width: 58px;
+    flex: 0 0 58px;
+  }
+
+  .recPortrait {
+    width: 54px;
+    height: 54px;
+  }
+
+  .recPortrait--alt {
+    width: 47px;
+    height: 47px;
+  }
+}
+
+@media (max-width: 420px) {
+  .recSectionTitle {
+    font-size: 16px;
+  }
+
+  .recSectionTitle--sm {
+    font-size: 14px;
+  }
+
+  .recCardTop {
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .recCardName {
+    font-size: 15px;
+  }
+
+  .recCardName--alt {
+    font-size: 13.5px;
+  }
+
+  .recCardTitle {
+    font-size: 11px;
+  }
+
+  .recCardTitle--alt {
+    font-size: 10px;
+  }
+
+  .recMetaLabel {
+    font-size: 11px;
+  }
+
+  .recMetaLabel--alt {
+    font-size: 10px;
+  }
+
+  .recPortraits {
+    gap: 8px;
+  }
+
+  .recPortraits--alt {
+    gap: 7px;
+  }
+
+  .recPortraitBox {
+    width: 64px;
+    flex: 0 0 64px;
+  }
+
+  .recPortraitBox--alt {
+    width: 54px;
+    flex: 0 0 54px;
+  }
+
+  .recPortrait {
+    width: 50px;
+    height: 50px;
+  }
+
+  .recPortrait--alt {
+    width: 44px;
+    height: 44px;
+  }
+
+  .recPortraitName {
+    font-size: 10px;
+  }
+
+  .recPortraitName--alt {
+    font-size: 9.5px;
+  }
+
+  .recPortraitNote {
+    font-size: 10px;
+  }
+
+  .recPortraitNote--alt {
+    font-size: 9.5px;
+  }
+
+  .recCardNote {
+    font-size: 11px;
+  }
+
+  .recCardNote--alt {
+    font-size: 10px;
+  }
 }
