@@ -2,13 +2,13 @@
 
 :root {
   /* MAIN */
-  --rec-gap: 6px;
-  --rec-min: 60px;
-  --rec-max: 80px;
+  --rec-gap: var(--cp-gap);
+  --rec-min: var(--cp-min);
+  --rec-max: var(--cp-max);
 
   /* ALT */
-  --rec-alt-gap: 5px;
-  --rec-alt-min: 40px;
+  --rec-alt-gap: 8px;
+  --rec-alt-min: 38px;
   --rec-alt-max: 50px;
 }
 
@@ -121,17 +121,31 @@
   font-size: 10px;
 }
 
-/* ---------- PORTRAITS ROW ---------- */
+/* =========================================================
+   PORTRAITS CONSEILS — logique reprise de war-counters
+   - 1 seule ligne
+   - pas de wrap
+   - taille auto avec clamp
+   - remplissage propre de la largeur
+   ========================================================= */
 .recPortraits {
   display: flex;
   gap: var(--rec-gap);
+  flex-wrap: nowrap;
   align-items: center;
-  justify-content: space-between;
+  min-width: 0;
+  overflow: hidden;
   margin-top: 2px;
 }
 
 .recPortraits--alt {
+  display: flex;
   gap: var(--rec-alt-gap);
+  flex-wrap: nowrap;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  margin-top: 2px;
 }
 
 /* ---------- BOX ---------- */
@@ -148,6 +162,7 @@
   flex-direction: column;
   align-items: center;
   gap: 3px;
+  min-width: 0;
 }
 
 .recPortraitBox--alt {
@@ -159,21 +174,27 @@
 
   width: var(--rec-size);
   flex: 0 0 var(--rec-size);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
 }
 
 /* ---------- PORTRAIT ---------- */
 .recPortrait {
   width: 100%;
-  aspect-ratio: 1;
+  height: auto;
+  aspect-ratio: 1 / 1;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(20, 22, 24, 0.62);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  background: var(--panel2);
+  flex: 0 0 auto;
 }
 
 .recPortrait--alt {
-  border-radius: 9px;
+  border-radius: 10px;
 }
 
 .recPortraitImg {
@@ -204,6 +225,8 @@
   font-size: 11px;
   font-weight: 800;
   text-align: center;
+  line-height: 1.15;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .recPortraitName--alt {
@@ -214,6 +237,7 @@
   font-size: 10px;
   font-style: italic;
   text-align: center;
+  line-height: 1.2;
   color: rgba(255, 255, 255, 0.65);
 }
 
@@ -222,6 +246,11 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  align-items: flex-start;
+}
+
+.recFlexWrap--alt {
+  gap: 8px;
 }
 
 /* ---------- NOTES ---------- */
@@ -229,6 +258,7 @@
   margin-top: 6px;
   font-size: 12px;
   font-style: italic;
+  line-height: 1.25;
   color: rgba(255, 255, 255, 0.7);
 }
 
