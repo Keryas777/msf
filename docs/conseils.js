@@ -114,28 +114,17 @@
     return compareNatural(a, b);
   }
 
-  function getTierClass(tier, group) {
-    const raw = String(tier || group || "").trim().toUpperCase();
-
-    if (raw.startsWith("S-TIER") || raw.startsWith("A-TIER") || raw === "S" || raw === "A") {
-      return "is-green";
-    }
-    if (raw.startsWith("B-TIER") || raw === "B") {
-      return "is-yellow";
-    }
-    if (raw.startsWith("C-TIER") || raw === "C") {
-      return "is-orange";
-    }
-    if (raw.startsWith("D-TIER") || raw === "D") {
-      return "is-red";
-    }
-
-    return "is-yellow";
-  }
-
   function getPortrait(name) {
     const c = CHAR_MAP.get(normalizeKey(name));
     return c?.portraitUrl || c?.portrait || c?.iconUrl || "";
+  }
+
+  function isAlternativeItem(item) {
+    return (
+      item.subgroupKey.includes("alternative") ||
+      item.subgroupKey.includes("alt") ||
+      item.titleKey.includes("alternative")
+    );
   }
 
   // ---------- Data normalization ----------
@@ -160,6 +149,9 @@
       flexItems.push({ name, note });
     }
 
+    const title = String(r.title ?? "").trim();
+    const subgroupLabel = String(r.subgroupLabel ?? r.subgroup_label ?? "").trim();
+
     return {
       active: r.active == null ? true : toBoolean(r.active),
 
@@ -173,14 +165,15 @@
       groupKey: normalizeKey(r.groupLabel ?? r.group_label ?? ""),
       groupOrder: Number(String(r.groupOrder ?? r.group_order ?? "").replace(",", ".")) || 9999,
 
-      subgroupLabel: String(r.subgroupLabel ?? r.subgroup_label ?? "").trim(),
-      subgroupKey: normalizeKey(r.subgroupLabel ?? r.subgroup_label ?? ""),
+      subgroupLabel,
+      subgroupKey: normalizeKey(subgroupLabel),
       subgroupOrder: Number(String(r.subgroupOrder ?? r.subgroup_order ?? "").replace(",", ".")) || 9999,
 
       tier: String(r.tier ?? "").trim(),
       displayOrder: Number(String(r.displayOrder ?? r.display_order ?? "").replace(",", ".")) || 9999,
       layoutType,
-      title: String(r.title ?? "").trim(),
+      title,
+      titleKey: normalizeKey(title),
       teamName: String(r.teamName ?? r.team_name ?? "").trim(),
       fixedCharacters,
       coreCharacters,
@@ -432,33 +425,19 @@
   function createSectionTitle(text, level = 3) {
     const el = document.createElement(level === 4 ? "h4" : "h3");
     el.textContent = text || "—";
-    el.style.margin = level === 4 ? "14px 0 8px 0" : "18px 0 10px 0";
-    el.style.fontWeight = "900";
-    el.style.letterSpacing = ".2px";
-    el.style.lineHeight = "1.1";
-    el.style.color = "rgba(255,255,255,.95)";
-    el.style.fontSize = level === 4 ? "16px" : "18px";
+    el.className = level === 4 ? "recSectionTitle recSectionTitle--sm" : "recSectionTitle";
     return el;
   }
 
-  function createPortraitBox(name, { showName = false, note = "", size = 72 } = {}) {
+  function createPortraitBox(name, { showName = false, note = "", isAlt = false } = {}) {
     const outer = document.createElement("div");
-    outer.style.width = `${Math.max(size, 72)}px`;
-    outer.style.flex = `0 0 ${Math.max(size, 72)}px`;
-    outer.style.display = "flex";
-    outer.style.flexDirection = "column";
-    outer.style.alignItems = "center";
-    outer.style.gap = "4px";
-    outer.style.minWidth = "0";
+    outer.className = `recPortraitBox ${isAlt ? "recPortraitBox--alt" : ""}`.trim();
 
     const box = document.createElement("div");
-    box.className = "counterPortrait";
-    box.style.width = `${size}px`;
-    box.style.height = `${size}px`;
-    box.style.flex = "0 0 auto";
+    box.className = `recPortrait ${isAlt ? "recPortrait--alt" : ""}`.trim();
 
     const img = document.createElement("img");
-    img.className = "counterPortraitImg";
+    img.className = "recPortraitImg";
     img.alt = name;
     img.loading = "lazy";
     img.decoding = "async";
@@ -468,16 +447,7 @@
     img.onerror = () => {
       box.innerHTML = "";
       const fallback = document.createElement("div");
-      fallback.style.width = "100%";
-      fallback.style.height = "100%";
-      fallback.style.display = "flex";
-      fallback.style.alignItems = "center";
-      fallback.style.justifyContent = "center";
-      fallback.style.textAlign = "center";
-      fallback.style.padding = "4px";
-      fallback.style.fontSize = "10px";
-      fallback.style.fontWeight = "800";
-      fallback.style.lineHeight = "1.1";
+      fallback.className = "recPortraitFallback";
       fallback.textContent = name;
       box.appendChild(fallback);
     };
@@ -487,174 +457,105 @@
 
     if (showName) {
       const nameEl = document.createElement("div");
+      nameEl.className = `recPortraitName ${isAlt ? "recPortraitName--alt" : ""}`.trim();
       nameEl.textContent = name;
-      nameEl.style.fontSize = "11px";
-      nameEl.style.fontWeight = "800";
-      nameEl.style.lineHeight = "1.15";
-      nameEl.style.textAlign = "center";
-      nameEl.style.color = "rgba(255,255,255,.92)";
       outer.appendChild(nameEl);
     }
 
     if (note) {
       const noteEl = document.createElement("div");
+      noteEl.className = `recPortraitNote ${isAlt ? "recPortraitNote--alt" : ""}`.trim();
       noteEl.textContent = note;
-      noteEl.style.fontSize = "11px";
-      noteEl.style.fontStyle = "italic";
-      noteEl.style.lineHeight = "1.2";
-      noteEl.style.textAlign = "center";
-      noteEl.style.color = "rgba(255,255,255,.68)";
       outer.appendChild(noteEl);
     }
 
     return outer;
   }
 
-  function createPortraitRow(names) {
+  function createPortraitRow(names, { isAlt = false } = {}) {
     const wrap = document.createElement("div");
-    wrap.className = "counterPortraits";
+    wrap.className = `recPortraits ${isAlt ? "recPortraits--alt" : ""}`.trim();
 
-    names.forEach((name, idx) => {
-      const p = document.createElement("div");
-      p.className = "counterPortrait";
-      p.title = `p${idx + 1}`;
-
-      const img = document.createElement("img");
-      img.className = "counterPortraitImg";
-      img.alt = name;
-      img.loading = "lazy";
-      img.decoding = "async";
-      img.referrerPolicy = "no-referrer";
-      img.src = getPortrait(name) || "";
-
-      img.onerror = () => {
-        p.innerHTML = "";
-        const fallback = document.createElement("div");
-        fallback.style.width = "100%";
-        fallback.style.height = "100%";
-        fallback.style.display = "flex";
-        fallback.style.alignItems = "center";
-        fallback.style.justifyContent = "center";
-        fallback.style.textAlign = "center";
-        fallback.style.padding = "4px";
-        fallback.style.fontSize = "10px";
-        fallback.style.fontWeight = "800";
-        fallback.style.lineHeight = "1.1";
-        fallback.textContent = name;
-        p.appendChild(fallback);
-      };
-
-      p.appendChild(img);
-      wrap.appendChild(p);
+    names.forEach((name) => {
+      wrap.appendChild(
+        createPortraitBox(name, {
+          showName: false,
+          note: "",
+          isAlt,
+        })
+      );
     });
 
     return wrap;
   }
 
   function makeRecommendationCard(item) {
+    const isAlt = isAlternativeItem(item);
+
     const card = document.createElement("div");
-    card.className = `counterCard ${getTierClass(item.tier, item.groupLabel)}`.trim();
+    card.className = `recCard ${isAlt ? "recCard--alt" : "recCard--main"}`.trim();
 
     const top = document.createElement("div");
-    top.className = "counterTop";
+    top.className = "recCardTop";
 
     const left = document.createElement("div");
-    left.style.minWidth = "0";
-    left.style.flex = "1 1 auto";
+    left.className = "recCardLeft";
 
     const teamName = document.createElement("div");
-    teamName.className = "counterName";
+    teamName.className = `recCardName ${isAlt ? "recCardName--alt" : ""}`.trim();
     teamName.textContent = item.teamName || "Équipe";
-
     left.appendChild(teamName);
 
     if (item.title) {
       const title = document.createElement("div");
-      title.className = "counterRatio";
-      title.style.marginTop = "4px";
-      title.style.fontSize = "12px";
-      title.style.lineHeight = "1.2";
+      title.className = `recCardTitle ${isAlt ? "recCardTitle--alt" : ""}`.trim();
       title.textContent = item.title;
       left.appendChild(title);
     }
 
-    const right = document.createElement("div");
-    right.className = "counterRight";
-
-    if (item.tier) {
-      const chip = document.createElement("div");
-      chip.className = "chipCount";
-      chip.style.padding = "5px 10px";
-      chip.style.fontSize = "12px";
-      chip.style.minWidth = "auto";
-      chip.textContent = item.tier.toUpperCase();
-      right.appendChild(chip);
-    }
-
     top.appendChild(left);
-    top.appendChild(right);
     card.appendChild(top);
 
     if (item.layoutType === "core_flex") {
       if (item.coreCharacters.length) {
         const coreLabel = document.createElement("div");
+        coreLabel.className = `recMetaLabel ${isAlt ? "recMetaLabel--alt" : ""}`.trim();
         coreLabel.textContent = "Cœur";
-        coreLabel.style.fontSize = "12px";
-        coreLabel.style.fontWeight = "900";
-        coreLabel.style.textTransform = "uppercase";
-        coreLabel.style.letterSpacing = ".08em";
-        coreLabel.style.color = "rgba(255,255,255,.72)";
-        coreLabel.style.marginTop = "2px";
         card.appendChild(coreLabel);
 
-        card.appendChild(createPortraitRow(item.coreCharacters));
+        card.appendChild(createPortraitRow(item.coreCharacters, { isAlt }));
       }
 
       if (item.flexItems.length) {
         const flexLabel = document.createElement("div");
+        flexLabel.className = `recMetaLabel ${isAlt ? "recMetaLabel--alt" : ""}`.trim();
         flexLabel.textContent =
           item.flexSlots > 0 ? `Compléter avec ${item.flexSlots} parmi :` : "Compléter avec :";
-        flexLabel.style.fontSize = "12px";
-        flexLabel.style.fontWeight = "900";
-        flexLabel.style.textTransform = "uppercase";
-        flexLabel.style.letterSpacing = ".08em";
-        flexLabel.style.color = "rgba(255,255,255,.72)";
-        flexLabel.style.marginTop = "4px";
         card.appendChild(flexLabel);
 
         const flexWrap = document.createElement("div");
-        flexWrap.style.display = "flex";
-        flexWrap.style.flexWrap = "wrap";
-        flexWrap.style.gap = "12px";
-        flexWrap.style.alignItems = "flex-start";
+        flexWrap.className = `recFlexWrap ${isAlt ? "recFlexWrap--alt" : ""}`.trim();
 
         item.flexItems.forEach((f) => {
           flexWrap.appendChild(
             createPortraitBox(f.name, {
               showName: true,
               note: f.note || "",
-              size: 68,
+              isAlt,
             })
           );
         });
 
         card.appendChild(flexWrap);
       }
-    } else {
-      if (item.fixedCharacters.length) {
-        card.appendChild(createPortraitRow(item.fixedCharacters));
-      }
+    } else if (item.fixedCharacters.length) {
+      card.appendChild(createPortraitRow(item.fixedCharacters, { isAlt }));
     }
 
     if (item.notes) {
       const note = document.createElement("div");
+      note.className = `recCardNote ${isAlt ? "recCardNote--alt" : ""}`.trim();
       note.textContent = item.notes;
-      note.setAttribute("aria-label", "Notes");
-      note.style.marginTop = "6px";
-      note.style.fontSize = "12px";
-      note.style.fontStyle = "italic";
-      note.style.lineHeight = "1.25";
-      note.style.color = "rgba(255,255,255,.70)";
       card.appendChild(note);
     }
 
@@ -693,6 +594,39 @@
     currentSubtitle.textContent = `${subModeLabel(secondary)} • ${modeLabel(mode)}`;
   }
 
+  function renderGroupWithSubgroups(groupRows) {
+    const subgroupMap = [...new Set(groupRows.map((x) => x.subgroupLabel).filter(Boolean))];
+
+    if (!subgroupMap.length) {
+      sortRows(groupRows).forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+      return;
+    }
+
+    const orderedSubgroups = subgroupMap.sort((a, b) => {
+      const rowA = groupRows.find((x) => x.subgroupLabel === a);
+      const rowB = groupRows.find((x) => x.subgroupLabel === b);
+      const oa = rowA?.subgroupOrder ?? 9999;
+      const ob = rowB?.subgroupOrder ?? 9999;
+      if (oa !== ob) return oa - ob;
+      return compareNatural(a, b);
+    });
+
+    const noSubgroup = sortRows(groupRows.filter((x) => !x.subgroupLabel));
+    noSubgroup.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+
+    if (noSubgroup.length && orderedSubgroups.length) {
+      const spacer = document.createElement("div");
+      spacer.className = "recSpacer";
+      resultsWrap.appendChild(spacer);
+    }
+
+    orderedSubgroups.forEach((subgroup) => {
+      resultsWrap.appendChild(createSectionTitle(subgroup, 4));
+      const subgroupRows = sortRows(groupRows.filter((x) => x.subgroupLabel === subgroup));
+      subgroupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+    });
+  }
+
   function renderRowsWithSections(rows) {
     clearNode(resultsWrap);
 
@@ -719,7 +653,6 @@
 
       groups.forEach((group) => {
         resultsWrap.appendChild(createSectionTitle(group, 3));
-
         const groupRows = sortRows(rows.filter((x) => x.groupLabel === group));
         groupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
       });
@@ -738,7 +671,6 @@
 
       groups.forEach((group) => {
         resultsWrap.appendChild(createSectionTitle(group, 3));
-
         const groupRows = sortRows(rows.filter((x) => x.groupLabel === group));
         groupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
       });
@@ -746,29 +678,19 @@
     }
 
     if (modeKey === "battleworld") {
-      const subgroups = [...new Set(rows.map((x) => x.subgroupLabel).filter(Boolean))].sort((a, b) => {
-        const rowA = rows.find((x) => x.subgroupLabel === a);
-        const rowB = rows.find((x) => x.subgroupLabel === b);
-        const oa = rowA?.subgroupOrder ?? 9999;
-        const ob = rowB?.subgroupOrder ?? 9999;
+      const groups = [...new Set(rows.map((x) => x.groupLabel).filter(Boolean))].sort((a, b) => {
+        const rowA = rows.find((x) => x.groupLabel === a);
+        const rowB = rows.find((x) => x.groupLabel === b);
+        const oa = rowA?.groupOrder ?? 9999;
+        const ob = rowB?.groupOrder ?? 9999;
         if (oa !== ob) return oa - ob;
         return compareNatural(a, b);
       });
 
-      const noSubgroup = sortRows(rows.filter((x) => !x.subgroupLabel));
-      noSubgroup.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
-
-      if (noSubgroup.length && subgroups.length) {
-        const spacer = document.createElement("div");
-        spacer.style.height = "2px";
-        resultsWrap.appendChild(spacer);
-      }
-
-      subgroups.forEach((subgroup) => {
-        resultsWrap.appendChild(createSectionTitle(subgroup, 4));
-
-        const subgroupRows = sortRows(rows.filter((x) => x.subgroupLabel === subgroup));
-        subgroupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+      groups.forEach((group) => {
+        resultsWrap.appendChild(createSectionTitle(group, 3));
+        const groupRows = sortRows(rows.filter((x) => x.groupLabel === group));
+        renderGroupWithSubgroups(groupRows);
       });
       return;
     }
@@ -789,75 +711,14 @@
       });
 
       if (groups.length <= 1) {
-        const groupRows = sortRows(rows);
-
-        const subgroupMap = [...new Set(groupRows.map((x) => x.subgroupLabel).filter(Boolean))];
-        if (!subgroupMap.length) {
-          groupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
-          return;
-        }
-
-        const orderedSubgroups = subgroupMap.sort((a, b) => {
-          const rowA = groupRows.find((x) => x.subgroupLabel === a);
-          const rowB = groupRows.find((x) => x.subgroupLabel === b);
-          const oa = rowA?.subgroupOrder ?? 9999;
-          const ob = rowB?.subgroupOrder ?? 9999;
-          if (oa !== ob) return oa - ob;
-          return compareNatural(a, b);
-        });
-
-        const noSubgroup = sortRows(groupRows.filter((x) => !x.subgroupLabel));
-        noSubgroup.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
-
-        if (noSubgroup.length && orderedSubgroups.length) {
-          const spacer = document.createElement("div");
-          spacer.style.height = "2px";
-          resultsWrap.appendChild(spacer);
-        }
-
-        orderedSubgroups.forEach((subgroup) => {
-          resultsWrap.appendChild(createSectionTitle(subgroup, 4));
-          const subgroupRows = sortRows(groupRows.filter((x) => x.subgroupLabel === subgroup));
-          subgroupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
-        });
-
+        renderGroupWithSubgroups(sortRows(rows));
         return;
       }
 
       groups.forEach((group) => {
         resultsWrap.appendChild(createSectionTitle(group, 3));
-
         const groupRows = sortRows(rows.filter((x) => x.groupLabel === group));
-        const subgroupMap = [...new Set(groupRows.map((x) => x.subgroupLabel).filter(Boolean))];
-
-        if (!subgroupMap.length) {
-          groupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
-          return;
-        }
-
-        const orderedSubgroups = subgroupMap.sort((a, b) => {
-          const rowA = groupRows.find((x) => x.subgroupLabel === a);
-          const rowB = groupRows.find((x) => x.subgroupLabel === b);
-          const oa = rowA?.subgroupOrder ?? 9999;
-          const ob = rowB?.subgroupOrder ?? 9999;
-          if (oa !== ob) return oa - ob;
-          return compareNatural(a, b);
-        });
-
-        const noSubgroup = sortRows(groupRows.filter((x) => !x.subgroupLabel));
-        noSubgroup.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
-
-        if (noSubgroup.length && orderedSubgroups.length) {
-          const spacer = document.createElement("div");
-          spacer.style.height = "2px";
-          resultsWrap.appendChild(spacer);
-        }
-
-        orderedSubgroups.forEach((subgroup) => {
-          resultsWrap.appendChild(createSectionTitle(subgroup, 4));
-          const subgroupRows = sortRows(groupRows.filter((x) => x.subgroupLabel === subgroup));
-          subgroupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
-        });
+        renderGroupWithSubgroups(groupRows);
       });
       return;
     }
