@@ -1,50 +1,55 @@
 /* docs/conseils.css */
 
 :root {
-  --rec-gap: 10px;
-  --rec-min: 44px;
-  --rec-max: 58px;
+  /* MAIN */
+  --rec-gap: 8px;
+  --rec-min: 52px;
+  --rec-max: 70px;
 
-  --rec-alt-gap: 8px;
-  --rec-alt-min: 38px;
-  --rec-alt-max: 50px;
+  /* ALT */
+  --rec-alt-gap: 6px;
+  --rec-alt-min: 42px;
+  --rec-alt-max: 56px;
 }
 
-/* ---------- Titres de sections ---------- */
+/* ---------- GROUP LABEL (Nodes) ---------- */
 .recSectionTitle {
-  margin: 22px 0 12px 0;
+  margin: 28px 0 14px 0;
   font-weight: 1000;
-  letter-spacing: 0.2px;
-  line-height: 1.08;
-  color: rgba(255, 255, 255, 0.97);
-  font-size: 22px;
+  letter-spacing: 0.3px;
+  line-height: 1.05;
+  color: rgba(255, 255, 255, 0.98);
+  font-size: 26px;
   text-align: center;
 }
 
+/* Sous-titres (Équipe principale / Alternative) */
 .recSectionTitle--sm {
-  margin: 16px 0 10px 0;
+  margin: 18px 0 12px 0;
   font-size: 17px;
+  text-align: center;
   color: rgba(255, 255, 255, 0.9);
 }
 
 .recSpacer {
-  height: 2px;
+  height: 4px;
 }
 
-/* ---------- Carte de base ---------- */
+/* ---------- CARTE ---------- */
 .recCard {
   background: rgba(20, 22, 28, 0.9);
   border-radius: 16px;
-  padding: 14px;
-  margin-bottom: 14px;
+  padding: 12px;
+  margin-bottom: 12px;
   border: 1px solid rgba(255, 255, 255, 0.06);
+
   box-shadow:
-    0 0 0 rgba(0, 0, 0, 0),
     0 6px 18px rgba(0, 0, 0, 0.35);
+
   transition:
-    transform 0.16s ease,
-    box-shadow 0.16s ease,
-    opacity 0.16s ease;
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .recCard:hover {
@@ -53,28 +58,27 @@
     0 8px 22px rgba(0, 0, 0, 0.45);
 }
 
-/* ---------- Principale ---------- */
+/* ---------- MAIN ---------- */
 .recCard--main {
-  padding: 14px;
-  opacity: 1;
+  padding: 12px;
 }
 
-/* ---------- Alternative ---------- */
+/* ---------- ALT (plus petite + centrée) ---------- */
 .recCard--alt {
-  padding: 10px 11px;
-  opacity: 0.9;
-  width: 85%;
+  padding: 9px 10px;
+  width: 78%;
   margin-left: auto;
   margin-right: auto;
+  opacity: 0.88;
 }
 
-/* ---------- Haut de carte ---------- */
+/* ---------- HEADER ---------- */
 .recCardTop {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
 .recCardLeft {
@@ -82,35 +86,34 @@
   flex: 1 1 auto;
 }
 
-/* ---------- Nom / titre ---------- */
+/* ---------- NOM ---------- */
 .recCardName {
   font-weight: 1000;
-  font-size: 17px;
-  line-height: 1.1;
-  color: rgba(255, 255, 255, 0.96);
+  font-size: 18px;
+  line-height: 1.05;
+  color: rgba(255, 255, 255, 0.97);
 }
 
 .recCardName--alt {
   font-size: 14px;
 }
 
+/* ---------- SOUS TEXTE ---------- */
 .recCardTitle {
-  margin-top: 4px;
+  margin-top: 3px;
   font-weight: 900;
   font-size: 12px;
-  line-height: 1.2;
-  color: rgba(255, 255, 255, 0.68);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .recCardTitle--alt {
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.62);
 }
 
-/* ---------- Labels cœur / flex ---------- */
+/* ---------- LABELS ---------- */
 .recMetaLabel {
   margin-top: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-size: 12px;
   font-weight: 900;
   text-transform: uppercase;
@@ -119,26 +122,23 @@
 }
 
 .recMetaLabel--alt {
-  font-size: 11px;
-  margin-bottom: 6px;
-  color: rgba(255, 255, 255, 0.64);
+  font-size: 10px;
 }
 
-/* ---------- Rangées de portraits ---------- */
+/* ---------- PORTRAITS ROW ---------- */
 .recPortraits {
   display: flex;
   gap: var(--rec-gap);
-  flex-wrap: nowrap;
   align-items: center;
-  min-width: 0;
-  overflow: hidden;
+  justify-content: space-between;
 }
 
+/* ALT plus serré */
 .recPortraits--alt {
   gap: var(--rec-alt-gap);
 }
 
-/* ---------- Bloc portrait + texte ---------- */
+/* ---------- BOX ---------- */
 .recPortraitBox {
   --rec-size: clamp(
     var(--rec-min),
@@ -152,10 +152,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  min-width: 0;
+  gap: 3px;
 }
 
+/* ALT */
 .recPortraitBox--alt {
   --rec-size: clamp(
     var(--rec-alt-min),
@@ -165,18 +165,16 @@
 
   width: var(--rec-size);
   flex: 0 0 var(--rec-size);
-  gap: 3px;
 }
 
-/* ---------- Portrait ---------- */
+/* ---------- PORTRAIT ---------- */
 .recPortrait {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(20, 22, 24, 0.62);
-  flex: 0 0 auto;
 }
 
 .recPortrait--alt {
@@ -187,178 +185,63 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  object-position: center;
-  display: block;
   background: rgba(255, 255, 255, 0.04);
 }
 
-.recPortraitFallback {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 4px;
-  font-size: 10px;
-  font-weight: 800;
-  line-height: 1.1;
-  color: rgba(255, 255, 255, 0.92);
-}
-
-/* ---------- Nom sous portrait ---------- */
+/* ---------- TEXTES ---------- */
 .recPortraitName {
   font-size: 11px;
   font-weight: 800;
-  line-height: 1.15;
   text-align: center;
-  color: rgba(255, 255, 255, 0.92);
 }
 
 .recPortraitName--alt {
-  font-size: 10px;
+  font-size: 9.5px;
 }
 
-/* ---------- Note sous portrait ---------- */
 .recPortraitNote {
-  font-size: 11px;
-  font-style: italic;
-  line-height: 1.2;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.68);
-}
-
-.recPortraitNote--alt {
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.65);
 }
 
-/* ---------- Flex wrap ---------- */
+/* ---------- FLEX ---------- */
 .recFlexWrap {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.recFlexWrap--alt {
   gap: 10px;
 }
 
-/* ---------- Note globale carte ---------- */
+/* ---------- NOTES ---------- */
 .recCardNote {
-  margin-top: 8px;
+  margin-top: 6px;
   font-size: 12px;
   font-style: italic;
-  line-height: 1.25;
   color: rgba(255, 255, 255, 0.7);
 }
 
 .recCardNote--alt {
-  margin-top: 6px;
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.62);
 }
 
-/* ---------- Mobile ---------- */
+/* ---------- MOBILE ---------- */
 @media (max-width: 520px) {
   .recSectionTitle {
-    font-size: 20px;
-    margin: 20px 0 12px 0;
-  }
-
-  .recSectionTitle--sm {
-    font-size: 16px;
-    margin: 15px 0 9px 0;
-  }
-
-  .recCard {
-    border-radius: 15px;
-  }
-
-  .recCard--main {
-    padding: 13px;
+    font-size: 23px;
   }
 
   .recCard--alt {
-    padding: 9px 10px;
-    width: 88%;
-  }
-
-  .recCardName {
-    font-size: 16px;
-  }
-
-  .recCardName--alt {
-    font-size: 13.5px;
+    width: 82%;
   }
 }
 
 @media (max-width: 420px) {
   .recSectionTitle {
-    font-size: 18px;
-    margin: 18px 0 10px 0;
-  }
-
-  .recSectionTitle--sm {
-    font-size: 15px;
-    margin: 14px 0 8px 0;
-  }
-
-  .recCardTop {
-    gap: 10px;
-    margin-bottom: 8px;
-  }
-
-  .recCardName {
-    font-size: 15px;
-  }
-
-  .recCardName--alt {
-    font-size: 13px;
-  }
-
-  .recCardTitle {
-    font-size: 11px;
-  }
-
-  .recCardTitle--alt {
-    font-size: 10px;
-  }
-
-  .recMetaLabel {
-    font-size: 11px;
-  }
-
-  .recMetaLabel--alt {
-    font-size: 10px;
-  }
-
-  .recPortraitName {
-    font-size: 10px;
-  }
-
-  .recPortraitName--alt {
-    font-size: 9.5px;
-  }
-
-  .recPortraitNote {
-    font-size: 10px;
-  }
-
-  .recPortraitNote--alt {
-    font-size: 9.5px;
-  }
-
-  .recCardNote {
-    font-size: 11px;
-  }
-
-  .recCardNote--alt {
-    font-size: 10px;
+    font-size: 21px;
   }
 
   .recCard--alt {
-    width: 90%;
+    width: 85%;
   }
 }
