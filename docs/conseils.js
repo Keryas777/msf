@@ -214,10 +214,6 @@
     return String(secondarySelect?.value ?? "").trim();
   }
 
-  function getSelectedSecondaryKey() {
-    return normalizeKey(getSelectedSecondary());
-  }
-
   function getModeConfig(modeKey) {
     switch (modeKey) {
       case "guerre":
@@ -407,13 +403,8 @@
     const modeKey = getSelectedModeKey();
     const secondary = getSelectedSecondary();
 
-    if (!mode || !modeKey) {
-      return [];
-    }
-
-    if (modeRequiresSecondary(modeKey) && !secondary) {
-      return [];
-    }
+    if (!mode || !modeKey) return [];
+    if (modeRequiresSecondary(modeKey) && !secondary) return [];
 
     let rows = getActiveItems().filter((x) => x.modeKey === modeKey);
     rows = rows.filter((x) => itemMatchesSecondary(x, modeKey, secondary));
@@ -431,10 +422,10 @@
 
   function createPortraitBox(name, { showName = false, note = "", isAlt = false } = {}) {
     const outer = document.createElement("div");
-    outer.className = `recPortraitBox ${isAlt ? "recPortraitBox--alt" : ""}`.trim();
+    outer.className = `recPortraitBox${isAlt ? " recPortraitBox--alt" : ""}`;
 
     const box = document.createElement("div");
-    box.className = `recPortrait ${isAlt ? "recPortrait--alt" : ""}`.trim();
+    box.className = `recPortrait${isAlt ? " recPortrait--alt" : ""}`;
 
     const img = document.createElement("img");
     img.className = "recPortraitImg";
@@ -457,14 +448,14 @@
 
     if (showName) {
       const nameEl = document.createElement("div");
-      nameEl.className = `recPortraitName ${isAlt ? "recPortraitName--alt" : ""}`.trim();
+      nameEl.className = `recPortraitName${isAlt ? " recPortraitName--alt" : ""}`;
       nameEl.textContent = name;
       outer.appendChild(nameEl);
     }
 
     if (note) {
       const noteEl = document.createElement("div");
-      noteEl.className = `recPortraitNote ${isAlt ? "recPortraitNote--alt" : ""}`.trim();
+      noteEl.className = `recPortraitNote${isAlt ? " recPortraitNote--alt" : ""}`;
       noteEl.textContent = note;
       outer.appendChild(noteEl);
     }
@@ -474,16 +465,10 @@
 
   function createPortraitRow(names, { isAlt = false } = {}) {
     const wrap = document.createElement("div");
-    wrap.className = `recPortraits ${isAlt ? "recPortraits--alt" : ""}`.trim();
+    wrap.className = `recPortraits${isAlt ? " recPortraits--alt" : ""}`;
 
     names.forEach((name) => {
-      wrap.appendChild(
-        createPortraitBox(name, {
-          showName: false,
-          note: "",
-          isAlt,
-        })
-      );
+      wrap.appendChild(createPortraitBox(name, { isAlt }));
     });
 
     return wrap;
@@ -493,7 +478,7 @@
     const isAlt = isAlternativeItem(item);
 
     const card = document.createElement("div");
-    card.className = `recCard ${isAlt ? "recCard--alt" : "recCard--main"}`.trim();
+    card.className = `recCard ${isAlt ? "recCard--alt" : "recCard--main"}`;
 
     const top = document.createElement("div");
     top.className = "recCardTop";
@@ -502,13 +487,13 @@
     left.className = "recCardLeft";
 
     const teamName = document.createElement("div");
-    teamName.className = `recCardName ${isAlt ? "recCardName--alt" : ""}`.trim();
+    teamName.className = `recCardName${isAlt ? " recCardName--alt" : ""}`;
     teamName.textContent = item.teamName || "Équipe";
     left.appendChild(teamName);
 
     if (item.title) {
       const title = document.createElement("div");
-      title.className = `recCardTitle ${isAlt ? "recCardTitle--alt" : ""}`.trim();
+      title.className = `recCardTitle${isAlt ? " recCardTitle--alt" : ""}`;
       title.textContent = item.title;
       left.appendChild(title);
     }
@@ -519,7 +504,7 @@
     if (item.layoutType === "core_flex") {
       if (item.coreCharacters.length) {
         const coreLabel = document.createElement("div");
-        coreLabel.className = `recMetaLabel ${isAlt ? "recMetaLabel--alt" : ""}`.trim();
+        coreLabel.className = `recMetaLabel${isAlt ? " recMetaLabel--alt" : ""}`;
         coreLabel.textContent = "Cœur";
         card.appendChild(coreLabel);
 
@@ -528,13 +513,13 @@
 
       if (item.flexItems.length) {
         const flexLabel = document.createElement("div");
-        flexLabel.className = `recMetaLabel ${isAlt ? "recMetaLabel--alt" : ""}`.trim();
+        flexLabel.className = `recMetaLabel${isAlt ? " recMetaLabel--alt" : ""}`;
         flexLabel.textContent =
           item.flexSlots > 0 ? `Compléter avec ${item.flexSlots} parmi :` : "Compléter avec :";
         card.appendChild(flexLabel);
 
         const flexWrap = document.createElement("div");
-        flexWrap.className = `recFlexWrap ${isAlt ? "recFlexWrap--alt" : ""}`.trim();
+        flexWrap.className = `recFlexWrap${isAlt ? " recFlexWrap--alt" : ""}`;
 
         item.flexItems.forEach((f) => {
           flexWrap.appendChild(
@@ -554,7 +539,7 @@
 
     if (item.notes) {
       const note = document.createElement("div");
-      note.className = `recCardNote ${isAlt ? "recCardNote--alt" : ""}`.trim();
+      note.className = `recCardNote${isAlt ? " recCardNote--alt" : ""}`;
       note.textContent = item.notes;
       card.appendChild(note);
     }
