@@ -94,6 +94,9 @@ function scoreHeaderRow(repairedHeaders) {
   if (set.has("mode")) score += 5;
   if (set.has("sub_mode")) score += 5;
   if (set.has("group_label")) score += 5;
+  if (set.has("group_order")) score += 4;
+  if (set.has("subgroup_label")) score += 4;
+  if (set.has("subgroup_order")) score += 4;
   if (set.has("layout_type")) score += 4;
   if (set.has("team_name")) score += 4;
   if (set.has("display_order")) score += 4;
@@ -249,8 +252,13 @@ async function main() {
         active: pick(o, "active") ? toBoolean(pick(o, "active")) : true,
         mode: pick(o, "mode"),
         sub_mode: pick(o, "sub_mode"),
+
         group_label: pick(o, "group_label"),
+        group_order: toNumber(pick(o, "group_order"), 9999),
+
         subgroup_label: pick(o, "subgroup_label"),
+        subgroup_order: toNumber(pick(o, "subgroup_order"), 9999),
+
         tier: pick(o, "tier"),
         display_order: toNumber(pick(o, "display_order"), 9999),
         layout_type: layoutType,
@@ -287,7 +295,6 @@ async function main() {
         notes: pick(o, "notes"),
         patch: pick(o, "patch"),
 
-        // Champs dérivés utiles
         fixed_characters: buildFixedChars(o),
         core_characters: buildCoreChars(o),
         flex_items: buildFlexItems(o),
@@ -299,6 +306,7 @@ async function main() {
       r.mode ||
       r.sub_mode ||
       r.group_label ||
+      r.subgroup_label ||
       r.team_name ||
       r.fixed_characters.length ||
       r.core_characters.length ||
