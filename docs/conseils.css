@@ -1,18 +1,16 @@
 /* docs/conseils.css */
 
 :root {
-  /* MAIN */
   --rec-gap: var(--cp-gap);
   --rec-min: var(--cp-min);
   --rec-max: var(--cp-max);
 
-  /* ALT */
   --rec-alt-gap: 8px;
   --rec-alt-min: 38px;
   --rec-alt-max: 50px;
 }
 
-/* ---------- GROUP LABEL (Nodes) ---------- */
+/* ---------- GROUP LABEL ---------- */
 .recSectionTitle {
   margin: 24px 0 14px 0;
   font-weight: 1000;
@@ -23,7 +21,6 @@
   text-align: center;
 }
 
-/* Sous-titres (Équipe principale / Alternative) */
 .recSectionTitle--sm {
   margin: 18px 0 12px 0;
   font-size: 15px;
@@ -54,12 +51,10 @@
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
 }
 
-/* ---------- MAIN ---------- */
 .recCard--main {
   padding: 10px 12px 12px 12px;
 }
 
-/* ---------- ALT (plus petite + centrée) ---------- */
 .recCard--alt {
   padding: 8px 10px 10px 10px;
   width: 72%;
@@ -122,11 +117,73 @@
 }
 
 /* =========================================================
-   PORTRAITS CONSEILS — logique reprise de war-counters
-   - 1 seule ligne
-   - pas de wrap
-   - taille auto avec clamp
-   - remplissage propre de la largeur
+   PORTRAITS FIXES — structure calquée sur war-counters
+   ========================================================= */
+.recFixedPortraits {
+  display: flex;
+  gap: var(--cp-gap);
+  flex-wrap: nowrap;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.recFixedPortrait {
+  --cp-size: clamp(
+    var(--cp-min),
+    calc((100% - (4 * var(--cp-gap))) / 5),
+    var(--cp-max)
+  );
+
+  width: var(--cp-size);
+  height: var(--cp-size);
+
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.12);
+  background: var(--panel2);
+
+  flex: 0 0 auto;
+}
+
+.recFixedPortraitImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  background: rgba(255,255,255,.04);
+}
+
+/* ---------- version alt ---------- */
+.recFixedPortraits--alt {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.recFixedPortrait--alt {
+  --alt-size: clamp(36px, calc((100% - (4 * 6px)) / 5), 46px);
+
+  width: var(--alt-size);
+  height: var(--alt-size);
+
+  border-radius: 9px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.12);
+  background: var(--panel2);
+
+  flex: 0 0 auto;
+}
+
+/* =========================================================
+   PORTRAITS FLEX / CORE-FLEX
    ========================================================= */
 .recPortraits {
   display: flex;
@@ -148,7 +205,6 @@
   margin-top: 2px;
 }
 
-/* ---------- BOX ---------- */
 .recPortraitBox {
   --rec-size: clamp(
     var(--rec-min),
@@ -181,7 +237,6 @@
   min-width: 0;
 }
 
-/* ---------- PORTRAIT ---------- */
 .recPortrait {
   width: 100%;
   height: auto;
@@ -239,6 +294,10 @@
   text-align: center;
   line-height: 1.2;
   color: rgba(255, 255, 255, 0.65);
+}
+
+.recPortraitNote--alt {
+  font-size: 9px;
 }
 
 /* ---------- FLEX ---------- */
