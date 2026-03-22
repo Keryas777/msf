@@ -3,29 +3,30 @@
 :root {
   /* MAIN */
   --rec-gap: 6px;
-  --rec-min: 58px;
-  --rec-max: 76px;
+  --rec-min: 60px;
+  --rec-max: 80px;
 
   /* ALT */
   --rec-alt-gap: 5px;
-  --rec-alt-min: 42px;
-  --rec-alt-max: 52px;
+  --rec-alt-min: 40px;
+  --rec-alt-max: 50px;
 }
 
 /* ---------- GROUP LABEL (Nodes) ---------- */
 .recSectionTitle {
-  margin: 28px 0 16px 0;
+  margin: 24px 0 14px 0;
   font-weight: 1000;
   letter-spacing: 0.2px;
-  line-height: 1.04;
+  line-height: 1.05;
   color: rgba(255, 255, 255, 0.98);
-  font-size: 28px;
+  font-size: 26px;
   text-align: center;
 }
 
+/* Sous-titres (Équipe principale / Alternative) */
 .recSectionTitle--sm {
   margin: 18px 0 12px 0;
-  font-size: 17px;
+  font-size: 15px;
   text-align: center;
   color: rgba(255, 255, 255, 0.9);
 }
@@ -38,7 +39,7 @@
 .recCard {
   background: rgba(20, 22, 28, 0.9);
   border-radius: 16px;
-  padding: 14px 12px 16px 12px;
+  padding: 10px 12px 12px 12px;
   margin-bottom: 12px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
@@ -53,12 +54,14 @@
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
 }
 
+/* ---------- MAIN ---------- */
 .recCard--main {
-  padding: 14px 12px 16px 12px;
+  padding: 10px 12px 12px 12px;
 }
 
+/* ---------- ALT (plus petite + centrée) ---------- */
 .recCard--alt {
-  padding: 10px 10px 12px 10px;
+  padding: 8px 10px 10px 10px;
   width: 72%;
   margin-left: auto;
   margin-right: auto;
@@ -71,7 +74,7 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 10px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .recCardLeft {
@@ -82,8 +85,8 @@
 /* ---------- NOM ---------- */
 .recCardName {
   font-weight: 1000;
-  font-size: 19px;
-  line-height: 1.04;
+  font-size: 18px;
+  line-height: 1.05;
   color: rgba(255, 255, 255, 0.97);
 }
 
@@ -91,6 +94,7 @@
   font-size: 13px;
 }
 
+/* ---------- SOUS TEXTE ---------- */
 .recCardTitle {
   margin-top: 3px;
   font-weight: 900;
@@ -123,7 +127,7 @@
   gap: var(--rec-gap);
   align-items: center;
   justify-content: space-between;
-  margin-top: 6px;
+  margin-top: 2px;
 }
 
 .recPortraits--alt {
@@ -235,7 +239,7 @@
 /* ---------- MOBILE ---------- */
 @media (max-width: 520px) {
   .recSectionTitle {
-    font-size: 24px;
+    font-size: 23px;
   }
 
   .recCard--alt {
@@ -245,11 +249,7 @@
 
 @media (max-width: 420px) {
   .recSectionTitle {
-    font-size: 22px;
-  }
-
-  .recSectionTitle--sm {
-    font-size: 16px;
+    font-size: 21px;
   }
 
   .recCard--alt {
