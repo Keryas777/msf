@@ -2,31 +2,30 @@
 
 :root {
   /* MAIN */
-  --rec-gap: 8px;
-  --rec-min: 52px;
-  --rec-max: 70px;
+  --rec-gap: 6px;
+  --rec-min: 58px;
+  --rec-max: 76px;
 
   /* ALT */
-  --rec-alt-gap: 6px;
-  --rec-alt-min: 44px;
-  --rec-alt-max: 58px;
+  --rec-alt-gap: 5px;
+  --rec-alt-min: 42px;
+  --rec-alt-max: 52px;
 }
 
 /* ---------- GROUP LABEL (Nodes) ---------- */
 .recSectionTitle {
-  margin: 24px 0 14px 0;
+  margin: 28px 0 16px 0;
   font-weight: 1000;
   letter-spacing: 0.2px;
-  line-height: 1.05;
+  line-height: 1.04;
   color: rgba(255, 255, 255, 0.98);
-  font-size: 26px;
+  font-size: 28px;
   text-align: center;
 }
 
-/* Sous-titres (Équipe principale / Alternative) */
 .recSectionTitle--sm {
   margin: 18px 0 12px 0;
-  font-size: 15px;
+  font-size: 17px;
   text-align: center;
   color: rgba(255, 255, 255, 0.9);
 }
@@ -39,7 +38,7 @@
 .recCard {
   background: rgba(20, 22, 28, 0.9);
   border-radius: 16px;
-  padding: 16px 14px 18px 14px;
+  padding: 14px 12px 16px 12px;
   margin-bottom: 12px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
@@ -54,15 +53,13 @@
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
 }
 
-/* ---------- MAIN ---------- */
 .recCard--main {
-  padding: 16px 14px 18px 14px;
+  padding: 14px 12px 16px 12px;
 }
 
-/* ---------- ALT (plus petite + centrée) ---------- */
 .recCard--alt {
-  padding: 12px 12px 14px 12px;
-  width: 78%;
+  padding: 10px 10px 12px 10px;
+  width: 72%;
   margin-left: auto;
   margin-right: auto;
   opacity: 0.88;
@@ -85,16 +82,15 @@
 /* ---------- NOM ---------- */
 .recCardName {
   font-weight: 1000;
-  font-size: 18px;
-  line-height: 1.05;
+  font-size: 19px;
+  line-height: 1.04;
   color: rgba(255, 255, 255, 0.97);
 }
 
 .recCardName--alt {
-  font-size: 14px;
+  font-size: 13px;
 }
 
-/* ---------- SOUS TEXTE ---------- */
 .recCardTitle {
   margin-top: 3px;
   font-weight: 900;
@@ -130,7 +126,6 @@
   margin-top: 6px;
 }
 
-/* ALT plus serré */
 .recPortraits--alt {
   gap: var(--rec-alt-gap);
 }
@@ -145,14 +140,12 @@
 
   width: var(--rec-size);
   flex: 0 0 var(--rec-size);
-
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 3px;
 }
 
-/* ALT */
 .recPortraitBox--alt {
   --rec-size: clamp(
     var(--rec-alt-min),
@@ -188,6 +181,20 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
+.recPortraitFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: rgba(255, 255, 255, 0.92);
+}
+
 /* ---------- TEXTES ---------- */
 .recPortraitName {
   font-size: 11px;
@@ -196,7 +203,7 @@
 }
 
 .recPortraitName--alt {
-  font-size: 9.5px;
+  font-size: 9px;
 }
 
 .recPortraitNote {
@@ -228,20 +235,24 @@
 /* ---------- MOBILE ---------- */
 @media (max-width: 520px) {
   .recSectionTitle {
-    font-size: 23px;
+    font-size: 24px;
   }
 
   .recCard--alt {
-    width: 82%;
+    width: 76%;
   }
 }
 
 @media (max-width: 420px) {
   .recSectionTitle {
-    font-size: 21px;
+    font-size: 22px;
+  }
+
+  .recSectionTitle--sm {
+    font-size: 16px;
   }
 
   .recCard--alt {
-    width: 85%;
+    width: 80%;
   }
 }
