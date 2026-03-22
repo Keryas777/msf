@@ -1,5 +1,15 @@
 /* docs/conseils.css */
 
+:root {
+  --rec-gap: 10px;
+  --rec-min: 44px;
+  --rec-max: 58px;
+
+  --rec-alt-gap: 8px;
+  --rec-alt-min: 38px;
+  --rec-alt-max: 50px;
+}
+
 /* ---------- Titres de sections ---------- */
 .recSectionTitle {
   margin: 18px 0 10px 0;
@@ -27,11 +37,9 @@
   padding: 14px;
   margin-bottom: 14px;
   border: 1px solid rgba(255, 255, 255, 0.06);
-
   box-shadow:
     0 0 0 rgba(0, 0, 0, 0),
     0 6px 18px rgba(0, 0, 0, 0.35);
-
   transition:
     transform 0.16s ease,
     box-shadow 0.16s ease,
@@ -115,29 +123,28 @@
 /* ---------- Rangées de portraits ---------- */
 .recPortraits {
   display: flex;
-  gap: 10px;
+  gap: var(--rec-gap);
   flex-wrap: nowrap;
   align-items: center;
   min-width: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 2px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-
-.recPortraits::-webkit-scrollbar {
-  display: none;
+  overflow: hidden;
 }
 
 .recPortraits--alt {
-  gap: 8px;
+  gap: var(--rec-alt-gap);
 }
 
 /* ---------- Bloc portrait + texte ---------- */
 .recPortraitBox {
-  width: 72px;
-  flex: 0 0 72px;
+  --rec-size: clamp(
+    var(--rec-min),
+    calc((100% - (4 * var(--rec-gap))) / 5),
+    var(--rec-max)
+  );
+
+  width: var(--rec-size);
+  flex: 0 0 var(--rec-size);
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -146,15 +153,21 @@
 }
 
 .recPortraitBox--alt {
-  width: 62px;
-  flex: 0 0 62px;
+  --rec-size: clamp(
+    var(--rec-alt-min),
+    calc((100% - (4 * var(--rec-alt-gap))) / 5),
+    var(--rec-alt-max)
+  );
+
+  width: var(--rec-size);
+  flex: 0 0 var(--rec-size);
   gap: 3px;
 }
 
 /* ---------- Portrait ---------- */
 .recPortrait {
-  width: 58px;
-  height: 58px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -163,8 +176,7 @@
 }
 
 .recPortrait--alt {
-  width: 50px;
-  height: 50px;
+  border-radius: 9px;
 }
 
 .recPortraitImg {
@@ -273,26 +285,6 @@
   .recCardName--alt {
     font-size: 14px;
   }
-
-  .recPortraitBox {
-    width: 68px;
-    flex: 0 0 68px;
-  }
-
-  .recPortraitBox--alt {
-    width: 58px;
-    flex: 0 0 58px;
-  }
-
-  .recPortrait {
-    width: 54px;
-    height: 54px;
-  }
-
-  .recPortrait--alt {
-    width: 47px;
-    height: 47px;
-  }
 }
 
 @media (max-width: 420px) {
@@ -331,34 +323,6 @@
 
   .recMetaLabel--alt {
     font-size: 10px;
-  }
-
-  .recPortraits {
-    gap: 8px;
-  }
-
-  .recPortraits--alt {
-    gap: 7px;
-  }
-
-  .recPortraitBox {
-    width: 64px;
-    flex: 0 0 64px;
-  }
-
-  .recPortraitBox--alt {
-    width: 54px;
-    flex: 0 0 54px;
-  }
-
-  .recPortrait {
-    width: 50px;
-    height: 50px;
-  }
-
-  .recPortrait--alt {
-    width: 44px;
-    height: 44px;
   }
 
   .recPortraitName {
