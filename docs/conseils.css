@@ -11,7 +11,8 @@
 }
 
 /* ---------- GROUP LABEL ---------- */
-.recSectionTitle {
+/* Gros titre : Node 1 / Nodes 2 & 3 / Nodes 7 & 8 */
+.recSectionTitle:not(.recSectionTitle--sm) {
   margin: 24px 0 14px 0;
   font-weight: 1000;
   letter-spacing: 0.2px;
@@ -21,11 +22,15 @@
   text-align: center;
 }
 
-.recSectionTitle--sm {
+/* Sous-titre : Équipe principale / Alternative */
+.recSectionTitle.recSectionTitle--sm {
   margin: 18px 0 12px 0;
+  font-weight: 900;
+  letter-spacing: 0.1px;
+  line-height: 1.1;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 12px;
   text-align: center;
-  color: rgba(255, 255, 255, 0.9);
 }
 
 .recSpacer {
@@ -138,12 +143,10 @@
 
   width: var(--cp-size);
   height: var(--cp-size);
-
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   background: var(--panel2);
-
   flex: 0 0 auto;
 }
 
@@ -153,7 +156,7 @@
   object-fit: contain;
   object-position: center;
   display: block;
-  background: rgba(255,255,255,.04);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 /* ---------- version alt ---------- */
@@ -173,12 +176,10 @@
 
   width: var(--alt-size);
   height: var(--alt-size);
-
   border-radius: 9px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   background: var(--panel2);
-
   flex: 0 0 auto;
 }
 
@@ -323,25 +324,4 @@
 
 .recCardNote--alt {
   font-size: 10px;
-}
-
-/* ---------- MOBILE ---------- */
-@media (max-width: 520px) {
-  .recSectionTitle {
-    font-size: 20px;
-  }
-
-  .recCard--alt {
-    width: 76%;
-  }
-}
-
-@media (max-width: 420px) {
-  .recSectionTitle {
-    font-size: 20px;
-  }
-
-  .recCard--alt {
-    width: 80%;
-  }
 }
