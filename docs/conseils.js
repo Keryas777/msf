@@ -127,6 +127,10 @@
     );
   }
 
+  function hasTierGroups(rows) {
+    return rows.some((x) => String(x.groupLabel || "").trim() !== "");
+  }
+
   // ---------- Data normalization ----------
   function normalizeItem(r) {
     const layoutType = String(r.layoutType ?? r.layout_type ?? "fixed").trim() || "fixed";
@@ -540,7 +544,8 @@
         coreLabel.textContent = "Cœur";
         card.appendChild(coreLabel);
 
-        card.appendChild(createPortraitRow(item.coreCharacters, { isAlt }));
+        // ✅ ligne cœur affichée comme une team fixe
+        card.appendChild(createFixedPortraitRow(item.coreCharacters, { isAlt }));
       }
 
       if (item.flexItems.length) {
@@ -644,6 +649,29 @@
     });
   }
 
+  function renderArenaRows(rows) {
+    const groups = [...new Set(rows.map((x) => x.groupLabel).filter(Boolean))].sort((a, b) => {
+      const rowA = rows.find((x) => x.groupLabel === a);
+      const rowB = rows.find((x) => x.groupLabel === b);
+      const oa = rowA?.groupOrder ?? 9999;
+      const ob = rowB?.groupOrder ?? 9999;
+      if (oa !== ob) return oa - ob;
+      return compareTierOrNatural(a, b);
+    });
+
+    // ✅ si aucun group_label, on affiche juste les cartes
+    if (!groups.length) {
+      sortRows(rows).forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+      return;
+    }
+
+    groups.forEach((group) => {
+      resultsWrap.appendChild(createSectionTitle(group, 3));
+      const groupRows = sortRows(rows.filter((x) => x.groupLabel === group));
+      groupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+    });
+  }
+
   function renderRowsWithSections(rows) {
     clearNode(resultsWrap);
 
@@ -712,27 +740,8 @@
       return;
     }
 
-    // ✅ Arène : maintenant avec sections A-TIER / B-TIER / ...
     if (modeKey === "arene") {
-      const groups = [...new Set(rows.map((x) => x.groupLabel).filter(Boolean))].sort((a, b) => {
-        const rowA = rows.find((x) => x.groupLabel === a);
-        const rowB = rows.find((x) => x.groupLabel === b);
-        const oa = rowA?.groupOrder ?? 9999;
-        const ob = rowB?.groupOrder ?? 9999;
-        if (oa !== ob) return oa - ob;
-        return compareTierOrNatural(a, b);
-      });
-
-      if (!groups.length) {
-        sortRows(rows).forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
-        return;
-      }
-
-      groups.forEach((group) => {
-        resultsWrap.appendChild(createSectionTitle(group, 3));
-        const groupRows = sortRows(rows.filter((x) => x.groupLabel === group));
-        groupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
-      });
+      renderArenaRows(rows);
       return;
     }
 
