@@ -463,7 +463,6 @@
     return outer;
   }
 
-  // ✅ Nouvelle structure dédiée aux teams fixes
   function createFixedPortraitRow(names, { isAlt = false } = {}) {
     const wrap = document.createElement("div");
     wrap.className = `recFixedPortraits${isAlt ? " recFixedPortraits--alt" : ""}`;
@@ -713,8 +712,27 @@
       return;
     }
 
+    // ✅ Arène : maintenant avec sections A-TIER / B-TIER / ...
     if (modeKey === "arene") {
-      sortRows(rows).forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+      const groups = [...new Set(rows.map((x) => x.groupLabel).filter(Boolean))].sort((a, b) => {
+        const rowA = rows.find((x) => x.groupLabel === a);
+        const rowB = rows.find((x) => x.groupLabel === b);
+        const oa = rowA?.groupOrder ?? 9999;
+        const ob = rowB?.groupOrder ?? 9999;
+        if (oa !== ob) return oa - ob;
+        return compareTierOrNatural(a, b);
+      });
+
+      if (!groups.length) {
+        sortRows(rows).forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+        return;
+      }
+
+      groups.forEach((group) => {
+        resultsWrap.appendChild(createSectionTitle(group, 3));
+        const groupRows = sortRows(rows.filter((x) => x.groupLabel === group));
+        groupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+      });
       return;
     }
 
