@@ -17,7 +17,7 @@
   letter-spacing: 0.2px;
   line-height: 1.05;
   color: rgba(255, 255, 255, 0.98);
-  font-size: 25px;
+  font-size: 20px;
   text-align: center;
 }
 
@@ -328,7 +328,7 @@
 /* ---------- MOBILE ---------- */
 @media (max-width: 520px) {
   .recSectionTitle {
-    font-size: 25px;
+    font-size: 20px;
   }
 
   .recCard--alt {
@@ -338,7 +338,7 @@
 
 @media (max-width: 420px) {
   .recSectionTitle {
-    font-size: 12px;
+    font-size: 20px;
   }
 
   .recCard--alt {
