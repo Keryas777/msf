@@ -127,10 +127,6 @@
     );
   }
 
-  function hasTierGroups(rows) {
-    return rows.some((x) => String(x.groupLabel || "").trim() !== "");
-  }
-
   // ---------- Data normalization ----------
   function normalizeItem(r) {
     const layoutType = String(r.layoutType ?? r.layout_type ?? "fixed").trim() || "fixed";
@@ -510,7 +506,7 @@
     return wrap;
   }
 
-  function makeRecommendationCard(item) {
+  function makeRecommendationCard(item, fallbackName = "") {
     const isAlt = isAlternativeItem(item);
 
     const card = document.createElement("div");
@@ -524,7 +520,7 @@
 
     const teamName = document.createElement("div");
     teamName.className = `recCardName${isAlt ? " recCardName--alt" : ""}`;
-    teamName.textContent = item.teamName || "Équipe";
+    teamName.textContent = item.teamName || fallbackName || "Équipe";
     left.appendChild(teamName);
 
     if (item.title) {
@@ -544,7 +540,6 @@
         coreLabel.textContent = "Cœur";
         card.appendChild(coreLabel);
 
-        // ✅ ligne cœur affichée comme une team fixe
         card.appendChild(createFixedPortraitRow(item.coreCharacters, { isAlt }));
       }
 
@@ -616,62 +611,6 @@
     currentSubtitle.textContent = `${subModeLabel(secondary)} • ${modeLabel(mode)}`;
   }
 
-  function renderGroupWithSubgroups(groupRows) {
-    const subgroupMap = [...new Set(groupRows.map((x) => x.subgroupLabel).filter(Boolean))];
-
-    if (!subgroupMap.length) {
-      sortRows(groupRows).forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
-      return;
-    }
-
-    const orderedSubgroups = subgroupMap.sort((a, b) => {
-      const rowA = groupRows.find((x) => x.subgroupLabel === a);
-      const rowB = groupRows.find((x) => x.subgroupLabel === b);
-      const oa = rowA?.subgroupOrder ?? 9999;
-      const ob = rowB?.subgroupOrder ?? 9999;
-      if (oa !== ob) return oa - ob;
-      return compareNatural(a, b);
-    });
-
-    const noSubgroup = sortRows(groupRows.filter((x) => !x.subgroupLabel));
-    noSubgroup.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
-
-    if (noSubgroup.length && orderedSubgroups.length) {
-      const spacer = document.createElement("div");
-      spacer.className = "recSpacer";
-      resultsWrap.appendChild(spacer);
-    }
-
-    orderedSubgroups.forEach((subgroup) => {
-      resultsWrap.appendChild(createSectionTitle(subgroup, 4));
-      const subgroupRows = sortRows(groupRows.filter((x) => x.subgroupLabel === subgroup));
-      subgroupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
-    });
-  }
-
-  function renderArenaRows(rows) {
-    const groups = [...new Set(rows.map((x) => x.groupLabel).filter(Boolean))].sort((a, b) => {
-      const rowA = rows.find((x) => x.groupLabel === a);
-      const rowB = rows.find((x) => x.groupLabel === b);
-      const oa = rowA?.groupOrder ?? 9999;
-      const ob = rowB?.groupOrder ?? 9999;
-      if (oa !== ob) return oa - ob;
-      return compareTierOrNatural(a, b);
-    });
-
-    // ✅ si aucun group_label, on affiche juste les cartes
-    if (!groups.length) {
-      sortRows(rows).forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
-      return;
-    }
-
-    groups.forEach((group) => {
-      resultsWrap.appendChild(createSectionTitle(group, 3));
-      const groupRows = sortRows(rows.filter((x) => x.groupLabel === group));
-      groupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
-    });
-  }
-
   function renderRowsWithSections(rows) {
     clearNode(resultsWrap);
 
@@ -684,6 +623,72 @@
     if (!rows.length) {
       resultsWrap.innerHTML = `<p class="subtitle">Aucune recommandation disponible.</p>`;
       return;
+    }
+
+    let teamCounter = 1;
+    const nextFallbackName = () => `Équipe ${teamCounter++}`;
+
+    function appendCard(item) {
+      resultsWrap.appendChild(makeRecommendationCard(item, nextFallbackName()));
+    }
+
+    function appendCards(items) {
+      items.forEach((item) => appendCard(item));
+    }
+
+    function renderGroupWithSubgroups(groupRows) {
+      const subgroupMap = [...new Set(groupRows.map((x) => x.subgroupLabel).filter(Boolean))];
+
+      if (!subgroupMap.length) {
+        appendCards(sortRows(groupRows));
+        return;
+      }
+
+      const orderedSubgroups = subgroupMap.sort((a, b) => {
+        const rowA = groupRows.find((x) => x.subgroupLabel === a);
+        const rowB = groupRows.find((x) => x.subgroupLabel === b);
+        const oa = rowA?.subgroupOrder ?? 9999;
+        const ob = rowB?.subgroupOrder ?? 9999;
+        if (oa !== ob) return oa - ob;
+        return compareNatural(a, b);
+      });
+
+      const noSubgroup = sortRows(groupRows.filter((x) => !x.subgroupLabel));
+      appendCards(noSubgroup);
+
+      if (noSubgroup.length && orderedSubgroups.length) {
+        const spacer = document.createElement("div");
+        spacer.className = "recSpacer";
+        resultsWrap.appendChild(spacer);
+      }
+
+      orderedSubgroups.forEach((subgroup) => {
+        resultsWrap.appendChild(createSectionTitle(subgroup, 4));
+        const subgroupRows = sortRows(groupRows.filter((x) => x.subgroupLabel === subgroup));
+        appendCards(subgroupRows);
+      });
+    }
+
+    function renderArenaRows(arenaRows) {
+      const groups = [...new Set(arenaRows.map((x) => x.groupLabel).filter(Boolean))].sort((a, b) => {
+        const rowA = arenaRows.find((x) => x.groupLabel === a);
+        const rowB = arenaRows.find((x) => x.groupLabel === b);
+        const oa = rowA?.groupOrder ?? 9999;
+        const ob = rowB?.groupOrder ?? 9999;
+        if (oa !== ob) return oa - ob;
+        return compareTierOrNatural(a, b);
+      });
+
+      if (!groups.length) {
+        appendCards(sortRows(arenaRows));
+        return;
+      }
+
+      groups.forEach((group) => {
+        resultsWrap.appendChild(createSectionTitle(group, 3));
+        const groupRows = sortRows(arenaRows.filter((x) => x.groupLabel === group));
+        appendCards(groupRows);
+      });
     }
 
     if (modeKey === "guerre") {
@@ -699,7 +704,7 @@
       groups.forEach((group) => {
         resultsWrap.appendChild(createSectionTitle(group, 3));
         const groupRows = sortRows(rows.filter((x) => x.groupLabel === group));
-        groupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+        appendCards(groupRows);
       });
       return;
     }
@@ -717,7 +722,7 @@
       groups.forEach((group) => {
         resultsWrap.appendChild(createSectionTitle(group, 3));
         const groupRows = sortRows(rows.filter((x) => x.groupLabel === group));
-        groupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+        appendCards(groupRows);
       });
       return;
     }
@@ -768,7 +773,7 @@
       return;
     }
 
-    sortRows(rows).forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+    appendCards(sortRows(rows));
   }
 
   function renderResults() {
