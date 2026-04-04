@@ -50,14 +50,20 @@
     while (el.firstChild) el.removeChild(el.firstChild);
   }
 
+  // ✅ Normalisation renforcée :
+  // - trim / lower
+  // - retire tous les espaces
+  // - retire tirets simples + variantes Unicode + underscore
+  // - retire apostrophes simples + typographiques
+  // - supprime les accents
   const normalizeKey = (s) =>
     (s ?? "")
       .toString()
       .trim()
       .toLowerCase()
       .replace(/\s+/g, "")
-      .replace(/[-_]/g, "")
-      .replace(/[’']/g, "")
+      .replace(/[-_‐-‒–—―﹘﹣－]/g, "")
+      .replace(/[’'`´]/g, "")
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
 
@@ -217,29 +223,44 @@
   // ---------- ROSTER ----------
   function buildRosterMap(data) {
     ROSTERS = new Map();
+
     (Array.isArray(data) ? data : []).forEach((r) => {
       const player = (r.player ?? "").toString().trim();
       if (!player) return;
 
+      const playerKey = normalizeKey(player);
+      if (!playerKey) return;
+
       const map = {};
       const chars = r.chars && typeof r.chars === "object" ? r.chars : {};
+
       Object.entries(chars).forEach(([k, v]) => {
         const kk = normalizeKey(k);
         if (!kk) return;
         map[kk] = typeof v === "object" ? Number(v.power) || 0 : Number(v) || 0;
       });
 
-      ROSTERS.set(normalizeKey(player), map);
+      ROSTERS.set(playerKey, map);
     });
+
+    console.log("[war-counters] rosters chargés :", ROSTERS.size);
   }
 
   function getPlayerRawPower(player, chars) {
-    const roster = ROSTERS.get(normalizeKey(player));
-    if (!roster) return 0;
+    const playerKey = normalizeKey(player);
+    const roster = ROSTERS.get(playerKey);
+
+    if (!roster) {
+      console.warn("[war-counters] roster introuvable pour :", player, "=> clé normalisée :", playerKey);
+      return 0;
+    }
 
     return (Array.isArray(chars) ? chars : [])
       .filter((c) => (c || "").trim())
-      .reduce((sum, c) => sum + (roster[normalizeKey(c)] || 0), 0);
+      .reduce((sum, c) => {
+        const charKey = normalizeKey(c);
+        return sum + (roster[charKey] || 0);
+      }, 0);
   }
 
   function getMatchingSeasonRule(teamMembers) {
@@ -276,10 +297,12 @@
   // ---------- SELECTS ----------
   function buildPlayersByAlliance() {
     PLAYERS_BY_ALLIANCE = new Map();
+
     (Array.isArray(JOUEURS) ? JOUEURS : []).forEach((j) => {
       const a = (j.alliance ?? "").toString().trim();
       const p = (j.player ?? "").toString().trim();
       if (!a || !p) return;
+
       if (!PLAYERS_BY_ALLIANCE.has(a)) PLAYERS_BY_ALLIANCE.set(a, []);
       PLAYERS_BY_ALLIANCE.get(a).push({ alliance: a, player: p });
     });
