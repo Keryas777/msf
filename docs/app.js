@@ -39,14 +39,14 @@
   const filterDionysos = qs("#filterDionysos");
   const filterPoseidon = qs("#filterPoseidon");
 
-  let TEAMS = [];              // [{team, mode, characters[]}]
-  let CHARS = [];              // raw chars array
-  let CHAR_MAP = new Map();    // normalized alias -> "best" character object (heuristic)
-  let CHAR_MULTI = new Map();  // normalized alias -> [character objects] (for disambiguation)
+  let TEAMS = []; // [{team, mode, characters[]}]
+  let CHARS = []; // raw chars array
+  let CHAR_MAP = new Map(); // normalized alias -> "best" character object (heuristic)
+  let CHAR_MULTI = new Map(); // normalized alias -> [character objects] (for disambiguation)
 
-  let JOUEURS = [];            // [{player, alliance}]
-  let ROSTERS = [];            // [{player, chars:{key:number|{power,level,gear,isoMax}}}]
-  let ROSTER_MAP = new Map();  // playerKey -> chars map (keys normalisées)
+  let JOUEURS = []; // [{player, alliance}]
+  let ROSTERS = []; // [{player, chars:{key:number|{power,level,gear,isoMax}}}]
+  let ROSTER_MAP = new Map(); // playerKey -> chars map (keys normalisées)
 
   const bust = (url) => {
     const u = new URL(url, window.location.href);
@@ -60,16 +60,22 @@
     return res.json();
   }
 
-const normalizeKey = (s) =>
-  (s ?? "")
-    .toString()
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "")
-    .replace(/[-_‐-‒–—―﹘﹣－]/g, "")
-    .replace(/[’'`´]/g, "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+  // ✅ Normalisation robuste :
+  // - trim / lower
+  // - retire tous les espaces
+  // - retire tirets simples + variantes Unicode + underscore
+  // - retire apostrophes simples + typographiques
+  // - supprime les accents
+  const normalizeKey = (s) =>
+    (s ?? "")
+      .toString()
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "")
+      .replace(/[-_‐-‒–—―﹘﹣－]/g, "")
+      .replace(/[’'`´]/g, "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
 
   function clearNode(el) {
     if (!el) return;
@@ -79,7 +85,9 @@ const normalizeKey = (s) =>
   function formatThousandsDot(n) {
     const num = Number(n);
     if (!Number.isFinite(num)) return "0";
-    return Math.trunc(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return Math.trunc(num)
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
   function getSelectedAlliances() {
@@ -105,9 +113,7 @@ const normalizeKey = (s) =>
   function renderModeOptions() {
     if (!modeSelect) return;
 
-    const modes = Array.from(
-      new Set(TEAMS.map((t) => (t.mode || "").trim()).filter(Boolean))
-    );
+    const modes = Array.from(new Set(TEAMS.map((t) => (t.mode || "").trim()).filter(Boolean)));
 
     // ✅ Tri selon MODE_ORDER, puis fallback alphabétique
     modes.sort((a, b) => {
@@ -165,12 +171,10 @@ const normalizeKey = (s) =>
   function isVariantId(id) {
     const s = (id ?? "").toString();
     if (!s) return false;
-    // Mets ici les suffixes "techniques" qu'on veut éviter par défaut
     return /(_props|_bbminn|_npc|_event|_raid|_trial|_campaign|_boss)$/i.test(s);
   }
 
   function scoreCharacterMatch(c, queryKey) {
-    // plus le score est haut, plus on préfère cette entrée
     const id = (c?.id ?? "").toString();
     const nameKey = (c?.nameKey ?? "").toString();
 
@@ -179,14 +183,10 @@ const normalizeKey = (s) =>
 
     let score = 0;
 
-    // match exact sur id ou nameKey -> très fort
     if (idKey && idKey === queryKey) score += 1000;
     if (nameKeyKey && nameKeyKey === queryKey) score += 900;
 
-    // pénalité si variant
     if (isVariantId(id)) score -= 200;
-
-    // bonus si "id" est court (= souvent le vrai perso)
     if (id && id.length <= 18) score += 10;
 
     return score;
@@ -199,11 +199,11 @@ const normalizeKey = (s) =>
     const key = normalizeKey(raw);
     if (!key) return null;
 
-    // 1) si on a une liste multi pour cette clé, on choisit le meilleur candidat
     const list = CHAR_MULTI.get(key);
     if (Array.isArray(list) && list.length) {
       let best = list[0];
       let bestScore = -Infinity;
+
       for (const c of list) {
         const sc = scoreCharacterMatch(c, key);
         if (sc > bestScore) {
@@ -211,10 +211,10 @@ const normalizeKey = (s) =>
           best = c;
         }
       }
+
       return best || null;
     }
 
-    // 2) fallback : map simple (un seul objet)
     return CHAR_MAP.get(key) || null;
   }
 
@@ -295,6 +295,30 @@ const normalizeKey = (s) =>
     ].join("\n");
   }
 
+  function getRosterValueForCharacter(charsMap, charName) {
+    if (!charsMap) return null;
+
+    const info = findPortraitFor(charName);
+
+    const candidateKeys = [
+      charName,
+      info?.id,
+      info?.nameKey,
+      info?.nameEn,
+      info?.nameFr,
+    ]
+      .map(normalizeKey)
+      .filter(Boolean);
+
+    for (const key of candidateKeys) {
+      if (charsMap[key] != null) {
+        return charsMap[key];
+      }
+    }
+
+    return null;
+  }
+
   // Retourne { sum, bars:[{status:'red'|'orange'|'green', tip:string}] }
   function computeTeamStatsForPlayer(playerName, teamName) {
     const playerKey = normalizeKey(playerName);
@@ -309,20 +333,7 @@ const normalizeKey = (s) =>
     const bars = [];
 
     for (const charName of teamObj.characters || []) {
-      const info = findPortraitFor(charName);
-
-      const rosterKey = normalizeKey(
-        info?.id || info?.nameKey || info?.nameEn || info?.nameFr || charName
-      );
-
-      // ✅ lookup principal
-      let raw = charsMap[rosterKey];
-
-      // ✅ fallback : on retente avec le nom de l’équipe (ex: RocketRaccoon)
-      if (raw == null) {
-        const fallbackKey = normalizeKey(charName);
-        raw = charsMap[fallbackKey];
-      }
+      const raw = getRosterValueForCharacter(charsMap, charName);
 
       // ✅ Présence = la clé existe dans le roster (pas juste power > 0)
       const present = raw !== undefined && raw !== null;
@@ -335,13 +346,9 @@ const normalizeKey = (s) =>
       const gear = readCharGear(raw);
       const isoMax = readCharIsoMax(raw);
 
-      // ✅ Rouge uniquement si absent.
-      // ✅ Orange si présent mais pas OK.
-      // ✅ Vert si présent et OK.
       let status = "red";
       if (present) {
-        const ok =
-          level >= THRESH.level && gear >= THRESH.gear && isoMax >= THRESH.iso;
+        const ok = level >= THRESH.level && gear >= THRESH.gear && isoMax >= THRESH.iso;
         status = ok ? "green" : "orange";
       }
 
@@ -401,7 +408,6 @@ const normalizeKey = (s) =>
       left.appendChild(num);
       left.appendChild(name);
 
-      // ✅ 5 barres statut (mais si team < 5, on met des barres "empty" neutres)
       const bars = document.createElement("div");
       bars.className = "rankBars";
 
@@ -460,15 +466,14 @@ const normalizeKey = (s) =>
 
     CHARS.forEach((c) => {
       const keys = [c.id, c.nameKey, c.nameFr, c.nameEn].filter(Boolean);
+
       keys.forEach((k) => {
         const kk = normalizeKey(k);
         if (!kk) return;
 
-        // multi list
         if (!CHAR_MULTI.has(kk)) CHAR_MULTI.set(kk, []);
         CHAR_MULTI.get(kk).push(c);
 
-        // map "simple" : on garde le meilleur selon score
         const existing = CHAR_MAP.get(kk);
         if (!existing) {
           CHAR_MAP.set(kk, c);
@@ -511,11 +516,16 @@ const normalizeKey = (s) =>
     // Map player -> normalized chars keys
     ROSTER_MAP = new Map();
     for (const r of ROSTERS) {
+      const playerKey = normalizeKey(r.player);
+      if (!playerKey) continue;
+
       const normChars = {};
       for (const [k, v] of Object.entries(r.chars || {})) {
-        normChars[normalizeKey(k)] = v;
+        const key = normalizeKey(k);
+        if (!key) continue;
+        normChars[key] = v;
       }
-      ROSTER_MAP.set(normalizeKey(r.player), normChars);
+      ROSTER_MAP.set(playerKey, normChars);
     }
 
     renderModeOptions();
