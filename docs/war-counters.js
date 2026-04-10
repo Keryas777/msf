@@ -115,6 +115,7 @@
       } catch (_) {}
       return;
     }
+
     let seen = 0;
     for (let i = 0; i < v.length; i++) {
       if (/\d/.test(v[i])) seen++;
@@ -126,6 +127,7 @@
         return;
       }
     }
+
     try {
       input.setSelectionRange(v.length, v.length);
     } catch (_) {}
@@ -135,7 +137,7 @@
   let WAR = [];
   let JOUEURS = [];
   let ROSTERS = new Map(); // playerKey -> { charKey -> power }
-  let PLAYERS_BY_ALLIANCE = new Map(); // alliance -> [{alliance,player}]
+  let PLAYERS_BY_ALLIANCE = new Map(); // alliance -> [{alliance, player}]
   let CHAR_MAP = new Map(); // charKey -> charObj
   let WAR_SEASON_RULES = {
     defaultMultiplier: 1.17,
@@ -204,6 +206,7 @@
   // ---------- CHAR ----------
   function buildCharMap(chars) {
     CHAR_MAP = new Map();
+
     (Array.isArray(chars) ? chars : []).forEach((c) => {
       [c?.id, c?.nameKey, c?.nameFr, c?.nameEn]
         .filter(Boolean)
@@ -251,7 +254,12 @@
     const roster = ROSTERS.get(playerKey);
 
     if (!roster) {
-      console.warn("[war-counters] roster introuvable pour :", player, "=> clé normalisée :", playerKey);
+      console.warn(
+        "[war-counters] roster introuvable pour :",
+        player,
+        "=> clé normalisée :",
+        playerKey
+      );
       return 0;
     }
 
@@ -290,7 +298,10 @@
     const rawPower = getPlayerRawPower(player, teamMembers);
     const defaultMultiplier = Number(WAR_SEASON_RULES?.defaultMultiplier) || 1.17;
     const matchedRule = getMatchingSeasonRule(teamMembers);
-    const multiplier = matchedRule ? Number(matchedRule.multiplier) || defaultMultiplier : defaultMultiplier;
+    const multiplier = matchedRule
+      ? Number(matchedRule.multiplier) || defaultMultiplier
+      : defaultMultiplier;
+
     return Math.round(rawPower * multiplier);
   }
 
@@ -318,7 +329,9 @@
     allianceSelect.appendChild(opt0);
 
     const ORDER = ["Zeus", "Dionysos", "Poséidon", "Poseidon"];
-    const alliances = [...new Set(JOUEURS.map((j) => (j.alliance ?? "").toString().trim()).filter(Boolean))];
+    const alliances = [
+      ...new Set(JOUEURS.map((j) => (j.alliance ?? "").toString().trim()).filter(Boolean)),
+    ];
 
     alliances
       .sort((a, b) => {
@@ -492,12 +505,11 @@
     return 3; // is-red
   }
 
-  // --------- NEW: texte "Recommandé" + "marge / requis" (au lieu du ratio) ----------
+  // --------- texte "Recommandé" + "marge / requis" ----------
   function computeRecommendation(enemyPower, row, teamPower) {
     const enemy = Number(enemyPower) || 0;
     const ok = Number(row?.min_ok) || 0;
 
-    // si pas d'ennemi ou pas de seuil ok, on ne peut pas afficher un recommandé fiable
     if (enemy <= 0 || ok <= 0) {
       return {
         show: false,
@@ -539,9 +551,6 @@
     pow.textContent = formatThousandsDot(power);
     right.appendChild(pow);
 
-    // ✅ Remplace le ratio par :
-    // - Recommandé : X mini
-    // - ✅ marge / 🚫 requis
     const rec = computeRecommendation(enemy, row, power);
     if (rec.show) {
       const l1 = document.createElement("div");
@@ -621,9 +630,9 @@
       return;
     }
 
-    const baseRows = WAR.filter((r) => r.def_family === def.def_family && r.def_variant === def.def_variant).filter(
-      isRealCounter
-    );
+    const baseRows = WAR.filter(
+      (r) => r.def_family === def.def_family && r.def_variant === def.def_variant
+    ).filter(isRealCounter);
 
     if (!baseRows.length) {
       if (resultsCount) resultsCount.textContent = "0";
@@ -631,12 +640,11 @@
       return;
     }
 
-    // ✅ enrichit pour trier: ratio/class + delta recommandé (optionnel)
     const rows = baseRows.map((r) => {
       const atkList = (r.atk_chars || []).filter((c) => (c || "").trim());
       const power = getWarAdjustedPower(player, atkList);
       const ratio = enemy > 0 ? power / enemy : 0;
-      const cls = enemy > 0 ? getClass(ratio, r) : "is-yellow"; // sans enemy: neutre (prudence)
+      const cls = enemy > 0 ? getClass(ratio, r) : "is-yellow";
 
       const rec = computeRecommendation(enemy, r, power);
       const delta = rec.show ? rec.delta : 0;
@@ -644,18 +652,13 @@
       return { r, atkList, power, ratio, cls, delta, hasRec: rec.show };
     });
 
-    // ✅ TRI AUTOMATIQUE : safe -> risqué
-    // À classe égale, on trie par "marge" (delta) puis par power
     rows.sort((a, b) => {
       if (enemy > 0) {
         const ra = classRank(a.cls);
         const rb = classRank(b.cls);
         if (ra !== rb) return ra - rb;
 
-        // à classe égale: plus de marge d'abord (si recommandé dispo)
         if (a.hasRec && b.hasRec && a.delta !== b.delta) return b.delta - a.delta;
-
-        // sinon fallback ratio/power
         if (a.ratio !== b.ratio) return b.ratio - a.ratio;
         if (a.power !== b.power) return b.power - a.power;
       } else {
