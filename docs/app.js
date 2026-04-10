@@ -60,14 +60,16 @@
     return res.json();
   }
 
-  const normalizeKey = (s) =>
-    (s ?? "")
-      .toString()
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, "")
-      .replace(/[-_]/g, "")
-      .replace(/[’']/g, "");
+const normalizeKey = (s) =>
+  (s ?? "")
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[-_‐-‒–—―﹘﹣－]/g, "")
+    .replace(/[’'`´]/g, "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 
   function clearNode(el) {
     if (!el) return;
