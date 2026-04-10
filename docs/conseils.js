@@ -25,6 +25,7 @@
     epreuvecosmique: "Épreuve cosmique",
     battleworld: "Battleworld",
     arene: "Arène",
+    trials: "Trials",
   };
 
   const SUBMODE_LABELS = {
@@ -127,13 +128,32 @@
     );
   }
 
+  // ---------- Trials helpers ----------
+  function getTrialsSecondaryLabel(item) {
+    return (
+      item.subMode ||
+      item.groupLabel ||
+      item.subgroupLabel ||
+      item.title ||
+      item.teamName ||
+      ""
+    ).trim();
+  }
+
+  function getTrialsSecondaryKey(item) {
+    return normalizeKey(getTrialsSecondaryLabel(item));
+  }
+
   // ---------- Data normalization ----------
   function normalizeItem(r) {
     const layoutType = String(r.layoutType ?? r.layout_type ?? "fixed").trim() || "fixed";
 
-    const fixedCharacters = [r.char_1, r.char_2, r.char_3, r.char_4, r.char_5]
-      .map((x) => String(x ?? "").trim())
-      .filter(Boolean);
+    // ✅ ON CONSERVE LES TROUS
+    const fixedSlots = [r.char_1, r.char_2, r.char_3, r.char_4, r.char_5].map((x) =>
+      String(x ?? "").trim()
+    );
+
+    const fixedCharacters = fixedSlots.filter(Boolean);
 
     const coreCharacters = [r.core_1, r.core_2, r.core_3, r.core_4, r.core_5]
       .map((x) => String(x ?? "").trim())
@@ -175,7 +195,10 @@
       title,
       titleKey: normalizeKey(title),
       teamName: String(r.teamName ?? r.team_name ?? "").trim(),
+
+      fixedSlots,
       fixedCharacters,
+
       coreCharacters,
       flexSlots,
       flexItems,
@@ -252,6 +275,13 @@
           placeholder: "— Choisir un type de raid —",
         };
 
+      case "trials":
+        return {
+          secondaryLabel: "Trial",
+          secondaryOptions: [],
+          placeholder: "— Choisir un Trial —",
+        };
+
       default:
         return null;
     }
@@ -271,6 +301,10 @@
         return item.subModeKey === "boss";
       }
       return item.groupKey === selectedSecondaryKey;
+    }
+
+    if (modeKey === "trials") {
+      return getTrialsSecondaryKey(item) === selectedSecondaryKey;
     }
 
     if (
@@ -301,6 +335,17 @@
       ].sort(compareNatural);
     }
 
+    if (modeKey === "trials") {
+      return [
+        ...new Set(
+          getActiveItems()
+            .filter((x) => x.modeKey === modeKey)
+            .map(getTrialsSecondaryLabel)
+            .filter(Boolean)
+        ),
+      ].sort(compareNatural);
+    }
+
     return cfg.secondaryOptions.slice();
   }
 
@@ -310,7 +355,7 @@
 
     const modes = [...new Set(getActiveItems().map((x) => x.mode).filter(Boolean))];
 
-    const ORDER = ["raid", "raids", "guerre", "epreuvecosmique", "battleworld", "arene"];
+    const ORDER = ["raid", "raids", "guerre", "epreuvecosmique", "battleworld", "arene", "trials"];
     modes.sort((a, b) => {
       const ia = ORDER.indexOf(normalizeKey(a));
       const ib = ORDER.indexOf(normalizeKey(b));
@@ -367,7 +412,8 @@
     options.forEach((value) => {
       const opt = document.createElement("option");
       opt.value = value;
-      opt.textContent = modeKey === "battleworld" ? value : subModeLabel(value);
+      opt.textContent =
+        modeKey === "battleworld" || modeKey === "trials" ? value : subModeLabel(value);
       secondarySelect.appendChild(opt);
     });
   }
@@ -463,14 +509,24 @@
     return outer;
   }
 
-  function createFixedPortraitRow(names, { isAlt = false } = {}) {
+  // ✅ version fixed qui garde les trous
+  function createFixedPortraitRow(slots, { isAlt = false } = {}) {
     const wrap = document.createElement("div");
     wrap.className = `recFixedPortraits${isAlt ? " recFixedPortraits--alt" : ""}`;
 
-    names.forEach((name, idx) => {
+    const safeSlots = Array.isArray(slots) ? slots.slice(0, 5) : [];
+    while (safeSlots.length < 5) safeSlots.push("");
+
+    safeSlots.forEach((name, idx) => {
       const p = document.createElement("div");
       p.className = `recFixedPortrait${isAlt ? " recFixedPortrait--alt" : ""}`;
-      p.title = `p${idx + 1}`;
+      p.title = name || `slot-${idx + 1}`;
+
+      if (!name) {
+        p.style.visibility = "hidden";
+        wrap.appendChild(p);
+        return;
+      }
 
       const img = document.createElement("img");
       img.className = "recFixedPortraitImg";
@@ -506,7 +562,7 @@
     return wrap;
   }
 
-  function makeRecommendationCard(item, fallbackName = "") {
+  function makeRecommendationCard(item) {
     const isAlt = isAlternativeItem(item);
 
     const card = document.createElement("div");
@@ -520,7 +576,7 @@
 
     const teamName = document.createElement("div");
     teamName.className = `recCardName${isAlt ? " recCardName--alt" : ""}`;
-    teamName.textContent = item.teamName || fallbackName || "Équipe";
+    teamName.textContent = item.teamName || "Équipe";
     left.appendChild(teamName);
 
     if (item.title) {
@@ -565,6 +621,8 @@
 
         card.appendChild(flexWrap);
       }
+    } else if (item.fixedSlots?.length) {
+      card.appendChild(createFixedPortraitRow(item.fixedSlots, { isAlt }));
     } else if (item.fixedCharacters.length) {
       card.appendChild(createFixedPortraitRow(item.fixedCharacters, { isAlt }));
     }
@@ -608,7 +666,45 @@
       return;
     }
 
+    if (modeKey === "trials") {
+      currentSubtitle.textContent = `${secondary} • ${modeLabel(mode)}`;
+      return;
+    }
+
     currentSubtitle.textContent = `${subModeLabel(secondary)} • ${modeLabel(mode)}`;
+  }
+
+  function renderGroupWithSubgroups(groupRows) {
+    const subgroupMap = [...new Set(groupRows.map((x) => x.subgroupLabel).filter(Boolean))];
+
+    if (!subgroupMap.length) {
+      sortRows(groupRows).forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+      return;
+    }
+
+    const orderedSubgroups = subgroupMap.sort((a, b) => {
+      const rowA = groupRows.find((x) => x.subgroupLabel === a);
+      const rowB = groupRows.find((x) => x.subgroupLabel === b);
+      const oa = rowA?.subgroupOrder ?? 9999;
+      const ob = rowB?.subgroupOrder ?? 9999;
+      if (oa !== ob) return oa - ob;
+      return compareNatural(a, b);
+    });
+
+    const noSubgroup = sortRows(groupRows.filter((x) => !x.subgroupLabel));
+    noSubgroup.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+
+    if (noSubgroup.length && orderedSubgroups.length) {
+      const spacer = document.createElement("div");
+      spacer.className = "recSpacer";
+      resultsWrap.appendChild(spacer);
+    }
+
+    orderedSubgroups.forEach((subgroup) => {
+      resultsWrap.appendChild(createSectionTitle(subgroup, 4));
+      const subgroupRows = sortRows(groupRows.filter((x) => x.subgroupLabel === subgroup));
+      subgroupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
+    });
   }
 
   function renderRowsWithSections(rows) {
@@ -625,72 +721,6 @@
       return;
     }
 
-    let teamCounter = 1;
-    const nextFallbackName = () => `Équipe ${teamCounter++}`;
-
-    function appendCard(item) {
-      resultsWrap.appendChild(makeRecommendationCard(item, nextFallbackName()));
-    }
-
-    function appendCards(items) {
-      items.forEach((item) => appendCard(item));
-    }
-
-    function renderGroupWithSubgroups(groupRows) {
-      const subgroupMap = [...new Set(groupRows.map((x) => x.subgroupLabel).filter(Boolean))];
-
-      if (!subgroupMap.length) {
-        appendCards(sortRows(groupRows));
-        return;
-      }
-
-      const orderedSubgroups = subgroupMap.sort((a, b) => {
-        const rowA = groupRows.find((x) => x.subgroupLabel === a);
-        const rowB = groupRows.find((x) => x.subgroupLabel === b);
-        const oa = rowA?.subgroupOrder ?? 9999;
-        const ob = rowB?.subgroupOrder ?? 9999;
-        if (oa !== ob) return oa - ob;
-        return compareNatural(a, b);
-      });
-
-      const noSubgroup = sortRows(groupRows.filter((x) => !x.subgroupLabel));
-      appendCards(noSubgroup);
-
-      if (noSubgroup.length && orderedSubgroups.length) {
-        const spacer = document.createElement("div");
-        spacer.className = "recSpacer";
-        resultsWrap.appendChild(spacer);
-      }
-
-      orderedSubgroups.forEach((subgroup) => {
-        resultsWrap.appendChild(createSectionTitle(subgroup, 4));
-        const subgroupRows = sortRows(groupRows.filter((x) => x.subgroupLabel === subgroup));
-        appendCards(subgroupRows);
-      });
-    }
-
-    function renderArenaRows(arenaRows) {
-      const groups = [...new Set(arenaRows.map((x) => x.groupLabel).filter(Boolean))].sort((a, b) => {
-        const rowA = arenaRows.find((x) => x.groupLabel === a);
-        const rowB = arenaRows.find((x) => x.groupLabel === b);
-        const oa = rowA?.groupOrder ?? 9999;
-        const ob = rowB?.groupOrder ?? 9999;
-        if (oa !== ob) return oa - ob;
-        return compareTierOrNatural(a, b);
-      });
-
-      if (!groups.length) {
-        appendCards(sortRows(arenaRows));
-        return;
-      }
-
-      groups.forEach((group) => {
-        resultsWrap.appendChild(createSectionTitle(group, 3));
-        const groupRows = sortRows(arenaRows.filter((x) => x.groupLabel === group));
-        appendCards(groupRows);
-      });
-    }
-
     if (modeKey === "guerre") {
       const groups = [...new Set(rows.map((x) => x.groupLabel).filter(Boolean))].sort((a, b) => {
         const rowA = rows.find((x) => x.groupLabel === a);
@@ -704,7 +734,7 @@
       groups.forEach((group) => {
         resultsWrap.appendChild(createSectionTitle(group, 3));
         const groupRows = sortRows(rows.filter((x) => x.groupLabel === group));
-        appendCards(groupRows);
+        groupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
       });
       return;
     }
@@ -722,7 +752,7 @@
       groups.forEach((group) => {
         resultsWrap.appendChild(createSectionTitle(group, 3));
         const groupRows = sortRows(rows.filter((x) => x.groupLabel === group));
-        appendCards(groupRows);
+        groupRows.forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
       });
       return;
     }
@@ -745,8 +775,8 @@
       return;
     }
 
-    if (modeKey === "arene") {
-      renderArenaRows(rows);
+    if (modeKey === "arene" || modeKey === "trials") {
+      sortRows(rows).forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
       return;
     }
 
@@ -773,7 +803,7 @@
       return;
     }
 
-    appendCards(sortRows(rows));
+    sortRows(rows).forEach((item) => resultsWrap.appendChild(makeRecommendationCard(item)));
   }
 
   function renderResults() {
