@@ -20,7 +20,7 @@ function parseCsvWithDelimiter(text, delim) {
   let i = 0;
   let inQuotes = false;
 
-  const s = String(text || "").replace(/^\uFEFF/, ""); // remove BOM
+  const s = String(text || "").replace(/^\uFEFF/, "");
 
   while (i < s.length) {
     const ch = s[i];
@@ -54,7 +54,6 @@ function parseCsvWithDelimiter(text, delim) {
       continue;
     }
 
-    // newline (support \n, \r\n, \r)
     if (ch === "\n" || ch === "\r") {
       row.push(cur);
       cur = "";
@@ -107,6 +106,7 @@ function scoreHeaderRow(repairedHeaders) {
   if (set.has("def_variant")) score += 5;
   if (set.has("def_key")) score += 3;
 
+  if (set.has("atk_family")) score += 5;
   if (set.has("atk_team")) score += 5;
   if (set.has("atk_key")) score += 3;
 
@@ -189,7 +189,6 @@ async function main() {
     process.exit(1);
   }
 
-  // Garde-fou : si Google renvoie du HTML au lieu du CSV
   const head = text.slice(0, 400).toLowerCase();
   if (head.includes("<html") || head.includes("<!doctype") || head.includes("accounts.google.com")) {
     console.error("❌ The response looks like HTML (not CSV).");
@@ -234,6 +233,7 @@ async function main() {
         "def_family",
         "def_variant",
         "def_key",
+        "atk_family",
         "atk_team",
         "atk_key",
         "min_ratio_hard",
@@ -259,6 +259,7 @@ async function main() {
       def_char4: pick(o, "def_char4"),
       def_char5: pick(o, "def_char5"),
 
+      atk_family: pick(o, "atk_family"),
       atk_team: pick(o, "atk_team"),
       atk_key: pick(o, "atk_key"),
 
@@ -275,7 +276,9 @@ async function main() {
       notes: pick(o, "notes"),
     }));
 
-  const cleaned = mapped.filter((r) => r.def_family || r.def_variant || r.atk_team || r.atk_key);
+  const cleaned = mapped.filter(
+    (r) => r.def_family || r.def_variant || r.atk_family || r.atk_team || r.atk_key
+  );
 
   await fs.mkdir(path.dirname(OUT_FILE), { recursive: true });
   await fs.writeFile(OUT_FILE, JSON.stringify(cleaned, null, 2) + "\n", "utf8");
