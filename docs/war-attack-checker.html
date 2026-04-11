@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>LoSP — War Attack Checker</title>
+    <title>LoSP — Vérificateur d'Attaque</title>
     <link rel="stylesheet" href="./style.css" />
   </head>
 
@@ -13,9 +13,9 @@
     <div class="app">
       <header class="header">
         <div class="headerLeft">
-          <h1 class="title">Vérificateur d’Attaque</h1>
+          <h1 class="title">Vérificateur d'Attaque</h1>
           <p class="subtitle">
-            Choisis une attaque restante, une alliance, un joueur, et obtiens les teams que tu peux attaquer.
+            Choisis une attaque restante, un joueur, puis compare la puissance.
           </p>
         </div>
 
@@ -33,6 +33,11 @@
           <div>
             <div class="label">Attaque restante — Famille</div>
             <select id="atkFamilySelect" class="select" aria-label="Famille d'attaque"></select>
+          </div>
+
+          <div>
+            <div class="label">Attaque restante — Variante</div>
+            <select id="atkVariantSelect" class="select" aria-label="Variante d'attaque"></select>
           </div>
 
           <div>
@@ -54,6 +59,7 @@
         </div>
       </header>
 
+      <!-- ✅ Attaque sélectionnée -->
       <section class="card">
         <div class="cardHeader">
           <h2 class="cardTitle" id="atkTitle">—</h2>
@@ -62,6 +68,7 @@
         <div class="portraits" id="atkPortraits" aria-label="Personnages de l'attaque"></div>
       </section>
 
+      <!-- ✅ Défenses battables -->
       <section class="card">
         <div class="cardHeader cardHeader--reco">
           <div class="chipCount chipCount--sm" id="resultsCount">0</div>
