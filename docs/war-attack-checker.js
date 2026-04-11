@@ -1,6 +1,8 @@
+// docs/war-attack-checker.js
 (() => {
   const FILES = {
     warCounters: "./data/war-counters.json",
+    warSeasonRules: "./data/war-season-rules.json",
     joueurs: "./data/joueurs.json",
     characters: "./data/msf-characters.json",
     rosters: "./data/rosters.json",
@@ -17,9 +19,9 @@
 
   const allianceSelect = qs("#allianceSelect");
   const playerSelect = qs("#playerSelect");
-
   const atkFamilySelect = qs("#atkFamilySelect");
-  const atkTeamSelect = qs("#atkTeamSelect");
+  const atkVariantSelect = qs("#atkVariantSelect");
+  const enemyPowerInput = qs("#enemyPower");
 
   const atkTitle = qs("#atkTitle");
   const atkPortraits = qs("#atkPortraits");
@@ -28,16 +30,22 @@
   const resultsCount = qs("#resultsCount");
   const playerChip = qs("#playerChip");
 
-  // ---------- utils ----------
+  // ---------- Utils ----------
   const bust = (url) => {
     const u = new URL(url, window.location.href);
-    u.searchParams.set("v", Date.now());
+    u.searchParams.set("v", Date.now().toString());
     return u.toString();
   };
 
   async function fetchJson(url) {
     const res = await fetch(bust(url), { cache: "no-store" });
+    if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
     return res.json();
+  }
+
+  function clearNode(el) {
+    if (!el) return;
+    while (el.firstChild) el.removeChild(el.firstChild);
   }
 
   const normalizeKey = (s) =>
@@ -52,212 +60,247 @@
       .replace(/[\u0300-\u036f]/g, "");
 
   function formatThousandsDot(n) {
-    return Math.trunc(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    const num = Number(n);
+    if (!Number.isFinite(num)) return "0";
+    return Math.trunc(num)
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
-  function clearNode(el) {
-    while (el.firstChild) el.removeChild(el.firstChild);
+  function formatCompactFR(n) {
+    const num = Number(n);
+    if (!Number.isFinite(num) || num <= 0) return "0";
+
+    if (num >= 1_000_000) {
+      const v = Math.round((num / 1_000_000) * 10) / 10;
+      return `${String(v).replace(".", ",")} M`;
+    }
+    if (num >= 1_000) {
+      const v = Math.round(num / 1_000);
+      return `${v} k`;
+    }
+    return String(Math.round(num));
+  }
+
+  // ---------- Enemy power LIVE formatting ----------
+  function digitsOnly(s) {
+    return String(s || "").replace(/[^\d]/g, "");
+  }
+
+  function formatThousandsDotFromDigits(d) {
+    const s = digitsOnly(d);
+    if (!s) return "";
+    return s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+  function enemyPowerDigitsValue() {
+    return Number(digitsOnly(enemyPowerInput?.value || "")) || 0;
+  }
+
+  function setCaretByDigitsCount(input, digitsBefore) {
+    const v = String(input?.value || "");
+    if (!v) {
+      try {
+        input.setSelectionRange(0, 0);
+      } catch (_) {}
+      return;
+    }
+
+    let seen = 0;
+    for (let i = 0; i < v.length; i++) {
+      if (/\d/.test(v[i])) seen++;
+      if (seen >= digitsBefore) {
+        const pos = i + 1;
+        try {
+          input.setSelectionRange(pos, pos);
+        } catch (_) {}
+        return;
+      }
+    }
+
+    try {
+      input.setSelectionRange(v.length, v.length);
+    } catch (_) {}
   }
 
   // ---------- DATA ----------
   let WAR = [];
   let JOUEURS = [];
   let ROSTERS = new Map();
-  let CHAR_MAP = new Map();
   let PLAYERS_BY_ALLIANCE = new Map();
+  let CHAR_MAP = new Map();
+  let WAR_SEASON_RULES = {
+    defaultMultiplier: 1.17,
+    rules: [],
+  };
 
+  // ---------- PARSING ----------
+  function normalizeWarRow(r) {
+    return {
+      def_family: (r.def_family ?? "").toString().trim(),
+      def_variant: (r.def_variant ?? "").toString().trim(),
+      def_key: (r.def_key ?? "").toString().trim(),
+
+      def_chars: [r.def_char1, r.def_char2, r.def_char3, r.def_char4, r.def_char5]
+        .map((x) => (x ?? "").toString().trim())
+        .filter(Boolean),
+
+      def_team: (r.def_team ?? "").toString().trim(),
+
+      atk_family: (r.atk_family ?? "").toString().trim(),
+      atk_team: (r.atk_team ?? "").toString().trim(),
+      atk_key: (r.atk_key ?? "").toString().trim(),
+
+      // on garde les cases vides si besoin
+      atk_chars: [r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5].map((x) =>
+        (x ?? "").toString().trim()
+      ),
+
+      min_hard: parseFloat(String(r.min_ratio_hard ?? "").replace(",", ".")) || 0,
+      min_ok: parseFloat(String(r.min_ratio_ok ?? "").replace(",", ".")) || 0,
+      min_safe: parseFloat(String(r.min_ratio_safe ?? "").replace(",", ".")) || 0,
+
+      notes: (r.notes ?? "").toString().trim(),
+    };
+  }
+
+  function isRealDefenseMatch(r) {
+    if ((r.def_variant || "").trim()) return true;
+    return Array.isArray(r.def_chars) && r.def_chars.some((c) => (c || "").trim());
+  }
+
+  function normalizeSeasonRules(data) {
+    const defaultMultiplier = Number(data?.defaultMultiplier) || 1.17;
+
+    const rules = Array.isArray(data?.rules)
+      ? data.rules
+          .filter((r) => r && r.active !== false)
+          .map((r) => ({
+            active: true,
+            ruleKey: (r.ruleKey ?? "").toString().trim(),
+            label: (r.label ?? "").toString().trim(),
+            multiplier: Number(r.multiplier) || defaultMultiplier,
+            requiredCount: Number(r.requiredCount) || 5,
+            membersNormalized: new Set(
+              (Array.isArray(r.members) ? r.members : [])
+                .map((m) => normalizeKey(m))
+                .filter(Boolean)
+            ),
+          }))
+      : [];
+
+    return {
+      defaultMultiplier,
+      rules,
+    };
+  }
+
+  // ---------- CHAR ----------
   function buildCharMap(chars) {
     CHAR_MAP = new Map();
-    chars.forEach((c) => {
-      [c.id, c.nameKey, c.nameFr, c.nameEn].forEach((k) => {
-        if (!k) return;
-        CHAR_MAP.set(normalizeKey(k), c);
-      });
+
+    (Array.isArray(chars) ? chars : []).forEach((c) => {
+      [c?.id, c?.nameKey, c?.nameFr, c?.nameEn]
+        .filter(Boolean)
+        .forEach((k) => {
+          const kk = normalizeKey(k);
+          if (!kk) return;
+          if (!CHAR_MAP.has(kk)) CHAR_MAP.set(kk, c);
+        });
     });
   }
 
   function getPortrait(name) {
-    return CHAR_MAP.get(normalizeKey(name))?.portraitUrl || "";
+    const c = CHAR_MAP.get(normalizeKey(name));
+    return c?.portraitUrl || c?.portrait || c?.iconUrl || "";
   }
 
+  // ---------- ROSTER ----------
   function buildRosterMap(data) {
     ROSTERS = new Map();
 
-    data.forEach((r) => {
-      const key = normalizeKey(r.player);
-      const map = {};
+    (Array.isArray(data) ? data : []).forEach((r) => {
+      const player = (r.player ?? "").toString().trim();
+      if (!player) return;
 
-      Object.entries(r.chars || {}).forEach(([k, v]) => {
-        map[normalizeKey(k)] =
-          typeof v === "object" ? Number(v.power) || 0 : Number(v) || 0;
+      const playerKey = normalizeKey(player);
+      if (!playerKey) return;
+
+      const map = {};
+      const chars = r.chars && typeof r.chars === "object" ? r.chars : {};
+
+      Object.entries(chars).forEach(([k, v]) => {
+        const kk = normalizeKey(k);
+        if (!kk) return;
+        map[kk] = typeof v === "object" ? Number(v.power) || 0 : Number(v) || 0;
       });
 
-      ROSTERS.set(key, map);
+      ROSTERS.set(playerKey, map);
     });
+
+    console.log("[war-attack-checker] rosters chargés :", ROSTERS.size);
   }
 
-  function getTeamPower(player, chars) {
-    const roster = ROSTERS.get(normalizeKey(player));
-    if (!roster) return 0;
+  function getPlayerRawPower(player, chars) {
+    const playerKey = normalizeKey(player);
+    const roster = ROSTERS.get(playerKey);
 
-    return chars.reduce((sum, c) => {
-      return sum + (roster[normalizeKey(c)] || 0);
-    }, 0);
+    if (!roster) {
+      console.warn(
+        "[war-attack-checker] roster introuvable pour :",
+        player,
+        "=> clé normalisée :",
+        playerKey
+      );
+      return 0;
+    }
+
+    return (Array.isArray(chars) ? chars : [])
+      .filter((c) => (c || "").trim())
+      .reduce((sum, c) => {
+        const charKey = normalizeKey(c);
+        return sum + (roster[charKey] || 0);
+      }, 0);
+  }
+
+  function getMatchingSeasonRule(teamMembers) {
+    const selected = (Array.isArray(teamMembers) ? teamMembers : [])
+      .filter((c) => (c || "").trim())
+      .map((c) => normalizeKey(c));
+
+    if (!selected.length) return null;
+
+    const rules = Array.isArray(WAR_SEASON_RULES?.rules) ? WAR_SEASON_RULES.rules : [];
+
+    for (const rule of rules) {
+      const requiredCount = Number(rule.requiredCount) || 5;
+      if (selected.length !== requiredCount) continue;
+
+      const matchCount = selected.filter((member) => rule.membersNormalized.has(member)).length;
+
+      if (matchCount === requiredCount) {
+        return rule;
+      }
+    }
+
+    return null;
+  }
+
+  function getWarAdjustedPower(player, teamMembers) {
+    const rawPower = getPlayerRawPower(player, teamMembers);
+    const defaultMultiplier = Number(WAR_SEASON_RULES?.defaultMultiplier) || 1.17;
+    const matchedRule = getMatchingSeasonRule(teamMembers);
+    const multiplier = matchedRule
+      ? Number(matchedRule.multiplier) || defaultMultiplier
+      : defaultMultiplier;
+
+    return Math.round(rawPower * multiplier);
   }
 
   // ---------- SELECTS ----------
   function buildPlayersByAlliance() {
     PLAYERS_BY_ALLIANCE = new Map();
 
-    JOUEURS.forEach((j) => {
-      if (!PLAYERS_BY_ALLIANCE.has(j.alliance))
-        PLAYERS_BY_ALLIANCE.set(j.alliance, []);
-
-      PLAYERS_BY_ALLIANCE.get(j.alliance).push(j.player);
-    });
-  }
-
-  function renderAllianceOptions() {
-    allianceSelect.innerHTML = `<option value="">— Alliance —</option>`;
-
-    [...new Set(JOUEURS.map((j) => j.alliance))].forEach((a) => {
-      const opt = document.createElement("option");
-      opt.value = a;
-      opt.textContent = `${ALLIANCE_EMOJI[a] || ""} ${a}`;
-      allianceSelect.appendChild(opt);
-    });
-  }
-
-  function renderPlayerOptions() {
-    playerSelect.innerHTML = `<option value="">— Joueur —</option>`;
-
-    const list = PLAYERS_BY_ALLIANCE.get(allianceSelect.value) || [];
-
-    list.forEach((p) => {
-      const opt = document.createElement("option");
-      opt.value = p;
-      opt.textContent = p;
-      playerSelect.appendChild(opt);
-    });
-  }
-
-  function renderAtkFamilies() {
-    atkFamilySelect.innerHTML = `<option value="">— Famille —</option>`;
-
-    const families = [...new Set(WAR.map((r) => r.atk_family).filter(Boolean))];
-
-    families.sort().forEach((f) => {
-      const opt = document.createElement("option");
-      opt.value = f;
-      opt.textContent = f;
-      atkFamilySelect.appendChild(opt);
-    });
-  }
-
-  function renderAtkTeams() {
-    atkTeamSelect.innerHTML = `<option value="">— Variante —</option>`;
-
-    const fam = atkFamilySelect.value;
-
-    WAR.filter((r) => r.atk_family === fam)
-      .map((r) => r.atk_team)
-      .filter(Boolean)
-      .filter((v, i, a) => a.indexOf(v) === i)
-      .sort()
-      .forEach((t) => {
-        const opt = document.createElement("option");
-        opt.value = t;
-        opt.textContent = t;
-        atkTeamSelect.appendChild(opt);
-      });
-  }
-
-  // ---------- UI ----------
-  function renderAttack() {
-    clearNode(atkPortraits);
-
-    const row = WAR.find((r) => r.atk_team === atkTeamSelect.value);
-    if (!row) return;
-
-    atkTitle.textContent = row.atk_team;
-
-    row.atk_chars.forEach((c) => {
-      if (!c) return;
-
-      const img = document.createElement("img");
-      img.src = getPortrait(c);
-      img.className = "portraitImg";
-      atkPortraits.appendChild(img);
-    });
-  }
-
-  function renderResults() {
-    clearNode(resultsWrap);
-
-    const player = playerSelect.value;
-    const row = WAR.find((r) => r.atk_team === atkTeamSelect.value);
-
-    if (!player || !row) return;
-
-    const atkChars = row.atk_chars.filter(Boolean);
-    const power = getTeamPower(player, atkChars);
-
-    const results = WAR.map((r) => {
-      const ratio = power / (r.min_ok * 1000000 || 1); // simplifié
-
-      return { r, ratio, power };
-    })
-      .sort((a, b) => b.ratio - a.ratio)
-      .slice(0, 20);
-
-    resultsCount.textContent = results.length;
-    playerChip.textContent = player;
-
-    results.forEach(({ r }) => {
-      const div = document.createElement("div");
-      div.className = "counterCard";
-
-      div.textContent = r.def_team || r.def_variant;
-
-      resultsWrap.appendChild(div);
-    });
-  }
-
-  // ---------- EVENTS ----------
-  allianceSelect.addEventListener("change", () => {
-    renderPlayerOptions();
-  });
-
-  atkFamilySelect.addEventListener("change", () => {
-    renderAtkTeams();
-  });
-
-  atkTeamSelect.addEventListener("change", () => {
-    renderAttack();
-    renderResults();
-  });
-
-  playerSelect.addEventListener("change", renderResults);
-
-  // ---------- BOOT ----------
-  async function boot() {
-    const [war, joueurs, chars, rosters] = await Promise.all([
-      fetchJson(FILES.warCounters),
-      fetchJson(FILES.joueurs),
-      fetchJson(FILES.characters),
-      fetchJson(FILES.rosters),
-    ]);
-
-    WAR = war;
-    JOUEURS = joueurs;
-
-    buildCharMap(chars);
-    buildRosterMap(rosters);
-    buildPlayersByAlliance();
-
-    renderAllianceOptions();
-    renderAtkFamilies();
-  }
-
-  boot();
-})();
+    (Array.isArray(JOUEURS) ? JOUEURS : []).forEach((j) => {
+      const a = (j.alliance ?? "").toString().trim();
+      const p = (
