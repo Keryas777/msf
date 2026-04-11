@@ -98,8 +98,14 @@
 
   function setCaretByDigitsCount(input, digitsBefore) {
     const v = String(input?.value || "");
-    let seen = 0;
+    if (!v) {
+      try {
+        input.setSelectionRange(0, 0);
+      } catch (_) {}
+      return;
+    }
 
+    let seen = 0;
     for (let i = 0; i < v.length; i++) {
       if (/\d/.test(v[i])) seen++;
       if (seen >= digitsBefore) {
@@ -110,6 +116,10 @@
         return;
       }
     }
+
+    try {
+      input.setSelectionRange(v.length, v.length);
+    } catch (_) {}
   }
 
   // ---------- DATA ----------
@@ -118,12 +128,17 @@
   let ROSTERS = new Map();
   let PLAYERS_BY_ALLIANCE = new Map();
   let CHAR_MAP = new Map();
-  let WAR_SEASON_RULES = { defaultMultiplier: 1.17, rules: [] };
+  let WAR_SEASON_RULES = {
+    defaultMultiplier: 1.17,
+    rules: [],
+  };
 
+  // ---------- PARSING ----------
   function normalizeWarRow(r) {
     return {
       atk_family: (r.atk_family ?? "").toString().trim(),
       atk_team: (r.atk_team ?? "").toString().trim(),
+      atk_key: (r.atk_key ?? "").toString().trim(),
 
       atk_chars: [r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5].map((x) =>
         (x ?? "").toString().trim()
@@ -131,6 +146,7 @@
 
       def_family: (r.def_family ?? "").toString().trim(),
       def_variant: (r.def_variant ?? "").toString().trim(),
+      def_key: (r.def_key ?? "").toString().trim(),
 
       def_chars: [r.def_char1, r.def_char2, r.def_char3, r.def_char4, r.def_char5]
         .map((x) => (x ?? "").toString().trim())
@@ -144,8 +160,40 @@
     };
   }
 
+  function isRealDefense(r) {
+    return Boolean((r.def_variant || "").trim() || (r.def_family || "").trim());
+  }
+
+  function normalizeSeasonRules(data) {
+    const defaultMultiplier = Number(data?.defaultMultiplier) || 1.17;
+
+    const rules = Array.isArray(data?.rules)
+      ? data.rules
+          .filter((r) => r && r.active !== false)
+          .map((r) => ({
+            active: true,
+            ruleKey: (r.ruleKey ?? "").toString().trim(),
+            label: (r.label ?? "").toString().trim(),
+            multiplier: Number(r.multiplier) || defaultMultiplier,
+            requiredCount: Number(r.requiredCount) || 5,
+            membersNormalized: new Set(
+              (Array.isArray(r.members) ? r.members : [])
+                .map((m) => normalizeKey(m))
+                .filter(Boolean)
+            ),
+          }))
+      : [];
+
+    return {
+      defaultMultiplier,
+      rules,
+    };
+  }
+
+  // ---------- CHAR ----------
   function buildCharMap(chars) {
     CHAR_MAP = new Map();
+
     (Array.isArray(chars) ? chars : []).forEach((c) => {
       [c?.id, c?.nameKey, c?.nameFr, c?.nameEn]
         .filter(Boolean)
@@ -162,16 +210,24 @@
     return c?.portraitUrl || c?.portrait || c?.iconUrl || "";
   }
 
+  // ---------- ROSTER ----------
   function buildRosterMap(data) {
     ROSTERS = new Map();
 
     (Array.isArray(data) ? data : []).forEach((r) => {
-      const playerKey = normalizeKey(r.player);
-      const map = {};
+      const player = (r.player ?? "").toString().trim();
+      if (!player) return;
 
-      Object.entries(r.chars || {}).forEach(([k, v]) => {
-        map[normalizeKey(k)] =
-          typeof v === "object" ? Number(v.power) || 0 : Number(v) || 0;
+      const playerKey = normalizeKey(player);
+      if (!playerKey) return;
+
+      const map = {};
+      const chars = r.chars && typeof r.chars === "object" ? r.chars : {};
+
+      Object.entries(chars).forEach(([k, v]) => {
+        const kk = normalizeKey(k);
+        if (!kk) return;
+        map[kk] = typeof v === "object" ? Number(v.power) || 0 : Number(v) || 0;
       });
 
       ROSTERS.set(playerKey, map);
@@ -179,80 +235,178 @@
   }
 
   function getPlayerRawPower(player, chars) {
-    const roster = ROSTERS.get(normalizeKey(player));
+    const playerKey = normalizeKey(player);
+    const roster = ROSTERS.get(playerKey);
+
     if (!roster) return 0;
 
-    return chars.reduce((sum, c) => {
-      return sum + (roster[normalizeKey(c)] || 0);
-    }, 0);
+    return (Array.isArray(chars) ? chars : [])
+      .filter((c) => (c || "").trim())
+      .reduce((sum, c) => {
+        const charKey = normalizeKey(c);
+        return sum + (roster[charKey] || 0);
+      }, 0);
+  }
+
+  function getMatchingSeasonRule(teamMembers) {
+    const selected = (Array.isArray(teamMembers) ? teamMembers : [])
+      .filter((c) => (c || "").trim())
+      .map((c) => normalizeKey(c));
+
+    if (!selected.length) return null;
+
+    const rules = Array.isArray(WAR_SEASON_RULES?.rules) ? WAR_SEASON_RULES.rules : [];
+
+    for (const rule of rules) {
+      const requiredCount = Number(rule.requiredCount) || 5;
+      if (selected.length !== requiredCount) continue;
+
+      const matchCount = selected.filter((member) => rule.membersNormalized.has(member)).length;
+
+      if (matchCount === requiredCount) {
+        return rule;
+      }
+    }
+
+    return null;
   }
 
   function getWarAdjustedPower(player, teamMembers) {
     const rawPower = getPlayerRawPower(player, teamMembers);
-    return Math.round(rawPower * 1.17);
+    const defaultMultiplier = Number(WAR_SEASON_RULES?.defaultMultiplier) || 1.17;
+    const matchedRule = getMatchingSeasonRule(teamMembers);
+    const multiplier = matchedRule
+      ? Number(matchedRule.multiplier) || defaultMultiplier
+      : defaultMultiplier;
+
+    return Math.round(rawPower * multiplier);
   }
 
   // ---------- SELECTS ----------
   function buildPlayersByAlliance() {
     PLAYERS_BY_ALLIANCE = new Map();
 
-    JOUEURS.forEach((j) => {
-      if (!PLAYERS_BY_ALLIANCE.has(j.alliance))
-        PLAYERS_BY_ALLIANCE.set(j.alliance, []);
+    (Array.isArray(JOUEURS) ? JOUEURS : []).forEach((j) => {
+      const a = (j.alliance ?? "").toString().trim();
+      const p = (j.player ?? "").toString().trim();
+      if (!a || !p) return;
 
-      PLAYERS_BY_ALLIANCE.get(j.alliance).push(j.player);
+      if (!PLAYERS_BY_ALLIANCE.has(a)) PLAYERS_BY_ALLIANCE.set(a, []);
+      PLAYERS_BY_ALLIANCE.get(a).push({ alliance: a, player: p });
     });
   }
 
   function renderAllianceOptions() {
-    allianceSelect.innerHTML = `<option value="">— Choisir une alliance —</option>`;
+    if (!allianceSelect) return;
+    allianceSelect.innerHTML = "";
 
-    [...new Set(JOUEURS.map((j) => j.alliance))]
-      .sort()
+    const opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "— Choisir une alliance —";
+    allianceSelect.appendChild(opt0);
+
+    const ORDER = ["Zeus", "Dionysos", "Poséidon", "Poseidon"];
+    const alliances = [
+      ...new Set(JOUEURS.map((j) => (j.alliance ?? "").toString().trim()).filter(Boolean)),
+    ];
+
+    alliances
+      .sort((a, b) => {
+        const ia = ORDER.indexOf(a);
+        const ib = ORDER.indexOf(b);
+        if (ia !== -1 || ib !== -1) return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+        return a.localeCompare(b, "fr");
+      })
       .forEach((a) => {
         const opt = document.createElement("option");
         opt.value = a;
-        opt.textContent = `${ALLIANCE_EMOJI[a] || "•"} ${a}`;
+        opt.textContent = `${ALLIANCE_EMOJI[a] || "•"} ${a}`.trim();
         allianceSelect.appendChild(opt);
       });
   }
 
   function renderPlayerOptions() {
-    const list = PLAYERS_BY_ALLIANCE.get(allianceSelect.value) || [];
+    if (!playerSelect) return;
 
-    playerSelect.innerHTML = `<option value="">— Choisir un joueur —</option>`;
+    const a = (allianceSelect?.value ?? "").trim();
+    playerSelect.innerHTML = "";
 
-    list.forEach((p) => {
+    if (!a) {
+      playerSelect.disabled = true;
       const opt = document.createElement("option");
-      opt.value = p;
-      opt.textContent = p;
+      opt.value = "";
+      opt.textContent = "— Choisir une alliance d’abord —";
+      playerSelect.appendChild(opt);
+      return;
+    }
+
+    playerSelect.disabled = false;
+
+    const opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "— Choisir un joueur —";
+    playerSelect.appendChild(opt0);
+
+    const players = (PLAYERS_BY_ALLIANCE.get(a) || [])
+      .slice()
+      .sort((x, y) => x.player.localeCompare(y.player, "fr"));
+
+    players.forEach((p) => {
+      const opt = document.createElement("option");
+      opt.value = p.player;
+      opt.textContent = p.player;
       playerSelect.appendChild(opt);
     });
   }
 
-  function renderAtkFamilies() {
-    atkFamilySelect.innerHTML = `<option value="">— Choisir une famille —</option>`;
+  function renderAtkFamilyOptions() {
+    if (!atkFamilySelect) return;
+    atkFamilySelect.innerHTML = "";
 
-    [...new Set(WAR.map((r) => r.atk_family).filter(Boolean))]
-      .sort()
-      .forEach((f) => {
-        const opt = document.createElement("option");
-        opt.value = f;
-        opt.textContent = f;
-        atkFamilySelect.appendChild(opt);
-      });
+    const opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "— Choisir une team générique —";
+    atkFamilySelect.appendChild(opt0);
+
+    const families = [...new Set(WAR.map((r) => r.atk_family).filter(Boolean))].sort((a, b) =>
+      a.localeCompare(b, "fr")
+    );
+
+    families.forEach((f) => {
+      const opt = document.createElement("option");
+      opt.value = f;
+      opt.textContent = f;
+      atkFamilySelect.appendChild(opt);
+    });
   }
 
-  function renderAtkVariants() {
-    const fam = atkFamilySelect.value;
+  function renderAtkVariantOptions() {
+    if (!atkVariantSelect) return;
 
-    atkVariantSelect.innerHTML = `<option value="">— Choisir une variante —</option>`;
+    const fam = (atkFamilySelect?.value ?? "").trim();
+    atkVariantSelect.innerHTML = "";
 
-    WAR.filter((r) => r.atk_family === fam)
+    const opt0 = document.createElement("option");
+    opt0.value = "";
+
+    if (!fam) {
+      opt0.textContent = "— Choisir une variante d’abord —";
+      atkVariantSelect.appendChild(opt0);
+      atkVariantSelect.disabled = true;
+      atkVariantSelect.value = "";
+      return;
+    }
+
+    atkVariantSelect.disabled = false;
+    opt0.textContent = "— Choisir une variante —";
+    atkVariantSelect.appendChild(opt0);
+
+    const variants = WAR.filter((r) => r.atk_family === fam)
       .map((r) => r.atk_team)
-      .filter(Boolean)
-      .filter((v, i, a) => a.indexOf(v) === i)
-      .sort()
+      .filter(Boolean);
+
+    [...new Set(variants)]
+      .sort((a, b) => a.localeCompare(b, "fr"))
       .forEach((v) => {
         const opt = document.createElement("option");
         opt.value = v;
@@ -262,10 +416,17 @@
   }
 
   function getSelectedAtk() {
-    const fam = atkFamilySelect.value;
-    const vari = atkVariantSelect.value;
+    const fam = (atkFamilySelect?.value ?? "").trim();
+    const vari = (atkVariantSelect?.value ?? "").trim();
     if (!fam || !vari) return null;
-    return WAR.find((r) => r.atk_family === fam && r.atk_team === vari) || null;
+
+    return (
+      WAR.find(
+        (r) =>
+          normalizeKey(r.atk_family) === normalizeKey(fam) &&
+          normalizeKey(r.atk_team) === normalizeKey(vari)
+      ) || null
+    );
   }
 
   // ---------- UI ----------
@@ -274,92 +435,292 @@
 
     const row = getSelectedAtk();
     if (!row) {
-      atkTitle.textContent = "—";
+      if (atkTitle) atkTitle.textContent = "—";
       return;
     }
 
-    atkTitle.textContent = row.atk_team;
+    if (atkTitle) atkTitle.textContent = row.atk_team || row.atk_family || "Attaque";
 
     row.atk_chars.forEach((name) => {
       if (!name) return;
 
+      const card = document.createElement("div");
+      card.className = "portraitCard";
+      card.title = name;
+
       const img = document.createElement("img");
-      img.src = getPortrait(name);
+      img.src = getPortrait(name) || "";
       img.className = "portraitImg";
-      atkPortraits.appendChild(img);
+      img.alt = name;
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.referrerPolicy = "no-referrer";
+
+      img.onerror = () => {
+        img.remove();
+        const t = document.createElement("div");
+        t.className = "portraitFallback";
+        t.textContent = name;
+        card.appendChild(t);
+      };
+
+      card.appendChild(img);
+      atkPortraits.appendChild(card);
     });
   }
 
   function getClass(ratio, r) {
-    if (ratio >= r.min_safe) return "is-green";
-    if (ratio >= r.min_ok) return "is-yellow";
-    if (ratio >= r.min_hard) return "is-orange";
+    const hard = Number(r.min_hard) || 0;
+    const ok = Number(r.min_ok) || 0;
+    const safe = Number(r.min_safe) || 0;
+
+    if (!hard && !ok && !safe) return ratio >= 1 ? "is-yellow" : "is-red";
+
+    if (safe && ratio >= safe) return "is-green";
+    if (ok && ratio >= ok) return "is-yellow";
+    if (hard && ratio >= hard) return "is-orange";
     return "is-red";
   }
 
-  function computeRecommendation(enemy, row, power) {
-    if (!enemy || !row.min_ok) return null;
+  function classRank(cls) {
+    if (cls === "is-green") return 0;
+    if (cls === "is-yellow") return 1;
+    if (cls === "is-orange") return 2;
+    return 3;
+  }
 
-    const recommended = enemy * row.min_ok;
-    const delta = power - recommended;
+  function computeRecommendation(enemyPower, row, teamPower) {
+    const enemy = Number(enemyPower) || 0;
+    const ok = Number(row?.min_ok) || 0;
 
-    return {
-      line1: `Recommandé : ${formatCompactFR(recommended)}`,
-      line2:
-        delta >= 0
-          ? `✅ ${formatCompactFR(delta)} marge`
-          : `🚫 +${formatCompactFR(Math.abs(delta))}`,
-    };
+    if (enemy <= 0 || ok <= 0) {
+      return {
+        show: false,
+        recommended: 0,
+        delta: 0,
+        line1: "",
+        line2: "",
+      };
+    }
+
+    const recommended = enemy * ok;
+    const delta = teamPower - recommended;
+
+    const recTxt = formatCompactFR(recommended);
+    const absTxt = formatCompactFR(Math.abs(delta));
+
+    const line1 = `Recommandé : ${recTxt} mini`;
+    const line2 = delta >= 0 ? `✅ ${absTxt} de marge` : `🚫 + ${absTxt} mini. requis`;
+
+    return { show: true, recommended, delta, line1, line2 };
+  }
+
+  function makeCounterCard({ teamName, power, cls, portraits, enemy, row, notes }) {
+    const card = document.createElement("div");
+    card.className = `counterCard ${cls}`.trim();
+
+    const top = document.createElement("div");
+    top.className = "counterTop";
+
+    const left = document.createElement("div");
+    left.className = "counterName";
+    left.textContent = teamName || "Défense";
+
+    const right = document.createElement("div");
+    right.className = "counterRight";
+
+    const pow = document.createElement("div");
+    pow.className = "counterPower";
+    pow.textContent = formatThousandsDot(power);
+    right.appendChild(pow);
+
+    const rec = computeRecommendation(enemy, row, power);
+    if (rec.show) {
+      const l1 = document.createElement("div");
+      l1.className = "counterRatio";
+      l1.textContent = rec.line1;
+
+      const l2 = document.createElement("div");
+      l2.className = "counterRatio";
+      l2.textContent = rec.line2;
+
+      right.appendChild(l1);
+      right.appendChild(l2);
+    }
+
+    top.appendChild(left);
+    top.appendChild(right);
+
+    const wrap = document.createElement("div");
+    wrap.className = "counterPortraits";
+
+    portraits.forEach((src, idx) => {
+      const p = document.createElement("div");
+      p.className = "counterPortrait";
+      p.title = `p${idx + 1}`;
+
+      const img = document.createElement("img");
+      img.className = "counterPortraitImg";
+      img.alt = `p${idx + 1}`;
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.referrerPolicy = "no-referrer";
+      img.src = src || "";
+
+      p.appendChild(img);
+      wrap.appendChild(p);
+    });
+
+    card.appendChild(top);
+    card.appendChild(wrap);
+
+    const noteText = (notes ?? "").toString().trim();
+    if (noteText) {
+      const note = document.createElement("div");
+      note.textContent = noteText;
+      note.setAttribute("aria-label", "Notes");
+      note.style.marginTop = "6px";
+      note.style.fontSize = "12px";
+      note.style.fontStyle = "italic";
+      note.style.lineHeight = "1.25";
+      note.style.color = "rgba(255,255,255,.70)";
+      card.appendChild(note);
+    }
+
+    return card;
   }
 
   function renderResults() {
     clearNode(resultsWrap);
 
     const atk = getSelectedAtk();
-    const player = playerSelect.value;
+    const player = (playerSelect?.value ?? "").trim();
     const enemy = enemyPowerDigitsValue();
 
-    if (!atk || !player) return;
+    if (playerChip) playerChip.textContent = player || "—";
 
-    const atkChars = atk.atk_chars.filter(Boolean);
+    if (!atk) {
+      if (resultsCount) resultsCount.textContent = "0";
+      return;
+    }
+
+    if (!player) {
+      if (resultsCount) resultsCount.textContent = "0";
+      const hint = document.createElement("p");
+      hint.className = "subtitle";
+      hint.textContent = "Choisis un joueur pour afficher les défenses battables.";
+      resultsWrap.appendChild(hint);
+      return;
+    }
+
+    const atkChars = (atk.atk_chars || []).filter((c) => (c || "").trim());
     const power = getWarAdjustedPower(player, atkChars);
 
-    const rows = WAR.map((r) => {
+    const baseRows = WAR.filter(
+      (r) =>
+        normalizeKey(r.atk_family) === normalizeKey(atk.atk_family) &&
+        normalizeKey(r.atk_team) === normalizeKey(atk.atk_team)
+    ).filter(isRealDefense);
+
+    if (!baseRows.length) {
+      if (resultsCount) resultsCount.textContent = "0";
+      resultsWrap.innerHTML = `<p class="subtitle">Aucune défense renseignée pour cette attaque.</p>`;
+      return;
+    }
+
+    const seenDefs = new Set();
+    const rows = [];
+
+    baseRows.forEach((r) => {
+      const defUniqueKey = [
+        normalizeKey(r.def_family),
+        normalizeKey(r.def_variant),
+        normalizeKey(r.def_chars.join("|")),
+      ].join("::");
+
+      if (seenDefs.has(defUniqueKey)) return;
+      seenDefs.add(defUniqueKey);
+
       const ratio = enemy > 0 ? power / enemy : 0;
-      const cls = enemy ? getClass(ratio, r) : "is-yellow";
-      return { r, cls, ratio };
-    }).sort((a, b) => b.ratio - a.ratio);
+      const cls = enemy > 0 ? getClass(ratio, r) : "is-yellow";
 
-    resultsCount.textContent = rows.length;
-    playerChip.textContent = player;
+      const rec = computeRecommendation(enemy, r, power);
+      const delta = rec.show ? rec.delta : 0;
 
-    rows.forEach(({ r, cls }) => {
-      const div = document.createElement("div");
-      div.className = `counterCard ${cls}`;
-      div.textContent = r.def_variant || r.def_family;
-      resultsWrap.appendChild(div);
+      rows.push({
+        r,
+        power,
+        ratio,
+        cls,
+        delta,
+        hasRec: rec.show,
+      });
+    });
+
+    rows.sort((a, b) => {
+      if (enemy > 0) {
+        const ra = classRank(a.cls);
+        const rb = classRank(b.cls);
+        if (ra !== rb) return ra - rb;
+
+        if (a.hasRec && b.hasRec && a.delta !== b.delta) return b.delta - a.delta;
+        if (a.ratio !== b.ratio) return b.ratio - a.ratio;
+        if (a.power !== b.power) return b.power - a.power;
+      } else {
+        if (a.power !== b.power) return b.power - a.power;
+      }
+
+      const na = (a.r.def_variant || a.r.def_family || "").toString();
+      const nb = (b.r.def_variant || b.r.def_family || "").toString();
+      return na.localeCompare(nb, "fr", { sensitivity: "base" });
+    });
+
+    if (resultsCount) resultsCount.textContent = String(rows.length);
+
+    rows.forEach(({ r, power, cls }) => {
+      const portraits = (r.def_chars || []).map((c) => getPortrait(c)).filter(Boolean);
+
+      resultsWrap.appendChild(
+        makeCounterCard({
+          teamName: r.def_variant || r.def_family || "Défense",
+          power,
+          cls,
+          portraits,
+          enemy,
+          row: r,
+          notes: r.notes || "",
+        })
+      );
     });
   }
 
-  // ---------- EVENTS ----------
-  allianceSelect.addEventListener("change", () => {
-    renderPlayerOptions();
-  });
-
-  atkFamilySelect.addEventListener("change", () => {
-    renderAtkVariants();
-  });
-
-  atkVariantSelect.addEventListener("change", () => {
+  function renderAll() {
     renderAttack();
     renderResults();
+  }
+
+  // ---------- EVENTS ----------
+  allianceSelect?.addEventListener("change", () => {
+    renderPlayerOptions();
+    if (playerChip) playerChip.textContent = "—";
+    renderAll();
   });
 
-  playerSelect.addEventListener("change", renderResults);
+  playerSelect?.addEventListener("change", renderAll);
 
-  enemyPowerInput.addEventListener("input", () => {
-    const raw = enemyPowerInput.value;
-    const pos = enemyPowerInput.selectionStart;
+  atkFamilySelect?.addEventListener("change", () => {
+    if (atkVariantSelect) atkVariantSelect.value = "";
+    renderAtkVariantOptions();
+    renderAll();
+  });
+
+  atkVariantSelect?.addEventListener("change", renderAll);
+
+  enemyPowerInput?.addEventListener("input", () => {
+    if (!enemyPowerInput) return;
+
+    const raw = String(enemyPowerInput.value || "");
+    const pos = enemyPowerInput.selectionStart ?? raw.length;
 
     const digitsBefore = digitsOnly(raw.slice(0, pos)).length;
     const digits = digitsOnly(raw);
@@ -372,15 +733,17 @@
 
   // ---------- BOOT ----------
   async function boot() {
-    const [war, joueurs, chars, rosters] = await Promise.all([
+    const [war, warSeasonRules, joueurs, chars, rosters] = await Promise.all([
       fetchJson(FILES.warCounters),
+      fetchJson(FILES.warSeasonRules),
       fetchJson(FILES.joueurs),
       fetchJson(FILES.characters),
       fetchJson(FILES.rosters),
     ]);
 
-    WAR = war.map(normalizeWarRow);
-    JOUEURS = joueurs;
+    WAR = Array.isArray(war) ? war.map(normalizeWarRow) : [];
+    WAR_SEASON_RULES = normalizeSeasonRules(warSeasonRules);
+    JOUEURS = Array.isArray(joueurs) ? joueurs : [];
 
     buildCharMap(chars);
     buildRosterMap(rosters);
@@ -388,8 +751,14 @@
 
     renderAllianceOptions();
     renderPlayerOptions();
-    renderAtkFamilies();
+    renderAtkFamilyOptions();
+    renderAtkVariantOptions();
+
+    if (atkVariantSelect) atkVariantSelect.disabled = true;
+    if (resultsCount) resultsCount.textContent = "0";
+    if (atkTitle) atkTitle.textContent = "—";
+    if (playerChip) playerChip.textContent = "—";
   }
 
-  boot();
+  boot().catch((e) => console.error("[war-attack-checker] boot error:", e));
 })();
