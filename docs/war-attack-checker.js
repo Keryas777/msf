@@ -21,7 +21,6 @@
   const playerSelect = qs("#playerSelect");
   const atkFamilySelect = qs("#atkFamilySelect");
   const atkVariantSelect = qs("#atkVariantSelect");
-  const enemyPowerInput = qs("#enemyPower");
 
   const atkTitle = qs("#atkTitle");
   const atkPortraits = qs("#atkPortraits");
@@ -80,46 +79,6 @@
       return `${v} k`;
     }
     return String(Math.round(num));
-  }
-
-  function digitsOnly(s) {
-    return String(s || "").replace(/[^\d]/g, "");
-  }
-
-  function formatThousandsDotFromDigits(d) {
-    const s = digitsOnly(d);
-    if (!s) return "";
-    return s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  }
-
-  function enemyPowerDigitsValue() {
-    return Number(digitsOnly(enemyPowerInput?.value || "")) || 0;
-  }
-
-  function setCaretByDigitsCount(input, digitsBefore) {
-    const v = String(input?.value || "");
-    if (!v) {
-      try {
-        input.setSelectionRange(0, 0);
-      } catch (_) {}
-      return;
-    }
-
-    let seen = 0;
-    for (let i = 0; i < v.length; i++) {
-      if (/\d/.test(v[i])) seen++;
-      if (seen >= digitsBefore) {
-        const pos = i + 1;
-        try {
-          input.setSelectionRange(pos, pos);
-        } catch (_) {}
-        return;
-      }
-    }
-
-    try {
-      input.setSelectionRange(v.length, v.length);
-    } catch (_) {}
   }
 
   // ---------- DATA ----------
@@ -390,7 +349,7 @@
     opt0.value = "";
 
     if (!fam) {
-      opt0.textContent = "— Choisir une variante d’abord —";
+      opt0.textContent = "— Choisir une team générique d’abord —";
       atkVariantSelect.appendChild(opt0);
       atkVariantSelect.disabled = true;
       atkVariantSelect.value = "";
@@ -515,7 +474,7 @@
     return { show: true, recommended, delta, line1, line2 };
   }
 
-  function makeCounterCard({ teamName, power, cls, portraits, enemy, row, notes }) {
+  function makeCounterCard({ teamName, power, cls, portraits, row, notes }) {
     const card = document.createElement("div");
     card.className = `counterCard ${cls}`.trim();
 
@@ -534,19 +493,20 @@
     pow.textContent = formatThousandsDot(power);
     right.appendChild(pow);
 
-    const rec = computeRecommendation(enemy, row, power);
-    if (rec.show) {
-      const l1 = document.createElement("div");
-      l1.className = "counterRatio";
-      l1.textContent = rec.line1;
+    const ratioLine = document.createElement("div");
+    ratioLine.className = "counterRatio";
 
-      const l2 = document.createElement("div");
-      l2.className = "counterRatio";
-      l2.textContent = rec.line2;
-
-      right.appendChild(l1);
-      right.appendChild(l2);
+    if (Number(row?.min_safe) > 0) {
+      ratioLine.textContent = `Safe : x${String(row.min_safe).replace(".", ",")}`;
+    } else if (Number(row?.min_ok) > 0) {
+      ratioLine.textContent = `Ok : x${String(row.min_ok).replace(".", ",")}`;
+    } else if (Number(row?.min_hard) > 0) {
+      ratioLine.textContent = `Hard : x${String(row.min_hard).replace(".", ",")}`;
+    } else {
+      ratioLine.textContent = "—";
     }
+
+    right.appendChild(ratioLine);
 
     top.appendChild(left);
     top.appendChild(right);
@@ -595,17 +555,16 @@
 
     const atk = getSelectedAtk();
     const player = (playerSelect?.value ?? "").trim();
-    const enemy = enemyPowerDigitsValue();
-
-    if (playerChip) playerChip.textContent = player || "—";
 
     if (!atk) {
       if (resultsCount) resultsCount.textContent = "0";
+      if (playerChip) playerChip.textContent = "—";
       return;
     }
 
     if (!player) {
       if (resultsCount) resultsCount.textContent = "0";
+      if (playerChip) playerChip.textContent = "—";
       const hint = document.createElement("p");
       hint.className = "subtitle";
       hint.textContent = "Choisis un joueur pour afficher les défenses battables.";
@@ -615,6 +574,8 @@
 
     const atkChars = (atk.atk_chars || []).filter((c) => (c || "").trim());
     const power = getWarAdjustedPower(player, atkChars);
+
+    if (playerChip) playerChip.textContent = `${player} • ${formatCompactFR(power)}`;
 
     const baseRows = WAR.filter(
       (r) =>
@@ -641,34 +602,26 @@
       if (seenDefs.has(defUniqueKey)) return;
       seenDefs.add(defUniqueKey);
 
-      const ratio = enemy > 0 ? power / enemy : 0;
-      const cls = enemy > 0 ? getClass(ratio, r) : "is-yellow";
-
-      const rec = computeRecommendation(enemy, r, power);
-      const delta = rec.show ? rec.delta : 0;
+      const targetRatio = Number(r.min_ok) || Number(r.min_hard) || 1;
+      const virtualEnemyPower = targetRatio > 0 ? power / targetRatio : power;
+      const ratio = virtualEnemyPower > 0 ? power / virtualEnemyPower : 0;
+      const cls = getClass(ratio, r);
 
       rows.push({
         r,
         power,
         ratio,
         cls,
-        delta,
-        hasRec: rec.show,
+        sortRatio: targetRatio,
       });
     });
 
     rows.sort((a, b) => {
-      if (enemy > 0) {
-        const ra = classRank(a.cls);
-        const rb = classRank(b.cls);
-        if (ra !== rb) return ra - rb;
+      const ra = classRank(a.cls);
+      const rb = classRank(b.cls);
+      if (ra !== rb) return ra - rb;
 
-        if (a.hasRec && b.hasRec && a.delta !== b.delta) return b.delta - a.delta;
-        if (a.ratio !== b.ratio) return b.ratio - a.ratio;
-        if (a.power !== b.power) return b.power - a.power;
-      } else {
-        if (a.power !== b.power) return b.power - a.power;
-      }
+      if (a.sortRatio !== b.sortRatio) return a.sortRatio - b.sortRatio;
 
       const na = (a.r.def_variant || a.r.def_family || "").toString();
       const nb = (b.r.def_variant || b.r.def_family || "").toString();
@@ -686,7 +639,6 @@
           power,
           cls,
           portraits,
-          enemy,
           row: r,
           notes: r.notes || "",
         })
@@ -702,7 +654,6 @@
   // ---------- EVENTS ----------
   allianceSelect?.addEventListener("change", () => {
     renderPlayerOptions();
-    if (playerChip) playerChip.textContent = "—";
     renderAll();
   });
 
@@ -715,21 +666,6 @@
   });
 
   atkVariantSelect?.addEventListener("change", renderAll);
-
-  enemyPowerInput?.addEventListener("input", () => {
-    if (!enemyPowerInput) return;
-
-    const raw = String(enemyPowerInput.value || "");
-    const pos = enemyPowerInput.selectionStart ?? raw.length;
-
-    const digitsBefore = digitsOnly(raw.slice(0, pos)).length;
-    const digits = digitsOnly(raw);
-
-    enemyPowerInput.value = formatThousandsDotFromDigits(digits);
-    setCaretByDigitsCount(enemyPowerInput, digitsBefore);
-
-    renderResults();
-  });
 
   // ---------- BOOT ----------
   async function boot() {
