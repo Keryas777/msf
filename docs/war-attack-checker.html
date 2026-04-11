@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>LoSP — War Attack Checker</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+
+  <body>
+    <a class="homeBtn" href="./home.html" aria-label="Accueil">🏠</a>
+
+    <div class="app">
+      <header class="header">
+        <div class="headerLeft">
+          <h1 class="title">Vérificateur d’Attaque</h1>
+          <p class="subtitle">
+            Choisis une attaque restante, un joueur, puis compare la puissance.
+          </p>
+        </div>
+
+        <div class="headerRight">
+          <div>
+            <div class="label">Alliance</div>
+            <select id="allianceSelect" class="select" aria-label="Alliance"></select>
+          </div>
+
+          <div>
+            <div class="label">Joueur</div>
+            <select id="playerSelect" class="select" aria-label="Joueur"></select>
+          </div>
+
+          <div>
+            <div class="label">Attaque restante — Famille</div>
+            <select id="atkFamilySelect" class="select" aria-label="Famille d'attaque"></select>
+          </div>
+
+          <div>
+            <div class="label">Puissance défense adverse</div>
+            <input
+              id="enemyPower"
+              class="select"
+              type="text"
+              inputmode="numeric"
+              enterkeyhint="done"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              placeholder="ex: 6500000"
+              aria-label="Puissance de la défense adverse"
+              pattern="[0-9\s\.\,]*"
+            />
+          </div>
+        </div>
+      </header>
+
+      <section class="card">
+        <div class="cardHeader">
+          <h2 class="cardTitle" id="atkTitle">—</h2>
+        </div>
+
+        <div class="portraits" id="atkPortraits" aria-label="Personnages de l'attaque"></div>
+      </section>
+
+      <section class="card">
+        <div class="cardHeader cardHeader--reco">
+          <div class="chipCount chipCount--sm" id="resultsCount">0</div>
+
+          <h2 class="cardTitle cardTitle--sm">Défenses battables</h2>
+
+          <div class="chipCount chipCount--sm" id="playerChip">—</div>
+        </div>
+
+        <div id="results" aria-label="Liste des défenses battables"></div>
+      </section>
+    </div>
+
+    <script src="./war-attack-checker.js"></script>
+  </body>
+</html>
