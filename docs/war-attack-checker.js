@@ -519,6 +519,9 @@
     left.className = "counterName";
     left.textContent = teamName || "Défense";
 
+    top.appendChild(left);
+    card.appendChild(top);
+
     const right = document.createElement("div");
     right.className = "counterRight";
 
@@ -545,9 +548,7 @@
     });
 
     right.appendChild(levels);
-
-    top.appendChild(left);
-    top.appendChild(right);
+    card.appendChild(right);
 
     const wrap = document.createElement("div");
     wrap.className = "counterPortraits";
@@ -569,7 +570,6 @@
       wrap.appendChild(p);
     });
 
-    card.appendChild(top);
     card.appendChild(wrap);
 
     const noteText = (notes ?? "").toString().trim();
