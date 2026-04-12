@@ -677,11 +677,10 @@ button.backBtn{
 }
 
 .counterRight{
-  text-align:right;
   display:flex;
   flex-direction:column;
-  gap: 2px;
-  flex: 0 0 auto;
+  gap: 6px;
+  margin-top: 8px;
 }
 
 .counterPower{
