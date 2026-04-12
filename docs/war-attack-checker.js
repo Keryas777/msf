@@ -23,6 +23,7 @@
   const atkVariantSelect = qs("#atkVariantSelect");
 
   const atkTitle = qs("#atkTitle");
+  const atkSubtitle = qs("#atkSubtitle");
   const atkPortraits = qs("#atkPortraits");
 
   const resultsWrap = qs("#results");
@@ -393,12 +394,22 @@
     clearNode(atkPortraits);
 
     const row = getSelectedAtk();
+    const player = (playerSelect?.value ?? "").trim();
+
     if (!row) {
       if (atkTitle) atkTitle.textContent = "—";
+      if (atkSubtitle) atkSubtitle.textContent = "—";
       return;
     }
 
     if (atkTitle) atkTitle.textContent = row.atk_team || row.atk_family || "Attaque";
+
+    const atkChars = (row.atk_chars || []).filter((c) => (c || "").trim());
+    const power = player ? getWarAdjustedPower(player, atkChars) : 0;
+
+    if (atkSubtitle) {
+      atkSubtitle.textContent = player && power > 0 ? `Environ ${formatThousandsDot(power)}` : "—";
+    }
 
     row.atk_chars.forEach((name) => {
       if (!name) return;
@@ -446,32 +457,6 @@
     if (cls === "is-yellow") return 1;
     if (cls === "is-orange") return 2;
     return 3;
-  }
-
-  function computeRecommendation(enemyPower, row, teamPower) {
-    const enemy = Number(enemyPower) || 0;
-    const ok = Number(row?.min_ok) || 0;
-
-    if (enemy <= 0 || ok <= 0) {
-      return {
-        show: false,
-        recommended: 0,
-        delta: 0,
-        line1: "",
-        line2: "",
-      };
-    }
-
-    const recommended = enemy * ok;
-    const delta = teamPower - recommended;
-
-    const recTxt = formatCompactFR(recommended);
-    const absTxt = formatCompactFR(Math.abs(delta));
-
-    const line1 = `Recommandé : ${recTxt} mini`;
-    const line2 = delta >= 0 ? `✅ ${absTxt} de marge` : `🚫 + ${absTxt} mini. requis`;
-
-    return { show: true, recommended, delta, line1, line2 };
   }
 
   function makeCounterCard({ teamName, power, cls, portraits, row, notes }) {
@@ -575,7 +560,7 @@
     const atkChars = (atk.atk_chars || []).filter((c) => (c || "").trim());
     const power = getWarAdjustedPower(player, atkChars);
 
-    if (playerChip) playerChip.textContent = `${player} • ${formatCompactFR(power)}`;
+    if (playerChip) playerChip.textContent = player;
 
     const baseRows = WAR.filter(
       (r) =>
@@ -693,6 +678,7 @@
     if (atkVariantSelect) atkVariantSelect.disabled = true;
     if (resultsCount) resultsCount.textContent = "0";
     if (atkTitle) atkTitle.textContent = "—";
+    if (atkSubtitle) atkSubtitle.textContent = "—";
     if (playerChip) playerChip.textContent = "—";
   }
 
