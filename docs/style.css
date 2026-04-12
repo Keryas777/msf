@@ -679,9 +679,11 @@ button.backBtn{
 .counterRight{
   display:flex;
   flex-direction:column;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 8px;
+  margin-top: 10px;
+  width: 100%;
 }
+
 .counterThresholds{
   display:flex;
   flex-direction:column;
