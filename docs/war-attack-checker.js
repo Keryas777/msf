@@ -94,29 +94,39 @@
 
     if (safe > 0) {
       lines.push({
-        text: `🟢 Sûr : ${formatApproxPower(computeEnemyPowerFromRatio(attackPower, safe))}`,
+        emoji: "🟢",
+        label: "Sûr",
+        value: formatApproxPower(computeEnemyPowerFromRatio(attackPower, safe)),
       });
     }
 
     if (ok > 0) {
       lines.push({
-        text: `🟡 Passe : ${formatApproxPower(computeEnemyPowerFromRatio(attackPower, ok))}`,
+        emoji: "🟡",
+        label: "Passe",
+        value: formatApproxPower(computeEnemyPowerFromRatio(attackPower, ok)),
       });
     }
 
     if (hard > 0) {
       lines.push({
-        text: `🟠 Risqué : ${formatApproxPower(computeEnemyPowerFromRatio(attackPower, hard))}`,
+        emoji: "🟠",
+        label: "Risqué",
+        value: formatApproxPower(computeEnemyPowerFromRatio(attackPower, hard)),
       });
     }
 
-    let avoidText = "🔴 Éviter";
+    let avoidValue = "—";
     if (hard > 0) {
       const beyondHard = Math.max(0, computeEnemyPowerFromRatio(attackPower, hard) + 1);
-      avoidText = `🔴 Éviter : > ${formatApproxPower(beyondHard)}`;
+      avoidValue = `> ${formatApproxPower(beyondHard)}`;
     }
 
-    lines.push({ text: avoidText });
+    lines.push({
+      emoji: "🔴",
+      label: "Éviter",
+      value: avoidValue,
+    });
 
     return lines;
   }
