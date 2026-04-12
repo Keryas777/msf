@@ -682,6 +682,30 @@ button.backBtn{
   gap: 6px;
   margin-top: 8px;
 }
+.counterThresholds{
+  display:flex;
+  flex-direction:column;
+  gap: 6px;
+}
+
+.counterThresholdRow{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size: 15px;
+}
+
+.counterThresholdLabel{
+  display:flex;
+  align-items:center;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.counterThresholdValue{
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
 
 .counterPower{
   font-weight: 1000;
