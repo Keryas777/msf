@@ -86,130 +86,50 @@
   }
 
   function createThresholdLines(row, attackPower) {
-  const hard = safeRatioValue(row?.min_hard);
-  const ok = safeRatioValue(row?.min_ok);
-  const safe = safeRatioValue(row?.min_safe);
+    const hard = safeRatioValue(row?.min_hard);
+    const ok = safeRatioValue(row?.min_ok);
+    const safe = safeRatioValue(row?.min_safe);
 
-  const lines = [];
+    const lines = [];
 
-  if (safe > 0) {
+    if (safe > 0) {
+      lines.push({
+        emoji: "🟢",
+        label: "Sûr",
+        value: formatApproxPower(computeEnemyPowerFromRatio(attackPower, safe)),
+      });
+    }
+
+    if (ok > 0) {
+      lines.push({
+        emoji: "🟡",
+        label: "Passe",
+        value: formatApproxPower(computeEnemyPowerFromRatio(attackPower, ok)),
+      });
+    }
+
+    if (hard > 0) {
+      lines.push({
+        emoji: "🟠",
+        label: "Risqué",
+        value: formatApproxPower(computeEnemyPowerFromRatio(attackPower, hard)),
+      });
+    }
+
+    let avoidValue = "—";
+    if (hard > 0) {
+      const beyondHard = Math.max(0, computeEnemyPowerFromRatio(attackPower, hard) + 1);
+      avoidValue = `> ${formatApproxPower(beyondHard)}`;
+    }
+
     lines.push({
-      emoji: "🟢",
-      label: "Sûr",
-      value: formatApproxPower(computeEnemyPowerFromRatio(attackPower, safe)),
+      emoji: "🔴",
+      label: "Éviter",
+      value: avoidValue,
     });
+
+    return lines;
   }
-
-  if (ok > 0) {
-    lines.push({
-      emoji: "🟡",
-      label: "Passe",
-      value: formatApproxPower(computeEnemyPowerFromRatio(attackPower, ok)),
-    });
-  }
-
-  if (hard > 0) {
-    lines.push({
-      emoji: "🟠",
-      label: "Risqué",
-      value: formatApproxPower(computeEnemyPowerFromRatio(attackPower, hard)),
-    });
-  }
-
-  let avoidValue = "—";
-  if (hard > 0) {
-    const beyondHard = Math.max(0, computeEnemyPowerFromRatio(attackPower, hard) + 1);
-    avoidValue = `> ${formatApproxPower(beyondHard)}`;
-  }
-
-  lines.push({
-    emoji: "🔴",
-    label: "Éviter",
-    value: avoidValue,
-  });
-
-  return lines;
-}
-
-function makeCounterCard({ teamName, attackPower, cls, portraits, row, notes }) {
-  const card = document.createElement("div");
-  card.className = `counterCard ${cls}`.trim();
-
-  const top = document.createElement("div");
-  top.className = "counterTop";
-
-  const left = document.createElement("div");
-  left.className = "counterName";
-  left.textContent = teamName || "Défense";
-
-  const right = document.createElement("div");
-  right.className = "counterRight";
-
-  const levels = document.createElement("div");
-  levels.className = "counterThresholds";
-
-  const thresholdLines = createThresholdLines(row, attackPower);
-
-  thresholdLines.forEach((line) => {
-    const rowEl = document.createElement("div");
-    rowEl.className = "counterThresholdRow";
-
-    const leftEl = document.createElement("div");
-    leftEl.className = "counterThresholdLabel";
-    leftEl.textContent = `${line.emoji} ${line.label}`;
-
-    const rightEl = document.createElement("div");
-    rightEl.className = "counterThresholdValue";
-    rightEl.textContent = line.value;
-
-    rowEl.appendChild(leftEl);
-    rowEl.appendChild(rightEl);
-    levels.appendChild(rowEl);
-  });
-
-  right.appendChild(levels);
-
-  top.appendChild(left);
-  top.appendChild(right);
-
-  const wrap = document.createElement("div");
-  wrap.className = "counterPortraits";
-
-  portraits.forEach((src, idx) => {
-    const p = document.createElement("div");
-    p.className = "counterPortrait";
-    p.title = `p${idx + 1}`;
-
-    const img = document.createElement("img");
-    img.className = "counterPortraitImg";
-    img.alt = `p${idx + 1}`;
-    img.loading = "lazy";
-    img.decoding = "async";
-    img.referrerPolicy = "no-referrer";
-    img.src = src || "";
-
-    p.appendChild(img);
-    wrap.appendChild(p);
-  });
-
-  card.appendChild(top);
-  card.appendChild(wrap);
-
-  const noteText = (notes ?? "").toString().trim();
-  if (noteText) {
-    const note = document.createElement("div");
-    note.textContent = noteText;
-    note.setAttribute("aria-label", "Notes");
-    note.style.marginTop = "6px";
-    note.style.fontSize = "12px";
-    note.style.fontStyle = "italic";
-    note.style.lineHeight = "1.25";
-    note.style.color = "rgba(255,255,255,.70)";
-    card.appendChild(note);
-  }
-
-  return card;
-}
 
   // ---------- DATA ----------
   let WAR = [];
@@ -588,7 +508,7 @@ function makeCounterCard({ teamName, attackPower, cls, portraits, row, notes }) 
     return 3;
   }
 
-  function makeCounterCard({ teamName, attackPower, cls, portraits, row, notes, displayPower }) {
+  function makeCounterCard({ teamName, attackPower, cls, portraits, row, notes }) {
     const card = document.createElement("div");
     card.className = `counterCard ${cls}`.trim();
 
@@ -602,24 +522,26 @@ function makeCounterCard({ teamName, attackPower, cls, portraits, row, notes }) 
     const right = document.createElement("div");
     right.className = "counterRight";
 
-    const pow = document.createElement("div");
-    pow.className = "counterPower";
-    pow.textContent = formatApproxPower(displayPower);
-    right.appendChild(pow);
-
     const levels = document.createElement("div");
-    levels.className = "counterRatio";
-    levels.style.display = "flex";
-    levels.style.flexDirection = "column";
-    levels.style.gap = "2px";
-    levels.style.alignItems = "flex-end";
-    levels.style.textAlign = "right";
+    levels.className = "counterThresholds";
 
     const thresholdLines = createThresholdLines(row, attackPower);
+
     thresholdLines.forEach((line) => {
-      const div = document.createElement("div");
-      div.textContent = line.text || `${line.emoji} ${line.label} : ${formatApproxPower(line.power)}`;
-      levels.appendChild(div);
+      const rowEl = document.createElement("div");
+      rowEl.className = "counterThresholdRow";
+
+      const leftEl = document.createElement("div");
+      leftEl.className = "counterThresholdLabel";
+      leftEl.textContent = `${line.emoji} ${line.label}`;
+
+      const rightEl = document.createElement("div");
+      rightEl.className = "counterThresholdValue";
+      rightEl.textContent = line.value;
+
+      rowEl.appendChild(leftEl);
+      rowEl.appendChild(rightEl);
+      levels.appendChild(rowEl);
     });
 
     right.appendChild(levels);
@@ -734,7 +656,6 @@ function makeCounterCard({ teamName, attackPower, cls, portraits, row, notes }) 
         ratio,
         cls,
         sortRatio: targetRatio,
-        displayPower: virtualEnemyPower,
       });
     });
 
@@ -752,14 +673,13 @@ function makeCounterCard({ teamName, attackPower, cls, portraits, row, notes }) 
 
     if (resultsCount) resultsCount.textContent = String(rows.length);
 
-    rows.forEach(({ r, attackPower, cls, displayPower }) => {
+    rows.forEach(({ r, attackPower, cls }) => {
       const portraits = (r.def_chars || []).map((c) => getPortrait(c)).filter(Boolean);
 
       resultsWrap.appendChild(
         makeCounterCard({
           teamName: r.def_variant || r.def_family || "Défense",
           attackPower,
-          displayPower,
           cls,
           portraits,
           row: r,
