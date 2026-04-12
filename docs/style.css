@@ -25,11 +25,11 @@
   --c-orange: 255,159,26;
   --c-red: 255,77,77;
 
-  /* Halo interne (plus marqué) */
-  --halo-green: rgba(var(--c-green), .50);
-  --halo-yellow: rgba(var(--c-yellow), .50);
-  --halo-orange: rgba(var(--c-orange), .50);
-  --halo-red: rgba(var(--c-red), .50);
+  /* Halo interne blanc partout */
+  --halo-green: rgba(255,255,255,.34);
+  --halo-yellow: rgba(255,255,255,.34);
+  --halo-orange: rgba(255,255,255,.34);
+  --halo-red: rgba(255,255,255,.34);
 
   /* Fond teinté (léger) */
   --tint-green: rgba(var(--c-green), .16);
@@ -312,20 +312,16 @@ button.backBtn{
 
 /* =========================================================
    ✅ DEFENSE PORTRAITS : 1 SEULE LIGNE + TAILLE AUTO (comme counters)
-   - Remplit l’espace dispo
-   - Ne wrap jamais
-   - OK si 3 portraits : ils restent à la même taille (pas énormes)
    ========================================================= */
 .portraits{
   display:flex;
   gap: var(--dp-gap);
-  flex-wrap: nowrap;            /* ✅ 1 seule ligne */
+  flex-wrap: nowrap;
   align-items: center;
   min-width: 0;
-  overflow: hidden;             /* évite que ça déborde sur mini écrans */
+  overflow: hidden;
 }
 
-/* même calcul que counters : basé sur "comme s'il y en avait 5" */
 .portraitCard{
   --dp-size: clamp(
     var(--dp-min),
@@ -401,7 +397,7 @@ button.backBtn{
   border-color: var(--toggle-on-border);
 }
 
-/* ===== Ranking (conservé si tu l’utilises ailleurs) ===== */
+/* ===== Ranking ===== */
 .rankList{
   display:flex;
   flex-direction:column;
@@ -489,7 +485,7 @@ button.backBtn{
   font-size: 14px;
 }
 
-/* ===== HOME tiles (global) ===== */
+/* ===== HOME tiles ===== */
 .homeTile{
   position: relative;
   display:block;
@@ -568,7 +564,6 @@ button.backBtn{
 @media (max-width: 420px){
   .title{ font-size: 22px; }
 
-  /* on garde l’espacement visuel similaire */
   .portraits{ gap: 8px; }
 
   .filterToggle{ padding: 9px 8px; gap: 8px; }
@@ -592,7 +587,7 @@ button.backBtn{
   *{ scroll-behavior: auto !important; }
 }
 
-/* ===== COUNTERS (cartes + indicateur fort) ===== */
+/* ===== COUNTERS ===== */
 #results{
   display:flex;
   flex-direction:column;
@@ -604,24 +599,18 @@ button.backBtn{
 .counterCard{
   border:1px solid var(--border);
   border-radius:18px;
-
-  /* ✅ place réservée pour le bandeau */
   padding: 12px 12px 12px calc(var(--band-w) + var(--band-gap));
-
   display:flex;
   flex-direction:column;
   gap:10px;
-
   position: relative;
   overflow: hidden;
 
-  /* valeurs par défaut */
   --halo: rgba(255,255,255,.00);
   --tint: rgba(255,255,255,.00);
   --band: rgba(255,255,255,.00);
   --label: "—";
 
-  /* ✅ fond teinté + dégradé doux (couleur -> noir) */
   background:
     linear-gradient(90deg, var(--tint) 0%, rgba(0,0,0,.22) 62%),
     rgba(0,0,0,.22);
@@ -629,7 +618,6 @@ button.backBtn{
   box-shadow: var(--shadow);
 }
 
-/* ✅ halo interne + bordure interne */
 .counterCard::before{
   content:"";
   position:absolute;
@@ -643,7 +631,6 @@ button.backBtn{
   opacity: 1;
 }
 
-/* ✅ bandeau vertical + label */
 .counterCard::after{
   content: var(--label);
   position:absolute;
@@ -676,7 +663,6 @@ button.backBtn{
   border-bottom-left-radius: 18px;
 }
 
-/* ===== 4 états ===== */
 .counterCard.is-green{
   --halo: var(--halo-green);
   --tint: var(--tint-green);
@@ -739,12 +725,6 @@ button.backBtn{
   font-feature-settings: "tnum" 1;
 }
 
-/* =========================================================
-   ✅ COUNTER PORTRAITS : 1 SEULE LIGNE + TAILLE AUTO
-   - Remplit l’espace dispo
-   - Ne wrap jamais (1 ligne)
-   - OK si 3 portraits : ils restent à la même taille, juste plus d’air à droite
-   ========================================================= */
 .counterPortraits{
   display:flex;
   gap: var(--cp-gap);
@@ -780,11 +760,7 @@ button.backBtn{
   display:block;
 }
 
-/* =========================================================
-   ✅ WAR ATTACK CHECKER UNIQUEMENT
-   - supprime le bandeau coloré de gauche
-   - conserve le reste des styles globaux
-   ========================================================= */
+/* ===== WAR ATTACK CHECKER UNIQUEMENT ===== */
 body:has(#atkFamilySelect) .counterCard{
   padding-left: 12px;
 }
