@@ -779,3 +779,17 @@ button.backBtn{
   object-position:center;
   display:block;
 }
+
+/* =========================================================
+   ✅ WAR ATTACK CHECKER UNIQUEMENT
+   - supprime le bandeau coloré de gauche
+   - conserve le reste des styles globaux
+   ========================================================= */
+body:has(#atkFamilySelect) .counterCard{
+  padding-left: 12px;
+}
+
+body:has(#atkFamilySelect) .counterCard::after{
+  content: none;
+  display: none;
+}
