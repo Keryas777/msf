@@ -39,36 +39,27 @@
             <div class="label">Attaque restante — Variante</div>
             <select id="atkVariantSelect" class="select" aria-label="Variante d'attaque"></select>
           </div>
-
-          <div>
-            <div class="label">Puissance défense adverse</div>
-            <input
-              id="enemyPower"
-              class="select"
-              type="text"
-              inputmode="numeric"
-              enterkeyhint="done"
-              autocomplete="off"
-              autocapitalize="off"
-              spellcheck="false"
-              placeholder="ex: 6500000"
-              aria-label="Puissance de la défense adverse"
-              pattern="[0-9\s\.\,]*"
-            />
-          </div>
         </div>
       </header>
 
-      <!-- ✅ Attaque sélectionnée -->
       <section class="card">
         <div class="cardHeader">
-          <h2 class="cardTitle" id="atkTitle">—</h2>
+          <div>
+            <h2 class="cardTitle" id="atkTitle">—</h2>
+            <div
+              id="atkSubtitle"
+              class="subtitle"
+              style="margin-top: 6px;"
+              aria-label="Puissance approximative de l'équipe sélectionnée"
+            >
+              —
+            </div>
+          </div>
         </div>
 
         <div class="portraits" id="atkPortraits" aria-label="Personnages de l'attaque"></div>
       </section>
 
-      <!-- ✅ Défenses battables -->
       <section class="card">
         <div class="cardHeader cardHeader--reco">
           <div class="chipCount chipCount--sm" id="resultsCount">0</div>
