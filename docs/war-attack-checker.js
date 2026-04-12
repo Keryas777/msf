@@ -82,6 +82,19 @@
     return String(Math.round(num));
   }
 
+  function formatApproxPower(n) {
+    const num = Number(n);
+    if (!Number.isFinite(num) || num <= 0) return "—";
+    return formatThousandsDot(Math.round(num));
+  }
+
+  function computeEnemyPowerFromRatio(attackPower, ratio) {
+    const atk = Number(attackPower) || 0;
+    const r = Number(ratio) || 0;
+    if (atk <= 0 || r <= 0) return 0;
+    return Math.round(atk / r);
+  }
+
   // ---------- DATA ----------
   let WAR = [];
   let JOUEURS = [];
