@@ -86,50 +86,56 @@
   }
 
   function createThresholdLines(row, attackPower) {
-    const hard = safeRatioValue(row?.min_hard);
-    const ok = safeRatioValue(row?.min_ok);
-    const safe = safeRatioValue(row?.min_safe);
+  const hard = safeRatioValue(row?.min_hard);
+  const ok = safeRatioValue(row?.min_ok);
+  const safe = safeRatioValue(row?.min_safe);
 
-    const lines = [];
+  const lines = [];
 
-    if (safe > 0) {
-      lines.push({
-        emoji: "🟢",
-        label: "Sûr",
-        value: formatApproxPower(computeEnemyPowerFromRatio(attackPower, safe)),
-      });
-    }
+  if (safe > 0) {
+    const val = computeEnemyPowerFromRatio(attackPower, safe);
+    lines.push({
+      emoji: "🟢",
+      label: "Sûr",
+      value: `Inf. à ${formatApproxPower(val)}`
+    });
+  }
 
-    if (ok > 0) {
-      lines.push({
-        emoji: "🟡",
-        label: "Passe",
-        value: formatApproxPower(computeEnemyPowerFromRatio(attackPower, ok)),
-      });
-    }
+  if (ok > 0) {
+    const val = computeEnemyPowerFromRatio(attackPower, ok);
+    lines.push({
+      emoji: "🟡",
+      label: "Passe",
+      value: `Jusqu'à ${formatApproxPower(val)}`
+    });
+  }
 
-    if (hard > 0) {
-      lines.push({
-        emoji: "🟠",
-        label: "Risqué",
-        value: formatApproxPower(computeEnemyPowerFromRatio(attackPower, hard)),
-      });
-    }
+  if (hard > 0) {
+    const val = computeEnemyPowerFromRatio(attackPower, hard);
+    lines.push({
+      emoji: "🟠",
+      label: "Risqué",
+      value: `Jusqu'à ${formatApproxPower(val)}`
+    });
+  }
 
-    let avoidValue = "—";
-    if (hard > 0) {
-      const beyondHard = Math.max(0, computeEnemyPowerFromRatio(attackPower, hard) + 1);
-      avoidValue = `> ${formatApproxPower(beyondHard)}`;
-    }
-
+  if (hard > 0) {
+    const val = computeEnemyPowerFromRatio(attackPower, hard) + 1;
     lines.push({
       emoji: "🔴",
       label: "Éviter",
-      value: avoidValue,
+      value: `Sup. à ${formatApproxPower(val)}`
     });
-
-    return lines;
+  } else {
+    lines.push({
+      emoji: "🔴",
+      label: "Éviter",
+      value: ""
+    });
   }
+
+  return lines;
+}
 
   // ---------- DATA ----------
   let WAR = [];
