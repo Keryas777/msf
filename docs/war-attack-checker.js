@@ -67,32 +67,68 @@
       .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
-  function formatCompactFR(n) {
-    const num = Number(n);
-    if (!Number.isFinite(num) || num <= 0) return "0";
-
-    if (num >= 1_000_000) {
-      const v = Math.round((num / 1_000_000) * 10) / 10;
-      return `${String(v).replace(".", ",")} M`;
-    }
-    if (num >= 1_000) {
-      const v = Math.round(num / 1_000);
-      return `${v} k`;
-    }
-    return String(Math.round(num));
-  }
-
   function formatApproxPower(n) {
     const num = Number(n);
     if (!Number.isFinite(num) || num <= 0) return "—";
     return formatThousandsDot(Math.round(num));
   }
 
+  function safeRatioValue(v) {
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  }
+
   function computeEnemyPowerFromRatio(attackPower, ratio) {
     const atk = Number(attackPower) || 0;
-    const r = Number(ratio) || 0;
+    const r = safeRatioValue(ratio);
     if (atk <= 0 || r <= 0) return 0;
     return Math.round(atk / r);
+  }
+
+  function createThresholdLines(row, attackPower) {
+    const hard = safeRatioValue(row?.min_hard);
+    const ok = safeRatioValue(row?.min_ok);
+    const safe = safeRatioValue(row?.min_safe);
+
+    const lines = [];
+
+    if (safe > 0) {
+      lines.push({
+        emoji: "🟢",
+        label: "Sûr",
+        power: computeEnemyPowerFromRatio(attackPower, safe),
+      });
+    }
+
+    if (ok > 0) {
+      lines.push({
+        emoji: "🟡",
+        label: "Passe",
+        power: computeEnemyPowerFromRatio(attackPower, ok),
+      });
+    }
+
+    if (hard > 0) {
+      lines.push({
+        emoji: "🟠",
+        label: "Risqué",
+        power: computeEnemyPowerFromRatio(attackPower, hard),
+      });
+    }
+
+    let avoidText = "🔴 Éviter";
+    if (hard > 0) {
+      const beyondHard = Math.max(0, computeEnemyPowerFromRatio(attackPower, hard) + 1);
+      avoidText = `🔴 Éviter : > ${formatApproxPower(beyondHard)}`;
+    }
+
+    lines.push({
+      emoji: "🔴",
+      label: "Éviter",
+      text: avoidText,
+    });
+
+    return lines;
   }
 
   // ---------- DATA ----------
@@ -453,9 +489,9 @@
   }
 
   function getClass(ratio, r) {
-    const hard = Number(r.min_hard) || 0;
-    const ok = Number(r.min_ok) || 0;
-    const safe = Number(r.min_safe) || 0;
+    const hard = safeRatioValue(r.min_hard);
+    const ok = safeRatioValue(r.min_ok);
+    const safe = safeRatioValue(r.min_safe);
 
     if (!hard && !ok && !safe) return ratio >= 1 ? "is-yellow" : "is-red";
 
@@ -472,7 +508,7 @@
     return 3;
   }
 
-  function makeCounterCard({ teamName, power, cls, portraits, row, notes }) {
+  function makeCounterCard({ teamName, attackPower, cls, portraits, row, notes, displayPower }) {
     const card = document.createElement("div");
     card.className = `counterCard ${cls}`.trim();
 
@@ -488,23 +524,25 @@
 
     const pow = document.createElement("div");
     pow.className = "counterPower";
-    pow.textContent = formatThousandsDot(power);
+    pow.textContent = formatApproxPower(displayPower);
     right.appendChild(pow);
 
-    const ratioLine = document.createElement("div");
-    ratioLine.className = "counterRatio";
+    const levels = document.createElement("div");
+    levels.className = "counterRatio";
+    levels.style.display = "flex";
+    levels.style.flexDirection = "column";
+    levels.style.gap = "2px";
+    levels.style.alignItems = "flex-end";
+    levels.style.textAlign = "right";
 
-    if (Number(row?.min_safe) > 0) {
-      ratioLine.textContent = `Safe : x${String(row.min_safe).replace(".", ",")}`;
-    } else if (Number(row?.min_ok) > 0) {
-      ratioLine.textContent = `Ok : x${String(row.min_ok).replace(".", ",")}`;
-    } else if (Number(row?.min_hard) > 0) {
-      ratioLine.textContent = `Hard : x${String(row.min_hard).replace(".", ",")}`;
-    } else {
-      ratioLine.textContent = "—";
-    }
+    const thresholdLines = createThresholdLines(row, attackPower);
+    thresholdLines.forEach((line) => {
+      const div = document.createElement("div");
+      div.textContent = line.text || `${line.emoji} ${line.label} : ${formatApproxPower(line.power)}`;
+      levels.appendChild(div);
+    });
 
-    right.appendChild(ratioLine);
+    right.appendChild(levels);
 
     top.appendChild(left);
     top.appendChild(right);
@@ -571,7 +609,7 @@
     }
 
     const atkChars = (atk.atk_chars || []).filter((c) => (c || "").trim());
-    const power = getWarAdjustedPower(player, atkChars);
+    const attackPower = getWarAdjustedPower(player, atkChars);
 
     if (playerChip) playerChip.textContent = player;
 
@@ -600,17 +638,23 @@
       if (seenDefs.has(defUniqueKey)) return;
       seenDefs.add(defUniqueKey);
 
-      const targetRatio = Number(r.min_ok) || Number(r.min_hard) || 1;
-      const virtualEnemyPower = targetRatio > 0 ? power / targetRatio : power;
-      const ratio = virtualEnemyPower > 0 ? power / virtualEnemyPower : 0;
+      const targetRatio =
+        safeRatioValue(r.min_hard) ||
+        safeRatioValue(r.min_ok) ||
+        safeRatioValue(r.min_safe) ||
+        1;
+
+      const virtualEnemyPower = computeEnemyPowerFromRatio(attackPower, targetRatio);
+      const ratio = virtualEnemyPower > 0 ? attackPower / virtualEnemyPower : 0;
       const cls = getClass(ratio, r);
 
       rows.push({
         r,
-        power,
+        attackPower,
         ratio,
         cls,
         sortRatio: targetRatio,
+        displayPower: virtualEnemyPower,
       });
     });
 
@@ -628,13 +672,14 @@
 
     if (resultsCount) resultsCount.textContent = String(rows.length);
 
-    rows.forEach(({ r, power, cls }) => {
+    rows.forEach(({ r, attackPower, cls, displayPower }) => {
       const portraits = (r.def_chars || []).map((c) => getPortrait(c)).filter(Boolean);
 
       resultsWrap.appendChild(
         makeCounterCard({
           teamName: r.def_variant || r.def_family || "Défense",
-          power,
+          attackPower,
+          displayPower,
           cls,
           portraits,
           row: r,
