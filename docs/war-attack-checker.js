@@ -666,16 +666,11 @@
     });
 
     rows.sort((a, b) => {
-      const ra = classRank(a.cls);
-      const rb = classRank(b.cls);
-      if (ra !== rb) return ra - rb;
+  const na = (a.r.def_variant || a.r.def_family || "").toString();
+  const nb = (b.r.def_variant || b.r.def_family || "").toString();
 
-      if (a.sortRatio !== b.sortRatio) return a.sortRatio - b.sortRatio;
-
-      const na = (a.r.def_variant || a.r.def_family || "").toString();
-      const nb = (b.r.def_variant || b.r.def_family || "").toString();
-      return na.localeCompare(nb, "fr", { sensitivity: "base" });
-    });
+  return na.localeCompare(nb, "fr", { sensitivity: "base" });
+});
 
     if (resultsCount) resultsCount.textContent = String(rows.length);
 
