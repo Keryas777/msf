@@ -4,12 +4,6 @@ on:
   workflow_dispatch:
 
   push:
-    paths:
-      - "docs/data/rosters_zeus.json"
-      - "docs/data/rosters_dionysos.json"
-      - "docs/data/rosters_poseidon.json"
-      - "scripts/merge-rosters.mjs"
-      - ".github/workflows/merge-rosters.yml"
 
 permissions:
   contents: write
