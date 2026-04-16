@@ -1,34 +1,96 @@
-<!DOCTYPE html>
+<!-- /docs/war-choose.html -->
+<!doctype html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Choix GA</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
+    />
+    <meta name="theme-color" content="#0b0c0d" />
+    <title>Contres GA</title>
 
-  <link rel="stylesheet" href="./style.css" />
-</head>
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./classements.css" />
 
-<body class="homePage">
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icon-512.PNG" />
+    <meta name="apple-mobile-web-app-title" content="LoSP" />
+  </head>
 
-  <div class="homeContainer">
+  <body>
+    <div class="app">
+      <header class="header rankingsHeader" aria-label="Contres GA">
+        <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
+      </header>
 
-    <h1 class="homeTitle">Choisir un mode</h1>
+      <section class="rankingsGrid" aria-label="Choix du mode GA">
+        <!-- Contres -->
+        <a href="./war-counters.html" class="rankingsTile rankingsTile--teams">
+          <img
+            class="rankingsTileImg"
+            src="./Contres.webp"
+            alt="Contres"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="srOnly">Contres</span>
+        </a>
 
-    <div class="homeGrid">
-
-      <!-- CONTRES -->
-      <a href="./war-counters.html" class="homeTile">
-        <img src="./assets/icones/contres.png" alt="Contres" />
-      </a>
-
-      <!-- ATTAQUES -->
-      <a href="./war-attack-checker.html" class="homeTile">
-        <img src="./assets/icones/attaques.png" alt="Attaques" />
-      </a>
-
+        <!-- Attaques -->
+        <a href="./war-attack-checker.html" class="rankingsTile rankingsTile--classement">
+          <img
+            class="rankingsTileImg"
+            src="./Attaques.webp"
+            alt="Attaques"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="srOnly">Attaques</span>
+        </a>
+      </section>
     </div>
 
-  </div>
+    <script>
+      (function () {
+        const tiles = document.querySelectorAll(".rankingsTile");
+        tiles.forEach((t) => {
+          const press = () => {
+            t.classList.add("is-pressed");
+            clearTimeout(t.__pressTimer);
+            t.__pressTimer = setTimeout(() => t.classList.remove("is-pressed"), 220);
+          };
+          const release = () => t.classList.remove("is-pressed");
 
-</body>
+          t.addEventListener("pointerdown", press, { passive: true });
+          t.addEventListener("pointerup", release, { passive: true });
+          t.addEventListener("pointercancel", release, { passive: true });
+          t.addEventListener("mouseleave", release, { passive: true });
+        });
+      })();
+    </script>
+
+    <script>
+      (function () {
+        if (!("serviceWorker" in navigator)) return;
+
+        let reloading = false;
+
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          if (reloading) return;
+          reloading = true;
+          window.location.reload();
+        });
+
+        window.addEventListener("load", async () => {
+          try {
+            const reg = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+            if (reg && typeof reg.update === "function") reg.update();
+          } catch (e) {
+            console.error(e);
+          }
+        });
+      })();
+    </script>
+  </body>
 </html>
