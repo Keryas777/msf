@@ -1,9 +1,11 @@
 // docs/war-counters.js
 (() => {
+  const USAGE_LOGGER_URL =
+    "https://script.google.com/macros/s/AKfycbzTdFi7gEgRVCKjK2UBwFcQIlIzi2jp4eeO2ryR36sSrcy3QtzfEK8k7kNSXSJOGmFAbw/exec";
+
   // ✅ IMPORTANT: le site est servi depuis /docs en GitHub Pages
   // Donc ici on pointe vers "./data/..." (PAS /docs/data)
   const FILES = {
-    const USAGE_LOGGER_URL = "https://script.google.com/macros/s/AKfycbzTdFi7gEgRVCKjK2UBwFcQIlIzi2jp4eeO2ryR36sSrcy3QtzfEK8k7kNSXSJOGmFAbw/exec";
     warCounters: "./data/war-counters.json",
     warSeasonRules: "./data/war-season-rules.json",
     joueurs: "./data/joueurs.json",
@@ -50,18 +52,19 @@
     if (!el) return;
     while (el.firstChild) el.removeChild(el.firstChild);
   }
-  function trackUsage(payload) {
-  if (!USAGE_LOGGER_URL) return;
 
-  fetch(USAGE_LOGGER_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  }).catch(() => {});
-}
+  function trackUsage(payload) {
+    if (!USAGE_LOGGER_URL) return;
+
+    fetch(USAGE_LOGGER_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }).catch(() => {});
+  }
 
   // ✅ Normalisation renforcée :
   // - trim / lower
@@ -152,6 +155,7 @@
   let ROSTERS = new Map(); // playerKey -> { charKey -> power }
   let PLAYERS_BY_ALLIANCE = new Map(); // alliance -> [{alliance, player}]
   let CHAR_MAP = new Map(); // charKey -> charObj
+  let LAST_TRACKED_KEY = "";
   let WAR_SEASON_RULES = {
     defaultMultiplier: 1.17,
     rules: [],
@@ -652,16 +656,29 @@
       resultsWrap.innerHTML = `<p class="subtitle">Aucun counter renseigné</p>`;
       return;
     }
-    trackUsage({
-  page: "war-counters",
-  event_type: "counter_search",
-  alliance: (allianceSelect?.value ?? "").trim(),
-  player,
-  attack_family: "",
-  attack_team: "",
-  defense_family: def.def_family || "",
-  defense_variant: def.def_variant || ""
-});
+
+    const trackKey = JSON.stringify({
+      page: "war-counters",
+      alliance: (allianceSelect?.value ?? "").trim(),
+      player,
+      defense_family: def.def_family || "",
+      defense_variant: def.def_variant || "",
+    });
+
+    if (trackKey !== LAST_TRACKED_KEY) {
+      LAST_TRACKED_KEY = trackKey;
+
+      trackUsage({
+        page: "war-counters",
+        event_type: "counter_search",
+        alliance: (allianceSelect?.value ?? "").trim(),
+        player,
+        attack_family: "",
+        attack_team: "",
+        defense_family: def.def_family || "",
+        defense_variant: def.def_variant || "",
+      });
+    }
 
     const rows = baseRows.map((r) => {
       const atkList = (r.atk_chars || []).filter((c) => (c || "").trim());
