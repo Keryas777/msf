@@ -121,7 +121,21 @@ body::after{
 @supports not (background-image: url("./x.webp")) {
   body::after{ background-image: url("./eagle-pattern.min.png"); }
 }
+body.page-war-counters::before{
+  background:
+    radial-gradient(1200px 700px at 10% 0%, rgba(255,120,120,.10), transparent 60%),
+    radial-gradient(1200px 700px at 90% 30%, rgba(255,80,80,.08), transparent 60%),
+    radial-gradient(900px 600px at 50% 100%, rgba(255,60,60,.06), transparent 60%),
+    linear-gradient(180deg, #090405, #0b0607 60%, #050607);
+}
 
+body.page-war-attack-checker::before{
+  background:
+    radial-gradient(1200px 700px at 10% 0%, rgba(120,180,255,.10), transparent 60%),
+    radial-gradient(1200px 700px at 90% 30%, rgba(80,140,255,.08), transparent 60%),
+    radial-gradient(900px 600px at 50% 100%, rgba(60,120,255,.06), transparent 60%),
+    linear-gradient(180deg, #04070b, #06090f 60%, #050607);
+}
 /* ===== App layout ===== */
 .app{
   padding: 12px;
