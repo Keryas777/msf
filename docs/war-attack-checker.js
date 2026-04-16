@@ -645,6 +645,16 @@
       resultsWrap.innerHTML = `<p class="subtitle">Aucune défense renseignée pour cette attaque.</p>`;
       return;
     }
+    trackUsage({
+  page: "war-attack-checker",
+  event_type: "attack_checker_search",
+  alliance: (allianceSelect?.value ?? "").trim(),
+  player,
+  attack_family: atk.atk_family || "",
+  attack_team: atk.atk_team || "",
+  defense_family: "",
+  defense_variant: ""
+});
 
     const seenDefs = new Set();
     const rows = [];
