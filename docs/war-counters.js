@@ -652,6 +652,16 @@
       resultsWrap.innerHTML = `<p class="subtitle">Aucun counter renseigné</p>`;
       return;
     }
+    trackUsage({
+  page: "war-counters",
+  event_type: "counter_search",
+  alliance: (allianceSelect?.value ?? "").trim(),
+  player,
+  attack_family: "",
+  attack_team: "",
+  defense_family: def.def_family || "",
+  defense_variant: def.def_variant || ""
+});
 
     const rows = baseRows.map((r) => {
       const atkList = (r.atk_chars || []).filter((c) => (c || "").trim());
