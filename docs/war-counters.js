@@ -50,6 +50,18 @@
     if (!el) return;
     while (el.firstChild) el.removeChild(el.firstChild);
   }
+  function trackUsage(payload) {
+  if (!USAGE_LOGGER_URL) return;
+
+  fetch(USAGE_LOGGER_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  }).catch(() => {});
+}
 
   // ✅ Normalisation renforcée :
   // - trim / lower
