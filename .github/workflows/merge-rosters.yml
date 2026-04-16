@@ -3,7 +3,13 @@ name: Merge rosters.json
 on:
   workflow_dispatch:
 
-  push:
+  workflow_run:
+    workflows:
+      - "Update zeus rosters"
+      - "Update dionysos rosters"
+      - "Update poseidon rosters"
+    types:
+      - completed
 
 permissions:
   contents: write
@@ -14,12 +20,14 @@ concurrency:
 
 jobs:
   merge:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Setup Node
@@ -50,4 +58,4 @@ jobs:
           fi
 
           git commit -m "Merge rosters.json"
-          git push origin HEAD:${GITHUB_REF_NAME}
+          git push origin HEAD:main
