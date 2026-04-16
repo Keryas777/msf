@@ -1,7 +1,9 @@
 // docs/war-attack-checker.js
 (() => {
+  const USAGE_LOGGER_URL =
+    "https://script.google.com/macros/s/AKfycbzTdFi7gEgRVCKjK2UBwFcQIlIzi2jp4eeO2ryR36sSrcy3QtzfEK8k7kNSXSJOGmFAbw/exec";
+
   const FILES = {
-    const USAGE_LOGGER_URL = "https://script.google.com/macros/s/AKfycbzTdFi7gEgRVCKjK2UBwFcQIlIzi2jp4eeO2ryR36sSrcy3QtzfEK8k7kNSXSJOGmFAbw/exec";
     warCounters: "./data/war-counters.json",
     warSeasonRules: "./data/war-season-rules.json",
     joueurs: "./data/joueurs.json",
@@ -48,18 +50,19 @@
     if (!el) return;
     while (el.firstChild) el.removeChild(el.firstChild);
   }
-  function trackUsage(payload) {
-  if (!USAGE_LOGGER_URL) return;
 
-  fetch(USAGE_LOGGER_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  }).catch(() => {});
-}
+  function trackUsage(payload) {
+    if (!USAGE_LOGGER_URL) return;
+
+    fetch(USAGE_LOGGER_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }).catch(() => {});
+  }
 
   const normalizeKey = (s) =>
     (s ?? "")
@@ -99,56 +102,56 @@
   }
 
   function createThresholdLines(row, attackPower) {
-  const hard = safeRatioValue(row?.min_hard);
-  const ok = safeRatioValue(row?.min_ok);
-  const safe = safeRatioValue(row?.min_safe);
+    const hard = safeRatioValue(row?.min_hard);
+    const ok = safeRatioValue(row?.min_ok);
+    const safe = safeRatioValue(row?.min_safe);
 
-  const lines = [];
+    const lines = [];
 
-  if (safe > 0) {
-    const val = computeEnemyPowerFromRatio(attackPower, safe);
-    lines.push({
-      emoji: "🟢",
-      label: "Sûr",
-      value: `Inf. à ${formatApproxPower(val)}`
-    });
+    if (safe > 0) {
+      const val = computeEnemyPowerFromRatio(attackPower, safe);
+      lines.push({
+        emoji: "🟢",
+        label: "Sûr",
+        value: `Inf. à ${formatApproxPower(val)}`,
+      });
+    }
+
+    if (ok > 0) {
+      const val = computeEnemyPowerFromRatio(attackPower, ok);
+      lines.push({
+        emoji: "🟡",
+        label: "Passe",
+        value: `Jusqu'à ${formatApproxPower(val)}`,
+      });
+    }
+
+    if (hard > 0) {
+      const val = computeEnemyPowerFromRatio(attackPower, hard);
+      lines.push({
+        emoji: "🟠",
+        label: "Risqué",
+        value: `Jusqu'à ${formatApproxPower(val)}`,
+      });
+    }
+
+    if (hard > 0) {
+      const val = computeEnemyPowerFromRatio(attackPower, hard) + 1;
+      lines.push({
+        emoji: "🔴",
+        label: "Éviter",
+        value: `Sup. à ${formatApproxPower(val)}`,
+      });
+    } else {
+      lines.push({
+        emoji: "🔴",
+        label: "Éviter",
+        value: "",
+      });
+    }
+
+    return lines;
   }
-
-  if (ok > 0) {
-    const val = computeEnemyPowerFromRatio(attackPower, ok);
-    lines.push({
-      emoji: "🟡",
-      label: "Passe",
-      value: `Jusqu'à ${formatApproxPower(val)}`
-    });
-  }
-
-  if (hard > 0) {
-    const val = computeEnemyPowerFromRatio(attackPower, hard);
-    lines.push({
-      emoji: "🟠",
-      label: "Risqué",
-      value: `Jusqu'à ${formatApproxPower(val)}`
-    });
-  }
-
-  if (hard > 0) {
-    const val = computeEnemyPowerFromRatio(attackPower, hard) + 1;
-    lines.push({
-      emoji: "🔴",
-      label: "Éviter",
-      value: `Sup. à ${formatApproxPower(val)}`
-    });
-  } else {
-    lines.push({
-      emoji: "🔴",
-      label: "Éviter",
-      value: ""
-    });
-  }
-
-  return lines;
-}
 
   // ---------- DATA ----------
   let WAR = [];
@@ -156,6 +159,7 @@
   let ROSTERS = new Map();
   let PLAYERS_BY_ALLIANCE = new Map();
   let CHAR_MAP = new Map();
+  let LAST_TRACKED_KEY = "";
   let WAR_SEASON_RULES = {
     defaultMultiplier: 1.17,
     rules: [],
@@ -645,16 +649,29 @@
       resultsWrap.innerHTML = `<p class="subtitle">Aucune défense renseignée pour cette attaque.</p>`;
       return;
     }
-    trackUsage({
-  page: "war-attack-checker",
-  event_type: "attack_checker_search",
-  alliance: (allianceSelect?.value ?? "").trim(),
-  player,
-  attack_family: atk.atk_family || "",
-  attack_team: atk.atk_team || "",
-  defense_family: "",
-  defense_variant: ""
-});
+
+    const trackKey = JSON.stringify({
+      page: "war-attack-checker",
+      alliance: (allianceSelect?.value ?? "").trim(),
+      player,
+      attack_family: atk.atk_family || "",
+      attack_team: atk.atk_team || "",
+    });
+
+    if (trackKey !== LAST_TRACKED_KEY) {
+      LAST_TRACKED_KEY = trackKey;
+
+      trackUsage({
+        page: "war-attack-checker",
+        event_type: "attack_checker_search",
+        alliance: (allianceSelect?.value ?? "").trim(),
+        player,
+        attack_family: atk.atk_family || "",
+        attack_team: atk.atk_team || "",
+        defense_family: "",
+        defense_variant: "",
+      });
+    }
 
     const seenDefs = new Set();
     const rows = [];
@@ -684,16 +701,14 @@
         attackPower,
         ratio,
         cls,
-        sortRatio: targetRatio,
       });
     });
 
     rows.sort((a, b) => {
-  const na = (a.r.def_variant || a.r.def_family || "").toString();
-  const nb = (b.r.def_variant || b.r.def_family || "").toString();
-
-  return na.localeCompare(nb, "fr", { sensitivity: "base" });
-});
+      const na = (a.r.def_variant || a.r.def_family || "").toString();
+      const nb = (b.r.def_variant || b.r.def_family || "").toString();
+      return na.localeCompare(nb, "fr", { sensitivity: "base" });
+    });
 
     if (resultsCount) resultsCount.textContent = String(rows.length);
 
