@@ -105,6 +105,22 @@ body::before{
     linear-gradient(180deg, #060708, #090a0c 60%, #050607);
 }
 
+body.page-war-counters::before{
+  background:
+    radial-gradient(1200px 700px at 10% 0%, rgba(255,120,120,.16), transparent 60%),
+    radial-gradient(1200px 700px at 90% 30%, rgba(255,80,80,.12), transparent 60%),
+    radial-gradient(900px 600px at 50% 100%, rgba(255,60,60,.08), transparent 60%),
+    linear-gradient(180deg, #140405, #0b0607 60%, #050607);
+}
+
+body.page-war-attack-checker::before{
+  background:
+    radial-gradient(1200px 700px at 10% 0%, rgba(120,180,255,.16), transparent 60%),
+    radial-gradient(1200px 700px at 90% 30%, rgba(80,140,255,.12), transparent 60%),
+    radial-gradient(900px 600px at 50% 100%, rgba(60,120,255,.08), transparent 60%),
+    linear-gradient(180deg, #040a14, #06090f 60%, #050607);
+}
+
 body::after{
   content:"";
   position:fixed;
