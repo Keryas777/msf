@@ -3,6 +3,7 @@
   // ✅ IMPORTANT: le site est servi depuis /docs en GitHub Pages
   // Donc ici on pointe vers "./data/..." (PAS /docs/data)
   const FILES = {
+    const USAGE_LOGGER_URL = "https://script.google.com/macros/s/AKfycbzTdFi7gEgRVCKjK2UBwFcQIlIzi2jp4eeO2ryR36sSrcy3QtzfEK8k7kNSXSJOGmFAbw/exec";
     warCounters: "./data/war-counters.json",
     warSeasonRules: "./data/war-season-rules.json",
     joueurs: "./data/joueurs.json",
