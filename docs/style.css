@@ -107,10 +107,10 @@ body::before{
 
 body.page-war-counters::before{
   background:
-    radial-gradient(1200px 700px at 10% 0%, rgba(255,120,120,.16), transparent 60%),
-    radial-gradient(1200px 700px at 90% 30%, rgba(255,80,80,.12), transparent 60%),
-    radial-gradient(900px 600px at 50% 100%, rgba(255,60,60,.08), transparent 60%),
-    linear-gradient(180deg, #140405, #0b0607 60%, #050607);
+    radial-gradient(1200px 700px at 10% 0%, rgba(255,60,60,.28), transparent 60%),
+    radial-gradient(1200px 700px at 90% 30%, rgba(255,30,30,.22), transparent 60%),
+    radial-gradient(900px 600px at 50% 100%, rgba(255,0,0,.16), transparent 60%),
+    linear-gradient(180deg, #1a0404, #0b0607 60%, #050607);
 }
 
 body.page-war-attack-checker::before{
