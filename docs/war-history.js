@@ -25,15 +25,18 @@ async function init() {
   } catch (error) {
     console.error(error);
     metaEl.textContent = "Impossible de charger l'index des guerres.";
-    rowsContainer.innerHTML = "";
+    rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
+    sortInfoEl.textContent = "";
   }
 }
 
 async function loadIndex() {
   const res = await fetch("./data/war/index.json?v=" + Date.now());
+
   if (!res.ok) {
     throw new Error("Impossible de charger data/war/index.json");
   }
+
   return res.json();
 }
 
@@ -88,6 +91,7 @@ function populateYears() {
 function populateMonths() {
   const alliance = allianceSelect.value;
   const year = yearSelect.value;
+
   const dates = getDatesForAlliance(alliance).filter((d) => d.year === year);
   const months = [...new Set(dates.map((d) => d.month))].sort(descNumberSort);
 
@@ -136,7 +140,7 @@ async function loadSelectedWar() {
 
   if (!alliance || !year || !month || !day) {
     metaEl.textContent = "Aucune donnée disponible.";
-    rowsContainer.innerHTML = "";
+    rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
     sortInfoEl.textContent = "";
     return;
   }
@@ -146,6 +150,7 @@ async function loadSelectedWar() {
 
   try {
     const res = await fetch(path);
+
     if (!res.ok) {
       throw new Error("Fichier non trouvé");
     }
@@ -274,6 +279,7 @@ function getBaseSortLabel(key) {
     defense_wins: "Victoires défense",
     defense_bonus: "Bonus défense"
   };
+
   return labels[key] || key;
 }
 
