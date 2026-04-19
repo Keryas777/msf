@@ -21,7 +21,7 @@ async function init() {
     setMeta("Chargement de l'index...");
     warIndex = await loadIndex();
 
-    setMeta("Index chargé.");
+    setMeta("Choisis une alliance, une année, un mois et un jour.");
     setupAllianceSelect();
     bindSortButtons();
     hydrateFiltersFromIndex();
@@ -47,60 +47,81 @@ async function loadIndex() {
 function setupAllianceSelect() {
   const alliances = Array.isArray(warIndex?.alliances) ? warIndex.alliances : [];
 
-  allianceSelect.innerHTML = alliances.map((alliance) => {
-    return `<option value="${escapeHtml(alliance)}">${capitalize(alliance)}</option>`;
-  }).join("");
+  allianceSelect.innerHTML =
+    `<option value="">Alliance</option>` +
+    alliances.map((alliance) => {
+      return `<option value="${escapeHtml(alliance)}">${capitalize(alliance)}</option>`;
+    }).join("");
 
   allianceSelect.addEventListener("change", () => {
+    resetRowsAndSort();
     populateYears();
-    populateMonths();
-    populateDays();
-    loadSelectedWar();
+    clearMonthSelect();
+    clearDaySelect();
+    updateSelectStates();
   });
 }
 
 function hydrateFiltersFromIndex() {
-  populateYears();
-  populateMonths();
-  populateDays();
+  clearYearSelect();
+  clearMonthSelect();
+  clearDaySelect();
+  updateSelectStates();
 
   yearSelect.addEventListener("change", () => {
+    resetRowsAndSort();
     populateMonths();
-    populateDays();
-    loadSelectedWar();
+    clearDaySelect();
+    updateSelectStates();
   });
 
   monthSelect.addEventListener("change", () => {
+    resetRowsAndSort();
     populateDays();
-    loadSelectedWar();
+    updateSelectStates();
   });
 
   daySelect.addEventListener("change", () => {
+    updateSelectStates();
     loadSelectedWar();
   });
-
-  loadSelectedWar();
 }
 
 function populateYears() {
   const alliance = allianceSelect.value;
+
+  if (!alliance) {
+    clearYearSelect();
+    return;
+  }
+
   const dates = getDatesForAlliance(alliance);
   const years = [...new Set(dates.map((d) => d.year))].sort(descNumberSort);
 
-  yearSelect.innerHTML = years.map((year) => {
-    return `<option value="${year}">${year}</option>`;
-  }).join("");
+  yearSelect.innerHTML =
+    `<option value="">Année</option>` +
+    years.map((year) => `<option value="${year}">${year}</option>`).join("");
+
+  yearSelect.value = "";
 }
 
 function populateMonths() {
   const alliance = allianceSelect.value;
   const year = yearSelect.value;
+
+  if (!alliance || !year) {
+    clearMonthSelect();
+    return;
+  }
+
   const dates = getDatesForAlliance(alliance).filter((d) => d.year === year);
   const months = [...new Set(dates.map((d) => d.month))].sort(descNumberSort);
 
-  monthSelect.innerHTML = months.map((month) => {
-    return `<option value="${month}">${month}</option>`;
-  }).join("");
+  monthSelect.innerHTML =
+    `<option value="">Mois</option>` +
+    months.map((month) => `<option value="${month}">${month}</option>`).join("");
+
+  monthSelect.value = "";
 }
 
 function populateDays() {
@@ -108,15 +129,22 @@ function populateDays() {
   const year = yearSelect.value;
   const month = monthSelect.value;
 
+  if (!alliance || !year || !month) {
+    clearDaySelect();
+    return;
+  }
+
   const dates = getDatesForAlliance(alliance).filter((d) => {
     return d.year === year && d.month === month;
   });
 
   const days = [...new Set(dates.map((d) => d.day))].sort(descNumberSort);
 
-  daySelect.innerHTML = days.map((day) => {
-    return `<option value="${day}">${day}</option>`;
-  }).join("");
+  daySelect.innerHTML =
+    `<option value="">Jour</option>` +
+    days.map((day) => `<option value="${day}">${day}</option>`).join("");
+
+  daySelect.value = "";
 }
 
 function getDatesForAlliance(alliance) {
@@ -142,7 +170,7 @@ async function loadSelectedWar() {
   const day = daySelect.value;
 
   if (!alliance || !year || !month || !day) {
-    setMeta("Aucune donnée disponible.");
+    setMeta("Choisis une alliance, une année, un mois et un jour.");
     rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
     if (sortInfoEl) sortInfoEl.textContent = "";
     return;
@@ -152,9 +180,9 @@ async function loadSelectedWar() {
   const path = `./data/war/${date}/${alliance}.json?v=${Date.now()}`;
 
   try {
-    setMeta(`Chargement de ${path}`);
-    const res = await fetch(path);
+    setMeta(`Chargement de ${capitalize(alliance)} • ${formatFrenchDate(date)}...`);
 
+    const res = await fetch(path);
     if (!res.ok) {
       throw new Error("Fichier non trouvé (" + res.status + ")");
     }
@@ -210,7 +238,7 @@ function bindSortButtons() {
   sortButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
       const key = btn.dataset.sort;
-      if (!key) return;
+      if (!key || !originalPlayers.length) return;
 
       if (key === "rank") {
         if (currentSortKey === "rank") {
@@ -333,4 +361,32 @@ function escapeHtml(value) {
 
 function setMeta(text) {
   if (metaEl) metaEl.textContent = text;
+}
+
+function clearYearSelect() {
+  yearSelect.innerHTML = `<option value="">Année</option>`;
+  yearSelect.value = "";
+}
+
+function clearMonthSelect() {
+  monthSelect.innerHTML = `<option value="">Mois</option>`;
+  monthSelect.value = "";
+}
+
+function clearDaySelect() {
+  daySelect.innerHTML = `<option value="">Jour</option>`;
+  daySelect.value = "";
+}
+
+function updateSelectStates() {
+  yearSelect.disabled = !allianceSelect.value;
+  monthSelect.disabled = !allianceSelect.value || !yearSelect.value;
+  daySelect.disabled = !allianceSelect.value || !yearSelect.value || !monthSelect.value;
+}
+
+function resetRowsAndSort() {
+  originalPlayers = [];
+  currentPlayers = [];
+  rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
+  if (sortInfoEl) sortInfoEl.textContent = "";
 }
