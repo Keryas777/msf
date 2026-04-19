@@ -751,9 +751,16 @@ body:has(#atkFamilySelect) .counterCard{
 }
 
 /* ===== WAR HISTORY ===== */
-body.page-war-history::before{
-  z-index: -2;
+body.page-war-history{
+  background-image: none;
 }
+
+body.page-war-history::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
   background:
     radial-gradient(1200px 700px at 50% 35%, rgba(90,120,255,.20), transparent 60%),
     radial-gradient(900px 600px at 50% 100%, rgba(70,100,255,.12), transparent 60%),
@@ -767,8 +774,7 @@ body.page-war-history::after{
   z-index:-1;
   pointer-events:none;
   opacity:.42;
-  body.page-war-history {
-  background-image: none;
+  background-image: url("./B8BAC9A5-A4C3-4466-8053-15935E15A00E.jpeg");
   background-repeat:no-repeat;
   background-size:cover;
   background-position:center;
