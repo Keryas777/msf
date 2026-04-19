@@ -18,23 +18,27 @@ init();
 
 async function init() {
   try {
+    setMeta("Chargement de l'index...");
     warIndex = await loadIndex();
+
+    setMeta("Index chargé.");
     setupAllianceSelect();
     bindSortButtons();
     hydrateFiltersFromIndex();
   } catch (error) {
     console.error(error);
-    metaEl.textContent = "Impossible de charger l'index des guerres.";
-    rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
-    sortInfoEl.textContent = "";
+    setMeta("Impossible de charger l'index des guerres.");
+    rowsContainer.innerHTML = `<div class="warHistoryEmpty">Erreur index</div>`;
+    if (sortInfoEl) sortInfoEl.textContent = "";
   }
 }
 
 async function loadIndex() {
-  const res = await fetch("./data/war/index.json?v=" + Date.now());
+  const url = "./data/war/index.json?v=" + Date.now();
+  const res = await fetch(url);
 
   if (!res.ok) {
-    throw new Error("Impossible de charger data/war/index.json");
+    throw new Error("Impossible de charger " + url + " (" + res.status + ")");
   }
 
   return res.json();
@@ -91,7 +95,6 @@ function populateYears() {
 function populateMonths() {
   const alliance = allianceSelect.value;
   const year = yearSelect.value;
-
   const dates = getDatesForAlliance(alliance).filter((d) => d.year === year);
   const months = [...new Set(dates.map((d) => d.month))].sort(descNumberSort);
 
@@ -139,9 +142,9 @@ async function loadSelectedWar() {
   const day = daySelect.value;
 
   if (!alliance || !year || !month || !day) {
-    metaEl.textContent = "Aucune donnée disponible.";
+    setMeta("Aucune donnée disponible.");
     rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
-    sortInfoEl.textContent = "";
+    if (sortInfoEl) sortInfoEl.textContent = "";
     return;
   }
 
@@ -149,10 +152,11 @@ async function loadSelectedWar() {
   const path = `./data/war/${date}/${alliance}.json?v=${Date.now()}`;
 
   try {
+    setMeta(`Chargement de ${path}`);
     const res = await fetch(path);
 
     if (!res.ok) {
-      throw new Error("Fichier non trouvé");
+      throw new Error("Fichier non trouvé (" + res.status + ")");
     }
 
     const data = await res.json();
@@ -164,15 +168,15 @@ async function loadSelectedWar() {
     currentSortDir = "asc";
     syncSortButtons();
 
-    metaEl.textContent = `${capitalize(alliance)} • ${formatFrenchDate(date)} • ${originalPlayers.length} joueurs`;
-    sortInfoEl.textContent = "Ordre initial";
+    setMeta(`${capitalize(alliance)} • ${formatFrenchDate(date)} • ${originalPlayers.length} joueurs`);
+    if (sortInfoEl) sortInfoEl.textContent = "Ordre initial";
 
     renderRows();
   } catch (error) {
     console.error(error);
-    metaEl.textContent = `Impossible de charger ${alliance} pour le ${formatFrenchDate(date)}.`;
+    setMeta(`Impossible de charger ${alliance} pour le ${formatFrenchDate(date)} : ${error.message}`);
     rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
-    sortInfoEl.textContent = "";
+    if (sortInfoEl) sortInfoEl.textContent = "";
   }
 }
 
@@ -254,7 +258,9 @@ function applySort() {
     defense_bonus: "bonus de défense"
   };
 
-  sortInfoEl.textContent = `Tri : ${labelMap[currentSortKey]} (${directionLabel})`;
+  if (sortInfoEl) {
+    sortInfoEl.textContent = `Tri : ${labelMap[currentSortKey]} (${directionLabel})`;
+  }
 }
 
 function syncSortButtons() {
@@ -323,4 +329,8 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function setMeta(text) {
+  if (metaEl) metaEl.textContent = text;
 }
