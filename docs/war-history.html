@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LoSP – Historique des Guerres</title>
+
+  <link rel="stylesheet" href="./style.css?v=4" />
+</head>
+
+<body>
+  <div class="app">
+
+    <header class="header">
+      <div class="headerLeft">
+
+        <!-- Bouton retour -->
+        <a href="./home.html" class="backBtn" aria-label="Retour">⬅️</a>
+
+        <h1 class="title">Historique des Guerres</h1>
+        <p class="subtitle">
+          Consulte les performances et résultats des guerres passées
+        </p>
+
+      </div>
+
+      <!-- Bouton home -->
+      <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
+    </header>
+
+    <!-- CONTENU -->
+    <div class="card">
+      <div class="cardHeader">
+        <h2 class="cardTitle">Dernières guerres</h2>
+      </div>
+
+      <div id="warHistoryList" class="rankList">
+        <!-- JS injectera ici -->
+      </div>
+    </div>
+
+  </div>
+
+  <script src="./js/war-history.js"></script>
+</body>
+</html>
