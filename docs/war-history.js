@@ -30,15 +30,15 @@ async function init() {
 }
 
 async function loadIndex() {
-  const res = await fetch("./docs/data/war/index.json?v=" + Date.now());
+  const res = await fetch("./data/war/index.json?v=" + Date.now());
   if (!res.ok) {
-    throw new Error("Impossible de charger docs/data/war/index.json");
+    throw new Error("Impossible de charger data/war/index.json");
   }
   return res.json();
 }
 
 function setupAllianceSelect() {
-  const alliances = warIndex.alliances || [];
+  const alliances = Array.isArray(warIndex?.alliances) ? warIndex.alliances : [];
 
   allianceSelect.innerHTML = alliances.map((alliance) => {
     return `<option value="${escapeHtml(alliance)}">${capitalize(alliance)}</option>`;
@@ -113,7 +113,7 @@ function populateDays() {
 }
 
 function getDatesForAlliance(alliance) {
-  const dates = warIndex.dates || [];
+  const dates = Array.isArray(warIndex?.dates) ? warIndex.dates : [];
 
   return dates
     .filter((entry) => Array.isArray(entry.alliances) && entry.alliances.includes(alliance))
@@ -137,11 +137,12 @@ async function loadSelectedWar() {
   if (!alliance || !year || !month || !day) {
     metaEl.textContent = "Aucune donnée disponible.";
     rowsContainer.innerHTML = "";
+    sortInfoEl.textContent = "";
     return;
   }
 
   const date = `${year}-${month}-${day}`;
-  const path = `./docs/data/war/${date}/${alliance}.json?v=${Date.now()}`;
+  const path = `./data/war/${date}/${alliance}.json?v=${Date.now()}`;
 
   try {
     const res = await fetch(path);
@@ -150,6 +151,7 @@ async function loadSelectedWar() {
     }
 
     const data = await res.json();
+
     originalPlayers = Array.isArray(data.players) ? data.players.slice() : [];
     currentPlayers = originalPlayers.slice();
 
@@ -164,7 +166,8 @@ async function loadSelectedWar() {
   } catch (error) {
     console.error(error);
     metaEl.textContent = `Impossible de charger ${alliance} pour le ${formatFrenchDate(date)}.`;
-    rowsContainer.innerHTML = "";
+    rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
+    sortInfoEl.textContent = "";
   }
 }
 
