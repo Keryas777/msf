@@ -750,6 +750,170 @@ body:has(#atkFamilySelect) .counterCard{
   padding-left: 12px;
 }
 
+/* ===== WAR HISTORY ===== */
+body.page-war-history::before{
+  background:
+    radial-gradient(1200px 700px at 50% 35%, rgba(90,120,255,.20), transparent 60%),
+    radial-gradient(900px 600px at 50% 100%, rgba(70,100,255,.12), transparent 60%),
+    linear-gradient(180deg, #05081a, #050814 60%, #04060d);
+}
+
+body.page-war-history::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.42;
+  background-image: url("./B8BAC9A5-A4C3-4466-8053-15935E15A00E.jpeg");
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position:center;
+}
+
+.warHistoryFilters{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: 10px;
+}
+
+.warHistoryField{
+  min-width: 0;
+}
+
+.warHistorySorts{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 8px;
+}
+
+.sortBtn{
+  appearance:none;
+  -webkit-appearance:none;
+  border:1px solid var(--border);
+  background: rgba(0,0,0,.28);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor:pointer;
+}
+
+.sortBtn.is-active{
+  background: rgba(90,120,255,.22);
+  border-color: rgba(120,150,255,.38);
+  box-shadow: inset 0 0 16px rgba(120,150,255,.14);
+}
+
+.warHistoryMeta{
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.warHistoryTableWrap{
+  overflow-x: auto;
+}
+
+.warHistoryTable{
+  min-width: 980px;
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+}
+
+.warHistoryRow{
+  display:grid;
+  grid-template-columns: 64px minmax(220px, 1.6fr) 140px 120px 170px 140px 130px;
+  align-items:stretch;
+  border:1px solid rgba(120,170,255,.22);
+  border-radius: 14px;
+  overflow:hidden;
+  background: rgba(6,10,26,.50);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+}
+
+.warHistoryHead{
+  background: rgba(70,110,255,.18);
+  border-color: rgba(120,170,255,.30);
+}
+
+.warHistoryDataRow{
+  transition: transform .12s ease, background .12s ease;
+}
+
+.warHistoryDataRow.is-pressed{
+  transform: scale(.997);
+}
+
+.warHistoryCell{
+  padding: 12px 10px;
+  display:flex;
+  align-items:center;
+  min-width: 0;
+  border-right: 1px solid rgba(120,170,255,.16);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.warHistoryCell:last-child{
+  border-right: 0;
+}
+
+.col-rank{
+  justify-content:center;
+  font-size: 22px;
+  font-weight: 1000;
+}
+
+.col-player{
+  justify-content:flex-start;
+}
+
+.col-ap,
+.col-attacks,
+.col-damage,
+.col-defensewins,
+.col-defensebonus{
+  justify-content:center;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.warHistoryPlayerBlock{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  gap:4px;
+}
+
+.warHistoryPlayerName{
+  font-size: 18px;
+  font-weight: 1000;
+  line-height: 1.05;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.warHistoryPlayerAlliance{
+  font-size: 13px;
+  color: rgba(255,255,255,.70);
+  line-height: 1;
+}
+
+.warHistoryEmpty{
+  color: var(--muted);
+  padding: 12px 0;
+}
+
+@media (max-width: 760px){
+  .warHistoryFilters{
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+}
+
 body:has(#atkFamilySelect) .counterCard::after{
   content: none;
   display: none;
