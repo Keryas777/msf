@@ -19,47 +19,37 @@
   --bar-yellow: #ffd24a;
   --bar-green: #2ecc71;
 
-  /* ===== Counters: couleurs ===== */
   --c-green: 46,204,113;
   --c-yellow: 255,210,74;
   --c-orange: 255,159,26;
   --c-red: 255,77,77;
 
-  /* Halo interne blanc partout */
   --halo-green: rgba(255,255,255,.34);
   --halo-yellow: rgba(255,255,255,.34);
   --halo-orange: rgba(255,255,255,.34);
   --halo-red: rgba(255,255,255,.34);
 
-  /* Fond teinté (léger) */
   --tint-green: rgba(var(--c-green), .16);
   --tint-yellow: rgba(var(--c-yellow), .16);
   --tint-orange: rgba(var(--c-orange), .16);
   --tint-red: rgba(var(--c-red), .16);
 
-  /* Bandeau plein */
   --band-green: rgba(var(--c-green), .98);
   --band-yellow: rgba(var(--c-yellow), .98);
   --band-orange: rgba(var(--c-orange), .98);
   --band-red: rgba(var(--c-red), .98);
 
-  /* largeur bandeau */
   --band-w: 18px;
-
-  /* marge interne entre bandeau et contenu */
   --band-gap: 10px;
 
-  /* portraits counters */
   --cp-gap: 10px;
   --cp-min: 44px;
   --cp-max: 58px;
 
-  /* portraits défense */
   --dp-gap: var(--cp-gap);
   --dp-min: var(--cp-min);
   --dp-max: var(--cp-max);
 
-  /* Home tiles glow */
   --tile-glow-red: rgba(255, 77, 77, .55);
   --tile-glow-blue: rgba(92, 182, 255, .55);
   --tile-glow-purple: rgba(180, 110, 255, .55);
@@ -790,31 +780,6 @@ body.page-war-history::after{
   min-width: 0;
 }
 
-.warHistorySorts{
-  display:flex;
-  flex-wrap:wrap;
-  gap: 8px;
-}
-
-.sortBtn{
-  appearance:none;
-  -webkit-appearance:none;
-  border:1px solid var(--border);
-  background: rgba(0,0,0,.28);
-  color: var(--text);
-  border-radius: 999px;
-  padding: 10px 12px;
-  font-size: 14px;
-  font-weight: 800;
-  cursor:pointer;
-}
-
-.sortBtn.is-active{
-  background: rgba(90,120,255,.22);
-  border-color: rgba(120,150,255,.38);
-  box-shadow: inset 0 0 16px rgba(120,150,255,.14);
-}
-
 .warHistoryMeta{
   color: var(--muted);
   font-size: 14px;
@@ -823,21 +788,22 @@ body.page-war-history::after{
 
 .warHistoryTableWrap{
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .warHistoryTable{
-  min-width: 980px;
+  min-width: 760px;
   display:flex;
   flex-direction:column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .warHistoryRow{
   display:grid;
-  grid-template-columns: 64px minmax(220px, 1.6fr) 140px 120px 170px 140px 130px;
+  grid-template-columns: 56px 210px 72px 64px 110px 78px 78px;
   align-items:stretch;
   border:1px solid rgba(120,170,255,.22);
-  border-radius: 14px;
+  border-radius: 12px;
   overflow:hidden;
   background: rgba(6,10,26,.50);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
@@ -849,30 +815,51 @@ body.page-war-history::after{
 }
 
 .warHistoryDataRow{
-  transition: transform .12s ease, background .12s ease;
+  transition: background .12s ease;
 }
 
-.warHistoryDataRow.is-pressed{
-  transform: scale(.997);
+.warHistoryDataRow:hover{
+  background: rgba(255,255,255,.025);
 }
 
 .warHistoryCell{
-  padding: 12px 10px;
+  padding: 10px 8px;
   display:flex;
   align-items:center;
   min-width: 0;
   border-right: 1px solid rgba(120,170,255,.16);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
+  background: rgba(6,10,26,.50);
+}
+
+.warHistoryHead .warHistoryCell{
+  background: rgba(70,110,255,.18);
 }
 
 .warHistoryCell:last-child{
   border-right: 0;
 }
 
+.warHistoryHeadBtn{
+  appearance:none;
+  -webkit-appearance:none;
+  border:0;
+  outline:none;
+  color: var(--text);
+  cursor:pointer;
+  justify-content:center;
+  text-align:center;
+  font-weight: 900;
+}
+
+.warHistoryHeadBtn:active{
+  transform: scale(.99);
+}
+
 .col-rank{
   justify-content:center;
-  font-size: 22px;
+  font-size: 17px;
   font-weight: 1000;
 }
 
@@ -894,20 +881,20 @@ body.page-war-history::after{
   display:flex;
   flex-direction:column;
   min-width:0;
-  gap:4px;
+  gap:3px;
 }
 
 .warHistoryPlayerName{
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 1000;
-  line-height: 1.05;
+  line-height: 1.02;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .warHistoryPlayerAlliance{
-  font-size: 13px;
+  font-size: 12px;
   color: rgba(255,255,255,.70);
   line-height: 1;
 }
@@ -917,9 +904,57 @@ body.page-war-history::after{
   padding: 12px 0;
 }
 
+.is-sticky-1,
+.is-sticky-2{
+  position: sticky;
+  z-index: 3;
+}
+
+.is-sticky-1{
+  left: 0;
+}
+
+.is-sticky-2{
+  left: 56px;
+}
+
+.warHistoryDataRow .is-sticky-1,
+.warHistoryDataRow .is-sticky-2{
+  background: rgba(6,10,26,.96);
+}
+
+.warHistoryHead .is-sticky-1,
+.warHistoryHead .is-sticky-2{
+  background: rgba(70,110,255,.96);
+}
+
+.warHistorySorted::after{
+  content: " ↑";
+}
+
+.warHistorySorted.is-desc::after{
+  content: " ↓";
+}
+
 @media (max-width: 760px){
   .warHistoryFilters{
     grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+
+  .warHistoryTable{
+    min-width: 720px;
+  }
+
+  .warHistoryRow{
+    grid-template-columns: 52px 190px 68px 60px 100px 74px 74px;
+  }
+
+  .is-sticky-2{
+    left: 52px;
+  }
+
+  .warHistoryPlayerName{
+    font-size: 15px;
   }
 }
 
