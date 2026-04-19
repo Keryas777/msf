@@ -7,16 +7,14 @@
 
   <title>Historique des Guerres</title>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="./style.css?v=5" />
+  <link rel="stylesheet" href="./style.css?v=6" />
 
-  <!-- PWA -->
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="apple-touch-icon" href="./icon-512.PNG" />
   <meta name="apple-mobile-web-app-title" content="LoSP" />
 </head>
 
-<body>
+<body class="page-war-history">
   <div class="app">
 
     <!-- HEADER -->
@@ -33,64 +31,92 @@
       <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
     </header>
 
-    <!-- CONTENU -->
-    <div class="card">
+    <!-- FILTRES -->
+    <section class="card warHistoryFiltersCard" aria-label="Filtres historique">
       <div class="cardHeader">
-        <h2 class="cardTitle">Dernières guerres</h2>
+        <h2 class="cardTitle">Filtres</h2>
       </div>
 
-      <div id="warHistoryList" class="rankList"></div>
-    </div>
+      <div class="warHistoryControls">
+        <div class="warHistoryField">
+          <label class="label" for="allianceSelect">Alliance</label>
+          <select id="allianceSelect" class="select">
+            <option value="zeus">Zeus</option>
+            <option value="dionysos">Dionysos</option>
+            <option value="poseidon">Poséidon</option>
+          </select>
+        </div>
+
+        <div class="warHistoryField">
+          <label class="label" for="yearSelect">Année</label>
+          <select id="yearSelect" class="select"></select>
+        </div>
+
+        <div class="warHistoryField">
+          <label class="label" for="monthSelect">Mois</label>
+          <select id="monthSelect" class="select"></select>
+        </div>
+
+        <div class="warHistoryField">
+          <label class="label" for="daySelect">Jour</label>
+          <select id="daySelect" class="select"></select>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRI -->
+    <section class="card warHistorySortCard" aria-label="Tri du tableau">
+      <div class="cardHeader">
+        <h2 class="cardTitle">Tri</h2>
+      </div>
+
+      <div class="warHistorySortButtons">
+        <button type="button" class="sortBtn" data-sort-key="default">Classement d'origine</button>
+        <button type="button" class="sortBtn" data-sort-key="attack_points">Points d'attaque</button>
+        <button type="button" class="sortBtn" data-sort-key="attacks">Attaques</button>
+        <button type="button" class="sortBtn" data-sort-key="damage">Dégâts</button>
+        <button type="button" class="sortBtn" data-sort-key="defense_wins">Victoires défense</button>
+        <button type="button" class="sortBtn" data-sort-key="defense_bonus">Bonus défense</button>
+      </div>
+
+      <p id="sortStateLabel" class="warHistorySortState">Ordre d'origine</p>
+    </section>
+
+    <!-- TABLEAU -->
+    <section class="card warHistoryTableCard" aria-label="Tableau historique">
+      <div class="cardHeader">
+        <h2 class="cardTitle">Résultats</h2>
+      </div>
+
+      <div id="warHistoryMeta" class="warHistoryMeta"></div>
+
+      <div class="warHistoryTableWrap">
+        <div class="warHistoryTable" role="table" aria-label="Historique de guerre">
+          <div class="warHistoryHead" role="rowgroup">
+            <div class="warHistoryRow warHistoryRow--head" role="row">
+              <div class="warHistoryCell warHistoryCell--rank" role="columnheader">#</div>
+              <div class="warHistoryCell warHistoryCell--name" role="columnheader">Joueur</div>
+              <div class="warHistoryCell warHistoryCell--num" role="columnheader">Points d'attaque</div>
+              <div class="warHistoryCell warHistoryCell--num" role="columnheader">Attaques</div>
+              <div class="warHistoryCell warHistoryCell--num" role="columnheader">Dégâts</div>
+              <div class="warHistoryCell warHistoryCell--num" role="columnheader">Victoires défense</div>
+              <div class="warHistoryCell warHistoryCell--num" role="columnheader">Bonus défense</div>
+            </div>
+          </div>
+
+          <div id="warHistoryBody" class="warHistoryBody" role="rowgroup"></div>
+        </div>
+      </div>
+
+      <div id="warHistoryEmpty" class="warHistoryEmpty" hidden>
+        Aucune donnée trouvée pour cette sélection.
+      </div>
+    </section>
 
   </div>
 
-  <!-- JS INLINE -->
-  <script>
-    const container = document.getElementById("warHistoryList");
+  <script src="./war-history.js?v=6"></script>
 
-    // ⚡ TEMP DATA (à remplacer par ton JSON plus tard)
-    const wars = [
-      { date: "2026-04-18", result: "Victoire", opponent: "Alliance X" },
-      { date: "2026-04-17", result: "Défaite", opponent: "Alliance Y" },
-      { date: "2026-04-16", result: "Victoire", opponent: "Alliance Z" },
-    ];
-
-    container.innerHTML = wars.map(w => `
-      <div class="rankRow">
-        <div class="rankLeft">
-          <div class="rankName">${w.opponent}</div>
-        </div>
-        <div class="rankBars">
-          ${w.result === "Victoire" ? "🟢" : "🔴"}
-        </div>
-        <div class="rankPower">${w.date}</div>
-      </div>
-    `).join("");
-  </script>
-
-  <!-- TAP FEEDBACK (comme tes autres pages) -->
-  <script>
-    (function () {
-      const rows = document.querySelectorAll(".rankRow");
-
-      rows.forEach((r) => {
-        const press = () => {
-          r.classList.add("is-pressed");
-          clearTimeout(r.__pressTimer);
-          r.__pressTimer = setTimeout(() => r.classList.remove("is-pressed"), 220);
-        };
-
-        const release = () => r.classList.remove("is-pressed");
-
-        r.addEventListener("pointerdown", press, { passive: true });
-        r.addEventListener("pointerup", release, { passive: true });
-        r.addEventListener("pointercancel", release, { passive: true });
-        r.addEventListener("mouseleave", release, { passive: true });
-      });
-    })();
-  </script>
-
-  <!-- SERVICE WORKER -->
   <script>
     (function () {
       if (!("serviceWorker" in navigator)) return;
@@ -113,6 +139,5 @@
       });
     })();
   </script>
-
 </body>
 </html>
