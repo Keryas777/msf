@@ -12,7 +12,7 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="./style.css?v=5" />
-    <link rel="stylesheet" href="./classements.css?v=5" />
+    <link rel="stylesheet" href="./war-stats.css?v=2" />
 
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icon-512.PNG" />
@@ -21,17 +21,15 @@
 
   <body>
     <div class="app">
-      <header class="header rankingsHeader" aria-label="Stats de guerre">
+      <header class="header warStatsHeader" aria-label="Stats de guerre">
         <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
         <a href="./home.html" class="backBtn" aria-label="Retour">⬅️</a>
       </header>
 
-      <section class="rankingsGrid" aria-label="Stats de guerre">
-        
-        <!-- ✅ UNIQUE TUILE -->
-        <a href="./war-history.html" class="rankingsTile rankingsTile--history">
+      <section class="warStatsGrid" aria-label="Stats de guerre">
+        <a href="./war-history.html" class="warStatsTile warStatsTile--history">
           <img
-            class="rankingsTileImg"
+            class="warStatsTileImg"
             src="./HistoryGA.webp"
             alt="Historique Stats GA"
             loading="eager"
@@ -39,13 +37,12 @@
           />
           <span class="srOnly">Historique Stats GA</span>
         </a>
-
       </section>
     </div>
 
     <script>
       (function () {
-        const tiles = document.querySelectorAll(".rankingsTile");
+        const tiles = document.querySelectorAll(".warStatsTile");
         tiles.forEach((t) => {
           const press = () => {
             t.classList.add("is-pressed");
