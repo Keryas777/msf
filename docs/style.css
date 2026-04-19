@@ -792,7 +792,7 @@ body.page-war-history::after{
 }
 
 .warHistoryTable{
-  min-width: 760px;
+  min-width: 702px;
   display:flex;
   flex-direction:column;
   gap: 6px;
@@ -800,7 +800,7 @@ body.page-war-history::after{
 
 .warHistoryRow{
   display:grid;
-  grid-template-columns: 56px 210px 72px 64px 110px 78px 78px;
+  grid-template-columns: 50px 189px 72px 64px 110px 78px 78px;
   align-items:stretch;
   border:1px solid rgba(120,170,255,.22);
   border-radius: 12px;
@@ -904,6 +904,7 @@ body.page-war-history::after{
   padding: 12px 0;
 }
 
+/* colonnes figées */
 .is-sticky-1,
 .is-sticky-2{
   position: sticky;
@@ -915,17 +916,27 @@ body.page-war-history::after{
 }
 
 .is-sticky-2{
-  left: 56px;
+  left: 50px;
 }
 
+/* fond opaque pour éviter la transparence pendant le scroll horizontal */
 .warHistoryDataRow .is-sticky-1,
 .warHistoryDataRow .is-sticky-2{
-  background: rgba(6,10,26,.96);
+  background: rgba(6,10,26,.98);
 }
 
 .warHistoryHead .is-sticky-1,
 .warHistoryHead .is-sticky-2{
-  background: rgba(70,110,255,.96);
+  background: rgba(70,110,255,.98);
+}
+
+/* séparateur visuel des colonnes figées */
+.is-sticky-1{
+  box-shadow: 1px 0 0 rgba(120,170,255,.18);
+}
+
+.is-sticky-2{
+  box-shadow: 1px 0 0 rgba(120,170,255,.18);
 }
 
 .warHistorySorted::after{
@@ -942,15 +953,15 @@ body.page-war-history::after{
   }
 
   .warHistoryTable{
-    min-width: 720px;
+    min-width: 658px;
   }
 
   .warHistoryRow{
-    grid-template-columns: 52px 190px 68px 60px 100px 74px 74px;
+    grid-template-columns: 47px 171px 68px 60px 100px 74px 74px;
   }
 
   .is-sticky-2{
-    left: 52px;
+    left: 47px;
   }
 
   .warHistoryPlayerName{
