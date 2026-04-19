@@ -21,10 +21,9 @@ async function init() {
     setMeta("Chargement de l'index...");
     warIndex = await loadIndex();
 
-    setMeta("Choisis une alliance, une année, un mois et un jour.");
     setupAllianceSelect();
     bindSortButtons();
-    hydrateFiltersFromIndex();
+    hydrateInitialSelection();
   } catch (error) {
     console.error(error);
     setMeta("Impossible de charger l'index des guerres.");
@@ -47,44 +46,68 @@ async function loadIndex() {
 function setupAllianceSelect() {
   const alliances = Array.isArray(warIndex?.alliances) ? warIndex.alliances : [];
 
-  allianceSelect.innerHTML =
-    `<option value="">Alliance</option>` +
-    alliances.map((alliance) => {
-      return `<option value="${escapeHtml(alliance)}">${capitalize(alliance)}</option>`;
-    }).join("");
+  allianceSelect.innerHTML = alliances.map((alliance) => {
+    return `<option value="${escapeHtml(alliance)}">${capitalize(alliance)}</option>`;
+  }).join("");
 
   allianceSelect.addEventListener("change", () => {
     resetRowsAndSort();
-    populateYears();
-    clearMonthSelect();
-    clearDaySelect();
-    updateSelectStates();
+    hydrateSelectionFromAlliance();
   });
 }
 
-function hydrateFiltersFromIndex() {
-  clearYearSelect();
-  clearMonthSelect();
-  clearDaySelect();
-  updateSelectStates();
+function hydrateInitialSelection() {
+  if (!allianceSelect.value) {
+    setMeta("Aucune alliance disponible.");
+    rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
+    return;
+  }
 
+  hydrateSelectionFromAlliance();
+  bindDateSelects();
+}
+
+function bindDateSelects() {
   yearSelect.addEventListener("change", () => {
     resetRowsAndSort();
+
     populateMonths();
-    clearDaySelect();
+    autoSelectFirstOption(monthSelect);
+    populateDays();
+    autoSelectFirstOption(daySelect);
     updateSelectStates();
+
+    loadSelectedWar();
   });
 
   monthSelect.addEventListener("change", () => {
     resetRowsAndSort();
+
     populateDays();
+    autoSelectFirstOption(daySelect);
     updateSelectStates();
+
+    loadSelectedWar();
   });
 
   daySelect.addEventListener("change", () => {
     updateSelectStates();
     loadSelectedWar();
   });
+}
+
+function hydrateSelectionFromAlliance() {
+  populateYears();
+  autoSelectFirstOption(yearSelect);
+
+  populateMonths();
+  autoSelectFirstOption(monthSelect);
+
+  populateDays();
+  autoSelectFirstOption(daySelect);
+
+  updateSelectStates();
+  loadSelectedWar();
 }
 
 function populateYears() {
@@ -101,8 +124,6 @@ function populateYears() {
   yearSelect.innerHTML =
     `<option value="">Année</option>` +
     years.map((year) => `<option value="${year}">${year}</option>`).join("");
-
-  yearSelect.value = "";
 }
 
 function populateMonths() {
@@ -120,8 +141,6 @@ function populateMonths() {
   monthSelect.innerHTML =
     `<option value="">Mois</option>` +
     months.map((month) => `<option value="${month}">${month}</option>`).join("");
-
-  monthSelect.value = "";
 }
 
 function populateDays() {
@@ -143,8 +162,6 @@ function populateDays() {
   daySelect.innerHTML =
     `<option value="">Jour</option>` +
     days.map((day) => `<option value="${day}">${day}</option>`).join("");
-
-  daySelect.value = "";
 }
 
 function getDatesForAlliance(alliance) {
@@ -170,7 +187,7 @@ async function loadSelectedWar() {
   const day = daySelect.value;
 
   if (!alliance || !year || !month || !day) {
-    setMeta("Choisis une alliance, une année, un mois et un jour.");
+    setMeta("Aucune donnée disponible.");
     rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
     if (sortInfoEl) sortInfoEl.textContent = "";
     return;
@@ -389,4 +406,9 @@ function resetRowsAndSort() {
   currentPlayers = [];
   rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
   if (sortInfoEl) sortInfoEl.textContent = "";
+}
+
+function autoSelectFirstOption(selectEl) {
+  const firstRealOption = Array.from(selectEl.options).find((option) => option.value !== "");
+  selectEl.value = firstRealOption ? firstRealOption.value : "";
 }
