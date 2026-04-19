@@ -2,29 +2,34 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LoSP – Historique des Guerres</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no" />
+  <meta name="theme-color" content="#0b0c0d" />
 
-  <link rel="stylesheet" href="./style.css?v=4" />
+  <title>Historique des Guerres</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="./style.css?v=5" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./icon-512.PNG" />
+  <meta name="apple-mobile-web-app-title" content="LoSP" />
 </head>
 
 <body>
   <div class="app">
 
-    <header class="header">
+    <!-- HEADER -->
+    <header class="header" aria-label="Historique des guerres">
+      <a href="./home.html" class="backBtn" aria-label="Retour">⬅️</a>
+
       <div class="headerLeft">
-
-        <!-- Bouton retour -->
-        <a href="./home.html" class="backBtn" aria-label="Retour">⬅️</a>
-
         <h1 class="title">Historique des Guerres</h1>
         <p class="subtitle">
           Consulte les performances et résultats des guerres passées
         </p>
-
       </div>
 
-      <!-- Bouton home -->
       <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
     </header>
 
@@ -34,12 +39,80 @@
         <h2 class="cardTitle">Dernières guerres</h2>
       </div>
 
-      <div id="warHistoryList" class="rankList">
-        <!-- JS injectera ici -->
-      </div>
+      <div id="warHistoryList" class="rankList"></div>
     </div>
 
   </div>
+
+  <!-- JS INLINE -->
+  <script>
+    const container = document.getElementById("warHistoryList");
+
+    // ⚡ TEMP DATA (à remplacer par ton JSON plus tard)
+    const wars = [
+      { date: "2026-04-18", result: "Victoire", opponent: "Alliance X" },
+      { date: "2026-04-17", result: "Défaite", opponent: "Alliance Y" },
+      { date: "2026-04-16", result: "Victoire", opponent: "Alliance Z" },
+    ];
+
+    container.innerHTML = wars.map(w => `
+      <div class="rankRow">
+        <div class="rankLeft">
+          <div class="rankName">${w.opponent}</div>
+        </div>
+        <div class="rankBars">
+          ${w.result === "Victoire" ? "🟢" : "🔴"}
+        </div>
+        <div class="rankPower">${w.date}</div>
+      </div>
+    `).join("");
+  </script>
+
+  <!-- TAP FEEDBACK (comme tes autres pages) -->
+  <script>
+    (function () {
+      const rows = document.querySelectorAll(".rankRow");
+
+      rows.forEach((r) => {
+        const press = () => {
+          r.classList.add("is-pressed");
+          clearTimeout(r.__pressTimer);
+          r.__pressTimer = setTimeout(() => r.classList.remove("is-pressed"), 220);
+        };
+
+        const release = () => r.classList.remove("is-pressed");
+
+        r.addEventListener("pointerdown", press, { passive: true });
+        r.addEventListener("pointerup", release, { passive: true });
+        r.addEventListener("pointercancel", release, { passive: true });
+        r.addEventListener("mouseleave", release, { passive: true });
+      });
+    })();
+  </script>
+
+  <!-- SERVICE WORKER -->
+  <script>
+    (function () {
+      if (!("serviceWorker" in navigator)) return;
+
+      let reloading = false;
+
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (reloading) return;
+        reloading = true;
+        window.location.reload();
+      });
+
+      window.addEventListener("load", async () => {
+        try {
+          const reg = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+          if (reg && typeof reg.update === "function") reg.update();
+        } catch (e) {
+          console.error(e);
+        }
+      });
+    })();
+  </script>
 
 </body>
 </html>
