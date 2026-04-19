@@ -216,10 +216,10 @@ function renderRows() {
     return;
   }
 
-  rowsContainer.innerHTML = currentPlayers.map((player) => {
+  rowsContainer.innerHTML = currentPlayers.map((player, index) => {
     return `
       <div class="warHistoryRow warHistoryDataRow">
-        <div class="warHistoryCell col-rank is-sticky-1">${safeNumber(player.rank)}</div>
+        <div class="warHistoryCell col-rank is-sticky-1">${index + 1}</div>
 
         <div class="warHistoryCell col-player is-sticky-2">
           <div class="warHistoryPlayerBlock">
@@ -319,11 +319,6 @@ function formatNumber(value) {
   if (value === null || value === undefined || value === "") return "—";
   if (typeof value !== "number") return escapeHtml(String(value));
   return value.toLocaleString("fr-FR");
-}
-
-function safeNumber(value) {
-  if (value === null || value === undefined || value === "") return "—";
-  return escapeHtml(String(value));
 }
 
 function formatFrenchDate(dateStr) {
