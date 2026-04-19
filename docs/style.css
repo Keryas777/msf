@@ -765,7 +765,8 @@ body.page-war-history::after{
   z-index:-1;
   pointer-events:none;
   opacity:.42;
-  background-image: url("./B8BAC9A5-A4C3-4466-8053-15935E15A00E.jpeg");
+  body.page-war-history {
+  background-image: none;
   background-repeat:no-repeat;
   background-size:cover;
   background-position:center;
