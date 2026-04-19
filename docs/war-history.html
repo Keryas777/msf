@@ -2,61 +2,158 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no" />
+  <meta name="theme-color" content="#0b0c0d" />
 
   <title>Historique des Guerres</title>
 
+  <!-- CSS -->
   <link rel="stylesheet" href="./style.css?v=5" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./icon-512.PNG" />
+  <meta name="apple-mobile-web-app-title" content="LoSP" />
 </head>
 
 <body class="page-war-history">
+  <div class="app">
 
-<div class="app">
+    <!-- HEADER -->
+    <header class="header" aria-label="Historique des guerres">
+      <a href="./home.html" class="backBtn" aria-label="Retour">⬅️</a>
 
-<header class="header">
-  <a href="./home.html" class="backBtn">⬅️</a>
+      <div class="headerLeft">
+        <h1 class="title">Historique des Guerres</h1>
+        <p class="subtitle">
+          Consulte les performances et résultats des guerres passées
+        </p>
+      </div>
 
-  <div class="headerLeft">
-    <h1 class="title">Historique des Guerres</h1>
-    <p class="subtitle">Consulte les performances</p>
+      <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
+    </header>
+
+    <!-- FILTRES -->
+    <div class="card">
+      <div class="cardHeader">
+        <h2 class="cardTitle">Sélection</h2>
+      </div>
+
+      <div class="warHistoryFilters">
+        <div class="warHistoryField">
+          <label class="label" for="allianceSelect">Alliance</label>
+          <select id="allianceSelect" class="select" aria-label="Alliance"></select>
+        </div>
+
+        <div class="warHistoryField">
+          <label class="label" for="yearSelect">Année</label>
+          <select id="yearSelect" class="select" aria-label="Année"></select>
+        </div>
+
+        <div class="warHistoryField">
+          <label class="label" for="monthSelect">Mois</label>
+          <select id="monthSelect" class="select" aria-label="Mois"></select>
+        </div>
+
+        <div class="warHistoryField">
+          <label class="label" for="daySelect">Jour</label>
+          <select id="daySelect" class="select" aria-label="Jour"></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRI -->
+    <div class="card">
+      <div class="cardHeader">
+        <h2 class="cardTitle">Tri</h2>
+      </div>
+
+      <div class="warHistorySorts" id="warHistorySorts">
+        <button type="button" class="sortBtn is-active" data-sort="rank">Rang</button>
+        <button type="button" class="sortBtn" data-sort="attack_points">Points d'attaque</button>
+        <button type="button" class="sortBtn" data-sort="attacks">Attaques</button>
+        <button type="button" class="sortBtn" data-sort="damage">Dégâts</button>
+        <button type="button" class="sortBtn" data-sort="defense_wins">Victoires défense</button>
+        <button type="button" class="sortBtn" data-sort="defense_bonus">Bonus défense</button>
+      </div>
+
+      <p id="sortInfo" class="warHistoryMeta">Ordre initial</p>
+    </div>
+
+    <!-- CONTENU -->
+    <div class="card">
+      <div class="cardHeader">
+        <h2 class="cardTitle">Tableau</h2>
+      </div>
+
+      <div id="warHistoryMeta" class="warHistoryMeta"></div>
+
+      <div class="warHistoryTableWrap">
+        <div class="warHistoryTable" id="warHistoryTable">
+          <div class="warHistoryHead warHistoryRow">
+            <div class="warHistoryCell col-rank">#</div>
+            <div class="warHistoryCell col-player">Joueur</div>
+            <div class="warHistoryCell col-ap">Pts attaque</div>
+            <div class="warHistoryCell col-attacks">Attaques</div>
+            <div class="warHistoryCell col-damage">Dégâts</div>
+            <div class="warHistoryCell col-defensewins">Victoires déf.</div>
+            <div class="warHistoryCell col-defensebonus">Bonus déf.</div>
+          </div>
+
+          <div id="warHistoryRows"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <a href="./home.html" class="homeBtn">🏠</a>
-</header>
+  <script src="./war-history.js?v=1"></script>
 
-<!-- FILTRES -->
-<div class="card">
-  <div class="cardHeader">
-    <h2 class="cardTitle">Filtres</h2>
-  </div>
+  <!-- TAP FEEDBACK -->
+  <script>
+    (function () {
+      document.addEventListener("pointerdown", (e) => {
+        const row = e.target.closest(".warHistoryDataRow");
+        if (!row) return;
 
-  <select id="allianceSelect" class="select"></select>
-  <select id="yearSelect" class="select"></select>
-  <select id="monthSelect" class="select"></select>
-  <select id="daySelect" class="select"></select>
-</div>
+        row.classList.add("is-pressed");
+        clearTimeout(row.__pressTimer);
+        row.__pressTimer = setTimeout(() => row.classList.remove("is-pressed"), 220);
+      }, { passive: true });
 
-<!-- TABLE -->
-<div class="card">
-  <div class="cardHeader">
-    <h2 class="cardTitle">Résultats</h2>
-  </div>
+      ["pointerup", "pointercancel", "mouseleave"].forEach((evt) => {
+        document.addEventListener(evt, (e) => {
+          const row = e.target.closest(".warHistoryDataRow");
+          if (!row) return;
+          row.classList.remove("is-pressed");
+        }, { passive: true });
+      });
+    })();
+  </script>
 
-  <table id="warTable" style="width:100%; border-collapse: collapse;">
-    <thead>
-      <tr>
-        <th>Nom</th>
-        <th data-sort="damage">Dégâts</th>
-        <th data-sort="attacks">Attaques</th>
-        <th data-sort="defense_wins">Défense</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
+  <!-- SERVICE WORKER -->
+  <script>
+    (function () {
+      if (!("serviceWorker" in navigator)) return;
 
-</div>
+      let reloading = false;
 
-<script src="./war-history.js"></script>
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (reloading) return;
+        reloading = true;
+        window.location.reload();
+      });
+
+      window.addEventListener("load", async () => {
+        try {
+          const reg = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+          if (reg && typeof reg.update === "function") reg.update();
+        } catch (e) {
+          console.error(e);
+        }
+      });
+    })();
+  </script>
+
 </body>
 </html>
