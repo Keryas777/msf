@@ -5,14 +5,13 @@ const daySelect = document.getElementById("daySelect");
 
 const rowsContainer = document.getElementById("warHistoryRows");
 const metaEl = document.getElementById("warHistoryMeta");
-const sortInfoEl = document.getElementById("sortInfo");
-const sortButtons = Array.from(document.querySelectorAll(".sortBtn"));
+const headerSortButtons = Array.from(document.querySelectorAll(".warHistoryHeadBtn"));
 
 let warIndex = null;
 let currentPlayers = [];
 let originalPlayers = [];
-let currentSortKey = "rank";
-let currentSortDir = "asc";
+let currentSortKey = null;
+let currentSortDir = "desc";
 
 init();
 
@@ -22,13 +21,12 @@ async function init() {
     warIndex = await loadIndex();
 
     setupAllianceSelect();
-    bindSortButtons();
+    bindHeaderSortButtons();
     hydrateInitialSelection();
   } catch (error) {
     console.error(error);
     setMeta("Impossible de charger l'index des guerres.");
     rowsContainer.innerHTML = `<div class="warHistoryEmpty">Erreur index</div>`;
-    if (sortInfoEl) sortInfoEl.textContent = "";
   }
 }
 
@@ -51,7 +49,7 @@ function setupAllianceSelect() {
   }).join("");
 
   allianceSelect.addEventListener("change", () => {
-    resetRowsAndSort();
+    resetRows();
     hydrateSelectionFromAlliance();
   });
 }
@@ -69,24 +67,20 @@ function hydrateInitialSelection() {
 
 function bindDateSelects() {
   yearSelect.addEventListener("change", () => {
-    resetRowsAndSort();
-
+    resetRows();
     populateMonths();
     autoSelectFirstOption(monthSelect);
     populateDays();
     autoSelectFirstOption(daySelect);
     updateSelectStates();
-
     loadSelectedWar();
   });
 
   monthSelect.addEventListener("change", () => {
-    resetRowsAndSort();
-
+    resetRows();
     populateDays();
     autoSelectFirstOption(daySelect);
     updateSelectStates();
-
     loadSelectedWar();
   });
 
@@ -153,10 +147,7 @@ function populateDays() {
     return;
   }
 
-  const dates = getDatesForAlliance(alliance).filter((d) => {
-    return d.year === year && d.month === month;
-  });
-
+  const dates = getDatesForAlliance(alliance).filter((d) => d.year === year && d.month === month);
   const days = [...new Set(dates.map((d) => d.day))].sort(descNumberSort);
 
   daySelect.innerHTML =
@@ -189,7 +180,6 @@ async function loadSelectedWar() {
   if (!alliance || !year || !month || !day) {
     setMeta("Aucune donnée disponible.");
     rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
-    if (sortInfoEl) sortInfoEl.textContent = "";
     return;
   }
 
@@ -197,8 +187,6 @@ async function loadSelectedWar() {
   const path = `./data/war/${date}/${alliance}.json?v=${Date.now()}`;
 
   try {
-    setMeta(`Chargement de ${capitalize(alliance)} • ${formatFrenchDate(date)}...`);
-
     const res = await fetch(path);
     if (!res.ok) {
       throw new Error("Fichier non trouvé (" + res.status + ")");
@@ -209,19 +197,16 @@ async function loadSelectedWar() {
     originalPlayers = Array.isArray(data.players) ? data.players.slice() : [];
     currentPlayers = originalPlayers.slice();
 
-    currentSortKey = "rank";
-    currentSortDir = "asc";
-    syncSortButtons();
+    currentSortKey = null;
+    currentSortDir = "desc";
+    syncHeaderSortButtons();
 
     setMeta(`${capitalize(alliance)} • ${formatFrenchDate(date)} • ${originalPlayers.length} joueurs`);
-    if (sortInfoEl) sortInfoEl.textContent = "Ordre initial";
-
     renderRows();
   } catch (error) {
     console.error(error);
     setMeta(`Impossible de charger ${alliance} pour le ${formatFrenchDate(date)} : ${error.message}`);
     rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
-    if (sortInfoEl) sortInfoEl.textContent = "";
   }
 }
 
@@ -234,13 +219,15 @@ function renderRows() {
   rowsContainer.innerHTML = currentPlayers.map((player) => {
     return `
       <div class="warHistoryRow warHistoryDataRow">
-        <div class="warHistoryCell col-rank">${safeNumber(player.rank)}</div>
-        <div class="warHistoryCell col-player">
+        <div class="warHistoryCell col-rank is-sticky-1">${safeNumber(player.rank)}</div>
+
+        <div class="warHistoryCell col-player is-sticky-2">
           <div class="warHistoryPlayerBlock">
             <div class="warHistoryPlayerName">${escapeHtml(player.name || "—")}</div>
             <div class="warHistoryPlayerAlliance">${capitalize(allianceSelect.value)}</div>
           </div>
         </div>
+
         <div class="warHistoryCell col-ap">${formatNumber(player.attack_points)}</div>
         <div class="warHistoryCell col-attacks">${formatNumber(player.attacks)}</div>
         <div class="warHistoryCell col-damage">${formatNumber(player.damage)}</div>
@@ -251,90 +238,76 @@ function renderRows() {
   }).join("");
 }
 
-function bindSortButtons() {
-  sortButtons.forEach((btn) => {
+function bindHeaderSortButtons() {
+  headerSortButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
       const key = btn.dataset.sort;
       if (!key || !originalPlayers.length) return;
 
-      if (key === "rank") {
-        if (currentSortKey === "rank") {
-          currentSortDir = currentSortDir === "asc" ? "desc" : "asc";
-        } else {
-          currentSortKey = "rank";
-          currentSortDir = "asc";
-        }
+      if (currentSortKey === key) {
+        currentSortDir = currentSortDir === "desc" ? "asc" : "desc";
       } else {
-        if (currentSortKey === key) {
-          currentSortDir = currentSortDir === "desc" ? "asc" : "desc";
-        } else {
-          currentSortKey = key;
-          currentSortDir = "desc";
-        }
+        currentSortKey = key;
+        currentSortDir = key === "name" ? "asc" : "desc";
       }
 
       applySort();
-      syncSortButtons();
+      syncHeaderSortButtons();
       renderRows();
     });
   });
 }
 
 function applySort() {
+  if (!currentSortKey) {
+    currentPlayers = originalPlayers.slice();
+    return;
+  }
+
   currentPlayers = originalPlayers.slice().sort((a, b) => {
-    const av = normalizeSortableValue(a[currentSortKey]);
-    const bv = normalizeSortableValue(b[currentSortKey]);
+    const av = normalizeSortableValue(a[currentSortKey], currentSortKey);
+    const bv = normalizeSortableValue(b[currentSortKey], currentSortKey);
 
     if (av < bv) return currentSortDir === "asc" ? -1 : 1;
     if (av > bv) return currentSortDir === "asc" ? 1 : -1;
 
-    const ar = normalizeSortableValue(a.rank);
-    const br = normalizeSortableValue(b.rank);
-    return ar - br;
+    return normalizeSortableValue(a.rank, "rank") - normalizeSortableValue(b.rank, "rank");
+  });
+}
+
+function syncHeaderSortButtons() {
+  headerSortButtons.forEach((btn) => {
+    btn.classList.remove("warHistorySorted", "is-desc");
+    btn.textContent = getHeaderLabel(btn.dataset.sort);
   });
 
-  const directionLabel = currentSortDir === "asc" ? "croissant" : "décroissant";
-  const labelMap = {
-    rank: "rang",
-    attack_points: "points d'attaque",
-    attacks: "attaques",
-    damage: "dégâts",
-    defense_wins: "victoires en défense",
-    defense_bonus: "bonus de défense"
-  };
+  const activeBtn = headerSortButtons.find((btn) => btn.dataset.sort === currentSortKey);
+  if (!activeBtn) return;
 
-  if (sortInfoEl) {
-    sortInfoEl.textContent = `Tri : ${labelMap[currentSortKey]} (${directionLabel})`;
+  activeBtn.classList.add("warHistorySorted");
+  if (currentSortDir === "desc") {
+    activeBtn.classList.add("is-desc");
   }
 }
 
-function syncSortButtons() {
-  sortButtons.forEach((btn) => {
-    btn.classList.remove("is-active");
-    btn.textContent = getBaseSortLabel(btn.dataset.sort);
-  });
-
-  const activeBtn = sortButtons.find((btn) => btn.dataset.sort === currentSortKey);
-  if (!activeBtn) return;
-
-  activeBtn.classList.add("is-active");
-  activeBtn.textContent = `${getBaseSortLabel(currentSortKey)} ${currentSortDir === "asc" ? "↑" : "↓"}`;
-}
-
-function getBaseSortLabel(key) {
+function getHeaderLabel(key) {
   const labels = {
-    rank: "Rang",
-    attack_points: "Points d'attaque",
-    attacks: "Attaques",
+    name: "Joueur",
+    attack_points: "Pts",
+    attacks: "Att",
     damage: "Dégâts",
-    defense_wins: "Victoires défense",
-    defense_bonus: "Bonus défense"
+    defense_wins: "V. Déf",
+    defense_bonus: "B. Déf"
   };
 
   return labels[key] || key;
 }
 
-function normalizeSortableValue(value) {
+function normalizeSortableValue(value, key) {
+  if (key === "name") {
+    return String(value || "").toLowerCase();
+  }
+
   if (typeof value === "number") return value;
   if (value === null || value === undefined || value === "") return -Infinity;
 
@@ -401,11 +374,10 @@ function updateSelectStates() {
   daySelect.disabled = !allianceSelect.value || !yearSelect.value || !monthSelect.value;
 }
 
-function resetRowsAndSort() {
+function resetRows() {
   originalPlayers = [];
   currentPlayers = [];
   rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
-  if (sortInfoEl) sortInfoEl.textContent = "";
 }
 
 function autoSelectFirstOption(selectEl) {
