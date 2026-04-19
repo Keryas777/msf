@@ -2,142 +2,61 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no" />
-  <meta name="theme-color" content="#0b0c0d" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
 
   <title>Historique des Guerres</title>
 
-  <link rel="stylesheet" href="./style.css?v=6" />
-
-  <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="./icon-512.PNG" />
-  <meta name="apple-mobile-web-app-title" content="LoSP" />
+  <link rel="stylesheet" href="./style.css?v=5" />
 </head>
 
 <body class="page-war-history">
-  <div class="app">
 
-    <!-- HEADER -->
-    <header class="header" aria-label="Historique des guerres">
-      <a href="./home.html" class="backBtn" aria-label="Retour">⬅️</a>
+<div class="app">
 
-      <div class="headerLeft">
-        <h1 class="title">Historique des Guerres</h1>
-        <p class="subtitle">
-          Consulte les performances et résultats des guerres passées
-        </p>
-      </div>
+<header class="header">
+  <a href="./home.html" class="backBtn">⬅️</a>
 
-      <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
-    </header>
-
-    <!-- FILTRES -->
-    <section class="card warHistoryFiltersCard" aria-label="Filtres historique">
-      <div class="cardHeader">
-        <h2 class="cardTitle">Filtres</h2>
-      </div>
-
-      <div class="warHistoryControls">
-        <div class="warHistoryField">
-          <label class="label" for="allianceSelect">Alliance</label>
-          <select id="allianceSelect" class="select">
-            <option value="zeus">Zeus</option>
-            <option value="dionysos">Dionysos</option>
-            <option value="poseidon">Poséidon</option>
-          </select>
-        </div>
-
-        <div class="warHistoryField">
-          <label class="label" for="yearSelect">Année</label>
-          <select id="yearSelect" class="select"></select>
-        </div>
-
-        <div class="warHistoryField">
-          <label class="label" for="monthSelect">Mois</label>
-          <select id="monthSelect" class="select"></select>
-        </div>
-
-        <div class="warHistoryField">
-          <label class="label" for="daySelect">Jour</label>
-          <select id="daySelect" class="select"></select>
-        </div>
-      </div>
-    </section>
-
-    <!-- TRI -->
-    <section class="card warHistorySortCard" aria-label="Tri du tableau">
-      <div class="cardHeader">
-        <h2 class="cardTitle">Tri</h2>
-      </div>
-
-      <div class="warHistorySortButtons">
-        <button type="button" class="sortBtn" data-sort-key="default">Classement d'origine</button>
-        <button type="button" class="sortBtn" data-sort-key="attack_points">Points d'attaque</button>
-        <button type="button" class="sortBtn" data-sort-key="attacks">Attaques</button>
-        <button type="button" class="sortBtn" data-sort-key="damage">Dégâts</button>
-        <button type="button" class="sortBtn" data-sort-key="defense_wins">Victoires défense</button>
-        <button type="button" class="sortBtn" data-sort-key="defense_bonus">Bonus défense</button>
-      </div>
-
-      <p id="sortStateLabel" class="warHistorySortState">Ordre d'origine</p>
-    </section>
-
-    <!-- TABLEAU -->
-    <section class="card warHistoryTableCard" aria-label="Tableau historique">
-      <div class="cardHeader">
-        <h2 class="cardTitle">Résultats</h2>
-      </div>
-
-      <div id="warHistoryMeta" class="warHistoryMeta"></div>
-
-      <div class="warHistoryTableWrap">
-        <div class="warHistoryTable" role="table" aria-label="Historique de guerre">
-          <div class="warHistoryHead" role="rowgroup">
-            <div class="warHistoryRow warHistoryRow--head" role="row">
-              <div class="warHistoryCell warHistoryCell--rank" role="columnheader">#</div>
-              <div class="warHistoryCell warHistoryCell--name" role="columnheader">Joueur</div>
-              <div class="warHistoryCell warHistoryCell--num" role="columnheader">Points d'attaque</div>
-              <div class="warHistoryCell warHistoryCell--num" role="columnheader">Attaques</div>
-              <div class="warHistoryCell warHistoryCell--num" role="columnheader">Dégâts</div>
-              <div class="warHistoryCell warHistoryCell--num" role="columnheader">Victoires défense</div>
-              <div class="warHistoryCell warHistoryCell--num" role="columnheader">Bonus défense</div>
-            </div>
-          </div>
-
-          <div id="warHistoryBody" class="warHistoryBody" role="rowgroup"></div>
-        </div>
-      </div>
-
-      <div id="warHistoryEmpty" class="warHistoryEmpty" hidden>
-        Aucune donnée trouvée pour cette sélection.
-      </div>
-    </section>
-
+  <div class="headerLeft">
+    <h1 class="title">Historique des Guerres</h1>
+    <p class="subtitle">Consulte les performances</p>
   </div>
 
-  <script src="./war-history.js?v=6"></script>
+  <a href="./home.html" class="homeBtn">🏠</a>
+</header>
 
-  <script>
-    (function () {
-      if (!("serviceWorker" in navigator)) return;
+<!-- FILTRES -->
+<div class="card">
+  <div class="cardHeader">
+    <h2 class="cardTitle">Filtres</h2>
+  </div>
 
-      let reloading = false;
+  <select id="allianceSelect" class="select"></select>
+  <select id="yearSelect" class="select"></select>
+  <select id="monthSelect" class="select"></select>
+  <select id="daySelect" class="select"></select>
+</div>
 
-      navigator.serviceWorker.addEventListener("controllerchange", () => {
-        if (reloading) return;
-        reloading = true;
-        window.location.reload();
-      });
+<!-- TABLE -->
+<div class="card">
+  <div class="cardHeader">
+    <h2 class="cardTitle">Résultats</h2>
+  </div>
 
-      window.addEventListener("load", async () => {
-        try {
-          const reg = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
-          if (reg && typeof reg.update === "function") reg.update();
-        } catch (e) {
-          console.error(e);
-        }
-      });
-    })();
-  </script>
+  <table id="warTable" style="width:100%; border-collapse: collapse;">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th data-sort="damage">Dégâts</th>
+        <th data-sort="attacks">Attaques</th>
+        <th data-sort="defense_wins">Défense</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+</div>
+
+<script src="./war-history.js"></script>
 </body>
 </html>
