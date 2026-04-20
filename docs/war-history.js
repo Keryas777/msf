@@ -7,16 +7,21 @@ const rowsContainer = document.getElementById("warHistoryRows");
 const metaEl = document.getElementById("warHistoryMeta");
 const headerSortButtons = Array.from(document.querySelectorAll(".warHistoryHeadBtn"));
 
+const tabButtons = Array.from(document.querySelectorAll(".warHistoryTabBtn"));
+const tabPanels = Array.from(document.querySelectorAll(".warHistoryTabPanel"));
+
 let warIndex = null;
 let currentPlayers = [];
 let originalPlayers = [];
 let currentSortKey = null;
 let currentSortDir = "desc";
+let currentTab = "table";
 
 init();
 
 async function init() {
   try {
+    bindTabs();
     setMeta("Chargement de l'index...");
     warIndex = await loadIndex();
 
@@ -39,6 +44,43 @@ async function loadIndex() {
   }
 
   return res.json();
+}
+
+function bindTabs() {
+  if (!tabButtons.length || !tabPanels.length) return;
+
+  tabButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const nextTab = btn.dataset.tab;
+      if (!nextTab || nextTab === currentTab) return;
+      setActiveTab(nextTab);
+    });
+  });
+}
+
+function setActiveTab(tabName) {
+  currentTab = tabName;
+
+  tabButtons.forEach((btn) => {
+    const isActive = btn.dataset.tab === tabName;
+    btn.classList.toggle("is-active", isActive);
+    btn.setAttribute("aria-selected", isActive ? "true" : "false");
+  });
+
+  tabPanels.forEach((panel) => {
+    const isActive = panel.id === getPanelIdFromTab(tabName);
+    panel.classList.toggle("is-active", isActive);
+    panel.hidden = !isActive;
+  });
+}
+
+function getPanelIdFromTab(tabName) {
+  const map = {
+    table: "warHistoryPanelTable",
+    debrief: "warHistoryPanelDebrief"
+  };
+
+  return map[tabName] || "warHistoryPanelTable";
 }
 
 function setupAllianceSelect() {
