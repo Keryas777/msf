@@ -349,7 +349,7 @@ button.backBtn{
   line-height: 1;
 }
 
-.fName{
+.fStack .fName{
   font-size: 13px;
 }
 
@@ -523,7 +523,7 @@ button.backBtn{
   .filterToggle{ padding: 9px 8px; gap: 8px; }
   .filterToggle input{ width: 16px; height: 16px; }
   .fEmoji{ font-size: 17px; }
-  .fName{ font-size: 12px; }
+  .filterToggle .fName{ font-size: 12px; }
 
   .rankRow{ padding: 10px 12px 10px 5px; gap: 7px; }
   .rankNum{ width: 18px; font-size: 12px; }
@@ -804,22 +804,17 @@ body.page-war-history::after{
   align-items:stretch;
   border:1px solid rgba(120,170,255,.22);
   border-radius: 12px;
-  overflow:hidden;
-  background: rgba(6,10,26,.50);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+  /* overflow: hidden; supprimé pour permettre le sticky */
+  background: none; /* Fond géré par les cellules */
+  box-shadow: none;
 }
 
 .warHistoryHead{
-  background: rgba(70,110,255,.18);
   border-color: rgba(120,170,255,.30);
 }
 
 .warHistoryDataRow{
   transition: background .12s ease;
-}
-
-.warHistoryDataRow:hover{
-  background: rgba(255,255,255,.025);
 }
 
 .warHistoryCell{
@@ -830,15 +825,22 @@ body.page-war-history::after{
   border-right: 1px solid rgba(120,170,255,.16);
   font-size: 13px;
   font-weight: 800;
-  background: rgba(6,10,26,.50);
+  background: rgba(6,10,26,.95); /* Fond opaque pour le scroll */
+}
+
+/* Coins arrondis manuels suite suppression overflow:hidden */
+.warHistoryRow .warHistoryCell:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+.warHistoryRow .warHistoryCell:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+  border-right: 0;
 }
 
 .warHistoryHead .warHistoryCell{
-  background: rgba(70,110,255,.18);
-}
-
-.warHistoryCell:last-child{
-  border-right: 0;
+  background: rgba(40,70,180,1); /* Bleu opaque pour l'entête */
 }
 
 .warHistoryHeadBtn{
@@ -851,6 +853,7 @@ body.page-war-history::after{
   justify-content:center;
   text-align:center;
   font-weight: 900;
+  background: transparent;
 }
 
 .warHistoryHeadBtn:active{
@@ -913,29 +916,11 @@ body.page-war-history::after{
 
 .is-sticky-1{
   left: 0;
-}
-
-.is-sticky-2{
-  left: 50px;
-}
-
-/* fond opaque pour éviter la transparence pendant le scroll horizontal */
-.warHistoryDataRow .is-sticky-1,
-.warHistoryDataRow .is-sticky-2{
-  background: rgba(6,10,26,.98);
-}
-
-.warHistoryHead .is-sticky-1,
-.warHistoryHead .is-sticky-2{
-  background: rgba(70,110,255,.98);
-}
-
-/* séparateur visuel des colonnes figées */
-.is-sticky-1{
   box-shadow: 1px 0 0 rgba(120,170,255,.18);
 }
 
 .is-sticky-2{
+  left: 50px;
   box-shadow: 1px 0 0 rgba(120,170,255,.18);
 }
 
