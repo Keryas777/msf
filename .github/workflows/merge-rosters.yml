@@ -3,13 +3,13 @@ name: Merge rosters.json
 on:
   workflow_dispatch:
 
-  workflow_run:
-    workflows:
-      - "Update zeus rosters"
-      - "Update dionysos rosters"
-      - "Update poseidon rosters"
-    types:
-      - completed
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/data/rosters_zeus.json"
+      - "docs/data/rosters_dionysos.json"
+      - "docs/data/rosters_poseidon.json"
 
 permissions:
   contents: write
@@ -20,7 +20,6 @@ concurrency:
 
 jobs:
   merge:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
