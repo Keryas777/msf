@@ -792,7 +792,7 @@ body.page-war-history::after{
 }
 
 .warHistoryTable{
-  min-width: 650px; /* Réduit un peu le min-width global */
+  min-width: 650px;
   display:flex;
   flex-direction:column;
   gap: 6px;
@@ -800,7 +800,6 @@ body.page-war-history::after{
 
 .warHistoryRow{
   display:grid;
-  /* Réduction de la col 1 (40px) et col 2 (140px) */
   grid-template-columns: 40px 140px 72px 64px 110px 78px 78px;
   align-items:stretch;
   border:1px solid rgba(120,170,255,.22);
@@ -818,21 +817,23 @@ body.page-war-history::after{
 }
 
 .warHistoryCell{
-  padding: 8px 6px; /* Padding réduit pour compacter */
+  padding: 8px 6px;
   display:flex;
   align-items:center;
   min-width: 0;
   border-right: 1px solid rgba(120,170,255,.16);
-  font-size: 12.5px; /* Police légèrement réduite */
+  font-size: 12.5px;
   font-weight: 800;
   background: rgba(6,10,26,.95);
+  position: relative;
 }
 
-.warHistoryRow .warHistoryCell:first-child {
+.warHistoryRow .warHistoryCell:first-child{
   border-top-left-radius: 12px;
   border-bottom-left-radius: 12px;
 }
-.warHistoryRow .warHistoryCell:last-child {
+
+.warHistoryRow .warHistoryCell:last-child{
   border-top-right-radius: 12px;
   border-bottom-right-radius: 12px;
   border-right: 0;
@@ -862,7 +863,7 @@ body.page-war-history::after{
 
 .col-rank{
   justify-content:center;
-  font-size: 15px; /* Plus petit */
+  font-size: 15px;
   font-weight: 1000;
 }
 
@@ -888,7 +889,7 @@ body.page-war-history::after{
 }
 
 .warHistoryPlayerName{
-  font-size: 14px; /* Plus serré */
+  font-size: 14px;
   font-weight: 1000;
   line-height: 1.1;
   white-space: nowrap;
@@ -897,7 +898,7 @@ body.page-war-history::after{
 }
 
 .warHistoryPlayerAlliance{
-  font-size: 10px; /* Plus petit */
+  font-size: 10px;
   color: rgba(255,255,255,.70);
   line-height: 1;
 }
@@ -920,8 +921,25 @@ body.page-war-history::after{
 }
 
 .is-sticky-2{
-  left: 40px; /* Ajusté à la largeur de col-rank */
+  left: 40px;
   box-shadow: 1px 0 0 rgba(120,170,255,.18);
+}
+
+/* ombre/fade à droite de la zone figée */
+.is-sticky-2::after{
+  content:"";
+  position:absolute;
+  top:0;
+  right:-10px;
+  width:10px;
+  height:100%;
+  background: linear-gradient(to right, rgba(6,10,26,.72), rgba(6,10,26,0));
+  pointer-events:none;
+  z-index: 4;
+}
+
+.warHistoryHead .is-sticky-2::after{
+  background: linear-gradient(to right, rgba(40,70,180,.88), rgba(40,70,180,0));
 }
 
 .warHistorySorted::after{
