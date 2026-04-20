@@ -34,6 +34,12 @@
   to{ transform: translateY(0); opacity: 1; }
 }
 
+/* ===== Compactage léger de la page ===== */
+.app{
+  padding: 10px;
+  gap: 10px;
+}
+
 /* ===== Header banner ===== */
 .homeHeader{
   position: relative;
@@ -52,12 +58,12 @@
 }
 
 /* ===== GRID ===== */
-/* ✅ 2 colonnes (comme sur ta capture) */
+/* ✅ 2 colonnes */
 .homeGrid{
   display:grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 16px;
+  gap: 10px;
+  margin-top: 10px;
   align-items: stretch;
 }
 
@@ -65,6 +71,9 @@
 .homeTile{
   position: relative;
   display:block;
+  justify-self: center;
+  width: 95%;
+
   border-radius: 22px;
   overflow: hidden;
 
@@ -148,6 +157,18 @@
   --glow-strong: rgba(255, 245, 120, 1);
 }
 
+/* Statistiques GA (orange / doré) */
+.homeTile--stats{
+  --glow: rgba(255, 185, 70, .78);
+  --glow-strong: rgba(255, 185, 70, .98);
+}
+
+/* Équipes recommandées (vert) */
+.homeTile--conseils{
+  --glow: rgba(90, 255, 160, .68);
+  --glow-strong: rgba(90, 255, 160, .98);
+}
+
 /* Classements (bleu) */
 .homeTile--classement{
   --glow: rgba(80, 190, 255, .70);
@@ -161,12 +182,45 @@
 }
 
 /* ===== RESPONSIVE ===== */
+@media (max-width: 520px){
+  .app{
+    padding: 9px;
+    gap: 9px;
+  }
+
+  .homeGrid{
+    gap: 9px;
+    margin-top: 9px;
+  }
+
+  .homeTile{
+    width: 96%;
+  }
+}
+
 @media (max-width: 420px){
   .homeHeader{ height: 120px; }
-  .homeTile{ border-radius: 20px; }
+
+  .app{
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .homeGrid{
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .homeTile{
+    width: 97%;
+    border-radius: 20px;
+  }
 }
 
 /* ===== ACCESSIBILITÉ ===== */
 @media (prefers-reduced-motion: reduce){
-  .homeTile, .homeTile::after{ transition: none !important; }
+  .homeTile,
+  .homeTile::after{
+    transition: none !important;
+  }
 }
