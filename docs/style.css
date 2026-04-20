@@ -952,6 +952,67 @@ body.page-war-history::after{
   content: " ↓";
 }
 
+.warHistoryTabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.warHistoryTabBtn{
+  appearance:none;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.06);
+  color:rgba(255,255,255,.78);
+  border-radius:999px;
+  padding:10px 16px;
+  font:inherit;
+  font-weight:700;
+  cursor:pointer;
+  transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease;
+}
+
+.warHistoryTabBtn:hover{
+  background:rgba(255,255,255,.10);
+  color:rgba(255,255,255,.92);
+}
+
+.warHistoryTabBtn.is-active{
+  background:rgba(255,255,255,.16);
+  border-color:rgba(255,255,255,.22);
+  color:#fff;
+}
+
+.warHistoryTabPanel{
+  display:none;
+}
+
+.warHistoryTabPanel.is-active{
+  display:block;
+}
+
+.warHistoryDebriefPlaceholder{
+  min-height:180px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:10px;
+}
+
+.warHistoryDebriefTitle{
+  margin:0;
+  font-size:1.05rem;
+  font-weight:800;
+  color:rgba(255,255,255,.96);
+}
+
+.warHistoryDebriefText{
+  margin:0;
+  max-width:680px;
+  line-height:1.6;
+  color:rgba(255,255,255,.72);
+}
+
 @media (max-width: 760px){
   .warHistoryFilters{
     grid-template-columns: repeat(2, minmax(0,1fr));
