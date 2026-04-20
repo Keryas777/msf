@@ -57,6 +57,39 @@
     </section>
 
     <section class="card">
+      <div class="warHistoryTabs" role="tablist" aria-label="Affichage historique de guerre">
+        <button
+          id="warHistoryTabTable"
+          class="warHistoryTabBtn is-active"
+          type="button"
+          role="tab"
+          aria-selected="true"
+          aria-controls="warHistoryPanelTable"
+          data-tab="table"
+        >
+          Tableau
+        </button>
+
+        <button
+          id="warHistoryTabDebrief"
+          class="warHistoryTabBtn"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="warHistoryPanelDebrief"
+          data-tab="debrief"
+        >
+          Débrief
+        </button>
+      </div>
+    </section>
+
+    <section
+      id="warHistoryPanelTable"
+      class="card warHistoryTabPanel is-active"
+      role="tabpanel"
+      aria-labelledby="warHistoryTabTable"
+    >
       <div class="cardHeader">
         <h2 class="cardTitle">Tableau</h2>
       </div>
@@ -95,6 +128,25 @@
 
           <div id="warHistoryRows"></div>
         </div>
+      </div>
+    </section>
+
+    <section
+      id="warHistoryPanelDebrief"
+      class="card warHistoryTabPanel"
+      role="tabpanel"
+      aria-labelledby="warHistoryTabDebrief"
+      hidden
+    >
+      <div class="cardHeader">
+        <h2 class="cardTitle">Débrief</h2>
+      </div>
+
+      <div class="warHistoryDebriefPlaceholder">
+        <p class="warHistoryDebriefTitle">Débrief bientôt disponible</p>
+        <p class="warHistoryDebriefText">
+          Cette zone accueillera prochainement l’analyse textuelle complète de chaque guerre.
+        </p>
       </div>
     </section>
 
