@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b0c0d" />
   <title>Historique des Guerres</title>
 
-  <link rel="stylesheet" href="./style.css?v=7" />
+  <link rel="stylesheet" href="./style.css?v=8" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="apple-touch-icon" href="./icon-512.PNG" />
   <meta name="apple-mobile-web-app-title" content="LoSP" />
@@ -33,25 +33,25 @@
         <h2 class="cardTitle">Sélection</h2>
       </div>
 
-      <div class="warHistoryFilters">
+      <div class="warHistoryFilters warHistoryFilters--compact">
         <div class="warHistoryField">
           <label class="label" for="allianceSelect">Alliance</label>
-          <select id="allianceSelect" class="select"></select>
+          <select id="allianceSelect" class="select select--compact"></select>
         </div>
 
         <div class="warHistoryField">
           <label class="label" for="yearSelect">Année</label>
-          <select id="yearSelect" class="select"></select>
+          <select id="yearSelect" class="select select--compact"></select>
         </div>
 
         <div class="warHistoryField">
           <label class="label" for="monthSelect">Mois</label>
-          <select id="monthSelect" class="select"></select>
+          <select id="monthSelect" class="select select--compact"></select>
         </div>
 
         <div class="warHistoryField">
           <label class="label" for="daySelect">Jour</label>
-          <select id="daySelect" class="select"></select>
+          <select id="daySelect" class="select select--compact"></select>
         </div>
       </div>
     </section>
@@ -68,6 +68,18 @@
           data-tab="table"
         >
           Tableau
+        </button>
+
+        <button
+          id="warHistoryTabNotes"
+          class="warHistoryTabBtn"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="warHistoryPanelNotes"
+          data-tab="notes"
+        >
+          Notes
         </button>
 
         <button
@@ -132,6 +144,25 @@
     </section>
 
     <section
+      id="warHistoryPanelNotes"
+      class="card warHistoryTabPanel"
+      role="tabpanel"
+      aria-labelledby="warHistoryTabNotes"
+      hidden
+    >
+      <div class="cardHeader">
+        <h2 class="cardTitle">Notes</h2>
+      </div>
+
+      <div class="warHistoryDebriefPlaceholder">
+        <p class="warHistoryDebriefTitle">Notes bientôt disponibles</p>
+        <p class="warHistoryDebriefText">
+          Cette zone accueillera prochainement les notes complémentaires liées à chaque guerre.
+        </p>
+      </div>
+    </section>
+
+    <section
       id="warHistoryPanelDebrief"
       class="card warHistoryTabPanel"
       role="tabpanel"
@@ -152,7 +183,7 @@
 
   </div>
 
-  <script src="./war-history.js?v=7"></script>
+  <script src="./war-history.js?v=8"></script>
 
   <script>
     (function () {
