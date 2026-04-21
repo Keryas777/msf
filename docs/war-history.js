@@ -77,6 +77,7 @@ function setActiveTab(tabName) {
 function getPanelIdFromTab(tabName) {
   const map = {
     table: "warHistoryPanelTable",
+    notes: "warHistoryPanelNotes",
     debrief: "warHistoryPanelDebrief"
   };
 
