@@ -876,6 +876,118 @@ body.page-war-history::after{
   margin-bottom: 10px;
 }
 
+.warHistorySummary{
+  display:grid;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border:1px solid rgba(120,170,255,.18);
+  border-radius: 14px;
+  background: rgba(6,10,26,.42);
+}
+
+.warHistorySummaryLine{
+  font-size: 13px;
+  color: var(--text);
+}
+
+.warHistoryNotesList{
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+}
+
+.warHistoryNoteRow{
+  display:grid;
+  grid-template-columns: 56px minmax(0,1fr) 64px;
+  gap: 10px;
+  align-items:center;
+  padding: 10px 12px;
+  border:1px solid rgba(120,170,255,.16);
+  border-radius: 14px;
+  background: rgba(6,10,26,.42);
+}
+
+.warHistoryNoteRank{
+  font-weight: 1000;
+  color: var(--muted);
+}
+
+.warHistoryNoteName{
+  font-weight: 900;
+  min-width: 0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.warHistoryNoteScore{
+  text-align:right;
+  font-weight: 1000;
+}
+
+.warHistoryDebriefPlaceholder{
+  padding: 8px 2px 2px;
+  text-align: center;
+}
+
+.warHistoryDebriefTitle{
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.warHistoryDebriefText{
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.warHistoryDebriefCard{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+  padding: 12px;
+  border:1px solid rgba(120,170,255,.16);
+  border-radius: 16px;
+  background: rgba(6,10,26,.42);
+}
+
+.warHistoryDebriefCard + .warHistoryDebriefCard{
+  margin-top: 12px;
+}
+
+.warHistoryDebriefTop{
+  display:flex;
+  justify-content:space-between;
+  gap: 10px;
+  align-items:flex-start;
+}
+
+.warHistoryDebriefName{
+  font-weight: 1000;
+  font-size: 15px;
+}
+
+.warHistoryDebriefScore{
+  font-weight: 1000;
+  white-space:nowrap;
+}
+
+.warHistoryDebriefStats{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.warHistoryDebriefText{
+  line-height: 1.45;
+  color: var(--text);
+  font-size: 14px;
+}
+
 .warHistoryTableWrap{
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
