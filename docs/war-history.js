@@ -91,9 +91,18 @@ function getPanelIdFromTab(tabName) {
 function setupAllianceSelect() {
   const alliances = Array.isArray(warIndex?.alliances) ? warIndex.alliances : [];
 
-  allianceSelect.innerHTML = alliances.map((alliance) => {
-    return `<option value="${escapeHtml(alliance)}">${capitalize(alliance)}</option>`;
-  }).join("");
+  const emojiMap = {
+    zeus: "⚡️ Zeus",
+    dionysos: "🍇 Dionysos",
+    poseidon: "🔱 Poséidon"
+  };
+
+  allianceSelect.innerHTML =
+    `<option value="">Alliance</option>` +
+    alliances.map((alliance) => {
+      const label = emojiMap[alliance] || capitalize(alliance);
+      return `<option value="${escapeHtml(alliance)}">${label}</option>`;
+    }).join("");
 
   allianceSelect.addEventListener("change", () => {
     resetRows();
@@ -102,15 +111,16 @@ function setupAllianceSelect() {
 }
 
 function hydrateInitialSelection() {
-  if (!allianceSelect.value) {
-    setMeta("Aucune alliance disponible.");
-    rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
-    renderNotes(null);
-    renderDebrief(null);
-    return;
-  }
+  clearYearSelect();
+  clearMonthSelect();
+  clearDaySelect();
+  updateSelectStates();
 
-  hydrateSelectionFromAlliance();
+  setMeta("Sélectionne une alliance, une année, un mois et un jour.");
+  rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée sélectionnée.</div>`;
+  renderNotes(null);
+  renderDebrief(null);
+
   bindDateSelects();
 }
 
@@ -118,9 +128,7 @@ function bindDateSelects() {
   yearSelect.addEventListener("change", () => {
     resetRows();
     populateMonths();
-    autoSelectFirstOption(monthSelect);
-    populateDays();
-    autoSelectFirstOption(daySelect);
+    clearDaySelect();
     updateSelectStates();
     loadSelectedWar();
   });
@@ -128,7 +136,6 @@ function bindDateSelects() {
   monthSelect.addEventListener("change", () => {
     resetRows();
     populateDays();
-    autoSelectFirstOption(daySelect);
     updateSelectStates();
     loadSelectedWar();
   });
@@ -141,14 +148,8 @@ function bindDateSelects() {
 
 function hydrateSelectionFromAlliance() {
   populateYears();
-  autoSelectFirstOption(yearSelect);
-
-  populateMonths();
-  autoSelectFirstOption(monthSelect);
-
-  populateDays();
-  autoSelectFirstOption(daySelect);
-
+  clearMonthSelect();
+  clearDaySelect();
   updateSelectStates();
   loadSelectedWar();
 }
@@ -178,12 +179,30 @@ function populateMonths() {
     return;
   }
 
+  const monthNames = {
+    "01": "Janvier",
+    "02": "Février",
+    "03": "Mars",
+    "04": "Avril",
+    "05": "Mai",
+    "06": "Juin",
+    "07": "Juillet",
+    "08": "Août",
+    "09": "Septembre",
+    "10": "Octobre",
+    "11": "Novembre",
+    "12": "Décembre"
+  };
+
   const dates = getDatesForAlliance(alliance).filter((d) => d.year === year);
   const months = [...new Set(dates.map((d) => d.month))].sort(descNumberSort);
 
   monthSelect.innerHTML =
     `<option value="">Mois</option>` +
-    months.map((month) => `<option value="${month}">${month}</option>`).join("");
+    months.map((month) => {
+      const label = `${month} (${monthNames[month] || ""})`;
+      return `<option value="${month}">${label}</option>`;
+    }).join("");
 }
 
 function populateDays() {
@@ -227,8 +246,8 @@ async function loadSelectedWar() {
   const day = daySelect.value;
 
   if (!alliance || !year || !month || !day) {
-    setMeta("Aucune donnée disponible.");
-    rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
+    setMeta("Sélectionne une alliance, une année, un mois et un jour.");
+    rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée sélectionnée.</div>`;
     renderNotes(null);
     renderDebrief(null);
     return;
@@ -252,12 +271,12 @@ async function loadSelectedWar() {
     currentSortDir = "desc";
     syncHeaderSortButtons();
 
-    setMeta(`${capitalize(alliance)} • ${formatFrenchDate(date)} • ${originalPlayers.length} joueurs`);
+    setMeta(`${getAllianceDisplayName(alliance)} • ${formatFrenchDate(date)} • ${originalPlayers.length} joueurs`);
     renderRows();
     renderReport(data.report || null);
   } catch (error) {
     console.error(error);
-    setMeta(`Impossible de charger ${alliance} pour le ${formatFrenchDate(date)} : ${error.message}`);
+    setMeta(`Impossible de charger ${getAllianceDisplayName(alliance)} pour le ${formatFrenchDate(date)} : ${error.message}`);
     rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
     renderNotes(null);
     renderDebrief(null);
@@ -278,7 +297,7 @@ function renderRows() {
         <div class="warHistoryCell col-player is-sticky-2">
           <div class="warHistoryPlayerBlock">
             <div class="warHistoryPlayerName">${escapeHtml(player.name || "—")}</div>
-            <div class="warHistoryPlayerAlliance">${capitalize(allianceSelect.value)}</div>
+            <div class="warHistoryPlayerAlliance">${getAllianceDisplayName(allianceSelect.value)}</div>
           </div>
         </div>
 
@@ -480,6 +499,16 @@ function capitalize(value) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+function getAllianceDisplayName(value) {
+  const labels = {
+    zeus: "⚡️ Zeus",
+    dionysos: "🍇 Dionysos",
+    poseidon: "🔱 Poséidon"
+  };
+
+  return labels[value] || capitalize(value);
+}
+
 function descNumberSort(a, b) {
   return Number(b) - Number(a);
 }
@@ -524,9 +553,4 @@ function resetRows() {
   rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
   renderNotes(null);
   renderDebrief(null);
-}
-
-function autoSelectFirstOption(selectEl) {
-  const firstRealOption = Array.from(selectEl.options).find((option) => option.value !== "");
-  selectEl.value = firstRealOption ? firstRealOption.value : "";
 }
