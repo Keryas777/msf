@@ -5,6 +5,8 @@ const daySelect = document.getElementById("daySelect");
 
 const rowsContainer = document.getElementById("warHistoryRows");
 const metaEl = document.getElementById("warHistoryMeta");
+const notesEl = document.getElementById("warHistoryNotes");
+const debriefEl = document.getElementById("warHistoryDebrief");
 const headerSortButtons = Array.from(document.querySelectorAll(".warHistoryHeadBtn"));
 
 const tabButtons = Array.from(document.querySelectorAll(".warHistoryTabBtn"));
@@ -32,6 +34,8 @@ async function init() {
     console.error(error);
     setMeta("Impossible de charger l'index des guerres.");
     rowsContainer.innerHTML = `<div class="warHistoryEmpty">Erreur index</div>`;
+    renderNotes(null);
+    renderDebrief(null);
   }
 }
 
@@ -101,6 +105,8 @@ function hydrateInitialSelection() {
   if (!allianceSelect.value) {
     setMeta("Aucune alliance disponible.");
     rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
+    renderNotes(null);
+    renderDebrief(null);
     return;
   }
 
@@ -223,6 +229,8 @@ async function loadSelectedWar() {
   if (!alliance || !year || !month || !day) {
     setMeta("Aucune donnée disponible.");
     rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
+    renderNotes(null);
+    renderDebrief(null);
     return;
   }
 
@@ -246,10 +254,13 @@ async function loadSelectedWar() {
 
     setMeta(`${capitalize(alliance)} • ${formatFrenchDate(date)} • ${originalPlayers.length} joueurs`);
     renderRows();
+    renderReport(data.report || null);
   } catch (error) {
     console.error(error);
     setMeta(`Impossible de charger ${alliance} pour le ${formatFrenchDate(date)} : ${error.message}`);
     rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
+    renderNotes(null);
+    renderDebrief(null);
   }
 }
 
@@ -279,6 +290,101 @@ function renderRows() {
       </div>
     `;
   }).join("");
+}
+
+function renderReport(report) {
+  renderNotes(report);
+  renderDebrief(report);
+}
+
+function renderNotes(report) {
+  if (!notesEl) return;
+
+  const ranking = Array.isArray(report?.ranking) ? report.ranking : [];
+  const summary = report?.summary || null;
+
+  if (!ranking.length) {
+    notesEl.innerHTML = `
+      <div class="warHistoryDebriefPlaceholder">
+        <p class="warHistoryDebriefTitle">Aucune note disponible</p>
+        <p class="warHistoryDebriefText">
+          Cette guerre ne contient pas encore de classement enrichi.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  const bestDamageSharePct = summary
+    ? Number(summary.best_damage_share_pct ?? ((summary.best_damage_share || 0) * 100))
+    : 0;
+
+  const summaryHtml = summary ? `
+    <div class="warHistorySummary">
+      <div class="warHistorySummaryLine"><strong>Joueurs :</strong> ${formatNumber(summary.player_count)}</div>
+      <div class="warHistorySummaryLine"><strong>Dégâts totaux :</strong> ${formatNumber(summary.total_damage)}</div>
+      <div class="warHistorySummaryLine"><strong>Meilleur dégâts moyens :</strong> ${formatNumber(summary.best_avg_damage)}</div>
+      <div class="warHistorySummaryLine"><strong>Meilleure part dégâts :</strong> ${bestDamageSharePct.toFixed(2)}%</div>
+    </div>
+  ` : "";
+
+  const rankingHtml = ranking.map((player) => `
+    <div class="warHistoryNoteRow">
+      <div class="warHistoryNoteRank">#${formatNumber(player.rank)}</div>
+      <div class="warHistoryNoteName">${escapeHtml(player.name || "—")}</div>
+      <div class="warHistoryNoteScore">${formatNumber(player.score)}</div>
+    </div>
+  `).join("");
+
+  notesEl.innerHTML = `
+    ${summaryHtml}
+    <div class="warHistoryNotesList">
+      ${rankingHtml}
+    </div>
+  `;
+}
+
+function renderDebrief(report) {
+  if (!debriefEl) return;
+
+  const enrichedPlayers = Array.isArray(report?.players) ? report.players : [];
+  const validPlayers = enrichedPlayers.filter((player) =>
+    player && (player.analysis || player.score_total !== undefined || player.rank !== undefined)
+  );
+
+  if (!validPlayers.length) {
+    debriefEl.innerHTML = `
+      <div class="warHistoryDebriefPlaceholder">
+        <p class="warHistoryDebriefTitle">Aucun débrief disponible</p>
+        <p class="warHistoryDebriefText">
+          Cette guerre ne contient pas encore d’analyse enrichie.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  debriefEl.innerHTML = validPlayers.map((player) => `
+    <div class="warHistoryDebriefCard">
+      <div class="warHistoryDebriefTop">
+        <div class="warHistoryDebriefName">
+          #${formatNumber(player.rank)} — ${escapeHtml(player.name || "—")}
+        </div>
+        <div class="warHistoryDebriefScore">${formatNumber(player.score_total ?? 0)}/100</div>
+      </div>
+
+      <div class="warHistoryDebriefStats">
+        <span>Att : ${formatNumber(player.attacks)}</span>
+        <span>Pts : ${formatNumber(player.attack_points)}</span>
+        <span>Dégâts : ${formatNumber(player.damage)}</span>
+        <span>V. Déf : ${formatNumber(player.defense_wins)}</span>
+      </div>
+
+      <div class="warHistoryDebriefText">
+        ${escapeHtml(player.analysis || "Aucune analyse disponible.")}
+      </div>
+    </div>
+  `).join("");
 }
 
 function bindHeaderSortButtons() {
@@ -416,6 +522,8 @@ function resetRows() {
   originalPlayers = [];
   currentPlayers = [];
   rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
+  renderNotes(null);
+  renderDebrief(null);
 }
 
 function autoSelectFirstOption(selectEl) {
