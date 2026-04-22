@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b0c0d" />
   <title>Historique des Guerres</title>
 
-  <link rel="stylesheet" href="./style.css?v=8" />
+  <link rel="stylesheet" href="./style.css?v=9" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="apple-touch-icon" href="./icon-512.PNG" />
   <meta name="apple-mobile-web-app-title" content="LoSP" />
@@ -154,11 +154,13 @@
         <h2 class="cardTitle">Notes</h2>
       </div>
 
-      <div class="warHistoryDebriefPlaceholder">
-        <p class="warHistoryDebriefTitle">Notes bientôt disponibles</p>
-        <p class="warHistoryDebriefText">
-          Cette zone accueillera prochainement les notes complémentaires liées à chaque guerre.
-        </p>
+      <div id="warHistoryNotes">
+        <div class="warHistoryDebriefPlaceholder">
+          <p class="warHistoryDebriefTitle">Aucune note disponible</p>
+          <p class="warHistoryDebriefText">
+            Cette guerre ne contient pas encore de classement enrichi.
+          </p>
+        </div>
       </div>
     </section>
 
@@ -173,17 +175,19 @@
         <h2 class="cardTitle">Débrief</h2>
       </div>
 
-      <div class="warHistoryDebriefPlaceholder">
-        <p class="warHistoryDebriefTitle">Débrief bientôt disponible</p>
-        <p class="warHistoryDebriefText">
-          Cette zone accueillera prochainement l’analyse textuelle complète de chaque guerre.
-        </p>
+      <div id="warHistoryDebrief">
+        <div class="warHistoryDebriefPlaceholder">
+          <p class="warHistoryDebriefTitle">Aucun débrief disponible</p>
+          <p class="warHistoryDebriefText">
+            Cette guerre ne contient pas encore d’analyse enrichie.
+          </p>
+        </div>
       </div>
     </section>
 
   </div>
 
-  <script src="./war-history.js?v=8"></script>
+  <script src="./war-history.js?v=9"></script>
 
   <script>
     (function () {
