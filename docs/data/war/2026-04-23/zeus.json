@@ -230,9 +230,132 @@
       "minimum_attacks": 11,
       "minimum_deviations": 2
     },
+    "ranking": [
+      {
+        "rank": 1,
+        "name": "Leish",
+        "score": 92
+      },
+      {
+        "rank": 2,
+        "name": "Kakashi",
+        "score": 84
+      },
+      {
+        "rank": 3,
+        "name": "beou",
+        "score": 84
+      },
+      {
+        "rank": 4,
+        "name": "Leenos",
+        "score": 84
+      },
+      {
+        "rank": 5,
+        "name": "lolo",
+        "score": 83
+      },
+      {
+        "rank": 6,
+        "name": "Lord Fanfan",
+        "score": 82
+      },
+      {
+        "rank": 7,
+        "name": "EzCommandant",
+        "score": 76
+      },
+      {
+        "rank": 8,
+        "name": "K8be24",
+        "score": 75
+      },
+      {
+        "rank": 9,
+        "name": "Harbard",
+        "score": 74
+      },
+      {
+        "rank": 10,
+        "name": "kingeric68",
+        "score": 71
+      },
+      {
+        "rank": 11,
+        "name": "Unhappy Miky",
+        "score": 70
+      },
+      {
+        "rank": 12,
+        "name": "izi",
+        "score": 69
+      },
+      {
+        "rank": 13,
+        "name": "Xam972",
+        "score": 66
+      },
+      {
+        "rank": 14,
+        "name": "Commander King J",
+        "score": 64
+      },
+      {
+        "rank": 15,
+        "name": "StarkNell",
+        "score": 64
+      },
+      {
+        "rank": 16,
+        "name": "lolodomi",
+        "score": 61
+      },
+      {
+        "rank": 17,
+        "name": "Espanol31",
+        "score": 60
+      },
+      {
+        "rank": 18,
+        "name": "fredydy13",
+        "score": 58
+      },
+      {
+        "rank": 19,
+        "name": "Yuggi94",
+        "score": 57
+      },
+      {
+        "rank": 20,
+        "name": "Keryas I",
+        "score": 56
+      },
+      {
+        "rank": 21,
+        "name": "Mehdipegase",
+        "score": 55
+      },
+      {
+        "rank": 22,
+        "name": "El_Prince",
+        "score": 49
+      },
+      {
+        "rank": 23,
+        "name": "TheMac",
+        "score": 47
+      },
+      {
+        "rank": 24,
+        "name": "BelZéBuT",
+        "score": 39
+      }
+    ],
     "players": [
       {
         "original_rank": 1,
+        "rank": 1,
         "name": "Leish",
         "attacks": 14,
         "attack_points": 13000,
@@ -252,10 +375,18 @@
         "score_total_raw": 92,
         "score_total": 92,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "high",
+          "impact": "high",
+          "efficiency": "high",
+          "defense": "high"
+        },
+        "analysis": "C’est la copie la plus complète de cette guerre, avec une activité maximale, le meilleur impact offensif et une défense qui ajoute encore du poids. Le seul raté reste une limite mineure au vu du volume de dégâts et de la note finale. Sa performance domine clairement cette guerre."
       },
       {
         "original_rank": 2,
+        "rank": 2,
         "name": "Kakashi",
         "attacks": 13,
         "attack_points": 12000,
@@ -275,56 +406,18 @@
         "score_total_raw": 84.35770968251973,
         "score_total": 84,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
-      },
-      {
-        "original_rank": 3,
-        "name": "lolo",
-        "attacks": 13,
-        "attack_points": 11000,
-        "damage": 952075677,
-        "defense_wins": 3,
-        "deviations": 3,
-        "successful_attacks": 11,
-        "misses": 2,
-        "damage_attacks": 11,
-        "avg_damage": 86552334,
-        "damage_share": 0.05580685004688637,
-        "damage_share_pct": 5.58,
-        "score_activity": 21,
-        "score_efficiency": 16,
-        "score_impact": 33.800250147799716,
-        "score_defense": 12,
-        "score_total_raw": 82.80025014779972,
-        "score_total": 83,
-        "min_attacks_ok": true,
-        "min_deviations_ok": true
-      },
-      {
-        "original_rank": 4,
-        "name": "Lord Fanfan",
-        "attacks": 14,
-        "attack_points": 13000,
-        "damage": 949711062,
-        "defense_wins": 0,
-        "deviations": 4,
-        "successful_attacks": 13,
-        "misses": 1,
-        "damage_attacks": 13,
-        "avg_damage": 73054697,
-        "damage_share": 0.055668245818344966,
-        "damage_share_pct": 5.57,
-        "score_activity": 25,
-        "score_efficiency": 21,
-        "score_impact": 29.991149042928278,
-        "score_defense": 6,
-        "score_total_raw": 81.99114904292827,
-        "score_total": 82,
-        "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "high",
+          "impact": "high",
+          "efficiency": "high",
+          "defense": "medium"
+        },
+        "analysis": "Très grosse guerre offensive, portée par une part de dégâts élevée et un excellent impact moyen. L’activité est solide et le seul raté ne pèse que légèrement sur l’ensemble. Sa défense reste correcte, ce qui confirme une performance très propre."
       },
       {
         "original_rank": 5,
+        "rank": 3,
         "name": "beou",
         "attacks": 13,
         "attack_points": 12000,
@@ -344,10 +437,18 @@
         "score_total_raw": 83.60907091914716,
         "score_total": 84,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "high",
+          "impact": "high",
+          "efficiency": "high",
+          "defense": "high"
+        },
+        "analysis": "Très belle performance sur cette guerre, avec un impact offensif fort et une défense bien présente. Le seul raté reste secondaire face au volume produit et à la régularité globale. Il se place logiquement dans le haut du classement."
       },
       {
         "original_rank": 6,
+        "rank": 4,
         "name": "Leenos",
         "attacks": 13,
         "attack_points": 12000,
@@ -367,33 +468,80 @@
         "score_total_raw": 83.91169092481952,
         "score_total": 84,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "high",
+          "impact": "medium",
+          "efficiency": "high",
+          "defense": "high"
+        },
+        "analysis": "Sa guerre est très solide grâce à un excellent apport défensif et une attaque propre. L’impact offensif est un peu moins haut que les tout premiers, mais il reste largement suffisant pour peser. L’ensemble donne une performance très équilibrée et très utile."
       },
       {
-        "original_rank": 7,
-        "name": "izi",
+        "original_rank": 3,
+        "rank": 5,
+        "name": "lolo",
         "attacks": 13,
-        "attack_points": 10000,
-        "damage": 854272065,
-        "defense_wins": 0,
-        "deviations": 2,
-        "successful_attacks": 10,
-        "misses": 3,
-        "damage_attacks": 10,
-        "avg_damage": 85427206,
-        "damage_share": 0.050073995358143115,
-        "damage_share_pct": 5.01,
+        "attack_points": 11000,
+        "damage": 952075677,
+        "defense_wins": 3,
+        "deviations": 3,
+        "successful_attacks": 11,
+        "misses": 2,
+        "damage_attacks": 11,
+        "avg_damage": 86552334,
+        "damage_share": 0.05580685004688637,
+        "damage_share_pct": 5.58,
         "score_activity": 21,
-        "score_efficiency": 11,
-        "score_impact": 32.50608311152513,
-        "score_defense": 4,
-        "score_total_raw": 68.50608311152513,
-        "score_total": 69,
+        "score_efficiency": 16,
+        "score_impact": 33.800250147799716,
+        "score_defense": 12,
+        "score_total_raw": 82.80025014779972,
+        "score_total": 83,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "high",
+          "impact": "high",
+          "efficiency": "medium",
+          "defense": "high"
+        },
+        "analysis": "Très forte guerre, surtout par l’impact offensif et la contribution défensive. Les deux ratés limitent un peu l’efficacité pure, mais ils ne remettent pas en cause le poids global de sa prestation. Il reste clairement parmi les meilleurs sur cette guerre."
+      },
+      {
+        "original_rank": 4,
+        "rank": 6,
+        "name": "Lord Fanfan",
+        "attacks": 14,
+        "attack_points": 13000,
+        "damage": 949711062,
+        "defense_wins": 0,
+        "deviations": 4,
+        "successful_attacks": 13,
+        "misses": 1,
+        "damage_attacks": 13,
+        "avg_damage": 73054697,
+        "damage_share": 0.055668245818344966,
+        "damage_share_pct": 5.57,
+        "score_activity": 25,
+        "score_efficiency": 21,
+        "score_impact": 29.991149042928278,
+        "score_defense": 6,
+        "score_total_raw": 81.99114904292827,
+        "score_total": 82,
+        "min_attacks_ok": true,
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "high",
+          "impact": "medium",
+          "efficiency": "high",
+          "defense": "medium"
+        },
+        "analysis": "Grosse guerre d’activité, avec 14 attaques et un volume de dégâts très conséquent. L’impact est très bon même s’il reste juste sous les plus hauts profils offensifs de cette guerre. La défense pèse moins, mais l’ensemble reste une prestation très solide."
       },
       {
         "original_rank": 8,
+        "rank": 7,
         "name": "EzCommandant",
         "attacks": 13,
         "attack_points": 12000,
@@ -413,10 +561,18 @@
         "score_total_raw": 76.30764476641444,
         "score_total": 76,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "medium",
+          "impact": "medium",
+          "efficiency": "high",
+          "defense": "medium"
+        },
+        "analysis": "Bonne guerre, avec une attaque propre et un impact offensif sérieux. Les déviations apportent une contribution utile, même sans victoire défensive. Il lui manque surtout un peu plus de poids défensif ou offensif pour rejoindre le tout premier groupe."
       },
       {
         "original_rank": 9,
+        "rank": 8,
         "name": "K8be24",
         "attacks": 12,
         "attack_points": 11000,
@@ -436,33 +592,18 @@
         "score_total_raw": 74.69020634144661,
         "score_total": 75,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
-      },
-      {
-        "original_rank": 10,
-        "name": "kingeric68",
-        "attacks": 12,
-        "attack_points": 11000,
-        "damage": 754135918,
-        "defense_wins": 1,
-        "deviations": 2,
-        "successful_attacks": 11,
-        "misses": 1,
-        "damage_attacks": 11,
-        "avg_damage": 68557811,
-        "damage_share": 0.044204416841537475,
-        "damage_share_pct": 4.42,
-        "score_activity": 17,
-        "score_efficiency": 21,
-        "score_impact": 26.773063622589085,
-        "score_defense": 6,
-        "score_total_raw": 70.77306362258909,
-        "score_total": 71,
-        "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "medium",
+          "impact": "medium",
+          "efficiency": "high",
+          "defense": "medium"
+        },
+        "analysis": "Guerre clairement positive, avec une bonne efficacité et un impact offensif régulier. Son volume d’attaques est un peu inférieur aux profils les plus actifs, mais il compense par une copie propre. La défense complète correctement l’ensemble."
       },
       {
         "original_rank": 11,
+        "rank": 9,
         "name": "Harbard",
         "attacks": 13,
         "attack_points": 12200,
@@ -482,33 +623,49 @@
         "score_total_raw": 73.79501483234141,
         "score_total": 74,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "medium",
+          "impact": "medium",
+          "efficiency": "high",
+          "defense": "medium"
+        },
+        "analysis": "Bonne guerre, portée par une activité solide et une efficacité propre. L’impact offensif est plus modéré que celui du haut de tableau, ce qui limite sa montée au classement. Sa défense reste correcte et donne une performance globale bien construite."
       },
       {
-        "original_rank": 12,
-        "name": "Commander King J",
-        "attacks": 11,
-        "attack_points": 9000,
-        "damage": 701615816,
+        "original_rank": 10,
+        "rank": 10,
+        "name": "kingeric68",
+        "attacks": 12,
+        "attack_points": 11000,
+        "damage": 754135918,
         "defense_wins": 1,
         "deviations": 2,
-        "successful_attacks": 9,
-        "misses": 2,
-        "damage_attacks": 9,
-        "avg_damage": 77957313,
-        "damage_share": 0.041125899526614856,
-        "damage_share_pct": 4.11,
-        "score_activity": 13,
-        "score_efficiency": 16,
-        "score_impact": 28.88365784993008,
+        "successful_attacks": 11,
+        "misses": 1,
+        "damage_attacks": 11,
+        "avg_damage": 68557811,
+        "damage_share": 0.044204416841537475,
+        "damage_share_pct": 4.42,
+        "score_activity": 17,
+        "score_efficiency": 21,
+        "score_impact": 26.773063622589085,
         "score_defense": 6,
-        "score_total_raw": 63.88365784993008,
-        "score_total": 64,
+        "score_total_raw": 70.77306362258909,
+        "score_total": 71,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "medium",
+          "impact": "medium",
+          "efficiency": "high",
+          "defense": "medium"
+        },
+        "analysis": "Guerre positive, avec une efficacité propre et un impact offensif tout à fait correct. L’activité reste bonne, même si elle n’atteint pas les volumes les plus hauts. La défense apporte un complément discret mais suffisant pour stabiliser sa note."
       },
       {
         "original_rank": 13,
+        "rank": 11,
         "name": "Unhappy Miky",
         "attacks": 11,
         "attack_points": 10000,
@@ -528,33 +685,49 @@
         "score_total_raw": 70.07526715801089,
         "score_total": 70,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "medium",
+          "impact": "medium",
+          "efficiency": "high",
+          "defense": "high"
+        },
+        "analysis": "Bonne guerre, avec une efficacité offensive propre et une vraie présence défensive. L’activité est au minimum attendu, ce qui limite mécaniquement le score total face aux joueurs plus actifs. L’ensemble reste solide et bien équilibré."
       },
       {
-        "original_rank": 14,
-        "name": "lolodomi",
-        "attacks": 14,
-        "attack_points": 9000,
-        "damage": 636018623,
+        "original_rank": 7,
+        "rank": 12,
+        "name": "izi",
+        "attacks": 13,
+        "attack_points": 10000,
+        "damage": 854272065,
         "defense_wins": 0,
-        "deviations": 3,
-        "successful_attacks": 9,
-        "misses": 5,
-        "damage_attacks": 9,
-        "avg_damage": 70668736,
-        "damage_share": 0.03728085569062191,
-        "damage_share_pct": 3.73,
-        "score_activity": 25,
-        "score_efficiency": 4,
-        "score_impact": 26.183195808852282,
-        "score_defense": 6,
-        "score_total_raw": 61.18319580885228,
-        "score_total": 61,
+        "deviations": 2,
+        "successful_attacks": 10,
+        "misses": 3,
+        "damage_attacks": 10,
+        "avg_damage": 85427206,
+        "damage_share": 0.050073995358143115,
+        "damage_share_pct": 5.01,
+        "score_activity": 21,
+        "score_efficiency": 11,
+        "score_impact": 32.50608311152513,
+        "score_defense": 4,
+        "score_total_raw": 68.50608311152513,
+        "score_total": 69,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "high",
+          "impact": "high",
+          "efficiency": "medium",
+          "defense": "low"
+        },
+        "analysis": "Son impact offensif est très fort et montre qu’il a pesé sur de grosses cibles pendant cette guerre. Les trois ratés et la faible défense le pénalisent nettement dans la note finale. La performance reste intéressante, mais moins propre que son volume de dégâts ne le laisse penser."
       },
       {
         "original_rank": 15,
+        "rank": 13,
         "name": "Xam972",
         "attacks": 11,
         "attack_points": 9000,
@@ -574,33 +747,49 @@
         "score_total_raw": 66.35534202088073,
         "score_total": 66,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "medium",
+          "impact": "medium",
+          "efficiency": "medium",
+          "defense": "high"
+        },
+        "analysis": "Guerre équilibrée, surtout grâce à une défense très solide qui soutient fortement sa note. L’impact offensif reste correct, mais l’activité limitée à 11 attaques réduit son plafond. Les deux ratés empêchent une copie plus nette."
       },
       {
-        "original_rank": 16,
-        "name": "fredydy13",
-        "attacks": 14,
+        "original_rank": 12,
+        "rank": 14,
+        "name": "Commander King J",
+        "attacks": 11,
         "attack_points": 9000,
-        "damage": 603629529,
-        "defense_wins": 0,
+        "damage": 701615816,
+        "defense_wins": 1,
         "deviations": 2,
         "successful_attacks": 9,
-        "misses": 5,
+        "misses": 2,
         "damage_attacks": 9,
-        "avg_damage": 67069948,
-        "damage_share": 0.03538233716349383,
-        "damage_share_pct": 3.54,
-        "score_activity": 25,
-        "score_efficiency": 4,
-        "score_impact": 24.849822917547293,
-        "score_defense": 4,
-        "score_total_raw": 57.84982291754729,
-        "score_total": 58,
+        "avg_damage": 77957313,
+        "damage_share": 0.041125899526614856,
+        "damage_share_pct": 4.11,
+        "score_activity": 13,
+        "score_efficiency": 16,
+        "score_impact": 28.88365784993008,
+        "score_defense": 6,
+        "score_total_raw": 63.88365784993008,
+        "score_total": 64,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "medium",
+          "impact": "medium",
+          "efficiency": "medium",
+          "defense": "medium"
+        },
+        "analysis": "L’impact offensif est le vrai point fort de sa guerre, avec des dégâts moyens élevés malgré seulement 11 attaques. L’activité plus basse et les deux ratés freinent toutefois fortement la note globale. Sa prestation reste utile, mais elle manque de volume pour monter plus haut."
       },
       {
         "original_rank": 17,
+        "rank": 15,
         "name": "StarkNell",
         "attacks": 14,
         "attack_points": 9400,
@@ -620,79 +809,49 @@
         "score_total_raw": 64.4802289297458,
         "score_total": 64,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "medium",
+          "impact": "low",
+          "efficiency": "low",
+          "defense": "high"
+        },
+        "analysis": "Sa défense est excellente sur cette guerre et son activité offensive est maximale. En revanche, les cinq ratés font lourdement baisser l’efficacité et limitent l’impact réel de ses attaques. Le résultat final reste correct, mais très contrasté."
       },
       {
-        "original_rank": 18,
-        "name": "Yuggi94",
-        "attacks": 9,
-        "attack_points": 7000,
-        "damage": 583054888,
-        "defense_wins": 2,
-        "deviations": 2,
-        "successful_attacks": 7,
-        "misses": 2,
-        "damage_attacks": 7,
-        "avg_damage": 83293555,
-        "damage_share": 0.034176334392082286,
-        "damage_share_pct": 3.42,
-        "score_activity": 4,
-        "score_efficiency": 16,
-        "score_impact": 29.193898096804535,
-        "score_defense": 8,
-        "score_total_raw": 57.19389809680453,
-        "score_total": 57,
-        "min_attacks_ok": false,
-        "min_deviations_ok": true
-      },
-      {
-        "original_rank": 19,
-        "name": "Keryas I",
-        "attacks": 8,
-        "attack_points": 7000,
-        "damage": 547880363,
-        "defense_wins": 2,
-        "deviations": 2,
-        "successful_attacks": 7,
-        "misses": 1,
-        "damage_attacks": 7,
-        "avg_damage": 78268623,
-        "damage_share": 0.032114545093640354,
-        "damage_share_pct": 3.21,
-        "score_activity": 0,
-        "score_efficiency": 21,
-        "score_impact": 27.432689127309533,
-        "score_defense": 8,
-        "score_total_raw": 56.43268912730953,
-        "score_total": 56,
-        "min_attacks_ok": false,
-        "min_deviations_ok": true
-      },
-      {
-        "original_rank": 20,
-        "name": "El_Prince",
+        "original_rank": 14,
+        "rank": 16,
+        "name": "lolodomi",
         "attacks": 14,
-        "attack_points": 8600,
-        "damage": 524241535,
-        "defense_wins": 1,
-        "deviations": 0,
-        "successful_attacks": 8,
-        "misses": 6,
+        "attack_points": 9000,
+        "damage": 636018623,
+        "defense_wins": 0,
+        "deviations": 3,
+        "successful_attacks": 9,
+        "misses": 5,
         "damage_attacks": 9,
-        "avg_damage": 58249059,
-        "damage_share": 0.030728931994441166,
-        "damage_share_pct": 3.07,
+        "avg_damage": 70668736,
+        "damage_share": 0.03728085569062191,
+        "damage_share_pct": 3.73,
         "score_activity": 25,
-        "score_efficiency": 0,
-        "score_impact": 21.581630263109897,
-        "score_defense": 2,
-        "score_total_raw": 48.5816302631099,
-        "score_total": 49,
+        "score_efficiency": 4,
+        "score_impact": 26.183195808852282,
+        "score_defense": 6,
+        "score_total_raw": 61.18319580885228,
+        "score_total": 61,
         "min_attacks_ok": true,
-        "min_deviations_ok": false
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "medium",
+          "impact": "medium",
+          "efficiency": "low",
+          "defense": "medium"
+        },
+        "analysis": "L’activité est irréprochable avec 14 attaques, et l’impact offensif reste intéressant. Les cinq ratés pénalisent cependant fortement la lecture de sa guerre. La performance garde du poids, mais elle manque clairement de propreté."
       },
       {
         "original_rank": 21,
+        "rank": 17,
         "name": "Espanol31",
         "attacks": 13,
         "attack_points": 11000,
@@ -712,33 +871,111 @@
         "score_total_raw": 60.02442951252735,
         "score_total": 60,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "low",
+          "impact": "low",
+          "efficiency": "medium",
+          "defense": "medium"
+        },
+        "analysis": "Son activité est bonne et l’efficacité reste acceptable avec deux ratés. En revanche, l’impact offensif est faible par rapport au reste du groupe, ce qui limite fortement sa note. La guerre est correcte, mais elle manque de poids sur les dégâts."
       },
       {
-        "original_rank": 22,
-        "name": "TheMac",
-        "attacks": 11,
-        "attack_points": 6800,
-        "damage": 471409008,
-        "defense_wins": 3,
-        "deviations": 0,
-        "successful_attacks": 6,
+        "original_rank": 16,
+        "rank": 18,
+        "name": "fredydy13",
+        "attacks": 14,
+        "attack_points": 9000,
+        "damage": 603629529,
+        "defense_wins": 0,
+        "deviations": 2,
+        "successful_attacks": 9,
         "misses": 5,
-        "damage_attacks": 7,
-        "avg_damage": 67344144,
-        "damage_share": 0.027632101581571502,
-        "damage_share_pct": 2.76,
-        "score_activity": 13,
+        "damage_attacks": 9,
+        "avg_damage": 67069948,
+        "damage_share": 0.03538233716349383,
+        "damage_share_pct": 3.54,
+        "score_activity": 25,
         "score_efficiency": 4,
-        "score_impact": 23.603723808362467,
-        "score_defense": 6,
-        "score_total_raw": 46.60372380836247,
-        "score_total": 47,
+        "score_impact": 24.849822917547293,
+        "score_defense": 4,
+        "score_total_raw": 57.84982291754729,
+        "score_total": 58,
         "min_attacks_ok": true,
-        "min_deviations_ok": false
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "medium",
+          "impact": "medium",
+          "efficiency": "low",
+          "defense": "low"
+        },
+        "analysis": "Il a été très actif, ce qui sauve une partie importante de sa note. Les cinq ratés pèsent toutefois lourdement, et la défense apporte peu sur cette guerre. L’impact existe, mais la performance globale reste trop irrégulière."
+      },
+      {
+        "original_rank": 18,
+        "rank": 19,
+        "name": "Yuggi94",
+        "attacks": 9,
+        "attack_points": 7000,
+        "damage": 583054888,
+        "defense_wins": 2,
+        "deviations": 2,
+        "successful_attacks": 7,
+        "misses": 2,
+        "damage_attacks": 7,
+        "avg_damage": 83293555,
+        "damage_share": 0.034176334392082286,
+        "damage_share_pct": 3.42,
+        "score_activity": 4,
+        "score_efficiency": 16,
+        "score_impact": 29.193898096804535,
+        "score_defense": 8,
+        "score_total_raw": 57.19389809680453,
+        "score_total": 57,
+        "min_attacks_ok": false,
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "medium",
+          "impact": "medium",
+          "efficiency": "medium",
+          "defense": "medium"
+        },
+        "analysis": "L’impact par attaque est très intéressant et montre qu’il a touché des cibles importantes. Le gros frein vient du manque d’activité, avec seulement 9 attaques sur cette guerre. La performance a du potentiel dans les chiffres, mais le volume insuffisant la limite fortement."
+      },
+      {
+        "original_rank": 19,
+        "rank": 20,
+        "name": "Keryas I",
+        "attacks": 8,
+        "attack_points": 7000,
+        "damage": 547880363,
+        "defense_wins": 2,
+        "deviations": 2,
+        "successful_attacks": 7,
+        "misses": 1,
+        "damage_attacks": 7,
+        "avg_damage": 78268623,
+        "damage_share": 0.032114545093640354,
+        "damage_share_pct": 3.21,
+        "score_activity": 0,
+        "score_efficiency": 21,
+        "score_impact": 27.432689127309533,
+        "score_defense": 8,
+        "score_total_raw": 56.43268912730953,
+        "score_total": 56,
+        "min_attacks_ok": false,
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "medium",
+          "impact": "medium",
+          "efficiency": "high",
+          "defense": "medium"
+        },
+        "analysis": "La qualité des attaques est bonne, avec un seul raté et un impact offensif correct. Le problème majeur de cette guerre est le manque d’activité, qui met son score d’activité à zéro. La copie est propre dans l’exécution, mais trop courte en volume."
       },
       {
         "original_rank": 23,
+        "rank": 21,
         "name": "Mehdipegase",
         "attacks": 11,
         "attack_points": 10000,
@@ -758,10 +995,80 @@
         "score_total_raw": 55.21366408011809,
         "score_total": 55,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "low",
+          "impact": "low",
+          "efficiency": "high",
+          "defense": "low"
+        },
+        "analysis": "L’efficacité est propre, avec un seul raté sur cette guerre. En revanche, l’impact offensif reste faible et la défense apporte peu, ce qui limite fortement la note finale. La performance est correcte dans l’exécution, mais trop peu influente."
+      },
+      {
+        "original_rank": 20,
+        "rank": 22,
+        "name": "El_Prince",
+        "attacks": 14,
+        "attack_points": 8600,
+        "damage": 524241535,
+        "defense_wins": 1,
+        "deviations": 0,
+        "successful_attacks": 8,
+        "misses": 6,
+        "damage_attacks": 9,
+        "avg_damage": 58249059,
+        "damage_share": 0.030728931994441166,
+        "damage_share_pct": 3.07,
+        "score_activity": 25,
+        "score_efficiency": 0,
+        "score_impact": 21.581630263109897,
+        "score_defense": 2,
+        "score_total_raw": 48.5816302631099,
+        "score_total": 49,
+        "min_attacks_ok": true,
+        "min_deviations_ok": false,
+        "tags": {
+          "risk": "medium",
+          "impact": "low",
+          "efficiency": "low",
+          "defense": "low"
+        },
+        "analysis": "L’activité est maximale, ce qui montre une vraie présence sur cette guerre. Mais les six ratés détruisent l’efficacité et la défense apporte très peu. Malgré le volume, la performance globale reste insuffisante."
+      },
+      {
+        "original_rank": 22,
+        "rank": 23,
+        "name": "TheMac",
+        "attacks": 11,
+        "attack_points": 6800,
+        "damage": 471409008,
+        "defense_wins": 3,
+        "deviations": 0,
+        "successful_attacks": 6,
+        "misses": 5,
+        "damage_attacks": 7,
+        "avg_damage": 67344144,
+        "damage_share": 0.027632101581571502,
+        "damage_share_pct": 2.76,
+        "score_activity": 13,
+        "score_efficiency": 4,
+        "score_impact": 23.603723808362467,
+        "score_defense": 6,
+        "score_total_raw": 46.60372380836247,
+        "score_total": 47,
+        "min_attacks_ok": true,
+        "min_deviations_ok": false,
+        "tags": {
+          "risk": "medium",
+          "impact": "medium",
+          "efficiency": "low",
+          "defense": "medium"
+        },
+        "analysis": "Il y a un impact offensif correct et trois victoires défensives qui évitent une copie totalement creuse. Les cinq ratés pénalisent cependant très fortement l’efficacité, et l’absence de déviation limite aussi l’apport défensif. La guerre reste globalement insuffisante."
       },
       {
         "original_rank": 24,
+        "rank": 24,
         "name": "BelZéBuT",
         "attacks": 12,
         "attack_points": 5000,
@@ -781,7 +1088,14 @@
         "score_total_raw": 38.81167501944565,
         "score_total": 39,
         "min_attacks_ok": true,
-        "min_deviations_ok": true
+        "min_deviations_ok": true,
+        "tags": {
+          "risk": "low",
+          "impact": "low",
+          "efficiency": "low",
+          "defense": "medium"
+        },
+        "analysis": "La présence est réelle avec 12 attaques et quelques déviations utiles. Mais les sept ratés et la très faible part de dégâts rendent la guerre très coûteuse en efficacité. C’est une performance nettement insuffisante sur cette journée."
       }
     ]
   }
