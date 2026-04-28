@@ -17,192 +17,276 @@
 
     <style>
       body.authPage{
-        min-height:100vh;
-        overflow:hidden;
+        position: relative;
+        isolation: isolate;
+        min-height: 100vh;
+        overflow: hidden;
         background:
-          radial-gradient(circle at 50% 18%, rgba(105,126,255,.28), transparent 34%),
-          radial-gradient(circle at 15% 80%, rgba(255,130,70,.13), transparent 32%),
-          radial-gradient(circle at 88% 78%, rgba(80,200,255,.16), transparent 30%),
+          radial-gradient(circle at 50% 18%, rgba(105,126,255,.32), transparent 34%),
+          radial-gradient(circle at 15% 80%, rgba(255,130,70,.16), transparent 32%),
+          radial-gradient(circle at 88% 78%, rgba(80,200,255,.18), transparent 30%),
           linear-gradient(180deg, #050712, #07091b 55%, #03040a);
       }
 
       body.authPage::before{
-        content:"";
-        position:fixed;
-        inset:0;
-        pointer-events:none;
-        opacity:.35;
-        background-image:url("./Background.webp");
-        background-size:cover;
-        background-position:center;
-        filter:contrast(1.1) brightness(.75);
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        opacity: .36;
+        background-image: url("./Background.webp");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        filter: contrast(1.12) brightness(.72) saturate(1.15);
+      }
+
+      body.authPage::after{
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at 50% 42%, rgba(110,130,255,.18), transparent 34%),
+          linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.48));
       }
 
       .authParticles{
-        position:fixed;
-        inset:0;
-        pointer-events:none;
-        overflow:hidden;
-        z-index:0;
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        overflow: hidden;
+        pointer-events: none;
       }
 
       .authParticles span{
-        position:absolute;
-        width:3px;
-        height:3px;
-        border-radius:50%;
-        background:rgba(255,255,255,.75);
-        box-shadow:0 0 14px rgba(120,170,255,.9);
-        animation:floatParticle linear infinite;
-        opacity:.55;
+        position: absolute;
+        display: block;
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.78);
+        box-shadow:
+          0 0 10px rgba(255,255,255,.70),
+          0 0 24px rgba(120,170,255,.70),
+          0 0 44px rgba(120,170,255,.32);
+        opacity: 0;
+        animation: authFloat linear infinite;
       }
 
-      .authParticles span:nth-child(1){ left:10%; top:85%; animation-duration:12s; }
-      .authParticles span:nth-child(2){ left:22%; top:70%; animation-duration:16s; animation-delay:-3s; }
-      .authParticles span:nth-child(3){ left:35%; top:92%; animation-duration:13s; animation-delay:-7s; }
-      .authParticles span:nth-child(4){ left:48%; top:78%; animation-duration:18s; animation-delay:-5s; }
-      .authParticles span:nth-child(5){ left:62%; top:88%; animation-duration:15s; animation-delay:-8s; }
-      .authParticles span:nth-child(6){ left:76%; top:74%; animation-duration:19s; animation-delay:-4s; }
-      .authParticles span:nth-child(7){ left:88%; top:91%; animation-duration:14s; animation-delay:-9s; }
-      .authParticles span:nth-child(8){ left:55%; top:96%; animation-duration:17s; animation-delay:-2s; }
+      .authParticles span:nth-child(1){ left: 8%; top: 86%; width: 5px; height: 5px; animation-duration: 16s; animation-delay: -1s; }
+      .authParticles span:nth-child(2){ left: 18%; top: 74%; width: 10px; height: 10px; animation-duration: 13s; animation-delay: -4s; }
+      .authParticles span:nth-child(3){ left: 28%; top: 94%; width: 6px; height: 6px; animation-duration: 18s; animation-delay: -8s; }
+      .authParticles span:nth-child(4){ left: 38%; top: 80%; width: 8px; height: 8px; animation-duration: 15s; animation-delay: -2s; }
+      .authParticles span:nth-child(5){ left: 48%; top: 96%; width: 4px; height: 4px; animation-duration: 19s; animation-delay: -6s; }
+      .authParticles span:nth-child(6){ left: 58%; top: 84%; width: 11px; height: 11px; animation-duration: 14s; animation-delay: -10s; }
+      .authParticles span:nth-child(7){ left: 68%; top: 90%; width: 6px; height: 6px; animation-duration: 17s; animation-delay: -3s; }
+      .authParticles span:nth-child(8){ left: 78%; top: 76%; width: 8px; height: 8px; animation-duration: 12s; animation-delay: -7s; }
+      .authParticles span:nth-child(9){ left: 88%; top: 92%; width: 10px; height: 10px; animation-duration: 20s; animation-delay: -5s; }
+      .authParticles span:nth-child(10){ left: 12%; top: 62%; width: 4px; height: 4px; animation-duration: 22s; animation-delay: -11s; }
+      .authParticles span:nth-child(11){ left: 62%; top: 66%; width: 6px; height: 6px; animation-duration: 16s; animation-delay: -9s; }
+      .authParticles span:nth-child(12){ left: 92%; top: 78%; width: 5px; height: 5px; animation-duration: 18s; animation-delay: -13s; }
 
-      @keyframes floatParticle{
-        from{ transform:translateY(0) scale(.8); opacity:0; }
-        15%{ opacity:.7; }
-        to{ transform:translateY(-110vh) scale(1.4); opacity:0; }
+      @keyframes authFloat{
+        0%{
+          transform: translateY(0) translateX(0) scale(.72);
+          opacity: 0;
+        }
+
+        12%{
+          opacity: .72;
+        }
+
+        50%{
+          transform: translateY(-42vh) translateX(14px) scale(1.18);
+          opacity: .92;
+        }
+
+        100%{
+          transform: translateY(-112vh) translateX(-12px) scale(.86);
+          opacity: 0;
+        }
       }
 
       .authWrap{
-        position:relative;
-        z-index:1;
-        min-height:calc(100vh - 24px);
-        display:flex;
-        align-items:center;
-        justify-content:center;
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        min-height: calc(100vh - 24px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .authCard{
-        width:min(100%, 460px);
-        position:relative;
-        overflow:hidden;
-        border-radius:30px;
-        padding:30px 24px;
-        text-align:center;
-        border:1px solid rgba(255,255,255,.16);
+        width: min(100%, 460px);
+        position: relative;
+        overflow: hidden;
+        border-radius: 30px;
+        padding: 30px 24px;
+        text-align: center;
+        border: 1px solid rgba(255,255,255,.18);
         background:
-          linear-gradient(180deg, rgba(20,24,42,.86), rgba(5,8,22,.82));
+          linear-gradient(180deg, rgba(24,28,52,.86), rgba(5,8,22,.82));
         box-shadow:
           0 24px 80px rgba(0,0,0,.65),
-          0 0 90px rgba(95,130,255,.24),
+          0 0 90px rgba(95,130,255,.26),
           inset 0 0 0 1px rgba(255,255,255,.06);
-        backdrop-filter:blur(16px);
-        -webkit-backdrop-filter:blur(16px);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
       }
 
       .authCard::before{
-        content:"";
-        position:absolute;
-        inset:-2px;
+        content: "";
+        position: absolute;
+        inset: -2px;
+        pointer-events: none;
+        opacity: .92;
         background:
-          radial-gradient(circle at 50% 0%, rgba(125,155,255,.42), transparent 32%),
-          radial-gradient(circle at 0% 100%, rgba(255,120,70,.20), transparent 35%),
-          radial-gradient(circle at 100% 100%, rgba(70,190,255,.20), transparent 35%);
-        pointer-events:none;
-        opacity:.9;
+          radial-gradient(circle at 50% 0%, rgba(125,155,255,.44), transparent 32%),
+          radial-gradient(circle at 0% 100%, rgba(255,120,70,.22), transparent 35%),
+          radial-gradient(circle at 100% 100%, rgba(70,190,255,.22), transparent 35%);
+      }
+
+      .authCard::after{
+        content: "";
+        position: absolute;
+        inset: 1px;
+        pointer-events: none;
+        border-radius: inherit;
+        box-shadow:
+          inset 0 0 42px rgba(255,255,255,.04),
+          inset 0 0 1px rgba(255,255,255,.18);
       }
 
       .authContent{
-        position:relative;
-        z-index:1;
+        position: relative;
+        z-index: 1;
       }
 
       .authLogo{
-  width: 96px;
-  height: 96px;
-  margin: 0 auto 18px;
-  border-radius: 28px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow: hidden;
-  background: radial-gradient(circle, rgba(255,140,60,.25), rgba(255,80,20,.10));
-  border:1px solid rgba(255,255,255,.18);
-  box-shadow:
-    0 0 46px rgba(255,120,40,.42),
-    inset 0 0 28px rgba(255,255,255,.08);
-}
+        width: 96px;
+        height: 96px;
+        margin: 0 auto 18px;
+        border-radius: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background:
+          radial-gradient(circle, rgba(255,140,60,.30), rgba(255,80,20,.10));
+        border: 1px solid rgba(255,255,255,.18);
+        box-shadow:
+          0 0 46px rgba(255,120,40,.44),
+          0 0 70px rgba(255,170,70,.18),
+          inset 0 0 28px rgba(255,255,255,.08);
+      }
 
-.authLogo img{
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display:block;
-  border-radius: inherit;
-  filter: drop-shadow(0 0 12px rgba(255,140,60,.55));
-}
+      .authLogo img{
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+        border-radius: inherit;
+        filter: drop-shadow(0 0 12px rgba(255,140,60,.55));
+      }
 
       .authTitle{
-        margin:0;
-        font-size:32px;
-        line-height:1;
-        font-weight:1000;
-        letter-spacing:.2px;
+        margin: 0;
+        font-size: 32px;
+        line-height: 1;
+        font-weight: 1000;
+        letter-spacing: .2px;
+        text-shadow: 0 8px 26px rgba(0,0,0,.50);
       }
 
       .authSubtitle{
-        margin:14px auto 0;
-        color:rgba(255,255,255,.72);
-        font-size:15px;
-        line-height:1.4;
-        max-width:350px;
+        margin: 14px auto 0;
+        color: rgba(255,255,255,.74);
+        font-size: 15px;
+        line-height: 1.4;
+        max-width: 350px;
       }
 
       .authDivider{
-        height:1px;
-        margin:24px 0;
-        background:linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+        height: 1px;
+        margin: 24px 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,.24), transparent);
       }
 
       .discordBtn{
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        gap:10px;
-        width:100%;
-        padding:16px;
-        border-radius:18px;
-        color:#fff;
-        text-decoration:none;
-        font-weight:1000;
-        background:linear-gradient(180deg, #7785ff, #5865f2);
-        border:1px solid rgba(255,255,255,.22);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 16px;
+        border-radius: 18px;
+        color: #fff;
+        text-decoration: none;
+        font-weight: 1000;
+        background:
+          linear-gradient(180deg, #8390ff, #5865f2);
+        border: 1px solid rgba(255,255,255,.24);
         box-shadow:
-          0 14px 34px rgba(88,101,242,.38),
-          inset 0 0 0 1px rgba(255,255,255,.12);
-        transition:transform .16s ease, filter .16s ease;
+          0 14px 34px rgba(88,101,242,.40),
+          0 0 46px rgba(88,101,242,.18),
+          inset 0 0 0 1px rgba(255,255,255,.14);
+        transition:
+          transform .16s ease,
+          filter .16s ease,
+          box-shadow .16s ease;
+        -webkit-tap-highlight-color: transparent;
       }
 
       .discordBtn:hover{
-        transform:translateY(-1px);
-        filter:brightness(1.08);
+        transform: translateY(-1px);
+        filter: brightness(1.08);
+        box-shadow:
+          0 18px 42px rgba(88,101,242,.48),
+          0 0 64px rgba(88,101,242,.26),
+          inset 0 0 0 1px rgba(255,255,255,.18);
       }
 
       .discordBtn:active{
-        transform:scale(.985);
+        transform: scale(.985);
       }
 
       .authHint{
-        margin:16px 0 0;
-        color:rgba(255,255,255,.52);
-        font-size:12.5px;
-        line-height:1.35;
+        margin: 16px 0 0;
+        color: rgba(255,255,255,.54);
+        font-size: 12.5px;
+        line-height: 1.35;
+      }
+
+      @media (max-width: 420px){
+        .authCard{
+          border-radius: 26px;
+          padding: 26px 20px;
+        }
+
+        .authTitle{
+          font-size: 29px;
+        }
+
+        .authLogo{
+          width: 88px;
+          height: 88px;
+          border-radius: 25px;
+        }
       }
 
       @media (prefers-reduced-motion: reduce){
         .authParticles span{
-          animation:none;
-          display:none;
+          animation: none;
+          display: none;
+        }
+
+        .discordBtn{
+          transition: none;
         }
       }
     </style>
@@ -210,16 +294,26 @@
 
   <body class="authPage">
     <div class="authParticles" aria-hidden="true">
-      <span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
     </div>
 
     <div class="app authWrap">
       <main class="authCard">
         <div class="authContent">
           <div class="authLogo">
-  <img src="./icon-192.png" alt="LoSP" />
-</div>
+            <img src="./icon-192.png" alt="LoSP" />
+          </div>
 
           <h1 class="authTitle">Connexion LoSP</h1>
 
