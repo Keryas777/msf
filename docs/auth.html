@@ -1,99 +1,236 @@
+<!-- /docs/auth.html -->
 <!doctype html>
 <html lang="fr">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Connexion LoSP</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
+    />
+    <meta name="theme-color" content="#05070d" />
+    <title>Connexion LoSP</title>
 
-  <link rel="stylesheet" href="./style.css?v=11" />
+    <link rel="stylesheet" href="./style.css?v=10" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icon-512.PNG" />
+    <meta name="apple-mobile-web-app-title" content="LoSP" />
 
-  <style>
-    .auth-container {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
+    <style>
+      body.authPage{
+        min-height:100vh;
+        overflow:hidden;
+        background:
+          radial-gradient(circle at 50% 18%, rgba(105,126,255,.28), transparent 34%),
+          radial-gradient(circle at 15% 80%, rgba(255,130,70,.13), transparent 32%),
+          radial-gradient(circle at 88% 78%, rgba(80,200,255,.16), transparent 30%),
+          linear-gradient(180deg, #050712, #07091b 55%, #03040a);
+      }
 
-    .auth-card {
-      width: 100%;
-      max-width: 420px;
-      padding: 28px;
-      border-radius: 16px;
-      background: linear-gradient(145deg, rgba(20,20,30,0.9), rgba(10,10,15,0.95));
-      box-shadow: 0 0 40px rgba(100, 120, 255, 0.25);
-      text-align: center;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.05);
-    }
+      body.authPage::before{
+        content:"";
+        position:fixed;
+        inset:0;
+        pointer-events:none;
+        opacity:.35;
+        background-image:url("./Background.webp");
+        background-size:cover;
+        background-position:center;
+        filter:contrast(1.1) brightness(.75);
+      }
 
-    .auth-logo {
-      font-size: 38px;
-      margin-bottom: 10px;
-    }
+      .authParticles{
+        position:fixed;
+        inset:0;
+        pointer-events:none;
+        overflow:hidden;
+        z-index:0;
+      }
 
-    .auth-title {
-      font-size: 24px;
-      font-weight: 900;
-      margin-bottom: 8px;
-    }
+      .authParticles span{
+        position:absolute;
+        width:3px;
+        height:3px;
+        border-radius:50%;
+        background:rgba(255,255,255,.75);
+        box-shadow:0 0 14px rgba(120,170,255,.9);
+        animation:floatParticle linear infinite;
+        opacity:.55;
+      }
 
-    .auth-subtitle {
-      font-size: 14px;
-      opacity: 0.7;
-      margin-bottom: 24px;
-    }
+      .authParticles span:nth-child(1){ left:10%; top:85%; animation-duration:12s; }
+      .authParticles span:nth-child(2){ left:22%; top:70%; animation-duration:16s; animation-delay:-3s; }
+      .authParticles span:nth-child(3){ left:35%; top:92%; animation-duration:13s; animation-delay:-7s; }
+      .authParticles span:nth-child(4){ left:48%; top:78%; animation-duration:18s; animation-delay:-5s; }
+      .authParticles span:nth-child(5){ left:62%; top:88%; animation-duration:15s; animation-delay:-8s; }
+      .authParticles span:nth-child(6){ left:76%; top:74%; animation-duration:19s; animation-delay:-4s; }
+      .authParticles span:nth-child(7){ left:88%; top:91%; animation-duration:14s; animation-delay:-9s; }
+      .authParticles span:nth-child(8){ left:55%; top:96%; animation-duration:17s; animation-delay:-2s; }
 
-    .auth-btn {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #5865F2, #404EED);
-      color: white;
-      font-weight: 700;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      box-shadow: 0 0 15px rgba(88,101,242,0.5);
-    }
+      @keyframes floatParticle{
+        from{ transform:translateY(0) scale(.8); opacity:0; }
+        15%{ opacity:.7; }
+        to{ transform:translateY(-110vh) scale(1.4); opacity:0; }
+      }
 
-    .auth-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 25px rgba(88,101,242,0.8);
-    }
+      .authWrap{
+        position:relative;
+        z-index:1;
+        min-height:calc(100vh - 24px);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+      }
 
-    .auth-footer {
-      margin-top: 20px;
-      font-size: 12px;
-      opacity: 0.5;
-    }
-  </style>
-</head>
+      .authCard{
+        width:min(100%, 460px);
+        position:relative;
+        overflow:hidden;
+        border-radius:30px;
+        padding:30px 24px;
+        text-align:center;
+        border:1px solid rgba(255,255,255,.16);
+        background:
+          linear-gradient(180deg, rgba(20,24,42,.86), rgba(5,8,22,.82));
+        box-shadow:
+          0 24px 80px rgba(0,0,0,.65),
+          0 0 90px rgba(95,130,255,.24),
+          inset 0 0 0 1px rgba(255,255,255,.06);
+        backdrop-filter:blur(16px);
+        -webkit-backdrop-filter:blur(16px);
+      }
 
-<body class="page-war-history">
+      .authCard::before{
+        content:"";
+        position:absolute;
+        inset:-2px;
+        background:
+          radial-gradient(circle at 50% 0%, rgba(125,155,255,.42), transparent 32%),
+          radial-gradient(circle at 0% 100%, rgba(255,120,70,.20), transparent 35%),
+          radial-gradient(circle at 100% 100%, rgba(70,190,255,.20), transparent 35%);
+        pointer-events:none;
+        opacity:.9;
+      }
 
-  <div class="auth-container">
-    <div class="auth-card">
+      .authContent{
+        position:relative;
+        z-index:1;
+      }
 
-      <img src="./icon-192.png" style="width:60px;margin-bottom:10px;">
+      .authLogo{
+        width:92px;
+        height:92px;
+        margin:0 auto 18px;
+        border-radius:28px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:42px;
+        background:rgba(88,101,242,.18);
+        border:1px solid rgba(255,255,255,.18);
+        box-shadow:
+          0 0 46px rgba(88,101,242,.52),
+          inset 0 0 28px rgba(255,255,255,.08);
+      }
 
-      <div class="auth-title">LoSP Accès Sécurisé</div>
-      <div class="auth-subtitle">
-        Accès réservé aux membres du groupement LoSP
-      </div>
+      .authTitle{
+        margin:0;
+        font-size:32px;
+        line-height:1;
+        font-weight:1000;
+        letter-spacing:.2px;
+      }
 
-      <a class="auth-btn"
-         href="https://losp-auth.deliriousfan7.workers.dev/login">
-        🔐 Se connecter avec Discord
-      </a>
+      .authSubtitle{
+        margin:14px auto 0;
+        color:rgba(255,255,255,.72);
+        font-size:15px;
+        line-height:1.4;
+        max-width:350px;
+      }
 
-      <div class="auth-footer">
-        Authentification sécurisée • Discord OAuth
-      </div>
+      .authDivider{
+        height:1px;
+        margin:24px 0;
+        background:linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+      }
 
+      .discordBtn{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:10px;
+        width:100%;
+        padding:16px;
+        border-radius:18px;
+        color:#fff;
+        text-decoration:none;
+        font-weight:1000;
+        background:linear-gradient(180deg, #7785ff, #5865f2);
+        border:1px solid rgba(255,255,255,.22);
+        box-shadow:
+          0 14px 34px rgba(88,101,242,.38),
+          inset 0 0 0 1px rgba(255,255,255,.12);
+        transition:transform .16s ease, filter .16s ease;
+      }
+
+      .discordBtn:hover{
+        transform:translateY(-1px);
+        filter:brightness(1.08);
+      }
+
+      .discordBtn:active{
+        transform:scale(.985);
+      }
+
+      .authHint{
+        margin:16px 0 0;
+        color:rgba(255,255,255,.52);
+        font-size:12.5px;
+        line-height:1.35;
+      }
+
+      @media (prefers-reduced-motion: reduce){
+        .authParticles span{
+          animation:none;
+          display:none;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="authPage">
+    <div class="authParticles" aria-hidden="true">
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
     </div>
-  </div>
 
-</body>
+    <div class="app authWrap">
+      <main class="authCard">
+        <div class="authContent">
+          <div class="authLogo" aria-hidden="true">🛡️</div>
+
+          <h1 class="authTitle">Connexion LoSP</h1>
+
+          <p class="authSubtitle">
+            Accès réservé aux membres autorisés du groupement.
+            Connecte-toi avec Discord pour continuer.
+          </p>
+
+          <div class="authDivider"></div>
+
+          <a
+            class="discordBtn"
+            href="https://losp-auth.deliriousfan7.workers.dev/login"
+          >
+            <span aria-hidden="true">💬</span>
+            <span>Se connecter avec Discord</span>
+          </a>
+
+          <p class="authHint">
+            Ton compte Discord sert uniquement à vérifier ton accès et associer tes profils joueurs.
+          </p>
+        </div>
+      </main>
+    </div>
+  </body>
 </html>
