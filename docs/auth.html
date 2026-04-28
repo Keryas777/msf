@@ -117,20 +117,30 @@
       }
 
       .authLogo{
-        width:92px;
-        height:92px;
-        margin:0 auto 18px;
-        border-radius:28px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-size:42px;
-        background:rgba(88,101,242,.18);
-        border:1px solid rgba(255,255,255,.18);
-        box-shadow:
-          0 0 46px rgba(88,101,242,.52),
-          inset 0 0 28px rgba(255,255,255,.08);
-      }
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 18px;
+  border-radius: 28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow: hidden;
+  background: radial-gradient(circle, rgba(255,140,60,.25), rgba(255,80,20,.10));
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:
+    0 0 46px rgba(255,120,40,.42),
+    inset 0 0 28px rgba(255,255,255,.08);
+}
+
+.authLogo img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display:block;
+  border-radius: inherit;
+  filter: drop-shadow(0 0 12px rgba(255,140,60,.55));
+}
 
       .authTitle{
         margin:0;
