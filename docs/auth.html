@@ -1,47 +1,99 @@
-<!-- /docs/auth.html -->
 <!doctype html>
 <html lang="fr">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
-    />
-    <meta name="theme-color" content="#0b0c0d" />
-    <title>Connexion LoSP</title>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Connexion LoSP</title>
 
-    <link rel="stylesheet" href="./style.css?v=10" />
-    <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="./icon-512.PNG" />
-    <meta name="apple-mobile-web-app-title" content="LoSP" />
-  </head>
+  <link rel="stylesheet" href="./style.css?v=11" />
 
-  <body>
-    <div class="app">
-      <header class="header">
-        <div class="headerLeft">
-          <h1 class="title">Connexion LoSP</h1>
-          <p class="subtitle">Identifie-toi avec Discord pour accéder aux outils LoSP.</p>
-        </div>
-      </header>
+  <style>
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
 
-      <section class="card">
-        <div class="cardHeader">
-          <h2 class="cardTitle">Accès membres</h2>
-        </div>
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      padding: 28px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, rgba(20,20,30,0.9), rgba(10,10,15,0.95));
+      box-shadow: 0 0 40px rgba(100, 120, 255, 0.25);
+      text-align: center;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
 
-        <p class="subtitle" style="margin-bottom:16px;">
-          La connexion permet de vérifier que tu fais bien partie du groupement LoSP.
-        </p>
+    .auth-logo {
+      font-size: 38px;
+      margin-bottom: 10px;
+    }
 
-        <a
-          class="select"
-          style="display:block; text-align:center; text-decoration:none; font-weight:900;"
-          href="https://losp-auth.deliriousfan7.workers.dev/login"
-        >
-          Se connecter avec Discord
-        </a>
-      </section>
+    .auth-title {
+      font-size: 24px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .auth-subtitle {
+      font-size: 14px;
+      opacity: 0.7;
+      margin-bottom: 24px;
+    }
+
+    .auth-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #5865F2, #404EED);
+      color: white;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 15px rgba(88,101,242,0.5);
+    }
+
+    .auth-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(88,101,242,0.8);
+    }
+
+    .auth-footer {
+      margin-top: 20px;
+      font-size: 12px;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+
+<body class="page-war-history">
+
+  <div class="auth-container">
+    <div class="auth-card">
+
+      <div class="auth-logo">⚔️</div>
+
+      <div class="auth-title">LoSP Secure Access</div>
+      <div class="auth-subtitle">
+        Accès réservé aux membres du groupement
+      </div>
+
+      <a class="auth-btn"
+         href="https://losp-auth.TON-SOUS-DOMAINE.workers.dev/login">
+        🔐 Se connecter avec Discord
+      </a>
+
+      <div class="auth-footer">
+        Authentification sécurisée • Discord OAuth
+      </div>
+
     </div>
-  </body>
+  </div>
+
+</body>
 </html>
