@@ -13,10 +13,15 @@
 
   const ALLIANCE_EMOJI = {
     Zeus: "⚡️",
+    zeus: "⚡️",
     Dionysos: "🍇",
+    dionysos: "🍇",
     "Poséidon": "🔱",
     Poseidon: "🔱",
+    poseidon: "🔱",
   };
+
+  const AUTH_PLAYER_STORAGE_KEY = "losp:lastAttackCheckerPlayerByAlliance";
 
   const qs = (s) => document.querySelector(s);
 
@@ -32,6 +37,20 @@
   const resultsWrap = qs("#results");
   const resultsCount = qs("#resultsCount");
   const playerChip = qs("#playerChip");
+
+  // ---------- Auth session / auto-selection ----------
+  let lospSession = window.LoSP_SESSION || null;
+  let authDefaultsApplied = false;
+  let bootReady = false;
+
+  window.addEventListener("losp:auth-ready", (event) => {
+    lospSession = event.detail;
+
+    if (bootReady) {
+      renderAllianceOptions();
+      tryApplyAuthDefaults();
+    }
+  });
 
   // ---------- Utils ----------
   const bust = (url) => {
@@ -74,6 +93,25 @@
       .replace(/[’'`´]/g, "")
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
+
+  function allianceKey(value) {
+    const key = normalizeKey(value);
+
+    if (key === "poseidon" || key === "posseidon") return "poseidon";
+    if (key === "dionysos") return "dionysos";
+    if (key === "zeus") return "zeus";
+
+    return key;
+  }
+
+  function normalizeTextForMatch(value) {
+    return String(value ?? "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, " ");
+  }
 
   function formatThousandsDot(n) {
     const num = Number(n);
@@ -151,6 +189,172 @@
     }
 
     return lines;
+  }
+
+  // ---------- Auth helpers ----------
+  function getAllowedAllianceKeys() {
+    if (!lospSession?.ok) return null;
+    if (!Array.isArray(lospSession.alliances) || !lospSession.alliances.length) return null;
+
+    return new Set(lospSession.alliances.map((a) => allianceKey(a)).filter(Boolean));
+  }
+
+  function isAllianceAllowed(alliance) {
+    const allowedKeys = getAllowedAllianceKeys();
+    if (!allowedKeys) return true;
+
+    return allowedKeys.has(allianceKey(alliance));
+  }
+
+  function getSessionPrimaryAllianceKey() {
+    if (!lospSession?.ok) return "";
+
+    if (lospSession.primaryAlliance) {
+      return allianceKey(lospSession.primaryAlliance);
+    }
+
+    if (Array.isArray(lospSession.alliances) && lospSession.alliances.length) {
+      return allianceKey(lospSession.alliances[0]);
+    }
+
+    return "";
+  }
+
+  function findAllianceOptionByKey(key) {
+    if (!key || !allianceSelect) return null;
+
+    return Array.from(allianceSelect.options).find((option) => {
+      if (!option.value) return false;
+      return allianceKey(option.value) === key || allianceKey(option.textContent) === key;
+    });
+  }
+
+  function getSessionPlayerForAlliance(session, alliance) {
+    const allianceK = allianceKey(alliance);
+
+    if (!session?.ok || !Array.isArray(session.players)) return null;
+
+    const matchingPlayer = session.players.find((player) => allianceKey(player.alliance) === allianceK);
+
+    if (matchingPlayer) return matchingPlayer;
+
+    return session.players.length === 1 ? session.players[0] : null;
+  }
+
+  function findPlayerOptionByName(name) {
+    if (!name || !playerSelect) return null;
+
+    const wanted = normalizeTextForMatch(name);
+    const wantedKey = normalizeKey(name);
+
+    return Array.from(playerSelect.options).find((option) => {
+      if (!option.value) return false;
+
+      return (
+        normalizeTextForMatch(option.value) === wanted ||
+        normalizeTextForMatch(option.textContent) === wanted ||
+        normalizeKey(option.value) === wantedKey ||
+        normalizeKey(option.textContent) === wantedKey
+      );
+    });
+  }
+
+  function readStoredPlayersByAlliance() {
+    try {
+      return JSON.parse(localStorage.getItem(AUTH_PLAYER_STORAGE_KEY) || "{}") || {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function saveStoredPlayerForAlliance(alliance, player) {
+    const allianceK = allianceKey(alliance);
+    const playerName = (player ?? "").toString().trim();
+
+    if (!allianceK || !playerName) return;
+
+    try {
+      const data = readStoredPlayersByAlliance();
+      data[allianceK] = playerName;
+      localStorage.setItem(AUTH_PLAYER_STORAGE_KEY, JSON.stringify(data));
+    } catch (_) {}
+  }
+
+  function getStoredPlayerForAlliance(alliance) {
+    const allianceK = allianceKey(alliance);
+    if (!allianceK) return "";
+
+    const data = readStoredPlayersByAlliance();
+    return data[allianceK] || "";
+  }
+
+  function selectPlayerByName(name) {
+    const option = findPlayerOptionByName(name);
+
+    if (!option) return false;
+
+    playerSelect.value = option.value;
+    playerSelect.dispatchEvent(new Event("change", { bubbles: true }));
+    return true;
+  }
+
+  function selectBestPlayerForCurrentAlliance() {
+    if (!playerSelect || !allianceSelect) return false;
+
+    const alliance = (allianceSelect.value ?? "").trim();
+    if (!alliance) return false;
+
+    const sessionPlayer = getSessionPlayerForAlliance(lospSession, alliance);
+
+    if (sessionPlayer?.name && selectPlayerByName(sessionPlayer.name)) {
+      return true;
+    }
+
+    const storedPlayer = getStoredPlayerForAlliance(alliance);
+    if (storedPlayer && selectPlayerByName(storedPlayer)) {
+      return true;
+    }
+
+    const candidateNames = [
+      lospSession?.displayName,
+      lospSession?.global_name,
+      lospSession?.username,
+    ].filter(Boolean);
+
+    for (const name of candidateNames) {
+      if (selectPlayerByName(name)) return true;
+    }
+
+    return false;
+  }
+
+  function tryApplyAuthDefaults() {
+    if (authDefaultsApplied) return;
+    if (!lospSession?.ok) return;
+    if (!allianceSelect || !playerSelect) return;
+    if (!allianceSelect.options.length) return;
+
+    const preferredAllianceKey = getSessionPrimaryAllianceKey();
+    const allianceOption =
+      findAllianceOptionByKey(preferredAllianceKey) ||
+      Array.from(allianceSelect.options).find((option) => option.value);
+
+    if (!allianceOption) return;
+
+    authDefaultsApplied = true;
+
+    if (allianceSelect.value !== allianceOption.value) {
+      allianceSelect.value = allianceOption.value;
+      allianceSelect.dispatchEvent(new Event("change", { bubbles: true }));
+      return;
+    }
+
+    renderPlayerOptions();
+
+    const didSelectPlayer = selectBestPlayerForCurrentAlliance();
+    if (!didSelectPlayer) {
+      renderAll();
+    }
   }
 
   // ---------- DATA ----------
@@ -330,6 +534,8 @@
 
   function renderAllianceOptions() {
     if (!allianceSelect) return;
+
+    const previousValue = allianceSelect.value;
     allianceSelect.innerHTML = "";
 
     const opt0 = document.createElement("option");
@@ -343,6 +549,7 @@
     ];
 
     alliances
+      .filter((a) => isAllianceAllowed(a))
       .sort((a, b) => {
         const ia = ORDER.indexOf(a);
         const ib = ORDER.indexOf(b);
@@ -355,6 +562,14 @@
         opt.textContent = `${ALLIANCE_EMOJI[a] || "•"} ${a}`.trim();
         allianceSelect.appendChild(opt);
       });
+
+    const previousStillExists = Array.from(allianceSelect.options).some(
+      (option) => option.value === previousValue
+    );
+
+    if (previousStillExists) {
+      allianceSelect.value = previousValue;
+    }
   }
 
   function renderPlayerOptions() {
@@ -524,13 +739,6 @@
     return "is-red";
   }
 
-  function classRank(cls) {
-    if (cls === "is-green") return 0;
-    if (cls === "is-yellow") return 1;
-    if (cls === "is-orange") return 2;
-    return 3;
-  }
-
   function makeCounterCard({ teamName, attackPower, cls, portraits, row, notes }) {
     const card = document.createElement("div");
     card.className = `counterCard ${cls}`.trim();
@@ -619,7 +827,7 @@
 
     if (!atk) {
       if (resultsCount) resultsCount.textContent = "0";
-      if (playerChip) playerChip.textContent = "—";
+      if (playerChip) playerChip.textContent = player || "—";
       return;
     }
 
@@ -670,6 +878,8 @@
         attack_team: atk.atk_team || "",
         defense_family: "",
         defense_variant: "",
+        discord_username: lospSession?.username || "",
+        discord_display_name: lospSession?.displayName || lospSession?.global_name || "",
       });
     }
 
@@ -736,10 +946,24 @@
   // ---------- EVENTS ----------
   allianceSelect?.addEventListener("change", () => {
     renderPlayerOptions();
-    renderAll();
+
+    const didSelectPlayer = selectBestPlayerForCurrentAlliance();
+
+    if (!didSelectPlayer) {
+      renderAll();
+    }
   });
 
-  playerSelect?.addEventListener("change", renderAll);
+  playerSelect?.addEventListener("change", () => {
+    const alliance = (allianceSelect?.value ?? "").trim();
+    const player = (playerSelect?.value ?? "").trim();
+
+    if (alliance && player) {
+      saveStoredPlayerForAlliance(alliance, player);
+    }
+
+    renderAll();
+  });
 
   atkFamilySelect?.addEventListener("change", () => {
     if (atkVariantSelect) atkVariantSelect.value = "";
@@ -777,6 +1001,9 @@
     if (atkTitle) atkTitle.textContent = "—";
     if (atkSubtitle) atkSubtitle.textContent = "—";
     if (playerChip) playerChip.textContent = "—";
+
+    bootReady = true;
+    tryApplyAuthDefaults();
   }
 
   boot().catch((e) => console.error("[war-attack-checker] boot error:", e));
