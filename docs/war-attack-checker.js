@@ -44,11 +44,12 @@
   let bootReady = false;
 
   window.addEventListener("losp:auth-ready", (event) => {
-    lospSession = event.detail;
+    lospSession = event.detail || window.LoSP_SESSION || null;
 
     if (bootReady) {
       renderAllianceOptions();
-      tryApplyAuthDefaults();
+      renderPlayerOptions();
+      tryApplyAuthDefaults({ force: !authDefaultsApplied });
     }
   });
 
@@ -192,8 +193,16 @@
   }
 
   // ---------- Auth helpers ----------
+  function hasUsableSession(session) {
+    return !!session && (
+      session.ok === true ||
+      Array.isArray(session.alliances) ||
+      Array.isArray(session.players)
+    );
+  }
+
   function getAllowedAllianceKeys() {
-    if (!lospSession?.ok) return null;
+    if (!hasUsableSession(lospSession)) return null;
     if (!Array.isArray(lospSession.alliances) || !lospSession.alliances.length) return null;
 
     return new Set(lospSession.alliances.map((a) => allianceKey(a)).filter(Boolean));
@@ -206,18 +215,28 @@
     return allowedKeys.has(allianceKey(alliance));
   }
 
-  function getSessionPrimaryAllianceKey() {
-    if (!lospSession?.ok) return "";
+  function getSessionAlliancePreferenceKeys() {
+    if (!hasUsableSession(lospSession)) return [];
+
+    const keys = [];
 
     if (lospSession.primaryAlliance) {
-      return allianceKey(lospSession.primaryAlliance);
+      keys.push(allianceKey(lospSession.primaryAlliance));
     }
 
-    if (Array.isArray(lospSession.alliances) && lospSession.alliances.length) {
-      return allianceKey(lospSession.alliances[0]);
+    if (Array.isArray(lospSession.alliances)) {
+      lospSession.alliances.forEach((alliance) => {
+        keys.push(allianceKey(alliance));
+      });
     }
 
-    return "";
+    if (Array.isArray(lospSession.players)) {
+      lospSession.players.forEach((player) => {
+        if (player?.alliance) keys.push(allianceKey(player.alliance));
+      });
+    }
+
+    return [...new Set(keys.filter(Boolean))];
   }
 
   function findAllianceOptionByKey(key) {
@@ -229,12 +248,27 @@
     });
   }
 
+  function findBestAllianceOptionFromSession() {
+    if (!allianceSelect) return null;
+
+    const preferenceKeys = getSessionAlliancePreferenceKeys();
+
+    for (const key of preferenceKeys) {
+      const option = findAllianceOptionByKey(key);
+      if (option) return option;
+    }
+
+    return Array.from(allianceSelect.options).find((option) => option.value) || null;
+  }
+
   function getSessionPlayerForAlliance(session, alliance) {
     const allianceK = allianceKey(alliance);
 
-    if (!session?.ok || !Array.isArray(session.players)) return null;
+    if (!hasUsableSession(session) || !Array.isArray(session.players)) return null;
 
-    const matchingPlayer = session.players.find((player) => allianceKey(player.alliance) === allianceK);
+    const matchingPlayer = session.players.find(
+      (player) => allianceKey(player.alliance) === allianceK
+    );
 
     if (matchingPlayer) return matchingPlayer;
 
@@ -288,17 +322,22 @@
     return data[allianceK] || "";
   }
 
-  function selectPlayerByName(name) {
+  function selectPlayerByName(name, options = {}) {
+    const shouldDispatch = options.dispatch !== false;
     const option = findPlayerOptionByName(name);
 
     if (!option) return false;
 
     playerSelect.value = option.value;
-    playerSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+    if (shouldDispatch) {
+      playerSelect.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
     return true;
   }
 
-  function selectBestPlayerForCurrentAlliance() {
+  function selectBestPlayerForCurrentAlliance(options = {}) {
     if (!playerSelect || !allianceSelect) return false;
 
     const alliance = (allianceSelect.value ?? "").trim();
@@ -306,12 +345,12 @@
 
     const sessionPlayer = getSessionPlayerForAlliance(lospSession, alliance);
 
-    if (sessionPlayer?.name && selectPlayerByName(sessionPlayer.name)) {
+    if (sessionPlayer?.name && selectPlayerByName(sessionPlayer.name, options)) {
       return true;
     }
 
     const storedPlayer = getStoredPlayerForAlliance(alliance);
-    if (storedPlayer && selectPlayerByName(storedPlayer)) {
+    if (storedPlayer && selectPlayerByName(storedPlayer, options)) {
       return true;
     }
 
@@ -322,39 +361,41 @@
     ].filter(Boolean);
 
     for (const name of candidateNames) {
-      if (selectPlayerByName(name)) return true;
+      if (selectPlayerByName(name, options)) return true;
     }
 
     return false;
   }
 
-  function tryApplyAuthDefaults() {
-    if (authDefaultsApplied) return;
-    if (!lospSession?.ok) return;
-    if (!allianceSelect || !playerSelect) return;
-    if (!allianceSelect.options.length) return;
+  function tryApplyAuthDefaults(options = {}) {
+    const force = options.force === true;
 
-    const preferredAllianceKey = getSessionPrimaryAllianceKey();
-    const allianceOption =
-      findAllianceOptionByKey(preferredAllianceKey) ||
-      Array.from(allianceSelect.options).find((option) => option.value);
+    if (authDefaultsApplied && !force) return false;
+    if (!hasUsableSession(lospSession)) return false;
+    if (!allianceSelect || !playerSelect) return false;
+    if (!allianceSelect.options.length) return false;
 
-    if (!allianceOption) return;
+    const allianceOption = findBestAllianceOptionFromSession();
 
-    authDefaultsApplied = true;
+    if (!allianceOption) return false;
 
-    if (allianceSelect.value !== allianceOption.value) {
-      allianceSelect.value = allianceOption.value;
-      allianceSelect.dispatchEvent(new Event("change", { bubbles: true }));
-      return;
-    }
+    allianceSelect.value = allianceOption.value;
 
     renderPlayerOptions();
 
-    const didSelectPlayer = selectBestPlayerForCurrentAlliance();
-    if (!didSelectPlayer) {
-      renderAll();
+    const didSelectPlayer = selectBestPlayerForCurrentAlliance({
+      dispatch: false,
+    });
+
+    authDefaultsApplied = true;
+
+    if (didSelectPlayer) {
+      saveStoredPlayerForAlliance(allianceSelect.value, playerSelect.value);
     }
+
+    renderAll();
+
+    return true;
   }
 
   // ---------- DATA ----------
@@ -665,6 +706,7 @@
   function getSelectedAtk() {
     const fam = (atkFamilySelect?.value ?? "").trim();
     const vari = (atkVariantSelect?.value ?? "").trim();
+
     if (!fam || !vari) return null;
 
     return (
@@ -804,6 +846,7 @@
     card.appendChild(wrap);
 
     const noteText = (notes ?? "").toString().trim();
+
     if (noteText) {
       const note = document.createElement("div");
       note.textContent = noteText;
@@ -917,6 +960,7 @@
     rows.sort((a, b) => {
       const na = (a.r.def_variant || a.r.def_family || "").toString();
       const nb = (b.r.def_variant || b.r.def_family || "").toString();
+
       return na.localeCompare(nb, "fr", { sensitivity: "base" });
     });
 
@@ -1003,7 +1047,10 @@
     if (playerChip) playerChip.textContent = "—";
 
     bootReady = true;
-    tryApplyAuthDefaults();
+
+    if (!tryApplyAuthDefaults()) {
+      renderAll();
+    }
   }
 
   boot().catch((e) => console.error("[war-attack-checker] boot error:", e));
