@@ -3,6 +3,18 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+  html.authChecking body{
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  document.documentElement.classList.add("authChecking");
+</script>
+
+<script src="./auth-guard.js?v=1"></script>
     <title>LoSP — War Counters</title>
     <link rel="stylesheet" href="./style.css?v=3" />
   </head>
