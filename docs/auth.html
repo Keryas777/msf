@@ -342,6 +342,7 @@
 
     <script>
       const LOSP_AUTH_WORKER = "https://losp-auth.deliriousfan7.workers.dev";
+      const LOCAL_SESSION_KEY = "losp_session";
 
       function sanitizeNext(value) {
         const raw = String(value || "home.html").trim();
@@ -356,8 +357,43 @@
         return raw;
       }
 
+      function getLocalSession() {
+        try {
+          return localStorage.getItem(LOCAL_SESSION_KEY) || "";
+        } catch (_) {
+          return "";
+        }
+      }
+
+      function setLocalSession(value) {
+        try {
+          localStorage.setItem(LOCAL_SESSION_KEY, value);
+        } catch (_) {}
+      }
+
+      function removeLocalSession() {
+        try {
+          localStorage.removeItem(LOCAL_SESSION_KEY);
+        } catch (_) {}
+      }
+
       const params = new URLSearchParams(window.location.search);
       const next = sanitizeNext(params.get("next") || "home.html");
+
+      const hashParams = new URLSearchParams(window.location.hash.slice(1));
+      const sessionFromHash = hashParams.get("session");
+
+      if (sessionFromHash) {
+        setLocalSession(sessionFromHash);
+
+        window.history.replaceState(
+          null,
+          "",
+          `${window.location.pathname}?next=${encodeURIComponent(next)}`
+        );
+
+        window.location.replace(`./${next}`);
+      }
 
       const loginBtn = document.querySelector("#discordLoginBtn");
 
@@ -366,17 +402,29 @@
       }
 
       async function redirectIfAlreadyConnected() {
+        const localSession = getLocalSession();
+
         try {
           const res = await fetch(`${LOSP_AUTH_WORKER}/me`, {
             method: "GET",
             credentials: "include",
-            cache: "no-store"
+            cache: "no-store",
+            headers: localSession
+              ? {
+                  Authorization: `Bearer ${localSession}`
+                }
+              : {}
           });
 
           const data = await res.json();
 
           if (res.ok && data?.ok) {
             window.location.replace(`./${next}`);
+            return;
+          }
+
+          if (data?.reason === "invalid_session") {
+            removeLocalSession();
           }
         } catch (_) {}
       }
