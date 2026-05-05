@@ -6,6 +6,18 @@
       name="viewport"
       content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
     />
+    <style>
+  html.authChecking body{
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  document.documentElement.classList.add("authChecking");
+</script>
+
+<script src="./auth-guard.js?v=1"></script>
     <meta name="theme-color" content="#0b0c0d" />
     <title>Classement MVP — Groupement</title>
 
