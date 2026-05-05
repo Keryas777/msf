@@ -325,8 +325,9 @@
           <div class="authDivider"></div>
 
           <a
+            id="discordLoginBtn"
             class="discordBtn"
-            href="https://losp-auth.deliriousfan7.workers.dev/login"
+            href="https://losp-auth.deliriousfan7.workers.dev/login?next=home.html"
           >
             <span aria-hidden="true">💬</span>
             <span>Se connecter avec Discord</span>
@@ -338,5 +339,49 @@
         </div>
       </main>
     </div>
+
+    <script>
+      const LOSP_AUTH_WORKER = "https://losp-auth.deliriousfan7.workers.dev";
+
+      function sanitizeNext(value) {
+        const raw = String(value || "home.html").trim();
+
+        if (!raw) return "home.html";
+        if (raw.includes("://")) return "home.html";
+        if (raw.startsWith("//")) return "home.html";
+        if (raw.includes("..")) return "home.html";
+        if (raw.startsWith("/")) return "home.html";
+        if (raw.startsWith("auth.html")) return "home.html";
+
+        return raw;
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const next = sanitizeNext(params.get("next") || "home.html");
+
+      const loginBtn = document.querySelector("#discordLoginBtn");
+
+      if (loginBtn) {
+        loginBtn.href = `${LOSP_AUTH_WORKER}/login?next=${encodeURIComponent(next)}`;
+      }
+
+      async function redirectIfAlreadyConnected() {
+        try {
+          const res = await fetch(`${LOSP_AUTH_WORKER}/me`, {
+            method: "GET",
+            credentials: "include",
+            cache: "no-store"
+          });
+
+          const data = await res.json();
+
+          if (res.ok && data?.ok) {
+            window.location.replace(`./${next}`);
+          }
+        } catch (_) {}
+      }
+
+      redirectIfAlreadyConnected();
+    </script>
   </body>
 </html>
