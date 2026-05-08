@@ -50,8 +50,8 @@
 
   background-image: url("./HeaderHome.webp");
   background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
+  background-position: center center;
+  background-size: auto 82%;
 
   height: 92px;
   min-height: 92px;
@@ -198,7 +198,7 @@
   .homeHeader{
     height: 86px;
     min-height: 86px;
-    background-size: contain;
+    background-size: auto 84%;
   }
 
   .app{
