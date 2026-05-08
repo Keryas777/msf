@@ -51,10 +51,13 @@
   background-image: url("./HeaderHome.webp");
   background-repeat: no-repeat;
   background-position: center;
-  background-size: cover;
+  background-size: 96% auto;
 
-  height: 140px;
+  height: 100px;
+  min-height: 100px;
   overflow: hidden;
+
+  background-color: rgba(0,0,0,.22);
 }
 
 /* ===== GRID ===== */
@@ -89,7 +92,6 @@
   transform: translateZ(0);
   transition: transform .18s ease, filter .18s ease, border-color .18s ease;
 
-  /* Glow par défaut */
   --glow: rgba(255,255,255,.30);
   --glow-strong: rgba(255,255,255,.75);
 }
@@ -150,32 +152,26 @@
 }
 
 /* ===== COULEURS ===== */
-
-/* Contres GA (jaune) */
 .homeTile--contres{
   --glow: rgba(255, 245, 120, .80);
   --glow-strong: rgba(255, 245, 120, 1);
 }
 
-/* Statistiques GA (orange / doré) */
 .homeTile--stats{
   --glow: rgba(255, 185, 70, .78);
   --glow-strong: rgba(255, 185, 70, .98);
 }
 
-/* Équipes recommandées (vert) */
 .homeTile--conseils{
   --glow: rgba(90, 255, 160, .68);
   --glow-strong: rgba(90, 255, 160, .98);
 }
 
-/* Classements (bleu) */
 .homeTile--classement{
   --glow: rgba(80, 190, 255, .70);
   --glow-strong: rgba(80, 190, 255, .98);
 }
 
-/* ISO-8 (violet) */
 .homeTile--iso{
   --glow: rgba(190, 110, 255, .70);
   --glow-strong: rgba(190, 110, 255, .98);
@@ -199,7 +195,11 @@
 }
 
 @media (max-width: 420px){
-  .homeHeader{ height: 120px; }
+  .homeHeader{
+    height: 92px;
+    min-height: 92px;
+    background-size: 98% auto;
+  }
 
   .app{
     padding: 8px;
