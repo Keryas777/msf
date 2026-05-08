@@ -3,8 +3,6 @@
   const USAGE_LOGGER_URL =
     "https://script.google.com/macros/s/AKfycbzTdFi7gEgRVCKjK2UBwFcQIlIzi2jp4eeO2ryR36sSrcy3QtzfEK8k7kNSXSJOGmFAbw/exec";
 
-  // ✅ IMPORTANT: le site est servi depuis /docs en GitHub Pages
-  // Donc ici on pointe vers "./data/..." (PAS /docs/data)
   const FILES = {
     warCounters: "./data/war-counters.json",
     warSeasonRules: "./data/war-season-rules.json",
@@ -24,6 +22,7 @@
   };
 
   const AUTH_PLAYER_STORAGE_KEY = "losp:lastPlayerByAlliance";
+  const LOCAL_SESSION_KEY = "losp_session";
 
   const qs = (s) => document.querySelector(s);
 
@@ -40,69 +39,67 @@
   const resultsCount = qs("#resultsCount");
   const playerChip = qs("#playerChip");
 
-// ---------- Auth session / auto-selection ----------
-const LOCAL_SESSION_KEY = "losp_session";
+  // ---------- Auth session / auto-selection ----------
+  let lospSession = window.LoSP_SESSION || readLocalSessionPayload() || null;
+  let authDefaultsApplied = false;
+  let bootReady = false;
 
-let lospSession = window.LoSP_SESSION || readLocalSessionPayload() || null;
-let authDefaultsApplied = false;
-let bootReady = false;
+  function decodeBase64UrlJson(value) {
+    try {
+      const base64 = String(value || "")
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
 
-function decodeBase64UrlJson(value) {
-  try {
-    const base64 = String(value || "")
-      .replace(/-/g, "+")
-      .replace(/_/g, "/");
+      const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+      const binary = atob(padded);
 
-    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
-    const binary = atob(padded);
+      const bytes = new Uint8Array(
+        Array.from(binary).map((char) => char.charCodeAt(0))
+      );
 
-    const bytes = new Uint8Array(
-      Array.from(binary).map((char) => char.charCodeAt(0))
-    );
-
-    return JSON.parse(new TextDecoder().decode(bytes));
-  } catch (_) {
-    return null;
+      return JSON.parse(new TextDecoder().decode(bytes));
+    } catch (_) {
+      return null;
+    }
   }
-}
 
-function readLocalSessionPayload() {
-  try {
-    const raw = localStorage.getItem(LOCAL_SESSION_KEY) || "";
-    if (!raw) return null;
+  function readLocalSessionPayload() {
+    try {
+      const raw = localStorage.getItem(LOCAL_SESSION_KEY) || "";
+      if (!raw) return null;
 
-    const payload = decodeBase64UrlJson(raw);
-    if (!payload) return null;
+      const payload = decodeBase64UrlJson(raw);
+      if (!payload) return null;
 
-    return {
-      ok: true,
-      ...payload
-    };
-  } catch (_) {
-    return null;
+      return {
+        ok: true,
+        ...payload,
+      };
+    } catch (_) {
+      return null;
+    }
   }
-}
 
-function refreshLoSPSession() {
-  lospSession =
-    window.LoSP_SESSION ||
-    readLocalSessionPayload() ||
-    lospSession ||
-    null;
+  function refreshLoSPSession() {
+    lospSession =
+      window.LoSP_SESSION ||
+      readLocalSessionPayload() ||
+      lospSession ||
+      null;
 
-  return lospSession;
-}
-
-window.addEventListener("losp:auth-ready", (event) => {
-  lospSession = event.detail || window.LoSP_SESSION || readLocalSessionPayload() || null;
-
-  if (bootReady) {
-    authDefaultsApplied = false;
-    renderAllianceOptions();
-    renderPlayerOptions();
-    tryApplyAuthDefaults({ force: true });
+    return lospSession;
   }
-});
+
+  window.addEventListener("losp:auth-ready", (event) => {
+    lospSession = event.detail || window.LoSP_SESSION || readLocalSessionPayload() || null;
+
+    if (bootReady) {
+      authDefaultsApplied = false;
+      renderAllianceOptions();
+      renderPlayerOptions();
+      tryApplyAuthDefaults({ force: true });
+    }
+  });
 
   // ---------- Utils ----------
   const bust = (url) => {
@@ -135,12 +132,6 @@ window.addEventListener("losp:auth-ready", (event) => {
     }).catch(() => {});
   }
 
-  // ✅ Normalisation renforcée :
-  // - trim / lower
-  // - retire tous les espaces
-  // - retire tirets simples + variantes Unicode + underscore
-  // - retire apostrophes simples + typographiques
-  // - supprime les accents
   const normalizeKey = (s) =>
     (s ?? "")
       .toString()
@@ -179,7 +170,6 @@ window.addEventListener("losp:auth-ready", (event) => {
       .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
-  // Affichage “humain” pour les gros nombres : 5,2 M / 800 k
   function formatCompactFR(n) {
     const num = Number(n);
     if (!Number.isFinite(num) || num <= 0) return "0";
@@ -377,6 +367,8 @@ window.addEventListener("losp:auth-ready", (event) => {
   function tryApplyAuthDefaults(options = {}) {
     const force = options.force === true;
 
+    refreshLoSPSession();
+
     if (authDefaultsApplied && !force) return false;
     if (!hasUsableSession(lospSession)) return false;
     if (!allianceSelect || !playerSelect) return false;
@@ -405,7 +397,7 @@ window.addEventListener("losp:auth-ready", (event) => {
     return true;
   }
 
-  // ---------- Enemy power LIVE formatting (digits only + thousands dot) ----------
+  // ---------- Enemy power LIVE formatting ----------
   function digitsOnly(s) {
     return String(s || "").replace(/[^\d]/g, "");
   }
@@ -420,7 +412,6 @@ window.addEventListener("losp:auth-ready", (event) => {
     return Number(digitsOnly(enemyPowerInput?.value || "")) || 0;
   }
 
-  // iOS-friendly caret restore: keep "number of digits before caret"
   function setCaretByDigitsCount(input, digitsBefore) {
     const v = String(input?.value || "");
     if (!v) {
@@ -450,9 +441,9 @@ window.addEventListener("losp:auth-ready", (event) => {
   // ---------- DATA ----------
   let WAR = [];
   let JOUEURS = [];
-  let ROSTERS = new Map(); // playerKey -> { charKey -> power }
-  let PLAYERS_BY_ALLIANCE = new Map(); // alliance -> [{alliance, player}]
-  let CHAR_MAP = new Map(); // charKey -> charObj
+  let ROSTERS = new Map();
+  let PLAYERS_BY_ALLIANCE = new Map();
+  let CHAR_MAP = new Map();
   let LAST_TRACKED_KEY = "";
   let WAR_SEASON_RULES = {
     defaultMultiplier: 1.17,
@@ -473,12 +464,10 @@ window.addEventListener("losp:auth-ready", (event) => {
       def_team: (r.def_team ?? "").toString().trim(),
       atk_team: (r.atk_team ?? "").toString().trim(),
 
-      // IMPORTANT : on garde les cases vides (pour pouvoir gérer des compositions partielles)
       atk_chars: [r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5].map((x) =>
         (x ?? "").toString().trim()
       ),
 
-      // ✅ 3 seuils => 4 états
       min_hard: parseFloat(String(r.min_ratio_hard ?? "").replace(",", ".")) || 0,
       min_ok: parseFloat(String(r.min_ratio_ok ?? "").replace(",", ".")) || 0,
       min_safe: parseFloat(String(r.min_ratio_safe ?? "").replace(",", ".")) || 0,
@@ -810,13 +799,11 @@ window.addEventListener("losp:auth-ready", (event) => {
     });
   }
 
-  // ---------- 4 ÉTATS ----------
   function getClass(ratio, r) {
     const hard = Number(r.min_hard) || 0;
     const ok = Number(r.min_ok) || 0;
     const safe = Number(r.min_safe) || 0;
 
-    // fallback si rien n'est renseigné: comportement simple
     if (!hard && !ok && !safe) return ratio >= 1 ? "is-yellow" : "is-red";
 
     if (safe && ratio >= safe) return "is-green";
@@ -829,10 +816,9 @@ window.addEventListener("losp:auth-ready", (event) => {
     if (cls === "is-green") return 0;
     if (cls === "is-yellow") return 1;
     if (cls === "is-orange") return 2;
-    return 3; // is-red
+    return 3;
   }
 
-  // --------- texte "Recommandé" + "marge / requis" ----------
   function computeRecommendation(enemyPower, row, teamPower) {
     const enemy = Number(enemyPower) || 0;
     const ok = Number(row?.min_ok) || 0;
