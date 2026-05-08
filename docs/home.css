@@ -50,18 +50,17 @@
 
   background-image: url("./HeaderHome.webp");
   background-repeat: no-repeat;
-  background-position: center center;
-  background-size: auto 82%;
+  background-position: center 58%;
+  background-size: cover;
 
-  height: 92px;
-  min-height: 92px;
+  height: 96px;
+  min-height: 96px;
   overflow: hidden;
 
   background-color: rgba(0,0,0,.22);
 }
 
 /* ===== GRID ===== */
-/* ✅ 2 colonnes */
 .homeGrid{
   display:grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -196,9 +195,10 @@
 
 @media (max-width: 420px){
   .homeHeader{
-    height: 86px;
-    min-height: 86px;
-    background-size: auto 84%;
+    height: 90px;
+    min-height: 90px;
+    background-size: cover;
+    background-position: center 58%;
   }
 
   .app{
