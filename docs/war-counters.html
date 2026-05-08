@@ -2,19 +2,24 @@
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
+    />
+
     <style>
-  html.authChecking body{
-    opacity: 0;
-    pointer-events: none;
-  }
-</style>
+      html.authChecking body{
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
 
-<script>
-  document.documentElement.classList.add("authChecking");
-</script>
+    <script>
+      document.documentElement.classList.add("authChecking");
+    </script>
 
-<script src="./auth-guard.js?v=2"></script>
+    <script src="./auth-guard.js?v=4"></script>
+
     <title>LoSP — War Counters</title>
     <link rel="stylesheet" href="./style.css?v=3" />
   </head>
@@ -25,8 +30,8 @@
     <div class="app">
       <header class="header">
         <div class="headerLeft">
-         <a href="./war-choose.html" class="backBtn" aria-label="Retour">⬅️</a>
-         <h1 class="title">Counters de Guerre</h1>
+          <a href="./war-choose.html" class="backBtn" aria-label="Retour">⬅️</a>
+          <h1 class="title">Counters de Guerre</h1>
           <p class="subtitle">
             Choisis ton alliance, ton pseudo, une défense que tu vas attaquer, puis vois avec quoi tu peux la tomber.
           </p>
@@ -72,7 +77,6 @@
         </div>
       </header>
 
-      <!-- ✅ Défense : plus de compteur ici -->
       <section class="card">
         <div class="cardHeader">
           <h2 class="cardTitle" id="defTitle">—</h2>
@@ -81,7 +85,6 @@
         <div class="portraits" id="defPortraits" aria-label="Personnages de la défense"></div>
       </section>
 
-      <!-- ✅ Recommandations : compteur à gauche, titre centré, joueur à droite -->
       <section class="card">
         <div class="cardHeader cardHeader--reco">
           <div class="chipCount chipCount--sm" id="resultsCount">0</div>
@@ -95,7 +98,6 @@
       </section>
     </div>
 
-    <script src="./auth-session.js?v=2"></script>
-<script src="./war-counters.js?v=11"></script>
-</body>
+    <script src="./war-counters.js?v=13"></script>
+  </body>
 </html>
