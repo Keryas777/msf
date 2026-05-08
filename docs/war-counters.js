@@ -40,20 +40,69 @@
   const resultsCount = qs("#resultsCount");
   const playerChip = qs("#playerChip");
 
-  // ---------- Auth session / auto-selection ----------
-  let lospSession = window.LoSP_SESSION || null;
-  let authDefaultsApplied = false;
-  let bootReady = false;
+// ---------- Auth session / auto-selection ----------
+const LOCAL_SESSION_KEY = "losp_session";
 
-  window.addEventListener("losp:auth-ready", (event) => {
-    lospSession = event.detail || window.LoSP_SESSION || null;
+let lospSession = window.LoSP_SESSION || readLocalSessionPayload() || null;
+let authDefaultsApplied = false;
+let bootReady = false;
 
-    if (bootReady) {
-      renderAllianceOptions();
-      renderPlayerOptions();
-      tryApplyAuthDefaults({ force: !authDefaultsApplied });
-    }
-  });
+function decodeBase64UrlJson(value) {
+  try {
+    const base64 = String(value || "")
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+    const binary = atob(padded);
+
+    const bytes = new Uint8Array(
+      Array.from(binary).map((char) => char.charCodeAt(0))
+    );
+
+    return JSON.parse(new TextDecoder().decode(bytes));
+  } catch (_) {
+    return null;
+  }
+}
+
+function readLocalSessionPayload() {
+  try {
+    const raw = localStorage.getItem(LOCAL_SESSION_KEY) || "";
+    if (!raw) return null;
+
+    const payload = decodeBase64UrlJson(raw);
+    if (!payload) return null;
+
+    return {
+      ok: true,
+      ...payload
+    };
+  } catch (_) {
+    return null;
+  }
+}
+
+function refreshLoSPSession() {
+  lospSession =
+    window.LoSP_SESSION ||
+    readLocalSessionPayload() ||
+    lospSession ||
+    null;
+
+  return lospSession;
+}
+
+window.addEventListener("losp:auth-ready", (event) => {
+  lospSession = event.detail || window.LoSP_SESSION || readLocalSessionPayload() || null;
+
+  if (bootReady) {
+    authDefaultsApplied = false;
+    renderAllianceOptions();
+    renderPlayerOptions();
+    tryApplyAuthDefaults({ force: true });
+  }
+});
 
   // ---------- Utils ----------
   const bust = (url) => {
