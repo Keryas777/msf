@@ -1,5 +1,5 @@
 // docs/sw.js
-const CACHE = "losp-v3";
+const CACHE = "losp-v4";
 
 const CORE_ASSETS = [
   "./",                 // utile si quelqu’un ouvre /msf/ (selon ton routing GH pages)
