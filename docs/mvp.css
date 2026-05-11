@@ -182,10 +182,9 @@ body::after{
 .filtersCard{ padding: 10px 12px; }
 
 .filters{
-  display:flex;
-  gap: 10px;
-  flex-wrap: nowrap;
-  justify-content: space-between;
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
   align-items: stretch;
 }
 
