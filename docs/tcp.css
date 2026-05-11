@@ -27,7 +27,6 @@ html, body{
   color: var(--text);
   background: var(--bg);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-
   overflow-x: hidden;
   overscroll-behavior-x: none;
 }
@@ -93,7 +92,6 @@ body::after{
   position: relative;
 }
 
-/* bouton home */
 .homeBtn{
   position:absolute;
   top:12px;
@@ -119,12 +117,17 @@ body::after{
   backdrop-filter: blur(6px);
   transition:.15s;
 }
+
 .homeBtn:hover{
   background: rgba(255,255,255,.08);
   border-color: rgba(255,255,255,.25);
 }
 
-.headerLeft{ min-width: 0; text-align: center; flex: 1 1 auto; }
+.headerLeft{
+  min-width: 0;
+  text-align: center;
+  flex: 1 1 auto;
+}
 
 .title{
   margin:0;
@@ -161,7 +164,6 @@ body::after{
   margin-bottom: 10px;
 }
 
-/* Chip count */
 .chipCount{
   border: 1px solid var(--border);
   background: rgba(0,0,0,.22);
@@ -179,36 +181,39 @@ body::after{
 }
 
 /* ===== Filtres alliances ===== */
-.filtersCard{ padding: 10px 12px; }
+.filtersCard{
+  padding: 10px 12px;
+}
 
 .filters{
-  display:flex;
-  gap: 10px;
-  flex-wrap: nowrap;
-  justify-content: space-between;
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
   align-items: stretch;
 }
 
 .filterToggle{
   display:flex;
   align-items:center;
+  justify-content:center;
   gap:10px;
+
   border:1px solid var(--toggle-off-border);
   border-radius: 999px;
   padding: 10px 12px;
+
   background: var(--toggle-off-bg);
+  color: var(--toggle-off-text);
   font-weight: 900;
   user-select:none;
   min-width: 0;
-  flex: 1 1 0;
-  justify-content: center;
-  color: var(--toggle-off-text);
 }
 
 .filterToggle input{
   width: 18px;
   height: 18px;
   accent-color: #b8ff7a;
+  flex: 0 0 auto;
 }
 
 .fStack{
@@ -217,9 +222,21 @@ body::after{
   align-items:center;
   gap: 4px;
   line-height: 1.05;
+  min-width: 0;
 }
-.fEmoji{ font-size: 18px; line-height: 1; }
-.fName{ font-size: 13px; }
+
+.fEmoji{
+  font-size: 18px;
+  line-height: 1;
+}
+
+.fName{
+  font-size: 13px;
+  max-width: 100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
 
 .filterToggle:has(input:checked){
   background: var(--toggle-on-bg);
@@ -262,7 +279,7 @@ body::after{
   line-height: 1;
 }
 
-/* ===== Avatar (frame derrière / icon devant) - SANS CROP ===== */
+/* ===== Avatar ===== */
 .rankAvatar{
   position: relative;
   width: 44px;
@@ -274,7 +291,6 @@ body::after{
   border: 1px solid rgba(255,255,255,.12);
   background: rgba(255,255,255,.04);
 
-  /* petite vitre pour homogénéiser */
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,.05),
     0 10px 20px rgba(0,0,0,.35);
@@ -289,30 +305,21 @@ body::after{
   display:block;
 }
 
-/* Frame derrière: on veut tout voir => contain (pas cover) */
 .rankAvatarFrame{
   z-index: 1;
   object-fit: contain;
   object-position: center;
   pointer-events:none;
-
-  /* un poil de respiration pour éviter que ça touche les bords */
   padding: 2px;
-
   filter: drop-shadow(0 6px 16px rgba(0,0,0,.55));
   opacity: .98;
 }
 
-/* Icon devant: on veut tout voir => contain + inset */
 .rankAvatarIcon{
   z-index: 2;
   object-fit: contain;
   object-position: center;
-
-  /* c’est ça qui réduit l’icon et empêche le “trop gros” */
   padding: 7px;
-
-  /* optionnel: micro-boost de lisibilité sans cramer */
   filter: drop-shadow(0 6px 14px rgba(0,0,0,.45));
 }
 
@@ -365,6 +372,30 @@ body::after{
     align-items:stretch;
   }
 
+  .filters{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .filterToggle{
+    min-height: 58px;
+    padding: 9px 10px;
+    gap: 8px;
+  }
+
+  .filterToggle input{
+    width: 16px;
+    height: 16px;
+  }
+
+  .fEmoji{
+    font-size: 18px;
+  }
+
+  .fName{
+    font-size: 13px;
+  }
+
   .rankNum{
     width: 20px;
     font-size: 12.5px;
@@ -380,6 +411,7 @@ body::after{
   .rankAvatarIcon{ padding: 6px; }
 
   .rankName{ font-size: 15px; }
+
   .rankPower{
     width: 120px;
     font-size: 13.5px;
@@ -387,18 +419,32 @@ body::after{
 }
 
 @media (max-width: 420px){
-  .title{ font-size: 22px; }
+  .title{
+    font-size: 22px;
+  }
 
-  .filterToggle{
-    padding: 9px 8px;
+  .filters{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
   }
-  .filterToggle input{
-    width: 16px;
-    height: 16px;
+
+  .filterToggle{
+    padding: 8px 10px;
+    gap: 8px;
   }
-  .fEmoji{ font-size: 17px; }
-  .fName{ font-size: 12px; }
+
+  .filterToggle input{
+    width: 15px;
+    height: 15px;
+  }
+
+  .fEmoji{
+    font-size: 18px;
+  }
+
+  .fName{
+    font-size: 13px;
+  }
 
   .rankAvatar{
     width: 40px;
@@ -414,9 +460,13 @@ body::after{
     font-size: 13px;
   }
 
-  .chipCount{ font-size: 12px; }
+  .chipCount{
+    font-size: 12px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce){
-  *{ scroll-behavior: auto !important; }
+  *{
+    scroll-behavior: auto !important;
+  }
 }
