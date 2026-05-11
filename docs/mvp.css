@@ -388,16 +388,22 @@ body::after{
 @media (max-width: 420px){
   .title{ font-size: 22px; }
 
+  .filters{
+    gap: 6px;
+  }
+
   .filterToggle{
-    padding: 9px 8px;
-    gap: 8px;
+    padding: 8px 5px;
+    gap: 5px;
   }
+
   .filterToggle input{
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
   }
-  .fEmoji{ font-size: 17px; }
-  .fName{ font-size: 12px; }
+
+  .fEmoji{ font-size: 16px; }
+  .fName{ font-size: 11px; }
 
   .rankAvatar{
     width: 40px;
