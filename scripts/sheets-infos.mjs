@@ -1,8 +1,9 @@
 // scripts/sheets-infos.mjs
-// Génère docs/data/infos.json à partir de 3 onglets Google Sheets (GViz CSV)
+// Génère docs/data/infos.json à partir de 4 onglets Google Sheets (GViz CSV)
 // - infos_zeus
 // - infos_dionysos
 // - infos_poseidon
+// - infos_kronos
 //
 // ✅ Sans "Publier sur le web" : on utilise /gviz/tq?tqx=out:csv&gid=XXXX
 // ✅ Alliance: issue de docs/data/joueurs.json (fallback), ou d’un CSV si tu veux plus tard
@@ -12,20 +13,45 @@ import path from "node:path";
 
 const OUT_FILE = process.env.OUT_FILE || "docs/data/infos.json";
 
-// Option 1: URLs directes (si tu veux les fournir)
+// Option 1: URLs directes
 const INFOS_ZEUS_CSV_URL = process.env.INFOS_ZEUS_CSV_URL || "";
 const INFOS_DIONYSOS_CSV_URL = process.env.INFOS_DIONYSOS_CSV_URL || "";
 const INFOS_POSEIDON_CSV_URL = process.env.INFOS_POSEIDON_CSV_URL || "";
+const INFOS_KRONOS_CSV_URL = process.env.INFOS_KRONOS_CSV_URL || "";
 
-// Option 2: GViz via SHEET_ID + GID (recommandé)
+// Option 2: GViz via SHEET_ID + GID
 const SHEET_ID = process.env.SHEET_ID || "";
 const INFOS_ZEUS_GID = process.env.INFOS_ZEUS_GID || "";
 const INFOS_DIONYSOS_GID = process.env.INFOS_DIONYSOS_GID || "";
 const INFOS_POSEIDON_GID = process.env.INFOS_POSEIDON_GID || "";
+const INFOS_KRONOS_GID = process.env.INFOS_KRONOS_GID || "";
 
 // Joueurs: CSV optionnel, sinon JSON local
 const JOUEURS_CSV_URL = process.env.JOUEURS_CSV_URL || "";
 const JOUEURS_JSON_FILE = process.env.JOUEURS_JSON_FILE || "docs/data/joueurs.json";
+
+const INFOS_SOURCES = [
+  {
+    label: "infos_zeus",
+    directUrl: INFOS_ZEUS_CSV_URL,
+    gid: INFOS_ZEUS_GID,
+  },
+  {
+    label: "infos_dionysos",
+    directUrl: INFOS_DIONYSOS_CSV_URL,
+    gid: INFOS_DIONYSOS_GID,
+  },
+  {
+    label: "infos_poseidon",
+    directUrl: INFOS_POSEIDON_CSV_URL,
+    gid: INFOS_POSEIDON_GID,
+  },
+  {
+    label: "infos_kronos",
+    directUrl: INFOS_KRONOS_CSV_URL,
+    gid: INFOS_KRONOS_GID,
+  },
+];
 
 function gvizCsvUrlByGid(sheetId, gid) {
   const base = `https://docs.google.com/spreadsheets/d/${encodeURIComponent(sheetId)}/gviz/tq`;
@@ -41,7 +67,7 @@ function parseCsvWithDelimiter(text, delim) {
   let i = 0;
   let inQuotes = false;
 
-  const s = String(text || "").replace(/^\uFEFF/, ""); // remove BOM
+  const s = String(text || "").replace(/^\uFEFF/, "");
 
   while (i < s.length) {
     const ch = s[i];
@@ -53,10 +79,12 @@ function parseCsvWithDelimiter(text, delim) {
           i += 2;
           continue;
         }
+
         inQuotes = false;
         i += 1;
         continue;
       }
+
       cur += ch;
       i += 1;
       continue;
@@ -79,11 +107,17 @@ function parseCsvWithDelimiter(text, delim) {
       row.push(cur);
       cur = "";
 
-      if (row.some((c) => String(c ?? "").trim() !== "")) rows.push(row);
+      if (row.some((c) => String(c ?? "").trim() !== "")) {
+        rows.push(row);
+      }
+
       row = [];
 
-      if (ch === "\r" && s[i + 1] === "\n") i += 2;
-      else i += 1;
+      if (ch === "\r" && s[i + 1] === "\n") {
+        i += 2;
+      } else {
+        i += 1;
+      }
 
       continue;
     }
@@ -93,13 +127,19 @@ function parseCsvWithDelimiter(text, delim) {
   }
 
   row.push(cur);
-  if (row.some((c) => String(c ?? "").trim() !== "")) rows.push(row);
+
+  if (row.some((c) => String(c ?? "").trim() !== "")) {
+    rows.push(row);
+  }
 
   return rows.map((r) => r.map((c) => String(c ?? "").trim()));
 }
 
 function normalizeHeaderBasic(h) {
-  return String(h ?? "").trim().toLowerCase().replace(/\s+/g, "_");
+  return String(h ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_");
 }
 
 // Si une cellule d’en-tête est “cassée” (genre "Name https://..."),
@@ -107,6 +147,7 @@ function normalizeHeaderBasic(h) {
 function repairHeaderCell(cell) {
   const raw = String(cell ?? "").trim();
   if (!raw) return "";
+
   const firstToken = raw.split(/\s+/)[0] || "";
   return normalizeHeaderBasic(firstToken);
 }
@@ -115,13 +156,11 @@ function scoreHeaderRow(headers) {
   const set = new Set(headers.filter(Boolean));
   let score = 0;
 
-  // Champs attendus
   if (set.has("name")) score += 6;
   if (set.has("tcp")) score += 6;
   if (set.has("war_mvp")) score += 6;
-  if (set.has("war")) score += 1; // parfois ça arrive au lieu de war_mvp
+  if (set.has("war")) score += 1;
 
-  // Bonus si ça ressemble à une vraie table
   if (headers.filter(Boolean).length >= 6) score += 1;
   if (headers.filter(Boolean).length >= 10) score += 1;
 
@@ -130,20 +169,37 @@ function scoreHeaderRow(headers) {
 
 function detectBestDelimiter(text) {
   const candidates = [",", ";", "\t"];
-  let best = { delim: ",", score: -1, rows: [], rawHeaders: [], repairedHeaders: [] };
+  let best = {
+    delim: ",",
+    score: -1,
+    rows: [],
+    rawHeaders: [],
+    repairedHeaders: [],
+  };
 
   for (const d of candidates) {
     const rows = parseCsvWithDelimiter(text, d);
     if (!rows.length) continue;
 
-    const headerIdx = rows.findIndex((r) => r.some((c) => String(c ?? "").trim() !== ""));
+    const headerIdx = rows.findIndex((r) =>
+      r.some((c) => String(c ?? "").trim() !== "")
+    );
+
     if (headerIdx === -1) continue;
 
     const rawHeaders = rows[headerIdx];
     const repairedHeaders = rawHeaders.map(repairHeaderCell);
     const score = scoreHeaderRow(repairedHeaders);
 
-    if (score > best.score) best = { delim: d, score, rows, rawHeaders, repairedHeaders };
+    if (score > best.score) {
+      best = {
+        delim: d,
+        score,
+        rows,
+        rawHeaders,
+        repairedHeaders,
+      };
+    }
   }
 
   return best;
@@ -151,18 +207,24 @@ function detectBestDelimiter(text) {
 
 function rowToObject(headers, row) {
   const o = {};
+
   headers.forEach((h, idx) => {
     if (!h) return;
     o[h] = row[idx] ?? "";
   });
+
   return o;
 }
 
 function pick(obj, ...keys) {
   for (const k of keys) {
     const v = obj?.[k];
-    if (v != null && String(v).trim() !== "") return String(v).trim();
+
+    if (v != null && String(v).trim() !== "") {
+      return String(v).trim();
+    }
   }
+
   return "";
 }
 
@@ -170,17 +232,37 @@ function normalizeName(name) {
   return String(name ?? "").trim().toLowerCase();
 }
 
+function normalizeAllianceName(value) {
+  const raw = String(value ?? "").trim();
+
+  const key = raw
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[-_‐-‒–—―﹘﹣－]/g, "")
+    .replace(/\s+/g, "");
+
+  if (key === "zeus" || key === "lospzeus") return "Zeus";
+  if (key === "dionysos" || key === "lospdionysos") return "Dionysos";
+  if (key === "poseidon" || key === "losposeidon") return "Poséidon";
+  if (key === "kronos" || key === "lospkronos") return "Kronos";
+
+  return raw;
+}
+
 function toInt(x) {
   const s = String(x ?? "").trim();
   if (!s) return 0;
-  // accepte "1 234 567", "1,234,567", "1234567"
+
   const cleaned = s.replace(/[^\d-]/g, "");
   const n = Number.parseInt(cleaned, 10);
+
   return Number.isFinite(n) ? n : 0;
 }
 
 async function fetchCsv(url, label) {
   console.log(`[infos] Fetch CSV (${label}): ${url}`);
+
   const res = await fetch(url, { cache: "no-store" });
   const text = await res.text();
 
@@ -191,9 +273,14 @@ async function fetchCsv(url, label) {
   }
 
   const head = text.slice(0, 400).toLowerCase();
-  if (head.includes("<html") || head.includes("<!doctype") || head.includes("accounts.google.com")) {
+
+  if (
+    head.includes("<html") ||
+    head.includes("<!doctype") ||
+    head.includes("accounts.google.com")
+  ) {
     console.error(`❌ Response looks like HTML, not CSV (${label}).`);
-    console.error("➡️ Vérifie que le Google Sheet est bien en lecture publique (au lien) et que le gid est correct.");
+    console.error("➡️ Vérifie que le Google Sheet est bien en lecture publique au lien et que le gid est correct.");
     console.error(text.slice(0, 600));
     process.exit(1);
   }
@@ -216,7 +303,10 @@ function parseTableFromCsv(text, label) {
     process.exit(1);
   }
 
-  const headerIdx = rows.findIndex((r) => r.some((c) => String(c ?? "").trim() !== ""));
+  const headerIdx = rows.findIndex((r) =>
+    r.some((c) => String(c ?? "").trim() !== "")
+  );
+
   const rawHeaders = rows[headerIdx];
   const headers = rawHeaders.map(repairHeaderCell);
 
@@ -226,19 +316,16 @@ function parseTableFromCsv(text, label) {
     .slice(headerIdx + 1)
     .filter((r) => r.some((c) => String(c ?? "").trim() !== ""));
 
-  // ✅ IMPORTANT: on ne garde PAS l’en-tête comme data
   return dataRows.map((r) => rowToObject(headers, r));
 }
 
 // -------- Joueurs table --------
 async function loadJoueursTable() {
-  // 1) CSV Joueurs explicite (si tu veux un jour)
   if (JOUEURS_CSV_URL) {
     const csv = await fetchCsv(JOUEURS_CSV_URL, "Joueurs");
     return parseTableFromCsv(csv, "Joueurs");
   }
 
-  // 2) Fallback JSON local
   try {
     const raw = await fs.readFile(JOUEURS_JSON_FILE, "utf8");
     const arr = JSON.parse(raw);
@@ -249,10 +336,13 @@ async function loadJoueursTable() {
     }
 
     console.log(`[infos] Using local joueurs JSON: ${JOUEURS_JSON_FILE} (${arr.length} rows)`);
+
     return arr.map((r) => ({
       ...r,
       name: pick(r, "name", "player", "pseudo"),
-      alliance: pick(r, "alliance", "alliance_name", "team"),
+      alliance: normalizeAllianceName(
+        pick(r, "alliance", "alliance_name", "team")
+      ),
     }));
   } catch (e) {
     console.error("❌ Missing JOUEURS CSV and could not read local joueurs.json fallback.");
@@ -270,7 +360,9 @@ async function loadInfos(label, directUrl, gid) {
 
   if (!finalUrl) {
     console.error(`❌ Missing source for ${label}`);
-    console.error(`➡️ Fournis ${label.toUpperCase()}_CSV_URL OU (SHEET_ID + ${label.toUpperCase()}_GID).`);
+    console.error(
+      `➡️ Fournis ${label.toUpperCase()}_CSV_URL OU (SHEET_ID + ${label.toUpperCase()}_GID).`
+    );
     process.exit(1);
   }
 
@@ -280,22 +372,28 @@ async function loadInfos(label, directUrl, gid) {
 
 // -------- MAIN --------
 async function main() {
-  // 1) Load the 3 infos tabs
-  const infosZeus = await loadInfos("infos_zeus", INFOS_ZEUS_CSV_URL, INFOS_ZEUS_GID);
-  const infosDionysos = await loadInfos("infos_dionysos", INFOS_DIONYSOS_CSV_URL, INFOS_DIONYSOS_GID);
-  const infosPoseidon = await loadInfos("infos_poseidon", INFOS_POSEIDON_CSV_URL, INFOS_POSEIDON_GID);
+  // 1) Load the 4 infos tabs
+  const infosBySource = await Promise.all(
+    INFOS_SOURCES.map((source) =>
+      loadInfos(source.label, source.directUrl, source.gid)
+    )
+  );
 
-  // ✅ On concatène les données (les en-têtes ne sont pas dans les arrays => pas de “doublon d’en-tête”)
-  const infos = [...infosZeus, ...infosDionysos, ...infosPoseidon];
+  const infos = infosBySource.flat();
 
   // 2) Load joueurs for alliance mapping
   const joueurs = await loadJoueursTable();
 
   const allianceByName = new Map();
+
   for (const row of joueurs) {
     const name = pick(row, "name", "player", "pseudo");
-    const alliance = pick(row, "alliance", "team", "alliance_name");
+    const alliance = normalizeAllianceName(
+      pick(row, "alliance", "team", "alliance_name")
+    );
+
     if (!name) continue;
+
     allianceByName.set(normalizeName(name), alliance || "");
   }
 
@@ -330,6 +428,7 @@ async function main() {
 
   // Debug: missing alliance
   const missingAlliance = out.filter((r) => !r.alliance).slice(0, 12);
+
   if (missingAlliance.length) {
     console.log(
       `[infos] ⚠️ Missing alliance for ${missingAlliance.length} sample players:`,
