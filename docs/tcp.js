@@ -1,7 +1,8 @@
 /* docs/tcp.js
    Page: tcp.html
    Data: ./data/infos.json
-   Fix: frame derrière, icon devant (ordre + z-index côté CSS)
+   Fix: frame derrière, icon devant
+   Kronos: filtre + emoji + reconnaissance alliance
 */
 
 (() => {
@@ -12,8 +13,16 @@
   const $filterZeus = document.getElementById("filterZeus");
   const $filterDionysos = document.getElementById("filterDionysos");
   const $filterPoseidon = document.getElementById("filterPoseidon");
+  const $filterKronos = document.getElementById("filterKronos");
 
-  if (!$players || !$count || !$filterZeus || !$filterDionysos || !$filterPoseidon) {
+  if (
+    !$players ||
+    !$count ||
+    !$filterZeus ||
+    !$filterDionysos ||
+    !$filterPoseidon ||
+    !$filterKronos
+  ) {
     console.error("[tcp] Missing DOM elements. Check tcp.html ids.");
     return;
   }
@@ -23,21 +32,27 @@
     zeus: "⚡",
     dionysos: "🍇",
     poseidon: "🔱",
+    kronos: "⏳",
   };
 
   function normalizeAlliance(a) {
     return String(a ?? "")
       .trim()
       .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
       .replace(/\s+/g, " ");
   }
 
   function allianceKey(a) {
     const n = normalizeAlliance(a);
+
     if (n.includes("zeus")) return "zeus";
     if (n.includes("dionysos")) return "dionysos";
-    if (n.includes("poséidon") || n.includes("poseidon")) return "poseidon";
-    return ""; // inconnu / vide
+    if (n.includes("poseidon")) return "poseidon";
+    if (n.includes("kronos")) return "kronos";
+
+    return "";
   }
 
   function allianceEmoji(a) {
@@ -49,7 +64,9 @@
     if (key === "zeus") return $filterZeus.checked;
     if (key === "dionysos") return $filterDionysos.checked;
     if (key === "poseidon") return $filterPoseidon.checked;
-    return true; // alliance inconnue affichée par défaut
+    if (key === "kronos") return $filterKronos.checked;
+
+    return true;
   }
 
   // ---------- Formatting ----------
@@ -60,17 +77,19 @@
 
   function escapeHtml(s) {
     return String(s ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 
   function safeUrl(u) {
     const s = String(u ?? "").trim();
+
     if (!s) return "";
     if (/^https?:\/\//i.test(s)) return s;
+
     return "";
   }
 
@@ -79,9 +98,11 @@
     $count.textContent = String(list.length);
 
     if (!list.length) {
-      $players.innerHTML = `<div style="color: rgba(255,255,255,.65); padding: 6px 2px; text-align:center;">
-        Aucun joueur ne correspond aux filtres.
-      </div>`;
+      $players.innerHTML = `
+        <div style="color: rgba(255,255,255,.65); padding: 6px 2px; text-align:center;">
+          Aucun joueur ne correspond aux filtres.
+        </div>
+      `;
       return;
     }
 
@@ -93,14 +114,25 @@
         const icon = safeUrl(p.icon);
         const frame = safeUrl(p.frame);
 
-        // ✅ FIX: frame derrière (1), icon devant (2)
-        // On met volontairement le frame en premier dans le DOM.
+        const iconSafe = escapeHtml(icon);
+        const frameSafe = escapeHtml(frame);
+
         const avatarHtml =
           icon || frame
-            ? `<div class="rankAvatar" aria-hidden="true">
-                ${frame ? `<img class="rankAvatarFrame" src="${frame}" alt="" loading="lazy" decoding="async">` : ""}
-                ${icon ? `<img class="rankAvatarIcon"  src="${icon}"  alt="" loading="lazy" decoding="async">` : ""}
-              </div>`
+            ? `
+              <div class="rankAvatar" aria-hidden="true">
+                ${
+                  frame
+                    ? `<img class="rankAvatarFrame" src="${frameSafe}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`
+                    : ""
+                }
+                ${
+                  icon
+                    ? `<img class="rankAvatarIcon" src="${iconSafe}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`
+                    : ""
+                }
+              </div>
+            `
             : `<div class="rankAvatar" aria-hidden="true"></div>`;
 
         return `
@@ -133,18 +165,35 @@
       return isAllianceEnabled(key);
     });
 
-    filtered.sort((a, b) => (b.tcp || 0) - (a.tcp || 0));
+    filtered.sort((a, b) => {
+      const tcpDiff = (b.tcp || 0) - (a.tcp || 0);
+
+      if (tcpDiff !== 0) return tcpDiff;
+
+      return String(a.name || "").localeCompare(String(b.name || ""), "fr", {
+        sensitivity: "base",
+      });
+    });
+
     render(filtered);
   }
 
   // ---------- Init ----------
   async function init() {
     try {
-      const res = await fetch("./data/infos.json?v=" + Date.now(), { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const res = await fetch("./data/infos.json?v=" + Date.now(), {
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
 
       const data = await res.json();
-      if (!Array.isArray(data)) throw new Error("infos.json is not an array");
+
+      if (!Array.isArray(data)) {
+        throw new Error("infos.json is not an array");
+      }
 
       allPlayers = data
         .map((p) => ({
@@ -156,17 +205,23 @@
         }))
         .filter((p) => p.name);
 
-      [$filterZeus, $filterDionysos, $filterPoseidon].forEach((cb) => {
+      [$filterZeus, $filterDionysos, $filterPoseidon, $filterKronos].forEach((cb) => {
         cb.addEventListener("change", applyFiltersAndRender);
       });
 
       applyFiltersAndRender();
     } catch (err) {
       console.error("[tcp] init error:", err);
-      $players.innerHTML = `<div style="color: rgba(255,255,255,.75); padding: 10px; text-align:center;">
-        ❌ Impossible de charger <code>data/infos.json</code><br>
-        <span style="color: rgba(255,255,255,.55); font-size: 13px;">${escapeHtml(err?.message || err)}</span>
-      </div>`;
+
+      $players.innerHTML = `
+        <div style="color: rgba(255,255,255,.75); padding: 10px; text-align:center;">
+          ❌ Impossible de charger <code>data/infos.json</code><br>
+          <span style="color: rgba(255,255,255,.55); font-size: 13px;">
+            ${escapeHtml(err?.message || err)}
+          </span>
+        </div>
+      `;
+
       $count.textContent = "0";
     }
   }
