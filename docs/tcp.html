@@ -6,25 +6,25 @@
       name="viewport"
       content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
     />
+
     <style>
-  html.authChecking body{
-    opacity: 0;
-    pointer-events: none;
-  }
-</style>
+      html.authChecking body {
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
 
-<script>
-  document.documentElement.classList.add("authChecking");
-</script>
+    <script>
+      document.documentElement.classList.add("authChecking");
+    </script>
 
-<script src="./auth-guard.js?v=2"></script>
+    <script src="./auth-guard.js?v=2"></script>
+
     <meta name="theme-color" content="#0b0c0d" />
     <title>Classement TCP — Groupement</title>
 
-    <!-- ✅ CSS global -->
     <link rel="stylesheet" href="./style.css" />
-    <!-- ✅ CSS page -->
-    <link rel="stylesheet" href="./tcp.css?v=ts" />
+    <link rel="stylesheet" href="./tcp.css?v=17" />
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -34,14 +34,14 @@
   <body>
     <div class="app">
       <header class="header">
-        <!-- ✅ back à gauche -->
         <button class="backBtn" type="button" aria-label="Retour">⬅️</button>
-        <!-- ✅ home à droite -->
         <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
 
         <div class="headerLeft">
           <h1 class="title">Classement TCP</h1>
-          <p class="subtitle">Comparaison de la puissance de roster (TCP) au sein du groupement</p>
+          <p class="subtitle">
+            Comparaison de la puissance de roster (TCP) au sein du groupement
+          </p>
         </div>
       </header>
 
@@ -49,17 +49,34 @@
         <div class="filters" role="group" aria-label="Filtres alliances">
           <label class="filterToggle">
             <input id="filterZeus" type="checkbox" checked />
-            <span class="fStack"><span class="fEmoji">⚡</span><span class="fName">Zeus</span></span>
+            <span class="fStack">
+              <span class="fEmoji">⚡</span>
+              <span class="fName">Zeus</span>
+            </span>
           </label>
 
           <label class="filterToggle">
             <input id="filterDionysos" type="checkbox" checked />
-            <span class="fStack"><span class="fEmoji">🍇</span><span class="fName">Dionysos</span></span>
+            <span class="fStack">
+              <span class="fEmoji">🍇</span>
+              <span class="fName">Dionysos</span>
+            </span>
           </label>
 
           <label class="filterToggle">
             <input id="filterPoseidon" type="checkbox" checked />
-            <span class="fStack"><span class="fEmoji">🔱</span><span class="fName">Poséidon</span></span>
+            <span class="fStack">
+              <span class="fEmoji">🔱</span>
+              <span class="fName">Poséidon</span>
+            </span>
+          </label>
+
+          <label class="filterToggle">
+            <input id="filterKronos" type="checkbox" checked />
+            <span class="fStack">
+              <span class="fEmoji">⏳</span>
+              <span class="fName">Kronos</span>
+            </span>
           </label>
         </div>
       </section>
@@ -75,23 +92,11 @@
     </div>
 
     <script>
-      (function () {
-        // ✅ back button = history.back()
-        document.querySelectorAll(".backBtn").forEach((btn) => {
-          btn.addEventListener("click", () => history.back());
-        });
-
-        // cache-bust css page
-        const links = document.querySelectorAll('link[rel="stylesheet"]');
-        links.forEach((l) => {
-          if (l.href.includes("v=ts")) l.href = l.href.replace("v=ts", "v=" + Date.now());
-        });
-
-        const s = document.createElement("script");
-        s.src = "./tcp.js?v=" + Date.now();
-        s.defer = true;
-        document.body.appendChild(s);
-      })();
+      document.querySelectorAll(".backBtn").forEach((btn) => {
+        btn.addEventListener("click", () => history.back());
+      });
     </script>
+
+    <script src="./tcp.js?v=17"></script>
   </body>
 </html>
