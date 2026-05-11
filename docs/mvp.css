@@ -364,6 +364,30 @@ body::after{
     align-items:stretch;
   }
 
+  .filters{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .filterToggle{
+    min-height: 58px;
+    padding: 9px 10px;
+    gap: 8px;
+  }
+
+  .filterToggle input{
+    width: 16px;
+    height: 16px;
+  }
+
+  .fEmoji{
+    font-size: 18px;
+  }
+
+  .fName{
+    font-size: 13px;
+  }
+
   .rankNum{
     width: 20px;
     font-size: 12.5px;
@@ -379,6 +403,7 @@ body::after{
   .rankAvatarIcon{ padding: 6px; }
 
   .rankName{ font-size: 15px; }
+
   .rankPower{
     width: 120px;
     font-size: 13.5px;
@@ -389,21 +414,22 @@ body::after{
   .title{ font-size: 22px; }
 
   .filters{
-    gap: 6px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
   }
 
   .filterToggle{
-    padding: 8px 5px;
-    gap: 5px;
+    padding: 8px 10px;
+    gap: 8px;
   }
 
   .filterToggle input{
-    width: 14px;
-    height: 14px;
+    width: 15px;
+    height: 15px;
   }
 
-  .fEmoji{ font-size: 16px; }
-  .fName{ font-size: 11px; }
+  .fEmoji{ font-size: 18px; }
+  .fName{ font-size: 13px; }
 
   .rankAvatar{
     width: 40px;
