@@ -19,6 +19,9 @@
     "Poséidon": "🔱",
     Poseidon: "🔱",
     poseidon: "🔱",
+    Kronos: "⏳",
+    kronos: "⏳",
+    "LoSP Kronos": "⏳",
   };
 
   const AUTH_PLAYER_STORAGE_KEY = "losp:lastAttackCheckerPlayerByAlliance";
@@ -149,6 +152,7 @@
     if (key === "poseidon" || key === "posseidon") return "poseidon";
     if (key === "dionysos") return "dionysos";
     if (key === "zeus") return "zeus";
+    if (key === "kronos" || key === "lospkronos") return "kronos";
 
     return key;
   }
@@ -634,7 +638,7 @@
     opt0.textContent = "— Choisir une alliance —";
     allianceSelect.appendChild(opt0);
 
-    const ORDER = ["Zeus", "Dionysos", "Poséidon", "Poseidon"];
+    const ORDER_KEYS = ["zeus", "dionysos", "poseidon", "kronos"];
     const alliances = [
       ...new Set(JOUEURS.map((j) => (j.alliance ?? "").toString().trim()).filter(Boolean)),
     ];
@@ -642,15 +646,19 @@
     alliances
       .filter((a) => isAllianceAllowed(a))
       .sort((a, b) => {
-        const ia = ORDER.indexOf(a);
-        const ib = ORDER.indexOf(b);
-        if (ia !== -1 || ib !== -1) return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+        const ia = ORDER_KEYS.indexOf(allianceKey(a));
+        const ib = ORDER_KEYS.indexOf(allianceKey(b));
+
+        if (ia !== -1 || ib !== -1) {
+          return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+        }
+
         return a.localeCompare(b, "fr");
       })
       .forEach((a) => {
         const opt = document.createElement("option");
         opt.value = a;
-        opt.textContent = `${ALLIANCE_EMOJI[a] || "•"} ${a}`.trim();
+        opt.textContent = `${ALLIANCE_EMOJI[a] || ALLIANCE_EMOJI[allianceKey(a)] || "•"} ${a}`.trim();
         allianceSelect.appendChild(opt);
       });
 
