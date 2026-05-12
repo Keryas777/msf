@@ -10,6 +10,9 @@ on:
       - "docs/data/rosters_zeus.json"
       - "docs/data/rosters_dionysos.json"
       - "docs/data/rosters_poseidon.json"
+      - "docs/data/rosters_kronos.json"
+      - "scripts/merge-rosters.mjs"
+      - ".github/workflows/merge-rosters.yml"
 
 permissions:
   contents: write
