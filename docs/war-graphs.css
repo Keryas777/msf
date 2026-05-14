@@ -330,7 +330,7 @@ body::after{
 /* ===== Summary stats ===== */
 .summaryStats{
   display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-template-columns:repeat(3,minmax(0,1fr));
   gap:8px;
 }
 
@@ -338,7 +338,7 @@ body::after{
   border:1px solid var(--border);
   border-radius:14px;
   padding:12px 8px;
-  min-height:78px;
+  min-height:84px;
   background:rgba(0,0,0,.20);
   text-align:center;
 
@@ -362,8 +362,7 @@ body::after{
   max-width:100%;
 }
 
-/* ===== Couleurs écart note vs moyenne alliance ===== */
-/* Vert foncé : au-dessus de +15 */
+/* ===== Couleurs performances ===== */
 .statGapExcellent{
   background:
     radial-gradient(circle at 50% 0%, rgba(45,190,95,.34), transparent 70%),
@@ -378,7 +377,6 @@ body::after{
   color:#76ff9d;
 }
 
-/* Vert clair : de +5 à +15 */
 .statGapGood{
   background:
     radial-gradient(circle at 50% 0%, rgba(175,235,85,.32), transparent 70%),
@@ -393,7 +391,6 @@ body::after{
   color:#d8ff7a;
 }
 
-/* Jaune : de -10 à +5 */
 .statGapNeutral{
   background:
     radial-gradient(circle at 50% 0%, rgba(255,205,55,.30), transparent 70%),
@@ -408,7 +405,6 @@ body::after{
   color:#ffd65f;
 }
 
-/* Orange : entre -10 et -20 */
 .statGapWarning{
   background:
     radial-gradient(circle at 50% 0%, rgba(255,125,35,.34), transparent 70%),
@@ -423,7 +419,6 @@ body::after{
   color:#ff9a4c;
 }
 
-/* Rouge : en-dessous de -20 */
 .statGapBad{
   background:
     radial-gradient(circle at 50% 0%, rgba(255,65,82,.36), transparent 70%),
@@ -438,7 +433,6 @@ body::after{
   color:#ff7c88;
 }
 
-/* Commun aux tuiles colorées */
 .statGapExcellent,
 .statGapGood,
 .statGapNeutral,
@@ -651,7 +645,7 @@ body::after{
   }
 
   .statPill{
-    min-height:84px;
+    min-height:90px;
     padding:12px 7px;
   }
 
