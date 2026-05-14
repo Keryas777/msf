@@ -1,6 +1,7 @@
 /* docs/war-graphs.js */
 (() => {
-  const AUTH_ME_URL = "https://losp-auth.deliriousfan7.workers.dev/me.json";
+  const AUTH_PLAYER_STORAGE_KEY = "losp:lastPlayerByAlliance";
+  const LOCAL_SESSION_KEY = "losp_session";
 
   const $allianceSelect = document.getElementById("allianceSelect");
   const $playerSelect = document.getElementById("playerSelect");
@@ -44,32 +45,110 @@
 
   let warHistory = [];
   let avatarByPlayer = new Map();
-  let authUser = null;
+  let lospSession = window.LoSP_SESSION || readLocalSessionPayload() || null;
+  let authDefaultsApplied = false;
+  let bootReady = false;
 
+  // ---------- Auth session / auto-selection ----------
+  function decodeBase64UrlJson(value) {
+    try {
+      const base64 = String(value || "")
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+
+      const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+      const binary = atob(padded);
+
+      const bytes = new Uint8Array(
+        Array.from(binary).map((char) => char.charCodeAt(0))
+      );
+
+      return JSON.parse(new TextDecoder().decode(bytes));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function readLocalSessionPayload() {
+    try {
+      const raw = localStorage.getItem(LOCAL_SESSION_KEY) || "";
+      if (!raw) return null;
+
+      const payload = decodeBase64UrlJson(raw);
+      if (!payload) return null;
+
+      return {
+        ok: true,
+        ...payload,
+      };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function refreshLoSPSession() {
+    lospSession =
+      window.LoSP_SESSION ||
+      readLocalSessionPayload() ||
+      lospSession ||
+      null;
+
+    return lospSession;
+  }
+
+  function hasUsableSession(session) {
+    return !!session && (
+      session.ok === true ||
+      Array.isArray(session.alliances) ||
+      Array.isArray(session.players)
+    );
+  }
+
+  window.addEventListener("losp:auth-ready", (event) => {
+    lospSession = event.detail || window.LoSP_SESSION || readLocalSessionPayload() || null;
+
+    if (bootReady) {
+      authDefaultsApplied = false;
+      tryApplyAuthDefaults({ force: true });
+    }
+  });
+
+  // ---------- Utils ----------
   function allianceKey(a) {
-    const n = String(a ?? "")
-      .trim()
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+    const n = normalizeKey(a);
 
-    if (n.includes("zeus")) return "zeus";
-    if (n.includes("dionysos")) return "dionysos";
-    if (n.includes("poseidon")) return "poseidon";
-    if (n.includes("kronos") || n.includes("cronos") || n.includes("chronos")) return "kronos";
+    if (n === "zeus") return "zeus";
+    if (n === "dionysos") return "dionysos";
+    if (n === "poseidon" || n === "posseidon") return "poseidon";
+    if (n === "kronos" || n === "cronos" || n === "chronos" || n === "lospkronos") {
+      return "kronos";
+    }
 
     return "";
   }
 
-  function nameKey(name) {
-    return String(name ?? "")
+  function normalizeKey(value) {
+    return String(value ?? "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "")
+      .replace(/[-_‐-‒–—―﹘﹣－]/g, "")
+      .replace(/[’'`´]/g, "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function normalizeTextForMatch(value) {
+    return String(value ?? "")
       .trim()
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
-      .replace(/\s+/g, "")
-      .replace(/[-_‐-‒–—―﹘﹣－]/g, "")
-      .replace(/[’'`´]/g, "");
+      .replace(/\s+/g, " ");
+  }
+
+  function nameKey(name) {
+    return normalizeKey(name);
   }
 
   function fmt(v, d = 1) {
@@ -99,69 +178,218 @@
     return String(v || "").replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3/$2");
   }
 
-  async function loadAuthUser() {
-    try {
-      const res = await fetch(AUTH_ME_URL + "?v=" + Date.now(), {
-        cache: "no-store",
-        credentials: "include",
+  function getSessionAlliancePreferenceKeys() {
+    if (!hasUsableSession(lospSession)) return [];
+
+    const keys = [];
+
+    if (lospSession.primaryAlliance) {
+      keys.push(allianceKey(lospSession.primaryAlliance));
+    }
+
+    if (Array.isArray(lospSession.alliances)) {
+      lospSession.alliances.forEach((alliance) => {
+        keys.push(allianceKey(alliance));
       });
+    }
 
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
+    if (Array.isArray(lospSession.players)) {
+      lospSession.players.forEach((player) => {
+        if (player?.alliance) keys.push(allianceKey(player.alliance));
+      });
+    }
+
+    return [...new Set(keys.filter(Boolean))];
+  }
+
+  function findAllianceOptionByKey(key) {
+    if (!key || !$allianceSelect) return null;
+
+    return Array.from($allianceSelect.options).find((option) => {
+      if (!option.value) return false;
+
+      return (
+        allianceKey(option.value) === key ||
+        allianceKey(option.textContent) === key
+      );
+    });
+  }
+
+  function findBestAllianceOptionFromSession() {
+    if (!$allianceSelect) return null;
+
+    const preferenceKeys = getSessionAlliancePreferenceKeys();
+
+    for (const key of preferenceKeys) {
+      const option = findAllianceOptionByKey(key);
+
+      if (option && playersForAlliance(option.value).length) {
+        return option;
       }
+    }
 
-      const data = await res.json();
+    return Array.from($allianceSelect.options).find((option) => {
+      return option.value && playersForAlliance(option.value).length;
+    }) || null;
+  }
 
-      if (!data?.ok) {
-        return null;
-      }
+  function getSessionPlayerForAlliance(session, alliance) {
+    const allianceK = allianceKey(alliance);
 
-      console.log("[war-graphs] auth user loaded:", data?.displayName || data?.username || data?.id);
-
-      return data;
-    } catch (error) {
-      console.warn("[war-graphs] auth user unavailable:", error);
+    if (!hasUsableSession(session) || !Array.isArray(session.players)) {
       return null;
     }
-  }
 
-  function authPlayerForAlliance(alliance) {
-    const a = allianceKey(alliance);
+    const exactMatch = session.players.find(
+      (player) => allianceKey(player.alliance) === allianceK
+    );
 
-    if (!a || !authUser || !Array.isArray(authUser.players)) {
-      return "";
+    if (exactMatch) return exactMatch;
+
+    if (session.players.length === 1) {
+      return session.players[0];
     }
 
-    const found = authUser.players.find((p) => allianceKey(p?.alliance) === a);
-
-    return String(found?.name || "").trim();
+    return null;
   }
 
-  function playerExistsInAlliance(alliance, playerName) {
-    const wanted = nameKey(playerName);
+  function findPlayerOptionByName(name) {
+    if (!name || !$playerSelect) return null;
 
-    if (!wanted) return false;
+    const wanted = normalizeTextForMatch(name);
+    const wantedKey = normalizeKey(name);
 
-    return playersForAlliance(alliance).some((p) => nameKey(p.name) === wanted);
+    return Array.from($playerSelect.options).find((option) => {
+      if (!option.value) return false;
+
+      return (
+        normalizeTextForMatch(option.value) === wanted ||
+        normalizeTextForMatch(option.textContent) === wanted ||
+        normalizeKey(option.value) === wantedKey ||
+        normalizeKey(option.textContent) === wantedKey
+      );
+    });
   }
 
-  function firstAuthAllianceWithData() {
-    if (!authUser || !Array.isArray(authUser.players)) {
-      return "";
+  function readStoredPlayersByAlliance() {
+    try {
+      return JSON.parse(localStorage.getItem(AUTH_PLAYER_STORAGE_KEY) || "{}") || {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function saveStoredPlayerForAlliance(alliance, player) {
+    const allianceK = allianceKey(alliance);
+    const playerName = String(player ?? "").trim();
+
+    if (!allianceK || !playerName) return;
+
+    try {
+      const data = readStoredPlayersByAlliance();
+      data[allianceK] = playerName;
+      localStorage.setItem(AUTH_PLAYER_STORAGE_KEY, JSON.stringify(data));
+    } catch (_) {}
+  }
+
+  function getStoredPlayerForAlliance(alliance) {
+    const allianceK = allianceKey(alliance);
+    if (!allianceK) return "";
+
+    const data = readStoredPlayersByAlliance();
+    return data[allianceK] || "";
+  }
+
+  function selectPlayerByName(name, options = {}) {
+    const shouldDispatch = options.dispatch === true;
+    const option = findPlayerOptionByName(name);
+
+    if (!option) return false;
+
+    $playerSelect.value = option.value;
+
+    if (shouldDispatch) {
+      $playerSelect.dispatchEvent(new Event("change", { bubbles: true }));
     }
 
-    for (const p of authUser.players) {
-      const a = allianceKey(p?.alliance);
-      const name = String(p?.name || "").trim();
-
-      if (a && name && playerExistsInAlliance(a, name)) {
-        return a;
-      }
-    }
-
-    return "";
+    return true;
   }
 
+  function selectBestPlayerForCurrentAlliance(options = {}) {
+    if (!$playerSelect || !$allianceSelect) return false;
+
+    const alliance = String($allianceSelect.value ?? "").trim();
+    if (!alliance) return false;
+
+    const sessionPlayer = getSessionPlayerForAlliance(lospSession, alliance);
+
+    if (sessionPlayer?.name && selectPlayerByName(sessionPlayer.name, options)) {
+      return true;
+    }
+
+    const storedPlayer = getStoredPlayerForAlliance(alliance);
+
+    if (storedPlayer && selectPlayerByName(storedPlayer, options)) {
+      return true;
+    }
+
+    const candidateNames = [
+      lospSession?.displayName,
+      lospSession?.global_name,
+      lospSession?.username,
+    ].filter(Boolean);
+
+    for (const name of candidateNames) {
+      if (selectPlayerByName(name, options)) return true;
+    }
+
+    return false;
+  }
+
+  function tryApplyAuthDefaults(options = {}) {
+    const force = options.force === true;
+
+    refreshLoSPSession();
+
+    const params = new URLSearchParams(window.location.search);
+    const hasUrlTarget = Boolean(params.get("alliance") || params.get("player"));
+
+    if (hasUrlTarget && !force) return false;
+    if (authDefaultsApplied && !force) return false;
+    if (!hasUsableSession(lospSession)) return false;
+    if (!$allianceSelect || !$playerSelect) return false;
+    if (!$allianceSelect.options.length) return false;
+
+    const allianceOption = findBestAllianceOptionFromSession();
+
+    if (!allianceOption) return false;
+
+    $allianceSelect.value = allianceOption.value;
+
+    renderPlayerSelect({ preferAuth: true });
+
+    const didSelectPlayer = selectBestPlayerForCurrentAlliance({
+      dispatch: false,
+    });
+
+    authDefaultsApplied = true;
+
+    if (didSelectPlayer) {
+      saveStoredPlayerForAlliance($allianceSelect.value, $playerSelect.value);
+    }
+
+    renderCharts();
+
+    console.log("[war-graphs] auth defaults applied:", {
+      alliance: $allianceSelect.value,
+      player: $playerSelect.value,
+      session: lospSession,
+    });
+
+    return true;
+  }
+
+  // ---------- Avatars ----------
   async function loadPlayerAvatars() {
     try {
       const res = await fetch("./data/infos.json?v=" + Date.now(), {
@@ -229,6 +457,7 @@
     `;
   }
 
+  // ---------- Data helpers ----------
   function playersForAlliance(alliance) {
     const a = allianceKey(alliance);
     const map = new Map();
@@ -303,7 +532,9 @@
       .sort((a, b) => a.date.localeCompare(b.date));
   }
 
-  function renderPlayerSelect() {
+  function renderPlayerSelect(options = {}) {
+    const preferAuth = options.preferAuth === true;
+    const previousValue = $playerSelect.value;
     const players = playersForAlliance($allianceSelect.value);
 
     $playerSelect.innerHTML = "";
@@ -326,31 +557,26 @@
       $playerSelect.appendChild(opt);
     });
 
-    const options = Array.from($playerSelect.options);
-    const currentAlliance = allianceKey($allianceSelect.value);
-
     const params = new URLSearchParams(window.location.search);
     const wantedPlayer = params.get("player");
     const wantedAlliance = allianceKey(params.get("alliance"));
 
-    if (wantedPlayer && wantedAlliance === currentAlliance) {
-      const found = options.find((opt) => nameKey(opt.value) === nameKey(wantedPlayer));
-
-      if (found) {
-        $playerSelect.value = found.value;
+    if (wantedPlayer && wantedAlliance === allianceKey($allianceSelect.value)) {
+      if (selectPlayerByName(wantedPlayer, { dispatch: false })) {
         return;
       }
     }
 
-    const authPlayer = authPlayerForAlliance(currentAlliance);
+    if (preferAuth && selectBestPlayerForCurrentAlliance({ dispatch: false })) {
+      return;
+    }
 
-    if (authPlayer) {
-      const found = options.find((opt) => nameKey(opt.value) === nameKey(authPlayer));
+    if (previousValue && selectPlayerByName(previousValue, { dispatch: false })) {
+      return;
+    }
 
-      if (found) {
-        $playerSelect.value = found.value;
-        return;
-      }
+    if (selectBestPlayerForCurrentAlliance({ dispatch: false })) {
+      return;
     }
   }
 
@@ -643,59 +869,26 @@
     });
   }
 
-  function setInitialFromUrlOrAuth() {
+  function setInitialFromUrl() {
     const params = new URLSearchParams(window.location.search);
     const wantedAlliance = allianceKey(params.get("alliance"));
 
     if (
       wantedAlliance &&
-      Array.from($allianceSelect.options).some((o) => o.value === wantedAlliance) &&
+      Array.from($allianceSelect.options).some((o) => allianceKey(o.value) === wantedAlliance) &&
       playersForAlliance(wantedAlliance).length
     ) {
-      $allianceSelect.value = wantedAlliance;
-      return;
+      const option = findAllianceOptionByKey(wantedAlliance);
+      if (option) $allianceSelect.value = option.value;
+      return true;
     }
 
-    const primary = allianceKey(authUser?.primaryAlliance);
-    const primaryPlayer = authPlayerForAlliance(primary);
-
-    if (
-      primary &&
-      Array.from($allianceSelect.options).some((o) => o.value === primary) &&
-      primaryPlayer &&
-      playerExistsInAlliance(primary, primaryPlayer)
-    ) {
-      $allianceSelect.value = primary;
-      return;
-    }
-
-    const firstAuthAlliance = firstAuthAllianceWithData();
-
-    if (
-      firstAuthAlliance &&
-      Array.from($allianceSelect.options).some((o) => o.value === firstAuthAlliance)
-    ) {
-      $allianceSelect.value = firstAuthAlliance;
-      return;
-    }
-
-    const first = ["zeus", "dionysos", "poseidon", "kronos"].find((a) =>
-      playersForAlliance(a).length
-    );
-
-    if (first) {
-      $allianceSelect.value = first;
-    }
+    return false;
   }
 
   async function init() {
     try {
-      const [loadedAuthUser] = await Promise.all([
-        loadAuthUser(),
-        loadPlayerAvatars(),
-      ]);
-
-      authUser = loadedAuthUser;
+      await loadPlayerAvatars();
 
       const res = await fetch("./data/war-history-lite.json?v=" + Date.now(), {
         cache: "no-store",
@@ -720,16 +913,43 @@
         }))
         .filter((w) => w.date && w.alliance);
 
-      setInitialFromUrlOrAuth();
-      renderPlayerSelect();
+      const urlApplied = setInitialFromUrl();
+
+      renderPlayerSelect({ preferAuth: !urlApplied });
+
+      bootReady = true;
+
+      if (!urlApplied && tryApplyAuthDefaults()) {
+        return;
+      }
+
       renderCharts();
 
       $allianceSelect.addEventListener("change", () => {
-        renderPlayerSelect();
+        authDefaultsApplied = true;
+
+        renderPlayerSelect({ preferAuth: true });
+
+        const alliance = String($allianceSelect.value || "").trim();
+        const player = String($playerSelect.value || "").trim();
+
+        if (alliance && player) {
+          saveStoredPlayerForAlliance(alliance, player);
+        }
+
         renderCharts();
       });
 
-      $playerSelect.addEventListener("change", renderCharts);
+      $playerSelect.addEventListener("change", () => {
+        const alliance = String($allianceSelect.value || "").trim();
+        const player = String($playerSelect.value || "").trim();
+
+        if (alliance && player) {
+          saveStoredPlayerForAlliance(alliance, player);
+        }
+
+        renderCharts();
+      });
     } catch (error) {
       console.error("[war-graphs] init error:", error);
 
