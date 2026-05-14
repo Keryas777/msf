@@ -204,6 +204,29 @@
     });
   }
 
+  function compact(value) {
+    const n = Number(value || 0);
+
+    if (!Number.isFinite(n) || n <= 0) return "0";
+
+    if (n >= 1_000_000_000) {
+      const v = Math.round((n / 1_000_000_000) * 10) / 10;
+      return `${String(v).replace(".", ",")} Md`;
+    }
+
+    if (n >= 1_000_000) {
+      const v = Math.round((n / 1_000_000) * 10) / 10;
+      return `${String(v).replace(".", ",")} M`;
+    }
+
+    if (n >= 1_000) {
+      const v = Math.round(n / 1_000);
+      return `${v} k`;
+    }
+
+    return String(Math.round(n));
+  }
+
   function esc(v) {
     return String(v ?? "")
       .replaceAll("&", "&amp;")
@@ -703,6 +726,7 @@
           score_impact: Number(p.score_impact || 0),
           alliance_avg_impact: Number(war.alliance_avg_impact || 0),
 
+          damage: Number(p.damage || 0),
           damage_share_pct: Number(p.damage_share_pct || 0),
           alliance_avg_damage_share_pct: Number(war.alliance_avg_damage_share_pct || 0),
 
@@ -805,6 +829,7 @@
     const avgMisses = avg(series, "misses");
     const avgSuccess = avg(series, "success_rate");
     const avgImpact = avg(series, "score_impact");
+    const avgDamage = avg(series, "damage");
     const avgDamageShare = avg(series, "damage_share_pct");
     const avgDefenseWins = avg(series, "defense_wins");
     const avgDeviations = avg(series, "deviations");
@@ -851,8 +876,13 @@
       </div>
 
       <div class="statPill ${impactClass(avgImpact)}">
-        <div class="statValue">${fmt(avgImpact, 1)}</div>
+        <div class="statValue">${fmt(avgImpact, 1)}/35</div>
         <div class="statLabel">impact moyen</div>
+      </div>
+
+      <div class="statPill">
+        <div class="statValue">${compact(avgDamage)}</div>
+        <div class="statLabel">dégâts moyens / guerre</div>
       </div>
 
       <div class="statPill">
