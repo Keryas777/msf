@@ -5,6 +5,7 @@
 
   const FILES = {
     history: "./data/war-history-lite.json",
+    stats: "./data/war-stats.json",
     infos: "./data/infos.json",
     aliases: "./data/player-aliases.json",
     joueurs: "./data/joueurs.json",
@@ -51,6 +52,7 @@
   };
 
   let warHistory = [];
+  let warStatsByPlayer = new Map();
   let avatarByPlayer = new Map();
   let playerAliases = new Map();
   let currentPlayersByAlliance = new Map();
@@ -195,6 +197,19 @@
 
   function playerKey(name) {
     return normalizeKey(canonicalPlayerName(name));
+  }
+
+  function statKey(alliance, playerName) {
+    const allianceK = allianceKey(alliance);
+    const playerK = playerKey(playerName);
+
+    if (!allianceK || !playerK) return "";
+
+    return `${allianceK}::${playerK}`;
+  }
+
+  function getPlayerStats(alliance, playerName) {
+    return warStatsByPlayer.get(statKey(alliance, playerName)) || null;
   }
 
   function fmt(v, d = 1) {
@@ -345,6 +360,38 @@
     } catch (error) {
       console.warn("[war-graphs] aliases unavailable:", error);
       playerAliases = new Map();
+    }
+  }
+
+  // ---------- War stats ----------
+  async function loadWarStats() {
+    try {
+      const data = await fetchJson(FILES.stats);
+
+      if (!Array.isArray(data)) {
+        throw new Error("war-stats.json is not an array");
+      }
+
+      warStatsByPlayer = new Map();
+
+      data.forEach((row) => {
+        const alliance = allianceKey(row?.alliance || row?.alliance_label || "");
+        const name = canonicalPlayerName(row?.name || row?.player || "");
+        const key = statKey(alliance, name);
+
+        if (!key) return;
+
+        warStatsByPlayer.set(key, {
+          ...row,
+          alliance,
+          name,
+        });
+      });
+
+      console.log("[war-graphs] war stats loaded:", warStatsByPlayer.size);
+    } catch (error) {
+      console.warn("[war-graphs] war stats unavailable:", error);
+      warStatsByPlayer = new Map();
     }
   }
 
@@ -811,6 +858,7 @@
     const emoji = EMOJI[allianceKeyValue] || "👤";
     const allianceLabel = LABEL[allianceKeyValue] || "Alliance";
     const canonicalName = canonicalPlayerName(playerName);
+    const playerStats = getPlayerStats(alliance, canonicalName);
 
     $warsCount.textContent = String(wars);
 
@@ -829,7 +877,17 @@
     const avgMisses = avg(series, "misses");
     const avgSuccess = avg(series, "success_rate");
     const avgImpact = avg(series, "score_impact");
-    const avgDamage = avg(series, "damage");
+
+    const statsAvgDamage = Number(playerStats?.avg_damage_per_war || 0);
+    const statsTotalDamage = Number(playerStats?.total_damage || 0);
+    const statsWarsPlayed = Number(playerStats?.wars_played || 0);
+    const fallbackAvgDamage =
+      statsTotalDamage > 0 && statsWarsPlayed > 0
+        ? statsTotalDamage / statsWarsPlayed
+        : avg(series, "damage");
+
+    const avgDamage = statsAvgDamage > 0 ? statsAvgDamage : fallbackAvgDamage;
+
     const avgDamageShare = avg(series, "damage_share_pct");
     const avgDefenseWins = avg(series, "defense_wins");
     const avgDeviations = avg(series, "deviations");
@@ -1176,6 +1234,7 @@
   async function init() {
     try {
       await loadPlayerAliases();
+      await loadWarStats();
       await loadCurrentPlayers();
       await loadPlayerAvatars();
 
