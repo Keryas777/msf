@@ -548,7 +548,16 @@ body::after{
   .rankAvatarIcon{
     padding:6px;
   }
+  
+.statPill{
+  min-height:84px;
+  padding:12px 7px;
+}
 
+.statLabel{
+  font-size:11px;
+  line-height:1.18;
+}
   .statValue{
     font-size:15px;
   }
