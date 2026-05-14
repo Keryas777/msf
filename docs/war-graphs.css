@@ -407,7 +407,6 @@ body::after{
 
 .chartMount{
   width:100%;
-  min-height:260px;
   border-radius:16px;
   overflow:hidden;
   border:1px solid rgba(255,255,255,.08);
@@ -467,7 +466,7 @@ body::after{
 }
 
 .emptyChart{
-  min-height:220px;
+  min-height:300px;
   display:flex;
   align-items:center;
   justify-content:center;
