@@ -337,9 +337,15 @@ body::after{
 .statPill{
   border:1px solid var(--border);
   border-radius:14px;
-  padding:10px 8px;
+  padding:12px 8px;
+  min-height:78px;
   background:rgba(0,0,0,.20);
   text-align:center;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
 }
 
 .statValue{
@@ -349,10 +355,11 @@ body::after{
 }
 
 .statLabel{
-  margin-top:4px;
+  margin-top:5px;
   color:var(--muted);
   font-size:11.5px;
-  line-height:1.15;
+  line-height:1.18;
+  max-width:100%;
 }
 
 /* ===== Charts ===== */
