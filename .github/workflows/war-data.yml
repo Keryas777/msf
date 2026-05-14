@@ -1,0 +1,64 @@
+name: Build war data
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/data/war/index.json"
+      - "docs/data/war/**/*.json"
+      - "scripts/build-war-data.mjs"
+      - ".github/workflows/war-data.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-war-data
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build war stats and history
+        env:
+          WAR_DIR: docs/data/war
+          INDEX_FILE: docs/data/war/index.json
+          OUT_STATS_FILE: docs/data/war-stats.json
+          OUT_HISTORY_FILE: docs/data/war-history-lite.json
+        run: |
+          node --version
+          test -f docs/data/war/index.json || (echo "❌ docs/data/war/index.json introuvable" && exit 1)
+          node scripts/build-war-data.mjs
+          echo "----- git status after generation -----"
+          git status --porcelain
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add docs/data/war-stats.json docs/data/war-history-lite.json
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update war stats data"
+          git push origin HEAD:main
