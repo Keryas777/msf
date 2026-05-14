@@ -1,5 +1,7 @@
 /* docs/war-graphs.js */
 (() => {
+  const AUTH_ME_URL = "https://losp-auth.deliriousfan7.workers.dev/me.json";
+
   const $allianceSelect = document.getElementById("allianceSelect");
   const $playerSelect = document.getElementById("playerSelect");
   const $playerTitle = document.getElementById("playerTitle");
@@ -42,6 +44,7 @@
 
   let warHistory = [];
   let avatarByPlayer = new Map();
+  let authUser = null;
 
   function allianceKey(a) {
     const n = String(a ?? "")
@@ -87,15 +90,76 @@
 
   function safeUrl(u) {
     const s = String(u ?? "").trim();
-
     if (!s) return "";
     if (/^https?:\/\//i.test(s)) return s;
-
     return "";
   }
 
   function shortDate(v) {
     return String(v || "").replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3/$2");
+  }
+
+  async function loadAuthUser() {
+    try {
+      const res = await fetch(AUTH_ME_URL + "?v=" + Date.now(), {
+        cache: "no-store",
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      if (!data?.ok) {
+        return null;
+      }
+
+      console.log("[war-graphs] auth user loaded:", data?.displayName || data?.username || data?.id);
+
+      return data;
+    } catch (error) {
+      console.warn("[war-graphs] auth user unavailable:", error);
+      return null;
+    }
+  }
+
+  function authPlayerForAlliance(alliance) {
+    const a = allianceKey(alliance);
+
+    if (!a || !authUser || !Array.isArray(authUser.players)) {
+      return "";
+    }
+
+    const found = authUser.players.find((p) => allianceKey(p?.alliance) === a);
+
+    return String(found?.name || "").trim();
+  }
+
+  function playerExistsInAlliance(alliance, playerName) {
+    const wanted = nameKey(playerName);
+
+    if (!wanted) return false;
+
+    return playersForAlliance(alliance).some((p) => nameKey(p.name) === wanted);
+  }
+
+  function firstAuthAllianceWithData() {
+    if (!authUser || !Array.isArray(authUser.players)) {
+      return "";
+    }
+
+    for (const p of authUser.players) {
+      const a = allianceKey(p?.alliance);
+      const name = String(p?.name || "").trim();
+
+      if (a && name && playerExistsInAlliance(a, name)) {
+        return a;
+      }
+    }
+
+    return "";
   }
 
   async function loadPlayerAvatars() {
@@ -262,17 +326,30 @@
       $playerSelect.appendChild(opt);
     });
 
+    const options = Array.from($playerSelect.options);
+    const currentAlliance = allianceKey($allianceSelect.value);
+
     const params = new URLSearchParams(window.location.search);
     const wantedPlayer = params.get("player");
     const wantedAlliance = allianceKey(params.get("alliance"));
 
-    if (wantedPlayer && wantedAlliance === allianceKey($allianceSelect.value)) {
-      const found = Array.from($playerSelect.options).find(
-        (opt) => nameKey(opt.value) === nameKey(wantedPlayer)
-      );
+    if (wantedPlayer && wantedAlliance === currentAlliance) {
+      const found = options.find((opt) => nameKey(opt.value) === nameKey(wantedPlayer));
 
       if (found) {
         $playerSelect.value = found.value;
+        return;
+      }
+    }
+
+    const authPlayer = authPlayerForAlliance(currentAlliance);
+
+    if (authPlayer) {
+      const found = options.find((opt) => nameKey(opt.value) === nameKey(authPlayer));
+
+      if (found) {
+        $playerSelect.value = found.value;
+        return;
       }
     }
   }
@@ -566,20 +643,44 @@
     });
   }
 
-  function setInitialFromUrl() {
+  function setInitialFromUrlOrAuth() {
     const params = new URLSearchParams(window.location.search);
     const wantedAlliance = allianceKey(params.get("alliance"));
 
     if (
       wantedAlliance &&
-      Array.from($allianceSelect.options).some((o) => o.value === wantedAlliance)
+      Array.from($allianceSelect.options).some((o) => o.value === wantedAlliance) &&
+      playersForAlliance(wantedAlliance).length
     ) {
       $allianceSelect.value = wantedAlliance;
       return;
     }
 
-    const first = ["zeus", "dionysos", "poseidon", "kronos"].find(
-      (a) => playersForAlliance(a).length
+    const primary = allianceKey(authUser?.primaryAlliance);
+    const primaryPlayer = authPlayerForAlliance(primary);
+
+    if (
+      primary &&
+      Array.from($allianceSelect.options).some((o) => o.value === primary) &&
+      primaryPlayer &&
+      playerExistsInAlliance(primary, primaryPlayer)
+    ) {
+      $allianceSelect.value = primary;
+      return;
+    }
+
+    const firstAuthAlliance = firstAuthAllianceWithData();
+
+    if (
+      firstAuthAlliance &&
+      Array.from($allianceSelect.options).some((o) => o.value === firstAuthAlliance)
+    ) {
+      $allianceSelect.value = firstAuthAlliance;
+      return;
+    }
+
+    const first = ["zeus", "dionysos", "poseidon", "kronos"].find((a) =>
+      playersForAlliance(a).length
     );
 
     if (first) {
@@ -589,7 +690,12 @@
 
   async function init() {
     try {
-      await loadPlayerAvatars();
+      const [loadedAuthUser] = await Promise.all([
+        loadAuthUser(),
+        loadPlayerAvatars(),
+      ]);
+
+      authUser = loadedAuthUser;
 
       const res = await fetch("./data/war-history-lite.json?v=" + Date.now(), {
         cache: "no-store",
@@ -614,7 +720,7 @@
         }))
         .filter((w) => w.date && w.alliance);
 
-      setInitialFromUrl();
+      setInitialFromUrlOrAuth();
       renderPlayerSelect();
       renderCharts();
 
