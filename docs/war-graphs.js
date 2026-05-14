@@ -838,13 +838,13 @@
     }
 
     const width = 640;
-    const height = 260;
+    const height = 500;
 
     const pad = {
-      left: 48,
-      right: 18,
-      top: 20,
-      bottom: 42,
+      left: 52,
+      right: 22,
+      top: 30,
+      bottom: 58,
     };
 
     const plotW = width - pad.left - pad.right;
@@ -888,7 +888,7 @@
         }))
       : [];
 
-    const ticks = [0, 0.5, 1].map((ratio) => ({
+    const ticks = [0, 0.25, 0.5, 0.75, 1].map((ratio) => ({
       value: minY + (maxY - minY) * ratio,
       y: y(minY + (maxY - minY) * ratio),
     }));
@@ -908,7 +908,7 @@
               <line class="chartGridLine" x1="${pad.left}" y1="${t.y}" x2="${
                 width - pad.right
               }" y2="${t.y}"/>
-              <text class="chartText" x="${pad.left - 8}" y="${
+              <text class="chartText" x="${pad.left - 9}" y="${
                 t.y + 4
               }" text-anchor="end">${axisValue(t.value)}</text>
             `
@@ -933,7 +933,7 @@
         ${playerPoints
           .map(
             (p, i) => `
-              <circle class="pointPlayer" cx="${p.x}" cy="${p.y}" r="4">
+              <circle class="pointPlayer" cx="${p.x}" cy="${p.y}" r="4.5">
                 <title>${esc(rows[i].date)} — ${val(p.value)}</title>
               </circle>
             `
@@ -943,7 +943,7 @@
         ${rows
           .map((r, i) =>
             i === 0 || i === rows.length - 1 || i % dateStep === 0
-              ? `<text class="chartDate" x="${x(i)}" y="${height - 14}" text-anchor="middle">${esc(
+              ? `<text class="chartDate" x="${x(i)}" y="${height - 22}" text-anchor="middle">${esc(
                   shortDate(r.date)
                 )}</text>`
               : ""
