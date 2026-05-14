@@ -226,6 +226,17 @@
     return String(v || "").replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3/$2");
   }
 
+  function scoreGapClass(value) {
+    const n = Number(value || 0);
+
+    if (n > 15) return "statGapExcellent";
+    if (n >= 5) return "statGapGood";
+    if (n >= -10) return "statGapNeutral";
+    if (n >= -20) return "statGapWarning";
+
+    return "statGapBad";
+  }
+
   // ---------- Aliases ----------
   async function loadPlayerAliases() {
     try {
@@ -744,6 +755,7 @@
 
     const avgScore = avg(series, "score_total");
     const avgAlliance = avg(series, "alliance_avg_score");
+    const scoreGap = avgScore - avgAlliance;
 
     $playerTitle.innerHTML = `
       <div class="playerIdentity">
@@ -766,8 +778,8 @@
         <div class="statLabel">note moyenne</div>
       </div>
 
-      <div class="statPill">
-        <div class="statValue">${fmt(avgScore - avgAlliance, 1)}</div>
+      <div class="statPill ${scoreGapClass(scoreGap)}">
+        <div class="statValue">${fmt(scoreGap, 1)}</div>
         <div class="statLabel">écart avec la note moyenne de l'alliance</div>
       </div>
 
