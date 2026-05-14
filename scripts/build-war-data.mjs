@@ -70,7 +70,22 @@ function sum(rows, fn) {
 }
 
 async function readJson(file) {
-  return JSON.parse(await fs.readFile(file, "utf8"));
+  const raw = await fs.readFile(file, "utf8");
+
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    const preview = raw.slice(0, 800);
+
+    throw new Error(
+      [
+        `Invalid JSON in ${file}`,
+        String(error?.message || error),
+        "Preview:",
+        preview,
+      ].join("\n")
+    );
+  }
 }
 
 async function readJsonOrNull(file) {
