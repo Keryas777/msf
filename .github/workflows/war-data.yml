@@ -9,6 +9,7 @@ on:
     paths:
       - "docs/data/war/index.json"
       - "docs/data/war/**/*.json"
+      - "docs/data/player-aliases.json"
       - "scripts/build-war-data.mjs"
       - ".github/workflows/war-data.yml"
 
@@ -41,6 +42,7 @@ jobs:
           INDEX_FILE: docs/data/war/index.json
           OUT_STATS_FILE: docs/data/war-stats.json
           OUT_HISTORY_FILE: docs/data/war-history-lite.json
+          PLAYER_ALIASES_FILE: docs/data/player-aliases.json
         run: |
           node --version
           test -f docs/data/war/index.json || (echo "❌ docs/data/war/index.json introuvable" && exit 1)
