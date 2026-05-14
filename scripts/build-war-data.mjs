@@ -1,6 +1,7 @@
 // scripts/build-war-data.mjs
 // Génère docs/data/war-stats.json et docs/data/war-history-lite.json
 // depuis docs/data/war/index.json + docs/data/war/YYYY-MM-DD/alliance.json.
+// Gère aussi docs/data/player-aliases.json pour fusionner les pseudos mal orthographiés.
 
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -9,6 +10,8 @@ const WAR_DIR = process.env.WAR_DIR || "docs/data/war";
 const INDEX_FILE = process.env.INDEX_FILE || path.join(WAR_DIR, "index.json");
 const OUT_STATS_FILE = process.env.OUT_STATS_FILE || "docs/data/war-stats.json";
 const OUT_HISTORY_FILE = process.env.OUT_HISTORY_FILE || "docs/data/war-history-lite.json";
+const PLAYER_ALIASES_FILE =
+  process.env.PLAYER_ALIASES_FILE || "docs/data/player-aliases.json";
 
 const ALLIANCES = ["zeus", "dionysos", "poseidon", "kronos"];
 
@@ -83,6 +86,66 @@ async function readJsonOrNull(file) {
   }
 }
 
+async function loadPlayerAliases() {
+  const data = await readJsonOrNull(PLAYER_ALIASES_FILE);
+
+  if (!data) {
+    return new Map();
+  }
+
+  const source =
+    data?.aliases && typeof data.aliases === "object" && !Array.isArray(data.aliases)
+      ? data.aliases
+      : data;
+
+  const aliases = new Map();
+
+  if (source && typeof source === "object" && !Array.isArray(source)) {
+    for (const [alias, canonical] of Object.entries(source)) {
+      const aliasKey = normKey(alias);
+      const canonicalName = String(canonical ?? "").trim();
+
+      if (!aliasKey || !canonicalName) continue;
+
+      aliases.set(aliasKey, canonicalName);
+    }
+  }
+
+  if (Array.isArray(source)) {
+    for (const row of source) {
+      const alias = String(row?.alias ?? row?.from ?? row?.name ?? "").trim();
+      const canonical = String(row?.canonical ?? row?.to ?? row?.target ?? "").trim();
+
+      const aliasKey = normKey(alias);
+      if (!aliasKey || !canonical) continue;
+
+      aliases.set(aliasKey, canonical);
+    }
+  }
+
+  return aliases;
+}
+
+function canonicalPlayerName(name, aliases) {
+  let current = String(name ?? "").trim();
+
+  if (!current) return "";
+
+  // Permet les chaînes d’alias :
+  // T8K -> T6K -> T6K officiel
+  for (let i = 0; i < 10; i++) {
+    const next = aliases.get(normKey(current));
+
+    if (!next || String(next).trim() === current) {
+      break;
+    }
+
+    current = String(next).trim();
+  }
+
+  return current;
+}
+
 function normalizeIndex(data) {
   let list = [];
 
@@ -108,10 +171,6 @@ function normalizeIndex(data) {
       }
     }
 
-    // Supporte aussi un index sous forme :
-    // {
-    //   "2026-05-12": ["zeus", "dionysos"]
-    // }
     if (!list.length) {
       list = Object.entries(data)
         .filter(([key]) => /^\d{4}-\d{2}-\d{2}$/.test(String(key)))
@@ -128,9 +187,6 @@ function normalizeIndex(data) {
         const raw = entry.trim();
         if (!raw) return null;
 
-        // Accepte :
-        // "2026-05-12"
-        // "2026-05-12/zeus.json"
         const parts = raw.replace(/^\.\//, "").split("/").filter(Boolean);
         const date = parts.find((part) => /^\d{4}-\d{2}-\d{2}$/.test(part)) || raw;
         const filePart = parts.find((part) => /\.json$/i.test(part));
@@ -170,8 +226,6 @@ function normalizeIndex(data) {
         );
       }
 
-      // Si l'entrée contient juste une date sans liste d'alliances,
-      // on tente les 4 fichiers. Les fichiers absents seront ignorés.
       if (!alliances.length && date) {
         alliances = ALLIANCES;
       }
@@ -185,12 +239,15 @@ function normalizeIndex(data) {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-function rankingMap(report) {
+function rankingMap(report, aliases = new Map()) {
   const out = new Map();
   const ranking = Array.isArray(report?.ranking) ? report.ranking : [];
 
   for (const row of ranking) {
-    const key = normKey(row?.name);
+    const originalName = String(row?.name || "").trim();
+    const canonicalName = canonicalPlayerName(originalName, aliases);
+    const key = normKey(canonicalName);
+
     if (!key) continue;
 
     out.set(key, {
@@ -202,15 +259,16 @@ function rankingMap(report) {
   return out;
 }
 
-function normalizePlayers(war) {
+function normalizePlayers(war, aliases = new Map()) {
   const enriched = Array.isArray(war?.report?.players) ? war.report.players : [];
   const raw = Array.isArray(war?.players) ? war.players : [];
   const source = enriched.length ? enriched : raw;
-  const ranks = rankingMap(war?.report);
+  const ranks = rankingMap(war?.report, aliases);
 
   return source
     .map((p) => {
-      const name = String(p?.name || "").trim();
+      const originalName = String(p?.name || "").trim();
+      const name = canonicalPlayerName(originalName, aliases);
       const nameKey = normKey(name);
 
       if (!name || !nameKey) return null;
@@ -233,6 +291,7 @@ function normalizePlayers(war) {
       return {
         name,
         name_key: nameKey,
+        ...(originalName && originalName !== name ? { original_name: originalName } : {}),
         rank: p?.rank != null ? num(p.rank) : num(rankInfo?.rank),
         attacks,
         attack_points: attackPoints,
@@ -308,6 +367,7 @@ function makeHistoryWar({ date, alliance, war, players }) {
       return {
         name: p.name,
         name_key: p.name_key,
+        ...(p.original_name ? { original_name: p.original_name } : {}),
         rank: p.rank,
         player_count: avg.player_count,
         score_total: p.score_total,
@@ -434,6 +494,7 @@ function finalizeAgg(a) {
 
 async function main() {
   const rawIndex = await readJson(INDEX_FILE);
+  const playerAliases = await loadPlayerAliases();
 
   const rawIndexShape = Array.isArray(rawIndex)
     ? `array length ${rawIndex.length}`
@@ -443,6 +504,7 @@ async function main() {
 
   console.log(`[war-data] Reading index: ${INDEX_FILE}`);
   console.log(`[war-data] Raw index shape: ${rawIndexShape}`);
+  console.log(`[war-data] Player aliases: ${playerAliases.size}`);
 
   const index = normalizeIndex(rawIndex);
 
@@ -462,7 +524,8 @@ async function main() {
       const date = String(war?.date || item.date);
       const finalAlliance = allianceKey(war?.alliance || alliance);
 
-      const players = normalizePlayers(war);
+      const players = normalizePlayers(war, playerAliases);
+
       const historyWar = makeHistoryWar({
         date,
         alliance: finalAlliance,
