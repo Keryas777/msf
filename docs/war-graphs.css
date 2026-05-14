@@ -363,34 +363,88 @@ body::after{
 }
 
 /* ===== Couleurs écart note vs moyenne alliance ===== */
+/* Vert foncé : au-dessus de +15 */
 .statGapExcellent{
   background:
-    linear-gradient(180deg, rgba(38,120,70,.34), rgba(0,0,0,.20));
-  border-color:rgba(72,190,110,.50);
+    radial-gradient(circle at 50% 0%, rgba(45,190,95,.34), transparent 70%),
+    linear-gradient(180deg, rgba(12,95,48,.58), rgba(0,0,0,.28));
+  border-color:rgba(58,220,112,.90);
+  box-shadow:
+    inset 0 0 0 1px rgba(58,220,112,.16),
+    0 0 18px rgba(58,220,112,.16);
 }
 
+.statGapExcellent .statValue{
+  color:#76ff9d;
+}
+
+/* Vert clair : de +5 à +15 */
 .statGapGood{
   background:
-    linear-gradient(180deg, rgba(92,190,120,.24), rgba(0,0,0,.20));
-  border-color:rgba(120,220,145,.46);
+    radial-gradient(circle at 50% 0%, rgba(175,235,85,.32), transparent 70%),
+    linear-gradient(180deg, rgba(92,135,34,.50), rgba(0,0,0,.28));
+  border-color:rgba(190,245,90,.88);
+  box-shadow:
+    inset 0 0 0 1px rgba(190,245,90,.14),
+    0 0 18px rgba(190,245,90,.12);
 }
 
+.statGapGood .statValue{
+  color:#d8ff7a;
+}
+
+/* Jaune : de -10 à +5 */
 .statGapNeutral{
   background:
-    linear-gradient(180deg, rgba(216,160,79,.22), rgba(0,0,0,.20));
-  border-color:rgba(216,160,79,.42);
+    radial-gradient(circle at 50% 0%, rgba(255,205,55,.30), transparent 70%),
+    linear-gradient(180deg, rgba(150,112,25,.46), rgba(0,0,0,.28));
+  border-color:rgba(255,202,66,.86);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,202,66,.13),
+    0 0 18px rgba(255,202,66,.10);
 }
 
+.statGapNeutral .statValue{
+  color:#ffd65f;
+}
+
+/* Orange : entre -10 et -20 */
 .statGapWarning{
   background:
-    linear-gradient(180deg, rgba(210,115,45,.25), rgba(0,0,0,.20));
-  border-color:rgba(230,130,55,.46);
+    radial-gradient(circle at 50% 0%, rgba(255,125,35,.34), transparent 70%),
+    linear-gradient(180deg, rgba(155,68,20,.52), rgba(0,0,0,.28));
+  border-color:rgba(255,128,42,.90);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,128,42,.15),
+    0 0 18px rgba(255,128,42,.13);
 }
 
+.statGapWarning .statValue{
+  color:#ff9a4c;
+}
+
+/* Rouge : en-dessous de -20 */
 .statGapBad{
   background:
-    linear-gradient(180deg, rgba(210,74,74,.26), rgba(0,0,0,.20));
-  border-color:rgba(230,85,85,.50);
+    radial-gradient(circle at 50% 0%, rgba(255,65,82,.36), transparent 70%),
+    linear-gradient(180deg, rgba(130,28,38,.58), rgba(0,0,0,.28));
+  border-color:rgba(255,82,96,.92);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,82,96,.16),
+    0 0 18px rgba(255,82,96,.16);
+}
+
+.statGapBad .statValue{
+  color:#ff7c88;
+}
+
+/* Commun aux tuiles colorées */
+.statGapExcellent,
+.statGapGood,
+.statGapNeutral,
+.statGapWarning,
+.statGapBad{
+  position:relative;
 }
 
 .statGapExcellent .statValue,
@@ -398,7 +452,15 @@ body::after{
 .statGapNeutral .statValue,
 .statGapWarning .statValue,
 .statGapBad .statValue{
-  text-shadow:0 4px 14px rgba(0,0,0,.45);
+  text-shadow:0 4px 14px rgba(0,0,0,.65);
+}
+
+.statGapExcellent .statLabel,
+.statGapGood .statLabel,
+.statGapNeutral .statLabel,
+.statGapWarning .statLabel,
+.statGapBad .statLabel{
+  color:rgba(255,255,255,.72);
 }
 
 /* ===== Charts ===== */
