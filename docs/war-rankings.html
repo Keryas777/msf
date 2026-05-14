@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
+    />
+
+    <style>
+      html.authChecking body { opacity: 0; pointer-events: none; }
+    </style>
+    <script>document.documentElement.classList.add("authChecking");</script>
+    <script src="./auth-guard.js?v=2"></script>
+
+    <meta name="theme-color" content="#0b0c0d" />
+    <title>Classements de Guerre — Groupement</title>
+
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./war-rankings.css?v=ts" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+  </head>
+
+  <body>
+    <div class="app">
+      <header class="header">
+        <button class="backBtn" type="button" aria-label="Retour">⬅️</button>
+        <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
+
+        <div class="headerLeft">
+          <h1 class="title">Classements de Guerre</h1>
+          <p class="subtitle">Classements cumulés à partir des débriefs de guerre du groupement.</p>
+        </div>
+      </header>
+
+      <section class="card filtersCard">
+        <div class="filters" role="group" aria-label="Filtres alliances">
+          <label class="filterToggle"><input id="filterZeus" type="checkbox" checked /><span class="fStack"><span class="fEmoji">⚡</span><span class="fName">Zeus</span></span></label>
+          <label class="filterToggle"><input id="filterDionysos" type="checkbox" checked /><span class="fStack"><span class="fEmoji">🍇</span><span class="fName">Dionysos</span></span></label>
+          <label class="filterToggle"><input id="filterPoseidon" type="checkbox" checked /><span class="fStack"><span class="fEmoji">🔱</span><span class="fName">Poséidon</span></span></label>
+          <label class="filterToggle"><input id="filterKronos" type="checkbox" checked /><span class="fStack"><span class="fEmoji">⏳</span><span class="fName">Kronos</span></span></label>
+        </div>
+      </section>
+
+      <section class="card controlsCard">
+        <div class="rankingTabs" role="tablist" aria-label="Classements disponibles">
+          <button class="rankingTab is-active" type="button" data-ranking="avg_score">⭐ Note moyenne</button>
+          <button class="rankingTab" type="button" data-ranking="success_rate">🎯 Taux réussite</button>
+          <button class="rankingTab" type="button" data-ranking="miss_rate">❌ Moins de ratés</button>
+          <button class="rankingTab" type="button" data-ranking="avg_impact">🔥 Impact moyen</button>
+          <button class="rankingTab" type="button" data-ranking="avg_defense">🛡️ Défense</button>
+          <button class="rankingTab" type="button" data-ranking="avg_activity">⚔️ Activité</button>
+        </div>
+
+        <div class="minWarControl">
+          <label class="label" for="minWarsSelect">Minimum de guerres</label>
+          <select id="minWarsSelect" class="select" aria-label="Minimum de guerres">
+            <option value="1">1 guerre</option>
+            <option value="2">2 guerres</option>
+            <option value="3" selected>3 guerres</option>
+            <option value="5">5 guerres</option>
+            <option value="10">10 guerres</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="cardHeader">
+          <div>
+            <h2 class="cardTitle" id="rankingTitle">⭐ Meilleure note moyenne</h2>
+            <div class="rankingHint" id="rankingHint">Moyenne du score total par guerre.</div>
+          </div>
+          <div class="chipCount"><span id="playersCount">0</span></div>
+        </div>
+
+        <div id="players" class="players" aria-label="Classement des joueurs"></div>
+      </section>
+    </div>
+
+    <script>
+      (function () {
+        document.querySelectorAll(".backBtn").forEach((btn) => btn.addEventListener("click", () => history.back()));
+        document.querySelectorAll('link[rel="stylesheet"]').forEach((l) => {
+          if (l.href.includes("v=ts")) l.href = l.href.replace("v=ts", "v=" + Date.now());
+        });
+        const s = document.createElement("script");
+        s.src = "./war-rankings.js?v=" + Date.now();
+        s.defer = true;
+        document.body.appendChild(s);
+      })();
+    </script>
+  </body>
+</html>

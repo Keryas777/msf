@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
+    />
+
+    <style>
+      html.authChecking body { opacity: 0; pointer-events: none; }
+    </style>
+    <script>document.documentElement.classList.add("authChecking");</script>
+    <script src="./auth-guard.js?v=2"></script>
+
+    <meta name="theme-color" content="#0b0c0d" />
+    <title>Graphiques de Guerre — Groupement</title>
+
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./war-graphs.css?v=ts" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+  </head>
+
+  <body>
+    <div class="app">
+      <header class="header">
+        <button class="backBtn" type="button" aria-label="Retour">⬅️</button>
+        <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
+
+        <div class="headerLeft">
+          <h1 class="title">Graphiques de Guerre</h1>
+          <p class="subtitle">Suivi joueur guerre après guerre, comparé à la moyenne de son alliance.</p>
+        </div>
+      </header>
+
+      <section class="card controlsCard">
+        <div class="controlGrid">
+          <div class="field">
+            <label class="label" for="allianceSelect">Alliance</label>
+            <select id="allianceSelect" class="select" aria-label="Alliance">
+              <option value="zeus">⚡ Zeus</option>
+              <option value="dionysos">🍇 Dionysos</option>
+              <option value="poseidon">🔱 Poséidon</option>
+              <option value="kronos">⏳ Kronos</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label class="label" for="playerSelect">Joueur</label>
+            <select id="playerSelect" class="select" aria-label="Joueur"></select>
+          </div>
+        </div>
+      </section>
+
+      <section class="card playerSummaryCard">
+        <div class="summaryTop">
+          <div>
+            <h2 class="cardTitle" id="playerTitle">—</h2>
+            <div class="summarySub" id="playerSubtitle">Sélectionne un joueur.</div>
+          </div>
+          <div class="chipCount"><span id="warsCount">0</span></div>
+        </div>
+        <div class="summaryStats" id="summaryStats"></div>
+      </section>
+
+      <section class="chartGrid">
+        <article class="card chartCard">
+          <div class="chartHeader"><h2 class="cardTitle">📈 Note vs moyenne alliance</h2><div class="chartLegend"><span><i class="legendPlayer"></i>Joueur</span><span><i class="legendAlliance"></i>Moyenne</span></div></div>
+          <div id="chartScore" class="chartMount"></div>
+        </article>
+        <article class="card chartCard">
+          <div class="chartHeader"><h2 class="cardTitle">🎯 Réussite vs moyenne alliance</h2><div class="chartLegend"><span><i class="legendPlayer"></i>Joueur</span><span><i class="legendAlliance"></i>Moyenne</span></div></div>
+          <div id="chartSuccess" class="chartMount"></div>
+        </article>
+        <article class="card chartCard">
+          <div class="chartHeader"><h2 class="cardTitle">🔥 Impact vs moyenne alliance</h2><div class="chartLegend"><span><i class="legendPlayer"></i>Joueur</span><span><i class="legendAlliance"></i>Moyenne</span></div></div>
+          <div id="chartImpact" class="chartMount"></div>
+        </article>
+        <article class="card chartCard">
+          <div class="chartHeader"><h2 class="cardTitle">💥 Damage share %</h2><div class="chartLegend"><span><i class="legendPlayer"></i>Joueur</span><span><i class="legendAlliance"></i>Moy. théorique</span></div></div>
+          <div id="chartDamageShare" class="chartMount"></div>
+        </article>
+      </section>
+    </div>
+
+    <script>
+      (function () {
+        document.querySelectorAll(".backBtn").forEach((btn) => btn.addEventListener("click", () => history.back()));
+        document.querySelectorAll('link[rel="stylesheet"]').forEach((l) => {
+          if (l.href.includes("v=ts")) l.href = l.href.replace("v=ts", "v=" + Date.now());
+        });
+        const s = document.createElement("script");
+        s.src = "./war-graphs.js?v=" + Date.now();
+        s.defer = true;
+        document.body.appendChild(s);
+      })();
+    </script>
+  </body>
+</html>
