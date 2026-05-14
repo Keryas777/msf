@@ -362,6 +362,45 @@ body::after{
   max-width:100%;
 }
 
+/* ===== Couleurs écart note vs moyenne alliance ===== */
+.statGapExcellent{
+  background:
+    linear-gradient(180deg, rgba(38,120,70,.34), rgba(0,0,0,.20));
+  border-color:rgba(72,190,110,.50);
+}
+
+.statGapGood{
+  background:
+    linear-gradient(180deg, rgba(92,190,120,.24), rgba(0,0,0,.20));
+  border-color:rgba(120,220,145,.46);
+}
+
+.statGapNeutral{
+  background:
+    linear-gradient(180deg, rgba(216,160,79,.22), rgba(0,0,0,.20));
+  border-color:rgba(216,160,79,.42);
+}
+
+.statGapWarning{
+  background:
+    linear-gradient(180deg, rgba(210,115,45,.25), rgba(0,0,0,.20));
+  border-color:rgba(230,130,55,.46);
+}
+
+.statGapBad{
+  background:
+    linear-gradient(180deg, rgba(210,74,74,.26), rgba(0,0,0,.20));
+  border-color:rgba(230,85,85,.50);
+}
+
+.statGapExcellent .statValue,
+.statGapGood .statValue,
+.statGapNeutral .statValue,
+.statGapWarning .statValue,
+.statGapBad .statValue{
+  text-shadow:0 4px 14px rgba(0,0,0,.45);
+}
+
 /* ===== Charts ===== */
 .chartGrid{
   display:grid;
@@ -548,16 +587,17 @@ body::after{
   .rankAvatarIcon{
     padding:6px;
   }
-  
-.statPill{
-  min-height:84px;
-  padding:12px 7px;
-}
 
-.statLabel{
-  font-size:11px;
-  line-height:1.18;
-}
+  .statPill{
+    min-height:84px;
+    padding:12px 7px;
+  }
+
+  .statLabel{
+    font-size:11px;
+    line-height:1.18;
+  }
+
   .statValue{
     font-size:15px;
   }
