@@ -3,6 +3,12 @@
   const AUTH_PLAYER_STORAGE_KEY = "losp:lastPlayerByAlliance";
   const LOCAL_SESSION_KEY = "losp_session";
 
+  const FILES = {
+    history: "./data/war-history-lite.json",
+    infos: "./data/infos.json",
+    aliases: "./data/player-aliases.json",
+  };
+
   const $allianceSelect = document.getElementById("allianceSelect");
   const $playerSelect = document.getElementById("playerSelect");
   const $playerTitle = document.getElementById("playerTitle");
@@ -45,11 +51,14 @@
 
   let warHistory = [];
   let avatarByPlayer = new Map();
+  let playerAliases = new Map();
+
   let lospSession = window.LoSP_SESSION || readLocalSessionPayload() || null;
   let authDefaultsApplied = false;
   let bootReady = false;
+  let eventsBound = false;
 
-  // ---------- Auth session / auto-selection ----------
+  // ---------- Auth session ----------
   function decodeBase64UrlJson(value) {
     try {
       const base64 = String(value || "")
@@ -107,24 +116,23 @@
   window.addEventListener("losp:auth-ready", (event) => {
     lospSession = event.detail || window.LoSP_SESSION || readLocalSessionPayload() || null;
 
-    if (bootReady) {
-      authDefaultsApplied = false;
-      tryApplyAuthDefaults({ force: true });
-    }
+    if (!bootReady) return;
+
+    authDefaultsApplied = false;
+    tryApplyAuthDefaults({ force: true });
   });
 
   // ---------- Utils ----------
-  function allianceKey(a) {
-    const n = normalizeKey(a);
+  function bust(url) {
+    const u = new URL(url, window.location.href);
+    u.searchParams.set("v", Date.now().toString());
+    return u.toString();
+  }
 
-    if (n === "zeus") return "zeus";
-    if (n === "dionysos") return "dionysos";
-    if (n === "poseidon" || n === "posseidon") return "poseidon";
-    if (n === "kronos" || n === "cronos" || n === "chronos" || n === "lospkronos") {
-      return "kronos";
-    }
-
-    return "";
+  async function fetchJson(url) {
+    const res = await fetch(bust(url), { cache: "no-store" });
+    if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
+    return res.json();
   }
 
   function normalizeKey(value) {
@@ -147,8 +155,44 @@
       .replace(/\s+/g, " ");
   }
 
-  function nameKey(name) {
-    return normalizeKey(name);
+  function allianceKey(value) {
+    const key = normalizeKey(value);
+
+    if (key === "zeus") return "zeus";
+    if (key === "dionysos") return "dionysos";
+    if (key === "poseidon" || key === "posseidon") return "poseidon";
+    if (
+      key === "kronos" ||
+      key === "cronos" ||
+      key === "chronos" ||
+      key === "lospkronos"
+    ) {
+      return "kronos";
+    }
+
+    return "";
+  }
+
+  function canonicalPlayerName(name) {
+    let current = String(name ?? "").trim();
+
+    if (!current) return "";
+
+    for (let i = 0; i < 10; i++) {
+      const next = playerAliases.get(normalizeKey(current));
+
+      if (!next || String(next).trim() === current) {
+        break;
+      }
+
+      current = String(next).trim();
+    }
+
+    return current;
+  }
+
+  function playerKey(name) {
+    return normalizeKey(canonicalPlayerName(name));
   }
 
   function fmt(v, d = 1) {
@@ -169,8 +213,10 @@
 
   function safeUrl(u) {
     const s = String(u ?? "").trim();
+
     if (!s) return "";
     if (/^https?:\/\//i.test(s)) return s;
+
     return "";
   }
 
@@ -178,6 +224,50 @@
     return String(v || "").replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3/$2");
   }
 
+  // ---------- Aliases ----------
+  async function loadPlayerAliases() {
+    try {
+      const data = await fetchJson(FILES.aliases);
+
+      const source =
+        data?.aliases && typeof data.aliases === "object" && !Array.isArray(data.aliases)
+          ? data.aliases
+          : data;
+
+      playerAliases = new Map();
+
+      if (source && typeof source === "object" && !Array.isArray(source)) {
+        Object.entries(source).forEach(([alias, canonical]) => {
+          const aliasKey = normalizeKey(alias);
+          const canonicalName = String(canonical ?? "").trim();
+
+          if (!aliasKey || !canonicalName) return;
+
+          playerAliases.set(aliasKey, canonicalName);
+        });
+      }
+
+      if (Array.isArray(source)) {
+        source.forEach((row) => {
+          const alias = String(row?.alias ?? row?.from ?? row?.name ?? "").trim();
+          const canonical = String(row?.canonical ?? row?.to ?? row?.target ?? "").trim();
+
+          const aliasKey = normalizeKey(alias);
+
+          if (!aliasKey || !canonical) return;
+
+          playerAliases.set(aliasKey, canonical);
+        });
+      }
+
+      console.log("[war-graphs] aliases loaded:", playerAliases.size);
+    } catch (error) {
+      console.warn("[war-graphs] aliases unavailable:", error);
+      playerAliases = new Map();
+    }
+  }
+
+  // ---------- Auth helpers ----------
   function getSessionAlliancePreferenceKeys() {
     if (!hasUsableSession(lospSession)) return [];
 
@@ -202,37 +292,6 @@
     return [...new Set(keys.filter(Boolean))];
   }
 
-  function findAllianceOptionByKey(key) {
-    if (!key || !$allianceSelect) return null;
-
-    return Array.from($allianceSelect.options).find((option) => {
-      if (!option.value) return false;
-
-      return (
-        allianceKey(option.value) === key ||
-        allianceKey(option.textContent) === key
-      );
-    });
-  }
-
-  function findBestAllianceOptionFromSession() {
-    if (!$allianceSelect) return null;
-
-    const preferenceKeys = getSessionAlliancePreferenceKeys();
-
-    for (const key of preferenceKeys) {
-      const option = findAllianceOptionByKey(key);
-
-      if (option && playersForAlliance(option.value).length) {
-        return option;
-      }
-    }
-
-    return Array.from($allianceSelect.options).find((option) => {
-      return option.value && playersForAlliance(option.value).length;
-    }) || null;
-  }
-
   function getSessionPlayerForAlliance(session, alliance) {
     const allianceK = allianceKey(alliance);
 
@@ -251,24 +310,6 @@
     }
 
     return null;
-  }
-
-  function findPlayerOptionByName(name) {
-    if (!name || !$playerSelect) return null;
-
-    const wanted = normalizeTextForMatch(name);
-    const wantedKey = normalizeKey(name);
-
-    return Array.from($playerSelect.options).find((option) => {
-      if (!option.value) return false;
-
-      return (
-        normalizeTextForMatch(option.value) === wanted ||
-        normalizeTextForMatch(option.textContent) === wanted ||
-        normalizeKey(option.value) === wantedKey ||
-        normalizeKey(option.textContent) === wantedKey
-      );
-    });
   }
 
   function readStoredPlayersByAlliance() {
@@ -300,36 +341,78 @@
     return data[allianceK] || "";
   }
 
-  function selectPlayerByName(name, options = {}) {
-    const shouldDispatch = options.dispatch === true;
+  function findAllianceOptionByKey(key) {
+    if (!key) return null;
+
+    return Array.from($allianceSelect.options).find((option) => {
+      if (!option.value) return false;
+
+      return (
+        allianceKey(option.value) === key ||
+        allianceKey(option.textContent) === key
+      );
+    });
+  }
+
+  function findBestAllianceOptionFromSession() {
+    const preferenceKeys = getSessionAlliancePreferenceKeys();
+
+    for (const key of preferenceKeys) {
+      const option = findAllianceOptionByKey(key);
+
+      if (option && playersForAlliance(option.value).length) {
+        return option;
+      }
+    }
+
+    return Array.from($allianceSelect.options).find((option) => {
+      return option.value && playersForAlliance(option.value).length;
+    }) || null;
+  }
+
+  function findPlayerOptionByName(name) {
+    if (!name) return null;
+
+    const canonical = canonicalPlayerName(name);
+    const wanted = normalizeTextForMatch(canonical);
+    const wantedKey = playerKey(canonical);
+
+    return Array.from($playerSelect.options).find((option) => {
+      if (!option.value) return false;
+
+      const optionLabel = String(option.textContent || "").replace(/\s*$begin:math:text$\\d\+$end:math:text$\s*$/, "");
+
+      return (
+        normalizeTextForMatch(option.value) === wanted ||
+        normalizeTextForMatch(optionLabel) === wanted ||
+        playerKey(option.value) === wantedKey ||
+        playerKey(optionLabel) === wantedKey
+      );
+    });
+  }
+
+  function selectPlayerByName(name) {
     const option = findPlayerOptionByName(name);
 
     if (!option) return false;
 
     $playerSelect.value = option.value;
-
-    if (shouldDispatch) {
-      $playerSelect.dispatchEvent(new Event("change", { bubbles: true }));
-    }
-
     return true;
   }
 
-  function selectBestPlayerForCurrentAlliance(options = {}) {
-    if (!$playerSelect || !$allianceSelect) return false;
-
+  function selectBestPlayerForCurrentAlliance() {
     const alliance = String($allianceSelect.value ?? "").trim();
     if (!alliance) return false;
 
     const sessionPlayer = getSessionPlayerForAlliance(lospSession, alliance);
 
-    if (sessionPlayer?.name && selectPlayerByName(sessionPlayer.name, options)) {
+    if (sessionPlayer?.name && selectPlayerByName(sessionPlayer.name)) {
       return true;
     }
 
     const storedPlayer = getStoredPlayerForAlliance(alliance);
 
-    if (storedPlayer && selectPlayerByName(storedPlayer, options)) {
+    if (storedPlayer && selectPlayerByName(storedPlayer)) {
       return true;
     }
 
@@ -340,7 +423,7 @@
     ].filter(Boolean);
 
     for (const name of candidateNames) {
-      if (selectPlayerByName(name, options)) return true;
+      if (selectPlayerByName(name)) return true;
     }
 
     return false;
@@ -357,7 +440,6 @@
     if (hasUrlTarget && !force) return false;
     if (authDefaultsApplied && !force) return false;
     if (!hasUsableSession(lospSession)) return false;
-    if (!$allianceSelect || !$playerSelect) return false;
     if (!$allianceSelect.options.length) return false;
 
     const allianceOption = findBestAllianceOptionFromSession();
@@ -366,11 +448,12 @@
 
     $allianceSelect.value = allianceOption.value;
 
-    renderPlayerSelect({ preferAuth: true });
-
-    const didSelectPlayer = selectBestPlayerForCurrentAlliance({
-      dispatch: false,
+    renderPlayerSelect({
+      preferAuth: true,
+      preservePrevious: false,
     });
+
+    const didSelectPlayer = selectBestPlayerForCurrentAlliance();
 
     authDefaultsApplied = true;
 
@@ -392,15 +475,7 @@
   // ---------- Avatars ----------
   async function loadPlayerAvatars() {
     try {
-      const res = await fetch("./data/infos.json?v=" + Date.now(), {
-        cache: "no-store",
-      });
-
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-
-      const data = await res.json();
+      const data = await fetchJson(FILES.infos);
 
       if (!Array.isArray(data)) {
         throw new Error("infos.json is not an array");
@@ -409,8 +484,8 @@
       avatarByPlayer = new Map();
 
       data.forEach((p) => {
-        const name = String(p?.name ?? "").trim();
-        const key = nameKey(name);
+        const name = canonicalPlayerName(String(p?.name ?? "").trim());
+        const key = playerKey(name);
 
         if (!key) return;
 
@@ -428,7 +503,7 @@
   }
 
   function renderAvatar(playerName) {
-    const key = nameKey(playerName);
+    const key = playerKey(playerName);
     const avatar = avatarByPlayer.get(key) || {};
 
     const icon = safeUrl(avatar.icon);
@@ -465,16 +540,20 @@
     warHistory
       .filter((w) => allianceKey(w.alliance) === a)
       .forEach((war) => {
+        const seenInThisWar = new Set();
+
         (war.players || []).forEach((p) => {
-          const name = String(p.name || "").trim();
+          const canonicalName = canonicalPlayerName(p.name);
+          const key = playerKey(canonicalName);
 
-          if (!name) return;
+          if (!canonicalName || !key) return;
+          if (seenInThisWar.has(key)) return;
 
-          const key = nameKey(name);
+          seenInThisWar.add(key);
 
           if (!map.has(key)) {
             map.set(key, {
-              name,
+              name: canonicalName,
               wars: 0,
               lastDate: "",
             });
@@ -496,12 +575,12 @@
 
   function seriesForPlayer(alliance, playerName) {
     const a = allianceKey(alliance);
-    const pKey = nameKey(playerName);
+    const wantedKey = playerKey(playerName);
 
     return warHistory
       .filter((w) => allianceKey(w.alliance) === a)
       .map((war) => {
-        const p = (war.players || []).find((x) => nameKey(x.name) === pKey);
+        const p = (war.players || []).find((x) => playerKey(x.name) === wantedKey);
 
         if (!p) return null;
 
@@ -534,7 +613,9 @@
 
   function renderPlayerSelect(options = {}) {
     const preferAuth = options.preferAuth === true;
+    const preservePrevious = options.preservePrevious === true;
     const previousValue = $playerSelect.value;
+
     const players = playersForAlliance($allianceSelect.value);
 
     $playerSelect.innerHTML = "";
@@ -562,21 +643,25 @@
     const wantedAlliance = allianceKey(params.get("alliance"));
 
     if (wantedPlayer && wantedAlliance === allianceKey($allianceSelect.value)) {
-      if (selectPlayerByName(wantedPlayer, { dispatch: false })) {
-        return;
-      }
+      if (selectPlayerByName(wantedPlayer)) return;
     }
 
-    if (preferAuth && selectBestPlayerForCurrentAlliance({ dispatch: false })) {
+    if (preferAuth && selectBestPlayerForCurrentAlliance()) {
       return;
     }
 
-    if (previousValue && selectPlayerByName(previousValue, { dispatch: false })) {
+    if (preservePrevious && previousValue && selectPlayerByName(previousValue)) {
       return;
     }
 
-    if (selectBestPlayerForCurrentAlliance({ dispatch: false })) {
+    const storedPlayer = getStoredPlayerForAlliance($allianceSelect.value);
+
+    if (storedPlayer && selectPlayerByName(storedPlayer)) {
       return;
+    }
+
+    if (players[0]) {
+      $playerSelect.value = players[0].name;
     }
   }
 
@@ -595,6 +680,7 @@
     const allianceKeyValue = allianceKey(alliance);
     const emoji = EMOJI[allianceKeyValue] || "👤";
     const allianceLabel = LABEL[allianceKeyValue] || "Alliance";
+    const canonicalName = canonicalPlayerName(playerName);
 
     $warsCount.textContent = String(wars);
 
@@ -610,11 +696,11 @@
 
     $playerTitle.innerHTML = `
       <div class="playerIdentity">
-        ${renderAvatar(playerName)}
+        ${renderAvatar(canonicalName)}
         <div class="playerIdentityText">
           <div class="playerNameLine">
             <span class="playerEmoji">${emoji}</span>
-            <span class="playerName" title="${esc(playerName)}">${esc(playerName)}</span>
+            <span class="playerName" title="${esc(canonicalName)}">${esc(canonicalName)}</span>
           </div>
         </div>
       </div>
@@ -869,36 +955,80 @@
     });
   }
 
-  function setInitialFromUrl() {
+  function applyUrlDefaults() {
     const params = new URLSearchParams(window.location.search);
     const wantedAlliance = allianceKey(params.get("alliance"));
+    const wantedPlayer = params.get("player");
 
-    if (
-      wantedAlliance &&
-      Array.from($allianceSelect.options).some((o) => allianceKey(o.value) === wantedAlliance) &&
-      playersForAlliance(wantedAlliance).length
-    ) {
-      const option = findAllianceOptionByKey(wantedAlliance);
-      if (option) $allianceSelect.value = option.value;
-      return true;
+    if (!wantedAlliance) return false;
+
+    const allianceOption = findAllianceOptionByKey(wantedAlliance);
+    if (!allianceOption) return false;
+
+    $allianceSelect.value = allianceOption.value;
+
+    renderPlayerSelect({
+      preferAuth: false,
+      preservePrevious: false,
+    });
+
+    if (wantedPlayer) {
+      selectPlayerByName(wantedPlayer);
     }
 
-    return false;
+    renderCharts();
+    return true;
+  }
+
+  function bindEvents() {
+    if (eventsBound) return;
+    eventsBound = true;
+
+    $allianceSelect.addEventListener("change", () => {
+      authDefaultsApplied = true;
+
+      renderPlayerSelect({
+        preferAuth: true,
+        preservePrevious: false,
+      });
+
+      saveStoredPlayerForAlliance($allianceSelect.value, $playerSelect.value);
+      renderCharts();
+    });
+
+    $allianceSelect.addEventListener("input", () => {
+      authDefaultsApplied = true;
+
+      renderPlayerSelect({
+        preferAuth: true,
+        preservePrevious: false,
+      });
+
+      saveStoredPlayerForAlliance($allianceSelect.value, $playerSelect.value);
+      renderCharts();
+    });
+
+    $playerSelect.addEventListener("change", () => {
+      authDefaultsApplied = true;
+
+      saveStoredPlayerForAlliance($allianceSelect.value, $playerSelect.value);
+      renderCharts();
+    });
+
+    $playerSelect.addEventListener("input", () => {
+      authDefaultsApplied = true;
+
+      saveStoredPlayerForAlliance($allianceSelect.value, $playerSelect.value);
+      renderCharts();
+    });
   }
 
   async function init() {
     try {
+      await loadPlayerAliases();
       await loadPlayerAvatars();
 
-      const res = await fetch("./data/war-history-lite.json?v=" + Date.now(), {
-        cache: "no-store",
-      });
-
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-
-      const data = await res.json();
+      const data = await fetchJson(FILES.history);
 
       if (!Array.isArray(data)) {
         throw new Error("war-history-lite.json is not an array");
@@ -913,43 +1043,22 @@
         }))
         .filter((w) => w.date && w.alliance);
 
-      const urlApplied = setInitialFromUrl();
+      bindEvents();
 
-      renderPlayerSelect({ preferAuth: !urlApplied });
+      const urlApplied = applyUrlDefaults();
+
+      if (!urlApplied) {
+        renderPlayerSelect({
+          preferAuth: false,
+          preservePrevious: false,
+        });
+      }
 
       bootReady = true;
 
-      if (!urlApplied && tryApplyAuthDefaults()) {
-        return;
+      if (!urlApplied && !tryApplyAuthDefaults()) {
+        renderCharts();
       }
-
-      renderCharts();
-
-      $allianceSelect.addEventListener("change", () => {
-        authDefaultsApplied = true;
-
-        renderPlayerSelect({ preferAuth: true });
-
-        const alliance = String($allianceSelect.value || "").trim();
-        const player = String($playerSelect.value || "").trim();
-
-        if (alliance && player) {
-          saveStoredPlayerForAlliance(alliance, player);
-        }
-
-        renderCharts();
-      });
-
-      $playerSelect.addEventListener("change", () => {
-        const alliance = String($allianceSelect.value || "").trim();
-        const player = String($playerSelect.value || "").trim();
-
-        if (alliance && player) {
-          saveStoredPlayerForAlliance(alliance, player);
-        }
-
-        renderCharts();
-      });
     } catch (error) {
       console.error("[war-graphs] init error:", error);
 
