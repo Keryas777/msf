@@ -226,6 +226,18 @@
     return String(v || "").replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3/$2");
   }
 
+  // ---------- Stat color classes ----------
+  function scoreClass(value) {
+    const n = Number(value || 0);
+
+    if (n >= 85) return "statGapExcellent";
+    if (n >= 70) return "statGapGood";
+    if (n >= 55) return "statGapNeutral";
+    if (n >= 45) return "statGapWarning";
+
+    return "statGapBad";
+  }
+
   function scoreGapClass(value) {
     const n = Number(value || 0);
 
@@ -233,6 +245,39 @@
     if (n >= 5) return "statGapGood";
     if (n >= -10) return "statGapNeutral";
     if (n >= -20) return "statGapWarning";
+
+    return "statGapBad";
+  }
+
+  function activityClass(value) {
+    const n = Number(value || 0);
+
+    if (n >= 13) return "statGapExcellent";
+    if (n >= 12) return "statGapGood";
+    if (n >= 10) return "statGapNeutral";
+    if (n >= 9) return "statGapWarning";
+
+    return "statGapBad";
+  }
+
+  function successClass(value) {
+    const n = Number(value || 0);
+
+    if (n >= 90) return "statGapExcellent";
+    if (n >= 80) return "statGapGood";
+    if (n >= 70) return "statGapNeutral";
+    if (n >= 60) return "statGapWarning";
+
+    return "statGapBad";
+  }
+
+  function impactClass(value) {
+    const n = Number(value || 0);
+
+    if (n >= 30) return "statGapExcellent";
+    if (n >= 25) return "statGapGood";
+    if (n >= 20) return "statGapNeutral";
+    if (n >= 15) return "statGapWarning";
 
     return "statGapBad";
   }
@@ -667,6 +712,9 @@
           attacks: Number(p.attacks || 0),
           successful_attacks: Number(p.successful_attacks || 0),
           misses: Number(p.misses || 0),
+
+          defense_wins: Number(p.defense_wins || 0),
+          deviations: Number(p.deviations || 0),
         };
       })
       .filter(Boolean)
@@ -733,10 +781,6 @@
       : 0;
   }
 
-  function total(rows, field) {
-    return rows.reduce((s, r) => s + Number(r[field] || 0), 0);
-  }
-
   function renderSummary(series, playerName, alliance) {
     const wars = series.length;
     const allianceKeyValue = allianceKey(alliance);
@@ -757,6 +801,14 @@
     const avgAlliance = avg(series, "alliance_avg_score");
     const scoreGap = avgScore - avgAlliance;
 
+    const avgAttacks = avg(series, "attacks");
+    const avgMisses = avg(series, "misses");
+    const avgSuccess = avg(series, "success_rate");
+    const avgImpact = avg(series, "score_impact");
+    const avgDamageShare = avg(series, "damage_share_pct");
+    const avgDefenseWins = avg(series, "defense_wins");
+    const avgDeviations = avg(series, "deviations");
+
     $playerTitle.innerHTML = `
       <div class="playerIdentity">
         ${renderAvatar(canonicalName)}
@@ -773,7 +825,7 @@
       `${allianceLabel} • ${wars} guerre${wars > 1 ? "s" : ""} analysée${wars > 1 ? "s" : ""}`;
 
     $summaryStats.innerHTML = `
-      <div class="statPill">
+      <div class="statPill ${scoreClass(avgScore)}">
         <div class="statValue">${fmt(avgScore, 1)}</div>
         <div class="statLabel">note moyenne</div>
       </div>
@@ -783,34 +835,39 @@
         <div class="statLabel">écart avec la note moyenne de l'alliance</div>
       </div>
 
-      <div class="statPill">
-        <div class="statValue">${fmt(avg(series, "success_rate"), 1)} %</div>
-        <div class="statLabel">réussite moyenne</div>
+      <div class="statPill ${activityClass(avgAttacks)}">
+        <div class="statValue">${fmt(avgAttacks, 1)}</div>
+        <div class="statLabel">moyenne d'attaques / guerre</div>
       </div>
 
       <div class="statPill">
-        <div class="statValue">${fmt(avg(series, "score_impact"), 1)}</div>
+        <div class="statValue">${fmt(avgMisses, 1)}</div>
+        <div class="statLabel">moyenne de ratés / guerre</div>
+      </div>
+
+      <div class="statPill ${successClass(avgSuccess)}">
+        <div class="statValue">${fmt(avgSuccess, 1)} %</div>
+        <div class="statLabel">réussite moyenne</div>
+      </div>
+
+      <div class="statPill ${impactClass(avgImpact)}">
+        <div class="statValue">${fmt(avgImpact, 1)}</div>
         <div class="statLabel">impact moyen</div>
       </div>
 
       <div class="statPill">
-        <div class="statValue">${total(series, "successful_attacks")}/${total(series, "attacks")}</div>
-        <div class="statLabel">attaques réussies</div>
+        <div class="statValue">${fmt(avgDamageShare, 1)} %</div>
+        <div class="statLabel">part moy. des dégâts alliance</div>
       </div>
 
       <div class="statPill">
-        <div class="statValue">${total(series, "misses")}</div>
-        <div class="statLabel">ratés cumulés</div>
+        <div class="statValue">${fmt(avgDefenseWins, 1)}</div>
+        <div class="statLabel">victoires défense / guerre</div>
       </div>
 
       <div class="statPill">
-        <div class="statValue">${fmt(avg(series, "damage_share_pct"), 1)} %</div>
-        <div class="statLabel">damage share moy.</div>
-      </div>
-
-      <div class="statPill">
-        <div class="statValue">${esc(series[0].date)}</div>
-        <div class="statLabel">première guerre</div>
+        <div class="statValue">${fmt(avgDeviations, 1)}</div>
+        <div class="statLabel">bonus défensif posé / guerre</div>
       </div>
     `;
   }
