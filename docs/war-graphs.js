@@ -768,7 +768,7 @@
 
       <div class="statPill">
         <div class="statValue">${fmt(avgScore - avgAlliance, 1)}</div>
-        <div class="statLabel">écart moy. alliance</div>
+        <div class="statLabel">écart avec la note moyenne de l'alliance</div>
       </div>
 
       <div class="statPill">
