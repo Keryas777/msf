@@ -7,6 +7,7 @@
     history: "./data/war-history-lite.json",
     infos: "./data/infos.json",
     aliases: "./data/player-aliases.json",
+    joueurs: "./data/joueurs.json",
   };
 
   const $allianceSelect = document.getElementById("allianceSelect");
@@ -52,6 +53,7 @@
   let warHistory = [];
   let avatarByPlayer = new Map();
   let playerAliases = new Map();
+  let currentPlayersByAlliance = new Map();
 
   let lospSession = window.LoSP_SESSION || readLocalSessionPayload() || null;
   let authDefaultsApplied = false;
@@ -265,6 +267,53 @@
       console.warn("[war-graphs] aliases unavailable:", error);
       playerAliases = new Map();
     }
+  }
+
+  // ---------- Current players ----------
+  async function loadCurrentPlayers() {
+    try {
+      const data = await fetchJson(FILES.joueurs);
+
+      if (!Array.isArray(data)) {
+        throw new Error("joueurs.json is not an array");
+      }
+
+      currentPlayersByAlliance = new Map();
+
+      data.forEach((row) => {
+        const alliance = allianceKey(row?.alliance);
+        const playerName = canonicalPlayerName(row?.player || row?.name || "");
+        const key = playerKey(playerName);
+
+        if (!alliance || !key) return;
+
+        if (!currentPlayersByAlliance.has(alliance)) {
+          currentPlayersByAlliance.set(alliance, new Set());
+        }
+
+        currentPlayersByAlliance.get(alliance).add(key);
+      });
+
+      console.log("[war-graphs] current players loaded:", {
+        zeus: currentPlayersByAlliance.get("zeus")?.size || 0,
+        dionysos: currentPlayersByAlliance.get("dionysos")?.size || 0,
+        poseidon: currentPlayersByAlliance.get("poseidon")?.size || 0,
+        kronos: currentPlayersByAlliance.get("kronos")?.size || 0,
+      });
+    } catch (error) {
+      console.warn("[war-graphs] current players unavailable, no current-roster filter:", error);
+      currentPlayersByAlliance = new Map();
+    }
+  }
+
+  function isCurrentPlayerInAlliance(playerName, alliance) {
+    const allianceK = allianceKey(alliance);
+    const key = playerKey(playerName);
+    const set = currentPlayersByAlliance.get(allianceK);
+
+    if (!set || !set.size) return true;
+
+    return set.has(key);
   }
 
   // ---------- Auth helpers ----------
@@ -547,8 +596,10 @@
           const key = playerKey(canonicalName);
 
           if (!canonicalName || !key) return;
-          if (seenInThisWar.has(key)) return;
 
+          if (!isCurrentPlayerInAlliance(canonicalName, a)) return;
+
+          if (seenInThisWar.has(key)) return;
           seenInThisWar.add(key);
 
           if (!map.has(key)) {
@@ -1026,6 +1077,7 @@
   async function init() {
     try {
       await loadPlayerAliases();
+      await loadCurrentPlayers();
       await loadPlayerAvatars();
 
       const data = await fetchJson(FILES.history);
