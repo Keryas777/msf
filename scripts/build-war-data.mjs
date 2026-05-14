@@ -11,6 +11,7 @@ const OUT_STATS_FILE = process.env.OUT_STATS_FILE || "docs/data/war-stats.json";
 const OUT_HISTORY_FILE = process.env.OUT_HISTORY_FILE || "docs/data/war-history-lite.json";
 
 const ALLIANCES = ["zeus", "dionysos", "poseidon", "kronos"];
+
 const ALLIANCE_LABELS = {
   zeus: "Zeus",
   dionysos: "Dionysos",
@@ -31,26 +32,39 @@ const normKey = (value) =>
 
 function allianceKey(value) {
   const key = normKey(value);
+
   if (key === "zeus") return "zeus";
   if (key === "dionysos") return "dionysos";
   if (key === "poseidon" || key === "posseidon") return "poseidon";
   if (key === "kronos" || key === "cronos" || key === "chronos") return "kronos";
+
   return key;
 }
 
-const allianceLabel = (value) => ALLIANCE_LABELS[allianceKey(value)] || String(value ?? "").trim();
-const num = (value, fallback = 0) => {
+function allianceLabel(value) {
+  return ALLIANCE_LABELS[allianceKey(value)] || String(value ?? "").trim();
+}
+
+function num(value, fallback = 0) {
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;
-};
-const round = (value, decimals = 2) => {
+}
+
+function round(value, decimals = 2) {
   const n = Number(value);
   if (!Number.isFinite(n)) return 0;
-  const f = 10 ** decimals;
-  return Math.round(n * f) / f;
-};
-const pct = (part, total) => (num(total) > 0 ? round((num(part) / num(total)) * 100, 2) : 0);
-const sum = (rows, fn) => rows.reduce((acc, row) => acc + num(fn(row)), 0);
+
+  const factor = 10 ** decimals;
+  return Math.round(n * factor) / factor;
+}
+
+function pct(part, total) {
+  return num(total) > 0 ? round((num(part) / num(total)) * 100, 2) : 0;
+}
+
+function sum(rows, fn) {
+  return rows.reduce((acc, row) => acc + num(fn(row)), 0);
+}
 
 async function readJson(file) {
   return JSON.parse(await fs.readFile(file, "utf8"));
@@ -64,50 +78,127 @@ async function readJsonOrNull(file) {
       console.warn(`[war-data] Missing file ignored: ${file}`);
       return null;
     }
+
     throw error;
   }
 }
 
 function normalizeIndex(data) {
-  const list = Array.isArray(data)
-    ? data
-    : Array.isArray(data?.wars)
-      ? data.wars
-      : Array.isArray(data?.items)
-        ? data.items
-        : Array.isArray(data?.data)
-          ? data.data
-          : [];
+  let list = [];
+
+  if (Array.isArray(data)) {
+    list = data;
+  } else if (data && typeof data === "object") {
+    const candidateKeys = [
+      "wars",
+      "items",
+      "data",
+      "entries",
+      "dates",
+      "index",
+      "list",
+      "folders",
+      "history",
+    ];
+
+    for (const key of candidateKeys) {
+      if (Array.isArray(data[key])) {
+        list = data[key];
+        break;
+      }
+    }
+
+    // Supporte aussi un index sous forme :
+    // {
+    //   "2026-05-12": ["zeus", "dionysos"]
+    // }
+    if (!list.length) {
+      list = Object.entries(data)
+        .filter(([key]) => /^\d{4}-\d{2}-\d{2}$/.test(String(key)))
+        .map(([date, value]) => ({
+          date,
+          alliances: Array.isArray(value) ? value : ALLIANCES,
+        }));
+    }
+  }
 
   return list
     .map((entry) => {
-      if (typeof entry === "string") return { date: entry.trim(), alliances: ALLIANCES };
+      if (typeof entry === "string") {
+        const raw = entry.trim();
+        if (!raw) return null;
 
-      const date = String(entry?.date || entry?.day || entry?.folder || "").trim();
+        // Accepte :
+        // "2026-05-12"
+        // "2026-05-12/zeus.json"
+        const parts = raw.replace(/^\.\//, "").split("/").filter(Boolean);
+        const date = parts.find((part) => /^\d{4}-\d{2}-\d{2}$/.test(part)) || raw;
+        const filePart = parts.find((part) => /\.json$/i.test(part));
+
+        const alliances = filePart
+          ? [filePart.replace(/\.json$/i, "")]
+          : ALLIANCES;
+
+        return { date, alliances };
+      }
+
+      const date = String(
+        entry?.date ||
+          entry?.day ||
+          entry?.folder ||
+          entry?.dir ||
+          entry?.directory ||
+          entry?.name ||
+          ""
+      ).trim();
+
       let alliances = [];
 
-      if (Array.isArray(entry?.alliances)) alliances = entry.alliances;
-      else if (Array.isArray(entry?.files)) {
-        alliances = entry.files.map((file) => String(file || "").replace(/\.json$/i, "").split("/").pop());
-      } else if (typeof entry?.alliance === "string") alliances = [entry.alliance];
+      if (Array.isArray(entry?.alliances)) {
+        alliances = entry.alliances;
+      } else if (Array.isArray(entry?.alliance)) {
+        alliances = entry.alliance;
+      } else if (typeof entry?.alliance === "string") {
+        alliances = [entry.alliance];
+      } else if (Array.isArray(entry?.files)) {
+        alliances = entry.files.map((file) =>
+          String(file || "").replace(/\.json$/i, "").split("/").pop()
+        );
+      } else if (Array.isArray(entry?.paths)) {
+        alliances = entry.paths.map((file) =>
+          String(file || "").replace(/\.json$/i, "").split("/").pop()
+        );
+      }
+
+      // Si l'entrée contient juste une date sans liste d'alliances,
+      // on tente les 4 fichiers. Les fichiers absents seront ignorés.
+      if (!alliances.length && date) {
+        alliances = ALLIANCES;
+      }
 
       alliances = alliances.map(allianceKey).filter(Boolean);
       alliances = [...new Set(alliances)];
 
       return { date, alliances };
     })
-    .filter((entry) => entry.date && entry.alliances.length)
+    .filter((entry) => entry?.date && entry.alliances.length)
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
 function rankingMap(report) {
   const out = new Map();
   const ranking = Array.isArray(report?.ranking) ? report.ranking : [];
+
   for (const row of ranking) {
     const key = normKey(row?.name);
     if (!key) continue;
-    out.set(key, { rank: num(row?.rank), score: num(row?.score) });
+
+    out.set(key, {
+      rank: num(row?.rank),
+      score: num(row?.score),
+    });
   }
+
   return out;
 }
 
@@ -117,52 +208,74 @@ function normalizePlayers(war) {
   const source = enriched.length ? enriched : raw;
   const ranks = rankingMap(war?.report);
 
-  return source.map((p) => {
-    const name = String(p?.name || "").trim();
-    const nameKey = normKey(name);
-    if (!name || !nameKey) return null;
+  return source
+    .map((p) => {
+      const name = String(p?.name || "").trim();
+      const nameKey = normKey(name);
 
-    const attacks = num(p?.attacks);
-    const attackPoints = num(p?.attack_points);
-    const successful = p?.successful_attacks != null ? num(p.successful_attacks) : Math.max(0, Math.floor(attackPoints / 1000));
-    const misses = p?.misses != null ? num(p.misses) : Math.max(0, attacks - successful);
-    const rankInfo = ranks.get(nameKey);
+      if (!name || !nameKey) return null;
 
-    return {
-      name,
-      name_key: nameKey,
-      rank: p?.rank != null ? num(p.rank) : num(rankInfo?.rank),
-      attacks,
-      attack_points: attackPoints,
-      successful_attacks: successful,
-      misses,
-      damage: num(p?.damage),
-      avg_damage: num(p?.avg_damage),
-      damage_share_pct: round(num(p?.damage_share_pct), 2),
-      defense_wins: num(p?.defense_wins),
-      deviations: num(p?.deviations ?? p?.defense_bonus),
-      score_total: p?.score_total != null ? round(num(p.score_total), 2) : round(num(rankInfo?.score), 2),
-      score_activity: round(num(p?.score_activity), 2),
-      score_efficiency: round(num(p?.score_efficiency), 2),
-      score_impact: round(num(p?.score_impact), 2),
-      score_defense: round(num(p?.score_defense), 2),
-      min_attacks_ok: Boolean(p?.min_attacks_ok),
-      min_deviations_ok: Boolean(p?.min_deviations_ok),
-    };
-  }).filter(Boolean);
+      const attacks = num(p?.attacks);
+      const attackPoints = num(p?.attack_points);
+
+      const successful =
+        p?.successful_attacks != null
+          ? num(p.successful_attacks)
+          : Math.max(0, Math.floor(attackPoints / 1000));
+
+      const misses =
+        p?.misses != null
+          ? num(p.misses)
+          : Math.max(0, attacks - successful);
+
+      const rankInfo = ranks.get(nameKey);
+
+      return {
+        name,
+        name_key: nameKey,
+        rank: p?.rank != null ? num(p.rank) : num(rankInfo?.rank),
+        attacks,
+        attack_points: attackPoints,
+        successful_attacks: successful,
+        misses,
+        damage: num(p?.damage),
+        avg_damage: num(p?.avg_damage),
+        damage_share_pct: round(num(p?.damage_share_pct), 2),
+        defense_wins: num(p?.defense_wins),
+        deviations: num(p?.deviations ?? p?.defense_bonus),
+        score_total:
+          p?.score_total != null
+            ? round(num(p.score_total), 2)
+            : round(num(rankInfo?.score), 2),
+        score_activity: round(num(p?.score_activity), 2),
+        score_efficiency: round(num(p?.score_efficiency), 2),
+        score_impact: round(num(p?.score_impact), 2),
+        score_defense: round(num(p?.score_defense), 2),
+        min_attacks_ok: Boolean(p?.min_attacks_ok),
+        min_deviations_ok: Boolean(p?.min_deviations_ok),
+      };
+    })
+    .filter(Boolean);
 }
 
 function warAverages(players) {
   const playerCount = players.length;
   const active = players.filter((p) => p.attacks > 0);
+
   const totalAttacks = sum(active, (p) => p.attacks);
   const totalSuccess = sum(active, (p) => p.successful_attacks);
 
   return {
     player_count: playerCount,
-    alliance_avg_score: playerCount ? round(sum(players, (p) => p.score_total) / playerCount, 2) : 0,
-    alliance_avg_success_rate: totalAttacks ? round((totalSuccess / totalAttacks) * 100, 2) : 0,
-    alliance_avg_impact: playerCount ? round(sum(players, (p) => p.score_impact) / playerCount, 2) : 0,
+    alliance_avg_score: playerCount
+      ? round(sum(players, (p) => p.score_total) / playerCount, 2)
+      : 0,
+    alliance_avg_success_rate: totalAttacks
+      ? round((totalSuccess / totalAttacks) * 100, 2)
+      : 0,
+    alliance_avg_impact: playerCount
+      ? round(sum(players, (p) => p.score_impact) / playerCount, 2)
+      : 0,
     alliance_avg_damage_share_pct: playerCount ? round(100 / playerCount, 2) : 0,
   };
 }
@@ -186,7 +299,11 @@ function makeHistoryWar({ date, alliance, war, players }) {
     players: players.map((p) => {
       const successRate = pct(p.successful_attacks, p.attacks);
       const missRate = pct(p.misses, p.attacks);
-      const rankPercentile = p.rank > 0 && avg.player_count > 1 ? round(((p.rank - 1) / (avg.player_count - 1)) * 100, 2) : 0;
+
+      const rankPercentile =
+        p.rank > 0 && avg.player_count > 1
+          ? round(((p.rank - 1) / (avg.player_count - 1)) * 100, 2)
+          : 0;
 
       return {
         name: p.name,
@@ -201,11 +318,17 @@ function makeHistoryWar({ date, alliance, war, players }) {
         misses: p.misses,
         success_rate: successRate,
         miss_rate: missRate,
-        success_rate_vs_alliance_avg: round(successRate - avg.alliance_avg_success_rate, 2),
+        success_rate_vs_alliance_avg: round(
+          successRate - avg.alliance_avg_success_rate,
+          2
+        ),
         score_impact: p.score_impact,
         impact_vs_alliance_avg: round(p.score_impact - avg.alliance_avg_impact, 2),
         damage_share_pct: p.damage_share_pct,
-        damage_share_vs_alliance_avg: round(p.damage_share_pct - avg.alliance_avg_damage_share_pct, 2),
+        damage_share_vs_alliance_avg: round(
+          p.damage_share_pct - avg.alliance_avg_damage_share_pct,
+          2
+        ),
         score_activity: p.score_activity,
         score_efficiency: p.score_efficiency,
         score_defense: p.score_defense,
@@ -259,6 +382,7 @@ function emptyAgg(p, date, alliance) {
 
 function addAgg(a, p, date) {
   a.wars_played += 1;
+
   a.first_date = a.first_date && a.first_date < date ? a.first_date : date;
   a.last_date = a.last_date && a.last_date > date ? a.last_date : date;
 
@@ -270,11 +394,13 @@ function addAgg(a, p, date) {
   a.total_successful_attacks += p.successful_attacks;
   a.total_misses += p.misses;
   a.total_damage += p.damage;
+
   a.avg_damage_share_pct += p.damage_share_pct;
   a.total_impact += p.score_impact;
   a.total_efficiency += p.score_efficiency;
   a.total_activity += p.score_activity;
   a.total_defense_score += p.score_defense;
+
   a.defense_wins += p.defense_wins;
   a.deviations += p.deviations;
 
@@ -285,25 +411,41 @@ function addAgg(a, p, date) {
 }
 
 function finalizeAgg(a) {
-  const w = a.wars_played || 0;
-  a.avg_score = w ? round(a.total_score / w, 2) : 0;
+  const wars = a.wars_played || 0;
+
+  a.avg_score = wars ? round(a.total_score / wars, 2) : 0;
   a.success_rate = pct(a.total_successful_attacks, a.total_attacks);
   a.miss_rate = pct(a.total_misses, a.total_attacks);
-  a.avg_damage_per_war = w ? round(a.total_damage / w, 0) : 0;
-  a.avg_damage_share_pct = w ? round(a.avg_damage_share_pct / w, 2) : 0;
-  a.avg_impact = w ? round(a.total_impact / w, 2) : 0;
-  a.avg_efficiency = w ? round(a.total_efficiency / w, 2) : 0;
-  a.avg_activity = w ? round(a.total_activity / w, 2) : 0;
-  a.avg_defense = w ? round(a.total_defense_score / w, 2) : 0;
+  a.avg_damage_per_war = wars ? round(a.total_damage / wars, 0) : 0;
+  a.avg_damage_share_pct = wars ? round(a.avg_damage_share_pct / wars, 2) : 0;
+  a.avg_impact = wars ? round(a.total_impact / wars, 2) : 0;
+  a.avg_efficiency = wars ? round(a.total_efficiency / wars, 2) : 0;
+  a.avg_activity = wars ? round(a.total_activity / wars, 2) : 0;
+  a.avg_defense = wars ? round(a.total_defense_score / wars, 2) : 0;
+
   a.best_score = round(a.best_score, 2);
   a.worst_score = round(a.worst_score, 2);
-  a.min_attacks_ok_rate = pct(a.min_attacks_ok_count, w);
-  a.min_deviations_ok_rate = pct(a.min_deviations_ok_count, w);
+
+  a.min_attacks_ok_rate = pct(a.min_attacks_ok_count, wars);
+  a.min_deviations_ok_rate = pct(a.min_deviations_ok_count, wars);
+
   return a;
 }
 
 async function main() {
-  const index = normalizeIndex(await readJson(INDEX_FILE));
+  const rawIndex = await readJson(INDEX_FILE);
+
+  const rawIndexShape = Array.isArray(rawIndex)
+    ? `array length ${rawIndex.length}`
+    : rawIndex && typeof rawIndex === "object"
+      ? `object keys ${Object.keys(rawIndex).join(", ")}`
+      : typeof rawIndex;
+
+  console.log(`[war-data] Reading index: ${INDEX_FILE}`);
+  console.log(`[war-data] Raw index shape: ${rawIndexShape}`);
+
+  const index = normalizeIndex(rawIndex);
+
   const history = [];
   const agg = new Map();
 
@@ -314,45 +456,69 @@ async function main() {
 
       const file = path.join(WAR_DIR, item.date, `${alliance}.json`);
       const war = await readJsonOrNull(file);
+
       if (!war) continue;
 
       const date = String(war?.date || item.date);
       const finalAlliance = allianceKey(war?.alliance || alliance);
+
       const players = normalizePlayers(war);
-      const historyWar = makeHistoryWar({ date, alliance: finalAlliance, war, players });
+      const historyWar = makeHistoryWar({
+        date,
+        alliance: finalAlliance,
+        war,
+        players,
+      });
+
       history.push(historyWar);
 
       for (const p of players) {
         const key = `${finalAlliance}::${p.name_key}`;
-        if (!agg.has(key)) agg.set(key, emptyAgg(p, date, finalAlliance));
+
+        if (!agg.has(key)) {
+          agg.set(key, emptyAgg(p, date, finalAlliance));
+        }
+
         addAgg(agg.get(key), p, date);
       }
     }
   }
 
   history.sort((a, b) => {
-    const d = a.date.localeCompare(b.date);
-    if (d) return d;
+    const dateCompare = a.date.localeCompare(b.date);
+    if (dateCompare) return dateCompare;
+
     return ALLIANCES.indexOf(a.alliance) - ALLIANCES.indexOf(b.alliance);
   });
 
-  const stats = Array.from(agg.values()).map(finalizeAgg).sort((a, b) => {
-    const ia = ALLIANCES.indexOf(a.alliance);
-    const ib = ALLIANCES.indexOf(b.alliance);
-    if (ia !== ib) return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-    return a.name.localeCompare(b.name, "fr", { sensitivity: "base" });
-  });
+  const stats = Array.from(agg.values())
+    .map(finalizeAgg)
+    .sort((a, b) => {
+      const ia = ALLIANCES.indexOf(a.alliance);
+      const ib = ALLIANCES.indexOf(b.alliance);
+
+      if (ia !== ib) {
+        return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+      }
+
+      return a.name.localeCompare(b.name, "fr", { sensitivity: "base" });
+    });
 
   await fs.mkdir(path.dirname(OUT_STATS_FILE), { recursive: true });
   await fs.mkdir(path.dirname(OUT_HISTORY_FILE), { recursive: true });
+
   await fs.writeFile(OUT_STATS_FILE, JSON.stringify(stats, null, 2), "utf8");
   await fs.writeFile(OUT_HISTORY_FILE, JSON.stringify(history, null, 2), "utf8");
 
   console.log(`[war-data] Index entries: ${index.length}`);
   console.log(`[war-data] Wrote ${stats.length} player stat rows -> ${OUT_STATS_FILE}`);
   console.log(`[war-data] Wrote ${history.length} war history rows -> ${OUT_HISTORY_FILE}`);
+
   for (const alliance of ALLIANCES) {
-    console.log(`[war-data] ${alliance}: ${stats.filter((r) => r.alliance === alliance).length} players, ${history.filter((r) => r.alliance === alliance).length} wars`);
+    const playerCount = stats.filter((row) => row.alliance === alliance).length;
+    const warCount = history.filter((row) => row.alliance === alliance).length;
+
+    console.log(`[war-data] ${alliance}: ${playerCount} players, ${warCount} wars`);
   }
 }
 
