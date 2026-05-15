@@ -3,16 +3,6 @@ name: Build war data
 on:
   workflow_dispatch:
 
-  push:
-    branches:
-      - main
-    paths:
-      - "docs/data/war/index.json"
-      - "docs/data/war/**/*.json"
-      - "docs/data/player-aliases.json"
-      - "scripts/build-war-data.mjs"
-      - ".github/workflows/war-data.yml"
-
 permissions:
   contents: write
 
