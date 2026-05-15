@@ -107,7 +107,13 @@
       { from: 0, to: 9, className: "chartBandBad" },
     ],
 
-    misses: [],
+    misses: [
+      { from: 0, to: 1, className: "chartBandExcellent" },
+      { from: 1, to: 2, className: "chartBandGood" },
+      { from: 2, to: 3, className: "chartBandNeutral" },
+      { from: 3, to: 4, className: "chartBandWarning" },
+      { from: 4, to: 999, className: "chartBandBad" },
+    ],
 
     success: [
       { from: 90, to: 100, className: "chartBandExcellent" },
@@ -126,8 +132,22 @@
     ],
 
     damage: [],
-    damageShare: [],
-    defenseWins: [],
+
+    damageShare: [
+      { from: 6, to: 999, className: "chartBandExcellent" },
+      { from: 4.5, to: 6, className: "chartBandGood" },
+      { from: 3, to: 4.5, className: "chartBandNeutral" },
+      { from: 2, to: 3, className: "chartBandWarning" },
+      { from: 0, to: 2, className: "chartBandBad" },
+    ],
+
+    defenseWins: [
+      { from: 4, to: 999, className: "chartBandExcellent" },
+      { from: 2.5, to: 4, className: "chartBandGood" },
+      { from: 1.5, to: 2.5, className: "chartBandNeutral" },
+      { from: 0.5, to: 1.5, className: "chartBandWarning" },
+      { from: 0, to: 0.5, className: "chartBandBad" },
+    ],
 
     deviations: [
       { from: 4, to: 999, className: "chartBandExcellent" },
@@ -426,15 +446,34 @@
   }
 
   // ---------- Stat color classes ----------
-  function scoreClass(value) {
+  function chartClassToStatClass(className) {
+    return String(className || "").replace("chartBand", "statGap");
+  }
+
+  function classFromBands(value, bands) {
     const n = Number(value || 0);
 
-    if (n >= 85) return "statGapExcellent";
-    if (n >= 70) return "statGapGood";
-    if (n >= 55) return "statGapNeutral";
-    if (n >= 45) return "statGapWarning";
+    if (!Array.isArray(bands) || !bands.length) return "";
 
-    return "statGapBad";
+    for (const band of bands) {
+      const from = Number(band.from);
+      const to = Number(band.to);
+
+      if (!Number.isFinite(from) || !Number.isFinite(to)) continue;
+
+      const low = Math.min(from, to);
+      const high = Math.max(from, to);
+
+      if (n >= low && n <= high) {
+        return chartClassToStatClass(band.className);
+      }
+    }
+
+    return "";
+  }
+
+  function scoreClass(value) {
+    return classFromBands(value, CHART_BANDS.score);
   }
 
   function scoreGapClass(value) {
@@ -449,34 +488,47 @@
   }
 
   function activityClass(value) {
-    const n = Number(value || 0);
+    return classFromBands(value, CHART_BANDS.attacks);
+  }
 
-    if (n >= 13) return "statGapExcellent";
-    if (n >= 12) return "statGapGood";
-    if (n >= 10) return "statGapNeutral";
-    if (n >= 9) return "statGapWarning";
-
-    return "statGapBad";
+  function missesClass(value) {
+    return classFromBands(value, CHART_BANDS.misses);
   }
 
   function successClass(value) {
-    const n = Number(value || 0);
-
-    if (n >= 90) return "statGapExcellent";
-    if (n >= 80) return "statGapGood";
-    if (n >= 70) return "statGapNeutral";
-    if (n >= 60) return "statGapWarning";
-
-    return "statGapBad";
+    return classFromBands(value, CHART_BANDS.success);
   }
 
   function impactClass(value) {
-    const n = Number(value || 0);
+    return classFromBands(value, CHART_BANDS.impact);
+  }
 
-    if (n >= 30) return "statGapExcellent";
-    if (n >= 25) return "statGapGood";
-    if (n >= 20) return "statGapNeutral";
-    if (n >= 15) return "statGapWarning";
+  function damageShareClass(value) {
+    return classFromBands(value, CHART_BANDS.damageShare);
+  }
+
+  function defenseWinsClass(value) {
+    return classFromBands(value, CHART_BANDS.defenseWins);
+  }
+
+  function deviationsClass(value) {
+    return classFromBands(value, CHART_BANDS.deviations);
+  }
+
+  function ratioClass(value, reference) {
+    const v = Number(value || 0);
+    const ref = Number(reference || 0);
+
+    if (!Number.isFinite(v) || !Number.isFinite(ref) || ref <= 0) {
+      return "";
+    }
+
+    const ratio = v / ref;
+
+    if (ratio >= 1.25) return "statGapExcellent";
+    if (ratio >= 1.05) return "statGapGood";
+    if (ratio >= 0.85) return "statGapNeutral";
+    if (ratio >= 0.65) return "statGapWarning";
 
     return "statGapBad";
   }
@@ -1074,6 +1126,7 @@
         ? statsAvgDamage
         : avg(series, "damage") || fallbackAvgDamage;
 
+    const avgAllianceDamage = avg(series, "alliance_avg_damage");
     const avgDamageShare = avg(series, "damage_share_pct");
     const avgDefenseWins = avg(series, "defense_wins");
     const avgDeviations = avg(series, "deviations");
@@ -1116,7 +1169,7 @@
         <div class="statLabel">moyenne d'attaques / guerre</div>
       </div>
 
-      <div class="statPill">
+      <div class="statPill ${missesClass(avgMisses)}">
         <div class="statValue">${fmt(avgMisses, 1)}</div>
         <div class="statLabel">moyenne de ratés / guerre</div>
       </div>
@@ -1131,22 +1184,22 @@
         <div class="statLabel">impact moyen</div>
       </div>
 
-      <div class="statPill">
+      <div class="statPill ${ratioClass(avgDamage, avgAllianceDamage)}">
         <div class="statValue">${compact(avgDamage)}</div>
         <div class="statLabel">dégâts moyens / guerre</div>
       </div>
 
-      <div class="statPill">
+      <div class="statPill ${damageShareClass(avgDamageShare)}">
         <div class="statValue">${fmt(avgDamageShare, 1)} %</div>
         <div class="statLabel">part moy. des dégâts alliance</div>
       </div>
 
-      <div class="statPill">
+      <div class="statPill ${defenseWinsClass(avgDefenseWins)}">
         <div class="statValue">${fmt(avgDefenseWins, 1)}</div>
         <div class="statLabel">victoires défense / guerre</div>
       </div>
 
-      <div class="statPill">
+      <div class="statPill ${deviationsClass(avgDeviations)}">
         <div class="statValue">${fmt(avgDeviations, 1)}</div>
         <div class="statLabel">bonus défensif posé / guerre</div>
       </div>
