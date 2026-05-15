@@ -590,6 +590,8 @@ body::after{
 }
 
 /* ===== Zones colorées des graphiques ===== */
+/* Les couleurs sont maintenant aussi injectées inline dans le SVG côté JS.
+   Ce bloc reste en fallback et pour compatibilité visuelle. */
 .chartBand{
   pointer-events:none;
   opacity:.62;
