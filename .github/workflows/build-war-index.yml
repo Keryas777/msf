@@ -1,7 +1,11 @@
 name: Build war index
 
 on:
+  workflow_dispatch:
+
   push:
+    branches:
+      - main
     paths:
       - "docs/data/war/**"
       - "scripts/build-war-index.mjs"
