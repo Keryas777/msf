@@ -425,25 +425,25 @@ body::after{
 
 .rankRow{
   display:grid;
-  grid-template-columns:auto minmax(0,1fr) auto;
+  grid-template-columns:62px minmax(0,1fr) 96px;
   align-items:center;
-  gap:10px;
+  gap:8px;
 
   border:1px solid var(--border);
   border-radius:16px;
-  padding:10px 12px 10px 10px;
+  padding:10px;
   background:rgba(0,0,0,.22);
 }
 
 .rankLeft{
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:6px;
   min-width:0;
 }
 
 .rankNum{
-  width:22px;
+  width:16px;
   text-align:right;
   color:var(--muted);
   font-weight:900;
@@ -455,9 +455,9 @@ body::after{
 /* ===== Avatar ===== */
 .rankAvatar{
   position:relative;
-  width:44px;
-  height:44px;
-  border-radius:14px;
+  width:40px;
+  height:40px;
+  border-radius:12px;
   overflow:hidden;
   flex:0 0 auto;
 
@@ -492,7 +492,7 @@ body::after{
   z-index:2;
   object-fit:contain;
   object-position:center;
-  padding:7px;
+  padding:6px;
   filter:drop-shadow(0 6px 14px rgba(0,0,0,.45));
 }
 
@@ -504,71 +504,93 @@ body::after{
 .rankCenter{
   display:flex;
   flex-direction:column;
+  justify-content:center;
   gap:4px;
   min-width:0;
 }
 
-.rankMainLine{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  min-width:0;
-}
-
-.rankEmoji{
-  font-size:18px;
-  line-height:1;
-  flex:0 0 auto;
-  filter:drop-shadow(0 6px 14px rgba(0,0,0,.55));
-}
-
 .rankName{
-  font-weight:900;
+  font-weight:950;
   min-width:0;
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
   font-size:16px;
   line-height:1.1;
-  padding-top:1px;
 }
 
-.rankMeta{
+.rankAllianceLine{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  min-width:0;
   color:var(--muted);
-  font-size:12.5px;
-  line-height:1.2;
+  font-size:13px;
+  line-height:1.15;
+  font-weight:750;
+}
+
+.rankAllianceEmoji{
+  font-size:15px;
+  line-height:1;
+  flex:0 0 auto;
+  filter:drop-shadow(0 4px 10px rgba(0,0,0,.45));
+}
+
+.rankAllianceName{
+  min-width:0;
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
 }
 
+.rankWarsLine{
+  color:var(--muted2);
+  font-size:12.5px;
+  line-height:1.15;
+  font-weight:750;
+}
+
+/* ===== Anciennes classes conservées pour vieux cache éventuel ===== */
+.rankMainLine,
+.rankEmoji,
+.rankMeta{
+  display:none;
+}
+
 /* ===== Valeur droite ===== */
 .rankPower{
-  font-weight:900;
-  letter-spacing:.2px;
-  color:var(--text);
-  text-align:right;
-
-  width:132px;
+  width:96px;
+  min-height:72px;
   flex:0 0 auto;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  color:var(--text);
+  text-align:center;
+  font-weight:950;
+  letter-spacing:.2px;
 
   font-variant-numeric:tabular-nums;
   font-feature-settings:"tnum" 1;
 
-  font-size:14px;
-
   border:1px solid rgba(255,255,255,.08);
-  border-radius:14px;
-  padding:8px 9px;
+  border-radius:16px;
+  padding:8px;
   background:rgba(0,0,0,.20);
 }
 
+.rankMainValue{
+  font-size:17px;
+  line-height:1.05;
+  font-weight:1000;
+  text-align:center;
+}
+
 .rankSubValue{
-  margin-top:3px;
-  color:var(--muted2);
-  font-size:12px;
-  font-weight:800;
-  line-height:1.15;
+  display:none;
 }
 
 /* ===== Couleurs performances ===== */
@@ -582,6 +604,7 @@ body::after{
     0 0 18px rgba(58,220,112,.16);
 }
 
+.rankPower.statGapExcellent .rankMainValue,
 .rankPower.statGapExcellent > div:first-child{
   color:#76ff9d;
 }
@@ -596,6 +619,7 @@ body::after{
     0 0 18px rgba(190,245,90,.12);
 }
 
+.rankPower.statGapGood .rankMainValue,
 .rankPower.statGapGood > div:first-child{
   color:#d8ff7a;
 }
@@ -610,6 +634,7 @@ body::after{
     0 0 18px rgba(255,202,66,.10);
 }
 
+.rankPower.statGapNeutral .rankMainValue,
 .rankPower.statGapNeutral > div:first-child{
   color:#ffd65f;
 }
@@ -624,6 +649,7 @@ body::after{
     0 0 18px rgba(255,128,42,.13);
 }
 
+.rankPower.statGapWarning .rankMainValue,
 .rankPower.statGapWarning > div:first-child{
   color:#ff9a4c;
 }
@@ -638,24 +664,22 @@ body::after{
     0 0 18px rgba(255,82,96,.16);
 }
 
+.rankPower.statGapBad .rankMainValue,
 .rankPower.statGapBad > div:first-child{
   color:#ff7c88;
 }
 
+.rankPower.statGapExcellent .rankMainValue,
+.rankPower.statGapGood .rankMainValue,
+.rankPower.statGapNeutral .rankMainValue,
+.rankPower.statGapWarning .rankMainValue,
+.rankPower.statGapBad .rankMainValue,
 .rankPower.statGapExcellent > div:first-child,
 .rankPower.statGapGood > div:first-child,
 .rankPower.statGapNeutral > div:first-child,
 .rankPower.statGapWarning > div:first-child,
 .rankPower.statGapBad > div:first-child{
   text-shadow:0 4px 14px rgba(0,0,0,.65);
-}
-
-.rankPower.statGapExcellent .rankSubValue,
-.rankPower.statGapGood .rankSubValue,
-.rankPower.statGapNeutral .rankSubValue,
-.rankPower.statGapWarning .rankSubValue,
-.rankPower.statGapBad .rankSubValue{
-  color:rgba(255,255,255,.72);
 }
 
 .emptyState{
@@ -703,15 +727,25 @@ body::after{
     font-size:12.5px;
   }
 
+  .rankRow{
+    grid-template-columns:58px minmax(0,1fr) 92px;
+    gap:7px;
+    padding:9px;
+  }
+
+  .rankLeft{
+    gap:5px;
+  }
+
   .rankNum{
-    width:20px;
+    width:15px;
     font-size:12.5px;
   }
 
   .rankAvatar{
-    width:42px;
-    height:42px;
-    border-radius:13px;
+    width:38px;
+    height:38px;
+    border-radius:12px;
   }
 
   .rankAvatarFrame{
@@ -726,10 +760,22 @@ body::after{
     font-size:15px;
   }
 
+  .rankAllianceLine{
+    font-size:12.5px;
+  }
+
+  .rankWarsLine{
+    font-size:12px;
+  }
+
   .rankPower{
-    width:116px;
-    font-size:13.5px;
-    padding:8px 8px;
+    width:92px;
+    min-height:68px;
+    padding:7px;
+  }
+
+  .rankMainValue{
+    font-size:16px;
   }
 }
 
@@ -747,10 +793,21 @@ body::after{
     font-size:12px;
   }
 
+  .rankRow{
+    grid-template-columns:56px minmax(0,1fr) 88px;
+    gap:6px;
+    padding:9px 8px;
+  }
+
+  .rankNum{
+    width:14px;
+    font-size:12px;
+  }
+
   .rankAvatar{
-    width:40px;
-    height:40px;
-    border-radius:12px;
+    width:36px;
+    height:36px;
+    border-radius:11px;
   }
 
   .rankAvatarFrame{
@@ -758,16 +815,18 @@ body::after{
   }
 
   .rankAvatarIcon{
-    padding:6px;
+    padding:5px;
   }
 
   .rankPower{
-    width:104px;
-    font-size:13px;
+    width:88px;
+    min-height:66px;
+    border-radius:15px;
+    padding:6px;
   }
 
-  .rankSubValue{
-    font-size:11px;
+  .rankMainValue{
+    font-size:15.5px;
   }
 
   .chipCount{
