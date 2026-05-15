@@ -17,9 +17,9 @@ const ALLIANCES = ["zeus", "kronos", "dionysos", "poseidon"];
 
 const ALLIANCE_LABELS = {
   zeus: "Zeus",
+  kronos: "Kronos",
   dionysos: "Dionysos",
   poseidon: "Poséidon",
-  kronos: "Kronos",
 };
 
 const normKey = (value) =>
@@ -39,7 +39,14 @@ function allianceKey(value) {
   if (key === "zeus") return "zeus";
   if (key === "dionysos") return "dionysos";
   if (key === "poseidon" || key === "posseidon") return "poseidon";
-  if (key === "kronos" || key === "cronos" || key === "chronos") return "kronos";
+  if (
+    key === "kronos" ||
+    key === "cronos" ||
+    key === "chronos" ||
+    key === "lospkronos"
+  ) {
+    return "kronos";
+  }
 
   return key;
 }
@@ -49,6 +56,8 @@ function allianceLabel(value) {
 }
 
 function num(value, fallback = 0) {
+  if (value === null || value === undefined || value === "") return fallback;
+
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;
 }
@@ -146,8 +155,6 @@ function canonicalPlayerName(name, aliases) {
 
   if (!current) return "";
 
-  // Permet les chaînes d’alias :
-  // T8K -> T6K -> T6K officiel
   for (let i = 0; i < 10; i++) {
     const next = aliases.get(normKey(current));
 
@@ -245,7 +252,11 @@ function normalizeIndex(data) {
         alliances = ALLIANCES;
       }
 
-      alliances = alliances.map(allianceKey).filter(Boolean);
+      alliances = alliances
+        .map(allianceKey)
+        .filter(Boolean)
+        .filter((alliance) => ALLIANCES.includes(alliance));
+
       alliances = [...new Set(alliances)];
 
       return { date, alliances };
@@ -291,10 +302,12 @@ function normalizePlayers(war, aliases = new Map()) {
       const attacks = num(p?.attacks);
       const attackPoints = num(p?.attack_points);
 
-      const successful =
+      const successfulRaw =
         p?.successful_attacks != null
           ? num(p.successful_attacks)
           : Math.max(0, Math.floor(attackPoints / 1000));
+
+      const successful = attacks > 0 ? Math.min(attacks, successfulRaw) : 0;
 
       const misses =
         p?.misses != null
@@ -302,6 +315,13 @@ function normalizePlayers(war, aliases = new Map()) {
           : Math.max(0, attacks - successful);
 
       const rankInfo = ranks.get(nameKey);
+
+      const damageSharePct =
+        p?.damage_share_pct !== null &&
+        p?.damage_share_pct !== undefined &&
+        p?.damage_share_pct !== ""
+          ? round(num(p.damage_share_pct), 2)
+          : null;
 
       return {
         name,
@@ -314,7 +334,7 @@ function normalizePlayers(war, aliases = new Map()) {
         misses,
         damage: num(p?.damage),
         avg_damage: num(p?.avg_damage),
-        damage_share_pct: round(num(p?.damage_share_pct), 2),
+        damage_share_pct: damageSharePct,
         defense_wins: num(p?.defense_wins),
         deviations: num(p?.deviations ?? p?.defense_bonus),
         score_total:
@@ -332,30 +352,70 @@ function normalizePlayers(war, aliases = new Map()) {
     .filter(Boolean);
 }
 
+function completePlayerDerivedMetrics(players) {
+  const totalDamage = sum(players, (p) => p.damage);
+
+  return players.map((p) => ({
+    ...p,
+    damage_share_pct:
+      p.damage_share_pct !== null && p.damage_share_pct !== undefined
+        ? round(p.damage_share_pct, 2)
+        : pct(p.damage, totalDamage),
+  }));
+}
+
 function warAverages(players) {
   const playerCount = players.length;
   const active = players.filter((p) => p.attacks > 0);
 
   const totalAttacks = sum(active, (p) => p.attacks);
   const totalSuccess = sum(active, (p) => p.successful_attacks);
+  const totalDamage = sum(players, (p) => p.damage);
 
   return {
     player_count: playerCount,
+
+    alliance_total_damage: totalDamage,
+
     alliance_avg_score: playerCount
       ? round(sum(players, (p) => p.score_total) / playerCount, 2)
       : 0,
+
+    alliance_avg_attacks: playerCount
+      ? round(sum(players, (p) => p.attacks) / playerCount, 2)
+      : 0,
+
+    alliance_avg_misses: playerCount
+      ? round(sum(players, (p) => p.misses) / playerCount, 2)
+      : 0,
+
     alliance_avg_success_rate: totalAttacks
       ? round((totalSuccess / totalAttacks) * 100, 2)
       : 0,
+
     alliance_avg_impact: playerCount
       ? round(sum(players, (p) => p.score_impact) / playerCount, 2)
       : 0,
+
+    alliance_avg_damage: playerCount
+      ? round(totalDamage / playerCount, 0)
+      : 0,
+
     alliance_avg_damage_share_pct: playerCount ? round(100 / playerCount, 2) : 0,
+
+    alliance_avg_defense_wins: playerCount
+      ? round(sum(players, (p) => p.defense_wins) / playerCount, 2)
+      : 0,
+
+    alliance_avg_deviations: playerCount
+      ? round(sum(players, (p) => p.deviations) / playerCount, 2)
+      : 0,
   };
 }
 
 function makeHistoryWar({ date, alliance, war, players }) {
   const avg = warAverages(players);
+  const summary = war?.report?.summary || {};
 
   return {
     war_id: `${date}-${alliance}`,
@@ -364,15 +424,25 @@ function makeHistoryWar({ date, alliance, war, players }) {
     alliance_label: allianceLabel(alliance),
     captured_at: String(war?.captured_at || ""),
     source: String(war?.source || ""),
+
     summary: {
-      total_damage: num(war?.report?.summary?.total_damage),
-      minimum_attacks: num(war?.report?.summary?.minimum_attacks),
-      minimum_deviations: num(war?.report?.summary?.minimum_deviations),
+      total_damage:
+        summary?.total_damage !== null &&
+        summary?.total_damage !== undefined &&
+        summary?.total_damage !== ""
+          ? num(summary.total_damage)
+          : avg.alliance_total_damage,
+      minimum_attacks: num(summary?.minimum_attacks),
+      minimum_deviations: num(summary?.minimum_deviations),
     },
+
     ...avg,
+
     players: players.map((p) => {
       const successRate = pct(p.successful_attacks, p.attacks);
       const missRate = pct(p.misses, p.attacks);
+
+      const scoreGap = round(p.score_total - avg.alliance_avg_score, 2);
 
       const rankPercentile =
         p.rank > 0 && avg.player_count > 1
@@ -383,32 +453,57 @@ function makeHistoryWar({ date, alliance, war, players }) {
         name: p.name,
         name_key: p.name_key,
         ...(p.original_name ? { original_name: p.original_name } : {}),
+
         rank: p.rank,
         player_count: avg.player_count,
+
         score_total: p.score_total,
-        score_vs_alliance_avg: round(p.score_total - avg.alliance_avg_score, 2),
+        score_gap: scoreGap,
+        score_vs_alliance_avg: scoreGap,
+
         attacks: p.attacks,
         attack_points: p.attack_points,
+        attacks_vs_alliance_avg: round(p.attacks - avg.alliance_avg_attacks, 2),
+
         successful_attacks: p.successful_attacks,
         misses: p.misses,
+        misses_vs_alliance_avg: round(p.misses - avg.alliance_avg_misses, 2),
+
         success_rate: successRate,
         miss_rate: missRate,
         success_rate_vs_alliance_avg: round(
           successRate - avg.alliance_avg_success_rate,
           2
         ),
+
         score_impact: p.score_impact,
         impact_vs_alliance_avg: round(p.score_impact - avg.alliance_avg_impact, 2),
+
+        damage: p.damage,
+        damage_vs_alliance_avg: round(p.damage - avg.alliance_avg_damage, 2),
+
         damage_share_pct: p.damage_share_pct,
         damage_share_vs_alliance_avg: round(
           p.damage_share_pct - avg.alliance_avg_damage_share_pct,
           2
         ),
+
         score_activity: p.score_activity,
         score_efficiency: p.score_efficiency,
         score_defense: p.score_defense,
+
         defense_wins: p.defense_wins,
+        defense_wins_vs_alliance_avg: round(
+          p.defense_wins - avg.alliance_avg_defense_wins,
+          2
+        ),
+
         deviations: p.deviations,
+        deviations_vs_alliance_avg: round(
+          p.deviations - avg.alliance_avg_deviations,
+          2
+        ),
+
         rank_percentile: rankPercentile,
       };
     }),
@@ -424,30 +519,47 @@ function emptyAgg(p, date, alliance) {
     wars_played: 0,
     first_date: date,
     last_date: date,
+
     total_score: 0,
     avg_score: 0,
     best_score: 0,
     worst_score: 0,
+
     total_attacks: 0,
+    avg_attacks_per_war: 0,
+
     total_successful_attacks: 0,
     total_misses: 0,
+    avg_misses_per_war: 0,
+
     success_rate: 0,
     miss_rate: 0,
+
     total_damage: 0,
     avg_damage_per_war: 0,
     avg_damage_share_pct: 0,
+
     total_impact: 0,
     avg_impact: 0,
+
     total_efficiency: 0,
     avg_efficiency: 0,
+
     total_activity: 0,
     avg_activity: 0,
+
     total_defense_score: 0,
     avg_defense: 0,
+
     defense_wins: 0,
+    avg_defense_wins_per_war: 0,
+
     deviations: 0,
+    avg_deviations_per_war: 0,
+
     top_3_count: 0,
     top_5_count: 0,
+
     min_attacks_ok_count: 0,
     min_deviations_ok_count: 0,
     min_attacks_ok_rate: 0,
@@ -471,6 +583,7 @@ function addAgg(a, p, date) {
   a.total_damage += p.damage;
 
   a.avg_damage_share_pct += p.damage_share_pct;
+
   a.total_impact += p.score_impact;
   a.total_efficiency += p.score_efficiency;
   a.total_activity += p.score_activity;
@@ -489,14 +602,23 @@ function finalizeAgg(a) {
   const wars = a.wars_played || 0;
 
   a.avg_score = wars ? round(a.total_score / wars, 2) : 0;
+
+  a.avg_attacks_per_war = wars ? round(a.total_attacks / wars, 2) : 0;
+  a.avg_misses_per_war = wars ? round(a.total_misses / wars, 2) : 0;
+
   a.success_rate = pct(a.total_successful_attacks, a.total_attacks);
   a.miss_rate = pct(a.total_misses, a.total_attacks);
+
   a.avg_damage_per_war = wars ? round(a.total_damage / wars, 0) : 0;
   a.avg_damage_share_pct = wars ? round(a.avg_damage_share_pct / wars, 2) : 0;
+
   a.avg_impact = wars ? round(a.total_impact / wars, 2) : 0;
   a.avg_efficiency = wars ? round(a.total_efficiency / wars, 2) : 0;
   a.avg_activity = wars ? round(a.total_activity / wars, 2) : 0;
   a.avg_defense = wars ? round(a.total_defense_score / wars, 2) : 0;
+
+  a.avg_defense_wins_per_war = wars ? round(a.defense_wins / wars, 2) : 0;
+  a.avg_deviations_per_war = wars ? round(a.deviations / wars, 2) : 0;
 
   a.best_score = round(a.best_score, 2);
   a.worst_score = round(a.worst_score, 2);
@@ -529,7 +651,7 @@ async function main() {
   for (const item of index) {
     for (const allianceRaw of item.alliances) {
       const alliance = allianceKey(allianceRaw);
-      if (!alliance) continue;
+      if (!alliance || !ALLIANCES.includes(alliance)) continue;
 
       const file = path.join(WAR_DIR, item.date, `${alliance}.json`);
       const war = await readJsonOrNull(file);
@@ -539,7 +661,8 @@ async function main() {
       const date = String(war?.date || item.date);
       const finalAlliance = allianceKey(war?.alliance || alliance);
 
-      const players = normalizePlayers(war, playerAliases);
+      let players = normalizePlayers(war, playerAliases);
+      players = completePlayerDerivedMetrics(players);
 
       const historyWar = makeHistoryWar({
         date,
@@ -585,8 +708,8 @@ async function main() {
   await fs.mkdir(path.dirname(OUT_STATS_FILE), { recursive: true });
   await fs.mkdir(path.dirname(OUT_HISTORY_FILE), { recursive: true });
 
-  await fs.writeFile(OUT_STATS_FILE, JSON.stringify(stats, null, 2), "utf8");
-  await fs.writeFile(OUT_HISTORY_FILE, JSON.stringify(history, null, 2), "utf8");
+  await fs.writeFile(OUT_STATS_FILE, JSON.stringify(stats, null, 2) + "\n", "utf8");
+  await fs.writeFile(OUT_HISTORY_FILE, JSON.stringify(history, null, 2) + "\n", "utf8");
 
   console.log(`[war-data] Index entries: ${index.length}`);
   console.log(`[war-data] Wrote ${stats.length} player stat rows -> ${OUT_STATS_FILE}`);
