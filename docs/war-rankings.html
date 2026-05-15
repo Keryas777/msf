@@ -74,27 +74,51 @@
 
       <section class="card controlsCard">
         <div class="rankingTabs" role="tablist" aria-label="Classements disponibles">
-          <button class="rankingTab is-active" type="button" data-ranking="avg_score">📈 Note</button>
-          <button class="rankingTab" type="button" data-ranking="avg_score_gap">⚖️ Écart note</button>
-          <button class="rankingTab" type="button" data-ranking="avg_attacks">⚔️ Attaques</button>
-          <button class="rankingTab" type="button" data-ranking="avg_misses">❌ Ratés</button>
-          <button class="rankingTab" type="button" data-ranking="success_rate">🎯 Réussite</button>
-          <button class="rankingTab" type="button" data-ranking="avg_impact">🔥 Impact</button>
-          <button class="rankingTab" type="button" data-ranking="avg_damage">💥 Dégâts</button>
-          <button class="rankingTab" type="button" data-ranking="avg_damage_share">🧨 Part dégâts</button>
-          <button class="rankingTab" type="button" data-ranking="avg_defense_wins">🛡️ Défense</button>
-          <button class="rankingTab" type="button" data-ranking="avg_deviations">🧲 Bonus déf.</button>
+          <button class="rankingTab is-active" type="button" data-ranking="avg_score" aria-selected="true">📈 Note</button>
+          <button class="rankingTab" type="button" data-ranking="avg_score_gap" aria-selected="false">⚖️ Écart note</button>
+          <button class="rankingTab" type="button" data-ranking="avg_attacks" aria-selected="false">⚔️ Attaques</button>
+          <button class="rankingTab" type="button" data-ranking="avg_misses" aria-selected="false">❌ Ratés</button>
+          <button class="rankingTab" type="button" data-ranking="success_rate" aria-selected="false">🎯 Réussite</button>
+          <button class="rankingTab" type="button" data-ranking="avg_impact" aria-selected="false">🔥 Impact</button>
+          <button class="rankingTab" type="button" data-ranking="avg_damage" aria-selected="false">💥 Dégâts</button>
+          <button class="rankingTab" type="button" data-ranking="avg_damage_share" aria-selected="false">🧨 Part dégâts</button>
+          <button class="rankingTab" type="button" data-ranking="avg_defense_wins" aria-selected="false">🛡️ Défense</button>
+          <button class="rankingTab" type="button" data-ranking="avg_deviations" aria-selected="false">🧲 Bonus déf.</button>
         </div>
 
-        <div class="minWarControl">
-          <label class="label" for="minWarsSelect">Minimum de guerres</label>
-          <select id="minWarsSelect" class="select" aria-label="Minimum de guerres">
-            <option value="1">1 guerre</option>
-            <option value="2">2 guerres</option>
-            <option value="3" selected>3 guerres</option>
-            <option value="5">5 guerres</option>
-            <option value="10">10 guerres</option>
-          </select>
+        <div class="field field--range">
+          <div class="rangeHeader">
+            <span class="label">Affichage</span>
+          </div>
+
+          <div class="rangeChips" role="group" aria-label="Période affichée">
+            <button
+              class="rangeChip is-active"
+              type="button"
+              data-range="all"
+              aria-pressed="true"
+            >
+              Toutes
+            </button>
+
+            <button
+              class="rangeChip"
+              type="button"
+              data-range="last12"
+              aria-pressed="false"
+            >
+              12 guerres
+            </button>
+
+            <button
+              class="rangeChip"
+              type="button"
+              data-range="last4"
+              aria-pressed="false"
+            >
+              4 guerres
+            </button>
+          </div>
         </div>
       </section>
 
