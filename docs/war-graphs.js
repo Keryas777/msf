@@ -934,7 +934,7 @@
       </div>
 
       <div class="statPill ${impactClass(avgImpact)}">
-        <div class="statValue">${fmt(avgImpact, 1)}/35</div>
+        <div class="statValue">${fmt(avgImpact, 1)} / 35</div>
         <div class="statLabel">impact moyen</div>
       </div>
 
