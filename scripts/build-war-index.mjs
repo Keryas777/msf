@@ -4,7 +4,7 @@ import path from "path";
 const WAR_DIR = path.join(process.cwd(), "docs", "data", "war");
 const OUT_FILE = path.join(WAR_DIR, "index.json");
 
-const ALLIANCE_ORDER = ["zeus", "dionysos", "poseidon", "kronos"];
+const ALLIANCE_ORDER = ["zeus", "kronos", "dionysos", "poseidon"];
 
 function isDateFolder(name) {
   return /^\d{4}-\d{2}-\d{2}$/.test(name);
