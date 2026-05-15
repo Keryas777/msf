@@ -102,10 +102,20 @@
       { from: 0, to: 15, className: "chartBandBad" },
     ],
 
+    // Pas de palier fixe ici : les dégâts bruts dépendent trop de l'alliance, de la méta et du niveau TCP.
     damage: [],
+
     damageShare: [],
+
     defenseWins: [],
-    deviations: [],
+
+    deviations: [
+      { from: 4, to: 999, className: "chartBandExcellent" },
+      { from: 2, to: 4, className: "chartBandGood" },
+      { from: 1.5, to: 2, className: "chartBandNeutral" },
+      { from: 0.5, to: 1.5, className: "chartBandWarning" },
+      { from: 0, to: 0.5, className: "chartBandBad" },
+    ],
   };
 
   let warHistory = [];
@@ -1030,9 +1040,10 @@
         ? statsTotalDamage / statsWarsPlayed
         : avg(series, "damage");
 
-    const avgDamage = statsAvgDamage > 0 && getWarRangeMode() === "all"
-      ? statsAvgDamage
-      : avg(series, "damage") || fallbackAvgDamage;
+    const avgDamage =
+      statsAvgDamage > 0 && getWarRangeMode() === "all"
+        ? statsAvgDamage
+        : avg(series, "damage") || fallbackAvgDamage;
 
     const avgDamageShare = avg(series, "damage_share_pct");
     const avgDefenseWins = avg(series, "defense_wins");
