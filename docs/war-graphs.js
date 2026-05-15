@@ -59,13 +59,27 @@
     poseidon: "Poséidon",
   };
 
-  // Couleurs injectées directement dans le SVG : elles ne dépendent pas du CSS.
   const CHART_BAND_STYLES = {
-    chartBandExcellent: { fill: "#2dbe5f", opacity: "0.18" },
-    chartBandGood: { fill: "#afeb55", opacity: "0.15" },
-    chartBandNeutral: { fill: "#ffcd37", opacity: "0.14" },
-    chartBandWarning: { fill: "#ff7d23", opacity: "0.15" },
-    chartBandBad: { fill: "#ff4152", opacity: "0.16" },
+    chartBandExcellent: {
+      fill: "#2dbe5f",
+      opacity: "0.24",
+    },
+    chartBandGood: {
+      fill: "#afeb55",
+      opacity: "0.21",
+    },
+    chartBandNeutral: {
+      fill: "#ffcd37",
+      opacity: "0.20",
+    },
+    chartBandWarning: {
+      fill: "#ff7d23",
+      opacity: "0.21",
+    },
+    chartBandBad: {
+      fill: "#ff4152",
+      opacity: "0.23",
+    },
   };
 
   const CHART_BANDS = {
@@ -93,7 +107,6 @@
       { from: 0, to: 9, className: "chartBandBad" },
     ],
 
-    // Pas de palier validé pour les ratés pour l'instant.
     misses: [],
 
     success: [
@@ -112,7 +125,6 @@
       { from: 0, to: 15, className: "chartBandBad" },
     ],
 
-    // Pas de paliers fixes : trop dépendants du niveau, de la méta et de l'alliance.
     damage: [],
     damageShare: [],
     defenseWins: [],
@@ -352,7 +364,7 @@
   function bandStyleForClass(className) {
     return CHART_BAND_STYLES[className] || {
       fill: "#ffffff",
-      opacity: "0.08",
+      opacity: "0.10",
     };
   }
 
@@ -1205,7 +1217,7 @@
 
     if (!bands.length) return "";
 
-    return bands
+    const rects = bands
       .map((band) => {
         const from = Number(band.from);
         const to = Number(band.to);
@@ -1228,19 +1240,25 @@
 
         return `
           <rect
-            class="chartBand ${className}"
             x="${pad.left}"
             y="${top}"
             width="${plotW}"
             height="${height}"
-            fill="${style.fill}"
-            fill-opacity="${style.opacity}"
+            style="fill:${style.fill};opacity:${style.opacity};stroke:none;filter:none;mix-blend-mode:normal;"
             pointer-events="none"
             shape-rendering="crispEdges"
           ></rect>
         `;
       })
       .join("");
+
+    if (!rects.trim()) return "";
+
+    return `
+      <g class="chartBandsLayer" aria-hidden="true">
+        ${rects}
+      </g>
+    `;
   }
 
   function draw(mount, opts) {
