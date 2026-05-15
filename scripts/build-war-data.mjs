@@ -13,7 +13,7 @@ const OUT_HISTORY_FILE = process.env.OUT_HISTORY_FILE || "docs/data/war-history-
 const PLAYER_ALIASES_FILE =
   process.env.PLAYER_ALIASES_FILE || "docs/data/player-aliases.json";
 
-const ALLIANCES = ["zeus", "dionysos", "poseidon", "kronos"];
+const ALLIANCES = ["zeus", "kronos", "dionysos", "poseidon"];
 
 const ALLIANCE_LABELS = {
   zeus: "Zeus",
