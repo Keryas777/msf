@@ -13,7 +13,7 @@
 
   const $allianceSelect = document.getElementById("allianceSelect");
   const $playerSelect = document.getElementById("playerSelect");
-  const $warRangeSelect = document.getElementById("warRangeSelect");
+  const $warRangeButtons = Array.from(document.querySelectorAll(".rangeChip[data-range]"));
   const $playerTitle = document.getElementById("playerTitle");
   const $playerSubtitle = document.getElementById("playerSubtitle");
   const $warsCount = document.getElementById("warsCount");
@@ -35,7 +35,7 @@
   if (
     !$allianceSelect ||
     !$playerSelect ||
-    !$warRangeSelect ||
+    !$warRangeButtons.length ||
     !$playerTitle ||
     !$playerSubtitle ||
     !$warsCount ||
@@ -115,6 +115,7 @@
   let currentPlayersByAlliance = new Map();
 
   let lospSession = window.LoSP_SESSION || readLocalSessionPayload() || null;
+  let currentWarRange = "all";
   let authDefaultsApplied = false;
   let bootReady = false;
   let eventsBound = false;
@@ -330,13 +331,32 @@
     return String(value || "").replace(/[^a-zA-Z0-9_-]/g, "");
   }
 
-  function getWarRangeMode() {
-    const value = String($warRangeSelect.value || "all");
+  function normalizeWarRange(value) {
+    const mode = String(value || "all").trim();
 
-    if (value === "last12") return "last12";
-    if (value === "last4") return "last4";
+    if (mode === "last12") return "last12";
+    if (mode === "last4") return "last4";
 
     return "all";
+  }
+
+  function setWarRange(mode, options = {}) {
+    currentWarRange = normalizeWarRange(mode);
+
+    $warRangeButtons.forEach((button) => {
+      const isActive = normalizeWarRange(button.dataset.range) === currentWarRange;
+
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+
+    if (options.render === true) {
+      renderCharts();
+    }
+  }
+
+  function getWarRangeMode() {
+    return normalizeWarRange(currentWarRange);
   }
 
   function getWarRangeLimit() {
@@ -745,7 +765,7 @@
     console.log("[war-graphs] auth defaults applied:", {
       alliance: $allianceSelect.value,
       player: $playerSelect.value,
-      range: $warRangeSelect.value,
+      range: currentWarRange,
       session: lospSession,
     });
 
@@ -1451,11 +1471,9 @@
     const params = new URLSearchParams(window.location.search);
     const wantedAlliance = allianceKey(params.get("alliance"));
     const wantedPlayer = params.get("player");
-    const wantedRange = String(params.get("range") || "").trim();
+    const wantedRange = normalizeWarRange(params.get("range"));
 
-    if (["all", "last12", "last4"].includes(wantedRange)) {
-      $warRangeSelect.value = wantedRange;
-    }
+    setWarRange(wantedRange);
 
     if (!wantedAlliance) return false;
 
@@ -1519,18 +1537,16 @@
       renderCharts();
     });
 
-    $warRangeSelect.addEventListener("change", () => {
-      renderCharts();
-    });
-
-    $warRangeSelect.addEventListener("input", () => {
-      renderCharts();
+    $warRangeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setWarRange(button.dataset.range, { render: true });
+      });
     });
   }
 
   async function init() {
     try {
-      $warRangeSelect.value = "all";
+      setWarRange("all");
 
       await loadPlayerAliases();
       await loadWarStats();
