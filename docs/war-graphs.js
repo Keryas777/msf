@@ -909,7 +909,7 @@
 
     $summaryStats.innerHTML = `
       <div class="statPill ${scoreClass(avgScore)}">
-        <div class="statValue">${fmt(avgScore, 1)}</div>
+        <div class="statValue">${fmt(avgScore, 1)} / 100</div>
         <div class="statLabel">note moyenne</div>
       </div>
 
