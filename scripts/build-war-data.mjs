@@ -328,15 +328,19 @@ function normalizePlayers(war, aliases = new Map()) {
         name_key: nameKey,
         ...(originalName && originalName !== name ? { original_name: originalName } : {}),
         rank: p?.rank != null ? num(p.rank) : num(rankInfo?.rank),
+
         attacks,
         attack_points: attackPoints,
         successful_attacks: successful,
         misses,
+
         damage: num(p?.damage),
         avg_damage: num(p?.avg_damage),
         damage_share_pct: damageSharePct,
+
         defense_wins: num(p?.defense_wins),
         deviations: num(p?.deviations ?? p?.defense_bonus),
+
         score_total:
           p?.score_total != null
             ? round(num(p.score_total), 2)
@@ -345,6 +349,7 @@ function normalizePlayers(war, aliases = new Map()) {
         score_efficiency: round(num(p?.score_efficiency), 2),
         score_impact: round(num(p?.score_impact), 2),
         score_defense: round(num(p?.score_defense), 2),
+
         min_attacks_ok: Boolean(p?.min_attacks_ok),
         min_deviations_ok: Boolean(p?.min_deviations_ok),
       };
@@ -401,7 +406,9 @@ function warAverages(players) {
       ? round(totalDamage / playerCount, 0)
       : 0,
 
-    alliance_avg_damage_share_pct: playerCount ? round(100 / playerCount, 2) : 0,
+    alliance_avg_damage_share_pct: playerCount
+      ? round(100 / playerCount, 2)
+      : 0,
 
     alliance_avg_defense_wins: playerCount
       ? round(sum(players, (p) => p.defense_wins) / playerCount, 2)
@@ -574,14 +581,16 @@ function addAgg(a, p, date) {
   a.last_date = a.last_date && a.last_date > date ? a.last_date : date;
 
   a.total_score += p.score_total;
-  a.best_score = a.wars_played === 1 ? p.score_total : Math.max(a.best_score, p.score_total);
-  a.worst_score = a.wars_played === 1 ? p.score_total : Math.min(a.worst_score, p.score_total);
+  a.best_score =
+    a.wars_played === 1 ? p.score_total : Math.max(a.best_score, p.score_total);
+  a.worst_score =
+    a.wars_played === 1 ? p.score_total : Math.min(a.worst_score, p.score_total);
 
   a.total_attacks += p.attacks;
   a.total_successful_attacks += p.successful_attacks;
   a.total_misses += p.misses;
-  a.total_damage += p.damage;
 
+  a.total_damage += p.damage;
   a.avg_damage_share_pct += p.damage_share_pct;
 
   a.total_impact += p.score_impact;
@@ -660,6 +669,8 @@ async function main() {
 
       const date = String(war?.date || item.date);
       const finalAlliance = allianceKey(war?.alliance || alliance);
+
+      if (!finalAlliance || !ALLIANCES.includes(finalAlliance)) continue;
 
       let players = normalizePlayers(war, playerAliases);
       players = completePlayerDerivedMetrics(players);
