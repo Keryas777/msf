@@ -10,7 +10,7 @@
   const $count = document.getElementById("playersCount");
   const $rankingTitle = document.getElementById("rankingTitle");
   const $rankingHint = document.getElementById("rankingHint");
-  const $minWarsSelect = document.getElementById("minWarsSelect");
+  const $rangeButtons = Array.from(document.querySelectorAll(".rangeChip[data-range]"));
   const tabs = Array.from(document.querySelectorAll(".rankingTab"));
 
   const filters = {
@@ -25,7 +25,7 @@
     !$count ||
     !$rankingTitle ||
     !$rankingHint ||
-    !$minWarsSelect ||
+    !$rangeButtons.length ||
     !tabs.length ||
     !filters.zeus ||
     !filters.dionysos ||
@@ -127,7 +127,7 @@
   const RANKINGS = {
     avg_score: {
       title: "📈 Meilleure note moyenne",
-      hint: "Moyenne du score total par guerre.",
+      hint: "Moyenne du score total par guerre sur la période affichée.",
       field: "avg_score",
       order: "desc",
       className: (p) => classFromBands(p.avg_score, CHART_BANDS.score),
@@ -141,7 +141,7 @@
 
     avg_score_gap: {
       title: "⚖️ Meilleur écart avec la moyenne alliance",
-      hint: "Écart moyen entre la note du joueur et la note moyenne de son alliance sur chaque guerre.",
+      hint: "Écart moyen entre la note du joueur et la note moyenne de son alliance sur la période affichée.",
       field: "avg_score_gap",
       order: "desc",
       className: (p) => classFromBands(p.avg_score_gap, CHART_BANDS.scoreGap),
@@ -151,7 +151,7 @@
 
     avg_attacks: {
       title: "⚔️ Meilleure moyenne d’attaques",
-      hint: "Nombre moyen d’attaques jouées par guerre.",
+      hint: "Nombre moyen d’attaques jouées par guerre sur la période affichée.",
       field: "avg_attacks",
       order: "desc",
       className: (p) => classFromBands(p.avg_attacks, CHART_BANDS.attacks),
@@ -161,7 +161,7 @@
 
     avg_misses: {
       title: "❌ Moins de ratés par guerre",
-      hint: "Nombre moyen de ratés par guerre. Le plus bas est le meilleur.",
+      hint: "Nombre moyen de ratés par guerre sur la période affichée. Le plus bas est le meilleur.",
       field: "avg_misses",
       order: "asc",
       className: (p) => classFromBands(p.avg_misses, CHART_BANDS.misses),
@@ -175,7 +175,7 @@
 
     success_rate: {
       title: "🎯 Meilleure réussite moyenne",
-      hint: "Moyenne du pourcentage de réussite par guerre.",
+      hint: "Moyenne du pourcentage de réussite par guerre sur la période affichée.",
       field: "success_rate",
       order: "desc",
       className: (p) => classFromBands(p.success_rate, CHART_BANDS.success),
@@ -185,7 +185,7 @@
 
     avg_impact: {
       title: "🔥 Meilleur impact moyen",
-      hint: "Moyenne du score d’impact offensif par guerre.",
+      hint: "Moyenne du score d’impact offensif par guerre sur la période affichée.",
       field: "avg_impact",
       order: "desc",
       className: (p) => classFromBands(p.avg_impact, CHART_BANDS.impact),
@@ -195,7 +195,7 @@
 
     avg_damage: {
       title: "💥 Meilleurs dégâts moyens",
-      hint: "Dégâts moyens par guerre. La couleur compare le joueur à la moyenne de son alliance.",
+      hint: "Dégâts moyens par guerre sur la période affichée. La couleur compare le joueur à la moyenne de son alliance.",
       field: "avg_damage",
       order: "desc",
       className: (p) => ratioClass(p.avg_damage, p.avg_alliance_damage),
@@ -205,7 +205,7 @@
 
     avg_damage_share: {
       title: "🧨 Meilleure part des dégâts alliance",
-      hint: "Part moyenne des dégâts de l’alliance apportée par le joueur.",
+      hint: "Part moyenne des dégâts de l’alliance apportée par le joueur sur la période affichée.",
       field: "avg_damage_share",
       order: "desc",
       className: (p) => classFromBands(p.avg_damage_share, CHART_BANDS.damageShare),
@@ -215,7 +215,7 @@
 
     avg_defense_wins: {
       title: "🛡️ Meilleures victoires défense",
-      hint: "Moyenne de victoires en défense par guerre.",
+      hint: "Moyenne de victoires en défense par guerre sur la période affichée.",
       field: "avg_defense_wins",
       order: "desc",
       className: (p) => classFromBands(p.avg_defense_wins, CHART_BANDS.defenseWins),
@@ -226,7 +226,7 @@
 
     avg_deviations: {
       title: "🧲 Meilleur bonus défensif posé",
-      hint: "Moyenne de déviations / bonus défensifs posés par guerre.",
+      hint: "Moyenne de déviations / bonus défensifs posés par guerre sur la période affichée.",
       field: "avg_deviations",
       order: "desc",
       className: (p) => classFromBands(p.avg_deviations, CHART_BANDS.deviations),
@@ -236,10 +236,12 @@
     },
   };
 
+  let allWarHistory = [];
   let allPlayers = [];
   let avatarByPlayer = new Map();
   let playerAliases = new Map();
   let currentRanking = "avg_score";
+  let currentRange = "all";
 
   function bust(url) {
     const u = new URL(url, window.location.href);
@@ -419,6 +421,76 @@
   function enabled(key) {
     if (!key) return true;
     return filters[key]?.checked !== false;
+  }
+
+  function normalizeRange(value) {
+    const mode = String(value || "all").trim();
+
+    if (mode === "last12") return "last12";
+    if (mode === "last4") return "last4";
+
+    return "all";
+  }
+
+  function getRangeLimit() {
+    if (currentRange === "last12") return 12;
+    if (currentRange === "last4") return 4;
+
+    return 0;
+  }
+
+  function getRangeLabel() {
+    if (currentRange === "last12") return "12 dernières guerres";
+    if (currentRange === "last4") return "4 dernières guerres";
+
+    return "toutes les guerres";
+  }
+
+  function setRange(mode) {
+    currentRange = normalizeRange(mode);
+
+    $rangeButtons.forEach((button) => {
+      const isActive = normalizeRange(button.dataset.range) === currentRange;
+
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+
+    rebuildRankingData();
+  }
+
+  function applyHistoryRange(history) {
+    const rows = Array.isArray(history) ? history.slice() : [];
+    const limit = getRangeLimit();
+
+    if (!limit) return rows;
+
+    const byAlliance = new Map();
+
+    rows.forEach((war) => {
+      const alliance = normAlliance(war?.alliance);
+
+      if (!alliance) return;
+
+      if (!byAlliance.has(alliance)) {
+        byAlliance.set(alliance, []);
+      }
+
+      byAlliance.get(alliance).push(war);
+    });
+
+    return Array.from(byAlliance.values()).flatMap((wars) => {
+      return wars
+        .slice()
+        .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")))
+        .slice(-limit);
+    });
+  }
+
+  function rebuildRankingData() {
+    const rangedHistory = applyHistoryRange(allWarHistory);
+    allPlayers = buildPlayersFromHistory(rangedHistory);
+    apply();
   }
 
   async function loadPlayerAliases() {
@@ -717,13 +789,13 @@
     const config = RANKINGS[currentRanking];
 
     $rankingTitle.textContent = config.title;
-    $rankingHint.textContent = config.hint;
+    $rankingHint.textContent = `${config.hint} • ${getRangeLabel()}.`;
     $count.textContent = String(rows.length);
 
     if (!rows.length) {
       $players.innerHTML = `
         <div class="emptyState">
-          Aucun joueur ne correspond aux filtres ou au minimum de guerres sélectionné.
+          Aucun joueur ne correspond aux filtres ou à la période sélectionnée.
         </div>
       `;
       return;
@@ -766,14 +838,12 @@
   }
 
   function apply() {
-    const minWars = Number($minWarsSelect.value || 1);
     const config = RANKINGS[currentRanking];
 
     const rows = allPlayers.filter((p) => {
       const key = normAlliance(p.alliance);
 
       if (!enabled(key)) return false;
-      if (Number(p.wars_played || 0) < minWars) return false;
 
       if (
         (currentRanking === "success_rate" || currentRanking === "avg_misses") &&
@@ -808,7 +878,11 @@
       cb?.addEventListener("change", apply);
     });
 
-    $minWarsSelect.addEventListener("change", apply);
+    $rangeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setRange(button.dataset.range);
+      });
+    });
 
     tabs.forEach((tab) => {
       tab.addEventListener("click", () => setRanking(tab.dataset.ranking));
@@ -821,9 +895,15 @@
       await loadPlayerAvatars();
 
       const history = await fetchJson(FILES.history);
-      allPlayers = buildPlayersFromHistory(history);
+
+      if (!Array.isArray(history)) {
+        throw new Error("war-history-lite.json is not an array");
+      }
+
+      allWarHistory = history.slice();
 
       bindEvents();
+      setRange("all");
       setRanking(currentRanking);
     } catch (error) {
       console.error("[war-rankings] init error:", error);
