@@ -68,30 +68,129 @@
 
       <section class="chartGrid">
         <article class="card chartCard">
-          <div class="chartHeader"><h2 class="cardTitle">📈 Note vs moyenne alliance</h2><div class="chartLegend"><span><i class="legendPlayer"></i>Joueur</span><span><i class="legendAlliance"></i>Moyenne</span></div></div>
+          <div class="chartHeader">
+            <h2 class="cardTitle">📈 Note moyenne / 100</h2>
+            <div class="chartLegend">
+              <span><i class="legendPlayer"></i>Joueur</span>
+              <span><i class="legendAlliance"></i>Moyenne</span>
+            </div>
+          </div>
           <div id="chartScore" class="chartMount"></div>
         </article>
+
         <article class="card chartCard">
-          <div class="chartHeader"><h2 class="cardTitle">🎯 Réussite vs moyenne alliance</h2><div class="chartLegend"><span><i class="legendPlayer"></i>Joueur</span><span><i class="legendAlliance"></i>Moyenne</span></div></div>
+          <div class="chartHeader">
+            <h2 class="cardTitle">⚖️ Écart avec la note moyenne</h2>
+            <div class="chartLegend">
+              <span><i class="legendPlayer"></i>Joueur</span>
+              <span><i class="legendAlliance"></i>Moyenne</span>
+            </div>
+          </div>
+          <div id="chartScoreGap" class="chartMount"></div>
+        </article>
+
+        <article class="card chartCard">
+          <div class="chartHeader">
+            <h2 class="cardTitle">⚔️ Moyenne d’attaques / guerre</h2>
+            <div class="chartLegend">
+              <span><i class="legendPlayer"></i>Joueur</span>
+              <span><i class="legendAlliance"></i>Moyenne</span>
+            </div>
+          </div>
+          <div id="chartAttacks" class="chartMount"></div>
+        </article>
+
+        <article class="card chartCard">
+          <div class="chartHeader">
+            <h2 class="cardTitle">❌ Moyenne de ratés / guerre</h2>
+            <div class="chartLegend">
+              <span><i class="legendPlayer"></i>Joueur</span>
+              <span><i class="legendAlliance"></i>Moyenne</span>
+            </div>
+          </div>
+          <div id="chartMisses" class="chartMount"></div>
+        </article>
+
+        <article class="card chartCard">
+          <div class="chartHeader">
+            <h2 class="cardTitle">🎯 Réussite moyenne</h2>
+            <div class="chartLegend">
+              <span><i class="legendPlayer"></i>Joueur</span>
+              <span><i class="legendAlliance"></i>Moyenne</span>
+            </div>
+          </div>
           <div id="chartSuccess" class="chartMount"></div>
         </article>
+
         <article class="card chartCard">
-          <div class="chartHeader"><h2 class="cardTitle">🔥 Impact vs moyenne alliance</h2><div class="chartLegend"><span><i class="legendPlayer"></i>Joueur</span><span><i class="legendAlliance"></i>Moyenne</span></div></div>
+          <div class="chartHeader">
+            <h2 class="cardTitle">🔥 Impact moyen / 35</h2>
+            <div class="chartLegend">
+              <span><i class="legendPlayer"></i>Joueur</span>
+              <span><i class="legendAlliance"></i>Moyenne</span>
+            </div>
+          </div>
           <div id="chartImpact" class="chartMount"></div>
         </article>
+
         <article class="card chartCard">
-          <div class="chartHeader"><h2 class="cardTitle">💥 Damage share %</h2><div class="chartLegend"><span><i class="legendPlayer"></i>Joueur</span><span><i class="legendAlliance"></i>Moy. théorique</span></div></div>
+          <div class="chartHeader">
+            <h2 class="cardTitle">💥 Dégâts moyens / guerre</h2>
+            <div class="chartLegend">
+              <span><i class="legendPlayer"></i>Joueur</span>
+              <span><i class="legendAlliance"></i>Moyenne</span>
+            </div>
+          </div>
+          <div id="chartDamage" class="chartMount"></div>
+        </article>
+
+        <article class="card chartCard">
+          <div class="chartHeader">
+            <h2 class="cardTitle">🧨 Part moyenne des dégâts alliance</h2>
+            <div class="chartLegend">
+              <span><i class="legendPlayer"></i>Joueur</span>
+              <span><i class="legendAlliance"></i>Moyenne</span>
+            </div>
+          </div>
           <div id="chartDamageShare" class="chartMount"></div>
+        </article>
+
+        <article class="card chartCard">
+          <div class="chartHeader">
+            <h2 class="cardTitle">🛡️ Victoires défense / guerre</h2>
+            <div class="chartLegend">
+              <span><i class="legendPlayer"></i>Joueur</span>
+              <span><i class="legendAlliance"></i>Moyenne</span>
+            </div>
+          </div>
+          <div id="chartDefenseWins" class="chartMount"></div>
+        </article>
+
+        <article class="card chartCard">
+          <div class="chartHeader">
+            <h2 class="cardTitle">🧲 Bonus défensif posé / guerre</h2>
+            <div class="chartLegend">
+              <span><i class="legendPlayer"></i>Joueur</span>
+              <span><i class="legendAlliance"></i>Moyenne</span>
+            </div>
+          </div>
+          <div id="chartDeviations" class="chartMount"></div>
         </article>
       </section>
     </div>
 
     <script>
       (function () {
-        document.querySelectorAll(".backBtn").forEach((btn) => btn.addEventListener("click", () => history.back()));
-        document.querySelectorAll('link[rel="stylesheet"]').forEach((l) => {
-          if (l.href.includes("v=ts")) l.href = l.href.replace("v=ts", "v=" + Date.now());
+        document.querySelectorAll(".backBtn").forEach((btn) => {
+          btn.addEventListener("click", () => history.back());
         });
+
+        document.querySelectorAll('link[rel="stylesheet"]').forEach((l) => {
+          if (l.href.includes("v=ts")) {
+            l.href = l.href.replace("v=ts", "v=" + Date.now());
+          }
+        });
+
         const s = document.createElement("script");
         s.src = "./war-graphs.js?v=" + Date.now();
         s.defer = true;
