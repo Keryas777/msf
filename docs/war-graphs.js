@@ -13,6 +13,7 @@
 
   const $allianceSelect = document.getElementById("allianceSelect");
   const $playerSelect = document.getElementById("playerSelect");
+  const $warRangeSelect = document.getElementById("warRangeSelect");
   const $playerTitle = document.getElementById("playerTitle");
   const $playerSubtitle = document.getElementById("playerSubtitle");
   const $warsCount = document.getElementById("warsCount");
@@ -34,6 +35,7 @@
   if (
     !$allianceSelect ||
     !$playerSelect ||
+    !$warRangeSelect ||
     !$playerTitle ||
     !$playerSubtitle ||
     !$warsCount ||
@@ -326,6 +328,44 @@
 
   function cleanClassName(value) {
     return String(value || "").replace(/[^a-zA-Z0-9_-]/g, "");
+  }
+
+  function getWarRangeMode() {
+    const value = String($warRangeSelect.value || "all");
+
+    if (value === "last12") return "last12";
+    if (value === "last4") return "last4";
+
+    return "all";
+  }
+
+  function getWarRangeLimit() {
+    const mode = getWarRangeMode();
+
+    if (mode === "last12") return 12;
+    if (mode === "last4") return 4;
+
+    return 0;
+  }
+
+  function getWarRangeLabel() {
+    const mode = getWarRangeMode();
+
+    if (mode === "last12") return "12 dernières guerres";
+    if (mode === "last4") return "4 dernières guerres";
+
+    return "toutes les guerres";
+  }
+
+  function applyWarRange(series) {
+    const rows = Array.isArray(series) ? series.slice() : [];
+    const limit = getWarRangeLimit();
+
+    if (!limit || rows.length <= limit) {
+      return rows;
+    }
+
+    return rows.slice(-limit);
   }
 
   // ---------- Stat color classes ----------
@@ -705,6 +745,7 @@
     console.log("[war-graphs] auth defaults applied:", {
       alliance: $allianceSelect.value,
       player: $playerSelect.value,
+      range: $warRangeSelect.value,
       session: lospSession,
     });
 
@@ -934,8 +975,9 @@
       : 0;
   }
 
-  function renderSummary(series, playerName, alliance) {
+  function renderSummary(series, playerName, alliance, totalWars = 0) {
     const wars = series.length;
+    const allWars = Number(totalWars || wars);
     const allianceKeyValue = allianceKey(alliance);
     const emoji = EMOJI[allianceKeyValue] || "👤";
     const allianceLabel = LABEL[allianceKeyValue] || "Alliance";
@@ -968,7 +1010,9 @@
         ? statsTotalDamage / statsWarsPlayed
         : avg(series, "damage");
 
-    const avgDamage = statsAvgDamage > 0 ? statsAvgDamage : fallbackAvgDamage;
+    const avgDamage = statsAvgDamage > 0 && getWarRangeMode() === "all"
+      ? statsAvgDamage
+      : avg(series, "damage") || fallbackAvgDamage;
 
     const avgDamageShare = avg(series, "damage_share_pct");
     const avgDefenseWins = avg(series, "defense_wins");
@@ -986,8 +1030,15 @@
       </div>
     `;
 
-    $playerSubtitle.textContent =
-      `${allianceLabel} • ${wars} guerre${wars > 1 ? "s" : ""} analysée${wars > 1 ? "s" : ""}`;
+    const pluralWars = wars > 1 ? "guerres analysées" : "guerre analysée";
+
+    if (allWars > wars) {
+      $playerSubtitle.textContent =
+        `${allianceLabel} • ${getWarRangeLabel()} • ${wars}/${allWars} guerres`;
+    } else {
+      $playerSubtitle.textContent =
+        `${allianceLabel} • ${wars} ${pluralWars}`;
+    }
 
     $summaryStats.innerHTML = `
       <div class="statPill ${scoreClass(avgScore)}">
@@ -1277,9 +1328,11 @@
   function renderCharts() {
     const alliance = $allianceSelect.value;
     const player = $playerSelect.value;
-    const series = seriesForPlayer(alliance, player);
 
-    renderSummary(series, player, alliance);
+    const fullSeries = seriesForPlayer(alliance, player);
+    const series = applyWarRange(fullSeries);
+
+    renderSummary(series, player, alliance, fullSeries.length);
 
     if (!series.length) {
       Object.values(mounts).forEach((m) => emptyChart(m, "Aucune donnée disponible."));
@@ -1398,6 +1451,11 @@
     const params = new URLSearchParams(window.location.search);
     const wantedAlliance = allianceKey(params.get("alliance"));
     const wantedPlayer = params.get("player");
+    const wantedRange = String(params.get("range") || "").trim();
+
+    if (["all", "last12", "last4"].includes(wantedRange)) {
+      $warRangeSelect.value = wantedRange;
+    }
 
     if (!wantedAlliance) return false;
 
@@ -1460,10 +1518,20 @@
       saveStoredPlayerForAlliance($allianceSelect.value, $playerSelect.value);
       renderCharts();
     });
+
+    $warRangeSelect.addEventListener("change", () => {
+      renderCharts();
+    });
+
+    $warRangeSelect.addEventListener("input", () => {
+      renderCharts();
+    });
   }
 
   async function init() {
     try {
+      $warRangeSelect.value = "all";
+
       await loadPlayerAliases();
       await loadWarStats();
       await loadCurrentPlayers();
