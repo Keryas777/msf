@@ -521,6 +521,33 @@ body::after{
   display:block;
 }
 
+/* ===== Zones colorées des graphiques ===== */
+.chartBand{
+  pointer-events:none;
+  opacity:.62;
+  shape-rendering:crispEdges;
+}
+
+.chartBandExcellent{
+  fill:rgba(45,190,95,.18);
+}
+
+.chartBandGood{
+  fill:rgba(175,235,85,.15);
+}
+
+.chartBandNeutral{
+  fill:rgba(255,205,55,.14);
+}
+
+.chartBandWarning{
+  fill:rgba(255,125,35,.15);
+}
+
+.chartBandBad{
+  fill:rgba(255,65,82,.16);
+}
+
 .chartGridLine{
   stroke:var(--grid);
   stroke-width:1;
