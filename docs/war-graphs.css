@@ -590,8 +590,14 @@ body::after{
 }
 
 /* ===== Zones colorées des graphiques ===== */
-/* Les couleurs sont maintenant aussi injectées inline dans le SVG côté JS.
-   Ce bloc reste en fallback et pour compatibilité visuelle. */
+.chartBandsLayer rect{
+  stroke:none!important;
+  filter:none!important;
+  mix-blend-mode:normal!important;
+  pointer-events:none!important;
+  shape-rendering:crispEdges;
+}
+
 .chartBand{
   pointer-events:none;
   opacity:.62;
@@ -599,23 +605,23 @@ body::after{
 }
 
 .chartBandExcellent{
-  fill:rgba(45,190,95,.18);
+  fill:rgba(45,190,95,.24);
 }
 
 .chartBandGood{
-  fill:rgba(175,235,85,.15);
+  fill:rgba(175,235,85,.21);
 }
 
 .chartBandNeutral{
-  fill:rgba(255,205,55,.14);
+  fill:rgba(255,205,55,.20);
 }
 
 .chartBandWarning{
-  fill:rgba(255,125,35,.15);
+  fill:rgba(255,125,35,.21);
 }
 
 .chartBandBad{
-  fill:rgba(255,65,82,.16);
+  fill:rgba(255,65,82,.23);
 }
 
 .chartGridLine{
