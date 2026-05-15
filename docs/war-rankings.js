@@ -4,6 +4,7 @@
     history: "./data/war-history-lite.json",
     infos: "./data/infos.json",
     aliases: "./data/player-aliases.json",
+    joueurs: "./data/joueurs.json",
   };
 
   const $players = document.getElementById("players");
@@ -240,6 +241,7 @@
   let allPlayers = [];
   let avatarByPlayer = new Map();
   let playerAliases = new Map();
+  let currentPlayersByAlliance = new Map();
   let currentRanking = "avg_score";
   let currentRange = "all";
 
@@ -534,6 +536,52 @@
     }
   }
 
+  async function loadCurrentPlayers() {
+    try {
+      const data = await fetchJson(FILES.joueurs);
+
+      if (!Array.isArray(data)) {
+        throw new Error("joueurs.json is not an array");
+      }
+
+      currentPlayersByAlliance = new Map();
+
+      data.forEach((row) => {
+        const alliance = normAlliance(row?.alliance);
+        const playerName = canonicalPlayerName(row?.player || row?.name || "");
+        const key = playerKey(playerName);
+
+        if (!alliance || !key) return;
+
+        if (!currentPlayersByAlliance.has(alliance)) {
+          currentPlayersByAlliance.set(alliance, new Set());
+        }
+
+        currentPlayersByAlliance.get(alliance).add(key);
+      });
+
+      console.log("[war-rankings] current players loaded:", {
+        zeus: currentPlayersByAlliance.get("zeus")?.size || 0,
+        dionysos: currentPlayersByAlliance.get("dionysos")?.size || 0,
+        poseidon: currentPlayersByAlliance.get("poseidon")?.size || 0,
+        kronos: currentPlayersByAlliance.get("kronos")?.size || 0,
+      });
+    } catch (error) {
+      console.warn("[war-rankings] current players unavailable, no current-player filter:", error);
+      currentPlayersByAlliance = new Map();
+    }
+  }
+
+  function isCurrentPlayerInAlliance(playerName, alliance) {
+    const allianceKey = normAlliance(alliance);
+    const key = playerKey(playerName);
+    const set = currentPlayersByAlliance.get(allianceKey);
+
+    if (!set || !set.size) return true;
+
+    return set.has(key);
+  }
+
   async function loadPlayerAvatars() {
     try {
       const data = await fetchJson(FILES.infos);
@@ -648,6 +696,7 @@
         const key = statKey(alliance, name);
 
         if (!key || !name) return;
+        if (!isCurrentPlayerInAlliance(name, alliance)) return;
 
         if (!groups.has(key)) {
           groups.set(key, makeEmptyGroup(alliance, name));
@@ -892,6 +941,7 @@
   async function init() {
     try {
       await loadPlayerAliases();
+      await loadCurrentPlayers();
       await loadPlayerAvatars();
 
       const history = await fetchJson(FILES.history);
