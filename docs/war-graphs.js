@@ -59,27 +59,13 @@
     poseidon: "Poséidon",
   };
 
+  // Couleurs injectées directement dans le SVG : elles ne dépendent pas du CSS.
   const CHART_BAND_STYLES = {
-    chartBandExcellent: {
-      fill: "rgba(45,190,95,.18)",
-      opacity: 0.62,
-    },
-    chartBandGood: {
-      fill: "rgba(175,235,85,.15)",
-      opacity: 0.62,
-    },
-    chartBandNeutral: {
-      fill: "rgba(255,205,55,.14)",
-      opacity: 0.62,
-    },
-    chartBandWarning: {
-      fill: "rgba(255,125,35,.15)",
-      opacity: 0.62,
-    },
-    chartBandBad: {
-      fill: "rgba(255,65,82,.16)",
-      opacity: 0.62,
-    },
+    chartBandExcellent: { fill: "#2dbe5f", opacity: "0.18" },
+    chartBandGood: { fill: "#afeb55", opacity: "0.15" },
+    chartBandNeutral: { fill: "#ffcd37", opacity: "0.14" },
+    chartBandWarning: { fill: "#ff7d23", opacity: "0.15" },
+    chartBandBad: { fill: "#ff4152", opacity: "0.16" },
   };
 
   const CHART_BANDS = {
@@ -107,13 +93,8 @@
       { from: 0, to: 9, className: "chartBandBad" },
     ],
 
-    misses: [
-      { from: 0, to: 0.5, className: "chartBandExcellent" },
-      { from: 0.5, to: 1.5, className: "chartBandGood" },
-      { from: 1.5, to: 2.5, className: "chartBandNeutral" },
-      { from: 2.5, to: 3.5, className: "chartBandWarning" },
-      { from: 3.5, to: 999, className: "chartBandBad" },
-    ],
+    // Pas de palier validé pour les ratés pour l'instant.
+    misses: [],
 
     success: [
       { from: 90, to: 100, className: "chartBandExcellent" },
@@ -131,23 +112,10 @@
       { from: 0, to: 15, className: "chartBandBad" },
     ],
 
+    // Pas de paliers fixes : trop dépendants du niveau, de la méta et de l'alliance.
     damage: [],
-
-    damageShare: [
-      { from: 5.5, to: 999, className: "chartBandExcellent" },
-      { from: 4.5, to: 5.5, className: "chartBandGood" },
-      { from: 3.5, to: 4.5, className: "chartBandNeutral" },
-      { from: 2.5, to: 3.5, className: "chartBandWarning" },
-      { from: 0, to: 2.5, className: "chartBandBad" },
-    ],
-
-    defenseWins: [
-      { from: 4, to: 999, className: "chartBandExcellent" },
-      { from: 2, to: 4, className: "chartBandGood" },
-      { from: 1, to: 2, className: "chartBandNeutral" },
-      { from: 0.5, to: 1, className: "chartBandWarning" },
-      { from: 0, to: 0.5, className: "chartBandBad" },
-    ],
+    damageShare: [],
+    defenseWins: [],
 
     deviations: [
       { from: 4, to: 999, className: "chartBandExcellent" },
@@ -170,6 +138,7 @@
   let bootReady = false;
   let eventsBound = false;
 
+  // ---------- Auth session ----------
   function decodeBase64UrlJson(value) {
     try {
       const base64 = String(value || "")
@@ -233,6 +202,7 @@
     tryApplyAuthDefaults({ force: true });
   });
 
+  // ---------- Utils ----------
   function bust(url) {
     const u = new URL(url, window.location.href);
     u.searchParams.set("v", Date.now().toString());
@@ -381,8 +351,8 @@
 
   function bandStyleForClass(className) {
     return CHART_BAND_STYLES[className] || {
-      fill: "rgba(255,255,255,.08)",
-      opacity: 0.55,
+      fill: "#ffffff",
+      opacity: "0.08",
     };
   }
 
@@ -443,6 +413,7 @@
     return rows.slice(-limit);
   }
 
+  // ---------- Stat color classes ----------
   function scoreClass(value) {
     const n = Number(value || 0);
 
@@ -498,6 +469,7 @@
     return "statGapBad";
   }
 
+  // ---------- Aliases ----------
   async function loadPlayerAliases() {
     try {
       const data = await fetchJson(FILES.aliases);
@@ -540,6 +512,7 @@
     }
   }
 
+  // ---------- War stats ----------
   async function loadWarStats() {
     try {
       const data = await fetchJson(FILES.stats);
@@ -571,6 +544,7 @@
     }
   }
 
+  // ---------- Current players ----------
   async function loadCurrentPlayers() {
     try {
       const data = await fetchJson(FILES.joueurs);
@@ -617,6 +591,7 @@
     return set.has(key);
   }
 
+  // ---------- Auth helpers ----------
   function getSessionAlliancePreferenceKeys() {
     if (!hasUsableSession(lospSession)) return [];
 
@@ -822,6 +797,7 @@
     return true;
   }
 
+  // ---------- Avatars ----------
   async function loadPlayerAvatars() {
     try {
       const data = await fetchJson(FILES.infos);
@@ -881,6 +857,7 @@
     `;
   }
 
+  // ---------- Data helpers ----------
   function playersForAlliance(alliance) {
     const a = allianceKey(alliance);
     const map = new Map();
@@ -926,6 +903,8 @@
   function seriesForPlayer(alliance, playerName) {
     const a = allianceKey(alliance);
     const wantedKey = playerKey(playerName);
+
+    if (!a || !wantedKey) return [];
 
     return warHistory
       .filter((w) => allianceKey(w.alliance) === a)
