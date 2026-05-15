@@ -127,113 +127,93 @@
 
   const RANKINGS = {
     avg_score: {
-      title: "📈 Meilleure note moyenne",
+      title: "📈 Note moyenne",
       hint: "Moyenne du score total par guerre sur la période affichée.",
       field: "avg_score",
       order: "desc",
       className: (p) => classFromBands(p.avg_score, CHART_BANDS.score),
       main: (p) => `${fmt(p.avg_score, 1)} / 100`,
-      sub: (p) =>
-        `${p.wars_played} guerre${p.wars_played > 1 ? "s" : ""} • meilleur ${fmt(
-          p.best_score,
-          0
-        )}`,
     },
 
     avg_score_gap: {
-      title: "⚖️ Meilleur écart avec la moyenne alliance",
+      title: "⚖️ Écart avec la note moyenne de l'alliance",
       hint: "Écart moyen entre la note du joueur et la note moyenne de son alliance sur la période affichée.",
       field: "avg_score_gap",
       order: "desc",
       className: (p) => classFromBands(p.avg_score_gap, CHART_BANDS.scoreGap),
       main: (p) => signedFmt(p.avg_score_gap, 1),
-      sub: (p) => `moy. alliance ${fmt(p.avg_alliance_score, 1)} / 100`,
     },
 
     avg_attacks: {
-      title: "⚔️ Meilleure moyenne d’attaques",
+      title: "⚔️ Moyenne du nombre d’attaques / GA",
       hint: "Nombre moyen d’attaques jouées par guerre sur la période affichée.",
       field: "avg_attacks",
       order: "desc",
       className: (p) => classFromBands(p.avg_attacks, CHART_BANDS.attacks),
       main: (p) => fmt(p.avg_attacks, 1),
-      sub: (p) => `${p.total_attacks} attaques totales`,
     },
 
     avg_misses: {
-      title: "❌ Moins de ratés par guerre",
+      title: "❌ Moyenne du nombre de ratés / GA",
       hint: "Nombre moyen de ratés par guerre sur la période affichée. Le plus bas est le meilleur.",
       field: "avg_misses",
       order: "asc",
       className: (p) => classFromBands(p.avg_misses, CHART_BANDS.misses),
       main: (p) => fmt(p.avg_misses, 1),
-      sub: (p) =>
-        `${p.total_misses} raté${p.total_misses > 1 ? "s" : ""} • ${fmt(
-          p.success_rate,
-          1
-        )} % réussite`,
     },
 
     success_rate: {
-      title: "🎯 Meilleure réussite moyenne",
+      title: "🎯 Pourcentage de réussite moyen",
       hint: "Moyenne du pourcentage de réussite par guerre sur la période affichée.",
       field: "success_rate",
       order: "desc",
       className: (p) => classFromBands(p.success_rate, CHART_BANDS.success),
       main: (p) => `${fmt(p.success_rate, 1)} %`,
-      sub: (p) => `${p.total_successful_attacks}/${p.total_attacks} attaques réussies`,
     },
 
     avg_impact: {
-      title: "🔥 Meilleur impact moyen",
+      title: "🔥 Score d'impact moyen",
       hint: "Moyenne du score d’impact offensif par guerre sur la période affichée.",
       field: "avg_impact",
       order: "desc",
       className: (p) => classFromBands(p.avg_impact, CHART_BANDS.impact),
       main: (p) => `${fmt(p.avg_impact, 1)} / 35`,
-      sub: (p) => `${compact(p.avg_damage)} dégâts moyens / guerre`,
     },
 
     avg_damage: {
-      title: "💥 Meilleurs dégâts moyens",
+      title: "💥 Dégâts moyens par GA",
       hint: "Dégâts moyens par guerre sur la période affichée. La couleur compare le joueur à la moyenne de son alliance.",
       field: "avg_damage",
       order: "desc",
       className: (p) => ratioClass(p.avg_damage, p.avg_alliance_damage),
       main: (p) => compact(p.avg_damage),
-      sub: (p) => `moy. alliance ${compact(p.avg_alliance_damage)}`,
     },
 
     avg_damage_share: {
-      title: "🧨 Meilleure part des dégâts alliance",
+      title: "🧨 Part moyenne des dégâts de l'alliance",
       hint: "Part moyenne des dégâts de l’alliance apportée par le joueur sur la période affichée.",
       field: "avg_damage_share",
       order: "desc",
       className: (p) => classFromBands(p.avg_damage_share, CHART_BANDS.damageShare),
       main: (p) => `${fmt(p.avg_damage_share, 1)} %`,
-      sub: (p) => `${compact(p.avg_damage)} dégâts moyens / guerre`,
     },
 
     avg_defense_wins: {
-      title: "🛡️ Meilleures victoires défense",
+      title: "🛡️ Moyenne de victoires défensives par GA",
       hint: "Moyenne de victoires en défense par guerre sur la période affichée.",
       field: "avg_defense_wins",
       order: "desc",
       className: (p) => classFromBands(p.avg_defense_wins, CHART_BANDS.defenseWins),
       main: (p) => fmt(p.avg_defense_wins, 1),
-      sub: (p) =>
-        `${p.defense_wins} victoire${p.defense_wins > 1 ? "s" : ""} défense au total`,
     },
 
     avg_deviations: {
-      title: "🧲 Meilleur bonus défensif posé",
+      title: "🧲 Moyenne des déviations posées par GA",
       hint: "Moyenne de déviations / bonus défensifs posés par guerre sur la période affichée.",
       field: "avg_deviations",
       order: "desc",
       className: (p) => classFromBands(p.avg_deviations, CHART_BANDS.deviations),
       main: (p) => fmt(p.avg_deviations, 1),
-      sub: (p) =>
-        `${p.deviations} déviation${p.deviations > 1 ? "s" : ""} au total`,
     },
   };
 
@@ -262,7 +242,7 @@
       .trim()
       .toLowerCase()
       .replace(/\s+/g, "")
-      .replace(/[-_‐-‒–—―﹘﹣－]/g, "")
+      .replace(/[\-_\u2010-\u2015\uFE58\uFE63\uFF0D]/g, "")
       .replace(/[’'`´]/g, "")
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
@@ -341,10 +321,7 @@
     if (!Number.isFinite(n) || n <= 0) return "0";
 
     if (n >= 1_000_000_000) {
-      return `${String(Math.round((n / 1_000_000_000) * 10) / 10).replace(
-        ".",
-        ","
-      )} Md`;
+      return `${String(Math.round((n / 1_000_000_000) * 10) / 10).replace(".", ",")} Md`;
     }
 
     if (n >= 1_000_000) {
@@ -573,9 +550,9 @@
   }
 
   function isCurrentPlayerInAlliance(playerName, alliance) {
-    const allianceKey = normAlliance(alliance);
+    const allianceK = normAlliance(alliance);
     const key = playerKey(playerName);
-    const set = currentPlayersByAlliance.get(allianceKey);
+    const set = currentPlayersByAlliance.get(allianceK);
 
     if (!set || !set.size) return true;
 
@@ -866,19 +843,20 @@
             </div>
 
             <div class="rankCenter">
-              <div class="rankMainLine">
-                <div class="rankEmoji" aria-label="${esc(alliance)}">${emoji}</div>
-                <div class="rankName" title="${nameSafe}">${nameSafe}</div>
+              <div class="rankName" title="${nameSafe}">${nameSafe}</div>
+
+              <div class="rankAllianceLine">
+                <span class="rankAllianceEmoji" aria-label="${esc(alliance)}">${emoji}</span>
+                <span class="rankAllianceName">${esc(alliance)}</span>
               </div>
 
-              <div class="rankMeta">
-                ${esc(alliance)} • ${p.wars_played} guerre${p.wars_played > 1 ? "s" : ""}
+              <div class="rankWarsLine">
+                ${p.wars_played} guerre${p.wars_played > 1 ? "s" : ""}
               </div>
             </div>
 
             <div class="rankPower ${valueClass}">
-              <div>${esc(config.main(p))}</div>
-              <div class="rankSubValue">${esc(config.sub(p))}</div>
+              <div class="rankMainValue">${esc(config.main(p))}</div>
             </div>
           </div>
         `;
