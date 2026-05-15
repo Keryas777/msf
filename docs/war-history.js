@@ -12,6 +12,15 @@ const headerSortButtons = Array.from(document.querySelectorAll(".warHistoryHeadB
 const tabButtons = Array.from(document.querySelectorAll(".warHistoryTabBtn"));
 const tabPanels = Array.from(document.querySelectorAll(".warHistoryTabPanel"));
 
+const ALLIANCE_ORDER = ["zeus", "dionysos", "poseidon", "kronos"];
+
+const ALLIANCE_LABELS = {
+  zeus: "⚡️ Zeus",
+  dionysos: "🍇 Dionysos",
+  poseidon: "🔱 Poséidon",
+  kronos: "⏳ Kronos"
+};
+
 let warIndex = null;
 let currentPlayers = [];
 let originalPlayers = [];
@@ -41,7 +50,7 @@ async function init() {
 
 async function loadIndex() {
   const url = "./data/war/index.json?v=" + Date.now();
-  const res = await fetch(url);
+  const res = await fetch(url, { cache: "no-store" });
 
   if (!res.ok) {
     throw new Error("Impossible de charger " + url + " (" + res.status + ")");
@@ -89,24 +98,40 @@ function getPanelIdFromTab(tabName) {
 }
 
 function setupAllianceSelect() {
-  const alliances = Array.isArray(warIndex?.alliances) ? warIndex.alliances : [];
-
-  const emojiMap = {
-    zeus: "⚡️ Zeus",
-    dionysos: "🍇 Dionysos",
-    poseidon: "🔱 Poséidon"
-  };
+  const alliances = getAvailableAlliances();
 
   allianceSelect.innerHTML =
     `<option value="">Alliance</option>` +
     alliances.map((alliance) => {
-      const label = emojiMap[alliance] || capitalize(alliance);
-      return `<option value="${escapeHtml(alliance)}">${label}</option>`;
+      const label = getAllianceDisplayName(alliance);
+      return `<option value="${escapeHtml(alliance)}">${escapeHtml(label)}</option>`;
     }).join("");
 
   allianceSelect.addEventListener("change", () => {
     resetRows();
     hydrateSelectionFromAlliance();
+  });
+}
+
+function getAvailableAlliances() {
+  const fromIndex = Array.isArray(warIndex?.alliances) ? warIndex.alliances : [];
+  const fromDates = Array.isArray(warIndex?.dates)
+    ? warIndex.dates.flatMap((entry) => Array.isArray(entry.alliances) ? entry.alliances : [])
+    : [];
+
+  const merged = [...new Set([...fromIndex, ...fromDates])]
+    .map((alliance) => normalizeAllianceKey(alliance))
+    .filter(Boolean);
+
+  return [...new Set(merged)].sort((a, b) => {
+    const ia = ALLIANCE_ORDER.indexOf(a);
+    const ib = ALLIANCE_ORDER.indexOf(b);
+
+    if (ia !== -1 || ib !== -1) {
+      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    }
+
+    return a.localeCompare(b, "fr", { sensitivity: "base" });
   });
 }
 
@@ -155,7 +180,7 @@ function hydrateSelectionFromAlliance() {
 }
 
 function populateYears() {
-  const alliance = allianceSelect.value;
+  const alliance = normalizeAllianceKey(allianceSelect.value);
 
   if (!alliance) {
     clearYearSelect();
@@ -171,7 +196,7 @@ function populateYears() {
 }
 
 function populateMonths() {
-  const alliance = allianceSelect.value;
+  const alliance = normalizeAllianceKey(allianceSelect.value);
   const year = yearSelect.value;
 
   if (!alliance || !year) {
@@ -206,7 +231,7 @@ function populateMonths() {
 }
 
 function populateDays() {
-  const alliance = allianceSelect.value;
+  const alliance = normalizeAllianceKey(allianceSelect.value);
   const year = yearSelect.value;
   const month = monthSelect.value;
 
@@ -224,23 +249,28 @@ function populateDays() {
 }
 
 function getDatesForAlliance(alliance) {
+  const allianceKey = normalizeAllianceKey(alliance);
   const dates = Array.isArray(warIndex?.dates) ? warIndex.dates : [];
 
   return dates
-    .filter((entry) => Array.isArray(entry.alliances) && entry.alliances.includes(alliance))
+    .filter((entry) => {
+      const entryAlliances = Array.isArray(entry.alliances) ? entry.alliances : [];
+      return entryAlliances.map(normalizeAllianceKey).includes(allianceKey);
+    })
     .map((entry) => {
-      const [year, month, day] = entry.date.split("-");
+      const [year, month, day] = String(entry.date || "").split("-");
       return {
         date: entry.date,
         year,
         month,
         day
       };
-    });
+    })
+    .filter((entry) => entry.date && entry.year && entry.month && entry.day);
 }
 
 async function loadSelectedWar() {
-  const alliance = allianceSelect.value;
+  const alliance = normalizeAllianceKey(allianceSelect.value);
   const year = yearSelect.value;
   const month = monthSelect.value;
   const day = daySelect.value;
@@ -257,7 +287,7 @@ async function loadSelectedWar() {
   const path = `./data/war/${date}/${alliance}.json?v=${Date.now()}`;
 
   try {
-    const res = await fetch(path);
+    const res = await fetch(path, { cache: "no-store" });
     if (!res.ok) {
       throw new Error("Fichier non trouvé (" + res.status + ")");
     }
@@ -297,7 +327,7 @@ function renderRows() {
         <div class="warHistoryCell col-player is-sticky-2">
           <div class="warHistoryPlayerBlock">
             <div class="warHistoryPlayerName">${escapeHtml(player.name || "—")}</div>
-            <div class="warHistoryPlayerAlliance">${getAllianceDisplayName(allianceSelect.value)}</div>
+            <div class="warHistoryPlayerAlliance">${escapeHtml(getAllianceDisplayName(allianceSelect.value))}</div>
           </div>
         </div>
 
@@ -483,6 +513,23 @@ function normalizeSortableValue(value, key) {
   return Number.isNaN(n) ? -Infinity : n;
 }
 
+function normalizeAllianceKey(value) {
+  const key = String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "")
+    .replace(/[-_‐-‒–—―﹘﹣－]/g, "");
+
+  if (key === "zeus") return "zeus";
+  if (key === "dionysos") return "dionysos";
+  if (key === "poseidon" || key === "posseidon") return "poseidon";
+  if (key === "kronos" || key === "cronos" || key === "chronos" || key === "lospkronos") return "kronos";
+
+  return key;
+}
+
 function formatNumber(value) {
   if (value === null || value === undefined || value === "") return "—";
   if (typeof value !== "number") return escapeHtml(String(value));
@@ -490,7 +537,7 @@ function formatNumber(value) {
 }
 
 function formatFrenchDate(dateStr) {
-  const [year, month, day] = dateStr.split("-");
+  const [year, month, day] = String(dateStr || "").split("-");
   return `${day}/${month}/${year}`;
 }
 
@@ -500,13 +547,8 @@ function capitalize(value) {
 }
 
 function getAllianceDisplayName(value) {
-  const labels = {
-    zeus: "⚡️ Zeus",
-    dionysos: "🍇 Dionysos",
-    poseidon: "🔱 Poséidon"
-  };
-
-  return labels[value] || capitalize(value);
+  const key = normalizeAllianceKey(value);
+  return ALLIANCE_LABELS[key] || capitalize(key);
 }
 
 function descNumberSort(a, b) {
