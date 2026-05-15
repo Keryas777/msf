@@ -20,9 +20,15 @@
 
   const mounts = {
     score: document.getElementById("chartScore"),
+    scoreGap: document.getElementById("chartScoreGap"),
+    attacks: document.getElementById("chartAttacks"),
+    misses: document.getElementById("chartMisses"),
     success: document.getElementById("chartSuccess"),
     impact: document.getElementById("chartImpact"),
+    damage: document.getElementById("chartDamage"),
     damageShare: document.getElementById("chartDamageShare"),
+    defenseWins: document.getElementById("chartDefenseWins"),
+    deviations: document.getElementById("chartDeviations"),
   };
 
   if (
@@ -39,16 +45,16 @@
 
   const EMOJI = {
     zeus: "⚡",
+    kronos: "⏳",
     dionysos: "🍇",
     poseidon: "🔱",
-    kronos: "⏳",
   };
 
   const LABEL = {
     zeus: "Zeus",
+    kronos: "Kronos",
     dionysos: "Dionysos",
     poseidon: "Poséidon",
-    kronos: "Kronos",
   };
 
   let warHistory = [];
@@ -264,6 +270,11 @@
     return String(v || "").replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3/$2");
   }
 
+  function toNumber(value) {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+  }
+
   // ---------- Stat color classes ----------
   function scoreClass(value) {
     const n = Number(value || 0);
@@ -422,9 +433,9 @@
 
       console.log("[war-graphs] current players loaded:", {
         zeus: currentPlayersByAlliance.get("zeus")?.size || 0,
+        kronos: currentPlayersByAlliance.get("kronos")?.size || 0,
         dionysos: currentPlayersByAlliance.get("dionysos")?.size || 0,
         poseidon: currentPlayersByAlliance.get("poseidon")?.size || 0,
-        kronos: currentPlayersByAlliance.get("kronos")?.size || 0,
       });
     } catch (error) {
       console.warn("[war-graphs] current players unavailable, no current-roster filter:", error);
@@ -761,31 +772,49 @@
 
         if (!p) return null;
 
+        const scoreTotal = toNumber(p.score_total);
+        const allianceAvgScore = toNumber(war.alliance_avg_score);
+        const scoreGap =
+          p.score_gap !== undefined
+            ? toNumber(p.score_gap)
+            : scoreTotal - allianceAvgScore;
+
         return {
           date: war.date,
 
-          score_total: Number(p.score_total || 0),
-          alliance_avg_score: Number(war.alliance_avg_score || 0),
+          score_total: scoreTotal,
+          alliance_avg_score: allianceAvgScore,
 
-          success_rate: Number(p.success_rate || 0),
-          alliance_avg_success_rate: Number(war.alliance_avg_success_rate || 0),
+          score_gap: scoreGap,
+          alliance_score_gap: 0,
 
-          score_impact: Number(p.score_impact || 0),
-          alliance_avg_impact: Number(war.alliance_avg_impact || 0),
+          attacks: toNumber(p.attacks),
+          alliance_avg_attacks: toNumber(war.alliance_avg_attacks),
 
-          damage: Number(p.damage || 0),
-          damage_share_pct: Number(p.damage_share_pct || 0),
-          alliance_avg_damage_share_pct: Number(war.alliance_avg_damage_share_pct || 0),
+          misses: toNumber(p.misses),
+          alliance_avg_misses: toNumber(war.alliance_avg_misses),
 
-          rank: Number(p.rank || 0),
-          player_count: Number(p.player_count || war.player_count || 0),
+          success_rate: toNumber(p.success_rate),
+          alliance_avg_success_rate: toNumber(war.alliance_avg_success_rate),
 
-          attacks: Number(p.attacks || 0),
-          successful_attacks: Number(p.successful_attacks || 0),
-          misses: Number(p.misses || 0),
+          score_impact: toNumber(p.score_impact),
+          alliance_avg_impact: toNumber(war.alliance_avg_impact),
 
-          defense_wins: Number(p.defense_wins || 0),
-          deviations: Number(p.deviations || 0),
+          damage: toNumber(p.damage),
+          alliance_avg_damage: toNumber(war.alliance_avg_damage),
+
+          damage_share_pct: toNumber(p.damage_share_pct),
+          alliance_avg_damage_share_pct: toNumber(war.alliance_avg_damage_share_pct),
+
+          defense_wins: toNumber(p.defense_wins),
+          alliance_avg_defense_wins: toNumber(war.alliance_avg_defense_wins),
+
+          deviations: toNumber(p.deviations),
+          alliance_avg_deviations: toNumber(war.alliance_avg_deviations),
+
+          rank: toNumber(p.rank),
+          player_count: toNumber(p.player_count || war.player_count),
+          successful_attacks: toNumber(p.successful_attacks),
         };
       })
       .filter(Boolean)
@@ -973,8 +1002,24 @@
     if (n <= 10) return Math.ceil(n);
     if (n <= 35) return Math.ceil(n / 5) * 5;
     if (n <= 100) return Math.ceil(n / 10) * 10;
+    if (n <= 1_000_000) return Math.ceil(n / 100_000) * 100_000;
+    if (n <= 1_000_000_000) return Math.ceil(n / 100_000_000) * 100_000_000;
 
-    return Math.ceil(n / 25) * 25;
+    return Math.ceil(n / 250_000_000) * 250_000_000;
+  }
+
+  function niceMin(v) {
+    const n = Number(v);
+
+    if (!Number.isFinite(n) || n >= 0) return 0;
+
+    const abs = Math.abs(n);
+
+    if (abs <= 10) return -Math.ceil(abs);
+    if (abs <= 35) return -Math.ceil(abs / 5) * 5;
+    if (abs <= 100) return -Math.ceil(abs / 10) * 10;
+
+    return -Math.ceil(abs / 25) * 25;
   }
 
   function pathFrom(points) {
@@ -987,7 +1032,25 @@
     return points.map((p, i) => `${i ? "L" : "M"} ${p.x} ${p.y}`).join(" ");
   }
 
+  function axisValue(v, opts) {
+    if (opts.compact) return compact(v);
+    if (opts.percent) return `${Math.round(v)}%`;
+
+    return Number(v || 0).toLocaleString("fr-FR", {
+      maximumFractionDigits: 0,
+    });
+  }
+
+  function pointValue(v, opts) {
+    if (opts.compact) return compact(v);
+    if (opts.percent) return `${fmt(v, 1)} %`;
+
+    return fmt(v, opts.decimals ?? 1);
+  }
+
   function draw(mount, opts) {
+    if (!mount) return;
+
     const rows = opts.rows || [];
 
     if (!rows.length) {
@@ -1012,14 +1075,25 @@
       ? rows.map((r) => Number(r[opts.allianceField] || 0))
       : [];
 
-    const maxY =
-      opts.maxY ||
-      niceMax(
-        Math.max(...playerVals, ...allianceVals, opts.suggestedMax || 0),
-        opts.suggestedMax || 100
-      );
+    const allVals = [...playerVals, ...allianceVals].filter(Number.isFinite);
 
-    const minY = opts.minY || 0;
+    const rawMax = Math.max(...allVals, opts.suggestedMax ?? 0);
+    const rawMin = Math.min(...allVals, opts.suggestedMin ?? 0);
+
+    let maxY =
+      opts.maxY !== undefined
+        ? opts.maxY
+        : niceMax(rawMax, opts.suggestedMax || 100);
+
+    let minY =
+      opts.minY !== undefined
+        ? opts.minY
+        : niceMin(rawMin);
+
+    if (minY === maxY) {
+      maxY = maxY + 1;
+      minY = Math.min(0, minY - 1);
+    }
 
     const x = (i) =>
       rows.length === 1
@@ -1052,9 +1126,6 @@
 
     const dateStep = Math.max(1, Math.ceil(rows.length / 5));
 
-    const axisValue = (v) => (opts.percent ? `${Math.round(v)}%` : String(Math.round(v)));
-    const val = (v) => (opts.percent ? `${fmt(v, 1)} %` : fmt(v, 1));
-
     mount.innerHTML = `
       <svg class="chartSvg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(
         opts.title || "Graphique"
@@ -1067,7 +1138,7 @@
               }" y2="${t.y}"/>
               <text class="chartText" x="${pad.left - 9}" y="${
                 t.y + 4
-              }" text-anchor="end">${axisValue(t.value)}</text>
+              }" text-anchor="end">${axisValue(t.value, opts)}</text>
             `
           )
           .join("")}
@@ -1091,7 +1162,7 @@
           .map(
             (p, i) => `
               <circle class="pointPlayer" cx="${p.x}" cy="${p.y}" r="4.5">
-                <title>${esc(rows[i].date)} — ${val(p.value)}</title>
+                <title>${esc(rows[i].date)} — ${pointValue(p.value, opts)}</title>
               </circle>
             `
           )
@@ -1123,15 +1194,40 @@
     }
 
     draw(mounts.score, {
-      title: "Note vs moyenne alliance",
+      title: "Note moyenne / 100",
       rows: series,
       playerField: "score_total",
       allianceField: "alliance_avg_score",
       maxY: 100,
     });
 
+    draw(mounts.scoreGap, {
+      title: "Écart avec la note moyenne de l'alliance",
+      rows: series,
+      playerField: "score_gap",
+      allianceField: "alliance_score_gap",
+      suggestedMin: -30,
+      suggestedMax: 30,
+    });
+
+    draw(mounts.attacks, {
+      title: "Moyenne d'attaques / guerre",
+      rows: series,
+      playerField: "attacks",
+      allianceField: "alliance_avg_attacks",
+      maxY: 14,
+    });
+
+    draw(mounts.misses, {
+      title: "Moyenne de ratés / guerre",
+      rows: series,
+      playerField: "misses",
+      allianceField: "alliance_avg_misses",
+      suggestedMax: 6,
+    });
+
     draw(mounts.success, {
-      title: "Taux de réussite vs moyenne alliance",
+      title: "Réussite moyenne",
       rows: series,
       playerField: "success_rate",
       allianceField: "alliance_avg_success_rate",
@@ -1140,26 +1236,58 @@
     });
 
     draw(mounts.impact, {
-      title: "Impact vs moyenne alliance",
+      title: "Impact moyen / 35",
       rows: series,
       playerField: "score_impact",
       allianceField: "alliance_avg_impact",
       maxY: 35,
     });
 
-    const dmgMax = Math.max(
+    const damageMax = Math.max(
+      ...series.map((r) => Number(r.damage || 0)),
+      ...series.map((r) => Number(r.alliance_avg_damage || 0)),
+      1
+    );
+
+    draw(mounts.damage, {
+      title: "Dégâts moyens / guerre",
+      rows: series,
+      playerField: "damage",
+      allianceField: "alliance_avg_damage",
+      suggestedMax: niceMax(damageMax * 1.15, 1_000_000_000),
+      compact: true,
+      decimals: 0,
+    });
+
+    const damageShareMax = Math.max(
       ...series.map((r) => Number(r.damage_share_pct || 0)),
       ...series.map((r) => Number(r.alliance_avg_damage_share_pct || 0)),
       8
     );
 
     draw(mounts.damageShare, {
-      title: "Damage share %",
+      title: "Part moyenne des dégâts alliance",
       rows: series,
       playerField: "damage_share_pct",
       allianceField: "alliance_avg_damage_share_pct",
-      suggestedMax: niceMax(dmgMax * 1.15, 10),
+      suggestedMax: niceMax(damageShareMax * 1.15, 10),
       percent: true,
+    });
+
+    draw(mounts.defenseWins, {
+      title: "Victoires défense / guerre",
+      rows: series,
+      playerField: "defense_wins",
+      allianceField: "alliance_avg_defense_wins",
+      suggestedMax: 6,
+    });
+
+    draw(mounts.deviations, {
+      title: "Bonus défensif posé / guerre",
+      rows: series,
+      playerField: "deviations",
+      allianceField: "alliance_avg_deviations",
+      suggestedMax: 6,
     });
   }
 
