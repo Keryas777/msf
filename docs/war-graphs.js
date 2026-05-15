@@ -533,6 +533,22 @@
     return "statGapBad";
   }
 
+  function ratioBands(reference) {
+    const ref = Number(reference || 0);
+
+    if (!Number.isFinite(ref) || ref <= 0) {
+      return [];
+    }
+
+    return [
+      { from: ref * 1.25, to: Number.MAX_SAFE_INTEGER, className: "chartBandExcellent" },
+      { from: ref * 1.05, to: ref * 1.25, className: "chartBandGood" },
+      { from: ref * 0.85, to: ref * 1.05, className: "chartBandNeutral" },
+      { from: ref * 0.65, to: ref * 0.85, className: "chartBandWarning" },
+      { from: 0, to: ref * 0.65, className: "chartBandBad" },
+    ];
+  }
+
   // ---------- Aliases ----------
   async function loadPlayerAliases() {
     try {
@@ -1526,6 +1542,9 @@
       1
     );
 
+    const damageReference = avg(series, "alliance_avg_damage");
+    const damageBands = ratioBands(damageReference);
+
     draw(mounts.damage, {
       title: "Dégâts par GA",
       rows: series,
@@ -1534,7 +1553,7 @@
       suggestedMax: niceMax(damageMax * 1.15, 1_000_000_000),
       compact: true,
       decimals: 0,
-      bands: CHART_BANDS.damage,
+      bands: damageBands,
     });
 
     const damageShareMax = Math.max(
