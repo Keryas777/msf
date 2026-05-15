@@ -57,6 +57,55 @@
     poseidon: "Poséidon",
   };
 
+  const CHART_BANDS = {
+    score: [
+      { from: 85, to: 100, className: "chartBandExcellent" },
+      { from: 70, to: 85, className: "chartBandGood" },
+      { from: 55, to: 70, className: "chartBandNeutral" },
+      { from: 45, to: 55, className: "chartBandWarning" },
+      { from: 0, to: 45, className: "chartBandBad" },
+    ],
+
+    scoreGap: [
+      { from: 15, to: 999, className: "chartBandExcellent" },
+      { from: 5, to: 15, className: "chartBandGood" },
+      { from: -10, to: 5, className: "chartBandNeutral" },
+      { from: -20, to: -10, className: "chartBandWarning" },
+      { from: -999, to: -20, className: "chartBandBad" },
+    ],
+
+    attacks: [
+      { from: 13, to: 14, className: "chartBandExcellent" },
+      { from: 12, to: 13, className: "chartBandGood" },
+      { from: 10, to: 12, className: "chartBandNeutral" },
+      { from: 9, to: 10, className: "chartBandWarning" },
+      { from: 0, to: 9, className: "chartBandBad" },
+    ],
+
+    misses: [],
+
+    success: [
+      { from: 90, to: 100, className: "chartBandExcellent" },
+      { from: 80, to: 90, className: "chartBandGood" },
+      { from: 70, to: 80, className: "chartBandNeutral" },
+      { from: 60, to: 70, className: "chartBandWarning" },
+      { from: 0, to: 60, className: "chartBandBad" },
+    ],
+
+    impact: [
+      { from: 30, to: 35, className: "chartBandExcellent" },
+      { from: 25, to: 30, className: "chartBandGood" },
+      { from: 20, to: 25, className: "chartBandNeutral" },
+      { from: 15, to: 20, className: "chartBandWarning" },
+      { from: 0, to: 15, className: "chartBandBad" },
+    ],
+
+    damage: [],
+    damageShare: [],
+    defenseWins: [],
+    deviations: [],
+  };
+
   let warHistory = [];
   let warStatsByPlayer = new Map();
   let avatarByPlayer = new Map();
@@ -273,6 +322,10 @@
   function toNumber(value) {
     const n = Number(value);
     return Number.isFinite(n) ? n : 0;
+  }
+
+  function cleanClassName(value) {
+    return String(value || "").replace(/[^a-zA-Z0-9_-]/g, "");
   }
 
   // ---------- Stat color classes ----------
@@ -1048,6 +1101,43 @@
     return fmt(v, opts.decimals ?? 1);
   }
 
+  function renderBandsSvg(opts, y, pad, plotW, minY, maxY) {
+    const bands = Array.isArray(opts.bands) ? opts.bands : [];
+
+    if (!bands.length) return "";
+
+    return bands
+      .map((band) => {
+        const from = Number(band.from);
+        const to = Number(band.to);
+
+        if (!Number.isFinite(from) || !Number.isFinite(to)) return "";
+
+        const low = Math.max(minY, Math.min(from, to));
+        const high = Math.min(maxY, Math.max(from, to));
+
+        if (high <= minY || low >= maxY || high <= low) return "";
+
+        const top = y(high);
+        const bottom = y(low);
+        const height = Math.max(0, bottom - top);
+        const className = cleanClassName(band.className);
+
+        if (!height || !className) return "";
+
+        return `
+          <rect
+            class="chartBand ${className}"
+            x="${pad.left}"
+            y="${top}"
+            width="${plotW}"
+            height="${height}"
+          />
+        `;
+      })
+      .join("");
+  }
+
   function draw(mount, opts) {
     if (!mount) return;
 
@@ -1125,11 +1215,14 @@
     }));
 
     const dateStep = Math.max(1, Math.ceil(rows.length / 5));
+    const bandsSvg = renderBandsSvg(opts, y, pad, plotW, minY, maxY);
 
     mount.innerHTML = `
       <svg class="chartSvg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(
         opts.title || "Graphique"
       )}">
+        ${bandsSvg}
+
         ${ticks
           .map(
             (t) => `
@@ -1199,6 +1292,7 @@
       playerField: "score_total",
       allianceField: "alliance_avg_score",
       maxY: 100,
+      bands: CHART_BANDS.score,
     });
 
     draw(mounts.scoreGap, {
@@ -1208,6 +1302,7 @@
       allianceField: "alliance_score_gap",
       suggestedMin: -30,
       suggestedMax: 30,
+      bands: CHART_BANDS.scoreGap,
     });
 
     draw(mounts.attacks, {
@@ -1216,6 +1311,7 @@
       playerField: "attacks",
       allianceField: "alliance_avg_attacks",
       maxY: 14,
+      bands: CHART_BANDS.attacks,
     });
 
     draw(mounts.misses, {
@@ -1224,6 +1320,7 @@
       playerField: "misses",
       allianceField: "alliance_avg_misses",
       suggestedMax: 6,
+      bands: CHART_BANDS.misses,
     });
 
     draw(mounts.success, {
@@ -1233,6 +1330,7 @@
       allianceField: "alliance_avg_success_rate",
       maxY: 100,
       percent: true,
+      bands: CHART_BANDS.success,
     });
 
     draw(mounts.impact, {
@@ -1241,6 +1339,7 @@
       playerField: "score_impact",
       allianceField: "alliance_avg_impact",
       maxY: 35,
+      bands: CHART_BANDS.impact,
     });
 
     const damageMax = Math.max(
@@ -1257,6 +1356,7 @@
       suggestedMax: niceMax(damageMax * 1.15, 1_000_000_000),
       compact: true,
       decimals: 0,
+      bands: CHART_BANDS.damage,
     });
 
     const damageShareMax = Math.max(
@@ -1272,6 +1372,7 @@
       allianceField: "alliance_avg_damage_share_pct",
       suggestedMax: niceMax(damageShareMax * 1.15, 10),
       percent: true,
+      bands: CHART_BANDS.damageShare,
     });
 
     draw(mounts.defenseWins, {
@@ -1280,6 +1381,7 @@
       playerField: "defense_wins",
       allianceField: "alliance_avg_defense_wins",
       suggestedMax: 6,
+      bands: CHART_BANDS.defenseWins,
     });
 
     draw(mounts.deviations, {
@@ -1288,6 +1390,7 @@
       playerField: "deviations",
       allianceField: "alliance_avg_deviations",
       suggestedMax: 6,
+      bands: CHART_BANDS.deviations,
     });
   }
 
