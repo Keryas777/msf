@@ -16,6 +16,12 @@ const CORE_ASSETS = [
   "./Classement.webp",
   "./ISO-8.webp",
 
+  // Images stats guerre
+  "./HeaderStatGA.webp",
+  "./HistoryGA.webp",
+  "./ClassementDatas.webp",
+  "./DonneesIndividuelles.webp",
+
   // Icons
   "./icon-192.png",
   "./icon-512.PNG",
