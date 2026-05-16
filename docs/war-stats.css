@@ -8,66 +8,70 @@
   padding:0;
   margin:-1px;
   overflow:hidden;
-  clip: rect(0,0,0,0);
+  clip:rect(0,0,0,0);
   white-space:nowrap;
   border:0;
 }
 
 /* ===== Header banner ===== */
 .warStatsHeader{
-  position: relative;
-  padding: 0;
-  border-radius: 18px;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
+  position:relative;
+  padding:0;
+  border-radius:18px;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
 
-  background-image: url("./HeaderStatGA.webp");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
+  background-image:url("./HeaderStatGA.webp");
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:cover;
 
-  height: 140px;
-  overflow: hidden;
+  height:140px;
+  overflow:hidden;
 }
 
 /* ===== GRID ===== */
 .warStatsGrid{
   display:grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 16px;
-  align-items: stretch;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-top:16px;
+  align-items:stretch;
 }
 
 /* ===== TUILE ===== */
 .warStatsTile{
-  position: relative;
+  position:relative;
   display:block;
-  border-radius: 22px;
-  overflow: hidden;
+  border-radius:22px;
+  overflow:hidden;
 
-  border: 1px solid var(--border);
-  background: rgba(0,0,0,.18);
-  box-shadow: var(--shadow);
+  border:1px solid var(--border);
+  background:rgba(0,0,0,.18);
+  box-shadow:var(--shadow);
 
   text-decoration:none;
-  color: var(--text);
+  color:var(--text);
 
-  aspect-ratio: 1 / 1;
+  aspect-ratio:1 / 1;
 
-  transform: translateZ(0);
-  transition: transform .18s ease, filter .18s ease, border-color .18s ease;
+  transform:translateZ(0);
+  transition:
+    transform .18s ease,
+    filter .18s ease,
+    border-color .18s ease;
 
-  --glow: rgba(255, 85, 85, .62);
-  --glow-strong: rgba(255, 85, 85, .98);
+  --glow:rgba(255,85,85,.62);
+  --glow-strong:rgba(255,85,85,.98);
 
-  min-width: 0;
+  min-width:0;
+  -webkit-tap-highlight-color:transparent;
 }
 
 .warStatsTileImg{
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width:100%;
+  height:100%;
+  object-fit:cover;
   display:block;
 }
 
@@ -76,7 +80,7 @@
   content:"";
   position:absolute;
   inset:0;
-  border-radius: inherit;
+  border-radius:inherit;
   pointer-events:none;
 
   box-shadow:
@@ -84,15 +88,17 @@
     0 0 18px var(--glow),
     0 0 42px rgba(0,0,0,0);
 
-  opacity: .99;
-  transition: box-shadow .18s ease, opacity .18s ease;
+  opacity:.99;
+  transition:
+    box-shadow .18s ease,
+    opacity .18s ease;
 }
 
 /* ===== HOVER ===== */
 .warStatsTile:hover{
-  transform: translateY(-2px) scale(1.02);
-  border-color: rgba(255,255,255,.38);
-  filter: brightness(1.12) contrast(1.06);
+  transform:translateY(-2px) scale(1.02);
+  border-color:rgba(255,255,255,.38);
+  filter:brightness(1.12) contrast(1.06);
 }
 
 .warStatsTile:hover::after{
@@ -105,8 +111,8 @@
 
 /* ===== ACTIVE ===== */
 .warStatsTile:active{
-  transform: scale(.985);
-  filter: brightness(1.14) contrast(1.06);
+  transform:scale(.985);
+  filter:brightness(1.14) contrast(1.06);
 }
 
 .warStatsTile:active::after,
@@ -119,33 +125,48 @@
     0 0 260px var(--glow-strong);
 }
 
-/* ===== COULEUR ===== */
+/* ===== COULEURS PAR TUILE ===== */
 .warStatsTile--history{
-  --glow: rgba(255, 85, 85, .62);
-  --glow-strong: rgba(255, 85, 85, .98);
+  --glow:rgba(255,85,85,.62);
+  --glow-strong:rgba(255,85,85,.98);
+}
+
+.warStatsTile--rankings{
+  --glow:rgba(83,230,190,.62);
+  --glow-strong:rgba(83,230,190,.98);
+}
+
+.warStatsTile--graphs{
+  --glow:rgba(255,105,190,.62);
+  --glow-strong:rgba(255,105,190,.98);
 }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 720px){
+@media(max-width:720px){
   .warStatsGrid{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns:repeat(2,minmax(0,1fr));
   }
 }
 
-@media (max-width: 420px){
+@media(max-width:420px){
   .warStatsHeader{
-    height: 120px;
+    height:120px;
+  }
+
+  .warStatsGrid{
+    gap:10px;
+    margin-top:14px;
   }
 
   .warStatsTile{
-    border-radius: 20px;
+    border-radius:20px;
   }
 }
 
 /* ===== ACCESSIBILITÉ ===== */
-@media (prefers-reduced-motion: reduce){
+@media(prefers-reduced-motion:reduce){
   .warStatsTile,
   .warStatsTile::after{
-    transition: none !important;
+    transition:none !important;
   }
 }
