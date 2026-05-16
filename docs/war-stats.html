@@ -7,35 +7,38 @@
       name="viewport"
       content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
     />
+
     <style>
-  html.authChecking body{
-    opacity: 0;
-    pointer-events: none;
-  }
-</style>
+      html.authChecking body{
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
 
-<script>
-  document.documentElement.classList.add("authChecking");
-</script>
+    <script>
+      document.documentElement.classList.add("authChecking");
+    </script>
 
-<script src="./auth-guard.js?v=2"></script>
+    <script src="./auth-guard.js?v=2"></script>
+
     <meta name="theme-color" content="#0b0c0d" />
     <title>Stats de guerre</title>
 
-    <!-- CSS -->
     <link rel="stylesheet" href="./style.css?v=6" />
-    <link rel="stylesheet" href="./war-stats.css?v=3" />
+    <link rel="stylesheet" href="./war-stats.css?v=ts" />
 
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icon-512.PNG" />
     <meta name="apple-mobile-web-app-title" content="LoSP" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   </head>
 
   <body>
     <div class="app">
       <header class="header warStatsHeader" aria-label="Stats de guerre">
         <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
-        <a href="./home.html" class="backBtn" aria-label="Retour">⬅️</a>
+        <button class="backBtn" type="button" aria-label="Retour">⬅️</button>
       </header>
 
       <section class="warStatsGrid" aria-label="Stats de guerre">
@@ -49,19 +52,55 @@
           />
           <span class="srOnly">Historique Stats GA</span>
         </a>
+
+        <a href="./war-rankings.html" class="warStatsTile warStatsTile--rankings">
+          <img
+            class="warStatsTileImg"
+            src="./ClassementDatas.webp"
+            alt="Classement datas"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="srOnly">Classement datas</span>
+        </a>
+
+        <a href="./war-graphs.html" class="warStatsTile warStatsTile--graphs">
+          <img
+            class="warStatsTileImg"
+            src="./DonnéesIndividuelles.webp"
+            alt="Données individuelles"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="srOnly">Données individuelles</span>
+        </a>
       </section>
     </div>
 
     <script>
       (function () {
+        document.querySelectorAll(".backBtn").forEach((btn) => {
+          btn.addEventListener("click", () => history.back());
+        });
+
+        document.querySelectorAll('link[rel="stylesheet"]').forEach((l) => {
+          if (l.href.includes("v=ts")) {
+            l.href = l.href.replace("v=ts", "v=" + Date.now());
+          }
+        });
+
         const tiles = document.querySelectorAll(".warStatsTile");
+
         tiles.forEach((t) => {
           const press = () => {
             t.classList.add("is-pressed");
             clearTimeout(t.__pressTimer);
             t.__pressTimer = setTimeout(() => t.classList.remove("is-pressed"), 220);
           };
-          const release = () => t.classList.remove("is-pressed");
+
+          const release = () => {
+            t.classList.remove("is-pressed");
+          };
 
           t.addEventListener("pointerdown", press, { passive: true });
           t.addEventListener("pointerup", release, { passive: true });
