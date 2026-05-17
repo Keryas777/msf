@@ -12,7 +12,7 @@ const headerSortButtons = Array.from(document.querySelectorAll(".warHistoryHeadB
 const tabButtons = Array.from(document.querySelectorAll(".warHistoryTabBtn"));
 const tabPanels = Array.from(document.querySelectorAll(".warHistoryTabPanel"));
 
-const ALLIANCE_ORDER = ["zeus", "dionysos", "poseidon", "kronos"];
+const ALLIANCE_ORDER = ["zeus", "kronos", dionysos", "poseidon"];
 
 const ALLIANCE_LABELS = {
   zeus: "⚡️ Zeus",
