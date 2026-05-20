@@ -1,3 +1,5 @@
+/* docs/war-history.js */
+
 const allianceSelect = document.getElementById("allianceSelect");
 const yearSelect = document.getElementById("yearSelect");
 const monthSelect = document.getElementById("monthSelect");
@@ -12,13 +14,28 @@ const headerSortButtons = Array.from(document.querySelectorAll(".warHistoryHeadB
 const tabButtons = Array.from(document.querySelectorAll(".warHistoryTabBtn"));
 const tabPanels = Array.from(document.querySelectorAll(".warHistoryTabPanel"));
 
-const ALLIANCE_ORDER = ["zeus", "kronos", dionysos", "poseidon"];
+const ALLIANCE_ORDER = ["zeus", "kronos", "dionysos", "poseidon"];
 
 const ALLIANCE_LABELS = {
   zeus: "⚡️ Zeus",
+  kronos: "⏳ Kronos",
   dionysos: "🍇 Dionysos",
-  poseidon: "🔱 Poséidon",
-  kronos: "⏳ Kronos"
+  poseidon: "🔱 Poséidon"
+};
+
+const MONTH_NAMES = {
+  "01": "Janvier",
+  "02": "Février",
+  "03": "Mars",
+  "04": "Avril",
+  "05": "Mai",
+  "06": "Juin",
+  "07": "Juillet",
+  "08": "Août",
+  "09": "Septembre",
+  "10": "Octobre",
+  "11": "Novembre",
+  "12": "Décembre"
 };
 
 let warIndex = null;
@@ -28,19 +45,34 @@ let currentSortKey = null;
 let currentSortDir = "desc";
 let currentTab = "table";
 
-init();
+if (
+  !allianceSelect ||
+  !yearSelect ||
+  !monthSelect ||
+  !daySelect ||
+  !rowsContainer
+) {
+  console.error("[war-history] Missing DOM elements. Check war-history.html ids.");
+} else {
+  init();
+}
 
 async function init() {
   try {
     bindTabs();
+    bindDateSelects();
+    bindHeaderSortButtons();
+
+    setActiveTab("table");
     setMeta("Chargement de l'index...");
+
     warIndex = await loadIndex();
 
     setupAllianceSelect();
-    bindHeaderSortButtons();
     hydrateInitialSelection();
   } catch (error) {
-    console.error(error);
+    console.error("[war-history] init error:", error);
+
     setMeta("Impossible de charger l'index des guerres.");
     rowsContainer.innerHTML = `<div class="warHistoryEmpty">Erreur index</div>`;
     renderNotes(null);
@@ -49,15 +81,33 @@ async function init() {
 }
 
 async function loadIndex() {
-  const url = "./data/war/index.json?v=" + Date.now();
-  const res = await fetch(url, { cache: "no-store" });
+  const url = `./data/war/index.json?v=${Date.now()}`;
+  const res = await fetch(url, {
+    cache: "no-store"
+  });
 
   if (!res.ok) {
-    throw new Error("Impossible de charger " + url + " (" + res.status + ")");
+    throw new Error(`Impossible de charger ${url} (${res.status})`);
   }
 
-  return res.json();
+  const data = await res.json();
+
+  if (!data || typeof data !== "object") {
+    throw new Error("war/index.json invalide");
+  }
+
+  if (!Array.isArray(data.dates)) {
+    data.dates = [];
+  }
+
+  if (!Array.isArray(data.alliances)) {
+    data.alliances = [];
+  }
+
+  return data;
 }
+
+/* ---------- Tabs ---------- */
 
 function bindTabs() {
   if (!tabButtons.length || !tabPanels.length) return;
@@ -66,22 +116,25 @@ function bindTabs() {
     btn.addEventListener("click", () => {
       const nextTab = btn.dataset.tab;
       if (!nextTab || nextTab === currentTab) return;
+
       setActiveTab(nextTab);
     });
   });
 }
 
 function setActiveTab(tabName) {
-  currentTab = tabName;
+  currentTab = tabName || "table";
 
   tabButtons.forEach((btn) => {
-    const isActive = btn.dataset.tab === tabName;
+    const isActive = btn.dataset.tab === currentTab;
+
     btn.classList.toggle("is-active", isActive);
     btn.setAttribute("aria-selected", isActive ? "true" : "false");
   });
 
   tabPanels.forEach((panel) => {
-    const isActive = panel.id === getPanelIdFromTab(tabName);
+    const isActive = panel.id === getPanelIdFromTab(currentTab);
+
     panel.classList.toggle("is-active", isActive);
     panel.hidden = !isActive;
   });
@@ -97,41 +150,23 @@ function getPanelIdFromTab(tabName) {
   return map[tabName] || "warHistoryPanelTable";
 }
 
+/* ---------- Selects ---------- */
+
 function setupAllianceSelect() {
   const alliances = getAvailableAlliances();
 
   allianceSelect.innerHTML =
     `<option value="">Alliance</option>` +
-    alliances.map((alliance) => {
-      const label = getAllianceDisplayName(alliance);
-      return `<option value="${escapeHtml(alliance)}">${escapeHtml(label)}</option>`;
-    }).join("");
+    alliances
+      .map((alliance) => {
+        const label = getAllianceDisplayName(alliance);
+        return `<option value="${escapeHtml(alliance)}">${escapeHtml(label)}</option>`;
+      })
+      .join("");
 
   allianceSelect.addEventListener("change", () => {
     resetRows();
     hydrateSelectionFromAlliance();
-  });
-}
-
-function getAvailableAlliances() {
-  const fromIndex = Array.isArray(warIndex?.alliances) ? warIndex.alliances : [];
-  const fromDates = Array.isArray(warIndex?.dates)
-    ? warIndex.dates.flatMap((entry) => Array.isArray(entry.alliances) ? entry.alliances : [])
-    : [];
-
-  const merged = [...new Set([...fromIndex, ...fromDates])]
-    .map((alliance) => normalizeAllianceKey(alliance))
-    .filter(Boolean);
-
-  return [...new Set(merged)].sort((a, b) => {
-    const ia = ALLIANCE_ORDER.indexOf(a);
-    const ib = ALLIANCE_ORDER.indexOf(b);
-
-    if (ia !== -1 || ib !== -1) {
-      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-    }
-
-    return a.localeCompare(b, "fr", { sensitivity: "base" });
   });
 }
 
@@ -145,8 +180,6 @@ function hydrateInitialSelection() {
   rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée sélectionnée.</div>`;
   renderNotes(null);
   renderDebrief(null);
-
-  bindDateSelects();
 }
 
 function bindDateSelects() {
@@ -188,11 +221,13 @@ function populateYears() {
   }
 
   const dates = getDatesForAlliance(alliance);
-  const years = [...new Set(dates.map((d) => d.year))].sort(descNumberSort);
+  const years = [...new Set(dates.map((d) => d.year))]
+    .filter(Boolean)
+    .sort(descNumberSort);
 
   yearSelect.innerHTML =
     `<option value="">Année</option>` +
-    years.map((year) => `<option value="${year}">${year}</option>`).join("");
+    years.map((year) => `<option value="${escapeHtml(year)}">${escapeHtml(year)}</option>`).join("");
 }
 
 function populateMonths() {
@@ -204,30 +239,19 @@ function populateMonths() {
     return;
   }
 
-  const monthNames = {
-    "01": "Janvier",
-    "02": "Février",
-    "03": "Mars",
-    "04": "Avril",
-    "05": "Mai",
-    "06": "Juin",
-    "07": "Juillet",
-    "08": "Août",
-    "09": "Septembre",
-    "10": "Octobre",
-    "11": "Novembre",
-    "12": "Décembre"
-  };
-
   const dates = getDatesForAlliance(alliance).filter((d) => d.year === year);
-  const months = [...new Set(dates.map((d) => d.month))].sort(descNumberSort);
+  const months = [...new Set(dates.map((d) => d.month))]
+    .filter(Boolean)
+    .sort(descNumberSort);
 
   monthSelect.innerHTML =
     `<option value="">Mois</option>` +
-    months.map((month) => {
-      const label = `${month} (${monthNames[month] || ""})`;
-      return `<option value="${month}">${label}</option>`;
-    }).join("");
+    months
+      .map((month) => {
+        const label = `${month} (${MONTH_NAMES[month] || ""})`;
+        return `<option value="${escapeHtml(month)}">${escapeHtml(label)}</option>`;
+      })
+      .join("");
 }
 
 function populateDays() {
@@ -240,12 +264,33 @@ function populateDays() {
     return;
   }
 
-  const dates = getDatesForAlliance(alliance).filter((d) => d.year === year && d.month === month);
-  const days = [...new Set(dates.map((d) => d.day))].sort(descNumberSort);
+  const dates = getDatesForAlliance(alliance).filter(
+    (d) => d.year === year && d.month === month
+  );
+
+  const days = [...new Set(dates.map((d) => d.day))]
+    .filter(Boolean)
+    .sort(descNumberSort);
 
   daySelect.innerHTML =
     `<option value="">Jour</option>` +
-    days.map((day) => `<option value="${day}">${day}</option>`).join("");
+    days.map((day) => `<option value="${escapeHtml(day)}">${escapeHtml(day)}</option>`).join("");
+}
+
+function getAvailableAlliances() {
+  const fromIndex = Array.isArray(warIndex?.alliances) ? warIndex.alliances : [];
+
+  const fromDates = Array.isArray(warIndex?.dates)
+    ? warIndex.dates.flatMap((entry) =>
+        Array.isArray(entry?.alliances) ? entry.alliances : []
+      )
+    : [];
+
+  const merged = [...new Set([...fromIndex, ...fromDates])]
+    .map((alliance) => normalizeAllianceKey(alliance))
+    .filter(Boolean);
+
+  return [...new Set(merged)].sort(sortAllianceKeys);
 }
 
 function getDatesForAlliance(alliance) {
@@ -254,20 +299,45 @@ function getDatesForAlliance(alliance) {
 
   return dates
     .filter((entry) => {
-      const entryAlliances = Array.isArray(entry.alliances) ? entry.alliances : [];
+      const entryAlliances = Array.isArray(entry?.alliances) ? entry.alliances : [];
       return entryAlliances.map(normalizeAllianceKey).includes(allianceKey);
     })
     .map((entry) => {
-      const [year, month, day] = String(entry.date || "").split("-");
+      const [year, month, day] = String(entry?.date || "").split("-");
+
       return {
-        date: entry.date,
+        date: String(entry?.date || ""),
         year,
         month,
         day
       };
     })
-    .filter((entry) => entry.date && entry.year && entry.month && entry.day);
+    .filter((entry) => entry.date && entry.year && entry.month && entry.day)
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
 }
+
+function updateSelectStates() {
+  yearSelect.disabled = !allianceSelect.value;
+  monthSelect.disabled = !allianceSelect.value || !yearSelect.value;
+  daySelect.disabled = !allianceSelect.value || !yearSelect.value || !monthSelect.value;
+}
+
+function clearYearSelect() {
+  yearSelect.innerHTML = `<option value="">Année</option>`;
+  yearSelect.value = "";
+}
+
+function clearMonthSelect() {
+  monthSelect.innerHTML = `<option value="">Mois</option>`;
+  monthSelect.value = "";
+}
+
+function clearDaySelect() {
+  daySelect.innerHTML = `<option value="">Jour</option>`;
+  daySelect.value = "";
+}
+
+/* ---------- Load selected war ---------- */
 
 async function loadSelectedWar() {
   const alliance = normalizeAllianceKey(allianceSelect.value);
@@ -287,31 +357,69 @@ async function loadSelectedWar() {
   const path = `./data/war/${date}/${alliance}.json?v=${Date.now()}`;
 
   try {
-    const res = await fetch(path, { cache: "no-store" });
+    setMeta(`Chargement de ${getAllianceDisplayName(alliance)} • ${formatFrenchDate(date)}...`);
+
+    const res = await fetch(path, {
+      cache: "no-store"
+    });
+
     if (!res.ok) {
-      throw new Error("Fichier non trouvé (" + res.status + ")");
+      throw new Error(`Fichier non trouvé (${res.status})`);
     }
 
     const data = await res.json();
 
-    originalPlayers = Array.isArray(data.players) ? data.players.slice() : [];
+    originalPlayers = getPlayersFromWarData(data);
     currentPlayers = originalPlayers.slice();
 
     currentSortKey = null;
     currentSortDir = "desc";
     syncHeaderSortButtons();
 
-    setMeta(`${getAllianceDisplayName(alliance)} • ${formatFrenchDate(date)} • ${originalPlayers.length} joueurs`);
+    setMeta(
+      `${getAllianceDisplayName(alliance)} • ${formatFrenchDate(date)} • ${originalPlayers.length} joueur${originalPlayers.length > 1 ? "s" : ""}`
+    );
+
     renderRows();
-    renderReport(data.report || null);
+    renderReport(data?.report || null);
   } catch (error) {
-    console.error(error);
-    setMeta(`Impossible de charger ${getAllianceDisplayName(alliance)} pour le ${formatFrenchDate(date)} : ${error.message}`);
+    console.error("[war-history] loadSelectedWar error:", error);
+
+    setMeta(
+      `Impossible de charger ${getAllianceDisplayName(alliance)} pour le ${formatFrenchDate(date)} : ${error.message}`
+    );
+
     rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
     renderNotes(null);
     renderDebrief(null);
   }
 }
+
+function getPlayersFromWarData(data) {
+  if (Array.isArray(data?.players)) {
+    return data.players.slice();
+  }
+
+  if (Array.isArray(data?.report?.players)) {
+    return data.report.players.slice();
+  }
+
+  return [];
+}
+
+function resetRows() {
+  originalPlayers = [];
+  currentPlayers = [];
+  currentSortKey = null;
+  currentSortDir = "desc";
+  syncHeaderSortButtons();
+
+  rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
+  renderNotes(null);
+  renderDebrief(null);
+}
+
+/* ---------- Table ---------- */
 
 function renderRows() {
   if (!currentPlayers.length) {
@@ -319,121 +427,30 @@ function renderRows() {
     return;
   }
 
-  rowsContainer.innerHTML = currentPlayers.map((player, index) => {
-    return `
-      <div class="warHistoryRow warHistoryDataRow">
-        <div class="warHistoryCell col-rank is-sticky-1">${index + 1}</div>
+  rowsContainer.innerHTML = currentPlayers
+    .map((player, index) => {
+      const defenseBonus = getDefenseBonusValue(player);
 
-        <div class="warHistoryCell col-player is-sticky-2">
-          <div class="warHistoryPlayerBlock">
-            <div class="warHistoryPlayerName">${escapeHtml(player.name || "—")}</div>
-            <div class="warHistoryPlayerAlliance">${escapeHtml(getAllianceDisplayName(allianceSelect.value))}</div>
+      return `
+        <div class="warHistoryRow warHistoryDataRow">
+          <div class="warHistoryCell col-rank is-sticky-1">${index + 1}</div>
+
+          <div class="warHistoryCell col-player is-sticky-2">
+            <div class="warHistoryPlayerBlock">
+              <div class="warHistoryPlayerName">${escapeHtml(player?.name || "—")}</div>
+              <div class="warHistoryPlayerAlliance">${escapeHtml(getAllianceDisplayName(allianceSelect.value))}</div>
+            </div>
           </div>
+
+          <div class="warHistoryCell col-ap">${formatNumber(player?.attack_points)}</div>
+          <div class="warHistoryCell col-attacks">${formatNumber(player?.attacks)}</div>
+          <div class="warHistoryCell col-damage">${formatNumber(player?.damage)}</div>
+          <div class="warHistoryCell col-defensewins">${formatNumber(player?.defense_wins)}</div>
+          <div class="warHistoryCell col-defensebonus">${formatNumber(defenseBonus)}</div>
         </div>
-
-        <div class="warHistoryCell col-ap">${formatNumber(player.attack_points)}</div>
-        <div class="warHistoryCell col-attacks">${formatNumber(player.attacks)}</div>
-        <div class="warHistoryCell col-damage">${formatNumber(player.damage)}</div>
-        <div class="warHistoryCell col-defensewins">${formatNumber(player.defense_wins)}</div>
-        <div class="warHistoryCell col-defensebonus">${formatNumber(player.defense_bonus)}</div>
-      </div>
-    `;
-  }).join("");
-}
-
-function renderReport(report) {
-  renderNotes(report);
-  renderDebrief(report);
-}
-
-function renderNotes(report) {
-  if (!notesEl) return;
-
-  const ranking = Array.isArray(report?.ranking) ? report.ranking : [];
-  const summary = report?.summary || null;
-
-  if (!ranking.length) {
-    notesEl.innerHTML = `
-      <div class="warHistoryDebriefPlaceholder">
-        <p class="warHistoryDebriefTitle">Aucune note disponible</p>
-        <p class="warHistoryDebriefText">
-          Cette guerre ne contient pas encore de classement enrichi.
-        </p>
-      </div>
-    `;
-    return;
-  }
-
-  const bestDamageSharePct = summary
-    ? Number(summary.best_damage_share_pct ?? ((summary.best_damage_share || 0) * 100))
-    : 0;
-
-  const summaryHtml = summary ? `
-    <div class="warHistorySummary">
-      <div class="warHistorySummaryLine"><strong>Joueurs :</strong> ${formatNumber(summary.player_count)}</div>
-      <div class="warHistorySummaryLine"><strong>Dégâts totaux :</strong> ${formatNumber(summary.total_damage)}</div>
-      <div class="warHistorySummaryLine"><strong>Meilleur dégâts moyens :</strong> ${formatNumber(summary.best_avg_damage)}</div>
-      <div class="warHistorySummaryLine"><strong>Meilleure part dégâts :</strong> ${bestDamageSharePct.toFixed(2)}%</div>
-    </div>
-  ` : "";
-
-  const rankingHtml = ranking.map((player) => `
-    <div class="warHistoryNoteRow">
-      <div class="warHistoryNoteRank">#${formatNumber(player.rank)}</div>
-      <div class="warHistoryNoteName">${escapeHtml(player.name || "—")}</div>
-      <div class="warHistoryNoteScore">${formatNumber(player.score)}</div>
-    </div>
-  `).join("");
-
-  notesEl.innerHTML = `
-    ${summaryHtml}
-    <div class="warHistoryNotesList">
-      ${rankingHtml}
-    </div>
-  `;
-}
-
-function renderDebrief(report) {
-  if (!debriefEl) return;
-
-  const enrichedPlayers = Array.isArray(report?.players) ? report.players : [];
-  const validPlayers = enrichedPlayers.filter((player) =>
-    player && (player.analysis || player.score_total !== undefined || player.rank !== undefined)
-  );
-
-  if (!validPlayers.length) {
-    debriefEl.innerHTML = `
-      <div class="warHistoryDebriefPlaceholder">
-        <p class="warHistoryDebriefTitle">Aucun débrief disponible</p>
-        <p class="warHistoryDebriefText">
-          Cette guerre ne contient pas encore d’analyse enrichie.
-        </p>
-      </div>
-    `;
-    return;
-  }
-
-  debriefEl.innerHTML = validPlayers.map((player) => `
-    <div class="warHistoryDebriefCard">
-      <div class="warHistoryDebriefTop">
-        <div class="warHistoryDebriefName">
-          #${formatNumber(player.rank)} — ${escapeHtml(player.name || "—")}
-        </div>
-        <div class="warHistoryDebriefScore">${formatNumber(player.score_total ?? 0)}/100</div>
-      </div>
-
-      <div class="warHistoryDebriefStats">
-        <span>Att : ${formatNumber(player.attacks)}</span>
-        <span>Pts : ${formatNumber(player.attack_points)}</span>
-        <span>Dégâts : ${formatNumber(player.damage)}</span>
-        <span>V. Déf : ${formatNumber(player.defense_wins)}</span>
-      </div>
-
-      <div class="warHistoryDebriefText">
-        ${escapeHtml(player.analysis || "Aucune analyse disponible.")}
-      </div>
-    </div>
-  `).join("");
+      `;
+    })
+    .join("");
 }
 
 function bindHeaderSortButtons() {
@@ -463,13 +480,13 @@ function applySort() {
   }
 
   currentPlayers = originalPlayers.slice().sort((a, b) => {
-    const av = normalizeSortableValue(a[currentSortKey], currentSortKey);
-    const bv = normalizeSortableValue(b[currentSortKey], currentSortKey);
+    const av = getSortableValue(a, currentSortKey);
+    const bv = getSortableValue(b, currentSortKey);
 
     if (av < bv) return currentSortDir === "asc" ? -1 : 1;
     if (av > bv) return currentSortDir === "asc" ? 1 : -1;
 
-    return normalizeSortableValue(a.rank, "rank") - normalizeSortableValue(b.rank, "rank");
+    return getSortableValue(a, "rank") - getSortableValue(b, "rank");
   });
 }
 
@@ -483,6 +500,7 @@ function syncHeaderSortButtons() {
   if (!activeBtn) return;
 
   activeBtn.classList.add("warHistorySorted");
+
   if (currentSortDir === "desc") {
     activeBtn.classList.add("is-desc");
   }
@@ -501,17 +519,153 @@ function getHeaderLabel(key) {
   return labels[key] || key;
 }
 
-function normalizeSortableValue(value, key) {
+function getSortableValue(player, key) {
   if (key === "name") {
-    return String(value || "").toLowerCase();
+    return String(player?.name || "").toLowerCase();
   }
 
-  if (typeof value === "number") return value;
+  if (key === "defense_bonus") {
+    return normalizeSortableValue(getDefenseBonusValue(player));
+  }
+
+  return normalizeSortableValue(player?.[key]);
+}
+
+function normalizeSortableValue(value) {
   if (value === null || value === undefined || value === "") return -Infinity;
 
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : -Infinity;
+  }
+
   const n = Number(value);
-  return Number.isNaN(n) ? -Infinity : n;
+  return Number.isFinite(n) ? n : -Infinity;
 }
+
+function getDefenseBonusValue(player) {
+  if (player?.defense_bonus !== undefined) return player.defense_bonus;
+  if (player?.deviations !== undefined) return player.deviations;
+  return undefined;
+}
+
+/* ---------- Notes / Débrief ---------- */
+
+function renderReport(report) {
+  renderNotes(report);
+  renderDebrief(report);
+}
+
+function renderNotes(report) {
+  if (!notesEl) return;
+
+  const ranking = Array.isArray(report?.ranking) ? report.ranking : [];
+  const summary = report?.summary || null;
+
+  if (!ranking.length) {
+    notesEl.innerHTML = `
+      <div class="warHistoryDebriefPlaceholder">
+        <p class="warHistoryDebriefTitle">Aucune note disponible</p>
+        <p class="warHistoryDebriefText">
+          Cette guerre ne contient pas encore de classement enrichi.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  const bestDamageSharePct = summary
+    ? Number(summary.best_damage_share_pct ?? (Number(summary.best_damage_share || 0) * 100))
+    : 0;
+
+  const summaryHtml = summary
+    ? `
+      <div class="warHistorySummary">
+        <div class="warHistorySummaryLine"><strong>Joueurs :</strong> ${formatNumber(summary.player_count)}</div>
+        <div class="warHistorySummaryLine"><strong>Dégâts totaux :</strong> ${formatNumber(summary.total_damage)}</div>
+        <div class="warHistorySummaryLine"><strong>Meilleur dégâts moyens :</strong> ${formatNumber(summary.best_avg_damage)}</div>
+        <div class="warHistorySummaryLine"><strong>Meilleure part dégâts :</strong> ${formatDecimal(bestDamageSharePct, 2)}%</div>
+      </div>
+    `
+    : "";
+
+  const rankingHtml = ranking
+    .map((player, index) => {
+      const rank = player?.rank ?? index + 1;
+      const score = player?.score ?? player?.score_total ?? 0;
+
+      return `
+        <div class="warHistoryNoteRow">
+          <div class="warHistoryNoteRank">#${formatNumber(rank)}</div>
+          <div class="warHistoryNoteName">${escapeHtml(player?.name || "—")}</div>
+          <div class="warHistoryNoteScore">${formatNumber(score)}</div>
+        </div>
+      `;
+    })
+    .join("");
+
+  notesEl.innerHTML = `
+    ${summaryHtml}
+    <div class="warHistoryNotesList">
+      ${rankingHtml}
+    </div>
+  `;
+}
+
+function renderDebrief(report) {
+  if (!debriefEl) return;
+
+  const enrichedPlayers = Array.isArray(report?.players) ? report.players : [];
+
+  const validPlayers = enrichedPlayers.filter((player) => {
+    return player && (
+      player.analysis ||
+      player.score_total !== undefined ||
+      player.rank !== undefined
+    );
+  });
+
+  if (!validPlayers.length) {
+    debriefEl.innerHTML = `
+      <div class="warHistoryDebriefPlaceholder">
+        <p class="warHistoryDebriefTitle">Aucun débrief disponible</p>
+        <p class="warHistoryDebriefText">
+          Cette guerre ne contient pas encore d’analyse enrichie.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  debriefEl.innerHTML = validPlayers
+    .map((player, index) => {
+      const rank = player?.rank ?? index + 1;
+
+      return `
+        <div class="warHistoryDebriefCard">
+          <div class="warHistoryDebriefTop">
+            <div class="warHistoryDebriefName">
+              #${formatNumber(rank)} — ${escapeHtml(player?.name || "—")}
+            </div>
+            <div class="warHistoryDebriefScore">${formatNumber(player?.score_total ?? 0)}/100</div>
+          </div>
+
+          <div class="warHistoryDebriefStats">
+            <span>Att : ${formatNumber(player?.attacks)}</span>
+            <span>Pts : ${formatNumber(player?.attack_points)}</span>
+            <span>Dégâts : ${formatNumber(player?.damage)}</span>
+            <span>V. Déf : ${formatNumber(player?.defense_wins)}</span>
+          </div>
+
+          <div class="warHistoryDebriefText">
+            ${escapeHtml(player?.analysis || "Aucune analyse disponible.")}
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+/* ---------- Utils ---------- */
 
 function normalizeAllianceKey(value) {
   const key = String(value || "")
@@ -520,30 +674,35 @@ function normalizeAllianceKey(value) {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/\s+/g, "")
-    .replace(/[-_‐-‒–—―﹘﹣－]/g, "");
+    .replace(/[-_‐-‒–—―﹘﹣－]/g, "")
+    .replace(/[’'`´]/g, "");
 
   if (key === "zeus") return "zeus";
   if (key === "dionysos") return "dionysos";
   if (key === "poseidon" || key === "posseidon") return "poseidon";
-  if (key === "kronos" || key === "cronos" || key === "chronos" || key === "lospkronos") return "kronos";
+  if (
+    key === "kronos" ||
+    key === "cronos" ||
+    key === "chronos" ||
+    key === "lospkronos"
+  ) {
+    return "kronos";
+  }
 
   return key;
 }
 
-function formatNumber(value) {
-  if (value === null || value === undefined || value === "") return "—";
-  if (typeof value !== "number") return escapeHtml(String(value));
-  return value.toLocaleString("fr-FR");
-}
+function sortAllianceKeys(a, b) {
+  const ia = ALLIANCE_ORDER.indexOf(a);
+  const ib = ALLIANCE_ORDER.indexOf(b);
 
-function formatFrenchDate(dateStr) {
-  const [year, month, day] = String(dateStr || "").split("-");
-  return `${day}/${month}/${year}`;
-}
+  if (ia !== -1 || ib !== -1) {
+    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+  }
 
-function capitalize(value) {
-  if (!value) return "";
-  return value.charAt(0).toUpperCase() + value.slice(1);
+  return String(a).localeCompare(String(b), "fr", {
+    sensitivity: "base"
+  });
 }
 
 function getAllianceDisplayName(value) {
@@ -555,8 +714,47 @@ function descNumberSort(a, b) {
   return Number(b) - Number(a);
 }
 
+function formatNumber(value) {
+  if (value === null || value === undefined || value === "") return "—";
+
+  const n = Number(value);
+
+  if (Number.isFinite(n)) {
+    return n.toLocaleString("fr-FR", {
+      maximumFractionDigits: 0
+    });
+  }
+
+  return escapeHtml(String(value));
+}
+
+function formatDecimal(value, decimals = 2) {
+  const n = Number(value || 0);
+
+  return n.toLocaleString("fr-FR", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
+}
+
+function formatFrenchDate(dateStr) {
+  const [year, month, day] = String(dateStr || "").split("-");
+
+  if (!year || !month || !day) {
+    return String(dateStr || "");
+  }
+
+  return `${day}/${month}/${year}`;
+}
+
+function capitalize(value) {
+  const s = String(value || "");
+  if (!s) return "";
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 function escapeHtml(value) {
-  return String(value)
+  return String(value ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -565,34 +763,7 @@ function escapeHtml(value) {
 }
 
 function setMeta(text) {
-  if (metaEl) metaEl.textContent = text;
-}
-
-function clearYearSelect() {
-  yearSelect.innerHTML = `<option value="">Année</option>`;
-  yearSelect.value = "";
-}
-
-function clearMonthSelect() {
-  monthSelect.innerHTML = `<option value="">Mois</option>`;
-  monthSelect.value = "";
-}
-
-function clearDaySelect() {
-  daySelect.innerHTML = `<option value="">Jour</option>`;
-  daySelect.value = "";
-}
-
-function updateSelectStates() {
-  yearSelect.disabled = !allianceSelect.value;
-  monthSelect.disabled = !allianceSelect.value || !yearSelect.value;
-  daySelect.disabled = !allianceSelect.value || !yearSelect.value || !monthSelect.value;
-}
-
-function resetRows() {
-  originalPlayers = [];
-  currentPlayers = [];
-  rowsContainer.innerHTML = `<div class="warHistoryEmpty">Aucune donnée disponible.</div>`;
-  renderNotes(null);
-  renderDebrief(null);
+  if (metaEl) {
+    metaEl.textContent = text;
+  }
 }
