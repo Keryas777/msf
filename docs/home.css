@@ -31,7 +31,10 @@
 }
 
 @keyframes installIn{
-  to{ transform: translateY(0); opacity: 1; }
+  to{
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* ===== Compactage léger de la page ===== */
@@ -58,6 +61,116 @@
   overflow: hidden;
 
   background-color: rgba(0,0,0,.22);
+}
+
+/* ===== Bouton déconnexion pierre grecque ===== */
+.homeLogoutSection{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.greekLogoutBtn{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  width:min(360px, 94%);
+  min-height:44px;
+  padding:11px 18px;
+
+  border:1px solid rgba(255,255,255,.24);
+  border-radius:8px;
+
+  color:rgba(42,38,31,.92);
+  text-decoration:none;
+  text-transform:uppercase;
+  letter-spacing:2.4px;
+  font-family:Georgia, "Times New Roman", serif;
+  font-size:14px;
+  font-weight:900;
+
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.30), transparent 22%),
+    radial-gradient(circle at 20% 15%, rgba(255,255,255,.35), transparent 28%),
+    radial-gradient(circle at 78% 80%, rgba(70,58,44,.20), transparent 32%),
+    linear-gradient(180deg, #c9c0ad, #8f8573 48%, #6f6658);
+
+  box-shadow:
+    inset 0 2px 2px rgba(255,255,255,.28),
+    inset 0 -3px 5px rgba(0,0,0,.28),
+    0 8px 18px rgba(0,0,0,.34);
+
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transform:translateZ(0);
+  transition:
+    transform .16s ease,
+    filter .16s ease,
+    box-shadow .16s ease,
+    border-color .16s ease;
+}
+
+.greekLogoutBtn::before{
+  content:"";
+  position:absolute;
+  inset:4px;
+  border-radius:5px;
+  border:1px solid rgba(57,49,39,.36);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.20),
+    inset 0 -1px 0 rgba(0,0,0,.22);
+  pointer-events:none;
+}
+
+.greekLogoutBtn::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  opacity:.34;
+  background:
+    linear-gradient(90deg, transparent 0 10%, rgba(255,255,255,.18) 10% 11%, transparent 11% 32%, rgba(0,0,0,.13) 32% 33%, transparent 33% 58%, rgba(255,255,255,.14) 58% 59%, transparent 59%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.05) 0 2px, rgba(0,0,0,.05) 2px 4px, transparent 4px 9px);
+}
+
+.greekLogoutText{
+  position:relative;
+  z-index:1;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.22),
+    0 -1px 0 rgba(0,0,0,.42),
+    1px 1px 0 rgba(255,255,255,.10);
+}
+
+.greekLogoutBtn:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.08) contrast(1.04);
+  border-color:rgba(255,255,255,.36);
+  box-shadow:
+    inset 0 2px 2px rgba(255,255,255,.30),
+    inset 0 -3px 5px rgba(0,0,0,.30),
+    0 10px 24px rgba(0,0,0,.42),
+    0 0 22px rgba(210,195,155,.18);
+}
+
+.greekLogoutBtn:active,
+.greekLogoutBtn.is-pressed{
+  transform:scale(.985);
+  filter:brightness(.96) contrast(1.08);
+  box-shadow:
+    inset 0 3px 8px rgba(0,0,0,.36),
+    inset 0 -1px 2px rgba(255,255,255,.14),
+    0 5px 12px rgba(0,0,0,.32);
+}
+
+.greekLogoutBtn:focus-visible{
+  outline:2px solid rgba(223,255,166,.78);
+  outline-offset:3px;
 }
 
 /* ===== GRID ===== */
@@ -191,6 +304,13 @@
   .homeTile{
     width: 96%;
   }
+
+  .greekLogoutBtn{
+    width:96%;
+    min-height:42px;
+    font-size:13px;
+    letter-spacing:2px;
+  }
 }
 
 @media (max-width: 420px){
@@ -215,12 +335,20 @@
     width: 97%;
     border-radius: 20px;
   }
+
+  .greekLogoutBtn{
+    min-height:40px;
+    padding:10px 14px;
+    font-size:12px;
+    letter-spacing:1.8px;
+  }
 }
 
 /* ===== ACCESSIBILITÉ ===== */
 @media (prefers-reduced-motion: reduce){
   .homeTile,
-  .homeTile::after{
+  .homeTile::after,
+  .greekLogoutBtn{
     transition: none !important;
   }
 }
