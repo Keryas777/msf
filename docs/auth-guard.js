@@ -18,6 +18,26 @@
     } catch (_) {}
   }
 
+  function clearSessionStorage() {
+    try {
+      sessionStorage.clear();
+    } catch (_) {}
+  }
+
+  async function clearLoSPCaches() {
+    try {
+      if (!("caches" in window)) return;
+
+      const keys = await caches.keys();
+
+      await Promise.all(
+        keys
+          .filter((key) => String(key || "").startsWith("losp-"))
+          .map((key) => caches.delete(key))
+      );
+    } catch (_) {}
+  }
+
   function sanitizeNext(value) {
     const raw = String(value || "home.html").trim();
 
@@ -41,6 +61,52 @@
     }
 
     return `${path}${search}${hash}`;
+  }
+
+  function dispatchSession(data) {
+    window.LoSP_SESSION = data;
+
+    window.dispatchEvent(
+      new CustomEvent("losp:auth-ready", {
+        detail: data
+      })
+    );
+  }
+
+  function redirectToAuth(next = "home.html") {
+    const safeNext = encodeURIComponent(sanitizeNext(next));
+    window.location.replace(`${AUTH_PAGE}?next=${safeNext}`);
+  }
+
+  async function logoutLoSP() {
+    removeLocalSession();
+    clearSessionStorage();
+
+    dispatchSession({
+      ok: false,
+      reason: "local_logout"
+    });
+
+    await clearLoSPCaches();
+
+    redirectToAuth("home.html");
+  }
+
+  function bindLogoutButtons() {
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-losp-logout], .lospLogoutBtn");
+
+      if (!button) return;
+
+      event.preventDefault();
+
+      if (button.disabled) return;
+
+      button.disabled = true;
+      button.classList.add("is-pressed");
+
+      logoutLoSP();
+    });
   }
 
   async function checkAuth() {
@@ -68,18 +134,17 @@
         throw new Error(data?.reason || "not_connected");
       }
 
-      window.LoSP_SESSION = data;
-
-      window.dispatchEvent(new CustomEvent("losp:auth-ready", {
-        detail: data
-      }));
+      dispatchSession(data);
 
       document.documentElement.classList.remove("authChecking");
     } catch (error) {
-      const next = encodeURIComponent(sanitizeNext(getCurrentPageForReturn()));
-      window.location.replace(`${AUTH_PAGE}?next=${next}`);
+      const next = sanitizeNext(getCurrentPageForReturn());
+      redirectToAuth(next);
     }
   }
 
+  window.LoSPLogout = logoutLoSP;
+
+  bindLogoutButtons();
   checkAuth();
 })();
