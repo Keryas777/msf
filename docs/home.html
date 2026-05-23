@@ -7,24 +7,25 @@
       name="viewport"
       content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
     />
+
     <style>
-  html.authChecking body{
-    opacity: 0;
-    pointer-events: none;
-  }
-</style>
+      html.authChecking body{
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
 
-<script>
-  document.documentElement.classList.add("authChecking");
-</script>
+    <script>
+      document.documentElement.classList.add("authChecking");
+    </script>
 
-<script src="./auth-guard.js?v=2"></script>
+    <script src="./auth-guard.js?v=3"></script>
+
     <meta name="theme-color" content="#0b0c0d" />
     <title>Accueil</title>
 
-    <!-- ✅ Pas de cache-bust en PWA (le SW gère la version) -->
     <link rel="stylesheet" href="./style.css?v=4" />
-    <link rel="stylesheet" href="./home.css" />
+    <link rel="stylesheet" href="./home.css?v=2" />
 
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icon-512.PNG" />
@@ -35,8 +36,13 @@
     <div class="app">
       <header class="header homeHeader" aria-label="Accueil LoSP"></header>
 
+      <section class="homeLogoutSection" aria-label="Déconnexion">
+        <button class="greekLogoutBtn lospLogoutBtn" type="button" data-losp-logout>
+          <span class="greekLogoutText">Déconnexion</span>
+        </button>
+      </section>
+
       <section class="homeGrid" aria-label="Outils">
-        <!-- 1 - Contres GA -->
         <a href="./war-choose.html" class="homeTile homeTile--contres">
           <img
             class="homeTileImg"
@@ -48,7 +54,6 @@
           <span class="srOnly">Contres GA</span>
         </a>
 
-        <!-- 2 - Statistiques GA -->
         <a href="./war-stats.html" class="homeTile homeTile--stats">
           <img
             class="homeTileImg"
@@ -60,7 +65,6 @@
           <span class="srOnly">Statistiques GA</span>
         </a>
 
-        <!-- 3 - Équipes recommandées -->
         <a href="./conseils.html" class="homeTile homeTile--conseils">
           <img
             class="homeTileImg"
@@ -72,7 +76,6 @@
           <span class="srOnly">Équipes recommandées</span>
         </a>
 
-        <!-- 4 - ISO-8 -->
         <a href="./iso.html" class="homeTile homeTile--iso">
           <img
             class="homeTileImg"
@@ -84,7 +87,6 @@
           <span class="srOnly">ISO-8</span>
         </a>
 
-        <!-- 5 - Classements -->
         <a href="./classements.html" class="homeTile homeTile--classement">
           <img
             class="homeTileImg"
@@ -98,7 +100,6 @@
       </section>
     </div>
 
-    <!-- Install Banner (iOS + Android) -->
     <div id="installBanner" class="installBanner" hidden>
       <div class="installLeft">
         <div class="installIcon" aria-hidden="true">⬇️</div>
@@ -117,7 +118,6 @@
       </div>
     </div>
 
-    <!-- iOS How-to modal -->
     <div id="installModal" class="installModal" hidden>
       <div class="installModalBackdrop" data-close="1"></div>
 
@@ -163,15 +163,16 @@
     </div>
 
     <script>
-      // glow "dynamique" au tap/clic (iOS friendly)
       (function () {
         const tiles = document.querySelectorAll(".homeTile");
+
         tiles.forEach((t) => {
           const press = () => {
             t.classList.add("is-pressed");
             clearTimeout(t.__pressTimer);
             t.__pressTimer = setTimeout(() => t.classList.remove("is-pressed"), 220);
           };
+
           const release = () => t.classList.remove("is-pressed");
 
           t.addEventListener("pointerdown", press, { passive: true });
@@ -185,7 +186,6 @@
     <script src="./install-banner.js"></script>
 
     <script>
-      // ✅ SW registration + update + auto-reload when new SW takes control
       (function () {
         if (!("serviceWorker" in navigator)) return;
 
