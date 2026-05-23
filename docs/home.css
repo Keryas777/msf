@@ -68,61 +68,51 @@
   display:flex;
   justify-content:center;
   align-items:center;
-  margin-top: 2px;
-  margin-bottom: 2px;
+  margin:2px 0 4px;
 }
 
 .greekLogoutBtn{
   position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  width:96%;
+  min-height:42px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:12px;
+  padding:10px 16px;
 
-  width:min(360px, 94%);
-  min-height:44px;
-  padding:11px 18px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,.12), transparent 28%),
+    radial-gradient(circle at 80% 75%, rgba(0,0,0,.38), transparent 34%),
+    linear-gradient(180deg, #56524b, #2f2e2c 48%, #1f1e1c);
 
-  border:1px solid rgba(255,255,255,.24);
-  border-radius:8px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -3px 8px rgba(0,0,0,.45),
+    0 8px 18px rgba(0,0,0,.38);
 
-  color:rgba(42,38,31,.92);
-  text-decoration:none;
-  text-transform:uppercase;
-  letter-spacing:2.4px;
+  color:#d8c28a;
   font-family:Georgia, "Times New Roman", serif;
   font-size:14px;
   font-weight:900;
-
-  background:
-    linear-gradient(135deg, rgba(255,255,255,.30), transparent 22%),
-    radial-gradient(circle at 20% 15%, rgba(255,255,255,.35), transparent 28%),
-    radial-gradient(circle at 78% 80%, rgba(70,58,44,.20), transparent 32%),
-    linear-gradient(180deg, #c9c0ad, #8f8573 48%, #6f6658);
-
-  box-shadow:
-    inset 0 2px 2px rgba(255,255,255,.28),
-    inset 0 -3px 5px rgba(0,0,0,.28),
-    0 8px 18px rgba(0,0,0,.34);
+  letter-spacing:3px;
+  text-transform:uppercase;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.12),
+    0 -1px 0 rgba(0,0,0,.75),
+    0 0 10px rgba(216,194,138,.18);
 
   cursor:pointer;
   -webkit-tap-highlight-color:transparent;
-  transform:translateZ(0);
-  transition:
-    transform .16s ease,
-    filter .16s ease,
-    box-shadow .16s ease,
-    border-color .16s ease;
 }
 
 .greekLogoutBtn::before{
   content:"";
   position:absolute;
   inset:4px;
-  border-radius:5px;
-  border:1px solid rgba(57,49,39,.36);
+  border-radius:8px;
+  border:1px solid rgba(216,194,138,.22);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.20),
-    inset 0 -1px 0 rgba(0,0,0,.22);
+    inset 0 0 0 1px rgba(0,0,0,.28),
+    0 0 12px rgba(216,194,138,.08);
   pointer-events:none;
 }
 
@@ -132,40 +122,25 @@
   inset:0;
   border-radius:inherit;
   pointer-events:none;
-  opacity:.34;
+  opacity:.22;
   background:
-    linear-gradient(90deg, transparent 0 10%, rgba(255,255,255,.18) 10% 11%, transparent 11% 32%, rgba(0,0,0,.13) 32% 33%, transparent 33% 58%, rgba(255,255,255,.14) 58% 59%, transparent 59%),
-    repeating-linear-gradient(135deg, rgba(255,255,255,.05) 0 2px, rgba(0,0,0,.05) 2px 4px, transparent 4px 9px);
+    repeating-linear-gradient(
+      135deg,
+      rgba(255,255,255,.05) 0 2px,
+      rgba(0,0,0,.08) 2px 5px,
+      transparent 5px 11px
+    );
 }
 
 .greekLogoutText{
   position:relative;
   z-index:1;
-  text-shadow:
-    0 1px 0 rgba(255,255,255,.22),
-    0 -1px 0 rgba(0,0,0,.42),
-    1px 1px 0 rgba(255,255,255,.10);
-}
-
-.greekLogoutBtn:hover{
-  transform:translateY(-1px);
-  filter:brightness(1.08) contrast(1.04);
-  border-color:rgba(255,255,255,.36);
-  box-shadow:
-    inset 0 2px 2px rgba(255,255,255,.30),
-    inset 0 -3px 5px rgba(0,0,0,.30),
-    0 10px 24px rgba(0,0,0,.42),
-    0 0 22px rgba(210,195,155,.18);
 }
 
 .greekLogoutBtn:active,
 .greekLogoutBtn.is-pressed{
   transform:scale(.985);
-  filter:brightness(.96) contrast(1.08);
-  box-shadow:
-    inset 0 3px 8px rgba(0,0,0,.36),
-    inset 0 -1px 2px rgba(255,255,255,.14),
-    0 5px 12px rgba(0,0,0,.32);
+  filter:brightness(.92) contrast(1.08);
 }
 
 .greekLogoutBtn:focus-visible{
