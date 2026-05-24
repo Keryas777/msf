@@ -124,6 +124,23 @@
 
     <script>
   (function () {
+    window.addEventListener("error", function (event) {
+      alert(
+        "ERREUR JS\n" +
+        event.message +
+        "\nFichier : " + event.filename +
+        "\nLigne : " + event.lineno +
+        "\nColonne : " + event.colno
+      );
+    });
+
+    window.addEventListener("unhandledrejection", function (event) {
+      alert(
+        "PROMESSE REJETÉE\n" +
+        (event.reason?.message || event.reason)
+      );
+    });
+
     document.querySelectorAll('link[rel="stylesheet"]').forEach((l) => {
       if (l.href.includes("v=ts")) {
         l.href = l.href.replace("v=ts", "v=" + Date.now());
