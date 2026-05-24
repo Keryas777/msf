@@ -1,5 +1,7 @@
 // docs/app.js
 (() => {
+  alert("app.js chargé");
+
   const FILES = {
     teams: "./data/teams.json",
     characters: "./data/msf-characters.json",
