@@ -316,6 +316,19 @@ button.backBtn{
   align-items: stretch;
 }
 
+/* Variante ciblée : 2 chips par ligne, utilisée sur Classement Teams Groupement */
+.filters.filters--twoColumns{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  flex-wrap: unset;
+  justify-content: unset;
+}
+
+.filters.filters--twoColumns .filterToggle{
+  width:100%;
+}
+
 .filterToggle{
   display:flex;
   align-items:center;
