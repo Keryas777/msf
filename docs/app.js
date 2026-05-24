@@ -1,7 +1,5 @@
 // docs/app.js
 (() => {
-  alert("app.js chargé");
-
   const FILES = {
     teams: "./data/teams.json",
     characters: "./data/msf-characters.json",
@@ -23,14 +21,19 @@
     poseidon: "Poséidon",
   };
 
-  // ✅ Ordre forcé des modes de jeu (affichage dans le select)
-  const MODE_ORDER = ["Arène", "Raids", "Guerre", "Epreuve", "Battleworld", "Divers hors méta"];
+  const MODE_ORDER = [
+    "Arène",
+    "Raids",
+    "Guerre",
+    "Epreuve",
+    "Battleworld",
+    "Divers hors méta",
+  ];
 
-  // Paliers demandés
   const THRESH = {
     level: 100,
     gear: 19,
-    iso: 13, // au moins une des 5 colonnes N-O-P-Q-R >= 13 => isoMax
+    iso: 13,
   };
 
   const qs = (s) => document.querySelector(s);
@@ -49,14 +52,14 @@
   const filterDionysos = qs("#filterDionysos");
   const filterPoseidon = qs("#filterPoseidon");
 
-  let TEAMS = []; // [{team, mode, characters[]}]
-  let CHARS = []; // raw chars array
-  let CHAR_MAP = new Map(); // normalized alias -> "best" character object (heuristic)
-  let CHAR_MULTI = new Map(); // normalized alias -> [character objects] (for disambiguation)
+  let TEAMS = [];
+  let CHARS = [];
+  let CHAR_MAP = new Map();
+  let CHAR_MULTI = new Map();
 
-  let JOUEURS = []; // [{player, alliance}]
-  let ROSTERS = []; // [{player, chars:{key:number|{power,level,gear,isoMax}}}]
-  let ROSTER_MAP = new Map(); // playerKey -> chars map (keys normalisées)
+  let JOUEURS = [];
+  let ROSTERS = [];
+  let ROSTER_MAP = new Map();
 
   const bust = (url) => {
     const u = new URL(url, window.location.href);
@@ -66,19 +69,16 @@
 
   async function fetchJson(url) {
     const res = await fetch(bust(url), { cache: "no-store" });
-    if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
+
+    if (!res.ok) {
+      throw new Error(`${url} -> HTTP ${res.status}`);
+    }
+
     return res.json();
   }
 
-  // ✅ Normalisation robuste :
-  // - trim / lower
-  // - retire tous les espaces
-  // - retire tirets simples + variantes Unicode + underscore
-  // - retire apostrophes simples + typographiques
-  // - supprime les accents
-  const normalizeKey = (s) =>
-    (s ?? "")
-      .toString()
+  function normalizeKey(value) {
+    return String(value ?? "")
       .trim()
       .toLowerCase()
       .replace(/\s+/g, "")
@@ -86,19 +86,24 @@
       .replace(/[’'`´]/g, "")
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function normalizePlayerKey(value) {
+    return normalizeKey(value).replace(/[^a-z0-9]/g, "");
+  }
 
   function allianceKey(value) {
     const key = normalizeKey(value);
 
-    if (key === "zeus") return "zeus";
-    if (key === "dionysos") return "dionysos";
-    if (key === "poseidon" || key === "posseidon") return "poseidon";
+    if (key.includes("zeus")) return "zeus";
+    if (key.includes("dionysos")) return "dionysos";
+    if (key.includes("poseidon") || key.includes("posseidon")) return "poseidon";
 
     if (
-      key === "kronos" ||
-      key === "cronos" ||
-      key === "chronos" ||
-      key === "lospkronos"
+      key.includes("kronos") ||
+      key.includes("cronos") ||
+      key.includes("chronos") ||
+      key.includes("lospkronos")
     ) {
       return "kronos";
     }
@@ -108,12 +113,17 @@
 
   function clearNode(el) {
     if (!el) return;
-    while (el.firstChild) el.removeChild(el.firstChild);
+
+    while (el.firstChild) {
+      el.removeChild(el.firstChild);
+    }
   }
 
   function formatThousandsDot(n) {
     const num = Number(n);
+
     if (!Number.isFinite(num)) return "0";
+
     return Math.trunc(num)
       .toString()
       .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -129,22 +139,24 @@
   }
 
   function getSelectedMode() {
-    return (modeSelect?.value || "").trim();
+    return String(modeSelect?.value || "").trim();
   }
 
-  // si aucun mode sélectionné => aucune équipe
   function getTeamListFilteredByMode() {
     const selectedMode = getSelectedMode();
+
     if (!selectedMode) return [];
-    return TEAMS.filter((t) => (t.mode || "").trim() === selectedMode);
+
+    return TEAMS.filter((t) => String(t.mode || "").trim() === selectedMode);
   }
 
   function renderModeOptions() {
     if (!modeSelect) return;
 
-    const modes = Array.from(new Set(TEAMS.map((t) => (t.mode || "").trim()).filter(Boolean)));
+    const modes = Array.from(
+      new Set(TEAMS.map((t) => String(t.mode || "").trim()).filter(Boolean))
+    );
 
-    // ✅ Tri selon MODE_ORDER, puis fallback alphabétique
     modes.sort((a, b) => {
       const ia = MODE_ORDER.indexOf(a);
       const ib = MODE_ORDER.indexOf(b);
@@ -153,7 +165,7 @@
         return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
       }
 
-      return a.localeCompare(b, "fr");
+      return a.localeCompare(b, "fr", { sensitivity: "base" });
     });
 
     modeSelect.innerHTML = "";
@@ -163,10 +175,10 @@
     opt0.textContent = "— Choisir un mode de jeu —";
     modeSelect.appendChild(opt0);
 
-    modes.forEach((m) => {
+    modes.forEach((mode) => {
       const opt = document.createElement("option");
-      opt.value = m;
-      opt.textContent = m;
+      opt.value = mode;
+      opt.textContent = mode;
       modeSelect.appendChild(opt);
     });
 
@@ -178,7 +190,11 @@
 
     const list = getTeamListFilteredByMode()
       .slice()
-      .sort((a, b) => a.team.localeCompare(b.team, "fr"));
+      .sort((a, b) =>
+        String(a.team || "").localeCompare(String(b.team || ""), "fr", {
+          sensitivity: "base",
+        })
+      );
 
     teamSelect.innerHTML = "";
 
@@ -187,26 +203,27 @@
     opt0.textContent = "— Choisir une équipe —";
     teamSelect.appendChild(opt0);
 
-    list.forEach((t) => {
+    list.forEach((teamObj) => {
       const opt = document.createElement("option");
-      opt.value = t.team;
-      opt.textContent = t.team;
+      opt.value = teamObj.team;
+      opt.textContent = teamObj.team;
       teamSelect.appendChild(opt);
     });
 
     teamSelect.value = "";
   }
 
-  // --------- Canon / variants handling ---------
   function isVariantId(id) {
-    const s = (id ?? "").toString();
+    const s = String(id ?? "");
+
     if (!s) return false;
+
     return /(_props|_bbminn|_npc|_event|_raid|_trial|_campaign|_boss)$/i.test(s);
   }
 
   function scoreCharacterMatch(c, queryKey) {
-    const id = (c?.id ?? "").toString();
-    const nameKey = (c?.nameKey ?? "").toString();
+    const id = String(c?.id ?? "");
+    const nameKey = String(c?.nameKey ?? "");
 
     const idKey = normalizeKey(id);
     const nameKeyKey = normalizeKey(nameKey);
@@ -223,22 +240,25 @@
   }
 
   function findPortraitFor(name) {
-    const raw = (name ?? "").toString().trim();
+    const raw = String(name ?? "").trim();
+
     if (!raw) return null;
 
     const key = normalizeKey(raw);
+
     if (!key) return null;
 
     const list = CHAR_MULTI.get(key);
+
     if (Array.isArray(list) && list.length) {
       let best = list[0];
       let bestScore = -Infinity;
 
       for (const c of list) {
-        const sc = scoreCharacterMatch(c, key);
+        const score = scoreCharacterMatch(c, key);
 
-        if (sc > bestScore) {
-          bestScore = sc;
+        if (score > bestScore) {
+          bestScore = score;
           best = c;
         }
       }
@@ -252,11 +272,15 @@
   function renderSelectedTeam(teamName) {
     clearNode(portraitsWrap);
 
-    if (teamTitle) teamTitle.textContent = teamName || "—";
+    if (teamTitle) {
+      teamTitle.textContent = teamName || "—";
+    }
+
     if (!teamName) return;
 
     const teamsFiltered = getTeamListFilteredByMode();
     const teamObj = teamsFiltered.find((t) => t.team === teamName);
+
     if (!teamObj) return;
 
     (teamObj.characters || []).forEach((charName) => {
@@ -278,7 +302,6 @@
     });
   }
 
-  // --- Lecture robuste des valeurs roster (ancien format number vs nouveau objet) ---
   function readCharPower(val) {
     if (val == null) return 0;
 
@@ -301,18 +324,21 @@
 
   function readCharLevel(val) {
     if (!val || typeof val !== "object") return 0;
+
     const n = Number(val.level);
     return Number.isFinite(n) ? n : 0;
   }
 
   function readCharGear(val) {
     if (!val || typeof val !== "object") return 0;
+
     const n = Number(val.gear);
     return Number.isFinite(n) ? n : 0;
   }
 
   function readCharIsoMax(val) {
     if (!val || typeof val !== "object") return 0;
+
     const n = Number(val.isoMax);
     return Number.isFinite(n) ? n : 0;
   }
@@ -356,9 +382,8 @@
     return null;
   }
 
-  // Retourne { sum, bars:[{status:'red'|'orange'|'green', tip:string}] }
   function computeTeamStatsForPlayer(playerName, teamName) {
-    const playerK = normalizeKey(playerName);
+    const playerK = normalizePlayerKey(playerName);
     const charsMap = ROSTER_MAP.get(playerK) || null;
 
     if (!charsMap) return { sum: 0, bars: [] };
@@ -374,9 +399,7 @@
     for (const charName of teamObj.characters || []) {
       const raw = getRosterValueForCharacter(charsMap, charName);
 
-      // ✅ Présence = la clé existe dans le roster (pas juste power > 0)
       const present = raw !== undefined && raw !== null;
-
       const power = readCharPower(raw);
 
       if (present && Number.isFinite(power)) {
@@ -405,7 +428,7 @@
     clearNode(playersWrap);
 
     const selectedMode = getSelectedMode();
-    const teamName = teamSelect?.value || "";
+    const teamName = String(teamSelect?.value || "").trim();
 
     if (!selectedMode || !teamName) {
       if (playersCount) playersCount.textContent = "0";
@@ -417,16 +440,18 @@
     const rows = JOUEURS
       .filter((p) => {
         const key = allianceKey(p.alliance);
+
         if (!key) return false;
 
         return allianceEnabled[key] === true;
       })
       .map((p) => {
         const stats = computeTeamStatsForPlayer(p.player, teamName);
+        const key = allianceKey(p.alliance);
 
         return {
           ...p,
-          allianceKey: allianceKey(p.alliance),
+          allianceKey: key,
           power: stats.sum,
           bars: stats.bars,
         };
@@ -439,7 +464,9 @@
         });
       });
 
-    if (playersCount) playersCount.textContent = String(rows.length);
+    if (playersCount) {
+      playersCount.textContent = String(rows.length);
+    }
 
     const list = document.createElement("div");
     list.className = "rankList";
@@ -492,6 +519,7 @@
       row.appendChild(left);
       row.appendChild(bars);
       row.appendChild(power);
+
       list.appendChild(row);
     });
 
@@ -519,10 +547,8 @@
       fetchJson(FILES.rosters),
     ]);
 
-    // raw chars
     CHARS = Array.isArray(charsRaw) ? charsRaw : [];
 
-    // Characters maps
     CHAR_MAP = new Map();
     CHAR_MULTI = new Map();
 
@@ -531,6 +557,7 @@
 
       keys.forEach((k) => {
         const kk = normalizeKey(k);
+
         if (!kk) return;
 
         if (!CHAR_MULTI.has(kk)) {
@@ -543,35 +570,35 @@
 
         if (!existing) {
           CHAR_MAP.set(kk, c);
-        } else {
-          const scNew = scoreCharacterMatch(c, kk);
-          const scOld = scoreCharacterMatch(existing, kk);
+          return;
+        }
 
-          if (scNew > scOld) {
-            CHAR_MAP.set(kk, c);
-          }
+        const scNew = scoreCharacterMatch(c, kk);
+        const scOld = scoreCharacterMatch(existing, kk);
+
+        if (scNew > scOld) {
+          CHAR_MAP.set(kk, c);
         }
       });
     });
 
-    // Teams
     TEAMS = (Array.isArray(teamsRaw) ? teamsRaw : [])
       .map((t) => {
-        const team = (t.team ?? t.Team ?? "").toString().trim();
-        const mode = (t.mode ?? t.Mode ?? "").toString().trim();
+        const team = String(t.team ?? t.Team ?? "").trim();
+        const mode = String(t.mode ?? t.Mode ?? "").trim();
+
         const characters = Array.isArray(t.characters)
-          ? t.characters.map((c) => (c ?? "").toString().trim()).filter(Boolean)
+          ? t.characters.map((c) => String(c ?? "").trim()).filter(Boolean)
           : [];
 
         return { team, mode, characters };
       })
       .filter((t) => t.team);
 
-    // Joueurs
     JOUEURS = (Array.isArray(joueursRaw) ? joueursRaw : [])
       .map((r) => {
-        const player = (r.player ?? r.joueur ?? r.JOUEURS ?? "").toString().trim();
-        const rawAlliance = (r.alliance ?? r.ALLIANCES ?? "").toString().trim();
+        const player = String(r.player ?? r.joueur ?? r.JOUEURS ?? "").trim();
+        const rawAlliance = String(r.alliance ?? r.ALLIANCES ?? "").trim();
         const key = allianceKey(rawAlliance);
 
         return {
@@ -582,25 +609,25 @@
       })
       .filter((r) => r.player && r.alliance);
 
-    // Rosters
     ROSTERS = (Array.isArray(rostersRaw) ? rostersRaw : [])
       .map((r) => ({
-        player: (r.player ?? "").toString().trim(),
+        player: String(r.playerKey ?? r.player ?? "").trim(),
         chars: r.chars && typeof r.chars === "object" ? r.chars : {},
       }))
       .filter((r) => r.player);
 
-    // Map player -> normalized chars keys
     ROSTER_MAP = new Map();
 
     for (const r of ROSTERS) {
-      const playerK = normalizeKey(r.player);
+      const playerK = normalizePlayerKey(r.player);
+
       if (!playerK) continue;
 
       const normChars = {};
 
       for (const [k, v] of Object.entries(r.chars || {})) {
         const key = normalizeKey(k);
+
         if (!key) continue;
 
         normChars[key] = v;
@@ -615,7 +642,7 @@
     renderRanking();
   }
 
-    modeSelect?.addEventListener("change", onModeChange);
+  modeSelect?.addEventListener("change", onModeChange);
   teamSelect?.addEventListener("change", onTeamChange);
 
   filterZeus?.addEventListener("change", renderRanking);
@@ -624,44 +651,6 @@
   filterPoseidon?.addEventListener("change", renderRanking);
 
   boot().catch((e) => {
-    const message = e?.message || String(e);
-
     console.error("[app] boot error:", e);
-
-    if (modeSelect) {
-      modeSelect.innerHTML = "";
-
-      const opt = document.createElement("option");
-      opt.value = "";
-      opt.textContent = "Erreur : " + message;
-
-      modeSelect.appendChild(opt);
-    }
-
-    if (teamSelect) {
-      teamSelect.innerHTML = "";
-
-      const opt = document.createElement("option");
-      opt.value = "";
-      opt.textContent = "Erreur : " + message;
-
-      teamSelect.appendChild(opt);
-    }
-
-    if (teamTitle) {
-      teamTitle.textContent = "Erreur de chargement";
-    }
-
-    if (playersWrap) {
-      playersWrap.innerHTML = `
-        <div class="warHistoryEmpty">
-          Erreur app.js : ${message}
-        </div>
-      `;
-    }
-
-    if (playersCount) {
-      playersCount.textContent = "0";
-    }
   });
 })();
