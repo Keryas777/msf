@@ -6,18 +6,20 @@
       name="viewport"
       content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
     />
+
     <style>
-  html.authChecking body{
-    opacity: 0;
-    pointer-events: none;
-  }
-</style>
+      html.authChecking body{
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
 
-<script>
-  document.documentElement.classList.add("authChecking");
-</script>
+    <script>
+      document.documentElement.classList.add("authChecking");
+    </script>
 
-<script src="./auth-guard.js?v=2"></script>
+    <script src="./auth-guard.js?v=2"></script>
+
     <meta name="theme-color" content="#0b0c0d" />
     <title>Classement Teams Groupement</title>
 
@@ -25,7 +27,7 @@
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="manifest" href="./manifest.webmanifest" />
   </head>
 
   <body>
@@ -37,7 +39,9 @@
           class="backBtn"
           aria-label="Retour"
           onclick="history.back()"
-        >⬅️</button>
+        >
+          ⬅️
+        </button>
 
         <!-- 🏠 accueil -->
         <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
@@ -71,20 +75,37 @@
       </section>
 
       <section class="card filtersCard">
-        <div class="filters" role="group" aria-label="Filtres alliances">
+        <div class="filters filters--twoColumns" role="group" aria-label="Filtres alliances">
           <label class="filterToggle">
             <input id="filterZeus" type="checkbox" checked />
-            <span class="fStack"><span class="fEmoji">⚡</span><span class="fName">Zeus</span></span>
+            <span class="fStack">
+              <span class="fEmoji">⚡</span>
+              <span class="fName">Zeus</span>
+            </span>
+          </label>
+
+          <label class="filterToggle">
+            <input id="filterKronos" type="checkbox" checked />
+            <span class="fStack">
+              <span class="fEmoji">⏳</span>
+              <span class="fName">Kronos</span>
+            </span>
           </label>
 
           <label class="filterToggle">
             <input id="filterDionysos" type="checkbox" checked />
-            <span class="fStack"><span class="fEmoji">🍇</span><span class="fName">Dionysos</span></span>
+            <span class="fStack">
+              <span class="fEmoji">🍇</span>
+              <span class="fName">Dionysos</span>
+            </span>
           </label>
 
           <label class="filterToggle">
             <input id="filterPoseidon" type="checkbox" checked />
-            <span class="fStack"><span class="fEmoji">🔱</span><span class="fName">Poséidon</span></span>
+            <span class="fStack">
+              <span class="fEmoji">🔱</span>
+              <span class="fName">Poséidon</span>
+            </span>
           </label>
         </div>
       </section>
@@ -104,8 +125,11 @@
     <script>
       (function () {
         const links = document.querySelectorAll('link[rel="stylesheet"]');
+
         links.forEach((l) => {
-          if (l.href.includes("v=ts")) l.href = l.href.replace("v=ts", "v=" + Date.now());
+          if (l.href.includes("v=ts")) {
+            l.href = l.href.replace("v=ts", "v=" + Date.now());
+          }
         });
 
         const s = document.createElement("script");
