@@ -123,20 +123,28 @@
     </div>
 
     <script>
-      (function () {
-        const links = document.querySelectorAll('link[rel="stylesheet"]');
+  (function () {
+    document.querySelectorAll('link[rel="stylesheet"]').forEach((l) => {
+      if (l.href.includes("v=ts")) {
+        l.href = l.href.replace("v=ts", "v=" + Date.now());
+      }
+    });
 
-        links.forEach((l) => {
-          if (l.href.includes("v=ts")) {
-            l.href = l.href.replace("v=ts", "v=" + Date.now());
-          }
-        });
+    alert("HTML OK : injection app.js");
 
-        const s = document.createElement("script");
-        s.src = "./app.js?v=" + Date.now();
-        s.defer = true;
-        document.body.appendChild(s);
-      })();
-    </script>
+    const s = document.createElement("script");
+    s.src = "./app.js?v=" + Date.now();
+
+    s.onload = function () {
+      alert("app.js chargé par le navigateur");
+    };
+
+    s.onerror = function () {
+      alert("ERREUR : app.js introuvable ou non chargé");
+    };
+
+    document.body.appendChild(s);
+  })();
+</script>
   </body>
 </html>
