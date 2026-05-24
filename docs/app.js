@@ -8,10 +8,17 @@
   };
 
   const ALLIANCE_EMOJI = {
-    Zeus: "⚡️",
-    Dionysos: "🍇",
-    "Poséidon": "🔱",
-    Poseidon: "🔱",
+    zeus: "⚡️",
+    kronos: "⏳",
+    dionysos: "🍇",
+    poseidon: "🔱",
+  };
+
+  const ALLIANCE_LABEL = {
+    zeus: "Zeus",
+    kronos: "Kronos",
+    dionysos: "Dionysos",
+    poseidon: "Poséidon",
   };
 
   // ✅ Ordre forcé des modes de jeu (affichage dans le select)
@@ -36,6 +43,7 @@
   const playersCount = qs("#playersCount");
 
   const filterZeus = qs("#filterZeus");
+  const filterKronos = qs("#filterKronos");
   const filterDionysos = qs("#filterDionysos");
   const filterPoseidon = qs("#filterPoseidon");
 
@@ -77,6 +85,25 @@
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
 
+  function allianceKey(value) {
+    const key = normalizeKey(value);
+
+    if (key === "zeus") return "zeus";
+    if (key === "dionysos") return "dionysos";
+    if (key === "poseidon" || key === "posseidon") return "poseidon";
+
+    if (
+      key === "kronos" ||
+      key === "cronos" ||
+      key === "chronos" ||
+      key === "lospkronos"
+    ) {
+      return "kronos";
+    }
+
+    return "";
+  }
+
   function clearNode(el) {
     if (!el) return;
     while (el.firstChild) el.removeChild(el.firstChild);
@@ -92,10 +119,10 @@
 
   function getSelectedAlliances() {
     return {
-      Zeus: !!filterZeus?.checked,
-      Dionysos: !!filterDionysos?.checked,
-      "Poséidon": !!filterPoseidon?.checked,
-      Poseidon: !!filterPoseidon?.checked,
+      zeus: !!filterZeus?.checked,
+      kronos: !!filterKronos?.checked,
+      dionysos: !!filterDionysos?.checked,
+      poseidon: !!filterPoseidon?.checked,
     };
   }
 
@@ -123,6 +150,7 @@
       if (ia !== -1 || ib !== -1) {
         return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
       }
+
       return a.localeCompare(b, "fr");
     });
 
@@ -206,6 +234,7 @@
 
       for (const c of list) {
         const sc = scoreCharacterMatch(c, key);
+
         if (sc > bestScore) {
           bestScore = sc;
           best = c;
@@ -250,15 +279,21 @@
   // --- Lecture robuste des valeurs roster (ancien format number vs nouveau objet) ---
   function readCharPower(val) {
     if (val == null) return 0;
-    if (typeof val === "number") return Number.isFinite(val) ? val : 0;
+
+    if (typeof val === "number") {
+      return Number.isFinite(val) ? val : 0;
+    }
+
     if (typeof val === "string") {
       const n = Number(val);
       return Number.isFinite(n) ? n : 0;
     }
+
     if (typeof val === "object") {
       const n = Number(val.power);
       return Number.isFinite(n) ? n : 0;
     }
+
     return 0;
   }
 
@@ -321,12 +356,14 @@
 
   // Retourne { sum, bars:[{status:'red'|'orange'|'green', tip:string}] }
   function computeTeamStatsForPlayer(playerName, teamName) {
-    const playerKey = normalizeKey(playerName);
-    const charsMap = ROSTER_MAP.get(playerKey) || null;
+    const playerK = normalizeKey(playerName);
+    const charsMap = ROSTER_MAP.get(playerK) || null;
+
     if (!charsMap) return { sum: 0, bars: [] };
 
     const teamsFiltered = getTeamListFilteredByMode();
     const teamObj = teamsFiltered.find((t) => t.team === teamName);
+
     if (!teamObj) return { sum: 0, bars: [] };
 
     let sum = 0;
@@ -340,13 +377,16 @@
 
       const power = readCharPower(raw);
 
-      if (present && Number.isFinite(power)) sum += power;
+      if (present && Number.isFinite(power)) {
+        sum += power;
+      }
 
       const level = readCharLevel(raw);
       const gear = readCharGear(raw);
       const isoMax = readCharIsoMax(raw);
 
       let status = "red";
+
       if (present) {
         const ok = level >= THRESH.level && gear >= THRESH.gear && isoMax >= THRESH.iso;
         status = ok ? "green" : "orange";
@@ -374,14 +414,28 @@
 
     const rows = JOUEURS
       .filter((p) => {
-        const a = (p.alliance || "").trim();
-        return !!allianceEnabled[a];
+        const key = allianceKey(p.alliance);
+        if (!key) return false;
+
+        return allianceEnabled[key] === true;
       })
       .map((p) => {
         const stats = computeTeamStatsForPlayer(p.player, teamName);
-        return { ...p, power: stats.sum, bars: stats.bars };
+
+        return {
+          ...p,
+          allianceKey: allianceKey(p.alliance),
+          power: stats.sum,
+          bars: stats.bars,
+        };
       })
-      .sort((a, b) => b.power - a.power);
+      .sort((a, b) => {
+        if (b.power !== a.power) return b.power - a.power;
+
+        return String(a.player || "").localeCompare(String(b.player || ""), "fr", {
+          sensitivity: "base",
+        });
+      });
 
     if (playersCount) playersCount.textContent = String(rows.length);
 
@@ -389,7 +443,9 @@
     list.className = "rankList";
 
     rows.forEach((r, idx) => {
-      const emoji = ALLIANCE_EMOJI[r.alliance] || "•";
+      const key = r.allianceKey || allianceKey(r.alliance);
+      const emoji = ALLIANCE_EMOJI[key] || "•";
+      const label = ALLIANCE_LABEL[key] || "Alliance";
 
       const row = document.createElement("div");
       row.className = "rankRow";
@@ -403,6 +459,7 @@
 
       const name = document.createElement("div");
       name.className = "rankName";
+      name.title = `${label} • ${r.player}`;
       name.textContent = `${emoji}${r.player}`;
 
       left.appendChild(num);
@@ -415,12 +472,14 @@
 
       for (let i = 0; i < 5; i++) {
         const b = barsData[i] || { status: "empty", tip: "—" };
+
         const bar = document.createElement("span");
         bar.className = `rankBar is-${b.status}`;
         bar.setAttribute("role", "img");
         bar.setAttribute("aria-label", b.tip || "—");
         bar.title = b.tip || "";
         bar.dataset.tip = b.tip || "";
+
         bars.appendChild(bar);
       }
 
@@ -439,6 +498,7 @@
 
   function onModeChange() {
     if (teamSelect) teamSelect.value = "";
+
     renderTeamOptions();
     renderSelectedTeam("");
     renderRanking();
@@ -471,42 +531,57 @@
         const kk = normalizeKey(k);
         if (!kk) return;
 
-        if (!CHAR_MULTI.has(kk)) CHAR_MULTI.set(kk, []);
+        if (!CHAR_MULTI.has(kk)) {
+          CHAR_MULTI.set(kk, []);
+        }
+
         CHAR_MULTI.get(kk).push(c);
 
         const existing = CHAR_MAP.get(kk);
+
         if (!existing) {
           CHAR_MAP.set(kk, c);
         } else {
           const scNew = scoreCharacterMatch(c, kk);
           const scOld = scoreCharacterMatch(existing, kk);
-          if (scNew > scOld) CHAR_MAP.set(kk, c);
+
+          if (scNew > scOld) {
+            CHAR_MAP.set(kk, c);
+          }
         }
       });
     });
 
     // Teams
-    TEAMS = (teamsRaw || [])
+    TEAMS = (Array.isArray(teamsRaw) ? teamsRaw : [])
       .map((t) => {
         const team = (t.team ?? t.Team ?? "").toString().trim();
         const mode = (t.mode ?? t.Mode ?? "").toString().trim();
         const characters = Array.isArray(t.characters)
           ? t.characters.map((c) => (c ?? "").toString().trim()).filter(Boolean)
           : [];
+
         return { team, mode, characters };
       })
       .filter((t) => t.team);
 
     // Joueurs
-    JOUEURS = (joueursRaw || [])
-      .map((r) => ({
-        player: (r.player ?? r.joueur ?? r.JOUEURS ?? "").toString().trim(),
-        alliance: (r.alliance ?? r.ALLIANCES ?? "").toString().trim(),
-      }))
-      .filter((r) => r.player);
+    JOUEURS = (Array.isArray(joueursRaw) ? joueursRaw : [])
+      .map((r) => {
+        const player = (r.player ?? r.joueur ?? r.JOUEURS ?? "").toString().trim();
+        const rawAlliance = (r.alliance ?? r.ALLIANCES ?? "").toString().trim();
+        const key = allianceKey(rawAlliance);
+
+        return {
+          player,
+          alliance: key,
+          allianceRaw: rawAlliance,
+        };
+      })
+      .filter((r) => r.player && r.alliance);
 
     // Rosters
-    ROSTERS = (rostersRaw || [])
+    ROSTERS = (Array.isArray(rostersRaw) ? rostersRaw : [])
       .map((r) => ({
         player: (r.player ?? "").toString().trim(),
         chars: r.chars && typeof r.chars === "object" ? r.chars : {},
@@ -515,17 +590,21 @@
 
     // Map player -> normalized chars keys
     ROSTER_MAP = new Map();
+
     for (const r of ROSTERS) {
-      const playerKey = normalizeKey(r.player);
-      if (!playerKey) continue;
+      const playerK = normalizeKey(r.player);
+      if (!playerK) continue;
 
       const normChars = {};
+
       for (const [k, v] of Object.entries(r.chars || {})) {
         const key = normalizeKey(k);
         if (!key) continue;
+
         normChars[key] = v;
       }
-      ROSTER_MAP.set(playerKey, normChars);
+
+      ROSTER_MAP.set(playerK, normChars);
     }
 
     renderModeOptions();
@@ -538,6 +617,7 @@
   teamSelect?.addEventListener("change", onTeamChange);
 
   filterZeus?.addEventListener("change", renderRanking);
+  filterKronos?.addEventListener("change", renderRanking);
   filterDionysos?.addEventListener("change", renderRanking);
   filterPoseidon?.addEventListener("change", renderRanking);
 
