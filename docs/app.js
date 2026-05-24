@@ -615,7 +615,7 @@
     renderRanking();
   }
 
-  modeSelect?.addEventListener("change", onModeChange);
+    modeSelect?.addEventListener("change", onModeChange);
   teamSelect?.addEventListener("change", onTeamChange);
 
   filterZeus?.addEventListener("change", renderRanking);
@@ -624,43 +624,44 @@
   filterPoseidon?.addEventListener("change", renderRanking);
 
   boot().catch((e) => {
-  const message = e?.message || String(e);
+    const message = e?.message || String(e);
 
-  console.error("[app] boot error:", e);
+    console.error("[app] boot error:", e);
 
-  if (modeSelect) {
-    modeSelect.innerHTML = "";
+    if (modeSelect) {
+      modeSelect.innerHTML = "";
 
-    const opt = document.createElement("option");
-    opt.value = "";
-    opt.textContent = "Erreur : " + message;
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "Erreur : " + message;
 
-    modeSelect.appendChild(opt);
-  }
+      modeSelect.appendChild(opt);
+    }
 
-  if (teamSelect) {
-    teamSelect.innerHTML = "";
+    if (teamSelect) {
+      teamSelect.innerHTML = "";
 
-    const opt = document.createElement("option");
-    opt.value = "";
-    opt.textContent = "Erreur : " + message;
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "Erreur : " + message;
 
-    teamSelect.appendChild(opt);
-  }
+      teamSelect.appendChild(opt);
+    }
 
-  if (teamTitle) {
-    teamTitle.textContent = "Erreur de chargement";
-  }
+    if (teamTitle) {
+      teamTitle.textContent = "Erreur de chargement";
+    }
 
-  if (playersWrap) {
-    playersWrap.innerHTML = `
-      <div class="warHistoryEmpty">
-        Erreur app.js : ${message}
-      </div>
-    `;
-  }
+    if (playersWrap) {
+      playersWrap.innerHTML = `
+        <div class="warHistoryEmpty">
+          Erreur app.js : ${message}
+        </div>
+      `;
+    }
 
-  if (playersCount) {
-    playersCount.textContent = "0";
-  }
-});
+    if (playersCount) {
+      playersCount.textContent = "0";
+    }
+  });
+})();
