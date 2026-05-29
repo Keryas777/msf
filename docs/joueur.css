@@ -1,0 +1,401 @@
+/* /docs/joueur.css */
+
+.page-joueur .app{
+  padding-bottom: calc(18px + env(safe-area-inset-bottom));
+}
+
+.playerHeader{
+  min-height: 74px;
+  align-items:center;
+}
+
+.playerIdentity{
+  display:flex;
+  align-items:center;
+  gap: 14px;
+  padding: 14px;
+}
+
+.playerAvatarWrap{
+  position:relative;
+  width: 86px;
+  height: 86px;
+  flex: 0 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.playerIcon,
+.playerFrame{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+}
+
+.playerIcon{
+  z-index:1;
+  border-radius: 50%;
+  background: rgba(255,255,255,.04);
+}
+
+.playerFrame{
+  z-index:2;
+  pointer-events:none;
+}
+
+.playerAvatarFallback{
+  position:absolute;
+  inset:8px;
+  z-index:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  border:1px solid var(--border);
+  background: rgba(0,0,0,.28);
+  color: var(--muted);
+  font-size: 34px;
+  font-weight: 1000;
+}
+
+.playerIdentityMain{
+  min-width:0;
+  flex: 1 1 auto;
+}
+
+.playerAlliance{
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.playerName{
+  margin:0 0 10px 0;
+  font-size: 26px;
+  line-height:1.05;
+  font-weight:1000;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.playerStatsGrid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.playerStat{
+  min-width:0;
+  border:1px solid var(--border);
+  border-radius: 14px;
+  padding: 8px 9px;
+  background: rgba(0,0,0,.22);
+}
+
+.playerStatLabel{
+  display:block;
+  color: var(--muted2);
+  font-size: 11px;
+  font-weight: 800;
+  margin-bottom: 3px;
+}
+
+.playerStat strong{
+  display:block;
+  color: var(--text);
+  font-size: 14px;
+  line-height:1.05;
+  font-weight:1000;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.playerSelectorCard{
+  padding: 12px;
+}
+
+.modeCard{
+  padding: 12px;
+}
+
+.modeCard .cardTitle{
+  margin-bottom: 12px;
+}
+
+.modeChips{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.modeChip{
+  appearance:none;
+  -webkit-appearance:none;
+  border:1px solid var(--toggle-off-border);
+  border-radius: 999px;
+  background: var(--toggle-off-bg);
+  color: var(--toggle-off-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 1000;
+  line-height: 1.1;
+  padding: 11px 8px;
+  cursor:pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: .15s ease;
+}
+
+.modeChip.is-active{
+  background: var(--toggle-on-bg);
+  border-color: var(--toggle-on-border);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+}
+
+.modeChip:active{
+  transform: scale(.98);
+}
+
+.emptyState{
+  color: var(--muted);
+  text-align:center;
+  padding: 16px 8px 8px;
+  line-height:1.35;
+}
+
+.teamList{
+  display:flex;
+  flex-direction:column;
+  gap: 12px;
+}
+
+.playerTeamCard{
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding: 12px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015)),
+    rgba(0,0,0,.22);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+}
+
+.playerTeamTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.playerTeamName{
+  margin:0;
+  min-width:0;
+  font-size: 20px;
+  line-height:1.05;
+  font-weight:1000;
+}
+
+.playerTeamMeta{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap: 5px;
+  flex: 0 0 auto;
+}
+
+.playerTeamPower{
+  font-size: 18px;
+  line-height:1;
+  font-weight:1000;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.playerTeamCount{
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.playerTeamChars{
+  display:grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.playerCharCard{
+  min-width:0;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius: 14px;
+  background: rgba(0,0,0,.24);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.playerCharCard.is-missing{
+  opacity: .48;
+  filter: grayscale(.85);
+}
+
+.playerCharPortraitBox{
+  width:100%;
+  aspect-ratio: 1 / 1;
+  background: rgba(255,255,255,.04);
+}
+
+.playerCharPortrait{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  display:block;
+}
+
+.playerCharInfo{
+  width:100%;
+  padding: 6px 4px 7px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap: 3px;
+}
+
+.playerCharPower{
+  font-size: 11px;
+  line-height:1;
+  font-weight:1000;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.playerCharGear{
+  font-size: 10px;
+  line-height:1;
+  font-weight:900;
+  color: var(--muted);
+}
+
+.playerCharIso{
+  height: 22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-top: 2px;
+}
+
+.playerCharIsoIcon{
+  width: 22px;
+  height: 22px;
+  object-fit:contain;
+  display:block;
+}
+
+.playerCharIsoMissing{
+  color: var(--muted2);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.playerTeamMissing{
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+@media (max-width: 520px){
+  .playerIdentity{
+    align-items:flex-start;
+  }
+
+  .playerAvatarWrap{
+    width: 76px;
+    height: 76px;
+  }
+
+  .playerName{
+    font-size: 24px;
+  }
+
+  .playerStatsGrid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .playerStatsGrid .playerStat:first-child{
+    grid-column: 1 / -1;
+  }
+
+  .modeChips{
+    gap: 7px;
+  }
+
+  .modeChip{
+    font-size: 12.5px;
+    padding: 10px 5px;
+  }
+
+  .playerTeamTop{
+    gap: 8px;
+  }
+
+  .playerTeamName{
+    font-size: 18px;
+  }
+
+  .playerTeamPower{
+    font-size: 15px;
+  }
+
+  .playerTeamChars{
+    gap: 6px;
+  }
+
+  .playerCharPower{
+    font-size: 9.5px;
+  }
+
+  .playerCharGear{
+    font-size: 9px;
+  }
+
+  .playerCharIso{
+    height: 19px;
+  }
+
+  .playerCharIsoIcon{
+    width: 19px;
+    height: 19px;
+  }
+}
+
+@media (max-width: 380px){
+  .playerAvatarWrap{
+    width: 68px;
+    height: 68px;
+  }
+
+  .playerName{
+    font-size: 22px;
+  }
+
+  .playerStat strong{
+    font-size: 13px;
+  }
+
+  .modeChip{
+    font-size: 11.5px;
+  }
+}

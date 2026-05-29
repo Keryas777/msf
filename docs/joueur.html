@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Fiche joueur</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./joueur.css" />
+</head>
+<body class="page-joueur">
+  <main class="app">
+    <header class="header playerHeader">
+      <a class="backBtn" href="javascript:history.back()" aria-label="Retour">‹</a>
+      <a class="homeBtn" href="./index.html" aria-label="Accueil">⌂</a>
+
+      <div class="headerLeft">
+        <h1 class="title">Fiche joueur</h1>
+        <p class="subtitle">Identité, TCP et équipes par mode de jeu</p>
+      </div>
+    </header>
+
+    <section class="card playerIdentity" id="playerIdentityCard">
+      <div class="playerAvatarWrap" id="playerAvatarWrap" aria-hidden="true">
+        <img class="playerFrame" id="playerFrame" alt="" />
+        <img class="playerIcon" id="playerIcon" alt="Portrait joueur" />
+        <div class="playerAvatarFallback" id="playerAvatarFallback">?</div>
+      </div>
+
+      <div class="playerIdentityMain">
+        <div class="playerAlliance" id="playerAlliance">—</div>
+        <h2 class="playerName" id="playerName">Joueur</h2>
+        <div class="playerStatsGrid">
+          <div class="playerStat">
+            <span class="playerStatLabel">TCP</span>
+            <strong id="playerTcp">—</strong>
+          </div>
+          <div class="playerStat">
+            <span class="playerStatLabel">War MVP</span>
+            <strong id="playerWarMvp">—</strong>
+          </div>
+          <div class="playerStat">
+            <span class="playerStatLabel">Personnages</span>
+            <strong id="playerCharCount">—</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card playerSelectorCard">
+      <label class="label" for="playerSelect">Joueur</label>
+      <select class="select" id="playerSelect"></select>
+    </section>
+
+    <section class="card modeCard">
+      <h2 class="cardTitle">Mode de jeu</h2>
+      <div class="modeChips" id="modeChips" role="tablist" aria-label="Modes de jeu">
+        <button class="modeChip" type="button" data-mode="Raid">Raid</button>
+        <button class="modeChip" type="button" data-mode="Guerre">Guerre</button>
+        <button class="modeChip" type="button" data-mode="Epreuve">Épreuve</button>
+        <button class="modeChip" type="button" data-mode="Battleworld">Battleworld</button>
+      </div>
+    </section>
+
+    <section class="card teamsCard" id="teamsCard">
+      <div class="cardHeader">
+        <h2 class="cardTitle" id="teamsTitle">Équipes</h2>
+        <span class="chipCount" id="teamsCount">0</span>
+      </div>
+      <div class="emptyState" id="emptyState">Choisis un mode de jeu pour afficher les équipes du joueur.</div>
+      <div class="teamList" id="teamList"></div>
+    </section>
+  </main>
+
+  <script src="./joueur.js" defer></script>
+</body>
+</html>
