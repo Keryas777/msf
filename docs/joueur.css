@@ -9,6 +9,29 @@
   align-items:center;
 }
 
+/* ===== Sélecteurs joueur ===== */
+
+.playerSelectorCard{
+  padding: 12px;
+}
+
+.playerSelectorGrid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-items:end;
+}
+
+.playerSelectorField{
+  min-width:0;
+}
+
+.playerSelectorField .select{
+  min-width:0;
+}
+
+/* ===== Identité joueur ===== */
+
 .playerIdentity{
   display:flex;
   align-items:center;
@@ -18,8 +41,8 @@
 
 .playerAvatarWrap{
   position:relative;
-  width: 86px;
-  height: 86px;
+  width: 90px;
+  height: 90px;
   flex: 0 0 auto;
   display:flex;
   align-items:center;
@@ -36,15 +59,18 @@
   display:block;
 }
 
-.playerIcon{
+/* Le cadre reste derrière, le portrait passe par-dessus */
+.playerFrame{
   z-index:1;
-  border-radius: 50%;
-  background: rgba(255,255,255,.04);
+  pointer-events:none;
+  transform: scale(1.04);
+  transform-origin:center;
 }
 
-.playerFrame{
+.playerIcon{
   z-index:2;
-  pointer-events:none;
+  border-radius: 50%;
+  background: rgba(255,255,255,.04);
 }
 
 .playerAvatarFallback{
@@ -86,7 +112,7 @@
 
 .playerStatsGrid{
   display:grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -119,9 +145,19 @@
   font-feature-settings: "tnum" 1;
 }
 
-.playerSelectorCard{
-  padding: 12px;
+.playerStat small{
+  display:block;
+  margin-top: 3px;
+  color: var(--muted2);
+  font-size: 10px;
+  line-height:1.05;
+  font-weight:800;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
 }
+
+/* ===== Modes ===== */
 
 .modeCard{
   padding: 12px;
@@ -164,6 +200,8 @@
 .modeChip:active{
   transform: scale(.98);
 }
+
+/* ===== Teams ===== */
 
 .emptyState{
   color: var(--muted);
@@ -316,26 +354,45 @@
   line-height: 1.35;
 }
 
+/* ===== Responsive ===== */
+
+@media (max-width: 620px){
+  .playerStatsGrid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .playerStat--tcp{
+    grid-column: 1 / -1;
+  }
+}
+
 @media (max-width: 520px){
+  .playerSelectorGrid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .playerSelectorField .label{
+    font-size: 11px;
+  }
+
+  .playerSelectorField .select{
+    font-size: 14px;
+    padding: 9px 9px;
+    border-radius: 13px;
+  }
+
   .playerIdentity{
     align-items:flex-start;
   }
 
   .playerAvatarWrap{
-    width: 76px;
-    height: 76px;
+    width: 78px;
+    height: 78px;
   }
 
   .playerName{
     font-size: 24px;
-  }
-
-  .playerStatsGrid{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .playerStatsGrid .playerStat:first-child{
-    grid-column: 1 / -1;
   }
 
   .modeChips{
@@ -381,18 +438,32 @@
   }
 }
 
-@media (max-width: 380px){
+@media (max-width: 400px){
+  .playerSelectorField .select{
+    font-size: 13px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
   .playerAvatarWrap{
-    width: 68px;
-    height: 68px;
+    width: 70px;
+    height: 70px;
   }
 
   .playerName{
     font-size: 22px;
   }
 
+  .playerStat{
+    padding: 8px 8px;
+  }
+
   .playerStat strong{
     font-size: 13px;
+  }
+
+  .playerStat small{
+    font-size: 9.5px;
   }
 
   .modeChip{
