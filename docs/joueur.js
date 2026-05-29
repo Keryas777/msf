@@ -1151,6 +1151,11 @@
     power.textContent = char.owned ? formatCompactPower(char.power) : "Absent";
     info.appendChild(power);
 
+    const level = document.createElement("div");
+    level.className = "playerCharLevel";
+    level.textContent = char.owned && char.level ? String(char.level) : "—";
+    info.appendChild(level);
+
     const gear = document.createElement("div");
     gear.className = "playerCharGear";
     gear.textContent = char.owned && char.gear ? `G${char.gear}` : "—";
