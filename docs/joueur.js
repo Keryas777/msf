@@ -1,5 +1,8 @@
 // /docs/joueur.js
 (() => {
+  const AUTH_PLAYER_STORAGE_KEY = "losp:joueur:lastSelection";
+  const LOCAL_SESSION_KEY = "losp_session";
+
   const FILES = {
     infos: "./data/infos.json",
     joueurs: "./data/joueurs.json",
@@ -17,7 +20,7 @@
     zeus: "Zeus",
     kronos: "Kronos",
     dionysos: "Dionysos",
-    poseidon: "Poséidon",
+    poseidon: "Poseidon",
   };
 
   const ALLIANCE_EMOJI = {
@@ -75,6 +78,11 @@
     selectedMode: "",
   };
 
+  let lospSession = window.LoSP_SESSION || null;
+  let bootReady = false;
+  let authDefaultsApplied = false;
+  let userChangedSelection = false;
+
   const bust = (url) => {
     const u = new URL(url, window.location.href);
     u.searchParams.set("v", Date.now().toString());
@@ -100,7 +108,14 @@
     const key = normalizeKey(value);
 
     if (key === "zeus") return "zeus";
-    if (key === "kronos" || key === "cronos" || key === "chronos" || key === "lospkronos") return "kronos";
+    if (
+      key === "kronos" ||
+      key === "cronos" ||
+      key === "chronos" ||
+      key === "lospkronos"
+    ) {
+      return "kronos";
+    }
     if (key === "dionysos") return "dionysos";
     if (key === "poseidon" || key === "posseidon") return "poseidon";
 
@@ -201,6 +216,275 @@
     return "";
   }
 
+  function hasExplicitUrlTarget() {
+    const params = new URLSearchParams(window.location.search);
+
+    return Boolean(
+      params.get("player") ||
+      params.get("playerKey") ||
+      params.get("joueur") ||
+      params.get("alliance")
+    );
+  }
+
+  // ---------- Auth session ----------
+
+  function decodeBase64UrlJson(value) {
+    try {
+      const base64 = String(value || "")
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+
+      const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+      const binary = atob(padded);
+
+      const bytes = new Uint8Array(
+        Array.from(binary).map((char) => char.charCodeAt(0))
+      );
+
+      return JSON.parse(new TextDecoder().decode(bytes));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function readLocalSessionPayload() {
+    try {
+      const raw = localStorage.getItem(LOCAL_SESSION_KEY) || "";
+      if (!raw) return null;
+
+      const payload = decodeBase64UrlJson(raw);
+      if (!payload) return null;
+
+      return {
+        ok: true,
+        ...payload,
+      };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function refreshLoSPSession() {
+    lospSession =
+      window.LoSP_SESSION ||
+      readLocalSessionPayload() ||
+      lospSession ||
+      null;
+
+    return lospSession;
+  }
+
+  function hasUsableSession(session) {
+    return !!session && (
+      session.ok === true ||
+      Array.isArray(session.alliances) ||
+      Array.isArray(session.players) ||
+      session.primaryAlliance ||
+      session.displayName ||
+      session.global_name ||
+      session.username
+    );
+  }
+
+  function getSessionAlliancePreferenceKeys(session) {
+    if (!hasUsableSession(session)) return [];
+
+    const keys = [];
+
+    if (session.primaryAlliance) {
+      keys.push(allianceKey(session.primaryAlliance));
+    }
+
+    if (Array.isArray(session.alliances)) {
+      session.alliances.forEach((alliance) => {
+        keys.push(allianceKey(alliance));
+      });
+    }
+
+    if (Array.isArray(session.players)) {
+      session.players.forEach((player) => {
+        if (player?.alliance) keys.push(allianceKey(player.alliance));
+        if (player?.alliance_label) keys.push(allianceKey(player.alliance_label));
+      });
+    }
+
+    return [...new Set(keys.filter(Boolean))];
+  }
+
+  function namesFromSessionPlayer(player) {
+    if (!player || typeof player !== "object") return [];
+
+    return [
+      player.name,
+      player.player,
+      player.playerName,
+      player.player_name,
+      player.pseudo,
+      player.displayName,
+      player.display_name,
+      player.global_name,
+      player.username,
+      player.playerKey,
+      player.player_key,
+    ]
+      .map((v) => String(v ?? "").trim())
+      .filter(Boolean);
+  }
+
+  function getSessionPlayerCandidates(session) {
+    if (!hasUsableSession(session)) return [];
+
+    const names = [];
+
+    if (Array.isArray(session.players)) {
+      session.players.forEach((player) => {
+        names.push(...namesFromSessionPlayer(player));
+      });
+    }
+
+    names.push(
+      session.displayName,
+      session.display_name,
+      session.global_name,
+      session.username,
+      session.name,
+      session.player,
+      session.playerName,
+      session.playerKey
+    );
+
+    return [...new Set(names.map((v) => String(v ?? "").trim()).filter(Boolean))];
+  }
+
+  function findSessionPlayerInAlliance(allianceK, candidates) {
+    if (!allianceK || !Array.isArray(candidates) || !candidates.length) {
+      return null;
+    }
+
+    const wantedKeys = new Set();
+
+    candidates.forEach((candidate) => {
+      const raw = String(candidate ?? "").trim();
+      if (!raw) return;
+
+      wantedKeys.add(normalizeKey(raw));
+      wantedKeys.add(playerKey(raw));
+    });
+
+    if (!wantedKeys.size) return null;
+
+    const players = playersForAlliance(allianceK);
+
+    return (
+      players.find((p) => {
+        return (
+          wantedKeys.has(p.key) ||
+          wantedKeys.has(normalizeKey(p.label)) ||
+          wantedKeys.has(playerKey(p.label)) ||
+          wantedKeys.has(normalizeKey(p.sortName)) ||
+          wantedKeys.has(playerKey(p.sortName))
+        );
+      }) || null
+    );
+  }
+
+  function applySessionDefaultSelection() {
+    const session = refreshLoSPSession();
+
+    if (!hasUsableSession(session)) return false;
+
+    if (Array.isArray(session.players)) {
+      for (const sessionPlayer of session.players) {
+        const candidateAlliance =
+          allianceKey(sessionPlayer?.alliance) ||
+          allianceKey(sessionPlayer?.alliance_label);
+
+        if (!candidateAlliance) continue;
+
+        const found = findSessionPlayerInAlliance(
+          candidateAlliance,
+          namesFromSessionPlayer(sessionPlayer)
+        );
+
+        if (found) {
+          state.selectedAllianceKey = candidateAlliance;
+          state.selectedPlayerKey = found.key;
+          return true;
+        }
+      }
+    }
+
+    const candidates = getSessionPlayerCandidates(session);
+    const preferredAlliances = getSessionAlliancePreferenceKeys(session);
+
+    for (const allianceK of preferredAlliances) {
+      const found = findSessionPlayerInAlliance(allianceK, candidates);
+
+      if (found) {
+        state.selectedAllianceKey = allianceK;
+        state.selectedPlayerKey = found.key;
+        return true;
+      }
+    }
+
+    const alliances = getAllianceOptions();
+
+    for (const allianceK of alliances) {
+      const found = findSessionPlayerInAlliance(allianceK, candidates);
+
+      if (found) {
+        state.selectedAllianceKey = allianceK;
+        state.selectedPlayerKey = found.key;
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function readStoredSelection() {
+    try {
+      return JSON.parse(localStorage.getItem(AUTH_PLAYER_STORAGE_KEY) || "{}") || {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function saveStoredSelection() {
+    if (!state.selectedAllianceKey || !state.selectedPlayerKey) return;
+
+    try {
+      localStorage.setItem(
+        AUTH_PLAYER_STORAGE_KEY,
+        JSON.stringify({
+          alliance: state.selectedAllianceKey,
+          player: state.selectedPlayerKey,
+        })
+      );
+    } catch (_) {}
+  }
+
+  function applyStoredSelection() {
+    const stored = readStoredSelection();
+    const allianceK = allianceKey(stored.alliance);
+    const playerK = normalizeKey(stored.player);
+
+    if (!allianceK || !playerK) return false;
+
+    const players = playersForAlliance(allianceK);
+    const found = players.find((p) => p.key === playerK);
+
+    if (!found) return false;
+
+    state.selectedAllianceKey = allianceK;
+    state.selectedPlayerKey = found.key;
+
+    return true;
+  }
+
+  // ---------- Characters ----------
+
   function isVariantId(id) {
     const s = String(id ?? "");
 
@@ -286,6 +570,8 @@
     return state.isoIcons?.[cls]?.[col] || null;
   }
 
+  // ---------- Player keys ----------
+
   function getRosterPlayerKey(roster) {
     return normalizeKey(roster?.playerKey || roster?.player || roster?.name || "");
   }
@@ -324,6 +610,89 @@
       null
     );
   }
+
+  function findRosterByPlayerKey(key) {
+    if (!key) return null;
+
+    return state.rosters.find((r) => getRosterPlayerKey(r) === key) || null;
+  }
+
+  function findInfoByPlayerKey(key) {
+    if (!key) return null;
+
+    return state.infos.find((i) => getInfoPlayerKey(i) === key) || null;
+  }
+
+  function resolvePlayerKey(value) {
+    const raw = String(value ?? "").trim();
+    if (!raw) return "";
+
+    const candidates = new Set([normalizeKey(raw), playerKey(raw)].filter(Boolean));
+
+    for (const r of state.rosters) {
+      const key = getRosterPlayerKey(r);
+      const labels = [r.player, r.playerKey, r.name];
+
+      if (candidates.has(key)) return key;
+
+      if (
+        labels.some((label) => {
+          return candidates.has(normalizeKey(label)) || candidates.has(playerKey(label));
+        })
+      ) {
+        return key;
+      }
+    }
+
+    for (const j of state.joueurs) {
+      const key = getJoueurPlayerKey(j);
+      const labels = [j.player, j.playerKey, j.name];
+
+      if (candidates.has(key)) return key;
+
+      if (
+        labels.some((label) => {
+          return candidates.has(normalizeKey(label)) || candidates.has(playerKey(label));
+        })
+      ) {
+        return key;
+      }
+    }
+
+    for (const i of state.infos) {
+      const key = getInfoPlayerKey(i);
+      const labels = [i.name, i.player, i.playerKey];
+
+      if (candidates.has(key)) return key;
+
+      if (
+        labels.some((label) => {
+          return candidates.has(normalizeKey(label)) || candidates.has(playerKey(label));
+        })
+      ) {
+        return key;
+      }
+    }
+
+    return "";
+  }
+
+  function findAllianceForPlayerKey(key) {
+    if (!key) return "";
+
+    const joueur = state.joueurs.find((j) => getJoueurPlayerKey(j) === key);
+    const roster = state.rosters.find((r) => getRosterPlayerKey(r) === key);
+    const info = state.infos.find((i) => getInfoPlayerKey(i) === key);
+
+    return (
+      allianceKey(joueur?.alliance) ||
+      allianceKey(roster?.alliance) ||
+      allianceKey(info?.alliance) ||
+      ""
+    );
+  }
+
+  // ---------- Roster / ISO ----------
 
   function findRosterChar(roster, charId) {
     if (!roster?.chars || typeof roster.chars !== "object") return null;
@@ -469,6 +838,8 @@
     };
   }
 
+  // ---------- Aliases / war score ----------
+
   function buildAliasMap(raw) {
     state.playerAliases = new Map();
 
@@ -537,7 +908,9 @@
       .forEach((war) => {
         const players = Array.isArray(war.players) ? war.players : [];
 
-        const row = players.find((p) => wantedKeys.has(playerKey(p?.name || p?.player)));
+        const row = players.find((p) => {
+          return wantedKeys.has(playerKey(p?.name || p?.player));
+        });
 
         if (!row) return;
 
@@ -559,6 +932,8 @@
       wars: scores.length,
     };
   }
+
+  // ---------- Alliances / players ----------
 
   function getAllianceOptions() {
     const found = new Set();
@@ -584,18 +959,6 @@
 
       return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
     });
-  }
-
-  function findRosterByPlayerKey(key) {
-    if (!key) return null;
-
-    return state.rosters.find((r) => getRosterPlayerKey(r) === key) || null;
-  }
-
-  function findInfoByPlayerKey(key) {
-    if (!key) return null;
-
-    return state.infos.find((i) => getInfoPlayerKey(i) === key) || null;
   }
 
   function playersForAlliance(allianceK) {
@@ -698,6 +1061,8 @@
     playerSelect.value = state.selectedPlayerKey;
   }
 
+  // ---------- Render identity ----------
+
   function renderIdentity() {
     const roster = getSelectedRoster();
     const joueur = getSelectedJoueur();
@@ -713,6 +1078,7 @@
     playerAllianceEl.textContent = `${allianceEmoji} ${allianceLabel}`.trim();
 
     playerTcpEl.textContent = formatNumber(info?.tcp);
+
     playerWarMvpEl.textContent = Number.isFinite(Number(info?.war_mvp))
       ? Number(info.war_mvp).toLocaleString("fr-FR")
       : "—";
@@ -745,6 +1111,8 @@
 
     playerAvatarFallbackEl.textContent = name ? name.charAt(0).toUpperCase() : "?";
   }
+
+  // ---------- Render teams ----------
 
   function setActiveModeChip() {
     qsa(".modeChip").forEach((btn) => {
@@ -920,6 +1288,8 @@
     renderTeams();
   }
 
+  // ---------- Normalize data ----------
+
   function normalizeTeams(raw) {
     return (raw || [])
       .map((t) => ({
@@ -953,36 +1323,20 @@
       .filter((w) => w.date && w.alliance);
   }
 
-  function findAllianceForPlayerKey(key) {
-    if (!key) return "";
+  // ---------- Initial selection ----------
 
-    const joueur = state.joueurs.find((j) => getJoueurPlayerKey(j) === key);
-    const roster = state.rosters.find((r) => getRosterPlayerKey(r) === key);
-    const info = state.infos.find((i) => getInfoPlayerKey(i) === key);
-
-    return (
-      allianceKey(joueur?.alliance) ||
-      allianceKey(roster?.alliance) ||
-      allianceKey(info?.alliance) ||
-      ""
-    );
-  }
-
-  function chooseInitialSelection() {
+  function applyUrlSelection() {
     const urlAllianceKey = allianceKey(getParam("alliance"));
-    const urlPlayerKey = normalizeKey(getParam("player", "playerKey", "joueur"));
+    const rawPlayer = getParam("player", "playerKey", "joueur");
+    const resolvedPlayerKey = resolvePlayerKey(rawPlayer);
 
-    if (urlPlayerKey) {
-      const exists =
-        state.rosters.some((r) => getRosterPlayerKey(r) === urlPlayerKey) ||
-        state.joueurs.some((j) => getJoueurPlayerKey(j) === urlPlayerKey) ||
-        state.infos.some((i) => getInfoPlayerKey(i) === urlPlayerKey);
-
-      if (exists) {
-        state.selectedPlayerKey = urlPlayerKey;
-        state.selectedAllianceKey = urlAllianceKey || findAllianceForPlayerKey(urlPlayerKey);
-        return;
-      }
+    if (resolvedPlayerKey) {
+      state.selectedPlayerKey = resolvedPlayerKey;
+      state.selectedAllianceKey =
+        urlAllianceKey ||
+        findAllianceForPlayerKey(resolvedPlayerKey) ||
+        state.selectedAllianceKey;
+      return true;
     }
 
     if (urlAllianceKey) {
@@ -991,9 +1345,15 @@
       if (players.length) {
         state.selectedAllianceKey = urlAllianceKey;
         state.selectedPlayerKey = players[0].key;
-        return;
+        return true;
       }
     }
+
+    return false;
+  }
+
+  function applyFallbackSelection() {
+    if (applyStoredSelection()) return;
 
     const alliances = getAllianceOptions();
 
@@ -1010,6 +1370,19 @@
     state.selectedAllianceKey = alliances[0] || "";
     state.selectedPlayerKey = getRosterPlayerKey(state.rosters[0]);
   }
+
+  function chooseInitialSelection() {
+    if (applyUrlSelection()) return;
+
+    if (applySessionDefaultSelection()) {
+      authDefaultsApplied = true;
+      return;
+    }
+
+    applyFallbackSelection();
+  }
+
+  // ---------- Boot ----------
 
   async function boot() {
     const [
@@ -1043,32 +1416,75 @@
     buildAliasMap(aliasesRaw);
     buildCharacterMaps();
 
+    refreshLoSPSession();
     chooseInitialSelection();
 
     renderAllianceOptions();
     renderPlayerOptions();
     renderAll();
+
+    bootReady = true;
   }
 
+  // ---------- Events ----------
+
+  window.addEventListener("losp:auth-ready", (event) => {
+    lospSession =
+      event.detail ||
+      window.LoSP_SESSION ||
+      readLocalSessionPayload() ||
+      lospSession ||
+      null;
+
+    if (!bootReady) return;
+    if (authDefaultsApplied) return;
+    if (userChangedSelection) return;
+    if (hasExplicitUrlTarget()) return;
+
+    if (!applySessionDefaultSelection()) return;
+
+    authDefaultsApplied = true;
+
+    renderAllianceOptions();
+    renderPlayerOptions();
+    renderAll();
+  });
+
   allianceSelect?.addEventListener("change", () => {
+    userChangedSelection = true;
+    authDefaultsApplied = true;
+
     state.selectedAllianceKey = allianceSelect.value;
     renderPlayerOptions();
+    saveStoredSelection();
     renderAll();
   });
 
   allianceSelect?.addEventListener("input", () => {
+    userChangedSelection = true;
+    authDefaultsApplied = true;
+
     state.selectedAllianceKey = allianceSelect.value;
     renderPlayerOptions();
+    saveStoredSelection();
     renderAll();
   });
 
   playerSelect?.addEventListener("change", () => {
+    userChangedSelection = true;
+    authDefaultsApplied = true;
+
     state.selectedPlayerKey = playerSelect.value;
+    saveStoredSelection();
     renderAll();
   });
 
   playerSelect?.addEventListener("input", () => {
+    userChangedSelection = true;
+    authDefaultsApplied = true;
+
     state.selectedPlayerKey = playerSelect.value;
+    saveStoredSelection();
     renderAll();
   });
 
