@@ -466,7 +466,9 @@
         .filter(Boolean),
 
       def_team: (r.def_team ?? "").toString().trim(),
+      atk_family: (r.atk_family ?? "").toString().trim(),
       atk_team: (r.atk_team ?? "").toString().trim(),
+      atk_key: (r.atk_key ?? "").toString().trim(),
 
       atk_chars: [r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5].map((x) =>
         (x ?? "").toString().trim()
@@ -807,17 +809,61 @@
     });
   }
 
-  function getClass(ratio, r) {
-    const hard = Number(r.min_hard) || 0;
-    const ok = Number(r.min_ok) || 0;
-    const safe = Number(r.min_safe) || 0;
+  function computeCounterStatus(enemyPower, row, teamPower) {
+    const enemy = Number(enemyPower) || 0;
+    const power = Number(teamPower) || 0;
 
-    if (!hard && !ok && !safe) return ratio >= 1 ? "is-yellow" : "is-red";
+    const hardRatio = Number(row?.min_hard) || 0;
+    const okRatio = Number(row?.min_ok) || 0;
+    const safeRatio = Number(row?.min_safe) || 0;
 
-    if (safe && ratio >= safe) return "is-green";
-    if (ok && ratio >= ok) return "is-yellow";
-    if (hard && ratio >= hard) return "is-orange";
-    return "is-red";
+    const hardRequired = enemy * hardRatio;
+    const okRequired = enemy * okRatio;
+    const safeRequired = enemy * safeRatio;
+
+    if (enemy <= 0 || (!hardRatio && !okRatio && !safeRatio)) {
+      return {
+        show: false,
+        cls: "is-yellow",
+        rank: 1,
+        recommended: 0,
+        delta: 0,
+        ratio: 0,
+        line1: "",
+        line2: "",
+      };
+    }
+
+    let cls = "is-red";
+    let rank = 3;
+
+    if (safeRatio && power >= safeRequired) {
+      cls = "is-green";
+      rank = 0;
+    } else if (okRatio && power >= okRequired) {
+      cls = "is-yellow";
+      rank = 1;
+    } else if (hardRatio && power >= hardRequired) {
+      cls = "is-orange";
+      rank = 2;
+    }
+
+    const recommended = okRequired || hardRequired || safeRequired || 0;
+    const delta = power - recommended;
+
+    return {
+      show: recommended > 0,
+      cls,
+      rank,
+      recommended,
+      delta,
+      ratio: enemy > 0 ? power / enemy : 0,
+      line1: `Recommandé : ${formatCompactFR(recommended)} mini`,
+      line2:
+        delta >= 0
+          ? `✅ ${formatCompactFR(delta)} de marge`
+          : `🚫 + ${formatCompactFR(Math.abs(delta))} mini. requis`,
+    };
   }
 
   function classRank(cls) {
@@ -825,32 +871,6 @@
     if (cls === "is-yellow") return 1;
     if (cls === "is-orange") return 2;
     return 3;
-  }
-
-  function computeRecommendation(enemyPower, row, teamPower) {
-    const enemy = Number(enemyPower) || 0;
-    const ok = Number(row?.min_ok) || 0;
-
-    if (enemy <= 0 || ok <= 0) {
-      return {
-        show: false,
-        recommended: 0,
-        delta: 0,
-        line1: "",
-        line2: "",
-      };
-    }
-
-    const recommended = enemy * ok;
-    const delta = teamPower - recommended;
-
-    const recTxt = formatCompactFR(recommended);
-    const absTxt = formatCompactFR(Math.abs(delta));
-
-    const line1 = `Recommandé : ${recTxt} mini`;
-    const line2 = delta >= 0 ? `✅ ${absTxt} de marge` : `🚫 + ${absTxt} mini. requis`;
-
-    return { show: true, recommended, delta, line1, line2 };
   }
 
   function makeCounterCard({ teamName, power, cls, portraits, enemy, row, notes }) {
@@ -872,16 +892,16 @@
     pow.textContent = formatThousandsDot(power);
     right.appendChild(pow);
 
-    const rec = computeRecommendation(enemy, row, power);
+    const status = computeCounterStatus(enemy, row, power);
 
-    if (rec.show) {
+    if (status.show) {
       const l1 = document.createElement("div");
       l1.className = "counterRatio";
-      l1.textContent = rec.line1;
+      l1.textContent = status.line1;
 
       const l2 = document.createElement("div");
       l2.className = "counterRatio";
-      l2.textContent = rec.line2;
+      l2.textContent = status.line2;
 
       right.appendChild(l1);
       right.appendChild(l2);
@@ -991,19 +1011,24 @@
     const rows = baseRows.map((r) => {
       const atkList = (r.atk_chars || []).filter((c) => (c || "").trim());
       const power = getWarAdjustedPower(player, atkList);
-      const ratio = enemy > 0 ? power / enemy : 0;
-      const cls = enemy > 0 ? getClass(ratio, r) : "is-yellow";
+      const status = computeCounterStatus(enemy, r, power);
 
-      const rec = computeRecommendation(enemy, r, power);
-      const delta = rec.show ? rec.delta : 0;
-
-      return { r, atkList, power, ratio, cls, delta, hasRec: rec.show };
+      return {
+        r,
+        atkList,
+        power,
+        ratio: status.ratio,
+        cls: status.cls,
+        delta: status.delta,
+        hasRec: status.show,
+        statusRank: status.rank,
+      };
     });
 
     rows.sort((a, b) => {
       if (enemy > 0) {
-        const ra = classRank(a.cls);
-        const rb = classRank(b.cls);
+        const ra = Number(a.statusRank ?? classRank(a.cls));
+        const rb = Number(b.statusRank ?? classRank(b.cls));
 
         if (ra !== rb) return ra - rb;
 
