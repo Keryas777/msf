@@ -810,61 +810,90 @@
   }
 
   function computeCounterStatus(enemyPower, row, teamPower) {
-    const enemy = Number(enemyPower) || 0;
-    const power = Number(teamPower) || 0;
+  const enemy = Number(enemyPower) || 0;
+  const power = Number(teamPower) || 0;
 
-    const hardRatio = Number(row?.min_hard) || 0;
-    const okRatio = Number(row?.min_ok) || 0;
-    const safeRatio = Number(row?.min_safe) || 0;
+  const rawHardRatio = Number(row?.min_hard) || 0;
+  const rawOkRatio = Number(row?.min_ok) || 0;
+  const rawSafeRatio = Number(row?.min_safe) || 0;
 
-    const hardRequired = enemy * hardRatio;
-    const okRequired = enemy * okRatio;
-    const safeRequired = enemy * safeRatio;
+  const ratios = [rawHardRatio, rawOkRatio, rawSafeRatio]
+    .filter((n) => Number.isFinite(n) && n > 0)
+    .sort((a, b) => a - b);
 
-    if (enemy <= 0 || (!hardRatio && !okRatio && !safeRatio)) {
-      return {
-        show: false,
-        cls: "is-yellow",
-        rank: 1,
-        recommended: 0,
-        delta: 0,
-        ratio: 0,
-        line1: "",
-        line2: "",
-      };
-    }
-
-    let cls = "is-red";
-    let rank = 3;
-
-    if (safeRatio && power >= safeRequired) {
-      cls = "is-green";
-      rank = 0;
-    } else if (okRatio && power >= okRequired) {
-      cls = "is-yellow";
-      rank = 1;
-    } else if (hardRatio && power >= hardRequired) {
-      cls = "is-orange";
-      rank = 2;
-    }
-
-    const recommended = okRequired || hardRequired || safeRequired || 0;
-    const delta = power - recommended;
-
+  if (enemy <= 0 || !ratios.length) {
     return {
-      show: recommended > 0,
-      cls,
-      rank,
-      recommended,
-      delta,
-      ratio: enemy > 0 ? power / enemy : 0,
-      line1: `Recommandé : ${formatCompactFR(recommended)} mini`,
-      line2:
-        delta >= 0
-          ? `✅ ${formatCompactFR(delta)} de marge`
-          : `🚫 + ${formatCompactFR(Math.abs(delta))} mini. requis`,
+      show: false,
+      cls: "is-yellow",
+      rank: 1,
+      recommended: 0,
+      delta: 0,
+      ratio: 0,
+      line1: "",
+      line2: "",
     };
   }
+
+  /*
+    Sécurité :
+    - hard = seuil le plus bas connu
+    - ok = colonne min_ok du JSON si elle existe, car c'est celle affichée en "Recommandé"
+    - safe = seuil le plus haut connu, même si le JSON/Sheet a hard/ok/safe dans un ordre incohérent
+  */
+  const hardRatio = ratios[0] || 0;
+  const okRatio = rawOkRatio || ratios[Math.min(1, ratios.length - 1)] || hardRatio;
+  const safeRatio = ratios[ratios.length - 1] || okRatio || hardRatio;
+
+  const hardRequired = enemy * hardRatio;
+  const okRequired = enemy * okRatio;
+  const safeRequired = enemy * safeRatio;
+
+  const recommended = okRequired || hardRequired || safeRequired || 0;
+  const delta = power - recommended;
+
+  let cls = "is-red";
+  let rank = 3;
+
+  if (power >= safeRequired) {
+    cls = "is-green";
+    rank = 0;
+  } else if (power >= okRequired) {
+    cls = "is-yellow";
+    rank = 1;
+  } else if (power >= hardRequired) {
+    cls = "is-orange";
+    rank = 2;
+  }
+
+  /*
+    Garde-fou absolu :
+    si le texte dit qu'il manque de la puissance sur le seuil recommandé,
+    la carte ne doit jamais afficher SÛR.
+  */
+  if (delta < 0 && cls === "is-green") {
+    if (power >= hardRequired) {
+      cls = "is-orange";
+      rank = 2;
+    } else {
+      cls = "is-red";
+      rank = 3;
+    }
+  }
+
+  return {
+    show: recommended > 0,
+    cls,
+    rank,
+    recommended,
+    delta,
+    ratio: enemy > 0 ? power / enemy : 0,
+    line1: `Recommandé : ${formatCompactFR(recommended)} mini`,
+    line2:
+      delta >= 0
+        ? `✅ ${formatCompactFR(delta)} de marge`
+        : `🚫 + ${formatCompactFR(Math.abs(delta))} mini. requis`,
+  };
+}
 
   function classRank(cls) {
     if (cls === "is-green") return 0;
