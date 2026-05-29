@@ -7,18 +7,24 @@
     teams: "./data/teams.json",
     characters: "./data/msf-characters.json",
     isoIcons: "./data/iso-icons.json",
+    warHistory: "./data/war-history-lite.json",
+    aliases: "./data/player-aliases.json",
+  };
+
+  const ALLIANCE_ORDER = ["zeus", "kronos", "dionysos", "poseidon"];
+
+  const ALLIANCE_LABEL = {
+    zeus: "Zeus",
+    kronos: "Kronos",
+    dionysos: "Dionysos",
+    poseidon: "Poséidon",
   };
 
   const ALLIANCE_EMOJI = {
-    Zeus: "⚡️",
     zeus: "⚡️",
-    Dionysos: "🍇",
-    dionysos: "🍇",
-    "Poséidon": "🔱",
-    Poseidon: "🔱",
-    poseidon: "🔱",
-    Kronos: "⏳",
     kronos: "⏳",
+    dionysos: "🍇",
+    poseidon: "🔱",
   };
 
   const MODE_LABELS = {
@@ -31,15 +37,21 @@
   const qs = (s) => document.querySelector(s);
   const qsa = (s) => Array.from(document.querySelectorAll(s));
 
+  const allianceSelect = qs("#allianceSelect");
   const playerSelect = qs("#playerSelect");
+
   const playerAllianceEl = qs("#playerAlliance");
   const playerNameEl = qs("#playerName");
   const playerTcpEl = qs("#playerTcp");
   const playerWarMvpEl = qs("#playerWarMvp");
   const playerCharCountEl = qs("#playerCharCount");
+  const playerWarScoreEl = qs("#playerWarScore");
+  const playerWarScoreMetaEl = qs("#playerWarScoreMeta");
+
   const playerIconEl = qs("#playerIcon");
   const playerFrameEl = qs("#playerFrame");
   const playerAvatarFallbackEl = qs("#playerAvatarFallback");
+
   const teamsTitleEl = qs("#teamsTitle");
   const teamsCountEl = qs("#teamsCount");
   const emptyStateEl = qs("#emptyState");
@@ -51,9 +63,14 @@
     rosters: [],
     teams: [],
     chars: [],
+    warHistory: [],
+    playerAliases: new Map(),
+
     charMap: new Map(),
     charMulti: new Map(),
     isoIcons: {},
+
+    selectedAllianceKey: "",
     selectedPlayerKey: "",
     selectedMode: "",
   };
@@ -70,72 +87,142 @@
     return res.json();
   }
 
-  const normalizeKey = (s) =>
-    (s ?? "")
-      .toString()
+  function normalizeKey(value) {
+    return String(value ?? "")
       .trim()
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9]/g, "");
+  }
 
-  const normalizeIsoClass = (cls) => (cls ?? "").toString().trim().toLowerCase();
+  function allianceKey(value) {
+    const key = normalizeKey(value);
+
+    if (key === "zeus") return "zeus";
+    if (key === "kronos" || key === "cronos" || key === "chronos" || key === "lospkronos") return "kronos";
+    if (key === "dionysos") return "dionysos";
+    if (key === "poseidon" || key === "posseidon") return "poseidon";
+
+    return "";
+  }
+
+  function canonicalPlayerName(name) {
+    let current = String(name ?? "").trim();
+
+    if (!current) return "";
+
+    for (let i = 0; i < 10; i++) {
+      const next = state.playerAliases.get(normalizeKey(current));
+
+      if (!next || String(next).trim() === current) {
+        break;
+      }
+
+      current = String(next).trim();
+    }
+
+    return current;
+  }
+
+  function playerKey(name) {
+    return normalizeKey(canonicalPlayerName(name));
+  }
+
+  function normalizeIsoClass(cls) {
+    return String(cls ?? "").trim().toLowerCase();
+  }
 
   function normalizeIsoColor(c) {
-    const x = (c ?? "").toString().trim().toLowerCase();
+    const x = String(c ?? "").trim().toLowerCase();
+
     if (!x) return "green";
     if (x === "vert") return "green";
     if (x === "bleu") return "blue";
     if (x === "violet") return "purple";
     if (x === "green" || x === "blue" || x === "purple") return x;
+
     return "green";
   }
 
   function formatNumber(n) {
     const x = Number(n || 0);
+
     if (!Number.isFinite(x) || x <= 0) return "—";
+
     return x.toLocaleString("fr-FR");
   }
 
   function formatCompactPower(n) {
     const x = Number(n || 0);
+
     if (!Number.isFinite(x) || x <= 0) return "—";
-    if (x >= 1000000) return `${(x / 1000000).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} M`;
-    if (x >= 1000) return `${Math.round(x / 1000).toLocaleString("fr-FR")} k`;
+
+    if (x >= 1000000) {
+      return `${(x / 1000000).toLocaleString("fr-FR", {
+        maximumFractionDigits: 1,
+      })} M`;
+    }
+
+    if (x >= 1000) {
+      return `${Math.round(x / 1000).toLocaleString("fr-FR")} k`;
+    }
+
     return x.toLocaleString("fr-FR");
+  }
+
+  function formatScore(n) {
+    const x = Number(n);
+
+    if (!Number.isFinite(x)) return "—";
+
+    return x.toLocaleString("fr-FR", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    });
   }
 
   function clearNode(el) {
     if (!el) return;
-    while (el.firstChild) el.removeChild(el.firstChild);
+
+    while (el.firstChild) {
+      el.removeChild(el.firstChild);
+    }
   }
 
   function getParam(...names) {
     const params = new URLSearchParams(window.location.search);
+
     for (const name of names) {
       const v = params.get(name);
       if (v) return v.trim();
     }
+
     return "";
   }
 
   function isVariantId(id) {
-    const s = (id ?? "").toString();
+    const s = String(id ?? "");
+
     if (!s) return false;
+
     return /(_props|_bbminn|_npc|_event|_raid|_trial|_campaign|_boss)$/i.test(s);
   }
 
   function scoreCharacterMatch(c, queryKey) {
-    const id = (c?.id ?? "").toString();
-    const nameKey = (c?.nameKey ?? "").toString();
+    const id = String(c?.id ?? "");
+    const nameKey = String(c?.nameKey ?? "");
+
     const idKey = normalizeKey(id);
     const nameKeyKey = normalizeKey(nameKey);
 
     let score = 0;
+
     if (idKey && idKey === queryKey) score += 1000;
     if (nameKeyKey && nameKeyKey === queryKey) score += 900;
     if (isVariantId(id)) score -= 200;
     if (id && id.length <= 18) score += 10;
+
     return score;
   }
 
@@ -145,14 +232,20 @@
 
     state.chars.forEach((c) => {
       const keys = [c.id, c.nameKey, c.nameFr, c.nameEn].filter(Boolean);
+
       keys.forEach((k) => {
         const kk = normalizeKey(k);
+
         if (!kk) return;
 
-        if (!state.charMulti.has(kk)) state.charMulti.set(kk, []);
+        if (!state.charMulti.has(kk)) {
+          state.charMulti.set(kk, []);
+        }
+
         state.charMulti.get(kk).push(c);
 
         const existing = state.charMap.get(kk);
+
         if (!existing || scoreCharacterMatch(c, kk) > scoreCharacterMatch(existing, kk)) {
           state.charMap.set(kk, c);
         }
@@ -162,19 +255,24 @@
 
   function findCharacterInfo(charId) {
     const key = normalizeKey(charId);
+
     if (!key) return null;
 
     const list = state.charMulti.get(key);
+
     if (Array.isArray(list) && list.length) {
       let best = list[0];
       let bestScore = -Infinity;
+
       for (const c of list) {
         const sc = scoreCharacterMatch(c, key);
+
         if (sc > bestScore) {
           bestScore = sc;
           best = c;
         }
       }
+
       return best || null;
     }
 
@@ -184,6 +282,7 @@
   function getIsoIconUrl(isoClass, isoColor) {
     const cls = normalizeIsoClass(isoClass);
     const col = normalizeIsoColor(isoColor);
+
     return state.isoIcons?.[cls]?.[col] || null;
   }
 
@@ -192,31 +291,45 @@
   }
 
   function getInfoPlayerKey(info) {
-    return normalizeKey(info?.playerKey || info?.name || info?.player || "");
+    return playerKey(info?.playerKey || info?.name || info?.player || "");
   }
 
   function getJoueurPlayerKey(joueur) {
-    return normalizeKey(joueur?.playerKey || joueur?.player || joueur?.name || "");
+    return playerKey(joueur?.playerKey || joueur?.player || joueur?.name || "");
   }
 
   function getSelectedRoster() {
     if (!state.selectedPlayerKey) return null;
-    return state.rosters.find((r) => getRosterPlayerKey(r) === state.selectedPlayerKey) || null;
+
+    return (
+      state.rosters.find((r) => getRosterPlayerKey(r) === state.selectedPlayerKey) ||
+      null
+    );
   }
 
   function getSelectedJoueur() {
     if (!state.selectedPlayerKey) return null;
-    return state.joueurs.find((j) => getJoueurPlayerKey(j) === state.selectedPlayerKey) || null;
+
+    return (
+      state.joueurs.find((j) => getJoueurPlayerKey(j) === state.selectedPlayerKey) ||
+      null
+    );
   }
 
   function getSelectedInfo() {
     if (!state.selectedPlayerKey) return null;
-    return state.infos.find((i) => getInfoPlayerKey(i) === state.selectedPlayerKey) || null;
+
+    return (
+      state.infos.find((i) => getInfoPlayerKey(i) === state.selectedPlayerKey) ||
+      null
+    );
   }
 
   function findRosterChar(roster, charId) {
     if (!roster?.chars || typeof roster.chars !== "object") return null;
+
     const target = normalizeKey(charId);
+
     if (!target) return null;
 
     for (const [key, value] of Object.entries(roster.chars)) {
@@ -224,7 +337,10 @@
     }
 
     const info = findCharacterInfo(charId);
-    const aliases = [info?.id, info?.nameKey, info?.nameFr, info?.nameEn].filter(Boolean).map(normalizeKey);
+    const aliases = [info?.id, info?.nameKey, info?.nameFr, info?.nameEn]
+      .filter(Boolean)
+      .map(normalizeKey);
+
     for (const [key, value] of Object.entries(roster.chars)) {
       if (aliases.includes(normalizeKey(key))) return value || null;
     }
@@ -234,17 +350,50 @@
 
   function findIsoForChar(roster, charId) {
     if (!roster) return null;
+
     const info = findCharacterInfo(charId);
+    const rosterChar = findRosterChar(roster, charId);
+
     const aliases = [charId, info?.id, info?.nameKey, info?.nameFr, info?.nameEn]
       .filter(Boolean)
       .map(normalizeKey);
 
+    const directCls = normalizeIsoClass(
+      rosterChar?.isoClass ??
+      rosterChar?.class ??
+      rosterChar?.iso_class ??
+      rosterChar?.isoRole ??
+      rosterChar?.iso_role
+    );
+
+    const directCol = normalizeIsoColor(
+      rosterChar?.isoColor ??
+      rosterChar?.color ??
+      rosterChar?.iso_color ??
+      rosterChar?.isoMatrix ??
+      rosterChar?.iso_matrix
+    );
+
+    if (directCls) {
+      return {
+        isoClass: directCls,
+        isoColor: directCol,
+      };
+    }
+
     if (roster.iso && typeof roster.iso === "object") {
       for (const [k, v] of Object.entries(roster.iso)) {
         if (!aliases.includes(normalizeKey(k))) continue;
+
         const cls = normalizeIsoClass(v?.isoClass ?? v?.class ?? v?.iso_class);
         const col = normalizeIsoColor(v?.isoColor ?? v?.color ?? v?.iso_color);
-        if (cls) return { isoClass: cls, isoColor: col };
+
+        if (cls) {
+          return {
+            isoClass: cls,
+            isoColor: col,
+          };
+        }
       }
     }
 
@@ -261,12 +410,23 @@
       null;
 
     if (clsMap || colMap) {
-      const keys = new Set([...Object.keys(clsMap || {}), ...Object.keys(colMap || {})]);
+      const keys = new Set([
+        ...Object.keys(clsMap || {}),
+        ...Object.keys(colMap || {}),
+      ]);
+
       for (const k of keys) {
         if (!aliases.includes(normalizeKey(k))) continue;
+
         const cls = normalizeIsoClass(clsMap?.[k]);
         const col = normalizeIsoColor(colMap?.[k]);
-        if (cls) return { isoClass: cls, isoColor: col };
+
+        if (cls) {
+          return {
+            isoClass: cls,
+            isoColor: col,
+          };
+        }
       }
     }
 
@@ -309,27 +469,232 @@
     };
   }
 
+  function buildAliasMap(raw) {
+    state.playerAliases = new Map();
+
+    const source =
+      raw?.aliases && typeof raw.aliases === "object" && !Array.isArray(raw.aliases)
+        ? raw.aliases
+        : raw;
+
+    if (source && typeof source === "object" && !Array.isArray(source)) {
+      Object.entries(source).forEach(([alias, canonical]) => {
+        const aliasKey = normalizeKey(alias);
+        const canonicalName = String(canonical ?? "").trim();
+
+        if (!aliasKey || !canonicalName) return;
+
+        state.playerAliases.set(aliasKey, canonicalName);
+      });
+    }
+
+    if (Array.isArray(source)) {
+      source.forEach((row) => {
+        const alias = String(row?.alias ?? row?.from ?? row?.name ?? "").trim();
+        const canonical = String(row?.canonical ?? row?.to ?? row?.target ?? "").trim();
+
+        const aliasKey = normalizeKey(alias);
+
+        if (!aliasKey || !canonical) return;
+
+        state.playerAliases.set(aliasKey, canonical);
+      });
+    }
+  }
+
+  function getAverageWarScore(alliance, playerName) {
+    const a = allianceKey(alliance);
+
+    if (!a || !state.warHistory.length) {
+      return null;
+    }
+
+    const roster = getSelectedRoster();
+    const joueur = getSelectedJoueur();
+    const info = getSelectedInfo();
+
+    const wantedKeys = new Set(
+      [
+        state.selectedPlayerKey,
+        playerKey(playerName),
+        playerKey(roster?.player),
+        playerKey(roster?.playerKey),
+        playerKey(joueur?.player),
+        playerKey(joueur?.playerKey),
+        playerKey(info?.name),
+        playerKey(info?.player),
+      ].filter(Boolean)
+    );
+
+    if (!wantedKeys.size) {
+      return null;
+    }
+
+    const scores = [];
+
+    state.warHistory
+      .filter((war) => allianceKey(war.alliance) === a)
+      .forEach((war) => {
+        const players = Array.isArray(war.players) ? war.players : [];
+
+        const row = players.find((p) => wantedKeys.has(playerKey(p?.name || p?.player)));
+
+        if (!row) return;
+
+        const score = Number(row.score_total);
+
+        if (!Number.isFinite(score)) return;
+
+        scores.push(score);
+      });
+
+    if (!scores.length) {
+      return null;
+    }
+
+    const avg = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+
+    return {
+      avg,
+      wars: scores.length,
+    };
+  }
+
+  function getAllianceOptions() {
+    const found = new Set();
+
+    state.joueurs.forEach((j) => {
+      const k = allianceKey(j.alliance);
+      if (k) found.add(k);
+    });
+
+    state.rosters.forEach((r) => {
+      const k = allianceKey(r.alliance);
+      if (k) found.add(k);
+    });
+
+    state.infos.forEach((i) => {
+      const k = allianceKey(i.alliance);
+      if (k) found.add(k);
+    });
+
+    return Array.from(found).sort((a, b) => {
+      const ia = ALLIANCE_ORDER.indexOf(a);
+      const ib = ALLIANCE_ORDER.indexOf(b);
+
+      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    });
+  }
+
+  function findRosterByPlayerKey(key) {
+    if (!key) return null;
+
+    return state.rosters.find((r) => getRosterPlayerKey(r) === key) || null;
+  }
+
+  function findInfoByPlayerKey(key) {
+    if (!key) return null;
+
+    return state.infos.find((i) => getInfoPlayerKey(i) === key) || null;
+  }
+
+  function playersForAlliance(allianceK) {
+    const rows = new Map();
+
+    state.joueurs.forEach((j) => {
+      if (allianceKey(j.alliance) !== allianceK) return;
+
+      const key = getJoueurPlayerKey(j);
+
+      if (!key) return;
+
+      const roster = findRosterByPlayerKey(key);
+      const info = findInfoByPlayerKey(key);
+
+      rows.set(key, {
+        key,
+        label: String(roster?.player || j.player || info?.name || key).trim(),
+        sortName: String(info?.name || j.player || roster?.player || key).trim(),
+      });
+    });
+
+    state.rosters.forEach((r) => {
+      if (allianceKey(r.alliance) !== allianceK) return;
+
+      const key = getRosterPlayerKey(r);
+
+      if (!key || rows.has(key)) return;
+
+      const info = findInfoByPlayerKey(key);
+
+      rows.set(key, {
+        key,
+        label: String(r.player || info?.name || r.playerKey || key).trim(),
+        sortName: String(info?.name || r.player || r.playerKey || key).trim(),
+      });
+    });
+
+    return Array.from(rows.values()).sort((a, b) =>
+      a.sortName.localeCompare(b.sortName, "fr", {
+        sensitivity: "base",
+      })
+    );
+  }
+
+  function renderAllianceOptions() {
+    if (!allianceSelect) return;
+
+    allianceSelect.innerHTML = "";
+
+    const alliances = getAllianceOptions();
+
+    alliances.forEach((key) => {
+      const opt = document.createElement("option");
+      opt.value = key;
+      opt.textContent = `${ALLIANCE_EMOJI[key] || "•"} ${ALLIANCE_LABEL[key] || key}`.trim();
+      allianceSelect.appendChild(opt);
+    });
+
+    if (!state.selectedAllianceKey && alliances[0]) {
+      state.selectedAllianceKey = alliances[0];
+    }
+
+    allianceSelect.value = state.selectedAllianceKey;
+  }
+
   function renderPlayerOptions() {
     if (!playerSelect) return;
+
     playerSelect.innerHTML = "";
 
-    const players = state.rosters
-      .map((r) => ({
-        key: getRosterPlayerKey(r),
-        name: (r.player || r.playerKey || "").toString().trim(),
-        alliance: (r.alliance || "").toString().trim(),
-      }))
-      .filter((p) => p.key && p.name)
-      .sort((a, b) => a.name.localeCompare(b.name, "fr"));
+    const allianceK = state.selectedAllianceKey;
+    const players = playersForAlliance(allianceK);
+
+    if (!players.length) {
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "— Aucun joueur —";
+      playerSelect.appendChild(opt);
+      playerSelect.disabled = true;
+      state.selectedPlayerKey = "";
+      return;
+    }
+
+    playerSelect.disabled = false;
 
     players.forEach((p) => {
       const opt = document.createElement("option");
       opt.value = p.key;
-      opt.textContent = p.name;
+      opt.textContent = p.label;
       playerSelect.appendChild(opt);
     });
 
-    if (!state.selectedPlayerKey && players[0]) state.selectedPlayerKey = players[0].key;
+    const selectedStillExists = players.some((p) => p.key === state.selectedPlayerKey);
+
+    if (!selectedStillExists) {
+      state.selectedPlayerKey = players[0].key;
+    }
+
     playerSelect.value = state.selectedPlayerKey;
   }
 
@@ -339,14 +704,34 @@
     const info = getSelectedInfo();
 
     const name = info?.name || joueur?.player || roster?.player || roster?.playerKey || "Joueur";
-    const alliance = info?.alliance || joueur?.alliance || roster?.alliance || "—";
-    const allianceEmoji = ALLIANCE_EMOJI[alliance] || ALLIANCE_EMOJI[normalizeKey(alliance)] || "•";
+    const allianceRaw = info?.alliance || joueur?.alliance || roster?.alliance || state.selectedAllianceKey || "";
+    const allianceK = allianceKey(allianceRaw) || state.selectedAllianceKey;
+    const allianceLabel = ALLIANCE_LABEL[allianceK] || allianceRaw || "—";
+    const allianceEmoji = ALLIANCE_EMOJI[allianceK] || "•";
 
     playerNameEl.textContent = name;
-    playerAllianceEl.textContent = `${allianceEmoji} ${alliance}`.trim();
+    playerAllianceEl.textContent = `${allianceEmoji} ${allianceLabel}`.trim();
+
     playerTcpEl.textContent = formatNumber(info?.tcp);
-    playerWarMvpEl.textContent = Number.isFinite(Number(info?.war_mvp)) ? Number(info.war_mvp).toLocaleString("fr-FR") : "—";
-    playerCharCountEl.textContent = roster?.chars ? Object.keys(roster.chars).length.toLocaleString("fr-FR") : "—";
+    playerWarMvpEl.textContent = Number.isFinite(Number(info?.war_mvp))
+      ? Number(info.war_mvp).toLocaleString("fr-FR")
+      : "—";
+
+    playerCharCountEl.textContent = roster?.chars
+      ? Object.keys(roster.chars).length.toLocaleString("fr-FR")
+      : "—";
+
+    const warScore = getAverageWarScore(allianceK, name);
+
+    if (warScore) {
+      playerWarScoreEl.textContent = `${formatScore(warScore.avg)} /100`;
+      playerWarScoreMetaEl.textContent = `${warScore.wars} GA`;
+      playerWarScoreEl.title = `Moyenne calculée sur ${warScore.wars} guerre${warScore.wars > 1 ? "s" : ""}`;
+    } else {
+      playerWarScoreEl.textContent = "—";
+      playerWarScoreMetaEl.textContent = "Aucune GA";
+      playerWarScoreEl.removeAttribute("title");
+    }
 
     const icon = info?.icon || info?.portrait || "";
     const frame = info?.frame || "";
@@ -364,6 +749,7 @@
   function setActiveModeChip() {
     qsa(".modeChip").forEach((btn) => {
       const active = btn.dataset.mode === state.selectedMode;
+
       btn.classList.toggle("is-active", active);
       btn.setAttribute("aria-selected", active ? "true" : "false");
     });
@@ -372,7 +758,10 @@
   function buildCharCard(char) {
     const card = document.createElement("div");
     card.className = "playerCharCard";
-    if (!char.owned) card.classList.add("is-missing");
+
+    if (!char.owned) {
+      card.classList.add("is-missing");
+    }
 
     const portraitBox = document.createElement("div");
     portraitBox.className = "playerCharPortraitBox";
@@ -401,7 +790,9 @@
 
     const iso = document.createElement("div");
     iso.className = "playerCharIso";
+
     const isoUrl = getIsoIconUrl(char.isoClass, char.isoColor);
+
     if (char.owned && isoUrl) {
       const isoImg = document.createElement("img");
       isoImg.className = "playerCharIsoIcon";
@@ -417,10 +808,12 @@
       missing.textContent = "—";
       iso.appendChild(missing);
     }
+
     info.appendChild(iso);
 
     card.appendChild(portraitBox);
     card.appendChild(info);
+
     return card;
   }
 
@@ -454,10 +847,15 @@
 
     const chars = document.createElement("div");
     chars.className = "playerTeamChars";
-    team.chars.forEach((char) => chars.appendChild(buildCharCard(char)));
+
+    team.chars.forEach((char) => {
+      chars.appendChild(buildCharCard(char));
+    });
+
     card.appendChild(chars);
 
     const missing = team.chars.filter((c) => !c.owned);
+
     if (missing.length) {
       const miss = document.createElement("div");
       miss.className = "playerTeamMissing";
@@ -483,6 +881,7 @@
     }
 
     const roster = getSelectedRoster();
+
     if (!roster) {
       teamsTitleEl.textContent = MODE_LABELS[state.selectedMode] || state.selectedMode;
       teamsCountEl.textContent = "0";
@@ -492,7 +891,7 @@
     }
 
     const teams = state.teams
-      .filter((t) => (t.mode || "").trim() === state.selectedMode)
+      .filter((t) => String(t.mode || "").trim() === state.selectedMode)
       .map((t) => computeTeam(t, roster))
       .sort((a, b) => {
         if (b.power !== a.power) return b.power - a.power;
@@ -510,7 +909,10 @@
     }
 
     emptyStateEl.style.display = "none";
-    teams.forEach((team) => teamListEl.appendChild(buildTeamCard(team)));
+
+    teams.forEach((team) => {
+      teamListEl.appendChild(buildTeamCard(team));
+    });
   }
 
   function renderAll() {
@@ -521,10 +923,10 @@
   function normalizeTeams(raw) {
     return (raw || [])
       .map((t) => ({
-        team: (t.team ?? t.Team ?? "").toString().trim(),
-        mode: (t.mode ?? t.Mode ?? "").toString().trim(),
+        team: String(t.team ?? t.Team ?? "").trim(),
+        mode: String(t.mode ?? t.Mode ?? "").trim(),
         characters: Array.isArray(t.characters)
-          ? t.characters.map((c) => (c ?? "").toString().trim()).filter(Boolean)
+          ? t.characters.map((c) => String(c ?? "").trim()).filter(Boolean)
           : [],
       }))
       .filter((t) => t.team && t.mode && t.characters.length);
@@ -533,30 +935,101 @@
   function normalizeJoueurs(raw) {
     return (raw || [])
       .map((r) => ({
-        player: (r.player ?? r.joueur ?? r.name ?? "").toString().trim(),
-        playerKey: (r.playerKey ?? "").toString().trim(),
-        alliance: (r.alliance ?? "").toString().trim(),
+        player: String(r.player ?? r.joueur ?? r.name ?? "").trim(),
+        playerKey: String(r.playerKey ?? "").trim(),
+        alliance: String(r.alliance ?? "").trim(),
       }))
       .filter((r) => r.player || r.playerKey);
   }
 
-  function chooseInitialPlayer() {
-    const fromUrl = normalizeKey(getParam("player", "playerKey", "joueur"));
-    if (fromUrl) {
-      const exists = state.rosters.some((r) => getRosterPlayerKey(r) === fromUrl);
-      if (exists) return fromUrl;
+  function normalizeWarHistory(raw) {
+    return (raw || [])
+      .map((w) => ({
+        ...w,
+        alliance: allianceKey(w.alliance),
+        date: String(w.date || ""),
+        players: Array.isArray(w.players) ? w.players : [],
+      }))
+      .filter((w) => w.date && w.alliance);
+  }
+
+  function findAllianceForPlayerKey(key) {
+    if (!key) return "";
+
+    const joueur = state.joueurs.find((j) => getJoueurPlayerKey(j) === key);
+    const roster = state.rosters.find((r) => getRosterPlayerKey(r) === key);
+    const info = state.infos.find((i) => getInfoPlayerKey(i) === key);
+
+    return (
+      allianceKey(joueur?.alliance) ||
+      allianceKey(roster?.alliance) ||
+      allianceKey(info?.alliance) ||
+      ""
+    );
+  }
+
+  function chooseInitialSelection() {
+    const urlAllianceKey = allianceKey(getParam("alliance"));
+    const urlPlayerKey = normalizeKey(getParam("player", "playerKey", "joueur"));
+
+    if (urlPlayerKey) {
+      const exists =
+        state.rosters.some((r) => getRosterPlayerKey(r) === urlPlayerKey) ||
+        state.joueurs.some((j) => getJoueurPlayerKey(j) === urlPlayerKey) ||
+        state.infos.some((i) => getInfoPlayerKey(i) === urlPlayerKey);
+
+      if (exists) {
+        state.selectedPlayerKey = urlPlayerKey;
+        state.selectedAllianceKey = urlAllianceKey || findAllianceForPlayerKey(urlPlayerKey);
+        return;
+      }
     }
-    return getRosterPlayerKey(state.rosters[0]);
+
+    if (urlAllianceKey) {
+      const players = playersForAlliance(urlAllianceKey);
+
+      if (players.length) {
+        state.selectedAllianceKey = urlAllianceKey;
+        state.selectedPlayerKey = players[0].key;
+        return;
+      }
+    }
+
+    const alliances = getAllianceOptions();
+
+    for (const allianceK of alliances) {
+      const players = playersForAlliance(allianceK);
+
+      if (players.length) {
+        state.selectedAllianceKey = allianceK;
+        state.selectedPlayerKey = players[0].key;
+        return;
+      }
+    }
+
+    state.selectedAllianceKey = alliances[0] || "";
+    state.selectedPlayerKey = getRosterPlayerKey(state.rosters[0]);
   }
 
   async function boot() {
-    const [infosRaw, joueursRaw, rostersRaw, teamsRaw, charsRaw, isoIconsRaw] = await Promise.all([
+    const [
+      infosRaw,
+      joueursRaw,
+      rostersRaw,
+      teamsRaw,
+      charsRaw,
+      isoIconsRaw,
+      warHistoryRaw,
+      aliasesRaw,
+    ] = await Promise.all([
       fetchJson(FILES.infos).catch(() => []),
       fetchJson(FILES.joueurs).catch(() => []),
       fetchJson(FILES.rosters),
       fetchJson(FILES.teams),
       fetchJson(FILES.characters).catch(() => []),
       fetchJson(FILES.isoIcons).catch(() => ({})),
+      fetchJson(FILES.warHistory).catch(() => []),
+      fetchJson(FILES.aliases).catch(() => ({})),
     ]);
 
     state.infos = Array.isArray(infosRaw) ? infosRaw : [];
@@ -565,17 +1038,36 @@
     state.teams = normalizeTeams(teamsRaw);
     state.chars = Array.isArray(charsRaw) ? charsRaw : [];
     state.isoIcons = isoIconsRaw && typeof isoIconsRaw === "object" ? isoIconsRaw : {};
+    state.warHistory = normalizeWarHistory(Array.isArray(warHistoryRaw) ? warHistoryRaw : []);
 
+    buildAliasMap(aliasesRaw);
     buildCharacterMaps();
 
-    state.selectedPlayerKey = chooseInitialPlayer();
-    state.selectedMode = "";
+    chooseInitialSelection();
 
+    renderAllianceOptions();
     renderPlayerOptions();
     renderAll();
   }
 
+  allianceSelect?.addEventListener("change", () => {
+    state.selectedAllianceKey = allianceSelect.value;
+    renderPlayerOptions();
+    renderAll();
+  });
+
+  allianceSelect?.addEventListener("input", () => {
+    state.selectedAllianceKey = allianceSelect.value;
+    renderPlayerOptions();
+    renderAll();
+  });
+
   playerSelect?.addEventListener("change", () => {
+    state.selectedPlayerKey = playerSelect.value;
+    renderAll();
+  });
+
+  playerSelect?.addEventListener("input", () => {
     state.selectedPlayerKey = playerSelect.value;
     renderAll();
   });
@@ -590,6 +1082,7 @@
 
   boot().catch((e) => {
     console.error(e);
+
     if (emptyStateEl) {
       emptyStateEl.style.display = "block";
       emptyStateEl.textContent = "Impossible de charger les données joueur.";
