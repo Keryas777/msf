@@ -19,6 +19,20 @@
       </div>
     </header>
 
+    <section class="card playerSelectorCard">
+      <div class="playerSelectorGrid">
+        <div class="playerSelectorField">
+          <label class="label" for="allianceSelect">Alliance</label>
+          <select class="select" id="allianceSelect"></select>
+        </div>
+
+        <div class="playerSelectorField">
+          <label class="label" for="playerSelect">Joueur</label>
+          <select class="select" id="playerSelect"></select>
+        </div>
+      </div>
+    </section>
+
     <section class="card playerIdentity" id="playerIdentityCard">
       <div class="playerAvatarWrap" id="playerAvatarWrap" aria-hidden="true">
         <img class="playerFrame" id="playerFrame" alt="" />
@@ -29,26 +43,30 @@
       <div class="playerIdentityMain">
         <div class="playerAlliance" id="playerAlliance">—</div>
         <h2 class="playerName" id="playerName">Joueur</h2>
+
         <div class="playerStatsGrid">
-          <div class="playerStat">
+          <div class="playerStat playerStat--tcp">
             <span class="playerStatLabel">TCP</span>
             <strong id="playerTcp">—</strong>
           </div>
+
           <div class="playerStat">
             <span class="playerStatLabel">War MVP</span>
             <strong id="playerWarMvp">—</strong>
           </div>
+
           <div class="playerStat">
             <span class="playerStatLabel">Personnages</span>
             <strong id="playerCharCount">—</strong>
           </div>
+
+          <div class="playerStat playerStat--warScore">
+            <span class="playerStatLabel">Note Guerre</span>
+            <strong id="playerWarScore">—</strong>
+            <small id="playerWarScoreMeta">—</small>
+          </div>
         </div>
       </div>
-    </section>
-
-    <section class="card playerSelectorCard">
-      <label class="label" for="playerSelect">Joueur</label>
-      <select class="select" id="playerSelect"></select>
     </section>
 
     <section class="card modeCard">
@@ -66,7 +84,11 @@
         <h2 class="cardTitle" id="teamsTitle">Équipes</h2>
         <span class="chipCount" id="teamsCount">0</span>
       </div>
-      <div class="emptyState" id="emptyState">Choisis un mode de jeu pour afficher les équipes du joueur.</div>
+
+      <div class="emptyState" id="emptyState">
+        Choisis un mode de jeu pour afficher les équipes du joueur.
+      </div>
+
       <div class="teamList" id="teamList"></div>
     </section>
   </main>
