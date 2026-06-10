@@ -34,37 +34,44 @@
     </section>
 
     <section class="card playerIdentity" id="playerIdentityCard">
-      <div class="playerAvatarWrap" id="playerAvatarWrap" aria-hidden="true">
-        <img class="playerFrame" id="playerFrame" alt="" />
-        <img class="playerIcon" id="playerIcon" alt="Portrait joueur" />
-        <div class="playerAvatarFallback" id="playerAvatarFallback">?</div>
+      <div class="playerIdentityTop">
+        <div class="playerAvatarWrap" id="playerAvatarWrap" aria-hidden="true">
+          <img class="playerFrame" id="playerFrame" alt="" />
+          <img class="playerIcon" id="playerIcon" alt="Portrait joueur" />
+          <div class="playerAvatarFallback" id="playerAvatarFallback">?</div>
+        </div>
+
+        <div class="playerIdentityMain">
+          <div class="playerAlliance" id="playerAlliance">—</div>
+          <h2 class="playerName" id="playerName">Joueur</h2>
+        </div>
       </div>
 
-      <div class="playerIdentityMain">
-        <div class="playerAlliance" id="playerAlliance">—</div>
-        <h2 class="playerName" id="playerName">Joueur</h2>
+      <div class="rosterChart" aria-label="Répartition du roster par mode de jeu">
+        <div class="rosterPie" id="rosterPie" aria-hidden="true"></div>
+        <div class="rosterLegend" id="rosterPieLegend"></div>
+      </div>
 
-        <div class="playerStatsGrid">
-          <div class="playerStat playerStat--tcp">
-            <span class="playerStatLabel">TCP</span>
-            <strong id="playerTcp">—</strong>
-          </div>
+      <div class="playerStatsGrid">
+        <div class="playerStat playerStat--tcp">
+          <span class="playerStatLabel">TCP</span>
+          <strong id="playerTcp">—</strong>
+        </div>
 
-          <div class="playerStat playerStat--warMvp">
-            <span class="playerStatLabel">War MVP</span>
-            <strong id="playerWarMvp">—</strong>
-          </div>
+        <div class="playerStat playerStat--warMvp">
+          <span class="playerStatLabel">War MVP</span>
+          <strong id="playerWarMvp">—</strong>
+        </div>
 
-          <div class="playerStat playerStat--warScore">
-            <span class="playerStatLabel">Note moyenne GA</span>
-            <strong id="playerWarScore">—</strong>
-            <small id="playerWarScoreMeta">—</small>
-          </div>
+        <div class="playerStat playerStat--warScore">
+          <span class="playerStatLabel">Note moyenne GA</span>
+          <strong id="playerWarScore">—</strong>
+          <small id="playerWarScoreMeta">—</small>
+        </div>
 
-          <div class="playerStat playerStat--chars">
-            <span class="playerStatLabel">Personnages</span>
-            <strong id="playerCharCount">—</strong>
-          </div>
+        <div class="playerStat playerStat--chars">
+          <span class="playerStatLabel">Personnages</span>
+          <strong id="playerCharCount">—</strong>
         </div>
       </div>
     </section>
