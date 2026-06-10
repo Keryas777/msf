@@ -37,6 +37,21 @@
     Battleworld: "Battleworld",
   };
 
+  const ROSTER_CHART_MODES = [
+    { key: "arena", label: "Arène", color: "#ffd24a" },
+    { key: "raid", label: "Raid", color: "#2ecc71" },
+    { key: "war", label: "Guerre", color: "#ff4d4d" },
+    { key: "trial", label: "Épreuve", color: "#b46eff" },
+    { key: "battleworld", label: "Battleworld", color: "#5cb6ff" },
+    { key: "other", label: "Autres", color: "#8b8f98" },
+  ];
+
+  const TRACKED_CHART_MODE_KEYS = new Set(
+    ROSTER_CHART_MODES
+      .filter((m) => m.key !== "other")
+      .map((m) => m.key)
+  );
+
   const qs = (s) => document.querySelector(s);
   const qsa = (s) => Array.from(document.querySelectorAll(s));
 
@@ -54,6 +69,9 @@
   const playerIconEl = qs("#playerIcon");
   const playerFrameEl = qs("#playerFrame");
   const playerAvatarFallbackEl = qs("#playerAvatarFallback");
+
+  const rosterPieEl = qs("#rosterPie");
+  const rosterPieLegendEl = qs("#rosterPieLegend");
 
   const teamsTitleEl = qs("#teamsTitle");
   const teamsCountEl = qs("#teamsCount");
@@ -160,6 +178,18 @@
     return "green";
   }
 
+  function normalizeChartMode(mode) {
+    const key = normalizeKey(mode);
+
+    if (key === "arene" || key === "arena") return "arena";
+    if (key === "raid" || key === "raids") return "raid";
+    if (key === "guerre" || key === "war") return "war";
+    if (key === "epreuve" || key === "epreuvecosmique" || key === "trial") return "trial";
+    if (key === "battleworld") return "battleworld";
+
+    return "";
+  }
+
   function formatNumber(n) {
     const x = Number(n || 0);
 
@@ -195,6 +225,17 @@
       minimumFractionDigits: 1,
       maximumFractionDigits: 1,
     });
+  }
+
+  function formatPercent(n) {
+    const x = Number(n);
+
+    if (!Number.isFinite(x) || x <= 0) return "0,0 %";
+
+    return `${x.toLocaleString("fr-FR", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    })} %`;
   }
 
   function clearNode(el) {
@@ -563,6 +604,22 @@
     return state.charMap.get(key) || null;
   }
 
+  function getCharacterLookupKeys(charId) {
+    const keys = new Set();
+    const rawKey = normalizeKey(charId);
+
+    if (rawKey) keys.add(rawKey);
+
+    const info = findCharacterInfo(charId);
+
+    [info?.id, info?.nameKey, info?.nameFr, info?.nameEn].forEach((value) => {
+      const key = normalizeKey(value);
+      if (key) keys.add(key);
+    });
+
+    return Array.from(keys);
+  }
+
   function getIsoIconUrl(isoClass, isoColor) {
     const cls = normalizeIsoClass(isoClass);
     const col = normalizeIsoColor(isoColor);
@@ -705,10 +762,7 @@
       if (normalizeKey(key) === target) return value || null;
     }
 
-    const info = findCharacterInfo(charId);
-    const aliases = [info?.id, info?.nameKey, info?.nameFr, info?.nameEn]
-      .filter(Boolean)
-      .map(normalizeKey);
+    const aliases = getCharacterLookupKeys(charId);
 
     for (const [key, value] of Object.entries(roster.chars)) {
       if (aliases.includes(normalizeKey(key))) return value || null;
@@ -720,12 +774,8 @@
   function findIsoForChar(roster, charId) {
     if (!roster) return null;
 
-    const info = findCharacterInfo(charId);
     const rosterChar = findRosterChar(roster, charId);
-
-    const aliases = [charId, info?.id, info?.nameKey, info?.nameFr, info?.nameEn]
-      .filter(Boolean)
-      .map(normalizeKey);
+    const aliases = getCharacterLookupKeys(charId);
 
     const directCls = normalizeIsoClass(
       rosterChar?.isoClass ??
@@ -836,6 +886,192 @@
       ownedCount,
       totalCount: chars.length,
     };
+  }
+
+  // ---------- Graphique roster ----------
+
+  function buildChartModeMapByCharacter() {
+    const map = new Map();
+
+    state.teams.forEach((team) => {
+      const modeKey = normalizeChartMode(team.mode);
+
+      if (!TRACKED_CHART_MODE_KEYS.has(modeKey)) return;
+
+      (team.characters || []).forEach((charId) => {
+        getCharacterLookupKeys(charId).forEach((charKey) => {
+          if (!charKey) return;
+
+          if (!map.has(charKey)) {
+            map.set(charKey, new Set());
+          }
+
+          map.get(charKey).add(modeKey);
+        });
+      });
+    });
+
+    return map;
+  }
+
+  function getTcpTotalForChart(info, roster) {
+    const tcp = Number(info?.tcp || 0);
+
+    if (Number.isFinite(tcp) && tcp > 0) {
+      return tcp;
+    }
+
+    if (!roster?.chars || typeof roster.chars !== "object") {
+      return 0;
+    }
+
+    return Object.values(roster.chars).reduce((sum, char) => {
+      const power = Number(char?.power || 0);
+      return Number.isFinite(power) && power > 0 ? sum + power : sum;
+    }, 0);
+  }
+
+  function computeRosterChartRows() {
+    const roster = getSelectedRoster();
+    const info = getSelectedInfo();
+    const total = getTcpTotalForChart(info, roster);
+
+    const values = {};
+    ROSTER_CHART_MODES.forEach((mode) => {
+      values[mode.key] = 0;
+    });
+
+    if (!roster?.chars || typeof roster.chars !== "object" || total <= 0) {
+      return {
+        total,
+        rows: ROSTER_CHART_MODES.map((mode) => ({
+          ...mode,
+          value: 0,
+          percent: 0,
+        })),
+      };
+    }
+
+    const modeMapByChar = buildChartModeMapByCharacter();
+
+    Object.entries(roster.chars).forEach(([charId, char]) => {
+      const power = Number(char?.power || 0);
+
+      if (!Number.isFinite(power) || power <= 0) return;
+
+      const modes = new Set();
+
+      getCharacterLookupKeys(charId).forEach((charKey) => {
+        const found = modeMapByChar.get(charKey);
+
+        if (!found) return;
+
+        found.forEach((modeKey) => {
+          if (TRACKED_CHART_MODE_KEYS.has(modeKey)) {
+            modes.add(modeKey);
+          }
+        });
+      });
+
+      if (!modes.size) {
+        values.other += power;
+        return;
+      }
+
+      const share = power / modes.size;
+
+      modes.forEach((modeKey) => {
+        values[modeKey] += share;
+      });
+    });
+
+    const currentTotal = Object.values(values).reduce((sum, value) => sum + Number(value || 0), 0);
+
+    if (currentTotal <= 0) {
+      values.other = total;
+    } else if (currentTotal < total) {
+      values.other += total - currentTotal;
+    } else if (currentTotal > total) {
+      const ratio = total / currentTotal;
+
+      Object.keys(values).forEach((key) => {
+        values[key] *= ratio;
+      });
+    }
+
+    const rows = ROSTER_CHART_MODES.map((mode) => {
+      const value = Number(values[mode.key] || 0);
+      const percent = total > 0 ? (value / total) * 100 : 0;
+
+      return {
+        ...mode,
+        value,
+        percent,
+      };
+    });
+
+    return {
+      total,
+      rows,
+    };
+  }
+
+  function renderRosterChart() {
+    if (!rosterPieEl || !rosterPieLegendEl) return;
+
+    const { total, rows } = computeRosterChartRows();
+
+    clearNode(rosterPieLegendEl);
+
+    if (!total || total <= 0) {
+      rosterPieEl.classList.add("is-empty");
+      rosterPieEl.style.background = "";
+
+      const empty = document.createElement("div");
+      empty.className = "rosterLegendEmpty";
+      empty.textContent = "Répartition indisponible";
+      rosterPieLegendEl.appendChild(empty);
+      return;
+    }
+
+    rosterPieEl.classList.remove("is-empty");
+
+    let cursor = 0;
+    const segments = rows
+      .filter((row) => row.value > 0)
+      .map((row) => {
+        const start = (cursor / total) * 100;
+        cursor += row.value;
+        const end = (cursor / total) * 100;
+
+        return `${row.color} ${start.toFixed(4)}% ${end.toFixed(4)}%`;
+      });
+
+    rosterPieEl.style.background = segments.length
+      ? `conic-gradient(${segments.join(", ")})`
+      : "";
+
+    rows.forEach((row) => {
+      const item = document.createElement("div");
+      item.className = "rosterLegendItem";
+
+      const swatch = document.createElement("span");
+      swatch.className = "rosterLegendSwatch";
+      swatch.style.background = row.color;
+      item.appendChild(swatch);
+
+      const label = document.createElement("span");
+      label.className = "rosterLegendLabel";
+      label.textContent = row.label;
+      item.appendChild(label);
+
+      const value = document.createElement("span");
+      value.className = "rosterLegendValue";
+      value.textContent = `${formatPercent(row.percent)} · ${formatCompactPower(row.value)}`;
+      item.appendChild(value);
+
+      rosterPieLegendEl.appendChild(item);
+    });
   }
 
   // ---------- Aliases / war score ----------
@@ -1290,6 +1526,7 @@
 
   function renderAll() {
     renderIdentity();
+    renderRosterChart();
     renderTeams();
   }
 
