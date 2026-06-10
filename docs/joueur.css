@@ -34,9 +34,17 @@
 
 .playerIdentity{
   display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap: 12px;
+  padding: 14px;
+}
+
+.playerIdentityTop{
+  display:flex;
   align-items:center;
   gap: 14px;
-  padding: 14px;
+  min-width:0;
 }
 
 .playerAvatarWrap{
@@ -101,7 +109,7 @@
 }
 
 .playerName{
-  margin:0 0 10px 0;
+  margin:0;
   font-size: 26px;
   line-height:1.05;
   font-weight:1000;
@@ -109,6 +117,105 @@
   text-overflow:ellipsis;
   white-space:nowrap;
 }
+
+/* ===== Camembert roster ===== */
+
+.rosterChart{
+  display:grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 12px;
+  align-items:center;
+  border:1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.012)),
+    rgba(0,0,0,.20);
+}
+
+.rosterPie{
+  width: 132px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  position:relative;
+  overflow:hidden;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.14),
+    0 8px 22px rgba(0,0,0,.38);
+}
+
+.rosterPie::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  box-shadow:
+    inset 0 0 18px rgba(255,255,255,.12),
+    inset 0 -18px 26px rgba(0,0,0,.25);
+}
+
+.rosterPie.is-empty{
+  background:
+    repeating-conic-gradient(
+      rgba(255,255,255,.10) 0deg 20deg,
+      rgba(255,255,255,.04) 20deg 40deg
+    );
+}
+
+.rosterLegend{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap: 7px;
+}
+
+.rosterLegendItem{
+  display:grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items:center;
+  min-width:0;
+}
+
+.rosterLegendSwatch{
+  width:10px;
+  height:10px;
+  border-radius:999px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.16);
+}
+
+.rosterLegendLabel{
+  min-width:0;
+  color: var(--text);
+  font-size: 12px;
+  line-height:1.1;
+  font-weight: 900;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.rosterLegendValue{
+  color: var(--muted);
+  font-size: 11px;
+  line-height:1.1;
+  font-weight: 900;
+  text-align:right;
+  white-space:nowrap;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.rosterLegendEmpty{
+  color: var(--muted);
+  font-size: 12px;
+  line-height:1.35;
+  font-weight:800;
+}
+
+/* ===== Stats joueur ===== */
 
 .playerStatsGrid{
   display:grid;
@@ -378,7 +485,7 @@
     border-radius: 13px;
   }
 
-  .playerIdentity{
+  .playerIdentityTop{
     align-items:flex-start;
   }
 
@@ -389,6 +496,28 @@
 
   .playerName{
     font-size: 24px;
+  }
+
+  .rosterChart{
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .rosterPie{
+    width: 112px;
+  }
+
+  .rosterLegendItem{
+    gap: 7px;
+  }
+
+  .rosterLegendLabel{
+    font-size: 11.5px;
+  }
+
+  .rosterLegendValue{
+    font-size: 10.5px;
   }
 
   .modeChips{
@@ -449,6 +578,27 @@
 
   .playerName{
     font-size: 22px;
+  }
+
+  .rosterChart{
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  .rosterPie{
+    width: 96px;
+  }
+
+  .rosterLegend{
+    gap: 6px;
+  }
+
+  .rosterLegendLabel{
+    font-size: 11px;
+  }
+
+  .rosterLegendValue{
+    font-size: 10px;
   }
 
   .playerStat{
