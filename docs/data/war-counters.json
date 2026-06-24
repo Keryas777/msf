@@ -264,6 +264,28 @@
     "notes": ""
   },
   {
+    "def_family": "4F (MCU)",
+    "def_variant": "4F (MCU) + Xavier + Diablo",
+    "def_key": "4fmcuxavierdiablo",
+    "def_char1": "InvisibleWomanMCU",
+    "def_char2": "MrFantasticMCU",
+    "def_char3": "FranklinRichards",
+    "def_char4": "Xavier",
+    "def_char5": "Nightcrawler",
+    "atk_family": "Conclave de l'Ombre",
+    "atk_team": "Conclave de l'Ombre \"classique\"",
+    "atk_key": "conclave",
+    "atk_char1": "Thanos",
+    "atk_char2": "Sylvie",
+    "atk_char3": "Malekith",
+    "atk_char4": "HighEvolutionary",
+    "atk_char5": "Executioner",
+    "min_ratio_hard": "0.87",
+    "min_ratio_ok": "1.02",
+    "min_ratio_safe": "1.17",
+    "notes": ""
+  },
+  {
     "def_family": "A-Force Absolute",
     "def_variant": "A-Force Absolute \"classique\"",
     "def_key": "aforceabsolute",
@@ -1141,7 +1163,7 @@
     "min_ratio_hard": "0.95",
     "min_ratio_ok": "1.1",
     "min_ratio_safe": "1.25",
-    "notes": "Ultime de Daimon et Hellcat sur le Daimon adverse. Éviter de poser des debuffs sur Blue Marvel"
+    "notes": "Coinflip : 1 chance sur 2 de démarrer en premier. Ultime de Daimon et Hellcat sur le Daimon adverse. Éviter de poser des debuffs sur Blue Marvel"
   },
   {
     "def_family": "Brimstone",
@@ -1424,10 +1446,10 @@
     "atk_char3": "EbonyMaw",
     "atk_char4": "CullObsidian",
     "atk_char5": "SilverSurferBreaker",
-    "min_ratio_hard": "1.14",
-    "min_ratio_ok": "1.29",
-    "min_ratio_safe": "1.44",
-    "notes": "Focus sur le Maître de l'évolution"
+    "min_ratio_hard": "0.77",
+    "min_ratio_ok": "0.92",
+    "min_ratio_safe": "1.07",
+    "notes": "Focus sur le Maître de l'évolution. Combat complexe si le match-up est \"risqué\"."
   },
   {
     "def_family": "Conclave de l'Ombre",
@@ -1450,6 +1472,28 @@
     "min_ratio_ok": "1.49",
     "min_ratio_safe": "1.64",
     "notes": "Focus sur le Maître de l'évolution"
+  },
+  {
+    "def_family": "Conclave de l'Ombre",
+    "def_variant": "Conclave de l'Ombre \"classique\"",
+    "def_key": "conclave",
+    "def_char1": "Thanos",
+    "def_char2": "Sylvie",
+    "def_char3": "Malekith",
+    "def_char4": "HighEvolutionary",
+    "def_char5": "Executioner",
+    "atk_family": "Conclave de l'Ombre",
+    "atk_team": "Conclave de l'Ombre \"classique\"",
+    "atk_key": "conclave",
+    "atk_char1": "Thanos",
+    "atk_char2": "Sylvie",
+    "atk_char3": "Malekith",
+    "atk_char4": "HighEvolutionary",
+    "atk_char5": "Executioner",
+    "min_ratio_hard": "1.43",
+    "min_ratio_ok": "1.58",
+    "min_ratio_safe": "1.73",
+    "notes": ""
   },
   {
     "def_family": "Conclave de l'Ombre",
@@ -1823,6 +1867,28 @@
     "min_ratio_hard": "0.77",
     "min_ratio_ok": "0.92",
     "min_ratio_safe": "1.07",
+    "notes": ""
+  },
+  {
+    "def_family": "Division Alpha",
+    "def_variant": "Division Alpha + Blue Marvel",
+    "def_key": "divalphabm",
+    "def_char1": "BlueMarvel",
+    "def_char2": "Sasquatch",
+    "def_char3": "Guardian",
+    "def_char4": "Northstar",
+    "def_char5": "Wolverine",
+    "atk_family": "Impérissables",
+    "atk_team": "Impérissables",
+    "atk_key": "impérissables",
+    "atk_char1": "ZombieIronMan",
+    "atk_char2": "ZombieKestrel",
+    "atk_char3": "ZombieScarletWitch",
+    "atk_char4": "ZombieJuggernaut",
+    "atk_char5": "Hela",
+    "min_ratio_hard": "0.81",
+    "min_ratio_ok": "0.96",
+    "min_ratio_safe": "1.11",
     "notes": ""
   },
   {
@@ -3718,6 +3784,28 @@
     "notes": ""
   },
   {
+    "def_family": "RetCon",
+    "def_variant": "RetCon + Daken",
+    "def_key": "retcondaken",
+    "def_char1": "Deadpool",
+    "def_char2": "Gwenpool",
+    "def_char3": "Daken",
+    "def_char4": "SquirrelGirl",
+    "def_char5": "JeffTheLandShark",
+    "atk_family": "Conclave de l'Ombre",
+    "atk_team": "Conclave de l'Ombre \"classique\"",
+    "atk_key": "conclave",
+    "atk_char1": "Thanos",
+    "atk_char2": "Sylvie",
+    "atk_char3": "Malekith",
+    "atk_char4": "HighEvolutionary",
+    "atk_char5": "Executioner",
+    "min_ratio_hard": "1.28",
+    "min_ratio_ok": "1.43",
+    "min_ratio_safe": "1.58",
+    "notes": ""
+  },
+  {
     "def_family": "Secret Warriors",
     "def_variant": "Secret Warriors \"classique\"",
     "def_key": "secretwarriors",
@@ -4486,6 +4574,28 @@
     "min_ratio_ok": "0.65",
     "min_ratio_safe": "0.8",
     "notes": "Laisser un espace vide entre chaque perso. Focus DarkStar"
+  },
+  {
+    "def_family": "Winter Guard",
+    "def_variant": "Winter Guard \"classique\"",
+    "def_key": "winterguard",
+    "def_char1": "Darkstar",
+    "def_char2": "OmegaRed",
+    "def_char3": "Yelena",
+    "def_char4": "RedGuardian",
+    "def_char5": "UrsaMajor",
+    "atk_family": "Présage",
+    "atk_team": "Présage \"classique\"",
+    "atk_key": "presage",
+    "atk_char1": "Ronan",
+    "atk_char2": "Minerva",
+    "atk_char3": "EbonyMaw",
+    "atk_char4": "CullObsidian",
+    "atk_char5": "SilverSurferBreaker",
+    "min_ratio_hard": "0.98",
+    "min_ratio_ok": "1.13",
+    "min_ratio_safe": "1.28",
+    "notes": "Attention, perte de 1 ou 2 persos si le match-up est \"risqué\""
   },
   {
     "def_family": "Winter Guard",
