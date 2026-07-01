@@ -18,23 +18,28 @@
   --bar-orange: #ff9f1a;
   --bar-yellow: #ffd24a;
   --bar-green: #2ecc71;
+  --bar-green-overkill: #239b5b;
 
   --c-green: 46,204,113;
+  --c-green-overkill: 35,155,91;
   --c-yellow: 255,210,74;
   --c-orange: 255,159,26;
   --c-red: 255,77,77;
 
   --halo-green: rgba(255,255,255,.34);
+  --halo-green-overkill: rgba(255,255,255,.30);
   --halo-yellow: rgba(255,255,255,.34);
   --halo-orange: rgba(255,255,255,.34);
   --halo-red: rgba(255,255,255,.34);
 
   --tint-green: rgba(var(--c-green), .16);
+  --tint-green-overkill: rgba(var(--c-green-overkill), .20);
   --tint-yellow: rgba(var(--c-yellow), .16);
   --tint-orange: rgba(var(--c-orange), .16);
   --tint-red: rgba(var(--c-red), .16);
 
   --band-green: rgba(var(--c-green), .98);
+  --band-green-overkill: rgba(var(--c-green-overkill), .98);
   --band-yellow: rgba(var(--c-yellow), .98);
   --band-orange: rgba(var(--c-orange), .98);
   --band-red: rgba(var(--c-red), .98);
@@ -316,7 +321,6 @@ button.backBtn{
   align-items: stretch;
 }
 
-/* Variante ciblée : 2 chips par ligne, utilisée sur Classement Teams Groupement */
 .filters.filters--twoColumns{
   display:grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -443,6 +447,12 @@ button.backBtn{
 .rankBar.is-orange{ background: var(--bar-orange); }
 .rankBar.is-yellow{ background: var(--bar-yellow); }
 .rankBar.is-green{ background: var(--bar-green); }
+
+.rankBar.is-green.is-overkill,
+.rankBar.is-overkill{
+  background: var(--bar-green-overkill);
+}
+
 .rankBar.is-empty{ background: rgba(255,255,255,.18); }
 
 .rankPower{
@@ -579,6 +589,8 @@ button.backBtn{
   --tint: rgba(255,255,255,.00);
   --band: rgba(255,255,255,.00);
   --label: "—";
+  --label-size: 11px;
+  --label-spacing: .12em;
 
   background:
     linear-gradient(90deg, var(--tint) 0%, rgba(0,0,0,.22) 62%),
@@ -613,8 +625,8 @@ button.backBtn{
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   font-weight: 1000;
-  letter-spacing: .12em;
-  font-size: 11px;
+  letter-spacing: var(--label-spacing);
+  font-size: var(--label-size);
   color: rgba(0,0,0,.88);
   text-shadow: 0 1px 0 rgba(255,255,255,.22);
   box-shadow:
@@ -622,6 +634,7 @@ button.backBtn{
     8px 0 22px rgba(0,0,0,.35);
   border-top-left-radius: 18px;
   border-bottom-left-radius: 18px;
+  white-space: nowrap;
 }
 
 .counterCard.is-green{
@@ -629,6 +642,24 @@ button.backBtn{
   --tint: var(--tint-green);
   --band: var(--band-green);
   --label: "SÛR";
+}
+
+.counterCard.is-green.is-overkill{
+  --halo: var(--halo-green-overkill);
+  --tint: var(--tint-green-overkill);
+  --band: var(--band-green-overkill);
+  --label: "SÛR ⚠️ OVERKILL";
+  --label-size: 8px;
+  --label-spacing: .035em;
+}
+
+.counterCard.is-green.is-overkill-plus{
+  --halo: var(--halo-green-overkill);
+  --tint: var(--tint-green-overkill);
+  --band: var(--band-green-overkill);
+  --label: "SÛR 💀 OVERKILL +";
+  --label-size: 8px;
+  --label-spacing: .035em;
 }
 
 .counterCard.is-yellow{
