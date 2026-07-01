@@ -42,7 +42,6 @@
   const resultsCount = qs("#resultsCount");
   const playerChip = qs("#playerChip");
 
-  // ---------- Auth session / auto-selection ----------
   let lospSession = window.LoSP_SESSION || readLocalSessionPayload() || null;
   let authDefaultsApplied = false;
   let bootReady = false;
@@ -94,7 +93,8 @@
   }
 
   window.addEventListener("losp:auth-ready", (event) => {
-    lospSession = event.detail || window.LoSP_SESSION || readLocalSessionPayload() || null;
+    lospSession =
+      event.detail || window.LoSP_SESSION || readLocalSessionPayload() || null;
 
     if (bootReady) {
       authDefaultsApplied = false;
@@ -104,7 +104,6 @@
     }
   });
 
-  // ---------- Utils ----------
   const bust = (url) => {
     const u = new URL(url, window.location.href);
     u.searchParams.set("v", Date.now().toString());
@@ -166,6 +165,11 @@
       .replace(/\s+/g, " ");
   }
 
+  function parseRatio(value) {
+    const num = parseFloat(String(value ?? "").replace(",", "."));
+    return Number.isFinite(num) && num > 0 ? num : 0;
+  }
+
   function formatThousandsDot(n) {
     const num = Number(n);
     if (!Number.isFinite(num)) return "0";
@@ -191,7 +195,6 @@
     return String(Math.round(num));
   }
 
-  // ---------- Auth helpers ----------
   function hasUsableSession(session) {
     return !!session && (
       session.ok === true ||
@@ -401,7 +404,6 @@
     return true;
   }
 
-  // ---------- Enemy power LIVE formatting ----------
   function digitsOnly(s) {
     return String(s || "").replace(/[^\d]/g, "");
   }
@@ -442,7 +444,6 @@
     } catch (_) {}
   }
 
-  // ---------- DATA ----------
   let WAR = [];
   let JOUEURS = [];
   let ROSTERS = new Map();
@@ -454,7 +455,6 @@
     rules: [],
   };
 
-  // ---------- PARSING ----------
   function normalizeWarRow(r) {
     return {
       def_family: (r.def_family ?? "").toString().trim(),
@@ -474,9 +474,11 @@
         (x ?? "").toString().trim()
       ),
 
-      min_hard: parseFloat(String(r.min_ratio_hard ?? "").replace(",", ".")) || 0,
-      min_ok: parseFloat(String(r.min_ratio_ok ?? "").replace(",", ".")) || 0,
-      min_safe: parseFloat(String(r.min_ratio_safe ?? "").replace(",", ".")) || 0,
+      min_hard: parseRatio(r.min_ratio_hard),
+      min_ok: parseRatio(r.min_ratio_ok),
+      min_safe: parseRatio(r.min_ratio_safe),
+      min_overkill: parseRatio(r.min_ratio_overkill),
+      min_overkill_plus: parseRatio(r.min_ratio_overkill_plus),
 
       notes: (r.notes ?? "").toString().trim(),
     };
@@ -513,7 +515,6 @@
     };
   }
 
-  // ---------- CHAR ----------
   function buildCharMap(chars) {
     CHAR_MAP = new Map();
 
@@ -533,7 +534,6 @@
     return c?.portraitUrl || c?.portrait || c?.iconUrl || "";
   }
 
-  // ---------- ROSTER ----------
   function buildRosterMap(data) {
     ROSTERS = new Map();
 
@@ -615,7 +615,6 @@
     return Math.round(rawPower * multiplier);
   }
 
-  // ---------- SELECTS ----------
   function buildPlayersByAlliance() {
     PLAYERS_BY_ALLIANCE = new Map();
 
@@ -770,7 +769,6 @@
     return WAR.find((r) => r.def_family === fam && r.def_variant === vari) || null;
   }
 
-  // ---------- UI ----------
   function renderDefense() {
     clearNode(defPortraits);
 
@@ -810,95 +808,113 @@
   }
 
   function computeCounterStatus(enemyPower, row, teamPower) {
-  const enemy = Number(enemyPower) || 0;
-  const power = Number(teamPower) || 0;
+    const enemy = Number(enemyPower) || 0;
+    const power = Number(teamPower) || 0;
 
-  const rawHardRatio = Number(row?.min_hard) || 0;
-  const rawOkRatio = Number(row?.min_ok) || 0;
-  const rawSafeRatio = Number(row?.min_safe) || 0;
+    const rawHardRatio = Number(row?.min_hard) || 0;
+    const rawOkRatio = Number(row?.min_ok) || 0;
+    const rawSafeRatio = Number(row?.min_safe) || 0;
+    const rawOverkillRatio = Number(row?.min_overkill) || 0;
+    const rawOverkillPlusRatio = Number(row?.min_overkill_plus) || 0;
 
-  const ratios = [rawHardRatio, rawOkRatio, rawSafeRatio]
-    .filter((n) => Number.isFinite(n) && n > 0)
-    .sort((a, b) => a - b);
+    const ratios = [rawHardRatio, rawOkRatio, rawSafeRatio]
+      .filter((n) => Number.isFinite(n) && n > 0)
+      .sort((a, b) => a - b);
 
-  if (enemy <= 0 || !ratios.length) {
+    if (enemy <= 0 || !ratios.length) {
+      return {
+        show: false,
+        cls: "is-yellow",
+        rank: 1,
+        recommended: 0,
+        delta: 0,
+        ratio: 0,
+        overkillLevel: "",
+        line1: "",
+        line2: "",
+      };
+    }
+
+    const hardRatio = ratios[0] || 0;
+    const okRatio = rawOkRatio || ratios[Math.min(1, ratios.length - 1)] || hardRatio;
+    const safeRatio = ratios[ratios.length - 1] || okRatio || hardRatio;
+
+    const hardRequired = enemy * hardRatio;
+    const okRequired = enemy * okRatio;
+    const safeRequired = enemy * safeRatio;
+
+    const recommended = okRequired || hardRequired || safeRequired || 0;
+    const delta = power - recommended;
+    const currentRatio = enemy > 0 ? power / enemy : 0;
+
+    let cls = "is-red";
+    let rank = 3;
+    let overkillLevel = "";
+
+    if (power >= safeRequired) {
+      cls = "is-green";
+      rank = 0;
+
+      if (rawOverkillPlusRatio > 0 && currentRatio >= rawOverkillPlusRatio) {
+        cls = "is-green is-overkill-plus";
+        overkillLevel = "plus";
+      } else if (rawOverkillRatio > 0 && currentRatio >= rawOverkillRatio) {
+        cls = "is-green is-overkill";
+        overkillLevel = "normal";
+      }
+    } else if (power >= okRequired) {
+      cls = "is-yellow";
+      rank = 1;
+    } else if (power >= hardRequired) {
+      cls = "is-orange";
+      rank = 2;
+    }
+
+    if (delta < 0 && cls.includes("is-green")) {
+      if (power >= hardRequired) {
+        cls = "is-orange";
+        rank = 2;
+      } else {
+        cls = "is-red";
+        rank = 3;
+      }
+
+      overkillLevel = "";
+    }
+
+    let line2 = "";
+
+    if (delta >= 0) {
+      if (overkillLevel === "plus") {
+        line2 = `💀 ${formatCompactFR(delta)} de marge · Overkill +`;
+      } else if (overkillLevel === "normal") {
+        line2 = `⚠️ ${formatCompactFR(delta)} de marge · Overkill`;
+      } else {
+        line2 = `✅ ${formatCompactFR(delta)} de marge`;
+      }
+    } else {
+      line2 = `🚫 + ${formatCompactFR(Math.abs(delta))} mini. requis`;
+    }
+
     return {
-      show: false,
-      cls: "is-yellow",
-      rank: 1,
-      recommended: 0,
-      delta: 0,
-      ratio: 0,
-      line1: "",
-      line2: "",
+      show: recommended > 0,
+      cls,
+      rank,
+      recommended,
+      delta,
+      ratio: currentRatio,
+      overkillLevel,
+      line1: `Recommandé : ${formatCompactFR(recommended)} mini`,
+      line2,
     };
   }
 
-  /*
-    Sécurité :
-    - hard = seuil le plus bas connu
-    - ok = colonne min_ok du JSON si elle existe, car c'est celle affichée en "Recommandé"
-    - safe = seuil le plus haut connu, même si le JSON/Sheet a hard/ok/safe dans un ordre incohérent
-  */
-  const hardRatio = ratios[0] || 0;
-  const okRatio = rawOkRatio || ratios[Math.min(1, ratios.length - 1)] || hardRatio;
-  const safeRatio = ratios[ratios.length - 1] || okRatio || hardRatio;
-
-  const hardRequired = enemy * hardRatio;
-  const okRequired = enemy * okRatio;
-  const safeRequired = enemy * safeRatio;
-
-  const recommended = okRequired || hardRequired || safeRequired || 0;
-  const delta = power - recommended;
-
-  let cls = "is-red";
-  let rank = 3;
-
-  if (power >= safeRequired) {
-    cls = "is-green";
-    rank = 0;
-  } else if (power >= okRequired) {
-    cls = "is-yellow";
-    rank = 1;
-  } else if (power >= hardRequired) {
-    cls = "is-orange";
-    rank = 2;
-  }
-
-  /*
-    Garde-fou absolu :
-    si le texte dit qu'il manque de la puissance sur le seuil recommandé,
-    la carte ne doit jamais afficher SÛR.
-  */
-  if (delta < 0 && cls === "is-green") {
-    if (power >= hardRequired) {
-      cls = "is-orange";
-      rank = 2;
-    } else {
-      cls = "is-red";
-      rank = 3;
-    }
-  }
-
-  return {
-    show: recommended > 0,
-    cls,
-    rank,
-    recommended,
-    delta,
-    ratio: enemy > 0 ? power / enemy : 0,
-    line1: `Recommandé : ${formatCompactFR(recommended)} mini`,
-    line2:
-      delta >= 0
-        ? `✅ ${formatCompactFR(delta)} de marge`
-        : `🚫 + ${formatCompactFR(Math.abs(delta))} mini. requis`,
-  };
-}
-
   function classRank(cls) {
-    if (cls === "is-green") return 0;
-    if (cls === "is-yellow") return 1;
-    if (cls === "is-orange") return 2;
+    const value = String(cls || "");
+
+    if (value.includes("is-green")) return 0;
+    if (value.includes("is-yellow")) return 1;
+    if (value.includes("is-orange")) return 2;
     return 3;
   }
 
@@ -1098,7 +1114,6 @@
     renderResults();
   }
 
-  // ---------- EVENTS ----------
   allianceSelect?.addEventListener("change", () => {
     renderPlayerOptions();
 
@@ -1145,7 +1160,6 @@
     renderResults();
   });
 
-  // ---------- BOOT ----------
   async function boot() {
     const [war, warSeasonRules, joueurs, chars, rosters] = await Promise.all([
       fetchJson(FILES.warCounters),
