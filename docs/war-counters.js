@@ -4,24 +4,12 @@
     "https://script.google.com/macros/s/AKfycbzTdFi7gEgRVCKjK2UBwFcQIlIzi2jp4eeO2ryR36sSrcy3QtzfEK8k7kNSXSJOGmFAbw/exec";
 
   const FILES = {
+    alliances: "./data/alliances.json",
     warCounters: "./data/war-counters.json",
     warSeasonRules: "./data/war-season-rules.json",
     joueurs: "./data/joueurs.json",
     characters: "./data/msf-characters.json",
     rosters: "./data/rosters.json",
-  };
-
-  const ALLIANCE_EMOJI = {
-    Zeus: "⚡️",
-    zeus: "⚡️",
-    Dionysos: "🍇",
-    dionysos: "🍇",
-    "Poséidon": "🔱",
-    Poseidon: "🔱",
-    poseidon: "🔱",
-    Kronos: "⏳",
-    kronos: "⏳",
-    "LoSP Kronos": "⏳",
   };
 
   const AUTH_PLAYER_STORAGE_KEY = "losp:lastPlayerByAlliance";
@@ -145,15 +133,81 @@
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
 
+  let ALLIANCES = [];
+  let ALLIANCE_BY_KEY = new Map();
+  let ALLIANCE_ALIAS_TO_KEY = new Map();
+  let ORDER_KEYS = [];
+
+  function normalizeAllianceData(data) {
+    const rows = Array.isArray(data) ? data : [];
+
+    return rows
+      .map((a) => {
+        const key = normalizeKey(a?.key);
+        const name = (a?.name ?? "").toString().trim();
+        const emoji = (a?.emoji ?? "").toString().trim();
+        const color = (a?.color ?? "").toString().trim();
+        const order = Number(a?.order) || 999;
+        const aliases = Array.isArray(a?.aliases) ? a.aliases : [];
+
+        if (!key || !name) return null;
+
+        return {
+          key,
+          name,
+          emoji,
+          color,
+          order,
+          aliases: [...new Set([name, key, ...aliases].filter(Boolean))],
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => {
+        if (a.order !== b.order) return a.order - b.order;
+        return a.name.localeCompare(b.name, "fr");
+      });
+  }
+
+  function buildAllianceMaps(data) {
+    ALLIANCES = normalizeAllianceData(data);
+    ALLIANCE_BY_KEY = new Map();
+    ALLIANCE_ALIAS_TO_KEY = new Map();
+
+    ALLIANCES.forEach((alliance) => {
+      ALLIANCE_BY_KEY.set(alliance.key, alliance);
+
+      [alliance.key, alliance.name, ...(alliance.aliases || [])].forEach((value) => {
+        const aliasKey = normalizeKey(value);
+        if (!aliasKey) return;
+        ALLIANCE_ALIAS_TO_KEY.set(aliasKey, alliance.key);
+      });
+    });
+
+    ORDER_KEYS = ALLIANCES.map((a) => a.key);
+  }
+
   function allianceKey(value) {
     const key = normalizeKey(value);
+
+    if (ALLIANCE_ALIAS_TO_KEY.has(key)) {
+      return ALLIANCE_ALIAS_TO_KEY.get(key);
+    }
 
     if (key === "poseidon" || key === "posseidon") return "poseidon";
     if (key === "dionysos") return "dionysos";
     if (key === "zeus") return "zeus";
     if (key === "kronos" || key === "lospkronos") return "kronos";
+    if (key === "hades" || key === "lospades" || key === "losphades") return "hades";
 
     return key;
+  }
+
+  function getAllianceMeta(value) {
+    return ALLIANCE_BY_KEY.get(allianceKey(value)) || null;
+  }
+
+  function getAllianceEmoji(value) {
+    return getAllianceMeta(value)?.emoji || "•";
   }
 
   function normalizeTextForMatch(value) {
@@ -639,7 +693,6 @@
     opt0.textContent = "— Choisir une alliance —";
     allianceSelect.appendChild(opt0);
 
-    const ORDER_KEYS = ["zeus", "dionysos", "poseidon", "kronos"];
     const alliances = [
       ...new Set(JOUEURS.map((j) => (j.alliance ?? "").toString().trim()).filter(Boolean)),
     ];
@@ -659,7 +712,7 @@
       .forEach((a) => {
         const opt = document.createElement("option");
         opt.value = a;
-        opt.textContent = `${ALLIANCE_EMOJI[a] || ALLIANCE_EMOJI[allianceKey(a)] || "•"} ${a}`.trim();
+        opt.textContent = `${getAllianceEmoji(a)} ${a}`.trim();
         allianceSelect.appendChild(opt);
       });
 
@@ -1161,13 +1214,16 @@
   });
 
   async function boot() {
-    const [war, warSeasonRules, joueurs, chars, rosters] = await Promise.all([
+    const [alliances, war, warSeasonRules, joueurs, chars, rosters] = await Promise.all([
+      fetchJson(FILES.alliances),
       fetchJson(FILES.warCounters),
       fetchJson(FILES.warSeasonRules),
       fetchJson(FILES.joueurs),
       fetchJson(FILES.characters),
       fetchJson(FILES.rosters),
     ]);
+
+    buildAllianceMaps(alliances);
 
     WAR = Array.isArray(war) ? war.map(normalizeWarRow) : [];
     WAR_SEASON_RULES = normalizeSeasonRules(warSeasonRules);
