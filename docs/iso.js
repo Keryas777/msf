@@ -1,19 +1,13 @@
 // docs/iso.js
 (() => {
   const FILES = {
+    alliances: "./data/alliances.json",
     teams: "./data/teams.json",
     characters: "./data/msf-characters.json",
     joueurs: "./data/joueurs.json",
     rosters: "./data/rosters.json",
     isoReco: "./data/iso-reco.json",
     isoIcons: "./data/iso-icons.json",
-  };
-
-  const ALLIANCE_EMOJI = {
-    Zeus: "⚡️",
-    Dionysos: "🍇",
-    "Poséidon": "🔱",
-    Poseidon: "🔱",
   };
 
   // ✅ Ordre forcé des modes de jeu (affichage dans le select)
@@ -86,6 +80,11 @@
   }
 
   // -------- Data --------
+  let ALLIANCES = [];
+  let ALLIANCE_BY_KEY = new Map();
+  let ALLIANCE_ALIAS_TO_KEY = new Map();
+  let ALLIANCE_ORDER_KEYS = [];
+
   let TEAMS = []; // [{team, mode, characters[]}]
   let CHARS = [];
   let CHAR_MAP = new Map();   // alias -> best char
@@ -101,6 +100,88 @@
 
   let ISO_RECO_MAP = new Map(); // canonCharKey -> {isoClass, isoColor}
   let ISO_ICONS = {}; // { striker:{green,blue,purple}, ... }
+
+  // -------- Alliances --------
+  function normalizeAllianceData(data) {
+    const rows = Array.isArray(data) ? data : [];
+
+    return rows
+      .map((a) => {
+        const key = normalizeKey(a?.key);
+        const name = (a?.name ?? "").toString().trim();
+        const emoji = (a?.emoji ?? "").toString().trim();
+        const color = (a?.color ?? "").toString().trim();
+        const order = Number(a?.order) || 999;
+        const aliases = Array.isArray(a?.aliases) ? a.aliases : [];
+
+        if (!key || !name) return null;
+
+        return {
+          key,
+          name,
+          emoji,
+          color,
+          order,
+          aliases: [...new Set([name, a?.key, key, ...aliases].filter(Boolean))],
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => {
+        if (a.order !== b.order) return a.order - b.order;
+        return a.name.localeCompare(b.name, "fr");
+      });
+  }
+
+  function buildAllianceMaps(data) {
+    ALLIANCES = normalizeAllianceData(data);
+    ALLIANCE_BY_KEY = new Map();
+    ALLIANCE_ALIAS_TO_KEY = new Map();
+
+    ALLIANCES.forEach((alliance) => {
+      ALLIANCE_BY_KEY.set(alliance.key, alliance);
+
+      [alliance.key, alliance.name, ...(alliance.aliases || [])].forEach((value) => {
+        const aliasKey = normalizeKey(value);
+        if (!aliasKey) return;
+        ALLIANCE_ALIAS_TO_KEY.set(aliasKey, alliance.key);
+      });
+    });
+
+    ALLIANCE_ORDER_KEYS = ALLIANCES.map((a) => a.key);
+  }
+
+  function allianceKey(value) {
+    const key = normalizeKey(value);
+
+    if (ALLIANCE_ALIAS_TO_KEY.has(key)) {
+      return ALLIANCE_ALIAS_TO_KEY.get(key);
+    }
+
+    if (key === "poseidon" || key === "poséidon" || key === "posseidon") return "poseidon";
+    if (key === "dionysos") return "dionysos";
+    if (key === "zeus") return "zeus";
+    if (key === "kronos" || key === "lospkronos") return "kronos";
+    if (key === "hades" || key === "hadès" || key === "losphades" || key === "losphadès") return "hades";
+
+    return key;
+  }
+
+  function getAllianceMeta(value) {
+    return ALLIANCE_BY_KEY.get(allianceKey(value)) || null;
+  }
+
+  function getAllianceEmoji(value) {
+    return getAllianceMeta(value)?.emoji || "•";
+  }
+
+  function getAllianceName(value) {
+    return getAllianceMeta(value)?.name || (value ?? "").toString().trim();
+  }
+
+  function getAllianceSortIndex(value) {
+    const idx = ALLIANCE_ORDER_KEYS.indexOf(allianceKey(value));
+    return idx === -1 ? 999 : idx;
+  }
 
   // -------- Canon / variants handling --------
   function isVariantId(id) {
@@ -311,7 +392,6 @@
     teamSelect.value = "";
   }
 
-  // ✅ ordre demandé Zeus > Dionysos > Poséidon
   function renderAllianceOptions() {
     allianceSelect.innerHTML = "";
 
@@ -320,24 +400,33 @@
     opt0.textContent = "— Choisir une alliance —";
     allianceSelect.appendChild(opt0);
 
-    const ORDER = ["Zeus", "Dionysos", "Poséidon", "Poseidon"];
+    const alliancesByKey = new Map();
 
-    const alliances = Array.from(
-      new Set(JOUEURS.map((j) => (j.alliance || "").trim()).filter(Boolean))
-    );
+    JOUEURS.forEach((j) => {
+      const rawAlliance = (j.alliance || "").trim();
+      const key = allianceKey(rawAlliance);
+
+      if (!rawAlliance || !key) return;
+      if (!alliancesByKey.has(key)) alliancesByKey.set(key, rawAlliance);
+    });
+
+    const alliances = Array.from(alliancesByKey.entries()).map(([key, raw]) => ({
+      key,
+      raw,
+      name: getAllianceName(key) || raw,
+      emoji: getAllianceEmoji(key),
+      order: getAllianceSortIndex(key),
+    }));
 
     alliances
       .sort((a, b) => {
-        const ia = ORDER.indexOf(a);
-        const ib = ORDER.indexOf(b);
-        if (ia !== -1 || ib !== -1)
-          return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-        return a.localeCompare(b, "fr");
+        if (a.order !== b.order) return a.order - b.order;
+        return a.name.localeCompare(b.name, "fr");
       })
       .forEach((a) => {
         const opt = document.createElement("option");
-        opt.value = a;
-        opt.textContent = `${ALLIANCE_EMOJI[a] || "•"} ${a}`.trim();
+        opt.value = a.key;
+        opt.textContent = `${a.emoji || "•"} ${a.name || a.raw}`.trim();
         allianceSelect.appendChild(opt);
       });
 
@@ -359,7 +448,7 @@
       return;
     }
 
-    const list = (PLAYERS_BY_ALLIANCE.get(alliance) || [])
+    const list = (PLAYERS_BY_ALLIANCE.get(allianceKey(alliance)) || [])
       .slice()
       .sort((a, b) => a.player.localeCompare(b.player, "fr"));
 
@@ -473,11 +562,14 @@
   // -------- Maps --------
   function buildPlayersByAlliance() {
     PLAYERS_BY_ALLIANCE = new Map();
+
     for (const j of JOUEURS) {
       const a = (j.alliance || "").trim();
-      if (!a) continue;
-      if (!PLAYERS_BY_ALLIANCE.has(a)) PLAYERS_BY_ALLIANCE.set(a, []);
-      PLAYERS_BY_ALLIANCE.get(a).push(j);
+      const key = allianceKey(a);
+
+      if (!a || !key) continue;
+      if (!PLAYERS_BY_ALLIANCE.has(key)) PLAYERS_BY_ALLIANCE.set(key, []);
+      PLAYERS_BY_ALLIANCE.get(key).push(j);
     }
   }
 
@@ -621,8 +713,9 @@
 
   // -------- Boot --------
   async function boot() {
-    const [teamsRaw, charsRaw, joueursRaw, rostersRaw, isoRecoRaw, isoIconsRaw] =
+    const [alliancesRaw, teamsRaw, charsRaw, joueursRaw, rostersRaw, isoRecoRaw, isoIconsRaw] =
       await Promise.all([
+        fetchJson(FILES.alliances).catch(() => []),
         fetchJson(FILES.teams),
         fetchJson(FILES.characters),
         fetchJson(FILES.joueurs),
@@ -630,6 +723,8 @@
         fetchJson(FILES.isoReco).catch(() => ({})),
         fetchJson(FILES.isoIcons).catch(() => ({})),
       ]);
+
+    buildAllianceMaps(alliancesRaw);
 
     CHARS = Array.isArray(charsRaw) ? charsRaw : [];
 
