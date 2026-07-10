@@ -37,39 +37,7 @@
       </header>
 
 <section class="card filtersCard">
-  <div class="filters" role="group" aria-label="Filtres alliances">
-    <label class="filterToggle">
-      <input id="filterZeus" type="checkbox" checked />
-      <span class="fStack">
-        <span class="fEmoji">⚡</span>
-        <span class="fName">Zeus</span>
-      </span>
-    </label>
-
-    <label class="filterToggle">
-      <input id="filterKronos" type="checkbox" checked />
-      <span class="fStack">
-        <span class="fEmoji">⏳</span>
-        <span class="fName">Kronos</span>
-      </span>
-    </label>
-
-    <label class="filterToggle">
-      <input id="filterDionysos" type="checkbox" checked />
-      <span class="fStack">
-        <span class="fEmoji">🍇</span>
-        <span class="fName">Dionysos</span>
-      </span>
-    </label>
-
-    <label class="filterToggle">
-      <input id="filterPoseidon" type="checkbox" checked />
-      <span class="fStack">
-        <span class="fEmoji">🔱</span>
-        <span class="fName">Poséidon</span>
-      </span>
-    </label>
-  </div>
+  <div class="filters" role="group" aria-label="Filtres alliances"></div>
 </section>
 
       <section class="card controlsCard">
@@ -150,10 +118,16 @@
           }
         });
 
+        const alliances = document.createElement("script");
+        alliances.src = "./alliances.js?v=1";
+        alliances.defer = true;
+        document.body.appendChild(alliances);
+
         const s = document.createElement("script");
-        s.src = "./war-rankings.js?v=" + Date.now();
+        s.src = "./war-rankings.js?v=2";
         s.defer = true;
-        document.body.appendChild(s);
+        alliances.addEventListener("load", () => document.body.appendChild(s));
+        alliances.addEventListener("error", () => document.body.appendChild(s));
       })();
     </script>
   </body>
