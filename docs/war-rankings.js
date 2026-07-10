@@ -12,14 +12,19 @@
   const $rankingTitle = document.getElementById("rankingTitle");
   const $rankingHint = document.getElementById("rankingHint");
   const $rangeButtons = Array.from(document.querySelectorAll(".rangeChip[data-range]"));
+  const $filters = document.querySelector(".filters");
   const tabs = Array.from(document.querySelectorAll(".rankingTab"));
 
-  const filters = {
-    zeus: document.getElementById("filterZeus"),
-    dionysos: document.getElementById("filterDionysos"),
-    poseidon: document.getElementById("filterPoseidon"),
-    kronos: document.getElementById("filterKronos"),
-  };
+  const FALLBACK_ALLIANCES = Object.freeze([
+    Object.freeze({ key: "zeus", name: "Zeus", emoji: "⚡", order: 1, aliases: Object.freeze(["LoSP Zeus"]) }),
+    Object.freeze({ key: "kronos", name: "Kronos", emoji: "⏳", order: 2, aliases: Object.freeze(["LoSP Kronos", "Cronos", "Chronos"]) }),
+    Object.freeze({ key: "dionysos", name: "Dionysos", emoji: "🍇", order: 3, aliases: Object.freeze(["LoSP Dionysos"]) }),
+    Object.freeze({ key: "poseidon", name: "Poséidon", emoji: "🔱", order: 4, aliases: Object.freeze(["Poseidon", "Posseidon", "LoSP Poséidon", "LoSP Poseidon"]) }),
+    Object.freeze({ key: "hades", name: "Hadès", emoji: "🔥", order: 5, aliases: Object.freeze(["Hades", "Hadès", "LoSP Hades", "LoSP Hadès"]) }),
+  ]);
+
+  const filters = {};
+  let knownAlliances = [];
 
   if (
     !$players ||
@@ -27,29 +32,12 @@
     !$rankingTitle ||
     !$rankingHint ||
     !$rangeButtons.length ||
-    !tabs.length ||
-    !filters.zeus ||
-    !filters.dionysos ||
-    !filters.poseidon ||
-    !filters.kronos
+    !$filters ||
+    !tabs.length
   ) {
     console.error("[war-rankings] Missing DOM elements. Check war-rankings.html ids.");
     return;
   }
-
-  const EMOJI = {
-    zeus: "⚡",
-    dionysos: "🍇",
-    poseidon: "🔱",
-    kronos: "⏳",
-  };
-
-  const LABEL = {
-    zeus: "Zeus",
-    dionysos: "Dionysos",
-    poseidon: "Poséidon",
-    kronos: "Kronos",
-  };
 
   const CHART_BANDS = {
     score: [
@@ -248,21 +236,106 @@
       .replace(/[\u0300-\u036f]/g, "");
   }
 
-  function normAlliance(value) {
-    const key = normalizeKey(value);
+  function mergeAlliances(rows) {
+    const byKey = new Map();
 
-    if (key.includes("zeus")) return "zeus";
-    if (key.includes("dionysos")) return "dionysos";
-    if (key.includes("poseidon") || key.includes("posseidon")) return "poseidon";
-    if (
-      key.includes("kronos") ||
-      key.includes("cronos") ||
-      key.includes("chronos")
-    ) {
-      return "kronos";
+    [...FALLBACK_ALLIANCES, ...(Array.isArray(rows) ? rows : [])].forEach((alliance) => {
+      const key = normalizeKey(alliance?.key);
+
+      if (!key) return;
+
+      const existing = byKey.get(key);
+      const aliases = Array.isArray(alliance?.aliases) ? alliance.aliases : [];
+
+      byKey.set(key, {
+        key,
+        name: String(alliance?.name || alliance?.label || existing?.name || key).trim() || key,
+        emoji: String(alliance?.emoji || existing?.emoji || "👤").trim() || "👤",
+        order: Number.isFinite(Number(alliance?.order))
+          ? Number(alliance.order)
+          : existing?.order ?? 999,
+        aliases: [...new Set([...(existing?.aliases || []), ...aliases])],
+      });
+    });
+
+    return Array.from(byKey.values()).sort((a, b) => {
+      if (a.order !== b.order) return a.order - b.order;
+      return a.name.localeCompare(b.name, "fr", { sensitivity: "base" });
+    });
+  }
+
+  function allianceHelper() {
+    return window.LoSPAlliances || null;
+  }
+
+  function normAlliance(value) {
+    const helper = allianceHelper();
+    const key = helper?.getAllianceKey ? helper.getAllianceKey(value) : normalizeKey(value);
+
+    if (knownAlliances.some((alliance) => alliance.key === key)) return key;
+
+    const match = knownAlliances.find((alliance) => {
+      return [alliance.key, alliance.name, ...(alliance.aliases || [])].some((alias) => {
+        const aliasKey = normalizeKey(alias);
+        return aliasKey && (key === aliasKey || key.includes(aliasKey));
+      });
+    });
+
+    return match?.key || "";
+  }
+
+  function allianceMeta(key) {
+    return allianceHelper()?.getAllianceMeta?.(key) || knownAlliances.find((a) => a.key === key) || null;
+  }
+
+  function allianceEmoji(key) {
+    return allianceMeta(key)?.emoji || "👤";
+  }
+
+  function allianceLabel(key) {
+    return allianceMeta(key)?.name || "Alliance";
+  }
+
+  async function loadKnownAlliances() {
+    const helper = allianceHelper();
+    let rows = [];
+
+    if (helper?.loadAlliances) {
+      try {
+        await helper.loadAlliances();
+      } catch (error) {
+        console.warn("[war-rankings] alliances helper unavailable:", error);
+      }
     }
 
-    return "";
+    if (helper?.getKnownAlliances) {
+      rows = helper.getKnownAlliances();
+    }
+
+    knownAlliances = mergeAlliances(rows);
+  }
+
+  function renderAllianceFilters() {
+    $filters.innerHTML = knownAlliances
+      .map((alliance) => {
+        const keySafe = esc(alliance.key);
+
+        return `
+          <label class="filterToggle">
+            <input id="filter-${keySafe}" type="checkbox" data-alliance="${keySafe}" checked />
+            <span class="fStack">
+              <span class="fEmoji">${esc(alliance.emoji)}</span>
+              <span class="fName">${esc(alliance.name)}</span>
+            </span>
+          </label>
+        `;
+      })
+      .join("");
+
+    Object.keys(filters).forEach((key) => delete filters[key]);
+    $filters.querySelectorAll("input[data-alliance]").forEach((input) => {
+      filters[input.dataset.alliance] = input;
+    });
   }
 
   function canonicalPlayerName(name) {
@@ -537,12 +610,15 @@
         currentPlayersByAlliance.get(alliance).add(key);
       });
 
-      console.log("[war-rankings] current players loaded:", {
-        zeus: currentPlayersByAlliance.get("zeus")?.size || 0,
-        dionysos: currentPlayersByAlliance.get("dionysos")?.size || 0,
-        poseidon: currentPlayersByAlliance.get("poseidon")?.size || 0,
-        kronos: currentPlayersByAlliance.get("kronos")?.size || 0,
-      });
+      console.log(
+        "[war-rankings] current players loaded:",
+        Object.fromEntries(
+          knownAlliances.map((alliance) => [
+            alliance.key,
+            currentPlayersByAlliance.get(alliance.key)?.size || 0,
+          ])
+        )
+      );
     } catch (error) {
       console.warn("[war-rankings] current players unavailable, no current-player filter:", error);
       currentPlayersByAlliance = new Map();
@@ -830,8 +906,8 @@
     $players.innerHTML = rows
       .map((p, i) => {
         const key = normAlliance(p.alliance);
-        const emoji = EMOJI[key] || "👤";
-        const alliance = LABEL[key] || "Alliance";
+        const emoji = allianceEmoji(key);
+        const alliance = allianceLabel(key);
         const nameSafe = esc(p.name);
         const valueClass = cleanClassName(config.className ? config.className(p) : "");
 
@@ -918,6 +994,8 @@
 
   async function init() {
     try {
+      await loadKnownAlliances();
+      renderAllianceFilters();
       await loadPlayerAliases();
       await loadCurrentPlayers();
       await loadPlayerAvatars();
