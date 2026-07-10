@@ -2,73 +2,148 @@
    Page: tcp.html
    Data: ./data/infos.json
    Fix: frame derrière, icon devant
-   Kronos: filtre + emoji + reconnaissance alliance
+   Alliances: helper commun + fallback local
 */
 
 (() => {
   // ---------- DOM ----------
   const $players = document.getElementById("players");
   const $count = document.getElementById("playersCount");
+  const $filters = document.getElementById("allianceFilters");
 
-  const $filterZeus = document.getElementById("filterZeus");
-  const $filterDionysos = document.getElementById("filterDionysos");
-  const $filterPoseidon = document.getElementById("filterPoseidon");
-  const $filterKronos = document.getElementById("filterKronos");
-
-  if (
-    !$players ||
-    !$count ||
-    !$filterZeus ||
-    !$filterDionysos ||
-    !$filterPoseidon ||
-    !$filterKronos
-  ) {
+  if (!$players || !$count || !$filters) {
     console.error("[tcp] Missing DOM elements. Check tcp.html ids.");
     return;
   }
 
   // ---------- Alliance helpers ----------
-  const ALLIANCE_EMOJI = {
-    zeus: "⚡",
-    dionysos: "🍇",
-    poseidon: "🔱",
-    kronos: "⏳",
-  };
+  const FALLBACK_ALLIANCES = Object.freeze([
+    Object.freeze({ key: "zeus", name: "Zeus", emoji: "⚡", order: 1, aliases: ["LoSP Zeus"] }),
+    Object.freeze({ key: "kronos", name: "Kronos", emoji: "⏳", order: 2, aliases: ["LoSP Kronos"] }),
+    Object.freeze({ key: "dionysos", name: "Dionysos", emoji: "🍇", order: 3, aliases: ["LoSP Dionysos"] }),
+    Object.freeze({ key: "poseidon", name: "Poséidon", emoji: "🔱", order: 4, aliases: ["Poseidon", "LoSP Poséidon", "LoSP Poseidon"] }),
+    Object.freeze({ key: "hades", name: "Hadès", emoji: "🔥", order: 5, aliases: ["Hades", "LoSP Hadès", "LoSP Hades"] }),
+  ]);
 
-  function normalizeAlliance(a) {
-    return String(a ?? "")
+  let knownAlliances = [...FALLBACK_ALLIANCES];
+  const allianceFilters = new Map();
+
+  function normalizeFallbackKey(value) {
+    return String(value ?? "")
       .trim()
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
-      .replace(/\s+/g, " ");
+      .replace(/\s+/g, "")
+      .replace(/[-_‐-‒–—―﹘﹣－]/g, "")
+      .replace(/[’'`´]/g, "")
+      .replace(/[^a-z0-9]/g, "");
   }
 
-  function allianceKey(a) {
-    const n = normalizeAlliance(a);
-
-    if (n.includes("zeus")) return "zeus";
-    if (n.includes("dionysos")) return "dionysos";
-    if (n.includes("poseidon")) return "poseidon";
-    if (n.includes("kronos")) return "kronos";
-
-    return "";
+  function getAllianceApi() {
+    return window.LoSPAlliances || null;
   }
 
-  function allianceEmoji(a) {
-    const k = allianceKey(a);
-    return k ? ALLIANCE_EMOJI[k] : "👤";
+  function normalizeAllianceList(rows) {
+    return (Array.isArray(rows) ? rows : [])
+      .map((alliance) => {
+        const key = normalizeFallbackKey(alliance?.key);
+        const name = String(alliance?.name ?? alliance?.label ?? key).trim();
+        const emoji = String(alliance?.emoji ?? "").trim();
+        const order = Number(alliance?.order);
+
+        if (!key) return null;
+
+        return {
+          ...alliance,
+          key,
+          name: name || key,
+          emoji,
+          order: Number.isFinite(order) ? order : 999,
+        };
+      })
+      .filter(Boolean);
+  }
+
+  function mergeWithFallback(rows) {
+    const byKey = new Map();
+
+    normalizeAllianceList(rows).forEach((alliance) => {
+      byKey.set(alliance.key, alliance);
+    });
+
+    FALLBACK_ALLIANCES.forEach((alliance) => {
+      if (!byKey.has(alliance.key)) byKey.set(alliance.key, alliance);
+    });
+
+    return Array.from(byKey.values()).sort((a, b) => {
+      const orderA = Number.isFinite(Number(a.order)) ? Number(a.order) : 999;
+      const orderB = Number.isFinite(Number(b.order)) ? Number(b.order) : 999;
+
+      if (orderA !== orderB) return orderA - orderB;
+      return String(a.name || a.key).localeCompare(String(b.name || b.key), "fr");
+    });
+  }
+
+  function allianceKey(value) {
+    const api = getAllianceApi();
+
+    if (api?.getAllianceKey) {
+      const key = api.getAllianceKey(value);
+      if (key) return key;
+    }
+
+    const key = normalizeFallbackKey(value);
+    const match = FALLBACK_ALLIANCES.find((alliance) => {
+      const aliases = [alliance.key, alliance.name, ...(alliance.aliases || [])].map(normalizeFallbackKey);
+      return aliases.some((alias) => alias && (key === alias || key.includes(alias)));
+    });
+
+    return match ? match.key : key;
+  }
+
+  function allianceEmoji(value) {
+    const api = getAllianceApi();
+
+    if (api?.getAllianceEmoji) {
+      const emoji = api.getAllianceEmoji(value);
+      if (emoji && emoji !== "•") return emoji;
+    }
+
+    const key = allianceKey(value);
+    return knownAlliances.find((alliance) => alliance.key === key)?.emoji || "👤";
   }
 
   function isAllianceEnabled(key) {
-    if (key === "zeus") return $filterZeus.checked;
-    if (key === "dionysos") return $filterDionysos.checked;
-    if (key === "poseidon") return $filterPoseidon.checked;
-    if (key === "kronos") return $filterKronos.checked;
-
-    return true;
+    const filter = allianceFilters.get(key);
+    return filter ? filter.checked : true;
   }
 
+  function renderAllianceFilters() {
+    $filters.innerHTML = knownAlliances
+      .map((alliance) => {
+        const keySafe = escapeHtml(alliance.key);
+        const emojiSafe = escapeHtml(alliance.emoji || "👤");
+        const labelSafe = escapeHtml(alliance.name || alliance.key);
+
+        return `
+          <label class="filterToggle">
+            <input id="filter-${keySafe}" type="checkbox" data-alliance-key="${keySafe}" checked />
+            <span class="fStack">
+              <span class="fEmoji">${emojiSafe}</span>
+              <span class="fName">${labelSafe}</span>
+            </span>
+          </label>
+        `;
+      })
+      .join("");
+
+    allianceFilters.clear();
+    $filters.querySelectorAll("input[data-alliance-key]").forEach((cb) => {
+      allianceFilters.set(cb.dataset.allianceKey, cb);
+      cb.addEventListener("change", applyFiltersAndRender);
+    });
+  }
   // ---------- Formatting ----------
   function formatNumberFR(n) {
     const x = Number(n || 0);
@@ -181,6 +256,11 @@
   // ---------- Init ----------
   async function init() {
     try {
+      const api = getAllianceApi();
+      const rows = api?.loadAlliances ? await api.loadAlliances() : [];
+      knownAlliances = mergeWithFallback(api?.getKnownAlliances ? api.getKnownAlliances() : rows);
+      renderAllianceFilters();
+
       const res = await fetch("./data/infos.json?v=" + Date.now(), {
         cache: "no-store",
       });
@@ -204,10 +284,6 @@
           frame: String(p?.frame ?? "").trim(),
         }))
         .filter((p) => p.name);
-
-      [$filterZeus, $filterDionysos, $filterPoseidon, $filterKronos].forEach((cb) => {
-        cb.addEventListener("change", applyFiltersAndRender);
-      });
 
       applyFiltersAndRender();
     } catch (err) {
