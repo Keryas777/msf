@@ -7,19 +7,13 @@
     rosters: "./data/rosters.json",
   };
 
-  const ALLIANCE_EMOJI = {
-    zeus: "⚡️",
-    kronos: "⏳",
-    dionysos: "🍇",
-    poseidon: "🔱",
-  };
-
-  const ALLIANCE_LABEL = {
-    zeus: "Zeus",
-    kronos: "Kronos",
-    dionysos: "Dionysos",
-    poseidon: "Poséidon",
-  };
+  const FALLBACK_ALLIANCES = Object.freeze([
+    { key: "zeus", name: "Zeus", emoji: "⚡️", color: "#F8FF00", order: 1 },
+    { key: "kronos", name: "Kronos", emoji: "⏳", color: "#E10D17", order: 2 },
+    { key: "dionysos", name: "Dionysos", emoji: "🍇", color: "#93328E", order: 3 },
+    { key: "poseidon", name: "Poséidon", emoji: "🔱", color: "#0000FF", order: 4 },
+    { key: "hades", name: "Hadès", emoji: "🔥", color: "#1EA164", order: 5 },
+  ]);
 
   const MODE_ORDER = [
     "Arène",
@@ -47,10 +41,7 @@
   const playersWrap = qs("#players");
   const playersCount = qs("#playersCount");
 
-  const filterZeus = qs("#filterZeus");
-  const filterKronos = qs("#filterKronos");
-  const filterDionysos = qs("#filterDionysos");
-  const filterPoseidon = qs("#filterPoseidon");
+  const filtersWrap = qs('[aria-label="Filtres alliances"]');
 
   let TEAMS = [];
   let CHARS = [];
@@ -92,11 +83,32 @@
     return normalizeKey(value).replace(/[^a-z0-9]/g, "");
   }
 
+  function allianceHelper() {
+    return window.LoSPAlliances || null;
+  }
+
+  function getKnownAlliances() {
+    const helper = allianceHelper();
+
+    if (helper?.getKnownAlliances) {
+      const alliances = helper.getKnownAlliances();
+
+      if (Array.isArray(alliances) && alliances.length) return alliances;
+    }
+
+    return FALLBACK_ALLIANCES;
+  }
+
   function allianceKey(value) {
+    const helper = allianceHelper();
+
+    if (helper?.getAllianceKey) return helper.getAllianceKey(value);
+
     const key = normalizeKey(value);
 
     if (key.includes("zeus")) return "zeus";
     if (key.includes("dionysos")) return "dionysos";
+    if (key.includes("hades")) return "hades";
     if (key.includes("poseidon") || key.includes("posseidon")) return "poseidon";
 
     if (
@@ -109,6 +121,22 @@
     }
 
     return "";
+  }
+
+  function allianceEmoji(value) {
+    const helper = allianceHelper();
+
+    if (helper?.getAllianceEmoji) return helper.getAllianceEmoji(value);
+
+    return FALLBACK_ALLIANCES.find((a) => a.key === value)?.emoji || "•";
+  }
+
+  function allianceLabel(value) {
+    const helper = allianceHelper();
+
+    if (helper?.getAllianceLabel) return helper.getAllianceLabel(value);
+
+    return FALLBACK_ALLIANCES.find((a) => a.key === value)?.name || "Alliance";
   }
 
   function clearNode(el) {
@@ -130,12 +158,52 @@
   }
 
   function getSelectedAlliances() {
-    return {
-      zeus: !!filterZeus?.checked,
-      kronos: !!filterKronos?.checked,
-      dionysos: !!filterDionysos?.checked,
-      poseidon: !!filterPoseidon?.checked,
-    };
+    const selected = {};
+
+    filtersWrap
+      ?.querySelectorAll('input[type="checkbox"][data-alliance]')
+      .forEach((input) => {
+        selected[input.dataset.alliance] = input.checked;
+      });
+
+    return selected;
+  }
+
+  function renderAllianceFilters() {
+    if (!filtersWrap) return;
+
+    clearNode(filtersWrap);
+
+    getKnownAlliances().forEach((alliance) => {
+      const key = allianceKey(alliance.key);
+
+      if (!key) return;
+
+      const label = document.createElement("label");
+      label.className = "filterToggle";
+
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.checked = true;
+      input.dataset.alliance = key;
+
+      const stack = document.createElement("span");
+      stack.className = "fStack";
+
+      const emoji = document.createElement("span");
+      emoji.className = "fEmoji";
+      emoji.textContent = allianceEmoji(key);
+
+      const name = document.createElement("span");
+      name.className = "fName";
+      name.textContent = allianceLabel(key);
+
+      stack.appendChild(emoji);
+      stack.appendChild(name);
+      label.appendChild(input);
+      label.appendChild(stack);
+      filtersWrap.appendChild(label);
+    });
   }
 
   function getSelectedMode() {
@@ -473,8 +541,8 @@
 
     rows.forEach((r, idx) => {
       const key = r.allianceKey || allianceKey(r.alliance);
-      const emoji = ALLIANCE_EMOJI[key] || "•";
-      const label = ALLIANCE_LABEL[key] || "Alliance";
+      const emoji = allianceEmoji(key);
+      const label = allianceLabel(key);
 
       const row = document.createElement("div");
       row.className = "rankRow";
@@ -540,6 +608,12 @@
   }
 
   async function boot() {
+    if (allianceHelper()?.loadAlliances) {
+      await allianceHelper().loadAlliances();
+    }
+
+    renderAllianceFilters();
+
     const [teamsRaw, charsRaw, joueursRaw, rostersRaw] = await Promise.all([
       fetchJson(FILES.teams),
       fetchJson(FILES.characters),
@@ -645,10 +719,11 @@
   modeSelect?.addEventListener("change", onModeChange);
   teamSelect?.addEventListener("change", onTeamChange);
 
-  filterZeus?.addEventListener("change", renderRanking);
-  filterKronos?.addEventListener("change", renderRanking);
-  filterDionysos?.addEventListener("change", renderRanking);
-  filterPoseidon?.addEventListener("change", renderRanking);
+  filtersWrap?.addEventListener("change", (event) => {
+    if (event.target?.matches('input[type="checkbox"][data-alliance]')) {
+      renderRanking();
+    }
+  });
 
   boot().catch((e) => {
     console.error("[app] boot error:", e);
