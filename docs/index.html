@@ -129,10 +129,19 @@
           }
         });
 
-        const s = document.createElement("script");
-        s.src = "./app.js?v=" + Date.now();
-        s.defer = true;
-        document.body.appendChild(s);
+        const loadApp = () => {
+          const app = document.createElement("script");
+          app.src = "./app.js?v=" + Date.now();
+          app.defer = true;
+          document.body.appendChild(app);
+        };
+
+        const alliances = document.createElement("script");
+        alliances.src = "./alliances.js?v=" + Date.now();
+        alliances.defer = true;
+        alliances.onload = loadApp;
+        alliances.onerror = loadApp;
+        document.body.appendChild(alliances);
       })();
     </script>
   </body>
