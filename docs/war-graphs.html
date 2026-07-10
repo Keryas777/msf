@@ -40,12 +40,7 @@
         <div class="controlGrid">
           <div class="field">
             <label class="label" for="allianceSelect">Alliance</label>
-            <select id="allianceSelect" class="select" aria-label="Alliance">
-              <option value="zeus">⚡ Zeus</option>
-              <option value="kronos">⏳ Kronos</option>
-              <option value="dionysos">🍇 Dionysos</option>
-              <option value="poseidon">🔱 Poséidon</option>
-            </select>
+            <select id="allianceSelect" class="select" aria-label="Alliance"></select>
           </div>
 
           <div class="field">
@@ -214,6 +209,7 @@
       </section>
     </div>
 
+    <script src="./alliances.js?v=1"></script>
     <script>
       (function () {
         document.querySelectorAll(".backBtn").forEach((btn) => {
@@ -227,7 +223,7 @@
         });
 
         const s = document.createElement("script");
-        s.src = "./war-graphs.js?v=" + Date.now();
+        s.src = "./war-graphs.js?v=2";
         s.defer = true;
         document.body.appendChild(s);
       })();
