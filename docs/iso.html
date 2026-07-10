@@ -85,10 +85,17 @@
           if (l.href.includes("v=ts")) l.href = l.href.replace("v=ts", "v=" + Date.now());
         });
 
+        const alliances = document.createElement("script");
+        alliances.src = "./alliances.js?v=" + Date.now();
+        alliances.defer = true;
+
         const s = document.createElement("script");
-        s.src = "./iso.js?v=" + Date.now();
+        s.src = "./iso.js?v=2-" + Date.now();
         s.defer = true;
-        document.body.appendChild(s);
+
+        alliances.addEventListener("load", () => document.body.appendChild(s));
+        alliances.addEventListener("error", () => document.body.appendChild(s));
+        document.body.appendChild(alliances);
       })();
     </script>
   </body>
