@@ -14,14 +14,17 @@ const headerSortButtons = Array.from(document.querySelectorAll(".warHistoryHeadB
 const tabButtons = Array.from(document.querySelectorAll(".warHistoryTabBtn"));
 const tabPanels = Array.from(document.querySelectorAll(".warHistoryTabPanel"));
 
-const ALLIANCE_ORDER = ["zeus", "kronos", "dionysos", "poseidon"];
+const FALLBACK_ALLIANCES = [
+  { key: "zeus", name: "Zeus", emoji: "⚡️", order: 1, aliases: ["Zeus", "zeus", "LoSP Zeus", "losp zeus"] },
+  { key: "kronos", name: "Kronos", emoji: "⏳", order: 2, aliases: ["Kronos", "kronos", "Cronos", "Chronos", "LoSP Kronos", "losp kronos"] },
+  { key: "dionysos", name: "Dionysos", emoji: "🍇", order: 3, aliases: ["Dionysos", "dionysos", "LoSP Dionysos", "losp dionysos"] },
+  { key: "poseidon", name: "Poséidon", emoji: "🔱", order: 4, aliases: ["Poséidon", "Poseidon", "Posseidon", "poséidon", "poseidon", "LoSP Poséidon", "losp poseidon"] },
+  { key: "hades", name: "Hadès", emoji: "🔥", order: 5, aliases: ["Hadès", "Hades", "hadès", "hades", "LoSP Hadès", "losp hades"] }
+];
 
-const ALLIANCE_LABELS = {
-  zeus: "⚡️ Zeus",
-  kronos: "⏳ Kronos",
-  dionysos: "🍇 Dionysos",
-  poseidon: "🔱 Poséidon"
-};
+let allianceMeta = [];
+let allianceMetaByKey = new Map();
+let allianceAliasToKey = new Map();
 
 const MONTH_NAMES = {
   "01": "Janvier",
@@ -66,6 +69,7 @@ async function init() {
     setActiveTab("table");
     setMeta("Chargement de l'index...");
 
+    await loadAllianceMeta();
     warIndex = await loadIndex();
 
     setupAllianceSelect();
@@ -667,47 +671,161 @@ function renderDebrief(report) {
 
 /* ---------- Utils ---------- */
 
+function loadAllianceMeta() {
+  const helper = window.LoSPAlliances;
+  const load = helper && typeof helper.loadAlliances === "function"
+    ? helper.loadAlliances()
+    : Promise.resolve([]);
+
+  return Promise.resolve(load)
+    .catch((error) => {
+      console.warn("[war-history] alliances helper fallback:", error);
+      return [];
+    })
+    .then(() => {
+      const helperAlliances = getHelperAlliances(helper);
+      allianceMeta = mergeAllianceMeta(helperAlliances);
+      allianceMetaByKey = new Map(allianceMeta.map((alliance) => [alliance.key, alliance]));
+      allianceAliasToKey = buildAliasMap(allianceMeta);
+    });
+}
+
+function getHelperAlliances(helper) {
+  if (!helper || typeof helper.getKnownAlliances !== "function") return [];
+
+  const known = helper.getKnownAlliances();
+  return Array.isArray(known) ? known : [];
+}
+
+function mergeAllianceMeta(helperAlliances) {
+  const byKey = new Map(
+    FALLBACK_ALLIANCES
+      .map(normalizeAllianceMeta)
+      .filter(Boolean)
+      .map((alliance) => [alliance.key, alliance])
+  );
+
+  helperAlliances
+    .map(normalizeAllianceMeta)
+    .filter(Boolean)
+    .forEach((alliance) => {
+      const fallback = byKey.get(alliance.key);
+
+      byKey.set(alliance.key, {
+        key: alliance.key,
+        name: alliance.name || fallback?.name || alliance.key,
+        emoji: alliance.emoji || fallback?.emoji || "•",
+        order: Number.isFinite(alliance.order) ? alliance.order : fallback?.order ?? 999,
+        aliases: mergeAliases(fallback?.aliases || [], alliance.aliases || [])
+      });
+    });
+
+  return Array.from(byKey.values()).sort(sortAllianceMeta);
+}
+
+function normalizeAllianceMeta(alliance) {
+  const key = baseNormalizeAllianceKey(alliance?.key);
+  if (!key) return null;
+
+  const order = parseAllianceOrder(alliance?.order);
+  const name = String(alliance?.name || "").trim();
+  const emoji = String(alliance?.emoji || "").trim();
+  const aliases = Array.isArray(alliance?.aliases) ? alliance.aliases : [];
+
+  return {
+    key,
+    name,
+    emoji,
+    order: Number.isFinite(order) ? order : undefined,
+    aliases: mergeAliases([key, name], aliases)
+  };
+}
+
+function parseAllianceOrder(value) {
+  if (value === null || value === undefined || value === "") return undefined;
+
+  const order = Number(value);
+  return Number.isFinite(order) ? order : undefined;
+}
+
+function buildAliasMap(alliances) {
+  const aliasMap = new Map();
+
+  alliances.forEach((alliance) => {
+    [alliance.key, alliance.name, ...(alliance.aliases || [])].forEach((alias) => {
+      const aliasKey = baseNormalizeAllianceKey(alias);
+      if (aliasKey) aliasMap.set(aliasKey, alliance.key);
+    });
+  });
+
+  return aliasMap;
+}
+
+function mergeAliases(...groups) {
+  const aliases = [];
+  const seen = new Set();
+
+  groups.flat().forEach((alias) => {
+    const value = String(alias || "").trim();
+    const key = baseNormalizeAllianceKey(value);
+    if (!value || !key || seen.has(key)) return;
+
+    seen.add(key);
+    aliases.push(value);
+  });
+
+  return aliases;
+}
+
 function normalizeAllianceKey(value) {
-  const key = String(value || "")
+  const helper = window.LoSPAlliances;
+  const helperKey = helper && typeof helper.getAllianceKey === "function"
+    ? helper.getAllianceKey(value)
+    : "";
+  const key = baseNormalizeAllianceKey(helperKey || value);
+
+  if (!key) return "";
+  return allianceAliasToKey.get(key) || key;
+}
+
+function baseNormalizeAllianceKey(value) {
+  return String(value || "")
     .trim()
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/\s+/g, "")
     .replace(/[-_‐-‒–—―﹘﹣－]/g, "")
-    .replace(/[’'`´]/g, "");
-
-  if (key === "zeus") return "zeus";
-  if (key === "dionysos") return "dionysos";
-  if (key === "poseidon" || key === "posseidon") return "poseidon";
-  if (
-    key === "kronos" ||
-    key === "cronos" ||
-    key === "chronos" ||
-    key === "lospkronos"
-  ) {
-    return "kronos";
-  }
-
-  return key;
+    .replace(/[’'`´]/g, "")
+    .replace(/[^a-z0-9]/g, "");
 }
 
 function sortAllianceKeys(a, b) {
-  const ia = ALLIANCE_ORDER.indexOf(a);
-  const ib = ALLIANCE_ORDER.indexOf(b);
+  const ma = getAllianceMeta(a);
+  const mb = getAllianceMeta(b);
 
-  if (ia !== -1 || ib !== -1) {
-    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-  }
+  return sortAllianceMeta(ma, mb);
+}
 
-  return String(a).localeCompare(String(b), "fr", {
+function sortAllianceMeta(a, b) {
+  const oa = Number.isFinite(a?.order) ? a.order : 999;
+  const ob = Number.isFinite(b?.order) ? b.order : 999;
+
+  if (oa !== ob) return oa - ob;
+
+  return String(a?.name || a?.key || "").localeCompare(String(b?.name || b?.key || ""), "fr", {
     sensitivity: "base"
   });
 }
 
-function getAllianceDisplayName(value) {
+function getAllianceMeta(value) {
   const key = normalizeAllianceKey(value);
-  return ALLIANCE_LABELS[key] || capitalize(key);
+  return allianceMetaByKey.get(key) || { key, name: capitalize(key), emoji: "", order: 999, aliases: [] };
+}
+
+function getAllianceDisplayName(value) {
+  const meta = getAllianceMeta(value);
+  return [meta.emoji, meta.name || capitalize(meta.key)].filter(Boolean).join(" ");
 }
 
 function descNumberSort(a, b) {
