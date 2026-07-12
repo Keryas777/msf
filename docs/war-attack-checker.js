@@ -134,43 +134,142 @@
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
 
+  const normalizeAllianceFallbackKey = (s) =>
+    normalizeKey(s).replace(/[^a-z0-9]/g, "");
+
+  const FALLBACK_ALLIANCES = [
+    {
+      key: "zeus",
+      name: "Zeus",
+      emoji: "⚡️",
+      color: "#F8FF00",
+      order: 1,
+      aliases: ["Zeus", "zeus", "LoSP Zeus", "losp zeus"],
+    },
+    {
+      key: "kronos",
+      name: "Kronos",
+      emoji: "⏳",
+      color: "#E10D17",
+      order: 2,
+      aliases: ["Kronos", "kronos", "Cronos", "Chronos", "LoSP Kronos", "losp kronos"],
+    },
+    {
+      key: "dionysos",
+      name: "Dionysos",
+      emoji: "🍇",
+      color: "#93328E",
+      order: 3,
+      aliases: ["Dionysos", "dionysos", "LoSP Dionysos", "losp dionysos"],
+    },
+    {
+      key: "poseidon",
+      name: "Poséidon",
+      emoji: "🔱",
+      color: "#0000FF",
+      order: 4,
+      aliases: [
+        "Poséidon",
+        "Poseidon",
+        "Posseidon",
+        "poséidon",
+        "poseidon",
+        "LoSP Poséidon",
+        "LoSP Poseidon",
+        "losp poseidon",
+      ],
+    },
+    {
+      key: "hades",
+      name: "Hadès",
+      emoji: "🔥",
+      color: "#1EA164",
+      order: 5,
+      aliases: ["Hadès", "Hades", "hadès", "hades", "LoSP Hadès", "LoSP Hades", "losp hades"],
+    },
+  ];
+
   let ALLIANCES = [];
   let ALLIANCE_BY_KEY = new Map();
   let ALLIANCE_ALIAS_TO_KEY = new Map();
   let ORDER_KEYS = [];
 
-  function normalizeAllianceData(data) {
-    const rows = Array.isArray(data) ? data : [];
-
-    return rows
-      .map((a) => {
-        const key = normalizeKey(a?.key);
-        const name = (a?.name ?? "").toString().trim();
-        const emoji = (a?.emoji ?? "").toString().trim();
-        const color = (a?.color ?? "").toString().trim();
-        const order = Number(a?.order) || 999;
-        const aliases = Array.isArray(a?.aliases) ? a.aliases : [];
-
-        if (!key || !name) return null;
-
-        return {
-          key,
-          name,
-          emoji,
-          color,
-          order,
-          aliases: [...new Set([name, key, ...aliases].filter(Boolean))],
-        };
-      })
-      .filter(Boolean)
-      .sort((a, b) => {
-        if (a.order !== b.order) return a.order - b.order;
-        return a.name.localeCompare(b.name, "fr");
-      });
+  function hasValidOrder(value) {
+    if (value === null || value === undefined || value === "") return false;
+    return Number.isFinite(Number(value));
   }
 
-  function buildAllianceMaps(data) {
-    ALLIANCES = normalizeAllianceData(data);
+  function normalizeAllianceRow(alliance) {
+    const helper = window.LoSPAlliances;
+    const rawKey = alliance?.key ?? alliance?.name;
+    const key =
+      (helper && typeof helper.getAllianceKey === "function" && helper.getAllianceKey(rawKey)) ||
+      normalizeAllianceFallbackKey(rawKey);
+    const name = (alliance?.name ?? "").toString().trim();
+    const emoji = (alliance?.emoji ?? "").toString().trim();
+    const color = (alliance?.color ?? "").toString().trim();
+    const order = hasValidOrder(alliance?.order) ? Number(alliance.order) : null;
+    const aliases = Array.isArray(alliance?.aliases) ? alliance.aliases : [];
+
+    if (!key) return null;
+
+    return {
+      ...alliance,
+      key,
+      name,
+      emoji,
+      color,
+      order,
+      aliases: [key, name, ...aliases].filter(Boolean),
+    };
+  }
+
+  function mergeAliases(...aliasLists) {
+    const seen = new Set();
+    const aliases = [];
+
+    aliasLists.flat().filter(Boolean).forEach((alias) => {
+      const aliasKey = normalizeAllianceFallbackKey(alias);
+      if (!aliasKey || seen.has(aliasKey)) return;
+      seen.add(aliasKey);
+      aliases.push(alias);
+    });
+
+    return aliases;
+  }
+
+  function mergeAllianceRows(fallback, helperRow) {
+    const merged = { ...(helperRow || {}), key: fallback.key };
+
+    ["name", "emoji", "color"].forEach((field) => {
+      if (!(merged[field] ?? "").toString().trim()) merged[field] = fallback[field];
+    });
+
+    merged.order = hasValidOrder(helperRow?.order) ? Number(helperRow.order) : fallback.order;
+    merged.aliases = mergeAliases(fallback.aliases || [], helperRow?.aliases || [], [fallback.key, merged.name]);
+
+    return merged;
+  }
+
+  function buildAllianceMaps(helperData) {
+    const byKey = new Map();
+
+    FALLBACK_ALLIANCES.map(normalizeAllianceRow).filter(Boolean).forEach((alliance) => {
+      byKey.set(alliance.key, alliance);
+    });
+
+    (Array.isArray(helperData) ? helperData : [])
+      .map(normalizeAllianceRow)
+      .filter(Boolean)
+      .forEach((alliance) => {
+        const fallback = byKey.get(alliance.key);
+        byKey.set(alliance.key, fallback ? mergeAllianceRows(fallback, alliance) : alliance);
+      });
+
+    ALLIANCES = Array.from(byKey.values()).sort((a, b) => {
+      if (a.order !== b.order) return a.order - b.order;
+      return a.name.localeCompare(b.name, "fr");
+    });
     ALLIANCE_BY_KEY = new Map();
     ALLIANCE_ALIAS_TO_KEY = new Map();
 
@@ -178,7 +277,7 @@
       ALLIANCE_BY_KEY.set(alliance.key, alliance);
 
       [alliance.key, alliance.name, ...(alliance.aliases || [])].forEach((value) => {
-        const aliasKey = normalizeKey(value);
+        const aliasKey = normalizeAllianceFallbackKey(value);
         if (!aliasKey) return;
         ALLIANCE_ALIAS_TO_KEY.set(aliasKey, alliance.key);
       });
@@ -187,18 +286,44 @@
     ORDER_KEYS = ALLIANCES.map((a) => a.key);
   }
 
+  async function loadAllianceMetadata() {
+    const helper = window.LoSPAlliances;
+
+    if (helper && typeof helper.loadAlliances === "function") {
+      try {
+        await helper.loadAlliances();
+      } catch (_) {}
+    }
+
+    let helperAlliances = [];
+
+    if (helper && typeof helper.getKnownAlliances === "function") {
+      try {
+        helperAlliances = helper.getKnownAlliances();
+      } catch (_) {
+        helperAlliances = [];
+      }
+    }
+
+    buildAllianceMaps(helperAlliances);
+  }
+
   function allianceKey(value) {
-    const key = normalizeKey(value);
+    const helper = window.LoSPAlliances;
+    let helperKey = "";
+
+    if (helper && typeof helper.getAllianceKey === "function") {
+      try {
+        helperKey = helper.getAllianceKey(value);
+      } catch (_) {
+        helperKey = "";
+      }
+    }
+    const key = normalizeAllianceFallbackKey(helperKey || value);
 
     if (ALLIANCE_ALIAS_TO_KEY.has(key)) {
       return ALLIANCE_ALIAS_TO_KEY.get(key);
     }
-
-    if (key === "poseidon" || key === "posseidon") return "poseidon";
-    if (key === "dionysos") return "dionysos";
-    if (key === "zeus") return "zeus";
-    if (key === "kronos" || key === "lospkronos") return "kronos";
-    if (key === "hades" || key === "losphades") return "hades";
 
     return key;
   }
@@ -208,7 +333,18 @@
   }
 
   function getAllianceEmoji(value) {
-    return getAllianceMeta(value)?.emoji || "•";
+    const helper = window.LoSPAlliances;
+    let helperEmoji = "";
+
+    if (helper && typeof helper.getAllianceEmoji === "function") {
+      try {
+        helperEmoji = helper.getAllianceEmoji(value);
+      } catch (_) {
+        helperEmoji = "";
+      }
+    }
+
+    return (helperEmoji && helperEmoji !== "•" ? helperEmoji : getAllianceMeta(value)?.emoji) || "•";
   }
 
   function normalizeTextForMatch(value) {
@@ -676,8 +812,11 @@
       const p = (j.player ?? "").toString().trim();
       if (!a || !p) return;
 
-      if (!PLAYERS_BY_ALLIANCE.has(a)) PLAYERS_BY_ALLIANCE.set(a, []);
-      PLAYERS_BY_ALLIANCE.get(a).push({ alliance: a, player: p });
+      const allianceK = allianceKey(a);
+      if (!allianceK) return;
+
+      if (!PLAYERS_BY_ALLIANCE.has(allianceK)) PLAYERS_BY_ALLIANCE.set(allianceK, []);
+      PLAYERS_BY_ALLIANCE.get(allianceK).push({ alliance: a, player: p });
     });
   }
 
@@ -692,9 +831,14 @@
     opt0.textContent = "— Choisir une alliance —";
     allianceSelect.appendChild(opt0);
 
-    const alliances = [
-      ...new Set(JOUEURS.map((j) => (j.alliance ?? "").toString().trim()).filter(Boolean)),
-    ];
+    const alliances = Array.from(
+      JOUEURS.reduce((map, j) => {
+        const rawAlliance = (j.alliance ?? "").toString().trim();
+        const key = allianceKey(rawAlliance);
+        if (rawAlliance && key && !map.has(key)) map.set(key, rawAlliance);
+        return map;
+      }, new Map()).values()
+    );
 
     alliances
       .filter((a) => isAllianceAllowed(a))
@@ -710,8 +854,9 @@
       })
       .forEach((a) => {
         const opt = document.createElement("option");
-        opt.value = a;
-        opt.textContent = `${getAllianceEmoji(a)} ${a}`.trim();
+        const meta = getAllianceMeta(a);
+        opt.value = allianceKey(a);
+        opt.textContent = `${getAllianceEmoji(a)} ${meta?.name || a}`.trim();
         allianceSelect.appendChild(opt);
       });
 
@@ -746,7 +891,7 @@
     opt0.textContent = "— Choisir un joueur —";
     playerSelect.appendChild(opt0);
 
-    const players = (PLAYERS_BY_ALLIANCE.get(a) || [])
+    const players = (PLAYERS_BY_ALLIANCE.get(allianceKey(a)) || [])
       .slice()
       .sort((x, y) => x.player.localeCompare(y.player, "fr"));
 
@@ -1130,16 +1275,15 @@
 
   // ---------- BOOT ----------
   async function boot() {
-    const [alliances, war, warSeasonRules, joueurs, chars, rosters] = await Promise.all([
-      fetchJson(FILES.alliances),
+    await loadAllianceMetadata();
+
+    const [war, warSeasonRules, joueurs, chars, rosters] = await Promise.all([
       fetchJson(FILES.warCounters),
       fetchJson(FILES.warSeasonRules),
       fetchJson(FILES.joueurs),
       fetchJson(FILES.characters),
       fetchJson(FILES.rosters),
     ]);
-
-    buildAllianceMaps(alliances);
 
     WAR = Array.isArray(war) ? war.map(normalizeWarRow) : [];
     WAR_SEASON_RULES = normalizeSeasonRules(warSeasonRules);
