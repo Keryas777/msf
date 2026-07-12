@@ -41,7 +41,7 @@
   const playersWrap = qs("#players");
   const playersCount = qs("#playersCount");
 
-  const filtersWrap = qs('[aria-label="Filtres alliances"]');
+  const filtersWrap = qs("#allianceFilters");
 
   let TEAMS = [];
   let CHARS = [];
