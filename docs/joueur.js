@@ -112,38 +112,167 @@
       .replace(/[^a-z0-9]/g, "");
   }
 
-  function normalizeAllianceData(data) {
-    const rows = Array.isArray(data) ? data : [];
+  const FALLBACK_ALLIANCES = [
+    {
+      key: "zeus",
+      name: "Zeus",
+      emoji: "⚡️",
+      color: "#F8FF00",
+      order: 1,
+      aliases: ["Zeus", "zeus", "LoSP Zeus", "losp zeus"],
+    },
+    {
+      key: "kronos",
+      name: "Kronos",
+      emoji: "⏳",
+      color: "#E10D17",
+      order: 2,
+      aliases: ["Kronos", "kronos", "Cronos", "Chronos", "LoSP Kronos", "losp kronos"],
+    },
+    {
+      key: "dionysos",
+      name: "Dionysos",
+      emoji: "🍇",
+      color: "#93328E",
+      order: 3,
+      aliases: ["Dionysos", "dionysos", "LoSP Dionysos", "losp dionysos"],
+    },
+    {
+      key: "poseidon",
+      name: "Poséidon",
+      emoji: "🔱",
+      color: "#0000FF",
+      order: 4,
+      aliases: [
+        "Poséidon",
+        "Poseidon",
+        "Posseidon",
+        "poséidon",
+        "poseidon",
+        "LoSP Poséidon",
+        "LoSP Poseidon",
+        "losp poseidon",
+      ],
+    },
+    {
+      key: "hades",
+      name: "Hadès",
+      emoji: "🔥",
+      color: "#1EA164",
+      order: 5,
+      aliases: ["Hadès", "Hades", "hadès", "hades", "LoSP Hadès", "LoSP Hades", "losp hades"],
+    },
+  ];
 
-    return rows
-      .map((a) => {
-        const key = normalizeKey(a?.key);
-        const name = String(a?.name ?? "").trim();
-        const emoji = String(a?.emoji ?? "").trim();
-        const color = String(a?.color ?? "").trim();
-        const order = Number(a?.order) || 999;
-        const aliases = Array.isArray(a?.aliases) ? a.aliases : [];
+  function getAlliancesHelper() {
+    const helper = window.LoSPAlliances;
 
-        if (!key || !name) return null;
-
-        return {
-          key,
-          name,
-          emoji,
-          color,
-          order,
-          aliases: [...new Set([name, a?.key, key, ...aliases].filter(Boolean))],
-        };
-      })
-      .filter(Boolean)
-      .sort((a, b) => {
-        if (a.order !== b.order) return a.order - b.order;
-        return a.name.localeCompare(b.name, "fr");
-      });
+    return helper && typeof helper === "object" ? helper : null;
   }
 
-  function buildAllianceMaps(data) {
-    state.alliances = normalizeAllianceData(data);
+  function normalizeAllianceFallback(value) {
+    return String(value ?? "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, "")
+      .replace(/[-_‐-‒–—―﹘﹣－]/g, "")
+      .replace(/[’'`´]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  function normalizeAllianceKey(value) {
+    const helper = getAlliancesHelper();
+
+    if (typeof helper?.getAllianceKey === "function") {
+      const helperKey = String(helper.getAllianceKey(value) ?? "").trim();
+      if (helperKey) return normalizeAllianceFallback(helperKey);
+    }
+
+    return normalizeAllianceFallback(value);
+  }
+
+  function normalizeOrder(value) {
+    if (value === null || value === undefined || value === "") return null;
+
+    const order = Number(value);
+
+    return Number.isFinite(order) ? order : null;
+  }
+
+  function normalizeAliases(values) {
+    const aliases = [];
+    const seen = new Set();
+
+    values.flat().forEach((value) => {
+      const alias = String(value ?? "").trim();
+      const aliasKey = normalizeAllianceFallback(alias);
+
+      if (!alias || !aliasKey || seen.has(aliasKey)) return;
+
+      seen.add(aliasKey);
+      aliases.push(alias);
+    });
+
+    return aliases;
+  }
+
+  function mergeAllianceMeta(base, source) {
+    if (!source || typeof source !== "object") return base;
+
+    const order = normalizeOrder(source.order);
+    const merged = {
+      ...source,
+      key: base.key,
+      name: String(source.name ?? "").trim() || base.name,
+      emoji: String(source.emoji ?? "").trim() || base.emoji,
+      color: String(source.color ?? "").trim() || base.color,
+      order: order === null ? base.order : order,
+    };
+
+    merged.aliases = normalizeAliases([
+      base.key,
+      base.name,
+      base.aliases || [],
+      source.key,
+      source.name,
+      source.aliases || [],
+    ]);
+
+    return merged;
+  }
+
+  function buildAllianceMaps(helperRows = []) {
+    const byKey = new Map();
+
+    FALLBACK_ALLIANCES.forEach((alliance) => {
+      byKey.set(alliance.key, {
+        ...alliance,
+        aliases: normalizeAliases([alliance.key, alliance.name, alliance.aliases || []]),
+      });
+    });
+
+    (Array.isArray(helperRows) ? helperRows : []).forEach((alliance) => {
+      const key = normalizeAllianceFallback(alliance?.key);
+      if (!key) return;
+
+      const fallback = byKey.get(key) || {
+        key,
+        name: String(alliance?.name ?? "").trim(),
+        emoji: String(alliance?.emoji ?? "").trim(),
+        color: String(alliance?.color ?? "").trim(),
+        order: normalizeOrder(alliance?.order) ?? 999,
+        aliases: [],
+      };
+
+      byKey.set(key, mergeAllianceMeta(fallback, alliance));
+    });
+
+    state.alliances = Array.from(byKey.values()).sort((a, b) => {
+      if (a.order !== b.order) return a.order - b.order;
+      return a.name.localeCompare(b.name, "fr");
+    });
     state.allianceByKey = new Map();
     state.allianceAliasToKey = new Map();
 
@@ -151,7 +280,7 @@
       state.allianceByKey.set(alliance.key, alliance);
 
       [alliance.key, alliance.name, ...(alliance.aliases || [])].forEach((value) => {
-        const aliasKey = normalizeKey(value);
+        const aliasKey = normalizeAllianceFallback(value);
         if (!aliasKey) return;
         state.allianceAliasToKey.set(aliasKey, alliance.key);
       });
@@ -160,8 +289,30 @@
     state.allianceOrderKeys = state.alliances.map((a) => a.key);
   }
 
+  async function loadAllianceMetadata() {
+    const helper = getAlliancesHelper();
+    let alliances = [];
+
+    if (typeof helper?.loadAlliances === "function") {
+      try {
+        await helper.loadAlliances();
+      } catch (_) {}
+    }
+
+    if (typeof helper?.getKnownAlliances === "function") {
+      try {
+        const helperAlliances = helper.getKnownAlliances();
+        if (Array.isArray(helperAlliances)) alliances = helperAlliances;
+      } catch (_) {
+        alliances = [];
+      }
+    }
+
+    buildAllianceMaps(alliances);
+  }
+
   function allianceKey(value) {
-    const key = normalizeKey(value);
+    const key = normalizeAllianceKey(value);
 
     if (!key) return "";
 
@@ -170,19 +321,6 @@
     if (mapped) {
       return mapped;
     }
-
-    if (key === "zeus") return "zeus";
-    if (
-      key === "kronos" ||
-      key === "cronos" ||
-      key === "chronos" ||
-      key === "lospkronos"
-    ) {
-      return "kronos";
-    }
-    if (key === "dionysos") return "dionysos";
-    if (key === "poseidon" || key === "posseidon") return "poseidon";
-    if (key === "hades" || key === "losphades") return "hades";
 
     return state.allianceByKey.has(key) ? key : "";
   }
@@ -203,6 +341,10 @@
   }
 
   function getAllianceSortIndex(value) {
+    const metaOrder = normalizeOrder(getAllianceMeta(value)?.order);
+
+    if (metaOrder !== null) return metaOrder;
+
     const idx = state.allianceOrderKeys.indexOf(allianceKey(value));
 
     return idx === -1 ? 999 : idx;
@@ -1379,11 +1521,13 @@
     const name = info?.name || joueur?.player || roster?.player || roster?.playerKey || "Joueur";
     const allianceRaw = info?.alliance || joueur?.alliance || roster?.alliance || state.selectedAllianceKey || "";
     const allianceK = allianceKey(allianceRaw) || state.selectedAllianceKey;
+    const allianceMeta = getAllianceMeta(allianceK || allianceRaw);
     const allianceLabel = getAllianceLabel(allianceK || allianceRaw);
     const allianceEmoji = getAllianceEmoji(allianceK || allianceRaw);
 
     playerNameEl.textContent = name;
     playerAllianceEl.textContent = `${allianceEmoji} ${allianceLabel}`.trim();
+    playerAllianceEl.style.color = allianceMeta?.color || "";
 
     playerTcpEl.textContent = formatNumber(info?.tcp);
 
@@ -1700,7 +1844,6 @@
 
   async function boot() {
     const [
-      alliancesRaw,
       infosRaw,
       joueursRaw,
       rostersRaw,
@@ -1710,7 +1853,6 @@
       warHistoryRaw,
       aliasesRaw,
     ] = await Promise.all([
-      fetchJson(FILES.alliances).catch(() => []),
       fetchJson(FILES.infos).catch(() => []),
       fetchJson(FILES.joueurs).catch(() => []),
       fetchJson(FILES.rosters),
@@ -1721,7 +1863,7 @@
       fetchJson(FILES.aliases).catch(() => ({})),
     ]);
 
-    buildAllianceMaps(alliancesRaw);
+    await loadAllianceMetadata();
 
     state.infos = Array.isArray(infosRaw) ? infosRaw : [];
     state.joueurs = normalizeJoueurs(joueursRaw);
