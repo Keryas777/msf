@@ -1,44 +1,23 @@
 import fs from "fs";
 import path from "path";
+import {
+  loadAllianceRegistry,
+  normalizeAllianceKey,
+  sortAllianceKeys,
+} from "./lib/alliances-node.mjs";
 
 const WAR_DIR = path.join(process.cwd(), "docs", "data", "war");
 const OUT_FILE = path.join(WAR_DIR, "index.json");
-
-const ALLIANCE_ORDER = ["zeus", "kronos", "dionysos", "poseidon"];
+const DRY_RUN = process.env.DRY_RUN === "1";
 
 function isDateFolder(name) {
   return /^\d{4}-\d{2}-\d{2}$/.test(name);
 }
 
-function normalizeAllianceName(value) {
-  const key = String(value || "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, "")
-    .replace(/[-_‐-‒–—―﹘﹣－]/g, "");
-
-  if (key === "zeus") return "zeus";
-  if (key === "dionysos") return "dionysos";
-  if (key === "poseidon" || key === "posseidon") return "poseidon";
-  if (
-    key === "kronos" ||
-    key === "cronos" ||
-    key === "chronos" ||
-    key === "lospkronos"
-  ) {
-    return "kronos";
-  }
-
-  return "";
-}
-
-function sortAlliances(a, b) {
-  const ia = ALLIANCE_ORDER.indexOf(a);
-  const ib = ALLIANCE_ORDER.indexOf(b);
-
-  return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+function warnUnknownAllianceFile(date, filename) {
+  console.warn(
+    `Warning: fichier d'alliance inconnu ignoré dans ${date} : ${filename}`,
+  );
 }
 
 function main() {
@@ -46,38 +25,57 @@ function main() {
     throw new Error(`Dossier introuvable : ${WAR_DIR}`);
   }
 
+  const registry = loadAllianceRegistry();
+  const knownKeys = new Set(registry.knownKeys);
   const entries = fs.readdirSync(WAR_DIR, { withFileTypes: true });
 
   const dates = entries
     .filter((entry) => entry.isDirectory() && isDateFolder(entry.name))
     .map((entry) => {
       const folder = path.join(WAR_DIR, entry.name);
+      const allianceKeys = new Set();
 
-      const alliances = fs
-        .readdirSync(folder, { withFileTypes: true })
-        .filter((file) => file.isFile() && file.name.toLowerCase().endsWith(".json"))
-        .map((file) => file.name.replace(/\.json$/i, ""))
-        .map(normalizeAllianceName)
-        .filter((name) => ALLIANCE_ORDER.includes(name))
-        .filter((name, index, array) => array.indexOf(name) === index)
-        .sort(sortAlliances);
+      for (const file of fs.readdirSync(folder, { withFileTypes: true })) {
+        if (!file.isFile() || !file.name.toLowerCase().endsWith(".json")) {
+          continue;
+        }
+
+        const filename = file.name.replace(/\.json$/i, "");
+        const allianceKey = normalizeAllianceKey(filename);
+
+        if (!allianceKey || !knownKeys.has(allianceKey)) {
+          warnUnknownAllianceFile(entry.name, file.name);
+          continue;
+        }
+
+        allianceKeys.add(allianceKey);
+      }
 
       return {
         date: entry.name,
-        alliances,
+        alliances: sortAllianceKeys([...allianceKeys]),
       };
     })
     .filter((entry) => entry.alliances.length > 0)
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  const alliancesInDates = [
+  const alliancesInDates = sortAllianceKeys([
     ...new Set(dates.flatMap((entry) => entry.alliances)),
-  ].sort(sortAlliances);
+  ]);
 
   const index = {
-    alliances: alliancesInDates.length ? alliancesInDates : ALLIANCE_ORDER,
+    alliances: alliancesInDates,
     dates,
   };
+
+  if (DRY_RUN) {
+    console.log("DRY_RUN=1 : aucun fichier écrit.");
+    console.log(`Chemin qui aurait été écrit : ${OUT_FILE}`);
+    console.log(`Dates indexées : ${dates.length}`);
+    console.log(`Alliances trouvées : ${index.alliances.join(", ") || "(aucune)"}`);
+    console.log(JSON.stringify(index, null, 2));
+    return;
+  }
 
   fs.writeFileSync(OUT_FILE, JSON.stringify(index, null, 2) + "\n", "utf8");
 
