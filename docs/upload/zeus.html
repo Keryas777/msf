@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Upload roster Zeus</title>
+<title>Upload Zeus</title>
+
 <style>
 :root{
   --bg-top: #201809;
@@ -15,27 +16,30 @@
   --muted: rgba(255,255,255,.72);
   --btn-bg: #f2cf58;
   --btn-text: #111;
-  --ok-bg: rgba(46, 204, 113, .14);
-  --ok-border: rgba(46, 204, 113, .35);
+  --ok-bg: rgba(46,204,113,.14);
+  --ok-border: rgba(46,204,113,.35);
   --ok-text: #9df0bb;
-  --err-bg: rgba(255, 77, 77, .14);
-  --err-border: rgba(255, 77, 77, .35);
+  --err-bg: rgba(255,77,77,.14);
+  --err-border: rgba(255,77,77,.35);
   --err-text: #ffb1b1;
 }
 
-*{ box-sizing:border-box; }
+*{
+  box-sizing:border-box;
+}
 
-html,body{
+html,
+body{
   margin:0;
   min-height:100%;
 }
 
 body{
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  color: var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color:var(--text);
   background:
-    radial-gradient(circle at top, var(--glow), transparent 42%),
-    linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+    radial-gradient(circle at top,var(--glow),transparent 42%),
+    linear-gradient(180deg,var(--bg-top),var(--bg-bottom));
   display:flex;
   align-items:center;
   justify-content:center;
@@ -43,32 +47,29 @@ body{
 }
 
 .card{
-  width:min(100%, 560px);
-  background: var(--panel);
+  width:min(100%,560px);
+  background:var(--panel);
   border:1px solid var(--border);
   border-radius:24px;
   padding:34px 24px 24px;
   text-align:center;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
   box-shadow:
     0 12px 32px rgba(0,0,0,.45),
     inset 0 0 28px var(--glow);
 }
 
 .logo{
-  width: calc(100% + 48px);
-  max-width: none;
-  height: 170px;
-
-  object-fit: cover;
-  object-position: center top;
-
+  width:calc(100% + 48px);
+  max-width:none;
+  height:170px;
+  object-fit:cover;
+  object-position:center top;
   display:block;
-  margin: -34px -24px 22px;
-
-  border-top-left-radius: 24px;
-  border-top-right-radius: 24px;
+  margin:-34px -24px 22px;
+  border-top-left-radius:24px;
+  border-top-right-radius:24px;
 }
 
 h1{
@@ -79,7 +80,7 @@ h1{
 }
 
 .sub{
-  margin:0 0 28px;
+  margin:0 0 24px;
   color:var(--muted);
   font-size:16px;
   line-height:1.4;
@@ -89,6 +90,27 @@ h1{
   display:flex;
   flex-direction:column;
   gap:18px;
+}
+
+.uploadSection{
+  padding:18px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:rgba(255,255,255,.035);
+  text-align:left;
+}
+
+.uploadSectionTitle{
+  margin:0 0 6px;
+  font-size:19px;
+  font-weight:900;
+}
+
+.uploadSectionText{
+  margin:0 0 14px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.4;
 }
 
 .field{
@@ -108,7 +130,7 @@ input[type="password"]{
   width:100%;
   border-radius:14px;
   border:1px solid var(--border);
-  background: rgba(255,255,255,.06);
+  background:rgba(255,255,255,.06);
   color:var(--text);
   font-size:16px;
   outline:none;
@@ -128,16 +150,16 @@ input[type="password"]::placeholder{
 
 button{
   width:100%;
-  margin-top:4px;
+  margin-top:14px;
   padding:13px 18px;
   border:none;
   border-radius:16px;
-  background: var(--btn-bg);
-  color: var(--btn-text);
+  background:var(--btn-bg);
+  color:var(--btn-text);
   font-size:16px;
   font-weight:900;
   cursor:pointer;
-  box-shadow: 0 8px 24px rgba(0,0,0,.28);
+  box-shadow:0 8px 24px rgba(0,0,0,.28);
 }
 
 button:active{
@@ -155,7 +177,7 @@ button:disabled{
   padding:16px;
   border-radius:16px;
   border:1px solid var(--border);
-  background: rgba(255,255,255,.04);
+  background:rgba(255,255,255,.04);
   text-align:left;
   white-space:pre-wrap;
   font-size:14px;
@@ -170,15 +192,15 @@ button:disabled{
 }
 
 .resultBox.ok{
-  background: var(--ok-bg);
-  border-color: var(--ok-border);
-  color: var(--ok-text);
+  background:var(--ok-bg);
+  border-color:var(--ok-border);
+  color:var(--ok-text);
 }
 
 .resultBox.error{
-  background: var(--err-bg);
-  border-color: var(--err-border);
-  color: var(--err-text);
+  background:var(--err-bg);
+  border-color:var(--err-border);
+  color:var(--err-text);
 }
 
 .resultTitle{
@@ -206,7 +228,7 @@ summary{
   margin-top:10px;
   padding:12px;
   border-radius:12px;
-  background: rgba(255,255,255,.05);
+  background:rgba(255,255,255,.05);
   border:1px solid var(--border);
   color:var(--text);
   white-space:pre-wrap;
@@ -221,25 +243,26 @@ summary{
   }
 
   .logo{
-  width: calc(100% + 36px);
-  height: 150px;
-
-  object-fit: cover;
-  object-position: center top;
-
-  margin: -28px -18px 20px;
-
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-}
+    width:calc(100% + 36px);
+    height:150px;
+    object-fit:cover;
+    object-position:center top;
+    margin:-28px -18px 20px;
+    border-top-left-radius:20px;
+    border-top-right-radius:20px;
+  }
 
   h1{
-  font-size:24px;
+    font-size:24px;
   }
 
   .sub{
     font-size:15px;
     margin-bottom:22px;
+  }
+
+  .uploadSection{
+    padding:15px;
   }
 }
 </style>
@@ -250,23 +273,77 @@ summary{
 <div class="card">
   <img class="logo" src="../upload_zeus.webp" alt="Zeus">
 
-  <h1>Upload roster — Zeus</h1>
+  <h1>Uploads — Zeus</h1>
+
   <p class="sub">
-    Importe le fichier CSV roster de l’alliance Zeus pour mettre à jour automatiquement les données.
+    Importe les fichiers CSV de l’alliance Zeus pour mettre à jour automatiquement les données.
   </p>
 
   <div class="stack">
-    <div class="field">
-      <label class="label" for="file">Fichier roster.csv</label>
-      <input type="file" id="file" accept=".csv,text/csv">
+
+    <div class="uploadSection">
+      <h2 class="uploadSectionTitle">⚡ Roster</h2>
+
+      <p class="uploadSectionText">
+        Le nom du fichier doit contenir « roster » ou « rosters ».
+      </p>
+
+      <div class="field">
+        <label class="label" for="rosterFile">Fichier roster CSV</label>
+
+        <input
+          type="file"
+          id="rosterFile"
+          accept=".csv,text/csv"
+        >
+      </div>
+
+      <button
+        id="rosterUploadBtn"
+        type="button"
+        onclick="uploadFile('roster')"
+      >
+        Uploader le roster
+      </button>
+    </div>
+
+    <div class="uploadSection">
+      <h2 class="uploadSectionTitle">ℹ️ Infos</h2>
+
+      <p class="uploadSectionText">
+        Le nom du fichier doit contenir « info » ou « infos ».
+      </p>
+
+      <div class="field">
+        <label class="label" for="infosFile">Fichier infos CSV</label>
+
+        <input
+          type="file"
+          id="infosFile"
+          accept=".csv,text/csv"
+        >
+      </div>
+
+      <button
+        id="infosUploadBtn"
+        type="button"
+        onclick="uploadFile('infos')"
+      >
+        Uploader les infos
+      </button>
     </div>
 
     <div class="field">
       <label class="label" for="pwd">Mot de passe</label>
-      <input type="password" id="pwd" placeholder="Entrer le mot de passe">
+
+      <input
+        type="password"
+        id="pwd"
+        placeholder="Entrer le mot de passe"
+        autocomplete="current-password"
+      >
     </div>
 
-    <button id="uploadBtn" onclick="upload()">Uploader</button>
   </div>
 
   <div id="result">En attente d’un fichier…</div>
@@ -275,8 +352,28 @@ summary{
 <script>
 const ENDPOINT = "https://msf-upload.deliriousfan7.workers.dev/zeus";
 
-function escapeHtml(str){
-  return String(str)
+const UPLOAD_CONFIG = {
+  roster: {
+    inputId: "rosterFile",
+    buttonId: "rosterUploadBtn",
+    label: "roster",
+    filenamePattern: /rosters?/i,
+    filenameMessage:
+      'Le nom du fichier doit contenir le mot "roster" ou "rosters".'
+  },
+
+  infos: {
+    inputId: "infosFile",
+    buttonId: "infosUploadBtn",
+    label: "infos",
+    filenamePattern: /infos?/i,
+    filenameMessage:
+      'Le nom du fichier doit contenir le mot "info" ou "infos".'
+  }
+};
+
+function escapeHtml(value){
+  return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
@@ -286,21 +383,40 @@ function showInfo(message){
   document.getElementById("result").innerHTML = escapeHtml(message);
 }
 
-function showSuccess(data, rawText){
+function showSuccess(data, rawText, uploadType){
   const alliance = data?.alliance || "zeus";
-  const players = data?.players ?? "?";
   const file = data?.file || "";
   const message = data?.message || "Upload terminé avec succès.";
+  const players = data?.players;
+  const typeLabel = uploadType === "roster" ? "Roster" : "Infos";
+
+  const playersLine =
+    uploadType === "roster" && players !== undefined
+      ? `
+        Joueurs traités :
+        <strong>${escapeHtml(players)}</strong><br>
+      `
+      : "";
 
   document.getElementById("result").innerHTML = `
     <div class="resultBox ok">
       <div class="resultTitle">✅ Upload réussi</div>
+
       <p class="resultText">
-        Alliance : <strong>${escapeHtml(alliance)}</strong><br>
-        Joueurs traités : <strong>${escapeHtml(players)}</strong><br>
-        Fichier mis à jour : <strong>${escapeHtml(file)}</strong><br>
+        Type :
+        <strong>${escapeHtml(typeLabel)}</strong><br>
+
+        Alliance :
+        <strong>${escapeHtml(alliance)}</strong><br>
+
+        ${playersLine}
+
+        Fichier mis à jour :
+        <strong>${escapeHtml(file || "Non précisé")}</strong><br>
+
         ${escapeHtml(message)}
       </p>
+
       <details>
         <summary>Détails techniques</summary>
         <div class="tech">${escapeHtml(rawText)}</div>
@@ -312,8 +428,14 @@ function showSuccess(data, rawText){
 function showError(title, rawText){
   document.getElementById("result").innerHTML = `
     <div class="resultBox error">
-      <div class="resultTitle">❌ ${escapeHtml(title)}</div>
-      <p class="resultText">L’upload n’a pas abouti correctement.</p>
+      <div class="resultTitle">
+        ❌ ${escapeHtml(title)}
+      </div>
+
+      <p class="resultText">
+        L’upload n’a pas abouti correctement.
+      </p>
+
       <details open>
         <summary>Détails techniques</summary>
         <div class="tech">${escapeHtml(rawText)}</div>
@@ -322,53 +444,137 @@ function showError(title, rawText){
   `;
 }
 
-async function upload(){
-  const file = document.getElementById("file").files[0];
-  const pwd = document.getElementById("pwd").value;
-  const result = document.getElementById("result");
-  const btn = document.getElementById("uploadBtn");
+function isCsvFile(file){
+  return file.name.toLowerCase().endsWith(".csv");
+}
+
+function validateFile(file, uploadType){
+  const config = UPLOAD_CONFIG[uploadType];
+
+  if(!config){
+    return {
+      valid: false,
+      message: "Type d’upload inconnu."
+    };
+  }
 
   if(!file){
-    showError("Aucun fichier sélectionné", "Choisir un fichier CSV.");
+    return {
+      valid: false,
+      message: "Choisir un fichier CSV."
+    };
+  }
+
+  if(!isCsvFile(file)){
+    return {
+      valid: false,
+      message: "Le fichier sélectionné doit avoir l’extension .csv."
+    };
+  }
+
+  if(!config.filenamePattern.test(file.name)){
+    return {
+      valid: false,
+      message: config.filenameMessage
+    };
+  }
+
+  return {
+    valid: true,
+    message: ""
+  };
+}
+
+async function uploadFile(uploadType){
+  const config = UPLOAD_CONFIG[uploadType];
+
+  if(!config){
+    showError(
+      "Type d’upload inconnu",
+      `Type reçu : ${uploadType}`
+    );
+    return;
+  }
+
+  const fileInput = document.getElementById(config.inputId);
+  const file = fileInput.files[0];
+
+  const passwordInput = document.getElementById("pwd");
+  const pwd = passwordInput.value;
+
+  const btn = document.getElementById(config.buttonId);
+
+  const validation = validateFile(file, uploadType);
+
+  if(!validation.valid){
+    showError(
+      "Fichier non valide",
+      validation.message
+    );
     return;
   }
 
   if(!pwd){
-    showError("Mot de passe manquant", "Entrer le mot de passe avant l’envoi.");
+    showError(
+      "Mot de passe manquant",
+      "Entrer le mot de passe avant l’envoi."
+    );
     return;
   }
 
   btn.disabled = true;
-  showInfo("⏳ Lecture du fichier…");
+
+  showInfo(
+    uploadType === "roster"
+      ? "⏳ Lecture du fichier roster…"
+      : "⏳ Lecture du fichier infos…"
+  );
 
   try{
     const text = await file.text();
 
-    showInfo("⏳ Upload en cours…");
+    showInfo(
+      uploadType === "roster"
+        ? "⏳ Upload du roster en cours…"
+        : "⏳ Upload des infos en cours…"
+    );
 
-    const res = await fetch(ENDPOINT,{
-      method:"POST",
-      headers:{
-        "Content-Type":"text/csv",
-        "x-upload-password":pwd
+    const res = await fetch(ENDPOINT, {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "text/csv",
+        "x-upload-password": pwd,
+        "x-upload-type": uploadType,
+        "x-upload-filename": file.name
       },
-      body:text
+
+      body: text
     });
 
     const rawText = await res.text();
 
     let data = null;
+
     try{
       data = JSON.parse(rawText);
-    }catch(_){}
+    }catch(_){
+      data = null;
+    }
 
     if(res.ok && data && data.ok){
-      showSuccess(data, rawText);
+      showSuccess(data, rawText, uploadType);
     }else{
-      showError(`Erreur HTTP ${res.status}`, rawText);
+      showError(
+        `Erreur HTTP ${res.status}`,
+        rawText || "Le serveur n’a retourné aucun détail."
+      );
     }
   }catch(err){
-    showError("Erreur réseau", String(err?.message || err));
+    showError(
+      "Erreur réseau",
+      String(err?.message || err)
+    );
   }finally{
     btn.disabled = false;
   }
