@@ -5,6 +5,12 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
+import {
+  getAllianceLabel,
+  loadAllianceRegistry,
+  normalizeAllianceKey,
+  sortAllianceKeys,
+} from "./lib/alliances-node.mjs";
 
 const WAR_DIR = process.env.WAR_DIR || "docs/data/war";
 const INDEX_FILE = process.env.INDEX_FILE || path.join(WAR_DIR, "index.json");
@@ -12,15 +18,7 @@ const OUT_STATS_FILE = process.env.OUT_STATS_FILE || "docs/data/war-stats.json";
 const OUT_HISTORY_FILE = process.env.OUT_HISTORY_FILE || "docs/data/war-history-lite.json";
 const PLAYER_ALIASES_FILE =
   process.env.PLAYER_ALIASES_FILE || "docs/data/player-aliases.json";
-
-const ALLIANCES = ["zeus", "kronos", "dionysos", "poseidon"];
-
-const ALLIANCE_LABELS = {
-  zeus: "Zeus",
-  kronos: "Kronos",
-  dionysos: "Dionysos",
-  poseidon: "Poséidon",
-};
+const DRY_RUN = process.env.DRY_RUN === "1";
 
 const normKey = (value) =>
   String(value ?? "")
@@ -34,25 +32,16 @@ const normKey = (value) =>
     .replace(/[^a-z0-9]/g, "");
 
 function allianceKey(value) {
-  const key = normKey(value);
-
-  if (key === "zeus") return "zeus";
-  if (key === "dionysos") return "dionysos";
-  if (key === "poseidon" || key === "posseidon") return "poseidon";
-  if (
-    key === "kronos" ||
-    key === "cronos" ||
-    key === "chronos" ||
-    key === "lospkronos"
-  ) {
-    return "kronos";
-  }
-
-  return key;
+  return normalizeAllianceKey(value);
 }
 
 function allianceLabel(value) {
-  return ALLIANCE_LABELS[allianceKey(value)] || String(value ?? "").trim();
+  return getAllianceLabel(value) || String(value ?? "").trim();
+}
+
+function compareAllianceKeys(left, right) {
+  const sorted = sortAllianceKeys([left, right]);
+  return sorted.indexOf(left) - sorted.indexOf(right);
 }
 
 function num(value, fallback = 0) {
@@ -168,7 +157,7 @@ function canonicalPlayerName(name, aliases) {
   return current;
 }
 
-function normalizeIndex(data) {
+function normalizeIndex(data, registry) {
   let list = [];
 
   if (Array.isArray(data)) {
@@ -198,7 +187,7 @@ function normalizeIndex(data) {
         .filter(([key]) => /^\d{4}-\d{2}-\d{2}$/.test(String(key)))
         .map(([date, value]) => ({
           date,
-          alliances: Array.isArray(value) ? value : ALLIANCES,
+          alliances: Array.isArray(value) ? value : [],
         }));
     }
   }
@@ -215,9 +204,11 @@ function normalizeIndex(data) {
 
         const alliances = filePart
           ? [filePart.replace(/\.json$/i, "")]
-          : ALLIANCES;
+              .map(allianceKey)
+              .filter((alliance) => alliance && registry.allianceByKey.has(alliance))
+          : [];
 
-        return { date, alliances };
+        return { date, alliances: sortAllianceKeys([...new Set(alliances)]) };
       }
 
       const date = String(
@@ -248,16 +239,11 @@ function normalizeIndex(data) {
         );
       }
 
-      if (!alliances.length && date) {
-        alliances = ALLIANCES;
-      }
-
       alliances = alliances
         .map(allianceKey)
-        .filter(Boolean)
-        .filter((alliance) => ALLIANCES.includes(alliance));
+        .filter((alliance) => alliance && registry.allianceByKey.has(alliance));
 
-      alliances = [...new Set(alliances)];
+      alliances = sortAllianceKeys([...new Set(alliances)]);
 
       return { date, alliances };
     })
@@ -639,6 +625,7 @@ function finalizeAgg(a) {
 }
 
 async function main() {
+  const registry = loadAllianceRegistry();
   const rawIndex = await readJson(INDEX_FILE);
   const playerAliases = await loadPlayerAliases();
 
@@ -652,25 +639,28 @@ async function main() {
   console.log(`[war-data] Raw index shape: ${rawIndexShape}`);
   console.log(`[war-data] Player aliases: ${playerAliases.size}`);
 
-  const index = normalizeIndex(rawIndex);
+  const index = normalizeIndex(rawIndex, registry);
 
   const history = [];
   const agg = new Map();
+  let warsRead = 0;
 
   for (const item of index) {
     for (const allianceRaw of item.alliances) {
       const alliance = allianceKey(allianceRaw);
-      if (!alliance || !ALLIANCES.includes(alliance)) continue;
+      if (!alliance || !registry.allianceByKey.has(alliance)) continue;
 
       const file = path.join(WAR_DIR, item.date, `${alliance}.json`);
       const war = await readJsonOrNull(file);
 
       if (!war) continue;
 
+      warsRead += 1;
+
       const date = String(war?.date || item.date);
       const finalAlliance = allianceKey(war?.alliance || alliance);
 
-      if (!finalAlliance || !ALLIANCES.includes(finalAlliance)) continue;
+      if (!finalAlliance || !registry.allianceByKey.has(finalAlliance)) continue;
 
       let players = normalizePlayers(war, playerAliases);
       players = completePlayerDerivedMetrics(players);
@@ -700,33 +690,47 @@ async function main() {
     const dateCompare = a.date.localeCompare(b.date);
     if (dateCompare) return dateCompare;
 
-    return ALLIANCES.indexOf(a.alliance) - ALLIANCES.indexOf(b.alliance);
+    return compareAllianceKeys(a.alliance, b.alliance);
   });
 
   const stats = Array.from(agg.values())
     .map(finalizeAgg)
     .sort((a, b) => {
-      const ia = ALLIANCES.indexOf(a.alliance);
-      const ib = ALLIANCES.indexOf(b.alliance);
+      const allianceCompare = compareAllianceKeys(a.alliance, b.alliance);
 
-      if (ia !== ib) {
-        return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+      if (allianceCompare) {
+        return allianceCompare;
       }
 
       return a.name.localeCompare(b.name, "fr", { sensitivity: "base" });
     });
 
-  await fs.mkdir(path.dirname(OUT_STATS_FILE), { recursive: true });
-  await fs.mkdir(path.dirname(OUT_HISTORY_FILE), { recursive: true });
-
-  await fs.writeFile(OUT_STATS_FILE, JSON.stringify(stats, null, 2) + "\n", "utf8");
-  await fs.writeFile(OUT_HISTORY_FILE, JSON.stringify(history, null, 2) + "\n", "utf8");
+  const outputAlliances = sortAllianceKeys(
+    [...new Set([...stats.map((row) => row.alliance), ...history.map((row) => row.alliance)])]
+  );
 
   console.log(`[war-data] Index entries: ${index.length}`);
-  console.log(`[war-data] Wrote ${stats.length} player stat rows -> ${OUT_STATS_FILE}`);
-  console.log(`[war-data] Wrote ${history.length} war history rows -> ${OUT_HISTORY_FILE}`);
 
-  for (const alliance of ALLIANCES) {
+  if (DRY_RUN) {
+    console.log("[war-data] DRY_RUN=1: no files written");
+    console.log(`[war-data] Wars read: ${warsRead}`);
+    console.log(`[war-data] Player stat rows produced: ${stats.length}`);
+    console.log(`[war-data] War history rows produced: ${history.length}`);
+    console.log(`[war-data] Output alliances: ${outputAlliances.join(", ") || "(none)"}`);
+    console.log(`[war-data] Would write player stats -> ${OUT_STATS_FILE}`);
+    console.log(`[war-data] Would write war history -> ${OUT_HISTORY_FILE}`);
+  } else {
+    await fs.mkdir(path.dirname(OUT_STATS_FILE), { recursive: true });
+    await fs.mkdir(path.dirname(OUT_HISTORY_FILE), { recursive: true });
+
+    await fs.writeFile(OUT_STATS_FILE, JSON.stringify(stats, null, 2) + "\n", "utf8");
+    await fs.writeFile(OUT_HISTORY_FILE, JSON.stringify(history, null, 2) + "\n", "utf8");
+
+    console.log(`[war-data] Wrote ${stats.length} player stat rows -> ${OUT_STATS_FILE}`);
+    console.log(`[war-data] Wrote ${history.length} war history rows -> ${OUT_HISTORY_FILE}`);
+  }
+
+  for (const alliance of outputAlliances) {
     const playerCount = stats.filter((row) => row.alliance === alliance).length;
     const warCount = history.filter((row) => row.alliance === alliance).length;
 
