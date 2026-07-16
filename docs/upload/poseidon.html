@@ -297,14 +297,6 @@ summary{
           accept=".csv,text/csv"
         >
       </div>
-
-      <button
-        id="rosterUploadBtn"
-        type="button"
-        onclick="uploadFile('roster')"
-      >
-        Uploader le roster
-      </button>
     </div>
 
     <div class="uploadSection">
@@ -323,14 +315,6 @@ summary{
           accept=".csv,text/csv"
         >
       </div>
-
-      <button
-        id="infosUploadBtn"
-        type="button"
-        onclick="uploadFile('infos')"
-      >
-        Uploader les infos
-      </button>
     </div>
 
     <div class="field">
@@ -344,19 +328,28 @@ summary{
       >
     </div>
 
+    <button
+      id="uploadBtn"
+      type="button"
+    >
+      Uploader les fichiers sélectionnés
+    </button>
+
   </div>
 
   <div id="result">En attente d’un fichier…</div>
 </div>
 
 <script>
-const ENDPOINT = "https://msf-upload.deliriousfan7.workers.dev/poseidon";
+const ALLIANCE = "poseidon";
+const ENDPOINT = `https://msf-upload.deliriousfan7.workers.dev/${ALLIANCE}`;
 
 const UPLOAD_CONFIG = {
   roster: {
     inputId: "rosterFile",
-    buttonId: "rosterUploadBtn",
-    label: "roster",
+    label: "Roster",
+    readingMessage: "⏳ Lecture du fichier roster…",
+    uploadingMessage: "⏳ Upload du roster en cours…",
     filenamePattern: /rosters?/i,
     filenameMessage:
       'Le nom du fichier doit contenir le mot "roster" ou "rosters".'
@@ -364,8 +357,9 @@ const UPLOAD_CONFIG = {
 
   infos: {
     inputId: "infosFile",
-    buttonId: "infosUploadBtn",
-    label: "infos",
+    label: "Infos",
+    readingMessage: "⏳ Lecture du fichier infos…",
+    uploadingMessage: "⏳ Upload des infos en cours…",
     filenamePattern: /infos?/i,
     filenameMessage:
       'Le nom du fichier doit contenir le mot "info" ou "infos".'
@@ -381,48 +375,6 @@ function escapeHtml(value){
 
 function showInfo(message){
   document.getElementById("result").innerHTML = escapeHtml(message);
-}
-
-function showSuccess(data, rawText, uploadType){
-  const alliance = data?.alliance || "poseidon";
-  const file = data?.file || "";
-  const message = data?.message || "Upload terminé avec succès.";
-  const players = data?.players;
-  const typeLabel = uploadType === "roster" ? "Roster" : "Infos";
-
-  const playersLine =
-    uploadType === "roster" && players !== undefined
-      ? `
-        Joueurs traités :
-        <strong>${escapeHtml(players)}</strong><br>
-      `
-      : "";
-
-  document.getElementById("result").innerHTML = `
-    <div class="resultBox ok">
-      <div class="resultTitle">✅ Upload réussi</div>
-
-      <p class="resultText">
-        Type :
-        <strong>${escapeHtml(typeLabel)}</strong><br>
-
-        Alliance :
-        <strong>${escapeHtml(alliance)}</strong><br>
-
-        ${playersLine}
-
-        Fichier mis à jour :
-        <strong>${escapeHtml(file || "Non précisé")}</strong><br>
-
-        ${escapeHtml(message)}
-      </p>
-
-      <details>
-        <summary>Détails techniques</summary>
-        <div class="tech">${escapeHtml(rawText)}</div>
-      </details>
-    </div>
-  `;
 }
 
 function showError(title, rawText){
@@ -485,36 +437,153 @@ function validateFile(file, uploadType){
   };
 }
 
-async function uploadFile(uploadType){
+async function sendFile(uploadType, file, password){
   const config = UPLOAD_CONFIG[uploadType];
 
-  if(!config){
+  showInfo(config.readingMessage);
+  const text = await file.text();
+
+  showInfo(config.uploadingMessage);
+  const res = await fetch(ENDPOINT, {
+    method: "POST",
+
+    headers: {
+      "Content-Type": "text/csv",
+      "x-upload-password": password,
+      "x-upload-type": uploadType,
+      "x-upload-filename": file.name
+    },
+
+    body: text
+  });
+
+  const rawText = await res.text();
+
+  let data = null;
+
+  try{
+    data = JSON.parse(rawText);
+  }catch(_){
+    data = null;
+  }
+
+  return {
+    uploadType,
+    label: config.label,
+    ok: Boolean(res.ok && data && data.ok),
+    status: res.status,
+    data,
+    rawText
+  };
+}
+
+function formatSingleSuccess(result){
+  const data = result.data || {};
+  const alliance = data.alliance || ALLIANCE;
+  const file = data.file || "";
+  const message = data.message || "Upload terminé avec succès.";
+  const players = data.players;
+
+  const playersLine =
+    result.uploadType === "roster" && players !== undefined
+      ? `
+        Joueurs traités :
+        <strong>${escapeHtml(players)}</strong><br>
+      `
+      : "";
+
+  return `
+    <div class="resultBox ok">
+      <div class="resultTitle">✅ Upload ${escapeHtml(result.label)} réussi</div>
+
+      <p class="resultText">
+        Type :
+        <strong>${escapeHtml(result.label)}</strong><br>
+
+        Alliance :
+        <strong>${escapeHtml(alliance)}</strong><br>
+
+        ${playersLine}
+
+        Fichier mis à jour :
+        <strong>${escapeHtml(file || "Non précisé")}</strong><br>
+
+        ${escapeHtml(message)}
+      </p>
+
+      <details>
+        <summary>Détails techniques</summary>
+        <div class="tech">${escapeHtml(result.rawText)}</div>
+      </details>
+    </div>
+  `;
+}
+
+function formatTechnicalDetails(results){
+  return results.map((result) => `
+${result.label}
+Statut HTTP : ${result.status || "non disponible"}
+Réponse :
+${result.rawText || "Le serveur n’a retourné aucun détail."}
+  `.trim()).join("\n\n");
+}
+
+function showUploadSummary(results){
+  if(results.length === 1 && results[0].ok){
+    document.getElementById("result").innerHTML = formatSingleSuccess(results[0]);
+    return;
+  }
+
+  const successCount = results.filter((result) => result.ok).length;
+  const allSucceeded = successCount === results.length;
+  const partialSuccess = successCount > 0 && !allSucceeded;
+  const resultClass = allSucceeded || partialSuccess ? "ok" : "error";
+  const title = allSucceeded
+    ? "✅ Upload terminé"
+    : partialSuccess
+      ? "⚠️ Upload partiellement terminé"
+      : "❌ Upload échoué";
+
+  const statusLines = results.map((result) => `
+    ${escapeHtml(result.label)} :
+    <strong>${result.ok ? "réussi" : "échec"}</strong>
+  `.trim()).join("<br>");
+
+  document.getElementById("result").innerHTML = `
+    <div class="resultBox ${resultClass}">
+      <div class="resultTitle">${title}</div>
+
+      <p class="resultText">
+        ${statusLines}
+      </p>
+
+      <details${allSucceeded ? "" : " open"}>
+        <summary>Détails techniques</summary>
+        <div class="tech">${escapeHtml(formatTechnicalDetails(results))}</div>
+      </details>
+    </div>
+  `;
+}
+
+async function uploadSelectedFiles(){
+  const selectedUploads = ["roster", "infos"]
+    .map((uploadType) => ({
+      uploadType,
+      file: document.getElementById(UPLOAD_CONFIG[uploadType].inputId).files[0]
+    }))
+    .filter((upload) => upload.file);
+
+  if(selectedUploads.length === 0){
     showError(
-      "Type d’upload inconnu",
-      `Type reçu : ${uploadType}`
+      "Aucun fichier sélectionné",
+      "Sélectionner au moins un fichier Roster ou Infos avant l’envoi."
     );
     return;
   }
 
-  const fileInput = document.getElementById(config.inputId);
-  const file = fileInput.files[0];
+  const password = document.getElementById("pwd").value;
 
-  const passwordInput = document.getElementById("pwd");
-  const pwd = passwordInput.value;
-
-  const btn = document.getElementById(config.buttonId);
-
-  const validation = validateFile(file, uploadType);
-
-  if(!validation.valid){
-    showError(
-      "Fichier non valide",
-      validation.message
-    );
-    return;
-  }
-
-  if(!pwd){
+  if(!password){
     showError(
       "Mot de passe manquant",
       "Entrer le mot de passe avant l’envoi."
@@ -522,63 +591,46 @@ async function uploadFile(uploadType){
     return;
   }
 
+  for(const upload of selectedUploads){
+    const validation = validateFile(upload.file, upload.uploadType);
+
+    if(!validation.valid){
+      showError(
+        `${UPLOAD_CONFIG[upload.uploadType].label} non valide`,
+        validation.message
+      );
+      return;
+    }
+  }
+
+  const btn = document.getElementById("uploadBtn");
   btn.disabled = true;
 
-  showInfo(
-    uploadType === "roster"
-      ? "⏳ Lecture du fichier roster…"
-      : "⏳ Lecture du fichier infos…"
-  );
+  const results = [];
 
   try{
-    const text = await file.text();
-
-    showInfo(
-      uploadType === "roster"
-        ? "⏳ Upload du roster en cours…"
-        : "⏳ Upload des infos en cours…"
-    );
-
-    const res = await fetch(ENDPOINT, {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "text/csv",
-        "x-upload-password": pwd,
-        "x-upload-type": uploadType,
-        "x-upload-filename": file.name
-      },
-
-      body: text
-    });
-
-    const rawText = await res.text();
-
-    let data = null;
-
-    try{
-      data = JSON.parse(rawText);
-    }catch(_){
-      data = null;
+    for(const upload of selectedUploads){
+      try{
+        results.push(await sendFile(upload.uploadType, upload.file, password));
+      }catch(err){
+        results.push({
+          uploadType: upload.uploadType,
+          label: UPLOAD_CONFIG[upload.uploadType].label,
+          ok: false,
+          status: 0,
+          data: null,
+          rawText: String(err?.message || err)
+        });
+      }
     }
 
-    if(res.ok && data && data.ok){
-      showSuccess(data, rawText, uploadType);
-    }else{
-      showError(
-        `Erreur HTTP ${res.status}`,
-        rawText || "Le serveur n’a retourné aucun détail."
-      );
-    }
-  }catch(err){
-    showError(
-      "Erreur réseau",
-      String(err?.message || err)
-    );
+    showUploadSummary(results);
   }finally{
     btn.disabled = false;
   }
 }
+
+document.getElementById("uploadBtn").addEventListener("click", uploadSelectedFiles);
 </script>
 
 </body>
