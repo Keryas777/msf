@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Upload Dionysos</title>
+<title>Upload Hadès</title>
 
 <style>
 :root{
-  --bg-top: #1a0b22;
+  --bg-top: #071c12;
   --bg-bottom: #050607;
-  --glow: rgba(180,110,255,.28);
+  --glow: rgba(58,214,128,.28);
   --panel: rgba(0,0,0,.42);
   --border: rgba(255,255,255,.12);
   --text: rgba(255,255,255,.94);
   --muted: rgba(255,255,255,.72);
-  --btn-bg: #b784ff;
+  --btn-bg: #55d987;
   --btn-text: #111;
   --ok-bg: rgba(46,204,113,.14);
   --ok-border: rgba(46,204,113,.35);
@@ -271,12 +271,12 @@ summary{
 <body>
 
 <div class="card">
-  <img class="logo" src="../upload_dionysos.webp" alt="Dionysos">
+  <img class="logo" src="../upload_hades.webp" alt="Hadès">
 
-  <h1>Uploads — Dionysos</h1>
+  <h1>Uploads — Hadès</h1>
 
   <p class="sub">
-    Importe les fichiers CSV de l’alliance Dionysos pour mettre à jour automatiquement les données.
+    Importe les fichiers CSV de l’alliance Hadès pour mettre à jour automatiquement les données.
   </p>
 
   <div class="stack">
@@ -350,7 +350,7 @@ summary{
 </div>
 
 <script>
-const ENDPOINT = "https://msf-upload.deliriousfan7.workers.dev/dionysos";
+const ENDPOINT = "https://msf-upload.deliriousfan7.workers.dev/hades";
 
 const UPLOAD_CONFIG = {
   roster: {
@@ -384,7 +384,7 @@ function showInfo(message){
 }
 
 function showSuccess(data, rawText, uploadType){
-  const alliance = data?.alliance || "dionysos";
+  const alliance = data?.alliance || "hades";
   const file = data?.file || "";
   const message = data?.message || "Upload terminé avec succès.";
   const players = data?.players;
