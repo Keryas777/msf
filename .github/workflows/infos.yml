@@ -44,6 +44,7 @@ jobs:
         env:
           DATA_DIR: docs/data
           OUT_FILE: docs/data/infos.json
+          JOUEURS_OUT_FILE: docs/data/joueurs.json
         run: |
           node --version
           node scripts/merge-infos.mjs
@@ -55,12 +56,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add docs/data/infos.json
+          git add docs/data/infos.json docs/data/joueurs.json
 
           if git diff --staged --quiet; then
             echo "No changes to commit."
             exit 0
           fi
 
-          git commit -m "Update infos.json"
+          git commit -m "Update infos and joueurs JSON"
           git push origin HEAD:main
