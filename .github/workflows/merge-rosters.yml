@@ -7,10 +7,9 @@ on:
     branches:
       - main
     paths:
-      - "docs/data/rosters_zeus.json"
-      - "docs/data/rosters_dionysos.json"
-      - "docs/data/rosters_poseidon.json"
-      - "docs/data/rosters_kronos.json"
+      - "docs/data/rosters_*.json"
+      - "docs/data/alliances.json"
+      - "scripts/lib/alliances-node.mjs"
       - "scripts/merge-rosters.mjs"
       - ".github/workflows/merge-rosters.yml"
 

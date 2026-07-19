@@ -1,24 +1,23 @@
 // scripts/merge-rosters.mjs
 // Fusionne les rosters par alliance :
 // - docs/data/rosters_zeus.json
-// - docs/data/rosters_dionysos.json
-// - docs/data/rosters_poseidon.json
-// - docs/data/rosters_kronos.json
+// - docs/data/rosters_<alliance>.json
 //
 // vers docs/data/rosters.json
 
 import fs from "node:fs/promises";
 import path from "node:path";
+import { loadAllianceRegistry } from "./lib/alliances-node.mjs";
 
 const DATA_DIR = process.env.DATA_DIR || "docs/data";
 const OUT_FILE = process.env.OUT_FILE || path.join(DATA_DIR, "rosters.json");
+const DRY_RUN = process.env.DRY_RUN === "1";
 
-const SOURCES = [
-  path.join(DATA_DIR, "rosters_zeus.json"),
-  path.join(DATA_DIR, "rosters_dionysos.json"),
-  path.join(DATA_DIR, "rosters_poseidon.json"),
-  path.join(DATA_DIR, "rosters_kronos.json"),
-];
+const registry = loadAllianceRegistry();
+const SOURCES = registry.knownKeys.map((key) => ({
+  key,
+  file: path.join(DATA_DIR, `rosters_${key}.json`),
+}));
 
 function normalizeKey(s) {
   return (s ?? "")
@@ -38,7 +37,8 @@ function toInt(x) {
   return Number.isFinite(n) ? Math.trunc(n) : 0;
 }
 
-async function readJsonArray(file) {
+async function readJsonArray(source) {
+  const file = source.file;
   try {
     const raw = await fs.readFile(file, "utf8");
     const parsed = JSON.parse(raw);
@@ -143,11 +143,24 @@ async function main() {
     })
   );
 
+  console.log(`[merge-rosters] Sources:`);
+  SOURCES.forEach((source, index) => {
+    console.log(`- ${source.file}`);
+    if (DRY_RUN) {
+      console.log(`  ${source.key}: ${arrays[index].length} players`);
+    }
+  });
+
+  if (DRY_RUN) {
+    console.log(`[merge-rosters] Total players: ${out.length}`);
+    console.log(`[merge-rosters] Hadès included: ${out.some((row) => row.alliance === "hades") ? "yes" : "no"}`);
+    console.log(`[merge-rosters] DRY_RUN=1, would write ${OUT_FILE}`);
+    return;
+  }
+
   await fs.mkdir(path.dirname(OUT_FILE), { recursive: true });
   await fs.writeFile(OUT_FILE, JSON.stringify(out, null, 2), "utf8");
 
-  console.log(`[merge-rosters] Sources:`);
-  SOURCES.forEach((source) => console.log(`- ${source}`));
   console.log(`[merge-rosters] Wrote ${out.length} players -> ${OUT_FILE}`);
 }
 
