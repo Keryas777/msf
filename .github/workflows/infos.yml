@@ -3,13 +3,18 @@ name: Update infos.json
 on:
   workflow_dispatch:
 
-  schedule:
-    - cron: "15 */6 * * *" # toutes les 6h
-
   push:
+    branches:
+      - main
     paths:
-      - "scripts/sheets-infos.mjs"
-      - "docs/data/joueurs.json"
+      - "docs/data/infos_zeus.json"
+      - "docs/data/infos_kronos.json"
+      - "docs/data/infos_dionysos.json"
+      - "docs/data/infos_poseidon.json"
+      - "docs/data/infos_hades.json"
+      - "docs/data/alliances.json"
+      - "scripts/lib/alliances-node.mjs"
+      - "scripts/merge-infos.mjs"
       - ".github/workflows/infos.yml"
 
 permissions:
@@ -17,7 +22,7 @@ permissions:
 
 concurrency:
   group: update-infos-json
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -27,6 +32,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Setup Node
@@ -34,29 +40,14 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Generate docs/data/infos.json
+      - name: Merge alliance info files into docs/data/infos.json
         env:
+          DATA_DIR: docs/data
           OUT_FILE: docs/data/infos.json
-
-          # ✅ Option recommandée : GViz (lecture publique), PAS "Publier sur le web"
-          # Spreadsheet ID (le tien)
-          SHEET_ID: 1RxAokcQw7rhNigPj8VwipbRRf9PVNA6lJzIVqdMBAXQ
-
-          # GIDs des 3 onglets Infos
-          INFOS_ZEUS_GID: "799736684"
-          INFOS_DIONYSOS_GID: "1862527085"
-          INFOS_POSEIDON_GID: "1533167416"
-          INFOS_KRONOS_GID: "173724994"
-
-          # joueurs local
-          JOUEURS_JSON_FILE: docs/data/joueurs.json
-          JOUEURS_CSV_URL: ""
-
         run: |
           node --version
-          test -f docs/data/joueurs.json || (echo "❌ docs/data/joueurs.json introuvable" && exit 1)
-          node scripts/sheets-infos.mjs
-          echo "----- git status after generation -----"
+          node scripts/merge-infos.mjs
+          echo "----- git status after merge -----"
           git status --porcelain
 
       - name: Commit & push if changed
@@ -64,7 +55,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add -A docs/data/infos.json
+          git add docs/data/infos.json
 
           if git diff --staged --quiet; then
             echo "No changes to commit."
@@ -72,4 +63,4 @@ jobs:
           fi
 
           git commit -m "Update infos.json"
-          git push origin HEAD:${GITHUB_REF_NAME}
+          git push origin HEAD:main
