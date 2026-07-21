@@ -1,0 +1,109 @@
+name: Update MSF capabilities sources
+
+on:
+  pull_request:
+    paths:
+      - "scripts/update_msf_capabilities.py"
+      - "tests/test_update_msf_capabilities.py"
+      - ".github/workflows/update-msf-capabilities.yml"
+      - "data/msf-capabilities/bootstrap-sources.tar.gz"
+      - "MSF_CAPABILITIES_PIPELINE.md"
+
+  workflow_dispatch:
+    inputs:
+      game_version:
+        description: "Version MSF détectée, par exemple 10_3_0"
+        required: true
+        type: string
+      game_build:
+        description: "Numéro de build détecté, par exemple 1654625"
+        required: false
+        default: ""
+        type: string
+      database_base64:
+        description: "combat_data.db encodé en Base64 par l’extension"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: update-msf-capabilities-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Validate pipeline
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run regression tests
+        run: python -m unittest discover -s tests -p "test_update_msf_capabilities.py" -v
+
+  update:
+    name: Download official sources
+    if: github.event_name == 'workflow_dispatch'
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bootstrap the first verified source set
+        run: |
+          if [[ -f data/msf-capabilities/bootstrap-sources.tar.gz ]]; then
+            mkdir -p data/msf-capabilities/raw
+            tar -xzf data/msf-capabilities/bootstrap-sources.tar.gz \
+              -C data/msf-capabilities/raw
+          fi
+
+      - name: Validate catalog and download official JSON files
+        id: sources
+        env:
+          MSF_DATABASE_BASE64: ${{ inputs.database_base64 }}
+          MSF_GAME_VERSION: ${{ inputs.game_version }}
+          MSF_GAME_BUILD: ${{ inputs.game_build }}
+        run: |
+          python scripts/update_msf_capabilities.py \
+            --database-base64-env MSF_DATABASE_BASE64 \
+            --game-version "$MSF_GAME_VERSION" \
+            --game-build "$MSF_GAME_BUILD"
+
+      - name: Commit and push if changed
+        env:
+          MSF_GAME_VERSION: ${{ inputs.game_version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git rm --ignore-unmatch data/msf-capabilities/bootstrap-sources.tar.gz
+          git add data/msf-capabilities/raw data/msf-capabilities/source-manifest.json
+
+          if git diff --staged --quiet; then
+            echo "No MSF capabilities source changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update MSF capabilities sources (${MSF_GAME_VERSION})"
+          git pull --rebase origin main
+          git push origin HEAD:main

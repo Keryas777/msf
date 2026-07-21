@@ -2,7 +2,7 @@
 
 > Source de vérité technique du projet LoSP pour localiser, récupérer, valider et transformer les données officielles qui décrivent les capacités de Marvel Strike Force.
 
-**État au 21 juillet 2026 :** la source déclarative des capacités et la méthode permettant de retrouver automatiquement ses fichiers ont été identifiées et validées. Le premier prototype d’extension en lecture seule est créé et attend sa validation dans Chrome. Le Worker, la GitHub Action, le parseur et la page de filtres restent à construire.
+**État au 21 juillet 2026 :** la source déclarative des capacités et sa collecte locale sont validées. Le prototype Chrome a reconstruit avec succès la vraie base de 16 384 octets en quatre morceaux. Le pipeline GitHub des 11 sources est implémenté et validé localement ; son raccord au Worker, le parseur et la page de filtres restent à construire.
 
 ## 1. Objectif et périmètre
 
@@ -32,7 +32,7 @@ IndexedDB /idbfs
         └── file_size
 ```
 
-La base reconstruite contient la table `RemoteAssetClientEntry`, qui associe chaque ressource à son hash actif. La version du client est disponible séparément dans `buildUrl`. Ces deux éléments permettent de reconstruire l’URL CDN publique.
+La base reconstruite contient la table `RemoteAssetClientEntry`, qui associe chaque ressource à son hash actif. La version du client est disponible séparément dans `buildUrl`. Ces deux éléments permettent de construire l’URL CDN candidate d’un fichier publié avec cette version. Un fichier inchangé n’est cependant pas toujours recopié dans le dossier de la version courante ; le pipeline conserve donc les sources validées et les réutilise uniquement lorsque leur MD5 correspond toujours au catalogue actif.
 
 Il n’y a donc :
 
@@ -222,7 +222,7 @@ Build observé : `1654625`
 | `ai_selector.json` | `c535c94667f22ec008909e47386c02f2` | 77 entrées | Pondération et sélection des cibles par l’IA |
 | `battlefield_effects.json` | `2ab3984b81c2598bafe624d5c6b13631` | 13 entrées | Effets de champ de bataille et leurs actions/passifs |
 | `characters.json` | `028d99dcb9da89896a3a49b4385474de` | 499 personnages | Source principale : actions, effets, conditions, cibles, niveaux, traits et modes |
-| `combat_mods.json` | `bc14932baa42717af78859600ae4f9b8` | à revalider | Modificateurs injectés par modes, salles, saisons et événements |
+| `combat_mods.json` | `bc14932baa42717af78859600ae4f9b8` | `mods` vide, 64 octets | Modificateurs injectés par modes, salles, saisons et événements |
 | `constants.json` | `4442126880a5aa8699bccd638a55e7ee` | 3 entrées | Constantes de combat complémentaires |
 | `iso8skills.json` | `aaba1a3625807ef69b50b3dd858fd742` | 5 entrées | Logique des classes et capacités ISO-8 |
 | `missiontraits.json` | `bd944227ffe5a9fccbfccd52a6892cb8` | 21 groupes | Groupes de personnages imposés par certaines missions |
@@ -238,11 +238,11 @@ Build observé : `1654625`
 
 Puisqu’il n’y a que 11 fichiers, le pipeline doit tous les récupérer et les archiver comme un ensemble cohérent, même si la première interface n’en exploite qu’une partie.
 
-### Anomalie déjà détectée
+### Anomalie détectée puis résolue
 
 Lors de la vérification locale, 10 fichiers extraits correspondaient exactement aux hashes du catalogue. La copie disponible de `combat_mods.json` avait le MD5 `8fb315c3bfdb8174532f9eb37d4f0d14`, alors que la base active annonçait `bc14932baa42717af78859600ae4f9b8`.
 
-Cette copie doit être considérée comme ancienne ou issue d’un autre instantané. C’est précisément pourquoi le futur pipeline devra refuser tout fichier dont le MD5 ne correspond pas au catalogue actif.
+Cette copie était ancienne ou issue d’un autre instantané. Le fichier actif a ensuite été retrouvé et validé avec le MD5 attendu ; il contient actuellement `{"Data":{"mods":{}},"ForceImportVersion":2,"Name":"combat_mods"}`. Le pipeline refuse tout fichier dont le MD5 ne correspond pas au catalogue actif.
 
 ## 7. Construction des URL CDN
 
@@ -266,7 +266,21 @@ l’URL devient :
 https://cdn.m3.scopelypv.com/bulky_rules/combat_data/10_3_0/characters.028d99dcb9da89896a3a49b4385474de.json
 ```
 
-Le hash du catalogue est le MD5 exact des octets téléchargés. Pour `characters.json`, l’`ETag` observé correspondait également à ce MD5, mais le pipeline doit calculer lui-même le hash du contenu au lieu de dépendre uniquement de l’en-tête HTTP.
+Le hash du catalogue est le MD5 exact des octets téléchargés. Pour `characters.json`, l’`ETag` observé correspondait également à ce MD5, mais le pipeline calcule lui-même le hash du contenu au lieu de dépendre uniquement de l’en-tête HTTP.
+
+### Nuance importante sur le dossier de version
+
+L’URL ci-dessus fonctionne pour `characters.json`, publié dans `10_3_0`. Les tests ont cependant montré qu’un fichier inchangé peut ne pas être présent dans le dossier courant, tout en restant actif dans SQLite. Par exemple, le `combat_mods.json` actif était disponible sous `10_2_1`, mais pas sous `10_3_0`.
+
+La stratégie retenue est donc :
+
+1. si le fichier déjà versionné dans `data/msf-capabilities/raw/` possède le MD5 actif, le conserver sans nouvel appel réseau ;
+2. sinon, tenter le dossier de la version courante ;
+3. si le CDN répond explicitement que cette version ne contient pas le fichier, essayer une liste bornée de versions antérieures ;
+4. dans tous les cas, accepter le fichier uniquement si son MD5, son JSON et sa structure concordent ;
+5. enregistrer dans le manifeste la version et l’URL exactes ayant fourni le contenu, lorsqu’elles sont connues.
+
+Le premier ensemble validé est fourni dans une archive d’amorçage temporaire. La première exécution réussie la remplace par les 11 JSON bruts et la supprime du dépôt.
 
 ### Extraction de la version
 
@@ -276,7 +290,7 @@ La page du jeu exposait :
 buildUrl = "/10_3_0/1654625/Build";
 ```
 
-La partie nécessaire à l’URL CDN est `10_3_0`. Le numéro `1654625` est le numéro de build et ne figure pas dans l’URL `bulky_rules`.
+La première version à essayer dans l’URL CDN est `10_3_0`. Le numéro `1654625` est le numéro de build et ne figure pas dans l’URL `bulky_rules`.
 
 Une extraction robuste doit :
 
@@ -498,7 +512,7 @@ Décisions appliquées dans le premier prototype :
 - transfert fiable du binaire en Base64 ;
 - comportement lorsque MSF n’est pas chargé ou lorsque le schéma change.
 
-Ces choix doivent encore être validés sur le vrai client MSF dans Chrome. Le prototype ne contient aucun content script permanent, aucun appel réseau et aucun secret.
+Ces choix ont été validés sur le vrai client MSF dans Chrome : quatre morceaux ont produit une base SQLite intacte de 16 384 octets, contenant exactement les 11 lignes actives et passant `PRAGMA integrity_check`. Le prototype ne contient aucun content script permanent, aucun appel réseau et aucun secret.
 
 ### 11.2 Cloudflare Worker
 
@@ -508,7 +522,7 @@ Responsabilités :
 - authentification par le mot de passe d’upload ;
 - contrôle du type et de la taille du payload ;
 - validation minimale de la version et de l’en-tête SQLite ;
-- déclenchement d’un `repository_dispatch` ou `workflow_dispatch` sur `Keryas777/msf` ;
+- déclenchement de `workflow_dispatch` sur `Keryas777/msf` ;
 - aucun parsing métier des capacités.
 
 Noms de secrets proposés, à confirmer avant implémentation :
@@ -520,22 +534,28 @@ MSF_GITHUB_TOKEN
 
 Seuls les noms sont documentés. Les valeurs ne doivent jamais apparaître dans le dépôt, l’extension, les logs ou ce carnet.
 
+Le jeton finement limité du Worker doit viser uniquement `Keryas777/msf` avec la permission GitHub Actions en écriture nécessaire au déclenchement du workflow. Il n’a pas besoin d’écrire lui-même le contenu du dépôt : cette responsabilité appartient au `GITHUB_TOKEN` natif de l’Action.
+
 ### 11.3 GitHub Action
 
 Responsabilités :
 
-1. décoder la base reçue ;
-2. l’ouvrir avec SQLite en lecture seule ;
-3. lire les 11 lignes actives de `RemoteAssetClientEntry` ;
-4. vérifier une allowlist d’identifiants attendus ;
-5. reconstruire les URL CDN ;
-6. télécharger chaque JSON ;
-7. vérifier HTTP, JSON et MD5 ;
-8. générer un manifeste de provenance ;
-9. construire l’index compact destiné à la webapp ;
-10. ne créer un commit que si le résultat a changé.
+1. recevoir `game_version`, `game_build` et la base encodée en Base64 par `workflow_dispatch` ;
+2. décoder la base et l’ouvrir avec SQLite en lecture seule ;
+3. exécuter `PRAGMA integrity_check` ;
+4. lire exactement les 11 lignes actives de `RemoteAssetClientEntry` ;
+5. vérifier l’allowlist, le statut `local` et le format des hashes ;
+6. réutiliser uniquement un fichier brut dont le MD5 correspond encore ;
+7. télécharger les fichiers absents ou modifiés depuis le CDN officiel ;
+8. vérifier l’origine, la taille, le JSON, les clés structurelles, le MD5 et le SHA-256 ;
+9. générer un manifeste de provenance stable ;
+10. ne créer un commit que si le résultat a réellement changé.
+
+Le futur parseur construira ensuite l’index compact destiné à la webapp. Il reste volontairement hors de ce deuxième jalon.
 
 Le `GITHUB_TOKEN` natif de l’Action pourra écrire le commit avec `contents: write`. Le jeton conservé dans Cloudflare ne devra avoir que les permissions nécessaires pour déclencher le workflow sur ce seul dépôt.
+
+GitHub n’accepte le déclenchement `workflow_dispatch` que lorsque le fichier de workflow existe sur la branche par défaut. La première exécution complète aura donc lieu après fusion de la PR qui introduit ce pipeline.
 
 ## 12. Arborescence du prototype et cible du pipeline
 
@@ -550,12 +570,18 @@ tools/
 
 data/
 └── msf-capabilities/
+    ├── README.md
+    ├── bootstrap-sources.tar.gz  # supprimé après la première exécution réussie
     ├── raw/
     │   └── <les 11 fichiers officiels>
     └── source-manifest.json
 
 scripts/
-└── build-capabilities-index.mjs
+├── update_msf_capabilities.py
+└── build-capabilities-index.mjs  # étape suivante
+
+tests/
+└── test_update_msf_capabilities.py
 
 .github/workflows/
 └── update-msf-capabilities.yml
@@ -569,7 +595,7 @@ Principes :
 - les données brutes et les outils de construction restent hors de `/docs` ;
 - seul le JSON compact nécessaire au navigateur est publié par GitHub Pages ;
 - l’application finale reste 100 % statique, sans framework ni backend lourd ;
-- les chemins définitifs devront être confirmés à partir de l’architecture du dépôt avant création.
+- les chemins ci-dessus sont désormais confirmés dans l’architecture réelle du dépôt.
 
 ## 13. Format cible conseillé pour l’index web
 
@@ -616,6 +642,7 @@ Chaque effet normalisé devra conserver un `sourcePath`. Le format final doit pr
 - calcul MD5 des octets avant parsing ;
 - parsing JSON et contrôle des clés principales `Data`, `Name`, `ForceImportVersion` lorsque présentes ;
 - limite de taille côté extension, Worker et Action ;
+- nom local de la base ignoré au profit de sa validation interne : `combat_data.db`, `combat_data (1).db`, etc. sont acceptés ;
 - aucun commit lorsque les hashes et l’index sont inchangés ;
 - journal de provenance sans donnée de session.
 
@@ -643,6 +670,8 @@ Les captures réseau utilisées pendant la recherche peuvent contenir des inform
 8. **Faux positifs du parseur :** un proc dans une condition n’est pas nécessairement appliqué.
 9. **Fichier périmé :** `combat_mods.json` a déjà révélé un MD5 différent du catalogue actif.
 10. **Valeurs observées non contractuelles :** ne pas figer trois morceaux, 16 384 octets, 499 personnages ou 286 procs.
+11. **Dossier CDN courant incomplet :** un hash encore actif peut n’exister que dans un ancien dossier de version ; réutiliser le fichier validé ou conserver sa version source exacte.
+12. **Nom téléchargé variable :** Chrome peut produire `combat_data (1).db`, `(2)`, etc. ; ne jamais valider la base par son nom.
 
 ## 16. Ordre de réalisation
 
@@ -655,10 +684,11 @@ Les captures réseau utilisées pendant la recherche peuvent contenir des inform
 - [x] Vérifier que `characters.json` contient les actions, cibles et conditions.
 - [x] Vérifier que `procs.json` définit les effets internes.
 - [x] Créer le prototype d’extension en lecture seule, sans envoi GitHub.
-- [ ] Valider dans Chrome la version et l’export local de la base.
+- [x] Valider dans Chrome la version et l’export local de la base.
 - [ ] Ajouter la route Worker dédiée et ses secrets.
-- [ ] Ajouter la GitHub Action de téléchargement et validation.
-- [ ] Vérifier côté Action les 11 lignes actives du catalogue.
+- [x] Ajouter la GitHub Action de téléchargement et validation.
+- [x] Vérifier avec la vraie base les 11 lignes actives, les 11 MD5 et l’absence de modification au second passage.
+- [ ] Valider la première exécution du workflow sur GitHub après fusion.
 - [ ] Figer le schéma de l’index généré.
 - [ ] Écrire le parseur et ses tests de non-régression.
 - [ ] Construire la page mobile-first de filtres.
@@ -681,9 +711,7 @@ Après un clic dans l’extension :
 
 - Quelle table de localisation officielle fournit les libellés français exacts de tous les procs ?
 - Quel libellé utilisateur retenir pour `safety` et les variantes techniques ?
-- L’injection dans le monde `MAIN` retrouve-t-elle bien `/idbfs` dans la configuration réelle de Chrome et du frame MSF ?
 - Quel endpoint exact ajouter au Worker sans toucher au comportement des uploads roster/infos ?
-- Faut-il versionner les 11 JSON bruts à chaque mise à jour ou seulement un manifeste plus l’index compact ?
 - Quel schéma final donne le meilleur compromis entre précision, taille et vitesse sur mobile ?
 - Comment signaler dans l’interface les effets conditionnels très complexes sans transformer le filtre en simulateur ?
 
@@ -702,10 +730,17 @@ Ces points ne remettent pas en cause la localisation ni la récupération des do
 - jeton GitHub interdit dans l’extension ;
 - base SQLite + version transmises au pipeline, traitement lourd effectué côté GitHub ;
 - collecte des 11 fichiers retenue pour éviter de recommencer l’exploration lors d’un futur besoin ;
-- présent carnet placé à la racine du dépôt, hors de GitHub Pages.
+- présent carnet placé à la racine du dépôt, hors de GitHub Pages ;
 - extension conservée dans `tools/msf-capabilities-extension`, hors de `/docs` et donc hors de GitHub Pages ;
 - premier prototype limité à une lecture locale en monde `MAIN`, avec rapport et téléchargement de secours ;
-- aucune route Worker, aucun appel réseau et aucun secret dans ce premier jalon.
+- aucune route Worker, aucun appel réseau et aucun secret dans ce premier jalon ;
+- test Chrome réel réussi : quatre morceaux, 16 384 octets, intégrité SQLite `ok` et 11 ressources actives ;
+- noms `combat_data.db` et `combat_data (n).db` acceptés, car seule la base elle-même fait foi ;
+- pipeline des sources implémenté en Python standard, sans nouvelle dépendance du projet ;
+- `workflow_dispatch` retenu pour transporter la base Base64, la version et le build ;
+- 11 fichiers bruts versionnés hors de `/docs`, accompagnés d’un manifeste de provenance ;
+- amorce temporaire retenue pour le premier ensemble, car les fichiers inchangés ne sont pas tous recopiés dans le dossier CDN courant ;
+- quatre tests couvrent le nom numéroté, l’allowlist exacte, le refus d’un mauvais MD5, le repli de version et l’absence de réécriture inutile.
 
 ---
 
