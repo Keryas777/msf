@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Données de capacités MSF</title>
+    <link rel="stylesheet" href="popup.css">
+    <script src="popup.js" defer></script>
+  </head>
+  <body>
+    <header class="header">
+      <p class="eyebrow">Prototype en lecture seule</p>
+      <h1>Capacités MSF</h1>
+      <p class="intro">
+        Charge complètement le jeu, puis analyse son catalogue local.
+      </p>
+    </header>
+
+    <main>
+      <button id="analyzeButton" class="button button-primary" type="button">
+        Analyser les données
+      </button>
+
+      <div
+        id="status"
+        class="status"
+        data-kind="idle"
+        role="status"
+        aria-live="polite"
+      >
+        Prêt. Aucune donnée n’a encore été lue.
+      </div>
+
+      <section id="report" class="report" aria-labelledby="reportTitle" hidden>
+        <h2 id="reportTitle">Catalogue détecté</h2>
+
+        <dl>
+          <div>
+            <dt>Version du jeu</dt>
+            <dd id="gameVersion">—</dd>
+          </div>
+          <div>
+            <dt>Build</dt>
+            <dd id="gameBuild">—</dd>
+          </div>
+          <div>
+            <dt>Morceaux</dt>
+            <dd id="chunkCount">—</dd>
+          </div>
+          <div>
+            <dt>Taille reconstruite</dt>
+            <dd id="databaseSize">—</dd>
+          </div>
+          <div>
+            <dt>Base et magasin</dt>
+            <dd><code>/idbfs</code> · <code>FILE_DATA</code></dd>
+          </div>
+          <div>
+            <dt>Accès</dt>
+            <dd>Lecture seule</dd>
+          </div>
+        </dl>
+
+        <button
+          id="downloadButton"
+          class="button button-secondary"
+          type="button"
+        >
+          Télécharger combat_data.db
+        </button>
+      </section>
+
+      <p class="privacy">
+        Aucun cookie, identifiant de session ou fichier n’est envoyé sur Internet.
+      </p>
+    </main>
+  </body>
+</html>

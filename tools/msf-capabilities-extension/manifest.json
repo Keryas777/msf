@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "LoSP — Données de capacités MSF",
+  "description": "Extrait en lecture seule le catalogue local des données de combat de Marvel Strike Force.",
+  "version": "0.1.0",
+  "minimum_chrome_version": "95",
+  "permissions": [
+    "scripting",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "https://webplayable.m3.scopelypv.com/*"
+  ],
+  "action": {
+    "default_title": "Données de capacités MSF",
+    "default_popup": "popup.html"
+  }
+}

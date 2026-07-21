@@ -2,7 +2,7 @@
 
 > Source de vérité technique du projet LoSP pour localiser, récupérer, valider et transformer les données officielles qui décrivent les capacités de Marvel Strike Force.
 
-**État au 21 juillet 2026 :** la source déclarative des capacités et la méthode permettant de retrouver automatiquement ses fichiers ont été identifiées et validées. L’extension, le Worker, la GitHub Action, le parseur et la page de filtres restent à construire.
+**État au 21 juillet 2026 :** la source déclarative des capacités et la méthode permettant de retrouver automatiquement ses fichiers ont été identifiées et validées. Le premier prototype d’extension en lecture seule est créé et attend sa validation dans Chrome. Le Worker, la GitHub Action, le parseur et la page de filtres restent à construire.
 
 ## 1. Objectif et périmètre
 
@@ -490,12 +490,15 @@ Responsabilités :
 
 L’extension n’a pas besoin d’embarquer SQLite si elle transmet la petite base reconstruite à GitHub. Cela garde son code simple et limite les dépendances.
 
-Points à valider dans le prototype :
+Décisions appliquées dans le premier prototype :
 
-- exécution dans le bon sous-frame et, si nécessaire, dans le monde `MAIN` ;
-- permissions Manifest V3 minimales (`scripting`, `activeTab` et hôtes strictement nécessaires) ;
+- ciblage du bon sous-frame avec `chrome.webNavigation.getAllFrames()` ;
+- lecture injectée dans le monde `MAIN` avec `chrome.scripting.executeScript()` ;
+- permissions Manifest V3 limitées à `scripting`, `webNavigation` et à l’hôte `webplayable.m3.scopelypv.com` ;
 - transfert fiable du binaire en Base64 ;
 - comportement lorsque MSF n’est pas chargé ou lorsque le schéma change.
+
+Ces choix doivent encore être validés sur le vrai client MSF dans Chrome. Le prototype ne contient aucun content script permanent, aucun appel réseau et aucun secret.
 
 ### 11.2 Cloudflare Worker
 
@@ -534,13 +537,14 @@ Responsabilités :
 
 Le `GITHUB_TOKEN` natif de l’Action pourra écrire le commit avec `contents: write`. Le jeton conservé dans Cloudflare ne devra avoir que les permissions nécessaires pour déclencher le workflow sur ce seul dépôt.
 
-## 12. Arborescence proposée — non créée à ce jour
+## 12. Arborescence du prototype et cible du pipeline
 
 ```text
 tools/
 └── msf-capabilities-extension/
     ├── manifest.json
     ├── popup.html
+    ├── popup.css
     ├── popup.js
     └── README.md
 
@@ -650,10 +654,11 @@ Les captures réseau utilisées pendant la recherche peuvent contenir des inform
 - [x] Inventorier les 11 ressources actives.
 - [x] Vérifier que `characters.json` contient les actions, cibles et conditions.
 - [x] Vérifier que `procs.json` définit les effets internes.
-- [ ] Créer le prototype d’extension en lecture seule, sans envoi GitHub.
-- [ ] Vérifier dans l’extension les 11 lignes, la version et un export local.
+- [x] Créer le prototype d’extension en lecture seule, sans envoi GitHub.
+- [ ] Valider dans Chrome la version et l’export local de la base.
 - [ ] Ajouter la route Worker dédiée et ses secrets.
 - [ ] Ajouter la GitHub Action de téléchargement et validation.
+- [ ] Vérifier côté Action les 11 lignes actives du catalogue.
 - [ ] Figer le schéma de l’index généré.
 - [ ] Écrire le parseur et ses tests de non-régression.
 - [ ] Construire la page mobile-first de filtres.
@@ -676,7 +681,7 @@ Après un clic dans l’extension :
 
 - Quelle table de localisation officielle fournit les libellés français exacts de tous les procs ?
 - Quel libellé utilisateur retenir pour `safety` et les variantes techniques ?
-- L’extension peut-elle lire tout le nécessaire depuis un content script isolé, ou faudra-t-il injecter la lecture dans le monde `MAIN` ?
+- L’injection dans le monde `MAIN` retrouve-t-elle bien `/idbfs` dans la configuration réelle de Chrome et du frame MSF ?
 - Quel endpoint exact ajouter au Worker sans toucher au comportement des uploads roster/infos ?
 - Faut-il versionner les 11 JSON bruts à chaque mise à jour ou seulement un manifeste plus l’index compact ?
 - Quel schéma final donne le meilleur compromis entre précision, taille et vitesse sur mobile ?
@@ -698,6 +703,9 @@ Ces points ne remettent pas en cause la localisation ni la récupération des do
 - base SQLite + version transmises au pipeline, traitement lourd effectué côté GitHub ;
 - collecte des 11 fichiers retenue pour éviter de recommencer l’exploration lors d’un futur besoin ;
 - présent carnet placé à la racine du dépôt, hors de GitHub Pages.
+- extension conservée dans `tools/msf-capabilities-extension`, hors de `/docs` et donc hors de GitHub Pages ;
+- premier prototype limité à une lecture locale en monde `MAIN`, avec rapport et téléchargement de secours ;
+- aucune route Worker, aucun appel réseau et aucun secret dans ce premier jalon.
 
 ---
 
