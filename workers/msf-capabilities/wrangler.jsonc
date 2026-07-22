@@ -1,0 +1,12 @@
+{
+  "name": "losp-msf-capabilities",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-22",
+  "workers_dev": true,
+  "secrets": {
+    "required": [
+      "MSF_CAPABILITIES_UPLOAD_PASSWORD",
+      "MSF_GITHUB_TOKEN"
+    ]
+  }
+}

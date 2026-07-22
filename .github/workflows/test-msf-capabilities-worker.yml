@@ -1,0 +1,28 @@
+name: Test MSF capabilities Worker
+
+on:
+  pull_request:
+    paths:
+      - "workers/msf-capabilities/**"
+      - ".github/workflows/test-msf-capabilities-worker.yml"
+      - "MSF_CAPABILITIES_PIPELINE.md"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Validate Worker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run Worker tests
+        run: node --test workers/msf-capabilities/test/*.test.mjs

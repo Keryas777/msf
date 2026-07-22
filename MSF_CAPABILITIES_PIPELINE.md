@@ -2,7 +2,7 @@
 
 > Source de vérité technique du projet LoSP pour localiser, récupérer, valider et transformer les données officielles qui décrivent les capacités de Marvel Strike Force.
 
-**État au 21 juillet 2026 :** la source déclarative des capacités et sa collecte locale sont validées. Le prototype Chrome a reconstruit avec succès la vraie base de 16 384 octets en quatre morceaux. Le pipeline GitHub des 11 sources est implémenté et validé localement ; son raccord au Worker, le parseur et la page de filtres restent à construire.
+**État au 22 juillet 2026 :** la source déclarative, la collecte locale et la récupération GitHub des 11 fichiers sont validées. Le prototype Chrome a reconstruit avec succès la vraie base de 16 384 octets en quatre morceaux, puis la première exécution réelle du workflow a publié les 11 JSON et leur manifeste sur `main`. Le Worker Cloudflare dédié est implémenté et testé dans le dépôt ; son déploiement, le raccord de l’extension, le parseur et la page de filtres restent à effectuer.
 
 ## 1. Objectif et périmètre
 
@@ -518,14 +518,33 @@ Ces choix ont été validés sur le vrai client MSF dans Chrome : quatre morceau
 
 Responsabilités :
 
-- endpoint dédié, séparé des routes d’upload roster/infos ;
+- Worker dédié, séparé des routes d’upload roster/infos ;
+- diagnostic public `GET /health` sans information sensible ;
+- endpoint `POST /update` et prérequête CORS `OPTIONS /update` ;
 - authentification par le mot de passe d’upload ;
 - contrôle du type et de la taille du payload ;
 - validation minimale de la version et de l’en-tête SQLite ;
 - déclenchement de `workflow_dispatch` sur `Keryas777/msf` ;
 - aucun parsing métier des capacités.
 
-Noms de secrets proposés, à confirmer avant implémentation :
+Contrat JSON retenu entre l’extension et le Worker :
+
+```json
+{
+  "gameVersion": "10_3_0",
+  "gameBuild": "1654625",
+  "databaseBase64": "<combat_data.db encodé>"
+}
+```
+
+Le mot de passe est envoyé séparément dans l’en-tête `x-upload-password`. La
+liste des champs JSON est fermée : le Worker refuse tout champ supplémentaire
+afin qu’un cookie ou une donnée de session ne puisse pas être transmis par
+erreur. Le nom local du fichier n’est jamais envoyé ; un téléchargement nommé
+`combat_data (1).db` ou `combat_data (25).db` est donc traité comme
+`combat_data.db` dès lors que ses octets sont valides.
+
+Noms de secrets confirmés :
 
 ```text
 MSF_CAPABILITIES_UPLOAD_PASSWORD
@@ -534,7 +553,11 @@ MSF_GITHUB_TOKEN
 
 Seuls les noms sont documentés. Les valeurs ne doivent jamais apparaître dans le dépôt, l’extension, les logs ou ce carnet.
 
-Le jeton finement limité du Worker doit viser uniquement `Keryas777/msf` avec la permission GitHub Actions en écriture nécessaire au déclenchement du workflow. Il n’a pas besoin d’écrire lui-même le contenu du dépôt : cette responsabilité appartient au `GITHUB_TOKEN` natif de l’Action.
+Le jeton finement limité du Worker doit viser uniquement `Keryas777/msf` avec la permission de dépôt **Actions: Read and write**, nécessaire au déclenchement du workflow. Il n’a pas besoin d’écrire lui-même le contenu du dépôt : cette responsabilité appartient au `GITHUB_TOKEN` natif de l’Action.
+
+Le transport `workflow_dispatch` limite l’ensemble des entrées à 65 535 caractères. Le Worker limite donc actuellement SQLite à 45 Kio ; la vraie base de 16 384 octets produit un appel de 21 941 caractères. Si la base dépasse un jour cette limite, il faudra changer le transport plutôt que tronquer ou accepter silencieusement le fichier.
+
+Le code et ses tests se trouvent dans `workers/msf-capabilities/`. Le déploiement initial reste manuel afin que les deux valeurs secrètes soient créées directement par le propriétaire du compte Cloudflare, sans jamais être communiquées ni versionnées.
 
 ### 11.3 GitHub Action
 
@@ -568,10 +591,17 @@ tools/
     ├── popup.js
     └── README.md
 
+workers/
+└── msf-capabilities/
+    ├── src/index.js
+    ├── test/index.test.mjs
+    ├── wrangler.jsonc
+    ├── .gitignore
+    └── README.md
+
 data/
 └── msf-capabilities/
     ├── README.md
-    ├── bootstrap-sources.tar.gz  # supprimé après la première exécution réussie
     ├── raw/
     │   └── <les 11 fichiers officiels>
     └── source-manifest.json
@@ -584,7 +614,8 @@ tests/
 └── test_update_msf_capabilities.py
 
 .github/workflows/
-└── update-msf-capabilities.yml
+├── update-msf-capabilities.yml
+└── test-msf-capabilities-worker.yml
 
 docs/data/
 └── msf-capabilities.json
@@ -641,7 +672,7 @@ Chaque effet normalisé devra conserver un `sourcePath`. Le format final doit pr
 - téléchargement uniquement depuis l’hôte CDN attendu ;
 - calcul MD5 des octets avant parsing ;
 - parsing JSON et contrôle des clés principales `Data`, `Name`, `ForceImportVersion` lorsque présentes ;
-- limite de taille côté extension, Worker et Action ;
+- limite de taille côté extension, Worker et Action, avec prise en compte des 65 535 caractères de `workflow_dispatch` ;
 - nom local de la base ignoré au profit de sa validation interne : `combat_data.db`, `combat_data (1).db`, etc. sont acceptés ;
 - aucun commit lorsque les hashes et l’index sont inchangés ;
 - journal de provenance sans donnée de session.
@@ -685,10 +716,12 @@ Les captures réseau utilisées pendant la recherche peuvent contenir des inform
 - [x] Vérifier que `procs.json` définit les effets internes.
 - [x] Créer le prototype d’extension en lecture seule, sans envoi GitHub.
 - [x] Valider dans Chrome la version et l’export local de la base.
-- [ ] Ajouter la route Worker dédiée et ses secrets.
+- [x] Implémenter et tester la route Worker dédiée.
+- [ ] Déployer le Worker et créer ses deux secrets dans Cloudflare.
+- [ ] Raccorder l’extension à l’adresse définitive du Worker.
 - [x] Ajouter la GitHub Action de téléchargement et validation.
 - [x] Vérifier avec la vraie base les 11 lignes actives, les 11 MD5 et l’absence de modification au second passage.
-- [ ] Valider la première exécution du workflow sur GitHub après fusion.
+- [x] Valider la première exécution du workflow sur GitHub après fusion.
 - [ ] Figer le schéma de l’index généré.
 - [ ] Écrire le parseur et ses tests de non-régression.
 - [ ] Construire la page mobile-first de filtres.
@@ -711,7 +744,6 @@ Après un clic dans l’extension :
 
 - Quelle table de localisation officielle fournit les libellés français exacts de tous les procs ?
 - Quel libellé utilisateur retenir pour `safety` et les variantes techniques ?
-- Quel endpoint exact ajouter au Worker sans toucher au comportement des uploads roster/infos ?
 - Quel schéma final donne le meilleur compromis entre précision, taille et vitesse sur mobile ?
 - Comment signaler dans l’interface les effets conditionnels très complexes sans transformer le filtre en simulateur ?
 
@@ -741,6 +773,19 @@ Ces points ne remettent pas en cause la localisation ni la récupération des do
 - 11 fichiers bruts versionnés hors de `/docs`, accompagnés d’un manifeste de provenance ;
 - amorce temporaire retenue pour le premier ensemble, car les fichiers inchangés ne sont pas tous recopiés dans le dossier CDN courant ;
 - quatre tests couvrent le nom numéroté, l’allowlist exacte, le refus d’un mauvais MD5, le repli de version et l’absence de réécriture inutile.
+
+### 22 juillet 2026
+
+- première exécution réelle de `update-msf-capabilities.yml` réussie avec la base de 16 384 octets ;
+- 11 JSON officiels et `source-manifest.json` publiés sur `main`, puis amorce temporaire supprimée ;
+- Worker Cloudflare séparé retenu afin de ne jamais modifier le Worker roster/infos existant ;
+- routes retenues : `GET /health`, `OPTIONS /update` et `POST /update` ;
+- contrat fermé à `gameVersion`, `gameBuild` et `databaseBase64`, avec mot de passe dans `x-upload-password` ;
+- secrets confirmés : `MSF_CAPABILITIES_UPLOAD_PASSWORD` et `MSF_GITHUB_TOKEN` ;
+- jeton GitHub limité au dépôt `Keryas777/msf` et à la permission Actions en écriture ;
+- limite Worker fixée à 45 Kio pour respecter les 65 535 caractères de `workflow_dispatch` ;
+- vrai fichier `combat_data (1).db` accepté lors du test d’intégration : HTTP 202 simulé et seulement trois entrées transmises à GitHub ;
+- huit tests Worker couvrent santé, CORS, authentification, schéma fermé, version, SQLite, déclenchement GitHub, erreurs sans fuite et secrets absents.
 
 ---
 
