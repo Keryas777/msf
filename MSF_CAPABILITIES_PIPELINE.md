@@ -2,7 +2,7 @@
 
 > Source de vérité technique du projet LoSP pour localiser, récupérer, valider et transformer les données officielles qui décrivent les capacités de Marvel Strike Force.
 
-**État au 22 juillet 2026 :** la source déclarative, la collecte locale et la récupération GitHub des 11 fichiers sont validées. Le prototype Chrome a reconstruit avec succès la vraie base de 16 384 octets en quatre morceaux, puis la première exécution réelle du workflow a publié les 11 JSON et leur manifeste sur `main`. Le Worker Cloudflare dédié est implémenté et testé dans le dépôt ; son déploiement, le raccord de l’extension, le parseur et la page de filtres restent à effectuer.
+**État au 22 juillet 2026 :** la source déclarative, la collecte locale et la récupération GitHub des 11 fichiers sont validées. Le prototype Chrome a reconstruit avec succès la vraie base de 16 384 octets en quatre morceaux, puis la première exécution réelle du workflow a publié les 11 JSON et leur manifeste sur `main`. Le Worker Cloudflare dédié est implémenté et testé dans le dépôt, et son déploiement automatique par GitHub Actions est préparé ; sa mise en service, le raccord de l’extension, le parseur et la page de filtres restent à effectuer.
 
 ## 1. Objectif et périmètre
 
@@ -557,7 +557,7 @@ Le jeton finement limité du Worker doit viser uniquement `Keryas777/msf` avec l
 
 Le transport `workflow_dispatch` limite l’ensemble des entrées à 65 535 caractères. Le Worker limite donc actuellement SQLite à 45 Kio ; la vraie base de 16 384 octets produit un appel de 21 941 caractères. Si la base dépasse un jour cette limite, il faudra changer le transport plutôt que tronquer ou accepter silencieusement le fichier.
 
-Le code et ses tests se trouvent dans `workers/msf-capabilities/`. Le déploiement initial reste manuel afin que les deux valeurs secrètes soient créées directement par le propriétaire du compte Cloudflare, sans jamais être communiquées ni versionnées.
+Le code et ses tests se trouvent dans `workers/msf-capabilities/`. Le Worker et ses deux secrets de fonctionnement sont créés directement dans Cloudflare par le propriétaire du compte. Le code est ensuite déployé par `.github/workflows/deploy-msf-capabilities-worker.yml`, limité à ce sous-dossier. Les identifiants de déploiement `CLOUDFLARE_ACCOUNT_ID` et `CLOUDFLARE_API_TOKEN` restent dans les secrets GitHub et sont distincts des secrets utilisés à l’exécution par le Worker.
 
 ### 11.3 GitHub Action
 
@@ -717,6 +717,7 @@ Les captures réseau utilisées pendant la recherche peuvent contenir des inform
 - [x] Créer le prototype d’extension en lecture seule, sans envoi GitHub.
 - [x] Valider dans Chrome la version et l’export local de la base.
 - [x] Implémenter et tester la route Worker dédiée.
+- [x] Ajouter le déploiement automatique GitHub Actions limité au Worker.
 - [ ] Déployer le Worker et créer ses deux secrets dans Cloudflare.
 - [ ] Raccorder l’extension à l’adresse définitive du Worker.
 - [x] Ajouter la GitHub Action de téléchargement et validation.
@@ -785,7 +786,10 @@ Ces points ne remettent pas en cause la localisation ni la récupération des do
 - jeton GitHub limité au dépôt `Keryas777/msf` et à la permission Actions en écriture ;
 - limite Worker fixée à 45 Kio pour respecter les 65 535 caractères de `workflow_dispatch` ;
 - vrai fichier `combat_data (1).db` accepté lors du test d’intégration : HTTP 202 simulé et seulement trois entrées transmises à GitHub ;
-- huit tests Worker couvrent santé, CORS, authentification, schéma fermé, version, SQLite, déclenchement GitHub, erreurs sans fuite et secrets absents.
+- huit tests Worker couvrent santé, CORS, authentification, schéma fermé, version, SQLite, déclenchement GitHub, erreurs sans fuite et secrets absents ;
+- intégration Git native de Cloudflare écartée après confirmation que son sélecteur tronqué ne proposait pas la branche `main`, y compris en navigation privée ;
+- déploiement externe officiel retenu avec `cloudflare/wrangler-action`, limité à `workers/msf-capabilities/` et déclenché uniquement par les changements concernés sur `main` ;
+- séparation confirmée entre les secrets d’exécution Cloudflare (`MSF_CAPABILITIES_UPLOAD_PASSWORD`, `MSF_GITHUB_TOKEN`) et les secrets de déploiement GitHub (`CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`).
 
 ---
 
