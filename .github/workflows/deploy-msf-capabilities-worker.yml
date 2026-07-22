@@ -1,0 +1,53 @@
+name: Deploy MSF capabilities Worker
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "workers/msf-capabilities/**"
+      - ".github/workflows/deploy-msf-capabilities-worker.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-msf-capabilities-worker
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Test and deploy Worker
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+
+      - name: Run Worker tests
+        run: node --test workers/msf-capabilities/test/*.test.mjs
+
+      - name: Check deployment credentials
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::Cloudflare deployment secrets are not configured."
+            exit 1
+          fi
+
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: workers/msf-capabilities
+          command: deploy
