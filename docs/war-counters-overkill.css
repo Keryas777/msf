@@ -1,0 +1,46 @@
+/* Ajustements visuels spécifiques aux bandeaux Overkill de War Counters */
+
+body.page-war-counters{
+  --bar-green-overkill: #12643f;
+  --c-green-overkill: 18,100,63;
+}
+
+body.page-war-counters .counterCard.is-green.is-overkill,
+body.page-war-counters .counterCard.is-green.is-overkill-plus{
+  --label-size: 9px;
+  --label-spacing: .045em;
+}
+
+body.page-war-counters .counterCard.is-green.is-overkill{
+  --label: "SÛR   OVERKILL";
+}
+
+body.page-war-counters .counterCard.is-green.is-overkill-plus{
+  --label: "SÛR   OVERKILL +";
+}
+
+body.page-war-counters .counterCard.is-green.is-overkill::after,
+body.page-war-counters .counterCard.is-green.is-overkill-plus::after{
+  white-space: pre;
+}
+
+body.page-war-counters .counterCard.is-green.is-overkill .counterTop::before,
+body.page-war-counters .counterCard.is-green.is-overkill-plus .counterTop::before{
+  position: absolute;
+  z-index: 2;
+  left: calc(var(--band-w) / 2);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0;
+  pointer-events: none;
+}
+
+body.page-war-counters .counterCard.is-green.is-overkill .counterTop::before{
+  content: "⚠️";
+}
+
+body.page-war-counters .counterCard.is-green.is-overkill-plus .counterTop::before{
+  content: "💀";
+}
