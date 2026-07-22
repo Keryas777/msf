@@ -92,21 +92,33 @@ Ne jamais placer leurs valeurs dans `wrangler.jsonc`, `.dev.vars`, une capture,
 un commit ou une conversation. Le fichier `.gitignore` local exclut les
 fichiers de secrets de développement courants.
 
-## Déploiement initial depuis le tableau de bord
+## Déploiement depuis GitHub Actions
 
-1. Créer un nouveau Worker nommé `losp-msf-capabilities`.
-2. Copier le contenu de `src/index.js` dans son éditeur en mode module.
-3. Déployer le code.
-4. Dans **Settings → Variables and Secrets**, ajouter les deux secrets nommés
-   ci-dessus, puis déployer cette configuration.
-5. Ouvrir `https://<adresse-du-worker>/health` et vérifier la réponse JSON.
+Le Worker `losp-msf-capabilities` est créé une seule fois dans Cloudflare. Ses
+deux secrets de fonctionnement sont ensuite ajoutés dans **Settings → Variables
+and Secrets**, avant le premier déploiement du code.
 
-L’adresse définitive sera ensuite ajoutée à l’extension dans une PR séparée.
-Le Worker de roster/infos existant ne doit pas être modifié.
+Le dépôt GitHub contient séparément deux secrets réservés au déploiement :
 
-Le fichier `wrangler.jsonc` permet aussi un futur déploiement par Wrangler ou
-depuis GitHub, sans rendre cette automatisation obligatoire pour le premier
-test.
+```text
+CLOUDFLARE_ACCOUNT_ID
+CLOUDFLARE_API_TOKEN
+```
+
+Le jeton Cloudflare utilise le modèle **Edit Cloudflare Workers** et reste
+limité au compte qui héberge ce Worker. Il ne doit jamais être placé dans un
+fichier versionné, une capture ou une conversation.
+
+`.github/workflows/deploy-msf-capabilities-worker.yml` exécute les tests puis
+déploie uniquement `workers/msf-capabilities/` avec l’action officielle
+Cloudflare. Il se déclenche après une modification de ce dossier fusionnée sur
+`main`, ou manuellement avec `workflow_dispatch`. Les changements apportés au
+reste du dépôt ne redéploient pas le Worker.
+
+Les secrets de fonctionnement stockés dans Cloudflare ne sont pas supprimés
+par un déploiement Wrangler. L’adresse définitive sera ajoutée à l’extension
+dans une PR séparée. Le Worker de roster/infos existant ne doit pas être
+modifié.
 
 ## Tests
 
