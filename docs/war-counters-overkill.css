@@ -1,8 +1,8 @@
 /* Ajustements visuels spécifiques aux bandeaux Overkill de War Counters */
 
 body.page-war-counters{
-  --bar-green-overkill: #12643f;
-  --c-green-overkill: 18,100,63;
+  --bar-green-overkill: #0b4a2f;
+  --c-green-overkill: 11,74,47;
 }
 
 body.page-war-counters .counterCard.is-green.is-overkill,
@@ -31,6 +31,9 @@ body.page-war-counters .counterCard.is-green.is-overkill-plus .counterTop::befor
   left: calc(var(--band-w) / 2);
   top: 50%;
   transform: translate(-50%, -50%);
+  padding: 5px 0;
+  background: var(--band);
+  border-radius: 4px;
   font-size: 12px;
   line-height: 1;
   letter-spacing: 0;
