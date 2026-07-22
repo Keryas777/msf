@@ -113,6 +113,8 @@ function scoreHeaderRow(repairedHeaders) {
   if (set.has("min_ratio_hard")) score += 2;
   if (set.has("min_ratio_ok")) score += 2;
   if (set.has("min_ratio_safe")) score += 2;
+  if (set.has("min_ratio_overkill")) score += 1;
+  if (set.has("min_ratio_overkill_plus")) score += 1;
 
   if (set.has("notes")) score += 1;
 
@@ -239,6 +241,8 @@ async function main() {
         "min_ratio_hard",
         "min_ratio_ok",
         "min_ratio_safe",
+        "min_ratio_overkill",
+        "min_ratio_overkill_plus",
       ]
         .map((k) => `${k}=${sObj[k] ?? ""}`)
         .join(" | ")
@@ -272,6 +276,8 @@ async function main() {
       min_ratio_hard: parseRatio(pick(o, "min_ratio_hard")),
       min_ratio_ok: parseRatio(pick(o, "min_ratio_ok")),
       min_ratio_safe: parseRatio(pick(o, "min_ratio_safe")),
+      min_ratio_overkill: parseRatio(pick(o, "min_ratio_overkill")),
+      min_ratio_overkill_plus: parseRatio(pick(o, "min_ratio_overkill_plus")),
 
       notes: pick(o, "notes"),
     }));
