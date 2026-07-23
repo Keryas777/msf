@@ -1,9 +1,16 @@
-"use strict";
+import {
+  sendCapabilitiesUpdate,
+  WorkerUpdateError
+} from "./worker-client.mjs";
 
 const TARGET_HOST = "webplayable.m3.scopelypv.com";
+const PASSWORD_STORAGE_KEY = "msfCapabilitiesUploadPassword";
 
 const analyzeButton = document.querySelector("#analyzeButton");
 const downloadButton = document.querySelector("#downloadButton");
+const forgetPasswordButton = document.querySelector("#forgetPasswordButton");
+const passwordInput = document.querySelector("#uploadPassword");
+const rememberPasswordInput = document.querySelector("#rememberPassword");
 const status = document.querySelector("#status");
 const report = document.querySelector("#report");
 
@@ -21,11 +28,12 @@ const setStatus = (message, kind) => {
   status.dataset.kind = kind;
 };
 
-const setBusy = busy => {
+const setBusy = (busy, label = "Mettre à jour les capacités") => {
   analyzeButton.disabled = busy;
-  analyzeButton.textContent = busy
-    ? "Analyse en cours…"
-    : "Analyser les données";
+  passwordInput.disabled = busy;
+  rememberPasswordInput.disabled = busy;
+  forgetPasswordButton.disabled = busy;
+  analyzeButton.textContent = label;
 };
 
 const formatBytes = byteLength =>
@@ -60,6 +68,45 @@ const showReport = result => {
   report.hidden = false;
 };
 
+const loadSavedPassword = async () => {
+  const stored = await chrome.storage.local.get(PASSWORD_STORAGE_KEY);
+  const savedPassword = stored[PASSWORD_STORAGE_KEY];
+
+  if (typeof savedPassword !== "string" || savedPassword.length === 0) {
+    return;
+  }
+
+  passwordInput.value = savedPassword;
+  rememberPasswordInput.checked = true;
+  forgetPasswordButton.hidden = false;
+};
+
+const persistPassword = async password => {
+  if (rememberPasswordInput.checked) {
+    await chrome.storage.local.set({
+      [PASSWORD_STORAGE_KEY]: password
+    });
+    forgetPasswordButton.hidden = false;
+    return;
+  }
+
+  await chrome.storage.local.remove(PASSWORD_STORAGE_KEY);
+  forgetPasswordButton.hidden = true;
+  passwordInput.value = "";
+};
+
+const forgetSavedPassword = async () => {
+  await chrome.storage.local.remove(PASSWORD_STORAGE_KEY);
+  passwordInput.value = "";
+  rememberPasswordInput.checked = false;
+  forgetPasswordButton.hidden = true;
+  passwordInput.focus();
+  setStatus(
+    "Le mot de passe mémorisé a été effacé de ce profil Chrome.",
+    "success"
+  );
+};
+
 const getActiveTabId = async () => {
   const [tab] = await chrome.tabs.query({
     active: true,
@@ -89,7 +136,7 @@ async function extractCombatDatabase() {
   const DB_NAME = "/idbfs";
   const STORE_NAME = "FILE_DATA";
   const CHUNK_PATTERN = /\/Config\/combat_data\.db\/(\d+)$/i;
-  const MAX_DATABASE_BYTES = 5 * 1024 * 1024;
+  const MAX_DATABASE_BYTES = 45 * 1024;
 
   const describeError = error =>
     error instanceof Error ? error.message : String(error);
@@ -302,7 +349,7 @@ async function extractCombatDatabase() {
 
         if (totalSize > MAX_DATABASE_BYTES) {
           throw new Error(
-            "La base reconstruite dépasse la limite de sécurité de 5 Mo."
+            "La base reconstruite dépasse la limite actuelle de 45 Kio du pipeline."
           );
         }
 
@@ -354,9 +401,17 @@ async function extractCombatDatabase() {
   }
 }
 
-const analyze = async () => {
+const updateCapabilities = async () => {
+  const uploadPassword = passwordInput.value;
+
+  if (uploadPassword.length === 0) {
+    setStatus("Saisis d’abord le mot de passe d’upload.", "error");
+    passwordInput.focus();
+    return;
+  }
+
   clearReport();
-  setBusy(true);
+  setBusy(true, "Lecture de MSF…");
   setStatus("Recherche du frame Unity de MSF…", "working");
 
   try {
@@ -416,18 +471,49 @@ const analyze = async () => {
 
     showReport(result);
 
-    if (result.version) {
-      setStatus(
-        "Base SQLite reconstruite avec succès. Rien n’a été modifié.",
-        "success"
-      );
-    } else {
-      setStatus(
-        "Base SQLite reconstruite, mais la version du jeu n’a pas été détectée. Le téléchargement reste disponible pour le diagnostic.",
-        "warning"
+    if (!result.version) {
+      throw new Error(
+        "Base SQLite reconstruite, mais la version du jeu n’a pas été détectée. L’envoi est interrompu ; le téléchargement de secours reste disponible."
       );
     }
+
+    setBusy(true, "Envoi au Worker…");
+    setStatus(
+      "Base SQLite reconstruite. Envoi sécurisé vers le Worker LoSP…",
+      "working"
+    );
+
+    const workerResult = await sendCapabilitiesUpdate({
+      gameVersion: result.version,
+      gameBuild: result.build,
+      databaseBase64: result.databaseBase64,
+      uploadPassword
+    });
+
+    let passwordWasPersisted = true;
+
+    try {
+      await persistPassword(uploadPassword);
+    } catch {
+      passwordWasPersisted = false;
+    }
+
+    const versionLabel = workerResult.gameVersion
+      ? ` pour MSF ${workerResult.gameVersion.replaceAll("_", ".")}`
+      : "";
+
+    setStatus(
+      passwordWasPersisted
+        ? `Mise à jour envoyée${versionLabel}. GitHub vérifie maintenant les données officielles.`
+        : `Mise à jour envoyée${versionLabel}, mais Chrome n’a pas pu mémoriser le mot de passe.`,
+      passwordWasPersisted ? "success" : "warning"
+    );
   } catch (error) {
+    if (error instanceof WorkerUpdateError && error.status === 401) {
+      passwordInput.focus();
+      passwordInput.select();
+    }
+
     setStatus(
       error instanceof Error ? error.message : String(error),
       "error"
@@ -458,5 +544,42 @@ const downloadDatabase = () => {
   setStatus("combat_data.db a été téléchargé.", "success");
 };
 
-analyzeButton.addEventListener("click", analyze);
+const initialize = async () => {
+  if (typeof chrome.storage.local.setAccessLevel === "function") {
+    try {
+      await chrome.storage.local.setAccessLevel({
+        accessLevel: "TRUSTED_CONTEXTS"
+      });
+    } catch {
+      // Aucun content script n’est déclaré ; ce durcissement reste optionnel.
+    }
+  }
+
+  try {
+    await loadSavedPassword();
+    (passwordInput.value ? analyzeButton : passwordInput).focus();
+  } catch {
+    setStatus(
+      "Prêt, mais Chrome n’a pas pu relire le mot de passe mémorisé.",
+      "warning"
+    );
+  }
+};
+
+analyzeButton.addEventListener("click", updateCapabilities);
 downloadButton.addEventListener("click", downloadDatabase);
+passwordInput.addEventListener("keydown", event => {
+  if (event.key === "Enter" && !analyzeButton.disabled) {
+    updateCapabilities();
+  }
+});
+forgetPasswordButton.addEventListener("click", () => {
+  forgetSavedPassword().catch(() => {
+    setStatus(
+      "Chrome n’a pas pu effacer le mot de passe mémorisé.",
+      "error"
+    );
+  });
+});
+
+initialize();

@@ -93,7 +93,8 @@ MSF_GITHUB_TOKEN
 ```
 
 - `MSF_CAPABILITIES_UPLOAD_PASSWORD` peut contenir le mot de passe que
-  l’utilisateur saisira dans l’extension.
+  l’utilisateur saisit dans l’extension et peut choisir d’y mémoriser
+  localement.
 - `MSF_GITHUB_TOKEN` doit être un jeton GitHub finement limité au seul dépôt
   `Keryas777/msf`, avec la permission de dépôt **Actions: Read and write**.
 
@@ -110,8 +111,9 @@ fichiers de secrets de développement courants.
    ci-dessus, puis déployer cette configuration.
 5. Ouvrir `https://<adresse-du-worker>/health` et vérifier la réponse JSON.
 
-L’adresse définitive sera ensuite ajoutée à l’extension dans une PR séparée.
-Le Worker de roster/infos existant ne doit pas être modifié.
+L’adresse définitive est déclarée uniquement dans l’extension
+`tools/msf-capabilities-extension`. Le Worker de roster/infos existant ne doit
+pas être modifié.
 
 Le fichier `wrangler.jsonc` permet aussi un futur déploiement par Wrangler ou
 depuis GitHub, sans rendre cette automatisation obligatoire pour le premier

@@ -2,7 +2,7 @@
 
 > Source de vérité technique du projet LoSP pour localiser, récupérer, valider et transformer les données officielles qui décrivent les capacités de Marvel Strike Force.
 
-**État au 23 juillet 2026 :** la source déclarative, la collecte locale et la récupération GitHub des 11 fichiers sont validées. Le prototype Chrome a reconstruit avec succès la vraie base de 16 384 octets en quatre morceaux, puis la première exécution réelle du workflow a publié les 11 JSON et leur manifeste sur `main`. Le Worker Cloudflare dédié est déployé depuis `main` et son diagnostic `/health` est validé. Le refus rencontré entre `/update` et GitHub est désormais remonté de façon sécurisée afin d’en isoler la cause exacte ; le raccord de l’extension, le parseur et la page de filtres restent à effectuer.
+**État au 23 juillet 2026 :** la source déclarative, la collecte locale et la récupération GitHub des 11 fichiers sont validées. La vraie base de 16 384 octets en quatre morceaux a permis de publier les 11 JSON et leur manifeste sur `main`. Le Worker Cloudflare dédié est déployé depuis `main`, puis la chaîne `/update` → GitHub a été validée jusqu’à la fin de l’Action. L’extension Chrome 0.2.0 est raccordée à ce Worker avec un envoi en un clic et une mémorisation locale facultative du mot de passe ; le parseur et la page de filtres restent à réaliser.
 
 ## 1. Objectif et périmètre
 
@@ -504,15 +504,22 @@ Responsabilités :
 
 L’extension n’a pas besoin d’embarquer SQLite si elle transmet la petite base reconstruite à GitHub. Cela garde son code simple et limite les dépendances.
 
-Décisions appliquées dans le premier prototype :
+Décisions conservées et étendues dans la version raccordée :
 
 - ciblage du bon sous-frame avec `chrome.webNavigation.getAllFrames()` ;
 - lecture injectée dans le monde `MAIN` avec `chrome.scripting.executeScript()` ;
-- permissions Manifest V3 limitées à `scripting`, `webNavigation` et à l’hôte `webplayable.m3.scopelypv.com` ;
+- permissions Manifest V3 limitées à `scripting`, `webNavigation`, `storage`,
+  au frame MSF et au seul Worker LoSP ;
 - transfert fiable du binaire en Base64 ;
-- comportement lorsque MSF n’est pas chargé ou lorsque le schéma change.
+- limite locale de 45 Kio alignée sur le transport `workflow_dispatch` ;
+- un seul clic pour reconstruire la base puis appeler `POST /update` ;
+- requête sans cookies, sans donnée de session MSF et sans redirection ;
+- mémorisation facultative du mot de passe dans `chrome.storage.local`, jamais
+  dans la synchronisation Chrome, avec bouton d’effacement immédiat ;
+- comportement explicite lorsque MSF n’est pas chargé, lorsque le schéma change
+  ou lorsque le Worker refuse la demande.
 
-Ces choix ont été validés sur le vrai client MSF dans Chrome : quatre morceaux ont produit une base SQLite intacte de 16 384 octets, contenant exactement les 11 lignes actives et passant `PRAGMA integrity_check`. Le prototype ne contient aucun content script permanent, aucun appel réseau et aucun secret.
+Ces choix ont été validés sur le vrai client MSF dans Chrome : quatre morceaux ont produit une base SQLite intacte de 16 384 octets, contenant exactement les 11 lignes actives et passant `PRAGMA integrity_check`. L’extension ne contient aucun content script permanent, jeton GitHub, cookie ou identifiant de session MSF. Son seul secret utilisateur éventuel est le mot de passe d’upload saisi localement ; il n’est jamais embarqué dans le code.
 
 ### 11.2 Cloudflare Worker
 
@@ -594,6 +601,9 @@ tools/
     ├── popup.html
     ├── popup.css
     ├── popup.js
+    ├── worker-client.mjs
+    ├── test/
+    │   └── worker-client.test.mjs
     └── README.md
 
 workers/
@@ -723,7 +733,7 @@ Les captures réseau utilisées pendant la recherche peuvent contenir des inform
 - [x] Valider dans Chrome la version et l’export local de la base.
 - [x] Implémenter et tester la route Worker dédiée.
 - [x] Déployer le Worker et créer ses deux secrets dans Cloudflare.
-- [ ] Raccorder l’extension à l’adresse définitive du Worker.
+- [x] Raccorder l’extension à l’adresse définitive du Worker.
 - [x] Ajouter la GitHub Action de téléchargement et validation.
 - [x] Vérifier avec la vraie base les 11 lignes actives, les 11 MD5 et l’absence de modification au second passage.
 - [x] Valider la première exécution du workflow sur GitHub après fusion.
@@ -736,7 +746,7 @@ Les captures réseau utilisées pendant la recherche peuvent contenir des inform
 
 Après un clic dans l’extension :
 
-1. un rapport affiche la version détectée et exactement les entrées actives autorisées ;
+1. un rapport affiche la version, le build, le nombre de morceaux et la taille reconstruite ;
 2. l’Action télécharge les fichiers dont les hashes figurent dans cette base ;
 3. tout écart MD5 arrête le workflow sans remplacer les bonnes données ;
 4. si rien n’a changé, aucun commit n’est créé ;
@@ -800,7 +810,12 @@ Ces points ne remettent pas en cause la localisation ni la récupération des do
 - panne isolée au seul appel Worker → GitHub, indépendamment de la base SQLite, du workflow et des permissions du jeton ;
 - version Worker `0.1.1` préparée pour remonter le statut, le message et l’identifiant GitHub sans exposer le jeton ;
 - neuf tests Worker couvrent désormais aussi les diagnostics HTTP sécurisés, les erreurs réseau et la normalisation du jeton ;
-- le diagnostic réel a identifié `redirect: "error"` comme incompatible avec le runtime Cloudflare ; la version `0.1.2` utilise `redirect: "manual"` et vérifie toujours explicitement le statut HTTP renvoyé par GitHub.
+- le diagnostic réel a identifié `redirect: "error"` comme incompatible avec le runtime Cloudflare ; la version `0.1.2` utilise `redirect: "manual"` et vérifie toujours explicitement le statut HTTP renvoyé par GitHub ;
+- l’envoi réel Worker → GitHub a ensuite été accepté en HTTP 202 et l’exécution GitHub correspondante s’est terminée au vert sans nouveau commit, les 11 sources étant inchangées ;
+- extension Chrome `0.2.0` raccordée à l’URL définitive du Worker : lecture et envoi s’effectuent désormais après un seul clic ;
+- mot de passe d’upload mémorisable uniquement dans `chrome.storage.local`, avec accès restreint aux contextes internes lorsque Chrome le permet et bouton **Oublier** ;
+- requête d’extension limitée aux trois champs du contrat, avec cookies omis, référent supprimé et redirections refusées ;
+- huit tests d’extension couvrent le payload fermé, le build facultatif, les refus Worker, les erreurs réseau sans fuite, les permissions d’hôte, les limites locales et le raccord HTML/JavaScript.
 
 ---
 

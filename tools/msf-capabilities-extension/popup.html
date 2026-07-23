@@ -5,20 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Données de capacités MSF</title>
     <link rel="stylesheet" href="popup.css">
-    <script src="popup.js" defer></script>
+    <script src="popup.js" type="module"></script>
   </head>
   <body>
     <header class="header">
-      <p class="eyebrow">Prototype en lecture seule</p>
+      <p class="eyebrow">Mise à jour LoSP</p>
       <h1>Capacités MSF</h1>
       <p class="intro">
-        Charge complètement le jeu, puis analyse son catalogue local.
+        Charge complètement le jeu, puis lance la mise à jour.
       </p>
     </header>
 
     <main>
+      <section class="credentials" aria-labelledby="passwordLabel">
+        <label id="passwordLabel" for="uploadPassword">
+          Mot de passe d’upload
+        </label>
+        <input
+          id="uploadPassword"
+          type="password"
+          autocomplete="off"
+          spellcheck="false"
+          aria-describedby="passwordHelp"
+        >
+        <p id="passwordHelp" class="field-help">
+          Il peut rester mémorisé uniquement dans ce profil Chrome.
+        </p>
+        <div class="credential-actions">
+          <label class="remember">
+            <input id="rememberPassword" type="checkbox" checked>
+            <span>Mémoriser sur cet ordinateur</span>
+          </label>
+          <button
+            id="forgetPasswordButton"
+            class="button-link"
+            type="button"
+            hidden
+          >
+            Oublier
+          </button>
+        </div>
+      </section>
+
       <button id="analyzeButton" class="button button-primary" type="button">
-        Analyser les données
+        Mettre à jour les capacités
       </button>
 
       <div
@@ -28,11 +58,11 @@
         role="status"
         aria-live="polite"
       >
-        Prêt. Aucune donnée n’a encore été lue.
+        Prêt. Ouvre MSF et attends la fin de son chargement.
       </div>
 
       <section id="report" class="report" aria-labelledby="reportTitle" hidden>
-        <h2 id="reportTitle">Catalogue détecté</h2>
+        <h2 id="reportTitle">Données détectées</h2>
 
         <dl>
           <div>
@@ -66,12 +96,13 @@
           class="button button-secondary"
           type="button"
         >
-          Télécharger combat_data.db
+          Télécharger combat_data.db (secours)
         </button>
       </section>
 
       <p class="privacy">
-        Aucun cookie, identifiant de session ou fichier n’est envoyé sur Internet.
+        Seuls la version, le build et la petite base SQLite sont envoyés au
+        Worker LoSP. Aucun cookie ni identifiant de session MSF.
       </p>
     </main>
   </body>
