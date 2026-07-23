@@ -1,0 +1,28 @@
+name: Test MSF capabilities extension
+
+on:
+  pull_request:
+    paths:
+      - "tools/msf-capabilities-extension/**"
+      - ".github/workflows/test-msf-capabilities-extension.yml"
+      - "MSF_CAPABILITIES_PIPELINE.md"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Validate extension
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run extension tests
+        run: node --test tools/msf-capabilities-extension/test/*.test.mjs
