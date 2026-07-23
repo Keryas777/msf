@@ -1,7 +1,7 @@
 "use strict";
 
 const SERVICE_NAME = "losp-msf-capabilities";
-const SERVICE_VERSION = "0.1.1";
+const SERVICE_VERSION = "0.1.2";
 
 const UPDATE_PATH = "/update";
 const HEALTH_PATH = "/health";
@@ -233,7 +233,7 @@ const triggerGitHubWorkflow = async (payload, token, fetchImpl) => {
         "X-GitHub-Api-Version": "2022-11-28"
       },
       body: dispatchBody,
-      redirect: "error"
+      redirect: "manual"
     });
   } catch (cause) {
     const error = new Error("GITHUB_DISPATCH_FAILED");
