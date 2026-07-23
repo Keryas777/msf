@@ -2,7 +2,7 @@
 
 > Source de vérité technique du projet LoSP pour localiser, récupérer, valider et transformer les données officielles qui décrivent les capacités de Marvel Strike Force.
 
-**État au 22 juillet 2026 :** la source déclarative, la collecte locale et la récupération GitHub des 11 fichiers sont validées. Le prototype Chrome a reconstruit avec succès la vraie base de 16 384 octets en quatre morceaux, puis la première exécution réelle du workflow a publié les 11 JSON et leur manifeste sur `main`. Le Worker Cloudflare dédié est implémenté et testé dans le dépôt ; son déploiement, le raccord de l’extension, le parseur et la page de filtres restent à effectuer.
+**État au 23 juillet 2026 :** la source déclarative, la collecte locale et la récupération GitHub des 11 fichiers sont validées. Le prototype Chrome a reconstruit avec succès la vraie base de 16 384 octets en quatre morceaux, puis la première exécution réelle du workflow a publié les 11 JSON et leur manifeste sur `main`. Le Worker Cloudflare dédié est déployé depuis `main` et son diagnostic `/health` est validé. Le refus rencontré entre `/update` et GitHub est désormais remonté de façon sécurisée afin d’en isoler la cause exacte ; le raccord de l’extension, le parseur et la page de filtres restent à effectuer.
 
 ## 1. Objectif et périmètre
 
@@ -557,7 +557,12 @@ Le jeton finement limité du Worker doit viser uniquement `Keryas777/msf` avec l
 
 Le transport `workflow_dispatch` limite l’ensemble des entrées à 65 535 caractères. Le Worker limite donc actuellement SQLite à 45 Kio ; la vraie base de 16 384 octets produit un appel de 21 941 caractères. Si la base dépasse un jour cette limite, il faudra changer le transport plutôt que tronquer ou accepter silencieusement le fichier.
 
-Le code et ses tests se trouvent dans `workers/msf-capabilities/`. Le déploiement initial reste manuel afin que les deux valeurs secrètes soient créées directement par le propriétaire du compte Cloudflare, sans jamais être communiquées ni versionnées.
+Le code et ses tests se trouvent dans `workers/msf-capabilities/`. Le Worker est relié nativement à la branche `main` dans Cloudflare, avec `workers/msf-capabilities` comme dossier racine et `npx wrangler deploy` comme commande de déploiement. Les deux valeurs secrètes sont créées directement par le propriétaire du compte Cloudflare, sans jamais être communiquées ni versionnées.
+
+En cas de refus GitHub, le Worker renvoie uniquement le statut HTTP, le message
+d’erreur et l’identifiant de requête GitHub. Toute occurrence du jeton est
+supprimée avant la réponse, et les espaces accidentels autour du secret sont
+ignorés.
 
 ### 11.3 GitHub Action
 
@@ -717,7 +722,7 @@ Les captures réseau utilisées pendant la recherche peuvent contenir des inform
 - [x] Créer le prototype d’extension en lecture seule, sans envoi GitHub.
 - [x] Valider dans Chrome la version et l’export local de la base.
 - [x] Implémenter et tester la route Worker dédiée.
-- [ ] Déployer le Worker et créer ses deux secrets dans Cloudflare.
+- [x] Déployer le Worker et créer ses deux secrets dans Cloudflare.
 - [ ] Raccorder l’extension à l’adresse définitive du Worker.
 - [x] Ajouter la GitHub Action de téléchargement et validation.
 - [x] Vérifier avec la vraie base les 11 lignes actives, les 11 MD5 et l’absence de modification au second passage.
@@ -786,6 +791,15 @@ Ces points ne remettent pas en cause la localisation ni la récupération des do
 - limite Worker fixée à 45 Kio pour respecter les 65 535 caractères de `workflow_dispatch` ;
 - vrai fichier `combat_data (1).db` accepté lors du test d’intégration : HTTP 202 simulé et seulement trois entrées transmises à GitHub ;
 - huit tests Worker couvrent santé, CORS, authentification, schéma fermé, version, SQLite, déclenchement GitHub, erreurs sans fuite et secrets absents.
+
+### 23 juillet 2026
+
+- connexion Git native Cloudflare validée sur `main`, avec `workers/msf-capabilities` comme dossier racine ;
+- déploiement du Worker et création des deux secrets terminés ; `/health` a confirmé le service actif ;
+- déclenchement direct de `update-msf-capabilities.yml` avec le jeton finement limité accepté en HTTP 204, puis Action terminée au vert ;
+- panne isolée au seul appel Worker → GitHub, indépendamment de la base SQLite, du workflow et des permissions du jeton ;
+- version Worker `0.1.1` préparée pour remonter le statut, le message et l’identifiant GitHub sans exposer le jeton ;
+- neuf tests Worker couvrent désormais aussi les diagnostics HTTP sécurisés, les erreurs réseau et la normalisation du jeton.
 
 ---
 

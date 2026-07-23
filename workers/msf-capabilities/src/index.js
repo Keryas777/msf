@@ -1,7 +1,7 @@
 "use strict";
 
 const SERVICE_NAME = "losp-msf-capabilities";
-const SERVICE_VERSION = "0.1.0";
+const SERVICE_VERSION = "0.1.1";
 
 const UPDATE_PATH = "/update";
 const HEALTH_PATH = "/health";
@@ -45,16 +45,47 @@ const jsonResponse = (data, status = 200, headers = {}) =>
     }
   });
 
-const errorResponse = (status, code, message, headers = {}) =>
+const errorResponse = (status, code, message, headers = {}, details = {}) =>
   jsonResponse(
     {
       ok: false,
       error: code,
-      message
+      message,
+      ...details
     },
     status,
     headers
   );
+
+const sanitizeGitHubMessage = (message, token) => {
+  if (typeof message !== "string") return null;
+
+  let sanitized = message;
+
+  if (typeof token === "string" && token.length > 0) {
+    sanitized = sanitized.split(token).join("[REDACTED]");
+  }
+
+  sanitized = sanitized
+    .replace(
+      /\b(?:github_pat_[A-Za-z0-9_]+|gh[pousr]_[A-Za-z0-9]+)\b/g,
+      "[REDACTED]"
+    )
+    .replace(/[\u0000-\u001f\u007f]/g, " ")
+    .trim()
+    .slice(0, 500);
+
+  return sanitized || null;
+};
+
+const readGitHubErrorMessage = async (response, token) => {
+  try {
+    const body = await response.json();
+    return sanitizeGitHubMessage(body?.message, token);
+  } catch {
+    return null;
+  }
+};
 
 const secureEqual = async (provided, expected) => {
   const [providedHash, expectedHash] = await Promise.all([
@@ -189,23 +220,32 @@ const triggerGitHubWorkflow = async (payload, token, fetchImpl) => {
     throw new Error("GITHUB_PAYLOAD_TOO_LARGE");
   }
 
-  const response = await fetchImpl(GITHUB_DISPATCH_URL, {
-    method: "POST",
-    headers: {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-      "User-Agent": SERVICE_NAME,
-      "X-GitHub-Api-Version": "2022-11-28"
-    },
-    body: dispatchBody,
-    redirect: "error"
-  });
+  let response;
+
+  try {
+    response = await fetchImpl(GITHUB_DISPATCH_URL, {
+      method: "POST",
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        "User-Agent": SERVICE_NAME,
+        "X-GitHub-Api-Version": "2022-11-28"
+      },
+      body: dispatchBody,
+      redirect: "error"
+    });
+  } catch (cause) {
+    const error = new Error("GITHUB_DISPATCH_FAILED");
+    error.githubMessage = sanitizeGitHubMessage(cause?.message, token);
+    throw error;
+  }
 
   if (!response.ok) {
     const error = new Error("GITHUB_DISPATCH_FAILED");
     error.githubStatus = response.status;
     error.githubRequestId = response.headers.get("x-github-request-id");
+    error.githubMessage = await readGitHubErrorMessage(response, token);
     throw error;
   }
 
@@ -260,12 +300,13 @@ export const handleRequest = async (
 
   const uploadPassword = env?.MSF_CAPABILITIES_UPLOAD_PASSWORD;
   const githubToken = env?.MSF_GITHUB_TOKEN;
+  const normalizedGithubToken =
+    typeof githubToken === "string" ? githubToken.trim() : "";
 
   if (
     typeof uploadPassword !== "string" ||
     uploadPassword.length === 0 ||
-    typeof githubToken !== "string" ||
-    githubToken.length === 0
+    normalizedGithubToken.length === 0
   ) {
     return errorResponse(
       503,
@@ -365,7 +406,7 @@ export const handleRequest = async (
   try {
     githubResult = await triggerGitHubWorkflow(
       payload,
-      githubToken,
+      normalizedGithubToken,
       fetchImpl
     );
   } catch (error) {
@@ -383,7 +424,18 @@ export const handleRequest = async (
       "GitHub n’a pas accepté le déclenchement du pipeline.",
       error.githubRequestId
         ? { "X-GitHub-Request-Id": error.githubRequestId }
-        : {}
+        : {},
+      {
+        ...(Number.isInteger(error.githubStatus)
+          ? { githubStatus: error.githubStatus }
+          : {}),
+        ...(error.githubMessage
+          ? { githubMessage: error.githubMessage }
+          : {}),
+        ...(error.githubRequestId
+          ? { githubRequestId: error.githubRequestId }
+          : {})
+      }
     );
   }
 
