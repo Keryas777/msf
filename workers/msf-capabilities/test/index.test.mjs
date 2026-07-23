@@ -52,7 +52,7 @@ test("GET /health exposes no configuration or secret", async () => {
   assert.deepEqual(result.body, {
     ok: true,
     service: "losp-msf-capabilities",
-    version: "0.1.1"
+    version: "0.1.2"
   });
   assert.equal(response.headers.get("cache-control"), "no-store");
 });
@@ -146,6 +146,7 @@ test("POST /update dispatches only the three validated GitHub inputs", async () 
     "https://api.github.com/repos/Keryas777/msf/actions/workflows/update-msf-capabilities.yml/dispatches"
   );
   assert.equal(capturedOptions.method, "POST");
+  assert.equal(capturedOptions.redirect, "manual");
   assert.equal(capturedOptions.headers.Authorization, `Bearer ${TOKEN}`);
   assert.deepEqual(JSON.parse(capturedOptions.body), {
     ref: "main",

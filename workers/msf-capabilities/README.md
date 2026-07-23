@@ -23,7 +23,7 @@ Diagnostic public sans secret ni information de configuration :
 {
   "ok": true,
   "service": "losp-msf-capabilities",
-  "version": "0.1.1"
+  "version": "0.1.2"
 }
 ```
 
@@ -49,6 +49,10 @@ Corps strictement limité à trois champs :
 Une réponse HTTP `202` signifie que GitHub a accepté le déclenchement. Elle ne
 signifie pas encore que l’Action a terminé ; l’extension devra le préciser à
 l’utilisateur.
+
+L’appel sortant utilise le mode de redirection `manual`, compatible avec
+Cloudflare Workers, afin que tout éventuel statut de redirection soit traité
+comme une réponse HTTP et non comme une erreur d’exécution.
 
 Si GitHub refuse le déclenchement, la réponse `502` fournit uniquement son
 statut HTTP, son message d’erreur et son identifiant de requête. Le jeton est
