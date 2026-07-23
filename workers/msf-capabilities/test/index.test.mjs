@@ -52,7 +52,7 @@ test("GET /health exposes no configuration or secret", async () => {
   assert.deepEqual(result.body, {
     ok: true,
     service: "losp-msf-capabilities",
-    version: "0.1.0"
+    version: "0.1.1"
   });
   assert.equal(response.headers.get("cache-control"), "no-store");
 });
@@ -127,10 +127,9 @@ test("POST /update dispatches only the three validated GitHub inputs", async () 
     capturedUrl = url;
     capturedOptions = options;
 
-    return new Response(JSON.stringify({ workflow_run_id: 123 }), {
-      status: 200,
+    return new Response(null, {
+      status: 204,
       headers: {
-        "content-type": "application/json",
         "x-github-request-id": "request-123"
       }
     });
@@ -159,7 +158,7 @@ test("POST /update dispatches only the three validated GitHub inputs", async () 
   assert.doesNotMatch(capturedOptions.body, /test-upload-password/);
 });
 
-test("POST /update does not expose GitHub's error body or token", async () => {
+test("POST /update exposes safe GitHub diagnostics without leaking the token", async () => {
   const githubFetch = async () =>
     new Response(JSON.stringify({ message: `bad token ${TOKEN}` }), {
       status: 403,
@@ -171,8 +170,39 @@ test("POST /update does not expose GitHub's error body or token", async () => {
 
   assert.equal(result.status, 502);
   assert.equal(result.body.error, "GITHUB_DISPATCH_FAILED");
+  assert.equal(result.body.githubStatus, 403);
+  assert.equal(result.body.githubMessage, "bad token [REDACTED]");
+  assert.equal(result.body.githubRequestId, "request-error");
   assert.doesNotMatch(JSON.stringify(result.body), /test-github-token/);
   assert.equal(response.headers.get("x-github-request-id"), "request-error");
+});
+
+test("POST /update reports a safe fetch failure and trims the GitHub token", async () => {
+  let capturedAuthorization;
+
+  const githubFetch = async (url, options) => {
+    capturedAuthorization = options.headers.Authorization;
+    throw new Error(`network failure for ${TOKEN}`);
+  };
+
+  const response = await handleRequest(
+    updateRequest(),
+    {
+      ...ENV,
+      MSF_GITHUB_TOKEN: ` \n${TOKEN}\t`
+    },
+    githubFetch
+  );
+  const result = await responseJson(response);
+
+  assert.equal(capturedAuthorization, `Bearer ${TOKEN}`);
+  assert.equal(result.status, 502);
+  assert.equal(result.body.error, "GITHUB_DISPATCH_FAILED");
+  assert.equal(
+    result.body.githubMessage,
+    "network failure for [REDACTED]"
+  );
+  assert.doesNotMatch(JSON.stringify(result.body), /test-github-token/);
 });
 
 test("POST /update refuses an unconfigured Worker", async () => {

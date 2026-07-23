@@ -23,7 +23,7 @@ Diagnostic public sans secret ni information de configuration :
 {
   "ok": true,
   "service": "losp-msf-capabilities",
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
 ```
 
@@ -49,6 +49,11 @@ Corps strictement limité à trois champs :
 Une réponse HTTP `202` signifie que GitHub a accepté le déclenchement. Elle ne
 signifie pas encore que l’Action a terminé ; l’extension devra le préciser à
 l’utilisateur.
+
+Si GitHub refuse le déclenchement, la réponse `502` fournit uniquement son
+statut HTTP, son message d’erreur et son identifiant de requête. Le jeton est
+supprimé du message avant toute réponse, y compris lorsqu’une erreur réseau le
+reprendrait accidentellement.
 
 Le fichier n’a pas de nom pendant cet envoi. `combat_data.db`,
 `combat_data (1).db`, `(2)`, etc. ne peuvent donc pas être refusés à cause de
