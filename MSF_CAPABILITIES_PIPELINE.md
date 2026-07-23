@@ -799,7 +799,8 @@ Ces points ne remettent pas en cause la localisation ni la récupération des do
 - déclenchement direct de `update-msf-capabilities.yml` avec le jeton finement limité accepté en HTTP 204, puis Action terminée au vert ;
 - panne isolée au seul appel Worker → GitHub, indépendamment de la base SQLite, du workflow et des permissions du jeton ;
 - version Worker `0.1.1` préparée pour remonter le statut, le message et l’identifiant GitHub sans exposer le jeton ;
-- neuf tests Worker couvrent désormais aussi les diagnostics HTTP sécurisés, les erreurs réseau et la normalisation du jeton.
+- neuf tests Worker couvrent désormais aussi les diagnostics HTTP sécurisés, les erreurs réseau et la normalisation du jeton ;
+- le diagnostic réel a identifié `redirect: "error"` comme incompatible avec le runtime Cloudflare ; la version `0.1.2` utilise `redirect: "manual"` et vérifie toujours explicitement le statut HTTP renvoyé par GitHub.
 
 ---
 
