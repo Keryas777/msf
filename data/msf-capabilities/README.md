@@ -9,3 +9,16 @@ remplacé l’amorce temporaire par les 11 JSON versionnés dans `raw/` et a pro
 `source-manifest.json`. Les mises à jour suivantes réutilisent un fichier
 seulement si son MD5 correspond encore au catalogue actif ; sinon elles
 téléchargent et valident la nouvelle version depuis le CDN officiel.
+
+Le parseur structurel lit uniquement `raw/characters.json` et
+`raw/procs.json`, puis génère l’intermédiaire audité
+`parsed/mechanics.json` :
+
+```bash
+python -m scripts.msf_capabilities_parser.cli
+python -m scripts.msf_capabilities_parser.cli --check
+```
+
+Ne pas modifier manuellement `parsed/mechanics.json`. Les fichiers `raw/`
+restent la source de vérité ; toute mise à jour de l’intermédiaire doit passer
+par la commande du parseur. Cet artefact régénérable n’est pas versionné.
