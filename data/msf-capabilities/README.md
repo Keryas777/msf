@@ -12,13 +12,17 @@ téléchargent et valident la nouvelle version depuis le CDN officiel.
 
 Le parseur structurel lit uniquement `raw/characters.json` et
 `raw/procs.json`, puis génère l’intermédiaire audité
-`parsed/mechanics.json` :
+`parsed/mechanics.json`. Le contrat candidat du normaliseur consomme ensuite
+cet intermédiaire et génère `normalized/capabilities.json` :
 
 ```bash
 python -m scripts.msf_capabilities_parser.cli
 python -m scripts.msf_capabilities_parser.cli --check
+python -m scripts.msf_capabilities_normalizer.cli
+python -m scripts.msf_capabilities_normalizer.cli --check
 ```
 
-Ne pas modifier manuellement `parsed/mechanics.json`. Les fichiers `raw/`
-restent la source de vérité ; toute mise à jour de l’intermédiaire doit passer
-par la commande du parseur. Cet artefact régénérable n’est pas versionné.
+Ne modifier manuellement ni `parsed/mechanics.json`, ni
+`normalized/capabilities.json`. Les fichiers `raw/` restent la source de
+vérité ; toute mise à jour doit passer par les deux commandes de génération.
+Ces artefacts régénérables ne sont pas versionnés.

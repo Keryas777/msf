@@ -11,5 +11,13 @@ python -m scripts.msf_capabilities_parser.cli --check
 ```
 
 Les sources brutes restent la source de vérité. Cet intermédiaire est audité et
-volontairement exhaustif ; il n’est pas encore le fichier compact destiné à la
-WebApp et n’est pas versionné.
+volontairement exhaustif. Il est l’unique entrée du contrat candidat du
+normaliseur :
+
+```bash
+python -m scripts.msf_capabilities_normalizer.cli
+python -m scripts.msf_capabilities_normalizer.cli --check
+```
+
+Il n’est pas encore le fichier compact destiné à la WebApp et n’est pas
+versionné.
