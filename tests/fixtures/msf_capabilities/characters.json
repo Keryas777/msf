@@ -1,0 +1,226 @@
+{
+  "Name": "characters",
+  "ForceImportVersion": 2,
+  "Data": {
+    "Zeta": {
+      "traits": [
+        "Hero"
+      ],
+      "basic": {
+        "power_mul": 1.25,
+        "actions": [
+          {
+            "action": "heal",
+            "heal_pct": 10
+          }
+        ]
+      }
+    },
+    "Apocalypse": {
+      "traits": [
+        "Mythic",
+        "Villain"
+      ],
+      "global_stats": [
+        {
+          "stat": "Health",
+          "value": [
+            100,
+            200
+          ]
+        }
+      ],
+      "passive_stats": [
+        {
+          "enabled": "true"
+        }
+      ],
+      "basic": {
+        "power_mul": 2,
+        "actions": [
+          {
+            "action": "proc",
+            "action_pct": [
+              50,
+              100
+            ],
+            "procs": [
+              {
+                "proc": "DefenseDown",
+                "use_count": [
+                  1,
+                  2
+                ]
+              }
+            ],
+            "target": {},
+            "only_if": {
+              "mode": "AVA"
+            },
+            "visualid": "basic_proc"
+          },
+          {
+            "stat_modifier": [
+              {
+                "stat": "Damage",
+                "mul": 1.5
+              }
+            ],
+            "target": {
+              "relation": "enemy"
+            },
+            "assist": "true"
+          },
+          {
+            "action_cond": "if_arbitrary_action_ran",
+            "arbitrary_action_idx": 0,
+            "only_if": {
+              "combat_side": "defense"
+            },
+            "target": {
+              "relation": "ally"
+            },
+            "visualID": "novisuals"
+          }
+        ],
+        "alternatives": [
+          {
+            "need_ally": [
+              "Horseman"
+            ],
+            "actions": [
+              {
+                "action": "proc_duration",
+                "procs": "DefenseDown",
+                "delta": [
+                  1,
+                  2
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "special": {
+        "cost": [
+          4,
+          3
+        ],
+        "start_energy": 2,
+        "actions": []
+      },
+      "ultimate": {
+        "cost": 7,
+        "start_energy": [
+          0,
+          1
+        ],
+        "actions": [
+          {
+            "action": "proc",
+            "procs": "DefenseDown",
+            "target": null
+          }
+        ]
+      },
+      "passive": [
+        {
+          "exec": "on_turn",
+          "exec_for": "owner",
+          "only_if": {
+            "owner": {
+              "health_pct": {
+                "below": 50
+              }
+            }
+          },
+          "actions": [
+            {
+              "action": "proc",
+              "procs": "DefenseUp"
+            },
+            {
+              "stat_modifier": [
+                {
+                  "stat": "Speed",
+                  "add": 5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "exec": "on_spawn",
+          "exec_on_stun": "false",
+          "actions": [
+            {
+              "action": "barrier",
+              "action_pct": 25
+            }
+          ]
+        }
+      ],
+      "basic_empower": {
+        "power_mul": [
+          2,
+          3
+        ],
+        "actions": [
+          {
+            "action": "empower",
+            "target": {
+              "relation": "self"
+            }
+          }
+        ]
+      },
+      "special_empower": {},
+      "passive_empower": [
+        {
+          "exec": "on_turn",
+          "actions": [
+            {
+              "action": "proc",
+              "procs": "Empower"
+            }
+          ]
+        }
+      ],
+      "safety": {
+        "actions": [
+          {
+            "action": "proc",
+            "procs": "DefenseUp"
+          }
+        ]
+      },
+      "passive_visuals": [
+        {
+          "exec": "on_turn",
+          "actions": [
+            {
+              "action": "empty_result",
+              "visualid": "passive_visual"
+            }
+          ]
+        }
+      ]
+    },
+    "Alpha": {
+      "traits": [
+        "Minion"
+      ],
+      "basic": {
+        "actions": [
+          {
+            "action": "attack",
+            "power_mul": [
+              1,
+              2
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@
 
 > Source de vérité technique du projet LoSP pour localiser, récupérer, valider et transformer les données officielles qui décrivent les capacités de Marvel Strike Force.
 
-**État au 23 juillet 2026 :** la source déclarative, la collecte locale et la récupération GitHub des 11 fichiers sont validées. La vraie base de 16 384 octets en quatre morceaux a permis de publier les 11 JSON et leur manifeste sur `main`. Le Worker Cloudflare dédié est déployé depuis `main`, puis la chaîne `/update` → GitHub a été validée jusqu’à la fin de l’Action. L’extension Chrome 0.2.0 est raccordée à ce Worker avec un envoi en un clic et une mémorisation locale facultative du mot de passe ; le parseur et la page de filtres restent à réaliser.
+**État au 25 juillet 2026 :** la source déclarative, la collecte locale et la récupération GitHub des 11 fichiers sont validées. La vraie base de 16 384 octets en quatre morceaux a permis de publier les 11 JSON et leur manifeste sur `main`. Le Worker Cloudflare dédié est déployé depuis `main`, puis la chaîne `/update` → GitHub a été validée jusqu’à la fin de l’Action. L’extension Chrome 0.2.0 est raccordée à ce Worker avec un envoi en un clic et une mémorisation locale facultative du mot de passe. Le parseur structurel v1 de `characters.json` et `procs.json` est maintenant réalisé ; le normaliseur, l’indexeur web et la page de filtres restent à construire.
 
 ## 1. Objectif et périmètre
 
@@ -345,7 +345,17 @@ Tous les personnages n’ont pas toutes les sections. Dans l’instantané étud
 - `passive` : 442 ;
 - `safety` : 477.
 
-`safety` ressemble aux données d’assist/counter et doit être conservé. Son libellé exact dans l’interface sera confirmé pendant le développement du parseur.
+La cartographie structurelle du parseur v1 confirme que `safety` est la
+variante technique associée à `basic` pour les informations Assist/Counter :
+les 477 personnages possédant `safety` possèdent aussi `basic`, et les six
+`safety_empower` correspondent aux six `basic_empower`. Ces variantes restent
+des conteneurs techniques distincts et ne sont pas des capacités joueur.
+
+`counter` et `counter_empower` n’existent que pour Gamora. Son `counter` est
+strictement identique à `safety`; `counter_empower` ne diffère de
+`safety_empower` que par le `visualid` de sa première action. Le parser les
+conserve néanmoins séparément afin de ne pas supprimer une route technique
+explicite des données source.
 
 Les capacités peuvent aussi contenir des `alternatives`, des variantes `*_empower` et des actions imbriquées. Le parcours doit donc être récursif et ne pas se limiter à `ability.actions` au premier niveau.
 
@@ -586,7 +596,10 @@ Responsabilités :
 9. générer un manifeste de provenance stable ;
 10. ne créer un commit que si le résultat a réellement changé.
 
-Le futur parseur construira ensuite l’index compact destiné à la webapp. Il reste volontairement hors de ce deuxième jalon.
+Le parseur structurel construit maintenant un intermédiaire audité hors de
+`docs/`. Le futur normaliseur et l’indexeur construiront ensuite l’index compact
+destiné à la webapp. Ils restent volontairement séparés de la récupération des
+sources.
 
 Le `GITHUB_TOKEN` natif de l’Action pourra écrire le commit avec `contents: write`. Le jeton conservé dans Cloudflare ne devra avoir que les permissions nécessaires pour déclencher le workflow sur ce seul dépôt.
 
@@ -623,10 +636,28 @@ data/
 
 scripts/
 ├── update_msf_capabilities.py
-└── build-capabilities-index.mjs  # étape suivante
+├── msf_capabilities_parser/
+│   ├── actions/
+│   ├── sources/
+│   ├── audit.py
+│   ├── cli.py
+│   ├── diagnostics.py
+│   ├── ids.py
+│   ├── json_pointer.py
+│   └── parser.py
+└── build-capabilities-index.mjs  # futur indexeur web
 
 tests/
+├── fixtures/msf_capabilities/
+├── test_msf_capabilities_parser.py
 └── test_update_msf_capabilities.py
+
+data/msf-capabilities/
+├── raw/
+├── parsed/
+│   ├── README.md
+│   └── mechanics.json
+└── source-manifest.json
 
 .github/workflows/
 ├── update-msf-capabilities.yml
@@ -737,8 +768,9 @@ Les captures réseau utilisées pendant la recherche peuvent contenir des inform
 - [x] Ajouter la GitHub Action de téléchargement et validation.
 - [x] Vérifier avec la vraie base les 11 lignes actives, les 11 MD5 et l’absence de modification au second passage.
 - [x] Valider la première exécution du workflow sur GitHub après fusion.
-- [ ] Figer le schéma de l’index généré.
-- [ ] Écrire le parseur et ses tests de non-régression.
+- [x] Figer le schéma de l’intermédiaire structurel v1.
+- [x] Écrire le parseur structurel de `characters.json` et `procs.json` et ses tests.
+- [ ] Écrire le normaliseur et l’indexeur web.
 - [ ] Construire la page mobile-first de filtres.
 - [ ] Vérifier iOS Safari, Android Chrome, PWA et navigateur intégré Discord pour la page finale.
 
@@ -820,3 +852,129 @@ Ces points ne remettent pas en cause la localisation ni la récupération des do
 ---
 
 Lorsqu’une découverte ou une décision modifie ce pipeline, mettre à jour ce fichier dans le même commit que le code concerné.
+
+## 20. Parseur structurel v1
+
+### 20.1 Rôle et périmètre
+
+Le parseur v1 lit exclusivement :
+
+```text
+data/msf-capabilities/raw/characters.json
+data/msf-capabilities/raw/procs.json
+```
+
+Il produit :
+
+```text
+data/msf-capabilities/parsed/mechanics.json
+```
+
+Ce fichier est un intermédiaire mécanique audité. Il reste hors de `docs/` et
+n’est pas destiné à être chargé par le navigateur. Les fichiers `raw/` restent
+la source de vérité et ne sont jamais réécrits par le parseur.
+
+Les responsabilités sont volontairement séparées :
+
+- le **parseur** extrait les personnages, conteneurs, actions, procs, contextes
+  et conditions sans leur attribuer une signification joueur ;
+- le futur **normaliseur** traduira les primitives techniques en opérations
+  contrôlées sans perdre la référence au `raw` ;
+- le futur **indexeur** construira un JSON compact optimisé pour les recherches
+  de la WebApp.
+
+Les autres sources de `raw/`, y compris
+`msf-character-abilities-fr.json`, ne sont pas lues dans cette version.
+
+### 20.2 Commandes
+
+Depuis la racine du dépôt :
+
+```bash
+python -m scripts.msf_capabilities_parser.cli
+python -m scripts.msf_capabilities_parser.cli --check
+python -m unittest discover -s tests -p "test_msf_capabilities_parser.py" -v
+```
+
+La première commande génère le fichier. Le mode `--check` reconstruit tout en
+mémoire, ne modifie aucun fichier et échoue si l’artefact local est absent ou
+obsolète. Cet artefact régénérable n’est pas versionné. La CLI accepte aussi
+`--characters`, `--procs` et `--output` pour les tests sur fixtures.
+
+Le workflow de récupération n’exécute pas encore cette génération. Ce
+raccordement devra être décidé séparément après validation de l’intermédiaire.
+
+### 20.3 Schéma de sortie
+
+La racine de `mechanics.json` est :
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "sources": [],
+  "characters": [],
+  "containers": [],
+  "actions": [],
+  "effects": [],
+  "diagnostics": [],
+  "audit": {}
+}
+```
+
+Les personnages sont triés par `characterId`, les huit capacités reconnues
+suivent l’ordre fonctionnel documenté, les déclencheurs passifs et actions
+gardent leur index source, les effets sont triés par `procId`, et les
+diagnostics suivent l’ordre `error`, `warning`, `info`.
+
+Chaque personnage, conteneur, action et effet conserve :
+
+- un identifiant dérivé par SHA-256 d’une chaîne canonique ;
+- un JSON Pointer RFC 6901 exact vers la source ;
+- le nœud `raw` complet, sans mutation ;
+- une classification des propriétés extraites, conservées seulement dans
+  `raw`, ignorées ou non reconnues.
+
+Les alternatives d’une capacité deviennent des conteneurs enfants. `safety`,
+`safety_empower`, `counter`, `counter_empower` et `passive_visuals` restent
+dans des conteneurs `technical-review` séparés. Ils ne sont jamais fusionnés
+avec une capacité joueur.
+
+### 20.4 Déterminisme et audit
+
+Le fichier ne contient ni heure d’exécution, ni UUID, ni donnée réseau. Les
+checksums de `sources` sont calculés sur les octets bruts exacts. À entrées
+identiques, la sérialisation UTF-8 indentée produit les mêmes octets et se
+termine par un saut de ligne.
+
+L’audit contrôle notamment :
+
+- les compteurs d’entrée et de sortie ;
+- les identifiants dupliqués ;
+- les conteneurs et actions orphelins ;
+- la résolution et l’unicité attendue des JSON Pointers ;
+- la correspondance exacte entre chaque `raw` et son pointeur ;
+- l’ordre et le rattachement des `actionIds` ;
+- la couverture de tous les tableaux `actions[]` ;
+- les références de proc absentes ;
+- l’absence de mutation des documents chargés.
+
+Une erreur d’intégrité bloque l’écriture. Une structure action inconnue reste
+une action complète via `generic_unclassified` et produit un diagnostic stable.
+Une référence de proc absente reste non bloquante.
+
+### 20.5 Limites volontaires
+
+Cette version ne :
+
+- traduit aucun identifiant ;
+- ne décide pas si un effet est visible ou utile au joueur ;
+- ne transforme pas `proc`, `heal`, `barrier`, etc. en opérations gameplay ;
+- ne résout pas le graphe `action_cond` / `arbitrary_action_idx` ;
+- n’éclate pas une action source contenant plusieurs procs ;
+- ne normalise ni booléens textuels, ni scalaires/tableaux ;
+- ne parse aucune autre source technique ou description française ;
+- ne produit pas encore l’index compact consommé par GitHub Pages.
+
+La conservation volontaire du `raw` complet à plusieurs niveaux rend
+l’intermédiaire volumineux. La réduction de taille appartiendra à l’indexeur,
+pas au parseur structurel auditable.

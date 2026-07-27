@@ -1,0 +1,44 @@
+{
+  "Name": "procs",
+  "ForceImportVersion": 2,
+  "Data": {
+    "MinorDefenseUp": {
+      "category": "none",
+      "expiration_type": "end_of_turn",
+      "state": "minor"
+    },
+    "DefenseUp": {
+      "category": "buff",
+      "expiration_type": "end_of_turn",
+      "opposite": "DefenseDown",
+      "weak": "MinorDefenseUp",
+      "strong": "MajorDefenseUp",
+      "stat_modifier": [
+        {
+          "stat": "Armor",
+          "mul": 1.5
+        }
+      ]
+    },
+    "DefenseDown": {
+      "category": "debuff",
+      "expiration_type": "end_of_turn",
+      "opposite": "DefenseUp"
+    },
+    "MajorDefenseUp": {
+      "category": "none",
+      "expiration_type": "end_of_turn",
+      "state": "major"
+    },
+    "Empower": {
+      "category": "none",
+      "expiration_type": "manual",
+      "type": "marker"
+    },
+    "TechnicalMarker": {
+      "category": "none",
+      "expiration_type": "manual",
+      "weak": "MissingProc"
+    }
+  }
+}
