@@ -2,7 +2,7 @@
 
 > Source de vérité technique du projet LoSP pour localiser, récupérer, valider et transformer les données officielles qui décrivent les capacités de Marvel Strike Force.
 
-**État au 25 juillet 2026 :** la source déclarative, la collecte locale et la récupération GitHub des 11 fichiers sont validées. La vraie base de 16 384 octets en quatre morceaux a permis de publier les 11 JSON et leur manifeste sur `main`. Le Worker Cloudflare dédié est déployé depuis `main`, puis la chaîne `/update` → GitHub a été validée jusqu’à la fin de l’Action. L’extension Chrome 0.2.0 est raccordée à ce Worker avec un envoi en un clic et une mémorisation locale facultative du mot de passe. Le parseur structurel v1 de `characters.json` et `procs.json` est maintenant réalisé ; le normaliseur, l’indexeur web et la page de filtres restent à construire.
+**État au 27 juillet 2026 :** la source déclarative, la collecte locale et la récupération GitHub des 11 fichiers sont validées. La vraie base de 16 384 octets en quatre morceaux a permis de publier les 11 JSON et leur manifeste sur `main`. Le Worker Cloudflare dédié est déployé depuis `main`, puis la chaîne `/update` → GitHub a été validée jusqu’à la fin de l’Action. L’extension Chrome 0.2.0 est raccordée à ce Worker avec un envoi en un clic et une mémorisation locale facultative du mot de passe. Le parseur structurel v1 de `characters.json` et `procs.json` est réalisé. Le contrat du normaliseur est implémenté mais reste en revue avant toute validation comme v1 ; l’indexeur web n’est pas commencé.
 
 ## 1. Objectif et périmètre
 
@@ -597,9 +597,9 @@ Responsabilités :
 10. ne créer un commit que si le résultat a réellement changé.
 
 Le parseur structurel construit maintenant un intermédiaire audité hors de
-`docs/`. Le futur normaliseur et l’indexeur construiront ensuite l’index compact
-destiné à la webapp. Ils restent volontairement séparés de la récupération des
-sources.
+`docs/`, puis le normaliseur en dérive des opérations d’effets contrôlées. Le
+futur indexeur construira l’index compact destiné à la webapp. Ces étapes
+restent volontairement séparées de la récupération des sources.
 
 Le `GITHUB_TOKEN` natif de l’Action pourra écrire le commit avec `contents: write`. Le jeton conservé dans Cloudflare ne devra avoir que les permissions nécessaires pour déclencher le workflow sur ce seul dépôt.
 
@@ -632,6 +632,12 @@ data/
     ├── README.md
     ├── raw/
     │   └── <les 11 fichiers officiels>
+    ├── parsed/
+    │   ├── README.md
+    │   └── mechanics.json
+    ├── normalized/
+    │   ├── README.md
+    │   └── capabilities.json
     └── source-manifest.json
 
 scripts/
@@ -645,11 +651,18 @@ scripts/
 │   ├── ids.py
 │   ├── json_pointer.py
 │   └── parser.py
+├── msf_capabilities_normalizer/
+│   ├── audit.py
+│   ├── cli.py
+│   ├── diagnostics.py
+│   ├── normalizer.py
+│   └── values.py
 └── build-capabilities-index.mjs  # futur indexeur web
 
 tests/
 ├── fixtures/msf_capabilities/
 ├── test_msf_capabilities_parser.py
+├── test_msf_capabilities_normalizer.py
 └── test_update_msf_capabilities.py
 
 data/msf-capabilities/
@@ -657,6 +670,9 @@ data/msf-capabilities/
 ├── parsed/
 │   ├── README.md
 │   └── mechanics.json
+├── normalized/
+│   ├── README.md
+│   └── capabilities.json
 └── source-manifest.json
 
 .github/workflows/
@@ -770,7 +786,8 @@ Les captures réseau utilisées pendant la recherche peuvent contenir des inform
 - [x] Valider la première exécution du workflow sur GitHub après fusion.
 - [x] Figer le schéma de l’intermédiaire structurel v1.
 - [x] Écrire le parseur structurel de `characters.json` et `procs.json` et ses tests.
-- [ ] Écrire le normaliseur et l’indexeur web.
+- [ ] Valider explicitement le normaliseur comme v1 après sa revue contractuelle.
+- [ ] Écrire l’indexeur web.
 - [ ] Construire la page mobile-first de filtres.
 - [ ] Vérifier iOS Safari, Android Chrome, PWA et navigateur intégré Discord pour la page finale.
 
@@ -878,7 +895,7 @@ Les responsabilités sont volontairement séparées :
 
 - le **parseur** extrait les personnages, conteneurs, actions, procs, contextes
   et conditions sans leur attribuer une signification joueur ;
-- le futur **normaliseur** traduira les primitives techniques en opérations
+- le **normaliseur** traduit les primitives techniques en opérations
   contrôlées sans perdre la référence au `raw` ;
 - le futur **indexeur** construira un JSON compact optimisé pour les recherches
   de la WebApp.
@@ -978,3 +995,250 @@ Cette version ne :
 La conservation volontaire du `raw` complet à plusieurs niveaux rend
 l’intermédiaire volumineux. La réduction de taille appartiendra à l’indexeur,
 pas au parseur structurel auditable.
+
+## 21. Contrat candidat du normaliseur
+
+### 21.1 Frontière et commandes
+
+Le normaliseur lit exclusivement :
+
+```text
+data/msf-capabilities/parsed/mechanics.json
+```
+
+Il produit :
+
+```text
+data/msf-capabilities/normalized/capabilities.json
+```
+
+Le parseur reste figé et n’est pas modifié par cette étape. Le normaliseur ne
+relit aucun fichier `raw/` et ne construit pas le JSON publié dans `docs/`.
+L’unique traduction d’identifiant autorisée est la politique d’alias exacte
+documentée en 21.5. L’indexeur web restera une troisième étape séparée.
+
+Depuis la racine du dépôt :
+
+```bash
+python -m scripts.msf_capabilities_parser.cli
+python -m scripts.msf_capabilities_normalizer.cli
+python -m scripts.msf_capabilities_normalizer.cli --check
+python -m unittest discover -s tests -p "test_msf_capabilities_normalizer.py" -v
+```
+
+Le mode `--check` normalise tout en mémoire, ne modifie aucun fichier et échoue
+si `capabilities.json` est absent ou obsolète. Les options `--input` et
+`--output` permettent d’utiliser une fixture ou un emplacement temporaire.
+L’artefact généré reste hors de `docs/` et n’est pas versionné.
+
+### 21.2 Schéma de sortie
+
+La racine de `capabilities.json` est :
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "input": {},
+  "effectIdAliasPolicy": {},
+  "characters": [],
+  "abilities": [],
+  "contexts": [],
+  "actionMappings": [],
+  "effects": [],
+  "operations": [],
+  "controlledAliasResolutions": [],
+  "inputDiagnostics": [],
+  "diagnostics": [],
+  "audit": {}
+}
+```
+
+`input` conserve la version du schéma du parser, le SHA-256 exact de
+`mechanics.json` et les checksums des deux sources officielles. Les diagnostics
+du parser sont copiés sans mutation dans `inputDiagnostics`; `diagnostics`
+contient uniquement ceux produits par le normaliseur.
+
+Quatre objets ont des responsabilités distinctes :
+
+- une **Ability** est une capacité jouable autonome : `basic`, `special`,
+  `ultimate`, `passive` ou une variante `*_empower`. Elle référence son
+  contexte racine, tous ses contextes enfants et toutes ses opérations, sans
+  dupliquer leurs données détaillées ;
+- un **Context** est un conteneur d’exécution. Les déclencheurs passifs restent
+  des Context enfants ; `safety`, `counter`, `safety_empower` et
+  `counter_empower` restent uniquement des contextes techniques ;
+- un **ActionMapping** correspond à exactement une action du parseur. Il relie
+  son `sourceActionId` aux opérations produites ou conserve l’action avec le
+  statut `preserved_uninterpreted` ;
+- une **Operation** est une primitive normalisée, toujours reliée à son action
+  et à son contexte source.
+
+Les `contexts` dérivent des conteneurs du parseur et conservent :
+
+- la capacité (`basic`, `special`, `ultimate`, `passive` et variantes
+  `*_empower`) ;
+- le type de conteneur et son parent ;
+- la classification `mechanical` ou `technical-review` ;
+- les clés techniques comme `safety`, sans les fusionner avec la basique ;
+- le déclencheur passif, les conditions imbriquées et le JSON Pointer source ;
+- les valeurs par niveau et les booléens textuels sous une forme uniforme,
+  avec la valeur brute toujours disponible.
+
+Chaque opération conserve au minimum :
+
+- un identifiant déterministe ;
+- `characterId`, `abilityType`, le contexte direct et toute son ascendance ;
+- l’identifiant et le type de l’action source ;
+- l’effet explicite résolu contre `procs.json`, ou `null` pour un sélecteur
+  générique ;
+- la catégorie, les exclusions et la surcharge d’opposé du sélecteur ;
+- la cible avec un booléen `present`, afin de distinguer une cible absente
+  d’une cible explicitement égale à `null` ;
+- le destinataire éventuel d’un transfert ;
+- les conditions non aplaties ;
+- les valeurs complètes par niveau et leur dernière valeur ;
+- les drapeaux booléens normalisés avec leur représentation brute ;
+- le fichier, le chemin de l’action et le chemin exact de la valeur d’effet ;
+- les paramètres bruts du parser pour permettre une évolution sans perte.
+
+### 21.3 Opérations contrôlées
+
+| Primitive source | Opération v1 |
+|---|---|
+| `proc` | `effect_apply` |
+| `proc_remove` | `effect_remove` |
+| `proc_transfer` | `effect_transfer` |
+| `proc_flip` | `effect_flip` |
+| `proc_duration` | `effect_duration_modify` |
+| `set_battlefield_effect` | `battlefield_effect_set` |
+| `clear_battlefield_effect` | `battlefield_effect_clear` |
+| `empower` | `empower` |
+| `empty_result` | `empty_result` |
+| `spawn` | `spawn` |
+| `spawn.pool[].procs[]` | `effect_apply` avec scope `spawn_pool` |
+
+Une action contenant plusieurs procs produit une opération par référence
+explicite. Les champs `only_procs`, `onlyprocs` et `specific_procs` sont eux
+aussi éclatés pour rendre l’indexation future exacte. En revanche, une action
+qui ne nomme aucun proc conserve une seule opération générique avec sa
+catégorie et ses exclusions. Le normaliseur n’invente jamais une liste
+d’effets à partir de cette catégorie.
+
+Toute action `spawn` produit d’abord une opération `spawn` qui conserve sans
+évaluation le pool complet, les personnages, quantités, progressions, chances,
+conditions, cibles, drapeaux, contrôle et pointeurs. Les procs présents dans
+`spawn.pool[]` produisent en plus leurs propres opérations `effect_apply` : ils
+ne sont jamais présentés comme des effets directs de la cible principale. Leur
+scope conserve le personnage invoqué, l’index de pool et la valeur explicite de
+`apply_to_spawned`, y compris `false`.
+
+`empty_result` reste une opération de contrôle non interprétative. Elle n’est
+pas renommée en sélection, test, branche ou condition. `empower` reste lui aussi
+une opération explicite, sans déduction d’une transformation supplémentaire
+absente de la source.
+
+Les autres primitives (`attack`, `heal`, `barrier`, `turn_meter`, etc.) ne sont
+pas interprétées. Elles restent néanmoins toutes visibles dans
+`actionMappings`, avec leurs type, contexte, ordre et pointeur source et le
+statut `preserved_uninterpreted`.
+
+### 21.4 Conditions, dépendances et prudence sémantique
+
+Les expressions `and`, `or`, `not`, les modes, le côté de combat, les traits et
+les seuils restent imbriqués. Une mention de proc dans une condition ne devient
+jamais une opération.
+
+`action_cond` et `arbitrary_action_idx` sont conservés dans un bloc de contrôle.
+Les références explicites et les relations à l’action précédente sont reliées
+à un `sourceActionId` lorsque la cible existe, mais le normaliseur n’évalue pas
+le graphe et ne prétend pas simuler son résultat. Une dépendance impossible à
+résoudre produit un avertissement stable.
+
+Les tableaux restent des progressions complètes de niveaux. Le champ
+`maxLevelValue` est une commodité dérivée de leur dernière entrée ; il ne
+remplace jamais les valeurs source. Un scalaire reste identifiable par
+`sourceShape: "scalar"`.
+
+### 21.5 Alias contrôlé d’identifiant
+
+La politique versionnée `effect-id-aliases-v1` contient exactement :
+
+```text
+"Empower " → "Empower"
+```
+
+La recherche est une égalité stricte. Aucun `trim`, aucune correction
+silencieuse et aucune autre règle implicite ne sont autorisés. Pour chaque
+référence concernée, y compris dans une condition ou un bloc
+`stat_modifier`, `controlledAliasResolutions` conserve :
+
+- la valeur brute `rawValue` ;
+- la valeur canonique `resolvedValue` ;
+- `resolved: true` lorsque la cible existe dans le catalogue ;
+- `resolutionMethod: "controlled_alias"` ;
+- `resolutionOrigin: "effect-id-aliases-v1"` ;
+- le contexte, l’action source et le JSON Pointer exact.
+
+Les valeurs brutes restent inchangées dans les paramètres et conditions.
+L’alias constitue une résolution explicite parallèle, jamais une réécriture
+silencieuse de la source. Les diagnostics stricts déjà produits par le parseur
+sont conservés tels quels dans `inputDiagnostics` pour l’audit historique ; la
+résolution contrôlée appartient uniquement à l’étape du normaliseur.
+
+### 21.6 Déterminisme et audit
+
+Le fichier ne contient ni date, ni UUID, ni donnée réseau. À entrée identique,
+la sérialisation UTF-8 indentée est identique octet pour octet et se termine par
+un saut de ligne.
+
+L’audit bloque l’écriture en cas de :
+
+- doublon d’identifiant ;
+- Ability, Context ou Operation orpheline ;
+- action source sans ActionMapping ou ActionMapping orphelin/dupliqué ;
+- `operationId`, `sourceActionId` ou dépendance invalide ;
+- action d’effet reconnue sans opération ;
+- incohérence entre une référence de proc et le catalogue ;
+- résolution d’alias manquante, orpheline ou contraire à la politique exacte ;
+- mutation du document du parser ;
+- schéma racine invalide.
+
+Une référence de proc absente de `procs.json`, une forme inconnue ou une
+dépendance non résolue reste non bloquante et explicite. Sur l’instantané du
+27 juillet 2026, dont le contrat normalisé reste à valider :
+
+- 12 036 actions source donnent 12 036 ActionMapping ;
+- 7 159 actions sont normalisées et 4 877 préservées sans interprétation ;
+- 1 827 Ability, 3 893 Context et 8 657 Operation sont produits ;
+- les opérations de contrôle comprennent 116 `spawn`, 7 `empower` et
+  289 `empty_result` ;
+- les six références exactes `Empower ` sont résolues par l’unique alias
+  contrôlé ;
+- aucune erreur d’intégrité n’est présente.
+
+Quatre références d’opération restent absentes du catalogue
+(`HulkPassive50`, `HulkPassive25` et deux occurrences de
+`AnnihilusTracking`) ; la première action du passif de `KravenTheHunter`
+conserve par ailleurs un `if_prev_ran` sans action précédente résoluble.
+
+L’audit expose notamment `sourceActionCount`, `actionMappingCount`,
+`mappedActionCount`, `preservedUninterpretedActionCount`, `abilityCount`,
+`spawnOperationCount`, `empowerOperationCount`, `emptyResultOperationCount`
+et `controlledAliasResolutionCount`.
+
+### 21.7 Limites volontaires
+
+Ce contrat candidat ne :
+
+- ne traduit aucun identifiant interne, hors alias exact documenté ci-dessus,
+  ni aucun nom de mode ;
+- ne choisit pas quels procs sont visibles ou pertinents dans l’interface ;
+- ne déduit pas une cible par défaut lorsqu’elle est absente ;
+- n’évalue pas les conditions ou le graphe d’exécution ;
+- n’interprète pas les actions sans règle contrôlée ;
+- ne joint pas les descriptions françaises ou les portraits ;
+- ne compacte pas les données pour un navigateur mobile ;
+- ne raccorde pas encore la génération au workflow de récupération.
+
+Ces responsabilités appartiennent aux futurs contrats contrôlés, à l’indexeur
+web et à la page de filtres.
