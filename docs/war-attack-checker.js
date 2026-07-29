@@ -147,11 +147,28 @@
       aliases: ["Zeus", "zeus", "LoSP Zeus", "losp zeus"],
     },
     {
+      key: "athena",
+      name: "Athéna",
+      emoji: "🦉",
+      color: "#F28C28",
+      order: 2,
+      aliases: [
+        "Athéna",
+        "Athena",
+        "athéna",
+        "athena",
+        "LoSP Athéna",
+        "LoSP Athena",
+        "losp athéna",
+        "losp athena",
+      ],
+    },
+    {
       key: "kronos",
       name: "Kronos",
       emoji: "⏳",
       color: "#E10D17",
-      order: 2,
+      order: 3,
       aliases: ["Kronos", "kronos", "Cronos", "Chronos", "LoSP Kronos", "losp kronos"],
     },
     {
@@ -159,7 +176,7 @@
       name: "Dionysos",
       emoji: "🍇",
       color: "#93328E",
-      order: 3,
+      order: 4,
       aliases: ["Dionysos", "dionysos", "LoSP Dionysos", "losp dionysos"],
     },
     {
@@ -167,7 +184,7 @@
       name: "Poséidon",
       emoji: "🔱",
       color: "#0000FF",
-      order: 4,
+      order: 5,
       aliases: [
         "Poséidon",
         "Poseidon",
@@ -184,7 +201,7 @@
       name: "Hadès",
       emoji: "🔥",
       color: "#1EA164",
-      order: 5,
+      order: 6,
       aliases: ["Hadès", "Hades", "hadès", "hades", "LoSP Hadès", "LoSP Hades", "losp hades"],
     },
   ];
@@ -831,32 +848,25 @@
     opt0.textContent = "— Choisir une alliance —";
     allianceSelect.appendChild(opt0);
 
-    const alliances = Array.from(
-      JOUEURS.reduce((map, j) => {
-        const rawAlliance = (j.alliance ?? "").toString().trim();
-        const key = allianceKey(rawAlliance);
-        if (rawAlliance && key && !map.has(key)) map.set(key, rawAlliance);
-        return map;
-      }, new Map()).values()
+    const alliances = ALLIANCES.filter((alliance) =>
+      isAllianceAllowed(alliance.key)
     );
 
     alliances
-      .filter((a) => isAllianceAllowed(a))
       .sort((a, b) => {
-        const ia = ORDER_KEYS.indexOf(allianceKey(a));
-        const ib = ORDER_KEYS.indexOf(allianceKey(b));
+        const ia = ORDER_KEYS.indexOf(a.key);
+        const ib = ORDER_KEYS.indexOf(b.key);
 
         if (ia !== -1 || ib !== -1) {
           return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
         }
 
-        return a.localeCompare(b, "fr");
+        return a.name.localeCompare(b.name, "fr");
       })
       .forEach((a) => {
         const opt = document.createElement("option");
-        const meta = getAllianceMeta(a);
-        opt.value = allianceKey(a);
-        opt.textContent = `${getAllianceEmoji(a)} ${meta?.name || a}`.trim();
+        opt.value = a.key;
+        opt.textContent = `${getAllianceEmoji(a.key)} ${a.name}`.trim();
         allianceSelect.appendChild(opt);
       });
 

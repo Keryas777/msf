@@ -9,10 +9,11 @@
 
   const FALLBACK_ALLIANCES = Object.freeze([
     { key: "zeus", name: "Zeus", emoji: "⚡️", color: "#F8FF00", order: 1 },
-    { key: "kronos", name: "Kronos", emoji: "⏳", color: "#E10D17", order: 2 },
-    { key: "dionysos", name: "Dionysos", emoji: "🍇", color: "#93328E", order: 3 },
-    { key: "poseidon", name: "Poséidon", emoji: "🔱", color: "#0000FF", order: 4 },
-    { key: "hades", name: "Hadès", emoji: "🔥", color: "#1EA164", order: 5 },
+    { key: "athena", name: "Athéna", emoji: "🦉", color: "#F28C28", order: 2 },
+    { key: "kronos", name: "Kronos", emoji: "⏳", color: "#E10D17", order: 3 },
+    { key: "dionysos", name: "Dionysos", emoji: "🍇", color: "#93328E", order: 4 },
+    { key: "poseidon", name: "Poséidon", emoji: "🔱", color: "#0000FF", order: 5 },
+    { key: "hades", name: "Hadès", emoji: "🔥", color: "#1EA164", order: 6 },
   ]);
 
   const MODE_ORDER = [
@@ -107,6 +108,7 @@
     const key = normalizeKey(value);
 
     if (key.includes("zeus")) return "zeus";
+    if (key.includes("athena")) return "athena";
     if (key.includes("dionysos")) return "dionysos";
     if (key.includes("hades")) return "hades";
     if (key.includes("poseidon") || key.includes("posseidon")) return "poseidon";

@@ -9,11 +9,12 @@
   }
 
   const FALLBACK_ALLIANCES = [
-    { key: "zeus", name: "Zeus", emoji: "⚡️" },
-    { key: "kronos", name: "Kronos", emoji: "⏳" },
-    { key: "dionysos", name: "Dionysos", emoji: "🍇" },
-    { key: "poseidon", name: "Poséidon", emoji: "🔱" },
-    { key: "hades", name: "Hadès", emoji: "🔥" },
+    { key: "zeus", name: "Zeus", emoji: "⚡️", color: "#F8FF00", order: 1, aliases: ["LoSP Zeus"] },
+    { key: "athena", name: "Athéna", emoji: "🦉", color: "#F28C28", order: 2, aliases: ["Athena", "LoSP Athéna", "LoSP Athena"] },
+    { key: "kronos", name: "Kronos", emoji: "⏳", color: "#E10D17", order: 3, aliases: ["LoSP Kronos"] },
+    { key: "dionysos", name: "Dionysos", emoji: "🍇", color: "#93328E", order: 4, aliases: ["LoSP Dionysos"] },
+    { key: "poseidon", name: "Poséidon", emoji: "🔱", color: "#0000FF", order: 5, aliases: ["Poseidon", "LoSP Poséidon", "LoSP Poseidon"] },
+    { key: "hades", name: "Hadès", emoji: "🔥", color: "#1EA164", order: 6, aliases: ["Hades", "LoSP Hadès", "LoSP Hades"] },
   ];
 
   const fallbackByKey = new Map(FALLBACK_ALLIANCES.map((alliance) => [alliance.key, alliance]));
@@ -32,6 +33,7 @@
     const n = normalizeAlliance(a);
 
     if (n.includes("zeus")) return "zeus";
+    if (n.includes("athena")) return "athena";
     if (n.includes("kronos")) return "kronos";
     if (n.includes("dionysos")) return "dionysos";
     if (n.includes("poseidon")) return "poseidon";

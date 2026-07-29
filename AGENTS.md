@@ -22,9 +22,11 @@
 Les alliances connues sont :
 
 - `zeus`
+- `athena`
 - `kronos`
 - `dionysos`
 - `poseidon`
+- `hades`
 
 Si un fichier `alliances.json` existe, l'utiliser comme source de vérité pour les labels, emojis, couleurs et métadonnées d'alliance, au lieu de recoder ces informations en dur.
 

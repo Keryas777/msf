@@ -146,14 +146,11 @@ async function main() {
   console.log(`[merge-rosters] Sources:`);
   SOURCES.forEach((source, index) => {
     console.log(`- ${source.file}`);
-    if (DRY_RUN) {
-      console.log(`  ${source.key}: ${arrays[index].length} players`);
-    }
+    console.log(`  ${source.key}: ${arrays[index].length} players`);
   });
+  console.log(`[merge-rosters] Total players: ${out.length}`);
 
   if (DRY_RUN) {
-    console.log(`[merge-rosters] Total players: ${out.length}`);
-    console.log(`[merge-rosters] Hadès included: ${out.some((row) => row.alliance === "hades") ? "yes" : "no"}`);
     console.log(`[merge-rosters] DRY_RUN=1, would write ${OUT_FILE}`);
     return;
   }
