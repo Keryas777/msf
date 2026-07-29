@@ -21,8 +21,9 @@ uninterpreted-actions.json
 
 Les JSON sont des artefacts régénérables ignorés par Git. Seul ce README est
 versionné dans le dossier. Ils restent hors de `docs/` : aucune interface Web,
-copie GitHub Pages, PWA ou intégration Service Worker n’est réalisée par
-l’indexeur v1.
+copie GitHub Pages, PWA ou intégration Service Worker n’est réalisée par le
+package de l’indexeur v1. La copie publique appartient au publisher Web,
+dans une quatrième étape indépendante.
 
 Depuis la racine du dépôt :
 
@@ -31,11 +32,15 @@ python -m scripts.msf_capabilities_parser.cli
 python -m scripts.msf_capabilities_normalizer.cli
 python -m scripts.msf_capabilities_indexer.cli
 python -m scripts.msf_capabilities_indexer.cli --check
+python -m scripts.msf_capabilities_web_publisher.cli
+python -m scripts.msf_capabilities_web_publisher.cli --check
 ```
 
 Le mode `--check` ne crée aucun dossier et n’écrit aucun octet. Il reconstruit
 les huit artefacts en mémoire, vérifie la liste exacte des JSON, leur contenu,
 leur taille, leurs SHA-256, le `payloadSetChecksum`, les compteurs et l’audit.
+Le `--check` du publisher vérifie séparément que la génération versionnée sous
+`docs/` correspond exactement à ces huit artefacts.
 
 ## Contrat des payloads
 

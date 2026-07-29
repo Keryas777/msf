@@ -2,7 +2,7 @@
 
 > Source de vérité technique du projet LoSP pour localiser, récupérer, valider et transformer les données officielles qui décrivent les capacités de Marvel Strike Force.
 
-**État au 29 juillet 2026 :** la source déclarative, la collecte locale et la récupération GitHub des 11 fichiers sont validées. La vraie base de 16 384 octets en quatre morceaux a permis de publier les 11 JSON et leur manifeste sur `main`. Le Worker Cloudflare dédié est déployé depuis `main`, puis la chaîne `/update` → GitHub a été validée jusqu’à la fin de l’Action. L’extension Chrome 0.2.0 est raccordée à ce Worker avec un envoi en un clic et une mémorisation locale facultative du mot de passe. Le parseur structurel v1 et le normaliseur v1 de `characters.json` et `procs.json` sont validés. L’indexeur v1 est implémenté localement et en revue ; aucune intégration Web, `/docs`, PWA ou workflow n’a commencé.
+**État au 29 juillet 2026 :** la source déclarative, la collecte locale et la récupération GitHub des 11 fichiers sont validées. La vraie base de 16 384 octets en quatre morceaux a permis de publier les 11 JSON et leur manifeste sur `main`. Le Worker Cloudflare dédié est déployé depuis `main`, puis la chaîne `/update` → GitHub a été validée jusqu’à la fin de l’Action. L’extension Chrome 0.2.0 est raccordée à ce Worker avec un envoi en un clic et une mémorisation locale facultative du mot de passe. Le parseur structurel v1, le normaliseur v1 et l’indexeur v1 de `characters.json` et `procs.json` sont validés. Le publisher Web v1 copie désormais les huit artefacts indexés sous un chemin immuable de `/docs` ; aucun chargeur JavaScript, changement PWA ou module d’interface n’a commencé.
 
 ## 1. Objectif et périmètre
 
@@ -602,6 +602,10 @@ construit ensuite un manifest et sept payloads spécialisés, toujours hors de
 `docs/`. Ces étapes restent volontairement séparées de la récupération des
 sources et de leur future intégration à la webapp.
 
+Le publisher Web v1 consomme exclusivement le contrat final de l’indexeur et
+copie ses huit fichiers dans `/docs` sans importer ou lancer une étape amont.
+La consommation par l’interface reste un chantier ultérieur.
+
 Le `GITHUB_TOKEN` natif de l’Action pourra écrire le commit avec `contents: write`. Le jeton conservé dans Cloudflare ne devra avoir que les permissions nécessaires pour déclencher le workflow sur ce seul dépôt.
 
 GitHub n’accepte le déclenchement `workflow_dispatch` que lorsque le fichier de workflow existe sur la branche par défaut. La première exécution complète aura donc lieu après fusion de la PR qui introduit ce pipeline.
@@ -668,11 +672,18 @@ scripts/
     ├── diagnostics.py
     └── indexer.py
 
+scripts/msf_capabilities_web_publisher/
+    ├── audit.py
+    ├── cli.py
+    ├── diagnostics.py
+    └── publisher.py
+
 tests/
 ├── fixtures/msf_capabilities/
 ├── test_msf_capabilities_parser.py
 ├── test_msf_capabilities_normalizer.py
 ├── test_msf_capabilities_indexer.py
+├── test_msf_capabilities_web_publisher.py
 └── test_update_msf_capabilities.py
 
 data/msf-capabilities/
@@ -697,10 +708,23 @@ docs/data/
 └── <future publication des payloads validés>
 ```
 
+La publication Web v1 concrétise désormais cette cible sous :
+
+```text
+docs/data/msf-capabilities/
+├── README.md
+├── manifest.json
+└── indexed/
+    └── sha256-<payloadSetChecksum>/
+        ├── index-manifest.json
+        └── <sept payloads spécialisés>
+```
+
 Principes :
 
 - les données brutes et les outils de construction restent hors de `/docs` ;
-- seul le JSON compact nécessaire au navigateur est publié par GitHub Pages ;
+- les huit JSON indexés sont disponibles sous un chemin public immuable, mais
+  leur présence n’implique aucun chargement global par le navigateur ;
 - l’application finale reste 100 % statique, sans framework ni backend lourd ;
 - les chemins ci-dessus sont désormais confirmés dans l’architecture réelle du dépôt.
 
@@ -802,8 +826,9 @@ Les captures réseau utilisées pendant la recherche peuvent contenir des inform
 - [x] Écrire le parseur structurel de `characters.json` et `procs.json` et ses tests.
 - [x] Valider explicitement le normaliseur comme v1 après sa revue contractuelle.
 - [x] Écrire et tester l’indexeur v1 hors de `docs/`.
-- [ ] Valider explicitement l’indexeur v1 après sa revue contractuelle.
-- [ ] Intégrer les payloads validés à la webapp.
+- [x] Valider explicitement l’indexeur v1 après sa revue contractuelle.
+- [x] Publier les huit artefacts indexés sous un chemin immuable de `/docs`.
+- [ ] Construire le chargeur JavaScript commun des payloads publiés.
 - [ ] Construire la page mobile-first de filtres.
 - [ ] Vérifier iOS Safari, Android Chrome, PWA et navigateur intégré Discord pour la page finale.
 
@@ -1402,3 +1427,126 @@ Cet instantané contient 499 Character, 1 827 Ability, 3 893 Context,
 L’indexeur ne traduit aucun identifiant, n’interprète aucune action préservée,
 ne déduit aucune mécanique gameplay et n’effectue encore aucune publication
 Web, intégration PWA, Service Worker ou workflow GitHub.
+
+## 23. Publisher Web v1
+
+### 23.1 Frontière et commandes
+
+Le publisher est la quatrième étape, strictement découplée :
+
+```text
+data/msf-capabilities/indexed/
+├── index-manifest.json
+├── characters.json
+├── abilities.json
+├── contexts.json
+├── operations.json
+├── effects.json
+├── spawns.json
+└── uninterpreted-actions.json
+```
+
+Il ne lance ni le parser, ni le normaliseur, ni l’indexeur, n’importe aucun de
+leurs modules et ne propose aucune option de génération. Il ne lit ni
+`mechanics.json`, ni `capabilities.json`. Ses deux commandes sont :
+
+```bash
+python -m scripts.msf_capabilities_web_publisher.cli
+python -m scripts.msf_capabilities_web_publisher.cli --check
+```
+
+La première valide les sorties existantes et les publie. La seconde vérifie
+sans écrire que `/docs` correspond exactement aux sorties actuelles.
+
+### 23.2 Contrat source
+
+Le dossier source accepte exactement les huit artefacts et son `README.md`
+versionné. Le publisher rejette un fichier manquant ou supplémentaire, un lien
+symbolique, un JSON invalide, une clé dupliquée, une valeur non finie, un
+schéma non supporté et toute traversée de chemin.
+
+Il contrôle :
+
+- l’inventaire trié des sept payloads dans `index-manifest.json` ;
+- leur taille et SHA-256 par rapport aux octets réellement lus ;
+- le `payloadSetChecksum` recalculé indépendamment ;
+- les audits général, payload et instantané au statut `passed` ;
+- le format et la cohérence croisée du `capabilitiesChecksum` dans les huit
+  documents.
+
+Le publisher ne recalcule pas le `capabilitiesChecksum` depuis
+`capabilities.json`, qu’il ne doit jamais lire. Il vérifie uniquement
+l’identité fournie par le contrat de l’indexeur.
+
+### 23.3 Arborescence publique
+
+La publication versionnée dans Git est :
+
+```text
+docs/data/msf-capabilities/
+├── README.md
+├── manifest.json
+└── indexed/
+    └── sha256-<64 caractères hexadécimaux>/
+        ├── index-manifest.json
+        ├── characters.json
+        ├── abilities.json
+        ├── contexts.json
+        ├── operations.json
+        ├── effects.json
+        ├── spawns.json
+        └── uninterpreted-actions.json
+```
+
+Le segment immuable est construit depuis le `payloadSetChecksum` réel sous la
+forme `sha256-<hex>`, sans deux-points. Les huit fichiers publics sont copiés
+octet par octet. `mechanics.json` et `capabilities.json` ne sont jamais
+publiés.
+
+GitHub Pages continue d’être servi directement depuis `main` et `/docs`.
+Aucun workflow Pages, artifact de déploiement ou changement de configuration
+GitHub Pages n’est introduit.
+
+### 23.4 Manifest stable
+
+`manifest.json` est un pointeur minimal. Il contient :
+
+- `artifactType` et `schemaVersion` ;
+- `currentPayloadSetChecksum` ;
+- `currentPath`, relatif à sa propre URL afin de préserver le préfixe `/msf/` ;
+- `capabilitiesChecksum` ;
+- `indexManifest.path`, `sizeBytes` et `sha256`.
+
+Il ne duplique pas l’inventaire des sept payloads. Sa sérialisation utilise
+UTF-8, des clés triées, un JSON minifié, aucune valeur non finie, un saut de
+ligne final, aucun timestamp.
+
+### 23.5 Atomicité, immutabilité et rétention
+
+Avant toute écriture, le publisher valide entièrement les huit sources et
+audite chaque génération publique existante. Une entrée inconnue ou une
+génération invalide bloque l’opération sans suppression.
+
+La nouvelle génération est copiée dans un répertoire temporaire adjacent,
+relue et comparée. Si le répertoire immuable cible existe avec les mêmes
+octets, il est réutilisé ; s’il diffère, la publication échoue sans
+écrasement. Le répertoire vérifié est installé, puis `manifest.json` est
+remplacé atomiquement en dernier.
+
+Après la bascule seulement, les anciennes générations validées sont
+supprimées. La rétention n’agit que sous
+`docs/data/msf-capabilities/indexed/` et seulement sur des répertoires
+respectant `sha256-<64 hex>`. Le README, le manifest stable et toute entrée
+inconnue ne sont jamais supprimés. Le dernier état du dépôt conserve une seule
+génération publique.
+
+Une interruption avant le remplacement du manifest laisse l’ancienne
+publication courante intacte. Les temporaires et une nouvelle génération non
+référencée créée par l’appel sont nettoyés.
+
+### 23.6 Périmètre exclu
+
+Ce chantier ne modifie ni le Service Worker, ni `manifest.webmanifest`, ni une
+page HTML ou un JavaScript existant, ni les workflows GitHub Actions. Il
+n’introduit aucun chargeur, moteur de recherche, traduction, logique gameplay
+ou interface. Ces responsabilités restent des chantiers séparés.
