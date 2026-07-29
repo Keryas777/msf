@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Upload Athéna</title>
+
+<style>
+:root{
+  --bg-top:#2b1608;
+  --bg-bottom:#050607;
+  --glow:rgba(242,140,40,.30);
+  --panel:rgba(0,0,0,.42);
+  --border:rgba(255,255,255,.12);
+  --text:rgba(255,255,255,.94);
+  --muted:rgba(255,255,255,.72);
+  --btn-bg:#F28C28;
+  --btn-text:#111;
+  --ok-bg:rgba(46,204,113,.14);
+  --ok-border:rgba(46,204,113,.35);
+  --ok-text:#9df0bb;
+  --err-bg:rgba(255,77,77,.14);
+  --err-border:rgba(255,77,77,.35);
+  --err-text:#ffb1b1;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  margin:0;
+  min-height:100%;
+}
+
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at top,var(--glow),transparent 42%),
+    linear-gradient(180deg,var(--bg-top),var(--bg-bottom));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+.card{
+  width:min(100%,560px);
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:34px 24px 24px;
+  text-align:center;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  box-shadow:
+    0 12px 32px rgba(0,0,0,.45),
+    inset 0 0 28px var(--glow);
+}
+
+.allianceVisual{
+  position:relative;
+  width:calc(100% + 48px);
+  height:170px;
+  margin:-34px -24px 22px;
+  overflow:hidden;
+  border-top-left-radius:24px;
+  border-top-right-radius:24px;
+  background:
+    radial-gradient(circle at 50% 38%,rgba(255,196,116,.34),transparent 48%),
+    linear-gradient(135deg,#4a2308,#120a06);
+}
+
+.logo,
+.logoFallback{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+.logo{
+  object-fit:cover;
+  object-position:center top;
+  display:none;
+}
+
+.logo.is-loaded{
+  display:block;
+}
+
+.logoFallback{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:72px;
+  line-height:1;
+  filter:drop-shadow(0 8px 18px rgba(0,0,0,.45));
+}
+
+.logoFallback[hidden]{
+  display:none;
+}
+
+h1{
+  margin:0 0 12px;
+  font-size:28px;
+  line-height:1.1;
+  font-weight:900;
+}
+
+.sub{
+  margin:0 0 24px;
+  color:var(--muted);
+  font-size:16px;
+  line-height:1.4;
+}
+
+.stack{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.uploadSection{
+  padding:18px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:rgba(255,255,255,.035);
+  text-align:left;
+}
+
+.uploadSectionTitle{
+  margin:0 0 6px;
+  font-size:19px;
+  font-weight:900;
+}
+
+.uploadSectionText{
+  margin:0 0 14px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.4;
+}
+
+.field{
+  text-align:left;
+}
+
+.label{
+  display:block;
+  margin:0 0 8px;
+  font-size:14px;
+  color:var(--muted);
+  font-weight:700;
+}
+
+input[type="file"],
+input[type="password"]{
+  width:100%;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  font-size:16px;
+  outline:none;
+}
+
+input[type="file"]{
+  padding:12px;
+}
+
+input[type="password"]{
+  padding:14px 16px;
+}
+
+input[type="password"]::placeholder{
+  color:rgba(255,255,255,.45);
+}
+
+button{
+  width:100%;
+  min-height:48px;
+  margin-top:14px;
+  padding:13px 18px;
+  border:none;
+  border-radius:16px;
+  background:var(--btn-bg);
+  color:var(--btn-text);
+  font-size:16px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 8px 24px rgba(0,0,0,.28);
+}
+
+button:active{
+  transform:scale(.99);
+}
+
+button:disabled{
+  opacity:.65;
+  cursor:wait;
+}
+
+#result{
+  margin-top:22px;
+  min-height:74px;
+  padding:16px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.04);
+  text-align:left;
+  white-space:pre-wrap;
+  font-size:14px;
+  line-height:1.45;
+  color:var(--text);
+}
+
+.resultBox{
+  border-radius:16px;
+  padding:16px;
+  border:1px solid var(--border);
+}
+
+.resultBox.ok{
+  background:var(--ok-bg);
+  border-color:var(--ok-border);
+  color:var(--ok-text);
+}
+
+.resultBox.error{
+  background:var(--err-bg);
+  border-color:var(--err-border);
+  color:var(--err-text);
+}
+
+.resultTitle{
+  margin:0 0 8px;
+  font-size:18px;
+  font-weight:900;
+}
+
+.resultText{
+  margin:0;
+  line-height:1.45;
+}
+
+details{
+  margin-top:14px;
+}
+
+summary{
+  cursor:pointer;
+  color:var(--muted);
+  font-weight:700;
+}
+
+.tech{
+  margin-top:10px;
+  padding:12px;
+  border-radius:12px;
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--border);
+  color:var(--text);
+  white-space:pre-wrap;
+  font-size:13px;
+  line-height:1.4;
+}
+
+@media (max-width:520px){
+  body{
+    padding:14px;
+  }
+
+  .card{
+    padding:28px 18px 18px;
+    border-radius:20px;
+  }
+
+  .allianceVisual{
+    width:calc(100% + 36px);
+    height:150px;
+    margin:-28px -18px 20px;
+    border-top-left-radius:20px;
+    border-top-right-radius:20px;
+  }
+
+  .logoFallback{
+    font-size:64px;
+  }
+
+  h1{
+    font-size:24px;
+  }
+
+  .sub{
+    margin-bottom:22px;
+    font-size:15px;
+  }
+
+  .uploadSection{
+    padding:15px;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="card">
+  <div class="allianceVisual">
+    <div id="logoFallback" class="logoFallback" role="img" aria-label="Athéna">🦉</div>
+    <img id="allianceLogo" class="logo" src="../upload_athena.webp" alt="Athéna">
+  </div>
+
+  <h1>Uploads — Athéna</h1>
+
+  <p class="sub">
+    Importe les fichiers CSV de l’alliance Athéna pour mettre à jour automatiquement les données.
+  </p>
+
+  <div class="stack">
+    <div class="uploadSection">
+      <h2 class="uploadSectionTitle">⚡ Roster</h2>
+      <p class="uploadSectionText">
+        Le nom du fichier doit contenir « roster » ou « rosters ».
+      </p>
+      <div class="field">
+        <label class="label" for="rosterFile">Fichier roster CSV</label>
+        <input type="file" id="rosterFile" accept=".csv,text/csv">
+      </div>
+    </div>
+
+    <div class="uploadSection">
+      <h2 class="uploadSectionTitle">ℹ️ Infos</h2>
+      <p class="uploadSectionText">
+        Le nom du fichier doit contenir « info » ou « infos ».
+      </p>
+      <div class="field">
+        <label class="label" for="infosFile">Fichier infos CSV</label>
+        <input type="file" id="infosFile" accept=".csv,text/csv">
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label" for="pwd">Mot de passe</label>
+      <input
+        type="password"
+        id="pwd"
+        placeholder="Entrer le mot de passe"
+        autocomplete="current-password"
+      >
+    </div>
+
+    <button id="uploadBtn" type="button">
+      Uploader les fichiers sélectionnés
+    </button>
+  </div>
+
+  <div id="result">En attente d’un fichier…</div>
+</div>
+
+<script>
+const ALLIANCE = "athena";
+const ENDPOINT = `https://msf-upload.deliriousfan7.workers.dev/${ALLIANCE}`;
+
+const UPLOAD_CONFIG = {
+  roster: {
+    inputId: "rosterFile",
+    label: "Roster",
+    readingMessage: "⏳ Lecture du fichier roster…",
+    uploadingMessage: "⏳ Upload du roster en cours…",
+    filenamePattern: /rosters?/i,
+    filenameMessage:
+      'Le nom du fichier doit contenir le mot "roster" ou "rosters".'
+  },
+  infos: {
+    inputId: "infosFile",
+    label: "Infos",
+    readingMessage: "⏳ Lecture du fichier infos…",
+    uploadingMessage: "⏳ Upload des infos en cours…",
+    filenamePattern: /infos?/i,
+    filenameMessage:
+      'Le nom du fichier doit contenir le mot "info" ou "infos".'
+  }
+};
+
+function escapeHtml(value){
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function showInfo(message){
+  document.getElementById("result").innerHTML = escapeHtml(message);
+}
+
+function showError(title, rawText){
+  document.getElementById("result").innerHTML = `
+    <div class="resultBox error">
+      <div class="resultTitle">❌ ${escapeHtml(title)}</div>
+      <p class="resultText">L’upload n’a pas abouti correctement.</p>
+      <details open>
+        <summary>Détails techniques</summary>
+        <div class="tech">${escapeHtml(rawText)}</div>
+      </details>
+    </div>
+  `;
+}
+
+function validateFile(file, uploadType){
+  const config = UPLOAD_CONFIG[uploadType];
+
+  if(!config){
+    return { valid:false, message:"Type d’upload inconnu." };
+  }
+
+  if(!file){
+    return { valid:false, message:"Choisir un fichier CSV." };
+  }
+
+  if(!file.name.toLowerCase().endsWith(".csv")){
+    return {
+      valid:false,
+      message:"Le fichier sélectionné doit avoir l’extension .csv."
+    };
+  }
+
+  if(!config.filenamePattern.test(file.name)){
+    return { valid:false, message:config.filenameMessage };
+  }
+
+  return { valid:true, message:"" };
+}
+
+async function sendFile(uploadType, file, password){
+  const config = UPLOAD_CONFIG[uploadType];
+
+  showInfo(config.readingMessage);
+  const text = await file.text();
+
+  showInfo(config.uploadingMessage);
+  const response = await fetch(ENDPOINT, {
+    method:"POST",
+    headers:{
+      "Content-Type":"text/csv",
+      "x-upload-password":password,
+      "x-upload-type":uploadType,
+      "x-upload-filename":file.name
+    },
+    body:text
+  });
+
+  const rawText = await response.text();
+  let data = null;
+
+  try{
+    data = JSON.parse(rawText);
+  }catch(_){
+    data = null;
+  }
+
+  return {
+    uploadType,
+    label:config.label,
+    ok:Boolean(response.ok && data && data.ok),
+    status:response.status,
+    data,
+    rawText
+  };
+}
+
+function formatSingleSuccess(result){
+  const data = result.data || {};
+  const playersLine =
+    result.uploadType === "roster" && data.players !== undefined
+      ? `Joueurs traités : <strong>${escapeHtml(data.players)}</strong><br>`
+      : "";
+
+  return `
+    <div class="resultBox ok">
+      <div class="resultTitle">✅ Upload ${escapeHtml(result.label)} réussi</div>
+      <p class="resultText">
+        Type : <strong>${escapeHtml(result.label)}</strong><br>
+        Alliance : <strong>${escapeHtml(data.alliance || ALLIANCE)}</strong><br>
+        ${playersLine}
+        Fichier mis à jour :
+        <strong>${escapeHtml(data.file || "Non précisé")}</strong><br>
+        ${escapeHtml(data.message || "Upload terminé avec succès.")}
+      </p>
+      <details>
+        <summary>Détails techniques</summary>
+        <div class="tech">${escapeHtml(result.rawText)}</div>
+      </details>
+    </div>
+  `;
+}
+
+function formatTechnicalDetails(results){
+  return results.map((result) => `
+${result.label}
+Statut HTTP : ${result.status || "non disponible"}
+Réponse :
+${result.rawText || "Le serveur n’a retourné aucun détail."}
+  `.trim()).join("\n\n");
+}
+
+function showUploadSummary(results){
+  if(results.length === 1 && results[0].ok){
+    document.getElementById("result").innerHTML = formatSingleSuccess(results[0]);
+    return;
+  }
+
+  const successCount = results.filter((result) => result.ok).length;
+  const allSucceeded = successCount === results.length;
+  const partialSuccess = successCount > 0 && !allSucceeded;
+  const resultClass = allSucceeded || partialSuccess ? "ok" : "error";
+  const title = allSucceeded
+    ? "✅ Upload terminé"
+    : partialSuccess
+      ? "⚠️ Upload partiellement terminé"
+      : "❌ Upload échoué";
+  const statusLines = results.map((result) => `
+    ${escapeHtml(result.label)} :
+    <strong>${result.ok ? "réussi" : "échec"}</strong>
+  `.trim()).join("<br>");
+
+  document.getElementById("result").innerHTML = `
+    <div class="resultBox ${resultClass}">
+      <div class="resultTitle">${title}</div>
+      <p class="resultText">${statusLines}</p>
+      <details${allSucceeded ? "" : " open"}>
+        <summary>Détails techniques</summary>
+        <div class="tech">${escapeHtml(formatTechnicalDetails(results))}</div>
+      </details>
+    </div>
+  `;
+}
+
+async function uploadSelectedFiles(){
+  const selectedUploads = ["roster", "infos"]
+    .map((uploadType) => ({
+      uploadType,
+      file:document.getElementById(UPLOAD_CONFIG[uploadType].inputId).files[0]
+    }))
+    .filter((upload) => upload.file);
+
+  if(selectedUploads.length === 0){
+    showError(
+      "Aucun fichier sélectionné",
+      "Sélectionner au moins un fichier Roster ou Infos avant l’envoi."
+    );
+    return;
+  }
+
+  const password = document.getElementById("pwd").value;
+
+  if(!password){
+    showError(
+      "Mot de passe manquant",
+      "Entrer le mot de passe avant l’envoi."
+    );
+    return;
+  }
+
+  for(const upload of selectedUploads){
+    const validation = validateFile(upload.file, upload.uploadType);
+
+    if(!validation.valid){
+      showError(
+        `${UPLOAD_CONFIG[upload.uploadType].label} non valide`,
+        validation.message
+      );
+      return;
+    }
+  }
+
+  const button = document.getElementById("uploadBtn");
+  button.disabled = true;
+  const results = [];
+
+  try{
+    for(const upload of selectedUploads){
+      try{
+        results.push(await sendFile(upload.uploadType, upload.file, password));
+      }catch(error){
+        results.push({
+          uploadType:upload.uploadType,
+          label:UPLOAD_CONFIG[upload.uploadType].label,
+          ok:false,
+          status:0,
+          data:null,
+          rawText:String(error?.message || error)
+        });
+      }
+    }
+
+    showUploadSummary(results);
+  }finally{
+    button.disabled = false;
+  }
+}
+
+function setupAllianceVisual(){
+  const logo = document.getElementById("allianceLogo");
+  const fallback = document.getElementById("logoFallback");
+
+  const showLogo = () => {
+    logo.classList.add("is-loaded");
+    fallback.hidden = true;
+  };
+
+  const keepFallback = () => {
+    logo.remove();
+    fallback.hidden = false;
+  };
+
+  logo.addEventListener("load", showLogo, { once:true });
+  logo.addEventListener("error", keepFallback, { once:true });
+
+  if(logo.complete){
+    if(logo.naturalWidth > 0) showLogo();
+    else keepFallback();
+  }
+}
+
+setupAllianceVisual();
+document.getElementById("uploadBtn").addEventListener("click", uploadSelectedFiles);
+</script>
+</body>
+</html>
