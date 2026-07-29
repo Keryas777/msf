@@ -2,7 +2,7 @@
 
 > Source de vérité technique du projet LoSP pour localiser, récupérer, valider et transformer les données officielles qui décrivent les capacités de Marvel Strike Force.
 
-**État au 27 juillet 2026 :** la source déclarative, la collecte locale et la récupération GitHub des 11 fichiers sont validées. La vraie base de 16 384 octets en quatre morceaux a permis de publier les 11 JSON et leur manifeste sur `main`. Le Worker Cloudflare dédié est déployé depuis `main`, puis la chaîne `/update` → GitHub a été validée jusqu’à la fin de l’Action. L’extension Chrome 0.2.0 est raccordée à ce Worker avec un envoi en un clic et une mémorisation locale facultative du mot de passe. Le parseur structurel v1 de `characters.json` et `procs.json` est réalisé. Le contrat du normaliseur est implémenté mais reste en revue avant toute validation comme v1 ; l’indexeur web n’est pas commencé.
+**État au 29 juillet 2026 :** la source déclarative, la collecte locale et la récupération GitHub des 11 fichiers sont validées. La vraie base de 16 384 octets en quatre morceaux a permis de publier les 11 JSON et leur manifeste sur `main`. Le Worker Cloudflare dédié est déployé depuis `main`, puis la chaîne `/update` → GitHub a été validée jusqu’à la fin de l’Action. L’extension Chrome 0.2.0 est raccordée à ce Worker avec un envoi en un clic et une mémorisation locale facultative du mot de passe. Le parseur structurel v1 et le normaliseur v1 de `characters.json` et `procs.json` sont validés. L’indexeur v1 est implémenté localement et en revue ; aucune intégration Web, `/docs`, PWA ou workflow n’a commencé.
 
 ## 1. Objectif et périmètre
 
@@ -596,10 +596,11 @@ Responsabilités :
 9. générer un manifeste de provenance stable ;
 10. ne créer un commit que si le résultat a réellement changé.
 
-Le parseur structurel construit maintenant un intermédiaire audité hors de
-`docs/`, puis le normaliseur en dérive des opérations d’effets contrôlées. Le
-futur indexeur construira l’index compact destiné à la webapp. Ces étapes
-restent volontairement séparées de la récupération des sources.
+Le parseur structurel construit un intermédiaire audité hors de `docs/`, puis
+le normaliseur en dérive des opérations d’effets contrôlées. L’indexeur v1
+construit ensuite un manifest et sept payloads spécialisés, toujours hors de
+`docs/`. Ces étapes restent volontairement séparées de la récupération des
+sources et de leur future intégration à la webapp.
 
 Le `GITHUB_TOKEN` natif de l’Action pourra écrire le commit avec `contents: write`. Le jeton conservé dans Cloudflare ne devra avoir que les permissions nécessaires pour déclencher le workflow sur ce seul dépôt.
 
@@ -638,6 +639,10 @@ data/
     ├── normalized/
     │   ├── README.md
     │   └── capabilities.json
+    ├── indexed/
+    │   ├── README.md
+    │   ├── index-manifest.json
+    │   └── <sept payloads spécialisés>
     └── source-manifest.json
 
 scripts/
@@ -657,12 +662,17 @@ scripts/
 │   ├── diagnostics.py
 │   ├── normalizer.py
 │   └── values.py
-└── build-capabilities-index.mjs  # futur indexeur web
+└── msf_capabilities_indexer/
+    ├── audit.py
+    ├── cli.py
+    ├── diagnostics.py
+    └── indexer.py
 
 tests/
 ├── fixtures/msf_capabilities/
 ├── test_msf_capabilities_parser.py
 ├── test_msf_capabilities_normalizer.py
+├── test_msf_capabilities_indexer.py
 └── test_update_msf_capabilities.py
 
 data/msf-capabilities/
@@ -673,6 +683,10 @@ data/msf-capabilities/
 ├── normalized/
 │   ├── README.md
 │   └── capabilities.json
+├── indexed/
+│   ├── README.md
+│   ├── index-manifest.json
+│   └── <sept payloads spécialisés>
 └── source-manifest.json
 
 .github/workflows/
@@ -680,7 +694,7 @@ data/msf-capabilities/
 └── test-msf-capabilities-worker.yml
 
 docs/data/
-└── msf-capabilities.json
+└── <future publication des payloads validés>
 ```
 
 Principes :
@@ -786,8 +800,10 @@ Les captures réseau utilisées pendant la recherche peuvent contenir des inform
 - [x] Valider la première exécution du workflow sur GitHub après fusion.
 - [x] Figer le schéma de l’intermédiaire structurel v1.
 - [x] Écrire le parseur structurel de `characters.json` et `procs.json` et ses tests.
-- [ ] Valider explicitement le normaliseur comme v1 après sa revue contractuelle.
-- [ ] Écrire l’indexeur web.
+- [x] Valider explicitement le normaliseur comme v1 après sa revue contractuelle.
+- [x] Écrire et tester l’indexeur v1 hors de `docs/`.
+- [ ] Valider explicitement l’indexeur v1 après sa revue contractuelle.
+- [ ] Intégrer les payloads validés à la webapp.
 - [ ] Construire la page mobile-first de filtres.
 - [ ] Vérifier iOS Safari, Android Chrome, PWA et navigateur intégré Discord pour la page finale.
 
@@ -897,8 +913,8 @@ Les responsabilités sont volontairement séparées :
   et conditions sans leur attribuer une signification joueur ;
 - le **normaliseur** traduit les primitives techniques en opérations
   contrôlées sans perdre la référence au `raw` ;
-- le futur **indexeur** construira un JSON compact optimisé pour les recherches
-  de la WebApp.
+- l’**indexeur** construit des JSON spécialisés optimisés pour les recherches,
+  sans les publier dans la WebApp.
 
 Les autres sources de `raw/`, y compris
 `msf-character-abilities-fr.json`, ne sont pas lues dans cette version.
@@ -996,7 +1012,7 @@ La conservation volontaire du `raw` complet à plusieurs niveaux rend
 l’intermédiaire volumineux. La réduction de taille appartiendra à l’indexeur,
 pas au parseur structurel auditable.
 
-## 21. Contrat candidat du normaliseur
+## 21. Normaliseur v1
 
 ### 21.1 Frontière et commandes
 
@@ -1015,7 +1031,7 @@ data/msf-capabilities/normalized/capabilities.json
 Le parseur reste figé et n’est pas modifié par cette étape. Le normaliseur ne
 relit aucun fichier `raw/` et ne construit pas le JSON publié dans `docs/`.
 L’unique traduction d’identifiant autorisée est la politique d’alias exacte
-documentée en 21.5. L’indexeur web restera une troisième étape séparée.
+documentée en 21.5. L’indexeur v1 reste une troisième étape séparée.
 
 Depuis la racine du dépôt :
 
@@ -1204,8 +1220,8 @@ L’audit bloque l’écriture en cas de :
 - schéma racine invalide.
 
 Une référence de proc absente de `procs.json`, une forme inconnue ou une
-dépendance non résolue reste non bloquante et explicite. Sur l’instantané du
-27 juillet 2026, dont le contrat normalisé reste à valider :
+dépendance non résolue reste non bloquante et explicite. Sur l’instantané
+validé du 27 juillet 2026 :
 
 - 12 036 actions source donnent 12 036 ActionMapping ;
 - 7 159 actions sont normalisées et 4 877 préservées sans interprétation ;
@@ -1240,5 +1256,149 @@ Ce contrat candidat ne :
 - ne compacte pas les données pour un navigateur mobile ;
 - ne raccorde pas encore la génération au workflow de récupération.
 
-Ces responsabilités appartiennent aux futurs contrats contrôlés, à l’indexeur
-web et à la page de filtres.
+Ces responsabilités appartiennent aux futurs contrats contrôlés, à
+l’intégration Web et à la page de filtres.
+
+## 22. Indexeur v1
+
+### 22.1 Frontière, artefacts et commandes
+
+L’indexeur lit exclusivement :
+
+```text
+data/msf-capabilities/normalized/capabilities.json
+```
+
+Il ne relit ni `mechanics.json`, ni les sources `raw/`, ni une ressource
+réseau. Il produit hors de `docs/` :
+
+```text
+data/msf-capabilities/indexed/
+├── index-manifest.json
+├── characters.json
+├── abilities.json
+├── contexts.json
+├── operations.json
+├── effects.json
+├── spawns.json
+└── uninterpreted-actions.json
+```
+
+Le manifest et les sept payloads sont régénérables et ignorés par Git. Seul le
+README du dossier est versionné.
+
+Depuis la racine :
+
+```bash
+python -m scripts.msf_capabilities_indexer.cli
+python -m scripts.msf_capabilities_indexer.cli --check
+python -m unittest discover -s tests -p "test_msf_capabilities_indexer.py" -v
+```
+
+Les options `--input` et `--output` permettent d’utiliser une fixture et un
+répertoire temporaire. Les codes de sortie sont `0` pour le succès, `1` pour
+une sortie absente ou incohérente en mode `--check`, `2` pour une entrée, un
+usage ou une E/S invalide, et `3` pour un invariant d’audit violé.
+
+### 22.2 Références et payloads
+
+Toutes les relations utilisent les identifiants canoniques présents dans
+`capabilities.json` :
+
+- `characterId` ou `characters[].id` selon le champ ;
+- `abilities[].id` comme `abilityId` ;
+- `contextId`, `operationId`, `sourceActionId` et `effectId`.
+
+Aucun ordinal ni position de tableau n’est exposé. Les tableaux assimilables à
+des ensembles sont triés lexicalement ; `contextPathIds`, conditions,
+progressions et pools conservent leur ordre fonctionnel.
+
+Les responsabilités sont séparées :
+
+- `characters.json` regroupe les références utiles par personnage sans
+  recopier les opérations ;
+- `abilities.json` conserve les capacités, leurs Context, opérations, effets,
+  spawn et actions préservées ;
+- `contexts.json` indexe tous les Context, y compris les Context techniques
+  sans Ability ;
+- `operations.json` fournit la vue contrôlée complète des Operation et omet
+  seulement `rawParameters` et `rawEffectEntry`, toujours accessibles dans
+  `capabilities.json` ;
+- `effects.json` sépare catalogue proc, références proc explicites,
+  références battlefield, sélecteurs génériques et alias contrôlés ;
+- `spawns.json` conserve les opérations d’invocation, leurs pools et les
+  liaisons exactes vers les `effect_apply` de scope `spawn_pool` ;
+- `uninterpreted-actions.json` conserve chaque ActionMapping
+  `preserved_uninterpreted` sous son `sourceActionId`.
+
+La liaison d’un effet de pool exige le même `sourceActionId`, le scope exact
+`spawn_pool` et le même `poolIndex`. Une jointure de `spawnedCharacterId` ne
+signifie que l’existence d’un `characterId` identique dans `characters.json` ;
+elle ne déduit aucune jouabilité.
+
+Une opération générique ne reçoit jamais d’`effectId`. Un `effect_flip` reste
+indexé uniquement sous l’effet explicitement nommé, sans ajout à son opposé.
+Les références proc non résolues restent sous leur identifiant brut.
+
+### 22.3 Actions préservées
+
+`capabilities.json` ne fournit pas la présence de conditions, cibles ou
+dépendances pour les actions `preserved_uninterpreted`. Le payload déclare
+donc honnêtement :
+
+```json
+{
+  "facetAvailability": {
+    "conditionPresence": "unavailable",
+    "targetPresence": "unavailable",
+    "dependencyPresence": "unavailable"
+  }
+}
+```
+
+Chaque record conserve son pointeur source exact. Aucun index secondaire
+`bySourcePointer` n’est produit en v1.
+
+### 22.4 Manifest, déterminisme et écriture
+
+Les JSON sont sérialisés en UTF-8 minifié, avec `ensure_ascii=false`, clés
+triées, valeurs non finies interdites et saut de ligne final. Aucune date
+réelle, UUID, donnée réseau ou correction implicite de casse, d’espace ou
+d’Unicode n’est ajoutée.
+
+Le manifest contient les versions de schéma, les checksums de
+`capabilities.json` et `mechanics.json`, la liste exacte des sept payloads,
+leur taille, leur SHA-256, le `payloadSetChecksum`, les compteurs, l’audit, les
+diagnostics et les limites intentionnelles. Il omet tout timestamp et son
+propre checksum.
+
+La génération construit et audite d’abord tous les artefacts en mémoire. Elle
+prépare ensuite tous les fichiers temporaires, remplace les sept payloads et
+remplace le manifest en dernier. `--check` n’écrit aucun octet, ne crée aucun
+dossier et compare la liste des fichiers, les octets, tailles, checksums,
+compteurs et audits.
+
+### 22.5 Audit général et instantané validé
+
+Les invariants généraux contrôlent toujours les doublons, références
+orphelines, couvertures exhaustives, partitions d’ActionMapping, compatibilité
+des kinds, séparation des namespaces d’effet, absence d’association générique,
+liaisons spawn et références canoniques.
+
+Les assertions numériques ne s’appliquent que lorsque le SHA-256 de l’entrée
+est exactement :
+
+```text
+71ff43f448e7f4efa60f85c6f98d1bbd1e452fb82dcb0f28a75c70cea428daa1
+```
+
+Cet instantané contient 499 Character, 1 827 Ability, 3 893 Context,
+12 036 ActionMapping, 8 657 Operation, 286 effets de catalogue,
+4 877 actions préservées, 116 spawn, 39 effets de pool, 289 `empty_result`,
+7 `empower`, 6 alias contrôlés, 4 références proc non résolues,
+17 poses et 21 retraits d’effet battlefield, 602 Context techniques et
+5 Ability `passive_empower`.
+
+L’indexeur ne traduit aucun identifiant, n’interprète aucune action préservée,
+ne déduit aucune mécanique gameplay et n’effectue encore aucune publication
+Web, intégration PWA, Service Worker ou workflow GitHub.

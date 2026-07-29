@@ -1,9 +1,9 @@
 # Intermédiaire normalisé des capacités
 
 `capabilities.json` est généré exclusivement depuis
-`../parsed/mechanics.json`. Son contrat est encore en revue : il ne constitue
-pas encore un schéma v1 validé. Il normalise les primitives reconnues, conserve
-les autres actions sans les interpréter et ne produit pas l’index Web.
+`../parsed/mechanics.json`. Son contrat v1 est validé. Il normalise les
+primitives reconnues, conserve les autres actions sans les interpréter et sert
+d’unique entrée à l’indexeur v1.
 
 Depuis la racine du dépôt :
 
@@ -11,12 +11,14 @@ Depuis la racine du dépôt :
 python -m scripts.msf_capabilities_parser.cli
 python -m scripts.msf_capabilities_normalizer.cli
 python -m scripts.msf_capabilities_normalizer.cli --check
+python -m scripts.msf_capabilities_indexer.cli
+python -m scripts.msf_capabilities_indexer.cli --check
 ```
 
 Ne pas modifier `capabilities.json` manuellement. Les références au parser et
 les JSON Pointers vers les sources brutes permettent d’expliquer chaque
 opération. Cet artefact régénérable reste hors de `docs/` et n’est pas
-versionné.
+versionné. L’indexeur ne relit ni `mechanics.json`, ni les fichiers `raw/`.
 
 ## Objets du contrat
 

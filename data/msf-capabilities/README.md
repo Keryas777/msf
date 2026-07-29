@@ -12,17 +12,22 @@ téléchargent et valident la nouvelle version depuis le CDN officiel.
 
 Le parseur structurel lit uniquement `raw/characters.json` et
 `raw/procs.json`, puis génère l’intermédiaire audité
-`parsed/mechanics.json`. Le contrat candidat du normaliseur consomme ensuite
-cet intermédiaire et génère `normalized/capabilities.json` :
+`parsed/mechanics.json`. Le normaliseur v1 consomme ensuite cet intermédiaire
+et génère `normalized/capabilities.json`. L’indexeur v1 lit exclusivement ce
+dernier fichier et produit un manifest et sept payloads spécialisés dans
+`indexed/` :
 
 ```bash
 python -m scripts.msf_capabilities_parser.cli
 python -m scripts.msf_capabilities_parser.cli --check
 python -m scripts.msf_capabilities_normalizer.cli
 python -m scripts.msf_capabilities_normalizer.cli --check
+python -m scripts.msf_capabilities_indexer.cli
+python -m scripts.msf_capabilities_indexer.cli --check
 ```
 
 Ne modifier manuellement ni `parsed/mechanics.json`, ni
-`normalized/capabilities.json`. Les fichiers `raw/` restent la source de
-vérité ; toute mise à jour doit passer par les deux commandes de génération.
-Ces artefacts régénérables ne sont pas versionnés.
+`normalized/capabilities.json`, ni les huit JSON de `indexed/`. Les fichiers
+`raw/` restent la source de vérité ; toute mise à jour doit passer par les
+trois commandes de génération. Ces artefacts régénérables ne sont pas
+versionnés et aucun n’est encore publié sous `docs/`.
