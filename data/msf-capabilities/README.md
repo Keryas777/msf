@@ -24,10 +24,18 @@ python -m scripts.msf_capabilities_normalizer.cli
 python -m scripts.msf_capabilities_normalizer.cli --check
 python -m scripts.msf_capabilities_indexer.cli
 python -m scripts.msf_capabilities_indexer.cli --check
+python -m scripts.msf_capabilities_web_publisher.cli
+python -m scripts.msf_capabilities_web_publisher.cli --check
 ```
 
 Ne modifier manuellement ni `parsed/mechanics.json`, ni
 `normalized/capabilities.json`, ni les huit JSON de `indexed/`. Les fichiers
 `raw/` restent la source de vérité ; toute mise à jour doit passer par les
 trois commandes de génération. Ces artefacts régénérables ne sont pas
-versionnés et aucun n’est encore publié sous `docs/`.
+versionnés sous `data/`.
+
+Le publisher Web reste une quatrième étape strictement séparée. Il consomme
+uniquement les huit sorties existantes de l’indexeur, les valide, puis copie
+leurs octets sous le chemin immuable courant de
+`docs/data/msf-capabilities/`. Il ne lance et n’importe aucune étape amont.
+Les artefacts publics sous `docs/` sont, eux, versionnés dans Git.
