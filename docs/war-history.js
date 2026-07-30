@@ -15,11 +15,12 @@ const tabButtons = Array.from(document.querySelectorAll(".warHistoryTabBtn"));
 const tabPanels = Array.from(document.querySelectorAll(".warHistoryTabPanel"));
 
 const FALLBACK_ALLIANCES = [
-  { key: "zeus", name: "Zeus", emoji: "⚡️", order: 1, aliases: ["Zeus", "zeus", "LoSP Zeus", "losp zeus"] },
-  { key: "kronos", name: "Kronos", emoji: "⏳", order: 2, aliases: ["Kronos", "kronos", "Cronos", "Chronos", "LoSP Kronos", "losp kronos"] },
-  { key: "dionysos", name: "Dionysos", emoji: "🍇", order: 3, aliases: ["Dionysos", "dionysos", "LoSP Dionysos", "losp dionysos"] },
-  { key: "poseidon", name: "Poséidon", emoji: "🔱", order: 4, aliases: ["Poséidon", "Poseidon", "Posseidon", "poséidon", "poseidon", "LoSP Poséidon", "losp poseidon"] },
-  { key: "hades", name: "Hadès", emoji: "🔥", order: 5, aliases: ["Hadès", "Hades", "hadès", "hades", "LoSP Hadès", "losp hades"] }
+  { key: "zeus", name: "Zeus", emoji: "⚡️", color: "#F8FF00", order: 1, aliases: ["Zeus", "zeus", "LoSP Zeus", "losp zeus"] },
+  { key: "athena", name: "Athéna", emoji: "🦉", color: "#F28C28", order: 2, aliases: ["Athéna", "Athena", "athéna", "athena", "LoSP Athéna", "LoSP Athena", "losp athéna", "losp athena"] },
+  { key: "kronos", name: "Kronos", emoji: "⏳", color: "#E10D17", order: 3, aliases: ["Kronos", "kronos", "Cronos", "Chronos", "LoSP Kronos", "losp kronos"] },
+  { key: "dionysos", name: "Dionysos", emoji: "🍇", color: "#93328E", order: 4, aliases: ["Dionysos", "dionysos", "LoSP Dionysos", "losp dionysos"] },
+  { key: "poseidon", name: "Poséidon", emoji: "🔱", color: "#0000FF", order: 5, aliases: ["Poséidon", "Poseidon", "Posseidon", "poséidon", "poseidon", "LoSP Poséidon", "losp poseidon"] },
+  { key: "hades", name: "Hadès", emoji: "🔥", color: "#1EA164", order: 6, aliases: ["Hadès", "Hades", "hadès", "hades", "LoSP Hadès", "losp hades"] }
 ];
 
 let allianceMeta = [];
@@ -282,6 +283,7 @@ function populateDays() {
 }
 
 function getAvailableAlliances() {
+  const fromRegistry = allianceMeta.map((alliance) => alliance.key);
   const fromIndex = Array.isArray(warIndex?.alliances) ? warIndex.alliances : [];
 
   const fromDates = Array.isArray(warIndex?.dates)
@@ -290,7 +292,7 @@ function getAvailableAlliances() {
       )
     : [];
 
-  const merged = [...new Set([...fromIndex, ...fromDates])]
+  const merged = [...new Set([...fromRegistry, ...fromIndex, ...fromDates])]
     .map((alliance) => normalizeAllianceKey(alliance))
     .filter(Boolean);
 
