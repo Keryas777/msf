@@ -259,6 +259,28 @@
   --glow-strong: rgba(80, 190, 255, .98);
 }
 
+.homeTile--codex{
+  --glow: rgba(72, 218, 255, .72);
+  --glow-strong: rgba(111, 232, 255, 1);
+  background: linear-gradient(145deg, #102b57, #070e22);
+}
+
+.homeTile--codex::before{
+  content:"📖";
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  color:#c9f8ff;
+  font-size:clamp(42px, 13vw, 86px);
+  text-shadow:0 0 28px rgba(72,218,255,.8);
+}
+
+.homeTile--codex .homeTileImg{
+  position:relative;
+  z-index:1;
+}
+
 .homeTile--iso{
   --glow: rgba(190, 110, 255, .70);
   --glow-strong: rgba(190, 110, 255, .98);

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fr" class="authChecking">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#071225" />
+    <title>Codex MSF — Explorateur de capacités</title>
+
+    <style>
+      html.authChecking body {
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
+    <script src="./auth-guard.js?v=4"></script>
+
+    <link rel="stylesheet" href="./codex.css?v=1" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icon-512.PNG" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="LoSP" />
+  </head>
+
+  <body class="codexPage">
+    <a class="codexSkipLink" href="#codexMain">Aller au contenu</a>
+
+    <div class="codexShell">
+      <header class="codexHeader" aria-label="Navigation du Codex">
+        <div class="codexHeaderRow">
+          <button id="codexBack" class="codexNavButton" type="button" aria-label="Retour">
+            <span aria-hidden="true">‹</span>
+            <span class="codexNavText">Retour</span>
+          </button>
+
+          <a class="codexBrand" href="./codex.html" data-codex-link>
+            <span class="codexBrandMark" aria-hidden="true">◫</span>
+            <span>
+              <strong>Codex MSF</strong>
+              <small>Explorateur de capacités</small>
+            </span>
+          </a>
+
+          <a class="codexNavButton codexHomeButton" href="./home.html" aria-label="Accueil LoSP">
+            <span aria-hidden="true">⌂</span>
+            <span class="codexNavText">Accueil LoSP</span>
+          </a>
+        </div>
+
+        <form id="codexSearchForm" class="codexSearch" role="search" novalidate>
+          <label class="codexSearchLabel" for="codexSearchInput">Explorer…</label>
+          <div class="codexSearchControl">
+            <span class="codexSearchIcon" aria-hidden="true"></span>
+            <input
+              id="codexSearchInput"
+              class="codexSearchInput"
+              type="search"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-controls="codexSearchResults"
+              aria-expanded="false"
+              aria-haspopup="listbox"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              enterkeyhint="search"
+              placeholder="Personnage, capacité ou mécanique"
+            />
+            <button
+              id="codexSearchClear"
+              class="codexSearchClear"
+              type="button"
+              aria-label="Effacer la recherche"
+              hidden
+            >
+              ×
+            </button>
+          </div>
+
+          <div id="codexSearchPanel" class="codexSearchPanel" hidden>
+            <div
+              id="codexSearchResults"
+              class="codexSearchResults"
+              role="listbox"
+              aria-label="Résultats de recherche"
+            ></div>
+          </div>
+          <p id="codexSearchStatus" class="codexSrOnly" role="status" aria-live="polite"></p>
+        </form>
+
+        <nav id="codexBreadcrumbs" class="codexBreadcrumbs" aria-label="Fil d’Ariane" hidden></nav>
+      </header>
+
+      <div id="codexStaleNotice" class="codexNotice codexNotice--warning" role="status" hidden>
+        Des données MSF plus récentes sont disponibles.
+      </div>
+
+      <main id="codexMain" class="codexMain" tabindex="-1">
+        <section class="codexLoadingState" aria-live="polite">
+          <span class="codexSpinner" aria-hidden="true"></span>
+          <p>Chargement du Codex…</p>
+        </section>
+      </main>
+    </div>
+
+    <div id="codexFilterSheet" class="codexFilterSheet" hidden>
+      <button
+        class="codexFilterBackdrop"
+        type="button"
+        data-filter-close
+        aria-label="Fermer les filtres"
+      ></button>
+      <section
+        class="codexFilterDialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="codexFilterTitle"
+      >
+        <header class="codexFilterHeader">
+          <h2 id="codexFilterTitle">Filtres</h2>
+          <button class="codexIconButton" type="button" data-filter-close aria-label="Fermer">
+            ×
+          </button>
+        </header>
+        <div id="codexFilterSheetContent" class="codexFilterContent"></div>
+        <button id="codexFilterApply" class="codexPrimaryButton" type="button">
+          Voir les résultats
+        </button>
+      </section>
+    </div>
+
+    <div id="codexToast" class="codexToast" role="status" aria-live="polite" hidden></div>
+
+    <noscript>
+      <div class="codexNoScript">Le Codex MSF nécessite JavaScript pour charger ses données.</div>
+    </noscript>
+
+    <script type="module" src="./codex.js?v=1"></script>
+  </body>
+</html>

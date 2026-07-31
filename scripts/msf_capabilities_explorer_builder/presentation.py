@@ -1,0 +1,521 @@
+"""Controlled, presentation-only vocabulary for the Codex Web artifacts.
+
+These mappings never create gameplay relations. A structured effect is linked
+only through its exact upstream effect id; text mentions are literal matches
+against the controlled French terms below.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+
+SCHEMA_VERSION = "1.0.0"
+
+PROOF = {
+    "normalized": {
+        "label": "Mécanique vérifiée",
+        "explanation": (
+            "Le type d’action et les paramètres reconnus sont structurés à "
+            "partir des données de combat. Cela ne constitue pas une "
+            "simulation complète du combat."
+        ),
+    },
+    "preserved_uninterpreted": {
+        "label": "Action détectée",
+        "explanation": (
+            "L’action existe bien dans les données du jeu, mais sa cible, sa "
+            "quantité, sa durée ou certaines conditions ne sont pas "
+            "interprétées. N’en déduis pas un comportement non affiché."
+        ),
+    },
+    "official_text_only": {
+        "label": "Mention dans le texte",
+        "explanation": (
+            "La description officielle mentionne cette mécanique, mais aucune "
+            "opération structurée correspondante n’a été reliée ici. Le texte "
+            "est informatif, pas une preuve mécanique complète."
+        ),
+    },
+}
+
+
+ABILITY_TYPES = {
+    "basic": {"label": "Basique", "order": 10, "base": "basic"},
+    "basic_empower": {"label": "Basique renforcée", "order": 11, "base": "basic"},
+    "special": {"label": "Spéciale", "order": 20, "base": "special"},
+    "special_empower": {
+        "label": "Spéciale renforcée",
+        "order": 21,
+        "base": "special",
+    },
+    "ultimate": {"label": "Ultime", "order": 30, "base": "ultimate"},
+    "ultimate_empower": {
+        "label": "Ultime renforcée",
+        "order": 31,
+        "base": "ultimate",
+    },
+    "passive": {"label": "Passive", "order": 40, "base": "passive"},
+    "passive_empower": {
+        "label": "Passive renforcée",
+        "order": 41,
+        "base": "passive",
+    },
+}
+
+
+OPERATION_KINDS = {
+    "effect_apply": {"label": "Applique", "order": 10},
+    "effect_remove": {"label": "Retire", "order": 20},
+    "effect_duration_modify": {"label": "Modifie la durée", "order": 30},
+    "effect_transfer": {"label": "Transfère", "order": 40},
+    "effect_flip": {"label": "Retourne", "order": 50},
+    "battlefield_effect_set": {"label": "Active l’effet de champ", "order": 60},
+    "battlefield_effect_clear": {"label": "Retire l’effet de champ", "order": 70},
+    "spawn": {"label": "Invoque", "order": 80},
+    "empower": {"label": "Se renforce", "order": 90},
+    "empty_result": {"label": "Résultat vide déclaré", "order": 100},
+    "mention": {"label": "Mentions", "order": 110},
+    "detected_add": {"label": "Ajoute", "order": 12},
+    "detected_remove": {"label": "Retire", "order": 22},
+    "detected": {"label": "Actions détectées", "order": 100},
+}
+
+
+METRICS = {
+    "chancePct": "Chance",
+    "useCount": "Quantité indiquée",
+    "selectionCount": "Nombre de cibles sélectionnées",
+    "applyCount": "Nombre d’applications",
+    "delta": "Variation de durée",
+    "maxDuration": "Durée maximale",
+    "sourceRemovalPct": "Part retirée à la source",
+    "transferPct": "Part transférée",
+    "flipPct": "Chance de retournement",
+    "spawnPct": "Chance d’invocation",
+    "removePct": "Chance de retrait",
+    "useCountPerCrit": "Quantité par critique",
+}
+
+
+MODE_LABELS = {
+    "AVA": "Guerre",
+    "WAR": "Guerre",
+    "RAID": "Raid",
+    "TOURNAMENT": "Épreuve",
+    "CRUCIBLE": "Épreuve",
+    "BATTLEWORLD": "Battleworld",
+}
+
+SIDE_LABELS = {"offense": "Attaque", "defense": "Défense"}
+
+RELATION_LABELS = {
+    "ally": "allié",
+    "enemy": "ennemi",
+    "self": "soi",
+    "owner": "propriétaire",
+}
+
+TARGET_TYPE_LABELS = {
+    "all": "toutes les cibles",
+    "random": "cible aléatoire",
+    "direct_neighbor": "cible adjacente",
+    "by_most_stat": "cible ayant la statistique la plus élevée",
+    "primary": "cible principale",
+}
+
+TRIGGER_LABELS = {
+    "on_turn": "À chaque tour",
+    "On_turn": "À chaque tour",
+    "on_start": "Au début du combat",
+    "on_start_early": "Au début du combat",
+    "on_start_late": "Au début du combat",
+    "below_health": "Sous un seuil de vie",
+    "on_death": "À la mort",
+    "on_attacked": "Lorsqu’il est attaqué",
+    "on_any_turn_end": "À la fin d’un tour",
+    "on_any_turn_end_late": "À la fin d’un tour",
+    "on_turn_end": "À la fin de son tour",
+    "on_turn_end_early": "À la fin de son tour",
+    "on_turn_end_late": "À la fin de son tour",
+    "on_ability_used": "Lorsqu’une capacité est utilisée",
+    "on_turn_late": "À chaque tour",
+    "on_turn_early": "À chaque tour",
+    "on_debuffed": "Lorsqu’un effet négatif est reçu",
+    "on_critical_hit": "Lors d’un coup critique",
+    "on_buffed": "Lorsqu’un effet bénéfique est reçu",
+    "on_enter_state": "À l’entrée dans un état",
+    "on_leave_state": "À la sortie d’un état",
+    "on_revive": "À la résurrection",
+    "on_kill_other": "Lorsqu’un autre personnage est éliminé",
+    "on_kill_target": "Lorsqu’une cible est éliminée",
+    "on_successful_hit": "Lors d’une attaque réussie",
+    "on_successful_subsequent_hit": "Lors d’une attaque suivante réussie",
+    "on_block_success": "Lors d’un blocage réussi",
+    "on_dodge_success": "Lors d’une esquive réussie",
+    "on_gain_energy": "Lors d’un gain d’énergie",
+    "on_gain_energy_for_passives_no_repeat": "Lors d’un gain d’énergie",
+    "on_summon": "Lors d’une invocation",
+    "on_bleed_tick": "Lors d’un déclenchement de Saignement",
+    "on_miss": "Lors d’une attaque manquée",
+    "on_debuff_target": "Lorsqu’une cible reçoit un effet négatif",
+}
+
+
+TRAIT_LABELS = {
+    "Hero": "Héros",
+    "Villain": "Vilain",
+    "Global": "Mondial",
+    "Cosmic": "Cosmique",
+    "City": "Ville",
+    "Mystic": "Mystique",
+    "Skill": "Compétence",
+    "Controller": "Contrôleur",
+    "Brawler": "Cogneur",
+    "Blaster": "Artilleur",
+    "Protector": "Protecteur",
+    "Support": "Soutien",
+}
+
+
+# The standard proc ids have stable, exact semantics in the upstream catalog.
+# Text terms are deliberately narrower: they enable literal mentions only and
+# never cause a structured relation.
+EFFECT_PRESENTATIONS: dict[str, dict[str, Any]] = {
+    "AbilityBlock": {
+        "label": "Blocage de capacité",
+        "aliases": ["ability block", "abilityblock", "capablock", "blocage capacité"],
+        "terms": ["Blocage de capacité"],
+        "description": "Empêche temporairement l’utilisation des capacités actives.",
+    },
+    "AccuracyDown": {
+        "label": "Précision réduite",
+        "aliases": ["accuracy down", "accuracydown"],
+        "terms": ["Précision réduite"],
+    },
+    "BuffBlock": {
+        "label": "Perturbation",
+        "aliases": ["buff block", "buffblock", "disrupted"],
+        "terms": ["Perturbation"],
+    },
+    "DefenseDown": {
+        "label": "Défense réduite",
+        "aliases": ["defense down", "defensedown"],
+        "terms": ["Défense réduite"],
+    },
+    "DoT": {
+        "label": "Saignement",
+        "aliases": ["bleed", "dot"],
+        "terms": ["Saignement"],
+    },
+    "HealBlock": {
+        "label": "Blocage de soins",
+        "aliases": ["heal block", "healblock"],
+        "terms": ["Blocage de soins"],
+    },
+    "ISODoT": {
+        "label": "Saignement ISO-8",
+        "aliases": ["iso bleed", "isodot"],
+        "terms": [],
+    },
+    "MinorDefenseDown": {
+        "label": "Défense réduite mineure",
+        "aliases": ["minor defense down", "minordefensedown"],
+        "terms": ["Défense réduite mineure"],
+    },
+    "MinorOffenseDown": {
+        "label": "Attaque réduite mineure",
+        "aliases": ["minor offense down", "minoroffensedown"],
+        "terms": ["Attaque réduite mineure"],
+    },
+    "OffenseDown": {
+        "label": "Attaque réduite",
+        "aliases": ["offense down", "offensedown"],
+        "terms": ["Attaque réduite"],
+    },
+    "Silence": {
+        "label": "Silence",
+        "aliases": ["silence"],
+        "terms": ["Silence"],
+    },
+    "Slow": {
+        "label": "Ralentissement",
+        "aliases": ["slow"],
+        "terms": ["Ralentissement"],
+    },
+    "Stun": {
+        "label": "Étourdissement",
+        "aliases": ["stun"],
+        "terms": ["Étourdissement"],
+    },
+    "Counter": {
+        "label": "Contre-attaque",
+        "aliases": ["counter", "counterattack"],
+        "terms": ["Contre-attaque"],
+    },
+    "Deathproof": {
+        "label": "Dernier souffle",
+        "aliases": ["deathproof"],
+        "terms": ["Dernier souffle"],
+    },
+    "DebuffBlock": {
+        "label": "Immunité",
+        "aliases": ["debuff block", "debuffblock", "immunity"],
+        "terms": ["Immunité"],
+    },
+    "DefenseUp": {
+        "label": "Défense augmentée",
+        "aliases": ["defense up", "defenseup"],
+        "terms": ["Défense augmentée"],
+    },
+    "Deflect": {
+        "label": "Déviation",
+        "aliases": ["deflect"],
+        "terms": ["Déviation"],
+    },
+    "Evade": {
+        "label": "Évitement",
+        "aliases": ["evade"],
+        "terms": ["Évitement"],
+    },
+    "HoT": {
+        "label": "Régénération",
+        "aliases": ["hot", "regeneration"],
+        "terms": ["Régénération"],
+    },
+    "LockedBuff": {
+        "label": "Sauvegarde",
+        "aliases": ["safeguard", "lockedbuff"],
+        "terms": ["Sauvegarde"],
+    },
+    "MinorDefenseUp": {
+        "label": "Défense augmentée mineure",
+        "aliases": ["minor defense up", "minordefenseup"],
+        "terms": ["Défense augmentée mineure"],
+    },
+    "MinorDeflect": {
+        "label": "Déviation mineure",
+        "aliases": ["minor deflect", "minordeflect"],
+        "terms": ["Déviation mineure"],
+    },
+    "MinorHoT": {
+        "label": "Régénération mineure",
+        "aliases": ["minor hot", "minorhot"],
+        "terms": ["Régénération mineure"],
+    },
+    "MinorOffenseUp": {
+        "label": "Attaque augmentée mineure",
+        "aliases": ["minor offense up", "minoroffenseup"],
+        "terms": ["Attaque augmentée mineure"],
+    },
+    "OffenseUp": {
+        "label": "Attaque augmentée",
+        "aliases": ["offense up", "offenseup"],
+        "terms": ["Attaque augmentée"],
+    },
+    "SpeedUp": {
+        "label": "Vitesse augmentée",
+        "aliases": ["speed up", "speedup"],
+        "terms": ["Vitesse augmentée"],
+    },
+    "Stealth": {
+        "label": "Furtivité",
+        "aliases": ["stealth"],
+        "terms": ["Furtivité"],
+    },
+    "Taunt": {
+        "label": "Provocation",
+        "aliases": ["taunt"],
+        "terms": ["Provocation"],
+    },
+    "Charged": {
+        "label": "Chargé",
+        "aliases": ["charged"],
+        "terms": ["Chargé"],
+    },
+    "ReviveOnce": {
+        "label": "Ressusciter une fois",
+        "aliases": ["revive once", "reviveonce"],
+        "terms": ["Ressusciter une fois"],
+    },
+    "Vulnerable": {
+        "label": "Vulnérable",
+        "aliases": ["vulnerable"],
+        "terms": ["Vulnérable"],
+    },
+    "Exposed": {
+        "label": "À découvert",
+        "aliases": ["exposed"],
+        "terms": ["À découvert"],
+    },
+    "Exhausted": {
+        "label": "Épuisement",
+        "aliases": ["exhausted"],
+        "terms": ["Épuisement", "Épuisé"],
+    },
+}
+
+
+# LockedDebuff is intentionally not linked to Trauma in v1. The product
+# contract requires Trauma to remain a text-only mechanic until an exact,
+# audited presentation-to-operation relation exists.
+TEXT_ONLY_MECHANICS = {
+    "trauma": {
+        "label": "Traumatisme",
+        "sourceName": "Trauma",
+        "aliases": ["trauma"],
+        "terms": ["Traumatisme"],
+        "description": "Mention officielle de Traumatisme dans les descriptions de capacités.",
+    },
+    "war-defense": {
+        "label": "Défense de guerre",
+        "sourceName": "war defense",
+        "aliases": ["war defense", "défense guerre"],
+        "terms": ["défense de guerre"],
+        "description": "Capacités dont le texte ou les conditions citent la défense de guerre.",
+    },
+}
+
+
+DETECTED_ACTIONS = {
+    "barrier": {
+        "mechanicId": "barrier",
+        "label": "Barrière",
+        "sourceName": "barrier",
+        "aliases": ["barrier", "barrière"],
+        "terms": ["Barrière"],
+        "facet": "detected_add",
+        "description": "Ajout de Barrière détecté dans les données de combat.",
+    },
+    "Barrier": {
+        "mechanicId": "barrier",
+        "label": "Barrière",
+        "sourceName": "Barrier",
+        "aliases": ["barrier", "barrière"],
+        "terms": ["Barrière"],
+        "facet": "detected_add",
+        "description": "Ajout de Barrière détecté dans les données de combat.",
+    },
+    "barrier_remove": {
+        "mechanicId": "barrier",
+        "label": "Barrière",
+        "sourceName": "barrier_remove",
+        "aliases": ["remove barrier", "retire barrière"],
+        "terms": ["Barrière"],
+        "facet": "detected_remove",
+        "description": "Retrait de Barrière détecté dans les données de combat.",
+    },
+}
+
+
+ACTION_PRESENTATIONS = {
+    "stat_modifier": "Modification de statistique",
+    "turn_meter": "Modification de jauge de vitesse",
+    "heal": "Soin",
+    "ability_energy": "Énergie de capacité",
+    "health_redistribute": "Redistribution de vie",
+    "attack_ally": "Attaque d’un allié",
+    "damage_mul_per_proc": "Dégâts selon les effets",
+    "revive": "Résurrection",
+    "attack": "Attaque",
+    "drain": "Drain de vie",
+    "ability_energy_transfer": "Transfert d’énergie",
+    "move": "Déplacement",
+    "drain_heal_results": "Soin issu du drain",
+    "unclassified_object": "Action non classée",
+}
+
+
+GENERIC_MECHANICS = {
+    "spawn": {
+        "label": "Invocation",
+        "sourceName": "spawn",
+        "aliases": ["spawn", "summon", "invocation", "invoque"],
+        "description": "Invocation structurée à partir des données de combat.",
+    },
+    "empower": {
+        "label": "Renforcement",
+        "sourceName": "empower",
+        "aliases": ["empower", "empowered", "renforcé", "renforcement"],
+        "description": "Passage à une version renforcée détecté dans les données de combat.",
+    },
+    "negative-effect-duration": {
+        "label": "Durée des effets négatifs",
+        "sourceName": "debuff duration",
+        "aliases": ["prolonge effet négatif", "debuff duration"],
+        "description": "Modification structurée de la durée d’effets négatifs génériques.",
+    },
+    "generic-buffs": {
+        "label": "Effets bénéfiques génériques",
+        "sourceName": "generic buffs",
+        "aliases": ["buffs", "effets bénéfiques"],
+        "description": "Opérations structurées visant une catégorie d’effets bénéfiques sans effet précis.",
+    },
+    "generic-debuffs": {
+        "label": "Effets négatifs génériques",
+        "sourceName": "generic debuffs",
+        "aliases": ["debuffs", "effets négatifs"],
+        "description": "Opérations structurées visant une catégorie d’effets négatifs sans effet précis.",
+    },
+    "generic-effects": {
+        "label": "Effets génériques",
+        "sourceName": "generic effects",
+        "aliases": ["effects", "effets"],
+        "description": "Opérations structurées visant des effets sans identifiant précis.",
+    },
+    "battlefield-effects": {
+        "label": "Effets de champ de bataille",
+        "sourceName": "battlefield effects",
+        "aliases": ["battlefield", "effet de champ"],
+        "description": "Pose ou retrait structuré d’un effet de champ de bataille.",
+    },
+}
+
+
+SUGGESTION_SPECS = [
+    {
+        "label": "Qui applique Blocage de capacité ?",
+        "view": "effect",
+        "id": "ability-block",
+        "operation": "effect_apply",
+    },
+    {
+        "label": "Qui retire Barrière ?",
+        "view": "mechanic",
+        "id": "barrier",
+        "operation": "detected_remove",
+    },
+    {
+        "label": "Quels personnages invoquent ?",
+        "view": "mechanic",
+        "id": "spawn",
+        "operation": "spawn",
+    },
+    {
+        "label": "Quels personnages se renforcent ?",
+        "view": "mechanic",
+        "id": "empower",
+        "operation": "empower",
+    },
+    {
+        "label": "Qui prolonge un effet négatif ?",
+        "view": "mechanic",
+        "id": "negative-effect-duration",
+        "operation": "effect_duration_modify",
+    },
+    {
+        "label": "Quelles capacités fonctionnent en défense de guerre ?",
+        "view": "mechanic",
+        "id": "war-defense",
+        "operation": "mention",
+    },
+]
+
+
+LIMITATIONS = [
+    "Aucune simulation de combat n’est effectuée.",
+    "Les actions détectées ne reçoivent ni cible, ni quantité, ni durée déduite.",
+    "Les capacités renforcées sans présentation officielle utilisent un fallback neutre.",
+    "Les mentions textuelles reposent uniquement sur des termes contrôlés exacts.",
+    "Le fonctionnement hors ligne complet n’est pas pris en charge en V1.",
+]
