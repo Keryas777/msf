@@ -382,6 +382,7 @@ function toNullableInt(value) {
 function cleanPlayerName(name) {
   return String(name || "")
     .replace(/\[\s*MOI\s*\]/gi, "")
+    .replace(/\(\s*MOI\s*\)/gi, "")
     .replace(/\bMOI\b/gi, "")
     .replace(/\s+/g, " ")
     .trim();
