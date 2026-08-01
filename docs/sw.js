@@ -1,6 +1,6 @@
 // docs/sw.js
 
-const CACHE = "losp-v15";
+const CACHE = "losp-v16";
 
 const CORE_ASSETS = [
   "./",
