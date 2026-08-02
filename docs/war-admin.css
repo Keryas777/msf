@@ -1,0 +1,407 @@
+:root {
+  color-scheme: dark;
+  --war-admin-bg: #050b18;
+  --war-admin-bg-soft: #081329;
+  --war-admin-panel: rgba(12, 27, 52, 0.94);
+  --war-admin-panel-strong: #112547;
+  --war-admin-border: rgba(139, 184, 232, 0.24);
+  --war-admin-cyan: #71e7ff;
+  --war-admin-cyan-strong: #24c9f0;
+  --war-admin-text: #f4f8ff;
+  --war-admin-text-soft: #b6c4d9;
+  --war-admin-text-muted: #8fa1ba;
+  --war-admin-success: #89e8bc;
+  --war-admin-danger: #ff9aab;
+  --war-admin-warning: #ffd17a;
+  --war-admin-focus: #fff3a6;
+  --war-admin-radius: 18px;
+  --war-admin-shadow: 0 18px 46px rgba(0, 0, 0, 0.34);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--war-admin-bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+body.warAdminPage {
+  min-width: 320px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(48, 130, 214, 0.2), transparent 34rem),
+    radial-gradient(circle at 92% 18%, rgba(99, 79, 220, 0.16), transparent 28rem),
+    linear-gradient(180deg, #071225 0%, var(--war-admin-bg) 52%, #040913 100%);
+  color: var(--war-admin-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button,
+a,
+input,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 3px solid var(--war-admin-focus);
+  outline-offset: 3px;
+}
+
+.warAdminSkipLink {
+  position: fixed;
+  top: max(8px, env(safe-area-inset-top));
+  left: max(8px, env(safe-area-inset-left));
+  z-index: 100;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #fff;
+  color: #05101f;
+  font-weight: 800;
+  transform: translateY(-150%);
+}
+
+.warAdminSkipLink:focus {
+  transform: translateY(0);
+}
+
+.warAdminShell {
+  width: min(100%, 1060px);
+  margin: 0 auto;
+  padding: max(14px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+    max(34px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+}
+
+.warAdminHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding: 18px;
+  border: 1px solid var(--war-admin-border);
+  border-radius: var(--war-admin-radius);
+  background: rgba(5, 13, 28, 0.9);
+  box-shadow: var(--war-admin-shadow);
+}
+
+.warAdminEyebrow,
+.warAdminStep {
+  margin: 0 0 4px;
+  color: var(--war-admin-cyan);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.warAdminHeader h1,
+.warAdminPanel h2 {
+  margin: 0;
+  line-height: 1.18;
+}
+
+.warAdminHeader h1 {
+  font-size: clamp(24px, 8vw, 38px);
+}
+
+.warAdminIntro {
+  max-width: 680px;
+  margin: 8px 0 0;
+  color: var(--war-admin-text-soft);
+  font-size: 14px;
+}
+
+.warAdminHomeLink {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 9px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--war-admin-text);
+  font-size: 14px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.warAdminHomeLink [aria-hidden="true"] {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.warAdminHomeLink span:last-child {
+  display: none;
+}
+
+.warAdminLayout {
+  display: grid;
+  gap: 14px;
+}
+
+.warAdminPanel {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--war-admin-border);
+  border-radius: var(--war-admin-radius);
+  background: var(--war-admin-panel);
+  box-shadow: var(--war-admin-shadow);
+}
+
+.warAdminPanelHeading,
+.warAdminStatusHeading {
+  margin-bottom: 16px;
+}
+
+.warAdminPanel h2 {
+  font-size: 20px;
+}
+
+.warAdminForm,
+.warAdminFieldGrid,
+.warAdminField {
+  display: grid;
+  gap: 8px;
+}
+
+.warAdminForm,
+.warAdminFieldGrid {
+  gap: 16px;
+}
+
+.warAdminField label {
+  color: var(--war-admin-text);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.warAdminField input,
+.warAdminField select {
+  width: 100%;
+  min-width: 0;
+  min-height: 50px;
+  border: 1px solid rgba(139, 184, 232, 0.34);
+  border-radius: 12px;
+  background: var(--war-admin-bg-soft);
+  color: var(--war-admin-text);
+}
+
+.warAdminField input[type="date"],
+.warAdminField select {
+  padding: 10px 12px;
+}
+
+.warAdminField input[type="file"] {
+  padding: 7px;
+  line-height: 32px;
+}
+
+.warAdminField input[type="file"]::file-selector-button {
+  min-height: 38px;
+  margin-right: 10px;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--war-admin-panel-strong);
+  color: var(--war-admin-text);
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.warAdminField input:disabled,
+.warAdminField select:disabled {
+  opacity: 0.62;
+}
+
+.warAdminHelp,
+.warAdminPreview figcaption,
+.warAdminStatusMessage {
+  margin: 0;
+  color: var(--war-admin-text-muted);
+  font-size: 13px;
+}
+
+.warAdminPreview {
+  min-width: 0;
+  margin: 0;
+  padding: 10px;
+  border: 1px solid var(--war-admin-border);
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.72);
+}
+
+.warAdminPreview img {
+  display: block;
+  width: 100%;
+  max-height: 62vh;
+  border-radius: 10px;
+  background: #020617;
+  object-fit: contain;
+}
+
+.warAdminPreview figcaption {
+  margin-top: 9px;
+  overflow-wrap: anywhere;
+}
+
+.warAdminSubmit {
+  width: 100%;
+  min-height: 54px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 13px;
+  background: linear-gradient(135deg, var(--war-admin-cyan-strong), #6e79ff);
+  color: #03101d;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 12px 26px rgba(36, 201, 240, 0.18);
+}
+
+.warAdminSubmit:disabled {
+  background: #263650;
+  color: var(--war-admin-text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.78;
+}
+
+.warAdminStatusHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.warAdminStatusBadge {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 209, 122, 0.35);
+  border-radius: 999px;
+  background: rgba(255, 209, 122, 0.1);
+  color: var(--war-admin-warning);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.warAdminStatusMessage {
+  min-height: 21px;
+  margin-bottom: 12px;
+}
+
+.warAdminJson {
+  width: 100%;
+  min-width: 0;
+  min-height: 190px;
+  max-height: 58vh;
+  margin: 0;
+  padding: 14px;
+  overflow: auto;
+  border: 1px solid rgba(139, 184, 232, 0.2);
+  border-radius: 13px;
+  background: #020617;
+  color: #b9ddff;
+  font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.warAdminResultPanel[data-state="sending"] .warAdminStatusBadge {
+  border-color: rgba(113, 231, 255, 0.4);
+  background: rgba(113, 231, 255, 0.1);
+  color: var(--war-admin-cyan);
+}
+
+.warAdminResultPanel[data-state="success"] .warAdminStatusBadge {
+  border-color: rgba(137, 232, 188, 0.4);
+  background: rgba(137, 232, 188, 0.1);
+  color: var(--war-admin-success);
+}
+
+.warAdminResultPanel[data-state="error"] .warAdminStatusBadge {
+  border-color: rgba(255, 154, 171, 0.42);
+  background: rgba(255, 154, 171, 0.1);
+  color: var(--war-admin-danger);
+}
+
+.warAdminNoScript {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  left: 12px;
+  z-index: 50;
+  padding: 14px;
+  border-radius: 12px;
+  background: #fff;
+  color: #111827;
+  text-align: center;
+}
+
+@media (min-width: 620px) {
+  .warAdminShell {
+    padding-top: max(24px, env(safe-area-inset-top));
+  }
+
+  .warAdminHeader,
+  .warAdminPanel {
+    padding: 24px;
+  }
+
+  .warAdminHomeLink span:last-child {
+    display: inline;
+  }
+
+  .warAdminFieldGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .warAdminJson {
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 900px) {
+  .warAdminLayout {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: start;
+  }
+
+  .warAdminResultPanel {
+    position: sticky;
+    top: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
