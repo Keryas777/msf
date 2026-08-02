@@ -18,7 +18,7 @@ const TEST_MODEL = "gemini-test-model";
 const geminiPlayers = Array.from({ length: 24 }, (_, index) => ({
   row_index: index + 1,
   name: index === 0 ? "Joueur 1 [MOI]" : `Joueur ${index + 1}`,
-  alliance: "zeus",
+  alliance: null,
   attack_points: index === 0 ? "13 000" : 12000 - index,
   attacks: 14,
   damage: 1_000_000_000 + index,
@@ -26,15 +26,25 @@ const geminiPlayers = Array.from({ length: 24 }, (_, index) => ({
   defense_bonus: index % 2
 }));
 
-const rawGeminiText = JSON.stringify({
+const publishGeminiText = JSON.stringify({
   ok: true,
   alliance: "zeus",
   players: geminiPlayers
 });
 
+function buildDraftGeminiText(detection = {}) {
+  return JSON.stringify({
+    ok: true,
+    detected_alliance: detection.value === undefined ? "LoSP Kronos" : detection.value,
+    detected_alliance_label: detection.label === undefined ? "Kronos" : detection.label,
+    detection_confident: detection.confident === undefined ? true : detection.confident,
+    players: geminiPlayers
+  });
+}
+
 function createRequest(route, overrides = {}) {
   const options = {
-    alliance: "zeus",
+    alliance: route === PUBLISH_ROUTE ? "zeus" : null,
     warDate: TEST_DATE,
     includeImage: true,
     origin: ALLOWED_ORIGIN,
@@ -58,9 +68,7 @@ function createRequest(route, overrides = {}) {
   }
 
   const headers = {};
-  if (options.origin !== null) {
-    headers.Origin = options.origin;
-  }
+  if (options.origin !== null) headers.Origin = options.origin;
 
   return new Request(`https://worker.test${route}`, {
     method: "POST",
@@ -69,20 +77,29 @@ function createRequest(route, overrides = {}) {
   });
 }
 
-function createFetchMock({ allowGitHub = false } = {}) {
+function createFetchMock({ allowGitHub = false, detection } = {}) {
   const calls = [];
 
   async function fetchMock(url, options = {}) {
     const href = String(url);
     const method = options.method || "GET";
-    calls.push({ href, method, options });
+    const call = { href, method, options, prompt: "" };
+    calls.push(call);
 
     if (href.startsWith("https://generativelanguage.googleapis.com/")) {
+      const payload = JSON.parse(options.body);
+      call.prompt = payload.contents[0].parts.find((part) => part.text)?.text || "";
+      const autoDetection = call.prompt.includes('"detected_alliance"');
+
       return Response.json({
         candidates: [
           {
             content: {
-              parts: [{ text: rawGeminiText }]
+              parts: [{
+                text: autoDetection
+                  ? buildDraftGeminiText(detection)
+                  : publishGeminiText
+              }]
             }
           }
         ]
@@ -92,10 +109,7 @@ function createFetchMock({ allowGitHub = false } = {}) {
     if (href.startsWith("https://api.github.com/")) {
       assert.equal(allowGitHub, true, "la route brouillon ne doit jamais joindre GitHub");
 
-      if (method === "GET") {
-        return new Response("Not found", { status: 404 });
-      }
-
+      if (method === "GET") return new Response("Not found", { status: 404 });
       if (method === "PUT") {
         return Response.json({ commit: { sha: "test-commit-sha" } });
       }
@@ -136,22 +150,30 @@ function networkCalls(calls, prefix) {
   return calls.filter(({ href }) => href.startsWith(prefix));
 }
 
-test("la route historique publie toujours après un OCR réussi", async () => {
+test("la route historique conserve son prompt, son alliance obligatoire et sa publication", async () => {
   const { response, data, calls } = await runRoute(
     PUBLISH_ROUTE,
     {},
     { allowGitHub: true }
   );
+  const geminiCall = networkCalls(calls, "https://generativelanguage.googleapis.com/")[0];
 
   assert.equal(response.status, 200);
-  assert.equal(networkCalls(calls, "https://generativelanguage.googleapis.com/").length, 1);
+  assert.match(geminiCall.prompt, /Alliance attendue : Zeus\./);
+  assert.doesNotMatch(geminiCall.prompt, /detected_alliance/);
   assert.deepEqual(
     networkCalls(calls, "https://api.github.com/").map(({ method }) => method),
     ["GET", "PUT"]
   );
+  assert.equal(data.alliance, "zeus");
   assert.equal(data.github.committed, true);
   assert.equal(data.github.commit_sha, "test-commit-sha");
   assert.equal("published" in data, false);
+
+  const missingAlliance = await runRoute(PUBLISH_ROUTE, { alliance: null });
+  assert.equal(missingAlliance.response.status, 400);
+  assert.equal(missingAlliance.data.error, "Alliance manquante");
+  assert.equal(missingAlliance.calls.length, 0);
 
   const publishingHandler = workerSource.slice(
     workerSource.indexOf("async function handleWarParseGemini(request, env, options)"),
@@ -160,20 +182,35 @@ test("la route historique publie toujours après un OCR réussi", async () => {
   assert.match(publishingHandler, /await upsertFileToGitHub\(/);
 });
 
-test("la route brouillon n’appelle jamais GitHub et retourne published false", async () => {
+test("la route brouillon détecte et normalise l’alliance sans champ alliance", async () => {
   const { response, data, calls } = await runRoute(DRAFT_ROUTE);
+  const geminiCalls = networkCalls(calls, "https://generativelanguage.googleapis.com/");
 
   assert.equal(response.status, 200);
-  assert.equal(networkCalls(calls, "https://generativelanguage.googleapis.com/").length, 1);
+  assert.equal(geminiCalls.length, 1);
+  assert.match(geminiCalls[0].prompt, /Zeus.*"zeus"/);
+  assert.match(geminiCalls[0].prompt, /Athéna ou Athena.*"athena"/);
+  assert.match(geminiCalls[0].prompt, /Kronos, Cronos, Chronos ou LoSP Kronos.*"kronos"/);
+  assert.match(geminiCalls[0].prompt, /Dionysos.*"dionysos"/);
+  assert.match(geminiCalls[0].prompt, /Poséidon ou Poseidon.*"poseidon"/);
+  assert.match(geminiCalls[0].prompt, /Hadès ou Hades.*"hades"/);
   assert.equal(networkCalls(calls, "https://api.github.com/").length, 0);
   assert.equal(data.ok, true);
   assert.equal(data.published, false);
-  assert.equal("github" in data, false);
-  assert.equal("export_payload" in data, false);
+  assert.equal(data.detected_alliance, "kronos");
+  assert.equal(data.detected_alliance_label, "Kronos");
+  assert.equal(data.detection_confident, true);
+  assert.equal(data.requires_alliance_confirmation, false);
+  assert.equal(data.alliance, "kronos");
+  assert.equal(data.draft.alliance, "kronos");
   assert.equal(data.draft.date, TEST_DATE);
-  assert.equal(data.draft.alliance, "zeus");
   assert.equal(data.draft.source, TEST_MODEL);
   assert.equal(data.draft.players.length, 24);
+  assert.equal(data.players[0].alliance, "kronos");
+  assert.equal(data.players[0].name, "Joueur 1");
+  assert.equal(data.players[0].attack_points, 13000);
+  assert.equal("github" in data, false);
+  assert.equal("export_payload" in data, false);
 
   const draftRoute = workerSource.slice(
     workerSource.indexOf(
@@ -181,77 +218,80 @@ test("la route brouillon n’appelle jamais GitHub et retourne published false",
     ),
     workerSource.indexOf('return new Response("Worker OK')
   );
-  assert.match(
-    draftRoute,
-    /handleWarParseGemini\(request, env, \{ publish: false \}\)/
-  );
+  assert.match(draftRoute, /publish: false,\s*detectAlliance: true/);
   assert.doesNotMatch(draftRoute, /upsertFileToGitHub/);
-
-  const sharedHandler = workerSource.slice(
-    workerSource.indexOf("async function handleWarParseGemini(request, env, options)"),
-    workerSource.length
-  );
-  assert.ok(
-    sharedHandler.indexOf("if (!shouldPublish)") <
-      sharedHandler.indexOf("await upsertFileToGitHub(")
-  );
 });
 
-test("les deux routes retournent le même OCR normalisé avant publication", async () => {
-  const published = await runRoute(PUBLISH_ROUTE, {}, { allowGitHub: true });
-  const draft = await runRoute(DRAFT_ROUTE);
-  const sharedKeys = [
-    "ok",
-    "model",
-    "alliance",
-    "alliance_label",
-    "war_date",
-    "counts",
-    "players",
-    "raw_gemini_text"
+test("une détection incertaine retourne le brouillon complet à confirmer manuellement", async () => {
+  const { response, data, calls } = await runRoute(
+    DRAFT_ROUTE,
+    {},
+    {
+      detection: {
+        value: null,
+        label: null,
+        confident: false
+      }
+    }
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(networkCalls(calls, "https://api.github.com/").length, 0);
+  assert.equal(data.ok, true);
+  assert.equal(data.published, false);
+  assert.equal(data.detected_alliance, null);
+  assert.equal(data.detected_alliance_label, null);
+  assert.equal(data.detection_confident, false);
+  assert.equal(data.requires_alliance_confirmation, true);
+  assert.equal(data.alliance, null);
+  assert.equal(data.draft.alliance, null);
+  assert.equal(data.draft.players.length, 24);
+  assert.equal(data.players[0].alliance, null);
+});
+
+test("la détection réutilise toutes les variantes de normalizeAlliance", async () => {
+  const cases = [
+    ["ZEUS", "zeus", "Zeus"],
+    ["Athéna", "athena", "Athéna"],
+    ["Cronos", "kronos", "Kronos"],
+    ["Chronos", "kronos", "Kronos"],
+    ["LoSP Kronos", "kronos", "Kronos"],
+    ["DIONYSOS", "dionysos", "Dionysos"],
+    ["Poséidon", "poseidon", "Poséidon"],
+    ["Hadès", "hades", "Hadès"]
   ];
 
-  for (const key of sharedKeys) {
-    assert.deepEqual(draft.data[key], published.data[key], key);
+  for (const [input, key, label] of cases) {
+    const { data } = await runRoute(DRAFT_ROUTE, {}, {
+      detection: { value: input, label: input, confident: true }
+    });
+    assert.equal(data.detected_alliance, key, input);
+    assert.equal(data.detected_alliance_label, label, input);
   }
-
-  assert.deepEqual(
-    draft.data.draft.players,
-    published.data.export_payload.json.players
-  );
-  assert.equal(draft.data.players[0].name, "Joueur 1");
-  assert.equal(draft.data.players[0].attack_points, 13000);
 });
 
-test("les validations alliance, date et image restent identiques", async () => {
+test("la route brouillon conserve les validations de date et d’image sans exiger l’alliance", async () => {
+  const withoutAlliance = await runRoute(DRAFT_ROUTE, { alliance: null });
+  assert.equal(withoutAlliance.response.status, 200);
+  assert.equal(withoutAlliance.data.published, false);
+
   const cases = [
-    { name: "alliance manquante", options: { alliance: null } },
-    { name: "alliance invalide", options: { alliance: "inconnue" } },
     { name: "date manquante", options: { warDate: null } },
     { name: "date invalide", options: { warDate: "02/08/2026" } },
     { name: "image manquante", options: { includeImage: false } }
   ];
 
   for (const validationCase of cases) {
-    const published = await runRoute(PUBLISH_ROUTE, validationCase.options);
     const draft = await runRoute(DRAFT_ROUTE, validationCase.options);
-    const draftWithoutPublished = { ...draft.data };
-    delete draftWithoutPublished.published;
-
-    assert.equal(published.response.status, 400, validationCase.name);
-    assert.equal(draft.response.status, published.response.status, validationCase.name);
-    assert.deepEqual(draftWithoutPublished, published.data, validationCase.name);
+    assert.equal(draft.response.status, 400, validationCase.name);
     assert.equal(draft.data.published, false, validationCase.name);
-    assert.equal(published.calls.length, 0, validationCase.name);
     assert.equal(draft.calls.length, 0, validationCase.name);
   }
 });
 
 test("le CORS brouillon autorise uniquement l’origine GitHub Pages", async () => {
   const allowed = await runRoute(DRAFT_ROUTE);
-  const denied = await runRoute(DRAFT_ROUTE, {
-    origin: "https://example.com"
-  });
+  const denied = await runRoute(DRAFT_ROUTE, { origin: "https://example.com" });
 
   assert.equal(allowed.response.status, 200);
   assert.equal(denied.response.status, 200);
@@ -261,7 +301,6 @@ test("le CORS brouillon autorise uniquement l’origine GitHub Pages", async () 
   );
   assert.equal(allowed.response.headers.get("Vary"), "Origin");
   assert.equal(allowed.response.headers.has("Access-Control-Allow-Credentials"), false);
-
   assert.equal(denied.response.headers.has("Access-Control-Allow-Origin"), false);
   assert.equal(denied.response.headers.has("Vary"), false);
   assert.equal(denied.response.headers.has("Access-Control-Allow-Credentials"), false);

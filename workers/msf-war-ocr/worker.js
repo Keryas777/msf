@@ -34,7 +34,10 @@ export default {
       let response;
 
       try {
-        response = await handleWarParseGemini(request, env, { publish: false });
+        response = await handleWarParseGemini(request, env, {
+          publish: false,
+          detectAlliance: true
+        });
       } catch (error) {
         response = Response.json(
           {
@@ -427,6 +430,76 @@ function buildGeminiPrompt(alliance) {
   ].join("\\n");
 }
 
+function buildGeminiAutoDetectPrompt() {
+  return [
+    "Tu analyses un screenshot Marvel Strike Force d'un tableau de guerre d'alliance.",
+    "",
+    "Commence par identifier l'alliance visible sur la capture.",
+    "Alliances possibles et valeurs techniques normalisées :",
+    '- Zeus => "zeus"',
+    '- Athéna ou Athena => "athena"',
+    '- Kronos, Cronos, Chronos ou LoSP Kronos => "kronos"',
+    '- Dionysos => "dionysos"',
+    '- Poséidon ou Poseidon => "poseidon"',
+    '- Hadès ou Hades => "hades"',
+    "",
+    "Règles de détection :",
+    "- Utilise le nom, le titre ou les éléments d'alliance réellement visibles dans l'image.",
+    "- Ne devine pas si l'alliance n'est pas identifiable avec certitude.",
+    "- Si elle est certaine, detected_alliance doit contenir uniquement la valeur technique normalisée.",
+    "- Si elle est certaine, detected_alliance_label doit contenir exactement le libellé français correspondant.",
+    "- Si elle est incertaine, mets detected_alliance et detected_alliance_label à null, et detection_confident à false.",
+    "",
+    "Retourne UNIQUEMENT un JSON valide, sans markdown, sans explication, sans texte avant ou après.",
+    "",
+    "Contraintes absolues :",
+    "- Il y a 24 lignes visibles, une par joueur, dans l'ordre vertical.",
+    "- Ne saute aucune ligne.",
+    "- Respecte strictement l'ordre visuel de haut en bas.",
+    "- Ne fusionne pas deux lignes.",
+    "- Ne décale pas les joueurs.",
+    "- Les nombres doivent être des entiers JSON bruts, sans espaces ni séparateurs visuels.",
+    "- Si une valeur est illisible, mets null.",
+    "",
+    "Règles spécifiques IMPORTANTES :",
+    "- Supprime systématiquement le tag vert [MOI] s'il apparaît à côté du nom du joueur qui prend le screenshot.",
+    "- Les noms doivent être retournés sans [MOI].",
+    "- Dans la colonne damage, certains nombres supérieurs à 1 milliard sont parfois tronqués à l'écran : le dernier chiffre n'apparaît pas visuellement.",
+    "- Quand un nombre de dégâts > 1 milliard est visiblement tronqué de son dernier chiffre, ajoute un 0 final pour retourner la valeur brute la plus proche possible.",
+    "- Exemple : si l'écran montre 1 003 207 03, retourne 1003207030.",
+    "- Exemple : si l'écran montre 1 380 357 878, retourne 1380357878 sans rien ajouter.",
+    "- N'ajoute PAS un 0 à tous les dégâts automatiquement : ajoute-le seulement si le nombre est visiblement tronqué dans l'interface.",
+    "",
+    "Le JSON doit contenir exactement ces informations :",
+    '- "ok": true',
+    '- "detected_alliance": une valeur technique autorisée ou null',
+    '- "detected_alliance_label": le libellé correspondant ou null',
+    '- "detection_confident": true ou false',
+    '- "players": le tableau des 24 lignes',
+    "",
+    "Chaque joueur doit suivre ce format :",
+    "{",
+    '  "row_index": 1,',
+    '  "name": "lolo",',
+    '  "attack_points": 13000,',
+    '  "attacks": 14,',
+    '  "damage": 1380357878,',
+    '  "defense_wins": 2,',
+    '  "defense_bonus": 3',
+    "}",
+    "",
+    "Rappels métier :",
+    "- row_index va de 1 à 24",
+    "- attack_points = points d'attaque",
+    "- attacks = attaques",
+    "- damage = points de dégâts",
+    "- defense_wins = victoires en défense",
+    "- defense_bonus = bonus de défense",
+    "",
+    "Ne retourne QUE ce JSON final."
+  ].join("\\n");
+}
+
 function toNullableInt(value) {
   if (value === null || value === undefined || value === "") {
     return null;
@@ -616,6 +689,7 @@ async function upsertFileToGitHub(args) {
 async function callGeminiVision(args) {
   const imageBlob = args.imageBlob;
   const alliance = args.alliance;
+  const shouldDetectAlliance = args.detectAlliance === true;
   const env = args.env;
 
   const apiKey = env.GEMINI_API_KEY;
@@ -628,7 +702,9 @@ async function callGeminiVision(args) {
   const imageBuffer = await imageBlob.arrayBuffer();
   const imageBase64 = arrayBufferToBase64(imageBuffer);
 
-  const prompt = buildGeminiPrompt(alliance);
+  const prompt = shouldDetectAlliance
+    ? buildGeminiAutoDetectPrompt()
+    : buildGeminiPrompt(alliance);
 
   const payload = {
     contents: [
@@ -692,9 +768,22 @@ async function callGeminiVision(args) {
   const playersInput =
     parsed && Array.isArray(parsed.players) ? parsed.players : [];
 
+  let resolvedAlliance = alliance;
+  let detectionConfident = true;
+
+  if (shouldDetectAlliance) {
+    const detectedAlliance =
+      normalizeAlliance(parsed?.detected_alliance) ||
+      normalizeAlliance(parsed?.detected_alliance_label) ||
+      normalizeAlliance(parsed?.alliance);
+
+    detectionConfident = Boolean(detectedAlliance) && parsed?.detection_confident !== false;
+    resolvedAlliance = detectionConfident ? detectedAlliance : null;
+  }
+
   const players = [];
   for (let i = 0; i < 24; i++) {
-    players.push(normalizePlayer(playersInput[i] || {}, i, alliance));
+    players.push(normalizePlayer(playersInput[i] || {}, i, resolvedAlliance));
   }
 
   const playersWithValidation = players.map(function (player) {
@@ -721,10 +810,10 @@ async function callGeminiVision(args) {
 
   const invalidRows = playersWithValidation.length - validRows;
 
-  return {
+  const result = {
     ok: true,
     model: model,
-    alliance: alliance,
+    alliance: resolvedAlliance,
     counts: {
       players_total: playersWithValidation.length,
       valid_rows: validRows,
@@ -733,40 +822,55 @@ async function callGeminiVision(args) {
     players: playersWithValidation,
     raw_gemini_text: rawText
   };
+
+  if (shouldDetectAlliance) {
+    result.detected_alliance = resolvedAlliance;
+    result.detected_alliance_label = resolvedAlliance
+      ? getAllianceLabel(resolvedAlliance)
+      : null;
+    result.detection_confident = detectionConfident;
+  }
+
+  return result;
 }
 
 async function handleWarParseGemini(request, env, options) {
   const shouldPublish = !options || options.publish !== false;
+  const shouldDetectAlliance = Boolean(options && options.detectAlliance === true);
   const formData = await request.formData();
 
   const allianceRaw = formData.get("alliance");
   const warDate = formData.get("war_date");
   const imageBlob = formData.get("image");
 
-  if (!allianceRaw || typeof allianceRaw !== "string") {
-    return Response.json(
-      {
-        ok: false,
-        error: "Alliance manquante"
-      },
-      {
-        status: 400
-      }
-    );
-  }
+  let alliance = null;
 
-  const alliance = normalizeAlliance(allianceRaw);
+  if (!shouldDetectAlliance) {
+    if (!allianceRaw || typeof allianceRaw !== "string") {
+      return Response.json(
+        {
+          ok: false,
+          error: "Alliance manquante"
+        },
+        {
+          status: 400
+        }
+      );
+    }
 
-  if (!alliance) {
-    return Response.json(
-      {
-        ok: false,
-        error: "Alliance invalide. Valeurs acceptées : zeus, athena, kronos, dionysos, poseidon, hades"
-      },
-      {
-        status: 400
-      }
-    );
+    alliance = normalizeAlliance(allianceRaw);
+
+    if (!alliance) {
+      return Response.json(
+        {
+          ok: false,
+          error: "Alliance invalide. Valeurs acceptées : zeus, athena, kronos, dionysos, poseidon, hades"
+        },
+        {
+          status: 400
+        }
+      );
+    }
   }
 
   if (!warDate || typeof warDate !== "string") {
@@ -808,12 +912,17 @@ async function handleWarParseGemini(request, env, options) {
   const result = await callGeminiVision({
     imageBlob: imageBlob,
     alliance: alliance,
+    detectAlliance: shouldDetectAlliance,
     env: env
   });
 
   if (!result.ok) {
     return Response.json(result);
   }
+
+  const resolvedAlliance = shouldDetectAlliance
+    ? result.detected_alliance
+    : alliance;
 
   const finalPlayers = result.players.map(function (player) {
     return {
@@ -829,24 +938,33 @@ async function handleWarParseGemini(request, env, options) {
 
   const finalWarFile = buildFinalWarFile(
     warDate,
-    alliance,
+    resolvedAlliance,
     result.model,
     finalPlayers
   );
 
   if (!shouldPublish) {
-    return Response.json({
+    const draftResponse = {
       ok: true,
       model: result.model,
-      alliance: alliance,
-      alliance_label: getAllianceLabel(alliance),
+      alliance: resolvedAlliance,
+      alliance_label: resolvedAlliance ? getAllianceLabel(resolvedAlliance) : null,
       war_date: warDate,
       counts: result.counts,
       players: result.players,
       draft: finalWarFile,
       published: false,
       raw_gemini_text: result.raw_gemini_text
-    });
+    };
+
+    if (shouldDetectAlliance) {
+      draftResponse.detected_alliance = result.detected_alliance;
+      draftResponse.detected_alliance_label = result.detected_alliance_label;
+      draftResponse.detection_confident = result.detection_confident;
+      draftResponse.requires_alliance_confirmation = !result.detected_alliance;
+    }
+
+    return Response.json(draftResponse);
   }
 
   const exportPath = "docs/data/war/" + warDate + "/" + alliance + ".json";
