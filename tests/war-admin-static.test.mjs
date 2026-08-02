@@ -2,15 +2,17 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 
-const [html, css, app] = await Promise.all([
+const [html, css, validation, app] = await Promise.all([
   readFile(new URL("../docs/war-admin.html", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin.css", import.meta.url), "utf8"),
+  readFile(new URL("../docs/war-admin-validation.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin.js", import.meta.url), "utf8")
 ]);
 
-test("la page charge la Phase C locale sans bloquer le zoom", () => {
-  assert.match(html, /href="\.\/war-admin\.css\?v=2"/);
-  assert.match(html, /src="\.\/war-admin\.js\?v=2" defer/);
+test("la page charge la Phase D locale sans bloquer le zoom", () => {
+  assert.match(html, /href="\.\/war-admin\.css\?v=3"/);
+  assert.match(html, /src="\.\/war-admin-validation\.js\?v=1" defer/);
+  assert.match(html, /src="\.\/war-admin\.js\?v=3" defer/);
   assert.match(html, /name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/);
   assert.doesNotMatch(html, /user-scalable=no|maximum-scale=1/);
   assert.doesNotMatch(html, /auth-(?:guard|session)\.js/);
@@ -111,6 +113,58 @@ test("la liste, le journal et les états sont principaux, le JSON est repliable"
   assert.match(app, /JSON\.stringify\(getTechnicalPayload\(\), null, 2\)/);
 });
 
+test("la validation OCR propose une liste verticale et une fiche mobile pour une seule ligne", () => {
+  assert.match(html, /id="warReviewView"[\s\S]*?hidden/);
+  assert.match(html, /id="warReviewBack"/);
+  assert.match(html, /id="warPlayerList" class="warAdminPlayerList"/);
+  assert.match(html, /id="warEditorPanel"[\s\S]*?hidden/);
+  assert.match(html, /id="warValidateDraft"[\s\S]*?disabled/);
+  assert.match(html, /Valider ce brouillon/);
+  assert.match(html, /Revenir aux valeurs OCR/);
+  assert.match(html, /id="warReviewImage"/);
+  assert.match(html, /id="warZoomOut"/);
+  assert.match(html, /id="warZoomReset"/);
+  assert.match(html, /id="warZoomIn"/);
+  assert.doesNotMatch(html, /<table\b/);
+  assert.match(css, /\.warAdminPlayerList\s*\{[\s\S]*?display: grid/);
+  assert.match(css, /\.warAdminSourceFigure\s*\{[\s\S]*?position: sticky/);
+  assert.match(css, /touch-action: pan-x pan-y pinch-zoom/);
+});
+
+test("les champs éditables utilisent les claviers adaptés et donnent la priorité aux dégâts", () => {
+  assert.match(html, /id="warEditName"[^>]*type="text"/);
+  for (const id of [
+    "warEditAttackPoints",
+    "warEditAttacks",
+    "warEditDamage",
+    "warEditDefenseWins",
+    "warEditDefenseBonus"
+  ]) {
+    assert.match(html, new RegExp(`id="${id}"[^>]*type="text"[^>]*inputmode="numeric"[^>]*pattern="\\[0-9\\]\\*"`));
+  }
+  assert.match(css, /\.warAdminDamageField[\s\S]*?\.warAdminDamageField input/);
+  assert.match(css, /\.warAdminDamageField input\s*\{[\s\S]*?font-size: 19px/);
+});
+
+test("les états Phase D et la séparation OCR, édition, validation restent explicites", () => {
+  for (const label of [
+    "Brouillon prêt",
+    "Vérification en cours",
+    "À corriger",
+    "OCR validé",
+    "À revalider"
+  ]) {
+    assert.ok(app.includes(`"${label}"`), label);
+  }
+
+  assert.match(app, /response_ocr: capture\.response/);
+  assert.match(app, /ocr_draft: capture\.ocrDraft/);
+  assert.match(app, /editable_draft: capture\.editableDraft/);
+  assert.match(app, /validatedDraft: capture\.validatedDraft/);
+  assert.match(app, /modification_count:/);
+  assert.match(app, /Tous les brouillons OCR disponibles sont validés\./);
+});
+
 test("le CSS reste mobile first, tactile et lisible à 320 px", () => {
   assert.match(css, /overflow-x: hidden/);
   assert.match(css, /min-width: 320px/);
@@ -127,7 +181,7 @@ test("le CSS reste mobile first, tactile et lisible à 320 px", () => {
 });
 
 test("aucun secret, appel GitHub ou moteur métier n’est ajouté au frontend", () => {
-  const frontend = `${html}\n${css}\n${app}`;
+  const frontend = `${html}\n${css}\n${validation}\n${app}`;
   const forbiddenSecrets = [
     "GEMINI_API_KEY",
     "GITHUB_TOKEN",
@@ -143,5 +197,7 @@ test("aucun secret, appel GitHub ou moteur métier n’est ajouté au frontend",
   }
 
   assert.doesNotMatch(frontend, /api\.github\.com|upsertFileToGitHub|export_payload/);
-  assert.doesNotMatch(frontend, /war-report-engine|war-report-ranking|score_total|classement final|rédaction automatique/i);
+  assert.doesNotMatch(frontend, /war-report-engine|war-report-ranking|score_total|report\.ranking|classement final|rédaction automatique/i);
+  assert.doesNotMatch(frontend, /total_damage|successful_attacks|damage_share|score_activity|score_efficiency|score_impact|score_defense/);
+  assert.equal((validation.match(/\bfetch\(/g) || []).length, 0);
 });

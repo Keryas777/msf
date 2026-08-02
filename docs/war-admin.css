@@ -417,6 +417,23 @@ select {
   color: var(--war-admin-success);
 }
 
+.warAdminCaptureCard[data-state="reviewing"] .warAdminCaptureState,
+.warAdminCaptureCard[data-state="revalidate"] .warAdminCaptureState {
+  border-color: rgba(113, 231, 255, 0.38);
+  color: var(--war-admin-cyan);
+}
+
+.warAdminCaptureCard[data-state="correction"] .warAdminCaptureState {
+  border-color: rgba(255, 209, 122, 0.42);
+  color: var(--war-admin-warning);
+}
+
+.warAdminCaptureCard[data-state="validated"] .warAdminCaptureState {
+  border-color: rgba(137, 232, 188, 0.45);
+  background: rgba(137, 232, 188, 0.08);
+  color: var(--war-admin-success);
+}
+
 .warAdminCaptureCard[data-state="failed"] .warAdminCaptureState,
 .warAdminCaptureCard[data-state="cancelled"] .warAdminCaptureState {
   border-color: rgba(255, 154, 171, 0.4);
@@ -449,6 +466,38 @@ select {
   border-radius: 10px;
   background: var(--war-admin-bg-soft);
   color: var(--war-admin-text);
+}
+
+.warAdminCaptureActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.warAdminCaptureAction,
+.warAdminSecondaryButton,
+.warAdminBackButton {
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 1px solid rgba(113, 231, 255, 0.32);
+  border-radius: 10px;
+  background: rgba(113, 231, 255, 0.08);
+  color: var(--war-admin-cyan);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.warAdminCaptureAction {
+  flex: 1 1 150px;
+}
+
+.warAdminCaptureActionSecondary,
+.warAdminSecondaryButton,
+.warAdminBackButton {
+  border-color: rgba(139, 184, 232, 0.25);
+  background: rgba(139, 184, 232, 0.07);
+  color: var(--war-admin-text-soft);
 }
 
 .warAdminLog {
@@ -549,6 +598,451 @@ select {
   color: var(--war-admin-warning);
 }
 
+.warAdminReviewView {
+  min-width: 0;
+}
+
+.warAdminReviewTopbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.warAdminReviewTopbar .warAdminBackButton {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.warAdminReviewHeading h2,
+.warAdminReviewSectionHeading h3,
+.warAdminEditorHeading h3 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.warAdminReviewState,
+.warAdminLineStatus {
+  align-self: start;
+  padding: 5px 9px;
+  border: 1px solid rgba(255, 209, 122, 0.36);
+  border-radius: 999px;
+  color: var(--war-admin-warning);
+  font-size: 11px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.warAdminReviewState[data-state="validated"],
+.warAdminLineStatus[data-classification="active"] {
+  border-color: rgba(137, 232, 188, 0.42);
+  color: var(--war-admin-success);
+}
+
+.warAdminReviewState[data-state="reviewing"],
+.warAdminReviewState[data-state="revalidate"] {
+  border-color: rgba(113, 231, 255, 0.4);
+  color: var(--war-admin-cyan);
+}
+
+.warAdminLineStatus[data-classification="inactive"],
+.warAdminLineStatus[data-classification="vacant"] {
+  border-color: rgba(143, 161, 186, 0.4);
+  color: var(--war-admin-text-muted);
+}
+
+.warAdminLineStatus[data-classification="invalid"] {
+  border-color: rgba(255, 154, 171, 0.42);
+  color: var(--war-admin-danger);
+}
+
+.warAdminReviewMeta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin: 18px 0 0;
+}
+
+.warAdminReviewMeta div {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(139, 184, 232, 0.18);
+  border-radius: 11px;
+  background: rgba(2, 6, 23, 0.54);
+}
+
+.warAdminReviewMeta dt {
+  color: var(--war-admin-text-muted);
+  font-size: 11px;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.warAdminReviewMeta dd {
+  margin: 3px 0 0;
+  overflow-wrap: anywhere;
+  color: var(--war-admin-text);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.warAdminReviewCounts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 10px;
+}
+
+.warAdminReviewCounts div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 10px;
+  border-radius: 11px;
+  background: rgba(113, 231, 255, 0.07);
+}
+
+.warAdminReviewCounts strong {
+  color: var(--war-admin-cyan);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.warAdminReviewCounts span {
+  color: var(--war-admin-text-muted);
+  font-size: 11px;
+}
+
+.warAdminReviewAlert {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 154, 171, 0.36);
+  border-radius: 11px;
+  background: rgba(255, 154, 171, 0.08);
+  color: var(--war-admin-danger);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.warAdminReviewWorkspace {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  margin-top: 14px;
+}
+
+.warAdminSourceFigure {
+  position: sticky;
+  top: max(6px, env(safe-area-inset-top));
+  z-index: 5;
+  min-width: 0;
+  margin: 0;
+  padding: 10px;
+  border: 1px solid var(--war-admin-border);
+  border-radius: 14px;
+  background: rgba(5, 13, 28, 0.97);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+}
+
+.warAdminSourceHeading,
+.warAdminReviewSectionHeading,
+.warAdminEditorHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.warAdminSourceHeading {
+  margin-bottom: 8px;
+}
+
+.warAdminSourceHeading figcaption {
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.warAdminZoomControls {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.warAdminZoomControls button {
+  min-width: 42px;
+  min-height: 42px;
+  padding: 6px 9px;
+  border: 1px solid rgba(139, 184, 232, 0.28);
+  border-radius: 9px;
+  background: var(--war-admin-bg-soft);
+  color: var(--war-admin-text);
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.warAdminZoomControls button:nth-child(2) {
+  min-width: 66px;
+  font-size: 12px;
+}
+
+.warAdminSourceViewport {
+  width: 100%;
+  max-height: 31vh;
+  overflow: auto;
+  border-radius: 10px;
+  background: #020617;
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y pinch-zoom;
+  -webkit-overflow-scrolling: touch;
+}
+
+.warAdminSourceViewport img {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  margin: 0 auto;
+  transform-origin: top left;
+}
+
+.warAdminImageNotice {
+  margin: 8px 0 0;
+  color: var(--war-admin-warning);
+  font-size: 12px;
+}
+
+.warAdminReviewData {
+  min-width: 0;
+}
+
+.warAdminReviewSectionHeading,
+.warAdminEditorHeading {
+  margin-bottom: 10px;
+}
+
+.warAdminPlayerList {
+  display: grid;
+  gap: 7px;
+}
+
+.warAdminPlayerRow {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 56px;
+  padding: 8px 9px;
+  border: 1px solid rgba(139, 184, 232, 0.2);
+  border-radius: 11px;
+  background: rgba(2, 6, 23, 0.6);
+  color: var(--war-admin-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.warAdminPlayerRow:disabled {
+  cursor: default;
+  opacity: 0.92;
+}
+
+.warAdminPlayerRank {
+  color: var(--war-admin-cyan);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 850;
+  text-align: center;
+}
+
+.warAdminPlayerMain {
+  min-width: 0;
+}
+
+.warAdminPlayerName,
+.warAdminPlayerDamage {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.warAdminPlayerName {
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.warAdminPlayerDamage {
+  margin-top: 2px;
+  color: var(--war-admin-text-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.warAdminPlayerStatus {
+  padding: 4px 7px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  color: var(--war-admin-success);
+  font-size: 10px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.warAdminPlayerRow[data-classification="inactive"] .warAdminPlayerStatus,
+.warAdminPlayerRow[data-classification="vacant"] .warAdminPlayerStatus {
+  color: var(--war-admin-text-muted);
+}
+
+.warAdminPlayerRow[data-classification="invalid"] {
+  border-color: rgba(255, 154, 171, 0.42);
+  background: rgba(255, 154, 171, 0.07);
+}
+
+.warAdminPlayerRow[data-classification="invalid"] .warAdminPlayerStatus {
+  color: var(--war-admin-danger);
+}
+
+.warAdminPlayerRow[data-modified="true"] .warAdminPlayerStatus {
+  color: var(--war-admin-cyan);
+}
+
+.warAdminPlayerRow[data-warning="true"] .warAdminPlayerDamage {
+  color: var(--war-admin-warning);
+}
+
+.warAdminValidationActions {
+  position: sticky;
+  bottom: max(0px, env(safe-area-inset-bottom));
+  z-index: 4;
+  display: grid;
+  gap: 7px;
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid var(--war-admin-border);
+  border-radius: 13px;
+  background: rgba(5, 13, 28, 0.97);
+}
+
+.warAdminValidateButton {
+  width: 100%;
+  min-height: 50px;
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--war-admin-cyan-strong), #6e79ff);
+  color: #03101d;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.warAdminValidateButton:disabled {
+  background: #263650;
+  color: var(--war-admin-text-muted);
+  cursor: not-allowed;
+}
+
+.warAdminValidationHelp {
+  margin: 0;
+  color: var(--war-admin-text-muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.warAdminEditorPanel {
+  min-width: 0;
+}
+
+.warAdminEditorPanel > .warAdminBackButton {
+  margin-bottom: 12px;
+}
+
+.warAdminEditorForm,
+.warAdminEditorField,
+.warAdminEditorFieldGrid {
+  display: grid;
+  gap: 8px;
+}
+
+.warAdminEditorForm {
+  gap: 14px;
+}
+
+.warAdminEditorFieldGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.warAdminEditorField label {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.warAdminEditorField input {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 10px 11px;
+  border: 1px solid rgba(139, 184, 232, 0.34);
+  border-radius: 11px;
+  background: var(--war-admin-bg-soft);
+  color: var(--war-admin-text);
+}
+
+.warAdminDamageField {
+  padding: 11px;
+  border: 1px solid rgba(255, 209, 122, 0.4);
+  border-radius: 13px;
+  background: rgba(255, 209, 122, 0.06);
+}
+
+.warAdminDamageField label {
+  color: var(--war-admin-warning);
+  font-size: 15px;
+}
+
+.warAdminDamageField input {
+  min-height: 56px;
+  border-color: rgba(255, 209, 122, 0.52);
+  font-size: 19px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 850;
+}
+
+.warAdminFieldError {
+  min-height: 17px;
+  margin: 0;
+  color: var(--war-admin-danger);
+  font-size: 11px;
+}
+
+.warAdminEditorMessages {
+  display: grid;
+  gap: 6px;
+}
+
+.warAdminEditorMessage {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: rgba(255, 154, 171, 0.08);
+  color: var(--war-admin-danger);
+  font-size: 12px;
+}
+
+.warAdminEditorMessage[data-kind="warning"] {
+  background: rgba(255, 209, 122, 0.08);
+  color: var(--war-admin-warning);
+}
+
+.warAdminEditorActions {
+  display: grid;
+  gap: 8px;
+}
+
+.warAdminEditorActions .warAdminSecondaryButton {
+  width: 100%;
+}
+
 .warAdminNoScript {
   position: fixed;
   right: 12px;
@@ -594,6 +1088,18 @@ select {
     height: 92px;
   }
 
+  .warAdminReviewMeta {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .warAdminReviewCounts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .warAdminEditorActions {
+    grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(0, 1fr));
+  }
+
   .warAdminJson {
     font-size: 13px;
   }
@@ -608,6 +1114,19 @@ select {
   .warAdminControlPanel {
     position: sticky;
     top: 18px;
+  }
+
+  .warAdminReviewWorkspace {
+    grid-template-columns: minmax(280px, 0.86fr) minmax(0, 1.14fr);
+    align-items: start;
+  }
+
+  .warAdminSourceFigure {
+    top: 18px;
+  }
+
+  .warAdminSourceViewport {
+    max-height: 72vh;
   }
 }
 

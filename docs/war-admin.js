@@ -8,6 +8,22 @@
   const QUEUE_DELAY_MAX_MS = 10000;
   const RETRY_DELAYS_MS = [10000, 30000];
   const MAX_CAPTURES = 6;
+  const DRAFT_VALIDATION = globalThis.MsfWarDraftValidation;
+
+  if (!DRAFT_VALIDATION) {
+    throw new Error("Le module de validation OCR est indisponible.");
+  }
+
+  const {
+    EDITABLE_FIELDS,
+    buildValidatedDraft,
+    classifyDraft,
+    classifyRow,
+    cloneJson,
+    countModifiedFields,
+    isRowModified,
+    parseEditorRow
+  } = DRAFT_VALIDATION;
 
   const ALLIANCES = [
     { key: "zeus", label: "Zeus" },
@@ -24,6 +40,10 @@
     ocr: "OCR en cours",
     waiting: "Attente",
     ready: "Brouillon prêt",
+    reviewing: "Vérification en cours",
+    correction: "À corriger",
+    validated: "OCR validé",
+    revalidate: "À revalider",
     manual: "Alliance à confirmer",
     failed: "OCR échoué",
     cancelled: "Interrompue"
@@ -43,6 +63,56 @@
   const captureList = document.getElementById("warCaptureList");
   const logPanel = document.getElementById("warLog");
   const result = document.getElementById("warResult");
+  const sessionView = document.getElementById("warSessionView");
+  const reviewView = document.getElementById("warReviewView");
+  const reviewBackButton = document.getElementById("warReviewBack");
+  const reviewTitle = document.getElementById("warReviewTitle");
+  const reviewState = document.getElementById("warReviewState");
+  const reviewAlliance = document.getElementById("warReviewAlliance");
+  const reviewDate = document.getElementById("warReviewDate");
+  const reviewFile = document.getElementById("warReviewFile");
+  const reviewTotal = document.getElementById("warReviewTotal");
+  const countPlayers = document.getElementById("warCountPlayers");
+  const countInactive = document.getElementById("warCountInactive");
+  const countVacant = document.getElementById("warCountVacant");
+  const countInvalid = document.getElementById("warCountInvalid");
+  const reviewStructureError = document.getElementById("warReviewStructureError");
+  const sourceViewport = document.getElementById("warSourceViewport");
+  const reviewImage = document.getElementById("warReviewImage");
+  const reviewImageNotice = document.getElementById("warReviewImageNotice");
+  const zoomOutButton = document.getElementById("warZoomOut");
+  const zoomResetButton = document.getElementById("warZoomReset");
+  const zoomInButton = document.getElementById("warZoomIn");
+  const reviewListPanel = document.getElementById("warReviewListPanel");
+  const playerList = document.getElementById("warPlayerList");
+  const reviewUnlockButton = document.getElementById("warReviewUnlock");
+  const validateDraftButton = document.getElementById("warValidateDraft");
+  const validationHelp = document.getElementById("warValidationHelp");
+  const editorPanel = document.getElementById("warEditorPanel");
+  const editorBackButton = document.getElementById("warEditorBack");
+  const editorForm = document.getElementById("warEditorForm");
+  const editorContext = document.getElementById("warEditorContext");
+  const editorStatus = document.getElementById("warEditorStatus");
+  const editorMessages = document.getElementById("warEditorMessages");
+  const editorSaveButton = document.getElementById("warEditorSave");
+  const editorResetButton = document.getElementById("warEditorReset");
+  const editorCancelButton = document.getElementById("warEditorCancel");
+  const editorInputs = {
+    name: document.getElementById("warEditName"),
+    attack_points: document.getElementById("warEditAttackPoints"),
+    attacks: document.getElementById("warEditAttacks"),
+    damage: document.getElementById("warEditDamage"),
+    defense_wins: document.getElementById("warEditDefenseWins"),
+    defense_bonus: document.getElementById("warEditDefenseBonus")
+  };
+  const editorErrors = {
+    name: document.getElementById("warEditErrorName"),
+    attack_points: document.getElementById("warEditErrorAttackPoints"),
+    attacks: document.getElementById("warEditErrorAttacks"),
+    damage: document.getElementById("warEditErrorDamage"),
+    defense_wins: document.getElementById("warEditErrorDefenseWins"),
+    defense_bonus: document.getElementById("warEditErrorDefenseBonus")
+  };
 
   const testConfig = window.__MSF_WAR_ADMIN_TEST_CONFIG__ || {};
   const session = {
@@ -52,7 +122,13 @@
     captures: [],
     logs: [],
     abortController: null,
-    cancelWait: null
+    cancelWait: null,
+    activeCaptureId: "",
+    editorRowIndex: null,
+    editorBuffer: null,
+    reviewReadOnly: false,
+    reviewZoom: 1,
+    sessionScrollY: 0
   };
   let captureSequence = 0;
 
@@ -175,6 +251,32 @@
     }).join("");
   }
 
+  function getCaptureActionMarkup(capture) {
+    if (!capture.editableDraft) return "";
+
+    const disabled = session.running ? " disabled" : "";
+    const actionLabels = {
+      ready: "Vérifier",
+      reviewing: "Continuer",
+      correction: "Corriger",
+      revalidate: "Continuer",
+      validated: "Voir le brouillon validé"
+    };
+    const label = actionLabels[capture.state] || "Vérifier le brouillon";
+    const readOnly = capture.state === "validated" ? "true" : "false";
+    const buttons = [
+      `<button class="warAdminCaptureAction" type="button" data-action="open-review" data-capture-id="${capture.id}" data-read-only="${readOnly}"${disabled}>${label}</button>`
+    ];
+
+    if (capture.state === "validated") {
+      buttons.push(
+        `<button class="warAdminCaptureAction warAdminCaptureActionSecondary" type="button" data-action="modify-review" data-capture-id="${capture.id}"${disabled}>Modifier</button>`
+      );
+    }
+
+    return `<div class="warAdminCaptureActions">${buttons.join("")}</div>`;
+  }
+
   function renderCaptureList() {
     if (session.captures.length === 0) {
       captureList.innerHTML = '<p class="warAdminEmpty">Aucune capture dans la file.</p>';
@@ -199,6 +301,7 @@
             "</div>"
           ].join("")
         : "";
+      const reviewActions = getCaptureActionMarkup(capture);
 
       return [
         `<article class="warAdminCaptureCard" data-state="${capture.state}">`,
@@ -212,6 +315,7 @@
         candidateLine,
         `<p class="warAdminCaptureDetail">${escapeHtml(capture.detail)}</p>`,
         manualChoice,
+        reviewActions,
         "</div>",
         "</article>"
       ].join("");
@@ -226,15 +330,22 @@
     }
 
     const ready = session.captures.filter((capture) => capture.state === "ready").length;
+    const reviewing = session.captures.filter((capture) => capture.state === "reviewing").length;
+    const correction = session.captures.filter((capture) => (
+      capture.state === "correction" || capture.state === "revalidate"
+    )).length;
+    const validated = session.captures.filter((capture) => capture.state === "validated").length;
     const failed = session.captures.filter((capture) => capture.state === "failed").length;
     const manual = session.captures.filter((capture) => capture.needsManual).length;
     const parts = [
-      `${total} ${plural(total, "capture", "captures")}`,
-      `${ready} ${plural(ready, "brouillon", "brouillons")}`
+      `Prêts ${ready}`,
+      `En cours ${reviewing}`,
+      `À corriger ${correction}`,
+      `Validés ${validated}`
     ];
 
-    if (manual) parts.push(`${manual} à confirmer`);
-    if (failed) parts.push(`${failed} ${plural(failed, "échec", "échecs")}`);
+    if (manual) parts.push(`À confirmer ${manual}`);
+    if (failed) parts.push(`Échecs ${failed}`);
     queueSummary.textContent = parts.join(" · ");
   }
 
@@ -243,22 +354,28 @@
       war_date: session.warDate || dateInput.value || null,
       published: false,
       drafts: session.captures
-        .filter((capture) => Boolean(capture.draft))
+        .filter((capture) => Boolean(capture.editableDraft))
         .map((capture) => ({
           capture: capture.index + 1,
           assignment_source: capture.assignmentSource,
-          draft: capture.draft
+          draft: capture.editableDraft
         })),
       captures: session.captures.map((capture) => ({
         capture: capture.index + 1,
         file_name: capture.file.name || null,
+        state_key: capture.state,
         state: STATE_LABELS[capture.state] || capture.state,
         attempts: capture.attempts,
         assigned_alliance: capture.alliance || null,
         assigned_alliance_label: capture.allianceLabel || null,
         assignment_source: capture.assignmentSource || null,
-        response: capture.response,
-        draft: capture.draft
+        response_ocr: capture.response,
+        ocr_draft: capture.ocrDraft,
+        editable_draft: capture.editableDraft,
+        validatedDraft: capture.validatedDraft,
+        modification_count: capture.ocrDraft && capture.editableDraft
+          ? countModifiedFields(capture.ocrDraft, capture.editableDraft)
+          : 0
       }))
     };
   }
@@ -328,6 +445,11 @@
       capture.needsManual = false;
       capture.response = null;
       capture.draft = null;
+      capture.ocrDraft = null;
+      capture.editableDraft = null;
+      capture.validatedDraft = null;
+      capture.reviewScrollY = 0;
+      capture.listScrollY = 0;
       capture.lastError = "";
     }
   }
@@ -375,6 +497,11 @@
       needsManual: false,
       response: null,
       draft: null,
+      ocrDraft: null,
+      editableDraft: null,
+      validatedDraft: null,
+      reviewScrollY: 0,
+      listScrollY: 0,
       lastError: ""
     }));
 
@@ -468,7 +595,9 @@
       captured_at: existingDraft.captured_at || new Date().toISOString(),
       source: existingDraft.source || data?.model || "",
       players: sourcePlayers.map((player, index) => ({
-        rank: index + 1,
+        rank: Number.isInteger(player?.rank)
+          ? player.rank
+          : (Number.isInteger(player?.row_index) ? player.row_index : index + 1),
         name: player?.name ?? "",
         attack_points: player?.attack_points ?? null,
         attacks: player?.attacks ?? null,
@@ -484,7 +613,10 @@
     capture.allianceLabel = getAllianceLabel(alliance);
     capture.assignmentSource = source;
     capture.needsManual = false;
-    capture.draft = buildDraftForAlliance(capture.response, alliance, session.warDate);
+    capture.ocrDraft = buildDraftForAlliance(capture.response, alliance, session.warDate);
+    capture.editableDraft = cloneJson(capture.ocrDraft);
+    capture.draft = capture.editableDraft;
+    capture.validatedDraft = null;
     capture.state = "ready";
     capture.detail = source === "automatic"
       ? "Alliance détectée automatiquement. Brouillon conservé en mémoire."
@@ -499,6 +631,385 @@
     capture.detail = candidateAlliance
       ? "Cette alliance est déjà attribuée à une autre capture."
       : "Gemini n’a pas identifié l’alliance avec suffisamment de certitude.";
+  }
+
+  function getActiveCapture() {
+    return session.captures.find((capture) => capture.id === session.activeCaptureId) || null;
+  }
+
+  function getActionTarget(target) {
+    let current = target;
+    while (current && current !== document) {
+      if (current.dataset && current.dataset.action) return current;
+      current = current.parentElement;
+    }
+    return null;
+  }
+
+  function formatDamage(value) {
+    return Number.isInteger(value) ? value.toLocaleString("fr-FR") : "—";
+  }
+
+  function validatedDraftMatches(capture, summary) {
+    if (!capture.validatedDraft || !summary.canValidate) return false;
+
+    try {
+      return JSON.stringify(buildValidatedDraft(capture.editableDraft)) === JSON.stringify(capture.validatedDraft);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function refreshCaptureValidationState(capture, opened) {
+    if (!capture?.editableDraft) return null;
+
+    const summary = classifyDraft(capture.editableDraft);
+    if (validatedDraftMatches(capture, summary)) {
+      capture.state = "validated";
+      capture.detail = "Brouillon OCR validé. Aucun calcul métier n’a été lancé.";
+      return summary;
+    }
+
+    if (capture.validatedDraft) {
+      capture.state = "revalidate";
+      capture.detail = "Le brouillon a été modifié depuis sa dernière validation.";
+      return summary;
+    }
+
+    if (!summary.canValidate) {
+      capture.state = "correction";
+      capture.detail = summary.structureErrors.length
+        ? summary.structureErrors.join(" ")
+        : `${summary.counts.invalid} ${plural(summary.counts.invalid, "ligne reste", "lignes restent")} à corriger.`;
+      return summary;
+    }
+
+    if (opened || capture.state !== "ready") {
+      capture.state = "reviewing";
+      capture.detail = "Vérification humaine en cours. Le brouillon peut être validé.";
+    }
+    return summary;
+  }
+
+  function getReviewStatusLabel(capture) {
+    return STATE_LABELS[capture?.state] || "Brouillon";
+  }
+
+  function setReviewZoom(nextZoom) {
+    session.reviewZoom = Math.min(2.5, Math.max(0.75, nextZoom));
+    reviewImage.style.width = `${Math.round(session.reviewZoom * 100)}%`;
+    zoomResetButton.textContent = `${Math.round(session.reviewZoom * 100)} %`;
+  }
+
+  function renderReviewImage(capture) {
+    const hasImage = Boolean(capture?.previewUrl);
+    sourceViewport.hidden = !hasImage;
+    reviewImageNotice.hidden = hasImage;
+    reviewImage.hidden = !hasImage;
+
+    if (hasImage) {
+      reviewImage.src = capture.previewUrl;
+      reviewImage.alt = `Capture source ${capture.index + 1} — ${capture.allianceLabel}`;
+      setReviewZoom(session.reviewZoom);
+    } else {
+      reviewImage.removeAttribute("src");
+    }
+  }
+
+  function renderPlayerRows(capture, summary) {
+    const originalPlayers = capture.ocrDraft?.players || [];
+    const readOnlyAttribute = session.reviewReadOnly ? " disabled" : "";
+
+    playerList.innerHTML = capture.editableDraft.players.map((player, index) => {
+      const classification = summary.rows[index] || classifyRow(player);
+      const modified = isRowModified(originalPlayers[index], player);
+      const statusLabel = classification.type === "invalid"
+        ? classification.label
+        : (modified ? "Modifié" : classification.label);
+      const name = player.name || (classification.type === "vacant" ? "Emplacement libre" : "Nom manquant");
+      const warning = classification.warnings.length > 0;
+
+      return [
+        `<button class="warAdminPlayerRow" type="button" data-action="edit-row" data-row-index="${index}" data-classification="${classification.type}" data-modified="${modified}" data-warning="${warning}"${readOnlyAttribute}>`,
+        `<span class="warAdminPlayerRank">${escapeHtml(player.rank)}</span>`,
+        '<span class="warAdminPlayerMain">',
+        `<span class="warAdminPlayerName">${escapeHtml(name)}</span>`,
+        `<span class="warAdminPlayerDamage">Dégâts ${escapeHtml(formatDamage(player.damage))}${warning ? " · ⚠" : ""}</span>`,
+        "</span>",
+        `<span class="warAdminPlayerStatus">${escapeHtml(statusLabel)}</span>`,
+        "</button>"
+      ].join("");
+    }).join("");
+  }
+
+  function renderReview() {
+    const capture = getActiveCapture();
+    if (!capture?.editableDraft) return;
+
+    const summary = classifyDraft(capture.editableDraft);
+    const realPlayers = summary.counts.active + summary.counts.inactive;
+
+    reviewTitle.textContent = `${capture.allianceLabel} — contrôle OCR`;
+    reviewState.textContent = getReviewStatusLabel(capture);
+    reviewState.dataset.state = capture.state;
+    reviewAlliance.textContent = capture.allianceLabel;
+    reviewDate.textContent = capture.editableDraft.date || session.warDate || "—";
+    reviewFile.textContent = capture.file.name || "Capture sans nom";
+    reviewTotal.textContent = String(summary.counts.total);
+    countPlayers.textContent = String(realPlayers);
+    countInactive.textContent = String(summary.counts.inactive);
+    countVacant.textContent = String(summary.counts.vacant);
+    countInvalid.textContent = String(summary.counts.invalid);
+
+    reviewStructureError.hidden = summary.structureErrors.length === 0;
+    reviewStructureError.textContent = summary.structureErrors.join(" ");
+    renderReviewImage(capture);
+    renderPlayerRows(capture, summary);
+
+    reviewUnlockButton.hidden = !session.reviewReadOnly;
+    validateDraftButton.textContent = capture.state === "revalidate"
+      ? "Revalider ce brouillon"
+      : "Valider ce brouillon";
+
+    if (capture.state === "validated" && session.reviewReadOnly) {
+      validateDraftButton.disabled = true;
+      validateDraftButton.textContent = "Brouillon OCR validé";
+      validationHelp.textContent = "Ce brouillon validé reste modifiable avant la phase de calcul.";
+    } else if (!summary.canValidate) {
+      validateDraftButton.disabled = true;
+      validationHelp.textContent = summary.structureErrors.length
+        ? summary.structureErrors.join(" ")
+        : `${summary.counts.invalid} ${plural(summary.counts.invalid, "ligne invalide bloque", "lignes invalides bloquent")} la validation.`;
+    } else {
+      validateDraftButton.disabled = false;
+      validationHelp.textContent = `${realPlayers} ${plural(realPlayers, "joueur sera conservé", "joueurs seront conservés")} ; ${summary.counts.vacant} ${plural(summary.counts.vacant, "place vacante sera exclue", "places vacantes seront exclues")}.`;
+    }
+  }
+
+  function setEditorFieldValues(buffer) {
+    for (const field of EDITABLE_FIELDS) {
+      editorInputs[field].value = buffer[field];
+    }
+  }
+
+  function getEditorResult() {
+    const capture = getActiveCapture();
+    const row = capture?.editableDraft?.players?.[session.editorRowIndex];
+    if (!capture || !row || !session.editorBuffer) return null;
+    return parseEditorRow(session.editorBuffer, row.rank);
+  }
+
+  function renderEditorValidation() {
+    const parsed = getEditorResult();
+    if (!parsed) return;
+
+    for (const field of EDITABLE_FIELDS) {
+      editorErrors[field].textContent = parsed.fieldErrors[field] || "";
+      editorInputs[field].setAttribute("aria-invalid", String(Boolean(parsed.fieldErrors[field])));
+    }
+
+    editorStatus.textContent = parsed.classification.label;
+    editorStatus.dataset.classification = parsed.classification.type;
+    editorSaveButton.disabled = parsed.classification.type === "invalid";
+
+    const messages = [
+      ...parsed.classification.errors.map((message) => ({ kind: "error", message })),
+      ...parsed.classification.warnings.map((message) => ({ kind: "warning", message }))
+    ];
+    editorMessages.innerHTML = messages.map((entry) => (
+      `<p class="warAdminEditorMessage" data-kind="${entry.kind}">${escapeHtml(entry.message)}</p>`
+    )).join("");
+  }
+
+  function openEditor(rowIndex) {
+    const capture = getActiveCapture();
+    const row = capture?.editableDraft?.players?.[rowIndex];
+    if (!capture || !row || session.reviewReadOnly) return;
+
+    capture.listScrollY = Number(window.scrollY) || 0;
+    session.editorRowIndex = rowIndex;
+    session.editorBuffer = Object.fromEntries(EDITABLE_FIELDS.map((field) => [
+      field,
+      row[field] === null || row[field] === undefined ? "" : String(row[field])
+    ]));
+    editorContext.textContent = `Ligne ${row.rank} sur ${capture.editableDraft.players.length}`;
+    reviewListPanel.hidden = true;
+    editorPanel.hidden = false;
+    setEditorFieldValues(session.editorBuffer);
+    renderEditorValidation();
+  }
+
+  function closeEditor() {
+    const capture = getActiveCapture();
+    const targetScroll = capture?.listScrollY || 0;
+    session.editorRowIndex = null;
+    session.editorBuffer = null;
+    editorPanel.hidden = true;
+    reviewListPanel.hidden = false;
+    renderReview();
+    if (typeof window.scrollTo === "function") window.scrollTo(0, targetScroll);
+  }
+
+  function updateSessionReviewStatus() {
+    const available = session.captures.filter((capture) => Boolean(capture.editableDraft));
+    const allValidated = available.length > 0 && available.every((capture) => capture.state === "validated");
+
+    if (allValidated && !session.running) {
+      setStatus(
+        "success",
+        "Validation OCR terminée",
+        "OCR validé",
+        "Tous les brouillons OCR disponibles sont validés."
+      );
+    } else if (available.length > 0 && !session.running) {
+      const correction = available.filter((capture) => (
+        capture.state === "correction" || capture.state === "revalidate"
+      )).length;
+      const reviewing = available.filter((capture) => capture.state === "reviewing").length;
+      const ready = available.filter((capture) => capture.state === "ready").length;
+      const parts = [];
+      if (ready) parts.push(`${ready} ${plural(ready, "brouillon prêt", "brouillons prêts")}`);
+      if (reviewing) parts.push(`${reviewing} en cours de vérification`);
+      if (correction) parts.push(`${correction} à corriger ou revalider`);
+      setStatus(
+        "warning",
+        "Validation OCR en cours",
+        "À vérifier",
+        `${parts.join(" ; ")}. Aucune donnée GitHub modifiée.`
+      );
+    }
+    renderSession();
+  }
+
+  function openReview(captureId, readOnly) {
+    const capture = session.captures.find((item) => item.id === captureId);
+    if (!capture?.editableDraft || session.running) return;
+
+    session.sessionScrollY = Number(window.scrollY) || 0;
+    session.activeCaptureId = capture.id;
+    session.reviewReadOnly = Boolean(readOnly && capture.state === "validated");
+    session.reviewZoom = 1;
+    session.editorRowIndex = null;
+    session.editorBuffer = null;
+    refreshCaptureValidationState(capture, true);
+    sessionView.hidden = true;
+    reviewView.hidden = false;
+    reviewListPanel.hidden = false;
+    editorPanel.hidden = true;
+    renderReview();
+    renderSession();
+    if (typeof window.scrollTo === "function") window.scrollTo(0, capture.reviewScrollY || 0);
+  }
+
+  function closeReview() {
+    const capture = getActiveCapture();
+    if (capture?.editableDraft) {
+      capture.reviewScrollY = Number(window.scrollY) || 0;
+      refreshCaptureValidationState(capture, true);
+    }
+
+    session.activeCaptureId = "";
+    session.editorRowIndex = null;
+    session.editorBuffer = null;
+    reviewView.hidden = true;
+    sessionView.hidden = false;
+    updateSessionReviewStatus();
+    if (typeof window.scrollTo === "function") window.scrollTo(0, session.sessionScrollY);
+  }
+
+  function handleCaptureListClick(event) {
+    const actionTarget = getActionTarget(event.target);
+    if (!actionTarget || actionTarget.disabled) return;
+
+    if (actionTarget.dataset.action === "open-review") {
+      openReview(actionTarget.dataset.captureId, actionTarget.dataset.readOnly === "true");
+    } else if (actionTarget.dataset.action === "modify-review") {
+      openReview(actionTarget.dataset.captureId, false);
+    }
+  }
+
+  function handlePlayerListClick(event) {
+    const actionTarget = getActionTarget(event.target);
+    if (!actionTarget || actionTarget.dataset.action !== "edit-row") return;
+    const rowIndex = Number(actionTarget.dataset.rowIndex);
+    if (Number.isInteger(rowIndex)) openEditor(rowIndex);
+  }
+
+  function handleEditorInput(event) {
+    const field = event.target?.name;
+    if (!session.editorBuffer || !EDITABLE_FIELDS.includes(field)) return;
+    session.editorBuffer[field] = event.target.value;
+    renderEditorValidation();
+  }
+
+  function handleEditorSubmit(event) {
+    event.preventDefault();
+    const capture = getActiveCapture();
+    const parsed = getEditorResult();
+    if (!capture || !parsed || parsed.classification.type === "invalid") {
+      renderEditorValidation();
+      return;
+    }
+
+    const rowIndex = session.editorRowIndex;
+    const previous = capture.editableDraft.players[rowIndex];
+    capture.editableDraft.players[rowIndex] = cloneJson(parsed.row);
+    capture.draft = capture.editableDraft;
+
+    if (!isRowModified(previous, parsed.row)) {
+      closeEditor();
+      return;
+    }
+
+    refreshCaptureValidationState(capture, true);
+    addLog(`Ligne ${parsed.row.rank} modifiée`, capture);
+    closeEditor();
+    updateSessionReviewStatus();
+  }
+
+  function handleEditorReset() {
+    const capture = getActiveCapture();
+    const rowIndex = session.editorRowIndex;
+    const original = capture?.ocrDraft?.players?.[rowIndex];
+    if (!capture || !original || !Number.isInteger(rowIndex)) return;
+
+    capture.editableDraft.players[rowIndex] = cloneJson(original);
+    capture.draft = capture.editableDraft;
+    refreshCaptureValidationState(capture, true);
+    addLog(`Ligne ${original.rank} restaurée aux valeurs OCR`, capture);
+    closeEditor();
+    updateSessionReviewStatus();
+  }
+
+  function handleValidateDraft() {
+    const capture = getActiveCapture();
+    if (!capture?.editableDraft || session.reviewReadOnly) return;
+
+    const summary = classifyDraft(capture.editableDraft);
+    if (!summary.canValidate) {
+      refreshCaptureValidationState(capture, true);
+      renderReview();
+      return;
+    }
+
+    capture.validatedDraft = buildValidatedDraft(capture.editableDraft);
+    capture.state = "validated";
+    capture.detail = "Brouillon OCR validé. Aucun calcul métier n’a été lancé.";
+    session.reviewReadOnly = true;
+    addLog("Brouillon OCR validé — aucun calcul ni publication", capture);
+    renderReview();
+    updateSessionReviewStatus();
+  }
+
+  function handleReviewUnlock() {
+    const capture = getActiveCapture();
+    if (!capture?.validatedDraft) return;
+    session.reviewReadOnly = false;
+    renderReview();
+  }
+
+  function handleZoom(delta) {
+    setReviewZoom(session.reviewZoom + delta);
   }
 
   function handleSuccessfulOcr(capture, data) {
@@ -646,9 +1157,21 @@
   }
 
   function updateFinalStatus() {
-    const ready = session.captures.filter((capture) => capture.state === "ready").length;
+    const available = session.captures.filter((capture) => Boolean(capture.editableDraft));
+    const ready = available.filter((capture) => capture.state === "ready").length;
+    const validated = available.filter((capture) => capture.state === "validated").length;
     const failed = session.captures.filter((capture) => capture.state === "failed").length;
     const manual = session.captures.filter((capture) => capture.needsManual).length;
+
+    if (available.length > 0 && validated === available.length) {
+      setStatus(
+        "success",
+        "Validation OCR terminée",
+        "OCR validé",
+        "Tous les brouillons OCR disponibles sont validés."
+      );
+      return;
+    }
 
     if (manual || failed) {
       const details = [];
@@ -658,23 +1181,23 @@
         "warning",
         "File OCR terminée",
         "À vérifier",
-        `${ready} ${plural(ready, "brouillon prêt", "brouillons prêts")}. ${details.join(" ; ")}. Aucune donnée GitHub modifiée.`
+        `${ready} ${plural(ready, "brouillon prêt", "brouillons prêts")} à vérifier. ${details.join(" ; ")}. Aucune donnée GitHub modifiée.`
       );
       return;
     }
 
     setStatus(
-      "success",
+      "warning",
       "Session OCR terminée",
-      "Brouillons",
-      `${ready} ${plural(ready, "brouillon non publié", "brouillons non publiés")} conservé${ready > 1 ? "s" : ""} en mémoire. Aucune donnée GitHub modifiée.`
+      "À vérifier",
+      `${ready} ${plural(ready, "brouillon non publié est prêt", "brouillons non publiés sont prêts")} pour la vérification humaine. Aucune donnée GitHub modifiée.`
     );
   }
 
   function markSessionCancelled() {
     for (const capture of session.captures) {
       if (["queued", "detecting", "ocr", "waiting"].includes(capture.state)) {
-        if (capture.draft && capture.alliance) {
+        if (capture.editableDraft && capture.alliance) {
           capture.state = "ready";
           capture.detail = "Brouillon conservé après interruption de la session.";
         } else {
@@ -815,6 +1338,8 @@
   }
 
   dateInput.value = getLocalDateValue();
+  sessionView.hidden = false;
+  reviewView.hidden = true;
   setStatus("idle", "En attente", "Attente", "Sélectionne les captures pour préparer la session.");
   result.textContent = IDLE_RESULT;
   renderCaptureList();
@@ -827,6 +1352,19 @@
   form.addEventListener("submit", handleSubmit);
   cancelButton.addEventListener("click", handleCancel);
   captureList.addEventListener("change", handleManualAlliance);
+  captureList.addEventListener("click", handleCaptureListClick);
+  reviewBackButton.addEventListener("click", closeReview);
+  playerList.addEventListener("click", handlePlayerListClick);
+  reviewUnlockButton.addEventListener("click", handleReviewUnlock);
+  validateDraftButton.addEventListener("click", handleValidateDraft);
+  editorForm.addEventListener("input", handleEditorInput);
+  editorForm.addEventListener("submit", handleEditorSubmit);
+  editorBackButton.addEventListener("click", closeEditor);
+  editorCancelButton.addEventListener("click", closeEditor);
+  editorResetButton.addEventListener("click", handleEditorReset);
+  zoomOutButton.addEventListener("click", () => handleZoom(-0.25));
+  zoomResetButton.addEventListener("click", () => setReviewZoom(1));
+  zoomInButton.addEventListener("click", () => handleZoom(0.25));
   window.addEventListener("pagehide", handlePageHide);
 
   if (testConfig.exposeState) {
@@ -834,7 +1372,10 @@
       getSnapshot() {
         return JSON.parse(JSON.stringify(getTechnicalPayload()));
       },
-      normalizeAlliance
+      normalizeAlliance,
+      openReview(captureId, readOnly) {
+        openReview(captureId, readOnly);
+      }
     };
   }
 })();

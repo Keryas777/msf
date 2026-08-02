@@ -3,7 +3,10 @@ import test from "node:test";
 import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 
-const app = await readFile(new URL("../docs/war-admin.js", import.meta.url), "utf8");
+const [validationApp, app] = await Promise.all([
+  readFile(new URL("../docs/war-admin-validation.js", import.meta.url), "utf8"),
+  readFile(new URL("../docs/war-admin.js", import.meta.url), "utf8")
+]);
 
 class FakeElement {
   constructor(id) {
@@ -17,6 +20,7 @@ class FakeElement {
     this.listeners = new Map();
     this.scrollHeight = 100;
     this.scrollTop = 0;
+    this.style = {};
     this.textContent = "";
     this.value = "";
   }
@@ -29,6 +33,10 @@ class FakeElement {
 
   setAttribute(name, value) {
     this.attributes.set(name, String(value));
+  }
+
+  removeAttribute(name) {
+    this.attributes.delete(name);
   }
 }
 
@@ -98,7 +106,53 @@ function createHarness(options = {}) {
     "warQueueSummary",
     "warCaptureList",
     "warLog",
-    "warResult"
+    "warResult",
+    "warSessionView",
+    "warReviewView",
+    "warReviewBack",
+    "warReviewTitle",
+    "warReviewState",
+    "warReviewAlliance",
+    "warReviewDate",
+    "warReviewFile",
+    "warReviewTotal",
+    "warCountPlayers",
+    "warCountInactive",
+    "warCountVacant",
+    "warCountInvalid",
+    "warReviewStructureError",
+    "warSourceViewport",
+    "warReviewImage",
+    "warReviewImageNotice",
+    "warZoomOut",
+    "warZoomReset",
+    "warZoomIn",
+    "warReviewListPanel",
+    "warPlayerList",
+    "warReviewUnlock",
+    "warValidateDraft",
+    "warValidationHelp",
+    "warEditorPanel",
+    "warEditorBack",
+    "warEditorForm",
+    "warEditorContext",
+    "warEditorStatus",
+    "warEditorMessages",
+    "warEditorSave",
+    "warEditorReset",
+    "warEditorCancel",
+    "warEditName",
+    "warEditAttackPoints",
+    "warEditAttacks",
+    "warEditDamage",
+    "warEditDefenseWins",
+    "warEditDefenseBonus",
+    "warEditErrorName",
+    "warEditErrorAttackPoints",
+    "warEditErrorAttacks",
+    "warEditErrorDamage",
+    "warEditErrorDefenseWins",
+    "warEditErrorDefenseBonus"
   ];
   const elements = Object.fromEntries(ids.map((id) => [id, new FakeElement(id)]));
   const windowListeners = new Map();
@@ -142,10 +196,14 @@ function createHarness(options = {}) {
 
   const windowObject = {
     __MSF_WAR_ADMIN_TEST_CONFIG__: runtimeConfig,
+    scrollY: 0,
     addEventListener(type, listener) {
       const listeners = windowListeners.get(type) || [];
       listeners.push(listener);
       windowListeners.set(type, listeners);
+    },
+    scrollTo(_x, y) {
+      this.scrollY = y;
     }
   };
 
@@ -193,7 +251,9 @@ function createHarness(options = {}) {
     window: windowObject
   };
 
-  vm.runInNewContext(app, context, { filename: "war-admin.js" });
+  const vmContext = vm.createContext(context);
+  vm.runInContext(validationApp, vmContext, { filename: "war-admin-validation.js" });
+  vm.runInContext(app, vmContext, { filename: "war-admin.js" });
 
   return {
     clearedTimers,
@@ -302,7 +362,8 @@ test("une capture détectée automatiquement crée un brouillon sans alliance en
   assert.equal(snapshot.drafts[0].draft.alliance, "kronos");
   assert.equal(snapshot.captures[0].state, "Brouillon prêt");
   assert.equal(snapshot.captures[0].assignment_source, "automatic");
-  assert.equal(elements.warStatusPanel.dataset.state, "success");
+  assert.equal(elements.warStatusPanel.dataset.state, "warning");
+  assert.match(elements.warCaptureList.innerHTML, /data-action="open-review"/);
   assert.match(elements.warCaptureList.innerHTML, /✓ Kronos/);
   assert.match(elements.warLog.innerHTML, /Alliance détectée : Kronos/);
   assert.match(elements.warResult.textContent, /"published": false/);
@@ -341,8 +402,8 @@ test("six captures restent strictement séquentielles avec cinq délais visibles
   assert.deepEqual(harness.timerCalls, [9000, 9000, 9000, 9000, 9000]);
   assert.equal(harness.getSnapshot().drafts.length, 6);
   assert.match(harness.elements.warLog.innerHTML, /Temporisation terminée ; reprise de la file/);
-  assert.match(harness.elements.warQueueSummary.textContent, /6 brouillons/);
-  assert.equal(harness.elements.warStatusPanel.dataset.state, "success");
+  assert.match(harness.elements.warQueueSummary.textContent, /Prêts 6/);
+  assert.equal(harness.elements.warStatusPanel.dataset.state, "warning");
 });
 
 test("un doublon automatique est bloqué puis peut être affecté manuellement", async () => {
@@ -357,7 +418,7 @@ test("un doublon automatique est bloqué puis peut être affecté manuellement",
   assert.equal(snapshot.drafts.length, 1);
   assert.equal(snapshot.captures[1].state, "Alliance à confirmer");
   assert.match(harness.elements.warCaptureList.innerHTML, /Gemini propose Zeus, déjà attribuée/);
-  const captureId = harness.elements.warCaptureList.innerHTML.match(/data-capture-id="(\d+)"/)?.[1];
+  const captureId = harness.elements.warCaptureList.innerHTML.match(/<select[^>]*data-capture-id="(\d+)"/)?.[1];
   assert.ok(captureId);
 
   const manualChange = harness.listener("warCaptureList", "change");
@@ -386,7 +447,7 @@ test("une détection incertaine demande un choix uniquement pour sa capture", as
   let snapshot = harness.getSnapshot();
   assert.equal(snapshot.captures[0].state, "Alliance à confirmer");
   assert.equal(snapshot.drafts.length, 0);
-  const captureId = harness.elements.warCaptureList.innerHTML.match(/data-capture-id="(\d+)"/)?.[1];
+  const captureId = harness.elements.warCaptureList.innerHTML.match(/<select[^>]*data-capture-id="(\d+)"/)?.[1];
 
   harness.listener("warCaptureList", "change")({
     target: { dataset: { captureId }, value: "hades" }
@@ -497,4 +558,220 @@ test("l’utilisateur peut interrompre la temporisation avant la capture suivant
   assert.equal(snapshot.drafts.length, 1);
   assert.equal(harness.clearedTimers.length, 1);
   assert.equal(harness.elements.warStatusPanel.dataset.state, "cancelled");
+});
+
+function openReviewFromCard(harness, captureIndex = 0, readOnly = false) {
+  const ids = [...harness.elements.warCaptureList.innerHTML.matchAll(
+    /data-action="open-review" data-capture-id="(\d+)"/g
+  )].map((match) => match[1]);
+  const captureId = ids[captureIndex];
+  assert.ok(captureId, `capture ${captureIndex + 1} ouvrable`);
+  harness.listener("warCaptureList", "click")({
+    target: {
+      dataset: {
+        action: "open-review",
+        captureId,
+        readOnly: String(readOnly)
+      },
+      disabled: false
+    }
+  });
+  return captureId;
+}
+
+function openEditorRow(harness, rowIndex) {
+  harness.listener("warPlayerList", "click")({
+    target: {
+      dataset: { action: "edit-row", rowIndex: String(rowIndex) },
+      disabled: false
+    }
+  });
+}
+
+function editField(harness, field, value) {
+  const input = {
+    name: field,
+    value
+  };
+  harness.listener("warEditorForm", "input")({ target: input });
+}
+
+function payloadWithPlayers(alliance, label, players) {
+  const base = draftPayload(alliance, label);
+  return {
+    ...base,
+    players: players.map((player) => ({ ...player, alliance })),
+    draft: {
+      ...base.draft,
+      alliance,
+      players: players.map(({ rank, name, attack_points, attacks, damage, defense_wins, defense_bonus }) => ({
+        rank,
+        name,
+        attack_points,
+        attacks,
+        damage,
+        defense_wins,
+        defense_bonus
+      }))
+    }
+  };
+}
+
+test("un brouillon valide passe de la vérification à OCR validé sans calcul", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async () => Response.json(draftPayload("zeus", "Zeus")));
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+
+  let snapshot = harness.getSnapshot();
+  assert.equal(snapshot.captures[0].state, "Vérification en cours");
+  assert.equal(harness.elements.warSessionView.hidden, true);
+  assert.equal(harness.elements.warReviewView.hidden, false);
+  assert.equal(harness.elements.warCountPlayers.textContent, "24");
+  assert.equal(harness.elements.warCountInvalid.textContent, "0");
+  assert.equal(harness.elements.warValidateDraft.disabled, false);
+
+  harness.listener("warValidateDraft", "click")();
+  snapshot = harness.getSnapshot();
+
+  assert.equal(snapshot.captures[0].state, "OCR validé");
+  assert.equal(snapshot.captures[0].validatedDraft.players.length, 24);
+  assert.equal("report" in snapshot.captures[0].validatedDraft, false);
+  assert.equal(snapshot.captures[0].validatedDraft.players[0].rank, 1);
+  assert.equal(harness.elements.warValidateDraft.disabled, true);
+  assert.equal(harness.elements.warValidateDraft.textContent, "Brouillon OCR validé");
+  assert.equal(
+    harness.elements.warStatusMessage.textContent,
+    "Tous les brouillons OCR disponibles sont validés."
+  );
+  assert.equal(harness.fetchCalls.length, 1, "la validation ne relance pas Gemini");
+});
+
+test("une ligne invalide bloque la validation puis une correction la débloque", async () => {
+  const harness = createHarness();
+  const players = buildPlayers();
+  players[3].damage = null;
+  harness.setFetchImplementation(async () => Response.json(payloadWithPlayers("kronos", "Kronos", players)));
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+
+  let snapshot = harness.getSnapshot();
+  assert.equal(snapshot.captures[0].state, "À corriger");
+  assert.equal(harness.elements.warCountInvalid.textContent, "1");
+  assert.equal(harness.elements.warValidateDraft.disabled, true);
+  assert.match(harness.elements.warPlayerList.innerHTML, /data-classification="invalid"/);
+
+  openEditorRow(harness, 3);
+  assert.equal(harness.elements.warEditorSave.disabled, true);
+  editField(harness, "damage", "987654321");
+  assert.equal(harness.elements.warEditorSave.disabled, false);
+  harness.listener("warEditorForm", "submit")(submitEvent());
+
+  snapshot = harness.getSnapshot();
+  assert.equal(snapshot.captures[0].state, "Vérification en cours");
+  assert.equal(snapshot.captures[0].editable_draft.players[3].damage, 987654321);
+  assert.equal(snapshot.captures[0].ocr_draft.players[3].damage, null);
+  assert.equal(snapshot.captures[0].modification_count, 1);
+  assert.equal(harness.elements.warValidateDraft.disabled, false);
+});
+
+test("nom et dégâts modifiés après validation déclenchent À revalider puis peuvent être restaurés", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async () => Response.json(draftPayload("athena", "Athéna")));
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewUnlock", "click")();
+
+  openEditorRow(harness, 0);
+  editField(harness, "name", "Nom corrigé");
+  editField(harness, "damage", "2222222222");
+  harness.listener("warEditorForm", "submit")(submitEvent());
+
+  let snapshot = harness.getSnapshot();
+  assert.equal(snapshot.captures[0].state, "À revalider");
+  assert.equal(snapshot.captures[0].editable_draft.players[0].name, "Nom corrigé");
+  assert.equal(snapshot.captures[0].editable_draft.players[0].damage, 2222222222);
+  assert.equal(snapshot.captures[0].response_ocr.draft.players[0].name, "Joueur 1");
+  assert.equal(snapshot.captures[0].modification_count, 2);
+  assert.match(harness.elements.warPlayerList.innerHTML, /data-modified="true"/);
+  assert.doesNotMatch(harness.elements.warStatusMessage.textContent, /Tous les brouillons OCR disponibles/);
+
+  openEditorRow(harness, 0);
+  harness.listener("warEditorReset", "click")();
+  snapshot = harness.getSnapshot();
+
+  assert.equal(snapshot.captures[0].state, "OCR validé");
+  assert.equal(snapshot.captures[0].editable_draft.players[0].name, "Joueur 1");
+  assert.equal(snapshot.captures[0].editable_draft.players[0].damage, 1000000000);
+  assert.equal(snapshot.captures[0].modification_count, 0);
+});
+
+test("la fiche accepte 0 mais rejette immédiatement décimales et valeurs négatives", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async () => Response.json(draftPayload("poseidon", "Poséidon")));
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  openEditorRow(harness, 1);
+
+  editField(harness, "damage", "1.5");
+  assert.equal(harness.elements.warEditorSave.disabled, true);
+  assert.match(harness.elements.warEditErrorDamage.textContent, /entier/);
+
+  editField(harness, "damage", "-1");
+  assert.equal(harness.elements.warEditorSave.disabled, true);
+  assert.match(harness.elements.warEditErrorDamage.textContent, /entier/);
+
+  for (const field of ["attack_points", "attacks", "damage", "defense_wins", "defense_bonus"]) {
+    editField(harness, field, "0");
+  }
+  assert.equal(harness.elements.warEditorSave.disabled, false);
+  harness.listener("warEditorForm", "submit")(submitEvent());
+
+  const snapshot = harness.getSnapshot();
+  assert.equal(snapshot.captures[0].editable_draft.players[1].damage, 0);
+  assert.equal(snapshot.captures[0].editable_draft.players[1].attacks, 0);
+  assert.match(
+    harness.elements.warPlayerList.innerHTML,
+    /data-row-index="1" data-classification="inactive" data-modified="true"/
+  );
+  assert.match(harness.elements.warPlayerList.innerHTML, />Modifié<\/span>/);
+});
+
+test("les alliances gardent des états indépendants et le retour conserve l’ordre", async () => {
+  const harness = createHarness();
+  const responses = [
+    draftPayload("zeus", "Zeus"),
+    draftPayload("dionysos", "Dionysos")
+  ];
+  let responseIndex = 0;
+  harness.setFetchImplementation(async () => Response.json(responses[responseIndex++]));
+
+  harness.elements.warImage.files = files(2);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness, 0);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+
+  const snapshot = harness.getSnapshot();
+  assert.equal(snapshot.captures[0].assigned_alliance, "zeus");
+  assert.equal(snapshot.captures[0].state, "OCR validé");
+  assert.equal(snapshot.captures[1].assigned_alliance, "dionysos");
+  assert.equal(snapshot.captures[1].state, "Brouillon prêt");
+  assert.match(harness.elements.warQueueSummary.textContent, /Prêts 1 · En cours 0 · À corriger 0 · Validés 1/);
+  assert.equal(harness.elements.warSessionView.hidden, false);
+  assert.equal(harness.elements.warReviewView.hidden, true);
 });
