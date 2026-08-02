@@ -30,6 +30,28 @@ export default {
       return addWarParseCorsHeaders(request, response);
     }
 
+    if (request.method === "POST" && url.pathname === "/api/war/parse-gemini-draft") {
+      let response;
+
+      try {
+        response = await handleWarParseGemini(request, env, { publish: false });
+      } catch (error) {
+        response = Response.json(
+          {
+            ok: false,
+            published: false,
+            error: error instanceof Error ? error.message : "Erreur inconnue"
+          },
+          {
+            status: 500
+          }
+        );
+      }
+
+      response = await addDraftPublishedFlag(response);
+      return addWarParseDraftCorsHeaders(request, response);
+    }
+
     return new Response("Worker OK. Ouvre /war-upload pour tester Gemini.", {
       headers: {
         "content-type": "text/plain; charset=utf-8"
@@ -50,6 +72,33 @@ function addWarParseCorsHeaders(request, response) {
   }
 
   return response;
+}
+
+function addWarParseDraftCorsHeaders(request, response) {
+  response.headers.delete("Access-Control-Allow-Origin");
+  response.headers.delete("Vary");
+
+  if (request.headers.get("Origin") === WAR_ADMIN_ORIGIN) {
+    response.headers.set("Access-Control-Allow-Origin", WAR_ADMIN_ORIGIN);
+    response.headers.set("Vary", "Origin");
+  }
+
+  return response;
+}
+
+async function addDraftPublishedFlag(response) {
+  const data = await response.json();
+
+  return Response.json(
+    {
+      ...data,
+      published: false
+    },
+    {
+      status: response.status,
+      statusText: response.statusText
+    }
+  );
 }
 
 const ALLIANCES = {
@@ -686,7 +735,8 @@ async function callGeminiVision(args) {
   };
 }
 
-async function handleWarParseGemini(request, env) {
+async function handleWarParseGemini(request, env, options) {
+  const shouldPublish = !options || options.publish !== false;
   const formData = await request.formData();
 
   const allianceRaw = formData.get("alliance");
@@ -783,6 +833,21 @@ async function handleWarParseGemini(request, env) {
     result.model,
     finalPlayers
   );
+
+  if (!shouldPublish) {
+    return Response.json({
+      ok: true,
+      model: result.model,
+      alliance: alliance,
+      alliance_label: getAllianceLabel(alliance),
+      war_date: warDate,
+      counts: result.counts,
+      players: result.players,
+      draft: finalWarFile,
+      published: false,
+      raw_gemini_text: result.raw_gemini_text
+    });
+  }
 
   const exportPath = "docs/data/war/" + warDate + "/" + alliance + ".json";
 
