@@ -1,7 +1,8 @@
 # Intermédiaire normalisé des capacités
 
 `capabilities.json` est généré exclusivement depuis
-`../parsed/mechanics.json`. Son contrat v1 est validé. Il normalise les
+`../parsed/mechanics.json`. Son contrat courant est `1.1.0`, une évolution
+additive compatible du contrat v1. Il normalise les
 primitives reconnues, conserve les autres actions sans les interpréter et sert
 d’unique entrée à l’indexeur v1.
 
@@ -30,7 +31,9 @@ versionné. L’indexeur ne relit ni `mechanics.json`, ni les fichiers `raw/`.
   `safety_empower` et `counter_empower` restent des contextes techniques ;
 - un **ActionMapping** correspond à exactement une action du parser. Il
   référence ses opérations ou porte le statut `preserved_uninterpreted` quand
-  aucune interprétation contrôlée n’existe ;
+  aucune interprétation contrôlée n’existe. Depuis `1.1.0`, il conserve aussi
+  l’ordre, le chemin de contexte, la cible, le destinataire, les conditions,
+  le contrôle, les flags, la source et les paramètres restants ;
 - une **Operation** représente une primitive normalisée et conserve l’action,
   le contexte, l’ordre, les conditions, le contrôle, les paramètres bruts et
   les pointeurs source.
@@ -43,6 +46,23 @@ Une action `spawn` produit toujours une opération `spawn` représentant
 l’invocation complète. Les procs de `pool[].procs[]` produisent séparément des
 opérations `effect_apply` avec le scope `spawn_pool`. L’invocation et les effets
 appliqués aux entités invoquées ne sont donc jamais confondus.
+
+## Conservation enrichie sans interprétation
+
+`preserved_uninterpreted` signifie que la sémantique gameplay n’est pas
+normalisée. Cela ne signifie pas que la structure source doit être supprimée.
+
+`uninterpretedParameters.values` conserve les valeurs restantes à l’identique.
+`uninterpretedParameters.progressions` inventorie les tableaux sans les
+aplatir, avec `sourceField`, `sourcePointer`, `sourceShape`, `values` et
+`maxLevelValue`. Une valeur comme `count: [100]` reste une donnée technique :
+le contrat ne prétend ni qu’elle désigne cent cibles, ni qu’elle signifie
+« toutes ».
+
+Les champs enrichis sont présents pour les mappings `normalized` comme pour
+les mappings `preserved_uninterpreted`. Les consommateurs v1 qui ignorent les
+clés inconnues restent compatibles ; l’indexeur et le publisher acceptent
+explicitement les contrats `1.0.0` et `1.1.0` pendant la transition.
 
 ## Alias d’identifiants
 

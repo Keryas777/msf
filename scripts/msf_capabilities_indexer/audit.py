@@ -9,7 +9,7 @@ from .diagnostics import IndexerAuditError, IndexerInputError
 
 
 SNAPSHOT_CAPABILITIES_CHECKSUM = (
-    "71ff43f448e7f4efa60f85c6f98d1bbd1e452fb82dcb0f28a75c70cea428daa1"
+    "444b7792300504927909155f4360be60b91a5a05aeca6b9c032d3ce3f9cd186c"
 )
 
 KNOWN_OPERATION_KINDS = frozenset(
@@ -201,7 +201,7 @@ def validate_source(capabilities: dict[str, Any]) -> None:
     """Validate normalized schema relations without snapshot assumptions."""
 
     _require_object(capabilities, "racine")
-    if capabilities.get("schemaVersion") != "1.0.0":
+    if capabilities.get("schemaVersion") not in {"1.0.0", "1.1.0"}:
         raise IndexerInputError(
             "UNSUPPORTED_NORMALIZER_SCHEMA",
             "schemaVersion du normaliseur non supportée : "
@@ -940,14 +940,14 @@ def audit_index(
         "facetAvailability"
     )
     expected_facets = {
-        "conditionPresence": "unavailable",
-        "targetPresence": "unavailable",
-        "dependencyPresence": "unavailable",
+        "conditionPresence": "available",
+        "targetPresence": "available",
+        "dependencyPresence": "available",
     }
     if facet_availability != expected_facets:
         raise _audit_error(
             "INVALID_UNINTERPRETED_FACETS",
-            "Les facettes absentes doivent être déclarées unavailable.",
+            "Les facettes structurelles enrichies doivent être disponibles.",
         )
     if "bySourcePointer" in payloads["uninterpreted-actions.json"].get(
         "indexes", {}

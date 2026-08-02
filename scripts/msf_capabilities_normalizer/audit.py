@@ -744,7 +744,7 @@ def audit_capabilities(
             )
         )
 
-    if capabilities.get("schemaVersion") != "1.0.0":
+    if capabilities.get("schemaVersion") != "1.1.0":
         diagnostics.append(
             _audit_error(
                 "Version de schéma normalisé absente ou invalide.",

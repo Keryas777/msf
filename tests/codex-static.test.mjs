@@ -18,6 +18,14 @@ test("le frontend ne référence jamais operations.json", () => {
   }
 });
 
+test("B1 masque count et ordonne les occurrences par actionOrder", () => {
+  assert.equal(app.includes("Nombre de cibles sélectionnées"), false);
+  assert.equal(app.includes("Quantité structurée"), false);
+  assert.match(app, /function sortOccurrencesBySourceOrder/);
+  assert.match(app, /left\.actionOrder/);
+  assert.match(app, /right\.actionOrder/);
+});
+
 test("la page autorise le zoom et expose les primitives d’accessibilité", () => {
   assert.match(html, /name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/);
   assert.doesNotMatch(html, /user-scalable=no|maximum-scale=1/);

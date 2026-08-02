@@ -239,7 +239,7 @@ def load_source_documents(
         raise BuilderError("INDEX_CHECKSUM_MISMATCH", "Checksum d’index-manifest incohérent")
     if index_manifest.get("artifactType") != "index_manifest":
         raise BuilderError("INVALID_INDEX_MANIFEST", "Type d’index-manifest inattendu")
-    if index_manifest.get("schemaVersion") != "1.0.0":
+    if index_manifest.get("schemaVersion") not in {"1.0.0", "1.1.0"}:
         raise BuilderError("UNSUPPORTED_INDEX_SCHEMA", "Schéma indexer non pris en charge")
     if index_manifest.get("capabilitiesChecksum") != capabilities_checksum:
         raise BuilderError("CAPABILITIES_CHECKSUM_MISMATCH", "Identité capabilities incohérente")
@@ -834,8 +834,22 @@ def _project_action(action: Mapping[str, Any]) -> dict[str, Any]:
         "characterId": action.get("characterId"),
         "abilityId": action.get("abilityId"),
         "abilityType": action.get("abilityType"),
+        "sourceActionId": action.get("sourceActionId"),
+        "actionOrder": action.get("actionOrder"),
+        "rawSourceActionType": copy.deepcopy(action.get("rawSourceActionType")),
+        "sourceActionType": action.get("sourceActionType"),
+        "contextId": action.get("contextId"),
+        "contextPathIds": copy.deepcopy(action.get("contextPathIds", [])),
         "sourceType": source_type,
-        "target": None,
+        "target": copy.deepcopy(action.get("target")),
+        "recipient": copy.deepcopy(action.get("recipient")),
+        "structuredConditions": copy.deepcopy(action.get("conditions", [])),
+        "control": copy.deepcopy(action.get("control", {})),
+        "flags": copy.deepcopy(action.get("flags", {})),
+        "uninterpretedParameters": copy.deepcopy(
+            action.get("uninterpretedParameters", {})
+        ),
+        "source": copy.deepcopy(action.get("source")),
         "chance": None,
         "metrics": [],
         "modes": [],
@@ -1202,17 +1216,14 @@ def _project_spawn(
         "invokingCharacterId": spawn.get("invokingCharacterId"),
         "evidence": "normalized",
         "chance": spawn.get("metrics", {}).get("chancePct", {}).get("maxLevelValue"),
-        "selectionCount": spawn.get("metrics", {})
-        .get("selectionCount", {})
-        .get("maxLevelValue"),
         "pool": sorted(pool, key=lambda item: (item.get("poolIndex") or 0, _sort_key(item["name"]))),
     }
 
 
 def _occurrence_sort_key(item: Mapping[str, Any]) -> tuple[Any, ...]:
     return (
-        OPERATION_KINDS.get(str(item.get("kind")), {}).get("order", 999),
         item.get("actionOrder") if isinstance(item.get("actionOrder"), int) else 999,
+        OPERATION_KINDS.get(str(item.get("kind")), {}).get("order", 999),
         str(item.get("id") or ""),
     )
 

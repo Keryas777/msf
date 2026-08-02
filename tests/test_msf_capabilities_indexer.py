@@ -212,11 +212,31 @@ def _mapping(
 ) -> dict:
     return {
         "sourceActionId": source_action_id,
+        "characterId": "Caller",
+        "abilityType": "basic",
         "contextId": context_id,
+        "contextPathIds": [context_id],
+        "actionOrder": 0,
+        "classification": "mechanical",
+        "containerType": "ability",
+        "technicalKey": None,
         "rawSourceActionType": source_action_type,
         "sourceActionType": source_action_type,
         "status": status,
         "operationIds": operation_ids,
+        "target": {"present": False, "value": None},
+        "recipient": {"present": False, "value": None},
+        "conditions": [],
+        "control": {
+            "actionCondition": None,
+            "referenceKind": "none",
+            "arbitraryActionIndex": None,
+            "dependsOnActionId": None,
+            "usePreviousResult": None,
+            "foreachAction": None,
+        },
+        "flags": {},
+        "uninterpretedParameters": {"values": {}, "progressions": []},
         "source": _source(
             f"/Data/Caller/{context_id}/actions/{source_action_id}"
         ),
@@ -522,7 +542,7 @@ def make_capabilities_fixture() -> dict:
         ]
     )
     return {
-        "schemaVersion": "1.0.0",
+        "schemaVersion": "1.1.0",
         "input": {
             "parserSchemaVersion": "1.0.0",
             "mechanicsChecksum": f"sha256:{'1' * 64}",
@@ -849,18 +869,33 @@ class IndexerFixtureTests(unittest.TestCase):
             uninterpreted["records"]["act_preserved"]["sourcePointer"],
             "/Data/Caller/ctx_basic/actions/act_preserved",
         )
+        record = uninterpreted["records"]["act_preserved"]
+        for field in (
+            "actionOrder", "contextPathIds", "target", "recipient",
+            "conditions", "control", "flags", "uninterpretedParameters", "source",
+        ):
+            self.assertIn(field, record)
+        self.assertEqual(record["actionOrder"], 0)
+        self.assertEqual(record["target"], {"present": False, "value": None})
 
-    def test_uninterpreted_facets_are_explicitly_unavailable(self) -> None:
+    def test_uninterpreted_facets_are_explicitly_available(self) -> None:
         uninterpreted = self.payload("uninterpreted-actions.json")
         self.assertEqual(
             uninterpreted["facetAvailability"],
             {
-                "conditionPresence": "unavailable",
-                "targetPresence": "unavailable",
-                "dependencyPresence": "unavailable",
+                "conditionPresence": "available",
+                "targetPresence": "available",
+                "dependencyPresence": "available",
             },
         )
         self.assertNotIn("bySourcePointer", uninterpreted["indexes"])
+        manifest = self.payload(MANIFEST_PATH)
+        limitation_codes = {
+            limitation["code"] for limitation in manifest["limitations"]
+        }
+        self.assertNotIn(
+            "UNINTERPRETED_FACETS_UNAVAILABLE", limitation_codes
+        )
 
     def test_manifest_contains_exact_payload_checksums(self) -> None:
         manifest = self.payload(MANIFEST_PATH)

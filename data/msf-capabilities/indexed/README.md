@@ -1,4 +1,4 @@
-# Index v1 des capacités
+# Index v1.1 des capacités
 
 L’indexeur lit exclusivement :
 
@@ -57,28 +57,34 @@ Le `--check` du publisher vérifie séparément que la génération versionnée 
 - `spawns.json` distingue chaque invocation de ses `effect_apply` de pool et
   ne joint un personnage invoqué que par égalité exacte de `characterId` ;
 - `uninterpreted-actions.json` conserve toutes les actions
-  `preserved_uninterpreted`, accessibles exactement par `sourceActionId`.
+  `preserved_uninterpreted`, accessibles exactement par `sourceActionId`, avec
+  ordre, contexte, cible, destinataire, conditions, contrôle, flags,
+  paramètres non interprétés et pointeur source.
 
 Toutes les références croisées emploient des identifiants canoniques. Aucun
 ordinal de tableau n’est exposé. Les listes assimilables à des ensembles sont
 triées lexicalement ; les progressions, conditions, chemins de contexte et
 pools conservent leur ordre fonctionnel.
 
-Les actions préservées ne contiennent pas, dans `capabilities.json`, les trois
-facettes de présence demandées. Le payload les déclare donc explicitement :
+Depuis le schéma `1.1.0`, les trois facettes structurelles sont disponibles :
 
 ```json
 {
   "facetAvailability": {
-    "conditionPresence": "unavailable",
-    "targetPresence": "unavailable",
-    "dependencyPresence": "unavailable"
+    "conditionPresence": "available",
+    "targetPresence": "available",
+    "dependencyPresence": "available"
   }
 }
 ```
 
 Aucun index secondaire `bySourcePointer` n’est produit. Le pointeur exact reste
 présent dans chaque record.
+
+L’indexeur ne déduit aucune mécanique de ces structures et ne recopie toujours
+pas `rawParameters` dans `operations.json`. `preserved_uninterpreted` signifie
+que la sémantique gameplay n’est pas normalisée, pas que la structure source
+doit être supprimée.
 
 ## Déterminisme et audit
 
@@ -92,7 +98,7 @@ l’instantané validé ne s’appliquent que lorsque le SHA-256 de
 `capabilities.json` vaut exactement :
 
 ```text
-71ff43f448e7f4efa60f85c6f98d1bbd1e452fb82dcb0f28a75c70cea428daa1
+444b7792300504927909155f4360be60b91a5a05aeca6b9c032d3ce3f9cd186c
 ```
 
 Le manifest est remplacé en dernier. Il décrit les sept payloads, leurs tailles
