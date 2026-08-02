@@ -6,14 +6,15 @@
     <meta name="theme-color" content="#071225" />
     <title>LoSP — Administration des guerres</title>
 
-    <link rel="stylesheet" href="./war-admin.css?v=2" />
+    <link rel="stylesheet" href="./war-admin.css?v=3" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icon-512.PNG" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="LoSP" />
 
-    <script src="./war-admin.js?v=2" defer></script>
+    <script src="./war-admin-validation.js?v=1" defer></script>
+    <script src="./war-admin.js?v=3" defer></script>
   </head>
 
   <body class="warAdminPage">
@@ -36,7 +37,7 @@
         </a>
       </header>
 
-      <div class="warAdminLayout">
+      <div id="warSessionView" class="warAdminLayout">
         <section class="warAdminPanel warAdminControlPanel" aria-labelledby="warAdminFormTitle">
           <div class="warAdminPanelHeading">
             <p class="warAdminStep">Session de guerre</p>
@@ -122,6 +123,166 @@
           </details>
         </section>
       </div>
+
+      <section
+        id="warReviewView"
+        class="warAdminPanel warAdminReviewView"
+        aria-labelledby="warReviewTitle"
+        hidden
+      >
+        <div class="warAdminReviewTopbar">
+          <button id="warReviewBack" class="warAdminBackButton" type="button">
+            ← Retour à la session
+          </button>
+          <div class="warAdminReviewHeading">
+            <p class="warAdminStep">Validation OCR</p>
+            <h2 id="warReviewTitle">Brouillon</h2>
+          </div>
+          <span id="warReviewState" class="warAdminReviewState">Brouillon prêt</span>
+        </div>
+
+        <dl class="warAdminReviewMeta">
+          <div>
+            <dt>Alliance</dt>
+            <dd id="warReviewAlliance">—</dd>
+          </div>
+          <div>
+            <dt>Date de guerre</dt>
+            <dd id="warReviewDate">—</dd>
+          </div>
+          <div>
+            <dt>Fichier source</dt>
+            <dd id="warReviewFile">—</dd>
+          </div>
+          <div>
+            <dt>Lignes OCR</dt>
+            <dd id="warReviewTotal">0</dd>
+          </div>
+        </dl>
+
+        <div id="warReviewCounts" class="warAdminReviewCounts" aria-label="Résumé du brouillon">
+          <div><strong id="warCountPlayers">0</strong><span>joueurs réels</span></div>
+          <div><strong id="warCountInactive">0</strong><span>inactifs</span></div>
+          <div><strong id="warCountVacant">0</strong><span>places vacantes</span></div>
+          <div><strong id="warCountInvalid">0</strong><span>à corriger</span></div>
+        </div>
+
+        <p id="warReviewStructureError" class="warAdminReviewAlert" role="alert" hidden></p>
+
+        <div class="warAdminReviewWorkspace">
+          <figure class="warAdminSourceFigure">
+            <div class="warAdminSourceHeading">
+              <figcaption>Capture source</figcaption>
+              <div class="warAdminZoomControls" aria-label="Zoom de la capture">
+                <button id="warZoomOut" type="button" aria-label="Réduire la capture">−</button>
+                <button id="warZoomReset" type="button" aria-label="Réinitialiser le zoom">100 %</button>
+                <button id="warZoomIn" type="button" aria-label="Agrandir la capture">+</button>
+              </div>
+            </div>
+            <div id="warSourceViewport" class="warAdminSourceViewport">
+              <img id="warReviewImage" alt="Capture source du brouillon en cours de vérification" />
+            </div>
+            <p id="warReviewImageNotice" class="warAdminImageNotice" hidden>
+              Image source indisponible : la comparaison visuelle n’est pas possible.
+            </p>
+          </figure>
+
+          <div class="warAdminReviewData">
+            <section id="warReviewListPanel" aria-labelledby="warPlayerListTitle">
+              <div class="warAdminReviewSectionHeading">
+                <div>
+                  <p class="warAdminStep">Contrôle ligne par ligne</p>
+                  <h3 id="warPlayerListTitle">Les 24 lignes OCR</h3>
+                </div>
+                <button id="warReviewUnlock" class="warAdminSecondaryButton" type="button" hidden>
+                  Modifier
+                </button>
+              </div>
+
+              <div id="warPlayerList" class="warAdminPlayerList"></div>
+
+              <div class="warAdminValidationActions">
+                <button id="warValidateDraft" class="warAdminValidateButton" type="button" disabled>
+                  Valider ce brouillon
+                </button>
+                <p id="warValidationHelp" class="warAdminValidationHelp" role="status"></p>
+              </div>
+            </section>
+
+            <section id="warEditorPanel" class="warAdminEditorPanel" aria-labelledby="warEditorTitle" hidden>
+              <button id="warEditorBack" class="warAdminBackButton" type="button">
+                ← Retour aux 24 lignes
+              </button>
+
+              <div class="warAdminEditorHeading">
+                <div>
+                  <p id="warEditorContext" class="warAdminStep">Ligne —</p>
+                  <h3 id="warEditorTitle">Corriger un joueur</h3>
+                </div>
+                <span id="warEditorStatus" class="warAdminLineStatus">À corriger</span>
+              </div>
+
+              <form id="warEditorForm" class="warAdminEditorForm" novalidate>
+                <div class="warAdminEditorField">
+                  <label for="warEditName">Nom</label>
+                  <input id="warEditName" name="name" type="text" autocomplete="off" />
+                  <p id="warEditErrorName" class="warAdminFieldError"></p>
+                </div>
+
+                <div class="warAdminEditorField warAdminDamageField">
+                  <label for="warEditDamage">Dégâts</label>
+                  <input
+                    id="warEditDamage"
+                    name="damage"
+                    type="text"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    autocomplete="off"
+                  />
+                  <p id="warEditErrorDamage" class="warAdminFieldError"></p>
+                </div>
+
+                <div class="warAdminEditorFieldGrid">
+                  <div class="warAdminEditorField">
+                    <label for="warEditAttackPoints">Points d’attaque</label>
+                    <input id="warEditAttackPoints" name="attack_points" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
+                    <p id="warEditErrorAttackPoints" class="warAdminFieldError"></p>
+                  </div>
+                  <div class="warAdminEditorField">
+                    <label for="warEditAttacks">Attaques</label>
+                    <input id="warEditAttacks" name="attacks" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
+                    <p id="warEditErrorAttacks" class="warAdminFieldError"></p>
+                  </div>
+                  <div class="warAdminEditorField">
+                    <label for="warEditDefenseWins">Victoires en défense</label>
+                    <input id="warEditDefenseWins" name="defense_wins" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
+                    <p id="warEditErrorDefenseWins" class="warAdminFieldError"></p>
+                  </div>
+                  <div class="warAdminEditorField">
+                    <label for="warEditDefenseBonus">Bonus de défense</label>
+                    <input id="warEditDefenseBonus" name="defense_bonus" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
+                    <p id="warEditErrorDefenseBonus" class="warAdminFieldError"></p>
+                  </div>
+                </div>
+
+                <div id="warEditorMessages" class="warAdminEditorMessages" role="status" aria-live="polite"></div>
+
+                <div class="warAdminEditorActions">
+                  <button id="warEditorSave" class="warAdminValidateButton" type="submit" disabled>
+                    Enregistrer la ligne
+                  </button>
+                  <button id="warEditorReset" class="warAdminSecondaryButton" type="button">
+                    Revenir aux valeurs OCR
+                  </button>
+                  <button id="warEditorCancel" class="warAdminSecondaryButton" type="button">
+                    Annuler
+                  </button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </div>
+      </section>
     </main>
 
     <noscript>
