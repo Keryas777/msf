@@ -11,10 +11,12 @@ export default {
     }
 
     if (request.method === "POST" && url.pathname === "/api/war/parse-gemini") {
+      let response;
+
       try {
-        return await handleWarParseGemini(request, env);
+        response = await handleWarParseGemini(request, env);
       } catch (error) {
-        return Response.json(
+        response = Response.json(
           {
             ok: false,
             error: error instanceof Error ? error.message : "Erreur inconnue"
@@ -24,6 +26,8 @@ export default {
           }
         );
       }
+
+      return addWarParseCorsHeaders(request, response);
     }
 
     return new Response("Worker OK. Ouvre /war-upload pour tester Gemini.", {
@@ -33,6 +37,20 @@ export default {
     });
   }
 };
+
+const WAR_ADMIN_ORIGIN = "https://keryas777.github.io";
+
+function addWarParseCorsHeaders(request, response) {
+  response.headers.set("Vary", "Origin");
+
+  if (request.headers.get("Origin") === WAR_ADMIN_ORIGIN) {
+    response.headers.set("Access-Control-Allow-Origin", WAR_ADMIN_ORIGIN);
+  } else {
+    response.headers.delete("Access-Control-Allow-Origin");
+  }
+
+  return response;
+}
 
 const ALLIANCES = {
   zeus: "Zeus",
