@@ -174,7 +174,12 @@ test("le succès simulé envoie un seul FormData malgré deux soumissions", asyn
   harness.setFetchImplementation(
     () => new Promise((resolvePromise) => {
       releaseResponse = () => resolvePromise(
-        Response.json({ ok: true, alliance: "zeus", counts: { players_total: 24 } })
+        Response.json({
+          ok: true,
+          alliance: "zeus",
+          counts: { players_total: 24 },
+          published: false
+        })
       );
     })
   );
@@ -187,7 +192,10 @@ test("le succès simulé envoie un seul FormData malgré deux soumissions", asyn
   const secondSubmit = submit(submitEvent());
 
   assert.equal(fetchCalls.length, 1);
-  assert.equal(fetchCalls[0].url, "https://msf-war-ocr.deliriousfan7.workers.dev/api/war/parse-gemini");
+  assert.equal(
+    fetchCalls[0].url,
+    "https://msf-war-ocr.deliriousfan7.workers.dev/api/war/parse-gemini-draft"
+  );
   assert.equal(fetchCalls[0].options.method, "POST");
   assert.equal("headers" in fetchCalls[0].options, false);
   assert.equal(fetchCalls[0].options.body.get("alliance"), "zeus");
@@ -201,8 +209,12 @@ test("le succès simulé envoie un seul FormData malgré deux soumissions", asyn
 
   assert.equal(fetchCalls.length, 1);
   assert.equal(elements.warStatusPanel.dataset.state, "success");
-  assert.equal(elements.warStatusTitle.textContent, "Analyse terminée");
+  assert.equal(elements.warStatusTitle.textContent, "OCR terminé");
+  assert.equal(elements.warStatusBadge.textContent, "Brouillon");
+  assert.match(elements.warStatusMessage.textContent, /Brouillon non publié/);
+  assert.match(elements.warStatusMessage.textContent, /Aucune donnée GitHub modifiée/);
   assert.match(elements.warResult.textContent, /"players_total": 24/);
+  assert.match(elements.warResult.textContent, /"published": false/);
   assert.equal(elements.warSubmit.disabled, false);
 });
 

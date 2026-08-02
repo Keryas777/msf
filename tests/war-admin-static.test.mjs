@@ -44,8 +44,9 @@ test("la date, Zeus et l’état d’attente sont initialisés sans appel automa
 test("l’envoi utilise l’URL absolue et le FormData attendu", () => {
   assert.match(
     app,
-    /https:\/\/msf-war-ocr\.deliriousfan7\.workers\.dev\/api\/war\/parse-gemini/
+    /const API_URL = "https:\/\/msf-war-ocr\.deliriousfan7\.workers\.dev\/api\/war\/parse-gemini-draft"/
   );
+  assert.doesNotMatch(app, /\/api\/war\/parse-gemini"/);
   assert.match(app, /formData\.append\("alliance", alliance\)/);
   assert.match(app, /formData\.append\("war_date", warDate\)/);
   assert.match(app, /formData\.append\("image", file,/);
@@ -73,6 +74,10 @@ test("les états et les réponses JSON ou erreurs sont affichés", () => {
   assert.match(app, /JSON\.stringify\(data, null, 2\)/);
   assert.match(app, /if \(!response\.ok\)/);
   assert.match(app, /if \(data && data\.ok === false\)/);
+  assert.match(app, /"OCR terminé"/);
+  assert.match(app, /"Brouillon"/);
+  assert.match(app, /Brouillon non publié/);
+  assert.match(app, /Aucune donnée GitHub modifiée/);
   assert.match(app, /Impossible de joindre le Worker/);
 });
 

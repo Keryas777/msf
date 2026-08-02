@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const API_URL = "https://msf-war-ocr.deliriousfan7.workers.dev/api/war/parse-gemini";
+  const API_URL = "https://msf-war-ocr.deliriousfan7.workers.dev/api/war/parse-gemini-draft";
   const IDLE_RESULT = "En attente d’un envoi…";
   const SUBMIT_LABEL = "Envoyer l’image au Worker";
 
@@ -194,9 +194,9 @@
       const allianceLabel = allianceSelect.options[allianceSelect.selectedIndex]?.text || alliance;
       setStatus(
         "success",
-        "Analyse terminée",
-        "Succès",
-        `Réponse reçue pour ${allianceLabel}, guerre du ${warDate}.`
+        "OCR terminé",
+        "Brouillon",
+        `Brouillon non publié pour ${allianceLabel}, guerre du ${warDate}. Aucune donnée GitHub modifiée.`
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : "Erreur réseau inconnue";
