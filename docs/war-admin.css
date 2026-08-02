@@ -239,50 +239,47 @@ select {
 }
 
 .warAdminHelp,
-.warAdminPreview figcaption,
+.warAdminFileMeta,
 .warAdminStatusMessage {
   margin: 0;
   color: var(--war-admin-text-muted);
   font-size: 13px;
 }
 
-.warAdminPreview {
-  min-width: 0;
-  margin: 0;
-  padding: 10px;
-  border: 1px solid var(--war-admin-border);
-  border-radius: 14px;
-  background: rgba(2, 6, 23, 0.72);
-}
-
-.warAdminPreview img {
-  display: block;
-  width: 100%;
-  max-height: 62vh;
-  border-radius: 10px;
-  background: #020617;
-  object-fit: contain;
-}
-
-.warAdminPreview figcaption {
-  margin-top: 9px;
+.warAdminFileMeta {
   overflow-wrap: anywhere;
 }
 
-.warAdminSubmit {
+.warAdminActions {
+  display: grid;
+  gap: 10px;
+}
+
+.warAdminSubmit,
+.warAdminCancel {
   width: 100%;
   min-height: 54px;
   padding: 12px 16px;
-  border: 0;
   border-radius: 13px;
-  background: linear-gradient(135deg, var(--war-admin-cyan-strong), #6e79ff);
-  color: #03101d;
   font-weight: 900;
   cursor: pointer;
+}
+
+.warAdminSubmit {
+  border: 0;
+  background: linear-gradient(135deg, var(--war-admin-cyan-strong), #6e79ff);
+  color: #03101d;
   box-shadow: 0 12px 26px rgba(36, 201, 240, 0.18);
 }
 
-.warAdminSubmit:disabled {
+.warAdminCancel {
+  border: 1px solid rgba(255, 154, 171, 0.38);
+  background: rgba(255, 154, 171, 0.08);
+  color: var(--war-admin-danger);
+}
+
+.warAdminSubmit:disabled,
+.warAdminCancel:disabled {
   background: #263650;
   color: var(--war-admin-text-muted);
   cursor: not-allowed;
@@ -310,7 +307,202 @@ select {
 
 .warAdminStatusMessage {
   min-height: 21px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.warAdminQueueSection,
+.warAdminLogSection {
+  min-width: 0;
+  margin-top: 18px;
+}
+
+.warAdminSectionHeading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.warAdminSectionHeading h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.warAdminSectionHeading span {
+  color: var(--war-admin-text-muted);
+  font-size: 12px;
+}
+
+.warAdminCaptureList {
+  display: grid;
+  gap: 10px;
+}
+
+.warAdminCaptureCard {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 11px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--war-admin-border);
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.64);
+}
+
+.warAdminCaptureThumb {
+  display: block;
+  width: 74px;
+  height: 74px;
+  border-radius: 10px;
+  background: #020617;
+  object-fit: cover;
+}
+
+.warAdminCaptureBody {
+  min-width: 0;
+}
+
+.warAdminCaptureTopline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.warAdminCaptureName {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.warAdminCaptureState {
+  flex: 0 0 auto;
+  padding: 3px 7px;
+  border: 1px solid rgba(255, 209, 122, 0.32);
+  border-radius: 999px;
+  color: var(--war-admin-warning);
+  font-size: 10px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.warAdminCaptureAlliance,
+.warAdminCaptureDetail {
+  margin: 5px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.warAdminCaptureAlliance {
+  color: var(--war-admin-success);
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.warAdminCaptureDetail {
+  color: var(--war-admin-text-muted);
+}
+
+.warAdminCaptureCard[data-state="detecting"] .warAdminCaptureState,
+.warAdminCaptureCard[data-state="ocr"] .warAdminCaptureState {
+  border-color: rgba(113, 231, 255, 0.38);
+  color: var(--war-admin-cyan);
+}
+
+.warAdminCaptureCard[data-state="ready"] .warAdminCaptureState {
+  border-color: rgba(137, 232, 188, 0.38);
+  color: var(--war-admin-success);
+}
+
+.warAdminCaptureCard[data-state="failed"] .warAdminCaptureState,
+.warAdminCaptureCard[data-state="cancelled"] .warAdminCaptureState {
+  border-color: rgba(255, 154, 171, 0.4);
+  color: var(--war-admin-danger);
+}
+
+.warAdminCaptureCard[data-state="manual"] .warAdminCaptureState {
+  border-color: rgba(255, 209, 122, 0.42);
+  color: var(--war-admin-warning);
+}
+
+.warAdminManualChoice {
+  display: grid;
+  gap: 5px;
+  margin-top: 9px;
+}
+
+.warAdminManualChoice label {
+  color: var(--war-admin-warning);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.warAdminManualChoice select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 209, 122, 0.36);
+  border-radius: 10px;
+  background: var(--war-admin-bg-soft);
+  color: var(--war-admin-text);
+}
+
+.warAdminLog {
+  display: grid;
+  gap: 8px;
+  max-height: 310px;
+  margin: 0;
+  padding: 10px;
+  overflow: auto;
+  border: 1px solid var(--war-admin-border);
+  border-radius: 13px;
+  background: rgba(2, 6, 23, 0.64);
+  list-style: none;
+}
+
+.warAdminLogEntry {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px;
+  color: var(--war-admin-text-soft);
+  font-size: 12px;
+}
+
+.warAdminLogTime {
+  color: var(--war-admin-cyan);
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+}
+
+.warAdminEmpty {
+  margin: 0;
+  color: var(--war-admin-text-muted);
+  font-size: 13px;
+}
+
+.warAdminTechnical {
+  margin-top: 18px;
+  border: 1px solid var(--war-admin-border);
+  border-radius: 13px;
+  background: rgba(2, 6, 23, 0.54);
+}
+
+.warAdminTechnical summary {
+  min-height: 48px;
+  padding: 13px 14px;
+  color: var(--war-admin-text-soft);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.warAdminTechnical .warAdminJson {
+  border-width: 1px 0 0;
+  border-radius: 0 0 13px 13px;
 }
 
 .warAdminJson {
@@ -331,7 +523,8 @@ select {
   word-break: break-word;
 }
 
-.warAdminResultPanel[data-state="sending"] .warAdminStatusBadge {
+.warAdminResultPanel[data-state="running"] .warAdminStatusBadge,
+.warAdminResultPanel[data-state="waiting"] .warAdminStatusBadge {
   border-color: rgba(113, 231, 255, 0.4);
   background: rgba(113, 231, 255, 0.1);
   color: var(--war-admin-cyan);
@@ -347,6 +540,13 @@ select {
   border-color: rgba(255, 154, 171, 0.42);
   background: rgba(255, 154, 171, 0.1);
   color: var(--war-admin-danger);
+}
+
+.warAdminResultPanel[data-state="warning"] .warAdminStatusBadge,
+.warAdminResultPanel[data-state="cancelled"] .warAdminStatusBadge {
+  border-color: rgba(255, 209, 122, 0.4);
+  background: rgba(255, 209, 122, 0.1);
+  color: var(--war-admin-warning);
 }
 
 .warAdminNoScript {
@@ -380,6 +580,20 @@ select {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .warAdminActions {
+    grid-template-columns: minmax(0, 1fr) minmax(190px, 0.55fr);
+  }
+
+  .warAdminCaptureCard {
+    grid-template-columns: 92px minmax(0, 1fr);
+    padding: 12px;
+  }
+
+  .warAdminCaptureThumb {
+    width: 92px;
+    height: 92px;
+  }
+
   .warAdminJson {
     font-size: 13px;
   }
@@ -387,11 +601,11 @@ select {
 
 @media (min-width: 900px) {
   .warAdminLayout {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1.28fr);
     align-items: start;
   }
 
-  .warAdminResultPanel {
+  .warAdminControlPanel {
     position: sticky;
     top: 18px;
   }

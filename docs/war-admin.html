@@ -6,14 +6,14 @@
     <meta name="theme-color" content="#071225" />
     <title>LoSP — Administration des guerres</title>
 
-    <link rel="stylesheet" href="./war-admin.css?v=1" />
+    <link rel="stylesheet" href="./war-admin.css?v=2" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icon-512.PNG" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="LoSP" />
 
-    <script src="./war-admin.js?v=1" defer></script>
+    <script src="./war-admin.js?v=2" defer></script>
   </head>
 
   <body class="warAdminPage">
@@ -25,7 +25,8 @@
           <p class="warAdminEyebrow">LoSP · Administration</p>
           <h1>Débrief de guerre</h1>
           <p class="warAdminIntro">
-            Envoie une capture du classement d’alliance au Worker OCR et consulte sa réponse JSON complète.
+            Prépare une session de 1 à 6 captures. Les alliances sont détectées automatiquement et chaque
+            OCR reste un brouillon non publié.
           </p>
         </div>
 
@@ -36,77 +37,89 @@
       </header>
 
       <div class="warAdminLayout">
-        <section class="warAdminPanel" aria-labelledby="warAdminFormTitle">
+        <section class="warAdminPanel warAdminControlPanel" aria-labelledby="warAdminFormTitle">
           <div class="warAdminPanelHeading">
-            <p class="warAdminStep">Étape unique</p>
-            <h2 id="warAdminFormTitle">Choisir la capture</h2>
+            <p class="warAdminStep">Session de guerre</p>
+            <h2 id="warAdminFormTitle">Choisir la date et les captures</h2>
           </div>
 
           <form id="warAdminForm" class="warAdminForm" novalidate>
-            <div class="warAdminFieldGrid">
-              <div class="warAdminField">
-                <label for="warDate">Date de guerre</label>
-                <input id="warDate" name="war_date" type="date" required />
-              </div>
-
-              <div class="warAdminField">
-                <label for="warAlliance">Alliance</label>
-                <select id="warAlliance" name="alliance" required>
-                  <option value="zeus">Zeus</option>
-                  <option value="athena">Athéna</option>
-                  <option value="kronos">Kronos</option>
-                  <option value="dionysos">Dionysos</option>
-                  <option value="poseidon">Poséidon</option>
-                  <option value="hades">Hadès</option>
-                </select>
-              </div>
+            <div class="warAdminField">
+              <label for="warDate">Date de guerre</label>
+              <input id="warDate" name="war_date" type="date" required />
             </div>
 
             <div class="warAdminField warAdminFileField">
-              <label for="warImage">Capture du classement</label>
+              <label for="warImage">Captures du classement</label>
               <input
                 id="warImage"
                 name="image"
                 type="file"
                 accept="image/*"
+                multiple
                 aria-describedby="warImageHelp warFileMeta"
                 required
               />
               <p id="warImageHelp" class="warAdminHelp">
-                L’image n’est envoyée qu’après validation avec le bouton ci-dessous.
+                Sélectionne de 1 à 6 images, une capture maximum par alliance. Elles seront envoyées une par
+                une, jamais simultanément.
               </p>
+              <p id="warFileMeta" class="warAdminFileMeta">Aucune capture sélectionnée.</p>
             </div>
 
-            <figure id="warPreviewPanel" class="warAdminPreview" hidden>
-              <img id="warPreview" alt="Aperçu de la capture sélectionnée" />
-              <figcaption id="warFileMeta"></figcaption>
-            </figure>
-
-            <button id="warSubmit" class="warAdminSubmit" type="submit" disabled>
-              Envoyer l’image au Worker
-            </button>
+            <div class="warAdminActions">
+              <button id="warSubmit" class="warAdminSubmit" type="submit" disabled>
+                Lancer la session OCR
+              </button>
+              <button id="warCancel" class="warAdminCancel" type="button" disabled>
+                Interrompre la session
+              </button>
+            </div>
           </form>
         </section>
 
         <section
           id="warStatusPanel"
-          class="warAdminPanel warAdminResultPanel"
+          class="warAdminPanel warAdminResultPanel warAdminSessionPanel"
           data-state="idle"
           aria-labelledby="warStatusTitle"
         >
           <div class="warAdminStatusHeading">
             <div>
-              <p class="warAdminStep">Résultat</p>
+              <p class="warAdminStep">File locale</p>
               <h2 id="warStatusTitle">En attente</h2>
             </div>
             <span id="warStatusBadge" class="warAdminStatusBadge">Attente</span>
           </div>
 
           <p id="warStatusMessage" class="warAdminStatusMessage" role="status" aria-live="polite">
-            Sélectionne une image pour préparer l’envoi.
+            Sélectionne les captures pour préparer la session.
           </p>
 
-          <pre id="warResult" class="warAdminJson" tabindex="0" aria-label="Réponse JSON du Worker">En attente d’un envoi…</pre>
+          <section class="warAdminQueueSection" aria-labelledby="warCaptureTitle">
+            <div class="warAdminSectionHeading">
+              <h3 id="warCaptureTitle">Captures</h3>
+              <span id="warQueueSummary">0 capture</span>
+            </div>
+            <div id="warCaptureList" class="warAdminCaptureList">
+              <p class="warAdminEmpty">Aucune capture dans la file.</p>
+            </div>
+          </section>
+
+          <section class="warAdminLogSection" aria-labelledby="warLogTitle">
+            <div class="warAdminSectionHeading">
+              <h3 id="warLogTitle">Journal de session</h3>
+              <span>Temps réel</span>
+            </div>
+            <ol id="warLog" class="warAdminLog" aria-live="polite" aria-relevant="additions">
+              <li class="warAdminEmpty">Aucune activité.</li>
+            </ol>
+          </section>
+
+          <details id="warTechnicalPanel" class="warAdminTechnical">
+            <summary>JSON technique complet</summary>
+            <pre id="warResult" class="warAdminJson" tabindex="0" aria-label="Réponses JSON du Worker">En attente d’un envoi…</pre>
+          </details>
         </section>
       </div>
     </main>
