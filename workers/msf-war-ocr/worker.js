@@ -418,6 +418,12 @@ async function handleWarWriteAnalyses(request, env) {
 
     "Utilise uniquement les données présentes dans le rapport. Ne fais aucune projection sur une autre guerre, aucune généralisation sur le joueur et n’invente aucune information.",
 
+    "Ne formule aucun conseil, aucune attente ni recommandation pour une prochaine guerre.",
+
+    "Ne mentionne jamais les prochaines guerres, les futures guerres, la prochaine participation ou une amélioration attendue.",
+
+    "Conclus uniquement sur la performance observée pendant cette guerre."
+
     "Repères d’interprétation autorisés : un volume ou une moyenne de dégâts élevés peuvent indiquer des cibles ambitieuses ; de faibles dégâts peuvent indiquer des cibles plus modestes ; beaucoup d’attaques avec de gros dégâts mais plusieurs ratés indiquent une activité ambitieuse mais imparfaite ; de nombreuses victoires défensives indiquent une contribution défensive importante ; les déviations indiquent une implication dans la protection de l’alliance.",
 
     "Adapte impérativement la tonalité au score_total déjà présent :",
