@@ -383,7 +383,11 @@
       capture.state === "correction" || capture.state === "revalidate"
     )).length;
     const validated = session.captures.filter((capture) => (
-      capture.state === "validated" || capture.state === "calculated" || capture.state === "ranked" || capture.state === "writing" || capture.state === "analyzed"
+      capture.state === "validated" ||
+      capture.state === "calculated" ||
+      capture.state === "ranked" ||
+      capture.state === "writing" ||
+      capture.state === "analyzed"
     )).length;
     const calculated = session.captures.filter((capture) => Boolean(capture.calculatedReport)).length;
     const ranked = session.captures.filter((capture) => capture.state === "ranked").length;
@@ -520,6 +524,7 @@
       result.textContent = IDLE_RESULT;
       return;
     }
+
     result.textContent = JSON.stringify(getTechnicalPayload(), null, 2);
   }
 
@@ -547,7 +552,10 @@
 
   function addLog(message, capture) {
     const prefix = capture ? `Capture ${capture.index + 1} — ` : "";
-    session.logs.push({ time: getTimeLabel(), message: prefix + message });
+    session.logs.push({
+      time: getTimeLabel(),
+      message: prefix + message
+    });
     renderLog();
   }
 
@@ -559,14 +567,18 @@
 
   function updateControls() {
     const selectedCount = getSelectedFiles().length;
-    const canSubmit = Boolean(dateInput.value) && selectedCount >= 1 && selectedCount <= MAX_CAPTURES;
+    const canSubmit = Boolean(dateInput.value) &&
+      selectedCount >= 1 &&
+      selectedCount <= MAX_CAPTURES;
 
     form.setAttribute("aria-busy", String(session.running));
     dateInput.disabled = session.running;
     imageInput.disabled = session.running;
     submitButton.disabled = session.running || !canSubmit;
     cancelButton.disabled = !session.running;
-    submitButton.textContent = session.running ? "Session en cours…" : SUBMIT_LABEL;
+    submitButton.textContent = session.running
+      ? "Session en cours…"
+      : SUBMIT_LABEL;
   }
 
   function resetCapturesForRun() {
@@ -608,7 +620,12 @@
     if (files.length > MAX_CAPTURES) {
       imageInput.value = "";
       fileMeta.textContent = `Sélection refusée : ${files.length} captures. Le maximum est de ${MAX_CAPTURES}.`;
-      setStatus("error", "Trop de captures", "Erreur", `Choisis entre 1 et ${MAX_CAPTURES} images.`);
+      setStatus(
+        "error",
+        "Trop de captures",
+        "Erreur",
+        `Choisis entre 1 et ${MAX_CAPTURES} images.`
+      );
       renderSession();
       updateControls();
       return;
@@ -616,7 +633,12 @@
 
     if (!files.length) {
       fileMeta.textContent = "Aucune capture sélectionnée.";
-      setStatus("idle", "En attente", "Attente", "Sélectionne les captures pour préparer la session.");
+      setStatus(
+        "idle",
+        "En attente",
+        "Attente",
+        "Sélectionne les captures pour préparer la session."
+      );
       renderSession();
       updateControls();
       return;
@@ -649,15 +671,28 @@
       lastError: ""
     }));
 
-    const totalBytes = files.reduce((sum, file) => sum + (Number(file.size) || 0), 0);
-    fileMeta.textContent = `${files.length} ${plural(files.length, "capture sélectionnée", "captures sélectionnées")} · ${formatFileSize(totalBytes)}`;
-    for (const capture of session.captures) addLog("Capture reçue", capture);
+    const totalBytes = files.reduce(
+      (sum, file) => sum + (Number(file.size) || 0),
+      0
+    );
+
+    fileMeta.textContent = `${files.length} ${plural(
+      files.length,
+      "capture sélectionnée",
+      "captures sélectionnées"
+    )} · ${formatFileSize(totalBytes)}`;
+
+    for (const capture of session.captures) {
+      addLog("Capture reçue", capture);
+    }
+
     setStatus(
       "idle",
       `${files.length} ${plural(files.length, "capture prête", "captures prêtes")}`,
       "Prêt",
       "Vérifie la date, puis lance la file OCR. Les alliances seront détectées automatiquement."
     );
+
     renderSession();
     updateControls();
   }
@@ -671,6 +706,7 @@
     if (Number.isFinite(testConfig.queueDelayMs)) {
       return Math.max(0, testConfig.queueDelayMs);
     }
+
     return QUEUE_DELAY_MIN_MS + Math.floor(
       Math.random() * (QUEUE_DELAY_MAX_MS - QUEUE_DELAY_MIN_MS + 1)
     );
@@ -678,14 +714,23 @@
 
   function getRetryDelayMs(attempt) {
     if (Array.isArray(testConfig.retryDelaysMs)) {
-      return Math.max(0, Number(testConfig.retryDelaysMs[attempt - 1]) || 0);
+      return Math.max(
+        0,
+        Number(testConfig.retryDelaysMs[attempt - 1]) || 0
+      );
     }
+
     return RETRY_DELAYS_MS[attempt - 1];
   }
 
   function cancellableSleep(milliseconds) {
-    if (session.cancelled) return Promise.reject(new SessionCancelledError());
-    if (milliseconds <= 0) return Promise.resolve();
+    if (session.cancelled) {
+      return Promise.reject(new SessionCancelledError());
+    }
+
+    if (milliseconds <= 0) {
+      return Promise.resolve();
+    }
 
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -709,14 +754,24 @@
       : 1000;
 
     while (remaining > 0) {
-      if (session.cancelled) throw new SessionCancelledError();
+      if (session.cancelled) {
+        throw new SessionCancelledError();
+      }
 
       const countdown = messageBuilder(remaining);
+
       if (!capture.needsManual && session.activeCaptureId !== capture.id) {
         capture.state = "waiting";
         capture.detail = countdown;
       }
-      setStatus("waiting", "Temporisation", "Attente", countdown);
+
+      setStatus(
+        "waiting",
+        "Temporisation",
+        "Attente",
+        countdown
+      );
+
       renderSession();
 
       const step = Math.min(countdownStep, remaining);
@@ -726,9 +781,12 @@
   }
 
   function buildDraftForAlliance(data, alliance, warDate) {
-    const existingDraft = data && data.draft && typeof data.draft === "object"
+    const existingDraft = data &&
+      data.draft &&
+      typeof data.draft === "object"
       ? data.draft
       : {};
+
     const sourcePlayers = Array.isArray(existingDraft.players)
       ? existingDraft.players
       : (Array.isArray(data?.players) ? data.players : []);
@@ -741,7 +799,11 @@
       players: sourcePlayers.map((player, index) => ({
         rank: Number.isInteger(player?.rank)
           ? player.rank
-          : (Number.isInteger(player?.row_index) ? player.row_index : index + 1),
+          : (
+              Number.isInteger(player?.row_index)
+                ? player.row_index
+                : index + 1
+            ),
         name: player?.name ?? "",
         attack_points: player?.attack_points ?? null,
         attacks: player?.attacks ?? null,
@@ -757,7 +819,11 @@
     capture.allianceLabel = getAllianceLabel(alliance);
     capture.assignmentSource = source;
     capture.needsManual = false;
-    capture.ocrDraft = buildDraftForAlliance(capture.response, alliance, session.warDate);
+    capture.ocrDraft = buildDraftForAlliance(
+      capture.response,
+      alliance,
+      session.warDate
+    );
     capture.editableDraft = cloneJson(capture.ocrDraft);
     capture.draft = capture.editableDraft;
     capture.validatedDraft = null;
@@ -781,27 +847,40 @@
   }
 
   function getActiveCapture() {
-    return session.captures.find((capture) => capture.id === session.activeCaptureId) || null;
+    return session.captures.find(
+      (capture) => capture.id === session.activeCaptureId
+    ) || null;
   }
 
   function getActionTarget(target) {
     let current = target;
+
     while (current && current !== document) {
-      if (current.dataset && current.dataset.action) return current;
+      if (current.dataset && current.dataset.action) {
+        return current;
+      }
+
       current = current.parentElement;
     }
+
     return null;
   }
 
   function formatDamage(value) {
-    return Number.isInteger(value) ? value.toLocaleString("fr-FR") : "—";
+    return Number.isInteger(value)
+      ? value.toLocaleString("fr-FR")
+      : "—";
   }
 
   function validatedDraftMatches(capture, summary) {
-    if (!capture.validatedDraft || !summary.canValidate) return false;
+    if (!capture.validatedDraft || !summary.canValidate) {
+      return false;
+    }
 
     try {
-      return JSON.stringify(buildValidatedDraft(capture.editableDraft)) === JSON.stringify(capture.validatedDraft);
+      return JSON.stringify(
+        buildValidatedDraft(capture.editableDraft)
+      ) === JSON.stringify(capture.validatedDraft);
     } catch (_) {
       return false;
     }
@@ -811,6 +890,7 @@
     if (!capture?.editableDraft) return null;
 
     const summary = classifyDraft(capture.editableDraft);
+
     if (validatedDraftMatches(capture, summary)) {
       if (capture.rankedReport) {
         capture.state = "ranked";
@@ -822,12 +902,14 @@
         capture.state = "validated";
         capture.detail = "Brouillon OCR validé. Rapport non calculé.";
       }
+
       return summary;
     }
 
     capture.calculatedReport = null;
     capture.rankedReport = null;
     capture.finalReport = null;
+
     if (capture.validatedDraft) {
       capture.state = "revalidate";
       capture.detail = "Le brouillon a été modifié depuis sa dernière validation.";
@@ -838,7 +920,12 @@
       capture.state = "correction";
       capture.detail = summary.structureErrors.length
         ? summary.structureErrors.join(" ")
-        : `${summary.counts.invalid} ${plural(summary.counts.invalid, "ligne reste", "lignes restent")} à corriger.`;
+        : `${summary.counts.invalid} ${plural(
+            summary.counts.invalid,
+            "ligne reste",
+            "lignes restent"
+          )} à corriger.`;
+
       return summary;
     }
 
@@ -846,6 +933,7 @@
       capture.state = "reviewing";
       capture.detail = "Vérification humaine en cours. Le brouillon peut être validé.";
     }
+
     return summary;
   }
 
@@ -854,13 +942,18 @@
   }
 
   function setReviewZoom(nextZoom) {
-    session.reviewZoom = Math.min(2.5, Math.max(0.75, nextZoom));
+    session.reviewZoom = Math.min(
+      2.5,
+      Math.max(0.75, nextZoom)
+    );
+
     reviewImage.style.width = `${Math.round(session.reviewZoom * 100)}%`;
     zoomResetButton.textContent = `${Math.round(session.reviewZoom * 100)} %`;
   }
 
   function renderReviewImage(capture) {
     const hasImage = Boolean(capture?.previewUrl);
+
     sourceViewport.hidden = !hasImage;
     reviewImageNotice.hidden = hasImage;
     reviewImage.hidden = !hasImage;
@@ -878,26 +971,33 @@
     const originalPlayers = capture.ocrDraft?.players || [];
     const readOnlyAttribute = session.reviewReadOnly ? " disabled" : "";
 
-    playerList.innerHTML = capture.editableDraft.players.map((player, index) => {
-      const classification = summary.rows[index] || classifyRow(player);
-      const modified = isRowModified(originalPlayers[index], player);
-      const statusLabel = classification.type === "invalid"
-        ? classification.label
-        : (modified ? "Modifié" : classification.label);
-      const name = player.name || (classification.type === "vacant" ? "Emplacement libre" : "Nom manquant");
-      const warning = classification.warnings.length > 0;
+    playerList.innerHTML = capture.editableDraft.players.map(
+      (player, index) => {
+        const classification = summary.rows[index] || classifyRow(player);
+        const modified = isRowModified(originalPlayers[index], player);
+        const statusLabel = classification.type === "invalid"
+          ? classification.label
+          : (modified ? "Modifié" : classification.label);
+        const name = player.name ||
+          (
+            classification.type === "vacant"
+              ? "Emplacement libre"
+              : "Nom manquant"
+          );
+        const warning = classification.warnings.length > 0;
 
-      return [
-        `<button class="warAdminPlayerRow" type="button" data-action="edit-row" data-row-index="${index}" data-classification="${classification.type}" data-modified="${modified}" data-warning="${warning}"${readOnlyAttribute}>`,
-        `<span class="warAdminPlayerRank">${escapeHtml(player.rank)}</span>`,
-        '<span class="warAdminPlayerMain">',
-        `<span class="warAdminPlayerName">${escapeHtml(name)}</span>`,
-        `<span class="warAdminPlayerDamage">Dégâts ${escapeHtml(formatDamage(player.damage))}${warning ? " · ⚠" : ""}</span>`,
-        "</span>",
-        `<span class="warAdminPlayerStatus">${escapeHtml(statusLabel)}</span>`,
-        "</button>"
-      ].join("");
-    }).join("");
+        return [
+          `<button class="warAdminPlayerRow" type="button" data-action="edit-row" data-row-index="${index}" data-classification="${classification.type}" data-modified="${modified}" data-warning="${warning}"${readOnlyAttribute}>`,
+          `<span class="warAdminPlayerRank">${escapeHtml(player.rank)}</span>`,
+          '<span class="warAdminPlayerMain">',
+          `<span class="warAdminPlayerName">${escapeHtml(name)}</span>`,
+          `<span class="warAdminPlayerDamage">Dégâts ${escapeHtml(formatDamage(player.damage))}${warning ? " · ⚠" : ""}</span>`,
+          "</span>",
+          `<span class="warAdminPlayerStatus">${escapeHtml(statusLabel)}</span>`,
+          "</button>"
+        ].join("");
+      }
+    ).join("");
   }
 
   function renderReview() {
@@ -911,7 +1011,9 @@
     reviewState.textContent = getReviewStatusLabel(capture);
     reviewState.dataset.state = capture.state;
     reviewAlliance.textContent = capture.allianceLabel;
-    reviewDate.textContent = capture.editableDraft.date || session.warDate || "—";
+    reviewDate.textContent = capture.editableDraft.date ||
+      session.warDate ||
+      "—";
     reviewFile.textContent = capture.file.name || "Capture sans nom";
     reviewTotal.textContent = String(summary.counts.total);
     countPlayers.textContent = String(realPlayers);
@@ -921,6 +1023,7 @@
 
     reviewStructureError.hidden = summary.structureErrors.length === 0;
     reviewStructureError.textContent = summary.structureErrors.join(" ");
+
     renderReviewImage(capture);
     renderPlayerRows(capture, summary);
 
@@ -929,7 +1032,15 @@
       ? "Revalider ce brouillon"
       : "Valider ce brouillon";
 
-    if ((capture.state === "validated" || capture.state === "calculated" || capture.state === "ranked" || capture.state === "analyzed") && session.reviewReadOnly) {
+    if (
+      (
+        capture.state === "validated" ||
+        capture.state === "calculated" ||
+        capture.state === "ranked" ||
+        capture.state === "analyzed"
+      ) &&
+      session.reviewReadOnly
+    ) {
       validateDraftButton.disabled = true;
       validateDraftButton.textContent = "Brouillon OCR validé";
       validationHelp.textContent = capture.calculatedReport
@@ -943,10 +1054,22 @@
       validateDraftButton.disabled = true;
       validationHelp.textContent = summary.structureErrors.length
         ? summary.structureErrors.join(" ")
-        : `${summary.counts.invalid} ${plural(summary.counts.invalid, "ligne invalide bloque", "lignes invalides bloquent")} la validation.`;
+        : `${summary.counts.invalid} ${plural(
+            summary.counts.invalid,
+            "ligne invalide bloque",
+            "lignes invalides bloquent"
+          )} la validation.`;
     } else {
       validateDraftButton.disabled = false;
-      validationHelp.textContent = `${realPlayers} ${plural(realPlayers, "joueur sera conservé", "joueurs seront conservés")} ; ${summary.counts.vacant} ${plural(summary.counts.vacant, "place vacante sera exclue", "places vacantes seront exclues")}.`;
+      validationHelp.textContent = `${realPlayers} ${plural(
+        realPlayers,
+        "joueur sera conservé",
+        "joueurs seront conservés"
+      )} ; ${summary.counts.vacant} ${plural(
+        summary.counts.vacant,
+        "place vacante sera exclue",
+        "places vacantes seront exclues"
+      )}.`;
     }
   }
 
@@ -959,8 +1082,15 @@
   function getEditorResult() {
     const capture = getActiveCapture();
     const row = capture?.editableDraft?.players?.[session.editorRowIndex];
-    if (!capture || !row || !session.editorBuffer) return null;
-    return parseEditorRow(session.editorBuffer, row.rank);
+
+    if (!capture || !row || !session.editorBuffer) {
+      return null;
+    }
+
+    return parseEditorRow(
+      session.editorBuffer,
+      row.rank
+    );
   }
 
   function renderEditorValidation() {
@@ -969,7 +1099,10 @@
 
     for (const field of EDITABLE_FIELDS) {
       editorErrors[field].textContent = parsed.fieldErrors[field] || "";
-      editorInputs[field].setAttribute("aria-invalid", String(Boolean(parsed.fieldErrors[field])));
+      editorInputs[field].setAttribute(
+        "aria-invalid",
+        String(Boolean(parsed.fieldErrors[field]))
+      );
     }
 
     editorStatus.textContent = parsed.classification.label;
@@ -977,9 +1110,16 @@
     editorSaveButton.disabled = parsed.classification.type === "invalid";
 
     const messages = [
-      ...parsed.classification.errors.map((message) => ({ kind: "error", message })),
-      ...parsed.classification.warnings.map((message) => ({ kind: "warning", message }))
+      ...parsed.classification.errors.map((message) => ({
+        kind: "error",
+        message
+      })),
+      ...parsed.classification.warnings.map((message) => ({
+        kind: "warning",
+        message
+      }))
     ];
+
     editorMessages.innerHTML = messages.map((entry) => (
       `<p class="warAdminEditorMessage" data-kind="${entry.kind}">${escapeHtml(entry.message)}</p>`
     )).join("");
@@ -988,14 +1128,22 @@
   function openEditor(rowIndex) {
     const capture = getActiveCapture();
     const row = capture?.editableDraft?.players?.[rowIndex];
-    if (!capture || !row || session.reviewReadOnly) return;
+
+    if (!capture || !row || session.reviewReadOnly) {
+      return;
+    }
 
     capture.listScrollY = Number(window.scrollY) || 0;
     session.editorRowIndex = rowIndex;
-    session.editorBuffer = Object.fromEntries(EDITABLE_FIELDS.map((field) => [
-      field,
-      row[field] === null || row[field] === undefined ? "" : String(row[field])
-    ]));
+    session.editorBuffer = Object.fromEntries(
+      EDITABLE_FIELDS.map((field) => [
+        field,
+        row[field] === null || row[field] === undefined
+          ? ""
+          : String(row[field])
+      ])
+    );
+
     editorContext.textContent = `Ligne ${row.rank} sur ${capture.editableDraft.players.length}`;
     reviewListPanel.hidden = true;
     editorPanel.hidden = false;
@@ -1006,26 +1154,39 @@
   function closeEditor() {
     const capture = getActiveCapture();
     const targetScroll = capture?.listScrollY || 0;
+
     session.editorRowIndex = null;
     session.editorBuffer = null;
     editorPanel.hidden = true;
     reviewListPanel.hidden = false;
+
     renderReview();
-    if (typeof window.scrollTo === "function") window.scrollTo(0, targetScroll);
+
+    if (typeof window.scrollTo === "function") {
+      window.scrollTo(0, targetScroll);
+    }
   }
 
   function updateSessionReviewStatus() {
-    const available = session.captures.filter((capture) => Boolean(capture.editableDraft));
+    const available = session.captures.filter(
+      (capture) => Boolean(capture.editableDraft)
+    );
+
     const validated = available.filter(isOcrValidatedCapture).length;
     const calculated = available.filter((capture) => (
-      isOcrValidatedCapture(capture) && Boolean(capture.calculatedReport)
+      isOcrValidatedCapture(capture) &&
+      Boolean(capture.calculatedReport)
     )).length;
     const ranked = available.filter((capture) => (
-      isOcrValidatedCapture(capture) && Boolean(capture.rankedReport)
+      isOcrValidatedCapture(capture) &&
+      Boolean(capture.rankedReport)
     )).length;
-    const allValidated = available.length > 0 && validated === available.length;
-    const allCalculated = available.length > 0 && calculated === available.length;
-    const allRanked = available.length > 0 && ranked === available.length;
+    const allValidated = available.length > 0 &&
+      validated === available.length;
+    const allCalculated = available.length > 0 &&
+      calculated === available.length;
+    const allRanked = available.length > 0 &&
+      ranked === available.length;
 
     if (allRanked && !session.running) {
       setStatus(
@@ -1050,14 +1211,34 @@
       );
     } else if (available.length > 0 && !session.running) {
       const correction = available.filter((capture) => (
-        capture.state === "correction" || capture.state === "revalidate"
+        capture.state === "correction" ||
+        capture.state === "revalidate"
       )).length;
-      const reviewing = available.filter((capture) => capture.state === "reviewing").length;
-      const ready = available.filter((capture) => capture.state === "ready").length;
+
+      const reviewing = available.filter(
+        (capture) => capture.state === "reviewing"
+      ).length;
+
+      const ready = available.filter(
+        (capture) => capture.state === "ready"
+      ).length;
+
       const parts = [];
-      if (ready) parts.push(`${ready} ${plural(ready, "brouillon prêt", "brouillons prêts")}`);
-      if (reviewing) parts.push(`${reviewing} en cours de vérification`);
-      if (correction) parts.push(`${correction} à corriger ou revalider`);
+
+      if (ready) {
+        parts.push(
+          `${ready} ${plural(ready, "brouillon prêt", "brouillons prêts")}`
+        );
+      }
+
+      if (reviewing) {
+        parts.push(`${reviewing} en cours de vérification`);
+      }
+
+      if (correction) {
+        parts.push(`${correction} à corriger ou revalider`);
+      }
+
       setStatus(
         "warning",
         "Validation OCR en cours",
@@ -1065,34 +1246,51 @@
         `${parts.join(" ; ")}. Aucune donnée GitHub modifiée.`
       );
     }
+
     renderSession();
   }
 
   function openReview(captureId, readOnly) {
-    const capture = session.captures.find((item) => item.id === captureId);
+    const capture = session.captures.find(
+      (item) => item.id === captureId
+    );
+
     if (!capture?.editableDraft) return;
 
     session.sessionScrollY = Number(window.scrollY) || 0;
     session.activeCaptureId = capture.id;
     session.reviewReadOnly = Boolean(
-      readOnly && (capture.state === "validated" || capture.state === "calculated" || capture.state === "ranked" || capture.state === "analyzed")
+      readOnly &&
+      (
+        capture.state === "validated" ||
+        capture.state === "calculated" ||
+        capture.state === "ranked" ||
+        capture.state === "analyzed"
+      )
     );
     session.reviewZoom = 2.5;
     session.editorRowIndex = null;
     session.editorBuffer = null;
+
     refreshCaptureValidationState(capture, true);
+
     sessionView.hidden = true;
     reviewView.hidden = false;
     reportView.hidden = true;
     reviewListPanel.hidden = false;
     editorPanel.hidden = true;
+
     renderReview();
     renderSession();
-    if (typeof window.scrollTo === "function") window.scrollTo(0, capture.reviewScrollY || 0);
+
+    if (typeof window.scrollTo === "function") {
+      window.scrollTo(0, capture.reviewScrollY || 0);
+    }
   }
 
   function closeReview() {
     const capture = getActiveCapture();
+
     if (capture?.editableDraft) {
       capture.reviewScrollY = Number(window.scrollY) || 0;
       refreshCaptureValidationState(capture, true);
@@ -1103,13 +1301,28 @@
     session.editorBuffer = null;
     reviewView.hidden = true;
     sessionView.hidden = false;
+
     updateSessionReviewStatus();
-    if (typeof window.scrollTo === "function") window.scrollTo(0, session.sessionScrollY);
+
+    if (typeof window.scrollTo === "function") {
+      window.scrollTo(0, session.sessionScrollY);
+    }
   }
 
   function formatCalculatedNumber(value, maximumFractionDigits = 0) {
     return Number.isFinite(value)
-      ? value.toLocaleString("fr-FR", { maximumFractionDigits })
+      ? value.toLocaleString("fr-FR", {
+          maximumFractionDigits
+        })
+      : "—";
+  }
+
+  function formatScore(value) {
+    return Number.isFinite(value)
+      ? value.toLocaleString("fr-FR", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2
+        })
       : "—";
   }
 
@@ -1122,110 +1335,193 @@
       `<span class="warAdminPlayerName">${escapeHtml(player.name)}</span>`,
       `<span class="warAdminPlayerDamage">Dégâts ${escapeHtml(formatCalculatedNumber(player.damage))} · Part ${escapeHtml(formatCalculatedNumber(player.damage_share_pct, 2))} %</span>`,
       "</span>",
-      `<span class="warAdminReportPlayerScore">${escapeHtml(player.score_total)} / 100</span>`,
+      `<span class="warAdminReportPlayerScore">${escapeHtml(formatScore(player.score_total))} / 100</span>`,
       "</summary>",
       '<dl class="warAdminReportMetrics">',
       `<div><dt>Attaques</dt><dd>${escapeHtml(player.attacks)} · ${escapeHtml(player.successful_attacks)} réussies · ${escapeHtml(player.misses)} ratés</dd></div>`,
       `<div><dt>Dégâts / attaque</dt><dd>${escapeHtml(formatCalculatedNumber(player.avg_damage))}</dd></div>`,
-      `<div><dt>Activité</dt><dd>${escapeHtml(player.score_activity)} / 25</dd></div>`,
-      `<div><dt>Efficacité</dt><dd>${escapeHtml(player.score_efficiency)} / 25</dd></div>`,
-      `<div><dt>Impact</dt><dd>${escapeHtml(formatCalculatedNumber(player.score_impact, 2))} / 35</dd></div>`,
-      `<div><dt>Défense</dt><dd>${escapeHtml(player.score_defense)} / 15</dd></div>`,
+      `<div><dt>Activité</dt><dd>${escapeHtml(formatScore(player.score_activity))} / 25</dd></div>`,
+      `<div><dt>Efficacité</dt><dd>${escapeHtml(formatScore(player.score_efficiency))} / 25</dd></div>`,
+      `<div><dt>Impact</dt><dd>${escapeHtml(formatScore(player.score_impact))} / 35</dd></div>`,
+      `<div><dt>Défense</dt><dd>${escapeHtml(formatScore(player.score_defense))} / 15</dd></div>`,
       `<div><dt>Seuil attaques</dt><dd>${player.min_attacks_ok ? "Atteint" : "Non atteint"}</dd></div>`,
       `<div><dt>Seuil déviations</dt><dd>${player.min_deviations_ok ? "Atteint" : "Non atteint"}</dd></div>`,
-      player.analysis ? `<div class="warAdminReportAnalysis"><dt>Analyse</dt><dd>${escapeHtml(player.analysis)}</dd></div>` : "",
+      player.analysis
+        ? `<div class="warAdminReportAnalysis"><dt>Analyse</dt><dd>${escapeHtml(player.analysis)}</dd></div>`
+        : "",
       "</dl>",
       "</details>"
     ].join("")).join("");
   }
 
   function renderReport(capture) {
-    const report = capture?.finalReport || capture?.rankedReport || capture?.calculatedReport;
+    const report = capture?.finalReport ||
+      capture?.rankedReport ||
+      capture?.calculatedReport;
+
     if (!report?.report) return;
 
     const summary = report.report.summary;
     const isAnalyzed = Boolean(capture.finalReport);
     const isRanked = Boolean(capture.rankedReport);
-    reportTitle.textContent = `${capture.allianceLabel} — rapport ${isAnalyzed ? "analysé" : (isRanked ? "classé" : "calculé")}`;
-    reportStep.textContent = isAnalyzed ? "Rédaction IA" : (isRanked ? "Classement local" : "Calcul local");
-    reportState.dataset.state = isAnalyzed ? "analyzed" : (isRanked ? "ranked" : "calculated");
-    reportState.textContent = isAnalyzed ? "Analyses rédigées" : (isRanked ? "Rapport classé" : "Rapport calculé");
-    reportOrder.textContent = isRanked ? "Classement déterministe" : "Ordre OCR préservé";
+
+    reportTitle.textContent = `${capture.allianceLabel} — rapport ${
+      isAnalyzed
+        ? "analysé"
+        : (isRanked ? "classé" : "calculé")
+    }`;
+
+    reportStep.textContent = isAnalyzed
+      ? "Rédaction IA"
+      : (isRanked ? "Classement local" : "Calcul local");
+
+    reportState.dataset.state = isAnalyzed
+      ? "analyzed"
+      : (isRanked ? "ranked" : "calculated");
+
+    reportState.textContent = isAnalyzed
+      ? "Analyses rédigées"
+      : (isRanked ? "Rapport classé" : "Rapport calculé");
+
+    reportOrder.textContent = isRanked
+      ? "Classement déterministe"
+      : "Ordre OCR préservé";
+
     reportAlliance.textContent = capture.allianceLabel;
     reportDate.textContent = report.date || session.warDate || "—";
     reportSource.textContent = report.source || "—";
-    reportTotalDamage.textContent = formatCalculatedNumber(summary.total_damage);
+    reportTotalDamage.textContent = formatCalculatedNumber(
+      summary.total_damage
+    );
     reportPlayerCount.textContent = String(summary.player_count);
     reportAvgRef.textContent = formatCalculatedNumber(summary.avg_ref);
-    reportShareRef.textContent = `${formatCalculatedNumber(summary.share_ref * 100, 2)} %`;
+    reportShareRef.textContent = `${formatCalculatedNumber(
+      summary.share_ref * 100,
+      2
+    )} %`;
     reportMinAttacks.textContent = String(summary.minimum_attacks);
     reportMinDeviations.textContent = String(summary.minimum_deviations);
+
     renderCalculatedPlayers(report);
     calculatedJson.textContent = JSON.stringify(report, null, 2);
   }
 
   function openReport(captureId) {
-    const capture = session.captures.find((item) => item.id === captureId);
-    if ((!capture?.finalReport && !capture?.rankedReport && !capture?.calculatedReport) || session.running) return;
+    const capture = session.captures.find(
+      (item) => item.id === captureId
+    );
+
+    if (
+      (
+        !capture?.finalReport &&
+        !capture?.rankedReport &&
+        !capture?.calculatedReport
+      ) ||
+      session.running
+    ) {
+      return;
+    }
 
     session.sessionScrollY = Number(window.scrollY) || 0;
     session.activeCaptureId = capture.id;
     sessionView.hidden = true;
     reviewView.hidden = true;
     reportView.hidden = false;
+
     renderReport(capture);
-    if (typeof window.scrollTo === "function") window.scrollTo(0, capture.reportScrollY || 0);
+
+    if (typeof window.scrollTo === "function") {
+      window.scrollTo(0, capture.reportScrollY || 0);
+    }
   }
 
   function closeReport() {
     const capture = getActiveCapture();
-    if (capture) capture.reportScrollY = Number(window.scrollY) || 0;
+
+    if (capture) {
+      capture.reportScrollY = Number(window.scrollY) || 0;
+    }
 
     session.activeCaptureId = "";
     reportView.hidden = true;
     sessionView.hidden = false;
+
     updateSessionReviewStatus();
-    if (typeof window.scrollTo === "function") window.scrollTo(0, session.sessionScrollY);
+
+    if (typeof window.scrollTo === "function") {
+      window.scrollTo(0, session.sessionScrollY);
+    }
   }
 
   function handleCaptureListClick(event) {
     const actionTarget = getActionTarget(event.target);
+
     if (!actionTarget || actionTarget.disabled) return;
 
     if (actionTarget.dataset.action === "open-report") {
       openReport(actionTarget.dataset.captureId);
     } else if (actionTarget.dataset.action === "open-review") {
-      openReview(actionTarget.dataset.captureId, actionTarget.dataset.readOnly === "true");
+      openReview(
+        actionTarget.dataset.captureId,
+        actionTarget.dataset.readOnly === "true"
+      );
     } else if (actionTarget.dataset.action === "modify-review") {
-      openReview(actionTarget.dataset.captureId, false);
+      openReview(
+        actionTarget.dataset.captureId,
+        false
+      );
     }
   }
 
   function handlePlayerListClick(event) {
     const actionTarget = getActionTarget(event.target);
-    if (!actionTarget || actionTarget.dataset.action !== "edit-row") return;
+
+    if (
+      !actionTarget ||
+      actionTarget.dataset.action !== "edit-row"
+    ) {
+      return;
+    }
+
     const rowIndex = Number(actionTarget.dataset.rowIndex);
-    if (Number.isInteger(rowIndex)) openEditor(rowIndex);
+
+    if (Number.isInteger(rowIndex)) {
+      openEditor(rowIndex);
+    }
   }
 
   function handleEditorInput(event) {
     const field = event.target?.name;
-    if (!session.editorBuffer || !EDITABLE_FIELDS.includes(field)) return;
+
+    if (
+      !session.editorBuffer ||
+      !EDITABLE_FIELDS.includes(field)
+    ) {
+      return;
+    }
+
     session.editorBuffer[field] = event.target.value;
     renderEditorValidation();
   }
 
   function handleEditorSubmit(event) {
     event.preventDefault();
+
     const capture = getActiveCapture();
     const parsed = getEditorResult();
-    if (!capture || !parsed || parsed.classification.type === "invalid") {
+
+    if (
+      !capture ||
+      !parsed ||
+      parsed.classification.type === "invalid"
+    ) {
       renderEditorValidation();
       return;
     }
 
     const rowIndex = session.editorRowIndex;
     const previous = capture.editableDraft.players[rowIndex];
+
     capture.editableDraft.players[rowIndex] = cloneJson(parsed.row);
     capture.draft = capture.editableDraft;
 
@@ -1244,35 +1540,60 @@
     const capture = getActiveCapture();
     const rowIndex = session.editorRowIndex;
     const original = capture?.ocrDraft?.players?.[rowIndex];
-    if (!capture || !original || !Number.isInteger(rowIndex)) return;
+
+    if (
+      !capture ||
+      !original ||
+      !Number.isInteger(rowIndex)
+    ) {
+      return;
+    }
 
     capture.editableDraft.players[rowIndex] = cloneJson(original);
     capture.draft = capture.editableDraft;
+
     refreshCaptureValidationState(capture, true);
-    addLog(`Ligne ${original.rank} restaurée aux valeurs OCR`, capture);
+    addLog(
+      `Ligne ${original.rank} restaurée aux valeurs OCR`,
+      capture
+    );
     closeEditor();
     updateSessionReviewStatus();
   }
 
   function handleValidateDraft() {
     const capture = getActiveCapture();
-    if (!capture?.editableDraft || session.reviewReadOnly) return;
+
+    if (
+      !capture?.editableDraft ||
+      session.reviewReadOnly
+    ) {
+      return;
+    }
 
     const summary = classifyDraft(capture.editableDraft);
+
     if (!summary.canValidate) {
       refreshCaptureValidationState(capture, true);
       renderReview();
       return;
     }
 
-    capture.validatedDraft = buildValidatedDraft(capture.editableDraft);
+    capture.validatedDraft = buildValidatedDraft(
+      capture.editableDraft
+    );
     capture.calculatedReport = null;
     capture.rankedReport = null;
     capture.finalReport = null;
     capture.state = "validated";
     capture.detail = "Brouillon OCR validé. Rapport non calculé.";
     session.reviewReadOnly = true;
-    addLog("Brouillon OCR validé — aucun calcul ni publication", capture);
+
+    addLog(
+      "Brouillon OCR validé — aucun calcul ni publication",
+      capture
+    );
+
     renderReview();
     updateSessionReviewStatus();
   }
@@ -1280,25 +1601,43 @@
   function handleCalculateReports() {
     if (session.running) return;
 
-    const available = session.captures.filter((capture) => Boolean(capture.editableDraft));
-    if (available.length === 0 || !available.every(isOcrValidatedCapture)) {
+    const available = session.captures.filter(
+      (capture) => Boolean(capture.editableDraft)
+    );
+
+    if (
+      available.length === 0 ||
+      !available.every(isOcrValidatedCapture)
+    ) {
       renderSession();
       return;
     }
 
     const errors = [];
+
     for (const capture of available) {
       if (capture.calculatedReport) continue;
 
       try {
-        capture.calculatedReport = calculateReport(capture.validatedDraft);
+        capture.calculatedReport = calculateReport(
+          capture.validatedDraft
+        );
         capture.state = "calculated";
         capture.detail = "Rapport calculé en mémoire. Publication non effectuée.";
-        addLog("Rapport calculé localement — publication non effectuée", capture);
+        addLog(
+          "Rapport calculé localement — publication non effectuée",
+          capture
+        );
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Erreur de calcul inconnue";
+        const message = error instanceof Error
+          ? error.message
+          : "Erreur de calcul inconnue";
+
         errors.push(`${capture.allianceLabel} : ${message}`);
-        addLog(`Calcul du rapport échoué : ${message}`, capture);
+        addLog(
+          `Calcul du rapport échoué : ${message}`,
+          capture
+        );
       }
     }
 
@@ -1319,92 +1658,173 @@
   function handleRankReports() {
     if (session.running) return;
 
-    const available = session.captures.filter((capture) => Boolean(capture.editableDraft));
-    if (available.length === 0 || !available.every((capture) => (
-      isOcrValidatedCapture(capture) && Boolean(capture.calculatedReport)
-    ))) {
+    const available = session.captures.filter(
+      (capture) => Boolean(capture.editableDraft)
+    );
+
+    if (
+      available.length === 0 ||
+      !available.every((capture) => (
+        isOcrValidatedCapture(capture) &&
+        Boolean(capture.calculatedReport)
+      ))
+    ) {
       renderSession();
       return;
     }
 
     const errors = [];
+
     for (const capture of available) {
       if (capture.rankedReport) continue;
 
       try {
-        capture.rankedReport = rankReport(capture.calculatedReport);
+        capture.rankedReport = rankReport(
+          capture.calculatedReport
+        );
         capture.finalReport = null;
         capture.state = "ranked";
         capture.detail = "Rapport classé en mémoire. Publication non effectuée.";
-        addLog("Rapport classé localement — publication non effectuée", capture);
+        addLog(
+          "Rapport classé localement — publication non effectuée",
+          capture
+        );
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Erreur de classement inconnue";
+        const message = error instanceof Error
+          ? error.message
+          : "Erreur de classement inconnue";
+
         errors.push(`${capture.allianceLabel} : ${message}`);
-        addLog(`Classement du rapport échoué : ${message}`, capture);
+        addLog(
+          `Classement du rapport échoué : ${message}`,
+          capture
+        );
       }
     }
 
     if (errors.length > 0) {
-      setStatus("error", "Classement incomplet", "Erreur", errors.join(" "));
+      setStatus(
+        "error",
+        "Classement incomplet",
+        "Erreur",
+        errors.join(" ")
+      );
     }
+
     renderSession();
   }
 
   async function requestAnalyses(capture, attempt) {
     capture.state = "writing";
     capture.detail = `Rédaction IA · tentative ${attempt}/3.`;
-    addLog(`Rédaction des analyses — tentative ${attempt}/3`, capture);
+    addLog(
+      `Rédaction des analyses — tentative ${attempt}/3`,
+      capture
+    );
     renderSession();
 
     const controller = new AbortController();
     session.abortController = controller;
     let response;
+
     try {
       response = await fetch(ANALYSIS_API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildAnalysisPayload(capture.rankedReport)),
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(
+          buildAnalysisPayload(capture.rankedReport)
+        ),
         signal: controller.signal
       });
     } catch (error) {
-      if (session.cancelled || error?.name === "AbortError") throw new SessionCancelledError();
+      if (
+        session.cancelled ||
+        error?.name === "AbortError"
+      ) {
+        throw new SessionCancelledError();
+      }
+
       throw error;
     } finally {
-      if (session.abortController === controller) session.abortController = null;
+      if (session.abortController === controller) {
+        session.abortController = null;
+      }
     }
 
     const responseText = await response.text();
     let data;
+
     try {
       data = JSON.parse(responseText);
     } catch (_) {
-      throw new Error(`Réponse IA illisible (HTTP ${response.status})`);
+      throw new Error(
+        `Réponse IA illisible (HTTP ${response.status})`
+      );
     }
-    if (!response.ok) throw new Error(getErrorDetail(data) || `HTTP ${response.status}`);
+
+    if (!response.ok) {
+      throw new Error(
+        getErrorDetail(data) || `HTTP ${response.status}`
+      );
+    }
+
     return data;
   }
 
   async function processAnalyses(capture) {
     for (let attempt = 1; attempt <= 3; attempt += 1) {
       try {
-        const response = await requestAnalyses(capture, attempt);
-        capture.finalReport = mergeAnalyses(capture.rankedReport, response);
+        const response = await requestAnalyses(
+          capture,
+          attempt
+        );
+
+        capture.finalReport = mergeAnalyses(
+          capture.rankedReport,
+          response
+        );
         capture.state = "analyzed";
         capture.detail = "Analyses validées et fusionnées en mémoire. Publication non effectuée.";
-        addLog("Analyses validées et fusionnées — publication non effectuée", capture);
+
+        addLog(
+          "Analyses validées et fusionnées — publication non effectuée",
+          capture
+        );
+
         renderSession();
         return true;
       } catch (error) {
-        if (error instanceof SessionCancelledError || session.cancelled) throw error;
-        const message = error instanceof Error ? error.message : "Erreur IA inconnue";
-        addLog(`Tentative ${attempt}/3 échouée : ${message}`, capture);
+        if (
+          error instanceof SessionCancelledError ||
+          session.cancelled
+        ) {
+          throw error;
+        }
+
+        const message = error instanceof Error
+          ? error.message
+          : "Erreur IA inconnue";
+
+        addLog(
+          `Tentative ${attempt}/3 échouée : ${message}`,
+          capture
+        );
+
         if (attempt === 3) {
           capture.state = "ranked";
           capture.detail = `Rédaction échouée après trois tentatives. ${message}`;
           return false;
         }
+
         const retryDelay = getRetryDelayMs(attempt);
-        addLog(`Attente ${formatSeconds(retryDelay)} avant la tentative ${attempt + 1}`, capture);
+
+        addLog(
+          `Attente ${formatSeconds(retryDelay)} avant la tentative ${attempt + 1}`,
+          capture
+        );
+
         await waitWithCountdown(
           retryDelay,
           capture,
@@ -1412,28 +1832,64 @@
         );
       }
     }
+
     return false;
   }
 
   async function handleWriteAnalyses() {
     if (session.running) return;
-    const available = session.captures.filter((capture) => Boolean(capture.editableDraft));
-    if (!available.length || !available.every((capture) => Boolean(capture.rankedReport))) return;
+
+    const available = session.captures.filter(
+      (capture) => Boolean(capture.editableDraft)
+    );
+
+    if (
+      !available.length ||
+      !available.every((capture) => Boolean(capture.rankedReport))
+    ) {
+      return;
+    }
 
     session.running = true;
     session.cancelled = false;
-    setStatus("running", "Rédaction IA en cours", "Gemini", "Traitement alliance par alliance.");
+
+    setStatus(
+      "running",
+      "Rédaction IA en cours",
+      "Gemini",
+      "Traitement alliance par alliance."
+    );
+
     updateControls();
     renderSession();
 
     try {
-      for (let index = 0; index < available.length; index += 1) {
-        if (session.cancelled) throw new SessionCancelledError();
+      for (
+        let index = 0;
+        index < available.length;
+        index += 1
+      ) {
+        if (session.cancelled) {
+          throw new SessionCancelledError();
+        }
+
         const capture = available[index];
-        if (!capture.finalReport) await processAnalyses(capture);
-        if (index < available.length - 1 && !session.cancelled) {
+
+        if (!capture.finalReport) {
+          await processAnalyses(capture);
+        }
+
+        if (
+          index < available.length - 1 &&
+          !session.cancelled
+        ) {
           const delay = getQueueDelayMs();
-          addLog(`Temporisation ${formatSeconds(delay)} avant l’alliance suivante`, capture);
+
+          addLog(
+            `Temporisation ${formatSeconds(delay)} avant l’alliance suivante`,
+            capture
+          );
+
           await waitWithCountdown(
             delay,
             capture,
@@ -1441,7 +1897,13 @@
           );
         }
       }
-      setStatus("success", "Analyses terminées", "Prêt", "Les rapports finaux restent uniquement en mémoire.");
+
+      setStatus(
+        "success",
+        "Analyses terminées",
+        "Prêt",
+        "Les rapports finaux restent uniquement en mémoire."
+      );
     } catch (error) {
       if (error instanceof SessionCancelledError) {
         for (const capture of available) {
@@ -1450,9 +1912,22 @@
             capture.detail = "Rédaction interrompue. Rapport classé conservé en mémoire.";
           }
         }
-        setStatus("cancelled", "Rédaction interrompue", "Arrêtée", "Les analyses déjà terminées restent en mémoire.");
+
+        setStatus(
+          "cancelled",
+          "Rédaction interrompue",
+          "Arrêtée",
+          "Les analyses déjà terminées restent en mémoire."
+        );
       } else {
-        setStatus("error", "Erreur de rédaction", "Erreur", error instanceof Error ? error.message : "Erreur inconnue");
+        setStatus(
+          "error",
+          "Erreur de rédaction",
+          "Erreur",
+          error instanceof Error
+            ? error.message
+            : "Erreur inconnue"
+        );
       }
     } finally {
       session.running = false;
@@ -1465,7 +1940,9 @@
 
   function handleReviewUnlock() {
     const capture = getActiveCapture();
+
     if (!capture?.validatedDraft) return;
+
     session.reviewReadOnly = false;
     renderReview();
   }
@@ -1478,53 +1955,108 @@
     const detectedAlliance = data.detection_confident === false
       ? ""
       : normalizeAlliance(
-          data.detected_alliance || data.detected_alliance_label || data.alliance
+          data.detected_alliance ||
+          data.detected_alliance_label ||
+          data.alliance
         );
 
     if (!detectedAlliance) {
       requireManualAlliance(capture, "");
-      addLog("Alliance incertaine : choix manuel demandé uniquement pour cette capture", capture);
+      addLog(
+        "Alliance incertaine : choix manuel demandé uniquement pour cette capture",
+        capture
+      );
       renderSession();
       return;
     }
 
-    const duplicate = getAssignedCapture(detectedAlliance, capture.id);
+    const duplicate = getAssignedCapture(
+      detectedAlliance,
+      capture.id
+    );
+
     if (duplicate) {
-      requireManualAlliance(capture, detectedAlliance);
-      addLog(`Doublon refusé : ${getAllianceLabel(detectedAlliance)} est déjà attribuée à la capture ${duplicate.index + 1}`, capture);
+      requireManualAlliance(
+        capture,
+        detectedAlliance
+      );
+      addLog(
+        `Doublon refusé : ${getAllianceLabel(detectedAlliance)} est déjà attribuée à la capture ${duplicate.index + 1}`,
+        capture
+      );
       renderSession();
       return;
     }
 
-    assignAlliance(capture, detectedAlliance, "automatic");
-    addLog(`Alliance détectée : ${capture.allianceLabel}`, capture);
-    addLog("Brouillon créé — published = false", capture);
+    assignAlliance(
+      capture,
+      detectedAlliance,
+      "automatic"
+    );
+
+    addLog(
+      `Alliance détectée : ${capture.allianceLabel}`,
+      capture
+    );
+    addLog(
+      "Brouillon créé — published = false",
+      capture
+    );
+
     renderSession();
   }
 
   async function requestOcr(capture, attempt) {
-    setCaptureState(capture, "detecting", `Détection de l’alliance · tentative ${attempt}/3.`);
+    setCaptureState(
+      capture,
+      "detecting",
+      `Détection de l’alliance · tentative ${attempt}/3.`
+    );
+
     setStatus(
       "running",
       "Détection en cours",
       "Détection",
       `Capture ${capture.index + 1}/${session.captures.length} · tentative ${attempt}/3.`
     );
-    addLog(`Détection de l’alliance — tentative ${attempt}/3`, capture);
+
+    addLog(
+      `Détection de l’alliance — tentative ${attempt}/3`,
+      capture
+    );
+
     await Promise.resolve();
 
     const formData = new FormData();
-    formData.append("war_date", session.warDate);
-    formData.append("image", capture.file, capture.file.name || `war-${capture.index + 1}.jpg`);
 
-    setCaptureState(capture, "ocr", `Analyse Gemini · tentative ${attempt}/3.`);
+    formData.append(
+      "war_date",
+      session.warDate
+    );
+
+    formData.append(
+      "image",
+      capture.file,
+      capture.file.name || `war-${capture.index + 1}.jpg`
+    );
+
+    setCaptureState(
+      capture,
+      "ocr",
+      `Analyse Gemini · tentative ${attempt}/3.`
+    );
+
     setStatus(
       "running",
       "OCR en cours",
       "Gemini",
       `Capture ${capture.index + 1}/${session.captures.length} · tentative ${attempt}/3.`
     );
-    addLog(`Envoi vers Gemini — tentative ${attempt}/3`, capture);
+
+    addLog(
+      `Envoi vers Gemini — tentative ${attempt}/3`,
+      capture
+    );
 
     const controller = new AbortController();
     session.abortController = controller;
@@ -1537,12 +2069,18 @@
         signal: controller.signal
       });
     } catch (error) {
-      if (session.cancelled || error?.name === "AbortError") {
+      if (
+        session.cancelled ||
+        error?.name === "AbortError"
+      ) {
         throw new SessionCancelledError();
       }
+
       throw error;
     } finally {
-      if (session.abortController === controller) session.abortController = null;
+      if (session.abortController === controller) {
+        session.abortController = null;
+      }
     }
 
     const responseText = await response.text();
@@ -1557,9 +2095,13 @@
         http_status: response.status,
         raw_response: responseText || null
       };
+
       capture.response = data;
       renderSession();
-      throw new Error(`Réponse Gemini illisible (HTTP ${response.status})`);
+
+      throw new Error(
+        `Réponse Gemini illisible (HTTP ${response.status})`
+      );
     }
 
     capture.response = data;
@@ -1569,19 +2111,34 @@
       const statusLabel = response.statusText
         ? `HTTP ${response.status} ${response.statusText}`
         : `HTTP ${response.status}`;
+
       const detail = getErrorDetail(data);
-      throw new Error(detail ? `${statusLabel} — ${detail}` : statusLabel);
+
+      throw new Error(
+        detail
+          ? `${statusLabel} — ${detail}`
+          : statusLabel
+      );
     }
 
     if (data && data.ok === false) {
-      throw new Error(getErrorDetail(data) || "Le Worker n’a pas pu terminer l’analyse Gemini.");
+      throw new Error(
+        getErrorDetail(data) ||
+        "Le Worker n’a pas pu terminer l’analyse Gemini."
+      );
     }
 
     if (!data || data.published !== false) {
-      throw new Error("Réponse brouillon invalide : published doit valoir false.");
+      throw new Error(
+        "Réponse brouillon invalide : published doit valoir false."
+      );
     }
 
-    addLog("Réponse Gemini reçue", capture);
+    addLog(
+      "Réponse Gemini reçue",
+      capture
+    );
+
     return data;
   }
 
@@ -1590,23 +2147,52 @@
       capture.attempts = attempt;
 
       try {
-        const data = await requestOcr(capture, attempt);
+        const data = await requestOcr(
+          capture,
+          attempt
+        );
+
         handleSuccessfulOcr(capture, data);
         return true;
       } catch (error) {
-        if (error instanceof SessionCancelledError || session.cancelled) throw error;
+        if (
+          error instanceof SessionCancelledError ||
+          session.cancelled
+        ) {
+          throw error;
+        }
 
-        capture.lastError = error instanceof Error ? error.message : "Erreur Gemini inconnue";
-        addLog(`Tentative ${attempt}/3 échouée : ${capture.lastError}`, capture);
+        capture.lastError = error instanceof Error
+          ? error.message
+          : "Erreur Gemini inconnue";
+
+        addLog(
+          `Tentative ${attempt}/3 échouée : ${capture.lastError}`,
+          capture
+        );
 
         if (attempt === 3) {
-          setCaptureState(capture, "failed", `Trois tentatives échouées. ${capture.lastError}`);
-          addLog("OCR échoué après trois tentatives ; poursuite automatique de la file", capture);
+          setCaptureState(
+            capture,
+            "failed",
+            `Trois tentatives échouées. ${capture.lastError}`
+          );
+
+          addLog(
+            "OCR échoué après trois tentatives ; poursuite automatique de la file",
+            capture
+          );
+
           return false;
         }
 
         const retryDelay = getRetryDelayMs(attempt);
-        addLog(`Attente ${formatSeconds(retryDelay)} avant la tentative ${attempt + 1}`, capture);
+
+        addLog(
+          `Attente ${formatSeconds(retryDelay)} avant la tentative ${attempt + 1}`,
+          capture
+        );
+
         await waitWithCountdown(
           retryDelay,
           capture,
@@ -1619,13 +2205,26 @@
   }
 
   function updateFinalStatus() {
-    const available = session.captures.filter((capture) => Boolean(capture.editableDraft));
-    const ready = available.filter((capture) => capture.state === "ready").length;
-    const validated = available.filter((capture) => capture.state === "validated").length;
-    const failed = session.captures.filter((capture) => capture.state === "failed").length;
-    const manual = session.captures.filter((capture) => capture.needsManual).length;
+    const available = session.captures.filter(
+      (capture) => Boolean(capture.editableDraft)
+    );
+    const ready = available.filter(
+      (capture) => capture.state === "ready"
+    ).length;
+    const validated = available.filter(
+      (capture) => capture.state === "validated"
+    ).length;
+    const failed = session.captures.filter(
+      (capture) => capture.state === "failed"
+    ).length;
+    const manual = session.captures.filter(
+      (capture) => capture.needsManual
+    ).length;
 
-    if (available.length > 0 && validated === available.length) {
+    if (
+      available.length > 0 &&
+      validated === available.length
+    ) {
       setStatus(
         "success",
         "Validation OCR terminée",
@@ -1637,14 +2236,38 @@
 
     if (manual || failed) {
       const details = [];
-      if (manual) details.push(`${manual} ${plural(manual, "alliance reste", "alliances restent")} à confirmer`);
-      if (failed) details.push(`${failed} ${plural(failed, "capture a échoué", "captures ont échoué")}`);
+
+      if (manual) {
+        details.push(
+          `${manual} ${plural(
+            manual,
+            "alliance reste",
+            "alliances restent"
+          )} à confirmer`
+        );
+      }
+
+      if (failed) {
+        details.push(
+          `${failed} ${plural(
+            failed,
+            "capture a échoué",
+            "captures ont échoué"
+          )}`
+        );
+      }
+
       setStatus(
         "warning",
         "File OCR terminée",
         "À vérifier",
-        `${ready} ${plural(ready, "brouillon prêt", "brouillons prêts")} à vérifier. ${details.join(" ; ")}. Aucune donnée GitHub modifiée.`
+        `${ready} ${plural(
+          ready,
+          "brouillon prêt",
+          "brouillons prêts"
+        )} à vérifier. ${details.join(" ; ")}. Aucune donnée GitHub modifiée.`
       );
+
       return;
     }
 
@@ -1652,14 +2275,25 @@
       "warning",
       "Session OCR terminée",
       "À vérifier",
-      `${ready} ${plural(ready, "brouillon non publié est prêt", "brouillons non publiés sont prêts")} pour la vérification humaine. Aucune donnée GitHub modifiée.`
+      `${ready} ${plural(
+        ready,
+        "brouillon non publié est prêt",
+        "brouillons non publiés sont prêts"
+      )} pour la vérification humaine. Aucune donnée GitHub modifiée.`
     );
   }
 
   function markSessionCancelled() {
     for (const capture of session.captures) {
-      if (["queued", "detecting", "ocr", "waiting"].includes(capture.state)) {
-        if (capture.editableDraft && capture.alliance) {
+      if (
+        ["queued", "detecting", "ocr", "waiting"].includes(
+          capture.state
+        )
+      ) {
+        if (
+          capture.editableDraft &&
+          capture.alliance
+        ) {
           capture.state = "ready";
           capture.detail = "Brouillon conservé après interruption de la session.";
         } else {
@@ -1668,71 +2302,131 @@
         }
       }
     }
+
     renderSession();
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
+
     if (session.running) return;
 
     const files = getSelectedFiles();
     const warDate = dateInput.value;
 
     if (!/^\d{4}-\d{2}-\d{2}$/.test(warDate)) {
-      setStatus("error", "Date manquante", "Erreur", "Choisis une date de guerre valide avant l’envoi.");
+      setStatus(
+        "error",
+        "Date manquante",
+        "Erreur",
+        "Choisis une date de guerre valide avant l’envoi."
+      );
       updateControls();
       return;
     }
 
-    if (files.length < 1 || files.length > MAX_CAPTURES) {
-      setStatus("error", "Captures invalides", "Erreur", `Sélectionne entre 1 et ${MAX_CAPTURES} images.`);
+    if (
+      files.length < 1 ||
+      files.length > MAX_CAPTURES
+    ) {
+      setStatus(
+        "error",
+        "Captures invalides",
+        "Erreur",
+        `Sélectionne entre 1 et ${MAX_CAPTURES} images.`
+      );
       updateControls();
       return;
     }
 
-    if (session.captures.length !== files.length) handleImageChange();
+    if (session.captures.length !== files.length) {
+      handleImageChange();
+    }
+
     resetCapturesForRun();
     session.logs = [];
     session.warDate = warDate;
     session.cancelled = false;
     session.running = true;
+
     renderLog();
-    for (const capture of session.captures) addLog("Capture reçue", capture);
-    addLog(`Session lancée pour la guerre du ${warDate}`);
-    setStatus("running", "File OCR en cours", "OCR", "Préparation de la première capture.");
+
+    for (const capture of session.captures) {
+      addLog("Capture reçue", capture);
+    }
+
+    addLog(
+      `Session lancée pour la guerre du ${warDate}`
+    );
+
+    setStatus(
+      "running",
+      "File OCR en cours",
+      "OCR",
+      "Préparation de la première capture."
+    );
+
     renderSession();
     updateControls();
 
     try {
-      for (let index = 0; index < session.captures.length; index += 1) {
-        if (session.cancelled) throw new SessionCancelledError();
+      for (
+        let index = 0;
+        index < session.captures.length;
+        index += 1
+      ) {
+        if (session.cancelled) {
+          throw new SessionCancelledError();
+        }
 
         const capture = session.captures[index];
         const succeeded = await processCapture(capture);
         const hasNext = index < session.captures.length - 1;
 
-        if (succeeded && hasNext && !session.cancelled) {
+        if (
+          succeeded &&
+          hasNext &&
+          !session.cancelled
+        ) {
           const queueDelay = getQueueDelayMs();
-          addLog(`Attente ${formatSeconds(queueDelay)} avant la capture ${index + 2}`, capture);
+
+          addLog(
+            `Attente ${formatSeconds(queueDelay)} avant la capture ${index + 2}`,
+            capture
+          );
+
           await waitWithCountdown(
             queueDelay,
             capture,
             (remaining) => `Capture suivante dans ${formatSeconds(remaining)}.`
           );
-          if (!capture.needsManual && session.activeCaptureId !== capture.id) {
+
+          if (
+            !capture.needsManual &&
+            session.activeCaptureId !== capture.id
+          ) {
             capture.state = "ready";
             capture.detail = "Brouillon conservé en mémoire. File reprise.";
           }
-          addLog("Temporisation terminée ; reprise de la file", capture);
+
+          addLog(
+            "Temporisation terminée ; reprise de la file",
+            capture
+          );
+
           renderSession();
         }
       }
 
-      addLog("File OCR terminée — aucun brouillon publié");
+      addLog(
+        "File OCR terminée — aucun brouillon publié"
+      );
+
       updateFinalStatus();
     } catch (error) {
       if (error instanceof SessionCancelledError) {
         markSessionCancelled();
+
         setStatus(
           "cancelled",
           "Session interrompue",
@@ -1740,8 +2434,14 @@
           "La file est arrêtée. Les brouillons déjà prêts restent disponibles en mémoire."
         );
       } else {
-        const message = error instanceof Error ? error.message : "Erreur inattendue";
-        addLog(`Erreur de session : ${message}`);
+        const message = error instanceof Error
+          ? error.message
+          : "Erreur inattendue";
+
+        addLog(
+          `Erreur de session : ${message}`
+        );
+
         setStatus(
           "error",
           "Erreur de session",
@@ -1759,43 +2459,114 @@
   }
 
   function handleCancel() {
-    if (!session.running || session.cancelled) return;
+    if (
+      !session.running ||
+      session.cancelled
+    ) {
+      return;
+    }
+
     session.cancelled = true;
-    addLog("Interruption demandée par l’utilisateur");
-    setStatus("cancelled", "Interruption en cours", "Arrêt", "La requête ou la temporisation active est annulée.");
-    if (session.abortController) session.abortController.abort();
-    if (session.cancelWait) session.cancelWait();
+
+    addLog(
+      "Interruption demandée par l’utilisateur"
+    );
+
+    setStatus(
+      "cancelled",
+      "Interruption en cours",
+      "Arrêt",
+      "La requête ou la temporisation active est annulée."
+    );
+
+    if (session.abortController) {
+      session.abortController.abort();
+    }
+
+    if (session.cancelWait) {
+      session.cancelWait();
+    }
   }
 
   function handleManualAlliance(event) {
     const target = event.target;
-    const captureId = target && target.dataset ? target.dataset.captureId : "";
+    const captureId = target && target.dataset
+      ? target.dataset.captureId
+      : "";
     const alliance = normalizeAlliance(target?.value);
+
     if (!captureId || !alliance) return;
 
-    const capture = session.captures.find((item) => item.id === captureId);
-    if (!capture || !capture.needsManual || !capture.response) return;
+    const capture = session.captures.find(
+      (item) => item.id === captureId
+    );
 
-    const duplicate = getAssignedCapture(alliance, capture.id);
+    if (
+      !capture ||
+      !capture.needsManual ||
+      !capture.response
+    ) {
+      return;
+    }
+
+    const duplicate = getAssignedCapture(
+      alliance,
+      capture.id
+    );
+
     if (duplicate) {
       capture.detail = `${getAllianceLabel(alliance)} est déjà attribuée à la capture ${duplicate.index + 1}.`;
-      addLog(`Choix refusé : ${getAllianceLabel(alliance)} est déjà attribuée`, capture);
-      setStatus("warning", "Doublon d’alliance", "À corriger", capture.detail);
+
+      addLog(
+        `Choix refusé : ${getAllianceLabel(alliance)} est déjà attribuée`,
+        capture
+      );
+
+      setStatus(
+        "warning",
+        "Doublon d’alliance",
+        "À corriger",
+        capture.detail
+      );
+
       renderSession();
       return;
     }
 
-    assignAlliance(capture, alliance, "manual");
-    addLog(`Alliance confirmée manuellement : ${capture.allianceLabel}`, capture);
-    addLog("Brouillon créé — published = false", capture);
+    assignAlliance(
+      capture,
+      alliance,
+      "manual"
+    );
+
+    addLog(
+      `Alliance confirmée manuellement : ${capture.allianceLabel}`,
+      capture
+    );
+
+    addLog(
+      "Brouillon créé — published = false",
+      capture
+    );
+
     renderSession();
-    if (!session.running) updateFinalStatus();
+
+    if (!session.running) {
+      updateFinalStatus();
+    }
   }
 
   function handlePageHide() {
     session.cancelled = true;
-    if (session.abortController) session.abortController.abort();
-    if (session.cancelWait) session.cancelWait();
+
+    if (session.abortController) {
+      session.abortController.abort();
+    }
+
+    if (session.cancelWait) {
+      session.cancelWait();
+    }
+
     releaseCaptureUrls();
   }
 
@@ -1803,42 +2574,146 @@
   sessionView.hidden = false;
   reviewView.hidden = true;
   reportView.hidden = true;
-  setStatus("idle", "En attente", "Attente", "Sélectionne les captures pour préparer la session.");
+
+  setStatus(
+    "idle",
+    "En attente",
+    "Attente",
+    "Sélectionne les captures pour préparer la session."
+  );
+
   result.textContent = IDLE_RESULT;
   renderCaptureList();
   renderLog();
   updateQueueSummary();
   updateControls();
 
-  dateInput.addEventListener("input", updateControls);
-  imageInput.addEventListener("change", handleImageChange);
-  form.addEventListener("submit", handleSubmit);
-  cancelButton.addEventListener("click", handleCancel);
-  captureList.addEventListener("change", handleManualAlliance);
-  captureList.addEventListener("click", handleCaptureListClick);
-  reviewBackButton.addEventListener("click", closeReview);
-  reviewBackBottomButton.addEventListener("click", closeReview);
-  calculateReportsButton.addEventListener("click", handleCalculateReports);
-  rankReportsButton.addEventListener("click", handleRankReports);
-  writeAnalysesButton.addEventListener("click", handleWriteAnalyses);
-  playerList.addEventListener("click", handlePlayerListClick);
-  reviewUnlockButton.addEventListener("click", handleReviewUnlock);
-  validateDraftButton.addEventListener("click", handleValidateDraft);
-  editorForm.addEventListener("input", handleEditorInput);
-  editorForm.addEventListener("submit", handleEditorSubmit);
-  editorBackButton.addEventListener("click", closeEditor);
-  editorCancelButton.addEventListener("click", closeEditor);
-  editorResetButton.addEventListener("click", handleEditorReset);
-  zoomOutButton.addEventListener("click", () => handleZoom(-0.25));
-  zoomResetButton.addEventListener("click", () => setReviewZoom(2.5));
-  zoomInButton.addEventListener("click", () => handleZoom(0.25));
-  reportBackButton.addEventListener("click", closeReport);
-  window.addEventListener("pagehide", handlePageHide);
+  dateInput.addEventListener(
+    "input",
+    updateControls
+  );
+
+  imageInput.addEventListener(
+    "change",
+    handleImageChange
+  );
+
+  form.addEventListener(
+    "submit",
+    handleSubmit
+  );
+
+  cancelButton.addEventListener(
+    "click",
+    handleCancel
+  );
+
+  captureList.addEventListener(
+    "change",
+    handleManualAlliance
+  );
+
+  captureList.addEventListener(
+    "click",
+    handleCaptureListClick
+  );
+
+  reviewBackButton.addEventListener(
+    "click",
+    closeReview
+  );
+
+  reviewBackBottomButton.addEventListener(
+    "click",
+    closeReview
+  );
+
+  calculateReportsButton.addEventListener(
+    "click",
+    handleCalculateReports
+  );
+
+  rankReportsButton.addEventListener(
+    "click",
+    handleRankReports
+  );
+
+  writeAnalysesButton.addEventListener(
+    "click",
+    handleWriteAnalyses
+  );
+
+  playerList.addEventListener(
+    "click",
+    handlePlayerListClick
+  );
+
+  reviewUnlockButton.addEventListener(
+    "click",
+    handleReviewUnlock
+  );
+
+  validateDraftButton.addEventListener(
+    "click",
+    handleValidateDraft
+  );
+
+  editorForm.addEventListener(
+    "input",
+    handleEditorInput
+  );
+
+  editorForm.addEventListener(
+    "submit",
+    handleEditorSubmit
+  );
+
+  editorBackButton.addEventListener(
+    "click",
+    closeEditor
+  );
+
+  editorCancelButton.addEventListener(
+    "click",
+    closeEditor
+  );
+
+  editorResetButton.addEventListener(
+    "click",
+    handleEditorReset
+  );
+
+  zoomOutButton.addEventListener(
+    "click",
+    () => handleZoom(-0.25)
+  );
+
+  zoomResetButton.addEventListener(
+    "click",
+    () => setReviewZoom(2.5)
+  );
+
+  zoomInButton.addEventListener(
+    "click",
+    () => handleZoom(0.25)
+  );
+
+  reportBackButton.addEventListener(
+    "click",
+    closeReport
+  );
+
+  window.addEventListener(
+    "pagehide",
+    handlePageHide
+  );
 
   if (testConfig.exposeState) {
     window.__MSF_WAR_ADMIN_TEST_API__ = {
       getSnapshot() {
-        return JSON.parse(JSON.stringify(getTechnicalPayload()));
+        return JSON.parse(
+          JSON.stringify(getTechnicalPayload())
+        );
       },
       normalizeAlliance,
       openReview(captureId, readOnly) {
