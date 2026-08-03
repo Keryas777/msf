@@ -2,17 +2,19 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 
-const [html, css, validation, app] = await Promise.all([
+const [html, css, validation, reportCalculator, app] = await Promise.all([
   readFile(new URL("../docs/war-admin.html", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin.css", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin-validation.js", import.meta.url), "utf8"),
+  readFile(new URL("../docs/war-admin-report-calculator.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin.js", import.meta.url), "utf8")
 ]);
 
-test("la page charge la Phase D locale sans bloquer le zoom", () => {
-  assert.match(html, /href="\.\/war-admin\.css\?v=3"/);
+test("la page charge la Phase E locale sans bloquer le zoom", () => {
+  assert.match(html, /href="\.\/war-admin\.css\?v=4"/);
   assert.match(html, /src="\.\/war-admin-validation\.js\?v=1" defer/);
-  assert.match(html, /src="\.\/war-admin\.js\?v=3" defer/);
+  assert.match(html, /src="\.\/war-admin-report-calculator\.js\?v=1" defer/);
+  assert.match(html, /src="\.\/war-admin\.js\?v=4" defer/);
   assert.match(html, /name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/);
   assert.doesNotMatch(html, /user-scalable=no|maximum-scale=1/);
   assert.doesNotMatch(html, /auth-(?:guard|session)\.js/);
@@ -116,6 +118,7 @@ test("la liste, le journal et les états sont principaux, le JSON est repliable"
 test("la validation OCR propose une liste verticale et une fiche mobile pour une seule ligne", () => {
   assert.match(html, /id="warReviewView"[\s\S]*?hidden/);
   assert.match(html, /id="warReviewBack"/);
+  assert.match(html, /id="warReviewBackBottom"[\s\S]*?← Retour à la session/);
   assert.match(html, /id="warPlayerList" class="warAdminPlayerList"/);
   assert.match(html, /id="warEditorPanel"[\s\S]*?hidden/);
   assert.match(html, /id="warValidateDraft"[\s\S]*?disabled/);
@@ -129,6 +132,23 @@ test("la validation OCR propose une liste verticale et une fiche mobile pour une
   assert.match(css, /\.warAdminPlayerList\s*\{[\s\S]*?display: grid/);
   assert.match(css, /\.warAdminSourceFigure\s*\{[\s\S]*?position: sticky/);
   assert.match(css, /touch-action: pan-x pan-y pinch-zoom/);
+});
+
+test("la pré-publication distingue validation, calcul et absence de publication", () => {
+  assert.match(html, /id="warReportProgress"[\s\S]*?hidden/);
+  assert.match(html, /id="warValidatedCount"/);
+  assert.match(html, /id="warCalculatedCount"/);
+  assert.match(html, /Publication non effectuée/);
+  assert.match(html, /id="warCalculateReports"[\s\S]*?disabled[\s\S]*?Calculer les rapports/);
+  assert.match(html, /id="warReportView"[\s\S]*?hidden/);
+  assert.match(html, /id="warReportPlayerList" class="warAdminReportPlayerList"/);
+  assert.match(html, /JSON du rapport calculé/);
+  assert.match(app, /calculated: "Rapport calculé"/);
+  assert.match(app, /capture\.calculatedReport = calculateReport\(capture\.validatedDraft\)/);
+  assert.match(app, /publication en attente/);
+  assert.match(app, /Rapport calculé localement — publication non effectuée/);
+  assert.match(css, /\.warAdminReportPlayerList\s*\{[\s\S]*?display: grid/);
+  assert.doesNotMatch(html, /<table\b/);
 });
 
 test("les champs éditables utilisent les claviers adaptés et donnent la priorité aux dégâts", () => {
@@ -161,6 +181,7 @@ test("les états Phase D et la séparation OCR, édition, validation restent exp
   assert.match(app, /ocr_draft: capture\.ocrDraft/);
   assert.match(app, /editable_draft: capture\.editableDraft/);
   assert.match(app, /validatedDraft: capture\.validatedDraft/);
+  assert.match(app, /calculatedReport: capture\.calculatedReport/);
   assert.match(app, /modification_count:/);
   assert.match(app, /Tous les brouillons OCR disponibles sont validés\./);
 });
@@ -180,8 +201,8 @@ test("le CSS reste mobile first, tactile et lisible à 320 px", () => {
   assert.match(css, /prefers-reduced-motion: reduce/);
 });
 
-test("aucun secret, appel GitHub ou moteur métier n’est ajouté au frontend", () => {
-  const frontend = `${html}\n${css}\n${validation}\n${app}`;
+test("le calcul local n’ajoute ni secret, ni GitHub, ni Prompt 2", () => {
+  const frontend = `${html}\n${css}\n${validation}\n${reportCalculator}\n${app}`;
   const forbiddenSecrets = [
     "GEMINI_API_KEY",
     "GITHUB_TOKEN",
@@ -197,7 +218,9 @@ test("aucun secret, appel GitHub ou moteur métier n’est ajouté au frontend",
   }
 
   assert.doesNotMatch(frontend, /api\.github\.com|upsertFileToGitHub|export_payload/);
-  assert.doesNotMatch(frontend, /war-report-engine|war-report-ranking|score_total|report\.ranking|classement final|rédaction automatique/i);
-  assert.doesNotMatch(frontend, /total_damage|successful_attacks|damage_share|score_activity|score_efficiency|score_impact|score_defense/);
+  assert.doesNotMatch(frontend, /report\.ranking|classement final|rédaction automatique|Prompt 2/i);
+  assert.doesNotMatch(reportCalculator, /\branking\b|\btags\b|\banalysis\b/);
   assert.equal((validation.match(/\bfetch\(/g) || []).length, 0);
+  assert.equal((reportCalculator.match(/\bfetch\(/g) || []).length, 0);
+  assert.equal((app.match(/\bfetch\(/g) || []).length, 1);
 });

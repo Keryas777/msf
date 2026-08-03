@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#071225" />
     <title>LoSP — Administration des guerres</title>
 
-    <link rel="stylesheet" href="./war-admin.css?v=3" />
+    <link rel="stylesheet" href="./war-admin.css?v=4" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icon-512.PNG" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -14,7 +14,8 @@
     <meta name="apple-mobile-web-app-title" content="LoSP" />
 
     <script src="./war-admin-validation.js?v=1" defer></script>
-    <script src="./war-admin.js?v=3" defer></script>
+    <script src="./war-admin-report-calculator.js?v=1" defer></script>
+    <script src="./war-admin.js?v=4" defer></script>
   </head>
 
   <body class="warAdminPage">
@@ -105,6 +106,38 @@
             <div id="warCaptureList" class="warAdminCaptureList">
               <p class="warAdminEmpty">Aucune capture dans la file.</p>
             </div>
+          </section>
+
+          <section
+            id="warReportProgress"
+            class="warAdminReportProgress"
+            aria-labelledby="warReportProgressTitle"
+            hidden
+          >
+            <div class="warAdminSectionHeading">
+              <h3 id="warReportProgressTitle">Pré-publication</h3>
+              <span id="warPublicationState">Publication non effectuée</span>
+            </div>
+
+            <div class="warAdminPipelineSummary" aria-label="État global des rapports">
+              <div>
+                <strong id="warValidatedCount">0</strong>
+                <span>OCR validés</span>
+              </div>
+              <div>
+                <strong id="warCalculatedCount">0</strong>
+                <span>rapports calculés</span>
+              </div>
+              <div>
+                <strong>En attente</strong>
+                <span>publication</span>
+              </div>
+            </div>
+
+            <button id="warCalculateReports" class="warAdminCalculateButton" type="button" disabled>
+              Calculer les rapports
+            </button>
+            <p id="warCalculateHelp" class="warAdminValidationHelp" role="status"></p>
           </section>
 
           <section class="warAdminLogSection" aria-labelledby="warLogTitle">
@@ -202,9 +235,14 @@
               <div id="warPlayerList" class="warAdminPlayerList"></div>
 
               <div class="warAdminValidationActions">
-                <button id="warValidateDraft" class="warAdminValidateButton" type="button" disabled>
-                  Valider ce brouillon
-                </button>
+                <div class="warAdminValidationButtonRow">
+                  <button id="warValidateDraft" class="warAdminValidateButton" type="button" disabled>
+                    Valider ce brouillon
+                  </button>
+                  <button id="warReviewBackBottom" class="warAdminBackButton" type="button">
+                    ← Retour à la session
+                  </button>
+                </div>
                 <p id="warValidationHelp" class="warAdminValidationHelp" role="status"></p>
               </div>
             </section>
@@ -282,6 +320,67 @@
             </section>
           </div>
         </div>
+      </section>
+
+      <section
+        id="warReportView"
+        class="warAdminPanel warAdminReportView"
+        aria-labelledby="warReportTitle"
+        hidden
+      >
+        <div class="warAdminReviewTopbar">
+          <button id="warReportBack" class="warAdminBackButton" type="button">
+            ← Retour à la session
+          </button>
+          <div class="warAdminReviewHeading">
+            <p class="warAdminStep">Calcul local</p>
+            <h2 id="warReportTitle">Rapport calculé</h2>
+          </div>
+          <span class="warAdminReviewState" data-state="calculated">Rapport calculé</span>
+        </div>
+
+        <dl class="warAdminReviewMeta">
+          <div>
+            <dt>Alliance</dt>
+            <dd id="warReportAlliance">—</dd>
+          </div>
+          <div>
+            <dt>Date de guerre</dt>
+            <dd id="warReportDate">—</dd>
+          </div>
+          <div>
+            <dt>Source</dt>
+            <dd id="warReportSource">—</dd>
+          </div>
+          <div>
+            <dt>Publication</dt>
+            <dd>Non effectuée</dd>
+          </div>
+        </dl>
+
+        <div class="warAdminReportSummary" aria-label="Résumé du rapport calculé">
+          <div><strong id="warReportTotalDamage">0</strong><span>dégâts totaux</span></div>
+          <div><strong id="warReportPlayerCount">0</strong><span>joueurs</span></div>
+          <div><strong id="warReportAvgRef">0</strong><span>référence dégâts</span></div>
+          <div><strong id="warReportShareRef">0 %</strong><span>référence part</span></div>
+          <div><strong id="warReportMinAttacks">0</strong><span>minimum attaques</span></div>
+          <div><strong id="warReportMinDeviations">0</strong><span>minimum déviations</span></div>
+        </div>
+
+        <section class="warAdminReportPlayers" aria-labelledby="warReportPlayersTitle">
+          <div class="warAdminReviewSectionHeading">
+            <div>
+              <p class="warAdminStep">Ordre OCR préservé</p>
+              <h3 id="warReportPlayersTitle">Joueurs calculés</h3>
+            </div>
+          </div>
+          <div id="warReportPlayerList" class="warAdminReportPlayerList"></div>
+        </section>
+
+        <details class="warAdminTechnical">
+          <summary>JSON du rapport calculé</summary>
+          <pre id="warCalculatedJson" class="warAdminJson" tabindex="0">Aucun rapport calculé.</pre>
+        </details>
       </section>
     </main>
 

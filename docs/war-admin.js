@@ -9,9 +9,10 @@
   const RETRY_DELAYS_MS = [10000, 30000];
   const MAX_CAPTURES = 6;
   const DRAFT_VALIDATION = globalThis.MsfWarDraftValidation;
+  const REPORT_CALCULATOR = globalThis.MsfWarReportCalculator;
 
-  if (!DRAFT_VALIDATION) {
-    throw new Error("Le module de validation OCR est indisponible.");
+  if (!DRAFT_VALIDATION || !REPORT_CALCULATOR) {
+    throw new Error("Les modules locaux de validation et de calcul sont indisponibles.");
   }
 
   const {
@@ -24,6 +25,7 @@
     isRowModified,
     parseEditorRow
   } = DRAFT_VALIDATION;
+  const { calculateReport } = REPORT_CALCULATOR;
 
   const ALLIANCES = [
     { key: "zeus", label: "Zeus" },
@@ -43,6 +45,7 @@
     reviewing: "Vérification en cours",
     correction: "À corriger",
     validated: "OCR validé",
+    calculated: "Rapport calculé",
     revalidate: "À revalider",
     manual: "Alliance à confirmer",
     failed: "OCR échoué",
@@ -61,11 +64,17 @@
   const statusMessage = document.getElementById("warStatusMessage");
   const queueSummary = document.getElementById("warQueueSummary");
   const captureList = document.getElementById("warCaptureList");
+  const reportProgress = document.getElementById("warReportProgress");
+  const validatedCount = document.getElementById("warValidatedCount");
+  const calculatedCount = document.getElementById("warCalculatedCount");
+  const calculateReportsButton = document.getElementById("warCalculateReports");
+  const calculateHelp = document.getElementById("warCalculateHelp");
   const logPanel = document.getElementById("warLog");
   const result = document.getElementById("warResult");
   const sessionView = document.getElementById("warSessionView");
   const reviewView = document.getElementById("warReviewView");
   const reviewBackButton = document.getElementById("warReviewBack");
+  const reviewBackBottomButton = document.getElementById("warReviewBackBottom");
   const reviewTitle = document.getElementById("warReviewTitle");
   const reviewState = document.getElementById("warReviewState");
   const reviewAlliance = document.getElementById("warReviewAlliance");
@@ -113,6 +122,20 @@
     defense_wins: document.getElementById("warEditErrorDefenseWins"),
     defense_bonus: document.getElementById("warEditErrorDefenseBonus")
   };
+  const reportView = document.getElementById("warReportView");
+  const reportBackButton = document.getElementById("warReportBack");
+  const reportTitle = document.getElementById("warReportTitle");
+  const reportAlliance = document.getElementById("warReportAlliance");
+  const reportDate = document.getElementById("warReportDate");
+  const reportSource = document.getElementById("warReportSource");
+  const reportTotalDamage = document.getElementById("warReportTotalDamage");
+  const reportPlayerCount = document.getElementById("warReportPlayerCount");
+  const reportAvgRef = document.getElementById("warReportAvgRef");
+  const reportShareRef = document.getElementById("warReportShareRef");
+  const reportMinAttacks = document.getElementById("warReportMinAttacks");
+  const reportMinDeviations = document.getElementById("warReportMinDeviations");
+  const reportPlayerList = document.getElementById("warReportPlayerList");
+  const calculatedJson = document.getElementById("warCalculatedJson");
 
   const testConfig = window.__MSF_WAR_ADMIN_TEST_CONFIG__ || {};
   const session = {
@@ -255,6 +278,16 @@
     if (!capture.editableDraft) return "";
 
     const disabled = session.running ? " disabled" : "";
+    if (capture.calculatedReport) {
+      return [
+        '<div class="warAdminCaptureActions">',
+        `<button class="warAdminCaptureAction" type="button" data-action="open-report" data-capture-id="${capture.id}"${disabled}>Voir le rapport calculé</button>`,
+        `<button class="warAdminCaptureAction warAdminCaptureActionSecondary" type="button" data-action="open-review" data-capture-id="${capture.id}" data-read-only="true"${disabled}>Voir l’OCR validé</button>`,
+        `<button class="warAdminCaptureAction warAdminCaptureActionSecondary" type="button" data-action="modify-review" data-capture-id="${capture.id}"${disabled}>Modifier</button>`,
+        "</div>"
+      ].join("");
+    }
+
     const actionLabels = {
       ready: "Vérifier",
       reviewing: "Continuer",
@@ -334,7 +367,10 @@
     const correction = session.captures.filter((capture) => (
       capture.state === "correction" || capture.state === "revalidate"
     )).length;
-    const validated = session.captures.filter((capture) => capture.state === "validated").length;
+    const validated = session.captures.filter((capture) => (
+      capture.state === "validated" || capture.state === "calculated"
+    )).length;
+    const calculated = session.captures.filter((capture) => capture.state === "calculated").length;
     const failed = session.captures.filter((capture) => capture.state === "failed").length;
     const manual = session.captures.filter((capture) => capture.needsManual).length;
     const parts = [
@@ -344,21 +380,66 @@
       `Validés ${validated}`
     ];
 
+    if (calculated) parts.push(`Calculés ${calculated}`);
     if (manual) parts.push(`À confirmer ${manual}`);
     if (failed) parts.push(`Échecs ${failed}`);
     queueSummary.textContent = parts.join(" · ");
+  }
+
+  function isOcrValidatedCapture(capture) {
+    if (!capture?.editableDraft || !capture.validatedDraft) return false;
+    return validatedDraftMatches(capture, classifyDraft(capture.editableDraft));
+  }
+
+  function renderReportProgress() {
+    const available = session.captures.filter((capture) => Boolean(capture.editableDraft));
+    reportProgress.hidden = available.length === 0;
+
+    if (available.length === 0) return;
+
+    const validated = available.filter(isOcrValidatedCapture).length;
+    const calculated = available.filter((capture) => (
+      isOcrValidatedCapture(capture) && Boolean(capture.calculatedReport)
+    )).length;
+    const allValidated = validated === available.length;
+    const allCalculated = calculated === available.length;
+
+    validatedCount.textContent = String(validated);
+    calculatedCount.textContent = String(calculated);
+    calculateReportsButton.disabled = session.running || !allValidated || allCalculated;
+    calculateReportsButton.textContent = allCalculated ? "Rapports calculés" : "Calculer les rapports";
+
+    if (allCalculated) {
+      calculateHelp.textContent = `${validated} ${plural(validated, "OCR validé", "OCR validés")} · ${calculated} ${plural(calculated, "rapport calculé", "rapports calculés")} · publication en attente.`;
+    } else if (!allValidated) {
+      const remaining = available.length - validated;
+      calculateHelp.textContent = `${remaining} ${plural(remaining, "brouillon doit encore être validé", "brouillons doivent encore être validés")}.`;
+    } else {
+      calculateHelp.textContent = "Tous les brouillons OCR disponibles sont validés. Le calcul reste local et ne publie rien.";
+    }
   }
 
   function getTechnicalPayload() {
     return {
       war_date: session.warDate || dateInput.value || null,
       published: false,
+      publication: {
+        performed: false,
+        state: "pending"
+      },
       drafts: session.captures
         .filter((capture) => Boolean(capture.editableDraft))
         .map((capture) => ({
           capture: capture.index + 1,
           assignment_source: capture.assignmentSource,
           draft: capture.editableDraft
+        })),
+      reports: session.captures
+        .filter((capture) => Boolean(capture.calculatedReport))
+        .map((capture) => ({
+          capture: capture.index + 1,
+          alliance: capture.alliance,
+          report: capture.calculatedReport
         })),
       captures: session.captures.map((capture) => ({
         capture: capture.index + 1,
@@ -373,6 +454,7 @@
         ocr_draft: capture.ocrDraft,
         editable_draft: capture.editableDraft,
         validatedDraft: capture.validatedDraft,
+        calculatedReport: capture.calculatedReport,
         modification_count: capture.ocrDraft && capture.editableDraft
           ? countModifiedFields(capture.ocrDraft, capture.editableDraft)
           : 0
@@ -391,6 +473,7 @@
   function renderSession() {
     renderCaptureList();
     updateQueueSummary();
+    renderReportProgress();
     updateTechnicalJson();
   }
 
@@ -448,7 +531,9 @@
       capture.ocrDraft = null;
       capture.editableDraft = null;
       capture.validatedDraft = null;
+      capture.calculatedReport = null;
       capture.reviewScrollY = 0;
+      capture.reportScrollY = 0;
       capture.listScrollY = 0;
       capture.lastError = "";
     }
@@ -500,7 +585,9 @@
       ocrDraft: null,
       editableDraft: null,
       validatedDraft: null,
+      calculatedReport: null,
       reviewScrollY: 0,
+      reportScrollY: 0,
       listScrollY: 0,
       lastError: ""
     }));
@@ -617,6 +704,7 @@
     capture.editableDraft = cloneJson(capture.ocrDraft);
     capture.draft = capture.editableDraft;
     capture.validatedDraft = null;
+    capture.calculatedReport = null;
     capture.state = "ready";
     capture.detail = source === "automatic"
       ? "Alliance détectée automatiquement. Brouillon conservé en mémoire."
@@ -665,11 +753,17 @@
 
     const summary = classifyDraft(capture.editableDraft);
     if (validatedDraftMatches(capture, summary)) {
-      capture.state = "validated";
-      capture.detail = "Brouillon OCR validé. Aucun calcul métier n’a été lancé.";
+      if (capture.calculatedReport) {
+        capture.state = "calculated";
+        capture.detail = "Rapport calculé en mémoire. Publication non effectuée.";
+      } else {
+        capture.state = "validated";
+        capture.detail = "Brouillon OCR validé. Rapport non calculé.";
+      }
       return summary;
     }
 
+    capture.calculatedReport = null;
     if (capture.validatedDraft) {
       capture.state = "revalidate";
       capture.detail = "Le brouillon a été modifié depuis sa dernière validation.";
@@ -771,10 +865,16 @@
       ? "Revalider ce brouillon"
       : "Valider ce brouillon";
 
-    if (capture.state === "validated" && session.reviewReadOnly) {
+    if ((capture.state === "validated" || capture.state === "calculated") && session.reviewReadOnly) {
       validateDraftButton.disabled = true;
       validateDraftButton.textContent = "Brouillon OCR validé";
-      validationHelp.textContent = "Ce brouillon validé reste modifiable avant la phase de calcul.";
+      validationHelp.textContent = capture.calculatedReport
+        ? "Ce brouillon a produit le rapport calculé actuellement conservé en mémoire."
+        : "Ce brouillon validé reste modifiable avant le calcul.";
+    } else if (isOcrValidatedCapture(capture)) {
+      validateDraftButton.disabled = true;
+      validateDraftButton.textContent = "Brouillon OCR validé";
+      validationHelp.textContent = "Modifie une ligne pour créer une nouvelle version à revalider.";
     } else if (!summary.canValidate) {
       validateDraftButton.disabled = true;
       validationHelp.textContent = summary.structureErrors.length
@@ -852,9 +952,21 @@
 
   function updateSessionReviewStatus() {
     const available = session.captures.filter((capture) => Boolean(capture.editableDraft));
-    const allValidated = available.length > 0 && available.every((capture) => capture.state === "validated");
+    const validated = available.filter(isOcrValidatedCapture).length;
+    const calculated = available.filter((capture) => (
+      isOcrValidatedCapture(capture) && Boolean(capture.calculatedReport)
+    )).length;
+    const allValidated = available.length > 0 && validated === available.length;
+    const allCalculated = available.length > 0 && calculated === available.length;
 
-    if (allValidated && !session.running) {
+    if (allCalculated && !session.running) {
+      setStatus(
+        "success",
+        "Rapports calculés",
+        "Pré-publication",
+        `${validated} ${plural(validated, "OCR validé", "OCR validés")} · ${calculated} ${plural(calculated, "rapport calculé", "rapports calculés")} · publication en attente.`
+      );
+    } else if (allValidated && !session.running) {
       setStatus(
         "success",
         "Validation OCR terminée",
@@ -887,13 +999,16 @@
 
     session.sessionScrollY = Number(window.scrollY) || 0;
     session.activeCaptureId = capture.id;
-    session.reviewReadOnly = Boolean(readOnly && capture.state === "validated");
+    session.reviewReadOnly = Boolean(
+      readOnly && (capture.state === "validated" || capture.state === "calculated")
+    );
     session.reviewZoom = 1;
     session.editorRowIndex = null;
     session.editorBuffer = null;
     refreshCaptureValidationState(capture, true);
     sessionView.hidden = true;
     reviewView.hidden = false;
+    reportView.hidden = true;
     reviewListPanel.hidden = false;
     editorPanel.hidden = true;
     renderReview();
@@ -917,11 +1032,87 @@
     if (typeof window.scrollTo === "function") window.scrollTo(0, session.sessionScrollY);
   }
 
+  function formatCalculatedNumber(value, maximumFractionDigits = 0) {
+    return Number.isFinite(value)
+      ? value.toLocaleString("fr-FR", { maximumFractionDigits })
+      : "—";
+  }
+
+  function renderCalculatedPlayers(report) {
+    reportPlayerList.innerHTML = report.report.players.map((player) => [
+      '<details class="warAdminReportPlayer">',
+      "<summary>",
+      `<span class="warAdminPlayerRank">${escapeHtml(player.original_rank)}</span>`,
+      '<span class="warAdminPlayerMain">',
+      `<span class="warAdminPlayerName">${escapeHtml(player.name)}</span>`,
+      `<span class="warAdminPlayerDamage">Dégâts ${escapeHtml(formatCalculatedNumber(player.damage))} · Part ${escapeHtml(formatCalculatedNumber(player.damage_share_pct, 2))} %</span>`,
+      "</span>",
+      `<span class="warAdminReportPlayerScore">${escapeHtml(player.score_total)} / 100</span>`,
+      "</summary>",
+      '<dl class="warAdminReportMetrics">',
+      `<div><dt>Attaques</dt><dd>${escapeHtml(player.attacks)} · ${escapeHtml(player.successful_attacks)} réussies · ${escapeHtml(player.misses)} ratés</dd></div>`,
+      `<div><dt>Dégâts / attaque</dt><dd>${escapeHtml(formatCalculatedNumber(player.avg_damage))}</dd></div>`,
+      `<div><dt>Activité</dt><dd>${escapeHtml(player.score_activity)} / 25</dd></div>`,
+      `<div><dt>Efficacité</dt><dd>${escapeHtml(player.score_efficiency)} / 25</dd></div>`,
+      `<div><dt>Impact</dt><dd>${escapeHtml(formatCalculatedNumber(player.score_impact, 2))} / 35</dd></div>`,
+      `<div><dt>Défense</dt><dd>${escapeHtml(player.score_defense)} / 15</dd></div>`,
+      `<div><dt>Seuil attaques</dt><dd>${player.min_attacks_ok ? "Atteint" : "Non atteint"}</dd></div>`,
+      `<div><dt>Seuil déviations</dt><dd>${player.min_deviations_ok ? "Atteint" : "Non atteint"}</dd></div>`,
+      "</dl>",
+      "</details>"
+    ].join("")).join("");
+  }
+
+  function renderReport(capture) {
+    const report = capture?.calculatedReport;
+    if (!report?.report) return;
+
+    const summary = report.report.summary;
+    reportTitle.textContent = `${capture.allianceLabel} — rapport calculé`;
+    reportAlliance.textContent = capture.allianceLabel;
+    reportDate.textContent = report.date || session.warDate || "—";
+    reportSource.textContent = report.source || "—";
+    reportTotalDamage.textContent = formatCalculatedNumber(summary.total_damage);
+    reportPlayerCount.textContent = String(summary.player_count);
+    reportAvgRef.textContent = formatCalculatedNumber(summary.avg_ref);
+    reportShareRef.textContent = `${formatCalculatedNumber(summary.share_ref * 100, 2)} %`;
+    reportMinAttacks.textContent = String(summary.minimum_attacks);
+    reportMinDeviations.textContent = String(summary.minimum_deviations);
+    renderCalculatedPlayers(report);
+    calculatedJson.textContent = JSON.stringify(report, null, 2);
+  }
+
+  function openReport(captureId) {
+    const capture = session.captures.find((item) => item.id === captureId);
+    if (!capture?.calculatedReport || session.running) return;
+
+    session.sessionScrollY = Number(window.scrollY) || 0;
+    session.activeCaptureId = capture.id;
+    sessionView.hidden = true;
+    reviewView.hidden = true;
+    reportView.hidden = false;
+    renderReport(capture);
+    if (typeof window.scrollTo === "function") window.scrollTo(0, capture.reportScrollY || 0);
+  }
+
+  function closeReport() {
+    const capture = getActiveCapture();
+    if (capture) capture.reportScrollY = Number(window.scrollY) || 0;
+
+    session.activeCaptureId = "";
+    reportView.hidden = true;
+    sessionView.hidden = false;
+    updateSessionReviewStatus();
+    if (typeof window.scrollTo === "function") window.scrollTo(0, session.sessionScrollY);
+  }
+
   function handleCaptureListClick(event) {
     const actionTarget = getActionTarget(event.target);
     if (!actionTarget || actionTarget.disabled) return;
 
-    if (actionTarget.dataset.action === "open-review") {
+    if (actionTarget.dataset.action === "open-report") {
+      openReport(actionTarget.dataset.captureId);
+    } else if (actionTarget.dataset.action === "open-review") {
       openReview(actionTarget.dataset.captureId, actionTarget.dataset.readOnly === "true");
     } else if (actionTarget.dataset.action === "modify-review") {
       openReview(actionTarget.dataset.captureId, false);
@@ -993,11 +1184,51 @@
     }
 
     capture.validatedDraft = buildValidatedDraft(capture.editableDraft);
+    capture.calculatedReport = null;
     capture.state = "validated";
-    capture.detail = "Brouillon OCR validé. Aucun calcul métier n’a été lancé.";
+    capture.detail = "Brouillon OCR validé. Rapport non calculé.";
     session.reviewReadOnly = true;
     addLog("Brouillon OCR validé — aucun calcul ni publication", capture);
     renderReview();
+    updateSessionReviewStatus();
+  }
+
+  function handleCalculateReports() {
+    if (session.running) return;
+
+    const available = session.captures.filter((capture) => Boolean(capture.editableDraft));
+    if (available.length === 0 || !available.every(isOcrValidatedCapture)) {
+      renderSession();
+      return;
+    }
+
+    const errors = [];
+    for (const capture of available) {
+      if (capture.calculatedReport) continue;
+
+      try {
+        capture.calculatedReport = calculateReport(capture.validatedDraft);
+        capture.state = "calculated";
+        capture.detail = "Rapport calculé en mémoire. Publication non effectuée.";
+        addLog("Rapport calculé localement — publication non effectuée", capture);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Erreur de calcul inconnue";
+        errors.push(`${capture.allianceLabel} : ${message}`);
+        addLog(`Calcul du rapport échoué : ${message}`, capture);
+      }
+    }
+
+    if (errors.length > 0) {
+      setStatus(
+        "error",
+        "Calcul incomplet",
+        "Erreur",
+        `${errors.join(" ")} Aucun rapport n’a été publié.`
+      );
+      renderSession();
+      return;
+    }
+
     updateSessionReviewStatus();
   }
 
@@ -1340,6 +1571,7 @@
   dateInput.value = getLocalDateValue();
   sessionView.hidden = false;
   reviewView.hidden = true;
+  reportView.hidden = true;
   setStatus("idle", "En attente", "Attente", "Sélectionne les captures pour préparer la session.");
   result.textContent = IDLE_RESULT;
   renderCaptureList();
@@ -1354,6 +1586,8 @@
   captureList.addEventListener("change", handleManualAlliance);
   captureList.addEventListener("click", handleCaptureListClick);
   reviewBackButton.addEventListener("click", closeReview);
+  reviewBackBottomButton.addEventListener("click", closeReview);
+  calculateReportsButton.addEventListener("click", handleCalculateReports);
   playerList.addEventListener("click", handlePlayerListClick);
   reviewUnlockButton.addEventListener("click", handleReviewUnlock);
   validateDraftButton.addEventListener("click", handleValidateDraft);
@@ -1365,6 +1599,7 @@
   zoomOutButton.addEventListener("click", () => handleZoom(-0.25));
   zoomResetButton.addEventListener("click", () => setReviewZoom(1));
   zoomInButton.addEventListener("click", () => handleZoom(0.25));
+  reportBackButton.addEventListener("click", closeReport);
   window.addEventListener("pagehide", handlePageHide);
 
   if (testConfig.exposeState) {
