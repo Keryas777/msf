@@ -30,7 +30,10 @@ export default {
       return addWarParseCorsHeaders(request, response);
     }
 
-    if (request.method === "POST" && url.pathname === "/api/war/parse-gemini-draft") {
+    if (
+      request.method === "POST" &&
+      url.pathname === "/api/war/parse-gemini-draft"
+    ) {
       let response;
 
       try {
@@ -55,6 +58,29 @@ export default {
       return addWarParseDraftCorsHeaders(request, response);
     }
 
+    if (
+      request.method === "POST" &&
+      url.pathname === "/api/war/write-analyses"
+    ) {
+      let response;
+
+      try {
+        response = await handleWarWriteAnalyses(request, env);
+      } catch (error) {
+        response = Response.json(
+          {
+            ok: false,
+            error: error instanceof Error ? error.message : "Erreur inconnue"
+          },
+          {
+            status: 500
+          }
+        );
+      }
+
+      return addWarParseDraftCorsHeaders(request, response);
+    }
+
     return new Response("Worker OK. Ouvre /war-upload pour tester Gemini.", {
       headers: {
         "content-type": "text/plain; charset=utf-8"
@@ -65,11 +91,453 @@ export default {
 
 const WAR_ADMIN_ORIGIN = "https://keryas777.github.io";
 
+const ANALYSIS_REQUEST_MAX_BYTES = 512 * 1024;
+const ANALYSIS_MAX_PLAYERS = 24;
+const ANALYSIS_NAME_MAX_LENGTH = 80;
+const ANALYSIS_MIN_LENGTH = 40;
+const ANALYSIS_MAX_LENGTH = 700;
+const ANALYSIS_MAX_SENTENCES = 3;
+const GEMINI_ANALYSIS_TIMEOUT_MS = 90 * 1000;
+
+function isPlainObject(value) {
+  return Boolean(
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value)
+  );
+}
+
+function hasExactKeys(value, expectedKeys) {
+  if (!isPlainObject(value)) {
+    return false;
+  }
+
+  const actual = Object.keys(value).sort();
+  const expected = [...expectedKeys].sort();
+
+  return (
+    actual.length === expected.length &&
+    actual.every(function (key, index) {
+      return key === expected[index];
+    })
+  );
+}
+
+function isValidIsoDate(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const parts = value.split("-").map(Number);
+  const year = parts[0];
+  const month = parts[1];
+  const day = parts[2];
+
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  );
+}
+
+function countSentences(text) {
+  const matches = String(text || "").match(/[.!?]+(?=\s|$)/g);
+  return matches ? matches.length : 0;
+}
+
+async function readAnalysisRequestJson(request) {
+  const contentType = String(request.headers.get("Content-Type") || "")
+    .toLowerCase();
+
+  if (!contentType.includes("application/json")) {
+    throw new Error("Content-Type invalide. application/json attendu.");
+  }
+
+  const contentLength = Number(request.headers.get("Content-Length"));
+
+  if (
+    Number.isFinite(contentLength) &&
+    contentLength > ANALYSIS_REQUEST_MAX_BYTES
+  ) {
+    throw new Error("Requête d’analyse trop volumineuse.");
+  }
+
+  const rawBody = await request.text();
+  const byteLength = new TextEncoder().encode(rawBody).length;
+
+  if (byteLength <= 0) {
+    throw new Error("Corps de requête vide.");
+  }
+
+  if (byteLength > ANALYSIS_REQUEST_MAX_BYTES) {
+    throw new Error("Requête d’analyse trop volumineuse.");
+  }
+
+  try {
+    return JSON.parse(rawBody);
+  } catch (error) {
+    throw new Error("JSON de requête invalide.");
+  }
+}
+
+function validateAnalysisRequest(body) {
+  if (!hasExactKeys(body, ["alliance", "date", "report"])) {
+    throw new Error("Contrat de requête invalide.");
+  }
+
+  const normalizedAlliance = normalizeAlliance(body.alliance);
+
+  if (!normalizedAlliance) {
+    throw new Error("Alliance invalide.");
+  }
+
+  if (!isValidIsoDate(body.date)) {
+    throw new Error("Date invalide.");
+  }
+
+  if (!hasExactKeys(body.report, ["summary", "ranking", "players"])) {
+    throw new Error("Rapport classé invalide.");
+  }
+
+  if (!isPlainObject(body.report.summary)) {
+    throw new Error("Résumé du rapport invalide.");
+  }
+
+  if (
+    !Array.isArray(body.report.players) ||
+    !Array.isArray(body.report.ranking)
+  ) {
+    throw new Error("Rapport classé invalide.");
+  }
+
+  const players = body.report.players;
+  const ranking = body.report.ranking;
+
+  if (
+    players.length < 1 ||
+    players.length > ANALYSIS_MAX_PLAYERS
+  ) {
+    throw new Error("Nombre de joueurs invalide.");
+  }
+
+  if (players.length !== ranking.length) {
+    throw new Error("Classement incohérent.");
+  }
+
+  if (
+    !Number.isInteger(body.report.summary.player_count) ||
+    body.report.summary.player_count !== players.length
+  ) {
+    throw new Error("Nombre de joueurs incohérent dans le résumé.");
+  }
+
+  const seenNames = new Set();
+  const seenOriginalRanks = new Set();
+
+  for (let index = 0; index < players.length; index += 1) {
+    const expectedRank = index + 1;
+    const player = players[index];
+    const rankingEntry = ranking[index];
+
+    if (!isPlainObject(player)) {
+      throw new Error("Joueur classé invalide.");
+    }
+
+    if (!hasExactKeys(rankingEntry, ["rank", "name", "score"])) {
+      throw new Error("Entrée de classement invalide.");
+    }
+
+    if (!Number.isInteger(player.rank) || player.rank !== expectedRank) {
+      throw new Error("Ordre des joueurs classés invalide.");
+    }
+
+    if (
+      !Number.isInteger(player.original_rank) ||
+      player.original_rank < 1 ||
+      player.original_rank > ANALYSIS_MAX_PLAYERS
+    ) {
+      throw new Error("Rang source invalide.");
+    }
+
+    if (seenOriginalRanks.has(player.original_rank)) {
+      throw new Error("Rang source en doublon.");
+    }
+
+    seenOriginalRanks.add(player.original_rank);
+
+    if (typeof player.name !== "string") {
+      throw new Error("Nom de joueur invalide.");
+    }
+
+    const playerName = player.name.trim();
+
+    if (
+      !playerName ||
+      playerName !== player.name ||
+      playerName.length > ANALYSIS_NAME_MAX_LENGTH
+    ) {
+      throw new Error("Nom de joueur invalide.");
+    }
+
+    if (seenNames.has(playerName)) {
+      throw new Error("Nom de joueur en doublon.");
+    }
+
+    seenNames.add(playerName);
+
+    if (
+      typeof player.score_total !== "number" ||
+      !Number.isFinite(player.score_total)
+    ) {
+      throw new Error("Score total invalide.");
+    }
+
+    if (
+      rankingEntry.rank !== expectedRank ||
+      rankingEntry.name !== playerName ||
+      rankingEntry.score !== player.score_total
+    ) {
+      throw new Error(
+        "Le classement ne correspond pas aux joueurs triés."
+      );
+    }
+  }
+
+  return {
+    alliance: normalizedAlliance,
+    date: body.date,
+    report: body.report
+  };
+}
+
+function validateAnalysisResponse(parsed, players) {
+  if (
+    !hasExactKeys(parsed, ["analyses"]) ||
+    !Array.isArray(parsed.analyses)
+  ) {
+    throw new Error("Réponse IA hors contrat.");
+  }
+
+  if (parsed.analyses.length !== players.length) {
+    throw new Error("Nombre d’analyses invalide.");
+  }
+
+  const expected = new Map(
+    players.map(function (player) {
+      return [player.rank, player.name];
+    })
+  );
+
+  const ranks = new Set();
+  const names = new Set();
+  const validatedAnalyses = [];
+
+  for (const entry of parsed.analyses) {
+    if (!hasExactKeys(entry, ["rank", "name", "analysis"])) {
+      throw new Error("Clé supplémentaire dans une analyse.");
+    }
+
+    if (
+      !Number.isInteger(entry.rank) ||
+      expected.get(entry.rank) !== entry.name
+    ) {
+      throw new Error("Joueur ou rang inconnu.");
+    }
+
+    if (ranks.has(entry.rank) || names.has(entry.name)) {
+      throw new Error("Analyse en doublon.");
+    }
+
+    if (typeof entry.analysis !== "string") {
+      throw new Error("Analyse invalide.");
+    }
+
+    const analysis = entry.analysis
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (!analysis) {
+      throw new Error("Analyse vide.");
+    }
+
+    if (
+      analysis.length < ANALYSIS_MIN_LENGTH ||
+      analysis.length > ANALYSIS_MAX_LENGTH
+    ) {
+      throw new Error("Longueur d’analyse invalide.");
+    }
+
+    const sentenceCount = countSentences(analysis);
+
+    if (sentenceCount > ANALYSIS_MAX_SENTENCES) {
+      throw new Error("Une analyse dépasse trois phrases.");
+    }
+
+    ranks.add(entry.rank);
+    names.add(entry.name);
+
+    validatedAnalyses.push({
+      rank: entry.rank,
+      name: entry.name,
+      analysis: analysis
+    });
+  }
+
+  validatedAnalyses.sort(function (left, right) {
+    return left.rank - right.rank;
+  });
+
+  return {
+    analyses: validatedAnalyses
+  };
+}
+
+async function handleWarWriteAnalyses(request, env) {
+  const requestBody = await readAnalysisRequestJson(request);
+  const body = validateAnalysisRequest(requestBody);
+
+  const apiKey = env.GEMINI_API_KEY;
+  const model = env.GEMINI_MODEL || "gemini-2.5-flash";
+
+  if (!apiKey) {
+    throw new Error(
+      "La variable secrète GEMINI_API_KEY est absente dans le Worker."
+    );
+  }
+
+  const prompt = [
+    "Tu rédiges uniquement les analyses individuelles d’une guerre Marvel Strike Force terminée.",
+
+    "Le rapport fourni est définitif. Tu ne dois recalculer, corriger, modifier ou retourner aucun score, rang, classement, résumé ou autre valeur numérique.",
+
+    "Pour chaque joueur, rédige en français une analyse de 2 à 3 phrases maximum, concernant uniquement cette guerre.",
+
+    "Chaque analyse doit mettre en avant au moins un point fort lorsqu’il existe, signaler une limite lorsqu’elle est pertinente et donner une lecture globale de la performance.",
+
+    "Utilise uniquement les données présentes dans le rapport. Ne fais aucune projection sur une autre guerre, aucune généralisation sur le joueur et n’invente aucune information.",
+
+    "Repères d’interprétation autorisés : un volume ou une moyenne de dégâts élevés peuvent indiquer des cibles ambitieuses ; de faibles dégâts peuvent indiquer des cibles plus modestes ; beaucoup d’attaques avec de gros dégâts mais plusieurs ratés indiquent une activité ambitieuse mais imparfaite ; de nombreuses victoires défensives indiquent une contribution défensive importante ; les déviations indiquent une implication dans la protection de l’alliance.",
+
+    "Adapte impérativement la tonalité au score_total déjà présent :",
+
+    "- score_total supérieur ou égal à 80 : analyse très positive. Les défauts éventuels sont seulement des marges de progression mineures. Aucune formulation négative forte.",
+
+    "- score_total de 70 à 79 : analyse clairement positive. Les limites sont secondaires et formulées avec prudence. La performance ne doit pas paraître décevante.",
+
+    "- score_total de 60 à 69 : analyse équilibrée, avec points positifs et limites, sans dureté excessive.",
+
+    "- score_total de 50 à 59 : analyse plus critique, mais constructive, factuelle et respectueuse.",
+
+    "- score_total inférieur à 50 : l’analyse peut signaler clairement une performance insuffisante, tout en restant factuelle et respectueuse.",
+
+    "Un joueur classé dans le haut du tableau ou ayant un score_total supérieur ou égal à 70 ne doit jamais recevoir une analyse dont la tonalité globale paraît négative.",
+
+    "Varie les formulations d’un joueur à l’autre. Ne te contente pas d’énoncer les chiffres. Privilégie une lecture analytique.",
+
+    "Retourne uniquement un JSON valide contenant exactement la clé analyses.",
+
+    "Chaque entrée de analyses doit contenir exactement : rank, name et analysis.",
+
+    "Ne retourne aucun tag, score, statistique, résumé, classement ou autre clé.",
+
+    JSON.stringify(body)
+  ].join("\n\n");
+
+  const endpoint =
+    "https://generativelanguage.googleapis.com/v1beta/models/" +
+    model +
+    ":generateContent";
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(function () {
+    controller.abort();
+  }, GEMINI_ANALYSIS_TIMEOUT_MS);
+
+  let geminiResponse;
+
+  try {
+    geminiResponse = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "x-goog-api-key": apiKey,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.55,
+          responseMimeType: "application/json"
+        }
+      }),
+      signal: controller.signal
+    });
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      error.name === "AbortError"
+    ) {
+      throw new Error(
+        "Gemini n’a pas répondu dans le délai maximal de 90 secondes."
+      );
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+
+  let geminiData;
+
+  try {
+    geminiData = await geminiResponse.json();
+  } catch (error) {
+    throw new Error("Réponse Gemini illisible.");
+  }
+
+  if (!geminiResponse.ok) {
+    throw new Error(
+      geminiData?.error?.message || "Erreur Gemini"
+    );
+  }
+
+  const rawText = getGeminiText(geminiData);
+
+  if (!rawText) {
+    throw new Error("Gemini n’a retourné aucun texte.");
+  }
+
+  let parsed;
+
+  try {
+    parsed = JSON.parse(stripCodeFences(rawText));
+  } catch (error) {
+    throw new Error("Gemini n’a pas renvoyé un JSON parseable.");
+  }
+
+  return Response.json(
+    validateAnalysisResponse(parsed, body.report.players)
+  );
+}
+
 function addWarParseCorsHeaders(request, response) {
   response.headers.set("Vary", "Origin");
 
   if (request.headers.get("Origin") === WAR_ADMIN_ORIGIN) {
-    response.headers.set("Access-Control-Allow-Origin", WAR_ADMIN_ORIGIN);
+    response.headers.set(
+      "Access-Control-Allow-Origin",
+      WAR_ADMIN_ORIGIN
+    );
   } else {
     response.headers.delete("Access-Control-Allow-Origin");
   }
@@ -82,7 +550,10 @@ function addWarParseDraftCorsHeaders(request, response) {
   response.headers.delete("Vary");
 
   if (request.headers.get("Origin") === WAR_ADMIN_ORIGIN) {
-    response.headers.set("Access-Control-Allow-Origin", WAR_ADMIN_ORIGIN);
+    response.headers.set(
+      "Access-Control-Allow-Origin",
+      WAR_ADMIN_ORIGIN
+    );
     response.headers.set("Vary", "Origin");
   }
 
@@ -124,7 +595,16 @@ function normalizeAlliance(value) {
 
   if (key === "zeus") return "zeus";
   if (key === "athena") return "athena";
-  if (key === "kronos" || key === "cronos" || key === "chronos" || key === "lospkronos") return "kronos";
+
+  if (
+    key === "kronos" ||
+    key === "cronos" ||
+    key === "chronos" ||
+    key === "lospkronos"
+  ) {
+    return "kronos";
+  }
+
   if (key === "dionysos") return "dionysos";
   if (key === "poseidon") return "poseidon";
   if (key === "hades") return "hades";
@@ -511,6 +991,7 @@ function toNullableInt(value) {
 
   if (typeof value === "string") {
     const cleaned = value.replace(/\s/g, "");
+
     if (/^-?\d+$/.test(cleaned)) {
       return parseInt(cleaned, 10);
     }
@@ -521,8 +1002,8 @@ function toNullableInt(value) {
 
 function cleanPlayerName(name) {
   return String(name || "")
-    .replace(/\[\s*MOI\s*\]/gi, "")
-    .replace(/\(\s*MOI\s*\)/gi, "")
+    .replace(/$begin:math:display$\\s\*MOI\\s\*$end:math:display$/gi, "")
+    .replace(/$begin:math:text$\\s\*MOI\\s\*$end:math:text$/gi, "")
     .replace(/\bMOI\b/gi, "")
     .replace(/\s+/g, " ")
     .trim();
@@ -536,7 +1017,9 @@ function normalizePlayer(player, index, alliance) {
   return {
     rank: index + 1,
     row_index:
-      typeof player?.row_index === "number" ? player.row_index : index + 1,
+      typeof player?.row_index === "number"
+        ? player.row_index
+        : index + 1,
     name: cleanPlayerName(player?.name ?? null),
     alliance: alliance,
     attack_points: toNullableInt(player?.attack_points),
@@ -637,14 +1120,17 @@ async function upsertFileToGitHub(args) {
 
   let existingSha = null;
 
-  const getRes = await fetch(apiUrl + "?ref=" + encodeURIComponent(branch), {
-    method: "GET",
-    headers: {
-      "Authorization": "Bearer " + token,
-      "Accept": "application/vnd.github+json",
-      "User-Agent": "msf-war-worker"
+  const getRes = await fetch(
+    apiUrl + "?ref=" + encodeURIComponent(branch),
+    {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + token,
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "msf-war-worker"
+      }
     }
-  });
+  );
 
   if (getRes.ok) {
     const existingData = await getRes.json();
@@ -696,7 +1182,9 @@ async function callGeminiVision(args) {
   const model = env.GEMINI_MODEL || "gemini-2.5-flash";
 
   if (!apiKey) {
-    throw new Error("La variable secrète GEMINI_API_KEY est absente dans le Worker.");
+    throw new Error(
+      "La variable secrète GEMINI_API_KEY est absente dans le Worker."
+    );
   }
 
   const imageBuffer = await imageBlob.arrayBuffer();
@@ -754,19 +1242,23 @@ async function callGeminiVision(args) {
   const cleanedText = stripCodeFences(rawText);
 
   let parsed;
+
   try {
     parsed = JSON.parse(cleanedText);
-  } catch (err) {
+  } catch (error) {
     return {
       ok: false,
       model: model,
       raw_gemini_text: rawText,
-      parsed_json_error: "Gemini n'a pas renvoyé un JSON parseable."
+      parsed_json_error:
+        "Gemini n'a pas renvoyé un JSON parseable."
     };
   }
 
   const playersInput =
-    parsed && Array.isArray(parsed.players) ? parsed.players : [];
+    parsed && Array.isArray(parsed.players)
+      ? parsed.players
+      : [];
 
   let resolvedAlliance = alliance;
   let detectionConfident = true;
@@ -777,13 +1269,25 @@ async function callGeminiVision(args) {
       normalizeAlliance(parsed?.detected_alliance_label) ||
       normalizeAlliance(parsed?.alliance);
 
-    detectionConfident = Boolean(detectedAlliance) && parsed?.detection_confident !== false;
-    resolvedAlliance = detectionConfident ? detectedAlliance : null;
+    detectionConfident =
+      Boolean(detectedAlliance) &&
+      parsed?.detection_confident !== false;
+
+    resolvedAlliance = detectionConfident
+      ? detectedAlliance
+      : null;
   }
 
   const players = [];
-  for (let i = 0; i < 24; i++) {
-    players.push(normalizePlayer(playersInput[i] || {}, i, resolvedAlliance));
+
+  for (let index = 0; index < 24; index += 1) {
+    players.push(
+      normalizePlayer(
+        playersInput[index] || {},
+        index,
+        resolvedAlliance
+      )
+    );
   }
 
   const playersWithValidation = players.map(function (player) {
@@ -804,11 +1308,12 @@ async function callGeminiVision(args) {
     };
   });
 
-  const validRows = playersWithValidation.filter(function (p) {
-    return p.is_valid;
+  const validRows = playersWithValidation.filter(function (player) {
+    return player.is_valid;
   }).length;
 
-  const invalidRows = playersWithValidation.length - validRows;
+  const invalidRows =
+    playersWithValidation.length - validRows;
 
   const result = {
     ok: true,
@@ -835,8 +1340,13 @@ async function callGeminiVision(args) {
 }
 
 async function handleWarParseGemini(request, env, options) {
-  const shouldPublish = !options || options.publish !== false;
-  const shouldDetectAlliance = Boolean(options && options.detectAlliance === true);
+  const shouldPublish =
+    !options || options.publish !== false;
+
+  const shouldDetectAlliance = Boolean(
+    options && options.detectAlliance === true
+  );
+
   const formData = await request.formData();
 
   const allianceRaw = formData.get("alliance");
@@ -864,7 +1374,8 @@ async function handleWarParseGemini(request, env, options) {
       return Response.json(
         {
           ok: false,
-          error: "Alliance invalide. Valeurs acceptées : zeus, athena, kronos, dionysos, poseidon, hades"
+          error:
+            "Alliance invalide. Valeurs acceptées : zeus, athena, kronos, dionysos, poseidon, hades"
         },
         {
           status: 400
@@ -948,7 +1459,9 @@ async function handleWarParseGemini(request, env, options) {
       ok: true,
       model: result.model,
       alliance: resolvedAlliance,
-      alliance_label: resolvedAlliance ? getAllianceLabel(resolvedAlliance) : null,
+      alliance_label: resolvedAlliance
+        ? getAllianceLabel(resolvedAlliance)
+        : null,
       war_date: warDate,
       counts: result.counts,
       players: result.players,
@@ -958,22 +1471,38 @@ async function handleWarParseGemini(request, env, options) {
     };
 
     if (shouldDetectAlliance) {
-      draftResponse.detected_alliance = result.detected_alliance;
-      draftResponse.detected_alliance_label = result.detected_alliance_label;
-      draftResponse.detection_confident = result.detection_confident;
-      draftResponse.requires_alliance_confirmation = !result.detected_alliance;
+      draftResponse.detected_alliance =
+        result.detected_alliance;
+
+      draftResponse.detected_alliance_label =
+        result.detected_alliance_label;
+
+      draftResponse.detection_confident =
+        result.detection_confident;
+
+      draftResponse.requires_alliance_confirmation =
+        !result.detected_alliance;
     }
 
     return Response.json(draftResponse);
   }
 
-  const exportPath = "docs/data/war/" + warDate + "/" + alliance + ".json";
+  const exportPath =
+    "docs/data/war/" +
+    warDate +
+    "/" +
+    alliance +
+    ".json";
 
   const githubWrite = await upsertFileToGitHub({
     env: env,
     path: exportPath,
     jsonObject: finalWarFile,
-    message: "chore(war): update " + alliance + " for " + warDate
+    message:
+      "chore(war): update " +
+      alliance +
+      " for " +
+      warDate
   });
 
   return Response.json({
@@ -991,7 +1520,10 @@ async function handleWarParseGemini(request, env, options) {
     github: {
       committed: true,
       path: exportPath,
-      commit_sha: githubWrite && githubWrite.commit ? githubWrite.commit.sha : null
+      commit_sha:
+        githubWrite && githubWrite.commit
+          ? githubWrite.commit.sha
+          : null
     },
     raw_gemini_text: result.raw_gemini_text
   });
