@@ -15,8 +15,8 @@ from .audit import PROC_OPERATION_KINDS, audit_index, validate_source
 from .diagnostics import IndexerInputError
 
 
-INDEX_SCHEMA_VERSION = "1.0.0"
-SUPPORTED_NORMALIZER_SCHEMA_VERSION = "1.0.0"
+INDEX_SCHEMA_VERSION = "1.1.0"
+SUPPORTED_NORMALIZER_SCHEMA_VERSIONS = frozenset({"1.0.0", "1.1.0"})
 DEFAULT_INPUT_PATH = Path(
     "data/msf-capabilities/normalized/capabilities.json"
 )
@@ -115,7 +115,7 @@ def load_capabilities(path: Path = DEFAULT_INPUT_PATH) -> LoadedCapabilities:
             "INVALID_INDEXER_INPUT",
             "La racine de capabilities.json doit être un objet.",
         )
-    if document.get("schemaVersion") != SUPPORTED_NORMALIZER_SCHEMA_VERSION:
+    if document.get("schemaVersion") not in SUPPORTED_NORMALIZER_SCHEMA_VERSIONS:
         raise IndexerInputError(
             "UNSUPPORTED_NORMALIZER_SCHEMA",
             "schemaVersion du normaliseur non supportée : "
@@ -1092,17 +1092,33 @@ def _build_uninterpreted_payload(
                 "collection": "actionMappings",
                 "id": source_action_id,
             },
-            "characterId": character_id,
+            "characterId": mapping.get("characterId", character_id),
             "abilityId": ability_id,
-            "abilityType": context.get("abilityType"),
+            "abilityType": mapping.get(
+                "abilityType", context.get("abilityType")
+            ),
             "contextId": mapping["contextId"],
-            "classification": context["classification"],
-            "containerType": context["containerType"],
-            "technicalKey": technical_key,
+            "contextPathIds": copy.deepcopy(mapping.get("contextPathIds", [])),
+            "actionOrder": mapping.get("actionOrder"),
+            "classification": mapping.get(
+                "classification", context["classification"]
+            ),
+            "containerType": mapping.get(
+                "containerType", context["containerType"]
+            ),
+            "technicalKey": mapping.get("technicalKey", technical_key),
             "rawSourceActionType": mapping["rawSourceActionType"],
             "sourceActionType": mapping["sourceActionType"],
             "status": mapping["status"],
             "operationIds": [],
+            "target": copy.deepcopy(mapping.get("target")),
+            "recipient": copy.deepcopy(mapping.get("recipient")),
+            "conditions": copy.deepcopy(mapping.get("conditions", [])),
+            "control": copy.deepcopy(mapping.get("control", {})),
+            "flags": copy.deepcopy(mapping.get("flags", {})),
+            "uninterpretedParameters": copy.deepcopy(
+                mapping.get("uninterpretedParameters", {})
+            ),
             "sourcePointer": source["pointer"],
             "source": source,
         }
@@ -1145,9 +1161,9 @@ def _build_uninterpreted_payload(
         {
             "artifactType": "uninterpreted_actions",
             "facetAvailability": {
-                "conditionPresence": "unavailable",
-                "targetPresence": "unavailable",
-                "dependencyPresence": "unavailable",
+                "conditionPresence": "available",
+                "targetPresence": "available",
+                "dependencyPresence": "available",
             },
             "records": records,
             "indexes": indexes,
@@ -1354,13 +1370,6 @@ def build_manifest(
                 "code": "CAPABILITIES_INPUT_ONLY",
                 "description": (
                     "L’indexeur lit exclusivement normalized/capabilities.json."
-                ),
-            },
-            {
-                "code": "UNINTERPRETED_FACETS_UNAVAILABLE",
-                "description": (
-                    "La présence de conditions, cibles et dépendances des "
-                    "actions preserved_uninterpreted est indisponible."
                 ),
             },
             {

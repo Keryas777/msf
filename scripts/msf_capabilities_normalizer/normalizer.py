@@ -24,7 +24,7 @@ from .values import (
 )
 
 
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
 SUPPORTED_PARSER_SCHEMA_VERSION = "1.0.0"
 DEFAULT_INPUT_PATH = Path("data/msf-capabilities/parsed/mechanics.json")
 DEFAULT_OUTPUT_PATH = Path(
@@ -512,6 +512,8 @@ def _build_action_mappings(
     mechanics: dict[str, Any],
     operations: list[dict[str, Any]],
     context_id_by_container_id: dict[str, str],
+    builder: "OperationBuilder",
+    contexts: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     operation_ids_by_action: dict[str, list[str]] = {}
     for operation in operations:
@@ -526,6 +528,53 @@ def _build_action_mappings(
             operation_id
         )
 
+    context_by_id = {
+        item["id"]: item
+        for item in contexts
+        if isinstance(item.get("id"), str)
+    }
+    controlled_parameter_names = {
+        "recipient",
+        "action_cond",
+        "arbitrary_action_idx",
+        "use_previous_result",
+        "foreach_action",
+        *(source_name for _, source_name in BOOLEAN_FLAG_FIELDS),
+    }
+
+    def progression_records(
+        value: Any,
+        pointer: str,
+        field: str,
+    ) -> list[dict[str, Any]]:
+        records: list[dict[str, Any]] = []
+        if isinstance(value, list):
+            records.append(
+                normalize_progression(
+                    value,
+                    source_field=field,
+                    source_pointer=pointer,
+                )
+            )
+            for index, child in enumerate(value):
+                records.extend(
+                    progression_records(
+                        child,
+                        _append_pointer(pointer, index),
+                        f"{field}/{index}",
+                    )
+                )
+        elif isinstance(value, dict):
+            for key, child in value.items():
+                records.extend(
+                    progression_records(
+                        child,
+                        _append_pointer(pointer, key),
+                        f"{field}/{key}",
+                    )
+                )
+        return records
+
     mappings: list[dict[str, Any]] = []
     for action in mechanics["actions"]:
         if not isinstance(action, dict):
@@ -537,12 +586,40 @@ def _build_action_mappings(
         if not isinstance(source, dict):
             source = {}
         operation_ids = operation_ids_by_action.get(source_action_id, [])
+        context_id = context_id_by_container_id.get(action.get("containerId"))
+        context = context_by_id.get(context_id, {})
+        parameters = action.get("parameters")
+        if not isinstance(parameters, dict):
+            parameters = {}
+        recipient_present = "recipient" in parameters
+        action_pointer = str(source.get("pointer", ""))
+        remaining_parameters = {
+            key: copy.deepcopy(value)
+            for key, value in parameters.items()
+            if key not in controlled_parameter_names
+        }
+        progressions: list[dict[str, Any]] = []
+        for key, value in remaining_parameters.items():
+            progressions.extend(
+                progression_records(
+                    value,
+                    _append_pointer(action_pointer, key),
+                    key,
+                )
+            )
         mappings.append(
             {
                 "sourceActionId": source_action_id,
-                "contextId": context_id_by_container_id.get(
+                "characterId": action.get("characterId"),
+                "abilityType": action.get("abilityType"),
+                "contextId": context_id,
+                "contextPathIds": builder._context_path(
                     action.get("containerId")
                 ),
+                "actionOrder": action.get("order"),
+                "classification": context.get("classification"),
+                "containerType": context.get("containerType"),
+                "technicalKey": context.get("technicalKey"),
                 "rawSourceActionType": copy.deepcopy(
                     action.get("rawType")
                 ),
@@ -555,9 +632,30 @@ def _build_action_mappings(
                     else "preserved_uninterpreted"
                 ),
                 "operationIds": list(operation_ids),
+                "target": {
+                    "present": bool(action.get("targetPresent")),
+                    "value": copy.deepcopy(action.get("target")),
+                },
+                "recipient": {
+                    "present": recipient_present,
+                    "value": copy.deepcopy(parameters.get("recipient")),
+                },
+                "conditions": _normalize_condition_records(
+                    action.get("conditions")
+                ),
+                "control": builder._control(action),
+                "flags": builder._flags(
+                    action,
+                    entry=None,
+                    entry_pointer=action_pointer,
+                ),
                 "source": {
                     "file": str(source.get("file", "<generated>")),
                     "pointer": str(source.get("pointer", "")),
+                },
+                "uninterpretedParameters": {
+                    "values": remaining_parameters,
+                    "progressions": progressions,
                 },
             }
         )
@@ -1593,6 +1691,8 @@ def normalize_mechanics(
         validated,
         operations,
         context_id_by_container_id,
+        builder,
+        contexts,
     )
     controlled_alias_resolutions = (
         _collect_controlled_alias_resolutions(

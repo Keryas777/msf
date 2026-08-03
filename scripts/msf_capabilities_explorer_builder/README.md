@@ -59,6 +59,11 @@ l'inventaire exhaustif, les tailles et les SHA-256.
 - **Operation / Context** : les projections Web conservent les identifiants,
   conditions, métriques, cibles et déclencheurs disponibles, sans simulation ni
   complétion implicite.
+- **Action préservée** : la projection conserve `sourceActionId`, l’ordre,
+  les contextes, la cible et le destinataire bruts, les conditions, le
+  contrôle, les flags, les paramètres non interprétés et la source. Elle ne
+  crée ni phase, ni héritage de cible, ni traduction de `direct_neighbor`,
+  `stat_modifier`, `barrier`, `turn_meter` ou `count`.
 
 ## Preuve par occurrence
 
@@ -71,6 +76,13 @@ Les seules valeurs admises sont :
 La preuve globale d'une mécanique n'est jamais recopiée sur ses occurrences.
 Une mention officielle sans opération liée reste donc textuelle même lorsque
 le même effet est structuré ailleurs.
+
+Le schéma de sortie `1.1.0` est une évolution additive. Le frontend V1 garde
+son rendu, mais ordonne les occurrences par `actionOrder` lorsqu’il existe et
+masque `selectionCount` tant qu’aucune règle spécifique au type d’action ne
+permet de l’afficher honnêtement. Les progressions complètes restent dans les
+shards même si l’interface choisit encore une valeur de niveau maximal pour
+les métriques autorisées.
 
 ## Commandes
 

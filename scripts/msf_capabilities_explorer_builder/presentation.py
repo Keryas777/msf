@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Any
 
 
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
 
 PROOF = {
     "normalized": {
@@ -85,7 +85,6 @@ OPERATION_KINDS = {
 METRICS = {
     "chancePct": "Chance",
     "useCount": "Quantité indiquée",
-    "selectionCount": "Nombre de cibles sélectionnées",
     "applyCount": "Nombre d’applications",
     "delta": "Variation de durée",
     "maxDuration": "Durée maximale",

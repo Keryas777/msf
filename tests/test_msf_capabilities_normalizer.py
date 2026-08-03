@@ -98,7 +98,8 @@ class MsfCapabilitiesNormalizerTests(unittest.TestCase):
 
     def test_root_contract_and_fixture_coverage(self):
         capabilities = self.capabilities
-        self.assertEqual(capabilities["schemaVersion"], "1.0.0")
+        self.assertEqual(capabilities["schemaVersion"], "1.1.0")
+
         self.assertEqual(
             capabilities["input"]["parserSchemaVersion"],
             "1.0.0",
@@ -136,6 +137,26 @@ class MsfCapabilitiesNormalizerTests(unittest.TestCase):
             ),
             integrity,
         )
+
+    def test_action_mappings_preserve_structural_contract(self):
+        mapping = self.action_mapping(
+            self.capabilities,
+            source_pointer="/Data/Apocalypse/basic/actions/1",
+        )
+        expected_fields = {
+            "characterId", "abilityType", "contextId", "contextPathIds",
+            "actionOrder", "classification", "containerType", "technicalKey",
+            "target", "recipient", "conditions", "control", "flags",
+            "source", "uninterpretedParameters",
+        }
+        self.assertTrue(expected_fields <= set(mapping), mapping)
+        self.assertEqual(mapping["actionOrder"], 1)
+        self.assertEqual(
+            mapping["target"],
+            {"present": True, "value": {"relation": "enemy"}},
+        )
+        self.assertIn("values", mapping["uninterpretedParameters"])
+        self.assertIn("progressions", mapping["uninterpretedParameters"])
 
     def test_controlled_alias_is_exact_and_never_a_generic_trim(self):
         def mutate_effect(mechanics, value):
@@ -1119,6 +1140,67 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
                 ),
             ],
         )
+
+    def test_b1_real_abomination_and_phase_a_corpus(self):
+        self.assert_snapshot_checksum()
+        mappings = {
+            item["source"]["pointer"]: item
+            for item in self.capabilities["actionMappings"]
+        }
+        abomination = [
+            mappings[f"/Data/Abomination/basic/actions/{index}"]
+            for index in range(6)
+        ]
+        self.assertEqual([item["actionOrder"] for item in abomination], list(range(6)))
+        self.assertEqual([item["status"] for item in abomination], [
+            "preserved_uninterpreted", "normalized", "normalized",
+            "preserved_uninterpreted", "normalized", "normalized",
+        ])
+        target = abomination[3]["target"]["value"]
+        self.assertEqual(target["type"], "direct_neighbor")
+        self.assertEqual(target["limit"], [1])
+        self.assertEqual(target["primary_selection"], "exclude_from_pool")
+        self.assertEqual(target["stop_if_outcome"], ["counter_attack"])
+        self.assertEqual(target["filter"]["not"]["target"]["states"], ["stealthed"])
+        self.assertEqual(
+            abomination[0]["uninterpretedParameters"]["values"]["stat_modifier"][0]["delta"],
+            [90, 110, 130, 150, 170, 200, 250],
+        )
+        self.assertEqual(
+            abomination[3]["uninterpretedParameters"]["values"]["stat_modifier"][0]["delta"],
+            [40, 60, 80, 100, 120, 150, 200],
+        )
+        self.assertTrue(abomination[5]["flags"]["counter"]["value"])
+        self.assertEqual(
+            abomination[5]["uninterpretedParameters"]["values"]["assist"], {}
+        )
+
+        required_prefixes = (
+            "/Data/SpiderMan/basic/",
+            "/Data/Gamora/basic_empower/",
+            "/Data/Gamora/passive_empower/",
+            "/Data/Maestro/basic/",
+            "/Data/NickFury/passive/",
+            "/Data/NickFury/ultimate/",
+        )
+        for prefix in required_prefixes:
+            self.assertTrue(any(pointer.startswith(prefix) for pointer in mappings), prefix)
+        self.assertIn("health_pct", mappings[
+            "/Data/AgathaHarkness/ultimate/actions/11"
+        ]["uninterpretedParameters"]["values"])
+        self.assertIn("change_pct", mappings[
+            "/Data/NickFury/passive/0/actions/1"
+        ]["uninterpretedParameters"]["values"])
+        self.assertEqual(
+            mappings["/Data/Maestro/basic/actions/1"]["control"]["referenceKind"],
+            "explicit_action_index",
+        )
+        self.assertIsNotNone(mappings[
+            "/Data/BetaRayBill/passive/0/actions/0"
+        ]["control"]["foreachAction"])
+        self.assertTrue(mappings[
+            "/Data/AbsorbingMan/basic/actions/2"
+        ]["recipient"]["present"])
 
     def test_real_output_is_byte_for_byte_deterministic(self):
         self.assert_snapshot_checksum()

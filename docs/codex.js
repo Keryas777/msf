@@ -1185,9 +1185,6 @@ function invocationMarkup(shard) {
                   </a>
                 </h3>
                 ${statusMarkup(entity.status)}
-                ${Number.isFinite(spawn.selectionCount)
-                  ? `<p>Quantité structurée : ${spawn.selectionCount}</p>`
-                  : ""}
               </div>
             </div>
             ${ability ? `
@@ -1260,7 +1257,10 @@ function technicalContextsMarkup(shard) {
           <section class="codexSection">
             <h3>${escapeHtml(context.label)}</h3>
             <ul class="codexChipList">
-              ${[...(context.operations || []), ...(context.actions || [])].map((occurrence) => `
+              ${sortOccurrencesBySourceOrder([
+                ...(context.operations || []),
+                ...(context.actions || []),
+              ]).map((occurrence) => `
                 <li>
                   <a
                     class="codexSuggestion"
@@ -1405,12 +1405,27 @@ function occurrenceTitle(occurrence) {
   return occurrence.kindLabel || "Opération structurée";
 }
 
+function sortOccurrencesBySourceOrder(occurrences) {
+  return [...occurrences].sort((left, right) => {
+    const leftOrder = Number.isInteger(left?.actionOrder)
+      ? left.actionOrder
+      : Number.MAX_SAFE_INTEGER;
+    const rightOrder = Number.isInteger(right?.actionOrder)
+      ? right.actionOrder
+      : Number.MAX_SAFE_INTEGER;
+    if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+    return String(left?.id || "").localeCompare(String(right?.id || ""));
+  });
+}
+
 function occurrenceMarkup(occurrence, ability) {
   const links = mechanicsLinksMarkup(occurrence, ability);
   const rows = [];
   rows.push(definitionRow("Action", occurrence.kindLabel || occurrence.label || ""));
   if (links) rows.push(definitionRow("Effet ou mécanique", links, true));
-  if (occurrence.target) rows.push(definitionRow("Cible", occurrence.target));
+  if (typeof occurrence.target === "string" && occurrence.target) {
+    rows.push(definitionRow("Cible", occurrence.target));
+  }
   if (occurrence.scope && occurrence.scope !== occurrence.target) {
     rows.push(definitionRow("Portée", occurrence.scope));
   }
@@ -1530,11 +1545,11 @@ function empoweredRelationshipMarkup(ability, shard) {
 
 function abilityModel(shard, ability) {
   const character = shard.character;
-  const occurrences = [
+  const occurrences = sortOccurrencesBySourceOrder([
     ...(ability.operations || []),
     ...(ability.actions || []),
     ...(ability.mentions || []),
-  ];
+  ]);
   const evidences = uniqueEvidence(occurrences.map((occurrence) => occurrence.evidence));
   const energy = ability.energy;
   const energyText = energy && typeof energy === "object"

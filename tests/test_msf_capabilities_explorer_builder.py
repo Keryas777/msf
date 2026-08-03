@@ -258,6 +258,42 @@ class ExplorerBuilderTests(unittest.TestCase):
             }
             self.assertEqual(before, after)
 
+    def test_17_abomination_actions_keep_source_structure_without_phases(self) -> None:
+        shard = self.payload("characters/Abomination.json")
+        ability = next(item for item in shard["abilities"] if item["type"] == "basic")
+        occurrences = sorted(
+            [*ability["operations"], *ability["actions"]],
+            key=lambda item: item["actionOrder"],
+        )
+        self.assertEqual([item["actionOrder"] for item in occurrences], list(range(6)))
+        self.assertEqual(
+            [item["actionOrder"] for item in ability["operations"]],
+            [1, 2, 4, 5],
+        )
+        preserved = {item["actionOrder"]: item for item in ability["actions"]}
+        self.assertEqual(set(preserved), {0, 3})
+        target = preserved[3]["target"]["value"]
+        self.assertEqual(target["type"], "direct_neighbor")
+        self.assertEqual(target["limit"], [1])
+        self.assertEqual(target["primary_selection"], "exclude_from_pool")
+        self.assertEqual(target["stop_if_outcome"], ["counter_attack"])
+        self.assertEqual(target["filter"]["not"]["target"]["states"], ["stealthed"])
+        self.assertEqual(
+            preserved[0]["uninterpretedParameters"]["values"]["stat_modifier"][0]["delta"],
+            [90, 110, 130, 150, 170, 200, 250],
+        )
+        self.assertEqual(
+            preserved[3]["uninterpretedParameters"]["values"]["stat_modifier"][0]["delta"],
+            [40, 60, 80, 100, 120, 150, 200],
+        )
+        self.assertFalse(any("phase" in item for item in occurrences))
+        self.assertTrue(all(item.get("target") is None for item in ability["operations"][2:]))
+        self.assertFalse(any(
+            metric.get("key") == "selectionCount"
+            for item in ability["operations"]
+            for metric in item.get("metrics", [])
+        ))
+
 
 if __name__ == "__main__":
     unittest.main()

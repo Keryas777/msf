@@ -13,8 +13,8 @@ from .diagnostics import PublisherAuditError, PublisherInputError
 
 
 PUBLISHER_SCHEMA_VERSION = "1.0.0"
-SUPPORTED_INDEX_SCHEMA_VERSION = "1.0.0"
-SUPPORTED_NORMALIZER_SCHEMA_VERSION = "1.0.0"
+SUPPORTED_INDEX_SCHEMA_VERSIONS = frozenset({"1.0.0", "1.1.0"})
+SUPPORTED_NORMALIZER_SCHEMA_VERSIONS = frozenset({"1.0.0", "1.1.0"})
 SUPPORTED_PARSER_SCHEMA_VERSION = "1.0.0"
 
 INDEX_MANIFEST_PATH = "index-manifest.json"
@@ -226,7 +226,7 @@ def _require_schema(
     document: dict[str, Any],
     artifact_type: str,
 ) -> None:
-    if document.get("schemaVersion") != SUPPORTED_INDEX_SCHEMA_VERSION:
+    if document.get("schemaVersion") not in SUPPORTED_INDEX_SCHEMA_VERSIONS:
         raise PublisherAuditError(
             "UNSUPPORTED_INDEX_SCHEMA",
             f"Schéma indexé non supporté dans {path} : "
@@ -240,7 +240,7 @@ def _require_schema(
         )
     if (
         document.get("normalizerSchemaVersion")
-        != SUPPORTED_NORMALIZER_SCHEMA_VERSION
+        not in SUPPORTED_NORMALIZER_SCHEMA_VERSIONS
     ):
         raise PublisherAuditError(
             "UNSUPPORTED_NORMALIZER_SCHEMA",
