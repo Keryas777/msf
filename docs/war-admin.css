@@ -311,6 +311,7 @@ select {
 }
 
 .warAdminQueueSection,
+.warAdminReportProgress,
 .warAdminLogSection {
   min-width: 0;
   margin-top: 18px;
@@ -434,6 +435,12 @@ select {
   color: var(--war-admin-success);
 }
 
+.warAdminCaptureCard[data-state="calculated"] .warAdminCaptureState {
+  border-color: rgba(113, 231, 255, 0.45);
+  background: rgba(113, 231, 255, 0.08);
+  color: var(--war-admin-cyan);
+}
+
 .warAdminCaptureCard[data-state="failed"] .warAdminCaptureState,
 .warAdminCaptureCard[data-state="cancelled"] .warAdminCaptureState {
   border-color: rgba(255, 154, 171, 0.4);
@@ -498,6 +505,68 @@ select {
   border-color: rgba(139, 184, 232, 0.25);
   background: rgba(139, 184, 232, 0.07);
   color: var(--war-admin-text-soft);
+}
+
+.warAdminReportProgress {
+  padding: 12px;
+  border: 1px solid rgba(113, 231, 255, 0.25);
+  border-radius: 14px;
+  background: rgba(113, 231, 255, 0.045);
+}
+
+.warAdminPipelineSummary,
+.warAdminReportSummary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.warAdminPipelineSummary div,
+.warAdminReportSummary div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(139, 184, 232, 0.17);
+  border-radius: 11px;
+  background: rgba(2, 6, 23, 0.58);
+}
+
+.warAdminPipelineSummary strong,
+.warAdminReportSummary strong {
+  overflow-wrap: anywhere;
+  color: var(--war-admin-cyan);
+  font-size: 17px;
+  line-height: 1.15;
+}
+
+.warAdminPipelineSummary span,
+.warAdminReportSummary span {
+  color: var(--war-admin-text-muted);
+  font-size: 11px;
+}
+
+.warAdminCalculateButton {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 10px;
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--war-admin-cyan-strong), #6e79ff);
+  color: #03101d;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.warAdminCalculateButton:disabled {
+  background: #263650;
+  color: var(--war-admin-text-muted);
+  cursor: not-allowed;
+}
+
+.warAdminReportProgress .warAdminValidationHelp {
+  margin-top: 8px;
 }
 
 .warAdminLog {
@@ -637,6 +706,11 @@ select {
 .warAdminLineStatus[data-classification="active"] {
   border-color: rgba(137, 232, 188, 0.42);
   color: var(--war-admin-success);
+}
+
+.warAdminReviewState[data-state="calculated"] {
+  border-color: rgba(113, 231, 255, 0.42);
+  color: var(--war-admin-cyan);
 }
 
 .warAdminReviewState[data-state="reviewing"],
@@ -923,6 +997,17 @@ select {
   background: rgba(5, 13, 28, 0.97);
 }
 
+.warAdminValidationButtonRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.warAdminValidationButtonRow .warAdminBackButton {
+  width: 100%;
+  min-width: 0;
+}
+
 .warAdminValidateButton {
   width: 100%;
   min-height: 50px;
@@ -946,6 +1031,81 @@ select {
   color: var(--war-admin-text-muted);
   font-size: 12px;
   text-align: center;
+}
+
+.warAdminReportView {
+  min-width: 0;
+}
+
+.warAdminReportSummary {
+  margin-top: 14px;
+}
+
+.warAdminReportPlayers {
+  min-width: 0;
+  margin-top: 18px;
+}
+
+.warAdminReportPlayerList {
+  display: grid;
+  gap: 8px;
+}
+
+.warAdminReportPlayer {
+  min-width: 0;
+  border: 1px solid rgba(139, 184, 232, 0.2);
+  border-radius: 11px;
+  background: rgba(2, 6, 23, 0.6);
+}
+
+.warAdminReportPlayer summary {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  min-height: 56px;
+  padding: 8px 9px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.warAdminReportPlayer summary::-webkit-details-marker {
+  display: none;
+}
+
+.warAdminReportPlayerScore {
+  color: var(--war-admin-success);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.warAdminReportMetrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0;
+  padding: 0 9px 10px 50px;
+}
+
+.warAdminReportMetrics div {
+  min-width: 0;
+}
+
+.warAdminReportMetrics dt {
+  color: var(--war-admin-text-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.warAdminReportMetrics dd {
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+  color: var(--war-admin-text-soft);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
 }
 
 .warAdminEditorPanel {
@@ -1094,6 +1254,14 @@ select {
 
   .warAdminReviewCounts {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .warAdminPipelineSummary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .warAdminReportSummary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .warAdminEditorActions {

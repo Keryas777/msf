@@ -3,8 +3,9 @@ import test from "node:test";
 import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 
-const [validationApp, app] = await Promise.all([
+const [validationApp, reportCalculator, app] = await Promise.all([
   readFile(new URL("../docs/war-admin-validation.js", import.meta.url), "utf8"),
+  readFile(new URL("../docs/war-admin-report-calculator.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin.js", import.meta.url), "utf8")
 ]);
 
@@ -105,11 +106,17 @@ function createHarness(options = {}) {
     "warStatusMessage",
     "warQueueSummary",
     "warCaptureList",
+    "warReportProgress",
+    "warValidatedCount",
+    "warCalculatedCount",
+    "warCalculateReports",
+    "warCalculateHelp",
     "warLog",
     "warResult",
     "warSessionView",
     "warReviewView",
     "warReviewBack",
+    "warReviewBackBottom",
     "warReviewTitle",
     "warReviewState",
     "warReviewAlliance",
@@ -152,7 +159,21 @@ function createHarness(options = {}) {
     "warEditErrorAttacks",
     "warEditErrorDamage",
     "warEditErrorDefenseWins",
-    "warEditErrorDefenseBonus"
+    "warEditErrorDefenseBonus",
+    "warReportView",
+    "warReportBack",
+    "warReportTitle",
+    "warReportAlliance",
+    "warReportDate",
+    "warReportSource",
+    "warReportTotalDamage",
+    "warReportPlayerCount",
+    "warReportAvgRef",
+    "warReportShareRef",
+    "warReportMinAttacks",
+    "warReportMinDeviations",
+    "warReportPlayerList",
+    "warCalculatedJson"
   ];
   const elements = Object.fromEntries(ids.map((id) => [id, new FakeElement(id)]));
   const windowListeners = new Map();
@@ -253,6 +274,7 @@ function createHarness(options = {}) {
 
   const vmContext = vm.createContext(context);
   vm.runInContext(validationApp, vmContext, { filename: "war-admin-validation.js" });
+  vm.runInContext(reportCalculator, vmContext, { filename: "war-admin-report-calculator.js" });
   vm.runInContext(app, vmContext, { filename: "war-admin.js" });
 
   return {
@@ -774,4 +796,196 @@ test("les alliances gardent des états indépendants et le retour conserve l’o
   assert.match(harness.elements.warQueueSummary.textContent, /Prêts 1 · En cours 0 · À corriger 0 · Validés 1/);
   assert.equal(harness.elements.warSessionView.hidden, false);
   assert.equal(harness.elements.warReviewView.hidden, true);
+});
+
+test("le calcul reste bloqué jusqu’à la validation puis enrichit le brouillon sans nouvel appel", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async () => Response.json(draftPayload("zeus", "Zeus")));
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+
+  assert.equal(harness.elements.warReportProgress.hidden, false);
+  assert.equal(harness.elements.warCalculateReports.disabled, true);
+  assert.equal(harness.elements.warValidatedCount.textContent, "0");
+  assert.equal(harness.elements.warCalculatedCount.textContent, "0");
+
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  assert.equal(harness.elements.warCalculateReports.disabled, false);
+  assert.equal(harness.elements.warValidatedCount.textContent, "1");
+
+  harness.listener("warCalculateReports", "click")();
+  const snapshot = harness.getSnapshot();
+
+  assert.equal(harness.fetchCalls.length, 1, "le calcul ne relance pas Gemini");
+  assert.equal(snapshot.published, false);
+  assert.deepEqual(snapshot.publication, { performed: false, state: "pending" });
+  assert.equal(snapshot.reports.length, 1);
+  assert.equal(snapshot.captures[0].state, "Rapport calculé");
+  assert.equal(snapshot.captures[0].calculatedReport.report.summary.player_count, 24);
+  assert.equal(snapshot.captures[0].calculatedReport.report.summary.minimum_attacks, 11);
+  assert.equal(snapshot.captures[0].calculatedReport.report.summary.minimum_deviations, 2);
+  assert.equal("ranking" in snapshot.captures[0].calculatedReport.report, false);
+  assert.equal("rank" in snapshot.captures[0].calculatedReport.report.players[0], false);
+  assert.equal(harness.elements.warCalculatedCount.textContent, "1");
+  assert.equal(harness.elements.warCalculateReports.disabled, true);
+  assert.equal(harness.elements.warCalculateReports.textContent, "Rapports calculés");
+  assert.equal(
+    harness.elements.warStatusMessage.textContent,
+    "1 OCR validé · 1 rapport calculé · publication en attente."
+  );
+});
+
+test("deux alliances doivent être validées indépendamment avant le calcul groupé", async () => {
+  const harness = createHarness();
+  const responses = [
+    draftPayload("zeus", "Zeus"),
+    draftPayload("kronos", "Kronos")
+  ];
+  let responseIndex = 0;
+  harness.setFetchImplementation(async () => Response.json(responses[responseIndex++]));
+
+  harness.elements.warImage.files = files(2);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+
+  openReviewFromCard(harness, 0);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBackBottom", "click")();
+  assert.equal(harness.elements.warCalculateReports.disabled, true);
+  assert.equal(harness.elements.warValidatedCount.textContent, "1");
+
+  openReviewFromCard(harness, 1);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  assert.equal(harness.elements.warCalculateReports.disabled, false);
+
+  harness.listener("warCalculateReports", "click")();
+  const snapshot = harness.getSnapshot();
+  assert.equal(snapshot.reports.length, 2);
+  assert.deepEqual(snapshot.reports.map(({ alliance }) => alliance), ["zeus", "kronos"]);
+  assert.deepEqual(
+    snapshot.reports[0].report.report.players.slice(0, 3).map(({ original_rank }) => original_rank),
+    [1, 2, 3]
+  );
+  assert.equal(harness.fetchCalls.length, 2);
+  assert.equal(harness.elements.warValidatedCount.textContent, "2");
+  assert.equal(harness.elements.warCalculatedCount.textContent, "2");
+});
+
+test("un rapport calculé s’ouvre dans une vue mobile consultable puis revient à la session", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async () => Response.json(draftPayload("poseidon", "Poséidon")));
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBackBottom", "click")();
+  harness.listener("warCalculateReports", "click")();
+
+  const captureId = harness.elements.warCaptureList.innerHTML.match(
+    /data-action="open-report" data-capture-id="(\d+)"/
+  )?.[1];
+  assert.ok(captureId);
+  harness.listener("warCaptureList", "click")({
+    target: { dataset: { action: "open-report", captureId }, disabled: false }
+  });
+
+  assert.equal(harness.elements.warSessionView.hidden, true);
+  assert.equal(harness.elements.warReportView.hidden, false);
+  assert.equal(harness.elements.warReportAlliance.textContent, "Poséidon");
+  assert.equal(harness.elements.warReportPlayerCount.textContent, "24");
+  assert.match(harness.elements.warReportPlayerList.innerHTML, /warAdminReportPlayer/);
+  assert.match(harness.elements.warReportPlayerList.innerHTML, /Joueur 1/);
+  assert.match(harness.elements.warCalculatedJson.textContent, /"score_total"/);
+
+  harness.listener("warReportBack", "click")();
+  assert.equal(harness.elements.warSessionView.hidden, false);
+  assert.equal(harness.elements.warReportView.hidden, true);
+});
+
+test("modifier après calcul invalide uniquement le rapport concerné et impose une revalidation", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async () => Response.json(draftPayload("athena", "Athéna")));
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  harness.listener("warCalculateReports", "click")();
+
+  openReviewFromCard(harness, 0, true);
+  harness.listener("warReviewUnlock", "click")();
+  openEditorRow(harness, 0);
+  editField(harness, "damage", "2222222222");
+  harness.listener("warEditorForm", "submit")(submitEvent());
+
+  let snapshot = harness.getSnapshot();
+  assert.equal(snapshot.captures[0].state, "À revalider");
+  assert.equal(snapshot.captures[0].calculatedReport, null);
+  assert.equal(snapshot.reports.length, 0);
+  assert.equal(harness.elements.warCalculateReports.disabled, true);
+
+  harness.listener("warValidateDraft", "click")();
+  assert.equal(harness.elements.warCalculateReports.disabled, false);
+  harness.listener("warCalculateReports", "click")();
+  snapshot = harness.getSnapshot();
+
+  assert.equal(snapshot.captures[0].state, "Rapport calculé");
+  assert.equal(snapshot.captures[0].calculatedReport.players[0].damage, 2222222222);
+  assert.equal(snapshot.reports.length, 1);
+  assert.equal(harness.fetchCalls.length, 1);
+});
+
+test("le workflow complet calcule les six alliances validées en une seule action locale", async () => {
+  const harness = createHarness();
+  const allianceResults = [
+    ["zeus", "Zeus"],
+    ["athena", "Athéna"],
+    ["kronos", "Kronos"],
+    ["dionysos", "Dionysos"],
+    ["poseidon", "Poséidon"],
+    ["hades", "Hadès"]
+  ];
+  let responseIndex = 0;
+  harness.setFetchImplementation(async () => {
+    const [alliance, label] = allianceResults[responseIndex++];
+    return Response.json(draftPayload(alliance, label));
+  });
+
+  harness.elements.warImage.files = files(6);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+
+  for (let index = 0; index < allianceResults.length; index += 1) {
+    openReviewFromCard(harness, index);
+    harness.listener("warValidateDraft", "click")();
+    harness.listener("warReviewBackBottom", "click")();
+  }
+
+  assert.equal(harness.elements.warCalculateReports.disabled, false);
+  harness.listener("warCalculateReports", "click")();
+  const snapshot = harness.getSnapshot();
+
+  assert.equal(harness.fetchCalls.length, 6);
+  assert.equal(snapshot.reports.length, 6);
+  assert.deepEqual(
+    snapshot.reports.map(({ alliance }) => alliance),
+    allianceResults.map(([alliance]) => alliance)
+  );
+  assert.deepEqual(
+    snapshot.reports.map(({ report }) => [
+      report.report.summary.minimum_attacks,
+      report.report.summary.minimum_deviations
+    ]),
+    [[11, 2], [11, 2], [10, 1], [10, 1], [10, 0], [10, 0]]
+  );
+  assert.equal(harness.elements.warValidatedCount.textContent, "6");
+  assert.equal(harness.elements.warCalculatedCount.textContent, "6");
 });
