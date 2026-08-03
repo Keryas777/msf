@@ -3,9 +3,10 @@ import test from "node:test";
 import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 
-const [validationApp, reportCalculator, app] = await Promise.all([
+const [validationApp, reportCalculator, reportRanker, app] = await Promise.all([
   readFile(new URL("../docs/war-admin-validation.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin-report-calculator.js", import.meta.url), "utf8"),
+  readFile(new URL("../docs/war-admin-report-ranker.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin.js", import.meta.url), "utf8")
 ]);
 
@@ -109,7 +110,9 @@ function createHarness(options = {}) {
     "warReportProgress",
     "warValidatedCount",
     "warCalculatedCount",
+    "warRankedCount",
     "warCalculateReports",
+    "warRankReports",
     "warCalculateHelp",
     "warLog",
     "warResult",
@@ -163,6 +166,9 @@ function createHarness(options = {}) {
     "warReportView",
     "warReportBack",
     "warReportTitle",
+    "warReportStep",
+    "warReportState",
+    "warReportOrder",
     "warReportAlliance",
     "warReportDate",
     "warReportSource",
@@ -275,6 +281,7 @@ function createHarness(options = {}) {
   const vmContext = vm.createContext(context);
   vm.runInContext(validationApp, vmContext, { filename: "war-admin-validation.js" });
   vm.runInContext(reportCalculator, vmContext, { filename: "war-admin-report-calculator.js" });
+  vm.runInContext(reportRanker, vmContext, { filename: "war-admin-report-ranker.js" });
   vm.runInContext(app, vmContext, { filename: "war-admin.js" });
 
   return {
@@ -836,6 +843,55 @@ test("le calcul reste bloqué jusqu’à la validation puis enrichit le brouillo
     harness.elements.warStatusMessage.textContent,
     "1 OCR validé · 1 rapport calculé · publication en attente."
   );
+});
+
+test("le classement reste bloqué avant calcul, puis se reclasse après invalidation ciblée", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async () => Response.json(draftPayload("zeus", "Zeus")));
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  assert.equal(harness.elements.warRankReports.disabled, true);
+
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  harness.listener("warCalculateReports", "click")();
+  assert.equal(harness.elements.warRankReports.disabled, false);
+
+  harness.listener("warRankReports", "click")();
+  let snapshot = harness.getSnapshot();
+  const ranked = snapshot.captures[0].rankedReport;
+  assert.equal(snapshot.captures[0].state, "Rapport classé");
+  assert.equal(snapshot.ranked_reports.length, 1);
+  assert.deepEqual(ranked.report.players.map(({ rank }) => rank), Array.from({ length: 24 }, (_, index) => index + 1));
+  assert.deepEqual(
+    ranked.report.ranking,
+    ranked.report.players.map(({ rank, name, score_total }) => ({ rank, name, score: score_total }))
+  );
+  assert.equal(harness.fetchCalls.length, 1, "le classement ne doit effectuer aucun appel réseau");
+
+  openReviewFromCard(harness, 0, true);
+  harness.listener("warReviewUnlock", "click")();
+  openEditorRow(harness, 0);
+  editField(harness, "damage", "2222222222");
+  harness.listener("warEditorForm", "submit")(submitEvent());
+  snapshot = harness.getSnapshot();
+  assert.equal(snapshot.captures[0].calculatedReport, null);
+  assert.equal(snapshot.captures[0].rankedReport, null);
+  assert.equal(snapshot.ranked_reports.length, 0);
+  assert.equal(harness.elements.warRankReports.disabled, true);
+
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  harness.listener("warCalculateReports", "click")();
+  harness.listener("warRankReports", "click")();
+  snapshot = harness.getSnapshot();
+  assert.equal(snapshot.captures[0].state, "Rapport classé");
+  assert.equal(snapshot.captures[0].rankedReport.players[0].damage, 2222222222);
+  assert.equal(snapshot.ranked_reports.length, 1);
+  assert.equal(harness.fetchCalls.length, 1);
 });
 
 test("deux alliances doivent être validées indépendamment avant le calcul groupé", async () => {

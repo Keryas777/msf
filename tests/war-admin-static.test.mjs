@@ -2,19 +2,21 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 
-const [html, css, validation, reportCalculator, app] = await Promise.all([
+const [html, css, validation, reportCalculator, reportRanker, app] = await Promise.all([
   readFile(new URL("../docs/war-admin.html", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin.css", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin-validation.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin-report-calculator.js", import.meta.url), "utf8"),
+  readFile(new URL("../docs/war-admin-report-ranker.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin.js", import.meta.url), "utf8")
 ]);
 
-test("la page charge la Phase E locale sans bloquer le zoom", () => {
+test("la page charge les Phases E et E.2 locales sans bloquer le zoom", () => {
   assert.match(html, /href="\.\/war-admin\.css\?v=4"/);
   assert.match(html, /src="\.\/war-admin-validation\.js\?v=1" defer/);
   assert.match(html, /src="\.\/war-admin-report-calculator\.js\?v=1" defer/);
-  assert.match(html, /src="\.\/war-admin\.js\?v=4" defer/);
+  assert.match(html, /src="\.\/war-admin-report-ranker\.js\?v=1" defer/);
+  assert.match(html, /src="\.\/war-admin\.js\?v=5" defer/);
   assert.match(html, /name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/);
   assert.doesNotMatch(html, /user-scalable=no|maximum-scale=1/);
   assert.doesNotMatch(html, /auth-(?:guard|session)\.js/);
@@ -134,19 +136,23 @@ test("la validation OCR propose une liste verticale et une fiche mobile pour une
   assert.match(css, /touch-action: pan-x pan-y pinch-zoom/);
 });
 
-test("la pré-publication distingue validation, calcul et absence de publication", () => {
+test("la pré-publication distingue validation, calcul, classement et absence de publication", () => {
   assert.match(html, /id="warReportProgress"[\s\S]*?hidden/);
   assert.match(html, /id="warValidatedCount"/);
   assert.match(html, /id="warCalculatedCount"/);
+  assert.match(html, /id="warRankedCount"/);
   assert.match(html, /Publication non effectuée/);
   assert.match(html, /id="warCalculateReports"[\s\S]*?disabled[\s\S]*?Calculer les rapports/);
+  assert.match(html, /id="warRankReports"[\s\S]*?disabled[\s\S]*?Classer les rapports/);
   assert.match(html, /id="warReportView"[\s\S]*?hidden/);
   assert.match(html, /id="warReportPlayerList" class="warAdminReportPlayerList"/);
   assert.match(html, /JSON du rapport calculé/);
   assert.match(app, /calculated: "Rapport calculé"/);
+  assert.match(app, /ranked: "Rapport classé"/);
   assert.match(app, /capture\.calculatedReport = calculateReport\(capture\.validatedDraft\)/);
   assert.match(app, /publication en attente/);
   assert.match(app, /Rapport calculé localement — publication non effectuée/);
+  assert.match(app, /Rapport classé localement — publication non effectuée/);
   assert.match(css, /\.warAdminReportPlayerList\s*\{[\s\S]*?display: grid/);
   assert.doesNotMatch(html, /<table\b/);
 });
@@ -201,8 +207,8 @@ test("le CSS reste mobile first, tactile et lisible à 320 px", () => {
   assert.match(css, /prefers-reduced-motion: reduce/);
 });
 
-test("le calcul local n’ajoute ni secret, ni GitHub, ni Prompt 2", () => {
-  const frontend = `${html}\n${css}\n${validation}\n${reportCalculator}\n${app}`;
+test("le calcul et le classement locaux n’ajoutent ni secret, ni GitHub, ni Prompt 2", () => {
+  const frontend = `${html}\n${css}\n${validation}\n${reportCalculator}\n${reportRanker}\n${app}`;
   const forbiddenSecrets = [
     "GEMINI_API_KEY",
     "GITHUB_TOKEN",
@@ -218,9 +224,10 @@ test("le calcul local n’ajoute ni secret, ni GitHub, ni Prompt 2", () => {
   }
 
   assert.doesNotMatch(frontend, /api\.github\.com|upsertFileToGitHub|export_payload/);
-  assert.doesNotMatch(frontend, /report\.ranking|classement final|rédaction automatique|Prompt 2/i);
+  assert.doesNotMatch(frontend, /rédaction automatique|Prompt 2/i);
   assert.doesNotMatch(reportCalculator, /\branking\b|\btags\b|\banalysis\b/);
   assert.equal((validation.match(/\bfetch\(/g) || []).length, 0);
   assert.equal((reportCalculator.match(/\bfetch\(/g) || []).length, 0);
+  assert.equal((reportRanker.match(/\bfetch\(/g) || []).length, 0);
   assert.equal((app.match(/\bfetch\(/g) || []).length, 1);
 });
