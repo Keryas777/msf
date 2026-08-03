@@ -15,7 +15,8 @@
 
     <script src="./war-admin-validation.js?v=1" defer></script>
     <script src="./war-admin-report-calculator.js?v=1" defer></script>
-    <script src="./war-admin.js?v=4" defer></script>
+    <script src="./war-admin-report-ranker.js?v=1" defer></script>
+    <script src="./war-admin.js?v=5" defer></script>
   </head>
 
   <body class="warAdminPage">
@@ -129,6 +130,10 @@
                 <span>rapports calculés</span>
               </div>
               <div>
+                <strong id="warRankedCount">0</strong>
+                <span>rapports classés</span>
+              </div>
+              <div>
                 <strong>En attente</strong>
                 <span>publication</span>
               </div>
@@ -136,6 +141,9 @@
 
             <button id="warCalculateReports" class="warAdminCalculateButton" type="button" disabled>
               Calculer les rapports
+            </button>
+            <button id="warRankReports" class="warAdminCalculateButton" type="button" disabled>
+              Classer les rapports
             </button>
             <p id="warCalculateHelp" class="warAdminValidationHelp" role="status"></p>
           </section>
@@ -333,10 +341,10 @@
             ← Retour à la session
           </button>
           <div class="warAdminReviewHeading">
-            <p class="warAdminStep">Calcul local</p>
+            <p id="warReportStep" class="warAdminStep">Calcul local</p>
             <h2 id="warReportTitle">Rapport calculé</h2>
           </div>
-          <span class="warAdminReviewState" data-state="calculated">Rapport calculé</span>
+          <span id="warReportState" class="warAdminReviewState" data-state="calculated">Rapport calculé</span>
         </div>
 
         <dl class="warAdminReviewMeta">
@@ -370,7 +378,7 @@
         <section class="warAdminReportPlayers" aria-labelledby="warReportPlayersTitle">
           <div class="warAdminReviewSectionHeading">
             <div>
-              <p class="warAdminStep">Ordre OCR préservé</p>
+              <p id="warReportOrder" class="warAdminStep">Ordre OCR préservé</p>
               <h3 id="warReportPlayersTitle">Joueurs calculés</h3>
             </div>
           </div>

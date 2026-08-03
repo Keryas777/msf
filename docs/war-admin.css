@@ -435,7 +435,8 @@ select {
   color: var(--war-admin-success);
 }
 
-.warAdminCaptureCard[data-state="calculated"] .warAdminCaptureState {
+.warAdminCaptureCard[data-state="calculated"] .warAdminCaptureState,
+.warAdminCaptureCard[data-state="ranked"] .warAdminCaptureState {
   border-color: rgba(113, 231, 255, 0.45);
   background: rgba(113, 231, 255, 0.08);
   color: var(--war-admin-cyan);
@@ -708,7 +709,8 @@ select {
   color: var(--war-admin-success);
 }
 
-.warAdminReviewState[data-state="calculated"] {
+.warAdminReviewState[data-state="calculated"],
+.warAdminReviewState[data-state="ranked"] {
   border-color: rgba(113, 231, 255, 0.42);
   color: var(--war-admin-cyan);
 }

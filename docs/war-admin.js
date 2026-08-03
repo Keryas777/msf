@@ -10,9 +10,10 @@
   const MAX_CAPTURES = 6;
   const DRAFT_VALIDATION = globalThis.MsfWarDraftValidation;
   const REPORT_CALCULATOR = globalThis.MsfWarReportCalculator;
+  const REPORT_RANKER = globalThis.MsfWarReportRanker;
 
-  if (!DRAFT_VALIDATION || !REPORT_CALCULATOR) {
-    throw new Error("Les modules locaux de validation et de calcul sont indisponibles.");
+  if (!DRAFT_VALIDATION || !REPORT_CALCULATOR || !REPORT_RANKER) {
+    throw new Error("Les modules locaux de validation, de calcul et de classement sont indisponibles.");
   }
 
   const {
@@ -26,6 +27,7 @@
     parseEditorRow
   } = DRAFT_VALIDATION;
   const { calculateReport } = REPORT_CALCULATOR;
+  const { rankReport } = REPORT_RANKER;
 
   const ALLIANCES = [
     { key: "zeus", label: "Zeus" },
@@ -46,6 +48,7 @@
     correction: "À corriger",
     validated: "OCR validé",
     calculated: "Rapport calculé",
+    ranked: "Rapport classé",
     revalidate: "À revalider",
     manual: "Alliance à confirmer",
     failed: "OCR échoué",
@@ -67,7 +70,9 @@
   const reportProgress = document.getElementById("warReportProgress");
   const validatedCount = document.getElementById("warValidatedCount");
   const calculatedCount = document.getElementById("warCalculatedCount");
+  const rankedCount = document.getElementById("warRankedCount");
   const calculateReportsButton = document.getElementById("warCalculateReports");
+  const rankReportsButton = document.getElementById("warRankReports");
   const calculateHelp = document.getElementById("warCalculateHelp");
   const logPanel = document.getElementById("warLog");
   const result = document.getElementById("warResult");
@@ -125,6 +130,9 @@
   const reportView = document.getElementById("warReportView");
   const reportBackButton = document.getElementById("warReportBack");
   const reportTitle = document.getElementById("warReportTitle");
+  const reportStep = document.getElementById("warReportStep");
+  const reportState = document.getElementById("warReportState");
+  const reportOrder = document.getElementById("warReportOrder");
   const reportAlliance = document.getElementById("warReportAlliance");
   const reportDate = document.getElementById("warReportDate");
   const reportSource = document.getElementById("warReportSource");
@@ -278,10 +286,10 @@
     if (!capture.editableDraft) return "";
 
     const disabled = session.running ? " disabled" : "";
-    if (capture.calculatedReport) {
+    if (capture.rankedReport || capture.calculatedReport) {
       return [
         '<div class="warAdminCaptureActions">',
-        `<button class="warAdminCaptureAction" type="button" data-action="open-report" data-capture-id="${capture.id}"${disabled}>Voir le rapport calculé</button>`,
+        `<button class="warAdminCaptureAction" type="button" data-action="open-report" data-capture-id="${capture.id}"${disabled}>Voir le rapport ${capture.rankedReport ? "classé" : "calculé"}</button>`,
         `<button class="warAdminCaptureAction warAdminCaptureActionSecondary" type="button" data-action="open-review" data-capture-id="${capture.id}" data-read-only="true"${disabled}>Voir l’OCR validé</button>`,
         `<button class="warAdminCaptureAction warAdminCaptureActionSecondary" type="button" data-action="modify-review" data-capture-id="${capture.id}"${disabled}>Modifier</button>`,
         "</div>"
@@ -368,9 +376,10 @@
       capture.state === "correction" || capture.state === "revalidate"
     )).length;
     const validated = session.captures.filter((capture) => (
-      capture.state === "validated" || capture.state === "calculated"
+      capture.state === "validated" || capture.state === "calculated" || capture.state === "ranked"
     )).length;
-    const calculated = session.captures.filter((capture) => capture.state === "calculated").length;
+    const calculated = session.captures.filter((capture) => Boolean(capture.calculatedReport)).length;
+    const ranked = session.captures.filter((capture) => capture.state === "ranked").length;
     const failed = session.captures.filter((capture) => capture.state === "failed").length;
     const manual = session.captures.filter((capture) => capture.needsManual).length;
     const parts = [
@@ -381,6 +390,7 @@
     ];
 
     if (calculated) parts.push(`Calculés ${calculated}`);
+    if (ranked) parts.push(`Classés ${ranked}`);
     if (manual) parts.push(`À confirmer ${manual}`);
     if (failed) parts.push(`Échecs ${failed}`);
     queueSummary.textContent = parts.join(" · ");
@@ -401,16 +411,25 @@
     const calculated = available.filter((capture) => (
       isOcrValidatedCapture(capture) && Boolean(capture.calculatedReport)
     )).length;
+    const ranked = available.filter((capture) => (
+      isOcrValidatedCapture(capture) && Boolean(capture.rankedReport)
+    )).length;
     const allValidated = validated === available.length;
     const allCalculated = calculated === available.length;
+    const allRanked = ranked === available.length;
 
     validatedCount.textContent = String(validated);
     calculatedCount.textContent = String(calculated);
+    rankedCount.textContent = String(ranked);
     calculateReportsButton.disabled = session.running || !allValidated || allCalculated;
     calculateReportsButton.textContent = allCalculated ? "Rapports calculés" : "Calculer les rapports";
+    rankReportsButton.disabled = session.running || !allCalculated || allRanked;
+    rankReportsButton.textContent = allRanked ? "Rapports classés" : "Classer les rapports";
 
-    if (allCalculated) {
-      calculateHelp.textContent = `${validated} ${plural(validated, "OCR validé", "OCR validés")} · ${calculated} ${plural(calculated, "rapport calculé", "rapports calculés")} · publication en attente.`;
+    if (allRanked) {
+      calculateHelp.textContent = `${validated} ${plural(validated, "OCR validé", "OCR validés")} · ${calculated} ${plural(calculated, "rapport calculé", "rapports calculés")} · ${ranked} ${plural(ranked, "rapport classé", "rapports classés")} · publication non effectuée.`;
+    } else if (allCalculated) {
+      calculateHelp.textContent = "Tous les rapports sont calculés. Le classement déterministe reste local et ne publie rien.";
     } else if (!allValidated) {
       const remaining = available.length - validated;
       calculateHelp.textContent = `${remaining} ${plural(remaining, "brouillon doit encore être validé", "brouillons doivent encore être validés")}.`;
@@ -441,6 +460,13 @@
           alliance: capture.alliance,
           report: capture.calculatedReport
         })),
+      ranked_reports: session.captures
+        .filter((capture) => Boolean(capture.rankedReport))
+        .map((capture) => ({
+          capture: capture.index + 1,
+          alliance: capture.alliance,
+          report: capture.rankedReport
+        })),
       captures: session.captures.map((capture) => ({
         capture: capture.index + 1,
         file_name: capture.file.name || null,
@@ -455,6 +481,7 @@
         editable_draft: capture.editableDraft,
         validatedDraft: capture.validatedDraft,
         calculatedReport: capture.calculatedReport,
+        rankedReport: capture.rankedReport,
         modification_count: capture.ocrDraft && capture.editableDraft
           ? countModifiedFields(capture.ocrDraft, capture.editableDraft)
           : 0
@@ -532,6 +559,7 @@
       capture.editableDraft = null;
       capture.validatedDraft = null;
       capture.calculatedReport = null;
+      capture.rankedReport = null;
       capture.reviewScrollY = 0;
       capture.reportScrollY = 0;
       capture.listScrollY = 0;
@@ -586,6 +614,7 @@
       editableDraft: null,
       validatedDraft: null,
       calculatedReport: null,
+      rankedReport: null,
       reviewScrollY: 0,
       reportScrollY: 0,
       listScrollY: 0,
@@ -705,6 +734,7 @@
     capture.draft = capture.editableDraft;
     capture.validatedDraft = null;
     capture.calculatedReport = null;
+    capture.rankedReport = null;
     capture.state = "ready";
     capture.detail = source === "automatic"
       ? "Alliance détectée automatiquement. Brouillon conservé en mémoire."
@@ -753,7 +783,10 @@
 
     const summary = classifyDraft(capture.editableDraft);
     if (validatedDraftMatches(capture, summary)) {
-      if (capture.calculatedReport) {
+      if (capture.rankedReport) {
+        capture.state = "ranked";
+        capture.detail = "Rapport classé en mémoire. Publication non effectuée.";
+      } else if (capture.calculatedReport) {
         capture.state = "calculated";
         capture.detail = "Rapport calculé en mémoire. Publication non effectuée.";
       } else {
@@ -764,6 +797,7 @@
     }
 
     capture.calculatedReport = null;
+    capture.rankedReport = null;
     if (capture.validatedDraft) {
       capture.state = "revalidate";
       capture.detail = "Le brouillon a été modifié depuis sa dernière validation.";
@@ -865,7 +899,7 @@
       ? "Revalider ce brouillon"
       : "Valider ce brouillon";
 
-    if ((capture.state === "validated" || capture.state === "calculated") && session.reviewReadOnly) {
+    if ((capture.state === "validated" || capture.state === "calculated" || capture.state === "ranked") && session.reviewReadOnly) {
       validateDraftButton.disabled = true;
       validateDraftButton.textContent = "Brouillon OCR validé";
       validationHelp.textContent = capture.calculatedReport
@@ -956,10 +990,21 @@
     const calculated = available.filter((capture) => (
       isOcrValidatedCapture(capture) && Boolean(capture.calculatedReport)
     )).length;
+    const ranked = available.filter((capture) => (
+      isOcrValidatedCapture(capture) && Boolean(capture.rankedReport)
+    )).length;
     const allValidated = available.length > 0 && validated === available.length;
     const allCalculated = available.length > 0 && calculated === available.length;
+    const allRanked = available.length > 0 && ranked === available.length;
 
-    if (allCalculated && !session.running) {
+    if (allRanked && !session.running) {
+      setStatus(
+        "success",
+        "Rapports classés",
+        "Pré-publication",
+        `${ranked} ${plural(ranked, "rapport classé", "rapports classés")} · publication non effectuée.`
+      );
+    } else if (allCalculated && !session.running) {
       setStatus(
         "success",
         "Rapports calculés",
@@ -1000,7 +1045,7 @@
     session.sessionScrollY = Number(window.scrollY) || 0;
     session.activeCaptureId = capture.id;
     session.reviewReadOnly = Boolean(
-      readOnly && (capture.state === "validated" || capture.state === "calculated")
+      readOnly && (capture.state === "validated" || capture.state === "calculated" || capture.state === "ranked")
     );
     session.reviewZoom = 1;
     session.editorRowIndex = null;
@@ -1042,7 +1087,7 @@
     reportPlayerList.innerHTML = report.report.players.map((player) => [
       '<details class="warAdminReportPlayer">',
       "<summary>",
-      `<span class="warAdminPlayerRank">${escapeHtml(player.original_rank)}</span>`,
+      `<span class="warAdminPlayerRank">${escapeHtml(player.rank || player.original_rank)}</span>`,
       '<span class="warAdminPlayerMain">',
       `<span class="warAdminPlayerName">${escapeHtml(player.name)}</span>`,
       `<span class="warAdminPlayerDamage">Dégâts ${escapeHtml(formatCalculatedNumber(player.damage))} · Part ${escapeHtml(formatCalculatedNumber(player.damage_share_pct, 2))} %</span>`,
@@ -1064,11 +1109,16 @@
   }
 
   function renderReport(capture) {
-    const report = capture?.calculatedReport;
+    const report = capture?.rankedReport || capture?.calculatedReport;
     if (!report?.report) return;
 
     const summary = report.report.summary;
-    reportTitle.textContent = `${capture.allianceLabel} — rapport calculé`;
+    const isRanked = Boolean(capture.rankedReport);
+    reportTitle.textContent = `${capture.allianceLabel} — rapport ${isRanked ? "classé" : "calculé"}`;
+    reportStep.textContent = isRanked ? "Classement local" : "Calcul local";
+    reportState.dataset.state = isRanked ? "ranked" : "calculated";
+    reportState.textContent = isRanked ? "Rapport classé" : "Rapport calculé";
+    reportOrder.textContent = isRanked ? "Classement déterministe" : "Ordre OCR préservé";
     reportAlliance.textContent = capture.allianceLabel;
     reportDate.textContent = report.date || session.warDate || "—";
     reportSource.textContent = report.source || "—";
@@ -1084,7 +1134,7 @@
 
   function openReport(captureId) {
     const capture = session.captures.find((item) => item.id === captureId);
-    if (!capture?.calculatedReport || session.running) return;
+    if ((!capture?.rankedReport && !capture?.calculatedReport) || session.running) return;
 
     session.sessionScrollY = Number(window.scrollY) || 0;
     session.activeCaptureId = capture.id;
@@ -1185,6 +1235,7 @@
 
     capture.validatedDraft = buildValidatedDraft(capture.editableDraft);
     capture.calculatedReport = null;
+    capture.rankedReport = null;
     capture.state = "validated";
     capture.detail = "Brouillon OCR validé. Rapport non calculé.";
     session.reviewReadOnly = true;
@@ -1230,6 +1281,39 @@
     }
 
     updateSessionReviewStatus();
+  }
+
+  function handleRankReports() {
+    if (session.running) return;
+
+    const available = session.captures.filter((capture) => Boolean(capture.editableDraft));
+    if (available.length === 0 || !available.every((capture) => (
+      isOcrValidatedCapture(capture) && Boolean(capture.calculatedReport)
+    ))) {
+      renderSession();
+      return;
+    }
+
+    const errors = [];
+    for (const capture of available) {
+      if (capture.rankedReport) continue;
+
+      try {
+        capture.rankedReport = rankReport(capture.calculatedReport);
+        capture.state = "ranked";
+        capture.detail = "Rapport classé en mémoire. Publication non effectuée.";
+        addLog("Rapport classé localement — publication non effectuée", capture);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Erreur de classement inconnue";
+        errors.push(`${capture.allianceLabel} : ${message}`);
+        addLog(`Classement du rapport échoué : ${message}`, capture);
+      }
+    }
+
+    if (errors.length > 0) {
+      setStatus("error", "Classement incomplet", "Erreur", errors.join(" "));
+    }
+    renderSession();
   }
 
   function handleReviewUnlock() {
@@ -1588,6 +1672,7 @@
   reviewBackButton.addEventListener("click", closeReview);
   reviewBackBottomButton.addEventListener("click", closeReview);
   calculateReportsButton.addEventListener("click", handleCalculateReports);
+  rankReportsButton.addEventListener("click", handleRankReports);
   playerList.addEventListener("click", handlePlayerListClick);
   reviewUnlockButton.addEventListener("click", handleReviewUnlock);
   validateDraftButton.addEventListener("click", handleValidateDraft);
