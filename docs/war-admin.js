@@ -2,6 +2,7 @@
   "use strict";
 
   const API_URL = "https://msf-war-ocr.deliriousfan7.workers.dev/api/war/parse-gemini-draft";
+  const ANALYSIS_API_URL = "https://msf-war-ocr.deliriousfan7.workers.dev/api/war/write-analyses";
   const IDLE_RESULT = "En attente d’un envoi…";
   const SUBMIT_LABEL = "Lancer la session OCR";
   const QUEUE_DELAY_MIN_MS = 8000;
@@ -11,9 +12,10 @@
   const DRAFT_VALIDATION = globalThis.MsfWarDraftValidation;
   const REPORT_CALCULATOR = globalThis.MsfWarReportCalculator;
   const REPORT_RANKER = globalThis.MsfWarReportRanker;
+  const WAR_ANALYSIS = globalThis.MsfWarAnalysis;
 
-  if (!DRAFT_VALIDATION || !REPORT_CALCULATOR || !REPORT_RANKER) {
-    throw new Error("Les modules locaux de validation, de calcul et de classement sont indisponibles.");
+  if (!DRAFT_VALIDATION || !REPORT_CALCULATOR || !REPORT_RANKER || !WAR_ANALYSIS) {
+    throw new Error("Les modules locaux de validation, de calcul, de classement et d’analyse sont indisponibles.");
   }
 
   const {
@@ -28,6 +30,7 @@
   } = DRAFT_VALIDATION;
   const { calculateReport } = REPORT_CALCULATOR;
   const { rankReport } = REPORT_RANKER;
+  const { buildAnalysisPayload, mergeAnalyses } = WAR_ANALYSIS;
 
   const ALLIANCES = [
     { key: "zeus", label: "Zeus" },
@@ -49,6 +52,8 @@
     validated: "OCR validé",
     calculated: "Rapport calculé",
     ranked: "Rapport classé",
+    writing: "Rédaction en cours",
+    analyzed: "Analyses rédigées",
     revalidate: "À revalider",
     manual: "Alliance à confirmer",
     failed: "OCR échoué",
@@ -71,8 +76,10 @@
   const validatedCount = document.getElementById("warValidatedCount");
   const calculatedCount = document.getElementById("warCalculatedCount");
   const rankedCount = document.getElementById("warRankedCount");
+  const analyzedCount = document.getElementById("warAnalyzedCount");
   const calculateReportsButton = document.getElementById("warCalculateReports");
   const rankReportsButton = document.getElementById("warRankReports");
+  const writeAnalysesButton = document.getElementById("warWriteAnalyses");
   const calculateHelp = document.getElementById("warCalculateHelp");
   const logPanel = document.getElementById("warLog");
   const result = document.getElementById("warResult");
@@ -158,7 +165,7 @@
     editorRowIndex: null,
     editorBuffer: null,
     reviewReadOnly: false,
-    reviewZoom: 1,
+    reviewZoom: 2.5,
     sessionScrollY: 0
   };
   let captureSequence = 0;
@@ -285,11 +292,11 @@
   function getCaptureActionMarkup(capture) {
     if (!capture.editableDraft) return "";
 
-    const disabled = session.running ? " disabled" : "";
+    const disabled = session.running && !capture.editableDraft ? " disabled" : "";
     if (capture.rankedReport || capture.calculatedReport) {
       return [
         '<div class="warAdminCaptureActions">',
-        `<button class="warAdminCaptureAction" type="button" data-action="open-report" data-capture-id="${capture.id}"${disabled}>Voir le rapport ${capture.rankedReport ? "classé" : "calculé"}</button>`,
+        `<button class="warAdminCaptureAction" type="button" data-action="open-report" data-capture-id="${capture.id}"${disabled}>Voir le rapport ${capture.finalReport ? "analysé" : (capture.rankedReport ? "classé" : "calculé")}</button>`,
         `<button class="warAdminCaptureAction warAdminCaptureActionSecondary" type="button" data-action="open-review" data-capture-id="${capture.id}" data-read-only="true"${disabled}>Voir l’OCR validé</button>`,
         `<button class="warAdminCaptureAction warAdminCaptureActionSecondary" type="button" data-action="modify-review" data-capture-id="${capture.id}"${disabled}>Modifier</button>`,
         "</div>"
@@ -376,7 +383,7 @@
       capture.state === "correction" || capture.state === "revalidate"
     )).length;
     const validated = session.captures.filter((capture) => (
-      capture.state === "validated" || capture.state === "calculated" || capture.state === "ranked"
+      capture.state === "validated" || capture.state === "calculated" || capture.state === "ranked" || capture.state === "writing" || capture.state === "analyzed"
     )).length;
     const calculated = session.captures.filter((capture) => Boolean(capture.calculatedReport)).length;
     const ranked = session.captures.filter((capture) => capture.state === "ranked").length;
@@ -391,6 +398,8 @@
 
     if (calculated) parts.push(`Calculés ${calculated}`);
     if (ranked) parts.push(`Classés ${ranked}`);
+    const analyzed = session.captures.filter((capture) => Boolean(capture.finalReport)).length;
+    if (analyzed) parts.push(`Analysés ${analyzed}`);
     if (manual) parts.push(`À confirmer ${manual}`);
     if (failed) parts.push(`Échecs ${failed}`);
     queueSummary.textContent = parts.join(" · ");
@@ -414,20 +423,29 @@
     const ranked = available.filter((capture) => (
       isOcrValidatedCapture(capture) && Boolean(capture.rankedReport)
     )).length;
+    const analyzed = available.filter((capture) => (
+      isOcrValidatedCapture(capture) && Boolean(capture.finalReport)
+    )).length;
     const allValidated = validated === available.length;
     const allCalculated = calculated === available.length;
     const allRanked = ranked === available.length;
+    const allAnalyzed = analyzed === available.length;
 
     validatedCount.textContent = String(validated);
     calculatedCount.textContent = String(calculated);
     rankedCount.textContent = String(ranked);
+    analyzedCount.textContent = String(analyzed);
     calculateReportsButton.disabled = session.running || !allValidated || allCalculated;
     calculateReportsButton.textContent = allCalculated ? "Rapports calculés" : "Calculer les rapports";
     rankReportsButton.disabled = session.running || !allCalculated || allRanked;
     rankReportsButton.textContent = allRanked ? "Rapports classés" : "Classer les rapports";
+    writeAnalysesButton.disabled = session.running || !allRanked || allAnalyzed;
+    writeAnalysesButton.textContent = allAnalyzed ? "Analyses rédigées" : "Rédiger les analyses";
 
-    if (allRanked) {
-      calculateHelp.textContent = `${validated} ${plural(validated, "OCR validé", "OCR validés")} · ${calculated} ${plural(calculated, "rapport calculé", "rapports calculés")} · ${ranked} ${plural(ranked, "rapport classé", "rapports classés")} · publication non effectuée.`;
+    if (allAnalyzed) {
+      calculateHelp.textContent = `${analyzed} ${plural(analyzed, "rapport analysé", "rapports analysés")} uniquement en mémoire · publication non effectuée.`;
+    } else if (allRanked) {
+      calculateHelp.textContent = `${validated} ${plural(validated, "OCR validé", "OCR validés")} · ${calculated} ${plural(calculated, "rapport calculé", "rapports calculés")} · ${ranked} ${plural(ranked, "rapport classé", "rapports classés")} · rédaction prête.`;
     } else if (allCalculated) {
       calculateHelp.textContent = "Tous les rapports sont calculés. Le classement déterministe reste local et ne publie rien.";
     } else if (!allValidated) {
@@ -467,6 +485,13 @@
           alliance: capture.alliance,
           report: capture.rankedReport
         })),
+      final_reports: session.captures
+        .filter((capture) => Boolean(capture.finalReport))
+        .map((capture) => ({
+          capture: capture.index + 1,
+          alliance: capture.alliance,
+          report: capture.finalReport
+        })),
       captures: session.captures.map((capture) => ({
         capture: capture.index + 1,
         file_name: capture.file.name || null,
@@ -482,6 +507,7 @@
         validatedDraft: capture.validatedDraft,
         calculatedReport: capture.calculatedReport,
         rankedReport: capture.rankedReport,
+        finalReport: capture.finalReport,
         modification_count: capture.ocrDraft && capture.editableDraft
           ? countModifiedFields(capture.ocrDraft, capture.editableDraft)
           : 0
@@ -560,6 +586,7 @@
       capture.validatedDraft = null;
       capture.calculatedReport = null;
       capture.rankedReport = null;
+      capture.finalReport = null;
       capture.reviewScrollY = 0;
       capture.reportScrollY = 0;
       capture.listScrollY = 0;
@@ -615,6 +642,7 @@
       validatedDraft: null,
       calculatedReport: null,
       rankedReport: null,
+      finalReport: null,
       reviewScrollY: 0,
       reportScrollY: 0,
       listScrollY: 0,
@@ -684,7 +712,7 @@
       if (session.cancelled) throw new SessionCancelledError();
 
       const countdown = messageBuilder(remaining);
-      if (!capture.needsManual) {
+      if (!capture.needsManual && session.activeCaptureId !== capture.id) {
         capture.state = "waiting";
         capture.detail = countdown;
       }
@@ -735,6 +763,7 @@
     capture.validatedDraft = null;
     capture.calculatedReport = null;
     capture.rankedReport = null;
+    capture.finalReport = null;
     capture.state = "ready";
     capture.detail = source === "automatic"
       ? "Alliance détectée automatiquement. Brouillon conservé en mémoire."
@@ -798,6 +827,7 @@
 
     capture.calculatedReport = null;
     capture.rankedReport = null;
+    capture.finalReport = null;
     if (capture.validatedDraft) {
       capture.state = "revalidate";
       capture.detail = "Le brouillon a été modifié depuis sa dernière validation.";
@@ -899,7 +929,7 @@
       ? "Revalider ce brouillon"
       : "Valider ce brouillon";
 
-    if ((capture.state === "validated" || capture.state === "calculated" || capture.state === "ranked") && session.reviewReadOnly) {
+    if ((capture.state === "validated" || capture.state === "calculated" || capture.state === "ranked" || capture.state === "analyzed") && session.reviewReadOnly) {
       validateDraftButton.disabled = true;
       validateDraftButton.textContent = "Brouillon OCR validé";
       validationHelp.textContent = capture.calculatedReport
@@ -1040,14 +1070,14 @@
 
   function openReview(captureId, readOnly) {
     const capture = session.captures.find((item) => item.id === captureId);
-    if (!capture?.editableDraft || session.running) return;
+    if (!capture?.editableDraft) return;
 
     session.sessionScrollY = Number(window.scrollY) || 0;
     session.activeCaptureId = capture.id;
     session.reviewReadOnly = Boolean(
-      readOnly && (capture.state === "validated" || capture.state === "calculated" || capture.state === "ranked")
+      readOnly && (capture.state === "validated" || capture.state === "calculated" || capture.state === "ranked" || capture.state === "analyzed")
     );
-    session.reviewZoom = 1;
+    session.reviewZoom = 2.5;
     session.editorRowIndex = null;
     session.editorBuffer = null;
     refreshCaptureValidationState(capture, true);
@@ -1103,21 +1133,23 @@
       `<div><dt>Défense</dt><dd>${escapeHtml(player.score_defense)} / 15</dd></div>`,
       `<div><dt>Seuil attaques</dt><dd>${player.min_attacks_ok ? "Atteint" : "Non atteint"}</dd></div>`,
       `<div><dt>Seuil déviations</dt><dd>${player.min_deviations_ok ? "Atteint" : "Non atteint"}</dd></div>`,
+      player.analysis ? `<div class="warAdminReportAnalysis"><dt>Analyse</dt><dd>${escapeHtml(player.analysis)}</dd></div>` : "",
       "</dl>",
       "</details>"
     ].join("")).join("");
   }
 
   function renderReport(capture) {
-    const report = capture?.rankedReport || capture?.calculatedReport;
+    const report = capture?.finalReport || capture?.rankedReport || capture?.calculatedReport;
     if (!report?.report) return;
 
     const summary = report.report.summary;
+    const isAnalyzed = Boolean(capture.finalReport);
     const isRanked = Boolean(capture.rankedReport);
-    reportTitle.textContent = `${capture.allianceLabel} — rapport ${isRanked ? "classé" : "calculé"}`;
-    reportStep.textContent = isRanked ? "Classement local" : "Calcul local";
-    reportState.dataset.state = isRanked ? "ranked" : "calculated";
-    reportState.textContent = isRanked ? "Rapport classé" : "Rapport calculé";
+    reportTitle.textContent = `${capture.allianceLabel} — rapport ${isAnalyzed ? "analysé" : (isRanked ? "classé" : "calculé")}`;
+    reportStep.textContent = isAnalyzed ? "Rédaction IA" : (isRanked ? "Classement local" : "Calcul local");
+    reportState.dataset.state = isAnalyzed ? "analyzed" : (isRanked ? "ranked" : "calculated");
+    reportState.textContent = isAnalyzed ? "Analyses rédigées" : (isRanked ? "Rapport classé" : "Rapport calculé");
     reportOrder.textContent = isRanked ? "Classement déterministe" : "Ordre OCR préservé";
     reportAlliance.textContent = capture.allianceLabel;
     reportDate.textContent = report.date || session.warDate || "—";
@@ -1134,7 +1166,7 @@
 
   function openReport(captureId) {
     const capture = session.captures.find((item) => item.id === captureId);
-    if ((!capture?.rankedReport && !capture?.calculatedReport) || session.running) return;
+    if ((!capture?.finalReport && !capture?.rankedReport && !capture?.calculatedReport) || session.running) return;
 
     session.sessionScrollY = Number(window.scrollY) || 0;
     session.activeCaptureId = capture.id;
@@ -1236,6 +1268,7 @@
     capture.validatedDraft = buildValidatedDraft(capture.editableDraft);
     capture.calculatedReport = null;
     capture.rankedReport = null;
+    capture.finalReport = null;
     capture.state = "validated";
     capture.detail = "Brouillon OCR validé. Rapport non calculé.";
     session.reviewReadOnly = true;
@@ -1300,6 +1333,7 @@
 
       try {
         capture.rankedReport = rankReport(capture.calculatedReport);
+        capture.finalReport = null;
         capture.state = "ranked";
         capture.detail = "Rapport classé en mémoire. Publication non effectuée.";
         addLog("Rapport classé localement — publication non effectuée", capture);
@@ -1314,6 +1348,119 @@
       setStatus("error", "Classement incomplet", "Erreur", errors.join(" "));
     }
     renderSession();
+  }
+
+  async function requestAnalyses(capture, attempt) {
+    capture.state = "writing";
+    capture.detail = `Rédaction IA · tentative ${attempt}/3.`;
+    addLog(`Rédaction des analyses — tentative ${attempt}/3`, capture);
+    renderSession();
+
+    const controller = new AbortController();
+    session.abortController = controller;
+    let response;
+    try {
+      response = await fetch(ANALYSIS_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildAnalysisPayload(capture.rankedReport)),
+        signal: controller.signal
+      });
+    } catch (error) {
+      if (session.cancelled || error?.name === "AbortError") throw new SessionCancelledError();
+      throw error;
+    } finally {
+      if (session.abortController === controller) session.abortController = null;
+    }
+
+    const responseText = await response.text();
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (_) {
+      throw new Error(`Réponse IA illisible (HTTP ${response.status})`);
+    }
+    if (!response.ok) throw new Error(getErrorDetail(data) || `HTTP ${response.status}`);
+    return data;
+  }
+
+  async function processAnalyses(capture) {
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      try {
+        const response = await requestAnalyses(capture, attempt);
+        capture.finalReport = mergeAnalyses(capture.rankedReport, response);
+        capture.state = "analyzed";
+        capture.detail = "Analyses validées et fusionnées en mémoire. Publication non effectuée.";
+        addLog("Analyses validées et fusionnées — publication non effectuée", capture);
+        renderSession();
+        return true;
+      } catch (error) {
+        if (error instanceof SessionCancelledError || session.cancelled) throw error;
+        const message = error instanceof Error ? error.message : "Erreur IA inconnue";
+        addLog(`Tentative ${attempt}/3 échouée : ${message}`, capture);
+        if (attempt === 3) {
+          capture.state = "ranked";
+          capture.detail = `Rédaction échouée après trois tentatives. ${message}`;
+          return false;
+        }
+        const retryDelay = getRetryDelayMs(attempt);
+        addLog(`Attente ${formatSeconds(retryDelay)} avant la tentative ${attempt + 1}`, capture);
+        await waitWithCountdown(
+          retryDelay,
+          capture,
+          (remaining) => `Nouvelle tentative dans ${formatSeconds(remaining)}.`
+        );
+      }
+    }
+    return false;
+  }
+
+  async function handleWriteAnalyses() {
+    if (session.running) return;
+    const available = session.captures.filter((capture) => Boolean(capture.editableDraft));
+    if (!available.length || !available.every((capture) => Boolean(capture.rankedReport))) return;
+
+    session.running = true;
+    session.cancelled = false;
+    setStatus("running", "Rédaction IA en cours", "Gemini", "Traitement alliance par alliance.");
+    updateControls();
+    renderSession();
+
+    try {
+      for (let index = 0; index < available.length; index += 1) {
+        if (session.cancelled) throw new SessionCancelledError();
+        const capture = available[index];
+        if (!capture.finalReport) await processAnalyses(capture);
+        if (index < available.length - 1 && !session.cancelled) {
+          const delay = getQueueDelayMs();
+          addLog(`Temporisation ${formatSeconds(delay)} avant l’alliance suivante`, capture);
+          await waitWithCountdown(
+            delay,
+            capture,
+            (remaining) => `Alliance suivante dans ${formatSeconds(remaining)}.`
+          );
+        }
+      }
+      setStatus("success", "Analyses terminées", "Prêt", "Les rapports finaux restent uniquement en mémoire.");
+    } catch (error) {
+      if (error instanceof SessionCancelledError) {
+        for (const capture of available) {
+          if (capture.state === "writing") {
+            capture.state = "ranked";
+            capture.detail = "Rédaction interrompue. Rapport classé conservé en mémoire.";
+          }
+        }
+        setStatus("cancelled", "Rédaction interrompue", "Arrêtée", "Les analyses déjà terminées restent en mémoire.");
+      } else {
+        setStatus("error", "Erreur de rédaction", "Erreur", error instanceof Error ? error.message : "Erreur inconnue");
+      }
+    } finally {
+      session.running = false;
+      session.abortController = null;
+      session.cancelWait = null;
+      updateControls();
+      renderSession();
+    }
   }
 
   function handleReviewUnlock() {
@@ -1572,7 +1719,7 @@
             capture,
             (remaining) => `Capture suivante dans ${formatSeconds(remaining)}.`
           );
-          if (!capture.needsManual) {
+          if (!capture.needsManual && session.activeCaptureId !== capture.id) {
             capture.state = "ready";
             capture.detail = "Brouillon conservé en mémoire. File reprise.";
           }
@@ -1673,6 +1820,7 @@
   reviewBackBottomButton.addEventListener("click", closeReview);
   calculateReportsButton.addEventListener("click", handleCalculateReports);
   rankReportsButton.addEventListener("click", handleRankReports);
+  writeAnalysesButton.addEventListener("click", handleWriteAnalyses);
   playerList.addEventListener("click", handlePlayerListClick);
   reviewUnlockButton.addEventListener("click", handleReviewUnlock);
   validateDraftButton.addEventListener("click", handleValidateDraft);
@@ -1682,7 +1830,7 @@
   editorCancelButton.addEventListener("click", closeEditor);
   editorResetButton.addEventListener("click", handleEditorReset);
   zoomOutButton.addEventListener("click", () => handleZoom(-0.25));
-  zoomResetButton.addEventListener("click", () => setReviewZoom(1));
+  zoomResetButton.addEventListener("click", () => setReviewZoom(2.5));
   zoomInButton.addEventListener("click", () => handleZoom(0.25));
   reportBackButton.addEventListener("click", closeReport);
   window.addEventListener("pagehide", handlePageHide);

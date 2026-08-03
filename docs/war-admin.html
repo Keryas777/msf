@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#071225" />
     <title>LoSP — Administration des guerres</title>
 
-    <link rel="stylesheet" href="./war-admin.css?v=4" />
+    <link rel="stylesheet" href="./war-admin.css?v=5" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icon-512.PNG" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,7 +16,8 @@
     <script src="./war-admin-validation.js?v=1" defer></script>
     <script src="./war-admin-report-calculator.js?v=1" defer></script>
     <script src="./war-admin-report-ranker.js?v=1" defer></script>
-    <script src="./war-admin.js?v=5" defer></script>
+    <script src="./war-admin-analysis.js?v=1" defer></script>
+    <script src="./war-admin.js?v=6" defer></script>
   </head>
 
   <body class="warAdminPage">
@@ -134,6 +135,10 @@
                 <span>rapports classés</span>
               </div>
               <div>
+                <strong id="warAnalyzedCount">0</strong>
+                <span>analyses rédigées</span>
+              </div>
+              <div>
                 <strong>En attente</strong>
                 <span>publication</span>
               </div>
@@ -144,6 +149,9 @@
             </button>
             <button id="warRankReports" class="warAdminCalculateButton" type="button" disabled>
               Classer les rapports
+            </button>
+            <button id="warWriteAnalyses" class="warAdminCalculateButton" type="button" disabled>
+              Rédiger les analyses
             </button>
             <p id="warCalculateHelp" class="warAdminValidationHelp" role="status"></p>
           </section>

@@ -2,21 +2,24 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 
-const [html, css, validation, reportCalculator, reportRanker, app] = await Promise.all([
+const [html, css, validation, reportCalculator, reportRanker, analysis, app, worker] = await Promise.all([
   readFile(new URL("../docs/war-admin.html", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin.css", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin-validation.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin-report-calculator.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin-report-ranker.js", import.meta.url), "utf8"),
-  readFile(new URL("../docs/war-admin.js", import.meta.url), "utf8")
+  readFile(new URL("../docs/war-admin-analysis.js", import.meta.url), "utf8"),
+  readFile(new URL("../docs/war-admin.js", import.meta.url), "utf8"),
+  readFile(new URL("../workers/msf-war-ocr/worker.js", import.meta.url), "utf8")
 ]);
 
 test("la page charge les Phases E et E.2 locales sans bloquer le zoom", () => {
-  assert.match(html, /href="\.\/war-admin\.css\?v=4"/);
+  assert.match(html, /href="\.\/war-admin\.css\?v=5"/);
   assert.match(html, /src="\.\/war-admin-validation\.js\?v=1" defer/);
   assert.match(html, /src="\.\/war-admin-report-calculator\.js\?v=1" defer/);
   assert.match(html, /src="\.\/war-admin-report-ranker\.js\?v=1" defer/);
-  assert.match(html, /src="\.\/war-admin\.js\?v=5" defer/);
+  assert.match(html, /src="\.\/war-admin-analysis\.js\?v=1" defer/);
+  assert.match(html, /src="\.\/war-admin\.js\?v=6" defer/);
   assert.match(html, /name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/);
   assert.doesNotMatch(html, /user-scalable=no|maximum-scale=1/);
   assert.doesNotMatch(html, /auth-(?:guard|session)\.js/);
@@ -58,7 +61,7 @@ test("la file n’envoie qu’une image à la fois vers la route brouillon", () 
     app,
     /const API_URL = "https:\/\/msf-war-ocr\.deliriousfan7\.workers\.dev\/api\/war\/parse-gemini-draft"/
   );
-  assert.equal((app.match(/\bfetch\(/g) || []).length, 1);
+  assert.equal((app.match(/\bfetch\(/g) || []).length, 2);
   assert.match(app, /for \(let index = 0; index < session\.captures\.length; index \+= 1\)/);
   assert.match(app, /const succeeded = await processCapture\(capture\)/);
   assert.doesNotMatch(app, /Promise\.all\([^)]*processCapture|session\.captures\.map\([^)]*fetch/);
@@ -208,7 +211,7 @@ test("le CSS reste mobile first, tactile et lisible à 320 px", () => {
 });
 
 test("le calcul et le classement locaux n’ajoutent ni secret, ni GitHub, ni Prompt 2", () => {
-  const frontend = `${html}\n${css}\n${validation}\n${reportCalculator}\n${reportRanker}\n${app}`;
+  const frontend = `${html}\n${css}\n${validation}\n${reportCalculator}\n${reportRanker}\n${analysis}\n${app}`;
   const forbiddenSecrets = [
     "GEMINI_API_KEY",
     "GITHUB_TOKEN",
@@ -224,10 +227,12 @@ test("le calcul et le classement locaux n’ajoutent ni secret, ni GitHub, ni Pr
   }
 
   assert.doesNotMatch(frontend, /api\.github\.com|upsertFileToGitHub|export_payload/);
-  assert.doesNotMatch(frontend, /rédaction automatique|Prompt 2/i);
   assert.doesNotMatch(reportCalculator, /\branking\b|\btags\b|\banalysis\b/);
   assert.equal((validation.match(/\bfetch\(/g) || []).length, 0);
   assert.equal((reportCalculator.match(/\bfetch\(/g) || []).length, 0);
   assert.equal((reportRanker.match(/\bfetch\(/g) || []).length, 0);
-  assert.equal((app.match(/\bfetch\(/g) || []).length, 1);
+  assert.equal((app.match(/\bfetch\(/g) || []).length, 2);
+  assert.match(worker, /\/api\/war\/write-analyses/);
+  assert.match(app, /session\.reviewZoom = 2\.5/);
+  assert.doesNotMatch(app, /if \(!capture\?\.editableDraft \|\| session\.running\) return/);
 });

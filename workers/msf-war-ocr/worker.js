@@ -55,6 +55,19 @@ export default {
       return addWarParseDraftCorsHeaders(request, response);
     }
 
+    if (request.method === "POST" && url.pathname === "/api/war/write-analyses") {
+      let response;
+      try {
+        response = await handleWarWriteAnalyses(request, env);
+      } catch (error) {
+        response = Response.json({
+          ok: false,
+          error: error instanceof Error ? error.message : "Erreur inconnue"
+        }, { status: 500 });
+      }
+      return addWarParseDraftCorsHeaders(request, response);
+    }
+
     return new Response("Worker OK. Ouvre /war-upload pour tester Gemini.", {
       headers: {
         "content-type": "text/plain; charset=utf-8"
@@ -64,6 +77,76 @@ export default {
 };
 
 const WAR_ADMIN_ORIGIN = "https://keryas777.github.io";
+
+function hasExactKeys(value, expectedKeys) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const actual = Object.keys(value).sort();
+  const expected = [...expectedKeys].sort();
+  return actual.length === expected.length && actual.every((key, index) => key === expected[index]);
+}
+
+function validateAnalysisRequest(body) {
+  if (!hasExactKeys(body, ["alliance", "date", "report"])) throw new Error("Contrat de requête invalide.");
+  if (!normalizeAlliance(body.alliance)) throw new Error("Alliance invalide.");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(body.date || "")) throw new Error("Date invalide.");
+  if (!hasExactKeys(body.report, ["summary", "ranking", "players"])) throw new Error("Rapport classé invalide.");
+  if (!Array.isArray(body.report.players) || !Array.isArray(body.report.ranking)) throw new Error("Rapport classé invalide.");
+  if (body.report.players.length !== body.report.ranking.length) throw new Error("Classement incohérent.");
+  return body;
+}
+
+function validateAnalysisResponse(parsed, players) {
+  if (!hasExactKeys(parsed, ["analyses"]) || !Array.isArray(parsed.analyses)) throw new Error("Réponse IA hors contrat.");
+  if (parsed.analyses.length !== players.length) throw new Error("Nombre d’analyses invalide.");
+  const expected = new Map(players.map((player) => [player.rank, player.name]));
+  const ranks = new Set();
+  const names = new Set();
+  for (const entry of parsed.analyses) {
+    if (!hasExactKeys(entry, ["rank", "name", "analysis"])) throw new Error("Clé supplémentaire dans une analyse.");
+    if (!Number.isInteger(entry.rank) || expected.get(entry.rank) !== entry.name) throw new Error("Joueur ou rang inconnu.");
+    if (ranks.has(entry.rank) || names.has(entry.name)) throw new Error("Analyse en doublon.");
+    if (typeof entry.analysis !== "string" || !entry.analysis.trim()) throw new Error("Analyse vide.");
+    ranks.add(entry.rank);
+    names.add(entry.name);
+  }
+  return { analyses: parsed.analyses.map((entry) => ({ ...entry, analysis: entry.analysis.trim() })) };
+}
+
+async function handleWarWriteAnalyses(request, env) {
+  const body = validateAnalysisRequest(await request.json());
+  const apiKey = env.GEMINI_API_KEY;
+  const model = env.GEMINI_MODEL || "gemini-2.5-flash";
+  if (!apiKey) throw new Error("La variable secrète GEMINI_API_KEY est absente dans le Worker.");
+
+  const prompt = [
+    "Tu rédiges uniquement les analyses individuelles d’une guerre Marvel Strike Force terminée.",
+    "Le rapport fourni est définitif : ne recalcule, ne corrige et ne retourne aucun score, rang, classement ou valeur numérique.",
+    "Pour chaque joueur, rédige en français au maximum 3 phrases concernant uniquement cette guerre.",
+    "Mets en avant les points forts lorsqu’ils existent, signale les limites lorsqu’elles existent, adapte la tonalité à la note et varie les formulations.",
+    "Ne fais aucune projection sur une autre guerre et n’invente aucune donnée.",
+    "Retourne uniquement un JSON contenant la clé analyses. Chaque entrée contient exactement rank, name et analysis. Aucun tag, aucune autre clé.",
+    JSON.stringify(body)
+  ].join("\n\n");
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+  const geminiResponse = await fetch(endpoint, {
+    method: "POST",
+    headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.55, responseMimeType: "application/json" }
+    })
+  });
+  const geminiData = await geminiResponse.json();
+  if (!geminiResponse.ok) throw new Error(geminiData?.error?.message || "Erreur Gemini");
+  const rawText = getGeminiText(geminiData);
+  let parsed;
+  try {
+    parsed = JSON.parse(stripCodeFences(rawText));
+  } catch (_) {
+    throw new Error("Gemini n’a pas renvoyé un JSON parseable.");
+  }
+  return Response.json(validateAnalysisResponse(parsed, body.report.players));
+}
 
 function addWarParseCorsHeaders(request, response) {
   response.headers.set("Vary", "Origin");

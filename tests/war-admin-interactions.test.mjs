@@ -3,10 +3,11 @@ import test from "node:test";
 import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 
-const [validationApp, reportCalculator, reportRanker, app] = await Promise.all([
+const [validationApp, reportCalculator, reportRanker, analysisApp, app] = await Promise.all([
   readFile(new URL("../docs/war-admin-validation.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin-report-calculator.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin-report-ranker.js", import.meta.url), "utf8"),
+  readFile(new URL("../docs/war-admin-analysis.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin.js", import.meta.url), "utf8")
 ]);
 
@@ -111,8 +112,10 @@ function createHarness(options = {}) {
     "warValidatedCount",
     "warCalculatedCount",
     "warRankedCount",
+    "warAnalyzedCount",
     "warCalculateReports",
     "warRankReports",
+    "warWriteAnalyses",
     "warCalculateHelp",
     "warLog",
     "warResult",
@@ -282,6 +285,7 @@ function createHarness(options = {}) {
   vm.runInContext(validationApp, vmContext, { filename: "war-admin-validation.js" });
   vm.runInContext(reportCalculator, vmContext, { filename: "war-admin-report-calculator.js" });
   vm.runInContext(reportRanker, vmContext, { filename: "war-admin-report-ranker.js" });
+  vm.runInContext(analysisApp, vmContext, { filename: "war-admin-analysis.js" });
   vm.runInContext(app, vmContext, { filename: "war-admin.js" });
 
   return {
@@ -433,6 +437,37 @@ test("six captures restent strictement séquentielles avec cinq délais visibles
   assert.match(harness.elements.warLog.innerHTML, /Temporisation terminée ; reprise de la file/);
   assert.match(harness.elements.warQueueSummary.textContent, /Prêts 6/);
   assert.equal(harness.elements.warStatusPanel.dataset.state, "warning");
+});
+
+test("un brouillon prêt reste vérifiable à 250 % pendant que l’OCR suivant continue", async () => {
+  const harness = createHarness();
+  let resolveSecond;
+  harness.setFetchImplementation((_url, _options, index) => {
+    if (index === 0) return Response.json(draftPayload("zeus", "Zeus"));
+    return new Promise((resolve) => {
+      resolveSecond = () => resolve(Response.json(draftPayload("kronos", "Kronos")));
+    });
+  });
+
+  harness.elements.warImage.files = files(2);
+  harness.listener("warImage", "change")();
+  const running = harness.listener("warAdminForm", "submit")(submitEvent());
+  await flushUntil(() => harness.fetchCalls.length === 2 && typeof resolveSecond === "function");
+
+  openReviewFromCard(harness, 0);
+  assert.equal(harness.elements.warReviewView.hidden, false);
+  assert.equal(harness.elements.warReviewImage.style.width, "250%");
+  assert.equal(harness.elements.warZoomReset.textContent, "250 %");
+  assert.equal(harness.maxActiveRequests, 1);
+
+  resolveSecond();
+  await running;
+  assert.equal(harness.elements.warReviewView.hidden, false, "la navigation de contrôle est conservée");
+  harness.listener("warReviewBack", "click")();
+  const snapshot = harness.getSnapshot();
+  assert.equal(snapshot.captures[0].state, "Vérification en cours");
+  assert.equal(snapshot.captures[1].state, "Brouillon prêt");
+  assert.equal(harness.fetchCalls.length, 2);
 });
 
 test("un doublon automatique est bloqué puis peut être affecté manuellement", async () => {
@@ -892,6 +927,49 @@ test("le classement reste bloqué avant calcul, puis se reclasse après invalida
   assert.equal(snapshot.captures[0].rankedReport.players[0].damage, 2222222222);
   assert.equal(snapshot.ranked_reports.length, 1);
   assert.equal(harness.fetchCalls.length, 1);
+});
+
+test("la rédaction fusionne uniquement les analyses dans le rapport classé", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async (url, options) => {
+    if (url.includes("parse-gemini-draft")) return Response.json(draftPayload("zeus", "Zeus"));
+    const payload = JSON.parse(options.body);
+    return Response.json({
+      analyses: payload.report.players.map(({ rank, name }) => ({
+        rank,
+        name,
+        analysis: `Analyse de ${name} pour cette guerre.`
+      }))
+    });
+  });
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  harness.listener("warCalculateReports", "click")();
+  harness.listener("warRankReports", "click")();
+
+  const before = structuredClone(harness.getSnapshot().captures[0].rankedReport);
+  await harness.listener("warWriteAnalyses", "click")();
+  const snapshot = harness.getSnapshot();
+  const finalReport = snapshot.captures[0].finalReport;
+
+  assert.equal(harness.fetchCalls.length, 2);
+  assert.match(harness.fetchCalls[1].url, /\/api\/war\/write-analyses$/);
+  assert.deepEqual(finalReport.report.summary, before.report.summary);
+  assert.deepEqual(finalReport.report.ranking, before.report.ranking);
+  finalReport.report.players.forEach((player, index) => {
+    const { analysis, ...withoutAnalysis } = player;
+    assert.deepEqual(withoutAnalysis, before.report.players[index]);
+    assert.match(analysis, /pour cette guerre/);
+    assert.equal("tags" in player, false);
+  });
+  assert.equal(snapshot.published, false);
+  assert.equal(snapshot.final_reports.length, 1);
+  assert.equal(harness.elements.warAnalyzedCount.textContent, "1");
 });
 
 test("deux alliances doivent être validées indépendamment avant le calcul groupé", async () => {

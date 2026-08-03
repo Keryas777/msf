@@ -436,7 +436,9 @@ select {
 }
 
 .warAdminCaptureCard[data-state="calculated"] .warAdminCaptureState,
-.warAdminCaptureCard[data-state="ranked"] .warAdminCaptureState {
+.warAdminCaptureCard[data-state="ranked"] .warAdminCaptureState,
+.warAdminCaptureCard[data-state="writing"] .warAdminCaptureState,
+.warAdminCaptureCard[data-state="analyzed"] .warAdminCaptureState {
   border-color: rgba(113, 231, 255, 0.45);
   background: rgba(113, 231, 255, 0.08);
   color: var(--war-admin-cyan);
@@ -710,9 +712,14 @@ select {
 }
 
 .warAdminReviewState[data-state="calculated"],
-.warAdminReviewState[data-state="ranked"] {
+.warAdminReviewState[data-state="ranked"],
+.warAdminReviewState[data-state="analyzed"] {
   border-color: rgba(113, 231, 255, 0.42);
   color: var(--war-admin-cyan);
+}
+
+.warAdminReportAnalysis {
+  grid-column: 1 / -1;
 }
 
 .warAdminReviewState[data-state="reviewing"],
