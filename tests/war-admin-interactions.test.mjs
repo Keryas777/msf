@@ -113,9 +113,11 @@ function createHarness(options = {}) {
     "warCalculatedCount",
     "warRankedCount",
     "warAnalyzedCount",
+    "warPublishedCount",
     "warCalculateReports",
     "warRankReports",
     "warWriteAnalyses",
+    "warPublishReports",
     "warCalculateHelp",
     "warLog",
     "warResult",
@@ -970,6 +972,114 @@ test("la rédaction fusionne uniquement les analyses dans le rapport classé", a
   assert.equal(snapshot.published, false);
   assert.equal(snapshot.final_reports.length, 1);
   assert.equal(harness.elements.warAnalyzedCount.textContent, "1");
+});
+
+test("un rapport final est publié sans recalcul ni modification", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async (url, options) => {
+    if (url.includes("parse-gemini-draft")) return Response.json(draftPayload("zeus", "Zeus"));
+    if (url.includes("write-analyses")) {
+      const payload = JSON.parse(options.body);
+      return Response.json({
+        analyses: payload.report.players.map(({ rank, name }) => ({
+          rank,
+          name,
+          analysis: `Analyse fidèle de ${name} pour cette guerre.`
+        }))
+      });
+    }
+    return Response.json({
+      ok: true,
+      published: true,
+      path: "docs/data/war/2026-08-02/zeus.json",
+      commit_sha: "commit-zeus"
+    });
+  });
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  harness.listener("warCalculateReports", "click")();
+  harness.listener("warRankReports", "click")();
+  await harness.listener("warWriteAnalyses", "click")();
+
+  const before = structuredClone(harness.getSnapshot().captures[0].finalReport);
+  await harness.listener("warPublishReports", "click")();
+  const snapshot = harness.getSnapshot();
+
+  assert.equal(harness.fetchCalls.length, 3);
+  assert.match(harness.fetchCalls[2].url, /\/api\/war\/publish-report$/);
+  assert.equal(harness.fetchCalls[2].options.body, JSON.stringify(before));
+  assert.deepEqual(snapshot.captures[0].finalReport, before);
+  assert.equal(snapshot.captures[0].publication.state, "published");
+  assert.equal(snapshot.captures[0].publication.commit_sha, "commit-zeus");
+  assert.equal(snapshot.published, true);
+  assert.equal(harness.elements.warPublishedCount.textContent, "1");
+  assert.equal(harness.elements.warPublishReports.textContent, "Publié");
+});
+
+test("la publication reste séquentielle et poursuit après une erreur", async () => {
+  const harness = createHarness();
+  let ocrIndex = 0;
+  let publicationIndex = 0;
+  const drafts = [
+    draftPayload("zeus", "Zeus"),
+    draftPayload("kronos", "Kronos")
+  ];
+
+  harness.setFetchImplementation(async (url, options) => {
+    if (url.includes("parse-gemini-draft")) return Response.json(drafts[ocrIndex++]);
+    if (url.includes("write-analyses")) {
+      const payload = JSON.parse(options.body);
+      return Response.json({
+        analyses: payload.report.players.map(({ rank, name }) => ({
+          rank,
+          name,
+          analysis: `Analyse conservée de ${name} pour cette guerre.`
+        }))
+      });
+    }
+
+    publicationIndex += 1;
+    if (publicationIndex === 1) {
+      return Response.json({ ok: false, published: false, error: "Échec Zeus" }, { status: 500 });
+    }
+    return Response.json({
+      ok: true,
+      published: true,
+      path: "docs/data/war/2026-08-02/kronos.json",
+      commit_sha: "commit-kronos"
+    });
+  });
+
+  harness.elements.warImage.files = files(2);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  for (let index = 0; index < 2; index += 1) {
+    openReviewFromCard(harness, index);
+    harness.listener("warValidateDraft", "click")();
+    harness.listener("warReviewBack", "click")();
+  }
+  harness.listener("warCalculateReports", "click")();
+  harness.listener("warRankReports", "click")();
+  await harness.listener("warWriteAnalyses", "click")();
+  const before = harness.getSnapshot().captures.map((capture) => structuredClone(capture.finalReport));
+  await harness.listener("warPublishReports", "click")();
+  const snapshot = harness.getSnapshot();
+  const publicationCalls = harness.fetchCalls.filter(({ url }) => url.includes("publish-report"));
+
+  assert.equal(publicationCalls.length, 2);
+  assert.equal(harness.maxActiveRequests, 1);
+  assert.equal(publicationCalls[0].options.body, JSON.stringify(before[0]));
+  assert.equal(publicationCalls[1].options.body, JSON.stringify(before[1]));
+  assert.deepEqual(snapshot.captures.map(({ finalReport }) => finalReport), before);
+  assert.equal(snapshot.captures[0].publication.state, "error");
+  assert.equal(snapshot.captures[1].publication.state, "published");
+  assert.equal(snapshot.published, false);
+  assert.match(harness.elements.warStatusMessage.textContent, /1 rapport publié · 1 échec conservé/);
 });
 
 test("deux alliances doivent être validées indépendamment avant le calcul groupé", async () => {

@@ -3,6 +3,7 @@
 
   const API_URL = "https://msf-war-ocr.deliriousfan7.workers.dev/api/war/parse-gemini-draft";
   const ANALYSIS_API_URL = "https://msf-war-ocr.deliriousfan7.workers.dev/api/war/write-analyses";
+  const PUBLICATION_API_URL = "https://msf-war-ocr.deliriousfan7.workers.dev/api/war/publish-report";
   const IDLE_RESULT = "En attente d’un envoi…";
   const SUBMIT_LABEL = "Lancer la session OCR";
   const QUEUE_DELAY_MIN_MS = 8000;
@@ -54,6 +55,9 @@
     ranked: "Rapport classé",
     writing: "Rédaction en cours",
     analyzed: "Analyses rédigées",
+    publishing: "Publication…",
+    published: "Publié",
+    publish_error: "Erreur",
     revalidate: "À revalider",
     manual: "Alliance à confirmer",
     failed: "OCR échoué",
@@ -77,9 +81,11 @@
   const calculatedCount = document.getElementById("warCalculatedCount");
   const rankedCount = document.getElementById("warRankedCount");
   const analyzedCount = document.getElementById("warAnalyzedCount");
+  const publishedCount = document.getElementById("warPublishedCount");
   const calculateReportsButton = document.getElementById("warCalculateReports");
   const rankReportsButton = document.getElementById("warRankReports");
   const writeAnalysesButton = document.getElementById("warWriteAnalyses");
+  const publishReportsButton = document.getElementById("warPublishReports");
   const calculateHelp = document.getElementById("warCalculateHelp");
   const logPanel = document.getElementById("warLog");
   const result = document.getElementById("warResult");
@@ -387,7 +393,10 @@
       capture.state === "calculated" ||
       capture.state === "ranked" ||
       capture.state === "writing" ||
-      capture.state === "analyzed"
+      capture.state === "analyzed" ||
+      capture.state === "publishing" ||
+      capture.state === "published" ||
+      capture.state === "publish_error"
     )).length;
     const calculated = session.captures.filter((capture) => Boolean(capture.calculatedReport)).length;
     const ranked = session.captures.filter((capture) => capture.state === "ranked").length;
@@ -430,6 +439,9 @@
     const analyzed = available.filter((capture) => (
       isOcrValidatedCapture(capture) && Boolean(capture.finalReport)
     )).length;
+    const published = available.filter((capture) => (
+      capture.publication?.state === "published"
+    )).length;
     const allValidated = validated === available.length;
     const allCalculated = calculated === available.length;
     const allRanked = ranked === available.length;
@@ -439,15 +451,22 @@
     calculatedCount.textContent = String(calculated);
     rankedCount.textContent = String(ranked);
     analyzedCount.textContent = String(analyzed);
+    publishedCount.textContent = String(published);
     calculateReportsButton.disabled = session.running || !allValidated || allCalculated;
     calculateReportsButton.textContent = allCalculated ? "Rapports calculés" : "Calculer les rapports";
     rankReportsButton.disabled = session.running || !allCalculated || allRanked;
     rankReportsButton.textContent = allRanked ? "Rapports classés" : "Classer les rapports";
     writeAnalysesButton.disabled = session.running || !allRanked || allAnalyzed;
     writeAnalysesButton.textContent = allAnalyzed ? "Analyses rédigées" : "Rédiger les analyses";
+    publishReportsButton.disabled = session.running || !allAnalyzed || published === available.length;
+    publishReportsButton.textContent = session.running && allAnalyzed
+      ? "Publication…"
+      : (published === available.length ? "Publié" : "Publier");
 
-    if (allAnalyzed) {
-      calculateHelp.textContent = `${analyzed} ${plural(analyzed, "rapport analysé", "rapports analysés")} uniquement en mémoire · publication non effectuée.`;
+    if (published === available.length) {
+      calculateHelp.textContent = `${published} ${plural(published, "rapport publié", "rapports publiés")} sur la branche GitHub de travail.`;
+    } else if (allAnalyzed) {
+      calculateHelp.textContent = `${analyzed} ${plural(analyzed, "rapport analysé", "rapports analysés")} prêt à publier · ${published} déjà ${plural(published, "publié", "publiés")}.`;
     } else if (allRanked) {
       calculateHelp.textContent = `${validated} ${plural(validated, "OCR validé", "OCR validés")} · ${calculated} ${plural(calculated, "rapport calculé", "rapports calculés")} · ${ranked} ${plural(ranked, "rapport classé", "rapports classés")} · rédaction prête.`;
     } else if (allCalculated) {
@@ -463,10 +482,14 @@
   function getTechnicalPayload() {
     return {
       war_date: session.warDate || dateInput.value || null,
-      published: false,
+      published: session.captures.length > 0 && session.captures.every((capture) => capture.publication?.state === "published"),
       publication: {
-        performed: false,
-        state: "pending"
+        performed: session.captures.some((capture) => capture.publication?.state === "published"),
+        state: session.running && session.captures.some((capture) => capture.state === "publishing")
+          ? "publishing"
+          : (session.captures.length > 0 && session.captures.every((capture) => capture.publication?.state === "published")
+            ? "published"
+            : "pending")
       },
       drafts: session.captures
         .filter((capture) => Boolean(capture.editableDraft))
@@ -512,6 +535,7 @@
         calculatedReport: capture.calculatedReport,
         rankedReport: capture.rankedReport,
         finalReport: capture.finalReport,
+        publication: capture.publication,
         modification_count: capture.ocrDraft && capture.editableDraft
           ? countModifiedFields(capture.ocrDraft, capture.editableDraft)
           : 0
@@ -599,6 +623,7 @@
       capture.calculatedReport = null;
       capture.rankedReport = null;
       capture.finalReport = null;
+      capture.publication = { state: "pending", path: null, commit_sha: null, error: null };
       capture.reviewScrollY = 0;
       capture.reportScrollY = 0;
       capture.listScrollY = 0;
@@ -665,6 +690,7 @@
       calculatedReport: null,
       rankedReport: null,
       finalReport: null,
+      publication: { state: "pending", path: null, commit_sha: null, error: null },
       reviewScrollY: 0,
       reportScrollY: 0,
       listScrollY: 0,
@@ -830,6 +856,7 @@
     capture.calculatedReport = null;
     capture.rankedReport = null;
     capture.finalReport = null;
+    capture.publication = { state: "pending", path: null, commit_sha: null, error: null };
     capture.state = "ready";
     capture.detail = source === "automatic"
       ? "Alliance détectée automatiquement. Brouillon conservé en mémoire."
@@ -909,6 +936,7 @@
     capture.calculatedReport = null;
     capture.rankedReport = null;
     capture.finalReport = null;
+    capture.publication = { state: "pending", path: null, commit_sha: null, error: null };
 
     if (capture.validatedDraft) {
       capture.state = "revalidate";
@@ -1585,6 +1613,7 @@
     capture.calculatedReport = null;
     capture.rankedReport = null;
     capture.finalReport = null;
+    capture.publication = { state: "pending", path: null, commit_sha: null, error: null };
     capture.state = "validated";
     capture.detail = "Brouillon OCR validé. Rapport non calculé.";
     session.reviewReadOnly = true;
@@ -1683,6 +1712,7 @@
           capture.calculatedReport
         );
         capture.finalReport = null;
+        capture.publication = { state: "pending", path: null, commit_sha: null, error: null };
         capture.state = "ranked";
         capture.detail = "Rapport classé en mémoire. Publication non effectuée.";
         addLog(
@@ -1936,6 +1966,140 @@
       updateControls();
       renderSession();
     }
+  }
+
+  async function publishFinalReport(capture) {
+    capture.state = "publishing";
+    capture.detail = "Publication GitHub en cours sur la branche de travail.";
+    capture.publication = {
+      state: "publishing",
+      path: null,
+      commit_sha: null,
+      error: null
+    };
+    addLog("Publication…", capture);
+    renderSession();
+
+    const controller = new AbortController();
+    session.abortController = controller;
+
+    try {
+      const response = await fetch(PUBLICATION_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(capture.finalReport),
+        signal: controller.signal
+      });
+      const responseText = await response.text();
+      let data;
+
+      try {
+        data = JSON.parse(responseText);
+      } catch (error) {
+        throw new Error(`Réponse de publication illisible (HTTP ${response.status})`);
+      }
+
+      if (!response.ok || data?.published !== true) {
+        throw new Error(getErrorDetail(data) || `HTTP ${response.status}`);
+      }
+
+      capture.publication = {
+        state: "published",
+        path: data.path || null,
+        commit_sha: data.commit_sha || null,
+        error: null
+      };
+      capture.state = "published";
+      capture.detail = `Publié sur la branche de travail : ${data.path}.`;
+      addLog(`Publié — ${data.path}`, capture);
+      renderSession();
+      return true;
+    } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : "Erreur de publication inconnue";
+
+      capture.publication = {
+        state: "error",
+        path: null,
+        commit_sha: null,
+        error: message
+      };
+      capture.state = "publish_error";
+      capture.detail = `Publication échouée. ${message}`;
+      addLog(`Erreur de publication : ${message}`, capture);
+      renderSession();
+      return false;
+    } finally {
+      if (session.abortController === controller) {
+        session.abortController = null;
+      }
+    }
+  }
+
+  async function handlePublishReports() {
+    if (session.running) return;
+
+    const available = session.captures.filter(
+      (capture) => Boolean(capture.editableDraft)
+    );
+
+    if (
+      !available.length ||
+      !available.every((capture) => Boolean(capture.finalReport))
+    ) {
+      renderSession();
+      return;
+    }
+
+    session.running = true;
+    session.cancelled = false;
+    setStatus(
+      "running",
+      "Publication en cours",
+      "Publication…",
+      "Écriture GitHub strictement alliance par alliance."
+    );
+    updateControls();
+    renderSession();
+
+    let published = 0;
+    let errors = 0;
+
+    for (const capture of available) {
+      if (capture.publication?.state === "published") {
+        published += 1;
+        continue;
+      }
+
+      const succeeded = await publishFinalReport(capture);
+      if (succeeded) published += 1;
+      else errors += 1;
+    }
+
+    session.running = false;
+    session.cancelled = false;
+
+    if (errors > 0) {
+      setStatus(
+        "error",
+        "Publication terminée avec erreur",
+        "Erreur",
+        `${published} ${plural(published, "rapport publié", "rapports publiés")} · ${errors} ${plural(errors, "échec conservé", "échecs conservés")}.`
+      );
+    } else {
+      setStatus(
+        "success",
+        "Publication terminée",
+        "Publié",
+        `${published} ${plural(published, "rapport publié", "rapports publiés")} sur la branche GitHub de travail.`
+      );
+    }
+
+    updateControls();
+    renderSession();
   }
 
   function handleReviewUnlock() {
@@ -2641,6 +2805,11 @@
   writeAnalysesButton.addEventListener(
     "click",
     handleWriteAnalyses
+  );
+
+  publishReportsButton.addEventListener(
+    "click",
+    handlePublishReports
   );
 
   playerList.addEventListener(

@@ -17,7 +17,7 @@
     <script src="./war-admin-report-calculator.js?v=1" defer></script>
     <script src="./war-admin-report-ranker.js?v=1" defer></script>
     <script src="./war-admin-analysis.js?v=1" defer></script>
-    <script src="./war-admin.js?v=6" defer></script>
+    <script src="./war-admin.js?v=7" defer></script>
   </head>
 
   <body class="warAdminPage">
@@ -139,7 +139,7 @@
                 <span>analyses rédigées</span>
               </div>
               <div>
-                <strong>En attente</strong>
+                <strong id="warPublishedCount">0</strong>
                 <span>publication</span>
               </div>
             </div>
@@ -152,6 +152,9 @@
             </button>
             <button id="warWriteAnalyses" class="warAdminCalculateButton" type="button" disabled>
               Rédiger les analyses
+            </button>
+            <button id="warPublishReports" class="warAdminCalculateButton" type="button" disabled>
+              Publier
             </button>
             <p id="warCalculateHelp" class="warAdminValidationHelp" role="status"></p>
           </section>
