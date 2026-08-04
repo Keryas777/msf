@@ -591,8 +591,8 @@ async function handleWarPublishReport(request, env) {
 
   const branch = String(env.GITHUB_BRANCH || "").trim();
 
-  if (!branch || branch === "main" || branch === "refs/heads/main") {
-    throw new Error("La branche GitHub de travail doit être configurée et différente de main.");
+  if (!branch) {
+    throw new Error("La branche GitHub de publication doit être configurée.");
   }
 
   const exportPath =

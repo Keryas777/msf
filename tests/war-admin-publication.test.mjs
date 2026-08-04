@@ -101,7 +101,38 @@ test("le Worker crée le chemin daté et sérialise fidèlement finalReport", { 
   }
 });
 
-test("le Worker refuse toute publication directe sur main", { concurrency: false }, async () => {
+test("le Worker autorise main lorsqu'elle est configurée comme branche de publication", { concurrency: false }, async () => {
+  const report = finalReport();
+  const calls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url, options) => {
+    calls.push({ url: String(url), options });
+    if (options.method === "GET") return new Response("Not found", { status: 404 });
+    return Response.json({ commit: { sha: "commit-main" } });
+  };
+
+  try {
+    const response = await worker.fetch(
+      publicationRequest(report),
+      { ...env, GITHUB_BRANCH: "main" },
+      {}
+    );
+    const data = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(data.published, true);
+    assert.equal(data.branch, "main");
+    assert.equal(data.path, "docs/data/war/2026-08-02/zeus.json");
+    assert.equal(calls.length, 2);
+    assert.match(calls[0].url, /docs\/data\/war\/2026-08-02\/zeus\.json\?ref=main$/);
+    assert.equal(calls[0].options.method, "GET");
+    assert.equal(calls[1].options.method, "PUT");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("le Worker exige une branche de publication explicitement configurée", { concurrency: false }, async () => {
   const originalFetch = globalThis.fetch;
   let fetchCount = 0;
   globalThis.fetch = async () => {
@@ -112,14 +143,14 @@ test("le Worker refuse toute publication directe sur main", { concurrency: false
   try {
     const response = await worker.fetch(
       publicationRequest(finalReport()),
-      { ...env, GITHUB_BRANCH: "main" },
+      { ...env, GITHUB_BRANCH: "" },
       {}
     );
     const data = await response.json();
 
     assert.equal(response.status, 500);
     assert.equal(data.published, false);
-    assert.match(data.error, /différente de main/);
+    assert.match(data.error, /doit être configurée/);
     assert.equal(fetchCount, 0);
   } finally {
     globalThis.fetch = originalFetch;
