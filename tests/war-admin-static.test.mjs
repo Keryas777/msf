@@ -19,7 +19,7 @@ test("la page charge les Phases E et E.2 locales sans bloquer le zoom", () => {
   assert.match(html, /src="\.\/war-admin-report-calculator\.js\?v=1" defer/);
   assert.match(html, /src="\.\/war-admin-report-ranker\.js\?v=1" defer/);
   assert.match(html, /src="\.\/war-admin-analysis\.js\?v=1" defer/);
-  assert.match(html, /src="\.\/war-admin\.js\?v=6" defer/);
+  assert.match(html, /src="\.\/war-admin\.js\?v=7" defer/);
   assert.match(html, /name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/);
   assert.doesNotMatch(html, /user-scalable=no|maximum-scale=1/);
   assert.doesNotMatch(html, /auth-(?:guard|session)\.js/);
@@ -61,12 +61,12 @@ test("la file n’envoie qu’une image à la fois vers la route brouillon", () 
     app,
     /const API_URL = "https:\/\/msf-war-ocr\.deliriousfan7\.workers\.dev\/api\/war\/parse-gemini-draft"/
   );
-  assert.equal((app.match(/\bfetch\(/g) || []).length, 2);
-  assert.match(app, /for \(let index = 0; index < session\.captures\.length; index \+= 1\)/);
+  assert.equal((app.match(/\bfetch\(/g) || []).length, 3);
+  assert.match(app, /for \([\s\S]*?let index = 0;[\s\S]*?index < session\.captures\.length;[\s\S]*?index \+= 1[\s\S]*?\)/);
   assert.match(app, /const succeeded = await processCapture\(capture\)/);
   assert.doesNotMatch(app, /Promise\.all\([^)]*processCapture|session\.captures\.map\([^)]*fetch/);
-  assert.match(app, /formData\.append\("war_date", session\.warDate\)/);
-  assert.match(app, /formData\.append\("image", capture\.file,/);
+  assert.match(app, /formData\.append\([\s\S]*?"war_date",[\s\S]*?session\.warDate[\s\S]*?\)/);
+  assert.match(app, /formData\.append\([\s\S]*?"image",[\s\S]*?capture\.file,[\s\S]*?\)/);
   assert.doesNotMatch(app, /formData\.append\("alliance"/);
   assert.match(app, /data\.published !== false/);
   assert.doesNotMatch(app, /\/api\/war\/parse-gemini"/);
@@ -86,14 +86,14 @@ test("les temporisations et les trois tentatives suivent le contrat", () => {
 });
 
 test("les doublons et les détections incertaines déclenchent un choix manuel local", () => {
-  assert.match(app, /data\.detected_alliance \|\| data\.detected_alliance_label \|\| data\.alliance/);
-  assert.match(app, /getAssignedCapture\(detectedAlliance, capture\.id\)/);
-  assert.match(app, /requireManualAlliance\(capture, detectedAlliance\)/);
+  assert.match(app, /data\.detected_alliance \|\|[\s\S]*?data\.detected_alliance_label \|\|[\s\S]*?data\.alliance/);
+  assert.match(app, /getAssignedCapture\([\s\S]*?detectedAlliance,[\s\S]*?capture\.id[\s\S]*?\)/);
+  assert.match(app, /requireManualAlliance\([\s\S]*?capture,[\s\S]*?detectedAlliance[\s\S]*?\)/);
   assert.match(app, /Alliance incertaine : choix manuel demandé uniquement pour cette capture/);
   assert.match(app, /Choix refusé : .* est déjà attribuée/);
   assert.match(app, /assignmentSource = source/);
   assert.match(app, /source === "automatic"/);
-  assert.match(app, /assignAlliance\(capture, alliance, "manual"\)/);
+  assert.match(app, /assignAlliance\([\s\S]*?capture,[\s\S]*?alliance,[\s\S]*?"manual"[\s\S]*?\)/);
 });
 
 test("la liste, le journal et les états sont principaux, le JSON est repliable", () => {
@@ -139,20 +139,24 @@ test("la validation OCR propose une liste verticale et une fiche mobile pour une
   assert.match(css, /touch-action: pan-x pan-y pinch-zoom/);
 });
 
-test("la pré-publication distingue validation, calcul, classement et absence de publication", () => {
+test("le pipeline distingue validation, calcul, classement, analyse et publication", () => {
   assert.match(html, /id="warReportProgress"[\s\S]*?hidden/);
   assert.match(html, /id="warValidatedCount"/);
   assert.match(html, /id="warCalculatedCount"/);
   assert.match(html, /id="warRankedCount"/);
+  assert.match(html, /id="warAnalyzedCount"/);
+  assert.match(html, /id="warPublishedCount"/);
   assert.match(html, /Publication non effectuée/);
   assert.match(html, /id="warCalculateReports"[\s\S]*?disabled[\s\S]*?Calculer les rapports/);
   assert.match(html, /id="warRankReports"[\s\S]*?disabled[\s\S]*?Classer les rapports/);
+  assert.match(html, /id="warWriteAnalyses"[\s\S]*?disabled[\s\S]*?Rédiger les analyses/);
+  assert.match(html, /id="warPublishReports"[\s\S]*?disabled[\s\S]*?Publier/);
   assert.match(html, /id="warReportView"[\s\S]*?hidden/);
   assert.match(html, /id="warReportPlayerList" class="warAdminReportPlayerList"/);
   assert.match(html, /JSON du rapport calculé/);
   assert.match(app, /calculated: "Rapport calculé"/);
   assert.match(app, /ranked: "Rapport classé"/);
-  assert.match(app, /capture\.calculatedReport = calculateReport\(capture\.validatedDraft\)/);
+  assert.match(app, /capture\.calculatedReport = calculateReport\([\s\S]*?capture\.validatedDraft[\s\S]*?\)/);
   assert.match(app, /publication en attente/);
   assert.match(app, /Rapport calculé localement — publication non effectuée/);
   assert.match(app, /Rapport classé localement — publication non effectuée/);
@@ -231,8 +235,9 @@ test("le calcul et le classement locaux n’ajoutent ni secret, ni GitHub, ni Pr
   assert.equal((validation.match(/\bfetch\(/g) || []).length, 0);
   assert.equal((reportCalculator.match(/\bfetch\(/g) || []).length, 0);
   assert.equal((reportRanker.match(/\bfetch\(/g) || []).length, 0);
-  assert.equal((app.match(/\bfetch\(/g) || []).length, 2);
+  assert.equal((app.match(/\bfetch\(/g) || []).length, 3);
   assert.match(worker, /\/api\/war\/write-analyses/);
+  assert.match(worker, /\/api\/war\/publish-report/);
   assert.match(app, /session\.reviewZoom = 2\.5/);
   assert.doesNotMatch(app, /if \(!capture\?\.editableDraft \|\| session\.running\) return/);
 });

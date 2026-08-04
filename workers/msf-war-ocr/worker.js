@@ -81,6 +81,30 @@ export default {
       return addWarParseDraftCorsHeaders(request, response);
     }
 
+    if (
+      request.method === "POST" &&
+      url.pathname === "/api/war/publish-report"
+    ) {
+      let response;
+
+      try {
+        response = await handleWarPublishReport(request, env);
+      } catch (error) {
+        response = Response.json(
+          {
+            ok: false,
+            published: false,
+            error: error instanceof Error ? error.message : "Erreur inconnue"
+          },
+          {
+            status: 500
+          }
+        );
+      }
+
+      return addWarParseDraftCorsHeaders(request, response);
+    }
+
     return new Response("Worker OK. Ouvre /war-upload pour tester Gemini.", {
       headers: {
         "content-type": "text/plain; charset=utf-8"
@@ -422,7 +446,7 @@ async function handleWarWriteAnalyses(request, env) {
 
     "Ne mentionne jamais les prochaines guerres, les futures guerres, la prochaine participation ou une amélioration attendue.",
 
-    "Conclus uniquement sur la performance observée pendant cette guerre."
+    "Conclus uniquement sur la performance observée pendant cette guerre.",
 
     "Repères d’interprétation autorisés : un volume ou une moyenne de dégâts élevés peuvent indiquer des cibles ambitieuses ; de faibles dégâts peuvent indiquer des cibles plus modestes ; beaucoup d’attaques avec de gros dégâts mais plusieurs ratés indiquent une activité ambitieuse mais imparfaite ; de nombreuses victoires défensives indiquent une contribution défensive importante ; les déviations indiquent une implication dans la protection de l’alliance.",
 
@@ -534,6 +558,73 @@ async function handleWarWriteAnalyses(request, env) {
   return Response.json(
     validateAnalysisResponse(parsed, body.report.players)
   );
+}
+
+async function handleWarPublishReport(request, env) {
+  const requestText = await request.text();
+
+  if (!requestText || requestText.length > ANALYSIS_REQUEST_MAX_BYTES) {
+    throw new Error("Rapport final absent ou trop volumineux.");
+  }
+
+  let finalReport;
+
+  try {
+    finalReport = JSON.parse(requestText);
+  } catch (error) {
+    throw new Error("Rapport final JSON illisible.");
+  }
+
+  if (
+    !isPlainObject(finalReport) ||
+    !isValidIsoDate(finalReport.date) ||
+    typeof finalReport.alliance !== "string" ||
+    normalizeAlliance(finalReport.alliance) !== finalReport.alliance ||
+    !Array.isArray(finalReport.players) ||
+    !isPlainObject(finalReport.report) ||
+    !isPlainObject(finalReport.report.summary) ||
+    !Array.isArray(finalReport.report.ranking) ||
+    !Array.isArray(finalReport.report.players)
+  ) {
+    throw new Error("Le rapport final ne respecte pas le contrat de publication.");
+  }
+
+  const branch = String(env.GITHUB_BRANCH || "").trim();
+
+  if (!branch) {
+    throw new Error("La branche GitHub de publication doit être configurée.");
+  }
+
+  const exportPath =
+    "docs/data/war/" +
+    finalReport.date +
+    "/" +
+    finalReport.alliance +
+    ".json";
+
+  const githubWrite = await upsertFileToGitHub({
+    env: env,
+    path: exportPath,
+    jsonObject: finalReport,
+    message:
+      "chore(war): publish " +
+      finalReport.alliance +
+      " for " +
+      finalReport.date
+  });
+
+  return Response.json({
+    ok: true,
+    published: true,
+    alliance: finalReport.alliance,
+    war_date: finalReport.date,
+    path: exportPath,
+    branch: branch,
+    commit_sha:
+      githubWrite && githubWrite.commit
+        ? githubWrite.commit.sha
+        : null
+  });
 }
 
 function addWarParseCorsHeaders(request, response) {
