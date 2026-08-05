@@ -115,6 +115,17 @@ export default {
 
 const WAR_ADMIN_ORIGIN = "https://keryas777.github.io";
 
+const WAR_INDEX_PATH = "docs/data/war/index.json";
+
+const WAR_ALLIANCE_ORDER = Object.freeze([
+  "zeus",
+  "athena",
+  "kronos",
+  "dionysos",
+  "poseidon",
+  "hades"
+]);
+
 const ANALYSIS_REQUEST_MAX_BYTES = 512 * 1024;
 const ANALYSIS_MAX_PLAYERS = 24;
 const ANALYSIS_NAME_MAX_LENGTH = 80;
@@ -568,7 +579,6 @@ async function handleWarPublishReport(request, env) {
   }
 
   let finalReport;
-
   try {
     finalReport = JSON.parse(requestText);
   } catch (error) {
@@ -590,40 +600,56 @@ async function handleWarPublishReport(request, env) {
   }
 
   const branch = String(env.GITHUB_BRANCH || "").trim();
-
-  if (!branch) {
-    throw new Error("La branche GitHub de publication doit être configurée.");
-  }
+  if (!branch) throw new Error("La branche GitHub de publication doit être configurée.");
 
   const exportPath =
-    "docs/data/war/" +
-    finalReport.date +
-    "/" +
-    finalReport.alliance +
-    ".json";
+    "docs/data/war/" + finalReport.date + "/" + finalReport.alliance + ".json";
 
   const githubWrite = await upsertFileToGitHub({
-    env: env,
+    env,
     path: exportPath,
     jsonObject: finalReport,
-    message:
-      "chore(war): publish " +
-      finalReport.alliance +
-      " for " +
-      finalReport.date
+    message: "chore(war): publish " + finalReport.alliance + " for " + finalReport.date
   });
+
+  const reportCommitSha =
+    githubWrite && githubWrite.commit ? githubWrite.commit.sha : null;
+
+  let indexWrite;
+  try {
+    indexWrite = await updateWarIndexAfterPublication(
+      env,
+      finalReport.date,
+      finalReport.alliance
+    );
+  } catch (error) {
+    return Response.json({
+      ok: false,
+      published: true,
+      indexed: false,
+      alliance: finalReport.alliance,
+      war_date: finalReport.date,
+      path: exportPath,
+      branch,
+      commit_sha: reportCommitSha,
+      index_path: WAR_INDEX_PATH,
+      error:
+        "Le rapport a été publié, mais index.json n’a pas pu être mis à jour. " +
+        (error instanceof Error ? error.message : "Erreur inconnue")
+    }, { status: 500 });
+  }
 
   return Response.json({
     ok: true,
     published: true,
+    indexed: true,
     alliance: finalReport.alliance,
     war_date: finalReport.date,
     path: exportPath,
-    branch: branch,
-    commit_sha:
-      githubWrite && githubWrite.commit
-        ? githubWrite.commit.sha
-        : null
+    branch,
+    commit_sha: reportCommitSha,
+    index_path: indexWrite.path,
+    index_commit_sha: indexWrite.commit_sha
   });
 }
 
@@ -921,6 +947,14 @@ function stringToBase64Utf8(str) {
   return btoa(unescape(encodeURIComponent(str)));
 }
 
+function base64ToStringUtf8(value) {
+  try {
+    return decodeURIComponent(escape(atob(String(value || ""))));
+  } catch (error) {
+    throw new Error("Le contenu GitHub ne peut pas être décodé.");
+  }
+}
+
 function stripCodeFences(text) {
   return String(text || "")
     .replace(/^```json\s*/i, "")
@@ -1191,6 +1225,173 @@ function buildFinalWarFile(warDate, alliance, model, players) {
         defense_bonus: player.defense_bonus
       };
     })
+  };
+}
+
+function getGitHubContentsApiUrl(env, path) {
+  const owner = String(env.GITHUB_OWNER || "").trim();
+  const repo = String(env.GITHUB_REPO || "").trim();
+
+  if (!owner || !repo) {
+    throw new Error("Configuration GitHub incomplète dans le Worker.");
+  }
+
+  return (
+    "https://api.github.com/repos/" +
+    encodeURIComponent(owner) +
+    "/" +
+    encodeURIComponent(repo) +
+    "/contents/" +
+    path.split("/").map(encodeURIComponent).join("/")
+  );
+}
+
+function getGitHubHeaders(env, includeContentType) {
+  const token = String(env.GITHUB_TOKEN || "").trim();
+
+  if (!token) {
+    throw new Error("Le secret GITHUB_TOKEN est absent dans le Worker.");
+  }
+
+  const headers = {
+    "Authorization": "Bearer " + token,
+    "Accept": "application/vnd.github+json",
+    "User-Agent": "msf-war-worker"
+  };
+
+  if (includeContentType) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  return headers;
+}
+
+function sortWarAlliances(values) {
+  const unique = [];
+
+  for (const value of Array.isArray(values) ? values : []) {
+    const alliance = normalizeAlliance(value);
+    if (alliance && !unique.includes(alliance)) unique.push(alliance);
+  }
+
+  return unique.sort(function (left, right) {
+    return WAR_ALLIANCE_ORDER.indexOf(left) - WAR_ALLIANCE_ORDER.indexOf(right);
+  });
+}
+
+function normalizeWarIndex(index) {
+  const normalized = { alliances: [], dates: [] };
+  if (!isPlainObject(index)) return normalized;
+
+  normalized.alliances = sortWarAlliances(index.alliances);
+  if (!Array.isArray(index.dates)) return normalized;
+
+  const entriesByDate = new Map();
+  for (const entry of index.dates) {
+    if (!isPlainObject(entry) || !isValidIsoDate(entry.date)) continue;
+    const existing = entriesByDate.get(entry.date) || [];
+    entriesByDate.set(entry.date, sortWarAlliances([
+      ...existing,
+      ...(Array.isArray(entry.alliances) ? entry.alliances : [])
+    ]));
+  }
+
+  normalized.dates = Array.from(entriesByDate.entries())
+    .map(function ([date, alliances]) { return { date, alliances }; })
+    .sort(function (left, right) { return left.date.localeCompare(right.date); });
+
+  return normalized;
+}
+
+function addReportToWarIndex(index, warDate, alliance) {
+  const normalized = normalizeWarIndex(index);
+  normalized.alliances = sortWarAlliances([...normalized.alliances, alliance]);
+
+  let dateEntry = normalized.dates.find(function (entry) {
+    return entry.date === warDate;
+  });
+
+  if (!dateEntry) {
+    dateEntry = { date: warDate, alliances: [] };
+    normalized.dates.push(dateEntry);
+  }
+
+  dateEntry.alliances = sortWarAlliances([...dateEntry.alliances, alliance]);
+  normalized.dates.sort(function (left, right) {
+    return left.date.localeCompare(right.date);
+  });
+
+  return normalized;
+}
+
+async function readWarIndexFromGitHub(env) {
+  const branch = String(env.GITHUB_BRANCH || "").trim();
+  if (!branch) throw new Error("La branche GitHub de publication doit être configurée.");
+
+  const response = await fetch(
+    getGitHubContentsApiUrl(env, WAR_INDEX_PATH) + "?ref=" + encodeURIComponent(branch),
+    { method: "GET", headers: getGitHubHeaders(env, false) }
+  );
+
+  if (response.status === 404) {
+    return { index: { alliances: [], dates: [] }, sha: null };
+  }
+  if (!response.ok) {
+    throw new Error("Lecture de l’index des guerres impossible : " + await response.text());
+  }
+
+  const data = await response.json();
+  if (!isPlainObject(data) || typeof data.content !== "string" || typeof data.sha !== "string") {
+    throw new Error("Réponse GitHub invalide pour l’index des guerres.");
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(base64ToStringUtf8(data.content.replace(/\s/g, "")));
+  } catch (error) {
+    throw new Error("Le fichier index.json des guerres est invalide.");
+  }
+
+  return { index: normalizeWarIndex(parsed), sha: data.sha };
+}
+
+async function writeWarIndexToGitHub(env, index, existingSha, warDate) {
+  const branch = String(env.GITHUB_BRANCH || "").trim();
+  if (!branch) throw new Error("La branche GitHub de publication doit être configurée.");
+
+  const body = {
+    message: "chore(war): update index for " + warDate,
+    content: stringToBase64Utf8(JSON.stringify(index, null, 2) + "\n"),
+    branch
+  };
+  if (existingSha) body.sha = existingSha;
+
+  const response = await fetch(getGitHubContentsApiUrl(env, WAR_INDEX_PATH), {
+    method: "PUT",
+    headers: getGitHubHeaders(env, true),
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    throw new Error("Mise à jour de l’index des guerres impossible : " + await response.text());
+  }
+
+  return await response.json();
+}
+
+async function updateWarIndexAfterPublication(env, warDate, alliance) {
+  const current = await readWarIndexFromGitHub(env);
+  const updatedIndex = addReportToWarIndex(current.index, warDate, alliance);
+  const githubWrite = await writeWarIndexToGitHub(
+    env,
+    updatedIndex,
+    current.sha,
+    warDate
+  );
+
+  return {
+    path: WAR_INDEX_PATH,
+    commit_sha: githubWrite && githubWrite.commit ? githubWrite.commit.sha : null
   };
 }
 
