@@ -1,0 +1,37 @@
+name: Patch war index publication
+
+on:
+  push:
+    branches:
+      - agent/msf-war-index-publication
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/msf-war-index-publication
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Apply patch
+        run: node .github/scripts/patch-war-index.mjs
+
+      - name: Validate worker syntax
+        run: node --check workers/msf-war-ocr/worker.js
+
+      - name: Commit patched worker
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add workers/msf-war-ocr/worker.js .github/scripts/patch-war-index.mjs .github/workflows/patch-war-index.yml
+          git commit -m "fix(war): update index after report publication"
+          git push origin HEAD:agent/msf-war-index-publication
