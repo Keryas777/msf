@@ -1,87 +1,39 @@
 // /docs/auth-session.js
-(() => {
-  const LOSP_AUTH_WORKER = "https://losp-auth.deliriousfan7.workers.dev";
-  const LOCAL_SESSION_KEY = "losp_session";
 
-  window.LoSP_SESSION = null;
+const LOSP_AUTH_WORKER = "https://losp-auth.deliriousfan7.workers.dev";
 
-  function getLocalSession() {
-    try {
-      return localStorage.getItem(LOCAL_SESSION_KEY) || "";
-    } catch (_) {
-      return "";
-    }
-  }
+window.LoSP_SESSION = null;
 
-  function removeLocalSession() {
-    try {
-      localStorage.removeItem(LOCAL_SESSION_KEY);
-    } catch (_) {}
-  }
+async function loadLoSPSession() {
+  try {
+    const res = await fetch(`${LOSP_AUTH_WORKER}/me`, {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store"
+    });
 
-  function dispatchSession(data) {
+    const data = await res.json();
+
     window.LoSP_SESSION = data;
 
-    window.dispatchEvent(
-      new CustomEvent("losp:auth-ready", {
-        detail: data,
-      })
-    );
+    window.dispatchEvent(new CustomEvent("losp:auth-ready", {
+      detail: data
+    }));
 
     return data;
+  } catch (error) {
+    window.LoSP_SESSION = {
+      ok: false,
+      reason: "auth_worker_unreachable",
+      error: String(error)
+    };
+
+    window.dispatchEvent(new CustomEvent("losp:auth-ready", {
+      detail: window.LoSP_SESSION
+    }));
+
+    return window.LoSP_SESSION;
   }
+}
 
-  async function loadLoSPSession() {
-    const localSession = getLocalSession();
-
-    try {
-      const res = await fetch(`${LOSP_AUTH_WORKER}/me`, {
-        method: "GET",
-        credentials: "include",
-        cache: "no-store",
-        headers: localSession
-          ? {
-              Authorization: `Bearer ${localSession}`,
-            }
-          : {},
-      });
-
-      let data;
-
-      try {
-        data = await res.json();
-      } catch (_) {
-        data = {
-          ok: false,
-          reason: "invalid_auth_response",
-        };
-      }
-
-      if (!res.ok || !data?.ok) {
-        if (
-          data?.reason === "invalid_session" ||
-          data?.reason === "not_connected" ||
-          data?.reason === "not_guild_member" ||
-          data?.reason === "no_authorized_alliance"
-        ) {
-          removeLocalSession();
-        }
-
-        return dispatchSession({
-          ok: false,
-          ...data,
-        });
-      }
-
-      return dispatchSession(data);
-    } catch (error) {
-      return dispatchSession({
-        ok: false,
-        reason: "auth_worker_unreachable",
-        error: String(error),
-      });
-    }
-  }
-
-  window.LoSP_AUTH_READY = loadLoSPSession();
-})();
+loadLoSPSession();
