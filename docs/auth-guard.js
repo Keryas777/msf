@@ -78,7 +78,19 @@
     window.location.replace(`${AUTH_PAGE}?next=${safeNext}`);
   }
 
+  async function revokeWorkerSession() {
+    try {
+      await fetch(`${LOSP_AUTH_WORKER}/logout`, {
+        method: "POST",
+        credentials: "include",
+        cache: "no-store"
+      });
+    } catch (_) {}
+  }
+
   async function logoutLoSP() {
+    await revokeWorkerSession();
+
     removeLocalSession();
     clearSessionStorage();
 
