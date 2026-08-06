@@ -4,14 +4,6 @@
   const AUTH_PAGE = "./auth.html";
   const LOCAL_SESSION_KEY = "losp_session";
 
-  function getLocalSession() {
-    try {
-      return localStorage.getItem(LOCAL_SESSION_KEY) || "";
-    } catch (_) {
-      return "";
-    }
-  }
-
   function removeLocalSession() {
     try {
       localStorage.removeItem(LOCAL_SESSION_KEY);
@@ -21,6 +13,35 @@
   function clearSessionStorage() {
     try {
       sessionStorage.clear();
+    } catch (_) {}
+  }
+
+  function clearLoSPLocalStorage() {
+    try {
+      Object.keys(localStorage).forEach((key) => {
+        const normalized = String(key || "").toLowerCase();
+
+        if (
+          normalized === LOCAL_SESSION_KEY ||
+          normalized.startsWith("losp:") ||
+          normalized.startsWith("losp_") ||
+          normalized.startsWith("losp-")
+        ) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch (_) {}
+  }
+
+  function clearClientCookies() {
+    try {
+      document.cookie.split(";").forEach((cookie) => {
+        const name = cookie.split("=")[0].trim();
+        if (!name) return;
+
+        document.cookie = `${name}=; Max-Age=0; Path=/; SameSite=Lax`;
+        document.cookie = `${name}=; Max-Age=0; Path=/msf/; SameSite=Lax`;
+      });
     } catch (_) {}
   }
 
@@ -68,7 +89,7 @@
 
     window.dispatchEvent(
       new CustomEvent("losp:auth-ready", {
-        detail: data
+        detail: data,
       })
     );
   }
@@ -78,13 +99,27 @@
     window.location.replace(`${AUTH_PAGE}?next=${safeNext}`);
   }
 
+  async function revokeWorkerSession() {
+    try {
+      await fetch(`${LOSP_AUTH_WORKER}/logout`, {
+        method: "POST",
+        credentials: "include",
+        cache: "no-store",
+      });
+    } catch (_) {}
+  }
+
   async function logoutLoSP() {
+    await revokeWorkerSession();
+
     removeLocalSession();
+    clearLoSPLocalStorage();
     clearSessionStorage();
+    clearClientCookies();
 
     dispatchSession({
       ok: false,
-      reason: "local_logout"
+      reason: "local_logout",
     });
 
     await clearLoSPCaches();
@@ -110,34 +145,27 @@
   }
 
   async function checkAuth() {
-    const localSession = getLocalSession();
-
     try {
-      const res = await fetch(`${LOSP_AUTH_WORKER}/me`, {
-        method: "GET",
-        credentials: "include",
-        cache: "no-store",
-        headers: localSession
-          ? {
-              Authorization: `Bearer ${localSession}`
-            }
-          : {}
-      });
+      const ready = window.LoSP_AUTH_READY;
+      const data = ready && typeof ready.then === "function"
+        ? await ready
+        : window.LoSP_SESSION;
 
-      const data = await res.json();
-
-      if (!res.ok || !data?.ok) {
-        if (data?.reason === "invalid_session") {
+      if (!data?.ok) {
+        if (
+          data?.reason === "invalid_session" ||
+          data?.reason === "not_connected" ||
+          data?.reason === "not_guild_member" ||
+          data?.reason === "no_authorized_alliance"
+        ) {
           removeLocalSession();
         }
 
         throw new Error(data?.reason || "not_connected");
       }
 
-      dispatchSession(data);
-
       document.documentElement.classList.remove("authChecking");
-    } catch (error) {
+    } catch (_) {
       const next = sanitizeNext(getCurrentPageForReturn());
       redirectToAuth(next);
     }
