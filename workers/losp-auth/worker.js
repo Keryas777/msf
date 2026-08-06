@@ -2,6 +2,13 @@ const SITE_ORIGIN = "https://keryas777.github.io";
 const SITE_BASE_URL = "https://keryas777.github.io/msf/";
 
 const CLIENT_ID = "1498718329953583266";
+
+// À remplacer uniquement dans Cloudflare avant déploiement.
+// Ne publie pas les vraies valeurs dans GitHub.
+const CLIENT_SECRET = "A_REMPLACER_PAR_LE_CLIENT_SECRET_DISCORD";
+const BOT_TOKEN = "A_REMPLACER_PAR_LE_TOKEN_DU_BOT_DISCORD";
+const SESSION_SECRET = "A_REMPLACER_PAR_UNE_LONGUE_CLE_ALEATOIRE";
+
 const CALLBACK_URL = "https://losp-auth.deliriousfan7.workers.dev/callback";
 const GUILD_ID = "758717819923333191";
 
@@ -40,32 +47,15 @@ function corsHeaders(request) {
   };
 }
 
-function noStoreHeaders() {
-  return {
-    "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-    "Pragma": "no-cache",
-    "Expires": "0"
-  };
-}
-
 function jsonResponse(data, request, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(data, null, 2), {
     status,
     headers: {
       ...corsHeaders(request),
-      ...noStoreHeaders(),
       "Content-Type": "application/json; charset=utf-8",
-      ...extraHeaders
-    }
-  });
-}
-
-function textResponse(message, status = 200, extraHeaders = {}) {
-  return new Response(message, {
-    status,
-    headers: {
-      ...noStoreHeaders(),
-      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0",
       ...extraHeaders
     }
   });
@@ -75,19 +65,46 @@ function redirectTo(location, status = 302, extraHeaders = {}) {
   return new Response(null, {
     status,
     headers: {
-      ...noStoreHeaders(),
       ...extraHeaders,
-      "Location": location
+      "Location": location,
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0"
     }
   });
+}
+
+function sessionCookie(value, maxAge = SESSION_MAX_AGE_SECONDS) {
+  return [
+    `${SESSION_COOKIE_NAME}=${value}`,
+    "Path=/",
+    "Secure",
+    "HttpOnly",
+    "SameSite=None",
+    `Max-Age=${Math.max(0, Math.floor(maxAge))}`
+  ].join("; ");
+}
+
+function expiredSessionCookie() {
+  return [
+    `${SESSION_COOKIE_NAME}=`,
+    "Path=/",
+    "Secure",
+    "HttpOnly",
+    "SameSite=None",
+    "Max-Age=0",
+    "Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+  ].join("; ");
 }
 
 function getCookie(request, name) {
   const cookie = request.headers.get("Cookie") || "";
   const parts = cookie.split(";").map((part) => part.trim());
-  const found = parts.find((part) => part.startsWith(`${name}=`));
+  const found = parts.find((part) => part.startsWith(name + "="));
 
-  return found ? found.slice(name.length + 1) : "";
+  if (!found) return "";
+
+  return found.slice(name.length + 1);
 }
 
 function getBearerSession(request) {
@@ -100,7 +117,7 @@ function getBearerSession(request) {
   return auth.slice(7).trim();
 }
 
-function base64UrlEncodeBytes(bytes) {
+function bytesToBase64Url(bytes) {
   let binary = "";
 
   bytes.forEach((byte) => {
@@ -113,10 +130,11 @@ function base64UrlEncodeBytes(bytes) {
     .replace(/=+$/g, "");
 }
 
-function base64UrlDecodeBytes(value) {
+function base64UrlToBytes(value) {
   const base64 = String(value || "")
     .replace(/-/g, "+")
     .replace(/_/g, "/");
+
   const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
   const binary = atob(padded);
 
@@ -125,63 +143,59 @@ function base64UrlDecodeBytes(value) {
   );
 }
 
-function base64UrlEncodeText(value) {
-  return base64UrlEncodeBytes(new TextEncoder().encode(value));
-}
-
-function base64UrlDecodeText(value) {
-  return new TextDecoder().decode(base64UrlDecodeBytes(value));
-}
-
-async function getHmacKey(secret) {
+async function getSessionSigningKey() {
   return crypto.subtle.importKey(
     "raw",
-    new TextEncoder().encode(secret),
-    {
-      name: "HMAC",
-      hash: "SHA-256"
-    },
+    new TextEncoder().encode(SESSION_SECRET),
+    { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign", "verify"]
   );
 }
 
-async function encodeSession(payload, sessionSecret) {
-  const encodedPayload = base64UrlEncodeText(JSON.stringify(payload));
-  const key = await getHmacKey(sessionSecret);
+async function encodeSession(payload) {
+  const payloadBytes = new TextEncoder().encode(JSON.stringify(payload));
+  const payloadPart = bytesToBase64Url(payloadBytes);
+  const key = await getSessionSigningKey();
   const signature = await crypto.subtle.sign(
     "HMAC",
     key,
-    new TextEncoder().encode(encodedPayload)
+    new TextEncoder().encode(payloadPart)
   );
 
-  return `${encodedPayload}.${base64UrlEncodeBytes(new Uint8Array(signature))}`;
+  return `${payloadPart}.${bytesToBase64Url(new Uint8Array(signature))}`;
 }
 
-async function decodeSession(value, sessionSecret) {
-  const [encodedPayload, encodedSignature, ...extra] = String(value || "").split(".");
+async function decodeSession(value) {
+  const [payloadPart, signaturePart, ...extraParts] = String(value || "").split(".");
 
-  if (!encodedPayload || !encodedSignature || extra.length) {
+  if (!payloadPart || !signaturePart || extraParts.length) {
     throw new Error("invalid_session_format");
   }
 
-  const key = await getHmacKey(sessionSecret);
-  const signature = base64UrlDecodeBytes(encodedSignature);
-  const valid = await crypto.subtle.verify(
+  const key = await getSessionSigningKey();
+  const isValid = await crypto.subtle.verify(
     "HMAC",
     key,
-    signature,
-    new TextEncoder().encode(encodedPayload)
+    base64UrlToBytes(signaturePart),
+    new TextEncoder().encode(payloadPart)
   );
 
-  if (!valid) {
+  if (!isValid) {
     throw new Error("invalid_session_signature");
   }
 
-  const payload = JSON.parse(base64UrlDecodeText(encodedPayload));
+  const payload = JSON.parse(
+    new TextDecoder().decode(base64UrlToBytes(payloadPart))
+  );
+
   const now = Math.floor(Date.now() / 1000);
 
-  if (!payload?.id || !Number.isFinite(payload?.exp) || payload.exp <= now) {
+  if (!payload?.id || !Number.isFinite(payload?.expiresAt)) {
+    throw new Error("invalid_session_payload");
+  }
+
+  if (payload.expiresAt <= now) {
     throw new Error("expired_session");
   }
 
@@ -201,30 +215,7 @@ function sanitizeNext(value) {
   return raw;
 }
 
-function createSessionCookie(session) {
-  return [
-    `${SESSION_COOKIE_NAME}=${session}`,
-    "Path=/",
-    "Secure",
-    "HttpOnly",
-    "SameSite=None",
-    `Max-Age=${SESSION_MAX_AGE_SECONDS}`
-  ].join("; ");
-}
-
-function clearSessionCookie() {
-  return [
-    `${SESSION_COOKIE_NAME}=`,
-    "Path=/",
-    "Secure",
-    "HttpOnly",
-    "SameSite=None",
-    "Max-Age=0",
-    "Expires=Thu, 01 Jan 1970 00:00:00 GMT"
-  ].join("; ");
-}
-
-function getAlliancesFromRoles(memberRoles) {
+function alliancesFromRoles(memberRoles) {
   const roles = Array.isArray(memberRoles) ? memberRoles : [];
 
   return Object.entries(ROLE_TO_ALLIANCE)
@@ -232,12 +223,12 @@ function getAlliancesFromRoles(memberRoles) {
     .map(([, alliance]) => alliance);
 }
 
-async function fetchDiscordMember(userId, botToken) {
+async function getDiscordMember(userId) {
   const memberRes = await fetch(
     `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
     {
       headers: {
-        "Authorization": `Bot ${botToken}`
+        "Authorization": `Bot ${BOT_TOKEN}`
       }
     }
   );
@@ -246,93 +237,80 @@ async function fetchDiscordMember(userId, botToken) {
     return {
       ok: false,
       reason: "not_guild_member",
-      status: 404
+      clearSession: true
+    };
+  }
+
+  if (memberRes.status === 401 || memberRes.status === 403) {
+    return {
+      ok: false,
+      reason: "discord_bot_unauthorized",
+      status: memberRes.status,
+      clearSession: false
     };
   }
 
   if (!memberRes.ok) {
     return {
       ok: false,
-      reason: "discord_member_check_failed",
-      status: memberRes.status
+      reason: "discord_check_failed",
+      status: memberRes.status,
+      clearSession: false
+    };
+  }
+
+  const member = await memberRes.json();
+  const alliances = alliancesFromRoles(member.roles);
+
+  if (!alliances.length) {
+    return {
+      ok: false,
+      reason: "no_authorized_alliance",
+      clearSession: true
     };
   }
 
   return {
     ok: true,
-    member: await memberRes.json()
+    member,
+    alliances
   };
 }
 
-function buildPublicSession(session, member, alliances) {
+function publicSession(session, access) {
   const specialProfile = PLAYER_PROFILES[session.id];
 
   return {
-    ok: true,
     id: session.id,
-    username: session.username || member?.user?.username || "",
-    global_name: session.global_name || member?.user?.global_name || "",
+    username: session.username || "",
+    global_name: session.global_name || "",
     displayName:
-      member?.nick ||
+      access.member?.nick ||
       session.global_name ||
-      member?.user?.global_name ||
       session.username ||
-      member?.user?.username ||
       "",
     role: specialProfile?.role || "member",
-    alliances,
-    primaryAlliance: alliances[0],
+    alliances: access.alliances,
+    primaryAlliance: access.alliances[0],
     players: specialProfile?.players || []
   };
 }
 
-function getRequiredSecret(env, name) {
-  const value = String(env?.[name] || "").trim();
-
-  if (!value) {
-    throw new Error(`missing_secret_${name}`);
-  }
-
-  return value;
-}
-
 export default {
-  async fetch(request, env) {
+  async fetch(request) {
     const url = new URL(request.url);
 
     if (request.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
-        headers: {
-          ...corsHeaders(request),
-          ...noStoreHeaders()
-        }
+        headers: corsHeaders(request)
       });
-    }
-
-    let clientSecret;
-    let botToken;
-    let sessionSecret;
-
-    try {
-      clientSecret = getRequiredSecret(env, "DISCORD_CLIENT_SECRET");
-      botToken = getRequiredSecret(env, "DISCORD_BOT_TOKEN");
-      sessionSecret = getRequiredSecret(env, "SESSION_SECRET");
-    } catch (error) {
-      return jsonResponse(
-        {
-          ok: false,
-          reason: "worker_secret_missing",
-          error: String(error?.message || error)
-        },
-        request,
-        500
-      );
     }
 
     if (url.pathname === "/me") {
       const rawSession =
-        getCookie(request, SESSION_COOKIE_NAME) || getBearerSession(request);
+        getCookie(request, SESSION_COOKIE_NAME) ||
+        getBearerSession(request);
 
       if (!rawSession) {
         return jsonResponse(
@@ -348,67 +326,55 @@ export default {
       let session;
 
       try {
-        session = await decodeSession(rawSession, sessionSecret);
-      } catch (_) {
+        session = await decodeSession(rawSession);
+      } catch (error) {
         return jsonResponse(
           {
             ok: false,
-            reason: "invalid_session"
+            reason:
+              error?.message === "expired_session"
+                ? "expired_session"
+                : "invalid_session"
           },
           request,
           401,
           {
-            "Set-Cookie": clearSessionCookie()
+            "Set-Cookie": expiredSessionCookie()
           }
         );
       }
 
-      const memberResult = await fetchDiscordMember(session.id, botToken);
+      const access = await getDiscordMember(session.id);
 
-      if (!memberResult.ok) {
-        const shouldClearCookie =
-          memberResult.reason === "not_guild_member" || memberResult.status === 404;
+      if (!access.ok) {
+        const status = access.clearSession ? 401 : 503;
+        const extraHeaders = access.clearSession
+          ? { "Set-Cookie": expiredSessionCookie() }
+          : {};
 
         return jsonResponse(
           {
             ok: false,
-            reason: memberResult.reason,
-            discordStatus: memberResult.status
+            reason: access.reason,
+            discordStatus: access.status || null
           },
           request,
-          memberResult.reason === "not_guild_member" ? 403 : 502,
-          shouldClearCookie
-            ? {
-                "Set-Cookie": clearSessionCookie()
-              }
-            : {}
-        );
-      }
-
-      const alliances = getAlliancesFromRoles(memberResult.member.roles);
-
-      if (!alliances.length) {
-        return jsonResponse(
-          {
-            ok: false,
-            reason: "no_authorized_alliance"
-          },
-          request,
-          403,
-          {
-            "Set-Cookie": clearSessionCookie()
-          }
+          status,
+          extraHeaders
         );
       }
 
       return jsonResponse(
-        buildPublicSession(session, memberResult.member, alliances),
+        {
+          ok: true,
+          ...publicSession(session, access)
+        },
         request
       );
     }
 
     if (url.pathname === "/logout") {
-      if (request.method !== "POST") {
+      if (request.method !== "POST" && request.method !== "GET") {
         return jsonResponse(
           {
             ok: false,
@@ -417,20 +383,19 @@ export default {
           request,
           405,
           {
-            "Allow": "POST"
+            "Allow": "GET, POST"
           }
         );
       }
 
       return jsonResponse(
         {
-          ok: true,
-          reason: "logged_out"
+          ok: true
         },
         request,
         200,
         {
-          "Set-Cookie": clearSessionCookie(),
+          "Set-Cookie": expiredSessionCookie(),
           "Clear-Site-Data": "\"cache\", \"cookies\", \"storage\""
         }
       );
@@ -438,7 +403,9 @@ export default {
 
     if (url.pathname === "/login") {
       const next = sanitizeNext(url.searchParams.get("next") || "home.html");
-      const discordAuthUrl = new URL("https://discord.com/api/oauth2/authorize");
+      const discordAuthUrl = new URL(
+        "https://discord.com/api/oauth2/authorize"
+      );
 
       discordAuthUrl.searchParams.set("client_id", CLIENT_ID);
       discordAuthUrl.searchParams.set("redirect_uri", CALLBACK_URL);
@@ -454,7 +421,13 @@ export default {
       const next = sanitizeNext(url.searchParams.get("state") || "home.html");
 
       if (!code) {
-        return textResponse("Code Discord manquant.", 400);
+        return new Response("Code Discord manquant.", {
+          status: 400,
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+            "Cache-Control": "no-store"
+          }
+        });
       }
 
       const tokenRes = await fetch("https://discord.com/api/oauth2/token", {
@@ -464,7 +437,7 @@ export default {
         },
         body: new URLSearchParams({
           client_id: CLIENT_ID,
-          client_secret: clientSecret,
+          client_secret: CLIENT_SECRET,
           grant_type: "authorization_code",
           code,
           redirect_uri: CALLBACK_URL
@@ -473,10 +446,16 @@ export default {
 
       const tokenData = await tokenRes.json();
 
-      if (!tokenData.access_token) {
-        return textResponse(
-          `Erreur token Discord : ${JSON.stringify(tokenData)}`,
-          400
+      if (!tokenRes.ok || !tokenData.access_token) {
+        return new Response(
+          "Erreur token Discord : " + JSON.stringify(tokenData),
+          {
+            status: 400,
+            headers: {
+              "Content-Type": "text/plain; charset=utf-8",
+              "Cache-Control": "no-store"
+            }
+          }
         );
       }
 
@@ -488,68 +467,68 @@ export default {
 
       const user = await userRes.json();
 
-      if (!user?.id) {
-        return textResponse(
+      if (!userRes.ok || !user?.id) {
+        return new Response(
           "Erreur : impossible de récupérer l'utilisateur Discord.",
-          400
+          {
+            status: 400,
+            headers: {
+              "Content-Type": "text/plain; charset=utf-8",
+              "Cache-Control": "no-store"
+            }
+          }
         );
       }
 
-      const guildsRes = await fetch("https://discord.com/api/users/@me/guilds", {
-        headers: {
-          "Authorization": `Bearer ${tokenData.access_token}`
-        }
-      });
+      const access = await getDiscordMember(user.id);
 
-      const guilds = await guildsRes.json();
-      const isMember =
-        Array.isArray(guilds) && guilds.some((guild) => guild.id === GUILD_ID);
+      if (!access.ok) {
+        const message =
+          access.reason === "not_guild_member"
+            ? "Accès refusé : tu n’es pas membre du serveur Discord LoSP."
+            : access.reason === "no_authorized_alliance"
+              ? "Accès refusé : aucun rôle d’alliance autorisé."
+              : `Accès refusé : impossible de vérifier tes rôles Discord. Statut ${access.status || "inconnu"}`;
 
-      if (!isMember) {
-        return textResponse(
-          "Accès refusé : tu n’es pas membre du serveur Discord LoSP.",
-          403
-        );
-      }
-
-      const memberResult = await fetchDiscordMember(user.id, botToken);
-
-      if (!memberResult.ok) {
-        return textResponse(
-          `Accès refusé : impossible de vérifier tes rôles Discord. Statut ${memberResult.status}`,
-          403
-        );
-      }
-
-      const alliances = getAlliancesFromRoles(memberResult.member.roles);
-
-      if (!alliances.length) {
-        return textResponse(
-          "Accès refusé : aucun rôle d’alliance autorisé.",
-          403
-        );
+        return new Response(message, {
+          status: access.clearSession ? 403 : 503,
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+            "Cache-Control": "no-store"
+          }
+        });
       }
 
       const now = Math.floor(Date.now() / 1000);
+      const specialProfile = PLAYER_PROFILES[user.id];
+
       const sessionPayload = {
         id: user.id,
         username: user.username || "",
         global_name: user.global_name || "",
-        iat: now,
-        exp: now + SESSION_MAX_AGE_SECONDS
+        role: specialProfile?.role || "member",
+        issuedAt: now,
+        expiresAt: now + SESSION_MAX_AGE_SECONDS
       };
 
-      const session = await encodeSession(sessionPayload, sessionSecret);
+      const session = await encodeSession(sessionPayload);
+
       const fallbackUrl =
         `${SITE_BASE_URL}auth.html` +
         `?next=${encodeURIComponent(next)}` +
         `#session=${encodeURIComponent(session)}`;
 
       return redirectTo(fallbackUrl, 302, {
-        "Set-Cookie": createSessionCookie(session)
+        "Set-Cookie": sessionCookie(session)
       });
     }
 
-    return textResponse("LoSP Auth Worker OK");
+    return new Response("LoSP Auth Worker OK", {
+      status: 200,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-store"
+      }
+    });
   }
 };
