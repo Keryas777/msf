@@ -120,8 +120,8 @@ function buildWarSeasonRulesJson(sheetRows) {
     activeRows.find((row) => toNumber(row.required_count, -1) === 0);
 
   const defaultMultiplier = defaultRow
-    ? toNumber(defaultRow.multiplier, 1.17)
-    : 1.17;
+    ? toNumber(defaultRow.multiplier, 1)
+    : 1;
 
   const rules = activeRows
     .filter((row) => cleanString(row.rule_key) !== "default_attack")
