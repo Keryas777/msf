@@ -460,12 +460,12 @@ async function handleWarWriteAnalyses(request, env) {
   const requestBody = await readAnalysisRequestJson(request);
   const body = validateAnalysisRequest(requestBody);
 
-  const apiKey = env.GEMINI_API_KEY;
-  const model = env.GEMINI_MODEL || "gemini-2.5-flash";
+  const apiKey = env.GROQ_API_KEY;
+  const model = env.GROQ_MODEL || "llama-3.3-70b-versatile";
 
   if (!apiKey) {
     throw new Error(
-      "La variable secrète GEMINI_API_KEY est absente dans le Worker."
+      "La variable secrète GROQ_API_KEY est absente dans le Worker."
     );
   }
 
@@ -513,38 +513,33 @@ async function handleWarWriteAnalyses(request, env) {
     JSON.stringify(body)
   ].join("\n\n");
 
-  const endpoint =
-    "https://generativelanguage.googleapis.com/v1beta/models/" +
-    model +
-    ":generateContent";
+  const endpoint = "https://api.groq.com/openai/v1/chat/completions";
 
   const controller = new AbortController();
   const timeoutId = setTimeout(function () {
     controller.abort();
   }, GEMINI_ANALYSIS_TIMEOUT_MS);
 
-  let geminiResponse;
+  let groqResponse;
 
   try {
-    geminiResponse = await fetch(endpoint, {
+    groqResponse = await fetch(endpoint, {
       method: "POST",
       headers: {
-        "x-goog-api-key": apiKey,
+        "Authorization": "Bearer " + apiKey,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        contents: [
+        model: model,
+        messages: [
           {
-            parts: [
-              {
-                text: prompt
-              }
-            ]
+            role: "user",
+            content: prompt
           }
         ],
-        generationConfig: {
-          temperature: 0.55,
-          responseMimeType: "application/json"
+        temperature: 0.55,
+        response_format: {
+          type: "json_object"
         }
       }),
       signal: controller.signal
@@ -556,7 +551,7 @@ async function handleWarWriteAnalyses(request, env) {
       error.name === "AbortError"
     ) {
       throw new Error(
-        "Gemini n’a pas répondu dans le délai maximal de 90 secondes."
+        "Groq n’a pas répondu dans le délai maximal de 90 secondes."
       );
     }
 
@@ -565,24 +560,31 @@ async function handleWarWriteAnalyses(request, env) {
     clearTimeout(timeoutId);
   }
 
-  let geminiData;
+  let groqData;
 
   try {
-    geminiData = await geminiResponse.json();
+    groqData = await groqResponse.json();
   } catch (error) {
-    throw new Error("Réponse Gemini illisible.");
+    throw new Error("Réponse Groq illisible.");
   }
 
-  if (!geminiResponse.ok) {
-    const message = geminiData?.error?.message || "Erreur Gemini";
+  if (!groqResponse.ok) {
+    const message = groqData?.error?.message || "Erreur Groq";
 
-    if (geminiResponse.status === 429) {
+    if (groqResponse.status === 429) {
+      const retryAfter = Number.parseFloat(
+        String(groqResponse.headers.get("retry-after") || "")
+      );
+
       return Response.json(
         {
           ok: false,
-          error: "Quota Gemini temporairement atteint.",
+          error: "Quota Groq temporairement atteint.",
           code: "GEMINI_RATE_LIMIT",
-          retry_after_seconds: getGeminiRetryAfterSeconds(geminiData),
+          retry_after_seconds:
+            Number.isFinite(retryAfter) && retryAfter > 0
+              ? Math.ceil(retryAfter)
+              : null,
           detail: message
         },
         {
@@ -594,10 +596,10 @@ async function handleWarWriteAnalyses(request, env) {
     throw new Error(message);
   }
 
-  const rawText = getGeminiText(geminiData);
+  const rawText = groqData?.choices?.[0]?.message?.content;
 
-  if (!rawText) {
-    throw new Error("Gemini n’a retourné aucun texte.");
+  if (typeof rawText !== "string" || !rawText.trim()) {
+    throw new Error("Groq n’a retourné aucun texte.");
   }
 
   let parsed;
@@ -605,7 +607,7 @@ async function handleWarWriteAnalyses(request, env) {
   try {
     parsed = JSON.parse(stripCodeFences(rawText));
   } catch (error) {
-    throw new Error("Gemini n’a pas renvoyé un JSON parseable.");
+    throw new Error("Groq n’a pas renvoyé un JSON parseable.");
   }
 
   return Response.json(
