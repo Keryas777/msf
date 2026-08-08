@@ -6,18 +6,18 @@
     <meta name="theme-color" content="#071225" />
     <title>LoSP — Administration des guerres</title>
 
-    <link rel="stylesheet" href="./war-admin.css?v=5" />
+    <link rel="stylesheet" href="./war-admin.css?v=6" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icon-512.PNG" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="LoSP" />
 
-    <script src="./war-admin-validation.js?v=1" defer></script>
+    <script src="./war-admin-validation.js?v=2" defer></script>
     <script src="./war-admin-report-calculator.js?v=1" defer></script>
     <script src="./war-admin-report-ranker.js?v=1" defer></script>
     <script src="./war-admin-analysis.js?v=1" defer></script>
-    <script src="./war-admin.js?v=7" defer></script>
+    <script src="./war-admin.js?v=8" defer></script>
   </head>
 
   <body class="warAdminPage">
@@ -65,8 +65,8 @@
                 required
               />
               <p id="warImageHelp" class="warAdminHelp">
-                Sélectionne de 1 à 6 images, une capture maximum par alliance. Elles seront envoyées une par
-                une, jamais simultanément.
+                Sélectionne de 1 à 6 images. Plusieurs captures d’une même alliance sont autorisées et seront
+                fusionnées automatiquement par rang. Elles sont envoyées une par une, jamais simultanément.
               </p>
               <p id="warFileMeta" class="warAdminFileMeta">Aucune capture sélectionnée.</p>
             </div>
@@ -231,6 +231,7 @@
                 <button id="warZoomIn" type="button" aria-label="Agrandir la capture">+</button>
               </div>
             </div>
+            <div id="warSourceTabs" class="warAdminSourceTabs" aria-label="Captures source" hidden></div>
             <div id="warSourceViewport" class="warAdminSourceViewport">
               <img id="warReviewImage" alt="Capture source du brouillon en cours de vérification" />
             </div>
@@ -244,7 +245,7 @@
               <div class="warAdminReviewSectionHeading">
                 <div>
                   <p class="warAdminStep">Contrôle ligne par ligne</p>
-                  <h3 id="warPlayerListTitle">Les 24 lignes OCR</h3>
+                  <h3 id="warPlayerListTitle">Les 24 lignes fusionnées</h3>
                 </div>
                 <button id="warReviewUnlock" class="warAdminSecondaryButton" type="button" hidden>
                   Modifier
