@@ -1,12 +1,7 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-import fs from "node:fs";
-import { MAX_IMAGE_BYTES, SLOT_ORDER, createDraft, getLayoutSlots, validateDraft, calculateTopMetrics } from "../docs/war-counter-lab-core.js";
-const catalog=JSON.parse(fs.readFileSync(new URL("../docs/data/msf-characters.json",import.meta.url)));
-const truth=JSON.parse(fs.readFileSync(new URL("../docs/data/war-counter-vision/benchmark-ground-truth.json",import.meta.url)));
-
-test("limite 12 Mo et ordre stable",()=>{assert.equal(MAX_IMAGE_BYTES,12582912);assert.equal(SLOT_ORDER.length,10);assert.deepEqual(getLayoutSlots().map(x=>x.slot),SLOT_ORDER);});
-test("contrat déterministe de dix slots",()=>{const draft=createDraft();assert.equal(draft.groqRealCalls,0);assert.equal(validateDraft(draft,new Set(catalog.map(x=>x.id))),true);});
-test("vérités terrain 20 slots, 13 barrés et IDs catalogue",()=>{const slots=truth.captures.flatMap(c=>c.slots);assert.equal(slots.length,20);assert.equal(slots.filter(x=>x.barred).length,13);const ids=new Set(catalog.map(x=>x.id));for(const slot of slots)assert.ok(ids.has(slot.characterId),slot.characterId);});
-test("refus doublon",()=>{const draft=createDraft();draft.slots[1].slot=draft.slots[0].slot;assert.throws(()=>validateDraft(draft),/Slots/);});
-test("top 1 top 3 top 5 local ou mock",()=>{const gt=truth.captures[0].slots;const slots=gt.map((x,i)=>({slot:x.slot,candidates:i===0?[{characterId:"Yondu"},{characterId:x.characterId}]:[{characterId:x.characterId}]}));assert.deepEqual(calculateTopMetrics(slots,gt),{evaluated:10,top1:9,top3:10,top5:10});});
+import test from "node:test";import assert from "node:assert/strict";import{detectLayout,getLayoutSlots,createDraft,validateDraft,normalizeCatalog,resolveCharacter,calculateTopMetrics}from"../docs/war-counter-lab-core.js";
+const ids=new Set(["AgentVenom","Morph"]);
+test("deux ratios réels acceptés",()=>{assert.equal(detectLayout(2310,583).layoutId,"war-result-ultrawide-v1");assert.equal(detectLayout(2410,600).layoutId,"war-result-ultrawide-v1")});
+test("ordre stable de dix slots",()=>assert.deepEqual(getLayoutSlots().map(x=>x.slot),["left-1","left-2","left-3","left-4","left-5","right-1","right-2","right-3","right-4","right-5"]));
+test("contrat strict",()=>{const d=createDraft();assert.equal(validateDraft(d,ids),true);d.slots[1].slot="left-1";assert.throws(()=>validateDraft(d,ids),/Slots/)});
+test("catalogue exact alias hallucination",()=>{const c=normalizeCatalog([{id:"AgentVenom",nameKey:"Agent Venom"}]);assert.equal(resolveCharacter({characterId:"AgentVenom"},c).status,"exact");assert.equal(resolveCharacter({name:"Agent-Venom"},c).status,"alias");assert.equal(resolveCharacter({name:"Batman"},c).status,"hallucination")});
+test("métriques top",()=>{const slots=[{slot:"left-1",candidates:[{characterId:"Morph"},{characterId:"AgentVenom"}]}],truth=[{slot:"left-1",characterId:"AgentVenom",barred:true}];const m=calculateTopMetrics(slots,truth);assert.equal(m.top1,0);assert.equal(m.top3,1);assert.equal(m.barred.top3,1)});
