@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-22T07:50:51Z",
+  "updatedAt": "2026-08-08T15:56:09Z",
   "game": {
-    "version": "10_3_0",
-    "build": "1654625"
+    "version": "10_4_1",
+    "build": "1660043"
   },
   "catalog": {
     "table": "RemoteAssetClientEntry",
@@ -40,11 +40,11 @@
     {
       "id": "combat_data/characters.json",
       "file": "raw/characters.json",
-      "url": null,
-      "sourceGameVersion": null,
-      "md5": "028d99dcb9da89896a3a49b4385474de",
-      "sha256": "e8723218e04ba476e515458d79836c8e6f618de442e122edf8cd3329cef3bff2",
-      "sizeBytes": 3333608
+      "url": "https://cdn.m3.scopelypv.com/bulky_rules/combat_data/10_4_0/characters.60594f805e180944cab7f9ca71945ebc.json",
+      "sourceGameVersion": "10_4_0",
+      "md5": "60594f805e180944cab7f9ca71945ebc",
+      "sha256": "f7961df56519a409207e1c135231a347c9bac1d1216b2def02507a516f00ae82",
+      "sizeBytes": 3415794
     },
     {
       "id": "combat_data/combat_mods.json",
@@ -76,11 +76,11 @@
     {
       "id": "combat_data/missiontraits.json",
       "file": "raw/missiontraits.json",
-      "url": null,
-      "sourceGameVersion": null,
-      "md5": "bd944227ffe5a9fccbfccd52a6892cb8",
-      "sha256": "0a0a893e17ce87483d291d52b7cac2f9289e24ddbeec0747ed16899b1789a78e",
-      "sizeBytes": 7429
+      "url": "https://cdn.m3.scopelypv.com/bulky_rules/combat_data/10_4_0/missiontraits.114c82a7685d42aeee88edf6ad0a7f23.json",
+      "sourceGameVersion": "10_4_0",
+      "md5": "114c82a7685d42aeee88edf6ad0a7f23",
+      "sha256": "243827cab830565c7f7013a230d696e27cc912a7022d111c1a16ba5cde8fd292",
+      "sizeBytes": 7534
     },
     {
       "id": "combat_data/overpower_bonuses.json",
@@ -103,11 +103,11 @@
     {
       "id": "combat_data/procs.json",
       "file": "raw/procs.json",
-      "url": null,
-      "sourceGameVersion": null,
-      "md5": "b25580b243758b80a2aafae42f20d41b",
-      "sha256": "f7ab03759884e015ae68ad0b5da990da6acc288e1992edb273058c1169a2da29",
-      "sizeBytes": 37967
+      "url": "https://cdn.m3.scopelypv.com/bulky_rules/combat_data/10_4_0/procs.e49910155d3cd732c1edd145bb232457.json",
+      "sourceGameVersion": "10_4_0",
+      "md5": "e49910155d3cd732c1edd145bb232457",
+      "sha256": "c3a3e94d056ef25f019d736cc1c34b0b8ee32e3708524592000c299cc2a175f2",
+      "sizeBytes": 41172
     }
   ]
 }
