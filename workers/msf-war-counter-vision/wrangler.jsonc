@@ -1,0 +1,9 @@
+{
+  "name": "msf-war-counter-vision",
+  "main": "worker.js",
+  "compatibility_date": "2026-08-01",
+  "vars": {
+    "GROQ_VISION_MODEL": "qwen/qwen3.6-27b",
+    "R1_MOCK_ONLY": "true"
+  }
+}
