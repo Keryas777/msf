@@ -413,9 +413,14 @@ select {
   color: var(--war-admin-cyan);
 }
 
-.warAdminCaptureCard[data-state="ready"] .warAdminCaptureState {
+.warAdminCaptureCard[data-state="ready"] .warAdminCaptureState,
+.warAdminCaptureCard[data-state="merged"] .warAdminCaptureState {
   border-color: rgba(137, 232, 188, 0.38);
   color: var(--war-admin-success);
+}
+
+.warAdminCaptureCard[data-state="merged"] {
+  opacity: 0.72;
 }
 
 .warAdminCaptureCard[data-state="reviewing"] .warAdminCaptureState,
@@ -845,6 +850,47 @@ select {
   font-weight: 850;
 }
 
+.warAdminSourceTabs {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 8px;
+  padding-bottom: 2px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.warAdminSourceTabs button {
+  display: grid;
+  flex: 0 0 auto;
+  gap: 1px;
+  min-height: 44px;
+  max-width: 180px;
+  padding: 7px 10px;
+  border: 1px solid rgba(139, 184, 232, 0.28);
+  border-radius: 10px;
+  background: var(--war-admin-bg-soft);
+  color: var(--war-admin-text-soft);
+  font-size: 12px;
+  font-weight: 850;
+  text-align: left;
+  cursor: pointer;
+}
+
+.warAdminSourceTabs button span {
+  overflow: hidden;
+  color: var(--war-admin-text-muted);
+  font-size: 10px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.warAdminSourceTabs button[aria-pressed="true"] {
+  border-color: rgba(113, 231, 255, 0.58);
+  background: rgba(113, 231, 255, 0.12);
+  color: var(--war-admin-cyan);
+}
+
 .warAdminZoomControls {
   display: inline-flex;
   gap: 5px;
@@ -969,6 +1015,19 @@ select {
   font-size: 10px;
   font-weight: 850;
   white-space: nowrap;
+}
+
+.warAdminPlayerRow[data-confirmed="true"] .warAdminPlayerStatus {
+  color: var(--war-admin-cyan);
+}
+
+.warAdminPlayerRow[data-conflict="true"] {
+  border-color: rgba(255, 209, 122, 0.5);
+  background: rgba(255, 209, 122, 0.08);
+}
+
+.warAdminPlayerRow[data-conflict="true"] .warAdminPlayerStatus {
+  color: var(--war-admin-warning);
 }
 
 .warAdminPlayerRow[data-classification="inactive"] .warAdminPlayerStatus,
