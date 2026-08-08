@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0.0",
+  "layout": "war-result-ultrawide-v1",
+  "captures": [
+    {"id":"capture-1","width":2310,"height":583,"slots":[
+      {"slot":"left-1","characterId":"AgentVenom","name":"Agent Venom","barred":true},
+      {"slot":"left-2","characterId":"Morph","name":"Morph","barred":true},
+      {"slot":"left-3","characterId":"Yondu","name":"Yondu","barred":true},
+      {"slot":"left-4","characterId":"Malekith","name":"Malekith","barred":false},
+      {"slot":"left-5","characterId":"Sylvie","name":"Sylvie","barred":false},
+      {"slot":"right-1","characterId":"Forge","name":"Forge","barred":true},
+      {"slot":"right-2","characterId":"Yelena","name":"Yelena Belova","barred":true},
+      {"slot":"right-3","characterId":"LadyBullseye","name":"Lady Bullseye","barred":true},
+      {"slot":"right-4","characterId":"WarMachine","name":"War Machine","barred":true},
+      {"slot":"right-5","characterId":"HitMonkey","name":"Hit-Monkey","barred":true}
+    ]},
+    {"id":"capture-2","width":2410,"height":600,"slots":[
+      {"slot":"left-1","characterId":"Morph","name":"Morph","barred":true},
+      {"slot":"left-2","characterId":"Lilandra","name":"Lilandra","barred":true},
+      {"slot":"left-3","characterId":"AgentVenom","name":"Agent Venom","barred":true},
+      {"slot":"left-4","characterId":"Malekith","name":"Malekith","barred":true},
+      {"slot":"left-5","characterId":"Yondu","name":"Yondu","barred":true},
+      {"slot":"right-1","characterId":"Xavier","name":"Professeur Xavier","barred":false},
+      {"slot":"right-2","characterId":"Ares","name":"Arès","barred":false},
+      {"slot":"right-3","characterId":"Storm","name":"Tornade","barred":false},
+      {"slot":"right-4","characterId":"CaptainMarvel","name":"Captain Marvel","barred":false},
+      {"slot":"right-5","characterId":"Sentry","name":"Sentry","barred":false}
+    ]}
+  ],
+  "historicalLocalBenchmark":{"top1":0,"top3":0,"top5":0,"evaluated":20,"note":"Résultat historique du code perdu, non reproduit en R1."}
+}
