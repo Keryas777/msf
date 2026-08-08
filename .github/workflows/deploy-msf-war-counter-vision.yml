@@ -1,0 +1,35 @@
+name: Deploy MSF War Counter Vision Worker
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "workers/msf-war-counter-vision/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-msf-war-counter-vision
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy dedicated Cloudflare Worker
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Deploy Worker with Wrangler
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: workers/msf-war-counter-vision
+          wranglerVersion: "4"
+          command: deploy
