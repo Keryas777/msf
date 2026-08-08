@@ -52,9 +52,9 @@
   }
 
   function validateRank(row) {
-    return Number.isInteger(row?.rank) && row.rank > 0
+    return Number.isInteger(row?.rank) && row.rank >= 1 && row.rank <= 24
       ? []
-      : ["Rang source invalide."];
+      : ["Rang source invalide : une valeur de 1 à 24 est attendue."];
   }
 
   function validateStoredInteger(field, value) {
@@ -107,6 +107,12 @@
     const errors = validateRank(row);
     const name = getTrimmedName(row);
 
+    if (row._missing === true) {
+      errors.push("Cette ligne n’apparaît dans aucune capture source.");
+    }
+    if (row._conflict === true) {
+      errors.push("Les captures source contiennent des valeurs différentes pour cette ligne.");
+    }
     if (typeof row.name !== "string") errors.push("Nom invalide.");
 
     for (const field of NUMERIC_FIELDS) {
@@ -226,6 +232,23 @@
 
     if (players.length !== 24) {
       structureErrors.push(`Le brouillon contient ${players.length} lignes au lieu de 24.`);
+    }
+
+    const ranks = players
+      .map((player) => player?.rank)
+      .filter((rank) => Number.isInteger(rank));
+    const uniqueRanks = new Set(ranks);
+
+    if (uniqueRanks.size !== ranks.length) {
+      structureErrors.push("Le brouillon contient des rangs en doublon.");
+    }
+
+    const missingRanks = [];
+    for (let rank = 1; rank <= 24; rank += 1) {
+      if (!uniqueRanks.has(rank)) missingRanks.push(rank);
+    }
+    if (missingRanks.length > 0) {
+      structureErrors.push(`Rangs absents : ${missingRanks.join(", ")}.`);
     }
 
     return {

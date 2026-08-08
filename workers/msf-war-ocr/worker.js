@@ -1037,11 +1037,13 @@ function buildGeminiPrompt(alliance) {
     "Retourne UNIQUEMENT un JSON valide, sans markdown, sans explication, sans texte avant ou après.",
     "",
     "Contraintes absolues :",
-    "- Il y a 24 lignes visibles, une par joueur, dans l'ordre vertical.",
-    "- Ne saute aucune ligne.",
+    "- Retourne uniquement les lignes de joueurs réellement visibles sur cette capture.",
+    "- Une capture peut contenir tout ou partie des 24 rangs du classement.",
+    "- Pour chaque ligne, row_index doit être le numéro de rang absolu affiché à gauche, compris entre 1 et 24.",
+    "- Ne crée aucune ligne invisible et ne renumérote jamais les joueurs à partir de 1.",
+    "- Ne saute aucune ligne visible.",
     "- Respecte strictement l'ordre visuel de haut en bas.",
     "- Ne fusionne pas deux lignes.",
-    "- Ne décale pas les joueurs.",
     "- Les nombres doivent être des entiers JSON bruts, sans espaces ni séparateurs visuels.",
     "- Si une valeur est illisible, mets null.",
     "",
@@ -1061,7 +1063,7 @@ function buildGeminiPrompt(alliance) {
     '  "alliance": "' + alliance + '",',
     '  "players": [',
     "    {",
-    '      "row_index": 1,',
+    '      "row_index": 10,',
     '      "name": "lolo",',
     '      "alliance": "' + alliance + '",',
     '      "attack_points": 13000,',
@@ -1074,7 +1076,7 @@ function buildGeminiPrompt(alliance) {
     "}",
     "",
     "Rappels métier :",
-    "- row_index va de 1 à 24",
+    "- row_index = rang absolu affiché dans le classement, de 1 à 24",
     "- attack_points = points d'attaque",
     "- attacks = attaques",
     "- damage = points de dégâts",
@@ -1108,11 +1110,13 @@ function buildGeminiAutoDetectPrompt() {
     "Retourne UNIQUEMENT un JSON valide, sans markdown, sans explication, sans texte avant ou après.",
     "",
     "Contraintes absolues :",
-    "- Il y a 24 lignes visibles, une par joueur, dans l'ordre vertical.",
-    "- Ne saute aucune ligne.",
+    "- Retourne uniquement les lignes de joueurs réellement visibles sur cette capture.",
+    "- Une capture peut contenir tout ou partie des 24 rangs du classement.",
+    "- Pour chaque ligne, row_index doit être le numéro de rang absolu affiché à gauche, compris entre 1 et 24.",
+    "- Ne crée aucune ligne invisible et ne renumérote jamais les joueurs à partir de 1.",
+    "- Ne saute aucune ligne visible.",
     "- Respecte strictement l'ordre visuel de haut en bas.",
     "- Ne fusionne pas deux lignes.",
-    "- Ne décale pas les joueurs.",
     "- Les nombres doivent être des entiers JSON bruts, sans espaces ni séparateurs visuels.",
     "- Si une valeur est illisible, mets null.",
     "",
@@ -1130,11 +1134,11 @@ function buildGeminiAutoDetectPrompt() {
     '- "detected_alliance": une valeur technique autorisée ou null',
     '- "detected_alliance_label": le libellé correspondant ou null',
     '- "detection_confident": true ou false',
-    '- "players": le tableau des 24 lignes',
+    '- "players": uniquement les lignes réellement visibles',
     "",
     "Chaque joueur doit suivre ce format :",
     "{",
-    '  "row_index": 1,',
+    '  "row_index": 10,',
     '  "name": "lolo",',
     '  "attack_points": 13000,',
     '  "attacks": 14,',
@@ -1144,7 +1148,7 @@ function buildGeminiAutoDetectPrompt() {
     "}",
     "",
     "Rappels métier :",
-    "- row_index va de 1 à 24",
+    "- row_index = rang absolu affiché dans le classement, de 1 à 24",
     "- attack_points = points d'attaque",
     "- attacks = attaques",
     "- damage = points de dégâts",
@@ -1191,12 +1195,16 @@ function normalizeDamage(value) {
 }
 
 function normalizePlayer(player, index, alliance) {
+  const candidateRank = toNullableInt(
+    player?.rank ?? player?.row_index
+  );
+  const rank = Number.isInteger(candidateRank) && candidateRank >= 1 && candidateRank <= 24
+    ? candidateRank
+    : null;
+
   return {
-    rank: index + 1,
-    row_index:
-      typeof player?.row_index === "number"
-        ? player.row_index
-        : index + 1,
+    rank: rank,
+    row_index: rank,
     name: cleanPlayerName(player?.name ?? null),
     alliance: alliance,
     attack_points: toNullableInt(player?.attack_points),
@@ -1209,6 +1217,10 @@ function normalizePlayer(player, index, alliance) {
 
 function getInvalidReasons(player) {
   const reasons = [];
+
+  if (!Number.isInteger(player.rank) || player.rank < 1 || player.rank > 24) {
+    reasons.push("rank");
+  }
 
   if (!player.name) {
     reasons.push("name");
@@ -1258,9 +1270,9 @@ function buildFinalWarFile(warDate, alliance, model, players) {
     alliance: alliance,
     captured_at: new Date().toISOString(),
     source: model,
-    players: players.map(function (player, index) {
+    players: players.map(function (player) {
       return {
-        rank: index + 1,
+        rank: player.rank,
         name: player.name,
         attack_points: player.attack_points,
         attacks: player.attacks,
@@ -1622,17 +1634,9 @@ async function callGeminiVision(args) {
       : null;
   }
 
-  const players = [];
-
-  for (let index = 0; index < 24; index += 1) {
-    players.push(
-      normalizePlayer(
-        playersInput[index] || {},
-        index,
-        resolvedAlliance
-      )
-    );
-  }
+  const players = playersInput.map(function (player, index) {
+    return normalizePlayer(player, index, resolvedAlliance);
+  });
 
   const playersWithValidation = players.map(function (player) {
     const invalidReasons = getInvalidReasons(player);
