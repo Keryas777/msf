@@ -1,0 +1,7 @@
+import test from "node:test";import assert from "node:assert/strict";import{detectLayout,getLayoutSlots,createDraft,validateDraft,normalizeCatalog,resolveCharacter,calculateTopMetrics}from"../docs/war-counter-lab-core.js";
+const ids=new Set(["AgentVenom","Morph"]);
+test("deux ratios réels acceptés",()=>{assert.equal(detectLayout(2310,583).layoutId,"war-result-ultrawide-v1");assert.equal(detectLayout(2410,600).layoutId,"war-result-ultrawide-v1")});
+test("ordre stable de dix slots",()=>assert.deepEqual(getLayoutSlots().map(x=>x.slot),["left-1","left-2","left-3","left-4","left-5","right-1","right-2","right-3","right-4","right-5"]));
+test("contrat strict",()=>{const d=createDraft();assert.equal(validateDraft(d,ids),true);d.slots[1].slot="left-1";assert.throws(()=>validateDraft(d,ids),/Slots/)});
+test("catalogue exact alias hallucination",()=>{const c=normalizeCatalog([{id:"AgentVenom",nameKey:"Agent Venom"}]);assert.equal(resolveCharacter({characterId:"AgentVenom"},c).status,"exact");assert.equal(resolveCharacter({name:"Agent-Venom"},c).status,"alias");assert.equal(resolveCharacter({name:"Batman"},c).status,"hallucination")});
+test("métriques top",()=>{const slots=[{slot:"left-1",candidates:[{characterId:"Morph"},{characterId:"AgentVenom"}]}],truth=[{slot:"left-1",characterId:"AgentVenom",barred:true}];const m=calculateTopMetrics(slots,truth);assert.equal(m.top1,0);assert.equal(m.top3,1);assert.equal(m.barred.top3,1)});
