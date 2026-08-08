@@ -9,6 +9,7 @@
   const QUEUE_DELAY_MIN_MS = 8000;
   const QUEUE_DELAY_MAX_MS = 10000;
   const RETRY_DELAYS_MS = [10000, 30000];
+  const GEMINI_RETRY_MARGIN_MS = 3000;
   const MAX_CAPTURES = 6;
   const DRAFT_VALIDATION = globalThis.MsfWarDraftValidation;
   const REPORT_CALCULATOR = globalThis.MsfWarReportCalculator;
@@ -1795,9 +1796,20 @@
     }
 
     if (!response.ok) {
-      throw new Error(
+      const error = new Error(
         getErrorDetail(data) || `HTTP ${response.status}`
       );
+      const retryAfterSeconds = Number(data?.retry_after_seconds);
+
+      if (
+        data?.code === "GEMINI_RATE_LIMIT" &&
+        Number.isFinite(retryAfterSeconds) &&
+        retryAfterSeconds > 0
+      ) {
+        error.retryAfterMs = Math.ceil(retryAfterSeconds * 1000) + GEMINI_RETRY_MARGIN_MS;
+      }
+
+      throw error;
     }
 
     return data;
@@ -1848,7 +1860,9 @@
           return false;
         }
 
-        const retryDelay = getRetryDelayMs(attempt);
+        const retryDelay = Number.isFinite(error?.retryAfterMs)
+          ? Math.max(0, error.retryAfterMs)
+          : getRetryDelayMs(attempt);
 
         addLog(
           `Attente ${formatSeconds(retryDelay)} avant la tentative ${attempt + 1}`,
@@ -1880,6 +1894,15 @@
       return;
     }
 
+    const pending = available.filter(
+      (capture) => !capture.finalReport
+    );
+
+    if (!pending.length) {
+      renderSession();
+      return;
+    }
+
     session.running = true;
     session.cancelled = false;
 
@@ -1896,21 +1919,18 @@
     try {
       for (
         let index = 0;
-        index < available.length;
+        index < pending.length;
         index += 1
       ) {
         if (session.cancelled) {
           throw new SessionCancelledError();
         }
 
-        const capture = available[index];
-
-        if (!capture.finalReport) {
-          await processAnalyses(capture);
-        }
+        const capture = pending[index];
+        await processAnalyses(capture);
 
         if (
-          index < available.length - 1 &&
+          index < pending.length - 1 &&
           !session.cancelled
         ) {
           const delay = getQueueDelayMs();
@@ -1936,7 +1956,7 @@
       );
     } catch (error) {
       if (error instanceof SessionCancelledError) {
-        for (const capture of available) {
+        for (const capture of pending) {
           if (capture.state === "writing") {
             capture.state = "ranked";
             capture.detail = "Rédaction interrompue. Rapport classé conservé en mémoire.";

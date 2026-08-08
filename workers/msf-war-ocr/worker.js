@@ -182,6 +182,33 @@ function countSentences(text) {
   return matches ? matches.length : 0;
 }
 
+function getGeminiRetryAfterSeconds(geminiData) {
+  const details = Array.isArray(geminiData?.error?.details)
+    ? geminiData.error.details
+    : [];
+
+  for (const detail of details) {
+    const retryDelay = String(detail?.retryDelay || "");
+    const seconds = Number.parseFloat(retryDelay.replace(/s$/i, ""));
+
+    if (Number.isFinite(seconds) && seconds > 0) {
+      return Math.ceil(seconds);
+    }
+  }
+
+  const message = String(geminiData?.error?.message || "");
+  const match = message.match(/retry in\s+([0-9]+(?:\.[0-9]+)?)s/i);
+
+  if (!match) {
+    return null;
+  }
+
+  const seconds = Number.parseFloat(match[1]);
+  return Number.isFinite(seconds) && seconds > 0
+    ? Math.ceil(seconds)
+    : null;
+}
+
 async function readAnalysisRequestJson(request) {
   const contentType = String(request.headers.get("Content-Type") || "")
     .toLowerCase();
@@ -547,9 +574,24 @@ async function handleWarWriteAnalyses(request, env) {
   }
 
   if (!geminiResponse.ok) {
-    throw new Error(
-      geminiData?.error?.message || "Erreur Gemini"
-    );
+    const message = geminiData?.error?.message || "Erreur Gemini";
+
+    if (geminiResponse.status === 429) {
+      return Response.json(
+        {
+          ok: false,
+          error: "Quota Gemini temporairement atteint.",
+          code: "GEMINI_RATE_LIMIT",
+          retry_after_seconds: getGeminiRetryAfterSeconds(geminiData),
+          detail: message
+        },
+        {
+          status: 429
+        }
+      );
+    }
+
+    throw new Error(message);
   }
 
   const rawText = getGeminiText(geminiData);
