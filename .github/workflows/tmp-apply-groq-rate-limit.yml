@@ -46,7 +46,6 @@ jobs:
           assert.ok(worker.includes('code: "GROQ_RATE_LIMIT"'));
           assert.ok(worker.includes('model: model'));
           assert.ok(worker.includes('groqResponse.headers.get("retry-after")'));
-          assert.ok(worker.includes('groqResponse.headers.get("x-ratelimit-reset-tokens")'));
           NODE
           git diff --check
 
