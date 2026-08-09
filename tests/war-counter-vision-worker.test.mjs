@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import worker, {
   buildGroqPayload,
   callGroqVision,
+  parseJsonContent,
   validateVisionResult,
   validateRawVisionResult,
   validateCatalog,
@@ -32,14 +33,22 @@ const validResult = {
   }))
 };
 
-test("payload Vision allégé et modèle configurable", () => {
+test("payload Vision allégé sans mode JSON forcé", () => {
   assert.equal(getVisionModel({}), "qwen/qwen3.6-27b");
   const payload = buildGroqPayload({ env: { GROQ_VISION_MODEL: "custom/vision" }, imageDataUrl: "data:image/jpeg;base64,AA==" });
   assert.equal(payload.model, "custom/vision");
   assert.equal(payload.messages[0].content[1].type, "image_url");
-  assert.equal(payload.response_format.type, "json_object");
+  assert.equal(payload.response_format, undefined);
   assert.equal(payload.max_completion_tokens, 1200);
   assert.doesNotMatch(payload.messages[0].content[0].text, /AgentVenom/);
+});
+
+test("parse le JSON brut, entouré de markdown ou de texte", () => {
+  const json = JSON.stringify(rawResult);
+  assert.deepEqual(parseJsonContent(json), rawResult);
+  assert.deepEqual(parseJsonContent("```json\n" + json + "\n```"), rawResult);
+  assert.deepEqual(parseJsonContent("Résultat:\n" + json + "\nFin"), rawResult);
+  assert.throws(() => parseJsonContent("pas de json"), /JSON Groq invalide/);
 });
 
 test("verrou R1 explicite", () => {
@@ -66,8 +75,8 @@ test("JSON invalide simulé", async () => {
   await assert.rejects(() => callGroqVision({
     env: { GROQ_API_KEY: "x" },
     payload: {},
-    fetchImpl: async () => new Response("{}", { status: 200, headers: { "content-type": "application/json" } })
-  }), /vide/);
+    fetchImpl: async () => Response.json({ choices: [{ message: { content: "pas de json" } }] })
+  }), /JSON Groq invalide/);
 });
 
 function formRequest({ confirmed = true } = {}) {
@@ -96,7 +105,7 @@ test("R3 effectue exactement un appel simulé et résout localement", async () =
   let calls = 0;
   globalThis.fetch = async () => {
     calls += 1;
-    return Response.json({ choices: [{ message: { content: JSON.stringify(rawResult) } }], usage: { total_tokens: 42 } });
+    return Response.json({ choices: [{ message: { content: "```json\n" + JSON.stringify(rawResult) + "\n```" } }], usage: { total_tokens: 42 } });
   };
   try {
     const response = await worker.fetch(formRequest(), { R1_MOCK_ONLY: "false", GROQ_API_KEY: "secret" });
