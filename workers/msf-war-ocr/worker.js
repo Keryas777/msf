@@ -132,6 +132,7 @@ const ANALYSIS_NAME_MAX_LENGTH = 80;
 const ANALYSIS_MIN_LENGTH = 40;
 const ANALYSIS_MAX_LENGTH = 700;
 const ANALYSIS_MAX_SENTENCES = 3;
+const ANALYSIS_COMMENT_MAX_SENTENCES = 2;
 const GEMINI_ANALYSIS_TIMEOUT_MS = 90 * 1000;
 
 function isPlainObject(value) {
@@ -180,6 +181,23 @@ function isValidIsoDate(value) {
 function countSentences(text) {
   const matches = String(text || "").match(/[.!?]+(?=\s|$)/g);
   return matches ? matches.length : 0;
+}
+
+export function getGlobalPerformanceSentence(scoreTotal, name) {
+  let qualification = "en retrait";
+
+  if (scoreTotal >= 90) qualification = "exceptionnelle";
+  else if (scoreTotal >= 80) qualification = "excellente";
+  else if (scoreTotal >= 70) qualification = "très bonne";
+  else if (scoreTotal >= 60) qualification = "bonne";
+  else if (scoreTotal >= 50) qualification = "solide";
+  else if (scoreTotal >= 40) qualification = "mitigée";
+
+  return `${name} a réalisé une ${
+    qualification === "excellente" || qualification === "très bonne" || qualification === "bonne"
+      ? qualification + " performance"
+      : "performance " + qualification
+  }.`;
 }
 
 function getGeminiRetryAfterSeconds(geminiData) {
@@ -416,24 +434,47 @@ function validateAnalysisResponse(parsed, players) {
       throw new Error("Analyse invalide.");
     }
 
-    const analysis = entry.analysis
+    const comment = entry.analysis
       .replace(/\s+/g, " ")
       .trim();
 
-    if (!analysis) {
+    if (!comment) {
       throw new Error("Analyse vide.");
     }
 
     if (
-      analysis.length < ANALYSIS_MIN_LENGTH ||
-      analysis.length > ANALYSIS_MAX_LENGTH
+      comment.length < ANALYSIS_MIN_LENGTH ||
+      comment.length > ANALYSIS_MAX_LENGTH
     ) {
       throw new Error("Longueur d’analyse invalide.");
     }
 
-    const sentenceCount = countSentences(analysis);
+    if (
+      /\bperformance\b/iu.test(comment) ||
+      /\bbilan\s+global\b/iu.test(comment) ||
+      /\bscore(?:_|\s+)total\b/iu.test(comment) ||
+      /\bprestation\b.{0,30}\b(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante|en retrait)\b/iu.test(comment) ||
+      /\b(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante)\s+prestation\b/iu.test(comment)
+    ) {
+      throw new Error("Le commentaire Groq contient un jugement global interdit.");
+    }
 
-    if (sentenceCount > ANALYSIS_MAX_SENTENCES) {
+    const commentSentenceCount = countSentences(comment);
+
+    if (commentSentenceCount > ANALYSIS_COMMENT_MAX_SENTENCES) {
+      throw new Error("Un commentaire Groq dépasse deux phrases.");
+    }
+
+    const player = players.find(function (candidate) {
+      return candidate.rank === entry.rank;
+    });
+    const analysis = getGlobalPerformanceSentence(player.score_total, player.name) + " " + comment;
+
+    if (analysis.length > ANALYSIS_MAX_LENGTH) {
+      throw new Error("Longueur d’analyse invalide.");
+    }
+
+    if (countSentences(analysis) > ANALYSIS_MAX_SENTENCES) {
       throw new Error("Une analyse dépasse trois phrases.");
     }
 
@@ -474,9 +515,9 @@ async function handleWarWriteAnalyses(request, env) {
 
     "Le rapport fourni est définitif. Tu ne dois recalculer, corriger, modifier ou retourner aucun score, rang, classement, résumé ou autre valeur numérique.",
 
-    "Pour chaque joueur, rédige en français une analyse de 2 à 3 phrases maximum, concernant uniquement cette guerre.",
+    "Pour chaque joueur, rédige en français uniquement un commentaire factuel complémentaire de 1 à 2 phrases, concernant uniquement cette guerre.",
 
-    "Chaque analyse doit mettre en avant au moins un point fort lorsqu’il existe, signaler une limite lorsqu’elle est pertinente et donner une lecture globale de la performance.",
+    "Chaque commentaire doit porter sur les attaques, les dégâts, l’efficacité, l’impact, l’activité, la défense ou les déviations, en mettant en avant au moins un point fort lorsqu’il existe et une limite lorsqu’elle est pertinente.",
 
     "Utilise uniquement les données présentes dans le rapport. Ne fais aucune projection sur une autre guerre, aucune généralisation sur le joueur et n’invente aucune information.",
 
@@ -484,43 +525,15 @@ async function handleWarWriteAnalyses(request, env) {
 
     "Ne mentionne jamais les prochaines guerres, les futures guerres, la prochaine participation ou une amélioration attendue.",
 
-    "Conclus uniquement sur la performance observée pendant cette guerre.",
+    "Ne rédige aucune première phrase de jugement global : elle sera ajoutée par le code.",
 
     "Repères d’interprétation autorisés : un volume ou une moyenne de dégâts élevés peuvent indiquer des cibles ambitieuses ; de faibles dégâts peuvent indiquer des cibles plus modestes ; beaucoup d’attaques avec de gros dégâts mais plusieurs ratés indiquent une activité ambitieuse mais imparfaite ; de nombreuses victoires défensives indiquent une contribution défensive importante ; les déviations indiquent une implication dans la protection de l’alliance.",
 
-    "Adapte impérativement la tonalité au score_total déjà présent :",
+    "La tonalité générale du commentaire peut être adaptée au score_total déjà présent, sans jamais le citer ni qualifier le résultat global.",
 
-    "- score_total supérieur ou égal à 80 : analyse très positive. Les défauts éventuels sont seulement des marges de progression mineures. Aucune formulation négative forte.",
+    "N’utilise jamais le mot « performance », « prestation » comme jugement global, « bilan global », « score_total » ou « score total ». Ne répète pas une qualification globale et ne tente pas de rédiger la phrase déterministe.",
 
-    "- score_total de 70 à 79 : analyse clairement positive. Les limites sont secondaires et formulées avec prudence. La performance ne doit pas paraître décevante.",
-
-    "- score_total de 60 à 69 : analyse équilibrée, avec points positifs et limites, sans dureté excessive.",
-
-    "- score_total de 50 à 59 : analyse plus critique, mais constructive, factuelle et respectueuse.",
-
-    "- score_total inférieur à 50 : l’analyse peut signaler clairement une performance insuffisante, tout en restant factuelle et respectueuse.",
-
-    "Pour qualifier la PERFORMANCE GLOBALE, respecte ce barème, qui constitue un PLAFOND DE QUALIFICATION selon score_total :",
-
-    "- score_total de 90 à 100 : exceptionnelle ou remarquable.",
-
-    "- score_total de 80 à 89 : excellente.",
-
-    "- score_total de 70 à 79 : très bonne.",
-
-    "- score_total de 60 à 69 : bonne.",
-
-    "- score_total de 50 à 59 : correcte ou solide.",
-
-    "- score_total de 40 à 49 : mitigée.",
-
-    "- score_total inférieur à 40 : insuffisante ou en retrait.",
-
-    "Tu peux employer une formulation moins emphatique si les statistiques le justifient, mais tu ne dois jamais qualifier la performance globale avec un qualificatif appartenant à une tranche supérieure.",
-
-    "Cette règle concerne uniquement la performance globale. Un sous-score ou un aspect précis peut recevoir un qualificatif plus fort lorsqu’il le mérite, à condition qu’il soit explicitement désigné et que ce qualificatif ne soit pas attribué à la performance globale.",
-
-    "Un joueur classé dans le haut du tableau ou ayant un score_total supérieur ou égal à 70 ne doit jamais recevoir une analyse dont la tonalité globale paraît négative.",
+    "Un sous-score ou un aspect précis peut être qualifié, par exemple : « Son efficacité a été exceptionnelle. »",
 
     "Varie les formulations d’un joueur à l’autre. Ne te contente pas d’énoncer les chiffres. Privilégie une lecture analytique.",
 
