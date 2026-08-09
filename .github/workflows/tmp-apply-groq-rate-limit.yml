@@ -34,14 +34,20 @@ jobs:
 
       - name: Verify targeted behavior
         run: |
-          grep -q 'const ANALYSIS_QUEUE_DELAY_MS = 30000;' docs/war-admin.js
-          grep -q 'data?.code === "GROQ_RATE_LIMIT"' docs/war-admin.js
-          grep -q 'Math.ceil(retryAfterSeconds \* 1000) + GEMINI_RETRY_MARGIN_MS' docs/war-admin.js
-          grep -q 'const delay = ANALYSIS_QUEUE_DELAY_MS;' docs/war-admin.js
-          grep -q 'code: "GROQ_RATE_LIMIT"' workers/msf-war-ocr/worker.js
-          grep -q 'model: model' workers/msf-war-ocr/worker.js
-          grep -q 'retry-after' workers/msf-war-ocr/worker.js
-          grep -q 'x-ratelimit-reset-tokens' workers/msf-war-ocr/worker.js
+          node --input-type=module <<'NODE'
+          import { readFile } from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          const admin = await readFile('docs/war-admin.js', 'utf8');
+          const worker = await readFile('workers/msf-war-ocr/worker.js', 'utf8');
+          assert.ok(admin.includes('const ANALYSIS_QUEUE_DELAY_MS = 30000;'));
+          assert.ok(admin.includes('data?.code === "GROQ_RATE_LIMIT"'));
+          assert.ok(admin.includes('Math.ceil(retryAfterSeconds * 1000) + GEMINI_RETRY_MARGIN_MS'));
+          assert.ok(admin.includes('const delay = ANALYSIS_QUEUE_DELAY_MS;'));
+          assert.ok(worker.includes('code: "GROQ_RATE_LIMIT"'));
+          assert.ok(worker.includes('model: model'));
+          assert.ok(worker.includes('groqResponse.headers.get("retry-after")'));
+          assert.ok(worker.includes('groqResponse.headers.get("x-ratelimit-reset-tokens")'));
+          NODE
           git diff --check
 
       - name: Commit the fix and remove temporary files
