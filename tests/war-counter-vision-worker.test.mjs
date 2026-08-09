@@ -46,8 +46,8 @@ test("payload Vision allégé sans mode JSON forcé", () => {
 test("parse le JSON brut, entouré de markdown ou de texte", () => {
   const json = JSON.stringify(rawResult);
   assert.deepEqual(parseJsonContent(json), rawResult);
-  assert.deepEqual(parseJsonContent(````json\n${json}\n````), rawResult);
-  assert.deepEqual(parseJsonContent(`Résultat:\n${json}\nFin`), rawResult);
+  assert.deepEqual(parseJsonContent("```json\n" + json + "\n```"), rawResult);
+  assert.deepEqual(parseJsonContent("Résultat:\n" + json + "\nFin"), rawResult);
   assert.throws(() => parseJsonContent("pas de json"), /JSON Groq invalide/);
 });
 
@@ -105,7 +105,7 @@ test("R3 effectue exactement un appel simulé et résout localement", async () =
   let calls = 0;
   globalThis.fetch = async () => {
     calls += 1;
-    return Response.json({ choices: [{ message: { content: `\n\`\`\`json\n${JSON.stringify(rawResult)}\n\`\`\`` } }], usage: { total_tokens: 42 } });
+    return Response.json({ choices: [{ message: { content: "```json\n" + JSON.stringify(rawResult) + "\n```" } }], usage: { total_tokens: 42 } });
   };
   try {
     const response = await worker.fetch(formRequest(), { R1_MOCK_ONLY: "false", GROQ_API_KEY: "secret" });
