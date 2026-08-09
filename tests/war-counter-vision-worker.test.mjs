@@ -33,12 +33,15 @@ const validResult = {
   }))
 };
 
-test("payload Vision allégé sans mode JSON forcé", () => {
+test("payload Vision allégé en JSON mode sans raisonnement", () => {
   assert.equal(getVisionModel({}), "qwen/qwen3.6-27b");
   const payload = buildGroqPayload({ env: { GROQ_VISION_MODEL: "custom/vision" }, imageDataUrl: "data:image/jpeg;base64,AA==" });
   assert.equal(payload.model, "custom/vision");
   assert.equal(payload.messages[0].content[1].type, "image_url");
-  assert.equal(payload.response_format, undefined);
+  assert.deepEqual(payload.response_format, { type: "json_object" });
+  assert.equal(payload.reasoning_effort, "none");
+  assert.equal(payload.temperature, 0.7);
+  assert.equal(payload.top_p, 0.8);
   assert.equal(payload.max_completion_tokens, 1200);
   assert.doesNotMatch(payload.messages[0].content[0].text, /AgentVenom/);
 });
@@ -105,7 +108,7 @@ test("R3 effectue exactement un appel simulé et résout localement", async () =
   let calls = 0;
   globalThis.fetch = async () => {
     calls += 1;
-    return Response.json({ choices: [{ message: { content: "```json\n" + JSON.stringify(rawResult) + "\n```" } }], usage: { total_tokens: 42 } });
+    return Response.json({ choices: [{ message: { content: JSON.stringify(rawResult) } }], usage: { total_tokens: 42 } });
   };
   try {
     const response = await worker.fetch(formRequest(), { R1_MOCK_ONLY: "false", GROQ_API_KEY: "secret" });
