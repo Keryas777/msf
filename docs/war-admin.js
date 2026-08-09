@@ -8,6 +8,7 @@
   const SUBMIT_LABEL = "Lancer la session OCR";
   const QUEUE_DELAY_MIN_MS = 8000;
   const QUEUE_DELAY_MAX_MS = 10000;
+  const ANALYSIS_QUEUE_DELAY_MS = 30000;
   const RETRY_DELAYS_MS = [10000, 30000];
   const GEMINI_RETRY_MARGIN_MS = 3000;
   const MAX_CAPTURES = 6;
@@ -1504,7 +1505,11 @@
     if (!response.ok) {
       const error = new Error(getErrorDetail(data) || `HTTP ${response.status}`);
       const retryAfterSeconds = Number(data?.retry_after_seconds);
-      if (data?.code === "GEMINI_RATE_LIMIT" && Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
+      if (
+        (data?.code === "GROQ_RATE_LIMIT" || data?.code === "GEMINI_RATE_LIMIT") &&
+        Number.isFinite(retryAfterSeconds) &&
+        retryAfterSeconds > 0
+      ) {
         error.retryAfterMs = Math.ceil(retryAfterSeconds * 1000) + GEMINI_RETRY_MARGIN_MS;
       }
       throw error;
@@ -1561,7 +1566,7 @@
         const capture = pending[index];
         await processAnalyses(capture);
         if (index < pending.length - 1 && !session.cancelled) {
-          const delay = getQueueDelayMs();
+          const delay = ANALYSIS_QUEUE_DELAY_MS;
           addLog(`Temporisation ${formatSeconds(delay)} avant l’alliance suivante`, capture);
           await waitWithCountdown(delay, capture, (remaining) => `Alliance suivante dans ${formatSeconds(remaining)}.`);
         }
