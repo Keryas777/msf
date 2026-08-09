@@ -500,6 +500,26 @@ async function handleWarWriteAnalyses(request, env) {
 
     "- score_total inférieur à 50 : l’analyse peut signaler clairement une performance insuffisante, tout en restant factuelle et respectueuse.",
 
+    "Pour qualifier la PERFORMANCE GLOBALE, respecte ce barème, qui constitue un PLAFOND DE QUALIFICATION selon score_total :",
+
+    "- score_total de 90 à 100 : exceptionnelle ou remarquable.",
+
+    "- score_total de 80 à 89 : excellente.",
+
+    "- score_total de 70 à 79 : très bonne.",
+
+    "- score_total de 60 à 69 : bonne.",
+
+    "- score_total de 50 à 59 : correcte ou solide.",
+
+    "- score_total de 40 à 49 : mitigée.",
+
+    "- score_total inférieur à 40 : insuffisante ou en retrait.",
+
+    "Tu peux employer une formulation moins emphatique si les statistiques le justifient, mais tu ne dois jamais qualifier la performance globale avec un qualificatif appartenant à une tranche supérieure.",
+
+    "Cette règle concerne uniquement la performance globale. Un sous-score ou un aspect précis peut recevoir un qualificatif plus fort lorsqu’il le mérite, à condition qu’il soit explicitement désigné et que ce qualificatif ne soit pas attribué à la performance globale.",
+
     "Un joueur classé dans le haut du tableau ou ayant un score_total supérieur ou égal à 70 ne doit jamais recevoir une analyse dont la tonalité globale paraît négative.",
 
     "Varie les formulations d’un joueur à l’autre. Ne te contente pas d’énoncer les chiffres. Privilégie une lecture analytique.",

@@ -241,3 +241,27 @@ test("le calcul et le classement locaux n’ajoutent ni secret, ni GitHub, ni Pr
   assert.match(app, /session\.reviewZoom = 2\.5/);
   assert.doesNotMatch(app, /if \(!capture\?\.editableDraft \|\| session\.running\) return/);
 });
+
+test("le prompt Groq plafonne la qualification globale selon le score total", () => {
+  const prompt = worker.slice(
+    worker.indexOf("Pour qualifier la PERFORMANCE GLOBALE"),
+    worker.indexOf("Un joueur classé dans le haut du tableau")
+  );
+
+  for (const tranche of [
+    "score_total de 90 à 100 : exceptionnelle ou remarquable",
+    "score_total de 80 à 89 : excellente",
+    "score_total de 70 à 79 : très bonne",
+    "score_total de 60 à 69 : bonne",
+    "score_total de 50 à 59 : correcte ou solide",
+    "score_total de 40 à 49 : mitigée",
+    "score_total inférieur à 40 : insuffisante ou en retrait"
+  ]) {
+    assert.ok(prompt.includes(tranche), tranche);
+  }
+
+  assert.match(prompt, /PLAFOND DE QUALIFICATION/);
+  assert.match(prompt, /jamais qualifier la performance globale avec un qualificatif appartenant à une tranche supérieure/);
+  assert.match(prompt, /uniquement la performance globale/);
+  assert.match(prompt, /Un sous-score ou un aspect précis peut recevoir un qualificatif plus fort/);
+});
