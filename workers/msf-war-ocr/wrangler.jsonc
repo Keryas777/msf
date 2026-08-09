@@ -1,0 +1,17 @@
+{
+  "name": "msf-war-ocr",
+  "main": "worker.js",
+  "compatibility_date": "2026-08-01",
+  "keep_vars": true,
+  "secrets": {
+    "required": [
+      "GEMINI_API_KEY",
+      "GITHUB_BRANCH",
+      "GITHUB_OWNER",
+      "GITHUB_REPO",
+      "GITHUB_TOKEN",
+      "GROQ_API_KEY",
+      "OCR_SPACE_API_KEY"
+    ]
+  }
+}
