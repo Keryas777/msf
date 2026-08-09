@@ -1,0 +1,50 @@
+name: Apply Groq rate-limit fix
+
+on:
+  push:
+    branches:
+      - fix/groq-rate-limit-delays
+    paths:
+      - tmp/groq-rate-limit.patch
+      - .github/workflows/tmp-apply-groq-rate-limit.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/groq-rate-limit-delays
+          fetch-depth: 0
+
+      - name: Apply targeted patch
+        run: git apply --check tmp/groq-rate-limit.patch && git apply tmp/groq-rate-limit.patch
+
+      - name: Validate JavaScript syntax
+        run: |
+          node --check docs/war-admin.js
+          node --check workers/msf-war-ocr/worker.js
+
+      - name: Run targeted test suites
+        run: node --test tests/msf-war-ocr-draft.test.mjs tests/war-admin-*.test.mjs
+
+      - name: Verify targeted changes
+        run: |
+          grep -q 'const ANALYSIS_QUEUE_DELAY_MS = 30000;' docs/war-admin.js
+          grep -q 'code: "GROQ_RATE_LIMIT"' workers/msf-war-ocr/worker.js
+          grep -q 'model: model' workers/msf-war-ocr/worker.js
+          git diff --check
+
+      - name: Commit the fix and remove temporary files
+        run: |
+          rm -f tmp/groq-rate-limit.patch .github/workflows/tmp-apply-groq-rate-limit.yml
+          rmdir tmp 2>/dev/null || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/war-admin.js workers/msf-war-ocr/worker.js tmp/groq-rate-limit.patch .github/workflows/tmp-apply-groq-rate-limit.yml
+          git commit -m "fix(war): respect Groq rate limits between analyses"
+          git push origin HEAD:fix/groq-rate-limit-delays
