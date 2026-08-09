@@ -13,6 +13,8 @@ import {
 } from "./war-counter-lab-core.js";
 
 const WORKER_ENDPOINT = "https://msf-war-counter-vision.deliriousfan7.workers.dev/api/war-counter-vision/analyze";
+const GROQ_MAX_WIDTH = 1280;
+const GROQ_JPEG_QUALITY = 0.74;
 const $ = (selector) => document.querySelector(selector);
 const input = $("#captureInput");
 const runButton = $("#runGroq");
@@ -51,12 +53,39 @@ async function loadData() {
 }
 
 function workerCatalog() {
-  return catalog.map((item) => ({ id: item.id, name: item.nameFr || item.nameKey || item.nameEn || item.id }));
+  return catalog.map((item) => ({
+    id: item.id,
+    nameKey: item.nameKey,
+    nameFr: item.nameFr || null,
+    nameEn: item.nameEn || null,
+    aliases: [item.id, item.nameKey, item.nameFr, item.nameEn].filter(Boolean)
+  }));
+}
+
+async function buildGroqReadyFile(file) {
+  const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+  try {
+    const scale = Math.min(1, GROQ_MAX_WIDTH / bitmap.width);
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d", { alpha: false });
+    context.drawImage(bitmap, 0, 0, width, height);
+    const blob = await new Promise((resolve, reject) => {
+      canvas.toBlob((value) => value ? resolve(value) : reject(new Error("Compression de l’image impossible.")), "image/jpeg", GROQ_JPEG_QUALITY);
+    });
+    return new File([blob], "war-counter-groq.jpg", { type: "image/jpeg", lastModified: Date.now() });
+  } finally {
+    bitmap.close();
+  }
 }
 
 async function requestRealAnalysis(file, layoutId) {
+  const groqFile = await buildGroqReadyFile(file);
   const form = new FormData();
-  form.set("image", file, file.name);
+  form.set("image", groqFile, groqFile.name);
   form.set("strategy", "full_capture");
   form.set("layout", layoutId);
   form.set("confirmed", "one-real-call");
@@ -75,7 +104,7 @@ function applyWorkerResult(result) {
   result.slots.forEach((workerSlot, index) => {
     const target = draft.slots[index];
     if (workerSlot.slot !== target.slot || !Array.isArray(workerSlot.candidates)) throw new Error("Ordre des slots invalide dans la réponse.");
-    target.candidates = workerSlot.candidates.filter((candidate) => catalogById.has(candidate.characterId)).slice(0, 5).map((candidate) => ({
+    target.candidates = workerSlot.candidates.filter((candidate) => catalogById.has(candidate.characterId)).slice(0, 3).map((candidate) => ({
       characterId: candidate.characterId,
       confidence: candidate.confidence ?? null,
       source: "groq"
@@ -117,7 +146,7 @@ function updateMetrics() {
 
 function selectedLabel(slot) {
   const character = catalogById.get(slot.selectedCharacterId);
-  if (!character) return "Aucun personnage sélectionné";
+  if (!character) return "Aucun personnage résolu";
   const confidence = slot.candidates[0]?.confidence;
   return `${character.nameKey} — ${character.id}${Number.isFinite(confidence) ? ` · ${Math.round(confidence * 100)} %` : ""}`;
 }
@@ -241,7 +270,7 @@ runButton.onclick = async () => {
   requestInFlight = true;
   callUsedForCurrentFile = true;
   runButton.disabled = true;
-  status.textContent = "Appel Groq Vision en cours…";
+  status.textContent = "Compression puis appel Groq Vision en cours…";
   try {
     const result = await requestRealAnalysis(selectedFile, selectedLayout.layoutId);
     applyWorkerResult(result);
