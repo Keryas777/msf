@@ -580,7 +580,8 @@ async function handleWarWriteAnalyses(request, env) {
         {
           ok: false,
           error: "Quota Groq temporairement atteint.",
-          code: "GEMINI_RATE_LIMIT",
+          code: "GROQ_RATE_LIMIT",
+          model: model,
           retry_after_seconds:
             Number.isFinite(retryAfter) && retryAfter > 0
               ? Math.ceil(retryAfter)
