@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import worker, {
   buildGroqPayload,
+  buildVisionPrompt,
   callGroqVision,
   parseJsonContent,
   validateVisionResult,
@@ -11,7 +12,8 @@ import worker, {
   getVisionModel,
   isMockMode,
   ROUTE,
-  GROQ_ENDPOINT
+  GROQ_ENDPOINT,
+  STRATEGIES
 } from "../workers/msf-war-counter-vision/worker.js";
 
 const catalog = [{ id: "AgentVenom", names: ["Agent Venom", "AgentVenom"] }];
@@ -26,22 +28,21 @@ const rawResult = {
 };
 const validResult = {
   schemaVersion: "2.0.0",
-  slots: rawResult.slots.map((slot) => ({
-    slot: slot.slot,
-    barred: slot.barred,
-    candidates: [{ characterId: "AgentVenom", confidence: 0.5 }]
-  }))
+  slots: rawResult.slots.map((slot) => ({ slot: slot.slot, barred: slot.barred, candidates: [{ characterId: "AgentVenom", confidence: 0.5 }] }))
 };
 
-test("payload Vision allégé en JSON mode sans raisonnement", () => {
+test("payload Vision utilise la planche de portraits", () => {
   assert.equal(getVisionModel({}), "qwen/qwen3.6-27b");
-  const payload = buildGroqPayload({ env: { GROQ_VISION_MODEL: "custom/vision" }, imageDataUrl: "data:image/jpeg;base64,AA==" });
+  assert.deepEqual(STRATEGIES, ["grouped_wide_crops"]);
+  const prompt = buildVisionPrompt("grouped_wide_crops");
+  assert.match(prompt, /2 rangées de 5 cases/);
+  assert.match(prompt, /left-1,left-2,left-3,left-4,left-5/);
+  const payload = buildGroqPayload({ env: { GROQ_VISION_MODEL: "custom/vision" }, imageDataUrl: "data:image/jpeg;base64,AA==", strategy: "grouped_wide_crops" });
   assert.equal(payload.model, "custom/vision");
   assert.equal(payload.messages[0].content[1].type, "image_url");
   assert.deepEqual(payload.response_format, { type: "json_object" });
   assert.equal(payload.reasoning_effort, "none");
-  assert.equal(payload.temperature, 0.7);
-  assert.equal(payload.top_p, 0.8);
+  assert.equal(payload.temperature, 0.2);
   assert.equal(payload.max_completion_tokens, 1200);
   assert.doesNotMatch(payload.messages[0].content[0].text, /AgentVenom/);
 });
@@ -75,22 +76,23 @@ test("nom inconnu conservé comme non résolu", () => {
 });
 
 test("JSON invalide simulé", async () => {
-  await assert.rejects(() => callGroqVision({
-    env: { GROQ_API_KEY: "x" },
-    payload: {},
-    fetchImpl: async () => Response.json({ choices: [{ message: { content: "pas de json" } }] })
-  }), /JSON Groq invalide/);
+  await assert.rejects(() => callGroqVision({ env: { GROQ_API_KEY: "x" }, payload: {}, fetchImpl: async () => Response.json({ choices: [{ message: { content: "pas de json" } }] }) }), /JSON Groq invalide/);
 });
 
-function formRequest({ confirmed = true } = {}) {
+function formRequest({ confirmed = true, strategy = "grouped_wide_crops" } = {}) {
   const form = new FormData();
   form.set("image", new File(["x"], "x.jpg", { type: "image/jpeg" }));
-  form.set("strategy", "full_capture");
+  form.set("strategy", strategy);
   form.set("layout", "war-result-ultrawide-v1");
   form.set("catalog", JSON.stringify([{ id: "AgentVenom", name: "Agent Venom", aliases: ["AgentVenom"] }]));
   if (confirmed) form.set("confirmed", "one-real-call");
   return new Request(`https://x${ROUTE}`, { method: "POST", headers: { Origin: "https://keryas777.github.io" }, body: form });
 }
+
+test("ancienne stratégie full_capture refusée", async () => {
+  const response = await worker.fetch(formRequest({ strategy: "full_capture" }), { R1_MOCK_ONLY: "false" });
+  assert.equal(response.status, 400);
+});
 
 test("confirmation explicite requise", async () => {
   const response = await worker.fetch(formRequest({ confirmed: false }), { R1_MOCK_ONLY: "false" });
@@ -103,7 +105,7 @@ test("verrou R1 bloque R3 sans appel", async () => {
   assert.equal((await response.json()).groqRealCalls, 0);
 });
 
-test("R3 effectue exactement un appel simulé et résout localement", async () => {
+test("R3 effectue exactement un appel simulé sur la planche", async () => {
   const originalFetch = globalThis.fetch;
   let calls = 0;
   globalThis.fetch = async () => {
@@ -115,6 +117,7 @@ test("R3 effectue exactement un appel simulé et résout localement", async () =
     const body = await response.json();
     assert.equal(response.status, 200);
     assert.equal(body.result.provider, "groq");
+    assert.equal(body.result.strategy, "grouped_wide_crops");
     assert.equal(body.result.groqRealCalls, 1);
     assert.equal(body.result.slots[0].candidates[0].characterId, "AgentVenom");
     assert.equal(calls, 1);
