@@ -1,0 +1,83 @@
+name: Codex specific mechanics regeneration (temporary)
+
+on:
+  push:
+    branches:
+      - agent/codex-specific-mechanics
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: agent/codex-specific-mechanics
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate catalogs
+        run: |
+          python -m unittest tests.test_msf_official_effects_catalog -v
+          python -m unittest tests.test_msf_specific_mechanics_catalog -v
+
+      - name: Regenerate Codex artifacts
+        run: python -m scripts.msf_capabilities_explorer_builder.cli
+
+      - name: Run Codex builder tests
+        run: python -m unittest discover -s tests -p "test_msf_capabilities_explorer_builder.py" -v
+
+      - name: Validate generated Codex
+        run: |
+          python -m scripts.msf_capabilities_explorer_builder.cli --check
+          python -m scripts.msf_capabilities_explorer_builder.verify_permuted_generation
+          node --test tests/codex-core.test.mjs tests/codex-static.test.mjs
+
+      - name: Verify Vitalité propagation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('docs/data/msf-capabilities-explorer')
+          stable = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
+          generation = root / stable['currentPath']
+          grace = json.loads((generation / 'mechanics/grace.json').read_text(encoding='utf-8'))
+          if grace.get('label') != 'Vitalité':
+              raise SystemExit(f"Expected Vitalité label, got {grace.get('label')!r}")
+          if grace.get('sourceName') != 'Grace':
+              raise SystemExit(f"Grace sourceName changed unexpectedly: {grace.get('sourceName')!r}")
+          counts = grace.get('counts') or {}
+          if counts.get('abilities') != 2 or counts.get('occurrences') != 2:
+              raise SystemExit(f"Unexpected Grace counts: {counts}")
+          facets = {facet.get('id'): facet for facet in grace.get('facets', [])}
+          if facets.get('effect_apply', {}).get('occurrenceCount') != 1:
+              raise SystemExit(f"Unexpected Grace apply facet: {facets.get('effect_apply')}")
+          if facets.get('effect_remove', {}).get('occurrenceCount') != 1:
+              raise SystemExit(f"Unexpected Grace remove facet: {facets.get('effect_remove')}")
+          print('Vitalité propagated while preserving sourceName Grace and 2 Angel occurrences.')
+          PY
+
+      - name: Commit regenerated artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/msf-capabilities-explorer
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit"
+            exit 0
+          fi
+          git commit -m "chore: regenerate Codex with specific mechanics catalog"
+          git push origin HEAD:agent/codex-specific-mechanics
