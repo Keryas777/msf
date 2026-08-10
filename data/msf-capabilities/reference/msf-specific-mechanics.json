@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": {
+    "captureDate": "2026-08-10",
+    "note": "Canonical manual mappings for character- or team-specific MSF mechanics whose player-facing names are verified from official game text. Mechanical source IDs are preserved; no mapping is inferred from translation alone."
+  },
+  "mechanics": [
+    {
+      "id": "vitality",
+      "mechanicalIds": ["Grace"],
+      "name": {
+        "fr": "Vitalité",
+        "en": null
+      },
+      "description": {
+        "fr": null,
+        "en": null
+      },
+      "scope": "character_specific",
+      "characters": ["Angel"],
+      "evidence": {
+        "kind": "official_game_text",
+        "note": "Official French Angel ability text uses the player-facing term 'Vitalité'. Repository audit confirms Grace is used only by Angel in two playable abilities: one application in the passive 'Ange gardien' and one removal in the basic 'Coup d'ailes'."
+      }
+    }
+  ]
+}
