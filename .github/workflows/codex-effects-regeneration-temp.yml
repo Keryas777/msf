@@ -1,0 +1,99 @@
+name: Codex effects regeneration (temporary)
+
+on:
+  push:
+    branches:
+      - agent/codex-effects-regeneration
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: agent/codex-effects-regeneration
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate official effects catalog
+        run: python -m unittest tests.test_msf_official_effects_catalog -v
+
+      - name: Run Codex builder tests
+        run: python -m unittest discover -s tests -p "test_msf_capabilities_explorer_builder.py" -v
+
+      - name: Regenerate Codex artifacts
+        run: python -m scripts.msf_capabilities_explorer_builder.cli
+
+      - name: Validate generated Codex
+        run: |
+          python -m scripts.msf_capabilities_explorer_builder.cli --check
+          python -m scripts.msf_capabilities_explorer_builder.verify_permuted_generation
+          node --test tests/codex-core.test.mjs tests/codex-static.test.mjs
+
+      - name: Verify official names propagated
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('docs/data/msf-capabilities-explorer')
+          stable = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
+          generation = root / stable['currentPath']
+
+          expected = {
+              'Indestructible',
+              'Obstruction',
+              'Aveuglement',
+              'Traumatisme',
+              'Exposé',
+              'Épuisé',
+              'Vulnérabilité iso-8',
+          }
+          found = set()
+          for path in (generation / 'mechanics').glob('*.json'):
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              label = payload.get('label') or payload.get('name')
+              if label in expected:
+                  found.add(label)
+
+          missing = expected - found
+          if missing:
+              raise SystemExit(f'Official effect names missing from generated mechanics: {sorted(missing)}')
+
+          trauma_files = []
+          for path in (generation / 'mechanics').glob('*.json'):
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              if (payload.get('label') or payload.get('name')) == 'Traumatisme':
+                  trauma_files.append((path.name, payload.get('globalEvidence'), [f.get('id') for f in payload.get('facets', [])]))
+          if not trauma_files:
+              raise SystemExit('No generated Traumatisme mechanic found')
+          if not any(evidence == 'normalized' for _, evidence, _ in trauma_files):
+              raise SystemExit(f'Traumatisme is not mechanically normalized: {trauma_files}')
+          print('Official names propagated:', sorted(found))
+          print('Traumatisme:', trauma_files)
+          PY
+
+      - name: Commit regenerated artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/msf-capabilities-explorer
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit"
+            exit 0
+          fi
+          git commit -m "chore: regenerate Codex with official effects catalog"
+          git push origin HEAD:agent/codex-effects-regeneration
