@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow">
   <title>War Counter Vision — Laboratoire privé</title>
-  <link rel="stylesheet" href="war-counter-lab.css">
+  <link rel="stylesheet" href="war-counter-lab.css?v=r3-contact-sheet-1">
 </head>
 <body>
   <main class="app-shell">
@@ -17,7 +17,7 @@
 
     <section class="panel">
       <label for="strategy">Stratégie Vision</label>
-      <select id="strategy" disabled><option value="full_capture">full_capture</option></select>
+      <select id="strategy" disabled><option value="grouped_wide_crops">grouped_wide_crops</option></select>
       <label class="upload-button" for="captureInput">Choisir une capture</label>
       <input id="captureInput" type="file" accept="image/jpeg,image/png,image/webp">
       <button id="runGroq" type="button" disabled>Lancer 1 test Groq réel</button>
@@ -45,6 +45,6 @@
     <div id="characterResults" class="character-results"></div>
   </dialog>
 
-  <script type="module" src="war-counter-lab.js"></script>
+  <script type="module" src="war-counter-lab.js?v=r3-contact-sheet-1"></script>
 </body>
 </html>
