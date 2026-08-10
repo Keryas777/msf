@@ -56,6 +56,7 @@ def main(argv: list[str] | None = None) -> int:
         "generation": str(result.generation_path),
         "payloadSetChecksum": result.payload_set_checksum,
         "counts": result.counts,
+        "presentationAudit": result.presentation_audit,
         "payloadBytes": sum(result.payload_sizes.values()),
         "largestPayloads": sorted(
             result.payload_sizes.items(), key=lambda item: (-item[1], item[0])

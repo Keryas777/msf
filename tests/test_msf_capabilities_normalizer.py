@@ -30,7 +30,7 @@ REAL_CHARACTERS = (
 )
 REAL_PROCS = REPOSITORY_ROOT / "data/msf-capabilities/raw/procs.json"
 REAL_MECHANICS_SHA256 = (
-    "0ace27b82820797c2629d869708b14fb400f086d466e4e4a777b831e9def481c"
+    "37dec7f27cfd491b735b96d82292b55734741783b37ad82d57ec39dfe67e7731"
 )
 
 
@@ -983,7 +983,7 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
         self.assert_snapshot_checksum()
         audit = self.capabilities["audit"]
         self.assertEqual(audit["empowerOperationCount"], 7)
-        self.assertEqual(audit["emptyResultOperationCount"], 289)
+        self.assertEqual(audit["emptyResultOperationCount"], 310)
         self.assertEqual(audit["spawnOperationCount"], 116)
         self.assertEqual(
             sum(
@@ -997,7 +997,7 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
                 item["kind"] == "empty_result"
                 for item in self.capabilities["operations"]
             ),
-            289,
+            310,
         )
         self.assertEqual(
             sum(
@@ -1049,7 +1049,7 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
     def test_real_abilities_include_empowered_passive_only_when_playable(self):
         self.assert_snapshot_checksum()
         abilities = self.capabilities["abilities"]
-        self.assertEqual(len(abilities), 1827)
+        self.assertEqual(len(abilities), 1844)
         ability_types = [item["abilityType"] for item in abilities]
         self.assertEqual(ability_types.count("passive_empower"), 5)
         self.assertFalse(
@@ -1072,21 +1072,21 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
         source_action_ids = {
             item["id"] for item in self.mechanics["actions"]
         }
-        self.assertEqual(len(source_action_ids), 12036)
-        self.assertEqual(len(mappings), 12036)
+        self.assertEqual(len(source_action_ids), 12327)
+        self.assertEqual(len(mappings), 12327)
         self.assertEqual(
             {item["sourceActionId"] for item in mappings},
             source_action_ids,
         )
         self.assertEqual(
             self.capabilities["audit"]["mappedActionCount"],
-            7159,
+            7356,
         )
         self.assertEqual(
             self.capabilities["audit"][
                 "preservedUninterpretedActionCount"
             ],
-            4877,
+            4971,
         )
 
     def test_real_hulk_annihilus_and_kraven_warnings_remain_exact(self):
@@ -1105,22 +1105,6 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
                     "DANGLING_ACTION_DEPENDENCY",
                     "KravenTheHunter",
                     "/Data/KravenTheHunter/passive/0/actions/0",
-                ),
-                (
-                    "UNRESOLVED_EFFECT_REFERENCE",
-                    "Hulk",
-                    (
-                        "/Data/Hulk/passive/0/actions/3/"
-                        "procs/0/proc"
-                    ),
-                ),
-                (
-                    "UNRESOLVED_EFFECT_REFERENCE",
-                    "Hulk",
-                    (
-                        "/Data/Hulk/passive/1/actions/3/"
-                        "procs/0/proc"
-                    ),
                 ),
                 (
                     "UNRESOLVED_EFFECT_REFERENCE",
