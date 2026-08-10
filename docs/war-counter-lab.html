@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow">
   <title>War Counter Vision — Laboratoire privé</title>
-  <link rel="stylesheet" href="war-counter-lab.css?v=r3-contact-sheet-1">
+  <link rel="stylesheet" href="war-counter-lab.css?v=r4-local-prefilter-1">
 </head>
 <body>
   <main class="app-shell">
     <header>
       <p class="eyebrow">Laboratoire privé</p>
       <h1>MSF War Counter Vision</h1>
-      <p>Phase R3 — premier test Groq Vision contrôlé.</p>
+      <p>Phase R4 — préfiltre local mobile-first, puis test Groq contrôlé.</p>
     </header>
 
     <section class="panel">
@@ -20,8 +20,9 @@
       <select id="strategy" disabled><option value="grouped_wide_crops">grouped_wide_crops</option></select>
       <label class="upload-button" for="captureInput">Choisir une capture</label>
       <input id="captureInput" type="file" accept="image/jpeg,image/png,image/webp">
+      <button id="runLocal" type="button" disabled>Lancer le préfiltre local</button>
       <button id="runGroq" type="button" disabled>Lancer 1 test Groq réel</button>
-      <p class="warning">Un appui confirmé déclenche exactement un appel Groq. Aucun lancement automatique.</p>
+      <p class="warning">Le préfiltre local ne consomme aucun appel Groq. Le bouton Groq conserve sa confirmation séparée.</p>
       <p id="uploadStatus" role="status">JPEG, PNG ou WebP — 12 Mo maximum.</p>
     </section>
 
@@ -33,7 +34,8 @@
     <section class="panel">
       <div class="metrics">
         <strong>Appels Groq réels : <span id="groqCalls">0</span></strong>
-        <span id="metricSummary">Top 1/3/5 : non évalué</span>
+        <span id="localMetricSummary">Préfiltre local : non évalué</span>
+        <span id="metricSummary">Groq Top 1/3/5 : non évalué</span>
       </div>
       <div id="slots" class="slots" aria-live="polite"></div>
     </section>
@@ -45,6 +47,6 @@
     <div id="characterResults" class="character-results"></div>
   </dialog>
 
-  <script type="module" src="war-counter-lab.js?v=r3-contact-sheet-1"></script>
+  <script type="module" src="war-counter-lab.js?v=r4-local-prefilter-1"></script>
 </body>
 </html>
