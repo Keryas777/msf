@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Any
 
 
-SCHEMA_VERSION = "1.1.0"
+SCHEMA_VERSION = "1.2.0"
 
 PROOF = {
     "normalized": {
@@ -513,8 +513,11 @@ SUGGESTION_SPECS = [
 
 LIMITATIONS = [
     "Aucune simulation de combat n’est effectuée.",
+    "Les phases sont des regroupements de présentation et ne modifient aucune action source.",
+    "Une cible absente n’est jamais ajoutée à une occurrence, même lorsqu’elle suit une cible explicite dans une phase.",
     "Les actions détectées ne reçoivent ni cible, ni quantité, ni durée déduite.",
     "Les capacités renforcées sans présentation officielle utilisent un fallback neutre.",
     "Les mentions textuelles reposent uniquement sur des termes contrôlés exacts.",
-    "Le fonctionnement hors ligne complet n’est pas pris en charge en V1.",
+    "Le texte officiel peut nommer ou aligner une phase, jamais créer une opération mécanique.",
+    "Le fonctionnement hors ligne complet n’est pas pris en charge dans cette phase.",
 ]

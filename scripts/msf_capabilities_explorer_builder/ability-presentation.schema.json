@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keryas777.github.io/msf/schemas/ability-presentation-2.0.0.json",
+  "title": "AbilityPresentation",
+  "description": "Hiérarchie B2.1 : phases joueur, branches techniques et occurrences canoniques partagées.",
+  "type": "object",
+  "required": ["schemaVersion", "presentationId", "occurrences", "playerPhases", "technicalVariants", "unassignedOccurrenceRefs", "officialText", "diagnostics"],
+  "properties": {
+    "schemaVersion": {"const": "2.0.0"},
+    "presentationId": {"type": "string", "minLength": 1},
+    "abilityId": {"type": ["string", "null"]},
+    "characterId": {"type": "string"},
+    "abilityType": {"type": "string"},
+    "parentAbilityId": {"type": ["string", "null"]},
+    "sourceContextId": {"type": ["string", "null"]},
+    "variant": {"type": ["object", "null"]},
+    "contexts": {"type": "array"},
+    "occurrences": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/occurrence"}
+    },
+    "playerPhases": {"type": "array", "items": {"$ref": "#/$defs/playerPhase"}},
+    "technicalVariants": {"type": "array"},
+    "unassignedOccurrenceRefs": {"type": "array", "items": {"type": "string", "pattern": "^act_[0-9a-f]{16}$"}},
+    "officialText": {"type": "object"},
+    "diagnostics": {"type": "array"}
+  },
+  "$defs": {
+    "occurrence": {
+      "type": "object",
+      "required": ["sourceActionId", "actionOrder", "operationIds", "sourcePointer", "sourceType", "contextId", "contextPathIds", "target", "recipient", "conditions", "control", "flags", "uninterpretedParameters", "sourceReferences", "phaseAlignment", "textSegmentIds", "evidence"],
+      "properties": {
+        "sourceActionId": {"type": "string", "pattern": "^act_[0-9a-f]{16}$"},
+        "actionOrder": {"type": ["integer", "null"]},
+        "operationIds": {"type": "array", "items": {"type": "string", "pattern": "^op_[0-9a-f]{16}$"}},
+        "sourcePointer": {"type": ["string", "null"]},
+        "sourceType": {"type": ["string", "null"]},
+        "contextId": {"type": ["string", "null"]},
+        "contextPathIds": {"type": "array"},
+        "target": {"type": ["object", "null"]},
+        "recipient": {"type": ["object", "null"]},
+        "conditions": {"type": "array"},
+        "control": {"type": "object"},
+        "flags": {"type": "object"},
+        "uninterpretedParameters": {"type": "object"},
+        "sourceReferences": {"type": "array"},
+        "phaseAlignment": {"type": "object"},
+        "textSegmentIds": {"type": "array"},
+        "evidence": {"type": "object"}
+      }
+    },
+    "branch": {
+      "type": "object",
+      "required": ["id", "order", "label", "trigger", "mode", "conditions", "control", "occurrenceRefs", "sourceReferences", "diagnostics"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^branch:[0-9a-f]{16}$"},
+        "order": {"type": "integer", "minimum": 0},
+        "label": {"type": "string", "minLength": 1},
+        "occurrenceRefs": {"type": "array", "items": {"type": "string", "pattern": "^act_[0-9a-f]{16}$"}}
+      }
+    },
+    "playerPhase": {
+      "type": "object",
+      "required": ["id", "order", "kind", "label", "labelSource", "occurrenceRefs", "branches", "playerItems", "textSegmentIds", "evidence", "confidence"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^phase:[0-9a-f]{16}$"},
+        "order": {"type": "integer", "minimum": 0},
+        "kind": {"type": "string"},
+        "label": {"type": "string"},
+        "labelSource": {"enum": ["mechanical", "official_text", "controlled_rule", "fallback"]},
+        "occurrenceRefs": {"type": "array", "items": {"type": "string", "pattern": "^act_[0-9a-f]{16}$"}},
+        "branches": {"type": "array", "items": {"$ref": "#/$defs/branch"}},
+        "confidence": {"enum": ["high", "medium", "low"]}
+      }
+    }
+  }
+}

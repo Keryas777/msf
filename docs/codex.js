@@ -166,6 +166,51 @@ function proofGuideMarkup(evidences) {
   }).join("");
 }
 
+const PRESENTATION_EVIDENCE = {
+  mechanically_verified: {
+    label: "Mécanique vérifiée",
+    explanation: "Une opération normalisée confirme cette assertion.",
+  },
+  mechanically_preserved: {
+    label: "Structure brute",
+    explanation: "La donnée source est conservée sans interprétation globale.",
+  },
+  official_text_asserted: {
+    label: "Texte officiel",
+    explanation: "Le libellé ou la valeur vient du texte officiel français.",
+  },
+  aligned_high: {
+    label: "Alignement fort",
+    explanation: "Le texte et la structure mécanique se correspondent nettement.",
+  },
+  aligned_medium: {
+    label: "Alignement probable",
+    explanation: "Le rattachement est plausible, mais n’est pas une cible héritée ni un fait mécanique ajouté.",
+  },
+  inferred_low: {
+    label: "Interprétation prudente",
+    explanation: "Cette assertion reste faible et ne doit pas être lue comme un fait joueur certain.",
+  },
+  unknown: {
+    label: "Inconnu",
+    explanation: "Les sources ne permettent pas de qualifier davantage cette assertion.",
+  },
+};
+
+function presentationEvidenceIndicator(level) {
+  const safeLevel = Object.prototype.hasOwnProperty.call(PRESENTATION_EVIDENCE, level)
+    ? level
+    : "unknown";
+  const info = PRESENTATION_EVIDENCE[safeLevel];
+  return `
+    <span
+      class="codexEvidenceDot codexEvidenceDot--${safeLevel}"
+      title="${escapeHtml(info.label)}"
+      aria-label="Preuve : ${escapeHtml(info.label)}"
+    ></span>
+  `;
+}
+
 function imageMarkup({
   url,
   alt,
@@ -703,7 +748,7 @@ function abilityStripMarkup(abilities, activeAbilityId = "") {
             href="${escapeHtml(buildCodexHref(abilityRoute(ability)))}"
             data-codex-link
             ${isActive ? 'aria-current="page"' : ""}
-            aria-label="${escapeHtml(`${ability.typeLabel} : ${ability.name}`)}"
+            aria-label="${escapeHtml(`${ability.typeLabel} : ${ability.name}${isActive ? " — capacité ouverte" : ""}`)}"
           >
             ${imageMarkup({
               url: ability.iconUrl,
@@ -711,7 +756,10 @@ function abilityStripMarkup(abilities, activeAbilityId = "") {
               fallback: abilityFallback(ability.typeLabel),
               kind: "ability",
             })}
-            <small>${escapeHtml(ability.typeLabel)}</small>
+            <small>
+              ${escapeHtml(ability.typeLabel)}
+              ${isActive ? '<span class="codexAbilitySelectedLabel">Ouverte</span>' : ""}
+            </small>
           </a>
         `;
       }).join("")}
@@ -1246,16 +1294,38 @@ function technicalContextsMarkup(shard) {
   return `
     <details class="codexTechnicalDetails">
       <summary>
-        Opérations techniques sans capacité présentée
+        Variantes et contextes techniques
         <span class="codexCountBadge">${occurrenceCount}</span>
       </summary>
       <div class="codexTechnicalDetailsBody">
         <p class="codexLead">
-          Ces opérations restent consultables sans être associées de façon incertaine à une capacité.
+          Ces structures restent séparées des capacités officielles. Une relation à la capacité parente
+          n’est affichée que lorsqu’une règle contrôlée la justifie.
         </p>
-        ${shard.technicalContexts.map((context) => `
-          <section class="codexSection">
+        ${shard.technicalContexts.map((context) => {
+          const parent = (shard.abilities || []).find(
+            (ability) => ability.id === context.parentAbilityId
+          );
+          const phases = context.presentation?.playerPhases || [];
+          return `
+          <section class="codexSection codexTechnicalContext">
             <h3>${escapeHtml(context.label)}</h3>
+            ${context.variantType ? `
+              <p class="codexTechnicalRelation">
+                Type : <code>${escapeHtml(context.variantType)}</code>
+                ${parent ? ` · Reliée par règle contrôlée à
+                  <a class="codexInlineLink" href="${escapeHtml(buildCodexHref(abilityRoute(parent)))}" data-codex-link>
+                    ${escapeHtml(parent.typeLabel)} — ${escapeHtml(parent.name)}
+                  </a>` : " · Capacité parente non établie"}
+              </p>
+            ` : ""}
+            ${phases.length ? `
+              <ol class="codexTechnicalPhaseList">
+                ${phases.map((phase) => `
+                  <li>Phase ${phase.order + 1} — ${escapeHtml(phase.label)}</li>
+                `).join("")}
+              </ol>
+            ` : ""}
             <ul class="codexChipList">
               ${sortOccurrencesBySourceOrder([
                 ...(context.operations || []),
@@ -1274,7 +1344,8 @@ function technicalContextsMarkup(shard) {
               `).join("")}
             </ul>
           </section>
-        `).join("")}
+        `;
+        }).join("")}
       </div>
     </details>
   `;
@@ -1543,14 +1614,228 @@ function empoweredRelationshipMarkup(ability, shard) {
   return `<div class="codexNotice codexNotice--info">${links.join("<br />")}</div>`;
 }
 
+function branchPlayerMarkup(branch, presentation) {
+  const occurrences = (branch.occurrenceRefs || [])
+    .map((ref) => presentation.occurrences?.[ref])
+    .filter(Boolean);
+  return `
+    <details class="codexPhaseBranch">
+      <summary><span>${escapeHtml(branch.label)}</span><span class="codexCountBadge">${occurrences.length}</span></summary>
+      <ol class="codexBranchStepList">
+        ${occurrences.map((occurrence) => `
+          <li><span>Étape ${Number.isInteger(occurrence.actionOrder) ? occurrence.actionOrder + 1 : "source"}</span><small>${escapeHtml(occurrence.sourceType || "action préservée")}</small></li>
+        `).join("")}
+      </ol>
+    </details>
+  `;
+}
+
+function phasePlayerMarkup(phase, presentation) {
+  const labelEvidence = phase.evidence?.label?.level || "unknown";
+  const items = phase.playerItems || [];
+  return `
+    <article class="codexPhase" aria-labelledby="${escapeHtml(`${phase.id}-title`)}">
+      <header class="codexPhaseHeader">
+        <div>
+          <p>Phase ${phase.order + 1}</p>
+          <h3 id="${escapeHtml(`${phase.id}-title`)}">${escapeHtml(phase.label)}</h3>
+        </div>
+        ${presentationEvidenceIndicator(labelEvidence)}
+      </header>
+      ${items.length ? `
+        <ul class="codexPhaseItems">
+          ${items.map((item) => `
+            <li>
+              <span>${escapeHtml(item.text)}</span>
+              <span class="codexEvidenceDots">
+                ${presentationEvidenceIndicator(item.evidence?.level)}
+                ${item.mechanicalSupport?.evidence
+                  ? presentationEvidenceIndicator(item.mechanicalSupport.evidence)
+                  : ""}
+                ${item.textEvidence ? presentationEvidenceIndicator(item.textEvidence) : ""}
+              </span>
+            </li>
+          `).join("")}
+        </ul>
+      ` : `
+        <p class="codexNotice codexNotice--info">
+          Structure source conservée ; aucun résumé joueur certain n’est disponible.
+        </p>
+      `}
+      ${phase.branches?.length ? `<div class="codexPhaseBranches">${phase.branches.map((branch) => branchPlayerMarkup(branch, presentation)).join("")}</div>` : ""}
+    </article>
+  `;
+}
+
+function presentationPhasesMarkup(presentation) {
+  if (!presentation?.playerPhases?.length) {
+    return '<p class="codexNotice codexNotice--info">Aucune mécanique vérifiée n’est disponible pour cette capacité.</p>';
+  }
+  return `<div class="codexPhaseList">${presentation.playerPhases.map((phase) => phasePlayerMarkup(phase, presentation)).join("")}</div>`;
+}
+
+function technicalJson(value, absentLabel = "absente dans la source") {
+  if (value === null || value === undefined) {
+    return `<span class="codexTechnicalAbsent">${escapeHtml(absentLabel)}</span>`;
+  }
+  return `<code class="codexTechnicalJson">${escapeHtml(JSON.stringify(value))}</code>`;
+}
+
+function technicalOccurrenceMarkup(step, ability) {
+  const action = (ability.actions || []).find(
+    (candidate) => (candidate.sourceActionId || candidate.id) === step.sourceActionId
+  );
+  const conditionValues = step.conditions || [];
+  return `
+    <li class="codexTechnicalOccurrence">
+      <div class="codexTechnicalOccurrenceTitle">
+        <strong>Occurrence ${Number.isInteger(step.actionOrder) ? step.actionOrder : "?"}</strong>
+        ${presentationEvidenceIndicator(step.evidence?.source_action?.level)}
+      </div>
+      <dl class="codexDefinitionGrid">
+        ${definitionRow("sourceActionId", `<code>${escapeHtml(step.sourceActionId)}</code>`, true)}
+        ${definitionRow("Ordre source", step.actionOrder)}
+        ${definitionRow("Type source", `<code>${escapeHtml(step.sourceType || "inconnu")}</code>`, true)}
+        ${definitionRow("Contexte", step.contextId ? `<code>${escapeHtml(step.contextId)}</code>` : "absent", true)}
+        ${definitionRow("Cible originale", technicalJson(step.target?.value ?? step.target), true)}
+        ${definitionRow("Destinataire original", technicalJson(step.recipient?.value ?? step.recipient), true)}
+        ${definitionRow("Conditions", technicalJson(conditionValues.length ? conditionValues : null), true)}
+        ${definitionRow("Contrôle", technicalJson(step.control), true)}
+        ${definitionRow("Flags", technicalJson(step.flags), true)}
+        ${definitionRow(
+          "Opérations",
+          step.operationIds?.length
+            ? step.operationIds.map((id) => `
+              <a class="codexInlineLink" href="${escapeHtml(buildCodexHref({ view: "operation", id }))}" data-codex-link>
+                <code>${escapeHtml(id)}</code>
+              </a>
+            `).join(" · ")
+            : "aucune opération normalisée",
+          true
+        )}
+        ${definitionRow("JSON Pointer", `<code>${escapeHtml(step.sourcePointer || "absent")}</code>`, true)}
+        ${action?.uninterpretedParameters
+          ? definitionRow("Paramètres préservés", technicalJson(action.uninterpretedParameters), true)
+          : ""}
+        ${definitionRow("Alignement de phase", step.phaseAlignment?.level || "unknown")}
+      </dl>
+    </li>
+  `;
+}
+
+function presentationTechnicalMarkup(presentation, ability) {
+  if (!presentation) return "";
+  const segments = presentation.officialText?.segments || [];
+  const unassigned = presentation.unassignedOccurrenceRefs || [];
+  return `
+    <details class="codexTechnicalDetails codexAbilityTechnicalDetails">
+      <summary>Détails techniques</summary>
+      <div class="codexTechnicalDetailsBody">
+        <p class="codexTechnicalContract">
+          AbilityPresentation <code>${escapeHtml(presentation.schemaVersion)}</code>
+          · <code>${escapeHtml(presentation.presentationId)}</code>
+        </p>
+        ${(presentation.playerPhases || []).map((phase) => `
+          <section class="codexTechnicalPhase">
+            <h3>Phase ${phase.order + 1} — ${escapeHtml(phase.label)}</h3>
+            <dl class="codexDefinitionGrid">
+              ${definitionRow("ID de phase", `<code>${escapeHtml(phase.id)}</code>`, true)}
+              ${definitionRow("Famille joueur", `<code>${escapeHtml(phase.kind)}</code>`, true)}
+              ${definitionRow("Occurrences", technicalJson(phase.occurrenceRefs), true)}
+              ${definitionRow("Branches", phase.branches?.length || 0)}
+            </dl>
+            <ol class="codexTechnicalOccurrenceList">
+              ${(phase.occurrenceRefs || []).map((ref) => presentation.occurrences?.[ref]).filter(Boolean).map((step) => technicalOccurrenceMarkup(step, ability)).join("")}
+            </ol>
+          </section>
+        `).join("")}
+        ${unassigned.length ? `
+          <section class="codexTechnicalPhase">
+            <h3>Occurrences non assignées</h3>
+            <p>${unassigned.length} occurrence(s) conservée(s) hors phase.</p>
+          </section>
+        ` : ""}
+        ${segments.length ? `
+          <section class="codexTechnicalPhase">
+            <h3>Segments du texte officiel</h3>
+            <ol class="codexTextSegmentList">
+              ${segments.map((segment) => `
+                <li>
+                  <span>${escapeHtml(segment.text)}</span>
+                  <small>
+                    offsets ${segment.start}–${segment.end}
+                    · ${escapeHtml(segment.alignment?.confidence || "unassigned")}
+                    ${segment.alignment?.phaseId ? ` · <code>${escapeHtml(segment.alignment.phaseId)}</code>` : ""}
+                  </small>
+                </li>
+              `).join("")}
+            </ol>
+          </section>
+        ` : ""}
+      </div>
+    </details>
+  `;
+}
+
+function presentationDiagnosticsMarkup(presentation) {
+  const diagnostics = presentation?.diagnostics || [];
+  if (!diagnostics.length) return "";
+  const registry = state.bootstrap?.abilityPresentation?.diagnostics || {};
+  return `
+    <details class="codexTechnicalDetails codexDiagnosticDetails">
+      <summary>
+        Diagnostics avancés
+        <span class="codexCountBadge">${diagnostics.length}</span>
+      </summary>
+      <div class="codexTechnicalDetailsBody">
+        <ul class="codexDiagnosticList">
+          ${diagnostics.map((diagnostic) => `
+            <li>
+              <code>${escapeHtml(diagnostic.code)}</code>
+              <span>${escapeHtml(registry[diagnostic.code] || "Diagnostic conservateur non documenté.")}</span>
+            </li>
+          `).join("")}
+        </ul>
+      </div>
+    </details>
+  `;
+}
+
+function presentationProofHelpMarkup(presentation) {
+  if (!presentation) return "";
+  const levels = new Set();
+  for (const phase of presentation.playerPhases || []) {
+    Object.values(phase.evidence || {}).forEach((evidence) => levels.add(evidence.level));
+    for (const item of phase.playerItems || []) {
+      levels.add(item.evidence?.level);
+      levels.add(item.mechanicalSupport?.evidence);
+      levels.add(item.textEvidence);
+    }
+    for (const ref of phase.occurrenceRefs || []) {
+      const step = presentation.occurrences?.[ref];
+      if (!step) continue;
+      levels.add(step.phaseAlignment?.level);
+    }
+  }
+  const ordered = Object.keys(PRESENTATION_EVIDENCE).filter((level) => levels.has(level));
+  return `
+    <details class="codexTechnicalDetails codexProofHelp">
+      <summary>Aide sur les niveaux de preuve</summary>
+      <div class="codexTechnicalDetailsBody codexProofHelpBody">
+        ${ordered.map((level) => `
+          <div>
+            ${presentationEvidenceIndicator(level)}
+            <p><strong>${escapeHtml(PRESENTATION_EVIDENCE[level].label)}</strong> — ${escapeHtml(PRESENTATION_EVIDENCE[level].explanation)}</p>
+          </div>
+        `).join("")}
+      </div>
+    </details>
+  `;
+}
+
 function abilityModel(shard, ability) {
   const character = shard.character;
-  const occurrences = sortOccurrencesBySourceOrder([
-    ...(ability.operations || []),
-    ...(ability.actions || []),
-    ...(ability.mentions || []),
-  ]);
-  const evidences = uniqueEvidence(occurrences.map((occurrence) => occurrence.evidence));
+  const presentation = ability.presentation;
   const energy = ability.energy;
   const energyText = energy && typeof energy === "object"
     ? [
@@ -1560,18 +1845,13 @@ function abilityModel(shard, ability) {
     : "";
   const shareTitle = `${ability.name} — ${character.name} | Codex MSF`;
 
-  const mechanicsContent = occurrences.length
-    ? `
-      ${evidences.length ? `<div class="codexProofGuide">${proofGuideMarkup(evidences)}</div>` : ""}
-      <ul class="codexOccurrenceList">
-        ${occurrences.map((occurrence) => occurrenceMarkup(occurrence, ability)).join("")}
-      </ul>
-    `
-    : '<p class="codexNotice codexNotice--info">Aucune mécanique vérifiée n’est disponible pour cette capacité.</p>';
+  const mechanicsContent = presentationPhasesMarkup(presentation);
 
   const officialContent = ability.officialText
     ? `<p class="codexOfficialText">${linkifyOfficialText(ability.officialText, ability.mentions)}</p>`
-    : '<p class="codexNotice codexNotice--info">Texte officiel indisponible pour cette capacité.</p>';
+    : `<p class="codexNotice codexNotice--info">${ability.isEmpowered
+      ? "Texte officiel propre indisponible pour cette capacité renforcée."
+      : "Texte officiel indisponible pour cette capacité."}</p>`;
 
   return {
     title: `${ability.name} — ${character.name}`,
@@ -1581,6 +1861,8 @@ function abilityModel(shard, ability) {
     ],
     html: `
       <section class="codexIdentity">
+        ${abilityStripMarkup(shard.abilities || [], ability.id)}
+        <p class="codexActiveAbilityLabel">Capacité ouverte</p>
         <div class="codexIdentityTop">
           ${imageMarkup({
             url: ability.iconUrl,
@@ -1615,14 +1897,13 @@ function abilityModel(shard, ability) {
             data-share-title="${escapeHtml(shareTitle)}"
           >Partager</button>
         </div>
-        ${abilityStripMarkup(shard.abilities || [], ability.id)}
         ${empoweredRelationshipMarkup(ability, shard)}
       </section>
 
-      <div class="codexSplitLayout">
+      <div class="codexAbilityFlow">
         <section class="codexMechanicalPanel" aria-labelledby="mechanical-reading-title">
           <div class="codexPanelTitle">
-            <h2 id="mechanical-reading-title">Lecture mécanique</h2>
+            <h2 id="mechanical-reading-title">Mécanique par phases</h2>
           </div>
           ${mechanicsContent}
         </section>
@@ -1635,6 +1916,9 @@ function abilityModel(shard, ability) {
           </div>
           ${officialContent}
         </section>
+        ${presentationProofHelpMarkup(presentation)}
+        ${presentationTechnicalMarkup(presentation, ability)}
+        ${presentationDiagnosticsMarkup(presentation)}
       </div>
     `,
   };

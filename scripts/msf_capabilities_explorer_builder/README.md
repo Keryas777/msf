@@ -1,4 +1,4 @@
-# MSF capabilities explorer builder v1
+# MSF capabilities explorer builder v2 — phase B2.1
 
 Ce constructeur est une cinquième étape indépendante du pipeline capabilities.
 Il ne modifie et n'importe ni le parser, ni le normalizer, ni l'indexer, ni le
@@ -40,7 +40,9 @@ docs/data/msf-capabilities-explorer/
 Le manifeste stable est le seul point d'entrée permanent. `bootstrap.json`
 contient les comptes, le registre de preuve, les suggestions et les chemins
 relatifs des index chargeables à la demande. Le manifeste de génération porte
-l'inventaire exhaustif, les tailles et les SHA-256.
+l'inventaire exhaustif, les tailles, les SHA-256 et l'audit quantitatif B2.
+Chaque `AbilityPresentation` est embarquée dans la capacité de son shard
+personnage : aucun nouveau fichier massif n'entre dans le bootstrap.
 
 ## Entités et relations
 
@@ -61,9 +63,36 @@ l'inventaire exhaustif, les tailles et les SHA-256.
   complétion implicite.
 - **Action préservée** : la projection conserve `sourceActionId`, l’ordre,
   les contextes, la cible et le destinataire bruts, les conditions, le
-  contrôle, les flags, les paramètres non interprétés et la source. Elle ne
-  crée ni phase, ni héritage de cible, ni traduction de `direct_neighbor`,
-  `stat_modifier`, `barrier`, `turn_meter` ou `count`.
+  contrôle, les flags, les paramètres non interprétés et la source.
+
+## AbilityPresentation 2.0.0
+
+La B2.1 distingue trois niveaux : `playerPhases`, branches techniques et table
+canonique `occurrences`. Les phases et branches ne recopient plus les données
+source ; elles emploient des `occurrenceRefs` ordonnées. Les variantes `safety`
+et `safety_empower` restent dans `technicalVariants`, hors lecture joueur.
+
+Le contrat versionné est décrit par `ability-presentation.schema.json`. Il est
+additif au schéma Web `1.2.0` et ne modifie pas les objets B1. Une occurrence
+correspond toujours à une action source ; plusieurs opérations normalisées
+issues de cette action restent dans la même occurrence.
+
+La frontière de phase suit cet ordre : changement de contexte, branche ou
+contrôle distinct, cible explicite, destinataire explicite, seconde attaque
+confirmée par le texte, puis ordre source. Une dépendance explicite
+`if_prev_ran` vers l'action immédiatement précédente rattache au contraire
+l'effet à la séquence déjà ouverte, tout en conservant le contrôle dans le
+step. Les phases gardent leurs références source, leurs assertions de preuve,
+les offsets du texte et les diagnostics d'ambiguïté.
+
+Le texte officiel peut nommer ou aligner une structure déjà présente. Il ne
+crée jamais d'opération, de cible, de dépendance ou de répétition mécanique.
+Les cibles absentes restent absentes sur les steps, y compris lorsque leur
+rattachement de phase est `aligned_medium`.
+
+Les contextes `safety` et `safety_empower` sont exposés comme variantes
+techniques reliées respectivement à `basic` et `basic_empower` par une règle
+contrôlée. Ils ne deviennent pas des capacités officielles.
 
 ## Preuve par occurrence
 
@@ -77,18 +106,18 @@ La preuve globale d'une mécanique n'est jamais recopiée sur ses occurrences.
 Une mention officielle sans opération liée reste donc textuelle même lorsque
 le même effet est structuré ailleurs.
 
-Le schéma de sortie `1.1.0` est une évolution additive. Le frontend V1 garde
-son rendu, mais ordonne les occurrences par `actionOrder` lorsqu’il existe et
-masque `selectionCount` tant qu’aucune règle spécifique au type d’action ne
-permet de l’afficher honnêtement. Les progressions complètes restent dans les
-shards même si l’interface choisit encore une valeur de niveau maximal pour
-les métriques autorisées.
+Le schéma de sortie `1.2.0` est une évolution additive. Le frontend B2 affiche
+les phases avant le texte officiel, puis garde les preuves, identifiants,
+JSON Pointer et diagnostics dans des panneaux repliés. `selectionCount` reste
+masqué tant qu’aucune règle spécifique au type d’action ne permet de
+l’afficher honnêtement. Les progressions complètes restent dans les shards.
 
 ## Commandes
 
 ```bash
 python -m scripts.msf_capabilities_explorer_builder.cli
 python -m scripts.msf_capabilities_explorer_builder.cli --check
+python -m scripts.msf_capabilities_explorer_builder.verify_permuted_generation
 python -m unittest discover -s tests -p "test_msf_capabilities_explorer_builder.py" -v
 ```
 

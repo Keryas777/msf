@@ -26,6 +26,32 @@ test("B1 masque count et ordonne les occurrences par actionOrder", () => {
   assert.match(app, /right\.actionOrder/);
 });
 
+test("B2 affiche les phases avant le texte et replie preuves, technique et diagnostics", () => {
+  assert.match(app, /function branchPlayerMarkup/);
+  assert.match(app, /presentation\.playerPhases/);
+  assert.match(app, /presentation\.occurrences/);
+  assert.match(app, /function phasePlayerMarkup/);
+  assert.match(app, /function presentationPhasesMarkup/);
+  assert.match(app, /Mécanique par phases/);
+  assert.match(app, /Aide sur les niveaux de preuve/);
+  assert.match(app, /Détails techniques/);
+  assert.match(app, /Diagnostics avancés/);
+  assert.match(app, /Capacité ouverte/);
+  assert.match(app, /Ouverte/);
+  assert.match(app, /ability\.presentation/);
+  assert.match(css, /\.codexPhase\s*\{/);
+  assert.match(css, /\.codexPhaseBranch\s*\{/);
+  assert.match(css, /\.codexEvidenceDot--aligned_medium/);
+  assert.match(css, /\.codexAbilityFlow/);
+
+  const modelStart = app.indexOf("function abilityModel");
+  const model = app.slice(modelStart, app.indexOf("function renderFilterControls", modelStart));
+  assert.ok(model.indexOf("abilityStripMarkup") < model.indexOf("codexIdentityTop"));
+  assert.ok(model.indexOf("codexMechanicalPanel") < model.indexOf("codexOfficialPanel"));
+  assert.ok(model.indexOf("codexOfficialPanel") < model.indexOf("presentationProofHelpMarkup"));
+  assert.equal(model.includes("codexProofGuide"), false);
+});
+
 test("la page autorise le zoom et expose les primitives d’accessibilité", () => {
   assert.match(html, /name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/);
   assert.doesNotMatch(html, /user-scalable=no|maximum-scale=1/);

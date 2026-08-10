@@ -431,14 +431,6 @@ def publish(
 
     current_segment = f"sha256-{source.payload_set_hex}"
     removed_generation_count = 0
-    for segment in sorted(preflight.generations):
-        if segment == current_segment:
-            continue
-        generation_path = indexed_root / segment
-        _remove_generation(generation_path, indexed_root)
-        removed_generation_count += 1
-    if removed_generation_count:
-        _fsync_directory(indexed_root)
 
     return PublicationResult(
         public_root=public_root,
@@ -498,12 +490,6 @@ def check_publication(
                 source,
                 state.generations[expected_segment],
             )
-        )
-    obsolete_segments = sorted(actual_segments - {expected_segment})
-    if obsolete_segments:
-        errors.append(
-            "génération(s) publique(s) obsolète(s) : "
-            + ", ".join(obsolete_segments)
         )
     return errors
 

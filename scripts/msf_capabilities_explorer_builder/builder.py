@@ -17,6 +17,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
+from .ability_presentation import (
+    ABILITY_PRESENTATION_SCHEMA_VERSION,
+    ASSERTION_EVIDENCE,
+    DIAGNOSTIC_MESSAGES,
+    AbilityPresentationError,
+    audit_ability_presentations,
+    build_ability_presentation,
+)
 from .presentation import (
     ABILITY_TYPES,
     ACTION_PRESENTATIONS,
@@ -80,6 +88,7 @@ class GeneratedArtifacts:
     stable_manifest: bytes
     payload_set_checksum: str
     counts: dict[str, int]
+    presentation_audit: dict[str, Any]
 
 
 @dataclass(frozen=True)
@@ -89,6 +98,7 @@ class BuildResult:
     payload_set_checksum: str
     counts: dict[str, int]
     payload_sizes: dict[str, int]
+    presentation_audit: dict[str, Any]
 
 
 def _duplicate_checked_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -1007,6 +1017,13 @@ def _presentation_projection(
         "iconUrl": str(presentation["icon"]).strip(),
         "maxLevel": max_level,
         "officialText": _plain_official_text(max_payload.get("description")),
+        "officialTextSource": {
+            "file": DEFAULT_PRESENTATIONS.as_posix(),
+            "pointer": (
+                f"/characters/{character_id}/abilityKit/{ability_type}/"
+                f"levels/{max_level}/description"
+            ),
+        },
         "energy": energy,
     }
 
@@ -1055,6 +1072,9 @@ def _build_ability_nodes(
             "iconUrl": presentation["iconUrl"] if presentation else None,
             "maxLevel": presentation["maxLevel"] if presentation else None,
             "officialText": presentation["officialText"] if presentation else None,
+            "officialTextSource": presentation["officialTextSource"]
+            if presentation
+            else None,
             "energy": presentation["energy"] if presentation else None,
             "presentationStatus": "official" if presentation else "unavailable",
             "mechanicsStatus": "available" if record.get("operationKinds") else "empty",
@@ -1090,6 +1110,7 @@ def _build_ability_nodes(
             "iconUrl": presentation["iconUrl"],
             "maxLevel": presentation["maxLevel"],
             "officialText": presentation["officialText"],
+            "officialTextSource": presentation["officialTextSource"],
             "energy": presentation["energy"],
             "presentationStatus": "official",
             "mechanicsStatus": "unavailable",
@@ -1461,6 +1482,25 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
     official = source["official"]
     portraits = source["portraits"]
 
+    raw_operations_by_ability: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    raw_actions_by_ability: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    raw_operations_by_context: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    raw_actions_by_context: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for operation in operations.values():
+        ability_id = operation.get("abilityId")
+        context_id = operation.get("contextId")
+        if isinstance(ability_id, str):
+            raw_operations_by_ability[ability_id].append(operation)
+        elif isinstance(context_id, str):
+            raw_operations_by_context[context_id].append(operation)
+    for action in actions.values():
+        ability_id = action.get("abilityId")
+        context_id = action.get("contextId")
+        if isinstance(ability_id, str):
+            raw_actions_by_ability[ability_id].append(action)
+        elif isinstance(context_id, str):
+            raw_actions_by_context[context_id].append(action)
+
     spawned_ids: set[str] = set()
     for spawn in spawn_records.values():
         for pool_item in spawn.get("pool", []):
@@ -1606,6 +1646,22 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
         if projection.get("abilityId") in ability_nodes:
             ability_nodes[projection["abilityId"]]["spawns"].append(projection)
 
+    ability_presentations: dict[str, dict[str, Any]] = {}
+    try:
+        for ability_id in sorted(ability_nodes):
+            ability = ability_nodes[ability_id]
+            presentation = build_ability_presentation(
+                ability,
+                raw_operations_by_ability.get(ability_id, []),
+                raw_actions_by_ability.get(ability_id, []),
+                contexts,
+                spawn_projections,
+            )
+            ability["presentation"] = presentation
+            ability_presentations[ability_id] = presentation
+    except AbilityPresentationError as error:
+        raise BuilderError(error.code, error.message) from error
+
     mention_terms = {
         mechanic_id: mechanic.get("terms", [])
         for mechanic_id, mechanic in mechanics.items()
@@ -1655,6 +1711,68 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
         ability["mentions"].sort(key=_occurrence_sort_key)
         ability["spawns"].sort(key=lambda item: item["operationId"])
         ability["relatedMechanicIds"] = sorted(ability_mechanics.get(ability_id, set()))
+
+    technical_presentations: dict[str, dict[str, Any]] = {}
+    try:
+        for character_id in sorted(technical_contexts):
+            for context_id, group in sorted(technical_contexts[character_id].items()):
+                context_object = contexts.get(context_id, {}).get("object", {})
+                technical_key = context_object.get("technicalKey")
+                parent_type = {
+                    "safety": "basic",
+                    "safety_empower": "basic_empower",
+                }.get(technical_key)
+                parent_ability_id = (
+                    ability_by_character_type.get((character_id, parent_type))
+                    if parent_type
+                    else None
+                )
+                variant_type = technical_key or "technical_context"
+                variant_id = f"variant:{context_id}"
+                relationship_evidence = (
+                    "controlled_rule" if parent_type and parent_ability_id else "unknown"
+                )
+                variant = {
+                    "id": variant_id,
+                    "type": variant_type,
+                    "label": (
+                        f"Variante technique — {technical_key}"
+                        if technical_key in {"safety", "safety_empower"}
+                        else "Contexte technique"
+                    ),
+                    "sourceContextId": context_id,
+                    "source": copy.deepcopy(context_object.get("source")),
+                    "parentAbilityId": parent_ability_id,
+                    "parentAbilityType": parent_type,
+                    "relationshipEvidence": relationship_evidence,
+                }
+                synthetic_ability = {
+                    "id": variant_id,
+                    "characterId": character_id,
+                    "type": variant_type,
+                    "parentAbilityId": parent_ability_id,
+                    "officialText": None,
+                    "officialTextSource": None,
+                }
+                presentation = build_ability_presentation(
+                    synthetic_ability,
+                    raw_operations_by_context.get(context_id, []),
+                    raw_actions_by_context.get(context_id, []),
+                    contexts,
+                    spawn_projections,
+                    presentation_id=variant_id,
+                    source_context_id=context_id,
+                    variant=variant,
+                )
+                group["label"] = variant["label"]
+                group["variantType"] = variant_type
+                group["parentAbilityId"] = parent_ability_id
+                group["relationshipEvidence"] = relationship_evidence
+                group["source"] = copy.deepcopy(context_object.get("source"))
+                group["presentation"] = presentation
+                technical_presentations[context_id] = presentation
+    except AbilityPresentationError as error:
+        raise BuilderError(error.code, error.message) from error
 
     mechanic_shards: dict[str, dict[str, Any]] = {}
     mechanic_stubs: dict[str, dict[str, Any]] = {}
@@ -1737,7 +1855,8 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
             )
         )
         for index, group in enumerate(technical_groups, 1):
-            group["label"] = f"Contexte technique {index}"
+            if group.get("variantType") not in {"safety", "safety_empower"}:
+                group["label"] = f"Contexte technique {index}"
             group["operations"].sort(key=_occurrence_sort_key)
             group["actions"].sort(key=_occurrence_sort_key)
         shard_abilities = [copy.deepcopy(ability_nodes[ability_id]) for ability_id in ability_ids]
@@ -1941,6 +2060,9 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
             continue
         supported_suggestions.append(copy.deepcopy(suggestion))
 
+    presentation_audit = audit_ability_presentations(
+        ability_presentations.values(), technical_presentations.values()
+    )
     source_generation = _source_generation(documents)
     counts = {
         "characters": len(characters),
@@ -1963,6 +2085,10 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
         "textMentions": sum(
             len(ability["mentions"]) for ability in ability_nodes.values()
         ),
+        "abilityPresentations": presentation_audit["abilityPresentations"],
+        "phases": presentation_audit["totalPhases"],
+        "assignedActions": presentation_audit["assignedActions"],
+        "unassignedActions": presentation_audit["unassignedActions"],
     }
     bootstrap = {
         "artifactType": "codex_bootstrap",
@@ -1970,6 +2096,12 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
         "source": source_generation,
         "counts": counts,
         "proof": PROOF,
+        "abilityPresentation": {
+            "schemaVersion": ABILITY_PRESENTATION_SCHEMA_VERSION,
+            "assertionEvidence": sorted(ASSERTION_EVIDENCE),
+            "diagnostics": DIAGNOSTIC_MESSAGES,
+            "diagnosticsHiddenByDefault": True,
+        },
         "suggestions": supported_suggestions,
         "entrypoints": {
             "search": "search.json",
@@ -2034,6 +2166,7 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
         "source": source_generation,
         "sourceChecksums": source_checksums,
         "counts": counts,
+        "presentationAudit": presentation_audit,
         "payloadCount": len(inventory),
         "payloads": inventory,
         "limitations": LIMITATIONS,
@@ -2047,8 +2180,11 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
                 "aliases_are_unambiguous",
                 "proof_values_are_closed",
                 "all_routes_resolve",
-                "official_text_is_stored_once",
+                "official_text_full_value_is_stored_once",
                 "operations_json_has_no_browser_reference",
+                "ability_presentations_match_source_actions",
+                "phase_ids_and_text_segments_are_stable",
+                "phase_assertions_keep_per_assertion_evidence",
             ],
         },
     }
@@ -2080,6 +2216,7 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
         stable_manifest=stable_manifest,
         payload_set_checksum=payload_set_checksum,
         counts=counts,
+        presentation_audit=presentation_audit,
     )
 
 
@@ -2160,20 +2297,13 @@ def check_explorer(
     generation_name = _generation_directory_name(generated.payload_set_checksum)
     generation_path = destination / "generations" / generation_name
     _compare_generation(generation_path, _expected_generation_files(generated))
-    generation_directories = {
-        path.name for path in (destination / "generations").iterdir() if path.is_dir()
-    }
-    if generation_directories != {generation_name}:
-        raise BuilderError(
-            "STALE_EXPLORER_GENERATION",
-            ", ".join(sorted(generation_directories - {generation_name})),
-        )
     return BuildResult(
         output_root=destination,
         generation_path=generation_path,
         payload_set_checksum=generated.payload_set_checksum,
         counts=generated.counts,
         payload_sizes={path: len(data) for path, data in generated.payloads.items()},
+        presentation_audit=generated.presentation_audit,
     )
 
 
@@ -2226,12 +2356,6 @@ def build_explorer(
         if manifest_temp is not None:
             manifest_temp.unlink(missing_ok=True)
 
-    for path in sorted(generations.iterdir(), key=lambda item: item.name):
-        if path.name == generation_name:
-            continue
-        if path.is_dir() and not path.is_symlink() and SAFE_HASH_DIRECTORY.fullmatch(path.name):
-            shutil.rmtree(path)
-
     _compare_generation(generation_path, expected)
     if (destination / "manifest.json").read_bytes() != generated.stable_manifest:
         raise BuilderError("EXPLORER_MANIFEST_MISMATCH", "Écriture finale incohérente")
@@ -2241,4 +2365,5 @@ def build_explorer(
         payload_set_checksum=generated.payload_set_checksum,
         counts=generated.counts,
         payload_sizes={path: len(data) for path, data in generated.payloads.items()},
+        presentation_audit=generated.presentation_audit,
     )

@@ -9,7 +9,7 @@ from .diagnostics import IndexerAuditError, IndexerInputError
 
 
 SNAPSHOT_CAPABILITIES_CHECKSUM = (
-    "444b7792300504927909155f4360be60b91a5a05aeca6b9c032d3ce3f9cd186c"
+    "28060ee6792b112db65a2d7a01f2defffdf59ce1a1510fddbfb8b5da3b84b8bb"
 )
 
 KNOWN_OPERATION_KINDS = frozenset(
@@ -40,35 +40,35 @@ PROC_OPERATION_KINDS = frozenset(
 SNAPSHOT_OPERATION_KINDS = {
     "battlefield_effect_clear": 21,
     "battlefield_effect_set": 17,
-    "effect_apply": 5051,
-    "effect_duration_modify": 1156,
-    "effect_flip": 500,
-    "effect_remove": 1131,
-    "effect_transfer": 369,
+    "effect_apply": 5116,
+    "effect_duration_modify": 1179,
+    "effect_flip": 510,
+    "effect_remove": 1214,
+    "effect_transfer": 374,
     "empower": 7,
-    "empty_result": 289,
+    "empty_result": 310,
     "spawn": 116,
 }
 
 SNAPSHOT_COUNTS = {
-    "characterCount": 499,
-    "abilityCount": 1827,
-    "contextCount": 3893,
-    "actionMappingCount": 12036,
-    "operationCount": 8657,
-    "effectCatalogCount": 286,
-    "preservedUninterpretedActionCount": 4877,
+    "characterCount": 503,
+    "abilityCount": 1844,
+    "contextCount": 3930,
+    "actionMappingCount": 12327,
+    "operationCount": 8864,
+    "effectCatalogCount": 302,
+    "preservedUninterpretedActionCount": 4971,
     "spawnOperationCount": 116,
     "spawnPoolEffectOperationCount": 39,
     "spawnWithPoolEffectCount": 9,
     "spawnWithoutPoolEffectCount": 107,
-    "emptyResultOperationCount": 289,
+    "emptyResultOperationCount": 310,
     "empowerOperationCount": 7,
     "controlledAliasResolutionCount": 6,
-    "unresolvedProcReferenceCount": 4,
+    "unresolvedProcReferenceCount": 2,
     "battlefieldEffectSetCount": 17,
     "battlefieldEffectClearCount": 21,
-    "technicalContextCount": 602,
+    "technicalContextCount": 606,
     "passiveEmpowerAbilityCount": 5,
 }
 

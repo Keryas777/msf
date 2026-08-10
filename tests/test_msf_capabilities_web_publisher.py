@@ -315,9 +315,6 @@ class WebPublisherTests(unittest.TestCase):
         self.assertTrue(
             any("génération publique absente" in error for error in errors)
         )
-        self.assertTrue(
-            any("génération(s) publique(s) obsolète(s)" in error for error in errors)
-        )
 
     def test_11_missing_source_file_is_rejected(self) -> None:
         (self.source / "effects.json").unlink()
@@ -509,16 +506,16 @@ class WebPublisherTests(unittest.TestCase):
         self.assertEqual(_tree_bytes(self.public_root), old_tree)
         self.assertEqual(check_publication(self.source, self.public_root), [])
 
-    def test_25_old_generation_is_removed_after_switch(self) -> None:
+    def test_25_old_generation_is_preserved_after_switch(self) -> None:
         first = publish(self.source, self.public_root)
         old_generation = self.public_root / first.current_path
         new_source = _build_source(self.root, "beta")
 
         second = publish(new_source, self.public_root)
 
-        self.assertFalse(old_generation.exists())
+        self.assertTrue(old_generation.exists())
         self.assertTrue((self.public_root / second.current_path).is_dir())
-        self.assertEqual(second.removed_generation_count, 1)
+        self.assertEqual(second.removed_generation_count, 0)
 
     def test_26_current_generation_is_preserved_during_retention(self) -> None:
         result = publish(self.source, self.public_root)
@@ -759,13 +756,13 @@ class RealIndexSnapshotTests(unittest.TestCase):
         self.assertEqual(
             index.payload_set_checksum,
             "sha256:"
-            "a534b428054a66525f9627686983ba44275d32513ed89da63f29dd84578cb12e",
+            "033f3a9e78e13fc331ce431b0f2aaecbddec34c1c9798c5ed49c493ac8c7cbd1",
         )
         self.assertEqual(len(payload), 512)
         self.assertEqual(
             hashlib.sha256(payload).hexdigest(),
-            "07dfba74753e42f1522f4ef314f4cae"
-            "04e935e870eecc762c3fdde4a616496dd",
+            "96a11f5a44320f027408e460d0077034"
+            "cf38b0857fd98fc3282cfdb03250e34d",
         )
 
 
