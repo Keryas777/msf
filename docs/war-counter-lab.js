@@ -9,6 +9,7 @@ import {
   detectRedCross,
   validateUpload,
   normalizeCatalog,
+  filterWarPlayableCatalog,
   calculateTopMetrics
 } from "./war-counter-lab-core.js";
 
@@ -47,7 +48,7 @@ async function loadData() {
     fetch("data/war-counter-vision/benchmark-ground-truth.json", { cache: "no-store" })
   ]);
   if (!charactersResponse.ok || !truthResponse.ok) throw new Error("Données du laboratoire indisponibles.");
-  catalog = (await charactersResponse.json()).filter((item) => item.id && item.nameKey);
+  catalog = filterWarPlayableCatalog(await charactersResponse.json());
   catalogById = normalizeCatalog(catalog).byId;
   groundTruth = (await truthResponse.json()).captures || [];
 }
