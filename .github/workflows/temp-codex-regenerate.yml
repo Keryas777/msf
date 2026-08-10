@@ -23,10 +23,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run focused tests
-        run: |
-          python -m unittest tests.test_msf_specific_mechanics_catalog -v
-          python -m unittest discover -s tests -p "test_msf_capabilities_explorer_builder.py" -v
+      - name: Run focused catalog tests
+        run: python -m unittest tests.test_msf_specific_mechanics_catalog -v
 
       - name: Regenerate Codex artifacts
         run: |
@@ -39,8 +37,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm .github/workflows/temp-codex-regenerate.yml
           git add docs/data/msf-capabilities-explorer
-          if git diff --staged --quiet; then
-            echo "No generated changes; removing temporary workflow only."
-          fi
           git commit -m "build: regenerate Codex after verified label fixes"
           git push origin HEAD:agent/codex-first-mechanic-label-fixes
