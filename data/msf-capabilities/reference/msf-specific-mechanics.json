@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "source": {
     "captureDate": "2026-08-10",
-    "note": "Canonical manual mappings for character- or team-specific MSF mechanics whose player-facing names are verified from official game text. Mechanical source IDs are preserved; no mapping is inferred from translation alone."
+    "note": "Canonical manual mappings for verified non-standard MSF mechanics whose player-facing names are confirmed from official game text. Mechanical source IDs are preserved; no mapping is inferred from translation alone."
   },
   "mechanics": [
     {
@@ -10,7 +10,7 @@
       "mechanicalIds": ["Grace"],
       "name": {
         "fr": "Vitalité",
-        "en": null
+        "en": "Vitality"
       },
       "description": {
         "fr": null,
@@ -20,7 +20,44 @@
       "characters": ["Angel"],
       "evidence": {
         "kind": "official_game_text",
-        "note": "Official French Angel ability text uses the player-facing term 'Vitalité'. Repository audit confirms Grace is used only by Angel in two playable abilities: one application in the passive 'Ange gardien' and one removal in the basic 'Coup d'ailes'."
+        "note": "Official French and English Angel ability text uses the player-facing terms 'Vitalité' and 'Vitality'. Repository audit confirms Grace is used only by Angel in two playable abilities: one application in the passive 'Ange gardien' and one removal in the basic 'Coup d'ailes'."
+      }
+    },
+    {
+      "id": "vulnerable-source-marked",
+      "mechanicalIds": ["Marked"],
+      "canonicalEffectId": "Vulnerable",
+      "name": {
+        "fr": "Vulnérable",
+        "en": "Vulnerable"
+      },
+      "description": {
+        "fr": null,
+        "en": null
+      },
+      "scope": "global",
+      "characters": [],
+      "evidence": {
+        "kind": "official_game_text",
+        "note": "Official Adam Warlock ability text confirms the internal source name 'Marked' corresponds to the existing player-facing effect 'Vulnérable' / 'Vulnerable'. Marked is therefore routed to the canonical Vulnerable mechanic while the original source ID remains preserved on occurrences."
+      }
+    },
+    {
+      "id": "darkness",
+      "mechanicalIds": ["Darkness"],
+      "name": {
+        "fr": "Ténèbres",
+        "en": "Darkness"
+      },
+      "description": {
+        "fr": null,
+        "en": null
+      },
+      "scope": "global",
+      "characters": [],
+      "evidence": {
+        "kind": "official_game_text",
+        "note": "Official Adam Warlock ability text confirms 'Darkness' is displayed as 'Ténèbres' in French."
       }
     }
   ]

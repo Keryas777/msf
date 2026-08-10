@@ -578,10 +578,11 @@ def _validate_sources(documents: Mapping[str, Any]) -> dict[str, Any]:
             key = _compact_search(alias)
             if not key:
                 raise BuilderError("INVALID_ALIAS", f"Alias vide pour {effect_id}")
+            owner_id = presentation.get("canonicalEffectId") or effect_id
             owner = alias_owners.get(key)
-            if owner is not None and owner != effect_id:
-                raise BuilderError("AMBIGUOUS_ALIAS", f"{alias}: {owner}/{effect_id}")
-            alias_owners[key] = effect_id
+            if owner is not None and owner != owner_id:
+                raise BuilderError("AMBIGUOUS_ALIAS", f"{alias}: {owner}/{owner_id}")
+            alias_owners[key] = owner_id
 
     return {
         "characters": characters,
@@ -881,6 +882,9 @@ def _build_mechanics(
 
     for effect_id in sorted(effects, key=_sort_key):
         effect = _as_dict(effects[effect_id], f"effet {effect_id}")
+        presentation = EFFECT_PRESENTATIONS.get(effect_id, {})
+        if presentation.get("canonicalEffectId"):
+            continue
         base = _slug_base(effect_id)
         mechanic_id = f"effect-{base}" if base in reserved_ids else base
         if mechanic_id in slug_owners and slug_owners[mechanic_id] != effect_id:
@@ -908,6 +912,26 @@ def _build_mechanics(
             "terms": _unique_strings(presentation.get("terms", [])),
             "occurrences": [],
         }
+
+    for effect_id in sorted(effects, key=_sort_key):
+        presentation = EFFECT_PRESENTATIONS.get(effect_id, {})
+        canonical_effect_id = presentation.get("canonicalEffectId")
+        if not canonical_effect_id:
+            continue
+        if canonical_effect_id not in effects:
+            raise BuilderError(
+                "UNKNOWN_CANONICAL_EFFECT", f"{effect_id}: {canonical_effect_id}"
+            )
+        mechanic_id = effect_ids.get(canonical_effect_id)
+        if mechanic_id is None:
+            raise BuilderError(
+                "INVALID_CANONICAL_EFFECT", f"{effect_id}: {canonical_effect_id}"
+            )
+        effect_ids[effect_id] = mechanic_id
+        mechanic = mechanics[mechanic_id]
+        mechanic["aliases"] = _unique_strings(
+            [*mechanic.get("aliases", []), effect_id, *presentation.get("aliases", [])]
+        )
 
     action_types = sorted(
         {
