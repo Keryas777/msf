@@ -1,4 +1,4 @@
-"""Load verified character- and team-specific MSF mechanics into Codex presentation data.
+"""Load verified non-standard MSF mechanics into Codex presentation data.
 
 These mappings complement the global official effects catalog. They preserve the
 mechanical source ID and only replace the player-facing presentation when an
@@ -53,10 +53,20 @@ def _aliases(mechanic: dict[str, Any], mechanical_id: str, existing: dict[str, A
     return result
 
 
+def _apply_verified_operation_labels(presentation: Any) -> None:
+    """Apply verified global player-facing wording without changing mechanics."""
+
+    presentation.OPERATION_KINDS["effect_flip"]["label"] = "Convertit"
+    presentation.METRICS["flipPct"] = "Chance de conversion"
+    presentation.ACTION_PRESENTATIONS["barrier_remove"] = "Supprime la Barrière"
+
+
 def apply_specific_mechanics_catalog() -> None:
-    """Overlay verified player-facing names on specific structured mechanics."""
+    """Overlay verified player-facing names on non-standard structured mechanics."""
 
     from . import presentation
+
+    _apply_verified_operation_labels(presentation)
 
     payload = load_specific_mechanics_catalog()
     mapped_ids: set[str] = set()
