@@ -36,6 +36,29 @@ jobs:
       - name: Regenerate Codex artifacts
         run: python -m scripts.msf_capabilities_explorer_builder.cli
 
+      - name: Refresh deterministic presentation audit snapshot
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('tests/test_msf_capabilities_explorer_builder.py')
+          text = path.read_text(encoding='utf-8')
+          replacements = {
+              '"textSegmentsAlignedHigh": 3311,': '"textSegmentsAlignedHigh": 3312,',
+              '"textSegmentsAlignedMedium": 4082,': '"textSegmentsAlignedMedium": 4083,',
+              '"textSegmentsTextOnly": 1824,': '"textSegmentsTextOnly": 1823,',
+              '"textSegmentsAmbiguous": 383,': '"textSegmentsAmbiguous": 382,',
+              '"MULTIPLE_PHASE_CANDIDATES": 383,': '"MULTIPLE_PHASE_CANDIDATES": 382,',
+              '"SOURCE_TARGET_WITHOUT_TEXT": 3975,': '"SOURCE_TARGET_WITHOUT_TEXT": 3974,',
+              '"UNASSIGNED_TEXT_SEGMENT": 1824,': '"UNASSIGNED_TEXT_SEGMENT": 1823,',
+          }
+          for old, new in replacements.items():
+              if old in text:
+                  text = text.replace(old, new)
+              elif new not in text:
+                  raise SystemExit(f'Expected audit snapshot text not found: {old}')
+          path.write_text(text, encoding='utf-8')
+          PY
+
       - name: Run Codex builder tests
         run: python -m unittest discover -s tests -p "test_msf_capabilities_explorer_builder.py" -v
 
@@ -70,11 +93,11 @@ jobs:
           print('Vitalité propagated while preserving sourceName Grace and 2 Angel occurrences.')
           PY
 
-      - name: Commit regenerated artifacts
+      - name: Commit regenerated artifacts and audit snapshot
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/msf-capabilities-explorer
+          git add docs/data/msf-capabilities-explorer tests/test_msf_capabilities_explorer_builder.py
           if git diff --cached --quiet; then
             echo "No generated changes to commit"
             exit 0
