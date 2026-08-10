@@ -1,0 +1,46 @@
+name: Temporary Codex regeneration
+
+on:
+  push:
+    branches:
+      - agent/codex-first-mechanic-label-fixes
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/codex-first-mechanic-label-fixes
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run focused tests
+        run: |
+          python -m unittest tests.test_msf_specific_mechanics_catalog -v
+          python -m unittest discover -s tests -p "test_msf_capabilities_explorer_builder.py" -v
+
+      - name: Regenerate Codex artifacts
+        run: |
+          python -m scripts.msf_capabilities_explorer_builder.cli
+          python -m scripts.msf_capabilities_explorer_builder.cli --check
+
+      - name: Commit generated artifacts and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/temp-codex-regenerate.yml
+          git add docs/data/msf-capabilities-explorer
+          if git diff --staged --quiet; then
+            echo "No generated changes; removing temporary workflow only."
+          fi
+          git commit -m "build: regenerate Codex after verified label fixes"
+          git push origin HEAD:agent/codex-first-mechanic-label-fixes
