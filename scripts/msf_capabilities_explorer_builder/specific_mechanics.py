@@ -83,6 +83,7 @@ def apply_specific_mechanics_catalog() -> None:
 
         descriptions = mechanic.get("description") or {}
         description = descriptions.get("fr") or descriptions.get("en")
+        canonical_effect_id = mechanic.get("canonicalEffectId")
 
         for mechanical_id in mechanical_ids:
             if mechanical_id in mapped_ids:
@@ -96,6 +97,8 @@ def apply_specific_mechanics_catalog() -> None:
                 "aliases": _aliases(mechanic, mechanical_id, existing),
                 "terms": [label],
             }
+            if canonical_effect_id:
+                overlay["canonicalEffectId"] = canonical_effect_id
             if description:
                 overlay["description"] = description
 
