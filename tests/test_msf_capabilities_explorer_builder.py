@@ -120,13 +120,13 @@ class ExplorerBuilderTests(unittest.TestCase):
                 "empoweredAbilities": 23,
                 "officialPresentations": 1468,
                 "effects": 302,
-                "mechanics": 326,
+                "mechanics": 325,
                 "operations": 8864,
                 "preservedActions": 4971,
                 "spawns": 116,
-                "textMentions": 1088,
+                "textMentions": 979,
                 "abilityPresentations": 1856,
-                "phases": 2495,
+                "phases": 2493,
                 "assignedActions": 11026,
                 "unassignedActions": 1301,
             },
@@ -139,40 +139,40 @@ class ExplorerBuilderTests(unittest.TestCase):
             {
                 "abilityPresentations": 1856,
                 "technicalPresentations": 563,
-                "totalPhases": 2495,
+                "totalPhases": 2493,
                 "technicalPhases": 76,
-                "averagePhasesPerAbility": 1.344289,
+                "averagePhasesPerAbility": 1.343211,
                 "totalBranches": 8491,
-                "singleActionPhases": 376,
-                "singleActionPhaseRatio": 0.150701,
+                "singleActionPhases": 374,
+                "singleActionPhaseRatio": 0.15002,
                 "abilitiesWithAtLeast10Phases": 0,
                 "maximumPhasesPerAbility": 5,
                 "zeroPhaseAbilities": 14,
-                "singlePhaseAbilities": 1299,
-                "multiPhaseAbilities": 543,
+                "singlePhaseAbilities": 1301,
+                "multiPhaseAbilities": 541,
                 "assignedActions": 11026,
                 "unassignedActions": 1301,
                 "assignedOperations": 8101,
                 "textSegments": 9600,
-                "textSegmentsAlignedHigh": 3167,
-                "textSegmentsAlignedMedium": 4164,
-                "textSegmentsTextOnly": 1898,
-                "textSegmentsAmbiguous": 371,
+                "textSegmentsAlignedHigh": 3311,
+                "textSegmentsAlignedMedium": 4082,
+                "textSegmentsTextOnly": 1824,
+                "textSegmentsAmbiguous": 383,
                 "textSegmentsUnassigned": 0,
                 "diagnosticsByType": {
-                    "IMPLICIT_PRIMARY_TARGET": 446,
-                    "MULTIPLE_PHASE_CANDIDATES": 371,
+                    "IMPLICIT_PRIMARY_TARGET": 447,
+                    "MULTIPLE_PHASE_CANDIDATES": 383,
                     "PHASE_LABEL_FALLBACK": 113,
                     "PHASE_TARGET_INHERITANCE_UNPROVEN": 955,
                     "REPEATED_ACTIONS_NOT_DEDUPLICATED": 55,
-                    "SOURCE_TARGET_WITHOUT_TEXT": 3972,
+                    "SOURCE_TARGET_WITHOUT_TEXT": 3975,
                     "TECHNICAL_CONTEXT_UNRESOLVED": 76,
-                    "UNALIGNED_PLAYER_PHASE": 748,
-                    "UNASSIGNED_TEXT_SEGMENT": 1898,
+                    "UNALIGNED_PLAYER_PHASE": 744,
+                    "UNASSIGNED_TEXT_SEGMENT": 1824,
                 },
                 "phasesOnlyOfficialText": 0,
-                "phasesWithMechanicalTarget": 2007,
-                "phasesWithProbableAttachment": 922,
+                "phasesWithMechanicalTarget": 2005,
+                "phasesWithProbableAttachment": 902,
             },
         )
 
@@ -263,16 +263,16 @@ class ExplorerBuilderTests(unittest.TestCase):
     def test_08_three_evidence_levels_remain_distinct_per_occurrence(self) -> None:
         ability_block = self.payload("mechanics/ability-block.json")
         barrier = self.payload("mechanics/barrier.json")
-        trauma = self.payload("mechanics/trauma.json")
+        trauma = self.payload("mechanics/locked-debuff.json")
         self.assertEqual(ability_block["globalEvidence"], "normalized")
         self.assertEqual(barrier["globalEvidence"], "preserved_uninterpreted")
-        self.assertEqual(trauma["globalEvidence"], "official_text_only")
+        self.assertEqual(trauma["globalEvidence"], "normalized")
         self.assertTrue({"effect_apply", "effect_remove"} & {f["id"] for f in ability_block["facets"]})
         self.assertEqual(
             {facet["id"] for facet in barrier["facets"]},
             {"detected_add", "detected_remove"},
         )
-        self.assertEqual({facet["id"] for facet in trauma["facets"]}, {"mention"})
+        self.assertEqual({facet["id"] for facet in trauma["facets"]}, {"effect_apply", "effect_duration_modify", "mention"})
         dormammu = self.payload("characters/Dormammu.json")
         eternal_darkness = next(
             ability for ability in dormammu["abilities"] if ability["name"] == "Ténèbres éternelles"
