@@ -12,6 +12,11 @@ import {
   filterWarPlayableCatalog,
   calculateTopMetrics
 } from "./war-counter-lab-core.js";
+import {
+  signatureFromImageData,
+  rankPortraitSignatures,
+  prefilterMetrics
+} from "./war-counter-prefilter.js";
 
 const WORKER_ENDPOINT = "https://msf-war-counter-vision.deliriousfan7.workers.dev/api/war-counter-vision/analyze";
 const GROQ_JPEG_QUALITY = 0.82;
@@ -20,8 +25,10 @@ const CONTACT_ROWS = 2;
 const CONTACT_CELL_WIDTH = 220;
 const CONTACT_CELL_HEIGHT = 220;
 const CONTACT_LABEL_HEIGHT = 34;
+const LOCAL_TOP_N = 20;
 const $ = (selector) => document.querySelector(selector);
 const input = $("#captureInput");
+const runLocalButton = $("#runLocal");
 const runButton = $("#runGroq");
 const status = $("#uploadStatus");
 const panel = $("#previewPanel");
@@ -32,11 +39,13 @@ const dialog = $("#characterDialog");
 const search = $("#characterSearch");
 const results = $("#characterResults");
 const metric = $("#metricSummary");
+const localMetric = $("#localMetricSummary");
 const groqCalls = $("#groqCalls");
 
 let catalog = [];
 let catalogById = new Map();
 let groundTruth = [];
+let portraitSignatures = [];
 let draft = createDraft("grouped_wide_crops");
 let activeSlot = null;
 let currentCaptureId = null;
@@ -44,17 +53,24 @@ let selectedFile = null;
 let selectedLayout = null;
 let previewBitmap = null;
 let requestInFlight = false;
+let localInFlight = false;
 let callUsedForCurrentFile = false;
 
 async function loadData() {
-  const [charactersResponse, truthResponse] = await Promise.all([
+  const [charactersResponse, truthResponse, signaturesResponse] = await Promise.all([
     fetch("data/msf-characters.json", { cache: "no-store" }),
-    fetch("data/war-counter-vision/benchmark-ground-truth.json", { cache: "no-store" })
+    fetch("data/war-counter-vision/benchmark-ground-truth.json", { cache: "no-store" }),
+    fetch("data/war-counter-vision/portrait-signatures.json", { cache: "no-store" })
   ]);
   if (!charactersResponse.ok || !truthResponse.ok) throw new Error("Données du laboratoire indisponibles.");
+  if (!signaturesResponse.ok) throw new Error("Signatures locales absentes. Le workflow de génération doit terminer.");
   catalog = filterWarPlayableCatalog(await charactersResponse.json());
   catalogById = normalizeCatalog(catalog).byId;
   groundTruth = (await truthResponse.json()).captures || [];
+  const signaturePayload = await signaturesResponse.json();
+  portraitSignatures = Array.isArray(signaturePayload.items) ? signaturePayload.items : [];
+  if (!portraitSignatures.length) throw new Error("Aucune signature locale exploitable.");
+  status.textContent = `${portraitSignatures.length} signatures locales chargées. Choisis une capture.`;
 }
 
 function workerCatalog() {
@@ -76,15 +92,135 @@ function drawVariant(image, rect, kind) {
   if (kind === "grayscale" || kind === "redMask") {
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
     for (let index = 0; index < imageData.data.length; index += 4) {
-      const red = imageData.data[index], green = imageData.data[index + 1], blue = imageData.data[index + 2];
+      const red = imageData.data[index];
+      const green = imageData.data[index + 1];
+      const blue = imageData.data[index + 2];
       if (kind === "grayscale") {
         const gray = Math.round(0.299 * red + 0.587 * green + 0.114 * blue);
         imageData.data[index] = imageData.data[index + 1] = imageData.data[index + 2] = gray;
-      } else if (red > 145 && red > green * 1.35 && red > blue * 1.25) imageData.data[index + 3] = 0;
+      } else if (red > 145 && red > green * 1.35 && red > blue * 1.25) {
+        imageData.data[index] = imageData.data[index + 1] = imageData.data[index + 2] = 9;
+      }
     }
     context.putImageData(imageData, 0, 0);
   }
   return canvas;
+}
+
+function truthForCurrentCapture() {
+  return groundTruth.find((item) => item.captureId === currentCaptureId)?.slots || [];
+}
+
+function updateMetrics() {
+  const truth = truthForCurrentCapture();
+  if (!truth.length) {
+    metric.textContent = "Groq Top 1/3/5 : aucune vérité terrain associée";
+    return;
+  }
+  const metrics = calculateTopMetrics(draft.slots, truth);
+  metric.textContent = `Groq Top 1 ${metrics.top1}/${metrics.evaluated} · Top 3 ${metrics.top3}/${metrics.evaluated} · Top 5 ${metrics.top5}/${metrics.evaluated}`;
+}
+
+function updateLocalMetrics() {
+  const truth = truthForCurrentCapture();
+  if (!truth.length) {
+    localMetric.textContent = "Préfiltre local : aucune vérité terrain associée";
+    return;
+  }
+  const metrics = prefilterMetrics(draft.slots, truth, LOCAL_TOP_N);
+  localMetric.textContent = `Préfiltre local Top ${LOCAL_TOP_N} : ${metrics.hits}/${metrics.evaluated}`;
+}
+
+function selectedLabel(slot) {
+  const character = catalogById.get(slot.selectedCharacterId);
+  if (!character) return "Aucun personnage résolu";
+  const confidence = slot.candidates[0]?.confidence;
+  return `${character.nameKey} — ${character.id}${Number.isFinite(confidence) ? ` · ${Math.round(confidence * 100)} %` : ""}`;
+}
+
+function localCandidateList(slot) {
+  if (!Array.isArray(slot.localCandidates) || !slot.localCandidates.length) return null;
+  const details = document.createElement("details");
+  const summary = document.createElement("summary");
+  summary.textContent = `Top ${slot.localCandidates.length} local`;
+  const list = document.createElement("ol");
+  for (const candidate of slot.localCandidates) {
+    const item = document.createElement("li");
+    const character = catalogById.get(candidate.id);
+    item.textContent = `${character?.nameKey || candidate.name || candidate.id} — ${candidate.id} · distance ${candidate.score.toFixed(4)}`;
+    list.append(item);
+  }
+  details.append(summary, list);
+  return details;
+}
+
+function renderCards(image) {
+  slotsRoot.replaceChildren();
+  getLayoutSlots().forEach((slot, index) => {
+    const draftSlot = draft.slots[index];
+    const card = document.createElement("article");
+    card.className = "slot-card";
+    card.dataset.status = draftSlot.validationStatus;
+    const head = document.createElement("div");
+    head.className = "slot-head";
+    head.innerHTML = `<strong>${slot.label}</strong><span>${slot.slot}</span>`;
+    const crops = document.createElement("div");
+    crops.className = "crops";
+    for (const [kind, variant] of Object.entries(getCropVariants(slot))) {
+      const cropCanvas = drawVariant(image, calculatePixelRect(variant, image.width, image.height), kind);
+      cropCanvas.title = kind;
+      crops.append(cropCanvas);
+      if (kind === "wide" && draftSlot.barred === null) {
+        draftSlot.barred = detectRedCross(cropCanvas.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, cropCanvas.width, cropCanvas.height));
+      }
+    }
+    const selected = document.createElement("div");
+    selected.className = "selected";
+    selected.textContent = selectedLabel(draftSlot);
+    const choose = document.createElement("button");
+    choose.type = "button";
+    choose.textContent = "Corriger";
+    choose.onclick = () => openChooser(index, selected, card);
+    const validate = document.createElement("button");
+    validate.type = "button";
+    validate.textContent = "Valider";
+    validate.onclick = () => {
+      if (draftSlot.selectedCharacterId) {
+        draftSlot.validationStatus = "validated";
+        card.dataset.status = "validated";
+        updateMetrics();
+      }
+    };
+    card.append(head, crops, document.createTextNode(`Croix : ${draftSlot.barred ? "oui" : "non"}`), selected);
+    const localList = localCandidateList(draftSlot);
+    if (localList) card.append(localList);
+    card.append(choose, validate);
+    slotsRoot.append(card);
+  });
+  updateMetrics();
+  updateLocalMetrics();
+}
+
+async function runLocalPrefilter(image) {
+  const slots = getLayoutSlots();
+  for (let index = 0; index < slots.length; index += 1) {
+    const variants = [];
+    for (const [kind, variant] of Object.entries(getCropVariants(slots[index]))) {
+      const cropCanvas = drawVariant(image, calculatePixelRect(variant, image.width, image.height), kind);
+      const context = cropCanvas.getContext("2d", { willReadFrequently: true });
+      variants.push(signatureFromImageData(context.getImageData(0, 0, cropCanvas.width, cropCanvas.height)));
+    }
+    const ranked = rankPortraitSignatures(variants, portraitSignatures, LOCAL_TOP_N);
+    const target = draft.slots[index];
+    target.localCandidates = ranked;
+    target.candidates = ranked.slice(0, 5).map((candidate) => ({
+      characterId: candidate.id,
+      confidence: Math.max(0, Math.min(1, 1 - candidate.score)),
+      source: "local"
+    }));
+    target.selectedCharacterId = target.candidates[0]?.characterId || null;
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+  }
 }
 
 async function buildGroqContactSheet(image) {
@@ -97,23 +233,16 @@ async function buildGroqContactSheet(image) {
   context.font = "700 24px system-ui";
   context.textAlign = "center";
   context.textBaseline = "middle";
-
   getLayoutSlots().forEach((slot, index) => {
     const column = index % CONTACT_COLUMNS;
     const row = Math.floor(index / CONTACT_COLUMNS);
     const cellX = column * CONTACT_CELL_WIDTH;
     const cellY = row * CONTACT_CELL_HEIGHT;
-    const wide = getCropVariants(slot).wide;
-    const rect = calculatePixelRect(wide, image.width, image.height);
-    const targetX = cellX + 8;
-    const targetY = cellY + CONTACT_LABEL_HEIGHT + 4;
-    const targetWidth = CONTACT_CELL_WIDTH - 16;
-    const targetHeight = CONTACT_CELL_HEIGHT - CONTACT_LABEL_HEIGHT - 12;
+    const rect = calculatePixelRect(getCropVariants(slot).wide, image.width, image.height);
     context.fillStyle = "#ffffff";
     context.fillText(slot.slot, cellX + CONTACT_CELL_WIDTH / 2, cellY + CONTACT_LABEL_HEIGHT / 2);
-    context.drawImage(image, rect.x, rect.y, rect.width, rect.height, targetX, targetY, targetWidth, targetHeight);
+    context.drawImage(image, rect.x, rect.y, rect.width, rect.height, cellX + 8, cellY + CONTACT_LABEL_HEIGHT + 4, CONTACT_CELL_WIDTH - 16, CONTACT_CELL_HEIGHT - CONTACT_LABEL_HEIGHT - 12);
   });
-
   const blob = await new Promise((resolve, reject) => {
     canvas.toBlob((value) => value ? resolve(value) : reject(new Error("Création de la planche de portraits impossible.")), "image/jpeg", GROQ_JPEG_QUALITY);
   });
@@ -148,55 +277,12 @@ function applyWorkerResult(result) {
   });
 }
 
-function updateMetrics() {
-  const truth = groundTruth.find((item) => item.captureId === currentCaptureId)?.slots || [];
-  if (!truth.length) { metric.textContent = "Top 1/3/5 : aucune vérité terrain associée"; return; }
-  const metrics = calculateTopMetrics(draft.slots, truth);
-  metric.textContent = `Top 1 ${metrics.top1}/${metrics.evaluated} · Top 3 ${metrics.top3}/${metrics.evaluated} · Top 5 ${metrics.top5}/${metrics.evaluated}`;
+function openChooser(index, node, card) {
+  activeSlot = { index, node, card };
+  search.value = "";
+  renderSearch("");
+  dialog.showModal();
 }
-
-function selectedLabel(slot) {
-  const character = catalogById.get(slot.selectedCharacterId);
-  if (!character) return "Aucun personnage résolu";
-  const confidence = slot.candidates[0]?.confidence;
-  return `${character.nameKey} — ${character.id}${Number.isFinite(confidence) ? ` · ${Math.round(confidence * 100)} %` : ""}`;
-}
-
-function renderCards(image) {
-  slotsRoot.replaceChildren();
-  getLayoutSlots().forEach((slot, index) => {
-    const card = document.createElement("article");
-    card.className = "slot-card";
-    card.dataset.status = draft.slots[index].validationStatus;
-    const head = document.createElement("div");
-    head.className = "slot-head";
-    head.innerHTML = `<strong>${slot.label}</strong><span>${slot.slot}</span>`;
-    const crops = document.createElement("div");
-    crops.className = "crops";
-    for (const [kind, variant] of Object.entries(getCropVariants(slot))) {
-      const cropCanvas = drawVariant(image, calculatePixelRect(variant, image.width, image.height), kind);
-      cropCanvas.title = kind;
-      crops.append(cropCanvas);
-      if (kind === "wide" && draft.slots[index].barred === null) draft.slots[index].barred = detectRedCross(cropCanvas.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, cropCanvas.width, cropCanvas.height));
-    }
-    const selected = document.createElement("div");
-    selected.className = "selected";
-    selected.textContent = selectedLabel(draft.slots[index]);
-    const choose = document.createElement("button");
-    choose.type = "button";
-    choose.textContent = "Corriger";
-    choose.onclick = () => openChooser(index, selected, card);
-    const validate = document.createElement("button");
-    validate.type = "button";
-    validate.textContent = "Valider";
-    validate.onclick = () => { if (draft.slots[index].selectedCharacterId) { draft.slots[index].validationStatus = "validated"; card.dataset.status = "validated"; updateMetrics(); } };
-    card.append(head, crops, document.createTextNode(`Croix : ${draft.slots[index].barred ? "oui" : "non"}`), selected, choose, validate);
-    slotsRoot.append(card);
-  });
-  updateMetrics();
-}
-
-function openChooser(index, node, card) { activeSlot = { index, node, card }; search.value = ""; renderSearch(""); dialog.showModal(); }
 
 function renderSearch(query) {
   const normalized = query.trim().toLocaleLowerCase("fr");
@@ -246,18 +332,40 @@ input.onchange = async () => {
     callUsedForCurrentFile = false;
     draft = createDraft("grouped_wide_crops");
     groqCalls.textContent = "0";
+    localMetric.textContent = "Préfiltre local : non évalué";
+    metric.textContent = "Groq Top 1/3/5 : non évalué";
     slotsRoot.replaceChildren();
     currentCaptureId = previewBitmap.width === 2310 && previewBitmap.height === 583 ? "capture-1" : previewBitmap.width === 2410 && previewBitmap.height === 600 ? "capture-2" : null;
     drawPreview(previewBitmap);
     panel.hidden = false;
-    meta.textContent = `${previewBitmap.width} × ${previewBitmap.height} · ratio ${selectedLayout.ratio.toFixed(4)} · ${selectedLayout.layoutId} · ${ACCEPTED_IMAGE_TYPES.join(", ")} · ${MAX_IMAGE_BYTES / 1024 / 1024} Mo max`;
+    meta.textContent = `${previewBitmap.width} × ${previewBitmap.height} · ratio ${selectedLayout.ratio.toFixed(4)} · ${selectedLayout.layoutId} · ${portraitSignatures.length} références locales`;
+    runLocalButton.disabled = false;
     runButton.disabled = false;
-    status.textContent = "Capture prête. Groq recevra une planche des 10 portraits recadrés, pas la capture complète.";
+    status.textContent = "Capture prête. Lance d’abord le préfiltre local : aucun appel Groq.";
   } catch (error) {
     selectedFile = null;
+    runLocalButton.disabled = true;
     runButton.disabled = true;
     panel.hidden = true;
     status.textContent = error?.message || "Erreur inconnue.";
+  }
+};
+
+runLocalButton.onclick = async () => {
+  if (!previewBitmap || localInFlight) return;
+  localInFlight = true;
+  runLocalButton.disabled = true;
+  status.textContent = `Comparaison locale des 10 slots avec ${portraitSignatures.length} portraits…`;
+  const startedAt = performance.now();
+  try {
+    await runLocalPrefilter(previewBitmap);
+    renderCards(previewBitmap);
+    status.textContent = `Préfiltre local terminé en ${Math.round(performance.now() - startedAt)} ms. Aucun appel Groq.`;
+  } catch (error) {
+    status.textContent = error?.message || "Échec du préfiltre local.";
+  } finally {
+    localInFlight = false;
+    runLocalButton.disabled = false;
   }
 };
 
@@ -273,12 +381,14 @@ runButton.onclick = async () => {
     const result = await requestRealAnalysis(previewBitmap, selectedLayout.layoutId);
     applyWorkerResult(result);
     renderCards(previewBitmap);
-    status.textContent = `Analyse des portraits terminée · modèle ${result.model} · ${result.durationMs ?? "?"} ms · appels Groq réels ${draft.groqRealCalls}.`;
+    status.textContent = `Analyse Groq terminée · modèle ${result.model} · ${result.durationMs ?? "?"} ms · appels réels ${draft.groqRealCalls}.`;
   } catch (error) {
     callUsedForCurrentFile = false;
     runButton.disabled = false;
     status.textContent = error?.message || "Échec de l’appel Groq.";
-  } finally { requestInFlight = false; }
+  } finally {
+    requestInFlight = false;
+  }
 };
 
 search.oninput = () => renderSearch(search.value);
