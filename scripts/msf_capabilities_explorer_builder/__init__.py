@@ -1,5 +1,9 @@
 """Build browser-sized artifacts for the MSF capabilities explorer."""
 
+from .official_effects import apply_official_effect_catalog
+
+apply_official_effect_catalog()
+
 from .builder import (
     BuilderError,
     BuildResult,

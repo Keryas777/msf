@@ -1,0 +1,347 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": {
+    "fr": "https://marvelstrikeforce.com/fr/effects",
+    "en": "https://marvelstrikeforce.com/en/effects",
+    "captureDate": "2026-08-10",
+    "note": "Canonical manual transcription of the 36 effects displayed by the official MSF effects pages. Names and descriptions are preserved as displayed; no automatic translation is used."
+  },
+  "counts": {
+    "positive": 16,
+    "negative": 14,
+    "other": 6,
+    "total": 36
+  },
+  "effects": [
+    {
+      "id": "counterattack",
+      "category": "positive",
+      "mechanicalIds": ["Counter"],
+      "name": {"en": "Counterattack", "fr": "Contre-attaque"},
+      "description": {"en": "Counterattack upon being attacked by an enemy.", "fr": "Contre-attaque suite à une attaque adverse."},
+      "expires": {"en": "On Counter", "fr": "Lors d'un contre"},
+      "opposite": {"en": "Bleed", "fr": "Saignement"}
+    },
+    {
+      "id": "deathproof",
+      "category": "positive",
+      "mechanicalIds": ["Deathproof"],
+      "name": {"en": "Deathproof", "fr": "Indestructible"},
+      "description": {"en": "Attacks that would defeat this character instead reduce Health to 1.", "fr": "Les attaques qui devraient abattre ce personnage réduisent ses points de vie à 1."},
+      "expires": {"en": "On Death Proof", "fr": "Lors de l'activation d'Indestructible"},
+      "opposite": {"en": "Bleed", "fr": "Saignement"}
+    },
+    {
+      "id": "immunity",
+      "category": "positive",
+      "mechanicalIds": ["DebuffBlock"],
+      "name": {"en": "Immunity", "fr": "Immunité"},
+      "description": {"en": "Additional negative effects cannot be applied to this character", "fr": "Il n'est pas possible d'ajouter d'autres effets nuisibles sur ce personnage."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Disrupted", "fr": "Obstruction"}
+    },
+    {
+      "id": "defense-up",
+      "category": "positive",
+      "mechanicalIds": ["DefenseUp"],
+      "name": {"en": "Defense Up", "fr": "Défense augmentée"},
+      "description": {"en": "DECREASE incoming damage by 50%. INCREASE Resistance by 50%.", "fr": "RÉDUIT les dégâts subis de 50 %. AUGMENTE la résistance de 50 %."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Defense Down", "fr": "Défense réduite"}
+    },
+    {
+      "id": "deflect",
+      "category": "positive",
+      "mechanicalIds": ["Deflect"],
+      "name": {"en": "Deflect", "fr": "Déviation"},
+      "description": {"en": "Block the next attack.", "fr": "Bloque la prochaine attaque."},
+      "expires": {"en": "On Block", "fr": "Lors d'un blocage"},
+      "opposite": {"en": "Bleed", "fr": "Saignement"}
+    },
+    {
+      "id": "evade",
+      "category": "positive",
+      "mechanicalIds": ["Evade"],
+      "name": {"en": "Evade", "fr": "Évitement"},
+      "description": {"en": "Dodge the next attack.", "fr": "Esquive la prochaine attaque."},
+      "expires": {"en": "On Evade", "fr": "Lors d'un évitement"},
+      "opposite": {"en": "Bleed", "fr": "Saignement"}
+    },
+    {
+      "id": "regeneration",
+      "category": "positive",
+      "mechanicalIds": ["HoT"],
+      "name": {"en": "Regeneration", "fr": "Régénération"},
+      "description": {"en": "HEAL by 10% of the source character's Max Health each turn.", "fr": "REND 10 % de la vie max. du lanceur à chaque tour."},
+      "expires": {"en": "Start of Turn", "fr": "Au début du tour"},
+      "opposite": {"en": "Bleed", "fr": "Saignement"}
+    },
+    {
+      "id": "safeguard",
+      "category": "positive",
+      "mechanicalIds": ["LockedBuff"],
+      "name": {"en": "Safeguard", "fr": "Sauvegarde"},
+      "description": {"en": "Positive effects cannot be CLEARED or FLIPPED. This effect cannot be COPIED or SPREAD.", "fr": "Les effets bénéfiques ne peuvent pas être SUPPRIMÉS ou CONVERTIS. L'effet ne peut pas être COPIÉ ni TRANSMIS."},
+      "expires": {"en": "Start of Turn", "fr": "Au début du tour"},
+      "opposite": {"en": "Trauma", "fr": "Traumatisme"}
+    },
+    {
+      "id": "minor-defense-up",
+      "category": "positive",
+      "mechanicalIds": ["MinorDefenseUp"],
+      "name": {"en": "Minor Defense Up", "fr": "Défense augmentée mineure"},
+      "description": {"en": "DECREASE incoming damage by 25%. INCREASE Resistance by 25%.", "fr": "RÉDUIT les dégâts subis de 25 %. AUGMENTE la résistance de 25 %."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Minor Defense Down", "fr": "Défense réduite mineure"}
+    },
+    {
+      "id": "minor-deflect",
+      "category": "positive",
+      "mechanicalIds": ["MinorDeflect"],
+      "name": {"en": "Minor Deflect", "fr": "Déviation mineure"},
+      "description": {"en": "Block the next attack with reduced effect.", "fr": "Bloque la prochaine attaque avec un effet réduit."},
+      "expires": {"en": "On Block", "fr": "Lors d'un blocage"},
+      "opposite": {"en": "Minor Bleed", "fr": "Saignement mineur"}
+    },
+    {
+      "id": "minor-regeneration",
+      "category": "positive",
+      "mechanicalIds": ["MinorHoT"],
+      "name": {"en": "Minor Regeneration", "fr": "Régénération mineure"},
+      "description": {"en": "HEAL by 5% of the source character's Max Health each turn.", "fr": "REND 5 % de la vie max. du lanceur à chaque tour."},
+      "expires": {"en": "Start of Turn", "fr": "Au début du tour"},
+      "opposite": {"en": "Minor Bleed", "fr": "Saignement mineur"}
+    },
+    {
+      "id": "minor-offense-up",
+      "category": "positive",
+      "mechanicalIds": ["MinorOffenseUp"],
+      "name": {"en": "Minor Offense Up", "fr": "Attaque augmentée mineure"},
+      "description": {"en": "INCREASE outgoing damage by 25%. INCREASE Focus by 25%.", "fr": "AUGMENTE les dégâts infligés de 25 %. AUGMENTE la focalisation de 25 %."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Minor Offense Down", "fr": "Attaque réduite mineure"}
+    },
+    {
+      "id": "offense-up",
+      "category": "positive",
+      "mechanicalIds": ["OffenseUp"],
+      "name": {"en": "Offense Up", "fr": "Attaque augmentée"},
+      "description": {"en": "INCREASE outgoing damage by 50%. INCREASE Focus by 50%.", "fr": "AUGMENTE les dégâts infligés de 50 %. AUGMENTE la focalisation de 50 %."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Offense Down", "fr": "Attaque réduite"}
+    },
+    {
+      "id": "speed-up",
+      "category": "positive",
+      "mechanicalIds": ["SpeedUp"],
+      "name": {"en": "Speed Up", "fr": "Vitesse augmentée"},
+      "description": {"en": "INCREASE Speed by 50%.", "fr": "AUGMENTE la vitesse de 50 %."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Slow", "fr": "Ralentissement"}
+    },
+    {
+      "id": "stealth",
+      "category": "positive",
+      "mechanicalIds": ["Stealth"],
+      "name": {"en": "Stealth", "fr": "Furtivité"},
+      "description": {"en": "Stealth character cannot be targeted if other targets are available.", "fr": "Un personnage furtif ne peut être ciblé si d'autres cibles sont disponibles."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Bleed", "fr": "Saignement"}
+    },
+    {
+      "id": "taunt",
+      "category": "positive",
+      "mechanicalIds": ["Taunt"],
+      "name": {"en": "Taunt", "fr": "Provocation"},
+      "description": {"en": "Taunting characters must be targeted first.", "fr": "Un personnage avec Provocation doit être ciblé le premier."},
+      "expires": {"en": "Start of Turn", "fr": "Au début du tour"},
+      "opposite": {"en": "Bleed", "fr": "Saignement"}
+    },
+    {
+      "id": "ability-block",
+      "category": "negative",
+      "mechanicalIds": ["AbilityBlock"],
+      "name": {"en": "Ability Block", "fr": "Blocage de capacité"},
+      "description": {"en": "Cannot use Special or Ultimate abilities.", "fr": "Ne peut utiliser de capacités Spéciales ou ultimes."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Evade", "fr": "Évitement"}
+    },
+    {
+      "id": "blind",
+      "category": "negative",
+      "mechanicalIds": ["AccuracyDown"],
+      "name": {"en": "Blind", "fr": "Aveuglement"},
+      "description": {"en": "DECREASE Accuracy by 100%.", "fr": "RÉDUIT la précision de 100 %."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Stealth", "fr": "Furtivité"}
+    },
+    {
+      "id": "disrupted",
+      "category": "negative",
+      "mechanicalIds": ["BuffBlock"],
+      "name": {"en": "Disrupted", "fr": "Obstruction"},
+      "description": {"en": "Additional positive effects cannot be applied to this character.", "fr": "Il n'est pas possible d'ajouter d'autres effets bénéfiques sur ce personnage."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Immunity", "fr": "Immunité"}
+    },
+    {
+      "id": "defense-down",
+      "category": "negative",
+      "mechanicalIds": ["DefenseDown"],
+      "name": {"en": "Defense Down", "fr": "Défense réduite"},
+      "description": {"en": "INCREASE incoming damage by 50%. DECREASE Resistance by 50%.", "fr": "AUGMENTE les dégâts subis de 50 %. RÉDUIT la résistance de 50 %."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Defense Up", "fr": "Défense augmentée"}
+    },
+    {
+      "id": "bleed",
+      "category": "negative",
+      "mechanicalIds": ["DoT"],
+      "name": {"en": "Bleed", "fr": "Saignement"},
+      "description": {"en": "Take damage equal to a percentage of the source character's Damage each turn.", "fr": "Inflige un pourcentage des dégâts du lanceur à chaque tour."},
+      "expires": {"en": "Start of Turn", "fr": "Au début du tour"},
+      "opposite": {"en": "Regeneration", "fr": "Régénération"}
+    },
+    {
+      "id": "heal-block",
+      "category": "negative",
+      "mechanicalIds": ["HealBlock"],
+      "name": {"en": "Heal Block", "fr": "Blocage de soins"},
+      "description": {"en": "Cannot be healed.", "fr": "Ne peut recevoir de soins."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Deathproof", "fr": "Indestructible"}
+    },
+    {
+      "id": "minor-bleed",
+      "category": "negative",
+      "mechanicalIds": [],
+      "name": {"en": "Minor Bleed", "fr": "Saignement mineur"},
+      "description": {"en": "Take minor damage equal to a percentage of the source character's Damage each turn.", "fr": "Inflige des dégâts mineurs d'un pourcentage des dégâts du lanceur à chaque tour."},
+      "expires": {"en": "Start of Turn", "fr": "Au début du tour"},
+      "opposite": {"en": "Minor Regeneration", "fr": "Régénération mineure"}
+    },
+    {
+      "id": "trauma",
+      "category": "negative",
+      "mechanicalIds": ["LockedDebuff"],
+      "name": {"en": "Trauma", "fr": "Traumatisme"},
+      "description": {"en": "Negative effects cannot be CLEARED or FLIPPED. This effect cannot be COPIED or SPREAD.", "fr": "Les effets nuisibles ne peuvent pas être SUPPRIMÉS ou CONVERTIS. L'effet ne peut pas être COPIÉ ni TRANSMIS."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Safeguard", "fr": "Sauvegarde"}
+    },
+    {
+      "id": "minor-defense-down",
+      "category": "negative",
+      "mechanicalIds": ["MinorDefenseDown"],
+      "name": {"en": "Minor Defense Down", "fr": "Défense réduite mineure"},
+      "description": {"en": "INCREASE incoming damage by 25%. DECREASE Resistance by 25%.", "fr": "AUGMENTE les dégâts subis de 25 %. RÉDUIT la résistance de 25 %."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Minor Defense Up", "fr": "Défense augmentée mineure"}
+    },
+    {
+      "id": "minor-offense-down",
+      "category": "negative",
+      "mechanicalIds": ["MinorOffenseDown"],
+      "name": {"en": "Minor Offense Down", "fr": "Attaque réduite mineure"},
+      "description": {"en": "DECREASE outgoing damage by 25%. DECREASE Focus by 25%.", "fr": "RÉDUIT les dégâts infligés de 25 %. RÉDUIT la focalisation de 25 %."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Minor Offense Up", "fr": "Attaque augmentée mineure"}
+    },
+    {
+      "id": "offense-down",
+      "category": "negative",
+      "mechanicalIds": ["OffenseDown"],
+      "name": {"en": "Offense Down", "fr": "Attaque réduite"},
+      "description": {"en": "DECREASE outgoing damage by 50%. DECREASE Focus by 50%.", "fr": "RÉDUIT les dégâts infligés de 50 %. RÉDUIT la focalisation de 50 %."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Offense Up", "fr": "Attaque augmentée"}
+    },
+    {
+      "id": "silence",
+      "category": "negative",
+      "mechanicalIds": ["Silence"],
+      "name": {"en": "Silence", "fr": "Silence"},
+      "description": {"en": "This character cannot apply positive or negative effects and cannot reduce the duration of positive effects.", "fr": "Ce personnage ne peut pas appliquer d'effets bénéfiques ou nuisibles et ne peut pas réduire la durée des effets bénéfiques."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Regeneration", "fr": "Régénération"}
+    },
+    {
+      "id": "slow",
+      "category": "negative",
+      "mechanicalIds": ["Slow"],
+      "name": {"en": "Slow", "fr": "Ralentissement"},
+      "description": {"en": "DECREASE Speed by 50%.", "fr": "RÉDUIT la vitesse de 50 %."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Speed Up", "fr": "Vitesse augmentée"}
+    },
+    {
+      "id": "stun",
+      "category": "negative",
+      "mechanicalIds": ["Stun"],
+      "name": {"en": "Stun", "fr": "Étourdissement"},
+      "description": {"en": "Miss next turn. Cannot Dodge or Block while stunned.", "fr": "Passe le prochain tour. Étourdi : ne peut esquiver ou bloquer."},
+      "expires": {"en": "End of Turn", "fr": "À la fin du tour"},
+      "opposite": {"en": "Counterattack", "fr": "Contre-attaque"}
+    },
+    {
+      "id": "assist-now",
+      "category": "other",
+      "classification": "gameplay_mechanic",
+      "mechanicalIds": [],
+      "name": {"en": "Assist Now", "fr": "Appui prêt"},
+      "description": {"en": "Will assist the next character that attacks during this turn.", "fr": "Donne un appui au prochain personnage qui attaque à ce tour."},
+      "expires": {"en": "End of Any Turn", "fr": "À la fin d'un tour"},
+      "opposite": null
+    },
+    {
+      "id": "charged",
+      "category": "other",
+      "classification": "gameplay_state",
+      "mechanicalIds": ["Charged"],
+      "name": {"en": "Charged", "fr": "Chargé"},
+      "description": {"en": "This character is charged.", "fr": "Ce personnage est chargé."},
+      "expires": {"en": "On Never Expire", "fr": "Lorsqu'un effet n'expire pas"},
+      "opposite": null
+    },
+    {
+      "id": "exhausted",
+      "category": "other",
+      "classification": "gameplay_state",
+      "mechanicalIds": ["Exhausted"],
+      "name": {"en": "Exhausted", "fr": "Épuisé"},
+      "description": {"en": "DECREASE Armor, Damage, Focus, and Resistance by 20% per stack. INCREASE incoming damage by 20% per stack.", "fr": "RÉDUIT l'armure, les dégâts, la focalisation et la résistance de 20 % par cumul. AUGMENTE les dégâts subis de 20 % par cumul."},
+      "expires": {"en": "On Never Expire", "fr": "Lorsqu'un effet n'expire pas"},
+      "opposite": null
+    },
+    {
+      "id": "exposed",
+      "category": "other",
+      "classification": "gameplay_state",
+      "mechanicalIds": ["Exposed"],
+      "name": {"en": "Exposed", "fr": "Exposé"},
+      "description": {"en": "This character is exposed.", "fr": "Ce personnage est exposé."},
+      "expires": {"en": "On Never Expire", "fr": "Lorsqu'un effet n'expire pas"},
+      "opposite": null
+    },
+    {
+      "id": "iso-8-vulnerable",
+      "category": "other",
+      "classification": "gameplay_state",
+      "mechanicalIds": ["Vulnerable"],
+      "name": {"en": "ISO-8 Vulnerable", "fr": "Vulnérabilité iso-8"},
+      "description": {"en": "This character is vulnerable. INCREASE incoming damage by 10%", "fr": "Vulnérable. AUGMENTE les dégâts subis de 10 %."},
+      "expires": {"en": "On Never Expire", "fr": "Lorsqu'un effet n'expire pas"},
+      "opposite": null
+    },
+    {
+      "id": "revive-once",
+      "category": "other",
+      "classification": "gameplay_mechanic",
+      "mechanicalIds": ["ReviveOnce"],
+      "name": {"en": "Revive Once", "fr": "Ressusciter une fois"},
+      "description": {"en": "REVIVE once on Death", "fr": "RESSUSCITE une fois à la mort."},
+      "expires": {"en": "On Never Expire", "fr": "Lorsqu'un effet n'expire pas"},
+      "opposite": null
+    }
+  ]
+}
