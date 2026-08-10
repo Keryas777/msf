@@ -31,6 +31,26 @@ jobs:
       - name: Validate official effects catalog
         run: python -m unittest tests.test_msf_official_effects_catalog -v
 
+      - name: Diagnose generated effect projection
+        run: |
+          rm -rf /tmp/codex-effects-diagnostic
+          python -m scripts.msf_capabilities_explorer_builder.cli --output /tmp/codex-effects-diagnostic
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('/tmp/codex-effects-diagnostic')
+          stable = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
+          generation = root / stable['currentPath']
+          manifest = json.loads((generation / 'generation-manifest.json').read_text(encoding='utf-8'))
+          print('COUNTS=', json.dumps(manifest['counts'], ensure_ascii=False, sort_keys=True))
+          print('PRESENTATION_AUDIT=', json.dumps(manifest['presentationAudit'], ensure_ascii=False, sort_keys=True))
+          for path in sorted((generation / 'mechanics').glob('*.json')):
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              label = payload.get('label') or payload.get('name')
+              if label in {'Indestructible','Obstruction','Aveuglement','Traumatisme','Exposé','Épuisé','Vulnérabilité iso-8'}:
+                  print('EFFECT=', path.name, label, payload.get('globalEvidence'), [f.get('id') for f in payload.get('facets', [])])
+          PY
+
       - name: Run Codex builder tests
         run: python -m unittest discover -s tests -p "test_msf_capabilities_explorer_builder.py" -v
 
@@ -63,21 +83,18 @@ jobs:
               'Vulnérabilité iso-8',
           }
           found = set()
+          trauma_files = []
           for path in (generation / 'mechanics').glob('*.json'):
               payload = json.loads(path.read_text(encoding='utf-8'))
               label = payload.get('label') or payload.get('name')
               if label in expected:
                   found.add(label)
+              if label == 'Traumatisme':
+                  trauma_files.append((path.name, payload.get('globalEvidence'), [f.get('id') for f in payload.get('facets', [])]))
 
           missing = expected - found
           if missing:
               raise SystemExit(f'Official effect names missing from generated mechanics: {sorted(missing)}')
-
-          trauma_files = []
-          for path in (generation / 'mechanics').glob('*.json'):
-              payload = json.loads(path.read_text(encoding='utf-8'))
-              if (payload.get('label') or payload.get('name')) == 'Traumatisme':
-                  trauma_files.append((path.name, payload.get('globalEvidence'), [f.get('id') for f in payload.get('facets', [])]))
           if not trauma_files:
               raise SystemExit('No generated Traumatisme mechanic found')
           if not any(evidence == 'normalized' for _, evidence, _ in trauma_files):
