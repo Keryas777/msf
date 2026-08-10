@@ -24,7 +24,7 @@ jobs:
       - run: python scripts/build-war-counter-signatures.py
       - name: Commit generated signatures
         run: |
-          if git diff --quiet -- docs/data/war-counter-vision/portrait-signatures.json; then
+          if [ -z "$(git status --porcelain -- docs/data/war-counter-vision/portrait-signatures.json)" ]; then
             echo "No signature change"
             exit 0
           fi
