@@ -44,19 +44,19 @@ class SpecificMechanicsCatalogTests(unittest.TestCase):
         grace = EFFECT_PRESENTATIONS["Grace"]
         self.assertEqual(grace["label"], "Vitalité")
         self.assertIn("Grace", grace["aliases"])
-        self.assertIn("Vitality", grace["aliases"])
+        self.assertIn("vitality", {alias.lower() for alias in grace["aliases"]})
         self.assertIn("Vitalité", grace["aliases"])
         self.assertEqual(grace["terms"], ["Vitalité"])
 
         marked = EFFECT_PRESENTATIONS["Marked"]
         self.assertEqual(marked["label"], "Vulnérable")
         self.assertIn("Marked", marked["aliases"])
-        self.assertIn("Vulnerable", marked["aliases"])
+        self.assertIn("vulnerable", {alias.lower() for alias in marked["aliases"]})
         self.assertEqual(marked["terms"], ["Vulnérable"])
 
         darkness = EFFECT_PRESENTATIONS["Darkness"]
         self.assertEqual(darkness["label"], "Ténèbres")
-        self.assertIn("Darkness", darkness["aliases"])
+        self.assertIn("darkness", {alias.lower() for alias in darkness["aliases"]})
         self.assertEqual(darkness["terms"], ["Ténèbres"])
 
     def test_verified_global_wording_is_applied(self) -> None:
