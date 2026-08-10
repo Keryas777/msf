@@ -23,6 +23,35 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Add canonical effect routing support
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("scripts/msf_capabilities_explorer_builder/builder.py")
+          text = path.read_text(encoding="utf-8")
+
+          old_alias = '''            owner = alias_owners.get(key)\n            if owner is not None and owner != effect_id:\n                raise BuilderError("AMBIGUOUS_ALIAS", f"{alias}: {owner}/{effect_id}")\n            alias_owners[key] = effect_id\n'''
+          new_alias = '''            owner_id = presentation.get("canonicalEffectId") or effect_id\n            owner = alias_owners.get(key)\n            if owner is not None and owner != owner_id:\n                raise BuilderError("AMBIGUOUS_ALIAS", f"{alias}: {owner}/{owner_id}")\n            alias_owners[key] = owner_id\n'''
+          if old_alias not in text:
+              raise SystemExit("alias validation anchor not found")
+          text = text.replace(old_alias, new_alias, 1)
+
+          loop_anchor = '''    for effect_id in sorted(effects, key=_sort_key):\n        effect = _as_dict(effects[effect_id], f"effet {effect_id}")\n        base = _slug_base(effect_id)\n'''
+          loop_replacement = '''    for effect_id in sorted(effects, key=_sort_key):\n        effect = _as_dict(effects[effect_id], f"effet {effect_id}")\n        presentation = EFFECT_PRESENTATIONS.get(effect_id, {})\n        if presentation.get("canonicalEffectId"):\n            continue\n        base = _slug_base(effect_id)\n'''
+          if loop_anchor not in text:
+              raise SystemExit("effect loop anchor not found")
+          text = text.replace(loop_anchor, loop_replacement, 1)
+
+          insertion_anchor = '''        mechanics[mechanic_id] = {\n            "id": mechanic_id,\n            "kind": "effect",\n            "label": label,\n            "sourceName": effect_id,\n            "aliases": _unique_strings(presentation.get("aliases", [])),\n            "description": presentation.get("description")\n            or "Effet structuré présent dans le catalogue de combat.",\n            "category": category,\n            "catalogSection": "primary"\n            if presentation and category in {"buff", "debuff"}\n            else "technical",\n            "catalogEffectId": effect.get("id"),\n            "terms": _unique_strings(presentation.get("terms", [])),\n            "occurrences": [],\n        }\n\n    action_types = sorted(\n'''
+          insertion_replacement = '''        mechanics[mechanic_id] = {\n            "id": mechanic_id,\n            "kind": "effect",\n            "label": label,\n            "sourceName": effect_id,\n            "aliases": _unique_strings(presentation.get("aliases", [])),\n            "description": presentation.get("description")\n            or "Effet structuré présent dans le catalogue de combat.",\n            "category": category,\n            "catalogSection": "primary"\n            if presentation and category in {"buff", "debuff"}\n            else "technical",\n            "catalogEffectId": effect.get("id"),\n            "terms": _unique_strings(presentation.get("terms", [])),\n            "occurrences": [],\n        }\n\n    for effect_id in sorted(effects, key=_sort_key):\n        presentation = EFFECT_PRESENTATIONS.get(effect_id, {})\n        canonical_effect_id = presentation.get("canonicalEffectId")\n        if not canonical_effect_id:\n            continue\n        if canonical_effect_id not in effects:\n            raise BuilderError(\n                "UNKNOWN_CANONICAL_EFFECT", f"{effect_id}: {canonical_effect_id}"\n            )\n        mechanic_id = effect_ids.get(canonical_effect_id)\n        if mechanic_id is None:\n            raise BuilderError(\n                "INVALID_CANONICAL_EFFECT", f"{effect_id}: {canonical_effect_id}"\n            )\n        effect_ids[effect_id] = mechanic_id\n        mechanic = mechanics[mechanic_id]\n        mechanic["aliases"] = _unique_strings(\n            [*mechanic.get("aliases", []), effect_id, *presentation.get("aliases", [])]\n        )\n\n    action_types = sorted(\n'''
+          if insertion_anchor not in text:
+              raise SystemExit("canonical routing insertion anchor not found")
+          text = text.replace(insertion_anchor, insertion_replacement, 1)
+
+          path.write_text(text, encoding="utf-8")
+          PY
+
       - name: Run focused catalog tests
         run: python -m unittest tests.test_msf_specific_mechanics_catalog -v
 
@@ -36,6 +65,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm .github/workflows/temp-codex-regenerate.yml
-          git add docs/data/msf-capabilities-explorer
+          git add scripts/msf_capabilities_explorer_builder/builder.py docs/data/msf-capabilities-explorer
           git commit -m "build: regenerate Codex after verified label fixes"
           git push origin HEAD:agent/codex-first-mechanic-label-fixes
