@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow">
   <title>War Counter Vision — Laboratoire privé</title>
-  <link rel="stylesheet" href="war-counter-lab.css?v=r5-prefilter-diagnostic-1">
+  <link rel="stylesheet" href="war-counter-lab.css?v=r5-benchmark-export-1">
 </head>
 <body>
   <main class="app-shell">
     <header>
       <p class="eyebrow">Laboratoire privé</p>
       <h1>MSF War Counter Vision</h1>
-      <p>Phase R5 — diagnostic complet du préfiltre local.</p>
+      <p>Phase R5 — diagnostic du préfiltre et export du benchmark embeddings.</p>
     </header>
 
     <section class="panel">
@@ -22,9 +22,11 @@
       <input id="captureInput" type="file" accept="image/jpeg,image/png,image/webp">
       <button id="runLocal" type="button" disabled>Lancer le préfiltre local</button>
       <button id="runDiagnostic" type="button" disabled>Mesurer les rangs réels</button>
+      <button id="exportBenchmark" type="button" disabled>Exporter le benchmark R5 (.zip)</button>
       <button id="runGroq" type="button" disabled>Lancer 1 test Groq réel</button>
-      <p class="warning">Le diagnostic et le préfiltre local ne consomment aucun appel Groq.</p>
+      <p class="warning">Le diagnostic, le préfiltre local et l’export du benchmark ne consomment aucun appel Groq.</p>
       <p id="uploadStatus" role="status">JPEG, PNG ou WebP — 12 Mo maximum.</p>
+      <p id="benchmarkExportStatus" role="status">Charge une capture pour préparer le benchmark R5.</p>
     </section>
 
     <section class="panel" id="previewPanel" hidden>
@@ -54,7 +56,8 @@
     <div id="characterResults" class="character-results"></div>
   </dialog>
 
-  <script type="module" src="war-counter-lab.js?v=r5-prefilter-diagnostic-1"></script>
-  <script type="module" src="war-counter-diagnostic.js?v=r5-prefilter-diagnostic-1"></script>
+  <script type="module" src="war-counter-lab.js?v=r5-benchmark-export-1"></script>
+  <script type="module" src="war-counter-diagnostic.js?v=r5-benchmark-export-1"></script>
+  <script type="module" src="war-counter-benchmark-export.js?v=r5-benchmark-export-1"></script>
 </body>
 </html>
