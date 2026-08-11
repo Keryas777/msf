@@ -474,7 +474,7 @@ function validateAnalysisResponse(parsed, players) {
       throw new Error("Longueur d’analyse invalide.");
     }
 
-    if (countSentences(analysis) > ANALYSIS_MAX_SENTENCES) {
+    if (1 + commentSentenceCount > ANALYSIS_MAX_SENTENCES) {
       throw new Error("Une analyse dépasse trois phrases.");
     }
 

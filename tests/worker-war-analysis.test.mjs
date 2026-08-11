@@ -28,25 +28,25 @@ test("la qualification déterministe respecte toutes les bornes, y compris déci
   );
 });
 
-function requestBody(score = 71) {
+function requestBody(score = 71, name = "Pelleas") {
   return {
     alliance: "zeus",
     date: "2026-08-09",
     report: {
       summary: { player_count: 1 },
-      ranking: [{ rank: 1, name: "Pelleas", score }],
-      players: [{ rank: 1, original_rank: 1, name: "Pelleas", score_total: score }]
+      ranking: [{ rank: 1, name, score }],
+      players: [{ rank: 1, original_rank: 1, name, score_total: score }]
     }
   };
 }
 
-async function callWorker(comment, score = 71) {
+async function callWorker(comment, score = 71, name = "Pelleas") {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => Response.json({
     choices: [{
       message: {
         content: JSON.stringify({
-          analyses: [{ rank: 1, name: "Pelleas", analysis: comment }]
+          analyses: [{ rank: 1, name, analysis: comment }]
         })
       }
     }]
@@ -56,7 +56,7 @@ async function callWorker(comment, score = 71) {
     return await worker.fetch(new Request("https://worker.test/api/war/write-analyses", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(requestBody(score))
+      body: JSON.stringify(requestBody(score, name))
     }), { GROQ_API_KEY: "test" });
   } finally {
     globalThis.fetch = originalFetch;
@@ -73,6 +73,22 @@ test("le Worker assemble la phrase déterministe avant au plus deux phrases Groq
       rank: 1,
       name: "Pelleas",
       analysis: "Pelleas a réalisé une très bonne performance. Il a remporté ses dix attaques avec une efficacité maximale. Son impact offensif a été important."
+    }]
+  });
+});
+
+test("le Worker ignore la ponctuation du pseudo dans le comptage des phrases", async () => {
+  const response = await callWorker(
+    "Il a remporté ses dix attaques avec une efficacité maximale. Son impact offensif a été important.",
+    71,
+    "Tt!!Le Fléau !!"
+  );
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {
+    analyses: [{
+      rank: 1,
+      name: "Tt!!Le Fléau !!",
+      analysis: "Tt!!Le Fléau !! a réalisé une très bonne performance. Il a remporté ses dix attaques avec une efficacité maximale. Son impact offensif a été important."
     }]
   });
 });
