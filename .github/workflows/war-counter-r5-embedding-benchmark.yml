@@ -1,0 +1,46 @@
+name: War Counter R5 embedding benchmark
+
+on:
+  push:
+    branches:
+      - agent/war-counter-r5-embeddings-benchmark
+    paths:
+      - 'benchmarks/war-counter-r5/**'
+      - 'scripts/war_counter_r5_embedding_benchmark.py'
+      - '.github/workflows/war-counter-r5-embedding-benchmark.yml'
+      - 'docs/data/war-counter-vision/portrait-signatures.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install benchmark dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision
+          python -m pip install pillow requests
+
+      - name: Run MobileNet embedding benchmark
+        run: python scripts/war_counter_r5_embedding_benchmark.py
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: war-counter-r5-embedding-report
+          path: benchmark-r5-embedding-report.json
+          if-no-files-found: warn
