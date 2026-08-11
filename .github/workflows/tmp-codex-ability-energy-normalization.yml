@@ -25,139 +25,16 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Test normalizer
-        run: |
-          python -m unittest tests.test_msf_ability_energy_normalization -v
-          python -m unittest discover -s tests -p 'test_msf_capabilities_normalizer.py' -v
-
-      - name: Generate parser and normalizer outputs
+      - name: Generate capabilities pipeline
         run: |
           python -m scripts.msf_capabilities_parser.cli
           python -m scripts.msf_capabilities_parser.cli --check
           python -m scripts.msf_capabilities_normalizer.cli
           python -m scripts.msf_capabilities_normalizer.cli --check
-
-      - name: Update indexer contract snapshots
-        shell: bash
-        run: |
-          python - <<'PY'
-          from collections import Counter
-          from pathlib import Path
-          import hashlib
-          import json
-          import re
-
-          capabilities_path = Path('data/msf-capabilities/normalized/capabilities.json')
-          payload = capabilities_path.read_bytes()
-          capabilities = json.loads(payload)
-          checksum = hashlib.sha256(payload).hexdigest()
-          operation_counts = Counter(op['kind'] for op in capabilities['operations'])
-          audit = capabilities['audit']
-
-          path = Path('scripts/msf_capabilities_indexer/audit.py')
-          text = path.read_text(encoding='utf-8')
-
-          if '"ability_energy_generate",' not in text:
-              text = text.replace(
-                  '        "effect_duration_modify",\n        "battlefield_effect_set",',
-                  '        "effect_duration_modify",\n        "ability_energy_generate",\n        "battlefield_effect_set",',
-                  1,
-              )
-
-          text = re.sub(
-              r'SNAPSHOT_CAPABILITIES_CHECKSUM = \(\n    "[a-f0-9]{64}"\n\)',
-              f'SNAPSHOT_CAPABILITIES_CHECKSUM = (\n    "{checksum}"\n)',
-              text,
-              count=1,
-          )
-
-          block_match = re.search(
-              r'SNAPSHOT_OPERATION_KINDS = \{\n(?P<body>.*?)\n\}',
-              text,
-              flags=re.S,
-          )
-          if not block_match:
-              raise SystemExit('SNAPSHOT_OPERATION_KINDS block not found')
-          body = ''.join(
-              f'    {kind!r}: {count},\n'.replace("'", '"')
-              for kind, count in sorted(operation_counts.items())
-          ).rstrip('\n')
-          text = text[:block_match.start('body')] + body + text[block_match.end('body'):]
-          text = re.sub(r'("operationCount": )\d+,', rf'\g<1>{len(capabilities["operations"])},', text, count=1)
-          text = re.sub(
-              r'("preservedUninterpretedActionCount": )\d+,',
-              rf'\g<1>{int(audit["preservedUninterpretedActionCount"])},',
-              text,
-              count=1,
-          )
-          path.write_text(text, encoding='utf-8')
-          print('capabilities checksum:', checksum)
-          print('operation counts:', dict(sorted(operation_counts.items())))
-          PY
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add scripts/msf_capabilities_indexer/audit.py
-          if ! git diff --cached --quiet; then
-            git commit -m "feat: index normalized ability energy operations"
-            git push origin HEAD:agent/codex-ability-energy-normalization
-          fi
-
-      - name: Generate and test indexer
-        run: |
           python -m scripts.msf_capabilities_indexer.cli
           python -m scripts.msf_capabilities_indexer.cli --check
-          python -m unittest discover -s tests -p 'test_msf_capabilities_indexer.py' -v
-
-      - name: Publish capabilities
-        run: |
           python -m scripts.msf_capabilities_web_publisher.cli
           python -m scripts.msf_capabilities_web_publisher.cli --check
-
-      - name: Update publisher snapshot
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import hashlib
-          import re
-          from scripts.msf_capabilities_web_publisher.audit import build_stable_manifest_bytes, validate_indexed_artifacts
-
-          index = validate_indexed_artifacts(Path('data/msf-capabilities/indexed'), allow_readme=True)
-          payload = build_stable_manifest_bytes(index)
-          payload_checksum = index.payload_set_checksum
-          manifest_checksum = hashlib.sha256(payload).hexdigest()
-
-          path = Path('tests/test_msf_capabilities_web_publisher.py')
-          text = path.read_text(encoding='utf-8')
-          text = re.sub(
-              r'"sha256:"\n\s+"[a-f0-9]{64}",\n\s+\)',
-              f'"{payload_checksum}",\n        )',
-              text,
-              count=1,
-          )
-          text = re.sub(r'self\.assertEqual\(len\(payload\), \d+\)', f'self.assertEqual(len(payload), {len(payload)})', text, count=1)
-          text = re.sub(
-              r'"[a-f0-9]{32}"\n\s+"[a-f0-9]{32}",',
-              f'"{manifest_checksum}",',
-              text,
-              count=1,
-          )
-          path.write_text(text, encoding='utf-8')
-          print('publisher payloadSetChecksum:', payload_checksum)
-          print('stable manifest sha256:', manifest_checksum)
-          PY
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tests/test_msf_capabilities_web_publisher.py
-          if ! git diff --cached --quiet; then
-            git commit -m "test: update publisher ability energy snapshot"
-            git push origin HEAD:agent/codex-ability-energy-normalization
-          fi
-
-      - name: Test publisher
-        run: python -m unittest discover -s tests -p 'test_msf_capabilities_web_publisher.py' -v
 
       - name: Regenerate Codex Explorer
         run: |
@@ -165,8 +42,56 @@ jobs:
           python -m scripts.msf_capabilities_explorer_builder.cli --check
           python -m scripts.msf_capabilities_explorer_builder.verify_permuted_generation
 
-      - name: Test Explorer
-        run: python -m unittest discover -s tests -p 'test_msf_capabilities_explorer_builder.py' -v
+      - name: Update Explorer snapshot
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('tests/test_msf_capabilities_explorer_builder.py')
+          text = path.read_text(encoding='utf-8')
+          replacements = {
+              '"mechanics": 325,': '"mechanics": 324,',
+              '"operations": 8864,': '"operations": 9147,',
+              '"preservedActions": 4971,': '"preservedActions": 4688,',
+              '"phases": 2493,': '"phases": 2492,',
+              '"totalPhases": 2493,': '"totalPhases": 2492,',
+              '"averagePhasesPerAbility": 1.343211,': '"averagePhasesPerAbility": 1.342672,',
+              '"singleActionPhaseRatio": 0.15002,': '"singleActionPhaseRatio": 0.15008,',
+              '"singlePhaseAbilities": 1301,': '"singlePhaseAbilities": 1302,',
+              '"multiPhaseAbilities": 541,': '"multiPhaseAbilities": 540,',
+              '"assignedOperations": 8101,': '"assignedOperations": 8368,',
+              '"textSegmentsAlignedHigh": 3312,': '"textSegmentsAlignedHigh": 3339,',
+              '"textSegmentsAlignedMedium": 4083,': '"textSegmentsAlignedMedium": 4059,',
+              '"textSegmentsTextOnly": 1823,': '"textSegmentsTextOnly": 1813,',
+              '"textSegmentsAmbiguous": 382,': '"textSegmentsAmbiguous": 389,',
+              '"MULTIPLE_PHASE_CANDIDATES": 382,': '"MULTIPLE_PHASE_CANDIDATES": 389,',
+              '"SOURCE_TARGET_WITHOUT_TEXT": 3974,': '"SOURCE_TARGET_WITHOUT_TEXT": 3972,',
+              '"UNALIGNED_PLAYER_PHASE": 744,': '"UNALIGNED_PLAYER_PHASE": 743,',
+              '"UNASSIGNED_TEXT_SEGMENT": 1823,': '"UNASSIGNED_TEXT_SEGMENT": 1813,',
+              '"phasesWithMechanicalTarget": 2005,': '"phasesWithMechanicalTarget": 2004,',
+              '"phasesWithProbableAttachment": 902,': '"phasesWithProbableAttachment": 898,',
+          }
+          for old, new in replacements.items():
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'expected one snapshot match for {old!r}, got {count}')
+              text = text.replace(old, new, 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/test_msf_capabilities_explorer_builder.py
+          git commit -m "test: update Explorer ability energy snapshot"
+          git push origin HEAD:agent/codex-ability-energy-normalization
+
+      - name: Test all capability pipeline suites
+        run: |
+          python -m unittest tests.test_msf_ability_energy_normalization -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_normalizer.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_indexer.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_web_publisher.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_explorer_builder.py' -v
 
       - name: Verify generated ability-energy mechanic
         run: |
@@ -181,7 +106,7 @@ jobs:
           assert mechanic['label'] == 'Énergie de capacité', mechanic
           assert mechanic['globalEvidence'] == 'normalized', mechanic['globalEvidence']
           assert mechanic['counts']['byEvidence']['normalized'] > 0, mechanic['counts']
-          assert mechanic['counts']['byEvidence']['preserved_uninterpreted'] == 0, mechanic['counts']
+          assert mechanic['counts']['byEvidence'].get('preserved_uninterpreted', 0) == 0, mechanic['counts']
 
           deathlok = json.loads((generation / 'characters/Deathlok.json').read_text(encoding='utf-8'))
           basic = next(a for a in deathlok['abilities'] if a['type'] == 'basic')
