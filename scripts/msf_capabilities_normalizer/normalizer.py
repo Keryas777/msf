@@ -60,6 +60,11 @@ EFFECT_ACTION_SPECS: dict[str, tuple[str, tuple[str, ...]]] = {
     ),
 }
 
+ABILITY_ENERGY_METRIC_FIELDS = (
+    ("chancePct", "action_pct"),
+    ("energyAmount", "count"),
+)
+
 METRIC_FIELDS = (
     ("chancePct", "action_pct"),
     ("applyCount", "apply_count"),
@@ -1071,6 +1076,7 @@ class OperationBuilder:
         *,
         entry: dict[str, Any] | None,
         entry_pointer: str,
+        metric_fields: tuple[tuple[str, str], ...] = METRIC_FIELDS,
     ) -> dict[str, Any]:
         parameters = action.get("parameters")
         if not isinstance(parameters, dict):
@@ -1085,7 +1091,7 @@ class OperationBuilder:
                 source_field=source_name,
                 source_pointer=_append_pointer(action_pointer, source_name),
             )
-            for output_name, source_name in METRIC_FIELDS
+            for output_name, source_name in metric_fields
             if source_name in parameters
         }
         if isinstance(entry, dict):
@@ -1293,6 +1299,7 @@ class OperationBuilder:
         namespace: str = "proc",
         scope: dict[str, Any] | None = None,
         extra_conditions: list[dict[str, Any]] | None = None,
+        metric_fields: tuple[tuple[str, str], ...] = METRIC_FIELDS,
     ) -> None:
         source = action.get("source")
         if not isinstance(source, dict):
@@ -1360,6 +1367,7 @@ class OperationBuilder:
                 action,
                 entry=entry_object,
                 entry_pointer=entry_pointer,
+                metric_fields=metric_fields,
             ),
             "flags": self._flags(
                 action,
@@ -1443,6 +1451,31 @@ class OperationBuilder:
                 ordinal=ordinal,
                 extra_conditions=extra_conditions,
             )
+
+    def _build_ability_energy_action(
+        self,
+        action: dict[str, Any],
+    ) -> None:
+        source_action_id = action.get("id")
+        if isinstance(source_action_id, str):
+            self.supported_action_ids.add(source_action_id)
+        source = action.get("source")
+        if not isinstance(source, dict):
+            source = {}
+        action_pointer = str(source.get("pointer", ""))
+        self._build_operation(
+            action,
+            kind="ability_energy_generate",
+            canonical_action_type="ability_energy",
+            source_field=None,
+            effect_id=None,
+            effect_pointer=action_pointer,
+            entry_pointer=action_pointer,
+            entry=None,
+            ordinal=0,
+            scope={"kind": "ability_energy_recipient"},
+            metric_fields=ABILITY_ENERGY_METRIC_FIELDS,
+        )
 
     def _build_battlefield_action(
         self,
@@ -1621,6 +1654,8 @@ class OperationBuilder:
             canonical_action_type = raw_type.lower()
             if canonical_action_type in EFFECT_ACTION_SPECS:
                 self._build_effect_action(action, canonical_action_type)
+            elif canonical_action_type == "ability_energy":
+                self._build_ability_energy_action(action)
             elif canonical_action_type in {
                 "set_battlefield_effect",
                 "clear_battlefield_effect",

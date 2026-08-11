@@ -1080,13 +1080,13 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
         )
         self.assertEqual(
             self.capabilities["audit"]["mappedActionCount"],
-            7356,
+            7639,
         )
         self.assertEqual(
             self.capabilities["audit"][
                 "preservedUninterpretedActionCount"
             ],
-            4971,
+            4688,
         )
 
     def test_real_hulk_annihilus_and_kraven_warnings_remain_exact(self):

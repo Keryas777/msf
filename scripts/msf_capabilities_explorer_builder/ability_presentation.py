@@ -21,6 +21,7 @@ from .presentation import (
     EFFECT_PRESENTATIONS,
     MODE_LABELS,
     OPERATION_KINDS,
+    RELATION_LABELS,
     SIDE_LABELS,
     TRIGGER_LABELS,
 )
@@ -216,13 +217,101 @@ def _operation_effect(record: Mapping[str, Any]) -> dict[str, Any] | None:
     }
 
 
+def _progression_terminal(record: Any) -> int | float | None:
+    if not isinstance(record, dict):
+        return None
+    value = record.get("maxLevelValue")
+    if isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value):
+        return value
+    return None
+
+
+def _ability_energy_operation_label(record: Mapping[str, Any]) -> str:
+    metrics = record.get("metrics") if isinstance(record.get("metrics"), dict) else {}
+    amount = _progression_terminal(metrics.get("energyAmount"))
+    if amount is None:
+        text = "Génère de l’énergie de capacité"
+    elif amount == 1:
+        text = "Génère 1 énergie de capacité"
+    else:
+        text = f"Génère {amount:g} énergies de capacité"
+
+    target = _present_value(record.get("target"))
+    recipient = _present_value(record.get("recipient"))
+    merged: dict[str, Any] = {}
+    for source in (recipient, target):
+        if not isinstance(source, dict):
+            continue
+        for key in ("relation", "relationship", "type", "limit"):
+            if key in source and key not in merged:
+                merged[key] = _deepcopy(source[key])
+
+    relation = merged.get("relation") or merged.get("relationship")
+    target_type = merged.get("type")
+    raw_limit = merged.get("limit")
+    limits: list[int | float] = []
+    values = raw_limit if isinstance(raw_limit, list) else [raw_limit]
+    for value in values:
+        if isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value):
+            limits.append(value)
+        elif isinstance(value, dict):
+            terminal = value.get("t")
+            if isinstance(terminal, (int, float)) and not isinstance(terminal, bool) and math.isfinite(terminal):
+                limits.append(terminal)
+    limit = limits[-1] if limits else None
+
+    if relation == "self":
+        destination = "soi"
+    elif isinstance(relation, str) and relation in RELATION_LABELS:
+        noun = RELATION_LABELS[relation]
+        random_target = target_type in {"random", "random_repeat"}
+        if limit is not None and limit > 1:
+            destination = f"jusqu’à {limit:g} {noun}s"
+            if random_target:
+                destination += " aléatoires"
+        else:
+            destination = f"un {noun}"
+            if random_target:
+                destination += " aléatoire"
+    else:
+        destination = None
+    if destination:
+        text += f" pour {destination}"
+
+    filters = [
+        source.get("filter")
+        for source in (recipient, target)
+        if isinstance(source, dict) and isinstance(source.get("filter"), dict)
+    ]
+
+    def has_partial_energy(value: Any) -> bool:
+        if isinstance(value, dict):
+            return any(
+                (key == "energy_level" and child == "partial_energy")
+                or has_partial_energy(child)
+                for key, child in value.items()
+            )
+        if isinstance(value, list):
+            return any(has_partial_energy(child) for child in value)
+        return False
+
+    if any(has_partial_energy(value) for value in filters):
+        text += " avec énergie non maximale"
+    return text
+
+
 def _operation_projection(record: Mapping[str, Any]) -> dict[str, Any]:
     kind = str(record.get("kind") or "")
+    label = (
+        _ability_energy_operation_label(record)
+        if kind == "ability_energy_generate"
+        else OPERATION_KINDS.get(kind, {}).get("label")
+        or _split_source_name(kind)
+    )
     return {
         "id": record.get("operationId"),
         "kind": kind,
-        "label": OPERATION_KINDS.get(kind, {}).get("label")
-        or _split_source_name(kind),
+        "label": label,
         "effect": _operation_effect(record),
         "evidence": "mechanically_verified",
     }
