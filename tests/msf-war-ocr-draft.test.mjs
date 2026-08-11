@@ -182,6 +182,25 @@ test("la route historique conserve son prompt, son alliance obligatoire et sa pu
   assert.match(publishingHandler, /await upsertFileToGitHub\(/);
 });
 
+test("les prompts OCR gardent la correction des dégâts tronqués locale à chaque ligne", async () => {
+  const publish = await runRoute(PUBLISH_ROUTE, {}, { allowGitHub: true });
+  const draft = await runRoute(DRAFT_ROUTE);
+  const prompts = [publish, draft].map(({ calls }) =>
+    networkCalls(calls, "https://generativelanguage.googleapis.com/")[0].prompt
+  );
+
+  for (const prompt of prompts) {
+    assert.match(prompt, /décision ligne par ligne/);
+    assert.match(prompt, /tronquée ne doit JAMAIS influencer les autres lignes/);
+    assert.match(prompt, /N'ajoute jamais un 0 par cohérence avec une autre ligne/);
+    assert.match(prompt, /inférieure à 1 000 000 000 ne doit JAMAIS recevoir un 0 final/);
+    assert.match(prompt, /666 581 432 -> 666581432/);
+    assert.match(prompt, /652 410 282 -> 652410282/);
+    assert.match(prompt, /1 003 207 03 -> 1003207030/);
+    assert.match(prompt, /1 380 357 878 -> 1380357878 sans rien ajouter/);
+  }
+});
+
 test("la route brouillon détecte et normalise l’alliance sans champ alliance", async () => {
   const { response, data, calls } = await runRoute(DRAFT_ROUTE);
   const geminiCalls = networkCalls(calls, "https://generativelanguage.googleapis.com/");
