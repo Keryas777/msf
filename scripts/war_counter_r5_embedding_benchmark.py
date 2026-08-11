@@ -11,8 +11,12 @@ from pathlib import Path
 import requests
 import torch
 import torch.nn.functional as F
-from PIL import Image
+from PIL import Image, ImageFile
 from torchvision.models import mobilenet_v3_large, MobileNet_V3_Large_Weights
+
+# Benchmark-only tolerance: the GitHub text transport can leave otherwise valid
+# JPEG crops with a truncated tail. This must not be copied into production code.
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "docs/data/war-counter-vision/portrait-signatures.json"
@@ -105,8 +109,11 @@ def main():
     expected = []
     slots = []
     for slot in bench["slots"]:
-        raw = base64.b64decode(slot["jpegBase64"])
-        query_images.append(Image.open(io.BytesIO(raw)).convert("RGB"))
+        try:
+            raw = base64.b64decode(slot["jpegBase64"], validate=True)
+            query_images.append(Image.open(io.BytesIO(raw)).convert("RGB"))
+        except Exception as exc:
+            raise RuntimeError(f"Unable to decode benchmark crop {slot.get('slot')}: {exc}") from exc
         expected.append(slot["characterId"])
         slots.append(slot["slot"])
     query_emb = embed_images(model, preprocess, query_images, batch_size=10)
