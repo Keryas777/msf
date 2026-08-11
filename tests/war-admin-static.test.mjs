@@ -250,6 +250,11 @@ test("le prompt Groq réserve la qualification globale au code", () => {
 
   assert.match(prompt, /commentaire factuel complémentaire de 1 à 2 phrases/);
   assert.match(prompt, /Ne rédige aucune première phrase de jugement global/);
+  assert.match(prompt, /La phrase déterministe précédente contient déjà le pseudo/);
+  assert.match(prompt, /ne doit jamais répéter le pseudo ou le nom du joueur/);
+  assert.match(prompt, /Commence le commentaire comme une continuation naturelle/);
+  assert.match(prompt, /Interdit : « Leenos a affiché une grande efficacité avec 12 attaques réussies… »/);
+  assert.match(prompt, /Attendu : « Avec 12 attaques réussies, il a affiché une grande efficacité… »/);
   assert.match(prompt, /N’utilise jamais le mot « performance »/);
   assert.match(prompt, /« score_total » ou « score total »/);
   assert.match(prompt, /Son efficacité a été exceptionnelle/);

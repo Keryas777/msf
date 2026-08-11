@@ -527,6 +527,12 @@ async function handleWarWriteAnalyses(request, env) {
 
     "Ne rédige aucune première phrase de jugement global : elle sera ajoutée par le code.",
 
+    "La phrase déterministe précédente contient déjà le pseudo. Le champ analysis produit ne doit jamais répéter le pseudo ou le nom du joueur.",
+
+    "Commence le commentaire comme une continuation naturelle, en privilégiant des débuts comme « Avec… », « Grâce à… », « Sur le plan offensif… », « Défensivement… », « Son efficacité… », « Son impact… » ou une formulation équivalente.",
+
+    "Interdit : « Leenos a affiché une grande efficacité avec 12 attaques réussies… » Attendu : « Avec 12 attaques réussies, il a affiché une grande efficacité… »",
+
     "Repères d’interprétation autorisés : un volume ou une moyenne de dégâts élevés peuvent indiquer des cibles ambitieuses ; de faibles dégâts peuvent indiquer des cibles plus modestes ; beaucoup d’attaques avec de gros dégâts mais plusieurs ratés indiquent une activité ambitieuse mais imparfaite ; de nombreuses victoires défensives indiquent une contribution défensive importante ; les déviations indiquent une implication dans la protection de l’alliance.",
 
     "La tonalité générale du commentaire peut être adaptée au score_total déjà présent, sans jamais le citer ni qualifier le résultat global.",
