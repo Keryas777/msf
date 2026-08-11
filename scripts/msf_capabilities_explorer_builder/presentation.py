@@ -70,6 +70,7 @@ OPERATION_KINDS = {
     "effect_duration_modify": {"label": "Modifie la durée", "order": 30},
     "effect_transfer": {"label": "Transfère", "order": 40},
     "effect_flip": {"label": "Retourne", "order": 50},
+    "ability_energy_generate": {"label": "Génère de l’énergie de capacité", "order": 55},
     "battlefield_effect_set": {"label": "Active l’effet de champ", "order": 60},
     "battlefield_effect_clear": {"label": "Retire l’effet de champ", "order": 70},
     "spawn": {"label": "Invoque", "order": 80},
@@ -84,6 +85,7 @@ OPERATION_KINDS = {
 
 METRICS = {
     "chancePct": "Chance",
+    "energyAmount": "Énergie générée",
     "useCount": "Quantité indiquée",
     "applyCount": "Nombre d’applications",
     "delta": "Variation de durée",
@@ -118,6 +120,7 @@ RELATION_LABELS = {
 TARGET_TYPE_LABELS = {
     "all": "toutes les cibles",
     "random": "cible aléatoire",
+    "random_repeat": "cible aléatoire",
     "direct_neighbor": "cible adjacente",
     "by_most_stat": "cible ayant la statistique la plus élevée",
     "primary": "cible principale",
@@ -426,6 +429,12 @@ ACTION_PRESENTATIONS = {
 
 
 GENERIC_MECHANICS = {
+    "action-ability-energy": {
+        "label": "Énergie de capacité",
+        "sourceName": "ability_energy",
+        "aliases": ["ability energy", "énergie de capacité", "batterie d’énergie", "batterie"],
+        "description": "Génération structurée d’énergie de capacité pour soi ou des alliés selon les paramètres de combat.",
+    },
     "spawn": {
         "label": "Invocation",
         "sourceName": "spawn",

@@ -766,7 +766,35 @@ def _scope_label(scope: Any) -> str | None:
         "spawn_pool": "Entité invoquée",
         "character": "Personnage",
         "battlefield": "Champ de bataille",
+        "ability_energy_recipient": "Destinataire de l’énergie",
     }.get(scope.get("kind"))
+
+
+def _ability_energy_target_summary(target: Any, recipient: Any) -> str | None:
+    combined: dict[str, Any] = {}
+    for source in (recipient, target):
+        if not isinstance(source, dict):
+            continue
+        for key in ("relation", "relationship", "type", "limit"):
+            if key in source and key not in combined:
+                combined[key] = copy.deepcopy(source[key])
+    summary = _target_summary(combined)
+    filters = [
+        value
+        for source in (recipient, target)
+        if isinstance(source, dict)
+        for value in [source.get("filter")]
+        if isinstance(value, dict)
+    ]
+    energy_levels = _flatten_scalars(
+        value
+        for filter_value in filters
+        for value in _collect_values(filter_value, "energy_level")
+    )
+    parts = [summary] if summary else []
+    if "partial_energy" in energy_levels:
+        parts.append("énergie non maximale")
+    return " · ".join(parts) if parts else None
 
 
 def _project_operation(
@@ -799,6 +827,15 @@ def _project_operation(
         }
     target_record = operation.get("target")
     target_value = target_record.get("value") if isinstance(target_record, dict) else None
+    recipient_record = operation.get("recipient")
+    recipient_value = (
+        recipient_record.get("value") if isinstance(recipient_record, dict) else None
+    )
+    target_summary = (
+        _ability_energy_target_summary(target_value, recipient_value)
+        if kind == "ability_energy_generate"
+        else _target_summary(target_value)
+    )
     metrics = _metric_projection(operation.get("metrics"))
     chance = next((item["value"] for item in metrics if item["key"] == "chancePct"), None)
     return {
@@ -811,7 +848,7 @@ def _project_operation(
         "abilityId": operation.get("abilityId"),
         "abilityType": operation.get("abilityType"),
         "effect": effect_projection,
-        "target": _target_summary(target_value),
+        "target": target_summary,
         "chance": chance,
         "metrics": metrics,
         "modes": _condition_modes(conditions),
@@ -1171,6 +1208,8 @@ def _operation_mechanic_ids(
     kind = projected.get("kind")
     if kind in {"spawn", "empower"}:
         result.add(str(kind))
+    if kind == "ability_energy_generate":
+        result.add("action-ability-energy")
     if kind in {"battlefield_effect_set", "battlefield_effect_clear"}:
         result.add("battlefield-effects")
     selector = raw.get("selector") if isinstance(raw.get("selector"), dict) else {}
