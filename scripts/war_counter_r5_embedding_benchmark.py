@@ -110,7 +110,7 @@ def main():
     slots = []
     for slot in bench["slots"]:
         try:
-            raw = base64.b64decode(slot["jpegBase64"], validate=True)
+            raw = base64.b64decode(slot["jpegBase64"])
             query_images.append(Image.open(io.BytesIO(raw)).convert("RGB"))
         except Exception as exc:
             raise RuntimeError(f"Unable to decode benchmark crop {slot.get('slot')}: {exc}") from exc
