@@ -25,25 +25,6 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Update expected coverage snapshot
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          path = Path('tests/test_msf_capabilities_normalizer.py')
-          text = path.read_text(encoding='utf-8')
-          old = '''        self.assertEqual(\n            self.capabilities["audit"]["mappedActionCount"],\n            7356,\n        )\n        self.assertEqual(\n            self.capabilities["audit"][\n                "preservedUninterpretedActionCount"\n            ],\n            4971,\n        )'''
-          new = '''        self.assertEqual(\n            self.capabilities["audit"]["mappedActionCount"],\n            7639,\n        )\n        self.assertEqual(\n            self.capabilities["audit"][\n                "preservedUninterpretedActionCount"\n            ],\n            4688,\n        )'''
-          if text.count(old) != 1:
-              raise SystemExit('expected coverage snapshot block not found exactly once')
-          path.write_text(text.replace(old, new, 1), encoding='utf-8')
-          PY
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tests/test_msf_capabilities_normalizer.py
-          git commit -m "test: update ability energy coverage snapshot"
-          git push origin HEAD:agent/codex-ability-energy-normalization
-
       - name: Test normalizer
         run: |
           python -m unittest tests.test_msf_ability_energy_normalization -v
@@ -51,6 +32,7 @@ jobs:
 
       - name: Regenerate capabilities pipeline
         run: |
+          python -m scripts.msf_capabilities_parser.cli
           python -m scripts.msf_capabilities_parser.cli --check
           python -m scripts.msf_capabilities_normalizer.cli
           python -m scripts.msf_capabilities_normalizer.cli --check
@@ -99,6 +81,8 @@ jobs:
       - name: Commit regenerated publications
         shell: bash
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/data/msf-capabilities docs/data/msf-capabilities-explorer
           if git diff --cached --quiet; then
             echo 'No generated publication changes.'
