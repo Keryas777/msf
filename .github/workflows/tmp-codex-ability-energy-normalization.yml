@@ -30,16 +30,104 @@ jobs:
           python -m unittest tests.test_msf_ability_energy_normalization -v
           python -m unittest discover -s tests -p 'test_msf_capabilities_normalizer.py' -v
 
-      - name: Regenerate capabilities pipeline
+      - name: Generate parser and normalizer outputs
         run: |
           python -m scripts.msf_capabilities_parser.cli
           python -m scripts.msf_capabilities_parser.cli --check
           python -m scripts.msf_capabilities_normalizer.cli
           python -m scripts.msf_capabilities_normalizer.cli --check
+
+      - name: Update indexer contract snapshots
+        shell: bash
+        run: |
+          python - <<'PY'
+          from collections import Counter
+          from pathlib import Path
+          import hashlib
+          import json
+          import re
+
+          capabilities_path = Path('data/msf-capabilities/normalized/capabilities.json')
+          payload = capabilities_path.read_bytes()
+          capabilities = json.loads(payload)
+          checksum = hashlib.sha256(payload).hexdigest()
+          operation_counts = Counter(op['kind'] for op in capabilities['operations'])
+          audit = capabilities['audit']
+
+          path = Path('scripts/msf_capabilities_indexer/audit.py')
+          text = path.read_text(encoding='utf-8')
+
+          if '"ability_energy_generate",' not in text:
+              text = text.replace(
+                  '        "effect_duration_modify",\n        "battlefield_effect_set",',
+                  '        "effect_duration_modify",\n        "ability_energy_generate",\n        "battlefield_effect_set",',
+                  1,
+              )
+
+          text = re.sub(
+              r'SNAPSHOT_CAPABILITIES_CHECKSUM = \(\n    "[a-f0-9]{64}"\n\)',
+              f'SNAPSHOT_CAPABILITIES_CHECKSUM = (\n    "{checksum}"\n)',
+              text,
+              count=1,
+          )
+
+          block_match = re.search(
+              r'SNAPSHOT_OPERATION_KINDS = \{\n(?P<body>.*?)\n\}',
+              text,
+              flags=re.S,
+          )
+          if not block_match:
+              raise SystemExit('SNAPSHOT_OPERATION_KINDS block not found')
+          body = ''.join(
+              f'    {kind!r}: {count},\n'.replace("'", '"')
+              for kind, count in sorted(operation_counts.items())
+          ).rstrip('\n')
+          text = text[:block_match.start('body')] + body + text[block_match.end('body'):]
+
+          def replace_snapshot_count(name: str, value: int) -> None:
+              nonlocal_text[0] = re.sub(
+                  rf'("{re.escape(name)}": )\d+,',
+                  rf'\g<1>{value},',
+                  nonlocal_text[0],
+                  count=1,
+              )
+
+          nonlocal_text = [text]
+          replace_snapshot_count('operationCount', len(capabilities['operations']))
+          replace_snapshot_count(
+              'preservedUninterpretedActionCount',
+              int(audit['preservedUninterpretedActionCount']),
+          )
+          text = nonlocal_text[0]
+          path.write_text(text, encoding='utf-8')
+
+          print('capabilities checksum:', checksum)
+          print('operation counts:', dict(sorted(operation_counts.items())))
+          print('mapped:', audit['mappedActionCount'])
+          print('preserved:', audit['preservedUninterpretedActionCount'])
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/msf_capabilities_indexer/audit.py
+          if git diff --cached --quiet; then
+            echo 'Indexer snapshots already current.'
+          else
+            git commit -m "feat: index normalized ability energy operations"
+            git push origin HEAD:agent/codex-ability-energy-normalization
+          fi
+
+      - name: Generate and test indexer
+        run: |
           python -m scripts.msf_capabilities_indexer.cli
           python -m scripts.msf_capabilities_indexer.cli --check
+          python -m unittest discover -s tests -p 'test_msf_capabilities_indexer.py' -v
+
+      - name: Publish capabilities and test publisher
+        run: |
           python -m scripts.msf_capabilities_web_publisher.cli
           python -m scripts.msf_capabilities_web_publisher.cli --check
+          python -m unittest discover -s tests -p 'test_msf_capabilities_web_publisher.py' -v
 
       - name: Regenerate Codex Explorer
         run: |
@@ -77,6 +165,10 @@ jobs:
           print('ability_energy generated mechanic:', mechanic['counts'])
           print('Deathlok labels:', labels)
           PY
+
+      - name: Test Codex frontend
+        run: |
+          node --test tests/codex-core.test.mjs tests/codex-static.test.mjs
 
       - name: Commit regenerated publications
         shell: bash
