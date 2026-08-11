@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import base64
 import io
+import itertools
 import json
 import math
 import os
@@ -16,6 +17,7 @@ from torchvision.models import mobilenet_v3_large, MobileNet_V3_Large_Weights
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "docs/data/war-counter-vision/portrait-signatures.json"
+WAR_COUNTERS = ROOT / "docs/data/war-counters.json"
 BENCH_DIR = ROOT / "benchmarks/war-counter-r5/base-128"
 BENCH_SLOTS = ("G1", "G2", "G3", "G4", "G5", "D1", "D2", "D3", "D4", "D5")
 OUT = ROOT / "benchmark-r5-embedding-report.json"
@@ -38,6 +40,26 @@ def load_benchmark_slots():
             raise RuntimeError(f"Unexpected slot in {path}: {slot.get('slot')}")
         slots.append(slot)
     return slots
+
+
+def load_defense_teams(valid_ids):
+    teams = []
+    seen = set()
+    for row in load_json(WAR_COUNTERS):
+        chars = tuple(row.get(f"def_char{i}") for i in range(1, 6))
+        if any(not char or char not in valid_ids for char in chars):
+            continue
+        signature = tuple(sorted(chars))
+        if signature in seen:
+            continue
+        seen.add(signature)
+        teams.append({
+            "key": row.get("def_key") or "",
+            "family": row.get("def_family") or "",
+            "variant": row.get("def_variant") or "",
+            "chars": chars,
+        })
+    return teams
 
 
 def download_one(item):
@@ -72,6 +94,91 @@ def embed_images(model, preprocess, images, batch_size=32):
             emb = F.normalize(emb, dim=1)
             out.append(emb.cpu())
     return torch.cat(out, dim=0)
+
+
+def score_defense_teams(sim, ref_ids, expected):
+    ref_index = {cid: index for index, cid in enumerate(ref_ids)}
+    valid_ids = set(ref_index)
+    teams = load_defense_teams(valid_ids)
+    defense_rows = list(range(5, 10))
+
+    rank_maps = []
+    for query_index in defense_rows:
+        order = torch.argsort(sim[query_index], descending=True).tolist()
+        rank_maps.append({ref_ids[ref_pos]: rank for rank, ref_pos in enumerate(order, start=1)})
+
+    scored = []
+    for team in teams:
+        best_rank_sum = None
+        best_rank_assignment = None
+        best_cosine = None
+        best_cosine_assignment = None
+        for assignment in itertools.permutations(team["chars"]):
+            rank_sum = sum(rank_maps[slot_index][cid] for slot_index, cid in enumerate(assignment))
+            cosine = sum(
+                float(sim[query_index, ref_index[cid]])
+                for query_index, cid in zip(defense_rows, assignment)
+            ) / 5.0
+            if best_rank_sum is None or rank_sum < best_rank_sum:
+                best_rank_sum = rank_sum
+                best_rank_assignment = assignment
+            if best_cosine is None or cosine > best_cosine:
+                best_cosine = cosine
+                best_cosine_assignment = assignment
+        scored.append({
+            **team,
+            "bestRankSum": best_rank_sum,
+            "bestRankMean": best_rank_sum / 5.0,
+            "rankAssignment": best_rank_assignment,
+            "bestCosine": best_cosine,
+            "cosineAssignment": best_cosine_assignment,
+        })
+
+    by_rank = sorted(scored, key=lambda x: (x["bestRankSum"], -x["bestCosine"], x["key"]))
+    by_cosine = sorted(scored, key=lambda x: (-x["bestCosine"], x["bestRankSum"], x["key"]))
+    expected_set = frozenset(expected[5:10])
+
+    def compact(item, rank):
+        return {
+            "rank": rank,
+            "key": item["key"],
+            "family": item["family"],
+            "variant": item["variant"],
+            "chars": list(item["chars"]),
+            "bestRankSum": item["bestRankSum"],
+            "bestRankMean": round(item["bestRankMean"], 2),
+            "rankAssignment": list(item["rankAssignment"]),
+            "bestCosine": round(item["bestCosine"], 6),
+            "cosineAssignment": list(item["cosineAssignment"]),
+        }
+
+    target_rank = next(
+        (index for index, item in enumerate(by_rank, start=1) if frozenset(item["chars"]) == expected_set),
+        None,
+    )
+    target_cosine_rank = next(
+        (index for index, item in enumerate(by_cosine, start=1) if frozenset(item["chars"]) == expected_set),
+        None,
+    )
+    target_by_rank = compact(by_rank[target_rank - 1], target_rank) if target_rank else None
+    target_by_cosine = compact(by_cosine[target_cosine_rank - 1], target_cosine_rank) if target_cosine_rank else None
+
+    print(f"defense teams: {len(teams)}")
+    print(f"expected defense team rank by rank-sum: {target_rank}")
+    print(f"expected defense team rank by cosine: {target_cosine_rank}")
+    for index, item in enumerate(by_rank[:5], start=1):
+        print(f"team rank {index}: {item['key']} mean-rank {item['bestRankMean']:.2f} cosine {item['bestCosine']:.4f}")
+
+    return {
+        "teamCount": len(teams),
+        "expectedCharacters": expected[5:10],
+        "targetRankByRankSum": target_rank,
+        "targetRankByCosine": target_cosine_rank,
+        "targetByRankSum": target_by_rank,
+        "targetByCosine": target_by_cosine,
+        "top5ByRankSum": [compact(item, index) for index, item in enumerate(by_rank[:5], start=1)],
+        "top5ByCosine": [compact(item, index) for index, item in enumerate(by_cosine[:5], start=1)],
+    }
 
 
 def main():
@@ -156,8 +263,10 @@ def main():
         })
         print(f"{slot:>2} {target:<24} rank {rank}")
 
+    defense_team_benchmark = score_defense_teams(sim, ref_ids, expected)
+
     report = {
-        "schemaVersion": "1.0.0",
+        "schemaVersion": "1.1.0",
         "benchmark": "R5 base crops 128px",
         "model": "torchvision MobileNet_V3_Large IMAGENET1K_V2, classifier removed, cosine similarity",
         "queryCropSize": "128x118",
@@ -167,6 +276,7 @@ def main():
             "meanRank": round(sum(ranks) / len(ranks), 2) if ranks else None,
             "elapsedSeconds": round(time.time() - started, 2),
         },
+        "defenseTeamBenchmark": defense_team_benchmark,
         "downloadErrors": errors,
         "slots": results,
     }
