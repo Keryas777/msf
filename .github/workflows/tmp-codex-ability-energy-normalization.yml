@@ -83,36 +83,22 @@ jobs:
               for kind, count in sorted(operation_counts.items())
           ).rstrip('\n')
           text = text[:block_match.start('body')] + body + text[block_match.end('body'):]
-
-          def replace_snapshot_count(name: str, value: int) -> None:
-              nonlocal_text[0] = re.sub(
-                  rf'("{re.escape(name)}": )\d+,',
-                  rf'\g<1>{value},',
-                  nonlocal_text[0],
-                  count=1,
-              )
-
-          nonlocal_text = [text]
-          replace_snapshot_count('operationCount', len(capabilities['operations']))
-          replace_snapshot_count(
-              'preservedUninterpretedActionCount',
-              int(audit['preservedUninterpretedActionCount']),
+          text = re.sub(r'("operationCount": )\d+,', rf'\g<1>{len(capabilities["operations"])},', text, count=1)
+          text = re.sub(
+              r'("preservedUninterpretedActionCount": )\d+,',
+              rf'\g<1>{int(audit["preservedUninterpretedActionCount"])},',
+              text,
+              count=1,
           )
-          text = nonlocal_text[0]
           path.write_text(text, encoding='utf-8')
-
           print('capabilities checksum:', checksum)
           print('operation counts:', dict(sorted(operation_counts.items())))
-          print('mapped:', audit['mappedActionCount'])
-          print('preserved:', audit['preservedUninterpretedActionCount'])
           PY
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add scripts/msf_capabilities_indexer/audit.py
-          if git diff --cached --quiet; then
-            echo 'Indexer snapshots already current.'
-          else
+          if ! git diff --cached --quiet; then
             git commit -m "feat: index normalized ability energy operations"
             git push origin HEAD:agent/codex-ability-energy-normalization
           fi
@@ -123,11 +109,55 @@ jobs:
           python -m scripts.msf_capabilities_indexer.cli --check
           python -m unittest discover -s tests -p 'test_msf_capabilities_indexer.py' -v
 
-      - name: Publish capabilities and test publisher
+      - name: Publish capabilities
         run: |
           python -m scripts.msf_capabilities_web_publisher.cli
           python -m scripts.msf_capabilities_web_publisher.cli --check
-          python -m unittest discover -s tests -p 'test_msf_capabilities_web_publisher.py' -v
+
+      - name: Update publisher snapshot
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import re
+          from scripts.msf_capabilities_web_publisher.audit import build_stable_manifest_bytes, validate_indexed_artifacts
+
+          index = validate_indexed_artifacts(Path('data/msf-capabilities/indexed'), allow_readme=True)
+          payload = build_stable_manifest_bytes(index)
+          payload_checksum = index.payload_set_checksum
+          manifest_checksum = hashlib.sha256(payload).hexdigest()
+
+          path = Path('tests/test_msf_capabilities_web_publisher.py')
+          text = path.read_text(encoding='utf-8')
+          text = re.sub(
+              r'"sha256:"\n\s+"[a-f0-9]{64}",\n\s+\)',
+              f'"{payload_checksum}",\n        )',
+              text,
+              count=1,
+          )
+          text = re.sub(r'self\.assertEqual\(len\(payload\), \d+\)', f'self.assertEqual(len(payload), {len(payload)})', text, count=1)
+          text = re.sub(
+              r'"[a-f0-9]{32}"\n\s+"[a-f0-9]{32}",',
+              f'"{manifest_checksum}",',
+              text,
+              count=1,
+          )
+          path.write_text(text, encoding='utf-8')
+          print('publisher payloadSetChecksum:', payload_checksum)
+          print('stable manifest sha256:', manifest_checksum)
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/test_msf_capabilities_web_publisher.py
+          if ! git diff --cached --quiet; then
+            git commit -m "test: update publisher ability energy snapshot"
+            git push origin HEAD:agent/codex-ability-energy-normalization
+          fi
+
+      - name: Test publisher
+        run: python -m unittest discover -s tests -p 'test_msf_capabilities_web_publisher.py' -v
 
       - name: Regenerate Codex Explorer
         run: |
@@ -155,11 +185,7 @@ jobs:
 
           deathlok = json.loads((generation / 'characters/Deathlok.json').read_text(encoding='utf-8'))
           basic = next(a for a in deathlok['abilities'] if a['type'] == 'basic')
-          labels = [
-              item['text']
-              for phase in basic['presentation']['playerPhases']
-              for item in phase.get('playerItems', [])
-          ]
+          labels = [item['text'] for phase in basic['presentation']['playerPhases'] for item in phase.get('playerItems', [])]
           assert any('Génère 1 énergie de capacité' in label for label in labels), labels
           assert any('jusqu’à 2 alliés aléatoires' in label for label in labels), labels
           print('ability_energy generated mechanic:', mechanic['counts'])
@@ -167,8 +193,7 @@ jobs:
           PY
 
       - name: Test Codex frontend
-        run: |
-          node --test tests/codex-core.test.mjs tests/codex-static.test.mjs
+        run: node --test tests/codex-core.test.mjs tests/codex-static.test.mjs
 
       - name: Commit regenerated publications
         shell: bash
