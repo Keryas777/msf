@@ -11,16 +11,13 @@ from pathlib import Path
 import requests
 import torch
 import torch.nn.functional as F
-from PIL import Image, ImageFile
+from PIL import Image
 from torchvision.models import mobilenet_v3_large, MobileNet_V3_Large_Weights
-
-# Benchmark-only tolerance: the GitHub text transport can leave otherwise valid
-# JPEG crops with a truncated tail. This must not be copied into production code.
-ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "docs/data/war-counter-vision/portrait-signatures.json"
-BENCH = ROOT / "benchmarks/war-counter-r5/r5-base-crops-transport.json"
+BENCH_DIR = ROOT / "benchmarks/war-counter-r5/base-128"
+BENCH_SLOTS = ("G1", "G2", "G3", "G4", "G5", "D1", "D2", "D3", "D4", "D5")
 OUT = ROOT / "benchmark-r5-embedding-report.json"
 CACHE = ROOT / ".cache/war-counter-r5-portraits"
 CACHE.mkdir(parents=True, exist_ok=True)
@@ -28,6 +25,19 @@ CACHE.mkdir(parents=True, exist_ok=True)
 
 def load_json(path):
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def load_benchmark_slots():
+    slots = []
+    for slot_name in BENCH_SLOTS:
+        path = BENCH_DIR / f"{slot_name}.json"
+        if not path.exists():
+            raise RuntimeError(f"Missing benchmark crop: {path}")
+        slot = load_json(path)
+        if slot.get("slot") != slot_name:
+            raise RuntimeError(f"Unexpected slot in {path}: {slot.get('slot')}")
+        slots.append(slot)
+    return slots
 
 
 def download_one(item):
@@ -68,7 +78,7 @@ def main():
     started = time.time()
     catalog = load_json(CATALOG)
     refs = [x for x in catalog.get("items", []) if x.get("id") and x.get("u")]
-    bench = load_json(BENCH)
+    bench_slots = load_benchmark_slots()
 
     print(f"catalog refs: {len(refs)}")
     downloaded = {}
@@ -108,10 +118,11 @@ def main():
     query_images = []
     expected = []
     slots = []
-    for slot in bench["slots"]:
+    for slot in bench_slots:
         try:
             raw = base64.b64decode(slot["jpegBase64"])
-            query_images.append(Image.open(io.BytesIO(raw)).convert("RGB"))
+            with Image.open(io.BytesIO(raw)) as im:
+                query_images.append(im.convert("RGB"))
         except Exception as exc:
             raise RuntimeError(f"Unable to decode benchmark crop {slot.get('slot')}: {exc}") from exc
         expected.append(slot["characterId"])
@@ -147,9 +158,9 @@ def main():
 
     report = {
         "schemaVersion": "1.0.0",
-        "benchmark": "R5 transport machinery validation",
-        "warning": "Query crops were resized to <=48 px solely to transport them into this isolated branch. Do not treat this run as final R5 accuracy.",
+        "benchmark": "R5 base crops 128px",
         "model": "torchvision MobileNet_V3_Large IMAGENET1K_V2, classifier removed, cosine similarity",
+        "queryCropSize": "128x118",
         "referenceCount": len(ref_ids),
         "summary": {
             **top_counts,
