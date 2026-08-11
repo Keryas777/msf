@@ -1,0 +1,172 @@
+/* docs/war-history-enhancements.css */
+
+.page-war-history .warHistoryReportList{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.page-war-history .warHistorySummary--debrief{
+  margin-bottom:12px;
+}
+
+.page-war-history .warHistoryReportPlayer{
+  border:1px solid rgba(120,160,255,.22);
+  border-radius:16px;
+  background:rgba(5,9,20,.46);
+  overflow:hidden;
+}
+
+.page-war-history .warHistoryReportPlayer > summary{
+  display:grid;
+  grid-template-columns:48px minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  min-height:58px;
+  padding:12px 14px;
+  cursor:pointer;
+  list-style:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.page-war-history .warHistoryReportPlayer > summary::-webkit-details-marker{
+  display:none;
+}
+
+.page-war-history .warHistoryReportPlayer > summary::after{
+  content:"⌄";
+  grid-column:3;
+  grid-row:1;
+  justify-self:end;
+  margin-right:-2px;
+  color:var(--muted2);
+  font-size:16px;
+  line-height:1;
+  transform:translateY(17px);
+  transition:transform .16s ease;
+}
+
+.page-war-history .warHistoryReportPlayer[open] > summary::after{
+  transform:translateY(17px) rotate(180deg);
+}
+
+.page-war-history .warHistoryReportRank{
+  color:var(--muted);
+  font-weight:900;
+  font-size:18px;
+  font-variant-numeric:tabular-nums;
+}
+
+.page-war-history .warHistoryReportName{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:18px;
+  font-weight:900;
+}
+
+.page-war-history .warHistoryReportScore{
+  padding-right:18px;
+  font-size:18px;
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+
+.page-war-history .warHistoryReportDetails{
+  padding:0 12px 12px;
+  border-top:1px solid rgba(255,255,255,.07);
+}
+
+.page-war-history .warHistoryScoreGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  padding-top:12px;
+}
+
+.page-war-history .warHistoryScoreItem{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:9px 10px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+  background:rgba(255,255,255,.04);
+}
+
+.page-war-history .warHistoryScoreItem span{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:700;
+}
+
+.page-war-history .warHistoryScoreItem strong{
+  font-size:13px;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+
+.page-war-history .warHistoryDetailGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:0 14px;
+  margin-top:12px;
+  padding:4px 10px;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:12px;
+  background:rgba(0,0,0,.16);
+}
+
+.page-war-history .warHistoryDetailStat{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:8px;
+  min-width:0;
+  padding:7px 0;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+.page-war-history .warHistoryDetailStat:nth-last-child(-n+2){
+  border-bottom:0;
+}
+
+.page-war-history .warHistoryDetailStat span{
+  color:var(--muted);
+  font-size:11px;
+}
+
+.page-war-history .warHistoryDetailStat strong{
+  min-width:0;
+  overflow-wrap:anywhere;
+  text-align:right;
+  font-size:12px;
+  font-variant-numeric:tabular-nums;
+}
+
+.page-war-history .warHistoryReportAnalysis{
+  margin-top:12px;
+  padding:12px;
+  border-radius:12px;
+  background:rgba(255,255,255,.035);
+  color:var(--text);
+  font-size:14px;
+  line-height:1.5;
+}
+
+@media (min-width:600px){
+  .page-war-history .warHistoryScoreGrid{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
+
+  .page-war-history .warHistoryDetailGrid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+
+  .page-war-history .warHistoryDetailStat:nth-last-child(-n+3){
+    border-bottom:0;
+  }
+}
