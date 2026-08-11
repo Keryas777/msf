@@ -21,6 +21,7 @@
   <title>Historique des Guerres</title>
 
   <link rel="stylesheet" href="./style.css?v=9" />
+  <link rel="stylesheet" href="./war-history-enhancements.css?v=1" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="apple-touch-icon" href="./icon-512.PNG" />
   <meta name="apple-mobile-web-app-title" content="LoSP" />
@@ -85,18 +86,6 @@
         </button>
 
         <button
-          id="warHistoryTabNotes"
-          class="warHistoryTabBtn"
-          type="button"
-          role="tab"
-          aria-selected="false"
-          aria-controls="warHistoryPanelNotes"
-          data-tab="notes"
-        >
-          Notes
-        </button>
-
-        <button
           id="warHistoryTabDebrief"
           class="warHistoryTabBtn"
           type="button"
@@ -158,27 +147,6 @@
     </section>
 
     <section
-      id="warHistoryPanelNotes"
-      class="card warHistoryTabPanel"
-      role="tabpanel"
-      aria-labelledby="warHistoryTabNotes"
-      hidden
-    >
-      <div class="cardHeader">
-        <h2 class="cardTitle">Notes</h2>
-      </div>
-
-      <div id="warHistoryNotes">
-        <div class="warHistoryDebriefPlaceholder">
-          <p class="warHistoryDebriefTitle">Aucune note disponible</p>
-          <p class="warHistoryDebriefText">
-            Cette guerre ne contient pas encore de classement enrichi.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section
       id="warHistoryPanelDebrief"
       class="card warHistoryTabPanel"
       role="tabpanel"
@@ -203,6 +171,7 @@
 
   <script src="./alliances.js?v=1"></script>
   <script src="./war-history.js?v=12"></script>
+  <script src="./war-history-enhancements.js?v=1"></script>
 
   <script>
     (function () {
