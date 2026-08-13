@@ -443,20 +443,21 @@ function validateAnalysisResponse(parsed, players) {
     }
 
     if (
+      /\bperformance\b/iu.test(comment) ||
+      /\bbilan\s+global\b/iu.test(comment) ||
+      /\bscore(?:_|\s+)total\b/iu.test(comment) ||
+      /\b(?:sa|la)\s+prestation(?:\s+globale)?\s+(?:a\s+été|était)\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante|en retrait)\b/iu.test(comment) ||
+      /\b(?:livré|réalisé|signé)\s+une\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante)\s+prestation\b/iu.test(comment) ||
+      /\bglobalement\b[^.!?]{0,40}\b(?:exceptionnel(?:le)?|excellent(?:e)?|très bon(?:ne)?|bon(?:ne)?|solide|mitigé(?:e)?|remarquable|insuffisant(?:e)?|en retrait)\b/iu.test(comment)
+    ) {
+      throw new Error("Le commentaire Groq contient un jugement global interdit.");
+    }
+
+    if (
       comment.length < ANALYSIS_MIN_LENGTH ||
       comment.length > ANALYSIS_MAX_LENGTH
     ) {
       throw new Error("Longueur d’analyse invalide.");
-    }
-
-    if (
-      /\bperformance\b/iu.test(comment) ||
-      /\bbilan\s+global\b/iu.test(comment) ||
-      /\bscore(?:_|\s+)total\b/iu.test(comment) ||
-      /\bprestation\b.{0,30}\b(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante|en retrait)\b/iu.test(comment) ||
-      /\b(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante)\s+prestation\b/iu.test(comment)
-    ) {
-      throw new Error("Le commentaire Groq contient un jugement global interdit.");
     }
 
     const commentSentenceCount = countSentences(comment);

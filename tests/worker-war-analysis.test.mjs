@@ -95,7 +95,11 @@ test("le Worker ignore la ponctuation du pseudo dans le comptage des phrases", a
 
 test("le Worker rejette les jugements globaux et la mention du score total", async () => {
   for (const comment of [
-    "Il a réalisé une performance exceptionnelle grâce à ses dix attaques victorieuses.",
+    "Il a réalisé une excellente performance.",
+    "Sa performance a été exceptionnelle.",
+    "Il a livré une très bonne prestation.",
+    "Sa prestation globale a été excellente.",
+    "Globalement, il a été exceptionnel.",
     "Son score total reflète dix attaques victorieuses et une activité offensive importante."
   ]) {
     const response = await callWorker(comment);
@@ -104,16 +108,33 @@ test("le Worker rejette les jugements globaux et la mention du score total", asy
   }
 });
 
-test("le Worker accepte la qualification exceptionnelle d’un sous-score", async () => {
-  const response = await callWorker(
-    "Son efficacité a été exceptionnelle. Ses dix attaques victorieuses ont eu un impact offensif important."
-  );
+test("le Worker accepte les qualifications ciblées d’un aspect du rapport", async () => {
+  for (const comment of [
+    "Son efficacité a été exceptionnelle avec dix attaques réussies.",
+    "Son efficacité offensive a été excellente avec dix attaques réussies.",
+    "Son impact a été remarquable avec dix attaques réussies.",
+    "Son activité a été très bonne avec dix attaques réussies.",
+    "Sa défense a été excellente sur les combats recensés.",
+    "Ses dégâts ont été particulièrement élevés sur le rapport.",
+    "Il a affiché une excellente efficacité avec 12 attaques réussies.",
+    "Son travail offensif a été excellent avec dix attaques réussies."
+  ]) {
+    const response = await callWorker(comment);
+    assert.equal(response.status, 200, comment);
+  }
+});
+
+test("le Worker accepte le commentaire observé et conserve l’assemblage déterministe", async () => {
+  const comment = "Leenos a affiché une grande efficacité avec 12 attaques réussies et un dégât moyen de 109,5 millions, ce qui témoigne de sa capacité à cibler des adversaires solides.";
+  const response = await callWorker(comment, 84, "Leenos");
   assert.equal(response.status, 200);
   const body = await response.json();
   assert.deepEqual(Object.keys(body), ["analyses"]);
   assert.deepEqual(Object.keys(body.analyses[0]), ["rank", "name", "analysis"]);
-  assert.match(body.analyses[0].analysis, /^Pelleas a réalisé une très bonne performance\. Son efficacité a été exceptionnelle\./);
-  assert.equal((body.analyses[0].analysis.match(/[.!?]+(?=\s|$)/g) || []).length, 3);
+  assert.equal(
+    body.analyses[0].analysis,
+    `Leenos a réalisé une excellente performance. ${comment}`
+  );
 });
 
 test("le Worker rejette un troisième énoncé complémentaire", async () => {
