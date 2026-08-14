@@ -100,12 +100,47 @@ test("le Worker rejette les jugements globaux et la mention du score total", asy
     "Il a livré une très bonne prestation.",
     "Sa prestation globale a été excellente.",
     "Globalement, il a été exceptionnel.",
-    "Son score total reflète dix attaques victorieuses et une activité offensive importante."
+    "Son score total reflète dix attaques victorieuses."
   ]) {
     const response = await callWorker(comment);
     assert.equal(response.status, 500, comment);
     assert.match((await response.json()).error, /jugement global interdit/);
   }
+});
+
+test("le Worker supprime une qualification globale placée avant le commentaire factuel", async () => {
+  const factualComment = "Avec 12 attaques réussies, son efficacité offensive a été remarquable.";
+  const response = await callWorker(
+    `Il a réalisé une excellente performance. ${factualComment}`
+  );
+  assert.equal(response.status, 200);
+  assert.equal(
+    (await response.json()).analyses[0].analysis,
+    `Pelleas a réalisé une très bonne performance. ${factualComment}`
+  );
+});
+
+test("le Worker supprime une qualification globale placée après le commentaire factuel", async () => {
+  const factualComment = "Avec 12 attaques réussies, son efficacité offensive a été remarquable.";
+  const response = await callWorker(
+    `${factualComment} Il a réalisé une excellente performance.`
+  );
+  assert.equal(response.status, 200);
+  assert.equal(
+    (await response.json()).analyses[0].analysis,
+    `Pelleas a réalisé une très bonne performance. ${factualComment}`
+  );
+});
+
+test("le Worker limite le commentaire nettoyé à deux phrases et l’analyse finale à trois", async () => {
+  const response = await callWorker(
+    "Il a livré une très bonne prestation. Il a remporté dix attaques. Son impact offensif a été remarquable."
+  );
+  assert.equal(response.status, 200);
+  assert.equal(
+    (await response.json()).analyses[0].analysis,
+    "Pelleas a réalisé une très bonne performance. Il a remporté dix attaques. Son impact offensif a été remarquable."
+  );
 });
 
 test("le Worker accepte les qualifications ciblées d’un aspect du rapport", async () => {
@@ -121,6 +156,11 @@ test("le Worker accepte les qualifications ciblées d’un aspect du rapport", a
   ]) {
     const response = await callWorker(comment);
     assert.equal(response.status, 200, comment);
+    assert.equal(
+      (await response.json()).analyses[0].analysis,
+      `Pelleas a réalisé une très bonne performance. ${comment}`,
+      comment
+    );
   }
 });
 
