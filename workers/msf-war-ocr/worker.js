@@ -183,6 +183,28 @@ function countSentences(text) {
   return matches ? matches.length : 0;
 }
 
+function stripGlobalJudgmentSentences(comment) {
+  const sentences = comment.match(/.*?(?:[.!?]+(?=\s|$)|$)/gu) || [];
+  const globalJudgmentPatterns = [
+    /^(?:il|elle)\s+a\s+réalisé\s+une\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante)\s+performance[.!?]*$/iu,
+    /^(?:sa|la)\s+performance(?:\s+globale)?\s+(?:a\s+été|était)\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante|en retrait)[.!?]*$/iu,
+    /^(?:sa|la)\s+prestation(?:\s+globale)?\s+(?:a\s+été|était)\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante|en retrait)[.!?]*$/iu,
+    /^(?:il|elle)\s+a\s+(?:livré|réalisé|signé)\s+une\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante)\s+prestation[.!?]*$/iu,
+    /^globalement,?\s+(?:il|elle)\s+(?:a\s+été|était)\s+(?:exceptionnel(?:le)?|excellent(?:e)?|très bon(?:ne)?|bon(?:ne)?|solide|mitigé(?:e)?|remarquable|insuffisant(?:e)?|en retrait)[.!?]*$/iu
+  ];
+
+  return sentences
+    .map(function (sentence) {
+      return sentence.trim();
+    })
+    .filter(function (sentence) {
+      return sentence && !globalJudgmentPatterns.some(function (pattern) {
+        return pattern.test(sentence);
+      });
+    })
+    .join(" ");
+}
+
 export function getGlobalPerformanceSentence(scoreTotal, name) {
   let qualification = "en retrait";
 
@@ -434,12 +456,18 @@ function validateAnalysisResponse(parsed, players) {
       throw new Error("Analyse invalide.");
     }
 
-    const comment = entry.analysis
+    const originalComment = entry.analysis
       .replace(/\s+/g, " ")
       .trim();
 
-    if (!comment) {
+    if (!originalComment) {
       throw new Error("Analyse vide.");
+    }
+
+    const comment = stripGlobalJudgmentSentences(originalComment);
+
+    if (!comment) {
+      throw new Error("Le commentaire Groq contient un jugement global interdit.");
     }
 
     if (
