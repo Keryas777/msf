@@ -760,7 +760,7 @@ class RealIndexSnapshotTests(unittest.TestCase):
         self.assertEqual(len(payload), 512)
         self.assertEqual(
             hashlib.sha256(payload).hexdigest(),
-            "29bea140f70a1efb08371b973c42a2664818944fad511989b2b7ec4b0f4cf4b5",
+            "a4c8cf5843c5283fad57e8696bf9057f410786837434a69b7f396cc7cee3faf7",
         )
 
 

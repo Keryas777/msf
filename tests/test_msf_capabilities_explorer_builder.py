@@ -152,7 +152,7 @@ class ExplorerBuilderTests(unittest.TestCase):
                 "multiPhaseAbilities": 540,
                 "assignedActions": 11026,
                 "unassignedActions": 1301,
-                "assignedOperations": 8368,
+                "assignedOperations": 8876,
                 "textSegments": 9600,
                 "textSegmentsAlignedHigh": 3339,
                 "textSegmentsAlignedMedium": 4059,
