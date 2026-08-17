@@ -414,6 +414,71 @@ function validateAnalysisRequest(body) {
   };
 }
 
+function validateSingleAnalysisEntry(entry, player) {
+  if (!hasExactKeys(entry, ["rank", "name", "analysis"])) {
+    return null;
+  }
+
+  if (!player || entry.rank !== player.rank || entry.name !== player.name) {
+    return null;
+  }
+
+  if (typeof entry.analysis !== "string") {
+    return null;
+  }
+
+  const originalComment = entry.analysis.replace(/\s+/g, " ").trim();
+
+  if (!originalComment) {
+    return null;
+  }
+
+  const comment = stripGlobalJudgmentSentences(originalComment);
+
+  if (!comment) {
+    return null;
+  }
+
+  if (
+    /\bperformance\b/iu.test(comment) ||
+    /\bbilan\s+global\b/iu.test(comment) ||
+    /\bscore(?:_|\s+)total\b/iu.test(comment) ||
+    /\b(?:sa|la)\s+prestation(?:\s+globale)?\s+(?:a\s+été|était)\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante|en retrait)\b/iu.test(comment) ||
+    /\b(?:livré|réalisé|signé)\s+une\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante)\s+prestation\b/iu.test(comment) ||
+    /\bglobalement\b[^.!?]{0,40}\b(?:exceptionnel(?:le)?|excellent(?:e)?|très bon(?:ne)?|bon(?:ne)?|solide|mitigé(?:e)?|remarquable|insuffisant(?:e)?|en retrait)\b/iu.test(comment)
+  ) {
+    return null;
+  }
+
+  if (
+    comment.length < ANALYSIS_MIN_LENGTH ||
+    comment.length > ANALYSIS_MAX_LENGTH
+  ) {
+    return null;
+  }
+
+  const commentSentenceCount = countSentences(comment);
+
+  if (commentSentenceCount > ANALYSIS_COMMENT_MAX_SENTENCES) {
+    return null;
+  }
+
+  const analysis = getGlobalPerformanceSentence(player.score_total, player.name) + " " + comment;
+
+  if (
+    analysis.length > ANALYSIS_MAX_LENGTH ||
+    1 + commentSentenceCount > ANALYSIS_MAX_SENTENCES
+  ) {
+    return null;
+  }
+
+  return {
+    rank: entry.rank,
+    name: entry.name,
+    analysis: analysis
+  };
+}
+
 function validateAnalysisResponse(parsed, players) {
   if (
     !hasExactKeys(parsed, ["analyses"]) ||
@@ -422,99 +487,32 @@ function validateAnalysisResponse(parsed, players) {
     throw new Error("Réponse IA hors contrat.");
   }
 
-  if (parsed.analyses.length !== players.length) {
-    throw new Error("Nombre d’analyses invalide.");
-  }
-
   const expected = new Map(
     players.map(function (player) {
-      return [player.rank, player.name];
+      return [player.rank, player];
     })
   );
-
-  const ranks = new Set();
-  const names = new Set();
+  const rankCounts = new Map();
+  const nameCounts = new Map();
   const validatedAnalyses = [];
 
   for (const entry of parsed.analyses) {
-    if (!hasExactKeys(entry, ["rank", "name", "analysis"])) {
-      throw new Error("Clé supplémentaire dans une analyse.");
-    }
+    if (!isPlainObject(entry)) continue;
+    rankCounts.set(entry.rank, (rankCounts.get(entry.rank) || 0) + 1);
+    nameCounts.set(entry.name, (nameCounts.get(entry.name) || 0) + 1);
+  }
 
+  for (const entry of parsed.analyses) {
     if (
-      !Number.isInteger(entry.rank) ||
-      expected.get(entry.rank) !== entry.name
+      !isPlainObject(entry) ||
+      rankCounts.get(entry.rank) !== 1 ||
+      nameCounts.get(entry.name) !== 1
     ) {
-      throw new Error("Joueur ou rang inconnu.");
+      continue;
     }
 
-    if (ranks.has(entry.rank) || names.has(entry.name)) {
-      throw new Error("Analyse en doublon.");
-    }
-
-    if (typeof entry.analysis !== "string") {
-      throw new Error("Analyse invalide.");
-    }
-
-    const originalComment = entry.analysis
-      .replace(/\s+/g, " ")
-      .trim();
-
-    if (!originalComment) {
-      throw new Error("Analyse vide.");
-    }
-
-    const comment = stripGlobalJudgmentSentences(originalComment);
-
-    if (!comment) {
-      throw new Error("Le commentaire Groq contient un jugement global interdit.");
-    }
-
-    if (
-      /\bperformance\b/iu.test(comment) ||
-      /\bbilan\s+global\b/iu.test(comment) ||
-      /\bscore(?:_|\s+)total\b/iu.test(comment) ||
-      /\b(?:sa|la)\s+prestation(?:\s+globale)?\s+(?:a\s+été|était)\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante|en retrait)\b/iu.test(comment) ||
-      /\b(?:livré|réalisé|signé)\s+une\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante)\s+prestation\b/iu.test(comment) ||
-      /\bglobalement\b[^.!?]{0,40}\b(?:exceptionnel(?:le)?|excellent(?:e)?|très bon(?:ne)?|bon(?:ne)?|solide|mitigé(?:e)?|remarquable|insuffisant(?:e)?|en retrait)\b/iu.test(comment)
-    ) {
-      throw new Error("Le commentaire Groq contient un jugement global interdit.");
-    }
-
-    if (
-      comment.length < ANALYSIS_MIN_LENGTH ||
-      comment.length > ANALYSIS_MAX_LENGTH
-    ) {
-      throw new Error("Longueur d’analyse invalide.");
-    }
-
-    const commentSentenceCount = countSentences(comment);
-
-    if (commentSentenceCount > ANALYSIS_COMMENT_MAX_SENTENCES) {
-      throw new Error("Un commentaire Groq dépasse deux phrases.");
-    }
-
-    const player = players.find(function (candidate) {
-      return candidate.rank === entry.rank;
-    });
-    const analysis = getGlobalPerformanceSentence(player.score_total, player.name) + " " + comment;
-
-    if (analysis.length > ANALYSIS_MAX_LENGTH) {
-      throw new Error("Longueur d’analyse invalide.");
-    }
-
-    if (1 + commentSentenceCount > ANALYSIS_MAX_SENTENCES) {
-      throw new Error("Une analyse dépasse trois phrases.");
-    }
-
-    ranks.add(entry.rank);
-    names.add(entry.name);
-
-    validatedAnalyses.push({
-      rank: entry.rank,
-      name: entry.name,
-      analysis: analysis
-    });
+    const validated = validateSingleAnalysisEntry(entry, expected.get(entry.rank));
+    if (validated) validatedAnalyses.push(validated);
   }
 
   validatedAnalyses.sort(function (left, right) {
@@ -526,20 +524,8 @@ function validateAnalysisResponse(parsed, players) {
   };
 }
 
-async function handleWarWriteAnalyses(request, env) {
-  const requestBody = await readAnalysisRequestJson(request);
-  const body = validateAnalysisRequest(requestBody);
-
-  const apiKey = env.GROQ_API_KEY;
-  const model = env.GROQ_MODEL || "openai/gpt-oss-120b";
-
-  if (!apiKey) {
-    throw new Error(
-      "La variable secrète GROQ_API_KEY est absente dans le Worker."
-    );
-  }
-
-  const prompt = [
+function buildAnalysisPrompt(body, isCompletion) {
+  return [
     "Tu rédiges uniquement les analyses individuelles d’une guerre Marvel Strike Force terminée.",
 
     "Le rapport fourni est définitif. Tu ne dois recalculer, corriger, modifier ou retourner aucun score, rang, classement, résumé ou autre valeur numérique.",
@@ -578,8 +564,15 @@ async function handleWarWriteAnalyses(request, env) {
 
     "Ne retourne aucun tag, score, statistique, résumé, classement ou autre clé.",
 
+    isCompletion
+      ? "Tu dois produire exactement une analyse pour chacun des joueurs fournis dans cette requête de complétion, et aucun autre joueur."
+      : "Produis une analyse pour chacun des joueurs fournis.",
+
     JSON.stringify(body)
   ].join("\n\n");
+}
+
+async function requestGroqAnalyses(prompt, apiKey, model) {
 
   const endpoint = "https://api.groq.com/openai/v1/chat/completions";
 
@@ -679,9 +672,100 @@ async function handleWarWriteAnalyses(request, env) {
     throw new Error("Groq n’a pas renvoyé un JSON parseable.");
   }
 
-  return Response.json(
-    validateAnalysisResponse(parsed, body.report.players)
+  return parsed;
+}
+
+function buildCompletionBody(body, missingPlayers) {
+  const missingRanks = new Set(missingPlayers.map(function (player) {
+    return player.rank;
+  }));
+
+  return {
+    alliance: body.alliance,
+    date: body.date,
+    report: {
+      summary: { player_count: missingPlayers.length },
+      ranking: body.report.ranking.filter(function (entry) {
+        return missingRanks.has(entry.rank);
+      }),
+      players: missingPlayers
+    }
+  };
+}
+
+async function handleWarWriteAnalyses(request, env) {
+  const requestBody = await readAnalysisRequestJson(request);
+  const body = validateAnalysisRequest(requestBody);
+
+  const apiKey = env.GROQ_API_KEY;
+  const model = env.GROQ_MODEL || "openai/gpt-oss-120b";
+
+  if (!apiKey) {
+    throw new Error(
+      "La variable secrète GROQ_API_KEY est absente dans le Worker."
+    );
+  }
+
+  const initialResult = await requestGroqAnalyses(
+    buildAnalysisPrompt(body, false),
+    apiKey,
+    model
   );
+
+  if (initialResult instanceof Response) return initialResult;
+
+  const initialValidated = validateAnalysisResponse(
+    initialResult,
+    body.report.players
+  ).analyses;
+  const validatedByRank = new Map(initialValidated.map(function (analysis) {
+    return [analysis.rank, analysis];
+  }));
+  const missingPlayers = body.report.players.filter(function (player) {
+    return !validatedByRank.has(player.rank);
+  });
+
+  if (missingPlayers.length > 0) {
+    const completionBody = buildCompletionBody(body, missingPlayers);
+    const completionResult = await requestGroqAnalyses(
+      buildAnalysisPrompt(completionBody, true),
+      apiKey,
+      model
+    );
+
+    if (completionResult instanceof Response) return completionResult;
+
+    const completed = validateAnalysisResponse(
+      completionResult,
+      missingPlayers
+    ).analyses;
+
+    for (const analysis of completed) {
+      validatedByRank.set(analysis.rank, analysis);
+    }
+  }
+
+  const stillMissing = body.report.players.filter(function (player) {
+    return !validatedByRank.has(player.rank);
+  });
+
+  if (stillMissing.length > 0) {
+    throw new Error(
+      "Analyses Groq incomplètes après tentative de complétion : rangs " +
+      stillMissing.map(function (player) { return player.rank; }).join(", ") +
+      "."
+    );
+  }
+
+  const analyses = Array.from(validatedByRank.values()).sort(function (left, right) {
+    return left.rank - right.rank;
+  });
+
+  if (analyses.length !== body.report.players.length) {
+    throw new Error("Nombre d’analyses invalide après fusion.");
+  }
+
+  return Response.json({ analyses: analyses });
 }
 
 async function handleWarPublishReport(request, env) {
