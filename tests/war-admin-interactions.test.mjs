@@ -654,6 +654,18 @@ function openReviewFromCard(harness, captureIndex = 0, readOnly = false) {
   return captureId;
 }
 
+function toggleExcludedFromCard(harness, captureIndex = 0) {
+  const ids = [...harness.elements.warCaptureList.innerHTML.matchAll(
+    /data-action="toggle-excluded" data-capture-id="(\d+)"/g
+  )].map((match) => match[1]);
+  const captureId = ids[captureIndex];
+  assert.ok(captureId, `capture ${captureIndex + 1} excluable`);
+  harness.listener("warCaptureList", "click")({
+    target: { dataset: { action: "toggle-excluded", captureId }, disabled: false }
+  });
+  return captureId;
+}
+
 function openEditorRow(harness, rowIndex) {
   harness.listener("warPlayerList", "click")({
     target: {
@@ -1241,4 +1253,111 @@ test("le workflow complet calcule les six alliances validées en une seule actio
   );
   assert.equal(harness.elements.warValidatedCount.textContent, "6");
   assert.equal(harness.elements.warCalculatedCount.textContent, "6");
+});
+
+test("exclure puis réintégrer un brouillon à corriger conserve son OCR et son blocage réel", async () => {
+  const harness = createHarness();
+  const invalid = draftPayload("zeus", "Zeus");
+  invalid.draft.players[0].name = "";
+  invalid.players[0].name = "";
+  harness.setFetchImplementation(async () => Response.json(invalid));
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  const before = structuredClone(harness.getSnapshot().captures[0].ocr_draft);
+
+  toggleExcludedFromCard(harness);
+  let snapshot = harness.getSnapshot();
+  assert.equal(snapshot.captures[0].excluded, true);
+  assert.deepEqual(snapshot.captures[0].ocr_draft, before);
+  assert.deepEqual(snapshot.captures[0].editable_draft, before);
+  assert.match(harness.elements.warCaptureList.innerHTML, /Exclu[\s\S]*Réintégrer/);
+
+  toggleExcludedFromCard(harness);
+  snapshot = harness.getSnapshot();
+  assert.equal(snapshot.captures[0].excluded, false);
+  assert.deepEqual(snapshot.captures[0].ocr_draft, before);
+  assert.equal(snapshot.captures[0].state, "À corriger");
+  assert.equal(harness.elements.warCalculateReports.disabled, true);
+  assert.equal(harness.fetchCalls.length, 1, "la réintégration ne relance pas Gemini");
+});
+
+test("un brouillon validé conserve sa validation après exclusion et réintégration", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async () => Response.json(draftPayload("poseidon", "Poséidon")));
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  const validated = structuredClone(harness.getSnapshot().captures[0].validatedDraft);
+
+  toggleExcludedFromCard(harness);
+  toggleExcludedFromCard(harness);
+  const capture = harness.getSnapshot().captures[0];
+  assert.equal(capture.excluded, false);
+  assert.deepEqual(capture.validatedDraft, validated);
+  assert.equal(capture.state, "OCR validé");
+  assert.equal(harness.fetchCalls.length, 1);
+});
+
+test("les alliances exclues sont absentes du calcul, de Groq et de la publication", async () => {
+  const harness = createHarness();
+  const alliances = [["zeus", "Zeus"], ["dionysos", "Dionysos"], ["poseidon", "Poséidon"]];
+  let ocrIndex = 0;
+  harness.setFetchImplementation(async (url, options) => {
+    if (url.includes("parse-gemini-draft")) {
+      const [key, label] = alliances[ocrIndex++];
+      return Response.json(draftPayload(key, label));
+    }
+    if (url.includes("write-analyses")) {
+      const payload = JSON.parse(options.body);
+      return Response.json({ analyses: payload.report.players.map(({ rank, name }) => ({ rank, name, analysis: `Analyse de ${name}.` })) });
+    }
+    return Response.json({ ok: true, published: true, path: "docs/data/war/test.json", commit_sha: "test" });
+  });
+
+  harness.elements.warImage.files = files(3);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  toggleExcludedFromCard(harness, 1);
+  for (const index of [0, 2]) {
+    openReviewFromCard(harness, index);
+    harness.listener("warValidateDraft", "click")();
+    harness.listener("warReviewBack", "click")();
+  }
+  harness.listener("warCalculateReports", "click")();
+  harness.listener("warRankReports", "click")();
+  await harness.listener("warWriteAnalyses", "click")();
+  await harness.listener("warPublishReports", "click")();
+
+  const snapshot = harness.getSnapshot();
+  assert.deepEqual(snapshot.reports.map(({ alliance }) => alliance), ["zeus", "poseidon"]);
+  assert.deepEqual(snapshot.final_reports.map(({ alliance }) => alliance), ["zeus", "poseidon"]);
+  assert.equal(harness.fetchCalls.filter(({ url }) => url.includes("write-analyses")).length, 2);
+  assert.equal(harness.fetchCalls.filter(({ url }) => url.includes("publish-report")).length, 2);
+  assert.equal(snapshot.captures[1].excluded, true);
+  assert.ok(snapshot.captures[1].ocr_draft, "l’OCR Dionysos reste dans la session");
+});
+
+test("la fusion ignore un fragment exclu et ne produit rien quand ils le sont tous", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async () => Response.json(draftPayload("dionysos", "Dionysos")));
+  harness.elements.warImage.files = files(2);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+
+  toggleExcludedFromCard(harness, 0);
+  let snapshot = harness.getSnapshot();
+  assert.equal(snapshot.drafts.length, 1);
+  assert.equal(snapshot.drafts[0].source_count, 1);
+  assert.equal(snapshot.drafts[0].draft.players[0]._source_count, 1);
+
+  toggleExcludedFromCard(harness, 1);
+  snapshot = harness.getSnapshot();
+  assert.equal(snapshot.drafts.length, 0);
+  assert.equal(snapshot.reports.length, 0);
+  assert.equal(harness.fetchCalls.length, 2);
 });

@@ -294,15 +294,20 @@
   }
 
   function getCaptureActionMarkup(capture) {
-    if (!capture.editableDraft) return "";
+    if (!capture.editableDraft && !capture.fragmentDraft) return "";
 
-    const disabled = session.running && !capture.editableDraft ? " disabled" : "";
+    const disabled = session.running ? " disabled" : "";
+    const exclusionButton = `<button class="warAdminCaptureAction warAdminCaptureActionSecondary" type="button" data-action="toggle-excluded" data-capture-id="${capture.id}"${disabled}>${capture.excluded ? "Réintégrer" : "Exclure de la session"}</button>`;
+    if (!capture.editableDraft) {
+      return `<div class="warAdminCaptureActions">${exclusionButton}</div>`;
+    }
     if (capture.rankedReport || capture.calculatedReport) {
       return [
         '<div class="warAdminCaptureActions">',
         `<button class="warAdminCaptureAction" type="button" data-action="open-report" data-capture-id="${capture.id}"${disabled}>Voir le rapport ${capture.finalReport ? "analysé" : (capture.rankedReport ? "classé" : "calculé")}</button>`,
         `<button class="warAdminCaptureAction warAdminCaptureActionSecondary" type="button" data-action="open-review" data-capture-id="${capture.id}" data-read-only="true"${disabled}>Voir l’OCR validé</button>`,
         `<button class="warAdminCaptureAction warAdminCaptureActionSecondary" type="button" data-action="modify-review" data-capture-id="${capture.id}"${disabled}>Modifier</button>`,
+        exclusionButton,
         "</div>"
       ].join("");
     }
@@ -325,6 +330,7 @@
         `<button class="warAdminCaptureAction warAdminCaptureActionSecondary" type="button" data-action="modify-review" data-capture-id="${capture.id}"${disabled}>Modifier</button>`
       );
     }
+    buttons.push(exclusionButton);
 
     return `<div class="warAdminCaptureActions">${buttons.join("")}</div>`;
   }
@@ -357,12 +363,12 @@
       const reviewActions = getCaptureActionMarkup(capture);
 
       return [
-        `<article class="warAdminCaptureCard" data-state="${capture.state}">`,
+        `<article class="warAdminCaptureCard" data-state="${capture.state}" data-excluded="${capture.excluded ? "true" : "false"}">`,
         `<img class="warAdminCaptureThumb" src="${escapeHtml(capture.previewUrl)}" alt="Aperçu de la capture ${index + 1}" />`,
         '<div class="warAdminCaptureBody">',
         '<div class="warAdminCaptureTopline">',
         `<p class="warAdminCaptureName">${index + 1}. ${escapeHtml(capture.file.name || "Capture sans nom")}</p>`,
-        `<span class="warAdminCaptureState">${escapeHtml(STATE_LABELS[capture.state] || capture.state)}</span>`,
+        `<span class="warAdminCaptureState">${capture.excluded ? "Exclu" : escapeHtml(STATE_LABELS[capture.state] || capture.state)}</span>`,
         "</div>",
         allianceLine,
         candidateLine,
@@ -376,7 +382,7 @@
   }
 
   function getAvailableCaptures() {
-    return session.captures.filter((capture) => Boolean(capture.editableDraft));
+    return session.captures.filter((capture) => Boolean(capture.editableDraft) && !capture.excluded);
   }
 
   function updateQueueSummary() {
@@ -386,28 +392,30 @@
       return;
     }
 
-    const ready = session.captures.filter((capture) => capture.state === "ready").length;
-    const reviewing = session.captures.filter((capture) => capture.state === "reviewing").length;
+    const ready = session.captures.filter((capture) => !capture.excluded && capture.state === "ready").length;
+    const reviewing = session.captures.filter((capture) => !capture.excluded && capture.state === "reviewing").length;
     const correction = session.captures.filter((capture) => (
-      capture.state === "correction" || capture.state === "revalidate"
+      !capture.excluded && (capture.state === "correction" || capture.state === "revalidate")
     )).length;
     const validated = session.captures.filter((capture) => (
-      capture.state === "validated" || capture.state === "calculated" || capture.state === "ranked" ||
+      !capture.excluded && (capture.state === "validated" || capture.state === "calculated" || capture.state === "ranked" ||
       capture.state === "writing" || capture.state === "analyzed" || capture.state === "publishing" ||
-      capture.state === "published" || capture.state === "publish_error"
+      capture.state === "published" || capture.state === "publish_error")
     )).length;
-    const calculated = session.captures.filter((capture) => Boolean(capture.calculatedReport)).length;
-    const ranked = session.captures.filter((capture) => capture.state === "ranked").length;
+    const calculated = session.captures.filter((capture) => !capture.excluded && Boolean(capture.calculatedReport)).length;
+    const ranked = session.captures.filter((capture) => !capture.excluded && capture.state === "ranked").length;
     const failed = session.captures.filter((capture) => capture.state === "failed").length;
     const manual = session.captures.filter((capture) => capture.needsManual).length;
     const merged = session.captures.filter((capture) => capture.state === "merged").length;
+    const excluded = session.captures.filter((capture) => capture.excluded).length;
     const parts = [`Prêts ${ready}`, `En cours ${reviewing}`, `À corriger ${correction}`, `Validés ${validated}`];
 
     if (calculated) parts.push(`Calculés ${calculated}`);
     if (ranked) parts.push(`Classés ${ranked}`);
-    const analyzed = session.captures.filter((capture) => Boolean(capture.finalReport)).length;
+    const analyzed = session.captures.filter((capture) => !capture.excluded && Boolean(capture.finalReport)).length;
     if (analyzed) parts.push(`Analysés ${analyzed}`);
     if (merged) parts.push(`Fragments ${merged}`);
+    if (excluded) parts.push(`Exclus ${excluded}`);
     if (manual) parts.push(`À confirmer ${manual}`);
     if (failed) parts.push(`Échecs ${failed}`);
     queueSummary.textContent = parts.join(" · ");
@@ -502,6 +510,7 @@
         file_name: capture.file.name || null,
         state_key: capture.state,
         state: STATE_LABELS[capture.state] || capture.state,
+        excluded: Boolean(capture.excluded),
         attempts: capture.attempts,
         assigned_alliance: capture.alliance || null,
         assigned_alliance_label: capture.allianceLabel || null,
@@ -606,6 +615,7 @@
       capture.editableDraft = null;
       capture.sources = null;
       capture.mergedIntoId = "";
+      capture.excluded = false;
       resetCaptureDerivedState(capture);
       capture.reviewScrollY = 0;
       capture.reportScrollY = 0;
@@ -662,6 +672,7 @@
       editableDraft: null,
       sources: null,
       mergedIntoId: "",
+      excluded: false,
       validatedDraft: null,
       calculatedReport: null,
       rankedReport: null,
@@ -802,7 +813,7 @@
 
   function mergeAllianceFragments(alliance) {
     const group = session.captures
-      .filter((capture) => capture.alliance === alliance && capture.fragmentDraft)
+      .filter((capture) => capture.alliance === alliance && capture.fragmentDraft && !capture.excluded)
       .sort((left, right) => left.index - right.index);
     if (!group.length) return null;
 
@@ -1326,6 +1337,19 @@
     if (actionTarget.dataset.action === "open-report") openReport(actionTarget.dataset.captureId);
     else if (actionTarget.dataset.action === "open-review") openReview(actionTarget.dataset.captureId, actionTarget.dataset.readOnly === "true");
     else if (actionTarget.dataset.action === "modify-review") openReview(actionTarget.dataset.captureId, false);
+    else if (actionTarget.dataset.action === "toggle-excluded") toggleCaptureExcluded(actionTarget.dataset.captureId);
+  }
+
+  function toggleCaptureExcluded(captureId) {
+    if (session.running) return;
+    const capture = session.captures.find((item) => item.id === captureId);
+    if (!capture?.fragmentDraft) return;
+
+    capture.excluded = !capture.excluded;
+    addLog(capture.excluded ? "Brouillon exclu de la session" : "Brouillon réintégré sans nouvel OCR", capture);
+    const fragmentCount = session.captures.filter((item) => item.alliance === capture.alliance && item.fragmentDraft).length;
+    if (fragmentCount > 1) mergeAllianceFragments(capture.alliance);
+    updateSessionReviewStatus();
   }
 
   function handleSourceTabsClick(event) {
