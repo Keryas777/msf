@@ -40,17 +40,20 @@ function requestBody(score = 71, name = "Pelleas") {
   };
 }
 
-async function callWorker(comment, score = 71, name = "Pelleas") {
+async function callWorker(comment, score = 71, name = "Pelleas", inspectRequest) {
   const originalFetch = globalThis.fetch;
-  globalThis.fetch = async () => Response.json({
-    choices: [{
-      message: {
-        content: JSON.stringify({
-          analyses: [{ rank: 1, name, analysis: comment }]
-        })
-      }
-    }]
-  });
+  globalThis.fetch = async (...args) => {
+    inspectRequest?.(...args);
+    return Response.json({
+      choices: [{
+        message: {
+          content: JSON.stringify({
+            analyses: [{ rank: 1, name, analysis: comment }]
+          })
+        }
+      }]
+    });
+  };
 
   try {
     return await worker.fetch(new Request("https://worker.test/api/war/write-analyses", {
@@ -62,6 +65,16 @@ async function callWorker(comment, score = 71, name = "Pelleas") {
     globalThis.fetch = originalFetch;
   }
 }
+
+test("le Worker utilise gpt-oss-120b par défaut lorsque GROQ_MODEL est absent", async () => {
+  let groqPayload;
+  const response = await callWorker(
+    "Son efficacité offensive a été excellente.", 71, "Pelleas",
+    (_url, options) => { groqPayload = JSON.parse(options.body); }
+  );
+  assert.equal(response.status, 200);
+  assert.equal(groqPayload.model, "openai/gpt-oss-120b");
+});
 
 test("le Worker assemble la phrase déterministe avant au plus deux phrases Groq", async () => {
   const response = await callWorker(

@@ -531,7 +531,7 @@ async function handleWarWriteAnalyses(request, env) {
   const body = validateAnalysisRequest(requestBody);
 
   const apiKey = env.GROQ_API_KEY;
-  const model = env.GROQ_MODEL || "llama-3.3-70b-versatile";
+  const model = env.GROQ_MODEL || "openai/gpt-oss-120b";
 
   if (!apiKey) {
     throw new Error(
