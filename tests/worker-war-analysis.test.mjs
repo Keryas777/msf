@@ -57,7 +57,7 @@ async function callWorker(body, responders) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
-    }), { GROQ_API_KEY: "test" });
+    }), { GROQ_API_KEY: "test-api-key-never-return" });
     return { response, calls };
   } finally {
     globalThis.fetch = originalFetch;
@@ -69,7 +69,7 @@ function promptBody(call) {
 }
 
 function rateLimitResponse(headers = { "retry-after": "17.2" }) {
-  return Response.json({ error: { message: "rate limited" } }, {
+  return Response.json({ error: { message: "rate limited", type: "tokens", code: "rate_limit_exceeded" } }, {
     status: 429,
     headers
   });
@@ -221,10 +221,51 @@ test("un 429 au premier appel conserve le contrat GROQ_RATE_LIMIT", async () => 
     ok: false,
     error: "Quota Groq temporairement atteint.",
     code: "GROQ_RATE_LIMIT",
+    http_status: 429,
     model: "openai/gpt-oss-120b",
     retry_after_seconds: 18,
-    detail: "rate limited"
+    detail: "rate limited",
+    groq_error: {
+      message: "rate limited",
+      type: "tokens",
+      code: "rate_limit_exceeded"
+    },
+    rate_limit: {
+      retry_after: "17.2",
+      limit_requests: null,
+      remaining_requests: null,
+      reset_requests: null,
+      limit_tokens: null,
+      remaining_tokens: null,
+      reset_tokens: null
+    }
   });
+});
+
+test("un 429 expose exactement les sept headers de quota Groq", async () => {
+  const headers = {
+    "retry-after": "12",
+    "x-ratelimit-limit-requests": "1000",
+    "x-ratelimit-remaining-requests": "999",
+    "x-ratelimit-reset-requests": "1m",
+    "x-ratelimit-limit-tokens": "8000",
+    "x-ratelimit-remaining-tokens": "0",
+    "x-ratelimit-reset-tokens": "12s"
+  };
+  const { response } = await callWorker(requestBody(1), [rateLimitResponse(headers)]);
+  const data = await response.json();
+
+  assert.deepEqual(data.rate_limit, {
+    retry_after: "12",
+    limit_requests: "1000",
+    remaining_requests: "999",
+    reset_requests: "1m",
+    limit_tokens: "8000",
+    remaining_tokens: "0",
+    reset_tokens: "12s"
+  });
+  assert.equal(data.retry_after_seconds, 12);
+  assert.equal(JSON.stringify(data).includes("test-api-key-never-return"), false);
 });
 
 test("un 429 pendant la complétion conserve le contrat GROQ_RATE_LIMIT", async () => {

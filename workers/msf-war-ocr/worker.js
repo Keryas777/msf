@@ -622,6 +622,26 @@ export function parseGroqDurationSeconds(value) {
   return Number.isFinite(seconds) && seconds > 0 ? Math.ceil(seconds) : null;
 }
 
+function getGroqRateLimitHeaders(headers) {
+  return {
+    retry_after: headers.get("retry-after"),
+    limit_requests: headers.get("x-ratelimit-limit-requests"),
+    remaining_requests: headers.get("x-ratelimit-remaining-requests"),
+    reset_requests: headers.get("x-ratelimit-reset-requests"),
+    limit_tokens: headers.get("x-ratelimit-limit-tokens"),
+    remaining_tokens: headers.get("x-ratelimit-remaining-tokens"),
+    reset_tokens: headers.get("x-ratelimit-reset-tokens")
+  };
+}
+
+function getGroqErrorDetails(groqData) {
+  return {
+    message: groqData?.error?.message || null,
+    type: groqData?.error?.type || null,
+    code: groqData?.error?.code || null
+  };
+}
+
 async function requestGroqAnalyses(prompt, apiKey, model) {
 
   const endpoint = "https://api.groq.com/openai/v1/chat/completions";
@@ -693,9 +713,12 @@ async function requestGroqAnalyses(prompt, apiKey, model) {
           ok: false,
           error: "Quota Groq temporairement atteint.",
           code: "GROQ_RATE_LIMIT",
+          http_status: groqResponse.status,
           model: model,
           retry_after_seconds: retryAfter || tokenReset || 60,
-          detail: message
+          detail: message,
+          groq_error: getGroqErrorDetails(groqData),
+          rate_limit: getGroqRateLimitHeaders(groqResponse.headers)
         },
         {
           status: 429
@@ -713,8 +736,11 @@ async function requestGroqAnalyses(prompt, apiKey, model) {
           ok: false,
           error: message,
           code: "GROQ_GENERATION_RETRY",
+          http_status: groqResponse.status,
           model: model,
-          retry_after_seconds: tokenReset || 60
+          retry_after_seconds: tokenReset || 60,
+          groq_error: getGroqErrorDetails(groqData),
+          rate_limit: getGroqRateLimitHeaders(groqResponse.headers)
         },
         {
           status: groqResponse.status

@@ -522,6 +522,7 @@
           ranks: source.players.map((player) => player.rank)
         })) || null,
         response_ocr: capture.response,
+        analysis_error: capture.analysisError,
         ocr_draft: capture.ocrDraft,
         editable_draft: capture.editableDraft,
         validatedDraft: capture.validatedDraft,
@@ -666,6 +667,7 @@
       candidateAlliance: "",
       needsManual: false,
       response: null,
+      analysisError: null,
       draft: null,
       fragmentDraft: null,
       ocrDraft: null,
@@ -1527,6 +1529,8 @@
     }
 
     if (!response.ok) {
+      capture.analysisError = data;
+      updateTechnicalJson();
       const error = new Error(getErrorDetail(data) || `HTTP ${response.status}`);
       const retryAfterSeconds = Number(data?.retry_after_seconds);
       if (
