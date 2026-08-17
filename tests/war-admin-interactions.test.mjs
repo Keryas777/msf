@@ -344,7 +344,12 @@ async function runAnalysisRetryCase(code, retryAfterSeconds) {
     if (url.includes("parse-gemini-draft")) return Response.json(draftPayload("zeus", "Zeus"));
     analysisAttempt += 1;
     if (analysisAttempt === 1) {
-      return Response.json({ error: "Temporisation fournisseur", code, retry_after_seconds: retryAfterSeconds }, { status: 429 });
+      return Response.json({
+        error: "Temporisation fournisseur",
+        code,
+        retry_after_seconds: retryAfterSeconds,
+        rate_limit: { retry_after: String(retryAfterSeconds), remaining_tokens: "0" }
+      }, { status: 429 });
     }
     const payload = JSON.parse(options.body);
     return Response.json({
@@ -1032,6 +1037,10 @@ test("la rédaction applique le reset Groq et sa marge au lieu du délai génér
   const rateLimit = await runAnalysisRetryCase("GROQ_RATE_LIMIT", 60);
   assert.deepEqual(rateLimit.timerCalls, [63000]);
   assert.match(rateLimit.elements.warLog.innerHTML, /Attente 63 secondes avant la tentative 2/);
+  assert.deepEqual(rateLimit.getSnapshot().captures[0].analysis_error.rate_limit, {
+    retry_after: "60",
+    remaining_tokens: "0"
+  });
 });
 
 test("la rédaction conserve le retry_after Gemini et sa marge", async () => {
