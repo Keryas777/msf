@@ -4,13 +4,15 @@ on:
   push:
     branches:
       - agent/codex-turn-meter-normalization
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
 
 jobs:
   implement:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -131,6 +133,7 @@ jobs:
           python -m unittest tests.test_msf_turn_meter_normalization tests.test_msf_capabilities_normalizer tests.test_msf_capabilities_indexer tests.test_msf_capabilities_web_publisher tests.test_msf_capabilities_explorer_builder
 
       - name: Commit implementation and generated static data
+        if: github.event_name == 'push'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
