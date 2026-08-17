@@ -2,198 +2,228 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import worker, { getGlobalPerformanceSentence } from "../workers/msf-war-ocr/worker.js";
 
-const expectedSentences = [
-  [93, "Ada a réalisé une performance exceptionnelle."],
-  [84, "Ada a réalisé une excellente performance."],
-  [71, "Ada a réalisé une très bonne performance."],
-  [64, "Ada a réalisé une bonne performance."],
-  [55, "Ada a réalisé une performance solide."],
-  [49, "Ada a réalisé une performance mitigée."],
-  [30, "Ada a réalisé une performance en retrait."],
-  [89.9, "Ada a réalisé une excellente performance."],
-  [79.9, "Ada a réalisé une très bonne performance."],
-  [69.9, "Ada a réalisé une bonne performance."],
-  [59.9, "Ada a réalisé une performance solide."],
-  [49.9, "Ada a réalisé une performance mitigée."],
-  [39.9, "Ada a réalisé une performance en retrait."]
-];
+const COMMENT = "Avec dix attaques réussies, son efficacité offensive a été remarquable.";
 
-test("la qualification déterministe respecte toutes les bornes, y compris décimales", () => {
-  for (const [score, expected] of expectedSentences) {
-    assert.equal(getGlobalPerformanceSentence(score, "Ada"), expected, String(score));
-  }
-  assert.equal(
-    getGlobalPerformanceSentence(71, "Pelleas"),
-    "Pelleas a réalisé une très bonne performance."
-  );
-});
-
-function requestBody(score = 71, name = "Pelleas") {
+function requestBody(count = 24, names = {}) {
+  const players = Array.from({ length: count }, (_, index) => {
+    const rank = index + 1;
+    return {
+      rank,
+      original_rank: rank,
+      name: names[rank] || `Joueur ${rank}`,
+      score_total: rank === 1 ? 71 : 60
+    };
+  });
   return {
     alliance: "zeus",
     date: "2026-08-09",
     report: {
-      summary: { player_count: 1 },
-      ranking: [{ rank: 1, name, score }],
-      players: [{ rank: 1, original_rank: 1, name, score_total: score }]
+      summary: { player_count: count },
+      ranking: players.map(({ rank, name, score_total }) => ({ rank, name, score: score_total })),
+      players
     }
   };
 }
 
-async function callWorker(comment, score = 71, name = "Pelleas", inspectRequest) {
+function entriesFor(body, ranks = body.report.players.map(({ rank }) => rank), overrides = {}) {
+  return ranks.map((rank) => {
+    const player = body.report.players.find((candidate) => candidate.rank === rank);
+    return { rank, name: player.name, analysis: COMMENT, ...overrides[rank] };
+  });
+}
+
+function groqResponse(analyses) {
+  return Response.json({
+    choices: [{ message: { content: JSON.stringify({ analyses }) } }]
+  });
+}
+
+async function callWorker(body, responders) {
+  const calls = [];
   const originalFetch = globalThis.fetch;
-  globalThis.fetch = async (...args) => {
-    inspectRequest?.(...args);
-    return Response.json({
-      choices: [{
-        message: {
-          content: JSON.stringify({
-            analyses: [{ rank: 1, name, analysis: comment }]
-          })
-        }
-      }]
-    });
+  globalThis.fetch = async (_url, options) => {
+    calls.push(JSON.parse(options.body));
+    const responder = responders[calls.length - 1];
+    return typeof responder === "function" ? responder(calls.at(-1)) : responder;
   };
 
   try {
-    return await worker.fetch(new Request("https://worker.test/api/war/write-analyses", {
+    const response = await worker.fetch(new Request("https://worker.test/api/war/write-analyses", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(requestBody(score, name))
+      body: JSON.stringify(body)
     }), { GROQ_API_KEY: "test" });
+    return { response, calls };
   } finally {
     globalThis.fetch = originalFetch;
   }
 }
 
-test("le Worker utilise gpt-oss-120b par défaut lorsque GROQ_MODEL est absent", async () => {
-  let groqPayload;
-  const response = await callWorker(
-    "Son efficacité offensive a été excellente.", 71, "Pelleas",
-    (_url, options) => { groqPayload = JSON.parse(options.body); }
-  );
-  assert.equal(response.status, 200);
-  assert.equal(groqPayload.model, "openai/gpt-oss-120b");
-});
+function promptBody(call) {
+  return JSON.parse(call.messages[0].content.split("\n\n").at(-1));
+}
 
-test("le Worker assemble la phrase déterministe avant au plus deux phrases Groq", async () => {
-  const response = await callWorker(
-    "Il a remporté ses dix attaques avec une efficacité maximale. Son impact offensif a été important."
-  );
-  assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), {
-    analyses: [{
-      rank: 1,
-      name: "Pelleas",
-      analysis: "Pelleas a réalisé une très bonne performance. Il a remporté ses dix attaques avec une efficacité maximale. Son impact offensif a été important."
-    }]
+function rateLimitResponse() {
+  return Response.json({ error: { message: "rate limited" } }, {
+    status: 429,
+    headers: { "retry-after": "17.2" }
   });
-});
+}
 
-test("le Worker ignore la ponctuation du pseudo dans le comptage des phrases", async () => {
-  const response = await callWorker(
-    "Il a remporté ses dix attaques avec une efficacité maximale. Son impact offensif a été important.",
-    71,
-    "Tt!!Le Fléau !!"
-  );
+test("24 analyses valides utilisent un seul appel et conservent le contrat", async () => {
+  const body = requestBody();
+  const { response, calls } = await callWorker(body, [groqResponse(entriesFor(body))]);
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), {
-    analyses: [{
-      rank: 1,
-      name: "Tt!!Le Fléau !!",
-      analysis: "Tt!!Le Fléau !! a réalisé une très bonne performance. Il a remporté ses dix attaques avec une efficacité maximale. Son impact offensif a été important."
-    }]
-  });
+  assert.equal(calls.length, 1);
+  assert.deepEqual(Object.keys(await response.clone().json()), ["analyses"]);
+  assert.equal((await response.json()).analyses.length, 24);
+  assert.equal(calls[0].model, "openai/gpt-oss-120b");
+  assert.deepEqual(calls[0].response_format, { type: "json_object" });
 });
 
-test("le Worker rejette les jugements globaux et la mention du score total", async () => {
-  for (const comment of [
-    "Il a réalisé une excellente performance.",
-    "Sa performance a été exceptionnelle.",
-    "Il a livré une très bonne prestation.",
-    "Sa prestation globale a été excellente.",
-    "Globalement, il a été exceptionnel.",
-    "Son score total reflète dix attaques victorieuses."
-  ]) {
-    const response = await callWorker(comment);
-    assert.equal(response.status, 500, comment);
-    assert.match((await response.json()).error, /jugement global interdit/);
-  }
-});
-
-test("le Worker supprime une qualification globale placée avant le commentaire factuel", async () => {
-  const factualComment = "Avec 12 attaques réussies, son efficacité offensive a été remarquable.";
-  const response = await callWorker(
-    `Il a réalisé une excellente performance. ${factualComment}`
-  );
+test("23 valides et 1 manquante complètent uniquement le rang absent", async () => {
+  const body = requestBody();
+  const initialRanks = body.report.players.map(({ rank }) => rank).filter((rank) => rank !== 17);
+  const { response, calls } = await callWorker(body, [
+    groqResponse(entriesFor(body, initialRanks)),
+    groqResponse(entriesFor(body, [17]))
+  ]);
+  const result = await response.json();
   assert.equal(response.status, 200);
-  assert.equal(
-    (await response.json()).analyses[0].analysis,
-    `Pelleas a réalisé une très bonne performance. ${factualComment}`
-  );
+  assert.deepEqual(result.analyses.map(({ rank }) => rank), Array.from({ length: 24 }, (_, i) => i + 1));
+  assert.deepEqual(promptBody(calls[1]).report.players.map(({ rank }) => rank), [17]);
+  assert.deepEqual(promptBody(calls[1]).report.ranking.map(({ rank }) => rank), [17]);
+  assert.match(calls[1].messages[0].content, /requête de complétion, et aucun autre joueur/);
 });
 
-test("le Worker supprime une qualification globale placée après le commentaire factuel", async () => {
-  const factualComment = "Avec 12 attaques réussies, son efficacité offensive a été remarquable.";
-  const response = await callWorker(
-    `${factualComment} Il a réalisé une excellente performance.`
-  );
+test("20 valides et 4 manquantes n’envoient que ces quatre joueurs", async () => {
+  const body = requestBody();
+  const missing = [3, 8, 19, 24];
+  const kept = body.report.players.map(({ rank }) => rank).filter((rank) => !missing.includes(rank));
+  const { response, calls } = await callWorker(body, [
+    groqResponse(entriesFor(body, kept)),
+    groqResponse(entriesFor(body, missing))
+  ]);
   assert.equal(response.status, 200);
-  assert.equal(
-    (await response.json()).analyses[0].analysis,
-    `Pelleas a réalisé une très bonne performance. ${factualComment}`
-  );
+  assert.deepEqual(promptBody(calls[1]).report.players.map(({ rank }) => rank), missing);
+  assert.equal(promptBody(calls[1]).report.summary.player_count, 4);
+  assert.equal(calls[1].messages[0].content.includes('"name":"Joueur 1"'), false);
 });
 
-test("le Worker limite le commentaire nettoyé à deux phrases et l’analyse finale à trois", async () => {
-  const response = await callWorker(
-    "Il a livré une très bonne prestation. Il a remporté dix attaques. Son impact offensif a été remarquable."
-  );
+test("un mauvais pseudo invalide seulement son rang", async () => {
+  const body = requestBody(3);
+  const first = entriesFor(body, undefined, { 2: { name: "Intrus" } });
+  const { response, calls } = await callWorker(body, [groqResponse(first), groqResponse(entriesFor(body, [2]))]);
   assert.equal(response.status, 200);
-  assert.equal(
-    (await response.json()).analyses[0].analysis,
-    "Pelleas a réalisé une très bonne performance. Il a remporté dix attaques. Son impact offensif a été remarquable."
-  );
+  assert.deepEqual(promptBody(calls[1]).report.players.map(({ rank }) => rank), [2]);
 });
 
-test("le Worker accepte les qualifications ciblées d’un aspect du rapport", async () => {
-  for (const comment of [
-    "Son efficacité a été exceptionnelle avec dix attaques réussies.",
-    "Son efficacité offensive a été excellente avec dix attaques réussies.",
-    "Son impact a été remarquable avec dix attaques réussies.",
-    "Son activité a été très bonne avec dix attaques réussies.",
-    "Sa défense a été excellente sur les combats recensés.",
-    "Ses dégâts ont été particulièrement élevés sur le rapport.",
-    "Il a affiché une excellente efficacité avec 12 attaques réussies.",
-    "Son travail offensif a été excellent avec dix attaques réussies."
-  ]) {
-    const response = await callWorker(comment);
-    assert.equal(response.status, 200, comment);
-    assert.equal(
-      (await response.json()).analyses[0].analysis,
-      `Pelleas a réalisé une très bonne performance. ${comment}`,
-      comment
-    );
-  }
-});
-
-test("le Worker accepte le commentaire observé et conserve l’assemblage déterministe", async () => {
-  const comment = "Leenos a affiché une grande efficacité avec 12 attaques réussies et un dégât moyen de 109,5 millions, ce qui témoigne de sa capacité à cibler des adversaires solides.";
-  const response = await callWorker(comment, 84, "Leenos");
+test("une analyse vide est demandée en complétion", async () => {
+  const body = requestBody(3);
+  const first = entriesFor(body, undefined, { 2: { analysis: "   " } });
+  const { response, calls } = await callWorker(body, [groqResponse(first), groqResponse(entriesFor(body, [2]))]);
   assert.equal(response.status, 200);
-  const body = await response.json();
-  assert.deepEqual(Object.keys(body), ["analyses"]);
-  assert.deepEqual(Object.keys(body.analyses[0]), ["rank", "name", "analysis"]);
-  assert.equal(
-    body.analyses[0].analysis,
-    `Leenos a réalisé une excellente performance. ${comment}`
-  );
+  assert.deepEqual(promptBody(calls[1]).report.players.map(({ rank }) => rank), [2]);
 });
 
-test("le Worker rejette un troisième énoncé complémentaire", async () => {
-  const response = await callWorker(
-    "Il a remporté dix attaques. Son efficacité a été maximale. Son impact offensif a été important."
-  );
+test("un jugement global nettoyable est supprimé sans appel complémentaire", async () => {
+  const body = requestBody(1);
+  const comment = `Il a réalisé une excellente performance. ${COMMENT}`;
+  const { response, calls } = await callWorker(body, [groqResponse(entriesFor(body, [1], { 1: { analysis: comment } }))]);
+  assert.equal(calls.length, 1);
+  assert.equal((await response.json()).analyses[0].analysis, `Joueur 1 a réalisé une très bonne performance. ${COMMENT}`);
+});
+
+test("une mention interdite non nettoyable entraîne la complétion du rang", async () => {
+  const body = requestBody(2);
+  const forbidden = "Son score total reflète dix attaques victorieuses et une forte activité.";
+  const first = entriesFor(body, undefined, { 1: { analysis: forbidden } });
+  const { response, calls } = await callWorker(body, [groqResponse(first), groqResponse(entriesFor(body, [1]))]);
+  assert.equal(response.status, 200);
+  assert.deepEqual(promptBody(calls[1]).report.players.map(({ rank }) => rank), [1]);
+});
+
+test("un doublon de rang est écarté sans perdre les autres rangs", async () => {
+  const body = requestBody(3);
+  const initial = [...entriesFor(body), { ...entriesFor(body, [2])[0], analysis: "Avec neuf attaques réussies, son impact offensif est resté important." }];
+  const { response, calls } = await callWorker(body, [groqResponse(initial), groqResponse(entriesFor(body, [2]))]);
+  const result = await response.json();
+  assert.equal(response.status, 200);
+  assert.deepEqual(promptBody(calls[1]).report.players.map(({ rank }) => rank), [2]);
+  assert.deepEqual(result.analyses.map(({ rank }) => rank), [1, 2, 3]);
+});
+
+test("la fusion réussie reste triée et sans doublon", async () => {
+  const body = requestBody(4);
+  const { response } = await callWorker(body, [
+    groqResponse(entriesFor(body, [4, 2])),
+    groqResponse(entriesFor(body, [3, 1]))
+  ]);
+  const analyses = (await response.json()).analyses;
+  assert.deepEqual(analyses.map(({ rank }) => rank), [1, 2, 3, 4]);
+  assert.equal(new Set(analyses.map(({ name }) => name)).size, 4);
+});
+
+test("une complétion incomplète liste précisément les rangs encore absents", async () => {
+  const body = requestBody(4);
+  const { response, calls } = await callWorker(body, [
+    groqResponse(entriesFor(body, [1])),
+    groqResponse(entriesFor(body, [2]))
+  ]);
+  assert.equal(calls.length, 2);
   assert.equal(response.status, 500);
-  assert.match((await response.json()).error, /dépasse deux phrases/);
+  assert.match((await response.json()).error, /rangs 3, 4\.$/);
+});
+
+test("un 429 au premier appel conserve le contrat GROQ_RATE_LIMIT", async () => {
+  const { response, calls } = await callWorker(requestBody(1), [rateLimitResponse()]);
+  assert.equal(calls.length, 1);
+  assert.equal(response.status, 429);
+  assert.deepEqual(await response.json(), {
+    ok: false,
+    error: "Quota Groq temporairement atteint.",
+    code: "GROQ_RATE_LIMIT",
+    model: "openai/gpt-oss-120b",
+    retry_after_seconds: 18,
+    detail: "rate limited"
+  });
+});
+
+test("un 429 pendant la complétion conserve le contrat GROQ_RATE_LIMIT", async () => {
+  const body = requestBody(2);
+  const { response, calls } = await callWorker(body, [groqResponse(entriesFor(body, [1])), rateLimitResponse()]);
+  assert.equal(calls.length, 2);
+  assert.equal(response.status, 429);
+  assert.equal((await response.json()).code, "GROQ_RATE_LIMIT");
+});
+
+test("la ponctuation du pseudo reste ignorée dans le comptage des phrases", async () => {
+  const body = requestBody(1, { 1: "Tt!!Le Fléau !!" });
+  const { response } = await callWorker(body, [groqResponse(entriesFor(body))]);
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).analyses[0].analysis, `Tt!!Le Fléau !! a réalisé une très bonne performance. ${COMMENT}`);
+});
+
+test("le score 71 conserve la qualification très bonne performance", () => {
+  assert.equal(getGlobalPerformanceSentence(71, "Pelleas"), "Pelleas a réalisé une très bonne performance.");
+});
+
+test("deux phrases Groq et trois phrases finales restent acceptées", async () => {
+  const body = requestBody(1);
+  const comment = "Il a remporté ses dix attaques avec une efficacité maximale. Son impact offensif a été important.";
+  const { response } = await callWorker(body, [groqResponse(entriesFor(body, [1], { 1: { analysis: comment } }))]);
+  const analysis = (await response.json()).analyses[0].analysis;
+  assert.equal(response.status, 200);
+  assert.equal((analysis.match(/[.!?]+(?=\s|$)/g) || []).length, 3);
+});
+
+test("trois phrases Groq invalident le rang puis une seule complétion est tentée", async () => {
+  const body = requestBody(1);
+  const invalid = "Il a remporté dix attaques. Son efficacité a été maximale. Son impact offensif a été important.";
+  const { response, calls } = await callWorker(body, [
+    groqResponse(entriesFor(body, [1], { 1: { analysis: invalid } })),
+    groqResponse(entriesFor(body))
+  ]);
+  assert.equal(response.status, 200);
+  assert.equal(calls.length, 2);
 });
