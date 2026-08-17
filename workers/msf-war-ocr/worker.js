@@ -129,10 +129,8 @@ const WAR_ALLIANCE_ORDER = Object.freeze([
 const ANALYSIS_REQUEST_MAX_BYTES = 512 * 1024;
 const ANALYSIS_MAX_PLAYERS = 24;
 const ANALYSIS_NAME_MAX_LENGTH = 80;
-const ANALYSIS_MIN_LENGTH = 40;
 const ANALYSIS_MAX_LENGTH = 700;
 const ANALYSIS_MAX_SENTENCES = 3;
-const ANALYSIS_COMMENT_MAX_SENTENCES = 2;
 const GEMINI_ANALYSIS_TIMEOUT_MS = 90 * 1000;
 
 function isPlainObject(value) {
@@ -178,31 +176,63 @@ function isValidIsoDate(value) {
   );
 }
 
-function countSentences(text) {
-  const matches = String(text || "").match(/[.!?]+(?=\s|$)/g);
+function countSentences(text, playerName) {
+  let countableText = String(text || "");
+
+  if (playerName) {
+    countableText = countableText.split(playerName).join("PSEUDO");
+  }
+
+  const matches = countableText.match(/[.!?]+(?=\s|$)/g);
   return matches ? matches.length : 0;
 }
 
-function stripGlobalJudgmentSentences(comment) {
-  const sentences = comment.match(/.*?(?:[.!?]+(?=\s|$)|$)/gu) || [];
-  const globalJudgmentPatterns = [
-    /^(?:il|elle)\s+a\s+réalisé\s+une\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante)\s+performance[.!?]*$/iu,
-    /^(?:sa|la)\s+performance(?:\s+globale)?\s+(?:a\s+été|était)\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante|en retrait)[.!?]*$/iu,
-    /^(?:sa|la)\s+prestation(?:\s+globale)?\s+(?:a\s+été|était)\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante|en retrait)[.!?]*$/iu,
-    /^(?:il|elle)\s+a\s+(?:livré|réalisé|signé)\s+une\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante)\s+prestation[.!?]*$/iu,
-    /^globalement,?\s+(?:il|elle)\s+(?:a\s+été|était)\s+(?:exceptionnel(?:le)?|excellent(?:e)?|très bon(?:ne)?|bon(?:ne)?|solide|mitigé(?:e)?|remarquable|insuffisant(?:e)?|en retrait)[.!?]*$/iu
-  ];
+const GLOBAL_TONE_LEVELS = {
+  withdrawn: 0,
+  mixed: 1,
+  solid: 2,
+  good: 3,
+  very_good: 4,
+  excellent: 5,
+  exceptional: 6
+};
 
-  return sentences
-    .map(function (sentence) {
-      return sentence.trim();
-    })
-    .filter(function (sentence) {
-      return sentence && !globalJudgmentPatterns.some(function (pattern) {
-        return pattern.test(sentence);
-      });
-    })
-    .join(" ");
+const GLOBAL_TONE_PATTERNS = [
+  ["exceptional", /\b(?:exceptionnel(?:le)?|remarquable)\b/iu],
+  ["excellent", /\bexcellent(?:e)?\b/iu],
+  ["very_good", /\b(?:très bon(?:ne)?|très positif(?:ive)?|convaincant(?:e)?)\b/iu],
+  ["good", /\bbon(?:ne)?\b/iu],
+  ["solid", /\bsolide\b/iu],
+  ["mixed", /\bmitigé(?:e)?\b/iu],
+  ["withdrawn", /\b(?:en retrait|insuffisant(?:e)?)\b/iu]
+];
+
+export function getGlobalToneCeiling(scoreTotal) {
+  if (scoreTotal >= 90) return "exceptional";
+  if (scoreTotal >= 80) return "excellent";
+  if (scoreTotal >= 70) return "very_good";
+  if (scoreTotal >= 60) return "good";
+  if (scoreTotal >= 50) return "solid";
+  if (scoreTotal >= 40) return "mixed";
+  return "withdrawn";
+}
+
+function exceedsGlobalToneCeiling(analysis, scoreTotal) {
+  const sentences = analysis.match(/.*?(?:[.!?]+(?=\s|$)|$)/gu) || [];
+  const ceilingLevel = GLOBAL_TONE_LEVELS[getGlobalToneCeiling(scoreTotal)];
+
+  return sentences.some(function (sentence) {
+    const isGlobalJudgment =
+      /\b(?:performance|prestation|guerre|bilan global)\b/iu.test(sentence) ||
+      /\bglobalement\b/iu.test(sentence) ||
+      /\b(?:il|elle)\s+(?:a\s+été|était|a\s+(?:réalisé|signé|livré)|signe|livre)\b/iu.test(sentence);
+
+    if (!isGlobalJudgment) return false;
+
+    return GLOBAL_TONE_PATTERNS.some(function ([tone, pattern]) {
+      return pattern.test(sentence) && GLOBAL_TONE_LEVELS[tone] > ceilingLevel;
+    });
+  });
 }
 
 export function getGlobalPerformanceSentence(scoreTotal, name) {
@@ -427,48 +457,28 @@ function validateSingleAnalysisEntry(entry, player) {
     return null;
   }
 
-  const originalComment = entry.analysis.replace(/\s+/g, " ").trim();
+  const analysis = entry.analysis.replace(/\s+/g, " ").trim();
 
-  if (!originalComment) {
-    return null;
-  }
-
-  const comment = stripGlobalJudgmentSentences(originalComment);
-
-  if (!comment) {
+  if (!analysis) {
     return null;
   }
 
   if (
-    /\bperformance\b/iu.test(comment) ||
-    /\bbilan\s+global\b/iu.test(comment) ||
-    /\bscore(?:_|\s+)total\b/iu.test(comment) ||
-    /\b(?:sa|la)\s+prestation(?:\s+globale)?\s+(?:a\s+été|était)\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante|en retrait)\b/iu.test(comment) ||
-    /\b(?:livré|réalisé|signé)\s+une\s+(?:exceptionnelle|excellente|très bonne|bonne|solide|mitigée|remarquable|insuffisante)\s+prestation\b/iu.test(comment) ||
-    /\bglobalement\b[^.!?]{0,40}\b(?:exceptionnel(?:le)?|excellent(?:e)?|très bon(?:ne)?|bon(?:ne)?|solide|mitigé(?:e)?|remarquable|insuffisant(?:e)?|en retrait)\b/iu.test(comment)
+    /\bscore(?:_|\s+)total\b/iu.test(analysis) ||
+    exceedsGlobalToneCeiling(analysis, player.score_total)
   ) {
     return null;
   }
 
   if (
-    comment.length < ANALYSIS_MIN_LENGTH ||
-    comment.length > ANALYSIS_MAX_LENGTH
+    analysis.length > ANALYSIS_MAX_LENGTH
   ) {
     return null;
   }
 
-  const commentSentenceCount = countSentences(comment);
+  const sentenceCount = countSentences(analysis, player.name);
 
-  if (commentSentenceCount > ANALYSIS_COMMENT_MAX_SENTENCES) {
-    return null;
-  }
-
-  const analysis = getGlobalPerformanceSentence(player.score_total, player.name) + " " + comment;
-
-  if (
-    analysis.length > ANALYSIS_MAX_LENGTH ||
-    1 + commentSentenceCount > ANALYSIS_MAX_SENTENCES
-  ) {
+  if (sentenceCount < 1 || sentenceCount > ANALYSIS_MAX_SENTENCES) {
     return null;
   }
 
@@ -525,12 +535,21 @@ function validateAnalysisResponse(parsed, players) {
 }
 
 function buildAnalysisPrompt(body, isCompletion) {
+  const toneCeilings = body.report.players.map(function (player) {
+    return {
+      rank: player.rank,
+      name: player.name,
+      score_total: player.score_total,
+      global_tone_ceiling: getGlobalToneCeiling(player.score_total).toUpperCase()
+    };
+  });
+
   return [
     "Tu rédiges uniquement les analyses individuelles d’une guerre Marvel Strike Force terminée.",
 
     "Le rapport fourni est définitif. Tu ne dois recalculer, corriger, modifier ou retourner aucun score, rang, classement, résumé ou autre valeur numérique.",
 
-    "Pour chaque joueur, rédige en français uniquement un commentaire factuel complémentaire de 1 à 2 phrases, concernant uniquement cette guerre.",
+    "Pour chaque joueur, rédige directement l’analyse finale complète en français, en 1 à 3 phrases naturelles, concises et spécifiques à cette guerre.",
 
     "Chaque commentaire doit porter sur les attaques, les dégâts, l’efficacité, l’impact, l’activité, la défense ou les déviations, en mettant en avant au moins un point fort lorsqu’il existe et une limite lorsqu’elle est pertinente.",
 
@@ -540,23 +559,17 @@ function buildAnalysisPrompt(body, isCompletion) {
 
     "Ne mentionne jamais les prochaines guerres, les futures guerres, la prochaine participation ou une amélioration attendue.",
 
-    "Ne rédige aucune première phrase de jugement global : elle sera ajoutée par le code.",
-
-    "La phrase déterministe précédente contient déjà le pseudo. Le champ analysis produit ne doit jamais répéter le pseudo ou le nom du joueur.",
-
-    "Commence le commentaire comme une continuation naturelle, en privilégiant des débuts comme « Avec… », « Grâce à… », « Sur le plan offensif… », « Défensivement… », « Son efficacité… », « Son impact… » ou une formulation équivalente.",
-
-    "Interdit : « Leenos a affiché une grande efficacité avec 12 attaques réussies… » Attendu : « Avec 12 attaques réussies, il a affiché une grande efficacité… »",
+    "Tu peux utiliser le pseudo lorsqu’il rend la rédaction naturelle, sans le répéter inutilement. Varie les débuts : « Avec… », « Sur le plan offensif… », « Très actif… », le pseudo suivi de « signe… », « Une guerre… », « Grâce à… » ou une formulation équivalente.",
 
     "Repères d’interprétation autorisés : un volume ou une moyenne de dégâts élevés peuvent indiquer des cibles ambitieuses ; de faibles dégâts peuvent indiquer des cibles plus modestes ; beaucoup d’attaques avec de gros dégâts mais plusieurs ratés indiquent une activité ambitieuse mais imparfaite ; de nombreuses victoires défensives indiquent une contribution défensive importante ; les déviations indiquent une implication dans la protection de l’alliance.",
 
-    "La tonalité générale du commentaire peut être adaptée au score_total déjà présent, sans jamais le citer ni qualifier le résultat global.",
+    "Pour chaque joueur, score_total est la vérité déterministe et ne doit jamais être recalculé ni cité. global_tone_ceiling est le plafond absolu du jugement global : tu peux employer une tonalité plus faible, jamais une tonalité supérieure. Un sous-aspect explicitement nommé peut être qualifié plus fortement, par exemple « Son efficacité a été exceptionnelle. »",
 
-    "N’utilise jamais le mot « performance », « prestation » comme jugement global, « bilan global », « score_total » ou « score total ». Ne répète pas une qualification globale et ne tente pas de rédiger la phrase déterministe.",
+    "Échelle ordonnée des tonalités globales, de la plus faible à la plus forte : WITHDRAWN, MIXED, SOLID, GOOD, VERY_GOOD, EXCELLENT, EXCEPTIONAL.",
 
-    "Un sous-score ou un aspect précis peut être qualifié, par exemple : « Son efficacité a été exceptionnelle. »",
+    "Plafonds déterministes par joueur : " + JSON.stringify(toneCeilings),
 
-    "Varie les formulations d’un joueur à l’autre. Ne te contente pas d’énoncer les chiffres. Privilégie une lecture analytique.",
+    "Varie réellement les formulations d’un joueur à l’autre. Ne te contente pas d’énoncer les chiffres, évite le ton journalistique ou grandiloquent et privilégie une lecture analytique.",
 
     "Retourne uniquement un JSON valide contenant exactement la clé analyses.",
 
