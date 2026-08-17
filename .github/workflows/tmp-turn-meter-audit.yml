@@ -115,3 +115,18 @@ jobs:
         with:
           name: turn-meter-audit
           path: turn-meter-audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: turn-meter-source-bundle
+          path: |
+            scripts/msf_capabilities_normalizer
+            scripts/msf_capabilities_indexer
+            scripts/msf_capabilities_web_publisher
+            scripts/msf_capabilities_explorer_builder
+            tests/test_msf_capabilities_normalizer.py
+            tests/test_msf_ability_energy_normalization.py
+            tests/test_msf_capabilities_indexer.py
+            tests/test_msf_capabilities_web_publisher.py
+            tests/test_msf_capabilities_explorer_builder.py
+            docs/codex.js
+            docs/codex-core.js
