@@ -12,7 +12,7 @@ import requests
 import torch
 import torch.nn.functional as F
 from PIL import Image
-from torchvision.models import mobilenet_v3_large, MobileNet_V3_Large_Weights
+from torchvision.models import MobileNet_V3_Large_Weights, mobilenet_v3_large
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "docs/data/war-counter-vision/portrait-signatures.json"
@@ -22,6 +22,15 @@ BENCH_SLOTS = ("G1", "G2", "G3", "G4", "G5", "D1", "D2", "D3", "D4", "D5")
 OUT = ROOT / "benchmark-r5-embedding-report.json"
 CACHE = ROOT / ".cache/war-counter-r5-portraits"
 CACHE.mkdir(parents=True, exist_ok=True)
+
+MULTIVIEW_REGIONS = (
+    ("full", 0.00, 0.00, 1.00, 1.00),
+    ("center", 0.18, 0.14, 0.82, 0.86),
+    ("top", 0.08, 0.00, 0.92, 0.58),
+    ("bottom", 0.08, 0.42, 0.92, 1.00),
+    ("left", 0.00, 0.08, 0.58, 0.92),
+    ("right", 0.42, 0.08, 1.00, 0.92),
+)
 
 
 def load_json(path):
@@ -117,21 +126,11 @@ def neutralize_red(image):
 
 
 def neutralize_red_cross_geometry(image):
-    """Neutralize only red pixels aligned with the two large X diagonals.
-
-    This deliberately preserves red pixels elsewhere in the portrait. The X is
-    treated as two diagonals spanning the crop, with a modest tolerance that is
-    proportional to crop size. It is intentionally simple and mobile-friendly.
-    """
     source = image.convert("RGB")
     width, height = source.size
     pixels = list(source.getdata())
     changed = 0
     out = []
-
-    # In normalized coordinates, the two X strokes are y=x and y=1-x.
-    # 0.085 was chosen as a narrow first-pass band: enough for the thick game
-    # overlay, but much smaller than the previous whole-image red neutralizer.
     tolerance = 0.085
 
     for index, (red, green, blue) in enumerate(pixels):
@@ -152,6 +151,15 @@ def neutralize_red_cross_geometry(image):
     result = Image.new("RGB", source.size)
     result.putdata(out)
     return result, changed
+
+
+def crop_relative(image, x1, y1, x2, y2):
+    width, height = image.size
+    left = max(0, min(width - 1, round(x1 * width)))
+    top = max(0, min(height - 1, round(y1 * height)))
+    right = max(left + 1, min(width, round(x2 * width)))
+    bottom = max(top + 1, min(height, round(y2 * height)))
+    return image.crop((left, top, right, bottom))
 
 
 def rank_slots(sim, ref_ids, expected, slots):
@@ -274,6 +282,55 @@ def evaluate_variant(name, images, model, preprocess, ref_emb, ref_ids, expected
     return sim, results, summary, team
 
 
+def build_multiview_fusions(defense_images, model, preprocess, ref_emb):
+    all_views = []
+    view_names = []
+    for image in defense_images:
+        for name, x1, y1, x2, y2 in MULTIVIEW_REGIONS:
+            all_views.append(crop_relative(image, x1, y1, x2, y2))
+            view_names.append(name)
+
+    embeddings = embed_images(model, preprocess, all_views, batch_size=30)
+    raw_sim = embeddings @ ref_emb.T
+    views_per_slot = len(MULTIVIEW_REGIONS)
+    sim = raw_sim.view(5, views_per_slot, -1)
+
+    max_cosine = torch.max(sim, dim=1).values
+    top3_cosine = torch.topk(sim, k=3, dim=1).values.mean(dim=1)
+
+    rrf = torch.zeros_like(max_cosine)
+    rrf_k = 60.0
+    for slot_index in range(5):
+        for view_index in range(views_per_slot):
+            order = torch.argsort(sim[slot_index, view_index], descending=True)
+            ranks = torch.empty_like(order, dtype=torch.float32)
+            ranks[order] = torch.arange(1, order.numel() + 1, dtype=torch.float32)
+            rrf[slot_index] += 1.0 / (rrf_k + ranks)
+
+    return {
+        "maxCosine": max_cosine,
+        "top3MeanCosine": top3_cosine,
+        "reciprocalRankFusion": rrf,
+    }
+
+
+def evaluate_defense_fusion(name, defense_sim, ref_ids, expected_defense, defense_slots):
+    results, summary = rank_slots(defense_sim, ref_ids, expected_defense, defense_slots)
+    team = score_defense_teams(defense_sim, ref_ids, expected_defense)
+    print(f"{name} defense ranks:")
+    for item in results:
+        print(f"{item['slot']:>2} {item['expectedId']:<24} rank {item['rank']}")
+    print(
+        f"{name} RetCon: rank-sum {team['targetRankByRankSum']}; "
+        f"cosine {team['targetRankByCosine']}"
+    )
+    return {
+        "summary": summary,
+        "defenseTeamBenchmark": team,
+        "slots": results,
+    }
+
+
 def main():
     started = time.time()
     catalog = load_json(CATALOG)
@@ -349,21 +406,35 @@ def main():
         "geometric-red-x", geometric_images, model, preprocess, ref_emb, ref_ids, expected, slots
     )
 
+    defense_images = query_images[5:10]
+    defense_expected = expected[5:10]
+    defense_slots = slots[5:10]
+    fusions = build_multiview_fusions(defense_images, model, preprocess, ref_emb)
+    multiview_results = {}
+    for fusion_name, defense_sim in fusions.items():
+        multiview_results[fusion_name] = evaluate_defense_fusion(
+            f"multiview-{fusion_name}",
+            defense_sim,
+            ref_ids,
+            defense_expected,
+            defense_slots,
+        )
+
     print("changed red pixels (whole -> geometric):")
-    for slot in slots[5:10]:
+    for slot in defense_slots:
         print(f"{slot}: {whole_changed[slot]} -> {geometric_changed[slot]}")
 
     report = {
-        "schemaVersion": "1.3.0",
-        "benchmark": "R5 base vs whole-red vs geometric-red-X defense crops 128px",
+        "schemaVersion": "1.4.0",
+        "benchmark": "R5 MobileNet defense: base/red masks vs multiview crop fusion",
         "model": "torchvision MobileNet_V3_Large IMAGENET1K_V2, classifier removed, cosine similarity",
         "queryCropSize": "128x118",
         "referenceCount": len(ref_ids),
         "redRule": "red > 145 && red > green * 1.35 && red > blue * 1.25",
-        "geometricMask": {
-            "description": "Only red pixels within normalized diagonal bands y=x or y=1-x are neutralized",
-            "tolerance": 0.085,
-        },
+        "multiviewRegions": [
+            {"id": name, "x1": x1, "y1": y1, "x2": x2, "y2": y2}
+            for name, x1, y1, x2, y2 in MULTIVIEW_REGIONS
+        ],
         "base": {
             "summary": base_summary,
             "defenseTeamBenchmark": base_team,
@@ -381,6 +452,7 @@ def main():
             "defenseTeamBenchmark": geometric_team,
             "slots": geometric_results,
         },
+        "multiviewDefense": multiview_results,
         "downloadErrors": errors,
         "elapsedSeconds": round(time.time() - started, 2),
     }
