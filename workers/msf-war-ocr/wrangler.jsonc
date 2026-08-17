@@ -3,6 +3,9 @@
   "main": "worker.js",
   "compatibility_date": "2026-08-01",
   "keep_vars": true,
+  "vars": {
+    "GROQ_MODEL": "openai/gpt-oss-120b"
+  },
   "secrets": {
     "required": [
       "GEMINI_API_KEY",
