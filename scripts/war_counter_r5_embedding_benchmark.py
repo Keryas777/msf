@@ -3,7 +3,6 @@ import base64
 import io
 import itertools
 import json
-import math
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -74,9 +73,9 @@ def download_one(item):
     last = None
     for attempt in range(3):
         try:
-            r = requests.get(url, timeout=20)
-            r.raise_for_status()
-            dest.write_bytes(r.content)
+            response = requests.get(url, timeout=20)
+            response.raise_for_status()
+            dest.write_bytes(response.content)
             return cid, dest, None
         except Exception as exc:
             last = str(exc)
@@ -89,22 +88,69 @@ def embed_images(model, preprocess, images, batch_size=32):
     model.eval()
     with torch.inference_mode():
         for start in range(0, len(images), batch_size):
-            batch = torch.stack([preprocess(im) for im in images[start:start + batch_size]])
+            batch = torch.stack([preprocess(image) for image in images[start:start + batch_size]])
             emb = model(batch)
             emb = F.normalize(emb, dim=1)
             out.append(emb.cpu())
     return torch.cat(out, dim=0)
 
 
-def score_defense_teams(sim, ref_ids, expected):
+def neutralize_red(image):
+    # Mirrors docs/war-counter-benchmark-export.js exactly:
+    # red > 145 && red > green * 1.35 && red > blue * 1.25
+    source = image.convert("RGB")
+    pixels = list(source.getdata())
+    neutralized = []
+    changed = 0
+    for red, green, blue in pixels:
+        if red > 145 and red > green * 1.35 and red > blue * 1.25:
+            gray = round((green + blue) / 2)
+            neutralized.append((gray, gray, gray))
+            changed += 1
+        else:
+            neutralized.append((red, green, blue))
+    result = Image.new("RGB", source.size)
+    result.putdata(neutralized)
+    return result, changed
+
+
+def rank_slots(sim, ref_ids, expected, slots):
+    results = []
+    top_counts = {"top1": 0, "top5": 0, "top10": 0, "top20": 0}
+    ranks = []
+    for index, slot in enumerate(slots):
+        order = torch.argsort(sim[index], descending=True).tolist()
+        ranked_ids = [ref_ids[position] for position in order]
+        target = expected[index]
+        rank = ranked_ids.index(target) + 1 if target in ranked_ids else None
+        if rank is not None:
+            ranks.append(rank)
+            for k in (1, 5, 10, 20):
+                if rank <= k:
+                    top_counts[f"top{k}"] += 1
+        results.append({
+            "slot": slot,
+            "expectedId": target,
+            "rank": rank,
+            "top20": [
+                {"id": ref_ids[position], "similarity": round(float(sim[index, position]), 6)}
+                for position in order[:20]
+            ],
+        })
+    return results, {
+        **top_counts,
+        "meanRank": round(sum(ranks) / len(ranks), 2) if ranks else None,
+    }
+
+
+def score_defense_teams(defense_sim, ref_ids, expected_defense):
     ref_index = {cid: index for index, cid in enumerate(ref_ids)}
     valid_ids = set(ref_index)
     teams = load_defense_teams(valid_ids)
-    defense_rows = list(range(5, 10))
 
     rank_maps = []
-    for query_index in defense_rows:
-        order = torch.argsort(sim[query_index], descending=True).tolist()
+    for query_index in range(5):
+        order = torch.argsort(defense_sim[query_index], descending=True).tolist()
         rank_maps.append({ref_ids[ref_pos]: rank for rank, ref_pos in enumerate(order, start=1)})
 
     scored = []
@@ -116,8 +162,8 @@ def score_defense_teams(sim, ref_ids, expected):
         for assignment in itertools.permutations(team["chars"]):
             rank_sum = sum(rank_maps[slot_index][cid] for slot_index, cid in enumerate(assignment))
             cosine = sum(
-                float(sim[query_index, ref_index[cid]])
-                for query_index, cid in zip(defense_rows, assignment)
+                float(defense_sim[slot_index, ref_index[cid]])
+                for slot_index, cid in enumerate(assignment)
             ) / 5.0
             if best_rank_sum is None or rank_sum < best_rank_sum:
                 best_rank_sum = rank_sum
@@ -134,9 +180,9 @@ def score_defense_teams(sim, ref_ids, expected):
             "cosineAssignment": best_cosine_assignment,
         })
 
-    by_rank = sorted(scored, key=lambda x: (x["bestRankSum"], -x["bestCosine"], x["key"]))
-    by_cosine = sorted(scored, key=lambda x: (-x["bestCosine"], x["bestRankSum"], x["key"]))
-    expected_set = frozenset(expected[5:10])
+    by_rank = sorted(scored, key=lambda item: (item["bestRankSum"], -item["bestCosine"], item["key"]))
+    by_cosine = sorted(scored, key=lambda item: (-item["bestCosine"], item["bestRankSum"], item["key"]))
+    expected_set = frozenset(expected_defense)
 
     def compact(item, rank):
         return {
@@ -160,22 +206,14 @@ def score_defense_teams(sim, ref_ids, expected):
         (index for index, item in enumerate(by_cosine, start=1) if frozenset(item["chars"]) == expected_set),
         None,
     )
-    target_by_rank = compact(by_rank[target_rank - 1], target_rank) if target_rank else None
-    target_by_cosine = compact(by_cosine[target_cosine_rank - 1], target_cosine_rank) if target_cosine_rank else None
-
-    print(f"defense teams: {len(teams)}")
-    print(f"expected defense team rank by rank-sum: {target_rank}")
-    print(f"expected defense team rank by cosine: {target_cosine_rank}")
-    for index, item in enumerate(by_rank[:5], start=1):
-        print(f"team rank {index}: {item['key']} mean-rank {item['bestRankMean']:.2f} cosine {item['bestCosine']:.4f}")
 
     return {
         "teamCount": len(teams),
-        "expectedCharacters": expected[5:10],
+        "expectedCharacters": expected_defense,
         "targetRankByRankSum": target_rank,
         "targetRankByCosine": target_cosine_rank,
-        "targetByRankSum": target_by_rank,
-        "targetByCosine": target_by_cosine,
+        "targetByRankSum": compact(by_rank[target_rank - 1], target_rank) if target_rank else None,
+        "targetByCosine": compact(by_cosine[target_cosine_rank - 1], target_cosine_rank) if target_cosine_rank else None,
         "top5ByRankSum": [compact(item, index) for index, item in enumerate(by_rank[:5], start=1)],
         "top5ByCosine": [compact(item, index) for index, item in enumerate(by_cosine[:5], start=1)],
     }
@@ -184,7 +222,7 @@ def score_defense_teams(sim, ref_ids, expected):
 def main():
     started = time.time()
     catalog = load_json(CATALOG)
-    refs = [x for x in catalog.get("items", []) if x.get("id") and x.get("u")]
+    refs = [item for item in catalog.get("items", []) if item.get("id") and item.get("u")]
     bench_slots = load_benchmark_slots()
 
     print(f"catalog refs: {len(refs)}")
@@ -213,8 +251,8 @@ def main():
     ref_ids = []
     for item in usable:
         try:
-            with Image.open(downloaded[item["id"]]) as im:
-                ref_images.append(im.convert("RGB"))
+            with Image.open(downloaded[item["id"]]) as image:
+                ref_images.append(image.convert("RGB"))
                 ref_ids.append(item["id"])
         except Exception as exc:
             errors[item["id"]] = f"decode: {exc}"
@@ -226,62 +264,63 @@ def main():
     expected = []
     slots = []
     for slot in bench_slots:
-        try:
-            raw = base64.b64decode(slot["jpegBase64"])
-            with Image.open(io.BytesIO(raw)) as im:
-                query_images.append(im.convert("RGB"))
-        except Exception as exc:
-            raise RuntimeError(f"Unable to decode benchmark crop {slot.get('slot')}: {exc}") from exc
+        raw = base64.b64decode(slot["jpegBase64"])
+        with Image.open(io.BytesIO(raw)) as image:
+            query_images.append(image.convert("RGB"))
         expected.append(slot["characterId"])
         slots.append(slot["slot"])
-    query_emb = embed_images(model, preprocess, query_images, batch_size=10)
 
-    sim = query_emb @ ref_emb.T
-    results = []
-    top_counts = {"top1": 0, "top5": 0, "top10": 0, "top20": 0}
-    ranks = []
+    base_emb = embed_images(model, preprocess, query_images, batch_size=10)
+    base_sim = base_emb @ ref_emb.T
+    base_results, base_summary = rank_slots(base_sim, ref_ids, expected, slots)
+    base_team = score_defense_teams(base_sim[5:10], ref_ids, expected[5:10])
 
-    for i, slot in enumerate(slots):
-        order = torch.argsort(sim[i], descending=True).tolist()
-        ranked_ids = [ref_ids[j] for j in order]
-        target = expected[i]
-        rank = ranked_ids.index(target) + 1 if target in ranked_ids else None
-        if rank is not None:
-            ranks.append(rank)
-            for k in (1, 5, 10, 20):
-                if rank <= k:
-                    top_counts[f"top{k}"] += 1
-        top20 = [
-            {"id": ref_ids[j], "similarity": round(float(sim[i, j]), 6)}
-            for j in order[:20]
-        ]
-        results.append({
-            "slot": slot,
-            "expectedId": target,
-            "rank": rank,
-            "top20": top20,
-        })
-        print(f"{slot:>2} {target:<24} rank {rank}")
+    red_neutral_images = list(query_images[:5])
+    changed_pixels = {}
+    for index in range(5, 10):
+        neutralized, changed = neutralize_red(query_images[index])
+        red_neutral_images.append(neutralized)
+        changed_pixels[slots[index]] = changed
 
-    defense_team_benchmark = score_defense_teams(sim, ref_ids, expected)
+    red_emb = embed_images(model, preprocess, red_neutral_images, batch_size=10)
+    red_sim = red_emb @ ref_emb.T
+    red_results, red_summary = rank_slots(red_sim, ref_ids, expected, slots)
+    red_team = score_defense_teams(red_sim[5:10], ref_ids, expected[5:10])
+
+    print("base ranks:")
+    for item in base_results:
+        print(f"{item['slot']:>2} {item['expectedId']:<24} rank {item['rank']}")
+    print("red-neutral defense ranks:")
+    for item in red_results[5:10]:
+        print(f"{item['slot']:>2} {item['expectedId']:<24} rank {item['rank']} changed {changed_pixels[item['slot']]}")
+    print(
+        "RetCon base -> red-neutral: "
+        f"rank-sum {base_team['targetRankByRankSum']} -> {red_team['targetRankByRankSum']}; "
+        f"cosine {base_team['targetRankByCosine']} -> {red_team['targetRankByCosine']}"
+    )
 
     report = {
-        "schemaVersion": "1.1.0",
-        "benchmark": "R5 base crops 128px",
+        "schemaVersion": "1.2.0",
+        "benchmark": "R5 base vs red-neutral defense crops 128px",
         "model": "torchvision MobileNet_V3_Large IMAGENET1K_V2, classifier removed, cosine similarity",
         "queryCropSize": "128x118",
         "referenceCount": len(ref_ids),
-        "summary": {
-            **top_counts,
-            "meanRank": round(sum(ranks) / len(ranks), 2) if ranks else None,
-            "elapsedSeconds": round(time.time() - started, 2),
+        "redNeutralRule": "red > 145 && red > green * 1.35 && red > blue * 1.25; replacement gray=(green+blue)/2",
+        "base": {
+            "summary": base_summary,
+            "defenseTeamBenchmark": base_team,
+            "slots": base_results,
         },
-        "defenseTeamBenchmark": defense_team_benchmark,
+        "redNeutralDefense": {
+            "summary": red_summary,
+            "changedPixels": changed_pixels,
+            "defenseTeamBenchmark": red_team,
+            "slots": red_results,
+        },
         "downloadErrors": errors,
-        "slots": results,
+        "elapsedSeconds": round(time.time() - started, 2),
     }
     OUT.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps(report["summary"], ensure_ascii=False))
 
 
 if __name__ == "__main__":
