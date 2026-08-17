@@ -11,7 +11,7 @@
   const ANALYSIS_QUEUE_DELAY_MS = 30000;
   const RETRY_DELAYS_MS = [10000, 30000];
   const GEMINI_RETRY_MARGIN_MS = 3000;
-  const MAX_CAPTURES = 6;
+  const MAX_CAPTURES = 10;
   const DRAFT_VALIDATION = globalThis.MsfWarDraftValidation;
   const REPORT_CALCULATOR = globalThis.MsfWarReportCalculator;
   const REPORT_RANKER = globalThis.MsfWarReportRanker;
