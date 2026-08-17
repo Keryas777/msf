@@ -585,6 +585,16 @@ function buildAnalysisPrompt(body, isCompletion) {
   ].join("\n\n");
 }
 
+export function parseGroqDurationSeconds(value) {
+  if (typeof value !== "string") return null;
+
+  const match = value.trim().match(/^(?:(\d+(?:\.\d+)?)m)?(?:(\d+(?:\.\d+)?)(?:s)?)?$/i);
+  if (!match || (!match[1] && !match[2])) return null;
+
+  const seconds = (Number(match[1] || 0) * 60) + Number(match[2] || 0);
+  return Number.isFinite(seconds) && seconds > 0 ? Math.ceil(seconds) : null;
+}
+
 async function requestGroqAnalyses(prompt, apiKey, model) {
 
   const endpoint = "https://api.groq.com/openai/v1/chat/completions";
@@ -646,8 +656,11 @@ async function requestGroqAnalyses(prompt, apiKey, model) {
     const message = groqData?.error?.message || "Erreur Groq";
 
     if (groqResponse.status === 429) {
-      const retryAfter = Number.parseFloat(
-        String(groqResponse.headers.get("retry-after") || "")
+      const retryAfter = parseGroqDurationSeconds(
+        groqResponse.headers.get("retry-after")
+      );
+      const tokenReset = parseGroqDurationSeconds(
+        groqResponse.headers.get("x-ratelimit-reset-tokens")
       );
 
       return Response.json(
@@ -656,14 +669,30 @@ async function requestGroqAnalyses(prompt, apiKey, model) {
           error: "Quota Groq temporairement atteint.",
           code: "GROQ_RATE_LIMIT",
           model: model,
-          retry_after_seconds:
-            Number.isFinite(retryAfter) && retryAfter > 0
-              ? Math.ceil(retryAfter)
-              : null,
+          retry_after_seconds: retryAfter || tokenReset || 60,
           detail: message
         },
         {
           status: 429
+        }
+      );
+    }
+
+    if (/failed to validate json/i.test(message)) {
+      const tokenReset = parseGroqDurationSeconds(
+        groqResponse.headers.get("x-ratelimit-reset-tokens")
+      );
+
+      return Response.json(
+        {
+          ok: false,
+          error: message,
+          code: "GROQ_GENERATION_RETRY",
+          model: model,
+          retry_after_seconds: tokenReset || 60
+        },
+        {
+          status: groqResponse.status
         }
       );
     }

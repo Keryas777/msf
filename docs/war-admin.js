@@ -1530,7 +1530,7 @@
       const error = new Error(getErrorDetail(data) || `HTTP ${response.status}`);
       const retryAfterSeconds = Number(data?.retry_after_seconds);
       if (
-        (data?.code === "GROQ_RATE_LIMIT" || data?.code === "GEMINI_RATE_LIMIT") &&
+        (data?.code === "GROQ_RATE_LIMIT" || data?.code === "GROQ_GENERATION_RETRY" || data?.code === "GEMINI_RATE_LIMIT") &&
         Number.isFinite(retryAfterSeconds) &&
         retryAfterSeconds > 0
       ) {
