@@ -8,6 +8,7 @@ on:
       - 'benchmarks/war-counter-r5/**'
       - 'scripts/war_counter_r5_embedding_benchmark.py'
       - 'scripts/war_counter_r5_feature_benchmark.py'
+      - 'scripts/war_counter_r5_export_akaze_refs.py'
       - '.github/workflows/war-counter-r5-embedding-benchmark.yml'
       - 'docs/data/war-counter-vision/portrait-signatures.json'
       - 'docs/data/war-counters.json'
@@ -51,6 +52,9 @@ jobs:
       - name: Run ORB and AKAZE feature benchmark
         run: python scripts/war_counter_r5_feature_benchmark.py
 
+      - name: Export AKAZE reference descriptors
+        run: python scripts/war_counter_r5_export_akaze_refs.py
+
       - name: Upload reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -59,4 +63,5 @@ jobs:
           path: |
             benchmark-r5-embedding-report.json
             benchmark-r5-feature-report.json
+            benchmark-r5-akaze-reference-descriptors.npz
           if-no-files-found: warn
