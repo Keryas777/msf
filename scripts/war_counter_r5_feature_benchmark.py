@@ -62,19 +62,49 @@ def download_one(item):
 def to_cv_gray(image):
     rgb = np.asarray(image.convert("RGB"))
     gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
-    # Give local feature detectors a stable amount of detail independent of
-    # source resolution while preserving aspect ratio.
     height, width = gray.shape[:2]
     scale = 320.0 / max(width, height)
     if scale != 1.0:
-        gray = cv2.resize(gray, (max(32, round(width * scale)), max(32, round(height * scale))), interpolation=cv2.INTER_CUBIC)
+        gray = cv2.resize(
+            gray,
+            (max(32, round(width * scale)), max(32, round(height * scale))),
+            interpolation=cv2.INTER_CUBIC,
+        )
     return gray
 
 
+def create_akaze():
+    legacy_factory = getattr(cv2, "AKAZE_create", None)
+    if callable(legacy_factory):
+        return legacy_factory(threshold=0.0008), "cv2.AKAZE_create"
+
+    akaze_class = getattr(cv2, "AKAZE", None)
+    class_factory = getattr(akaze_class, "create", None) if akaze_class is not None else None
+    if callable(class_factory):
+        return class_factory(threshold=0.0008), "cv2.AKAZE.create"
+
+    raise RuntimeError(
+        "AKAZE is unavailable in this OpenCV build "
+        f"(cv2.__version__={getattr(cv2, '__version__', 'unknown')})"
+    )
+
+
 def make_detectors():
+    akaze, akaze_factory = create_akaze()
+    print(
+        "OpenCV feature factories: "
+        f"version={getattr(cv2, '__version__', 'unknown')} "
+        f"ORB=cv2.ORB_create AKAZE={akaze_factory}"
+    )
     return {
-        "orb": cv2.ORB_create(nfeatures=1800, scaleFactor=1.2, nlevels=8, edgeThreshold=15, fastThreshold=8),
-        "akaze": cv2.AKAZE_create(threshold=0.0008),
+        "orb": cv2.ORB_create(
+            nfeatures=1800,
+            scaleFactor=1.2,
+            nlevels=8,
+            edgeThreshold=15,
+            fastThreshold=8,
+        ),
+        "akaze": akaze,
     }
 
 
@@ -95,9 +125,6 @@ def match_score(query_desc, ref_desc, norm):
         first, second = pair
         if first.distance < 0.76 * second.distance:
             good.append(first)
-    # Normalize for descriptor count so a busy portrait does not win only by
-    # having more keypoints. The sqrt term still rewards several independent
-    # correspondences instead of one accidental match.
     denom = max(1.0, min(len(query_desc), len(ref_desc)))
     score = (len(good) / denom) * (1.0 + np.sqrt(len(good)))
     return float(score), len(good)
@@ -188,7 +215,10 @@ def load_defense_teams(valid_ids):
 
 def score_team_rankings(defense_rankings, ref_ids, expected_defense):
     teams = load_defense_teams(set(ref_ids))
-    rank_maps = [{cid: rank for rank, cid in enumerate(ranking, start=1)} for ranking in defense_rankings]
+    rank_maps = [
+        {cid: rank for rank, cid in enumerate(ranking, start=1)}
+        for ranking in defense_rankings
+    ]
     scored = []
     for team in teams:
         best_sum = None
@@ -201,11 +231,18 @@ def score_team_rankings(defense_rankings, ref_ids, expected_defense):
         scored.append({**team, "bestRankSum": best_sum, "assignment": best_assignment})
     scored.sort(key=lambda row: (row["bestRankSum"], row["key"]))
     expected_set = frozenset(expected_defense)
-    target_rank = next((idx for idx, row in enumerate(scored, start=1) if frozenset(row["chars"]) == expected_set), None)
+    target_rank = next(
+        (idx for idx, row in enumerate(scored, start=1) if frozenset(row["chars"]) == expected_set),
+        None,
+    )
     return {
         "teamCount": len(teams),
         "targetRank": target_rank,
-        "target": ({**scored[target_rank - 1], "assignment": list(scored[target_rank - 1]["assignment"])} if target_rank else None),
+        "target": (
+            {**scored[target_rank - 1], "assignment": list(scored[target_rank - 1]["assignment"])}
+            if target_rank
+            else None
+        ),
         "top5": [
             {**row, "assignment": list(row["assignment"]), "rank": idx}
             for idx, row in enumerate(scored[:5], start=1)
@@ -256,31 +293,54 @@ def main():
 
     detectors = make_detectors()
     orb_results, orb_rankings = rank_method(
-        "ORB", detectors["orb"], cv2.NORM_HAMMING, query_images, ref_images, ref_ids, expected, slots
+        "ORB",
+        detectors["orb"],
+        cv2.NORM_HAMMING,
+        query_images,
+        ref_images,
+        ref_ids,
+        expected,
+        slots,
     )
     akaze_results, akaze_rankings = rank_method(
-        "AKAZE", detectors["akaze"], cv2.NORM_HAMMING, query_images, ref_images, ref_ids, expected, slots
+        "AKAZE",
+        detectors["akaze"],
+        cv2.NORM_HAMMING,
+        query_images,
+        ref_images,
+        ref_ids,
+        expected,
+        slots,
     )
-    rrf_results, rrf_rankings = fuse_rrf([orb_rankings, akaze_rankings], ref_ids, expected, slots)
+    rrf_results, rrf_rankings = fuse_rrf(
+        [orb_rankings, akaze_rankings], ref_ids, expected, slots
+    )
 
     report = {
-        "schemaVersion": "1.0.0",
+        "schemaVersion": "1.0.1",
         "benchmark": "R5 local feature matching on exact 128px crops",
+        "openCvVersion": getattr(cv2, "__version__", "unknown"),
         "referenceCount": len(ref_ids),
         "methods": {
             "orb": {
                 "summary": summarize(orb_results),
-                "defenseTeamBenchmark": score_team_rankings(orb_rankings[5:10], ref_ids, expected[5:10]),
+                "defenseTeamBenchmark": score_team_rankings(
+                    orb_rankings[5:10], ref_ids, expected[5:10]
+                ),
                 "slots": orb_results,
             },
             "akaze": {
                 "summary": summarize(akaze_results),
-                "defenseTeamBenchmark": score_team_rankings(akaze_rankings[5:10], ref_ids, expected[5:10]),
+                "defenseTeamBenchmark": score_team_rankings(
+                    akaze_rankings[5:10], ref_ids, expected[5:10]
+                ),
                 "slots": akaze_results,
             },
             "orbAkazeRrf": {
                 "summary": summarize(rrf_results),
-                "defenseTeamBenchmark": score_team_rankings(rrf_rankings[5:10], ref_ids, expected[5:10]),
+                "defenseTeamBenchmark": score_team_rankings(
+                    rrf_rankings[5:10], ref_ids, expected[5:10]
+                ),
                 "slots": rrf_results,
             },
         },
