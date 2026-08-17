@@ -1,132 +1,148 @@
-name: Temporary turn meter audit
+name: Temporary turn meter implementation
 
 on:
   push:
     branches:
       - agent/codex-turn-meter-normalization
-  pull_request:
-    branches:
-      - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  audit:
+  implement:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: agent/codex-turn-meter-normalization
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Build parsed mechanics
-        run: python -m scripts.msf_capabilities_parser.cli
-      - name: Audit turn_meter records
+
+      - name: Apply conservative turn meter normalization
         run: |
           python - <<'PY'
-          import json
-          from collections import Counter
           from pathlib import Path
+          import re
 
-          doc = json.loads(Path('data/msf-capabilities/parsed/mechanics.json').read_text())
-          actions = [a for a in doc.get('actions', []) if str(a.get('rawType', '')).lower() == 'turn_meter']
+          def replace(path, old, new, count=1):
+              p = Path(path)
+              text = p.read_text()
+              if old not in text:
+                  raise SystemExit(f'needle missing in {path}: {old[:80]!r}')
+              p.write_text(text.replace(old, new, count))
 
-          def shape(v):
-              if v is None: return 'null'
-              if isinstance(v, bool): return 'bool'
-              if isinstance(v, (int, float)): return 'number'
-              if isinstance(v, str): return 'string'
-              if isinstance(v, list): return 'list'
-              if isinstance(v, dict): return 'object'
-              return type(v).__name__
+          replace(
+              'scripts/msf_capabilities_normalizer/normalizer.py',
+              'ABILITY_ENERGY_METRIC_FIELDS = (\n    ("chancePct", "action_pct"),\n    ("energyAmount", "count"),\n)\n',
+              'ABILITY_ENERGY_METRIC_FIELDS = (\n    ("chancePct", "action_pct"),\n    ("energyAmount", "count"),\n)\n\nTURN_METER_METRIC_FIELDS = (\n    ("chancePct", "action_pct"),\n    ("turnMeterPct", "change_pct"),\n)\n',
+          )
+          replace(
+              'scripts/msf_capabilities_normalizer/normalizer.py',
+              '    def _build_battlefield_action(\n        self,\n        action: dict[str, Any],\n        canonical_action_type: str,\n    ) -> None:\n',
+              '''    def _build_turn_meter_action(\n        self,\n        action: dict[str, Any],\n    ) -> None:\n        source_action_id = action.get("id")\n        if isinstance(source_action_id, str):\n            self.supported_action_ids.add(source_action_id)\n        source = action.get("source")\n        if not isinstance(source, dict):\n            source = {}\n        action_pointer = str(source.get("pointer", ""))\n        self._build_operation(\n            action,\n            kind="turn_meter_modify",\n            canonical_action_type="turn_meter",\n            source_field=None,\n            effect_id=None,\n            effect_pointer=action_pointer,\n            entry_pointer=action_pointer,\n            entry=None,\n            ordinal=0,\n            scope={"kind": "action_target"},\n            metric_fields=TURN_METER_METRIC_FIELDS,\n        )\n\n    def _build_battlefield_action(\n        self,\n        action: dict[str, Any],\n        canonical_action_type: str,\n    ) -> None:\n''',
+          )
+          replace(
+              'scripts/msf_capabilities_normalizer/normalizer.py',
+              '            elif canonical_action_type == "ability_energy":\n                self._build_ability_energy_action(action)\n            elif canonical_action_type in {\n',
+              '            elif canonical_action_type == "ability_energy":\n                self._build_ability_energy_action(action)\n            elif canonical_action_type == "turn_meter":\n                self._build_turn_meter_action(action)\n            elif canonical_action_type in {\n',
+          )
 
-          report = {
-              'count': len(actions),
-              'parameterKeys': Counter(),
-              'parameterKeySets': Counter(),
-              'targetKeys': Counter(),
-              'targetRelations': Counter(),
-              'targetTypes': Counter(),
-              'conditionKinds': Counter(),
-              'changePctShapes': Counter(),
-              'changePctMaxValues': Counter(),
-              'actionPctMaxValues': Counter(),
-              'propertyHandlingUnrecognized': Counter(),
-              'propertyHandlingRawOnly': Counter(),
-              'examplesByParameterKeySet': {},
-              'anomalies': [],
-          }
+          replace(
+              'scripts/msf_capabilities_indexer/audit.py',
+              '        "ability_energy_generate",\n        "battlefield_effect_set",\n',
+              '        "ability_energy_generate",\n        "turn_meter_modify",\n        "battlefield_effect_set",\n',
+          )
+          replace(
+              'scripts/msf_capabilities_indexer/audit.py',
+              '    "spawn": 116,\n}\n',
+              '    "spawn": 116,\n    "turn_meter_modify": 540,\n}\n',
+          )
+          replace(
+              'scripts/msf_capabilities_indexer/audit.py',
+              '    "operationCount": 9147,\n    "effectCatalogCount": 302,\n    "preservedUninterpretedActionCount": 4688,\n',
+              '    "operationCount": 9687,\n    "effectCatalogCount": 302,\n    "preservedUninterpretedActionCount": 4148,\n',
+          )
 
-          def max_level(v):
-              if isinstance(v, list):
-                  return v[-1] if v else None
-              return v
+          replace(
+              'scripts/msf_capabilities_explorer_builder/presentation.py',
+              '    "ability_energy_generate": {"label": "Génère de l’énergie de capacité", "order": 55},\n    "battlefield_effect_set": {"label": "Active l’effet de champ", "order": 60},\n',
+              '    "ability_energy_generate": {"label": "Génère de l’énergie de capacité", "order": 55},\n    "turn_meter_modify": {"label": "Modifie la jauge de vitesse", "order": 57},\n    "battlefield_effect_set": {"label": "Active l’effet de champ", "order": 60},\n',
+          )
+          replace(
+              'scripts/msf_capabilities_explorer_builder/presentation.py',
+              '    "energyAmount": "Énergie générée",\n    "useCount": "Quantité indiquée",\n',
+              '    "energyAmount": "Énergie générée",\n    "turnMeterPct": "Variation de jauge de vitesse",\n    "useCount": "Quantité indiquée",\n',
+          )
+          replace(
+              'scripts/msf_capabilities_explorer_builder/builder.py',
+              '    if kind == "ability_energy_generate":\n        result.add("action-ability-energy")\n    if kind in {"battlefield_effect_set", "battlefield_effect_clear"}:\n',
+              '    if kind == "ability_energy_generate":\n        result.add("action-ability-energy")\n    if kind == "turn_meter_modify":\n        result.add("action-turn-meter")\n    if kind in {"battlefield_effect_set", "battlefield_effect_clear"}:\n',
+          )
 
-          for a in actions:
-              params = a.get('parameters') if isinstance(a.get('parameters'), dict) else {}
-              keys = tuple(sorted(params))
-              report['parameterKeys'].update(params.keys())
-              report['parameterKeySets'][keys] += 1
-              report['examplesByParameterKeySet'].setdefault('|'.join(keys), a)
+          replace(
+              'scripts/msf_capabilities_explorer_builder/ability_presentation.py',
+              'def _operation_projection(record: Mapping[str, Any]) -> dict[str, Any]:\n',
+              '''def _turn_meter_operation_label(record: Mapping[str, Any]) -> str:\n    metrics = record.get("metrics") if isinstance(record.get("metrics"), dict) else {}\n    amount = _progression_terminal(metrics.get("turnMeterPct"))\n    if amount is None:\n        return "Modifie la jauge de vitesse"\n    if amount > 0:\n        return f"Augmente la jauge de vitesse de {amount:g} %"\n    if amount < 0:\n        return f"Réduit la jauge de vitesse de {abs(amount):g} %"\n    return "Ne modifie pas la jauge de vitesse"\n\n\ndef _operation_projection(record: Mapping[str, Any]) -> dict[str, Any]:\n''',
+          )
+          replace(
+              'scripts/msf_capabilities_explorer_builder/ability_presentation.py',
+              '''    label = (\n        _ability_energy_operation_label(record)\n        if kind == "ability_energy_generate"\n        else OPERATION_KINDS.get(kind, {}).get("label")\n        or _split_source_name(kind)\n    )\n''',
+              '''    if kind == "ability_energy_generate":\n        label = _ability_energy_operation_label(record)\n    elif kind == "turn_meter_modify":\n        label = _turn_meter_operation_label(record)\n    else:\n        label = OPERATION_KINDS.get(kind, {}).get("label") or _split_source_name(kind)\n''',
+          )
 
-              target = a.get('target')
-              if isinstance(target, dict):
-                  report['targetKeys'].update(target.keys())
-                  if 'relation' in target: report['targetRelations'][str(target['relation'])] += 1
-                  if 'type' in target: report['targetTypes'][str(target['type'])] += 1
-              else:
-                  report['targetRelations']['<implicit>'] += 1
+          replace('tests/test_msf_capabilities_normalizer.py', '            7639,\n', '            8179,\n')
+          replace('tests/test_msf_capabilities_normalizer.py', '            4688,\n', '            4148,\n')
+          replace(
+              'tests/test_msf_capabilities_explorer_builder.py',
+              '                "operations": 9147,\n                "preservedActions": 4688,\n',
+              '                "operations": 9687,\n                "preservedActions": 4148,\n',
+          )
 
-              for c in a.get('conditions', []) if isinstance(a.get('conditions'), list) else []:
-                  if isinstance(c, dict): report['conditionKinds'][str(c.get('kind'))] += 1
-
-              cp = params.get('change_pct')
-              report['changePctShapes'][shape(cp)] += 1
-              report['changePctMaxValues'][repr(max_level(cp))] += 1
-              ap = params.get('action_pct')
-              if ap is not None: report['actionPctMaxValues'][repr(max_level(ap))] += 1
-
-              handling = a.get('propertyHandling') if isinstance(a.get('propertyHandling'), dict) else {}
-              for k in handling.get('unrecognized', []) or []: report['propertyHandlingUnrecognized'][str(k)] += 1
-              for k in handling.get('rawOnly', []) or []: report['propertyHandlingRawOnly'][str(k)] += 1
-
-              if 'change_pct' not in params or cp is None:
-                  report['anomalies'].append({'reason': 'missing_change_pct', 'action': a})
-              if isinstance(cp, list) and not cp:
-                  report['anomalies'].append({'reason': 'empty_change_pct', 'action': a})
-
-          def normalize(obj):
-              if isinstance(obj, Counter):
-                  items = sorted(obj.items(), key=lambda kv: (-kv[1], str(kv[0])))
-                  return {('|'.join(k) if isinstance(k, tuple) else str(k)): v for k, v in items}
-              if isinstance(obj, dict): return {str(k): normalize(v) for k, v in obj.items()}
-              if isinstance(obj, list): return [normalize(v) for v in obj]
-              return obj
-
-          out = normalize(report)
-          Path('turn-meter-audit.json').write_text(json.dumps(out, ensure_ascii=False, indent=2) + '\n')
-          print(json.dumps({k:v for k,v in out.items() if k not in {'examplesByParameterKeySet','anomalies'}}, ensure_ascii=False, indent=2))
-          print('ANOMALIES', len(out['anomalies']))
-          print(json.dumps(out['anomalies'][:10], ensure_ascii=False, indent=2))
-          print('KEYSET EXAMPLES')
-          print(json.dumps(out['examplesByParameterKeySet'], ensure_ascii=False, indent=2))
+          Path('tests/test_msf_turn_meter_normalization.py').write_text('''from __future__ import annotations\n\nfrom pathlib import Path\nimport unittest\n\nfrom scripts.msf_capabilities_normalizer.normalizer import normalize_mechanics\nfrom scripts.msf_capabilities_parser.parser import parse_sources, serialize_mechanics\n\nROOT = Path(__file__).resolve().parents[1]\nCHARACTERS = ROOT / "data/msf-capabilities/raw/characters.json"\nPROCS = ROOT / "data/msf-capabilities/raw/procs.json"\n\n\nclass TurnMeterNormalizationTests(unittest.TestCase):\n    @classmethod\n    def setUpClass(cls):\n        cls.mechanics = parse_sources(CHARACTERS, PROCS)\n        cls.capabilities = normalize_mechanics(cls.mechanics, mechanics_payload=serialize_mechanics(cls.mechanics))\n\n    def test_every_turn_meter_action_is_normalized_once(self):\n        source_ids = {action["id"] for action in self.mechanics["actions"] if str(action.get("rawType") or "").lower() == "turn_meter"}\n        operations = [op for op in self.capabilities["operations"] if op.get("sourceActionType") == "turn_meter"]\n        self.assertEqual(len(source_ids), 540)\n        self.assertEqual(len(operations), len(source_ids))\n        self.assertEqual({op["sourceActionId"] for op in operations}, source_ids)\n        self.assertTrue(all(op["kind"] == "turn_meter_modify" for op in operations))\n        self.assertTrue(all("turnMeterPct" in op.get("metrics", {}) for op in operations))\n        statuses = {m["sourceActionId"]: m["status"] for m in self.capabilities["actionMappings"] if m["sourceActionId"] in source_ids}\n        self.assertEqual(set(statuses), source_ids)\n        self.assertEqual(set(statuses.values()), {"normalized"})\n\n    def test_positive_and_negative_turn_meter_values_keep_their_sign(self):\n        positive = next(op for op in self.capabilities["operations"] if op["source"]["actionPointer"] == "/Data/BlackCat/ultimate/actions/11")\n        negative = next(op for op in self.capabilities["operations"] if op["source"]["actionPointer"] == "/Data/BlackCat/ultimate/actions/9")\n        self.assertEqual(positive["metrics"]["turnMeterPct"]["maxLevelValue"], 20)\n        self.assertEqual(positive["metrics"]["chancePct"]["maxLevelValue"], 100)\n        self.assertEqual(positive["target"]["value"]["relation"], "ally")\n        self.assertEqual(negative["metrics"]["turnMeterPct"]["maxLevelValue"], -20)\n\n    def test_conditions_and_raw_parameters_are_preserved(self):\n        operation = next(op for op in self.capabilities["operations"] if op["source"]["actionPointer"] == "/Data/AbsorbingMan/passive/actions/0")\n        self.assertEqual(operation["metrics"]["turnMeterPct"]["maxLevelValue"], 30)\n        self.assertEqual(operation["target"], {"present": True, "value": {"relation": "ally"}})\n        self.assertTrue(operation["conditions"])\n        self.assertIn("change_pct", operation["rawParameters"])\n\n\nif __name__ == "__main__":\n    unittest.main()\n''')
           PY
-      - uses: actions/upload-artifact@v4
-        with:
-          name: turn-meter-audit
-          path: turn-meter-audit.json
-      - uses: actions/upload-artifact@v4
-        with:
-          name: turn-meter-source-bundle
-          path: |
-            scripts/msf_capabilities_normalizer
-            scripts/msf_capabilities_indexer
-            scripts/msf_capabilities_web_publisher
-            scripts/msf_capabilities_explorer_builder
-            tests/test_msf_capabilities_normalizer.py
-            tests/test_msf_ability_energy_normalization.py
-            tests/test_msf_capabilities_indexer.py
-            tests/test_msf_capabilities_web_publisher.py
-            tests/test_msf_capabilities_explorer_builder.py
-            docs/codex.js
-            docs/codex-core.js
+
+      - name: Build pipeline and refresh checksum snapshot
+        run: |
+          python -m scripts.msf_capabilities_parser.cli
+          python -m scripts.msf_capabilities_normalizer.cli
+          python - <<'PY'
+          import hashlib, re
+          from pathlib import Path
+          checksum = hashlib.sha256(Path('data/msf-capabilities/normalized/capabilities.json').read_bytes()).hexdigest()
+          p = Path('scripts/msf_capabilities_indexer/audit.py')
+          text = p.read_text()
+          text = re.sub(r'SNAPSHOT_CAPABILITIES_CHECKSUM = \(\n    "[0-9a-f]{64}"\n\)', f'SNAPSHOT_CAPABILITIES_CHECKSUM = (\n    "{checksum}"\n)', text, count=1)
+          p.write_text(text)
+          print('capabilities checksum', checksum)
+          PY
+          python -m scripts.msf_capabilities_indexer.cli
+          python -m scripts.msf_capabilities_web_publisher.cli
+          python -m scripts.msf_capabilities_explorer_builder.cli
+
+      - name: Validate pipeline and tests
+        run: |
+          python -m scripts.msf_capabilities_parser.cli --check
+          python -m scripts.msf_capabilities_normalizer.cli --check
+          python -m scripts.msf_capabilities_indexer.cli --check
+          python -m scripts.msf_capabilities_web_publisher.cli --check
+          python -m scripts.msf_capabilities_explorer_builder.cli --check
+          python -m unittest tests.test_msf_turn_meter_normalization tests.test_msf_capabilities_normalizer tests.test_msf_capabilities_indexer tests.test_msf_capabilities_web_publisher tests.test_msf_capabilities_explorer_builder
+
+      - name: Commit implementation and generated static data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/msf_capabilities_normalizer/normalizer.py \
+                  scripts/msf_capabilities_indexer/audit.py \
+                  scripts/msf_capabilities_explorer_builder/presentation.py \
+                  scripts/msf_capabilities_explorer_builder/builder.py \
+                  scripts/msf_capabilities_explorer_builder/ability_presentation.py \
+                  tests/test_msf_capabilities_normalizer.py \
+                  tests/test_msf_capabilities_explorer_builder.py \
+                  tests/test_msf_turn_meter_normalization.py \
+                  docs/data/msf-capabilities \
+                  docs/data/msf-capabilities-explorer
+          git commit -m "feat: normalize turn meter changes [skip ci]"
+          git push origin HEAD:agent/codex-turn-meter-normalization
