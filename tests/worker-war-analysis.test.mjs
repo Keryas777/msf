@@ -3,7 +3,8 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import worker, {
   getGlobalPerformanceSentence,
-  getGlobalToneCeiling
+  getGlobalToneCeiling,
+  parseGroqDurationSeconds
 } from "../workers/msf-war-ocr/worker.js";
 
 const COMMENT = "Avec dix attaques réussies, son efficacité offensive a été remarquable.";
@@ -67,11 +68,19 @@ function promptBody(call) {
   return JSON.parse(call.messages[0].content.split("\n\n").at(-1));
 }
 
-function rateLimitResponse() {
+function rateLimitResponse(headers = { "retry-after": "17.2" }) {
   return Response.json({ error: { message: "rate limited" } }, {
     status: 429,
-    headers: { "retry-after": "17.2" }
+    headers
   });
+}
+
+function failedGenerationResponse(headers = {}) {
+  return Response.json({
+    error: {
+      message: "Failed to validate JSON. Please adjust your prompt. See 'failed_generation' for more details."
+    }
+  }, { status: 400, headers });
 }
 
 test("24 analyses valides utilisent un seul appel et conservent le contrat", async () => {
@@ -199,6 +208,62 @@ test("un 429 pendant la complétion conserve le contrat GROQ_RATE_LIMIT", async 
   assert.equal(calls.length, 2);
   assert.equal(response.status, 429);
   assert.equal((await response.json()).code, "GROQ_RATE_LIMIT");
+});
+
+test("le parseur de durée Groq accepte les secondes et minutes décimales", () => {
+  assert.equal(parseGroqDurationSeconds("43"), 43);
+  assert.equal(parseGroqDurationSeconds("43.2"), 44);
+  assert.equal(parseGroqDurationSeconds("43s"), 43);
+  assert.equal(parseGroqDurationSeconds("43.2s"), 44);
+  assert.equal(parseGroqDurationSeconds("1m"), 60);
+  assert.equal(parseGroqDurationSeconds("1m2s"), 62);
+  assert.equal(parseGroqDurationSeconds("1m2.5s"), 63);
+  assert.equal(parseGroqDurationSeconds("invalide"), null);
+  assert.equal(parseGroqDurationSeconds(null), null);
+});
+
+test("un 429 privilégie retry-after lorsqu'il est exploitable", async () => {
+  const { response } = await callWorker(requestBody(1), [rateLimitResponse({
+    "retry-after": "43",
+    "x-ratelimit-reset-tokens": "51.4s"
+  })]);
+  assert.equal((await response.json()).retry_after_seconds, 43);
+});
+
+test("un 429 utilise le reset TPM puis le fallback de sécurité", async () => {
+  let result = await callWorker(requestBody(1), [rateLimitResponse({
+    "x-ratelimit-reset-tokens": "43.2s"
+  })]);
+  assert.equal((await result.response.json()).retry_after_seconds, 44);
+
+  result = await callWorker(requestBody(1), [rateLimitResponse({})]);
+  assert.equal((await result.response.json()).retry_after_seconds, 60);
+});
+
+test("failed_generation est retryable avec le reset TPM ou le fallback", async () => {
+  let result = await callWorker(requestBody(1), [failedGenerationResponse({
+    "x-ratelimit-reset-tokens": "51.4s"
+  })]);
+  let data = await result.response.json();
+  assert.equal(data.code, "GROQ_GENERATION_RETRY");
+  assert.equal(data.retry_after_seconds, 52);
+  assert.match(data.error, /^Failed to validate JSON/);
+
+  result = await callWorker(requestBody(1), [failedGenerationResponse()]);
+  data = await result.response.json();
+  assert.equal(data.code, "GROQ_GENERATION_RETRY");
+  assert.equal(data.retry_after_seconds, 60);
+});
+
+test("une autre erreur Groq 400 conserve le comportement non retryable", async () => {
+  const { response } = await callWorker(requestBody(1), [
+    Response.json({ error: { message: "Requête Groq invalide" } }, { status: 400 })
+  ]);
+  const data = await response.json();
+  assert.equal(response.status, 500);
+  assert.equal(data.error, "Requête Groq invalide");
+  assert.equal(data.code, undefined);
+  assert.equal(data.retry_after_seconds, undefined);
 });
 
 test("la ponctuation du pseudo reste ignorée dans le comptage des phrases", async () => {

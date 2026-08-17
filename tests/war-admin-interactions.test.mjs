@@ -335,6 +335,35 @@ async function flushUntil(predicate, attempts = 30) {
   assert.fail("La condition asynchrone attendue n’a pas été atteinte.");
 }
 
+async function runAnalysisRetryCase(code, retryAfterSeconds) {
+  const harness = createHarness({
+    runtimeConfig: { retryDelaysMs: [10000, 30000], countdownStepMs: 70000 }
+  });
+  let analysisAttempt = 0;
+  harness.setFetchImplementation(async (url, options) => {
+    if (url.includes("parse-gemini-draft")) return Response.json(draftPayload("zeus", "Zeus"));
+    analysisAttempt += 1;
+    if (analysisAttempt === 1) {
+      return Response.json({ error: "Temporisation fournisseur", code, retry_after_seconds: retryAfterSeconds }, { status: 429 });
+    }
+    const payload = JSON.parse(options.body);
+    return Response.json({
+      analyses: payload.report.players.map(({ rank, name }) => ({ rank, name, analysis: `Analyse de ${name}.` }))
+    });
+  });
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  harness.listener("warCalculateReports", "click")();
+  harness.listener("warRankReports", "click")();
+  await harness.listener("warWriteAnalyses", "click")();
+  return harness;
+}
+
 test("l’état initial ne lance aucun appel et bloque la session", () => {
   const harness = createHarness();
   const { elements, fetchCalls } = harness;
@@ -993,6 +1022,22 @@ test("la rédaction fusionne uniquement les analyses dans le rapport classé", a
   assert.equal(snapshot.published, false);
   assert.equal(snapshot.final_reports.length, 1);
   assert.equal(harness.elements.warAnalyzedCount.textContent, "1");
+});
+
+test("la rédaction applique le reset Groq et sa marge au lieu du délai générique", async () => {
+  const generationRetry = await runAnalysisRetryCase("GROQ_GENERATION_RETRY", 44);
+  assert.deepEqual(generationRetry.timerCalls, [47000]);
+  assert.match(generationRetry.elements.warLog.innerHTML, /Attente 47 secondes avant la tentative 2/);
+
+  const rateLimit = await runAnalysisRetryCase("GROQ_RATE_LIMIT", 60);
+  assert.deepEqual(rateLimit.timerCalls, [63000]);
+  assert.match(rateLimit.elements.warLog.innerHTML, /Attente 63 secondes avant la tentative 2/);
+});
+
+test("la rédaction conserve le retry_after Gemini et sa marge", async () => {
+  const rateLimit = await runAnalysisRetryCase("GEMINI_RATE_LIMIT", 44);
+  assert.deepEqual(rateLimit.timerCalls, [47000]);
+  assert.match(rateLimit.elements.warLog.innerHTML, /Attente 47 secondes avant la tentative 2/);
 });
 
 test("un rapport final est publié sans recalcul ni modification", async () => {
