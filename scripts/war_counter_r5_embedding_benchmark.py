@@ -95,15 +95,17 @@ def embed_images(model, preprocess, images, batch_size=32):
     return torch.cat(out, dim=0)
 
 
+def is_red(red, green, blue):
+    return red > 145 and red > green * 1.35 and red > blue * 1.25
+
+
 def neutralize_red(image):
-    # Mirrors docs/war-counter-benchmark-export.js exactly:
-    # red > 145 && red > green * 1.35 && red > blue * 1.25
     source = image.convert("RGB")
     pixels = list(source.getdata())
     neutralized = []
     changed = 0
     for red, green, blue in pixels:
-        if red > 145 and red > green * 1.35 and red > blue * 1.25:
+        if is_red(red, green, blue):
             gray = round((green + blue) / 2)
             neutralized.append((gray, gray, gray))
             changed += 1
@@ -111,6 +113,44 @@ def neutralize_red(image):
             neutralized.append((red, green, blue))
     result = Image.new("RGB", source.size)
     result.putdata(neutralized)
+    return result, changed
+
+
+def neutralize_red_cross_geometry(image):
+    """Neutralize only red pixels aligned with the two large X diagonals.
+
+    This deliberately preserves red pixels elsewhere in the portrait. The X is
+    treated as two diagonals spanning the crop, with a modest tolerance that is
+    proportional to crop size. It is intentionally simple and mobile-friendly.
+    """
+    source = image.convert("RGB")
+    width, height = source.size
+    pixels = list(source.getdata())
+    changed = 0
+    out = []
+
+    # In normalized coordinates, the two X strokes are y=x and y=1-x.
+    # 0.085 was chosen as a narrow first-pass band: enough for the thick game
+    # overlay, but much smaller than the previous whole-image red neutralizer.
+    tolerance = 0.085
+
+    for index, (red, green, blue) in enumerate(pixels):
+        x = index % width
+        y = index // width
+        nx = x / max(1, width - 1)
+        ny = y / max(1, height - 1)
+        on_descending = abs(ny - nx) <= tolerance
+        on_ascending = abs(ny - (1.0 - nx)) <= tolerance
+
+        if is_red(red, green, blue) and (on_descending or on_ascending):
+            gray = round((green + blue) / 2)
+            out.append((gray, gray, gray))
+            changed += 1
+        else:
+            out.append((red, green, blue))
+
+    result = Image.new("RGB", source.size)
+    result.putdata(out)
     return result, changed
 
 
@@ -219,6 +259,21 @@ def score_defense_teams(defense_sim, ref_ids, expected_defense):
     }
 
 
+def evaluate_variant(name, images, model, preprocess, ref_emb, ref_ids, expected, slots):
+    embeddings = embed_images(model, preprocess, images, batch_size=10)
+    sim = embeddings @ ref_emb.T
+    results, summary = rank_slots(sim, ref_ids, expected, slots)
+    team = score_defense_teams(sim[5:10], ref_ids, expected[5:10])
+    print(f"{name} defense ranks:")
+    for item in results[5:10]:
+        print(f"{item['slot']:>2} {item['expectedId']:<24} rank {item['rank']}")
+    print(
+        f"{name} RetCon: rank-sum {team['targetRankByRankSum']}; "
+        f"cosine {team['targetRankByCosine']}"
+    )
+    return sim, results, summary, team
+
+
 def main():
     started = time.time()
     catalog = load_json(CATALOG)
@@ -270,42 +325,45 @@ def main():
         expected.append(slot["characterId"])
         slots.append(slot["slot"])
 
-    base_emb = embed_images(model, preprocess, query_images, batch_size=10)
-    base_sim = base_emb @ ref_emb.T
-    base_results, base_summary = rank_slots(base_sim, ref_ids, expected, slots)
-    base_team = score_defense_teams(base_sim[5:10], ref_ids, expected[5:10])
-
-    red_neutral_images = list(query_images[:5])
-    changed_pixels = {}
-    for index in range(5, 10):
-        neutralized, changed = neutralize_red(query_images[index])
-        red_neutral_images.append(neutralized)
-        changed_pixels[slots[index]] = changed
-
-    red_emb = embed_images(model, preprocess, red_neutral_images, batch_size=10)
-    red_sim = red_emb @ ref_emb.T
-    red_results, red_summary = rank_slots(red_sim, ref_ids, expected, slots)
-    red_team = score_defense_teams(red_sim[5:10], ref_ids, expected[5:10])
-
-    print("base ranks:")
-    for item in base_results:
-        print(f"{item['slot']:>2} {item['expectedId']:<24} rank {item['rank']}")
-    print("red-neutral defense ranks:")
-    for item in red_results[5:10]:
-        print(f"{item['slot']:>2} {item['expectedId']:<24} rank {item['rank']} changed {changed_pixels[item['slot']]}")
-    print(
-        "RetCon base -> red-neutral: "
-        f"rank-sum {base_team['targetRankByRankSum']} -> {red_team['targetRankByRankSum']}; "
-        f"cosine {base_team['targetRankByCosine']} -> {red_team['targetRankByCosine']}"
+    _, base_results, base_summary, base_team = evaluate_variant(
+        "base", query_images, model, preprocess, ref_emb, ref_ids, expected, slots
     )
 
+    whole_red_images = list(query_images[:5])
+    whole_changed = {}
+    for index in range(5, 10):
+        neutralized, changed = neutralize_red(query_images[index])
+        whole_red_images.append(neutralized)
+        whole_changed[slots[index]] = changed
+    _, red_results, red_summary, red_team = evaluate_variant(
+        "red-neutral", whole_red_images, model, preprocess, ref_emb, ref_ids, expected, slots
+    )
+
+    geometric_images = list(query_images[:5])
+    geometric_changed = {}
+    for index in range(5, 10):
+        neutralized, changed = neutralize_red_cross_geometry(query_images[index])
+        geometric_images.append(neutralized)
+        geometric_changed[slots[index]] = changed
+    _, geometric_results, geometric_summary, geometric_team = evaluate_variant(
+        "geometric-red-x", geometric_images, model, preprocess, ref_emb, ref_ids, expected, slots
+    )
+
+    print("changed red pixels (whole -> geometric):")
+    for slot in slots[5:10]:
+        print(f"{slot}: {whole_changed[slot]} -> {geometric_changed[slot]}")
+
     report = {
-        "schemaVersion": "1.2.0",
-        "benchmark": "R5 base vs red-neutral defense crops 128px",
+        "schemaVersion": "1.3.0",
+        "benchmark": "R5 base vs whole-red vs geometric-red-X defense crops 128px",
         "model": "torchvision MobileNet_V3_Large IMAGENET1K_V2, classifier removed, cosine similarity",
         "queryCropSize": "128x118",
         "referenceCount": len(ref_ids),
-        "redNeutralRule": "red > 145 && red > green * 1.35 && red > blue * 1.25; replacement gray=(green+blue)/2",
+        "redRule": "red > 145 && red > green * 1.35 && red > blue * 1.25",
+        "geometricMask": {
+            "description": "Only red pixels within normalized diagonal bands y=x or y=1-x are neutralized",
+            "tolerance": 0.085,
+        },
         "base": {
             "summary": base_summary,
             "defenseTeamBenchmark": base_team,
@@ -313,9 +371,15 @@ def main():
         },
         "redNeutralDefense": {
             "summary": red_summary,
-            "changedPixels": changed_pixels,
+            "changedPixels": whole_changed,
             "defenseTeamBenchmark": red_team,
             "slots": red_results,
+        },
+        "geometricRedXDefense": {
+            "summary": geometric_summary,
+            "changedPixels": geometric_changed,
+            "defenseTeamBenchmark": geometric_team,
+            "slots": geometric_results,
         },
         "downloadErrors": errors,
         "elapsedSeconds": round(time.time() - started, 2),
