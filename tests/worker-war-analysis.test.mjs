@@ -83,6 +83,24 @@ function failedGenerationResponse(headers = {}) {
   }, { status: 400, headers });
 }
 
+function assertStrictAnalysisResponseFormat(responseFormat) {
+  assert.equal(responseFormat.type, "json_schema");
+  assert.equal(responseFormat.json_schema.strict, true);
+
+  const schema = responseFormat.json_schema.schema;
+  assert.equal(schema.type, "object");
+  assert.deepEqual(schema.required, ["analyses"]);
+  assert.equal(schema.additionalProperties, false);
+
+  const itemSchema = schema.properties.analyses.items;
+  assert.equal(itemSchema.type, "object");
+  assert.deepEqual(itemSchema.required, ["rank", "name", "analysis"]);
+  assert.equal(itemSchema.additionalProperties, false);
+  assert.equal(itemSchema.properties.rank.type, "integer");
+  assert.equal(itemSchema.properties.name.type, "string");
+  assert.equal(itemSchema.properties.analysis.type, "string");
+}
+
 test("24 analyses valides utilisent un seul appel et conservent le contrat", async () => {
   const body = requestBody();
   const { response, calls } = await callWorker(body, [groqResponse(entriesFor(body))]);
@@ -91,7 +109,7 @@ test("24 analyses valides utilisent un seul appel et conservent le contrat", asy
   assert.deepEqual(Object.keys(await response.clone().json()), ["analyses"]);
   assert.equal((await response.json()).analyses.length, 24);
   assert.equal(calls[0].model, "openai/gpt-oss-120b");
-  assert.deepEqual(calls[0].response_format, { type: "json_object" });
+  assertStrictAnalysisResponseFormat(calls[0].response_format);
 });
 
 test("23 valides et 1 manquante complètent uniquement le rang absent", async () => {
@@ -107,6 +125,13 @@ test("23 valides et 1 manquante complètent uniquement le rang absent", async ()
   assert.deepEqual(promptBody(calls[1]).report.players.map(({ rank }) => rank), [17]);
   assert.deepEqual(promptBody(calls[1]).report.ranking.map(({ rank }) => rank), [17]);
   assert.match(calls[1].messages[0].content, /requête de complétion, et aucun autre joueur/);
+  assertStrictAnalysisResponseFormat(calls[1].response_format);
+  assert.deepEqual(calls[1].response_format, calls[0].response_format);
+});
+
+test("le chemin de rédaction Groq ne contient plus l’ancien JSON Object Mode", async () => {
+  const source = await readFile(new URL("../workers/msf-war-ocr/worker.js", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /type:\s*["']json_object["']/);
 });
 
 test("20 valides et 4 manquantes n’envoient que ces quatre joueurs", async () => {

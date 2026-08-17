@@ -132,6 +132,33 @@ const ANALYSIS_NAME_MAX_LENGTH = 80;
 const ANALYSIS_MAX_LENGTH = 700;
 const ANALYSIS_MAX_SENTENCES = 3;
 const GEMINI_ANALYSIS_TIMEOUT_MS = 90 * 1000;
+const GROQ_ANALYSES_RESPONSE_FORMAT = {
+  type: "json_schema",
+  json_schema: {
+    name: "war_analyses",
+    strict: true,
+    schema: {
+      type: "object",
+      properties: {
+        analyses: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              rank: { type: "integer" },
+              name: { type: "string" },
+              analysis: { type: "string" }
+            },
+            required: ["rank", "name", "analysis"],
+            additionalProperties: false
+          }
+        }
+      },
+      required: ["analyses"],
+      additionalProperties: false
+    }
+  }
+};
 
 function isPlainObject(value) {
   return Boolean(
@@ -622,9 +649,7 @@ async function requestGroqAnalyses(prompt, apiKey, model) {
           }
         ],
         temperature: 0.55,
-        response_format: {
-          type: "json_object"
-        }
+        response_format: GROQ_ANALYSES_RESPONSE_FORMAT
       }),
       signal: controller.signal
     });
