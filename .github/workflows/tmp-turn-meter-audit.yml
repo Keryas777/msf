@@ -105,6 +105,16 @@ jobs:
               '                "operations": 9147,\n                "preservedActions": 4688,\n',
               '                "operations": 9687,\n                "preservedActions": 4148,\n',
           )
+          replace(
+              'tests/test_msf_capabilities_explorer_builder.py',
+              '                "textMentions": 979,\n',
+              '                "textMentions": 975,\n',
+          )
+          replace(
+              'tests/test_msf_capabilities_web_publisher.py',
+              '            "sha256:5f294d6bd5f3742e1ced80469f94cb3c4295498ef6096fba3c07abdf613f6ff7",\n',
+              '            "sha256:ce43b0fd70cd81768f361bea8575f0b0b326faaef83563cd20eb1370b0fcd9e4",\n',
+          )
 
           Path('tests/test_msf_turn_meter_normalization.py').write_text('''from __future__ import annotations\n\nfrom pathlib import Path\nimport unittest\n\nfrom scripts.msf_capabilities_normalizer.normalizer import normalize_mechanics\nfrom scripts.msf_capabilities_parser.parser import parse_sources, serialize_mechanics\n\nROOT = Path(__file__).resolve().parents[1]\nCHARACTERS = ROOT / "data/msf-capabilities/raw/characters.json"\nPROCS = ROOT / "data/msf-capabilities/raw/procs.json"\n\n\nclass TurnMeterNormalizationTests(unittest.TestCase):\n    @classmethod\n    def setUpClass(cls):\n        cls.mechanics = parse_sources(CHARACTERS, PROCS)\n        cls.capabilities = normalize_mechanics(cls.mechanics, mechanics_payload=serialize_mechanics(cls.mechanics))\n\n    def test_every_turn_meter_action_is_normalized_once(self):\n        source_ids = {action["id"] for action in self.mechanics["actions"] if str(action.get("rawType") or "").lower() == "turn_meter"}\n        operations = [op for op in self.capabilities["operations"] if op.get("sourceActionType") == "turn_meter"]\n        self.assertEqual(len(source_ids), 540)\n        self.assertEqual(len(operations), len(source_ids))\n        self.assertEqual({op["sourceActionId"] for op in operations}, source_ids)\n        self.assertTrue(all(op["kind"] == "turn_meter_modify" for op in operations))\n        self.assertTrue(all("turnMeterPct" in op.get("metrics", {}) for op in operations))\n        statuses = {m["sourceActionId"]: m["status"] for m in self.capabilities["actionMappings"] if m["sourceActionId"] in source_ids}\n        self.assertEqual(set(statuses), source_ids)\n        self.assertEqual(set(statuses.values()), {"normalized"})\n\n    def test_signed_values_are_preserved(self):\n        operations = [op for op in self.capabilities["operations"] if op.get("kind") == "turn_meter_modify"]\n        values = [op["metrics"]["turnMeterPct"]["maxLevelValue"] for op in operations]\n        self.assertTrue(any(value > 0 for value in values))\n        self.assertTrue(any(value < 0 for value in values))\n        self.assertIn(100, values)\n        self.assertIn(-100, values)\n\n    def test_targets_conditions_and_control_remain_structured(self):\n        operations = [op for op in self.capabilities["operations"] if op.get("kind") == "turn_meter_modify"]\n        self.assertTrue(any(op.get("target", {}).get("present") for op in operations))\n        self.assertTrue(any(op.get("conditions") for op in operations))\n        self.assertTrue(any(op.get("control", {}).get("actionCondition") for op in operations))\n\n\nif __name__ == "__main__":\n    unittest.main()\n''')
           PY
@@ -147,6 +157,7 @@ jobs:
                   scripts/msf_capabilities_explorer_builder/builder.py \
                   scripts/msf_capabilities_explorer_builder/ability_presentation.py \
                   tests/test_msf_capabilities_normalizer.py \
+                  tests/test_msf_capabilities_web_publisher.py \
                   tests/test_msf_capabilities_explorer_builder.py \
                   tests/test_msf_turn_meter_normalization.py \
                   docs/data/msf-capabilities \
