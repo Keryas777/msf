@@ -136,6 +136,7 @@ function createHarness(options = {}) {
     "warCountVacant",
     "warCountInvalid",
     "warReviewStructureError",
+    "warSourceTabs",
     "warSourceViewport",
     "warReviewImage",
     "warReviewImageNotice",
@@ -347,7 +348,7 @@ test("l’état initial ne lance aucun appel et bloque la session", () => {
   assert.equal(fetchCalls.length, 0);
 });
 
-test("la sélection accepte une image, refuse sept images et révoque les aperçus", () => {
+test("la sélection accepte une, sept, huit et dix images, refuse onze images et révoque les aperçus", () => {
   const harness = createHarness();
   const { elements, revokedUrls } = harness;
   const changeImages = harness.listener("warImage", "change");
@@ -358,17 +359,25 @@ test("la sélection accepte une image, refuse sept images et révoque les aperç
   assert.match(elements.warFileMeta.textContent, /1 capture sélectionnée/);
   assert.match(elements.warCaptureList.innerHTML, /blob:test-1/);
 
-  elements.warImage.files = files(7);
+  for (const count of [7, 8, 10]) {
+    elements.warImage.files = files(count);
+    changeImages();
+    assert.equal(elements.warSubmit.disabled, false);
+    assert.match(elements.warFileMeta.textContent, new RegExp(`${count} captures sélectionnées`));
+  }
+
+  elements.warImage.files = files(11);
   changeImages();
   assert.equal(elements.warSubmit.disabled, true);
   assert.equal(elements.warImage.value, "");
   assert.equal(elements.warStatusPanel.dataset.state, "error");
-  assert.deepEqual(revokedUrls, ["blob:test-1"]);
+  assert.match(elements.warFileMeta.textContent, /Sélection refusée : 11 captures\. Le maximum est de 10\./);
+  assert.equal(revokedUrls.length, 26);
 
   elements.warImage.files = files(1);
   changeImages();
   harness.windowListener("pagehide")();
-  assert.deepEqual(revokedUrls, ["blob:test-1", "blob:test-2"]);
+  assert.equal(revokedUrls.length, 27);
 });
 
 test("une capture détectée automatiquement crée un brouillon sans alliance envoyée", async () => {

@@ -25,13 +25,12 @@ test("la page charge les Phases E et E.2 locales sans bloquer le zoom", () => {
   assert.doesNotMatch(html, /auth-(?:guard|session)\.js/);
 });
 
-test("l’utilisateur choisit une date et de une à six images, jamais l’alliance", () => {
+test("l’utilisateur choisit une date et de une à dix images, jamais l’alliance", () => {
   assert.match(html, /id="warDate"[^>]*type="date"[^>]*required/);
   assert.match(html, /id="warImage"[\s\S]*?type="file"[\s\S]*?accept="image\/\*"[\s\S]*?multiple/);
-  assert.match(html, /1 à 6 images/);
-  assert.match(html, /une capture maximum par alliance/i);
+  assert.match(html, /1 à 10 images/);
   assert.doesNotMatch(html, /id="warAlliance"|name="alliance"/);
-  assert.match(app, /const MAX_CAPTURES = 6/);
+  assert.match(app, /const MAX_CAPTURES = 10/);
   assert.match(app, /files\.length > MAX_CAPTURES/);
   assert.match(app, /dateInput\.value = getLocalDateValue\(\)/);
 });
