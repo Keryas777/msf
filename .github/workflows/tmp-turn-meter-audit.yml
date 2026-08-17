@@ -1,0 +1,83 @@
+name: Temporary turn meter audit
+
+on:
+  push:
+    branches:
+      - agent/codex-turn-meter-normalization
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build parsed mechanics
+        run: python -m scripts.msf_capabilities_parser.cli
+      - name: Audit turn_meter records
+        run: |
+          python - <<'PY'
+          import json
+          from collections import Counter, defaultdict
+          from pathlib import Path
+
+          path = Path('data/msf-capabilities/parsed/mechanics.json')
+          doc = json.loads(path.read_text())
+          actions = [a for a in doc.get('actions', []) if str(a.get('actionType', '')).lower() == 'turn_meter' or str(a.get('type', '')).lower() == 'turn_meter' or str(a.get('sourceActionType', '')).lower() == 'turn_meter']
+          if not actions:
+              actions = [a for a in doc.get('actions', []) if 'turn_meter' in json.dumps(a, ensure_ascii=False).lower()]
+
+          report = {
+              'count': len(actions),
+              'topLevelKeys': Counter(),
+              'parameterKeys': Counter(),
+              'targetKeys': Counter(),
+              'conditionKinds': Counter(),
+              'valueShapes': defaultdict(Counter),
+              'examples': [],
+          }
+
+          def shape(v):
+              if v is None: return 'null'
+              if isinstance(v, bool): return 'bool'
+              if isinstance(v, (int, float)): return 'number'
+              if isinstance(v, str): return 'string'
+              if isinstance(v, list): return 'list'
+              if isinstance(v, dict): return 'object'
+              return type(v).__name__
+
+          for a in actions:
+              report['topLevelKeys'].update(a.keys())
+              params = a.get('parameters') if isinstance(a.get('parameters'), dict) else {}
+              raw = a.get('raw') if isinstance(a.get('raw'), dict) else {}
+              for source in (params, raw):
+                  report['parameterKeys'].update(source.keys())
+                  for k, v in source.items(): report['valueShapes'][k][shape(v)] += 1
+              target = a.get('target')
+              if isinstance(target, dict): report['targetKeys'].update(target.keys())
+              for c in a.get('conditions', []) if isinstance(a.get('conditions'), list) else []:
+                  if isinstance(c, dict): report['conditionKinds'][str(c.get('kind'))] += 1
+              if len(report['examples']) < 40:
+                  report['examples'].append(a)
+
+          def normalize(obj):
+              if isinstance(obj, Counter): return dict(obj.most_common())
+              if isinstance(obj, defaultdict): return {k: dict(v.most_common()) for k, v in obj.items()}
+              if isinstance(obj, dict): return {k: normalize(v) for k, v in obj.items()}
+              if isinstance(obj, list): return [normalize(v) for v in obj]
+              return obj
+
+          out = normalize(report)
+          Path('turn-meter-audit.json').write_text(json.dumps(out, ensure_ascii=False, indent=2) + '\n')
+          print(json.dumps({k:v for k,v in out.items() if k != 'examples'}, ensure_ascii=False, indent=2))
+          print('EXAMPLES')
+          print(json.dumps(out['examples'][:10], ensure_ascii=False, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: turn-meter-audit
+          path: turn-meter-audit.json
