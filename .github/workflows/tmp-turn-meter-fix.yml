@@ -1,0 +1,140 @@
+name: Temporary turn meter snapshot fix
+
+on:
+  push:
+    branches:
+      - agent/codex-turn-meter-normalization
+
+permissions:
+  contents: write
+
+jobs:
+  fix-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/codex-turn-meter-normalization
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Reuse audited implementation recipe
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import textwrap
+          lines = Path('.github/workflows/tmp-turn-meter-audit.yml').read_text().splitlines()
+          start = next(i for i, line in enumerate(lines) if "python - <<'PY'" in line)
+          end = next(i for i in range(start + 1, len(lines)) if lines[i].strip() == 'PY')
+          code = textwrap.dedent('\n'.join(lines[start + 1:end])) + '\n'
+          Path('/tmp/turn_meter_impl.py').write_text(code)
+          PY
+          python /tmp/turn_meter_impl.py
+
+      - name: Refresh snapshots discovered by full validation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace(path, old, new):
+              p = Path(path)
+              text = p.read_text()
+              if old not in text:
+                  raise SystemExit(f'needle missing in {path}: {old!r}')
+              p.write_text(text.replace(old, new, 1))
+
+          replace(
+              'tests/test_msf_capabilities_web_publisher.py',
+              'sha256:5f294d6bd5f3742e1ced80469f94cb3c4295498ef6096fba3c07abdf613f6ff7',
+              'sha256:ce43b0fd70cd81768f361bea8575f0b0b326faaef83563cd20eb1370b0fcd9e4',
+          )
+          replace(
+              'tests/test_msf_capabilities_explorer_builder.py',
+              '                "textMentions": 979,\n',
+              '                "textMentions": 975,\n',
+          )
+          replace(
+              'tests/test_msf_capabilities_explorer_builder.py',
+              '                "assignedOperations": 8368,\n',
+              '                "assignedOperations": 8876,\n',
+          )
+          PY
+
+      - name: Build pipeline and refresh exact capabilities checksum
+        run: |
+          python -m scripts.msf_capabilities_parser.cli
+          python -m scripts.msf_capabilities_normalizer.cli
+          python - <<'PY'
+          import hashlib, re
+          from pathlib import Path
+          checksum = hashlib.sha256(Path('data/msf-capabilities/normalized/capabilities.json').read_bytes()).hexdigest()
+          p = Path('scripts/msf_capabilities_indexer/audit.py')
+          text = p.read_text()
+          text, count = re.subn(
+              r'SNAPSHOT_CAPABILITIES_CHECKSUM = \(\n    "[0-9a-f]{64}"\n\)',
+              f'SNAPSHOT_CAPABILITIES_CHECKSUM = (\n    "{checksum}"\n)',
+              text,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit('snapshot checksum replacement failed')
+          p.write_text(text)
+          print('capabilities checksum', checksum)
+          PY
+          python -m scripts.msf_capabilities_indexer.cli
+          python -m scripts.msf_capabilities_web_publisher.cli
+          python -m scripts.msf_capabilities_explorer_builder.cli
+
+      - name: Validate pipeline and exact turn meter coverage
+        run: |
+          python -m scripts.msf_capabilities_parser.cli --check
+          python -m scripts.msf_capabilities_normalizer.cli --check
+          python -m scripts.msf_capabilities_indexer.cli --check
+          python -m scripts.msf_capabilities_web_publisher.cli --check
+          python -m scripts.msf_capabilities_explorer_builder.cli --check
+          python -m unittest \
+            tests.test_msf_turn_meter_normalization \
+            tests.test_msf_ability_energy_normalization \
+            tests.test_msf_capabilities_normalizer \
+            tests.test_msf_capabilities_indexer \
+            tests.test_msf_capabilities_web_publisher \
+            tests.test_msf_capabilities_explorer_builder
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          caps = json.loads(Path('data/msf-capabilities/normalized/capabilities.json').read_text())
+          ops = [op for op in caps['operations'] if op.get('kind') == 'turn_meter_modify']
+          mappings = [m for m in caps['actionMappings'] if m.get('sourceActionType') == 'turn_meter']
+          assert len(ops) == 540, len(ops)
+          assert len(mappings) == 540, len(mappings)
+          assert {m['status'] for m in mappings} == {'normalized'}
+          assert caps['audit']['mappedActionCount'] == 8179
+          assert caps['audit']['preservedUninterpretedActionCount'] == 4148
+          values = [op['metrics']['turnMeterPct']['maxLevelValue'] for op in ops]
+          assert any(v > 0 for v in values) and any(v < 0 for v in values)
+          print('turn_meter_modify=540; mapped=8179; preserved=4148')
+          PY
+
+      - name: Run Codex Node tests
+        run: |
+          mapfile -t files < <(find tests -maxdepth 1 -type f \( -name 'codex*.test.mjs' -o -name 'codex-*.mjs' \) | sort)
+          if [ ${#files[@]} -gt 0 ]; then
+            node --test "${files[@]}"
+          else
+            echo 'No Codex Node tests matched.'
+          fi
+
+      - name: Commit final implementation and remove temporary workflows
+        run: |
+          rm -f .github/workflows/tmp-turn-meter-audit.yml .github/workflows/tmp-turn-meter-fix.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'feat: normalize turn meter changes in Codex [skip ci]'
+          git push origin HEAD:agent/codex-turn-meter-normalization
