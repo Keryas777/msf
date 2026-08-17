@@ -33,7 +33,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision
-          python -m pip install pillow requests opencv-python-headless
+          python -m pip uninstall -y opencv-python opencv-python-headless opencv-contrib-python opencv-contrib-python-headless || true
+          python -m pip install pillow requests "opencv-contrib-python-headless==4.10.0.84"
+          python - <<'PY'
+          import cv2
+          print("OpenCV", cv2.__version__)
+          print("ORB_create", hasattr(cv2, "ORB_create"))
+          print("AKAZE_create", hasattr(cv2, "AKAZE_create"))
+          print("AKAZE.create", bool(getattr(getattr(cv2, "AKAZE", None), "create", None)))
+          assert hasattr(cv2, "ORB_create"), "ORB is unavailable in this OpenCV build"
+          assert hasattr(cv2, "AKAZE_create") or getattr(getattr(cv2, "AKAZE", None), "create", None), "AKAZE is unavailable in this OpenCV build"
+          PY
 
       - name: Run MobileNet embedding benchmark
         run: python scripts/war_counter_r5_embedding_benchmark.py
