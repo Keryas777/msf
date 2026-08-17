@@ -25,21 +25,8 @@ jobs:
           from collections import Counter, defaultdict
           from pathlib import Path
 
-          path = Path('data/msf-capabilities/parsed/mechanics.json')
-          doc = json.loads(path.read_text())
-          actions = [a for a in doc.get('actions', []) if str(a.get('actionType', '')).lower() == 'turn_meter' or str(a.get('type', '')).lower() == 'turn_meter' or str(a.get('sourceActionType', '')).lower() == 'turn_meter']
-          if not actions:
-              actions = [a for a in doc.get('actions', []) if 'turn_meter' in json.dumps(a, ensure_ascii=False).lower()]
-
-          report = {
-              'count': len(actions),
-              'topLevelKeys': Counter(),
-              'parameterKeys': Counter(),
-              'targetKeys': Counter(),
-              'conditionKinds': Counter(),
-              'valueShapes': defaultdict(Counter),
-              'examples': [],
-          }
+          doc = json.loads(Path('data/msf-capabilities/parsed/mechanics.json').read_text())
+          actions = [a for a in doc.get('actions', []) if str(a.get('rawType', '')).lower() == 'turn_meter']
 
           def shape(v):
               if v is None: return 'null'
@@ -50,32 +37,76 @@ jobs:
               if isinstance(v, dict): return 'object'
               return type(v).__name__
 
+          report = {
+              'count': len(actions),
+              'parameterKeys': Counter(),
+              'parameterKeySets': Counter(),
+              'targetKeys': Counter(),
+              'targetRelations': Counter(),
+              'targetTypes': Counter(),
+              'conditionKinds': Counter(),
+              'changePctShapes': Counter(),
+              'changePctMaxValues': Counter(),
+              'actionPctMaxValues': Counter(),
+              'propertyHandlingUnrecognized': Counter(),
+              'propertyHandlingRawOnly': Counter(),
+              'examplesByParameterKeySet': {},
+              'anomalies': [],
+          }
+
+          def max_level(v):
+              if isinstance(v, list):
+                  return v[-1] if v else None
+              return v
+
           for a in actions:
-              report['topLevelKeys'].update(a.keys())
               params = a.get('parameters') if isinstance(a.get('parameters'), dict) else {}
-              raw = a.get('raw') if isinstance(a.get('raw'), dict) else {}
-              for source in (params, raw):
-                  report['parameterKeys'].update(source.keys())
-                  for k, v in source.items(): report['valueShapes'][k][shape(v)] += 1
+              keys = tuple(sorted(params))
+              report['parameterKeys'].update(params.keys())
+              report['parameterKeySets'][keys] += 1
+              report['examplesByParameterKeySet'].setdefault('|'.join(keys), a)
+
               target = a.get('target')
-              if isinstance(target, dict): report['targetKeys'].update(target.keys())
+              if isinstance(target, dict):
+                  report['targetKeys'].update(target.keys())
+                  if 'relation' in target: report['targetRelations'][str(target['relation'])] += 1
+                  if 'type' in target: report['targetTypes'][str(target['type'])] += 1
+              else:
+                  report['targetRelations']['<implicit>'] += 1
+
               for c in a.get('conditions', []) if isinstance(a.get('conditions'), list) else []:
                   if isinstance(c, dict): report['conditionKinds'][str(c.get('kind'))] += 1
-              if len(report['examples']) < 40:
-                  report['examples'].append(a)
+
+              cp = params.get('change_pct')
+              report['changePctShapes'][shape(cp)] += 1
+              report['changePctMaxValues'][repr(max_level(cp))] += 1
+              ap = params.get('action_pct')
+              if ap is not None: report['actionPctMaxValues'][repr(max_level(ap))] += 1
+
+              handling = a.get('propertyHandling') if isinstance(a.get('propertyHandling'), dict) else {}
+              for k in handling.get('unrecognized', []) or []: report['propertyHandlingUnrecognized'][str(k)] += 1
+              for k in handling.get('rawOnly', []) or []: report['propertyHandlingRawOnly'][str(k)] += 1
+
+              if 'change_pct' not in params or cp is None:
+                  report['anomalies'].append({'reason': 'missing_change_pct', 'action': a})
+              if isinstance(cp, list) and not cp:
+                  report['anomalies'].append({'reason': 'empty_change_pct', 'action': a})
 
           def normalize(obj):
-              if isinstance(obj, Counter): return dict(obj.most_common())
-              if isinstance(obj, defaultdict): return {k: dict(v.most_common()) for k, v in obj.items()}
-              if isinstance(obj, dict): return {k: normalize(v) for k, v in obj.items()}
+              if isinstance(obj, Counter):
+                  items = sorted(obj.items(), key=lambda kv: (-kv[1], str(kv[0])))
+                  return {('|'.join(k) if isinstance(k, tuple) else str(k)): v for k, v in items}
+              if isinstance(obj, dict): return {str(k): normalize(v) for k, v in obj.items()}
               if isinstance(obj, list): return [normalize(v) for v in obj]
               return obj
 
           out = normalize(report)
           Path('turn-meter-audit.json').write_text(json.dumps(out, ensure_ascii=False, indent=2) + '\n')
-          print(json.dumps({k:v for k,v in out.items() if k != 'examples'}, ensure_ascii=False, indent=2))
-          print('EXAMPLES')
-          print(json.dumps(out['examples'][:10], ensure_ascii=False, indent=2))
+          print(json.dumps({k:v for k,v in out.items() if k not in {'examplesByParameterKeySet','anomalies'}}, ensure_ascii=False, indent=2))
+          print('ANOMALIES', len(out['anomalies']))
+          print(json.dumps(out['anomalies'][:10], ensure_ascii=False, indent=2))
+          print('KEYSET EXAMPLES')
+          print(json.dumps(out['examplesByParameterKeySet'], ensure_ascii=False, indent=2))
           PY
       - uses: actions/upload-artifact@v4
         with:
