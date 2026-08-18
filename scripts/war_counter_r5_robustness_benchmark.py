@@ -17,20 +17,13 @@ ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "docs/data/war-counter-vision/portrait-signatures.json"
 OUT = ROOT / "benchmark-r5-akaze-robustness-report.json"
 CACHE = ROOT / ".cache/war-counter-r5-portraits"
-FIXTURE = ROOT / ".cache/war-counter-r5-benchmark.zip"
+FIXTURE = ROOT / "benchmarks/war-counter-r5/fixtures/war-counter-r5-benchmark-1786421094500.zip"
 CACHE.mkdir(parents=True, exist_ok=True)
 
-DRIVE_FILE_ID = "16jkUseW5f7PBrXXTo16cZir2PjH3iNPr"
 FIXTURE_SHA256 = "147138e710e63e30f23984efd4d8e6a0fddc83dcbb6a073de7c7cad674831b9a"
 VARIANTS = (
-    "base",
-    "tight",
-    "loose",
-    "shift-left",
-    "shift-right",
-    "shift-up",
-    "shift-down",
-    "red-neutral",
+    "base", "tight", "loose", "shift-left", "shift-right",
+    "shift-up", "shift-down", "red-neutral",
 )
 SLOT_TRUTH = {
     "G1": "Knull",
@@ -50,37 +43,17 @@ def load_json(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def sha256_bytes(data):
-    return hashlib.sha256(data).hexdigest()
-
-
-def download_fixture():
-    urls = [
-        f"https://drive.usercontent.google.com/download?id={DRIVE_FILE_ID}&export=download&confirm=t",
-        f"https://drive.google.com/uc?export=download&id={DRIVE_FILE_ID}&confirm=t",
-    ]
-    last = None
-    for url in urls:
-        try:
-            response = requests.get(url, timeout=60, allow_redirects=True)
-            response.raise_for_status()
-            data = response.content
-            digest = sha256_bytes(data)
-            if digest != FIXTURE_SHA256:
-                raise RuntimeError(
-                    f"fixture checksum mismatch from {url}: {digest} "
-                    f"(expected {FIXTURE_SHA256}, bytes={len(data)})"
-                )
-            FIXTURE.write_bytes(data)
-            print(f"fixture downloaded: {len(data)} bytes sha256={digest}")
-            return
-        except Exception as exc:
-            last = exc
-            print(f"fixture download attempt failed: {exc}")
-    raise RuntimeError(
-        "Unable to download exact R5 fixture from the durable Drive backup. "
-        f"Last error: {last}"
-    )
+def verify_fixture():
+    if not FIXTURE.exists():
+        raise RuntimeError(f"Committed R5 fixture is missing: {FIXTURE}")
+    data = FIXTURE.read_bytes()
+    digest = hashlib.sha256(data).hexdigest()
+    if len(data) != 689033 or digest != FIXTURE_SHA256:
+        raise RuntimeError(
+            f"R5 fixture integrity failure: bytes={len(data)} sha256={digest} "
+            f"expected bytes=689033 sha256={FIXTURE_SHA256}"
+        )
+    print(f"fixture verified: {len(data)} bytes sha256={digest}")
 
 
 def download_one(item):
@@ -158,8 +131,7 @@ def main():
     print(f"OpenCV {cv2.__version__}")
     if cv2.__version__ != "4.10.0":
         raise RuntimeError(f"This certification must run on OpenCV 4.10.0, got {cv2.__version__}")
-
-    download_fixture()
+    verify_fixture()
 
     catalog = load_json(CATALOG)
     refs = [item for item in catalog.get("items", []) if item.get("id") and item.get("u")]
@@ -242,8 +214,9 @@ def main():
     }
 
     report = {
-        "schemaVersion": "1.0.0",
+        "schemaVersion": "1.0.1",
         "benchmark": "R5 exact 80-crop AKAZE robustness certification",
+        "fixturePath": str(FIXTURE.relative_to(ROOT)),
         "fixtureSha256": FIXTURE_SHA256,
         "sourceCapture": manifest.get("source"),
         "openCvVersion": cv2.__version__,
