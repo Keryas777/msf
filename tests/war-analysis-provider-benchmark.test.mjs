@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   CLOUDFLARE_GEMMA_MODEL,
   CLOUDFLARE_GLM_MODEL,
+  CLOUDFLARE_ANALYSES_RESPONSE_FORMAT,
   GROQ_MODEL,
   getBenchmarkConfig,
   inspectOutput,
@@ -58,16 +59,23 @@ test("le benchmark lit uniquement le token Workers AI dédié", () => {
   assert.equal("cloudflareApiToken" in config, false);
 });
 
-test("les trois réseaux sont mockés et reçoivent le même prompt", async () => {
-  const report = fixture(85);
-  const calls = [];
+function benchmarkConfig() {
+  return { groqApiKey: "fake", cloudflareAccountId: "fake", cloudflareWorkersAiToken: "workers-ai-token", cloudflareGlmModel: CLOUDFLARE_GLM_MODEL, cloudflareGemmaModel: CLOUDFLARE_GEMMA_MODEL };
+}
+
+function recordingFetch(report, calls) {
   const analyses = report.report.players.map(({ rank, name }) => ({ rank, name, analysis: `${name} signe une performance solide.` }));
-  const fetchImpl = async (url, options) => {
+  return async (url, options) => {
     calls.push({ url, headers: options.headers, body: JSON.parse(options.body) });
     const cloudflare = url.includes("cloudflare.com");
     return new Response(JSON.stringify(cloudflare ? { result: { response: { analyses }, usage: { tokens: 10 } } } : { choices: [{ message: { content: JSON.stringify({ analyses }) } }], usage: { total_tokens: 10 } }), { status: 200, headers: { "x-ratelimit-remaining-requests": "9" } });
   };
-  const run = await runBenchmark({ report, fetchImpl, config: { groqApiKey: "fake", cloudflareAccountId: "fake", cloudflareWorkersAiToken: "workers-ai-token", cloudflareGlmModel: CLOUDFLARE_GLM_MODEL, cloudflareGemmaModel: CLOUDFLARE_GEMMA_MODEL } });
+}
+
+test("provider=all effectue exactement les trois appels mockés avec le même prompt", async () => {
+  const report = fixture(85);
+  const calls = [];
+  const run = await runBenchmark({ report, fetchImpl: recordingFetch(report, calls), config: benchmarkConfig() });
   assert.equal(calls.length, 3);
   assert.deepEqual(run.results.map(({ calls }) => calls), [1, 1, 1]);
   assert.equal(run.results.every((result) => result.analyses_accepted === 24), true);
@@ -78,11 +86,50 @@ test("les trois réseaux sont mockés et reçoivent le même prompt", async () =
   const prompts = calls.map(({ body }) => body.messages[0].content);
   assert.equal(new Set(prompts).size, 1);
   assert.deepEqual(calls[0].body.response_format, GROQ_ANALYSES_RESPONSE_FORMAT);
-  assert.equal("response_format" in calls[1].body, false);
+  assert.deepEqual(calls[1].body.response_format, CLOUDFLARE_ANALYSES_RESPONSE_FORMAT);
+  assert.equal("strict" in calls[1].body.response_format, false);
+  assert.equal("strict" in calls[1].body.response_format.json_schema, false);
+  assert.equal("response_format" in calls[2].body, false);
   assert.equal(calls[1].headers.authorization, "Bearer workers-ai-token");
   assert.equal(calls[2].headers.authorization, "Bearer workers-ai-token");
   assert.match(calls[1].url, /\/ai\/run\/@cf\/zai-org\/glm-4\.7-flash$/);
   assert.match(calls[2].url, /\/ai\/run\/@cf\/google\/gemma-4-26b-a4b-it$/);
+});
+
+test("le schéma GLM impose l'enveloppe analyses et les trois champs sans strict Groq", () => {
+  assert.equal(CLOUDFLARE_ANALYSES_RESPONSE_FORMAT.type, "json_schema");
+  const schema = CLOUDFLARE_ANALYSES_RESPONSE_FORMAT.json_schema;
+  assert.equal(schema.type, "object");
+  assert.deepEqual(schema.required, ["analyses"]);
+  assert.equal(schema.properties.analyses.type, "array");
+  assert.deepEqual(schema.properties.analyses.items.required, ["rank", "name", "analysis"]);
+  assert.deepEqual(schema.properties.analyses.items.properties, {
+    rank: { type: "integer" }, name: { type: "string" }, analysis: { type: "string" }
+  });
+  assert.equal(schema.additionalProperties, false);
+  assert.equal(schema.properties.analyses.items.additionalProperties, false);
+  assert.equal("strict" in CLOUDFLARE_ANALYSES_RESPONSE_FORMAT, false);
+  assert.equal("strict" in schema, false);
+});
+
+test("provider=cloudflare-glm effectue un seul appel GLM sans Groq ni Gemma et sans retry", async () => {
+  const report = fixture(85);
+  const calls = [];
+  const run = await runBenchmark({ report, provider: "cloudflare-glm", fetchImpl: recordingFetch(report, calls), config: benchmarkConfig() });
+  assert.equal(calls.length, 1);
+  assert.deepEqual(run.results.map(({ provider, calls }) => [provider, calls]), [["cloudflare-glm", 1]]);
+  assert.match(calls[0].url, /glm-4\.7-flash$/);
+  assert.doesNotMatch(calls[0].url, /groq|gemma/);
+});
+
+test("provider=groq effectue un seul appel Groq sans Cloudflare et conserve son schéma exact", async () => {
+  const report = fixture(85);
+  const calls = [];
+  const run = await runBenchmark({ report, provider: "groq", fetchImpl: recordingFetch(report, calls), config: { groqApiKey: "fake" } });
+  assert.equal(calls.length, 1);
+  assert.deepEqual(run.results.map(({ provider, calls }) => [provider, calls]), [["groq", 1]]);
+  assert.match(calls[0].url, /api\.groq\.com/);
+  assert.deepEqual(calls[0].body.response_format, GROQ_ANALYSES_RESPONSE_FORMAT);
 });
 
 test("le lanceur sans --execute ne peut effectuer aucun appel réseau", () => {

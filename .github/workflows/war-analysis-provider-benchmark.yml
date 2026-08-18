@@ -2,6 +2,17 @@ name: War Analysis Provider Benchmark
 
 on:
   workflow_dispatch:
+    inputs:
+      provider:
+        description: Fournisseur à exécuter
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - groq
+          - cloudflare-glm
+          - cloudflare-gemma
 
 permissions:
   contents: read
@@ -27,15 +38,15 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_WORKERS_AI_TOKEN: ${{ secrets.CLOUDFLARE_WORKERS_AI_TOKEN }}
         run: |
-          if [ -z "$GROQ_API_KEY" ]; then
+          if { [ "${{ inputs.provider }}" = "all" ] || [ "${{ inputs.provider }}" = "groq" ]; } && [ -z "$GROQ_API_KEY" ]; then
             echo "GROQ_API_KEY missing"
             exit 1
           fi
-          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+          if [ "${{ inputs.provider }}" != "groq" ] && [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
             echo "CLOUDFLARE_ACCOUNT_ID missing"
             exit 1
           fi
-          if [ -z "$CLOUDFLARE_WORKERS_AI_TOKEN" ]; then
+          if [ "${{ inputs.provider }}" != "groq" ] && [ -z "$CLOUDFLARE_WORKERS_AI_TOKEN" ]; then
             echo "CLOUDFLARE_WORKERS_AI_TOKEN missing"
             exit 1
           fi
@@ -45,7 +56,7 @@ jobs:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_WORKERS_AI_TOKEN: ${{ secrets.CLOUDFLARE_WORKERS_AI_TOKEN }}
-        run: node experiments/war-analysis-provider-benchmark/run.mjs --execute experiments/war-analysis-provider-benchmark/fixtures/athena-2026-08-04.json
+        run: node experiments/war-analysis-provider-benchmark/run.mjs --provider "${{ inputs.provider }}" --execute experiments/war-analysis-provider-benchmark/fixtures/athena-2026-08-04.json
 
       - name: Upload benchmark result
         if: always()
