@@ -1,0 +1,131 @@
+name: Temporary Codex heal finalize v2
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/codex-heal-normalization
+          fetch-depth: 0
+
+      - name: Reapply audited heal implementation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re, textwrap
+          workflow = Path('.github/workflows/tmp-codex-heal-normalization.yml').read_text(encoding='utf-8')
+          match = re.search(r"          python - <<'PY'\n(.*?)\n          PY", workflow, re.S)
+          if not match:
+              raise SystemExit('Unable to recover heal implementation script')
+          exec(compile(textwrap.dedent(match.group(1)), '<heal-implementation>', 'exec'), {})
+          PY
+
+      - name: Regenerate normalized data and refresh index snapshot
+        run: |
+          python -m scripts.msf_capabilities_parser.cli
+          python -m scripts.msf_capabilities_normalizer.cli
+          python -m scripts.msf_capabilities_normalizer.cli --check
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, re
+          capabilities = Path('data/msf-capabilities/normalized/capabilities.json')
+          checksum = hashlib.sha256(capabilities.read_bytes()).hexdigest()
+          audit = Path('scripts/msf_capabilities_indexer/audit.py')
+          text = audit.read_text(encoding='utf-8')
+          text, count = re.subn(
+              r'SNAPSHOT_CAPABILITIES_CHECKSUM = \(\n    "[0-9a-f]{64}"\n\)',
+              f'SNAPSHOT_CAPABILITIES_CHECKSUM = (\n    "{checksum}"\n)',
+              text,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit('Unable to update indexer snapshot checksum')
+          audit.write_text(text, encoding='utf-8')
+          print('HEAL_CAPABILITIES_CHECKSUM=' + checksum)
+          PY
+
+      - name: Regenerate complete Codex pipeline
+        run: |
+          python -m scripts.msf_capabilities_indexer.cli
+          python -m scripts.msf_capabilities_indexer.cli --check
+          python -m scripts.msf_capabilities_web_publisher.cli
+          python -m scripts.msf_capabilities_web_publisher.cli --check
+          python -m scripts.msf_capabilities_explorer_builder.cli
+          python -m scripts.msf_capabilities_explorer_builder.cli --check
+
+      - name: Verify heal contract and counts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('data/msf-capabilities/normalized/capabilities.json').read_text(encoding='utf-8'))
+          heal=[m for m in d['actionMappings'] if m.get('sourceActionType')=='heal']
+          heal_ops=[o for o in d['operations'] if o.get('kind')=='heal_restore']
+          preserved=sum(m.get('status')=='preserved_uninterpreted' for m in d['actionMappings'])
+          normalized=sum(m.get('status')=='normalized' for m in d['actionMappings'])
+          assert len(heal)==502
+          assert len(heal_ops)==502
+          assert all(m['status']=='normalized' and len(m['operationIds'])==1 for m in heal)
+          assert preserved==3646
+          assert normalized==8681
+          assert len(d['operations'])==10189
+          print({'healMappings':502,'healOperations':502,'normalized':normalized,'preserved':preserved,'operations':len(d['operations'])})
+          PY
+
+      - name: Refresh all expected test snapshots
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+              'tests/test_msf_capabilities_explorer_builder.py': [
+                  ('"operations": 9687,', '"operations": 10189,'),
+                  ('"preservedActions": 4148,', '"preservedActions": 3646,'),
+                  ('"assignedOperations": 8876,', '"assignedOperations": 9359,'),
+              ],
+              'tests/test_msf_capabilities_normalizer.py': [
+                  ('self.assertEqual(len(capabilities["operations"]), 8)', 'self.assertEqual(len(capabilities["operations"]), 9)'),
+                  ('            8179,\n', '            8681,\n'),
+                  ('            4148,\n', '            3646,\n'),
+              ],
+              'tests/test_msf_capabilities_web_publisher.py': [
+                  ('sha256:464eaab81851cd88bf4405a00fa8a7236bd6bc6dc25fe478b4d99931f1d7fd9a', 'sha256:e8f61d21e5d53e15ebf439e01adc5e24ea229814e6fa281b8d57c8f03aba8ff8'),
+                  ('ca5990b2b0880bf4976af18ed030d306e575fd4a3c71c97d7d19439acdd8b2e3', '8ebe86290ec60d5946bc0259e784ba48fc3560f3a5a6d8af877eb75131b83988'),
+              ],
+          }
+          for path, pairs in replacements.items():
+              p=Path(path)
+              s=p.read_text(encoding='utf-8')
+              for old,new in pairs:
+                  if old not in s:
+                      raise SystemExit(f'Expected snapshot not found in {path}: {old!r}')
+                  s=s.replace(old,new,1)
+              p.write_text(s,encoding='utf-8')
+          PY
+
+      - name: Run full tests
+        run: |
+          python -m unittest discover -s tests -p 'test_*.py'
+          node --test tests/*.test.js
+
+      - name: Commit final clean implementation
+        if: success()
+        run: |
+          rm -f .github/workflows/tmp-codex-heal-normalization.yml
+          rm -f .github/workflows/tmp-codex-heal-finalize.yml
+          rm -f .github/workflows/tmp-codex-heal-finalize-v2.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: normalize healing in Codex [skip ci]"
+          git pull --rebase origin agent/codex-heal-normalization
+          git push origin HEAD:agent/codex-heal-normalization
