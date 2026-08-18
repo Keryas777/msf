@@ -590,17 +590,19 @@ export function buildAnalysisPrompt(body, isCompletion) {
 
     "Ne mentionne jamais les prochaines guerres, les futures guerres, la prochaine participation ou une amélioration attendue.",
 
-    "Tu peux utiliser le pseudo lorsqu’il rend la rédaction naturelle, sans le répéter inutilement. Varie les débuts : « Avec… », « Sur le plan offensif… », « Très actif… », le pseudo suivi de « signe… », « Une guerre… », « Grâce à… » ou une formulation équivalente.",
+    "Tu peux utiliser le pseudo lorsqu’il rend la rédaction naturelle, sans le répéter inutilement. Varie naturellement la syntaxe : ne commence pas systématiquement par le pseudo et n’utilise pas systématiquement « signe une guerre ». Alterne les angles entre activité, efficacité, dégâts, défense, impact et déviations, sans suivre un modèle de phrase fixe.",
 
     "Repères d’interprétation autorisés : un volume ou une moyenne de dégâts élevés peuvent indiquer des cibles ambitieuses ; de faibles dégâts peuvent indiquer des cibles plus modestes ; beaucoup d’attaques avec de gros dégâts mais plusieurs ratés indiquent une activité ambitieuse mais imparfaite ; de nombreuses victoires défensives indiquent une contribution défensive importante ; les déviations indiquent une implication dans la protection de l’alliance.",
 
-    "Pour chaque joueur, score_total est la vérité déterministe. Il sert uniquement d’information interne pour déterminer le plafond de tonalité. Il est INTERDIT de mentionner score_total, « score total », le score, la note, la valeur numérique du score, « score élevé », « score faible », « score solide », « bon score », « excellent score », ou toute formulation qui révèle ou paraphrase directement le score déterministe.",
+    "score_total est une donnée technique interne. Elle sert uniquement à définir la tonalité globale cible. Elle ne doit jamais apparaître ni être évoquée dans le texte destiné au joueur. Ne mentionne ni score, ni note, ni valeur numérique d’évaluation. Décris uniquement les faits de guerre : activité, attaques, efficacité, impact, dégâts, défense et déviations.",
 
     "Exemples concernant le score — INTERDIT : « Il obtient un score de 71. » ; « Son score est élevé. » ; « Sa note est excellente. » AUTORISÉ : « Son activité offensive a été régulière. » ; « Son efficacité a été excellente. »",
 
-    "global_tone_ceiling est le niveau MAXIMAL et le plafond absolu du jugement global portant sur la performance, la prestation, la guerre, le bilan, le résultat global ou le joueur dans son ensemble. Une tonalité plus faible est autorisée, jamais une tonalité supérieure.",
+    "global_tone_ceiling est à la fois le plafond maximal et la tonalité globale cible. Lorsque tu portes un jugement GLOBAL sur la guerre, la performance, la prestation, le bilan, le résultat global ou le joueur dans son ensemble, utilise EXACTEMENT le niveau correspondant à global_tone_ceiling : ne choisis ni un niveau supérieur ni un niveau inférieur. Tu peux aussi éviter complètement le jugement global et rester factuel.",
 
-    "Exemples de plafond global — si global_tone_ceiling = EXCELLENT : autorisés globalement « excellente », « très bonne », « bonne », « solide » ; interdits globalement « exceptionnelle », « remarquable ». si global_tone_ceiling = VERY_GOOD : autorisés globalement « très bonne », « bonne », « solide » ; interdits globalement « excellente », « exceptionnelle », « remarquable ». si global_tone_ceiling = GOOD : autorisés globalement « bonne », « solide » ; interdits globalement « très bonne », « excellente », « exceptionnelle », « remarquable ».",
+    "Correspondance exacte de la tonalité globale cible : EXCEPTIONAL → « exceptionnelle » ou « remarquable » ; EXCELLENT → « excellente » ; VERY_GOOD → « très bonne » ; GOOD → « bonne » ; SOLID → « solide » ; MIXED → « mitigée » ou « contrastée » ; WITHDRAWN → « en retrait » ou une formulation sobre équivalente indiquant une prestation difficile.",
+
+    "Exemples de cible globale — pour EXCELLENT, « Il réalise une excellente guerre. » est autorisé, tandis que « Il réalise une guerre exceptionnelle. » et « Il réalise une très bonne guerre. » sont interdits. Pour VERY_GOOD, « Il réalise une très bonne guerre. » est autorisé, tandis que « Il réalise une excellente guerre. » et « Il réalise une bonne guerre. » sont interdits.",
 
     "Distinction global / sous-aspect : un qualificatif supérieur au plafond global reste autorisé UNIQUEMENT s’il qualifie un sous-aspect clairement nommé, par exemple « Son efficacité a été exceptionnelle. » ou « Son impact a été remarquable. », sans transformer ce jugement local en qualification globale de la guerre, de la prestation ou du joueur.",
 
@@ -620,7 +622,7 @@ export function buildAnalysisPrompt(body, isCompletion) {
       ? "Tu dois produire exactement une analyse pour chacun des joueurs fournis dans cette requête de complétion, et aucun autre joueur."
       : "Produis une analyse pour chacun des joueurs fournis.",
 
-    "Avant de produire le JSON, vérifie mentalement chaque analyse dans ce même appel : 1. Ai-je mentionné ou paraphrasé le score, la note ou sa valeur ? Si oui, réécrire. 2. Ai-je utilisé un qualificatif global supérieur à global_tone_ceiling ? Si oui, réécrire. 3. Ai-je produit entre 1 et 3 phrases ? Sinon, corriger. 4. Ai-je dépassé 700 caractères ? Si oui, raccourcir. 5. rank, name et analysis sont-ils exacts ? Sinon, corriger.",
+    "Avant de produire le JSON, vérifie mentalement chaque analyse dans ce même appel : 1. Ai-je mentionné ou évoqué le score ou la note ? Si oui, réécrire. 2. Ai-je formulé un jugement GLOBAL ? Si oui, correspond-il EXACTEMENT à global_tone_ceiling ? Sinon, réécrire. 3. Les qualificatifs plus forts portent-ils uniquement sur des sous-aspects clairement identifiés ? Sinon, réécrire. 4. Ai-je produit entre 1 et 3 phrases ? Sinon, corriger. 5. Ai-je dépassé 700 caractères ? Si oui, raccourcir. 6. rank, name et analysis sont-ils exacts ? Sinon, corriger.",
 
     JSON.stringify(body)
   ].join("\n\n");

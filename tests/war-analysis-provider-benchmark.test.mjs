@@ -176,9 +176,11 @@ test("provider=cloudflare-llama4-scout effectue un seul appel Scout structuré s
   assert.equal("strict" in calls[0].body.response_format.json_schema, false);
   assert.equal(calls[0].headers.authorization, "Bearer workers-ai-token");
   const prompt = calls[0].body.messages[0].content;
-  assert.match(prompt, /INTERDIT de mentionner score_total/);
+  assert.match(prompt, /score_total est une donnée technique interne/);
   assert.match(prompt, /« Il obtient un score de 71\. ».*AUTORISÉ/s);
-  assert.match(prompt, /global_tone_ceiling est le niveau MAXIMAL/);
+  assert.match(prompt, /global_tone_ceiling est à la fois le plafond maximal et la tonalité globale cible/);
+  assert.match(prompt, /EXACTEMENT le niveau correspondant à global_tone_ceiling/);
+  assert.match(prompt, /EXCEPTIONAL →.*EXCELLENT →.*VERY_GOOD →.*GOOD →.*SOLID →.*MIXED →.*WITHDRAWN →/s);
   assert.match(prompt, /Distinction global \/ sous-aspect/);
   assert.match(prompt, /Avant de produire le JSON, vérifie mentalement chaque analyse dans ce même appel/);
 });
