@@ -1,0 +1,96 @@
+name: War Counter R5 visual benchmark
+
+on:
+  push:
+    branches:
+      - agent/war-counter-r5-embeddings-benchmark
+    paths:
+      - 'benchmarks/war-counter-r5/**'
+      - 'scripts/war_counter_r5_embedding_benchmark.py'
+      - 'scripts/war_counter_r5_feature_benchmark.py'
+      - 'scripts/war_counter_r5_export_akaze_refs.py'
+      - 'scripts/war_counter_r5_export_akaze_browser.py'
+      - 'scripts/war_counter_r5_robustness_benchmark.py'
+      - 'scripts/war_counter_r5_akaze_mobile_shortlist_benchmark.py'
+      - '.github/workflows/war-counter-r5-embedding-benchmark.yml'
+      - 'docs/data/war-counter-vision/portrait-signatures.json'
+      - 'docs/data/war-counters.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install benchmark dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision
+          python -m pip uninstall -y opencv-python opencv-python-headless opencv-contrib-python opencv-contrib-python-headless || true
+          python -m pip install pillow requests "opencv-contrib-python-headless==4.10.0.84"
+          python - <<'PY'
+          import cv2
+          print("OpenCV", cv2.__version__)
+          print("ORB_create", hasattr(cv2, "ORB_create"))
+          print("AKAZE_create", hasattr(cv2, "AKAZE_create"))
+          print("AKAZE.create", bool(getattr(getattr(cv2, "AKAZE", None), "create", None)))
+          assert hasattr(cv2, "ORB_create"), "ORB is unavailable in this OpenCV build"
+          assert hasattr(cv2, "AKAZE_create") or getattr(getattr(cv2, "AKAZE", None), "create", None), "AKAZE is unavailable in this OpenCV build"
+          PY
+
+      - name: Run MobileNet embedding benchmark
+        run: python scripts/war_counter_r5_embedding_benchmark.py
+
+      - name: Run ORB and AKAZE feature benchmark
+        run: python scripts/war_counter_r5_feature_benchmark.py
+
+      - name: Run exact 80-crop AKAZE certification
+        run: python scripts/war_counter_r5_robustness_benchmark.py
+
+      - name: Run mobile-friendly AKAZE shortlist benchmark
+        run: python scripts/war_counter_r5_akaze_mobile_shortlist_benchmark.py
+
+      - name: Export AKAZE reference descriptors
+        run: python scripts/war_counter_r5_export_akaze_refs.py
+
+      - name: Export browser AKAZE assets
+        run: python scripts/war_counter_r5_export_akaze_browser.py
+
+      - name: Persist browser AKAZE assets on benchmark branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/war-counter-vision/akaze-r5-reference-descriptors.json
+          git add docs/data/war-counter-vision/akaze-r5-reference-descriptors.bin
+          if git diff --cached --quiet; then
+            echo "Browser AKAZE assets unchanged"
+          else
+            git commit -m "chore: refresh browser AKAZE descriptors"
+            git push
+          fi
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: war-counter-r5-visual-reports
+          path: |
+            benchmark-r5-embedding-report.json
+            benchmark-r5-feature-report.json
+            benchmark-r5-akaze-robustness-report.json
+            benchmark-r5-akaze-mobile-shortlist-report.json
+            benchmark-r5-akaze-reference-descriptors.npz
+          if-no-files-found: warn
+
+# trigger: browser AKAZE mobile lab 2026-08-19
