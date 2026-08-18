@@ -2,7 +2,7 @@ name: Temporary Codex heal audit
 
 on:
   pull_request:
-    branches: ['audit/codex-heal-20260818']
+    branches: [main]
 
 permissions:
   contents: read
