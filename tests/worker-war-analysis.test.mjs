@@ -75,10 +75,11 @@ function rateLimitResponse(headers = { "retry-after": "17.2" }) {
   });
 }
 
-function failedGenerationResponse(headers = {}) {
+function failedGenerationResponse(error = {}, headers = {}) {
   return Response.json({
     error: {
-      message: "Failed to validate JSON. Please adjust your prompt. See 'failed_generation' for more details."
+      message: "Erreur de génération Groq",
+      ...error
     }
   }, { status: 400, headers });
 }
@@ -306,19 +307,63 @@ test("un 429 utilise le reset TPM puis le fallback de sécurité", async () => {
   assert.equal((await result.response.json()).retry_after_seconds, 60);
 });
 
-test("failed_generation est retryable avec le reset TPM ou le fallback", async () => {
+test("failed_generation est détecté par le code structuré", async () => {
+  const { response } = await callWorker(requestBody(1), [failedGenerationResponse({
+    code: "failed_generation"
+  })]);
+  assert.equal((await response.json()).code, "GROQ_GENERATION_RETRY");
+});
+
+test("failed_generation est détecté par le type structuré", async () => {
+  const { response } = await callWorker(requestBody(1), [failedGenerationResponse({
+    type: "failed_generation"
+  })]);
+  assert.equal((await response.json()).code, "GROQ_GENERATION_RETRY");
+});
+
+test("le message Failed to generate JSON reste un fallback retryable", async () => {
+  const { response } = await callWorker(requestBody(1), [failedGenerationResponse({
+    message: "Failed to generate JSON. Please adjust your prompt. See 'failed_generation' for more details."
+  })]);
+  assert.equal((await response.json()).code, "GROQ_GENERATION_RETRY");
+});
+
+test("le message Failed to validate JSON reste un fallback retryable", async () => {
+  const { response } = await callWorker(requestBody(1), [failedGenerationResponse({
+    message: "Failed to validate JSON. Please adjust your prompt. See 'failed_generation' for more details."
+  })]);
+  assert.equal((await response.json()).code, "GROQ_GENERATION_RETRY");
+});
+
+test("failed_generation utilise le reset TPM arrondi", async () => {
+  const { response } = await callWorker(requestBody(1), [failedGenerationResponse({
+    code: "failed_generation"
+  }, {
+    "x-ratelimit-reset-tokens": "43.2s"
+  })]);
+  const data = await response.json();
+  assert.equal(data.code, "GROQ_GENERATION_RETRY");
+  assert.equal(data.retry_after_seconds, 44);
+});
+
+test("failed_generation sans reset exploitable utilise le fallback de sécurité", async () => {
   let result = await callWorker(requestBody(1), [failedGenerationResponse({
-    "x-ratelimit-reset-tokens": "51.4s"
+    type: "failed_generation"
+  }, {
+    "x-ratelimit-reset-tokens": "invalide"
   })]);
   let data = await result.response.json();
   assert.equal(data.code, "GROQ_GENERATION_RETRY");
-  assert.equal(data.retry_after_seconds, 52);
-  assert.match(data.error, /^Failed to validate JSON/);
+  assert.equal(data.retry_after_seconds, 60);
 
-  result = await callWorker(requestBody(1), [failedGenerationResponse()]);
+  result = await callWorker(requestBody(1), [failedGenerationResponse({
+    code: "failed_generation"
+  }, {
+    "x-ratelimit-reset-tokens": "51.4s"
+  })]);
   data = await result.response.json();
   assert.equal(data.code, "GROQ_GENERATION_RETRY");
-  assert.equal(data.retry_after_seconds, 60);
+  assert.equal(data.retry_after_seconds, 52);
 });
 
 test("une autre erreur Groq 400 conserve le comportement non retryable", async () => {

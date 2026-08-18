@@ -642,6 +642,19 @@ function getGroqErrorDetails(groqData) {
   };
 }
 
+function isGroqFailedGeneration(groqData, message) {
+  const groqError = groqData?.error;
+
+  if (
+    groqError?.code === "failed_generation" ||
+    groqError?.type === "failed_generation"
+  ) {
+    return true;
+  }
+
+  return /failed to (?:validate|generate) json/i.test(message);
+}
+
 async function requestGroqAnalyses(prompt, apiKey, model) {
 
   const endpoint = "https://api.groq.com/openai/v1/chat/completions";
@@ -726,7 +739,7 @@ async function requestGroqAnalyses(prompt, apiKey, model) {
       );
     }
 
-    if (/failed to validate json/i.test(message)) {
+    if (isGroqFailedGeneration(groqData, message)) {
       const tokenReset = parseGroqDurationSeconds(
         groqResponse.headers.get("x-ratelimit-reset-tokens")
       );
