@@ -2,6 +2,8 @@ name: Temporary Codex barrier audit
 on:
   push:
     branches: [agent/codex-barrier-audit]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 jobs:
   audit:
@@ -11,26 +13,24 @@ jobs:
       - name: Audit barrier source actions
         run: |
           python - <<'PY'
-          import json, glob, collections
+          import json, glob, collections, os
           files=glob.glob('docs/data/msf-capabilities-explorer/characters/*.json')
           if not files: files=glob.glob('docs/data/msf-capabilities-explorer/generations/*/characters/*.json')
-          # Use newest-generation character set by grouping generation dir if needed
           if files and '/generations/' in files[0]:
               groups=collections.defaultdict(list)
               for f in files: groups[f.split('/characters/')[0]].append(f)
-              files=max(groups.values(), key=lambda x: max(__import__('os').path.getmtime(f) for f in x))
+              files=max(groups.values(), key=lambda x: max(os.path.getmtime(f) for f in x))
           rows=[]
           def walk(x, parents=()):
               if isinstance(x,dict):
                   st=x.get('sourceActionType') or x.get('sourceType') or x.get('type')
                   if st=='barrier' or x.get('action')=='barrier': rows.append((x,parents))
-                  for k,v in x.items(): walk(v,parents+(x,))
+                  for v in x.values(): walk(v,parents+(x,))
               elif isinstance(x,list):
                   for v in x: walk(v,parents)
           for f in files:
               try: walk(json.load(open(f)))
-              except: pass
-          # de-dupe by action id where possible
+              except Exception: pass
           uniq={}
           for x,p in rows:
               key=x.get('id') or x.get('actionId') or json.dumps(x,sort_keys=True,ensure_ascii=False)
@@ -40,7 +40,7 @@ jobs:
           keys=collections.Counter(); combos=collections.Counter(); vals=collections.defaultdict(collections.Counter)
           triggers=collections.Counter(); triggerfor=collections.Counter(); actionpct=collections.Counter(); modes=collections.Counter(); sides=collections.Counter(); cond=0
           for x,ps in rows:
-              ks=tuple(sorted(x.keys())); combos[ks]+=1
+              combos[tuple(sorted(x.keys()))]+=1
               for k,v in x.items():
                   keys[k]+=1
                   if k in ('barrier_pct','barrier_amt','barrier_remove','amount','value','action_pct','max_barrier_pct'):
