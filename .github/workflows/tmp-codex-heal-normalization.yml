@@ -1,0 +1,138 @@
+name: Temporary Codex heal normalization
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/codex-heal-normalization
+          fetch-depth: 0
+
+      - name: Apply conservative heal normalization
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace(path, old, new):
+              p=Path(path)
+              s=p.read_text(encoding='utf-8')
+              if old not in s:
+                  raise SystemExit(f'pattern not found in {path}: {old[:100]!r}')
+              p.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          # Normalizer: preserve action_pct as chance, heal_amt as fixed HP,
+          # heal_pct as source character max-health percentage. Context trigger,
+          # conditions and target remain owned by the existing normalized action/context.
+          p='scripts/msf_capabilities_normalizer/normalizer.py'
+          replace(p,
+          '''TURN_METER_METRIC_FIELDS = (\n    ("chancePct", "action_pct"),\n    ("turnMeterPct", "change_pct"),\n    ("specificCharacterTurnMeterPct", "specific_characters_mul"),\n)\n''',
+          '''TURN_METER_METRIC_FIELDS = (\n    ("chancePct", "action_pct"),\n    ("turnMeterPct", "change_pct"),\n    ("specificCharacterTurnMeterPct", "specific_characters_mul"),\n)\n\nHEAL_METRIC_FIELDS = (\n    ("chancePct", "action_pct"),\n    ("healAmount", "heal_amt"),\n    ("sourceMaxHealthPct", "heal_pct"),\n)\n''')
+          replace(p,
+          '''    def _build_battlefield_action(\n''',
+          '''    def _build_heal_action(\n        self,\n        action: dict[str, Any],\n    ) -> None:\n        source = action.get("source")\n        if not isinstance(source, dict):\n            source = {}\n        action_pointer = str(source.get("pointer", ""))\n        self._build_operation(\n            action,\n            kind="heal_restore",\n            canonical_action_type="heal",\n            source_field=None,\n            effect_id=None,\n            effect_pointer=action_pointer,\n            entry_pointer=action_pointer,\n            entry=None,\n            ordinal=0,\n            scope={"kind": "action_target"},\n            metric_fields=HEAL_METRIC_FIELDS,\n        )\n\n    def _build_battlefield_action(\n''')
+          replace(p,
+          '''            elif canonical_action_type == "turn_meter":\n                self._build_turn_meter_action(action)\n            elif canonical_action_type in {\n''',
+          '''            elif canonical_action_type == "turn_meter":\n                self._build_turn_meter_action(action)\n            elif canonical_action_type == "heal":\n                self._build_heal_action(action)\n            elif canonical_action_type in {\n''')
+
+          # Indexer controlled vocabulary and expected snapshot.
+          p='scripts/msf_capabilities_indexer/audit.py'
+          replace(p,
+          '''        "turn_meter_modify",\n        "battlefield_effect_set",\n''',
+          '''        "turn_meter_modify",\n        "heal_restore",\n        "battlefield_effect_set",\n''')
+          replace(p,
+          '''    "turn_meter_modify": 540,\n    "battlefield_effect_clear": 21,\n''',
+          '''    "turn_meter_modify": 540,\n    "heal_restore": 502,\n    "battlefield_effect_clear": 21,\n''')
+          replace(p,
+          '''    "operationCount": 9687,\n''',
+          '''    "operationCount": 10189,\n''')
+          replace(p,
+          '''    "preservedUninterpretedActionCount": 4148,\n''',
+          '''    "preservedUninterpretedActionCount": 3646,\n''')
+
+          # Explorer controlled presentation.
+          p='scripts/msf_capabilities_explorer_builder/presentation.py'
+          replace(p,
+          '''    "turn_meter_modify": {"label": "Modifie la jauge de vitesse", "order": 57},\n''',
+          '''    "turn_meter_modify": {"label": "Modifie la jauge de vitesse", "order": 57},\n    "heal_restore": {"label": "Soigne", "order": 58},\n''')
+          replace(p,
+          '''    "turnMeterPct": "Variation de jauge de vitesse",\n    "specificCharacterTurnMeterPct": "Variation liée aux personnages spécifiques",\n''',
+          '''    "turnMeterPct": "Variation de jauge de vitesse",\n    "specificCharacterTurnMeterPct": "Variation liée aux personnages spécifiques",\n    "healAmount": "Soin fixe",\n    "sourceMaxHealthPct": "Vie max. du personnage",\n''')
+          replace(p,
+          '''GENERIC_MECHANICS = {\n    "action-turn-meter": {\n''',
+          '''GENERIC_MECHANICS = {\n    "action-heal": {\n        "label": "Soin",\n        "sourceName": "heal",\n        "aliases": ["heal", "soin", "soigne"],\n        "description": "Restauration structurée de points de vie à partir des données de combat.",\n    },\n    "action-turn-meter": {\n''')
+
+          # Explorer mechanic linkage.
+          p='scripts/msf_capabilities_explorer_builder/builder.py'
+          replace(p,
+          '''    if kind == "turn_meter_modify":\n        result.add("action-turn-meter")\n''',
+          '''    if kind == "turn_meter_modify":\n        result.add("action-turn-meter")\n    if kind == "heal_restore":\n        result.add("action-heal")\n''')
+
+          # Player-facing operation label: amount is still anchored to source character max HP.
+          p='scripts/msf_capabilities_explorer_builder/ability_presentation.py'
+          replace(p,
+          '''def _operation_projection(record: Mapping[str, Any]) -> dict[str, Any]:\n''',
+          '''def _heal_operation_label(record: Mapping[str, Any]) -> str:\n    metrics = record.get("metrics") if isinstance(record.get("metrics"), dict) else {}\n    fixed = _progression_terminal(metrics.get("healAmount"))\n    pct = _progression_terminal(metrics.get("sourceMaxHealthPct"))\n    if fixed is not None and pct is not None:\n        return f"Soigne de {fixed:g} PV + {pct:g} % de la vie max. de ce personnage"\n    if fixed is not None:\n        return f"Soigne de {fixed:g} PV"\n    if pct is not None:\n        return f"Soigne de {pct:g} % de la vie max. de ce personnage"\n    return "Soigne"\n\n\ndef _operation_projection(record: Mapping[str, Any]) -> dict[str, Any]:\n''')
+          replace(p,
+          '''    elif kind == "turn_meter_modify":\n        label = _turn_meter_operation_label(record)\n    else:\n''',
+          '''    elif kind == "turn_meter_modify":\n        label = _turn_meter_operation_label(record)\n    elif kind == "heal_restore":\n        label = _heal_operation_label(record)\n    else:\n''')
+
+          # Dedicated contract tests, including trigger/chance conservation.
+          Path('tests/test_msf_heal_normalization.py').write_text(r'''import json\nimport unittest\nfrom pathlib import Path\n\n\nROOT = Path(__file__).resolve().parents[1]\nCAPABILITIES = ROOT / "data/msf-capabilities/normalized/capabilities.json"\n\n\nclass HealNormalizationTests(unittest.TestCase):\n    @classmethod\n    def setUpClass(cls):\n        cls.data = json.loads(CAPABILITIES.read_text(encoding="utf-8"))\n        cls.mappings = [m for m in cls.data["actionMappings"] if m.get("sourceActionType") == "heal"]\n        cls.operations = {o["id"]: o for o in cls.data["operations"]}\n        cls.contexts = {c["id"]: c for c in cls.data["contexts"]}\n\n    def test_all_502_heal_actions_are_normalized_once(self):\n        self.assertEqual(len(self.mappings), 502)\n        self.assertTrue(all(m["status"] == "normalized" for m in self.mappings))\n        self.assertTrue(all(len(m["operationIds"]) == 1 for m in self.mappings))\n        ops=[self.operations[m["operationIds"][0]] for m in self.mappings]\n        self.assertEqual(sum(o["kind"] == "heal_restore" for o in ops), 502)\n\n    def test_heal_metrics_preserve_fixed_percent_and_chance_sources(self):\n        ops=[self.operations[m["operationIds"][0]] for m in self.mappings]\n        self.assertTrue(any("healAmount" in o["metrics"] for o in ops))\n        self.assertTrue(any("sourceMaxHealthPct" in o["metrics"] for o in ops))\n        self.assertTrue(any("healAmount" in o["metrics"] and "sourceMaxHealthPct" in o["metrics"] for o in ops))\n        chances=[]\n        for o in ops:\n            metric=o["metrics"].get("chancePct")\n            if isinstance(metric,dict):\n                chances.append(metric.get("maxLevelValue"))\n        self.assertIn(25, chances)\n        self.assertIn(50, chances)\n\n    def test_passive_triggers_remain_on_contexts(self):\n        ops=[self.operations[m["operationIds"][0]] for m in self.mappings]\n        triggers=[]\n        for o in ops:\n            ctx=self.contexts[o["contextId"]]\n            execution=ctx.get("execution") or {}\n            raw=execution.get("trigger")\n            if isinstance(raw,dict): raw=raw.get("value")\n            if isinstance(raw,str): triggers.append(raw)\n        self.assertIn("on_turn", triggers)\n        self.assertIn("on_death", triggers)\n        self.assertIn("below_health", triggers)\n\n    def test_normalization_does_not_invent_missing_targets(self):\n        ops=[self.operations[m["operationIds"][0]] for m in self.mappings]\n        self.assertTrue(any(isinstance(o.get("target"),dict) and o["target"].get("present") is False for o in ops))\n\n\nif __name__ == "__main__":\n    unittest.main()\n'''.replace('\\n','\n'),encoding='utf-8')
+          PY
+
+      - name: Regenerate complete Codex pipeline
+        run: |
+          python -m scripts.msf_capabilities_parser.cli
+          python -m scripts.msf_capabilities_normalizer.cli
+          python -m scripts.msf_capabilities_normalizer.cli --check
+          python -m scripts.msf_capabilities_indexer.cli
+          python -m scripts.msf_capabilities_indexer.cli --check
+          python -m scripts.msf_capabilities_web_publisher.cli
+          python -m scripts.msf_capabilities_web_publisher.cli --check
+          python -m scripts.msf_capabilities_explorer_builder.cli
+          python -m scripts.msf_capabilities_explorer_builder.cli --check
+
+      - name: Verify heal counts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('data/msf-capabilities/normalized/capabilities.json')
+          d=json.loads(p.read_text(encoding='utf-8'))
+          heal=[m for m in d['actionMappings'] if m.get('sourceActionType')=='heal']
+          heal_ops=[o for o in d['operations'] if o.get('kind')=='heal_restore']
+          preserved=sum(m.get('status')=='preserved_uninterpreted' for m in d['actionMappings'])
+          normalized=sum(m.get('status')=='normalized' for m in d['actionMappings'])
+          print({'healMappings':len(heal),'healOperations':len(heal_ops),'normalized':normalized,'preserved':preserved,'operations':len(d['operations'])})
+          assert len(heal)==502
+          assert len(heal_ops)==502
+          assert all(m['status']=='normalized' for m in heal)
+          assert preserved==3646
+          assert normalized==8681
+          assert len(d['operations'])==10189
+          PY
+
+      - name: Run full tests
+        run: |
+          python -m unittest discover -s tests -p 'test_*.py'
+          node --test tests/*.test.js
+
+      - name: Commit generated implementation
+        if: success()
+        run: |
+          rm .github/workflows/tmp-codex-heal-normalization.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: normalize healing in Codex [skip ci]"
+          git push origin HEAD:agent/codex-heal-normalization
