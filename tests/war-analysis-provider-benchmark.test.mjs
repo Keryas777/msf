@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   CLOUDFLARE_GEMMA_MODEL,
   CLOUDFLARE_GLM_MODEL,
+  CLOUDFLARE_LLAMA4_SCOUT_MODEL,
   CLOUDFLARE_ANALYSES_RESPONSE_FORMAT,
   GROQ_MODEL,
   getBenchmarkConfig,
@@ -35,9 +36,11 @@ test("le plafond importé de production rejette excellent pour un score de 71", 
 test("les identifiants Workers AI officiels sont les valeurs par défaut", () => {
   assert.equal(CLOUDFLARE_GLM_MODEL, "@cf/zai-org/glm-4.7-flash");
   assert.equal(CLOUDFLARE_GEMMA_MODEL, "@cf/google/gemma-4-26b-a4b-it");
+  assert.equal(CLOUDFLARE_LLAMA4_SCOUT_MODEL, "@cf/meta/llama-4-scout-17b-16e-instruct");
   const config = getBenchmarkConfig({});
   assert.equal(config.cloudflareGlmModel, CLOUDFLARE_GLM_MODEL);
   assert.equal(config.cloudflareGemmaModel, CLOUDFLARE_GEMMA_MODEL);
+  assert.equal(config.cloudflareLlama4ScoutModel, CLOUDFLARE_LLAMA4_SCOUT_MODEL);
 });
 
 test("les variables d'environnement surchargent les modèles Workers AI", () => {
@@ -60,7 +63,7 @@ test("le benchmark lit uniquement le token Workers AI dédié", () => {
 });
 
 function benchmarkConfig() {
-  return { groqApiKey: "fake", cloudflareAccountId: "fake", cloudflareWorkersAiToken: "workers-ai-token", cloudflareGlmModel: CLOUDFLARE_GLM_MODEL, cloudflareGemmaModel: CLOUDFLARE_GEMMA_MODEL };
+  return { groqApiKey: "fake", cloudflareAccountId: "fake", cloudflareWorkersAiToken: "workers-ai-token", cloudflareGlmModel: CLOUDFLARE_GLM_MODEL, cloudflareGemmaModel: CLOUDFLARE_GEMMA_MODEL, cloudflareLlama4ScoutModel: CLOUDFLARE_LLAMA4_SCOUT_MODEL };
 }
 
 function recordingFetch(report, calls) {
@@ -72,12 +75,12 @@ function recordingFetch(report, calls) {
   };
 }
 
-test("provider=all effectue exactement les trois appels mockés avec le même prompt", async () => {
+test("provider=all effectue exactement les quatre appels mockés avec le même prompt", async () => {
   const report = fixture(85);
   const calls = [];
   const run = await runBenchmark({ report, fetchImpl: recordingFetch(report, calls), config: benchmarkConfig() });
-  assert.equal(calls.length, 3);
-  assert.deepEqual(run.results.map(({ calls }) => calls), [1, 1, 1]);
+  assert.equal(calls.length, 4);
+  assert.deepEqual(run.results.map(({ calls }) => calls), [1, 1, 1, 1]);
   assert.equal(run.results.every((result) => result.analyses_accepted === 24), true);
   assert.equal(calls[0].body.model, GROQ_MODEL);
   assert.equal(calls[0].body.temperature, 0.55);
@@ -90,10 +93,16 @@ test("provider=all effectue exactement les trois appels mockés avec le même pr
   assert.equal("strict" in calls[1].body.response_format, false);
   assert.equal("strict" in calls[1].body.response_format.json_schema, false);
   assert.equal("response_format" in calls[2].body, false);
+  assert.deepEqual(calls[3].body.response_format, CLOUDFLARE_ANALYSES_RESPONSE_FORMAT);
+  assert.equal(calls[3].body.temperature, 0.55);
+  assert.equal("strict" in calls[3].body.response_format, false);
+  assert.equal("strict" in calls[3].body.response_format.json_schema, false);
   assert.equal(calls[1].headers.authorization, "Bearer workers-ai-token");
   assert.equal(calls[2].headers.authorization, "Bearer workers-ai-token");
+  assert.equal(calls[3].headers.authorization, "Bearer workers-ai-token");
   assert.match(calls[1].url, /\/ai\/run\/@cf\/zai-org\/glm-4\.7-flash$/);
   assert.match(calls[2].url, /\/ai\/run\/@cf\/google\/gemma-4-26b-a4b-it$/);
+  assert.match(calls[3].url, /\/ai\/run\/@cf\/meta\/llama-4-scout-17b-16e-instruct$/);
 });
 
 test("le schéma GLM impose l'enveloppe analyses et les trois champs sans strict Groq", () => {
@@ -120,6 +129,26 @@ test("provider=cloudflare-glm effectue un seul appel GLM sans Groq ni Gemma et s
   assert.deepEqual(run.results.map(({ provider, calls }) => [provider, calls]), [["cloudflare-glm", 1]]);
   assert.match(calls[0].url, /glm-4\.7-flash$/);
   assert.doesNotMatch(calls[0].url, /groq|gemma/);
+});
+
+test("provider=cloudflare-llama4-scout effectue un seul appel Scout structuré sans autre fournisseur ni retry", async () => {
+  const report = fixture(85);
+  const calls = [];
+  const config = {
+    cloudflareAccountId: "fake",
+    cloudflareWorkersAiToken: "workers-ai-token",
+    cloudflareLlama4ScoutModel: CLOUDFLARE_LLAMA4_SCOUT_MODEL
+  };
+  const run = await runBenchmark({ report, provider: "cloudflare-llama4-scout", fetchImpl: recordingFetch(report, calls), config });
+  assert.equal(calls.length, 1);
+  assert.deepEqual(run.results.map(({ provider, calls }) => [provider, calls]), [["cloudflare-llama4-scout", 1]]);
+  assert.match(calls[0].url, /\/ai\/run\/@cf\/meta\/llama-4-scout-17b-16e-instruct$/);
+  assert.doesNotMatch(calls[0].url, /groq|glm|gemma/);
+  assert.equal(calls[0].body.temperature, 0.55);
+  assert.deepEqual(calls[0].body.response_format, CLOUDFLARE_ANALYSES_RESPONSE_FORMAT);
+  assert.equal("strict" in calls[0].body.response_format, false);
+  assert.equal("strict" in calls[0].body.response_format.json_schema, false);
+  assert.equal(calls[0].headers.authorization, "Bearer workers-ai-token");
 });
 
 test("provider=groq effectue un seul appel Groq sans Cloudflare et conserve son schéma exact", async () => {
