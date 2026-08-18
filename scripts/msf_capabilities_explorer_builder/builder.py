@@ -1210,6 +1210,8 @@ def _operation_mechanic_ids(
         result.add(str(kind))
     if kind == "ability_energy_generate":
         result.add("action-ability-energy")
+    if kind == "turn_meter_modify":
+        result.add("action-turn-meter")
     if kind in {"battlefield_effect_set", "battlefield_effect_clear"}:
         result.add("battlefield-effects")
     selector = raw.get("selector") if isinstance(raw.get("selector"), dict) else {}

@@ -71,6 +71,7 @@ OPERATION_KINDS = {
     "effect_transfer": {"label": "Transfère", "order": 40},
     "effect_flip": {"label": "Retourne", "order": 50},
     "ability_energy_generate": {"label": "Génère de l’énergie de capacité", "order": 55},
+    "turn_meter_modify": {"label": "Modifie la jauge de vitesse", "order": 57},
     "battlefield_effect_set": {"label": "Active l’effet de champ", "order": 60},
     "battlefield_effect_clear": {"label": "Retire l’effet de champ", "order": 70},
     "spawn": {"label": "Invoque", "order": 80},
@@ -86,6 +87,8 @@ OPERATION_KINDS = {
 METRICS = {
     "chancePct": "Chance",
     "energyAmount": "Énergie générée",
+    "turnMeterPct": "Variation de jauge de vitesse",
+    "specificCharacterTurnMeterPct": "Variation liée aux personnages spécifiques",
     "useCount": "Quantité indiquée",
     "applyCount": "Nombre d’applications",
     "delta": "Variation de durée",
@@ -429,6 +432,12 @@ ACTION_PRESENTATIONS = {
 
 
 GENERIC_MECHANICS = {
+    "action-turn-meter": {
+        "label": "Jauge de vitesse",
+        "sourceName": "turn_meter",
+        "aliases": ["turn meter", "jauge de vitesse", "barre de tour"],
+        "description": "Modification structurée de la jauge de vitesse à partir des données de combat.",
+    },
     "action-ability-energy": {
         "label": "Énergie de capacité",
         "sourceName": "ability_energy",
