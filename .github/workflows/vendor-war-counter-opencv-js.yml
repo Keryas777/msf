@@ -19,13 +19,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download official OpenCV.js 4.10.0
+      - name: Download official OpenCV.js 4.10.0 from release docs archive
         run: |
           set -euo pipefail
           mkdir -p docs/vendor/opencv/4.10.0
+          tmp_zip="$(mktemp --suffix=.zip)"
           curl --fail --location --retry 3 --retry-delay 2 \
-            https://docs.opencv.org/4.10.0/opencv.js \
-            --output docs/vendor/opencv/4.10.0/opencv.js
+            https://github.com/opencv/opencv/releases/download/4.10.0/opencv-4.10.0-docs.zip \
+            --output "$tmp_zip"
+          archive_sha=$(sha256sum "$tmp_zip" | awk '{print $1}')
+          test "$archive_sha" = "0ff1b7246fec72a0f5243cbac5ae663b04c6773fbb11f6b69e86ac20239d0ade"
+          opencv_entry=$(unzip -Z1 "$tmp_zip" | grep -E '(^|/)opencv\.js$' | head -n 1)
+          test -n "$opencv_entry"
+          unzip -p "$tmp_zip" "$opencv_entry" > docs/vendor/opencv/4.10.0/opencv.js
+          rm -f "$tmp_zip"
           test -s docs/vendor/opencv/4.10.0/opencv.js
           bytes=$(wc -c < docs/vendor/opencv/4.10.0/opencv.js)
           echo "opencv.js bytes=$bytes"
