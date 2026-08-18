@@ -2,9 +2,7 @@ name: Temporary Codex heal audit
 
 on:
   pull_request:
-    branches: [main]
-    paths:
-      - '.github/workflows/tmp-heal-audit.yml'
+    branches: ['audit/codex-heal-20260818']
 
 permissions:
   contents: read
@@ -114,5 +112,3 @@ jobs:
           ], ensure_ascii=False, indent=2))
           print('HEAL_COMBO_EXAMPLES_END')
           PY
-
-# temporary audit trigger
