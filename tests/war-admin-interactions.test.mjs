@@ -1029,24 +1029,24 @@ test("la rédaction fusionne uniquement les analyses dans le rapport classé", a
   assert.equal(harness.elements.warAnalyzedCount.textContent, "1");
 });
 
-test("la rédaction applique le reset Groq et sa marge au lieu du délai générique", async () => {
-  const generationRetry = await runAnalysisRetryCase("GROQ_GENERATION_RETRY", 44);
-  assert.deepEqual(generationRetry.timerCalls, [47000]);
-  assert.match(generationRetry.elements.warLog.innerHTML, /Attente 47 secondes avant la tentative 2/);
-
-  const rateLimit = await runAnalysisRetryCase("GROQ_RATE_LIMIT", 60);
-  assert.deepEqual(rateLimit.timerCalls, [63000]);
-  assert.match(rateLimit.elements.warLog.innerHTML, /Attente 63 secondes avant la tentative 2/);
-  assert.deepEqual(rateLimit.getSnapshot().captures[0].analysis_error.rate_limit, {
-    retry_after: "60",
-    remaining_tokens: "0"
-  });
+test("la rédaction Workers AI temporaire respecte retry_after_seconds et sa marge", async () => {
+  const temporary = await runAnalysisRetryCase("WORKERS_AI_TEMPORARY", 44);
+  assert.deepEqual(temporary.timerCalls, [47000]);
+  assert.match(temporary.elements.warLog.innerHTML, /Attente 47 secondes avant la tentative 2/);
+  assert.equal(temporary.fetchCalls.filter(({ url }) => url.includes("write-analyses")).length, 2);
 });
 
-test("la rédaction conserve le retry_after Gemini et sa marge", async () => {
-  const rateLimit = await runAnalysisRetryCase("GEMINI_RATE_LIMIT", 44);
-  assert.deepEqual(rateLimit.timerCalls, [47000]);
-  assert.match(rateLimit.elements.warLog.innerHTML, /Attente 47 secondes avant la tentative 2/);
+test("la rédaction ne retry pas le quota quotidien Workers AI", async () => {
+  const dailyLimit = await runAnalysisRetryCase("WORKERS_AI_DAILY_LIMIT", 44);
+  assert.deepEqual(dailyLimit.timerCalls, []);
+  assert.equal(dailyLimit.fetchCalls.filter(({ url }) => url.includes("write-analyses")).length, 1);
+  assert.match(dailyLimit.elements.warLog.innerHTML, /Quota quotidien Workers AI atteint/);
+});
+
+test("la rédaction ne retry pas une erreur Workers AI permanente", async () => {
+  const permanent = await runAnalysisRetryCase("WORKERS_AI_ERROR", 44);
+  assert.deepEqual(permanent.timerCalls, []);
+  assert.equal(permanent.fetchCalls.filter(({ url }) => url.includes("write-analyses")).length, 1);
 });
 
 test("un rapport final est publié sans recalcul ni modification", async () => {
