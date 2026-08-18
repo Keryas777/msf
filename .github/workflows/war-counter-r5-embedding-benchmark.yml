@@ -72,3 +72,5 @@ jobs:
             benchmark-r5-akaze-reference-descriptors.npz
             benchmark-runtime/*
           if-no-files-found: warn
+
+# trigger: exact R5 fixture persisted 2026-08-18
