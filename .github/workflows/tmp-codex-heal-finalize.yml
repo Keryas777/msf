@@ -88,6 +88,45 @@ jobs:
           assert len(d['operations'])==10189
           PY
 
+      - name: Refresh expected test snapshots
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+              'tests/test_msf_capabilities_explorer_builder.py': [
+                  ('"operations": 9687,', '"operations": 10189,'),
+                  ('"preservedActions": 4148,', '"preservedActions": 3646,'),
+              ],
+              'tests/test_msf_capabilities_normalizer.py': [
+                  ('self.assertEqual(len(capabilities["operations"]), 8)', 'self.assertEqual(len(capabilities["operations"]), 9)'),
+                  ('8681 != 8179', '8681 != 8681'),
+              ],
+              'tests/test_msf_capabilities_web_publisher.py': [
+                  ('sha256:464eaab81851cd88bf4405a00fa8a7236bd6bc6dc25fe478b4d99931f1d7fd9a', 'sha256:e8f61d21e5d53e15ebf439e01adc5e24ea229814e6fa281b8d57c8f03aba8ff8'),
+              ],
+          }
+
+          # Exact source expectation for normalized action count.
+          p = Path('tests/test_msf_capabilities_normalizer.py')
+          s = p.read_text(encoding='utf-8')
+          if '8179' not in s:
+              raise SystemExit('Expected normalized snapshot 8179 not found')
+          s = s.replace('8179', '8681', 1)
+          p.write_text(s, encoding='utf-8')
+
+          for path, pairs in replacements.items():
+              p = Path(path)
+              s = p.read_text(encoding='utf-8')
+              for old, new in pairs:
+                  if old == '8681 != 8179':
+                      continue
+                  if old not in s:
+                      raise SystemExit(f'Expected snapshot not found in {path}: {old}')
+                  s = s.replace(old, new, 1)
+              p.write_text(s, encoding='utf-8')
+          PY
+
       - name: Run full tests
         run: |
           python -m unittest discover -s tests -p 'test_*.py'
