@@ -62,6 +62,38 @@ jobs:
           python -m scripts.msf_capabilities_web_publisher.cli
           python -m scripts.msf_capabilities_explorer_builder.cli
 
+      - name: Refresh generated snapshot expectations
+        run: |
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          from scripts.msf_capabilities_web_publisher.audit import (
+              INDEX_MANIFEST_PATH,
+              build_stable_manifest_bytes,
+              validate_indexed_artifacts,
+          )
+
+          source = Path('data/msf-capabilities/indexed')
+          index = validate_indexed_artifacts(source, allow_readme=True)
+          payload = build_stable_manifest_bytes(index)
+          expected_payload_set = index.payload_set_checksum
+          expected_manifest_hash = hashlib.sha256(payload).hexdigest()
+
+          p = Path('tests/test_msf_capabilities_web_publisher.py')
+          text = p.read_text()
+          replacements = {
+              'sha256:ce43b0fd70cd81768f361bea8575f0b0b326faaef83563cd20eb1370b0fcd9e4': expected_payload_set,
+              'a4c8cf5843c5283fad57e8696bf9057f410786837434a69b7f396cc7cee3faf7': expected_manifest_hash,
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'missing generated snapshot expectation: {old}')
+              text = text.replace(old, new, 1)
+          p.write_text(text)
+          print('payloadSetChecksum', expected_payload_set)
+          print('stableManifestSha256', expected_manifest_hash)
+          PY
+
       - name: Validate pipeline and tests
         run: |
           python -m scripts.msf_capabilities_parser.cli --check
