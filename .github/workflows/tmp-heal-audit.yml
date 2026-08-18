@@ -1,0 +1,124 @@
+name: Temporary Codex heal audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/tmp-heal-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit raw heal actions
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from collections import Counter, defaultdict
+          from pathlib import Path
+
+          path = Path('data/msf-capabilities/raw/characters.json')
+          data = json.loads(path.read_text(encoding='utf-8'))
+          chars = data.get('Data', {})
+
+          heals = []
+          def walk(obj, character_id, pointer=''):
+              if isinstance(obj, dict):
+                  if obj.get('action') == 'heal':
+                      heals.append((character_id, pointer, obj))
+                  for k, v in obj.items():
+                      walk(v, character_id, f'{pointer}/{k}')
+              elif isinstance(obj, list):
+                  for i, v in enumerate(obj):
+                      walk(v, character_id, f'{pointer}/{i}')
+
+          for cid, cdata in chars.items():
+              walk(cdata, cid, f'/Data/{cid}')
+
+          generic = {
+              'action','target','only_if','only_if_target','only_if_outcome','action_cond',
+              'arbitrary_action_idx','use_previous_result','foreach_action','counter','new_result',
+              'skip_focus_check','include_previous_dead','force_apply_dynamic_stats','visualid','visualID',
+              'assist','last_previous_target_as_primary','recipient'
+          }
+          field_counts = Counter()
+          param_field_counts = Counter()
+          combos = Counter()
+          param_combos = Counter()
+          value_types = defaultdict(Counter)
+          nonempty_extra = []
+          pct_amt = Counter()
+          action_pct_shapes = Counter()
+          target_presence = Counter()
+          chars_with_heal = set()
+
+          for cid, ptr, a in heals:
+              chars_with_heal.add(cid)
+              keys = tuple(sorted(a.keys()))
+              combos[keys] += 1
+              params = tuple(sorted(k for k in a if k not in generic))
+              param_combos[params] += 1
+              for k, v in a.items():
+                  field_counts[k] += 1
+                  if k not in generic:
+                      param_field_counts[k] += 1
+                  if isinstance(v, list): typ = 'list'
+                  elif isinstance(v, dict): typ = 'dict'
+                  elif v is None: typ = 'null'
+                  elif isinstance(v, bool): typ = 'bool'
+                  elif isinstance(v, (int,float)): typ = 'number'
+                  elif isinstance(v, str): typ = 'string'
+                  else: typ = type(v).__name__
+                  value_types[k][typ] += 1
+              if 'extra_heal' in a and a['extra_heal'] not in (None, [], {}, 0, 0.0, ''):
+                  nonempty_extra.append((cid, ptr, a['extra_heal']))
+              pct_amt[(('heal_pct' in a), ('heal_amt' in a))] += 1
+              if 'action_pct' in a:
+                  v=a['action_pct']
+                  action_pct_shapes['list' if isinstance(v,list) else type(v).__name__] += 1
+              target_presence['present' if 'target' in a else 'absent'] += 1
+              if 'target' in a and a['target'] is None:
+                  target_presence['null'] += 1
+
+          def safe(v):
+              if isinstance(v, tuple): return list(v)
+              return v
+
+          result = {
+              'total_heal_actions': len(heals),
+              'characters_with_heal': len(chars_with_heal),
+              'field_counts': dict(field_counts.most_common()),
+              'parameter_field_counts': dict(param_field_counts.most_common()),
+              'parameter_combinations': [
+                  {'fields': list(k), 'count': v} for k,v in param_combos.most_common()
+              ],
+              'heal_pct_heal_amt_presence': [
+                  {'heal_pct': k[0], 'heal_amt': k[1], 'count': v} for k,v in sorted(pct_amt.items())
+              ],
+              'action_pct_shapes': dict(action_pct_shapes),
+              'target_presence': dict(target_presence),
+              'value_types': {k: dict(v) for k,v in sorted(value_types.items())},
+              'nonempty_extra_heal_count': len(nonempty_extra),
+              'nonempty_extra_heal_examples': nonempty_extra[:30],
+          }
+          print('HEAL_AUDIT_JSON_START')
+          print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=False))
+          print('HEAL_AUDIT_JSON_END')
+
+          # Compact examples for every parameter combination.
+          examples = {}
+          for cid, ptr, a in heals:
+              params = tuple(sorted(k for k in a if k not in generic))
+              if params not in examples:
+                  examples[params] = {'character': cid, 'pointer': ptr, 'values': {k:a[k] for k in params}}
+          print('HEAL_COMBO_EXAMPLES_START')
+          print(json.dumps([
+              {'fields': list(k), **examples[k]} for k,_ in param_combos.most_common()
+          ], ensure_ascii=False, indent=2))
+          print('HEAL_COMBO_EXAMPLES_END')
+          PY
