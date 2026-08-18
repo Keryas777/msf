@@ -71,6 +71,12 @@ TURN_METER_METRIC_FIELDS = (
     ("specificCharacterTurnMeterPct", "specific_characters_mul"),
 )
 
+HEAL_METRIC_FIELDS = (
+    ("chancePct", "action_pct"),
+    ("healAmount", "heal_amt"),
+    ("sourceMaxHealthPct", "heal_pct"),
+)
+
 METRIC_FIELDS = (
     ("chancePct", "action_pct"),
     ("applyCount", "apply_count"),
@@ -1508,6 +1514,28 @@ class OperationBuilder:
             metric_fields=TURN_METER_METRIC_FIELDS,
         )
 
+    def _build_heal_action(
+        self,
+        action: dict[str, Any],
+    ) -> None:
+        source = action.get("source")
+        if not isinstance(source, dict):
+            source = {}
+        action_pointer = str(source.get("pointer", ""))
+        self._build_operation(
+            action,
+            kind="heal_restore",
+            canonical_action_type="heal",
+            source_field=None,
+            effect_id=None,
+            effect_pointer=action_pointer,
+            entry_pointer=action_pointer,
+            entry=None,
+            ordinal=0,
+            scope={"kind": "action_target"},
+            metric_fields=HEAL_METRIC_FIELDS,
+        )
+
     def _build_battlefield_action(
         self,
         action: dict[str, Any],
@@ -1689,6 +1717,8 @@ class OperationBuilder:
                 self._build_ability_energy_action(action)
             elif canonical_action_type == "turn_meter":
                 self._build_turn_meter_action(action)
+            elif canonical_action_type == "heal":
+                self._build_heal_action(action)
             elif canonical_action_type in {
                 "set_battlefield_effect",
                 "clear_battlefield_effect",

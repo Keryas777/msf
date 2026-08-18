@@ -755,12 +755,12 @@ class RealIndexSnapshotTests(unittest.TestCase):
 
         self.assertEqual(
             index.payload_set_checksum,
-            "sha256:464eaab81851cd88bf4405a00fa8a7236bd6bc6dc25fe478b4d99931f1d7fd9a",
+            "sha256:e8f61d21e5d53e15ebf439e01adc5e24ea229814e6fa281b8d57c8f03aba8ff8",
         )
         self.assertEqual(len(payload), 512)
         self.assertEqual(
             hashlib.sha256(payload).hexdigest(),
-            "ca5990b2b0880bf4976af18ed030d306e575fd4a3c71c97d7d19439acdd8b2e3",
+            "8ebe86290ec60d5946bc0259e784ba48fc3560f3a5a6d8af877eb75131b83988",
         )
 
 
