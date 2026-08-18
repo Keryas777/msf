@@ -1,0 +1,74 @@
+name: Temporary Codex barrier audit
+on:
+  push:
+    branches: [agent/codex-barrier-audit]
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit barrier source actions
+        run: |
+          python - <<'PY'
+          import json, glob, collections
+          files=glob.glob('docs/data/msf-capabilities-explorer/characters/*.json')
+          if not files: files=glob.glob('docs/data/msf-capabilities-explorer/generations/*/characters/*.json')
+          # Use newest-generation character set by grouping generation dir if needed
+          if files and '/generations/' in files[0]:
+              groups=collections.defaultdict(list)
+              for f in files: groups[f.split('/characters/')[0]].append(f)
+              files=max(groups.values(), key=lambda x: max(__import__('os').path.getmtime(f) for f in x))
+          rows=[]
+          def walk(x, parents=()):
+              if isinstance(x,dict):
+                  st=x.get('sourceActionType') or x.get('sourceType') or x.get('type')
+                  if st=='barrier' or x.get('action')=='barrier': rows.append((x,parents))
+                  for k,v in x.items(): walk(v,parents+(x,))
+              elif isinstance(x,list):
+                  for v in x: walk(v,parents)
+          for f in files:
+              try: walk(json.load(open(f)))
+              except: pass
+          # de-dupe by action id where possible
+          uniq={}
+          for x,p in rows:
+              key=x.get('id') or x.get('actionId') or json.dumps(x,sort_keys=True,ensure_ascii=False)
+              uniq[key]=(x,p)
+          rows=list(uniq.values())
+          print('BARRIER_ACTIONS',len(rows))
+          keys=collections.Counter(); combos=collections.Counter(); vals=collections.defaultdict(collections.Counter)
+          triggers=collections.Counter(); triggerfor=collections.Counter(); actionpct=collections.Counter(); modes=collections.Counter(); sides=collections.Counter(); cond=0
+          for x,ps in rows:
+              ks=tuple(sorted(x.keys())); combos[ks]+=1
+              for k,v in x.items():
+                  keys[k]+=1
+                  if k in ('barrier_pct','barrier_amt','barrier_remove','amount','value','action_pct','max_barrier_pct'):
+                      vals[k][json.dumps(v,sort_keys=True,ensure_ascii=False)]+=1
+              if 'action_pct' in x: actionpct[str(x['action_pct'])]+=1
+              for p in reversed(ps):
+                  t=p.get('trigger') or p.get('exec')
+                  if t:
+                      triggers[str(t)]+=1; break
+              for p in reversed(ps):
+                  tf=p.get('triggerFor')
+                  if tf:
+                      triggerfor[json.dumps(tf,sort_keys=True,ensure_ascii=False)]+=1; break
+              if any(('only_if' in p or 'only_if_target' in p) for p in ps+(x,)): cond+=1
+              for p in ps+(x,):
+                  for k in ('mode','modes'):
+                      if k in p: modes[json.dumps(p[k],sort_keys=True,ensure_ascii=False)]+=1
+                  for k in ('side','combatSide'):
+                      if k in p: sides[json.dumps(p[k],sort_keys=True,ensure_ascii=False)]+=1
+          print('KEYS',keys)
+          print('COMBOS')
+          for k,n in combos.most_common(): print(n,k)
+          print('VALUES')
+          for k,c in vals.items(): print(k,c)
+          print('TRIGGERS',triggers)
+          print('TRIGGER_FOR',triggerfor)
+          print('ACTION_PCT',actionpct)
+          print('WITH_CONDITIONS',cond)
+          print('MODES',modes)
+          print('SIDES',sides)
+          PY
