@@ -1,7 +1,7 @@
 import {
   GROQ_ANALYSES_RESPONSE_FORMAT,
   buildAnalysisPrompt,
-  getGlobalToneCeiling,
+  exceedsGlobalToneCeiling,
   mentionsDeterministicScore
 } from "../../workers/msf-war-ocr/worker.js";
 
@@ -47,38 +47,9 @@ export function getBenchmarkConfig(env = process.env) {
   };
 }
 
-const TONE_LEVELS = Object.freeze({
-  withdrawn: 0, mixed: 1, solid: 2, good: 3, very_good: 4,
-  excellent: 5, exceptional: 6
-});
-const TONE_PATTERNS = [
-  ["exceptional", /\b(?:exceptionnel(?:le)?|remarquable)\b/iu],
-  ["excellent", /\bexcellent(?:e)?\b/iu],
-  ["very_good", /\b(?:très bon(?:ne)?|très positif(?:ive)?|convaincant(?:e)?)\b/iu],
-  ["good", /\bbon(?:ne)?\b/iu],
-  ["solid", /\bsolide\b/iu],
-  ["mixed", /\bmitigé(?:e)?\b/iu],
-  ["withdrawn", /\b(?:en retrait|insuffisant(?:e)?)\b/iu]
-];
-
 function countSentences(text, name) {
   const normalized = name ? String(text).split(name).join("PSEUDO") : String(text);
   return (normalized.match(/[.!?]+(?=\s|$)/g) || []).length;
-}
-
-function exceedsToneCeiling(text, score) {
-  const ceiling = TONE_LEVELS[getGlobalToneCeiling(score)];
-  const validationLevel = ceiling + (
-    score >= 38 && score < 90 && score % 10 >= 8 ? 1 : 0
-  );
-  const sentences = text.match(/.*?(?:[.!?]+(?=\s|$)|$)/gu) || [];
-  return sentences.some((sentence) => {
-    const global = /\b(?:performance|prestation|guerre|bilan global)\b/iu.test(sentence) ||
-      /\bglobalement\b/iu.test(sentence) ||
-      /\b(?:il|elle)\s+(?:a\s+été|était|a\s+(?:réalisé|signé|livré)|signe|livre)\b/iu.test(sentence);
-    return global && TONE_PATTERNS.some(([tone, pattern]) =>
-      pattern.test(sentence) && TONE_LEVELS[tone] > validationLevel);
-  });
 }
 
 export function validateReport(reportEnvelope) {
@@ -129,7 +100,7 @@ export function inspectOutput(rawText, players) {
     const sentences = text && player ? countSentences(text, player.name) : 0;
     const sentenceOk = sentences >= 1 && sentences <= MAX_SENTENCES;
     const lengthOk = text.length > 0 && text.length <= MAX_ANALYSIS_LENGTH;
-    const toneOk = Boolean(player && text && !exceedsToneCeiling(text, player.score_total));
+    const toneOk = Boolean(player && text && !exceedsGlobalToneCeiling(text, player.score_total));
     if (sentenceOk) result.sentence_compliance += 1; else reasons.push("sentence_count");
     if (lengthOk) result.length_compliance += 1; else reasons.push("length_over_700");
     if (toneOk) result.tone_compliance += 1; else reasons.push("tone_ceiling");
