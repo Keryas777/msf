@@ -197,6 +197,7 @@ export async function runBenchmark({ report, config, provider = "all", fetchImpl
     ["cloudflare-llama4-scout", config.cloudflareLlama4ScoutModel]]) {
     if (!selectedProviders.includes(cloudflareProvider)) continue;
     const body = { messages: [{ role: "user", content: prompt }], temperature: 0.55 };
+    if (cloudflareProvider === "cloudflare-llama4-scout") body.max_tokens = 10000;
     if (["cloudflare-glm", "cloudflare-llama4-scout"].includes(cloudflareProvider)) body.response_format = CLOUDFLARE_ANALYSES_RESPONSE_FORMAT;
     calls.push(performCall({ provider: cloudflareProvider, model,
       endpoint: `https://api.cloudflare.com/client/v4/accounts/${config.cloudflareAccountId}/ai/run/${model}`,
