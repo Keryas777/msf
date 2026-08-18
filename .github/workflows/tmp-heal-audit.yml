@@ -48,7 +48,6 @@ jobs:
           }
           field_counts = Counter()
           param_field_counts = Counter()
-          combos = Counter()
           param_combos = Counter()
           value_types = defaultdict(Counter)
           nonempty_extra = []
@@ -59,8 +58,6 @@ jobs:
 
           for cid, ptr, a in heals:
               chars_with_heal.add(cid)
-              keys = tuple(sorted(a.keys()))
-              combos[keys] += 1
               params = tuple(sorted(k for k in a if k not in generic))
               param_combos[params] += 1
               for k, v in a.items():
@@ -85,10 +82,6 @@ jobs:
               if 'target' in a and a['target'] is None:
                   target_presence['null'] += 1
 
-          def safe(v):
-              if isinstance(v, tuple): return list(v)
-              return v
-
           result = {
               'total_heal_actions': len(heals),
               'characters_with_heal': len(chars_with_heal),
@@ -110,7 +103,6 @@ jobs:
           print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=False))
           print('HEAL_AUDIT_JSON_END')
 
-          # Compact examples for every parameter combination.
           examples = {}
           for cid, ptr, a in heals:
               params = tuple(sorted(k for k in a if k not in generic))
@@ -122,3 +114,5 @@ jobs:
           ], ensure_ascii=False, indent=2))
           print('HEAL_COMBO_EXAMPLES_END')
           PY
+
+# temporary audit trigger
