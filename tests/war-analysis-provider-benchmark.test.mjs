@@ -33,6 +33,31 @@ test("le plafond importé de production rejette excellent pour un score de 71", 
   assert.equal(result.rejection_reasons.tone_ceiling, 1);
 });
 
+for (const analysis of [
+  "Il obtient un score de 71.",
+  "Son score est élevé.",
+  "Un score faible résume sa guerre.",
+  "Sa note est excellente.",
+  "Il reçoit une note de 71."
+]) {
+  test(`la validation locale rejette la mention directe « ${analysis} »`, () => {
+    const report = fixture();
+    const raw = JSON.stringify({ analyses: [{ rank: 1, name: "Joueur 1", analysis }] });
+    const result = inspectOutput(raw, report.report.players);
+    assert.equal(result.analyses_accepted, 0);
+    assert.equal(result.rejection_reasons.score_mentioned, 1);
+  });
+}
+
+test("la validation locale évite une mention de note sans rapport avec l’évaluation", () => {
+  const report = fixture();
+  const analysis = "La note de synthèse sur son activité offensive reste factuelle.";
+  const raw = JSON.stringify({ analyses: [{ rank: 1, name: "Joueur 1", analysis }] });
+  const result = inspectOutput(raw, report.report.players);
+  assert.equal(result.analyses_accepted, 1);
+  assert.equal(result.rejection_reasons.score_mentioned, undefined);
+});
+
 test("les identifiants Workers AI officiels sont les valeurs par défaut", () => {
   assert.equal(CLOUDFLARE_GLM_MODEL, "@cf/zai-org/glm-4.7-flash");
   assert.equal(CLOUDFLARE_GEMMA_MODEL, "@cf/google/gemma-4-26b-a4b-it");
@@ -150,6 +175,12 @@ test("provider=cloudflare-llama4-scout effectue un seul appel Scout structuré s
   assert.equal("strict" in calls[0].body.response_format, false);
   assert.equal("strict" in calls[0].body.response_format.json_schema, false);
   assert.equal(calls[0].headers.authorization, "Bearer workers-ai-token");
+  const prompt = calls[0].body.messages[0].content;
+  assert.match(prompt, /INTERDIT de mentionner score_total/);
+  assert.match(prompt, /« Il obtient un score de 71\. ».*AUTORISÉ/s);
+  assert.match(prompt, /global_tone_ceiling est le niveau MAXIMAL/);
+  assert.match(prompt, /Distinction global \/ sous-aspect/);
+  assert.match(prompt, /Avant de produire le JSON, vérifie mentalement chaque analyse dans ce même appel/);
 });
 
 test("provider=groq effectue un seul appel Groq sans Cloudflare et conserve son schéma exact", async () => {
