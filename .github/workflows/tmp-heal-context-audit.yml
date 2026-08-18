@@ -1,0 +1,114 @@
+name: Temporary Codex heal context audit
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit heal triggers and chance
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from collections import Counter, defaultdict
+          from pathlib import Path
+
+          data=json.loads(Path('data/msf-capabilities/raw/characters.json').read_text(encoding='utf-8'))['Data']
+          rows=[]
+
+          def walk_context(cid, obj, ptr, inherited_trigger=None, inherited_trigger_for=None):
+              if isinstance(obj, dict):
+                  trig=obj.get('exec', inherited_trigger)
+                  trig_for=obj.get('exec_for', inherited_trigger_for)
+                  if 'actions' in obj and isinstance(obj['actions'], list):
+                      for i,a in enumerate(obj['actions']):
+                          if isinstance(a,dict) and a.get('action')=='heal':
+                              rows.append({
+                                  'character':cid,
+                                  'pointer':f'{ptr}/actions/{i}',
+                                  'trigger':trig,
+                                  'trigger_for':trig_for,
+                                  'action_pct':a.get('action_pct'),
+                                  'heal_pct':a.get('heal_pct'),
+                                  'heal_amt':a.get('heal_amt'),
+                                  'only_if':a.get('only_if'),
+                                  'only_if_target':a.get('only_if_target'),
+                                  'target':a.get('target') if 'target' in a else '__ABSENT__',
+                              })
+                  for k,v in obj.items():
+                      if k != 'actions':
+                          walk_context(cid,v,f'{ptr}/{k}',trig,trig_for)
+              elif isinstance(obj,list):
+                  for i,v in enumerate(obj):
+                      walk_context(cid,v,f'{ptr}/{i}',inherited_trigger,inherited_trigger_for)
+
+          for cid,c in data.items():
+              walk_context(cid,c,f'/Data/{cid}')
+
+          def top_counter(values):
+              c=Counter(values)
+              return [{'value':k,'count':v} for k,v in c.most_common()]
+
+          def shape(v):
+              if v is None: return 'absent_or_null'
+              if isinstance(v,list): return 'list'
+              if isinstance(v,(int,float)): return 'number'
+              return type(v).__name__
+
+          triggers=Counter((r['trigger'] or '__none__') for r in rows)
+          trigger_for=Counter(json.dumps(r['trigger_for'],sort_keys=True,ensure_ascii=False) if r['trigger_for'] is not None else '__none__' for r in rows)
+          chance_presence=Counter()
+          chance_max=Counter()
+          for r in rows:
+              ap=r['action_pct']
+              if ap is None:
+                  chance_presence['absent']+=1
+              else:
+                  chance_presence[shape(ap)]+=1
+                  if isinstance(ap,list) and ap:
+                      chance_max[str(ap[-1])]+=1
+                  elif isinstance(ap,(int,float)):
+                      chance_max[str(ap)]+=1
+
+          combo=Counter()
+          for r in rows:
+              combo[(r['trigger'] or '__none__', json.dumps(r['trigger_for'],sort_keys=True,ensure_ascii=False) if r['trigger_for'] is not None else '__none__', shape(r['action_pct']))]+=1
+
+          conditional=sum(1 for r in rows if r['only_if'] is not None or r['only_if_target'] is not None)
+          with_mode=0
+          with_side=0
+          for r in rows:
+              blob=json.dumps([r['only_if'],r['only_if_target']],ensure_ascii=False)
+              if '"mode"' in blob: with_mode+=1
+              if 'combat_side' in blob: with_side+=1
+
+          result={
+              'total':len(rows),
+              'trigger_counts':dict(triggers.most_common()),
+              'trigger_for_counts':dict(trigger_for.most_common()),
+              'action_pct_presence':dict(chance_presence),
+              'action_pct_max_level_counts':dict(chance_max.most_common()),
+              'trigger_triggerfor_actionpctshape_combos':[{'trigger':k[0],'trigger_for':k[1],'action_pct_shape':k[2],'count':v} for k,v in combo.most_common()],
+              'with_conditions':conditional,
+              'with_mode_condition':with_mode,
+              'with_combat_side_condition':with_side,
+          }
+          print('HEAL_CONTEXT_AUDIT_START')
+          print(json.dumps(result,ensure_ascii=False,indent=2))
+          print('HEAL_CONTEXT_AUDIT_END')
+
+          print('HEAL_CONTEXT_EXAMPLES_START')
+          seen=set(); examples=[]
+          for r in rows:
+              key=(r['trigger'] or '__none__', json.dumps(r['trigger_for'],sort_keys=True,ensure_ascii=False) if r['trigger_for'] is not None else '__none__', shape(r['action_pct']))
+              if key not in seen:
+                  seen.add(key); examples.append(r)
+          print(json.dumps(examples,ensure_ascii=False,indent=2))
+          print('HEAL_CONTEXT_EXAMPLES_END')
+          PY
