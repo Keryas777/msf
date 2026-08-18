@@ -14,7 +14,7 @@ export function getBenchmarkConfig(env = process.env) {
   return {
     groqApiKey: env.GROQ_API_KEY,
     cloudflareAccountId: env.CLOUDFLARE_ACCOUNT_ID,
-    cloudflareApiToken: env.CLOUDFLARE_API_TOKEN,
+    cloudflareWorkersAiToken: env.CLOUDFLARE_WORKERS_AI_TOKEN,
     cloudflareGlmModel: env.CLOUDFLARE_GLM_MODEL || CLOUDFLARE_GLM_MODEL,
     cloudflareGemmaModel: env.CLOUDFLARE_GEMMA_MODEL || CLOUDFLARE_GEMMA_MODEL
   };
@@ -148,17 +148,17 @@ export async function runBenchmark({ report, config, fetchImpl = fetch }) {
   validateReport(report);
   const prompt = buildAnalysisPrompt(report, false);
   const players = report.report.players;
-  const required = ["groqApiKey", "cloudflareAccountId", "cloudflareApiToken", "cloudflareGlmModel", "cloudflareGemmaModel"];
+  const required = ["groqApiKey", "cloudflareAccountId", "cloudflareWorkersAiToken", "cloudflareGlmModel", "cloudflareGemmaModel"];
   const missing = required.filter((key) => !config[key]);
   if (missing.length) throw new Error(`Configuration absente: ${missing.join(", ")}`);
   const commonCloudflare = { messages: [{ role: "user", content: prompt }], temperature: 0.55 };
   const calls = [
     performCall({ provider: "groq", model: GROQ_MODEL, endpoint: "https://api.groq.com/openai/v1/chat/completions",
       headers: { authorization: `Bearer ${config.groqApiKey}`, "content-type": "application/json" },
-      body: { model: GROQ_MODEL, messages: [{ role: "user", content: prompt }], temperature: 0.55, response_format: GROQ_ANALYSES_RESPONSE_FORMAT }, players, fetchImpl }),
+      body: { model: GROQ_MODEL, messages: [{ role: "user", content: prompt }], temperature: 0.55, reasoning_effort: "low", max_completion_tokens: 6000, response_format: GROQ_ANALYSES_RESPONSE_FORMAT }, players, fetchImpl }),
     ...[["cloudflare-glm", config.cloudflareGlmModel], ["cloudflare-gemma", config.cloudflareGemmaModel]].map(([provider, model]) =>
       performCall({ provider, model, endpoint: `https://api.cloudflare.com/client/v4/accounts/${config.cloudflareAccountId}/ai/run/${model}`,
-        headers: { authorization: `Bearer ${config.cloudflareApiToken}`, "content-type": "application/json" }, body: commonCloudflare, players, fetchImpl }))
+        headers: { authorization: `Bearer ${config.cloudflareWorkersAiToken}`, "content-type": "application/json" }, body: commonCloudflare, players, fetchImpl }))
   ];
   return { generated_at: new Date().toISOString(), prompt, results: await Promise.all(calls) };
 }
@@ -166,5 +166,5 @@ export async function runBenchmark({ report, config, fetchImpl = fetch }) {
 export function renderMarkdown(run, sourcePath) {
   const rows = run.results.map((r) => `| ${r.provider} | \`${r.model}\` | ${r.success ? "succès" : "échec"} | ${r.duration_ms} | ${r.calls} | ${r.analyses_received} | ${r.analyses_accepted} | ${r.analyses_rejected} |`).join("\n");
   const details = run.results.map((r) => `### ${r.provider} — \`${r.model}\`\n\n- Structured output : ${r.structured_output || "non renseigné"}\n- Rejets : \`${JSON.stringify(r.rejection_reasons)}\`\n- Quota/rate-limit : \`${JSON.stringify(r.quota_headers)}\`\n- Usage : \`${JSON.stringify(r.usage)}\`\n- Erreur : ${r.error ? `\`${JSON.stringify(r.error)}\`` : "aucune"}\n\n${r.analyses.map((a) => `${a.rank}. **${a.name}** — ${a.analysis || "_(vide)_"}${a.accepted ? "" : ` _(rejet: ${a.rejection_reasons.join(", ")})_`}`).join("\n\n") || "Aucune analyse reçue."}`).join("\n\n");
-  return `# Benchmark expérimental des rédacteurs de débrief de guerre\n\n> Laboratoire isolé : ce rapport ne décide ni ne déclenche aucun changement de production.\n\n## 1. Architecture\n\nCLI locale à activation explicite, entrée unique \`${sourcePath}\`, prompt de production partagé, trois adaptateurs réseau et validation métier locale. Aucun chemin War Admin n'appelle ce laboratoire.\n\n## 2. Modèles\n\n${run.results.map((r) => `- ${r.provider}: \`${r.model}\``).join("\n")}\n\n## 3. Paramètres\n\nTempérature 0,55 ; 24 joueurs ; un appel initial par fournisseur ; Groq emploie exactement son schéma strict de production. Aucun réglage sémantique propre à un fournisseur.\n\n## 4. Prompt réellement transmis\n\n<details><summary>Prompt commun intégral</summary>\n\n\`\`\`text\n${run.prompt}\n\`\`\`\n</details>\n\n## 5–6. Résultats techniques et tableau comparatif\n\n| Fournisseur | Modèle | État | Durée (ms) | Appels | Reçues | Acceptées | Rejetées |\n|---|---|---:|---:|---:|---:|---:|---:|\n${rows}\n\n## 7. Analyses complètes\n\n${details}\n\n## 8. Anomalies\n\nVoir les raisons de rejet et erreurs ci-dessus.\n\n## 9. Consommation et quota\n\nLes headers et objets usage exposés par les fournisseurs sont conservés ci-dessus ; une valeur nulle signifie que le fournisseur ne l'a pas exposée.\n\n## 10. Appréciation technique\n\nLes mesures sont descriptives uniquement. Toute décision de changement de production reste explicitement hors périmètre.\n`;
+  return `# Benchmark expérimental des rédacteurs de débrief de guerre\n\n> Laboratoire isolé : ce rapport ne décide ni ne déclenche aucun changement de production.\n\n## 1. Architecture\n\nCLI locale à activation explicite, entrée unique \`${sourcePath}\`, prompt de production partagé, trois adaptateurs réseau et validation métier locale. Aucun chemin War Admin n'appelle ce laboratoire.\n\n## 2. Modèles\n\n${run.results.map((r) => `- ${r.provider}: \`${r.model}\``).join("\n")}\n\n## 3. Paramètres\n\nTempérature 0,55 ; 24 joueurs ; un appel initial par fournisseur ; Groq emploie exactement son schéma strict de production, \`reasoning_effort: "low"\` et \`max_completion_tokens: 6000\`.\n\n## 4. Prompt réellement transmis\n\n<details><summary>Prompt commun intégral</summary>\n\n\`\`\`text\n${run.prompt}\n\`\`\`\n</details>\n\n## 5–6. Résultats techniques et tableau comparatif\n\n| Fournisseur | Modèle | État | Durée (ms) | Appels | Reçues | Acceptées | Rejetées |\n|---|---|---:|---:|---:|---:|---:|---:|\n${rows}\n\n## 7. Analyses complètes\n\n${details}\n\n## 8. Anomalies\n\nVoir les raisons de rejet et erreurs ci-dessus.\n\n## 9. Consommation et quota\n\nLes headers et objets usage exposés par les fournisseurs sont conservés ci-dessus ; une valeur nulle signifie que le fournisseur ne l'a pas exposée.\n\n## 10. Appréciation technique\n\nLes mesures sont descriptives uniquement. Toute décision de changement de production reste explicitement hors périmètre.\n`;
 }
