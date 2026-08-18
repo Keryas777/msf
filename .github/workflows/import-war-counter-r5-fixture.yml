@@ -1,0 +1,52 @@
+name: Import War Counter R5 fixture
+
+on:
+  push:
+    branches:
+      - agent/war-counter-r5-embeddings-benchmark
+    paths:
+      - '.github/workflows/import-war-counter-r5-fixture.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-fixture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Download exact R5 fixture
+        env:
+          R5_DRIVE_FILE_ID: 16jkUseW5f7PBrXXTo16cZir2PjH3iNPr
+          R5_SHA256: 147138e710e63e30f23984efd4d8e6a0fddc83dcbb6a073de7c7cad674831b9a
+        run: |
+          set -euo pipefail
+          target='benchmarks/war-counter-r5/fixtures/war-counter-r5-benchmark-1786421094500.zip'
+          mkdir -p "$(dirname "$target")"
+          curl --fail --location --retry 2 \
+            "https://drive.usercontent.google.com/download?id=${R5_DRIVE_FILE_ID}&export=download&confirm=t" \
+            --output "$target"
+          test "$(stat -c %s "$target")" = '689033'
+          echo "${R5_SHA256}  ${target}" | sha256sum --check --strict
+          unzip -t "$target" >/dev/null
+          echo "Exact R5 fixture verified."
+
+      - name: Commit fixture to benchmark branch
+        run: |
+          set -euo pipefail
+          target='benchmarks/war-counter-r5/fixtures/war-counter-r5-benchmark-1786421094500.zip'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "$target"
+          if git diff --cached --quiet; then
+            echo 'Fixture already committed.'
+            exit 0
+          fi
+          git commit -m 'test: persist exact R5 benchmark fixture'
+          git push origin HEAD:agent/war-counter-r5-embeddings-benchmark
