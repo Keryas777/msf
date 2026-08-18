@@ -2,6 +2,9 @@
   "name": "msf-scraper",
   "private": true,
   "type": "module",
+  "scripts": {
+    "test:war-analysis-provider-benchmark": "node --test tests/war-analysis-provider-benchmark.test.mjs"
+  },
   "dependencies": {
     "playwright": "^1.54.0"
   }
