@@ -9,6 +9,7 @@ on:
       - 'scripts/war_counter_r5_embedding_benchmark.py'
       - 'scripts/war_counter_r5_feature_benchmark.py'
       - 'scripts/war_counter_r5_export_akaze_refs.py'
+      - 'scripts/war_counter_r5_export_akaze_browser.py'
       - 'scripts/war_counter_r5_robustness_benchmark.py'
       - 'scripts/war_counter_r5_akaze_mobile_shortlist_benchmark.py'
       - '.github/workflows/war-counter-r5-embedding-benchmark.yml'
@@ -17,7 +18,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   benchmark:
@@ -63,6 +64,22 @@ jobs:
       - name: Export AKAZE reference descriptors
         run: python scripts/war_counter_r5_export_akaze_refs.py
 
+      - name: Export browser AKAZE assets
+        run: python scripts/war_counter_r5_export_akaze_browser.py
+
+      - name: Persist browser AKAZE assets on benchmark branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/war-counter-vision/akaze-r5-reference-descriptors.json
+          git add docs/data/war-counter-vision/akaze-r5-reference-descriptors.bin
+          if git diff --cached --quiet; then
+            echo "Browser AKAZE assets unchanged"
+          else
+            git commit -m "chore: refresh browser AKAZE descriptors"
+            git push
+          fi
+
       - name: Upload reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -76,4 +93,4 @@ jobs:
             benchmark-r5-akaze-reference-descriptors.npz
           if-no-files-found: warn
 
-# trigger: mobile shortlist benchmark 2026-08-18
+# trigger: browser AKAZE mobile lab 2026-08-19
