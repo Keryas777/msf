@@ -68,13 +68,16 @@ function countSentences(text, name) {
 
 function exceedsToneCeiling(text, score) {
   const ceiling = TONE_LEVELS[getGlobalToneCeiling(score)];
+  const validationLevel = ceiling + (
+    score >= 38 && score < 90 && score % 10 >= 8 ? 1 : 0
+  );
   const sentences = text.match(/.*?(?:[.!?]+(?=\s|$)|$)/gu) || [];
   return sentences.some((sentence) => {
     const global = /\b(?:performance|prestation|guerre|bilan global)\b/iu.test(sentence) ||
       /\bglobalement\b/iu.test(sentence) ||
       /\b(?:il|elle)\s+(?:a\s+été|était|a\s+(?:réalisé|signé|livré)|signe|livre)\b/iu.test(sentence);
     return global && TONE_PATTERNS.some(([tone, pattern]) =>
-      pattern.test(sentence) && TONE_LEVELS[tone] > ceiling);
+      pattern.test(sentence) && TONE_LEVELS[tone] > validationLevel);
   });
 }
 
