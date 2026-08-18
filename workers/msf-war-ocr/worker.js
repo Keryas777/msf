@@ -132,7 +132,7 @@ const ANALYSIS_NAME_MAX_LENGTH = 80;
 const ANALYSIS_MAX_LENGTH = 700;
 const ANALYSIS_MAX_SENTENCES = 3;
 const GEMINI_ANALYSIS_TIMEOUT_MS = 90 * 1000;
-const GROQ_ANALYSES_RESPONSE_FORMAT = {
+export const GROQ_ANALYSES_RESPONSE_FORMAT = {
   type: "json_schema",
   json_schema: {
     name: "war_analyses",
@@ -561,7 +561,7 @@ function validateAnalysisResponse(parsed, players) {
   };
 }
 
-function buildAnalysisPrompt(body, isCompletion) {
+export function buildAnalysisPrompt(body, isCompletion) {
   const toneCeilings = body.report.players.map(function (player) {
     return {
       rank: player.rank,
@@ -640,6 +640,19 @@ function getGroqErrorDetails(groqData) {
     type: groqData?.error?.type || null,
     code: groqData?.error?.code || null
   };
+}
+
+function isGroqFailedGeneration(groqData, message) {
+  const groqError = groqData?.error;
+
+  if (
+    groqError?.code === "failed_generation" ||
+    groqError?.type === "failed_generation"
+  ) {
+    return true;
+  }
+
+  return /failed to (?:validate|generate) json/i.test(message);
 }
 
 async function requestGroqAnalyses(prompt, apiKey, model) {
@@ -726,7 +739,7 @@ async function requestGroqAnalyses(prompt, apiKey, model) {
       );
     }
 
-    if (/failed to validate json/i.test(message)) {
+    if (isGroqFailedGeneration(groqData, message)) {
       const tokenReset = parseGroqDurationSeconds(
         groqResponse.headers.get("x-ratelimit-reset-tokens")
       );
