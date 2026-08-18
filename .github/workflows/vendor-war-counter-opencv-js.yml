@@ -30,17 +30,29 @@ jobs:
           bytes=$(wc -c < docs/vendor/opencv/4.10.0/opencv.js)
           echo "opencv.js bytes=$bytes"
           test "$bytes" -gt 1000000
-          head -c 200 docs/vendor/opencv/4.10.0/opencv.js | grep -qE 'var Module|cv|OpenCV|function' || true
           sha256sum docs/vendor/opencv/4.10.0/opencv.js | tee docs/vendor/opencv/4.10.0/opencv.js.sha256
 
-      - name: Persist vendored OpenCV.js
+      - name: Point mobile benchmark to same-origin OpenCV.js
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('docs/war-counter-akaze-mobile-benchmark.js')
+          text = path.read_text(encoding='utf-8')
+          old = 'const OPENCV_URL = "https://docs.opencv.org/4.10.0/opencv.js";'
+          new = 'const OPENCV_URL = "vendor/opencv/4.10.0/opencv.js";'
+          if old not in text and new not in text:
+              raise SystemExit('OPENCV_URL line not found')
+          path.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+
+      - name: Persist vendored OpenCV.js and loader fix
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/vendor/opencv/4.10.0/opencv.js docs/vendor/opencv/4.10.0/opencv.js.sha256
+          git add docs/vendor/opencv/4.10.0/opencv.js docs/vendor/opencv/4.10.0/opencv.js.sha256 docs/war-counter-akaze-mobile-benchmark.js
           if git diff --cached --quiet; then
             echo "Vendored OpenCV.js unchanged"
           else
-            git commit -m "chore: vendor OpenCV.js 4.10 for mobile lab"
+            git commit -m "fix: self-host OpenCV.js for mobile lab"
             git push
           fi
