@@ -300,14 +300,29 @@ def _ability_energy_operation_label(record: Mapping[str, Any]) -> str:
     return text
 
 
+def _turn_meter_operation_label(record: Mapping[str, Any]) -> str:
+    metrics = record.get("metrics") if isinstance(record.get("metrics"), dict) else {}
+    amount = _progression_terminal(metrics.get("turnMeterPct"))
+    contextual = _progression_terminal(metrics.get("specificCharacterTurnMeterPct"))
+    if amount is None:
+        return "Modifie la jauge de vitesse"
+    if contextual not in (None, 0):
+        return "Modifie la jauge de vitesse"
+    if amount > 0:
+        return f"Augmente la jauge de vitesse de {amount:g} %"
+    if amount < 0:
+        return f"Réduit la jauge de vitesse de {abs(amount):g} %"
+    return "Modifie la jauge de vitesse"
+
+
 def _operation_projection(record: Mapping[str, Any]) -> dict[str, Any]:
     kind = str(record.get("kind") or "")
-    label = (
-        _ability_energy_operation_label(record)
-        if kind == "ability_energy_generate"
-        else OPERATION_KINDS.get(kind, {}).get("label")
-        or _split_source_name(kind)
-    )
+    if kind == "ability_energy_generate":
+        label = _ability_energy_operation_label(record)
+    elif kind == "turn_meter_modify":
+        label = _turn_meter_operation_label(record)
+    else:
+        label = OPERATION_KINDS.get(kind, {}).get("label") or _split_source_name(kind)
     return {
         "id": record.get("operationId"),
         "kind": kind,

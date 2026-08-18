@@ -65,6 +65,12 @@ ABILITY_ENERGY_METRIC_FIELDS = (
     ("energyAmount", "count"),
 )
 
+TURN_METER_METRIC_FIELDS = (
+    ("chancePct", "action_pct"),
+    ("turnMeterPct", "change_pct"),
+    ("specificCharacterTurnMeterPct", "specific_characters_mul"),
+)
+
 METRIC_FIELDS = (
     ("chancePct", "action_pct"),
     ("applyCount", "apply_count"),
@@ -1477,6 +1483,31 @@ class OperationBuilder:
             metric_fields=ABILITY_ENERGY_METRIC_FIELDS,
         )
 
+    def _build_turn_meter_action(
+        self,
+        action: dict[str, Any],
+    ) -> None:
+        source_action_id = action.get("id")
+        if isinstance(source_action_id, str):
+            self.supported_action_ids.add(source_action_id)
+        source = action.get("source")
+        if not isinstance(source, dict):
+            source = {}
+        action_pointer = str(source.get("pointer", ""))
+        self._build_operation(
+            action,
+            kind="turn_meter_modify",
+            canonical_action_type="turn_meter",
+            source_field=None,
+            effect_id=None,
+            effect_pointer=action_pointer,
+            entry_pointer=action_pointer,
+            entry=None,
+            ordinal=0,
+            scope={"kind": "action_target"},
+            metric_fields=TURN_METER_METRIC_FIELDS,
+        )
+
     def _build_battlefield_action(
         self,
         action: dict[str, Any],
@@ -1656,6 +1687,8 @@ class OperationBuilder:
                 self._build_effect_action(action, canonical_action_type)
             elif canonical_action_type == "ability_energy":
                 self._build_ability_energy_action(action)
+            elif canonical_action_type == "turn_meter":
+                self._build_turn_meter_action(action)
             elif canonical_action_type in {
                 "set_battlefield_effect",
                 "clear_battlefield_effect",
