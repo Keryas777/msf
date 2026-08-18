@@ -10,6 +10,7 @@ on:
       - 'scripts/war_counter_r5_feature_benchmark.py'
       - 'scripts/war_counter_r5_export_akaze_refs.py'
       - 'scripts/war_counter_r5_robustness_benchmark.py'
+      - 'scripts/war_counter_r5_akaze_mobile_shortlist_benchmark.py'
       - '.github/workflows/war-counter-r5-embedding-benchmark.yml'
       - 'docs/data/war-counter-vision/portrait-signatures.json'
       - 'docs/data/war-counters.json'
@@ -53,8 +54,11 @@ jobs:
       - name: Run ORB and AKAZE feature benchmark
         run: python scripts/war_counter_r5_feature_benchmark.py
 
-      - name: Run exact 80-crop AKAZE robustness certification
+      - name: Run exact 80-crop AKAZE certification
         run: python scripts/war_counter_r5_robustness_benchmark.py
+
+      - name: Run mobile-friendly AKAZE shortlist benchmark
+        run: python scripts/war_counter_r5_akaze_mobile_shortlist_benchmark.py
 
       - name: Export AKAZE reference descriptors
         run: python scripts/war_counter_r5_export_akaze_refs.py
@@ -68,5 +72,8 @@ jobs:
             benchmark-r5-embedding-report.json
             benchmark-r5-feature-report.json
             benchmark-r5-akaze-robustness-report.json
+            benchmark-r5-akaze-mobile-shortlist-report.json
             benchmark-r5-akaze-reference-descriptors.npz
           if-no-files-found: warn
+
+# trigger: mobile shortlist benchmark 2026-08-18
