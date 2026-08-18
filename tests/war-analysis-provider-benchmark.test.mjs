@@ -10,6 +10,7 @@ import {
   runBenchmark,
   validateReport
 } from "../experiments/war-analysis-provider-benchmark/benchmark.mjs";
+import { GROQ_ANALYSES_RESPONSE_FORMAT } from "../workers/msf-war-ocr/worker.js";
 
 function fixture(score = 71) {
   const players = Array.from({ length: 24 }, (_, index) => ({ rank: index + 1, original_rank: index + 1, name: `Joueur ${index + 1}`, score_total: score, attacks: 12 }));
@@ -47,25 +48,41 @@ test("les variables d'environnement surchargent les modèles Workers AI", () => 
   assert.equal(config.cloudflareGemmaModel, "@cf/future/gemma");
 });
 
+test("le benchmark lit uniquement le token Workers AI dédié", () => {
+  const deploymentTokenName = ["CLOUDFLARE", "API", "TOKEN"].join("_");
+  const config = getBenchmarkConfig({
+    CLOUDFLARE_WORKERS_AI_TOKEN: "workers-ai-token",
+    [deploymentTokenName]: "deployment-token"
+  });
+  assert.equal(config.cloudflareWorkersAiToken, "workers-ai-token");
+  assert.equal("cloudflareApiToken" in config, false);
+});
+
 test("les trois réseaux sont mockés et reçoivent le même prompt", async () => {
   const report = fixture(85);
   const calls = [];
   const analyses = report.report.players.map(({ rank, name }) => ({ rank, name, analysis: `${name} signe une performance solide.` }));
   const fetchImpl = async (url, options) => {
-    calls.push({ url, body: JSON.parse(options.body) });
+    calls.push({ url, headers: options.headers, body: JSON.parse(options.body) });
     const cloudflare = url.includes("cloudflare.com");
     return new Response(JSON.stringify(cloudflare ? { result: { response: { analyses }, usage: { tokens: 10 } } } : { choices: [{ message: { content: JSON.stringify({ analyses }) } }], usage: { total_tokens: 10 } }), { status: 200, headers: { "x-ratelimit-remaining-requests": "9" } });
   };
-  const run = await runBenchmark({ report, fetchImpl, config: { groqApiKey: "fake", cloudflareAccountId: "fake", cloudflareApiToken: "fake", cloudflareGlmModel: "@cf/verified/glm", cloudflareGemmaModel: "@cf/verified/gemma" } });
+  const run = await runBenchmark({ report, fetchImpl, config: { groqApiKey: "fake", cloudflareAccountId: "fake", cloudflareWorkersAiToken: "workers-ai-token", cloudflareGlmModel: CLOUDFLARE_GLM_MODEL, cloudflareGemmaModel: CLOUDFLARE_GEMMA_MODEL } });
   assert.equal(calls.length, 3);
+  assert.deepEqual(run.results.map(({ calls }) => calls), [1, 1, 1]);
   assert.equal(run.results.every((result) => result.analyses_accepted === 24), true);
   assert.equal(calls[0].body.model, GROQ_MODEL);
+  assert.equal(calls[0].body.temperature, 0.55);
+  assert.equal(calls[0].body.reasoning_effort, "low");
+  assert.equal(calls[0].body.max_completion_tokens, 6000);
   const prompts = calls.map(({ body }) => body.messages[0].content);
   assert.equal(new Set(prompts).size, 1);
-  assert.equal(calls[0].body.response_format.json_schema.strict, true);
+  assert.deepEqual(calls[0].body.response_format, GROQ_ANALYSES_RESPONSE_FORMAT);
   assert.equal("response_format" in calls[1].body, false);
-  assert.match(calls[1].url, /\/ai\/run\/@cf\/verified\/glm$/);
-  assert.match(calls[2].url, /\/ai\/run\/@cf\/verified\/gemma$/);
+  assert.equal(calls[1].headers.authorization, "Bearer workers-ai-token");
+  assert.equal(calls[2].headers.authorization, "Bearer workers-ai-token");
+  assert.match(calls[1].url, /\/ai\/run\/@cf\/zai-org\/glm-4\.7-flash$/);
+  assert.match(calls[2].url, /\/ai\/run\/@cf\/google\/gemma-4-26b-a4b-it$/);
 });
 
 test("le lanceur sans --execute ne peut effectuer aucun appel réseau", () => {

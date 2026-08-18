@@ -15,9 +15,11 @@ Ces identifiants Cloudflare vérifiés sont les valeurs par défaut du laboratoi
 ```bash
 GROQ_API_KEY=... \
 CLOUDFLARE_ACCOUNT_ID=... \
-CLOUDFLARE_API_TOKEN=... \
+CLOUDFLARE_WORKERS_AI_TOKEN=... \
 node experiments/war-analysis-provider-benchmark/run.mjs --execute rapport-classe.json resultat.md
 ```
+
+`CLOUDFLARE_WORKERS_AI_TOKEN` doit être un token dédié à Workers AI disposant des permissions nécessaires à l'exécution de modèles Workers AI.
 
 Pour tester d'autres versions, ajouter facultativement `CLOUDFLARE_GLM_MODEL=...` et/ou `CLOUDFLARE_GEMMA_MODEL=...` à cette commande.
 
