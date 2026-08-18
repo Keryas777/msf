@@ -247,6 +247,9 @@ export function getGlobalToneCeiling(scoreTotal) {
 function exceedsGlobalToneCeiling(analysis, scoreTotal) {
   const sentences = analysis.match(/.*?(?:[.!?]+(?=\s|$)|$)/gu) || [];
   const ceilingLevel = GLOBAL_TONE_LEVELS[getGlobalToneCeiling(scoreTotal)];
+  const validationLevel = ceilingLevel + (
+    scoreTotal >= 38 && scoreTotal < 90 && scoreTotal % 10 >= 8 ? 1 : 0
+  );
 
   return sentences.some(function (sentence) {
     const isGlobalJudgment =
@@ -257,7 +260,7 @@ function exceedsGlobalToneCeiling(analysis, scoreTotal) {
     if (!isGlobalJudgment) return false;
 
     return GLOBAL_TONE_PATTERNS.some(function ([tone, pattern]) {
-      return pattern.test(sentence) && GLOBAL_TONE_LEVELS[tone] > ceilingLevel;
+      return pattern.test(sentence) && GLOBAL_TONE_LEVELS[tone] > validationLevel;
     });
   });
 }

@@ -33,6 +33,37 @@ test("le plafond importé de production rejette excellent pour un score de 71", 
   assert.equal(result.rejection_reasons.tone_ceiling, 1);
 });
 
+const toneBoundaryCases = [
+  [88, "Performance exceptionnelle.", true],
+  [87, "Performance exceptionnelle.", false],
+  [79, "Excellente performance.", true],
+  [78, "Excellente performance.", true],
+  [77, "Excellente performance.", false],
+  [77, "Performance exceptionnelle.", false],
+  [69, "Très bonne guerre.", true],
+  [67, "Très bonne guerre.", false],
+  [59, "Bonne guerre.", true],
+  [57, "Bonne guerre.", false],
+  [49, "Prestation solide.", true],
+  [47, "Prestation solide.", false],
+  [39, "Prestation mitigée.", true],
+  [37, "Prestation mitigée.", false],
+  [71, "Performance exceptionnelle.", false],
+  [71, "Excellente performance.", false],
+  [71, "Très bonne performance.", true],
+  [71, "Son efficacité a été exceptionnelle.", true]
+];
+
+for (const [score, analysis, accepted] of toneBoundaryCases) {
+  test(`le laboratoire ${accepted ? "accepte" : "rejette"} la tonalité « ${analysis} » au score ${score}`, () => {
+    const report = fixture(score);
+    const raw = JSON.stringify({ analyses: [{ rank: 1, name: "Joueur 1", analysis }] });
+    const result = inspectOutput(raw, report.report.players);
+    assert.equal(result.analyses_accepted, accepted ? 1 : 0);
+    assert.equal(result.rejection_reasons.tone_ceiling, accepted ? undefined : 1);
+  });
+}
+
 for (const analysis of [
   "Il obtient un score de 71.",
   "Son score est élevé.",
