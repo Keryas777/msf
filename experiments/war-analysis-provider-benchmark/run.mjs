@@ -9,11 +9,14 @@ if (!args.includes("--execute")) {
   process.exitCode = 2;
 } else {
   const executeIndex = args.indexOf("--execute");
+  const providerIndex = args.indexOf("--provider");
+  const provider = providerIndex === -1 ? "all" : args[providerIndex + 1];
   const input = args[executeIndex + 1];
   const output = args[executeIndex + 2] || "experiments/war-analysis-provider-benchmark/BENCHMARK_RESULT.md";
   if (!input) throw new Error("Chemin du rapport manquant après --execute.");
   const report = JSON.parse(await readFile(resolve(input), "utf8"));
-  const run = await runBenchmark({ report, config: getBenchmarkConfig() });
+  if (!provider) throw new Error("Valeur manquante après --provider.");
+  const run = await runBenchmark({ report, config: getBenchmarkConfig(), provider });
   await writeFile(resolve(output), renderMarkdown(run, input));
   console.log(`Rapport écrit dans ${output}.`);
 }

@@ -9,6 +9,30 @@ export const CLOUDFLARE_GLM_MODEL = "@cf/zai-org/glm-4.7-flash";
 export const CLOUDFLARE_GEMMA_MODEL = "@cf/google/gemma-4-26b-a4b-it";
 export const MAX_ANALYSIS_LENGTH = 700;
 export const MAX_SENTENCES = 3;
+export const BENCHMARK_PROVIDERS = Object.freeze(["all", "groq", "cloudflare-glm", "cloudflare-gemma"]);
+export const CLOUDFLARE_ANALYSES_RESPONSE_FORMAT = Object.freeze({
+  type: "json_schema",
+  json_schema: {
+    type: "object",
+    properties: {
+      analyses: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            rank: { type: "integer" },
+            name: { type: "string" },
+            analysis: { type: "string" }
+          },
+          required: ["rank", "name", "analysis"],
+          additionalProperties: false
+        }
+      }
+    },
+    required: ["analyses"],
+    additionalProperties: false
+  }
+});
 
 export function getBenchmarkConfig(env = process.env) {
   return {
@@ -134,7 +158,8 @@ async function performCall({ provider, model, endpoint, headers, body, players, 
     const inspected = inspectOutput(raw || "", players);
     return { provider, model, success: response.ok, http_status: response.status,
       duration_ms: Math.round(performance.now() - started), calls: 1, players_requested: players.length,
-      structured_output: provider === "groq" ? "Groq json_schema strict: true (identique à la production)" : "non utilisé (support non vérifié)",
+      structured_output: provider === "groq" ? "Groq json_schema strict: true (identique à la production)" :
+        provider === "cloudflare-glm" ? "Cloudflare Workers AI json_schema (validation métier locale finale)" : "non utilisé",
       quota_headers: selectedHeaders(response.headers), usage: payload?.usage ?? payload?.result?.usage ?? null,
       error: response.ok ? null : payload?.errors ?? payload?.error ?? responseText, ...inspected };
   } catch (error) {
@@ -144,22 +169,33 @@ async function performCall({ provider, model, endpoint, headers, body, players, 
   }
 }
 
-export async function runBenchmark({ report, config, fetchImpl = fetch }) {
+export async function runBenchmark({ report, config, provider = "all", fetchImpl = fetch }) {
   validateReport(report);
+  if (!BENCHMARK_PROVIDERS.includes(provider)) {
+    throw new Error(`Fournisseur inconnu: ${provider}. Valeurs attendues: ${BENCHMARK_PROVIDERS.join(", ")}`);
+  }
   const prompt = buildAnalysisPrompt(report, false);
   const players = report.report.players;
-  const required = ["groqApiKey", "cloudflareAccountId", "cloudflareWorkersAiToken", "cloudflareGlmModel", "cloudflareGemmaModel"];
+  const selectedProviders = provider === "all" ? BENCHMARK_PROVIDERS.slice(1) : [provider];
+  const required = selectedProviders.flatMap((selected) => selected === "groq"
+    ? ["groqApiKey"]
+    : ["cloudflareAccountId", "cloudflareWorkersAiToken", selected === "cloudflare-glm" ? "cloudflareGlmModel" : "cloudflareGemmaModel"]);
   const missing = required.filter((key) => !config[key]);
   if (missing.length) throw new Error(`Configuration absente: ${missing.join(", ")}`);
-  const commonCloudflare = { messages: [{ role: "user", content: prompt }], temperature: 0.55 };
-  const calls = [
-    performCall({ provider: "groq", model: GROQ_MODEL, endpoint: "https://api.groq.com/openai/v1/chat/completions",
+  const calls = [];
+  if (selectedProviders.includes("groq")) {
+    calls.push(performCall({ provider: "groq", model: GROQ_MODEL, endpoint: "https://api.groq.com/openai/v1/chat/completions",
       headers: { authorization: `Bearer ${config.groqApiKey}`, "content-type": "application/json" },
-      body: { model: GROQ_MODEL, messages: [{ role: "user", content: prompt }], temperature: 0.55, reasoning_effort: "low", max_completion_tokens: 6000, response_format: GROQ_ANALYSES_RESPONSE_FORMAT }, players, fetchImpl }),
-    ...[["cloudflare-glm", config.cloudflareGlmModel], ["cloudflare-gemma", config.cloudflareGemmaModel]].map(([provider, model]) =>
-      performCall({ provider, model, endpoint: `https://api.cloudflare.com/client/v4/accounts/${config.cloudflareAccountId}/ai/run/${model}`,
-        headers: { authorization: `Bearer ${config.cloudflareWorkersAiToken}`, "content-type": "application/json" }, body: commonCloudflare, players, fetchImpl }))
-  ];
+      body: { model: GROQ_MODEL, messages: [{ role: "user", content: prompt }], temperature: 0.55, reasoning_effort: "low", max_completion_tokens: 6000, response_format: GROQ_ANALYSES_RESPONSE_FORMAT }, players, fetchImpl }));
+  }
+  for (const [cloudflareProvider, model] of [["cloudflare-glm", config.cloudflareGlmModel], ["cloudflare-gemma", config.cloudflareGemmaModel]]) {
+    if (!selectedProviders.includes(cloudflareProvider)) continue;
+    const body = { messages: [{ role: "user", content: prompt }], temperature: 0.55 };
+    if (cloudflareProvider === "cloudflare-glm") body.response_format = CLOUDFLARE_ANALYSES_RESPONSE_FORMAT;
+    calls.push(performCall({ provider: cloudflareProvider, model,
+      endpoint: `https://api.cloudflare.com/client/v4/accounts/${config.cloudflareAccountId}/ai/run/${model}`,
+      headers: { authorization: `Bearer ${config.cloudflareWorkersAiToken}`, "content-type": "application/json" }, body, players, fetchImpl }));
+  }
   return { generated_at: new Date().toISOString(), prompt, results: await Promise.all(calls) };
 }
 
