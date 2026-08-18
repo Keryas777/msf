@@ -145,6 +145,7 @@ test("provider=cloudflare-llama4-scout effectue un seul appel Scout structuré s
   assert.match(calls[0].url, /\/ai\/run\/@cf\/meta\/llama-4-scout-17b-16e-instruct$/);
   assert.doesNotMatch(calls[0].url, /groq|glm|gemma/);
   assert.equal(calls[0].body.temperature, 0.55);
+  assert.equal(calls[0].body.max_tokens, 10000);
   assert.deepEqual(calls[0].body.response_format, CLOUDFLARE_ANALYSES_RESPONSE_FORMAT);
   assert.equal("strict" in calls[0].body.response_format, false);
   assert.equal("strict" in calls[0].body.response_format.json_schema, false);
