@@ -53,13 +53,11 @@ jobs:
       - name: Run ORB and AKAZE feature benchmark
         run: python scripts/war_counter_r5_feature_benchmark.py
 
+      - name: Run exact 80-crop AKAZE robustness certification
+        run: python scripts/war_counter_r5_robustness_benchmark.py
+
       - name: Export AKAZE reference descriptors
         run: python scripts/war_counter_r5_export_akaze_refs.py
-
-      - name: Export pinned OpenCV wheel for exact local certification
-        run: |
-          mkdir -p benchmark-runtime
-          python -m pip download --no-deps "opencv-contrib-python-headless==4.10.0.84" -d benchmark-runtime
 
       - name: Upload reports
         if: always()
@@ -69,8 +67,6 @@ jobs:
           path: |
             benchmark-r5-embedding-report.json
             benchmark-r5-feature-report.json
+            benchmark-r5-akaze-robustness-report.json
             benchmark-r5-akaze-reference-descriptors.npz
-            benchmark-runtime/*
           if-no-files-found: warn
-
-# trigger: exact R5 fixture persisted 2026-08-18
