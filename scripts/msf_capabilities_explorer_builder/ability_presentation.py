@@ -315,12 +315,27 @@ def _turn_meter_operation_label(record: Mapping[str, Any]) -> str:
     return "Modifie la jauge de vitesse"
 
 
+def _heal_operation_label(record: Mapping[str, Any]) -> str:
+    metrics = record.get("metrics") if isinstance(record.get("metrics"), dict) else {}
+    fixed = _progression_terminal(metrics.get("healAmount"))
+    pct = _progression_terminal(metrics.get("sourceMaxHealthPct"))
+    if fixed is not None and pct is not None:
+        return f"Soigne de {fixed:g} PV + {pct:g} % de la vie max. de ce personnage"
+    if fixed is not None:
+        return f"Soigne de {fixed:g} PV"
+    if pct is not None:
+        return f"Soigne de {pct:g} % de la vie max. de ce personnage"
+    return "Soigne"
+
+
 def _operation_projection(record: Mapping[str, Any]) -> dict[str, Any]:
     kind = str(record.get("kind") or "")
     if kind == "ability_energy_generate":
         label = _ability_energy_operation_label(record)
     elif kind == "turn_meter_modify":
         label = _turn_meter_operation_label(record)
+    elif kind == "heal_restore":
+        label = _heal_operation_label(record)
     else:
         label = OPERATION_KINDS.get(kind, {}).get("label") or _split_source_name(kind)
     return {

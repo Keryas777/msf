@@ -72,6 +72,7 @@ OPERATION_KINDS = {
     "effect_flip": {"label": "Retourne", "order": 50},
     "ability_energy_generate": {"label": "Génère de l’énergie de capacité", "order": 55},
     "turn_meter_modify": {"label": "Modifie la jauge de vitesse", "order": 57},
+    "heal_restore": {"label": "Soigne", "order": 58},
     "battlefield_effect_set": {"label": "Active l’effet de champ", "order": 60},
     "battlefield_effect_clear": {"label": "Retire l’effet de champ", "order": 70},
     "spawn": {"label": "Invoque", "order": 80},
@@ -89,6 +90,8 @@ METRICS = {
     "energyAmount": "Énergie générée",
     "turnMeterPct": "Variation de jauge de vitesse",
     "specificCharacterTurnMeterPct": "Variation liée aux personnages spécifiques",
+    "healAmount": "Soin fixe",
+    "sourceMaxHealthPct": "Vie max. du personnage",
     "useCount": "Quantité indiquée",
     "applyCount": "Nombre d’applications",
     "delta": "Variation de durée",
@@ -432,6 +435,12 @@ ACTION_PRESENTATIONS = {
 
 
 GENERIC_MECHANICS = {
+    "action-heal": {
+        "label": "Soin",
+        "sourceName": "heal",
+        "aliases": ["heal", "soin", "soigne"],
+        "description": "Restauration structurée de points de vie à partir des données de combat.",
+    },
     "action-turn-meter": {
         "label": "Jauge de vitesse",
         "sourceName": "turn_meter",

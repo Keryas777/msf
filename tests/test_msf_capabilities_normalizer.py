@@ -111,7 +111,7 @@ class MsfCapabilitiesNormalizerTests(unittest.TestCase):
         self.assertEqual(len(capabilities["characters"]), 3)
         self.assertEqual(len(capabilities["abilities"]), 9)
         self.assertEqual(len(capabilities["effects"]), 6)
-        self.assertEqual(len(capabilities["operations"]), 8)
+        self.assertEqual(len(capabilities["operations"]), 9)
         self.assertEqual(len(capabilities["actionMappings"]), 14)
         self.assertEqual(
             capabilities["effectIdAliasPolicy"],
@@ -1080,13 +1080,13 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
         )
         self.assertEqual(
             self.capabilities["audit"]["mappedActionCount"],
-            8179,
+            8681,
         )
         self.assertEqual(
             self.capabilities["audit"][
                 "preservedUninterpretedActionCount"
             ],
-            4148,
+            3646,
         )
 
     def test_real_hulk_annihilus_and_kraven_warnings_remain_exact(self):
