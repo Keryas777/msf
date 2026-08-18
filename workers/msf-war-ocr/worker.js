@@ -132,7 +132,7 @@ const ANALYSIS_NAME_MAX_LENGTH = 80;
 const ANALYSIS_MAX_LENGTH = 700;
 const ANALYSIS_MAX_SENTENCES = 3;
 const GEMINI_ANALYSIS_TIMEOUT_MS = 90 * 1000;
-const GROQ_ANALYSES_RESPONSE_FORMAT = {
+export const GROQ_ANALYSES_RESPONSE_FORMAT = {
   type: "json_schema",
   json_schema: {
     name: "war_analyses",
@@ -561,7 +561,7 @@ function validateAnalysisResponse(parsed, players) {
   };
 }
 
-function buildAnalysisPrompt(body, isCompletion) {
+export function buildAnalysisPrompt(body, isCompletion) {
   const toneCeilings = body.report.players.map(function (player) {
     return {
       rank: player.rank,
