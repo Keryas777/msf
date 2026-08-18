@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - agent/codex-turn-meter-rebuild
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -95,5 +98,3 @@ jobs:
           git diff --cached --check
           git commit -m 'feat: normalize turn meter changes in Codex [skip ci]'
           git push origin HEAD:agent/codex-turn-meter-rebuild
-
-# trigger 2
