@@ -513,7 +513,17 @@ const toneCases = [
   [61, "Très bonne guerre.", false],
   [71, "Il a réalisé une très bonne guerre.", true],
   [71, "Il a réalisé une excellente guerre.", false],
-  [71, "Il a réalisé une performance exceptionnelle.", false]
+  [71, "Il a réalisé une performance exceptionnelle.", false],
+  [72, "Il réalise une très bonne guerre.", true],
+  [72, "Il réalise une excellente guerre.", false],
+  [72, "Il réalise une très bonne guerre avec une excellente efficacité.", true],
+  [72, "Sa guerre est très bonne et son impact exceptionnel.", true],
+  [72, "Sa prestation est excellente avec une bonne efficacité.", false],
+  [49, "Sa guerre est mitigée avec une bonne efficacité.", true],
+  [49, "Sa guerre est mitigée avec une efficacité excellente.", true],
+  [49, "Sa guerre est bonne avec une efficacité mitigée.", false],
+  [71, "Sa guerre a été exceptionnelle.", false],
+  [71, "Sa guerre a été très bonne avec une efficacité exceptionnelle.", true]
 ];
 
 for (const [score, analysis, accepted] of toneCases) {

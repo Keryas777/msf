@@ -234,6 +234,22 @@ const GLOBAL_TONE_PATTERNS = [
   ["withdrawn", /\b(?:en retrait|insuffisant(?:e)?)\b/iu]
 ];
 
+const GLOBAL_TONE_WORDS = String.raw`(?:exceptionnel(?:le)?|remarquable|excellent(?:e)?|très bon(?:ne)?|très positif(?:ive)?|convaincant(?:e)?|bon(?:ne)?|solide|mitigé(?:e)?|en retrait|insuffisant(?:e)?)`;
+const ANALYSIS_SUB_ASPECTS = String.raw`(?:efficacité|impact|activité|attaque|offensif|offensive|dégâts|défense|défensif|défensive|déviations|contribution défensive|volume offensif)`;
+
+function withoutSubAspectTones(sentence) {
+  const toneBeforeAspect = new RegExp(
+    String.raw`(?<!\p{L})${GLOBAL_TONE_WORDS}\s+${ANALYSIS_SUB_ASPECTS}(?!\p{L})`,
+    "giu"
+  );
+  const aspectBeforeTone = new RegExp(
+    String.raw`(?<!\p{L})${ANALYSIS_SUB_ASPECTS}(?:\s+\p{L}+){0,5}\s+${GLOBAL_TONE_WORDS}(?!\p{L})`,
+    "giu"
+  );
+
+  return sentence.replace(toneBeforeAspect, " ").replace(aspectBeforeTone, " ");
+}
+
 export function getGlobalToneCeiling(scoreTotal) {
   if (scoreTotal >= 90) return "exceptional";
   if (scoreTotal >= 80) return "excellent";
@@ -244,7 +260,7 @@ export function getGlobalToneCeiling(scoreTotal) {
   return "withdrawn";
 }
 
-function exceedsGlobalToneCeiling(analysis, scoreTotal) {
+export function exceedsGlobalToneCeiling(analysis, scoreTotal) {
   const sentences = analysis.match(/.*?(?:[.!?]+(?=\s|$)|$)/gu) || [];
   const ceilingLevel = GLOBAL_TONE_LEVELS[getGlobalToneCeiling(scoreTotal)];
   const validationLevel = ceilingLevel + (
@@ -259,8 +275,9 @@ function exceedsGlobalToneCeiling(analysis, scoreTotal) {
 
     if (!isGlobalJudgment) return false;
 
+    const globalToneText = withoutSubAspectTones(sentence);
     return GLOBAL_TONE_PATTERNS.some(function ([tone, pattern]) {
-      return pattern.test(sentence) && GLOBAL_TONE_LEVELS[tone] > validationLevel;
+      return pattern.test(globalToneText) && GLOBAL_TONE_LEVELS[tone] > validationLevel;
     });
   });
 }
