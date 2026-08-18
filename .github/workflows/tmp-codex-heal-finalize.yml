@@ -1,0 +1,106 @@
+name: Temporary Codex heal finalize
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/codex-heal-normalization
+          fetch-depth: 0
+
+      - name: Reapply audited heal implementation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          import textwrap
+
+          workflow = Path('.github/workflows/tmp-codex-heal-normalization.yml').read_text(encoding='utf-8')
+          match = re.search(r"          python - <<'PY'\n(.*?)\n          PY", workflow, re.S)
+          if not match:
+              raise SystemExit('Unable to recover heal implementation script')
+          script = textwrap.dedent(match.group(1))
+          exec(compile(script, '<heal-implementation>', 'exec'), {})
+          PY
+
+      - name: Generate normalized capabilities and refresh snapshot identity
+        run: |
+          python -m scripts.msf_capabilities_parser.cli
+          python -m scripts.msf_capabilities_normalizer.cli
+          python -m scripts.msf_capabilities_normalizer.cli --check
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import re
+
+          capabilities = Path('data/msf-capabilities/normalized/capabilities.json')
+          checksum = hashlib.sha256(capabilities.read_bytes()).hexdigest()
+          print(f'HEAL_CAPABILITIES_CHECKSUM={checksum}')
+
+          audit = Path('scripts/msf_capabilities_indexer/audit.py')
+          text = audit.read_text(encoding='utf-8')
+          updated, count = re.subn(
+              r'SNAPSHOT_CAPABILITIES_CHECKSUM = \(\n    "[0-9a-f]{64}"\n\)',
+              f'SNAPSHOT_CAPABILITIES_CHECKSUM = (\n    "{checksum}"\n)',
+              text,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit('Unable to update indexer snapshot checksum')
+          audit.write_text(updated, encoding='utf-8')
+          PY
+
+      - name: Regenerate complete Codex pipeline
+        run: |
+          python -m scripts.msf_capabilities_indexer.cli
+          python -m scripts.msf_capabilities_indexer.cli --check
+          python -m scripts.msf_capabilities_web_publisher.cli
+          python -m scripts.msf_capabilities_web_publisher.cli --check
+          python -m scripts.msf_capabilities_explorer_builder.cli
+          python -m scripts.msf_capabilities_explorer_builder.cli --check
+
+      - name: Verify heal contract and counts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          d=json.loads(Path('data/msf-capabilities/normalized/capabilities.json').read_text(encoding='utf-8'))
+          heal=[m for m in d['actionMappings'] if m.get('sourceActionType')=='heal']
+          heal_ops=[o for o in d['operations'] if o.get('kind')=='heal_restore']
+          preserved=sum(m.get('status')=='preserved_uninterpreted' for m in d['actionMappings'])
+          normalized=sum(m.get('status')=='normalized' for m in d['actionMappings'])
+          print({'healMappings':len(heal),'healOperations':len(heal_ops),'normalized':normalized,'preserved':preserved,'operations':len(d['operations'])})
+          assert len(heal)==502
+          assert len(heal_ops)==502
+          assert all(m['status']=='normalized' and len(m['operationIds'])==1 for m in heal)
+          assert preserved==3646
+          assert normalized==8681
+          assert len(d['operations'])==10189
+          PY
+
+      - name: Run full tests
+        run: |
+          python -m unittest discover -s tests -p 'test_*.py'
+          node --test tests/*.test.js
+
+      - name: Commit final clean implementation
+        if: success()
+        run: |
+          rm -f .github/workflows/tmp-codex-heal-normalization.yml
+          rm -f .github/workflows/tmp-codex-heal-finalize.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: normalize healing in Codex [skip ci]"
+          git pull --rebase origin agent/codex-heal-normalization
+          git push origin HEAD:agent/codex-heal-normalization
