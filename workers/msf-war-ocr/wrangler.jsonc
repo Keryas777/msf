@@ -3,8 +3,8 @@
   "main": "worker.js",
   "compatibility_date": "2026-08-01",
   "keep_vars": true,
-  "vars": {
-    "GROQ_MODEL": "openai/gpt-oss-120b"
+  "ai": {
+    "binding": "AI"
   },
   "secrets": {
     "required": [
@@ -13,7 +13,6 @@
       "GITHUB_OWNER",
       "GITHUB_REPO",
       "GITHUB_TOKEN",
-      "GROQ_API_KEY",
       "OCR_SPACE_API_KEY"
     ]
   }

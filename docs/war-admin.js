@@ -1534,11 +1534,15 @@
       const error = new Error(getErrorDetail(data) || `HTTP ${response.status}`);
       const retryAfterSeconds = Number(data?.retry_after_seconds);
       if (
-        (data?.code === "GROQ_RATE_LIMIT" || data?.code === "GROQ_GENERATION_RETRY" || data?.code === "GEMINI_RATE_LIMIT") &&
+        data?.code === "WORKERS_AI_TEMPORARY" &&
         Number.isFinite(retryAfterSeconds) &&
         retryAfterSeconds > 0
       ) {
+        error.retryable = true;
         error.retryAfterMs = Math.ceil(retryAfterSeconds * 1000) + GEMINI_RETRY_MARGIN_MS;
+      }
+      if (data?.code === "WORKERS_AI_DAILY_LIMIT") {
+        error.message = "Quota quotidien Workers AI atteint. La rédaction est arrêtée sans nouvelle tentative.";
       }
       throw error;
     }
@@ -1559,9 +1563,9 @@
         if (error instanceof SessionCancelledError || session.cancelled) throw error;
         const message = error instanceof Error ? error.message : "Erreur IA inconnue";
         addLog(`Tentative ${attempt}/3 échouée : ${message}`, capture);
-        if (attempt === 3) {
+        if (attempt === 3 || error?.retryable !== true) {
           capture.state = "ranked";
-          capture.detail = `Rédaction échouée après trois tentatives. ${message}`;
+          capture.detail = `Rédaction échouée. ${message}`;
           return false;
         }
         const retryDelay = Number.isFinite(error?.retryAfterMs) ? Math.max(0, error.retryAfterMs) : getRetryDelayMs(attempt);
@@ -1584,7 +1588,7 @@
 
     session.running = true;
     session.cancelled = false;
-    setStatus("running", "Rédaction IA en cours", "Groq", "Traitement alliance par alliance.");
+    setStatus("running", "Rédaction IA en cours", "Workers AI · Llama 4 Scout", "Traitement alliance par alliance.");
     updateControls();
     renderSession();
 

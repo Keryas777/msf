@@ -131,7 +131,8 @@ const ANALYSIS_MAX_PLAYERS = 24;
 const ANALYSIS_NAME_MAX_LENGTH = 80;
 const ANALYSIS_MAX_LENGTH = 700;
 const ANALYSIS_MAX_SENTENCES = 3;
-const GEMINI_ANALYSIS_TIMEOUT_MS = 90 * 1000;
+const WAR_ANALYSIS_TIMEOUT_MS = 90 * 1000;
+export const WAR_ANALYSIS_MODEL = "@cf/meta/llama-4-scout-17b-16e-instruct";
 export const GROQ_ANALYSES_RESPONSE_FORMAT = {
   type: "json_schema",
   json_schema: {
@@ -157,6 +158,13 @@ export const GROQ_ANALYSES_RESPONSE_FORMAT = {
       required: ["analyses"],
       additionalProperties: false
     }
+  }
+};
+export const WORKERS_AI_ANALYSES_RESPONSE_FORMAT = {
+  type: "json_schema",
+  json_schema: {
+    name: GROQ_ANALYSES_RESPONSE_FORMAT.json_schema.name,
+    schema: GROQ_ANALYSES_RESPONSE_FORMAT.json_schema.schema
   }
 };
 
@@ -648,173 +656,98 @@ export function buildAnalysisPrompt(body, isCompletion) {
   ].join("\n\n");
 }
 
-export function parseGroqDurationSeconds(value) {
-  if (typeof value !== "string") return null;
-
-  const match = value.trim().match(/^(?:(\d+(?:\.\d+)?)m)?(?:(\d+(?:\.\d+)?)(?:s)?)?$/i);
-  if (!match || (!match[1] && !match[2])) return null;
-
-  const seconds = (Number(match[1] || 0) * 60) + Number(match[2] || 0);
-  return Number.isFinite(seconds) && seconds > 0 ? Math.ceil(seconds) : null;
+function getWorkersAiErrorCode(error) {
+  const candidates = [error?.code, error?.cause?.code, error?.error?.code];
+  for (const candidate of candidates) {
+    const match = String(candidate ?? "").match(/\b(\d{4})\b/);
+    if (match) return Number(match[1]);
+  }
+  const match = String(error?.message || "").match(/\b(3007|3008|3036|3040)\b/);
+  return match ? Number(match[1]) : null;
 }
 
-function getGroqRateLimitHeaders(headers) {
-  return {
-    retry_after: headers.get("retry-after"),
-    limit_requests: headers.get("x-ratelimit-limit-requests"),
-    remaining_requests: headers.get("x-ratelimit-remaining-requests"),
-    reset_requests: headers.get("x-ratelimit-reset-requests"),
-    limit_tokens: headers.get("x-ratelimit-limit-tokens"),
-    remaining_tokens: headers.get("x-ratelimit-remaining-tokens"),
-    reset_tokens: headers.get("x-ratelimit-reset-tokens")
-  };
+function getWorkersAiRetryAfterSeconds(error) {
+  for (const value of [error?.retry_after_seconds, error?.retryAfterSeconds, error?.retryAfter]) {
+    const seconds = Number(value);
+    if (Number.isFinite(seconds) && seconds > 0) return Math.ceil(seconds);
+  }
+  return 60;
 }
 
-function getGroqErrorDetails(groqData) {
-  return {
-    message: groqData?.error?.message || null,
-    type: groqData?.error?.type || null,
-    code: groqData?.error?.code || null
-  };
-}
+function workersAiErrorResponse(error) {
+  const providerCode = getWorkersAiErrorCode(error);
+  const detail = error instanceof Error ? error.message : String(error || "Erreur Workers AI inconnue.");
 
-function isGroqFailedGeneration(groqData, message) {
-  const groqError = groqData?.error;
-
-  if (
-    groqError?.code === "failed_generation" ||
-    groqError?.type === "failed_generation"
-  ) {
-    return true;
+  if ([3007, 3008, 3040].includes(providerCode)) {
+    return Response.json({
+      ok: false,
+      code: "WORKERS_AI_TEMPORARY",
+      error: "Workers AI est temporairement indisponible.",
+      provider_code: providerCode,
+      retry_after_seconds: getWorkersAiRetryAfterSeconds(error),
+      detail
+    }, { status: 503 });
   }
 
-  return /failed to (?:validate|generate) json/i.test(message);
+  if (providerCode === 3036) {
+    return Response.json({
+      ok: false,
+      code: "WORKERS_AI_DAILY_LIMIT",
+      error: "Le quota quotidien Workers AI est atteint.",
+      provider_code: providerCode,
+      detail
+    }, { status: 429 });
+  }
+
+  return Response.json({
+    ok: false,
+    code: "WORKERS_AI_ERROR",
+    error: detail
+  }, { status: 500 });
 }
 
-async function requestGroqAnalyses(prompt, apiKey, model) {
+function normalizeWorkersAiResponse(result) {
+  const value = isPlainObject(result) && Object.hasOwn(result, "response")
+    ? result.response
+    : result;
 
-  const endpoint = "https://api.groq.com/openai/v1/chat/completions";
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(function () {
-    controller.abort();
-  }, GEMINI_ANALYSIS_TIMEOUT_MS);
-
-  let groqResponse;
+  if (isPlainObject(value)) return value;
+  if (typeof value !== "string" || !value.trim()) {
+    throw new Error("Workers AI n’a retourné aucune réponse structurée exploitable.");
+  }
 
   try {
-    groqResponse = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer " + apiKey,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: [
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-        temperature: 0.55,
-        response_format: GROQ_ANALYSES_RESPONSE_FORMAT
-      }),
-      signal: controller.signal
-    });
-  } catch (error) {
-    if (
-      error &&
-      typeof error === "object" &&
-      error.name === "AbortError"
-    ) {
-      throw new Error(
-        "Groq n’a pas répondu dans le délai maximal de 90 secondes."
-      );
-    }
+    return JSON.parse(stripCodeFences(value));
+  } catch (_) {
+    throw new Error("Workers AI n’a pas renvoyé un JSON parseable.");
+  }
+}
 
-    throw error;
+async function requestWorkersAiAnalyses(prompt, ai) {
+  if (!ai || typeof ai.run !== "function") {
+    throw new Error("Le binding Workers AI env.AI est absent ou invalide.");
+  }
+
+  const runPromise = ai.run(WAR_ANALYSIS_MODEL, {
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.55,
+    max_tokens: 10000,
+    response_format: WORKERS_AI_ANALYSES_RESPONSE_FORMAT
+  });
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      const error = new Error("Workers AI n’a pas répondu dans le délai maximal de 90 secondes.");
+      error.code = 3007;
+      reject(error);
+    }, WAR_ANALYSIS_TIMEOUT_MS);
+  });
+
+  try {
+    return normalizeWorkersAiResponse(await Promise.race([runPromise, timeoutPromise]));
   } finally {
     clearTimeout(timeoutId);
   }
-
-  let groqData;
-
-  try {
-    groqData = await groqResponse.json();
-  } catch (error) {
-    throw new Error("Réponse Groq illisible.");
-  }
-
-  if (!groqResponse.ok) {
-    const message = groqData?.error?.message || "Erreur Groq";
-
-    if (groqResponse.status === 429) {
-      const retryAfter = parseGroqDurationSeconds(
-        groqResponse.headers.get("retry-after")
-      );
-      const tokenReset = parseGroqDurationSeconds(
-        groqResponse.headers.get("x-ratelimit-reset-tokens")
-      );
-
-      return Response.json(
-        {
-          ok: false,
-          error: "Quota Groq temporairement atteint.",
-          code: "GROQ_RATE_LIMIT",
-          http_status: groqResponse.status,
-          model: model,
-          retry_after_seconds: retryAfter || tokenReset || 60,
-          detail: message,
-          groq_error: getGroqErrorDetails(groqData),
-          rate_limit: getGroqRateLimitHeaders(groqResponse.headers)
-        },
-        {
-          status: 429
-        }
-      );
-    }
-
-    if (isGroqFailedGeneration(groqData, message)) {
-      const tokenReset = parseGroqDurationSeconds(
-        groqResponse.headers.get("x-ratelimit-reset-tokens")
-      );
-
-      return Response.json(
-        {
-          ok: false,
-          error: message,
-          code: "GROQ_GENERATION_RETRY",
-          http_status: groqResponse.status,
-          model: model,
-          retry_after_seconds: tokenReset || 60,
-          groq_error: getGroqErrorDetails(groqData),
-          rate_limit: getGroqRateLimitHeaders(groqResponse.headers)
-        },
-        {
-          status: groqResponse.status
-        }
-      );
-    }
-
-    throw new Error(message);
-  }
-
-  const rawText = groqData?.choices?.[0]?.message?.content;
-
-  if (typeof rawText !== "string" || !rawText.trim()) {
-    throw new Error("Groq n’a retourné aucun texte.");
-  }
-
-  let parsed;
-
-  try {
-    parsed = JSON.parse(stripCodeFences(rawText));
-  } catch (error) {
-    throw new Error("Groq n’a pas renvoyé un JSON parseable.");
-  }
-
-  return parsed;
 }
 
 function buildCompletionBody(body, missingPlayers) {
@@ -836,22 +769,14 @@ function buildCompletionBody(body, missingPlayers) {
 }
 
 async function handleWarWriteAnalyses(request, env) {
+  try {
+
   const requestBody = await readAnalysisRequestJson(request);
   const body = validateAnalysisRequest(requestBody);
 
-  const apiKey = env.GROQ_API_KEY;
-  const model = env.GROQ_MODEL || "openai/gpt-oss-120b";
-
-  if (!apiKey) {
-    throw new Error(
-      "La variable secrète GROQ_API_KEY est absente dans le Worker."
-    );
-  }
-
-  const initialResult = await requestGroqAnalyses(
+  const initialResult = await requestWorkersAiAnalyses(
     buildAnalysisPrompt(body, false),
-    apiKey,
-    model
+    env.AI
   );
 
   if (initialResult instanceof Response) return initialResult;
@@ -869,10 +794,9 @@ async function handleWarWriteAnalyses(request, env) {
 
   if (missingPlayers.length > 0) {
     const completionBody = buildCompletionBody(body, missingPlayers);
-    const completionResult = await requestGroqAnalyses(
+    const completionResult = await requestWorkersAiAnalyses(
       buildAnalysisPrompt(completionBody, true),
-      apiKey,
-      model
+      env.AI
     );
 
     if (completionResult instanceof Response) return completionResult;
@@ -893,7 +817,7 @@ async function handleWarWriteAnalyses(request, env) {
 
   if (stillMissing.length > 0) {
     throw new Error(
-      "Analyses Groq incomplètes après tentative de complétion : rangs " +
+      "Analyses Workers AI incomplètes après tentative de complétion : rangs " +
       stillMissing.map(function (player) { return player.rank; }).join(", ") +
       "."
     );
@@ -908,8 +832,10 @@ async function handleWarWriteAnalyses(request, env) {
   }
 
   return Response.json({ analyses: analyses });
+  } catch (error) {
+    return workersAiErrorResponse(error);
+  }
 }
-
 async function handleWarPublishReport(request, env) {
   const requestText = await request.text();
 
