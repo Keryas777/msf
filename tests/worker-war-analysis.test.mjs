@@ -422,25 +422,34 @@ test("les plafonds déterministes suivent exactement le barème", () => {
   );
 });
 
-test("le prompt transmet score_total et plafond absolu pour chaque joueur", async () => {
+test("le prompt transmet score_total et tonalité globale cible pour chaque joueur", async () => {
   const body = requestBody(1);
   const { calls } = await callWorker(body, [groqResponse(entriesFor(body))]);
   assert.match(calls[0].messages[0].content, /"score_total":71,"global_tone_ceiling":"VERY_GOOD"/);
-  assert.match(calls[0].messages[0].content, /plafond absolu du jugement global/);
+  assert.match(calls[0].messages[0].content, /plafond maximal et la tonalité globale cible/);
 });
 
-test("le prompt détaille les interdictions, plafonds, sous-aspects et auto-vérification", async () => {
+test("le prompt impose la cible exacte, préserve les sous-aspects et détaille l’auto-vérification", async () => {
   const body = requestBody(1);
   const { calls } = await callWorker(body, [groqResponse(entriesFor(body))]);
   const prompt = calls[0].messages[0].content;
-  assert.match(prompt, /INTERDIT de mentionner score_total/);
+  assert.match(prompt, /score_total est une donnée technique interne.*uniquement à définir la tonalité globale cible/s);
   assert.match(prompt, /« Il obtient un score de 71\. ».*« Son score est élevé\. ».*« Sa note est excellente\. »/s);
   assert.match(prompt, /AUTORISÉ.*« Son activité offensive a été régulière\. ».*« Son efficacité a été excellente\. »/s);
-  assert.match(prompt, /niveau MAXIMAL.*performance, la prestation, la guerre, le bilan, le résultat global ou le joueur/s);
-  assert.match(prompt, /si global_tone_ceiling = EXCELLENT.*si global_tone_ceiling = VERY_GOOD.*si global_tone_ceiling = GOOD/s);
+  assert.match(prompt, /jugement GLOBAL sur la guerre, la performance, la prestation, le bilan, le résultat global ou le joueur.*EXACTEMENT.*ni un niveau supérieur ni un niveau inférieur/s);
+  assert.match(prompt, /EXCEPTIONAL → « exceptionnelle » ou « remarquable »/);
+  assert.match(prompt, /EXCELLENT → « excellente »/);
+  assert.match(prompt, /VERY_GOOD → « très bonne »/);
+  assert.match(prompt, /GOOD → « bonne »/);
+  assert.match(prompt, /SOLID → « solide »/);
+  assert.match(prompt, /MIXED → « mitigée » ou « contrastée »/);
+  assert.match(prompt, /WITHDRAWN → « en retrait ».*prestation difficile/);
+  assert.match(prompt, /EXCELLENT.*« Il réalise une excellente guerre\. » est autorisé.*« Il réalise une guerre exceptionnelle\. ».*« Il réalise une très bonne guerre\. ».*interdits/s);
+  assert.match(prompt, /VERY_GOOD.*« Il réalise une très bonne guerre\. » est autorisé.*« Il réalise une excellente guerre\. ».*« Il réalise une bonne guerre\. ».*interdits/s);
   assert.match(prompt, /Distinction global \/ sous-aspect.*« Son efficacité a été exceptionnelle\. ».*« Son impact a été remarquable\. »/s);
+  assert.match(prompt, /ne commence pas systématiquement par le pseudo.*n’utilise pas systématiquement « signe une guerre ».*sans suivre un modèle de phrase fixe/s);
   assert.match(prompt, /Avant de produire le JSON, vérifie mentalement chaque analyse dans ce même appel/);
-  assert.match(prompt, /entre 1 et 3 phrases.*700 caractères.*rank, name et analysis/s);
+  assert.match(prompt, /jugement GLOBAL.*EXACTEMENT à global_tone_ceiling.*sous-aspects clairement identifiés.*entre 1 et 3 phrases.*700 caractères.*rank, name et analysis/s);
 });
 
 for (const analysis of [
