@@ -50,3 +50,5 @@ jobs:
           fi
           git commit -m 'test: persist exact R5 benchmark fixture'
           git push origin HEAD:agent/war-counter-r5-embeddings-benchmark
+
+# trigger: 2026-08-18 public-drive retry
