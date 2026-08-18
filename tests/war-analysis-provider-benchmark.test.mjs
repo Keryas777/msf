@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import test from "node:test";
-import { GROQ_MODEL, inspectOutput, runBenchmark, validateReport } from "../experiments/war-analysis-provider-benchmark/benchmark.mjs";
+import {
+  CLOUDFLARE_GEMMA_MODEL,
+  CLOUDFLARE_GLM_MODEL,
+  GROQ_MODEL,
+  getBenchmarkConfig,
+  inspectOutput,
+  runBenchmark,
+  validateReport
+} from "../experiments/war-analysis-provider-benchmark/benchmark.mjs";
 
 function fixture(score = 71) {
   const players = Array.from({ length: 24 }, (_, index) => ({ rank: index + 1, original_rank: index + 1, name: `Joueur ${index + 1}`, score_total: score, attacks: 12 }));
@@ -21,6 +30,23 @@ test("le plafond importé de production rejette excellent pour un score de 71", 
   assert.equal(result.rejection_reasons.tone_ceiling, 1);
 });
 
+test("les identifiants Workers AI officiels sont les valeurs par défaut", () => {
+  assert.equal(CLOUDFLARE_GLM_MODEL, "@cf/zai-org/glm-4.7-flash");
+  assert.equal(CLOUDFLARE_GEMMA_MODEL, "@cf/google/gemma-4-26b-a4b-it");
+  const config = getBenchmarkConfig({});
+  assert.equal(config.cloudflareGlmModel, CLOUDFLARE_GLM_MODEL);
+  assert.equal(config.cloudflareGemmaModel, CLOUDFLARE_GEMMA_MODEL);
+});
+
+test("les variables d'environnement surchargent les modèles Workers AI", () => {
+  const config = getBenchmarkConfig({
+    CLOUDFLARE_GLM_MODEL: "@cf/future/glm",
+    CLOUDFLARE_GEMMA_MODEL: "@cf/future/gemma"
+  });
+  assert.equal(config.cloudflareGlmModel, "@cf/future/glm");
+  assert.equal(config.cloudflareGemmaModel, "@cf/future/gemma");
+});
+
 test("les trois réseaux sont mockés et reçoivent le même prompt", async () => {
   const report = fixture(85);
   const calls = [];
@@ -38,6 +64,16 @@ test("les trois réseaux sont mockés et reçoivent le même prompt", async () =
   assert.equal(new Set(prompts).size, 1);
   assert.equal(calls[0].body.response_format.json_schema.strict, true);
   assert.equal("response_format" in calls[1].body, false);
+  assert.match(calls[1].url, /\/ai\/run\/@cf\/verified\/glm$/);
+  assert.match(calls[2].url, /\/ai\/run\/@cf\/verified\/gemma$/);
+});
+
+test("le lanceur sans --execute ne peut effectuer aucun appel réseau", () => {
+  const result = spawnSync(process.execPath, ["experiments/war-analysis-provider-benchmark/run.mjs"], {
+    encoding: "utf8"
+  });
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /Aucun appel effectué/);
 });
 
 test("aucun appel ne part si une configuration réelle manque", async () => {

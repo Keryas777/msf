@@ -5,8 +5,20 @@ import {
 } from "../../workers/msf-war-ocr/worker.js";
 
 export const GROQ_MODEL = "openai/gpt-oss-120b";
+export const CLOUDFLARE_GLM_MODEL = "@cf/zai-org/glm-4.7-flash";
+export const CLOUDFLARE_GEMMA_MODEL = "@cf/google/gemma-4-26b-a4b-it";
 export const MAX_ANALYSIS_LENGTH = 700;
 export const MAX_SENTENCES = 3;
+
+export function getBenchmarkConfig(env = process.env) {
+  return {
+    groqApiKey: env.GROQ_API_KEY,
+    cloudflareAccountId: env.CLOUDFLARE_ACCOUNT_ID,
+    cloudflareApiToken: env.CLOUDFLARE_API_TOKEN,
+    cloudflareGlmModel: env.CLOUDFLARE_GLM_MODEL || CLOUDFLARE_GLM_MODEL,
+    cloudflareGemmaModel: env.CLOUDFLARE_GEMMA_MODEL || CLOUDFLARE_GEMMA_MODEL
+  };
+}
 
 const TONE_LEVELS = Object.freeze({
   withdrawn: 0, mixed: 1, solid: 2, good: 3, very_good: 4,
