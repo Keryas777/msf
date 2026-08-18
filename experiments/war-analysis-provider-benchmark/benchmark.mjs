@@ -1,7 +1,8 @@
 import {
   GROQ_ANALYSES_RESPONSE_FORMAT,
   buildAnalysisPrompt,
-  getGlobalToneCeiling
+  getGlobalToneCeiling,
+  mentionsDeterministicScore
 } from "../../workers/msf-war-ocr/worker.js";
 
 export const GROQ_MODEL = "openai/gpt-oss-120b";
@@ -129,7 +130,7 @@ export function inspectOutput(rawText, players) {
     if (sentenceOk) result.sentence_compliance += 1; else reasons.push("sentence_count");
     if (lengthOk) result.length_compliance += 1; else reasons.push("length_over_700");
     if (toneOk) result.tone_compliance += 1; else reasons.push("tone_ceiling");
-    if (/\bscore(?:_|\s+)total\b/iu.test(text)) reasons.push("score_total_mentioned");
+    if (mentionsDeterministicScore(text)) reasons.push("score_mentioned");
     result.analyses.push({ rank: entry?.rank ?? null, name: entry?.name ?? null, analysis: text,
       sentence_count: sentences, character_count: text.length, tone_ceiling_violation: !toneOk,
       accepted: reasons.length === 0, rejection_reasons: reasons });

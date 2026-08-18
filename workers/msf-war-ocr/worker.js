@@ -262,6 +262,10 @@ function exceedsGlobalToneCeiling(analysis, scoreTotal) {
   });
 }
 
+export function mentionsDeterministicScore(analysis) {
+  return /\bscore(?:_|\s+)total\b|\b(?:son|un)\s+score\b|\bscore\s+(?:de\s+\d+(?:[.,]\d+)?|est\b|(?:élevé|faible|solide|bon|excellent)\b)|\b(?:sa|une)\s+note\b|\bnote\s+(?:de\s+\d+(?:[.,]\d+)?|est\b)/iu.test(analysis);
+}
+
 export function getGlobalPerformanceSentence(scoreTotal, name) {
   let qualification = "en retrait";
 
@@ -491,7 +495,7 @@ function validateSingleAnalysisEntry(entry, player) {
   }
 
   if (
-    /\bscore(?:_|\s+)total\b/iu.test(analysis) ||
+    mentionsDeterministicScore(analysis) ||
     exceedsGlobalToneCeiling(analysis, player.score_total)
   ) {
     return null;
@@ -590,7 +594,15 @@ export function buildAnalysisPrompt(body, isCompletion) {
 
     "Repères d’interprétation autorisés : un volume ou une moyenne de dégâts élevés peuvent indiquer des cibles ambitieuses ; de faibles dégâts peuvent indiquer des cibles plus modestes ; beaucoup d’attaques avec de gros dégâts mais plusieurs ratés indiquent une activité ambitieuse mais imparfaite ; de nombreuses victoires défensives indiquent une contribution défensive importante ; les déviations indiquent une implication dans la protection de l’alliance.",
 
-    "Pour chaque joueur, score_total est la vérité déterministe et ne doit jamais être recalculé ni cité. global_tone_ceiling est le plafond absolu du jugement global : tu peux employer une tonalité plus faible, jamais une tonalité supérieure. Un sous-aspect explicitement nommé peut être qualifié plus fortement, par exemple « Son efficacité a été exceptionnelle. »",
+    "Pour chaque joueur, score_total est la vérité déterministe. Il sert uniquement d’information interne pour déterminer le plafond de tonalité. Il est INTERDIT de mentionner score_total, « score total », le score, la note, la valeur numérique du score, « score élevé », « score faible », « score solide », « bon score », « excellent score », ou toute formulation qui révèle ou paraphrase directement le score déterministe.",
+
+    "Exemples concernant le score — INTERDIT : « Il obtient un score de 71. » ; « Son score est élevé. » ; « Sa note est excellente. » AUTORISÉ : « Son activité offensive a été régulière. » ; « Son efficacité a été excellente. »",
+
+    "global_tone_ceiling est le niveau MAXIMAL et le plafond absolu du jugement global portant sur la performance, la prestation, la guerre, le bilan, le résultat global ou le joueur dans son ensemble. Une tonalité plus faible est autorisée, jamais une tonalité supérieure.",
+
+    "Exemples de plafond global — si global_tone_ceiling = EXCELLENT : autorisés globalement « excellente », « très bonne », « bonne », « solide » ; interdits globalement « exceptionnelle », « remarquable ». si global_tone_ceiling = VERY_GOOD : autorisés globalement « très bonne », « bonne », « solide » ; interdits globalement « excellente », « exceptionnelle », « remarquable ». si global_tone_ceiling = GOOD : autorisés globalement « bonne », « solide » ; interdits globalement « très bonne », « excellente », « exceptionnelle », « remarquable ».",
+
+    "Distinction global / sous-aspect : un qualificatif supérieur au plafond global reste autorisé UNIQUEMENT s’il qualifie un sous-aspect clairement nommé, par exemple « Son efficacité a été exceptionnelle. » ou « Son impact a été remarquable. », sans transformer ce jugement local en qualification globale de la guerre, de la prestation ou du joueur.",
 
     "Échelle ordonnée des tonalités globales, de la plus faible à la plus forte : WITHDRAWN, MIXED, SOLID, GOOD, VERY_GOOD, EXCELLENT, EXCEPTIONAL.",
 
@@ -607,6 +619,8 @@ export function buildAnalysisPrompt(body, isCompletion) {
     isCompletion
       ? "Tu dois produire exactement une analyse pour chacun des joueurs fournis dans cette requête de complétion, et aucun autre joueur."
       : "Produis une analyse pour chacun des joueurs fournis.",
+
+    "Avant de produire le JSON, vérifie mentalement chaque analyse dans ce même appel : 1. Ai-je mentionné ou paraphrasé le score, la note ou sa valeur ? Si oui, réécrire. 2. Ai-je utilisé un qualificatif global supérieur à global_tone_ceiling ? Si oui, réécrire. 3. Ai-je produit entre 1 et 3 phrases ? Sinon, corriger. 4. Ai-je dépassé 700 caractères ? Si oui, raccourcir. 5. rank, name et analysis sont-ils exacts ? Sinon, corriger.",
 
     JSON.stringify(body)
   ].join("\n\n");

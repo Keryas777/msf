@@ -429,7 +429,55 @@ test("le prompt transmet score_total et plafond absolu pour chaque joueur", asyn
   assert.match(calls[0].messages[0].content, /plafond absolu du jugement global/);
 });
 
+test("le prompt détaille les interdictions, plafonds, sous-aspects et auto-vérification", async () => {
+  const body = requestBody(1);
+  const { calls } = await callWorker(body, [groqResponse(entriesFor(body))]);
+  const prompt = calls[0].messages[0].content;
+  assert.match(prompt, /INTERDIT de mentionner score_total/);
+  assert.match(prompt, /« Il obtient un score de 71\. ».*« Son score est élevé\. ».*« Sa note est excellente\. »/s);
+  assert.match(prompt, /AUTORISÉ.*« Son activité offensive a été régulière\. ».*« Son efficacité a été excellente\. »/s);
+  assert.match(prompt, /niveau MAXIMAL.*performance, la prestation, la guerre, le bilan, le résultat global ou le joueur/s);
+  assert.match(prompt, /si global_tone_ceiling = EXCELLENT.*si global_tone_ceiling = VERY_GOOD.*si global_tone_ceiling = GOOD/s);
+  assert.match(prompt, /Distinction global \/ sous-aspect.*« Son efficacité a été exceptionnelle\. ».*« Son impact a été remarquable\. »/s);
+  assert.match(prompt, /Avant de produire le JSON, vérifie mentalement chaque analyse dans ce même appel/);
+  assert.match(prompt, /entre 1 et 3 phrases.*700 caractères.*rank, name et analysis/s);
+});
+
+for (const analysis of [
+  "Il obtient un score de 71.",
+  "Son score est élevé.",
+  "Un score faible résume sa guerre.",
+  "Sa note est excellente.",
+  "Il reçoit une note de 71."
+]) {
+  test(`la mention directe « ${analysis} » invalide uniquement le rang`, async () => {
+    const body = requestBody(2);
+    const { response, calls } = await callWorker(body, [
+      groqResponse(entriesFor(body, undefined, { 1: { analysis } })),
+      groqResponse(entriesFor(body, [1]))
+    ]);
+    assert.equal(response.status, 200);
+    assert.equal(calls.length, 2);
+    assert.deepEqual(promptBody(calls[1]).report.players.map(({ rank }) => rank), [1]);
+  });
+}
+
+test("un emploi de note sans rapport avec l’évaluation n’est pas rejeté", async () => {
+  const body = requestBody(1);
+  const analysis = "La note de synthèse sur son activité offensive reste factuelle.";
+  const { response, calls } = await callWorker(body, [
+    groqResponse(entriesFor(body, [1], { 1: { analysis } }))
+  ]);
+  assert.equal(response.status, 200);
+  assert.equal(calls.length, 1);
+  assert.equal((await response.json()).analyses[0].analysis, analysis);
+});
+
 const toneCases = [
+  [88, "Il signe une guerre exceptionnelle.", false],
+  [88, "Il signe une excellente guerre.", true],
+  [71, "Il réalise une excellente performance.", false],
+  [71, "Il réalise une très bonne performance.", true],
   [71, "Très bonne performance.", true],
   [71, "Excellente performance.", false],
   [71, "Performance exceptionnelle.", false],
