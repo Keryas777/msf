@@ -63,10 +63,25 @@ export default {
       url.pathname === "/api/war/write-analyses"
     ) {
       let response;
+      const requestId = crypto.randomUUID();
+      const startedAt = Date.now();
+
+      console.log("WAR_ANALYSIS_REQUEST_START", {
+        request_id: requestId,
+        timestamp: new Date(startedAt).toISOString(),
+        content_length: request.headers.get("Content-Length"),
+        origin: request.headers.get("Origin"),
+        user_agent: String(request.headers.get("User-Agent") || "").slice(0, 160),
+        ai_binding_present: Boolean(env.AI)
+      });
 
       try {
-        response = await handleWarWriteAnalyses(request, env);
+        response = await handleWarWriteAnalyses(request, env, {
+          requestId,
+          startedAt
+        });
       } catch (error) {
+        console.error("WAR_ANALYSIS_ROUTE_ERROR", safeAnalysisError(requestId, error));
         response = Response.json(
           {
             ok: false,
@@ -77,6 +92,13 @@ export default {
           }
         );
       }
+
+      console.log("WAR_ANALYSIS_RESPONSE", {
+        request_id: requestId,
+        status: response.status,
+        code: traceBusinessCode(response.status),
+        duration_ms: Date.now() - startedAt
+      });
 
       return addWarParseDraftCorsHeaders(request, response);
     }
@@ -167,6 +189,30 @@ export const WORKERS_AI_ANALYSES_RESPONSE_FORMAT = {
     schema: GROQ_ANALYSES_RESPONSE_FORMAT.json_schema.schema
   }
 };
+
+function safeAnalysisError(requestId, error, includeStack = false) {
+  const metadata = {
+    request_id: requestId,
+    name: error?.name,
+    message: error instanceof Error ? error.message : String(error || "Erreur inconnue"),
+    code: error?.code,
+    cause_code: error?.cause?.code,
+    nested_error_code: error?.error?.code
+  };
+
+  if (includeStack && typeof error?.stack === "string") {
+    metadata.stack = error.stack.slice(0, 1200);
+  }
+
+  return metadata;
+}
+
+function traceBusinessCode(status) {
+  if (status === 503) return "WORKERS_AI_TEMPORARY";
+  if (status === 429) return "WORKERS_AI_DAILY_LIMIT";
+  if (status >= 500) return "WORKERS_AI_ERROR";
+  return null;
+}
 
 function isPlainObject(value) {
   return Boolean(
@@ -723,11 +769,20 @@ function normalizeWorkersAiResponse(result) {
   }
 }
 
-async function requestWorkersAiAnalyses(prompt, ai) {
+async function requestWorkersAiAnalyses(prompt, ai, trace) {
   if (!ai || typeof ai.run !== "function") {
     throw new Error("Le binding Workers AI env.AI est absent ou invalide.");
   }
 
+  console.log("WAR_ANALYSIS_AI_START", {
+    request_id: trace.requestId,
+    model: WAR_ANALYSIS_MODEL,
+    player_count: trace.playerCount,
+    completion: trace.completion,
+    max_tokens: 10000,
+    temperature: 0.55
+  });
+  const aiStartedAt = Date.now();
   const runPromise = ai.run(WAR_ANALYSIS_MODEL, {
     messages: [{ role: "user", content: prompt }],
     temperature: 0.55,
@@ -744,7 +799,24 @@ async function requestWorkersAiAnalyses(prompt, ai) {
   });
 
   try {
-    return normalizeWorkersAiResponse(await Promise.race([runPromise, timeoutPromise]));
+    const result = await Promise.race([runPromise, timeoutPromise]);
+    const responseValue = isPlainObject(result) && Object.hasOwn(result, "response")
+      ? result.response
+      : result;
+    const receivedAnalyses = isPlainObject(responseValue) && Array.isArray(responseValue.analyses)
+      ? responseValue.analyses.length
+      : null;
+    console.log("WAR_ANALYSIS_AI_SUCCESS", {
+      request_id: trace.requestId,
+      duration_ms: Date.now() - aiStartedAt,
+      response_type: Array.isArray(result) ? "array" : typeof result,
+      has_response: isPlainObject(result) && Object.hasOwn(result, "response"),
+      analysis_count: receivedAnalyses
+    });
+    return normalizeWorkersAiResponse(result);
+  } catch (error) {
+    console.error("WAR_ANALYSIS_AI_ERROR", safeAnalysisError(trace.requestId, error, true));
+    throw error;
   } finally {
     clearTimeout(timeoutId);
   }
@@ -768,15 +840,23 @@ function buildCompletionBody(body, missingPlayers) {
   };
 }
 
-async function handleWarWriteAnalyses(request, env) {
+async function handleWarWriteAnalyses(request, env, trace) {
   try {
 
   const requestBody = await readAnalysisRequestJson(request);
   const body = validateAnalysisRequest(requestBody);
+  console.log("WAR_ANALYSIS_BODY_VALID", {
+    request_id: trace.requestId,
+    alliance: body.alliance,
+    date: body.date,
+    player_count: body.report.players.length,
+    approximate_json_size: JSON.stringify(requestBody).length
+  });
 
   const initialResult = await requestWorkersAiAnalyses(
     buildAnalysisPrompt(body, false),
-    env.AI
+    env.AI,
+    { requestId: trace.requestId, playerCount: body.report.players.length, completion: false }
   );
 
   if (initialResult instanceof Response) return initialResult;
@@ -791,12 +871,24 @@ async function handleWarWriteAnalyses(request, env) {
   const missingPlayers = body.report.players.filter(function (player) {
     return !validatedByRank.has(player.rank);
   });
+  console.log("WAR_ANALYSIS_NORMALIZED", {
+    request_id: trace.requestId,
+    analyses_received: Array.isArray(initialResult?.analyses) ? initialResult.analyses.length : null,
+    analyses_accepted: initialValidated.length,
+    rejected_or_missing_ranks: missingPlayers.map(function (player) { return player.rank; })
+  });
 
   if (missingPlayers.length > 0) {
+    console.log("WAR_ANALYSIS_COMPLETION_START", {
+      request_id: trace.requestId,
+      player_count: missingPlayers.length,
+      ranks: missingPlayers.map(function (player) { return player.rank; })
+    });
     const completionBody = buildCompletionBody(body, missingPlayers);
     const completionResult = await requestWorkersAiAnalyses(
       buildAnalysisPrompt(completionBody, true),
-      env.AI
+      env.AI,
+      { requestId: trace.requestId, playerCount: missingPlayers.length, completion: true }
     );
 
     if (completionResult instanceof Response) return completionResult;
@@ -805,6 +897,15 @@ async function handleWarWriteAnalyses(request, env) {
       completionResult,
       missingPlayers
     ).analyses;
+    const rejectedCompletionRanks = missingPlayers.filter(function (player) {
+      return !completed.some(function (analysis) { return analysis.rank === player.rank; });
+    }).map(function (player) { return player.rank; });
+    console.log("WAR_ANALYSIS_NORMALIZED", {
+      request_id: trace.requestId,
+      analyses_received: Array.isArray(completionResult?.analyses) ? completionResult.analyses.length : null,
+      analyses_accepted: completed.length,
+      rejected_or_missing_ranks: rejectedCompletionRanks
+    });
 
     for (const analysis of completed) {
       validatedByRank.set(analysis.rank, analysis);
@@ -833,6 +934,7 @@ async function handleWarWriteAnalyses(request, env) {
 
   return Response.json({ analyses: analyses });
   } catch (error) {
+    console.error("WAR_ANALYSIS_ROUTE_ERROR", safeAnalysisError(trace.requestId, error));
     return workersAiErrorResponse(error);
   }
 }
