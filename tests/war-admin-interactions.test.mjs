@@ -499,10 +499,23 @@ test("un brouillon prêt reste vérifiable à 250 % pendant que l’OCR suivant 
   const running = harness.listener("warAdminForm", "submit")(submitEvent());
   await flushUntil(() => harness.fetchCalls.length === 2 && typeof resolveSecond === "function");
 
+  const beforeOpen = harness.getSnapshot();
+  const cards = harness.elements.warCaptureList.innerHTML.match(/<article[\s\S]*?<\/article>/g);
+  assert.equal(beforeOpen.captures[0].state_key, "ready");
+  assert.equal(beforeOpen.captures[1].state_key, "ocr");
+  assert.match(cards[0], /data-action="open-review"[^>]*>Vérifier<\/button>/);
+  assert.doesNotMatch(cards[0], /data-action="open-review"[^>]* disabled/);
+  assert.doesNotMatch(cards[1], /data-action="open-review"/);
+  assert.match(cards[0], /data-action="toggle-excluded"[^>]* disabled/);
+
+  const fetchCount = harness.fetchCalls.length;
   openReviewFromCard(harness, 0);
   assert.equal(harness.elements.warReviewView.hidden, false);
   assert.equal(harness.elements.warReviewImage.style.width, "250%");
   assert.equal(harness.elements.warZoomReset.textContent, "250 %");
+  assert.equal(harness.elements.warCancel.disabled, false);
+  assert.equal(harness.getSnapshot().captures[1].state_key, "ocr");
+  assert.equal(harness.fetchCalls.length, fetchCount);
   assert.equal(harness.maxActiveRequests, 1);
 
   resolveSecond();
@@ -667,6 +680,31 @@ test("l’utilisateur peut interrompre la temporisation avant la capture suivant
   assert.equal(snapshot.drafts.length, 1);
   assert.equal(harness.clearedTimers.length, 1);
   assert.equal(harness.elements.warStatusPanel.dataset.state, "cancelled");
+});
+
+test("hors session, le bouton Vérifier reste actif", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async () => Response.json(draftPayload("zeus", "Zeus")));
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+
+  assert.match(harness.elements.warCaptureList.innerHTML, /data-action="open-review"[^>]*>Vérifier<\/button>/);
+  assert.doesNotMatch(harness.elements.warCaptureList.innerHTML, /data-action="open-review"[^>]* disabled/);
+});
+
+test("un fragment fusionné sans editableDraft ne devient pas vérifiable", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async () => Response.json(draftPayload("zeus", "Zeus")));
+  harness.elements.warImage.files = files(2);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+
+  const cards = harness.elements.warCaptureList.innerHTML.match(/<article[\s\S]*?<\/article>/g);
+  assert.equal(harness.getSnapshot().captures[1].state_key, "merged");
+  assert.equal(harness.getSnapshot().captures[1].editable_draft, null);
+  assert.doesNotMatch(cards[1], /data-action="open-review"/);
+  assert.match(cards[1], /data-action="toggle-excluded"/);
 });
 
 function openReviewFromCard(harness, captureIndex = 0, readOnly = false) {
