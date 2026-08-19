@@ -1,0 +1,79 @@
+name: Build minimal War Counter OpenCV.js
+
+on:
+  push:
+    branches:
+      - agent/war-counter-r5-opencv-minimal
+    paths:
+      - 'scripts/opencv_js_akaze_minimal.config.py'
+      - '.github/workflows/build-war-counter-opencv-minimal.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout app
+        uses: actions/checkout@v4
+
+      - name: Checkout OpenCV 4.10.0
+        uses: actions/checkout@v4
+        with:
+          repository: opencv/opencv
+          ref: 4.10.0
+          path: _opencv
+          fetch-depth: 1
+
+      - name: Install Emscripten SDK
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch 3.1.64 https://github.com/emscripten-core/emsdk.git _emsdk
+          ./_emsdk/emsdk install 3.1.64
+          ./_emsdk/emsdk activate 3.1.64
+
+      - name: Build minimal AKAZE OpenCV.js
+        run: |
+          set -euo pipefail
+          source ./_emsdk/emsdk_env.sh
+          python ./_opencv/platforms/js/build_js.py _opencv_build \
+            --opencv_dir ./_opencv \
+            --emscripten_dir "$EMSDK/upstream/emscripten" \
+            --build_wasm \
+            --disable_single_file \
+            --config "$GITHUB_WORKSPACE/scripts/opencv_js_akaze_minimal.config.py" \
+            --cmake_option='-DBUILD_opencv_calib3d=OFF' \
+            --cmake_option='-DBUILD_opencv_dnn=OFF' \
+            --cmake_option='-DBUILD_opencv_objdetect=OFF' \
+            --cmake_option='-DBUILD_opencv_photo=OFF' \
+            --cmake_option='-DBUILD_opencv_video=OFF' \
+            --cmake_option='-DBUILD_TESTS=OFF' \
+            --cmake_option='-DBUILD_PERF_TESTS=OFF' \
+            --cmake_option='-DBUILD_EXAMPLES=OFF'
+
+      - name: Persist minimal browser runtime
+        run: |
+          set -euo pipefail
+          mkdir -p docs/vendor/opencv-akaze/4.10.0
+          cp _opencv_build/bin/opencv.js docs/vendor/opencv-akaze/4.10.0/opencv.js
+          wasm_file="$(find _opencv_build/bin -maxdepth 1 -type f -name '*.wasm' | head -n 1)"
+          test -n "$wasm_file"
+          cp "$wasm_file" docs/vendor/opencv-akaze/4.10.0/opencv.wasm
+          js_bytes=$(wc -c < docs/vendor/opencv-akaze/4.10.0/opencv.js)
+          wasm_bytes=$(wc -c < docs/vendor/opencv-akaze/4.10.0/opencv.wasm)
+          echo "minimal opencv.js bytes=$js_bytes"
+          echo "minimal opencv.wasm bytes=$wasm_bytes"
+          sha256sum docs/vendor/opencv-akaze/4.10.0/opencv.js docs/vendor/opencv-akaze/4.10.0/opencv.wasm > docs/vendor/opencv-akaze/4.10.0/SHA256SUMS
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/vendor/opencv-akaze/4.10.0
+          if git diff --cached --quiet; then
+            echo "Minimal OpenCV.js runtime unchanged"
+          else
+            git commit -m "chore: vendor minimal AKAZE OpenCV.js runtime"
+            git push
+          fi
