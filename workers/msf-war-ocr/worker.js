@@ -2,6 +2,19 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
+    if (
+      request.method === "OPTIONS" &&
+      WAR_ADMIN_CORS_PATHS.has(url.pathname)
+    ) {
+      return addWarParseDraftCorsHeaders(request, new Response(null, {
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type"
+        }
+      }));
+    }
+
     if (request.method === "GET" && url.pathname === "/war-upload") {
       return new Response(getUploadPage(), {
         headers: {
@@ -136,6 +149,11 @@ export default {
 };
 
 const WAR_ADMIN_ORIGIN = "https://keryas777.github.io";
+const WAR_ADMIN_CORS_PATHS = new Set([
+  "/api/war/parse-gemini-draft",
+  "/api/war/write-analyses",
+  "/api/war/publish-report"
+]);
 
 const WAR_INDEX_PATH = "docs/data/war/index.json";
 

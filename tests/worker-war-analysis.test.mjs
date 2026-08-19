@@ -61,6 +61,64 @@ async function callWorker(body, responders, envOverride = {}) {
   return { response, calls };
 }
 
+test("le preflight War Admin autorise les trois routes sans exécuter leur métier", async () => {
+  const aiCalls = [];
+  const networkCalls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (...args) => {
+    networkCalls.push(args);
+    throw new Error("Aucun appel réseau attendu pendant un preflight");
+  };
+
+  try {
+    for (const path of [
+      "/api/war/parse-gemini-draft",
+      "/api/war/write-analyses",
+      "/api/war/publish-report"
+    ]) {
+      const response = await worker.fetch(new Request(`https://worker.test${path}`, {
+        method: "OPTIONS",
+        headers: {
+          Origin: "https://keryas777.github.io",
+          "Access-Control-Request-Method": "POST",
+          "Access-Control-Request-Headers": "content-type"
+        }
+      }), {
+        AI: { run: async (...args) => aiCalls.push(args) }
+      });
+
+      assert.equal(response.status, 204, path);
+      assert.equal(response.headers.get("Access-Control-Allow-Origin"), "https://keryas777.github.io", path);
+      assert.deepEqual(response.headers.get("Access-Control-Allow-Methods").split(/,\s*/), ["POST", "OPTIONS"], path);
+      assert.equal(response.headers.get("Access-Control-Allow-Headers"), "Content-Type", path);
+      assert.equal(response.headers.get("Vary"), "Origin", path);
+    }
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
+  assert.equal(aiCalls.length, 0);
+  assert.equal(networkCalls.length, 0);
+});
+
+test("un POST write-analyses conserve son comportement après un preflight valide", async () => {
+  const body = requestBody(1);
+  const preflight = await worker.fetch(new Request("https://worker.test/api/war/write-analyses", {
+    method: "OPTIONS",
+    headers: {
+      Origin: "https://keryas777.github.io",
+      "Access-Control-Request-Method": "POST",
+      "Access-Control-Request-Headers": "content-type"
+    }
+  }), {});
+  const { response, calls } = await callWorker(body, [workersAiResult(entriesFor(body))]);
+
+  assert.equal(preflight.status, 204);
+  assert.equal(response.status, 200);
+  assert.equal(calls.length, 1);
+  assert.deepEqual(await response.json(), { analyses: entriesFor(body) });
+});
+
 function promptBody(call) {
   return JSON.parse(call.messages[0].content.split("\n\n").at(-1));
 }
