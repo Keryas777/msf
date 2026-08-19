@@ -296,8 +296,8 @@
   function getCaptureActionMarkup(capture) {
     if (!capture.editableDraft && !capture.fragmentDraft) return "";
 
-    const disabled = session.running ? " disabled" : "";
-    const exclusionButton = `<button class="warAdminCaptureAction warAdminCaptureActionSecondary" type="button" data-action="toggle-excluded" data-capture-id="${capture.id}"${disabled}>${capture.excluded ? "Réintégrer" : "Exclure de la session"}</button>`;
+    const disabled = session.running && !capture.editableDraft ? " disabled" : "";
+    const exclusionButton = `<button class="warAdminCaptureAction warAdminCaptureActionSecondary" type="button" data-action="toggle-excluded" data-capture-id="${capture.id}"${session.running ? " disabled" : ""}>${capture.excluded ? "Réintégrer" : "Exclure de la session"}</button>`;
     if (!capture.editableDraft) {
       return `<div class="warAdminCaptureActions">${exclusionButton}</div>`;
     }
