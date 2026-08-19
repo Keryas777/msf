@@ -1,4 +1,4 @@
-const OPENCV_URL = "vendor/opencv/4.10.0/opencv.js";
+const OPENCV_URL = "vendor/opencv-akaze/4.10.0/opencv.js";
 const META_URL = "data/war-counter-vision/akaze-r5-reference-descriptors.json";
 const TOP_N = 10;
 
