@@ -43,7 +43,6 @@ jobs:
             --opencv_dir ./_opencv \
             --emscripten_dir "$EMSDK/upstream/emscripten" \
             --build_wasm \
-            --disable_single_file \
             --config "$GITHUB_WORKSPACE/scripts/opencv_js_akaze_minimal.config.py" \
             --cmake_option='-DBUILD_opencv_calib3d=OFF' \
             --cmake_option='-DBUILD_opencv_dnn=OFF' \
@@ -54,23 +53,27 @@ jobs:
             --cmake_option='-DBUILD_PERF_TESTS=OFF' \
             --cmake_option='-DBUILD_EXAMPLES=OFF'
 
-      - name: Persist minimal browser runtime and wire mobile lab
+      - name: Verify required JS bindings
+        run: |
+          set -euo pipefail
+          file='_opencv_build/bin/opencv.js'
+          test -s "$file"
+          grep -q 'AKAZE' "$file"
+          grep -q 'BFMatcher' "$file"
+          grep -q 'cvtColor' "$file"
+          grep -q 'resize' "$file"
+
+      - name: Persist minimal single-file runtime and wire mobile lab
         run: |
           set -euo pipefail
           target='docs/vendor/opencv-akaze/4.10.0'
           rm -rf "$target"
           mkdir -p "$target"
           cp _opencv_build/bin/opencv.js "$target/opencv.js"
-          wasm_file="$(find _opencv_build/bin -maxdepth 1 -type f -name '*.wasm' | head -n 1)"
-          test -n "$wasm_file"
-          wasm_name="$(basename "$wasm_file")"
-          cp "$wasm_file" "$target/$wasm_name"
 
           js_bytes=$(wc -c < "$target/opencv.js")
-          wasm_bytes=$(wc -c < "$target/$wasm_name")
-          echo "minimal opencv.js bytes=$js_bytes"
-          echo "minimal $wasm_name bytes=$wasm_bytes"
-          sha256sum "$target/opencv.js" "$target/$wasm_name" > "$target/SHA256SUMS"
+          echo "minimal single-file opencv.js bytes=$js_bytes"
+          sha256sum "$target/opencv.js" > "$target/SHA256SUMS"
 
           python - <<'PY'
           from pathlib import Path
@@ -85,8 +88,15 @@ jobs:
 
           html = Path('docs/war-counter-lab.html')
           html_text = html.read_text(encoding='utf-8')
-          html_text = html_text.replace('war-counter-akaze-mobile-benchmark.js?v=r5-akaze-worker-1', 'war-counter-akaze-mobile-benchmark.js?v=r5-akaze-minimal-1')
-          html_text = html_text.replace('war-counter-akaze-mobile-benchmark.js?v=r5-akaze-mobile-1', 'war-counter-akaze-mobile-benchmark.js?v=r5-akaze-minimal-1')
+          for previous in (
+              'war-counter-akaze-mobile-benchmark.js?v=r5-akaze-worker-1',
+              'war-counter-akaze-mobile-benchmark.js?v=r5-akaze-mobile-1',
+              'war-counter-akaze-mobile-benchmark.js?v=r5-akaze-minimal-1',
+          ):
+              html_text = html_text.replace(
+                  previous,
+                  'war-counter-akaze-mobile-benchmark.js?v=r5-akaze-minimal-single-1'
+              )
           html.write_text(html_text, encoding='utf-8')
           PY
 
@@ -96,6 +106,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Minimal OpenCV.js runtime unchanged"
           else
-            git commit -m "chore: vendor minimal AKAZE OpenCV.js runtime"
+            git commit -m "chore: vendor minimal single-file AKAZE OpenCV.js runtime"
             git push
           fi
