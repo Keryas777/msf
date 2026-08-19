@@ -100,6 +100,35 @@ test("24 analyses valides utilisent un seul appel et conservent le contrat", asy
   assertWorkersAiAnalysisResponseFormat(calls[0].response_format);
 });
 
+test("les traces de diagnostic n’exposent ni payload, ni prompt, ni secret", async () => {
+  const secret = "SECRET_TOKEN_NE_DOIT_PAS_ETRE_LOGGE";
+  const body = requestBody(1, { 1: secret });
+  const logs = [];
+  const originalLog = console.log;
+  const originalError = console.error;
+  console.log = (...values) => logs.push(values);
+  console.error = (...values) => logs.push(values);
+
+  try {
+    const { response, calls } = await callWorker(body, [workersAiResult(entriesFor(body))], {
+      API_TOKEN: secret
+    });
+    assert.equal(response.status, 200);
+    assert.equal(calls.length, 1);
+  } finally {
+    console.log = originalLog;
+    console.error = originalError;
+  }
+
+  const serializedLogs = JSON.stringify(logs);
+  assert.equal(serializedLogs.includes(secret), false);
+  assert.equal(serializedLogs.includes("messages"), false);
+  assert.equal(serializedLogs.includes("Authorization"), false);
+  assert.match(serializedLogs, /WAR_ANALYSIS_REQUEST_START/);
+  assert.match(serializedLogs, /WAR_ANALYSIS_AI_SUCCESS/);
+  assert.match(serializedLogs, /WAR_ANALYSIS_RESPONSE/);
+});
+
 test("23 valides et 1 manquante complètent uniquement le rang absent", async () => {
   const body = requestBody();
   const initialRanks = body.report.players.map(({ rank }) => rank).filter((rank) => rank !== 17);

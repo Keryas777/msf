@@ -1515,6 +1515,11 @@
       });
     } catch (error) {
       if (session.cancelled || error?.name === "AbortError") throw new SessionCancelledError();
+      addLog(
+        `Erreur réseau vers /api/war/write-analyses : nom=${error?.name || "inconnu"} ` +
+        `message=${error?.message || "inconnu"} online=${navigator.onLine}`,
+        capture
+      );
       throw error;
     } finally {
       if (session.abortController === controller) session.abortController = null;
@@ -1531,6 +1536,11 @@
     if (!response.ok) {
       capture.analysisError = data;
       updateTechnicalJson();
+      addLog(
+        `Réponse HTTP reçue de /api/war/write-analyses : status=${response.status} ` +
+        `code=${data?.code || "absent"}`,
+        capture
+      );
       const error = new Error(getErrorDetail(data) || `HTTP ${response.status}`);
       const retryAfterSeconds = Number(data?.retry_after_seconds);
       if (
