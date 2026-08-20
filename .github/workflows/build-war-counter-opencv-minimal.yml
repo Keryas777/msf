@@ -64,10 +64,60 @@ jobs:
             const loaded = require('/tmp/opencv-war-counter.cjs');
             const cv = loaded && typeof loaded.then === 'function' ? await loaded : loaded;
 
+            const interestingPattern = /(AKAZE|KAZE|Matcher|Feature2D|ORB)/i;
+            const runtimeKeys = Object.keys(cv || {}).sort();
+            const interestingKeys = runtimeKeys.filter((key) => interestingPattern.test(key));
+
+            console.log('OpenCV.js interesting top-level runtime keys:');
+            if (interestingKeys.length) {
+              for (const key of interestingKeys) {
+                const value = cv[key];
+                const staticKeys = value && (typeof value === 'function' || typeof value === 'object')
+                  ? Object.getOwnPropertyNames(value).sort()
+                  : [];
+                const prototypeKeys = value?.prototype
+                  ? Object.getOwnPropertyNames(value.prototype).sort()
+                  : [];
+                console.log(`- ${key}: type=${typeof value}`);
+                if (staticKeys.length) console.log(`  static=${staticKeys.join(', ')}`);
+                if (prototypeKeys.length) console.log(`  prototype=${prototypeKeys.join(', ')}`);
+              }
+            } else {
+              console.log('- none');
+            }
+
+            const factoryNames = [
+              'AKAZE_create',
+              'KAZE_create',
+              'ORB_create',
+              'BFMatcher_create',
+              'DescriptorMatcher_create',
+              'createAKAZE',
+              'createKAZE',
+              'createORB',
+              'createBFMatcher',
+              'createDescriptorMatcher'
+            ];
+            const topLevelFactories = Object.fromEntries(
+              factoryNames.map((name) => [name, typeof cv?.[name]])
+            );
+            console.log('OpenCV.js candidate top-level factories:', topLevelFactories);
+
+            const factoryLikeKeys = runtimeKeys.filter((key) =>
+              /(create|AKAZE|KAZE|ORB|Matcher)/i.test(key) && typeof cv[key] === 'function'
+            );
+            console.log('OpenCV.js factory-like function keys:', factoryLikeKeys);
+
             const checks = {
               Mat: typeof cv?.Mat === 'function',
-              AKAZE: Boolean(cv?.AKAZE && typeof cv.AKAZE.create === 'function'),
-              BFMatcher: Boolean(cv?.BFMatcher && typeof cv.BFMatcher.create === 'function'),
+              AKAZEClass: Boolean(cv?.AKAZE && typeof cv.AKAZE.create === 'function'),
+              BFMatcherClass: Boolean(cv?.BFMatcher && typeof cv.BFMatcher.create === 'function'),
+              AKAZETopLevelFactory: factoryNames
+                .filter((name) => /AKAZE/i.test(name))
+                .some((name) => typeof cv?.[name] === 'function'),
+              BFMatcherTopLevelFactory: factoryNames
+                .filter((name) => /BFMatcher/i.test(name))
+                .some((name) => typeof cv?.[name] === 'function'),
               cvtColor: typeof cv?.cvtColor === 'function',
               resize: typeof cv?.resize === 'function',
               KeyPointVector: typeof cv?.KeyPointVector === 'function',
@@ -75,9 +125,17 @@ jobs:
             };
 
             console.log('OpenCV.js runtime bindings:', checks);
-            const missing = Object.entries(checks)
-              .filter(([, ok]) => !ok)
-              .map(([name]) => name);
+
+            const akazeAvailable = checks.AKAZEClass || checks.AKAZETopLevelFactory;
+            const matcherAvailable = checks.BFMatcherClass || checks.BFMatcherTopLevelFactory;
+            const missing = [];
+            if (!checks.Mat) missing.push('Mat');
+            if (!akazeAvailable) missing.push('AKAZE');
+            if (!matcherAvailable) missing.push('BFMatcher');
+            if (!checks.cvtColor) missing.push('cvtColor');
+            if (!checks.resize) missing.push('resize');
+            if (!checks.KeyPointVector) missing.push('KeyPointVector');
+            if (!checks.DMatchVectorVector) missing.push('DMatchVectorVector');
 
             if (missing.length) {
               throw new Error(`Missing OpenCV.js runtime bindings: ${missing.join(', ')}`);
