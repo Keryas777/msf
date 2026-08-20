@@ -120,11 +120,11 @@ class ExplorerBuilderTests(unittest.TestCase):
                 "empoweredAbilities": 23,
                 "officialPresentations": 1468,
                 "effects": 302,
-                "mechanics": 324,
-                "operations": 10189,
-                "preservedActions": 3646,
+                "mechanics": 323,
+                "operations": 10498,
+                "preservedActions": 3337,
                 "spawns": 116,
-                "textMentions": 975,
+                "textMentions": 973,
                 "abilityPresentations": 1856,
                 "phases": 2492,
                 "assignedActions": 11026,
@@ -152,7 +152,7 @@ class ExplorerBuilderTests(unittest.TestCase):
                 "multiPhaseAbilities": 540,
                 "assignedActions": 11026,
                 "unassignedActions": 1301,
-                "assignedOperations": 9359,
+                "assignedOperations": 9649,
                 "textSegments": 9600,
                 "textSegmentsAlignedHigh": 3339,
                 "textSegmentsAlignedMedium": 4059,
@@ -262,15 +262,15 @@ class ExplorerBuilderTests(unittest.TestCase):
 
     def test_08_three_evidence_levels_remain_distinct_per_occurrence(self) -> None:
         ability_block = self.payload("mechanics/ability-block.json")
-        barrier = self.payload("mechanics/barrier.json")
+        preserved = self.payload("mechanics/action-attack-ally.json")
         trauma = self.payload("mechanics/locked-debuff.json")
         self.assertEqual(ability_block["globalEvidence"], "normalized")
-        self.assertEqual(barrier["globalEvidence"], "preserved_uninterpreted")
+        self.assertEqual(preserved["globalEvidence"], "preserved_uninterpreted")
         self.assertEqual(trauma["globalEvidence"], "normalized")
         self.assertTrue({"effect_apply", "effect_remove"} & {f["id"] for f in ability_block["facets"]})
         self.assertEqual(
-            {facet["id"] for facet in barrier["facets"]},
-            {"detected_add", "detected_remove"},
+            {facet["id"] for facet in preserved["facets"]},
+            {"detected"},
         )
         self.assertEqual({facet["id"] for facet in trauma["facets"]}, {"effect_apply", "effect_duration_modify", "mention"})
         dormammu = self.payload("characters/Dormammu.json")
@@ -371,7 +371,7 @@ class ExplorerBuilderTests(unittest.TestCase):
 
     def test_15_suggestions_only_target_existing_non_empty_facets(self) -> None:
         suggestions = self.payload("bootstrap.json")["suggestions"]
-        self.assertEqual(len(suggestions), 6)
+        self.assertEqual(len(suggestions), 5)
         for suggestion in suggestions:
             shard = self.payload(f"mechanics/{suggestion['id']}.json")
             self.assertIn(suggestion["operation"], {facet["id"] for facet in shard["facets"]})
@@ -760,15 +760,13 @@ class ExplorerBuilderTests(unittest.TestCase):
         self.assertIn('"sourceType": "barrier_remove"', serialized)
         locked = next(
             operation for operation in ares_special["operations"]
-            if operation.get("effect", {}).get("sourceName") == "LockedDebuff"
+            if (operation.get("effect") or {}).get("sourceName") == "LockedDebuff"
         )
         self.assertEqual(locked["effect"]["mechanicId"], "locked-debuff")
         self.assertNotEqual(locked["effect"]["mechanicId"], "trauma")
 
         vulture = self.ability("Vulture", "ultimate")["presentation"]
         self.assertTrue(any(occurrence["sourceType"] == "turn_meter" for occurrence in vulture["occurrences"].values()))
-        iron_fist = self.ability("IronFistOrson", "basic")["presentation"]
-        self.assertTrue(any(occurrence["sourceType"] == "barrier" for occurrence in iron_fist["occurrences"].values()))
         return
         self.assertTrue(any(
             step["sourceType"] == "turn_meter" and step["technicalReference"] == "abilityActions"

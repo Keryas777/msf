@@ -77,6 +77,16 @@ HEAL_METRIC_FIELDS = (
     ("sourceMaxHealthPct", "heal_pct"),
 )
 
+BARRIER_APPLY_METRIC_FIELDS = (
+    ("chancePct", "action_pct"),
+    ("barrierHealthPct", "health_pct"),
+)
+
+BARRIER_REMOVE_METRIC_FIELDS = (
+    ("chancePct", "action_pct"),
+    ("barrierRemovePct", "amnt"),
+)
+
 METRIC_FIELDS = (
     ("chancePct", "action_pct"),
     ("applyCount", "apply_count"),
@@ -1312,6 +1322,7 @@ class OperationBuilder:
         scope: dict[str, Any] | None = None,
         extra_conditions: list[dict[str, Any]] | None = None,
         metric_fields: tuple[tuple[str, str], ...] = METRIC_FIELDS,
+        semantic: dict[str, Any] | None = None,
     ) -> None:
         source = action.get("source")
         if not isinstance(source, dict):
@@ -1394,6 +1405,8 @@ class OperationBuilder:
             "rawParameters": copy.deepcopy(parameters),
             "rawEffectEntry": copy.deepcopy(entry),
         }
+        if semantic is not None:
+            operation["semantic"] = copy.deepcopy(semantic)
         self.operations.append(operation)
 
     def _build_effect_action(
@@ -1534,6 +1547,47 @@ class OperationBuilder:
             ordinal=0,
             scope={"kind": "action_target"},
             metric_fields=HEAL_METRIC_FIELDS,
+        )
+
+    def _build_barrier_action(
+        self,
+        action: dict[str, Any],
+        canonical_action_type: str,
+    ) -> None:
+        source = action.get("source")
+        if not isinstance(source, dict):
+            source = {}
+        action_pointer = str(source.get("pointer", ""))
+        parameters = action.get("parameters")
+        if not isinstance(parameters, dict):
+            parameters = {}
+        is_remove = canonical_action_type == "barrier_remove"
+        semantic = (
+            {"fullRemoval": True, "amountImplicit": True}
+            if is_remove and "amnt" not in parameters
+            else (
+                {"amountImplicit": False}
+                if is_remove
+                else {"healthBasis": "unresolved"}
+            )
+        )
+        self._build_operation(
+            action,
+            kind=("barrier_remove" if is_remove else "barrier_apply"),
+            canonical_action_type=canonical_action_type,
+            source_field=None,
+            effect_id=None,
+            effect_pointer=action_pointer,
+            entry_pointer=action_pointer,
+            entry=None,
+            ordinal=0,
+            scope={"kind": "action_target"},
+            metric_fields=(
+                BARRIER_REMOVE_METRIC_FIELDS
+                if is_remove
+                else BARRIER_APPLY_METRIC_FIELDS
+            ),
+            semantic=semantic,
         )
 
     def _build_battlefield_action(
@@ -1719,6 +1773,8 @@ class OperationBuilder:
                 self._build_turn_meter_action(action)
             elif canonical_action_type == "heal":
                 self._build_heal_action(action)
+            elif canonical_action_type in {"barrier", "barrier_remove"}:
+                self._build_barrier_action(action, canonical_action_type)
             elif canonical_action_type in {
                 "set_battlefield_effect",
                 "clear_battlefield_effect",

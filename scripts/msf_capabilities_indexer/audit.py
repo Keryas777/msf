@@ -9,7 +9,7 @@ from .diagnostics import IndexerAuditError, IndexerInputError
 
 
 SNAPSHOT_CAPABILITIES_CHECKSUM = (
-    "64dae5978546fc0b50a59b18cebd6511741ff564c2d26285a05090c53a9457f6"
+    "ed5fa680ffffe8a885e90d24c47a89d22444a0aaf5fa8985f54de8e4328360e4"
 )
 
 KNOWN_OPERATION_KINDS = frozenset(
@@ -22,6 +22,8 @@ KNOWN_OPERATION_KINDS = frozenset(
         "ability_energy_generate",
         "turn_meter_modify",
         "heal_restore",
+        "barrier_apply",
+        "barrier_remove",
         "battlefield_effect_set",
         "battlefield_effect_clear",
         "spawn",
@@ -44,6 +46,8 @@ SNAPSHOT_OPERATION_KINDS = {
     "ability_energy_generate": 283,
     "turn_meter_modify": 540,
     "heal_restore": 502,
+    "barrier_apply": 190,
+    "barrier_remove": 119,
     "battlefield_effect_clear": 21,
     "battlefield_effect_set": 17,
     "effect_apply": 5116,
@@ -61,9 +65,9 @@ SNAPSHOT_COUNTS = {
     "abilityCount": 1844,
     "contextCount": 3930,
     "actionMappingCount": 12327,
-    "operationCount": 10189,
+    "operationCount": 10498,
     "effectCatalogCount": 302,
-    "preservedUninterpretedActionCount": 3646,
+    "preservedUninterpretedActionCount": 3337,
     "spawnOperationCount": 116,
     "spawnPoolEffectOperationCount": 39,
     "spawnWithPoolEffectCount": 9,
