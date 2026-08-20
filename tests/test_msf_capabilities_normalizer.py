@@ -111,7 +111,7 @@ class MsfCapabilitiesNormalizerTests(unittest.TestCase):
         self.assertEqual(len(capabilities["characters"]), 3)
         self.assertEqual(len(capabilities["abilities"]), 9)
         self.assertEqual(len(capabilities["effects"]), 6)
-        self.assertEqual(len(capabilities["operations"]), 9)
+        self.assertEqual(len(capabilities["operations"]), 10)
         self.assertEqual(len(capabilities["actionMappings"]), 14)
         self.assertEqual(
             capabilities["effectIdAliasPolicy"],
@@ -1080,13 +1080,40 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
         )
         self.assertEqual(
             self.capabilities["audit"]["mappedActionCount"],
-            8681,
+            8990,
         )
         self.assertEqual(
             self.capabilities["audit"][
                 "preservedUninterpretedActionCount"
             ],
-            3646,
+            3337,
+        )
+        barrier_operations = [
+            operation
+            for operation in self.capabilities["operations"]
+            if operation["kind"] in {"barrier_apply", "barrier_remove"}
+        ]
+        self.assertEqual(len(barrier_operations), 309)
+        self.assertEqual(
+            sum(
+                item["kind"] == "barrier_apply"
+                for item in barrier_operations
+            ),
+            190,
+        )
+        removals = [
+            item
+            for item in barrier_operations
+            if item["kind"] == "barrier_remove"
+        ]
+        self.assertEqual(len(removals), 119)
+        self.assertEqual(
+            sum(
+                item["metrics"]["barrierRemovalPct"]["sourceShape"]
+                == "implicit"
+                for item in removals
+            ),
+            27,
         )
 
     def test_real_hulk_annihilus_and_kraven_warnings_remain_exact(self):
