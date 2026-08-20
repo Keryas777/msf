@@ -77,6 +77,16 @@ HEAL_METRIC_FIELDS = (
     ("sourceMaxHealthPct", "heal_pct"),
 )
 
+BARRIER_APPLY_METRIC_FIELDS = (
+    ("chancePct", "action_pct"),
+    ("sourceMaxHealthPct", "health_pct"),
+)
+
+BARRIER_REMOVE_METRIC_FIELDS = (
+    ("chancePct", "action_pct"),
+    ("barrierRemovalPct", "amnt"),
+)
+
 METRIC_FIELDS = (
     ("chancePct", "action_pct"),
     ("applyCount", "apply_count"),
@@ -1312,6 +1322,7 @@ class OperationBuilder:
         scope: dict[str, Any] | None = None,
         extra_conditions: list[dict[str, Any]] | None = None,
         metric_fields: tuple[tuple[str, str], ...] = METRIC_FIELDS,
+        implicit_metrics: dict[str, dict[str, Any]] | None = None,
     ) -> None:
         source = action.get("source")
         if not isinstance(source, dict):
@@ -1347,6 +1358,14 @@ class OperationBuilder:
         )
         target_present = bool(action.get("targetPresent"))
         recipient_present = "recipient" in parameters
+        metrics = self._metrics(
+            action,
+            entry=entry_object,
+            entry_pointer=entry_pointer,
+            metric_fields=metric_fields,
+        )
+        if implicit_metrics:
+            metrics.update(copy.deepcopy(implicit_metrics))
         operation = {
             "id": operation_id,
             "kind": kind,
@@ -1375,12 +1394,7 @@ class OperationBuilder:
             },
             "conditions": conditions,
             "control": self._control(action),
-            "metrics": self._metrics(
-                action,
-                entry=entry_object,
-                entry_pointer=entry_pointer,
-                metric_fields=metric_fields,
-            ),
+            "metrics": metrics,
             "flags": self._flags(
                 action,
                 entry=entry_object,
@@ -1395,6 +1409,52 @@ class OperationBuilder:
             "rawEffectEntry": copy.deepcopy(entry),
         }
         self.operations.append(operation)
+
+    def _build_barrier_action(
+        self,
+        action: dict[str, Any],
+        canonical_action_type: str,
+    ) -> None:
+        source_action_id = action.get("id")
+        if isinstance(source_action_id, str):
+            self.supported_action_ids.add(source_action_id)
+        source = action.get("source")
+        if not isinstance(source, dict):
+            source = {}
+        action_pointer = str(source.get("pointer", ""))
+        parameters = action.get("parameters")
+        if not isinstance(parameters, dict):
+            parameters = {}
+        is_removal = canonical_action_type == "barrier_remove"
+        implicit_metrics = None
+        if is_removal and "amnt" not in parameters:
+            implicit_metrics = {
+                "barrierRemovalPct": {
+                    "sourceField": "amnt",
+                    "sourcePointer": _append_pointer(action_pointer, "amnt"),
+                    "sourceShape": "implicit",
+                    "values": [100],
+                    "maxLevelValue": 100,
+                }
+            }
+        self._build_operation(
+            action,
+            kind="barrier_remove" if is_removal else "barrier_apply",
+            canonical_action_type=canonical_action_type,
+            source_field=None,
+            effect_id=None,
+            effect_pointer=action_pointer,
+            entry_pointer=action_pointer,
+            entry=None,
+            ordinal=0,
+            scope={"kind": "action_target"},
+            metric_fields=(
+                BARRIER_REMOVE_METRIC_FIELDS
+                if is_removal
+                else BARRIER_APPLY_METRIC_FIELDS
+            ),
+            implicit_metrics=implicit_metrics,
+        )
 
     def _build_effect_action(
         self,
@@ -1719,6 +1779,8 @@ class OperationBuilder:
                 self._build_turn_meter_action(action)
             elif canonical_action_type == "heal":
                 self._build_heal_action(action)
+            elif canonical_action_type in {"barrier", "barrier_remove"}:
+                self._build_barrier_action(action, canonical_action_type)
             elif canonical_action_type in {
                 "set_battlefield_effect",
                 "clear_battlefield_effect",
