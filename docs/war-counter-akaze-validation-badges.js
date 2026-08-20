@@ -6,6 +6,8 @@ const summaryNode = document.querySelector("#akazeValidationSummary");
 
 let selected = [];
 let historySummary = null;
+let selectionVersion = 0;
+let annotateScheduled = false;
 
 function readTruthStore() {
   try {
@@ -22,8 +24,8 @@ async function fingerprint(file) {
   return [...new Uint8Array(hash)].map((value) => value.toString(16).padStart(2, "0")).join("");
 }
 
-function savedCount(hash) {
-  const slots = readTruthStore()[hash]?.slots;
+function savedCount(store, hash) {
+  const slots = store[hash]?.slots;
   if (!slots || typeof slots !== "object") return 0;
   return Object.values(slots).filter((slot) => slot?.characterId).length;
 }
@@ -42,18 +44,24 @@ function ensureHistorySummary() {
   summaryNode.insertAdjacentElement("afterend", historySummary);
 }
 
+function setTextIfChanged(node, text) {
+  if (node && node.textContent !== text) node.textContent = text;
+}
+
 function annotate() {
+  annotateScheduled = false;
   ensureHistorySummary();
   if (!selected.length) {
-    if (historySummary) historySummary.textContent = "";
+    setTextIfChanged(historySummary, "");
     return;
   }
 
+  const store = readTruthStore();
   const sections = [...resultsNode.querySelectorAll(".validation-capture")];
   const counts = { validated: 0, partial: 0, fresh: 0 };
 
   selected.forEach((entry, index) => {
-    const count = savedCount(entry.hash);
+    const count = savedCount(store, entry.hash);
     if (count >= 10) counts.validated += 1;
     else if (count > 0) counts.partial += 1;
     else counts.fresh += 1;
@@ -71,29 +79,46 @@ function annotate() {
       if (title) title.insertAdjacentElement("afterend", badge);
       else header.prepend(badge);
     }
-    badge.textContent = stateLabel(count);
+    setTextIfChanged(badge, stateLabel(count));
   });
 
-  if (historySummary) {
-    historySummary.textContent = `Historique local : ${counts.validated} déjà validée(s) · ${counts.partial} partiellement connue(s) · ${counts.fresh} nouvelle(s).`;
-  }
+  setTextIfChanged(
+    historySummary,
+    `Historique local : ${counts.validated} déjà validée(s) · ${counts.partial} partiellement connue(s) · ${counts.fresh} nouvelle(s).`
+  );
+}
+
+function scheduleAnnotate() {
+  if (annotateScheduled) return;
+  annotateScheduled = true;
+  requestAnimationFrame(annotate);
 }
 
 async function refreshSelection() {
+  const version = ++selectionVersion;
   const files = [...(input?.files || [])];
-  selected = await Promise.all(files.map(async (file) => ({
-    name: file.name,
-    hash: await fingerprint(file)
-  })));
-  annotate();
+  const next = [];
+
+  for (const file of files) {
+    const hash = await fingerprint(file);
+    if (version !== selectionVersion) return;
+    next.push({ name: file.name, hash });
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+  }
+
+  if (version !== selectionVersion) return;
+  selected = next;
+  scheduleAnnotate();
 }
 
 input?.addEventListener("change", () => {
   refreshSelection().catch((error) => console.warn("Impossible de classer les captures du benchmark.", error));
 });
 
-resultsNode && new MutationObserver(() => annotate()).observe(resultsNode, { childList: true, subtree: true });
+if (resultsNode) {
+  new MutationObserver(() => scheduleAnnotate()).observe(resultsNode, { childList: true, subtree: true });
+}
 
 window.addEventListener("storage", (event) => {
-  if (event.key === STORAGE_KEY) annotate();
+  if (event.key === STORAGE_KEY) scheduleAnnotate();
 });
