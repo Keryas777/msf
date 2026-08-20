@@ -1,4 +1,4 @@
-const OPENCV_URL = "vendor/opencv/4.10.0/opencv.js";
+const OPENCV_URL = "vendor/opencv-akaze/4.10.0/opencv.js";
 const META_URL = "data/war-counter-vision/akaze-r5-reference-descriptors.json";
 const TOP_N = 10;
 
@@ -40,6 +40,42 @@ async function resolveCv() {
   }
 
   return { instance: candidate, loadMs: now() - started };
+}
+
+function createAkazeDetector() {
+  const attempts = [
+    () => (typeof cv?.AKAZE?.create === "function" ? cv.AKAZE.create() : null),
+    () => (typeof cv?.AKAZE === "function" ? new cv.AKAZE() : null),
+    () => (typeof cv?.AKAZE === "function" ? cv.AKAZE() : null)
+  ];
+
+  for (const attempt of attempts) {
+    try {
+      const instance = attempt();
+      if (instance && typeof instance.detectAndCompute === "function") return instance;
+    } catch (_) {
+      // Try the next binding shape.
+    }
+  }
+  throw new Error("Impossible de créer le détecteur AKAZE avec cette build OpenCV.js.");
+}
+
+function createHammingMatcher() {
+  const attempts = [
+    () => (typeof cv?.BFMatcher?.create === "function" ? cv.BFMatcher.create(cv.NORM_HAMMING, false) : null),
+    () => (typeof cv?.BFMatcher === "function" ? new cv.BFMatcher(cv.NORM_HAMMING, false) : null),
+    () => (typeof cv?.BFMatcher === "function" ? cv.BFMatcher(cv.NORM_HAMMING, false) : null)
+  ];
+
+  for (const attempt of attempts) {
+    try {
+      const instance = attempt();
+      if (instance && typeof instance.knnMatch === "function") return instance;
+    } catch (_) {
+      // Try the next binding shape.
+    }
+  }
+  throw new Error("Impossible de créer le matcher BFMatcher avec cette build OpenCV.js.");
 }
 
 function ownerMapFromOffsets(offsets, descriptorCount) {
@@ -152,9 +188,9 @@ async function initialize() {
   const { instance, loadMs } = await resolveCv();
   cv = instance;
   refs = await loadReferences();
-  detector = cv.AKAZE.create();
-  detector.setThreshold(refs.meta.threshold);
-  matcher = cv.BFMatcher.create(cv.NORM_HAMMING, false);
+  detector = createAkazeDetector();
+  if (typeof detector.setThreshold === "function") detector.setThreshold(refs.meta.threshold);
+  matcher = createHammingMatcher();
 
   return {
     openCvLoadMs: loadMs,
