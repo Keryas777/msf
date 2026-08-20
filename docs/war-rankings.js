@@ -128,7 +128,7 @@
 
     avg_score_gap: {
       title: "⚖️ Écart avec la note moyenne de l'alliance",
-      hint: "Écart moyen entre le score du joueur et le score moyen de son alliance sur la période affichée.",
+      hint: "Écart moyen entre la note du joueur et la note moyenne de son alliance sur la période affichée.",
       field: "avg_score_gap",
       order: "desc",
       className: (p) => classFromBands(p.avg_score_gap, CHART_BANDS.scoreGap),
