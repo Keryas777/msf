@@ -58,9 +58,10 @@ jobs:
           set -euo pipefail
           file='_opencv_build/bin/opencv.js'
           test -s "$file"
+          cp "$file" /tmp/opencv-war-counter.cjs
           node <<'NODE'
           (async () => {
-            const loaded = require('./_opencv_build/bin/opencv.js');
+            const loaded = require('/tmp/opencv-war-counter.cjs');
             const cv = loaded && typeof loaded.then === 'function' ? await loaded : loaded;
 
             const checks = {
@@ -117,10 +118,11 @@ jobs:
               'war-counter-akaze-mobile-benchmark.js?v=r5-akaze-mobile-1',
               'war-counter-akaze-mobile-benchmark.js?v=r5-akaze-minimal-1',
               'war-counter-akaze-mobile-benchmark.js?v=r5-akaze-minimal-single-1',
+              'war-counter-akaze-mobile-benchmark.js?v=r5-akaze-minimal-single-2',
           ):
               html_text = html_text.replace(
                   previous,
-                  'war-counter-akaze-mobile-benchmark.js?v=r5-akaze-minimal-single-2'
+                  'war-counter-akaze-mobile-benchmark.js?v=r5-akaze-minimal-single-3'
               )
           html.write_text(html_text, encoding='utf-8')
           PY
