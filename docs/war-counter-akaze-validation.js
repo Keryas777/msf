@@ -288,6 +288,8 @@ async function analyzeFile(file, fileIndex, fileCount) {
   const saved = store[hash]?.slots || {};
   const started = performance.now();
   const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+  const width = bitmap.width;
+  const height = bitmap.height;
   const rows = [];
 
   try {
@@ -319,8 +321,8 @@ async function analyzeFile(file, fileIndex, fileCount) {
   return {
     hash,
     fileName: file.name,
-    width: bitmap.width || 0,
-    height: bitmap.height || 0,
+    width,
+    height,
     totalMs: performance.now() - started,
     rows
   };
