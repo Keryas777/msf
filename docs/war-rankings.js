@@ -13,6 +13,7 @@
   const $rankingHint = document.getElementById("rankingHint");
   const $rangeButtons = Array.from(document.querySelectorAll(".rangeChip[data-range]"));
   const $filters = document.querySelector(".filters");
+  const $showFormerPlayers = document.getElementById("showFormerPlayers");
   const tabs = Array.from(document.querySelectorAll(".rankingTab"));
 
   const FALLBACK_ALLIANCES = Object.freeze([
@@ -34,6 +35,7 @@
     !$rankingHint ||
     !$rangeButtons.length ||
     !$filters ||
+    !$showFormerPlayers ||
     !tabs.length
   ) {
     console.error("[war-rankings] Missing DOM elements. Check war-rankings.html ids.");
@@ -126,7 +128,7 @@
 
     avg_score_gap: {
       title: "⚖️ Écart avec la note moyenne de l'alliance",
-      hint: "Écart moyen entre la note du joueur et la note moyenne de son alliance sur la période affichée.",
+      hint: "Écart moyen entre le score du joueur et le score moyen de son alliance sur la période affichée.",
       field: "avg_score_gap",
       order: "desc",
       className: (p) => classFromBands(p.avg_score_gap, CHART_BANDS.scoreGap),
@@ -695,10 +697,11 @@
     `;
   }
 
-  function makeEmptyGroup(alliance, name) {
+  function makeEmptyGroup(alliance, name, isCurrent) {
     return {
       alliance,
       name,
+      is_current: isCurrent,
 
       wars_played: 0,
 
@@ -748,12 +751,12 @@
       war.players.forEach((rawPlayer) => {
         const name = canonicalPlayerName(rawPlayer?.name || rawPlayer?.player || "");
         const key = statKey(alliance, name);
+        const isCurrent = isCurrentPlayerInAlliance(name, alliance);
 
         if (!key || !name) return;
-        if (!isCurrentPlayerInAlliance(name, alliance)) return;
 
         if (!groups.has(key)) {
-          groups.set(key, makeEmptyGroup(alliance, name));
+          groups.set(key, makeEmptyGroup(alliance, name, isCurrent));
         }
 
         const g = groups.get(key);
@@ -911,9 +914,10 @@
         const alliance = allianceLabel(key);
         const nameSafe = esc(p.name);
         const valueClass = cleanClassName(config.className ? config.className(p) : "");
+        const formerClass = p.is_current ? "" : " isFormer";
 
         return `
-          <div class="rankRow">
+          <div class="rankRow${formerClass}">
             <div class="rankLeft">
               <div class="rankNum">${i + 1}</div>
               ${renderAvatar(p)}
@@ -948,6 +952,7 @@
       const key = normAlliance(p.alliance);
 
       if (!enabled(key)) return false;
+      if (!$showFormerPlayers.checked && !p.is_current) return false;
 
       if (
         (currentRanking === "success_rate" || currentRanking === "avg_misses") &&
@@ -981,6 +986,8 @@
     Object.values(filters).forEach((cb) => {
       cb?.addEventListener("change", apply);
     });
+
+    $showFormerPlayers.addEventListener("change", apply);
 
     $rangeButtons.forEach((button) => {
       button.addEventListener("click", () => {
