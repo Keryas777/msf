@@ -12,7 +12,7 @@
     <header>
       <p class="eyebrow">Laboratoire privé</p>
       <h1>MSF War Counter Vision</h1>
-      <p>Phase R5 — diagnostic du préfiltre, export benchmark et test AKAZE mobile réel.</p>
+      <p>Phase R6 — segmentation, recalage horizontal et validation AKAZE mobile réelle.</p>
     </header>
 
     <section class="panel">
@@ -53,7 +53,7 @@
 
     <section class="panel">
       <h2>Validation AKAZE multi-captures</h2>
-      <p>Charge plusieurs captures réelles pour mesurer Top 1/3/5/10, rang moyen et différence entre portraits barrés et non barrés. Les vérités terrain confirmées sont mémorisées localement sur ce téléphone.</p>
+      <p>Charge plusieurs captures réelles pour mesurer Top 1/3/5/10, rang moyen et différence entre portraits barrés et non barrés. R6 recale automatiquement les captures qui contiennent un padding horizontal avant de fabriquer les 10 crops.</p>
       <label class="upload-button" for="akazeValidationInput">Choisir plusieurs captures</label>
       <input id="akazeValidationInput" type="file" accept="image/jpeg,image/png,image/webp" multiple>
       <button id="runAkazeValidation" type="button" disabled>Lancer le benchmark multi-captures</button>
@@ -81,7 +81,7 @@
   <script type="module" src="war-counter-diagnostic.js?v=r5-akaze-mobile-1"></script>
   <script type="module" src="war-counter-benchmark-export.js?v=r5-akaze-mobile-1"></script>
   <script type="module" src="war-counter-akaze-mobile-benchmark.js?v=r5-akaze-minimal-single-4"></script>
-  <script type="module" src="war-counter-akaze-validation.js?v=r5-akaze-validation-2"></script>
+  <script type="module" src="war-counter-akaze-validation.js?v=r6-segmentation-realign-1"></script>
   <script type="module" src="war-counter-akaze-validation-badges.js?v=r5-akaze-validation-badges-2"></script>
 </body>
 </html>
