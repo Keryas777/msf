@@ -148,10 +148,13 @@
 
   function buildBaseMetrics(player, totalDamage) {
     const noAttack = player.attacks <= 0 || player.attack_points <= 0;
+    const normalizedAttackPoints = noAttack
+      ? 0
+      : Math.ceil(player.attack_points / 200) * 200;
 
     const successfulAttacks = noAttack
       ? 0
-      : Math.floor(player.attack_points / 1000);
+      : Math.floor(normalizedAttackPoints / 1000);
 
     const misses = noAttack
       ? 0
