@@ -115,6 +115,129 @@ function workerCall(type, payload = null, transfer = [], timeoutMs = 90000) {
   });
 }
 
+function isOutlinePixel(red, green, blue) {
+  const cyan = green > 75 && blue > 95 && blue > red * 1.15 && green > red * 0.85;
+  const redOutline = red > 135 && red > green * 1.45 && red > blue * 1.12;
+  return cyan || redOutline;
+}
+
+function detectHorizontalContentBounds(image) {
+  const canvas = document.createElement("canvas");
+  canvas.width = image.width;
+  canvas.height = image.height;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  context.drawImage(image, 0, 0);
+
+  const yStart = Math.max(0, Math.floor(image.height * 0.47));
+  const yEnd = Math.min(image.height, Math.ceil(image.height * 0.93));
+  const scanHeight = Math.max(1, yEnd - yStart);
+  const imageData = context.getImageData(0, yStart, image.width, scanHeight);
+  const counts = new Uint16Array(image.width);
+
+  for (let y = 0; y < scanHeight; y += 1) {
+    for (let x = 0; x < image.width; x += 1) {
+      const offset = (y * image.width + x) * 4;
+      if (isOutlinePixel(imageData.data[offset], imageData.data[offset + 1], imageData.data[offset + 2])) {
+        counts[x] += 1;
+      }
+    }
+  }
+
+  const threshold = Math.max(8, Math.round(scanHeight * 0.075));
+  const strongColumns = [];
+  for (let x = 0; x < counts.length; x += 1) {
+    if (counts[x] >= threshold) strongColumns.push(x);
+  }
+
+  if (strongColumns.length < 2) {
+    return { used: false, left: 0, right: image.width, scale: 1, reason: "contours insuffisants" };
+  }
+
+  const groups = [];
+  let start = strongColumns[0];
+  let previous = strongColumns[0];
+  for (let index = 1; index < strongColumns.length; index += 1) {
+    const value = strongColumns[index];
+    if (value !== previous + 1) {
+      groups.push({ start, end: previous });
+      start = value;
+    }
+    previous = value;
+  }
+  groups.push({ start, end: previous });
+
+  // Safari screenshots can include a thin scroll indicator near the far right.
+  // Ignore an isolated, very narrow tail separated from the actual war panel.
+  while (groups.length > 2) {
+    const tail = groups[groups.length - 1];
+    const before = groups[groups.length - 2];
+    const gap = tail.start - before.end - 1;
+    const tailWidth = tail.end - tail.start + 1;
+    if (gap > image.width * 0.035 && tailWidth < image.width * 0.02) groups.pop();
+    else break;
+  }
+
+  const left = groups[0].start;
+  const right = groups[groups.length - 1].end;
+  const contentWidth = right - left + 1;
+  const widthRatio = contentWidth / image.width;
+  const leftRatio = left / image.width;
+  const rightMarginRatio = (image.width - 1 - right) / image.width;
+
+  const plausible =
+    widthRatio >= 0.72 &&
+    widthRatio <= 1.01 &&
+    leftRatio <= 0.14 &&
+    rightMarginRatio <= 0.22;
+
+  if (!plausible) {
+    return { used: false, left: 0, right: image.width, scale: 1, reason: "contours non plausibles" };
+  }
+
+  // Ne recale que lorsqu'il existe un vrai padding/cadrage horizontal.
+  // Les captures plein écran historiques conservent donc exactement la grille R5.
+  const needsRealignment =
+    widthRatio < 0.96 ||
+    Math.abs(leftRatio - rightMarginRatio) > 0.055;
+
+  if (!needsRealignment) {
+    return {
+      used: false,
+      left: 0,
+      right: image.width,
+      scale: 1,
+      detectedLeft: left,
+      detectedRight: right,
+      detectedWidthRatio: widthRatio,
+      reason: "capture déjà alignée"
+    };
+  }
+
+  return {
+    used: true,
+    left,
+    right: right + 1,
+    scale: widthRatio,
+    detectedLeft: left,
+    detectedRight: right,
+    detectedWidthRatio: widthRatio,
+    reason: "recalage horizontal automatique"
+  };
+}
+
+function slotsForBounds(bounds, imageWidth) {
+  const baseSlots = getLayoutSlots();
+  if (!bounds?.used) return baseSlots;
+
+  const leftRatio = bounds.left / imageWidth;
+  const widthRatio = (bounds.right - bounds.left) / imageWidth;
+  return baseSlots.map((slot) => Object.freeze({
+    ...slot,
+    x: leftRatio + slot.x * widthRatio,
+    width: slot.width * widthRatio
+  }));
+}
+
 function cropBase(image, slot) {
   const variant = getCropVariants(slot).wide;
   const rect = calculatePixelRect(variant, image.width, image.height);
@@ -124,6 +247,16 @@ function cropBase(image, slot) {
   const context = canvas.getContext("2d", { willReadFrequently: true });
   context.drawImage(image, rect.x, rect.y, rect.width, rect.height, 0, 0, canvas.width, canvas.height);
   return canvas;
+}
+
+function thumbnailDataUrl(crop) {
+  const width = 86;
+  const height = 86;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  canvas.getContext("2d").drawImage(crop, 0, 0, width, height);
+  return canvas.toDataURL("image/jpeg", 0.58);
 }
 
 function characterName(id) {
@@ -180,7 +313,8 @@ function updateSummary() {
   const totalMs = runs.reduce((sum, run) => sum + run.totalMs, 0);
   const computeMs = runs.reduce((sum, run) => sum + run.rows.reduce((slotSum, row) => slotSum + row.extractMs + row.matchMs, 0), 0);
   const meanRank = metrics.evaluated ? (metrics.rankSum / metrics.evaluated).toFixed(2) : "—";
-  summaryNode.textContent = `${runs.length} capture(s) · ${totalSlots} slots analysés · ${metrics.evaluated} vérité(s) confirmée(s) · Top 1 ${pct(metrics.top1, metrics.evaluated)} · Top 3 ${pct(metrics.top3, metrics.evaluated)} · Top 5 ${pct(metrics.top5, metrics.evaluated)} · Top 10 ${pct(metrics.top10, metrics.evaluated)} · rang moyen ${meanRank} · calcul ${ms(computeMs)} · total ${ms(totalMs)}`;
+  const realigned = runs.filter((run) => run.alignment?.used).length;
+  summaryNode.textContent = `${runs.length} capture(s) · ${totalSlots} slots analysés · ${metrics.evaluated} vérité(s) confirmée(s) · Top 1 ${pct(metrics.top1, metrics.evaluated)} · Top 3 ${pct(metrics.top3, metrics.evaluated)} · Top 5 ${pct(metrics.top5, metrics.evaluated)} · Top 10 ${pct(metrics.top10, metrics.evaluated)} · rang moyen ${meanRank} · recalage horizontal ${realigned}/${runs.length} · calcul ${ms(computeMs)} · total ${ms(totalMs)}`;
 
   if (metrics.evaluated) {
     statusNode.textContent = `Barrés : Top 1 ${pct(metrics.barred.top1, metrics.barred.evaluated)} · Top 5 ${pct(metrics.barred.top5, metrics.barred.evaluated)} — Non barrés : Top 1 ${pct(metrics.unbarred.top1, metrics.unbarred.evaluated)} · Top 5 ${pct(metrics.unbarred.top5, metrics.unbarred.evaluated)}.`;
@@ -207,6 +341,7 @@ function renderRow(run, row) {
 
   article.innerHTML = `
     <div class="slot-head"><strong>${row.label}</strong><span>${row.slot}</span></div>
+    ${row.previewUrl ? `<img src="${row.previewUrl}" alt="Crop ${row.label}" width="86" height="86" style="border-radius:12px;object-fit:cover;display:block;margin:.4rem 0">` : ""}
     <div class="selected">${characterName(row.candidates[0]?.id)}</div>
     <small>${row.barred ? "Croix rouge détectée" : "Non barré"} · ${rankText}</small>
     <small>${top5}</small>
@@ -246,12 +381,20 @@ function renderRow(run, row) {
   return article;
 }
 
+function alignmentLabel(run) {
+  const alignment = run.alignment;
+  if (!alignment?.used) return "Grille R5 standard";
+  const width = Math.max(1, alignment.right - alignment.left);
+  const ratio = (width * 100 / run.width).toFixed(1);
+  return `🔧 Recalage horizontal auto : x=${alignment.left}…${alignment.right - 1} (${ratio} % de la largeur)`;
+}
+
 function renderRun(run) {
   const section = document.createElement("section");
   section.className = "validation-capture";
   const header = document.createElement("div");
   header.className = "validation-capture-head";
-  header.innerHTML = `<h3>${run.fileName}</h3><p>${run.width} × ${run.height} · ${ms(run.totalMs)}</p>`;
+  header.innerHTML = `<h3>${run.fileName}</h3><p>${alignmentLabel(run)}</p><p>${run.width} × ${run.height} · ${ms(run.totalMs)}</p>`;
 
   const confirmAll = document.createElement("button");
   confirmAll.type = "button";
@@ -293,14 +436,16 @@ async function analyzeFile(file, fileIndex, fileCount) {
   const rows = [];
 
   try {
-    const slots = getLayoutSlots();
+    const alignment = detectHorizontalContentBounds(bitmap);
+    const slots = slotsForBounds(alignment, width);
     for (let slotIndex = 0; slotIndex < slots.length; slotIndex += 1) {
       const slot = slots[slotIndex];
-      statusNode.textContent = `Capture ${fileIndex + 1}/${fileCount} · slot ${slotIndex + 1}/10 — ${file.name}`;
+      statusNode.textContent = `Capture ${fileIndex + 1}/${fileCount} · slot ${slotIndex + 1}/10 — ${file.name}${alignment.used ? " · recalage X" : ""}`;
       const crop = cropBase(bitmap, slot);
       const context = crop.getContext("2d", { willReadFrequently: true });
       const imageData = context.getImageData(0, 0, crop.width, crop.height);
       const barred = detectRedCross(imageData);
+      const previewUrl = alignment.used ? thumbnailDataUrl(crop) : null;
       const buffer = imageData.data.buffer;
       const result = await workerCall("analyze", { width: crop.width, height: crop.height, buffer }, [buffer], 60000);
       rows.push({
@@ -310,22 +455,26 @@ async function analyzeFile(file, fileIndex, fileCount) {
         truthId: saved[slot.slot]?.characterId || null,
         extractMs: result.extractMs,
         matchMs: result.matchMs,
-        candidates: result.candidates
+        candidates: result.candidates,
+        previewUrl
       });
+      crop.width = 1;
+      crop.height = 1;
       await nextFrame();
     }
+
+    return {
+      hash,
+      fileName: file.name,
+      width,
+      height,
+      alignment,
+      totalMs: performance.now() - started,
+      rows
+    };
   } finally {
     bitmap.close();
   }
-
-  return {
-    hash,
-    fileName: file.name,
-    width,
-    height,
-    totalMs: performance.now() - started,
-    rows
-  };
 }
 
 async function runValidation() {
@@ -357,7 +506,7 @@ async function runValidation() {
 
 function exportTruth() {
   const payload = {
-    schemaVersion: "1.0.0",
+    schemaVersion: "1.1.0",
     generatedAt: new Date().toISOString(),
     engine: {
       referenceCount: initMetrics?.referenceCount || null,
@@ -366,6 +515,12 @@ function exportTruth() {
     captures: runs.map((run) => ({
       sha256: run.hash,
       fileName: run.fileName,
+      segmentation: {
+        horizontalRealignment: Boolean(run.alignment?.used),
+        left: run.alignment?.used ? run.alignment.left : 0,
+        right: run.alignment?.used ? run.alignment.right : run.width,
+        sourceWidth: run.width
+      },
       slots: run.rows.filter((row) => row.truthId).map((row) => ({
         slot: row.slot,
         characterId: row.truthId,
