@@ -121,10 +121,10 @@ class ExplorerBuilderTests(unittest.TestCase):
                 "officialPresentations": 1468,
                 "effects": 302,
                 "mechanics": 324,
-                "operations": 10189,
-                "preservedActions": 3646,
+                "operations": 10498,
+                "preservedActions": 3337,
                 "spawns": 116,
-                "textMentions": 975,
+                "textMentions": 973,
                 "abilityPresentations": 1856,
                 "phases": 2492,
                 "assignedActions": 11026,
@@ -152,7 +152,7 @@ class ExplorerBuilderTests(unittest.TestCase):
                 "multiPhaseAbilities": 540,
                 "assignedActions": 11026,
                 "unassignedActions": 1301,
-                "assignedOperations": 9359,
+                "assignedOperations": 9649,
                 "textSegments": 9600,
                 "textSegmentsAlignedHigh": 3339,
                 "textSegmentsAlignedMedium": 4059,
@@ -265,12 +265,12 @@ class ExplorerBuilderTests(unittest.TestCase):
         barrier = self.payload("mechanics/barrier.json")
         trauma = self.payload("mechanics/locked-debuff.json")
         self.assertEqual(ability_block["globalEvidence"], "normalized")
-        self.assertEqual(barrier["globalEvidence"], "preserved_uninterpreted")
+        self.assertEqual(barrier["globalEvidence"], "normalized")
         self.assertEqual(trauma["globalEvidence"], "normalized")
         self.assertTrue({"effect_apply", "effect_remove"} & {f["id"] for f in ability_block["facets"]})
         self.assertEqual(
             {facet["id"] for facet in barrier["facets"]},
-            {"detected_add", "detected_remove"},
+            {"barrier_apply", "barrier_remove"},
         )
         self.assertEqual({facet["id"] for facet in trauma["facets"]}, {"effect_apply", "effect_duration_modify", "mention"})
         dormammu = self.payload("characters/Dormammu.json")
@@ -753,33 +753,29 @@ class ExplorerBuilderTests(unittest.TestCase):
         self.assertEqual(safety["presentation"]["playerPhases"], [])
         self.assertTrue(safety["presentation"]["technicalVariants"])
 
-    def test_24_deferred_normalizations_remain_preserved(self) -> None:
+    def test_24_recent_normalizations_are_exposed_without_proof_overlap(self) -> None:
         ares_special = self.ability("Ares", "special")
         serialized = json.dumps(ares_special, ensure_ascii=False)
         self.assertIn("LockedDebuff", serialized)
         self.assertIn('"sourceType": "barrier_remove"', serialized)
         locked = next(
             operation for operation in ares_special["operations"]
-            if operation.get("effect", {}).get("sourceName") == "LockedDebuff"
+            if (operation.get("effect") or {}).get("sourceName") == "LockedDebuff"
         )
         self.assertEqual(locked["effect"]["mechanicId"], "locked-debuff")
         self.assertNotEqual(locked["effect"]["mechanicId"], "trauma")
 
         vulture = self.ability("Vulture", "ultimate")["presentation"]
-        self.assertTrue(any(occurrence["sourceType"] == "turn_meter" for occurrence in vulture["occurrences"].values()))
-        iron_fist = self.ability("IronFistOrson", "basic")["presentation"]
-        self.assertTrue(any(occurrence["sourceType"] == "barrier" for occurrence in iron_fist["occurrences"].values()))
-        return
         self.assertTrue(any(
-            step["sourceType"] == "turn_meter" and step["technicalReference"] == "abilityActions"
-            for phase in vulture["phases"]
-            for step in phase["steps"]
+            occurrence["sourceType"] == "turn_meter"
+            and occurrence["technicalReference"] == "abilityOperations"
+            for occurrence in vulture["occurrences"].values()
         ))
         iron_fist = self.ability("IronFistOrson", "basic")["presentation"]
         self.assertTrue(any(
-            step["sourceType"] == "barrier" and step["technicalReference"] == "abilityActions"
-            for phase in iron_fist["phases"]
-            for step in phase["steps"]
+            occurrence["sourceType"] == "barrier"
+            and occurrence["technicalReference"] == "abilityOperations"
+            for occurrence in iron_fist["occurrences"].values()
         ))
 
     def test_25_entire_mandatory_corpus_has_expected_structural_markers(self) -> None:

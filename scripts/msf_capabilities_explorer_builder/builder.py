@@ -1214,6 +1214,8 @@ def _operation_mechanic_ids(
         result.add("action-turn-meter")
     if kind == "heal_restore":
         result.add("action-heal")
+    if kind in {"barrier_apply", "barrier_remove"}:
+        result.add("barrier")
     if kind in {"battlefield_effect_set", "battlefield_effect_clear"}:
         result.add("battlefield-effects")
     selector = raw.get("selector") if isinstance(raw.get("selector"), dict) else {}
