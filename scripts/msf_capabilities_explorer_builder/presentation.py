@@ -388,35 +388,7 @@ TEXT_ONLY_MECHANICS = {
 }
 
 
-DETECTED_ACTIONS = {
-    "barrier": {
-        "mechanicId": "barrier",
-        "label": "Barrière",
-        "sourceName": "barrier",
-        "aliases": ["barrier", "barrière"],
-        "terms": ["Barrière"],
-        "facet": "detected_add",
-        "description": "Ajout de Barrière détecté dans les données de combat.",
-    },
-    "Barrier": {
-        "mechanicId": "barrier",
-        "label": "Barrière",
-        "sourceName": "Barrier",
-        "aliases": ["barrier", "barrière"],
-        "terms": ["Barrière"],
-        "facet": "detected_add",
-        "description": "Ajout de Barrière détecté dans les données de combat.",
-    },
-    "barrier_remove": {
-        "mechanicId": "barrier",
-        "label": "Barrière",
-        "sourceName": "barrier_remove",
-        "aliases": ["remove barrier", "retire barrière"],
-        "terms": ["Barrière"],
-        "facet": "detected_remove",
-        "description": "Retrait de Barrière détecté dans les données de combat.",
-    },
-}
+DETECTED_ACTIONS = {}
 
 
 ACTION_PRESENTATIONS = {
@@ -438,6 +410,12 @@ ACTION_PRESENTATIONS = {
 
 
 GENERIC_MECHANICS = {
+    "barrier": {
+        "label": "Barrière",
+        "sourceName": "barrier",
+        "aliases": ["barrier", "barrière", "remove barrier", "retire barrière"],
+        "description": "Application ou retrait structuré de Barrière à partir des données de combat.",
+    },
     "action-heal": {
         "label": "Soin",
         "sourceName": "heal",
@@ -512,7 +490,7 @@ SUGGESTION_SPECS = [
         "label": "Qui retire Barrière ?",
         "view": "mechanic",
         "id": "barrier",
-        "operation": "detected_remove",
+        "operation": "barrier_remove",
     },
     {
         "label": "Quels personnages invoquent ?",
