@@ -11,6 +11,7 @@ import {
 
 const WORKER_URL = "war-counter-akaze-worker.js?v=r5-akaze-worker-2";
 const STORAGE_KEY = "warCounterAkazeValidationTruthV1";
+const REALIGNED_RIGHT_TEAM_X_SHIFT = 0.125;
 
 const $ = (selector) => document.querySelector(selector);
 const input = $("#akazeValidationInput");
@@ -231,11 +232,15 @@ function slotsForBounds(bounds, imageWidth) {
 
   const leftRatio = bounds.left / imageWidth;
   const widthRatio = (bounds.right - bounds.left) / imageWidth;
-  return baseSlots.map((slot) => Object.freeze({
-    ...slot,
-    x: leftRatio + slot.x * widthRatio,
-    width: slot.width * widthRatio
-  }));
+  return baseSlots.map((slot) => {
+    const width = slot.width * widthRatio;
+    const rightTeamShift = slot.slot.startsWith("right-") ? width * REALIGNED_RIGHT_TEAM_X_SHIFT : 0;
+    return Object.freeze({
+      ...slot,
+      x: leftRatio + slot.x * widthRatio + rightTeamShift,
+      width
+    });
+  });
 }
 
 function cropBase(image, slot) {
