@@ -22,7 +22,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: update-infos-json
+  group: main-data-writer
   cancel-in-progress: false
 
 jobs:
