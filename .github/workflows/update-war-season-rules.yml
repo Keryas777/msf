@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
+
 jobs:
   update-war-season-rules:
     runs-on: ubuntu-latest
