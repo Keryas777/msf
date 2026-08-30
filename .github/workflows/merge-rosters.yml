@@ -17,7 +17,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: merge-rosters-json
+  group: main-data-writer
   cancel-in-progress: false
 
 jobs:
