@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest

@@ -12,8 +12,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: build-rosters-json
-  cancel-in-progress: true
+  group: main-data-writer
+  cancel-in-progress: false
 
 jobs:
   build:
