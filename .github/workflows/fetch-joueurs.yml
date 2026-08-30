@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: fetch-joueurs
-  cancel-in-progress: true
+  group: main-data-writer
+  cancel-in-progress: false
 
 jobs:
   fetch-joueurs:
