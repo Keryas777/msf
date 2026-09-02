@@ -7,8 +7,8 @@ body.page-war-counters{
 
 body.page-war-counters .counterCard.is-green.is-overkill,
 body.page-war-counters .counterCard.is-green.is-overkill-plus{
-  --label-size: 9px;
-  --label-spacing: .045em;
+  --label-size: 8px;
+  --label-spacing: .025em;
 }
 
 body.page-war-counters .counterCard.is-green.is-overkill{
@@ -21,6 +21,8 @@ body.page-war-counters .counterCard.is-green.is-overkill-plus{
 
 body.page-war-counters .counterCard.is-green.is-overkill::after,
 body.page-war-counters .counterCard.is-green.is-overkill-plus::after{
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,.65);
   white-space: pre;
 }
 
