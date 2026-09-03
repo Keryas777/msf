@@ -34,11 +34,11 @@ body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-status{
   pointer-events: none;
 }
 
-/* SÛR : noir et davantage recentré dans la partie basse. */
+/* SÛR : noir et légèrement remonté pour être mieux centré dans la partie basse. */
 body.page-war-counters .counterCard.is-green.is-overkill .overkill-safe,
 body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-safe{
   position: absolute;
-  bottom: 9%;
+  bottom: 14%;
   left: 50%;
   transform: translateX(-50%) rotate(180deg);
   color: rgba(0,0,0,.88);
