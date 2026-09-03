@@ -73,6 +73,29 @@ export default {
 
     if (
       request.method === "POST" &&
+      url.pathname === "/api/war/write-analyses-stream"
+    ) {
+      const requestId = crypto.randomUUID();
+      const startedAt = Date.now();
+
+      console.log("WAR_ANALYSIS_REQUEST_START", {
+        request_id: requestId,
+        timestamp: new Date(startedAt).toISOString(),
+        content_length: request.headers.get("Content-Length"),
+        origin: request.headers.get("Origin"),
+        user_agent: String(request.headers.get("User-Agent") || "").slice(0, 160),
+        ai_binding_present: Boolean(env.AI),
+        streamed: true
+      });
+
+      return createWarAnalysisStreamResponse(request, env, ctx, {
+        requestId,
+        startedAt
+      });
+    }
+
+    if (
+      request.method === "POST" &&
       url.pathname === "/api/war/write-analyses"
     ) {
       let response;
@@ -152,6 +175,7 @@ const WAR_ADMIN_ORIGIN = "https://keryas777.github.io";
 const WAR_ADMIN_CORS_PATHS = new Set([
   "/api/war/parse-gemini-draft",
   "/api/war/write-analyses",
+  "/api/war/write-analyses-stream",
   "/api/war/publish-report"
 ]);
 
@@ -172,6 +196,7 @@ const ANALYSIS_NAME_MAX_LENGTH = 80;
 const ANALYSIS_MAX_LENGTH = 700;
 const ANALYSIS_MAX_SENTENCES = 3;
 const WAR_ANALYSIS_TIMEOUT_MS = 90 * 1000;
+const WAR_ANALYSIS_STREAM_HEARTBEAT_MS = 5000;
 export const WAR_ANALYSIS_MODEL = "@cf/meta/llama-4-scout-17b-16e-instruct";
 export const GROQ_ANALYSES_RESPONSE_FORMAT = {
   type: "json_schema",
@@ -956,6 +981,115 @@ async function handleWarWriteAnalyses(request, env, trace) {
     return workersAiErrorResponse(error);
   }
 }
+
+function createWarAnalysisStreamResponse(request, env, ctx, trace) {
+  const encoder = new TextEncoder();
+  let heartbeatId = null;
+  let streamOpen = true;
+
+  const stream = new ReadableStream({
+    start(controller) {
+      const sendFrame = function (frame) {
+        if (!streamOpen) return;
+        try {
+          controller.enqueue(encoder.encode(JSON.stringify(frame) + "\n"));
+        } catch (_) {
+          streamOpen = false;
+        }
+      };
+
+      sendFrame({
+        type: "accepted",
+        request_id: trace.requestId
+      });
+
+      heartbeatId = setInterval(function () {
+        sendFrame({
+          type: "heartbeat",
+          request_id: trace.requestId
+        });
+      }, WAR_ANALYSIS_STREAM_HEARTBEAT_MS);
+
+      const workPromise = (async function () {
+        let response;
+
+        try {
+          response = await handleWarWriteAnalyses(request, env, trace);
+        } catch (error) {
+          console.error("WAR_ANALYSIS_ROUTE_ERROR", safeAnalysisError(trace.requestId, error));
+          response = Response.json(
+            {
+              ok: false,
+              error: error instanceof Error ? error.message : "Erreur inconnue"
+            },
+            {
+              status: 500
+            }
+          );
+        }
+
+        let body;
+        try {
+          body = await response.json();
+        } catch (_) {
+          body = {
+            ok: false,
+            error: "Réponse interne d’analyse illisible."
+          };
+        }
+
+        console.log("WAR_ANALYSIS_RESPONSE", {
+          request_id: trace.requestId,
+          status: response.status,
+          code: traceBusinessCode(response.status),
+          duration_ms: Date.now() - trace.startedAt,
+          streamed: true
+        });
+
+        if (heartbeatId !== null) {
+          clearInterval(heartbeatId);
+          heartbeatId = null;
+        }
+
+        sendFrame({
+          type: "result",
+          status: response.status,
+          body
+        });
+
+        if (streamOpen) {
+          streamOpen = false;
+          try {
+            controller.close();
+          } catch (_) {
+            // Le client a pu fermer le flux ; le résultat IA reste terminé côté Worker.
+          }
+        }
+      })();
+
+      if (ctx && typeof ctx.waitUntil === "function") {
+        ctx.waitUntil(workPromise.catch(function () {}));
+      }
+    },
+    cancel() {
+      streamOpen = false;
+      if (heartbeatId !== null) {
+        clearInterval(heartbeatId);
+        heartbeatId = null;
+      }
+    }
+  });
+
+  return addWarParseDraftCorsHeaders(request, new Response(stream, {
+    status: 200,
+    headers: {
+      "Content-Type": "application/x-ndjson; charset=utf-8",
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff"
+    }
+  }));
+}
+
 async function handleWarPublishReport(request, env) {
   const requestText = await request.text();
 
