@@ -253,6 +253,7 @@ function createHarness(options = {}) {
     Promise,
     Response,
     String,
+    TextDecoder,
     clearTimeout: fakeClearTimeout,
     console,
     document: {
@@ -1053,7 +1054,7 @@ test("la rédaction fusionne uniquement les analyses dans le rapport classé", a
   const finalReport = snapshot.captures[0].finalReport;
 
   assert.equal(harness.fetchCalls.length, 2);
-  assert.match(harness.fetchCalls[1].url, /\/api\/war\/write-analyses$/);
+  assert.match(harness.fetchCalls[1].url, /\/api\/war\/write-analyses-stream$/);
   assert.deepEqual(finalReport.report.summary, before.report.summary);
   assert.deepEqual(finalReport.report.ranking, before.report.ranking);
   finalReport.report.players.forEach((player, index) => {
@@ -1153,6 +1154,67 @@ test("un Load failed réseau pendant la rédaction est retryé puis fusionné", 
   assert.match(harness.elements.warLog.innerHTML, /Tentative 1\/3 échouée : Load failed/);
   assert.match(harness.elements.warLog.innerHTML, /Attente 10 secondes avant la tentative 2/);
   assert.equal(harness.getSnapshot().final_reports.length, 1);
+  assert.equal(harness.elements.warPublishReports.disabled, false);
+});
+
+test("la rédaction consomme le flux keepalive puis fusionne le résultat final", async () => {
+  const harness = createHarness();
+
+  harness.setFetchImplementation(async (url, options) => {
+    if (url.includes("parse-gemini-draft")) {
+      return Response.json(draftPayload("zeus", "Zeus"));
+    }
+
+    const payload = JSON.parse(options.body);
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode(JSON.stringify({
+          type: "accepted",
+          request_id: "stream-test"
+        }) + "\n"));
+        controller.enqueue(encoder.encode(JSON.stringify({
+          type: "heartbeat",
+          request_id: "stream-test"
+        }) + "\n"));
+        controller.enqueue(encoder.encode(JSON.stringify({
+          type: "result",
+          status: 200,
+          body: {
+            analyses: payload.report.players.map(({ rank, name }) => ({
+              rank,
+              name,
+              analysis: `Analyse streamée de ${name}.`
+            }))
+          }
+        }) + "\n"));
+        controller.close();
+      }
+    });
+
+    return new Response(stream, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/x-ndjson; charset=utf-8"
+      }
+    });
+  });
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  harness.listener("warCalculateReports", "click")();
+  harness.listener("warRankReports", "click")();
+  await harness.listener("warWriteAnalyses", "click")();
+
+  const analysisCalls = harness.fetchCalls.filter(({ url }) => url.includes("write-analyses"));
+  assert.equal(analysisCalls.length, 1);
+  assert.match(analysisCalls[0].url, /\/api\/war\/write-analyses-stream$/);
+  assert.equal(harness.getSnapshot().final_reports.length, 1);
+  assert.equal(harness.elements.warAnalyzedCount.textContent, "1");
   assert.equal(harness.elements.warPublishReports.disabled, false);
 });
 

@@ -2,7 +2,7 @@
   "use strict";
 
   const API_URL = "https://msf-war-ocr.deliriousfan7.workers.dev/api/war/parse-gemini-draft";
-  const ANALYSIS_API_URL = "https://msf-war-ocr.deliriousfan7.workers.dev/api/war/write-analyses";
+  const ANALYSIS_API_URL = "https://msf-war-ocr.deliriousfan7.workers.dev/api/war/write-analyses-stream";
   const PUBLICATION_API_URL = "https://msf-war-ocr.deliriousfan7.workers.dev/api/war/publish-report";
   const IDLE_RESULT = "En attente d’un envoi…";
   const SUBMIT_LABEL = "Lancer la session OCR";
@@ -1497,6 +1497,75 @@
     renderSession();
   }
 
+  async function readAnalysisResponse(response) {
+    const contentType = String(response.headers.get("Content-Type") || "").toLowerCase();
+
+    if (!contentType.includes("application/x-ndjson")) {
+      const responseText = await response.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (_) {
+        throw new Error(`Réponse IA illisible (HTTP ${response.status})`);
+      }
+      return { status: response.status, ok: response.ok, data };
+    }
+
+    if (!response.body || typeof response.body.getReader !== "function") {
+      throw new Error("Flux IA indisponible dans ce navigateur.");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let resultFrame = null;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (value) buffer += decoder.decode(value, { stream: !done });
+
+      let newlineIndex;
+      while ((newlineIndex = buffer.indexOf("\n")) >= 0) {
+        const line = buffer.slice(0, newlineIndex).trim();
+        buffer = buffer.slice(newlineIndex + 1);
+        if (!line) continue;
+
+        let frame;
+        try {
+          frame = JSON.parse(line);
+        } catch (_) {
+          throw new Error("Flux IA illisible.");
+        }
+
+        if (frame?.type === "result") resultFrame = frame;
+      }
+
+      if (done) break;
+    }
+
+    const tail = buffer.trim();
+    if (tail) {
+      let frame;
+      try {
+        frame = JSON.parse(tail);
+      } catch (_) {
+        throw new Error("Flux IA illisible.");
+      }
+      if (frame?.type === "result") resultFrame = frame;
+    }
+
+    if (!resultFrame || !Number.isFinite(Number(resultFrame.status))) {
+      throw new Error("Flux IA terminé sans résultat final.");
+    }
+
+    const status = Number(resultFrame.status);
+    return {
+      status,
+      ok: status >= 200 && status < 300,
+      data: resultFrame.body
+    };
+  }
+
   async function requestAnalyses(capture, attempt) {
     capture.state = "writing";
     capture.detail = `Rédaction IA · tentative ${attempt}/3.`;
@@ -1505,18 +1574,19 @@
 
     const controller = new AbortController();
     session.abortController = controller;
-    let response;
+    let analysisResponse;
     try {
-      response = await fetch(ANALYSIS_API_URL, {
+      const response = await fetch(ANALYSIS_API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(buildAnalysisPayload(capture.rankedReport)),
         signal: controller.signal
       });
+      analysisResponse = await readAnalysisResponse(response);
     } catch (error) {
       if (session.cancelled || error?.name === "AbortError") throw new SessionCancelledError();
       addLog(
-        `Erreur réseau vers /api/war/write-analyses : nom=${error?.name || "inconnu"} ` +
+        `Erreur réseau vers /api/war/write-analyses-stream : nom=${error?.name || "inconnu"} ` +
         `message=${error?.message || "inconnu"} online=${navigator.onLine}`,
         capture
       );
@@ -1528,23 +1598,17 @@
       if (session.abortController === controller) session.abortController = null;
     }
 
-    const responseText = await response.text();
-    let data;
-    try {
-      data = JSON.parse(responseText);
-    } catch (_) {
-      throw new Error(`Réponse IA illisible (HTTP ${response.status})`);
-    }
+    const { status, ok, data } = analysisResponse;
 
-    if (!response.ok) {
+    if (!ok) {
       capture.analysisError = data;
       updateTechnicalJson();
       addLog(
-        `Réponse HTTP reçue de /api/war/write-analyses : status=${response.status} ` +
+        `Réponse HTTP reçue de /api/war/write-analyses-stream : status=${status} ` +
         `code=${data?.code || "absent"}`,
         capture
       );
-      const error = new Error(getErrorDetail(data) || `HTTP ${response.status}`);
+      const error = new Error(getErrorDetail(data) || `HTTP ${status}`);
       const retryAfterSeconds = Number(data?.retry_after_seconds);
       if (
         data?.code === "WORKERS_AI_TEMPORARY" &&
