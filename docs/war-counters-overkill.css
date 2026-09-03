@@ -5,17 +5,14 @@ body.page-war-counters{
   --c-green-overkill: 11,74,47;
 }
 
+/* On reprend le bandeau classique pour le fond et on reconstruit uniquement
+ * son contenu afin que SÛR, l'icône et OVERKILL soient indépendants. */
 body.page-war-counters .counterCard.is-green.is-overkill,
 body.page-war-counters .counterCard.is-green.is-overkill-plus{
   --label-size: 8px;
   --label-spacing: .025em;
 }
 
-/*
- * Le pseudo-élément de la carte conserve uniquement le fond vert du bandeau.
- * Les libellés sont séparés afin de pouvoir garder "SÛR" en noir et
- * afficher Overkill / Overkill + en blanc sans superposition avec l'icône.
- */
 body.page-war-counters .counterCard.is-green.is-overkill::after,
 body.page-war-counters .counterCard.is-green.is-overkill-plus::after{
   content: "";
@@ -23,56 +20,72 @@ body.page-war-counters .counterCard.is-green.is-overkill-plus::after{
   text-shadow: none;
 }
 
+/* Désactive les anciens pseudo-labels : le contenu réel est injecté dans
+ * .overkill-status par war-counters.html. */
 body.page-war-counters .counterCard.is-green.is-overkill .counterTop::before,
 body.page-war-counters .counterCard.is-green.is-overkill-plus .counterTop::before,
 body.page-war-counters .counterCard.is-green.is-overkill .counterTop::after,
 body.page-war-counters .counterCard.is-green.is-overkill-plus .counterTop::after{
-  position: absolute;
-  z-index: 2;
-  left: 0;
-  width: var(--band-w);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  box-sizing: border-box;
-  font-weight: 1000;
-  line-height: 1;
-  pointer-events: none;
-  white-space: pre;
+  content: none;
 }
 
-/* Partie basse : même rendu noir que le bandeau SÛR classique. */
-body.page-war-counters .counterCard.is-green.is-overkill .counterTop::before,
-body.page-war-counters .counterCard.is-green.is-overkill-plus .counterTop::before{
-  content: "SÛR";
-  bottom: 0;
-  height: 34%;
+body.page-war-counters .counterCard.is-green.is-overkill .overkill-status,
+body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-status{
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  width: var(--band-w);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+body.page-war-counters .counterCard.is-green.is-overkill .overkill-safe,
+body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-safe{
+  position: absolute;
+  bottom: 12%;
+  left: 50%;
+  transform: translateX(-50%);
   color: rgba(0,0,0,.88);
   font-size: 9px;
+  font-weight: 1000;
+  line-height: 1;
   letter-spacing: .08em;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
   text-shadow: 0 1px 0 rgba(255,255,255,.22);
 }
 
-/*
- * Partie haute : l'icône fait maintenant partie du même flux vertical que
- * le texte. Elle réserve donc sa propre place au lieu de recouvrir OVERKILL.
- */
-body.page-war-counters .counterCard.is-green.is-overkill .counterTop::after,
-body.page-war-counters .counterCard.is-green.is-overkill-plus .counterTop::after{
-  top: 0;
-  height: 66%;
+body.page-war-counters .counterCard.is-green.is-overkill .overkill-icon,
+body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-icon{
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   color: #fff;
-  font-size: 8px;
-  letter-spacing: .015em;
+  font-size: 10px;
+  line-height: 1;
+  writing-mode: horizontal-tb;
+  white-space: nowrap;
   text-shadow: 0 1px 2px rgba(0,0,0,.70);
 }
 
-body.page-war-counters .counterCard.is-green.is-overkill .counterTop::after{
-  content: "⚠️   OVERKILL";
-}
-
-body.page-war-counters .counterCard.is-green.is-overkill-plus .counterTop::after{
-  content: "💀   OVERKILL +";
+body.page-war-counters .counterCard.is-green.is-overkill .overkill-label,
+body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-label{
+  position: absolute;
+  top: 7%;
+  left: 50%;
+  height: 38%;
+  transform: translateX(-50%) rotate(180deg);
+  color: #fff;
+  font-size: 8px;
+  font-weight: 1000;
+  line-height: 1;
+  letter-spacing: .015em;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+  text-shadow: 0 1px 2px rgba(0,0,0,.70);
 }
