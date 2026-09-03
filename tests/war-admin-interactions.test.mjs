@@ -1111,6 +1111,51 @@ test("le retour de veille resynchronise une rédaction déjà terminée et réac
   assert.equal(typeof harness.windowListener("pageshow"), "function");
 });
 
+test("un Load failed réseau pendant la rédaction est retryé puis fusionné", async () => {
+  const harness = createHarness({
+    runtimeConfig: { retryDelaysMs: [10000, 30000], countdownStepMs: 10000 }
+  });
+  let analysisAttempt = 0;
+
+  harness.setFetchImplementation(async (url, options) => {
+    if (url.includes("parse-gemini-draft")) {
+      return Response.json(draftPayload("zeus", "Zeus"));
+    }
+
+    analysisAttempt += 1;
+    if (analysisAttempt === 1) {
+      throw new TypeError("Load failed");
+    }
+
+    const payload = JSON.parse(options.body);
+    return Response.json({
+      analyses: payload.report.players.map(({ rank, name }) => ({
+        rank,
+        name,
+        analysis: `Analyse de ${name} après retry réseau.`
+      }))
+    });
+  });
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  harness.listener("warCalculateReports", "click")();
+  harness.listener("warRankReports", "click")();
+  await harness.listener("warWriteAnalyses", "click")();
+
+  const analysisCalls = harness.fetchCalls.filter(({ url }) => url.includes("write-analyses"));
+  assert.equal(analysisCalls.length, 2);
+  assert.deepEqual(harness.timerCalls, [10000]);
+  assert.match(harness.elements.warLog.innerHTML, /Tentative 1\/3 échouée : Load failed/);
+  assert.match(harness.elements.warLog.innerHTML, /Attente 10 secondes avant la tentative 2/);
+  assert.equal(harness.getSnapshot().final_reports.length, 1);
+  assert.equal(harness.elements.warPublishReports.disabled, false);
+});
+
 test("la rédaction Workers AI temporaire respecte retry_after_seconds et sa marge", async () => {
   const temporary = await runAnalysisRetryCase("WORKERS_AI_TEMPORARY", 44);
   assert.deepEqual(temporary.timerCalls, [47000]);
