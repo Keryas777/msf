@@ -1067,6 +1067,50 @@ test("la rédaction fusionne uniquement les analyses dans le rapport classé", a
   assert.equal(harness.elements.warAnalyzedCount.textContent, "1");
 });
 
+test("le retour de veille resynchronise une rédaction déjà terminée et réactive Publier", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async (url, options) => {
+    if (url.includes("parse-gemini-draft")) {
+      return Response.json(draftPayload("zeus", "Zeus"));
+    }
+    const payload = JSON.parse(options.body);
+    return Response.json({
+      analyses: payload.report.players.map(({ rank, name }) => ({
+        rank,
+        name,
+        analysis: `Analyse de ${name} après reprise.`
+      }))
+    });
+  });
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  harness.listener("warCalculateReports", "click")();
+  harness.listener("warRankReports", "click")();
+  await harness.listener("warWriteAnalyses", "click")();
+
+  assert.equal(harness.getSnapshot().final_reports.length, 1);
+
+  harness.elements.warAnalyzedCount.textContent = "0";
+  harness.elements.warPublishReports.disabled = true;
+  harness.elements.warCalculateHelp.textContent = "état visuel figé";
+
+  harness.windowListener("focus")();
+
+  assert.equal(harness.elements.warAnalyzedCount.textContent, "1");
+  assert.equal(harness.elements.warPublishReports.disabled, false);
+  assert.equal(harness.elements.warPublishReports.textContent, "Publier");
+  assert.match(harness.elements.warCalculateHelp.textContent, /1 rapport analysé prêt à publier/);
+  assert.equal(harness.elements.warStatusPanel.dataset.state, "success");
+  assert.equal(harness.elements.warStatusTitle.textContent, "Analyses terminées");
+  assert.equal(harness.fetchCalls.length, 2);
+  assert.equal(typeof harness.windowListener("pageshow"), "function");
+});
+
 test("la rédaction Workers AI temporaire respecte retry_after_seconds et sa marge", async () => {
   const temporary = await runAnalysisRetryCase("WORKERS_AI_TEMPORARY", 44);
   assert.deepEqual(temporary.timerCalls, [47000]);

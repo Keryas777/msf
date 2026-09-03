@@ -1961,6 +1961,28 @@
     if (!session.running) updateFinalStatus();
   }
 
+  function handlePageResume() {
+    const available = getAvailableCaptures();
+    const allAnalyzed = available.length > 0 &&
+      available.every((capture) => Boolean(capture.finalReport));
+
+    if (allAnalyzed) {
+      session.running = false;
+      session.cancelled = false;
+      session.abortController = null;
+      session.cancelWait = null;
+      setStatus(
+        "success",
+        "Analyses terminées",
+        "Prêt",
+        "Les rapports finaux sont prêts à publier."
+      );
+    }
+
+    updateControls();
+    renderSession();
+  }
+
   function handlePageHide() {
     session.cancelled = true;
     if (session.abortController) session.abortController.abort();
@@ -2004,6 +2026,8 @@
   zoomResetButton.addEventListener("click", () => setReviewZoom(2.5));
   zoomInButton.addEventListener("click", () => handleZoom(0.25));
   reportBackButton.addEventListener("click", closeReport);
+  window.addEventListener("focus", handlePageResume);
+  window.addEventListener("pageshow", handlePageResume);
   window.addEventListener("pagehide", handlePageHide);
 
   if (testConfig.exposeState) {
