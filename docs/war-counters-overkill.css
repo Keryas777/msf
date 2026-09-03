@@ -5,8 +5,6 @@ body.page-war-counters{
   --c-green-overkill: 11,74,47;
 }
 
-/* On reprend le bandeau classique pour le fond et on reconstruit uniquement
- * son contenu afin que SÛR, l'icône et OVERKILL soient indépendants. */
 body.page-war-counters .counterCard.is-green.is-overkill,
 body.page-war-counters .counterCard.is-green.is-overkill-plus{
   --label-size: 8px;
@@ -20,8 +18,6 @@ body.page-war-counters .counterCard.is-green.is-overkill-plus::after{
   text-shadow: none;
 }
 
-/* Désactive les anciens pseudo-labels : le contenu réel est injecté dans
- * .overkill-status par war-counters.html. */
 body.page-war-counters .counterCard.is-green.is-overkill .counterTop::before,
 body.page-war-counters .counterCard.is-green.is-overkill-plus .counterTop::before,
 body.page-war-counters .counterCard.is-green.is-overkill .counterTop::after,
@@ -35,20 +31,16 @@ body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-status{
   z-index: 3;
   inset: 0;
   width: var(--band-w);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
   pointer-events: none;
 }
 
+/* SÛR : noir et davantage recentré dans la partie basse. */
 body.page-war-counters .counterCard.is-green.is-overkill .overkill-safe,
 body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-safe{
   position: absolute;
-  bottom: 12%;
+  bottom: 9%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) rotate(180deg);
   color: rgba(0,0,0,.88);
   font-size: 9px;
   font-weight: 1000;
@@ -59,10 +51,11 @@ body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-safe{
   text-shadow: 0 1px 0 rgba(255,255,255,.22);
 }
 
+/* Icône : indépendante du texte et jamais retournée. */
 body.page-war-counters .counterCard.is-green.is-overkill .overkill-icon,
 body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-icon{
   position: absolute;
-  top: 38%;
+  top: 47%;
   left: 50%;
   transform: translate(-50%, -50%);
   color: #fff;
@@ -73,12 +66,13 @@ body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-icon{
   text-shadow: 0 1px 2px rgba(0,0,0,.70);
 }
 
+/* Libellé : blanc, vertical, au-dessus de l'icône. */
 body.page-war-counters .counterCard.is-green.is-overkill .overkill-label,
 body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-label{
   position: absolute;
-  top: 7%;
+  top: 5%;
   left: 50%;
-  height: 38%;
+  height: 34%;
   transform: translateX(-50%) rotate(180deg);
   color: #fff;
   font-size: 8px;
