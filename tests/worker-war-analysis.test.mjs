@@ -74,6 +74,7 @@ test("le preflight War Admin autorise les trois routes sans exécuter leur méti
     for (const path of [
       "/api/war/parse-gemini-draft",
       "/api/war/write-analyses",
+      "/api/war/write-analyses-stream",
       "/api/war/publish-report"
     ]) {
       const response = await worker.fetch(new Request(`https://worker.test${path}`, {
@@ -99,6 +100,94 @@ test("le preflight War Admin autorise les trois routes sans exécuter leur méti
 
   assert.equal(aiCalls.length, 0);
   assert.equal(networkCalls.length, 0);
+});
+
+test("write-analyses-stream répond immédiatement puis livre le résultat final", async () => {
+  const body = requestBody(1);
+  let resolveAi;
+  const calls = [];
+  const waitUntilPromises = [];
+
+  const response = await worker.fetch(new Request("https://worker.test/api/war/write-analyses-stream", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Origin: "https://keryas777.github.io"
+    },
+    body: JSON.stringify(body)
+  }), {
+    AI: {
+      run(model, payload) {
+        calls.push({ model, ...payload });
+        return new Promise((resolve) => {
+          resolveAi = resolve;
+        });
+      }
+    }
+  }, {
+    waitUntil(promise) {
+      waitUntilPromises.push(promise);
+    }
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("Content-Type"), "application/x-ndjson; charset=utf-8");
+  assert.equal(response.headers.get("Access-Control-Allow-Origin"), "https://keryas777.github.io");
+  assert.equal(response.headers.get("Cache-Control"), "no-store");
+  assert.equal(calls.length, 1);
+  assert.equal(waitUntilPromises.length, 1);
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  const firstChunk = await reader.read();
+  assert.equal(firstChunk.done, false);
+  const firstFrame = JSON.parse(decoder.decode(firstChunk.value).trim());
+  assert.equal(firstFrame.type, "accepted");
+  assert.equal(typeof firstFrame.request_id, "string");
+
+  resolveAi(workersAiResult(entriesFor(body)));
+
+  let rest = "";
+  while (true) {
+    const chunk = await reader.read();
+    if (chunk.value) rest += decoder.decode(chunk.value, { stream: !chunk.done });
+    if (chunk.done) break;
+  }
+
+  const frames = rest.trim().split("\n").filter(Boolean).map((line) => JSON.parse(line));
+  const result = frames.find((frame) => frame.type === "result");
+  assert.ok(result);
+  assert.equal(result.status, 200);
+  assert.deepEqual(result.body, { analyses: entriesFor(body) });
+  await Promise.all(waitUntilPromises);
+});
+
+test("write-analyses-stream conserve le statut métier dans la trame finale", async () => {
+  const body = requestBody(1);
+  const providerError = Object.assign(new Error("out of capacity"), { code: 3040 });
+  const response = await worker.fetch(new Request("https://worker.test/api/war/write-analyses-stream", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  }), {
+    AI: {
+      async run() {
+        throw providerError;
+      }
+    }
+  }, {
+    waitUntil() {}
+  });
+
+  const text = await response.text();
+  const frames = text.trim().split("\n").filter(Boolean).map((line) => JSON.parse(line));
+  const result = frames.find((frame) => frame.type === "result");
+
+  assert.equal(response.status, 200);
+  assert.ok(result);
+  assert.equal(result.status, 503);
+  assert.equal(result.body.code, "WORKERS_AI_TEMPORARY");
+  assert.equal(result.body.provider_code, 3040);
 });
 
 test("un POST write-analyses conserve son comportement après un preflight valide", async () => {
