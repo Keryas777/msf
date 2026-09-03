@@ -22,7 +22,7 @@
 
     <title>LoSP — War Counters</title>
     <link rel="stylesheet" href="./style.css?v=3" />
-    <link rel="stylesheet" href="./war-counters-overkill.css?v=4" />
+    <link rel="stylesheet" href="./war-counters-overkill.css?v=5" />
   </head>
 
   <body class="page-war-counters">
@@ -101,5 +101,49 @@
 
     <script src="./alliances.js?v=1"></script>
     <script src="./war-counters.js?v=16"></script>
+
+    <script>
+      (() => {
+        function renderOverkillStatus() {
+          document
+            .querySelectorAll(
+              ".counterCard.is-green.is-overkill, .counterCard.is-green.is-overkill-plus"
+            )
+            .forEach((card) => {
+              const top = card.querySelector(".counterTop");
+              if (!top || top.querySelector(":scope > .overkill-status")) return;
+
+              const isPlus = card.classList.contains("is-overkill-plus");
+
+              const status = document.createElement("span");
+              status.className = "overkill-status";
+              status.setAttribute("aria-hidden", "true");
+
+              const safe = document.createElement("span");
+              safe.className = "overkill-safe";
+              safe.textContent = "SÛR";
+
+              const icon = document.createElement("span");
+              icon.className = "overkill-icon";
+              icon.textContent = isPlus ? "💀" : "⚠️";
+
+              const label = document.createElement("span");
+              label.className = "overkill-label";
+              label.textContent = isPlus ? "OVERKILL +" : "OVERKILL";
+
+              status.append(safe, icon, label);
+              top.appendChild(status);
+            });
+        }
+
+        renderOverkillStatus();
+
+        const observer = new MutationObserver(renderOverkillStatus);
+        observer.observe(document.getElementById("results"), {
+          childList: true,
+          subtree: true,
+        });
+      })();
+    </script>
   </body>
 </html>
