@@ -1520,6 +1520,9 @@
         `message=${error?.message || "inconnu"} online=${navigator.onLine}`,
         capture
       );
+      if (error && typeof error === "object") {
+        error.retryable = true;
+      }
       throw error;
     } finally {
       if (session.abortController === controller) session.abortController = null;
