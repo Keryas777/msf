@@ -34,11 +34,11 @@ body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-status{
   pointer-events: none;
 }
 
-/* SÛR : noir et légèrement remonté pour être mieux centré dans la partie basse. */
+/* SÛR : noir et remonté pour être mieux centré dans la partie basse. */
 body.page-war-counters .counterCard.is-green.is-overkill .overkill-safe,
 body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-safe{
   position: absolute;
-  bottom: 14%;
+  bottom: 19%;
   left: 50%;
   transform: translateX(-50%) rotate(180deg);
   color: rgba(0,0,0,.88);
@@ -51,11 +51,11 @@ body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-safe{
   text-shadow: 0 1px 0 rgba(255,255,255,.22);
 }
 
-/* Icône : indépendante du texte et jamais retournée. */
+/* Icône : indépendante du texte, légèrement descendue et jamais retournée. */
 body.page-war-counters .counterCard.is-green.is-overkill .overkill-icon,
 body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-icon{
   position: absolute;
-  top: 47%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   color: #fff;
@@ -66,11 +66,11 @@ body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-icon{
   text-shadow: 0 1px 2px rgba(0,0,0,.70);
 }
 
-/* Libellé : blanc, vertical, au-dessus de l'icône. */
+/* Libellé : blanc, vertical, légèrement descendu au-dessus de l'icône. */
 body.page-war-counters .counterCard.is-green.is-overkill .overkill-label,
 body.page-war-counters .counterCard.is-green.is-overkill-plus .overkill-label{
   position: absolute;
-  top: 5%;
+  top: 8%;
   left: 50%;
   height: 34%;
   transform: translateX(-50%) rotate(180deg);
