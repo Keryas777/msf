@@ -1054,7 +1054,7 @@ test("la rédaction fusionne uniquement les analyses dans le rapport classé", a
   const finalReport = snapshot.captures[0].finalReport;
 
   assert.equal(harness.fetchCalls.length, 2);
-  assert.match(harness.fetchCalls[1].url, /\/api\/war\/write-analyses$/);
+  assert.match(harness.fetchCalls[1].url, /\/api\/war\/write-analyses-stream$/);
   assert.deepEqual(finalReport.report.summary, before.report.summary);
   assert.deepEqual(finalReport.report.ranking, before.report.ranking);
   finalReport.report.players.forEach((player, index) => {
