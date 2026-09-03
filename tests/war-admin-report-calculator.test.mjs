@@ -66,6 +66,16 @@ function volumeFactor(attacks, minimumAttacks) {
   );
 }
 
+function efficiencyScore(misses) {
+  if (misses <= 0) return 25;
+  if (misses === 1) return 21;
+  if (misses === 2) return 16;
+  if (misses === 3) return 11;
+  if (misses === 4) return 7;
+  if (misses === 5) return 4;
+  return 0;
+}
+
 test("les six profils d’alliance appliquent les seuils actuels", () => {
   assert.deepEqual(plain(calculator.ALLIANCE_RULES), {
     zeus: {
@@ -206,7 +216,7 @@ test("activité et efficacité brute conservent leurs barèmes lorsque le seuil 
         rank: index + 1,
         name: `Efficacité ${value}`,
         attacks: 14,
-        attack_points: (14 - value) * 1000,
+        attack_points: (14 - value) * 918,
         damage: 100_000_000
       })
     )
@@ -346,23 +356,37 @@ test("la pondération atteint 100 % dès que le minimum d’attaques est atteint
   }
 });
 
-test("les attaques réussies utilisent floor et les attaques de dégâts utilisent ceil puis le plafond", () => {
+test("les ratés utilisent une estimation à 918 points par victoire sans modifier les attaques de dégâts", () => {
   const output = plain(
     calculator.calculateReport(
       draft("dionysos", [
         player({
           rank: 1,
-          name: "Partiel",
-          attack_points: 10500,
+          name: "Parfait",
+          attack_points: 12852,
           attacks: 14,
           damage: 1_100_000_000
         }),
         player({
           rank: 2,
+          name: "Un raté",
+          attack_points: 11932,
+          attacks: 14,
+          damage: 1_000_000_000
+        }),
+        player({
+          rank: 3,
+          name: "Deux ratés",
+          attack_points: 11012,
+          attacks: 14,
+          damage: 900_000_000
+        }),
+        player({
+          rank: 4,
           name: "Plafonné",
           attack_points: 12000,
           attacks: 10,
-          damage: 1_000_000_000
+          damage: 800_000_000
         })
       ])
     )
@@ -371,29 +395,41 @@ test("les attaques réussies utilisent floor et les attaques de dégâts utilise
   assert.deepEqual(
     output.report.players.map(
       ({
+        attack_points,
         successful_attacks,
         misses,
-        damage_attacks,
-        avg_damage
+        damage_attacks
       }) => ({
+        attack_points,
         successful_attacks,
         misses,
-        damage_attacks,
-        avg_damage
+        damage_attacks
       })
     ),
     [
       {
-        successful_attacks: 10,
-        misses: 4,
-        damage_attacks: 11,
-        avg_damage: 100_000_000
+        attack_points: 12852,
+        successful_attacks: 14,
+        misses: 0,
+        damage_attacks: 13
       },
       {
+        attack_points: 11932,
+        successful_attacks: 13,
+        misses: 1,
+        damage_attacks: 12
+      },
+      {
+        attack_points: 11012,
         successful_attacks: 12,
-        misses: -2,
-        damage_attacks: 10,
-        avg_damage: 100_000_000
+        misses: 2,
+        damage_attacks: 12
+      },
+      {
+        attack_points: 12000,
+        successful_attacks: 10,
+        misses: 0,
+        damage_attacks: 10
       }
     ]
   );
@@ -586,8 +622,9 @@ test("les rapports historiques conservent les métriques brutes mais appliquent 
   ]);
 
   const replacedScoreFields = new Set([
+    "successful_attacks",
+    "misses",
     "score_efficiency",
-    "score_impact",
     "score_total_raw",
     "score_total"
   ]);
@@ -705,7 +742,7 @@ test("les rapports historiques conservent les métriques brutes mais appliquent 
       }
 
       const expectedEfficiency =
-        expected.score_efficiency * factor;
+        efficiencyScore(actual.misses) * factor;
 
       const expectedImpact =
         expected.score_impact * factor;
