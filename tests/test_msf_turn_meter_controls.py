@@ -4,6 +4,7 @@ from collections import Counter
 from pathlib import Path
 import unittest
 
+from scripts.msf_capabilities_explorer_builder.builder import _project_operation
 from scripts.msf_capabilities_normalizer.normalizer import normalize_mechanics
 from scripts.msf_capabilities_parser.parser import parse_sources, serialize_mechanics
 
@@ -98,6 +99,11 @@ class TurnMeterControlTests(unittest.TestCase):
         )
         self.assertTrue(control["normalGainUnaffected"])
 
+        cosmic_ghost_rider = self.control_at(
+            "/Data/CosmicGhostRider/dynamic_stats/0"
+        )["turnMeterControl"]
+        self.assertNotIn("normalGainUnaffected", cosmic_ghost_rider)
+
         big_time = self.control_at(
             "/Data/SpiderManBigTime/dynamic_stats/0"
         )["turnMeterControl"]
@@ -142,6 +148,38 @@ class TurnMeterControlTests(unittest.TestCase):
         self.assertEqual(
             reduction["turnMeterControl"]["combinedAction"],
             "block_induced_modification",
+        )
+
+    def test_combined_controls_keep_their_distinct_presentation_labels(self):
+        gain = self.control_at("/Data/Gladiator/dynamic_stats/3")
+        reduction = self.control_at("/Data/Gladiator/dynamic_stats/4")
+        projected = [
+            _project_operation(
+                {
+                    **operation,
+                    "operationId": operation["id"],
+                    "abilityId": None,
+                },
+                {},
+                {},
+            )
+            for operation in (gain, reduction)
+        ]
+
+        self.assertNotEqual(projected[0]["id"], projected[1]["id"])
+        self.assertEqual(
+            [operation["kindLabel"] for operation in projected],
+            [
+                "Empêche les gains provoqués de jauge de vitesse",
+                "Empêche les réductions provoquées de jauge de vitesse",
+            ],
+        )
+        self.assertTrue(
+            all(
+                operation["turnMeterControl"]["combinedAction"]
+                == "block_induced_modification"
+                for operation in projected
+            )
         )
 
     def test_speed_and_sentinel_names_are_not_promoted(self):

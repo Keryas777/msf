@@ -841,8 +841,7 @@ def _project_operation(
     chance = next((item["value"] for item in metrics if item["key"] == "chancePct"), None)
     turn_meter_control = operation.get("turnMeterControl")
     control_action = (
-        turn_meter_control.get("combinedAction")
-        or turn_meter_control.get("action")
+        turn_meter_control.get("action")
         if isinstance(turn_meter_control, dict)
         else None
     )

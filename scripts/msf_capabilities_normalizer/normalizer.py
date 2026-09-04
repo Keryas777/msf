@@ -236,13 +236,6 @@ def _turn_meter_control_semantics(
         result["technicalMinValuePct"] = copy.deepcopy(minimum)
     if maximum is not None:
         result["technicalMaxValuePct"] = copy.deepcopy(maximum)
-    if action in {
-        "modify_induced_gain",
-        "amplify_induced_gain",
-        "block_induced_gain",
-        "protect_induced_gain_from_suppression",
-    }:
-        result["normalGainUnaffected"] = True
     if stat == "turnmeter_immune_pct":
         result["confidence"] = "mechanical_only"
     return result
@@ -1793,6 +1786,9 @@ class OperationBuilder:
         )
         self.operations[-1]["mechanicFamily"] = "turn_meter"
         self.operations[-1]["turnMeterControl"] = semantics
+        # Joaquin's official text explicitly preserves normal turn-meter gain.
+        if action_pointer == "/Data/FalconJoaquin/dynamic_stats/3":
+            semantics["normalGainUnaffected"] = True
 
     def _build_heal_action(
         self,
