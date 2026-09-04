@@ -7,9 +7,6 @@ on:
     paths:
       - .github/workflows/validate-player-progression-once.yml
 
-permissions:
-  contents: write
-
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -19,24 +16,21 @@ jobs:
           ref: agent/player-dd-saga-progress
           fetch-depth: 0
 
-      - name: Diagnose character IDs
+      - name: Find Kestrel ID
         run: |
           node <<'NODE'
           const fs = require('fs');
           const chars = JSON.parse(fs.readFileSync('docs/data/msf-characters.json', 'utf8'));
           const rosters = JSON.parse(fs.readFileSync('docs/data/rosters.json', 'utf8'));
-          const rosterKeys = new Set();
-          for (const roster of rosters) for (const key of Object.keys(roster?.chars || {})) rosterKeys.add(key);
-
-          const needles = ['kestrel', 'doom', 'xavier', 'professeur', 'professor'];
+          const normalize = (v) => String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
           for (const c of chars) {
-            const hay = [c.id, c.nameKey, c.nameFr, c.nameEn].filter(Boolean).join(' ').toLowerCase();
-            if (needles.some((needle) => hay.includes(needle))) {
-              console.log('CATALOG', JSON.stringify({ id: c.id, nameKey: c.nameKey, nameFr: c.nameFr, nameEn: c.nameEn }));
-            }
+            const hay = normalize([c.id, c.nameKey, c.nameFr, c.nameEn].filter(Boolean).join(' '));
+            if (hay.includes('crecerelle') || hay.includes('kestrel')) console.log('CATALOG', JSON.stringify(c));
           }
-          for (const key of [...rosterKeys].sort()) {
-            const hay = key.toLowerCase();
-            if (needles.some((needle) => hay.includes(needle))) console.log('ROSTER', key);
+          const keys = new Set();
+          for (const roster of rosters) for (const key of Object.keys(roster?.chars || {})) keys.add(key);
+          for (const key of [...keys].sort()) {
+            const hay = normalize(key);
+            if (hay.includes('crecerelle') || hay.includes('kestrel')) console.log('ROSTER', key);
           }
           NODE
