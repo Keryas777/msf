@@ -1,0 +1,70 @@
+name: Apply roster stars once
+
+on:
+  push:
+    branches:
+      - agent/roster-stars-pipeline
+    paths:
+      - ".github/workflows/apply-roster-stars-once.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/roster-stars-pipeline
+
+      - name: Patch worker
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("workers/msf-upload/worker.js")
+          source = path.read_text(encoding="utf-8")
+
+          replacements = [
+              (
+                  '''  const idxPower =\n    requireColumn(\n      colIndex,\n      ["power"],\n      "Power"\n    );\n\n  const idxGear =''',
+                  '''  const idxPower =\n    requireColumn(\n      colIndex,\n      ["power"],\n      "Power"\n    );\n\n  const idxStars =\n    requireColumn(\n      colIndex,\n      ["stars"],\n      "Stars"\n    );\n\n  const idxRedStars =\n    requireColumn(\n      colIndex,\n      ["redstars"],\n      "Red Stars"\n    );\n\n  const idxGear =''',
+                  1,
+              ),
+              (
+                  '''    const gear =\n      toInt(cols[idxGear]);\n\n    const isoMax =''',
+                  '''    const gear =\n      toInt(cols[idxGear]);\n\n    const yellowStars =\n      toInt(cols[idxStars]);\n\n    const redDiamondLevel =\n      toInt(cols[idxRedStars]);\n\n    const redStars =\n      Math.min(redDiamondLevel, 7);\n\n    const diamonds =\n      Math.max(redDiamondLevel - 7, 0);\n\n    const isoMax =''',
+                  1,
+              ),
+              (
+                  '''        gear,\n        isoMax,\n      };''',
+                  '''        gear,\n        isoMax,\n        yellowStars,\n        redStars,\n        diamonds,\n      };''',
+                  2,
+              ),
+              (
+                  '''      previous.isoMax = Math.max(\n        toInt(previous.isoMax),\n        isoMax\n      );\n\n      if (''',
+                  '''      previous.isoMax = Math.max(\n        toInt(previous.isoMax),\n        isoMax\n      );\n\n      previous.yellowStars = Math.max(\n        toInt(previous.yellowStars),\n        yellowStars\n      );\n\n      previous.redStars = Math.max(\n        toInt(previous.redStars),\n        redStars\n      );\n\n      previous.diamonds = Math.max(\n        toInt(previous.diamonds),\n        diamonds\n      );\n\n      if (''',
+                  1,
+              ),
+          ]
+
+          for old, new, expected in replacements:
+              count = source.count(old)
+              if count != expected:
+                  raise SystemExit(f"Unexpected replacement count: expected {expected}, got {count}")
+              source = source.replace(old, new)
+
+          path.write_text(source, encoding="utf-8")
+
+      - name: Check worker syntax
+        run: node --check workers/msf-upload/worker.js
+
+      - name: Remove one-shot workflow and commit
+        run: |
+          git rm .github/workflows/apply-roster-stars-once.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add workers/msf-upload/worker.js
+          git commit -m "Transport roster star fields from CSV"
+          git push origin HEAD:agent/roster-stars-pipeline
