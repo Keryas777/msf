@@ -1,0 +1,112 @@
+[
+  {
+    "id": "dd1",
+    "label": "DD1",
+    "steps": [
+      { "id": "run-1", "label": "1er run", "character": "Kestrel", "requirements": { "yellowStars": 5, "redStars": 2 } },
+      { "id": "run-2", "label": "2e run", "character": "Kestrel", "requirements": { "yellowStars": 7, "redStars": 5 } }
+    ]
+  },
+  {
+    "id": "dd2",
+    "label": "DD2",
+    "steps": [
+      { "id": "run-1", "label": "1er run", "character": "Ultron", "requirements": { "yellowStars": 5, "redStars": 2 } },
+      { "id": "run-2", "label": "2e run", "character": "Ultron", "requirements": { "yellowStars": 7, "redStars": 5 } }
+    ]
+  },
+  {
+    "id": "dd3",
+    "label": "DD3",
+    "steps": [
+      { "id": "run-1", "label": "1er run", "character": "Ultimus", "requirements": { "yellowStars": 5, "redStars": 2 } },
+      { "id": "run-2", "label": "2e run", "character": "Ultimus", "requirements": { "yellowStars": 7, "redStars": 5 } }
+    ]
+  },
+  {
+    "id": "dd4",
+    "label": "DD4",
+    "steps": [
+      { "id": "run-1", "label": "1er run", "character": "DoctorDoom", "requirements": { "yellowStars": 5, "redStars": 2 } },
+      { "id": "run-2", "label": "2e run", "character": "DoctorDoom", "requirements": { "yellowStars": 7, "redStars": 4 } }
+    ]
+  },
+  {
+    "id": "dd5",
+    "label": "DD5",
+    "steps": [
+      { "id": "run-1", "label": "1er run", "character": "Dormammu", "requirements": { "yellowStars": 5, "redStars": 2 } },
+      { "id": "run-2", "label": "2e run", "character": "Dormammu", "requirements": { "yellowStars": 7, "redStars": 4 } }
+    ]
+  },
+  {
+    "id": "dd6",
+    "label": "DD6",
+    "steps": [
+      { "id": "run-1", "label": "1er run", "character": "SuperSkrull", "requirements": { "yellowStars": 5, "redStars": 2 } },
+      { "id": "run-2", "label": "2e run", "character": "SuperSkrull", "requirements": { "yellowStars": 7, "redStars": 4 } }
+    ]
+  },
+  {
+    "id": "dd7",
+    "label": "DD7",
+    "steps": [
+      { "id": "run-1", "label": "1er run", "character": "Mephisto", "requirements": { "yellowStars": 5, "redStars": 2 } },
+      { "id": "run-2", "label": "2e run", "character": "Mephisto", "requirements": { "yellowStars": 7, "redStars": 5 } }
+    ]
+  },
+  {
+    "id": "dd8",
+    "label": "DD8",
+    "steps": [
+      { "id": "run-1", "label": "1er run", "character": "Odin", "requirements": { "yellowStars": 5 } },
+      { "id": "run-2", "label": "2e run", "character": "Odin", "requirements": { "yellowStars": 7 } }
+    ]
+  },
+  {
+    "id": "target-blue-marvel",
+    "label": "Target: Blue Marvel",
+    "steps": [
+      { "id": "run-1", "label": "1er run", "character": "BlueMarvel", "requirements": { "yellowStars": 5 } },
+      { "id": "run-2", "label": "2e run", "character": "BlueMarvel", "requirements": { "yellowStars": 7 } }
+    ]
+  },
+  {
+    "id": "dd9",
+    "label": "DD9",
+    "steps": [
+      { "id": "run-1", "label": "1er run", "character": "Annihilus", "requirements": { "yellowStars": 5, "redStars": 2 } },
+      { "id": "run-2", "label": "2e run", "character": "Annihilus", "requirements": { "yellowStars": 7, "redStars": 4 } }
+    ]
+  },
+  {
+    "id": "dimension-censuree",
+    "label": "Dimension censurée",
+    "steps": [
+      { "id": "run-1", "label": "1er run", "character": "JeffTheLandShark", "requirements": { "redStars": 4 } },
+      { "id": "run-2", "label": "2e run", "character": "JeffTheLandShark", "requirements": { "redStars": 7 } }
+    ]
+  },
+  {
+    "id": "saga-apocalypse",
+    "label": "Saga Apocalypse",
+    "steps": [
+      { "id": "heroique", "label": "Héroïque", "character": "Apocalypse", "requirements": { "yellowStars": 5, "redStars": 2 } },
+      { "id": "apocalyptique", "label": "Apocalyptique", "character": "Apocalypse", "requirements": { "yellowStars": 7, "redStars": 4 } }
+    ]
+  },
+  {
+    "id": "saga-xavier",
+    "label": "Saga Xavier",
+    "steps": [
+      { "id": "complete", "label": "Complète", "character": "ProfessorX", "requirements": { "yellowStars": 7 } }
+    ]
+  },
+  {
+    "id": "saga-annihilus-epilogue",
+    "label": "Saga Annihilus — Épilogue",
+    "steps": [
+      { "id": "complete", "label": "Complète", "character": "Annihilus", "requirements": { "redStars": 7 } }
+    ]
+  }
+]
