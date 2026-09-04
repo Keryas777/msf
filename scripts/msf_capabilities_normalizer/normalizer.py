@@ -71,6 +71,87 @@ TURN_METER_METRIC_FIELDS = (
     ("specificCharacterTurnMeterPct", "specific_characters_mul"),
 )
 
+
+def _terminal_numeric_value(value: Any) -> int | float | None:
+    terminal = value[-1] if isinstance(value, list) and value else value
+    if isinstance(terminal, (int, float)) and not isinstance(terminal, bool):
+        return terminal
+    return None
+
+
+def _turn_meter_semantics(
+    parameters: dict[str, Any],
+    target_present: bool,
+    target: Any,
+) -> dict[str, Any]:
+    """Project conservative player semantics without replacing raw targeting."""
+
+    base_value = _terminal_numeric_value(parameters.get("change_pct"))
+    per_character = _terminal_numeric_value(
+        parameters.get("specific_characters_mul")
+    )
+    if base_value is not None and base_value > 0:
+        action = direction = "increase"
+    elif base_value is not None and base_value < 0:
+        action = direction = "decrease"
+    elif base_value == 0 and per_character not in (None, 0):
+        action = "contextual_amount"
+        direction = "increase" if per_character > 0 else "decrease"
+    else:
+        action = direction = "unresolved"
+
+    recipient = "unresolved"
+    resolution = "unresolved"
+    target_projection: dict[str, Any] = {}
+    if target_present and isinstance(target, dict):
+        target_projection = {
+            output_key: copy.deepcopy(target[source_key])
+            for source_key, output_key in (
+                ("relation", "relation"),
+                ("relationship", "relationship"),
+                ("type", "type"),
+                ("limit", "limit"),
+                ("filter", "filter"),
+                ("primary_selection", "primarySelection"),
+                ("places_from_primary", "placesFromPrimary"),
+            )
+            if source_key in target
+        }
+        if target.get("type") == "primary":
+            recipient = "primary"
+            resolution = "explicit"
+        elif (
+            target.get("places_from_primary") == 1
+            and target.get("primary_selection") == "include_as_target"
+        ):
+            recipient = "primary_and_adjacent"
+            resolution = "explicit"
+        elif target.get("relation") == "enemy":
+            recipient = "enemy_side"
+            resolution = "explicit"
+        elif target == {"relation": "ally"}:
+            recipient = "ally_default"
+            resolution = "explicit"
+        elif target.get("relation") == "ally":
+            recipient = "ally_side"
+            resolution = "explicit"
+
+    result = {
+        "action": action,
+        "direction": direction,
+        "baseValuePct": copy.deepcopy(base_value),
+        "recipient": recipient,
+        "resolution": resolution,
+        "target": target_projection,
+    }
+    if per_character is not None:
+        result["perMatchingCharacterPct"] = copy.deepcopy(per_character)
+    if "specific_characters" in parameters:
+        result["matchingCharacterFilter"] = copy.deepcopy(
+            parameters["specific_characters"]
+        )
+    return result
+
 HEAL_METRIC_FIELDS = (
     ("chancePct", "action_pct"),
     ("healAmount", "heal_amt"),
@@ -1559,6 +1640,9 @@ class OperationBuilder:
         source = action.get("source")
         if not isinstance(source, dict):
             source = {}
+        parameters = action.get("parameters")
+        if not isinstance(parameters, dict):
+            parameters = {}
         action_pointer = str(source.get("pointer", ""))
         self._build_operation(
             action,
@@ -1572,6 +1656,11 @@ class OperationBuilder:
             ordinal=0,
             scope={"kind": "action_target"},
             metric_fields=TURN_METER_METRIC_FIELDS,
+        )
+        self.operations[-1]["turnMeter"] = _turn_meter_semantics(
+            parameters,
+            bool(action.get("targetPresent")),
+            action.get("target"),
         )
 
     def _build_heal_action(

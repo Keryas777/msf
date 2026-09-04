@@ -301,9 +301,27 @@ def _ability_energy_operation_label(record: Mapping[str, Any]) -> str:
 
 
 def _turn_meter_operation_label(record: Mapping[str, Any]) -> str:
+    semantics = record.get("turnMeter") if isinstance(record.get("turnMeter"), dict) else {}
     metrics = record.get("metrics") if isinstance(record.get("metrics"), dict) else {}
     amount = _progression_terminal(metrics.get("turnMeterPct"))
     contextual = _progression_terminal(metrics.get("specificCharacterTurnMeterPct"))
+    action = semantics.get("action")
+    direction = semantics.get("direction")
+    recipient = {
+        "ally_default": "du camp allié",
+        "ally_side": "des alliés",
+        "enemy_side": "des ennemis",
+        "primary": "de la cible principale",
+        "primary_and_adjacent": "de la cible principale et des cibles adjacentes",
+    }.get(semantics.get("recipient"))
+    if action == "contextual_amount":
+        verb = "Augmente" if direction == "increase" else "Réduit" if direction == "decrease" else "Modifie"
+        suffix = f" {recipient}" if recipient else ""
+        return f"{verb} la jauge de vitesse{suffix} selon les personnages présents"
+    if direction in {"increase", "decrease"} and amount is not None:
+        verb = "Augmente" if direction == "increase" else "Réduit"
+        suffix = f" {recipient}" if recipient else ""
+        return f"{verb} la jauge de vitesse{suffix} de {abs(amount):g} %"
     if amount is None:
         return "Modifie la jauge de vitesse"
     if contextual not in (None, 0):
@@ -343,6 +361,7 @@ def _operation_projection(record: Mapping[str, Any]) -> dict[str, Any]:
         "kind": kind,
         "label": label,
         "effect": _operation_effect(record),
+        "turnMeter": copy.deepcopy(record.get("turnMeter")),
         "evidence": "mechanically_verified",
     }
 
