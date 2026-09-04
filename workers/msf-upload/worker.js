@@ -1012,6 +1012,20 @@ function parseRosterCSV(
       "Power"
     );
 
+  const idxStars =
+    requireColumn(
+      colIndex,
+      ["stars"],
+      "Stars"
+    );
+
+  const idxRedStars =
+    requireColumn(
+      colIndex,
+      ["redstars"],
+      "Red Stars"
+    );
+
   const idxGear =
     requireColumn(
       colIndex,
@@ -1101,6 +1115,18 @@ function parseRosterCSV(
     const gear =
       toInt(cols[idxGear]);
 
+    const yellowStars =
+      toInt(cols[idxStars]);
+
+    const redDiamondLevel =
+      toInt(cols[idxRedStars]);
+
+    const redStars =
+      Math.min(redDiamondLevel, 7);
+
+    const diamonds =
+      Math.max(redDiamondLevel - 7, 0);
+
     const isoMax =
       computeIsoMaxFromFive(
         cols,
@@ -1167,6 +1193,9 @@ function parseRosterCSV(
         level,
         gear,
         isoMax,
+        yellowStars,
+        redStars,
+        diamonds,
       };
 
       if (
@@ -1210,6 +1239,21 @@ function parseRosterCSV(
         isoMax
       );
 
+      previous.yellowStars = Math.max(
+        toInt(previous.yellowStars),
+        yellowStars
+      );
+
+      previous.redStars = Math.max(
+        toInt(previous.redStars),
+        redStars
+      );
+
+      previous.diamonds = Math.max(
+        toInt(previous.diamonds),
+        diamonds
+      );
+
       if (
         (
           isoClass ||
@@ -1243,6 +1287,9 @@ function parseRosterCSV(
         level,
         gear,
         isoMax,
+        yellowStars,
+        redStars,
+        diamonds,
       };
 
       if (
