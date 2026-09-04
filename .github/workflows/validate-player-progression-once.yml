@@ -1,0 +1,57 @@
+name: Validate player progression once
+
+on:
+  push:
+    branches:
+      - agent/player-dd-saga-progress
+    paths:
+      - .github/workflows/validate-player-progression-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/player-dd-saga-progress
+          fetch-depth: 0
+
+      - name: Validate rules against characters and rosters
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const rules = JSON.parse(fs.readFileSync('docs/data/player-progression-rules.json', 'utf8'));
+          const chars = JSON.parse(fs.readFileSync('docs/data/msf-characters.json', 'utf8'));
+          const rosters = JSON.parse(fs.readFileSync('docs/data/rosters.json', 'utf8'));
+
+          const normalize = (v) => String(v ?? '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+          const characterIds = new Set(chars.map((c) => normalize(c.id)).filter(Boolean));
+          const rosterKeys = new Set();
+          for (const roster of rosters) {
+            for (const key of Object.keys(roster?.chars || {})) rosterKeys.add(normalize(key));
+          }
+
+          const used = [...new Set(rules.flatMap((group) => (group.steps || []).map((step) => step.character)))];
+          let failed = false;
+          for (const character of used) {
+            const key = normalize(character);
+            const inCatalog = characterIds.has(key);
+            const inRoster = rosterKeys.has(key);
+            console.log(`${character}: catalog=${inCatalog} roster=${inRoster}`);
+            if (!inCatalog || !inRoster) failed = true;
+          }
+          if (failed) process.exit(1);
+          NODE
+
+      - name: Remove one-shot workflow
+        if: success()
+        run: |
+          rm .github/workflows/validate-player-progression-once.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/validate-player-progression-once.yml
+          git commit -m "Remove progression validation workflow"
+          git push origin HEAD:agent/player-dd-saga-progress
