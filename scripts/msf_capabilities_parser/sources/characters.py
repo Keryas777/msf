@@ -6,6 +6,7 @@ import copy
 from dataclasses import dataclass
 from typing import Any, Iterable, Protocol
 
+from ..actions.common import ActionContext
 from ..actions.registry import ActionAdapterRegistry
 from ..containers import (
     ABILITY_ORDER,
@@ -40,6 +41,107 @@ PROC_REFERENCE_MULTI_KEYS = frozenset(
         "for_procs",
     }
 )
+
+TURN_METER_CONTROL_FIELDS = (
+    ("dynamic_stats", "stat_modifier"),
+    ("global_stats", "stat_modifier"),
+    ("passive_stats", "stat_modifier"),
+    ("stat_immunity", "stat_immunity"),
+)
+TURN_METER_CONTROL_STATS = frozenset(
+    {
+        "turnmeter_increase_mod_pct",
+        "turnmeter_decrease_mod_pct",
+        "turnmeter_immune_pct",
+    }
+)
+
+
+def _parse_turn_meter_controls(
+    *,
+    character_id: str,
+    node: dict[str, Any],
+    character_pointer: str,
+    engine: ContainerEngine,
+) -> tuple[list[str], set[str], int]:
+    """Expose only the validated technical turn-meter controls as actions."""
+
+    container_ids: list[str] = []
+    extracted_keys: set[str] = set()
+    action_count = 0
+    for order, (field, action_type) in enumerate(TURN_METER_CONTROL_FIELDS):
+        entries = node.get(field)
+        if not isinstance(entries, list):
+            continue
+        selected = [
+            (index, entry)
+            for index, entry in enumerate(entries)
+            if isinstance(entry, dict)
+            and entry.get("stat") in TURN_METER_CONTROL_STATS
+        ]
+        if not selected:
+            continue
+        extracted_keys.add(field)
+        pointer = append_pointer(character_pointer, field)
+        container = engine.create_container(
+            character_id=character_id,
+            ability_type=None,
+            container_type="technical",
+            parent_container_id=None,
+            order=order,
+            node=entries,
+            classification="technical-review",
+            source_pointer=pointer,
+            technical_key=field,
+            extracted_properties=set(),
+        )
+        container_ids.append(container["id"])
+        for source_index, entry in selected:
+            # The declared action discriminator exists only in the parser
+            # projection. ``raw`` is restored to the untouched source entry.
+            projected = {"action": action_type, **copy.deepcopy(entry)}
+            action_pointer = append_pointer(pointer, source_index)
+            identifier = engine.ids.claim(
+                "act", f"action|{engine.source_file}|{action_pointer}"
+            )
+            context = ActionContext(
+                source_file=engine.source_file,
+                source_pointer=action_pointer,
+                container_id=container["id"],
+                character_id=character_id,
+                ability_type=None,
+                action_id=identifier,
+            )
+            adapted = engine.registry.parse(projected, context)
+            result = adapted.result
+            handling = copy.deepcopy(result.property_handling)
+            handling["extracted"] = [
+                key for key in handling["extracted"] if key != "action"
+            ]
+            engine.actions.append(
+                {
+                    "id": identifier,
+                    "containerId": container["id"],
+                    "characterId": character_id,
+                    "abilityType": None,
+                    "order": source_index,
+                    "adapter": adapted.adapter_name,
+                    "rawType": result.raw_type,
+                    "target": result.target,
+                    "targetPresent": result.target_present,
+                    "conditions": result.conditions,
+                    "parameters": result.parameters,
+                    "propertyHandling": handling,
+                    "source": source_reference(engine.source_file, action_pointer),
+                    "raw": copy.deepcopy(entry),
+                }
+            )
+            engine.actions_by_pointer[action_pointer] = engine.actions[-1]
+            container["actionIds"].append(identifier)
+            engine.diagnostics.extend(result.diagnostics)
+            engine.adapter_counts[adapted.adapter_name] += 1
+            action_count += 1
+    return container_ids, extracted_keys, action_count
 
 
 class CharacterSource(Protocol):
@@ -283,6 +385,15 @@ def parse_characters(
             action_arrays=action_arrays,
             engine=engine,
         )
+        control_ids, control_keys, control_count = _parse_turn_meter_controls(
+            character_id=character_id,
+            node=node,
+            character_pointer=character_pointer,
+            engine=engine,
+        )
+        technical.technical_container_ids.extend(control_ids)
+        technical.extracted_character_keys.update(control_keys)
+        source_action_count += control_count
         extracted_character_keys.update(abilities.extracted_character_keys)
         extracted_character_keys.update(technical.extracted_character_keys)
         ability_count += abilities.ability_count
