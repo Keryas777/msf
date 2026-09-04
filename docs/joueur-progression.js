@@ -54,17 +54,6 @@
     });
   }
 
-  function isOwned(char) {
-    if (!char) return false;
-
-    return (
-      Number(char.power || 0) > 0 ||
-      Number(char.yellowStars || 0) > 0 ||
-      Number(char.redStars || 0) > 0 ||
-      Number(char.diamonds || 0) > 0
-    );
-  }
-
   function meetsRequirements(char, requirements) {
     if (!char || !requirements || typeof requirements !== "object") return false;
 
@@ -88,12 +77,12 @@
     const rows = [];
 
     state.rules.forEach((content) => {
-      let previousComplete = false;
+      let activeStepFound = false;
 
       (content.steps || []).forEach((step) => {
         const char = findRosterChar(roster, step.character);
         const complete = meetsRequirements(char, step.requirements);
-        const inProgress = !complete && (previousComplete || isOwned(char));
+        const inProgress = !complete && !activeStepFound;
 
         if (complete || inProgress) {
           rows.push({
@@ -105,7 +94,7 @@
           });
         }
 
-        previousComplete = complete;
+        if (!complete) activeStepFound = true;
       });
     });
 
