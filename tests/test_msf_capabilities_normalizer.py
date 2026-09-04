@@ -30,7 +30,7 @@ REAL_CHARACTERS = (
 )
 REAL_PROCS = REPOSITORY_ROOT / "data/msf-capabilities/raw/procs.json"
 REAL_MECHANICS_SHA256 = (
-    "37dec7f27cfd491b735b96d82292b55734741783b37ad82d57ec39dfe67e7731"
+    "2669f9c099c296aa4c39fb1841682097680e5bc08df16935d4049c84d0693afe"
 )
 
 
@@ -1072,15 +1072,15 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
         source_action_ids = {
             item["id"] for item in self.mechanics["actions"]
         }
-        self.assertEqual(len(source_action_ids), 12327)
-        self.assertEqual(len(mappings), 12327)
+        self.assertEqual(len(source_action_ids), 12424)
+        self.assertEqual(len(mappings), 12424)
         self.assertEqual(
             {item["sourceActionId"] for item in mappings},
             source_action_ids,
         )
         self.assertEqual(
             self.capabilities["audit"]["mappedActionCount"],
-            8990,
+            9087,
         )
         self.assertEqual(
             self.capabilities["audit"][

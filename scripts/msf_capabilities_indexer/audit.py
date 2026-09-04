@@ -21,6 +21,8 @@ KNOWN_OPERATION_KINDS = frozenset(
         "effect_duration_modify",
         "ability_energy_generate",
         "turn_meter_modify",
+        "stat_modifier",
+        "stat_immunity",
         "heal_restore",
         "barrier_apply",
         "barrier_remove",

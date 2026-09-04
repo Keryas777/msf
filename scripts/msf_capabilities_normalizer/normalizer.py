@@ -71,6 +71,19 @@ TURN_METER_METRIC_FIELDS = (
     ("specificCharacterTurnMeterPct", "specific_characters_mul"),
 )
 
+TURN_METER_CONTROL_METRIC_FIELDS = (
+    ("technicalValuePct", "delta"),
+    ("technicalMinValuePct", "min_value"),
+    ("technicalMaxValuePct", "max_value"),
+)
+TURN_METER_CONTROL_STATS = frozenset(
+    {
+        "turnmeter_increase_mod_pct",
+        "turnmeter_decrease_mod_pct",
+        "turnmeter_immune_pct",
+    }
+)
+
 
 def _terminal_numeric_value(value: Any) -> int | float | None:
     terminal = value[-1] if isinstance(value, list) and value else value
@@ -150,6 +163,88 @@ def _turn_meter_semantics(
         result["matchingCharacterFilter"] = copy.deepcopy(
             parameters["specific_characters"]
         )
+    return result
+
+
+def _affected_actor(parameters: dict[str, Any]) -> dict[str, Any]:
+    apply_if = parameters.get("apply_if")
+    if not isinstance(apply_if, dict):
+        return {"relation": "unresolved", "conditions": {}}
+    result: dict[str, Any] = {
+        "relation": copy.deepcopy(apply_if.get("relationship", "unresolved")),
+        "conditions": copy.deepcopy(apply_if),
+    }
+    population = {
+        key: copy.deepcopy(value)
+        for key, value in apply_if.items()
+        if key not in {"relationship", "mode", "combat_side"}
+    }
+    if population:
+        result["filter"] = population
+    return result
+
+
+def _turn_meter_control_semantics(
+    canonical_action_type: str,
+    parameters: dict[str, Any],
+    raw: Any,
+) -> dict[str, Any] | None:
+    stat = parameters.get("stat")
+    if stat not in TURN_METER_CONTROL_STATS:
+        return None
+    value = _terminal_numeric_value(parameters.get("delta"))
+    if canonical_action_type == "stat_immunity":
+        action = (
+            "protect_induced_gain_from_suppression"
+            if stat == "turnmeter_increase_mod_pct"
+            and parameters.get("allow_negative_modifier") is False
+            else "unresolved"
+        )
+    elif stat == "turnmeter_increase_mod_pct":
+        if value is not None and value <= -100:
+            action = "block_induced_gain"
+        elif value == -50:
+            action = "modify_induced_gain"
+        elif value is not None and value > 0:
+            action = "amplify_induced_gain"
+        else:
+            action = "unresolved"
+    elif stat == "turnmeter_decrease_mod_pct":
+        action = (
+            "block_induced_reduction"
+            if value is not None and value <= -100
+            else "unresolved"
+        )
+    else:
+        action = (
+            "reduction_immunity"
+            if value is not None and value >= 100
+            else "unresolved"
+        )
+
+    result: dict[str, Any] = {
+        "action": action,
+        "technicalStat": stat,
+        "affectedActor": _affected_actor(raw if isinstance(raw, dict) else {}),
+        "controlledGainRecipient": {"relation": "unresolved"},
+    }
+    if value is not None:
+        result["technicalValuePct"] = copy.deepcopy(value)
+    minimum = _terminal_numeric_value(parameters.get("min_value"))
+    maximum = _terminal_numeric_value(parameters.get("max_value"))
+    if minimum is not None:
+        result["technicalMinValuePct"] = copy.deepcopy(minimum)
+    if maximum is not None:
+        result["technicalMaxValuePct"] = copy.deepcopy(maximum)
+    if action in {
+        "modify_induced_gain",
+        "amplify_induced_gain",
+        "block_induced_gain",
+        "protect_induced_gain_from_suppression",
+    }:
+        result["normalGainUnaffected"] = True
+    if stat == "turnmeter_immune_pct":
+        result["confidence"] = "mechanical_only"
     return result
 
 HEAL_METRIC_FIELDS = (
@@ -1663,6 +1758,42 @@ class OperationBuilder:
             action.get("target"),
         )
 
+    def _build_turn_meter_control_action(
+        self,
+        action: dict[str, Any],
+        canonical_action_type: str,
+    ) -> None:
+        parameters = action.get("parameters")
+        if not isinstance(parameters, dict):
+            return
+        semantics = _turn_meter_control_semantics(
+            canonical_action_type, parameters, action.get("raw")
+        )
+        if semantics is None:
+            return
+        source_action_id = action.get("id")
+        if isinstance(source_action_id, str):
+            self.supported_action_ids.add(source_action_id)
+        source = action.get("source")
+        if not isinstance(source, dict):
+            source = {}
+        action_pointer = str(source.get("pointer", ""))
+        self._build_operation(
+            action,
+            kind=canonical_action_type,
+            canonical_action_type=canonical_action_type,
+            source_field=None,
+            effect_id=None,
+            effect_pointer=_append_pointer(action_pointer, "stat"),
+            entry_pointer=action_pointer,
+            entry=None,
+            ordinal=0,
+            scope={"kind": "affected_actor"},
+            metric_fields=TURN_METER_CONTROL_METRIC_FIELDS,
+        )
+        self.operations[-1]["mechanicFamily"] = "turn_meter"
+        self.operations[-1]["turnMeterControl"] = semantics
+
     def _build_heal_action(
         self,
         action: dict[str, Any],
@@ -1866,6 +1997,10 @@ class OperationBuilder:
                 self._build_ability_energy_action(action)
             elif canonical_action_type == "turn_meter":
                 self._build_turn_meter_action(action)
+            elif canonical_action_type in {"stat_modifier", "stat_immunity"}:
+                self._build_turn_meter_control_action(
+                    action, canonical_action_type
+                )
             elif canonical_action_type == "heal":
                 self._build_heal_action(action)
             elif canonical_action_type in {"barrier", "barrier_remove"}:
@@ -1896,6 +2031,38 @@ class OperationBuilder:
                         else "control"
                     ),
                 )
+
+        compatible: dict[tuple[str, str, str], list[dict[str, Any]]] = {}
+        for operation in self.operations:
+            control = operation.get("turnMeterControl")
+            if not isinstance(control, dict):
+                continue
+            affected = control.get("affectedActor", {})
+            key = (
+                str(operation.get("characterId")),
+                json.dumps(
+                    [
+                        condition.get("expression")
+                        for condition in operation.get("conditions", [])
+                        if isinstance(condition, dict)
+                    ],
+                    sort_keys=True,
+                ),
+                json.dumps(affected, sort_keys=True),
+            )
+            compatible.setdefault(key, []).append(operation)
+        for group in compatible.values():
+            actions = {
+                item["turnMeterControl"]["action"] for item in group
+            }
+            if {"block_induced_gain", "block_induced_reduction"} <= actions:
+                for operation in group:
+                    if operation["turnMeterControl"]["action"] in {
+                        "block_induced_gain", "block_induced_reduction"
+                    }:
+                        operation["turnMeterControl"]["combinedAction"] = (
+                            "block_induced_modification"
+                        )
 
         self.operations.sort(
             key=lambda item: (

@@ -86,6 +86,23 @@ OPERATION_KINDS = {
     "detected": {"label": "Actions détectées", "order": 100},
 }
 
+TURN_METER_CONTROL_LABELS = {
+    "modify_induced_gain": "Réduit les gains provoqués de jauge de vitesse",
+    "amplify_induced_gain": "Amplifie les gains provoqués de jauge de vitesse",
+    "block_induced_gain": "Empêche les gains provoqués de jauge de vitesse",
+    "protect_induced_gain_from_suppression": (
+        "Protège les gains provoqués de jauge contre leur suppression"
+    ),
+    "block_induced_reduction": (
+        "Empêche les réductions provoquées de jauge de vitesse"
+    ),
+    "reduction_immunity": "Immunité à la réduction de jauge de vitesse",
+    "block_induced_modification": (
+        "Empêche les modifications provoquées de jauge de vitesse"
+    ),
+    "unresolved": "Contrôle de jauge de vitesse non résolu",
+}
+
 
 METRICS = {
     "chancePct": "Chance",

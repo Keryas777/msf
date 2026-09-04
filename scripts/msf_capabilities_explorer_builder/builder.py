@@ -38,6 +38,7 @@ from .presentation import (
     PROOF,
     RELATION_LABELS,
     SCHEMA_VERSION,
+    TURN_METER_CONTROL_LABELS,
     SIDE_LABELS,
     SUGGESTION_SPECS,
     TARGET_TYPE_LABELS,
@@ -838,10 +839,18 @@ def _project_operation(
     )
     metrics = _metric_projection(operation.get("metrics"))
     chance = next((item["value"] for item in metrics if item["key"] == "chancePct"), None)
+    turn_meter_control = operation.get("turnMeterControl")
+    control_action = (
+        turn_meter_control.get("combinedAction")
+        or turn_meter_control.get("action")
+        if isinstance(turn_meter_control, dict)
+        else None
+    )
     return {
         "id": operation_id,
         "kind": kind,
-        "kindLabel": OPERATION_KINDS.get(kind, {}).get("label")
+        "kindLabel": TURN_METER_CONTROL_LABELS.get(control_action)
+        or OPERATION_KINDS.get(kind, {}).get("label")
         or _split_source_name(str(kind or "opération")),
         "evidence": "normalized",
         "characterId": operation.get("characterId"),
@@ -859,6 +868,8 @@ def _project_operation(
         "actionOrder": operation.get("actionOrder"),
         "sourceType": operation.get("rawSourceActionType")
         or operation.get("sourceActionType"),
+        "mechanicFamily": copy.deepcopy(operation.get("mechanicFamily")),
+        "turnMeterControl": copy.deepcopy(turn_meter_control),
     }
 
 
@@ -1212,6 +1223,8 @@ def _operation_mechanic_ids(
         result.add("action-ability-energy")
     if kind == "turn_meter_modify":
         result.add("action-turn-meter")
+    if raw.get("mechanicFamily") == "turn_meter":
+        result.add("action-turn-meter")
     if kind == "heal_restore":
         result.add("action-heal")
     if kind in {"barrier_apply", "barrier_remove"}:
@@ -1350,6 +1363,8 @@ def _compact_occurrence(item: Mapping[str, Any]) -> dict[str, Any]:
             "trigger",
             "scope",
             "sourceType",
+            "mechanicFamily",
+            "turnMeterControl",
             "excerpt",
         )
         if item.get(key) not in (None, [], "")
