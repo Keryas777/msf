@@ -300,6 +300,8 @@ def _build_operations_payload(
         }
         for field in OPERATION_VIEW_FIELDS:
             record[field] = copy.deepcopy(operation[field])
+        if "turnMeter" in operation:
+            record["turnMeter"] = copy.deepcopy(operation["turnMeter"])
         selector = record["selector"]
         for exclusion in selector.get("exclusions", []):
             if isinstance(exclusion, dict) and isinstance(
