@@ -1,0 +1,106 @@
+/* /docs/joueur-progression.css */
+
+.playerProgressionCard{
+  padding: 12px;
+}
+
+.playerProgressionHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.playerProgressionHeader .cardTitle{
+  margin:0;
+}
+
+.playerProgressionToggle{
+  appearance:none;
+  -webkit-appearance:none;
+  border:1px solid var(--toggle-off-border);
+  border-radius:999px;
+  background:var(--toggle-off-bg);
+  color:var(--toggle-off-text);
+  font:inherit;
+  font-size:12px;
+  font-weight:1000;
+  line-height:1;
+  padding:8px 10px;
+  white-space:nowrap;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.playerProgressionToggle:active{
+  transform:scale(.98);
+}
+
+.playerProgressionList{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.playerProgressionRow{
+  min-width:0;
+  display:grid;
+  grid-template-columns:auto minmax(0, 1fr);
+  gap:9px;
+  align-items:center;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:9px 10px;
+  background:rgba(0,0,0,.22);
+}
+
+.playerProgressionRow.is-complete{
+  opacity:.72;
+}
+
+.playerProgressionStatus{
+  font-size:17px;
+  line-height:1;
+}
+
+.playerProgressionMain{
+  min-width:0;
+}
+
+.playerProgressionTitle{
+  color:var(--text);
+  font-size:13px;
+  line-height:1.2;
+  font-weight:1000;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.playerProgressionMeta{
+  margin-top:3px;
+  color:var(--muted2);
+  font-size:11px;
+  line-height:1.1;
+  font-weight:800;
+}
+
+.playerProgressionEmpty{
+  color:var(--muted);
+  text-align:center;
+  padding:10px 6px 4px;
+  font-size:12px;
+  line-height:1.35;
+  font-weight:800;
+}
+
+@media (max-width: 430px){
+  .playerProgressionHeader{
+    align-items:flex-start;
+  }
+
+  .playerProgressionTitle{
+    white-space:normal;
+  }
+}
