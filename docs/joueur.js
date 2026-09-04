@@ -1760,6 +1760,11 @@
   function renderAll() {
     renderIdentity();
     renderRosterChart();
+    window.dispatchEvent(
+      new CustomEvent("losp:player-profile-render", {
+        detail: { roster: getSelectedRoster() },
+      })
+    );
     renderTeams();
   }
 
