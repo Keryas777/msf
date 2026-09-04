@@ -6,6 +6,7 @@
   <title>Fiche joueur</title>
   <link rel="stylesheet" href="./style.css?v=2" />
   <link rel="stylesheet" href="./joueur.css?v=2" />
+  <link rel="stylesheet" href="./joueur-progression.css?v=1" />
 </head>
 <body class="page-joueur">
   <main class="app">
@@ -76,6 +77,21 @@
       </div>
     </section>
 
+    <section class="card playerProgressionCard" id="playerProgressionCard">
+      <div class="playerProgressionHeader">
+        <h2 class="cardTitle">Progression DD &amp; Sagas</h2>
+        <button
+          class="playerProgressionToggle"
+          id="playerProgressionToggle"
+          type="button"
+          aria-expanded="false"
+        >Voir tout</button>
+      </div>
+
+      <div class="playerProgressionList" id="playerProgressionList"></div>
+      <div class="playerProgressionEmpty" id="playerProgressionEmpty">Chargement…</div>
+    </section>
+
     <section class="card modeCard">
       <h2 class="cardTitle">Mode de jeu</h2>
       <div class="modeChips" id="modeChips" role="tablist" aria-label="Modes de jeu">
@@ -101,6 +117,7 @@
   </main>
 
   <script src="./alliances.js?v=1" defer></script>
-  <script src="./joueur.js?v=3" defer></script>
+  <script src="./joueur.js?v=4" defer></script>
+  <script src="./joueur-progression.js?v=1" defer></script>
 </body>
 </html>
