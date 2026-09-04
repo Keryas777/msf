@@ -71,6 +71,223 @@ TURN_METER_METRIC_FIELDS = (
     ("specificCharacterTurnMeterPct", "specific_characters_mul"),
 )
 
+TURN_METER_CONTROL_METRIC_FIELDS = (
+    ("technicalValuePct", "delta"),
+    ("technicalMinValuePct", "min_value"),
+    ("technicalMaxValuePct", "max_value"),
+)
+
+NORMAL_GAIN_EXCLUSION_TEXT_VALIDATED = frozenset({"FalconJoaquin"})
+TEXT_VALIDATED_TURN_METER_CONTROL_CHARACTERS = frozenset(
+    {
+        "Annihilus",
+        "BlackCat",
+        "BlackKnight",
+        "Blastaar",
+        "CaptainBritain",
+        "CosmicGhostRider",
+        "FalconJoaquin",
+        "Gladiator",
+        "Gwenpool",
+        "Hellcat",
+        "Hellverine",
+        "Hercules",
+        "HighEvolutionary",
+        "HowardTheDuck",
+        "IronPatriot",
+        "JeanGrey",
+        "Kahhori",
+        "Knull",
+        "MagnetoPhoenixForce",
+        "Mephisto",
+        "MoonGirl",
+        "Morph",
+        "NightThrasher",
+        "Northstar",
+        "Odin",
+        "OldManLogan",
+        "PandaPool",
+        "PeggyCarter",
+        "PhantomRider",
+        "Photon",
+        "Quasar",
+        "Quicksilver",
+        "RachelSummers",
+        "Ronan",
+        "Ronin",
+        "Satana",
+        "SebastianShaw",
+        "Sentry",
+        "ShadowKing",
+        "SilverSurferBreaker",
+        "SpiderManBigTime",
+        "SpiderWomanJulia",
+        "SteelSerpent",
+        "Thanos",
+        "TheHood",
+        "Thunderstrike",
+        "Wolfsbane",
+        "Xavier",
+        "ZombieScarletWitch",
+    }
+)
+
+
+def _terminal_numeric_value(value: Any) -> int | float | None:
+    terminal = value[-1] if isinstance(value, list) and value else value
+    if isinstance(terminal, (int, float)) and not isinstance(terminal, bool):
+        return terminal
+    return None
+
+
+def _turn_meter_semantics(
+    parameters: dict[str, Any],
+    target_present: bool,
+    target: Any,
+) -> dict[str, Any]:
+    """Project conservative player semantics without replacing raw targeting."""
+
+    base_value = _terminal_numeric_value(parameters.get("change_pct"))
+    per_character = _terminal_numeric_value(
+        parameters.get("specific_characters_mul")
+    )
+    if base_value is not None and base_value > 0:
+        action = direction = "increase"
+    elif base_value is not None and base_value < 0:
+        action = direction = "decrease"
+    elif base_value == 0 and per_character not in (None, 0):
+        action = "contextual_amount"
+        direction = "increase" if per_character > 0 else "decrease"
+    else:
+        action = direction = "unresolved"
+
+    recipient = "unresolved"
+    resolution = "unresolved"
+    target_projection: dict[str, Any] = {}
+    if target_present and isinstance(target, dict):
+        target_projection = {
+            output_key: copy.deepcopy(target[source_key])
+            for source_key, output_key in (
+                ("relation", "relation"),
+                ("relationship", "relationship"),
+                ("type", "type"),
+                ("limit", "limit"),
+                ("filter", "filter"),
+                ("primary_selection", "primarySelection"),
+                ("places_from_primary", "placesFromPrimary"),
+            )
+            if source_key in target
+        }
+        if target.get("type") == "primary":
+            recipient = "primary"
+            resolution = "explicit"
+        elif (
+            target.get("places_from_primary") == 1
+            and target.get("primary_selection") == "include_as_target"
+        ):
+            recipient = "primary_and_adjacent"
+            resolution = "explicit"
+        elif target.get("relation") == "enemy":
+            recipient = "enemy_side"
+            resolution = "explicit"
+        elif target == {"relation": "ally"}:
+            recipient = "ally_default"
+            resolution = "explicit"
+        elif target.get("relation") == "ally":
+            recipient = "ally_side"
+            resolution = "explicit"
+
+    result = {
+        "action": action,
+        "direction": direction,
+        "baseValuePct": copy.deepcopy(base_value),
+        "recipient": recipient,
+        "resolution": resolution,
+        "target": target_projection,
+    }
+    if per_character is not None:
+        result["perMatchingCharacterPct"] = copy.deepcopy(per_character)
+    if "specific_characters" in parameters:
+        result["matchingCharacterFilter"] = copy.deepcopy(
+            parameters["specific_characters"]
+        )
+    return result
+
+
+def _turn_meter_control_semantics(
+    action: dict[str, Any],
+    parameters: dict[str, Any],
+    *,
+    combined: bool,
+) -> dict[str, Any]:
+    technical_stat = parameters.get("stat")
+    technical_value = _terminal_numeric_value(parameters.get("delta"))
+    raw_type = str(action.get("rawType") or "").lower()
+    semantic_action = "unresolved"
+    if raw_type == "stat_immunity":
+        if (
+            technical_stat == "turnmeter_increase_mod_pct"
+            and parameters.get("allow_negative_modifier") is False
+        ):
+            semantic_action = "protect_induced_gain_from_suppression"
+    elif technical_stat == "turnmeter_increase_mod_pct":
+        if technical_value == -50:
+            semantic_action = "modify_induced_gain"
+        elif technical_value is not None and technical_value <= -100:
+            semantic_action = "block_induced_gain"
+        elif technical_value is not None and technical_value > 0:
+            semantic_action = "amplify_induced_gain"
+    elif technical_stat == "turnmeter_decrease_mod_pct":
+        if technical_value is not None and technical_value <= -100:
+            semantic_action = "block_induced_reduction"
+    elif technical_stat == "turnmeter_immune_pct":
+        if technical_value is not None and technical_value >= 100:
+            semantic_action = "reduction_immunity"
+
+    conditions = _normalize_condition_records(action.get("conditions"))
+    apply_if = next(
+        (
+            condition.get("expression")
+            for condition in conditions
+            if condition.get("kind") == "apply_if"
+        ),
+        None,
+    )
+    affected_actor = {"resolution": "unresolved"}
+    if isinstance(apply_if, dict):
+        relation = apply_if.get("relationship")
+        if isinstance(relation, str):
+            affected_actor = {
+                "relation": relation,
+                "resolution": "explicit",
+            }
+        affected_actor["filter"] = copy.deepcopy(apply_if)
+
+    character_id = str(action.get("characterId") or "")
+    confidence = (
+        "structured_and_text_validated"
+        if character_id in TEXT_VALIDATED_TURN_METER_CONTROL_CHARACTERS
+        else "mechanical_only"
+    )
+    result = {
+        "action": semantic_action,
+        "technicalStat": copy.deepcopy(technical_stat),
+        "technicalValuePct": copy.deepcopy(technical_value),
+        "affectedActor": affected_actor,
+        "controlledGainRecipient": {
+            "resolution": "unresolved",
+        },
+        "resolution": (
+            "explicit" if semantic_action != "unresolved" else "unresolved"
+        ),
+        "confidence": confidence,
+    }
+    if combined:
+        result["combinedAction"] = "block_induced_modification"
+    if character_id in NORMAL_GAIN_EXCLUSION_TEXT_VALIDATED:
+        result["normalGainUnaffected"] = True
+    return result
+
 HEAL_METRIC_FIELDS = (
     ("chancePct", "action_pct"),
     ("healAmount", "heal_amt"),
@@ -826,6 +1043,48 @@ class OperationBuilder:
         self._claimed_ids: dict[str, str] = {}
         self._diagnostic_keys: set[tuple[Any, ...]] = set()
         self._control_cache: dict[str, dict[str, Any]] = {}
+        control_stats_by_signature: dict[tuple[str, str], set[str]] = {}
+        signature_by_action_id: dict[str, tuple[str, str]] = {}
+        for item in mechanics["actions"]:
+            if not isinstance(item, dict):
+                continue
+            parameters = item.get("parameters")
+            if not isinstance(parameters, dict):
+                continue
+            stat = parameters.get("stat")
+            if stat not in {
+                "turnmeter_increase_mod_pct",
+                "turnmeter_decrease_mod_pct",
+            }:
+                continue
+            signature = (
+                str(item.get("characterId") or ""),
+                json.dumps(
+                    [
+                        {
+                            "kind": condition.get("kind"),
+                            "raw": condition.get("raw"),
+                        }
+                        for condition in item.get("conditions", [])
+                        if isinstance(condition, dict)
+                    ],
+                    ensure_ascii=False,
+                    sort_keys=True,
+                ),
+            )
+            action_id = item.get("id")
+            if isinstance(action_id, str):
+                signature_by_action_id[action_id] = signature
+            control_stats_by_signature.setdefault(signature, set()).add(stat)
+        self.combined_turn_meter_control_ids = {
+            action_id
+            for action_id, signature in signature_by_action_id.items()
+            if control_stats_by_signature.get(signature)
+            == {
+                "turnmeter_increase_mod_pct",
+                "turnmeter_decrease_mod_pct",
+            }
+        }
 
     def _claim_operation_id(self, canonical: str) -> str:
         identifier = _deterministic_id("op", canonical)
@@ -1559,6 +1818,9 @@ class OperationBuilder:
         source = action.get("source")
         if not isinstance(source, dict):
             source = {}
+        parameters = action.get("parameters")
+        if not isinstance(parameters, dict):
+            parameters = {}
         action_pointer = str(source.get("pointer", ""))
         self._build_operation(
             action,
@@ -1572,6 +1834,49 @@ class OperationBuilder:
             ordinal=0,
             scope={"kind": "action_target"},
             metric_fields=TURN_METER_METRIC_FIELDS,
+        )
+        self.operations[-1]["turnMeter"] = _turn_meter_semantics(
+            parameters,
+            bool(action.get("targetPresent")),
+            action.get("target"),
+        )
+
+    def _build_turn_meter_control_action(
+        self,
+        action: dict[str, Any],
+        canonical_action_type: str,
+    ) -> None:
+        source_action_id = action.get("id")
+        if isinstance(source_action_id, str):
+            self.supported_action_ids.add(source_action_id)
+        parameters = action.get("parameters")
+        if not isinstance(parameters, dict):
+            parameters = {}
+        source = action.get("source")
+        if not isinstance(source, dict):
+            source = {}
+        action_pointer = str(source.get("pointer", ""))
+        self._build_operation(
+            action,
+            kind=canonical_action_type,
+            canonical_action_type=canonical_action_type,
+            source_field=None,
+            effect_id=None,
+            effect_pointer=action_pointer,
+            entry_pointer=action_pointer,
+            entry=None,
+            ordinal=0,
+            scope={"kind": "affected_actor"},
+            metric_fields=TURN_METER_CONTROL_METRIC_FIELDS,
+        )
+        self.operations[-1]["mechanicFamily"] = "turn_meter"
+        self.operations[-1]["turnMeterControl"] = (
+            _turn_meter_control_semantics(
+                action,
+                parameters,
+                combined=source_action_id
+                in self.combined_turn_meter_control_ids,
+            )
         )
 
     def _build_heal_action(
@@ -1777,6 +2082,16 @@ class OperationBuilder:
                 self._build_ability_energy_action(action)
             elif canonical_action_type == "turn_meter":
                 self._build_turn_meter_action(action)
+            elif (
+                canonical_action_type in {"stat_modifier", "stat_immunity"}
+                and isinstance(action.get("parameters"), dict)
+                and str(action["parameters"].get("stat") or "").startswith(
+                    "turnmeter_"
+                )
+            ):
+                self._build_turn_meter_control_action(
+                    action, canonical_action_type
+                )
             elif canonical_action_type == "heal":
                 self._build_heal_action(action)
             elif canonical_action_type in {"barrier", "barrier_remove"}:

@@ -767,6 +767,7 @@ def _scope_label(scope: Any) -> str | None:
         "character": "Personnage",
         "battlefield": "Champ de bataille",
         "ability_energy_recipient": "Destinataire de l’énergie",
+        "affected_actor": "Acteur affecté",
     }.get(scope.get("kind"))
 
 
@@ -859,6 +860,10 @@ def _project_operation(
         "actionOrder": operation.get("actionOrder"),
         "sourceType": operation.get("rawSourceActionType")
         or operation.get("sourceActionType"),
+        "mechanicFamily": copy.deepcopy(operation.get("mechanicFamily")),
+        "turnMeterControl": copy.deepcopy(
+            operation.get("turnMeterControl")
+        ),
     }
 
 
@@ -1211,6 +1216,8 @@ def _operation_mechanic_ids(
     if kind == "ability_energy_generate":
         result.add("action-ability-energy")
     if kind == "turn_meter_modify":
+        result.add("action-turn-meter")
+    if raw.get("mechanicFamily") == "turn_meter":
         result.add("action-turn-meter")
     if kind == "heal_restore":
         result.add("action-heal")

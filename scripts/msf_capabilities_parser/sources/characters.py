@@ -8,7 +8,7 @@ from typing import Any, Iterable, Protocol
 
 from ..actions.registry import ActionAdapterRegistry
 from ..containers import (
-    ABILITY_ORDER,
+    ABILITY_ORDER as ABILITY_ORDER,
     ContainerEngine,
     property_handling,
     walk_action_arrays,
@@ -21,7 +21,6 @@ from .character_technical import (
     parse_technical_structures,
     parse_unclassified_action_arrays,
 )
-
 
 PROC_REFERENCE_SINGLE_KEYS = frozenset(
     {
@@ -39,6 +38,20 @@ PROC_REFERENCE_MULTI_KEYS = frozenset(
         "exceptprocs",
         "for_procs",
     }
+)
+
+TURN_METER_CONTROL_STATS = frozenset(
+    {
+        "turnmeter_increase_mod_pct",
+        "turnmeter_decrease_mod_pct",
+        "turnmeter_immune_pct",
+    }
+)
+TURN_METER_CONTROL_FIELDS = (
+    "dynamic_stats",
+    "global_stats",
+    "passive_stats",
+    "stat_immunity",
 )
 
 
@@ -137,6 +150,111 @@ def _collect_proc_references(
             )
         )
     return references
+
+
+def _parse_turn_meter_controls(
+    *,
+    character_id: str,
+    node: dict[str, Any],
+    character_pointer: str,
+    engine: ContainerEngine,
+) -> tuple[list[str], int]:
+    """Expose supported top-level turn-meter controls as technical actions."""
+
+    container_ids: list[str] = []
+    action_count = 0
+    passive_parent_id = next(
+        (
+            container["id"]
+            for container in engine.containers
+            if container.get("characterId") == character_id
+            and container.get("abilityType") == "passive"
+            and container.get("containerType") == "ability"
+        ),
+        None,
+    )
+    for field_order, field in enumerate(TURN_METER_CONTROL_FIELDS):
+        entries = node.get(field)
+        if not isinstance(entries, list):
+            continue
+        matching = [
+            (index, entry)
+            for index, entry in enumerate(entries)
+            if isinstance(entry, dict)
+            and entry.get("stat") in TURN_METER_CONTROL_STATS
+        ]
+        if not matching:
+            continue
+        field_pointer = append_pointer(character_pointer, field)
+        for order, (index, entry) in enumerate(matching):
+            pointer = append_pointer(field_pointer, index)
+            container = engine.create_container(
+                character_id=character_id,
+                ability_type="passive",
+                container_type="turn_meter_control",
+                parent_container_id=passive_parent_id,
+                order=field_order + order,
+                node=entry,
+                classification="normalized",
+                source_pointer=pointer,
+                technical_key=field,
+                extracted_properties=set(entry),
+            )
+            container_ids.append(container["id"])
+            action_id = engine.ids.claim(
+                "act", f"action|{engine.source_file}|{pointer}"
+            )
+            condition_keys = [
+                key
+                for key in ("apply_if", "target_apply_if")
+                if key in entry
+            ]
+            parameters = {
+                key: copy.deepcopy(value)
+                for key, value in entry.items()
+                if key not in condition_keys
+            }
+            action = {
+                "id": action_id,
+                "containerId": container["id"],
+                "characterId": character_id,
+                "abilityType": "passive",
+                "order": order,
+                "adapter": "turn_meter_control",
+                "rawType": (
+                    "stat_immunity"
+                    if field == "stat_immunity"
+                    else "stat_modifier"
+                ),
+                "target": None,
+                "targetPresent": False,
+                "conditions": [
+                    {
+                        "kind": key,
+                        "source": source_reference(
+                            engine.source_file,
+                            append_pointer(pointer, key),
+                        ),
+                        "raw": copy.deepcopy(entry[key]),
+                    }
+                    for key in condition_keys
+                ],
+                "parameters": parameters,
+                "propertyHandling": {
+                    "extracted": sorted(entry),
+                    "rawOnly": [],
+                    "ignored": [],
+                    "unrecognized": [],
+                },
+                "source": source_reference(engine.source_file, pointer),
+                "raw": copy.deepcopy(entry),
+            }
+            engine.actions.append(action)
+            engine.actions_by_pointer[pointer] = action
+            container["actionIds"].append(action_id)
+            engine.adapter_counts["turn_meter_control"] += 1
+            action_count += 1
+    return container_ids, action_count
 
 
 def _extract_traits(
@@ -276,6 +394,13 @@ def parse_characters(
             character_pointer=character_pointer,
             engine=engine,
         )
+        control_ids, control_action_count = _parse_turn_meter_controls(
+            character_id=character_id,
+            node=node,
+            character_pointer=character_pointer,
+            engine=engine,
+        )
+        source_action_count += control_action_count
         technical = parse_technical_structures(
             character_id=character_id,
             node=node,
@@ -285,6 +410,7 @@ def parse_characters(
         )
         extracted_character_keys.update(abilities.extracted_character_keys)
         extracted_character_keys.update(technical.extracted_character_keys)
+        technical.technical_container_ids.extend(control_ids)
         ability_count += abilities.ability_count
         passive_trigger_count += abilities.passive_trigger_count
         unhandled_node_count += technical.unhandled_node_count

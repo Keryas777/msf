@@ -301,9 +301,27 @@ def _ability_energy_operation_label(record: Mapping[str, Any]) -> str:
 
 
 def _turn_meter_operation_label(record: Mapping[str, Any]) -> str:
+    semantics = record.get("turnMeter") if isinstance(record.get("turnMeter"), dict) else {}
     metrics = record.get("metrics") if isinstance(record.get("metrics"), dict) else {}
     amount = _progression_terminal(metrics.get("turnMeterPct"))
     contextual = _progression_terminal(metrics.get("specificCharacterTurnMeterPct"))
+    action = semantics.get("action")
+    direction = semantics.get("direction")
+    recipient = {
+        "ally_default": "du camp allié",
+        "ally_side": "des alliés",
+        "enemy_side": "des ennemis",
+        "primary": "de la cible principale",
+        "primary_and_adjacent": "de la cible principale et des cibles adjacentes",
+    }.get(semantics.get("recipient"))
+    if action == "contextual_amount":
+        verb = "Augmente" if direction == "increase" else "Réduit" if direction == "decrease" else "Modifie"
+        suffix = f" {recipient}" if recipient else ""
+        return f"{verb} la jauge de vitesse{suffix} selon les personnages présents"
+    if direction in {"increase", "decrease"} and amount is not None:
+        verb = "Augmente" if direction == "increase" else "Réduit"
+        suffix = f" {recipient}" if recipient else ""
+        return f"{verb} la jauge de vitesse{suffix} de {abs(amount):g} %"
     if amount is None:
         return "Modifie la jauge de vitesse"
     if contextual not in (None, 0):
@@ -313,6 +331,30 @@ def _turn_meter_operation_label(record: Mapping[str, Any]) -> str:
     if amount < 0:
         return f"Réduit la jauge de vitesse de {abs(amount):g} %"
     return "Modifie la jauge de vitesse"
+
+
+def _turn_meter_control_operation_label(record: Mapping[str, Any]) -> str:
+    control = (
+        record.get("turnMeterControl")
+        if isinstance(record.get("turnMeterControl"), dict)
+        else {}
+    )
+    action = control.get("combinedAction") or control.get("action")
+    return {
+        "modify_induced_gain": "Réduit les gains provoqués de jauge de vitesse",
+        "amplify_induced_gain": "Amplifie les gains provoqués de jauge de vitesse",
+        "block_induced_gain": "Empêche les gains provoqués de jauge de vitesse",
+        "protect_induced_gain_from_suppression": (
+            "Protège les gains provoqués de jauge contre leur suppression"
+        ),
+        "block_induced_reduction": (
+            "Empêche les réductions provoquées de jauge de vitesse"
+        ),
+        "reduction_immunity": "Immunité à la réduction de jauge de vitesse",
+        "block_induced_modification": (
+            "Empêche les modifications provoquées de jauge de vitesse"
+        ),
+    }.get(action, "Contrôle la jauge de vitesse")
 
 
 def _heal_operation_label(record: Mapping[str, Any]) -> str:
@@ -334,6 +376,8 @@ def _operation_projection(record: Mapping[str, Any]) -> dict[str, Any]:
         label = _ability_energy_operation_label(record)
     elif kind == "turn_meter_modify":
         label = _turn_meter_operation_label(record)
+    elif record.get("mechanicFamily") == "turn_meter":
+        label = _turn_meter_control_operation_label(record)
     elif kind == "heal_restore":
         label = _heal_operation_label(record)
     else:
@@ -343,6 +387,8 @@ def _operation_projection(record: Mapping[str, Any]) -> dict[str, Any]:
         "kind": kind,
         "label": label,
         "effect": _operation_effect(record),
+        "turnMeter": copy.deepcopy(record.get("turnMeter")),
+        "turnMeterControl": copy.deepcopy(record.get("turnMeterControl")),
         "evidence": "mechanically_verified",
     }
 
