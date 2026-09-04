@@ -75,6 +75,9 @@ function mergePlayerEntry(target, source) {
     const srcLevel = toInt(srcChar.level);
     const srcGear = toInt(srcChar.gear);
     const srcIsoMax = toInt(srcChar.isoMax);
+    const srcYellowStars = toInt(srcChar.yellowStars);
+    const srcRedStars = toInt(srcChar.redStars);
+    const srcDiamonds = toInt(srcChar.diamonds);
 
     const prev = target.chars[charKey];
     const prevPower = prev ? toInt(prev.power) : -1;
@@ -85,6 +88,9 @@ function mergePlayerEntry(target, source) {
         level: srcLevel,
         gear: srcGear,
         isoMax: srcIsoMax,
+        yellowStars: srcYellowStars,
+        redStars: srcRedStars,
+        diamonds: srcDiamonds,
       };
 
       if (sourceIso[charKey] && typeof sourceIso[charKey] === "object") {
@@ -101,6 +107,9 @@ function mergePlayerEntry(target, source) {
       prev.level = Math.max(toInt(prev.level), srcLevel);
       prev.gear = Math.max(toInt(prev.gear), srcGear);
       prev.isoMax = Math.max(toInt(prev.isoMax), srcIsoMax);
+      prev.yellowStars = Math.max(toInt(prev.yellowStars), srcYellowStars);
+      prev.redStars = Math.max(toInt(prev.redStars), srcRedStars);
+      prev.diamonds = Math.max(toInt(prev.diamonds), srcDiamonds);
 
       if (!target.iso[charKey] && sourceIso[charKey] && typeof sourceIso[charKey] === "object") {
         target.iso[charKey] = {
