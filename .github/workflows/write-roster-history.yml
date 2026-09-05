@@ -1,0 +1,87 @@
+name: Write roster history
+
+on:
+  workflow_dispatch:
+    inputs:
+      from:
+        description: First monthly checkpoint (YYYY-MM-01)
+        required: true
+        default: "2026-03-01"
+      to:
+        description: Last monthly checkpoint (YYYY-MM-01)
+        required: true
+        default: "2026-09-01"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
+
+jobs:
+  write-history:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main with full history
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build roster history
+        env:
+          DATA_DIR: docs/data
+          ROSTER_HISTORY_TZ: Europe/Paris
+        run: |
+          node --version
+          node scripts/build-roster-history.mjs \
+            --from="${{ inputs.from }}" \
+            --to="${{ inputs.to }}" \
+            --write
+
+      - name: Verify generated scope
+        shell: bash
+        run: |
+          if [ ! -d docs/data/roster-history ]; then
+            echo "Expected docs/data/roster-history was not generated."
+            exit 1
+          fi
+
+          unexpected=0
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            file="${line:3}"
+            case "$file" in
+              docs/data/roster-history/*) ;;
+              *)
+                echo "Unexpected change outside roster history: $line"
+                unexpected=1
+                ;;
+            esac
+          done < <(git status --porcelain --untracked-files=all)
+
+          if [ "$unexpected" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Commit and push roster history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add docs/data/roster-history
+
+          if git diff --staged --quiet; then
+            echo "No roster history changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Build roster history ${{ inputs.from }} to ${{ inputs.to }}"
+          git push origin HEAD:main
