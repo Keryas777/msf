@@ -11,9 +11,11 @@ const ROOT_DIR = process.cwd();
 const DATA_DIR = process.env.DATA_DIR || 'docs/data';
 const HISTORY_DIR = process.env.HISTORY_DIR || path.join(DATA_DIR, 'roster-history');
 const ALIASES_FILE = process.env.PLAYER_ALIASES_FILE || path.join(DATA_DIR, 'player-aliases.json');
-const DEFAULT_FROM = process.env.ROSTER_HISTORY_FROM || '2026-04-01';
+const DEFAULT_FROM = process.env.ROSTER_HISTORY_FROM || '2026-03-01';
 const DEFAULT_TO = process.env.ROSTER_HISTORY_TO || firstDayOfCurrentMonth();
 const GIT_TZ = process.env.ROSTER_HISTORY_TZ || 'Europe/Paris';
+const MARCH_2026_GRACE_CHECKPOINT = '2026-03-01';
+const MARCH_2026_GRACE_UNTIL = '2026-03-08T00:00:00';
 
 function firstDayOfCurrentMonth() {
   const now = new Date();
@@ -166,19 +168,26 @@ function assertFullGitHistory() {
   }
 }
 
-function findSourceRevision(file, checkpoint) {
-  let line = '';
+function findRevisionLine(file, before, reverse = false) {
+  const args = ['log', '-1', '--format=%H%x09%cI'];
+  if (reverse) args.push('--reverse');
+  args.push(`--before=${before}`, '--', file);
   try {
-    line = runGit([
-      'log',
-      '-1',
-      '--format=%H%x09%cI',
-      `--before=${checkpoint}T00:00:00`,
-      '--',
-      file,
-    ]);
+    return runGit(args);
   } catch {
-    return null;
+    return '';
+  }
+}
+
+function findSourceRevision(file, checkpoint) {
+  let line = findRevisionLine(file, `${checkpoint}T00:00:00`);
+  let approximatedFromAfterCheckpoint = false;
+
+  // Exception rétroactive validée : pour le checkpoint du 1er mars 2026,
+  // le premier roster disponible jusqu'au 7 mars inclus peut représenter le 1er mars.
+  if (!line && checkpoint === MARCH_2026_GRACE_CHECKPOINT) {
+    line = findRevisionLine(file, MARCH_2026_GRACE_UNTIL, true);
+    approximatedFromAfterCheckpoint = Boolean(line);
   }
 
   if (!line) return null;
@@ -202,7 +211,7 @@ function findSourceRevision(file, checkpoint) {
     throw new Error(`${file} at ${commit} is not a JSON array`);
   }
 
-  return { file, commit, committedAt, rows };
+  return { file, commit, committedAt, rows, approximatedFromAfterCheckpoint };
 }
 
 function copyIfPresent(target, source, field) {
@@ -249,6 +258,7 @@ function normalizePlayerSnapshot(row, canonicalName, playerKey, allianceKey, che
       file: source.file,
       commit: source.commit,
       committedAt: source.committedAt,
+      ...(source.approximatedFromAfterCheckpoint ? { approximatedFromAfterCheckpoint: true } : {}),
     },
     chars,
     iso,
@@ -388,7 +398,8 @@ function printReport(options, checkpoints, sourceMatrix, snapshotsByCheckpoint, 
     const snapshots = snapshotsByCheckpoint.get(checkpoint) ?? [];
     console.log(`\n${checkpoint}: ${snapshots.length} players`);
     for (const source of sources) {
-      console.log(`  - ${source.alliance}: ${source.rows.length} players @ ${source.committedAt} (${source.commit.slice(0, 8)})`);
+      const approximation = source.approximatedFromAfterCheckpoint ? ' [approximated]' : '';
+      console.log(`  - ${source.alliance}: ${source.rows.length} players @ ${source.committedAt} (${source.commit.slice(0, 8)})${approximation}`);
     }
   }
 
