@@ -346,7 +346,11 @@ export function buildCodexHref(route = {}, base = "./codex.html") {
 }
 
 export function recordHref(record) {
-  return buildCodexHref({ view: record?.view || "home", id: record?.id || "" });
+  return buildCodexHref({
+    view: record?.view || "home",
+    id: record?.id || "",
+    operation: record?.operation || "",
+  });
 }
 
 export function routeBucket(id) {

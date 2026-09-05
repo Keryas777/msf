@@ -103,6 +103,33 @@ TURN_METER_CONTROL_LABELS = {
     "unresolved": "Contrôle de jauge de vitesse non résolu",
 }
 
+TURN_METER_FACETS = {
+    "increase": {"id": "turn_meter_increase", "label": "Augmente la jauge de vitesse", "group": "Actions directes", "order": 10},
+    "decrease": {"id": "turn_meter_decrease", "label": "Réduit la jauge de vitesse", "group": "Actions directes", "order": 20},
+    "contextual_amount": {"id": "turn_meter_contextual_amount", "label": "Montant contextuel de jauge de vitesse", "group": "Actions directes", "order": 30},
+    "unresolved": {"id": "turn_meter_unresolved", "label": "Modification de jauge non résolue", "group": "Actions directes", "order": 40},
+}
+
+TURN_METER_CONTROL_FACET_IDS = {
+    "modify_induced_gain": "turn_meter_modify_induced_gain",
+    "amplify_induced_gain": "turn_meter_amplify_induced_gain",
+    "block_induced_gain": "turn_meter_block_induced_gain",
+    "protect_induced_gain_from_suppression": "turn_meter_protect_induced_gain",
+    "block_induced_reduction": "turn_meter_block_induced_reduction",
+    "reduction_immunity": "turn_meter_reduction_immunity",
+    "unresolved": "turn_meter_control_unresolved",
+}
+
+TURN_METER_CONTROL_FACETS = {
+    action: {
+        "id": facet_id,
+        "label": TURN_METER_CONTROL_LABELS[action],
+        "group": "Contrôles",
+        "order": 100 + order,
+    }
+    for order, (action, facet_id) in enumerate(TURN_METER_CONTROL_FACET_IDS.items())
+}
+
 
 METRICS = {
     "chancePct": "Chance",

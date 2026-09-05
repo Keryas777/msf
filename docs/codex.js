@@ -2031,11 +2031,12 @@ function resultDetailMarkup(record) {
 
 function mechanicResultCardMarkup(record) {
   const firstOperation = (record.occurrences || []).find((occurrence) => /^(op|act)_/.test(occurrence.id || ""));
+  const isTechnical = !record.abilityId;
   return `
     <li class="codexResultCard">
       <div class="codexResultMain">
         <div class="codexResultVisuals" aria-hidden="true">
-          ${imageMarkup({
+          ${isTechnical ? "" : imageMarkup({
             url: record.portraitUrl,
             alt: "",
             fallback: String(record.characterName || "?").slice(0, 2).toLocaleUpperCase("fr-FR"),
@@ -2050,9 +2051,9 @@ function mechanicResultCardMarkup(record) {
         </div>
         <div class="codexResultBody">
           <p class="codexResultCharacter">${escapeHtml(record.characterName)}</p>
-          <h3>${escapeHtml(record.abilityName)}</h3>
+          <h3>${escapeHtml(isTechnical ? "Contexte technique" : record.abilityName)}</h3>
           <span class="codexTypeBadge${record.isEmpowered ? " codexTypeBadge--empowered" : ""}">
-            ${escapeHtml(record.abilityTypeLabel)}
+            ${escapeHtml(isTechnical ? "Variante et contexte technique" : record.abilityTypeLabel)}
           </span>
           <p class="codexResultSummary">${escapeHtml(record.summary || "")}</p>
           ${record.occurrences?.[0]?.excerpt
@@ -2072,11 +2073,11 @@ function mechanicResultCardMarkup(record) {
               data-codex-link
             >Détail</a>
           ` : ""}
-          <a
+          ${isTechnical ? "" : `<a
             class="codexPrimaryButton"
             href="${escapeHtml(buildCodexHref({ view: "ability", id: record.abilityId }))}"
             data-codex-link
-          >Voir la capacité</a>
+          >Voir la capacité</a>`}
         </span>
       </div>
     </li>
@@ -2191,7 +2192,9 @@ async function mechanicModel(route) {
               ${candidate.id === facet.id ? 'aria-current="page"' : ""}
             >
               ${escapeHtml(candidate.label)}
-              <span class="codexCountBadge">${candidate.abilityCount}</span>
+              <span class="codexCountBadge">${candidate.technicalOccurrenceCount > 0 && !candidate.abilityCount
+                ? candidate.characterCount
+                : candidate.abilityCount}</span>
             </a>
           `).join("")}
         </nav>
