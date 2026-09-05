@@ -16,6 +16,7 @@ const DEFAULT_TO = process.env.ROSTER_HISTORY_TO || firstDayOfCurrentMonth();
 const GIT_TZ = process.env.ROSTER_HISTORY_TZ || 'Europe/Paris';
 const MARCH_2026_GRACE_CHECKPOINT = '2026-03-01';
 const MARCH_2026_GRACE_UNTIL = '2026-03-08T00:00:00';
+const GIT_MAX_BUFFER = 64 * 1024 * 1024;
 
 function firstDayOfCurrentMonth() {
   const now = new Date();
@@ -155,6 +156,7 @@ function runGit(args, options = {}) {
   return execFileSync('git', args, {
     cwd: ROOT_DIR,
     encoding: 'utf8',
+    maxBuffer: GIT_MAX_BUFFER,
     stdio: ['ignore', 'pipe', options.allowFailure ? 'ignore' : 'pipe'],
     env: { ...process.env, TZ: GIT_TZ },
   }).trim();
