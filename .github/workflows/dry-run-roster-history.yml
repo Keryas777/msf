@@ -1,0 +1,59 @@
+name: Dry-run roster history
+
+on:
+  workflow_dispatch:
+    inputs:
+      from:
+        description: First checkpoint (YYYY-MM-01)
+        required: true
+        default: "2026-03-01"
+      to:
+        description: Last checkpoint (YYYY-MM-01)
+        required: true
+        default: "2026-09-01"
+
+permissions:
+  contents: read
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main with full history
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Rebuild roster history in dry-run mode
+        env:
+          DATA_DIR: docs/data
+          ROSTER_HISTORY_TZ: Europe/Paris
+        run: |
+          node --version
+          node scripts/build-roster-history.mjs \
+            --from="${{ inputs.from }}" \
+            --to="${{ inputs.to }}" \
+            --dry-run
+
+      - name: Verify nothing was written
+        run: |
+          if [ -e docs/data/roster-history ]; then
+            echo "Unexpected roster-history output detected during dry-run."
+            git status --short
+            exit 1
+          fi
+
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Unexpected working tree changes detected during dry-run."
+            git status --short
+            exit 1
+          fi
+
+          echo "Dry-run completed without writing files."
