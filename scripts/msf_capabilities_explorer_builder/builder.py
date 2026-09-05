@@ -39,6 +39,8 @@ from .presentation import (
     RELATION_LABELS,
     SCHEMA_VERSION,
     TURN_METER_CONTROL_LABELS,
+    TURN_METER_CONTROL_FACETS,
+    TURN_METER_FACETS,
     SIDE_LABELS,
     SUGGESTION_SPECS,
     TARGET_TYPE_LABELS,
@@ -840,6 +842,7 @@ def _project_operation(
     metrics = _metric_projection(operation.get("metrics"))
     chance = next((item["value"] for item in metrics if item["key"] == "chancePct"), None)
     turn_meter_control = operation.get("turnMeterControl")
+    turn_meter = operation.get("turnMeter")
     control_action = (
         turn_meter_control.get("action")
         if isinstance(turn_meter_control, dict)
@@ -869,6 +872,7 @@ def _project_operation(
         or operation.get("sourceActionType"),
         "mechanicFamily": copy.deepcopy(operation.get("mechanicFamily")),
         "turnMeterControl": copy.deepcopy(turn_meter_control),
+        "turnMeter": copy.deepcopy(turn_meter),
     }
 
 
@@ -1364,6 +1368,7 @@ def _compact_occurrence(item: Mapping[str, Any]) -> dict[str, Any]:
             "sourceType",
             "mechanicFamily",
             "turnMeterControl",
+            "turnMeter",
             "excerpt",
         )
         if item.get(key) not in (None, [], "")
@@ -1421,6 +1426,50 @@ def _mechanic_result_group(
     }
 
 
+def _technical_mechanic_result_group(
+    character_id: str,
+    occurrences: list[dict[str, Any]],
+    character_meta: Mapping[str, Mapping[str, Any]],
+) -> dict[str, Any]:
+    character = character_meta[character_id]
+    return {
+        "abilityId": None,
+        "abilityName": None,
+        "abilityType": None,
+        "abilityTypeLabel": None,
+        "abilityTypeOrder": 999,
+        "isEmpowered": False,
+        "iconUrl": None,
+        "characterId": character_id,
+        "characterName": character["name"],
+        "portraitUrl": character["portraitUrl"],
+        "playable": character["playable"],
+        "status": character["status"],
+        "summary": " · ".join(_unique_strings(item.get("kindLabel") for item in occurrences)),
+        "chanceCategory": "unspecified",
+        "modes": _unique_strings(mode for item in occurrences for mode in item.get("modes", [])),
+        "hasUnrestrictedMode": any(not item.get("modes") for item in occurrences),
+        "sides": _unique_strings(side for item in occurrences for side in item.get("sides", [])),
+        "conditions": _unique_strings(condition for item in occurrences for condition in item.get("conditions", [])),
+        "evidence": _unique_strings(item.get("evidence") for item in occurrences),
+        "occurrenceCount": len(occurrences),
+        "technicalOccurrenceCount": len(occurrences),
+        "occurrences": [_compact_occurrence(item) for item in occurrences],
+    }
+
+
+def _mechanic_facet_spec(mechanic_id: str, occurrence: Mapping[str, Any]) -> dict[str, Any]:
+    if mechanic_id == "action-turn-meter":
+        direct = occurrence.get("turnMeter")
+        if isinstance(direct, dict) and direct.get("action") in TURN_METER_FACETS:
+            return TURN_METER_FACETS[direct["action"]]
+        control = occurrence.get("turnMeterControl")
+        if isinstance(control, dict) and control.get("action") in TURN_METER_CONTROL_FACETS:
+            return TURN_METER_CONTROL_FACETS[control["action"]]
+    kind = str(occurrence.get("kind"))
+    return {"id": kind, "label": OPERATION_KINDS.get(kind, {}).get("label") or _split_source_name(kind)}
+
+
 def _build_mechanic_shard(
     mechanic: Mapping[str, Any],
     abilities: Mapping[str, Mapping[str, Any]],
@@ -1443,16 +1492,25 @@ def _build_mechanic_shard(
 
     facets: list[dict[str, Any]] = []
     facet_records: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    facet_specs: dict[str, dict[str, Any]] = {}
     for item in occurrences:
-        if item.get("abilityId") in abilities:
-            facet_records[str(item["kind"])].append(item)
+        spec = _mechanic_facet_spec(str(mechanic["id"]), item)
+        facet_records[spec["id"]].append(item)
+        facet_specs[spec["id"]] = spec
     for facet_id, facet_occurrences in sorted(
         facet_records.items(),
-        key=lambda row: (OPERATION_KINDS.get(row[0], {}).get("order", 999), row[0]),
+        key=lambda row: (
+            facet_specs[row[0]].get("order", OPERATION_KINDS.get(row[0], {}).get("order", 999)),
+            row[0],
+        ),
     ):
         by_ability: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        by_character: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for occurrence in facet_occurrences:
-            by_ability[occurrence["abilityId"]].append(occurrence)
+            if occurrence.get("abilityId") in abilities:
+                by_ability[occurrence["abilityId"]].append(occurrence)
+            else:
+                by_character[occurrence["characterId"]].append(occurrence)
         records = [
             _mechanic_result_group(
                 ability_id,
@@ -1462,6 +1520,12 @@ def _build_mechanic_shard(
             )
             for ability_id, items in sorted(by_ability.items())
         ]
+        records.extend(
+            _technical_mechanic_result_group(
+                character_id, sorted(items, key=_occurrence_sort_key), character_meta
+            )
+            for character_id, items in sorted(by_character.items())
+        )
         records.sort(
             key=lambda item: (
                 _sort_key(item["characterName"]),
@@ -1472,10 +1536,13 @@ def _build_mechanic_shard(
         facets.append(
             {
                 "id": facet_id,
-                "label": OPERATION_KINDS.get(facet_id, {}).get("label")
-                or _split_source_name(facet_id),
-                "abilityCount": len(records),
+                "label": facet_specs[facet_id]["label"],
+                "group": facet_specs[facet_id].get("group"),
+                "abilityCount": len(by_ability),
+                "characterCount": len({item["characterId"] for item in facet_occurrences}),
                 "occurrenceCount": len(facet_occurrences),
+                "technicalOccurrenceCount": len(facet_occurrences)
+                - sum(len(items) for items in by_ability.values()),
                 "records": records,
             }
         )
@@ -1533,6 +1600,9 @@ def _mechanic_stub(shard: Mapping[str, Any], section: str) -> dict[str, Any]:
                 "label": facet["label"],
                 "abilityCount": facet["abilityCount"],
                 "occurrenceCount": facet["occurrenceCount"],
+                "characterCount": facet.get("characterCount"),
+                "technicalOccurrenceCount": facet.get("technicalOccurrenceCount", 0),
+                "group": facet.get("group"),
             }
             for facet in shard["facets"]
         ],
@@ -2036,6 +2106,31 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
                 "context": PROOF[mechanic["globalEvidence"]]["label"],
             }
         )
+        for facet in mechanic.get("facets", []):
+            aliases: list[str] = []
+            if mechanic_id == "action-turn-meter":
+                aliases = ["turn meter", "turn_meter"]
+                aliases.extend(
+                    {
+                        "turn_meter_increase": ["augmente jauge"],
+                        "turn_meter_decrease": ["réduit jauge"],
+                        "turn_meter_block_induced_gain": ["bloque jauge", "gain provoqué"],
+                        "turn_meter_reduction_immunity": ["immunité jauge"],
+                    }.get(facet["id"], [])
+                )
+            search_records.append(
+                {
+                    "kind": "mechanicFacet",
+                    "resultGroup": "mechanics",
+                    "view": "effect" if mechanic["kind"] == "effect" else "mechanic",
+                    "id": mechanic_id,
+                    "operation": facet["id"],
+                    "label": facet["label"],
+                    "parentLabel": mechanic["label"],
+                    "sourceName": facet["id"],
+                    "aliases": aliases,
+                }
+            )
     group_order = {"characters": 0, "mechanics": 1, "abilities": 2, "related": 3}
     search_records.sort(
         key=lambda item: (

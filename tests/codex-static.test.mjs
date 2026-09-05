@@ -69,6 +69,18 @@ test("les routes utilisent pushState, replaceState et la restauration manuelle",
   assert.doesNotMatch(app, /Date\.now\(\)/);
 });
 
+test("les facettes techniques ont une navigation accessible et un compteur non trompeur", () => {
+  assert.match(app, /aria-current="page"/);
+  assert.match(app, /candidate\.technicalOccurrenceCount > 0 && !candidate\.abilityCount/);
+  assert.match(app, /Variante et contexte technique/);
+  assert.match(app, /const isTechnical = !record\.abilityId/);
+});
+
+test("une ancienne opération inconnue retombe sur une facette existante", () => {
+  assert.match(app, /find\(\(candidate\) => candidate\.id === route\.operation\)[\s\S]*\|\| mechanic\.facets\?\.\[0\]/);
+  assert.match(app, /\{ label: facet\.label \}/);
+});
+
 test("le partage implémente Web Share, presse-papiers et fallback", () => {
   assert.match(app, /navigator\.share/);
   assert.match(app, /navigator\.clipboard/);

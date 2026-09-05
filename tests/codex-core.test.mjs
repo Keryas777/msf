@@ -12,6 +12,7 @@ import {
   parseRoute,
   prepareSearchRecords,
   rankSearchRecords,
+  recordHref,
   routeBucket,
   sortMechanicResults,
   uniqueEvidence,
@@ -118,6 +119,46 @@ test("les routes profondes sérialisent les filtres sans paramètres par défaut
   assert.equal(route.filters.playable, false);
   assert.equal(route.filters.side, "defense");
   assert.equal(buildCodexHref({ view: "home" }), "./codex.html");
+});
+
+test("un résultat de facette conserve son opération dans son lien", () => {
+  assert.equal(
+    recordHref({
+      kind: "mechanicFacet",
+      view: "mechanic",
+      id: "action-turn-meter",
+      operation: "turn_meter_block_induced_gain",
+    }),
+    "./codex.html?view=mechanic&id=action-turn-meter&operation=turn_meter_block_induced_gain"
+  );
+});
+
+test("la recherche distingue les facettes de jauge et affiche leur parent", () => {
+  const facets = prepareSearchRecords([
+    {
+      kind: "mechanicFacet",
+      resultGroup: "mechanics",
+      view: "mechanic",
+      id: "action-turn-meter",
+      operation: "turn_meter_decrease",
+      label: "Réduit la jauge de vitesse",
+      parentLabel: "Jauge de vitesse",
+      aliases: ["réduit jauge", "turn meter", "turn_meter"],
+    },
+    {
+      kind: "mechanicFacet",
+      resultGroup: "mechanics",
+      view: "mechanic",
+      id: "action-turn-meter",
+      operation: "turn_meter_modify_induced_gain",
+      label: "Réduit les gains provoqués de jauge de vitesse",
+      parentLabel: "Jauge de vitesse",
+      aliases: ["gain provoqué"],
+    },
+  ]);
+  assert.equal(rankSearchRecords(facets, "réduit jauge")[0].operation, "turn_meter_decrease");
+  assert.equal(rankSearchRecords(facets, "gain provoqué")[0].operation, "turn_meter_modify_induced_gain");
+  assert.equal(rankSearchRecords(facets, "turn_meter")[0].parentLabel, "Jauge de vitesse");
 });
 
 test("une vue inconnue est signalée comme URL invalide", () => {
