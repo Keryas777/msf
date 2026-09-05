@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "range": {
+    "from": "2026-03-01",
+    "to": "2026-09-01"
+  },
+  "warnings": [
+    {
+      "type": "multi-alliance-resolved",
+      "checkpoint": "2026-07-01",
+      "playerKey": "azerty",
+      "selectedAlliance": "dionysos",
+      "selectedCommittedAt": "2026-06-23T19:04:53+02:00",
+      "candidates": [
+        {
+          "alliance": "dionysos",
+          "committedAt": "2026-06-23T19:04:53+02:00",
+          "commit": "c8d03fbede0d5180df9e76a7a7288a24537bf18d"
+        },
+        {
+          "alliance": "poseidon",
+          "committedAt": "2026-06-04T11:23:33+02:00",
+          "commit": "05be5dba41ea4689c26828a849201957e2bb7649"
+        }
+      ]
+    },
+    {
+      "type": "multi-alliance-resolved",
+      "checkpoint": "2026-09-01",
+      "playerKey": "azazel",
+      "selectedAlliance": "poseidon",
+      "selectedCommittedAt": "2026-08-30T15:27:31+02:00",
+      "candidates": [
+        {
+          "alliance": "poseidon",
+          "committedAt": "2026-08-30T15:27:31+02:00",
+          "commit": "2b4e6eae09fcffbb0b6034418d18945f6be4e58a"
+        },
+        {
+          "alliance": "hades",
+          "committedAt": "2026-08-05T13:05:19+02:00",
+          "commit": "a0cb89f14d05d99a95d4e70685ea5fc6224170d8"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3731 @@
+{
+  "player": "fredydy13",
+  "playerKey": "fredydy13",
+  "alliance": "zeus",
+  "checkpoint": "2026-09-01",
+  "source": {
+    "file": "docs/data/rosters_zeus.json",
+    "commit": "dda00c4fe0b56d93377596da3b057d14e8f1dbbc",
+    "committedAt": "2026-08-30T15:02:51+02:00"
+  },
+  "chars": {
+    "shieldsupportheal": {
+      "power": 84107,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 4
+    },
+    "spiderman": {
+      "power": 2694575,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "lukecage": {
+      "power": 140271,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 8
+    },
+    "punisher": {
+      "power": 1858811,
+      "level": 107,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "elektra": {
+      "power": 1806672,
+      "level": 107,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "crossbones": {
+      "power": 162245,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 4
+    },
+    "shielddmgaoe": {
+      "power": 74451,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 3
+    },
+    "handsupportheal": {
+      "power": 49235,
+      "level": 55,
+      "gear": 10,
+      "isoMax": 2
+    },
+    "bullseye": {
+      "power": 451174,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 13
+    },
+    "ravagersupportheal": {
+      "power": 49524,
+      "level": 54,
+      "gear": 10,
+      "isoMax": 4
+    },
+    "handdmgbonus": {
+      "power": 35242,
+      "level": 48,
+      "gear": 9,
+      "isoMax": 0
+    },
+    "jessicajones": {
+      "power": 1867957,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "hydrasupportheal": {
+      "power": 75113,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 3
+    },
+    "hydradmgbuff": {
+      "power": 64855,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 3
+    },
+    "ravagertanktaunt": {
+      "power": 33924,
+      "level": 49,
+      "gear": 9,
+      "isoMax": 4
+    },
+    "yondu": {
+      "power": 54320,
+      "level": 55,
+      "gear": 10,
+      "isoMax": 0
+    },
+    "kreetankcounter": {
+      "power": 38546,
+      "level": 48,
+      "gear": 9,
+      "isoMax": 3
+    },
+    "wolverine": {
+      "power": 2316724,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "mercdmggeneral": {
+      "power": 77210,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 4
+    },
+    "merctankdebuff": {
+      "power": 157576,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8
+    },
+    "kingpin": {
+      "power": 438163,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 12
+    },
+    "ravagerdmgaoe": {
+      "power": 94883,
+      "level": 73,
+      "gear": 13,
+      "isoMax": 4
+    },
+    "hulk": {
+      "power": 2536828,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "hydradmgaoe": {
+      "power": 74672,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 3
+    },
+    "hydradmgsingle": {
+      "power": 51583,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 2
+    },
+    "shielddmgdefense": {
+      "power": 79389,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 4
+    },
+    "mercsupportbuffs": {
+      "power": 187177,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8
+    },
+    "shieldtankstun": {
+      "power": 65253,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 3
+    },
+    "baronmordo": {
+      "power": 1292274,
+      "level": 104,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "shieldsupportstealth": {
+      "power": 66867,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 3
+    },
+    "cable": {
+      "power": 412066,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 13
+    },
+    "nebula": {
+      "power": 273193,
+      "level": 81,
+      "gear": 15,
+      "isoMax": 8
+    },
+    "kreedmgspeed": {
+      "power": 73229,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 2
+    },
+    "quake": {
+      "power": 1521129,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "hydratanktaunt": {
+      "power": 62132,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 2
+    },
+    "handcontrolhealblock": {
+      "power": 61303,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 1
+    },
+    "kreecontrolassist": {
+      "power": 62381,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 2
+    },
+    "sabretooth": {
+      "power": 215190,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8
+    },
+    "mercdmgsingle": {
+      "power": 20246,
+      "level": 44,
+      "gear": 8,
+      "isoMax": 0
+    },
+    "nightnurse": {
+      "power": 93127,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 4
+    },
+    "antman": {
+      "power": 934432,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "kreesupporthot": {
+      "power": 37744,
+      "level": 48,
+      "gear": 9,
+      "isoMax": 3
+    },
+    "daredevil": {
+      "power": 1998211,
+      "level": 108,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "handdmgunbuff": {
+      "power": 11415,
+      "level": 37,
+      "gear": 7,
+      "isoMax": 0
+    },
+    "msmarvel": {
+      "power": 2014932,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "kreedmgoffense": {
+      "power": 37668,
+      "level": 48,
+      "gear": 9,
+      "isoMax": 3
+    },
+    "handtankstealth": {
+      "power": 29721,
+      "level": 46,
+      "gear": 8,
+      "isoMax": 2
+    },
+    "ultspiderman": {
+      "power": 2520221,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "vision": {
+      "power": 683677,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 13
+    },
+    "aimdmgoffense": {
+      "power": 22005,
+      "level": 42,
+      "gear": 8,
+      "isoMax": 0
+    },
+    "aimdmgspeed": {
+      "power": 19632,
+      "level": 43,
+      "gear": 8,
+      "isoMax": 0
+    },
+    "hawkeye": {
+      "power": 63772,
+      "level": 55,
+      "gear": 10,
+      "isoMax": 3
+    },
+    "ironfist": {
+      "power": 1847801,
+      "level": 110,
+      "gear": 19,
+      "isoMax": 14
+    },
+    "drax": {
+      "power": 77592,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 4
+    },
+    "aimsupportheal": {
+      "power": 9732,
+      "level": 39,
+      "gear": 7,
+      "isoMax": 0
+    },
+    "loki": {
+      "power": 834391,
+      "level": 104,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "deadpool": {
+      "power": 2259674,
+      "level": 108,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "scarletwitch": {
+      "power": 694609,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 13
+    },
+    "gamora": {
+      "power": 693981,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 11
+    },
+    "ronan": {
+      "power": 2665936,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "groot": {
+      "power": 1061198,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "captainamerica": {
+      "power": 1501183,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "storm": {
+      "power": 1179231,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "captainmarvel": {
+      "power": 263094,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 10
+    },
+    "ironman": {
+      "power": 419692,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 9
+    },
+    "pyro": {
+      "power": 87650,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 2
+    },
+    "rhino": {
+      "power": 1062991,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "shocker": {
+      "power": 1690819,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "venom": {
+      "power": 2260391,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "aimtanktaunt": {
+      "power": 23957,
+      "level": 46,
+      "gear": 8,
+      "isoMax": 0
+    },
+    "blackwidow": {
+      "power": 3064371,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 13
+    },
+    "korath": {
+      "power": 128509,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 4
+    },
+    "rocketraccoon": {
+      "power": 1037355,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "doctorstrange": {
+      "power": 953795,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "americachavez": {
+      "power": 173282,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 8
+    },
+    "mantis": {
+      "power": 44535,
+      "level": 48,
+      "gear": 9,
+      "isoMax": 3
+    },
+    "thing": {
+      "power": 1297876,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "wasp": {
+      "power": 1138141,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "minerva": {
+      "power": 2548613,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "mystique": {
+      "power": 113821,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 4
+    },
+    "psylocke": {
+      "power": 429090,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 10
+    },
+    "rescue": {
+      "power": 569098,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 11
+    },
+    "vulture": {
+      "power": 2335857,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "juggernaut": {
+      "power": 1266779,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "wintersoldier": {
+      "power": 358992,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 13
+    },
+    "ultgreengoblin": {
+      "power": 652780,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "aimcontrolinfect": {
+      "power": 7056,
+      "level": 26,
+      "gear": 5,
+      "isoMax": 0
+    },
+    "killmonger": {
+      "power": 112107,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 5
+    },
+    "hela": {
+      "power": 1353037,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "toad": {
+      "power": 80681,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 2
+    },
+    "thanos": {
+      "power": 2236957,
+      "level": 108,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "okoye": {
+      "power": 583775,
+      "level": 100,
+      "gear": 18,
+      "isoMax": 11
+    },
+    "blackpanther": {
+      "power": 649822,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 11
+    },
+    "humantorch": {
+      "power": 644254,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 13
+    },
+    "warmachine": {
+      "power": 893628,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 13
+    },
+    "scientistsupreme": {
+      "power": 1198537,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "thor": {
+      "power": 282955,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 11
+    },
+    "sif": {
+      "power": 160108,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 6
+    },
+    "proximamidnight": {
+      "power": 83331,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 4
+    },
+    "heimdall": {
+      "power": 195407,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8
+    },
+    "elsabloodstone": {
+      "power": 1731324,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "symbiotespiderman": {
+      "power": 192092,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8
+    },
+    "carnage": {
+      "power": 810313,
+      "level": 103,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "stryfe": {
+      "power": 77683,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 3
+    },
+    "colossus": {
+      "power": 124227,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 4
+    },
+    "mbaku": {
+      "power": 86127,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 4
+    },
+    "corvusglaive": {
+      "power": 93553,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 4
+    },
+    "mrfantastic": {
+      "power": 824618,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "mysterio": {
+      "power": 189041,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 4
+    },
+    "crystal": {
+      "power": 101318,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 3
+    },
+    "falcon": {
+      "power": 1136934,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "nobu": {
+      "power": 444425,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 12
+    },
+    "taskmaster": {
+      "power": 2017374,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "namor": {
+      "power": 913028,
+      "level": 104,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "cullobsidian": {
+      "power": 2415420,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "ghostrider": {
+      "power": 184767,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 4
+    },
+    "graviton": {
+      "power": 91063,
+      "level": 63,
+      "gear": 11,
+      "isoMax": 5
+    },
+    "domino": {
+      "power": 1507813,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "ironheart": {
+      "power": 994963,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "yoyo": {
+      "power": 1365131,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "negasonic": {
+      "power": 1281735,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "starlord": {
+      "power": 1022779,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "mrsinister": {
+      "power": 102191,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 4
+    },
+    "blob": {
+      "power": 92278,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 4
+    },
+    "karnak": {
+      "power": 85887,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 4
+    },
+    "x23": {
+      "power": 211921,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8
+    },
+    "squirrelgirl": {
+      "power": 1784872,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "nickfury": {
+      "power": 237123,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 9
+    },
+    "cyclops": {
+      "power": 731670,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "magneto": {
+      "power": 466568,
+      "level": 96,
+      "gear": 18,
+      "isoMax": 10
+    },
+    "beast": {
+      "power": 990065,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "emmafrost": {
+      "power": 1578796,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "coulson": {
+      "power": 170456,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 10
+    },
+    "swarm": {
+      "power": 529371,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 13
+    },
+    "redskull": {
+      "power": 86819,
+      "level": 66,
+      "gear": 12,
+      "isoMax": 4
+    },
+    "shuri": {
+      "power": 619682,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 11
+    },
+    "zemo": {
+      "power": 290878,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 11
+    },
+    "electro": {
+      "power": 1155809,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "phoenix": {
+      "power": 598545,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 13
+    },
+    "scream": {
+      "power": 139478,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 7
+    },
+    "shehulk": {
+      "power": 1774340,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "antivenom": {
+      "power": 164341,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 7
+    },
+    "invisiblewoman": {
+      "power": 535685,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 13
+    },
+    "stature": {
+      "power": 74580,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 3
+    },
+    "ultron": {
+      "power": 495993,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "ghost": {
+      "power": 2128426,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "blackbolt": {
+      "power": 821556,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "yellowjacket": {
+      "power": 1099377,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "shatterstar": {
+      "power": 110817,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 5
+    },
+    "yelena": {
+      "power": 3953939,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 15
+    },
+    "doctoroctopus": {
+      "power": 826223,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "redguardian": {
+      "power": 3987644,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 15
+    },
+    "kittypryde": {
+      "power": 172172,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8
+    },
+    "longshot": {
+      "power": 105543,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 4
+    },
+    "iceman": {
+      "power": 123824,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 3
+    },
+    "whitetiger": {
+      "power": 96768,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 4
+    },
+    "bishop": {
+      "power": 120200,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 4
+    },
+    "ultimus": {
+      "power": 1005777,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "moonknight": {
+      "power": 1003105,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "silversurfer": {
+      "power": 1094269,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "multipleman": {
+      "power": 137889,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 8
+    },
+    "sybil": {
+      "power": 793964,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 12
+    },
+    "polaris": {
+      "power": 397570,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 13
+    },
+    "ebonymaw": {
+      "power": 2566018,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "mistyknight": {
+      "power": 107261,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 4
+    },
+    "colleenwing": {
+      "power": 105989,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 4
+    },
+    "phylavell": {
+      "power": 654667,
+      "level": 100,
+      "gear": 18,
+      "isoMax": 11
+    },
+    "moondragon": {
+      "power": 1123797,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "sharoncarter": {
+      "power": 195228,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8
+    },
+    "samwilson": {
+      "power": 1600612,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "mariahill": {
+      "power": 197179,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8
+    },
+    "deathpool": {
+      "power": 963496,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "shangchi": {
+      "power": 454672,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 10
+    },
+    "jubilee": {
+      "power": 1840291,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "adamwarlock": {
+      "power": 1339002,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "dagger": {
+      "power": 145427,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 8
+    },
+    "cloak": {
+      "power": 175548,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8
+    },
+    "silversamurai": {
+      "power": 209948,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8
+    },
+    "ladydeathstrike": {
+      "power": 3107740,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 13
+    },
+    "sersi": {
+      "power": 2679290,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "ikaris": {
+      "power": 2694226,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "magik": {
+      "power": 1273476,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "scarletspider": {
+      "power": 275804,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 8
+    },
+    "spiderpunk": {
+      "power": 230998,
+      "level": 87,
+      "gear": 16,
+      "isoMax": 8
+    },
+    "ghostspider": {
+      "power": 808518,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "tchalla": {
+      "power": 4945,
+      "level": 18,
+      "gear": 4,
+      "isoMax": 0
+    },
+    "echo": {
+      "power": 202318,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8
+    },
+    "katebishop": {
+      "power": 143703,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8
+    },
+    "omegared": {
+      "power": 3786414,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "doctorvoodoo": {
+      "power": 111829,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 5
+    },
+    "morbius": {
+      "power": 198745,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 3
+    },
+    "strangesupreme": {
+      "power": 1916539,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "doom": {
+      "power": 253098,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 11
+    },
+    "morganlefay": {
+      "power": 828969,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "wong": {
+      "power": 334011,
+      "level": 92,
+      "gear": 17,
+      "isoMax": 10
+    },
+    "agathaharkness": {
+      "power": 1006072,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "madelynepryor": {
+      "power": 1341585,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "nicominoru": {
+      "power": 111765,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 3
+    },
+    "fantomex": {
+      "power": 309995,
+      "level": 92,
+      "gear": 17,
+      "isoMax": 10
+    },
+    "spiderwoman": {
+      "power": 119367,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 3
+    },
+    "gambit": {
+      "power": 825447,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "sunfire": {
+      "power": 756921,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "rogue": {
+      "power": 805859,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "janethor": {
+      "power": 349600,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 11
+    },
+    "valkyrie": {
+      "power": 294735,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 11
+    },
+    "deathlok": {
+      "power": 198851,
+      "level": 82,
+      "gear": 15,
+      "isoMax": 8
+    },
+    "vivvision": {
+      "power": 243528,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 10
+    },
+    "hulkbuster": {
+      "power": 261529,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8
+    },
+    "amadeuscho": {
+      "power": 2295823,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "abomination": {
+      "power": 361390,
+      "level": 92,
+      "gear": 17,
+      "isoMax": 11
+    },
+    "redhulk": {
+      "power": 739716,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 12
+    },
+    "spiderweaver": {
+      "power": 781467,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "dazzler": {
+      "power": 425517,
+      "level": 96,
+      "gear": 18,
+      "isoMax": 10
+    },
+    "blackpantherbc": {
+      "power": 582551,
+      "level": 100,
+      "gear": 18,
+      "isoMax": 11
+    },
+    "nakia": {
+      "power": 651333,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 11
+    },
+    "spidermannoir": {
+      "power": 869505,
+      "level": 104,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "darkbeast": {
+      "power": 444628,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 12
+    },
+    "mrnegative": {
+      "power": 1391145,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "archangel": {
+      "power": 740011,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 11
+    },
+    "nemesis": {
+      "power": 426317,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 10
+    },
+    "spiderman2099": {
+      "power": 49371,
+      "level": 50,
+      "gear": 9,
+      "isoMax": 3
+    },
+    "usagent": {
+      "power": 313040,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 13
+    },
+    "absorbingman": {
+      "power": 591975,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "titania": {
+      "power": 436132,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 13
+    },
+    "captaincarter": {
+      "power": 858036,
+      "level": 103,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "dormammu": {
+      "power": 984023,
+      "level": 103,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "kangtheconqueror": {
+      "power": 750411,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "agentvenom": {
+      "power": 312271,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 13
+    },
+    "captainamericaww2": {
+      "power": 218107,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 9
+    },
+    "moonstone": {
+      "power": 412502,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 13
+    },
+    "buckybarnes": {
+      "power": 221161,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 9
+    },
+    "unionjack": {
+      "power": 202611,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 10
+    },
+    "quicksilver": {
+      "power": 283879,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 10
+    },
+    "ironfistorson": {
+      "power": 1916808,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "firestar": {
+      "power": 163289,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 8
+    },
+    "gwenpool": {
+      "power": 2971132,
+      "level": 109,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "apocalypse": {
+      "power": 1357708,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "zombieironman": {
+      "power": 1209918,
+      "level": 103,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "cosmo": {
+      "power": 460747,
+      "level": 96,
+      "gear": 18,
+      "isoMax": 11
+    },
+    "vahl": {
+      "power": 773762,
+      "level": 100,
+      "gear": 18,
+      "isoMax": 13
+    },
+    "korg": {
+      "power": 587520,
+      "level": 100,
+      "gear": 18,
+      "isoMax": 11
+    },
+    "starlordannihilation": {
+      "power": 434698,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 11
+    },
+    "thorinfinitywar": {
+      "power": 664972,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 12
+    },
+    "lokiteen": {
+      "power": 637865,
+      "level": 100,
+      "gear": 18,
+      "isoMax": 12
+    },
+    "betaraybill": {
+      "power": 789980,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "sylvie": {
+      "power": 2931458,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "nova": {
+      "power": 857101,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "spidermanbigtime": {
+      "power": 3178803,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 14
+    },
+    "photon": {
+      "power": 454117,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 10
+    },
+    "kamalakhan": {
+      "power": 500199,
+      "level": 97,
+      "gear": 18,
+      "isoMax": 11
+    },
+    "ghostriderrobbie": {
+      "power": 469814,
+      "level": 97,
+      "gear": 18,
+      "isoMax": 9
+    },
+    "blackcat": {
+      "power": 837373,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "ronin": {
+      "power": 174664,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 10
+    },
+    "mockingbird": {
+      "power": 168401,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 10
+    },
+    "ironmaninfinitywar": {
+      "power": 610932,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 11
+    },
+    "darkhawk": {
+      "power": 612599,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 11
+    },
+    "zombiejuggernaut": {
+      "power": 1224168,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "tigra": {
+      "power": 158371,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 10
+    },
+    "ironheartmcu": {
+      "power": 560259,
+      "level": 100,
+      "gear": 18,
+      "isoMax": 11
+    },
+    "greengoblinglider": {
+      "power": 1065343,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "kraventhehunter": {
+      "power": 931103,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "spiderslayer": {
+      "power": 475062,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 13
+    },
+    "lizard": {
+      "power": 734608,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "nightcrawler": {
+      "power": 1012970,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "forge": {
+      "power": 730930,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "sunspot": {
+      "power": 1078132,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "symbiotesilversurfer": {
+      "power": 1129610,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "gwenom": {
+      "power": 758782,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "redgoblin": {
+      "power": 786130,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "blackknight": {
+      "power": 1119610,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "starbrand": {
+      "power": 795203,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "cosmicghostrider": {
+      "power": 777851,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "ironpatriot": {
+      "power": 894652,
+      "level": 104,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "theleader": {
+      "power": 1164895,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "peterbparker": {
+      "power": 1105258,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "spidermanpavitr": {
+      "power": 823474,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "peniparker": {
+      "power": 1033532,
+      "level": 104,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "pandapool": {
+      "power": 1251904,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "oldmanlogan": {
+      "power": 1573281,
+      "level": 107,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "daken": {
+      "power": 1234753,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "northstar": {
+      "power": 825593,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "guardian": {
+      "power": 838251,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "sasquatch": {
+      "power": 875365,
+      "level": 103,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "superskrull": {
+      "power": 1369366,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "hankpym": {
+      "power": 1271454,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "blackpanthershuri": {
+      "power": 903850,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "ares": {
+      "power": 1761084,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "gladiator": {
+      "power": 1550575,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "gorr": {
+      "power": 1501257,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "thanosendgame": {
+      "power": 1460878,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "sentinel": {
+      "power": 1594921,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "blade": {
+      "power": 1707080,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "nimrod": {
+      "power": 1641866,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "omegasentinel": {
+      "power": 1552749,
+      "level": 106,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "zombiescarletwitch": {
+      "power": 930434,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "manthing": {
+      "power": 987815,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "shadowking": {
+      "power": 1498961,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "captainbritain": {
+      "power": 815694,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "ancientone": {
+      "power": 1204784,
+      "level": 103,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "oath": {
+      "power": 1482777,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "kahhori": {
+      "power": 1252219,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "emmafrostxmen": {
+      "power": 1870719,
+      "level": 108,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "medusa": {
+      "power": 1106446,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "msmarvelclassic": {
+      "power": 1006686,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "jeangrey": {
+      "power": 2288837,
+      "level": 108,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "omegaredphoenix": {
+      "power": 809824,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "hercules": {
+      "power": 1758759,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "peggycarter": {
+      "power": 1635548,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "lilandra": {
+      "power": 1680383,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "falconjoaquin": {
+      "power": 1515074,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "patriot": {
+      "power": 1515703,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "knull": {
+      "power": 2310718,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "howardtheduck": {
+      "power": 1223631,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 14
+    },
+    "havok": {
+      "power": 1463229,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 14
+    },
+    "daredevilmodern": {
+      "power": 1918765,
+      "level": 107,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "silversable": {
+      "power": 1971852,
+      "level": 107,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "mephisto": {
+      "power": 1879552,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "hitmonkey": {
+      "power": 1963837,
+      "level": 107,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "quasar": {
+      "power": 1569512,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "victoriahand": {
+      "power": 1600771,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "hyperion": {
+      "power": 1811558,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "songbird": {
+      "power": 1706440,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "thehood": {
+      "power": 1293697,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "hellverine": {
+      "power": 1330776,
+      "level": 103,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "odin": {
+      "power": 2425966,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "satana": {
+      "power": 1318500,
+      "level": 104,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "invisiblewomanmcu": {
+      "power": 2934751,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "mrfantasticmcu": {
+      "power": 2628866,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "franklinrichards": {
+      "power": 2822003,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "blastaar": {
+      "power": 1689668,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "azazel": {
+      "power": 1673082,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "rachelsummers": {
+      "power": 1645691,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "sebastianshaw": {
+      "power": 1554159,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "phantomrider": {
+      "power": 1463277,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "scorpion": {
+      "power": 2087082,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "hobgoblin": {
+      "power": 2203601,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "superiorspiderman": {
+      "power": 2430854,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "livingmummy": {
+      "power": 2711048,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 15
+    },
+    "daimonhellstrom": {
+      "power": 2588442,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "zombiekestrel": {
+      "power": 272426,
+      "level": 92,
+      "gear": 17,
+      "isoMax": 13
+    },
+    "hellcat": {
+      "power": 2292502,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "thunderstrike": {
+      "power": 1060965,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "ladybullseye": {
+      "power": 2281575,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "steelserpent": {
+      "power": 1988924,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "swordmaster": {
+      "power": 2213781,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "wolfsbane": {
+      "power": 1675981,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "cannonball": {
+      "power": 1101711,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "warlock": {
+      "power": 1547032,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "darkstar": {
+      "power": 4248062,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15
+    },
+    "magnetophoenixforce": {
+      "power": 576597,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "sentry": {
+      "power": 1030402,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 14
+    },
+    "ursamajor": {
+      "power": 4312028,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 15
+    },
+    "novasamalexander": {
+      "power": 2470435,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "nightthrasher": {
+      "power": 2404188,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "moongirl": {
+      "power": 2402484,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "eclipse": {
+      "power": 2540692,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "jeffthelandshark": {
+      "power": 1931041,
+      "level": 108,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "speedball": {
+      "power": 2494278,
+      "level": 107,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "xavier": {
+      "power": 2492467,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "silversurferbreaker": {
+      "power": 1811002,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "stormmighty": {
+      "power": 919253,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "highevolutionary": {
+      "power": 2631491,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "angel": {
+      "power": 893422,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "executioner": {
+      "power": 1796703,
+      "level": 108,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "malekith": {
+      "power": 1704977,
+      "level": 108,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "symbiotequicksilver": {
+      "power": 2032482,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "morph": {
+      "power": 1094960,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13
+    },
+    "toxin": {
+      "power": 2086622,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "riot": {
+      "power": 3013209,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 14
+    },
+    "blademighty": {
+      "power": 1951070,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "bluemarvel": {
+      "power": 493,
+      "level": 1,
+      "gear": 1,
+      "isoMax": 0
+    },
+    "scorpionbreaker": {
+      "power": 829162,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13
+    },
+    "spiderwomanjulia": {
+      "power": 1433560,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "rachelcolealves": {
+      "power": 1870397,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14
+    },
+    "kingo": {
+      "power": 1014815,
+      "level": 110,
+      "gear": 19,
+      "isoMax": 14
+    },
+    "gilgamesh": {
+      "power": 893268,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14
+    }
+  },
+  "iso": {
+    "shieldsupportheal": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "spiderman": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "lukecage": {
+      "isoClass": "healer",
+      "isoColor": "blue"
+    },
+    "punisher": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "elektra": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "crossbones": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "shielddmgaoe": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "handsupportheal": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "bullseye": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "ravagersupportheal": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "jessicajones": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "hydrasupportheal": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "hydradmgbuff": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "ravagertanktaunt": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "kreetankcounter": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "wolverine": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "mercdmggeneral": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "merctankdebuff": {
+      "isoClass": "fortifier",
+      "isoColor": "blue"
+    },
+    "kingpin": {
+      "isoClass": "fortifier",
+      "isoColor": "purple"
+    },
+    "ravagerdmgaoe": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "hulk": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "hydradmgaoe": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "hydradmgsingle": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "shielddmgdefense": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "mercsupportbuffs": {
+      "isoClass": "healer",
+      "isoColor": "blue"
+    },
+    "shieldtankstun": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "baronmordo": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "shieldsupportstealth": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "cable": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "nebula": {
+      "isoClass": "skirmisher",
+      "isoColor": "blue"
+    },
+    "kreedmgspeed": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "quake": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "hydratanktaunt": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "handcontrolhealblock": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "kreecontrolassist": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "sabretooth": {
+      "isoClass": "raider",
+      "isoColor": "blue"
+    },
+    "nightnurse": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "antman": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "kreesupporthot": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "daredevil": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "msmarvel": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "kreedmgoffense": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "handtankstealth": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "ultspiderman": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "vision": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "hawkeye": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "ironfist": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "drax": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "loki": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "deadpool": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "scarletwitch": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "gamora": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "ronan": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "groot": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "captainamerica": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "storm": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "captainmarvel": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "ironman": {
+      "isoClass": "raider",
+      "isoColor": "blue"
+    },
+    "pyro": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "rhino": {
+      "isoClass": "fortifier",
+      "isoColor": "purple"
+    },
+    "shocker": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "venom": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "blackwidow": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "korath": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "rocketraccoon": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "doctorstrange": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "americachavez": {
+      "isoClass": "striker",
+      "isoColor": "blue"
+    },
+    "mantis": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "thing": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "wasp": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "minerva": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "mystique": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "psylocke": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "rescue": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "vulture": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "juggernaut": {
+      "isoClass": "fortifier",
+      "isoColor": "purple"
+    },
+    "wintersoldier": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "ultgreengoblin": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "killmonger": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "hela": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "toad": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "thanos": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "okoye": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "blackpanther": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "humantorch": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "warmachine": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "scientistsupreme": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "thor": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "sif": {
+      "isoClass": "fortifier",
+      "isoColor": "blue"
+    },
+    "proximamidnight": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "heimdall": {
+      "isoClass": "raider",
+      "isoColor": "blue"
+    },
+    "elsabloodstone": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "symbiotespiderman": {
+      "isoClass": "skirmisher",
+      "isoColor": "blue"
+    },
+    "carnage": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "stryfe": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "colossus": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "mbaku": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "corvusglaive": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "mrfantastic": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "mysterio": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "crystal": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "falcon": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "nobu": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "taskmaster": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "namor": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "cullobsidian": {
+      "isoClass": "fortifier",
+      "isoColor": "purple"
+    },
+    "ghostrider": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "graviton": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "domino": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "ironheart": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "yoyo": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "negasonic": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "starlord": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "mrsinister": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "blob": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "karnak": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "x23": {
+      "isoClass": "striker",
+      "isoColor": "blue"
+    },
+    "squirrelgirl": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "nickfury": {
+      "isoClass": "healer",
+      "isoColor": "blue"
+    },
+    "cyclops": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "magneto": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "beast": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "emmafrost": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "coulson": {
+      "isoClass": "striker",
+      "isoColor": "blue"
+    },
+    "swarm": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "redskull": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "shuri": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "zemo": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "electro": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "phoenix": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "scream": {
+      "isoClass": "striker",
+      "isoColor": "blue"
+    },
+    "shehulk": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "antivenom": {
+      "isoClass": "healer",
+      "isoColor": "blue"
+    },
+    "invisiblewoman": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "stature": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "ultron": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "ghost": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "blackbolt": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "yellowjacket": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "shatterstar": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "yelena": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "doctoroctopus": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "redguardian": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "kittypryde": {
+      "isoClass": "healer",
+      "isoColor": "blue"
+    },
+    "longshot": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "iceman": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "whitetiger": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "bishop": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "ultimus": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "moonknight": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "silversurfer": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "multipleman": {
+      "isoClass": "healer",
+      "isoColor": "blue"
+    },
+    "sybil": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "polaris": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "ebonymaw": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "mistyknight": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "colleenwing": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "phylavell": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "moondragon": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "sharoncarter": {
+      "isoClass": "striker",
+      "isoColor": "blue"
+    },
+    "samwilson": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "mariahill": {
+      "isoClass": "healer",
+      "isoColor": "blue"
+    },
+    "deathpool": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "shangchi": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "jubilee": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "adamwarlock": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "dagger": {
+      "isoClass": "striker",
+      "isoColor": "blue"
+    },
+    "cloak": {
+      "isoClass": "skirmisher",
+      "isoColor": "blue"
+    },
+    "silversamurai": {
+      "isoClass": "skirmisher",
+      "isoColor": "blue"
+    },
+    "ladydeathstrike": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "sersi": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "ikaris": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "magik": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "scarletspider": {
+      "isoClass": "raider",
+      "isoColor": "blue"
+    },
+    "spiderpunk": {
+      "isoClass": "raider",
+      "isoColor": "blue"
+    },
+    "ghostspider": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "echo": {
+      "isoClass": "striker",
+      "isoColor": "blue"
+    },
+    "katebishop": {
+      "isoClass": "striker",
+      "isoColor": "blue"
+    },
+    "omegared": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "doctorvoodoo": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "morbius": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "strangesupreme": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "doom": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "morganlefay": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "wong": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "agathaharkness": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "madelynepryor": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "nicominoru": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "fantomex": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "spiderwoman": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "gambit": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "sunfire": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "rogue": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "janethor": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "valkyrie": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "deathlok": {
+      "isoClass": "raider",
+      "isoColor": "blue"
+    },
+    "vivvision": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "hulkbuster": {
+      "isoClass": "striker",
+      "isoColor": "blue"
+    },
+    "amadeuscho": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "abomination": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "redhulk": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "spiderweaver": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "dazzler": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "blackpantherbc": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "nakia": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "spidermannoir": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "darkbeast": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "mrnegative": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "archangel": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "nemesis": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "spiderman2099": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "usagent": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "absorbingman": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "titania": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "captaincarter": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "dormammu": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "kangtheconqueror": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "agentvenom": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "captainamericaww2": {
+      "isoClass": "striker",
+      "isoColor": "blue"
+    },
+    "moonstone": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "buckybarnes": {
+      "isoClass": "striker",
+      "isoColor": "blue"
+    },
+    "unionjack": {
+      "isoClass": "striker",
+      "isoColor": "blue"
+    },
+    "quicksilver": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "ironfistorson": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "firestar": {
+      "isoClass": "striker",
+      "isoColor": "blue"
+    },
+    "gwenpool": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "apocalypse": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "zombieironman": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "cosmo": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "vahl": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "korg": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "starlordannihilation": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "thorinfinitywar": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "lokiteen": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "betaraybill": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "sylvie": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "nova": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "spidermanbigtime": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "photon": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "kamalakhan": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "ghostriderrobbie": {
+      "isoClass": "raider",
+      "isoColor": "blue"
+    },
+    "blackcat": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "ronin": {
+      "isoClass": "striker",
+      "isoColor": "blue"
+    },
+    "mockingbird": {
+      "isoClass": "healer",
+      "isoColor": "blue"
+    },
+    "ironmaninfinitywar": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "darkhawk": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "zombiejuggernaut": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "tigra": {
+      "isoClass": "striker",
+      "isoColor": "blue"
+    },
+    "ironheartmcu": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "greengoblinglider": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "kraventhehunter": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "spiderslayer": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "lizard": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "nightcrawler": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "forge": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "sunspot": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "symbiotesilversurfer": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "gwenom": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "redgoblin": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "blackknight": {
+      "isoClass": "fortifier",
+      "isoColor": "purple"
+    },
+    "starbrand": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "cosmicghostrider": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "ironpatriot": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "theleader": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "peterbparker": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "spidermanpavitr": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "peniparker": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "pandapool": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "oldmanlogan": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "daken": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "northstar": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "guardian": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "sasquatch": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "superskrull": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "hankpym": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "blackpanthershuri": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "ares": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "gladiator": {
+      "isoClass": "fortifier",
+      "isoColor": "purple"
+    },
+    "gorr": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "thanosendgame": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "sentinel": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "blade": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "nimrod": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "omegasentinel": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "zombiescarletwitch": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "manthing": {
+      "isoClass": "fortifier",
+      "isoColor": "purple"
+    },
+    "shadowking": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "captainbritain": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "ancientone": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "oath": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "kahhori": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "emmafrostxmen": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "medusa": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "msmarvelclassic": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "jeangrey": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "omegaredphoenix": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "hercules": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "peggycarter": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "lilandra": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "falconjoaquin": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "patriot": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "knull": {
+      "isoClass": "raider",
+      "isoColor": "orange"
+    },
+    "howardtheduck": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "havok": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "daredevilmodern": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "silversable": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "mephisto": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "hitmonkey": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "quasar": {
+      "isoClass": "striker",
+      "isoColor": "orange"
+    },
+    "victoriahand": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "hyperion": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "songbird": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "thehood": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "hellverine": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "odin": {
+      "isoClass": "raider",
+      "isoColor": "orange"
+    },
+    "satana": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "invisiblewomanmcu": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "mrfantasticmcu": {
+      "isoClass": "fortifier",
+      "isoColor": "purple"
+    },
+    "franklinrichards": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "blastaar": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "azazel": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "rachelsummers": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "sebastianshaw": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "phantomrider": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "scorpion": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "hobgoblin": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "superiorspiderman": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "livingmummy": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "daimonhellstrom": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "zombiekestrel": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "hellcat": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "thunderstrike": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "ladybullseye": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "steelserpent": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "swordmaster": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "wolfsbane": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "cannonball": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "warlock": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "darkstar": {
+      "isoClass": "raider",
+      "isoColor": "orange"
+    },
+    "magnetophoenixforce": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "sentry": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "ursamajor": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "novasamalexander": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "nightthrasher": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "moongirl": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "eclipse": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "jeffthelandshark": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "speedball": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "xavier": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "silversurferbreaker": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "stormmighty": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "highevolutionary": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "angel": {
+      "isoClass": "healer",
+      "isoColor": "purple"
+    },
+    "executioner": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "malekith": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "symbiotequicksilver": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "morph": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "toxin": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "riot": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "blademighty": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "scorpionbreaker": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "spiderwomanjulia": {
+      "isoClass": "skirmisher",
+      "isoColor": "purple"
+    },
+    "rachelcolealves": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    },
+    "kingo": {
+      "isoClass": "striker",
+      "isoColor": "purple"
+    },
+    "gilgamesh": {
+      "isoClass": "raider",
+      "isoColor": "purple"
+    }
+  }
+}
