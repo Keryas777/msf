@@ -1,0 +1,160 @@
+name: Rebuild MSF capabilities
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: rebuild-msf-capabilities
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    name: Rebuild and publish Codex artifacts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run pipeline regression tests
+        run: |
+          python -m unittest discover -s tests -p "test_msf_capabilities_parser.py" -v
+          python -m unittest discover -s tests -p "test_msf_capabilities_normalizer.py" -v
+          python -m unittest discover -s tests -p "test_msf_capabilities_indexer.py" -v
+          python -m unittest discover -s tests -p "test_msf_capabilities_web_publisher.py" -v
+          python -m unittest discover -s tests -p "test_msf_capabilities_explorer_builder.py" -v
+          python -m unittest discover -s tests -p "test_msf_turn_meter_*.py" -v
+
+      - name: Record current publication checksums
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          for name, path in (
+              ("Publisher", Path("docs/data/msf-capabilities/manifest.json")),
+              ("Explorer", Path("docs/data/msf-capabilities-explorer/manifest.json")),
+          ):
+              manifest = json.loads(path.read_text(encoding="utf-8"))
+              print(f"{name} checksum before: {manifest['currentPayloadSetChecksum']}")
+          PY
+
+      - name: Rebuild parser output
+        run: python -m scripts.msf_capabilities_parser.cli
+
+      - name: Rebuild normalized output
+        run: python -m scripts.msf_capabilities_normalizer.cli
+
+      - name: Rebuild indexed output
+        run: python -m scripts.msf_capabilities_indexer.cli
+
+      - name: Publish Web artifacts
+        run: python -m scripts.msf_capabilities_web_publisher.cli
+
+      - name: Build explorer artifacts
+        run: python -m scripts.msf_capabilities_explorer_builder.cli
+
+      - name: Check every generated stage
+        run: |
+          python -m scripts.msf_capabilities_parser.cli --check
+          python -m scripts.msf_capabilities_normalizer.cli --check
+          python -m scripts.msf_capabilities_indexer.cli --check
+          python -m scripts.msf_capabilities_web_publisher.cli --check
+          python -m scripts.msf_capabilities_explorer_builder.cli --check
+
+      - name: Validate turn meter artifacts and report summaries
+        run: |
+          python - <<'PY'
+          import json
+          from collections import Counter
+          from pathlib import Path
+
+          normalized = json.loads(Path("data/msf-capabilities/normalized/capabilities.json").read_text(encoding="utf-8"))
+          operations = normalized["operations"]
+          direct = [item for item in operations if item.get("kind") == "turn_meter_modify"]
+          controls = [item for item in operations if item.get("mechanicFamily") == "turn_meter"]
+          direct_counts = Counter(item["turnMeter"]["action"] for item in direct)
+          control_counts = Counter(item["turnMeterControl"]["technicalStat"] for item in controls)
+          assert len(direct) == 540, len(direct)
+          assert direct_counts == {"increase": 323, "decrease": 205, "contextual_amount": 12}, direct_counts
+          assert len(controls) == 97, len(controls)
+          assert control_counts == {
+              "turnmeter_increase_mod_pct": 44,
+              "turnmeter_decrease_mod_pct": 20,
+              "turnmeter_immune_pct": 33,
+          }, control_counts
+
+          publisher_root = Path("docs/data/msf-capabilities")
+          publisher = json.loads((publisher_root / "manifest.json").read_text(encoding="utf-8"))
+          index_manifest = json.loads((publisher_root / publisher["currentPath"] / "index-manifest.json").read_text(encoding="utf-8"))
+          explorer_root = Path("docs/data/msf-capabilities-explorer")
+          explorer = json.loads((explorer_root / "manifest.json").read_text(encoding="utf-8"))
+          generation = explorer_root / explorer["currentPath"]
+          mechanic = json.loads((generation / "mechanics/action-turn-meter.json").read_text(encoding="utf-8"))
+          search = json.loads((generation / "search.json").read_text(encoding="utf-8"))["records"]
+
+          facets = {item["id"]: item for item in mechanic["facets"]}
+          expected = {
+              "turn_meter_increase", "turn_meter_decrease", "turn_meter_contextual_amount",
+              "turn_meter_modify_induced_gain", "turn_meter_amplify_induced_gain",
+              "turn_meter_block_induced_gain", "turn_meter_protect_induced_gain",
+              "turn_meter_block_induced_reduction", "turn_meter_reduction_immunity",
+          }
+          assert expected <= facets.keys(), sorted(facets)
+          assert "block_induced_modification" not in facets
+          assert mechanic["id"] == "action-turn-meter"
+          assert mechanic["counts"]["occurrences"] == len(direct) + len(controls), mechanic["counts"]
+          assert mechanic["counts"]["technicalOccurrences"] == sum(item["technicalOccurrenceCount"] for item in facets.values())
+          facet_records = [
+              record
+              for facet in facets.values()
+              for page in facet["pages"]
+              for record in json.loads((generation / page["path"]).read_text(encoding="utf-8"))["records"]
+          ]
+          facet_ability_ids = {record["abilityId"] for record in facet_records if record.get("abilityId")}
+          assert mechanic["counts"]["abilities"] == len(facet_ability_ids), mechanic["counts"]
+
+          facet_search = [item for item in search if item.get("id") == "action-turn-meter" and item.get("operation")]
+          searchable = {item["operation"]: item for item in facet_search}
+          assert expected <= searchable.keys(), sorted(searchable)
+          for record in facet_search:
+              assert record["id"] == "action-turn-meter"
+          aliases = {alias for item in facet_search for alias in item.get("aliases", [])}
+          for phrase in ("augmente jauge", "réduit jauge", "immunité jauge", "bloque jauge", "gain provoqué"):
+              assert phrase in aliases, phrase
+
+          print(f"Publisher checksum after: {publisher['currentPayloadSetChecksum']}")
+          print(f"Explorer checksum after: {explorer['currentPayloadSetChecksum']}")
+          print(f"Operations: {index_manifest['counts']['operationCount']}")
+          print(f"Turn meter controls: {len(controls)}")
+          print(f"action-turn-meter facets: {len(facets)} ({', '.join(sorted(facets))})")
+          print(f"Parent counts: {mechanic['counts']}")
+          PY
+
+      - name: Commit and push generated artifacts if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A -- docs/data/msf-capabilities docs/data/msf-capabilities-explorer
+          echo "Generated files changed (first 50):"
+          git diff --staged --name-status | sed -n '1,50p'
+
+          if git diff --staged --quiet; then
+            echo "No MSF capabilities artifacts changed; nothing to commit."
+            exit 0
+          fi
+
+          git commit -m "Rebuild MSF capabilities artifacts"
+          git pull --rebase origin main
+          git push origin HEAD:main
