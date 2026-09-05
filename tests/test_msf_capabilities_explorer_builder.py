@@ -228,10 +228,27 @@ class ExplorerBuilderTests(unittest.TestCase):
         self.assertEqual(normalize_search("L’Homme-absorbant"), "l homme absorbant")
         self.assertEqual(normalize_search("ÉTOURDISSEMENT"), "etourdissement")
         search = self.payload("search.json")["records"]
-        ability_block = next(record for record in search if record["id"] == "ability-block")
+        ability_block_parents = [
+            record
+            for record in search
+            if record["id"] == "ability-block" and record["kind"] == "effect"
+        ]
+        self.assertEqual(len(ability_block_parents), 1)
+        ability_block = ability_block_parents[0]
         self.assertIn("capablock", ability_block["aliases"])
         self.assertEqual(ability_block["sourceName"], "AbilityBlock")
-        heal_block = next(record for record in search if record["id"] == "heal-block")
+        ability_block_facets = [
+            record
+            for record in search
+            if record["id"] == "ability-block" and record["kind"] == "mechanicFacet"
+        ]
+        self.assertTrue(ability_block_facets)
+        self.assertTrue(all(record.get("operation") for record in ability_block_facets))
+        heal_block = next(
+            record
+            for record in search
+            if record["id"] == "heal-block" and record["kind"] == "effect"
+        )
         self.assertIn("healblock", heal_block["aliases"])
 
     def test_06_empowered_abilities_follow_their_base_ability(self) -> None:
