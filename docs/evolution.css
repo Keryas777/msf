@@ -15,16 +15,21 @@
 
 .evolutionFilterGrid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 10px;
 }
 
 .evolutionField {
   min-width: 0;
 }
 
+.evolutionField--custom {
+  grid-column: 1 / -1;
+}
+
 .evolutionField .select {
   width: 100%;
+  min-width: 0;
 }
 
 .evolutionSummaryHead {
@@ -104,31 +109,36 @@
 }
 
 .evolutionCard--unlocked {
-  border-color: rgba(104, 211, 145, .45);
+  border-color: rgba(104, 211, 145, .95);
+  box-shadow:
+    0 0 0 1px rgba(104, 211, 145, .55),
+    0 0 22px rgba(104, 211, 145, .24),
+    inset 0 0 20px rgba(104, 211, 145, .06);
 }
 
 .evolutionCardTop {
   display: grid;
-  grid-template-columns: 54px minmax(0, 1fr) auto;
+  grid-template-columns: 66px minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
 }
 
-.evolutionPortrait {
-  width: 54px;
-  height: 54px;
+.evolutionPortrait,
+.evolutionPortraitFallback {
+  width: 66px;
+  height: 66px;
   border-radius: 12px;
-  object-fit: cover;
   background: rgba(255,255,255,.06);
+}
+
+.evolutionPortrait {
+  object-fit: contain;
+  object-position: center;
 }
 
 .evolutionPortraitFallback {
   display: grid;
   place-items: center;
-  width: 54px;
-  height: 54px;
-  border-radius: 12px;
-  background: rgba(255,255,255,.06);
   font-size: 1.2rem;
   font-weight: 800;
 }
@@ -142,7 +152,7 @@
 .evolutionCardTag {
   display: inline-block;
   margin-top: 5px;
-  color: #68d391;
+  color: #78e2a0;
   font-size: .74rem;
   font-weight: 800;
 }
@@ -190,11 +200,30 @@
   color: #fff;
 }
 
-@media (min-width: 640px) {
-  .evolutionFilterGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (max-width: 420px) {
+  .evolutionField .label {
+    font-size: .78rem;
   }
 
+  .evolutionField .select {
+    font-size: .92rem;
+    padding-left: 10px;
+    padding-right: 28px;
+  }
+
+  .evolutionCardTop {
+    grid-template-columns: 62px minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+
+  .evolutionPortrait,
+  .evolutionPortraitFallback {
+    width: 62px;
+    height: 62px;
+  }
+}
+
+@media (min-width: 640px) {
   .evolutionList {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
