@@ -5,6 +5,7 @@
     rosters: "./data/rosters.json",
     characters: "./data/msf-characters.json",
     historyIndex: "./data/roster-history/index.json",
+    aliases: "./data/player-aliases.json",
   };
 
   const qs = (selector) => document.querySelector(selector);
@@ -30,6 +31,7 @@
     rosters: [],
     characters: [],
     historyIndex: null,
+    aliases: new Map(),
     charMap: new Map(),
     selectedAlliance: "",
     selectedPlayerKey: "",
@@ -56,8 +58,44 @@
       .replace(/[^a-z0-9]/g, "");
   }
 
+  function normalizeAliasLookup(value) {
+    return String(value ?? "")
+      .trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[’'`´]/g, "")
+      .replace(/\s+/g, " ");
+  }
+
+  function buildAliasMap(payload) {
+    state.aliases = new Map();
+    const aliases = payload?.aliases && typeof payload.aliases === "object" ? payload.aliases : {};
+    for (const [alias, canonical] of Object.entries(aliases)) {
+      const key = normalizeAliasLookup(alias);
+      const value = String(canonical ?? "").trim();
+      if (key && value && !state.aliases.has(key)) state.aliases.set(key, value);
+    }
+  }
+
+  function canonicalPlayerName(value) {
+    let current = String(value ?? "").trim();
+    const seen = new Set();
+    for (let i = 0; i < 10; i += 1) {
+      const key = normalizeAliasLookup(current);
+      if (!key || seen.has(key)) break;
+      seen.add(key);
+      const next = state.aliases.get(key);
+      if (!next) break;
+      current = next;
+    }
+    return current;
+  }
+
   function getRosterPlayerKey(roster) {
-    return normalizeKey(roster?.playerKey || roster?.player || roster?.name || "");
+    const rawName = roster?.player || roster?.name || roster?.playerKey || "";
+    const canonical = canonicalPlayerName(rawName);
+    return normalizeKey(canonical || roster?.playerKey || rawName);
   }
 
   function activeAlliances() {
@@ -82,9 +120,9 @@
       .filter((roster) => normalizeKey(roster?.alliance) === wanted)
       .map((roster) => ({
         key: getRosterPlayerKey(roster),
-        label: String(roster?.player || roster?.name || roster?.playerKey || "").trim(),
+        label: canonicalPlayerName(roster?.player || roster?.name || roster?.playerKey || ""),
       }))
-      .filter((player) => player.key && player.label)
+      .filter((player) => player.key && player.label && state.historyIndex?.players?.[player.key])
       .sort((a, b) => a.label.localeCompare(b.label, "fr", { sensitivity: "base" }));
   }
 
@@ -149,6 +187,8 @@
   function populateAllianceSelect() {
     allianceSelect.innerHTML = "";
     for (const alliance of activeAlliances()) {
+      const players = playersForAlliance(alliance.key);
+      if (!players.length) continue;
       const option = document.createElement("option");
       option.value = alliance.key;
       option.textContent = `${alliance.name || alliance.key}${alliance.emoji ? ` ${alliance.emoji}` : ""}`;
@@ -171,10 +211,7 @@
       playerSelect.appendChild(option);
     }
 
-    if (players.some((player) => player.key === previous)) {
-      playerSelect.value = previous;
-    }
-
+    if (players.some((player) => player.key === previous)) playerSelect.value = previous;
     state.selectedPlayerKey = playerSelect.value || "";
     refreshCheckpointControls();
   }
@@ -183,8 +220,8 @@
     const checkpoints = availableCheckpoints(state.selectedPlayerKey);
     const period = periodSelect.value;
     startField.hidden = period !== "custom";
-
     endSelect.innerHTML = "";
+
     const eligibleEnds = period === "custom"
       ? checkpoints.slice(1)
       : checkpoints.filter((checkpoint) => canUsePeriod(checkpoint, Number(period)));
@@ -204,8 +241,8 @@
     const period = periodSelect.value;
     const end = endSelect.value;
     const checkpoints = availableCheckpoints(state.selectedPlayerKey);
-
     startSelect.innerHTML = "";
+
     if (period !== "custom" || !end) {
       compareSelected();
       return;
@@ -536,17 +573,19 @@
 
   async function boot() {
     try {
-      const [alliances, rosters, characters, historyIndex] = await Promise.all([
+      const [alliances, rosters, characters, historyIndex, aliases] = await Promise.all([
         fetchJson(FILES.alliances),
         fetchJson(FILES.rosters),
         fetchJson(FILES.characters),
         fetchJson(FILES.historyIndex),
+        fetchJson(FILES.aliases),
       ]);
 
       state.alliances = Array.isArray(alliances) ? alliances : [];
       state.rosters = Array.isArray(rosters) ? rosters : [];
       state.characters = Array.isArray(characters) ? characters : [];
       state.historyIndex = historyIndex || {};
+      buildAliasMap(aliases);
       buildCharacterMap();
       bindEvents();
       populateAllianceSelect();
