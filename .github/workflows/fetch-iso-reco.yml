@@ -1,14 +1,11 @@
-name: Fetch ISO Reco (Sheet)
+name: Build ISO Reco (Keryas I roster)
 
 on:
   workflow_dispatch:
 
-  # Toutes les 3 heures (à xx:20)
-  schedule:
-    - cron: "20 */3 * * *"
-
   push:
     paths:
+      - "docs/data/rosters.json"
       - "scripts/fetch-iso-reco.mjs"
       - ".github/workflows/fetch-iso-reco.yml"
 
@@ -32,10 +29,7 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Fetch iso-reco JSON
-        env:
-          SHEET_ID: ${{ secrets.SHEET_ID }}
-          SHEET_NAME: ISO-reco
+      - name: Build iso-reco JSON from roster
         run: |
           node scripts/fetch-iso-reco.mjs
 
@@ -45,5 +39,5 @@ jobs:
           git config user.email "github-actions@github.com"
           git add docs/data/iso-reco.json
           git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "Update iso-reco.json (auto 3h)"
+          git commit -m "Update iso-reco.json from Keryas I roster"
           git push
