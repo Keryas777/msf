@@ -3,6 +3,7 @@
   const FILES = {
     alliances: './data/alliances.json',
     historyIndex: './data/roster-history/index.json',
+    infos: './data/infos.json',
   };
 
   const qs = (s) => document.querySelector(s);
@@ -20,6 +21,7 @@
   const state = {
     alliances: [],
     historyIndex: null,
+    infosByPlayer: new Map(),
   };
 
   function bust(url) {
@@ -32,6 +34,15 @@
     const response = await fetch(bust(url), { cache: 'no-store' });
     if (!response.ok) throw new Error(`${url} -> HTTP ${response.status}`);
     return response.json();
+  }
+
+  function normalizeKey(value) {
+    return String(value ?? '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '');
   }
 
   function formatNumber(value) {
@@ -128,6 +139,18 @@
     return fetchJson(`./data/roster-history/group/${checkpoint}.json`);
   }
 
+  function buildInfoMap(infos) {
+    state.infosByPlayer = new Map();
+    for (const info of Array.isArray(infos) ? infos : []) {
+      const key = normalizeKey(info?.name);
+      if (key && !state.infosByPlayer.has(key)) state.infosByPlayer.set(key, info);
+    }
+  }
+
+  function playerInfo(row) {
+    return state.infosByPlayer.get(normalizeKey(row.player)) || state.infosByPlayer.get(normalizeKey(row.playerKey)) || null;
+  }
+
   function buildRows(oldSummary, newSummary) {
     const oldByKey = new Map((oldSummary?.players || []).map((row) => [row.playerKey, row]));
     const rows = [];
@@ -161,6 +184,38 @@
     while (node.firstChild) node.removeChild(node.firstChild);
   }
 
+  function createPlayerVisual(info, playerName) {
+    const visual = document.createElement('div');
+    visual.className = 'evolutionRankingVisual';
+
+    if (info?.icon) {
+      const icon = document.createElement('img');
+      icon.className = 'evolutionRankingIcon';
+      icon.src = info.icon;
+      icon.alt = '';
+      icon.loading = 'lazy';
+      icon.decoding = 'async';
+      visual.appendChild(icon);
+    } else {
+      const fallback = document.createElement('span');
+      fallback.className = 'evolutionRankingIconFallback';
+      fallback.textContent = String(playerName || '?').charAt(0).toUpperCase();
+      visual.appendChild(fallback);
+    }
+
+    if (info?.frame) {
+      const frame = document.createElement('img');
+      frame.className = 'evolutionRankingFrame';
+      frame.src = info.frame;
+      frame.alt = '';
+      frame.loading = 'lazy';
+      frame.decoding = 'async';
+      visual.appendChild(frame);
+    }
+
+    return visual;
+  }
+
   function render(rows, range) {
     clear(rankingList);
     summaryCard.hidden = false;
@@ -185,6 +240,9 @@
       rank.className = 'evolutionRankingRank';
       rank.textContent = String(index + 1);
 
+      const info = playerInfo(row);
+      const visual = createPlayerVisual(info, row.player);
+
       const identity = document.createElement('div');
       identity.className = 'evolutionRankingIdentity';
       const player = document.createElement('div');
@@ -197,13 +255,13 @@
 
       const gain = document.createElement('div');
       gain.className = 'evolutionRankingGain';
-      gain.textContent = `${row.gain >= 0 ? '+' : ''}${formatNumber(row.gain)}`;
+      gain.textContent = `${row.gain >= 0 ? '+' : ''}${formatNumber(row.gain)} TCP`;
       const total = document.createElement('span');
       total.className = 'evolutionRankingTotal';
       total.textContent = `${formatNumber(row.oldPower)} → ${formatNumber(row.newPower)}`;
       gain.appendChild(total);
 
-      link.append(rank, identity, gain);
+      link.append(rank, visual, identity, gain);
       rankingList.appendChild(link);
     });
   }
@@ -253,12 +311,14 @@
 
   async function boot() {
     try {
-      const [alliances, historyIndex] = await Promise.all([
+      const [alliances, historyIndex, infos] = await Promise.all([
         fetchJson(FILES.alliances),
         fetchJson(FILES.historyIndex),
+        fetchJson(FILES.infos),
       ]);
       state.alliances = Array.isArray(alliances) ? alliances : [];
       state.historyIndex = historyIndex || {};
+      buildInfoMap(infos);
       bindEvents();
       refreshControls();
     } catch (error) {
