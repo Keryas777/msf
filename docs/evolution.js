@@ -37,6 +37,9 @@
     selectedPlayerKey: "",
   };
 
+  let bootReady = false;
+  let userChangedSelection = false;
+
   function bust(url) {
     const u = new URL(url, window.location.href);
     u.searchParams.set("v", Date.now().toString());
@@ -108,6 +111,19 @@
     return state.alliances.find((a) => normalizeKey(a?.key) === normalizeKey(key)) || null;
   }
 
+  function resolveAllianceKey(value) {
+    const wanted = normalizeKey(value);
+    if (!wanted) return "";
+
+    for (const alliance of activeAlliances()) {
+      const candidates = [alliance?.key, alliance?.name, ...(Array.isArray(alliance?.aliases) ? alliance.aliases : [])];
+      if (candidates.some((candidate) => normalizeKey(candidate) === wanted)) {
+        return String(alliance.key || "");
+      }
+    }
+    return "";
+  }
+
   function allianceLabel(key) {
     const alliance = allianceMeta(key);
     if (!alliance) return key || "—";
@@ -124,6 +140,100 @@
       }))
       .filter((player) => player.key && player.label && state.historyIndex?.players?.[player.key])
       .sort((a, b) => a.label.localeCompare(b.label, "fr", { sensitivity: "base" }));
+  }
+
+  function sessionPlayerNames(player) {
+    if (!player || typeof player !== "object") return [];
+    return [
+      player.name,
+      player.player,
+      player.playerName,
+      player.player_name,
+      player.pseudo,
+      player.displayName,
+      player.display_name,
+      player.global_name,
+      player.username,
+      player.playerKey,
+      player.player_key,
+    ]
+      .map((value) => String(value ?? "").trim())
+      .filter(Boolean);
+  }
+
+  function findPlayerInAlliance(allianceKey, names) {
+    if (!allianceKey || !Array.isArray(names) || !names.length) return null;
+    const wanted = new Set();
+    for (const name of names) {
+      wanted.add(normalizeKey(name));
+      wanted.add(normalizeKey(canonicalPlayerName(name)));
+    }
+    return playersForAlliance(allianceKey).find((player) => wanted.has(player.key) || wanted.has(normalizeKey(player.label))) || null;
+  }
+
+  function applyDiscordDefault(session = window.LoSP_SESSION) {
+    if (!bootReady || userChangedSelection || !session || session.ok !== true) return false;
+
+    if (Array.isArray(session.players)) {
+      for (const sessionPlayer of session.players) {
+        const allianceKey = resolveAllianceKey(sessionPlayer?.alliance || sessionPlayer?.alliance_label);
+        const player = findPlayerInAlliance(allianceKey, sessionPlayerNames(sessionPlayer));
+        if (allianceKey && player) {
+          selectPlayer(allianceKey, player.key);
+          return true;
+        }
+      }
+    }
+
+    const names = [
+      session.displayName,
+      session.display_name,
+      session.global_name,
+      session.username,
+      session.name,
+      session.player,
+      session.playerName,
+      session.playerKey,
+    ]
+      .map((value) => String(value ?? "").trim())
+      .filter(Boolean);
+
+    const preferred = [
+      session.primaryAlliance,
+      ...(Array.isArray(session.alliances) ? session.alliances : []),
+    ]
+      .map(resolveAllianceKey)
+      .filter(Boolean);
+
+    for (const allianceKey of [...new Set(preferred)]) {
+      const player = findPlayerInAlliance(allianceKey, names);
+      if (player) {
+        selectPlayer(allianceKey, player.key);
+        return true;
+      }
+    }
+
+    for (const alliance of activeAlliances()) {
+      const player = findPlayerInAlliance(alliance.key, names);
+      if (player) {
+        selectPlayer(alliance.key, player.key);
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function selectPlayer(allianceKey, playerKey) {
+    state.selectedAlliance = allianceKey;
+    allianceSelect.value = allianceKey;
+    state.selectedPlayerKey = playerKey;
+    populatePlayerSelect();
+    if ([...playerSelect.options].some((option) => option.value === playerKey)) {
+      playerSelect.value = playerKey;
+      state.selectedPlayerKey = playerKey;
+      refreshCheckpointControls();
+    }
   }
 
   function buildCharacterMap() {
@@ -162,7 +272,8 @@
 
   function formatNumber(value) {
     const n = Number(value);
-    return Number.isFinite(n) ? n.toLocaleString("fr-FR") : "—";
+    if (!Number.isFinite(n)) return "—";
+    return Math.trunc(n).toLocaleString("fr-FR").replace(/[\u202f\u00a0 ]/g, ".");
   }
 
   function monthOffset(checkpoint, months) {
@@ -298,18 +409,40 @@
     return labels[key] || key.charAt(0).toUpperCase() + key.slice(1);
   }
 
+  function isoClassLabel(value) {
+    const key = String(value || "").trim().toLowerCase();
+    const labels = {
+      striker: "Striker",
+      raider: "Raider",
+      skirmisher: "Skirmisher",
+      fortifier: "Fortifier",
+      healer: "Healer",
+    };
+    if (!key) return "";
+    return labels[key] || key.charAt(0).toUpperCase() + key.slice(1);
+  }
+
   function localIsoLevel(isoMax) {
     const value = Number(isoMax);
     if (!Number.isFinite(value) || value <= 0) return null;
     return ((Math.trunc(value) - 1) % 5) + 1;
   }
 
-  function isoDisplay(snapshot, charKey, char) {
-    if (!char || !hasOwn(char, "isoMax")) return null;
+  function isoMeta(snapshot, charKey) {
     const iso = snapshot?.iso?.[charKey] || {};
+    return {
+      isoClass: String(iso?.isoClass || "").trim().toLowerCase(),
+      isoColor: String(iso?.isoColor || "").trim().toLowerCase(),
+    };
+  }
+
+  function isoDisplay(snapshot, charKey, char, includeClass = false) {
+    if (!char || !hasOwn(char, "isoMax")) return null;
+    const meta = isoMeta(snapshot, charKey);
     const level = localIsoLevel(char.isoMax);
-    const color = isoColorLabel(iso?.isoColor);
-    return level ? `${color} ${level}` : color;
+    const color = isoColorLabel(meta.isoColor);
+    const className = includeClass ? isoClassLabel(meta.isoClass) : "";
+    return [className, color, level].filter((value) => value !== "" && value !== null).join(" ");
   }
 
   function buildChange(label, oldValue, newValue) {
@@ -342,7 +475,7 @@
         if (hasOwn(current, "yellowStars")) changes.push(buildChange("Étoiles jaunes", "—", `${current.yellowStars} ★`));
         if (hasOwn(current, "redStars")) changes.push(buildChange("Étoiles rouges", "—", `${current.redStars} ★`));
         if (hasOwn(current, "diamonds")) changes.push(buildChange("Diamants", "—", `${current.diamonds} 💎`));
-        const iso = isoDisplay(newSnapshot, charKey, current);
+        const iso = isoDisplay(newSnapshot, charKey, current, true);
         if (iso) changes.push(buildChange("ISO", "—", iso));
         if (hasOwn(current, "power")) {
           changes.push(buildChange("Puissance", "—", formatNumber(current.power)));
@@ -376,11 +509,17 @@
 
         if (hasOwn(before, "isoMax") && hasOwn(current, "isoMax")) {
           const isoGain = numericIncrease(before.isoMax, current.isoMax);
-          const oldIso = isoDisplay(oldSnapshot, charKey, before);
-          const newIso = isoDisplay(newSnapshot, charKey, current);
-          if (isoGain && oldIso && newIso) {
-            isoLevels += isoGain;
-            changes.push(buildChange("ISO", oldIso, newIso));
+          const oldMeta = isoMeta(oldSnapshot, charKey);
+          const newMeta = isoMeta(newSnapshot, charKey);
+          const classChanged = Boolean(oldMeta.isoClass && newMeta.isoClass && oldMeta.isoClass !== newMeta.isoClass);
+          const colorChanged = Boolean(oldMeta.isoColor && newMeta.isoColor && oldMeta.isoColor !== newMeta.isoColor);
+          const maxChanged = Number(before.isoMax) !== Number(current.isoMax);
+
+          if (isoGain) isoLevels += isoGain;
+          if (isoGain || classChanged || colorChanged || (classChanged && maxChanged)) {
+            const oldIso = isoDisplay(oldSnapshot, charKey, before, classChanged);
+            const newIso = isoDisplay(newSnapshot, charKey, current, classChanged);
+            if (oldIso && newIso) changes.push(buildChange("ISO", oldIso, newIso));
           }
         }
 
@@ -556,12 +695,14 @@
 
   function bindEvents() {
     allianceSelect.addEventListener("change", () => {
+      userChangedSelection = true;
       state.selectedAlliance = allianceSelect.value;
       state.selectedPlayerKey = "";
       populatePlayerSelect();
     });
 
     playerSelect.addEventListener("change", () => {
+      userChangedSelection = true;
       state.selectedPlayerKey = playerSelect.value;
       refreshCheckpointControls();
     });
@@ -570,6 +711,10 @@
     endSelect.addEventListener("change", refreshStartSelect);
     startSelect.addEventListener("change", compareSelected);
   }
+
+  window.addEventListener("losp:auth-ready", (event) => {
+    if (bootReady) applyDiscordDefault(event.detail);
+  });
 
   async function boot() {
     try {
@@ -589,6 +734,8 @@
       buildCharacterMap();
       bindEvents();
       populateAllianceSelect();
+      bootReady = true;
+      applyDiscordDefault(window.LoSP_SESSION);
     } catch (error) {
       console.error(error);
       loadingState.hidden = true;
