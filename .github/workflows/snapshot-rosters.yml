@@ -1,0 +1,94 @@
+name: Snapshot roster history
+
+on:
+  schedule:
+    - cron: "15 4 1 * *"
+  workflow_dispatch:
+    inputs:
+      checkpoint:
+        description: Optional checkpoint (YYYY-MM-01). Leave empty for current month in Europe/Paris.
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main with full history
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Resolve checkpoint
+        id: checkpoint
+        env:
+          REQUESTED_CHECKPOINT: ${{ github.event.inputs.checkpoint }}
+        run: |
+          if [ -n "$REQUESTED_CHECKPOINT" ]; then
+            checkpoint="$REQUESTED_CHECKPOINT"
+          else
+            checkpoint="$(TZ=Europe/Paris date +%Y-%m-01)"
+          fi
+
+          echo "checkpoint=$checkpoint" >> "$GITHUB_OUTPUT"
+          echo "Roster checkpoint: $checkpoint"
+
+      - name: Build monthly roster snapshot
+        env:
+          DATA_DIR: docs/data
+          ROSTER_HISTORY_TZ: Europe/Paris
+        run: |
+          node --version
+          node scripts/snapshot-rosters.mjs \
+            --checkpoint="${{ steps.checkpoint.outputs.checkpoint }}" \
+            --write
+
+      - name: Verify generated scope
+        shell: bash
+        run: |
+          unexpected=0
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            file="${line:3}"
+            case "$file" in
+              docs/data/roster-history/*) ;;
+              *)
+                echo "Unexpected change outside roster history: $line"
+                unexpected=1
+                ;;
+            esac
+          done < <(git status --porcelain --untracked-files=all)
+
+          if [ "$unexpected" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Commit and push monthly snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add docs/data/roster-history
+
+          if git diff --staged --quiet; then
+            echo "No roster snapshot changes to commit."
+            exit 0
+          fi
+
+          checkpoint="${{ steps.checkpoint.outputs.checkpoint }}"
+          git commit -m "Snapshot roster history ${checkpoint}"
+          git push origin HEAD:main
