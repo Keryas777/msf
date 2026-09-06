@@ -9,7 +9,7 @@ from .diagnostics import IndexerAuditError, IndexerInputError
 
 
 SNAPSHOT_CAPABILITIES_CHECKSUM = (
-    "ea0920f4fd7f076c39db83e9299481fcfb2e9a1a499c2c23cc8eff1782a05a7b"
+    "5f8c5ad2d59acc82fb5fc36c3c4c48e59af5c2958573bd136f48f0092705a589"
 )
 
 KNOWN_OPERATION_KINDS = frozenset(
@@ -60,14 +60,16 @@ SNAPSHOT_OPERATION_KINDS = {
     "empower": 7,
     "empty_result": 310,
     "spawn": 116,
+    "stat_immunity": 3,
+    "stat_modifier": 94,
 }
 
 SNAPSHOT_COUNTS = {
     "characterCount": 503,
     "abilityCount": 1844,
-    "contextCount": 3930,
-    "actionMappingCount": 12327,
-    "operationCount": 10498,
+    "contextCount": 3997,
+    "actionMappingCount": 12424,
+    "operationCount": 10595,
     "effectCatalogCount": 302,
     "preservedUninterpretedActionCount": 3337,
     "spawnOperationCount": 116,
@@ -80,7 +82,7 @@ SNAPSHOT_COUNTS = {
     "unresolvedProcReferenceCount": 2,
     "battlefieldEffectSetCount": 17,
     "battlefieldEffectClearCount": 21,
-    "technicalContextCount": 606,
+    "technicalContextCount": 673,
     "passiveEmpowerAbilityCount": 5,
 }
 
