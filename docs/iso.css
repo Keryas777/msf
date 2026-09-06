@@ -1,6 +1,24 @@
 /* docs/iso.css */
 /* Surcouches ISO : badge ISO + halos vert/jaune + emojis AU-DESSUS des portraits */
 
+.isoIdentityRow{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.isoIdentityField{
+  min-width: 0;
+}
+
+.isoIdentityField .label{
+  margin-bottom: 6px;
+}
+
+.isoIdentityField .select{
+  min-width: 0;
+}
+
 .portraits .portraitCard{
   position: relative;
   display:flex;
