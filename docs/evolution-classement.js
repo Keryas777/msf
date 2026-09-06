@@ -82,7 +82,7 @@
   function allianceLabel(key) {
     const meta = state.alliances.find((a) => String(a?.key || '').toLowerCase() === String(key || '').toLowerCase());
     if (!meta) return key || '—';
-    return `${meta.name || meta.key}${meta.emoji ? ` ${meta.emoji}` : ''}`;
+    return `${meta.emoji ? `${meta.emoji} ` : ''}${meta.name || meta.key}`;
   }
 
   function selectedRange() {
