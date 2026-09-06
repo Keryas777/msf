@@ -394,21 +394,6 @@
     return newNumber > oldNumber ? newNumber - oldNumber : null;
   }
 
-  function isoColorLabel(color) {
-    const key = String(color || "").trim().toLowerCase();
-    const labels = {
-      green: "Vert",
-      vert: "Vert",
-      blue: "Bleu",
-      bleu: "Bleu",
-      purple: "Violet",
-      violet: "Violet",
-      orange: "Orange",
-    };
-    if (!key) return "ISO";
-    return labels[key] || key.charAt(0).toUpperCase() + key.slice(1);
-  }
-
   function isoClassLabel(value) {
     const key = String(value || "").trim().toLowerCase();
     const labels = {
@@ -422,10 +407,19 @@
     return labels[key] || key.charAt(0).toUpperCase() + key.slice(1);
   }
 
-  function localIsoLevel(isoMax) {
-    const value = Number(isoMax);
+  function isoTierFromMax(isoMax) {
+    const value = Math.trunc(Number(isoMax));
     if (!Number.isFinite(value) || value <= 0) return null;
-    return ((Math.trunc(value) - 1) % 5) + 1;
+
+    const tiers = ["Vert", "Bleu", "Violet", "Orange"];
+    const tierIndex = Math.floor((value - 1) / 5);
+    const level = ((value - 1) % 5) + 1;
+
+    if (tierIndex < 0 || tierIndex >= tiers.length) {
+      return { color: "ISO", level: value };
+    }
+
+    return { color: tiers[tierIndex], level };
   }
 
   function isoMeta(snapshot, charKey) {
@@ -439,10 +433,10 @@
   function isoDisplay(snapshot, charKey, char, includeClass = false) {
     if (!char || !hasOwn(char, "isoMax")) return null;
     const meta = isoMeta(snapshot, charKey);
-    const level = localIsoLevel(char.isoMax);
-    const color = isoColorLabel(meta.isoColor);
+    const tier = isoTierFromMax(char.isoMax);
+    if (!tier) return null;
     const className = includeClass ? isoClassLabel(meta.isoClass) : "";
-    return [className, color, level].filter((value) => value !== "" && value !== null).join(" ");
+    return [className, tier.color, tier.level].filter((value) => value !== "" && value !== null).join(" ");
   }
 
   function buildChange(label, oldValue, newValue) {
@@ -512,11 +506,9 @@
           const oldMeta = isoMeta(oldSnapshot, charKey);
           const newMeta = isoMeta(newSnapshot, charKey);
           const classChanged = Boolean(oldMeta.isoClass && newMeta.isoClass && oldMeta.isoClass !== newMeta.isoClass);
-          const colorChanged = Boolean(oldMeta.isoColor && newMeta.isoColor && oldMeta.isoColor !== newMeta.isoColor);
-          const maxChanged = Number(before.isoMax) !== Number(current.isoMax);
 
           if (isoGain) isoLevels += isoGain;
-          if (isoGain || classChanged || colorChanged || (classChanged && maxChanged)) {
+          if (isoGain || classChanged) {
             const oldIso = isoDisplay(oldSnapshot, charKey, before, classChanged);
             const newIso = isoDisplay(newSnapshot, charKey, current, classChanged);
             if (oldIso && newIso) changes.push(buildChange("ISO", oldIso, newIso));
