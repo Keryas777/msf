@@ -80,6 +80,133 @@
 
     <script>
       (function () {
+        const allianceSelect = document.querySelector("#allianceSelect");
+        const playerSelect = document.querySelector("#playerSelect");
+        let authSession = window.LoSP_SESSION || null;
+        let autoApplied = false;
+        let userChangedSelection = false;
+        let retryTimer = null;
+        let retryCount = 0;
+
+        const normalize = (value) =>
+          String(value ?? "")
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9]/g, "");
+
+        function namesFromSessionPlayer(player) {
+          if (!player || typeof player !== "object") return [];
+
+          return [
+            player.name,
+            player.player,
+            player.playerName,
+            player.player_name,
+            player.pseudo,
+            player.displayName,
+            player.display_name,
+          ]
+            .map((value) => String(value ?? "").trim())
+            .filter(Boolean);
+        }
+
+        function findOption(select, candidates) {
+          const wanted = new Set(candidates.map(normalize).filter(Boolean));
+          if (!wanted.size) return null;
+
+          return (
+            Array.from(select.options).find((option) => {
+              const values = [option.value, option.textContent];
+              return values.some((value) => wanted.has(normalize(value)));
+            }) || null
+          );
+        }
+
+        function getSessionTargets(session) {
+          const targets = [];
+
+          if (Array.isArray(session?.players)) {
+            session.players.forEach((player) => {
+              targets.push({
+                alliances: [player?.alliance, player?.alliance_label].filter(Boolean),
+                players: namesFromSessionPlayer(player),
+              });
+            });
+          }
+
+          if (!targets.length) {
+            targets.push({
+              alliances: [session?.primaryAlliance, ...(session?.alliances || [])].filter(Boolean),
+              players: [
+                session?.displayName,
+                session?.display_name,
+                session?.global_name,
+                session?.username,
+              ].filter(Boolean),
+            });
+          }
+
+          return targets;
+        }
+
+        function scheduleRetry() {
+          if (autoApplied || userChangedSelection || retryTimer || retryCount >= 50) return;
+          retryCount += 1;
+          retryTimer = setTimeout(() => {
+            retryTimer = null;
+            applyDiscordDefaults();
+          }, 100);
+        }
+
+        function applyDiscordDefaults() {
+          if (autoApplied || userChangedSelection) return;
+
+          const session = window.LoSP_SESSION || authSession;
+          if (!session?.ok) {
+            scheduleRetry();
+            return;
+          }
+
+          if (!allianceSelect || allianceSelect.options.length <= 1) {
+            scheduleRetry();
+            return;
+          }
+
+          for (const target of getSessionTargets(session)) {
+            const allianceOption = findOption(allianceSelect, target.alliances);
+            if (!allianceOption) continue;
+
+            allianceSelect.value = allianceOption.value;
+            allianceSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+            const playerOption = findOption(playerSelect, target.players);
+            if (!playerOption) continue;
+
+            playerSelect.value = playerOption.value;
+            playerSelect.dispatchEvent(new Event("change", { bubbles: true }));
+            autoApplied = true;
+            return;
+          }
+
+          scheduleRetry();
+        }
+
+        [allianceSelect, playerSelect].forEach((select) => {
+          select?.addEventListener("change", (event) => {
+            if (event.isTrusted) userChangedSelection = true;
+          });
+          select?.addEventListener("input", (event) => {
+            if (event.isTrusted) userChangedSelection = true;
+          });
+        });
+
+        window.addEventListener("losp:auth-ready", (event) => {
+          authSession = event.detail || window.LoSP_SESSION || null;
+          applyDiscordDefaults();
+        });
+
         const links = document.querySelectorAll('link[rel="stylesheet"]');
         links.forEach((l) => {
           if (l.href.includes("v=ts")) l.href = l.href.replace("v=ts", "v=" + Date.now());
@@ -92,6 +219,7 @@
         const s = document.createElement("script");
         s.src = "./iso.js?v=2-" + Date.now();
         s.defer = true;
+        s.addEventListener("load", applyDiscordDefaults);
 
         alliances.addEventListener("load", () => document.body.appendChild(s));
         alliances.addEventListener("error", () => document.body.appendChild(s));
