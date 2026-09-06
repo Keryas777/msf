@@ -9,6 +9,12 @@
   border-radius: 14px;
 }
 
+/* Le bloc joueur doit laisser dépasser la coche / alerte au-dessus des cartes. */
+#playerPortraits{
+  overflow: visible;
+  padding-top: 14px;
+}
+
 /* Le badge ISO sous le portrait */
 .isoBadge{
   display:flex;
