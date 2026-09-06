@@ -2084,6 +2084,46 @@ function mechanicResultCardMarkup(record) {
   `;
 }
 
+function facetSelectorMarkup(mechanic, activeFacet, routeView) {
+  const facets = mechanic.facets || [];
+  if (facets.length < 2) return "";
+
+  const optionMarkup = (candidate) => `
+    <option value="${escapeHtml(candidate.id)}" ${candidate.id === activeFacet.id ? "selected" : ""}>
+      ${escapeHtml(candidate.shortLabel || candidate.label)}
+    </option>
+  `;
+  const groups = [];
+  for (const candidate of facets) {
+    const groupLabel = candidate.group || "";
+    let group = groups.find((item) => item.label === groupLabel);
+    if (!group) {
+      group = { label: groupLabel, facets: [] };
+      groups.push(group);
+    }
+    group.facets.push(candidate);
+  }
+  const options = groups.some((group) => group.label)
+    ? groups.map((group) => group.label
+      ? `<optgroup label="${escapeHtml(group.label)}">${group.facets.map(optionMarkup).join("")}</optgroup>`
+      : group.facets.map(optionMarkup).join("")
+    ).join("")
+    : facets.map(optionMarkup).join("");
+
+  return `
+    <div class="codexFacetSelector">
+      <label for="codexFacetSelect">Type d’action</label>
+      <select
+        id="codexFacetSelect"
+        data-facet-select
+        data-route-view="${escapeHtml(routeView)}"
+        data-mechanic-id="${escapeHtml(mechanic.id)}"
+        aria-label="Facette de ${escapeHtml(mechanic.label)}"
+      >${options}</select>
+    </div>
+  `;
+}
+
 async function mechanicModel(route) {
   const mechanic = await ensureMechanic(route.id);
   const facet = mechanic.facets?.find((candidate) => candidate.id === route.operation)
@@ -2178,26 +2218,7 @@ async function mechanicModel(route) {
             : "codexNotice--info"
         }">${escapeHtml(mechanic.warning || proofInfo(mechanic.globalEvidence).explanation)}</p>
 
-        <nav class="codexFacetBar" aria-label="Opérations disponibles">
-          ${(mechanic.facets || []).map((candidate) => `
-            <a
-              class="codexFacet"
-              href="${escapeHtml(buildCodexHref({
-                view: routeView,
-                id: mechanic.id,
-                operation: candidate.id,
-                filters: route.filters,
-              }))}"
-              data-codex-link
-              ${candidate.id === facet.id ? 'aria-current="page"' : ""}
-            >
-              ${escapeHtml(candidate.label)}
-              <span class="codexCountBadge">${candidate.technicalOccurrenceCount > 0 && !candidate.abilityCount
-                ? candidate.characterCount
-                : candidate.abilityCount}</span>
-            </a>
-          `).join("")}
-        </nav>
+        ${facetSelectorMarkup(mechanic, facet, routeView)}
       </section>
 
       <div class="codexMechanicLayout">
@@ -2651,6 +2672,16 @@ function bindEvents() {
   });
 
   document.addEventListener("change", async (event) => {
+    const facetSelect = event.target.closest("[data-facet-select]");
+    if (facetSelect) {
+      await navigate({
+        view: facetSelect.dataset.routeView,
+        id: facetSelect.dataset.mechanicId,
+        operation: facetSelect.value,
+        filters: { ...state.route.filters },
+      }, "push");
+      return;
+    }
     const control = event.target.closest("[data-filter], [data-filter-draft]");
     if (!control) return;
     const draft = control.hasAttribute("data-filter-draft");

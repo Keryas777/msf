@@ -48,6 +48,34 @@ def test_turn_meter_facets_use_semantic_actions_and_ignore_combined_action():
     )
 
 
+def test_turn_meter_facets_expose_compact_labels_without_replacing_full_labels():
+    expected = {
+        "increase": ("Augmente la jauge de vitesse", "Augmente la jauge"),
+        "decrease": ("Réduit la jauge de vitesse", "Réduit la jauge"),
+        "contextual_amount": (
+            "Montant contextuel de jauge de vitesse",
+            "Montant contextuel",
+        ),
+    }
+    for action, labels in expected.items():
+        facet = _mechanic_facet_spec(
+            "action-turn-meter",
+            _occurrence(f"op_{action}", "Hero", direct=action),
+        )
+        assert (facet["label"], facet["shortLabel"]) == labels
+
+    control = _mechanic_facet_spec(
+        "action-turn-meter",
+        _occurrence(
+            "op_control",
+            "Hero",
+            control={"action": "protect_induced_gain_from_suppression"},
+        ),
+    )
+    assert control["label"] == "Protège les gains provoqués de jauge contre leur suppression"
+    assert control["shortLabel"] == "Protège les gains provoqués"
+
+
 def test_technical_occurrences_remain_character_records_without_fake_ability():
     occurrences = [
         _occurrence("op_direct", "Hero", ability="abl_hero", direct="increase"),

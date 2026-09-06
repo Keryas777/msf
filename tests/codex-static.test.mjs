@@ -69,9 +69,24 @@ test("les routes utilisent pushState, replaceState et la restauration manuelle",
   assert.doesNotMatch(app, /Date\.now\(\)/);
 });
 
-test("les facettes techniques ont une navigation accessible et un compteur non trompeur", () => {
-  assert.match(app, /aria-current="page"/);
-  assert.match(app, /candidate\.technicalOccurrenceCount > 0 && !candidate\.abilityCount/);
+test("les facettes utilisent un select générique seulement à partir de deux choix", () => {
+  assert.match(app, /if \(facets\.length < 2\) return ""/);
+  assert.match(app, /<select[\s\S]*data-facet-select[\s\S]*aria-label="Facette de/);
+  assert.match(app, /candidate\.shortLabel \|\| candidate\.label/);
+  assert.match(app, /<optgroup label=/);
+  assert.doesNotMatch(app, /class="codexFacetBar"/);
+  assert.match(css, /\.codexFacetSelector select[\s\S]*width: 100%[\s\S]*max-width: 100%/);
+  assert.match(css, /\.codexFacetSelector select:focus-visible/);
+});
+
+test("le changement de facette conserve les filtres et pousse une route partageable", () => {
+  assert.match(app, /const facetSelect = event\.target\.closest\("\[data-facet-select\]"\)/);
+  assert.match(app, /operation: facetSelect\.value/);
+  assert.match(app, /filters: \{ \.\.\.state\.route\.filters \}/);
+  assert.match(app, /\}, "push"\)/);
+});
+
+test("les facettes techniques conservent leur rendu sans capacité artificielle", () => {
   assert.match(app, /Variante et contexte technique/);
   assert.match(app, /const isTechnical = !record\.abilityId/);
 });

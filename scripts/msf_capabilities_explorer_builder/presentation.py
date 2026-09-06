@@ -104,10 +104,10 @@ TURN_METER_CONTROL_LABELS = {
 }
 
 TURN_METER_FACETS = {
-    "increase": {"id": "turn_meter_increase", "label": "Augmente la jauge de vitesse", "group": "Actions directes", "order": 10},
-    "decrease": {"id": "turn_meter_decrease", "label": "Réduit la jauge de vitesse", "group": "Actions directes", "order": 20},
-    "contextual_amount": {"id": "turn_meter_contextual_amount", "label": "Montant contextuel de jauge de vitesse", "group": "Actions directes", "order": 30},
-    "unresolved": {"id": "turn_meter_unresolved", "label": "Modification de jauge non résolue", "group": "Actions directes", "order": 40},
+    "increase": {"id": "turn_meter_increase", "label": "Augmente la jauge de vitesse", "shortLabel": "Augmente la jauge", "group": "Actions directes", "order": 10},
+    "decrease": {"id": "turn_meter_decrease", "label": "Réduit la jauge de vitesse", "shortLabel": "Réduit la jauge", "group": "Actions directes", "order": 20},
+    "contextual_amount": {"id": "turn_meter_contextual_amount", "label": "Montant contextuel de jauge de vitesse", "shortLabel": "Montant contextuel", "group": "Actions directes", "order": 30},
+    "unresolved": {"id": "turn_meter_unresolved", "label": "Modification de jauge non résolue", "shortLabel": "Modification non résolue", "group": "Actions directes", "order": 40},
 }
 
 TURN_METER_CONTROL_FACET_IDS = {
@@ -124,6 +124,15 @@ TURN_METER_CONTROL_FACETS = {
     action: {
         "id": facet_id,
         "label": TURN_METER_CONTROL_LABELS[action],
+        "shortLabel": {
+            "modify_induced_gain": "Réduit les gains provoqués",
+            "amplify_induced_gain": "Amplifie les gains provoqués",
+            "block_induced_gain": "Empêche les gains provoqués",
+            "protect_induced_gain_from_suppression": "Protège les gains provoqués",
+            "block_induced_reduction": "Empêche les réductions provoquées",
+            "reduction_immunity": "Immunité à la réduction",
+            "unresolved": "Contrôle non résolu",
+        }[action],
         "group": "Contrôles",
         "order": 100 + order,
     }
