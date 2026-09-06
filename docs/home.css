@@ -40,7 +40,7 @@
 /* ===== Compactage léger de la page ===== */
 .app{
   padding: 10px;
-  gap: 10px;
+  gap: 8px;
 }
 
 /* ===== Header banner ===== */
@@ -68,7 +68,7 @@
   display:flex;
   justify-content:center;
   align-items:center;
-  margin:2px 0 4px;
+  margin:0;
 }
 
 .greekLogoutBtn{
@@ -152,8 +152,8 @@
 .homeGrid{
   display:grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 2px;
   align-items: stretch;
 }
 
@@ -162,9 +162,9 @@
   position: relative;
   display:block;
   justify-self: center;
-  width: 95%;
+  width: 90%;
 
-  border-radius: 22px;
+  border-radius: 20px;
   overflow: hidden;
 
   border: 1px solid var(--border);
@@ -259,6 +259,11 @@
   --glow-strong: rgba(80, 190, 255, .98);
 }
 
+.homeTile--evolution{
+  --glow: rgba(55, 235, 255, .72);
+  --glow-strong: rgba(100, 245, 255, 1);
+}
+
 .homeTile--codex{
   --glow: rgba(72, 218, 255, .72);
   --glow-strong: rgba(111, 232, 255, 1);
@@ -290,16 +295,16 @@
 @media (max-width: 520px){
   .app{
     padding: 9px;
-    gap: 9px;
+    gap: 7px;
   }
 
   .homeGrid{
-    gap: 9px;
-    margin-top: 9px;
+    gap: 7px;
+    margin-top: 1px;
   }
 
   .homeTile{
-    width: 96%;
+    width: 92%;
   }
 
   .greekLogoutBtn{
@@ -320,17 +325,17 @@
 
   .app{
     padding: 8px;
-    gap: 8px;
+    gap: 7px;
   }
 
   .homeGrid{
-    gap: 8px;
-    margin-top: 8px;
+    gap: 7px;
+    margin-top: 0;
   }
 
   .homeTile{
-    width: 97%;
-    border-radius: 20px;
+    width: 93%;
+    border-radius: 19px;
   }
 
   .greekLogoutBtn{
