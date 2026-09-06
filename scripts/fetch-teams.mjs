@@ -58,8 +58,6 @@ function parseCSV(text) {
 }
 
 const norm = x => String(x ?? "").trim();
-const teamKey = (mode, team) =>
-  `${norm(mode).toLocaleLowerCase("fr")}\u0000${norm(team).toLocaleLowerCase("fr")}`;
 
 /* ---------------- MAIN ---------------- */
 
@@ -91,7 +89,6 @@ async function main() {
   if (!charIndexes.length) throw new Error("No character columns found");
 
   const teams = [];
-  const seenTeams = new Set();
 
   for (const row of grid.slice(1)) {
     const team = norm(row[iTeam]);
@@ -105,16 +102,6 @@ async function main() {
       .filter(Boolean);
 
     if (characters.length === 0) continue;
-
-    // Une équipe donnée ne doit apparaître qu'une fois dans un même mode.
-    // On conserve la première ligne, ce qui correspond au comportement historique
-    // de la page (getSelectedTeamObj utilisait déjà find()).
-    const key = teamKey(mode, team);
-    if (seenTeams.has(key)) {
-      console.warn(`[fetch-teams] Duplicate ignored: ${mode} / ${team}`);
-      continue;
-    }
-    seenTeams.add(key);
 
     teams.push({
       team,
