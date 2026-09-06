@@ -11,6 +11,7 @@
   const endSelect = qs('#endSelect');
   const startSelect = qs('#startSelect');
   const startField = qs('#startField');
+  const allianceFilters = qs('#allianceFilters');
   const summaryCard = qs('#summaryCard');
   const summaryDates = qs('#summaryDates');
   const summaryCount = qs('#summaryCount');
@@ -22,6 +23,9 @@
     alliances: [],
     historyIndex: null,
     infosByPlayer: new Map(),
+    selectedAlliances: new Set(),
+    allRows: [],
+    currentRange: null,
   };
 
   function bust(url) {
@@ -43,6 +47,10 @@
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]/g, '');
+  }
+
+  function allianceKey(value) {
+    return String(value ?? '').trim().toLowerCase();
   }
 
   function formatNumber(value) {
@@ -80,7 +88,7 @@
   }
 
   function allianceLabel(key) {
-    const meta = state.alliances.find((a) => String(a?.key || '').toLowerCase() === String(key || '').toLowerCase());
+    const meta = state.alliances.find((a) => allianceKey(a?.key) === allianceKey(key));
     if (!meta) return key || '—';
     return `${meta.emoji ? `${meta.emoji} ` : ''}${meta.name || meta.key}`;
   }
@@ -184,6 +192,63 @@
     while (node.firstChild) node.removeChild(node.firstChild);
   }
 
+  function setAllianceChipState(button, selected) {
+    button.classList.toggle('is-active', selected);
+    button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    const check = button.querySelector('.evolutionAllianceChipCheck');
+    if (check) check.textContent = selected ? '✅' : '○';
+  }
+
+  function renderAllianceFilters() {
+    clear(allianceFilters);
+    state.selectedAlliances = new Set();
+
+    const alliances = state.alliances
+      .slice()
+      .sort((a, b) => Number(a?.order ?? 999) - Number(b?.order ?? 999));
+
+    for (const alliance of alliances) {
+      const key = allianceKey(alliance?.key);
+      if (!key) continue;
+      state.selectedAlliances.add(key);
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'evolutionAllianceChip is-active';
+      button.dataset.alliance = key;
+      button.setAttribute('aria-pressed', 'true');
+      button.setAttribute('aria-label', `Afficher ${alliance?.name || key}`);
+
+      const check = document.createElement('span');
+      check.className = 'evolutionAllianceChipCheck';
+      check.textContent = '✅';
+
+      const identity = document.createElement('span');
+      identity.className = 'evolutionAllianceChipIdentity';
+
+      const emoji = document.createElement('span');
+      emoji.className = 'evolutionAllianceChipEmoji';
+      emoji.textContent = alliance?.emoji || '👤';
+
+      const name = document.createElement('span');
+      name.className = 'evolutionAllianceChipName';
+      name.textContent = alliance?.name || alliance?.key || key;
+
+      identity.append(emoji, name);
+      button.append(check, identity);
+
+      button.addEventListener('click', () => {
+        const selected = state.selectedAlliances.has(key);
+        if (selected) state.selectedAlliances.delete(key);
+        else state.selectedAlliances.add(key);
+        setAllianceChipState(button, !selected);
+        renderCurrentRanking();
+      });
+
+      allianceFilters.appendChild(button);
+    }
+  }
+
   function createPlayerVisual(info, playerName) {
     const visual = document.createElement('div');
     visual.className = 'evolutionRankingVisual';
@@ -266,11 +331,30 @@
     });
   }
 
+  function renderCurrentRanking() {
+    if (!state.currentRange) return;
+
+    const rows = state.allRows.filter((row) => state.selectedAlliances.has(allianceKey(row.alliance)));
+    render(rows, state.currentRange);
+    loadingState.hidden = true;
+
+    if (!rows.length) {
+      emptyState.hidden = false;
+      emptyState.textContent = state.selectedAlliances.size
+        ? 'Aucun joueur comparable pour les alliances sélectionnées.'
+        : 'Aucune alliance sélectionnée.';
+    } else {
+      emptyState.hidden = true;
+    }
+  }
+
   async function loadRanking() {
     const range = selectedRange();
     clear(rankingList);
     summaryCard.hidden = true;
     emptyState.hidden = true;
+    state.allRows = [];
+    state.currentRange = range;
 
     if (!range) {
       loadingState.hidden = true;
@@ -287,14 +371,8 @@
         fetchGroup(range.start),
         fetchGroup(range.end),
       ]);
-      const rows = buildRows(before, current);
-      render(rows, range);
-      loadingState.hidden = true;
-
-      if (!rows.length) {
-        emptyState.hidden = false;
-        emptyState.textContent = 'Aucun joueur comparable sur cette période.';
-      }
+      state.allRows = buildRows(before, current);
+      renderCurrentRanking();
     } catch (error) {
       console.error(error);
       loadingState.hidden = true;
@@ -319,6 +397,7 @@
       state.alliances = Array.isArray(alliances) ? alliances : [];
       state.historyIndex = historyIndex || {};
       buildInfoMap(infos);
+      renderAllianceFilters();
       bindEvents();
       refreshControls();
     } catch (error) {
