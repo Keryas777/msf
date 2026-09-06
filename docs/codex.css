@@ -440,8 +440,7 @@ img {
 }
 
 .codexBreadcrumbs::-webkit-scrollbar,
-.codexAbilityStrip::-webkit-scrollbar,
-.codexFacetBar::-webkit-scrollbar {
+.codexAbilityStrip::-webkit-scrollbar {
   display: none;
 }
 
@@ -1557,37 +1556,37 @@ img {
   font-size: 12px;
 }
 
-.codexFacetBar {
-  display: flex;
-  gap: 8px;
+.codexFacetSelector {
+  width: 100%;
   margin-top: 16px;
-  padding-bottom: 4px;
-  overflow-x: auto;
-  scrollbar-width: none;
 }
 
-.codexFacet {
-  display: inline-flex;
-  flex: 0 0 auto;
+.codexFacetSelector label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--codex-text-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.codexFacetSelector select {
+  display: block;
+  width: 100%;
+  max-width: 100%;
   min-height: 44px;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 13px;
+  padding: 8px 38px 8px 13px;
   border: 1px solid var(--codex-border);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--codex-text-soft);
+  border-radius: 12px;
+  background-color: var(--codex-panel);
+  color: var(--codex-text);
   cursor: pointer;
   font-weight: 800;
-  text-decoration: none;
 }
 
-.codexFacet[aria-current="page"],
-.codexFacet[aria-pressed="true"] {
+.codexFacetSelector select:focus-visible {
+  outline: 3px solid rgba(36, 201, 240, 0.38);
+  outline-offset: 2px;
   border-color: var(--codex-cyan);
-  background: rgba(36, 201, 240, 0.17);
-  color: #fff;
-  box-shadow: inset 0 -3px var(--codex-cyan);
 }
 
 .codexMechanicLayout {
@@ -2312,8 +2311,7 @@ img {
   .codexNavButton:hover,
   .codexSecondaryButton:hover,
   .codexTextButton:hover,
-  .codexSuggestion:hover,
-  .codexFacet:hover {
+  .codexSuggestion:hover {
     border-color: rgba(113, 231, 255, 0.55);
     background-color: rgba(113, 231, 255, 0.09);
   }

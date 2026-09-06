@@ -1537,6 +1537,7 @@ def _build_mechanic_shard(
             {
                 "id": facet_id,
                 "label": facet_specs[facet_id]["label"],
+                "shortLabel": facet_specs[facet_id].get("shortLabel"),
                 "group": facet_specs[facet_id].get("group"),
                 "abilityCount": len(by_ability),
                 "characterCount": len({item["characterId"] for item in facet_occurrences}),
@@ -1598,6 +1599,7 @@ def _mechanic_stub(shard: Mapping[str, Any], section: str) -> dict[str, Any]:
             {
                 "id": facet["id"],
                 "label": facet["label"],
+                "shortLabel": facet.get("shortLabel"),
                 "abilityCount": facet["abilityCount"],
                 "occurrenceCount": facet["occurrenceCount"],
                 "characterCount": facet.get("characterCount"),
