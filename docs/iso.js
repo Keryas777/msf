@@ -647,7 +647,7 @@
       let statusTitle = "";
 
       if (hasReco) {
-        const isMatch = hasPicked && pickedCls === recoCls && pickedCol === recoCol;
+        const isMatch = hasPicked && pickedCls === recoCls;
 
         if (isMatch) {
           status = "ok";
