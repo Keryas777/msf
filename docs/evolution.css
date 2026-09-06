@@ -1,0 +1,201 @@
+.page-evolution .app {
+  padding-bottom: calc(28px + env(safe-area-inset-bottom));
+}
+
+.evolutionHeader {
+  align-items: flex-start;
+}
+
+.evolutionFilters,
+.evolutionSummary,
+.evolutionState,
+.evolutionCard {
+  margin-top: 12px;
+}
+
+.evolutionFilterGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.evolutionField {
+  min-width: 0;
+}
+
+.evolutionField .select {
+  width: 100%;
+}
+
+.evolutionSummaryHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.evolutionPlayer {
+  font-size: 1.08rem;
+  font-weight: 800;
+}
+
+.evolutionDates {
+  margin-top: 4px;
+  color: var(--muted, #9ca3af);
+  font-size: .88rem;
+}
+
+.evolutionPower {
+  flex: 0 0 auto;
+  font-size: 1.08rem;
+  font-weight: 900;
+  color: #68d391;
+  white-space: nowrap;
+}
+
+.evolutionSummaryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.evolutionMetric {
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.055);
+  text-align: center;
+}
+
+.evolutionMetric strong {
+  display: block;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.evolutionMetric span {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted, #9ca3af);
+  font-size: .8rem;
+}
+
+.evolutionSummaryLine {
+  margin-top: 14px;
+  color: var(--muted, #b4b8c0);
+  font-size: .86rem;
+  line-height: 1.45;
+}
+
+.evolutionState {
+  color: var(--muted, #9ca3af);
+  text-align: center;
+}
+
+.evolutionList {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.evolutionCard {
+  position: relative;
+  overflow: hidden;
+}
+
+.evolutionCard--unlocked {
+  border-color: rgba(104, 211, 145, .45);
+}
+
+.evolutionCardTop {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.evolutionPortrait {
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: rgba(255,255,255,.06);
+}
+
+.evolutionPortraitFallback {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.06);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.evolutionCardTitle {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.evolutionCardTag {
+  display: inline-block;
+  margin-top: 5px;
+  color: #68d391;
+  font-size: .74rem;
+  font-weight: 800;
+}
+
+.evolutionCardPower {
+  align-self: start;
+  font-size: .9rem;
+  font-weight: 900;
+  color: #68d391;
+  white-space: nowrap;
+}
+
+.evolutionChanges {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+.evolutionChange {
+  display: grid;
+  grid-template-columns: minmax(90px, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  font-size: .88rem;
+}
+
+.evolutionChangeLabel {
+  color: var(--muted, #aeb3bd);
+}
+
+.evolutionChangeValue {
+  font-weight: 800;
+  text-align: right;
+}
+
+.evolutionArrow {
+  display: inline-block;
+  margin: 0 5px;
+  color: var(--muted, #7f8794);
+}
+
+.evolutionNewValue {
+  color: #fff;
+}
+
+@media (min-width: 640px) {
+  .evolutionFilterGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .evolutionList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
