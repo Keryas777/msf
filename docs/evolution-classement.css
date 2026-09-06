@@ -83,37 +83,49 @@
   width: 44px;
   height: 44px;
   flex: 0 0 44px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
 }
 
 .evolutionRankingIcon,
-.evolutionRankingIconFallback {
-  position: absolute;
-  inset: 4px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.06);
-}
-
-.evolutionRankingIcon {
-  object-fit: cover;
-}
-
-.evolutionRankingIconFallback {
-  display: grid;
-  place-items: center;
-  color: #fff;
-  font-size: .85rem;
-  font-weight: 800;
-}
-
 .evolutionRankingFrame {
   position: absolute;
   inset: 0;
-  width: 44px;
-  height: 44px;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.evolutionRankingFrame {
+  z-index: 1;
   object-fit: contain;
+  object-position: center;
+  padding: 2px;
   pointer-events: none;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,.55));
+  opacity: .98;
+}
+
+.evolutionRankingIcon {
+  z-index: 2;
+  object-fit: contain;
+  object-position: center;
+  padding: 6px;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,.45));
+}
+
+.evolutionRankingIconFallback {
+  position: absolute;
+  inset: 6px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  font-size: .85rem;
+  font-weight: 800;
 }
 
 .evolutionRankingIdentity {
@@ -157,17 +169,21 @@
     gap: 6px;
   }
 
-  .evolutionRankingVisual,
-  .evolutionRankingFrame {
+  .evolutionRankingVisual {
     width: 38px;
     height: 38px;
   }
 
-  .evolutionRankingIcon,
+  .evolutionRankingFrame {
+    padding: 2px;
+  }
+
+  .evolutionRankingIcon {
+    padding: 5px;
+  }
+
   .evolutionRankingIconFallback {
-    inset: 3px;
-    width: 32px;
-    height: 32px;
+    inset: 5px;
   }
 
   .evolutionRankingGain {
