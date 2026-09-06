@@ -2,110 +2,79 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-// Accepte plusieurs noms de variables (comme tes autres scripts)
-const SHEET_ID =
-  process.env.SHEET_ID ||
-  process.env.SPREADSHEET_ID ||
-  process.env.GOOGLE_SHEET_ID ||
-  process.env.SHEETID;
-
-const SHEET_NAME = process.env.SHEET_NAME || "ISO-reco";
-
-if (!SHEET_ID) {
-  console.error("Missing env SHEET_ID (or SPREADSHEET_ID / GOOGLE_SHEET_ID)");
-  process.exit(1);
-}
-
+const ROSTERS_FILE = "docs/data/rosters.json";
 const OUT_FILE = "docs/data/iso-reco.json";
+
+const SOURCE_PLAYER = "Keryas I";
+const SOURCE_ALLIANCE = "Zeus";
 
 function normalizeKey(s) {
   return (s ?? "")
     .toString()
     .trim()
     .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/\s+/g, "")
-    .replace(/[-_]/g, "");
-}
-
-function parseCsvLine(line) {
-  const out = [];
-  let cur = "";
-  let inQ = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      if (inQ && line[i + 1] === '"') {
-        cur += '"';
-        i++;
-      } else {
-        inQ = !inQ;
-      }
-    } else if (ch === "," && !inQ) {
-      out.push(cur);
-      cur = "";
-    } else {
-      cur += ch;
-    }
-  }
-  out.push(cur);
-  return out;
-}
-
-function cleanCell(x) {
-  return (x ?? "").toString().trim();
+    .replace(/[-_]/g, "")
+    .replace(/[’']/g, "")
+    .replace(/[^a-z0-9]/g, "");
 }
 
 async function main() {
-  const url =
-    `https://docs.google.com/spreadsheets/d/${SHEET_ID}` +
-    `/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+  const raw = await fs.readFile(ROSTERS_FILE, "utf8");
+  const rosters = JSON.parse(raw);
 
-  const res = await fetch(url, { redirect: "follow" });
-  if (!res.ok) throw new Error(`HTTP ${res.status} fetching CSV (${SHEET_NAME})`);
+  if (!Array.isArray(rosters)) {
+    throw new Error(`${ROSTERS_FILE} is not an array`);
+  }
 
-  const csv = await res.text();
-  const lines = csv.split(/\r?\n/).filter((l) => l.trim().length);
+  const source = rosters.find((row) => {
+    return (
+      normalizeKey(row?.player) === normalizeKey(SOURCE_PLAYER) &&
+      normalizeKey(row?.alliance) === normalizeKey(SOURCE_ALLIANCE)
+    );
+  });
 
-  if (lines.length < 2) throw new Error("CSV empty / no data rows.");
+  if (!source) {
+    throw new Error(
+      `Source roster not found: ${SOURCE_PLAYER} (${SOURCE_ALLIANCE})`
+    );
+  }
 
-  // Colonnes de ton onglet ISO-reco (d'après ta capture) :
-  // A=0 character
-  // B=1 ISO-reco-class
-  // C=2 ISO-reco-matrix
-  const idxChar = 0,
-    idxClass = 1,
-    idxMatrix = 2;
+  const chars = source?.chars && typeof source.chars === "object" ? source.chars : {};
+  const iso = source?.iso && typeof source.iso === "object" ? source.iso : {};
 
-  // On sort un mapping simple par perso (clé normalisée)
-  // + on garde les valeurs d'origine pour debug/affichage si besoin
   const out = {
     updatedAt: new Date().toISOString(),
     byCharacter: {},
   };
 
-  for (let i = 1; i < lines.length; i++) {
-    const cols = parseCsvLine(lines[i]);
+  for (const charKeyRaw of Object.keys(chars)) {
+    const charKey = normalizeKey(charKeyRaw);
+    if (!charKey) continue;
 
-    const character = cleanCell(cols[idxChar]);
-    const isoClass = cleanCell(cols[idxClass]).toLowerCase();
-    const isoMatrix = cleanCell(cols[idxMatrix]).toLowerCase(); // peut être vide
+    const picked = iso[charKeyRaw] ?? iso[charKey] ?? null;
+    const isoClass = (picked?.isoClass ?? "").toString().trim().toLowerCase();
+    const isoColor = (picked?.isoColor ?? "").toString().trim().toLowerCase();
 
-    if (!character) continue;
-
-    const cKey = normalizeKey(character);
-    out.byCharacter[cKey] = {
-      character,         // ex: "SpiderMan"
-      isoRecoClass: isoClass || null,   // ex: "raider"
-      isoRecoMatrix: isoMatrix || null, // ex: "purple" (ou null si vide)
+    out.byCharacter[charKey] = {
+      character: charKeyRaw,
+      isoRecoClass: isoClass || null,
+      isoRecoMatrix: isoColor || null,
     };
+  }
+
+  const count = Object.keys(out.byCharacter).length;
+  if (!count) {
+    throw new Error(`Source roster is empty: ${SOURCE_PLAYER} (${SOURCE_ALLIANCE})`);
   }
 
   await fs.mkdir(path.dirname(OUT_FILE), { recursive: true });
   await fs.writeFile(OUT_FILE, JSON.stringify(out, null, 2), "utf8");
 
   console.log(
-    `✅ Wrote ${OUT_FILE} (${Object.keys(out.byCharacter).length} characters)`
+    `✅ Wrote ${OUT_FILE} from ${SOURCE_PLAYER} (${SOURCE_ALLIANCE}) (${count} characters)`
   );
 }
 
