@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Évolution du roster</title>
+  <link rel="stylesheet" href="./style.css?v=2" />
+  <link rel="stylesheet" href="./evolution.css?v=1" />
+</head>
+<body class="page-evolution">
+  <main class="app">
+    <header class="header evolutionHeader">
+      <a class="backBtn" href="javascript:history.back()" aria-label="Retour">‹</a>
+      <a class="homeBtn" href="./index.html" aria-label="Accueil">⌂</a>
+      <div class="headerLeft">
+        <h1 class="title">Évolution</h1>
+        <p class="subtitle">Les personnages débloqués et améliorés entre deux checkpoints</p>
+      </div>
+    </header>
+
+    <section class="card evolutionFilters" aria-label="Filtres de comparaison">
+      <div class="evolutionFilterGrid">
+        <div class="evolutionField">
+          <label class="label" for="allianceSelect">Alliance</label>
+          <select class="select" id="allianceSelect"></select>
+        </div>
+
+        <div class="evolutionField">
+          <label class="label" for="playerSelect">Joueur</label>
+          <select class="select" id="playerSelect"></select>
+        </div>
+
+        <div class="evolutionField">
+          <label class="label" for="periodSelect">Période</label>
+          <select class="select" id="periodSelect">
+            <option value="1">1 mois</option>
+            <option value="3">3 mois</option>
+            <option value="6">6 mois</option>
+            <option value="12">12 mois</option>
+            <option value="custom">Personnalisé</option>
+          </select>
+        </div>
+
+        <div class="evolutionField">
+          <label class="label" for="endSelect">Checkpoint final</label>
+          <select class="select" id="endSelect"></select>
+        </div>
+
+        <div class="evolutionField evolutionField--custom" id="startField" hidden>
+          <label class="label" for="startSelect">Checkpoint initial</label>
+          <select class="select" id="startSelect"></select>
+        </div>
+      </div>
+    </section>
+
+    <section class="card evolutionSummary" id="summaryCard" hidden>
+      <div class="evolutionSummaryHead">
+        <div>
+          <div class="evolutionPlayer" id="summaryPlayer">—</div>
+          <div class="evolutionDates" id="summaryDates">—</div>
+        </div>
+        <div class="evolutionPower" id="summaryPower">—</div>
+      </div>
+
+      <div class="evolutionSummaryGrid">
+        <div class="evolutionMetric">
+          <strong id="summaryUnlocked">0</strong>
+          <span>débloqué(s)</span>
+        </div>
+        <div class="evolutionMetric">
+          <strong id="summaryImproved">0</strong>
+          <span>amélioré(s)</span>
+        </div>
+      </div>
+
+      <div class="evolutionSummaryLine" id="summaryDetails"></div>
+    </section>
+
+    <section class="evolutionState card" id="loadingState">Chargement de l’historique…</section>
+    <section class="evolutionState card" id="emptyState" hidden></section>
+    <section class="evolutionList" id="evolutionList" aria-live="polite"></section>
+  </main>
+
+  <script src="./evolution.js?v=1" defer></script>
+</body>
+</html>
