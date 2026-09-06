@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <style>
+    html.authChecking body {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+  <script>document.documentElement.classList.add("authChecking");</script>
+  <script src="./auth-guard.js?v=4"></script>
+  <title>Classement de l’évolution</title>
+  <link rel="stylesheet" href="./style.css?v=2" />
+  <link rel="stylesheet" href="./evolution-tabs.css?v=1" />
+  <link rel="stylesheet" href="./evolution-classement.css?v=1" />
+</head>
+<body class="page-evolution-ranking">
+  <main class="app">
+    <header class="header evolutionRankingHeader">
+      <a class="backBtn" href="javascript:history.back()" aria-label="Retour">‹</a>
+      <a class="homeBtn" href="./home.html" aria-label="Accueil">⌂</a>
+      <div class="headerLeft">
+        <h1 class="title">Évolution</h1>
+        <p class="subtitle">Classement de la progression du roster dans le groupement</p>
+      </div>
+    </header>
+
+    <nav class="evolutionTabs" aria-label="Sections évolution">
+      <a class="evolutionTab is-active" href="./evolution-classement.html" aria-current="page">Classement du groupement</a>
+      <a class="evolutionTab" href="./evolution.html">Détail individuel</a>
+    </nav>
+
+    <section class="card evolutionRankingFilters" aria-label="Période du classement">
+      <div class="evolutionRankingFilterGrid">
+        <div class="evolutionRankingField">
+          <label class="label" for="periodSelect">Période</label>
+          <select class="select" id="periodSelect">
+            <option value="1">1 mois</option>
+            <option value="3">3 mois</option>
+            <option value="6">6 mois</option>
+            <option value="12">12 mois</option>
+            <option value="custom">Personnalisé</option>
+          </select>
+        </div>
+
+        <div class="evolutionRankingField">
+          <label class="label" for="endSelect">Checkpoint final</label>
+          <select class="select" id="endSelect"></select>
+        </div>
+
+        <div class="evolutionRankingField evolutionRankingField--custom" id="startField" hidden>
+          <label class="label" for="startSelect">Checkpoint initial</label>
+          <select class="select" id="startSelect"></select>
+        </div>
+      </div>
+    </section>
+
+    <section class="card evolutionRankingSummary" id="summaryCard" hidden>
+      <strong id="summaryDates">—</strong>
+      <span id="summaryCount">—</span>
+    </section>
+
+    <section class="card evolutionRankingState" id="loadingState">Chargement du classement…</section>
+    <section class="card evolutionRankingState" id="emptyState" hidden></section>
+    <section class="evolutionRankingList" id="rankingList" aria-live="polite"></section>
+  </main>
+
+  <script src="./evolution-classement.js?v=1" defer></script>
+</body>
+</html>

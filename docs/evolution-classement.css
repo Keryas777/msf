@@ -1,0 +1,123 @@
+.page-evolution-ranking .app {
+  padding-bottom: calc(28px + env(safe-area-inset-bottom));
+}
+
+.evolutionRankingFilters,
+.evolutionRankingSummary,
+.evolutionRankingState,
+.evolutionRankingRow {
+  margin-top: 12px;
+}
+
+.evolutionRankingFilterGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.evolutionRankingField {
+  min-width: 0;
+}
+
+.evolutionRankingField .select {
+  width: 100%;
+}
+
+.evolutionRankingField--custom {
+  grid-column: 1 / -1;
+}
+
+.evolutionRankingSummary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+}
+
+.evolutionRankingSummary strong {
+  font-size: .92rem;
+}
+
+.evolutionRankingSummary span {
+  color: var(--muted, #9ca3af);
+  font-size: .82rem;
+}
+
+.evolutionRankingState {
+  color: var(--muted, #9ca3af);
+  text-align: center;
+}
+
+.evolutionRankingList {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.evolutionRankingRow {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.evolutionRankingRank {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.06);
+  font-size: .9rem;
+  font-weight: 900;
+}
+
+.evolutionRankingRow:nth-child(1) .evolutionRankingRank,
+.evolutionRankingRow:nth-child(2) .evolutionRankingRank,
+.evolutionRankingRow:nth-child(3) .evolutionRankingRank {
+  border: 1px solid rgba(104,211,145,.45);
+  box-shadow: 0 0 14px rgba(104,211,145,.1);
+}
+
+.evolutionRankingIdentity {
+  min-width: 0;
+}
+
+.evolutionRankingPlayer {
+  overflow: hidden;
+  font-size: .98rem;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.evolutionRankingAlliance {
+  margin-top: 3px;
+  color: var(--muted, #9ca3af);
+  font-size: .76rem;
+}
+
+.evolutionRankingGain {
+  color: #68d391;
+  font-size: .96rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.evolutionRankingTotal {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted, #8f96a3);
+  font-size: .68rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+@media (min-width: 700px) {
+  .evolutionRankingList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -1,0 +1,61 @@
+name: Build roster evolution summaries
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/data/roster-history/index.json"
+      - "docs/data/roster-history/players/**"
+      - "scripts/build-roster-evolution-summaries.mjs"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build group summaries
+        env:
+          DATA_DIR: docs/data
+        run: node scripts/build-roster-evolution-summaries.mjs --write
+
+      - name: Verify generated scope
+        run: |
+          unexpected="$(git status --porcelain | awk '{print $2}' | grep -v '^docs/data/roster-history/group/' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected changes outside roster-history/group:"
+            echo "$unexpected"
+            exit 1
+          fi
+
+      - name: Commit summaries
+        run: |
+          if [ -z "$(git status --porcelain docs/data/roster-history/group)" ]; then
+            echo "No roster evolution summary changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/roster-history/group
+          git commit -m "Update roster evolution summaries"
+          git push origin HEAD:main
