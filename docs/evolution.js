@@ -39,6 +39,7 @@
 
   let bootReady = false;
   let userChangedSelection = false;
+  let compareGeneration = 0;
 
   function bust(url) {
     const u = new URL(url, window.location.href);
@@ -648,12 +649,14 @@
   }
 
   async function compareSelected() {
+    const generation = ++compareGeneration;
+    const playerKey = state.selectedPlayerKey;
     const range = selectedRange();
     clear(evolutionList);
     summaryCard.hidden = true;
     emptyState.hidden = true;
 
-    if (!state.selectedPlayerKey || !range) {
+    if (!playerKey || !range) {
       loadingState.hidden = true;
       emptyState.hidden = false;
       emptyState.textContent = "Pas assez de checkpoints pour cette période.";
@@ -665,9 +668,11 @@
 
     try {
       const [oldSnapshot, newSnapshot] = await Promise.all([
-        fetchSnapshot(state.selectedPlayerKey, range.start),
-        fetchSnapshot(state.selectedPlayerKey, range.end),
+        fetchSnapshot(playerKey, range.start),
+        fetchSnapshot(playerKey, range.end),
       ]);
+      if (generation !== compareGeneration) return;
+
       const diff = diffSnapshots(oldSnapshot, newSnapshot);
       renderSummary(diff, oldSnapshot, newSnapshot, range);
       renderCards(diff.cards);
@@ -678,6 +683,7 @@
         emptyState.textContent = "Aucune amélioration détectée entre ces deux checkpoints.";
       }
     } catch (error) {
+      if (generation !== compareGeneration) return;
       console.error(error);
       loadingState.hidden = true;
       emptyState.hidden = false;
