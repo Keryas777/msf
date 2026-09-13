@@ -13,7 +13,7 @@ const WORKER_URL = "war-counter-akaze-worker.js?v=r5-akaze-worker-2";
 const STORAGE_KEY = "warCounterAkazeValidationTruthV1";
 const REALIGNED_RIGHT_TEAM_X_SHIFT = 0.125;
 const REALIGNED_RIGHT_D1_EXTRA_SHIFT = 0.15;
-const REALIGNED_LEFT_TAIL_X_SHIFTS = Object.freeze({ 3: 0.05, 4: 0.10, 5: 0.15 });
+const REALIGNED_LEFT_TAIL_X_SHIFTS = Object.freeze({ 3: -0.05, 4: -0.10, 5: -0.15 });
 
 const $ = (selector) => document.querySelector(selector);
 const input = $("#akazeValidationInput");
