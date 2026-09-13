@@ -13,6 +13,7 @@ const WORKER_URL = "war-counter-akaze-worker.js?v=r5-akaze-worker-2";
 const STORAGE_KEY = "warCounterAkazeValidationTruthV1";
 const REALIGNED_RIGHT_TEAM_X_SHIFT = 0.125;
 const REALIGNED_RIGHT_D1_EXTRA_SHIFT = 0.15;
+const REALIGNED_LEFT_G5_X_SHIFT = 0.05;
 
 const $ = (selector) => document.querySelector(selector);
 const input = $("#akazeValidationInput");
@@ -235,6 +236,7 @@ function slotsForBounds(bounds, imageWidth) {
   const widthRatio = (bounds.right - bounds.left) / imageWidth;
   return baseSlots.map((slot) => {
     const width = slot.width * widthRatio;
+    const leftTeamShift = slot.side === "left" && slot.position === 5 ? width * REALIGNED_LEFT_G5_X_SHIFT : 0;
     let rightTeamShift = 0;
     if (slot.side === "right") {
       const progressToD5 = (slot.position - 1) / 4;
@@ -243,7 +245,7 @@ function slotsForBounds(bounds, imageWidth) {
     }
     return Object.freeze({
       ...slot,
-      x: leftRatio + slot.x * widthRatio + rightTeamShift,
+      x: leftRatio + slot.x * widthRatio + leftTeamShift + rightTeamShift,
       width
     });
   });
