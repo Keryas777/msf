@@ -13,45 +13,36 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - name: Extract IL2CPP metadata from public build 10.5.0
+      - name: Extract targeted IL2CPP types from public build 10.5.0
         shell: bash
         run: |
           set -euo pipefail
           root=/tmp/msf-client
           mkdir -p "$root/raw" "$root/unpacked" "$root/data-files" "$root/dump"
           base=https://webplayable.m3.scopelypv.com/10_5_0/1666317/Build
-
           curl --fail --location --silent --show-error "$base/b03aef900365212daf07c9180a2c210c.data.gz" -o "$root/raw/client.data.gz"
-          curl --fail --location --silent --show-error "$base/1bea101c7dcb2643833fb012fe40bc1c.framework.js.gz" -o "$root/raw/client.framework.js.gz"
           curl --fail --location --silent --show-error "$base/0ff9aed6cda3f63a95295ed31db4348e.wasm.gz" -o "$root/raw/client.wasm.gz"
-
-          for source in "$root"/raw/*; do
-            name=$(basename "$source" .gz)
-            gzip -dc "$source" > "$root/unpacked/$name"
-          done
+          gzip -dc "$root/raw/client.data.gz" > "$root/unpacked/client.data"
+          gzip -dc "$root/raw/client.wasm.gz" > "$root/unpacked/client.wasm"
 
           python - <<'PY'
           from pathlib import Path
           import struct
-          source = Path("/tmp/msf-client/unpacked/client.data")
-          payload = source.read_bytes()
+          payload = Path("/tmp/msf-client/unpacked/client.data").read_bytes()
           signature = b"UnityWebData1.0\0"
           assert payload.startswith(signature)
           position = len(signature)
           header_length = struct.unpack_from("<I", payload, position)[0]
           position += 4
           output = Path("/tmp/msf-client/data-files")
-          entries = []
           while position < header_length:
               offset, size, path_length = struct.unpack_from("<III", payload, position)
               position += 12
-              path = payload[position:position + path_length].decode("utf-8")
+              path = payload[position:position + path_length].decode()
               position += path_length
               target = output / path
               target.parent.mkdir(parents=True, exist_ok=True)
               target.write_bytes(payload[offset:offset + size])
-              entries.append((path, size))
-          print("UNITY_ENTRIES", entries)
           PY
 
           curl --fail --location --silent --show-error             https://github.com/Perfare/Il2CppDumper/releases/download/v6.7.46/Il2CppDumper-net7-v6.7.46.zip             -o "$root/Il2CppDumper.zip"
@@ -59,120 +50,48 @@ jobs:
           export DOTNET_ROLL_FORWARD=Major
           dotnet "$root/Il2CppDumper/Il2CppDumper.dll"             "$root/unpacked/client.wasm"             "$root/data-files/Il2CppData/Metadata/global-metadata.dat"             "$root/dump" || test -f "$root/dump/dump.cs"
 
-          echo "DUMP_FILES"
-          find "$root/dump" -maxdepth 2 -type f -printf '%s %p\n' | sort -n
-
           python - <<'PY'
           from pathlib import Path
           import json, re
 
           root = Path("/tmp/msf-client/dump")
-          dump = (root / "dump.cs").read_text(errors="replace")
-          targets = [
-              "RemoteAssetClient", "RemoteAssetClientEntryEnhanced",
-              "IHaveRacAssetList", "GetAssetList", "LoginData_CombatData",
-              "LoginData_Insanity", "LoginData_CombatCards",
+          text = (root / "dump.cs").read_text(errors="replace")
+          segments = re.split(r"(?=^// Namespace:)", text, flags=re.MULTILINE)
+          terms = [
+              "ParseAssetLists", "GetAssetList", "IHaveRacAssetList",
+              "stoken", "sver", "ldata_assetlists", "AssetLists",
+              "RacAssetList", "HttpEndPoint", "RemoteAssetClientEntry",
           ]
-          lines = dump.splitlines()
-          for target in targets:
-              hits = [i for i, line in enumerate(lines) if re.search(rf"\b(class|interface|struct)\s+{re.escape(target)}\b", line)]
-              for i in hits:
-                  start = max(0, i - 8)
-                  depth = 0
-                  end = min(len(lines), i + 220)
-                  for j in range(i, min(len(lines), i + 500)):
-                      depth += lines[j].count("{") - lines[j].count("}")
-                      if j > i and depth <= 0 and "{" in "\n".join(lines[i:j+1]):
-                          end = j + 1
-                          break
-                  print(f"TYPE_BLOCK {target} L{i+1}-{end}")
-                  print("\n".join(lines[start:end]))
-
-          literals_path = root / "stringliteral.json"
-          literals = json.loads(literals_path.read_text())
-          needles = [
-              "/rules/asset-lists", "Parse /rules/asset-lists response",
-              "ParseAssetLists", "ldata_assetlists", "account/ldata_assetlists",
-              "stoken", "sToken", "sessionToken", "securityToken",
-              "serverToken", "x-scopely-titan-auth", "sver", "|1",
-          ]
-          print("MATCHED_STRING_LITERALS")
-          for item in literals:
-              value = str(item.get("value", ""))
-              if any(needle.lower() in value.lower() for needle in needles):
-                  print(json.dumps(item, sort_keys=True))
-          PY
-          python - <<'PY'
-          from pathlib import Path
-          import json, re
-
-          root = Path("/tmp/msf-client/dump")
-          lines = (root / "dump.cs").read_text(errors="replace").splitlines()
-          needles = [
-              "ParseAssetLists", "GetAssetList(", "IHaveRacAssetList",
-              "stoken", "sver", "ldata_assetlists", "AssetList",
-              "HttpEndPoint", "uid;", " uid ", "set_uid", "get_uid",
-          ]
-          print("TARGET_MEMBER_CONTEXTS")
-          emitted = set()
-          for i, line in enumerate(lines):
-              if not any(needle.lower() in line.lower() for needle in needles):
+          print("RELEVANT_TYPE_SEGMENTS")
+          for segment in segments:
+              hits = [term for term in terms if term.lower() in segment.lower()]
+              if not hits:
                   continue
-              if len(emitted) >= 160:
-                  break
-              key = (i, line.strip())
-              if key in emitted:
-                  continue
-              emitted.add(key)
-              start = max(0, i - 12)
-              end = min(len(lines), i + 24)
-              print(f"CONTEXT L{i+1} {line.strip()}")
-              print("\n".join(lines[start:end]))
+              header = next((line for line in segment.splitlines() if re.search(r"\b(class|interface|struct|enum)\b", line)), "")
+              print("SEGMENT", json.dumps({"hits": hits, "header": header}))
+              lines = segment.splitlines()
+              if len(lines) <= 500:
+                  print(segment)
+              else:
+                  for i, line in enumerate(lines):
+                      if any(term.lower() in line.lower() for term in terms):
+                          print(f"L{i+1}", "\n".join(lines[max(0,i-12):min(len(lines),i+25)]))
+
+          print("EXACT_MEMBER_CONTEXTS")
+          lines = text.splitlines()
+          for term in ["ParseAssetLists", "stoken", "sver", "ldata_assetlists", "GetAssetList"]:
+              hits = [i for i, line in enumerate(lines) if term.lower() in line.lower()]
+              print("TERM", term, "COUNT", len(hits))
+              for i in hits[:60]:
+                  print(f"HIT {term} L{i+1}")
+                  print("\n".join(lines[max(0,i-8):min(len(lines),i+14)]))
 
           literals = json.loads((root / "stringliteral.json").read_text())
           print("LITERAL_NEIGHBORS")
           for exact in ["/rules/asset-lists", "/account/ldata_assetlists", "stoken", "sver", "x-scopely-titan-auth"]:
-              hits = [i for i, item in enumerate(literals) if item.get("value") == exact]
-              for i in hits:
-                  print("AROUND", exact)
-                  for item in literals[max(0, i-12):min(len(literals), i+13)]:
-                      print(json.dumps(item, sort_keys=True))
+              for i, item in enumerate(literals):
+                  if item.get("value") == exact:
+                      print("AROUND", exact)
+                      for neighbor in literals[max(0,i-8):min(len(literals),i+9)]:
+                          print(json.dumps(neighbor, sort_keys=True))
           PY
-
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq wabt
-          wasm-objdump -d "$root/unpacked/client.wasm" > "$root/client.wasm.dis"
-          python - <<'PY'
-          from pathlib import Path
-          import json, re
-
-          root = Path("/tmp/msf-client")
-          literals = json.loads((root / "dump/stringliteral.json").read_text())
-          exact = ["/rules/asset-lists", "/account/ldata_assetlists", "stoken", "sver", "x-scopely-titan-auth"]
-          addresses = {item["value"]: int(item["address"], 16) for item in literals if item.get("value") in exact}
-          lines = (root / "client.wasm.dis").read_text(errors="replace").splitlines()
-          current = None
-          refs = []
-          for line in lines:
-              match = re.search(r"func\[(\d+)\]", line)
-              if match:
-                  current = int(match.group(1))
-              for value, address in addresses.items():
-                  if re.search(rf"i32\.const\s+{address}\b", line):
-                      refs.append((value, address, current, line.strip()))
-          print("WASM_LITERAL_XREFS", refs)
-          script = json.loads((root / "dump/script.json").read_text())
-          methods = script.get("ScriptMethod", script if isinstance(script, list) else [])
-          for value, address, function, line in refs:
-              possible = []
-              for item in methods:
-                  raw = item.get("Address", item.get("address"))
-                  try:
-                      number = int(str(raw), 16) if str(raw).startswith("0x") else int(raw)
-                  except (TypeError, ValueError):
-                      continue
-                  if number == function:
-                      possible.append(item)
-              print("WASM_XREF_METHODS", value, function, json.dumps(possible[:20], sort_keys=True))
-          PY
-
