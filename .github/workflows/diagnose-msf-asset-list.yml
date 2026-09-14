@@ -19,16 +19,19 @@ jobs:
           python - <<'PY'
           import json
           import urllib.error
+          import urllib.parse
           import urllib.request
 
           candidates = [
-              "https://msf-api.m3.scopelypv.com/rules/asset-lists",
-              "https://msf-api.m3.scopelypv.com/rules/asset-lists?sver=10.5.0",
-              "https://msf-api.m3.scopelypv.com/rules/asset-lists?sver=10_5_0",
-              "https://msf-api.m3.scopelypv.com/rules/asset-lists?version=10.5.0",
+              {},
+              {"sver": "10.5.0"},
+              {"sver": "10_5_0"},
+              {"version": "10.5.0"},
           ]
+          base = "https://msf-api.m3.scopelypv.com/rules/asset-lists"
 
-          for url in candidates:
+          for params in candidates:
+              url = base + (("?" + urllib.parse.urlencode(params)) if params else "")
               request = urllib.request.Request(
                   url,
                   headers={"Accept": "application/json", "User-Agent": "LoSP-endpoint-diagnostic/1.0"},
@@ -36,6 +39,8 @@ jobs:
               try:
                   with urllib.request.urlopen(request, timeout=20) as response:
                       body = response.read(2 * 1024 * 1024 + 1)
+                      parsed = json.loads(body)
+                      result = parsed.get("result") if isinstance(parsed, dict) else None
                       print(json.dumps({
                           "url": url,
                           "status": response.status,
@@ -43,23 +48,17 @@ jobs:
                           "contentLengthHeader": response.headers.get("Content-Length"),
                           "bytes": len(body),
                           "finalUrl": response.geturl(),
+                          "rootKeys": sorted(parsed) if isinstance(parsed, dict) else None,
+                          "timestamp": parsed.get("ts") if isinstance(parsed, dict) else None,
+                          "error": parsed.get("err") if isinstance(parsed, dict) else None,
+                          "categoryCount": len(result) if isinstance(result, dict) else None,
+                          "categories": sorted(result) if isinstance(result, dict) else None,
+                          "resourceCount": sum(
+                              len(value.get("list", []))
+                              for value in result.values()
+                              if isinstance(value, dict) and isinstance(value.get("list"), list)
+                          ) if isinstance(result, dict) else None,
                       }, sort_keys=True))
-                      try:
-                          parsed = json.loads(body)
-                          result = parsed.get("result") if isinstance(parsed, dict) else None
-                          print(json.dumps({
-                              "rootKeys": sorted(parsed) if isinstance(parsed, dict) else None,
-                              "timestamp": parsed.get("ts") if isinstance(parsed, dict) else None,
-                              "categoryCount": len(result) if isinstance(result, dict) else None,
-                              "categories": sorted(result) if isinstance(result, dict) else None,
-                              "resourceCount": sum(
-                                  len(value.get("list", []))
-                                  for value in result.values()
-                                  if isinstance(value, dict) and isinstance(value.get("list"), list)
-                              ) if isinstance(result, dict) else None,
-                          }, sort_keys=True))
-                      except Exception as error:
-                          print("JSON_ERROR", type(error).__name__, str(error))
               except urllib.error.HTTPError as error:
                   body = error.read(512)
                   print(json.dumps({
@@ -72,7 +71,7 @@ jobs:
               except Exception as error:
                   print(json.dumps({
                       "url": url,
-                      "error": type(error).__name__,
+                      "errorType": type(error).__name__,
                       "message": str(error),
                   }, sort_keys=True))
           PY
