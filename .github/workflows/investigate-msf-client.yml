@@ -18,7 +18,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/msf-client
-          curl --fail --location --silent --show-error \
+          curl --fail --location --silent --show-error --compressed \
             --output /tmp/msf-client/index.html \
             --dump-header /tmp/msf-client/headers.txt \
             https://webplayable.m3.scopelypv.com/
