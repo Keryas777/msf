@@ -107,6 +107,60 @@ jobs:
                   print(json.dumps(item, sort_keys=True))
           PY
 
+
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq wabt
+          wasm-objdump -d "$root/unpacked/client.wasm" > "$root/client.wasm.dis"
+          python - <<'PY' > /tmp/msf-client/annotated-calls.txt
+          from pathlib import Path
+          import json, re
+
+          root=Path("/tmp/msf-client")
+          dis=(root/"client.wasm.dis").read_text(errors="replace").splitlines()
+          script=json.loads((root/"dump/script.json").read_text())["ScriptMethod"]
+          byaddr={int(x["Address"]): x["Name"] for x in script}
+          literals=json.loads((root/"dump/stringliteral.json").read_text())
+          bylit={int(x["address"],16): x["value"] for x in literals}
+          import_offset=2340
+          targets={
+            "RulesListsCache.Fetch":0x15D98,
+            "RulesListsCache.Fetch.callback0":0x15D9F,
+            "RulesListsCache.Fetch.callback1":0x15DA0,
+            "LoginAPI.PartAssetLists":0x95C2,
+            "LoginAPI.LoginData":0x95BF,
+            "HttpEndPoint.Prepare":0x37A5,
+            "HttpEndPoint.Generate":0x37A7,
+            "HttpEndPoint.Sign":0xA635,
+            "LoginManager.LocalUserId":0x259F,
+          }
+          starts={}
+          for i,line in enumerate(dis):
+            m=re.search(r"func\[(\d+)\]",line)
+            if m: starts[int(m.group(1))]=i
+          sorted_starts=sorted(starts)
+          for label,address in targets.items():
+            fn=address-import_offset
+            print("\nTARGET",label,"SCRIPT_ADDRESS",hex(address),"WASM_FUNC",fn,"METHOD",byaddr.get(address))
+            if fn not in starts:
+              print("NOT_FOUND"); continue
+            i=starts[fn]
+            candidates=[starts[x] for x in sorted_starts if x>fn]
+            j=min(candidates) if candidates else len(dis)
+            block=dis[i:j]
+            for line in block:
+              cm=re.search(r"call\s+(\d+)",line)
+              km=re.search(r"i32\.const\s+(\d+)",line)
+              annotations=[]
+              if cm:
+                callee=int(cm.group(1))+import_offset
+                if callee in byaddr: annotations.append("CALL="+byaddr[callee])
+              if km:
+                value=int(km.group(1))
+                if value in bylit: annotations.append("LITERAL="+repr(bylit[value]))
+              if annotations or len(block)<500:
+                print(line,(" ;; "+" | ".join(annotations)) if annotations else "")
+          PY
+
       - name: Upload temporary analysis outputs
         uses: actions/upload-artifact@v4
         with:
@@ -117,3 +171,4 @@ jobs:
             /tmp/msf-client/dump/dump.cs
             /tmp/msf-client/dump/script.json
             /tmp/msf-client/dump/stringliteral.json
+            /tmp/msf-client/annotated-calls.txt
