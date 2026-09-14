@@ -13,41 +13,42 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Probe anonymous asset-list candidates
+      - name: Probe anonymous asset-list request shapes
         shell: bash
         run: |
           python - <<'PY'
           import json
           import urllib.error
-          import urllib.parse
           import urllib.request
 
-          candidates = [
-              {"uid": "0"},
-              {"uid": "1"},
-              {"uid": "anonymous"},
-              {"uid": "0", "sver": "10.5.0"},
-              {"user_id": "0", "sver": "10.5.0"},
-              {"playerId": "0", "sver": "10.5.0"},
-          ]
           base = "https://msf-api.m3.scopelypv.com/rules/asset-lists"
+          candidates = [
+              ("GET", None),
+              ("POST", {}),
+              ("POST", {"uid": "0"}),
+              ("POST", {"user": {"uid": "0"}}),
+              ("POST", {"player": {"uid": "0"}}),
+              ("POST", {"device": {"uid": "0"}}),
+              ("POST", {"context": {"uid": "0"}}),
+          ]
 
-          for params in candidates:
-              url = base + "?" + urllib.parse.urlencode(params)
-              request = urllib.request.Request(
-                  url,
-                  headers={"Accept": "application/json", "User-Agent": "LoSP-endpoint-diagnostic/1.0"},
-              )
+          for method, body in candidates:
+              payload = None if body is None else json.dumps(body).encode()
+              headers = {"Accept": "application/json", "User-Agent": "LoSP-endpoint-diagnostic/1.0"}
+              if payload is not None:
+                  headers["Content-Type"] = "application/json"
+              request = urllib.request.Request(base, data=payload, method=method, headers=headers)
               try:
                   with urllib.request.urlopen(request, timeout=20) as response:
-                      body = response.read(2 * 1024 * 1024 + 1)
-                      parsed = json.loads(body)
+                      raw = response.read(2 * 1024 * 1024 + 1)
+                      parsed = json.loads(raw)
                       result = parsed.get("result") if isinstance(parsed, dict) else None
                       print(json.dumps({
-                          "url": url,
+                          "method": method,
+                          "body": body,
                           "status": response.status,
                           "contentType": response.headers.get("Content-Type"),
-                          "bytes": len(body),
+                          "bytes": len(raw),
                           "rootKeys": sorted(parsed) if isinstance(parsed, dict) else None,
                           "error": parsed.get("err") if isinstance(parsed, dict) else None,
                           "categoryCount": len(result) if isinstance(result, dict) else None,
@@ -59,7 +60,18 @@ jobs:
                           ) if isinstance(result, dict) else None,
                       }, sort_keys=True))
               except urllib.error.HTTPError as error:
-                  print(json.dumps({"url": url, "status": error.code}, sort_keys=True))
+                  raw = error.read(512)
+                  print(json.dumps({
+                      "method": method,
+                      "body": body,
+                      "status": error.code,
+                      "preview": raw.decode("utf-8", "replace")[:200],
+                  }, sort_keys=True))
               except Exception as error:
-                  print(json.dumps({"url": url, "errorType": type(error).__name__, "message": str(error)}, sort_keys=True))
+                  print(json.dumps({
+                      "method": method,
+                      "body": body,
+                      "errorType": type(error).__name__,
+                      "message": str(error),
+                  }, sort_keys=True))
           PY
