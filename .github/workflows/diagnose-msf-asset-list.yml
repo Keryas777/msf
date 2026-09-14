@@ -13,65 +13,53 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Probe anonymous asset-list request shapes
+      - name: Probe public Web Playable request headers
         shell: bash
         run: |
           python - <<'PY'
           import json
-          import urllib.error
           import urllib.request
 
           base = "https://msf-api.m3.scopelypv.com/rules/asset-lists"
           candidates = [
-              ("GET", None),
-              ("POST", {}),
-              ("POST", {"uid": "0"}),
-              ("POST", {"user": {"uid": "0"}}),
-              ("POST", {"player": {"uid": "0"}}),
-              ("POST", {"device": {"uid": "0"}}),
-              ("POST", {"context": {"uid": "0"}}),
+              {},
+              {"Origin": "https://webplayable.m3.scopelypv.com"},
+              {
+                  "Origin": "https://webplayable.m3.scopelypv.com",
+                  "Referer": "https://webplayable.m3.scopelypv.com/",
+              },
+              {
+                  "Origin": "https://marvelstrikeforce.com",
+                  "Referer": "https://marvelstrikeforce.com/",
+              },
           ]
 
-          for method, body in candidates:
-              payload = None if body is None else json.dumps(body).encode()
-              headers = {"Accept": "application/json", "User-Agent": "LoSP-endpoint-diagnostic/1.0"}
-              if payload is not None:
-                  headers["Content-Type"] = "application/json"
-              request = urllib.request.Request(base, data=payload, method=method, headers=headers)
-              try:
-                  with urllib.request.urlopen(request, timeout=20) as response:
-                      raw = response.read(2 * 1024 * 1024 + 1)
-                      parsed = json.loads(raw)
-                      result = parsed.get("result") if isinstance(parsed, dict) else None
-                      print(json.dumps({
-                          "method": method,
-                          "body": body,
-                          "status": response.status,
-                          "contentType": response.headers.get("Content-Type"),
-                          "bytes": len(raw),
-                          "rootKeys": sorted(parsed) if isinstance(parsed, dict) else None,
-                          "error": parsed.get("err") if isinstance(parsed, dict) else None,
-                          "categoryCount": len(result) if isinstance(result, dict) else None,
-                          "categories": sorted(result) if isinstance(result, dict) else None,
-                          "resourceCount": sum(
-                              len(value.get("list", []))
-                              for value in result.values()
-                              if isinstance(value, dict) and isinstance(value.get("list"), list)
-                          ) if isinstance(result, dict) else None,
-                      }, sort_keys=True))
-              except urllib.error.HTTPError as error:
-                  raw = error.read(512)
+          for extra_headers in candidates:
+              headers = {
+                  "Accept": "application/json",
+                  "User-Agent": "LoSP-endpoint-diagnostic/1.0",
+                  **extra_headers,
+              }
+              request = urllib.request.Request(base, headers=headers)
+              with urllib.request.urlopen(request, timeout=20) as response:
+                  raw = response.read(2 * 1024 * 1024 + 1)
+                  parsed = json.loads(raw)
+                  result = parsed.get("result") if isinstance(parsed, dict) else None
+                  safe_response_headers = {
+                      key: value
+                      for key, value in response.headers.items()
+                      if key.lower() in {
+                          "content-type", "content-length", "cache-control",
+                          "access-control-allow-origin", "vary", "server", "via",
+                      }
+                  }
                   print(json.dumps({
-                      "method": method,
-                      "body": body,
-                      "status": error.code,
-                      "preview": raw.decode("utf-8", "replace")[:200],
-                  }, sort_keys=True))
-              except Exception as error:
-                  print(json.dumps({
-                      "method": method,
-                      "body": body,
-                      "errorType": type(error).__name__,
-                      "message": str(error),
+                      "requestHeaders": extra_headers,
+                      "status": response.status,
+                      "responseHeaders": safe_response_headers,
+                      "bytes": len(raw),
+                      "rootKeys": sorted(parsed) if isinstance(parsed, dict) else None,
+                      "error": parsed.get("err") if isinstance(parsed, dict) else None,
+                      "categoryCount": len(result) if isinstance(result, dict) else None,
                   }, sort_keys=True))
           PY
