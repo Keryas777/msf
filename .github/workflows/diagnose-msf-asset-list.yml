@@ -23,15 +23,17 @@ jobs:
           import urllib.request
 
           candidates = [
-              {},
-              {"sver": "10.5.0"},
-              {"sver": "10_5_0"},
-              {"version": "10.5.0"},
+              {"uid": "0"},
+              {"uid": "1"},
+              {"uid": "anonymous"},
+              {"uid": "0", "sver": "10.5.0"},
+              {"user_id": "0", "sver": "10.5.0"},
+              {"playerId": "0", "sver": "10.5.0"},
           ]
           base = "https://msf-api.m3.scopelypv.com/rules/asset-lists"
 
           for params in candidates:
-              url = base + (("?" + urllib.parse.urlencode(params)) if params else "")
+              url = base + "?" + urllib.parse.urlencode(params)
               request = urllib.request.Request(
                   url,
                   headers={"Accept": "application/json", "User-Agent": "LoSP-endpoint-diagnostic/1.0"},
@@ -45,11 +47,8 @@ jobs:
                           "url": url,
                           "status": response.status,
                           "contentType": response.headers.get("Content-Type"),
-                          "contentLengthHeader": response.headers.get("Content-Length"),
                           "bytes": len(body),
-                          "finalUrl": response.geturl(),
                           "rootKeys": sorted(parsed) if isinstance(parsed, dict) else None,
-                          "timestamp": parsed.get("ts") if isinstance(parsed, dict) else None,
                           "error": parsed.get("err") if isinstance(parsed, dict) else None,
                           "categoryCount": len(result) if isinstance(result, dict) else None,
                           "categories": sorted(result) if isinstance(result, dict) else None,
@@ -60,18 +59,7 @@ jobs:
                           ) if isinstance(result, dict) else None,
                       }, sort_keys=True))
               except urllib.error.HTTPError as error:
-                  body = error.read(512)
-                  print(json.dumps({
-                      "url": url,
-                      "status": error.code,
-                      "contentType": error.headers.get("Content-Type"),
-                      "bytes": len(body),
-                      "preview": body.decode("utf-8", "replace")[:200],
-                  }, sort_keys=True))
+                  print(json.dumps({"url": url, "status": error.code}, sort_keys=True))
               except Exception as error:
-                  print(json.dumps({
-                      "url": url,
-                      "errorType": type(error).__name__,
-                      "message": str(error),
-                  }, sort_keys=True))
+                  print(json.dumps({"url": url, "errorType": type(error).__name__, "message": str(error)}, sort_keys=True))
           PY
