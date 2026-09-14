@@ -1,0 +1,34 @@
+name: Investigate MSF Web Playable client (temporary)
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/investigate-msf-client.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Inspect public Web Playable bootstrap
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/msf-client
+          curl --fail --location --silent --show-error \
+            --output /tmp/msf-client/index.html \
+            --dump-header /tmp/msf-client/headers.txt \
+            https://webplayable.m3.scopelypv.com/
+          echo "INDEX_BYTES=$(wc -c < /tmp/msf-client/index.html)"
+          sed -n '1,30p' /tmp/msf-client/headers.txt
+          echo "BOOTSTRAP_REFERENCES"
+          grep -Eo '([[:alnum:]_./-]+\.(loader\.js|framework\.js(\.gz)?|data(\.gz)?|wasm(\.gz)?))' \
+            /tmp/msf-client/index.html | sort -u || true
+          echo "SCRIPT_REFERENCES"
+          grep -Eo '(src|href)="[^"]+"' /tmp/msf-client/index.html | sed -n '1,100p' || true
+          echo "CONFIG_LINES"
+          grep -Ein 'buildUrl|loaderUrl|dataUrl|frameworkUrl|codeUrl|streamingAssetsUrl|companyName|productName|productVersion' \
+            /tmp/msf-client/index.html | sed -n '1,100p' || true
