@@ -57,41 +57,52 @@ jobs:
           root = Path("/tmp/msf-client/dump")
           text = (root / "dump.cs").read_text(errors="replace")
           segments = re.split(r"(?=^// Namespace:)", text, flags=re.MULTILINE)
-          terms = [
-              "ParseAssetLists", "GetAssetList", "IHaveRacAssetList",
-              "stoken", "sver", "ldata_assetlists", "AssetLists",
-              "RacAssetList", "HttpEndPoint", "RemoteAssetClientEntry",
-          ]
-          print("RELEVANT_TYPE_SEGMENTS")
-          for segment in segments:
-              hits = [term for term in terms if term.lower() in segment.lower()]
-              if not hits:
-                  continue
-              header = next((line for line in segment.splitlines() if re.search(r"\b(class|interface|struct|enum)\b", line)), "")
-              print("SEGMENT", json.dumps({"hits": hits, "header": header}))
-              lines = segment.splitlines()
-              if len(lines) <= 500:
-                  print(segment)
-              else:
-                  for i, line in enumerate(lines):
-                      if any(term.lower() in line.lower() for term in terms):
-                          print(f"L{i+1}", "\n".join(lines[max(0,i-12):min(len(lines),i+25)]))
 
-          print("EXACT_MEMBER_CONTEXTS")
+          def header(segment):
+              lines = segment.splitlines()
+              return next((line for line in lines if re.search(r"\b(class|interface|struct|enum)\b", line)), "")
+
+          print("CORE_TYPE_SEGMENTS")
+          for segment in segments:
+              h = header(segment)
+              selected = (
+                  "ParseExternalAssetLists" in segment
+                  or "RulesAssetLists" in h
+                  or "RulesManager " in h
+                  or "RulesPreloadManager " in h
+                  or "HttpEndPoint " in h
+                  or "SparxLoginDataHelper" in h
+                  or "RemoteAssetClient.AssetType" in segment
+                  or re.search(r"\b(stoken|sver)\b", segment, re.IGNORECASE)
+              )
+              if selected:
+                  print("SEGMENT_HEADER", h)
+                  print(segment[:50000])
+
+          print("EXACT_IDENTIFIERS")
           lines = text.splitlines()
-          for term in ["ParseAssetLists", "stoken", "sver", "ldata_assetlists", "GetAssetList"]:
-              hits = [i for i, line in enumerate(lines) if term.lower() in line.lower()]
-              print("TERM", term, "COUNT", len(hits))
-              for i in hits[:60]:
-                  print(f"HIT {term} L{i+1}")
-                  print("\n".join(lines[max(0,i-8):min(len(lines),i+14)]))
+          patterns = {
+              "uid": re.compile(r"\b(uid|Uid|UID)\b"),
+              "stoken": re.compile(r"\b(stoken|sToken|SToken|sessionToken|securityToken|serverToken)\b"),
+              "sver": re.compile(r"\bsver\b"),
+              "asset": re.compile(r"ParseExternalAssetLists|GetCachedAssetLists|GetAssetLists|BeginCachingExternalData"),
+          }
+          for label, pattern in patterns.items():
+              hits = [i for i,line in enumerate(lines) if pattern.search(line)]
+              print("IDENTIFIER", label, "COUNT", len(hits))
+              for i in hits[:100]:
+                  prior = next((lines[j] for j in range(i, max(-1,i-200), -1) if re.search(r"\b(class|interface|struct|enum)\b", lines[j])), "")
+                  print("HIT", i+1, prior, "::", lines[i].strip())
 
           literals = json.loads((root / "stringliteral.json").read_text())
-          print("LITERAL_NEIGHBORS")
-          for exact in ["/rules/asset-lists", "/account/ldata_assetlists", "stoken", "sver", "x-scopely-titan-auth"]:
-              for i, item in enumerate(literals):
-                  if item.get("value") == exact:
-                      print("AROUND", exact)
-                      for neighbor in literals[max(0,i-8):min(len(literals),i+9)]:
-                          print(json.dumps(neighbor, sort_keys=True))
+          print("TOKEN_LITERAL_FORMS")
+          for item in literals:
+              value = str(item.get("value", ""))
+              if (
+                  value in {"uid", "UID", "Uid", "stoken", "sver", "ts", "|1", "%7C1"}
+                  or value.endswith("|1")
+                  or "%7C1" in value
+                  or "asset-lists" in value
+              ):
+                  print(json.dumps(item, sort_keys=True))
           PY
