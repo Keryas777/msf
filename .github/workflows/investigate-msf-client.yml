@@ -11,26 +11,108 @@ permissions:
 jobs:
   inspect:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
     steps:
-      - name: Inspect public Web Playable bootstrap
+      - name: Download and inspect public build 10.5.0
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p /tmp/msf-client
-          curl --fail --location --silent --show-error --compressed \
-            --output /tmp/msf-client/index.html \
-            --dump-header /tmp/msf-client/headers.txt \
-            https://webplayable.m3.scopelypv.com/
-          echo "INDEX_BYTES=$(wc -c < /tmp/msf-client/index.html)"
-          sed -n '1,30p' /tmp/msf-client/headers.txt
-          echo "INDEX_HTML"
-          sed -n '1,220p' /tmp/msf-client/index.html
-          echo "BOOTSTRAP_REFERENCES"
-          grep -Eo '([[:alnum:]_./-]+\.(loader\.js|framework\.js(\.gz)?|data(\.gz)?|wasm(\.gz)?))' \
-            /tmp/msf-client/index.html | sort -u || true
-          echo "SCRIPT_REFERENCES"
-          grep -Eo '(src|href)="[^"]+"' /tmp/msf-client/index.html | sed -n '1,100p' || true
-          echo "CONFIG_LINES"
-          grep -Ein 'buildUrl|loaderUrl|dataUrl|frameworkUrl|codeUrl|streamingAssetsUrl|companyName|productName|productVersion' \
-            /tmp/msf-client/index.html | sed -n '1,100p' || true
+          root=/tmp/msf-client
+          mkdir -p "$root/raw" "$root/unpacked" "$root/data-files"
+          base=https://webplayable.m3.scopelypv.com/10_5_0/1666317/Build
+
+          curl --fail --location --silent --show-error \
+            "$base/b03aef900365212daf07c9180a2c210c.data.gz" \
+            -o "$root/raw/client.data.gz"
+          curl --fail --location --silent --show-error \
+            "$base/1bea101c7dcb2643833fb012fe40bc1c.framework.js.gz" \
+            -o "$root/raw/client.framework.js.gz"
+          curl --fail --location --silent --show-error \
+            "$base/0ff9aed6cda3f63a95295ed31db4348e.wasm.gz" \
+            -o "$root/raw/client.wasm.gz"
+
+          echo "RAW_FILES"
+          file "$root"/raw/*
+          sha256sum "$root"/raw/*
+          du -h "$root"/raw/*
+
+          for source in "$root"/raw/*; do
+            name=$(basename "$source" .gz)
+            if python - "$source" <<'PY'
+          import pathlib, sys
+          raise SystemExit(0 if pathlib.Path(sys.argv[1]).read_bytes()[:2] == b"\x1f\x8b" else 1)
+          PY
+            then
+              gzip -dc "$source" > "$root/unpacked/$name"
+            else
+              cp "$source" "$root/unpacked/$name"
+            fi
+          done
+
+          echo "UNPACKED_FILES"
+          file "$root"/unpacked/*
+          sha256sum "$root"/unpacked/*
+          du -h "$root"/unpacked/*
+
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import struct
+
+          source = Path("/tmp/msf-client/unpacked/client.data")
+          payload = source.read_bytes()
+          signature = b"UnityWebData1.0\0"
+          print("DATA_PREFIX", payload[:32].hex())
+          print("UNITY_DATA_SIGNATURE", payload.startswith(signature))
+          if not payload.startswith(signature):
+              raise SystemExit(0)
+
+          position = len(signature)
+          header_length = struct.unpack_from("<I", payload, position)[0]
+          position += 4
+          entries = []
+          output = Path("/tmp/msf-client/data-files")
+          while position < header_length:
+              offset, size, path_length = struct.unpack_from("<III", payload, position)
+              position += 12
+              raw_path = payload[position:position + path_length]
+              position += path_length
+              path = raw_path.decode("utf-8")
+              entries.append((path, offset, size))
+              target = output / path
+              target.parent.mkdir(parents=True, exist_ok=True)
+              target.write_bytes(payload[offset:offset + size])
+
+          print("UNITY_DATA_HEADER_LENGTH", header_length)
+          print("UNITY_DATA_ENTRY_COUNT", len(entries))
+          print("UNITY_DATA_TOTAL_ENTRY_BYTES", sum(item[2] for item in entries))
+          for path, offset, size in entries:
+              if any(term in path.lower() for term in (
+                  "metadata", "il2cpp", "script", "string", ".db", "remote", "login"
+              )):
+                  print("DATA_ENTRY", json.dumps({"path": path, "offset": offset, "size": size}, sort_keys=True))
+          PY
+
+          echo "EXTRACTED_FILE_TYPES"
+          find "$root/data-files" -type f -printf '%s %p\n' | sort -n | tail -30
+          find "$root/data-files" -type f -print0 | xargs -0 file | \
+            grep -Ei 'metadata|sqlite|json|text|webassembly|executable' | sed -n '1,100p' || true
+
+          echo "TARGETED_STRINGS"
+          for source in "$root/unpacked/client.framework.js" "$root/unpacked/client.wasm" "$root/unpacked/client.data"; do
+            echo "SOURCE=$source"
+            strings -a -n 3 "$source" | grep -Ein -B 3 -A 6 \
+              '(/rules/asset-lists|ParseAssetLists|RemoteAssetClient|IHaveRacAssetList|GetAssetList|ldata_assetlists|LoginData_(CombatData|Insanity|CombatCards)|account/ldata_assetlists|stoken|sToken|sessionToken|securityToken|serverToken|sver|\|1)' \
+              | sed -n '1,1200p' || true
+          done
+
+          echo "TARGETED_EXTRACTED_STRINGS"
+          find "$root/data-files" -type f -print0 | while IFS= read -r -d '' source; do
+            matches=$(strings -a -n 3 "$source" | grep -Ein -B 3 -A 6 \
+              '(/rules/asset-lists|ParseAssetLists|RemoteAssetClient|IHaveRacAssetList|GetAssetList|ldata_assetlists|LoginData_(CombatData|Insanity|CombatCards)|account/ldata_assetlists|stoken|sToken|sessionToken|securityToken|serverToken|sver|\|1)' \
+              | sed -n '1,300p' || true)
+            if [[ -n "$matches" ]]; then
+              echo "SOURCE=$source"
+              echo "$matches"
+            fi
+          done
