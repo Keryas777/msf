@@ -102,3 +102,77 @@ jobs:
               if any(needle.lower() in value.lower() for needle in needles):
                   print(json.dumps(item, sort_keys=True))
           PY
+          python - <<'PY'
+          from pathlib import Path
+          import json, re
+
+          root = Path("/tmp/msf-client/dump")
+          lines = (root / "dump.cs").read_text(errors="replace").splitlines()
+          needles = [
+              "ParseAssetLists", "GetAssetList(", "IHaveRacAssetList",
+              "stoken", "sver", "ldata_assetlists", "AssetList",
+              "HttpEndPoint", "uid;", " uid ", "set_uid", "get_uid",
+          ]
+          print("TARGET_MEMBER_CONTEXTS")
+          emitted = set()
+          for i, line in enumerate(lines):
+              if not any(needle.lower() in line.lower() for needle in needles):
+                  continue
+              if len(emitted) >= 160:
+                  break
+              key = (i, line.strip())
+              if key in emitted:
+                  continue
+              emitted.add(key)
+              start = max(0, i - 12)
+              end = min(len(lines), i + 24)
+              print(f"CONTEXT L{i+1} {line.strip()}")
+              print("\n".join(lines[start:end]))
+
+          literals = json.loads((root / "stringliteral.json").read_text())
+          print("LITERAL_NEIGHBORS")
+          for exact in ["/rules/asset-lists", "/account/ldata_assetlists", "stoken", "sver", "x-scopely-titan-auth"]:
+              hits = [i for i, item in enumerate(literals) if item.get("value") == exact]
+              for i in hits:
+                  print("AROUND", exact)
+                  for item in literals[max(0, i-12):min(len(literals), i+13)]:
+                      print(json.dumps(item, sort_keys=True))
+          PY
+
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq wabt
+          wasm-objdump -d "$root/unpacked/client.wasm" > "$root/client.wasm.dis"
+          python - <<'PY'
+          from pathlib import Path
+          import json, re
+
+          root = Path("/tmp/msf-client")
+          literals = json.loads((root / "dump/stringliteral.json").read_text())
+          exact = ["/rules/asset-lists", "/account/ldata_assetlists", "stoken", "sver", "x-scopely-titan-auth"]
+          addresses = {item["value"]: int(item["address"], 16) for item in literals if item.get("value") in exact}
+          lines = (root / "client.wasm.dis").read_text(errors="replace").splitlines()
+          current = None
+          refs = []
+          for line in lines:
+              match = re.search(r"func\[(\d+)\]", line)
+              if match:
+                  current = int(match.group(1))
+              for value, address in addresses.items():
+                  if re.search(rf"i32\.const\s+{address}\b", line):
+                      refs.append((value, address, current, line.strip()))
+          print("WASM_LITERAL_XREFS", refs)
+          script = json.loads((root / "dump/script.json").read_text())
+          methods = script.get("ScriptMethod", script if isinstance(script, list) else [])
+          for value, address, function, line in refs:
+              possible = []
+              for item in methods:
+                  raw = item.get("Address", item.get("address"))
+                  try:
+                      number = int(str(raw), 16) if str(raw).startswith("0x") else int(raw)
+                  except (TypeError, ValueError):
+                      continue
+                  if number == function:
+                      possible.append(item)
+              print("WASM_XREF_METHODS", value, function, json.dumps(possible[:20], sort_keys=True))
+          PY
+
