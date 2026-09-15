@@ -1,35 +1,95 @@
-name: Build War Counter portrait signatures
+name: Build War Counter playable references
 
 on:
-  workflow_dispatch:
-  push:
-    branches: [main]
+  pull_request:
     paths:
       - docs/data/msf-characters.json
+      - docs/data/war-counter-vision/portrait-signatures.json
+      - docs/data/war-counter-vision/akaze-r5-reference-descriptors.json
+      - docs/data/war-counter-vision/akaze-r5-reference-descriptors.bin
+      - scripts/fetch-characters.mjs
       - scripts/build-war-counter-signatures.py
+      - scripts/war_counter_r5_export_akaze_refs.py
+      - scripts/war_counter_r5_export_akaze_browser.py
+      - tests/test_war_counter_playable_catalog.py
       - .github/workflows/build-war-counter-signatures.yml
+      - .github/workflows/fetch-characters.yml
+  push:
+    branches:
+      - main
+    paths:
+      - docs/data/msf-characters.json
+      - docs/data/war-counter-vision/portrait-signatures.json
+      - docs/data/war-counter-vision/akaze-r5-reference-descriptors.json
+      - docs/data/war-counter-vision/akaze-r5-reference-descriptors.bin
+      - scripts/build-war-counter-signatures.py
+      - scripts/war_counter_r5_export_akaze_refs.py
+      - scripts/war_counter_r5_export_akaze_browser.py
+      - tests/test_war_counter_playable_catalog.py
+      - .github/workflows/build-war-counter-signatures.yml
+  workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: build-war-counter-references-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-      - run: python -m pip install --disable-pip-version-check Pillow==11.3.0
-      - run: python scripts/build-war-counter-signatures.py
-      - name: Commit generated signatures
+          python-version: "3.12"
+
+      - name: Install reference build dependencies
         run: |
-          if [ -z "$(git status --porcelain -- docs/data/war-counter-vision/portrait-signatures.json)" ]; then
-            echo "No signature change"
-            exit 0
-          fi
+          python -m pip install --disable-pip-version-check \
+            Pillow==11.3.0 \
+            requests \
+            numpy \
+            opencv-contrib-python-headless==4.10.0.84
+
+      - name: Build playable portrait signatures
+        run: python scripts/build-war-counter-signatures.py
+
+      - name: Export AKAZE references
+        run: |
+          python scripts/war_counter_r5_export_akaze_refs.py
+          python scripts/war_counter_r5_export_akaze_browser.py
+          rm benchmark-r5-akaze-reference-descriptors.npz
+
+      - name: Run War Counter catalog regression tests
+        run: |
+          python -m unittest discover \
+            -s tests \
+            -p "test_war_counter_playable_catalog.py" \
+            -v
+
+      - name: Commit generated references
+        if: github.event_name != 'pull_request'
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/war-counter-vision/portrait-signatures.json
-          git commit -m "chore: update war counter portrait signatures"
+          git add \
+            docs/data/war-counter-vision/portrait-signatures.json \
+            docs/data/war-counter-vision/akaze-r5-reference-descriptors.json \
+            docs/data/war-counter-vision/akaze-r5-reference-descriptors.bin
+          if git diff --cached --quiet; then
+            echo "War Counter references unchanged"
+            exit 0
+          fi
+          git commit -m "chore: refresh playable War Counter references"
           git push
+
+      - name: Verify committed generated references
+        if: github.event_name == 'pull_request'
+        run: |
+          git diff --exit-code -- \
+            docs/data/war-counter-vision/portrait-signatures.json \
+            docs/data/war-counter-vision/akaze-r5-reference-descriptors.json \
+            docs/data/war-counter-vision/akaze-r5-reference-descriptors.bin
