@@ -70,8 +70,9 @@ def main():
                 downloaded[cid] = path
 
     usable = [item for item in refs if item["id"] in downloaded]
-    if len(usable) < 400:
-        raise RuntimeError(f"Too few reference portraits downloaded: {len(usable)}")
+    if len(usable) != len(refs):
+        missing = sorted(item["id"] for item in refs if item["id"] not in downloaded)
+        raise RuntimeError(f"Missing reference portraits: {', '.join(missing)}")
 
     akaze = cv2.AKAZE_create(threshold=0.0008)
     ref_ids = []

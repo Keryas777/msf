@@ -268,8 +268,9 @@ def main():
                 errors[cid] = error
 
     usable = [item for item in refs if item["id"] in downloaded]
-    if len(usable) < 400:
-        raise RuntimeError(f"Too few reference portraits downloaded: {len(usable)}")
+    if len(usable) != len(refs):
+        missing = sorted(item["id"] for item in refs if item["id"] not in downloaded)
+        raise RuntimeError(f"Missing reference portraits: {', '.join(missing)}")
 
     ref_images = []
     ref_ids = []

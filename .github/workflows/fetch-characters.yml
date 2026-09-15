@@ -27,20 +27,48 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dependencies
-        run: npm install || true
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
       - name: Run fetch script
         run: node scripts/fetch-characters.mjs
+
+      - name: Install reference build dependencies
+        run: |
+          python -m pip install --disable-pip-version-check \
+            Pillow==11.3.0 \
+            requests \
+            numpy \
+            opencv-contrib-python-headless==4.10.0.84
+
+      - name: Rebuild playable War Counter references
+        run: |
+          python scripts/build-war-counter-signatures.py
+          python scripts/war_counter_r5_export_akaze_refs.py
+          python scripts/war_counter_r5_export_akaze_browser.py
+          rm benchmark-r5-akaze-reference-descriptors.npz
+
+      - name: Run War Counter catalog regression tests
+        run: |
+          python -m unittest discover \
+            -s tests \
+            -p "test_war_counter_playable_catalog.py" \
+            -v
 
       - name: Commit & Push if changed
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git add docs/data/msf-characters.json
+          git add \
+            docs/data/msf-characters.json \
+            docs/data/war-counter-vision/portrait-signatures.json \
+            docs/data/war-counter-vision/akaze-r5-reference-descriptors.json \
+            docs/data/war-counter-vision/akaze-r5-reference-descriptors.bin
 
           git diff --cached --quiet && echo "No changes" && exit 0
 
-          git commit -m "Update msf-characters.json (auto 3h)"
+          git commit -m "Update playable War Counter references (auto 3h)"
           git push

@@ -201,8 +201,9 @@ def main():
         except Exception as exc:
             errors[cid] = f"decode/describe: {exc}"
 
-    if len(ref_desc) < 400:
-        raise RuntimeError(f"Too few usable reference descriptors: {len(ref_desc)}")
+    if len(ref_desc) != len(refs):
+        missing = sorted(item["id"] for item in refs if item["id"] not in ref_desc)
+        raise RuntimeError(f"Missing usable reference descriptors: {', '.join(missing)}")
     all_desc = np.vstack(descriptor_blocks)
     descriptor_owner = np.asarray(descriptor_owner, dtype=object)
     matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
