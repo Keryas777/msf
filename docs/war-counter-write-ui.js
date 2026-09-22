@@ -7,6 +7,7 @@ import { buildWriteProposal } from "./war-counter-write-proposal.js";
 
 const WRITE_WORKER_URL = "https://msf-war-counter-write.deliriousfan7.workers.dev";
 const LOCAL_SESSION_KEY = "losp_session";
+const WRITE_KEY_SESSION_KEY = "losp_war_counter_write_key";
 
 let supportPromise = null;
 let activeWrite = null;
@@ -30,6 +31,26 @@ function readSessionToken() {
   } catch (_) {
     return "";
   }
+}
+
+function readWriteKey() {
+  try {
+    return sessionStorage.getItem(WRITE_KEY_SESSION_KEY) || "";
+  } catch (_) {
+    return "";
+  }
+}
+
+function saveWriteKey(value) {
+  try {
+    sessionStorage.setItem(WRITE_KEY_SESSION_KEY, value);
+  } catch (_) {}
+}
+
+function clearWriteKey() {
+  try {
+    sessionStorage.removeItem(WRITE_KEY_SESSION_KEY);
+  } catch (_) {}
 }
 
 async function fetchJson(url) {
@@ -123,6 +144,10 @@ function createDialog() {
         <label>Clé attaque<input data-field="atk_key" maxlength="100" autocapitalize="off" autocomplete="off"></label>
         <label class="write-notes">Notes<textarea data-field="notes" maxlength="500" rows="3" placeholder="Facultatif"></textarea></label>
       </div>
+      <label class="write-admin-key">
+        Clé d’écriture administrateur
+        <input id="writeAdminKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Conservée seulement jusqu’à la fermeture de cet onglet">
+      </label>
       <p id="writeDialogStatus" class="write-dialog-status" role="status" aria-live="polite"></p>
       <div class="write-dialog-actions">
         <button id="confirmSheetWrite" class="primary-button" type="button">Confirmer l’écriture</button>
@@ -157,6 +182,7 @@ function metadataFromDialog(dialog) {
 function renderDialogSummary(dialog, proposal, preview) {
   const summary = dialog.querySelector("#writeDialogSummary");
   const metadataFields = dialog.querySelector("#writeMetadataFields");
+  const adminKey = dialog.querySelector("#writeAdminKey");
   summary.replaceChildren();
 
   const title = document.createElement("strong");
@@ -181,6 +207,7 @@ function renderDialogSummary(dialog, proposal, preview) {
     }
   }
 
+  if (adminKey) adminKey.value = readWriteKey();
   summary.append(title, detail, teams);
 }
 
@@ -197,9 +224,14 @@ async function submitActiveWrite() {
   const dialog = createDialog();
   const confirmButton = dialog.querySelector("#confirmSheetWrite");
   const session = readSessionToken();
+  const writeKey = String(dialog.querySelector("#writeAdminKey")?.value || "").trim();
 
   if (!session) {
     setDialogStatus("Connexion LoSP requise. Connecte-toi avec Discord puis reviens sur cette page.", "error");
+    return;
+  }
+  if (!writeKey) {
+    setDialogStatus("La clé d’écriture administrateur est requise.", "error");
     return;
   }
 
@@ -224,7 +256,8 @@ async function submitActiveWrite() {
       cache: "no-store",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session}`
+        Authorization: `Bearer ${session}`,
+        "X-War-Counter-Write-Key": writeKey
       },
       body: JSON.stringify({
         attackIds: proposal.attackIds,
@@ -241,8 +274,11 @@ async function submitActiveWrite() {
     } catch (_) {}
 
     if (!response.ok || !data?.ok) {
+      if (response.status === 403) clearWriteKey();
       throw new Error(data?.error || data?.message || `Écriture impossible (HTTP ${response.status}).`);
     }
+
+    saveWriteKey(writeKey);
 
     if (data.changed) {
       const workflowText = data.workflow?.dispatched
