@@ -1,0 +1,443 @@
+{
+  "schemaVersion": "1.0.0",
+  "description": "Corpus terrain de non-régression War Counter Vision validé dans le laboratoire navigateur après PR #175.",
+  "hashAlgorithm": "SHA-256",
+  "engine": {
+    "openCvVersion": "4.10.0",
+    "algorithm": "AKAZE-MLDB",
+    "matcher": "BFMatcher-Hamming",
+    "ranking": "globalVoteTop10",
+    "referenceCount": 379,
+    "descriptorCount": 78253,
+    "segmentation": "R6.6",
+    "playableFilter": "player_Character === true"
+  },
+  "validation": {
+    "date": "2026-09-22",
+    "mergeBaseline": "1107930ce7671bc5edac8ea269bbe77a58dfc967",
+    "captureCount": 6,
+    "slotCount": 60,
+    "evaluated": 58,
+    "alive": 24,
+    "dead": 34,
+    "absent": 2,
+    "top1": 58,
+    "top1Rate": 1
+  },
+  "captures": [
+    {
+      "id": "field-01",
+      "file": "images/IMG_1743.jpeg",
+      "sha256": "e90db54a139d3418db268cde6e592cd4c22e897dcada9f502ed8a8332f90ad9c",
+      "width": 1358,
+      "height": 367,
+      "slots": [
+        {
+          "slot": "left-1",
+          "characterId": "Kingo",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-2",
+          "characterId": "Ikaris",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-3",
+          "characterId": "Sersi",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-4",
+          "characterId": "Gilgamesh",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-5",
+          "characterId": "Thena",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-1",
+          "characterId": "Executioner",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-2",
+          "characterId": "Thanos",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-3",
+          "characterId": "Sylvie",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-4",
+          "characterId": "HighEvolutionary",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-5",
+          "characterId": "Malekith",
+          "state": "dead",
+          "expectedRank": 1
+        }
+      ]
+    },
+    {
+      "id": "field-02",
+      "file": "images/IMG_1961.jpeg",
+      "sha256": "a53bb0c895ba7d04f2283b84710d55f035acb6617013d57d92f74d175fa80445",
+      "width": 2125,
+      "height": 541,
+      "slots": [
+        {
+          "slot": "left-1",
+          "characterId": "PhantomRider",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-2",
+          "characterId": "YoYo",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-3",
+          "characterId": "Domino",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-4",
+          "characterId": "Negasonic",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-5",
+          "characterId": null,
+          "state": "absent",
+          "expectedRank": null
+        },
+        {
+          "slot": "right-1",
+          "characterId": "SuperiorSpiderMan",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-2",
+          "characterId": "GreenGoblinGlider",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-3",
+          "characterId": "Vulture",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-4",
+          "characterId": "Shocker",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-5",
+          "characterId": "Hobgoblin",
+          "state": "dead",
+          "expectedRank": 1
+        }
+      ]
+    },
+    {
+      "id": "field-03",
+      "file": "images/IMG_1708.jpeg",
+      "sha256": "a518b33d0b19dcf26b356ae4a99fd840f27beab4ef9e971ced6da14768279df4",
+      "width": 1420,
+      "height": 392,
+      "slots": [
+        {
+          "slot": "left-1",
+          "characterId": "HighEvolutionary",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-2",
+          "characterId": "Sylvie",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-3",
+          "characterId": "Executioner",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-4",
+          "characterId": "Thanos",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-5",
+          "characterId": "BlueMarvel",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-1",
+          "characterId": "Kingo",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-2",
+          "characterId": "Ikaris",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-3",
+          "characterId": "Sersi",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-4",
+          "characterId": "Gilgamesh",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-5",
+          "characterId": "Thena",
+          "state": "alive",
+          "expectedRank": 1
+        }
+      ]
+    },
+    {
+      "id": "field-04",
+      "file": "images/IMG_1707.jpeg",
+      "sha256": "2bea2f0838036c988e0ff8150c43d7c970592fb935b2907cf8b41ae23020d05b",
+      "width": 1408,
+      "height": 376,
+      "slots": [
+        {
+          "slot": "left-1",
+          "characterId": "Darkstar",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-2",
+          "characterId": "Apocalypse",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-3",
+          "characterId": "OmegaRed",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-4",
+          "characterId": "RedGuardian",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-5",
+          "characterId": "UrsaMajor",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-1",
+          "characterId": "EbonyMaw",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-2",
+          "characterId": "Ronan",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-3",
+          "characterId": "SilverSurferBreaker",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-4",
+          "characterId": "CullObsidian",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-5",
+          "characterId": "Minerva",
+          "state": "alive",
+          "expectedRank": 1
+        }
+      ]
+    },
+    {
+      "id": "field-05",
+      "file": "images/IMG_1706.jpeg",
+      "sha256": "90ea30e81f0b22e257664b2c06a6ec8bce388c40eb8eb676c908007391612b07",
+      "width": 1399,
+      "height": 358,
+      "slots": [
+        {
+          "slot": "left-1",
+          "characterId": "Knull",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-2",
+          "characterId": "Venom",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-3",
+          "characterId": "Xavier",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-4",
+          "characterId": "Riot",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-5",
+          "characterId": "SymbioteQuicksilver",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-1",
+          "characterId": "OmegaRed",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-2",
+          "characterId": "Darkstar",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-3",
+          "characterId": "Quasar",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-4",
+          "characterId": "RedGuardian",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-5",
+          "characterId": "UrsaMajor",
+          "state": "alive",
+          "expectedRank": 1
+        }
+      ]
+    },
+    {
+      "id": "field-06",
+      "file": "images/IMG_1705.jpeg",
+      "sha256": "de85a23f826e3598216eb1012a71c3ea73c2ee55c26e97b3b033161bc838ae3c",
+      "width": 1401,
+      "height": 351,
+      "slots": [
+        {
+          "slot": "left-1",
+          "characterId": "Sersi",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-2",
+          "characterId": "Ikaris",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-3",
+          "characterId": "Gilgamesh",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-4",
+          "characterId": "Kingo",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "left-5",
+          "characterId": "Thena",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-1",
+          "characterId": "ZombieJuggernaut",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-2",
+          "characterId": "ZombieIronMan",
+          "state": "dead",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-3",
+          "characterId": "ZombieScarletWitch",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-4",
+          "characterId": "ZombieKestrel",
+          "state": "alive",
+          "expectedRank": 1
+        },
+        {
+          "slot": "right-5",
+          "characterId": null,
+          "state": "absent",
+          "expectedRank": null
+        }
+      ]
+    }
+  ]
+}
