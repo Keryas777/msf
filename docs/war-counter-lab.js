@@ -13,9 +13,9 @@ import {
   inferAttackSide,
   mapPanelRegion
 } from "./war-counter-header-vision.js";
+import { readPowerFromImageData } from "./war-counter-power-reader.js";
 
 const WORKER_URL = new URL("./war-counter-akaze-worker.js?v=r5-akaze-worker-2", import.meta.url);
-const POWER_WORKER_ENDPOINT = "https://msf-war-counter-vision.deliriousfan7.workers.dev/api/war-counter-vision/read-power";
 const REALIGNED_RIGHT_TEAM_X_SHIFT = 0.125;
 const REALIGNED_RIGHT_D1_EXTRA_SHIFT = 0.15;
 const REALIGNED_LEFT_TAIL_X_SHIFTS = Object.freeze({ 3: -0.10, 4: -0.15, 5: -0.20 });
@@ -318,6 +318,13 @@ function analyzeHeader(image, alignment) {
   const leftAttackCrop = cropHeaderRegion(image, HEADER_REGIONS.attackMarker.left, alignment);
   const rightAttackCrop = cropHeaderRegion(image, HEADER_REGIONS.attackMarker.right, alignment);
 
+  const leftPowerData = leftPowerCrop
+    .getContext("2d", { willReadFrequently: true })
+    .getImageData(0, 0, leftPowerCrop.width, leftPowerCrop.height);
+  const rightPowerData = rightPowerCrop
+    .getContext("2d", { willReadFrequently: true })
+    .getImageData(0, 0, rightPowerCrop.width, rightPowerCrop.height);
+
   const leftAttackData = leftAttackCrop
     .getContext("2d", { willReadFrequently: true })
     .getImageData(0, 0, leftAttackCrop.width, leftAttackCrop.height);
@@ -333,6 +340,10 @@ function analyzeHeader(image, alignment) {
     powerPreview: {
       left: headerCropPreviewDataUrl(leftPowerCrop),
       right: headerCropPreviewDataUrl(rightPowerCrop)
+    },
+    powerRead: {
+      left: readPowerFromImageData(leftPowerData),
+      right: readPowerFromImageData(rightPowerData)
     },
     attackPreview: {
       left: headerCropPreviewDataUrl(leftAttackCrop),
@@ -351,60 +362,6 @@ function analyzeHeader(image, alignment) {
   }
 
   return result;
-}
-
-function dataUrlToFile(dataUrl, name) {
-  const [meta, encoded] = String(dataUrl || "").split(",", 2);
-  const mime = meta?.match(/^data:([^;]+);base64$/)?.[1];
-  if (!mime || !encoded) throw new Error("Crop de puissance invalide.");
-
-  const binary = atob(encoded);
-  const bytes = new Uint8Array(binary.length);
-  for (let index = 0; index < binary.length; index += 1) {
-    bytes[index] = binary.charCodeAt(index);
-  }
-
-  return new File([bytes], name, { type: mime });
-}
-
-async function requestPowerRead(header) {
-  const form = new FormData();
-  form.set("leftImage", dataUrlToFile(header.powerPreview.left, "power-left.jpg"));
-  form.set("rightImage", dataUrlToFile(header.powerPreview.right, "power-right.jpg"));
-
-  const response = await fetch(POWER_WORKER_ENDPOINT, {
-    method: "POST",
-    body: form,
-    cache: "no-store"
-  });
-  const body = await response.json().catch(() => null);
-
-  if (!response.ok || !body?.ok || !body?.result) {
-    throw new Error(body?.error || `Lecture de puissance indisponible (${response.status}).`);
-  }
-
-  return {
-    leftPower: body.result.leftPower ? String(body.result.leftPower) : "",
-    rightPower: body.result.rightPower ? String(body.result.rightPower) : "",
-    provider: body.result.provider || "groq",
-    model: body.result.model || null,
-    durationMs: Number(body.result.durationMs) || null
-  };
-}
-
-async function loadCatalog() {
-  if (catalogIndex) return;
-
-  const response = await fetch("data/msf-characters.json", { cache: "no-store" });
-  if (!response.ok) throw new Error("Catalogue personnages indisponible.");
-
-  const raw = await response.json();
-  catalog = raw
-    .filter((item) => item?.player_Character === true && item?.id && item?.nameKey)
-    .sort((a, b) => String(a.nameKey).localeCompare(String(b.nameKey), "fr"));
-
-  catalogIndex = normalizeCatalog(catalog);
-  catalogById = catalogIndex.byId;
 }
 
 function ensureWorker() {
@@ -667,18 +624,17 @@ function renderPowerField(run, side, section) {
   evidenceTitle.textContent = "Zone puissance";
 
   const evidenceNote = document.createElement("span");
-  const detectedPower = side === "left"
-    ? run.powerRead?.leftPower
-    : run.powerRead?.rightPower;
+  const powerRead = run.header?.powerRead?.[side];
 
-  if (run.powerRead?.status === "ok" && detectedPower) {
-    evidenceNote.textContent = "Puissance détectée automatiquement. Vérifie ce crop et corrige seulement si nécessaire.";
-  } else if (run.powerRead?.status === "ok") {
-    evidenceNote.textContent = "Nombre non lu avec assez de certitude. Vérifie ce crop et saisis la puissance manuellement.";
-  } else if (run.powerRead?.status === "error") {
-    evidenceNote.textContent = "Lecture automatique impossible. Vérifie ce crop et saisis la puissance manuellement.";
+  if (powerRead?.value) {
+    const score = Number.isFinite(powerRead.minScore)
+      ? ` · score min ${powerRead.minScore.toFixed(2)}`
+      : "";
+    evidenceNote.textContent =
+      `Puissance détectée localement${score}. Vérifie ce crop et corrige seulement si nécessaire.`;
   } else {
-    evidenceNote.textContent = "Lecture automatique en attente.";
+    evidenceNote.textContent =
+      "Lecture locale incertaine. Vérifie ce crop et saisis la puissance manuellement.";
   }
 
   evidenceText.append(evidenceTitle, evidenceNote);
@@ -1130,12 +1086,6 @@ async function analyzeFile(file, index, count) {
   try {
     const alignment = detectHorizontalContentBounds(decoded.image);
     const header = analyzeHeader(decoded.image, alignment);
-    const powerReadPromise = requestPowerRead(header)
-      .then((result) => ({ status: "ok", ...result }))
-      .catch((error) => ({
-        status: "error",
-        error: error?.message || String(error)
-      }));
     const slots = slotsForBounds(alignment, decoded.width);
     const rows = [];
 
@@ -1177,8 +1127,6 @@ async function analyzeFile(file, index, count) {
       await nextFrame();
     }
 
-    const powerRead = await powerReadPromise;
-
     return {
       id: `capture-${Date.now()}-${index}`,
       fileName: file.name,
@@ -1187,12 +1135,11 @@ async function analyzeFile(file, index, count) {
       sourceUrl,
       alignment,
       header,
-      powerRead,
       rows,
       direction: header.attackSide ? `${header.attackSide}-attack` : "",
       directionCorrected: false,
-      leftPower: powerRead.status === "ok" ? powerRead.leftPower : "",
-      rightPower: powerRead.status === "ok" ? powerRead.rightPower : "",
+      leftPower: header.powerRead.left.value || "",
+      rightPower: header.powerRead.right.value || "",
       portraitsConfirmed: false,
       totalMs: performance.now() - started,
       error: null
@@ -1234,7 +1181,6 @@ async function analyzeSelected() {
           sourceUrl: URL.createObjectURL(file),
           alignment: null,
           header: null,
-          powerRead: null,
           rows: [],
           direction: "",
           directionCorrected: false,
