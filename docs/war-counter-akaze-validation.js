@@ -136,12 +136,17 @@ function detectHorizontalContentBounds(image) {
   const scanHeight = Math.max(1, yEnd - yStart);
   const imageData = context.getImageData(0, yStart, image.width, scanHeight);
   const counts = new Uint16Array(image.width);
+  const redCounts = new Uint16Array(image.width);
 
   for (let y = 0; y < scanHeight; y += 1) {
     for (let x = 0; x < image.width; x += 1) {
       const offset = (y * image.width + x) * 4;
-      if (isOutlinePixel(imageData.data[offset], imageData.data[offset + 1], imageData.data[offset + 2])) {
+      const red = imageData.data[offset];
+      const green = imageData.data[offset + 1];
+      const blue = imageData.data[offset + 2];
+      if (isOutlinePixel(red, green, blue)) {
         counts[x] += 1;
+        if (red > 135 && red > green * 1.45 && red > blue * 1.12) redCounts[x] += 1;
       }
     }
   }
@@ -171,12 +176,25 @@ function detectHorizontalContentBounds(image) {
 
   // Safari screenshots can include a thin scroll indicator near the far right.
   // Ignore an isolated, very narrow tail separated from the actual war panel.
+  // Keep a strong red vertical border: with a 4-character right team, the empty
+  // D5 area creates a large gap before the real panel edge, which must not be
+  // mistaken for a scroll indicator.
   while (groups.length > 2) {
     const tail = groups[groups.length - 1];
     const before = groups[groups.length - 2];
     const gap = tail.start - before.end - 1;
     const tailWidth = tail.end - tail.start + 1;
-    if (gap > image.width * 0.035 && tailWidth < image.width * 0.02) groups.pop();
+    let tailPeak = 0;
+    let tailRedPeak = 0;
+    for (let x = tail.start; x <= tail.end; x += 1) {
+      tailPeak = Math.max(tailPeak, counts[x]);
+      tailRedPeak = Math.max(tailRedPeak, redCounts[x]);
+    }
+    const isRightPanelBorder =
+      tail.end >= image.width * 0.97 &&
+      tailPeak >= scanHeight * 0.55 &&
+      tailRedPeak >= tailPeak * 0.80;
+    if (gap > image.width * 0.035 && tailWidth < image.width * 0.02 && !isRightPanelBorder) groups.pop();
     else break;
   }
 
