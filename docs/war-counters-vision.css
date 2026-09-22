@@ -1,0 +1,135 @@
+.warVisionCard {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.warVisionTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.warVisionIntro {
+  min-width: 0;
+  flex: 1 1 15rem;
+}
+
+.warVisionIntro .subtitle {
+  margin: 0.25rem 0 0;
+}
+
+.warVisionButton {
+  min-height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  padding: 0.65rem 0.9rem;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.warVisionButton:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.warVisionStatus {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  opacity: 0.82;
+}
+
+.warVisionStatus[data-state="error"] {
+  opacity: 1;
+  font-weight: 700;
+}
+
+.warVisionResults {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.warVisionSlots {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.warVisionSlot {
+  display: grid;
+  grid-template-columns: 2rem 48px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.warVisionSlotLabel {
+  text-align: center;
+  font-size: 0.82rem;
+}
+
+.warVisionPortrait {
+  display: block;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.warVisionSlotBody {
+  min-width: 0;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.warVisionCandidate {
+  width: 100%;
+  min-width: 0;
+}
+
+.warVisionSlotState {
+  font-size: 0.72rem;
+  opacity: 0.68;
+}
+
+.warVisionMatchBox {
+  display: grid;
+  gap: 0.55rem;
+  padding-top: 0.25rem;
+}
+
+.warVisionMatch {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.warVisionApply {
+  width: 100%;
+}
+
+@media (min-width: 760px) {
+  .warVisionSlots {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .warVisionSlot {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .warVisionSlotBody {
+    width: 100%;
+  }
+
+  .warVisionApply {
+    width: auto;
+    justify-self: start;
+  }
+}
