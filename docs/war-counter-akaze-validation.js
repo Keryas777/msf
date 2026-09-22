@@ -246,27 +246,42 @@ function detectHorizontalContentBounds(image) {
   };
 }
 
-function slotsForBounds(bounds, imageWidth) {
-  const baseSlots = getLayoutSlots();
-  if (!bounds?.used) return baseSlots;
+function applyFineSlotAdjustments(slots) {
+  return slots.map((slot) => {
+    const leftTeamShift = slot.side === "left"
+      ? slot.width * (REALIGNED_LEFT_TAIL_X_SHIFTS[slot.position] || 0)
+      : 0;
 
-  const leftRatio = bounds.left / imageWidth;
-  const widthRatio = (bounds.right - bounds.left) / imageWidth;
-  return baseSlots.map((slot) => {
-    const width = slot.width * widthRatio;
-    const leftTeamShift = slot.side === "left" ? width * (REALIGNED_LEFT_TAIL_X_SHIFTS[slot.position] || 0) : 0;
     let rightTeamShift = 0;
     if (slot.side === "right") {
       const progressToD5 = (slot.position - 1) / 4;
-      const extraD1Shift = width * REALIGNED_RIGHT_D1_EXTRA_SHIFT * (1 - progressToD5);
-      rightTeamShift = width * REALIGNED_RIGHT_TEAM_X_SHIFT + extraD1Shift;
+      const extraD1Shift = slot.width * REALIGNED_RIGHT_D1_EXTRA_SHIFT * (1 - progressToD5);
+      rightTeamShift = slot.width * REALIGNED_RIGHT_TEAM_X_SHIFT + extraD1Shift;
     }
+
     return Object.freeze({
       ...slot,
-      x: leftRatio + slot.x * widthRatio + leftTeamShift + rightTeamShift,
-      width
+      x: slot.x + leftTeamShift + rightTeamShift
     });
   });
+}
+
+function slotsForBounds(bounds, imageWidth) {
+  const baseSlots = getLayoutSlots();
+
+  const panelSlots = !bounds?.used
+    ? baseSlots
+    : baseSlots.map((slot) => {
+        const leftRatio = bounds.left / imageWidth;
+        const widthRatio = (bounds.right - bounds.left) / imageWidth;
+        return Object.freeze({
+          ...slot,
+          x: leftRatio + slot.x * widthRatio,
+          width: slot.width * widthRatio
+        });
+      });
+
+  return applyFineSlotAdjustments(panelSlots);
 }
 
 function cropBase(image, slot) {
