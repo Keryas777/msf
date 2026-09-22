@@ -7,6 +7,12 @@ import {
   normalizeText,
   validateUpload
 } from "./war-counter-lab-core.js";
+import {
+  HEADER_REGIONS,
+  greenMarkerRatio,
+  inferAttackSide,
+  mapPanelRegion
+} from "./war-counter-header-vision.js";
 
 const WORKER_URL = new URL("./war-counter-akaze-worker.js?v=r5-akaze-worker-2", import.meta.url);
 const REALIGNED_RIGHT_TEAM_X_SHIFT = 0.125;
@@ -272,6 +278,80 @@ function cropPreviewDataUrl(crop) {
   return canvas.toDataURL("image/jpeg", 0.84);
 }
 
+function headerCropPreviewDataUrl(crop) {
+  const maxWidth = 520;
+  const scale = Math.min(1, maxWidth / crop.width);
+  const width = Math.max(1, Math.round(crop.width * scale));
+  const height = Math.max(1, Math.round(crop.height * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  canvas.getContext("2d").drawImage(crop, 0, 0, width, height);
+  return canvas.toDataURL("image/jpeg", 0.88);
+}
+
+function cropHeaderRegion(image, region, alignment) {
+  const { width, height } = imageDimensions(image);
+  const mapped = mapPanelRegion(region, alignment, width);
+  const rect = calculatePixelRect(mapped, width, height);
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, rect.width);
+  canvas.height = Math.max(1, rect.height);
+  canvas.getContext("2d", { willReadFrequently: true }).drawImage(
+    image,
+    rect.x,
+    rect.y,
+    rect.width,
+    rect.height,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+  return canvas;
+}
+
+function analyzeHeader(image, alignment) {
+  const leftPowerCrop = cropHeaderRegion(image, HEADER_REGIONS.power.left, alignment);
+  const rightPowerCrop = cropHeaderRegion(image, HEADER_REGIONS.power.right, alignment);
+  const leftAttackCrop = cropHeaderRegion(image, HEADER_REGIONS.attackMarker.left, alignment);
+  const rightAttackCrop = cropHeaderRegion(image, HEADER_REGIONS.attackMarker.right, alignment);
+
+  const leftAttackData = leftAttackCrop
+    .getContext("2d", { willReadFrequently: true })
+    .getImageData(0, 0, leftAttackCrop.width, leftAttackCrop.height);
+  const rightAttackData = rightAttackCrop
+    .getContext("2d", { willReadFrequently: true })
+    .getImageData(0, 0, rightAttackCrop.width, rightAttackCrop.height);
+
+  const leftGreenRatio = greenMarkerRatio(leftAttackData);
+  const rightGreenRatio = greenMarkerRatio(rightAttackData);
+  const attackSide = inferAttackSide(leftGreenRatio, rightGreenRatio);
+
+  const result = {
+    powerPreview: {
+      left: headerCropPreviewDataUrl(leftPowerCrop),
+      right: headerCropPreviewDataUrl(rightPowerCrop)
+    },
+    attackPreview: {
+      left: headerCropPreviewDataUrl(leftAttackCrop),
+      right: headerCropPreviewDataUrl(rightAttackCrop)
+    },
+    greenRatio: {
+      left: leftGreenRatio,
+      right: rightGreenRatio
+    },
+    attackSide
+  };
+
+  for (const crop of [leftPowerCrop, rightPowerCrop, leftAttackCrop, rightAttackCrop]) {
+    crop.width = 1;
+    crop.height = 1;
+  }
+
+  return result;
+}
+
 async function loadCatalog() {
   if (catalogIndex) return;
 
@@ -529,6 +609,29 @@ function renderSlot(run, row) {
 }
 
 function renderPowerField(run, side, section) {
+  const wrap = document.createElement("div");
+  wrap.className = "power-block";
+
+  const evidence = document.createElement("div");
+  evidence.className = "power-evidence";
+
+  const crop = document.createElement("img");
+  crop.className = "power-crop";
+  crop.src = run.header?.powerPreview?.[side] || "";
+  crop.alt = `Zone puissance ${side === "left" ? "gauche" : "droite"} analysée`;
+
+  const evidenceText = document.createElement("div");
+  evidenceText.className = "power-evidence-text";
+
+  const evidenceTitle = document.createElement("strong");
+  evidenceTitle.textContent = "Zone puissance";
+
+  const evidenceNote = document.createElement("span");
+  evidenceNote.textContent = "Ce fragment servira à la lecture automatique du nombre.";
+
+  evidenceText.append(evidenceTitle, evidenceNote);
+  evidence.append(crop, evidenceText);
+
   const label = document.createElement("label");
   label.className = "power-field";
 
@@ -556,7 +659,8 @@ function renderPowerField(run, side, section) {
   });
 
   label.append(text, powerInput);
-  return label;
+  wrap.append(evidence, label);
+  return wrap;
 }
 
 function renderTeam(run, side, section) {
@@ -595,6 +699,51 @@ function renderDirection(run, section) {
   const title = document.createElement("h3");
   title.textContent = "Sens du combat";
 
+  const detected = document.createElement("div");
+  detected.className = "direction-detection";
+
+  const detectedText = document.createElement("div");
+  detectedText.className = "direction-detection-text";
+
+  const detectedTitle = document.createElement("strong");
+  if (run.header?.attackSide === "left") {
+    detectedTitle.textContent = "Attaquant détecté : gauche";
+  } else if (run.header?.attackSide === "right") {
+    detectedTitle.textContent = "Attaquant détecté : droite";
+  } else {
+    detectedTitle.textContent = "Attaquant non déterminé automatiquement";
+  }
+
+  const detectedNote = document.createElement("span");
+  detectedNote.textContent = "Détection locale basée sur le marqueur vert de points en haut, jamais sur le fond bleu/rouge.";
+
+  detectedText.append(detectedTitle, detectedNote);
+
+  const evidence = document.createElement("div");
+  evidence.className = "attack-evidence";
+
+  for (const side of ["left", "right"]) {
+    const item = document.createElement("div");
+    item.className = "attack-evidence-item";
+    if (run.header?.attackSide === side) item.classList.add("is-detected");
+
+    const label = document.createElement("span");
+    label.textContent = side === "left" ? "Haut gauche" : "Haut droite";
+
+    const image = document.createElement("img");
+    image.src = run.header?.attackPreview?.[side] || "";
+    image.alt = `Zone marqueur d’attaque ${side === "left" ? "gauche" : "droite"}`;
+
+    const score = document.createElement("small");
+    const ratio = Number(run.header?.greenRatio?.[side] || 0) * 100;
+    score.textContent = `signal vert ${ratio.toFixed(1)} %`;
+
+    item.append(label, image, score);
+    evidence.append(item);
+  }
+
+  detected.append(detectedText, evidence);
+
   const options = document.createElement("div");
   options.className = "direction-options";
 
@@ -618,6 +767,7 @@ function renderDirection(run, section) {
 
     radio.addEventListener("change", () => {
       run.direction = choice.value;
+      run.directionCorrected = true;
       renderAll();
     });
 
@@ -625,7 +775,7 @@ function renderDirection(run, section) {
     options.append(label);
   }
 
-  panel.append(title, options);
+  panel.append(title, detected, options);
   return panel;
 }
 
@@ -927,6 +1077,7 @@ async function analyzeFile(file, index, count) {
 
   try {
     const alignment = detectHorizontalContentBounds(decoded.image);
+    const header = analyzeHeader(decoded.image, alignment);
     const slots = slotsForBounds(alignment, decoded.width);
     const rows = [];
 
@@ -975,8 +1126,10 @@ async function analyzeFile(file, index, count) {
       height: decoded.height,
       sourceUrl,
       alignment,
+      header,
       rows,
-      direction: "",
+      direction: header.attackSide ? `${header.attackSide}-attack` : "",
+      directionCorrected: false,
       leftPower: "",
       rightPower: "",
       portraitsConfirmed: false,
@@ -1019,8 +1172,10 @@ async function analyzeSelected() {
           height: 0,
           sourceUrl: URL.createObjectURL(file),
           alignment: null,
+          header: null,
           rows: [],
           direction: "",
+          directionCorrected: false,
           leftPower: "",
           rightPower: "",
           portraitsConfirmed: false,
