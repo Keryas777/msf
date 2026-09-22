@@ -16,7 +16,7 @@ function sha256(path) {
 }
 
 test("field corpus keeps the validated 6-capture / 58-portrait baseline", () => {
-  assert.equal(manifest.schemaVersion, "1.0.0");
+  assert.equal(manifest.schemaVersion, "1.1.0");
   assert.equal(manifest.engine.openCvVersion, "4.10.0");
   assert.equal(manifest.engine.referenceCount, 379);
   assert.equal(manifest.engine.descriptorCount, 78253);
@@ -50,6 +50,24 @@ test("field corpus keeps the validated 6-capture / 58-portrait baseline", () => 
     top1: 58,
     top1Rate: 1
   });
+});
+
+test("field corpus records header truth for both powers and attack side", () => {
+  const expected = {
+    "field-01": { attackSide: "left", defenseSide: "right", leftPower: 12211263, rightPower: 24512561 },
+    "field-02": { attackSide: "left", defenseSide: "right", leftPower: 5876484, rightPower: 14376435 },
+    "field-03": { attackSide: "right", defenseSide: "left", leftPower: 18040836, rightPower: 13717462 },
+    "field-04": { attackSide: "right", defenseSide: "left", leftPower: 19689525, rightPower: 12609524 },
+    "field-05": { attackSide: "right", defenseSide: "left", leftPower: 17035873, rightPower: 18098243 },
+    "field-06": { attackSide: "right", defenseSide: "left", leftPower: 12740909, rightPower: 8277574 }
+  };
+
+  for (const capture of manifest.captures) {
+    assert.deepEqual(capture.combat, expected[capture.id], capture.id);
+    assert.ok(Number.isInteger(capture.combat.leftPower) && capture.combat.leftPower > 0);
+    assert.ok(Number.isInteger(capture.combat.rightPower) && capture.combat.rightPower > 0);
+    assert.notEqual(capture.combat.attackSide, capture.combat.defenseSide);
+  }
 });
 
 test("field corpus images match their recorded SHA-256", () => {
