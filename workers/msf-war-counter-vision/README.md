@@ -2,17 +2,11 @@
 
 Worker Cloudflare dédié au laboratoire visuel **MSF War Counter Vision**. Il ne partage aucun code avec le système de débrief de guerre.
 
-## Routes
+## Route
 
 `POST /api/war-counter-vision/analyze`
 
-Route historique de reconnaissance Vision des portraits.
-
-`POST /api/war-counter-vision/read-power`
-
-Reçoit deux crops d'en-tête (`leftImage` et `rightImage`) et lit uniquement les deux puissances d'équipe. Un seul appel Vision est effectué pour les deux images. La réponse normalisée contient `leftPower` et `rightPower`, ou `null` pour un côté illisible.
-
-Le Worker valide le multipart et les contrats de réponse. Les secrets Groq restent exclusivement côté Cloudflare.
+Le Worker valide le multipart, le layout, la stratégie et le contrat de réponse. Tant que le verrou R2 est actif, aucun appel Groq réel n'est autorisé.
 
 ## Configuration Worker
 
