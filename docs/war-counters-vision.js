@@ -330,16 +330,16 @@ function refreshMatch() {
 
   if (currentMatches.length === 1) {
     const match = currentMatches[0];
-    if (matchNode) matchNode.textContent = \`Variante exacte trouvée : \${match.family} — \${match.variant}\`;
+    if (matchNode) matchNode.textContent = `Variante exacte trouvée : ${match.family} — ${match.variant}`;
     if (applyButton) applyButton.disabled = false;
     return;
   }
 
-  if (matchNode) matchNode.textContent = \`\${currentMatches.length} variantes exactes utilisent cette composition. Choisis celle à appliquer.\`;
+  if (matchNode) matchNode.textContent = `${currentMatches.length} variantes exactes utilisent cette composition. Choisis celle à appliquer.`;
   currentMatches.forEach((match, index) => {
     const option = document.createElement("option");
     option.value = String(index);
-    option.textContent = \`\${match.family} — \${match.variant}\`;
+    option.textContent = `${match.family} — ${match.variant}`;
     matchSelect?.append(option);
   });
   if (applyButton) applyButton.disabled = false;
@@ -378,7 +378,7 @@ function renderRecognizedSlots() {
 
     const select = document.createElement("select");
     select.className = "select warVisionCandidate";
-    select.setAttribute("aria-label", \`Personnage reconnu \${row.label}\`);
+    select.setAttribute("aria-label", `Personnage reconnu ${row.label}`);
 
     const absent = document.createElement("option");
     absent.value = "";
@@ -388,7 +388,7 @@ function renderRecognizedSlots() {
     row.candidates.forEach((candidate, index) => {
       const option = document.createElement("option");
       option.value = candidate.id;
-      option.textContent = \`\${index + 1}. \${characterLabel(candidate.id)}\`;
+      option.textContent = `${index + 1}. ${characterLabel(candidate.id)}`;
       select.append(option);
     });
 
@@ -437,7 +437,7 @@ async function analyzeCapture(file) {
 
     for (let index = 0; index < rightSlots.length; index += 1) {
       const slot = rightSlots[index];
-      setStatus(\`Analyse locale \${index + 1}/5 — \${slot.label}…\`, "busy");
+      setStatus(`Analyse locale ${index + 1}/5 — ${slot.label}…`, "busy");
       const crop = cropBase(image, slot);
       const context = crop.getContext("2d", { willReadFrequently: true });
       const imageData = context.getImageData(0, 0, crop.width, crop.height);
@@ -458,7 +458,7 @@ async function analyzeCapture(file) {
 
     renderRecognizedSlots();
     const alignmentText = alignment.used ? " · cadrage horizontal recalé" : "";
-    setStatus(\`\${initMetrics.referenceCount} références · défense droite reconnue localement\${alignmentText}. Vérifie les 5 cases avant d’appliquer.\`, "ok");
+    setStatus(`${initMetrics.referenceCount} références · défense droite reconnue localement${alignmentText}. Vérifie les 5 cases avant d’appliquer.`, "ok");
   } finally {
     image.close?.();
     if (pickButton) pickButton.disabled = false;
@@ -476,7 +476,7 @@ function applyRecognizedDefense() {
   variantSelect.value = match.variant;
   variantSelect.dispatchEvent(new Event("change", { bubbles: true }));
 
-  setStatus(\`Défense appliquée : \${match.variant}.\`, "ok");
+  setStatus(`Défense appliquée : ${match.variant}.`, "ok");
   document.querySelector("#defTitle")?.closest(".card")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
