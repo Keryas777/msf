@@ -15,6 +15,12 @@ import {
   mapPanelRegion
 } from "./war-counter-header-vision.js";
 import { readPowerFromImageData } from "./war-counter-power-reader.js";
+import {
+  buildTeamLabels,
+  ceilRatioToHundredth,
+  findMatchingCounters,
+  summarizeCounterComparison
+} from "./war-counter-matchup-preview.js";
 
 const WORKER_URL = new URL("./war-counter-akaze-worker.js?v=r5-akaze-worker-2", import.meta.url);
 const REALIGNED_RIGHT_TEAM_X_SHIFT = 0.125;
@@ -42,6 +48,8 @@ const markAbsentButton = $("#markAbsentButton");
 let catalog = [];
 let catalogById = new Map();
 let catalogIndex = null;
+let teamDefinitions = [];
+let warCounters = [];
 let worker = null;
 let requestId = 0;
 let analyzing = false;
@@ -367,15 +375,30 @@ function analyzeHeader(image, alignment) {
 
 
 async function loadCatalog() {
-  if (catalogIndex) return;
+  if (catalogIndex && teamDefinitions.length && warCounters.length) return;
 
-  const response = await fetch("data/msf-characters.json", { cache: "no-store" });
-  if (!response.ok) throw new Error("Catalogue personnages indisponible.");
+  const [charactersResponse, teamsResponse, countersResponse] = await Promise.all([
+    fetch("data/msf-characters.json", { cache: "no-store" }),
+    fetch("data/teams.json", { cache: "no-store" }),
+    fetch("data/war-counters.json", { cache: "no-store" })
+  ]);
 
-  const raw = await response.json();
-  catalog = raw
+  if (!charactersResponse.ok) throw new Error("Catalogue personnages indisponible.");
+  if (!teamsResponse.ok) throw new Error("Catalogue équipes indisponible.");
+  if (!countersResponse.ok) throw new Error("Base War Counters indisponible.");
+
+  const [rawCharacters, rawTeams, rawCounters] = await Promise.all([
+    charactersResponse.json(),
+    teamsResponse.json(),
+    countersResponse.json()
+  ]);
+
+  catalog = rawCharacters
     .filter((item) => item?.player_Character === true && item?.id && item?.nameKey)
     .sort((a, b) => String(a.nameKey).localeCompare(String(b.nameKey), "fr"));
+
+  teamDefinitions = Array.isArray(rawTeams) ? rawTeams : [];
+  warCounters = Array.isArray(rawCounters) ? rawCounters : [];
 
   catalogIndex = normalizeCatalog(catalog);
   catalogById = catalogIndex.byId;
@@ -449,9 +472,27 @@ function formatPower(value) {
 function formatRatio(value) {
   if (!Number.isFinite(value)) return "—";
   return new Intl.NumberFormat("fr-FR", {
-    minimumFractionDigits: 3,
-    maximumFractionDigits: 3
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   }).format(value);
+}
+
+function buildMatchupPreview(run) {
+  const state = attackDefenseState(run);
+  if (!state || !state.ratio) return null;
+
+  const attackTeam = buildTeamLabels(state.attackIds, teamDefinitions, characterName);
+  const defenseTeam = buildTeamLabels(state.defenseIds, teamDefinitions, characterName);
+  const matches = findMatchingCounters(warCounters, state.attackIds, state.defenseIds);
+  const comparison = summarizeCounterComparison(matches, state.ratio);
+
+  return {
+    state,
+    ratio: ceilRatioToHundredth(state.ratio),
+    attackTeam,
+    defenseTeam,
+    comparison
+  };
 }
 
 function teamRows(run, side) {
@@ -830,16 +871,37 @@ function renderCounterSummary(run) {
   head.append(title, chip);
 
   const state = attackDefenseState(run);
+  const preview = runReady(run) ? buildMatchupPreview(run) : null;
   const grid = document.createElement("div");
   grid.className = "summary-grid";
 
-  const makeTeam = (labelText, ids, power) => {
+  const makeTeam = (labelText, ids, power, teamInfo) => {
     const block = document.createElement("div");
     block.className = "summary-team";
 
     const label = document.createElement("div");
     label.className = "summary-label";
     label.textContent = labelText;
+
+    if (teamInfo) {
+      const teamName = document.createElement("div");
+      teamName.className = "summary-team-name";
+
+      if (teamInfo.status === "resolved") {
+        teamName.textContent = teamInfo.variant;
+      } else if (teamInfo.status === "ambiguous") {
+        const candidates = [...new Set(teamInfo.candidates.map((item) => item.team))];
+        teamName.textContent = `Nom d’équipe à vérifier : ${candidates.join(" / ")}`;
+        teamName.classList.add("is-warning");
+      } else {
+        teamName.textContent = "Équipe non déterminée dans teams.json";
+        teamName.classList.add("is-warning");
+      }
+
+      block.append(label, teamName);
+    } else {
+      block.append(label);
+    }
 
     const names = document.createElement("div");
     names.className = "summary-characters";
@@ -849,14 +911,14 @@ function renderCounterSummary(run) {
     powerNode.className = "summary-power";
     powerNode.textContent = power ? formatPower(power) : "Puissance à renseigner";
 
-    block.append(label, names, powerNode);
+    block.append(names, powerNode);
     return block;
   };
 
   if (state) {
     grid.append(
-      makeTeam("Attaque", state.attackIds, state.attackPower),
-      makeTeam("Défense", state.defenseIds, state.defensePower)
+      makeTeam("Attaque", state.attackIds, state.attackPower, preview?.attackTeam),
+      makeTeam("Défense", state.defenseIds, state.defensePower, preview?.defenseTeam)
     );
   } else {
     grid.append(
@@ -868,19 +930,55 @@ function renderCounterSummary(run) {
   const ratioLine = document.createElement("div");
   ratioLine.className = "ratio-line";
   const ratioLabel = document.createElement("span");
-  ratioLabel.textContent = "Ratio attaque / défense";
+  ratioLabel.textContent = "Ratio retenu · arrondi supérieur";
   const ratioValue = document.createElement("span");
   ratioValue.className = "ratio-value";
-  ratioValue.textContent = state ? formatRatio(state.ratio) : "—";
+  ratioValue.textContent = preview?.ratio ? formatRatio(preview.ratio) : "—";
   ratioLine.append(ratioLabel, ratioValue);
 
-  const sheetState = document.createElement("p");
+  const sheetState = document.createElement("div");
   sheetState.className = "sheet-state";
 
-  if (runReady(run)) {
-    sheetState.textContent = "Prêt pour l’étape suivante : rechercher cette composition dans Google Sheet. L’ordre des personnages sera ignoré lors de la comparaison.";
-    panel.dataset.attackKey = state?.attackKey || "";
-    panel.dataset.defenseKey = state?.defenseKey || "";
+  if (preview) {
+    const comparison = preview.comparison;
+    const message = document.createElement("strong");
+    const detail = document.createElement("span");
+
+    if (comparison.status === "new") {
+      sheetState.classList.add("is-new");
+      message.textContent = "Nouveau matchup";
+      detail.textContent = "Aucune composition attaque/défense identique dans la base actuelle.";
+    } else if (comparison.status === "improves") {
+      sheetState.classList.add("is-improvement");
+      message.textContent = "Amélioration du contre existant";
+      detail.textContent = `Ratio actuel ${formatRatio(comparison.existingRatio)} → nouveau ratio ${formatRatio(comparison.ratio)}. Seule la valeur hard (Q) serait abaissée.`;
+    } else if (comparison.status === "same") {
+      sheetState.classList.add("is-same");
+      message.textContent = "Ratio déjà enregistré";
+      detail.textContent = `La base contient déjà ${formatRatio(comparison.existingRatio)}. Aucune modification nécessaire.`;
+    } else if (comparison.status === "worse") {
+      sheetState.classList.add("is-worse");
+      message.textContent = "Le contre existant est meilleur";
+      detail.textContent = `Ratio actuel ${formatRatio(comparison.existingRatio)} · nouveau ratio ${formatRatio(comparison.ratio)}. Aucune modification.`;
+    } else {
+      sheetState.classList.add("is-warning");
+      message.textContent = "Plusieurs valeurs différentes pour ce matchup";
+      detail.textContent = "Lecture seule : vérification manuelle requise avant toute future écriture.";
+    }
+
+    sheetState.append(message, detail);
+
+    if (comparison.matches.length > 1) {
+      const classifications = document.createElement("small");
+      const labels = comparison.matches
+        .map((item) => `${item.defFamily || item.defVariant} → ${item.atkFamily || item.atkTeam}`)
+        .filter(Boolean);
+      classifications.textContent = `${comparison.matches.length} classifications trouvées : ${[...new Set(labels)].join(" · ")}`;
+      sheetState.append(classifications);
+    }
+
+    panel.dataset.attackKey = state.attackKey || "";
+    panel.dataset.defenseKey = state.defenseKey || "";
   } else if (!run.portraitsConfirmed) {
     sheetState.textContent = "Vérifie les fragments analysés puis confirme les portraits.";
   } else if (!run.direction) {
@@ -891,16 +989,6 @@ function renderCounterSummary(run) {
 
   panel.append(head, grid, ratioLine, sheetState);
   return panel;
-}
-
-function refreshDerived(run, section) {
-  const summary = section.querySelector(".counter-summary");
-  if (summary) summary.replaceWith(renderCounterSummary(run));
-
-  const captureStatus = section.querySelector('[data-role="capture-status"]');
-  if (captureStatus) setStatusChip(captureStatus, statusForRun(run));
-
-  updateBatchSummary();
 }
 
 function renderRun(run) {
