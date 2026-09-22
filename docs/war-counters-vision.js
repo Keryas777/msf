@@ -1,6 +1,5 @@
 import {
   calculatePixelRect,
-  detectLayout,
   detectRedCross,
   getCropVariants,
   getLayoutSlots,
@@ -431,7 +430,6 @@ async function analyzeCapture(file) {
   ]);
 
   try {
-    detectLayout(image.width, image.height);
     const alignment = detectHorizontalContentBounds(image);
     const rightSlots = slotsForBounds(alignment, image.width).filter((slot) => slot.side === "right");
 
