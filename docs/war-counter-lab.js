@@ -667,8 +667,14 @@ function renderPowerField(run, side, section) {
   evidenceTitle.textContent = "Zone puissance";
 
   const evidenceNote = document.createElement("span");
-  if (run.powerRead?.status === "ok") {
+  const detectedPower = side === "left"
+    ? run.powerRead?.leftPower
+    : run.powerRead?.rightPower;
+
+  if (run.powerRead?.status === "ok" && detectedPower) {
     evidenceNote.textContent = "Puissance détectée automatiquement. Vérifie ce crop et corrige seulement si nécessaire.";
+  } else if (run.powerRead?.status === "ok") {
+    evidenceNote.textContent = "Nombre non lu avec assez de certitude. Vérifie ce crop et saisis la puissance manuellement.";
   } else if (run.powerRead?.status === "error") {
     evidenceNote.textContent = "Lecture automatique impossible. Vérifie ce crop et saisis la puissance manuellement.";
   } else {
