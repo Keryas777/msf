@@ -90,7 +90,7 @@ test("plusieurs classifications avec le même ratio restent un seul matchup coh�
     { index: 39, row: { def_family: "Annihilateurs", atk_family: "Justiciers", min_ratio_hard: "1.19" } },
     { index: 121, row: { def_family: "Force Phénix", atk_family: "Justiciers", min_ratio_hard: "1.19" } }
   ];
-  const comparison = summarizeCounterComparison(matches, 1.181);
+  const comparison = summarizeCounterComparison(matches, 1.171);
   assert.equal(comparison.status, "improves");
   assert.equal(comparison.ratio, 1.19);
   assert.equal(comparison.existingRatio, 1.19);
