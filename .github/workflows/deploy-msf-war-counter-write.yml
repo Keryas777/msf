@@ -1,0 +1,51 @@
+name: Deploy MSF War Counter Write Worker
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "workers/msf-war-counter-write/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-msf-war-counter-write
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Test write decisions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run Worker tests
+        run: node --test workers/msf-war-counter-write/test/worker.test.mjs
+
+  deploy:
+    name: Deploy dedicated Cloudflare Worker
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Deploy Worker with Wrangler
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: workers/msf-war-counter-write
+          wranglerVersion: "4"
+          command: deploy
