@@ -1,0 +1,123 @@
+.sheet-write-button{
+  width:100%;
+  margin-top:8px;
+}
+.sheet-write-button.is-written{
+  background:#1d744c;
+}
+.write-dialog{
+  width:min(94vw,720px);
+  max-height:90vh;
+  border:1px solid #40517d;
+  border-radius:18px;
+  background:#0b1428;
+  color:#fff;
+  padding:0;
+}
+.write-dialog::backdrop{background:#000b}
+.write-dialog-shell{
+  padding:16px;
+}
+.write-dialog-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.write-dialog-head h2{
+  margin:.15rem 0 0;
+}
+.write-dialog-summary{
+  display:grid;
+  gap:5px;
+  margin-top:14px;
+  padding:12px;
+  border:1px solid #2d3f64;
+  border-radius:13px;
+  background:#111c34;
+}
+.write-dialog-summary strong{
+  font-size:1rem;
+}
+.write-dialog-summary span{
+  color:#d7e0f2;
+}
+.write-dialog-summary small{
+  color:#9eabc5;
+  line-height:1.4;
+}
+.write-metadata-fields{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  margin-top:14px;
+}
+.write-metadata-fields[hidden]{display:none}
+.write-metadata-fields label{
+  display:grid;
+  gap:5px;
+  color:#b9c6e0;
+  font-size:.82rem;
+  font-weight:750;
+}
+.write-metadata-fields input,
+.write-metadata-fields textarea{
+  width:100%;
+  border:1px solid #40517d;
+  border-radius:11px;
+  padding:10px 11px;
+  background:#07101f;
+  color:#fff;
+  outline:none;
+  font:inherit;
+}
+.write-metadata-fields input{
+  min-height:44px;
+}
+.write-metadata-fields textarea{
+  resize:vertical;
+  min-height:78px;
+}
+.write-metadata-fields input:focus,
+.write-metadata-fields textarea:focus{
+  border-color:#6e9bff;
+  box-shadow:0 0 0 2px #2879ff33;
+}
+.write-warning{
+  margin:0;
+  padding:10px;
+  border:1px solid #8a6a39;
+  border-radius:11px;
+  background:#2a2113;
+  color:#ffd993;
+  font-size:.78rem;
+  line-height:1.4;
+}
+.write-dialog-status{
+  min-height:1.4em;
+  margin:14px 0 0;
+  color:#aebbd5;
+  line-height:1.4;
+}
+.write-dialog-status.is-success{color:#9ee6bd}
+.write-dialog-status.is-error{color:#ffb2c1}
+.write-dialog-actions{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:12px;
+}
+.write-dialog-actions .primary-button{
+  width:100%;
+}
+@media(min-width:680px){
+  .write-metadata-fields{
+    grid-template-columns:1fr 1fr;
+  }
+  .write-warning,
+  .write-notes{
+    grid-column:1/-1;
+  }
+  .write-dialog-actions .primary-button{
+    width:auto;
+  }
+}
