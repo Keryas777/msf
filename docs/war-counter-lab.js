@@ -51,22 +51,30 @@ function isOutlinePixel(red, green, blue) {
   return cyan || redOutline;
 }
 
+function imageDimensions(image) {
+  return {
+    width: image.naturalWidth || image.width,
+    height: image.naturalHeight || image.height
+  };
+}
+
 function detectHorizontalContentBounds(image) {
+  const { width, height } = imageDimensions(image);
   const canvas = document.createElement("canvas");
-  canvas.width = image.width;
-  canvas.height = image.height;
+  canvas.width = width;
+  canvas.height = height;
   const context = canvas.getContext("2d", { willReadFrequently: true });
   context.drawImage(image, 0, 0);
 
-  const yStart = Math.max(0, Math.floor(image.height * 0.47));
-  const yEnd = Math.min(image.height, Math.ceil(image.height * 0.93));
+  const yStart = Math.max(0, Math.floor(height * 0.47));
+  const yEnd = Math.min(height, Math.ceil(height * 0.93));
   const scanHeight = Math.max(1, yEnd - yStart);
-  const imageData = context.getImageData(0, yStart, image.width, scanHeight);
-  const counts = new Uint16Array(image.width);
-  const redCounts = new Uint16Array(image.width);
+  const imageData = context.getImageData(0, yStart, width, scanHeight);
+  const counts = new Uint16Array(width);
+  const redCounts = new Uint16Array(width);
 
   for (let y = 0; y < scanHeight; y += 1) {
-    for (let x = 0; x < image.width; x += 1) {
+    for (let x = 0; x < width; x += 1) {
       const offset = (y * image.width + x) * 4;
       const red = imageData.data[offset];
       const green = imageData.data[offset + 1];
@@ -85,7 +93,7 @@ function detectHorizontalContentBounds(image) {
   }
 
   if (strongColumns.length < 2) {
-    return { used: false, left: 0, right: image.width, scale: 1, reason: "contours insuffisants" };
+    return { used: false, left: 0, right: width, scale: 1, reason: "contours insuffisants" };
   }
 
   const groups = [];
@@ -115,20 +123,20 @@ function detectHorizontalContentBounds(image) {
       tailRedPeak = Math.max(tailRedPeak, redCounts[x]);
     }
     const isRightPanelBorder =
-      tail.end >= image.width * 0.97 &&
+      tail.end >= width * 0.97 &&
       tailPeak >= scanHeight * 0.55 &&
       tailRedPeak >= tailPeak * 0.80;
 
-    if (gap > image.width * 0.035 && tailWidth < image.width * 0.02 && !isRightPanelBorder) groups.pop();
+    if (gap > width * 0.035 && tailWidth < width * 0.02 && !isRightPanelBorder) groups.pop();
     else break;
   }
 
   const left = groups[0].start;
   const right = groups[groups.length - 1].end;
   const contentWidth = right - left + 1;
-  const widthRatio = contentWidth / image.width;
-  const leftRatio = left / image.width;
-  const rightMarginRatio = (image.width - 1 - right) / image.width;
+  const widthRatio = contentWidth / width;
+  const leftRatio = left / width;
+  const rightMarginRatio = (width - 1 - right) / width;
 
   const plausible =
     widthRatio >= 0.72 &&
@@ -137,7 +145,7 @@ function detectHorizontalContentBounds(image) {
     rightMarginRatio <= 0.22;
 
   if (!plausible) {
-    return { used: false, left: 0, right: image.width, scale: 1, reason: "contours non plausibles" };
+    return { used: false, left: 0, right: width, scale: 1, reason: "contours non plausibles" };
   }
 
   const needsRealignment =
@@ -148,7 +156,7 @@ function detectHorizontalContentBounds(image) {
     return {
       used: false,
       left: 0,
-      right: image.width,
+      right: width,
       scale: 1,
       detectedLeft: left,
       detectedRight: right,
@@ -232,7 +240,8 @@ async function decodeImage(file) {
 
 function cropBase(image, slot) {
   const variant = getCropVariants(slot).wide;
-  const rect = calculatePixelRect(variant, image.width, image.height);
+  const { width, height } = imageDimensions(image);
+  const rect = calculatePixelRect(variant, width, height);
   const canvas = document.createElement("canvas");
   canvas.width = Math.max(1, rect.width);
   canvas.height = Math.max(1, rect.height);
