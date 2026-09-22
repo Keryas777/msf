@@ -1,6 +1,15 @@
 name: Deploy MSF War Counter Write Worker
 
 on:
+  pull_request:
+    paths:
+      - "workers/msf-war-counter-write/**"
+      - "docs/war-counter-write-*.js"
+      - "docs/war-counter-write.css"
+      - "docs/war-counter-lab-entry.js"
+      - "docs/war-counter-lab.html"
+      - "tests/war-counter-write-*.test.mjs"
+      - ".github/workflows/deploy-msf-war-counter-write.yml"
   push:
     branches:
       - main
@@ -12,7 +21,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-msf-war-counter-write
+  group: deploy-msf-war-counter-write-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -28,11 +37,14 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Run Worker tests
-        run: node --test workers/msf-war-counter-write/test/worker.test.mjs
+      - name: Run Worker and proposal tests
+        run: |
+          node --test workers/msf-war-counter-write/test/worker.test.mjs
+          node --test tests/war-counter-write-proposal.test.mjs
 
   deploy:
     name: Deploy dedicated Cloudflare Worker
+    if: github.event_name != 'pull_request'
     needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 10
