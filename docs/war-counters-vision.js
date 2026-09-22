@@ -81,7 +81,7 @@ async function loadData() {
 
 function ensureWorker() {
   if (worker) return worker;
-  worker = new Worker(WORKER_URL);
+  worker = new Worker(WORKER_URL.href);
   worker.addEventListener("message", (event) => {
     const { id, ok, result, error } = event.data || {};
     const entry = pending.get(id);
@@ -299,7 +299,10 @@ async function decodeImage(file) {
   image.decoding = "async";
   await new Promise((resolve, reject) => {
     image.onload = resolve;
-    image.onerror = () => reject(new Error("Impossible de lire cette capture."));
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Impossible de lire cette capture."));
+    };
     image.src = url;
   });
   return {
@@ -463,19 +466,50 @@ async function analyzeCapture(file) {
   }
 }
 
-function applyRecognizedDefense() {
+function hasSelectOption(select, value) {
+  return [...(select?.options || [])].some((option) => option.value === value);
+}
+
+async function waitForSelectOption(select, value, timeoutMs = 8000) {
+  const started = performance.now();
+  while (!hasSelectOption(select, value)) {
+    if (performance.now() - started >= timeoutMs) return false;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  return true;
+}
+
+async function applyRecognizedDefense() {
   if (!currentMatches.length || !familySelect || !variantSelect) return;
   const requestedIndex = Number(matchSelect?.value || 0);
   const match = currentMatches[Math.max(0, Math.min(currentMatches.length - 1, requestedIndex))];
   if (!match) return;
 
-  familySelect.value = match.family;
-  familySelect.dispatchEvent(new Event("change", { bubbles: true }));
-  variantSelect.value = match.variant;
-  variantSelect.dispatchEvent(new Event("change", { bubbles: true }));
+  if (applyButton) applyButton.disabled = true;
+  setStatus("Application dans War Counters…", "busy");
 
-  setStatus(`Défense appliquée : ${match.variant}.`, "ok");
-  document.querySelector("#defTitle")?.closest(".card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  try {
+    if (!(await waitForSelectOption(familySelect, match.family))) {
+      throw new Error("War Counters n’a pas fini de charger les défenses.");
+    }
+
+    familySelect.value = match.family;
+    familySelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+    if (!(await waitForSelectOption(variantSelect, match.variant, 2000))) {
+      throw new Error("La variante reconnue n’est plus disponible dans War Counters.");
+    }
+
+    variantSelect.value = match.variant;
+    variantSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+    setStatus(`Défense appliquée : ${match.variant}.`, "ok");
+    document.querySelector("#defTitle")?.closest(".card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (error) {
+    setStatus(error?.message || "Impossible d’appliquer la défense reconnue.", "error");
+  } finally {
+    if (applyButton) applyButton.disabled = currentMatches.length === 0;
+  }
 }
 
 pickButton?.addEventListener("click", () => input?.click());
