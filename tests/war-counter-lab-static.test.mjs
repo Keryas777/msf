@@ -45,6 +45,16 @@ test("les puissances sont reconnues localement sans appel réseau", () => {
   assert.doesNotMatch(js, /read-power|workers\.dev|GROQ_API_KEY|api\.groq\.com/);
 });
 
+test("prévisualisation matchup charge teams et war-counters en lecture seule", () => {
+  assert.match(js, /war-counter-matchup-preview\.js/);
+  assert.match(js, /fetch\("data\/teams\.json"/);
+  assert.match(js, /fetch\("data\/war-counters\.json"/);
+  assert.match(js, /buildTeamLabels\(/);
+  assert.match(js, /findMatchingCounters\(/);
+  assert.match(js, /summarizeCounterComparison\(/);
+  assert.doesNotMatch(js, /spreadsheets\.values\.update|appendCells|batchUpdate|Google Sheet.*POST/);
+});
+
 test("aucun lien de production ajouté", () => {
   const index = fs.readFileSync(
     new URL("../docs/index.html", import.meta.url),
