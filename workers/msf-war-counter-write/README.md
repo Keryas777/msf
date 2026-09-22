@@ -6,17 +6,14 @@ Worker Cloudflare dédié à l'écriture **confirmée** des résultats War Count
 
 Le navigateur n'embarque aucun secret Google.
 
-Chaque écriture :
+Chaque écriture exige **deux contrôles** :
 
-1. exige le token de session LoSP dans `Authorization: Bearer ...` ;
-2. vérifie la session auprès de `https://losp-auth.deliriousfan7.workers.dev/me` ;
-3. exige `role: "admin"` ;
-4. relit le Sheet directement côté Worker ;
-5. recalcule le ratio depuis les puissances ;
-6. recompare les compositions avec les IDs personnages, ordre ignoré ;
-7. n'écrit que si la décision est encore valide au moment du POST.
+1. une session LoSP avec rôle `admin`, revérifiée auprès de `https://losp-auth.deliriousfan7.workers.dev/me` ;
+2. une clé d'écriture indépendante stockée uniquement comme secret Cloudflare (`WRITE_ADMIN_SECRET`).
 
-Le client ne peut donc pas forcer un meilleur ratio en envoyant une valeur de ratio arbitraire.
+La clé d'écriture est saisie dans le dialogue de confirmation et conservée uniquement dans `sessionStorage`, donc jusqu'à la fermeture de l'onglet. Elle n'est jamais versionnée dans GitHub.
+
+Le Worker relit ensuite le Sheet directement, recalcule le ratio depuis les puissances et recompare les compositions avec les IDs personnages. Le client ne peut donc ni forcer un meilleur ratio ni imposer l'existence/absence d'un matchup.
 
 ## Règles d'écriture
 
@@ -27,7 +24,7 @@ Le client ne peut donc pas forcer un meilleur ratio en envoyant une valeur de ra
 - Ratio identique ou moins bon : aucune écriture.
 - Match absent : ajout d'une ligne A:V avec les métadonnées confirmées dans l'UI et les formules R:U.
 
-## Configuration Google
+## Configuration Google et clé admin
 
 Le Worker utilise un compte de service Google. Il faut une seule fois :
 
@@ -39,6 +36,13 @@ Le Worker utilise un compte de service Google. Il faut une seule fois :
 6. ajouter au Worker Cloudflare les secrets :
    - `GOOGLE_SERVICE_ACCOUNT_EMAIL`
    - `GOOGLE_PRIVATE_KEY`
+   - `WRITE_ADMIN_SECRET`
+
+`WRITE_ADMIN_SECRET` doit être une valeur aléatoire longue, par exemple générée avec :
+
+```bash
+openssl rand -hex 32
+```
 
 La valeur `GOOGLE_PRIVATE_KEY` est la propriété `private_key` du JSON Google, avec son bloc `BEGIN PRIVATE KEY` complet. Le Worker accepte aussi une valeur où les retours ligne sont stockés sous forme `\n`.
 
@@ -47,6 +51,7 @@ Exemple depuis `workers/msf-war-counter-write/` :
 ```bash
 npx wrangler secret put GOOGLE_SERVICE_ACCOUNT_EMAIL
 npx wrangler secret put GOOGLE_PRIVATE_KEY
+npx wrangler secret put WRITE_ADMIN_SECRET
 ```
 
 ## Rafraîchissement du JSON
@@ -57,9 +62,9 @@ Après une écriture réussie, le Worker déclenche alors `update-war-counters.y
 
 ## Routes
 
-- `GET /health` : état de configuration, aucun secret exposé.
+- `GET /health` : indique si Google, la clé admin et le dispatch GitHub sont configurés, sans exposer leurs valeurs.
 - `POST /api/war-counter-write/apply` : écriture sécurisée.
 
 ## Déploiement
 
-Le workflow `.github/workflows/deploy-msf-war-counter-write.yml` déploie automatiquement le Worker quand ce dossier change sur `main`.
+Le workflow `.github/workflows/deploy-msf-war-counter-write.yml` teste le Worker sur les PR puis le déploie automatiquement quand son dossier change sur `main`.
