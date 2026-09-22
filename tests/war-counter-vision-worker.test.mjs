@@ -2,8 +2,6 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import worker, {
   buildGroqPayload,
-  buildPowerPayload,
-  buildPowerPrompt,
   buildVisionPrompt,
   callGroqVision,
   parseJsonContent,
@@ -13,10 +11,7 @@ import worker, {
   resolveVisionResult,
   getVisionModel,
   isMockMode,
-  normalizePowerValue,
-  validatePowerResult,
   ROUTE,
-  POWER_ROUTE,
   GROQ_ENDPOINT,
   STRATEGIES
 } from "../workers/msf-war-counter-vision/worker.js";
@@ -52,42 +47,6 @@ test("payload Vision utilise la planche de portraits", () => {
   assert.doesNotMatch(payload.messages[0].content[0].text, /AgentVenom/);
 });
 
-test("payload puissance lit uniquement les deux nombres jaunes", () => {
-  const prompt = buildPowerPrompt();
-  assert.match(prompt, /nombre jaune/);
-  assert.match(prompt, /Ignore totalement le pseudo/);
-  assert.match(prompt, /score de guerre/);
-  const payload = buildPowerPayload({
-    env: { GROQ_VISION_MODEL: "custom/vision" },
-    leftImageDataUrl: "data:image/jpeg;base64,AA==",
-    rightImageDataUrl: "data:image/jpeg;base64,AQ=="
-  });
-  assert.equal(payload.model, "custom/vision");
-  assert.equal(payload.temperature, 0);
-  assert.equal(payload.max_completion_tokens, 180);
-  assert.equal(payload.messages[0].content.filter((item) => item.type === "image_url").length, 2);
-});
-
-test("normalisation et validation des puissances restent strictes", () => {
-  assert.equal(normalizePowerValue("14 376 435"), "14376435");
-  assert.equal(normalizePowerValue("5.876.484"), "5876484");
-  assert.equal(normalizePowerValue(18040836), "18040836");
-  assert.equal(normalizePowerValue(null), null);
-  assert.throws(() => normalizePowerValue("12M"), /Puissance invalide/);
-  assert.deepEqual(
-    validatePowerResult({
-      schemaVersion: "1.0.0",
-      leftPower: "5 876 484",
-      rightPower: "14376435"
-    }),
-    {
-      schemaVersion: "1.0.0",
-      leftPower: "5876484",
-      rightPower: "14376435"
-    }
-  );
-});
-
 test("parse le JSON brut, entouré de markdown ou de texte", () => {
   const json = JSON.stringify(rawResult);
   assert.deepEqual(parseJsonContent(json), rawResult);
@@ -119,17 +78,6 @@ test("nom inconnu conservé comme non résolu", () => {
 test("JSON invalide simulé", async () => {
   await assert.rejects(() => callGroqVision({ env: { GROQ_API_KEY: "x" }, payload: {}, fetchImpl: async () => Response.json({ choices: [{ message: { content: "pas de json" } }] }) }), /JSON Groq invalide/);
 });
-
-function powerFormRequest() {
-  const form = new FormData();
-  form.set("leftImage", new File(["left"], "left.jpg", { type: "image/jpeg" }));
-  form.set("rightImage", new File(["right"], "right.jpg", { type: "image/jpeg" }));
-  return new Request(`https://x${POWER_ROUTE}`, {
-    method: "POST",
-    headers: { Origin: "https://keryas777.github.io" },
-    body: form
-  });
-}
 
 function formRequest({ confirmed = true, strategy = "grouped_wide_crops" } = {}) {
   const form = new FormData();
@@ -176,53 +124,6 @@ test("R3 effectue exactement un appel simulé sur la planche", async () => {
   } finally {
     globalThis.fetch = originalFetch;
   }
-});
-
-test("route puissance effectue un seul appel Groq et renvoie les deux valeurs", async () => {
-  const originalFetch = globalThis.fetch;
-  let calls = 0;
-  globalThis.fetch = async () => {
-    calls += 1;
-    return Response.json({
-      choices: [{
-        message: {
-          content: JSON.stringify({
-            schemaVersion: "1.0.0",
-            leftPower: "5 876 484",
-            rightPower: "14376435"
-          })
-        }
-      }],
-      usage: { total_tokens: 24 }
-    });
-  };
-
-  try {
-    const response = await worker.fetch(powerFormRequest(), {
-      R1_MOCK_ONLY: "false",
-      GROQ_API_KEY: "secret"
-    });
-    const body = await response.json();
-    assert.equal(response.status, 200);
-    assert.equal(body.result.leftPower, "5876484");
-    assert.equal(body.result.rightPower, "14376435");
-    assert.equal(body.result.groqRealCalls, 1);
-    assert.equal(calls, 1);
-  } finally {
-    globalThis.fetch = originalFetch;
-  }
-});
-
-test("route puissance refuse un crop manquant", async () => {
-  const form = new FormData();
-  form.set("leftImage", new File(["left"], "left.jpg", { type: "image/jpeg" }));
-  const request = new Request(`https://x${POWER_ROUTE}`, {
-    method: "POST",
-    headers: { Origin: "https://keryas777.github.io" },
-    body: form
-  });
-  const response = await worker.fetch(request, { R1_MOCK_ONLY: "false" });
-  assert.equal(response.status, 400);
 });
 
 test("endpoint dédié", () => assert.match(GROQ_ENDPOINT, /api\.groq\.com/));
