@@ -193,6 +193,7 @@ input[type=file]{
   display:grid;
   gap:14px;
   margin-top:16px;
+  min-width:0;
 }
 .team-panel,
 .counter-summary{
@@ -201,6 +202,7 @@ input[type=file]{
   border-radius:16px;
   padding:13px;
 }
+.team-panel{min-width:0}
 .team-head{
   align-items:center;
   margin-bottom:10px;
@@ -211,9 +213,14 @@ input[type=file]{
   font-size:.82rem;
 }
 .team-slots-scroll{
+  width:100%;
+  max-width:100%;
+  min-width:0;
   overflow-x:auto;
-  overscroll-behavior-inline:contain;
-  padding-bottom:4px;
+  overflow-y:hidden;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:6px;
 }
 .team-slots{
   display:grid;
@@ -241,8 +248,8 @@ input[type=file]{
 .slot-crop{
   display:block;
   width:100%;
-  aspect-ratio:1/1;
-  object-fit:cover;
+  height:auto;
+  object-fit:contain;
   border-radius:10px;
   background:#020611;
   border:1px solid #263858;
@@ -426,7 +433,7 @@ input[type=file]{
   width:86px;
   height:86px;
   flex:0 0 86px;
-  object-fit:cover;
+  object-fit:contain;
   border-radius:12px;
   background:#020611;
 }
