@@ -13,6 +13,7 @@ import {
   inferAttackSide,
   mapPanelRegion
 } from "./war-counter-header-vision.js";
+import { readPowerFromImageData } from "./war-counter-power-reader.js";
 
 const WORKER_URL = new URL("./war-counter-akaze-worker.js?v=r5-akaze-worker-2", import.meta.url);
 const REALIGNED_RIGHT_TEAM_X_SHIFT = 0.125;
@@ -317,6 +318,13 @@ function analyzeHeader(image, alignment) {
   const leftAttackCrop = cropHeaderRegion(image, HEADER_REGIONS.attackMarker.left, alignment);
   const rightAttackCrop = cropHeaderRegion(image, HEADER_REGIONS.attackMarker.right, alignment);
 
+  const leftPowerData = leftPowerCrop
+    .getContext("2d", { willReadFrequently: true })
+    .getImageData(0, 0, leftPowerCrop.width, leftPowerCrop.height);
+  const rightPowerData = rightPowerCrop
+    .getContext("2d", { willReadFrequently: true })
+    .getImageData(0, 0, rightPowerCrop.width, rightPowerCrop.height);
+
   const leftAttackData = leftAttackCrop
     .getContext("2d", { willReadFrequently: true })
     .getImageData(0, 0, leftAttackCrop.width, leftAttackCrop.height);
@@ -332,6 +340,10 @@ function analyzeHeader(image, alignment) {
     powerPreview: {
       left: headerCropPreviewDataUrl(leftPowerCrop),
       right: headerCropPreviewDataUrl(rightPowerCrop)
+    },
+    powerRead: {
+      left: readPowerFromImageData(leftPowerData),
+      right: readPowerFromImageData(rightPowerData)
     },
     attackPreview: {
       left: headerCropPreviewDataUrl(leftAttackCrop),
@@ -350,21 +362,6 @@ function analyzeHeader(image, alignment) {
   }
 
   return result;
-}
-
-async function loadCatalog() {
-  if (catalogIndex) return;
-
-  const response = await fetch("data/msf-characters.json", { cache: "no-store" });
-  if (!response.ok) throw new Error("Catalogue personnages indisponible.");
-
-  const raw = await response.json();
-  catalog = raw
-    .filter((item) => item?.player_Character === true && item?.id && item?.nameKey)
-    .sort((a, b) => String(a.nameKey).localeCompare(String(b.nameKey), "fr"));
-
-  catalogIndex = normalizeCatalog(catalog);
-  catalogById = catalogIndex.byId;
 }
 
 function ensureWorker() {
@@ -627,7 +624,18 @@ function renderPowerField(run, side, section) {
   evidenceTitle.textContent = "Zone puissance";
 
   const evidenceNote = document.createElement("span");
-  evidenceNote.textContent = "Ce fragment servira à la lecture automatique du nombre.";
+  const powerRead = run.header?.powerRead?.[side];
+
+  if (powerRead?.value) {
+    const score = Number.isFinite(powerRead.minScore)
+      ? ` · score min ${powerRead.minScore.toFixed(2)}`
+      : "";
+    evidenceNote.textContent =
+      `Puissance détectée localement${score}. Vérifie ce crop et corrige seulement si nécessaire.`;
+  } else {
+    evidenceNote.textContent =
+      "Lecture locale incertaine. Vérifie ce crop et saisis la puissance manuellement.";
+  }
 
   evidenceText.append(evidenceTitle, evidenceNote);
   evidence.append(crop, evidenceText);
@@ -1130,8 +1138,8 @@ async function analyzeFile(file, index, count) {
       rows,
       direction: header.attackSide ? `${header.attackSide}-attack` : "",
       directionCorrected: false,
-      leftPower: "",
-      rightPower: "",
+      leftPower: header.powerRead.left.value || "",
+      rightPower: header.powerRead.right.value || "",
       portraitsConfirmed: false,
       totalMs: performance.now() - started,
       error: null

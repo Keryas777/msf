@@ -31,6 +31,14 @@ test("l’analyse d’en-tête reste locale dans la page", () => {
   assert.match(js, /inferAttackSide\(/);
 });
 
+test("les puissances sont reconnues localement sans appel réseau", () => {
+  assert.match(js, /war-counter-power-reader\.js/);
+  assert.match(js, /readPowerFromImageData\(/);
+  assert.match(js, /leftPower: header\.powerRead\.left\.value/);
+  assert.match(js, /rightPower: header\.powerRead\.right\.value/);
+  assert.doesNotMatch(js, /read-power|workers\.dev|GROQ_API_KEY|api\.groq\.com/);
+});
+
 test("aucun lien de production ajouté", () => {
   const index = fs.readFileSync(
     new URL("../docs/index.html", import.meta.url),
