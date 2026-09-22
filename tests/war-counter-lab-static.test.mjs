@@ -31,12 +31,12 @@ test("l’analyse d’en-tête reste locale dans la page", () => {
   assert.match(js, /inferAttackSide\(/);
 });
 
-test("les puissances sont préremplies via le Worker dédié sans secret client", () => {
-  assert.match(js, /\/api\/war-counter-vision\/read-power/);
-  assert.match(js, /requestPowerRead\(/);
-  assert.match(js, /leftPower: powerRead\.status === "ok"/);
-  assert.match(js, /rightPower: powerRead\.status === "ok"/);
-  assert.doesNotMatch(js, /GROQ_API_KEY|api\.groq\.com/);
+test("les puissances sont reconnues localement sans appel réseau", () => {
+  assert.match(js, /war-counter-power-reader\.js/);
+  assert.match(js, /readPowerFromImageData\(/);
+  assert.match(js, /leftPower: header\.powerRead\.left\.value/);
+  assert.match(js, /rightPower: header\.powerRead\.right\.value/);
+  assert.doesNotMatch(js, /read-power|workers\.dev|GROQ_API_KEY|api\.groq\.com/);
 });
 
 test("aucun lien de production ajouté", () => {
