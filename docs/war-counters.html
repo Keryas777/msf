@@ -23,7 +23,6 @@
     <title>LoSP — War Counters</title>
     <link rel="stylesheet" href="./style.css?v=3" />
     <link rel="stylesheet" href="./war-counters-overkill.css?v=7" />
-    <link rel="stylesheet" href="./war-counters-vision.css?v=1" />
   </head>
 
   <body class="page-war-counters">
@@ -79,46 +78,6 @@
         </div>
       </header>
 
-      <section class="card warVisionCard" aria-labelledby="warVisionTitle">
-        <div class="warVisionTop">
-          <div class="warVisionIntro">
-            <h2 class="cardTitle cardTitle--sm" id="warVisionTitle">📷 Reconnaître la défense</h2>
-            <p class="subtitle">
-              Capture recadrée du résultat de combat : War Counter Vision analyse uniquement la défense à droite.
-            </p>
-          </div>
-
-          <button id="warVisionPick" class="select warVisionButton" type="button">
-            Analyser une capture
-          </button>
-          <input
-            id="warVisionCaptureInput"
-            type="file"
-            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-            hidden
-          />
-        </div>
-
-        <p id="warVisionStatus" class="warVisionStatus" aria-live="polite"></p>
-
-        <div id="warVisionResults" class="warVisionResults" hidden>
-          <div id="warVisionSlots" class="warVisionSlots" aria-label="Personnages reconnus"></div>
-
-          <div class="warVisionMatchBox">
-            <p class="warVisionMatch" id="warVisionMatch"></p>
-            <select
-              id="warVisionMatchSelect"
-              class="select"
-              aria-label="Variante de défense reconnue"
-              hidden
-            ></select>
-            <button id="warVisionApply" class="select warVisionButton warVisionApply" type="button" disabled>
-              Utiliser cette défense
-            </button>
-          </div>
-        </div>
-      </section>
-
       <section class="card">
         <div class="cardHeader">
           <h2 class="cardTitle" id="defTitle">—</h2>
@@ -142,7 +101,6 @@
 
     <script src="./alliances.js?v=1"></script>
     <script src="./war-counters.js?v=16"></script>
-    <script type="module" src="./war-counters-vision.js?v=1"></script>
 
     <script>
       (() => {
