@@ -75,7 +75,7 @@ function detectHorizontalContentBounds(image) {
 
   for (let y = 0; y < scanHeight; y += 1) {
     for (let x = 0; x < width; x += 1) {
-      const offset = (y * image.width + x) * 4;
+      const offset = (y * width + x) * 4;
       const red = imageData.data[offset];
       const green = imageData.data[offset + 1];
       const blue = imageData.data[offset + 2];
