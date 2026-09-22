@@ -364,6 +364,22 @@ function analyzeHeader(image, alignment) {
   return result;
 }
 
+
+async function loadCatalog() {
+  if (catalogIndex) return;
+
+  const response = await fetch("data/msf-characters.json", { cache: "no-store" });
+  if (!response.ok) throw new Error("Catalogue personnages indisponible.");
+
+  const raw = await response.json();
+  catalog = raw
+    .filter((item) => item?.player_Character === true && item?.id && item?.nameKey)
+    .sort((a, b) => String(a.nameKey).localeCompare(String(b.nameKey), "fr"));
+
+  catalogIndex = normalizeCatalog(catalog);
+  catalogById = catalogIndex.byId;
+}
+
 function ensureWorker() {
   if (worker) return worker;
 

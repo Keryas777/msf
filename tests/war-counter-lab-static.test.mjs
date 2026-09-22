@@ -31,6 +31,12 @@ test("l’analyse d’en-tête reste locale dans la page", () => {
   assert.match(js, /inferAttackSide\(/);
 });
 
+test("le chargeur du catalogue personnages reste défini", () => {
+  assert.match(js, /async function loadCatalog\(\)/);
+  assert.match(js, /fetch\("data\/msf-characters\.json"/);
+  assert.match(js, /catalogById = catalogIndex\.byId/);
+});
+
 test("les puissances sont reconnues localement sans appel réseau", () => {
   assert.match(js, /war-counter-power-reader\.js/);
   assert.match(js, /readPowerFromImageData\(/);
