@@ -13,6 +13,49 @@ export function getCropVariants(slot){const portrait={...slot,x:slot.x+slot.widt
 export function isWarPlayableCharacter(item){if(!item?.id||!item?.nameKey)return false;const id=String(item.id).trim();if(!id||NON_PLAYABLE_IDS.has(id))return false;if(item.isPlayable===false||item.playable===false||item.isSummon===true||item.isBoss===true)return false;return !NON_PLAYABLE_ID_PATTERNS.some(pattern=>pattern.test(id));}
 export function filterWarPlayableCatalog(catalog){if(!Array.isArray(catalog))throw new Error("Catalogue invalide.");return catalog.filter(isWarPlayableCharacter);}
 export function validateUpload(file){if(!file||typeof file!=="object")throw new Error("Fichier manquant.");if(!ACCEPTED_IMAGE_TYPES.includes(file.type))throw new Error("Format non accepté.");if(!Number.isFinite(file.size)||file.size<=0)throw new Error("Fichier vide.");if(file.size>MAX_IMAGE_BYTES)throw new Error("Image supérieure à 12 Mo.");return true;}
+export const EMPTY_PORTRAIT_MAX_LUMA_STD=28;
+export const EMPTY_PORTRAIT_MAX_EDGE_RATIO=0.095;
+export const EMPTY_PORTRAIT_EDGE_DELTA=20;
+
+export function analyzePortraitOccupancy(imageData){
+  const{data,width,height}=imageData||{};
+  if(!data||!width||!height)return{isAbsent:false,lumaStd:Infinity,edgeRatio:1};
+
+  const count=width*height;
+  const luma=new Float32Array(count);
+  let sum=0,sumSquares=0;
+
+  for(let index=0;index<count;index++){
+    const offset=index*4;
+    const value=data[offset]*.299+data[offset+1]*.587+data[offset+2]*.114;
+    luma[index]=value;
+    sum+=value;
+    sumSquares+=value*value;
+  }
+
+  const mean=sum/count;
+  const variance=Math.max(0,sumSquares/count-mean*mean);
+  const lumaStd=Math.sqrt(variance);
+
+  let edges=0,comparisons=0;
+  for(let y=1;y<height;y++){
+    for(let x=1;x<width;x++){
+      const index=y*width+x;
+      const value=luma[index];
+      const left=Math.abs(value-luma[index-1]);
+      const up=Math.abs(value-luma[index-width]);
+      if(Math.max(left,up)>EMPTY_PORTRAIT_EDGE_DELTA)edges++;
+      comparisons++;
+    }
+  }
+
+  const edgeRatio=comparisons?edges/comparisons:1;
+  return{
+    isAbsent:lumaStd<EMPTY_PORTRAIT_MAX_LUMA_STD&&edgeRatio<EMPTY_PORTRAIT_MAX_EDGE_RATIO,
+    lumaStd,
+    edgeRatio
+  };
+}
 export function detectRedCross(imageData){const{data,width,height}=imageData||{};if(!data||!width||!height)return false;let red=0;const a=new Uint16Array(width+height+1),b=new Uint16Array(width+height+1);for(let y=0;y<height;y++)for(let x=0;x<width;x++){const i=(y*width+x)*4,r=data[i],g=data[i+1],bl=data[i+2],al=data[i+3];if(al>80&&r>145&&r>g*1.35&&r>bl*1.25){red++;a[x-y+height]++;b[x+y]++;}}const min=Math.max(5,Math.round(Math.min(width,height)*.28));return Math.max(...a)>=min&&Math.max(...b)>=min&&red/(width*height)>=.035;}
 export function createDraft(strategy="full_capture"){if(!STRATEGIES.includes(strategy))throw new Error("Stratégie invalide.");return{schemaVersion:"2.0.0",status:"draft",layout:LAYOUT_ID,strategy,provider:"none",groqRealCalls:0,slots:getLayoutSlots().map(s=>({slot:s.slot,side:s.side,position:s.position,barred:null,candidates:[],selectedCharacterId:null,validationStatus:"pending"}))};}
 export function validateCandidate(candidate,characterIds){if(!candidate||typeof candidate!=="object"||typeof candidate.characterId!=="string")throw new Error("Candidat invalide.");if(characterIds&&!characterIds.has(candidate.characterId))throw new Error("Personnage hors catalogue.");if(candidate.confidence!=null&&(!Number.isFinite(candidate.confidence)||candidate.confidence<0||candidate.confidence>1))throw new Error("Confiance invalide.");}
