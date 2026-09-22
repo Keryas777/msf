@@ -55,3 +55,19 @@ test("attack side inference requires both a minimum signal and clear dominance",
   assert.equal(inferAttackSide(ATTACK_GREEN_MIN_RATIO / 2, 0), null);
   assert.equal(inferAttackSide(0.02, 0.02 / ATTACK_GREEN_DOMINANCE * 1.01), null);
 });
+
+
+test("current six field captures keep an unambiguous local attack-side signal", () => {
+  const samples = [
+    { id: "field-06", left: 0, right: 0.0366300366, expected: "right" },
+    { id: "field-05", left: 0, right: 0.0328811813, expected: "right" },
+    { id: "field-04", left: 0, right: 0.0135004822, expected: "right" },
+    { id: "field-03", left: 0, right: 0.0267224971, expected: "right" },
+    { id: "field-01", left: 0.0402328368, right: 0, expected: "left" },
+    { id: "field-02", left: 0.0422161644, right: 0, expected: "left" }
+  ];
+
+  for (const sample of samples) {
+    assert.equal(inferAttackSide(sample.left, sample.right), sample.expected, sample.id);
+  }
+});
