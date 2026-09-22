@@ -1,4 +1,5 @@
 import {
+  analyzePortraitOccupancy,
   calculatePixelRect,
   detectRedCross,
   getCropVariants,
@@ -609,7 +610,11 @@ function renderSlot(run, row) {
   const note = document.createElement("div");
   note.className = "slot-note";
   const source = document.createElement("span");
-  source.textContent = row.corrected ? "Corrigé" : "AKAZE Top 1";
+  source.textContent = row.corrected
+    ? "Corrigé"
+    : row.absenceDetected
+      ? "Vide détecté"
+      : "AKAZE Top 1";
   const candidateCount = document.createElement("span");
   candidateCount.textContent = `${row.candidates.length} candidats`;
   note.append(source, candidateCount);
@@ -1113,8 +1118,34 @@ async function analyzeFile(file, index, count) {
       const crop = cropBase(decoded.image, slot);
       const context = crop.getContext("2d", { willReadFrequently: true });
       const imageData = context.getImageData(0, 0, crop.width, crop.height);
-      const barred = detectRedCross(imageData);
       const previewUrl = cropPreviewDataUrl(crop);
+      const occupancy = analyzePortraitOccupancy(imageData);
+
+      if (occupancy.isAbsent) {
+        rows.push({
+          slot: slot.slot,
+          label: slot.label,
+          side: slot.side,
+          position: slot.position,
+          barred: false,
+          previewUrl,
+          candidates: [],
+          selectedCharacterId: null,
+          isAbsent: true,
+          absenceDetected: true,
+          occupancy,
+          corrected: false,
+          extractMs: 0,
+          matchMs: 0
+        });
+
+        crop.width = 1;
+        crop.height = 1;
+        await nextFrame();
+        continue;
+      }
+
+      const barred = detectRedCross(imageData);
       const buffer = imageData.data.buffer;
 
       const result = await workerCall("analyze", {
@@ -1133,6 +1164,8 @@ async function analyzeFile(file, index, count) {
         candidates: Array.isArray(result.candidates) ? result.candidates : [],
         selectedCharacterId: result.candidates?.[0]?.id || null,
         isAbsent: false,
+        absenceDetected: false,
+        occupancy,
         corrected: false,
         extractMs: result.extractMs,
         matchMs: result.matchMs
