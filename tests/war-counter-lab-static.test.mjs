@@ -31,6 +31,14 @@ test("l’analyse d’en-tête reste locale dans la page", () => {
   assert.match(js, /inferAttackSide\(/);
 });
 
+test("les puissances sont préremplies via le Worker dédié sans secret client", () => {
+  assert.match(js, /\/api\/war-counter-vision\/read-power/);
+  assert.match(js, /requestPowerRead\(/);
+  assert.match(js, /leftPower: powerRead\.status === "ok"/);
+  assert.match(js, /rightPower: powerRead\.status === "ok"/);
+  assert.doesNotMatch(js, /GROQ_API_KEY|api\.groq\.com/);
+});
+
 test("aucun lien de production ajouté", () => {
   const index = fs.readFileSync(
     new URL("../docs/index.html", import.meta.url),
