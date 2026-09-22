@@ -295,9 +295,43 @@ input[type=file]{
   color:#ff9cad;
   font-weight:850;
 }
+.power-block{
+  margin-top:12px;
+}
+.power-evidence{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:8px;
+  margin-bottom:10px;
+  padding:9px;
+  border:1px solid #2d3f64;
+  border-radius:12px;
+  background:#091225;
+}
+.power-crop{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:86px;
+  object-fit:contain;
+  object-position:left center;
+  border-radius:9px;
+  background:#020611;
+}
+.power-evidence-text{
+  display:grid;
+  gap:2px;
+  color:#aebbd5;
+  font-size:.78rem;
+  line-height:1.35;
+}
+.power-evidence-text strong{
+  color:#dce5f8;
+  font-size:.82rem;
+}
 .power-field{
   display:block;
-  margin-top:12px;
+  margin-top:0;
 }
 .power-field span{
   display:block;
@@ -341,6 +375,67 @@ input[type=file]{
   padding:13px;
 }
 .direction-panel h3{margin:0 0 10px}
+.direction-detection{
+  display:grid;
+  gap:10px;
+  margin-bottom:12px;
+  padding:10px;
+  border:1px solid #2d3f64;
+  border-radius:12px;
+  background:#091225;
+}
+.direction-detection-text{
+  display:grid;
+  gap:3px;
+}
+.direction-detection-text strong{
+  color:#dce5f8;
+}
+.direction-detection-text span{
+  color:#98a8c7;
+  font-size:.78rem;
+  line-height:1.4;
+}
+.attack-evidence{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.attack-evidence-item{
+  min-width:0;
+  padding:7px;
+  border:1px solid #34466f;
+  border-radius:10px;
+  background:#111c34;
+}
+.attack-evidence-item.is-detected{
+  border-color:#2d7f58;
+  box-shadow:inset 0 0 0 1px #2d7f5855;
+}
+.attack-evidence-item>span,
+.attack-evidence-item>small{
+  display:block;
+  color:#9eabc5;
+  font-size:.7rem;
+}
+.attack-evidence-item>span{
+  margin-bottom:5px;
+  font-weight:800;
+  color:#c9d5ee;
+}
+.attack-evidence-item>small{
+  margin-top:5px;
+}
+.attack-evidence-item img{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:74px;
+  object-fit:contain;
+  object-position:center;
+  border-radius:8px;
+  background:#020611;
+}
 .direction-options{
   display:grid;
   gap:8px;
@@ -503,6 +598,8 @@ input[type=file]{
 }
 @media(min-width:760px){
   .team-grid{grid-template-columns:1fr 1fr}
+  .power-evidence{grid-template-columns:minmax(0,1fr) auto;align-items:center}
+  .power-evidence-text{max-width:210px}
   .team-slots{min-width:0;grid-template-columns:repeat(5,minmax(0,1fr))}
   .summary-grid{grid-template-columns:1fr 1fr}
   .character-results{grid-template-columns:repeat(3,minmax(0,1fr))}
