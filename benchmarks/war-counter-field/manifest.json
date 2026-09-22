@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "1.0.0",
-  "description": "Corpus terrain de non-régression War Counter Vision validé dans le laboratoire navigateur après PR #175.",
+  "schemaVersion": "1.1.0",
+  "description": "Corpus terrain de non-régression War Counter Vision : portraits validés dans le laboratoire navigateur après PR #175, avec vérités terrain d’en-tête pour les puissances et le sens du combat.",
   "hashAlgorithm": "SHA-256",
   "engine": {
     "openCvVersion": "4.10.0",
@@ -92,7 +92,13 @@
           "state": "dead",
           "expectedRank": 1
         }
-      ]
+      ],
+      "combat": {
+        "attackSide": "left",
+        "defenseSide": "right",
+        "leftPower": 12211263,
+        "rightPower": 24512561
+      }
     },
     {
       "id": "field-02",
@@ -161,7 +167,13 @@
           "state": "dead",
           "expectedRank": 1
         }
-      ]
+      ],
+      "combat": {
+        "attackSide": "left",
+        "defenseSide": "right",
+        "leftPower": 5876484,
+        "rightPower": 14376435
+      }
     },
     {
       "id": "field-03",
@@ -230,7 +242,13 @@
           "state": "alive",
           "expectedRank": 1
         }
-      ]
+      ],
+      "combat": {
+        "attackSide": "right",
+        "defenseSide": "left",
+        "leftPower": 18040836,
+        "rightPower": 13717462
+      }
     },
     {
       "id": "field-04",
@@ -299,7 +317,13 @@
           "state": "alive",
           "expectedRank": 1
         }
-      ]
+      ],
+      "combat": {
+        "attackSide": "right",
+        "defenseSide": "left",
+        "leftPower": 19689525,
+        "rightPower": 12609524
+      }
     },
     {
       "id": "field-05",
@@ -368,7 +392,13 @@
           "state": "alive",
           "expectedRank": 1
         }
-      ]
+      ],
+      "combat": {
+        "attackSide": "right",
+        "defenseSide": "left",
+        "leftPower": 17035873,
+        "rightPower": 18098243
+      }
     },
     {
       "id": "field-06",
@@ -437,7 +467,13 @@
           "state": "absent",
           "expectedRank": null
         }
-      ]
+      ],
+      "combat": {
+        "attackSide": "right",
+        "defenseSide": "left",
+        "leftPower": 12740909,
+        "rightPower": 8277574
+      }
     }
   ]
 }
