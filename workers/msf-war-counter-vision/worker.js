@@ -1,8 +1,10 @@
 export const ALLOWED_ORIGIN="https://keryas777.github.io";
 export const ROUTE="/api/war-counter-vision/analyze";
+export const POWER_ROUTE="/api/war-counter-vision/read-power";
 export const LAYOUT="war-result-ultrawide-v1";
 export const STRATEGIES=Object.freeze(["grouped_wide_crops"]);
 export const MAX_BYTES=12*1024*1024;
+export const MAX_POWER_BYTES=1024*1024;
 export const MAX_CATALOG_ITEMS=700;
 export const DEFAULT_MODEL="qwen/qwen3.6-27b";
 export const GROQ_ENDPOINT="https://api.groq.com/openai/v1/chat/completions";
@@ -33,5 +35,45 @@ export function createCatalogIndex(catalog){const index=new Map();for(const item
 export function resolveVisionResult(raw,catalog){validateRawVisionResult(raw);const index=createCatalogIndex(catalog);return{schemaVersion:"2.0.0",slots:raw.slots.map(slot=>{const candidates=[];const seen=new Set();for(const candidate of slot.candidates){const characterId=index.get(normalizeName(candidate.name));if(!characterId||seen.has(characterId))continue;seen.add(characterId);candidates.push({characterId,confidence:candidate.confidence??null});}return{slot:slot.slot,barred:slot.barred,candidates};})};}
 export function validateVisionResult(value,catalogIds){if(!value||value.schemaVersion!=="2.0.0"||!Array.isArray(value.slots)||value.slots.length!==10)throw new Error("Réponse Vision invalide.");const seen=new Set();value.slots.forEach((s,i)=>{if(s.slot!==SLOT_ORDER[i]||seen.has(s.slot))throw new Error("Slots invalides.");seen.add(s.slot);if(typeof s.barred!=="boolean"&&s.barred!==null)throw new Error("État barré invalide.");if(!Array.isArray(s.candidates)||s.candidates.length>3)throw new Error("Candidats invalides.");for(const c of s.candidates){if(!catalogIds.has(c.characterId))throw new Error("Candidat hors catalogue.");if(c.confidence!=null&&(!Number.isFinite(c.confidence)||c.confidence<0||c.confidence>1))throw new Error("Confiance invalide.");}});return true;}
 export async function callGroqVision({env,payload,fetchImpl=fetch,timeoutMs=45000}){if(!env?.GROQ_API_KEY)throw new Error("GROQ_API_KEY absente.");const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);try{const r=await fetchImpl(GROQ_ENDPOINT,{method:"POST",headers:{Authorization:`Bearer ${env.GROQ_API_KEY}`,"Content-Type":"application/json"},body:JSON.stringify(payload),signal:controller.signal});const data=await r.json().catch(()=>null);if(!r.ok)throw new Error(`Groq ${r.status}: ${data?.error?.message||"erreur API"}`);const text=data?.choices?.[0]?.message?.content;return{parsed:parseJsonContent(text),usage:data.usage||null};}catch(e){if(e?.name==="AbortError")throw new Error("Timeout Groq Vision.");throw e;}finally{clearTimeout(timer);}}
+export function buildPowerPrompt(){return[
+"Tu lis deux petits extraits d’écran Marvel Strike Force.",
+"Le premier extrait correspond à l’équipe de gauche, le second à l’équipe de droite.",
+"Dans chaque image, lis uniquement le nombre jaune situé après le libellé PUISSANCE :.",
+"Ignore totalement le pseudo, le score de guerre, les points +918/+9, le temps, les portraits et tout autre texte.",
+"Ne calcule rien et ne déduis rien à partir des personnages.",
+"Recopie les chiffres exactement. Supprime seulement les espaces ou séparateurs visuels.",
+"Si un nombre est impossible à lire avec certitude, utilise null pour ce côté.",
+"Réponds avec un seul objet JSON valide, sans markdown ni texte autour.",
+"Schéma exact : {\"schemaVersion\":\"1.0.0\",\"leftPower\":\"5876484\",\"rightPower\":\"14376435\"}."
+].join("\n");}
+export function buildPowerPayload({env,leftImageDataUrl,rightImageDataUrl}){if(!leftImageDataUrl?.startsWith("data:image/")||!rightImageDataUrl?.startsWith("data:image/"))throw new Error("Crops de puissance invalides.");return{model:getVisionModel(env),messages:[{role:"user",content:[{type:"text",text:buildPowerPrompt()+"\nIMAGE GAUCHE :"},{type:"image_url",image_url:{url:leftImageDataUrl}},{type:"text",text:"IMAGE DROITE :"},{type:"image_url",image_url:{url:rightImageDataUrl}}]}],temperature:0,top_p:1,max_completion_tokens:180,reasoning_effort:"none",response_format:{type:"json_object"}};}
+export function normalizePowerValue(value){if(value===null||value===undefined||value==="")return null;if(typeof value==="number"){if(!Number.isSafeInteger(value)||value<=0||value>999999999)throw new Error("Puissance invalide.");return String(value);}if(typeof value!=="string")throw new Error("Puissance invalide.");const compact=value.trim().replace(/[\s.,'’]/g,"");if(!/^[1-9]\d{0,8}$/.test(compact))throw new Error("Puissance invalide.");return compact;}
+export function validatePowerResult(value){if(!value||value.schemaVersion!=="1.0.0")throw new Error("Réponse puissance invalide.");return{schemaVersion:"1.0.0",leftPower:normalizePowerValue(value.leftPower),rightPower:normalizePowerValue(value.rightPower)};}
+function validatePowerImage(file){return file instanceof File&&["image/jpeg","image/png","image/webp"].includes(file.type)&&file.size>0&&file.size<=MAX_POWER_BYTES;}
+async function handlePowerRead(request,env,origin){if(!(request.headers.get("Content-Type")||"").includes("multipart/form-data"))return json({ok:false,error:"multipart/form-data requis"},415,origin);if(isMockMode(env))return json({ok:false,error:"R3 verrouillée par R1_MOCK_ONLY",groqRealCalls:0},503,origin);const form=await request.formData(),leftImage=form.get("leftImage"),rightImage=form.get("rightImage");if(!validatePowerImage(leftImage)||!validatePowerImage(rightImage))return json({ok:false,error:"Crops de puissance invalides"},400,origin);const started=Date.now();const payload=buildPowerPayload({env,leftImageDataUrl:await fileToDataUrl(leftImage),rightImageDataUrl:await fileToDataUrl(rightImage)});const result=await callGroqVision({env,payload});const power=validatePowerResult(result.parsed);return json({ok:true,result:{...power,provider:"groq",model:getVisionModel(env),groqRealCalls:1,durationMs:Date.now()-started,usage:result.usage}},200,origin);}
+
 const fileToDataUrl=async file=>{const bytes=new Uint8Array(await file.arrayBuffer());let binary="";for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));return`data:${file.type};base64,${btoa(binary)}`;};
-export default{async fetch(request,env){const url=new URL(request.url),origin=request.headers.get("Origin")||"";if(request.method==="OPTIONS")return new Response(null,{status:204,headers:{...cors(origin),"Access-Control-Allow-Methods":"POST, OPTIONS","Access-Control-Allow-Headers":"Content-Type"}});if(url.pathname!==ROUTE)return json({ok:false,error:"Not found"},404,origin);if(request.method!=="POST")return json({ok:false,error:"Method not allowed"},405,origin);if(origin&&origin!==ALLOWED_ORIGIN)return json({ok:false,error:"Origin interdite"},403,origin);if(!(request.headers.get("Content-Type")||"").includes("multipart/form-data"))return json({ok:false,error:"multipart/form-data requis"},415,origin);try{const form=await request.formData(),image=form.get("image"),strategy=String(form.get("strategy")||""),layout=String(form.get("layout")||""),confirmed=String(form.get("confirmed")||"");if(!(image instanceof File)||!["image/jpeg","image/png","image/webp"].includes(image.type)||image.size<=0||image.size>MAX_BYTES)return json({ok:false,error:"Image invalide"},400,origin);if(layout!==LAYOUT)return json({ok:false,error:"Layout invalide"},400,origin);if(!STRATEGIES.includes(strategy))return json({ok:false,error:"Seule la stratégie grouped_wide_crops est autorisée pour ce test"},400,origin);if(confirmed!=="one-real-call")return json({ok:false,error:"Confirmation explicite requise"},400,origin);if(isMockMode(env))return json({ok:false,error:"R3 verrouillée par R1_MOCK_ONLY",groqRealCalls:0},503,origin);const catalog=validateCatalog(JSON.parse(String(form.get("catalog")||"null")));const started=Date.now();const payload=buildGroqPayload({env,imageDataUrl:await fileToDataUrl(image),strategy});const result=await callGroqVision({env,payload});const resolved=resolveVisionResult(result.parsed,catalog);validateVisionResult(resolved,new Set(catalog.map(item=>item.id)));return json({ok:true,result:{...resolved,provider:"groq",model:getVisionModel(env),strategy,groqRealCalls:1,durationMs:Date.now()-started,usage:result.usage}},200,origin);}catch(error){return json({ok:false,error:error?.message||"Erreur Worker",groqRealCalls:0},502,origin);}}};
+export default{async fetch(request,env){
+const url=new URL(request.url),origin=request.headers.get("Origin")||"";
+if(request.method==="OPTIONS"&&(url.pathname===ROUTE||url.pathname===POWER_ROUTE))return new Response(null,{status:204,headers:{...cors(origin),"Access-Control-Allow-Methods":"POST, OPTIONS","Access-Control-Allow-Headers":"Content-Type"}});
+if(url.pathname!==ROUTE&&url.pathname!==POWER_ROUTE)return json({ok:false,error:"Not found"},404,origin);
+if(request.method!=="POST")return json({ok:false,error:"Method not allowed"},405,origin);
+if(origin&&origin!==ALLOWED_ORIGIN)return json({ok:false,error:"Origin interdite"},403,origin);
+try{
+if(url.pathname===POWER_ROUTE)return await handlePowerRead(request,env,origin);
+if(!(request.headers.get("Content-Type")||"").includes("multipart/form-data"))return json({ok:false,error:"multipart/form-data requis"},415,origin);
+const form=await request.formData(),image=form.get("image"),strategy=String(form.get("strategy")||""),layout=String(form.get("layout")||""),confirmed=String(form.get("confirmed")||"");
+if(!(image instanceof File)||!["image/jpeg","image/png","image/webp"].includes(image.type)||image.size<=0||image.size>MAX_BYTES)return json({ok:false,error:"Image invalide"},400,origin);
+if(layout!==LAYOUT)return json({ok:false,error:"Layout invalide"},400,origin);
+if(!STRATEGIES.includes(strategy))return json({ok:false,error:"Seule la stratégie grouped_wide_crops est autorisée pour ce test"},400,origin);
+if(confirmed!=="one-real-call")return json({ok:false,error:"Confirmation explicite requise"},400,origin);
+if(isMockMode(env))return json({ok:false,error:"R3 verrouillée par R1_MOCK_ONLY",groqRealCalls:0},503,origin);
+const catalog=validateCatalog(JSON.parse(String(form.get("catalog")||"null")));
+const started=Date.now();
+const payload=buildGroqPayload({env,imageDataUrl:await fileToDataUrl(image),strategy});
+const result=await callGroqVision({env,payload});
+const resolved=resolveVisionResult(result.parsed,catalog);
+validateVisionResult(resolved,new Set(catalog.map(item=>item.id)));
+return json({ok:true,result:{...resolved,provider:"groq",model:getVisionModel(env),strategy,groqRealCalls:1,durationMs:Date.now()-started,usage:result.usage}},200,origin);
+}catch(error){return json({ok:false,error:error?.message||"Erreur Worker",groqRealCalls:0},502,origin);}
+}};
