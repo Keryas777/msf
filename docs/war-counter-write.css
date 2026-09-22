@@ -53,7 +53,8 @@
   margin-top:14px;
 }
 .write-metadata-fields[hidden]{display:none}
-.write-metadata-fields label{
+.write-metadata-fields label,
+.write-admin-key{
   display:grid;
   gap:5px;
   color:#b9c6e0;
@@ -61,7 +62,8 @@
   font-weight:750;
 }
 .write-metadata-fields input,
-.write-metadata-fields textarea{
+.write-metadata-fields textarea,
+.write-admin-key input{
   width:100%;
   border:1px solid #40517d;
   border-radius:11px;
@@ -71,7 +73,8 @@
   outline:none;
   font:inherit;
 }
-.write-metadata-fields input{
+.write-metadata-fields input,
+.write-admin-key input{
   min-height:44px;
 }
 .write-metadata-fields textarea{
@@ -79,9 +82,13 @@
   min-height:78px;
 }
 .write-metadata-fields input:focus,
-.write-metadata-fields textarea:focus{
+.write-metadata-fields textarea:focus,
+.write-admin-key input:focus{
   border-color:#6e9bff;
   box-shadow:0 0 0 2px #2879ff33;
+}
+.write-admin-key{
+  margin-top:14px;
 }
 .write-warning{
   margin:0;
