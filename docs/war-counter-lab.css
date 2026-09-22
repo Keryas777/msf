@@ -471,6 +471,16 @@ input[type=file]{
   letter-spacing:.06em;
   text-transform:uppercase;
 }
+.summary-team-name{
+  margin-top:.35rem;
+  color:#eef4ff;
+  font-weight:850;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+.summary-team-name.is-warning{
+  color:#ffd28a;
+}
 .summary-characters{
   margin:.35rem 0;
   line-height:1.4;
@@ -494,10 +504,35 @@ input[type=file]{
   font-weight:900;
 }
 .sheet-state{
+  display:grid;
+  gap:4px;
   margin:.8rem 0 0;
+  padding:10px;
+  border:1px solid #2d3f64;
+  border-radius:12px;
+  background:#091225;
   color:#9eabc5;
   line-height:1.45;
 }
+.sheet-state strong{
+  color:#eef4ff;
+}
+.sheet-state span,
+.sheet-state small{
+  display:block;
+}
+.sheet-state small{
+  margin-top:3px;
+  color:#8293b4;
+  font-size:.73rem;
+}
+.sheet-state.is-new{border-color:#3f6f9b}
+.sheet-state.is-improvement{border-color:#2d7f58}
+.sheet-state.is-same{border-color:#53617d}
+.sheet-state.is-worse{border-color:#7b6043}
+.sheet-state.is-warning{border-color:#9b6a3f}
+.sheet-state.is-improvement strong{color:#9ee6bd}
+.sheet-state.is-warning strong{color:#ffd28a}
 .capture-error{
   margin:12px 0 0;
   padding:12px;
