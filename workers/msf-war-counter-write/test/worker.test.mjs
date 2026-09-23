@@ -2,9 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   analyzeExisting,
+  buildBatchPlan,
   canonicalTeamKey,
   ceilRatioToHundredth,
   matchingRows,
+  matchupKey,
+  normalizeBatchItems,
   ratioFromPowers,
   rowsAsObjects
 } from "../worker.js";
@@ -58,4 +61,80 @@ test("serveur distingue nouveau, identique et moins bon", () => {
   assert.equal(analyzeExisting([], 0.65).status, "new");
   assert.equal(analyzeExisting([{ min_ratio_hard: "0.65" }], 0.65).status, "same");
   assert.equal(analyzeExisting([{ min_ratio_hard: "0.65" }], 0.66).status, "worse");
+});
+
+test("le lot regroupe les doublons et conserve le meilleur ratio", () => {
+  const metadata = {
+    def_family: "Def",
+    def_variant: "Def classique",
+    def_key: "def",
+    atk_family: "Atk",
+    atk_team: "Atk classique",
+    atk_key: "atk",
+    notes: ""
+  };
+  const normalized = normalizeBatchItems([
+    {
+      attackIds: ["A1", "A2", "A3", "A4", "A5"],
+      defenseIds: ["D1", "D2", "D3", "D4", "D5"],
+      attackPower: 118,
+      defensePower: 100,
+      metadata
+    },
+    {
+      attackIds: ["A5", "A4", "A3", "A2", "A1"],
+      defenseIds: ["D5", "D4", "D3", "D2", "D1"],
+      attackPower: 107,
+      defensePower: 100,
+      metadata
+    }
+  ]);
+
+  assert.equal(normalized.inputCount, 2);
+  assert.equal(normalized.items.length, 1);
+  assert.equal(normalized.duplicateCount, 1);
+  assert.equal(normalized.items[0].ratio, 1.07);
+  assert.deepEqual(normalized.items[0].sourceIndexes, [0, 1]);
+  assert.equal(normalized.items[0].key, matchupKey(["A1", "A2", "A3", "A4", "A5"], ["D1", "D2", "D3", "D4", "D5"]));
+});
+
+test("le plan batch décide toutes les actions depuis une seule vue du Sheet", () => {
+  const values = [
+    header,
+    ["Def", "Def classique", "def", "D1", "D2", "D3", "D4", "D5", "Atk", "Atk classique", "atk", "A1", "A2", "A3", "A4", "A5", "1.19", "1.34", "1.49", "2.49", "2.99", ""]
+  ];
+  const rows = rowsAsObjects(values);
+  const metadata = {
+    def_family: "Def 2",
+    def_variant: "Def 2 classique",
+    def_key: "def2",
+    atk_family: "Atk 2",
+    atk_team: "Atk 2 classique",
+    atk_key: "atk2",
+    notes: ""
+  };
+  const normalized = normalizeBatchItems([
+    {
+      attackIds: ["A1", "A2", "A3", "A4", "A5"],
+      defenseIds: ["D1", "D2", "D3", "D4", "D5"],
+      attackPower: 118,
+      defensePower: 100,
+      metadata: null
+    },
+    {
+      attackIds: ["B1", "B2", "B3", "B4", "B5"],
+      defenseIds: ["E1", "E2", "E3", "E4", "E5"],
+      attackPower: 107,
+      defensePower: 100,
+      metadata
+    }
+  ]);
+  const plan = buildBatchPlan(rows, normalized.items);
+
+  assert.equal(plan.updates.length, 1);
+  assert.equal(plan.updates[0].previousRatio, 1.19);
+  assert.equal(plan.creates.length, 1);
+  assert.equal(plan.creates[0].metadata.atk_key, "atk2");
+  assert.equal(plan.skipped.length, 0);
+  assert.equal(plan.conflicts.length, 0);
 });
