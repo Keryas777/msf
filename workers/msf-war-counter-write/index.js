@@ -1,6 +1,8 @@
 import worker from "./worker.js";
 
 const DEFAULT_SITE_ORIGIN = "https://keryas777.github.io";
+const DEFAULT_AUTH_BASE_URL = "https://losp-auth.deliriousfan7.workers.dev";
+const AUTH_CHECK_PATH = "/api/war-counter-write/auth-check";
 const WRITE_PATHS = new Set([
   "/api/war-counter-write/apply",
   "/api/war-counter-write/apply-batch"
@@ -27,6 +29,76 @@ function jsonResponse(data, request, env, status = 200) {
       "Cache-Control": "no-store"
     }
   });
+}
+
+function getBearer(request) {
+  const value = request.headers.get("Authorization") || "";
+  return value.toLowerCase().startsWith("bearer ") ? value.slice(7).trim() : "";
+}
+
+async function verifyWriteAdminSession(request, env) {
+  const session = getBearer(request);
+  if (!session) {
+    return {
+      ok: false,
+      status: 401,
+      reason: "missing_bearer",
+      authStatus: 0
+    };
+  }
+
+  const authBase = String(env?.AUTH_BASE_URL || DEFAULT_AUTH_BASE_URL).trim().replace(/\/$/, "");
+  const siteOrigin = String(env?.SITE_ORIGIN || DEFAULT_SITE_ORIGIN).trim();
+
+  let response;
+  try {
+    response = await fetch(`${authBase}/me`, {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        Authorization: `Bearer ${session}`,
+        Origin: siteOrigin,
+        Accept: "application/json"
+      }
+    });
+  } catch (error) {
+    return {
+      ok: false,
+      status: 502,
+      reason: "auth_fetch_failed",
+      authStatus: 0
+    };
+  }
+
+  let data = null;
+  try {
+    data = await response.json();
+  } catch (_) {}
+
+  if (!response.ok || !data?.ok) {
+    return {
+      ok: false,
+      status: 401,
+      reason: String(data?.reason || `auth_http_${response.status}`),
+      authStatus: response.status
+    };
+  }
+
+  if (String(data.role || "").toLowerCase() !== "admin") {
+    return {
+      ok: false,
+      status: 403,
+      reason: "not_admin",
+      authStatus: response.status
+    };
+  }
+
+  return {
+    ok: true,
+    status: 200,
+    reason: "ok",
+    authStatus: response.status
+  };
 }
 
 async function digest(value) {
@@ -69,6 +141,28 @@ export default {
       }, request, env);
     }
 
+    if (url.pathname === AUTH_CHECK_PATH) {
+      if (request.method !== "GET") {
+        return jsonResponse({ ok: false, error: "Méthode non autorisée." }, request, env, 405);
+      }
+
+      const check = await verifyWriteAdminSession(request, env);
+      if (!check.ok) {
+        return jsonResponse({
+          ok: false,
+          error: "Autorisation d’écriture LoSP non validée.",
+          reason: check.reason,
+          authStatus: check.authStatus
+        }, request, env, check.status);
+      }
+
+      return jsonResponse({
+        ok: true,
+        role: "admin",
+        authStatus: check.authStatus
+      }, request, env);
+    }
+
     if (WRITE_PATHS.has(url.pathname)) {
       if (!(await hasValidWriteKey(request, env))) {
         return jsonResponse({
@@ -82,4 +176,10 @@ export default {
   }
 };
 
-export { constantTimeEqual, hasValidWriteKey, WRITE_PATHS };
+export {
+  AUTH_CHECK_PATH,
+  constantTimeEqual,
+  hasValidWriteKey,
+  verifyWriteAdminSession,
+  WRITE_PATHS
+};
