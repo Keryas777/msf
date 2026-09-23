@@ -1,0 +1,5 @@
+GOOGLE_SERVICE_ACCOUNT_EMAIL=service-account@example-project.iam.gserviceaccount.com
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+WRITE_ADMIN_SECRET=replace-with-a-long-random-secret
+# Optional: dispatch update-war-counters.yml after a successful write.
+GITHUB_WORKFLOW_TOKEN=
