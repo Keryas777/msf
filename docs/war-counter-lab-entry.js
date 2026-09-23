@@ -1,4 +1,13 @@
 import { loadLiveWarCounters } from "./war-counter-live-source.js";
+import { ensureWarCounterWriteBearer } from "./war-counter-write-auth.js?v=1";
+
+const writeAuth = await ensureWarCounterWriteBearer({
+  fetchImpl: globalThis.fetch.bind(globalThis)
+});
+
+if (!writeAuth.ok) {
+  await new Promise(() => {});
+}
 
 const nativeFetch = globalThis.fetch.bind(globalThis);
 const localCountersUrl = new URL("data/war-counters.json", window.location.href);
