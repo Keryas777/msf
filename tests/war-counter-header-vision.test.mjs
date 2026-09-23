@@ -55,8 +55,8 @@ test("panel mapping applies horizontal and guarded vertical realignment independ
 });
 
 function measuredAlignment({ width, height, dividerY, dividerPixels }) {
-  const yOffset = Math.floor(height * 0.47);
-  const rowCounts = new Uint16Array(Math.ceil(height * 0.93) - yOffset);
+  const yOffset = Math.floor(height * 0.43);
+  const rowCounts = new Uint16Array(Math.ceil(height * 0.62) - yOffset);
   rowCounts[dividerY - yOffset] = dividerPixels;
   return inferVerticalPanelAlignment(rowCounts, {
     imageHeight: height,
@@ -89,6 +89,19 @@ test("field baseline remains untouched while vertically cropped captures are rea
     assert.ok(result.yShift <= sample.maxShift, `${sample.id} shift too large`);
     assert.ok(result.dividerCoverage > 0.95, sample.id);
   }
+});
+
+test("vertical alignment also handles a plausible upward crop shift", () => {
+  const result = measuredAlignment({
+    width: 1400,
+    height: 400,
+    dividerY: 184,
+    dividerPixels: 1300
+  });
+
+  assert.equal(result.verticalUsed, true);
+  assert.ok(result.yShift < -0.06);
+  assert.ok(result.yShift > -0.07);
 });
 
 test("vertical alignment falls back safely when the separator is weak", () => {
