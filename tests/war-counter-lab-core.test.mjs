@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   analyzePortraitOccupancy,
+  detectRedCross,
   EMPTY_PORTRAIT_MAX_EDGE_RATIO,
   EMPTY_PORTRAIT_MAX_LUMA_STD,
   filterWarPlayableCatalog,
@@ -76,6 +77,22 @@ test("détecte un emplacement visuellement vide sans confondre un portrait textu
   assert.equal(occupiedMetrics.isAbsent, false);
 });
 
+test("détecte une vraie croix rouge sans confondre le cercle rouge du portrait", () => {
+  const crossed = makeImageData(100, 100, (x, y) => {
+    const onDescendingBar = Math.abs(y - x) <= 4;
+    const onAscendingBar = Math.abs(y - (99 - x)) <= 4;
+    return onDescendingBar || onAscendingBar ? [220, 25, 25] : [35, 40, 60];
+  });
+  assert.equal(detectRedCross(crossed), true);
+
+  const ringOnly = makeImageData(100, 100, (x, y) => {
+    const distance = Math.hypot(x - 49.5, y - 49.5);
+    return Math.abs(distance - 34) <= 4 ? [220, 25, 25] : [35, 40, 60];
+  });
+  assert.equal(detectRedCross(ringOnly), false);
+});
+
 test("une image invalide ne peut jamais être déclarée vide automatiquement", () => {
   assert.equal(analyzePortraitOccupancy(null).isAbsent, false);
+  assert.equal(detectRedCross(null), false);
 });
