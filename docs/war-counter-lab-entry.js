@@ -109,7 +109,7 @@ globalThis.fetch = async (input, init) => {
 };
 
 try {
-  await import("./war-counter-lab.js?v=r7-entry-8");
+  await import("./war-counter-lab.js?v=r7-vertical-1");
   const { initWarCounterWriteUi } = await import("./war-counter-write-ui.js?v=r2");
   initWarCounterWriteUi();
 } catch (error) {
