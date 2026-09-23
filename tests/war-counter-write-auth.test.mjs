@@ -6,7 +6,8 @@ import {
   buildWriteAuthRepairUrl,
   ensureWarCounterWriteBearer,
   sanitizeWarCounterReturn,
-  validateBearerToken
+  validateBearerToken,
+  validateWriteWorkerBearer
 } from "../docs/war-counter-write-auth.js";
 
 function memoryStorage(initial = {}) {
@@ -44,6 +45,26 @@ test("valide le bearer local sans envoyer le cookie LoSP", async () => {
   assert.equal(seenInit.headers.Authorization, "Bearer session-locale");
 });
 
+test("le bearer est aussi vérifié par le Worker d'écriture avant toute capture", async () => {
+  let seenUrl = "";
+  let seenInit = null;
+  const result = await validateWriteWorkerBearer("session-locale", {
+    fetchImpl: async (url, init) => {
+      seenUrl = String(url);
+      seenInit = init;
+      return new Response(JSON.stringify({ ok: true, role: "admin", authStatus: 200 }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+  });
+
+  assert.equal(result.ok, true);
+  assert.match(seenUrl, /\/api\/war-counter-write\/auth-check$/);
+  assert.equal(seenInit.credentials, "omit");
+  assert.equal(seenInit.headers.Authorization, "Bearer session-locale");
+});
+
 test("une session locale invalide est supprimée et redirige uniquement War Counter", async () => {
   const storage = memoryStorage({ [LOCAL_SESSION_KEY]: "ancienne-session" });
   let redirectedTo = "";
@@ -69,9 +90,10 @@ test("une session locale invalide est supprimée et redirige uniquement War Coun
   assert.equal(redirectedTo, "./war-counter-auth.html?return=war-counter-lab.html");
 });
 
-test("une session locale valide ne provoque aucune redirection", async () => {
+test("une session valide de bout en bout ne provoque aucune redirection", async () => {
   const storage = memoryStorage({ [LOCAL_SESSION_KEY]: "session-valide" });
   let redirected = false;
+  let callCount = 0;
 
   const result = await ensureWarCounterWriteBearer({
     storage,
@@ -80,13 +102,56 @@ test("une session locale valide ne provoque aucune redirection", async () => {
         redirected = true;
       }
     },
-    fetchImpl: async () => new Response(JSON.stringify({ ok: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    })
+    fetchImpl: async () => {
+      callCount += 1;
+      return new Response(JSON.stringify({ ok: true, role: "admin", authStatus: 200 }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
   });
 
   assert.equal(result.ok, true);
+  assert.equal(result.stage, "ready");
+  assert.equal(callCount, 2);
+  assert.equal(redirected, false);
+  assert.equal(storage.getItem(LOCAL_SESSION_KEY), "session-valide");
+});
+
+test("un refus uniquement côté Worker d'écriture bloque sans effacer la session ni relancer Discord", async () => {
+  const storage = memoryStorage({ [LOCAL_SESSION_KEY]: "session-valide" });
+  let redirected = false;
+  let callCount = 0;
+
+  const result = await ensureWarCounterWriteBearer({
+    storage,
+    location: {
+      replace() {
+        redirected = true;
+      }
+    },
+    fetchImpl: async () => {
+      callCount += 1;
+      if (callCount === 1) {
+        return new Response(JSON.stringify({ ok: true, role: "admin" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+      return new Response(JSON.stringify({
+        ok: false,
+        reason: "not_connected",
+        authStatus: 401
+      }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, "write-worker");
+  assert.equal(result.reason, "not_connected");
   assert.equal(redirected, false);
   assert.equal(storage.getItem(LOCAL_SESSION_KEY), "session-valide");
 });
@@ -105,8 +170,9 @@ test("le préflight est exécuté avant le chargement du moteur Vision et la ré
   const authIndex = entry.indexOf("ensureWarCounterWriteBearer");
   const visionIndex = entry.indexOf('import("./war-counter-lab.js?v=r7-entry-8")');
   assert.ok(authIndex >= 0 && visionIndex > authIndex);
+  assert.match(entry, /N’analyse aucune capture/);
   assert.match(helper, /LOSP_AUTH_WORKER/);
   assert.match(helper, /\/login\?next=/);
   assert.match(helper, /attempt=1/);
-  assert.match(helper, /war-counter-write-auth\.js\?v=1/);
+  assert.match(helper, /war-counter-write-auth\.js\?v=2/);
 });
