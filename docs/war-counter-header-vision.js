@@ -16,7 +16,7 @@ export const ATTACK_GREEN_DOMINANCE = 1.8;
 // cyan/rouge située autour de 52,5 % de la hauteur. Un recadrage manuel
 // haut/bas peut déplacer tout le panneau sans modifier sa résolution.
 export const PANEL_DIVIDER_TARGET_Y = 0.525;
-export const PANEL_DIVIDER_SEARCH_MIN_Y = 0.47;
+export const PANEL_DIVIDER_SEARCH_MIN_Y = 0.43;
 export const PANEL_DIVIDER_SEARCH_MAX_Y = 0.62;
 export const PANEL_DIVIDER_MIN_COVERAGE = 0.60;
 export const PANEL_VERTICAL_DEAD_ZONE = 0.012;
