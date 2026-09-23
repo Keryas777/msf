@@ -12,8 +12,9 @@ import {
   HEADER_REGIONS,
   greenMarkerRatio,
   inferAttackSide,
+  inferVerticalPanelAlignment,
   mapPanelRegion
-} from "./war-counter-header-vision.js";
+} from "./war-counter-header-vision.js?v=r6-vertical-1";
 import { readPowerFromImageData } from "./war-counter-power-reader.js";
 import {
   buildTeamLabels,
@@ -82,6 +83,36 @@ function detectHorizontalContentBounds(image) {
   const context = canvas.getContext("2d", { willReadFrequently: true });
   context.drawImage(image, 0, 0);
 
+  // Le recalage vertical reste totalement indépendant du scan horizontal R6.6.
+  // On cherche la grande séparation cyan/rouge de l'interface, qui traverse
+  // presque toute la largeur entre l'en-tête et les portraits.
+  const verticalYStart = Math.max(0, Math.floor(height * 0.43));
+  const verticalYEnd = Math.min(height, Math.ceil(height * 0.62));
+  const verticalScanHeight = Math.max(1, verticalYEnd - verticalYStart);
+  const verticalData = context.getImageData(0, verticalYStart, width, verticalScanHeight);
+  const rowCounts = new Uint16Array(verticalScanHeight);
+
+  for (let y = 0; y < verticalScanHeight; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const offset = (y * width + x) * 4;
+      if (
+        isOutlinePixel(
+          verticalData.data[offset],
+          verticalData.data[offset + 1],
+          verticalData.data[offset + 2]
+        )
+      ) {
+        rowCounts[y] += 1;
+      }
+    }
+  }
+
+  const verticalAlignment = inferVerticalPanelAlignment(rowCounts, {
+    imageHeight: height,
+    yOffset: verticalYStart,
+    scanWidth: width
+  });
+
   const yStart = Math.max(0, Math.floor(height * 0.47));
   const yEnd = Math.min(height, Math.ceil(height * 0.93));
   const scanHeight = Math.max(1, yEnd - yStart);
@@ -109,7 +140,14 @@ function detectHorizontalContentBounds(image) {
   }
 
   if (strongColumns.length < 2) {
-    return { used: false, left: 0, right: width, scale: 1, reason: "contours insuffisants" };
+    return {
+      used: false,
+      left: 0,
+      right: width,
+      scale: 1,
+      reason: "contours insuffisants",
+      ...verticalAlignment
+    };
   }
 
   const groups = [];
@@ -161,7 +199,14 @@ function detectHorizontalContentBounds(image) {
     rightMarginRatio <= 0.22;
 
   if (!plausible) {
-    return { used: false, left: 0, right: width, scale: 1, reason: "contours non plausibles" };
+    return {
+      used: false,
+      left: 0,
+      right: width,
+      scale: 1,
+      reason: "contours non plausibles",
+      ...verticalAlignment
+    };
   }
 
   const needsRealignment =
@@ -177,7 +222,8 @@ function detectHorizontalContentBounds(image) {
       detectedLeft: left,
       detectedRight: right,
       detectedWidthRatio: widthRatio,
-      reason: "capture déjà alignée"
+      reason: "capture déjà alignée",
+      ...verticalAlignment
     };
   }
 
@@ -189,7 +235,8 @@ function detectHorizontalContentBounds(image) {
     detectedLeft: left,
     detectedRight: right,
     detectedWidthRatio: widthRatio,
-    reason: "recalage horizontal automatique"
+    reason: "recalage horizontal automatique",
+    ...verticalAlignment
   };
 }
 
@@ -228,7 +275,15 @@ function slotsForBounds(bounds, imageWidth) {
         });
       });
 
-  return applyFineSlotAdjustments(panelSlots);
+  const verticallyAlignedSlots =
+    bounds?.verticalUsed && Number.isFinite(bounds.yShift)
+      ? panelSlots.map((slot) => Object.freeze({
+          ...slot,
+          y: slot.y + bounds.yShift
+        }))
+      : panelSlots;
+
+  return applyFineSlotAdjustments(verticallyAlignedSlots);
 }
 
 async function decodeImage(file) {
@@ -1008,7 +1063,12 @@ function renderRun(run) {
   if (run.error) {
     meta.textContent = "Analyse impossible";
   } else {
-    const alignmentText = run.alignment?.used ? "recalage horizontal R6.6" : "grille R6.6";
+    const alignmentAxes = [];
+    if (run.alignment?.used) alignmentAxes.push("horizontal");
+    if (run.alignment?.verticalUsed) alignmentAxes.push("vertical");
+    const alignmentText = alignmentAxes.length
+      ? `recalage ${alignmentAxes.join(" + ")} R6.6`
+      : "grille R6.6";
     meta.textContent = `${run.width} × ${run.height} · ${alignmentText}`;
   }
 
@@ -1197,11 +1257,15 @@ async function analyzeFile(file, index, count) {
     const header = analyzeHeader(decoded.image, alignment);
     const slots = slotsForBounds(alignment, decoded.width);
     const rows = [];
+    const alignmentAxes = [
+      alignment.used ? "X" : "",
+      alignment.verticalUsed ? "Y" : ""
+    ].filter(Boolean).join("+");
 
     for (let slotIndex = 0; slotIndex < slots.length; slotIndex += 1) {
       const slot = slots[slotIndex];
       analysisStatus.textContent =
-        `Capture ${index + 1}/${count} · portrait ${slotIndex + 1}/10 — ${file.name}${alignment.used ? " · recalage X" : ""}`;
+        `Capture ${index + 1}/${count} · portrait ${slotIndex + 1}/10 — ${file.name}${alignmentAxes ? ` · recalage ${alignmentAxes}` : ""}`;
 
       const crop = cropBase(decoded.image, slot);
       const context = crop.getContext("2d", { willReadFrequently: true });
