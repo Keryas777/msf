@@ -69,7 +69,8 @@ export default {
       }, request, env);
     }
 
-    if (WRITE_PATHS.has(url.pathname)) {
+    const writeKeyVerified = WRITE_PATHS.has(url.pathname);
+    if (writeKeyVerified) {
       if (!(await hasValidWriteKey(request, env))) {
         return jsonResponse({
           ok: false,
@@ -78,7 +79,7 @@ export default {
       }
     }
 
-    return worker.fetch(request, env, ctx);
+    return worker.fetch(request, env, ctx, { writeKeyVerified });
   }
 };
 
