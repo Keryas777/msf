@@ -37,11 +37,17 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Check browser module syntax
+        run: |
+          node --input-type=module --check < docs/war-counter-write-ui.js
+          node --input-type=module --check < docs/war-counter-lab-entry.js
+
       - name: Run Worker and proposal tests
         run: |
           node --test workers/msf-war-counter-write/test/worker.test.mjs
           node --test workers/msf-war-counter-write/test/security.test.mjs
           node --test tests/war-counter-write-proposal.test.mjs
+          node --test tests/war-counter-write-ui-static.test.mjs
 
   deploy:
     name: Deploy dedicated Cloudflare Worker
