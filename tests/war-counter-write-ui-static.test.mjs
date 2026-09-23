@@ -27,7 +27,7 @@ test("la confirmation d'écriture groupée est chargée autour du moteur Vision"
   assert.match(html, /war-counter-write\.css\?v=r2/);
   assert.match(html, /id="sheetBatchPanel"/);
   assert.match(html, /id="sheetBatchButton"/);
-  assert.match(html, /war-counter-lab-entry\.js\?v=r7-entry-10/);
+  assert.match(html, /war-counter-lab-entry\.js\?v=r7-entry-11/);
 });
 
 test("le lot est regroupé côté navigateur et reste revérifié côté Worker", () => {
