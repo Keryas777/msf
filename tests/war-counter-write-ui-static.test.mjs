@@ -9,6 +9,7 @@ const html = fs.readFileSync(new URL("../docs/war-counter-lab.html", import.meta
 test("le navigateur écrit uniquement via le Worker dédié", () => {
   assert.match(ui, /msf-war-counter-write\.deliriousfan7\.workers\.dev/);
   assert.match(ui, /\/api\/war-counter-write\/apply/);
+  assert.match(ui, /\/api\/war-counter-write\/apply-batch/);
   assert.match(ui, /X-War-Counter-Write-Key/);
   assert.doesNotMatch(ui + entry + html, /GOOGLE_PRIVATE_KEY|GOOGLE_SERVICE_ACCOUNT_EMAIL|sheets\.googleapis\.com/);
 });
@@ -19,9 +20,18 @@ test("la clé d'écriture n'est conservée qu'en sessionStorage", () => {
   assert.doesNotMatch(ui, /localStorage\.setItem\(WRITE_KEY_SESSION_KEY/);
 });
 
-test("la confirmation d'écriture est chargée autour du moteur Vision", () => {
+test("la confirmation d'écriture groupée est chargée autour du moteur Vision", () => {
   assert.match(entry, /war-counter-lab\.js\?v=r7-entry-8/);
-  assert.match(entry, /war-counter-write-ui\.js\?v=r1/);
+  assert.match(entry, /war-counter-write-ui\.js\?v=r2/);
   assert.match(entry, /initWarCounterWriteUi\(\)/);
-  assert.match(html, /war-counter-write\.css\?v=r1/);
+  assert.match(html, /war-counter-write\.css\?v=r2/);
+  assert.match(html, /id="sheetBatchPanel"/);
+  assert.match(html, /id="sheetBatchButton"/);
+  assert.match(html, /war-counter-lab-entry\.js\?v=r7-entry-10/);
+});
+
+test("le lot est regroupé côté navigateur et reste revérifié côté Worker", () => {
+  assert.match(ui, /groupBatchEntries/);
+  assert.match(ui, /apply-batch/);
+  assert.match(ui, /Une seule confirmation et une seule saisie de clé pour tout le lot/);
 });
