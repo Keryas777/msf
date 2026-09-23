@@ -212,7 +212,14 @@ function createBatchDialog() {
     const status = dialog.querySelector("#batchWriteDialogStatus");
     if (status) status.textContent = "";
   });
-  dialog.querySelector("#confirmBatchSheetWrite")?.addEventListener("click", submitBatchWrite);
+  const confirmButton = dialog.querySelector("#confirmBatchSheetWrite");
+  confirmButton?.addEventListener("click", () => {
+    if (confirmButton.dataset.mode === "close") {
+      dialog.close();
+      return;
+    }
+    submitBatchWrite();
+  });
   return dialog;
 }
 
@@ -228,6 +235,14 @@ function setBatchDialogStatus(message, kind = "") {
   if (!node) return;
   node.textContent = message;
   node.className = `write-dialog-status${kind ? ` is-${kind}` : ""}`;
+}
+
+function setBatchActionButton(dialog, mode = "submit") {
+  const button = dialog.querySelector("#confirmBatchSheetWrite");
+  if (!button) return;
+  button.dataset.mode = mode;
+  button.disabled = false;
+  button.textContent = mode === "close" ? "Fermer" : "Confirmer le lot";
 }
 
 function metadataFromDialog(dialog) {
@@ -533,6 +548,7 @@ async function openBatchDialog() {
   const dialog = createBatchDialog();
   activeBatch = { groups, blocked: collection.blocked };
   renderBatchDialog(dialog, groups, collection.blocked);
+  setBatchActionButton(dialog, "submit");
   setBatchDialogStatus("Une seule confirmation et une seule saisie de clé pour tout le lot.");
   dialog.showModal();
 }
@@ -571,11 +587,15 @@ async function submitBatchWrite() {
   if (!groups.length) {
     setBatchDialogStatus("Plus aucun contre à enregistrer.", "success");
     await refreshBatchPanel();
+    setBatchActionButton(dialog, "close");
     return;
   }
   activeBatch = { groups, blocked: collection.blocked };
 
+  let completed = false;
+  confirmButton.dataset.mode = "submitting";
   confirmButton.disabled = true;
+  confirmButton.textContent = "Écriture en cours…";
   setBatchDialogStatus(`Vérification en direct puis écriture de ${groups.length} matchup${groups.length > 1 ? "s" : ""}…`);
 
   try {
@@ -614,10 +634,11 @@ async function submitBatchWrite() {
     const kind = data.summary?.conflicts ? "error" : "success";
     setBatchDialogStatus(batchResultMessage(data.summary || {}, data.workflow), kind);
     await refreshBatchPanel();
+    completed = true;
   } catch (error) {
     setBatchDialogStatus(error?.message || "Écriture du lot impossible.", "error");
   } finally {
-    confirmButton.disabled = false;
+    setBatchActionButton(dialog, completed ? "close" : "submit");
   }
 }
 
