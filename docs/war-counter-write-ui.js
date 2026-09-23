@@ -11,6 +11,7 @@ const WRITE_KEY_SESSION_KEY = "losp_war_counter_write_key";
 
 let supportPromise = null;
 let activeWrite = null;
+let activeBatch = null;
 let observer = null;
 let enhanceScheduled = false;
 
@@ -23,6 +24,18 @@ function parsePowerText(value) {
 
 function idsFromKey(value) {
   return String(value || "").split("|").map((id) => id.trim()).filter(Boolean);
+}
+
+function canonicalIds(ids) {
+  return [...new Set((Array.isArray(ids) ? ids : [])
+    .map((id) => String(id || "").trim())
+    .filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b))
+    .join("|");
+}
+
+function matchupKey(attackIds, defenseIds) {
+  return `${canonicalIds(attackIds)}>>${canonicalIds(defenseIds)}`;
 }
 
 function readSessionToken() {
@@ -164,8 +177,54 @@ function createDialog() {
   return dialog;
 }
 
+function createBatchDialog() {
+  let dialog = document.querySelector("#warCounterBatchWriteDialog");
+  if (dialog) return dialog;
+
+  dialog = document.createElement("dialog");
+  dialog.id = "warCounterBatchWriteDialog";
+  dialog.className = "write-dialog";
+  dialog.innerHTML = `
+    <form method="dialog" class="write-dialog-shell">
+      <div class="write-dialog-head">
+        <div>
+          <p class="eyebrow">Google Sheet · lot</p>
+          <h2>Enregistrer les contres</h2>
+        </div>
+        <button class="secondary-button" value="cancel" type="submit">Fermer</button>
+      </div>
+      <div id="batchWriteDialogSummary" class="write-dialog-summary"></div>
+      <p class="write-warning batch-write-warning">Le lot reprend l’état actuel de toutes les captures. Vérifie les personnages, les camps et les puissances avant de confirmer.</p>
+      <div id="batchWritePreview" class="batch-write-preview"></div>
+      <label class="write-admin-key">
+        Clé d’écriture administrateur
+        <input id="batchWriteAdminKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Saisie une seule fois pour tout le lot">
+      </label>
+      <p id="batchWriteDialogStatus" class="write-dialog-status" role="status" aria-live="polite"></p>
+      <div class="write-dialog-actions">
+        <button id="confirmBatchSheetWrite" class="primary-button" type="button">Confirmer le lot</button>
+      </div>
+    </form>`;
+  document.body.append(dialog);
+
+  dialog.addEventListener("close", () => {
+    activeBatch = null;
+    const status = dialog.querySelector("#batchWriteDialogStatus");
+    if (status) status.textContent = "";
+  });
+  dialog.querySelector("#confirmBatchSheetWrite")?.addEventListener("click", submitBatchWrite);
+  return dialog;
+}
+
 function setDialogStatus(message, kind = "") {
   const node = document.querySelector("#writeDialogStatus");
+  if (!node) return;
+  node.textContent = message;
+  node.className = `write-dialog-status${kind ? ` is-${kind}` : ""}`;
+}
+
+function setBatchDialogStatus(message, kind = "") {
+  const node = document.querySelector("#batchWriteDialogStatus");
   if (!node) return;
   node.textContent = message;
   node.className = `write-dialog-status${kind ? ` is-${kind}` : ""}`;
@@ -211,12 +270,24 @@ function renderDialogSummary(dialog, proposal, preview) {
   summary.append(title, detail, teams);
 }
 
-function openWriteDialog(button, proposal, preview) {
+function openWriteDialog(summaryNode, button, proposal, preview) {
   const dialog = createDialog();
-  activeWrite = { button, proposal, preview };
+  activeWrite = { summaryNode, button, proposal, preview };
   renderDialogSummary(dialog, proposal, preview);
   setDialogStatus("Aucune écriture n’est faite avant ta confirmation.");
   dialog.showModal();
+}
+
+function markSummaryProcessed(summary, status = "done") {
+  if (!(summary instanceof HTMLElement)) return;
+  summary.dataset.sheetWriteDone = "1";
+  const button = summary.querySelector(".sheet-write-button");
+  if (!button) return;
+  button.disabled = true;
+  button.classList.add("is-written");
+  button.textContent = status === "same" || status === "worse"
+    ? "Déjà à jour ✓"
+    : "Enregistré ✓";
 }
 
 async function submitActiveWrite() {
@@ -235,7 +306,7 @@ async function submitActiveWrite() {
     return;
   }
 
-  const { proposal, button } = activeWrite;
+  const { proposal, summaryNode } = activeWrite;
   let metadata = proposal.metadata;
   if (proposal.action === "create") {
     metadata = metadataFromDialog(dialog);
@@ -279,22 +350,272 @@ async function submitActiveWrite() {
     }
 
     saveWriteKey(writeKey);
+    markSummaryProcessed(summaryNode, data.status);
 
     if (data.changed) {
       const workflowText = data.workflow?.dispatched
         ? " Le rafraîchissement war-counters.json a été déclenché."
         : " Le Sheet est à jour ; le JSON sera rafraîchi par son workflow habituel.";
       setDialogStatus(`${data.message}${workflowText}`, "success");
-      button.textContent = "Enregistré ✓";
-      button.disabled = true;
-      button.classList.add("is-written");
     } else {
       setDialogStatus(`${data.message} Aucune écriture nécessaire.`, "success");
-      button.textContent = "Déjà à jour ✓";
-      button.disabled = true;
     }
+    await refreshBatchPanel();
   } catch (error) {
     setDialogStatus(error?.message || "Écriture impossible.", "error");
+  } finally {
+    confirmButton.disabled = false;
+  }
+}
+
+function proposalPayload(proposal) {
+  return {
+    attackIds: [...proposal.attackIds],
+    defenseIds: [...proposal.defenseIds],
+    attackPower: proposal.attackPower,
+    defensePower: proposal.defensePower,
+    metadata: proposal.action === "create" ? { ...proposal.metadata } : null
+  };
+}
+
+async function collectBatchEntries() {
+  const support = await loadSupportData();
+  const summaries = [...document.querySelectorAll(".counter-summary")];
+  const entries = [];
+  let blocked = 0;
+
+  for (const summary of summaries) {
+    if (summary.dataset.sheetWriteDone === "1") continue;
+    const preview = reconstructPreview(summary, support);
+    if (!preview) continue;
+    const proposal = buildWriteProposal({
+      preview,
+      rows: support.counters,
+      nameForId: preview.nameForId
+    });
+    if (!proposal) continue;
+    if (proposal.action === "blocked") {
+      blocked += 1;
+      continue;
+    }
+    entries.push({
+      summary,
+      preview,
+      proposal,
+      key: matchupKey(proposal.attackIds, proposal.defenseIds)
+    });
+  }
+
+  return { summaries, entries, blocked };
+}
+
+function groupBatchEntries(entries) {
+  const grouped = new Map();
+  for (const entry of entries) {
+    const existing = grouped.get(entry.key);
+    if (!existing) {
+      grouped.set(entry.key, { ...entry, summaries: [entry.summary], sourceCount: 1 });
+      continue;
+    }
+
+    existing.sourceCount += 1;
+    existing.summaries.push(entry.summary);
+    if (entry.proposal.ratio < existing.proposal.ratio) {
+      existing.proposal = entry.proposal;
+      existing.preview = entry.preview;
+      existing.summary = entry.summary;
+    }
+  }
+  return [...grouped.values()];
+}
+
+function batchCounts(groups) {
+  return {
+    total: groups.length,
+    create: groups.filter((entry) => entry.proposal.action === "create").length,
+    update: groups.filter((entry) => entry.proposal.action === "update").length,
+    duplicates: groups.reduce((sum, entry) => sum + Math.max(0, entry.sourceCount - 1), 0)
+  };
+}
+
+async function refreshBatchPanel() {
+  const panel = document.querySelector("#sheetBatchPanel");
+  const badge = document.querySelector("#sheetBatchBadge");
+  const text = document.querySelector("#sheetBatchSummary");
+  const button = document.querySelector("#sheetBatchButton");
+  if (!panel || !badge || !text || !button) return;
+
+  try {
+    const collection = await collectBatchEntries();
+    if (!collection.summaries.length) {
+      panel.hidden = true;
+      return;
+    }
+
+    panel.hidden = false;
+    const groups = groupBatchEntries(collection.entries);
+    const counts = batchCounts(groups);
+
+    if (!counts.total) {
+      badge.textContent = collection.blocked ? `${collection.blocked} à corriger` : "À jour";
+      text.textContent = collection.blocked
+        ? `${collection.blocked} contre(s) ne peuvent pas encore être préparés. Corrige leur composition avant l’écriture.`
+        : "Aucun nouveau matchup ni meilleure valeur à envoyer au Sheet.";
+      button.disabled = true;
+      button.textContent = "Aucune écriture nécessaire";
+      return;
+    }
+
+    badge.textContent = `${counts.total} prêt${counts.total > 1 ? "s" : ""}`;
+    const parts = [];
+    if (counts.create) parts.push(`${counts.create} nouveau${counts.create > 1 ? "x" : ""}`);
+    if (counts.update) parts.push(`${counts.update} amélioration${counts.update > 1 ? "s" : ""}`);
+    if (counts.duplicates) parts.push(`${counts.duplicates} doublon${counts.duplicates > 1 ? "s" : ""} regroupé${counts.duplicates > 1 ? "s" : ""}`);
+    if (collection.blocked) parts.push(`${collection.blocked} à corriger`);
+    text.textContent = `${parts.join(" · ")}. Vérifie les captures puis enregistre tout le lot en une seule fois.`;
+    button.disabled = false;
+    button.textContent = `Enregistrer ${counts.total} contre${counts.total > 1 ? "s" : ""} dans Sheets`;
+  } catch (error) {
+    panel.hidden = false;
+    badge.textContent = "Indisponible";
+    text.textContent = "La préparation du lot est momentanément indisponible.";
+    button.disabled = true;
+    console.warn("[war-counter-write] lot indisponible:", error);
+  }
+}
+
+function renderBatchDialog(dialog, groups, blocked) {
+  const summary = dialog.querySelector("#batchWriteDialogSummary");
+  const preview = dialog.querySelector("#batchWritePreview");
+  const adminKey = dialog.querySelector("#batchWriteAdminKey");
+  const counts = batchCounts(groups);
+  summary.replaceChildren();
+  preview.replaceChildren();
+
+  const title = document.createElement("strong");
+  title.textContent = `${counts.total} matchup${counts.total > 1 ? "s" : ""} unique${counts.total > 1 ? "s" : ""} à traiter`;
+  const detail = document.createElement("span");
+  detail.textContent = `${counts.create} nouveau${counts.create > 1 ? "x" : ""} · ${counts.update} amélioration${counts.update > 1 ? "s" : ""}`;
+  const extra = document.createElement("small");
+  const extras = [];
+  if (counts.duplicates) extras.push(`${counts.duplicates} capture${counts.duplicates > 1 ? "s" : ""} en doublon regroupée${counts.duplicates > 1 ? "s" : ""} automatiquement sur le meilleur ratio`);
+  if (blocked) extras.push(`${blocked} contre${blocked > 1 ? "s" : ""} non résolu${blocked > 1 ? "s" : ""} ignoré${blocked > 1 ? "s" : ""}`);
+  extra.textContent = extras.length ? extras.join(" · ") : "Le Worker relira le Sheet et revérifiera chaque matchup avant toute écriture.";
+  summary.append(title, detail, extra);
+
+  const list = document.createElement("ul");
+  list.className = "batch-write-list";
+  groups.slice(0, 12).forEach((entry) => {
+    const item = document.createElement("li");
+    const ratio = entry.proposal.ratio.toFixed(2).replace(".", ",");
+    item.textContent = `${entry.preview.defenseTeam.variant} ← ${entry.preview.attackTeam.variant} · ${ratio}`;
+    list.append(item);
+  });
+  preview.append(list);
+  if (groups.length > 12) {
+    const more = document.createElement("p");
+    more.className = "muted batch-write-more";
+    more.textContent = `+ ${groups.length - 12} autre${groups.length - 12 > 1 ? "s" : ""} matchup${groups.length - 12 > 1 ? "s" : ""}`;
+    preview.append(more);
+  }
+
+  if (adminKey) adminKey.value = readWriteKey();
+}
+
+async function openBatchDialog() {
+  const collection = await collectBatchEntries();
+  const groups = groupBatchEntries(collection.entries);
+  if (!groups.length) {
+    await refreshBatchPanel();
+    return;
+  }
+
+  const dialog = createBatchDialog();
+  activeBatch = { groups, blocked: collection.blocked };
+  renderBatchDialog(dialog, groups, collection.blocked);
+  setBatchDialogStatus("Une seule confirmation et une seule saisie de clé pour tout le lot.");
+  dialog.showModal();
+}
+
+function batchResultMessage(summary, workflow) {
+  const parts = [];
+  if (summary.created) parts.push(`${summary.created} créé${summary.created > 1 ? "s" : ""}`);
+  if (summary.updated) parts.push(`${summary.updated} amélioré${summary.updated > 1 ? "s" : ""}`);
+  if (summary.same) parts.push(`${summary.same} déjà identique${summary.same > 1 ? "s" : ""}`);
+  if (summary.worse) parts.push(`${summary.worse} déjà meilleur${summary.worse > 1 ? "s" : ""}`);
+  if (summary.conflicts) parts.push(`${summary.conflicts} conflit${summary.conflicts > 1 ? "s" : ""}`);
+  if (summary.duplicates) parts.push(`${summary.duplicates} doublon${summary.duplicates > 1 ? "s" : ""} regroupé${summary.duplicates > 1 ? "s" : ""}`);
+  const refresh = workflow?.dispatched
+    ? " Rafraîchissement de war-counters.json déclenché."
+    : "";
+  return `${parts.join(" · ") || "Aucune modification"}.${refresh}`;
+}
+
+async function submitBatchWrite() {
+  const dialog = createBatchDialog();
+  const confirmButton = dialog.querySelector("#confirmBatchSheetWrite");
+  const session = readSessionToken();
+  const writeKey = String(dialog.querySelector("#batchWriteAdminKey")?.value || "").trim();
+
+  if (!session) {
+    setBatchDialogStatus("Connexion LoSP requise. Connecte-toi avec Discord puis reviens sur cette page.", "error");
+    return;
+  }
+  if (!writeKey) {
+    setBatchDialogStatus("La clé d’écriture administrateur est requise.", "error");
+    return;
+  }
+
+  const collection = await collectBatchEntries();
+  const groups = groupBatchEntries(collection.entries);
+  if (!groups.length) {
+    setBatchDialogStatus("Plus aucun contre à enregistrer.", "success");
+    await refreshBatchPanel();
+    return;
+  }
+  activeBatch = { groups, blocked: collection.blocked };
+
+  confirmButton.disabled = true;
+  setBatchDialogStatus(`Vérification en direct puis écriture de ${groups.length} matchup${groups.length > 1 ? "s" : ""}…`);
+
+  try {
+    const response = await fetch(`${WRITE_WORKER_URL}/api/war-counter-write/apply-batch`, {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session}`,
+        "X-War-Counter-Write-Key": writeKey
+      },
+      body: JSON.stringify({
+        items: groups.map((entry) => proposalPayload(entry.proposal))
+      })
+    });
+
+    let data = null;
+    try {
+      data = await response.json();
+    } catch (_) {}
+
+    if (!response.ok || !data?.ok) {
+      if (response.status === 403) clearWriteKey();
+      throw new Error(data?.error || data?.message || `Écriture du lot impossible (HTTP ${response.status}).`);
+    }
+
+    saveWriteKey(writeKey);
+    const groupsByKey = new Map(groups.map((entry) => [entry.key, entry]));
+    const terminalStatuses = new Set(["created", "updated", "same", "worse"]);
+    for (const result of Array.isArray(data.results) ? data.results : []) {
+      if (!terminalStatuses.has(result.status)) continue;
+      const group = groupsByKey.get(result.key);
+      group?.summaries?.forEach((summary) => markSummaryProcessed(summary, result.status));
+    }
+
+    const kind = data.summary?.conflicts ? "error" : "success";
+    setBatchDialogStatus(batchResultMessage(data.summary || {}, data.workflow), kind);
+    await refreshBatchPanel();
+  } catch (error) {
+    setBatchDialogStatus(error?.message || "Écriture du lot impossible.", "error");
   } finally {
     confirmButton.disabled = false;
   }
@@ -324,9 +645,9 @@ async function enhanceSummary(summary) {
     button.type = "button";
     button.className = "primary-button sheet-write-button";
     button.textContent = proposal.action === "create"
-      ? "Préparer l’ajout au Sheet"
-      : "Préparer l’amélioration";
-    button.addEventListener("click", () => openWriteDialog(button, proposal, preview));
+      ? "Écrire ce contre seul"
+      : "Appliquer cette amélioration seule";
+    button.addEventListener("click", () => openWriteDialog(summary, button, proposal, preview));
     sheetState.append(button);
   } catch (error) {
     console.warn("[war-counter-write] préparation indisponible:", error);
@@ -338,14 +659,18 @@ async function enhanceSummary(summary) {
 function scheduleEnhance() {
   if (enhanceScheduled) return;
   enhanceScheduled = true;
-  queueMicrotask(() => {
+  queueMicrotask(async () => {
     enhanceScheduled = false;
-    document.querySelectorAll(".counter-summary").forEach((summary) => enhanceSummary(summary));
+    const summaries = [...document.querySelectorAll(".counter-summary")];
+    await Promise.all(summaries.map((summary) => enhanceSummary(summary)));
+    await refreshBatchPanel();
   });
 }
 
 export function initWarCounterWriteUi() {
   createDialog();
+  createBatchDialog();
+  document.querySelector("#sheetBatchButton")?.addEventListener("click", openBatchDialog);
   scheduleEnhance();
   const root = document.querySelector("#captureResults");
   if (!root || observer) return;
