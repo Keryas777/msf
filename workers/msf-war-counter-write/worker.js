@@ -4,6 +4,7 @@ const DEFAULT_SPREADSHEET_ID = "1RxAokcQw7rhNigPj8VwipbRRf9PVNA6lJzIVqdMBAXQ";
 const DEFAULT_SHEET_NAME = "WarCounters";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
+const MAX_BATCH_ITEMS = 100;
 
 function envValue(env, key, fallback = "") {
   return String(env?.[key] ?? fallback).trim();
@@ -191,6 +192,10 @@ function canonicalTeamKey(ids) {
     .join("|");
 }
 
+function matchupKey(attackIds, defenseIds) {
+  return `${canonicalTeamKey(attackIds)}>>${canonicalTeamKey(defenseIds)}`;
+}
+
 function ceilRatioToHundredth(value) {
   const number = Number(value);
   if (!Number.isFinite(number) || number <= 0) return null;
@@ -304,6 +309,115 @@ function validatedMetadata(value) {
   return result;
 }
 
+function normalizeBatchItems(value) {
+  const rawItems = Array.isArray(value) ? value : [];
+  if (!rawItems.length) {
+    const error = new Error("Aucun contre à enregistrer.");
+    error.status = 400;
+    throw error;
+  }
+  if (rawItems.length > MAX_BATCH_ITEMS) {
+    const error = new Error(`Lot trop grand : ${MAX_BATCH_ITEMS} contres maximum.`);
+    error.status = 400;
+    throw error;
+  }
+
+  const grouped = new Map();
+  rawItems.forEach((raw, index) => {
+    const attackIds = normalizeIds(raw?.attackIds, `Composition attaque #${index + 1}`);
+    const defenseIds = normalizeIds(raw?.defenseIds, `Composition défense #${index + 1}`);
+    const attackPower = Number(raw?.attackPower);
+    const defensePower = Number(raw?.defensePower);
+    const ratio = ratioFromPowers(attackPower, defensePower);
+    if (!ratio) {
+      const error = new Error(`Puissances invalides pour le contre #${index + 1}.`);
+      error.status = 400;
+      throw error;
+    }
+
+    const key = matchupKey(attackIds, defenseIds);
+    const candidate = {
+      key,
+      attackIds,
+      defenseIds,
+      attackPower,
+      defensePower,
+      ratio,
+      metadata: raw?.metadata,
+      sourceIndexes: [index]
+    };
+    const existing = grouped.get(key);
+    if (!existing) {
+      grouped.set(key, candidate);
+      return;
+    }
+
+    const sourceIndexes = [...existing.sourceIndexes, index];
+    if (candidate.ratio < existing.ratio) {
+      candidate.sourceIndexes = sourceIndexes;
+      grouped.set(key, candidate);
+    } else {
+      existing.sourceIndexes = sourceIndexes;
+    }
+  });
+
+  const items = [...grouped.values()].sort((a, b) => a.sourceIndexes[0] - b.sourceIndexes[0]);
+  return {
+    inputCount: rawItems.length,
+    duplicateCount: rawItems.length - items.length,
+    items
+  };
+}
+
+function buildBatchPlan(rows, items) {
+  const creates = [];
+  const updates = [];
+  const skipped = [];
+  const conflicts = [];
+
+  for (const item of items) {
+    const matches = matchingRows(rows, item.attackIds, item.defenseIds);
+    const comparison = analyzeExisting(matches, item.ratio);
+
+    if (comparison.status === "conflict") {
+      conflicts.push({
+        ...item,
+        status: "conflict",
+        rows: matches.map((row) => row.__sheetRow)
+      });
+      continue;
+    }
+
+    if (comparison.status === "same" || comparison.status === "worse") {
+      skipped.push({
+        ...item,
+        status: comparison.status,
+        existingRatio: comparison.existingRatio,
+        rows: matches.map((row) => row.__sheetRow)
+      });
+      continue;
+    }
+
+    if (comparison.status === "improves") {
+      updates.push({
+        ...item,
+        status: "updated",
+        previousRatio: comparison.existingRatio,
+        matches
+      });
+      continue;
+    }
+
+    creates.push({
+      ...item,
+      status: "created",
+      metadata: validatedMetadata(item.metadata)
+    });
+  }
+
+  return { creates, updates, skipped, conflicts };
+}
+
 async function updateHardRatios(env, accessToken, matches, ratio) {
   const { spreadsheetId, sheetName } = sheetConfig(env);
   const data = matches.map((row) => ({
@@ -319,12 +433,29 @@ async function updateHardRatios(env, accessToken, matches, ratio) {
   return matches.map((row) => row.__sheetRow);
 }
 
-async function appendNewCounter(env, accessToken, attackIds, defenseIds, ratio, metadata, currentValues) {
+async function updateHardRatiosBatch(env, accessToken, updates) {
+  if (!updates.length) return [];
   const { spreadsheetId, sheetName } = sheetConfig(env);
-  const nextRow = Math.max(2, currentValues.length + 1);
+  const data = updates.flatMap((entry) => entry.matches.map((row) => ({
+    range: `${sheetName}!Q${row.__sheetRow}`,
+    majorDimension: "ROWS",
+    values: [[entry.ratio]]
+  })));
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(spreadsheetId)}/values:batchUpdate`;
+  await googleJson(url, accessToken, {
+    method: "POST",
+    body: JSON.stringify({ valueInputOption: "RAW", data })
+  });
+  return updates.map((entry) => ({
+    key: entry.key,
+    rows: entry.matches.map((row) => row.__sheetRow)
+  }));
+}
+
+function counterRow(attackIds, defenseIds, ratio, metadata, rowNumber) {
   const def = [...defenseIds, "", "", "", "", ""].slice(0, 5);
   const atk = [...attackIds, "", "", "", "", ""].slice(0, 5);
-  const values = [[
+  return [
     metadata.def_family,
     metadata.def_variant,
     metadata.def_key,
@@ -334,12 +465,18 @@ async function appendNewCounter(env, accessToken, attackIds, defenseIds, ratio, 
     metadata.atk_key,
     ...atk,
     ratio,
-    `=Q${nextRow}+0.15`,
-    `=Q${nextRow}+0.3`,
-    `=Q${nextRow}+1.3`,
-    `=Q${nextRow}+1.8`,
+    `=Q${rowNumber}+0.15`,
+    `=Q${rowNumber}+0.3`,
+    `=Q${rowNumber}+1.3`,
+    `=Q${rowNumber}+1.8`,
     metadata.notes
-  ]];
+  ];
+}
+
+async function appendNewCounter(env, accessToken, attackIds, defenseIds, ratio, metadata, currentValues) {
+  const { spreadsheetId, sheetName } = sheetConfig(env);
+  const nextRow = Math.max(2, currentValues.length + 1);
+  const values = [counterRow(attackIds, defenseIds, ratio, metadata, nextRow)];
   const range = encodeURIComponent(`${sheetName}!A:V`);
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(spreadsheetId)}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS&includeValuesInResponse=false`;
   const data = await googleJson(url, accessToken, {
@@ -370,6 +507,43 @@ async function appendNewCounter(env, accessToken, attackIds, defenseIds, ratio, 
   return actualRow;
 }
 
+async function appendNewCountersBatch(env, accessToken, creates, currentValues) {
+  if (!creates.length) return [];
+  const { spreadsheetId, sheetName } = sheetConfig(env);
+  const expectedStart = Math.max(2, currentValues.length + 1);
+  const values = creates.map((entry, index) =>
+    counterRow(entry.attackIds, entry.defenseIds, entry.ratio, entry.metadata, expectedStart + index)
+  );
+  const range = encodeURIComponent(`${sheetName}!A:V`);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(spreadsheetId)}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS&includeValuesInResponse=false`;
+  const data = await googleJson(url, accessToken, {
+    method: "POST",
+    body: JSON.stringify({ majorDimension: "ROWS", values })
+  });
+  const updatedRange = String(data?.updates?.updatedRange || "");
+  const match = updatedRange.match(/!A(\d+):V(\d+)/i);
+  const actualStart = match ? Number(match[1]) : expectedStart;
+  const actualRows = creates.map((_, index) => actualStart + index);
+
+  if (actualStart !== expectedStart) {
+    const actualEnd = actualStart + creates.length - 1;
+    const patchRange = encodeURIComponent(`${sheetName}!R${actualStart}:U${actualEnd}`);
+    const patchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(spreadsheetId)}/values/${patchRange}?valueInputOption=USER_ENTERED`;
+    const formulas = actualRows.map((row) => [
+      `=Q${row}+0.15`,
+      `=Q${row}+0.3`,
+      `=Q${row}+1.3`,
+      `=Q${row}+1.8`
+    ]);
+    await googleJson(patchUrl, accessToken, {
+      method: "PUT",
+      body: JSON.stringify({ majorDimension: "ROWS", values: formulas })
+    });
+  }
+
+  return creates.map((entry, index) => ({ key: entry.key, row: actualRows[index] }));
+}
+
 async function dispatchJsonRefresh(env) {
   const token = envValue(env, "GITHUB_WORKFLOW_TOKEN");
   if (!token) return { dispatched: false, reason: "token_not_configured" };
@@ -393,16 +567,19 @@ async function dispatchJsonRefresh(env) {
   return { dispatched: true, reason: null };
 }
 
-async function handleApply(request, env) {
-  const admin = await requireAdmin(request, env);
-  let body = null;
+async function requestJson(request) {
   try {
-    body = await request.json();
+    return await request.json();
   } catch (_) {
     const error = new Error("JSON de requête invalide.");
     error.status = 400;
     throw error;
   }
+}
+
+async function handleApply(request, env) {
+  const admin = await requireAdmin(request, env);
+  const body = await requestJson(request);
 
   const attackIds = normalizeIds(body?.attackIds, "Composition attaque");
   const defenseIds = normalizeIds(body?.defenseIds, "Composition défense");
@@ -480,6 +657,81 @@ async function handleApply(request, env) {
   }, request, env);
 }
 
+async function handleApplyBatch(request, env) {
+  const admin = await requireAdmin(request, env);
+  const body = await requestJson(request);
+  const normalized = normalizeBatchItems(body?.items);
+
+  const accessToken = await serviceAccountAccessToken(env);
+  const rawValues = await readSheetRows(env, accessToken);
+  const rows = rowsAsObjects(rawValues);
+  const plan = buildBatchPlan(rows, normalized.items);
+
+  const updatedRows = await updateHardRatiosBatch(env, accessToken, plan.updates);
+  const createdRows = await appendNewCountersBatch(env, accessToken, plan.creates, rawValues);
+  const updatedByKey = new Map(updatedRows.map((entry) => [entry.key, entry.rows]));
+  const createdByKey = new Map(createdRows.map((entry) => [entry.key, entry.row]));
+
+  const results = [
+    ...plan.creates.map((entry) => ({
+      key: entry.key,
+      status: "created",
+      ratio: entry.ratio,
+      rows: [createdByKey.get(entry.key)].filter(Boolean),
+      sourceIndexes: entry.sourceIndexes
+    })),
+    ...plan.updates.map((entry) => ({
+      key: entry.key,
+      status: "updated",
+      ratio: entry.ratio,
+      previousRatio: entry.previousRatio,
+      rows: updatedByKey.get(entry.key) || [],
+      sourceIndexes: entry.sourceIndexes
+    })),
+    ...plan.skipped.map((entry) => ({
+      key: entry.key,
+      status: entry.status,
+      ratio: entry.ratio,
+      existingRatio: entry.existingRatio,
+      rows: entry.rows,
+      sourceIndexes: entry.sourceIndexes
+    })),
+    ...plan.conflicts.map((entry) => ({
+      key: entry.key,
+      status: "conflict",
+      ratio: entry.ratio,
+      rows: entry.rows,
+      sourceIndexes: entry.sourceIndexes
+    }))
+  ].sort((a, b) => (a.sourceIndexes?.[0] ?? 0) - (b.sourceIndexes?.[0] ?? 0));
+
+  const changed = plan.creates.length > 0 || plan.updates.length > 0;
+  const workflow = changed
+    ? await dispatchJsonRefresh(env)
+    : { dispatched: false, reason: "no_changes" };
+
+  return jsonResponse({
+    ok: true,
+    changed,
+    summary: {
+      received: normalized.inputCount,
+      unique: normalized.items.length,
+      duplicates: normalized.duplicateCount,
+      created: plan.creates.length,
+      updated: plan.updates.length,
+      same: plan.skipped.filter((entry) => entry.status === "same").length,
+      worse: plan.skipped.filter((entry) => entry.status === "worse").length,
+      conflicts: plan.conflicts.length
+    },
+    results,
+    workflow,
+    admin: {
+      id: String(admin.id || ""),
+      displayName: String(admin.displayName || admin.global_name || admin.username || "")
+    }
+  }, request, env);
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
@@ -508,15 +760,30 @@ export default {
       }
     }
 
+    if (url.pathname === "/api/war-counter-write/apply-batch") {
+      if (request.method !== "POST") return jsonResponse({ ok: false, error: "method_not_allowed" }, request, env, 405);
+      try {
+        return await handleApplyBatch(request, env);
+      } catch (error) {
+        return jsonResponse({
+          ok: false,
+          error: error?.message || String(error)
+        }, request, env, Number(error?.status) || 500);
+      }
+    }
+
     return jsonResponse({ ok: false, error: "not_found" }, request, env, 404);
   }
 };
 
 export {
   analyzeExisting,
+  buildBatchPlan,
   canonicalTeamKey,
   ceilRatioToHundredth,
   matchingRows,
+  matchupKey,
+  normalizeBatchItems,
   ratioFromPowers,
   rowsAsObjects
 };
