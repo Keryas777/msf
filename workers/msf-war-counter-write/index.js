@@ -1,6 +1,10 @@
 import worker from "./worker.js";
 
 const DEFAULT_SITE_ORIGIN = "https://keryas777.github.io";
+const WRITE_PATHS = new Set([
+  "/api/war-counter-write/apply",
+  "/api/war-counter-write/apply-batch"
+]);
 
 function corsHeaders(request, env) {
   const allowed = String(env?.SITE_ORIGIN || DEFAULT_SITE_ORIGIN).trim();
@@ -65,7 +69,7 @@ export default {
       }, request, env);
     }
 
-    if (url.pathname === "/api/war-counter-write/apply") {
+    if (WRITE_PATHS.has(url.pathname)) {
       if (!(await hasValidWriteKey(request, env))) {
         return jsonResponse({
           ok: false,
@@ -78,4 +82,4 @@ export default {
   }
 };
 
-export { constantTimeEqual, hasValidWriteKey };
+export { constantTimeEqual, hasValidWriteKey, WRITE_PATHS };
