@@ -5,6 +5,22 @@
 .sheet-write-button.is-written{
   background:#1d744c;
 }
+.sheet-batch-panel{
+  display:grid;
+  gap:12px;
+}
+.sheet-batch-panel[hidden]{display:none}
+.sheet-batch-panel .section-heading{
+  margin-bottom:0;
+}
+.sheet-batch-summary{
+  margin:0;
+  color:#b9c6e0;
+  line-height:1.45;
+}
+.sheet-batch-button{
+  width:100%;
+}
 .write-dialog{
   width:min(94vw,720px);
   max-height:90vh;
@@ -99,6 +115,37 @@
   color:#ffd993;
   font-size:.78rem;
   line-height:1.4;
+}
+.batch-write-warning{
+  margin-top:14px;
+}
+.batch-write-preview{
+  max-height:32vh;
+  overflow:auto;
+  margin-top:12px;
+  border:1px solid #2d3f64;
+  border-radius:13px;
+  background:#07101f;
+}
+.batch-write-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+.batch-write-list li{
+  padding:10px 12px;
+  color:#d7e0f2;
+  font-size:.82rem;
+  line-height:1.35;
+  border-bottom:1px solid #1d2b49;
+}
+.batch-write-list li:last-child{
+  border-bottom:0;
+}
+.batch-write-more{
+  margin:0;
+  padding:10px 12px;
+  border-top:1px solid #1d2b49;
 }
 .write-dialog-status{
   min-height:1.4em;
