@@ -2,9 +2,14 @@
   "name": "msf-war-counter-write",
   "main": "index.js",
   "compatibility_date": "2026-09-01",
+  "services": [
+    {
+      "binding": "LOSP_AUTH",
+      "service": "losp-auth"
+    }
+  ],
   "vars": {
     "SITE_ORIGIN": "https://keryas777.github.io",
-    "AUTH_BASE_URL": "https://losp-auth.deliriousfan7.workers.dev",
     "GOOGLE_SPREADSHEET_ID": "1RxAokcQw7rhNigPj8VwipbRRf9PVNA6lJzIVqdMBAXQ",
     "GOOGLE_SHEET_NAME": "WarCounters",
     "GITHUB_REPO_OWNER": "Keryas777",

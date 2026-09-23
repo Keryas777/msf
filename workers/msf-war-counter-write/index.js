@@ -1,7 +1,6 @@
-import worker from "./worker.js";
+import worker, { fetchAuthMe } from "./worker.js";
 
 const DEFAULT_SITE_ORIGIN = "https://keryas777.github.io";
-const DEFAULT_AUTH_BASE_URL = "https://losp-auth.deliriousfan7.workers.dev";
 const AUTH_CHECK_PATH = "/api/war-counter-write/auth-check";
 const WRITE_PATHS = new Set([
   "/api/war-counter-write/apply",
@@ -47,25 +46,16 @@ async function verifyWriteAdminSession(request, env) {
     };
   }
 
-  const authBase = String(env?.AUTH_BASE_URL || DEFAULT_AUTH_BASE_URL).trim().replace(/\/$/, "");
   const siteOrigin = String(env?.SITE_ORIGIN || DEFAULT_SITE_ORIGIN).trim();
 
   let response;
   try {
-    response = await fetch(`${authBase}/me`, {
-      method: "GET",
-      cache: "no-store",
-      headers: {
-        Authorization: `Bearer ${session}`,
-        Origin: siteOrigin,
-        Accept: "application/json"
-      }
-    });
+    response = await fetchAuthMe(env, session, { origin: siteOrigin });
   } catch (error) {
     return {
       ok: false,
-      status: 502,
-      reason: "auth_fetch_failed",
+      status: Number(error?.status) || 502,
+      reason: String(error?.code || "auth_fetch_failed"),
       authStatus: 0
     };
   }
@@ -135,6 +125,7 @@ export default {
       return jsonResponse({
         ok: true,
         service: "msf-war-counter-write",
+        authBindingConfigured: Boolean(env?.LOSP_AUTH && typeof env.LOSP_AUTH.fetch === "function"),
         googleConfigured: Boolean(String(env?.GOOGLE_SERVICE_ACCOUNT_EMAIL || "").trim() && String(env?.GOOGLE_PRIVATE_KEY || "").trim()),
         adminKeyConfigured: Boolean(String(env?.WRITE_ADMIN_SECRET || "").trim()),
         workflowDispatchConfigured: Boolean(String(env?.GITHUB_WORKFLOW_TOKEN || "").trim())

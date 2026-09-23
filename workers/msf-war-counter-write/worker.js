@@ -1,5 +1,5 @@
 const DEFAULT_SITE_ORIGIN = "https://keryas777.github.io";
-const DEFAULT_AUTH_BASE_URL = "https://losp-auth.deliriousfan7.workers.dev";
+const AUTH_INTERNAL_URL = "https://losp-auth.internal/me";
 const DEFAULT_SPREADSHEET_ID = "1RxAokcQw7rhNigPj8VwipbRRf9PVNA6lJzIVqdMBAXQ";
 const DEFAULT_SHEET_NAME = "WarCounters";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -38,6 +38,31 @@ function getBearer(request) {
   return value.toLowerCase().startsWith("bearer ") ? value.slice(7).trim() : "";
 }
 
+function getAuthBinding(env) {
+  const binding = env?.LOSP_AUTH;
+  if (!binding || typeof binding.fetch !== "function") {
+    const error = new Error("Service d’authentification LoSP non relié au Worker.");
+    error.status = 503;
+    error.code = "auth_binding_missing";
+    throw error;
+  }
+  return binding;
+}
+
+async function fetchAuthMe(env, session, { origin = "" } = {}) {
+  const headers = new Headers({
+    Authorization: `Bearer ${String(session || "").trim()}`,
+    Accept: "application/json"
+  });
+  if (origin) headers.set("Origin", origin);
+
+  return getAuthBinding(env).fetch(new Request(AUTH_INTERNAL_URL, {
+    method: "GET",
+    cache: "no-store",
+    headers
+  }));
+}
+
 async function requireAdmin(request, env) {
   const session = getBearer(request);
   if (!session) {
@@ -46,12 +71,16 @@ async function requireAdmin(request, env) {
     throw error;
   }
 
-  const authBase = envValue(env, "AUTH_BASE_URL", DEFAULT_AUTH_BASE_URL).replace(/\/$/, "");
-  const response = await fetch(`${authBase}/me`, {
-    method: "GET",
-    cache: "no-store",
-    headers: { Authorization: `Bearer ${session}` }
-  });
+  let response;
+  try {
+    response = await fetchAuthMe(env, session);
+  } catch (error) {
+    if (error?.code === "auth_binding_missing") throw error;
+    const wrapped = new Error("Vérification de la session LoSP indisponible.");
+    wrapped.status = 502;
+    wrapped.code = "auth_fetch_failed";
+    throw wrapped;
+  }
 
   let data = null;
   try {
@@ -781,9 +810,11 @@ export {
   buildBatchPlan,
   canonicalTeamKey,
   ceilRatioToHundredth,
+  fetchAuthMe,
   matchingRows,
   matchupKey,
   normalizeBatchItems,
   ratioFromPowers,
+  requireAdmin,
   rowsAsObjects
 };
