@@ -32,6 +32,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Test M3HeroSheet revision discovery
+        run: node --test tests/m3-hero-sheet-source.test.mjs
+
       - name: Run fetch script
         run: node scripts/fetch-characters.mjs
 
