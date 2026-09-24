@@ -7,8 +7,10 @@ on:
       - "docs/war-counter-write-*.js"
       - "docs/war-counter-write.css"
       - "docs/war-counter-lab-entry.js"
+      - "docs/war-counter-lab-stability.js"
       - "docs/war-counter-lab.html"
       - "tests/war-counter-write-*.test.mjs"
+      - "tests/war-counter-lab-entry.test.mjs"
       - ".github/workflows/deploy-msf-war-counter-write.yml"
   push:
     branches:
@@ -41,6 +43,7 @@ jobs:
         run: |
           node --input-type=module --check < docs/war-counter-write-ui.js
           node --input-type=module --check < docs/war-counter-lab-entry.js
+          node --input-type=module --check < docs/war-counter-lab-stability.js
 
       - name: Run Worker and proposal tests
         run: |
@@ -48,6 +51,7 @@ jobs:
           node --test workers/msf-war-counter-write/test/security.test.mjs
           node --test tests/war-counter-write-proposal.test.mjs
           node --test tests/war-counter-write-ui-static.test.mjs
+          node --test tests/war-counter-lab-entry.test.mjs
 
   deploy:
     name: Deploy dedicated Cloudflare Worker
