@@ -1,5 +1,6 @@
 // scripts/fetch-characters.mjs
 import fs from "node:fs/promises";
+import { resolveHeroSheetRevision } from "./m3-hero-sheet-source.mjs";
 
 const CHAR_LIST_URL =
   "https://api-prod.marvelstrikeforce.com/services/api/getCharacterList?lang=fr";
@@ -9,11 +10,6 @@ const LOC_HEROES_URL =
   "https://api-prod.marvelstrikeforce.com/services/api/getLocalization?tableId=heroes&lang=fr&format=json";
 const HERO_SHEET_HISTORY_URL =
   "https://msf-datamines.magneticzero.dev/file/heroes/M3HeroSheet.json";
-// Snapshot aligné sur le WebGL 10_5_0 build 1666317. À remplacer avec la
-// version source suivante; MSF_HERO_SHEET_REVISION permet un essai explicite.
-const HERO_SHEET_REVISION =
-  process.env.MSF_HERO_SHEET_REVISION ||
-  "828421b4c9b9e3ceb4f5ac538c072ce331ab9b6193fe6eb58a94c6675e139f74";
 
 function safeStr(v) {
   return typeof v === "string" ? v : v == null ? "" : String(v);
@@ -44,18 +40,24 @@ function decodeHtml(value) {
 }
 
 async function fetchHeroSheet() {
-  const overrideUrl = process.env.MSF_HERO_SHEET_URL;
-  if (overrideUrl) return fetchJson(overrideUrl);
-
-  const history = await fetchText(HERO_SHEET_HISTORY_URL);
-  const revisionPath = `/view/heroes/M3HeroSheet.json/${HERO_SHEET_REVISION}`;
-  if (!history.body.includes(revisionPath)) {
-    throw new Error(
-      `M3HeroSheet revision ${HERO_SHEET_REVISION} is not present in history`
-    );
+  const overrideUrl = safeStr(process.env.MSF_HERO_SHEET_URL).trim();
+  if (overrideUrl) {
+    console.log(`M3HeroSheet source override: ${overrideUrl}`);
+    return fetchJson(overrideUrl);
   }
 
-  const revision = await fetchText(new URL(revisionPath, history.url).href);
+  const history = await fetchText(HERO_SHEET_HISTORY_URL);
+  const selected = resolveHeroSheetRevision(
+    history.body,
+    safeStr(process.env.MSF_HERO_SHEET_REVISION).trim()
+  );
+
+  console.log(
+    `M3HeroSheet revision ${selected.revision} ` +
+      `(${selected.source === "override" ? "manual override" : "latest Magnetic Zero revision"})`
+  );
+
+  const revision = await fetchText(new URL(selected.revisionPath, history.url).href);
   const dumpMatch = revision.body.match(
     /<pre[^>]*class=["'][^"']*\bfiledump\b[^"']*["'][^>]*>([\s\S]*?)<\/pre>/i
   );
