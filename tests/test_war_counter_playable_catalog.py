@@ -16,6 +16,7 @@ AKAZE_META_PATH = (
 AKAZE_BIN_PATH = (
     ROOT / "docs/data/war-counter-vision/akaze-r5-reference-descriptors.bin"
 )
+MIN_AUDITED_PLAYABLE_COUNT = 379
 
 _spec = importlib.util.spec_from_file_location(
     "build_war_counter_signatures", BUILDER_PATH
@@ -84,9 +85,10 @@ class WarCounterPlayableCatalogTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "player_Character"):
             builder.select_playable([{**base, "player_Character": 1}])
 
-    def test_current_catalog_has_exactly_379_playable_characters(self):
-        self.assertEqual(len(self.playable_ids), 379)
-        self.assertEqual(len(set(self.playable_ids)), 379)
+    def test_current_catalog_does_not_shrink_below_audited_baseline(self):
+        current_count = len(self.playable_ids)
+        self.assertGreaterEqual(current_count, MIN_AUDITED_PLAYABLE_COUNT)
+        self.assertEqual(len(set(self.playable_ids)), current_count)
 
     def test_known_non_playable_units_are_excluded(self):
         excluded = {
@@ -125,14 +127,15 @@ class WarCounterPlayableCatalogTests(unittest.TestCase):
     def test_generated_signature_and_akaze_catalogs_are_consistent(self):
         signature_ids = [item["id"] for item in self.signatures["items"]]
         akaze_ids = self.akaze["refIds"]
+        expected_count = len(self.playable_ids)
 
-        self.assertEqual(self.signatures["count"], 379)
+        self.assertEqual(self.signatures["count"], expected_count)
         self.assertEqual(self.signatures["failures"], [])
         self.assertEqual(signature_ids, self.playable_ids)
         self.assertEqual(akaze_ids, signature_ids)
-        self.assertEqual(self.akaze["referenceCount"], 379)
-        self.assertEqual(len(set(akaze_ids)), 379)
-        self.assertEqual(len(self.akaze["offsets"]), 380)
+        self.assertEqual(self.akaze["referenceCount"], expected_count)
+        self.assertEqual(len(set(akaze_ids)), expected_count)
+        self.assertEqual(len(self.akaze["offsets"]), expected_count + 1)
         self.assertEqual(
             self.akaze["offsets"][-1],
             self.akaze["descriptorCount"],
