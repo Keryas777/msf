@@ -11,7 +11,7 @@ test("le labo charge l'entrée qui privilégie le Sheet direct", () => {
   assert.match(entry, /loadLiveWarCounters/);
   assert.match(entry, /data\/war-counters\.json/);
   assert.match(entry, /source === "sheet-live"/);
-  assert.match(entry, /json-fallback/);
+  assert.match(entry, /fallbackUrl:\s*localCountersUrl\.toString\(\)/);
 });
 
 test("l'interception reste limitée au seul war-counters.json", () => {
