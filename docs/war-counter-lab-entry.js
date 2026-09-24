@@ -1,5 +1,6 @@
 import { loadLiveWarCounters } from "./war-counter-live-source.js";
 import { ensureWarCounterWriteBearer } from "./war-counter-write-auth.js?v=2";
+import { installWarCounterLabStability } from "./war-counter-lab-stability.js?v=1";
 
 const sourceStatus = document.querySelector("#counterSourceStatus");
 const captureInput = document.querySelector("#captureInput");
@@ -107,6 +108,8 @@ globalThis.fetch = async (input, init) => {
     }
   });
 };
+
+installWarCounterLabStability();
 
 try {
   await import("./war-counter-lab.js?v=r7-vertical-1");
