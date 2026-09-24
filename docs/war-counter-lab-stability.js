@@ -136,23 +136,42 @@ function installStableResultsRoot(root, { windowObj, documentObj }) {
 }
 
 function installPullToRefreshGuard({ windowObj, documentObj }) {
-  let startY = null;
+  let lastY = null;
+  let topAnchorY = null;
 
   documentObj.addEventListener("touchstart", (event) => {
-    if (event.touches.length === 1 && windowObj.scrollY <= 0) {
-      startY = event.touches[0].clientY;
-    } else {
-      startY = null;
+    if (event.touches.length !== 1) {
+      lastY = null;
+      topAnchorY = null;
+      return;
     }
+
+    const currentY = event.touches[0].clientY;
+    lastY = currentY;
+    topAnchorY = windowObj.scrollY <= 0 ? currentY : null;
   }, { passive: true });
 
   documentObj.addEventListener("touchmove", (event) => {
-    if (startY === null || event.touches.length !== 1 || windowObj.scrollY > 0) return;
+    if (event.touches.length !== 1) {
+      lastY = null;
+      topAnchorY = null;
+      return;
+    }
+
     const currentY = event.touches[0].clientY;
-    if (currentY - startY > PULL_REFRESH_THRESHOLD) event.preventDefault();
+    if (windowObj.scrollY <= 0) {
+      if (topAnchorY === null) topAnchorY = lastY ?? currentY;
+      if (currentY - topAnchorY > PULL_REFRESH_THRESHOLD) event.preventDefault();
+    } else {
+      topAnchorY = null;
+    }
+    lastY = currentY;
   }, { passive: false });
 
-  const clear = () => { startY = null; };
+  const clear = () => {
+    lastY = null;
+    topAnchorY = null;
+  };
   documentObj.addEventListener("touchend", clear, { passive: true });
   documentObj.addEventListener("touchcancel", clear, { passive: true });
 }
