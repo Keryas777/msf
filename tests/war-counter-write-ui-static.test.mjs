@@ -21,14 +21,14 @@ test("la clé d'écriture n'est conservée qu'en sessionStorage", () => {
 });
 
 test("la confirmation d'écriture groupée est chargée autour du moteur Vision", () => {
-  assert.match(entry, /war-counter-lab\.js\?v=r7-entry-8/);
+  assert.match(entry, /war-counter-lab\.js\?v=r7-vertical-1/);
   assert.match(entry, /war-counter-write-ui\.js\?v=r2/);
   assert.match(entry, /war-counter-write-auth\.js\?v=2/);
   assert.match(entry, /initWarCounterWriteUi\(\)/);
   assert.match(html, /war-counter-write\.css\?v=r2/);
   assert.match(html, /id="sheetBatchPanel"/);
   assert.match(html, /id="sheetBatchButton"/);
-  assert.match(html, /war-counter-lab-entry\.js\?v=r7-entry-12/);
+  assert.match(html, /war-counter-lab-entry\.js\?v=r7-entry-13/);
 });
 
 test("le lot est regroupé côté navigateur et reste revérifié côté Worker", () => {
