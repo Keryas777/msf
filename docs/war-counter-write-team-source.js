@@ -55,7 +55,7 @@ export async function registerManualWarCounterTeam({
   mode = "Guerre"
 }) {
   const familyName = String(family || name || "").trim();
-  const variantName = String(variant || familyName || "").trim();
+  const variantName = String(variant || "").trim();
   const ids = [...new Set((Array.isArray(characters) ? characters : [])
     .map((id) => String(id || "").trim())
     .filter(Boolean))];
