@@ -6,7 +6,7 @@ const html = fs.readFileSync(new URL("../docs/war-counter-lab.html", import.meta
 const entry = fs.readFileSync(new URL("../docs/war-counter-lab-entry.js", import.meta.url), "utf8");
 
 test("le labo charge l'entrée qui privilégie le Sheet direct", () => {
-  assert.match(html, /war-counter-lab-entry\.js\?v=r7-entry-15/);
+  assert.match(html, /war-counter-lab-entry\.js\?v=r7-entry-16/);
   assert.match(html, /id="counterSourceStatus"/);
   assert.match(entry, /loadLiveWarCounters/);
   assert.match(entry, /data\/war-counters\.json/);
@@ -26,9 +26,10 @@ test("l'interception reste limitée aux sources War Counters attendues", () => {
 test("le module Vision versionné reste isolé du bootstrap d'entrée", () => {
   assert.match(entry, /war-counter-lab-stability\.js\?v=1/);
   assert.match(entry, /installWarCounterLabStability\(\)/);
-  assert.match(entry, /war-counter-write-team-source\.js\?v=1/);
-  assert.match(entry, /war-counter-write-manual-teams\.js\?v=1/);
+  assert.match(entry, /war-counter-write-team-source\.js\?v=2/);
+  assert.match(entry, /war-counter-write-manual-teams\.js\?v=2/);
+  assert.match(entry, /war-counter-write-ui\.js\?v=r3/);
   assert.match(entry, /initWarCounterManualTeamUi\(\)/);
-  assert.match(entry, /import\("\.\/war-counter-lab\.js\?v=r7-vertical-1"\)/);
+  assert.match(entry, /import\("\.\/war-counter-lab\.js\?v=r7-vertical-2"\)/);
   assert.doesNotMatch(entry, /AKAZE|R6\.6|readPowerFromImageData|analyzePortraitOccupancy/);
 });
