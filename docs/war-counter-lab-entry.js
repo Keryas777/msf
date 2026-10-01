@@ -4,7 +4,7 @@ import { installWarCounterLabStability } from "./war-counter-lab-stability.js?v=
 import {
   configureWarCounterTeamSource,
   createSharedWarCounterTeamsResponse
-} from "./war-counter-write-team-source.js?v=1";
+} from "./war-counter-write-team-source.js?v=2";
 
 const sourceStatus = document.querySelector("#counterSourceStatus");
 const captureInput = document.querySelector("#captureInput");
@@ -133,9 +133,9 @@ globalThis.fetch = async (input, init) => {
 installWarCounterLabStability();
 
 try {
-  await import("./war-counter-lab.js?v=r7-vertical-1");
-  const { initWarCounterManualTeamUi } = await import("./war-counter-write-manual-teams.js?v=1");
-  const { initWarCounterWriteUi } = await import("./war-counter-write-ui.js?v=r2");
+  await import("./war-counter-lab.js?v=r7-vertical-2");
+  const { initWarCounterManualTeamUi } = await import("./war-counter-write-manual-teams.js?v=2");
+  const { initWarCounterWriteUi } = await import("./war-counter-write-ui.js?v=r3");
   initWarCounterManualTeamUi();
   initWarCounterWriteUi();
 } catch (error) {
