@@ -1,6 +1,10 @@
 import { loadLiveWarCounters } from "./war-counter-live-source.js";
 import { ensureWarCounterWriteBearer } from "./war-counter-write-auth.js?v=2";
 import { installWarCounterLabStability } from "./war-counter-lab-stability.js?v=1";
+import {
+  configureWarCounterTeamSource,
+  createSharedWarCounterTeamsResponse
+} from "./war-counter-write-team-source.js?v=1";
 
 const sourceStatus = document.querySelector("#counterSourceStatus");
 const captureInput = document.querySelector("#captureInput");
@@ -48,7 +52,13 @@ if (!writeAuth.ok) {
 
 const nativeFetch = globalThis.fetch.bind(globalThis);
 const localCountersUrl = new URL("data/war-counters.json", window.location.href);
+const localTeamsUrl = new URL("data/teams.json", window.location.href);
 let counterSourcePromise = null;
+
+configureWarCounterTeamSource({
+  fetchImpl: nativeFetch,
+  url: localTeamsUrl.toString()
+});
 
 function requestUrl(input) {
   try {
@@ -62,6 +72,11 @@ function requestUrl(input) {
 function isWarCountersJsonRequest(input) {
   const url = requestUrl(input);
   return Boolean(url && url.origin === localCountersUrl.origin && url.pathname === localCountersUrl.pathname);
+}
+
+function isTeamsJsonRequest(input) {
+  const url = requestUrl(input);
+  return Boolean(url && url.origin === localTeamsUrl.origin && url.pathname === localTeamsUrl.pathname);
 }
 
 function renderSourceStatus(result) {
@@ -97,23 +112,31 @@ function loadCounterSource() {
 }
 
 globalThis.fetch = async (input, init) => {
-  if (!isWarCountersJsonRequest(input)) return nativeFetch(input, init);
+  if (isWarCountersJsonRequest(input)) {
+    const result = await loadCounterSource();
+    return new Response(JSON.stringify(result.rows), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        "X-War-Counters-Source": result.source
+      }
+    });
+  }
 
-  const result = await loadCounterSource();
-  return new Response(JSON.stringify(result.rows), {
-    status: 200,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "X-War-Counters-Source": result.source
-    }
-  });
+  if (isTeamsJsonRequest(input)) {
+    return createSharedWarCounterTeamsResponse();
+  }
+
+  return nativeFetch(input, init);
 };
 
 installWarCounterLabStability();
 
 try {
   await import("./war-counter-lab.js?v=r7-vertical-1");
+  const { initWarCounterManualTeamUi } = await import("./war-counter-write-manual-teams.js?v=1");
   const { initWarCounterWriteUi } = await import("./war-counter-write-ui.js?v=r2");
+  initWarCounterManualTeamUi();
   initWarCounterWriteUi();
 } catch (error) {
   if (sourceStatus) {
