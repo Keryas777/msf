@@ -1,4 +1,4 @@
-import { canonicalTeamKey, ceilRatioToHundredth } from "./war-counter-matchup-preview.js";
+import { canonicalTeamKey, ceilRatioToHundredth } from "./war-counter-matchup-preview.js?v=2";
 
 export function normalizeSheetKey(value) {
   return String(value ?? "")
@@ -58,6 +58,10 @@ export function suggestTeamSheetKey({ role, ids, teamInfo, rows, nameForId = (id
 
   if (sameVariantKeys.length === 1) {
     return { key: sameVariantKeys[0], source: "variant" };
+  }
+
+  if (teamInfo?.manual && variant) {
+    return { key: normalizeSheetKey(variant), source: "manual" };
   }
 
   const classicalKeys = list
