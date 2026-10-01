@@ -24,19 +24,19 @@ test("la clé d'écriture n'est conservée qu'en sessionStorage", () => {
 });
 
 test("la confirmation d'écriture groupée est chargée autour du moteur Vision", () => {
-  assert.match(entry, /war-counter-lab\.js\?v=r7-vertical-1/);
-  assert.match(entry, /war-counter-write-ui\.js\?v=r2/);
+  assert.match(entry, /war-counter-lab\.js\?v=r7-vertical-2/);
+  assert.match(entry, /war-counter-write-ui\.js\?v=r3/);
   assert.match(entry, /war-counter-write-auth\.js\?v=2/);
   assert.match(entry, /war-counter-lab-stability\.js\?v=1/);
-  assert.match(entry, /war-counter-write-team-source\.js\?v=1/);
-  assert.match(entry, /war-counter-write-manual-teams\.js\?v=1/);
+  assert.match(entry, /war-counter-write-team-source\.js\?v=2/);
+  assert.match(entry, /war-counter-write-manual-teams\.js\?v=2/);
   assert.match(entry, /installWarCounterLabStability\(\)/);
   assert.match(entry, /initWarCounterManualTeamUi\(\)/);
   assert.match(entry, /initWarCounterWriteUi\(\)/);
   assert.match(html, /war-counter-write\.css\?v=r2/);
   assert.match(html, /id="sheetBatchPanel"/);
   assert.match(html, /id="sheetBatchButton"/);
-  assert.match(html, /war-counter-lab-entry\.js\?v=r7-entry-15/);
+  assert.match(html, /war-counter-lab-entry\.js\?v=r7-entry-16/);
 });
 
 test("la vérification reste stable pendant que les captures suivantes sont analysées", () => {
@@ -57,12 +57,15 @@ test("Vision protège le travail contre le pull-to-refresh et le rechargement ac
   assert.match(stability, /event\.returnValue\s*=\s*""/);
 });
 
-test("un nouveau matchup sans nom d'équipe peut être nommé puis réintégré au lot", () => {
+test("un nouveau matchup sans équipe connue demande famille et variante avant de rejoindre le lot", () => {
   assert.match(entry, /configureWarCounterTeamSource/);
   assert.match(entry, /createSharedWarCounterTeamsResponse/);
   assert.match(teamSource, /registerManualWarCounterTeam/);
+  assert.match(teamSource, /__warCounterManualVariant/);
   assert.match(teamSource, /teams\.splice\(index, 1\)/);
-  assert.match(manualTeams, /Nom d’équipe requis avant l’écriture/);
+  assert.match(manualTeams, /Famille .*attaque|Famille .*défense/);
+  assert.match(manualTeams, /Variante .*attaque|Variante .*défense/);
+  assert.match(manualTeams, /Gamma \+ Méphisto \+ Apocalypse/);
   assert.match(manualTeams, /Valider pour le lot/);
   assert.match(manualTeams, /registerManualWarCounterTeam/);
   assert.match(manualTeams, /Ce contre est maintenant inclus dans le lot/);
