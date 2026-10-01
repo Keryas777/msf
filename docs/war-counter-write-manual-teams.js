@@ -1,4 +1,4 @@
-import { registerManualWarCounterTeam } from "./war-counter-write-team-source.js?v=1";
+import { registerManualWarCounterTeam } from "./war-counter-write-team-source.js?v=2";
 
 const MANUAL_BOX_CLASS = "manual-team-resolution";
 const manualSelections = new Map();
@@ -43,6 +43,14 @@ function sideCharactersText(summary, side) {
   return blocks[side]?.querySelector(".summary-characters")?.textContent?.trim() || "";
 }
 
+function savedField(saved, side, field) {
+  return String(saved?.[`${side}${field}`] || "").trim();
+}
+
+function hasSavedSide(saved, side) {
+  return Boolean(savedField(saved, side, "Family") || savedField(saved, side, "Variant"));
+}
+
 function createDialog() {
   let dialog = document.querySelector("#warCounterManualTeamDialog");
   if (dialog) return dialog;
@@ -54,12 +62,12 @@ function createDialog() {
     <form method="dialog" class="write-dialog-shell">
       <div class="write-dialog-head">
         <div>
-          <p class="eyebrow">War Counters · équipe personnalisée</p>
-          <h2>Nommer l’équipe manquante</h2>
+          <p class="eyebrow">War Counters · classement personnalisé</p>
+          <h2>Classer l’équipe manquante</h2>
         </div>
         <button class="secondary-button" value="cancel" type="submit">Fermer</button>
       </div>
-      <p class="write-warning">Ce nom sert uniquement à classer ce nouveau matchup dans War Counters. La composition reconnue ne sera pas modifiée.</p>
+      <p class="write-warning">Renseigne séparément la famille principale et la variante. Exemple : famille « Gamma », variante « Gamma + Méphisto + Apocalypse ».</p>
       <div id="manualTeamFields" class="write-metadata-fields"></div>
       <p id="manualTeamStatus" class="write-dialog-status" role="status" aria-live="polite"></p>
       <div class="write-dialog-actions">
@@ -89,22 +97,35 @@ function renderDialogFields(dialog, summary, sides, saved) {
   root.replaceChildren();
 
   for (const side of sides) {
-    const label = document.createElement("label");
-    label.textContent = `Nom de l’équipe ${sideLabel(side)}`;
+    const familyLabel = document.createElement("label");
+    familyLabel.textContent = `Famille ${sideLabel(side)}`;
 
-    const input = document.createElement("input");
-    input.dataset.manualTeamSide = side;
-    input.maxLength = 120;
-    input.autocomplete = "off";
-    input.placeholder = side === "attack" ? "Ex. Secret Warriors + …" : "Ex. Cabale + Méphisto";
-    input.value = side === "attack" ? (saved?.attackName || "") : (saved?.defenseName || "");
+    const familyInput = document.createElement("input");
+    familyInput.dataset.manualTeamFamily = side;
+    familyInput.maxLength = 120;
+    familyInput.autocomplete = "off";
+    familyInput.placeholder = side === "attack" ? "Ex. Secret Warriors" : "Ex. Gamma";
+    familyInput.value = savedField(saved, side, "Family");
+    familyLabel.append(familyInput);
+
+    const variantLabel = document.createElement("label");
+    variantLabel.textContent = `Variante ${sideLabel(side)}`;
+
+    const variantInput = document.createElement("input");
+    variantInput.dataset.manualTeamVariant = side;
+    variantInput.maxLength = 120;
+    variantInput.autocomplete = "off";
+    variantInput.placeholder = side === "attack"
+      ? "Ex. Secret Warriors + …"
+      : "Ex. Gamma + Méphisto + Apocalypse";
+    variantInput.value = savedField(saved, side, "Variant");
 
     const detail = document.createElement("small");
     detail.className = "muted";
     detail.textContent = sideCharactersText(summary, side);
 
-    label.append(input, detail);
-    root.append(label);
+    variantLabel.append(variantInput, detail);
+    root.append(familyLabel, variantLabel);
   }
 }
 
@@ -112,26 +133,32 @@ function openManualDialog(summary) {
   const key = matchupKey(summary);
   const saved = manualSelections.get(key) || null;
   const currentlyUnresolved = unresolvedSides(summary);
-  const sides = saved
-    ? [saved.attackName ? "attack" : null, saved.defenseName ? "defense" : null].filter(Boolean)
-    : currentlyUnresolved;
+  const savedSides = ["attack", "defense"].filter((side) => hasSavedSide(saved, side));
+  const sides = [...new Set([...currentlyUnresolved, ...savedSides])];
 
   if (!sides.length) return;
 
   const dialog = createDialog();
   activeContext = { summary, key, sides };
   renderDialogFields(dialog, summary, sides, saved);
-  setDialogStatus("Renseigne un nom clair : il sera utilisé comme famille et variante dans le Sheet.");
+  setDialogStatus("La famille alimente le premier niveau de classement ; la variante est le libellé précis du matchup.");
   dialog.showModal();
   dialog.querySelector("input")?.focus();
 }
 
-function updateSummaryTeamName(summary, side, name) {
+function updateSummaryTeamName(summary, side, variant) {
   const block = teamBlocks(summary)[side];
   const node = block?.querySelector(".summary-team-name");
   if (!node) return;
-  node.textContent = `${name} "classique"`;
+  node.textContent = variant;
   node.classList.remove("is-warning");
+}
+
+function applySavedLabels(summary, saved) {
+  for (const side of ["attack", "defense"]) {
+    const variant = savedField(saved, side, "Variant");
+    if (variant) updateSummaryTeamName(summary, side, variant);
+  }
 }
 
 async function saveActiveManualTeams() {
@@ -140,19 +167,27 @@ async function saveActiveManualTeams() {
   const button = dialog.querySelector("#saveManualTeam");
   const values = {};
 
-  for (const input of dialog.querySelectorAll("[data-manual-team-side]")) {
-    const side = input.dataset.manualTeamSide;
-    const value = String(input.value || "").trim();
-    if (!value) {
-      setDialogStatus(`Le nom de l’équipe ${sideLabel(side)} est requis.`, "error");
-      input.focus();
+  for (const side of activeContext.sides) {
+    const familyInput = dialog.querySelector(`[data-manual-team-family="${side}"]`);
+    const variantInput = dialog.querySelector(`[data-manual-team-variant="${side}"]`);
+    const family = String(familyInput?.value || "").trim();
+    const variant = String(variantInput?.value || "").trim();
+
+    if (!family) {
+      setDialogStatus(`La famille ${sideLabel(side)} est requise.`, "error");
+      familyInput?.focus();
       return;
     }
-    values[side] = value;
+    if (!variant) {
+      setDialogStatus(`La variante ${sideLabel(side)} est requise.`, "error");
+      variantInput?.focus();
+      return;
+    }
+    values[side] = { family, variant };
   }
 
   button.disabled = true;
-  setDialogStatus("Enregistrement du nom pour cette analyse…");
+  setDialogStatus("Enregistrement du classement pour cette analyse…");
 
   try {
     const { summary, key, sides } = activeContext;
@@ -160,23 +195,24 @@ async function saveActiveManualTeams() {
     const next = { ...previous };
 
     for (const side of sides) {
-      const name = values[side];
+      const { family, variant } = values[side];
       await registerManualWarCounterTeam({
-        name,
+        family,
+        variant,
         characters: sideIds(summary, side),
         mode: "Guerre"
       });
-      if (side === "attack") next.attackName = name;
-      else next.defenseName = name;
-      updateSummaryTeamName(summary, side, name);
+      next[`${side}Family`] = family;
+      next[`${side}Variant`] = variant;
+      updateSummaryTeamName(summary, side, variant);
     }
 
     manualSelections.set(key, next);
     renderManualControl(summary);
-    setDialogStatus("Équipe renseignée. Ce contre est maintenant inclus dans le lot.", "success");
+    setDialogStatus("Classement renseigné. Ce contre est maintenant inclus dans le lot.", "success");
     setTimeout(() => dialog.close(), 350);
   } catch (error) {
-    setDialogStatus(error?.message || "Impossible d’enregistrer ce nom.", "error");
+    setDialogStatus(error?.message || "Impossible d’enregistrer ce classement.", "error");
   } finally {
     button.disabled = false;
   }
@@ -188,6 +224,7 @@ function renderManualControl(summary) {
   if (!summary.dataset.attackKey || !summary.dataset.defenseKey) return;
 
   const saved = manualSelections.get(key) || null;
+  if (saved) applySavedLabels(summary, saved);
   const unresolved = unresolvedSides(summary);
   const sheetState = summary.querySelector(".sheet-state");
   if (!sheetState) return;
@@ -199,7 +236,7 @@ function renderManualControl(summary) {
   }
 
   const signature = saved
-    ? `saved:${saved.attackName || ""}:${saved.defenseName || ""}`
+    ? `saved:${saved.attackFamily || ""}:${saved.attackVariant || ""}:${saved.defenseFamily || ""}:${saved.defenseVariant || ""}`
     : `missing:${unresolved.join(",")}`;
   if (existing?.dataset.signature === signature) return;
 
@@ -214,17 +251,21 @@ function renderManualControl(summary) {
   button.className = "secondary-button";
 
   if (saved) {
-    title.textContent = "Nom d’équipe renseigné manuellement ✓";
+    title.textContent = "Famille et variante renseignées manuellement ✓";
     const labels = [];
-    if (saved.attackName) labels.push(`attaque : ${saved.attackName}`);
-    if (saved.defenseName) labels.push(`défense : ${saved.defenseName}`);
+    if (hasSavedSide(saved, "attack")) {
+      labels.push(`attaque : ${saved.attackFamily} → ${saved.attackVariant}`);
+    }
+    if (hasSavedSide(saved, "defense")) {
+      labels.push(`défense : ${saved.defenseFamily} → ${saved.defenseVariant}`);
+    }
     detail.textContent = `${labels.join(" · ")}. Le contre sera inclus dans l’écriture groupée.`;
-    button.textContent = "Modifier le nom";
+    button.textContent = "Modifier le classement";
   } else {
     const labels = unresolved.map(sideLabel).join(" et ");
-    title.textContent = "Nom d’équipe requis avant l’écriture";
-    detail.textContent = `L’équipe ${labels} n’est pas déterminée dans teams.json. Donne-lui un nom pour inclure ce contre dans le lot.`;
-    button.textContent = unresolved.length > 1 ? "Nommer les équipes" : "Nommer l’équipe";
+    title.textContent = "Classement d’équipe requis avant l’écriture";
+    detail.textContent = `L’équipe ${labels} n’est pas déterminée dans teams.json. Renseigne sa famille et sa variante pour inclure ce contre dans le lot.`;
+    button.textContent = unresolved.length > 1 ? "Classer les équipes" : "Classer l’équipe";
   }
 
   button.addEventListener("click", () => openManualDialog(summary));
