@@ -7,6 +7,7 @@ import {
   loadSharedWarCounterTeams,
   registerManualWarCounterTeam
 } from "../docs/war-counter-write-team-source.js";
+import { buildTeamLabels } from "../docs/war-counter-matchup-preview.js";
 
 test.afterEach(() => {
   __resetWarCounterTeamSourceForTests();
@@ -34,7 +35,7 @@ test("les consommateurs de teams.json partagent le même tableau mutable", async
   assert.strictEqual(second, direct);
 });
 
-test("un nom manuel remplace toute définition exacte concurrente de la même composition", async () => {
+test("un classement manuel remplace la définition exacte et conserve famille plus variante", async () => {
   configureFixture([
     { team: "Ancien nom", mode: "Guerre", characters: ["A", "B", "C", "D", "E"] },
     { team: "Autre ambigu", mode: "Raid", characters: ["E", "D", "C", "B", "A"] },
@@ -42,7 +43,8 @@ test("un nom manuel remplace toute définition exacte concurrente de la même co
   ]);
 
   await registerManualWarCounterTeam({
-    name: "Nom choisi",
+    family: "Gamma",
+    variant: "Gamma + Méphisto + Apocalypse",
     characters: ["E", "D", "C", "B", "A"]
   });
 
@@ -52,20 +54,31 @@ test("un nom manuel remplace toute définition exacte concurrente de la même co
   );
 
   assert.equal(exact.length, 1);
-  assert.equal(exact[0].team, "Nom choisi");
+  assert.equal(exact[0].team, "Gamma");
   assert.equal(exact[0].mode, "Guerre");
   assert.equal(exact[0].__warCounterManual, true);
+  assert.equal(exact[0].__warCounterManualVariant, "Gamma + Méphisto + Apocalypse");
+
+  const labels = buildTeamLabels(["A", "B", "C", "D", "E"], teams);
+  assert.equal(labels.status, "resolved");
+  assert.equal(labels.family, "Gamma");
+  assert.equal(labels.variant, "Gamma + Méphisto + Apocalypse");
+  assert.equal(labels.manual, true);
   assert.ok(teams.some((row) => row.team === "À conserver"));
 });
 
-test("refuse un nom vide ou une composition invalide", async () => {
+test("refuse une famille vide, une variante vide ou une composition invalide", async () => {
   configureFixture([]);
   await assert.rejects(
-    registerManualWarCounterTeam({ name: "", characters: ["A", "B", "C"] }),
-    /Nom d’équipe requis/
+    registerManualWarCounterTeam({ family: "", variant: "Variante", characters: ["A", "B", "C"] }),
+    /Famille d’équipe requise/
   );
   await assert.rejects(
-    registerManualWarCounterTeam({ name: "Test", characters: ["A", "B"] }),
+    registerManualWarCounterTeam({ family: "Gamma", variant: "", characters: ["A", "B", "C"] }),
+    /Variante d’équipe requise/
+  );
+  await assert.rejects(
+    registerManualWarCounterTeam({ family: "Gamma", variant: "Gamma variante", characters: ["A", "B"] }),
     /Composition d’équipe invalide/
   );
 });
