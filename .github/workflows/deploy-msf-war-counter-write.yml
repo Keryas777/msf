@@ -6,6 +6,7 @@ on:
       - "workers/msf-war-counter-write/**"
       - "docs/war-counter-write-*.js"
       - "docs/war-counter-write.css"
+      - "docs/war-counter-matchup-preview.js"
       - "docs/war-counter-lab-entry.js"
       - "docs/war-counter-lab-stability.js"
       - "docs/war-counter-lab.html"
@@ -42,6 +43,8 @@ jobs:
       - name: Check browser module syntax
         run: |
           node --input-type=module --check < docs/war-counter-write-ui.js
+          node --input-type=module --check < docs/war-counter-write-proposal.js
+          node --input-type=module --check < docs/war-counter-matchup-preview.js
           node --input-type=module --check < docs/war-counter-lab-entry.js
           node --input-type=module --check < docs/war-counter-lab-stability.js
           node --input-type=module --check < docs/war-counter-write-team-source.js
