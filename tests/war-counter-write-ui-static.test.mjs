@@ -63,8 +63,8 @@ test("un nouveau matchup sans équipe connue demande famille et variante avant d
   assert.match(teamSource, /registerManualWarCounterTeam/);
   assert.match(teamSource, /__warCounterManualVariant/);
   assert.match(teamSource, /teams\.splice\(index, 1\)/);
-  assert.match(manualTeams, /data\.manualTeamFamily/);
-  assert.match(manualTeams, /data\.manualTeamVariant/);
+  assert.match(manualTeams, /dataset\.manualTeamFamily/);
+  assert.match(manualTeams, /dataset\.manualTeamVariant/);
   assert.match(manualTeams, /Famille \$\{sideLabel\(side\)\}/);
   assert.match(manualTeams, /Variante \$\{sideLabel\(side\)\}/);
   assert.match(manualTeams, /Gamma \+ Méphisto \+ Apocalypse/);
