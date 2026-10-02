@@ -55,10 +55,10 @@ class TurnMeterControlTests(unittest.TestCase):
             for operation in self.capabilities["operations"]
             if operation["kind"] == "turn_meter_modify"
         ]
-        self.assertEqual(len(direct), 540)
+        self.assertEqual(len(direct), 541)
         self.assertEqual(
             Counter(operation["turnMeter"]["action"] for operation in direct),
-            {"increase": 323, "decrease": 205, "contextual_amount": 12},
+            {"increase": 324, "decrease": 205, "contextual_amount": 12},
         )
 
     def test_gain_thresholds_and_raw_technical_values(self):
@@ -120,7 +120,7 @@ class TurnMeterControlTests(unittest.TestCase):
     def test_immunity_semantics_are_narrow(self):
         annihilus = self.control_at("/Data/Annihilus/stat_immunity/4")
         quicksilver = self.control_at("/Data/Quicksilver/passive_stats/1")
-        maestro = self.control_at("/Data/PVE_Boss_Maestro/dynamic_stats/15")
+        maestro = self.control_at("/Data/PVE_Boss_Maestro/dynamic_stats/16")
         self.assertEqual(annihilus["kind"], "stat_immunity")
         self.assertEqual(
             annihilus["turnMeterControl"]["action"],

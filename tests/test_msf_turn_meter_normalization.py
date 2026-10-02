@@ -27,8 +27,8 @@ class TurnMeterNormalizationTests(unittest.TestCase):
     def test_every_turn_meter_action_is_normalized_once(self):
         source_ids = {a["id"] for a in self.mechanics["actions"] if str(a.get("rawType") or "").lower() == "turn_meter"}
         operations = [o for o in self.capabilities["operations"] if o.get("sourceActionType") == "turn_meter"]
-        self.assertEqual(len(source_ids), 540)
-        self.assertEqual(len(operations), 540)
+        self.assertEqual(len(source_ids), 541)
+        self.assertEqual(len(operations), 541)
         self.assertEqual({o["sourceActionId"] for o in operations}, source_ids)
         self.assertTrue(all(o["kind"] == "turn_meter_modify" for o in operations))
         self.assertTrue(all("turnMeterPct" in o.get("metrics", {}) for o in operations))

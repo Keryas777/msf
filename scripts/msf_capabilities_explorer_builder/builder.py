@@ -873,6 +873,7 @@ def _project_operation(
         "mechanicFamily": copy.deepcopy(operation.get("mechanicFamily")),
         "turnMeterControl": copy.deepcopy(turn_meter_control),
         "turnMeter": copy.deepcopy(turn_meter),
+        "statModifier": copy.deepcopy(operation.get("statModifier")),
     }
 
 
@@ -922,7 +923,7 @@ def _project_action(action: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def _build_mechanics(
-    effects: Mapping[str, Any], actions: Mapping[str, Any]
+    effects: Mapping[str, Any], actions: Mapping[str, Any], operations: Mapping[str, Any]
 ) -> tuple[dict[str, dict[str, Any]], dict[str, str]]:
     mechanics: dict[str, dict[str, Any]] = {}
     effect_ids: dict[str, str] = {}
@@ -1037,6 +1038,11 @@ def _build_mechanics(
         }
 
     for mechanic_id, presentation in GENERIC_MECHANICS.items():
+        if presentation.get("sourceName") == "stat_modifier" and not any(
+            operation.get("statModifier", {}).get("mechanicId") == mechanic_id
+            for operation in operations.values()
+        ):
+            continue
         if mechanic_id in mechanics:
             raise BuilderError("MECHANIC_ID_COLLISION", mechanic_id)
         mechanics[mechanic_id] = {
@@ -1228,6 +1234,9 @@ def _operation_mechanic_ids(
         result.add("action-turn-meter")
     if raw.get("mechanicFamily") == "turn_meter":
         result.add("action-turn-meter")
+    stat_modifier = raw.get("statModifier")
+    if isinstance(stat_modifier, dict) and stat_modifier.get("mechanicId"):
+        result.add(str(stat_modifier["mechanicId"]))
     if kind == "heal_restore":
         result.add("action-heal")
     if kind in {"barrier_apply", "barrier_remove"}:
@@ -1459,6 +1468,9 @@ def _technical_mechanic_result_group(
 
 
 def _mechanic_facet_spec(mechanic_id: str, occurrence: Mapping[str, Any]) -> dict[str, Any]:
+    stat_modifier = occurrence.get("statModifier")
+    if isinstance(stat_modifier, dict) and stat_modifier.get("facet"):
+        return {"id": stat_modifier["facet"], "label": stat_modifier["label"]}
     if mechanic_id == "action-turn-meter":
         direct = occurrence.get("turnMeter")
         if isinstance(direct, dict) and direct.get("action") in TURN_METER_FACETS:
@@ -1695,7 +1707,7 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
             "displayTraits": [_trait_label(value) for value in traits],
         }
 
-    mechanics, effect_ids = _build_mechanics(source["effects"], actions)
+    mechanics, effect_ids = _build_mechanics(source["effects"], actions, operations)
     ability_nodes, ability_by_character_type, presentation_only_count = (
         _build_ability_nodes(source, character_names)
     )

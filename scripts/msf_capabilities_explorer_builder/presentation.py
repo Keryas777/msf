@@ -80,6 +80,7 @@ OPERATION_KINDS = {
     "spawn": {"label": "Invoque", "order": 80},
     "empower": {"label": "Se renforce", "order": 90},
     "empty_result": {"label": "Résultat vide déclaré", "order": 100},
+    "stat_modifier": {"label": "Modifie une statistique", "order": 59},
     "mention": {"label": "Mentions", "order": 110},
     "detected_add": {"label": "Ajoute", "order": 12},
     "detected_remove": {"label": "Retire", "order": 22},
@@ -463,6 +464,11 @@ ACTION_PRESENTATIONS = {
 
 
 GENERIC_MECHANICS = {
+    "attack-damage": {"label": "Dégâts d’attaque", "sourceName": "stat_modifier", "aliases": [], "description": "Modification structurée des dégâts d’une attaque."},
+    "conditional-damage": {"label": "Bonus de dégâts", "sourceName": "stat_modifier", "aliases": [], "description": "Bonus de dégâts conditionnel structuré."},
+    "critical-attack": {"label": "Critique", "sourceName": "stat_modifier", "aliases": [], "description": "Modification structurée des propriétés critiques d’une attaque."},
+    "attack-accuracy": {"label": "Précision", "sourceName": "stat_modifier", "aliases": [], "description": "Modification structurée de la précision d’une attaque."},
+    "attack-response-control": {"label": "Contrôle des réponses à l’attaque", "sourceName": "stat_modifier", "aliases": [], "description": "Empêche une réponse défensive structurée à une attaque."},
     "barrier": {
         "label": "Barrière",
         "sourceName": "barrier",

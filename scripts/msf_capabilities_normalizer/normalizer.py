@@ -84,6 +84,20 @@ TURN_METER_CONTROL_STATS = frozenset(
     }
 )
 
+STAT_MODIFIER_SPECS = {
+    "ability_damage_pct": ("attack-damage", "attack_damage_standard", "Dégâts standards"),
+    "armor_pierce_pct": ("attack-damage", "attack_damage_piercing", "Dégâts perforants"),
+    "true_damage_pct": ("attack-damage", "attack_damage_true", "Dégâts bruts"),
+    "damage_pct": ("conditional-damage", "conditional_damage_bonus", "Bonus de dégâts conditionnel"),
+    "crit_chance_pct": ("critical-attack", "critical_chance_modify", "Chance de critique"),
+    "crit_damage_pct": ("critical-attack", "critical_damage_modify", "Dégâts critiques"),
+    "drain_pct": ("action-drain", "drain_attack", "Drain de l’attaque"),
+    "accuracy_pct": ("attack-accuracy", "attack_accuracy_increase", "Précision accrue"),
+    "dodge_chance_pct": ("attack-response-control", "attack_prevent_dodge", "Attaque non esquivable"),
+    "block_chance_pct": ("attack-response-control", "attack_prevent_block", "Attaque non bloquable"),
+    "counter_pct": ("attack-response-control", "attack_prevent_counter", "Attaque non contrable"),
+}
+
 
 def _terminal_numeric_value(value: Any) -> int | float | None:
     terminal = value[-1] if isinstance(value, list) and value else value
@@ -1812,6 +1826,53 @@ class OperationBuilder:
             metric_fields=HEAL_METRIC_FIELDS,
         )
 
+    def _build_stat_modifier_action(self, action: dict[str, Any]) -> None:
+        parameters = action.get("parameters")
+        entries = parameters.get("stat_modifier") if isinstance(parameters, dict) else None
+        if not isinstance(entries, list):
+            return
+        source = action.get("source") if isinstance(action.get("source"), dict) else {}
+        action_pointer = str(source.get("pointer", ""))
+        for ordinal, entry in enumerate(entries):
+            if not isinstance(entry, dict) or not isinstance(entry.get("stat"), str):
+                raise NormalizerError("INVALID_STAT_MODIFIER", f"Entrée stat_modifier invalide: {action_pointer}/{ordinal}")
+            stat = entry["stat"]
+            if stat not in STAT_MODIFIER_SPECS:
+                raise NormalizerError("UNKNOWN_STAT_MODIFIER", f"Statistique stat_modifier inconnue: {stat}")
+            parent, facet, label = STAT_MODIFIER_SPECS[stat]
+            entry_pointer = _append_pointer(action_pointer, "stat_modifier", ordinal)
+            extra_conditions = []
+            if "apply_if" in entry:
+                extra_conditions.append(_condition_record(
+                    kind="apply_if", raw=entry["apply_if"],
+                    source_file=str(source.get("file", "<generated>")),
+                    source_pointer=_append_pointer(entry_pointer, "apply_if"),
+                ))
+            self._build_operation(
+                action, kind="stat_modifier", canonical_action_type="stat_modifier",
+                source_field="stat_modifier", effect_id=None,
+                effect_pointer=entry_pointer, entry_pointer=entry_pointer,
+                entry=entry, ordinal=ordinal, scope={"kind": "action_target"},
+                extra_conditions=extra_conditions, metric_fields=(),
+                implicit_metrics={
+                    "delta": normalize_progression(
+                        entry["delta"], source_field="delta",
+                        source_pointer=_append_pointer(entry_pointer, "delta"),
+                    )
+                } if "delta" in entry else None,
+            )
+            self.operations[-1]["statModifier"] = {
+                "stat": stat, "mechanicId": parent, "facet": facet, "label": label,
+                "delta": copy.deepcopy(entry.get("delta")),
+                "deltaFrom": copy.deepcopy(entry.get("delta_from")),
+                "on": copy.deepcopy(entry.get("on")),
+                "applyIf": copy.deepcopy(entry.get("apply_if")),
+                "quantityResolution": "contextual" if "delta_from" in entry else "explicit",
+            }
+        source_action_id = action.get("id")
+        if entries and isinstance(source_action_id, str):
+            self.supported_action_ids.add(source_action_id)
+
     def _build_battlefield_action(
         self,
         action: dict[str, Any],
@@ -1994,9 +2055,19 @@ class OperationBuilder:
             elif canonical_action_type == "turn_meter":
                 self._build_turn_meter_action(action)
             elif canonical_action_type in {"stat_modifier", "stat_immunity"}:
-                self._build_turn_meter_control_action(
-                    action, canonical_action_type
-                )
+                parameters = action.get("parameters")
+                if isinstance(parameters, dict) and parameters.get("stat") in TURN_METER_CONTROL_STATS:
+                    self._build_turn_meter_control_action(action, canonical_action_type)
+                elif canonical_action_type == "stat_modifier" and isinstance(
+                    parameters, dict
+                ) and isinstance(parameters.get("stat_modifier"), list) and any(
+                    isinstance(entry, dict)
+                    and ("delta" in entry or "delta_from" in entry)
+                    for entry in parameters["stat_modifier"]
+                ):
+                    self._build_stat_modifier_action(action)
+                else:
+                    self._build_turn_meter_control_action(action, canonical_action_type)
             elif canonical_action_type == "heal":
                 self._build_heal_action(action)
             elif canonical_action_type in {"barrier", "barrier_remove"}:

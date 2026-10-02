@@ -121,13 +121,13 @@ class ExplorerBuilderTests(unittest.TestCase):
                 "officialPresentations": 1468,
                 "effects": 302,
                 "mechanics": 324,
-                "operations": 10498,
+                "operations": 10595,
                 "preservedActions": 3337,
                 "spawns": 116,
                 "textMentions": 973,
                 "abilityPresentations": 1856,
                 "phases": 2492,
-                "assignedActions": 11026,
+                "assignedActions": 11123,
                 "unassignedActions": 1301,
             },
         )
@@ -138,9 +138,9 @@ class ExplorerBuilderTests(unittest.TestCase):
             self.generated.presentation_audit,
             {
                 "abilityPresentations": 1856,
-                "technicalPresentations": 563,
+                "technicalPresentations": 630,
                 "totalPhases": 2492,
-                "technicalPhases": 76,
+                "technicalPhases": 144,
                 "averagePhasesPerAbility": 1.342672,
                 "totalBranches": 8491,
                 "singleActionPhases": 374,
@@ -150,9 +150,9 @@ class ExplorerBuilderTests(unittest.TestCase):
                 "zeroPhaseAbilities": 14,
                 "singlePhaseAbilities": 1302,
                 "multiPhaseAbilities": 540,
-                "assignedActions": 11026,
+                "assignedActions": 11123,
                 "unassignedActions": 1301,
-                "assignedOperations": 9649,
+                "assignedOperations": 9746,
                 "textSegments": 9600,
                 "textSegmentsAlignedHigh": 3339,
                 "textSegmentsAlignedMedium": 4059,
@@ -162,12 +162,12 @@ class ExplorerBuilderTests(unittest.TestCase):
                 "diagnosticsByType": {
                     "IMPLICIT_PRIMARY_TARGET": 447,
                     "MULTIPLE_PHASE_CANDIDATES": 389,
-                    "PHASE_LABEL_FALLBACK": 113,
+                    "PHASE_LABEL_FALLBACK": 116,
                     "PHASE_TARGET_INHERITANCE_UNPROVEN": 955,
-                    "REPEATED_ACTIONS_NOT_DEDUPLICATED": 55,
+                    "REPEATED_ACTIONS_NOT_DEDUPLICATED": 71,
                     "SOURCE_TARGET_WITHOUT_TEXT": 3972,
-                    "TECHNICAL_CONTEXT_UNRESOLVED": 76,
-                    "UNALIGNED_PLAYER_PHASE": 743,
+                    "TECHNICAL_CONTEXT_UNRESOLVED": 143,
+                    "UNALIGNED_PLAYER_PHASE": 811,
                     "UNASSIGNED_TEXT_SEGMENT": 1813,
                 },
                 "phasesOnlyOfficialText": 0,
@@ -498,7 +498,7 @@ class ExplorerBuilderTests(unittest.TestCase):
         for collection in ("operations.json", "uninterpreted-actions.json"):
             for record in self.documents["payloads"][collection]["records"].values():
                 source_groups[record["sourceActionId"]].append(record)
-        self.assertEqual(len(source_groups), 12_327)
+        self.assertEqual(len(source_groups), 12_424)
         seen_actions = set()
         seen_operations = Counter()
         for presentation in self.all_presentations():

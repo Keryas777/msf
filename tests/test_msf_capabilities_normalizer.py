@@ -30,7 +30,7 @@ REAL_CHARACTERS = (
 )
 REAL_PROCS = REPOSITORY_ROOT / "data/msf-capabilities/raw/procs.json"
 REAL_MECHANICS_SHA256 = (
-    "2669f9c099c296aa4c39fb1841682097680e5bc08df16935d4049c84d0693afe"
+    "56fc7bec50a490835ab3d0202cdf90da0310b6158505bef2cefa44bf0cba726d"
 )
 
 
@@ -930,6 +930,63 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
             ),
         )
 
+    def test_real_stat_modifier_corpus_and_sensitive_shapes(self):
+        actions = [
+            action
+            for action in self.mechanics["actions"]
+            if action.get("rawType") == "stat_modifier"
+            and isinstance(
+                action.get("parameters", {}).get("stat_modifier"), list
+            )
+        ]
+        entries = [
+            entry
+            for action in actions
+            for entry in action["parameters"]["stat_modifier"]
+        ]
+        self.assertEqual(len(actions), 2896)
+        self.assertEqual(len(entries), 4104)
+        self.assertEqual(
+            {entry["stat"] for entry in entries},
+            {
+                "ability_damage_pct", "armor_pierce_pct", "true_damage_pct",
+                "damage_pct", "crit_chance_pct", "crit_damage_pct", "drain_pct",
+                "accuracy_pct", "dodge_chance_pct", "block_chance_pct", "counter_pct",
+            },
+        )
+        stat_operations = [
+            operation
+            for operation in self.capabilities["operations"]
+            if "statModifier" in operation
+        ]
+        self.assertEqual(len(stat_operations), 4104)
+        by_pointer = {
+            operation["source"]["actionPointer"]: operation
+            for operation in stat_operations
+        }
+        daredevil = by_pointer["/Data/Daredevil/ultimate/actions/2"]
+        self.assertEqual(daredevil["statModifier"]["delta"][-1], 0)
+        moon_knight = by_pointer["/Data/MoonKnight/ultimate/actions/0"]
+        self.assertEqual(
+            moon_knight["statModifier"]["delta"][0], {"f": 120, "t": 160}
+        )
+        self.assertEqual(
+            {
+                operation["statModifier"]["deltaFrom"]
+                for operation in stat_operations
+                if operation["statModifier"]["deltaFrom"] is not None
+            },
+            {"passive_number", "armor_pct", "crit_chance_pct"},
+        )
+        self.assertTrue(any(
+            operation["statModifier"]["stat"] == "true_damage_pct"
+            and str(operation["statModifier"]["delta"]).startswith("-")
+            for operation in stat_operations
+        ))
+        self.assertTrue(any(not operation["target"]["present"] for operation in stat_operations))
+        self.assertTrue(any(operation["statModifier"]["on"] == "primary" for operation in stat_operations))
+        self.assertTrue(any(operation["statModifier"]["on"] == "secondary" for operation in stat_operations))
+
     def test_real_snapshot_has_the_six_exact_controlled_aliases(self):
         self.assert_snapshot_checksum()
         resolutions = self.capabilities[
@@ -983,7 +1040,7 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
         self.assert_snapshot_checksum()
         audit = self.capabilities["audit"]
         self.assertEqual(audit["empowerOperationCount"], 7)
-        self.assertEqual(audit["emptyResultOperationCount"], 310)
+        self.assertEqual(audit["emptyResultOperationCount"], 313)
         self.assertEqual(audit["spawnOperationCount"], 116)
         self.assertEqual(
             sum(
@@ -997,7 +1054,7 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
                 item["kind"] == "empty_result"
                 for item in self.capabilities["operations"]
             ),
-            310,
+            313,
         )
         self.assertEqual(
             sum(
@@ -1049,7 +1106,7 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
     def test_real_abilities_include_empowered_passive_only_when_playable(self):
         self.assert_snapshot_checksum()
         abilities = self.capabilities["abilities"]
-        self.assertEqual(len(abilities), 1844)
+        self.assertEqual(len(abilities), 1857)
         ability_types = [item["abilityType"] for item in abilities]
         self.assertEqual(ability_types.count("passive_empower"), 5)
         self.assertFalse(
@@ -1072,34 +1129,34 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
         source_action_ids = {
             item["id"] for item in self.mechanics["actions"]
         }
-        self.assertEqual(len(source_action_ids), 12424)
-        self.assertEqual(len(mappings), 12424)
+        self.assertEqual(len(source_action_ids), 12531)
+        self.assertEqual(len(mappings), 12531)
         self.assertEqual(
             {item["sourceActionId"] for item in mappings},
             source_action_ids,
         )
         self.assertEqual(
             self.capabilities["audit"]["mappedActionCount"],
-            9087,
+            12059,
         )
         self.assertEqual(
             self.capabilities["audit"][
                 "preservedUninterpretedActionCount"
             ],
-            3337,
+            472,
         )
         barrier_operations = [
             operation
             for operation in self.capabilities["operations"]
             if operation["kind"] in {"barrier_apply", "barrier_remove"}
         ]
-        self.assertEqual(len(barrier_operations), 309)
+        self.assertEqual(len(barrier_operations), 317)
         self.assertEqual(
             sum(
                 item["kind"] == "barrier_apply"
                 for item in barrier_operations
             ),
-            190,
+            198,
         )
         removals = [
             item
@@ -1163,22 +1220,23 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
             for index in range(6)
         ]
         self.assertEqual([item["actionOrder"] for item in abomination], list(range(6)))
-        self.assertEqual([item["status"] for item in abomination], [
-            "preserved_uninterpreted", "normalized", "normalized",
-            "preserved_uninterpreted", "normalized", "normalized",
-        ])
+        self.assertEqual(
+            [item["status"] for item in abomination],
+            ["normalized"] * 6,
+        )
         target = abomination[3]["target"]["value"]
         self.assertEqual(target["type"], "direct_neighbor")
         self.assertEqual(target["limit"], [1])
         self.assertEqual(target["primary_selection"], "exclude_from_pool")
         self.assertEqual(target["stop_if_outcome"], ["counter_attack"])
         self.assertEqual(target["filter"]["not"]["target"]["states"], ["stealthed"])
+        operations = {item["id"]: item for item in self.capabilities["operations"]}
         self.assertEqual(
-            abomination[0]["uninterpretedParameters"]["values"]["stat_modifier"][0]["delta"],
+            operations[abomination[0]["operationIds"][0]]["rawEffectEntry"]["delta"],
             [90, 110, 130, 150, 170, 200, 250],
         )
         self.assertEqual(
-            abomination[3]["uninterpretedParameters"]["values"]["stat_modifier"][0]["delta"],
+            operations[abomination[3]["operationIds"][0]]["rawEffectEntry"]["delta"],
             [40, 60, 80, 100, 120, 150, 200],
         )
         self.assertTrue(abomination[5]["flags"]["counter"]["value"])
