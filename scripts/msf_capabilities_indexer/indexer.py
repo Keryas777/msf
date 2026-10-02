@@ -310,6 +310,8 @@ def _build_operations_payload(
             record["turnMeterControl"] = copy.deepcopy(
                 operation["turnMeterControl"]
             )
+        if "statModifier" in operation:
+            record["statModifier"] = copy.deepcopy(operation["statModifier"])
         selector = record["selector"]
         for exclusion in selector.get("exclusions", []):
             if isinstance(exclusion, dict) and isinstance(
