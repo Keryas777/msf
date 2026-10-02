@@ -85,8 +85,8 @@ jobs:
           controls = [item for item in operations if item.get("mechanicFamily") == "turn_meter"]
           direct_counts = Counter(item["turnMeter"]["action"] for item in direct)
           control_counts = Counter(item["turnMeterControl"]["technicalStat"] for item in controls)
-          assert len(direct) == 540, len(direct)
-          assert direct_counts == {"increase": 323, "decrease": 205, "contextual_amount": 12}, direct_counts
+          assert len(direct) == 541, len(direct)
+          assert direct_counts == {"increase": 324, "decrease": 205, "contextual_amount": 12}, direct_counts
           assert len(controls) == 97, len(controls)
           assert control_counts == {
               "turnmeter_increase_mod_pct": 44,
