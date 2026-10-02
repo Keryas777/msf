@@ -27,7 +27,9 @@ function normalizedTeamRows(teams) {
         mode,
         characters,
         key: canonicalTeamKey(characters),
-        set: new Set(characters)
+        set: new Set(characters),
+        manual: team?.__warCounterManual === true,
+        manualVariant: String(team?.__warCounterManualVariant || "").trim()
       };
     })
     .filter(Boolean);
@@ -36,7 +38,7 @@ function normalizedTeamRows(teams) {
   for (const row of rows) {
     const key = `${row.name}::${row.key}`;
     const existing = deduped.get(key);
-    if (!existing || (row.mode === "Guerre" && existing.mode !== "Guerre")) {
+    if (!existing || row.manual || (row.mode === "Guerre" && existing.mode !== "Guerre")) {
       deduped.set(key, row);
     }
   }
@@ -59,12 +61,17 @@ export function resolveTeamFromDefinitions(ids, teams) {
   const exact = rows.filter((row) => row.characters.length === observed.length && row.key === observedKey);
   if (exact.length) {
     const names = [...new Set(exact.map((row) => row.name))];
+    const manualVariants = [...new Set(exact
+      .filter((row) => row.manual && row.manualVariant)
+      .map((row) => row.manualVariant))];
     return {
       status: names.length === 1 ? "resolved" : "ambiguous",
       exact: true,
       family: names.length === 1 ? names[0] : "",
       extraIds: [],
-      candidates: exact.map((row) => ({ team: row.name, mode: row.mode, overlap: observed.length }))
+      candidates: exact.map((row) => ({ team: row.name, mode: row.mode, overlap: observed.length })),
+      manual: names.length === 1 && exact.some((row) => row.manual),
+      variantOverride: names.length === 1 && manualVariants.length === 1 ? manualVariants[0] : ""
     };
   }
 
@@ -131,7 +138,7 @@ export function buildTeamLabels(ids, teams, nameForId = (id) => id) {
   if (resolved.exact) {
     return {
       ...resolved,
-      variant: `${resolved.family} "classique"`
+      variant: resolved.variantOverride || `${resolved.family} "classique"`
     };
   }
 

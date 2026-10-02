@@ -34,6 +34,46 @@ test("réutilise la clé classique existante d'une famille", () => {
   assert.equal(result.source, "family");
 });
 
+test("un classement manuel réutilise la clé de variante existante", () => {
+  const rows = [{
+    def_family: "Gamma",
+    def_variant: "Gamma + Méphisto + Apocalypse",
+    def_key: "gammamephistoapocalypse",
+    def_char1: "OLD1", def_char2: "OLD2", def_char3: "OLD3", def_char4: "OLD4", def_char5: "OLD5"
+  }];
+  const result = suggestTeamSheetKey({
+    role: "def",
+    ids: ["A", "B", "C", "D", "E"],
+    teamInfo: {
+      family: "Gamma",
+      variant: "Gamma + Méphisto + Apocalypse",
+      exact: true,
+      extraIds: [],
+      manual: true
+    },
+    rows
+  });
+  assert.equal(result.key, "gammamephistoapocalypse");
+  assert.equal(result.source, "variant");
+});
+
+test("une nouvelle variante manuelle génère sa clé depuis la variante, pas depuis la famille", () => {
+  const result = suggestTeamSheetKey({
+    role: "def",
+    ids: ["A", "B", "C", "D", "E"],
+    teamInfo: {
+      family: "Gamma",
+      variant: "Gamma + Méphisto + Apocalypse",
+      exact: true,
+      extraIds: [],
+      manual: true
+    },
+    rows: []
+  });
+  assert.equal(result.key, "gammamephistoapocalypse");
+  assert.equal(result.source, "manual");
+});
+
 test("proposition d'amélioration ne prépare aucune métadonnée de nouvelle ligne", () => {
   const preview = {
     state: {
@@ -90,6 +130,39 @@ test("nouveau matchup prépare les six métadonnées et le ratio plafonné", () 
   assert.equal(proposal.metadata.atk_family, "Insidious Six + Bouffon vert (Classique)");
   assert.ok(proposal.metadata.def_key);
   assert.ok(proposal.metadata.atk_key);
+});
+
+test("nouveau matchup manuel conserve famille et variante séparées", () => {
+  const preview = {
+    state: {
+      attackIds: ["A1", "A2", "A3", "A4", "A5"],
+      defenseIds: ["D1", "D2", "D3", "D4", "D5"],
+      attackPower: 7_000_000,
+      defensePower: 10_000_000,
+      ratio: 0.7
+    },
+    attackTeam: {
+      status: "resolved",
+      exact: true,
+      family: "Secret Warriors",
+      variant: 'Secret Warriors "classique"',
+      extraIds: []
+    },
+    defenseTeam: {
+      status: "resolved",
+      exact: true,
+      family: "Gamma",
+      variant: "Gamma + Méphisto + Apocalypse",
+      extraIds: [],
+      manual: true
+    },
+    comparison: { status: "new", matches: [] }
+  };
+  const proposal = buildWriteProposal({ preview, rows: [] });
+  assert.equal(proposal.action, "create");
+  assert.equal(proposal.metadata.def_family, "Gamma");
+  assert.equal(proposal.metadata.def_variant, "Gamma + Méphisto + Apocalypse");
+  assert.equal(proposal.metadata.def_key, "gammamephistoapocalypse");
 });
 
 test("n'écrit pas automatiquement un nouveau matchup si le nom d'équipe est ambigu", () => {

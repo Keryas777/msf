@@ -47,13 +47,21 @@ export async function createSharedWarCounterTeamsResponse() {
   return response;
 }
 
-export async function registerManualWarCounterTeam({ name, characters, mode = "Guerre" }) {
-  const teamName = String(name || "").trim();
+export async function registerManualWarCounterTeam({
+  name = "",
+  family = "",
+  variant = "",
+  characters,
+  mode = "Guerre"
+}) {
+  const familyName = String(family || name || "").trim();
+  const variantName = String(variant || "").trim();
   const ids = [...new Set((Array.isArray(characters) ? characters : [])
     .map((id) => String(id || "").trim())
     .filter(Boolean))];
 
-  if (!teamName) throw new Error("Nom d’équipe requis.");
+  if (!familyName) throw new Error("Famille d’équipe requise.");
+  if (!variantName) throw new Error("Variante d’équipe requise.");
   if (ids.length < 3 || ids.length > 5) throw new Error("Composition d’équipe invalide.");
 
   const teams = await loadSharedWarCounterTeams();
@@ -64,10 +72,11 @@ export async function registerManualWarCounterTeam({ name, characters, mode = "G
   }
 
   const row = {
-    team: teamName,
+    team: familyName,
     mode: String(mode || "Guerre").trim() || "Guerre",
     characters: ids,
-    __warCounterManual: true
+    __warCounterManual: true,
+    __warCounterManualVariant: variantName
   };
   teams.push(row);
   return row;
