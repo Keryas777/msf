@@ -9,7 +9,7 @@ from .diagnostics import IndexerAuditError, IndexerInputError
 
 
 SNAPSHOT_CAPABILITIES_CHECKSUM = (
-    "5f8c5ad2d59acc82fb5fc36c3c4c48e59af5c2958573bd136f48f0092705a589"
+    "63c816f15580b52001938d7e5d2bd4337be6a69f0e33d42348afe780f8480410"
 )
 
 KNOWN_OPERATION_KINDS = frozenset(
@@ -46,43 +46,43 @@ PROC_OPERATION_KINDS = frozenset(
 
 SNAPSHOT_OPERATION_KINDS = {
     "ability_energy_generate": 283,
-    "turn_meter_modify": 540,
-    "heal_restore": 502,
-    "barrier_apply": 190,
+    "barrier_apply": 198,
     "barrier_remove": 119,
     "battlefield_effect_clear": 21,
     "battlefield_effect_set": 17,
-    "effect_apply": 5116,
-    "effect_duration_modify": 1179,
-    "effect_flip": 510,
-    "effect_remove": 1214,
-    "effect_transfer": 374,
+    "effect_apply": 5182,
+    "effect_duration_modify": 1178,
+    "effect_flip": 518,
+    "effect_remove": 1216,
+    "effect_transfer": 376,
     "empower": 7,
-    "empty_result": 310,
+    "empty_result": 313,
+    "heal_restore": 504,
     "spawn": 116,
     "stat_immunity": 3,
-    "stat_modifier": 94,
+    "stat_modifier": 4198,
+    "turn_meter_modify": 541,
 }
 
 SNAPSHOT_COUNTS = {
-    "characterCount": 503,
-    "abilityCount": 1844,
-    "contextCount": 3997,
-    "actionMappingCount": 12424,
-    "operationCount": 10595,
-    "effectCatalogCount": 302,
-    "preservedUninterpretedActionCount": 3337,
+    "characterCount": 506,
+    "abilityCount": 1857,
+    "contextCount": 4025,
+    "actionMappingCount": 12531,
+    "operationCount": 14790,
+    "effectCatalogCount": 313,
+    "preservedUninterpretedActionCount": 472,
     "spawnOperationCount": 116,
     "spawnPoolEffectOperationCount": 39,
     "spawnWithPoolEffectCount": 9,
     "spawnWithoutPoolEffectCount": 107,
-    "emptyResultOperationCount": 310,
+    "emptyResultOperationCount": 313,
     "empowerOperationCount": 7,
     "controlledAliasResolutionCount": 6,
     "unresolvedProcReferenceCount": 2,
     "battlefieldEffectSetCount": 17,
     "battlefieldEffectClearCount": 21,
-    "technicalContextCount": 673,
+    "technicalContextCount": 676,
     "passiveEmpowerAbilityCount": 5,
 }
 
