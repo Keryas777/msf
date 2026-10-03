@@ -59,6 +59,27 @@ jobs:
       - name: Rebuild indexed output
         run: python -m scripts.msf_capabilities_indexer.cli
 
+      - name: Report index snapshot diagnostics
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          normalized_path = Path("data/msf-capabilities/normalized/capabilities.json")
+          index_manifest_path = Path("data/msf-capabilities/indexed/index-manifest.json")
+          index_manifest = json.loads(index_manifest_path.read_text(encoding="utf-8"))
+
+          normalized_checksum = hashlib.sha256(normalized_path.read_bytes()).hexdigest()
+          compact_json = lambda value: json.dumps(value, sort_keys=True, separators=(",", ":"))
+
+          print(f"Normalized capabilities SHA-256: {normalized_checksum}")
+          print(f"Index capabilitiesChecksum: {index_manifest['capabilitiesChecksum']}")
+          print(f"Index mechanicsChecksum: {index_manifest['mechanicsChecksum']}")
+          print(f"Index counts: {compact_json(index_manifest['counts'])}")
+          print(f"Index snapshot: {compact_json(index_manifest['audit']['snapshot'])}")
+          PY
+
       - name: Publish Web artifacts
         run: python -m scripts.msf_capabilities_web_publisher.cli
 
