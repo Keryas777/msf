@@ -57,6 +57,14 @@ jobs:
             --checkpoint="${{ steps.checkpoint.outputs.checkpoint }}" \
             --write
 
+      - name: Build evolution summary
+        env:
+          DATA_DIR: docs/data
+        run: |
+          node scripts/build-roster-evolution-summaries.mjs \
+            --checkpoint="${{ steps.checkpoint.outputs.checkpoint }}" \
+            --write
+
       - name: Verify generated scope
         shell: bash
         run: |
@@ -77,7 +85,7 @@ jobs:
             exit 1
           fi
 
-      - name: Commit and push monthly snapshot
+      - name: Commit and push monthly roster history
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -85,10 +93,10 @@ jobs:
           git add docs/data/roster-history
 
           if git diff --staged --quiet; then
-            echo "No roster snapshot changes to commit."
+            echo "No roster history changes to commit."
             exit 0
           fi
 
           checkpoint="${{ steps.checkpoint.outputs.checkpoint }}"
-          git commit -m "Snapshot roster history ${checkpoint}"
+          git commit -m "Update roster history ${checkpoint}"
           git push origin HEAD:main
