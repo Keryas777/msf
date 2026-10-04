@@ -1,0 +1,339 @@
+{
+  "schemaVersion": "1.0.0",
+  "title": "Marvel Strike Force playable release history",
+  "scope": "Global launch onward",
+  "globalLaunchDate": "2018-03-28",
+  "characterCatalog": "docs/data/msf-characters.json",
+  "countingRules": [
+    "The chronology starts at the worldwide launch on 2018-03-28; soft-launch availability does not create a separate release entry for characters already playable at worldwide launch.",
+    "A character counts as released only when a player can actually recruit/play it.",
+    "Being present in the client, used as an AI/NPC unit, datamined, announced or marked as coming soon does not count as a playable release.",
+    "Each newly playable character is assigned to exactly one provenance bucket: globalLaunchRoster, individualReleases or a teamEvent newCharacterIds list.",
+    "A team event may contain pre-existing or reworked characters; only newCharacterIds contribute to the playable-release count.",
+    "Historical teams are not forced to five fixed members: partial formations and core-plus-pool formations are represented explicitly."
+  ],
+  "years": {
+    "2018": {
+      "status": "locked",
+      "globalLaunchRoster": {
+        "date": "2018-03-28",
+        "count": 62,
+        "namedCount": 30,
+        "minionCount": 32,
+        "namedCharacterIds": [
+          "BlackPanther",
+          "BlackWidow",
+          "Bullseye",
+          "CaptainAmerica",
+          "Crossbones",
+          "Daredevil",
+          "Drax",
+          "Elektra",
+          "Gamora",
+          "Hawkeye",
+          "Hulk",
+          "IronFist",
+          "JessicaJones",
+          "Kingpin",
+          "Korath",
+          "LukeCage",
+          "Nebula",
+          "NightNurse",
+          "Nobu",
+          "Punisher",
+          "Quake",
+          "RocketRaccoon",
+          "Ronan",
+          "ScientistSupreme",
+          "SpiderMan",
+          "Thor",
+          "Ultimus",
+          "WinterSoldier",
+          "Wolverine",
+          "Yondu"
+        ],
+        "minionsByFaction": {
+          "AIM": [
+            "AimControl_Infect",
+            "AimDmg_Offense",
+            "AimDmg_Speed",
+            "AimSupport_Heal",
+            "AimTank_Taunt"
+          ],
+          "Hand": [
+            "HandDmg_Unbuff",
+            "HandControl_HealBlock",
+            "HandDmg_Bonus",
+            "HandTank_Stealth",
+            "HandSupport_Heal"
+          ],
+          "Hydra": [
+            "HydraTank_Taunt",
+            "HydraDmg_AoE",
+            "HydraDmg_Buff",
+            "HydraSupport_Heal",
+            "HydraDmg_Single"
+          ],
+          "Kree": [
+            "KreeDmg_Offense",
+            "KreeControl_Assist",
+            "KreeSupport_HoT",
+            "KreeDmg_Speed",
+            "KreeTank_Counter"
+          ],
+          "Mercenary": [
+            "MercSupport_Buffs",
+            "MercTank_Debuff",
+            "MercDmg_Single",
+            "MercDmg_General"
+          ],
+          "Ravager": [
+            "RavagerDmg_AoE",
+            "RavagerTank_Taunt",
+            "RavagerSupport_Heal"
+          ],
+          "SHIELD": [
+            "ShieldDmg_AoE",
+            "ShieldSupport_Heal",
+            "ShieldSupport_Stealth",
+            "ShieldTank_Stun",
+            "ShieldDmg_Defense"
+          ]
+        },
+        "presentInClientButNotPlayableAtLaunch": [
+          {
+            "characterId": "IronMan",
+            "firstPlayableMonth": "2018-06",
+            "releaseMethod": "legendary"
+          },
+          {
+            "characterId": "NickFury",
+            "firstPlayableMonth": "2018-08",
+            "releaseMethod": "legendary"
+          }
+        ]
+      },
+      "individualReleases": [
+        {
+          "month": "2018-04",
+          "characterId": "Thanos"
+        },
+        {
+          "month": "2018-05",
+          "characterId": "DoctorStrange"
+        },
+        {
+          "month": "2018-05",
+          "characterId": "Vision"
+        },
+        {
+          "month": "2018-05",
+          "characterId": "Deadpool"
+        },
+        {
+          "month": "2018-05",
+          "characterId": "Cable"
+        },
+        {
+          "month": "2018-06",
+          "characterId": "BaronMordo"
+        },
+        {
+          "month": "2018-06",
+          "characterId": "IronMan",
+          "releaseMethod": "legendary"
+        },
+        {
+          "month": "2018-06",
+          "characterId": "AntMan"
+        },
+        {
+          "month": "2018-07",
+          "characterId": "Wasp"
+        },
+        {
+          "month": "2018-08",
+          "characterId": "ScarletWitch"
+        },
+        {
+          "month": "2018-08",
+          "characterId": "MsMarvel"
+        },
+        {
+          "month": "2018-08",
+          "characterId": "Loki"
+        },
+        {
+          "month": "2018-09",
+          "characterId": "Storm"
+        },
+        {
+          "month": "2018-09",
+          "characterId": "Venom"
+        },
+        {
+          "month": "2018-10",
+          "characterId": "Mystique"
+        }
+      ],
+      "teamEvents": [
+        {
+          "month": "2018-07",
+          "teamId": "guardians-of-the-galaxy-v1",
+          "label": "Guardians of the Galaxy V1",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "StarLord",
+            "Groot",
+            "RocketRaccoon",
+            "Drax",
+            "Gamora"
+          ],
+          "newCharacterIds": [
+            "StarLord",
+            "Groot"
+          ],
+          "existingCharacterIds": [
+            "RocketRaccoon",
+            "Drax",
+            "Gamora"
+          ]
+        },
+        {
+          "month": "2018-08",
+          "teamId": "fury-shield-v1",
+          "label": "Nick Fury / S.H.I.E.L.D.",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 5,
+          "core": [
+            "NickFury"
+          ],
+          "pool": [
+            "ShieldDmg_AoE",
+            "ShieldSupport_Heal",
+            "ShieldSupport_Stealth",
+            "ShieldTank_Stun",
+            "ShieldDmg_Defense"
+          ],
+          "newCharacterIds": [
+            "NickFury"
+          ],
+          "reworkedCharacterIds": [
+            "ShieldDmg_AoE",
+            "ShieldSupport_Heal",
+            "ShieldSupport_Stealth",
+            "ShieldTank_Stun",
+            "ShieldDmg_Defense"
+          ],
+          "releaseMethods": {
+            "NickFury": "legendary"
+          }
+        },
+        {
+          "month": "2018-09",
+          "teamId": "defenders-punisher-v1",
+          "label": "Defenders + Punisher",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Daredevil",
+            "IronFist",
+            "JessicaJones",
+            "LukeCage",
+            "Punisher"
+          ],
+          "newCharacterIds": [],
+          "reworkedCharacterIds": [
+            "Daredevil",
+            "IronFist",
+            "JessicaJones",
+            "LukeCage",
+            "Punisher"
+          ],
+          "notes": [
+            "Punisher is the fifth synergy member but is not a Defender trait member."
+          ]
+        },
+        {
+          "month": "2018-11",
+          "teamId": "brotherhood-v1",
+          "label": "Brotherhood V1",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Magneto",
+            "Mystique",
+            "Sabretooth",
+            "Pyro",
+            "Juggernaut"
+          ],
+          "newCharacterIds": [
+            "Sabretooth",
+            "Juggernaut",
+            "Pyro",
+            "Magneto"
+          ],
+          "existingCharacterIds": [
+            "Mystique"
+          ],
+          "releaseMethods": {
+            "Magneto": "legendary"
+          },
+          "notes": [
+            "Mystique became playable in October 2018 and is counted in individualReleases."
+          ]
+        },
+        {
+          "month": "2018-12",
+          "teamId": "spider-verse-v1",
+          "label": "Spider-Verse V1",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "SpiderMan",
+            "Venom",
+            "UltSpiderMan",
+            "UltGreenGoblin"
+          ],
+          "newCharacterIds": [
+            "UltSpiderMan",
+            "UltGreenGoblin"
+          ],
+          "existingCharacterIds": [
+            "SpiderMan",
+            "Venom"
+          ],
+          "announcedNext": [
+            "Carnage"
+          ],
+          "notes": [
+            "Carnage was announced in December 2018 but was not yet playable and is not counted in 2018."
+          ]
+        }
+      ],
+      "excludedFrom2018PlayableCount": [
+        {
+          "characterId": "Ultron",
+          "reason": "present_in_client_but_not_yet_recruitable",
+          "clientAddedMonth": "2018-09",
+          "playableReleaseYear": 2019
+        },
+        {
+          "characterId": "Carnage",
+          "reason": "announced_but_not_yet_playable",
+          "announcedMonth": "2018-12",
+          "playableReleaseYear": 2019
+        }
+      ],
+      "validation": {
+        "globalLaunchRosterCount": 62,
+        "individualReleaseCount": 15,
+        "teamEventNewCharacterCount": 9,
+        "yearEndDistinctPlayableCount": 86,
+        "duplicatesAcrossReleaseBuckets": []
+      }
+    }
+  }
+}
