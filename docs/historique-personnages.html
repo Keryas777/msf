@@ -893,6 +893,37 @@
         line-height: 1.45;
       }
 
+      /* Les filtres restent en haut ; le sélecteur de vue est juste au-dessus du contenu. */
+      main {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .hero {
+        order: 0;
+      }
+
+      .filters {
+        order: 1;
+      }
+
+      .viewTabs {
+        order: 2;
+      }
+
+      .content {
+        order: 3;
+      }
+
+      /* Les portraits MSF sont parfois plus hauts ou plus larges que leur cadre carré. */
+      .portraitWrap img,
+      .listPortrait img,
+      .rankPortrait img,
+      .detailPortrait img {
+        object-fit: contain;
+        object-position: center;
+      }
+
       @media (min-width: 520px) {
         .characterGrid {
           grid-template-columns: repeat(4, minmax(0, 1fr));
