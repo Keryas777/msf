@@ -209,8 +209,16 @@
 
   function buildCharMap(chars) {
     CHAR_MAP = new Map();
-    (Array.isArray(chars) ? chars : []).forEach((c) => {
-      [c?.id, c?.nameKey, c?.nameFr, c?.nameEn]
+    const rows = Array.isArray(chars) ? chars : [];
+
+    rows.forEach((c) => {
+      const idKey = normalizeKey(c?.id);
+      if (!idKey || CHAR_MAP.has(idKey)) return;
+      CHAR_MAP.set(idKey, c);
+    });
+
+    rows.forEach((c) => {
+      [c?.nameKey, c?.nameFr, c?.nameEn]
         .filter(Boolean)
         .forEach((k) => {
           const kk = normalizeKey(k);
