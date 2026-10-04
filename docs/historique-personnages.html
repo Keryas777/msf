@@ -1,0 +1,1752 @@
+<!doctype html>
+<html lang="fr" class="authChecking">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#07111c" />
+    <title>Historique des personnages MSF — LoSP</title>
+
+    <style>
+      html.authChecking body {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      :root {
+        color-scheme: dark;
+        --bg: #07111c;
+        --bg-soft: #0b1725;
+        --panel: rgba(14, 28, 43, 0.92);
+        --panel-strong: #102238;
+        --line: rgba(161, 195, 230, 0.17);
+        --line-strong: rgba(161, 195, 230, 0.3);
+        --text: #f4f8fc;
+        --muted: #9fb0c2;
+        --accent: #56c7ff;
+        --accent-strong: #1da8ed;
+        --accent-soft: rgba(86, 199, 255, 0.13);
+        --green: #73e0ad;
+        --violet: #b39cff;
+        --gold: #ffd36a;
+        --danger: #ff8d91;
+        --shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
+        --radius-lg: 22px;
+        --radius-md: 16px;
+        --radius-sm: 12px;
+        font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-height: 100%;
+        background: var(--bg);
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 12% -8%, rgba(51, 147, 219, 0.22), transparent 31rem),
+          radial-gradient(circle at 92% 0%, rgba(107, 76, 210, 0.16), transparent 30rem),
+          linear-gradient(180deg, #08131f 0%, #07111c 42%, #050b12 100%);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      button,
+      select {
+        cursor: pointer;
+      }
+
+      button,
+      input,
+      select {
+        color: inherit;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .srOnly {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+      }
+
+      .pageShell {
+        width: min(100%, 1320px);
+        margin: 0 auto;
+        padding:
+          max(12px, env(safe-area-inset-top))
+          max(12px, env(safe-area-inset-right))
+          max(32px, env(safe-area-inset-bottom))
+          max(12px, env(safe-area-inset-left));
+      }
+
+      .pageHeader {
+        position: sticky;
+        z-index: 20;
+        top: 0;
+        margin: -12px -12px 12px;
+        padding:
+          max(12px, env(safe-area-inset-top))
+          max(12px, env(safe-area-inset-right))
+          10px
+          max(12px, env(safe-area-inset-left));
+        border-bottom: 1px solid var(--line);
+        background: rgba(7, 17, 28, 0.9);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+      }
+
+      .headerRow {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .navButton {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: rgba(255, 255, 255, 0.035);
+        text-decoration: none;
+      }
+
+      .navButton:active {
+        transform: translateY(1px);
+      }
+
+      .brand {
+        min-width: 0;
+      }
+
+      .brand strong,
+      .brand span {
+        display: block;
+      }
+
+      .brand strong {
+        overflow: hidden;
+        font-size: clamp(1rem, 4vw, 1.25rem);
+        line-height: 1.15;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .brand span {
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 0.74rem;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: 22px 18px 18px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background:
+          linear-gradient(125deg, rgba(86, 199, 255, 0.11), rgba(179, 156, 255, 0.055) 42%, rgba(255, 211, 106, 0.04)),
+          var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        width: 230px;
+        height: 230px;
+        right: -85px;
+        top: -130px;
+        border-radius: 50%;
+        background: rgba(86, 199, 255, 0.1);
+        filter: blur(3px);
+        pointer-events: none;
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--accent);
+        font-size: 0.76rem;
+        font-weight: 800;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+      }
+
+      .hero h1 {
+        max-width: 780px;
+        margin: 0;
+        font-size: clamp(1.65rem, 7vw, 3rem);
+        line-height: 1.03;
+        letter-spacing: -0.035em;
+      }
+
+      .heroText {
+        max-width: 820px;
+        margin: 11px 0 0;
+        color: #c0cfde;
+        font-size: 0.94rem;
+        line-height: 1.55;
+      }
+
+      .sourceNote {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin: 14px 0 0;
+        color: var(--muted);
+        font-size: 0.78rem;
+        line-height: 1.45;
+      }
+
+      .sourceDot {
+        width: 8px;
+        height: 8px;
+        flex: 0 0 auto;
+        margin-top: 4px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 0 4px rgba(115, 224, 173, 0.08);
+      }
+
+      .statsGrid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+        margin-top: 12px;
+      }
+
+      .statCard {
+        min-width: 0;
+        padding: 13px 12px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        background: rgba(4, 12, 20, 0.52);
+      }
+
+      .statCard strong,
+      .statCard span {
+        display: block;
+      }
+
+      .statCard strong {
+        font-size: 1.35rem;
+        line-height: 1;
+      }
+
+      .statCard span {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 0.72rem;
+      }
+
+      .viewTabs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+        margin: 14px 0 0;
+        padding: 5px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        background: rgba(4, 12, 20, 0.58);
+      }
+
+      .viewTab {
+        min-height: 42px;
+        padding: 8px 7px;
+        border: 0;
+        border-radius: 11px;
+        background: transparent;
+        color: var(--muted);
+        font-weight: 800;
+        font-size: 0.78rem;
+      }
+
+      .viewTab[aria-selected="true"] {
+        color: #06111a;
+        background: linear-gradient(180deg, #7cd8ff, #4ebdf4);
+        box-shadow: 0 6px 16px rgba(57, 170, 228, 0.22);
+      }
+
+      .filters {
+        margin-top: 12px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: rgba(9, 21, 34, 0.86);
+      }
+
+      .filterGrid {
+        display: grid;
+        gap: 9px;
+      }
+
+      .field label {
+        display: block;
+        margin: 0 0 5px 2px;
+        color: var(--muted);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+
+      .field input,
+      .field select {
+        width: 100%;
+        min-height: 44px;
+        padding: 0 12px;
+        border: 1px solid var(--line-strong);
+        border-radius: 12px;
+        outline: 0;
+        background: #091726;
+        font-size: 16px;
+      }
+
+      .field input:focus,
+      .field select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(86, 199, 255, 0.12);
+      }
+
+      .filterFooter {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .resultCount {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+
+      .resetButton {
+        min-height: 38px;
+        padding: 0 11px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: transparent;
+        color: #c8d5e2;
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      .content {
+        margin-top: 14px;
+      }
+
+      .loading,
+      .emptyState,
+      .errorState {
+        padding: 32px 18px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: var(--panel);
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .spinner {
+        width: 28px;
+        height: 28px;
+        margin: 0 auto 12px;
+        border: 3px solid rgba(255, 255, 255, 0.12);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .timeline {
+        display: grid;
+        gap: 12px;
+      }
+
+      .timelineGroup {
+        position: relative;
+        padding: 16px 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: var(--panel);
+        box-shadow: 0 9px 26px rgba(0, 0, 0, 0.16);
+      }
+
+      .timelineGroup::before {
+        content: "";
+        position: absolute;
+        top: 22px;
+        left: -5px;
+        width: 10px;
+        height: 10px;
+        border: 2px solid #09121d;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 0 4px rgba(86, 199, 255, 0.13);
+      }
+
+      .timelineHeader {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 11px;
+        padding-left: 4px;
+      }
+
+      .timelineHeader h2 {
+        margin: 0;
+        font-size: 1.08rem;
+        letter-spacing: -0.015em;
+      }
+
+      .timelineHeader p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 0.74rem;
+      }
+
+      .countPill {
+        flex: 0 0 auto;
+        padding: 5px 9px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: #c8d8e8;
+        background: rgba(255, 255, 255, 0.035);
+        font-size: 0.7rem;
+        font-weight: 800;
+      }
+
+      .characterGrid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .characterCard {
+        min-width: 0;
+        padding: 0;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        overflow: hidden;
+        background: #091522;
+        text-align: left;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.13);
+      }
+
+      .characterCard:active {
+        transform: translateY(1px);
+      }
+
+      .portraitWrap {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 50% 35%, rgba(86, 199, 255, 0.17), transparent 58%),
+          #0c1c2d;
+      }
+
+      .portraitWrap img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+      }
+
+      .portraitFallback {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-items: center;
+        color: #87a0b7;
+        font-size: 1.5rem;
+        font-weight: 900;
+      }
+
+      .cardBadge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        padding: 3px 6px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        background: rgba(2, 8, 14, 0.8);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        color: #eaf6ff;
+        font-size: 0.6rem;
+        font-weight: 900;
+      }
+
+      .cardBadge--rework {
+        color: #f0eaff;
+        background: rgba(70, 46, 128, 0.84);
+      }
+
+      .cardBody {
+        padding: 8px;
+      }
+
+      .characterName {
+        display: -webkit-box;
+        min-height: 2.35em;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        font-size: 0.78rem;
+        font-weight: 800;
+        line-height: 1.17;
+      }
+
+      .characterMeta {
+        display: block;
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 0.63rem;
+        line-height: 1.25;
+      }
+
+      .listGrid {
+        display: grid;
+        gap: 8px;
+      }
+
+      .listCard {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 68px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 11px;
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        background: var(--panel);
+        text-align: left;
+      }
+
+      .listPortrait {
+        width: 68px;
+        height: 68px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #0c1c2d;
+      }
+
+      .listPortrait img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+      }
+
+      .listInfo {
+        min-width: 0;
+      }
+
+      .listInfo strong {
+        display: block;
+        overflow: hidden;
+        font-size: 0.93rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .listInfo span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 0.72rem;
+        line-height: 1.35;
+      }
+
+      .listChevron {
+        color: var(--accent);
+        font-size: 1.25rem;
+      }
+
+      .rankings {
+        display: grid;
+        gap: 12px;
+      }
+
+      .rankingPanel {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: var(--panel);
+      }
+
+      .rankingHeader {
+        padding: 15px 14px 11px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .rankingHeader h2 {
+        margin: 0;
+        font-size: 1.02rem;
+      }
+
+      .rankingHeader p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 0.72rem;
+        line-height: 1.4;
+      }
+
+      .rankingList {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .rankingItem {
+        display: grid;
+        grid-template-columns: 30px 48px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 9px;
+        min-height: 64px;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .rankingItem:last-child {
+        border-bottom: 0;
+      }
+
+      .rankNumber {
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 900;
+        text-align: center;
+      }
+
+      .rankPortrait {
+        width: 48px;
+        height: 48px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #0c1c2d;
+      }
+
+      .rankPortrait img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+      }
+
+      .rankName {
+        min-width: 0;
+      }
+
+      .rankName strong,
+      .rankName span {
+        display: block;
+      }
+
+      .rankName strong {
+        overflow: hidden;
+        font-size: 0.82rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .rankName span {
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 0.65rem;
+      }
+
+      .rankValue {
+        color: #d8e9f8;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-align: right;
+      }
+
+      .modalRoot[hidden] {
+        display: none;
+      }
+
+      .modalRoot {
+        position: fixed;
+        z-index: 60;
+        inset: 0;
+        display: grid;
+        align-items: end;
+      }
+
+      .modalBackdrop {
+        position: absolute;
+        inset: 0;
+        border: 0;
+        background: rgba(0, 0, 0, 0.68);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+      }
+
+      .detailSheet {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-height: min(88vh, 760px);
+        overflow: auto;
+        padding: 12px 14px max(24px, env(safe-area-inset-bottom));
+        border: 1px solid var(--line-strong);
+        border-bottom: 0;
+        border-radius: 24px 24px 0 0;
+        background: #091522;
+        box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.46);
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .sheetHandle {
+        width: 42px;
+        height: 4px;
+        margin: 1px auto 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .detailTopBar {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .closeButton {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        font-size: 1.35rem;
+      }
+
+      .detailHero {
+        display: grid;
+        grid-template-columns: 92px minmax(0, 1fr);
+        gap: 14px;
+        align-items: center;
+      }
+
+      .detailPortrait {
+        width: 92px;
+        height: 92px;
+        overflow: hidden;
+        border: 1px solid var(--line-strong);
+        border-radius: 18px;
+        background: #0c1c2d;
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+      }
+
+      .detailPortrait img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+      }
+
+      .detailTitle {
+        min-width: 0;
+      }
+
+      .detailTitle h2 {
+        margin: 0;
+        font-size: 1.35rem;
+        line-height: 1.06;
+        letter-spacing: -0.025em;
+      }
+
+      .detailId {
+        display: block;
+        margin-top: 6px;
+        overflow: hidden;
+        color: var(--muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.67rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .detailGrid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 15px;
+      }
+
+      .detailFact {
+        padding: 11px;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: rgba(255, 255, 255, 0.025);
+      }
+
+      .detailFact span,
+      .detailFact strong {
+        display: block;
+      }
+
+      .detailFact span {
+        color: var(--muted);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+      }
+
+      .detailFact strong {
+        margin-top: 4px;
+        font-size: 0.79rem;
+        line-height: 1.3;
+      }
+
+      .detailSection {
+        margin-top: 17px;
+      }
+
+      .detailSection h3 {
+        margin: 0 0 9px;
+        font-size: 0.92rem;
+      }
+
+      .historyList {
+        display: grid;
+        gap: 8px;
+      }
+
+      .historyEntry {
+        position: relative;
+        padding: 11px 11px 11px 32px;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: rgba(255, 255, 255, 0.025);
+      }
+
+      .historyEntry::before {
+        content: "";
+        position: absolute;
+        top: 16px;
+        left: 13px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--violet);
+        box-shadow: 0 0 0 4px rgba(179, 156, 255, 0.09);
+      }
+
+      .historyEntry strong,
+      .historyEntry span {
+        display: block;
+      }
+
+      .historyEntry strong {
+        font-size: 0.8rem;
+      }
+
+      .historyEntry span {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 0.7rem;
+        line-height: 1.4;
+      }
+
+      .detailEmpty {
+        margin: 0;
+        padding: 12px;
+        border: 1px dashed var(--line-strong);
+        border-radius: 13px;
+        color: var(--muted);
+        font-size: 0.75rem;
+        line-height: 1.45;
+      }
+
+      @media (min-width: 520px) {
+        .characterGrid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .filterGrid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (min-width: 760px) {
+        .pageShell {
+          padding-left: 22px;
+          padding-right: 22px;
+        }
+
+        .pageHeader {
+          margin-left: -22px;
+          margin-right: -22px;
+          padding-left: 22px;
+          padding-right: 22px;
+        }
+
+        .hero {
+          padding: 28px;
+        }
+
+        .statsGrid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .filterGrid {
+          grid-template-columns: 2fr repeat(3, minmax(150px, 1fr));
+        }
+
+        .characterGrid {
+          grid-template-columns: repeat(6, minmax(0, 1fr));
+          gap: 10px;
+        }
+
+        .rankings {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          align-items: start;
+        }
+
+        .modalRoot {
+          place-items: center;
+          padding: 28px;
+        }
+
+        .detailSheet {
+          width: min(680px, 100%);
+          max-height: 84vh;
+          border-bottom: 1px solid var(--line-strong);
+          border-radius: 24px;
+        }
+
+        .sheetHandle {
+          display: none;
+        }
+      }
+
+      @media (min-width: 1040px) {
+        .characterGrid {
+          grid-template-columns: repeat(8, minmax(0, 1fr));
+        }
+
+        .timelineGroup {
+          padding: 18px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+
+    <script src="./auth-guard.js?v=4"></script>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icon-512.PNG" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="LoSP" />
+  </head>
+
+  <body>
+    <div class="pageShell">
+      <header class="pageHeader">
+        <div class="headerRow">
+          <button id="backButton" class="navButton" type="button" aria-label="Retour">‹ <span>Retour</span></button>
+          <div class="brand">
+            <strong>Historique MSF</strong>
+            <span>Sorties & reworks des personnages</span>
+          </div>
+          <a class="navButton" href="./home.html" aria-label="Accueil LoSP">⌂ <span>Accueil</span></a>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero" aria-labelledby="pageTitle">
+          <p class="eyebrow">Marvel Strike Force</p>
+          <h1 id="pageTitle">Quand chaque personnage est-il arrivé&nbsp;?</h1>
+          <p class="heroText">
+            Parcours chronologique du roster MSF depuis le lancement mondial, avec les portraits,
+            les méthodes de sortie connues et les reworks documentés dans l’historique du projet.
+          </p>
+          <p class="sourceNote">
+            <span class="sourceDot" aria-hidden="true"></span>
+            <span id="dataScope">Chargement de l’historique…</span>
+          </p>
+
+          <div class="statsGrid" aria-label="Résumé de l’historique">
+            <article class="statCard">
+              <strong id="statCharacters">—</strong>
+              <span>personnages documentés</span>
+            </article>
+            <article class="statCard">
+              <strong id="statLaunch">—</strong>
+              <span>disponibles au lancement</span>
+            </article>
+            <article class="statCard">
+              <strong id="statAfterLaunch">—</strong>
+              <span>ajouts après lancement</span>
+            </article>
+            <article class="statCard">
+              <strong id="statReworks">—</strong>
+              <span>reworks documentés</span>
+            </article>
+          </div>
+        </section>
+
+        <div class="viewTabs" role="tablist" aria-label="Mode d’affichage">
+          <button class="viewTab" type="button" role="tab" data-view="timeline" aria-selected="true">Chronologie</button>
+          <button class="viewTab" type="button" role="tab" data-view="characters" aria-selected="false">Personnages</button>
+          <button class="viewTab" type="button" role="tab" data-view="rankings" aria-selected="false">Classements</button>
+        </div>
+
+        <section class="filters" aria-label="Filtres de l’historique">
+          <div class="filterGrid">
+            <div class="field">
+              <label for="searchInput">Recherche</label>
+              <input id="searchInput" type="search" autocomplete="off" placeholder="Nom du personnage…" />
+            </div>
+            <div class="field">
+              <label for="yearFilter">Année</label>
+              <select id="yearFilter">
+                <option value="all">Toutes</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="typeFilter">Type de sortie</label>
+              <select id="typeFilter">
+                <option value="all">Tous</option>
+                <option value="launch">Lancement</option>
+                <option value="individual">Sortie individuelle</option>
+                <option value="team">Événement d’équipe</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="reworkFilter">Reworks</label>
+              <select id="reworkFilter">
+                <option value="all">Tous</option>
+                <option value="yes">Avec rework documenté</option>
+                <option value="no">Sans rework documenté</option>
+              </select>
+            </div>
+            <div class="field" id="sortField">
+              <label for="sortSelect">Tri</label>
+              <select id="sortSelect">
+                <option value="oldest">Plus anciens d’abord</option>
+                <option value="newest">Plus récents d’abord</option>
+                <option value="name">Nom A → Z</option>
+                <option value="reworks">Plus reworkés</option>
+              </select>
+            </div>
+          </div>
+          <div class="filterFooter">
+            <span id="resultCount" class="resultCount">—</span>
+            <button id="resetFilters" class="resetButton" type="button">Réinitialiser</button>
+          </div>
+        </section>
+
+        <section id="content" class="content" aria-live="polite">
+          <div class="loading">
+            <div class="spinner" aria-hidden="true"></div>
+            Chargement des personnages…
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="detailModal" class="modalRoot" hidden>
+      <button class="modalBackdrop" type="button" data-close-detail aria-label="Fermer la fiche"></button>
+      <section class="detailSheet" role="dialog" aria-modal="true" aria-labelledby="detailName">
+        <div class="sheetHandle" aria-hidden="true"></div>
+        <div class="detailTopBar">
+          <button class="closeButton" type="button" data-close-detail aria-label="Fermer">×</button>
+        </div>
+        <div id="detailContent"></div>
+      </section>
+    </div>
+
+    <noscript>
+      <div class="errorState">Cette page nécessite JavaScript pour lire les données historiques.</div>
+    </noscript>
+
+    <script>
+      (() => {
+        "use strict";
+
+        const DATA_URL = "./data/msf-release-history.json";
+        const CHARACTERS_URL = "./data/msf-characters.json";
+
+        const state = {
+          history: null,
+          catalog: new Map(),
+          characters: [],
+          view: "timeline",
+          filters: {
+            query: "",
+            year: "all",
+            type: "all",
+            rework: "all",
+            sort: "oldest"
+          }
+        };
+
+        const els = {
+          content: document.getElementById("content"),
+          searchInput: document.getElementById("searchInput"),
+          yearFilter: document.getElementById("yearFilter"),
+          typeFilter: document.getElementById("typeFilter"),
+          reworkFilter: document.getElementById("reworkFilter"),
+          sortSelect: document.getElementById("sortSelect"),
+          sortField: document.getElementById("sortField"),
+          resultCount: document.getElementById("resultCount"),
+          resetFilters: document.getElementById("resetFilters"),
+          dataScope: document.getElementById("dataScope"),
+          statCharacters: document.getElementById("statCharacters"),
+          statLaunch: document.getElementById("statLaunch"),
+          statAfterLaunch: document.getElementById("statAfterLaunch"),
+          statReworks: document.getElementById("statReworks"),
+          backButton: document.getElementById("backButton"),
+          detailModal: document.getElementById("detailModal"),
+          detailContent: document.getElementById("detailContent")
+        };
+
+        const monthFormatter = new Intl.DateTimeFormat("fr-FR", {
+          month: "long",
+          year: "numeric",
+          timeZone: "UTC"
+        });
+
+        const dayFormatter = new Intl.DateTimeFormat("fr-FR", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+          timeZone: "UTC"
+        });
+
+        function safeText(value) {
+          return String(value ?? "");
+        }
+
+        function escapeHtml(value) {
+          return safeText(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+        }
+
+        function normalizeSearch(value) {
+          return safeText(value)
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLocaleLowerCase("fr-FR")
+            .trim();
+        }
+
+        function getCatalogName(character) {
+          return character?.nameFr || character?.nameKey || character?.nameEn || character?.id || "Personnage inconnu";
+        }
+
+        function parseTemporal(raw) {
+          if (!raw) {
+            return {
+              raw: "",
+              key: "9999-12-31",
+              year: null,
+              label: "Date inconnue",
+              precision: "unknown"
+            };
+          }
+
+          const value = String(raw).trim();
+          const monthMatch = /^(\d{4})-(\d{2})$/.exec(value);
+          if (monthMatch) {
+            const year = Number(monthMatch[1]);
+            const month = Number(monthMatch[2]);
+            const date = new Date(Date.UTC(year, month - 1, 1));
+            return {
+              raw: value,
+              key: `${monthMatch[1]}-${monthMatch[2]}-01`,
+              year,
+              label: monthFormatter.format(date),
+              precision: "month"
+            };
+          }
+
+          const dayMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+          if (dayMatch) {
+            const year = Number(dayMatch[1]);
+            const date = new Date(`${value}T00:00:00Z`);
+            return {
+              raw: value,
+              key: value,
+              year,
+              label: dayFormatter.format(date),
+              precision: "day"
+            };
+          }
+
+          const year = Number(value.slice(0, 4)) || null;
+          return {
+            raw: value,
+            key: value,
+            year,
+            label: value,
+            precision: "unknown"
+          };
+        }
+
+        function flattenLaunchRoster(launch) {
+          const ids = [];
+          for (const id of launch?.namedCharacterIds || []) ids.push(id);
+          for (const factionIds of Object.values(launch?.minionsByFaction || {})) {
+            for (const id of factionIds || []) ids.push(id);
+          }
+          return ids;
+        }
+
+        function getReleaseTypeLabel(type) {
+          if (type === "launch") return "Lancement mondial";
+          if (type === "individual") return "Sortie individuelle";
+          if (type === "team") return "Événement d’équipe";
+          return "Sortie";
+        }
+
+        function getMethodLabel(method) {
+          if (!method) return "Non précisée";
+          const known = {
+            legendary: "Légendaire"
+          };
+          return known[method] || method;
+        }
+
+        function buildCharacters(history, catalogList) {
+          state.catalog = new Map((catalogList || []).map((character) => [character.id, character]));
+
+          const records = new Map();
+          const years = history?.years || {};
+
+          function ensureRecord(id) {
+            if (!records.has(id)) {
+              const catalog = state.catalog.get(id) || { id, nameKey: id, portraitUrl: null };
+              records.set(id, {
+                id,
+                catalog,
+                name: getCatalogName(catalog),
+                portraitUrl: catalog.portraitUrl || "",
+                release: null,
+                reworks: []
+              });
+            }
+            return records.get(id);
+          }
+
+          function setRelease(id, release) {
+            const record = ensureRecord(id);
+            if (!record.release) {
+              record.release = release;
+              return;
+            }
+
+            const existingKey = record.release.temporal?.key || "9999-12-31";
+            const candidateKey = release.temporal?.key || "9999-12-31";
+            if (candidateKey < existingKey) record.release = release;
+          }
+
+          for (const [yearKey, yearData] of Object.entries(years)) {
+            const launch = yearData?.globalLaunchRoster;
+            if (launch?.date) {
+              const temporal = parseTemporal(launch.date);
+              for (const id of flattenLaunchRoster(launch)) {
+                setRelease(id, {
+                  type: "launch",
+                  yearKey,
+                  temporal,
+                  method: "global_launch",
+                  eventLabel: "Roster de lancement mondial"
+                });
+              }
+            }
+
+            for (const item of yearData?.individualReleases || []) {
+              const rawDate = item.date || item.month || yearKey;
+              setRelease(item.characterId, {
+                type: "individual",
+                yearKey,
+                temporal: parseTemporal(rawDate),
+                method: item.releaseMethod || "",
+                eventLabel: item.label || "Sortie individuelle"
+              });
+            }
+
+            for (const event of yearData?.teamEvents || []) {
+              const rawDate = event.date || event.month || yearKey;
+              const temporal = parseTemporal(rawDate);
+
+              for (const id of event.newCharacterIds || []) {
+                setRelease(id, {
+                  type: "team",
+                  yearKey,
+                  temporal,
+                  method: event.releaseMethods?.[id] || "",
+                  eventLabel: event.label || event.teamId || "Événement d’équipe",
+                  teamId: event.teamId || ""
+                });
+              }
+
+              for (const id of event.reworkedCharacterIds || []) {
+                const record = ensureRecord(id);
+                record.reworks.push({
+                  temporal,
+                  label: event.label || event.teamId || "Rework",
+                  teamId: event.teamId || "",
+                  notes: Array.isArray(event.notes) ? event.notes : []
+                });
+              }
+            }
+          }
+
+          return [...records.values()]
+            .filter((record) => record.release)
+            .map((record) => ({
+              ...record,
+              reworks: record.reworks.sort((a, b) => a.temporal.key.localeCompare(b.temporal.key)),
+              searchText: normalizeSearch(`${record.name} ${record.id}`)
+            }));
+        }
+
+        function populateYears() {
+          const years = [...new Set(state.characters.map((record) => record.release.temporal.year).filter(Boolean))]
+            .sort((a, b) => a - b);
+
+          els.yearFilter.innerHTML = '<option value="all">Toutes</option>' + years
+            .map((year) => `<option value="${year}">${year}</option>`)
+            .join("");
+        }
+
+        function updateStats() {
+          const launchCount = state.characters.filter((record) => record.release.type === "launch").length;
+          const reworkCount = state.characters.reduce((total, record) => total + record.reworks.length, 0);
+          const years = Object.keys(state.history?.years || {}).sort();
+          const lockedYears = years.filter((year) => state.history.years[year]?.status === "locked");
+
+          els.statCharacters.textContent = String(state.characters.length);
+          els.statLaunch.textContent = String(launchCount);
+          els.statAfterLaunch.textContent = String(Math.max(0, state.characters.length - launchCount));
+          els.statReworks.textContent = String(reworkCount);
+
+          if (years.length) {
+            const range = years.length === 1 ? years[0] : `${years[0]}–${years[years.length - 1]}`;
+            const lockedText = lockedYears.length ? ` · ${lockedYears.length} année${lockedYears.length > 1 ? "s" : ""} verrouillée${lockedYears.length > 1 ? "s" : ""}` : "";
+            els.dataScope.textContent = `Historique disponible : ${range}${lockedText}. Les futures années du JSON s’ajouteront automatiquement à cette page.`;
+          } else {
+            els.dataScope.textContent = "Aucune année historique disponible.";
+          }
+        }
+
+        function getFilteredCharacters() {
+          const query = normalizeSearch(state.filters.query);
+
+          let result = state.characters.filter((record) => {
+            if (query && !record.searchText.includes(query)) return false;
+            if (state.filters.year !== "all" && String(record.release.temporal.year) !== state.filters.year) return false;
+            if (state.filters.type !== "all" && record.release.type !== state.filters.type) return false;
+            if (state.filters.rework === "yes" && record.reworks.length === 0) return false;
+            if (state.filters.rework === "no" && record.reworks.length > 0) return false;
+            return true;
+          });
+
+          const sorters = {
+            oldest: (a, b) => a.release.temporal.key.localeCompare(b.release.temporal.key) || a.name.localeCompare(b.name, "fr"),
+            newest: (a, b) => b.release.temporal.key.localeCompare(a.release.temporal.key) || a.name.localeCompare(b.name, "fr"),
+            name: (a, b) => a.name.localeCompare(b.name, "fr") || a.release.temporal.key.localeCompare(b.release.temporal.key),
+            reworks: (a, b) => b.reworks.length - a.reworks.length || a.release.temporal.key.localeCompare(b.release.temporal.key)
+          };
+
+          result = result.sort(sorters[state.filters.sort] || sorters.oldest);
+          return result;
+        }
+
+        function createPortraitHtml(record, className = "") {
+          const initial = escapeHtml(record.name.slice(0, 1).toUpperCase() || "?");
+          if (!record.portraitUrl) {
+            return `<div class="portraitFallback ${className}" aria-hidden="true">${initial}</div>`;
+          }
+          return `<img class="${className}" src="${escapeHtml(record.portraitUrl)}" alt="" loading="lazy" decoding="async" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'portraitFallback',textContent:'${initial}'}))" />`;
+        }
+
+        function createCharacterCard(record) {
+          const releaseLabel = record.release.temporal.label;
+          const badge = record.reworks.length
+            ? `<span class="cardBadge cardBadge--rework">↻ ${record.reworks.length}</span>`
+            : `<span class="cardBadge">${escapeHtml(String(record.release.temporal.year || ""))}</span>`;
+
+          return `
+            <button class="characterCard" type="button" data-character-id="${escapeHtml(record.id)}" aria-label="Voir la fiche de ${escapeHtml(record.name)}">
+              <div class="portraitWrap">
+                ${createPortraitHtml(record)}
+                ${badge}
+              </div>
+              <div class="cardBody">
+                <span class="characterName">${escapeHtml(record.name)}</span>
+                <span class="characterMeta">${escapeHtml(releaseLabel)}</span>
+              </div>
+            </button>
+          `;
+        }
+
+        function renderTimeline(records) {
+          const groups = new Map();
+          for (const record of records) {
+            const key = record.release.temporal.key;
+            if (!groups.has(key)) {
+              groups.set(key, {
+                temporal: record.release.temporal,
+                records: []
+              });
+            }
+            groups.get(key).records.push(record);
+          }
+
+          let groupList = [...groups.values()];
+          const reverse = state.filters.sort === "newest";
+          groupList.sort((a, b) => reverse
+            ? b.temporal.key.localeCompare(a.temporal.key)
+            : a.temporal.key.localeCompare(b.temporal.key));
+
+          return `
+            <div class="timeline">
+              ${groupList.map((group) => {
+                const sorted = group.records.sort((a, b) => a.name.localeCompare(b.name, "fr"));
+                const launchCount = sorted.filter((record) => record.release.type === "launch").length;
+                const eventLabels = [...new Set(sorted.map((record) => record.release.eventLabel).filter(Boolean))];
+                const subtitle = launchCount === sorted.length
+                  ? "Roster disponible au lancement mondial"
+                  : eventLabels.slice(0, 2).join(" · ");
+                return `
+                  <section class="timelineGroup">
+                    <header class="timelineHeader">
+                      <div>
+                        <h2>${escapeHtml(group.temporal.label)}</h2>
+                        <p>${escapeHtml(subtitle || "Nouvelles sorties")}</p>
+                      </div>
+                      <span class="countPill">${sorted.length} perso${sorted.length > 1 ? "s" : ""}</span>
+                    </header>
+                    <div class="characterGrid">
+                      ${sorted.map(createCharacterCard).join("")}
+                    </div>
+                  </section>
+                `;
+              }).join("")}
+            </div>
+          `;
+        }
+
+        function renderCharacterList(records) {
+          return `
+            <div class="listGrid">
+              ${records.map((record) => `
+                <button class="listCard" type="button" data-character-id="${escapeHtml(record.id)}">
+                  <div class="listPortrait">${createPortraitHtml(record)}</div>
+                  <div class="listInfo">
+                    <strong>${escapeHtml(record.name)}</strong>
+                    <span>${escapeHtml(record.release.temporal.label)} · ${escapeHtml(getReleaseTypeLabel(record.release.type))}</span>
+                    <span>${record.reworks.length ? `${record.reworks.length} rework${record.reworks.length > 1 ? "s" : ""} documenté${record.reworks.length > 1 ? "s" : ""}` : "Aucun rework documenté"}</span>
+                  </div>
+                  <span class="listChevron" aria-hidden="true">›</span>
+                </button>
+              `).join("")}
+            </div>
+          `;
+        }
+
+        function renderRankingPanel(title, description, records, valueFor) {
+          const top = records.slice(0, 10);
+          return `
+            <section class="rankingPanel">
+              <header class="rankingHeader">
+                <h2>${escapeHtml(title)}</h2>
+                <p>${escapeHtml(description)}</p>
+              </header>
+              <ol class="rankingList">
+                ${top.map((record, index) => `
+                  <li>
+                    <button class="rankingItem" type="button" data-character-id="${escapeHtml(record.id)}" style="width:100%;border-left:0;border-right:0;border-top:0;background:transparent;color:inherit;text-align:left;">
+                      <span class="rankNumber">${index + 1}</span>
+                      <span class="rankPortrait">${createPortraitHtml(record)}</span>
+                      <span class="rankName">
+                        <strong>${escapeHtml(record.name)}</strong>
+                        <span>${escapeHtml(record.release.temporal.label)}</span>
+                      </span>
+                      <span class="rankValue">${escapeHtml(valueFor(record))}</span>
+                    </button>
+                  </li>
+                `).join("")}
+              </ol>
+            </section>
+          `;
+        }
+
+        function renderRankings(records) {
+          const oldest = [...records].sort((a, b) => a.release.temporal.key.localeCompare(b.release.temporal.key) || a.name.localeCompare(b.name, "fr"));
+          const newest = [...records].sort((a, b) => b.release.temporal.key.localeCompare(a.release.temporal.key) || a.name.localeCompare(b.name, "fr"));
+          const reworked = [...records]
+            .filter((record) => record.reworks.length > 0)
+            .sort((a, b) => b.reworks.length - a.reworks.length || a.release.temporal.key.localeCompare(b.release.temporal.key));
+
+          return `
+            <div class="rankings">
+              ${renderRankingPanel(
+                "Les pionniers",
+                "Les personnages présents le plus tôt dans l’historique documenté.",
+                oldest,
+                (record) => record.release.temporal.precision === "day" ? record.release.temporal.label : String(record.release.temporal.year || "")
+              )}
+              ${renderRankingPanel(
+                "Les plus reworkés",
+                "Classement selon le nombre de reworks actuellement documentés dans le JSON.",
+                reworked,
+                (record) => `${record.reworks.length} rework${record.reworks.length > 1 ? "s" : ""}`
+              )}
+              ${renderRankingPanel(
+                "Les derniers arrivés",
+                "Les sorties les plus récentes parmi les années déjà renseignées.",
+                newest,
+                (record) => record.release.temporal.label
+              )}
+            </div>
+          `;
+        }
+
+        function render() {
+          const records = getFilteredCharacters();
+          els.resultCount.textContent = `${records.length} personnage${records.length > 1 ? "s" : ""}`;
+
+          if (!records.length) {
+            els.content.innerHTML = '<div class="emptyState">Aucun personnage ne correspond à ces filtres.</div>';
+            return;
+          }
+
+          if (state.view === "characters") {
+            els.content.innerHTML = renderCharacterList(records);
+          } else if (state.view === "rankings") {
+            els.content.innerHTML = renderRankings(records);
+          } else {
+            els.content.innerHTML = renderTimeline(records);
+          }
+        }
+
+        function getRecordById(id) {
+          return state.characters.find((record) => record.id === id) || null;
+        }
+
+        function openDetail(record) {
+          if (!record) return;
+
+          const release = record.release;
+          const releaseEvent = release.eventLabel || getReleaseTypeLabel(release.type);
+          const reworksHtml = record.reworks.length
+            ? `<div class="historyList">${record.reworks.map((rework) => `
+                <article class="historyEntry">
+                  <strong>${escapeHtml(rework.temporal.label)} — ${escapeHtml(rework.label)}</strong>
+                  <span>${escapeHtml(rework.temporal.precision === "month" ? "Date connue au mois près dans l’historique actuel." : "Date documentée dans l’historique.")}</span>
+                </article>
+              `).join("")}</div>`
+            : '<p class="detailEmpty">Aucun rework n’est documenté pour ce personnage dans les années actuellement renseignées. Cela ne signifie pas qu’il n’en a jamais eu hors du périmètre déjà audité.</p>';
+
+          els.detailContent.innerHTML = `
+            <div class="detailHero">
+              <div class="detailPortrait">${createPortraitHtml(record)}</div>
+              <div class="detailTitle">
+                <h2 id="detailName">${escapeHtml(record.name)}</h2>
+                <span class="detailId">${escapeHtml(record.id)}</span>
+              </div>
+            </div>
+
+            <div class="detailGrid">
+              <div class="detailFact">
+                <span>Sortie jouable</span>
+                <strong>${escapeHtml(release.temporal.label)}</strong>
+              </div>
+              <div class="detailFact">
+                <span>Type</span>
+                <strong>${escapeHtml(getReleaseTypeLabel(release.type))}</strong>
+              </div>
+              <div class="detailFact">
+                <span>Contexte</span>
+                <strong>${escapeHtml(releaseEvent)}</strong>
+              </div>
+              <div class="detailFact">
+                <span>Méthode</span>
+                <strong>${escapeHtml(release.method === "global_launch" ? "Roster de lancement" : getMethodLabel(release.method))}</strong>
+              </div>
+            </div>
+
+            <section class="detailSection">
+              <h3>Historique des reworks</h3>
+              ${reworksHtml}
+            </section>
+          `;
+
+          els.detailModal.hidden = false;
+          document.body.style.overflow = "hidden";
+          const closeButton = els.detailModal.querySelector(".closeButton");
+          closeButton?.focus({ preventScroll: true });
+        }
+
+        function closeDetail() {
+          if (els.detailModal.hidden) return;
+          els.detailModal.hidden = true;
+          document.body.style.overflow = "";
+        }
+
+        function bindEvents() {
+          els.backButton.addEventListener("click", () => {
+            if (history.length > 1) history.back();
+            else location.href = "./home.html";
+          });
+
+          document.querySelectorAll(".viewTab").forEach((button) => {
+            button.addEventListener("click", () => {
+              const view = button.dataset.view;
+              if (!view || view === state.view) return;
+              state.view = view;
+              document.querySelectorAll(".viewTab").forEach((tab) => {
+                tab.setAttribute("aria-selected", String(tab === button));
+              });
+              render();
+            });
+          });
+
+          els.searchInput.addEventListener("input", () => {
+            state.filters.query = els.searchInput.value;
+            render();
+          });
+
+          els.yearFilter.addEventListener("change", () => {
+            state.filters.year = els.yearFilter.value;
+            render();
+          });
+
+          els.typeFilter.addEventListener("change", () => {
+            state.filters.type = els.typeFilter.value;
+            render();
+          });
+
+          els.reworkFilter.addEventListener("change", () => {
+            state.filters.rework = els.reworkFilter.value;
+            render();
+          });
+
+          els.sortSelect.addEventListener("change", () => {
+            state.filters.sort = els.sortSelect.value;
+            render();
+          });
+
+          els.resetFilters.addEventListener("click", () => {
+            state.filters = {
+              query: "",
+              year: "all",
+              type: "all",
+              rework: "all",
+              sort: "oldest"
+            };
+            els.searchInput.value = "";
+            els.yearFilter.value = "all";
+            els.typeFilter.value = "all";
+            els.reworkFilter.value = "all";
+            els.sortSelect.value = "oldest";
+            render();
+          });
+
+          els.content.addEventListener("click", (event) => {
+            const button = event.target.closest("[data-character-id]");
+            if (!button) return;
+            openDetail(getRecordById(button.dataset.characterId));
+          });
+
+          els.detailModal.addEventListener("click", (event) => {
+            if (event.target.closest("[data-close-detail]")) closeDetail();
+          });
+
+          document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") closeDetail();
+          });
+        }
+
+        async function load() {
+          bindEvents();
+          try {
+            const [historyResponse, charactersResponse] = await Promise.all([
+              fetch(DATA_URL, { cache: "no-store" }),
+              fetch(CHARACTERS_URL, { cache: "no-store" })
+            ]);
+
+            if (!historyResponse.ok) throw new Error(`Historique HTTP ${historyResponse.status}`);
+            if (!charactersResponse.ok) throw new Error(`Catalogue HTTP ${charactersResponse.status}`);
+
+            const [historyData, catalogData] = await Promise.all([
+              historyResponse.json(),
+              charactersResponse.json()
+            ]);
+
+            state.history = historyData;
+            state.characters = buildCharacters(historyData, catalogData);
+            populateYears();
+            updateStats();
+            render();
+          } catch (error) {
+            console.error("Impossible de charger l’historique MSF", error);
+            els.dataScope.textContent = "Impossible de charger les données historiques.";
+            els.content.innerHTML = `
+              <div class="errorState">
+                <strong style="display:block;color:var(--danger);margin-bottom:8px;">Chargement impossible</strong>
+                Les fichiers de données n’ont pas pu être lus. Réessaie après avoir vérifié ta connexion.
+              </div>
+            `;
+          }
+        }
+
+        load();
+      })();
+    </script>
+  </body>
+</html>
