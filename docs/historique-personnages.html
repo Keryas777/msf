@@ -401,6 +401,17 @@
         box-shadow: 0 9px 26px rgba(0, 0, 0, 0.16);
       }
 
+      .timelineGroup--team {
+        border-color: rgba(86, 199, 255, 0.28);
+        background:
+          linear-gradient(140deg, rgba(86, 199, 255, 0.055), transparent 45%),
+          var(--panel);
+      }
+
+      .timelineGroup--rework {
+        border-color: rgba(179, 156, 255, 0.34);
+      }
+
       .timelineGroup::before {
         content: "";
         position: absolute;
@@ -412,6 +423,11 @@
         border-radius: 50%;
         background: var(--accent);
         box-shadow: 0 0 0 4px rgba(86, 199, 255, 0.13);
+      }
+
+      .timelineGroup--rework::before {
+        background: var(--violet);
+        box-shadow: 0 0 0 4px rgba(179, 156, 255, 0.13);
       }
 
       .timelineHeader {
@@ -433,6 +449,17 @@
         margin: 4px 0 0;
         color: var(--muted);
         font-size: 0.74rem;
+      }
+
+      .timelineEventTitle {
+        color: var(--text) !important;
+        font-size: 0.86rem !important;
+        font-weight: 850;
+        line-height: 1.25;
+      }
+
+      .timelineEventMeta {
+        line-height: 1.35;
       }
 
       .countPill {
@@ -461,6 +488,15 @@
         background: #091522;
         text-align: left;
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.13);
+      }
+
+      .characterCard--rework {
+        border-color: rgba(179, 156, 255, 0.44);
+        box-shadow: 0 6px 18px rgba(73, 49, 130, 0.14);
+      }
+
+      .characterCard--existing {
+        border-color: rgba(255, 211, 106, 0.26);
       }
 
       .characterCard:active {
@@ -497,20 +533,34 @@
         position: absolute;
         top: 6px;
         right: 6px;
+        max-width: calc(100% - 12px);
         padding: 3px 6px;
+        overflow: hidden;
         border: 1px solid rgba(255, 255, 255, 0.18);
         border-radius: 999px;
         background: rgba(2, 8, 14, 0.8);
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
         color: #eaf6ff;
-        font-size: 0.6rem;
+        font-size: 0.56rem;
         font-weight: 900;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .cardBadge--new {
+        color: #e9fff5;
+        background: rgba(21, 111, 77, 0.88);
       }
 
       .cardBadge--rework {
         color: #f0eaff;
-        background: rgba(70, 46, 128, 0.84);
+        background: rgba(70, 46, 128, 0.9);
+      }
+
+      .cardBadge--existing {
+        color: #fff4cf;
+        background: rgba(115, 82, 18, 0.88);
       }
 
       .cardBody {
@@ -893,7 +943,6 @@
         line-height: 1.45;
       }
 
-      /* Les filtres restent en haut ; le sélecteur de vue est juste au-dessus du contenu. */
       main {
         display: flex;
         flex-direction: column;
@@ -915,7 +964,6 @@
         order: 3;
       }
 
-      /* Les portraits MSF sont parfois plus hauts ou plus larges que leur cadre carré. */
       .portraitWrap img,
       .listPortrait img,
       .rankPortrait img,
@@ -1385,7 +1433,9 @@
         }
 
         function populateYears() {
-          const years = [...new Set(state.characters.map((record) => record.release.temporal.year).filter(Boolean))]
+          const years = Object.keys(state.history?.years || {})
+            .map(Number)
+            .filter(Number.isFinite)
             .sort((a, b) => a - b);
 
           els.yearFilter.innerHTML = '<option value="all">Toutes</option>' + years
@@ -1444,65 +1494,220 @@
           return `<img class="${className}" src="${escapeHtml(record.portraitUrl)}" alt="" loading="lazy" decoding="async" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'portraitFallback',textContent:'${initial}'}))" />`;
         }
 
-        function createCharacterCard(record) {
-          const releaseLabel = record.release.temporal.label;
-          const badge = record.reworks.length
-            ? `<span class="cardBadge cardBadge--rework">↻ ${record.reworks.length}</span>`
-            : `<span class="cardBadge">${escapeHtml(String(record.release.temporal.year || ""))}</span>`;
+        function getTimelineRecord(id) {
+          return state.characters.find((record) => record.id === id) || null;
+        }
+
+        function uniqueIds(ids) {
+          return [...new Set((ids || []).filter(Boolean))];
+        }
+
+        function getTeamMemberIds(event) {
+          const preferred = event?.members?.length
+            ? event.members
+            : [...(event?.core || []), ...(event?.pool || [])];
+
+          return uniqueIds([
+            ...preferred,
+            ...(event?.newCharacterIds || []),
+            ...(event?.reworkedCharacterIds || []),
+            ...(event?.existingCharacterIds || [])
+          ]);
+        }
+
+        function buildTimelineEvents() {
+          const events = [];
+          let sequence = 0;
+
+          for (const [yearKey, yearData] of Object.entries(state.history?.years || {}).sort(([a], [b]) => a.localeCompare(b))) {
+            const launch = yearData?.globalLaunchRoster;
+            if (launch?.date) {
+              const occurrences = flattenLaunchRoster(launch)
+                .map((id) => getTimelineRecord(id))
+                .filter(Boolean)
+                .map((record) => ({ record, status: "launch" }));
+
+              if (occurrences.length) {
+                events.push({
+                  type: "launch",
+                  yearKey,
+                  temporal: parseTemporal(launch.date),
+                  label: "Lancement mondial",
+                  teamId: "",
+                  sequence: sequence++,
+                  occurrences
+                });
+              }
+            }
+
+            const individualGroups = new Map();
+            for (const item of yearData?.individualReleases || []) {
+              const rawDate = item.date || item.month || yearKey;
+              if (!individualGroups.has(rawDate)) individualGroups.set(rawDate, []);
+              individualGroups.get(rawDate).push(item);
+            }
+
+            for (const [rawDate, items] of individualGroups.entries()) {
+              const occurrences = items
+                .map((item) => getTimelineRecord(item.characterId))
+                .filter(Boolean)
+                .map((record) => ({ record, status: "new" }));
+
+              if (occurrences.length) {
+                events.push({
+                  type: "individual",
+                  yearKey,
+                  temporal: parseTemporal(rawDate),
+                  label: "Sorties individuelles",
+                  teamId: "",
+                  sequence: sequence++,
+                  occurrences
+                });
+              }
+            }
+
+            for (const teamEvent of yearData?.teamEvents || []) {
+              const temporal = parseTemporal(teamEvent.date || teamEvent.month || yearKey);
+              const newcomers = new Set(teamEvent.newCharacterIds || []);
+              const reworked = new Set(teamEvent.reworkedCharacterIds || []);
+              const occurrences = getTeamMemberIds(teamEvent)
+                .map((id) => {
+                  const record = getTimelineRecord(id);
+                  if (!record) return null;
+                  const status = reworked.has(id)
+                    ? "rework"
+                    : newcomers.has(id)
+                      ? "new"
+                      : "existing";
+                  return { record, status };
+                })
+                .filter(Boolean);
+
+              if (occurrences.length) {
+                events.push({
+                  type: "team",
+                  yearKey,
+                  temporal,
+                  label: teamEvent.label || teamEvent.teamId || "Événement d’équipe",
+                  teamId: teamEvent.teamId || "",
+                  formationStatus: teamEvent.formationStatus || "",
+                  sequence: sequence++,
+                  occurrences
+                });
+              }
+            }
+          }
+
+          return events;
+        }
+
+        function getFilteredTimelineEvents() {
+          const query = normalizeSearch(state.filters.query);
+          const reverse = state.filters.sort === "newest";
+
+          const events = buildTimelineEvents()
+            .filter((event) => {
+              if (state.filters.year !== "all" && String(event.temporal.year) !== state.filters.year) return false;
+              if (state.filters.type !== "all" && event.type !== state.filters.type) return false;
+              return true;
+            })
+            .map((event) => {
+              const eventMatchesQuery = query && normalizeSearch(`${event.label} ${event.teamId}`).includes(query);
+              const occurrences = event.occurrences.filter(({ record }) => {
+                if (query && !eventMatchesQuery && !record.searchText.includes(query)) return false;
+                if (state.filters.rework === "yes" && record.reworks.length === 0) return false;
+                if (state.filters.rework === "no" && record.reworks.length > 0) return false;
+                return true;
+              });
+              return { ...event, occurrences };
+            })
+            .filter((event) => event.occurrences.length > 0);
+
+          events.sort((a, b) => {
+            const dateCompare = a.temporal.key.localeCompare(b.temporal.key);
+            if (dateCompare !== 0) return reverse ? -dateCompare : dateCompare;
+            return reverse ? b.sequence - a.sequence : a.sequence - b.sequence;
+          });
+
+          return events;
+        }
+
+        function getTimelineEventMeta(event) {
+          const counts = event.occurrences.reduce((acc, occurrence) => {
+            acc[occurrence.status] = (acc[occurrence.status] || 0) + 1;
+            return acc;
+          }, {});
+
+          if (event.type === "launch") return "Roster disponible au lancement mondial";
+          if (event.type === "individual") {
+            const count = counts.new || event.occurrences.length;
+            return `${count} nouvelle${count > 1 ? "s" : ""} sortie${count > 1 ? "s" : ""}`;
+          }
+
+          const parts = [];
+          if (counts.new) parts.push(`${counts.new} nouveau${counts.new > 1 ? "x" : ""}`);
+          if (counts.rework) parts.push(`${counts.rework} rework${counts.rework > 1 ? "s" : ""}`);
+          if (counts.existing) parts.push(`${counts.existing} déjà présent${counts.existing > 1 ? "s" : ""}`);
+          return parts.join(" · ") || "Formation d’équipe";
+        }
+
+        function createTimelineCharacterCard(occurrence, event) {
+          const { record, status } = occurrence;
+          let badge = `<span class="cardBadge">${escapeHtml(String(event.temporal.year || ""))}</span>`;
+          let meta = event.temporal.label;
+          let cardClass = "";
+          let ariaContext = "sortie";
+
+          if (status === "new" && event.type !== "launch") {
+            badge = '<span class="cardBadge cardBadge--new">NOUVEAU</span>';
+            meta = event.type === "team"
+              ? `${event.temporal.label} · Nouveau · ${event.label}`
+              : event.temporal.label;
+            ariaContext = "nouveau personnage";
+          } else if (status === "rework") {
+            badge = '<span class="cardBadge cardBadge--rework">↻ REWORK</span>';
+            meta = `${event.temporal.label} · Rework → ${event.label}`;
+            cardClass = " characterCard--rework";
+            ariaContext = `rework pour ${event.label}`;
+          } else if (status === "existing") {
+            badge = '<span class="cardBadge cardBadge--existing">DÉJÀ LÀ</span>';
+            meta = `${event.temporal.label} · Intégré à ${event.label}`;
+            cardClass = " characterCard--existing";
+            ariaContext = `déjà disponible lors de ${event.label}`;
+          }
 
           return `
-            <button class="characterCard" type="button" data-character-id="${escapeHtml(record.id)}" aria-label="Voir la fiche de ${escapeHtml(record.name)}">
+            <button class="characterCard${cardClass}" type="button" data-character-id="${escapeHtml(record.id)}" aria-label="Voir la fiche de ${escapeHtml(record.name)}, ${escapeHtml(ariaContext)}">
               <div class="portraitWrap">
                 ${createPortraitHtml(record)}
                 ${badge}
               </div>
               <div class="cardBody">
                 <span class="characterName">${escapeHtml(record.name)}</span>
-                <span class="characterMeta">${escapeHtml(releaseLabel)}</span>
+                <span class="characterMeta">${escapeHtml(meta)}</span>
               </div>
             </button>
           `;
         }
 
-        function renderTimeline(records) {
-          const groups = new Map();
-          for (const record of records) {
-            const key = record.release.temporal.key;
-            if (!groups.has(key)) {
-              groups.set(key, {
-                temporal: record.release.temporal,
-                records: []
-              });
-            }
-            groups.get(key).records.push(record);
-          }
-
-          let groupList = [...groups.values()];
-          const reverse = state.filters.sort === "newest";
-          groupList.sort((a, b) => reverse
-            ? b.temporal.key.localeCompare(a.temporal.key)
-            : a.temporal.key.localeCompare(b.temporal.key));
-
+        function renderTimeline(events) {
           return `
             <div class="timeline">
-              ${groupList.map((group) => {
-                const sorted = group.records.sort((a, b) => a.name.localeCompare(b.name, "fr"));
-                const launchCount = sorted.filter((record) => record.release.type === "launch").length;
-                const eventLabels = [...new Set(sorted.map((record) => record.release.eventLabel).filter(Boolean))];
-                const subtitle = launchCount === sorted.length
-                  ? "Roster disponible au lancement mondial"
-                  : eventLabels.slice(0, 2).join(" · ");
+              ${events.map((event) => {
+                const hasRework = event.occurrences.some((occurrence) => occurrence.status === "rework");
+                const groupClass = `${event.type === "team" ? " timelineGroup--team" : ""}${hasRework ? " timelineGroup--rework" : ""}`;
                 return `
-                  <section class="timelineGroup">
+                  <section class="timelineGroup${groupClass}">
                     <header class="timelineHeader">
                       <div>
-                        <h2>${escapeHtml(group.temporal.label)}</h2>
-                        <p>${escapeHtml(subtitle || "Nouvelles sorties")}</p>
+                        <h2>${escapeHtml(event.temporal.label)}</h2>
+                        <p class="timelineEventTitle">${escapeHtml(event.label)}</p>
+                        <p class="timelineEventMeta">${escapeHtml(getTimelineEventMeta(event))}</p>
                       </div>
-                      <span class="countPill">${sorted.length} perso${sorted.length > 1 ? "s" : ""}</span>
+                      <span class="countPill">${event.occurrences.length} perso${event.occurrences.length > 1 ? "s" : ""}</span>
                     </header>
                     <div class="characterGrid">
-                      ${sorted.map(createCharacterCard).join("")}
+                      ${event.occurrences.map((occurrence) => createTimelineCharacterCard(occurrence, event)).join("")}
                     </div>
                   </section>
                 `;
@@ -1588,6 +1793,20 @@
         }
 
         function render() {
+          if (state.view === "timeline") {
+            const events = getFilteredTimelineEvents();
+            const occurrenceCount = events.reduce((total, event) => total + event.occurrences.length, 0);
+            els.resultCount.textContent = `${occurrenceCount} apparition${occurrenceCount > 1 ? "s" : ""} · ${events.length} événement${events.length > 1 ? "s" : ""}`;
+
+            if (!events.length) {
+              els.content.innerHTML = '<div class="emptyState">Aucun événement ne correspond à ces filtres.</div>';
+              return;
+            }
+
+            els.content.innerHTML = renderTimeline(events);
+            return;
+          }
+
           const records = getFilteredCharacters();
           els.resultCount.textContent = `${records.length} personnage${records.length > 1 ? "s" : ""}`;
 
@@ -1598,10 +1817,8 @@
 
           if (state.view === "characters") {
             els.content.innerHTML = renderCharacterList(records);
-          } else if (state.view === "rankings") {
-            els.content.innerHTML = renderRankings(records);
           } else {
-            els.content.innerHTML = renderTimeline(records);
+            els.content.innerHTML = renderRankings(records);
           }
         }
 
@@ -1617,8 +1834,8 @@
           const reworksHtml = record.reworks.length
             ? `<div class="historyList">${record.reworks.map((rework) => `
                 <article class="historyEntry">
-                  <strong>${escapeHtml(rework.temporal.label)} — ${escapeHtml(rework.label)}</strong>
-                  <span>${escapeHtml(rework.temporal.precision === "month" ? "Date connue au mois près dans l’historique actuel." : "Date documentée dans l’historique.")}</span>
+                  <strong>${escapeHtml(rework.temporal.label)} — Rework · ${escapeHtml(rework.label)}</strong>
+                  <span>${escapeHtml(`Personnage déjà existant, retravaillé dans le cadre de ${rework.label}.${rework.temporal.precision === "month" ? " Date connue au mois près dans l’historique actuel." : ""}`)}</span>
                 </article>
               `).join("")}</div>`
             : '<p class="detailEmpty">Aucun rework n’est documenté pour ce personnage dans les années actuellement renseignées. Cela ne signifie pas qu’il n’en a jamais eu hors du périmètre déjà audité.</p>';
