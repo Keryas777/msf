@@ -80,7 +80,7 @@
     return s
       .replace(/_/g, " ")
       .replace(/\s+/g, " ")
-      .replace(/\b\w/g, (m) => m.toUpperCase());
+      .replace(/(^|[\s'’\-])(\S)/g, (_match, prefix, char) => `${prefix}${char.toUpperCase()}`);
   }
 
   function modeLabel(mode) {
