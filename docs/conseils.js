@@ -416,6 +416,10 @@
         modeKey === "battleworld" || modeKey === "trials" ? value : subModeLabel(value);
       secondarySelect.appendChild(opt);
     });
+
+    if (options.length === 1) {
+      secondarySelect.value = options[0];
+    }
   }
 
   function setSmartDefaults() {
