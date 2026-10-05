@@ -335,6 +335,2157 @@
         "duplicatesAcrossReleaseBuckets": []
       }
     },
+    "2019": {
+      "status": "audited",
+      "startingPlayableRosterCount": 86,
+      "confidenceDefinitions": {
+        "very_high": "Très élevée : preuve contemporaine directe de disponibilité ou de premier déblocage.",
+        "high": "Élevée : mois recoupé par sources contemporaines ; aucun jour déduit du seul patch.",
+        "medium": "Moyenne : mois soutenu mais frontière ou jour initial insuffisamment documenté.",
+        "uncertain": "Incertaine : hypothèse explicitement non comptée."
+      },
+      "dateConvention": "Months refer to actual recruitment, including paid offers; exact dates use contemporary North American event dates, not an inferred UTC midnight.",
+      "individualReleases": [
+        {
+          "month": "2019-01",
+          "characterId": "WarMachine",
+          "name": "War Machine",
+          "confidence": "high",
+          "sourceIds": [
+            "wm-event",
+            "podcast-40"
+          ],
+          "releaseMethod": "event_campaign"
+        },
+        {
+          "month": "2019-02",
+          "characterId": "Ultron",
+          "name": "Ultron",
+          "confidence": "high",
+          "sourceIds": [
+            "ultron-first"
+          ],
+          "releaseMethod": "dark_dimension",
+          "date": "2019-02-26",
+          "dateConfidence": "very_high",
+          "dateConvention": "North American event/publication date; UTC may fall on following day",
+          "dateSourceIds": [
+            "ultron-first"
+          ]
+        },
+        {
+          "month": "2019-03",
+          "characterId": "CaptainMarvel",
+          "name": "Captain Marvel",
+          "confidence": "high",
+          "sourceIds": [
+            "podcast-36",
+            "podcast-33"
+          ],
+          "releaseMethod": "milestone"
+        },
+        {
+          "month": "2019-06",
+          "characterId": "AmericaChavez",
+          "name": "America Chavez",
+          "confidence": "high",
+          "sourceIds": [
+            "community-update-6-21",
+            "community-update-6-28"
+          ],
+          "releaseMethod": "blitz"
+        }
+      ],
+      "teamEvents": [
+        {
+          "month": "2019-01",
+          "teamId": "guardians-2019",
+          "label": "Guardians: Mantis and January reworks",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "members": [
+            "StarLord",
+            "Groot",
+            "RocketRaccoon",
+            "Drax",
+            "Gamora",
+            "Mantis"
+          ],
+          "newCharacterIds": [
+            "Mantis"
+          ],
+          "existingCharacterIds": [
+            "StarLord",
+            "Groot",
+            "RocketRaccoon",
+            "Drax",
+            "Gamora"
+          ],
+          "reworkedCharacterIds": [
+            "Groot",
+            "RocketRaccoon",
+            "Gamora"
+          ],
+          "characterReleases": [
+            {
+              "month": "2019-01",
+              "characterId": "Mantis",
+              "name": "Mantis",
+              "confidence": "medium",
+              "sourceIds": [
+                "mantis-jan",
+                "podcast-39",
+                "podcast-38"
+              ],
+              "releaseMethod": "limited_offer; blitz",
+              "notes": [
+                "January month supported; earliest paid recruitment day unresolved. February Blitz is not the first recruitment month."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "early-reworks",
+            "podcast-39"
+          ],
+          "notes": [
+            "Six available Guardians; Mantis supplies an alternative, not a mandatory sixth slot. January recruitment confidence is medium."
+          ]
+        },
+        {
+          "month": "2019-01",
+          "teamId": "iron-man-war-machine-duo",
+          "label": "Iron Man / War Machine",
+          "kind": "duo",
+          "formationStatus": "complete",
+          "members": [
+            "IronMan",
+            "WarMachine"
+          ],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "IronMan",
+            "WarMachine"
+          ],
+          "reworkedCharacterIds": [],
+          "characterReleases": [],
+          "confidence": "high",
+          "sourceIds": [
+            "wm-event",
+            "podcast-40"
+          ],
+          "notes": [
+            "War Machine counted once in individualReleases; later reused by Power Armor."
+          ]
+        },
+        {
+          "month": "2019-02",
+          "teamId": "spider-verse-carnage",
+          "label": "Spider-Verse: Carnage completes the contemporary five",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "SpiderMan",
+            "Venom",
+            "UltSpiderMan",
+            "UltGreenGoblin",
+            "Carnage"
+          ],
+          "newCharacterIds": [
+            "Carnage"
+          ],
+          "existingCharacterIds": [
+            "SpiderMan",
+            "Venom",
+            "UltSpiderMan",
+            "UltGreenGoblin"
+          ],
+          "reworkedCharacterIds": [],
+          "characterReleases": [
+            {
+              "month": "2019-02",
+              "characterId": "Carnage",
+              "name": "Carnage",
+              "confidence": "high",
+              "sourceIds": [
+                "carnage-live",
+                "podcast-35"
+              ],
+              "releaseMethod": "limited_offer; blitz"
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "carnage-live"
+          ],
+          "notes": []
+        },
+        {
+          "month": "2019-02",
+          "teamId": "kree-rework-2019",
+          "label": "Ronan/Kree rework and Minn-Erva",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "members": [
+            "Ronan",
+            "KreeDmg_Offense",
+            "KreeControl_Assist",
+            "KreeSupport_HoT",
+            "KreeDmg_Speed",
+            "KreeTank_Counter",
+            "Minerva"
+          ],
+          "newCharacterIds": [
+            "Minerva"
+          ],
+          "existingCharacterIds": [
+            "Ronan",
+            "KreeDmg_Offense",
+            "KreeControl_Assist",
+            "KreeSupport_HoT",
+            "KreeDmg_Speed",
+            "KreeTank_Counter"
+          ],
+          "reworkedCharacterIds": [
+            "Ronan",
+            "KreeDmg_Offense",
+            "KreeControl_Assist",
+            "KreeSupport_HoT",
+            "KreeDmg_Speed",
+            "KreeTank_Counter"
+          ],
+          "characterReleases": [
+            {
+              "month": "2019-02",
+              "characterId": "Minerva",
+              "name": "Minn-Erva",
+              "confidence": "high",
+              "sourceIds": [
+                "podcast-36",
+                "podcast-37",
+                "podcast-35"
+              ],
+              "releaseMethod": "limited_offer; event_campaign"
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "early-reworks",
+            "podcast-35"
+          ],
+          "notes": [
+            "Kree faction pool, not a unique fixed five. Minn-Erva also fits non-Kree hybrids."
+          ],
+          "core": [
+            "Ronan"
+          ],
+          "pool": [
+            "KreeDmg_Offense",
+            "KreeControl_Assist",
+            "KreeSupport_HoT",
+            "KreeDmg_Speed",
+            "KreeTank_Counter",
+            "Minerva"
+          ]
+        },
+        {
+          "month": "2019-03",
+          "teamId": "military-2019",
+          "label": "Military synergy",
+          "kind": "faction",
+          "formationStatus": "partial",
+          "members": [
+            "CaptainAmerica",
+            "CaptainMarvel",
+            "WarMachine",
+            "WinterSoldier"
+          ],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "CaptainAmerica",
+            "CaptainMarvel",
+            "WarMachine",
+            "WinterSoldier"
+          ],
+          "reworkedCharacterIds": [],
+          "characterReleases": [],
+          "confidence": "high",
+          "sourceIds": [
+            "podcast-36"
+          ],
+          "notes": [
+            "Historical synergy trait, not a fixed complete team. Captain Marvel is counted individually."
+          ]
+        },
+        {
+          "month": "2019-04",
+          "teamId": "wakanda-2019",
+          "label": "Wakanda",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "BlackPanther",
+            "Killmonger",
+            "MBaku",
+            "Okoye",
+            "Shuri"
+          ],
+          "newCharacterIds": [
+            "Killmonger",
+            "MBaku",
+            "Okoye",
+            "Shuri"
+          ],
+          "existingCharacterIds": [
+            "BlackPanther"
+          ],
+          "reworkedCharacterIds": [],
+          "characterReleases": [
+            {
+              "month": "2019-03",
+              "characterId": "Killmonger",
+              "name": "Killmonger",
+              "confidence": "high",
+              "sourceIds": [
+                "podcast-34",
+                "podcast-33"
+              ],
+              "releaseMethod": "blitz"
+            },
+            {
+              "month": "2019-03",
+              "characterId": "MBaku",
+              "name": "M'Baku",
+              "confidence": "high",
+              "sourceIds": [
+                "podcast-30",
+                "podcast-24"
+              ],
+              "releaseMethod": "blitz"
+            },
+            {
+              "month": "2019-04",
+              "characterId": "Okoye",
+              "name": "Okoye",
+              "confidence": "high",
+              "sourceIds": [
+                "podcast-24",
+                "community-update-4-26"
+              ],
+              "notes": [
+                "April availability corroborated; initial recruitment channel is not asserted without a sufficiently precise source."
+              ]
+            },
+            {
+              "month": "2019-04",
+              "characterId": "Shuri",
+              "name": "Shuri",
+              "confidence": "high",
+              "sourceIds": [
+                "community-update-4-26"
+              ],
+              "releaseMethod": "legendary",
+              "date": "2019-04-25",
+              "dateConfidence": "very_high",
+              "dateConvention": "North American event/publication date; UTC may fall on following day",
+              "dateSourceIds": [
+                "community-update-4-26"
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "community-update-4-26",
+            "release-notes-3-1"
+          ],
+          "notes": [
+            "March-to-April rollout; Shuri makes the five playable in April.",
+            "Black Panther is an existing member; no precise rework date is asserted by this event."
+          ]
+        },
+        {
+          "month": "2019-04",
+          "teamId": "wave-one-2019",
+          "label": "Wave I Avengers / Hulk update",
+          "kind": "faction",
+          "formationStatus": "core-plus-pool",
+          "members": [
+            "CaptainAmerica",
+            "BlackWidow",
+            "Hawkeye",
+            "Hulk",
+            "Thor",
+            "IronMan"
+          ],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "CaptainAmerica",
+            "BlackWidow",
+            "Hawkeye",
+            "Hulk",
+            "Thor",
+            "IronMan"
+          ],
+          "reworkedCharacterIds": [
+            "Hulk"
+          ],
+          "characterReleases": [],
+          "confidence": "high",
+          "sourceIds": [
+            "community-update-4-26"
+          ],
+          "notes": [
+            "April introduces the six-member trait and Hulk improvements; do not backdate the later comprehensive Wave I rework."
+          ]
+        },
+        {
+          "month": "2019-05",
+          "teamId": "power-armor-2019",
+          "label": "Power Armor with Vision",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "members": [
+            "IronMan",
+            "WarMachine",
+            "Falcon",
+            "Rescue"
+          ],
+          "newCharacterIds": [
+            "Falcon",
+            "Rescue"
+          ],
+          "existingCharacterIds": [
+            "IronMan",
+            "WarMachine",
+            "Vision"
+          ],
+          "reworkedCharacterIds": [],
+          "characterReleases": [
+            {
+              "month": "2019-04",
+              "characterId": "Falcon",
+              "name": "Falcon",
+              "confidence": "high",
+              "sourceIds": [
+                "community-update-4-26"
+              ],
+              "releaseMethod": "orb; event_campaign"
+            },
+            {
+              "month": "2019-05",
+              "characterId": "Rescue",
+              "name": "Rescousse",
+              "confidence": "high",
+              "sourceIds": [
+                "update-5-17",
+                "podcast-19"
+              ],
+              "releaseMethod": "limited_offer; blitz"
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "community-update-4-26",
+            "update-5-17",
+            "podcast-19"
+          ],
+          "notes": [
+            "Four Power Armor members. Vision is the contemporary external fifth ally; War Machine was individually recruitable in January."
+          ],
+          "core": [
+            "IronMan",
+            "WarMachine",
+            "Falcon",
+            "Rescue"
+          ],
+          "pool": [
+            "Vision"
+          ]
+        },
+        {
+          "month": "2019-06",
+          "teamId": "x-men-phoenix-2019",
+          "label": "Phoenix X-Men",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Wolverine",
+            "Storm",
+            "Psylocke",
+            "Colossus",
+            "Phoenix"
+          ],
+          "newCharacterIds": [
+            "Psylocke",
+            "Colossus",
+            "Phoenix"
+          ],
+          "existingCharacterIds": [
+            "Wolverine",
+            "Storm"
+          ],
+          "reworkedCharacterIds": [],
+          "characterReleases": [
+            {
+              "month": "2019-05",
+              "characterId": "Psylocke",
+              "name": "Psylocke",
+              "confidence": "high",
+              "sourceIds": [
+                "psylocke-live",
+                "podcast-18",
+                "introducing-the-xmen"
+              ],
+              "releaseMethod": "limited_offer; event_campaign"
+            },
+            {
+              "month": "2019-05",
+              "characterId": "Colossus",
+              "name": "Colossus",
+              "confidence": "high",
+              "sourceIds": [
+                "colossus-offer",
+                "community-update-5-31"
+              ],
+              "releaseMethod": "limited_offer; blitz",
+              "notes": [
+                "Recruitable via May offer; June 3 Blitz is a later access channel."
+              ]
+            },
+            {
+              "month": "2019-06",
+              "characterId": "Phoenix",
+              "name": "Phénix",
+              "confidence": "high",
+              "sourceIds": [
+                "phoenix-live",
+                "community-update-6-28"
+              ],
+              "releaseMethod": "legendary",
+              "date": "2019-06-27",
+              "dateConfidence": "very_high",
+              "dateConvention": "North American event/publication date; UTC may fall on following day",
+              "dateSourceIds": [
+                "phoenix-live"
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "introducing-the-xmen",
+            "phoenix-live",
+            "release-notes-3-2"
+          ],
+          "notes": [
+            "Psylocke and Colossus recruitable in May; Phoenix completes this five in June. Cyclops is an announcement/client entry, not a 2019 recruit."
+          ]
+        },
+        {
+          "month": "2019-06",
+          "teamId": "hero-brawlers-chavez",
+          "label": "Hero Brawlers / America Chavez",
+          "kind": "archetype",
+          "formationStatus": "core-plus-pool",
+          "members": [
+            "MsMarvel",
+            "AmericaChavez"
+          ],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "MsMarvel",
+            "AmericaChavez"
+          ],
+          "reworkedCharacterIds": [],
+          "characterReleases": [],
+          "confidence": "high",
+          "sourceIds": [
+            "release-notes-3-2",
+            "community-update-6-21"
+          ],
+          "notes": [
+            "Flexible Hero Brawler allies; not a fixed five. America Chavez counted individually."
+          ]
+        },
+        {
+          "month": "2019-07",
+          "teamId": "sinister-six-2019",
+          "label": "Sinister Six",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "UltGreenGoblin",
+            "Rhino",
+            "Shocker",
+            "Mysterio",
+            "Vulture"
+          ],
+          "newCharacterIds": [
+            "Rhino",
+            "Shocker",
+            "Mysterio",
+            "Vulture"
+          ],
+          "existingCharacterIds": [
+            "UltGreenGoblin"
+          ],
+          "reworkedCharacterIds": [],
+          "characterReleases": [
+            {
+              "month": "2019-06",
+              "characterId": "Rhino",
+              "name": "Rhino",
+              "confidence": "high",
+              "sourceIds": [
+                "rhino-offer",
+                "community-update-6-28"
+              ],
+              "releaseMethod": "limited_offer; event_campaign"
+            },
+            {
+              "month": "2019-07",
+              "characterId": "Shocker",
+              "name": "Shocker",
+              "confidence": "high",
+              "sourceIds": [
+                "podcast-12",
+                "community-update-7-12"
+              ],
+              "releaseMethod": "blitz"
+            },
+            {
+              "month": "2019-07",
+              "characterId": "Mysterio",
+              "name": "Mystério",
+              "confidence": "high",
+              "sourceIds": [
+                "community-update-7-19",
+                "community-update-7-26"
+              ],
+              "releaseMethod": "login_calendar; milestone",
+              "notes": [
+                "July calendar and milestone recruitment; later Raid Store access is not the initial release method."
+              ]
+            },
+            {
+              "month": "2019-07",
+              "characterId": "Vulture",
+              "name": "Vautour",
+              "confidence": "high",
+              "sourceIds": [
+                "vulture-offer",
+                "community-update-7-26"
+              ],
+              "releaseMethod": "limited_offer; blitz",
+              "notes": [
+                "Recruitable via July offer; August Blitz is a later access channel."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "release-notes-3-3",
+            "community-update-7-26",
+            "vulture-offer"
+          ],
+          "notes": [
+            "Rhino June, remaining recruits July; Vulture July paid offer precedes August Blitz. No Doctor Octopus in this formation."
+          ]
+        },
+        {
+          "month": "2019-08",
+          "teamId": "bkt-observed-2019",
+          "label": "BKT / Minn-Erva Guardians hybrid",
+          "kind": "archetype",
+          "formationStatus": "complete",
+          "members": [
+            "StarLord",
+            "RocketRaccoon",
+            "Groot",
+            "Thanos",
+            "Minerva"
+          ],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "StarLord",
+            "RocketRaccoon",
+            "Groot",
+            "Thanos",
+            "Minerva"
+          ],
+          "reworkedCharacterIds": [],
+          "characterReleases": [],
+          "confidence": "high",
+          "sourceIds": [
+            "bkt-observed"
+          ],
+          "notes": [
+            "Documented by August 20; this is NOT an asserted first formation month. Components become available with Minn-Erva in February."
+          ],
+          "monthSemantics": "documented_by",
+          "documentedByDate": "2019-08-20"
+        },
+        {
+          "month": "2019-09",
+          "teamId": "fantastic-four-namor-2019",
+          "label": "Fantastic Four + Namor",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "members": [
+            "Thing",
+            "HumanTorch",
+            "MrFantastic",
+            "InvisibleWoman",
+            "Namor"
+          ],
+          "newCharacterIds": [
+            "Thing",
+            "Namor",
+            "HumanTorch",
+            "MrFantastic",
+            "InvisibleWoman"
+          ],
+          "existingCharacterIds": [],
+          "reworkedCharacterIds": [],
+          "characterReleases": [
+            {
+              "month": "2019-08",
+              "characterId": "Thing",
+              "name": "La Chose",
+              "confidence": "high",
+              "sourceIds": [
+                "community-update-8-9",
+                "podcast-9"
+              ],
+              "releaseMethod": "event_campaign"
+            },
+            {
+              "month": "2019-08",
+              "characterId": "Namor",
+              "name": "Namor",
+              "confidence": "high",
+              "sourceIds": [
+                "blog-update-08-23",
+                "podcast-8"
+              ],
+              "releaseMethod": "milestone; alliance_event"
+            },
+            {
+              "month": "2019-08",
+              "characterId": "HumanTorch",
+              "name": "Torche humaine",
+              "confidence": "high",
+              "sourceIds": [
+                "community-update-8-30",
+                "podcast-8"
+              ],
+              "releaseMethod": "limited_offer; blitz"
+            },
+            {
+              "month": "2019-09",
+              "characterId": "MrFantastic",
+              "name": "Mister Fantastic",
+              "confidence": "high",
+              "sourceIds": [
+                "blog-update-09-13"
+              ],
+              "releaseMethod": "blitz"
+            },
+            {
+              "month": "2019-09",
+              "characterId": "InvisibleWoman",
+              "name": "Femme invisible",
+              "confidence": "high",
+              "sourceIds": [
+                "blog-update-09-20",
+                "podcast-6",
+                "iw-live"
+              ],
+              "releaseMethod": "legendary"
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "release-notes-3-4",
+            "blog-update-09-20"
+          ],
+          "notes": [
+            "Four Fantastic Four members plus Namor as a War ally. August-to-September rollout."
+          ],
+          "core": [
+            "Thing",
+            "HumanTorch",
+            "MrFantastic",
+            "InvisibleWoman"
+          ],
+          "pool": [
+            "Namor"
+          ]
+        },
+        {
+          "month": "2019-09",
+          "teamId": "aim-rework-2019",
+          "label": "A.I.M. rework",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "members": [
+            "ScientistSupreme",
+            "Graviton",
+            "AimControl_Infect",
+            "AimDmg_Offense",
+            "AimDmg_Speed",
+            "AimSupport_Heal",
+            "AimTank_Taunt"
+          ],
+          "newCharacterIds": [
+            "Graviton"
+          ],
+          "existingCharacterIds": [
+            "ScientistSupreme",
+            "AimControl_Infect",
+            "AimDmg_Offense",
+            "AimDmg_Speed",
+            "AimSupport_Heal",
+            "AimTank_Taunt"
+          ],
+          "reworkedCharacterIds": [
+            "ScientistSupreme",
+            "AimControl_Infect",
+            "AimDmg_Offense",
+            "AimDmg_Speed",
+            "AimSupport_Heal",
+            "AimTank_Taunt"
+          ],
+          "characterReleases": [
+            {
+              "month": "2019-09",
+              "characterId": "Graviton",
+              "name": "Graviton",
+              "confidence": "high",
+              "sourceIds": [
+                "blog-update-09-13",
+                "podcast-6"
+              ],
+              "releaseMethod": "event_campaign",
+              "notes": [
+                "September Fantastic Plans campaign awards Graviton via Field Controller Orbs; its name does not make Mr Fantastic the campaign reward."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "release-notes-3-5",
+            "blog-update-09-13"
+          ],
+          "notes": [
+            "Two central named characters and five existing minions; no single mandatory five."
+          ],
+          "core": [
+            "ScientistSupreme",
+            "Graviton"
+          ],
+          "pool": [
+            "AimControl_Infect",
+            "AimDmg_Offense",
+            "AimDmg_Speed",
+            "AimSupport_Heal",
+            "AimTank_Taunt"
+          ]
+        },
+        {
+          "month": "2019-09",
+          "teamId": "wolverine-x-men-update",
+          "label": "Wolverine X-Men update",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Wolverine",
+            "Storm",
+            "Psylocke",
+            "Colossus",
+            "Phoenix"
+          ],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Wolverine",
+            "Storm",
+            "Psylocke",
+            "Colossus",
+            "Phoenix"
+          ],
+          "reworkedCharacterIds": [
+            "Wolverine"
+          ],
+          "characterReleases": [],
+          "confidence": "high",
+          "sourceIds": [
+            "release-notes-3-5"
+          ],
+          "notes": [
+            "New X-Men synergies; Cyclops clause in the kit does not prove Cyclops recruitment."
+          ]
+        },
+        {
+          "month": "2019-10",
+          "teamId": "coulson-shield-2019",
+          "label": "Coulson / Fury S.H.I.E.L.D.",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "members": [
+            "Coulson",
+            "NickFury",
+            "ShieldDmg_AoE",
+            "ShieldSupport_Heal",
+            "ShieldSupport_Stealth",
+            "ShieldTank_Stun",
+            "ShieldDmg_Defense"
+          ],
+          "newCharacterIds": [
+            "Coulson"
+          ],
+          "existingCharacterIds": [
+            "NickFury",
+            "ShieldDmg_AoE",
+            "ShieldSupport_Heal",
+            "ShieldSupport_Stealth",
+            "ShieldTank_Stun",
+            "ShieldDmg_Defense"
+          ],
+          "reworkedCharacterIds": [
+            "ShieldSupport_Heal"
+          ],
+          "characterReleases": [
+            {
+              "month": "2019-10",
+              "characterId": "Coulson",
+              "name": "Agent Coulson",
+              "confidence": "high",
+              "sourceIds": [
+                "blog-update-09-27",
+                "blog-update-10-04",
+                "podcast-5"
+              ],
+              "releaseMethod": "milestone",
+              "notes": [
+                "September announcement describes milestone changes for the following week; playable recruitment counted in October."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "blog-update-09-27",
+            "podcast-5"
+          ],
+          "notes": [
+            "Medic receives Coulson-specific revival synergy. Existing SHIELD pool is not five new releases."
+          ],
+          "core": [
+            "Coulson",
+            "NickFury",
+            "ShieldSupport_Heal"
+          ],
+          "pool": [
+            "ShieldDmg_AoE",
+            "ShieldSupport_Stealth",
+            "ShieldTank_Stun",
+            "ShieldDmg_Defense"
+          ]
+        },
+        {
+          "month": "2019-10",
+          "teamId": "supernatural-2019",
+          "label": "Supernatural",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "DoctorStrange",
+            "BaronMordo",
+            "ScarletWitch",
+            "GhostRider",
+            "ElsaBloodstone"
+          ],
+          "newCharacterIds": [
+            "GhostRider",
+            "ElsaBloodstone"
+          ],
+          "existingCharacterIds": [
+            "DoctorStrange",
+            "BaronMordo",
+            "ScarletWitch"
+          ],
+          "reworkedCharacterIds": [
+            "DoctorStrange",
+            "BaronMordo",
+            "ScarletWitch"
+          ],
+          "characterReleases": [
+            {
+              "month": "2019-10",
+              "characterId": "GhostRider",
+              "name": "Ghost Rider",
+              "confidence": "high",
+              "sourceIds": [
+                "highway-to-halloween",
+                "blog-update-10-18"
+              ],
+              "releaseMethod": "orb; milestone"
+            },
+            {
+              "month": "2019-10",
+              "characterId": "ElsaBloodstone",
+              "name": "Elsa Bloodstone",
+              "confidence": "high",
+              "sourceIds": [
+                "blog-update-10-25",
+                "elsa-campaign-live"
+              ],
+              "releaseMethod": "event_campaign"
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "highway-to-halloween",
+            "release-notes-3-6",
+            "blog-update-10-25"
+          ],
+          "notes": []
+        },
+        {
+          "month": "2019-11",
+          "teamId": "marauders-2019",
+          "label": "Marauders",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "MrSinister",
+            "Stryfe",
+            "Mystique",
+            "Sabretooth"
+          ],
+          "newCharacterIds": [
+            "MrSinister",
+            "Stryfe"
+          ],
+          "existingCharacterIds": [
+            "Mystique",
+            "Sabretooth"
+          ],
+          "reworkedCharacterIds": [
+            "Mystique",
+            "Sabretooth"
+          ],
+          "characterReleases": [
+            {
+              "month": "2019-11",
+              "characterId": "MrSinister",
+              "name": "Mister Sinistre",
+              "confidence": "high",
+              "sourceIds": [
+                "sinister-owned",
+                "blog-update-11-15"
+              ],
+              "releaseMethod": "limited_offer; blitz"
+            },
+            {
+              "month": "2019-11",
+              "characterId": "Stryfe",
+              "name": "Stryfe",
+              "confidence": "high",
+              "sourceIds": [
+                "stryfe-offer"
+              ],
+              "releaseMethod": "limited_offer; blitz",
+              "notes": [
+                "Recruitable via November offer; December 5 Blitz is a later access channel."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "blog-update-11-15",
+            "sinister-owned",
+            "stryfe-offer",
+            "marauders-updates"
+          ],
+          "notes": [
+            "Four-member historical core, already playable in November. Flexible fifth is not a fifth Marauder; Emma Frost is later. December Blitz is not Stryfe first recruitment."
+          ]
+        },
+        {
+          "month": "2019-12",
+          "teamId": "asgardians-2019",
+          "label": "Asgardians",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Thor",
+            "Loki",
+            "Hela",
+            "Heimdall",
+            "Sif"
+          ],
+          "newCharacterIds": [
+            "Hela",
+            "Heimdall",
+            "Sif"
+          ],
+          "existingCharacterIds": [
+            "Thor",
+            "Loki"
+          ],
+          "reworkedCharacterIds": [
+            "Thor",
+            "Loki"
+          ],
+          "characterReleases": [
+            {
+              "month": "2019-11",
+              "characterId": "Hela",
+              "name": "Hela",
+              "confidence": "high",
+              "sourceIds": [
+                "blog-update-11-1",
+                "blog-update-11-8"
+              ],
+              "releaseMethod": "blitz"
+            },
+            {
+              "month": "2019-12",
+              "characterId": "Heimdall",
+              "name": "Heimdall",
+              "confidence": "high",
+              "sourceIds": [
+                "blog-update-12-6-2"
+              ],
+              "releaseMethod": "event_campaign"
+            },
+            {
+              "month": "2019-12",
+              "characterId": "Sif",
+              "name": "Sif",
+              "confidence": "high",
+              "sourceIds": [
+                "blog-update-12-6-2",
+                "podcast-0"
+              ],
+              "releaseMethod": "limited_offer; blitz"
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "release-notes-3-7",
+            "blog-update-12-6-2",
+            "podcast-0"
+          ],
+          "notes": [
+            "Hela November; Heimdall and Sif December; Thor/Loki December reworks."
+          ]
+        },
+        {
+          "month": "2019-12",
+          "teamId": "kree-ultimus-update",
+          "label": "Ultimus/Korath/Kree Cyborg update",
+          "kind": "faction",
+          "formationStatus": "core-plus-pool",
+          "members": [
+            "Ultimus",
+            "Korath",
+            "KreeDmg_Offense",
+            "Ronan",
+            "Minerva",
+            "CaptainMarvel"
+          ],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Ultimus",
+            "Korath",
+            "KreeDmg_Offense",
+            "Ronan",
+            "Minerva",
+            "CaptainMarvel"
+          ],
+          "reworkedCharacterIds": [
+            "Ultimus",
+            "Korath",
+            "KreeDmg_Offense"
+          ],
+          "characterReleases": [],
+          "confidence": "high",
+          "sourceIds": [
+            "release-notes-3-7"
+          ],
+          "notes": [
+            "Existing Kree options affected by three reworks; not a canonical six-member team."
+          ]
+        }
+      ],
+      "excludedFrom2019PlayableCount": [
+        {
+          "characterId": "BlackBolt",
+          "reason": "announced_or_present_in_client_but_first_recruitable_in_2020",
+          "sourceIds": [
+            "release-notes-3-7"
+          ],
+          "firstPlayableYear": 2020
+        },
+        {
+          "characterId": "YoYo",
+          "reason": "announced_or_present_in_client_but_first_recruitable_in_2020",
+          "sourceIds": [
+            "release-notes-3-7"
+          ],
+          "firstPlayableYear": 2020
+        },
+        {
+          "characterId": "Crystal",
+          "reason": "announced_or_present_in_client_but_first_recruitable_in_2020",
+          "sourceIds": [
+            "snapshot-382"
+          ],
+          "firstPlayableYear": 2020
+        },
+        {
+          "characterId": "Karnak",
+          "reason": "announced_or_present_in_client_but_first_recruitable_in_2020",
+          "sourceIds": [
+            "snapshot-382"
+          ],
+          "firstPlayableYear": 2020
+        },
+        {
+          "characterId": "Cyclops",
+          "reason": "announced_or_present_in_client_but_first_recruitable_in_2020",
+          "sourceIds": [
+            "release-notes-3-2"
+          ],
+          "firstPlayableYear": 2020
+        },
+        {
+          "characterId": "SymbioteSpiderMan",
+          "reason": "announced_or_present_in_client_but_first_recruitable_in_2020",
+          "sourceIds": [
+            "snapshot-382"
+          ],
+          "firstPlayableYear": 2020
+        },
+        {
+          "characterId": "RedSkull",
+          "reason": "NPC_not_recruitable_in_2019",
+          "firstPlayableYear": 2020,
+          "sourceIds": [
+            "snapshot-382"
+          ]
+        }
+      ],
+      "nonRosterEntities": [
+        {
+          "label": "Dark Phoenix",
+          "reason": "Phoenix transformation, not a second recruitable character"
+        },
+        {
+          "label": "Undead Asgardian",
+          "reason": "Hela summon, not an independently recruited player character"
+        }
+      ],
+      "sources": [
+        {
+          "id": "community-update-4-26",
+          "title": "Community Update: 3.1 is here!",
+          "url": "https://marvelstrikeforce.com/en/updates/community-update-4-26",
+          "publicationDate": "2019-04-26",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "release-notes-3-1",
+          "title": "Release Notes 3.1",
+          "url": "https://marvelstrikeforce.com/en/updates/release-notes-3-1",
+          "publicationDate": "2019-04-25",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "release-notes-313",
+          "title": "Release Notes 3.1.3",
+          "url": "https://marvelstrikeforce.com/en/updates/release-notes-313",
+          "publicationDate": "2019-05-09",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "update-5-17",
+          "title": "New Heroes on the Way",
+          "url": "https://marvelstrikeforce.com/en/updates/update-5-17",
+          "publicationDate": "2019-05-17",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "release-notes-3-2",
+          "title": "Release Notes 3.2",
+          "url": "https://marvelstrikeforce.com/en/updates/release-notes-3-2",
+          "publicationDate": "2019-05-23",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "introducing-the-xmen",
+          "title": "Introducing: The X-Men",
+          "url": "https://marvelstrikeforce.com/en/updates/introducing-the-xmen",
+          "publicationDate": "2019-05-24",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "community-update-5-31",
+          "title": "Community Update: Alliance War and Colossus Blitz",
+          "url": "https://marvelstrikeforce.com/en/updates/community-update-5-31",
+          "publicationDate": "2019-05-31",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "community-update-6-21",
+          "title": "Community Update: The Sinister Six and more!",
+          "url": "https://marvelstrikeforce.com/en/updates/community-update-6-21",
+          "publicationDate": "2019-06-21",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "community-update-6-28",
+          "title": "Phoenix has arrived, a new Gamma Raid and more!",
+          "url": "https://marvelstrikeforce.com/en/updates/community-update-6-28",
+          "publicationDate": "2019-06-28",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "release-notes-3-3",
+          "title": "Release Notes 3.3",
+          "url": "https://marvelstrikeforce.com/en/updates/release-notes-3-3",
+          "publicationDate": "2019-06-25",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "community-update-7-12",
+          "title": "Nick Fury and S.T.R.I.K.E. Raid Alpha En Route",
+          "url": "https://marvelstrikeforce.com/en/updates/community-update-7-12",
+          "publicationDate": "2019-07-12",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "community-update-7-19",
+          "title": "Mysterio Joins the Fight",
+          "url": "https://marvelstrikeforce.com/en/updates/community-update-7-19",
+          "publicationDate": "2019-07-19",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "community-update-7-26",
+          "title": "Vulture Flies into Battle",
+          "url": "https://marvelstrikeforce.com/en/updates/community-update-7-26",
+          "publicationDate": "2019-07-26",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "release-notes-3-4",
+          "title": "RELEASE NOTES 3.4",
+          "url": "https://marvelstrikeforce.com/en/updates/release-notes-3-4",
+          "publicationDate": "2019-08-06",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "community-update-8-9",
+          "title": "Fantastic Events on the way",
+          "url": "https://marvelstrikeforce.com/en/updates/community-update-8-9",
+          "publicationDate": "2019-08-09",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "community-update-8-16",
+          "title": "Invisible Woman Revealed",
+          "url": "https://marvelstrikeforce.com/en/updates/community-update-8-16",
+          "publicationDate": "2019-08-16",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "blog-update-08-23",
+          "title": "Human Torch is here!",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-08-23",
+          "publicationDate": "2019-08-23",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "community-update-8-30",
+          "title": "Back to School",
+          "url": "https://marvelstrikeforce.com/en/updates/community-update-8-30",
+          "publicationDate": "2019-08-30",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "blog-update-09-06",
+          "title": "A Fantastic New Character!",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-09-06",
+          "publicationDate": "2019-09-06",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "blog-update-09-13",
+          "title": "Introducing: Graviton & the Updated A.I.M. Team",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-09-13",
+          "publicationDate": "2019-09-13",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "release-notes-3-5",
+          "title": "Release Notes 3.5",
+          "url": "https://marvelstrikeforce.com/en/updates/release-notes-3-5",
+          "publicationDate": "2019-09-18",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "blog-update-09-20",
+          "title": "Ultimus VII Celebration",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-09-20",
+          "publicationDate": "2019-09-20",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "blog-update-09-27",
+          "title": "Agent Coulson Primer",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-09-27",
+          "publicationDate": "2019-09-27",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "blog-update-10-04",
+          "title": "First Look: Dark Dimension, Challenges, and more",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-04",
+          "publicationDate": "2019-10-04",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "highway-to-halloween",
+          "title": "Highway to Halloween",
+          "url": "https://marvelstrikeforce.com/en/updates/highway-to-halloween",
+          "publicationDate": "2019-10-11",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "release-notes-3-6",
+          "title": "Release Notes 3.6",
+          "url": "https://marvelstrikeforce.com/en/updates/release-notes-3-6",
+          "publicationDate": "2019-10-16",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "blog-update-10-18",
+          "title": "Asteroid M Returns",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-18",
+          "publicationDate": "2019-10-18",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "blog-update-10-25",
+          "title": "Take Aim with Elsa Bloodstone",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-25",
+          "publicationDate": "2019-10-25",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "blog-update-11-1",
+          "title": "Rule Mortals with Hela!",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-11-1",
+          "publicationDate": "2019-11-01",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "blog-update-11-8",
+          "title": "Something Sinister This Way Comes",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-11-8",
+          "publicationDate": "2019-11-08",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "blog-update-11-15",
+          "title": "The Chaos Bringer Arrives",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-11-15",
+          "publicationDate": "2019-11-15",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "for-asgard",
+          "title": "For Asgard!",
+          "url": "https://marvelstrikeforce.com/en/updates/for-asgard",
+          "publicationDate": "2019-11-22",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "release-notes-3-7",
+          "title": "Asgard ushers in the arrival of Black Bolt and the Inhumans!",
+          "url": "https://marvelstrikeforce.com/en/updates/release-notes-3-7",
+          "publicationDate": "2019-12-03",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "blog-update-12-6",
+          "title": "Favor of the Gods",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-12-6",
+          "publicationDate": "2019-12-06",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "blog-update-12-6-2",
+          "title": "Gifts, Gods, and Gold",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-12-6-2",
+          "publicationDate": "2019-12-13",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "blog-update-12-20",
+          "title": "Royal Welcome: Black Bolt & Yo-Yo",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-12-20",
+          "publicationDate": "2019-12-20",
+          "type": "official",
+          "notes": "Patch/client additions are not proof of recruitment unless availability is explicitly stated."
+        },
+        {
+          "id": "podcast-0",
+          "title": "Especial de Navidad con Rayo Negro y los Inhumanos (Kirchoff y Escipión) | Marvel Strike Podcast #39",
+          "url": "https://www.ivoox.com/especial-navidad-rayo-negro-los-audios-mp3_rf_46006085_1.html",
+          "publicationDate": "2019-12-31",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-5",
+          "title": "GHOST RIDER y COULSON | Marvel Strike Podcast #35",
+          "url": "https://www.ivoox.com/ghost-rider-coulson-marvel-strike-podcast-audios-mp3_rf_43001218_1.html",
+          "publicationDate": "2019-10-12",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-6",
+          "title": "Nueva Actualización 3.5, Gravitón y los AIM tochísimos | Marvel Strike Force #34",
+          "url": "https://www.ivoox.com/nueva-actualizacion-3-5-graviton-aim-tochisimos-audios-mp3_rf_41890074_1.html",
+          "publicationDate": "2019-09-24",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-8",
+          "title": "Ghost Rider, Namor y La Antorcha Humana | Marvel Strike Podcast #32",
+          "url": "https://www.ivoox.com/ghost-rider-namor-la-antorcha-humana-audios-mp3_rf_40643634_1.html",
+          "publicationDate": "2019-08-30",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-9",
+          "title": "LA COSA fue bien | Marvel Strike Podcast #31",
+          "url": "https://www.ivoox.com/cosa-fue-bien-marvel-strike-podcast-audios-mp3_rf_40324563_1.html",
+          "publicationDate": "2019-08-23",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-12",
+          "title": "Teme a la Oscuridad, SHOCKER, vuelve NICK FURY y los WAKANDIANOS | Marvel Strike Podcast #29",
+          "url": "https://www.ivoox.com/teme-a-oscuridad-shocker-vuelve-nick-fury-audios-mp3_rf_38393257_1.html",
+          "publicationDate": "2019-07-13",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-18",
+          "title": "Para los fans de los ASALTOS, el Evento Legendario de FÉNIX y otras polémicas con FoxNext | Marvel Strike Podcast #24",
+          "url": "https://www.ivoox.com/para-fans-asaltos-evento-audios-mp3_rf_36585447_1.html",
+          "publicationDate": "2019-06-02",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-19",
+          "title": "Nueva actualización: X-MEN STRIKE FORCE con Harrenhall | Marvel Strike Podcast #23",
+          "url": "https://www.ivoox.com/nueva-actualizacion-x-men-strike-force-harrenhall-audios-mp3_rf_36323256_1.html",
+          "publicationDate": "2019-05-25",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-24",
+          "title": "OKOYE, la próxima actualización y el segundo equipo de Haokarlos. El Oráculo ahora es THOR | Marvel Strike Podcast #18",
+          "url": "https://www.ivoox.com/okoye-proxima-actualizacion-segundo-equipo-audios-mp3_rf_34673952_1.html",
+          "publicationDate": "2019-04-19",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-30",
+          "title": "El poder de M'BAKU, primeras impresiones de las Guerras de Alianzas y ¿cuánto sabes de MSF? | Marvel Strike Podcast #15",
+          "url": "https://www.ivoox.com/poder-m-baku-primeras-impresiones-las-audios-mp3_rf_33906076_1.html",
+          "publicationDate": "2019-04-01",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-33",
+          "title": "El dilema del segundo equipo, KILLMONGER, NICK FURY... ¿Y las guerras pa cuándo?",
+          "url": "https://www.ivoox.com/dilema-del-segundo-equipo-killmonger-nick-fury-audios-mp3_rf_33425550_1.html",
+          "publicationDate": "2019-03-15",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-34",
+          "title": "Queríamos hablar de Capitana Marvel... Pero llegaron los WAKANDIANOS",
+          "url": "https://www.ivoox.com/queriamos-hablar-capitana-marvel-pero-llegaron-los-audios-mp3_rf_33244654_1.html",
+          "publicationDate": "2019-03-10",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-35",
+          "title": "El Rework del ORÁCULO KREE, cosas de FoxNext y la fecha de las Guerras de Alianzas",
+          "url": "https://www.ivoox.com/rework-del-oraculo-kree-cosas-foxnext-audios-mp3_rf_33009927_1.html",
+          "publicationDate": "2019-03-02",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-36",
+          "title": "Tecnológicos y cósmicos, MINN-ERVA, CAPITANA MARVEL con Militares y análisis de los KREE!",
+          "url": "https://www.ivoox.com/tecnologicos-cosmicos-minn-erva-capitana-marvel-militares-audios-mp3_rf_32806152_1.html",
+          "publicationDate": "2019-02-24",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-37",
+          "title": "CAPITANA MARVEL, MINN-ERVA y los KREE. ¿Qué pasa con NICK FURY?",
+          "url": "https://www.ivoox.com/capitana-marvel-minn-erva-kree-que-pasa-audios-mp3_rf_32599123_1.html",
+          "publicationDate": "2019-02-16",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-38",
+          "title": "Eventos de San Valentín, las Guerras de Alianzas y otras predicciones del Oráculo Kree",
+          "url": "https://www.ivoox.com/eventos-san-valentin-guerras-alianzas-audios-mp3_rf_32404802_1.html",
+          "publicationDate": "2019-02-09",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-39",
+          "title": "Llega MAGNETO, MANTIS y los nuevos KREE. ¿Quieres saber de quiénes serán los próximos asaltos?",
+          "url": "https://www.ivoox.com/llega-magneto-mantis-nuevos-kree-quieres-audios-mp3_rf_32186847_1.html",
+          "publicationDate": "2019-02-03",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "podcast-40",
+          "title": "MAQUINA DE GUERRA y EXCLUSIVAS: Habilidades de MANTIS y MATANZA, Nuevos RASGOS, ULTIMUS VII?",
+          "url": "https://www.ivoox.com/maquina-de-guerra-exclusivas-habilidades-mantis-audios-mp3_rf_31755558_1.html",
+          "publicationDate": "2019-01-24",
+          "type": "contemporary_podcast",
+          "notes": "Published show notes distinguish owned characters, current events and future announcements; no inferred exact release day."
+        },
+        {
+          "id": "wm-event",
+          "title": "War Machine event recruitment guide",
+          "url": "https://www.gamezebo.com/walkthroughs/marvel-strike-force-war-machine-event-how-to-get-war-machine/",
+          "publicationDate": "2019-01-29",
+          "type": "contemporary_article"
+        },
+        {
+          "id": "mantis-jan",
+          "title": "Contemporary discussion: Mantis released at the end of January",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/bv2x6b/",
+          "publicationDate": "2019-05-31",
+          "type": "contemporary_community",
+          "notes": "Retrospective comment within 2019, corroborated by early-February contemporary coverage. Supports January only; exact day unresolved."
+        },
+        {
+          "id": "carnage-live",
+          "title": "Carnage is available in Marvel Strike Force",
+          "url": "https://www.thevenomsite.com/2019/02/carnage-is-available-in-marvel-strike.html",
+          "publicationDate": "2019-02-14",
+          "type": "contemporary_article"
+        },
+        {
+          "id": "ultron-first",
+          "title": "Congratulations to Widowmaker for completing Fear the Darkness",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/av6kod/",
+          "publicationDate": "2019-02-26",
+          "type": "contemporary_community",
+          "notes": "First actual completion/unlock; image shows a 91-character collection including Ultron and Minn-Erva."
+        },
+        {
+          "id": "colossus-offer",
+          "title": "Discussion reporting Colossus released May 31, before June Blitz",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/ebxylg/",
+          "publicationDate": "2019-12-17",
+          "type": "contemporary_community",
+          "notes": "Supports May paid recruitment; exact day retained only as source claim, not asserted as validated first day."
+        },
+        {
+          "id": "psylocke-live",
+          "title": "Marvel Strike Force adds new X-Men",
+          "url": "https://bleedingcool.com/games/marvel-strike-force-adds-new-x-men-psylocke-colossus-dark-phoenix/",
+          "publicationDate": "2019-05-23",
+          "type": "contemporary_article"
+        },
+        {
+          "id": "phoenix-live",
+          "title": "Unlocking Phoenix — Phoenix Rising live blog",
+          "url": "https://gaming-fans.com/2019/06/msf-unlocking-phoenix-phoenix-rising-live-blog/",
+          "publicationDate": "2019-06-27",
+          "type": "contemporary_article"
+        },
+        {
+          "id": "rhino-offer",
+          "title": "Rhino orb/offer recruitment discussion",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/c5uxtq/",
+          "publicationDate": "2019-06-26",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "vulture-offer",
+          "title": "Vulture paid offer already available",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/cic0ja/",
+          "publicationDate": "2019-07-27",
+          "type": "contemporary_community",
+          "notes": "July recruitment precedes first August Blitz; offer reported as purchased the previous day."
+        },
+        {
+          "id": "stryfe-offer",
+          "title": "Mr Sinister unlocked; Stryfe can already be bought",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/e18a4k/",
+          "publicationDate": "2019-11-25",
+          "type": "contemporary_community",
+          "notes": "Explicit distinction between current Stryfe offer and upcoming December 5 Blitz."
+        },
+        {
+          "id": "sinister-owned",
+          "title": "Mr Sinister already recruited",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/dw9zs7/",
+          "publicationDate": "2019-11-14",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "early-reworks",
+          "title": "Contemporary patch discussion: Guardians and Kree updates",
+          "url": "https://forums.somethingawful.com/showthread.php?noseen=0&pagenumber=9&perpage=40&threadid=3862950",
+          "publicationDate": "2019-02-21",
+          "type": "contemporary_community",
+          "notes": "Thread includes January 22 Guardians changes and February 21 Ronan/Kree minion changes; dates refer to dated posts, not creation of the whole thread."
+        },
+        {
+          "id": "bkt-observed",
+          "title": "Contemporary BKT composition discussion",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/csspe5/",
+          "publicationDate": "2019-08-20",
+          "type": "contemporary_community",
+          "notes": "Proves this archetype existed by August, not its first formation date."
+        },
+        {
+          "id": "june-check",
+          "title": "Contemporary roster count before Phoenix: 101",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/c2xt6y/",
+          "publicationDate": "2019-06-20",
+          "type": "contemporary_community",
+          "notes": "Corroborative intermediate count; excludes forthcoming Phoenix and Cyclops."
+        },
+        {
+          "id": "snapshot-382",
+          "title": "Khasino infographic — version 3.8.2",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/f04oq0/",
+          "publicationDate": "2020-02-07",
+          "type": "contemporary_community",
+          "notes": "127 portraits, including client previews and NPC Red Skull: must subtract seven ineligible 2019 entries before comparing sets. Image URL and full transcription retained below."
+        },
+        {
+          "id": "iw-live",
+          "title": "Unlocking Invisible Woman: first published September 27, 2019",
+          "url": "https://gaming-fans.com/2020/07/msf-unlocking-invisible-woman/",
+          "publicationDate": "2019-09-27",
+          "type": "contemporary_article_updated",
+          "notes": "Living live-blog page retains original publication date and original 2019 unlocking section; later updates are not evidence for the initial release day."
+        },
+        {
+          "id": "elsa-campaign-live",
+          "title": "Players discussing the active Elsa campaign final node",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/dphanj/",
+          "publicationDate": "2019-10-31",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "marauders-updates",
+          "title": "Marauders rollout with updated Mystique and Sabretooth",
+          "url": "https://www.pocketgamer.com/marvel-strike-force/marvel-strike-force-adds-mr-sinister-and-stryfe-to-its-ever-growing-roster-of-he/",
+          "publicationDate": "2019-11-14",
+          "type": "contemporary_article"
+        }
+      ],
+      "validation": {
+        "startingPlayableRosterCount": 86,
+        "individualNewCount": 4,
+        "teamNewCount": 30,
+        "newUniquePlayableCount": 34,
+        "yearEndPlayableRosterCount": 120,
+        "duplicateReleaseIds": [],
+        "inheritedRosterOverlapIds": [],
+        "unknownCharacterIds": [],
+        "nonPlayerReleaseIds": [],
+        "intermediateChecks": [
+          {
+            "date": "2019-02-26",
+            "count": 91,
+            "sourceIds": [
+              "ultron-first"
+            ],
+            "newCharacterIds": [
+              "WarMachine",
+              "Mantis",
+              "Carnage",
+              "Minerva",
+              "Ultron"
+            ]
+          },
+          {
+            "date": "2019-06-20",
+            "count": 101,
+            "sourceIds": [
+              "june-check"
+            ]
+          }
+        ],
+        "yearEndReconciliation": {
+          "sourceIds": [
+            "snapshot-382"
+          ],
+          "source": "https://www.reddit.com/r/MarvelStrikeForce/comments/f04oq0/",
+          "publicationDate": "2020-02-07",
+          "imageUrl": "https://external-preview.redd.it/4qdQIrg1y1kXrAX2hTzCWyxVHhnX-fj4kklaGCtPuPA.png?auto=webp&s=9e1f29b018de01dda5192b2251c41cd551e72bea",
+          "portraitIdsByTier": {
+            "god": [
+              "BlackBolt",
+              "CaptainMarvel",
+              "Hela",
+              "InvisibleWoman",
+              "Magneto",
+              "Minerva",
+              "NickFury",
+              "Phoenix",
+              "Pyro",
+              "ScientistSupreme",
+              "Shuri",
+              "SymbioteSpiderMan",
+              "StarLord",
+              "Ultron",
+              "Vision",
+              "YoYo"
+            ],
+            "demigod": [
+              "Coulson",
+              "BlackPanther",
+              "BlackWidow",
+              "CaptainAmerica",
+              "Carnage",
+              "Crystal",
+              "Deadpool",
+              "Falcon",
+              "GhostRider",
+              "Graviton",
+              "HumanTorch",
+              "IronMan",
+              "JessicaJones",
+              "Loki",
+              "MrSinister",
+              "MsMarvel",
+              "Quake",
+              "RocketRaccoon",
+              "SpiderMan",
+              "Thanos",
+              "Thing",
+              "Venom",
+              "WarMachine"
+            ],
+            "elite": [
+              "Cyclops",
+              "DoctorStrange",
+              "Drax",
+              "ElsaBloodstone",
+              "UltGreenGoblin",
+              "Groot",
+              "HandTank_Stealth",
+              "Hawkeye",
+              "Karnak",
+              "Killmonger",
+              "Kingpin",
+              "Korath",
+              "MercSupport_Buffs",
+              "MercTank_Debuff",
+              "BaronMordo",
+              "MrFantastic",
+              "Psylocke",
+              "Punisher",
+              "Ronan",
+              "ScarletWitch",
+              "ShieldSupport_Heal",
+              "ShieldTank_Stun",
+              "Shocker",
+              "Sif",
+              "UltSpiderMan",
+              "Thor",
+              "Vulture"
+            ],
+            "useable": [
+              "AimDmg_Speed",
+              "AmericaChavez",
+              "AntMan",
+              "Cable",
+              "Colossus",
+              "Daredevil",
+              "Gamora",
+              "Heimdall",
+              "Hulk",
+              "IronFist",
+              "Juggernaut",
+              "LukeCage",
+              "Mantis",
+              "Mystique",
+              "Okoye",
+              "RedSkull",
+              "Rhino",
+              "Sabretooth",
+              "ShieldSupport_Stealth",
+              "ShieldDmg_Defense",
+              "Storm",
+              "Stryfe",
+              "Ultimus",
+              "Wasp",
+              "Wolverine",
+              "Yondu"
+            ],
+            "mediocre": [
+              "AimControl_Infect",
+              "AimDmg_Offense",
+              "AimSupport_Heal",
+              "AimTank_Taunt",
+              "Bullseye",
+              "Crossbones",
+              "Elektra",
+              "HandSupport_Heal",
+              "HydraDmg_Buff",
+              "KreeDmg_Offense",
+              "KreeSupport_HoT",
+              "KreeDmg_Speed",
+              "MBaku",
+              "MercDmg_Single",
+              "Mysterio",
+              "Namor",
+              "Nebula",
+              "NightNurse",
+              "Nobu",
+              "Rescue",
+              "ShieldDmg_AoE",
+              "WinterSoldier"
+            ],
+            "trash": [
+              "HandDmg_Unbuff",
+              "HandControl_HealBlock",
+              "HandDmg_Bonus",
+              "HydraTank_Taunt",
+              "HydraDmg_AoE",
+              "HydraSupport_Heal",
+              "HydraDmg_Single",
+              "KreeControl_Assist",
+              "KreeTank_Counter",
+              "MercDmg_General",
+              "RavagerDmg_AoE",
+              "RavagerTank_Taunt",
+              "RavagerSupport_Heal"
+            ]
+          },
+          "excludedFrom2019": [
+            "BlackBolt",
+            "YoYo",
+            "Crystal",
+            "Karnak",
+            "Cyclops",
+            "SymbioteSpiderMan",
+            "RedSkull"
+          ],
+          "adjustedRosterIds": [
+            "AimControl_Infect",
+            "AimDmg_Offense",
+            "AimDmg_Speed",
+            "AimSupport_Heal",
+            "AimTank_Taunt",
+            "AmericaChavez",
+            "AntMan",
+            "BaronMordo",
+            "BlackPanther",
+            "BlackWidow",
+            "Bullseye",
+            "Cable",
+            "CaptainAmerica",
+            "CaptainMarvel",
+            "Carnage",
+            "Colossus",
+            "Coulson",
+            "Crossbones",
+            "Daredevil",
+            "Deadpool",
+            "DoctorStrange",
+            "Drax",
+            "Elektra",
+            "ElsaBloodstone",
+            "Falcon",
+            "Gamora",
+            "GhostRider",
+            "Graviton",
+            "Groot",
+            "HandControl_HealBlock",
+            "HandDmg_Bonus",
+            "HandDmg_Unbuff",
+            "HandSupport_Heal",
+            "HandTank_Stealth",
+            "Hawkeye",
+            "Heimdall",
+            "Hela",
+            "Hulk",
+            "HumanTorch",
+            "HydraDmg_AoE",
+            "HydraDmg_Buff",
+            "HydraDmg_Single",
+            "HydraSupport_Heal",
+            "HydraTank_Taunt",
+            "InvisibleWoman",
+            "IronFist",
+            "IronMan",
+            "JessicaJones",
+            "Juggernaut",
+            "Killmonger",
+            "Kingpin",
+            "Korath",
+            "KreeControl_Assist",
+            "KreeDmg_Offense",
+            "KreeDmg_Speed",
+            "KreeSupport_HoT",
+            "KreeTank_Counter",
+            "Loki",
+            "LukeCage",
+            "MBaku",
+            "Magneto",
+            "Mantis",
+            "MercDmg_General",
+            "MercDmg_Single",
+            "MercSupport_Buffs",
+            "MercTank_Debuff",
+            "Minerva",
+            "MrFantastic",
+            "MrSinister",
+            "MsMarvel",
+            "Mysterio",
+            "Mystique",
+            "Namor",
+            "Nebula",
+            "NickFury",
+            "NightNurse",
+            "Nobu",
+            "Okoye",
+            "Phoenix",
+            "Psylocke",
+            "Punisher",
+            "Pyro",
+            "Quake",
+            "RavagerDmg_AoE",
+            "RavagerSupport_Heal",
+            "RavagerTank_Taunt",
+            "Rescue",
+            "Rhino",
+            "RocketRaccoon",
+            "Ronan",
+            "Sabretooth",
+            "ScarletWitch",
+            "ScientistSupreme",
+            "ShieldDmg_AoE",
+            "ShieldDmg_Defense",
+            "ShieldSupport_Heal",
+            "ShieldSupport_Stealth",
+            "ShieldTank_Stun",
+            "Shocker",
+            "Shuri",
+            "Sif",
+            "SpiderMan",
+            "StarLord",
+            "Storm",
+            "Stryfe",
+            "Thanos",
+            "Thing",
+            "Thor",
+            "UltGreenGoblin",
+            "UltSpiderMan",
+            "Ultimus",
+            "Ultron",
+            "Venom",
+            "Vision",
+            "Vulture",
+            "WarMachine",
+            "Wasp",
+            "WinterSoldier",
+            "Wolverine",
+            "Yondu"
+          ],
+          "missingIds": [],
+          "unexpectedIds": [],
+          "portraitCount": 127,
+          "excludedPortraitCount": 7,
+          "adjustedPlayableCount": 120,
+          "equation": "127 - 6 characters first recruitable in 2020 - 1 NPC (Red Skull) = 120 = 86 + 34",
+          "limitations": [
+            "February 2020 photograph, not December 31 screenshot. Later recruits and non-playable client entries are explicitly removed using cross-year audit.",
+            "Portrait presence alone is not recruitment evidence; Red Skull and Symbiote Spider-Man demonstrate this."
+          ]
+        }
+      },
+      "schemaNotes": [
+        "Backward-compatible metadata added only within 2019: per-character releases on team events retain the actual month before completion; sourceIds/confidence preserve evidence.",
+        "newCharacterIds and individualReleases remain the sole counting buckets. Existing/reworked/member/pool arrays never add new recruits.",
+        "BKT month is documented_by, not a fabricated formation date."
+      ]
+    },
     "2020": {
       "status": "partial",
       "auditedThrough": "2020-06-30",
