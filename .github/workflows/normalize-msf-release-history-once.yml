@@ -1,0 +1,243 @@
+name: Normalize MSF release history schema once
+
+on:
+  push:
+    branches:
+      - normalize-msf-release-history-schema
+    paths:
+      - .github/workflows/normalize-msf-release-history-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout normalization branch
+        uses: actions/checkout@v4
+        with:
+          ref: normalize-msf-release-history-schema
+          fetch-depth: 0
+
+      - name: Normalize and validate release history
+        shell: bash
+        run: |
+          python - <<'PY'
+          from copy import deepcopy
+          from pathlib import Path
+          import json
+
+          path = Path("docs/data/msf-release-history.json")
+          before = json.loads(path.read_text(encoding="utf-8"))
+          data = deepcopy(before)
+
+          assert before["schemaVersion"] == "1.0.0"
+          data["schemaVersion"] = "1.1.0"
+
+          global_schema_notes = [
+              "teamEvents use a common additive structure across years: members/core/pool describe the represented formation, newCharacterIds describes newly playable recruits, existingCharacterIds describes characters already playable at the event, and reworkedCharacterIds describes significant reworks.",
+              "members is the union of currently represented team/core/pool participants; announcedNext is kept separate because those characters are not yet part of the represented playable formation.",
+              "characterReleases is the canonical detailed release metadata for team-event recruits; legacy releaseMethods may remain for backward compatibility.",
+              "reworks is the canonical detailed metadata for significant reworks; reworkedCharacterIds remains the machine-friendly index.",
+              "A teamEvent month describes the team state/event represented; characterReleases and reworks may carry an earlier actual month or exact date when the rollout differs.",
+              "Only globalLaunchRoster, individualReleases and teamEvents[].newCharacterIds contribute to playable-release counts."
+          ]
+
+          # Keep the existing top-level order, inserting the schema contract next to countingRules.
+          normalized_top = {}
+          for key, value in data.items():
+              normalized_top[key] = value
+              if key == "countingRules":
+                  normalized_top["schemaNotes"] = global_schema_notes
+          data = normalized_top
+
+          release_dates = {
+              ("2020", "inhumans-v1", "BlackBolt"): "2020-01-06",
+              ("2020", "inhumans-v1", "YoYo"): "2020-01-10",
+              ("2020", "inhumans-v1", "Crystal"): "2020-01-15",
+              ("2020", "inhumans-v1", "Karnak"): "2020-01-21",
+              ("2020", "symbiotes-v1", "SymbioteSpiderMan"): "2020-02-11",
+              ("2020", "brotherhood-v2-partial", "Toad"): "2020-02-20",
+              ("2020", "brotherhood-v2", "Blob"): "2020-03-03",
+              ("2020", "red-skull-hydra-v1", "RedSkull"): "2020-03-16",
+              ("2020", "black-order-v1-proxima", "ProximaMidnight"): "2020-04-01",
+              ("2020", "black-order-v2-corvus", "CorvusGlaive"): "2020-04-21",
+              ("2020", "mercenaries-v1-taskmaster", "Taskmaster"): "2020-05-06",
+              ("2020", "black-order-v3-cull", "CullObsidian"): "2020-05-15",
+              ("2020", "black-order-v4", "EbonyMaw"): "2020-05-26",
+              ("2020", "power-armor-v2-ironheart", "Ironheart"): "2020-06-02",
+              ("2020", "x-force-v1-domino", "Domino"): "2020-06-10",
+              ("2020", "x-force-v2-negasonic", "Negasonic"): "2020-06-18"
+          }
+
+          rework_overrides = {
+              ("2020", "symbiotes-v1", "Venom"): {"month": "2020-01", "date": "2020-01-14"},
+              ("2020", "symbiotes-v1", "Carnage"): {"month": "2020-01", "date": "2020-01-14"},
+              ("2020", "black-order-v4", "Thanos"): {"month": "2020-05", "date": "2020-05-06"}
+          }
+
+          original_events = {
+              (year, event["teamId"]): deepcopy(event)
+              for year, year_data in before["years"].items()
+              for event in year_data.get("teamEvents", [])
+          }
+          original_individual = {
+              year: deepcopy(year_data.get("individualReleases", []))
+              for year, year_data in before["years"].items()
+          }
+          original_validation = {
+              year: deepcopy(year_data.get("validation"))
+              for year, year_data in before["years"].items()
+          }
+
+          def append_unique(target, values):
+              for value in values:
+                  if value not in target:
+                      target.append(value)
+
+          for year, year_data in data["years"].items():
+              for event in year_data.get("teamEvents", []):
+                  new_ids = event.setdefault("newCharacterIds", [])
+                  reworked_ids = event.setdefault("reworkedCharacterIds", [])
+                  core = event.setdefault("core", [])
+                  pool = event.setdefault("pool", [])
+                  existing = event.setdefault("existingCharacterIds", [])
+                  announced_next = event.setdefault("announcedNext", [])
+                  notes = event.setdefault("notes", [])
+
+                  # members is the umbrella list for the playable formation represented by this event.
+                  members = event.setdefault("members", [])
+                  append_unique(members, core)
+                  append_unique(members, pool)
+                  append_unique(members, new_ids)
+                  append_unique(members, existing)
+                  append_unique(members, reworked_ids)
+
+                  # "existing" means already playable, including characters that are also reworked.
+                  for character_id in members:
+                      if character_id not in new_ids and character_id not in existing:
+                          existing.append(character_id)
+                  append_unique(existing, [cid for cid in reworked_ids if cid not in new_ids])
+
+                  # Detailed release metadata: preserve rich 2019 records, create it where it was absent.
+                  character_releases = event.setdefault("characterReleases", [])
+                  if not character_releases and new_ids:
+                      release_methods = event.get("releaseMethods", {})
+                      for character_id in new_ids:
+                          detail = {
+                              "month": event["month"],
+                              "characterId": character_id
+                          }
+                          release_method = release_methods.get(character_id)
+                          if release_method:
+                              detail["releaseMethod"] = release_method
+                          date = release_dates.get((year, event["teamId"], character_id))
+                          if date:
+                              detail["date"] = date
+                          character_releases.append(detail)
+
+                  # Detailed rework metadata without inventing unsupported exact dates.
+                  reworks = event.setdefault("reworks", [])
+                  if not reworks and reworked_ids:
+                      for character_id in reworked_ids:
+                          override = rework_overrides.get((year, event["teamId"], character_id), {})
+                          detail = {
+                              "month": override.get("month", event["month"]),
+                              "characterId": character_id
+                          }
+                          if "date" in override:
+                              detail["date"] = override["date"]
+                          reworks.append(detail)
+
+                  # Keep variables intentionally referenced so empty canonical arrays are guaranteed.
+                  assert isinstance(core, list)
+                  assert isinstance(pool, list)
+                  assert isinstance(announced_next, list)
+                  assert isinstance(notes, list)
+
+          # The old note said the richer metadata existed only in 2019; this is no longer true.
+          notes_2019 = data["years"]["2019"].get("schemaNotes", [])
+          if notes_2019:
+              notes_2019[0] = (
+                  "Per-character releases on team events retain the actual recruitment month even when it predates team completion; "
+                  "sourceIds/confidence preserve evidence where the 2019 audit established it."
+              )
+
+          # Regression guards: release provenance and all published validation totals must remain unchanged.
+          for year, year_data in data["years"].items():
+              assert year_data.get("individualReleases", []) == original_individual[year]
+              assert year_data.get("validation") == original_validation[year]
+
+              after_by_id = {event["teamId"]: event for event in year_data.get("teamEvents", [])}
+              before_ids = [event["teamId"] for event in before["years"][year].get("teamEvents", [])]
+              assert list(after_by_id) == before_ids
+
+              for team_id in before_ids:
+                  old = original_events[(year, team_id)]
+                  new = after_by_id[team_id]
+
+                  assert new["newCharacterIds"] == old.get("newCharacterIds", [])
+                  assert new["reworkedCharacterIds"] == old.get("reworkedCharacterIds", [])
+
+                  if "releaseMethods" in old:
+                      assert new["releaseMethods"] == old["releaseMethods"]
+                  if "sourceIds" in old:
+                      assert new["sourceIds"] == old["sourceIds"]
+                  if "confidence" in old:
+                      assert new["confidence"] == old["confidence"]
+                  if "notes" in old:
+                      assert new["notes"] == old["notes"]
+                  if "core" in old:
+                      assert new["core"] == old["core"]
+                  if "pool" in old:
+                      assert new["pool"] == old["pool"]
+                  if "announcedNext" in old:
+                      assert new["announcedNext"] == old["announcedNext"]
+                  if "characterReleases" in old:
+                      assert new["characterReleases"] == old["characterReleases"]
+
+                  for field in (
+                      "members", "core", "pool", "newCharacterIds", "existingCharacterIds",
+                      "reworkedCharacterIds", "announcedNext", "characterReleases", "reworks", "notes"
+                  ):
+                      assert field in new and isinstance(new[field], list), (year, team_id, field)
+
+                  new_set = set(new["newCharacterIds"])
+                  existing_set = set(new["existingCharacterIds"])
+                  reworked_set = set(new["reworkedCharacterIds"])
+                  assert new_set.isdisjoint(existing_set), (year, team_id, "new/existing overlap")
+                  assert reworked_set <= existing_set, (year, team_id, "rework not existing")
+                  assert {item["characterId"] for item in new["characterReleases"]} == new_set, (year, team_id, "release detail mismatch")
+                  assert {item["characterId"] for item in new["reworks"]} == reworked_set, (year, team_id, "rework detail mismatch")
+
+          assert data["years"]["2018"]["validation"] == before["years"]["2018"]["validation"]
+          assert data["years"]["2019"]["validation"] == before["years"]["2019"]["validation"]
+          assert data["years"]["2020"]["validation"] == before["years"]["2020"]["validation"]
+
+          assert 62 + len(data["years"]["2018"]["individualReleases"]) + sum(
+              len(event["newCharacterIds"]) for event in data["years"]["2018"]["teamEvents"]
+          ) == 86
+          assert len(data["years"]["2019"]["individualReleases"]) + sum(
+              len(event["newCharacterIds"]) for event in data["years"]["2019"]["teamEvents"]
+          ) == 34
+          assert len(data["years"]["2020"]["individualReleases"]) + sum(
+              len(event["newCharacterIds"]) for event in data["years"]["2020"]["teamEvents"]
+          ) == 17
+
+          path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          # Parse the serialized output once more to catch any accidental serialization issue.
+          json.loads(path.read_text(encoding="utf-8"))
+          PY
+
+      - name: Commit normalized JSON and remove one-off workflow
+        shell: bash
+        run: |
+          rm .github/workflows/normalize-msf-release-history-once.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/msf-release-history.json .github/workflows/normalize-msf-release-history-once.yml
+          git diff --cached --check
+          git diff --cached --quiet && exit 1
+          git commit -m "data: normalize release history team event schema"
+          git push origin HEAD:normalize-msf-release-history-schema
