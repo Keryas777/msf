@@ -1,0 +1,92 @@
+name: Preserve existing release history member semantics once
+
+on:
+  push:
+    branches:
+      - normalize-msf-release-history-schema
+    paths:
+      - .github/workflows/normalize-msf-release-history-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  adjust:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout normalization branch
+        uses: actions/checkout@v4
+        with:
+          ref: normalize-msf-release-history-schema
+          fetch-depth: 0
+
+      - name: Restore pre-existing member arrays and validate
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import subprocess
+
+          path = Path("docs/data/msf-release-history.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+          original = json.loads(subprocess.check_output(
+              ["git", "show", "origin/main:docs/data/msf-release-history.json"],
+              text=True
+          ))
+
+          # Existing members arrays are historical data, not a derived union. Preserve them byte-for-value.
+          for year, original_year in original["years"].items():
+              current_by_id = {
+                  event["teamId"]: event
+                  for event in data["years"][year].get("teamEvents", [])
+              }
+              for old_event in original_year.get("teamEvents", []):
+                  current = current_by_id[old_event["teamId"]]
+                  if "members" in old_event:
+                      current["members"] = old_event["members"]
+
+          data["schemaNotes"][1] = (
+              "members lists the explicit formation members represented by an event when that historical list is known; "
+              "core/pool may describe flexible slots or alternatives, and announcedNext remains separate."
+          )
+
+          # Regression checks after restoring the narrower historical meaning of members.
+          for year, year_data in data["years"].items():
+              original_events = {
+                  event["teamId"]: event
+                  for event in original["years"][year].get("teamEvents", [])
+              }
+              for event in year_data.get("teamEvents", []):
+                  old = original_events[event["teamId"]]
+                  if "members" in old:
+                      assert event["members"] == old["members"]
+                  for field in (
+                      "members", "core", "pool", "newCharacterIds", "existingCharacterIds",
+                      "reworkedCharacterIds", "announcedNext", "characterReleases", "reworks", "notes"
+                  ):
+                      assert field in event and isinstance(event[field], list), (year, event["teamId"], field)
+                  assert set(event["newCharacterIds"]).isdisjoint(event["existingCharacterIds"])
+                  assert set(event["reworkedCharacterIds"]) <= set(event["existingCharacterIds"])
+                  assert {r["characterId"] for r in event["characterReleases"]} == set(event["newCharacterIds"])
+                  assert {r["characterId"] for r in event["reworks"]} == set(event["reworkedCharacterIds"])
+
+          assert data["years"]["2018"]["validation"] == original["years"]["2018"]["validation"]
+          assert data["years"]["2019"]["validation"] == original["years"]["2019"]["validation"]
+          assert data["years"]["2020"]["validation"] == original["years"]["2020"]["validation"]
+
+          path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          json.loads(path.read_text(encoding="utf-8"))
+          PY
+
+      - name: Commit adjustment and remove one-off workflow
+        shell: bash
+        run: |
+          rm .github/workflows/normalize-msf-release-history-once.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/msf-release-history.json .github/workflows/normalize-msf-release-history-once.yml
+          git diff --cached --check
+          git diff --cached --quiet && exit 1
+          git commit -m "data: preserve existing release history member semantics"
+          git push origin HEAD:normalize-msf-release-history-schema
