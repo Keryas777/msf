@@ -209,13 +209,22 @@
 
   function buildCharMap(chars) {
     CHAR_MAP = new Map();
-    (Array.isArray(chars) ? chars : []).forEach((c) => {
-      [c?.id, c?.nameKey, c?.nameFr, c?.nameEn]
+    const rows = Array.isArray(chars) ? chars : [];
+
+    // Exact internal IDs always win over display-name aliases.
+    rows.forEach((c) => {
+      const kk = normalizeKey(c?.id);
+      if (!kk) return;
+      CHAR_MAP.set(kk, c);
+    });
+
+    rows.forEach((c) => {
+      [c?.nameKey, c?.nameFr, c?.nameEn]
         .filter(Boolean)
         .forEach((k) => {
           const kk = normalizeKey(k);
-          if (!kk) return;
-          if (!CHAR_MAP.has(kk)) CHAR_MAP.set(kk, c);
+          if (!kk || CHAR_MAP.has(kk)) return;
+          CHAR_MAP.set(kk, c);
         });
     });
   }
