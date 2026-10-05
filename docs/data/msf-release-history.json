@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "title": "Marvel Strike Force playable release history",
   "scope": "Global launch onward",
   "globalLaunchDate": "2018-03-28",
@@ -11,6 +11,14 @@
     "Each newly playable character is assigned to exactly one provenance bucket: globalLaunchRoster, individualReleases or a teamEvent newCharacterIds list.",
     "A team event may contain pre-existing or reworked characters; only newCharacterIds contribute to the playable-release count.",
     "Historical teams are not forced to five fixed members: partial formations and core-plus-pool formations are represented explicitly."
+  ],
+  "schemaNotes": [
+    "teamEvents use a common additive structure across years: members/core/pool describe the represented formation, newCharacterIds describes newly playable recruits, existingCharacterIds describes characters already playable at the event, and reworkedCharacterIds describes significant reworks.",
+    "members is the union of currently represented team/core/pool participants; announcedNext is kept separate because those characters are not yet part of the represented playable formation.",
+    "characterReleases is the canonical detailed release metadata for team-event recruits; legacy releaseMethods may remain for backward compatibility.",
+    "reworks is the canonical detailed metadata for significant reworks; reworkedCharacterIds remains the machine-friendly index.",
+    "A teamEvent month describes the team state/event represented; characterReleases and reworks may carry an earlier actual month or exact date when the rollout differs.",
+    "Only globalLaunchRoster, individualReleases and teamEvents[].newCharacterIds contribute to playable-release counts."
   ],
   "years": {
     "2018": {
@@ -198,7 +206,23 @@
             "RocketRaccoon",
             "Drax",
             "Gamora"
-          ]
+          ],
+          "reworkedCharacterIds": [],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2018-07",
+              "characterId": "StarLord"
+            },
+            {
+              "month": "2018-07",
+              "characterId": "Groot"
+            }
+          ],
+          "reworks": []
         },
         {
           "month": "2018-08",
@@ -229,7 +253,53 @@
           ],
           "releaseMethods": {
             "NickFury": "legendary"
-          }
+          },
+          "existingCharacterIds": [
+            "ShieldDmg_AoE",
+            "ShieldSupport_Heal",
+            "ShieldSupport_Stealth",
+            "ShieldTank_Stun",
+            "ShieldDmg_Defense"
+          ],
+          "announcedNext": [],
+          "notes": [],
+          "members": [
+            "NickFury",
+            "ShieldDmg_AoE",
+            "ShieldSupport_Heal",
+            "ShieldSupport_Stealth",
+            "ShieldTank_Stun",
+            "ShieldDmg_Defense"
+          ],
+          "characterReleases": [
+            {
+              "month": "2018-08",
+              "characterId": "NickFury",
+              "releaseMethod": "legendary"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2018-08",
+              "characterId": "ShieldDmg_AoE"
+            },
+            {
+              "month": "2018-08",
+              "characterId": "ShieldSupport_Heal"
+            },
+            {
+              "month": "2018-08",
+              "characterId": "ShieldSupport_Stealth"
+            },
+            {
+              "month": "2018-08",
+              "characterId": "ShieldTank_Stun"
+            },
+            {
+              "month": "2018-08",
+              "characterId": "ShieldDmg_Defense"
+            }
+          ]
         },
         {
           "month": "2018-09",
@@ -254,6 +324,39 @@
           ],
           "notes": [
             "Punisher is the fifth synergy member but is not a Defender trait member."
+          ],
+          "core": [],
+          "pool": [],
+          "existingCharacterIds": [
+            "Daredevil",
+            "IronFist",
+            "JessicaJones",
+            "LukeCage",
+            "Punisher"
+          ],
+          "announcedNext": [],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2018-09",
+              "characterId": "Daredevil"
+            },
+            {
+              "month": "2018-09",
+              "characterId": "IronFist"
+            },
+            {
+              "month": "2018-09",
+              "characterId": "JessicaJones"
+            },
+            {
+              "month": "2018-09",
+              "characterId": "LukeCage"
+            },
+            {
+              "month": "2018-09",
+              "characterId": "Punisher"
+            }
           ]
         },
         {
@@ -283,7 +386,31 @@
           },
           "notes": [
             "Mystique became playable in October 2018 and is counted in individualReleases."
-          ]
+          ],
+          "reworkedCharacterIds": [],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "characterReleases": [
+            {
+              "month": "2018-11",
+              "characterId": "Sabretooth"
+            },
+            {
+              "month": "2018-11",
+              "characterId": "Juggernaut"
+            },
+            {
+              "month": "2018-11",
+              "characterId": "Pyro"
+            },
+            {
+              "month": "2018-11",
+              "characterId": "Magneto",
+              "releaseMethod": "legendary"
+            }
+          ],
+          "reworks": []
         },
         {
           "month": "2018-12",
@@ -310,7 +437,21 @@
           ],
           "notes": [
             "Carnage was announced in December 2018 but was not yet playable and is not counted in 2018."
-          ]
+          ],
+          "reworkedCharacterIds": [],
+          "core": [],
+          "pool": [],
+          "characterReleases": [
+            {
+              "month": "2018-12",
+              "characterId": "UltSpiderMan"
+            },
+            {
+              "month": "2018-12",
+              "characterId": "UltGreenGoblin"
+            }
+          ],
+          "reworks": []
         }
       ],
       "excludedFrom2018PlayableCount": [
@@ -450,6 +591,23 @@
           ],
           "notes": [
             "Six available Guardians; Mantis supplies an alternative, not a mandatory sixth slot. January recruitment confidence is medium."
+          ],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "reworks": [
+            {
+              "month": "2019-01",
+              "characterId": "Groot"
+            },
+            {
+              "month": "2019-01",
+              "characterId": "RocketRaccoon"
+            },
+            {
+              "month": "2019-01",
+              "characterId": "Gamora"
+            }
           ]
         },
         {
@@ -476,7 +634,11 @@
           ],
           "notes": [
             "War Machine counted once in individualReleases; later reused by Power Armor."
-          ]
+          ],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "reworks": []
         },
         {
           "month": "2019-02",
@@ -518,7 +680,11 @@
           "sourceIds": [
             "carnage-live"
           ],
-          "notes": []
+          "notes": [],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "reworks": []
         },
         {
           "month": "2019-02",
@@ -586,6 +752,33 @@
             "KreeDmg_Speed",
             "KreeTank_Counter",
             "Minerva"
+          ],
+          "announcedNext": [],
+          "reworks": [
+            {
+              "month": "2019-02",
+              "characterId": "Ronan"
+            },
+            {
+              "month": "2019-02",
+              "characterId": "KreeDmg_Offense"
+            },
+            {
+              "month": "2019-02",
+              "characterId": "KreeControl_Assist"
+            },
+            {
+              "month": "2019-02",
+              "characterId": "KreeSupport_HoT"
+            },
+            {
+              "month": "2019-02",
+              "characterId": "KreeDmg_Speed"
+            },
+            {
+              "month": "2019-02",
+              "characterId": "KreeTank_Counter"
+            }
           ]
         },
         {
@@ -615,7 +808,11 @@
           ],
           "notes": [
             "Historical synergy trait, not a fixed complete team. Captain Marvel is counted individually."
-          ]
+          ],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "reworks": []
         },
         {
           "month": "2019-04",
@@ -701,7 +898,11 @@
           "notes": [
             "March-to-April rollout; Shuri makes the five playable in April.",
             "Black Panther is an existing member; no precise rework date is asserted by this event."
-          ]
+          ],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "reworks": []
         },
         {
           "month": "2019-04",
@@ -736,6 +937,15 @@
           ],
           "notes": [
             "April introduces the six-member trait and Hulk improvements; do not backdate the later comprehensive Wave I rework."
+          ],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "reworks": [
+            {
+              "month": "2019-04",
+              "characterId": "Hulk"
+            }
           ]
         },
         {
@@ -748,7 +958,8 @@
             "IronMan",
             "WarMachine",
             "Falcon",
-            "Rescue"
+            "Rescue",
+            "Vision"
           ],
           "newCharacterIds": [
             "Falcon",
@@ -800,7 +1011,9 @@
           ],
           "pool": [
             "Vision"
-          ]
+          ],
+          "announcedNext": [],
+          "reworks": []
         },
         {
           "month": "2019-06",
@@ -878,7 +1091,11 @@
           ],
           "notes": [
             "Psylocke and Colossus recruitable in May; Phoenix completes this five in June. Cyclops is an announcement/client entry, not a 2019 recruit."
-          ]
+          ],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "reworks": []
         },
         {
           "month": "2019-06",
@@ -904,7 +1121,11 @@
           ],
           "notes": [
             "Flexible Hero Brawler allies; not a fixed five. America Chavez counted individually."
-          ]
+          ],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "reworks": []
         },
         {
           "month": "2019-07",
@@ -989,7 +1210,11 @@
           ],
           "notes": [
             "Rhino June, remaining recruits July; Vulture July paid offer precedes August Blitz. No Doctor Octopus in this formation."
-          ]
+          ],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "reworks": []
         },
         {
           "month": "2019-08",
@@ -1022,7 +1247,11 @@
             "Documented by August 20; this is NOT an asserted first formation month. Components become available with Minn-Erva in February."
           ],
           "monthSemantics": "documented_by",
-          "documentedByDate": "2019-08-20"
+          "documentedByDate": "2019-08-20",
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "reworks": []
         },
         {
           "month": "2019-09",
@@ -1119,7 +1348,9 @@
           ],
           "pool": [
             "Namor"
-          ]
+          ],
+          "announcedNext": [],
+          "reworks": []
         },
         {
           "month": "2019-09",
@@ -1189,6 +1420,33 @@
             "AimDmg_Speed",
             "AimSupport_Heal",
             "AimTank_Taunt"
+          ],
+          "announcedNext": [],
+          "reworks": [
+            {
+              "month": "2019-09",
+              "characterId": "ScientistSupreme"
+            },
+            {
+              "month": "2019-09",
+              "characterId": "AimControl_Infect"
+            },
+            {
+              "month": "2019-09",
+              "characterId": "AimDmg_Offense"
+            },
+            {
+              "month": "2019-09",
+              "characterId": "AimDmg_Speed"
+            },
+            {
+              "month": "2019-09",
+              "characterId": "AimSupport_Heal"
+            },
+            {
+              "month": "2019-09",
+              "characterId": "AimTank_Taunt"
+            }
           ]
         },
         {
@@ -1222,6 +1480,15 @@
           ],
           "notes": [
             "New X-Men synergies; Cyclops clause in the kit does not prove Cyclops recruitment."
+          ],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "reworks": [
+            {
+              "month": "2019-09",
+              "characterId": "Wolverine"
+            }
           ]
         },
         {
@@ -1288,6 +1555,13 @@
             "ShieldSupport_Stealth",
             "ShieldTank_Stun",
             "ShieldDmg_Defense"
+          ],
+          "announcedNext": [],
+          "reworks": [
+            {
+              "month": "2019-10",
+              "characterId": "ShieldSupport_Heal"
+            }
           ]
         },
         {
@@ -1347,7 +1621,24 @@
             "release-notes-3-6",
             "blog-update-10-25"
           ],
-          "notes": []
+          "notes": [],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "reworks": [
+            {
+              "month": "2019-10",
+              "characterId": "DoctorStrange"
+            },
+            {
+              "month": "2019-10",
+              "characterId": "BaronMordo"
+            },
+            {
+              "month": "2019-10",
+              "characterId": "ScarletWitch"
+            }
+          ]
         },
         {
           "month": "2019-11",
@@ -1408,6 +1699,19 @@
           ],
           "notes": [
             "Four-member historical core, already playable in November. Flexible fifth is not a fifth Marauder; Emma Frost is later. December Blitz is not Stryfe first recruitment."
+          ],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "reworks": [
+            {
+              "month": "2019-11",
+              "characterId": "Mystique"
+            },
+            {
+              "month": "2019-11",
+              "characterId": "Sabretooth"
+            }
           ]
         },
         {
@@ -1478,6 +1782,19 @@
           ],
           "notes": [
             "Hela November; Heimdall and Sif December; Thor/Loki December reworks."
+          ],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "reworks": [
+            {
+              "month": "2019-12",
+              "characterId": "Thor"
+            },
+            {
+              "month": "2019-12",
+              "characterId": "Loki"
+            }
           ]
         },
         {
@@ -1515,6 +1832,23 @@
           ],
           "notes": [
             "Existing Kree options affected by three reworks; not a canonical six-member team."
+          ],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "reworks": [
+            {
+              "month": "2019-12",
+              "characterId": "Ultimus"
+            },
+            {
+              "month": "2019-12",
+              "characterId": "Korath"
+            },
+            {
+              "month": "2019-12",
+              "characterId": "KreeDmg_Offense"
+            }
           ]
         }
       ],
@@ -2481,7 +2815,7 @@
         }
       },
       "schemaNotes": [
-        "Backward-compatible metadata added only within 2019: per-character releases on team events retain the actual month before completion; sourceIds/confidence preserve evidence.",
+        "Per-character releases on team events retain the actual recruitment month even when it predates team completion; sourceIds/confidence preserve evidence where the 2019 audit established it.",
         "newCharacterIds and individualReleases remain the sole counting buckets. Existing/reworked/member/pool arrays never add new recruits.",
         "BKT month is documented_by, not a fabricated formation date."
       ]
@@ -2540,7 +2874,44 @@
             "Karnak became playable on 2020-01-21.",
             "Quake and Ms. Marvel were already playable Inhumans. Quake was the strongest contemporary fit for the fifth slot, but the historical roster was not strictly limited to one fixed fifth member.",
             "Neither Quake nor Ms. Marvel is classified as a significant T1 2020 rework."
-          ]
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "members": [
+            "BlackBolt",
+            "YoYo",
+            "Crystal",
+            "Karnak",
+            "Quake",
+            "MsMarvel"
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-01",
+              "characterId": "BlackBolt",
+              "releaseMethod": "legendary",
+              "date": "2020-01-06"
+            },
+            {
+              "month": "2020-01",
+              "characterId": "YoYo",
+              "releaseMethod": "limited_offer",
+              "date": "2020-01-10"
+            },
+            {
+              "month": "2020-01",
+              "characterId": "Crystal",
+              "releaseMethod": "limited_offer",
+              "date": "2020-01-15"
+            },
+            {
+              "month": "2020-01",
+              "characterId": "Karnak",
+              "releaseMethod": "limited_offer",
+              "date": "2020-01-21"
+            }
+          ],
+          "reworks": []
         },
         {
           "month": "2020-02",
@@ -2567,6 +2938,33 @@
             "Venom and Carnage received material Symbiote-specific ability updates on 2020-01-14.",
             "Spider-Man (Symbiote) became playable on 2020-02-11 through recurring milestones.",
             "This represents the historical three-character Symbiote core and does not retroactively include later Symbiotes."
+          ],
+          "core": [],
+          "pool": [],
+          "existingCharacterIds": [
+            "Venom",
+            "Carnage"
+          ],
+          "announcedNext": [],
+          "characterReleases": [
+            {
+              "month": "2020-02",
+              "characterId": "SymbioteSpiderMan",
+              "releaseMethod": "milestone",
+              "date": "2020-02-11"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2020-01",
+              "characterId": "Venom",
+              "date": "2020-01-14"
+            },
+            {
+              "month": "2020-01",
+              "characterId": "Carnage",
+              "date": "2020-01-14"
+            }
           ]
         },
         {
@@ -2600,7 +2998,19 @@
             "Magneto and Juggernaut received only minor ability enhancements in 3.9 and are classified as existing rather than significantly reworked.",
             "Pyro was already playable and was not materially reworked.",
             "Mystique and Sabretooth were being moved to the Marauders."
-          ]
+          ],
+          "reworkedCharacterIds": [],
+          "core": [],
+          "pool": [],
+          "characterReleases": [
+            {
+              "month": "2020-02",
+              "characterId": "Toad",
+              "releaseMethod": "limited_offer",
+              "date": "2020-02-20"
+            }
+          ],
+          "reworks": []
         },
         {
           "month": "2020-03",
@@ -2628,7 +3038,19 @@
             "Blob became playable on 2020-03-03 and completed the contemporary Brotherhood V2 lineup.",
             "The exact first acquisition channel on 2020-03-03 is not encoded because the release date is better established than the channel.",
             "Mystique and Sabretooth are not retroactively retained in this version because Toad and Blob were explicitly introduced to replace their Brotherhood slots."
-          ]
+          ],
+          "reworkedCharacterIds": [],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "characterReleases": [
+            {
+              "month": "2020-03",
+              "characterId": "Blob",
+              "date": "2020-03-03"
+            }
+          ],
+          "reworks": []
         },
         {
           "month": "2020-03",
@@ -2666,6 +3088,52 @@
             "His initial paid availability and Hail Hydra Orb preceded his Blitz releases later in March.",
             "Contemporary teams used Red Skull plus four of the five Hydra minions, commonly benching Hydra Grenadier, so core-plus-pool is safer than forcing a fixed five.",
             "Hydra Sniper received a further Special ability update at the 3.10 boundary on 2020-03-31."
+          ],
+          "existingCharacterIds": [
+            "HydraDmg_AoE",
+            "HydraDmg_Buff",
+            "HydraDmg_Single",
+            "HydraTank_Taunt",
+            "HydraSupport_Heal"
+          ],
+          "announcedNext": [],
+          "members": [
+            "RedSkull",
+            "HydraDmg_AoE",
+            "HydraDmg_Buff",
+            "HydraDmg_Single",
+            "HydraTank_Taunt",
+            "HydraSupport_Heal"
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-03",
+              "characterId": "RedSkull",
+              "releaseMethod": "limited_offer",
+              "date": "2020-03-16"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2020-03",
+              "characterId": "HydraDmg_AoE"
+            },
+            {
+              "month": "2020-03",
+              "characterId": "HydraDmg_Buff"
+            },
+            {
+              "month": "2020-03",
+              "characterId": "HydraDmg_Single"
+            },
+            {
+              "month": "2020-03",
+              "characterId": "HydraTank_Taunt"
+            },
+            {
+              "month": "2020-03",
+              "characterId": "HydraSupport_Heal"
+            }
           ]
         },
         {
@@ -2696,7 +3164,19 @@
             "Proxima Midnight became playable on 2020-04-01.",
             "Her Deep Space event orb was purchasable with Power Cores before the Enter the Black Order Event Campaign itself began.",
             "Thanos was already playable; the remaining Black Order members were not yet recruitable."
-          ]
+          ],
+          "reworkedCharacterIds": [],
+          "core": [],
+          "pool": [],
+          "characterReleases": [
+            {
+              "month": "2020-04",
+              "characterId": "ProximaMidnight",
+              "releaseMethod": "event_orb",
+              "date": "2020-04-01"
+            }
+          ],
+          "reworks": []
         },
         {
           "month": "2020-04",
@@ -2726,7 +3206,19 @@
           "notes": [
             "Corvus Glaive became playable on 2020-04-21 through limited orb/paid availability before his later Blitz release.",
             "Black Order remained incomplete."
-          ]
+          ],
+          "reworkedCharacterIds": [],
+          "core": [],
+          "pool": [],
+          "characterReleases": [
+            {
+              "month": "2020-04",
+              "characterId": "CorvusGlaive",
+              "releaseMethod": "limited_orb",
+              "date": "2020-04-21"
+            }
+          ],
+          "reworks": []
         },
         {
           "month": "2020-05",
@@ -2752,7 +3244,10 @@
           "existingCharacterIds": [
             "Killmonger",
             "Korath",
-            "MercDmg_Single"
+            "MercDmg_Single",
+            "Bullseye",
+            "MercSupport_Buffs",
+            "MercTank_Debuff"
           ],
           "reworkedCharacterIds": [
             "Bullseye",
@@ -2769,6 +3264,38 @@
             "Korath was already playable and received no material rework.",
             "Mercenary Sniper remained a viable fifth-slot option without receiving a significant rework.",
             "Contemporary compositions used a stable four-character core with several possible fifth members, so core-plus-pool is safer than forcing a fixed five."
+          ],
+          "announcedNext": [],
+          "members": [
+            "Taskmaster",
+            "Bullseye",
+            "MercSupport_Buffs",
+            "MercTank_Debuff",
+            "Killmonger",
+            "Korath",
+            "MercDmg_Single"
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-05",
+              "characterId": "Taskmaster",
+              "releaseMethod": "limited_offer",
+              "date": "2020-05-06"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2020-05",
+              "characterId": "Bullseye"
+            },
+            {
+              "month": "2020-05",
+              "characterId": "MercSupport_Buffs"
+            },
+            {
+              "month": "2020-05",
+              "characterId": "MercTank_Debuff"
+            }
           ]
         },
         {
@@ -2800,7 +3327,19 @@
           "notes": [
             "Cull Obsidian became playable on 2020-05-15, with his character orb available for Power Cores.",
             "Black Order still lacked Ebony Maw and therefore could not yet provide Thanos all six Infinity Stones."
-          ]
+          ],
+          "reworkedCharacterIds": [],
+          "core": [],
+          "pool": [],
+          "characterReleases": [
+            {
+              "month": "2020-05",
+              "characterId": "CullObsidian",
+              "releaseMethod": "limited_orb",
+              "date": "2020-05-15"
+            }
+          ],
+          "reworks": []
         },
         {
           "month": "2020-05",
@@ -2821,7 +3360,8 @@
           "existingCharacterIds": [
             "ProximaMidnight",
             "CorvusGlaive",
-            "CullObsidian"
+            "CullObsidian",
+            "Thanos"
           ],
           "reworkedCharacterIds": [
             "Thanos"
@@ -2834,6 +3374,24 @@
             "The Empowered mechanic had already been previewed and partially exposed at the 3.10 boundary, so Thanos is a T1/T2 boundary case but is provisionally classified as a significant T2 rework.",
             "Ebony Maw became playable on 2020-05-26 through the Black and Ebony Legendary Event.",
             "Ebony Maw completed the five-character Black Order and made the full six-Infinity-Stone Empowered Thanos mechanic usable by players."
+          ],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "characterReleases": [
+            {
+              "month": "2020-05",
+              "characterId": "EbonyMaw",
+              "releaseMethod": "legendary",
+              "date": "2020-05-26"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2020-05",
+              "characterId": "Thanos",
+              "date": "2020-05-06"
+            }
           ]
         },
         {
@@ -2867,7 +3425,20 @@
             "Iron Man and War Machine had received only minor ability enhancements in 3.9 and are classified as existing rather than significantly reworked.",
             "Rescue and Falcon were already playable and received no significant T2 rework.",
             "Vision had commonly filled the fifth Power Armor slot before Ironheart but was not materially reworked and was displaced by the intended five-character lineup."
-          ]
+          ],
+          "reworkedCharacterIds": [],
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "characterReleases": [
+            {
+              "month": "2020-06",
+              "characterId": "Ironheart",
+              "releaseMethod": "limited_orb",
+              "date": "2020-06-02"
+            }
+          ],
+          "reworks": []
         },
         {
           "month": "2020-06",
@@ -2899,6 +3470,30 @@
             "Cable received substantial stat, Charged, Barrier, dispel and X-Force War Offense changes.",
             "Deadpool received substantial new X-Force synergies and is also classified as reworked.",
             "Negasonic and X-23 were announced but were not both playable at this stage."
+          ],
+          "core": [],
+          "pool": [],
+          "existingCharacterIds": [
+            "Deadpool",
+            "Cable"
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-06",
+              "characterId": "Domino",
+              "releaseMethod": "limited_offer",
+              "date": "2020-06-10"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2020-06",
+              "characterId": "Deadpool"
+            },
+            {
+              "month": "2020-06",
+              "characterId": "Cable"
+            }
           ]
         },
         {
@@ -2929,7 +3524,18 @@
             "Her subsequent free-to-play release path is firmly established as the Unity event using Creative Differences and Explosive Combo milestones.",
             "The exact first shard-acquisition channel on 2020-06-18 has not been independently established strongly enough to encode a releaseMethod.",
             "X-23 was still unreleased on 2020-06-18 and belongs to T3."
-          ]
+          ],
+          "reworkedCharacterIds": [],
+          "core": [],
+          "pool": [],
+          "characterReleases": [
+            {
+              "month": "2020-06",
+              "characterId": "Negasonic",
+              "date": "2020-06-18"
+            }
+          ],
+          "reworks": []
         }
       ],
       "validation": {
