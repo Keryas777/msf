@@ -14,7 +14,7 @@
   ],
   "schemaNotes": [
     "teamEvents use a common additive structure across years: members/core/pool describe the represented formation, newCharacterIds describes newly playable recruits, existingCharacterIds describes characters already playable at the event, and reworkedCharacterIds describes significant reworks.",
-    "members is the union of currently represented team/core/pool participants; announcedNext is kept separate because those characters are not yet part of the represented playable formation.",
+    "members lists the explicit formation members represented by an event when that historical list is known; core/pool may describe flexible slots or alternatives, and announcedNext remains separate.",
     "characterReleases is the canonical detailed release metadata for team-event recruits; legacy releaseMethods may remain for backward compatibility.",
     "reworks is the canonical detailed metadata for significant reworks; reworkedCharacterIds remains the machine-friendly index.",
     "A teamEvent month describes the team state/event represented; characterReleases and reworks may carry an earlier actual month or exact date when the rollout differs.",
@@ -958,8 +958,7 @@
             "IronMan",
             "WarMachine",
             "Falcon",
-            "Rescue",
-            "Vision"
+            "Rescue"
           ],
           "newCharacterIds": [
             "Falcon",
