@@ -337,7 +337,7 @@
     },
     "2020": {
       "status": "partial",
-      "auditedThrough": "2020-03-31",
+      "auditedThrough": "2020-06-30",
       "individualReleases": [
         {
           "month": "2020-02",
@@ -516,14 +516,277 @@
             "Contemporary teams used Red Skull plus four of the five Hydra minions, commonly benching Hydra Grenadier, so core-plus-pool is safer than forcing a fixed five.",
             "Hydra Sniper received a further Special ability update at the 3.10 boundary on 2020-03-31."
           ]
+        },
+        {
+          "month": "2020-04",
+          "teamId": "black-order-v1-proxima",
+          "label": "Black Order V1 — Proxima Midnight",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Thanos",
+            "ProximaMidnight"
+          ],
+          "newCharacterIds": [
+            "ProximaMidnight"
+          ],
+          "existingCharacterIds": [
+            "Thanos"
+          ],
+          "releaseMethods": {
+            "ProximaMidnight": "event_orb"
+          },
+          "announcedNext": [
+            "CorvusGlaive",
+            "CullObsidian",
+            "EbonyMaw"
+          ],
+          "notes": [
+            "Proxima Midnight became playable on 2020-04-01.",
+            "Her Deep Space event orb was purchasable with Power Cores before the Enter the Black Order Event Campaign itself began.",
+            "Thanos was already playable; the remaining Black Order members were not yet recruitable."
+          ]
+        },
+        {
+          "month": "2020-04",
+          "teamId": "black-order-v2-corvus",
+          "label": "Black Order V2 — Corvus Glaive",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Thanos",
+            "ProximaMidnight",
+            "CorvusGlaive"
+          ],
+          "newCharacterIds": [
+            "CorvusGlaive"
+          ],
+          "existingCharacterIds": [
+            "Thanos",
+            "ProximaMidnight"
+          ],
+          "releaseMethods": {
+            "CorvusGlaive": "limited_orb"
+          },
+          "announcedNext": [
+            "CullObsidian",
+            "EbonyMaw"
+          ],
+          "notes": [
+            "Corvus Glaive became playable on 2020-04-21 through limited orb/paid availability before his later Blitz release.",
+            "Black Order remained incomplete."
+          ]
+        },
+        {
+          "month": "2020-05",
+          "teamId": "mercenaries-v1-taskmaster",
+          "label": "Mercenaries — Taskmaster",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 5,
+          "core": [
+            "Taskmaster",
+            "Bullseye",
+            "MercSupport_Buffs",
+            "MercTank_Debuff"
+          ],
+          "pool": [
+            "Killmonger",
+            "Korath",
+            "MercDmg_Single"
+          ],
+          "newCharacterIds": [
+            "Taskmaster"
+          ],
+          "existingCharacterIds": [
+            "Killmonger",
+            "Korath",
+            "MercDmg_Single"
+          ],
+          "reworkedCharacterIds": [
+            "Bullseye",
+            "MercSupport_Buffs",
+            "MercTank_Debuff"
+          ],
+          "releaseMethods": {
+            "Taskmaster": "limited_offer"
+          },
+          "notes": [
+            "Taskmaster became playable during the 4.0 release on 2020-05-06 by the normalized historical date, with paid availability preceding the later Master Class Event Campaign.",
+            "Bullseye, Mercenary Lieutenant and Mercenary Riot Guard received substantial new Mercenary and War Defense mechanics and are classified as reworked.",
+            "Killmonger's Counterattack restriction was broadened, but the change is classified as minor rather than a significant team rework.",
+            "Korath was already playable and received no material rework.",
+            "Mercenary Sniper remained a viable fifth-slot option without receiving a significant rework.",
+            "Contemporary compositions used a stable four-character core with several possible fifth members, so core-plus-pool is safer than forcing a fixed five."
+          ]
+        },
+        {
+          "month": "2020-05",
+          "teamId": "black-order-v3-cull",
+          "label": "Black Order V3 — Cull Obsidian",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Thanos",
+            "ProximaMidnight",
+            "CorvusGlaive",
+            "CullObsidian"
+          ],
+          "newCharacterIds": [
+            "CullObsidian"
+          ],
+          "existingCharacterIds": [
+            "Thanos",
+            "ProximaMidnight",
+            "CorvusGlaive"
+          ],
+          "releaseMethods": {
+            "CullObsidian": "limited_orb"
+          },
+          "announcedNext": [
+            "EbonyMaw"
+          ],
+          "notes": [
+            "Cull Obsidian became playable on 2020-05-15, with his character orb available for Power Cores.",
+            "Black Order still lacked Ebony Maw and therefore could not yet provide Thanos all six Infinity Stones."
+          ]
+        },
+        {
+          "month": "2020-05",
+          "teamId": "black-order-v4",
+          "label": "Black Order V4 — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Thanos",
+            "ProximaMidnight",
+            "CorvusGlaive",
+            "CullObsidian",
+            "EbonyMaw"
+          ],
+          "newCharacterIds": [
+            "EbonyMaw"
+          ],
+          "existingCharacterIds": [
+            "ProximaMidnight",
+            "CorvusGlaive",
+            "CullObsidian"
+          ],
+          "reworkedCharacterIds": [
+            "Thanos"
+          ],
+          "releaseMethods": {
+            "EbonyMaw": "legendary"
+          },
+          "notes": [
+            "Liquid & Grit records the Thanos Empowered Update on 2020-05-06 during the 4.0 release cycle.",
+            "The Empowered mechanic had already been previewed and partially exposed at the 3.10 boundary, so Thanos is a T1/T2 boundary case but is provisionally classified as a significant T2 rework.",
+            "Ebony Maw became playable on 2020-05-26 through the Black and Ebony Legendary Event.",
+            "Ebony Maw completed the five-character Black Order and made the full six-Infinity-Stone Empowered Thanos mechanic usable by players."
+          ]
+        },
+        {
+          "month": "2020-06",
+          "teamId": "power-armor-v2-ironheart",
+          "label": "Power Armor V2 — Ironheart",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "IronMan",
+            "WarMachine",
+            "Rescue",
+            "Falcon",
+            "Ironheart"
+          ],
+          "newCharacterIds": [
+            "Ironheart"
+          ],
+          "existingCharacterIds": [
+            "IronMan",
+            "WarMachine",
+            "Rescue",
+            "Falcon"
+          ],
+          "releaseMethods": {
+            "Ironheart": "limited_orb"
+          },
+          "notes": [
+            "Ironheart had been announced during the 3.9 cycle but remained unreleased through at least 2020-04-22.",
+            "Ironheart finally became playable on 2020-06-02 through orb/paid availability before her Tech Prodigy Blitz.",
+            "Iron Man and War Machine had received only minor ability enhancements in 3.9 and are classified as existing rather than significantly reworked.",
+            "Rescue and Falcon were already playable and received no significant T2 rework.",
+            "Vision had commonly filled the fifth Power Armor slot before Ironheart but was not materially reworked and was displaced by the intended five-character lineup."
+          ]
+        },
+        {
+          "month": "2020-06",
+          "teamId": "x-force-v1-domino",
+          "label": "X-Force V1 — Domino",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Deadpool",
+            "Cable",
+            "Domino"
+          ],
+          "newCharacterIds": [
+            "Domino"
+          ],
+          "reworkedCharacterIds": [
+            "Deadpool",
+            "Cable"
+          ],
+          "releaseMethods": {
+            "Domino": "limited_offer"
+          },
+          "announcedNext": [
+            "Negasonic",
+            "X23"
+          ],
+          "notes": [
+            "Domino became playable on 2020-06-10 by the normalized historical date, with her offer visible immediately after the 4.1 update before her Serendipity Event Campaign.",
+            "Cable received substantial stat, Charged, Barrier, dispel and X-Force War Offense changes.",
+            "Deadpool received substantial new X-Force synergies and is also classified as reworked.",
+            "Negasonic and X-23 were announced but were not both playable at this stage."
+          ]
+        },
+        {
+          "month": "2020-06",
+          "teamId": "x-force-v2-negasonic",
+          "label": "X-Force V2 — Negasonic",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Deadpool",
+            "Cable",
+            "Domino",
+            "Negasonic"
+          ],
+          "newCharacterIds": [
+            "Negasonic"
+          ],
+          "existingCharacterIds": [
+            "Deadpool",
+            "Cable",
+            "Domino"
+          ],
+          "announcedNext": [
+            "X23"
+          ],
+          "notes": [
+            "Liquid & Grit records Negasonic Teenage Warhead as a hero release on 2020-06-18.",
+            "Her subsequent free-to-play release path is firmly established as the Unity event using Creative Differences and Explosive Combo milestones.",
+            "The exact first shard-acquisition channel on 2020-06-18 has not been independently established strongly enough to encode a releaseMethod.",
+            "X-23 was still unreleased on 2020-06-18 and belongs to T3."
+          ]
         }
       ],
       "validation": {
-        "auditedPeriod": "2020-01-01/2020-03-31",
+        "auditedPeriod": "2020-01-01/2020-06-30",
         "individualReleaseCount": 1,
-        "teamEventNewCharacterCount": 8,
-        "distinctPlayableReleaseCount": 9,
-        "distinctReworkedCharacterCount": 7,
+        "teamEventNewCharacterCount": 16,
+        "distinctPlayableReleaseCount": 17,
+        "distinctReworkedCharacterCount": 13,
         "duplicatesAcrossReleaseBuckets": []
       }
     }
