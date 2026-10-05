@@ -334,6 +334,198 @@
         "yearEndDistinctPlayableCount": 86,
         "duplicatesAcrossReleaseBuckets": []
       }
+    },
+    "2020": {
+      "status": "partial",
+      "auditedThrough": "2020-03-31",
+      "individualReleases": [
+        {
+          "month": "2020-02",
+          "characterId": "Cyclops",
+          "releaseMethod": "limited_offer",
+          "notes": [
+            "First playable availability established on 2020-02-01 through the X-Leader Orb / limited offer before the later milestone event."
+          ]
+        }
+      ],
+      "teamEvents": [
+        {
+          "month": "2020-01",
+          "teamId": "inhumans-v1",
+          "label": "Inhumans V1",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 5,
+          "core": [
+            "BlackBolt",
+            "YoYo",
+            "Crystal",
+            "Karnak"
+          ],
+          "pool": [
+            "Quake",
+            "MsMarvel"
+          ],
+          "newCharacterIds": [
+            "BlackBolt",
+            "YoYo",
+            "Crystal",
+            "Karnak"
+          ],
+          "existingCharacterIds": [
+            "Quake",
+            "MsMarvel"
+          ],
+          "releaseMethods": {
+            "BlackBolt": "legendary",
+            "YoYo": "limited_offer",
+            "Crystal": "limited_offer",
+            "Karnak": "limited_offer"
+          },
+          "notes": [
+            "Black Bolt became playable on 2020-01-06 through the Unite the Kingdoms Legendary Event after being announced in late 2019.",
+            "Yo-Yo became playable on 2020-01-10.",
+            "Crystal became playable on 2020-01-15 through paid availability before her Imperial Affairs Event Campaign.",
+            "Karnak became playable on 2020-01-21.",
+            "Quake and Ms. Marvel were already playable Inhumans. Quake was the strongest contemporary fit for the fifth slot, but the historical roster was not strictly limited to one fixed fifth member.",
+            "Neither Quake nor Ms. Marvel is classified as a significant T1 2020 rework."
+          ]
+        },
+        {
+          "month": "2020-02",
+          "teamId": "symbiotes-v1",
+          "label": "Symbiotes V1",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "SymbioteSpiderMan",
+            "Venom",
+            "Carnage"
+          ],
+          "newCharacterIds": [
+            "SymbioteSpiderMan"
+          ],
+          "reworkedCharacterIds": [
+            "Venom",
+            "Carnage"
+          ],
+          "releaseMethods": {
+            "SymbioteSpiderMan": "milestone"
+          },
+          "notes": [
+            "Venom and Carnage received material Symbiote-specific ability updates on 2020-01-14.",
+            "Spider-Man (Symbiote) became playable on 2020-02-11 through recurring milestones.",
+            "This represents the historical three-character Symbiote core and does not retroactively include later Symbiotes."
+          ]
+        },
+        {
+          "month": "2020-02",
+          "teamId": "brotherhood-v2-partial",
+          "label": "Brotherhood V2 — Toad",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Magneto",
+            "Juggernaut",
+            "Pyro",
+            "Toad"
+          ],
+          "newCharacterIds": [
+            "Toad"
+          ],
+          "existingCharacterIds": [
+            "Magneto",
+            "Juggernaut",
+            "Pyro"
+          ],
+          "releaseMethods": {
+            "Toad": "limited_offer"
+          },
+          "announcedNext": [
+            "Blob"
+          ],
+          "notes": [
+            "Toad became playable on 2020-02-20 before Blob.",
+            "Magneto and Juggernaut received only minor ability enhancements in 3.9 and are classified as existing rather than significantly reworked.",
+            "Pyro was already playable and was not materially reworked.",
+            "Mystique and Sabretooth were being moved to the Marauders."
+          ]
+        },
+        {
+          "month": "2020-03",
+          "teamId": "brotherhood-v2",
+          "label": "Brotherhood V2",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Magneto",
+            "Juggernaut",
+            "Pyro",
+            "Toad",
+            "Blob"
+          ],
+          "newCharacterIds": [
+            "Blob"
+          ],
+          "existingCharacterIds": [
+            "Magneto",
+            "Juggernaut",
+            "Pyro",
+            "Toad"
+          ],
+          "notes": [
+            "Blob became playable on 2020-03-03 and completed the contemporary Brotherhood V2 lineup.",
+            "The exact first acquisition channel on 2020-03-03 is not encoded because the release date is better established than the channel.",
+            "Mystique and Sabretooth are not retroactively retained in this version because Toad and Blob were explicitly introduced to replace their Brotherhood slots."
+          ]
+        },
+        {
+          "month": "2020-03",
+          "teamId": "red-skull-hydra-v1",
+          "label": "Red Skull + Hydra Minions",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 5,
+          "core": [
+            "RedSkull"
+          ],
+          "pool": [
+            "HydraDmg_AoE",
+            "HydraDmg_Buff",
+            "HydraDmg_Single",
+            "HydraTank_Taunt",
+            "HydraSupport_Heal"
+          ],
+          "newCharacterIds": [
+            "RedSkull"
+          ],
+          "reworkedCharacterIds": [
+            "HydraDmg_AoE",
+            "HydraDmg_Buff",
+            "HydraDmg_Single",
+            "HydraTank_Taunt",
+            "HydraSupport_Heal"
+          ],
+          "releaseMethods": {
+            "RedSkull": "limited_offer"
+          },
+          "notes": [
+            "All five playable Hydra minions received substantial stat and ability upgrades during the 3.9 release cycle.",
+            "Red Skull became playable on 2020-03-16 after having existed earlier as a non-recruitable enemy/NPC.",
+            "His initial paid availability and Hail Hydra Orb preceded his Blitz releases later in March.",
+            "Contemporary teams used Red Skull plus four of the five Hydra minions, commonly benching Hydra Grenadier, so core-plus-pool is safer than forcing a fixed five.",
+            "Hydra Sniper received a further Special ability update at the 3.10 boundary on 2020-03-31."
+          ]
+        }
+      ],
+      "validation": {
+        "auditedPeriod": "2020-01-01/2020-03-31",
+        "individualReleaseCount": 1,
+        "teamEventNewCharacterCount": 8,
+        "distinctPlayableReleaseCount": 9,
+        "distinctReworkedCharacterCount": 7,
+        "duplicatesAcrossReleaseBuckets": []
+      }
     }
   }
 }
