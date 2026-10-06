@@ -2820,8 +2820,8 @@
       ]
     },
     "2020": {
-      "status": "partial",
-      "auditedThrough": "2020-09-30",
+      "status": "audited",
+      "auditedThrough": "2020-12-31",
       "individualReleases": [
         {
           "month": "2020-02",
@@ -4138,16 +4138,558 @@
             }
           ],
           "reworks": []
+        },
+        {
+          "month": "2020-10",
+          "teamId": "symbiotes-v2-scream",
+          "label": "Symbiotes V2 — Scream",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "SymbioteSpiderMan",
+            "Venom",
+            "Carnage",
+            "Scream"
+          ],
+          "core": [
+            "SymbioteSpiderMan",
+            "Venom",
+            "Carnage",
+            "Scream"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Scream"
+          ],
+          "existingCharacterIds": [
+            "SymbioteSpiderMan",
+            "Venom",
+            "Carnage"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Scream": "limited_offer"
+          },
+          "announcedNext": [
+            "AntiVenom"
+          ],
+          "notes": [
+            "Scream became playable on 2020-10-01 through paid availability before the later Parasite Event Campaign.",
+            "This preserves the historical four-character Symbiote formation before Anti-Venom became recruitable.",
+            "Venom and Carnage had already received their significant Symbiote reworks in T1 and are not counted again."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-10",
+              "characterId": "Scream",
+              "releaseMethod": "limited_offer",
+              "date": "2020-10-01"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2020-10",
+          "teamId": "fantastic-four-she-hulk-2020",
+          "label": "Fantastic Four — She-Hulk",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 5,
+          "members": [
+            "MrFantastic",
+            "InvisibleWoman",
+            "HumanTorch",
+            "Thing",
+            "Namor",
+            "SheHulk"
+          ],
+          "core": [
+            "MrFantastic",
+            "InvisibleWoman",
+            "HumanTorch",
+            "Thing"
+          ],
+          "pool": [
+            "Namor",
+            "SheHulk"
+          ],
+          "newCharacterIds": [
+            "SheHulk"
+          ],
+          "existingCharacterIds": [
+            "MrFantastic",
+            "InvisibleWoman",
+            "HumanTorch",
+            "Thing",
+            "Namor"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "SheHulk": "limited_offer"
+          },
+          "announcedNext": [],
+          "notes": [
+            "She-Hulk became playable on 2020-10-08 through paid availability before her Blitz releases.",
+            "She-Hulk was introduced as the Fantastic Four's War Defense alternative while Namor remained the established War Offense fifth.",
+            "The 4.4 Fantastic Four changes mainly extended existing synergies to She-Hulk and are classified as team-synergy adjustments rather than significant reworks."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-10",
+              "characterId": "SheHulk",
+              "releaseMethod": "limited_offer",
+              "date": "2020-10-08"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2020-10",
+          "teamId": "symbiotes-v3-complete",
+          "label": "Symbiotes V3 — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "SymbioteSpiderMan",
+            "Venom",
+            "Carnage",
+            "Scream",
+            "AntiVenom"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "AntiVenom"
+          ],
+          "existingCharacterIds": [
+            "SymbioteSpiderMan",
+            "Venom",
+            "Carnage",
+            "Scream"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "AntiVenom": "limited_offer"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Anti-Venom became playable on 2020-10-21 through paid availability.",
+            "His release completed the contemporary five-character Symbiote lineup."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-10",
+              "characterId": "AntiVenom",
+              "releaseMethod": "limited_offer",
+              "date": "2020-10-21"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2020-11",
+          "teamId": "pym-tech-45-rework",
+          "label": "Pym Tech — 4.5 Groundwork",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "AntMan",
+            "Wasp"
+          ],
+          "core": [
+            "AntMan",
+            "Wasp"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "AntMan",
+            "Wasp"
+          ],
+          "reworkedCharacterIds": [
+            "AntMan",
+            "Wasp"
+          ],
+          "announcedNext": [
+            "Stature",
+            "Ghost",
+            "Yellowjacket"
+          ],
+          "notes": [
+            "The 4.5 update on 2020-11-04 substantially reworked Ant-Man and Wasp for the new Pym Tech team before all three new recruits were playable.",
+            "Ant-Man received material stat and multi-ability changes including a longer Ability Block, Wasp assist interactions and Dark Dimension mechanics.",
+            "Wasp received material stat and ability changes, including removal of her Charged requirement and a redesigned Special."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2020-11",
+              "characterId": "AntMan",
+              "date": "2020-11-04"
+            },
+            {
+              "month": "2020-11",
+              "characterId": "Wasp",
+              "date": "2020-11-04"
+            }
+          ]
+        },
+        {
+          "month": "2020-11",
+          "teamId": "pym-tech-stature-2020",
+          "label": "Pym Tech — Stature",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "AntMan",
+            "Wasp",
+            "Stature"
+          ],
+          "core": [
+            "AntMan",
+            "Wasp",
+            "Stature"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Stature"
+          ],
+          "existingCharacterIds": [
+            "AntMan",
+            "Wasp"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Stature": "limited_offer"
+          },
+          "announcedNext": [
+            "Ghost",
+            "Yellowjacket"
+          ],
+          "notes": [
+            "Stature became playable on 2020-11-05 through paid availability.",
+            "Ant-Man and Wasp were already playable and their 4.5 reworks are recorded separately in the preceding Pym Tech groundwork event."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-11",
+              "characterId": "Stature",
+              "releaseMethod": "limited_offer",
+              "date": "2020-11-05"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2020-11",
+          "teamId": "pym-tech-ghost-2020",
+          "label": "Pym Tech — Ghost",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "AntMan",
+            "Wasp",
+            "Stature",
+            "Ghost"
+          ],
+          "core": [
+            "AntMan",
+            "Wasp",
+            "Stature",
+            "Ghost"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Ghost"
+          ],
+          "existingCharacterIds": [
+            "AntMan",
+            "Wasp",
+            "Stature"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Ghost": "limited_offer"
+          },
+          "announcedNext": [
+            "Yellowjacket"
+          ],
+          "notes": [
+            "Ghost became playable on 2020-11-13 through paid availability before her later Quantum Snare Blitz runs.",
+            "Pym Tech remained incomplete until Yellowjacket became recruitable."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-11",
+              "characterId": "Ghost",
+              "releaseMethod": "limited_offer",
+              "date": "2020-11-13"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2020-11",
+          "teamId": "pym-tech-yellowjacket-2020",
+          "label": "Pym Tech — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "AntMan",
+            "Wasp",
+            "Stature",
+            "Ghost",
+            "Yellowjacket"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Yellowjacket"
+          ],
+          "existingCharacterIds": [
+            "AntMan",
+            "Wasp",
+            "Stature",
+            "Ghost"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Yellowjacket": "limited_offer"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Yellowjacket became playable in late November 2020 through paid availability before his first Sharp Sting Blitz.",
+            "Contemporary evidence brackets the release after Ghost and before the late-November/early-December Blitz cycle; the exact first paid-release day is intentionally not encoded.",
+            "His release completed the five-character Pym Tech lineup."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-11",
+              "characterId": "Yellowjacket",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2020-12",
+          "teamId": "astonishing-x-men-2020-groundwork",
+          "label": "Astonishing X-Men — December Groundwork",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Beast"
+          ],
+          "core": [
+            "Beast"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Beast"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "Iceman",
+            "KittyPryde",
+            "Jubilee"
+          ],
+          "notes": [
+            "The December 2020 Astonishing X-Men sneak peeks established Beast as the only already-playable member of the announced lineup at year-end.",
+            "Iceman, Kitty Pryde and Jubilee were announced in December but did not become recruitable until 2021 and are not counted as 2020 releases.",
+            "Beast's 5.0 changes mainly added the Astonishing X-Men trait and targeted team synergies, so he remains classified as existing rather than significantly reworked.",
+            "Bishop was only a datamined/community expectation at year-end, not one of the officially announced December members; he became recruitable in 2021."
+          ],
+          "characterReleases": [],
+          "reworks": []
+        },
+        {
+          "month": "2020-12",
+          "teamId": "skill-military-50-groundwork",
+          "label": "Skill Military — 5.0 Groundwork",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Punisher",
+            "Killmonger",
+            "MercDmg_General"
+          ],
+          "core": [
+            "Punisher",
+            "Killmonger",
+            "MercDmg_General"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Punisher",
+            "Killmonger",
+            "MercDmg_General"
+          ],
+          "reworkedCharacterIds": [
+            "Punisher",
+            "Killmonger",
+            "MercDmg_General"
+          ],
+          "announcedNext": [
+            "Yelena",
+            "RedGuardian"
+          ],
+          "notes": [
+            "The 5.0 update on 2020-12-08 introduced the Skill Military team across a release cycle explicitly expected to span roughly two months.",
+            "Punisher and Killmonger each received multiple material Skill Military ability changes and are classified as significantly reworked.",
+            "Mercenary Soldier received substantial stat, Special and Passive changes plus new War and Skill Military mechanics and is classified as significantly reworked.",
+            "Yelena Belova and Red Guardian were announced and present in the 5.0 release cycle but were not recruitable before year-end; both belong to 2021."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2020-12",
+              "characterId": "Punisher",
+              "date": "2020-12-08"
+            },
+            {
+              "month": "2020-12",
+              "characterId": "Killmonger",
+              "date": "2020-12-08"
+            },
+            {
+              "month": "2020-12",
+              "characterId": "MercDmg_General",
+              "date": "2020-12-08"
+            }
+          ]
+        },
+        {
+          "month": "2020-12",
+          "teamId": "x-factor-shatterstar-2020",
+          "label": "X-Factor — Shatterstar",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Shatterstar"
+          ],
+          "core": [
+            "Shatterstar"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Shatterstar"
+          ],
+          "existingCharacterIds": [],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Shatterstar": "limited_offer"
+          },
+          "announcedNext": [
+            "Longshot"
+          ],
+          "notes": [
+            "Shatterstar became playable on 2020-12-09 through paid availability.",
+            "Longshot had been announced alongside him but was not yet recruitable at this first X-Factor stage."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-12",
+              "characterId": "Shatterstar",
+              "releaseMethod": "limited_offer",
+              "date": "2020-12-09"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2020-12",
+          "teamId": "x-factor-longshot-2020",
+          "label": "X-Factor — Longshot",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Shatterstar",
+            "Longshot"
+          ],
+          "core": [
+            "Shatterstar",
+            "Longshot"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Longshot"
+          ],
+          "existingCharacterIds": [
+            "Shatterstar"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [
+            "Longshot was demonstrably playable by mid-to-late December 2020, before his first late-December Blitz.",
+            "The exact first paid-release day and initial acquisition channel are not established strongly enough to encode, so only the month is recorded.",
+            "X-Factor remained a two-character partial formation at the end of 2020."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-12",
+              "characterId": "Longshot"
+            }
+          ],
+          "reworks": []
         }
       ],
       "validation": {
-        "auditedPeriod": "2020-01-01/2020-09-30",
+        "auditedPeriod": "2020-01-01/2020-12-31",
         "individualReleaseCount": 1,
-        "teamEventNewCharacterCount": 24,
-        "distinctPlayableReleaseCount": 25,
-        "distinctReworkedCharacterCount": 24,
+        "teamEventNewCharacterCount": 32,
+        "distinctPlayableReleaseCount": 33,
+        "distinctReworkedCharacterCount": 29,
         "duplicatesAcrossReleaseBuckets": []
-      }
+      },
+      "excludedFrom2020PlayableCount": [
+        {
+          "characterId": "Doom",
+          "reason": "announced_and_present_for_dark_dimension_4_but_first_recruitable_in_2021",
+          "firstPlayableYear": 2021
+        },
+        {
+          "characterId": "Yelena",
+          "reason": "announced_and_present_in_5_0_release_cycle_but_first_recruitable_in_2021",
+          "announcedMonth": "2020-12",
+          "firstPlayableYear": 2021
+        },
+        {
+          "characterId": "RedGuardian",
+          "reason": "announced_and_present_in_5_0_release_cycle_but_first_recruitable_in_2021",
+          "announcedMonth": "2020-12",
+          "firstPlayableYear": 2021
+        },
+        {
+          "characterId": "KittyPryde",
+          "reason": "announced_as_astonishing_x_men_but_first_recruitable_in_2021",
+          "announcedMonth": "2020-12",
+          "firstPlayableYear": 2021
+        },
+        {
+          "characterId": "Iceman",
+          "reason": "announced_as_astonishing_x_men_but_first_recruitable_in_2021",
+          "announcedMonth": "2020-12",
+          "firstPlayableYear": 2021
+        },
+        {
+          "characterId": "Jubilee",
+          "reason": "announced_as_astonishing_x_men_legendary_but_first_recruitable_in_2021",
+          "announcedMonth": "2020-12",
+          "firstPlayableYear": 2021
+        },
+        {
+          "characterId": "Bishop",
+          "reason": "datamined_or_community_expected_but_not_officially_announced_or_recruitable_in_2020",
+          "firstPlayableYear": 2021
+        }
+      ]
     }
   }
 }
