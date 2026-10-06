@@ -2821,7 +2821,7 @@
     },
     "2020": {
       "status": "partial",
-      "auditedThrough": "2020-06-30",
+      "auditedThrough": "2020-09-30",
       "individualReleases": [
         {
           "month": "2020-02",
@@ -3535,14 +3535,617 @@
             }
           ],
           "reworks": []
+        },
+        {
+          "month": "2020-07",
+          "teamId": "x-force-v3-x23",
+          "label": "X-Force V3 — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Deadpool",
+            "Cable",
+            "Domino",
+            "Negasonic",
+            "X23"
+          ],
+          "newCharacterIds": [
+            "X23"
+          ],
+          "existingCharacterIds": [
+            "Deadpool",
+            "Cable",
+            "Domino",
+            "Negasonic"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "X23": "limited_offer"
+          },
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "notes": [
+            "X-23 became playable on 2020-07-01 through paid availability before her later free-to-play paths.",
+            "Her release completed the five-character X-Force lineup.",
+            "Cable and Deadpool were already reworked in T2 and are not counted again.",
+            "Domino and Negasonic were already playable in T2."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-07",
+              "characterId": "X23",
+              "releaseMethod": "limited_offer",
+              "date": "2020-07-01"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2020-07",
+          "teamId": "young-avengers-v1",
+          "label": "Young Avengers V1 — Squirrel Girl",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 5,
+          "members": [
+            "SquirrelGirl",
+            "MsMarvel",
+            "AmericaChavez",
+            "UltSpiderMan"
+          ],
+          "core": [
+            "SquirrelGirl",
+            "MsMarvel",
+            "AmericaChavez",
+            "UltSpiderMan"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "SquirrelGirl"
+          ],
+          "existingCharacterIds": [
+            "MsMarvel",
+            "AmericaChavez",
+            "UltSpiderMan"
+          ],
+          "reworkedCharacterIds": [
+            "MsMarvel"
+          ],
+          "releaseMethods": {
+            "SquirrelGirl": "limited_offer"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Squirrel Girl was playable by 2020-07-15, with paid availability preceding or coinciding with the opening of her release cycle.",
+            "Her main free-to-play release was the Unbeatable Education Event Campaign.",
+            "Young Avengers initially had a four-character core and a flexible fifth slot.",
+            "Ms. Marvel received a material Young Avengers passive rework.",
+            "America Chavez and Spider-Man (Miles) received narrower team-synergy updates and remain classified as existing rather than significantly reworked."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-07",
+              "characterId": "SquirrelGirl",
+              "releaseMethod": "limited_offer",
+              "date": "2020-07-15"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2020-07",
+              "characterId": "MsMarvel"
+            }
+          ]
+        },
+        {
+          "month": "2020-07",
+          "teamId": "x-men-beast-2020",
+          "label": "X-Men — Beast",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 5,
+          "members": [
+            "Beast",
+            "Storm",
+            "Phoenix",
+            "Cyclops",
+            "Colossus",
+            "Psylocke",
+            "Wolverine"
+          ],
+          "core": [
+            "Beast",
+            "Storm"
+          ],
+          "pool": [
+            "Phoenix",
+            "Cyclops",
+            "Colossus",
+            "Psylocke",
+            "Wolverine"
+          ],
+          "newCharacterIds": [
+            "Beast"
+          ],
+          "existingCharacterIds": [
+            "Storm",
+            "Phoenix",
+            "Cyclops",
+            "Colossus",
+            "Psylocke",
+            "Wolverine"
+          ],
+          "reworkedCharacterIds": [
+            "Storm"
+          ],
+          "releaseMethods": {
+            "Beast": "limited_offer"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Beast became playable in late July 2020 before his first Blitz; the exact normalized paid-release day remains insufficiently verified and is intentionally not encoded.",
+            "Storm's Charge interaction with Beast materially changed her use and is provisionally classified as a significant rework.",
+            "The X-Men roster remained flexible; no later fixed five-character composition is projected backwards onto July 2020."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-07",
+              "characterId": "Beast",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2020-07",
+              "characterId": "Storm"
+            }
+          ]
+        },
+        {
+          "month": "2020-08",
+          "teamId": "marauders-emma-2020",
+          "label": "Marauders — Emma Frost",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "EmmaFrost",
+            "MrSinister",
+            "Stryfe",
+            "Mystique",
+            "Sabretooth"
+          ],
+          "newCharacterIds": [
+            "EmmaFrost"
+          ],
+          "existingCharacterIds": [
+            "MrSinister",
+            "Stryfe",
+            "Mystique",
+            "Sabretooth"
+          ],
+          "reworkedCharacterIds": [
+            "MrSinister",
+            "Stryfe"
+          ],
+          "releaseMethods": {
+            "EmmaFrost": "limited_offer"
+          },
+          "core": [],
+          "pool": [],
+          "announcedNext": [],
+          "notes": [
+            "Emma Frost became playable through paid availability before her milestone release cycle that began on 2020-08-19.",
+            "The exact normalized day of her initial paid availability remains insufficiently verified and is intentionally not encoded.",
+            "Mister Sinister and Stryfe received substantial Marauders and Emma-related kit updates during the 4.2 release cycle in July.",
+            "Sabretooth's narrower update is classified as minor rather than a significant rework.",
+            "Mystique was already playable and was not materially reworked in T3."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-08",
+              "characterId": "EmmaFrost",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2020-07",
+              "characterId": "MrSinister"
+            },
+            {
+              "month": "2020-07",
+              "characterId": "Stryfe"
+            }
+          ]
+        },
+        {
+          "month": "2020-08",
+          "teamId": "wave-1-avengers-2020",
+          "label": "Wave I Avengers — 4.3 Rework",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 5,
+          "members": [
+            "CaptainAmerica",
+            "BlackWidow",
+            "Hawkeye",
+            "Hulk",
+            "IronMan",
+            "Thor"
+          ],
+          "core": [
+            "CaptainAmerica",
+            "BlackWidow",
+            "Hawkeye",
+            "Hulk"
+          ],
+          "pool": [
+            "IronMan",
+            "Thor"
+          ],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "CaptainAmerica",
+            "BlackWidow",
+            "Hawkeye",
+            "Hulk",
+            "IronMan",
+            "Thor"
+          ],
+          "reworkedCharacterIds": [
+            "CaptainAmerica",
+            "BlackWidow",
+            "Hawkeye",
+            "Hulk"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "The 4.3 update on 2020-08-19 materially reworked Captain America, Black Widow, Hawkeye and Hulk.",
+            "Iron Man and Thor received fewer, largely synergy-oriented changes and are classified as existing rather than separately reworked.",
+            "Iron Man and Thor already had established Power Armor and Asgardian homes, so a core-plus-pool representation is safer than forcing a fixed five."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2020-08",
+              "characterId": "CaptainAmerica",
+              "date": "2020-08-19"
+            },
+            {
+              "month": "2020-08",
+              "characterId": "BlackWidow",
+              "date": "2020-08-19"
+            },
+            {
+              "month": "2020-08",
+              "characterId": "Hawkeye",
+              "date": "2020-08-19"
+            },
+            {
+              "month": "2020-08",
+              "characterId": "Hulk",
+              "date": "2020-08-19"
+            }
+          ]
+        },
+        {
+          "month": "2020-08",
+          "teamId": "sinister-six-43-rework",
+          "label": "Sinister Six — 4.3 Groundwork",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 5,
+          "members": [
+            "Mysterio",
+            "Rhino",
+            "Vulture",
+            "Shocker",
+            "UltGreenGoblin"
+          ],
+          "core": [
+            "Mysterio"
+          ],
+          "pool": [
+            "Rhino",
+            "Vulture",
+            "Shocker",
+            "UltGreenGoblin"
+          ],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Mysterio",
+            "Rhino",
+            "Vulture",
+            "Shocker",
+            "UltGreenGoblin"
+          ],
+          "reworkedCharacterIds": [
+            "Mysterio"
+          ],
+          "announcedNext": [
+            "Swarm",
+            "Electro",
+            "DoctorOctopus"
+          ],
+          "notes": [
+            "The 4.3 update activated Mysterio's material Sinister Six rework before all three new Sinister Six characters had become playable.",
+            "Mysterio gained a War Ability Block mechanic and a Mirror Image resurrection mechanic.",
+            "The other original Sinister Six members remain classified as existing."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2020-08",
+              "characterId": "Mysterio",
+              "date": "2020-08-19"
+            }
+          ]
+        },
+        {
+          "month": "2020-08",
+          "teamId": "sinister-six-swarm-2020",
+          "label": "Sinister Six — Swarm",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 5,
+          "members": [
+            "Swarm",
+            "Mysterio",
+            "Rhino",
+            "Vulture",
+            "Shocker",
+            "UltGreenGoblin"
+          ],
+          "core": [
+            "Swarm"
+          ],
+          "pool": [
+            "Mysterio",
+            "Rhino",
+            "Vulture",
+            "Shocker",
+            "UltGreenGoblin"
+          ],
+          "newCharacterIds": [
+            "Swarm"
+          ],
+          "existingCharacterIds": [
+            "Mysterio",
+            "Rhino",
+            "Vulture",
+            "Shocker",
+            "UltGreenGoblin"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Swarm": "limited_offer"
+          },
+          "announcedNext": [
+            "Electro",
+            "DoctorOctopus"
+          ],
+          "notes": [
+            "Swarm became playable in August 2020.",
+            "His main free-to-play release path was the One of Many Event Campaign.",
+            "The exact normalized day of first paid availability remains insufficiently verified and is intentionally not encoded."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-08",
+              "characterId": "Swarm",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2020-08",
+          "teamId": "zemo-hydra-2020",
+          "label": "Baron Zemo / Hydra Offense",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 5,
+          "members": [
+            "Zemo",
+            "WinterSoldier",
+            "Crossbones",
+            "HydraDmg_AoE",
+            "RedSkull",
+            "HydraDmg_Buff",
+            "HydraDmg_Single",
+            "HydraTank_Taunt",
+            "HydraSupport_Heal"
+          ],
+          "core": [
+            "Zemo",
+            "WinterSoldier",
+            "Crossbones",
+            "HydraDmg_AoE"
+          ],
+          "pool": [
+            "RedSkull",
+            "HydraDmg_Buff",
+            "HydraDmg_Single",
+            "HydraTank_Taunt",
+            "HydraSupport_Heal"
+          ],
+          "newCharacterIds": [
+            "Zemo"
+          ],
+          "existingCharacterIds": [
+            "WinterSoldier",
+            "Crossbones",
+            "HydraDmg_AoE",
+            "RedSkull",
+            "HydraDmg_Buff",
+            "HydraDmg_Single",
+            "HydraTank_Taunt",
+            "HydraSupport_Heal"
+          ],
+          "reworkedCharacterIds": [
+            "WinterSoldier",
+            "Crossbones"
+          ],
+          "releaseMethods": {
+            "Zemo": "limited_offer"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Baron Zemo became playable on 2020-08-28 by the normalized historical date through paid availability before his Blitz release path.",
+            "Winter Soldier and Crossbones received substantial stat, ability and Zemo/Hydra updates and are classified as reworked.",
+            "Hydra Grenadier received additional damage, Focus and Zemo synergy but had already been significantly reworked in T1 and is not counted again as a distinct 2020 rework.",
+            "Red Skull's Ultimate becoming unavoidable and unblockable is classified as a minor adjustment.",
+            "Zemo created a new offensive Hydra core rather than simply replacing Red Skull in the earlier War Defense team."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-08",
+              "characterId": "Zemo",
+              "releaseMethod": "limited_offer",
+              "date": "2020-08-28"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2020-08",
+              "characterId": "WinterSoldier",
+              "date": "2020-08-19"
+            },
+            {
+              "month": "2020-08",
+              "characterId": "Crossbones",
+              "date": "2020-08-19"
+            }
+          ]
+        },
+        {
+          "month": "2020-09",
+          "teamId": "sinister-six-electro-2020",
+          "label": "Sinister Six — Electro",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 5,
+          "members": [
+            "Electro",
+            "Swarm",
+            "Mysterio",
+            "Rhino",
+            "Vulture",
+            "Shocker",
+            "UltGreenGoblin"
+          ],
+          "core": [
+            "Electro",
+            "Swarm"
+          ],
+          "pool": [
+            "Mysterio",
+            "Rhino",
+            "Vulture",
+            "Shocker",
+            "UltGreenGoblin"
+          ],
+          "newCharacterIds": [
+            "Electro"
+          ],
+          "existingCharacterIds": [
+            "Swarm",
+            "Mysterio",
+            "Rhino",
+            "Vulture",
+            "Shocker",
+            "UltGreenGoblin"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Electro": "limited_offer"
+          },
+          "announcedNext": [
+            "DoctorOctopus"
+          ],
+          "notes": [
+            "Electro became playable in September 2020 before her first Bright Persona Blitz.",
+            "The exact normalized day of initial paid availability remains insufficiently verified and is intentionally not encoded.",
+            "Sinister Six remained a flexible pool awaiting Doctor Octopus."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-09",
+              "characterId": "Electro",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2020-09",
+          "teamId": "sinister-six-doctor-octopus-2020",
+          "label": "Sinister Six — Doctor Octopus",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 5,
+          "members": [
+            "DoctorOctopus",
+            "Electro",
+            "Swarm",
+            "Mysterio",
+            "Rhino",
+            "Vulture",
+            "Shocker",
+            "UltGreenGoblin"
+          ],
+          "core": [
+            "DoctorOctopus"
+          ],
+          "pool": [
+            "Electro",
+            "Swarm",
+            "Mysterio",
+            "Rhino",
+            "Vulture",
+            "Shocker",
+            "UltGreenGoblin"
+          ],
+          "newCharacterIds": [
+            "DoctorOctopus"
+          ],
+          "existingCharacterIds": [
+            "Electro",
+            "Swarm",
+            "Mysterio",
+            "Rhino",
+            "Vulture",
+            "Shocker",
+            "UltGreenGoblin"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "DoctorOctopus": "legendary"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Doctor Octopus became playable on 2020-09-21 through the Surgical S.T.R.I.K.E. Legendary Event requiring five X-Force characters at 5 Stars.",
+            "Doctor Octopus was explicitly designed to unite the broader Sinister Six faction and summon a Sinister Six member not already present in battle.",
+            "The historical team is therefore represented as core-plus-pool rather than a retroactively fixed modern lineup."
+          ],
+          "characterReleases": [
+            {
+              "month": "2020-09",
+              "characterId": "DoctorOctopus",
+              "releaseMethod": "legendary",
+              "date": "2020-09-21"
+            }
+          ],
+          "reworks": []
         }
       ],
       "validation": {
-        "auditedPeriod": "2020-01-01/2020-06-30",
+        "auditedPeriod": "2020-01-01/2020-09-30",
         "individualReleaseCount": 1,
-        "teamEventNewCharacterCount": 16,
-        "distinctPlayableReleaseCount": 17,
-        "distinctReworkedCharacterCount": 13,
+        "teamEventNewCharacterCount": 24,
+        "distinctPlayableReleaseCount": 25,
+        "distinctReworkedCharacterCount": 24,
         "duplicatesAcrossReleaseBuckets": []
       }
     }
