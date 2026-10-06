@@ -475,8 +475,8 @@
 
       .characterGrid {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 8px;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 5px;
       }
 
       .characterCard {
@@ -486,7 +486,7 @@
         border-radius: 14px;
         overflow: hidden;
         background: #091522;
-        text-align: left;
+        text-align: center;
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.13);
       }
 
@@ -530,20 +530,21 @@
       }
 
       .cardBadge {
-        position: absolute;
-        top: 6px;
-        right: 6px;
-        max-width: calc(100% - 12px);
-        padding: 3px 6px;
+        display: inline-flex;
+        max-width: 100%;
+        min-height: 17px;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 4px;
+        padding: 2px 5px;
         overflow: hidden;
         border: 1px solid rgba(255, 255, 255, 0.18);
         border-radius: 999px;
         background: rgba(2, 8, 14, 0.8);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
         color: #eaf6ff;
-        font-size: 0.56rem;
+        font-size: 0.5rem;
         font-weight: 900;
+        line-height: 1;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
@@ -564,26 +565,32 @@
       }
 
       .cardBody {
-        padding: 8px;
+        min-width: 0;
+        padding: 6px 3px 7px;
+        text-align: center;
       }
 
       .characterName {
         display: -webkit-box;
-        min-height: 2.35em;
+        min-height: 3.3em;
         overflow: hidden;
         -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-        font-size: 0.78rem;
+        -webkit-line-clamp: 3;
+        overflow-wrap: anywhere;
+        font-size: 0.64rem;
         font-weight: 800;
-        line-height: 1.17;
+        line-height: 1.1;
+        text-align: center;
       }
 
       .characterMeta {
         display: block;
-        margin-top: 5px;
+        margin-top: 4px;
+        overflow-wrap: anywhere;
         color: var(--muted);
-        font-size: 0.63rem;
-        line-height: 1.25;
+        font-size: 0.56rem;
+        line-height: 1.2;
+        text-align: center;
       }
 
       .listGrid {
@@ -974,7 +981,8 @@
 
       @media (min-width: 520px) {
         .characterGrid {
-          grid-template-columns: repeat(4, minmax(0, 1fr));
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+          gap: 8px;
         }
 
         .filterGrid {
@@ -1332,9 +1340,61 @@
         function getMethodLabel(method) {
           if (!method) return "Non précisée";
           const known = {
-            legendary: "Légendaire"
+            legendary: "Légendaire",
+            event_campaign: "Campagne événementielle",
+            dark_dimension: "Dimension noire",
+            milestone: "Jalons",
+            blitz: "Blitz",
+            limited_offer: "Offre limitée",
+            event_orb: "Orbe d’événement",
+            limited_orb: "Orbe limitée"
           };
           return known[method] || method;
+        }
+
+        const TEAM_LABELS_FR = {
+          "guardians-of-the-galaxy-v1": "Gardiens de la Galaxie V1",
+          "fury-shield-v1": "Nick Fury / S.H.I.E.L.D.",
+          "defenders-punisher-v1": "Défenseurs + Punisher",
+          "brotherhood-v1": "Confrérie V1",
+          "spider-verse-v1": "Spider-Verse V1",
+          "guardians-2019": "Gardiens : Mantis et reworks de janvier",
+          "iron-man-war-machine-duo": "Iron Man / War Machine",
+          "spider-verse-carnage": "Spider-Verse : Carnage complète l’équipe de cinq de l’époque",
+          "kree-rework-2019": "Rework de Ronan/Kree et Minn-Erva",
+          "military-2019": "Synergie Militaire",
+          "wakanda-2019": "Wakanda",
+          "wave-one-2019": "Avengers Vague I / mise à jour de Hulk",
+          "power-armor-2019": "Armure de Puissance avec Vision",
+          "x-men-phoenix-2019": "X-Men de Phoenix",
+          "hero-brawlers-chavez": "Bagarreurs héros / America Chavez",
+          "sinister-six-2019": "Sinister Six",
+          "bkt-observed-2019": "BKT / hybride Gardiens avec Minn-Erva",
+          "fantastic-four-namor-2019": "Les Quatre Fantastiques + Namor",
+          "aim-rework-2019": "Rework A.I.M.",
+          "wolverine-x-men-update": "Mise à jour Wolverine / X-Men",
+          "coulson-shield-2019": "Coulson / Fury S.H.I.E.L.D.",
+          "supernatural-2019": "Surnaturels",
+          "marauders-2019": "Maraudeurs",
+          "asgardians-2019": "Asgardiens",
+          "kree-ultimus-update": "Mise à jour Ultimus / Korath / Cyborg Kree",
+          "inhumans-v1": "Inhumains V1",
+          "symbiotes-v1": "Symbiotes V1",
+          "brotherhood-v2-partial": "Confrérie V2 — Toad",
+          "brotherhood-v2": "Confrérie V2",
+          "red-skull-hydra-v1": "Crâne Rouge + sbires Hydra",
+          "black-order-v1-proxima": "Ordre Noir V1 — Proxima Midnight",
+          "black-order-v2-corvus": "Ordre Noir V2 — Corvus Glaive",
+          "mercenaries-v1-taskmaster": "Mercenaires — Taskmaster",
+          "black-order-v3-cull": "Ordre Noir V3 — Cull Obsidian",
+          "black-order-v4": "Ordre Noir V4 — équipe complète",
+          "power-armor-v2-ironheart": "Armure de Puissance V2 — Ironheart",
+          "x-force-v1-domino": "X-Force V1 — Domino",
+          "x-force-v2-negasonic": "X-Force V2 — Negasonic"
+        };
+
+        function getTeamLabel(event) {
+          return TEAM_LABELS_FR[event?.teamId] || event?.label || event?.teamId || "Événement d’équipe";
         }
 
         function buildCharacters(history, catalogList) {
@@ -1406,7 +1466,7 @@
                   yearKey,
                   temporal,
                   method: event.releaseMethods?.[id] || "",
-                  eventLabel: event.label || event.teamId || "Événement d’équipe",
+                  eventLabel: getTeamLabel(event),
                   teamId: event.teamId || ""
                 });
               }
@@ -1415,7 +1475,7 @@
                 const record = ensureRecord(id);
                 record.reworks.push({
                   temporal,
-                  label: event.label || event.teamId || "Rework",
+                  label: getTeamLabel(event),
                   teamId: event.teamId || "",
                   notes: Array.isArray(event.notes) ? event.notes : []
                 });
@@ -1588,7 +1648,7 @@
                   type: "team",
                   yearKey,
                   temporal,
-                  label: teamEvent.label || teamEvent.teamId || "Événement d’équipe",
+                  label: getTeamLabel(teamEvent),
                   teamId: teamEvent.teamId || "",
                   formationStatus: teamEvent.formationStatus || "",
                   sequence: sequence++,
@@ -1647,13 +1707,13 @@
           const parts = [];
           if (counts.new) parts.push(`${counts.new} nouveau${counts.new > 1 ? "x" : ""}`);
           if (counts.rework) parts.push(`${counts.rework} rework${counts.rework > 1 ? "s" : ""}`);
-          if (counts.existing) parts.push(`${counts.existing} déjà présent${counts.existing > 1 ? "s" : ""}`);
+          if (counts.existing) parts.push(`${counts.existing} existant${counts.existing > 1 ? "s" : ""}`);
           return parts.join(" · ") || "Formation d’équipe";
         }
 
         function createTimelineCharacterCard(occurrence, event) {
           const { record, status } = occurrence;
-          let badge = `<span class="cardBadge">${escapeHtml(String(event.temporal.year || ""))}</span>`;
+          let badge = "";
           let meta = event.temporal.label;
           let cardClass = "";
           let ariaContext = "sortie";
@@ -1670,19 +1730,19 @@
             cardClass = " characterCard--rework";
             ariaContext = `rework pour ${event.label}`;
           } else if (status === "existing") {
-            badge = '<span class="cardBadge cardBadge--existing">DÉJÀ LÀ</span>';
+            badge = '<span class="cardBadge cardBadge--existing">EXISTANT</span>';
             meta = `${event.temporal.label} · Intégré à ${event.label}`;
             cardClass = " characterCard--existing";
-            ariaContext = `déjà disponible lors de ${event.label}`;
+            ariaContext = `personnage existant lors de ${event.label}`;
           }
 
           return `
             <button class="characterCard${cardClass}" type="button" data-character-id="${escapeHtml(record.id)}" aria-label="Voir la fiche de ${escapeHtml(record.name)}, ${escapeHtml(ariaContext)}">
               <div class="portraitWrap">
                 ${createPortraitHtml(record)}
-                ${badge}
               </div>
               <div class="cardBody">
+                ${badge}
                 <span class="characterName">${escapeHtml(record.name)}</span>
                 <span class="characterMeta">${escapeHtml(meta)}</span>
               </div>
