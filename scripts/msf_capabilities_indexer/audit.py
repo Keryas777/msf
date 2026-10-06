@@ -9,7 +9,7 @@ from .diagnostics import IndexerAuditError, IndexerInputError
 
 
 SNAPSHOT_CAPABILITIES_CHECKSUM = (
-    "63c816f15580b52001938d7e5d2bd4337be6a69f0e33d42348afe780f8480410"
+    "80740ce0620dfee9291b6d4d6332478cccfe2cfdecbadfdcbfab6874307f90da"
 )
 
 KNOWN_OPERATION_KINDS = frozenset(
@@ -23,6 +23,7 @@ KNOWN_OPERATION_KINDS = frozenset(
         "turn_meter_modify",
         "stat_modifier",
         "stat_immunity",
+        "health_redistribute",
         "heal_restore",
         "barrier_apply",
         "barrier_remove",
@@ -58,6 +59,7 @@ SNAPSHOT_OPERATION_KINDS = {
     "empower": 7,
     "empty_result": 313,
     "heal_restore": 504,
+    "health_redistribute": 203,
     "spawn": 116,
     "stat_immunity": 3,
     "stat_modifier": 4198,
@@ -69,9 +71,9 @@ SNAPSHOT_COUNTS = {
     "abilityCount": 1857,
     "contextCount": 4025,
     "actionMappingCount": 12531,
-    "operationCount": 14790,
+    "operationCount": 14993,
     "effectCatalogCount": 313,
-    "preservedUninterpretedActionCount": 472,
+    "preservedUninterpretedActionCount": 269,
     "spawnOperationCount": 116,
     "spawnPoolEffectOperationCount": 39,
     "spawnWithPoolEffectCount": 9,

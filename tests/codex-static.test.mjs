@@ -2,6 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
+test("les anciens liens source de redistribution et les données techniques restent accessibles", async () => {
+  const source = await readFile(new URL("../docs/codex.js", import.meta.url), "utf8");
+  assert.match(source, /findOperationInCharacter\(shard, route\.operationId \|\| id, route\)/);
+  assert.match(source, /technicalJson\(occurrence\.healthRedistribute\)/);
+});
+
 const [html, css, app, core, homeHtml, homeCss, tileSvg] = await Promise.all([
   readFile(new URL("../docs/codex.html", import.meta.url), "utf8"),
   readFile(new URL("../docs/codex.css", import.meta.url), "utf8"),

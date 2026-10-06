@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from .health_redistribute import normalize_health_redistribute
 from .audit import audit_capabilities
 from .diagnostics import diagnostic
 from .effect_aliases import (
@@ -1804,6 +1805,17 @@ class OperationBuilder:
         if action_pointer == "/Data/FalconJoaquin/dynamic_stats/3":
             semantics["normalGainUnaffected"] = True
 
+    def _build_health_redistribute_action(self, action: dict[str, Any]) -> None:
+        pointer = str(action.get("source", {}).get("pointer", ""))
+        self._build_operation(
+            action, kind="health_redistribute", canonical_action_type="health_redistribute",
+            source_field=None, effect_id=None, effect_pointer=pointer,
+            entry_pointer=pointer, entry=None, ordinal=0,
+            scope={"kind": "action_target"}, metric_fields=(("chancePct", "action_pct"),),
+        )
+        self.operations[-1]["healthRedistribute"] = normalize_health_redistribute(action)
+        self.supported_action_ids.add(action["id"])
+
     def _build_heal_action(
         self,
         action: dict[str, Any],
@@ -2068,6 +2080,8 @@ class OperationBuilder:
                     self._build_stat_modifier_action(action)
                 else:
                     self._build_turn_meter_control_action(action, canonical_action_type)
+            elif canonical_action_type == "health_redistribute":
+                self._build_health_redistribute_action(action)
             elif canonical_action_type == "heal":
                 self._build_heal_action(action)
             elif canonical_action_type in {"barrier", "barrier_remove"}:

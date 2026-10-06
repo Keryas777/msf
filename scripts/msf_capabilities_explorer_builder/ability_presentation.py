@@ -17,6 +17,7 @@ from collections import Counter, defaultdict
 from typing import Any, Iterable, Mapping
 
 from .presentation import (
+    HEALTH_REDISTRIBUTE_LABELS,
     ACTION_PRESENTATIONS,
     EFFECT_PRESENTATIONS,
     MODE_LABELS,
@@ -352,6 +353,8 @@ def _operation_projection(record: Mapping[str, Any]) -> dict[str, Any]:
         label = _ability_energy_operation_label(record)
     elif kind == "turn_meter_modify":
         label = _turn_meter_operation_label(record)
+    elif kind == "health_redistribute":
+        label = HEALTH_REDISTRIBUTE_LABELS[record["healthRedistribute"]["behavior"]]
     elif kind == "heal_restore":
         label = _heal_operation_label(record)
     else:
@@ -362,7 +365,7 @@ def _operation_projection(record: Mapping[str, Any]) -> dict[str, Any]:
         "label": label,
         "effect": _operation_effect(record),
         "turnMeter": copy.deepcopy(record.get("turnMeter")),
-        "evidence": "mechanically_verified",
+        "evidence": "mechanically_preserved" if record.get("healthRedistribute", {}).get("resolved") is False else "mechanically_verified",
     }
 
 
@@ -540,7 +543,7 @@ def build_ordered_occurrences(
             "evidence": [
                 {
                     "assertion": "source_action",
-                    "level": "mechanically_verified",
+                    "level": "mechanically_preserved" if any(record.get("healthRedistribute", {}).get("resolved") is False for record in ordered) else "mechanically_verified",
                     "operationIds": [record.get("operationId") for record in ordered],
                 },
                 {
@@ -1543,7 +1546,7 @@ def _operation_player_items(
                 "id": _stable_id("item", ability_id, step["sourceActionId"], operation_id),
                 "text": text,
                 "evidence": _evidence(
-                    "mechanically_verified",
+                    operation.get("evidence", "mechanically_verified"),
                     source_action_ids=[step["sourceActionId"]],
                     operation_ids=[operation_id],
                 ),

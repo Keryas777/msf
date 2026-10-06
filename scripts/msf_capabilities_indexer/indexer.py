@@ -310,6 +310,8 @@ def _build_operations_payload(
             record["turnMeterControl"] = copy.deepcopy(
                 operation["turnMeterControl"]
             )
+        if "healthRedistribute" in operation:
+            record["healthRedistribute"] = copy.deepcopy(operation["healthRedistribute"])
         if "statModifier" in operation:
             record["statModifier"] = copy.deepcopy(operation["statModifier"])
         selector = record["selector"]
