@@ -4698,7 +4698,7 @@
     },
     "2021": {
       "status": "partial",
-      "auditedThrough": "2021-06-30",
+      "auditedThrough": "2021-09-30",
       "startingPlayableRosterCount": 154,
       "individualReleases": [
         {
@@ -5606,15 +5606,344 @@
             }
           ],
           "reworks": []
+        },
+        {
+          "month": "2021-07",
+          "teamId": "secret-avengers-sharon-carter-2021",
+          "label": "Secret Avengers — Sharon Carter",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 3,
+          "members": [
+            "SharonCarter"
+          ],
+          "core": [
+            "SharonCarter"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "SharonCarter"
+          ],
+          "existingCharacterIds": [],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "SamWilson",
+            "MariaHill"
+          ],
+          "notes": [
+            "Sharon Carter was the first Secret Avenger to become recruitable during the July rollout. Her Conspiracy Theories Event Campaign was live in July, and contemporary players describe Sharon as already available before Captain America (Sam)'s rollout was complete.",
+            "Surviving evidence securely establishes July recruitability but does not establish the very first paid-offer reset strongly enough to encode an exact date or initial releaseMethod."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-07",
+              "characterId": "SharonCarter"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-07",
+          "teamId": "secret-avengers-sam-wilson-2021",
+          "label": "Secret Avengers — Captain America (Sam)",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 3,
+          "members": [
+            "SharonCarter",
+            "SamWilson"
+          ],
+          "core": [
+            "SharonCarter",
+            "SamWilson"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "SamWilson"
+          ],
+          "existingCharacterIds": [
+            "SharonCarter"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "SamWilson": "limited_offer"
+          },
+          "announcedNext": [
+            "MariaHill"
+          ],
+          "notes": [
+            "Captain America (Sam) was directly purchasable during the July Secret Avengers rollout. Contemporary July 14 discussion explicitly refers to players deciding whether to buy his live character offers.",
+            "His later S.T.R.I.K.E. Pass distribution therefore does not define his first playable release."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-07",
+              "characterId": "SamWilson",
+              "releaseMethod": "limited_offer",
+              "date": "2021-07-14"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-07",
+          "teamId": "secret-avengers-maria-hill-2021",
+          "label": "Secret Avengers — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 3,
+          "members": [
+            "SharonCarter",
+            "SamWilson",
+            "MariaHill"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "MariaHill"
+          ],
+          "existingCharacterIds": [
+            "SharonCarter",
+            "SamWilson"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "MariaHill": "power_core_store"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Maria Hill could be recruited before her standard paid sale by repeatedly buying her 10-shard Supplies Store slot for Power Cores; contemporary players documented top spenders unlocking her this way before she was officially on sale.",
+            "The exact first store refresh is intentionally omitted: July and the Power Core Supplies method are established more securely than a single first-reset timestamp.",
+            "No existing character is counted as a Secret Avengers rework: the three-character team was created through the three new recruits rather than a substantial rebuild of a pre-existing member."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-07",
+              "characterId": "MariaHill",
+              "releaseMethod": "power_core_store"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-08",
+          "teamId": "new-warriors-deathpool-2021",
+          "label": "New Warriors — Deathpool",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 3,
+          "members": [
+            "Deathpool"
+          ],
+          "core": [
+            "Deathpool"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Deathpool"
+          ],
+          "existingCharacterIds": [],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Deathpool": "limited_offer"
+          },
+          "announcedNext": [
+            "Cloak",
+            "Dagger"
+          ],
+          "notes": [
+            "Deathpool previews and kit coverage in early August did not by themselves make her recruitable.",
+            "Her actual paid release coincided with the version 5.6 rollout on August 17; contemporary offer coverage and purchaser discussion establish recruitability that day, before the later Shadow of Deathpool Event Campaign."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-08",
+              "characterId": "Deathpool",
+              "releaseMethod": "limited_offer",
+              "date": "2021-08-17"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-08",
+          "teamId": "heroes-for-hire-shang-chi-2021",
+          "label": "Heroes for Hire — Shang-Chi",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "LukeCage",
+            "IronFist",
+            "ColleenWing",
+            "MistyKnight",
+            "ShangChi"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "ShangChi"
+          ],
+          "existingCharacterIds": [
+            "LukeCage",
+            "IronFist",
+            "ColleenWing",
+            "MistyKnight"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "ShangChi": "power_core_store"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Shang-Chi was already recruitable for Power Cores before The Legend event: contemporary August discussion explicitly describes him as available by cores, including the 10-shard Supplies Store purchase.",
+            "The exact first store reset is intentionally omitted rather than inferred from previews, Red Star availability or the later event start.",
+            "Version 5.6 also added follow-up Heroes for Hire tuning and Shang-Chi synergies to existing members. Luke Cage and Iron Fist had already received the substantive 5.3 Heroes for Hire rebuild, so these 5.6 follow-up adjustments are treated conservatively as extensions rather than a second distinct rework."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-08",
+              "characterId": "ShangChi",
+              "releaseMethod": "power_core_store"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-09",
+          "teamId": "new-warriors-cloak-2021",
+          "label": "New Warriors — Cloak",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 3,
+          "members": [
+            "Deathpool",
+            "Cloak"
+          ],
+          "core": [
+            "Deathpool",
+            "Cloak"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Cloak"
+          ],
+          "existingCharacterIds": [
+            "Deathpool"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Cloak": "limited_offer"
+          },
+          "announcedNext": [
+            "Dagger"
+          ],
+          "notes": [
+            "Cloak was directly purchasable in early September; contemporary September 7 discussion includes players who had already bought both of his release offers.",
+            "Because surviving timestamps straddle the store-reset boundary, September and the paid-offer method are encoded without forcing an exact first day."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-09",
+              "characterId": "Cloak",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-09",
+          "teamId": "new-warriors-dagger-2021",
+          "label": "New Warriors — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 3,
+          "members": [
+            "Deathpool",
+            "Cloak",
+            "Dagger"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Dagger"
+          ],
+          "existingCharacterIds": [
+            "Deathpool",
+            "Cloak"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [
+            "Dagger was demonstrably playable in September: contemporary players were already discussing live builds by September 18, before the free S.T.R.I.K.E. Pass plus Luminous Blitz route could naturally complete an unlock.",
+            "A limited group also received unintended early Dagger access through the Luminous-credit conversion issue. Because the surviving evidence does not cleanly establish the first intended paid reset versus that unintended access, neither an exact date nor an initial releaseMethod is forced here.",
+            "The September 15 S.T.R.I.K.E. Pass start is not used as the release date because the pass alone could not immediately provide enough Dagger shards for an unlock."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-09",
+              "characterId": "Dagger"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-09",
+          "teamId": "weapon-x-57-groundwork",
+          "label": "Weapon X — 5.7 Groundwork",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Wolverine",
+            "Sabretooth"
+          ],
+          "core": [
+            "Wolverine",
+            "Sabretooth"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Wolverine",
+            "Sabretooth"
+          ],
+          "reworkedCharacterIds": [
+            "Wolverine",
+            "Sabretooth"
+          ],
+          "announcedNext": [
+            "SilverSamurai",
+            "LadyDeathstrike",
+            "OmegaRed"
+          ],
+          "notes": [
+            "Version 5.7 substantially rebuilt Wolverine and Sabretooth for Weapon X. Both received large base-stat increases plus multi-ability changes, new Weapon X synergies and new War mechanics; these changes meet the significant-rework threshold.",
+            "Contemporary September 30 discussion confirms that the boosted kits were already live after the September 29 update, so the reworks belong to T3.",
+            "Silver Samurai, Lady Deathstrike and Omega Red were only announced as arriving over the 5.7 release cycle by quarter-end. Their actual recruitable releases occurred in October or later, so none is counted as a T3 playable release."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2021-09",
+              "characterId": "Wolverine",
+              "date": "2021-09-29"
+            },
+            {
+              "month": "2021-09",
+              "characterId": "Sabretooth",
+              "date": "2021-09-29"
+            }
+          ]
         }
       ],
       "validation": {
-        "auditedPeriod": "2021-01-01/2021-06-30",
+        "auditedPeriod": "2021-01-01/2021-09-30",
         "individualReleaseCount": 2,
-        "teamEventNewCharacterCount": 15,
-        "distinctPlayableReleaseCount": 17,
-        "distinctReworkedCharacterCount": 10,
-        "quarterEndPlayableRosterCount": 171,
+        "teamEventNewCharacterCount": 22,
+        "distinctPlayableReleaseCount": 24,
+        "distinctReworkedCharacterCount": 12,
+        "quarterEndPlayableRosterCount": 178,
         "duplicatesAcrossReleaseBuckets": []
       },
       "excludedFrom2021Q1PlayableCount": [
