@@ -4697,8 +4697,8 @@
       ]
     },
     "2021": {
-      "status": "partial",
-      "auditedThrough": "2021-09-30",
+      "status": "audited",
+      "auditedThrough": "2021-12-31",
       "startingPlayableRosterCount": 154,
       "individualReleases": [
         {
@@ -4719,6 +4719,16 @@
           "notes": [
             "Kestrel is stored under the internal characterId Sybil in the current character catalog.",
             "Her paid orb offer was live on April 29, the day version 5.3 became available, before the later Take Flight Event Campaign."
+          ]
+        },
+        {
+          "month": "2021-11",
+          "characterId": "Dormammu",
+          "releaseMethod": "dark_dimension",
+          "date": "2021-11-21",
+          "notes": [
+            "Dark Dimension V opening did not itself make Dormammu playable. Tadano Mac's first completion on November 21 is the first documented point at which a player received Dormammu.",
+            "Dormammu is recorded as an individual Dark Dimension release rather than being forced into an unrelated team formation."
           ]
         }
       ],
@@ -5935,15 +5945,535 @@
               "date": "2021-09-29"
             }
           ]
+        },
+        {
+          "month": "2021-10",
+          "teamId": "weapon-x-silver-samurai-2021",
+          "label": "Weapon X — Silver Samurai",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Wolverine",
+            "Sabretooth",
+            "SilverSamurai"
+          ],
+          "core": [
+            "Wolverine",
+            "Sabretooth",
+            "SilverSamurai"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "SilverSamurai"
+          ],
+          "existingCharacterIds": [
+            "Wolverine",
+            "Sabretooth"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "SilverSamurai": "limited_offer"
+          },
+          "announcedNext": [
+            "LadyDeathstrike",
+            "OmegaRed"
+          ],
+          "notes": [
+            "Silver Samurai was genuinely playable by October 9, with the October 8 reset contemporaneously identified as his paid-offer rollout. The month and paid-offer method are secure, but the exact first live reset is intentionally not encoded.",
+            "Wolverine and Sabretooth are not reworked again here; their substantial Weapon X rebuild was already live and counted on September 29."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-10",
+              "characterId": "SilverSamurai",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-10",
+          "teamId": "weapon-x-lady-deathstrike-2021",
+          "label": "Weapon X — Lady Deathstrike",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Wolverine",
+            "Sabretooth",
+            "SilverSamurai",
+            "LadyDeathstrike"
+          ],
+          "core": [
+            "Wolverine",
+            "Sabretooth",
+            "SilverSamurai",
+            "LadyDeathstrike"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "LadyDeathstrike"
+          ],
+          "existingCharacterIds": [
+            "Wolverine",
+            "Sabretooth",
+            "SilverSamurai"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "LadyDeathstrike": "power_core_store"
+          },
+          "announcedNext": [
+            "OmegaRed"
+          ],
+          "notes": [
+            "Lady Deathstrike shards were genuinely live in Supplies for Power Cores before Lab X-Periments; the developer reactivated that availability on October 20 after it ended a day early.",
+            "The Supplies route could mathematically unlock her: Lady Deathstrike required 100 shards, while the contemporary Power Core route was discussed as a 9,000-core full unlock. Because the first store refresh is not securely pinned down, no exact date is encoded.",
+            "The October 22 Lab X-Periments event was therefore not her first playable availability."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-10",
+              "characterId": "LadyDeathstrike",
+              "releaseMethod": "power_core_store"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-11",
+          "teamId": "weapon-x-omega-red-2021",
+          "label": "Weapon X — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Wolverine",
+            "Sabretooth",
+            "SilverSamurai",
+            "LadyDeathstrike",
+            "OmegaRed"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "OmegaRed"
+          ],
+          "existingCharacterIds": [
+            "Wolverine",
+            "Sabretooth",
+            "SilverSamurai",
+            "LadyDeathstrike"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "OmegaRed": "legendary"
+          },
+          "announcedNext": [],
+          "notes": [
+            "The October 29 Celestial Weapons communication explicitly identified November 1 at 5:00PM PDT as the first chance to recruit Omega Red through The Red Death Mythic Legendary Event.",
+            "The schema's existing releaseMethod vocabulary uses legendary, so no new mythic_legendary value is introduced."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-11",
+              "characterId": "OmegaRed",
+              "releaseMethod": "legendary",
+              "date": "2021-11-01"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-11",
+          "teamId": "eternals-sersi-2021",
+          "label": "Eternals — Sersi",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 2,
+          "members": [
+            "Sersi"
+          ],
+          "core": [
+            "Sersi"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Sersi"
+          ],
+          "existingCharacterIds": [],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "Ikaris"
+          ],
+          "notes": [
+            "Sersi was already playable and being actively evaluated by November 6, while the November 12 official blog still described Ikaris as not yet released.",
+            "The surviving evidence securely establishes November as Sersi's first playable month, but not the exact initial store reset or first recruitment route strongly enough to encode either."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-11",
+              "characterId": "Sersi"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-11",
+          "teamId": "eternals-ikaris-2021",
+          "label": "Eternals — Complete Duo",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 2,
+          "members": [
+            "Sersi",
+            "Ikaris"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Ikaris"
+          ],
+          "existingCharacterIds": [
+            "Sersi"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Ikaris": "limited_offer"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Ikaris' paid release offer was live on November 14; contemporary offer coverage and subsequent players describing the original 55-shard-plus-orbs offer establish direct recruitability before his later event."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-11",
+              "characterId": "Ikaris",
+              "releaseMethod": "limited_offer",
+              "date": "2021-11-14"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-12",
+          "teamId": "uncanny-x-men-59-groundwork",
+          "label": "Uncanny X-Men — 5.9 Groundwork",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Phoenix",
+            "Colossus",
+            "Cyclops",
+            "Storm"
+          ],
+          "core": [
+            "Phoenix",
+            "Colossus",
+            "Cyclops",
+            "Storm"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Phoenix",
+            "Colossus",
+            "Cyclops",
+            "Storm"
+          ],
+          "reworkedCharacterIds": [
+            "Storm",
+            "Cyclops",
+            "Colossus"
+          ],
+          "announcedNext": [
+            "Magik"
+          ],
+          "notes": [
+            "Version 5.9 materially rebuilt Storm, Cyclops and Colossus around Magik/Uncanny X-Men: the changes combine stat increases with multiple ability updates, Charged handling and new Magik/Phoenix interactions.",
+            "Phoenix is represented as an existing structural member but is not counted as a rework because 5.9 did not substantially rebuild her kit. Dark Phoenix remains an internal summon/transformation and is not a separate playable release."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2021-12",
+              "characterId": "Storm",
+              "date": "2021-12-08"
+            },
+            {
+              "month": "2021-12",
+              "characterId": "Cyclops",
+              "date": "2021-12-08"
+            },
+            {
+              "month": "2021-12",
+              "characterId": "Colossus",
+              "date": "2021-12-08"
+            }
+          ]
+        },
+        {
+          "month": "2021-12",
+          "teamId": "uncanny-x-men-magik-2021",
+          "label": "Uncanny X-Men — Magik",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Phoenix",
+            "Colossus",
+            "Cyclops",
+            "Storm",
+            "Magik"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Magik"
+          ],
+          "existingCharacterIds": [
+            "Phoenix",
+            "Colossus",
+            "Cyclops",
+            "Storm"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Magik": "limited_offer"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Magik became directly recruitable through paid offers on December 8. A contemporary purchaser reports buying the two release offers that day, and another player reports unlocking her with one purchase.",
+            "Season's Sorcery began on December 16 and later supplied Magik shards, but it does not define her first playable availability."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-12",
+              "characterId": "Magik",
+              "releaseMethod": "limited_offer",
+              "date": "2021-12-08"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-12",
+          "teamId": "ravagers-59-groundwork",
+          "label": "Ravagers — 5.9 Groundwork",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Yondu",
+            "RavagerDmg_AoE",
+            "RavagerTank_Taunt",
+            "RavagerSupport_Heal"
+          ],
+          "core": [
+            "Yondu",
+            "RavagerDmg_AoE",
+            "RavagerTank_Taunt",
+            "RavagerSupport_Heal"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Yondu",
+            "RavagerDmg_AoE",
+            "RavagerTank_Taunt",
+            "RavagerSupport_Heal"
+          ],
+          "reworkedCharacterIds": [
+            "Yondu",
+            "RavagerDmg_AoE",
+            "RavagerTank_Taunt",
+            "RavagerSupport_Heal"
+          ],
+          "announcedNext": [
+            "TChalla"
+          ],
+          "notes": [
+            "Version 5.9 substantially rebuilt all four existing Ravagers with large stat increases plus multi-ability War Offense, buff, debuff, sustain and assist changes.",
+            "Star-Lord (T'Challa) was announced for the same extended release cycle but was not recruitable in 2021; the existing Ravager reworks are therefore recorded independently in December rather than delayed to his January 2022 release."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2021-12",
+              "characterId": "Yondu",
+              "date": "2021-12-08"
+            },
+            {
+              "month": "2021-12",
+              "characterId": "RavagerDmg_AoE",
+              "date": "2021-12-08"
+            },
+            {
+              "month": "2021-12",
+              "characterId": "RavagerTank_Taunt",
+              "date": "2021-12-08"
+            },
+            {
+              "month": "2021-12",
+              "characterId": "RavagerSupport_Heal",
+              "date": "2021-12-08"
+            }
+          ]
+        },
+        {
+          "month": "2021-12",
+          "teamId": "web-warriors-59-groundwork",
+          "label": "Web-Warriors — 5.9 Groundwork",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "SpiderMan",
+            "UltSpiderMan"
+          ],
+          "core": [
+            "SpiderMan",
+            "UltSpiderMan"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "SpiderMan",
+            "UltSpiderMan"
+          ],
+          "reworkedCharacterIds": [
+            "SpiderMan",
+            "UltSpiderMan"
+          ],
+          "announcedNext": [
+            "GhostSpider",
+            "ScarletSpider",
+            "SpiderPunk"
+          ],
+          "notes": [
+            "Version 5.9 substantially rebuilt Spider-Man and Spider-Man (Miles) for Web-Warriors. Both received large base-stat increases and multi-ability changes introducing Web-Warrior raid/dodge/speed synergies.",
+            "Miles is stored under the current internal characterId UltSpiderMan."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2021-12",
+              "characterId": "SpiderMan",
+              "date": "2021-12-08"
+            },
+            {
+              "month": "2021-12",
+              "characterId": "UltSpiderMan",
+              "date": "2021-12-08"
+            }
+          ]
+        },
+        {
+          "month": "2021-12",
+          "teamId": "web-warriors-ghost-spider-2021",
+          "label": "Web-Warriors — Ghost-Spider",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "SpiderMan",
+            "UltSpiderMan",
+            "GhostSpider"
+          ],
+          "core": [
+            "SpiderMan",
+            "UltSpiderMan",
+            "GhostSpider"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "GhostSpider"
+          ],
+          "existingCharacterIds": [
+            "SpiderMan",
+            "UltSpiderMan"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "GhostSpider": "limited_offer"
+          },
+          "announcedNext": [
+            "ScarletSpider",
+            "SpiderPunk"
+          ],
+          "notes": [
+            "An official December 18 communication stated that Ghost-Spider release offers would go live the next day, establishing December 19 as her first paid recruitability.",
+            "Her January 6 Blitz was explicitly described as one of the first opportunities to recruit her, not the first opportunity."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-12",
+              "characterId": "GhostSpider",
+              "releaseMethod": "limited_offer",
+              "date": "2021-12-19"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-12",
+          "teamId": "web-warriors-scarlet-spider-2021",
+          "label": "Web-Warriors — Scarlet Spider",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "SpiderMan",
+            "UltSpiderMan",
+            "GhostSpider",
+            "ScarletSpider"
+          ],
+          "core": [
+            "SpiderMan",
+            "UltSpiderMan",
+            "GhostSpider",
+            "ScarletSpider"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "ScarletSpider"
+          ],
+          "existingCharacterIds": [
+            "SpiderMan",
+            "UltSpiderMan",
+            "GhostSpider"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "ScarletSpider": "limited_offer"
+          },
+          "announcedNext": [
+            "SpiderPunk"
+          ],
+          "notes": [
+            "Scarlet Spider's paid release offers were confirmed live by December 30, before his January event. Contemporary December 28-29 coverage places the expected reset at the year-end boundary.",
+            "The exact first offer day is intentionally omitted because surviving evidence straddles the December 29/30 reset; December 2021 and the paid-offer method are secure.",
+            "Spider-Punk remained unreleased at year-end and is kept in announcedNext for his January 2022 rollout."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-12",
+              "characterId": "ScarletSpider",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": []
         }
       ],
       "validation": {
-        "auditedPeriod": "2021-01-01/2021-09-30",
-        "individualReleaseCount": 2,
-        "teamEventNewCharacterCount": 22,
-        "distinctPlayableReleaseCount": 24,
-        "distinctReworkedCharacterCount": 12,
-        "quarterEndPlayableRosterCount": 178,
+        "auditedPeriod": "2021-01-01/2021-12-31",
+        "individualReleaseCount": 3,
+        "teamEventNewCharacterCount": 30,
+        "distinctPlayableReleaseCount": 33,
+        "distinctReworkedCharacterCount": 21,
+        "quarterEndPlayableRosterCount": 187,
         "duplicatesAcrossReleaseBuckets": []
       },
       "excludedFrom2021Q1PlayableCount": [
@@ -5953,6 +6483,22 @@
           "announcedMonth": "2021-03",
           "firstPlayableMonth": "2021-04",
           "firstPlayableQuarter": "Q2"
+        }
+      ],
+      "excludedFrom2021Q4PlayableCount": [
+        {
+          "characterId": "SpiderPunk",
+          "reason": "announced_in_5_9_release_cycle_but_first_recruitable_in_january_2022",
+          "announcedMonth": "2021-12",
+          "firstPlayableMonth": "2022-01",
+          "firstPlayableQuarter": "Q1"
+        },
+        {
+          "characterId": "TChalla",
+          "reason": "announced_in_5_9_release_cycle_but_first_recruitable_in_january_2022",
+          "announcedMonth": "2021-12",
+          "firstPlayableMonth": "2022-01",
+          "firstPlayableQuarter": "Q1"
         }
       ]
     },
