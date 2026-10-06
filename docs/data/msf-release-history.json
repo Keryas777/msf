@@ -2830,6 +2830,16 @@
           "notes": [
             "First playable availability established on 2020-02-01 through the X-Leader Orb / limited offer before the later milestone event."
           ]
+        },
+        {
+          "month": "2020-12",
+          "characterId": "Doom",
+          "releaseMethod": "dark_dimension",
+          "date": "2020-12-25",
+          "notes": [
+            "Doctor Doom became recruitable with the first completed run of Dark Dimension IV on 2020-12-25; the first-clear rewards granted a 5-star Doctor Doom.",
+            "This corrects the prior year-boundary classification that had deferred Doom to 2021."
+          ]
         }
       ],
       "teamEvents": [
@@ -4642,18 +4652,13 @@
       ],
       "validation": {
         "auditedPeriod": "2020-01-01/2020-12-31",
-        "individualReleaseCount": 1,
+        "individualReleaseCount": 2,
         "teamEventNewCharacterCount": 32,
-        "distinctPlayableReleaseCount": 33,
+        "distinctPlayableReleaseCount": 34,
         "distinctReworkedCharacterCount": 29,
         "duplicatesAcrossReleaseBuckets": []
       },
       "excludedFrom2020PlayableCount": [
-        {
-          "characterId": "Doom",
-          "reason": "announced_and_present_for_dark_dimension_4_but_first_recruitable_in_2021",
-          "firstPlayableYear": 2021
-        },
         {
           "characterId": "Yelena",
           "reason": "announced_and_present_in_5_0_release_cycle_but_first_recruitable_in_2021",
@@ -4688,6 +4693,551 @@
           "characterId": "Bishop",
           "reason": "datamined_or_community_expected_but_not_officially_announced_or_recruitable_in_2020",
           "firstPlayableYear": 2021
+        }
+      ]
+    },
+    "2021": {
+      "status": "partial",
+      "auditedThrough": "2021-03-31",
+      "startingPlayableRosterCount": 154,
+      "individualReleases": [
+        {
+          "month": "2021-03",
+          "characterId": "SilverSurfer",
+          "releaseMethod": "limited_offer",
+          "date": "2021-03-16",
+          "notes": [
+            "The March 12 anniversary blog still stated that Silver Surfer could not yet be recruited.",
+            "A community-manager correction later explicitly identified March 16 as the date the 50-shard Silver Surfer offer went live, establishing first recruitability."
+          ]
+        }
+      ],
+      "teamEvents": [
+        {
+          "month": "2021-01",
+          "teamId": "skill-military-yelena-2021",
+          "label": "Skill Military — Yelena Belova",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Punisher",
+            "Killmonger",
+            "MercDmg_General",
+            "Yelena"
+          ],
+          "core": [
+            "Punisher",
+            "Killmonger",
+            "MercDmg_General",
+            "Yelena"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Yelena"
+          ],
+          "existingCharacterIds": [
+            "Punisher",
+            "Killmonger",
+            "MercDmg_General"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "RedGuardian"
+          ],
+          "notes": [
+            "Yelena Belova became recruitable in January 2021 during the early-January Skill Military rollout; the exact first paid-offer day is not encoded because the surviving evidence fixes the month more securely than the initial offer timestamp.",
+            "Punisher, Killmonger and Mercenary Soldier were already playable and their significant Skill Military reworks were recorded in December 2020, so they are not counted again."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-01",
+              "characterId": "Yelena"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-01",
+          "teamId": "skill-military-red-guardian-2021",
+          "label": "Skill Military — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Punisher",
+            "Killmonger",
+            "MercDmg_General",
+            "Yelena",
+            "RedGuardian"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "RedGuardian"
+          ],
+          "existingCharacterIds": [
+            "Punisher",
+            "Killmonger",
+            "MercDmg_General",
+            "Yelena"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "RedGuardian": "milestone"
+          },
+          "announcedNext": [],
+          "notes": [
+            "The Red Winter event was announced as the first opportunity to earn Red Guardian shards and made him recruitable in January 2021.",
+            "The exact first live day is intentionally omitted rather than inferred from the surrounding event schedule."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-01",
+              "characterId": "RedGuardian",
+              "releaseMethod": "milestone"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-01",
+          "teamId": "astonishing-x-men-kitty-pryde-2021",
+          "label": "Astonishing X-Men — Kitty Pryde",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Beast",
+            "KittyPryde"
+          ],
+          "core": [
+            "Beast",
+            "KittyPryde"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "KittyPryde"
+          ],
+          "existingCharacterIds": [
+            "Beast"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "KittyPryde": "limited_offer"
+          },
+          "announcedNext": [
+            "Iceman",
+            "Jubilee"
+          ],
+          "notes": [
+            "A contemporary Kitty Pryde unlock was documented by January 16 and her paid offer was being discussed by January 18, before her later free-release cadence.",
+            "The exact first paid-release day is intentionally not encoded."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-01",
+              "characterId": "KittyPryde",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-01",
+          "teamId": "astonishing-x-men-iceman-2021",
+          "label": "Astonishing X-Men — Iceman",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Beast",
+            "KittyPryde",
+            "Iceman"
+          ],
+          "core": [
+            "Beast",
+            "KittyPryde",
+            "Iceman"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Iceman"
+          ],
+          "existingCharacterIds": [
+            "Beast",
+            "KittyPryde"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Iceman": "limited_offer"
+          },
+          "announcedNext": [
+            "Jubilee"
+          ],
+          "notes": [
+            "Iceman was still unavailable in early January. His Red Star promotion went live on January 25, and a recruitable paid offer was directly observed around January 25-26.",
+            "Red Star availability alone is not used as the release trigger; the paid offer establishes actual recruitability. The exact first offer day is omitted because the surviving timestamps straddle the January 25/26 reset."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-01",
+              "characterId": "Iceman",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-02",
+          "teamId": "shadowland-51-groundwork",
+          "label": "Shadowland — 5.1 Groundwork",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Daredevil",
+            "Elektra",
+            "NightNurse"
+          ],
+          "core": [
+            "Daredevil",
+            "Elektra",
+            "NightNurse"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Daredevil",
+            "Elektra",
+            "NightNurse"
+          ],
+          "reworkedCharacterIds": [
+            "Daredevil",
+            "Elektra",
+            "NightNurse"
+          ],
+          "announcedNext": [
+            "WhiteTiger",
+            "MoonKnight"
+          ],
+          "notes": [
+            "Version 5.1 materially reworked all three existing Shadowland members before White Tiger and Moon Knight completed the team.",
+            "Daredevil received a base-Health increase plus multiple ability, Shadowland and War changes; Elektra received a base-Health increase and major changes across Basic, Special, Ultimate and Passive; Night Nurse received broad healing, cleanse, assist, Speed Bar and War-mechanic changes."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2021-02",
+              "characterId": "Daredevil",
+              "date": "2021-02-02"
+            },
+            {
+              "month": "2021-02",
+              "characterId": "Elektra",
+              "date": "2021-02-02"
+            },
+            {
+              "month": "2021-02",
+              "characterId": "NightNurse",
+              "date": "2021-02-02"
+            }
+          ]
+        },
+        {
+          "month": "2021-02",
+          "teamId": "astonishing-x-men-bishop-2021",
+          "label": "Astonishing X-Men — Bishop",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Beast",
+            "KittyPryde",
+            "Iceman",
+            "Bishop"
+          ],
+          "core": [
+            "Beast",
+            "KittyPryde",
+            "Iceman",
+            "Bishop"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Bishop"
+          ],
+          "existingCharacterIds": [
+            "Beast",
+            "KittyPryde",
+            "Iceman"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Bishop": "limited_offer"
+          },
+          "announcedNext": [
+            "Jubilee"
+          ],
+          "notes": [
+            "Version 5.1 announced Bishop for the release cycle, and contemporary February offer discussions establish that he was recruitable by paid availability before his Blitzes.",
+            "The exact first offer day is intentionally omitted."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-02",
+              "characterId": "Bishop",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-02",
+          "teamId": "astonishing-x-men-jubilee-2021",
+          "label": "Astonishing X-Men — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Beast",
+            "KittyPryde",
+            "Iceman",
+            "Bishop",
+            "Jubilee"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Jubilee"
+          ],
+          "existingCharacterIds": [
+            "Beast",
+            "KittyPryde",
+            "Iceman",
+            "Bishop"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Jubilee": "legendary"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Jubilee became recruitable through the first Like, Totally Jubilee Legendary Event beginning on February 9, 2021.",
+            "Beast remains classified as existing rather than reworked: the relevant Astonishing X-Men adjustments do not meet the significant-rework threshold used by this history."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-02",
+              "characterId": "Jubilee",
+              "releaseMethod": "legendary",
+              "date": "2021-02-09"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-02",
+          "teamId": "shadowland-white-tiger-2021",
+          "label": "Shadowland — White Tiger",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Daredevil",
+            "Elektra",
+            "NightNurse",
+            "WhiteTiger"
+          ],
+          "core": [
+            "Daredevil",
+            "Elektra",
+            "NightNurse",
+            "WhiteTiger"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "WhiteTiger"
+          ],
+          "existingCharacterIds": [
+            "Daredevil",
+            "Elektra",
+            "NightNurse"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "WhiteTiger": "limited_offer"
+          },
+          "announcedNext": [
+            "MoonKnight"
+          ],
+          "notes": [
+            "White Tiger was directly purchasable and unlockable in February before her later event-campaign availability.",
+            "The exact first offer day is intentionally omitted because the surviving evidence proves February paid availability without securely fixing the initial store reset."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-02",
+              "characterId": "WhiteTiger",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-03",
+          "teamId": "shadowland-moon-knight-2021",
+          "label": "Shadowland — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Daredevil",
+            "Elektra",
+            "NightNurse",
+            "WhiteTiger",
+            "MoonKnight"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "MoonKnight"
+          ],
+          "existingCharacterIds": [
+            "Daredevil",
+            "Elektra",
+            "NightNurse",
+            "WhiteTiger"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "MoonKnight": "limited_offer"
+          },
+          "announcedNext": [],
+          "notes": [
+            "A March 2 contemporary discussion directly describes the live Moon Knight shard-and-orb offer, establishing recruitability by that date."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-03",
+              "characterId": "MoonKnight",
+              "releaseMethod": "limited_offer",
+              "date": "2021-03-02"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-03",
+          "teamId": "x-factor-52-groundwork",
+          "label": "X-Factor — 5.2 Groundwork",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Shatterstar",
+            "Longshot"
+          ],
+          "core": [
+            "Shatterstar",
+            "Longshot"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Shatterstar",
+            "Longshot"
+          ],
+          "reworkedCharacterIds": [
+            "Shatterstar",
+            "Longshot"
+          ],
+          "announcedNext": [
+            "MultipleMan",
+            "Polaris"
+          ],
+          "notes": [
+            "Version 5.2 materially evolved the existing two-character X-Factor core before Multiple Man and Polaris arrived.",
+            "Shatterstar's Special was expanded to apply Defense Down to all targets and become unblockable, while his Passive added substantial War Offense damage for X-Factor.",
+            "Longshot gained anti-dodge/anti-block behavior on two attacks plus a new three-X-Factor-ally Passive condition that reduces enemy Armor. These multi-ability structural changes meet the significant-rework threshold.",
+            "Iceman's 5.2 change was limited to +33% base Focus and is therefore treated as an adjustment, not a significant rework."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2021-03",
+              "characterId": "Shatterstar",
+              "date": "2021-03-16"
+            },
+            {
+              "month": "2021-03",
+              "characterId": "Longshot",
+              "date": "2021-03-16"
+            }
+          ]
+        },
+        {
+          "month": "2021-03",
+          "teamId": "x-factor-multiple-man-2021",
+          "label": "X-Factor — Multiple Man",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Shatterstar",
+            "Longshot",
+            "MultipleMan"
+          ],
+          "core": [
+            "Shatterstar",
+            "Longshot",
+            "MultipleMan"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "MultipleMan"
+          ],
+          "existingCharacterIds": [
+            "Shatterstar",
+            "Longshot"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "MultipleMan": "limited_orb"
+          },
+          "announcedNext": [
+            "Polaris"
+          ],
+          "notes": [
+            "Multiple Man was genuinely recruitable on March 31 through the 500-Power-Core Super Sleuth Orb; contemporary players documented unlocking him from those orbs before his later offers and Event Campaign.",
+            "This counts as first playable availability under the history's recruitment rule even though the standard paid offer and free Event Campaign followed in April.",
+            "Polaris remained announced only at quarter-end and is not counted in T1."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-03",
+              "characterId": "MultipleMan",
+              "releaseMethod": "limited_orb",
+              "date": "2021-03-31"
+            }
+          ],
+          "reworks": []
+        }
+      ],
+      "validation": {
+        "auditedPeriod": "2021-01-01/2021-03-31",
+        "individualReleaseCount": 1,
+        "teamEventNewCharacterCount": 9,
+        "distinctPlayableReleaseCount": 10,
+        "distinctReworkedCharacterCount": 5,
+        "quarterEndPlayableRosterCount": 164,
+        "duplicatesAcrossReleaseBuckets": []
+      },
+      "excludedFrom2021Q1PlayableCount": [
+        {
+          "characterId": "Polaris",
+          "reason": "announced_in_5_2_release_cycle_but_first_recruitable_in_april_2021",
+          "announcedMonth": "2021-03",
+          "firstPlayableMonth": "2021-04",
+          "firstPlayableQuarter": "Q2"
         }
       ]
     }
