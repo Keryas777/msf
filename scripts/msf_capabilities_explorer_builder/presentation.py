@@ -463,7 +463,20 @@ ACTION_PRESENTATIONS = {
 }
 
 
+HEALTH_REDISTRIBUTE_LABELS = {
+    "health_equalize": "Égalise les points de vie",
+    "health_steal_redistribute": "Vole et redistribue de la vie",
+    "health_transfer_allies": "Transfère de la vie entre alliés",
+    "health_loss": "Retire de la vie",
+    "detected": "Comportement non résolu",
+}
+
 GENERIC_MECHANICS = {
+    "action-health-redistribute": {
+        "label": "Redistribution et retrait de vie", "sourceName": "health_redistribute",
+        "aliases": ["redistribution", "égalisation", "vol de vie", "transfert de vie", "retrait de vie"],
+        "description": "Comportements structurés de redistribution ou retrait de vie ; les formes ambiguës restent non résolues.",
+    },
     "attack-damage": {"label": "Dégâts d’attaque", "sourceName": "stat_modifier", "aliases": [], "description": "Modification structurée des dégâts d’une attaque."},
     "conditional-damage": {"label": "Bonus de dégâts", "sourceName": "stat_modifier", "aliases": [], "description": "Bonus de dégâts conditionnel structuré."},
     "critical-attack": {"label": "Critique", "sourceName": "stat_modifier", "aliases": [], "description": "Modification structurée des propriétés critiques d’une attaque."},

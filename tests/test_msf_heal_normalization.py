@@ -15,12 +15,12 @@ class HealNormalizationTests(unittest.TestCase):
         cls.operations = {o["id"]: o for o in cls.data["operations"]}
         cls.contexts = {c["id"]: c for c in cls.data["contexts"]}
 
-    def test_all_502_heal_actions_are_normalized_once(self):
-        self.assertEqual(len(self.mappings), 502)
+    def test_all_504_heal_actions_are_normalized_once(self):
+        self.assertEqual(len(self.mappings), 504)
         self.assertTrue(all(m["status"] == "normalized" for m in self.mappings))
         self.assertTrue(all(len(m["operationIds"]) == 1 for m in self.mappings))
         ops=[self.operations[m["operationIds"][0]] for m in self.mappings]
-        self.assertEqual(sum(o["kind"] == "heal_restore" for o in ops), 502)
+        self.assertEqual(sum(o["kind"] == "heal_restore" for o in ops), 504)
 
     def test_heal_metrics_preserve_fixed_percent_and_chance_sources(self):
         ops=[self.operations[m["operationIds"][0]] for m in self.mappings]

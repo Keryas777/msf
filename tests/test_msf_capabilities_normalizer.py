@@ -1137,13 +1137,13 @@ class MsfCapabilitiesNormalizerSnapshotTests(unittest.TestCase):
         )
         self.assertEqual(
             self.capabilities["audit"]["mappedActionCount"],
-            12059,
+            12262,
         )
         self.assertEqual(
             self.capabilities["audit"][
                 "preservedUninterpretedActionCount"
             ],
-            472,
+            269,
         )
         barrier_operations = [
             operation

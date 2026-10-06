@@ -410,7 +410,7 @@ async function ensureOperationContext(id) {
   if (!kind) throw new ArtifactError("Identifiant d’opération invalide", 404);
   const route = await ensureRouteRecord(kind, id);
   const shard = await ensureCharacter(route.characterId);
-  const found = findOperationInCharacter(shard, id, route);
+  const found = findOperationInCharacter(shard, route.operationId || id, route);
   if (!found) throw new ArtifactError("Opération absente de la fiche", 404);
   return { route, shard, ...found };
 }
@@ -1685,6 +1685,7 @@ function technicalOccurrenceMarkup(step, ability) {
   const action = (ability.actions || []).find(
     (candidate) => (candidate.sourceActionId || candidate.id) === step.sourceActionId
   );
+  const health = (ability.operations || []).find((operation) => operation.sourceActionId === step.sourceActionId)?.healthRedistribute;
   const conditionValues = step.conditions || [];
   return `
     <li class="codexTechnicalOccurrence">
@@ -1717,6 +1718,7 @@ function technicalOccurrenceMarkup(step, ability) {
         ${action?.uninterpretedParameters
           ? definitionRow("Paramètres préservés", technicalJson(action.uninterpretedParameters), true)
           : ""}
+        ${health ? definitionRow("Redistribution de vie — données conservées", technicalJson(health), true) : ""}
         ${definitionRow("Alignement de phase", step.phaseAlignment?.level || "unknown")}
       </dl>
     </li>
@@ -2322,6 +2324,7 @@ function operationModel(context) {
         <ul class="codexOccurrenceList">
           ${occurrenceMarkup(occurrence, ability)}
         </ul>
+        ${occurrence.healthRedistribute ? `<details><summary>Données source et limites d’interprétation</summary>${technicalJson(occurrence.healthRedistribute)}</details>` : ""}
       </section>
     `,
   };

@@ -45,17 +45,88 @@ class DiskPayloads(Mapping):
 
 
 class ExplorerBuilderTests(unittest.TestCase):
+    def test_health_facets_preserve_sources_routes_and_playable_policy(self):
+        mechanic = self.payload("mechanics/action-health-redistribute.json")
+        expected = {"health_equalize": 8, "health_steal_redistribute": 18,
+                    "health_transfer_allies": 2, "health_loss": 76, "detected": 99}
+        self.assertEqual({f["id"]: f["occurrenceCount"] for f in mechanic["facets"]}, expected)
+        self.assertEqual(mechanic["counts"]["occurrences"], 203)
+        self.assertEqual(mechanic["counts"]["abilities"], 122)
+        self.assertEqual(mechanic["counts"]["technicalOccurrences"], 23)
+        operations = [o for o in self.documents["payloads"]["operations.json"]["records"].values()
+                      if o["kind"] == "health_redistribute"]
+        self.assertEqual(len(operations), 203)
+        routes = {}
+        for path in self.generated.payloads:
+            if path.startswith("routes/actions-"):
+                routes.update(self.payload(path)["records"])
+        seen = set()
+        for op in operations:
+            source_id = op["sourceActionId"]
+            route = routes[source_id]
+            self.assertEqual(route["operationId"], op["operationId"])
+            self.assertIn("action-health-redistribute", route["mechanicIds"])
+            shard = self.payload(f"characters/{op['characterId']}.json")
+            groups = [*shard["abilities"], *shard["technicalContexts"]]
+            projected = [o for group in groups for o in group.get("operations", [])
+                         if o.get("sourceActionId") == source_id]
+            self.assertEqual(len(projected), 1)
+            self.assertEqual(projected[0]["healthRedistribute"], op["healthRedistribute"])
+            if not op["healthRedistribute"]["resolved"]:
+                self.assertEqual(projected[0]["evidence"], "preserved_uninterpreted")
+                self.assertEqual(route["evidence"], "preserved_uninterpreted")
+            seen.add(source_id)
+        self.assertEqual(len(seen), 203)
+        search = self.payload("search.json")["records"]
+        self.assertEqual({r["operation"] for r in search
+                          if r["id"] == "action-health-redistribute" and r.get("operation")}, set(expected))
+        for path in self.generated.payloads:
+            if path.startswith("characters/"):
+                character = self.payload(path)["character"]
+                self.assertEqual(character["playable"], character["official"])
+        for character_id in ("IronMonger", "Thena", "Gilgamesh"):
+            self.assertFalse(self.payload(f"characters/{character_id}.json")["character"]["playable"])
+
     @classmethod
     def setUpClass(cls) -> None:
         cls.output_temporary = tempfile.TemporaryDirectory()
         output = Path(cls.output_temporary.name) / "explorer"
+        # Workflow regression tests run BEFORE publication. Build the current
+        # code's input in a temporary repository instead of testing stale checked-
+        # in generations. Never rewrite public artifacts as a test side effect.
+        from scripts.msf_capabilities_parser.parser import parse_sources, serialize_mechanics
+        from scripts.msf_capabilities_normalizer.normalizer import normalize_mechanics, serialize_capabilities
+        from scripts.msf_capabilities_indexer.indexer import build_artifact_bytes
+        from scripts.msf_capabilities_web_publisher.publisher import publish
+        from scripts.msf_capabilities_explorer_builder.builder import (
+            DEFAULT_PRESENTATIONS, DEFAULT_PORTRAITS, DEFAULT_SOURCE_MANIFEST,
+        )
+        import hashlib
+        fixture_root = Path(cls.output_temporary.name) / "repository"
+        for relative in (DEFAULT_PRESENTATIONS, DEFAULT_PORTRAITS, DEFAULT_SOURCE_MANIFEST):
+            destination = fixture_root / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes((REPOSITORY_ROOT / relative).read_bytes())
+        mechanics = parse_sources(
+            REPOSITORY_ROOT / "data/msf-capabilities/raw/characters.json",
+            REPOSITORY_ROOT / "data/msf-capabilities/raw/procs.json",
+        )
+        capabilities = normalize_mechanics(mechanics, mechanics_payload=serialize_mechanics(mechanics))
+        checksum = hashlib.sha256(serialize_capabilities(capabilities)).hexdigest()
+        _, artifacts = build_artifact_bytes(capabilities, capabilities_checksum=checksum)
+        index_root = fixture_root / "index"
+        index_root.mkdir()
+        for relative, payload in artifacts.items():
+            (index_root / relative).write_bytes(payload)
+        del mechanics, capabilities, artifacts
+        publish(index_root, fixture_root / "docs/data/msf-capabilities")
         subprocess.run(
             [
                 sys.executable,
                 "-m",
                 "scripts.msf_capabilities_explorer_builder.cli",
                 "--repository-root",
-                str(REPOSITORY_ROOT),
+                str(fixture_root),
                 "--output",
                 str(output),
             ],
@@ -78,7 +149,7 @@ class ExplorerBuilderTests(unittest.TestCase):
             counts=generation["counts"],
             presentation_audit=generation["presentationAudit"],
         )
-        cls.documents = load_source_documents(REPOSITORY_ROOT)
+        cls.documents = load_source_documents(fixture_root)
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -110,70 +181,64 @@ class ExplorerBuilderTests(unittest.TestCase):
     def test_01_counts_match_real_graph_and_official_catalog(self) -> None:
         self.assertEqual(
             self.generated.counts,
-            {
-                "characters": 503,
-                "officialCharacters": 375,
-                "technicalCharacters": 128,
-                "abilities": 1856,
-                "indexedAbilities": 1844,
-                "presentationOnlyAbilities": 12,
-                "empoweredAbilities": 23,
-                "officialPresentations": 1468,
-                "effects": 302,
-                "mechanics": 324,
-                "operations": 10595,
-                "preservedActions": 3337,
-                "spawns": 116,
-                "textMentions": 973,
-                "abilityPresentations": 1856,
-                "phases": 2492,
-                "assignedActions": 11123,
-                "unassignedActions": 1301,
-            },
+            {'abilities': 1868,
+             'abilityPresentations': 1868,
+             'assignedActions': 11218,
+             'characters': 506,
+             'effects': 313,
+             'empoweredAbilities': 23,
+             'indexedAbilities': 1857,
+             'mechanics': 339,
+             'officialCharacters': 375,
+             'officialPresentations': 1468,
+             'operations': 14993,
+             'phases': 2517,
+             'presentationOnlyAbilities': 11,
+             'preservedActions': 269,
+             'spawns': 116,
+             'technicalCharacters': 131,
+             'textMentions': 967,
+             'unassignedActions': 1313},
         )
         catalog = self.payload("characters.json")
         self.assertEqual(catalog["recordCount"], 375)
         self.assertTrue(all(record["id"] for record in catalog["records"]))
         self.assertEqual(
             self.generated.presentation_audit,
-            {
-                "abilityPresentations": 1856,
-                "technicalPresentations": 630,
-                "totalPhases": 2492,
-                "technicalPhases": 144,
-                "averagePhasesPerAbility": 1.342672,
-                "totalBranches": 8491,
-                "singleActionPhases": 374,
-                "singleActionPhaseRatio": 0.15008,
-                "abilitiesWithAtLeast10Phases": 0,
-                "maximumPhasesPerAbility": 5,
-                "zeroPhaseAbilities": 14,
-                "singlePhaseAbilities": 1302,
-                "multiPhaseAbilities": 540,
-                "assignedActions": 11123,
-                "unassignedActions": 1301,
-                "assignedOperations": 9746,
-                "textSegments": 9600,
-                "textSegmentsAlignedHigh": 3339,
-                "textSegmentsAlignedMedium": 4059,
-                "textSegmentsTextOnly": 1813,
-                "textSegmentsAmbiguous": 389,
-                "textSegmentsUnassigned": 0,
-                "diagnosticsByType": {
-                    "IMPLICIT_PRIMARY_TARGET": 447,
-                    "MULTIPLE_PHASE_CANDIDATES": 389,
-                    "PHASE_LABEL_FALLBACK": 116,
-                    "PHASE_TARGET_INHERITANCE_UNPROVEN": 955,
-                    "REPEATED_ACTIONS_NOT_DEDUPLICATED": 71,
-                    "SOURCE_TARGET_WITHOUT_TEXT": 3972,
-                    "TECHNICAL_CONTEXT_UNRESOLVED": 143,
-                    "UNALIGNED_PLAYER_PHASE": 811,
-                    "UNASSIGNED_TEXT_SEGMENT": 1813,
-                },
-                "phasesOnlyOfficialText": 0,
-                "phasesWithMechanicalTarget": 2004,
-                "phasesWithProbableAttachment": 898,
-            },
+            {'abilitiesWithAtLeast10Phases': 0,
+             'abilityPresentations': 1868,
+             'assignedActions': 11218,
+             'assignedOperations': 13038,
+             'averagePhasesPerAbility': 1.34743,
+             'diagnosticsByType': {'IMPLICIT_PRIMARY_TARGET': 451,
+                                   'MULTIPLE_PHASE_CANDIDATES': 390,
+                                   'PHASE_LABEL_FALLBACK': 116,
+                                   'PHASE_TARGET_INHERITANCE_UNPROVEN': 884,
+                                   'REPEATED_ACTIONS_NOT_DEDUPLICATED': 63,
+                                   'SOURCE_TARGET_WITHOUT_TEXT': 4050,
+                                   'TECHNICAL_CONTEXT_UNRESOLVED': 143,
+                                   'UNALIGNED_PLAYER_PHASE': 831,
+                                   'UNASSIGNED_TEXT_SEGMENT': 1825},
+             'maximumPhasesPerAbility': 4,
+             'multiPhaseAbilities': 551,
+             'phasesOnlyOfficialText': 0,
+             'phasesWithMechanicalTarget': 2027,
+             'phasesWithProbableAttachment': 848,
+             'singleActionPhaseRatio': 0.150576,
+             'singleActionPhases': 379,
+             'singlePhaseAbilities': 1304,
+             'technicalPhases': 144,
+             'technicalPresentations': 633,
+             'textSegments': 9600,
+             'textSegmentsAlignedHigh': 3319,
+             'textSegmentsAlignedMedium': 4066,
+             'textSegmentsAmbiguous': 390,
+             'textSegmentsTextOnly': 1825,
+             'textSegmentsUnassigned': 0,
+             'totalBranches': 8711,
+             'totalPhases': 2517,
+             'unassignedActions': 1313,
+             'zeroPhaseAbilities': 13},
         )
 
     def test_02_generation_is_byte_for_byte_deterministic(self) -> None:
@@ -322,7 +387,7 @@ class ExplorerBuilderTests(unittest.TestCase):
             for ability in json.loads(payload).get("abilities", [])
             if ability["id"].startswith("prs_")
         ]
-        self.assertEqual(len(presentation_only), 12)
+        self.assertEqual(len(presentation_only), 11)
         self.assertTrue(all(item["mechanicsStatus"] == "unavailable" for item in presentation_only))
 
     def test_10_ability_without_presentation_and_without_mechanics_are_explicit(self) -> None:
@@ -414,25 +479,26 @@ class ExplorerBuilderTests(unittest.TestCase):
         self.assertEqual([item["actionOrder"] for item in occurrences], list(range(6)))
         self.assertEqual(
             [item["actionOrder"] for item in ability["operations"]],
-            [1, 2, 4, 5],
+            list(range(6)),
         )
-        preserved = {item["actionOrder"]: item for item in ability["actions"]}
-        self.assertEqual(set(preserved), {0, 3})
-        target = preserved[3]["target"]["value"]
+        self.assertEqual(ability["actions"], [])
+        normalized = {item["actionOrder"]: item for item in ability["operations"]}
+        source_steps = {item["actionOrder"]: item for item in ability["presentation"]["occurrences"].values()}
+        target = source_steps[3]["target"]["value"]
         self.assertEqual(target["type"], "direct_neighbor")
         self.assertEqual(target["limit"], [1])
         self.assertEqual(target["primary_selection"], "exclude_from_pool")
         self.assertEqual(target["stop_if_outcome"], ["counter_attack"])
         self.assertEqual(target["filter"]["not"]["target"]["states"], ["stealthed"])
         self.assertEqual(
-            preserved[0]["uninterpretedParameters"]["values"]["stat_modifier"][0]["delta"],
+            normalized[0]["statModifier"]["delta"],
             [90, 110, 130, 150, 170, 200, 250],
         )
         self.assertEqual(
-            preserved[3]["uninterpretedParameters"]["values"]["stat_modifier"][0]["delta"],
+            normalized[3]["statModifier"]["delta"],
             [40, 60, 80, 100, 120, 150, 200],
         )
-        self.assertTrue(all(item.get("target") is None for item in ability["operations"][2:]))
+        self.assertTrue(all(normalized[order].get("target") is None for order in (0, 1, 2, 4, 5)))
         self.assertFalse(any(
             metric.get("key") == "selectionCount"
             for item in ability["operations"]
@@ -498,7 +564,7 @@ class ExplorerBuilderTests(unittest.TestCase):
         for collection in ("operations.json", "uninterpreted-actions.json"):
             for record in self.documents["payloads"][collection]["records"].values():
                 source_groups[record["sourceActionId"]].append(record)
-        self.assertEqual(len(source_groups), 12_424)
+        self.assertEqual(len(source_groups), 12_531)
         seen_actions = set()
         seen_operations = Counter()
         for presentation in self.all_presentations():
@@ -635,7 +701,7 @@ class ExplorerBuilderTests(unittest.TestCase):
             for context in shard.get("technicalContexts", []):
                 if context.get("presentation"):
                     assert_presentation(context["presentation"])
-        self.assertEqual(ability_presentation_count, 1_856)
+        self.assertEqual(ability_presentation_count, 1_868)
 
     def test_20_repetition_bonus_chain_and_terminal_sequences_are_conservative(self) -> None:
         crystal = self.ability("Crystal", "special")["presentation"]

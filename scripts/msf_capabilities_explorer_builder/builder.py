@@ -26,6 +26,7 @@ from .ability_presentation import (
     build_ability_presentation,
 )
 from .presentation import (
+    HEALTH_REDISTRIBUTE_LABELS,
     ABILITY_TYPES,
     ACTION_PRESENTATIONS,
     DETECTED_ACTIONS,
@@ -848,18 +849,22 @@ def _project_operation(
         if isinstance(turn_meter_control, dict)
         else None
     )
+    health = operation.get("healthRedistribute")
     return {
+        **({"healthRedistribute": copy.deepcopy(health),
+            "sourceActionId": operation.get("sourceActionId")} if health is not None else {}),
         "id": operation_id,
         "kind": kind,
-        "kindLabel": TURN_METER_CONTROL_LABELS.get(control_action)
+        "kindLabel": (HEALTH_REDISTRIBUTE_LABELS.get(health.get("behavior")) if isinstance(health, dict) else None)
+        or TURN_METER_CONTROL_LABELS.get(control_action)
         or OPERATION_KINDS.get(kind, {}).get("label")
         or _split_source_name(str(kind or "opération")),
-        "evidence": "normalized",
+        "evidence": "preserved_uninterpreted" if isinstance(health, dict) and not health["resolved"] else "normalized",
         "characterId": operation.get("characterId"),
         "abilityId": operation.get("abilityId"),
         "abilityType": operation.get("abilityType"),
         "effect": effect_projection,
-        "target": target_summary,
+        "target": "Rôles des cibles conservés dans les détails" if isinstance(health, dict) else target_summary,
         "chance": chance,
         "metrics": metrics,
         "modes": _condition_modes(conditions),
@@ -1017,7 +1022,7 @@ def _build_mechanics(
         }
 
     for source_type in action_types:
-        if source_type in DETECTED_ACTIONS:
+        if source_type in DETECTED_ACTIONS or source_type == "health_redistribute":
             continue
         mechanic_id = f"action-{_slug_base(source_type)}"
         if mechanic_id in mechanics:
@@ -1237,6 +1242,8 @@ def _operation_mechanic_ids(
     stat_modifier = raw.get("statModifier")
     if isinstance(stat_modifier, dict) and stat_modifier.get("mechanicId"):
         result.add(str(stat_modifier["mechanicId"]))
+    if kind == "health_redistribute":
+        result.add("action-health-redistribute")
     if kind == "heal_restore":
         result.add("action-heal")
     if kind in {"barrier_apply", "barrier_remove"}:
@@ -1468,6 +1475,9 @@ def _technical_mechanic_result_group(
 
 
 def _mechanic_facet_spec(mechanic_id: str, occurrence: Mapping[str, Any]) -> dict[str, Any]:
+    health = occurrence.get("healthRedistribute")
+    if mechanic_id == "action-health-redistribute" and isinstance(health, dict):
+        return {"id": health["behavior"], "label": HEALTH_REDISTRIBUTE_LABELS[health["behavior"]]}
     stat_modifier = occurrence.get("statModifier")
     if isinstance(stat_modifier, dict) and stat_modifier.get("facet"):
         return {"id": stat_modifier["facet"], "label": stat_modifier["label"]}
@@ -1757,8 +1767,10 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
             "characterId": character_id,
             "abilityId": ability_id if ability_id in ability_nodes else None,
             "mechanicIds": mechanic_ids,
-            "evidence": "normalized",
+            "evidence": projected["evidence"],
         }
+        if raw.get("healthRedistribute") is not None:
+            action_routes[raw["sourceActionId"]] = dict(operation_routes[operation_id], operationId=operation_id)
 
     for action_id in sorted(actions):
         raw = actions[action_id]
