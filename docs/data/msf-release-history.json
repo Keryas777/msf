@@ -5955,6 +5955,2718 @@
           "firstPlayableQuarter": "Q2"
         }
       ]
+    },
+    "2026": {
+      "status": "partial",
+      "auditedThrough": "2026-10-05",
+      "dateConvention": "Contemporary North American event dates are used. A day is encoded only for established first recruitability. Months without a day retain lower precision; Maestro remains an explicitly provisional observed-playability checkpoint.",
+      "individualReleases": [
+        {
+          "month": "2026-08",
+          "characterId": "Maestro",
+          "releaseMethod": "battleworld",
+          "notes": [
+            "Playable Maestro is directly documented by August 24, distinct from PVE_Boss_Maestro. Counted once as a confirmed 2026 recruit.",
+            "The encoded August month is a conservative observed-playability checkpoint, not a proven first-unlock month: the initial threshold crossing may have occurred during an earlier July Dystopia payout. No exact date is claimed.",
+            "March Recon grants at most 180 shards and does not establish recruitment; June 9 is Dystopia opening, not an unlock. Initial payout failures and changing per-run rewards prevent safely assigning the first global recruitment day."
+          ],
+          "confidence": "medium",
+          "sourceIds": [
+            "blog-update-3-6-26",
+            "blog-update-3-13-26",
+            "blog-update-6-5-26",
+            "blog-update-6-19-26",
+            "blog-update-7-24-26",
+            "maestro-first-rewards",
+            "maestro-july-rewards",
+            "maestro-playable"
+          ]
+        },
+        {
+          "month": "2026-10",
+          "characterId": "MagikBreaker",
+          "releaseMethod": "achievement; event_campaign",
+          "date": "2026-10-01",
+          "notes": [
+            "First Breaker: Magik opens October 1 at 2 PM PDT. Fifteen eligible Orange Iso-8 level-3 characters grant 750 achievement shards; the first three missions grant the final 60 for immediate seven-star recruitment when requirements are met."
+          ],
+          "confidence": "very_high",
+          "sourceIds": [
+            "blog-update-9-21-26",
+            "blog-update-9-25-26"
+          ]
+        }
+      ],
+      "teamEvents": [
+        {
+          "month": "2026-01",
+          "teamId": "winter-guard-2026-01-1",
+          "label": "Winter Guard — Reworked veterans",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "OmegaRed",
+            "RedGuardian",
+            "Yelena"
+          ],
+          "core": [
+            "OmegaRed",
+            "RedGuardian",
+            "Yelena"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "OmegaRed",
+            "RedGuardian",
+            "Yelena"
+          ],
+          "reworkedCharacterIds": [
+            "OmegaRed",
+            "RedGuardian",
+            "Yelena"
+          ],
+          "announcedNext": [
+            "Darkstar",
+            "UrsaMajor"
+          ],
+          "notes": [
+            "The January 5 contemporary report confirms these reworks are live. Large stat increases and broad War/defensive-kit changes qualify; original Omega Red is distinct from OmegaRedPhoenix."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2026-01",
+              "characterId": "OmegaRed"
+            },
+            {
+              "month": "2026-01",
+              "characterId": "RedGuardian"
+            },
+            {
+              "month": "2026-01",
+              "characterId": "Yelena"
+            }
+          ],
+          "sourceIds": [
+            "winter-guard-live",
+            "winter-guard-kit"
+          ]
+        },
+        {
+          "month": "2026-01",
+          "teamId": "winter-guard-2026-01-2",
+          "label": "Winter Guard — Darkstar",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "OmegaRed",
+            "RedGuardian",
+            "Yelena",
+            "Darkstar"
+          ],
+          "core": [
+            "OmegaRed",
+            "RedGuardian",
+            "Yelena",
+            "Darkstar"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Darkstar"
+          ],
+          "existingCharacterIds": [
+            "OmegaRed",
+            "RedGuardian",
+            "Yelena"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "UrsaMajor"
+          ],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-01",
+              "characterId": "Darkstar",
+              "releaseMethod": "limited_offer; limited_orb",
+              "date": "2026-01-13",
+              "notes": [
+                "Available January 13 at 1 PM PST through the 675-core Darkforce Defiance Orb and same-day direct offers."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-01-09-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-01",
+          "teamId": "winter-guard-2026-01-3",
+          "label": "Winter Guard — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "OmegaRed",
+            "RedGuardian",
+            "Yelena",
+            "Darkstar",
+            "UrsaMajor"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "UrsaMajor"
+          ],
+          "existingCharacterIds": [
+            "OmegaRed",
+            "RedGuardian",
+            "Yelena",
+            "Darkstar"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-01",
+              "characterId": "UrsaMajor",
+              "releaseMethod": "limited_offer; limited_orb",
+              "date": "2026-01-21",
+              "notes": [
+                "Available January 21 at 1 PM PST through the 675-core Ironclad Ursine Orb and same-day offers."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-01-16-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-02",
+          "teamId": "phoenix-force-2026-02-4",
+          "label": "Phoenix Force — Reworked core",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "members": [
+            "Phoenix",
+            "OmegaRedPhoenix"
+          ],
+          "core": [
+            "Phoenix",
+            "OmegaRedPhoenix"
+          ],
+          "pool": [
+            "Blastaar",
+            "Thunderstrike"
+          ],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Phoenix",
+            "OmegaRedPhoenix"
+          ],
+          "reworkedCharacterIds": [
+            "Phoenix",
+            "OmegaRedPhoenix"
+          ],
+          "announcedNext": [
+            "MagnetoPhoenixForce"
+          ],
+          "notes": [
+            "Phoenix and Omega Red (Phoenix Force) receive approximately 110% base-stat increases and multiple ability/synergy changes. Dark Phoenix is a transformation and not counted separately. Blastaar and Thunderstrike are explicitly suggested flexible slots, not new recruits."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2026-02",
+              "characterId": "Phoenix"
+            },
+            {
+              "month": "2026-02",
+              "characterId": "OmegaRedPhoenix"
+            }
+          ],
+          "sourceIds": [
+            "magnetic-ashes"
+          ]
+        },
+        {
+          "month": "2026-02",
+          "teamId": "phoenix-force-2026-02-5",
+          "label": "Phoenix Force — Magneto (Phoenix Force)",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "members": [
+            "Phoenix",
+            "OmegaRedPhoenix",
+            "MagnetoPhoenixForce"
+          ],
+          "core": [
+            "Phoenix",
+            "OmegaRedPhoenix",
+            "MagnetoPhoenixForce"
+          ],
+          "pool": [
+            "Blastaar",
+            "Thunderstrike"
+          ],
+          "newCharacterIds": [
+            "MagnetoPhoenixForce"
+          ],
+          "existingCharacterIds": [
+            "Phoenix",
+            "OmegaRedPhoenix"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [
+            "Three-character Phoenix Force core plus the officially suggested existing flexible choices; this is not a five-character newly released team."
+          ],
+          "characterReleases": [
+            {
+              "month": "2026-02",
+              "characterId": "MagnetoPhoenixForce",
+              "releaseMethod": "limited_offer",
+              "date": "2026-02-03",
+              "notes": [
+                "Magnetic Bond offers start February 3 at 1 PM PST, before later campaign rewards. This is a separate playable Phoenix Force variant."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-01-30-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-02",
+          "teamId": "retcon-2026-02-6",
+          "label": "Retcon — Jeff completes the team",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Deadpool",
+            "Gwenpool",
+            "SheHulk",
+            "SquirrelGirl",
+            "JeffTheLandShark"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "JeffTheLandShark"
+          ],
+          "existingCharacterIds": [
+            "Deadpool",
+            "Gwenpool",
+            "SheHulk",
+            "SquirrelGirl"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [
+            "The four veterans and their Retcon reworks belong to the preceding rollout and are not counted again in 2026. January shard rewards alone did not complete the playable team."
+          ],
+          "characterReleases": [
+            {
+              "month": "2026-02",
+              "characterId": "JeffTheLandShark",
+              "releaseMethod": "alliance_war_season_rewards",
+              "date": "2026-02-08",
+              "notes": [
+                "January 11 starts shard distribution, not recruitment. The February 9 contemporary discussion documents the previous day’s first unlocks: 15 compensation shards plus two 90-shard top-ten season payouts reach the 180-shard requirement."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-01-02-26",
+                "jeff-first-unlocks"
+              ]
+            }
+          ],
+          "reworks": [],
+          "sourceIds": [
+            "blog-update-01-02-26",
+            "blog-update-2-6-26"
+          ]
+        },
+        {
+          "month": "2026-02",
+          "teamId": "champions-2026-02-7",
+          "label": "Champions — Reworked veterans",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "AmadeusCho",
+            "MsMarvel",
+            "UltSpiderMan"
+          ],
+          "core": [
+            "AmadeusCho",
+            "MsMarvel",
+            "UltSpiderMan"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "AmadeusCho",
+            "MsMarvel",
+            "UltSpiderMan"
+          ],
+          "reworkedCharacterIds": [
+            "AmadeusCho",
+            "MsMarvel",
+            "UltSpiderMan"
+          ],
+          "announcedNext": [
+            "MoonGirl",
+            "NovaSamAlexander"
+          ],
+          "notes": [
+            "Catalog IDs AmadeusCho (Brawn) and UltSpiderMan (Spider-Man Miles) are used verbatim. All three receive several-hundred-percent stat increases plus substantial ability changes for the Raid team; Devil Dinosaur is not a separate member. Month represents the playable February rollout, not an invented patch day."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2026-02",
+              "characterId": "AmadeusCho"
+            },
+            {
+              "month": "2026-02",
+              "characterId": "MsMarvel"
+            },
+            {
+              "month": "2026-02",
+              "characterId": "UltSpiderMan"
+            }
+          ],
+          "sourceIds": [
+            "champions-control-the-fight"
+          ]
+        },
+        {
+          "month": "2026-02",
+          "teamId": "champions-2026-02-8",
+          "label": "Champions — Moon Girl",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "AmadeusCho",
+            "MsMarvel",
+            "UltSpiderMan",
+            "MoonGirl"
+          ],
+          "core": [
+            "AmadeusCho",
+            "MsMarvel",
+            "UltSpiderMan",
+            "MoonGirl"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "MoonGirl"
+          ],
+          "existingCharacterIds": [
+            "AmadeusCho",
+            "MsMarvel",
+            "UltSpiderMan"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "NovaSamAlexander"
+          ],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-02",
+              "characterId": "MoonGirl",
+              "releaseMethod": "limited_offer; limited_orb",
+              "date": "2026-02-11",
+              "notes": [
+                "Lunar Prodigy Orb (675 cores) and offers become available February 11 at 1 PM PST. Devil Dinosaur is part of her summon mechanic, not an independent recruit."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-2-6-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-02",
+          "teamId": "champions-2026-02-9",
+          "label": "Champions — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "AmadeusCho",
+            "MsMarvel",
+            "UltSpiderMan",
+            "MoonGirl",
+            "NovaSamAlexander"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "NovaSamAlexander"
+          ],
+          "existingCharacterIds": [
+            "AmadeusCho",
+            "MsMarvel",
+            "UltSpiderMan",
+            "MoonGirl"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [
+            "Nova also has Starjammer synergy, but no further Starjammer rework is inferred from a new trait alone."
+          ],
+          "characterReleases": [
+            {
+              "month": "2026-02",
+              "characterId": "NovaSamAlexander",
+              "releaseMethod": "limited_offer; limited_orb",
+              "date": "2026-02-19",
+              "notes": [
+                "Starbound Hero Orb (675 cores) and same-day offers begin February 19 at 1 PM PST."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-02-13-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-02",
+          "teamId": "galactic-council-2026-02-10",
+          "label": "Galactic Council — Chapter 4 core",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Quasar",
+            "Blastaar",
+            "Thunderstrike",
+            "AdamWarlock",
+            "StarLord"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Quasar",
+            "Blastaar",
+            "Thunderstrike",
+            "AdamWarlock",
+            "StarLord"
+          ],
+          "reworkedCharacterIds": [
+            "AdamWarlock",
+            "StarLord"
+          ],
+          "announcedNext": [
+            "Annihilus"
+          ],
+          "notes": [
+            "Chapter 4 starts February 2. Adam Warlock and Star-Lord receive large base-stat and multi-ability changes, alongside their Awakened paths. Existing Chapter Legends are not counted as 2026 releases."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2026-02",
+              "characterId": "AdamWarlock"
+            },
+            {
+              "month": "2026-02",
+              "characterId": "StarLord"
+            }
+          ],
+          "sourceIds": [
+            "blog-update-01-23-26"
+          ]
+        },
+        {
+          "month": "2026-03",
+          "teamId": "daring-warriors-2026-03-11",
+          "label": "Daring Warriors — Reworked veterans",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Daredevil",
+            "JessicaJones"
+          ],
+          "core": [
+            "Daredevil",
+            "JessicaJones"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Daredevil",
+            "JessicaJones"
+          ],
+          "reworkedCharacterIds": [
+            "Daredevil",
+            "JessicaJones"
+          ],
+          "announcedNext": [
+            "NightThrasher",
+            "Speedball",
+            "Eclipse"
+          ],
+          "notes": [
+            "Daredevil gains 728% Health and 616% Damage plus updated abilities; Jessica Jones gains 388% Health and 324% Damage plus extensive cleanse/barrier/energy and team changes. Rework month is retained at the playable March rollout, without inferring an activation day."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2026-03",
+              "characterId": "Daredevil"
+            },
+            {
+              "month": "2026-03",
+              "characterId": "JessicaJones"
+            }
+          ],
+          "sourceIds": [
+            "daring-warriors-fearless-in-crucible-and-battleworld"
+          ]
+        },
+        {
+          "month": "2026-03",
+          "teamId": "daring-warriors-2026-03-12",
+          "label": "Daring Warriors — Night Thrasher",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Daredevil",
+            "JessicaJones",
+            "NightThrasher"
+          ],
+          "core": [
+            "Daredevil",
+            "JessicaJones",
+            "NightThrasher"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "NightThrasher"
+          ],
+          "existingCharacterIds": [
+            "Daredevil",
+            "JessicaJones"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "Speedball",
+            "Eclipse"
+          ],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-03",
+              "characterId": "NightThrasher",
+              "releaseMethod": "limited_offer; limited_orb",
+              "date": "2026-03-04",
+              "notes": [
+                "Street Shredder Orb (675 cores) and offers begin March 4 at 1 PM PST."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-2-27-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-03",
+          "teamId": "daring-warriors-2026-03-13",
+          "label": "Daring Warriors — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Daredevil",
+            "JessicaJones",
+            "NightThrasher",
+            "Speedball",
+            "Eclipse"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Speedball",
+            "Eclipse"
+          ],
+          "existingCharacterIds": [
+            "Daredevil",
+            "JessicaJones",
+            "NightThrasher"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-03",
+              "characterId": "Speedball",
+              "releaseMethod": "limited_offer; limited_orb",
+              "date": "2026-03-18",
+              "notes": [
+                "Explicit First Available: March 18 at 2 PM PDT; Kinetic Overdrive Orb and same-day offers allow recruitment."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-3-13-26"
+              ]
+            },
+            {
+              "month": "2026-03",
+              "characterId": "Eclipse",
+              "releaseMethod": "event_campaign",
+              "date": "2026-03-18",
+              "notes": [
+                "Eclipse Lost opens March 18 at 2 PM PDT. Mission 1 explicitly unlocks Eclipse (GT14, level 75); higher missions are not prerequisites for first recruitment."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-3-13-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-04",
+          "teamId": "shadow-conclave-2026-04-14",
+          "label": "Shadow Conclave — Reworked veterans",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Thanos",
+            "Sylvie"
+          ],
+          "core": [
+            "Thanos",
+            "Sylvie"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Thanos",
+            "Sylvie"
+          ],
+          "reworkedCharacterIds": [
+            "Thanos",
+            "Sylvie"
+          ],
+          "announcedNext": [
+            "HighEvolutionary",
+            "Executioner",
+            "Malekith"
+          ],
+          "notes": [
+            "Thanos receives 370% Health/626% Damage increases, Sylvie 410% Health/409% Damage, alongside multiple ability changes for the new War Defense architecture."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2026-04",
+              "characterId": "Thanos"
+            },
+            {
+              "month": "2026-04",
+              "characterId": "Sylvie"
+            }
+          ],
+          "sourceIds": [
+            "powers-gather-in-shadow"
+          ]
+        },
+        {
+          "month": "2026-04",
+          "teamId": "shadow-conclave-2026-04-15",
+          "label": "Shadow Conclave — High Evolutionary",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Thanos",
+            "Sylvie",
+            "HighEvolutionary"
+          ],
+          "core": [
+            "Thanos",
+            "Sylvie",
+            "HighEvolutionary"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "HighEvolutionary"
+          ],
+          "existingCharacterIds": [
+            "Thanos",
+            "Sylvie"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "Executioner",
+            "Malekith"
+          ],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-04",
+              "characterId": "HighEvolutionary",
+              "releaseMethod": "limited_offer",
+              "date": "2026-04-09",
+              "notes": [
+                "Explicit First Available April 9 at 2 PM PDT; paid chain/orb guarantees an instant 100-shard unlock. A Power Core orb is not asserted for initial availability."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-4-3-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-04",
+          "teamId": "galactic-council-2026-04-16",
+          "label": "Galactic Council — Annihilus joins the flexible formation",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "members": [
+            "Quasar",
+            "Blastaar",
+            "Thunderstrike",
+            "AdamWarlock",
+            "StarLord",
+            "Annihilus"
+          ],
+          "core": [
+            "Annihilus"
+          ],
+          "pool": [
+            "Quasar",
+            "Blastaar",
+            "Thunderstrike",
+            "AdamWarlock",
+            "StarLord"
+          ],
+          "newCharacterIds": [
+            "Annihilus"
+          ],
+          "existingCharacterIds": [
+            "Quasar",
+            "Blastaar",
+            "Thunderstrike",
+            "AdamWarlock",
+            "StarLord"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [
+            "All six named Council characters are now playable alternatives for five combat slots; no sixth combat slot is implied. Earlier Council reworks are not counted again."
+          ],
+          "characterReleases": [
+            {
+              "month": "2026-04",
+              "characterId": "Annihilus",
+              "releaseMethod": "dark_dimension",
+              "notes": [
+                "Dark Dimension IX opens April 15 and first completion recruits Annihilus at 5 Yellow Stars. The April 18 contemporary leaderboard discussion congratulates jonny as the first finisher; opening day is not substituted for the first actual completion."
+              ],
+              "confidence": "medium",
+              "sourceIds": [
+                "blog-update-4-10-26",
+                "annihilus-first-finish"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-04",
+          "teamId": "shadow-conclave-2026-04-17",
+          "label": "Shadow Conclave — Executioner",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Thanos",
+            "Sylvie",
+            "HighEvolutionary",
+            "Executioner"
+          ],
+          "core": [
+            "Thanos",
+            "Sylvie",
+            "HighEvolutionary",
+            "Executioner"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Executioner"
+          ],
+          "existingCharacterIds": [
+            "Thanos",
+            "Sylvie",
+            "HighEvolutionary"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "Malekith"
+          ],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-04",
+              "characterId": "Executioner",
+              "releaseMethod": "limited_offer",
+              "date": "2026-04-23",
+              "notes": [
+                "Explicit First Available April 23 at 2 PM PDT; six-step paid chain and guaranteed unlock orb. Later core-orb access is not the initial release."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-4-17-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-05",
+          "teamId": "shadow-conclave-2026-05-18",
+          "label": "Shadow Conclave — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Thanos",
+            "Sylvie",
+            "HighEvolutionary",
+            "Executioner",
+            "Malekith"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Malekith"
+          ],
+          "existingCharacterIds": [
+            "Thanos",
+            "Sylvie",
+            "HighEvolutionary",
+            "Executioner"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-05",
+              "characterId": "Malekith",
+              "releaseMethod": "limited_offer",
+              "date": "2026-05-01",
+              "notes": [
+                "Explicit First Available May 1 at 2 PM PDT; paid chain and guaranteed 100-shard unlock orb."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-4-24-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-05",
+          "teamId": "omen-2026-05-19",
+          "label": "Omen — Reworked veterans",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "EbonyMaw",
+            "CullObsidian",
+            "Minerva",
+            "Ronan"
+          ],
+          "core": [
+            "EbonyMaw",
+            "CullObsidian",
+            "Minerva",
+            "Ronan"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "EbonyMaw",
+            "CullObsidian",
+            "Minerva",
+            "Ronan"
+          ],
+          "reworkedCharacterIds": [
+            "EbonyMaw",
+            "CullObsidian",
+            "Minerva",
+            "Ronan"
+          ],
+          "announcedNext": [
+            "SilverSurferBreaker"
+          ],
+          "notes": [
+            "All four receive massive stat increases and old/new comparisons across several abilities: counterattacks, revival/healing, control, and the War Offense structure are materially changed. Minerva is the catalog ID for Minn-Erva. Month represents the May playable rollout, not the April announcement day."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2026-05",
+              "characterId": "EbonyMaw"
+            },
+            {
+              "month": "2026-05",
+              "characterId": "CullObsidian"
+            },
+            {
+              "month": "2026-05",
+              "characterId": "Minerva"
+            },
+            {
+              "month": "2026-05",
+              "characterId": "Ronan"
+            }
+          ],
+          "sourceIds": [
+            "silver-surfer-and-breaker-events"
+          ]
+        },
+        {
+          "month": "2026-05",
+          "teamId": "omen-2026-05-20",
+          "label": "Omen — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "EbonyMaw",
+            "CullObsidian",
+            "Minerva",
+            "Ronan",
+            "SilverSurferBreaker"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "SilverSurferBreaker"
+          ],
+          "existingCharacterIds": [
+            "EbonyMaw",
+            "CullObsidian",
+            "Minerva",
+            "Ronan"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-05",
+              "characterId": "SilverSurferBreaker",
+              "releaseMethod": "legendary",
+              "date": "2026-05-05",
+              "notes": [
+                "Breaker Event: Silver Surfer opens May 5 at 2 PM PDT; scored-run milestones provide character shards for recruitment. Independent roster character, not an empowered Silver Surfer transformation."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "silver-surfer-and-breaker-events",
+                "blog-update-5-1-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-05",
+          "teamId": "exalted-x-men-2026-05-21",
+          "label": "Exalted X-Men — Reworked veterans",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Wolverine",
+            "Jubilee"
+          ],
+          "core": [
+            "Wolverine",
+            "Jubilee"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Wolverine",
+            "Jubilee"
+          ],
+          "reworkedCharacterIds": [
+            "Wolverine",
+            "Jubilee"
+          ],
+          "announcedNext": [
+            "StormMighty",
+            "Angel",
+            "Morph"
+          ],
+          "notes": [
+            "Large stat increases and substantial multi-ability Crucible changes qualify as significant reworks. No new release is assigned to the original Storm, Wolverine, or Jubilee. Month represents the May playable rollout."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2026-05",
+              "characterId": "Wolverine"
+            },
+            {
+              "month": "2026-05",
+              "characterId": "Jubilee"
+            }
+          ],
+          "sourceIds": [
+            "exalted-x-men"
+          ]
+        },
+        {
+          "month": "2026-05",
+          "teamId": "exalted-x-men-2026-05-22",
+          "label": "Exalted X-Men — Storm (Mighty)",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Wolverine",
+            "Jubilee",
+            "StormMighty"
+          ],
+          "core": [
+            "Wolverine",
+            "Jubilee",
+            "StormMighty"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "StormMighty"
+          ],
+          "existingCharacterIds": [
+            "Wolverine",
+            "Jubilee"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "Angel",
+            "Morph"
+          ],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-05",
+              "characterId": "StormMighty",
+              "releaseMethod": "limited_offer; tower_event",
+              "notes": [
+                "Mighty Tower: Storm starts May 8 with six floors and Queen’s Tempest milestone rewards; same-cycle offers also provide her shards. Only May is retained because tower opening is not by itself proof of the first sufficient reward claim."
+              ],
+              "confidence": "medium",
+              "sourceIds": [
+                "blog-update-5-1-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-05",
+          "teamId": "exalted-x-men-2026-05-23",
+          "label": "Exalted X-Men — Angel",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Wolverine",
+            "Jubilee",
+            "StormMighty",
+            "Angel"
+          ],
+          "core": [
+            "Wolverine",
+            "Jubilee",
+            "StormMighty",
+            "Angel"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Angel"
+          ],
+          "existingCharacterIds": [
+            "Wolverine",
+            "Jubilee",
+            "StormMighty"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "Morph"
+          ],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-05",
+              "characterId": "Angel",
+              "releaseMethod": "strike_pass",
+              "date": "2026-05-11",
+              "notes": [
+                "Official First Available May 11 at 2 PM PDT through Angel Ascension Pass, including the web Premium Plus path. The free 45-shard two-star unlock requires Pass progression; May 11 is not asserted as the free-track completion date."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-5-8-26",
+                "blog-update-5-11-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-05",
+          "teamId": "exalted-x-men-2026-05-24",
+          "label": "Exalted X-Men — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Wolverine",
+            "Jubilee",
+            "StormMighty",
+            "Angel",
+            "Morph"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Morph"
+          ],
+          "existingCharacterIds": [
+            "Wolverine",
+            "Jubilee",
+            "StormMighty",
+            "Angel"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-05",
+              "characterId": "Morph",
+              "releaseMethod": "limited_offer",
+              "date": "2026-05-21",
+              "notes": [
+                "Explicit First Available May 21 at 2 PM PDT; Genetic Perfection Orb offer guarantees 100 shards and instant three-star recruitment."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-5-15-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-06",
+          "teamId": "symbiote-six-2026-06-25",
+          "label": "Symbiote Six — Existing core",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Knull",
+            "Venom"
+          ],
+          "core": [
+            "Knull",
+            "Venom"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Knull",
+            "Venom"
+          ],
+          "reworkedCharacterIds": [
+            "Venom"
+          ],
+          "announcedNext": [
+            "Riot",
+            "Toxin",
+            "SymbioteQuicksilver"
+          ],
+          "notes": [
+            "Venom receives 257% Health/270% Damage increases and substantial Special/Ultimate/Passive changes. Knull receives only approximately 15% stats, ally-safety adjustments and a summon tag; his Special is explicitly unchanged. These limited changes are not counted as a significant Knull rework. Carnage (Enraged) remains a summon."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2026-06",
+              "characterId": "Venom"
+            }
+          ],
+          "sourceIds": [
+            "blog-update-5-27-26"
+          ]
+        },
+        {
+          "month": "2026-06",
+          "teamId": "symbiote-six-2026-06-26",
+          "label": "Symbiote Six — Riot",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Knull",
+            "Venom",
+            "Riot"
+          ],
+          "core": [
+            "Knull",
+            "Venom",
+            "Riot"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Riot"
+          ],
+          "existingCharacterIds": [
+            "Knull",
+            "Venom"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "Toxin",
+            "SymbioteQuicksilver"
+          ],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-06",
+              "characterId": "Riot",
+              "releaseMethod": "limited_offer",
+              "date": "2026-06-04",
+              "notes": [
+                "First Available June 4 at 2 PM PDT through the paid chain and Pain Eater Orb. Initial 50-shard orb purchases can be repeated to recruit."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-5-29-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-06",
+          "teamId": "symbiote-six-2026-06-27",
+          "label": "Symbiote Six — Toxin",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Knull",
+            "Venom",
+            "Riot",
+            "Toxin"
+          ],
+          "core": [
+            "Knull",
+            "Venom",
+            "Riot",
+            "Toxin"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Toxin"
+          ],
+          "existingCharacterIds": [
+            "Knull",
+            "Venom",
+            "Riot"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "SymbioteQuicksilver"
+          ],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-06",
+              "characterId": "Toxin",
+              "releaseMethod": "limited_offer",
+              "date": "2026-06-18",
+              "notes": [
+                "First Available June 18 at 2 PM PDT through paid chain/orb offers; subsequent Power Core orbs are not the initial release."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-6-12-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-06",
+          "teamId": "symbiote-six-2026-06-28",
+          "label": "Symbiote Six — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Knull",
+            "Venom",
+            "Riot",
+            "Toxin",
+            "SymbioteQuicksilver"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "SymbioteQuicksilver"
+          ],
+          "existingCharacterIds": [
+            "Knull",
+            "Venom",
+            "Riot",
+            "Toxin"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [
+            "Five playable roster members despite the team name. Knull’s summoned Carnage is not a sixth independent release."
+          ],
+          "characterReleases": [
+            {
+              "month": "2026-06",
+              "characterId": "SymbioteQuicksilver",
+              "releaseMethod": "tower_event",
+              "notes": [
+                "Fear Tower opens June 19 with the first ten floors and Rise of the Hive milestones. June 29 explicitly describes the playable variant in an already-live battle milestone. The first sufficient shard-claim day is not inferred from tower opening."
+              ],
+              "confidence": "medium",
+              "sourceIds": [
+                "blog-update-6-12-26",
+                "blog-update-6-26-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-07",
+          "teamId": "amazing-avengers-2026-07-29",
+          "label": "Amazing Avengers — Reworked veterans",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Hulk",
+            "SpiderMan"
+          ],
+          "core": [
+            "Hulk",
+            "SpiderMan"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Hulk",
+            "SpiderMan"
+          ],
+          "reworkedCharacterIds": [
+            "Hulk",
+            "SpiderMan"
+          ],
+          "announcedNext": [
+            "RachelColeAlves",
+            "BladeMighty",
+            "SpiderWomanJulia"
+          ],
+          "notes": [
+            "Several-hundred-percent stat increases and extensive old/new ability changes restructure Hulk and Spider-Man for Raids. The June announcement is not used as a new-character release day; the team state is represented in its July rollout."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2026-07",
+              "characterId": "Hulk"
+            },
+            {
+              "month": "2026-07",
+              "characterId": "SpiderMan"
+            }
+          ],
+          "sourceIds": [
+            "blog-update-6-25-26"
+          ]
+        },
+        {
+          "month": "2026-07",
+          "teamId": "amazing-avengers-2026-07-30",
+          "label": "Amazing Avengers — Rachel and Blade (Mighty)",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Hulk",
+            "SpiderMan",
+            "RachelColeAlves",
+            "BladeMighty"
+          ],
+          "core": [
+            "Hulk",
+            "SpiderMan",
+            "RachelColeAlves",
+            "BladeMighty"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "RachelColeAlves",
+            "BladeMighty"
+          ],
+          "existingCharacterIds": [
+            "Hulk",
+            "SpiderMan"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "SpiderWomanJulia"
+          ],
+          "notes": [
+            "Both recruitment paths operate in July; Blade’s exact first sufficient tower reward claim is deliberately omitted."
+          ],
+          "characterReleases": [
+            {
+              "month": "2026-07",
+              "characterId": "RachelColeAlves",
+              "releaseMethod": "limited_offer; limited_orb",
+              "date": "2026-07-03",
+              "notes": [
+                "First Available July 3 at 2 PM PDT; six-step paid chain and Widow’s Wrath Power Core orb allow recruitment."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-6-26-26",
+                "blog-update-7-2-26"
+              ]
+            },
+            {
+              "month": "2026-07",
+              "characterId": "BladeMighty",
+              "releaseMethod": "tower_event",
+              "notes": [
+                "Mighty Tower: Blade opens July 3 with the first six floors and corresponding milestone rewards. Only July is retained; no exact first sufficient shard claim is inferred."
+              ],
+              "confidence": "medium",
+              "sourceIds": [
+                "blog-update-6-26-26",
+                "blog-update-7-2-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-07",
+          "teamId": "amazing-avengers-2026-07-31",
+          "label": "Amazing Avengers — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Hulk",
+            "SpiderMan",
+            "RachelColeAlves",
+            "BladeMighty",
+            "SpiderWomanJulia"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "SpiderWomanJulia"
+          ],
+          "existingCharacterIds": [
+            "Hulk",
+            "SpiderMan",
+            "RachelColeAlves",
+            "BladeMighty"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-07",
+              "characterId": "SpiderWomanJulia",
+              "releaseMethod": "limited_offer",
+              "date": "2026-07-16",
+              "notes": [
+                "Web Arachnid Orb explicitly allows instant early unlock July 16 at 2 PM PDT. Regular access July 17 is later and is not the first playable date."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-7-10-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-07",
+          "teamId": "dread-2026-07-32",
+          "label": "Dread — Reworked veterans",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Bullseye",
+            "Electro",
+            "Rhino",
+            "MrNegative"
+          ],
+          "core": [
+            "Bullseye",
+            "Electro",
+            "Rhino",
+            "MrNegative"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Bullseye",
+            "Electro",
+            "Rhino",
+            "MrNegative"
+          ],
+          "reworkedCharacterIds": [
+            "Bullseye",
+            "Electro",
+            "Rhino",
+            "MrNegative"
+          ],
+          "announcedNext": [
+            "ScorpionBreaker"
+          ],
+          "notes": [
+            "Large base-stat increases and multiple old/new ability changes introduce a Crucible Offense architecture. Mister Negative’s Inner Demons are summons; their updated stats/kits do not add independent roster reworks or releases."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2026-07",
+              "characterId": "Bullseye"
+            },
+            {
+              "month": "2026-07",
+              "characterId": "Electro"
+            },
+            {
+              "month": "2026-07",
+              "characterId": "Rhino"
+            },
+            {
+              "month": "2026-07",
+              "characterId": "MrNegative"
+            }
+          ],
+          "sourceIds": [
+            "blog-update-7-23-26"
+          ]
+        },
+        {
+          "month": "2026-07",
+          "teamId": "dread-2026-07-33",
+          "label": "Dread — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Bullseye",
+            "Electro",
+            "Rhino",
+            "MrNegative",
+            "ScorpionBreaker"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "ScorpionBreaker"
+          ],
+          "existingCharacterIds": [
+            "Bullseye",
+            "Electro",
+            "Rhino",
+            "MrNegative"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-07",
+              "characterId": "ScorpionBreaker",
+              "releaseMethod": "legendary",
+              "date": "2026-07-27",
+              "notes": [
+                "Breaker Event: Scorpion opens July 27 at 2 PM PDT; milestone shards recruit this distinct playable Breaker variant."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-7-23-26",
+                "blog-update-7-24-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-07",
+          "teamId": "timeless-eternals-2026-07-34",
+          "label": "Timeless Eternals — Reworked core",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Ikaris",
+            "Sersi"
+          ],
+          "core": [
+            "Ikaris",
+            "Sersi"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Ikaris",
+            "Sersi"
+          ],
+          "reworkedCharacterIds": [
+            "Ikaris",
+            "Sersi"
+          ],
+          "announcedNext": [
+            "Kingo",
+            "Gilgamesh",
+            "Thena"
+          ],
+          "notes": [
+            "Both receive approximately 260% Health/300% Damage increases and broad old/new ability changes around Eternal Saga and the War/Battleworld team. The 10.4 update date is not assigned to the new recruits."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2026-07",
+              "characterId": "Ikaris"
+            },
+            {
+              "month": "2026-07",
+              "characterId": "Sersi"
+            }
+          ],
+          "sourceIds": [
+            "blog-update-7-29-26"
+          ]
+        },
+        {
+          "month": "2026-07",
+          "teamId": "timeless-eternals-2026-07-35",
+          "label": "Timeless Eternals — Kingo",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Ikaris",
+            "Sersi",
+            "Kingo"
+          ],
+          "core": [
+            "Ikaris",
+            "Sersi",
+            "Kingo"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Kingo"
+          ],
+          "existingCharacterIds": [
+            "Ikaris",
+            "Sersi"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "Gilgamesh",
+            "Thena"
+          ],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-07",
+              "characterId": "Kingo",
+              "releaseMethod": "tower_event",
+              "notes": [
+                "Spider-Man Tower: Descent begins July 29. Its first ten floors supply the four-Yellow-Star milestone reward, sufficient for recruitment without waiting for all forty floors. The month is retained rather than asserting a first completion timestamp."
+              ],
+              "confidence": "medium",
+              "sourceIds": [
+                "blog-update-7-28-26",
+                "kingo-tower-rewards"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-08",
+          "teamId": "timeless-eternals-2026-08-36",
+          "label": "Timeless Eternals — Gilgamesh",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Ikaris",
+            "Sersi",
+            "Kingo",
+            "Gilgamesh"
+          ],
+          "core": [
+            "Ikaris",
+            "Sersi",
+            "Kingo",
+            "Gilgamesh"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Gilgamesh"
+          ],
+          "existingCharacterIds": [
+            "Ikaris",
+            "Sersi",
+            "Kingo"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "Thena"
+          ],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-08",
+              "characterId": "Gilgamesh",
+              "releaseMethod": "limited_offer",
+              "date": "2026-08-06",
+              "notes": [
+                "Web-only Forgotten One Orb/chain offers explicitly enable instant early unlock August 6 at 2 PM PDT; regular access August 7 is later."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-7-31-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-08",
+          "teamId": "timeless-eternals-2026-08-37",
+          "label": "Timeless Eternals — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Ikaris",
+            "Sersi",
+            "Kingo",
+            "Gilgamesh",
+            "Thena"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Thena"
+          ],
+          "existingCharacterIds": [
+            "Ikaris",
+            "Sersi",
+            "Kingo",
+            "Gilgamesh"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-08",
+              "characterId": "Thena",
+              "releaseMethod": "limited_offer",
+              "date": "2026-08-20",
+              "notes": [
+                "Prime Eternal web orb/chain offers explicitly enable instant early unlock August 20 at 2 PM PDT; regular access August 21 is later."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-8-14-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-09",
+          "teamId": "iron-raiders-2026-09-38",
+          "label": "Iron Raiders — Reworked veterans",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Crossbones",
+            "Yellowjacket"
+          ],
+          "core": [
+            "Crossbones",
+            "Yellowjacket"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Crossbones",
+            "Yellowjacket"
+          ],
+          "reworkedCharacterIds": [
+            "Crossbones",
+            "Yellowjacket"
+          ],
+          "announcedNext": [
+            "UlyssesKlaue",
+            "Whiplash",
+            "IronMonger"
+          ],
+          "notes": [
+            "Competitive base-stat updates plus extensive old/new changes across Basic, Special, Ultimate, and Passive establish significant Raid reworks. Month represents the playable September rollout, not a fabricated August activation date."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2026-09",
+              "characterId": "Crossbones"
+            },
+            {
+              "month": "2026-09",
+              "characterId": "Yellowjacket"
+            }
+          ],
+          "sourceIds": [
+            "blog-update-8-25-26"
+          ]
+        },
+        {
+          "month": "2026-09",
+          "teamId": "iron-raiders-2026-09-39",
+          "label": "Iron Raiders — Ulysses Klaue",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Crossbones",
+            "Yellowjacket",
+            "UlyssesKlaue"
+          ],
+          "core": [
+            "Crossbones",
+            "Yellowjacket",
+            "UlyssesKlaue"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "UlyssesKlaue"
+          ],
+          "existingCharacterIds": [
+            "Crossbones",
+            "Yellowjacket"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "Whiplash",
+            "IronMonger"
+          ],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-09",
+              "characterId": "UlyssesKlaue",
+              "releaseMethod": "limited_offer; limited_orb",
+              "date": "2026-09-04",
+              "notes": [
+                "Available September 4 at 2 PM PDT; guaranteed four-star web Mega Orb/chain and Shockwave Power Core orb. No earlier early-access day is asserted."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-8-28-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-09",
+          "teamId": "iron-raiders-2026-09-40",
+          "label": "Iron Raiders — Whiplash",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Crossbones",
+            "Yellowjacket",
+            "UlyssesKlaue",
+            "Whiplash"
+          ],
+          "core": [
+            "Crossbones",
+            "Yellowjacket",
+            "UlyssesKlaue",
+            "Whiplash"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Whiplash"
+          ],
+          "existingCharacterIds": [
+            "Crossbones",
+            "Yellowjacket",
+            "UlyssesKlaue"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [
+            "IronMonger"
+          ],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-09",
+              "characterId": "Whiplash",
+              "releaseMethod": "kyln_event",
+              "notes": [
+                "Kyln: Code Whiplash opens September 11 with five cells, and its staged rewards recruit him during September. The first sufficient reward claim is not equated automatically with opening day."
+              ],
+              "confidence": "medium",
+              "sourceIds": [
+                "blog-update-9-4-26",
+                "blog-update-9-10-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-09",
+          "teamId": "iron-raiders-2026-09-41",
+          "label": "Iron Raiders — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Crossbones",
+            "Yellowjacket",
+            "UlyssesKlaue",
+            "Whiplash",
+            "IronMonger"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "IronMonger"
+          ],
+          "existingCharacterIds": [
+            "Crossbones",
+            "Yellowjacket",
+            "UlyssesKlaue",
+            "Whiplash"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-09",
+              "characterId": "IronMonger",
+              "releaseMethod": "limited_offer",
+              "date": "2026-09-17",
+              "notes": [
+                "Iron Raider Alpha web orb and chain offers explicitly allow instant early unlock September 17 at 2 PM PDT; regular availability September 18 is later."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-9-10-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-09",
+          "teamId": "west-coast-avengers-2026-09-42",
+          "label": "West Coast Avengers — Reworked veterans",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Hawkeye",
+            "Tigra",
+            "Mockingbird",
+            "WarMachine"
+          ],
+          "core": [
+            "Hawkeye",
+            "Tigra",
+            "Mockingbird",
+            "WarMachine"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Hawkeye",
+            "Tigra",
+            "Mockingbird",
+            "WarMachine"
+          ],
+          "reworkedCharacterIds": [
+            "Hawkeye",
+            "Tigra",
+            "Mockingbird",
+            "WarMachine"
+          ],
+          "announcedNext": [
+            "WaspJanet"
+          ],
+          "notes": [
+            "All four receive competitive base stats and substantial ability/role changes for the opening War Offense attack: Hawkeye’s pre-turn Ultimate, squad assists, cleanse/healing, and positive-effect control."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2026-09",
+              "characterId": "Hawkeye"
+            },
+            {
+              "month": "2026-09",
+              "characterId": "Tigra"
+            },
+            {
+              "month": "2026-09",
+              "characterId": "Mockingbird"
+            },
+            {
+              "month": "2026-09",
+              "characterId": "WarMachine"
+            }
+          ],
+          "sourceIds": [
+            "blog-update-9-14-26"
+          ]
+        },
+        {
+          "month": "2026-09",
+          "teamId": "west-coast-avengers-2026-09-43",
+          "label": "West Coast Avengers — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Hawkeye",
+            "Tigra",
+            "Mockingbird",
+            "WarMachine",
+            "WaspJanet"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "WaspJanet"
+          ],
+          "existingCharacterIds": [
+            "Hawkeye",
+            "Tigra",
+            "Mockingbird",
+            "WarMachine"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [],
+          "characterReleases": [
+            {
+              "month": "2026-09",
+              "characterId": "WaspJanet",
+              "releaseMethod": "battle_pass",
+              "notes": [
+                "First Chapter Battle Pass starts September 21, with paid progression/level-token access as well as 45 free-track shards. September 22 contemporary team use establishes September playability. Only September is retained: Pass opening is not asserted as the free-track unlock day. The second Pass on October 5 is progression, not a new release."
+              ],
+              "confidence": "medium",
+              "sourceIds": [
+                "blog-update-9-14-26",
+                "blog-update-9-18-26",
+                "janet-playable",
+                "blog-update-10-2-26"
+              ]
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2026-10",
+          "teamId": "ai-avengers-2026-10-44",
+          "label": "A.I. Avengers — Reworked veterans at the frontier",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Ultron",
+            "Vision"
+          ],
+          "core": [
+            "Ultron",
+            "Vision"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Ultron",
+            "Vision"
+          ],
+          "reworkedCharacterIds": [
+            "Ultron",
+            "Vision"
+          ],
+          "announcedNext": [
+            "Jocasta",
+            "HumanTorchJim",
+            "HawkeyeRobot"
+          ],
+          "notes": [
+            "The official article describes competitive base-stat modernization for both veterans and Vision’s updated abilities, including Repair and the A.I. energy/Speed Bar architecture. The October 5 contemporary discussion confirms both updated veterans are already in use; no exact initial activation day is inferred.",
+            "Ultron qualifies through the substantial base-stat modernization, not the Ultimate text correction: the official article explicitly says that correction changes no combat behavior. The three newcomers remain announcedNext, not members."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2026-10",
+              "characterId": "Ultron"
+            },
+            {
+              "month": "2026-10",
+              "characterId": "Vision"
+            }
+          ],
+          "sourceIds": [
+            "blog-update-9-22-26",
+            "ai-reworks-live"
+          ]
+        }
+      ],
+      "excludedFrom2026PlayableCount": [
+        {
+          "characterId": "ZombieKestrel",
+          "reason": "April campaign is explicitly a return, not first recruitment.",
+          "sourceIds": [
+            "blog-update-4-3-26"
+          ]
+        },
+        {
+          "characterId": "OmegaRedPhoenix",
+          "reason": "January campaign is a rerun; the official blog explicitly identifies last-year recruitment.",
+          "sourceIds": [
+            "blog-update-01-16-26"
+          ]
+        },
+        {
+          "characterId": "Jocasta",
+          "reason": "First offers are scheduled October 9, beyond the October 5 cutoff.",
+          "sourceIds": [
+            "blog-update-10-2-26"
+          ]
+        },
+        {
+          "characterId": "HumanTorchJim",
+          "reason": "First Kyln: Code Blazes opens October 9, beyond the cutoff.",
+          "sourceIds": [
+            "blog-update-10-2-26"
+          ]
+        },
+        {
+          "characterId": "HawkeyeRobot",
+          "reason": "A.I. Avengers announcement does not establish recruitment by the cutoff.",
+          "sourceIds": [
+            "blog-update-9-22-26"
+          ]
+        },
+        {
+          "characterId": "Destroyer",
+          "reason": "Fallen Asgard starts September 29, but shard distribution is not recruitment: the official expected five-star unlock is around the fourth Siege run, beyond the cutoff.",
+          "sourceIds": [
+            "blog-update-9-24-26",
+            "blog-update-9-25-26"
+          ]
+        }
+      ],
+      "nonRosterEntities": [
+        {
+          "label": "Devil Dinosaur",
+          "reason": "Moon Girl summon, not an independently recruitable roster slot."
+        },
+        {
+          "label": "Dark Phoenix",
+          "reason": "Phoenix transformation; no independent unlock."
+        },
+        {
+          "label": "Eclipse rabbit form",
+          "reason": "Combat transformation, not an independent release."
+        },
+        {
+          "label": "Carnage (Enraged)",
+          "reason": "Knull summon; the Symbiote Six tag does not create a release."
+        },
+        {
+          "label": "Inner Demons",
+          "reason": "Mister Negative summons; updated summon kits do not count separately."
+        },
+        {
+          "label": "PVE_Boss_Maestro / PVE_Boss_Destroyer",
+          "reason": "Non-player boss entities are distinct from their playable counterparts."
+        }
+      ],
+      "schemaNotes": [
+        "Independent 2026 entry: the missing 2022–2025 audits are not reconstructed. No starting or ending playable-roster total is fabricated.",
+        "auditedThrough marks the last fully elapsed calendar day covered by the source review, not a claim that every first-unlock timestamp is known. The year remains partial.",
+        "Maestro is confirmed playable within 2026, so the period count includes him once. His first global threshold crossing remains unresolved; August is explicitly an observed-playability checkpoint and may move earlier after a targeted payout audit.",
+        "Tower and Pass recruits retain monthly precision when opening alone does not establish a sufficient shard claim. Annihilus retains April without assigning the Dark Dimension opening day to the first finisher.",
+        "Groundwork events represent already-playable veterans in the documented rollout month; publication dates are not asserted as exact kit-activation dates. Subsequent recruits never appear as members before their own represented availability.",
+        "A.I. Avengers remain a two-veteran partial formation at the frontier. The October 5 contemporary discussion confirms the published Ultron/Vision stat updates are active; it does not prove the initial activation day. Their three announced newcomers remain excluded.",
+        "Insidious Six already appears as a complete existing team in January. Later First Breaker combat mods temporarily give Symbiotes Sinister/Insidious/Superior traits; these are not independent recruits or permanent significant reworks.",
+        "Webs Assemble is an event, not a new Spider-Man roster character: the Brand New Day reward is a costume. Kingo is counted under Timeless Eternals.",
+        "Knull’s modest stat adjustment/ally safety, new traits, text fixes, and behavior bugfixes are excluded from significant reworks. No large WebGL blobs were analyzed."
+      ],
+      "sources": [
+        {
+          "id": "blog-update-01-09-26",
+          "title": "Harnessing the Darkforce",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-01-09-26",
+          "publicationDate": "2026-01-09",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-01-16-26",
+          "title": "The Beast of Winter",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-01-16-26",
+          "publicationDate": "2026-01-16",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-01-02-26",
+          "title": "It's Jeff!",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-01-02-26",
+          "publicationDate": "2026-01-02",
+          "type": "official"
+        },
+        {
+          "id": "magnetic-ashes",
+          "title": "Magnetic Ashes",
+          "url": "https://marvelstrikeforce.com/en/updates/magnetic-ashes",
+          "publicationDate": "2026-01-22",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-01-30-26",
+          "title": "Master of Magnetic Fire",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-01-30-26",
+          "publicationDate": "2026-01-30",
+          "type": "official"
+        },
+        {
+          "id": "champions-control-the-fight",
+          "title": "Champions: Control the Fight",
+          "url": "https://marvelstrikeforce.com/en/updates/champions-control-the-fight",
+          "publicationDate": "2026-01-26",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-2-6-26",
+          "title": "A Girl and Her Devil Dinosaur",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-2-6-26",
+          "publicationDate": "2026-02-06",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-02-13-26",
+          "title": "The Nova Corps Recruit",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-02-13-26",
+          "publicationDate": "2026-02-13",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-01-23-26",
+          "title": "Chapter 4 & the Galactic Council",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-01-23-26",
+          "publicationDate": "2026-01-23",
+          "type": "official"
+        },
+        {
+          "id": "daring-warriors-fearless-in-crucible-and-battleworld",
+          "title": "Daring Warriors: Fearless in Crucible and Battleworld",
+          "url": "https://marvelstrikeforce.com/en/updates/daring-warriors-fearless-in-crucible-and-battleworld",
+          "publicationDate": "2026-02-23",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-2-27-26",
+          "title": "Shredding Crucible and Battleworld",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-2-27-26",
+          "publicationDate": "2026-02-27",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-3-13-26",
+          "title": "The Pinball Hero",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-3-13-26",
+          "publicationDate": "2026-03-13",
+          "type": "official"
+        },
+        {
+          "id": "powers-gather-in-shadow",
+          "title": "Powers Gather in Shadow",
+          "url": "https://marvelstrikeforce.com/en/updates/powers-gather-in-shadow",
+          "publicationDate": "2026-04-02",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-4-3-26",
+          "title": "Architect of Evolution",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-4-3-26",
+          "publicationDate": "2026-04-03",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-4-10-26",
+          "title": "The Darkness Is Calling",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-4-10-26",
+          "publicationDate": "2026-04-10",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-4-17-26",
+          "title": "The Axe of Asgard",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-4-17-26",
+          "publicationDate": "2026-04-17",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-4-24-26",
+          "title": "The Crown of Shadow",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-4-24-26",
+          "publicationDate": "2026-04-24",
+          "type": "official"
+        },
+        {
+          "id": "exalted-x-men",
+          "title": "Exalted X-Men: Rise Up in Crucible",
+          "url": "https://marvelstrikeforce.com/en/updates/exalted-x-men",
+          "publicationDate": "2026-04-23",
+          "type": "official"
+        },
+        {
+          "id": "silver-surfer-and-breaker-events",
+          "title": "Silver Surfer and Breaker Events",
+          "url": "https://marvelstrikeforce.com/en/updates/silver-surfer-and-breaker-events",
+          "publicationDate": "2026-04-29",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-5-1-26",
+          "title": "The Age of Fear Begins!",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-5-1-26",
+          "publicationDate": "2026-05-01",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-5-8-26",
+          "title": "Support from Above",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-5-8-26",
+          "publicationDate": "2026-05-08",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-5-11-26",
+          "title": "Unlock Angel Only with the Angel Ascension Pass",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-5-11-26",
+          "publicationDate": "2026-05-11",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-5-15-26",
+          "title": "It's Morphin’ Time!",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-5-15-26",
+          "publicationDate": "2026-05-15",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-5-27-26",
+          "title": "Symbiote Six: Infest Arena",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-5-27-26",
+          "publicationDate": "2026-05-27",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-5-29-26",
+          "title": "Stand Behind the Riot",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-5-29-26",
+          "publicationDate": "2026-05-29",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-6-12-26",
+          "title": "Fear the Tower",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-6-12-26",
+          "publicationDate": "2026-06-12",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-6-25-26",
+          "title": "Amazing Avengers: Conquer the Trepidation Raid",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-6-25-26",
+          "publicationDate": "2026-06-25",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-6-26-26",
+          "title": "Ice Skating Up a Tower",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-6-26-26",
+          "publicationDate": "2026-06-29",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-7-2-26",
+          "title": "Towers and Terrors",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-7-2-26",
+          "publicationDate": "2026-07-02",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-7-10-26",
+          "title": "The Psionic Spider",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-7-10-26",
+          "publicationDate": "2026-07-10",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-7-23-26",
+          "title": "The Contagious Breaker",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-7-23-26",
+          "publicationDate": "2026-07-23",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-7-24-26",
+          "title": "All Threads Lead to Spider-Man",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-7-24-26",
+          "publicationDate": "2026-07-24",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-7-28-26",
+          "title": "Webs Assemble: Week 1",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-7-28-26",
+          "publicationDate": "2026-07-28",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-7-29-26",
+          "title": "Timeless Eternals: Built to Outlast",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-7-29-26",
+          "publicationDate": "2026-07-29",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-7-31-26",
+          "title": "Eternal Support",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-7-31-26",
+          "publicationDate": "2026-07-31",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-8-14-26",
+          "title": "The Eternal Warrior Rises",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-8-14-26",
+          "publicationDate": "2026-08-14",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-8-25-26",
+          "title": "Iron Raiders: Raid Machines",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-8-25-26",
+          "publicationDate": "2026-08-25",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-8-28-26",
+          "title": "Together We Fight",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-8-28-26",
+          "publicationDate": "2026-08-28",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-9-4-26",
+          "title": "Kyln: Code Whiplash",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-9-4-26",
+          "publicationDate": "2026-09-03",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-9-10-26",
+          "title": "A Suit with a Grudge",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-9-10-26",
+          "publicationDate": "2026-09-11",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-9-14-26",
+          "title": "West Coast, the Best Coast",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-9-14-26",
+          "publicationDate": "2026-09-14",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-9-18-26",
+          "title": "Small Hero, Big Impact",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-9-18-26",
+          "publicationDate": "2026-09-18",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-9-21-26",
+          "title": "Do You Believe in Magik (Breaker)?",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-9-21-26",
+          "publicationDate": "2026-09-21",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-9-22-26",
+          "title": "Repair, Reload, Repeat",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-9-22-26",
+          "publicationDate": "2026-09-21",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-9-24-26",
+          "title": "Fallen Asgard and the Destroyer",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-9-24-26",
+          "publicationDate": "2026-09-22",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-9-25-26",
+          "title": "The Serpent’s Darkchylde",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-9-25-26",
+          "publicationDate": "2026-09-25",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-10-2-26",
+          "title": "Rage with the Machines",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-2-26",
+          "publicationDate": "2026-10-02",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-3-6-26",
+          "title": "Quantum Overdrive",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-3-6-26",
+          "publicationDate": "2026-03-06",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-6-5-26",
+          "title": "Time to Face the Music",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-6-5-26",
+          "publicationDate": "2026-06-03",
+          "type": "official"
+        },
+        {
+          "id": "blog-update-6-19-26",
+          "title": "Towers and Sieges",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-6-19-26",
+          "publicationDate": "2026-06-17",
+          "type": "official"
+        },
+        {
+          "id": "winter-guard-live",
+          "title": "Reworked Winter Guard Live",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1q4xwjp/reworked_winter_guard_live/",
+          "publicationDate": "2026-01-05",
+          "type": "community"
+        },
+        {
+          "id": "winter-guard-kit",
+          "title": "Winter Guard team and kit changes",
+          "url": "https://www.marvel.church/winter-guard/",
+          "type": "community",
+          "notes": "Current kit comparison is used only to establish substantial changes, not the historical activation date."
+        },
+        {
+          "id": "jeff-first-unlocks",
+          "title": "How does 117 people already have Jeff the Land Shark?",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1r0kjcg/how_does_117_people_already_have_jeff_the_land/",
+          "publicationDate": "2026-02-09",
+          "type": "community"
+        },
+        {
+          "id": "kingo-tower-rewards",
+          "title": "Are tower levels too many?",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1vo0med/are_tower_levels_too_many/",
+          "publicationDate": "2026-08-14",
+          "type": "community"
+        },
+        {
+          "id": "annihilus-first-finish",
+          "title": "Dark Dimension IX Leaderboard",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1soiyfc/dark_dimension_ix_leaderboard/",
+          "publicationDate": "2026-04-18",
+          "type": "community"
+        },
+        {
+          "id": "janet-playable",
+          "title": "West Coast Avengers are awful. DO NOT BUILD until buffed",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1wmsitu/west_coast_avengers_are_awful_do_not_build_until/",
+          "publicationDate": "2026-09-22",
+          "type": "community"
+        },
+        {
+          "id": "ai-reworks-live",
+          "title": "Why are Ultron’s stats still so low after the updated stats?",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1wycgdl/why_are_ultorons_stats_still_so_low_after_the/",
+          "publicationDate": "2026-10-05",
+          "type": "community"
+        },
+        {
+          "id": "maestro-playable",
+          "title": "Anyone have Maestro?",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1vwpc4b/anyone_have_maestro/",
+          "publicationDate": "2026-08-24",
+          "type": "community"
+        },
+        {
+          "id": "maestro-first-rewards",
+          "title": "Reminder about Maestro shard availability",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1u8h4jx/reminder_about_maestro_shard_availability/",
+          "publicationDate": "2026-06-17",
+          "type": "community"
+        },
+        {
+          "id": "maestro-july-rewards",
+          "title": "Maestro Shard Difficulty Chart",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1v75957/maestro_shard_difficulty_chart/",
+          "publicationDate": "2026-07-26",
+          "type": "community"
+        }
+      ],
+      "validation": {
+        "auditedPeriod": "2026-01-01/2026-10-05",
+        "individualReleaseCount": 2,
+        "teamEventNewCharacterCount": 31,
+        "distinctPlayableReleaseCount": 33,
+        "distinctReworkedCharacterCount": 37,
+        "duplicatesAcrossReleaseBuckets": []
+      }
     }
   }
 }
