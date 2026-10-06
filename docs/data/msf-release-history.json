@@ -4698,7 +4698,7 @@
     },
     "2021": {
       "status": "partial",
-      "auditedThrough": "2021-03-31",
+      "auditedThrough": "2021-06-30",
       "startingPlayableRosterCount": 154,
       "individualReleases": [
         {
@@ -4709,6 +4709,16 @@
           "notes": [
             "The March 12 anniversary blog still stated that Silver Surfer could not yet be recruited.",
             "A community-manager correction later explicitly identified March 16 as the date the 50-shard Silver Surfer offer went live, establishing first recruitability."
+          ]
+        },
+        {
+          "month": "2021-04",
+          "characterId": "Sybil",
+          "releaseMethod": "limited_offer",
+          "date": "2021-04-29",
+          "notes": [
+            "Kestrel is stored under the internal characterId Sybil in the current character catalog.",
+            "Her paid orb offer was live on April 29, the day version 5.3 became available, before the later Take Flight Event Campaign."
           ]
         }
       ],
@@ -5220,15 +5230,391 @@
             }
           ],
           "reworks": []
+        },
+        {
+          "month": "2021-04",
+          "teamId": "x-factor-polaris-2021",
+          "label": "X-Factor — Polaris",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Shatterstar",
+            "Longshot",
+            "MultipleMan",
+            "Polaris"
+          ],
+          "core": [
+            "Shatterstar",
+            "Longshot",
+            "MultipleMan",
+            "Polaris"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Polaris"
+          ],
+          "existingCharacterIds": [
+            "Shatterstar",
+            "Longshot",
+            "MultipleMan"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Polaris": "limited_offer"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Polaris became recruitable through a paid offer on April 12, before her S.T.R.I.K.E. Pass distribution could yield an unlock.",
+            "Multiple Man remains a March 31 release and is not counted again when his Event Campaign ran in April.",
+            "No second significant Longshot, Shatterstar or Multiple Man rework was identified in T2."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-04",
+              "characterId": "Polaris",
+              "releaseMethod": "limited_offer",
+              "date": "2021-04-12"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-04",
+          "teamId": "skill-military-53-refresh",
+          "label": "Skill Military — 5.3 Refresh",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "members": [
+            "Punisher",
+            "Killmonger",
+            "MercDmg_General",
+            "Yelena",
+            "RedGuardian",
+            "BlackWidow"
+          ],
+          "core": [
+            "Punisher",
+            "Killmonger",
+            "MercDmg_General",
+            "Yelena",
+            "RedGuardian"
+          ],
+          "pool": [
+            "BlackWidow"
+          ],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Punisher",
+            "Killmonger",
+            "MercDmg_General",
+            "Yelena",
+            "RedGuardian",
+            "BlackWidow"
+          ],
+          "reworkedCharacterIds": [
+            "BlackWidow"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "Version 5.3 added the Military trait to Black Widow and materially changed her Assist/Counter behavior, Special, Ultimate and Passive for Skill Military, meeting the significant-rework threshold.",
+            "Yelena Belova and Red Guardian received narrower 5.3 refinements and remain classified as existing rather than separately reworked.",
+            "Punisher, Killmonger and Mercenary Soldier are not counted again: their significant Skill Military reworks were already recorded in December 2020."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2021-04",
+              "characterId": "BlackWidow",
+              "date": "2021-04-29"
+            }
+          ]
+        },
+        {
+          "month": "2021-04",
+          "teamId": "heroes-for-hire-53-groundwork",
+          "label": "Heroes for Hire — 5.3 Groundwork",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "LukeCage",
+            "IronFist"
+          ],
+          "core": [
+            "LukeCage",
+            "IronFist"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "LukeCage",
+            "IronFist"
+          ],
+          "reworkedCharacterIds": [
+            "LukeCage",
+            "IronFist"
+          ],
+          "announcedNext": [
+            "ColleenWing",
+            "MistyKnight"
+          ],
+          "notes": [
+            "The 5.3 rollout substantially rebuilt Luke Cage and Iron Fist for Heroes for Hire, including multiple ability changes and the team's Charged, healing/revive and War Defense mechanics.",
+            "The exact first live reset for these reworks is intentionally not encoded; April is established by the 5.3 rollout and contemporary in-game reports."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2021-04",
+              "characterId": "LukeCage"
+            },
+            {
+              "month": "2021-04",
+              "characterId": "IronFist"
+            }
+          ]
+        },
+        {
+          "month": "2021-05",
+          "teamId": "heroes-for-hire-colleen-wing-2021",
+          "label": "Heroes for Hire — Colleen Wing",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "LukeCage",
+            "IronFist",
+            "ColleenWing"
+          ],
+          "core": [
+            "LukeCage",
+            "IronFist",
+            "ColleenWing"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "ColleenWing"
+          ],
+          "existingCharacterIds": [
+            "LukeCage",
+            "IronFist"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "ColleenWing": "limited_offer"
+          },
+          "announcedNext": [
+            "MistyKnight"
+          ],
+          "notes": [
+            "Colleen Wing's paid release offer was live on May 6 and could directly unlock her."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-05",
+              "characterId": "ColleenWing",
+              "releaseMethod": "limited_offer",
+              "date": "2021-05-06"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-05",
+          "teamId": "heroes-for-hire-misty-knight-2021",
+          "label": "Heroes for Hire — Four-character team",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "LukeCage",
+            "IronFist",
+            "ColleenWing",
+            "MistyKnight"
+          ],
+          "core": [
+            "LukeCage",
+            "IronFist",
+            "ColleenWing",
+            "MistyKnight"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "MistyKnight"
+          ],
+          "existingCharacterIds": [
+            "LukeCage",
+            "IronFist",
+            "ColleenWing"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "MistyKnight": "limited_offer"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Misty Knight was directly purchasable and recruitable in May; surviving evidence securely establishes the month and paid-offer method but not the first store reset, so no exact date is encoded.",
+            "This represents the contemporaneous four-character Heroes for Hire team. Shang-Chi arrived later in 2021 and is not backfilled into T2."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-05",
+              "characterId": "MistyKnight",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-06",
+          "teamId": "infinity-watch-54-groundwork",
+          "label": "Infinity Watch — 5.4 Groundwork",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Gamora",
+            "Nebula"
+          ],
+          "core": [
+            "Gamora",
+            "Nebula"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Gamora",
+            "Nebula"
+          ],
+          "reworkedCharacterIds": [
+            "Gamora",
+            "Nebula"
+          ],
+          "announcedNext": [
+            "PhylaVell",
+            "Moondragon",
+            "AdamWarlock"
+          ],
+          "notes": [
+            "Version 5.4 materially reworked both existing Infinity Watch members: Gamora received major base-stat, multi-ability and Charged-to-Empowered changes, while Nebula received broad stat, ability, revive, assist and Infinity Watch changes.",
+            "Empowered Gamora is a transformation state of the already playable Gamora and is not a separate playable release."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2021-06",
+              "characterId": "Gamora",
+              "date": "2021-06-02"
+            },
+            {
+              "month": "2021-06",
+              "characterId": "Nebula",
+              "date": "2021-06-02"
+            }
+          ]
+        },
+        {
+          "month": "2021-06",
+          "teamId": "infinity-watch-phyla-moondragon-2021",
+          "label": "Infinity Watch — Phyla-Vell and Moondragon",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Gamora",
+            "Nebula",
+            "PhylaVell",
+            "Moondragon"
+          ],
+          "core": [
+            "Gamora",
+            "Nebula",
+            "PhylaVell",
+            "Moondragon"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "PhylaVell",
+            "Moondragon"
+          ],
+          "existingCharacterIds": [
+            "Gamora",
+            "Nebula"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "PhylaVell": "limited_offer",
+            "Moondragon": "power_core_store"
+          },
+          "announcedNext": [
+            "AdamWarlock"
+          ],
+          "notes": [
+            "Both Phyla-Vell and Moondragon were demonstrably recruitable by June 2, before their later free-release events; surviving evidence does not justify inventing an intra-day ordering between them.",
+            "Phyla-Vell was obtainable through her initial paid release offer before the Vote for Loki Event Campaign.",
+            "Moondragon could be unlocked by repeatedly purchasing her 10-shard Supplies Store slot for Power Cores before her standard paid offer and later milestone event."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-06",
+              "characterId": "PhylaVell",
+              "releaseMethod": "limited_offer",
+              "date": "2021-06-02"
+            },
+            {
+              "month": "2021-06",
+              "characterId": "Moondragon",
+              "releaseMethod": "power_core_store",
+              "date": "2021-06-02"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2021-06",
+          "teamId": "infinity-watch-adam-warlock-2021",
+          "label": "Infinity Watch — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "members": [
+            "Gamora",
+            "Nebula",
+            "PhylaVell",
+            "Moondragon",
+            "AdamWarlock"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "AdamWarlock"
+          ],
+          "existingCharacterIds": [
+            "Gamora",
+            "Nebula",
+            "PhylaVell",
+            "Moondragon"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "AdamWarlock": "legendary"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Adam Warlock first became recruitable when the inaugural Mythic Legendary Event, \"The Infinity Watch,\" began on June 28."
+          ],
+          "characterReleases": [
+            {
+              "month": "2021-06",
+              "characterId": "AdamWarlock",
+              "releaseMethod": "legendary",
+              "date": "2021-06-28"
+            }
+          ],
+          "reworks": []
         }
       ],
       "validation": {
-        "auditedPeriod": "2021-01-01/2021-03-31",
-        "individualReleaseCount": 1,
-        "teamEventNewCharacterCount": 9,
-        "distinctPlayableReleaseCount": 10,
-        "distinctReworkedCharacterCount": 5,
-        "quarterEndPlayableRosterCount": 164,
+        "auditedPeriod": "2021-01-01/2021-06-30",
+        "individualReleaseCount": 2,
+        "teamEventNewCharacterCount": 15,
+        "distinctPlayableReleaseCount": 17,
+        "distinctReworkedCharacterCount": 10,
+        "quarterEndPlayableRosterCount": 171,
         "duplicatesAcrossReleaseBuckets": []
       },
       "excludedFrom2021Q1PlayableCount": [
