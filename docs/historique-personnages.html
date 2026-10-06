@@ -1240,6 +1240,11 @@
           timeZone: "UTC"
         });
 
+        const monthOnlyFormatter = new Intl.DateTimeFormat("fr-FR", {
+          month: "long",
+          timeZone: "UTC"
+        });
+
         const dayFormatter = new Intl.DateTimeFormat("fr-FR", {
           day: "numeric",
           month: "long",
@@ -1383,11 +1388,8 @@
           "brotherhood-v2-partial": "Confrérie V2 — Toad",
           "brotherhood-v2": "Confrérie V2",
           "red-skull-hydra-v1": "Crâne Rouge + sbires Hydra",
-          "black-order-v1-proxima": "Ordre Noir V1 — Proxima Midnight",
-          "black-order-v2-corvus": "Ordre Noir V2 — Corvus Glaive",
+          "black-order-2020": "Ordre Noir",
           "mercenaries-v1-taskmaster": "Mercenaires — Taskmaster",
-          "black-order-v3-cull": "Ordre Noir V3 — Cull Obsidian",
-          "black-order-v4": "Ordre Noir V4 — équipe complète",
           "power-armor-v2-ironheart": "Armure de Puissance V2 — Ironheart",
           "x-force-v1-domino": "X-Force V1 — Domino",
           "x-force-v2-negasonic": "X-Force V2 — Negasonic"
@@ -1457,24 +1459,33 @@
             }
 
             for (const event of yearData?.teamEvents || []) {
-              const rawDate = event.date || event.month || yearKey;
-              const temporal = parseTemporal(rawDate);
+              const eventRawDate = event.date || event.month || yearKey;
+              const releasesById = new Map(
+                (event.characterReleases || []).map((item) => [item.characterId, item])
+              );
+              const reworksById = new Map(
+                (event.reworks || []).map((item) => [item.characterId, item])
+              );
 
               for (const id of event.newCharacterIds || []) {
+                const releaseDetail = releasesById.get(id);
+                const rawDate = releaseDetail?.date || releaseDetail?.month || eventRawDate;
                 setRelease(id, {
                   type: "team",
                   yearKey,
-                  temporal,
-                  method: event.releaseMethods?.[id] || "",
+                  temporal: parseTemporal(rawDate),
+                  method: releaseDetail?.releaseMethod || event.releaseMethods?.[id] || "",
                   eventLabel: getTeamLabel(event),
                   teamId: event.teamId || ""
                 });
               }
 
               for (const id of event.reworkedCharacterIds || []) {
+                const reworkDetail = reworksById.get(id);
+                const rawDate = reworkDetail?.date || reworkDetail?.month || eventRawDate;
                 const record = ensureRecord(id);
                 record.reworks.push({
-                  temporal,
+                  temporal: parseTemporal(rawDate),
                   label: getTeamLabel(event),
                   teamId: event.teamId || "",
                   notes: Array.isArray(event.notes) ? event.notes : []
@@ -1575,6 +1586,43 @@
           ]);
         }
 
+        function buildTeamTimelineTemporal(temporals, fallback) {
+          const valid = (temporals || [])
+            .filter((temporal) => temporal?.year && temporal?.key)
+            .sort((a, b) => a.key.localeCompare(b.key));
+
+          if (!valid.length) return fallback;
+
+          const first = valid[0];
+          const last = valid[valid.length - 1];
+          const firstMonthKey = first.key.slice(0, 7);
+          const lastMonthKey = last.key.slice(0, 7);
+          const [firstYear, firstMonth] = firstMonthKey.split("-").map(Number);
+          const [lastYear, lastMonth] = lastMonthKey.split("-").map(Number);
+          const firstDate = new Date(Date.UTC(firstYear, firstMonth - 1, 1));
+          const lastDate = new Date(Date.UTC(lastYear, lastMonth - 1, 1));
+
+          if (firstMonthKey === lastMonthKey) {
+            return {
+              raw: firstMonthKey,
+              key: first.key,
+              year: first.year,
+              label: monthFormatter.format(firstDate),
+              precision: "month"
+            };
+          }
+
+          return {
+            raw: `${firstMonthKey}/${lastMonthKey}`,
+            key: first.key,
+            year: first.year,
+            label: firstYear === lastYear
+              ? `${monthOnlyFormatter.format(firstDate)}–${monthFormatter.format(lastDate)}`
+              : `${monthFormatter.format(firstDate)}–${monthFormatter.format(lastDate)}`,
+            precision: "range"
+          };
+        }
+
         function buildTimelineEvents() {
           const events = [];
           let sequence = 0;
@@ -1627,9 +1675,15 @@
             }
 
             for (const teamEvent of yearData?.teamEvents || []) {
-              const temporal = parseTemporal(teamEvent.date || teamEvent.month || yearKey);
+              const fallbackTemporal = parseTemporal(teamEvent.date || teamEvent.month || yearKey);
               const newcomers = new Set(teamEvent.newCharacterIds || []);
               const reworked = new Set(teamEvent.reworkedCharacterIds || []);
+              const releasesById = new Map(
+                (teamEvent.characterReleases || []).map((item) => [item.characterId, item])
+              );
+              const reworksById = new Map(
+                (teamEvent.reworks || []).map((item) => [item.characterId, item])
+              );
               const occurrences = getTeamMemberIds(teamEvent)
                 .map((id) => {
                   const record = getTimelineRecord(id);
@@ -1639,15 +1693,24 @@
                     : newcomers.has(id)
                       ? "new"
                       : "existing";
-                  return { record, status };
+                  const detail = status === "new"
+                    ? releasesById.get(id)
+                    : status === "rework"
+                      ? reworksById.get(id)
+                      : null;
+                  const rawDate = detail?.date || detail?.month || teamEvent.date || teamEvent.month || yearKey;
+                  return { record, status, temporal: parseTemporal(rawDate) };
                 })
                 .filter(Boolean);
 
               if (occurrences.length) {
+                const actionTemporals = occurrences
+                  .filter((occurrence) => occurrence.status !== "existing")
+                  .map((occurrence) => occurrence.temporal);
                 events.push({
                   type: "team",
                   yearKey,
-                  temporal,
+                  temporal: buildTeamTimelineTemporal(actionTemporals, fallbackTemporal),
                   label: getTeamLabel(teamEvent),
                   teamId: teamEvent.teamId || "",
                   formationStatus: teamEvent.formationStatus || "",
@@ -1713,20 +1776,21 @@
 
         function createTimelineCharacterCard(occurrence, event) {
           const { record, status } = occurrence;
+          const occurrenceTemporal = occurrence.temporal || event.temporal;
           let badge = "";
-          let meta = event.temporal.label;
+          let meta = occurrenceTemporal.label;
           let cardClass = "";
           let ariaContext = "sortie";
 
           if (status === "new" && event.type !== "launch") {
             badge = '<span class="cardBadge cardBadge--new">NOUVEAU</span>';
             meta = event.type === "team"
-              ? `${event.temporal.label} · Nouveau · ${event.label}`
-              : event.temporal.label;
+              ? `${occurrenceTemporal.label} · Nouveau · ${event.label}`
+              : occurrenceTemporal.label;
             ariaContext = "nouveau personnage";
           } else if (status === "rework") {
             badge = '<span class="cardBadge cardBadge--rework">↻ REWORK</span>';
-            meta = `${event.temporal.label} · Rework → ${event.label}`;
+            meta = `${occurrenceTemporal.label} · Rework → ${event.label}`;
             cardClass = " characterCard--rework";
             ariaContext = `rework pour ${event.label}`;
           } else if (status === "existing") {

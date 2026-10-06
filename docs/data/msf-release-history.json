@@ -14,10 +14,11 @@
   ],
   "schemaNotes": [
     "teamEvents use a common additive structure across years: members/core/pool describe the represented formation, newCharacterIds describes newly playable recruits, existingCharacterIds describes characters already playable at the event, and reworkedCharacterIds describes significant reworks.",
+    "A staggered initial rollout of one team remains a single teamEvent; characterReleases and reworks carry the individual dates instead of creating artificial V1/V2/... events for each recruit.",
     "members lists the explicit formation members represented by an event when that historical list is known; core/pool may describe flexible slots or alternatives, and announcedNext remains separate.",
     "characterReleases is the canonical detailed release metadata for team-event recruits; legacy releaseMethods may remain for backward compatibility.",
     "reworks is the canonical detailed metadata for significant reworks; reworkedCharacterIds remains the machine-friendly index.",
-    "A teamEvent month describes the team state/event represented; characterReleases and reworks may carry an earlier actual month or exact date when the rollout differs.",
+    "A teamEvent month is the timeline anchor for the represented team rollout/state; characterReleases and reworks carry the actual per-character month or exact date and may span beyond that anchor.",
     "Only globalLaunchRoster, individualReleases and teamEvents[].newCharacterIds contribute to playable-release counts."
   ],
   "years": {
@@ -3147,87 +3148,80 @@
         },
         {
           "month": "2020-04",
-          "teamId": "black-order-v1-proxima",
-          "label": "Black Order V1 — Proxima Midnight",
+          "teamId": "black-order-2020",
+          "label": "Black Order",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "members": [
             "Thanos",
-            "ProximaMidnight"
-          ],
-          "newCharacterIds": [
-            "ProximaMidnight"
-          ],
-          "existingCharacterIds": [
-            "Thanos"
-          ],
-          "releaseMethods": {
-            "ProximaMidnight": "event_orb"
-          },
-          "announcedNext": [
+            "ProximaMidnight",
             "CorvusGlaive",
             "CullObsidian",
             "EbonyMaw"
           ],
-          "notes": [
-            "Proxima Midnight became playable on 2020-04-01.",
-            "Her Deep Space event orb was purchasable with Power Cores before the Enter the Black Order Event Campaign itself began.",
-            "Thanos was already playable; the remaining Black Order members were not yet recruitable."
+          "newCharacterIds": [
+            "ProximaMidnight",
+            "CorvusGlaive",
+            "CullObsidian",
+            "EbonyMaw"
           ],
-          "reworkedCharacterIds": [],
+          "existingCharacterIds": [
+            "Thanos"
+          ],
+          "reworkedCharacterIds": [
+            "Thanos"
+          ],
+          "releaseMethods": {
+            "ProximaMidnight": "event_orb",
+            "CorvusGlaive": "limited_orb",
+            "CullObsidian": "limited_orb",
+            "EbonyMaw": "legendary"
+          },
+          "notes": [
+            "Black Order was one team whose initial playable rollout was staggered across April and May 2020 rather than several successive team versions.",
+            "Proxima Midnight became playable on 2020-04-01; her Deep Space event orb was purchasable with Power Cores before the Enter the Black Order Event Campaign itself began.",
+            "Corvus Glaive became playable on 2020-04-21 through limited orb/paid availability before his later Blitz release.",
+            "Liquid & Grit records the Thanos Empowered Update on 2020-05-06 during the 4.0 release cycle.",
+            "The Empowered mechanic had already been previewed and partially exposed at the 3.10 boundary, so Thanos is a T1/T2 boundary case but is provisionally classified as a significant T2 rework.",
+            "Cull Obsidian became playable on 2020-05-15, with his character orb available for Power Cores.",
+            "Ebony Maw became playable on 2020-05-26 through the Black and Ebony Legendary Event and completed the five-character Black Order."
+          ],
           "core": [],
           "pool": [],
+          "announcedNext": [],
           "characterReleases": [
             {
               "month": "2020-04",
               "characterId": "ProximaMidnight",
               "releaseMethod": "event_orb",
               "date": "2020-04-01"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2020-04",
-          "teamId": "black-order-v2-corvus",
-          "label": "Black Order V2 — Corvus Glaive",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Thanos",
-            "ProximaMidnight",
-            "CorvusGlaive"
-          ],
-          "newCharacterIds": [
-            "CorvusGlaive"
-          ],
-          "existingCharacterIds": [
-            "Thanos",
-            "ProximaMidnight"
-          ],
-          "releaseMethods": {
-            "CorvusGlaive": "limited_orb"
-          },
-          "announcedNext": [
-            "CullObsidian",
-            "EbonyMaw"
-          ],
-          "notes": [
-            "Corvus Glaive became playable on 2020-04-21 through limited orb/paid availability before his later Blitz release.",
-            "Black Order remained incomplete."
-          ],
-          "reworkedCharacterIds": [],
-          "core": [],
-          "pool": [],
-          "characterReleases": [
+            },
             {
               "month": "2020-04",
               "characterId": "CorvusGlaive",
               "releaseMethod": "limited_orb",
               "date": "2020-04-21"
+            },
+            {
+              "month": "2020-05",
+              "characterId": "CullObsidian",
+              "releaseMethod": "limited_orb",
+              "date": "2020-05-15"
+            },
+            {
+              "month": "2020-05",
+              "characterId": "EbonyMaw",
+              "releaseMethod": "legendary",
+              "date": "2020-05-26"
             }
           ],
-          "reworks": []
+          "reworks": [
+            {
+              "month": "2020-05",
+              "characterId": "Thanos",
+              "date": "2020-05-06"
+            }
+          ]
         },
         {
           "month": "2020-05",
@@ -3304,102 +3298,6 @@
             {
               "month": "2020-05",
               "characterId": "MercTank_Debuff"
-            }
-          ]
-        },
-        {
-          "month": "2020-05",
-          "teamId": "black-order-v3-cull",
-          "label": "Black Order V3 — Cull Obsidian",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Thanos",
-            "ProximaMidnight",
-            "CorvusGlaive",
-            "CullObsidian"
-          ],
-          "newCharacterIds": [
-            "CullObsidian"
-          ],
-          "existingCharacterIds": [
-            "Thanos",
-            "ProximaMidnight",
-            "CorvusGlaive"
-          ],
-          "releaseMethods": {
-            "CullObsidian": "limited_orb"
-          },
-          "announcedNext": [
-            "EbonyMaw"
-          ],
-          "notes": [
-            "Cull Obsidian became playable on 2020-05-15, with his character orb available for Power Cores.",
-            "Black Order still lacked Ebony Maw and therefore could not yet provide Thanos all six Infinity Stones."
-          ],
-          "reworkedCharacterIds": [],
-          "core": [],
-          "pool": [],
-          "characterReleases": [
-            {
-              "month": "2020-05",
-              "characterId": "CullObsidian",
-              "releaseMethod": "limited_orb",
-              "date": "2020-05-15"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2020-05",
-          "teamId": "black-order-v4",
-          "label": "Black Order V4 — Complete",
-          "kind": "team",
-          "formationStatus": "complete",
-          "members": [
-            "Thanos",
-            "ProximaMidnight",
-            "CorvusGlaive",
-            "CullObsidian",
-            "EbonyMaw"
-          ],
-          "newCharacterIds": [
-            "EbonyMaw"
-          ],
-          "existingCharacterIds": [
-            "ProximaMidnight",
-            "CorvusGlaive",
-            "CullObsidian",
-            "Thanos"
-          ],
-          "reworkedCharacterIds": [
-            "Thanos"
-          ],
-          "releaseMethods": {
-            "EbonyMaw": "legendary"
-          },
-          "notes": [
-            "Liquid & Grit records the Thanos Empowered Update on 2020-05-06 during the 4.0 release cycle.",
-            "The Empowered mechanic had already been previewed and partially exposed at the 3.10 boundary, so Thanos is a T1/T2 boundary case but is provisionally classified as a significant T2 rework.",
-            "Ebony Maw became playable on 2020-05-26 through the Black and Ebony Legendary Event.",
-            "Ebony Maw completed the five-character Black Order and made the full six-Infinity-Stone Empowered Thanos mechanic usable by players."
-          ],
-          "core": [],
-          "pool": [],
-          "announcedNext": [],
-          "characterReleases": [
-            {
-              "month": "2020-05",
-              "characterId": "EbonyMaw",
-              "releaseMethod": "legendary",
-              "date": "2020-05-26"
-            }
-          ],
-          "reworks": [
-            {
-              "month": "2020-05",
-              "characterId": "Thanos",
-              "date": "2020-05-06"
             }
           ]
         },
