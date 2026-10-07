@@ -6298,6 +6298,344 @@
         }
       ]
     },
+    "2022": {
+      "status": "partial",
+      "auditedThrough": "2022-03-31",
+      "startingPlayableRosterCount": 187,
+      "individualReleases": [],
+      "teamEvents": [
+        {
+          "month": "2022-01",
+          "teamId": "web-warriors-spider-punk-2022",
+          "label": "Web-Warriors — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "SpiderMan",
+            "UltSpiderMan",
+            "GhostSpider",
+            "ScarletSpider",
+            "SpiderPunk"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "SpiderPunk"
+          ],
+          "existingCharacterIds": [
+            "SpiderMan",
+            "UltSpiderMan",
+            "GhostSpider",
+            "ScarletSpider"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [
+            "Spider-Punk remained unreleased at the end of 2021 but was demonstrably owned and used in a full Web-Warriors team by January 11, before his later Event Campaign.",
+            "Contemporary offer-review coverage establishes paid availability before the Event Campaign, but the surviving evidence does not fix the exact first January store reset or distinguish the initial paid channel strongly enough to encode a releaseMethod."
+          ],
+          "characterReleases": [
+            {
+              "month": "2022-01",
+              "characterId": "SpiderPunk"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2022-01",
+          "teamId": "ravagers-tchalla-2022",
+          "label": "Ravagers — Complete",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Yondu",
+            "RavagerDmg_AoE",
+            "RavagerTank_Taunt",
+            "RavagerSupport_Heal",
+            "TChalla"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "TChalla"
+          ],
+          "existingCharacterIds": [
+            "Yondu",
+            "RavagerDmg_AoE",
+            "RavagerTank_Taunt",
+            "RavagerSupport_Heal"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "TChalla": "limited_offer"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Star-Lord (T'Challa) was explicitly left on the 2022 boundary in the 2021 audit. A January 21 contemporary release discussion references the live $50 offer while his Blitz was still scheduled for January 27.",
+            "The January paid-offer method is secure; the exact first store reset is intentionally omitted rather than inferring an intra-day boundary."
+          ],
+          "characterReleases": [
+            {
+              "month": "2022-01",
+              "characterId": "TChalla",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2022-02",
+          "teamId": "young-avengers-2022",
+          "label": "Young Avengers — 5.10 rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "AmericaChavez",
+            "MsMarvel",
+            "SquirrelGirl",
+            "Echo",
+            "KateBishop"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Echo",
+            "KateBishop"
+          ],
+          "existingCharacterIds": [
+            "AmericaChavez",
+            "MsMarvel",
+            "SquirrelGirl"
+          ],
+          "reworkedCharacterIds": [
+            "AmericaChavez",
+            "MsMarvel",
+            "SquirrelGirl"
+          ],
+          "releaseMethods": {
+            "KateBishop": "limited_orb"
+          },
+          "announcedNext": [],
+          "notes": [
+            "The January 21 Young Avengers announcement explicitly rebuilt the team around America Chavez, Ms. Marvel and Squirrel Girl plus Echo and the then-unrevealed fifth member Kate Bishop; Miles had already moved to Web-Warriors and is not backfilled here.",
+            "Version 5.10 gave America Chavez, Ms. Marvel and Squirrel Girl broad stat and multi-ability War Defense changes. All three meet the history's significant-rework threshold.",
+            "Echo's Mirror Image event was active by February 5 and contemporary February discussion also confirms direct shard offers. February recruitability is secure, but the surviving evidence does not establish the very first paid channel strongly enough to encode a releaseMethod or exact day.",
+            "Kate Bishop was already unlockable from her character orb on February 14, ten days before her February 24 Blitz."
+          ],
+          "characterReleases": [
+            {
+              "month": "2022-02",
+              "characterId": "Echo"
+            },
+            {
+              "month": "2022-02",
+              "characterId": "KateBishop",
+              "releaseMethod": "limited_orb",
+              "date": "2022-02-14"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2022-02",
+              "characterId": "AmericaChavez"
+            },
+            {
+              "month": "2022-02",
+              "characterId": "MsMarvel"
+            },
+            {
+              "month": "2022-02",
+              "characterId": "SquirrelGirl"
+            }
+          ]
+        },
+        {
+          "month": "2022-02",
+          "teamId": "dark-hunters-2022",
+          "label": "Dark Hunters — 5.10 rollout",
+          "kind": "team",
+          "formationStatus": "core-plus-pool",
+          "members": [
+            "ElsaBloodstone",
+            "GhostRider",
+            "DoctorVoodoo",
+            "Morbius"
+          ],
+          "core": [
+            "ElsaBloodstone",
+            "GhostRider",
+            "DoctorVoodoo",
+            "Morbius"
+          ],
+          "pool": [
+            "BaronMordo"
+          ],
+          "newCharacterIds": [
+            "DoctorVoodoo",
+            "Morbius"
+          ],
+          "existingCharacterIds": [
+            "ElsaBloodstone",
+            "GhostRider",
+            "BaronMordo"
+          ],
+          "reworkedCharacterIds": [
+            "ElsaBloodstone",
+            "GhostRider",
+            "BaronMordo"
+          ],
+          "releaseMethods": {
+            "Morbius": "limited_offer"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Version 5.10 substantially reworked Elsa Bloodstone and Ghost Rider for Dark Hunters and also substantially reworked Baron Mordo.",
+            "Baron Mordo is deliberately not listed as a Dark Hunter member: contemporaneous March guidance describes the actual Dark Hunters as a four-character core and treats Mordo as an optional stand-in, so he is represented only in the pool while his independent 5.10 rework is still counted.",
+            "Doctor Voodoo's A Hero's Haunting Event Campaign began March 9 and was officially described only as one of the first shard opportunities; players were unlocking him from the event by March 14. Because that wording does not rule out an earlier paid route, his initial release method and exact first day are intentionally omitted.",
+            "Morbius had a live paid offer by March 9, before his later event-based unlocks."
+          ],
+          "characterReleases": [
+            {
+              "month": "2022-03",
+              "characterId": "DoctorVoodoo"
+            },
+            {
+              "month": "2022-03",
+              "characterId": "Morbius",
+              "releaseMethod": "limited_offer",
+              "date": "2022-03-09"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2022-02",
+              "characterId": "ElsaBloodstone"
+            },
+            {
+              "month": "2022-02",
+              "characterId": "GhostRider"
+            },
+            {
+              "month": "2022-02",
+              "characterId": "BaronMordo"
+            }
+          ]
+        },
+        {
+          "month": "2022-03",
+          "teamId": "darkhold-60-groundwork-2022",
+          "label": "Darkhold — 6.0 groundwork",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "ScarletWitch",
+            "StrangeSupreme"
+          ],
+          "core": [
+            "ScarletWitch",
+            "StrangeSupreme"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "StrangeSupreme"
+          ],
+          "existingCharacterIds": [
+            "ScarletWitch"
+          ],
+          "reworkedCharacterIds": [
+            "ScarletWitch"
+          ],
+          "announcedNext": [
+            "Wong",
+            "AgathaHarkness",
+            "MorganLeFay"
+          ],
+          "notes": [
+            "Version 6.0 materially reworked Scarlet Witch before the full Darkhold team was recruitable.",
+            "Doctor Strange (Heartless) is stored under the current internal characterId StrangeSupreme. Contemporary March 24 players were already using their own Heartless Strange, proving T1 recruitability before the Forbidden Knowledge Event Campaign scheduled for April 4.",
+            "The exact first March paid reset and initial acquisition route are not encoded because ownership by March 24 is stronger evidence than the surviving store-timing evidence.",
+            "Wong, Agatha Harkness and Morgan Le Fay remained future releases at March 31 and are kept in announcedNext rather than counted in T1."
+          ],
+          "characterReleases": [
+            {
+              "month": "2022-03",
+              "characterId": "StrangeSupreme"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2022-03",
+              "characterId": "ScarletWitch"
+            }
+          ]
+        },
+        {
+          "month": "2022-03",
+          "teamId": "marauders-60-groundwork-2022",
+          "label": "Marauders — 6.0 groundwork",
+          "kind": "team",
+          "formationStatus": "partial",
+          "members": [
+            "Stryfe",
+            "Mystique",
+            "MrSinister"
+          ],
+          "core": [
+            "Stryfe",
+            "Mystique",
+            "MrSinister"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Stryfe",
+            "Mystique",
+            "MrSinister"
+          ],
+          "reworkedCharacterIds": [
+            "Stryfe",
+            "Mystique",
+            "MrSinister"
+          ],
+          "announcedNext": [
+            "MadelynePryor"
+          ],
+          "notes": [
+            "Version 6.0 gave Stryfe, Mystique and Mister Sinister large stat increases plus substantive ability and War Defense changes; all three meet the significant-rework threshold.",
+            "Madelyne Pryor was presented on March 25 as a future Marauder recruit filling Sabretooth's vacated slot and was still described as upcoming at the March 31 boundary, so she is not counted as a T1 release."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2022-03",
+              "characterId": "Stryfe"
+            },
+            {
+              "month": "2022-03",
+              "characterId": "Mystique"
+            },
+            {
+              "month": "2022-03",
+              "characterId": "MrSinister"
+            }
+          ]
+        }
+      ],
+      "validation": {
+        "auditedPeriod": "2022-01-01/2022-03-31",
+        "individualReleaseCount": 0,
+        "teamEventNewCharacterCount": 7,
+        "distinctPlayableReleaseCount": 7,
+        "distinctReworkedCharacterCount": 10,
+        "quarterEndPlayableRosterCount": 194,
+        "duplicatesAcrossReleaseBuckets": []
+      }
+    },
     "2026": {
       "status": "partial",
       "auditedThrough": "2026-10-05",
