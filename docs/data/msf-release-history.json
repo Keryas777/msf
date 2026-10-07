@@ -15,6 +15,7 @@
   "schemaNotes": [
     "teamEvents use a common additive structure across years: members/core/pool describe the represented formation, newCharacterIds describes newly playable recruits, existingCharacterIds describes characters already playable at the event, and reworkedCharacterIds describes significant reworks.",
     "A staggered initial rollout of one team remains a single teamEvent; characterReleases and reworks carry the individual dates instead of creating artificial V1/V2/... events for each recruit.",
+    "When one short team rollout crosses a calendar-year boundary, its yearly teamEvents may share rolloutId/rolloutLabel so the UI renders one rollout card while playable-release counts remain attributed to the correct year bucket.",
     "members lists the explicit formation members represented by an event when that historical list is known; core/pool may describe flexible slots or alternatives, and announcedNext remains separate.",
     "characterReleases is the canonical detailed release metadata for team-event recruits; legacy releaseMethods may remain for backward compatibility.",
     "reworks is the canonical detailed metadata for significant reworks; reworkedCharacterIds remains the machine-friendly index.",
