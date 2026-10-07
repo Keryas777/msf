@@ -6300,7 +6300,7 @@
     },
     "2022": {
       "status": "partial",
-      "auditedThrough": "2022-03-31",
+      "auditedThrough": "2022-06-30",
       "startingPlayableRosterCount": 187,
       "individualReleases": [],
       "teamEvents": [
@@ -6528,21 +6528,24 @@
         {
           "month": "2022-03",
           "teamId": "darkhold-60-groundwork-2022",
-          "label": "Darkhold — 6.0 groundwork",
+          "label": "Darkhold — 6.0 rollout",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "teamSize": 5,
           "members": [
             "ScarletWitch",
-            "StrangeSupreme"
+            "StrangeSupreme",
+            "Wong",
+            "AgathaHarkness",
+            "MorganLeFay"
           ],
-          "core": [
-            "ScarletWitch",
-            "StrangeSupreme"
-          ],
+          "core": [],
           "pool": [],
           "newCharacterIds": [
-            "StrangeSupreme"
+            "StrangeSupreme",
+            "Wong",
+            "AgathaHarkness",
+            "MorganLeFay"
           ],
           "existingCharacterIds": [
             "ScarletWitch"
@@ -6550,21 +6553,34 @@
           "reworkedCharacterIds": [
             "ScarletWitch"
           ],
-          "announcedNext": [
-            "Wong",
-            "AgathaHarkness",
-            "MorganLeFay"
-          ],
+          "announcedNext": [],
           "notes": [
             "Version 6.0 materially reworked Scarlet Witch before the full Darkhold team was recruitable.",
             "Doctor Strange (Heartless) is stored under the current internal characterId StrangeSupreme. Contemporary March 24 players were already using their own Heartless Strange, proving T1 recruitability before the Forbidden Knowledge Event Campaign scheduled for April 4.",
-            "The exact first March paid reset and initial acquisition route are not encoded because ownership by March 24 is stronger evidence than the surviving store-timing evidence.",
-            "Wong, Agatha Harkness and Morgan Le Fay remained future releases at March 31 and are kept in announcedNext rather than counted in T1."
+            "A contemporaneous Wong offer review on March 28 and players discussing purchased Wong offers on March 31 establish paid recruitability before the quarter boundary. The exact initial store reset is intentionally not encoded.",
+            "Agatha Harkness became recruitable through paid availability in April before her later milestone path.",
+            "Morgan Le Fay's first recruitment path was the Pestilence Scourge. The event opened April 13 and its 500,000-point milestone could award the full 3-star unlock during the event without waiting for rank rewards."
           ],
           "characterReleases": [
             {
               "month": "2022-03",
               "characterId": "StrangeSupreme"
+            },
+            {
+              "month": "2022-03",
+              "characterId": "Wong",
+              "releaseMethod": "limited_offer"
+            },
+            {
+              "month": "2022-04",
+              "characterId": "AgathaHarkness",
+              "releaseMethod": "limited_offer"
+            },
+            {
+              "month": "2022-04",
+              "characterId": "MorganLeFay",
+              "releaseMethod": "milestone",
+              "date": "2022-04-13"
             }
           ],
           "reworks": [
@@ -6572,44 +6588,55 @@
               "month": "2022-03",
               "characterId": "ScarletWitch"
             }
-          ]
+          ],
+          "releaseMethods": {
+            "Wong": "limited_offer",
+            "AgathaHarkness": "limited_offer",
+            "MorganLeFay": "milestone"
+          }
         },
         {
           "month": "2022-03",
           "teamId": "marauders-60-groundwork-2022",
-          "label": "Marauders — 6.0 groundwork",
+          "label": "Marauders — 6.0 rollout",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "members": [
             "Stryfe",
             "Mystique",
-            "MrSinister"
+            "MrSinister",
+            "EmmaFrost",
+            "MadelynePryor"
           ],
-          "core": [
-            "Stryfe",
-            "Mystique",
-            "MrSinister"
-          ],
+          "core": [],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "MadelynePryor"
+          ],
           "existingCharacterIds": [
             "Stryfe",
             "Mystique",
-            "MrSinister"
+            "MrSinister",
+            "EmmaFrost"
           ],
           "reworkedCharacterIds": [
             "Stryfe",
             "Mystique",
             "MrSinister"
           ],
-          "announcedNext": [
-            "MadelynePryor"
-          ],
+          "announcedNext": [],
           "notes": [
             "Version 6.0 gave Stryfe, Mystique and Mister Sinister large stat increases plus substantive ability and War Defense changes; all three meet the significant-rework threshold.",
-            "Madelyne Pryor was presented on March 25 as a future Marauder recruit filling Sabretooth's vacated slot and was still described as upcoming at the March 31 boundary, so she is not counted as a T1 release."
+            "Emma Frost was already playable and remained part of the Marauders formation without receiving a new significant 6.0 rework.",
+            "Madelyne Pryor was announced in March as the new Marauder filling Sabretooth's vacated slot, then became recruitable through paid availability in April. The exact initial April store reset is intentionally not encoded."
           ],
-          "characterReleases": [],
+          "characterReleases": [
+            {
+              "month": "2022-04",
+              "characterId": "MadelynePryor",
+              "releaseMethod": "limited_offer"
+            }
+          ],
           "reworks": [
             {
               "month": "2022-03",
@@ -6623,18 +6650,299 @@
               "month": "2022-03",
               "characterId": "MrSinister"
             }
+          ],
+          "releaseMethods": {
+            "MadelynePryor": "limited_offer"
+          }
+        },
+        {
+          "month": "2022-05",
+          "teamId": "a-force-61-rollout-2022",
+          "label": "A-Force — 6.1 rollout",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "CaptainMarvel",
+            "JessicaJones",
+            "SpiderWoman",
+            "NicoMinoru"
+          ],
+          "core": [
+            "CaptainMarvel",
+            "JessicaJones",
+            "SpiderWoman",
+            "NicoMinoru"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "SpiderWoman",
+            "NicoMinoru"
+          ],
+          "existingCharacterIds": [
+            "CaptainMarvel",
+            "JessicaJones"
+          ],
+          "reworkedCharacterIds": [
+            "CaptainMarvel",
+            "JessicaJones"
+          ],
+          "releaseMethods": {
+            "SpiderWoman": "limited_offer",
+            "NicoMinoru": "limited_offer"
+          },
+          "announcedNext": [],
+          "notes": [
+            "A-Force was explicitly introduced as a four-member team 'for now'; no historical fixed fifth member is projected backward into May 2022.",
+            "Version 6.1 substantially reworked Captain Marvel and Jessica Jones with large stat increases, multiple ability changes and new A-Force/War synergies.",
+            "Spider-Woman and Nico Minoru were both recruitable through paid availability in May before their broader event/milestone distribution. Exact first store-reset days are intentionally not encoded."
+          ],
+          "characterReleases": [
+            {
+              "month": "2022-05",
+              "characterId": "SpiderWoman",
+              "releaseMethod": "limited_offer"
+            },
+            {
+              "month": "2022-05",
+              "characterId": "NicoMinoru",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2022-05",
+              "characterId": "CaptainMarvel",
+              "date": "2022-05-03"
+            },
+            {
+              "month": "2022-05",
+              "characterId": "JessicaJones",
+              "date": "2022-05-03"
+            }
+          ]
+        },
+        {
+          "month": "2022-05",
+          "teamId": "wakandans-61-rework-2022",
+          "label": "Wakandans — 6.1 rework",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "BlackPanther",
+            "MBaku",
+            "Okoye",
+            "Shuri",
+            "Killmonger"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "BlackPanther",
+            "MBaku",
+            "Okoye",
+            "Shuri",
+            "Killmonger"
+          ],
+          "reworkedCharacterIds": [
+            "BlackPanther",
+            "MBaku",
+            "Okoye",
+            "Shuri",
+            "Killmonger"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "Version 6.1 substantially reworked all five Wakandans for Cosmic Crucible rather than merely adding mode text.",
+            "The changes included large base-stat increases and multi-ability mechanical updates across Black Panther, M'Baku, Okoye, Shuri and Killmonger, meeting the history's significant-rework threshold."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2022-05",
+              "characterId": "BlackPanther",
+              "date": "2022-05-03"
+            },
+            {
+              "month": "2022-05",
+              "characterId": "MBaku",
+              "date": "2022-05-03"
+            },
+            {
+              "month": "2022-05",
+              "characterId": "Okoye",
+              "date": "2022-05-03"
+            },
+            {
+              "month": "2022-05",
+              "characterId": "Shuri",
+              "date": "2022-05-03"
+            },
+            {
+              "month": "2022-05",
+              "characterId": "Killmonger",
+              "date": "2022-05-03"
+            }
+          ]
+        },
+        {
+          "month": "2022-05",
+          "teamId": "unlimited-x-men-61-62-rollout-2022",
+          "label": "Unlimited X-Men — 6.1/6.2 rollout",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Fantomex",
+            "Dazzler",
+            "Gambit",
+            "Sunfire"
+          ],
+          "core": [
+            "Fantomex",
+            "Dazzler",
+            "Gambit",
+            "Sunfire"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Fantomex",
+            "Dazzler",
+            "Gambit",
+            "Sunfire"
+          ],
+          "existingCharacterIds": [],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Fantomex": "limited_offer",
+            "Dazzler": "limited_offer",
+            "Gambit": "limited_offer",
+            "Sunfire": "limited_offer"
+          },
+          "announcedNext": [
+            "Rogue"
+          ],
+          "notes": [
+            "Fantomex, Dazzler and Gambit became recruitable through paid availability during the 6.1 cycle; their later Event Campaign, month-long milestone and Gambit Raid paths are not treated as their first global recruitment moments.",
+            "Sunfire was announced for the 6.2 cycle and became recruitable through paid availability in June before the later Solar Sizzler milestone path. The exact first store-reset day is intentionally not encoded.",
+            "Rogue was not recruitable by June 30: her Famine Scourge remained future at the quarter boundary and opened in July."
+          ],
+          "characterReleases": [
+            {
+              "month": "2022-05",
+              "characterId": "Fantomex",
+              "releaseMethod": "limited_offer"
+            },
+            {
+              "month": "2022-05",
+              "characterId": "Dazzler",
+              "releaseMethod": "limited_offer"
+            },
+            {
+              "month": "2022-06",
+              "characterId": "Gambit",
+              "releaseMethod": "limited_offer"
+            },
+            {
+              "month": "2022-06",
+              "characterId": "Sunfire",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2022-06",
+          "teamId": "hero-asgardians-62-groundwork-2022",
+          "label": "Hero Asgardians — 6.2 groundwork",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Thor",
+            "Heimdall",
+            "Sif"
+          ],
+          "core": [
+            "Thor",
+            "Heimdall",
+            "Sif"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Thor",
+            "Heimdall",
+            "Sif"
+          ],
+          "reworkedCharacterIds": [
+            "Thor",
+            "Heimdall",
+            "Sif"
+          ],
+          "announcedNext": [
+            "JaneThor",
+            "Valkyrie"
+          ],
+          "notes": [
+            "Version 6.2 substantially reworked Thor, Heimdall and Sif with large stat increases and multi-ability Hero Asgardian/War Defense changes before the two new members were recruitable.",
+            "Mighty Thor (internal characterId JaneThor) and Valkyrie were announced in June but no normal recruitment route is established before July, so both remain announcedNext and are excluded from the T2 playable count.",
+            "The contemporaneous Summer of Thunder reward incident at the June/July boundary is not treated as a normal June release route."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2022-06",
+              "characterId": "Thor",
+              "date": "2022-06-15"
+            },
+            {
+              "month": "2022-06",
+              "characterId": "Heimdall",
+              "date": "2022-06-15"
+            },
+            {
+              "month": "2022-06",
+              "characterId": "Sif",
+              "date": "2022-06-15"
+            }
           ]
         }
       ],
       "validation": {
-        "auditedPeriod": "2022-01-01/2022-03-31",
+        "auditedPeriod": "2022-01-01/2022-06-30",
         "individualReleaseCount": 0,
-        "teamEventNewCharacterCount": 7,
-        "distinctPlayableReleaseCount": 7,
-        "distinctReworkedCharacterCount": 10,
-        "quarterEndPlayableRosterCount": 194,
+        "teamEventNewCharacterCount": 17,
+        "distinctPlayableReleaseCount": 17,
+        "distinctReworkedCharacterCount": 20,
+        "quarterEndPlayableRosterCount": 204,
         "duplicatesAcrossReleaseBuckets": []
-      }
+      },
+      "excludedFrom2022Q2PlayableCount": [
+        {
+          "characterId": "Rogue",
+          "reason": "announced_in_6_2_release_cycle_but_first_recruitable_in_july_2022",
+          "announcedMonth": "2022-06",
+          "firstPlayableMonth": "2022-07",
+          "firstPlayableQuarter": "Q3"
+        },
+        {
+          "characterId": "JaneThor",
+          "reason": "announced_in_6_2_release_cycle_but_first_normal_recruitment_route_in_july_2022",
+          "announcedMonth": "2022-06",
+          "firstPlayableMonth": "2022-07",
+          "firstPlayableQuarter": "Q3"
+        },
+        {
+          "characterId": "Valkyrie",
+          "reason": "announced_in_6_2_release_cycle_but_first_recruitable_in_july_2022",
+          "announcedMonth": "2022-06",
+          "firstPlayableMonth": "2022-07",
+          "firstPlayableQuarter": "Q3"
+        }
+      ]
     },
     "2026": {
       "status": "partial",
