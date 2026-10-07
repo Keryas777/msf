@@ -2979,51 +2979,6 @@
         },
         {
           "month": "2020-02",
-          "teamId": "brotherhood-v2-partial",
-          "label": "Brotherhood V2 — Toad",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Magneto",
-            "Juggernaut",
-            "Pyro",
-            "Toad"
-          ],
-          "newCharacterIds": [
-            "Toad"
-          ],
-          "existingCharacterIds": [
-            "Magneto",
-            "Juggernaut",
-            "Pyro"
-          ],
-          "releaseMethods": {
-            "Toad": "limited_offer"
-          },
-          "announcedNext": [
-            "Blob"
-          ],
-          "notes": [
-            "Toad became playable on 2020-02-20 before Blob.",
-            "Magneto and Juggernaut received only minor ability enhancements in 3.9 and are classified as existing rather than significantly reworked.",
-            "Pyro was already playable and was not materially reworked.",
-            "Mystique and Sabretooth were being moved to the Marauders."
-          ],
-          "reworkedCharacterIds": [],
-          "core": [],
-          "pool": [],
-          "characterReleases": [
-            {
-              "month": "2020-02",
-              "characterId": "Toad",
-              "releaseMethod": "limited_offer",
-              "date": "2020-02-20"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2020-03",
           "teamId": "brotherhood-v2",
           "label": "Brotherhood V2",
           "kind": "team",
@@ -3036,24 +2991,37 @@
             "Blob"
           ],
           "newCharacterIds": [
+            "Toad",
             "Blob"
           ],
           "existingCharacterIds": [
             "Magneto",
             "Juggernaut",
-            "Pyro",
-            "Toad"
-          ],
-          "notes": [
-            "Blob became playable on 2020-03-03 and completed the contemporary Brotherhood V2 lineup.",
-            "The exact first acquisition channel on 2020-03-03 is not encoded because the release date is better established than the channel.",
-            "Mystique and Sabretooth are not retroactively retained in this version because Toad and Blob were explicitly introduced to replace their Brotherhood slots."
+            "Pyro"
           ],
           "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "Toad": "limited_offer"
+          },
+          "notes": [
+            "Brotherhood V2 was one team whose initial playable rollout was staggered from late February into early March 2020 rather than two successive team versions.",
+            "Toad became playable on 2020-02-20 before Blob.",
+            "Blob became playable on 2020-03-03 and completed the contemporary Brotherhood V2 lineup.",
+            "The exact first acquisition channel for Blob on 2020-03-03 is not encoded because the release date is better established than the channel.",
+            "Magneto and Juggernaut received only minor ability enhancements in 3.9 and are classified as existing rather than significantly reworked.",
+            "Pyro was already playable and was not materially reworked.",
+            "Mystique and Sabretooth were being moved to the Marauders and are not retained in this Brotherhood V2 lineup."
+          ],
           "core": [],
           "pool": [],
           "announcedNext": [],
           "characterReleases": [
+            {
+              "month": "2020-02",
+              "characterId": "Toad",
+              "releaseMethod": "limited_offer",
+              "date": "2020-02-20"
+            },
             {
               "month": "2020-03",
               "characterId": "Blob",
