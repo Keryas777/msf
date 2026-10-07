@@ -3317,47 +3317,63 @@
         },
         {
           "month": "2020-06",
-          "teamId": "x-force-v1-domino",
-          "label": "X-Force V1 — Domino",
+          "teamId": "x-force-2020",
+          "label": "X-Force",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "members": [
             "Deadpool",
             "Cable",
-            "Domino"
+            "Domino",
+            "Negasonic",
+            "X23"
           ],
           "newCharacterIds": [
-            "Domino"
+            "Domino",
+            "Negasonic",
+            "X23"
+          ],
+          "existingCharacterIds": [
+            "Deadpool",
+            "Cable"
           ],
           "reworkedCharacterIds": [
             "Deadpool",
             "Cable"
           ],
           "releaseMethods": {
-            "Domino": "limited_offer"
+            "Domino": "limited_offer",
+            "X23": "limited_offer"
           },
-          "announcedNext": [
-            "Negasonic",
-            "X23"
-          ],
           "notes": [
+            "X-Force was one team whose initial playable rollout was staggered from June into July 2020 rather than three successive team versions.",
             "Domino became playable on 2020-06-10 by the normalized historical date, with her offer visible immediately after the 4.1 update before her Serendipity Event Campaign.",
-            "Cable received substantial stat, Charged, Barrier, dispel and X-Force War Offense changes.",
-            "Deadpool received substantial new X-Force synergies and is also classified as reworked.",
-            "Negasonic and X-23 were announced but were not both playable at this stage."
+            "Negasonic Teenage Warhead became playable on 2020-06-18; her subsequent free-to-play path used the Unity event with Creative Differences and Explosive Combo milestones.",
+            "The exact first shard-acquisition channel for Negasonic on 2020-06-18 is not encoded because the release date is better established than the channel.",
+            "X-23 became playable on 2020-07-01 through paid availability before her later free-to-play paths and completed the five-character X-Force lineup.",
+            "Cable received substantial stat, Charged, Barrier, dispel and X-Force War Offense changes in June 2020.",
+            "Deadpool received substantial new X-Force synergies in June 2020 and is also classified as reworked."
           ],
           "core": [],
           "pool": [],
-          "existingCharacterIds": [
-            "Deadpool",
-            "Cable"
-          ],
+          "announcedNext": [],
           "characterReleases": [
             {
               "month": "2020-06",
               "characterId": "Domino",
               "releaseMethod": "limited_offer",
               "date": "2020-06-10"
+            },
+            {
+              "month": "2020-06",
+              "characterId": "Negasonic",
+              "date": "2020-06-18"
+            },
+            {
+              "month": "2020-07",
+              "characterId": "X23",
+              "releaseMethod": "limited_offer",
+              "date": "2020-07-01"
             }
           ],
           "reworks": [
@@ -3370,92 +3386,6 @@
               "characterId": "Cable"
             }
           ]
-        },
-        {
-          "month": "2020-06",
-          "teamId": "x-force-v2-negasonic",
-          "label": "X-Force V2 — Negasonic",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Deadpool",
-            "Cable",
-            "Domino",
-            "Negasonic"
-          ],
-          "newCharacterIds": [
-            "Negasonic"
-          ],
-          "existingCharacterIds": [
-            "Deadpool",
-            "Cable",
-            "Domino"
-          ],
-          "announcedNext": [
-            "X23"
-          ],
-          "notes": [
-            "Liquid & Grit records Negasonic Teenage Warhead as a hero release on 2020-06-18.",
-            "Her subsequent free-to-play release path is firmly established as the Unity event using Creative Differences and Explosive Combo milestones.",
-            "The exact first shard-acquisition channel on 2020-06-18 has not been independently established strongly enough to encode a releaseMethod.",
-            "X-23 was still unreleased on 2020-06-18 and belongs to T3."
-          ],
-          "reworkedCharacterIds": [],
-          "core": [],
-          "pool": [],
-          "characterReleases": [
-            {
-              "month": "2020-06",
-              "characterId": "Negasonic",
-              "date": "2020-06-18"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2020-07",
-          "teamId": "x-force-v3-x23",
-          "label": "X-Force V3 — Complete",
-          "kind": "team",
-          "formationStatus": "complete",
-          "members": [
-            "Deadpool",
-            "Cable",
-            "Domino",
-            "Negasonic",
-            "X23"
-          ],
-          "newCharacterIds": [
-            "X23"
-          ],
-          "existingCharacterIds": [
-            "Deadpool",
-            "Cable",
-            "Domino",
-            "Negasonic"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "X23": "limited_offer"
-          },
-          "core": [],
-          "pool": [],
-          "announcedNext": [],
-          "notes": [
-            "X-23 became playable on 2020-07-01 through paid availability before her later free-to-play paths.",
-            "Her release completed the five-character X-Force lineup.",
-            "Cable and Deadpool were already reworked in T2 and are not counted again.",
-            "Domino and Negasonic were already playable in T2."
-          ],
-          "characterReleases": [
-            {
-              "month": "2020-07",
-              "characterId": "X23",
-              "releaseMethod": "limited_offer",
-              "date": "2020-07-01"
-            }
-          ],
-          "reworks": []
         },
         {
           "month": "2020-07",
