@@ -1784,27 +1784,30 @@
           const { record, status } = occurrence;
           const occurrenceTemporal = occurrence.temporal || event.temporal;
           let badge = "";
-          let meta = occurrenceTemporal.label;
+          let meta = "";
           let cardClass = "";
           let ariaContext = "sortie";
 
           if (status === "new" && event.type !== "launch") {
             badge = '<span class="cardBadge cardBadge--new">NOUVEAU</span>';
-            meta = event.type === "team"
-              ? `${occurrenceTemporal.label} · Nouveau · ${event.label}`
-              : occurrenceTemporal.label;
+            if (occurrenceTemporal.precision === "day") meta = occurrenceTemporal.label;
             ariaContext = "nouveau personnage";
           } else if (status === "rework") {
             badge = '<span class="cardBadge cardBadge--rework">↻ REWORK</span>';
-            meta = `${occurrenceTemporal.label} · Rework → ${event.label}`;
+            if (occurrenceTemporal.precision === "day") meta = occurrenceTemporal.label;
             cardClass = " characterCard--rework";
             ariaContext = `rework pour ${event.label}`;
           } else if (status === "existing") {
             badge = '<span class="cardBadge cardBadge--existing">EXISTANT</span>';
-            meta = `${event.temporal.label} · Intégré à ${event.label}`;
             cardClass = " characterCard--existing";
             ariaContext = `personnage existant lors de ${event.label}`;
+          } else if (status === "launch" && occurrenceTemporal.precision === "day") {
+            meta = occurrenceTemporal.label;
           }
+
+          const metaHtml = meta
+            ? `<span class="characterMeta">${escapeHtml(meta)}</span>`
+            : "";
 
           return `
             <button class="characterCard${cardClass}" type="button" data-character-id="${escapeHtml(record.id)}" aria-label="Voir la fiche de ${escapeHtml(record.name)}, ${escapeHtml(ariaContext)}">
@@ -1814,7 +1817,7 @@
               <div class="cardBody">
                 ${badge}
                 <span class="characterName">${escapeHtml(record.name)}</span>
-                <span class="characterMeta">${escapeHtml(meta)}</span>
+                ${metaHtml}
               </div>
             </button>
           `;
