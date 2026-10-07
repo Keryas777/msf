@@ -1466,6 +1466,11 @@
 
             for (const event of yearData?.teamEvents || []) {
               const eventRawDate = event.date || event.month || yearKey;
+
+              for (const id of getTeamMemberIds(event)) {
+                ensureRecord(id);
+              }
+
               const releasesById = new Map(
                 (event.characterReleases || []).map((item) => [item.characterId, item])
               );
@@ -1501,7 +1506,6 @@
           }
 
           return [...records.values()]
-            .filter((record) => record.release)
             .map((record) => ({
               ...record,
               reworks: record.reworks.sort((a, b) => a.temporal.key.localeCompare(b.temporal.key)),
@@ -1521,14 +1525,15 @@
         }
 
         function updateStats() {
-          const launchCount = state.characters.filter((record) => record.release.type === "launch").length;
+          const releasedCharacters = state.characters.filter((record) => record.release);
+          const launchCount = releasedCharacters.filter((record) => record.release.type === "launch").length;
           const reworkCount = state.characters.reduce((total, record) => total + record.reworks.length, 0);
           const years = Object.keys(state.history?.years || {}).sort();
           const lockedYears = years.filter((year) => state.history.years[year]?.status === "locked");
 
-          els.statCharacters.textContent = String(state.characters.length);
+          els.statCharacters.textContent = String(releasedCharacters.length);
           els.statLaunch.textContent = String(launchCount);
-          els.statAfterLaunch.textContent = String(Math.max(0, state.characters.length - launchCount));
+          els.statAfterLaunch.textContent = String(Math.max(0, releasedCharacters.length - launchCount));
           els.statReworks.textContent = String(reworkCount);
 
           if (years.length) {
@@ -1544,6 +1549,7 @@
           const query = normalizeSearch(state.filters.query);
 
           let result = state.characters.filter((record) => {
+            if (!record.release) return false;
             if (query && !record.searchText.includes(query)) return false;
             if (state.filters.year !== "all" && String(record.release.temporal.year) !== state.filters.year) return false;
             if (state.filters.type !== "all" && record.release.type !== state.filters.type) return false;
@@ -1963,7 +1969,9 @@
           if (!record) return;
 
           const release = record.release;
-          const releaseEvent = release.eventLabel || getReleaseTypeLabel(release.type);
+          const releaseEvent = release
+            ? release.eventLabel || getReleaseTypeLabel(release.type)
+            : "Sortie hors période historique actuellement auditée";
           const reworksHtml = record.reworks.length
             ? `<div class="historyList">${record.reworks.map((rework) => `
                 <article class="historyEntry">
@@ -1985,11 +1993,11 @@
             <div class="detailGrid">
               <div class="detailFact">
                 <span>Sortie jouable</span>
-                <strong>${escapeHtml(release.temporal.label)}</strong>
+                <strong>${escapeHtml(release?.temporal?.label || "Date non encore auditée")}</strong>
               </div>
               <div class="detailFact">
                 <span>Type</span>
-                <strong>${escapeHtml(getReleaseTypeLabel(release.type))}</strong>
+                <strong>${escapeHtml(release ? getReleaseTypeLabel(release.type) : "Non documenté")}</strong>
               </div>
               <div class="detailFact">
                 <span>Contexte</span>
@@ -1997,7 +2005,7 @@
               </div>
               <div class="detailFact">
                 <span>Méthode</span>
-                <strong>${escapeHtml(release.method === "global_launch" ? "Roster de lancement" : getMethodLabel(release.method))}</strong>
+                <strong>${escapeHtml(release ? (release.method === "global_launch" ? "Roster de lancement" : getMethodLabel(release.method)) : "Non documentée")}</strong>
               </div>
             </div>
 
