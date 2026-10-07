@@ -6300,7 +6300,7 @@
     },
     "2022": {
       "status": "partial",
-      "auditedThrough": "2022-06-30",
+      "auditedThrough": "2022-09-30",
       "startingPlayableRosterCount": 187,
       "individualReleases": [],
       "teamEvents": [
@@ -6792,26 +6792,23 @@
           "teamId": "unlimited-x-men-61-62-rollout-2022",
           "label": "Unlimited X-Men — 6.1/6.2 rollout",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "teamSize": 5,
           "members": [
             "Fantomex",
             "Dazzler",
             "Gambit",
-            "Sunfire"
+            "Sunfire",
+            "Rogue"
           ],
-          "core": [
-            "Fantomex",
-            "Dazzler",
-            "Gambit",
-            "Sunfire"
-          ],
+          "core": [],
           "pool": [],
           "newCharacterIds": [
             "Fantomex",
             "Dazzler",
             "Gambit",
-            "Sunfire"
+            "Sunfire",
+            "Rogue"
           ],
           "existingCharacterIds": [],
           "reworkedCharacterIds": [],
@@ -6819,15 +6816,14 @@
             "Fantomex": "limited_offer",
             "Dazzler": "limited_offer",
             "Gambit": "limited_offer",
-            "Sunfire": "limited_offer"
+            "Sunfire": "limited_offer",
+            "Rogue": "milestone"
           },
-          "announcedNext": [
-            "Rogue"
-          ],
+          "announcedNext": [],
           "notes": [
             "Fantomex, Dazzler and Gambit became recruitable through paid availability during the 6.1 cycle; their later Event Campaign, month-long milestone and Gambit Raid paths are not treated as their first global recruitment moments.",
             "Sunfire was announced for the 6.2 cycle and became recruitable through paid availability in June before the later Solar Sizzler milestone path. The exact first store-reset day is intentionally not encoded.",
-            "Rogue was not recruitable by June 30: her Famine Scourge remained future at the quarter boundary and opened in July."
+            "Rogue was not recruitable by June 30. Her Famine Scourge opened on July 6 and contemporary Difficulty 6 gameplay demonstrates an immediate milestone unlock that day, completing Unlimited X-Men."
           ],
           "characterReleases": [
             {
@@ -6849,6 +6845,12 @@
               "month": "2022-06",
               "characterId": "Sunfire",
               "releaseMethod": "limited_offer"
+            },
+            {
+              "month": "2022-07",
+              "characterId": "Rogue",
+              "releaseMethod": "milestone",
+              "date": "2022-07-06"
             }
           ],
           "reworks": []
@@ -6856,22 +6858,23 @@
         {
           "month": "2022-06",
           "teamId": "hero-asgardians-62-groundwork-2022",
-          "label": "Hero Asgardians — 6.2 groundwork",
+          "label": "Hero Asgardians — 6.2 rollout",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "teamSize": 5,
           "members": [
             "Thor",
             "Heimdall",
-            "Sif"
+            "Sif",
+            "JaneThor",
+            "Valkyrie"
           ],
-          "core": [
-            "Thor",
-            "Heimdall",
-            "Sif"
-          ],
+          "core": [],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "JaneThor",
+            "Valkyrie"
+          ],
           "existingCharacterIds": [
             "Thor",
             "Heimdall",
@@ -6882,16 +6885,25 @@
             "Heimdall",
             "Sif"
           ],
-          "announcedNext": [
-            "JaneThor",
-            "Valkyrie"
-          ],
+          "announcedNext": [],
           "notes": [
-            "Version 6.2 substantially reworked Thor, Heimdall and Sif with large stat increases and multi-ability Hero Asgardian/War Defense changes before the two new members were recruitable.",
-            "Mighty Thor (internal characterId JaneThor) and Valkyrie were announced in June but no normal recruitment route is established before July, so both remain announcedNext and are excluded from the T2 playable count.",
-            "The contemporaneous Summer of Thunder reward incident at the June/July boundary is not treated as a normal June release route."
+            "Version 6.2 substantially reworked Thor, Heimdall and Sif with large stat increases and multi-ability Hero Asgardian/War Defense changes.",
+            "Mighty Thor is stored under the internal characterId JaneThor. A contemporaneous Mighty Thor shard-orb opening published June 23 proves normal recruitment availability before July, so she is counted in Q2 independently of the later Summer of Thunder bug and compensation.",
+            "The July 1 Summer of Thunder milestone incident is not used as Mighty Thor's release method or release date.",
+            "No earlier Valkyrie recruitment route was established in the targeted boundary review. Her Hammer of the Gods Event Campaign opened July 23, making her a T3 release and completing Hero Asgardians."
           ],
-          "characterReleases": [],
+          "characterReleases": [
+            {
+              "month": "2022-06",
+              "characterId": "JaneThor",
+              "releaseMethod": "limited_orb"
+            },
+            {
+              "month": "2022-07",
+              "characterId": "Valkyrie",
+              "releaseMethod": "event_campaign"
+            }
+          ],
           "reworks": [
             {
               "month": "2022-06",
@@ -6908,16 +6920,270 @@
               "characterId": "Sif",
               "date": "2022-06-15"
             }
+          ],
+          "releaseMethods": {
+            "JaneThor": "limited_orb",
+            "Valkyrie": "event_campaign"
+          }
+        },
+        {
+          "month": "2022-07",
+          "teamId": "bionic-avengers-63-rollout-2022",
+          "label": "Bionic Avengers — 6.3 rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "IronMan",
+            "Vision",
+            "Deathlok",
+            "VivVision",
+            "Hulkbuster"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Deathlok",
+            "VivVision",
+            "Hulkbuster"
+          ],
+          "existingCharacterIds": [
+            "IronMan",
+            "Vision"
+          ],
+          "reworkedCharacterIds": [
+            "IronMan",
+            "Vision"
+          ],
+          "releaseMethods": {
+            "Deathlok": "limited_orb",
+            "VivVision": "limited_orb",
+            "Hulkbuster": "power_core_store"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Version 6.3 substantially reworked Iron Man and Vision with large multi-stat increases, multiple ability changes and new Bionic Avenger synergies; both meet the significant-rework threshold.",
+            "Deathlok was already being recruited through his character orb during July before Techno Future became the broader free distribution path; only the month is encoded because the surviving evidence does not establish the first store reset.",
+            "Viv Vision was available through her character orb in August before her later Event Campaign distribution; only the month is encoded rather than treating campaign start as first availability.",
+            "Hulkbuster Bulk Up Orbs costing 675 Power Cores were available before Monster VS Machine. The event is therefore not treated as his first recruitment route; the exact first core-orb store reset is intentionally omitted."
+          ],
+          "characterReleases": [
+            {
+              "month": "2022-07",
+              "characterId": "Deathlok",
+              "releaseMethod": "limited_orb"
+            },
+            {
+              "month": "2022-08",
+              "characterId": "VivVision",
+              "releaseMethod": "limited_orb"
+            },
+            {
+              "month": "2022-08",
+              "characterId": "Hulkbuster",
+              "releaseMethod": "power_core_store"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2022-07",
+              "characterId": "IronMan"
+            },
+            {
+              "month": "2022-07",
+              "characterId": "Vision"
+            }
+          ]
+        },
+        {
+          "month": "2022-07",
+          "teamId": "gamma-63-64-rollout-2022",
+          "label": "Gamma — 6.3/6.4 rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Hulk",
+            "SheHulk",
+            "AmadeusCho",
+            "Abomination",
+            "RedHulk"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "AmadeusCho",
+            "Abomination",
+            "RedHulk"
+          ],
+          "existingCharacterIds": [
+            "Hulk",
+            "SheHulk"
+          ],
+          "reworkedCharacterIds": [
+            "Hulk",
+            "SheHulk"
+          ],
+          "releaseMethods": {
+            "AmadeusCho": "limited_orb",
+            "Abomination": "power_core_store",
+            "RedHulk": "milestone"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Brawn is stored under the current internal characterId AmadeusCho. A September 2 shard-orb opening proves recruitment availability in September before the later free milestone unlocks; the exact first store reset is intentionally omitted.",
+            "Abomination's Hulk Hunter month-long event distributed Gamma Goliath Orbs with RNG shard drops, so there is no single universal F2P unlock day. Contemporary September players also document buying Abomination orbs with Power Cores before completing the event, establishing September recruitability without inventing an exact date.",
+            "Red Hulk's War Scourge was active on September 20 and contemporary Difficulty 6 gameplay demonstrates the 500,000-point milestone unlock that day, completing Gamma.",
+            "Hulk and She-Hulk received substantial 6.3 stat, ability and Gamma-synergy changes and are counted as reworks when those changes became active, not delayed until Red Hulk's September release."
+          ],
+          "characterReleases": [
+            {
+              "month": "2022-09",
+              "characterId": "AmadeusCho",
+              "releaseMethod": "limited_orb"
+            },
+            {
+              "month": "2022-09",
+              "characterId": "Abomination",
+              "releaseMethod": "power_core_store"
+            },
+            {
+              "month": "2022-09",
+              "characterId": "RedHulk",
+              "releaseMethod": "milestone",
+              "date": "2022-09-20"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2022-07",
+              "characterId": "Hulk"
+            },
+            {
+              "month": "2022-07",
+              "characterId": "SheHulk"
+            }
+          ]
+        },
+        {
+          "month": "2022-09",
+          "teamId": "tangled-web-64-rollout-2022",
+          "label": "Tangled Web — 6.4 rollout",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 3,
+          "members": [
+            "SpiderWeaver",
+            "SpiderMan2099"
+          ],
+          "core": [
+            "SpiderWeaver",
+            "SpiderMan2099"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "SpiderWeaver",
+            "SpiderMan2099"
+          ],
+          "existingCharacterIds": [],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "SpiderWeaver": "power_core_store",
+            "SpiderMan2099": "limited_orb"
+          },
+          "announcedNext": [
+            "SpiderManNoir"
+          ],
+          "notes": [
+            "Tangled Web was explicitly designed as a three-character team, so no fourth or fifth official member is projected into this historical state.",
+            "Spider-Weaver was already being orb-unlocked and played on September 15, before her September 23 Event Campaign; the campaign is therefore not treated as first availability.",
+            "The September 24 Spider-Man 2099 Red Star banner incident did not make him recruitable and is not counted as a release signal.",
+            "A September 27 Spider-Man 2099 shard-orb opening proves real recruitment availability before October, so he belongs to T3. The exact first orb store reset is intentionally omitted.",
+            "Spider-Man (Noir) had no verified September recruitment route and remains announcedNext at the September 30 boundary."
+          ],
+          "characterReleases": [
+            {
+              "month": "2022-09",
+              "characterId": "SpiderWeaver",
+              "releaseMethod": "power_core_store"
+            },
+            {
+              "month": "2022-09",
+              "characterId": "SpiderMan2099",
+              "releaseMethod": "limited_orb"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2022-09",
+          "teamId": "underworld-64-groundwork-2022",
+          "label": "Underworld — 6.4 groundwork",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "UltGreenGoblin",
+            "Taskmaster",
+            "Kingpin",
+            "Nobu"
+          ],
+          "core": [
+            "UltGreenGoblin",
+            "Taskmaster",
+            "Kingpin",
+            "Nobu"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "UltGreenGoblin",
+            "Taskmaster",
+            "Kingpin",
+            "Nobu"
+          ],
+          "reworkedCharacterIds": [
+            "UltGreenGoblin",
+            "Taskmaster",
+            "Kingpin",
+            "Nobu"
+          ],
+          "announcedNext": [
+            "MrNegative"
+          ],
+          "notes": [
+            "Green Goblin is stored under the original playable internal characterId UltGreenGoblin; the later GreenGoblinGlider variant is not substituted into this 2022 team.",
+            "Version 6.4 gave Green Goblin, Taskmaster, Kingpin and Nobu substantial multi-stat increases, multiple ability changes and new Underworld synergies. All four meet the significant-rework threshold in September independently of Mister Negative's later recruitment.",
+            "Mister Negative was announced with the team but no verified September recruitment route exists, so he remains announcedNext and is excluded from the T3 playable count."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2022-09",
+              "characterId": "UltGreenGoblin"
+            },
+            {
+              "month": "2022-09",
+              "characterId": "Taskmaster"
+            },
+            {
+              "month": "2022-09",
+              "characterId": "Kingpin"
+            },
+            {
+              "month": "2022-09",
+              "characterId": "Nobu"
+            }
           ]
         }
       ],
       "validation": {
-        "auditedPeriod": "2022-01-01/2022-06-30",
+        "auditedPeriod": "2022-01-01/2022-09-30",
         "individualReleaseCount": 0,
-        "teamEventNewCharacterCount": 17,
-        "distinctPlayableReleaseCount": 17,
-        "distinctReworkedCharacterCount": 20,
-        "quarterEndPlayableRosterCount": 204,
+        "teamEventNewCharacterCount": 28,
+        "distinctPlayableReleaseCount": 28,
+        "distinctReworkedCharacterCount": 28,
+        "quarterEndPlayableRosterCount": 215,
         "duplicatesAcrossReleaseBuckets": []
       },
       "excludedFrom2022Q2PlayableCount": [
@@ -6929,18 +7195,25 @@
           "firstPlayableQuarter": "Q3"
         },
         {
-          "characterId": "JaneThor",
-          "reason": "announced_in_6_2_release_cycle_but_first_normal_recruitment_route_in_july_2022",
-          "announcedMonth": "2022-06",
-          "firstPlayableMonth": "2022-07",
-          "firstPlayableQuarter": "Q3"
-        },
-        {
           "characterId": "Valkyrie",
           "reason": "announced_in_6_2_release_cycle_but_first_recruitable_in_july_2022",
           "announcedMonth": "2022-06",
           "firstPlayableMonth": "2022-07",
           "firstPlayableQuarter": "Q3"
+        }
+      ],
+      "excludedFrom2022Q3PlayableCount": [
+        {
+          "characterId": "SpiderManNoir",
+          "reason": "announced_in_6_4_release_cycle_but_no_verified_recruitment_route_before_october_2022",
+          "announcedMonth": "2022-09",
+          "firstPlayableQuarter": "Q4"
+        },
+        {
+          "characterId": "MrNegative",
+          "reason": "announced_for_underworld_in_september_but_no_verified_recruitment_route_before_october_2022",
+          "announcedMonth": "2022-09",
+          "firstPlayableQuarter": "Q4"
         }
       ]
     },
