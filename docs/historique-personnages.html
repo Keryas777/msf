@@ -1402,7 +1402,7 @@
         };
 
         function getTeamLabel(event) {
-          return TEAM_LABELS_FR[event?.teamId] || event?.label || event?.teamId || "Événement d’équipe";
+          return event?.rolloutLabel || TEAM_LABELS_FR[event?.teamId] || event?.label || event?.teamId || "Événement d’équipe";
         }
 
         function buildCharacters(history, catalogList) {
@@ -1722,9 +1722,12 @@
                 events.push({
                   type: "team",
                   yearKey,
+                  years: [String(yearKey)],
                   temporal: buildTeamTimelineTemporal(actionTemporals, fallbackTemporal),
                   label: getTeamLabel(teamEvent),
                   teamId: teamEvent.teamId || "",
+                  rolloutId: teamEvent.rolloutId || "",
+                  rolloutLabel: teamEvent.rolloutLabel || "",
                   formationStatus: teamEvent.formationStatus || "",
                   sequence: sequence++,
                   occurrences
@@ -1733,7 +1736,76 @@
             }
           }
 
-          return events;
+          const rolloutGroups = new Map();
+          const passthrough = [];
+
+          for (const event of events) {
+            if (event.type !== "team" || !event.rolloutId) {
+              passthrough.push(event);
+              continue;
+            }
+            if (!rolloutGroups.has(event.rolloutId)) rolloutGroups.set(event.rolloutId, []);
+            rolloutGroups.get(event.rolloutId).push(event);
+          }
+
+          const statusPriority = {
+            existing: 1,
+            rework: 2,
+            new: 3
+          };
+
+          for (const [rolloutId, rolloutEvents] of rolloutGroups.entries()) {
+            rolloutEvents.sort((a, b) => a.temporal.key.localeCompare(b.temporal.key) || a.sequence - b.sequence);
+
+            const occurrenceMap = new Map();
+            for (const event of rolloutEvents) {
+              for (const occurrence of event.occurrences) {
+                const id = occurrence.record.id;
+                const current = occurrenceMap.get(id);
+                if (!current) {
+                  occurrenceMap.set(id, occurrence);
+                  continue;
+                }
+
+                const currentPriority = statusPriority[current.status] || 0;
+                const candidatePriority = statusPriority[occurrence.status] || 0;
+                if (candidatePriority > currentPriority) {
+                  occurrenceMap.set(id, occurrence);
+                } else if (
+                  candidatePriority === currentPriority &&
+                  occurrence.temporal?.key &&
+                  (!current.temporal?.key || occurrence.temporal.key < current.temporal.key)
+                ) {
+                  occurrenceMap.set(id, occurrence);
+                }
+              }
+            }
+
+            const occurrences = [...occurrenceMap.values()];
+            const actionTemporals = occurrences
+              .filter((occurrence) => occurrence.status !== "existing")
+              .map((occurrence) => occurrence.temporal);
+            const first = rolloutEvents[0];
+            const last = rolloutEvents[rolloutEvents.length - 1];
+            const years = uniqueIds([
+              ...rolloutEvents.flatMap((event) => event.years || [String(event.yearKey)]),
+              ...occurrences.map((occurrence) => occurrence.temporal?.year ? String(occurrence.temporal.year) : "")
+            ]);
+
+            passthrough.push({
+              ...last,
+              yearKey: first.yearKey,
+              years,
+              temporal: buildTeamTimelineTemporal(actionTemporals, first.temporal),
+              label: first.rolloutLabel || first.label,
+              teamId: rolloutId,
+              rolloutId,
+              sequence: Math.min(...rolloutEvents.map((event) => event.sequence)),
+              occurrences
+            });
+          }
+
+          return passthrough;
         }
 
         function getFilteredTimelineEvents() {
@@ -1742,7 +1814,10 @@
 
           const events = buildTimelineEvents()
             .filter((event) => {
-              if (state.filters.year !== "all" && String(event.temporal.year) !== state.filters.year) return false;
+              if (
+                state.filters.year !== "all" &&
+                !(event.years || [String(event.temporal.year)]).includes(state.filters.year)
+              ) return false;
               if (state.filters.type !== "all" && event.type !== state.filters.type) return false;
               return true;
             })

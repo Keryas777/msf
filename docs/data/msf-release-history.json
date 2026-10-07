@@ -15,6 +15,7 @@
   "schemaNotes": [
     "teamEvents use a common additive structure across years: members/core/pool describe the represented formation, newCharacterIds describes newly playable recruits, existingCharacterIds describes characters already playable at the event, and reworkedCharacterIds describes significant reworks.",
     "A staggered initial rollout of one team remains a single teamEvent; characterReleases and reworks carry the individual dates instead of creating artificial V1/V2/... events for each recruit.",
+    "When one short team rollout crosses a calendar-year boundary, its yearly teamEvents may share rolloutId/rolloutLabel so the UI renders one rollout card while playable-release counts remain attributed to the correct year bucket.",
     "members lists the explicit formation members represented by an event when that historical list is known; core/pool may describe flexible slots or alternatives, and announcedNext remains separate.",
     "characterReleases is the canonical detailed release metadata for team-event recruits; legacy releaseMethods may remain for backward compatibility.",
     "reworks is the canonical detailed metadata for significant reworks; reworkedCharacterIds remains the machine-friendly index.",
@@ -452,7 +453,9 @@
               "characterId": "UltGreenGoblin"
             }
           ],
-          "reworks": []
+          "reworks": [],
+          "rolloutId": "spider-verse-2018-2019-rollout",
+          "rolloutLabel": "Spider-Verse"
         }
       ],
       "excludedFrom2018PlayableCount": [
@@ -685,7 +688,9 @@
           "core": [],
           "pool": [],
           "announcedNext": [],
-          "reworks": []
+          "reworks": [],
+          "rolloutId": "spider-verse-2018-2019-rollout",
+          "rolloutLabel": "Spider-Verse"
         },
         {
           "month": "2019-02",
@@ -3637,12 +3642,15 @@
         },
         {
           "month": "2020-08",
-          "teamId": "sinister-six-43-rework",
-          "label": "Sinister Six — 4.3 Groundwork",
+          "teamId": "sinister-six-2020-rollout",
+          "label": "Sinister Six",
           "kind": "team",
           "formationStatus": "core-plus-pool",
           "teamSize": 5,
           "members": [
+            "DoctorOctopus",
+            "Electro",
+            "Swarm",
             "Mysterio",
             "Rhino",
             "Vulture",
@@ -3650,63 +3658,11 @@
             "UltGreenGoblin"
           ],
           "core": [
-            "Mysterio"
-          ],
-          "pool": [
-            "Rhino",
-            "Vulture",
-            "Shocker",
-            "UltGreenGoblin"
-          ],
-          "newCharacterIds": [],
-          "existingCharacterIds": [
-            "Mysterio",
-            "Rhino",
-            "Vulture",
-            "Shocker",
-            "UltGreenGoblin"
-          ],
-          "reworkedCharacterIds": [
-            "Mysterio"
-          ],
-          "announcedNext": [
-            "Swarm",
-            "Electro",
             "DoctorOctopus"
           ],
-          "notes": [
-            "The 4.3 update activated Mysterio's material Sinister Six rework before all three new Sinister Six characters had become playable.",
-            "Mysterio gained a War Ability Block mechanic and a Mirror Image resurrection mechanic.",
-            "The other original Sinister Six members remain classified as existing."
-          ],
-          "characterReleases": [],
-          "reworks": [
-            {
-              "month": "2020-08",
-              "characterId": "Mysterio",
-              "date": "2020-08-19"
-            }
-          ]
-        },
-        {
-          "month": "2020-08",
-          "teamId": "sinister-six-swarm-2020",
-          "label": "Sinister Six — Swarm",
-          "kind": "team",
-          "formationStatus": "core-plus-pool",
-          "teamSize": 5,
-          "members": [
-            "Swarm",
-            "Mysterio",
-            "Rhino",
-            "Vulture",
-            "Shocker",
-            "UltGreenGoblin"
-          ],
-          "core": [
-            "Swarm"
-          ],
           "pool": [
+            "Electro",
+            "Swarm",
             "Mysterio",
             "Rhino",
             "Vulture",
@@ -3714,36 +3670,68 @@
             "UltGreenGoblin"
           ],
           "newCharacterIds": [
-            "Swarm"
+            "Swarm",
+            "Electro",
+            "DoctorOctopus"
           ],
           "existingCharacterIds": [
             "Mysterio",
             "Rhino",
             "Vulture",
             "Shocker",
-            "UltGreenGoblin"
+            "UltGreenGoblin",
+            "Swarm",
+            "Electro"
           ],
-          "reworkedCharacterIds": [],
+          "reworkedCharacterIds": [
+            "Mysterio"
+          ],
           "releaseMethods": {
-            "Swarm": "limited_offer"
+            "Swarm": "limited_offer",
+            "Electro": "limited_offer",
+            "DoctorOctopus": "legendary"
           },
-          "announcedNext": [
-            "Electro",
-            "DoctorOctopus"
-          ],
+          "announcedNext": [],
           "notes": [
+            "Sinister Six was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
+            "The 4.3 update activated Mysterio's material Sinister Six rework before all three new Sinister Six characters had become playable.",
+            "Mysterio gained a War Ability Block mechanic and a Mirror Image resurrection mechanic.",
+            "The other original Sinister Six members remain classified as existing.",
             "Swarm became playable in August 2020.",
             "His main free-to-play release path was the One of Many Event Campaign.",
-            "The exact normalized day of first paid availability remains insufficiently verified and is intentionally not encoded."
+            "The exact normalized day of first paid availability remains insufficiently verified and is intentionally not encoded.",
+            "Electro became playable in September 2020 before her first Bright Persona Blitz.",
+            "The exact normalized day of initial paid availability remains insufficiently verified and is intentionally not encoded.",
+            "Sinister Six remained a flexible pool awaiting Doctor Octopus.",
+            "Doctor Octopus became playable on 2020-09-21 through the Surgical S.T.R.I.K.E. Legendary Event requiring five X-Force characters at 5 Stars.",
+            "Doctor Octopus was explicitly designed to unite the broader Sinister Six faction and summon a Sinister Six member not already present in battle.",
+            "The historical team is therefore represented as core-plus-pool rather than a retroactively fixed modern lineup."
           ],
           "characterReleases": [
             {
               "month": "2020-08",
               "characterId": "Swarm",
               "releaseMethod": "limited_offer"
+            },
+            {
+              "month": "2020-09",
+              "characterId": "Electro",
+              "releaseMethod": "limited_offer"
+            },
+            {
+              "month": "2020-09",
+              "characterId": "DoctorOctopus",
+              "releaseMethod": "legendary",
+              "date": "2020-09-21"
             }
           ],
-          "reworks": []
+          "reworks": [
+            {
+              "month": "2020-08",
+              "characterId": "Mysterio",
+              "date": "2020-08-19"
+            }
+          ]
         },
         {
           "month": "2020-08",
@@ -3826,163 +3814,43 @@
           ]
         },
         {
-          "month": "2020-09",
-          "teamId": "sinister-six-electro-2020",
-          "label": "Sinister Six — Electro",
+          "month": "2020-10",
+          "teamId": "symbiotes-2020-rollout",
+          "label": "Symbiotes",
           "kind": "team",
-          "formationStatus": "core-plus-pool",
-          "teamSize": 5,
+          "formationStatus": "complete",
           "members": [
-            "Electro",
-            "Swarm",
-            "Mysterio",
-            "Rhino",
-            "Vulture",
-            "Shocker",
-            "UltGreenGoblin"
+            "SymbioteSpiderMan",
+            "Venom",
+            "Carnage",
+            "Scream",
+            "AntiVenom"
           ],
-          "core": [
-            "Electro",
-            "Swarm"
-          ],
-          "pool": [
-            "Mysterio",
-            "Rhino",
-            "Vulture",
-            "Shocker",
-            "UltGreenGoblin"
-          ],
+          "core": [],
+          "pool": [],
           "newCharacterIds": [
-            "Electro"
+            "Scream",
+            "AntiVenom"
           ],
           "existingCharacterIds": [
-            "Swarm",
-            "Mysterio",
-            "Rhino",
-            "Vulture",
-            "Shocker",
-            "UltGreenGoblin"
+            "SymbioteSpiderMan",
+            "Venom",
+            "Carnage",
+            "Scream"
           ],
           "reworkedCharacterIds": [],
           "releaseMethods": {
-            "Electro": "limited_offer"
-          },
-          "announcedNext": [
-            "DoctorOctopus"
-          ],
-          "notes": [
-            "Electro became playable in September 2020 before her first Bright Persona Blitz.",
-            "The exact normalized day of initial paid availability remains insufficiently verified and is intentionally not encoded.",
-            "Sinister Six remained a flexible pool awaiting Doctor Octopus."
-          ],
-          "characterReleases": [
-            {
-              "month": "2020-09",
-              "characterId": "Electro",
-              "releaseMethod": "limited_offer"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2020-09",
-          "teamId": "sinister-six-doctor-octopus-2020",
-          "label": "Sinister Six — Doctor Octopus",
-          "kind": "team",
-          "formationStatus": "core-plus-pool",
-          "teamSize": 5,
-          "members": [
-            "DoctorOctopus",
-            "Electro",
-            "Swarm",
-            "Mysterio",
-            "Rhino",
-            "Vulture",
-            "Shocker",
-            "UltGreenGoblin"
-          ],
-          "core": [
-            "DoctorOctopus"
-          ],
-          "pool": [
-            "Electro",
-            "Swarm",
-            "Mysterio",
-            "Rhino",
-            "Vulture",
-            "Shocker",
-            "UltGreenGoblin"
-          ],
-          "newCharacterIds": [
-            "DoctorOctopus"
-          ],
-          "existingCharacterIds": [
-            "Electro",
-            "Swarm",
-            "Mysterio",
-            "Rhino",
-            "Vulture",
-            "Shocker",
-            "UltGreenGoblin"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "DoctorOctopus": "legendary"
+            "Scream": "limited_offer",
+            "AntiVenom": "limited_offer"
           },
           "announcedNext": [],
           "notes": [
-            "Doctor Octopus became playable on 2020-09-21 through the Surgical S.T.R.I.K.E. Legendary Event requiring five X-Force characters at 5 Stars.",
-            "Doctor Octopus was explicitly designed to unite the broader Sinister Six faction and summon a Sinister Six member not already present in battle.",
-            "The historical team is therefore represented as core-plus-pool rather than a retroactively fixed modern lineup."
-          ],
-          "characterReleases": [
-            {
-              "month": "2020-09",
-              "characterId": "DoctorOctopus",
-              "releaseMethod": "legendary",
-              "date": "2020-09-21"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2020-10",
-          "teamId": "symbiotes-v2-scream",
-          "label": "Symbiotes V2 — Scream",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "SymbioteSpiderMan",
-            "Venom",
-            "Carnage",
-            "Scream"
-          ],
-          "core": [
-            "SymbioteSpiderMan",
-            "Venom",
-            "Carnage",
-            "Scream"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "Scream"
-          ],
-          "existingCharacterIds": [
-            "SymbioteSpiderMan",
-            "Venom",
-            "Carnage"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "Scream": "limited_offer"
-          },
-          "announcedNext": [
-            "AntiVenom"
-          ],
-          "notes": [
+            "Symbiotes was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
             "Scream became playable on 2020-10-01 through paid availability before the later Parasite Event Campaign.",
             "This preserves the historical four-character Symbiote formation before Anti-Venom became recruitable.",
-            "Venom and Carnage had already received their significant Symbiote reworks in T1 and are not counted again."
+            "Venom and Carnage had already received their significant Symbiote reworks in T1 and are not counted again.",
+            "Anti-Venom became playable on 2020-10-21 through paid availability.",
+            "His release completed the contemporary five-character Symbiote lineup."
           ],
           "characterReleases": [
             {
@@ -3990,6 +3858,12 @@
               "characterId": "Scream",
               "releaseMethod": "limited_offer",
               "date": "2020-10-01"
+            },
+            {
+              "month": "2020-10",
+              "characterId": "AntiVenom",
+              "releaseMethod": "limited_offer",
+              "date": "2020-10-21"
             }
           ],
           "reworks": []
@@ -4050,84 +3924,73 @@
           "reworks": []
         },
         {
-          "month": "2020-10",
-          "teamId": "symbiotes-v3-complete",
-          "label": "Symbiotes V3 — Complete",
+          "month": "2020-11",
+          "teamId": "pym-tech-2020-rollout",
+          "label": "Pym Tech",
           "kind": "team",
           "formationStatus": "complete",
           "members": [
-            "SymbioteSpiderMan",
-            "Venom",
-            "Carnage",
-            "Scream",
-            "AntiVenom"
+            "AntMan",
+            "Wasp",
+            "Stature",
+            "Ghost",
+            "Yellowjacket"
           ],
           "core": [],
           "pool": [],
           "newCharacterIds": [
-            "AntiVenom"
+            "Stature",
+            "Ghost",
+            "Yellowjacket"
           ],
           "existingCharacterIds": [
-            "SymbioteSpiderMan",
-            "Venom",
-            "Carnage",
-            "Scream"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "AntiVenom": "limited_offer"
-          },
-          "announcedNext": [],
-          "notes": [
-            "Anti-Venom became playable on 2020-10-21 through paid availability.",
-            "His release completed the contemporary five-character Symbiote lineup."
-          ],
-          "characterReleases": [
-            {
-              "month": "2020-10",
-              "characterId": "AntiVenom",
-              "releaseMethod": "limited_offer",
-              "date": "2020-10-21"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2020-11",
-          "teamId": "pym-tech-45-rework",
-          "label": "Pym Tech — 4.5 Groundwork",
-          "kind": "team",
-          "formationStatus": "partial",
-          "teamSize": 5,
-          "members": [
             "AntMan",
-            "Wasp"
-          ],
-          "core": [
-            "AntMan",
-            "Wasp"
-          ],
-          "pool": [],
-          "newCharacterIds": [],
-          "existingCharacterIds": [
-            "AntMan",
-            "Wasp"
+            "Wasp",
+            "Stature",
+            "Ghost"
           ],
           "reworkedCharacterIds": [
             "AntMan",
             "Wasp"
           ],
-          "announcedNext": [
-            "Stature",
-            "Ghost",
-            "Yellowjacket"
-          ],
+          "releaseMethods": {
+            "Stature": "limited_offer",
+            "Ghost": "limited_offer",
+            "Yellowjacket": "limited_offer"
+          },
+          "announcedNext": [],
           "notes": [
+            "Pym Tech was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
             "The 4.5 update on 2020-11-04 substantially reworked Ant-Man and Wasp for the new Pym Tech team before all three new recruits were playable.",
             "Ant-Man received material stat and multi-ability changes including a longer Ability Block, Wasp assist interactions and Dark Dimension mechanics.",
-            "Wasp received material stat and ability changes, including removal of her Charged requirement and a redesigned Special."
+            "Wasp received material stat and ability changes, including removal of her Charged requirement and a redesigned Special.",
+            "Stature became playable on 2020-11-05 through paid availability.",
+            "Ant-Man and Wasp were already playable and their 4.5 reworks are recorded separately in the preceding Pym Tech groundwork event.",
+            "Ghost became playable on 2020-11-13 through paid availability before her later Quantum Snare Blitz runs.",
+            "Pym Tech remained incomplete until Yellowjacket became recruitable.",
+            "Yellowjacket became playable in late November 2020 through paid availability before his first Sharp Sting Blitz.",
+            "Contemporary evidence brackets the release after Ghost and before the late-November/early-December Blitz cycle; the exact first paid-release day is intentionally not encoded.",
+            "His release completed the five-character Pym Tech lineup."
           ],
-          "characterReleases": [],
+          "characterReleases": [
+            {
+              "month": "2020-11",
+              "characterId": "Yellowjacket",
+              "releaseMethod": "limited_offer"
+            },
+            {
+              "month": "2020-11",
+              "characterId": "Stature",
+              "releaseMethod": "limited_offer",
+              "date": "2020-11-05"
+            },
+            {
+              "month": "2020-11",
+              "characterId": "Ghost",
+              "releaseMethod": "limited_offer",
+              "date": "2020-11-13"
+            }
+          ],
           "reworks": [
             {
               "month": "2020-11",
@@ -4140,145 +4003,6 @@
               "date": "2020-11-04"
             }
           ]
-        },
-        {
-          "month": "2020-11",
-          "teamId": "pym-tech-stature-2020",
-          "label": "Pym Tech — Stature",
-          "kind": "team",
-          "formationStatus": "partial",
-          "teamSize": 5,
-          "members": [
-            "AntMan",
-            "Wasp",
-            "Stature"
-          ],
-          "core": [
-            "AntMan",
-            "Wasp",
-            "Stature"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "Stature"
-          ],
-          "existingCharacterIds": [
-            "AntMan",
-            "Wasp"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "Stature": "limited_offer"
-          },
-          "announcedNext": [
-            "Ghost",
-            "Yellowjacket"
-          ],
-          "notes": [
-            "Stature became playable on 2020-11-05 through paid availability.",
-            "Ant-Man and Wasp were already playable and their 4.5 reworks are recorded separately in the preceding Pym Tech groundwork event."
-          ],
-          "characterReleases": [
-            {
-              "month": "2020-11",
-              "characterId": "Stature",
-              "releaseMethod": "limited_offer",
-              "date": "2020-11-05"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2020-11",
-          "teamId": "pym-tech-ghost-2020",
-          "label": "Pym Tech — Ghost",
-          "kind": "team",
-          "formationStatus": "partial",
-          "teamSize": 5,
-          "members": [
-            "AntMan",
-            "Wasp",
-            "Stature",
-            "Ghost"
-          ],
-          "core": [
-            "AntMan",
-            "Wasp",
-            "Stature",
-            "Ghost"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "Ghost"
-          ],
-          "existingCharacterIds": [
-            "AntMan",
-            "Wasp",
-            "Stature"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "Ghost": "limited_offer"
-          },
-          "announcedNext": [
-            "Yellowjacket"
-          ],
-          "notes": [
-            "Ghost became playable on 2020-11-13 through paid availability before her later Quantum Snare Blitz runs.",
-            "Pym Tech remained incomplete until Yellowjacket became recruitable."
-          ],
-          "characterReleases": [
-            {
-              "month": "2020-11",
-              "characterId": "Ghost",
-              "releaseMethod": "limited_offer",
-              "date": "2020-11-13"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2020-11",
-          "teamId": "pym-tech-yellowjacket-2020",
-          "label": "Pym Tech — Complete",
-          "kind": "team",
-          "formationStatus": "complete",
-          "members": [
-            "AntMan",
-            "Wasp",
-            "Stature",
-            "Ghost",
-            "Yellowjacket"
-          ],
-          "core": [],
-          "pool": [],
-          "newCharacterIds": [
-            "Yellowjacket"
-          ],
-          "existingCharacterIds": [
-            "AntMan",
-            "Wasp",
-            "Stature",
-            "Ghost"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "Yellowjacket": "limited_offer"
-          },
-          "announcedNext": [],
-          "notes": [
-            "Yellowjacket became playable in late November 2020 through paid availability before his first Sharp Sting Blitz.",
-            "Contemporary evidence brackets the release after Ghost and before the late-November/early-December Blitz cycle; the exact first paid-release day is intentionally not encoded.",
-            "His release completed the five-character Pym Tech lineup."
-          ],
-          "characterReleases": [
-            {
-              "month": "2020-11",
-              "characterId": "Yellowjacket",
-              "releaseMethod": "limited_offer"
-            }
-          ],
-          "reworks": []
         },
         {
           "month": "2020-12",
@@ -4311,7 +4035,9 @@
             "Bishop was only a datamined/community expectation at year-end, not one of the officially announced December members; he became recruitable in 2021."
           ],
           "characterReleases": [],
-          "reworks": []
+          "reworks": [],
+          "rolloutId": "astonishing-x-men-2020-2021-rollout",
+          "rolloutLabel": "Astonishing X-Men"
         },
         {
           "month": "2020-12",
@@ -4369,50 +4095,14 @@
               "characterId": "MercDmg_General",
               "date": "2020-12-08"
             }
-          ]
+          ],
+          "rolloutId": "skill-military-2020-2021-rollout",
+          "rolloutLabel": "Skill Military"
         },
         {
           "month": "2020-12",
-          "teamId": "x-factor-shatterstar-2020",
-          "label": "X-Factor — Shatterstar",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Shatterstar"
-          ],
-          "core": [
-            "Shatterstar"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "Shatterstar"
-          ],
-          "existingCharacterIds": [],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "Shatterstar": "limited_offer"
-          },
-          "announcedNext": [
-            "Longshot"
-          ],
-          "notes": [
-            "Shatterstar became playable on 2020-12-09 through paid availability.",
-            "Longshot had been announced alongside him but was not yet recruitable at this first X-Factor stage."
-          ],
-          "characterReleases": [
-            {
-              "month": "2020-12",
-              "characterId": "Shatterstar",
-              "releaseMethod": "limited_offer",
-              "date": "2020-12-09"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2020-12",
-          "teamId": "x-factor-longshot-2020",
-          "label": "X-Factor — Longshot",
+          "teamId": "x-factor-2020-duo",
+          "label": "X-Factor",
           "kind": "team",
           "formationStatus": "partial",
           "members": [
@@ -4425,6 +4115,7 @@
           ],
           "pool": [],
           "newCharacterIds": [
+            "Shatterstar",
             "Longshot"
           ],
           "existingCharacterIds": [
@@ -4433,6 +4124,9 @@
           "reworkedCharacterIds": [],
           "announcedNext": [],
           "notes": [
+            "X-Factor was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
+            "Shatterstar became playable on 2020-12-09 through paid availability.",
+            "Longshot had been announced alongside him but was not yet recruitable at this first X-Factor stage.",
             "Longshot was demonstrably playable by mid-to-late December 2020, before his first late-December Blitz.",
             "The exact first paid-release day and initial acquisition channel are not established strongly enough to encode, so only the month is recorded.",
             "X-Factor remained a two-character partial formation at the end of 2020."
@@ -4441,9 +4135,18 @@
             {
               "month": "2020-12",
               "characterId": "Longshot"
+            },
+            {
+              "month": "2020-12",
+              "characterId": "Shatterstar",
+              "releaseMethod": "limited_offer",
+              "date": "2020-12-09"
             }
           ],
-          "reworks": []
+          "reworks": [],
+          "releaseMethods": {
+            "Shatterstar": "limited_offer"
+          }
         }
       ],
       "validation": {
@@ -4571,7 +4274,9 @@
               "characterId": "Yelena"
             }
           ],
-          "reworks": []
+          "reworks": [],
+          "rolloutId": "skill-military-2020-2021-rollout",
+          "rolloutLabel": "Skill Military"
         },
         {
           "month": "2021-01",
@@ -4614,7 +4319,9 @@
               "releaseMethod": "milestone"
             }
           ],
-          "reworks": []
+          "reworks": [],
+          "rolloutId": "skill-military-2020-2021-rollout",
+          "rolloutLabel": "Skill Military"
         },
         {
           "month": "2021-01",
@@ -4657,7 +4364,9 @@
               "releaseMethod": "limited_offer"
             }
           ],
-          "reworks": []
+          "reworks": [],
+          "rolloutId": "astonishing-x-men-2020-2021-rollout",
+          "rolloutLabel": "Astonishing X-Men"
         },
         {
           "month": "2021-01",
@@ -4702,46 +4411,67 @@
               "releaseMethod": "limited_offer"
             }
           ],
-          "reworks": []
+          "reworks": [],
+          "rolloutId": "astonishing-x-men-2020-2021-rollout",
+          "rolloutLabel": "Astonishing X-Men"
         },
         {
           "month": "2021-02",
-          "teamId": "shadowland-51-groundwork",
-          "label": "Shadowland — 5.1 Groundwork",
+          "teamId": "shadowland-2021-rollout",
+          "label": "Shadowland",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "teamSize": 5,
           "members": [
             "Daredevil",
             "Elektra",
-            "NightNurse"
+            "NightNurse",
+            "WhiteTiger",
+            "MoonKnight"
           ],
-          "core": [
-            "Daredevil",
-            "Elektra",
-            "NightNurse"
-          ],
+          "core": [],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "WhiteTiger",
+            "MoonKnight"
+          ],
           "existingCharacterIds": [
             "Daredevil",
             "Elektra",
-            "NightNurse"
+            "NightNurse",
+            "WhiteTiger"
           ],
           "reworkedCharacterIds": [
             "Daredevil",
             "Elektra",
             "NightNurse"
           ],
-          "announcedNext": [
-            "WhiteTiger",
-            "MoonKnight"
-          ],
+          "releaseMethods": {
+            "WhiteTiger": "limited_offer",
+            "MoonKnight": "limited_offer"
+          },
+          "announcedNext": [],
           "notes": [
+            "Shadowland was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
             "Version 5.1 materially reworked all three existing Shadowland members before White Tiger and Moon Knight completed the team.",
-            "Daredevil received a base-Health increase plus multiple ability, Shadowland and War changes; Elektra received a base-Health increase and major changes across Basic, Special, Ultimate and Passive; Night Nurse received broad healing, cleanse, assist, Speed Bar and War-mechanic changes."
+            "Daredevil received a base-Health increase plus multiple ability, Shadowland and War changes; Elektra received a base-Health increase and major changes across Basic, Special, Ultimate and Passive; Night Nurse received broad healing, cleanse, assist, Speed Bar and War-mechanic changes.",
+            "White Tiger was directly purchasable and unlockable in February before her later event-campaign availability.",
+            "The exact first offer day is intentionally omitted because the surviving evidence proves February paid availability without securely fixing the initial store reset.",
+            "A March 2 contemporary discussion directly describes the live Moon Knight shard-and-orb offer, establishing recruitability by that date."
           ],
-          "characterReleases": [],
+          "characterReleases": [
+            {
+              "month": "2021-02",
+              "characterId": "WhiteTiger",
+              "releaseMethod": "limited_offer"
+            },
+            {
+              "month": "2021-03",
+              "characterId": "MoonKnight",
+              "releaseMethod": "limited_offer",
+              "date": "2021-03-02"
+            }
+          ],
           "reworks": [
             {
               "month": "2021-02",
@@ -4806,7 +4536,9 @@
               "releaseMethod": "limited_offer"
             }
           ],
-          "reworks": []
+          "reworks": [],
+          "rolloutId": "astonishing-x-men-2020-2021-rollout",
+          "rolloutLabel": "Astonishing X-Men"
         },
         {
           "month": "2021-02",
@@ -4850,182 +4582,59 @@
               "date": "2021-02-09"
             }
           ],
-          "reworks": []
-        },
-        {
-          "month": "2021-02",
-          "teamId": "shadowland-white-tiger-2021",
-          "label": "Shadowland — White Tiger",
-          "kind": "team",
-          "formationStatus": "partial",
-          "teamSize": 5,
-          "members": [
-            "Daredevil",
-            "Elektra",
-            "NightNurse",
-            "WhiteTiger"
-          ],
-          "core": [
-            "Daredevil",
-            "Elektra",
-            "NightNurse",
-            "WhiteTiger"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "WhiteTiger"
-          ],
-          "existingCharacterIds": [
-            "Daredevil",
-            "Elektra",
-            "NightNurse"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "WhiteTiger": "limited_offer"
-          },
-          "announcedNext": [
-            "MoonKnight"
-          ],
-          "notes": [
-            "White Tiger was directly purchasable and unlockable in February before her later event-campaign availability.",
-            "The exact first offer day is intentionally omitted because the surviving evidence proves February paid availability without securely fixing the initial store reset."
-          ],
-          "characterReleases": [
-            {
-              "month": "2021-02",
-              "characterId": "WhiteTiger",
-              "releaseMethod": "limited_offer"
-            }
-          ],
-          "reworks": []
+          "reworks": [],
+          "rolloutId": "astonishing-x-men-2020-2021-rollout",
+          "rolloutLabel": "Astonishing X-Men"
         },
         {
           "month": "2021-03",
-          "teamId": "shadowland-moon-knight-2021",
-          "label": "Shadowland — Complete",
+          "teamId": "x-factor-2021-expansion",
+          "label": "X-Factor",
           "kind": "team",
           "formationStatus": "complete",
-          "teamSize": 5,
-          "members": [
-            "Daredevil",
-            "Elektra",
-            "NightNurse",
-            "WhiteTiger",
-            "MoonKnight"
-          ],
-          "core": [],
-          "pool": [],
-          "newCharacterIds": [
-            "MoonKnight"
-          ],
-          "existingCharacterIds": [
-            "Daredevil",
-            "Elektra",
-            "NightNurse",
-            "WhiteTiger"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "MoonKnight": "limited_offer"
-          },
-          "announcedNext": [],
-          "notes": [
-            "A March 2 contemporary discussion directly describes the live Moon Knight shard-and-orb offer, establishing recruitability by that date."
-          ],
-          "characterReleases": [
-            {
-              "month": "2021-03",
-              "characterId": "MoonKnight",
-              "releaseMethod": "limited_offer",
-              "date": "2021-03-02"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2021-03",
-          "teamId": "x-factor-52-groundwork",
-          "label": "X-Factor — 5.2 Groundwork",
-          "kind": "team",
-          "formationStatus": "partial",
           "members": [
             "Shatterstar",
-            "Longshot"
+            "Longshot",
+            "MultipleMan",
+            "Polaris"
           ],
           "core": [
             "Shatterstar",
-            "Longshot"
+            "Longshot",
+            "MultipleMan",
+            "Polaris"
           ],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "MultipleMan",
+            "Polaris"
+          ],
           "existingCharacterIds": [
             "Shatterstar",
-            "Longshot"
+            "Longshot",
+            "MultipleMan"
           ],
           "reworkedCharacterIds": [
             "Shatterstar",
             "Longshot"
           ],
-          "announcedNext": [
-            "MultipleMan",
-            "Polaris"
-          ],
+          "releaseMethods": {
+            "MultipleMan": "limited_orb",
+            "Polaris": "limited_offer"
+          },
+          "announcedNext": [],
           "notes": [
+            "X-Factor was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
             "Version 5.2 materially evolved the existing two-character X-Factor core before Multiple Man and Polaris arrived.",
             "Shatterstar's Special was expanded to apply Defense Down to all targets and become unblockable, while his Passive added substantial War Offense damage for X-Factor.",
             "Longshot gained anti-dodge/anti-block behavior on two attacks plus a new three-X-Factor-ally Passive condition that reduces enemy Armor. These multi-ability structural changes meet the significant-rework threshold.",
-            "Iceman's 5.2 change was limited to +33% base Focus and is therefore treated as an adjustment, not a significant rework."
-          ],
-          "characterReleases": [],
-          "reworks": [
-            {
-              "month": "2021-03",
-              "characterId": "Shatterstar",
-              "date": "2021-03-16"
-            },
-            {
-              "month": "2021-03",
-              "characterId": "Longshot",
-              "date": "2021-03-16"
-            }
-          ]
-        },
-        {
-          "month": "2021-03",
-          "teamId": "x-factor-multiple-man-2021",
-          "label": "X-Factor — Multiple Man",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Shatterstar",
-            "Longshot",
-            "MultipleMan"
-          ],
-          "core": [
-            "Shatterstar",
-            "Longshot",
-            "MultipleMan"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "MultipleMan"
-          ],
-          "existingCharacterIds": [
-            "Shatterstar",
-            "Longshot"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "MultipleMan": "limited_orb"
-          },
-          "announcedNext": [
-            "Polaris"
-          ],
-          "notes": [
+            "Iceman's 5.2 change was limited to +33% base Focus and is therefore treated as an adjustment, not a significant rework.",
             "Multiple Man was genuinely recruitable on March 31 through the 500-Power-Core Super Sleuth Orb; contemporary players documented unlocking him from those orbs before his later offers and Event Campaign.",
             "This counts as first playable availability under the history's recruitment rule even though the standard paid offer and free Event Campaign followed in April.",
-            "Polaris remained announced only at quarter-end and is not counted in T1."
+            "Polaris remained announced only at quarter-end and is not counted in T1.",
+            "Polaris became recruitable through a paid offer on April 12, before her S.T.R.I.K.E. Pass distribution could yield an unlock.",
+            "Multiple Man remains a March 31 release and is not counted again when his Event Campaign ran in April.",
+            "No second significant Longshot, Shatterstar or Multiple Man rework was identified in T2."
           ],
           "characterReleases": [
             {
@@ -5033,48 +4642,7 @@
               "characterId": "MultipleMan",
               "releaseMethod": "limited_orb",
               "date": "2021-03-31"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2021-04",
-          "teamId": "x-factor-polaris-2021",
-          "label": "X-Factor — Polaris",
-          "kind": "team",
-          "formationStatus": "complete",
-          "members": [
-            "Shatterstar",
-            "Longshot",
-            "MultipleMan",
-            "Polaris"
-          ],
-          "core": [
-            "Shatterstar",
-            "Longshot",
-            "MultipleMan",
-            "Polaris"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "Polaris"
-          ],
-          "existingCharacterIds": [
-            "Shatterstar",
-            "Longshot",
-            "MultipleMan"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "Polaris": "limited_offer"
-          },
-          "announcedNext": [],
-          "notes": [
-            "Polaris became recruitable through a paid offer on April 12, before her S.T.R.I.K.E. Pass distribution could yield an unlock.",
-            "Multiple Man remains a March 31 release and is not counted again when his Event Campaign ran in April.",
-            "No second significant Longshot, Shatterstar or Multiple Man rework was identified in T2."
-          ],
-          "characterReleases": [
+            },
             {
               "month": "2021-04",
               "characterId": "Polaris",
@@ -5082,7 +4650,18 @@
               "date": "2021-04-12"
             }
           ],
-          "reworks": []
+          "reworks": [
+            {
+              "month": "2021-03",
+              "characterId": "Longshot",
+              "date": "2021-03-16"
+            },
+            {
+              "month": "2021-03",
+              "characterId": "Shatterstar",
+              "date": "2021-03-16"
+            }
+          ]
         },
         {
           "month": "2021-04",
@@ -5137,96 +4716,8 @@
         },
         {
           "month": "2021-04",
-          "teamId": "heroes-for-hire-53-groundwork",
-          "label": "Heroes for Hire — 5.3 Groundwork",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "LukeCage",
-            "IronFist"
-          ],
-          "core": [
-            "LukeCage",
-            "IronFist"
-          ],
-          "pool": [],
-          "newCharacterIds": [],
-          "existingCharacterIds": [
-            "LukeCage",
-            "IronFist"
-          ],
-          "reworkedCharacterIds": [
-            "LukeCage",
-            "IronFist"
-          ],
-          "announcedNext": [
-            "ColleenWing",
-            "MistyKnight"
-          ],
-          "notes": [
-            "The 5.3 rollout substantially rebuilt Luke Cage and Iron Fist for Heroes for Hire, including multiple ability changes and the team's Charged, healing/revive and War Defense mechanics.",
-            "The exact first live reset for these reworks is intentionally not encoded; April is established by the 5.3 rollout and contemporary in-game reports."
-          ],
-          "characterReleases": [],
-          "reworks": [
-            {
-              "month": "2021-04",
-              "characterId": "LukeCage"
-            },
-            {
-              "month": "2021-04",
-              "characterId": "IronFist"
-            }
-          ]
-        },
-        {
-          "month": "2021-05",
-          "teamId": "heroes-for-hire-colleen-wing-2021",
-          "label": "Heroes for Hire — Colleen Wing",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "LukeCage",
-            "IronFist",
-            "ColleenWing"
-          ],
-          "core": [
-            "LukeCage",
-            "IronFist",
-            "ColleenWing"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "ColleenWing"
-          ],
-          "existingCharacterIds": [
-            "LukeCage",
-            "IronFist"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "ColleenWing": "limited_offer"
-          },
-          "announcedNext": [
-            "MistyKnight"
-          ],
-          "notes": [
-            "Colleen Wing's paid release offer was live on May 6 and could directly unlock her."
-          ],
-          "characterReleases": [
-            {
-              "month": "2021-05",
-              "characterId": "ColleenWing",
-              "releaseMethod": "limited_offer",
-              "date": "2021-05-06"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2021-05",
-          "teamId": "heroes-for-hire-misty-knight-2021",
-          "label": "Heroes for Hire — Four-character team",
+          "teamId": "heroes-for-hire-2021-rollout",
+          "label": "Heroes for Hire",
           "kind": "team",
           "formationStatus": "complete",
           "members": [
@@ -5243,6 +4734,7 @@
           ],
           "pool": [],
           "newCharacterIds": [
+            "ColleenWing",
             "MistyKnight"
           ],
           "existingCharacterIds": [
@@ -5250,12 +4742,20 @@
             "IronFist",
             "ColleenWing"
           ],
-          "reworkedCharacterIds": [],
+          "reworkedCharacterIds": [
+            "LukeCage",
+            "IronFist"
+          ],
           "releaseMethods": {
+            "ColleenWing": "limited_offer",
             "MistyKnight": "limited_offer"
           },
           "announcedNext": [],
           "notes": [
+            "Heroes for Hire was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
+            "The 5.3 rollout substantially rebuilt Luke Cage and Iron Fist for Heroes for Hire, including multiple ability changes and the team's Charged, healing/revive and War Defense mechanics.",
+            "The exact first live reset for these reworks is intentionally not encoded; April is established by the 5.3 rollout and contemporary in-game reports.",
+            "Colleen Wing's paid release offer was live on May 6 and could directly unlock her.",
             "Misty Knight was directly purchasable and recruitable in May; surviving evidence securely establishes the month and paid-offer method but not the first store reset, so no exact date is encoded.",
             "This represents the contemporaneous four-character Heroes for Hire team. Shang-Chi arrived later in 2021 and is not backfilled into T2."
           ],
@@ -5264,44 +4764,90 @@
               "month": "2021-05",
               "characterId": "MistyKnight",
               "releaseMethod": "limited_offer"
+            },
+            {
+              "month": "2021-05",
+              "characterId": "ColleenWing",
+              "releaseMethod": "limited_offer",
+              "date": "2021-05-06"
             }
           ],
-          "reworks": []
+          "reworks": [
+            {
+              "month": "2021-04",
+              "characterId": "IronFist"
+            },
+            {
+              "month": "2021-04",
+              "characterId": "LukeCage"
+            }
+          ]
         },
         {
           "month": "2021-06",
-          "teamId": "infinity-watch-54-groundwork",
-          "label": "Infinity Watch — 5.4 Groundwork",
+          "teamId": "infinity-watch-2021-rollout",
+          "label": "Infinity Watch",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "members": [
             "Gamora",
-            "Nebula"
+            "Nebula",
+            "PhylaVell",
+            "Moondragon",
+            "AdamWarlock"
           ],
-          "core": [
-            "Gamora",
-            "Nebula"
-          ],
+          "core": [],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "PhylaVell",
+            "Moondragon",
+            "AdamWarlock"
+          ],
           "existingCharacterIds": [
             "Gamora",
-            "Nebula"
+            "Nebula",
+            "PhylaVell",
+            "Moondragon"
           ],
           "reworkedCharacterIds": [
             "Gamora",
             "Nebula"
           ],
-          "announcedNext": [
-            "PhylaVell",
-            "Moondragon",
-            "AdamWarlock"
-          ],
+          "releaseMethods": {
+            "PhylaVell": "limited_offer",
+            "Moondragon": "power_core_store",
+            "AdamWarlock": "legendary"
+          },
+          "announcedNext": [],
           "notes": [
+            "Infinity Watch was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
             "Version 5.4 materially reworked both existing Infinity Watch members: Gamora received major base-stat, multi-ability and Charged-to-Empowered changes, while Nebula received broad stat, ability, revive, assist and Infinity Watch changes.",
-            "Empowered Gamora is a transformation state of the already playable Gamora and is not a separate playable release."
+            "Empowered Gamora is a transformation state of the already playable Gamora and is not a separate playable release.",
+            "Both Phyla-Vell and Moondragon were demonstrably recruitable by June 2, before their later free-release events; surviving evidence does not justify inventing an intra-day ordering between them.",
+            "Phyla-Vell was obtainable through her initial paid release offer before the Vote for Loki Event Campaign.",
+            "Moondragon could be unlocked by repeatedly purchasing her 10-shard Supplies Store slot for Power Cores before her standard paid offer and later milestone event.",
+            "Adam Warlock first became recruitable when the inaugural Mythic Legendary Event, \"The Infinity Watch,\" began on June 28."
           ],
-          "characterReleases": [],
+          "characterReleases": [
+            {
+              "month": "2021-06",
+              "characterId": "Moondragon",
+              "releaseMethod": "power_core_store",
+              "date": "2021-06-02"
+            },
+            {
+              "month": "2021-06",
+              "characterId": "PhylaVell",
+              "releaseMethod": "limited_offer",
+              "date": "2021-06-02"
+            },
+            {
+              "month": "2021-06",
+              "characterId": "AdamWarlock",
+              "releaseMethod": "legendary",
+              "date": "2021-06-28"
+            }
+          ],
           "reworks": [
             {
               "month": "2021-06",
@@ -5316,172 +4862,54 @@
           ]
         },
         {
-          "month": "2021-06",
-          "teamId": "infinity-watch-phyla-moondragon-2021",
-          "label": "Infinity Watch — Phyla-Vell and Moondragon",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Gamora",
-            "Nebula",
-            "PhylaVell",
-            "Moondragon"
-          ],
-          "core": [
-            "Gamora",
-            "Nebula",
-            "PhylaVell",
-            "Moondragon"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "PhylaVell",
-            "Moondragon"
-          ],
-          "existingCharacterIds": [
-            "Gamora",
-            "Nebula"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "PhylaVell": "limited_offer",
-            "Moondragon": "power_core_store"
-          },
-          "announcedNext": [
-            "AdamWarlock"
-          ],
-          "notes": [
-            "Both Phyla-Vell and Moondragon were demonstrably recruitable by June 2, before their later free-release events; surviving evidence does not justify inventing an intra-day ordering between them.",
-            "Phyla-Vell was obtainable through her initial paid release offer before the Vote for Loki Event Campaign.",
-            "Moondragon could be unlocked by repeatedly purchasing her 10-shard Supplies Store slot for Power Cores before her standard paid offer and later milestone event."
-          ],
-          "characterReleases": [
-            {
-              "month": "2021-06",
-              "characterId": "PhylaVell",
-              "releaseMethod": "limited_offer",
-              "date": "2021-06-02"
-            },
-            {
-              "month": "2021-06",
-              "characterId": "Moondragon",
-              "releaseMethod": "power_core_store",
-              "date": "2021-06-02"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2021-06",
-          "teamId": "infinity-watch-adam-warlock-2021",
-          "label": "Infinity Watch — Complete",
+          "month": "2021-07",
+          "teamId": "secret-avengers-2021-rollout",
+          "label": "Secret Avengers",
           "kind": "team",
           "formationStatus": "complete",
+          "teamSize": 3,
           "members": [
-            "Gamora",
-            "Nebula",
-            "PhylaVell",
-            "Moondragon",
-            "AdamWarlock"
+            "SharonCarter",
+            "SamWilson",
+            "MariaHill"
           ],
           "core": [],
           "pool": [],
           "newCharacterIds": [
-            "AdamWarlock"
-          ],
-          "existingCharacterIds": [
-            "Gamora",
-            "Nebula",
-            "PhylaVell",
-            "Moondragon"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "AdamWarlock": "legendary"
-          },
-          "announcedNext": [],
-          "notes": [
-            "Adam Warlock first became recruitable when the inaugural Mythic Legendary Event, \"The Infinity Watch,\" began on June 28."
-          ],
-          "characterReleases": [
-            {
-              "month": "2021-06",
-              "characterId": "AdamWarlock",
-              "releaseMethod": "legendary",
-              "date": "2021-06-28"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2021-07",
-          "teamId": "secret-avengers-sharon-carter-2021",
-          "label": "Secret Avengers — Sharon Carter",
-          "kind": "team",
-          "formationStatus": "partial",
-          "teamSize": 3,
-          "members": [
-            "SharonCarter"
-          ],
-          "core": [
-            "SharonCarter"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "SharonCarter"
-          ],
-          "existingCharacterIds": [],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
+            "SharonCarter",
             "SamWilson",
             "MariaHill"
           ],
+          "existingCharacterIds": [
+            "SharonCarter",
+            "SamWilson"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {
+            "SamWilson": "limited_offer",
+            "MariaHill": "power_core_store"
+          },
+          "announcedNext": [],
           "notes": [
+            "Secret Avengers was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
             "Sharon Carter was the first Secret Avenger to become recruitable during the July rollout. Her Conspiracy Theories Event Campaign was live in July, and contemporary players describe Sharon as already available before Captain America (Sam)'s rollout was complete.",
-            "Surviving evidence securely establishes July recruitability but does not establish the very first paid-offer reset strongly enough to encode an exact date or initial releaseMethod."
+            "Surviving evidence securely establishes July recruitability but does not establish the very first paid-offer reset strongly enough to encode an exact date or initial releaseMethod.",
+            "Captain America (Sam) was directly purchasable during the July Secret Avengers rollout. Contemporary July 14 discussion explicitly refers to players deciding whether to buy his live character offers.",
+            "His later S.T.R.I.K.E. Pass distribution therefore does not define his first playable release.",
+            "Maria Hill could be recruited before her standard paid sale by repeatedly buying her 10-shard Supplies Store slot for Power Cores; contemporary players documented top spenders unlocking her this way before she was officially on sale.",
+            "The exact first store refresh is intentionally omitted: July and the Power Core Supplies method are established more securely than a single first-reset timestamp.",
+            "No existing character is counted as a Secret Avengers rework: the three-character team was created through the three new recruits rather than a substantial rebuild of a pre-existing member."
           ],
           "characterReleases": [
             {
               "month": "2021-07",
+              "characterId": "MariaHill",
+              "releaseMethod": "power_core_store"
+            },
+            {
+              "month": "2021-07",
               "characterId": "SharonCarter"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2021-07",
-          "teamId": "secret-avengers-sam-wilson-2021",
-          "label": "Secret Avengers — Captain America (Sam)",
-          "kind": "team",
-          "formationStatus": "partial",
-          "teamSize": 3,
-          "members": [
-            "SharonCarter",
-            "SamWilson"
-          ],
-          "core": [
-            "SharonCarter",
-            "SamWilson"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "SamWilson"
-          ],
-          "existingCharacterIds": [
-            "SharonCarter"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "SamWilson": "limited_offer"
-          },
-          "announcedNext": [
-            "MariaHill"
-          ],
-          "notes": [
-            "Captain America (Sam) was directly purchasable during the July Secret Avengers rollout. Contemporary July 14 discussion explicitly refers to players deciding whether to buy his live character offers.",
-            "His later S.T.R.I.K.E. Pass distribution therefore does not define his first playable release."
-          ],
-          "characterReleases": [
+            },
             {
               "month": "2021-07",
               "characterId": "SamWilson",
@@ -5492,74 +4920,39 @@
           "reworks": []
         },
         {
-          "month": "2021-07",
-          "teamId": "secret-avengers-maria-hill-2021",
-          "label": "Secret Avengers — Complete",
+          "month": "2021-08",
+          "teamId": "new-warriors-2021-rollout",
+          "label": "New Warriors",
           "kind": "team",
           "formationStatus": "complete",
           "teamSize": 3,
           "members": [
-            "SharonCarter",
-            "SamWilson",
-            "MariaHill"
+            "Deathpool",
+            "Cloak",
+            "Dagger"
           ],
           "core": [],
           "pool": [],
           "newCharacterIds": [
-            "MariaHill"
-          ],
-          "existingCharacterIds": [
-            "SharonCarter",
-            "SamWilson"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "MariaHill": "power_core_store"
-          },
-          "announcedNext": [],
-          "notes": [
-            "Maria Hill could be recruited before her standard paid sale by repeatedly buying her 10-shard Supplies Store slot for Power Cores; contemporary players documented top spenders unlocking her this way before she was officially on sale.",
-            "The exact first store refresh is intentionally omitted: July and the Power Core Supplies method are established more securely than a single first-reset timestamp.",
-            "No existing character is counted as a Secret Avengers rework: the three-character team was created through the three new recruits rather than a substantial rebuild of a pre-existing member."
-          ],
-          "characterReleases": [
-            {
-              "month": "2021-07",
-              "characterId": "MariaHill",
-              "releaseMethod": "power_core_store"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2021-08",
-          "teamId": "new-warriors-deathpool-2021",
-          "label": "New Warriors — Deathpool",
-          "kind": "team",
-          "formationStatus": "partial",
-          "teamSize": 3,
-          "members": [
-            "Deathpool"
-          ],
-          "core": [
-            "Deathpool"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "Deathpool"
-          ],
-          "existingCharacterIds": [],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "Deathpool": "limited_offer"
-          },
-          "announcedNext": [
+            "Deathpool",
             "Cloak",
             "Dagger"
           ],
+          "existingCharacterIds": [
+            "Deathpool",
+            "Cloak"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
           "notes": [
+            "New Warriors was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
             "Deathpool previews and kit coverage in early August did not by themselves make her recruitable.",
-            "Her actual paid release coincided with the version 5.6 rollout on August 17; contemporary offer coverage and purchaser discussion establish recruitability that day, before the later Shadow of Deathpool Event Campaign."
+            "Her actual paid release coincided with the version 5.6 rollout on August 17; contemporary offer coverage and purchaser discussion establish recruitability that day, before the later Shadow of Deathpool Event Campaign.",
+            "Cloak was directly purchasable in early September; contemporary September 7 discussion includes players who had already bought both of his release offers.",
+            "Because surviving timestamps straddle the store-reset boundary, September and the paid-offer method are encoded without forcing an exact first day.",
+            "Dagger was demonstrably playable in September: contemporary players were already discussing live builds by September 18, before the free S.T.R.I.K.E. Pass plus Luminous Blitz route could naturally complete an unlock.",
+            "A limited group also received unintended early Dagger access through the Luminous-credit conversion issue. Because the surviving evidence does not cleanly establish the first intended paid reset versus that unintended access, neither an exact date nor an initial releaseMethod is forced here.",
+            "The September 15 S.T.R.I.K.E. Pass start is not used as the release date because the pass alone could not immediately provide enough Dagger shards for an unlock."
           ],
           "characterReleases": [
             {
@@ -5567,9 +4960,22 @@
               "characterId": "Deathpool",
               "releaseMethod": "limited_offer",
               "date": "2021-08-17"
+            },
+            {
+              "month": "2021-09",
+              "characterId": "Cloak",
+              "releaseMethod": "limited_offer"
+            },
+            {
+              "month": "2021-09",
+              "characterId": "Dagger"
             }
           ],
-          "reworks": []
+          "reworks": [],
+          "releaseMethods": {
+            "Deathpool": "limited_offer",
+            "Cloak": "limited_offer"
+          }
         },
         {
           "month": "2021-08",
@@ -5617,261 +5023,65 @@
         },
         {
           "month": "2021-09",
-          "teamId": "new-warriors-cloak-2021",
-          "label": "New Warriors — Cloak",
-          "kind": "team",
-          "formationStatus": "partial",
-          "teamSize": 3,
-          "members": [
-            "Deathpool",
-            "Cloak"
-          ],
-          "core": [
-            "Deathpool",
-            "Cloak"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "Cloak"
-          ],
-          "existingCharacterIds": [
-            "Deathpool"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "Cloak": "limited_offer"
-          },
-          "announcedNext": [
-            "Dagger"
-          ],
-          "notes": [
-            "Cloak was directly purchasable in early September; contemporary September 7 discussion includes players who had already bought both of his release offers.",
-            "Because surviving timestamps straddle the store-reset boundary, September and the paid-offer method are encoded without forcing an exact first day."
-          ],
-          "characterReleases": [
-            {
-              "month": "2021-09",
-              "characterId": "Cloak",
-              "releaseMethod": "limited_offer"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2021-09",
-          "teamId": "new-warriors-dagger-2021",
-          "label": "New Warriors — Complete",
+          "teamId": "weapon-x-2021-rollout",
+          "label": "Weapon X",
           "kind": "team",
           "formationStatus": "complete",
-          "teamSize": 3,
+          "teamSize": 5,
           "members": [
-            "Deathpool",
-            "Cloak",
-            "Dagger"
+            "Wolverine",
+            "Sabretooth",
+            "SilverSamurai",
+            "LadyDeathstrike",
+            "OmegaRed"
           ],
           "core": [],
           "pool": [],
           "newCharacterIds": [
-            "Dagger"
+            "SilverSamurai",
+            "LadyDeathstrike",
+            "OmegaRed"
           ],
           "existingCharacterIds": [
-            "Deathpool",
-            "Cloak"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [],
-          "notes": [
-            "Dagger was demonstrably playable in September: contemporary players were already discussing live builds by September 18, before the free S.T.R.I.K.E. Pass plus Luminous Blitz route could naturally complete an unlock.",
-            "A limited group also received unintended early Dagger access through the Luminous-credit conversion issue. Because the surviving evidence does not cleanly establish the first intended paid reset versus that unintended access, neither an exact date nor an initial releaseMethod is forced here.",
-            "The September 15 S.T.R.I.K.E. Pass start is not used as the release date because the pass alone could not immediately provide enough Dagger shards for an unlock."
-          ],
-          "characterReleases": [
-            {
-              "month": "2021-09",
-              "characterId": "Dagger"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2021-09",
-          "teamId": "weapon-x-57-groundwork",
-          "label": "Weapon X — 5.7 Groundwork",
-          "kind": "team",
-          "formationStatus": "partial",
-          "teamSize": 5,
-          "members": [
             "Wolverine",
-            "Sabretooth"
-          ],
-          "core": [
-            "Wolverine",
-            "Sabretooth"
-          ],
-          "pool": [],
-          "newCharacterIds": [],
-          "existingCharacterIds": [
-            "Wolverine",
-            "Sabretooth"
+            "Sabretooth",
+            "SilverSamurai",
+            "LadyDeathstrike"
           ],
           "reworkedCharacterIds": [
             "Wolverine",
             "Sabretooth"
           ],
-          "announcedNext": [
-            "SilverSamurai",
-            "LadyDeathstrike",
-            "OmegaRed"
-          ],
+          "releaseMethods": {
+            "SilverSamurai": "limited_offer",
+            "LadyDeathstrike": "power_core_store",
+            "OmegaRed": "legendary"
+          },
+          "announcedNext": [],
           "notes": [
+            "Weapon X was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
             "Version 5.7 substantially rebuilt Wolverine and Sabretooth for Weapon X. Both received large base-stat increases plus multi-ability changes, new Weapon X synergies and new War mechanics; these changes meet the significant-rework threshold.",
             "Contemporary September 30 discussion confirms that the boosted kits were already live after the September 29 update, so the reworks belong to T3.",
-            "Silver Samurai, Lady Deathstrike and Omega Red were only announced as arriving over the 5.7 release cycle by quarter-end. Their actual recruitable releases occurred in October or later, so none is counted as a T3 playable release."
-          ],
-          "characterReleases": [],
-          "reworks": [
-            {
-              "month": "2021-09",
-              "characterId": "Wolverine",
-              "date": "2021-09-29"
-            },
-            {
-              "month": "2021-09",
-              "characterId": "Sabretooth",
-              "date": "2021-09-29"
-            }
-          ]
-        },
-        {
-          "month": "2021-10",
-          "teamId": "weapon-x-silver-samurai-2021",
-          "label": "Weapon X — Silver Samurai",
-          "kind": "team",
-          "formationStatus": "partial",
-          "teamSize": 5,
-          "members": [
-            "Wolverine",
-            "Sabretooth",
-            "SilverSamurai"
-          ],
-          "core": [
-            "Wolverine",
-            "Sabretooth",
-            "SilverSamurai"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "SilverSamurai"
-          ],
-          "existingCharacterIds": [
-            "Wolverine",
-            "Sabretooth"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "SilverSamurai": "limited_offer"
-          },
-          "announcedNext": [
-            "LadyDeathstrike",
-            "OmegaRed"
-          ],
-          "notes": [
+            "Silver Samurai, Lady Deathstrike and Omega Red were only announced as arriving over the 5.7 release cycle by quarter-end. Their actual recruitable releases occurred in October or later, so none is counted as a T3 playable release.",
             "Silver Samurai was genuinely playable by October 9, with the October 8 reset contemporaneously identified as his paid-offer rollout. The month and paid-offer method are secure, but the exact first live reset is intentionally not encoded.",
-            "Wolverine and Sabretooth are not reworked again here; their substantial Weapon X rebuild was already live and counted on September 29."
-          ],
-          "characterReleases": [
-            {
-              "month": "2021-10",
-              "characterId": "SilverSamurai",
-              "releaseMethod": "limited_offer"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2021-10",
-          "teamId": "weapon-x-lady-deathstrike-2021",
-          "label": "Weapon X — Lady Deathstrike",
-          "kind": "team",
-          "formationStatus": "partial",
-          "teamSize": 5,
-          "members": [
-            "Wolverine",
-            "Sabretooth",
-            "SilverSamurai",
-            "LadyDeathstrike"
-          ],
-          "core": [
-            "Wolverine",
-            "Sabretooth",
-            "SilverSamurai",
-            "LadyDeathstrike"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "LadyDeathstrike"
-          ],
-          "existingCharacterIds": [
-            "Wolverine",
-            "Sabretooth",
-            "SilverSamurai"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "LadyDeathstrike": "power_core_store"
-          },
-          "announcedNext": [
-            "OmegaRed"
-          ],
-          "notes": [
+            "Wolverine and Sabretooth are not reworked again here; their substantial Weapon X rebuild was already live and counted on September 29.",
             "Lady Deathstrike shards were genuinely live in Supplies for Power Cores before Lab X-Periments; the developer reactivated that availability on October 20 after it ended a day early.",
             "The Supplies route could mathematically unlock her: Lady Deathstrike required 100 shards, while the contemporary Power Core route was discussed as a 9,000-core full unlock. Because the first store refresh is not securely pinned down, no exact date is encoded.",
-            "The October 22 Lab X-Periments event was therefore not her first playable availability."
+            "The October 22 Lab X-Periments event was therefore not her first playable availability.",
+            "The October 29 Celestial Weapons communication explicitly identified November 1 at 5:00PM PDT as the first chance to recruit Omega Red through The Red Death Mythic Legendary Event.",
+            "The schema's existing releaseMethod vocabulary uses legendary, so no new mythic_legendary value is introduced."
           ],
           "characterReleases": [
             {
               "month": "2021-10",
               "characterId": "LadyDeathstrike",
               "releaseMethod": "power_core_store"
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2021-11",
-          "teamId": "weapon-x-omega-red-2021",
-          "label": "Weapon X — Complete",
-          "kind": "team",
-          "formationStatus": "complete",
-          "teamSize": 5,
-          "members": [
-            "Wolverine",
-            "Sabretooth",
-            "SilverSamurai",
-            "LadyDeathstrike",
-            "OmegaRed"
-          ],
-          "core": [],
-          "pool": [],
-          "newCharacterIds": [
-            "OmegaRed"
-          ],
-          "existingCharacterIds": [
-            "Wolverine",
-            "Sabretooth",
-            "SilverSamurai",
-            "LadyDeathstrike"
-          ],
-          "reworkedCharacterIds": [],
-          "releaseMethods": {
-            "OmegaRed": "legendary"
-          },
-          "announcedNext": [],
-          "notes": [
-            "The October 29 Celestial Weapons communication explicitly identified November 1 at 5:00PM PDT as the first chance to recruit Omega Red through The Red Death Mythic Legendary Event.",
-            "The schema's existing releaseMethod vocabulary uses legendary, so no new mythic_legendary value is introduced."
-          ],
-          "characterReleases": [
+            },
+            {
+              "month": "2021-10",
+              "characterId": "SilverSamurai",
+              "releaseMethod": "limited_offer"
+            },
             {
               "month": "2021-11",
               "characterId": "OmegaRed",
@@ -5879,46 +5089,23 @@
               "date": "2021-11-01"
             }
           ],
-          "reworks": []
-        },
-        {
-          "month": "2021-11",
-          "teamId": "eternals-sersi-2021",
-          "label": "Eternals — Sersi",
-          "kind": "team",
-          "formationStatus": "partial",
-          "teamSize": 2,
-          "members": [
-            "Sersi"
-          ],
-          "core": [
-            "Sersi"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "Sersi"
-          ],
-          "existingCharacterIds": [],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
-            "Ikaris"
-          ],
-          "notes": [
-            "Sersi was already playable and being actively evaluated by November 6, while the November 12 official blog still described Ikaris as not yet released.",
-            "The surviving evidence securely establishes November as Sersi's first playable month, but not the exact initial store reset or first recruitment route strongly enough to encode either."
-          ],
-          "characterReleases": [
+          "reworks": [
             {
-              "month": "2021-11",
-              "characterId": "Sersi"
+              "month": "2021-09",
+              "characterId": "Sabretooth",
+              "date": "2021-09-29"
+            },
+            {
+              "month": "2021-09",
+              "characterId": "Wolverine",
+              "date": "2021-09-29"
             }
-          ],
-          "reworks": []
+          ]
         },
         {
           "month": "2021-11",
-          "teamId": "eternals-ikaris-2021",
-          "label": "Eternals — Complete Duo",
+          "teamId": "eternals-2021-duo",
+          "label": "Eternals",
           "kind": "team",
           "formationStatus": "complete",
           "teamSize": 2,
@@ -5929,6 +5116,7 @@
           "core": [],
           "pool": [],
           "newCharacterIds": [
+            "Sersi",
             "Ikaris"
           ],
           "existingCharacterIds": [
@@ -5940,9 +5128,16 @@
           },
           "announcedNext": [],
           "notes": [
+            "Eternals was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
+            "Sersi was already playable and being actively evaluated by November 6, while the November 12 official blog still described Ikaris as not yet released.",
+            "The surviving evidence securely establishes November as Sersi's first playable month, but not the exact initial store reset or first recruitment route strongly enough to encode either.",
             "Ikaris' paid release offer was live on November 14; contemporary offer coverage and subsequent players describing the original 55-shard-plus-orbs offer establish direct recruitability before his later event."
           ],
           "characterReleases": [
+            {
+              "month": "2021-11",
+              "characterId": "Sersi"
+            },
             {
               "month": "2021-11",
               "characterId": "Ikaris",
@@ -5954,66 +5149,8 @@
         },
         {
           "month": "2021-12",
-          "teamId": "uncanny-x-men-59-groundwork",
-          "label": "Uncanny X-Men — 5.9 Groundwork",
-          "kind": "team",
-          "formationStatus": "partial",
-          "teamSize": 5,
-          "members": [
-            "Phoenix",
-            "Colossus",
-            "Cyclops",
-            "Storm"
-          ],
-          "core": [
-            "Phoenix",
-            "Colossus",
-            "Cyclops",
-            "Storm"
-          ],
-          "pool": [],
-          "newCharacterIds": [],
-          "existingCharacterIds": [
-            "Phoenix",
-            "Colossus",
-            "Cyclops",
-            "Storm"
-          ],
-          "reworkedCharacterIds": [
-            "Storm",
-            "Cyclops",
-            "Colossus"
-          ],
-          "announcedNext": [
-            "Magik"
-          ],
-          "notes": [
-            "Version 5.9 materially rebuilt Storm, Cyclops and Colossus around Magik/Uncanny X-Men: the changes combine stat increases with multiple ability updates, Charged handling and new Magik/Phoenix interactions.",
-            "Phoenix is represented as an existing structural member but is not counted as a rework because 5.9 did not substantially rebuild her kit. Dark Phoenix remains an internal summon/transformation and is not a separate playable release."
-          ],
-          "characterReleases": [],
-          "reworks": [
-            {
-              "month": "2021-12",
-              "characterId": "Storm",
-              "date": "2021-12-08"
-            },
-            {
-              "month": "2021-12",
-              "characterId": "Cyclops",
-              "date": "2021-12-08"
-            },
-            {
-              "month": "2021-12",
-              "characterId": "Colossus",
-              "date": "2021-12-08"
-            }
-          ]
-        },
-        {
-          "month": "2021-12",
-          "teamId": "uncanny-x-men-magik-2021",
-          "label": "Uncanny X-Men — Magik",
+          "teamId": "uncanny-x-men-magik-2021-rollout",
+          "label": "Uncanny X-Men",
           "kind": "team",
           "formationStatus": "complete",
           "teamSize": 5,
@@ -6035,12 +5172,19 @@
             "Cyclops",
             "Storm"
           ],
-          "reworkedCharacterIds": [],
+          "reworkedCharacterIds": [
+            "Storm",
+            "Cyclops",
+            "Colossus"
+          ],
           "releaseMethods": {
             "Magik": "limited_offer"
           },
           "announcedNext": [],
           "notes": [
+            "Uncanny X-Men was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
+            "Version 5.9 materially rebuilt Storm, Cyclops and Colossus around Magik/Uncanny X-Men: the changes combine stat increases with multiple ability updates, Charged handling and new Magik/Phoenix interactions.",
+            "Phoenix is represented as an existing structural member but is not counted as a rework because 5.9 did not substantially rebuild her kit. Dark Phoenix remains an internal summon/transformation and is not a separate playable release.",
             "Magik became directly recruitable through paid offers on December 8. A contemporary purchaser reports buying the two release offers that day, and another player reports unlocking her with one purchase.",
             "Season's Sorcery began on December 16 and later supplied Magik shards, but it does not define her first playable availability."
           ],
@@ -6052,7 +5196,23 @@
               "date": "2021-12-08"
             }
           ],
-          "reworks": []
+          "reworks": [
+            {
+              "month": "2021-12",
+              "characterId": "Colossus",
+              "date": "2021-12-08"
+            },
+            {
+              "month": "2021-12",
+              "characterId": "Cyclops",
+              "date": "2021-12-08"
+            },
+            {
+              "month": "2021-12",
+              "characterId": "Storm",
+              "date": "2021-12-08"
+            }
+          ]
         },
         {
           "month": "2021-12",
@@ -6116,7 +5276,9 @@
               "characterId": "RavagerSupport_Heal",
               "date": "2021-12-08"
             }
-          ]
+          ],
+          "rolloutId": "ravagers-2021-2022-rollout",
+          "rolloutLabel": "Ravagers"
         },
         {
           "month": "2021-12",
@@ -6164,7 +5326,9 @@
               "characterId": "UltSpiderMan",
               "date": "2021-12-08"
             }
-          ]
+          ],
+          "rolloutId": "web-warriors-2021-2022-rollout",
+          "rolloutLabel": "Web-Warriors"
         },
         {
           "month": "2021-12",
@@ -6211,7 +5375,9 @@
               "date": "2021-12-19"
             }
           ],
-          "reworks": []
+          "reworks": [],
+          "rolloutId": "web-warriors-2021-2022-rollout",
+          "rolloutLabel": "Web-Warriors"
         },
         {
           "month": "2021-12",
@@ -6260,7 +5426,9 @@
               "releaseMethod": "limited_offer"
             }
           ],
-          "reworks": []
+          "reworks": [],
+          "rolloutId": "web-warriors-2021-2022-rollout",
+          "rolloutLabel": "Web-Warriors"
         }
       ],
       "validation": {
@@ -6341,7 +5509,9 @@
               "characterId": "SpiderPunk"
             }
           ],
-          "reworks": []
+          "reworks": [],
+          "rolloutId": "web-warriors-2021-2022-rollout",
+          "rolloutLabel": "Web-Warriors"
         },
         {
           "month": "2022-01",
@@ -6384,7 +5554,9 @@
               "releaseMethod": "limited_offer"
             }
           ],
-          "reworks": []
+          "reworks": [],
+          "rolloutId": "ravagers-2021-2022-rollout",
+          "rolloutLabel": "Ravagers"
         },
         {
           "month": "2022-02",
@@ -7261,91 +6433,39 @@
       "teamEvents": [
         {
           "month": "2026-01",
-          "teamId": "winter-guard-2026-01-1",
-          "label": "Winter Guard — Reworked veterans",
+          "teamId": "winter-guard-2026-01",
+          "label": "Winter Guard",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "members": [
             "OmegaRed",
             "RedGuardian",
-            "Yelena"
+            "Yelena",
+            "Darkstar",
+            "UrsaMajor"
           ],
-          "core": [
-            "OmegaRed",
-            "RedGuardian",
-            "Yelena"
-          ],
+          "core": [],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "Darkstar",
+            "UrsaMajor"
+          ],
           "existingCharacterIds": [
             "OmegaRed",
             "RedGuardian",
-            "Yelena"
+            "Yelena",
+            "Darkstar"
           ],
           "reworkedCharacterIds": [
             "OmegaRed",
             "RedGuardian",
             "Yelena"
           ],
-          "announcedNext": [
-            "Darkstar",
-            "UrsaMajor"
-          ],
+          "announcedNext": [],
           "notes": [
+            "Winter Guard was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
             "The January 5 contemporary report confirms these reworks are live. Large stat increases and broad War/defensive-kit changes qualify; original Omega Red is distinct from OmegaRedPhoenix."
           ],
-          "characterReleases": [],
-          "reworks": [
-            {
-              "month": "2026-01",
-              "characterId": "OmegaRed"
-            },
-            {
-              "month": "2026-01",
-              "characterId": "RedGuardian"
-            },
-            {
-              "month": "2026-01",
-              "characterId": "Yelena"
-            }
-          ],
-          "sourceIds": [
-            "winter-guard-live",
-            "winter-guard-kit"
-          ]
-        },
-        {
-          "month": "2026-01",
-          "teamId": "winter-guard-2026-01-2",
-          "label": "Winter Guard — Darkstar",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "OmegaRed",
-            "RedGuardian",
-            "Yelena",
-            "Darkstar"
-          ],
-          "core": [
-            "OmegaRed",
-            "RedGuardian",
-            "Yelena",
-            "Darkstar"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "Darkstar"
-          ],
-          "existingCharacterIds": [
-            "OmegaRed",
-            "RedGuardian",
-            "Yelena"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
-            "UrsaMajor"
-          ],
-          "notes": [],
           "characterReleases": [
             {
               "month": "2026-01",
@@ -7359,38 +6479,7 @@
               "sourceIds": [
                 "blog-update-01-09-26"
               ]
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2026-01",
-          "teamId": "winter-guard-2026-01-3",
-          "label": "Winter Guard — Complete",
-          "kind": "team",
-          "formationStatus": "complete",
-          "members": [
-            "OmegaRed",
-            "RedGuardian",
-            "Yelena",
-            "Darkstar",
-            "UrsaMajor"
-          ],
-          "core": [],
-          "pool": [],
-          "newCharacterIds": [
-            "UrsaMajor"
-          ],
-          "existingCharacterIds": [
-            "OmegaRed",
-            "RedGuardian",
-            "Yelena",
-            "Darkstar"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [],
-          "notes": [],
-          "characterReleases": [
+            },
             {
               "month": "2026-01",
               "characterId": "UrsaMajor",
@@ -7405,66 +6494,38 @@
               ]
             }
           ],
-          "reworks": []
-        },
-        {
-          "month": "2026-02",
-          "teamId": "phoenix-force-2026-02-4",
-          "label": "Phoenix Force — Reworked core",
-          "kind": "team",
-          "formationStatus": "core-plus-pool",
-          "members": [
-            "Phoenix",
-            "OmegaRedPhoenix"
-          ],
-          "core": [
-            "Phoenix",
-            "OmegaRedPhoenix"
-          ],
-          "pool": [
-            "Blastaar",
-            "Thunderstrike"
-          ],
-          "newCharacterIds": [],
-          "existingCharacterIds": [
-            "Phoenix",
-            "OmegaRedPhoenix"
-          ],
-          "reworkedCharacterIds": [
-            "Phoenix",
-            "OmegaRedPhoenix"
-          ],
-          "announcedNext": [
-            "MagnetoPhoenixForce"
-          ],
-          "notes": [
-            "Phoenix and Omega Red (Phoenix Force) receive approximately 110% base-stat increases and multiple ability/synergy changes. Dark Phoenix is a transformation and not counted separately. Blastaar and Thunderstrike are explicitly suggested flexible slots, not new recruits."
-          ],
-          "characterReleases": [],
           "reworks": [
             {
-              "month": "2026-02",
-              "characterId": "Phoenix"
+              "month": "2026-01",
+              "characterId": "OmegaRed"
             },
             {
-              "month": "2026-02",
-              "characterId": "OmegaRedPhoenix"
+              "month": "2026-01",
+              "characterId": "RedGuardian"
+            },
+            {
+              "month": "2026-01",
+              "characterId": "Yelena"
             }
           ],
+          "releaseMethods": {},
           "sourceIds": [
-            "magnetic-ashes"
+            "winter-guard-live",
+            "winter-guard-kit"
           ]
         },
         {
           "month": "2026-02",
-          "teamId": "phoenix-force-2026-02-5",
-          "label": "Phoenix Force — Magneto (Phoenix Force)",
+          "teamId": "phoenix-force-2026-02",
+          "label": "Phoenix Force",
           "kind": "team",
           "formationStatus": "core-plus-pool",
           "members": [
             "Phoenix",
             "OmegaRedPhoenix",
-            "MagnetoPhoenixForce"
+            "MagnetoPhoenixForce",
+            "Blastaar",
+            "Thunderstrike"
           ],
           "core": [
             "Phoenix",
@@ -7480,11 +6541,18 @@
           ],
           "existingCharacterIds": [
             "Phoenix",
+            "OmegaRedPhoenix",
+            "Blastaar",
+            "Thunderstrike"
+          ],
+          "reworkedCharacterIds": [
+            "Phoenix",
             "OmegaRedPhoenix"
           ],
-          "reworkedCharacterIds": [],
           "announcedNext": [],
           "notes": [
+            "Phoenix Force was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
+            "Phoenix and Omega Red (Phoenix Force) receive approximately 110% base-stat increases and multiple ability/synergy changes. Dark Phoenix is a transformation and not counted separately. Blastaar and Thunderstrike are explicitly suggested flexible slots, not new recruits.",
             "Three-character Phoenix Force core plus the officially suggested existing flexible choices; this is not a five-character newly released team."
           ],
           "characterReleases": [
@@ -7502,7 +6570,20 @@
               ]
             }
           ],
-          "reworks": []
+          "reworks": [
+            {
+              "month": "2026-02",
+              "characterId": "OmegaRedPhoenix"
+            },
+            {
+              "month": "2026-02",
+              "characterId": "Phoenix"
+            }
+          ],
+          "releaseMethods": {},
+          "sourceIds": [
+            "magnetic-ashes"
+          ]
         },
         {
           "month": "2026-02",
@@ -7557,90 +6638,40 @@
         },
         {
           "month": "2026-02",
-          "teamId": "champions-2026-02-7",
-          "label": "Champions — Reworked veterans",
+          "teamId": "champions-2026-02",
+          "label": "Champions",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "members": [
             "AmadeusCho",
             "MsMarvel",
-            "UltSpiderMan"
+            "UltSpiderMan",
+            "MoonGirl",
+            "NovaSamAlexander"
           ],
-          "core": [
-            "AmadeusCho",
-            "MsMarvel",
-            "UltSpiderMan"
-          ],
+          "core": [],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "MoonGirl",
+            "NovaSamAlexander"
+          ],
           "existingCharacterIds": [
             "AmadeusCho",
             "MsMarvel",
-            "UltSpiderMan"
+            "UltSpiderMan",
+            "MoonGirl"
           ],
           "reworkedCharacterIds": [
             "AmadeusCho",
             "MsMarvel",
             "UltSpiderMan"
           ],
-          "announcedNext": [
-            "MoonGirl",
-            "NovaSamAlexander"
-          ],
+          "announcedNext": [],
           "notes": [
-            "Catalog IDs AmadeusCho (Brawn) and UltSpiderMan (Spider-Man Miles) are used verbatim. All three receive several-hundred-percent stat increases plus substantial ability changes for the Raid team; Devil Dinosaur is not a separate member. Month represents the playable February rollout, not an invented patch day."
+            "Champions was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
+            "Catalog IDs AmadeusCho (Brawn) and UltSpiderMan (Spider-Man Miles) are used verbatim. All three receive several-hundred-percent stat increases plus substantial ability changes for the Raid team; Devil Dinosaur is not a separate member. Month represents the playable February rollout, not an invented patch day.",
+            "Nova also has Starjammer synergy, but no further Starjammer rework is inferred from a new trait alone."
           ],
-          "characterReleases": [],
-          "reworks": [
-            {
-              "month": "2026-02",
-              "characterId": "AmadeusCho"
-            },
-            {
-              "month": "2026-02",
-              "characterId": "MsMarvel"
-            },
-            {
-              "month": "2026-02",
-              "characterId": "UltSpiderMan"
-            }
-          ],
-          "sourceIds": [
-            "champions-control-the-fight"
-          ]
-        },
-        {
-          "month": "2026-02",
-          "teamId": "champions-2026-02-8",
-          "label": "Champions — Moon Girl",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "AmadeusCho",
-            "MsMarvel",
-            "UltSpiderMan",
-            "MoonGirl"
-          ],
-          "core": [
-            "AmadeusCho",
-            "MsMarvel",
-            "UltSpiderMan",
-            "MoonGirl"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "MoonGirl"
-          ],
-          "existingCharacterIds": [
-            "AmadeusCho",
-            "MsMarvel",
-            "UltSpiderMan"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
-            "NovaSamAlexander"
-          ],
-          "notes": [],
           "characterReleases": [
             {
               "month": "2026-02",
@@ -7654,40 +6685,7 @@
               "sourceIds": [
                 "blog-update-2-6-26"
               ]
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2026-02",
-          "teamId": "champions-2026-02-9",
-          "label": "Champions — Complete",
-          "kind": "team",
-          "formationStatus": "complete",
-          "members": [
-            "AmadeusCho",
-            "MsMarvel",
-            "UltSpiderMan",
-            "MoonGirl",
-            "NovaSamAlexander"
-          ],
-          "core": [],
-          "pool": [],
-          "newCharacterIds": [
-            "NovaSamAlexander"
-          ],
-          "existingCharacterIds": [
-            "AmadeusCho",
-            "MsMarvel",
-            "UltSpiderMan",
-            "MoonGirl"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [],
-          "notes": [
-            "Nova also has Starjammer synergy, but no further Starjammer rework is inferred from a new trait alone."
-          ],
-          "characterReleases": [
+            },
             {
               "month": "2026-02",
               "characterId": "NovaSamAlexander",
@@ -7702,305 +6700,29 @@
               ]
             }
           ],
-          "reworks": []
+          "reworks": [
+            {
+              "month": "2026-02",
+              "characterId": "AmadeusCho"
+            },
+            {
+              "month": "2026-02",
+              "characterId": "MsMarvel"
+            },
+            {
+              "month": "2026-02",
+              "characterId": "UltSpiderMan"
+            }
+          ],
+          "releaseMethods": {},
+          "sourceIds": [
+            "champions-control-the-fight"
+          ]
         },
         {
           "month": "2026-02",
-          "teamId": "galactic-council-2026-02-10",
-          "label": "Galactic Council — Chapter 4 core",
-          "kind": "team",
-          "formationStatus": "complete",
-          "members": [
-            "Quasar",
-            "Blastaar",
-            "Thunderstrike",
-            "AdamWarlock",
-            "StarLord"
-          ],
-          "core": [],
-          "pool": [],
-          "newCharacterIds": [],
-          "existingCharacterIds": [
-            "Quasar",
-            "Blastaar",
-            "Thunderstrike",
-            "AdamWarlock",
-            "StarLord"
-          ],
-          "reworkedCharacterIds": [
-            "AdamWarlock",
-            "StarLord"
-          ],
-          "announcedNext": [
-            "Annihilus"
-          ],
-          "notes": [
-            "Chapter 4 starts February 2. Adam Warlock and Star-Lord receive large base-stat and multi-ability changes, alongside their Awakened paths. Existing Chapter Legends are not counted as 2026 releases."
-          ],
-          "characterReleases": [],
-          "reworks": [
-            {
-              "month": "2026-02",
-              "characterId": "AdamWarlock"
-            },
-            {
-              "month": "2026-02",
-              "characterId": "StarLord"
-            }
-          ],
-          "sourceIds": [
-            "blog-update-01-23-26"
-          ]
-        },
-        {
-          "month": "2026-03",
-          "teamId": "daring-warriors-2026-03-11",
-          "label": "Daring Warriors — Reworked veterans",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Daredevil",
-            "JessicaJones"
-          ],
-          "core": [
-            "Daredevil",
-            "JessicaJones"
-          ],
-          "pool": [],
-          "newCharacterIds": [],
-          "existingCharacterIds": [
-            "Daredevil",
-            "JessicaJones"
-          ],
-          "reworkedCharacterIds": [
-            "Daredevil",
-            "JessicaJones"
-          ],
-          "announcedNext": [
-            "NightThrasher",
-            "Speedball",
-            "Eclipse"
-          ],
-          "notes": [
-            "Daredevil gains 728% Health and 616% Damage plus updated abilities; Jessica Jones gains 388% Health and 324% Damage plus extensive cleanse/barrier/energy and team changes. Rework month is retained at the playable March rollout, without inferring an activation day."
-          ],
-          "characterReleases": [],
-          "reworks": [
-            {
-              "month": "2026-03",
-              "characterId": "Daredevil"
-            },
-            {
-              "month": "2026-03",
-              "characterId": "JessicaJones"
-            }
-          ],
-          "sourceIds": [
-            "daring-warriors-fearless-in-crucible-and-battleworld"
-          ]
-        },
-        {
-          "month": "2026-03",
-          "teamId": "daring-warriors-2026-03-12",
-          "label": "Daring Warriors — Night Thrasher",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Daredevil",
-            "JessicaJones",
-            "NightThrasher"
-          ],
-          "core": [
-            "Daredevil",
-            "JessicaJones",
-            "NightThrasher"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "NightThrasher"
-          ],
-          "existingCharacterIds": [
-            "Daredevil",
-            "JessicaJones"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
-            "Speedball",
-            "Eclipse"
-          ],
-          "notes": [],
-          "characterReleases": [
-            {
-              "month": "2026-03",
-              "characterId": "NightThrasher",
-              "releaseMethod": "limited_offer; limited_orb",
-              "date": "2026-03-04",
-              "notes": [
-                "Street Shredder Orb (675 cores) and offers begin March 4 at 1 PM PST."
-              ],
-              "confidence": "very_high",
-              "sourceIds": [
-                "blog-update-2-27-26"
-              ]
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2026-03",
-          "teamId": "daring-warriors-2026-03-13",
-          "label": "Daring Warriors — Complete",
-          "kind": "team",
-          "formationStatus": "complete",
-          "members": [
-            "Daredevil",
-            "JessicaJones",
-            "NightThrasher",
-            "Speedball",
-            "Eclipse"
-          ],
-          "core": [],
-          "pool": [],
-          "newCharacterIds": [
-            "Speedball",
-            "Eclipse"
-          ],
-          "existingCharacterIds": [
-            "Daredevil",
-            "JessicaJones",
-            "NightThrasher"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [],
-          "notes": [],
-          "characterReleases": [
-            {
-              "month": "2026-03",
-              "characterId": "Speedball",
-              "releaseMethod": "limited_offer; limited_orb",
-              "date": "2026-03-18",
-              "notes": [
-                "Explicit First Available: March 18 at 2 PM PDT; Kinetic Overdrive Orb and same-day offers allow recruitment."
-              ],
-              "confidence": "very_high",
-              "sourceIds": [
-                "blog-update-3-13-26"
-              ]
-            },
-            {
-              "month": "2026-03",
-              "characterId": "Eclipse",
-              "releaseMethod": "event_campaign",
-              "date": "2026-03-18",
-              "notes": [
-                "Eclipse Lost opens March 18 at 2 PM PDT. Mission 1 explicitly unlocks Eclipse (GT14, level 75); higher missions are not prerequisites for first recruitment."
-              ],
-              "confidence": "very_high",
-              "sourceIds": [
-                "blog-update-3-13-26"
-              ]
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2026-04",
-          "teamId": "shadow-conclave-2026-04-14",
-          "label": "Shadow Conclave — Reworked veterans",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Thanos",
-            "Sylvie"
-          ],
-          "core": [
-            "Thanos",
-            "Sylvie"
-          ],
-          "pool": [],
-          "newCharacterIds": [],
-          "existingCharacterIds": [
-            "Thanos",
-            "Sylvie"
-          ],
-          "reworkedCharacterIds": [
-            "Thanos",
-            "Sylvie"
-          ],
-          "announcedNext": [
-            "HighEvolutionary",
-            "Executioner",
-            "Malekith"
-          ],
-          "notes": [
-            "Thanos receives 370% Health/626% Damage increases, Sylvie 410% Health/409% Damage, alongside multiple ability changes for the new War Defense architecture."
-          ],
-          "characterReleases": [],
-          "reworks": [
-            {
-              "month": "2026-04",
-              "characterId": "Thanos"
-            },
-            {
-              "month": "2026-04",
-              "characterId": "Sylvie"
-            }
-          ],
-          "sourceIds": [
-            "powers-gather-in-shadow"
-          ]
-        },
-        {
-          "month": "2026-04",
-          "teamId": "shadow-conclave-2026-04-15",
-          "label": "Shadow Conclave — High Evolutionary",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Thanos",
-            "Sylvie",
-            "HighEvolutionary"
-          ],
-          "core": [
-            "Thanos",
-            "Sylvie",
-            "HighEvolutionary"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "HighEvolutionary"
-          ],
-          "existingCharacterIds": [
-            "Thanos",
-            "Sylvie"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
-            "Executioner",
-            "Malekith"
-          ],
-          "notes": [],
-          "characterReleases": [
-            {
-              "month": "2026-04",
-              "characterId": "HighEvolutionary",
-              "releaseMethod": "limited_offer",
-              "date": "2026-04-09",
-              "notes": [
-                "Explicit First Available April 9 at 2 PM PDT; paid chain/orb guarantees an instant 100-shard unlock. A Power Core orb is not asserted for initial availability."
-              ],
-              "confidence": "very_high",
-              "sourceIds": [
-                "blog-update-4-3-26"
-              ]
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2026-04",
-          "teamId": "galactic-council-2026-04-16",
-          "label": "Galactic Council — Annihilus joins the flexible formation",
+          "teamId": "galactic-council-2026-rollout",
+          "label": "Galactic Council",
           "kind": "team",
           "formationStatus": "core-plus-pool",
           "members": [
@@ -8031,9 +6753,14 @@
             "AdamWarlock",
             "StarLord"
           ],
-          "reworkedCharacterIds": [],
+          "reworkedCharacterIds": [
+            "AdamWarlock",
+            "StarLord"
+          ],
           "announcedNext": [],
           "notes": [
+            "Galactic Council was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
+            "Chapter 4 starts February 2. Adam Warlock and Star-Lord receive large base-stat and multi-ability changes, alongside their Awakened paths. Existing Chapter Legends are not counted as 2026 releases.",
             "All six named Council characters are now playable alternatives for five combat slots; no sixth combat slot is implied. Earlier Council reworks are not counted again."
           ],
           "characterReleases": [
@@ -8051,61 +6778,115 @@
               ]
             }
           ],
-          "reworks": []
+          "reworks": [
+            {
+              "month": "2026-02",
+              "characterId": "AdamWarlock"
+            },
+            {
+              "month": "2026-02",
+              "characterId": "StarLord"
+            }
+          ],
+          "releaseMethods": {},
+          "sourceIds": [
+            "blog-update-01-23-26"
+          ]
         },
         {
-          "month": "2026-04",
-          "teamId": "shadow-conclave-2026-04-17",
-          "label": "Shadow Conclave — Executioner",
+          "month": "2026-03",
+          "teamId": "daring-warriors-2026-03",
+          "label": "Daring Warriors",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "members": [
-            "Thanos",
-            "Sylvie",
-            "HighEvolutionary",
-            "Executioner"
+            "Daredevil",
+            "JessicaJones",
+            "NightThrasher",
+            "Speedball",
+            "Eclipse"
           ],
-          "core": [
-            "Thanos",
-            "Sylvie",
-            "HighEvolutionary",
-            "Executioner"
-          ],
+          "core": [],
           "pool": [],
           "newCharacterIds": [
-            "Executioner"
+            "NightThrasher",
+            "Speedball",
+            "Eclipse"
           ],
           "existingCharacterIds": [
-            "Thanos",
-            "Sylvie",
-            "HighEvolutionary"
+            "Daredevil",
+            "JessicaJones",
+            "NightThrasher"
           ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
-            "Malekith"
+          "reworkedCharacterIds": [
+            "Daredevil",
+            "JessicaJones"
           ],
-          "notes": [],
+          "announcedNext": [],
+          "notes": [
+            "Daring Warriors was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
+            "Daredevil gains 728% Health and 616% Damage plus updated abilities; Jessica Jones gains 388% Health and 324% Damage plus extensive cleanse/barrier/energy and team changes. Rework month is retained at the playable March rollout, without inferring an activation day."
+          ],
           "characterReleases": [
             {
-              "month": "2026-04",
-              "characterId": "Executioner",
-              "releaseMethod": "limited_offer",
-              "date": "2026-04-23",
+              "month": "2026-03",
+              "characterId": "NightThrasher",
+              "releaseMethod": "limited_offer; limited_orb",
+              "date": "2026-03-04",
               "notes": [
-                "Explicit First Available April 23 at 2 PM PDT; six-step paid chain and guaranteed unlock orb. Later core-orb access is not the initial release."
+                "Street Shredder Orb (675 cores) and offers begin March 4 at 1 PM PST."
               ],
               "confidence": "very_high",
               "sourceIds": [
-                "blog-update-4-17-26"
+                "blog-update-2-27-26"
+              ]
+            },
+            {
+              "month": "2026-03",
+              "characterId": "Eclipse",
+              "releaseMethod": "event_campaign",
+              "date": "2026-03-18",
+              "notes": [
+                "Eclipse Lost opens March 18 at 2 PM PDT. Mission 1 explicitly unlocks Eclipse (GT14, level 75); higher missions are not prerequisites for first recruitment."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-3-13-26"
+              ]
+            },
+            {
+              "month": "2026-03",
+              "characterId": "Speedball",
+              "releaseMethod": "limited_offer; limited_orb",
+              "date": "2026-03-18",
+              "notes": [
+                "Explicit First Available: March 18 at 2 PM PDT; Kinetic Overdrive Orb and same-day offers allow recruitment."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-3-13-26"
               ]
             }
           ],
-          "reworks": []
+          "reworks": [
+            {
+              "month": "2026-03",
+              "characterId": "Daredevil"
+            },
+            {
+              "month": "2026-03",
+              "characterId": "JessicaJones"
+            }
+          ],
+          "releaseMethods": {},
+          "sourceIds": [
+            "daring-warriors-fearless-in-crucible-and-battleworld"
+          ]
         },
         {
-          "month": "2026-05",
-          "teamId": "shadow-conclave-2026-05-18",
-          "label": "Shadow Conclave — Complete",
+          "month": "2026-04",
+          "teamId": "shadow-conclave-2026-rollout",
+          "label": "Shadow Conclave",
           "kind": "team",
           "formationStatus": "complete",
           "members": [
@@ -8118,6 +6899,8 @@
           "core": [],
           "pool": [],
           "newCharacterIds": [
+            "HighEvolutionary",
+            "Executioner",
             "Malekith"
           ],
           "existingCharacterIds": [
@@ -8126,10 +6909,42 @@
             "HighEvolutionary",
             "Executioner"
           ],
-          "reworkedCharacterIds": [],
+          "reworkedCharacterIds": [
+            "Thanos",
+            "Sylvie"
+          ],
           "announcedNext": [],
-          "notes": [],
+          "notes": [
+            "Shadow Conclave was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
+            "Thanos receives 370% Health/626% Damage increases, Sylvie 410% Health/409% Damage, alongside multiple ability changes for the new War Defense architecture."
+          ],
           "characterReleases": [
+            {
+              "month": "2026-04",
+              "characterId": "HighEvolutionary",
+              "releaseMethod": "limited_offer",
+              "date": "2026-04-09",
+              "notes": [
+                "Explicit First Available April 9 at 2 PM PDT; paid chain/orb guarantees an instant 100-shard unlock. A Power Core orb is not asserted for initial availability."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-4-3-26"
+              ]
+            },
+            {
+              "month": "2026-04",
+              "characterId": "Executioner",
+              "releaseMethod": "limited_offer",
+              "date": "2026-04-23",
+              "notes": [
+                "Explicit First Available April 23 at 2 PM PDT; six-step paid chain and guaranteed unlock orb. Later core-orb access is not the initial release."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-4-17-26"
+              ]
+            },
             {
               "month": "2026-05",
               "characterId": "Malekith",
@@ -8144,73 +6959,25 @@
               ]
             }
           ],
-          "reworks": []
-        },
-        {
-          "month": "2026-05",
-          "teamId": "omen-2026-05-19",
-          "label": "Omen — Reworked veterans",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "EbonyMaw",
-            "CullObsidian",
-            "Minerva",
-            "Ronan"
-          ],
-          "core": [
-            "EbonyMaw",
-            "CullObsidian",
-            "Minerva",
-            "Ronan"
-          ],
-          "pool": [],
-          "newCharacterIds": [],
-          "existingCharacterIds": [
-            "EbonyMaw",
-            "CullObsidian",
-            "Minerva",
-            "Ronan"
-          ],
-          "reworkedCharacterIds": [
-            "EbonyMaw",
-            "CullObsidian",
-            "Minerva",
-            "Ronan"
-          ],
-          "announcedNext": [
-            "SilverSurferBreaker"
-          ],
-          "notes": [
-            "All four receive massive stat increases and old/new comparisons across several abilities: counterattacks, revival/healing, control, and the War Offense structure are materially changed. Minerva is the catalog ID for Minn-Erva. Month represents the May playable rollout, not the April announcement day."
-          ],
-          "characterReleases": [],
           "reworks": [
             {
-              "month": "2026-05",
-              "characterId": "EbonyMaw"
+              "month": "2026-04",
+              "characterId": "Sylvie"
             },
             {
-              "month": "2026-05",
-              "characterId": "CullObsidian"
-            },
-            {
-              "month": "2026-05",
-              "characterId": "Minerva"
-            },
-            {
-              "month": "2026-05",
-              "characterId": "Ronan"
+              "month": "2026-04",
+              "characterId": "Thanos"
             }
           ],
+          "releaseMethods": {},
           "sourceIds": [
-            "silver-surfer-and-breaker-events"
+            "powers-gather-in-shadow"
           ]
         },
         {
           "month": "2026-05",
-          "teamId": "omen-2026-05-20",
-          "label": "Omen — Complete",
+          "teamId": "omen-2026-05",
+          "label": "Omen",
           "kind": "team",
           "formationStatus": "complete",
           "members": [
@@ -8231,9 +6998,17 @@
             "Minerva",
             "Ronan"
           ],
-          "reworkedCharacterIds": [],
+          "reworkedCharacterIds": [
+            "EbonyMaw",
+            "CullObsidian",
+            "Minerva",
+            "Ronan"
+          ],
           "announcedNext": [],
-          "notes": [],
+          "notes": [
+            "Omen was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
+            "All four receive massive stat increases and old/new comparisons across several abilities: counterattacks, revival/healing, control, and the War Offense structure are materially changed. Minerva is the catalog ID for Minn-Erva. Month represents the May playable rollout, not the April announcement day."
+          ],
           "characterReleases": [
             {
               "month": "2026-05",
@@ -8250,85 +7025,64 @@
               ]
             }
           ],
-          "reworks": []
+          "reworks": [
+            {
+              "month": "2026-05",
+              "characterId": "CullObsidian"
+            },
+            {
+              "month": "2026-05",
+              "characterId": "EbonyMaw"
+            },
+            {
+              "month": "2026-05",
+              "characterId": "Minerva"
+            },
+            {
+              "month": "2026-05",
+              "characterId": "Ronan"
+            }
+          ],
+          "releaseMethods": {},
+          "sourceIds": [
+            "silver-surfer-and-breaker-events"
+          ]
         },
         {
           "month": "2026-05",
-          "teamId": "exalted-x-men-2026-05-21",
-          "label": "Exalted X-Men — Reworked veterans",
+          "teamId": "exalted-x-men-2026-05",
+          "label": "Exalted X-Men",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "members": [
             "Wolverine",
-            "Jubilee"
+            "Jubilee",
+            "StormMighty",
+            "Angel",
+            "Morph"
           ],
-          "core": [
-            "Wolverine",
-            "Jubilee"
-          ],
+          "core": [],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "StormMighty",
+            "Angel",
+            "Morph"
+          ],
           "existingCharacterIds": [
             "Wolverine",
-            "Jubilee"
+            "Jubilee",
+            "StormMighty",
+            "Angel"
           ],
           "reworkedCharacterIds": [
             "Wolverine",
             "Jubilee"
           ],
-          "announcedNext": [
-            "StormMighty",
-            "Angel",
-            "Morph"
-          ],
+          "announcedNext": [],
           "notes": [
+            "Exalted X-Men was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
             "Large stat increases and substantial multi-ability Crucible changes qualify as significant reworks. No new release is assigned to the original Storm, Wolverine, or Jubilee. Month represents the May playable rollout."
           ],
-          "characterReleases": [],
-          "reworks": [
-            {
-              "month": "2026-05",
-              "characterId": "Wolverine"
-            },
-            {
-              "month": "2026-05",
-              "characterId": "Jubilee"
-            }
-          ],
-          "sourceIds": [
-            "exalted-x-men"
-          ]
-        },
-        {
-          "month": "2026-05",
-          "teamId": "exalted-x-men-2026-05-22",
-          "label": "Exalted X-Men — Storm (Mighty)",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Wolverine",
-            "Jubilee",
-            "StormMighty"
-          ],
-          "core": [
-            "Wolverine",
-            "Jubilee",
-            "StormMighty"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "StormMighty"
-          ],
-          "existingCharacterIds": [
-            "Wolverine",
-            "Jubilee"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
-            "Angel",
-            "Morph"
-          ],
-          "notes": [],
           "characterReleases": [
             {
               "month": "2026-05",
@@ -8341,43 +7095,7 @@
               "sourceIds": [
                 "blog-update-5-1-26"
               ]
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2026-05",
-          "teamId": "exalted-x-men-2026-05-23",
-          "label": "Exalted X-Men — Angel",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Wolverine",
-            "Jubilee",
-            "StormMighty",
-            "Angel"
-          ],
-          "core": [
-            "Wolverine",
-            "Jubilee",
-            "StormMighty",
-            "Angel"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "Angel"
-          ],
-          "existingCharacterIds": [
-            "Wolverine",
-            "Jubilee",
-            "StormMighty"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
-            "Morph"
-          ],
-          "notes": [],
-          "characterReleases": [
+            },
             {
               "month": "2026-05",
               "characterId": "Angel",
@@ -8391,38 +7109,7 @@
                 "blog-update-5-8-26",
                 "blog-update-5-11-26"
               ]
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2026-05",
-          "teamId": "exalted-x-men-2026-05-24",
-          "label": "Exalted X-Men — Complete",
-          "kind": "team",
-          "formationStatus": "complete",
-          "members": [
-            "Wolverine",
-            "Jubilee",
-            "StormMighty",
-            "Angel",
-            "Morph"
-          ],
-          "core": [],
-          "pool": [],
-          "newCharacterIds": [
-            "Morph"
-          ],
-          "existingCharacterIds": [
-            "Wolverine",
-            "Jubilee",
-            "StormMighty",
-            "Angel"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [],
-          "notes": [],
-          "characterReleases": [
+            },
             {
               "month": "2026-05",
               "characterId": "Morph",
@@ -8437,150 +7124,25 @@
               ]
             }
           ],
-          "reworks": []
-        },
-        {
-          "month": "2026-06",
-          "teamId": "symbiote-six-2026-06-25",
-          "label": "Symbiote Six — Existing core",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Knull",
-            "Venom"
-          ],
-          "core": [
-            "Knull",
-            "Venom"
-          ],
-          "pool": [],
-          "newCharacterIds": [],
-          "existingCharacterIds": [
-            "Knull",
-            "Venom"
-          ],
-          "reworkedCharacterIds": [
-            "Venom"
-          ],
-          "announcedNext": [
-            "Riot",
-            "Toxin",
-            "SymbioteQuicksilver"
-          ],
-          "notes": [
-            "Venom receives 257% Health/270% Damage increases and substantial Special/Ultimate/Passive changes. Knull receives only approximately 15% stats, ally-safety adjustments and a summon tag; his Special is explicitly unchanged. These limited changes are not counted as a significant Knull rework. Carnage (Enraged) remains a summon."
-          ],
-          "characterReleases": [],
           "reworks": [
             {
-              "month": "2026-06",
-              "characterId": "Venom"
+              "month": "2026-05",
+              "characterId": "Jubilee"
+            },
+            {
+              "month": "2026-05",
+              "characterId": "Wolverine"
             }
           ],
+          "releaseMethods": {},
           "sourceIds": [
-            "blog-update-5-27-26"
+            "exalted-x-men"
           ]
         },
         {
           "month": "2026-06",
-          "teamId": "symbiote-six-2026-06-26",
-          "label": "Symbiote Six — Riot",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Knull",
-            "Venom",
-            "Riot"
-          ],
-          "core": [
-            "Knull",
-            "Venom",
-            "Riot"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "Riot"
-          ],
-          "existingCharacterIds": [
-            "Knull",
-            "Venom"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
-            "Toxin",
-            "SymbioteQuicksilver"
-          ],
-          "notes": [],
-          "characterReleases": [
-            {
-              "month": "2026-06",
-              "characterId": "Riot",
-              "releaseMethod": "limited_offer",
-              "date": "2026-06-04",
-              "notes": [
-                "First Available June 4 at 2 PM PDT through the paid chain and Pain Eater Orb. Initial 50-shard orb purchases can be repeated to recruit."
-              ],
-              "confidence": "very_high",
-              "sourceIds": [
-                "blog-update-5-29-26"
-              ]
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2026-06",
-          "teamId": "symbiote-six-2026-06-27",
-          "label": "Symbiote Six — Toxin",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Knull",
-            "Venom",
-            "Riot",
-            "Toxin"
-          ],
-          "core": [
-            "Knull",
-            "Venom",
-            "Riot",
-            "Toxin"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "Toxin"
-          ],
-          "existingCharacterIds": [
-            "Knull",
-            "Venom",
-            "Riot"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
-            "SymbioteQuicksilver"
-          ],
-          "notes": [],
-          "characterReleases": [
-            {
-              "month": "2026-06",
-              "characterId": "Toxin",
-              "releaseMethod": "limited_offer",
-              "date": "2026-06-18",
-              "notes": [
-                "First Available June 18 at 2 PM PDT through paid chain/orb offers; subsequent Power Core orbs are not the initial release."
-              ],
-              "confidence": "very_high",
-              "sourceIds": [
-                "blog-update-6-12-26"
-              ]
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2026-06",
-          "teamId": "symbiote-six-2026-06-28",
-          "label": "Symbiote Six — Complete",
+          "teamId": "symbiote-six-2026-06",
+          "label": "Symbiote Six",
           "kind": "team",
           "formationStatus": "complete",
           "members": [
@@ -8593,6 +7155,8 @@
           "core": [],
           "pool": [],
           "newCharacterIds": [
+            "Riot",
+            "Toxin",
             "SymbioteQuicksilver"
           ],
           "existingCharacterIds": [
@@ -8601,9 +7165,13 @@
             "Riot",
             "Toxin"
           ],
-          "reworkedCharacterIds": [],
+          "reworkedCharacterIds": [
+            "Venom"
+          ],
           "announcedNext": [],
           "notes": [
+            "Symbiote Six was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
+            "Venom receives 257% Health/270% Damage increases and substantial Special/Ultimate/Passive changes. Knull receives only approximately 15% stats, ally-safety adjustments and a summon tag; his Special is explicitly unchanged. These limited changes are not counted as a significant Knull rework. Carnage (Enraged) remains a summon.",
             "Five playable roster members despite the team name. Knull’s summoned Carnage is not a sixth independent release."
           ],
           "characterReleases": [
@@ -8619,92 +7187,95 @@
                 "blog-update-6-12-26",
                 "blog-update-6-26-26"
               ]
+            },
+            {
+              "month": "2026-06",
+              "characterId": "Riot",
+              "releaseMethod": "limited_offer",
+              "date": "2026-06-04",
+              "notes": [
+                "First Available June 4 at 2 PM PDT through the paid chain and Pain Eater Orb. Initial 50-shard orb purchases can be repeated to recruit."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-5-29-26"
+              ]
+            },
+            {
+              "month": "2026-06",
+              "characterId": "Toxin",
+              "releaseMethod": "limited_offer",
+              "date": "2026-06-18",
+              "notes": [
+                "First Available June 18 at 2 PM PDT through paid chain/orb offers; subsequent Power Core orbs are not the initial release."
+              ],
+              "confidence": "very_high",
+              "sourceIds": [
+                "blog-update-6-12-26"
+              ]
             }
           ],
-          "reworks": []
+          "reworks": [
+            {
+              "month": "2026-06",
+              "characterId": "Venom"
+            }
+          ],
+          "releaseMethods": {},
+          "sourceIds": [
+            "blog-update-5-27-26"
+          ]
         },
         {
           "month": "2026-07",
-          "teamId": "amazing-avengers-2026-07-29",
-          "label": "Amazing Avengers — Reworked veterans",
+          "teamId": "amazing-avengers-2026-07",
+          "label": "Amazing Avengers",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "members": [
             "Hulk",
-            "SpiderMan"
+            "SpiderMan",
+            "RachelColeAlves",
+            "BladeMighty",
+            "SpiderWomanJulia"
           ],
-          "core": [
-            "Hulk",
-            "SpiderMan"
-          ],
+          "core": [],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "RachelColeAlves",
+            "BladeMighty",
+            "SpiderWomanJulia"
+          ],
           "existingCharacterIds": [
             "Hulk",
-            "SpiderMan"
+            "SpiderMan",
+            "RachelColeAlves",
+            "BladeMighty"
           ],
           "reworkedCharacterIds": [
             "Hulk",
             "SpiderMan"
           ],
-          "announcedNext": [
-            "RachelColeAlves",
-            "BladeMighty",
-            "SpiderWomanJulia"
-          ],
+          "announcedNext": [],
           "notes": [
-            "Several-hundred-percent stat increases and extensive old/new ability changes restructure Hulk and Spider-Man for Raids. The June announcement is not used as a new-character release day; the team state is represented in its July rollout."
-          ],
-          "characterReleases": [],
-          "reworks": [
-            {
-              "month": "2026-07",
-              "characterId": "Hulk"
-            },
-            {
-              "month": "2026-07",
-              "characterId": "SpiderMan"
-            }
-          ],
-          "sourceIds": [
-            "blog-update-6-25-26"
-          ]
-        },
-        {
-          "month": "2026-07",
-          "teamId": "amazing-avengers-2026-07-30",
-          "label": "Amazing Avengers — Rachel and Blade (Mighty)",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Hulk",
-            "SpiderMan",
-            "RachelColeAlves",
-            "BladeMighty"
-          ],
-          "core": [
-            "Hulk",
-            "SpiderMan",
-            "RachelColeAlves",
-            "BladeMighty"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "RachelColeAlves",
-            "BladeMighty"
-          ],
-          "existingCharacterIds": [
-            "Hulk",
-            "SpiderMan"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
-            "SpiderWomanJulia"
-          ],
-          "notes": [
+            "Amazing Avengers was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
+            "Several-hundred-percent stat increases and extensive old/new ability changes restructure Hulk and Spider-Man for Raids. The June announcement is not used as a new-character release day; the team state is represented in its July rollout.",
             "Both recruitment paths operate in July; Blade’s exact first sufficient tower reward claim is deliberately omitted."
           ],
           "characterReleases": [
+            {
+              "month": "2026-07",
+              "characterId": "BladeMighty",
+              "releaseMethod": "tower_event",
+              "notes": [
+                "Mighty Tower: Blade opens July 3 with the first six floors and corresponding milestone rewards. Only July is retained; no exact first sufficient shard claim is inferred."
+              ],
+              "confidence": "medium",
+              "sourceIds": [
+                "blog-update-6-26-26",
+                "blog-update-7-2-26"
+              ]
+            },
             {
               "month": "2026-07",
               "characterId": "RachelColeAlves",
@@ -8721,50 +7292,6 @@
             },
             {
               "month": "2026-07",
-              "characterId": "BladeMighty",
-              "releaseMethod": "tower_event",
-              "notes": [
-                "Mighty Tower: Blade opens July 3 with the first six floors and corresponding milestone rewards. Only July is retained; no exact first sufficient shard claim is inferred."
-              ],
-              "confidence": "medium",
-              "sourceIds": [
-                "blog-update-6-26-26",
-                "blog-update-7-2-26"
-              ]
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2026-07",
-          "teamId": "amazing-avengers-2026-07-31",
-          "label": "Amazing Avengers — Complete",
-          "kind": "team",
-          "formationStatus": "complete",
-          "members": [
-            "Hulk",
-            "SpiderMan",
-            "RachelColeAlves",
-            "BladeMighty",
-            "SpiderWomanJulia"
-          ],
-          "core": [],
-          "pool": [],
-          "newCharacterIds": [
-            "SpiderWomanJulia"
-          ],
-          "existingCharacterIds": [
-            "Hulk",
-            "SpiderMan",
-            "RachelColeAlves",
-            "BladeMighty"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [],
-          "notes": [],
-          "characterReleases": [
-            {
-              "month": "2026-07",
               "characterId": "SpiderWomanJulia",
               "releaseMethod": "limited_offer",
               "date": "2026-07-16",
@@ -8777,73 +7304,25 @@
               ]
             }
           ],
-          "reworks": []
-        },
-        {
-          "month": "2026-07",
-          "teamId": "dread-2026-07-32",
-          "label": "Dread — Reworked veterans",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Bullseye",
-            "Electro",
-            "Rhino",
-            "MrNegative"
-          ],
-          "core": [
-            "Bullseye",
-            "Electro",
-            "Rhino",
-            "MrNegative"
-          ],
-          "pool": [],
-          "newCharacterIds": [],
-          "existingCharacterIds": [
-            "Bullseye",
-            "Electro",
-            "Rhino",
-            "MrNegative"
-          ],
-          "reworkedCharacterIds": [
-            "Bullseye",
-            "Electro",
-            "Rhino",
-            "MrNegative"
-          ],
-          "announcedNext": [
-            "ScorpionBreaker"
-          ],
-          "notes": [
-            "Large base-stat increases and multiple old/new ability changes introduce a Crucible Offense architecture. Mister Negative’s Inner Demons are summons; their updated stats/kits do not add independent roster reworks or releases."
-          ],
-          "characterReleases": [],
           "reworks": [
             {
               "month": "2026-07",
-              "characterId": "Bullseye"
+              "characterId": "Hulk"
             },
             {
               "month": "2026-07",
-              "characterId": "Electro"
-            },
-            {
-              "month": "2026-07",
-              "characterId": "Rhino"
-            },
-            {
-              "month": "2026-07",
-              "characterId": "MrNegative"
+              "characterId": "SpiderMan"
             }
           ],
+          "releaseMethods": {},
           "sourceIds": [
-            "blog-update-7-23-26"
+            "blog-update-6-25-26"
           ]
         },
         {
           "month": "2026-07",
-          "teamId": "dread-2026-07-33",
-          "label": "Dread — Complete",
+          "teamId": "dread-2026-07",
+          "label": "Dread",
           "kind": "team",
           "formationStatus": "complete",
           "members": [
@@ -8864,9 +7343,17 @@
             "Rhino",
             "MrNegative"
           ],
-          "reworkedCharacterIds": [],
+          "reworkedCharacterIds": [
+            "Bullseye",
+            "Electro",
+            "Rhino",
+            "MrNegative"
+          ],
           "announcedNext": [],
-          "notes": [],
+          "notes": [
+            "Dread was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
+            "Large base-stat increases and multiple old/new ability changes introduce a Crucible Offense architecture. Mister Negative’s Inner Demons are summons; their updated stats/kits do not add independent roster reworks or releases."
+          ],
           "characterReleases": [
             {
               "month": "2026-07",
@@ -8883,85 +7370,64 @@
               ]
             }
           ],
-          "reworks": []
+          "reworks": [
+            {
+              "month": "2026-07",
+              "characterId": "Bullseye"
+            },
+            {
+              "month": "2026-07",
+              "characterId": "Electro"
+            },
+            {
+              "month": "2026-07",
+              "characterId": "MrNegative"
+            },
+            {
+              "month": "2026-07",
+              "characterId": "Rhino"
+            }
+          ],
+          "releaseMethods": {},
+          "sourceIds": [
+            "blog-update-7-23-26"
+          ]
         },
         {
           "month": "2026-07",
-          "teamId": "timeless-eternals-2026-07-34",
-          "label": "Timeless Eternals — Reworked core",
+          "teamId": "timeless-eternals-2026-rollout",
+          "label": "Timeless Eternals",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "members": [
             "Ikaris",
-            "Sersi"
+            "Sersi",
+            "Kingo",
+            "Gilgamesh",
+            "Thena"
           ],
-          "core": [
-            "Ikaris",
-            "Sersi"
-          ],
+          "core": [],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "Kingo",
+            "Gilgamesh",
+            "Thena"
+          ],
           "existingCharacterIds": [
             "Ikaris",
-            "Sersi"
+            "Sersi",
+            "Kingo",
+            "Gilgamesh"
           ],
           "reworkedCharacterIds": [
             "Ikaris",
             "Sersi"
           ],
-          "announcedNext": [
-            "Kingo",
-            "Gilgamesh",
-            "Thena"
-          ],
+          "announcedNext": [],
           "notes": [
+            "Timeless Eternals was one team rollout represented by multiple short-interval staging events; these stages are consolidated into a single teamEvent while preserving individual character dates.",
             "Both receive approximately 260% Health/300% Damage increases and broad old/new ability changes around Eternal Saga and the War/Battleworld team. The 10.4 update date is not assigned to the new recruits."
           ],
-          "characterReleases": [],
-          "reworks": [
-            {
-              "month": "2026-07",
-              "characterId": "Ikaris"
-            },
-            {
-              "month": "2026-07",
-              "characterId": "Sersi"
-            }
-          ],
-          "sourceIds": [
-            "blog-update-7-29-26"
-          ]
-        },
-        {
-          "month": "2026-07",
-          "teamId": "timeless-eternals-2026-07-35",
-          "label": "Timeless Eternals — Kingo",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Ikaris",
-            "Sersi",
-            "Kingo"
-          ],
-          "core": [
-            "Ikaris",
-            "Sersi",
-            "Kingo"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "Kingo"
-          ],
-          "existingCharacterIds": [
-            "Ikaris",
-            "Sersi"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
-            "Gilgamesh",
-            "Thena"
-          ],
-          "notes": [],
           "characterReleases": [
             {
               "month": "2026-07",
@@ -8975,43 +7441,7 @@
                 "blog-update-7-28-26",
                 "kingo-tower-rewards"
               ]
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2026-08",
-          "teamId": "timeless-eternals-2026-08-36",
-          "label": "Timeless Eternals — Gilgamesh",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Ikaris",
-            "Sersi",
-            "Kingo",
-            "Gilgamesh"
-          ],
-          "core": [
-            "Ikaris",
-            "Sersi",
-            "Kingo",
-            "Gilgamesh"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "Gilgamesh"
-          ],
-          "existingCharacterIds": [
-            "Ikaris",
-            "Sersi",
-            "Kingo"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
-            "Thena"
-          ],
-          "notes": [],
-          "characterReleases": [
+            },
             {
               "month": "2026-08",
               "characterId": "Gilgamesh",
@@ -9024,38 +7454,7 @@
               "sourceIds": [
                 "blog-update-7-31-26"
               ]
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2026-08",
-          "teamId": "timeless-eternals-2026-08-37",
-          "label": "Timeless Eternals — Complete",
-          "kind": "team",
-          "formationStatus": "complete",
-          "members": [
-            "Ikaris",
-            "Sersi",
-            "Kingo",
-            "Gilgamesh",
-            "Thena"
-          ],
-          "core": [],
-          "pool": [],
-          "newCharacterIds": [
-            "Thena"
-          ],
-          "existingCharacterIds": [
-            "Ikaris",
-            "Sersi",
-            "Kingo",
-            "Gilgamesh"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [],
-          "notes": [],
-          "characterReleases": [
+            },
             {
               "month": "2026-08",
               "characterId": "Thena",
@@ -9070,7 +7469,20 @@
               ]
             }
           ],
-          "reworks": []
+          "reworks": [
+            {
+              "month": "2026-07",
+              "characterId": "Ikaris"
+            },
+            {
+              "month": "2026-07",
+              "characterId": "Sersi"
+            }
+          ],
+          "releaseMethods": {},
+          "sourceIds": [
+            "blog-update-7-29-26"
+          ]
         },
         {
           "month": "2026-09",
