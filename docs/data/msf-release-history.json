@@ -9074,20 +9074,24 @@
         },
         {
           "month": "2026-09",
-          "teamId": "iron-raiders-2026-09-38",
-          "label": "Iron Raiders — Reworked veterans",
+          "teamId": "iron-raiders-2026-09",
+          "label": "Iron Raiders",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "members": [
             "Crossbones",
-            "Yellowjacket"
+            "Yellowjacket",
+            "UlyssesKlaue",
+            "Whiplash",
+            "IronMonger"
           ],
-          "core": [
-            "Crossbones",
-            "Yellowjacket"
-          ],
+          "core": [],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "UlyssesKlaue",
+            "Whiplash",
+            "IronMonger"
+          ],
           "existingCharacterIds": [
             "Crossbones",
             "Yellowjacket"
@@ -9096,59 +9100,14 @@
             "Crossbones",
             "Yellowjacket"
           ],
-          "announcedNext": [
-            "UlyssesKlaue",
-            "Whiplash",
-            "IronMonger"
-          ],
+          "announcedNext": [],
           "notes": [
-            "Competitive base-stat updates plus extensive old/new changes across Basic, Special, Ultimate, and Passive establish significant Raid reworks. Month represents the playable September rollout, not a fabricated August activation date."
+            "Iron Raiders was one September 2026 team rollout, not four successive team versions.",
+            "Crossbones and Yellowjacket received significant competitive Raid reworks during the rollout.",
+            "Ulysses Klaue became playable on 2026-09-04.",
+            "Whiplash became recruitable during the September Kyln: Code Whiplash event; the exact first sufficient reward-claim day is not asserted.",
+            "Iron Monger became playable through early paid availability on 2026-09-17."
           ],
-          "characterReleases": [],
-          "reworks": [
-            {
-              "month": "2026-09",
-              "characterId": "Crossbones"
-            },
-            {
-              "month": "2026-09",
-              "characterId": "Yellowjacket"
-            }
-          ],
-          "sourceIds": [
-            "blog-update-8-25-26"
-          ]
-        },
-        {
-          "month": "2026-09",
-          "teamId": "iron-raiders-2026-09-39",
-          "label": "Iron Raiders — Ulysses Klaue",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Crossbones",
-            "Yellowjacket",
-            "UlyssesKlaue"
-          ],
-          "core": [
-            "Crossbones",
-            "Yellowjacket",
-            "UlyssesKlaue"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "UlyssesKlaue"
-          ],
-          "existingCharacterIds": [
-            "Crossbones",
-            "Yellowjacket"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
-            "Whiplash",
-            "IronMonger"
-          ],
-          "notes": [],
           "characterReleases": [
             {
               "month": "2026-09",
@@ -9162,43 +9121,7 @@
               "sourceIds": [
                 "blog-update-8-28-26"
               ]
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2026-09",
-          "teamId": "iron-raiders-2026-09-40",
-          "label": "Iron Raiders — Whiplash",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Crossbones",
-            "Yellowjacket",
-            "UlyssesKlaue",
-            "Whiplash"
-          ],
-          "core": [
-            "Crossbones",
-            "Yellowjacket",
-            "UlyssesKlaue",
-            "Whiplash"
-          ],
-          "pool": [],
-          "newCharacterIds": [
-            "Whiplash"
-          ],
-          "existingCharacterIds": [
-            "Crossbones",
-            "Yellowjacket",
-            "UlyssesKlaue"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [
-            "IronMonger"
-          ],
-          "notes": [],
-          "characterReleases": [
+            },
             {
               "month": "2026-09",
               "characterId": "Whiplash",
@@ -9211,38 +9134,7 @@
                 "blog-update-9-4-26",
                 "blog-update-9-10-26"
               ]
-            }
-          ],
-          "reworks": []
-        },
-        {
-          "month": "2026-09",
-          "teamId": "iron-raiders-2026-09-41",
-          "label": "Iron Raiders — Complete",
-          "kind": "team",
-          "formationStatus": "complete",
-          "members": [
-            "Crossbones",
-            "Yellowjacket",
-            "UlyssesKlaue",
-            "Whiplash",
-            "IronMonger"
-          ],
-          "core": [],
-          "pool": [],
-          "newCharacterIds": [
-            "IronMonger"
-          ],
-          "existingCharacterIds": [
-            "Crossbones",
-            "Yellowjacket",
-            "UlyssesKlaue",
-            "Whiplash"
-          ],
-          "reworkedCharacterIds": [],
-          "announcedNext": [],
-          "notes": [],
-          "characterReleases": [
+            },
             {
               "month": "2026-09",
               "characterId": "IronMonger",
@@ -9257,73 +9149,27 @@
               ]
             }
           ],
-          "reworks": []
-        },
-        {
-          "month": "2026-09",
-          "teamId": "west-coast-avengers-2026-09-42",
-          "label": "West Coast Avengers — Reworked veterans",
-          "kind": "team",
-          "formationStatus": "partial",
-          "members": [
-            "Hawkeye",
-            "Tigra",
-            "Mockingbird",
-            "WarMachine"
-          ],
-          "core": [
-            "Hawkeye",
-            "Tigra",
-            "Mockingbird",
-            "WarMachine"
-          ],
-          "pool": [],
-          "newCharacterIds": [],
-          "existingCharacterIds": [
-            "Hawkeye",
-            "Tigra",
-            "Mockingbird",
-            "WarMachine"
-          ],
-          "reworkedCharacterIds": [
-            "Hawkeye",
-            "Tigra",
-            "Mockingbird",
-            "WarMachine"
-          ],
-          "announcedNext": [
-            "WaspJanet"
-          ],
-          "notes": [
-            "All four receive competitive base stats and substantial ability/role changes for the opening War Offense attack: Hawkeye’s pre-turn Ultimate, squad assists, cleanse/healing, and positive-effect control."
-          ],
-          "characterReleases": [],
           "reworks": [
             {
               "month": "2026-09",
-              "characterId": "Hawkeye"
+              "characterId": "Crossbones"
             },
             {
               "month": "2026-09",
-              "characterId": "Tigra"
-            },
-            {
-              "month": "2026-09",
-              "characterId": "Mockingbird"
-            },
-            {
-              "month": "2026-09",
-              "characterId": "WarMachine"
+              "characterId": "Yellowjacket"
             }
           ],
           "sourceIds": [
-            "blog-update-9-14-26"
+            "blog-update-8-25-26",
+            "blog-update-8-28-26",
+            "blog-update-9-4-26",
+            "blog-update-9-10-26"
           ]
         },
         {
           "month": "2026-09",
-          "teamId": "west-coast-avengers-2026-09-43",
-          "label": "West Coast Avengers — Complete",
+          "teamId": "west-coast-avengers-2026-09",
+          "label": "West Coast Avengers",
           "kind": "team",
           "formationStatus": "complete",
           "members": [
@@ -9344,9 +9190,18 @@
             "Mockingbird",
             "WarMachine"
           ],
-          "reworkedCharacterIds": [],
+          "reworkedCharacterIds": [
+            "Hawkeye",
+            "Tigra",
+            "Mockingbird",
+            "WarMachine"
+          ],
           "announcedNext": [],
-          "notes": [],
+          "notes": [
+            "West Coast Avengers was one September 2026 team rollout, not separate rework and completion events.",
+            "Hawkeye, Tigra, Mockingbird and War Machine all received significant West Coast Avengers reworks.",
+            "Wasp (Janet) joined as the new fifth member during the September rollout."
+          ],
           "characterReleases": [
             {
               "month": "2026-09",
@@ -9364,7 +9219,30 @@
               ]
             }
           ],
-          "reworks": []
+          "reworks": [
+            {
+              "month": "2026-09",
+              "characterId": "Hawkeye"
+            },
+            {
+              "month": "2026-09",
+              "characterId": "Tigra"
+            },
+            {
+              "month": "2026-09",
+              "characterId": "Mockingbird"
+            },
+            {
+              "month": "2026-09",
+              "characterId": "WarMachine"
+            }
+          ],
+          "sourceIds": [
+            "blog-update-9-14-26",
+            "blog-update-9-18-26",
+            "janet-playable",
+            "blog-update-10-2-26"
+          ]
         },
         {
           "month": "2026-10",
