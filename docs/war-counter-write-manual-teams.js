@@ -150,8 +150,13 @@ function updateSummaryTeamName(summary, side, variant) {
   const block = teamBlocks(summary)[side];
   const node = block?.querySelector(".summary-team-name");
   if (!node) return;
-  node.textContent = variant;
-  node.classList.remove("is-warning");
+
+  if (node.textContent !== variant) {
+    node.textContent = variant;
+  }
+  if (node.classList.contains("is-warning")) {
+    node.classList.remove("is-warning");
+  }
 }
 
 function applySavedLabels(summary, saved) {
