@@ -44,8 +44,10 @@ async function renderRanking({ members, avatars = [], players, aliases = {} }) {
   };
   const errors = [];
 
+  const filtersElement = mockElement();
   const document = {
     getElementById(id) { return elements.get(id) ?? null; },
+    querySelector(selector) { return selector === ".filters" ? filtersElement : null; },
     querySelectorAll(selector) {
       if (selector === ".rangeChip[data-range]") return [rangeButton];
       if (selector === ".rankingTab") return [rankingTab];
