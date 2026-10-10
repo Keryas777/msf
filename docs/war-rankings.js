@@ -230,6 +230,7 @@
 
   function normalizeKey(value) {
     return String(value ?? "")
+      .replace(/<\/?color(?:=[^>]*)?>/gi, "")
       .trim()
       .toLowerCase()
       .replace(/\s+/g, "")
