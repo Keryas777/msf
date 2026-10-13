@@ -21,36 +21,8 @@ jobs:
           python-version: '3.12'
       - name: Check offline parsing and comparison
         run: python -m unittest discover -s tests -p test_probe_magneticzero.py -v
-      - name: Probe both live files without modifying the repo
+      - name: Compare all 11 live combat-data files without modifying the repo
         run: python scripts/probe_magneticzero.py
-      - name: Inspect source page for direct raw download links
-        run: |
-          python - <<'PY'
-          from html.parser import HTMLParser
-          from urllib.request import urlopen, Request
-          import re
-          url = "https://msf-datamines.magneticzero.dev/view/m3missions/7YAMissionDetails.json/df768fd6c096d7b65ca6f18b378e5f2687910c910da3fe2276811b21cc6cb7ce"
-          class Links(HTMLParser):
-              def __init__(self):
-                  super().__init__();self.anchors=[];self.scripts=[];self.pres=0
-              def handle_starttag(self,tag,attrs):
-                  a=dict(attrs)
-                  if tag=="a" and "href" in a: self.anchors.append(a["href"])
-                  if tag=="script" and "src" in a: self.scripts.append(a["src"])
-                  if tag=="pre":self.pres+=1
-          with urlopen(Request(url,headers={"User-Agent":"LoSP-probe/1.0"}),timeout=25) as response:
-              data=response.read(8000000).decode("utf-8")
-              print("Status:", response.status)
-              print("Content-Type:",response.headers.get("Content-Type"))
-              print("HTML starts:",repr(data[:180]))
-              p=Links();p.feed(data)
-              print("Pre blocks:",p.pres,"Link count:",len(p.anchors))
-              print("All anchors (first 50):",p.anchors[:50])
-              print("Scripts:",p.scripts[:30])
-              for term in ("download", "/raw/", "application/json", "/api/", "data-url", "Content-Disposition"):
-                  m=re.search(re.escape(term),data,re.I)
-                  print(term,"=>",repr(data[max(0,m.start()-140):m.end()+160]) if m else "(absent)")
-          PY
       - name: Verify no tracked source or output changed
         if: always()
         run: |
