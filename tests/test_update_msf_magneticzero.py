@@ -10,6 +10,7 @@ import unittest
 from unittest.mock import patch
 
 from scripts import update_msf_magneticzero as updater
+from scripts.update_msf_capabilities import PipelineError, validate_backup_source
 from scripts.probe_magneticzero import FILES
 
 
@@ -126,6 +127,40 @@ class MagneticZeroUpdateTests(unittest.TestCase):
         with patch.object(updater, "fetch_page", side_effect=AssertionError("network should not be reached")):
             with self.assertRaisesRegex(Exception, "differs from its recorded hashes"):
                 updater.run(self.raw, self.manifest, apply=True)
+
+
+class ChromeFallbackGuardTests(unittest.TestCase):
+    def setUp(self):
+        self.magnetic = {
+            "game": {"version": "10_6_3", "build": "1674780", "versionVerified": False},
+            "catalog": {"source": "magneticzero"},
+        }
+
+    def test_fallback_requires_primary_failure_authorization(self):
+        with self.assertRaisesRegex(PipelineError, "explicit fallback authorization"):
+            validate_backup_source(
+                self.magnetic, "10_7_0", "1675900",
+                allow_magneticzero_fallback=False,
+            )
+
+    def test_old_or_same_build_cannot_replace_magneticzero(self):
+        for version, build in (
+            ("10_5_0", "1676000"),
+            ("10_6_3", "1674780"),
+            ("10_6_3", None),
+        ):
+            with self.subTest(version=version, build=build):
+                with self.assertRaises(PipelineError):
+                    validate_backup_source(
+                        self.magnetic, version, build,
+                        allow_magneticzero_fallback=True,
+                    )
+
+    def test_newer_verified_chrome_fallback_can_be_authorized(self):
+        validate_backup_source(
+            self.magnetic, "10_7_0", "1675900",
+            allow_magneticzero_fallback=True,
+        )
 
 
 if __name__ == "__main__":
