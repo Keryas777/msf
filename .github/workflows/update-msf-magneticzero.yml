@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: msf-capabilities-publication-${{ github.event_name == 'pull_request' && github.head_ref || 'main' }}
+  group: msf-capabilities-${{ github.event_name == 'pull_request' && github.workflow || 'publication' }}-${{ github.event_name == 'pull_request' && github.head_ref || 'main' }}
   cancel-in-progress: false
 
 jobs:
