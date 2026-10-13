@@ -470,7 +470,7 @@ def validate_indexed_artifacts(
     snapshot_applied = snapshot.get("applied")
     if (
         not isinstance(required_checksum, str)
-        or not HEX_CHECKSUM_PATTERN.fullmatch(required_checksum.removeprefix("sha256:"))
+        or not SHA256_PATTERN.fullmatch(required_checksum)
         or (snapshot_applied is True and required_checksum != capabilities_checksum)
         or (snapshot_applied is False and required_checksum == capabilities_checksum)
     ):
