@@ -1,0 +1,30 @@
+name: Probe MSF MagneticZero (read-only)
+
+on:
+  pull_request:
+    paths:
+      - "scripts/probe_magneticzero.py"
+      - "tests/test_probe_magneticzero.py"
+      - ".github/workflows/probe-msf-magneticzero.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check offline parsing and comparison
+        run: python -m unittest discover -s tests -p test_probe_magneticzero.py -v
+      - name: Probe both live files without modifying the repo
+        run: python scripts/probe_magneticzero.py
+      - name: Verify no tracked source or output changed
+        if: always()
+        run: |
+          git diff --exit-code
+          git diff --cached --exit-code
