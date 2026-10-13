@@ -1636,9 +1636,12 @@ def _mechanic_stub(shard: Mapping[str, Any], section: str) -> dict[str, Any]:
 def _source_generation(documents: Mapping[str, Any]) -> dict[str, Any]:
     source_manifest = _as_dict(documents.get("sourceManifest"), "source-manifest")
     game = source_manifest.get("game") if isinstance(source_manifest.get("game"), dict) else {}
+    # MagneticZero revisions are authentic files, but do not certify when a
+    # particular MSF build became active. Never label them as that old build.
+    verified = game.get("versionVerified", True) is not False
     return {
-        "gameVersion": game.get("version"),
-        "gameBuild": game.get("build"),
+        "gameVersion": game.get("version") if verified else None,
+        "gameBuild": game.get("build") if verified else None,
         "updatedAt": source_manifest.get("updatedAt"),
         "capabilitiesChecksum": documents["publisherManifest"]["capabilitiesChecksum"],
         "publisherPayloadSetChecksum": documents["publisherManifest"][
