@@ -43,6 +43,44 @@ jobs:
           git diff --exit-code
           git diff --cached --exit-code
 
+  integration:
+    name: Rebuild simulation (no push)
+    if: github.event_name == 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Apply source changes only inside disposable CI checkout
+        id: collect
+        run: python -m scripts.update_msf_magneticzero --apply
+      - name: Rebuild the actual Codex pipeline
+        if: steps.collect.outputs.changed == 'true'
+        run: |
+          python -m scripts.msf_capabilities_parser.cli
+          python -m scripts.msf_capabilities_normalizer.cli
+          python -m scripts.msf_capabilities_indexer.cli
+          python -m scripts.msf_capabilities_web_publisher.cli
+          python -m scripts.msf_capabilities_explorer_builder.cli
+          python -m unittest discover -s tests -p 'test_msf_capabilities_parser.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_normalizer.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_indexer.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_web_publisher.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_explorer_builder.py' -v
+          python -m unittest discover -s tests -p 'test_msf_turn_meter_*.py' -v
+          python -m unittest discover -s tests -p 'test_msf_stat_modifier_normalization.py' -v
+          python -m scripts.msf_capabilities_parser.cli --check
+          python -m scripts.msf_capabilities_normalizer.cli --check
+          python -m scripts.msf_capabilities_indexer.cli --check
+          python -m scripts.msf_capabilities_web_publisher.cli --check
+          python -m scripts.msf_capabilities_explorer_builder.cli --check
+      - name: Report changed tracked files without publishing
+        run: git status --short
+
   update:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
