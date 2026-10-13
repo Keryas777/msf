@@ -54,3 +54,18 @@ vérification sur GitHub Actions, avec `contents: read`.
   « actif en jeu » de l'instantané MagneticZero.
 - Le passage de MagneticZero en **source principale de production** et le
   fallback manuel via l'extension Chrome constituent une étape séparée.
+
+## Campagne réelle du 13 octobre 2026
+
+GitHub Actions : [test exhaustif des 11 fichiers](https://github.com/Keryas777/msf/actions/runs/38389026241)
+
+- 11/11 fichiers lus avec validation des révisions SHA-256 MagneticZero.
+- Les 11 sources locales sont conformes à leurs MD5 + SHA-256 manifestés.
+- 10/11 fichiers sont sémantiquement identiques à LoSP.
+- Seul `missiontraits.json` diffère : 24 entrées locales, 25 entrées MagneticZero ;
+  ajout de `TowerChallenger3`, aucune entrée commune modifiée ou supprimée.
+- 0 erreur de récupération/parse, 0 fichier LoSP modifié et 7 tests locaux verts.
+
+Cette différence est **une observation**, pas une autorisation de publication :
+la fraîcheur et la compatibilité avec le catalogue de version actif doivent être
+contrôlées avant toute adoption d'une nouvelle source.
