@@ -1,0 +1,104 @@
+name: Update MSF capabilities from MagneticZero
+
+on:
+  schedule:
+    - cron: "23 6 * * *"
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/update_msf_magneticzero.py"
+      - "scripts/probe_magneticzero.py"
+      - "tests/test_update_msf_magneticzero.py"
+      - "tests/test_probe_magneticzero.py"
+      - "scripts/msf_capabilities_explorer_builder/builder.py"
+      - ".github/workflows/update-msf-magneticzero.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: msf-capabilities-publication-${{ github.event_name == 'pull_request' && github.head_ref || 'main' }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test collection and existing source pipeline
+        run: |
+          python -m unittest discover -s tests -p 'test_probe_magneticzero.py' -v
+          python -m unittest discover -s tests -p 'test_update_msf_magneticzero.py' -v
+          python -m unittest discover -s tests -p 'test_update_msf_capabilities.py' -v
+      - name: Verify 11 current sources without writing
+        run: python -m scripts.update_msf_magneticzero
+      - name: Check the checkout remains untouched
+        run: |
+          git diff --exit-code
+          git diff --cached --exit-code
+
+  update:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit tests
+        run: |
+          python -m unittest discover -s tests -p 'test_probe_magneticzero.py' -v
+          python -m unittest discover -s tests -p 'test_update_msf_magneticzero.py' -v
+          python -m unittest discover -s tests -p 'test_update_msf_capabilities.py' -v
+      - name: Collect and validate all 11 sources
+        id: collect
+        run: python -m scripts.update_msf_magneticzero --apply
+      - name: Parse normalize and index changed sources
+        if: steps.collect.outputs.changed == 'true'
+        run: |
+          python -m scripts.msf_capabilities_parser.cli
+          python -m scripts.msf_capabilities_normalizer.cli
+          python -m scripts.msf_capabilities_indexer.cli
+          python -m scripts.msf_capabilities_web_publisher.cli
+          python -m scripts.msf_capabilities_explorer_builder.cli
+      - name: Run existing Codex regression suites
+        if: steps.collect.outputs.changed == 'true'
+        run: |
+          python -m unittest discover -s tests -p 'test_msf_capabilities_parser.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_normalizer.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_indexer.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_web_publisher.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_explorer_builder.py' -v
+          python -m unittest discover -s tests -p 'test_msf_turn_meter_*.py' -v
+          python -m unittest discover -s tests -p 'test_msf_stat_modifier_normalization.py' -v
+          python -m scripts.msf_capabilities_parser.cli --check
+          python -m scripts.msf_capabilities_normalizer.cli --check
+          python -m scripts.msf_capabilities_indexer.cli --check
+          python -m scripts.msf_capabilities_web_publisher.cli --check
+          python -m scripts.msf_capabilities_explorer_builder.cli --check
+      - name: Commit validated sources and Codex outputs together
+        if: steps.collect.outputs.changed == 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- data/msf-capabilities/raw data/msf-capabilities/source-manifest.json
+          git add -- docs/data/msf-capabilities docs/data/msf-capabilities-explorer
+          if git diff --staged --quiet; then
+            echo "No data or Codex artifacts changed; nothing to publish."
+            exit 0
+          fi
+          git commit -m 'Update MSF Codex from validated MagneticZero revisions'
+          git pull --rebase origin main
+          git push origin HEAD:main
