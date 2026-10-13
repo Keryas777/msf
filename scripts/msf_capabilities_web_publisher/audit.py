@@ -323,10 +323,12 @@ def _validate_manifest_audit(
             f"Audit des sept payloads non validé dans {path}.",
         )
     snapshot = audit.get("snapshot")
-    if (
-        not isinstance(snapshot, dict)
-        or snapshot.get("status") != "passed"
-        or snapshot.get("applied") is not True
+    # The fixed historical snapshot is a regression fixture, not a condition
+    # for publishing legitimate future MSF source revisions. General and
+    # payload-integrity audits above remain mandatory in every generation.
+    if not isinstance(snapshot, dict) or not (
+        (snapshot.get("applied") is True and snapshot.get("status") == "passed")
+        or (snapshot.get("applied") is False and snapshot.get("status") == "not_applicable")
     ):
         raise PublisherAuditError(
             "INDEX_SNAPSHOT_AUDIT_NOT_PASSED",
@@ -464,7 +466,14 @@ def validate_indexed_artifacts(
         field="capabilitiesChecksum",
     )
     snapshot = manifest["audit"]["snapshot"]
-    if snapshot.get("requiredChecksum") != capabilities_checksum:
+    required_checksum = snapshot.get("requiredChecksum")
+    snapshot_applied = snapshot.get("applied")
+    if (
+        not isinstance(required_checksum, str)
+        or not HEX_CHECKSUM_PATTERN.fullmatch(required_checksum.removeprefix("sha256:"))
+        or (snapshot_applied is True and required_checksum != capabilities_checksum)
+        or (snapshot_applied is False and required_checksum == capabilities_checksum)
+    ):
         raise PublisherAuditError(
             "CAPABILITIES_CHECKSUM_MISMATCH",
             f"capabilitiesChecksum incohérent avec l’audit dans "
