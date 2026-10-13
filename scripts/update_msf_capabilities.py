@@ -526,6 +526,41 @@ def write_manifest(path: Path, manifest: dict[str, Any]) -> None:
     os.replace(temporary, path)
 
 
+def validate_backup_source(
+    existing_manifest: dict[str, Any] | None,
+    version: str,
+    build: str | None,
+    *,
+    allow_magneticzero_fallback: bool,
+) -> None:
+    """Do not let an old Chrome snapshot silently overwrite datamined sources."""
+    if not existing_manifest:
+        return
+    previous_game = existing_manifest.get("game") or {}
+    previous_version = previous_game.get("version")
+    if isinstance(previous_version, str) and VERSION_PATTERN.fullmatch(previous_version):
+        incoming = tuple(map(int, version.split("_")))
+        previous = tuple(map(int, previous_version.split("_")))
+        if incoming < previous:
+            raise PipelineError(
+                f"Refusing old Chrome snapshot {version}; previous verified MSF version is {previous_version}."
+            )
+    catalog = existing_manifest.get("catalog") or {}
+    if catalog.get("source") != "magneticzero":
+        return
+    if not allow_magneticzero_fallback:
+        raise PipelineError("MagneticZero is primary; explicit fallback authorization required.")
+    previous_build = previous_game.get("build")
+    if (version == previous_version and
+            (build is None or
+             (isinstance(previous_build, str) and previous_build.isdigit() and
+              int(build) <= int(previous_build)))):
+        raise PipelineError(
+            "Refusing Chrome fallback with same MSF version and non-newer build; "
+            "cannot prove these files are newer than MagneticZero."
+        )
+
+
 def update_sources(
     *,
     database_path: Path,
@@ -538,6 +573,7 @@ def update_sources(
     max_resource_bytes: int = RESOURCE_MAX_BYTES,
     updated_at: str | None = None,
     opener: Callable[..., Any] = urlopen,
+    allow_magneticzero_fallback: bool = False,
 ) -> PipelineResult:
     version = validate_game_version(game_version)
     build = validate_game_build(game_build)
@@ -551,6 +587,10 @@ def update_sources(
     entries = read_catalog(database_path)
     output_directory.parent.mkdir(parents=True, exist_ok=True)
     existing_manifest = load_existing_manifest(manifest_path)
+    validate_backup_source(
+        existing_manifest, version, build,
+        allow_magneticzero_fallback=allow_magneticzero_fallback,
+    )
     manifest_resources = (existing_manifest or {}).get("resources", [])
     if not isinstance(manifest_resources, list):
         manifest_resources = []
@@ -713,6 +753,10 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--game-version", required=True)
     parser.add_argument("--game-build", default=None)
     parser.add_argument(
+        "--allow-magneticzero-fallback", action="store_true",
+        help="Explicitly permit a newer Chrome build after primary source outage.",
+    )
+    parser.add_argument(
         "--output-directory",
         type=Path,
         default=Path("data/msf-capabilities/raw"),
@@ -755,6 +799,7 @@ def main() -> int:
             cdn_base_url=arguments.cdn_base_url,
             timeout_seconds=arguments.timeout,
             max_resource_bytes=arguments.max_resource_bytes,
+            allow_magneticzero_fallback=arguments.allow_magneticzero_fallback,
         )
         write_github_outputs(result)
         print(
