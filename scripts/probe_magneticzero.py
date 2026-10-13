@@ -12,7 +12,12 @@ from urllib.request import Request, urlopen
 
 HOST = 'msf-datamines.magneticzero.dev'
 ORIGIN = f'https://{HOST}'
-FILES = ('characters.json', 'procs.json')
+FILES = (
+    'ai_filter.json', 'ai_selector.json', 'battlefield_effects.json',
+    'characters.json', 'combat_mods.json', 'constants.json',
+    'iso8skills.json', 'missiontraits.json', 'overpower_bonuses.json',
+    'places.json', 'procs.json',
+)
 HEX64 = re.compile(r'[0-9a-f]{64}\Z')
 MAX_SIZE = 35 * 1024 * 1024
 
@@ -98,22 +103,34 @@ def compare(local, remote):
               'importVersionLocal': local.get('ForceImportVersion'),
               'importVersionMagneticZero': remote.get('ForceImportVersion')}
     if isinstance(a, dict) and isinstance(b,dict):
-        result.update({'addedCount':len(b.keys()-a.keys()),
-                       'removedCount':len(a.keys()-b.keys()),
-                       'sampleAddedIds': sorted(b.keys()-a.keys())[:12],
-                       'sampleRemovedIds':sorted(a.keys()-b.keys())[:12]})
+        local_ids, remote_ids = set(a), set(b)
+        changed = sorted(key for key in local_ids & remote_ids if a[key] != b[key])
+        result.update({'addedCount': len(remote_ids - local_ids),
+                       'removedCount': len(local_ids - remote_ids),
+                       'changedCount': len(changed),
+                       'sampleAddedIds': sorted(remote_ids - local_ids)[:12],
+                       'sampleRemovedIds': sorted(local_ids - remote_ids)[:12],
+                       'sampleChangedIds': changed[:12]})
     return result
 
 
-def probe(filename, raw_dir):
+def probe(filename, raw_dir, manifest_resources=None):
     revision, url = latest(fetch_page(f'{ORIGIN}/file/combat_data/{filename}'),filename)
     remote = extract(fetch_page(url),filename[:-5],revision)
     payload = (raw_dir / filename).read_bytes()
+    local_sha256 = hashlib.sha256(payload).hexdigest()
+    local_md5 = hashlib.md5(payload).hexdigest()  # Official catalogue uses MD5
+    if manifest_resources is not None:
+        expected = manifest_resources.get(f'combat_data/{filename}')
+        if expected is None:
+            raise ProbeError(f'{filename} missing from LoSP source manifest')
+        if expected.get('sha256') != local_sha256 or expected.get('md5') != local_md5:
+            raise ProbeError(f'{filename} local bytes disagree with LoSP source manifest')
     local = json.loads(payload)
     if local.get('Name') != filename[:-5]:
         raise ProbeError('Invalid local source Name')
     return {'file':filename, 'revision':revision, 'revisionUrl':url,
-            'localSha256':hashlib.sha256(payload).hexdigest(),
+            'localSha256':local_sha256, 'localMd5':local_md5,
             'comparison':compare(local,remote)}
 
 
@@ -121,13 +138,25 @@ def main():
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument('--file',action='append',choices=FILES)
     cli.add_argument('--raw-dir',type=Path,default=Path('data/msf-capabilities/raw'))
+    cli.add_argument('--manifest',type=Path,default=Path('data/msf-capabilities/source-manifest.json'))
     a = cli.parse_args()
-    results={'readOnly':True,'files':[],'errors':[]}
+    manifest = json.loads(a.manifest.read_text(encoding='utf-8'))
+    resources = {item['id']: item for item in manifest['resources']}
+    if set(resources) != {f'combat_data/{name}' for name in FILES}:
+        raise ProbeError('LoSP source manifest does not contain exactly the expected 11 files')
+    results={'readOnly':True,'game':manifest.get('game'),'files':[],'errors':[]}
     for filename in a.file or FILES:
         try:
-            results['files'].append(probe(filename,a.raw_dir))
+            results['files'].append(probe(filename,a.raw_dir,resources))
         except Exception as exc:
             results['errors'].append({'file':filename,'error':f'{type(exc).__name__}: {exc}'})
+    results['summary'] = {
+        'requested':len(a.file or FILES),
+        'downloaded':len(results['files']),
+        'identical':sum(item['comparison']['semanticallyIdentical'] for item in results['files']),
+        'different':sum(not item['comparison']['semanticallyIdentical'] for item in results['files']),
+        'errors':len(results['errors']),
+    }
     print(json.dumps(results,ensure_ascii=False,indent=2))
     return bool(results['errors'])
 
