@@ -113,9 +113,10 @@ class MagneticZeroUpdateTests(unittest.TestCase):
         self.assertEqual((self.raw / "characters.json").read_bytes(), old_content)
 
     def test_refuse_previous_revision_rollback(self):
+        self.remote["procs.json"]["Data"]["newer"] = {"effect": 1}
         self.run_with_fake_site(apply=True)
-        self.previous["procs.json"]["Data"]["older"] = 17
-        # The last imported revision is absent from the new page history:
+        # Simulate an older revision advertised as "latest" on the site.
+        self.remote["procs.json"] = json.loads(json.dumps(self.previous["procs.json"]))
         with patch.object(updater, "fetch_page", side_effect=self.response):
             with self.assertRaisesRegex(Exception, "refusing rollback"):
                 updater.run(self.raw, self.manifest, apply=True)
