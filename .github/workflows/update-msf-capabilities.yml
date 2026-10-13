@@ -96,6 +96,25 @@ jobs:
             --game-build "$MSF_GAME_BUILD" \
             --allow-magneticzero-fallback
 
+      - name: Rebuild Codex from validated Chrome fallback
+        if: steps.primary.outcome == 'failure' && steps.sources.outputs.changed == 'true'
+        run: |
+          python -m scripts.msf_capabilities_parser.cli
+          python -m scripts.msf_capabilities_normalizer.cli
+          python -m scripts.msf_capabilities_indexer.cli
+          python -m scripts.msf_capabilities_web_publisher.cli
+          python -m scripts.msf_capabilities_explorer_builder.cli
+          python -m unittest discover -s tests -p 'test_msf_capabilities_parser.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_normalizer.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_indexer.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_web_publisher.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_explorer_builder.py' -v
+          python -m scripts.msf_capabilities_parser.cli --check
+          python -m scripts.msf_capabilities_normalizer.cli --check
+          python -m scripts.msf_capabilities_indexer.cli --check
+          python -m scripts.msf_capabilities_web_publisher.cli --check
+          python -m scripts.msf_capabilities_explorer_builder.cli --check
+
       - name: Commit and push if changed
         if: steps.primary.outcome == 'failure'
         env:
@@ -106,6 +125,7 @@ jobs:
 
           git rm --ignore-unmatch data/msf-capabilities/bootstrap-sources.tar.gz
           git add data/msf-capabilities/raw data/msf-capabilities/source-manifest.json
+          git add -- docs/data/msf-capabilities docs/data/msf-capabilities-explorer
 
           if git diff --staged --quiet; then
             echo "No MSF capabilities source changes to commit."
