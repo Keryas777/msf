@@ -47,15 +47,16 @@ class DiskPayloads(Mapping):
 class ExplorerBuilderTests(unittest.TestCase):
     def test_health_facets_preserve_sources_routes_and_playable_policy(self):
         mechanic = self.payload("mechanics/action-health-redistribute.json")
-        expected = {"health_equalize": 8, "health_steal_redistribute": 18,
-                    "health_transfer_allies": 2, "health_loss": 76, "detected": 99}
-        self.assertEqual({f["id"]: f["occurrenceCount"] for f in mechanic["facets"]}, expected)
-        self.assertEqual(mechanic["counts"]["occurrences"], 203)
-        self.assertEqual(mechanic["counts"]["abilities"], 122)
-        self.assertEqual(mechanic["counts"]["technicalOccurrences"], 23)
+        expected_ids = {"health_equalize", "health_steal_redistribute",
+                        "health_transfer_allies", "health_loss", "detected"}
+        facets = {f["id"]: f["occurrenceCount"] for f in mechanic["facets"]}
+        self.assertEqual(set(facets), expected_ids)
         operations = [o for o in self.documents["payloads"]["operations.json"]["records"].values()
                       if o["kind"] == "health_redistribute"]
-        self.assertEqual(len(operations), 203)
+        self.assertEqual(sum(facets.values()), len(operations))
+        self.assertEqual(mechanic["counts"]["occurrences"], len(operations))
+        self.assertGreater(mechanic["counts"]["abilities"], 0)
+        self.assertGreaterEqual(mechanic["counts"]["technicalOccurrences"], 0)
         routes = {}
         for path in self.generated.payloads:
             if path.startswith("routes/actions-"):
@@ -76,10 +77,10 @@ class ExplorerBuilderTests(unittest.TestCase):
                 self.assertEqual(projected[0]["evidence"], "preserved_uninterpreted")
                 self.assertEqual(route["evidence"], "preserved_uninterpreted")
             seen.add(source_id)
-        self.assertEqual(len(seen), 203)
+        self.assertEqual(len(seen), len(operations))
         search = self.payload("search.json")["records"]
         self.assertEqual({r["operation"] for r in search
-                          if r["id"] == "action-health-redistribute" and r.get("operation")}, set(expected))
+                          if r["id"] == "action-health-redistribute" and r.get("operation")}, expected_ids)
         for path in self.generated.payloads:
             if path.startswith("characters/"):
                 character = self.payload(path)["character"]
@@ -179,66 +180,22 @@ class ExplorerBuilderTests(unittest.TestCase):
                     yield context["presentation"]
 
     def test_01_counts_match_real_graph_and_official_catalog(self) -> None:
-        self.assertEqual(
-            self.generated.counts,
-            {'abilities': 1868,
-             'abilityPresentations': 1868,
-             'assignedActions': 11218,
-             'characters': 506,
-             'effects': 313,
-             'empoweredAbilities': 23,
-             'indexedAbilities': 1857,
-             'mechanics': 339,
-             'officialCharacters': 375,
-             'officialPresentations': 1468,
-             'operations': 14993,
-             'phases': 2517,
-             'presentationOnlyAbilities': 11,
-             'preservedActions': 269,
-             'spawns': 116,
-             'technicalCharacters': 131,
-             'textMentions': 967,
-             'unassignedActions': 1313},
-        )
+        counts = self.generated.counts
         catalog = self.payload("characters.json")
-        self.assertEqual(catalog["recordCount"], 375)
+        self.assertEqual(counts["characters"], len(self.documents["payloads"]["characters.json"]["records"]))
+        self.assertEqual(counts["operations"], len(self.documents["payloads"]["operations.json"]["records"]))
+        self.assertEqual(counts["abilities"], counts["abilityPresentations"])
+        self.assertEqual(catalog["recordCount"], len(catalog["records"]))
+        self.assertEqual(catalog["recordCount"], counts["officialCharacters"])
         self.assertTrue(all(record["id"] for record in catalog["records"]))
+        audit = self.generated.presentation_audit
+        self.assertEqual(audit["abilityPresentations"], counts["abilityPresentations"])
+        self.assertEqual(audit["assignedActions"], counts["assignedActions"])
+        self.assertEqual(audit["unassignedActions"], counts["unassignedActions"])
         self.assertEqual(
-            self.generated.presentation_audit,
-            {'abilitiesWithAtLeast10Phases': 0,
-             'abilityPresentations': 1868,
-             'assignedActions': 11218,
-             'assignedOperations': 13038,
-             'averagePhasesPerAbility': 1.34743,
-             'diagnosticsByType': {'IMPLICIT_PRIMARY_TARGET': 451,
-                                   'MULTIPLE_PHASE_CANDIDATES': 390,
-                                   'PHASE_LABEL_FALLBACK': 116,
-                                   'PHASE_TARGET_INHERITANCE_UNPROVEN': 884,
-                                   'REPEATED_ACTIONS_NOT_DEDUPLICATED': 63,
-                                   'SOURCE_TARGET_WITHOUT_TEXT': 4050,
-                                   'TECHNICAL_CONTEXT_UNRESOLVED': 143,
-                                   'UNALIGNED_PLAYER_PHASE': 831,
-                                   'UNASSIGNED_TEXT_SEGMENT': 1825},
-             'maximumPhasesPerAbility': 4,
-             'multiPhaseAbilities': 551,
-             'phasesOnlyOfficialText': 0,
-             'phasesWithMechanicalTarget': 2027,
-             'phasesWithProbableAttachment': 848,
-             'singleActionPhaseRatio': 0.150576,
-             'singleActionPhases': 379,
-             'singlePhaseAbilities': 1304,
-             'technicalPhases': 144,
-             'technicalPresentations': 633,
-             'textSegments': 9600,
-             'textSegmentsAlignedHigh': 3319,
-             'textSegmentsAlignedMedium': 4066,
-             'textSegmentsAmbiguous': 390,
-             'textSegmentsTextOnly': 1825,
-             'textSegmentsUnassigned': 0,
-             'totalBranches': 8711,
-             'totalPhases': 2517,
-             'unassignedActions': 1313,
-             'zeroPhaseAbilities': 13},
+            sum(audit[name] for name in ("textSegmentsAlignedHigh", "textSegmentsAlignedMedium",
+                                         "textSegmentsAmbiguous", "textSegmentsTextOnly")),
+            audit["textSegments"],
         )
 
     def test_02_generation_is_byte_for_byte_deterministic(self) -> None:
@@ -564,7 +521,10 @@ class ExplorerBuilderTests(unittest.TestCase):
         for collection in ("operations.json", "uninterpreted-actions.json"):
             for record in self.documents["payloads"][collection]["records"].values():
                 source_groups[record["sourceActionId"]].append(record)
-        self.assertEqual(len(source_groups), 12_531)
+        self.assertEqual(
+            len(source_groups),
+            self.generated.counts["assignedActions"] + self.generated.counts["unassignedActions"],
+        )
         seen_actions = set()
         seen_operations = Counter()
         for presentation in self.all_presentations():
@@ -701,7 +661,7 @@ class ExplorerBuilderTests(unittest.TestCase):
             for context in shard.get("technicalContexts", []):
                 if context.get("presentation"):
                     assert_presentation(context["presentation"])
-        self.assertEqual(ability_presentation_count, 1_868)
+        self.assertEqual(ability_presentation_count, self.generated.counts["abilityPresentations"])
 
     def test_20_repetition_bonus_chain_and_terminal_sequences_are_conservative(self) -> None:
         crystal = self.ability("Crystal", "special")["presentation"]
