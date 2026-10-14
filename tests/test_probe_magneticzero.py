@@ -2,10 +2,11 @@
 import hashlib
 import json
 import unittest
+from urllib.error import HTTPError
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
-from scripts.probe_magneticzero import FILES, ProbeError, latest, extract, compare, probe
+from scripts.probe_magneticzero import FILES, ProbeError, latest, extract, compare, probe, fetch_page
 
 class ProbeTests(unittest.TestCase):
     def test_latest_rejects_foreign_host_and_wrong_file(self):
@@ -34,6 +35,42 @@ class ProbeTests(unittest.TestCase):
         self.assertTrue(compare(local,remote)['semanticallyIdentical'])
         remote['Data']['z'] = 3
         self.assertEqual(compare(local,remote)['addedCount'],1)
+
+    def test_transient_502_is_retried_without_external_dependencies(self):
+        url = 'https://msf-datamines.magneticzero.dev/file/combat_data/procs.json'
+        class FakeResponse:
+            status = 200
+            def __enter__(self): return self
+            def __exit__(self, *_args): return False
+            def geturl(self): return url
+            def read(self, _limit): return b'<pre>ok</pre>'
+        error = HTTPError(url, 502, 'Bad Gateway', {}, None)
+        with patch('scripts.probe_magneticzero.urlopen',
+                   side_effect=[error, FakeResponse()]) as downloader, \
+             patch('scripts.probe_magneticzero.sleep') as waiter:
+            self.assertEqual(fetch_page(url), '<pre>ok</pre>')
+        self.assertEqual(downloader.call_count, 2)
+        waiter.assert_called_once_with(1)
+
+    def test_persistent_502_aborts_after_three_attempts(self):
+        url = 'https://msf-datamines.magneticzero.dev/file/combat_data/procs.json'
+        with patch('scripts.probe_magneticzero.urlopen',
+                   side_effect=HTTPError(url, 502, 'Bad Gateway', {}, None)) as downloader, \
+             patch('scripts.probe_magneticzero.sleep') as waiter:
+            with self.assertRaises(HTTPError):
+                fetch_page(url)
+        self.assertEqual(downloader.call_count, 3)
+        self.assertEqual([x.args[0] for x in waiter.call_args_list], [1, 2])
+
+    def test_permanent_404_is_never_retried(self):
+        url = 'https://msf-datamines.magneticzero.dev/file/combat_data/procs.json'
+        with patch('scripts.probe_magneticzero.urlopen',
+                   side_effect=HTTPError(url, 404, 'Not Found', {}, None)) as downloader, \
+             patch('scripts.probe_magneticzero.sleep') as waiter:
+            with self.assertRaises(HTTPError):
+                fetch_page(url)
+        downloader.assert_called_once()
+        waiter.assert_not_called()
 
     def test_complete_official_source_inventory(self):
         self.assertEqual(len(FILES),11)
