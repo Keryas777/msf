@@ -6578,7 +6578,9 @@
               "month": "2022-12",
               "characterId": "WinterSoldier"
             }
-          ]
+          ],
+          "rolloutId": "rebirth-2022-2023-rollout",
+          "rolloutLabel": "Rebirth"
         }
       ],
       "validation": {
@@ -6640,6 +6642,761 @@
           "firstPlayableQuarter": "2023-Q1"
         }
       ]
+    },
+    "2023": {
+      "status": "partial",
+      "auditedThrough": "2023-03-31",
+      "startingPlayableRosterCount": 224,
+      "dateConvention": "Playable-first dates use historical North American publication/event dates. Exact days are encoded only when first recruitment on that day is supported; a demonstrated latest-by date alone does not fix the first store reset.",
+      "auditedPeriods": [
+        "2023-01-01/2023-03-31"
+      ],
+      "individualReleases": [
+        {
+          "month": "2023-03",
+          "characterId": "Apocalypse",
+          "confidence": "high",
+          "sourceIds": [
+            "notes-67",
+            "cm-67",
+            "apoc-mar12",
+            "apoc-mar11"
+          ],
+          "releaseMethod": "saga",
+          "date": "2023-03-10",
+          "dateConfidence": "high",
+          "notes": [
+            "Apocalypse Saga opened March 10; a player explicitly reported unlocking on Friday March 10. First unlock required Heroic / difficulty 2 completion; January reveal and February 6.7 patch were announcements, not recruitment."
+          ]
+        }
+      ],
+      "teamEvents": [
+        {
+          "month": "2023-01",
+          "teamId": "rebirth-66-rollout-2023",
+          "label": "Rebirth — 6.6 rollout (completed)",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "CaptainAmerica",
+            "WinterSoldier",
+            "USAgent",
+            "CaptainCarter",
+            "AgentVenom"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "CaptainCarter",
+            "AgentVenom"
+          ],
+          "existingCharacterIds": [
+            "CaptainAmerica",
+            "WinterSoldier",
+            "USAgent"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [
+            "Continuation of the single Rebirth rollout begun in December 2022. The original Captain America / Winter Soldier reworks and U.S. Agent's first availability remain exclusively in 2022.",
+            "Captain Carter and Agent Venom both became recruitable in January, completing all five members. Neither has a verified first store-reset day.",
+            "Shares rolloutId with the 2022 annual slice for a single historical UI rollout and separate yearly release counts."
+          ],
+          "characterReleases": [
+            {
+              "month": "2023-01",
+              "characterId": "CaptainCarter",
+              "confidence": "high",
+              "sourceIds": [
+                "carter-jan14",
+                "carter-jan21"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "notes": [
+                "Already used by players by January 14, and 50-shard gold offer documented January 21. Initial precise store day is unproven."
+              ]
+            },
+            {
+              "month": "2023-01",
+              "characterId": "AgentVenom",
+              "confidence": "high",
+              "sourceIds": [
+                "carter-jan14",
+                "agent-jan31",
+                "agent-feb01"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "notes": [
+                "Initial paid popup offer and 675-core character orb existed before late-January milestones; February permanent orb inclusion was not a first release."
+              ]
+            }
+          ],
+          "reworks": [],
+          "confidence": "high",
+          "sourceIds": [
+            "notes-66",
+            "carter-jan14",
+            "agent-jan31",
+            "agent-feb01"
+          ],
+          "rolloutId": "rebirth-2022-2023-rollout",
+          "rolloutLabel": "Rebirth",
+          "releaseMethods": {
+            "CaptainCarter": "limited_offer; power_core_store",
+            "AgentVenom": "limited_offer; power_core_store"
+          }
+        },
+        {
+          "month": "2023-01",
+          "teamId": "masters-of-evil-67-rollout-2023",
+          "label": "Masters of Evil — 6.6/6.7 rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Titania",
+            "AbsorbingMan",
+            "KangTheConqueror",
+            "Moonstone",
+            "Ultron"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Titania",
+            "AbsorbingMan",
+            "KangTheConqueror",
+            "Moonstone"
+          ],
+          "existingCharacterIds": [
+            "Ultron"
+          ],
+          "reworkedCharacterIds": [
+            "Ultron"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "One original Masters of Evil team from January through March, not separate monthly team events.",
+            "Titania was announced in December 2022 but first proven recruitable in January 2023. Ultron's 6.7 rework is counted once; Fabricator, Accelerator and Incinerator summons are not counted as playable characters.",
+            "Moonstone was recruitable through paid offers before the later F2P event."
+          ],
+          "characterReleases": [
+            {
+              "month": "2023-01",
+              "characterId": "Titania",
+              "confidence": "high",
+              "sourceIds": [
+                "blog-jan27",
+                "agent-jan31",
+                "titania-feb05"
+              ],
+              "releaseMethod": "power_core_store",
+              "notes": [
+                "Recruitable by January via Glow Up 675-core orb; January 27 five-shard Free Claim is not the first unlock route."
+              ]
+            },
+            {
+              "month": "2023-02",
+              "characterId": "AbsorbingMan",
+              "confidence": "high",
+              "sourceIds": [
+                "notes-67",
+                "absorb-feb05"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "notes": [
+                "Paid offer and Materialistic 675-core orb confirmed available February 5; later Crusher of Heroes is not first release."
+              ]
+            },
+            {
+              "month": "2023-02",
+              "characterId": "KangTheConqueror",
+              "confidence": "high",
+              "sourceIds": [
+                "notes-67",
+                "kang-feb16",
+                "blog-feb17"
+              ],
+              "releaseMethod": "power_core_store; limited_offer",
+              "notes": [
+                "Core orb discussed February 16 prior to He Who Remains February 23. February 17 five-shard claim alone is not an unlock."
+              ]
+            },
+            {
+              "month": "2023-03",
+              "characterId": "Moonstone",
+              "confidence": "high",
+              "sourceIds": [
+                "notes-67",
+                "moon-mar03"
+              ],
+              "releaseMethod": "limited_offer",
+              "notes": [
+                "March 3 paid offers and actual paid acquisition demonstrated; March 20 To the Moon F2P milestone is later. First precise offer reset remains unknown."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2023-02",
+              "characterId": "Ultron",
+              "sourceIds": [
+                "notes-67",
+                "cm-67"
+              ],
+              "notes": [
+                "6.7 changed Special, Ultimate, Passive and Masters of Evil / Crucible functionality materially; summoned Ultron minions are not independent playable reworks."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "blog-jan27",
+            "notes-67",
+            "cm-67",
+            "titania-feb05",
+            "moon-mar03"
+          ],
+          "releaseMethods": {
+            "Titania": "power_core_store",
+            "AbsorbingMan": "limited_offer; power_core_store",
+            "KangTheConqueror": "power_core_store; limited_offer",
+            "Moonstone": "limited_offer"
+          }
+        },
+        {
+          "month": "2023-03",
+          "teamId": "invaders-70-rollout-2023",
+          "label": "Invaders — 7.0 rollout (partial)",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "NickFury",
+            "CaptainAmericaWW2",
+            "UnionJack"
+          ],
+          "core": [
+            "NickFury",
+            "CaptainAmericaWW2",
+            "UnionJack"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "CaptainAmericaWW2",
+            "UnionJack"
+          ],
+          "existingCharacterIds": [
+            "NickFury"
+          ],
+          "reworkedCharacterIds": [
+            "NickFury"
+          ],
+          "announcedNext": [
+            "BuckyBarnes",
+            "IronFistOrson"
+          ],
+          "notes": [
+            "7.0 debuted the Invaders with Nick Fury and four newcomers. Only Captain America (WWII) and Union Jack have demonstrated March recruitability.",
+            "Bucky Barnes and Iron Fist (WWII) remain announcedNext for April and must not be charged to Q1; the future Q2 audit must complete this same teamEvent.",
+            "S.H.I.E.L.D. Security and Operative are independently playable minions reworked alongside Fury, but are not members of the five official Invaders; recorded in separate support/faction event."
+          ],
+          "characterReleases": [
+            {
+              "month": "2023-03",
+              "characterId": "CaptainAmericaWW2",
+              "confidence": "high",
+              "sourceIds": [
+                "notes-70",
+                "wwii-mar15",
+                "blog-mar24"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "date": "2023-03-15",
+              "dateConfidence": "high",
+              "notes": [
+                "Player testimony on March 15 confirms a real core-orb unlock on 7.0 patch day, preceding March 27 Showcase."
+              ]
+            },
+            {
+              "month": "2023-03",
+              "characterId": "UnionJack",
+              "confidence": "high",
+              "sourceIds": [
+                "jack-mar26",
+                "blog-mar24",
+                "blog-apr07"
+              ],
+              "releaseMethod": "limited_offer",
+              "notes": [
+                "Paid 3-star unlock offer documented on March 26, prior to April Freedom Fighters and Rule Britannia. Five free shards on March 24 alone prove no unlock."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2023-03",
+              "characterId": "NickFury",
+              "sourceIds": [
+                "notes-70"
+              ],
+              "notes": [
+                "7.0: large Health/Damage/Armor/Resistance boosts, several revamped abilities, new Invader trait and Raid/Invader synergies."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "notes-70",
+            "wwii-mar15",
+            "jack-mar26",
+            "blog-mar24",
+            "blog-apr14"
+          ],
+          "releaseMethods": {
+            "CaptainAmericaWW2": "limited_offer; power_core_store",
+            "UnionJack": "limited_offer"
+          }
+        },
+        {
+          "month": "2023-03",
+          "teamId": "new-warriors-70-expansion-2023",
+          "label": "New Warriors — 7.0 expansion (partial)",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Deathpool",
+            "Cloak",
+            "Dagger"
+          ],
+          "core": [
+            "Deathpool",
+            "Cloak",
+            "Dagger"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Deathpool",
+            "Cloak",
+            "Dagger"
+          ],
+          "reworkedCharacterIds": [
+            "Deathpool",
+            "Cloak",
+            "Dagger"
+          ],
+          "announcedNext": [
+            "Firestar",
+            "Gwenpool"
+          ],
+          "notes": [
+            "The original 2021 New Warriors formation is preserved; this is its distinct March 2023 Crucible Offense expansion, not an initial 2021 team release.",
+            "The three pre-existing members were substantively updated in March. Firestar's first official offers/orbs are dated April 28; Gwenpool is a subsequent Q2 newcomer. Neither is counted as a Q1 recruit.",
+            "The future Q2 audit must complete this same expansion event rather than adding April/May duplicates."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2023-03",
+              "characterId": "Deathpool",
+              "sourceIds": [
+                "notes-70"
+              ],
+              "notes": [
+                "7.0 improved four stats, Special and Ultimate effects plus passive Crucible Offense / New Warrior resource and tempo interactions."
+              ]
+            },
+            {
+              "month": "2023-03",
+              "characterId": "Cloak",
+              "sourceIds": [
+                "notes-70"
+              ],
+              "notes": [
+                "7.0 improved four stats and expanded existing Raid debuff/Speed Bar and ally benefits into Crucible Offense."
+              ]
+            },
+            {
+              "month": "2023-03",
+              "characterId": "Dagger",
+              "sourceIds": [
+                "notes-70"
+              ],
+              "notes": [
+                "7.0 improved four stats and expanded Special and Passive New Warrior / Crucible Offense healing, regeneration and damage buffs."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "notes-70",
+            "blog-apr21"
+          ]
+        },
+        {
+          "month": "2023-03",
+          "teamId": "shield-support-70-rework-2023",
+          "label": "S.H.I.E.L.D. support — 7.0 rework",
+          "kind": "faction",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 5,
+          "members": [
+            "NickFury",
+            "ShieldTank_Stun",
+            "ShieldSupport_Stealth"
+          ],
+          "core": [
+            "NickFury"
+          ],
+          "pool": [
+            "ShieldTank_Stun",
+            "ShieldSupport_Stealth"
+          ],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "NickFury",
+            "ShieldTank_Stun",
+            "ShieldSupport_Stealth"
+          ],
+          "reworkedCharacterIds": [
+            "ShieldTank_Stun",
+            "ShieldSupport_Stealth"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "Represents the playable S.H.I.E.L.D. Security and Operative companion updates to Nick Fury's 7.0 overhaul. These two are NOT Invaders members.",
+            "Fury is a context-only existing member here; his single 2023 rework is indexed in Invaders.",
+            "The two playable roster units count as reworks, but their summoned copies are excluded."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2023-03",
+              "characterId": "ShieldTank_Stun",
+              "sourceIds": [
+                "notes-70"
+              ],
+              "notes": [
+                "Playable S.H.I.E.L.D. Security received major multi-stat boosts and new Raid-focused skills, separately from summoned copies."
+              ]
+            },
+            {
+              "month": "2023-03",
+              "characterId": "ShieldSupport_Stealth",
+              "sourceIds": [
+                "notes-70"
+              ],
+              "notes": [
+                "Playable S.H.I.E.L.D. Operative received major multi-stat boosts and revised Basic/Special for Raid; Nick Fury is not counted twice."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "notes-70"
+          ]
+        },
+        {
+          "month": "2023-03",
+          "teamId": "scarlet-witch-quicksilver-70-2023",
+          "label": "Scarlet Witch / Quicksilver synergy — 7.0",
+          "kind": "duo",
+          "formationStatus": "partial",
+          "teamSize": 2,
+          "members": [
+            "ScarletWitch"
+          ],
+          "core": [
+            "ScarletWitch"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "ScarletWitch"
+          ],
+          "reworkedCharacterIds": [
+            "ScarletWitch"
+          ],
+          "announcedNext": [
+            "Quicksilver"
+          ],
+          "notes": [
+            "Not a new full team: a documented two-character synergy update. Scarlet Witch is an existing playable character, reworked in March.",
+            "Quicksilver was only advertised in 7.0; Crucible shard availability arrived in April and is excluded from Q1.",
+            "This duo record does not reassign Quicksilver's Q2 recruit to March."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2023-03",
+              "characterId": "ScarletWitch",
+              "sourceIds": [
+                "notes-70"
+              ],
+              "notes": [
+                "7.0 added Quicksilver-linked Special healing, Ultimate damage/block changes and multiple new Passive responses; the changes were effective in March even though Quicksilver was not yet recruitable."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "notes-70",
+            "qs-apr07",
+            "qs-apr21"
+          ]
+        }
+      ],
+      "excludedFrom2023Q1PlayableCount": [
+        {
+          "characterId": "BuckyBarnes",
+          "reason": "Invaders 7.0 announcement in March; no verified March paid/orb unlock, April recruitment cycle",
+          "firstPlayableQuarter": "2023-Q2",
+          "sourceIds": [
+            "notes-70",
+            "bucky-mar31",
+            "blog-apr14"
+          ]
+        },
+        {
+          "characterId": "IronFistOrson",
+          "reason": "First initial offers announced for April 14, not March patch",
+          "firstPlayableMonth": "2023-04",
+          "sourceIds": [
+            "blog-apr14"
+          ]
+        },
+        {
+          "characterId": "Firestar",
+          "reason": "March 7.0 patch inclusion does not grant unlock; first store offers and 675-core orb officially announced April 28",
+          "firstPlayableMonth": "2023-04",
+          "sourceIds": [
+            "blog-apr21"
+          ]
+        },
+        {
+          "characterId": "Gwenpool",
+          "reason": "Second New Warriors newcomer follows Firestar in Q2 7.1 cycle; not a March recruit",
+          "firstPlayableQuarter": "2023-Q2",
+          "sourceIds": [
+            "blog-apr21"
+          ]
+        },
+        {
+          "characterId": "Quicksilver",
+          "reason": "Announced 7.0, but Crucible rewards with shards materialized in April; no verified March paid/core unlock",
+          "firstPlayableQuarter": "2023-Q2",
+          "sourceIds": [
+            "notes-70",
+            "qs-apr07",
+            "qs-apr21"
+          ]
+        }
+      ],
+      "excludedNonPlayableChanges": [
+        {
+          "label": "Ultron summons",
+          "reason": "Ultron Fabricator and other summoned units are not player_Character roster recruits or independent reworks",
+          "sourceIds": [
+            "notes-67"
+          ]
+        },
+        {
+          "characterId": "Archangel",
+          "reason": "6.7 updates target Awakened / Apocalypse-related abilities; no independent evidence of a broad substantive base-kit rework warranting a second 2023 count",
+          "sourceIds": [
+            "notes-67"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "notes-66",
+          "title": "Version 6.6.0 release notes",
+          "url": "https://marvelstrikeforce.com/en/updates/release-notes-6-6-0",
+          "publicationDate": "2022-12-07",
+          "type": "official"
+        },
+        {
+          "id": "blog-jan27",
+          "title": "Apocalypse Beckons",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-1-27-23",
+          "publicationDate": "2023-01-27",
+          "type": "official"
+        },
+        {
+          "id": "notes-67",
+          "title": "Version 6.7.0 release notes",
+          "url": "https://marvelstrikeforce.com/updates/release-notes-6-7-0",
+          "publicationDate": "2023-02-01",
+          "type": "official"
+        },
+        {
+          "id": "cm-67",
+          "title": "Contemporary release notes 6.7 posted by CM",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/10r4w55/",
+          "publicationDate": "2023-02-01",
+          "type": "official_repost"
+        },
+        {
+          "id": "blog-feb17",
+          "title": "He Who Remains",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-2-17-23",
+          "publicationDate": "2023-02-17",
+          "type": "official"
+        },
+        {
+          "id": "notes-70",
+          "title": "Version 7.0 release notes, CM contemporaneous posting",
+          "url": "https://devtrackers.gg/marvel-strike-force/p/1b569a7b-version-7-0-0-release-notes",
+          "publicationDate": "2023-03-15",
+          "type": "official_repost"
+        },
+        {
+          "id": "blog-mar24",
+          "title": "S.T.R.I.K.E. Celebration",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-3-24-23",
+          "publicationDate": "2023-03-24",
+          "type": "official"
+        },
+        {
+          "id": "blog-apr07",
+          "title": "A Royal Showcase",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-4-7-23",
+          "publicationDate": "2023-04-07",
+          "type": "official"
+        },
+        {
+          "id": "blog-apr14",
+          "title": "A Guy from Brooklyn",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-4-14-23",
+          "publicationDate": "2023-04-14",
+          "type": "official"
+        },
+        {
+          "id": "blog-apr21",
+          "title": "The New New Warriors",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-4-21-23",
+          "publicationDate": "2023-04-21",
+          "type": "official"
+        },
+        {
+          "id": "qs-apr21",
+          "title": "Quicksilver shard reward issue",
+          "url": "https://marvelstrikeforce.com/en/updates/quicksilver-shards-in-player-s-cosmic-crucible-rewards",
+          "publicationDate": "2023-04-21",
+          "type": "official"
+        },
+        {
+          "id": "carter-jan14",
+          "title": "Rebirth roster already being tested",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/10baoas/",
+          "publicationDate": "2023-01-14",
+          "type": "contemporary"
+        },
+        {
+          "id": "carter-jan21",
+          "title": "Captain Carter 50 shards in store for gold",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/10i3mgb/",
+          "publicationDate": "2023-01-21",
+          "type": "contemporary"
+        },
+        {
+          "id": "agent-jan31",
+          "title": "Agent Venom original offer and early shards",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/10pm3y5/",
+          "publicationDate": "2023-01-31",
+          "type": "contemporary"
+        },
+        {
+          "id": "agent-feb01",
+          "title": "Agent Venom 675-core orb predates milestones",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/10r0z8s/",
+          "publicationDate": "2023-02-01",
+          "type": "contemporary"
+        },
+        {
+          "id": "titania-feb05",
+          "title": "Titania and Absorbing Man early core orbs",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/10u7em8/",
+          "publicationDate": "2023-02-05",
+          "type": "contemporary"
+        },
+        {
+          "id": "absorb-feb05",
+          "title": "Absorbing Man paid or core orb availability",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/10u7em8/",
+          "publicationDate": "2023-02-05",
+          "type": "contemporary"
+        },
+        {
+          "id": "kang-feb16",
+          "title": "Kang core orb availability discussion",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/113wr7c/",
+          "publicationDate": "2023-02-16",
+          "type": "contemporary"
+        },
+        {
+          "id": "moon-mar03",
+          "title": "Moonstone initial offers for sale by March 3",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/11heyuh/",
+          "publicationDate": "2023-03-03",
+          "type": "contemporary"
+        },
+        {
+          "id": "apoc-mar12",
+          "title": "Apocalypse player says unlocked Friday March 10",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/11pg4q9/",
+          "publicationDate": "2023-03-12",
+          "type": "contemporary"
+        },
+        {
+          "id": "apoc-mar11",
+          "title": "Apocalypse actually owned by March 11",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/11o8m8y/",
+          "publicationDate": "2023-03-11",
+          "type": "contemporary"
+        },
+        {
+          "id": "wwii-mar15",
+          "title": "WWII Captain America core orb unlock immediately after 7.0 patch",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/11saj0c/",
+          "publicationDate": "2023-03-15",
+          "type": "contemporary"
+        },
+        {
+          "id": "jack-mar26",
+          "title": "Union Jack paid recruit offer live March 26",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1225hla/",
+          "publicationDate": "2023-03-26",
+          "type": "contemporary"
+        },
+        {
+          "id": "bucky-mar31",
+          "title": "Bucky Barnes recruitment event still upcoming in March 31 datamines",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/127vtgl/",
+          "publicationDate": "2023-03-31",
+          "type": "contemporary"
+        },
+        {
+          "id": "qs-apr07",
+          "title": "Quicksilver not yet available in early April",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/12e9haa/",
+          "publicationDate": "2023-04-07",
+          "type": "contemporary"
+        }
+      ],
+      "validation": {
+        "auditedPeriod": "2023-01-01/2023-03-31",
+        "individualReleaseCount": 1,
+        "teamEventNewCharacterCount": 8,
+        "distinctPlayableReleaseCount": 9,
+        "distinctReworkedCharacterCount": 8,
+        "quarterEndPlayableRosterCount": 233,
+        "duplicatesAcrossReleaseBuckets": []
+      }
     },
     "2026": {
       "status": "partial",
