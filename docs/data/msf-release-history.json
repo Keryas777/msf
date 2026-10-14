@@ -5467,8 +5467,8 @@
       ]
     },
     "2022": {
-      "status": "partial",
-      "auditedThrough": "2022-09-30",
+      "status": "audited",
+      "auditedThrough": "2022-12-31",
       "startingPlayableRosterCount": 187,
       "individualReleases": [],
       "teamEvents": [
@@ -6242,20 +6242,23 @@
           "teamId": "tangled-web-64-rollout-2022",
           "label": "Tangled Web — 6.4 rollout",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "teamSize": 3,
           "members": [
             "SpiderWeaver",
-            "SpiderMan2099"
+            "SpiderMan2099",
+            "SpiderManNoir"
           ],
           "core": [
             "SpiderWeaver",
-            "SpiderMan2099"
+            "SpiderMan2099",
+            "SpiderManNoir"
           ],
           "pool": [],
           "newCharacterIds": [
             "SpiderWeaver",
-            "SpiderMan2099"
+            "SpiderMan2099",
+            "SpiderManNoir"
           ],
           "existingCharacterIds": [],
           "reworkedCharacterIds": [],
@@ -6263,15 +6266,14 @@
             "SpiderWeaver": "power_core_store",
             "SpiderMan2099": "limited_orb"
           },
-          "announcedNext": [
-            "SpiderManNoir"
-          ],
+          "announcedNext": [],
           "notes": [
             "Tangled Web was explicitly designed as a three-character team, so no fourth or fifth official member is projected into this historical state.",
             "Spider-Weaver was already being orb-unlocked and played on September 15, before her September 23 Event Campaign; the campaign is therefore not treated as first availability.",
             "The September 24 Spider-Man 2099 Red Star banner incident did not make him recruitable and is not counted as a release signal.",
             "A September 27 Spider-Man 2099 shard-orb opening proves real recruitment availability before October, so he belongs to T3. The exact first orb store reset is intentionally omitted.",
-            "Spider-Man (Noir) had no verified September recruitment route and remains announcedNext at the September 30 boundary."
+            "Spider-Man (Noir) had no verified September recruitment route and remains announcedNext at the September 30 boundary.",
+            "Spider-Man (Noir) was recruitable during October's Night of the Spider event beginning October 17. A first earlier paid/core-orb route is not conclusively excluded; no exact first day or first method is claimed. The September Tangled Web event is completed, not duplicated."
           ],
           "characterReleases": [
             {
@@ -6283,6 +6285,10 @@
               "month": "2022-09",
               "characterId": "SpiderMan2099",
               "releaseMethod": "limited_orb"
+            },
+            {
+              "month": "2022-10",
+              "characterId": "SpiderManNoir"
             }
           ],
           "reworks": []
@@ -6290,24 +6296,28 @@
         {
           "month": "2022-09",
           "teamId": "underworld-64-groundwork-2022",
-          "label": "Underworld — 6.4 groundwork",
+          "label": "Underworld — 6.4 rollout",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "teamSize": 5,
           "members": [
             "UltGreenGoblin",
             "Taskmaster",
             "Kingpin",
-            "Nobu"
+            "Nobu",
+            "MrNegative"
           ],
           "core": [
             "UltGreenGoblin",
             "Taskmaster",
             "Kingpin",
-            "Nobu"
+            "Nobu",
+            "MrNegative"
           ],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "MrNegative"
+          ],
           "existingCharacterIds": [
             "UltGreenGoblin",
             "Taskmaster",
@@ -6320,15 +6330,20 @@
             "Kingpin",
             "Nobu"
           ],
-          "announcedNext": [
-            "MrNegative"
-          ],
+          "announcedNext": [],
           "notes": [
             "Green Goblin is stored under the original playable internal characterId UltGreenGoblin; the later GreenGoblinGlider variant is not substituted into this 2022 team.",
             "Version 6.4 gave Green Goblin, Taskmaster, Kingpin and Nobu substantial multi-stat increases, multiple ability changes and new Underworld synergies. All four meet the significant-rework threshold in September independently of Mister Negative's later recruitment.",
-            "Mister Negative was announced with the team but no verified September recruitment route exists, so he remains announcedNext and is excluded from the T3 playable count."
+            "Mister Negative was announced with the team but no verified September recruitment route exists, so he remains announcedNext and is excluded from the T3 playable count.",
+            "Paid Mister Negative shard offers already existed in the web store by October 15 (contemporary reports), before the additional November 28 free daily claims. The four September Underworld reworks are not counted again."
           ],
-          "characterReleases": [],
+          "characterReleases": [
+            {
+              "month": "2022-10",
+              "characterId": "MrNegative",
+              "releaseMethod": "limited_offer"
+            }
+          ],
           "reworks": [
             {
               "month": "2022-09",
@@ -6346,16 +6361,233 @@
               "month": "2022-09",
               "characterId": "Nobu"
             }
+          ],
+          "releaseMethods": {
+            "MrNegative": "limited_offer"
+          }
+        },
+        {
+          "month": "2022-10",
+          "teamId": "undying-65-rollout-2022",
+          "label": "Undying — 6.5 rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 2,
+          "members": [
+            "Hela",
+            "ZombieIronMan"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "ZombieIronMan"
+          ],
+          "existingCharacterIds": [
+            "Hela"
+          ],
+          "reworkedCharacterIds": [
+            "Hela"
+          ],
+          "releaseMethods": {
+            "ZombieIronMan": "limited_offer"
+          },
+          "announcedNext": [],
+          "notes": [
+            "Official October 14 Undying announcement establishes a two-character team. Hela's 6.5 changes include Health +80%, Damage +16%, Armor +50%, Focus +62%, Resist +39% and multiple ability rewrites.",
+            "Zombie Iron Man initial paid offers were available in October before the Trick or Treat milestone and October 28 web free claim; first precise reset date cannot be established."
+          ],
+          "characterReleases": [
+            {
+              "month": "2022-10",
+              "characterId": "ZombieIronMan",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2022-10",
+              "characterId": "Hela"
+            }
+          ]
+        },
+        {
+          "month": "2022-10",
+          "teamId": "war-dogs-65-rollout-2022",
+          "label": "War Dogs — 6.5 rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Shuri",
+            "Okoye",
+            "BlackPanther",
+            "BlackPantherBC",
+            "Nakia"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "BlackPantherBC",
+            "Nakia"
+          ],
+          "existingCharacterIds": [
+            "Shuri",
+            "Okoye",
+            "BlackPanther"
+          ],
+          "reworkedCharacterIds": [],
+          "releaseMethods": {},
+          "announcedNext": [],
+          "notes": [
+            "October 6.5 established War Dogs with original Shuri, Okoye and Black Panther plus Black Panther (1MM) and Nakia. The two newcomers were recruitable in November.",
+            "Black Panther (1MM) was earnable via November's First Panther event and was available before Nakia's November 21 Dogs of War Event Campaign. Earlier paid/core availability cannot be excluded; first exact dates and methods are not invented.",
+            "6.5 made additional War Dogs-specific changes to old Wakandans, but the three original members were already counted for substantive 6.1 reworks in May. Do not count the same characters twice this year."
+          ],
+          "characterReleases": [
+            {
+              "month": "2022-11",
+              "characterId": "BlackPantherBC"
+            },
+            {
+              "month": "2022-11",
+              "characterId": "Nakia"
+            }
+          ],
+          "reworks": []
+        },
+        {
+          "month": "2022-10",
+          "teamId": "deathseed-65-66-rollout-2022",
+          "label": "Deathseed — 6.5/6.6 rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Magneto",
+            "Psylocke",
+            "DarkBeast",
+            "Nemesis",
+            "Archangel"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "DarkBeast",
+            "Nemesis",
+            "Archangel"
+          ],
+          "existingCharacterIds": [
+            "Magneto",
+            "Psylocke"
+          ],
+          "reworkedCharacterIds": [
+            "Magneto",
+            "Psylocke"
+          ],
+          "releaseMethods": {
+            "Archangel": "milestone"
+          },
+          "announcedNext": [],
+          "notes": [
+            "One original Deathseed rollout crosses October to December: 6.5 substantially reworked Magneto and Psylocke in October, Dark Beast became recruitable in November, and Nemesis plus Archangel in December.",
+            "A November 24 contemporary Dark Beast purchaser confirms shard offers; his core orb also existed by early December. The exact earliest channel and day are not safely established.",
+            "Nemesis was recruitable through a Power Core shard orb in December prior to his broader Event Campaign, without a proven earliest reset day.",
+            "Contemporary December 16 Death Scourge players unlocked Archangel from the 500,000-point milestone that same day."
+          ],
+          "characterReleases": [
+            {
+              "month": "2022-11",
+              "characterId": "DarkBeast"
+            },
+            {
+              "month": "2022-12",
+              "characterId": "Nemesis"
+            },
+            {
+              "month": "2022-12",
+              "date": "2022-12-16",
+              "characterId": "Archangel",
+              "releaseMethod": "milestone"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2022-10",
+              "characterId": "Magneto"
+            },
+            {
+              "month": "2022-10",
+              "characterId": "Psylocke"
+            }
+          ]
+        },
+        {
+          "month": "2022-12",
+          "teamId": "rebirth-66-rollout-2022",
+          "label": "Rebirth — 6.6 rollout (partial)",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "CaptainAmerica",
+            "WinterSoldier",
+            "USAgent"
+          ],
+          "core": [
+            "CaptainAmerica",
+            "WinterSoldier",
+            "USAgent"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "USAgent"
+          ],
+          "existingCharacterIds": [
+            "CaptainAmerica",
+            "WinterSoldier"
+          ],
+          "reworkedCharacterIds": [
+            "CaptainAmerica",
+            "WinterSoldier"
+          ],
+          "releaseMethods": {
+            "USAgent": "limited_offer"
+          },
+          "announcedNext": [
+            "CaptainCarter",
+            "AgentVenom"
+          ],
+          "notes": [
+            "The official December 2 Rebirth reveal and version 6.6 provided substantial base-stat and multi-ability changes to Captain America and Winter Soldier.",
+            "A contemporary December 22 U.S. Agent paid-offer review establishes playable December recruitment; original store reset is not proven.",
+            "Captain Carter and Agent Venom were announced in 2022, but actual recruitability is only evidenced in January 2023. Leave both announcedNext; the future 2023 audit must complete this same event, not duplicate the team."
+          ],
+          "characterReleases": [
+            {
+              "month": "2022-12",
+              "characterId": "USAgent",
+              "releaseMethod": "limited_offer"
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2022-12",
+              "characterId": "CaptainAmerica"
+            },
+            {
+              "month": "2022-12",
+              "characterId": "WinterSoldier"
+            }
           ]
         }
       ],
       "validation": {
-        "auditedPeriod": "2022-01-01/2022-09-30",
+        "auditedPeriod": "2022-01-01/2022-12-31",
         "individualReleaseCount": 0,
-        "teamEventNewCharacterCount": 28,
-        "distinctPlayableReleaseCount": 28,
-        "distinctReworkedCharacterCount": 28,
-        "quarterEndPlayableRosterCount": 215,
+        "teamEventNewCharacterCount": 37,
+        "distinctPlayableReleaseCount": 37,
+        "distinctReworkedCharacterCount": 33,
+        "quarterEndPlayableRosterCount": 224,
         "duplicatesAcrossReleaseBuckets": []
       },
       "excludedFrom2022Q2PlayableCount": [
@@ -6386,6 +6618,26 @@
           "reason": "announced_for_underworld_in_september_but_no_verified_recruitment_route_before_october_2022",
           "announcedMonth": "2022-09",
           "firstPlayableQuarter": "Q4"
+        }
+      ],
+      "excludedFrom2022Q4PlayableCount": [
+        {
+          "characterId": "CaptainCarter",
+          "reason": "announced_in_6_6_but_recruitment_only_confirmed_january_2023",
+          "announcedMonth": "2022-12",
+          "firstPlayableQuarter": "2023-Q1"
+        },
+        {
+          "characterId": "AgentVenom",
+          "reason": "announced_in_6_6_but_recruitment_only_confirmed_january_2023",
+          "announcedMonth": "2022-12",
+          "firstPlayableQuarter": "2023-Q1"
+        },
+        {
+          "characterId": "Titania",
+          "reason": "announced_in_6_6_but_first_playable_core_orbs_and_offers_only_verified_january_2023",
+          "announcedMonth": "2022-12",
+          "firstPlayableQuarter": "2023-Q1"
         }
       ]
     },
