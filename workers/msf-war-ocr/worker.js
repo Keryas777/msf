@@ -195,7 +195,7 @@ const ANALYSIS_MAX_PLAYERS = 24;
 const ANALYSIS_NAME_MAX_LENGTH = 80;
 const ANALYSIS_MAX_LENGTH = 700;
 const ANALYSIS_MAX_SENTENCES = 3;
-const WAR_ANALYSIS_TIMEOUT_MS = 90 * 1000;
+const WAR_ANALYSIS_TIMEOUT_MS = 180 * 1000;
 const WAR_ANALYSIS_STREAM_HEARTBEAT_MS = 5000;
 export const WAR_ANALYSIS_MODEL = "@cf/meta/llama-4-scout-17b-16e-instruct";
 export const GROQ_ANALYSES_RESPONSE_FORMAT = {
@@ -835,7 +835,7 @@ async function requestWorkersAiAnalyses(prompt, ai, trace) {
   let timeoutId;
   const timeoutPromise = new Promise((_, reject) => {
     timeoutId = setTimeout(() => {
-      const error = new Error("Workers AI n’a pas répondu dans le délai maximal de 90 secondes.");
+      const error = new Error("Workers AI n’a pas répondu dans le délai maximal de 180 secondes.");
       error.code = 3007;
       reject(error);
     }, WAR_ANALYSIS_TIMEOUT_MS);
