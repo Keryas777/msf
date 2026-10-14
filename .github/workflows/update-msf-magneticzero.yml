@@ -10,6 +10,11 @@ on:
       - "scripts/probe_magneticzero.py"
       - "tests/test_update_msf_magneticzero.py"
       - "tests/test_probe_magneticzero.py"
+      - "tests/test_msf_turn_meter_*.py"
+      - "tests/test_msf_capabilities_*.py"
+      - "scripts/msf_capabilities_web_publisher/audit.py"
+      - "scripts/update_msf_capabilities.py"
+      - ".github/workflows/update-msf-capabilities.yml"
       - "scripts/msf_capabilities_explorer_builder/builder.py"
       - ".github/workflows/update-msf-magneticzero.yml"
 
