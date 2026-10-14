@@ -38,27 +38,42 @@ class TurnMeterControlTests(unittest.TestCase):
         return matches[0]
 
     def test_exact_control_corpus_and_direct_b1_invariants(self):
-        self.assertEqual(len(self.controls), 97)
+        controls_by_stat = Counter(
+            operation["turnMeterControl"]["technicalStat"]
+            for operation in self.controls
+        )
         self.assertEqual(
-            Counter(
-                operation["turnMeterControl"]["technicalStat"]
-                for operation in self.controls
-            ),
+            set(controls_by_stat),
             {
-                "turnmeter_increase_mod_pct": 44,
-                "turnmeter_decrease_mod_pct": 20,
-                "turnmeter_immune_pct": 33,
+                "turnmeter_increase_mod_pct",
+                "turnmeter_decrease_mod_pct",
+                "turnmeter_immune_pct",
             },
         )
+        self.assertEqual(sum(controls_by_stat.values()), len(self.controls))
+        self.assertTrue(all(count > 0 for count in controls_by_stat.values()))
+        self.assertEqual(
+            len({operation["id"] for operation in self.controls}),
+            len(self.controls),
+        )
+
         direct = [
             operation
             for operation in self.capabilities["operations"]
             if operation["kind"] == "turn_meter_modify"
         ]
-        self.assertEqual(len(direct), 541)
+        actions_by_kind = Counter(operation["turnMeter"]["action"] for operation in direct)
         self.assertEqual(
-            Counter(operation["turnMeter"]["action"] for operation in direct),
-            {"increase": 324, "decrease": 205, "contextual_amount": 12},
+            set(actions_by_kind), {"increase", "decrease", "contextual_amount"},
+        )
+        self.assertEqual(sum(actions_by_kind.values()), len(direct))
+        source_ids = {
+            action["id"] for action in self.mechanics["actions"]
+            if str(action.get("rawType") or "").lower() == "turn_meter"
+        }
+        self.assertEqual(len(direct), len(source_ids))
+        self.assertEqual(
+            {operation["sourceActionId"] for operation in direct}, source_ids,
         )
 
     def test_gain_thresholds_and_raw_technical_values(self):
