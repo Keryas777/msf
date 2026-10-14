@@ -29,7 +29,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: update-msf-capabilities-${{ github.event_name }}-${{ github.ref }}
+  group: msf-capabilities-${{ github.event_name == 'pull_request' && github.workflow || 'publication' }}-${{ github.event_name == 'pull_request' && github.head_ref || 'main' }}
   cancel-in-progress: false
 
 jobs:
@@ -77,7 +77,13 @@ jobs:
               -C data/msf-capabilities/raw
           fi
 
-      - name: Validate catalog and download official JSON files
+      - name: Check whether MagneticZero primary source is available
+        id: primary
+        continue-on-error: true
+        run: python scripts/probe_magneticzero.py
+
+      - name: Validate catalog and download official JSON files (fallback only)
+        if: steps.primary.outcome == 'failure'
         id: sources
         env:
           MSF_DATABASE_BASE64: ${{ inputs.database_base64 }}
@@ -87,9 +93,30 @@ jobs:
           python scripts/update_msf_capabilities.py \
             --database-base64-env MSF_DATABASE_BASE64 \
             --game-version "$MSF_GAME_VERSION" \
-            --game-build "$MSF_GAME_BUILD"
+            --game-build "$MSF_GAME_BUILD" \
+            --allow-magneticzero-fallback
+
+      - name: Rebuild Codex from validated Chrome fallback
+        if: steps.primary.outcome == 'failure' && steps.sources.outputs.changed == 'true'
+        run: |
+          python -m scripts.msf_capabilities_parser.cli
+          python -m scripts.msf_capabilities_normalizer.cli
+          python -m scripts.msf_capabilities_indexer.cli
+          python -m scripts.msf_capabilities_web_publisher.cli
+          python -m scripts.msf_capabilities_explorer_builder.cli
+          python -m unittest discover -s tests -p 'test_msf_capabilities_parser.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_normalizer.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_indexer.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_web_publisher.py' -v
+          python -m unittest discover -s tests -p 'test_msf_capabilities_explorer_builder.py' -v
+          python -m scripts.msf_capabilities_parser.cli --check
+          python -m scripts.msf_capabilities_normalizer.cli --check
+          python -m scripts.msf_capabilities_indexer.cli --check
+          python -m scripts.msf_capabilities_web_publisher.cli --check
+          python -m scripts.msf_capabilities_explorer_builder.cli --check
 
       - name: Commit and push if changed
+        if: steps.primary.outcome == 'failure'
         env:
           MSF_GAME_VERSION: ${{ inputs.game_version }}
         run: |
@@ -98,6 +125,7 @@ jobs:
 
           git rm --ignore-unmatch data/msf-capabilities/bootstrap-sources.tar.gz
           git add data/msf-capabilities/raw data/msf-capabilities/source-manifest.json
+          git add -- docs/data/msf-capabilities docs/data/msf-capabilities-explorer
 
           if git diff --staged --quiet; then
             echo "No MSF capabilities source changes to commit."

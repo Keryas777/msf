@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: rebuild-msf-capabilities
+  group: msf-capabilities-publication-main
   cancel-in-progress: false
 
 jobs:
