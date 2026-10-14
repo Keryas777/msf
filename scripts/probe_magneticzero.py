@@ -7,8 +7,10 @@ import json
 from pathlib import Path
 import re
 import sys
+from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin, urlsplit
 from urllib.request import Request, urlopen
+from time import sleep
 
 HOST = 'msf-datamines.magneticzero.dev'
 ORIGIN = f'https://{HOST}'
@@ -84,15 +86,26 @@ def fetch_page(url):
     uri = urlsplit(url)
     if uri.scheme != 'https' or uri.netloc != HOST:
         raise ProbeError('Unexpected source host')
-    req = Request(url, headers={'Accept':'text/html','User-Agent':'LoSP-MSF-readonly-probe/1.0'})
-    with urlopen(req, timeout=40) as res:
-        final = urlsplit(res.geturl())
-        if res.status != 200 or final.scheme != 'https' or final.netloc != HOST:
-            raise ProbeError('Unexpected HTTP status / redirect')
-        buf = res.read(MAX_SIZE + 1)
-        if len(buf) > MAX_SIZE:
-            raise ProbeError('HTML exceeds 35 MiB')
-        return buf.decode('utf-8')
+    request = Request(url, headers={'Accept':'text/html','User-Agent':'LoSP-MSF-readonly-probe/1.0'})
+    for attempt in range(3):
+        try:
+            with urlopen(request, timeout=40) as res:
+                final = urlsplit(res.geturl())
+                if res.status != 200 or final.scheme != 'https' or final.netloc != HOST:
+                    raise ProbeError('Unexpected HTTP status / redirect')
+                buf = res.read(MAX_SIZE + 1)
+                if len(buf) > MAX_SIZE:
+                    raise ProbeError('HTML exceeds 35 MiB')
+                return buf.decode('utf-8')
+        except HTTPError as error:
+            # Transient CDN/origin responses may recover on the next attempt.
+            if error.code not in {429, 500, 502, 503, 504} or attempt == 2:
+                raise
+        except (URLError, TimeoutError):
+            if attempt == 2:
+                raise
+        sleep(2 ** attempt)
+    raise ProbeError('Retry limit exceeded')
 
 
 def compare(local, remote):
