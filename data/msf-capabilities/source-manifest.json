@@ -1,20 +1,25 @@
 {
+  "updatedAt": "2026-10-14T22:33:26Z",
   "schemaVersion": 1,
-  "updatedAt": "2026-10-08T08:12:45Z",
   "game": {
     "version": "10_6_3",
-    "build": "1674780"
+    "build": "1674780",
+    "versionVerified": false
   },
   "catalog": {
-    "table": "RemoteAssetClientEntry",
-    "resourceCount": 11
+    "table": "MagneticZeroRevisionIndex",
+    "resourceCount": 11,
+    "source": "magneticzero",
+    "gameVersionVerified": false
   },
   "resources": [
     {
       "id": "combat_data/ai_filter.json",
       "file": "raw/ai_filter.json",
-      "url": null,
+      "url": "https://msf-datamines.magneticzero.dev/view/combat_data/ai_filter.json/00d44248fa28406a67b89309e4b982887b419ee6299d831dea30cc093d15491c",
       "sourceGameVersion": null,
+      "sourceType": "magneticzero",
+      "magneticRevision": "00d44248fa28406a67b89309e4b982887b419ee6299d831dea30cc093d15491c",
       "md5": "dc3e6c1cbd5507e48f8b48492bb13d94",
       "sha256": "654b02315f50a3782f06fd56af3e96069eb9f5aed99b006ce89c52bf756ae39f",
       "sizeBytes": 1743
@@ -22,8 +27,10 @@
     {
       "id": "combat_data/ai_selector.json",
       "file": "raw/ai_selector.json",
-      "url": null,
+      "url": "https://msf-datamines.magneticzero.dev/view/combat_data/ai_selector.json/596eba7f3ebac0e9794fa62e6240f127badc4b8c8e975622fb651b5e49be1eae",
       "sourceGameVersion": null,
+      "sourceType": "magneticzero",
+      "magneticRevision": "596eba7f3ebac0e9794fa62e6240f127badc4b8c8e975622fb651b5e49be1eae",
       "md5": "c535c94667f22ec008909e47386c02f2",
       "sha256": "e8f8917b0f32c2f031ecf22fd3a1b04829796ed8c0bcff66e2f8b34b84e36fa0",
       "sizeBytes": 8350
@@ -31,8 +38,10 @@
     {
       "id": "combat_data/battlefield_effects.json",
       "file": "raw/battlefield_effects.json",
-      "url": null,
+      "url": "https://msf-datamines.magneticzero.dev/view/combat_data/battlefield_effects.json/bd56c1fad281beae16be91ec528a6acc2ad605c96b4d1dbac818722588ec3ac6",
       "sourceGameVersion": null,
+      "sourceType": "magneticzero",
+      "magneticRevision": "bd56c1fad281beae16be91ec528a6acc2ad605c96b4d1dbac818722588ec3ac6",
       "md5": "2ab3984b81c2598bafe624d5c6b13631",
       "sha256": "ed8e5508c7a1148bad695da94cb42525ccbec1e255a5a55541ddd710bf1d6faa",
       "sizeBytes": 8430
@@ -40,17 +49,21 @@
     {
       "id": "combat_data/characters.json",
       "file": "raw/characters.json",
-      "url": "https://cdn.m3.scopelypv.com/bulky_rules/combat_data/10_6_0/characters.60a5cfe504b574647b0d524180157f1d.json",
-      "sourceGameVersion": "10_6_0",
-      "md5": "60a5cfe504b574647b0d524180157f1d",
-      "sha256": "52fff760eba94fb3d0319b14f6c41bac7a11baa9f0d6c8558738aad04574e905",
-      "sizeBytes": 3608176
+      "url": "https://msf-datamines.magneticzero.dev/view/combat_data/characters.json/e4608e5ada7deeb162ae33c5e731e95b3b86d2592814a34f4a54424cd6a3ae72",
+      "sourceGameVersion": null,
+      "sourceType": "magneticzero",
+      "magneticRevision": "e4608e5ada7deeb162ae33c5e731e95b3b86d2592814a34f4a54424cd6a3ae72",
+      "md5": "46085e683aff39c58fec818fd7c059f7",
+      "sha256": "3de62c291ad9cd5e271ff916997ecb23a7375cfe073fc1f2a7fc75dbd5fb447c",
+      "sizeBytes": 3627462
     },
     {
       "id": "combat_data/combat_mods.json",
       "file": "raw/combat_mods.json",
-      "url": null,
+      "url": "https://msf-datamines.magneticzero.dev/view/combat_data/combat_mods.json/c34fa24b8351c0a662357a1191a1b6f84b7b1c4e15c5015d967762d644b1c1bd",
       "sourceGameVersion": null,
+      "sourceType": "magneticzero",
+      "magneticRevision": "c34fa24b8351c0a662357a1191a1b6f84b7b1c4e15c5015d967762d644b1c1bd",
       "md5": "bc14932baa42717af78859600ae4f9b8",
       "sha256": "1af0ca0ec357ee1893f6b5a8dd22612e10f840a459e872942ff70976b113fd17",
       "sizeBytes": 64
@@ -58,8 +71,10 @@
     {
       "id": "combat_data/constants.json",
       "file": "raw/constants.json",
-      "url": "https://cdn.m3.scopelypv.com/bulky_rules/combat_data/10_6_0/constants.78e6113f38940fe0fab9ffa58e5ca030.json",
-      "sourceGameVersion": "10_6_0",
+      "url": "https://msf-datamines.magneticzero.dev/view/combat_data/constants.json/32f8ef5c6e0d5fae3a6cadcf19bd865c402ba00629fb06afe76e9bd1efe038b9",
+      "sourceGameVersion": null,
+      "sourceType": "magneticzero",
+      "magneticRevision": "32f8ef5c6e0d5fae3a6cadcf19bd865c402ba00629fb06afe76e9bd1efe038b9",
       "md5": "78e6113f38940fe0fab9ffa58e5ca030",
       "sha256": "692f89c3a420015e4ee5faf339ed27e2c3f3315a6bd4385f2cf7772075a1a813",
       "sizeBytes": 196
@@ -67,8 +82,10 @@
     {
       "id": "combat_data/iso8skills.json",
       "file": "raw/iso8skills.json",
-      "url": "https://cdn.m3.scopelypv.com/bulky_rules/combat_data/10_5_0/iso8skills.7795bde8f005bee4b8f33359ca8d045f.json",
-      "sourceGameVersion": "10_5_0",
+      "url": "https://msf-datamines.magneticzero.dev/view/combat_data/iso8skills.json/e98c93f0f79bcc56487d537b8bfa49e3db549bb1c6a19b32626d2398d4e4f3a6",
+      "sourceGameVersion": null,
+      "sourceType": "magneticzero",
+      "magneticRevision": "e98c93f0f79bcc56487d537b8bfa49e3db549bb1c6a19b32626d2398d4e4f3a6",
       "md5": "7795bde8f005bee4b8f33359ca8d045f",
       "sha256": "28d2e409ba8bad1bccbbbb7fa7c5529f23502219ed24876d7cd9cd97b49d1473",
       "sizeBytes": 14131
@@ -76,17 +93,21 @@
     {
       "id": "combat_data/missiontraits.json",
       "file": "raw/missiontraits.json",
-      "url": "https://cdn.m3.scopelypv.com/bulky_rules/combat_data/10_6_0/missiontraits.357143b330bb3db0236d6a0e9e770777.json",
-      "sourceGameVersion": "10_6_0",
-      "md5": "357143b330bb3db0236d6a0e9e770777",
-      "sha256": "dc576b189b8c0ca2cb5251d7ef75530064ca47a7d446283ad190360022a51387",
-      "sizeBytes": 8754
+      "url": "https://msf-datamines.magneticzero.dev/view/combat_data/missiontraits.json/67030201fc96865561f02dc16183eda798c3baa76cfc91c88435bb56a38cf431",
+      "sourceGameVersion": null,
+      "sourceType": "magneticzero",
+      "magneticRevision": "67030201fc96865561f02dc16183eda798c3baa76cfc91c88435bb56a38cf431",
+      "md5": "9e741236f7a2a117afb8accfeb309dc1",
+      "sha256": "8045e82029bdb9c0d91973023fef4c5cbd07961cb601c015c98a31b94aeabddc",
+      "sizeBytes": 9702
     },
     {
       "id": "combat_data/overpower_bonuses.json",
       "file": "raw/overpower_bonuses.json",
-      "url": null,
+      "url": "https://msf-datamines.magneticzero.dev/view/combat_data/overpower_bonuses.json/90a2ae0605fdf3ec546acf3cc2f9a1dcb72807214158bfc0eadbf1144d20311d",
       "sourceGameVersion": null,
+      "sourceType": "magneticzero",
+      "magneticRevision": "90a2ae0605fdf3ec546acf3cc2f9a1dcb72807214158bfc0eadbf1144d20311d",
       "md5": "8e3f9b475acb12678659de1ed42f322d",
       "sha256": "eefd7b28ef8edbc6a0b4d283f31673f6eeba105688c063eb0c7418030a853ddb",
       "sizeBytes": 91
@@ -94,8 +115,10 @@
     {
       "id": "combat_data/places.json",
       "file": "raw/places.json",
-      "url": null,
+      "url": "https://msf-datamines.magneticzero.dev/view/combat_data/places.json/86e5ff977b715d18ec66a75cdee3993b77dd47bd63318bf2fe37661c3a3e6f79",
       "sourceGameVersion": null,
+      "sourceType": "magneticzero",
+      "magneticRevision": "86e5ff977b715d18ec66a75cdee3993b77dd47bd63318bf2fe37661c3a3e6f79",
       "md5": "671e28ea2754ccd2e4ec6db12b893880",
       "sha256": "9ecf6d329e93ba8fa4a0d318777adaba880ebc432ee4475c3cd4c5a4b945ad58",
       "sizeBytes": 189
@@ -103,11 +126,13 @@
     {
       "id": "combat_data/procs.json",
       "file": "raw/procs.json",
-      "url": "https://cdn.m3.scopelypv.com/bulky_rules/combat_data/10_6_0/procs.96d5d2688ca71cbea294c156e2d1aaca.json",
-      "sourceGameVersion": "10_6_0",
-      "md5": "96d5d2688ca71cbea294c156e2d1aaca",
-      "sha256": "159c72cae1ab32bdfbf047b6d224aeba9dd9ea62225b3226f60345eafc9e8552",
-      "sizeBytes": 45080
+      "url": "https://msf-datamines.magneticzero.dev/view/combat_data/procs.json/5558f58b3cd27c78c11176d12cfd394b2a350263cd9bd20cfe4618f0f6eb931b",
+      "sourceGameVersion": null,
+      "sourceType": "magneticzero",
+      "magneticRevision": "5558f58b3cd27c78c11176d12cfd394b2a350263cd9bd20cfe4618f0f6eb931b",
+      "md5": "cdd7422910163e3b469ba90e4cdb8e25",
+      "sha256": "b6cdeca8616917a5579cf94a5ff2fe793debc1e9eaf6df99593893ee2b43433e",
+      "sizeBytes": 45171
     }
   ]
 }
