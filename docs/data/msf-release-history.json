@@ -6645,11 +6645,12 @@
     },
     "2023": {
       "status": "partial",
-      "auditedThrough": "2023-03-31",
+      "auditedThrough": "2023-06-30",
       "startingPlayableRosterCount": 224,
       "dateConvention": "Playable-first dates use historical North American publication/event dates. Exact days are encoded only when first recruitment on that day is supported; a demonstrated latest-by date alone does not fix the first store reset.",
       "auditedPeriods": [
-        "2023-01-01/2023-03-31"
+        "2023-01-01/2023-03-31",
+        "2023-04-01/2023-06-30"
       ],
       "individualReleases": [
         {
@@ -6667,6 +6668,34 @@
           "dateConfidence": "high",
           "notes": [
             "Apocalypse Saga opened March 10; a player explicitly reported unlocking on Friday March 10. First unlock required Heroic / difficulty 2 completion; January reveal and February 6.7 patch were announcements, not recruitment."
+          ]
+        },
+        {
+          "month": "2023-04",
+          "characterId": "Quicksilver",
+          "confidence": "high",
+          "sourceIds": [
+            "blog-apr14",
+            "qs-apr21"
+          ],
+          "date": "2023-04-21",
+          "dateConfidence": "very_high",
+          "releaseMethod": "limited_offer",
+          "notes": [
+            "Official April 14 blog announces first limited shop offers April 21 at 14:00 PDT, before Cosmic Crucible ranking rewards; no Power Core orb. Not a New Warrior or Masters of Evil recruit."
+          ]
+        },
+        {
+          "month": "2023-06",
+          "characterId": "SuperSkrull",
+          "confidence": "high",
+          "sourceIds": [
+            "q2-jun02",
+            "q2-skrull-first"
+          ],
+          "releaseMethod": "dark_dimension",
+          "notes": [
+            "Dark Dimension VI opened June 27; a Community Manager confirmed the first real Super Skrull unlock by player Beta Ray Bill in a June 29 publication. Exact first-clear North American date (June 28 versus June 29) is left unresolved."
           ]
         }
       ],
@@ -6868,24 +6897,24 @@
         {
           "month": "2023-03",
           "teamId": "invaders-70-rollout-2023",
-          "label": "Invaders — 7.0 rollout (partial)",
+          "label": "Invaders — 7.0 rollout (completed)",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "teamSize": 5,
           "members": [
             "NickFury",
             "CaptainAmericaWW2",
-            "UnionJack"
+            "UnionJack",
+            "BuckyBarnes",
+            "IronFistOrson"
           ],
-          "core": [
-            "NickFury",
-            "CaptainAmericaWW2",
-            "UnionJack"
-          ],
+          "core": [],
           "pool": [],
           "newCharacterIds": [
             "CaptainAmericaWW2",
-            "UnionJack"
+            "UnionJack",
+            "BuckyBarnes",
+            "IronFistOrson"
           ],
           "existingCharacterIds": [
             "NickFury"
@@ -6893,14 +6922,12 @@
           "reworkedCharacterIds": [
             "NickFury"
           ],
-          "announcedNext": [
-            "BuckyBarnes",
-            "IronFistOrson"
-          ],
+          "announcedNext": [],
           "notes": [
             "7.0 debuted the Invaders with Nick Fury and four newcomers. Only Captain America (WWII) and Union Jack have demonstrated March recruitability.",
             "Bucky Barnes and Iron Fist (WWII) remain announcedNext for April and must not be charged to Q1; the future Q2 audit must complete this same teamEvent.",
-            "S.H.I.E.L.D. Security and Operative are independently playable minions reworked alongside Fury, but are not members of the five official Invaders; recorded in separate support/faction event."
+            "S.H.I.E.L.D. Security and Operative are independently playable minions reworked alongside Fury, but are not members of the five official Invaders; recorded in separate support/faction event.",
+            "One March–April Invaders rollout: March Captain America (WWII), Union Jack and Nick Fury rework remain in Q1; Bucky Barnes and Iron Fist (WWII) first recruitable in April complete the team."
           ],
           "characterReleases": [
             {
@@ -6932,6 +6959,32 @@
               "notes": [
                 "Paid 3-star unlock offer documented on March 26, prior to April Freedom Fighters and Rule Britannia. Five free shards on March 24 alone prove no unlock."
               ]
+            },
+            {
+              "month": "2023-04",
+              "characterId": "BuckyBarnes",
+              "confidence": "high",
+              "sourceIds": [
+                "blog-apr07",
+                "blog-apr14"
+              ],
+              "notes": [
+                "Brother in Arms began April 13; this is a proven April shard route, not proof of an exact first paid-offer reset. March availability has not been demonstrated."
+              ]
+            },
+            {
+              "month": "2023-04",
+              "characterId": "IronFistOrson",
+              "confidence": "high",
+              "sourceIds": [
+                "blog-apr07"
+              ],
+              "date": "2023-04-14",
+              "dateConfidence": "very_high",
+              "releaseMethod": "limited_offer; power_core_store",
+              "notes": [
+                "Official April 7 blog specifies initial limited offers and 675 Power Core Immortal Bullet Orb April 14 at 14:00 PDT."
+              ]
             }
           ],
           "reworks": [
@@ -6952,7 +7005,8 @@
             "wwii-mar15",
             "jack-mar26",
             "blog-mar24",
-            "blog-apr14"
+            "blog-apr14",
+            "blog-apr07"
           ],
           "releaseMethods": {
             "CaptainAmericaWW2": "limited_offer; power_core_store",
@@ -6962,22 +7016,23 @@
         {
           "month": "2023-03",
           "teamId": "new-warriors-70-expansion-2023",
-          "label": "New Warriors — 7.0 expansion (partial)",
+          "label": "New Warriors — 7.0/7.1 expansion (completed)",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "teamSize": 5,
           "members": [
             "Deathpool",
             "Cloak",
-            "Dagger"
+            "Dagger",
+            "Firestar",
+            "Gwenpool"
           ],
-          "core": [
-            "Deathpool",
-            "Cloak",
-            "Dagger"
-          ],
+          "core": [],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "Firestar",
+            "Gwenpool"
+          ],
           "existingCharacterIds": [
             "Deathpool",
             "Cloak",
@@ -6988,16 +7043,42 @@
             "Cloak",
             "Dagger"
           ],
-          "announcedNext": [
-            "Firestar",
-            "Gwenpool"
-          ],
+          "announcedNext": [],
           "notes": [
             "The original 2021 New Warriors formation is preserved; this is its distinct March 2023 Crucible Offense expansion, not an initial 2021 team release.",
             "The three pre-existing members were substantively updated in March. Firestar's first official offers/orbs are dated April 28; Gwenpool is a subsequent Q2 newcomer. Neither is counted as a Q1 recruit.",
-            "The future Q2 audit must complete this same expansion event rather than adding April/May duplicates."
+            "The future Q2 audit must complete this same expansion event rather than adding April/May duplicates.",
+            "One March–May 2023 New Warriors expansion: March Deathpool/Cloak/Dagger substantial changes retained in Q1; Firestar April and Gwenpool May complete the five-character Cosmic Crucible offense lineup."
           ],
-          "characterReleases": [],
+          "characterReleases": [
+            {
+              "month": "2023-04",
+              "characterId": "Firestar",
+              "confidence": "high",
+              "sourceIds": [
+                "blog-apr21"
+              ],
+              "date": "2023-04-28",
+              "dateConfidence": "very_high",
+              "releaseMethod": "limited_offer; power_core_store",
+              "notes": [
+                "April 21 Scopely blog schedules first offers and 675-core Light It Up Orb for April 28, preceding May Solar Flare events."
+              ]
+            },
+            {
+              "month": "2023-05",
+              "characterId": "Gwenpool",
+              "confidence": "high",
+              "sourceIds": [
+                "blog-apr21",
+                "q2-may19",
+                "q2-notes-71"
+              ],
+              "notes": [
+                "Gwenpool recruited in May; May 23 Out of This World milestone provided sufficient unlock shards, but earlier paid availability cannot be excluded; no first-sale day is asserted."
+              ]
+            }
+          ],
           "reworks": [
             {
               "month": "2023-03",
@@ -7033,7 +7114,9 @@
           "confidence": "high",
           "sourceIds": [
             "notes-70",
-            "blog-apr21"
+            "blog-apr21",
+            "q2-notes-71",
+            "q2-may19"
           ]
         },
         {
@@ -7104,14 +7187,13 @@
           "teamId": "scarlet-witch-quicksilver-70-2023",
           "label": "Scarlet Witch / Quicksilver synergy — 7.0",
           "kind": "duo",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "teamSize": 2,
           "members": [
-            "ScarletWitch"
+            "ScarletWitch",
+            "Quicksilver"
           ],
-          "core": [
-            "ScarletWitch"
-          ],
+          "core": [],
           "pool": [],
           "newCharacterIds": [],
           "existingCharacterIds": [
@@ -7120,13 +7202,12 @@
           "reworkedCharacterIds": [
             "ScarletWitch"
           ],
-          "announcedNext": [
-            "Quicksilver"
-          ],
+          "announcedNext": [],
           "notes": [
             "Not a new full team: a documented two-character synergy update. Scarlet Witch is an existing playable character, reworked in March.",
             "Quicksilver was only advertised in 7.0; Crucible shard availability arrived in April and is excluded from Q1.",
-            "This duo record does not reassign Quicksilver's Q2 recruit to March."
+            "This duo record does not reassign Quicksilver's Q2 recruit to March.",
+            "Quicksilver first became recruitable April 21 via limited offers, counted exactly once in individualReleases; the March Scarlet Witch rework stays in Q1 and this duo receives no duplicate newCharacterIds."
           ],
           "characterReleases": [],
           "reworks": [
@@ -7145,7 +7226,288 @@
           "sourceIds": [
             "notes-70",
             "qs-apr07",
-            "qs-apr21"
+            "qs-apr21",
+            "blog-apr14"
+          ]
+        },
+        {
+          "month": "2023-05",
+          "teamId": "knowhere-71-rollout-2023",
+          "label": "Knowhere — 7.1 rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Nova",
+            "Korg",
+            "Cosmo",
+            "StarLord_Annihilation",
+            "Thor_InfinityWar"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Nova",
+            "Korg",
+            "Cosmo",
+            "StarLord_Annihilation",
+            "Thor_InfinityWar"
+          ],
+          "existingCharacterIds": [],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [
+            "A single May–June Knowhere rollout; the five members are new recruits but do not all have May first-availability dates.",
+            "Nova Trial started May 18 with immediate three-star unlock at 550,000 points confirmed by community manager and players; opening of the Trial alone was not counted as unlock.",
+            "Five free Cosmo shards claimed June 2 are insufficient for unlock; June recruitment is confirmed by subsequent campaign/core-orb availability.",
+            "Thor (Infinity War) core orbs were used by players in June; the first precise store-reset day is not securely established."
+          ],
+          "characterReleases": [
+            {
+              "month": "2023-05",
+              "characterId": "Nova",
+              "confidence": "high",
+              "sourceIds": [
+                "q2-nova-may12",
+                "q2-nova-may16",
+                "q2-nova-may18"
+              ],
+              "date": "2023-05-18",
+              "dateConfidence": "very_high",
+              "releaseMethod": "trial",
+              "notes": [
+                "First Nova Trial opened May 18 and players unlocked Nova at 550,000 points during the same day's Trial, not merely at later ranking payout."
+              ]
+            },
+            {
+              "month": "2023-05",
+              "characterId": "Korg",
+              "confidence": "high",
+              "sourceIds": [
+                "q2-may19"
+              ],
+              "date": "2023-05-22",
+              "dateConfidence": "very_high",
+              "releaseMethod": "limited_offer; power_core_store",
+              "notes": [
+                "May 19 official blog gives first special offers and 675-core Rock Warrior Orb for May 22, 14:00 PDT."
+              ]
+            },
+            {
+              "month": "2023-06",
+              "characterId": "Cosmo",
+              "confidence": "high",
+              "sourceIds": [
+                "q2-jun02"
+              ],
+              "notes": [
+                "To Infinity Event Campaign began June 6; initial five free shards June 2 alone did not unlock Cosmo; earlier paid/core-orb first date is unresolved."
+              ]
+            },
+            {
+              "month": "2023-06",
+              "characterId": "StarLord_Annihilation",
+              "confidence": "high",
+              "sourceIds": [
+                "q2-jun02"
+              ],
+              "date": "2023-06-08",
+              "dateConfidence": "very_high",
+              "releaseMethod": "limited_offer; power_core_store",
+              "notes": [
+                "Official June 2 blog schedules initial special offers and Elemental Gunslinger Orb (675 Power Cores) for June 8 at 14:00 PDT."
+              ]
+            },
+            {
+              "month": "2023-06",
+              "characterId": "Thor_InfinityWar",
+              "confidence": "high",
+              "sourceIds": [
+                "q2-thor-jun20",
+                "q2-notes-71"
+              ],
+              "releaseMethod": "power_core_store",
+              "notes": [
+                "Contemporary players purchased Thor (Infinity War) character shards via 675-core orbs by June 20, before later June 26 milestones. First availability day not demonstrated."
+              ]
+            }
+          ],
+          "reworks": [],
+          "sourceIds": [
+            "q2-notes-71",
+            "q2-nova-may12",
+            "q2-nova-may16",
+            "q2-nova-may18",
+            "q2-may19",
+            "q2-jun02",
+            "q2-thor-jun20"
+          ]
+        },
+        {
+          "month": "2023-06",
+          "teamId": "bifrost-72-rollout-2023",
+          "label": "Bifrost — 7.2 rollout (partial through June)",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Loki",
+            "Vahl"
+          ],
+          "core": [
+            "Loki",
+            "Vahl"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Vahl"
+          ],
+          "existingCharacterIds": [
+            "Loki"
+          ],
+          "reworkedCharacterIds": [
+            "Loki"
+          ],
+          "announcedNext": [
+            "Sylvie",
+            "BetaRayBill",
+            "LokiTeen"
+          ],
+          "notes": [
+            "7.2 June 21 announced all five Bifrost members; only Vahl first recruitability is evidenced in June, whereas Beta Ray Bill first shards arrive July 14 and the other new members also belong to later rollout months.",
+            "Original Loki underwent major multi-stat/multi-ability rework on June 7.2 patch; this is distinct from announced future recruits.",
+            "One June–July team rollout; T3 must add Sylvie, Beta Ray Bill and Loki (Teen) here, not create a second annual teamEvent."
+          ],
+          "characterReleases": [
+            {
+              "month": "2023-06",
+              "characterId": "Vahl",
+              "confidence": "high",
+              "sourceIds": [
+                "q2-notes-72",
+                "q2-vahl-jun29",
+                "q2-vahl-jun30"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "notes": [
+                "Contemporary June 29/30 players already owned Vahl via purchases and core orbs; first store-reset day unverified, so no exact date. July event is not the first recruitment."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2023-06",
+              "characterId": "Loki",
+              "sourceIds": [
+                "q2-notes-72",
+                "q2-notes-72-repost"
+              ],
+              "notes": [
+                "7.2 large increases (Health +115%, Damage +58%, Armor +163%, Focus +4%, Resist +48%) and several new Bifrost synergies/capability effects; substantive rework effective June."
+              ]
+            }
+          ],
+          "sourceIds": [
+            "q2-notes-72",
+            "q2-notes-72-repost",
+            "q2-vahl-jun29",
+            "q2-vahl-jun30",
+            "q2-jul07"
+          ]
+        },
+        {
+          "month": "2023-06",
+          "teamId": "infestation-72-rollout-2023",
+          "label": "Infestation — 7.2 rollout (partial through June)",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "BlackWidow",
+            "AntMan",
+            "Swarm",
+            "Yellowjacket"
+          ],
+          "core": [
+            "BlackWidow",
+            "AntMan",
+            "Swarm",
+            "Yellowjacket"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "BlackWidow",
+            "AntMan",
+            "Swarm",
+            "Yellowjacket"
+          ],
+          "reworkedCharacterIds": [
+            "BlackWidow",
+            "AntMan",
+            "Swarm",
+            "Yellowjacket"
+          ],
+          "announcedNext": [
+            "SpiderManBigTime"
+          ],
+          "notes": [
+            "The four existing Infestation members gained major stats and multiple War Defense/Infestation skill and team-synergy changes with June 21 version 7.2.",
+            "Spider-Man (Big Time) shards were scheduled for Raid Season rewards beginning June 25, but that did not mean players could already claim enough to unlock him in June; first payout/unlock evidence points to July.",
+            "Do not count Spider-Man (Big Time) as a June release merely from patch presence or future season rewards. T3 should complete this same event."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2023-06",
+              "characterId": "BlackWidow",
+              "sourceIds": [
+                "q2-notes-72",
+                "q2-notes-72-repost"
+              ],
+              "notes": [
+                "7.2 substantive stats/ability changes with new Infestation synergy and Alliance War Defense role."
+              ]
+            },
+            {
+              "month": "2023-06",
+              "characterId": "AntMan",
+              "sourceIds": [
+                "q2-notes-72",
+                "q2-notes-72-repost"
+              ],
+              "notes": [
+                "7.2 significant base stats and multi-ability updates for Infestation War Defense."
+              ]
+            },
+            {
+              "month": "2023-06",
+              "characterId": "Swarm",
+              "sourceIds": [
+                "q2-notes-72",
+                "q2-notes-72-repost"
+              ],
+              "notes": [
+                "7.2 substantial base stat and ability rework, especially Infestation War Defense synergies."
+              ]
+            },
+            {
+              "month": "2023-06",
+              "characterId": "Yellowjacket",
+              "sourceIds": [
+                "q2-notes-72",
+                "q2-notes-72-repost"
+              ],
+              "notes": [
+                "7.2 substantial base stat and multi-ability rework with Infestation War Defense effects."
+              ]
+            }
+          ],
+          "sourceIds": [
+            "q2-notes-72",
+            "q2-notes-72-repost",
+            "q2-jun23",
+            "q2-jul10-spidey"
           ]
         }
       ],
@@ -7386,16 +7748,125 @@
           "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/12e9haa/",
           "publicationDate": "2023-04-07",
           "type": "contemporary"
+        },
+        {
+          "id": "q2-notes-71",
+          "title": "Version 7.1.0 release notes",
+          "url": "https://marvelstrikeforce.com/updates/release-notes-7-1-0",
+          "publicationDate": "2023-05-10",
+          "type": "official"
+        },
+        {
+          "id": "q2-nova-may12",
+          "title": "NOVA! — Nova Trials beginning May 18",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-5-12-23",
+          "publicationDate": "2023-05-12",
+          "type": "official"
+        },
+        {
+          "id": "q2-nova-may16",
+          "title": "Nova Trial immediate 550,000-point unlock clarification",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/13jgj2z/",
+          "publicationDate": "2023-05-16",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q2-nova-may18",
+          "title": "Contemporary players unlocking Nova during first Trial",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/13ldbj6/",
+          "publicationDate": "2023-05-18",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q2-may19",
+          "title": "Rockin' Out of this World — Korg offers and Gwenpool milestone",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-5-19-23",
+          "publicationDate": "2023-05-19",
+          "type": "official"
+        },
+        {
+          "id": "q2-jun02",
+          "title": "Super Skrull and Dark Dimension VI Celebration — Cosmo, Star-Lord (Annihilation), DDVI",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-6-2-23",
+          "publicationDate": "2023-06-02",
+          "type": "official"
+        },
+        {
+          "id": "q2-thor-jun20",
+          "title": "Contemporary discussion of Thor (Infinity War) power-core orb purchases",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/14ek8i8/",
+          "publicationDate": "2023-06-20",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q2-notes-72",
+          "title": "Version 7.2.0 release notes",
+          "url": "https://marvelstrikeforce.com/updates/release-notes-7-2-0",
+          "publicationDate": "2023-06-21",
+          "type": "official"
+        },
+        {
+          "id": "q2-notes-72-repost",
+          "title": "Contemporary CM repost of version 7.2.0 release notes",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/14fgfok/",
+          "publicationDate": "2023-06-21",
+          "type": "official_repost"
+        },
+        {
+          "id": "q2-jun23",
+          "title": "Blog update June 23 — Spider-Man (Big Time) Raid Season reward schedule",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-6-23-23",
+          "publicationDate": "2023-06-23",
+          "type": "official"
+        },
+        {
+          "id": "q2-skrull-first",
+          "title": "Official Community Manager confirms first Super Skrull unlock by Beta Ray Bill",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/14lqsan/",
+          "publicationDate": "2023-06-29",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q2-vahl-jun29",
+          "title": "Contemporary Vahl ownership, initial offers and core-orbs discussion",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/14mh4jr/",
+          "publicationDate": "2023-06-29",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q2-vahl-jun30",
+          "title": "Contemporary Vahl unlock and availability discussion",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/14n874v/",
+          "publicationDate": "2023-06-30",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q2-jul07",
+          "title": "July 7 blog announcing first Beta Ray Bill shards on July 14",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-7-7-23",
+          "publicationDate": "2023-07-07",
+          "type": "official"
+        },
+        {
+          "id": "q2-jul10-spidey",
+          "title": "July contemporary players awaiting Big Time Raid season payout / unlock",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/14vw76m/",
+          "publicationDate": "2023-07-10",
+          "type": "contemporary_community"
         }
       ],
       "validation": {
-        "auditedPeriod": "2023-01-01/2023-03-31",
-        "individualReleaseCount": 1,
-        "teamEventNewCharacterCount": 8,
-        "distinctPlayableReleaseCount": 9,
-        "distinctReworkedCharacterCount": 8,
-        "quarterEndPlayableRosterCount": 233,
-        "duplicatesAcrossReleaseBuckets": []
+        "auditedPeriod": "2023-01-01/2023-06-30",
+        "individualReleaseCount": 3,
+        "teamEventNewCharacterCount": 18,
+        "distinctPlayableReleaseCount": 21,
+        "distinctReworkedCharacterCount": 13,
+        "quarterEndPlayableRosterCount": 245,
+        "duplicatesAcrossReleaseBuckets": [],
+        "q2DistinctPlayableReleaseCount": 12,
+        "q2DistinctReworkedCharacterCount": 5,
+        "q2StartingPlayableRosterCount": 233,
+        "q2EndPlayableRosterCount": 245
       }
     },
     "2026": {
