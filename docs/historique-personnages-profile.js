@@ -100,3 +100,106 @@
       state.loadingRanking = false;
     }
   }
+
+  function selectTab(state, name) {
+    if (!alive(state)) return;
+    state.root.querySelectorAll("[data-profile-tab]").forEach(button => {
+      const active = button.dataset.profileTab === name;
+      button.setAttribute("aria-selected", String(active));
+      button.tabIndex = active ? 0 : -1;
+    });
+    state.root.querySelectorAll("[data-profile-panel]").forEach(panel => {
+      panel.hidden = panel.dataset.profilePanel !== name;
+    });
+    if (name === "players") loadRanking(state);
+  }
+
+  async function loadCodex(state) {
+    try {
+      const shard = await codex.getShard(state.record.id);
+      if (!alive(state)) return;
+      state.root.querySelector("#profile-identity-traits").innerHTML = codex.renderTraits(shard);
+      state.root.querySelector("#profile-abilities-content").innerHTML = codex.renderAbilities(shard);
+    } catch (error) {
+      if (!alive(state)) return;
+      console.warn("[personnages] Codex :", error);
+      state.root.querySelector("#profile-identity-traits").innerHTML =
+        "<p class=\"detailEmpty\">Tags officiels indisponibles actuellement.</p>";
+      state.root.querySelector("#profile-abilities-content").innerHTML =
+        "<p class=\"detailEmpty\">Capacités indisponibles actuellement. Réessaie en rouvrant la fiche.</p>";
+    }
+  }
+
+  function attach(record, root) {
+    close();
+    if (!record || !root) return;
+    const hero = root.querySelector(".detailHero");
+    const facts = root.querySelector(".detailGrid");
+    const historySection = root.querySelector(".detailSection");
+    if (!hero || !facts || !historySection) return;
+    const state = { record, root, token: ++token, ranking: null, loadingRanking: false };
+    current = state;
+    const release = record.release?.temporal?.label || "Date non encore auditée";
+    const tabs = document.createElement("div");
+    tabs.className = "profileTabs";
+    tabs.setAttribute("role", "tablist");
+    tabs.setAttribute("aria-label", "Rubriques du personnage");
+    tabs.innerHTML = [
+      ["identity", "Identité"], ["players", "Joueurs"],
+      ["abilities", "Capacités"], ["history", "Historique"]
+    ].map(([id, text]) => "<button type=\"button\" role=\"tab\" data-profile-tab=\"" +
+      id + "\" aria-controls=\"profile-panel-" + id + "\" aria-selected=\"false\">" +
+      text + "</button>").join("");
+
+    const container = document.createElement("div");
+    container.innerHTML =
+      "<section class=\"profilePanel\" id=\"profile-panel-identity\" role=\"tabpanel\" data-profile-panel=\"identity\">" +
+      "<div class=\"profileIdentitySummary\"><div><span>Sortie jouable</span><strong>" + esc(release) +
+      "</strong></div><div><span>Reworks documentés</span><strong>" +
+      numberFr.format(record.reworks?.length || 0) + "</strong></div></div>" +
+      "<h3>Tags officiels</h3><div id=\"profile-identity-traits\" class=\"profileTraitGroups\">" +
+      "<p class=\"detailEmpty\">Chargement des tags…</p></div>" +
+      "<p class=\"profileSmallNote\">Les dates reflètent uniquement les années auditées. " +
+      "L'équipement unique sera intégré lorsqu'une source officielle fiable aura été identifiée.</p>" +
+      "<a class=\"profileCodexLink\" href=\"" + codex.link("character", record.id) +
+      "\">Fiche technique dans le Codex →</a></section>" +
+      "<section class=\"profilePanel\" id=\"profile-panel-players\" role=\"tabpanel\" data-profile-panel=\"players\" hidden>" +
+      "<h3>Classement LoSP</h3><p class=\"profileSmallNote\">Membres actuels du groupement, par puissance décroissante, d'après leurs derniers rosters disponibles.</p>" +
+      "<div id=\"profile-player-filters\" hidden><div class=\"profileFiltersTitle\"><strong>Filtrer les alliances</strong>" +
+      "<button type=\"button\" id=\"profile-toggle-all\">Tout décocher</button></div>" +
+      "<div id=\"profile-alliance-filters\" class=\"profileAllianceFilters\" role=\"group\" aria-label=\"Filtrer par alliance\"></div></div>" +
+      "<div id=\"profile-player-count\" class=\"profilePlayerCount\" aria-live=\"polite\"></div>" +
+      "<div id=\"profile-player-list\" class=\"profilePlayerList\"><p class=\"detailEmpty\">Chargement des rosters…</p></div></section>" +
+      "<section class=\"profilePanel\" id=\"profile-panel-abilities\" role=\"tabpanel\" data-profile-panel=\"abilities\" hidden>" +
+      "<h3>Capacités</h3><p class=\"profileSmallNote\">Descriptions officielles françaises au niveau maximum publié. " +
+      "Les mécaniques déjà interprétées restent consultables dans le Codex.</p>" +
+      "<div id=\"profile-abilities-content\"><p class=\"detailEmpty\">Chargement des capacités…</p></div></section>" +
+      "<section class=\"profilePanel\" id=\"profile-panel-history\" role=\"tabpanel\" data-profile-panel=\"history\" hidden></section>";
+
+    hero.after(tabs, container);
+    container.querySelector("#profile-panel-history").append(facts, historySection);
+    tabs.addEventListener("click", event => {
+      const button = event.target.closest("button[data-profile-tab]");
+      if (button) selectTab(state, button.dataset.profileTab);
+    });
+    tabs.addEventListener("keydown", event => {
+      if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+      const buttons = [...tabs.querySelectorAll("button[data-profile-tab]")];
+      const index = buttons.indexOf(document.activeElement);
+      if (index < 0) return;
+      event.preventDefault();
+      const next = buttons[(index + (event.key === "ArrowRight" ? 1 : -1) + buttons.length) % buttons.length];
+      next.focus();
+      selectTab(state, next.dataset.profileTab);
+    });
+    selectTab(state, "identity");
+    loadCodex(state);
+  }
+
+  function close() {
+    current = null;
+    ++token; // Annule logiquement les chargements asynchrones des anciennes fiches.
+  }
+
+  window.LoSPCharacterProfiles = Object.freeze({ attach, close });
+})();
