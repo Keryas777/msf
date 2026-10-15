@@ -9248,6 +9248,606 @@
         "q4EndPlayableRosterCount": 266
       }
     },
+    "2024": {
+      "status": "partial",
+      "auditedThrough": "2024-03-31",
+      "dateConvention": "Scopely's North American PST/PDT event date; exact date only when first offers/orbs or actual unlock are documented.",
+      "auditedPeriods": [
+        "2024-01-01/2024-03-31"
+      ],
+      "individualReleases": [],
+      "teamEvents": [
+        {
+          "month": "2024-01",
+          "teamId": "x-treme-x-men-2023-2024-rollout-2024",
+          "label": "X-Treme X-Men — 2024 completion (Sunspot)",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Nightcrawler",
+            "Forge",
+            "Sunspot",
+            "Cyclops",
+            "Gambit"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Sunspot"
+          ],
+          "existingCharacterIds": [
+            "Nightcrawler",
+            "Forge",
+            "Cyclops",
+            "Gambit"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [
+            "Year-boundary slice of one original X-Treme X-Men rollout. Nightcrawler and Forge were recruitable in December 2023; Cyclops and Gambit were existing characters substantially reworked for the December 2023 7.6 rollout. None is counted as newly released or newly reworked in 2024.",
+            "The December 2023 portion is deliberately not fabricated while T4 2023 remains unaudited; the shared rolloutId/rolloutLabel is the stable connection for that future annual slice."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "Sunspot",
+              "month": "2024-01",
+              "date": "2024-01-04",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "xdec29"
+              ],
+              "notes": [
+                "Initial 675-core Vitamin D Orb and offers begin January 4, per the December 29 official blog; this is the actual first recruitable day, not the later event campaign."
+              ]
+            }
+          ],
+          "reworks": [],
+          "confidence": "high",
+          "sourceIds": [
+            "x760",
+            "xdec08",
+            "xdec15",
+            "xdec29"
+          ],
+          "rolloutId": "x-treme-x-men-2023-2024-rollout",
+          "rolloutLabel": "X-Treme X-Men",
+          "releaseMethods": {
+            "Sunspot": "limited_offer; power_core_store"
+          }
+        },
+        {
+          "month": "2024-01",
+          "teamId": "hive-mind-76-77-rollout-2024",
+          "label": "Hive-Mind — January–February 2024 rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Venom",
+            "Carnage",
+            "SymbioteSilverSurfer",
+            "Gwenom",
+            "RedGoblin"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "SymbioteSilverSurfer",
+            "Gwenom",
+            "RedGoblin"
+          ],
+          "existingCharacterIds": [
+            "Venom",
+            "Carnage"
+          ],
+          "reworkedCharacterIds": [
+            "Venom",
+            "Carnage"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "Single original Hive-Mind rollout from January through February, not a separate event for Red Goblin.",
+            "Two existing Symbiotes receive a fresh substantive Hive-Mind upgrade; the December 7.6 advance mention does not justify shifting an unproven effective date into 2023."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "SymbioteSilverSurfer",
+              "month": "2024-01",
+              "date": "2024-01-16",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "jan12"
+              ],
+              "notes": [
+                "Void Knight is stored under the official internal ID SymbioteSilverSurfer, not VoidKnight or nonplayable Void. Living Corruption 675-core orb and instantly unlockable offers started January 16."
+              ]
+            },
+            {
+              "characterId": "Gwenom",
+              "month": "2024-01",
+              "date": "2024-01-26",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "jan19"
+              ],
+              "notes": [
+                "The January 19 official blog announced initial recruitability January 26; this predates later Gwenom milestones and passes."
+              ]
+            },
+            {
+              "characterId": "RedGoblin",
+              "month": "2024-02",
+              "date": "2024-02-08",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "feb02",
+                "notes77"
+              ],
+              "notes": [
+                "First February 8 Red Goblin offers and 675-core character orb precede the Seeing Red/Paint the Town Red February events. Do not use the later free milestone as first release."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "Venom",
+              "month": "2024-01",
+              "sourceIds": [
+                "jan12",
+                "x760"
+              ],
+              "notes": [
+                "Substantial Hive-Mind update: base Health +68%, Damage +80%, Armor +35%, Focus +62%, Resistance +53%, Speed +15%, plus multiple revised abilities. January is supported; the precise live reset of these stats is not proven."
+              ]
+            },
+            {
+              "characterId": "Carnage",
+              "month": "2024-01",
+              "sourceIds": [
+                "jan12",
+                "x760"
+              ],
+              "notes": [
+                "Substantial Hive-Mind update: base Health +56%, Damage +89%, Armor +35%, Focus +49%, Resistance +53%, plus multiple revised abilities. The 7.6 December notes are not by themselves proof these later detailed kits were already live in December."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "x760",
+            "jan12",
+            "jan19",
+            "feb02",
+            "notes77"
+          ],
+          "releaseMethods": {
+            "SymbioteSilverSurfer": "limited_offer; power_core_store",
+            "Gwenom": "limited_offer; power_core_store",
+            "RedGoblin": "limited_offer; power_core_store"
+          }
+        },
+        {
+          "month": "2024-02",
+          "teamId": "out-of-time-77-rollout-2024",
+          "label": "Out of Time — February–March 2024 rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "CaptainAmerica",
+            "CaptainCarter",
+            "BlackKnight",
+            "StarBrand",
+            "CosmicGhostRider"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "BlackKnight",
+            "StarBrand",
+            "CosmicGhostRider"
+          ],
+          "existingCharacterIds": [
+            "CaptainAmerica",
+            "CaptainCarter"
+          ],
+          "reworkedCharacterIds": [
+            "CaptainAmerica",
+            "CaptainCarter"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "One original Out of Time rollout starts with Black Knight in February and completes with Cosmic Ghost Rider in March.",
+            "Captain America and Captain Carter predate this team; no additional new characters are created for their 2024 reworks."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "BlackKnight",
+              "month": "2024-02",
+              "date": "2024-02-16",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "feb09"
+              ],
+              "notes": [
+                "First February 16 Black Knight character orb (675 Power Cores) and instantly recruitable offers, separate from later events."
+              ]
+            },
+            {
+              "characterId": "StarBrand",
+              "month": "2024-02",
+              "date": "2024-02-26",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "feb23"
+              ],
+              "notes": [
+                "Starbrand initial orb and offers on February 26, before the March Primordial Avenger event. Exact internal ID is StarBrand."
+              ]
+            },
+            {
+              "characterId": "CosmicGhostRider",
+              "month": "2024-03",
+              "date": "2024-03-05",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "mar01"
+              ],
+              "notes": [
+                "March 5 initial Undying Rider 675-core orb and store offers, before later event milestones. Distinct from original Ghost Rider and Robbie Reyes."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "CaptainAmerica",
+              "month": "2024-02",
+              "sourceIds": [
+                "notes77",
+                "feb09"
+              ],
+              "notes": [
+                "Separate substantive Out of Time war-kit/stat/synergy overhaul, not the earlier 2022–2023 Rebirth overhaul. Exact day the update became effective is not established strongly enough to encode."
+              ]
+            },
+            {
+              "characterId": "CaptainCarter",
+              "month": "2024-02",
+              "sourceIds": [
+                "notes77",
+                "feb09"
+              ],
+              "notes": [
+                "Separate substantive Out of Time upgrade and war-team synergy/kit changes; do not recount her earlier Rebirth release or attribute Rebirth-era changes to this 2024 rework."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "notes77",
+            "feb09",
+            "feb16",
+            "feb23",
+            "mar01"
+          ],
+          "releaseMethods": {
+            "BlackKnight": "limited_offer; power_core_store",
+            "StarBrand": "limited_offer; power_core_store",
+            "CosmicGhostRider": "limited_offer; power_core_store"
+          }
+        },
+        {
+          "month": "2024-03",
+          "teamId": "cabal-2024-03-rollout",
+          "label": "Cabal — March 2024 original three-member team",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 3,
+          "members": [
+            "Namor",
+            "IronPatriot",
+            "TheLeader"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "IronPatriot",
+            "TheLeader"
+          ],
+          "existingCharacterIds": [
+            "Namor"
+          ],
+          "reworkedCharacterIds": [
+            "Namor"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "Cabal's canonical original team size is three. The two additional Villains permitted by some Showcase nodes are flexible non-Cabal combat slots, not extra team members.",
+            "Namor is an existing playable character; he is counted only as a substantial rework, never as a 2024 release."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "IronPatriot",
+              "month": "2024-03",
+              "date": "2024-03-15",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "mar08"
+              ],
+              "notes": [
+                "March 15 first Iron Patriot initial orb/offers, with enough paid fragments for immediate recruitment, as explicitly scheduled in March 8 Scopely blog."
+              ]
+            },
+            {
+              "characterId": "TheLeader",
+              "month": "2024-03",
+              "date": "2024-03-25",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "mar22"
+              ],
+              "notes": [
+                "March 25 first The Leader Gammbitious 675-core orb and paid offers; do not confuse it with later Cabal events."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "Namor",
+              "month": "2024-03",
+              "sourceIds": [
+                "mar08"
+              ],
+              "notes": [
+                "Scopely's March 8 Cabal article explicitly documents +18% Health, +26% Damage, +7% Armor, +31% Focus, +6% Resistance and major revisions to Basic, Special, Ultimate and Passive. Exact production activation day is not proven, so March only."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "mar08",
+            "mar22",
+            "notes80"
+          ],
+          "releaseMethods": {
+            "IronPatriot": "limited_offer; power_core_store",
+            "TheLeader": "limited_offer; power_core_store"
+          }
+        }
+      ],
+      "excludedFrom2024Q1PlayableCount": [
+        {
+          "characterId": "Mephisto",
+          "reason": "Dark Dimension VII opened March 20, but opening a mode or announcing its reward is not an actual playable unlock. First clear/Mephisto acquisition was publicly recognized in early April 2024 (official announcement April 2), outside Q1; exact historical first-clear day intentionally not inferred.",
+          "firstPlayableQuarter": "2024-Q2",
+          "sourceIds": [
+            "mar01",
+            "mar08",
+            "mar15",
+            "apr02dd7"
+          ]
+        },
+        {
+          "characterId": "PeterBParker",
+          "reason": "Spider-Society announced in March, but the first real recruitment cycle belongs to April; neither the 8.0 patch nor borrowed Showcase teams establish a March player unlock.",
+          "firstPlayableQuarter": "2024-Q2",
+          "sourceIds": [
+            "notes80",
+            "mar29",
+            "apr12"
+          ]
+        },
+        {
+          "characterId": "SpiderManPavitr",
+          "reason": "Spider-Society recruitment follows the March announcement during the April rollout; no proven first unlock before March 31.",
+          "firstPlayableQuarter": "2024-Q2",
+          "sourceIds": [
+            "notes80",
+            "mar29",
+            "apr12"
+          ]
+        },
+        {
+          "characterId": "PeniParker",
+          "reason": "Spider-Society Peni Parker first-recruitment sequence belongs to April; do not backdate to March announcement.",
+          "firstPlayableQuarter": "2024-Q2",
+          "sourceIds": [
+            "mar29",
+            "apr19"
+          ]
+        }
+      ],
+      "schemaNotes": [
+        "Spider-Society: March 24–29 sources establish announcement, expected dual origins and described small future Ghost-Spider/Spider-Man (Noir) changes. The March 26 version 8.0.0 patch notes do not establish substantial, already-live base reworks. Therefore no artificial March rollout/rework is created. Q2 audit must assess effective April reworks and extend one Spider-Society rollout rather than duplicate.",
+        "December 2023 X-Treme X-Men members and reworks remain attributed to the future 2023-Q4 audit through stable rolloutId; only Sunspot counts toward Q1 2024.",
+        "The starting playable roster and quarter-end absolute roster remain unknown because 2023 is not audited continuously through 2023-12-31. The 2023 Q3 provisional count must not be reused as the 2024 starting count."
+      ],
+      "sources": [
+        {
+          "id": "x760",
+          "title": "Version 7.6.0 release notes",
+          "url": "https://marvelstrikeforce.com/updates/version-760-release-notes",
+          "publicationDate": "2023-12-13",
+          "type": "official"
+        },
+        {
+          "id": "xdec08",
+          "title": "Weekly Blog: To the X-Treme",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-12-8-23",
+          "publicationDate": "2023-12-08",
+          "type": "official"
+        },
+        {
+          "id": "xdec15",
+          "title": "Weekly Blog: X-Treme Super Showcase",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-12-15-23",
+          "publicationDate": "2023-12-15",
+          "type": "official"
+        },
+        {
+          "id": "xdec29",
+          "title": "Weekly Blog: Sunspot initial availability",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-12-29-23",
+          "publicationDate": "2023-12-29",
+          "type": "official"
+        },
+        {
+          "id": "jan12",
+          "title": "Weekly Blog: Symbiote Surfboard",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-1-12-24",
+          "publicationDate": "2024-01-12",
+          "type": "official"
+        },
+        {
+          "id": "jan19",
+          "title": "Weekly Blog: Along Came a Symbiote",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-1-19-24",
+          "publicationDate": "2024-01-19",
+          "type": "official"
+        },
+        {
+          "id": "feb02",
+          "title": "Weekly Blog: Crimson Cackling",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-2-2-24",
+          "publicationDate": "2024-02-02",
+          "type": "official"
+        },
+        {
+          "id": "notes77",
+          "title": "Version 7.7.0 release notes",
+          "url": "https://marvelstrikeforce.com/updates/release-notes-7-7-0",
+          "publicationDate": "2024-02-06",
+          "type": "official"
+        },
+        {
+          "id": "feb09",
+          "title": "Weekly Blog: Out of Time",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-2-9-24",
+          "publicationDate": "2024-02-09",
+          "type": "official"
+        },
+        {
+          "id": "feb16",
+          "title": "Weekly Blog: Vote in Blood",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-2-16-24",
+          "publicationDate": "2024-02-16",
+          "type": "official"
+        },
+        {
+          "id": "feb23",
+          "title": "Weekly Blog: From T-Rex to Caveman",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-2-23-24",
+          "publicationDate": "2024-02-23",
+          "type": "official"
+        },
+        {
+          "id": "mar01",
+          "title": "Weekly Blog: Ghost Ridin' the Cosmos",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-3-1-24",
+          "publicationDate": "2024-03-01",
+          "type": "official"
+        },
+        {
+          "id": "mar08",
+          "title": "Weekly Blog: The Devil and His Details",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-3-8-24",
+          "publicationDate": "2024-03-08",
+          "type": "official"
+        },
+        {
+          "id": "mar15",
+          "title": "Weekly Blog: Dark Dimension / Mephisto",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-3-15-24",
+          "publicationDate": "2024-03-15",
+          "type": "official"
+        },
+        {
+          "id": "mar22",
+          "title": "Weekly Blog: The Head of Cabal",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-3-22-24",
+          "publicationDate": "2024-03-22",
+          "type": "official"
+        },
+        {
+          "id": "notes80",
+          "title": "Version 8.0.0 release notes",
+          "url": "https://marvelstrikeforce.com/updates/release-notes-8-0-0",
+          "publicationDate": "2024-03-26",
+          "type": "official"
+        },
+        {
+          "id": "mar29",
+          "title": "Weekly Blog: Spider-Society boundary",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-3-29-24",
+          "publicationDate": "2024-03-29",
+          "type": "official"
+        },
+        {
+          "id": "apr02dd7",
+          "title": "Dark Dimension 7 Has Been Conquered",
+          "url": "https://marvelstrikeforce.com/en/updates/dark-dimension-7-has-been-conquered",
+          "publicationDate": "2024-04-02",
+          "type": "official"
+        },
+        {
+          "id": "apr12",
+          "title": "Weekly Blog: Spider-Society",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-4-12-24",
+          "publicationDate": "2024-04-12",
+          "type": "official"
+        },
+        {
+          "id": "apr19",
+          "title": "Weekly Blog: Peni Parker",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-4-19-24",
+          "publicationDate": "2024-04-19",
+          "type": "official"
+        },
+        {
+          "id": "redditspider",
+          "title": "Spider-Society preview, March 26",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce_/comments/1bo7vii/",
+          "publicationDate": "2024-03-26",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "reddit80",
+          "title": "Version 8.0 rollout notice, March 26",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1bokaju/",
+          "publicationDate": "2024-03-26",
+          "type": "contemporary_community"
+        }
+      ],
+      "validation": {
+        "auditedPeriod": "2024-01-01/2024-03-31",
+        "individualReleaseCount": 0,
+        "teamEventNewCharacterCount": 9,
+        "distinctPlayableReleaseCount": 9,
+        "distinctReworkedCharacterCount": 5,
+        "duplicatesAcrossReleaseBuckets": [],
+        "q1DistinctPlayableReleaseCount": 9,
+        "q1DistinctReworkedCharacterCount": 5
+      }
+    },
     "2026": {
       "status": "partial",
       "auditedThrough": "2026-10-05",
