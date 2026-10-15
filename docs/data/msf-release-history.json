@@ -6644,14 +6644,15 @@
       ]
     },
     "2023": {
-      "status": "partial",
-      "auditedThrough": "2023-09-30",
+      "status": "audited",
+      "auditedThrough": "2023-12-31",
       "startingPlayableRosterCount": 224,
       "dateConvention": "Playable-first dates use historical North American publication/event dates. Exact days are encoded only when first recruitment on that day is supported; a demonstrated latest-by date alone does not fix the first store reset.",
       "auditedPeriods": [
         "2023-01-01/2023-03-31",
         "2023-04-01/2023-06-30",
-        "2023-07-01/2023-09-30"
+        "2023-07-01/2023-09-30",
+        "2023-10-01/2023-12-31"
       ],
       "individualReleases": [
         {
@@ -7889,20 +7890,27 @@
         {
           "month": "2023-09",
           "teamId": "pegasus-74-rollout-2023",
-          "label": "P.E.G.A.S.U.S. — 7.4 rollout (partial through September)",
+          "label": "P.E.G.A.S.U.S. — 7.4 rollout (September–October 2023)",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "teamSize": 5,
           "members": [
             "Sybil",
-            "Rescue"
+            "Rescue",
+            "IronManInfinityWar",
+            "IronheartMCU",
+            "Darkhawk"
           ],
           "core": [
             "Sybil",
             "Rescue"
           ],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "IronManInfinityWar",
+            "Darkhawk",
+            "IronheartMCU"
+          ],
           "existingCharacterIds": [
             "Sybil",
             "Rescue"
@@ -7911,17 +7919,59 @@
             "Rescue",
             "Sybil"
           ],
-          "announcedNext": [
-            "IronManInfinityWar",
-            "IronheartMCU",
-            "Darkhawk"
-          ],
+          "announcedNext": [],
           "sourceIds": [
             "q3-notes74",
             "q3-sep19",
-            "q3-pegasus-oct"
+            "q3-pegasus-oct",
+            "q3-sep29",
+            "q4-dark-oct06",
+            "q4-ironheart-oct13"
           ],
-          "characterReleases": [],
+          "characterReleases": [
+            {
+              "month": "2023-10",
+              "characterId": "IronManInfinityWar",
+              "confidence": "high",
+              "sourceIds": [
+                "q3-sep29"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "date": "2023-10-03",
+              "dateConfidence": "high",
+              "notes": [
+                "Official initial release October 3, not October 16 Technology Terror or October 25 Strike Pass."
+              ]
+            },
+            {
+              "month": "2023-10",
+              "characterId": "Darkhawk",
+              "confidence": "high",
+              "sourceIds": [
+                "q4-dark-oct06"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "date": "2023-10-12",
+              "dateConfidence": "high",
+              "notes": [
+                "October 12 first offers plus 675-core character orb, before later events."
+              ]
+            },
+            {
+              "month": "2023-10",
+              "characterId": "IronheartMCU",
+              "confidence": "high",
+              "sourceIds": [
+                "q4-ironheart-oct13"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "date": "2023-10-20",
+              "dateConfidence": "high",
+              "notes": [
+                "October 20 first offers and Next in Line 675-core orb, before November monthly event."
+              ]
+            }
+          ],
           "reworks": [
             {
               "month": "2023-09",
@@ -7947,8 +7997,503 @@
             }
           ],
           "notes": [
-            "September reworks start one 2023 September–October rollout; the three new members remain October-bound and are not charged to Q3."
+            "September reworks start one 2023 September–October rollout; the three new members remain October-bound and are not charged to Q3.",
+            "The September 7.4 Rescue/Kestrel reworks remain September Q3 events and are not recounted as October reworks; October's three recruits complete the same original team rollout."
+          ],
+          "releaseMethods": {
+            "IronManInfinityWar": "limited_offer; power_core_store",
+            "Darkhawk": "limited_offer; power_core_store",
+            "IronheartMCU": "limited_offer; power_core_store"
+          }
+        },
+        {
+          "month": "2023-10",
+          "teamId": "black-order-74-rework-2023",
+          "label": "Black Order — October 2023 substantive rework",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Thanos",
+            "EbonyMaw",
+            "CullObsidian",
+            "CorvusGlaive",
+            "ProximaMidnight"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Thanos",
+            "EbonyMaw",
+            "CullObsidian",
+            "CorvusGlaive",
+            "ProximaMidnight"
+          ],
+          "reworkedCharacterIds": [
+            "Thanos",
+            "EbonyMaw",
+            "CullObsidian",
+            "CorvusGlaive",
+            "ProximaMidnight"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "7.4 Black Order enhancements were announced in September but evidenced in the live game in October; all five original playable members remain existing characters."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2023-10",
+              "characterId": "Thanos",
+              "sourceIds": [
+                "q3-notes74",
+                "q3-blackorder-oct",
+                "q4-bo-oct03-official"
+              ],
+              "notes": [
+                "Multiple stats, abilities and Black Order synergies were substantially adjusted with the October deployment; September announcement does not establish September live activation."
+              ]
+            },
+            {
+              "month": "2023-10",
+              "characterId": "EbonyMaw",
+              "sourceIds": [
+                "q3-notes74",
+                "q3-blackorder-oct",
+                "q4-bo-oct03-official"
+              ],
+              "notes": [
+                "Multiple stats, abilities and Black Order synergies were substantially adjusted with the October deployment; September announcement does not establish September live activation."
+              ]
+            },
+            {
+              "month": "2023-10",
+              "characterId": "CullObsidian",
+              "sourceIds": [
+                "q3-notes74",
+                "q3-blackorder-oct",
+                "q4-bo-oct03-official"
+              ],
+              "notes": [
+                "Multiple stats, abilities and Black Order synergies were substantially adjusted with the October deployment; September announcement does not establish September live activation."
+              ]
+            },
+            {
+              "month": "2023-10",
+              "characterId": "CorvusGlaive",
+              "sourceIds": [
+                "q3-notes74",
+                "q3-blackorder-oct",
+                "q4-bo-oct03-official"
+              ],
+              "notes": [
+                "Multiple stats, abilities and Black Order synergies were substantially adjusted with the October deployment; September announcement does not establish September live activation."
+              ]
+            },
+            {
+              "month": "2023-10",
+              "characterId": "ProximaMidnight",
+              "sourceIds": [
+                "q3-notes74",
+                "q3-blackorder-oct",
+                "q4-bo-oct03-official"
+              ],
+              "notes": [
+                "Multiple stats, abilities and Black Order synergies were substantially adjusted with the October deployment; September announcement does not establish September live activation."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q3-notes74",
+            "q3-blackorder-oct",
+            "q4-bo-oct03-official"
           ]
+        },
+        {
+          "month": "2023-10",
+          "teamId": "undying-2023-zombie-juggernaut-expansion",
+          "label": "Undying — 2023 Juggernaut (Zombie) expansion",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 3,
+          "members": [
+            "Hela",
+            "ZombieIronMan",
+            "ZombieJuggernaut"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "ZombieJuggernaut"
+          ],
+          "existingCharacterIds": [
+            "Hela",
+            "ZombieIronMan"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [
+            "This is a 2023 extension of the already playable Undying duo, not an original 2023 launch of Hela or Iron Man (Zombie).",
+            "Changes to Hela and Iron Man (Zombie) in autumn are not treated as separate substantive reworks absent proof of comparably broad transformations."
+          ],
+          "characterReleases": [
+            {
+              "month": "2023-10",
+              "characterId": "ZombieJuggernaut",
+              "confidence": "high",
+              "sourceIds": [
+                "q4-undying-oct20",
+                "q4-undying-oct27",
+                "q4-undying-unlock-debate"
+              ],
+              "notes": [
+                "October 29 initial offers and October 30 Unstoppable Undead event are documented, but limited quantities make October 29 as the first complete unlock unproven; only October is asserted."
+              ]
+            }
+          ],
+          "reworks": [],
+          "confidence": "high",
+          "sourceIds": [
+            "q4-undying-oct20",
+            "q4-undying-oct27",
+            "q4-undying-unlock-debate"
+          ]
+        },
+        {
+          "month": "2023-10",
+          "teamId": "superior-six-75-rollout-2023",
+          "label": "Superior Six — 7.5 rollout (October–December 2023)",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "DoctorOctopus",
+            "GreenGoblinGlider",
+            "KravenTheHunter",
+            "Lizard",
+            "SpiderSlayer"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "KravenTheHunter",
+            "GreenGoblinGlider",
+            "SpiderSlayer",
+            "Lizard"
+          ],
+          "existingCharacterIds": [
+            "DoctorOctopus"
+          ],
+          "reworkedCharacterIds": [
+            "DoctorOctopus"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "One historical Superior Six rollout anchored to the Doctor Octopus late-October rework, not duplicated for November and December recruit waves.",
+            "Green Goblin (Classic) is GreenGoblinGlider; original Green Goblin UltGreenGoblin is not the new recruit."
+          ],
+          "characterReleases": [
+            {
+              "month": "2023-11",
+              "characterId": "KravenTheHunter",
+              "confidence": "high",
+              "sourceIds": [
+                "q4-kraven-nov04"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "date": "2023-11-08",
+              "dateConfidence": "high",
+              "notes": [
+                "Scopely dated first Kraven offers and 675-core Grim Hunter Orb November 8."
+              ]
+            },
+            {
+              "month": "2023-11",
+              "characterId": "GreenGoblinGlider",
+              "confidence": "high",
+              "sourceIds": [
+                "q4-green-nov10",
+                "q4-green-nov16"
+              ],
+              "releaseMethod": "trial",
+              "date": "2023-11-16",
+              "dateConfidence": "high",
+              "notes": [
+                "First Green Goblin (Classic) Trial began November 16; reaching 550,000 score awarded an immediate 3-star unlock on the first day, before rankings."
+              ]
+            },
+            {
+              "month": "2023-11",
+              "characterId": "SpiderSlayer",
+              "confidence": "high",
+              "sourceIds": [
+                "q4-spiderslayer-nov17"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "date": "2023-11-27",
+              "dateConfidence": "high",
+              "notes": [
+                "November 27 initial offers and 675-core Exterminator Orb, not later store appearances."
+              ]
+            },
+            {
+              "month": "2023-12",
+              "characterId": "Lizard",
+              "confidence": "high",
+              "sourceIds": [
+                "q4-lizard-dec08",
+                "q4-lizard-dec13"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "notes": [
+                "Already purchasable and unlockable through Power Cores before the December 18 Sinister Snowstorm free event; exact initial offer/orb day is unproven."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2023-10",
+              "characterId": "DoctorOctopus",
+              "sourceIds": [
+                "q4-notes75",
+                "q4-sinister-oct",
+                "q4-sinister-nov"
+              ],
+              "notes": [
+                "7.5 significant stats and multi-ability changes added Sinister/Superior Six interactions; rollout began with optional late-October patch ahead of mandatory November 1 update."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q4-notes75",
+            "q4-sinister-oct",
+            "q4-kraven-nov04",
+            "q4-green-nov10",
+            "q4-spiderslayer-nov17",
+            "q4-lizard-dec13"
+          ]
+        },
+        {
+          "month": "2023-10",
+          "teamId": "sinister-six-75-veteran-reworks-2023",
+          "label": "Sinister Six — 7.5 veteran reworks",
+          "kind": "faction",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 5,
+          "members": [
+            "DoctorOctopus",
+            "Vulture",
+            "Electro",
+            "Mysterio",
+            "Rhino",
+            "Shocker"
+          ],
+          "core": [
+            "DoctorOctopus"
+          ],
+          "pool": [
+            "Vulture",
+            "Electro",
+            "Mysterio",
+            "Rhino",
+            "Shocker"
+          ],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "DoctorOctopus",
+            "Vulture",
+            "Electro",
+            "Mysterio",
+            "Rhino",
+            "Shocker"
+          ],
+          "reworkedCharacterIds": [
+            "Vulture",
+            "Electro",
+            "Mysterio",
+            "Rhino",
+            "Shocker"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "This records the veteran Sinister Six playable reworks as a flexible faction pool, not a second Superior Six rollout.",
+            "Doctor Octopus participates as an existing context member only; his 2023 rework is recorded exactly once in the Superior Six event."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2023-10",
+              "characterId": "Vulture",
+              "sourceIds": [
+                "q4-notes75",
+                "q4-sinister-oct",
+                "q4-sinister-nov"
+              ],
+              "notes": [
+                "7.5 substantive stat, multi-ability and Sinister/Superior Six War/Crucible synergy improvements were rolled out in the late-October client update."
+              ]
+            },
+            {
+              "month": "2023-10",
+              "characterId": "Electro",
+              "sourceIds": [
+                "q4-notes75",
+                "q4-sinister-oct",
+                "q4-sinister-nov"
+              ],
+              "notes": [
+                "7.5 substantive stat, multi-ability and Sinister/Superior Six War/Crucible synergy improvements were rolled out in the late-October client update."
+              ]
+            },
+            {
+              "month": "2023-10",
+              "characterId": "Mysterio",
+              "sourceIds": [
+                "q4-notes75",
+                "q4-sinister-oct",
+                "q4-sinister-nov"
+              ],
+              "notes": [
+                "7.5 substantive stat, multi-ability and Sinister/Superior Six War/Crucible synergy improvements were rolled out in the late-October client update."
+              ]
+            },
+            {
+              "month": "2023-10",
+              "characterId": "Rhino",
+              "sourceIds": [
+                "q4-notes75",
+                "q4-sinister-oct",
+                "q4-sinister-nov"
+              ],
+              "notes": [
+                "7.5 substantive stat, multi-ability and Sinister/Superior Six War/Crucible synergy improvements were rolled out in the late-October client update."
+              ]
+            },
+            {
+              "month": "2023-10",
+              "characterId": "Shocker",
+              "sourceIds": [
+                "q4-notes75",
+                "q4-sinister-oct",
+                "q4-sinister-nov"
+              ],
+              "notes": [
+                "7.5 substantive stat, multi-ability and Sinister/Superior Six War/Crucible synergy improvements were rolled out in the late-October client update."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q4-notes75",
+            "q4-sinister-oct",
+            "q4-sinister-nov"
+          ]
+        },
+        {
+          "month": "2023-12",
+          "teamId": "xtreme-x-men-76-rollout-2023",
+          "label": "X-Treme X-Men — December 2023 rollout (partial)",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Cyclops",
+            "Gambit",
+            "Nightcrawler",
+            "Forge"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Nightcrawler",
+            "Forge"
+          ],
+          "existingCharacterIds": [
+            "Cyclops",
+            "Gambit"
+          ],
+          "reworkedCharacterIds": [
+            "Cyclops",
+            "Gambit"
+          ],
+          "announcedNext": [
+            "Sunspot"
+          ],
+          "notes": [
+            "Sunspot was announced in December for an initial January 4, 2024 release and is exclusively announcedNext in 2023; not recruited or counted in the 2023 roster.",
+            "Cyclops/Gambit reworks were announced in 7.6; December rollout delays preclude assigning their live activation an exact December 11 day.",
+            "Hive-Mind patch announcements and a withdrawn December kit blog do not establish live 2023 Venom/Carnage reworks or 2023 Gwenom/Void Knight/Red Goblin recruitability; reserve those for a future 2024 audit."
+          ],
+          "characterReleases": [
+            {
+              "month": "2023-12",
+              "characterId": "Nightcrawler",
+              "confidence": "high",
+              "sourceIds": [
+                "q4-xtreme-dec08",
+                "q4-night-dec15",
+                "q4-patch-delay-dec15"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "date": "2023-12-15",
+              "dateConfidence": "high",
+              "notes": [
+                "Scopely announced initial December 15 675-core BAMF Orb and offers; despite halted patch rollout, December 15 launch communication says Nightcrawler is present."
+              ]
+            },
+            {
+              "month": "2023-12",
+              "characterId": "Forge",
+              "confidence": "high",
+              "sourceIds": [
+                "q4-forge-dec22",
+                "q4-forge-owner-dec27",
+                "q4-sunspot-dec29"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "notes": [
+                "Forge was available and recruitable via Power Core orb by December 27, independently of December 29's five insufficient free shards; exact first store day remains uncertain."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2023-12",
+              "characterId": "Cyclops",
+              "sourceIds": [
+                "q4-notes76",
+                "q4-patch-delay-dec15"
+              ],
+              "notes": [
+                "7.6 major Charged mechanic, multiple abilities and X-Treme X-Men synergy overhaul. Patch was delayed in stages in December; no exact all-platform activation day is claimed."
+              ]
+            },
+            {
+              "month": "2023-12",
+              "characterId": "Gambit",
+              "sourceIds": [
+                "q4-notes76",
+                "q4-patch-delay-dec15"
+              ],
+              "notes": [
+                "7.6 substantive ability/raid synergy changes for X-Treme X-Men; rollout delays do not prove December 11 activation."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q4-xtreme-dec08",
+            "q4-notes76",
+            "q4-patch-delay-dec15",
+            "q4-night-dec15",
+            "q4-forge-dec22",
+            "q4-sunspot-dec29"
+          ],
+          "rolloutId": "xtreme-x-men-2023-2024-rollout",
+          "rolloutLabel": "X-Treme X-Men"
         }
       ],
       "excludedFrom2023Q1PlayableCount": [
@@ -8507,15 +9052,183 @@
           "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-20-23",
           "publicationDate": "2023-10-20",
           "type": "official"
+        },
+        {
+          "id": "q4-dark-oct06",
+          "title": "October 6 official blog: Darkhawk first available October 12",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-10-6-23",
+          "publicationDate": "2023-10-06",
+          "type": "official"
+        },
+        {
+          "id": "q4-ironheart-oct13",
+          "title": "October 13 official blog: Ironheart (MKII) initial October 20",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-10-13-23",
+          "publicationDate": "2023-10-13",
+          "type": "official"
+        },
+        {
+          "id": "q4-undying-oct20",
+          "title": "October 20 official Undying expansion communication",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-20-23",
+          "publicationDate": "2023-10-20",
+          "type": "official"
+        },
+        {
+          "id": "q4-undying-oct27",
+          "title": "October 27 official blog: Juggernaut (Zombie) October 29 offers; October 30 event",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-10-27-23",
+          "publicationDate": "2023-10-27",
+          "type": "official"
+        },
+        {
+          "id": "q4-undying-unlock-debate",
+          "title": "Contemporary discussion of Juggernaut (Zombie) offer quantities and unlock restrictions",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/17k506e/",
+          "publicationDate": "2023-10-31",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q4-notes75",
+          "title": "7.5 official release notes: Superior Six and legacy Sinister Six changes",
+          "url": "https://marvelstrikeforce.com/en/updates/release-notes-7-5-0",
+          "publicationDate": "2023-10-30",
+          "type": "official"
+        },
+        {
+          "id": "q4-sinister-oct",
+          "title": "Late-October contemporaneous Sinister Six rework rollout discussion",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/17i12o5/",
+          "publicationDate": "2023-10-28",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q4-sinister-nov",
+          "title": "Early-November contemporaneous Sinister Six reworks in use",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/17mtase/",
+          "publicationDate": "2023-11-03",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q4-kraven-nov04",
+          "title": "November 4 official blog: Kraven first offers/orb November 8",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-11-4-23",
+          "publicationDate": "2023-11-04",
+          "type": "official"
+        },
+        {
+          "id": "q4-green-nov10",
+          "title": "November 10 official blog: Green Goblin (Classic) Nov 16 Trials at 550k immediate unlock",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-11-10-23",
+          "publicationDate": "2023-11-10",
+          "type": "official"
+        },
+        {
+          "id": "q4-green-nov16",
+          "title": "Contemporary first Green Goblin Classic Trials unlock discussion",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/17x16kk/",
+          "publicationDate": "2023-11-16",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q4-spiderslayer-nov17",
+          "title": "November 17 official blog: Spider-Slayer initial November 27 offers/orb",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-11-17-23",
+          "publicationDate": "2023-11-17",
+          "type": "official"
+        },
+        {
+          "id": "q4-lizard-dec08",
+          "title": "December 8 official blog documents Lizard before later free event",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-12-8-23",
+          "publicationDate": "2023-12-08",
+          "type": "official"
+        },
+        {
+          "id": "q4-lizard-dec13",
+          "title": "December 13 contemporaneous Lizard Power Core unlocking (before free event)",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/18hqs2x/",
+          "publicationDate": "2023-12-13",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q4-xtreme-dec08",
+          "title": "December 8 official blog introduces X-Treme X-Men and Nightcrawler",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-12-8-23",
+          "publicationDate": "2023-12-08",
+          "type": "official"
+        },
+        {
+          "id": "q4-notes76",
+          "title": "7.6 official release notes: X-Treme kits and Hive-Mind announcements",
+          "url": "https://marvelstrikeforce.com/updates/version-760-release-notes",
+          "publicationDate": "2023-12-11",
+          "type": "official"
+        },
+        {
+          "id": "q4-patch-delay-dec15",
+          "title": "December 15 official community note about partial 7.6 Android rollout and pause",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/18ipy2t/",
+          "publicationDate": "2023-12-15",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q4-night-dec15",
+          "title": "December 15 contemporaneous weekly announcement of Nightcrawler arrival",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/18jbrzq/",
+          "publicationDate": "2023-12-15",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q4-forge-dec22",
+          "title": "December 22 official blog: Forge release by year end",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-12-22-23",
+          "publicationDate": "2023-12-22",
+          "type": "official"
+        },
+        {
+          "id": "q4-forge-owner-dec27",
+          "title": "December 27 contemporary account of Forge acquisition through Power Core orb",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/18rvkje/",
+          "publicationDate": "2023-12-27",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q4-sunspot-dec29",
+          "title": "December 29 official blog: Sunspot initial release January 4, 2024; Forge already present",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-12-29-23",
+          "publicationDate": "2023-12-29",
+          "type": "official"
+        },
+        {
+          "id": "q4-bo-oct03-official",
+          "title": "Official Black Order changes deployed October 2023",
+          "url": "https://marvelstrikeforce.com/updates/black-order-update",
+          "publicationDate": "2023-10-03",
+          "type": "official"
+        },
+        {
+          "id": "q4-hive-dec11-discussion",
+          "title": "December 11 leaked Hive-Mind notes removed; no released December rework demonstrated",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/18g0otv/",
+          "publicationDate": "2023-12-11",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q4-hive-jan09",
+          "title": "January 9 2024 test-server preview of Hive-Mind rework, not 2023 live recruitment",
+          "url": "https://www.youtube.com/watch?v=6HsL7LcLgk4",
+          "publicationDate": "2024-01-09",
+          "type": "contemporary_community"
         }
       ],
       "validation": {
-        "auditedPeriod": "2023-01-01/2023-09-30",
+        "auditedPeriod": "2023-01-01/2023-12-31",
         "individualReleaseCount": 3,
-        "teamEventNewCharacterCount": 29,
-        "distinctPlayableReleaseCount": 32,
-        "distinctReworkedCharacterCount": 22,
-        "quarterEndPlayableRosterCount": 256,
+        "teamEventNewCharacterCount": 39,
+        "distinctPlayableReleaseCount": 42,
+        "distinctReworkedCharacterCount": 35,
+        "quarterEndPlayableRosterCount": 266,
         "duplicatesAcrossReleaseBuckets": [],
         "q2DistinctPlayableReleaseCount": 12,
         "q2DistinctReworkedCharacterCount": 5,
@@ -8526,7 +9239,13 @@
         "q3IndividualReleaseCount": 0,
         "q3TeamEventReleaseCount": 11,
         "q3StartingPlayableRosterCount": 245,
-        "q3EndPlayableRosterCount": 256
+        "q3EndPlayableRosterCount": 256,
+        "q4StartingPlayableRosterCount": 256,
+        "q4IndividualReleaseCount": 0,
+        "q4TeamEventReleaseCount": 10,
+        "q4DistinctPlayableReleaseCount": 10,
+        "q4DistinctReworkedCharacterCount": 13,
+        "q4EndPlayableRosterCount": 266
       }
     },
     "2026": {
