@@ -155,7 +155,8 @@ test("le pipeline distingue validation, calcul, classement, analyse et publicati
   assert.match(html, /JSON du rapport calculé/);
   assert.match(app, /calculated: "Rapport calculé"/);
   assert.match(app, /ranked: "Rapport classé"/);
-  assert.match(app, /capture\.calculatedReport = calculateReport\([\s\S]*?capture\.validatedDraft[\s\S]*?\)/);
+  assert.match(app, /PLAYER_ALIASES\.normalizeDraft\(capture\.validatedDraft, aliases\)/);
+  assert.match(app, /capture\.calculatedReport = calculateReport\(draft\)/);
   assert.match(app, /publication en attente/);
   assert.match(app, /Rapport calculé localement — publication non effectuée/);
   assert.match(app, /Rapport classé localement — publication non effectuée/);

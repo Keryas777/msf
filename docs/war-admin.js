@@ -16,8 +16,9 @@
   const REPORT_CALCULATOR = globalThis.MsfWarReportCalculator;
   const REPORT_RANKER = globalThis.MsfWarReportRanker;
   const WAR_ANALYSIS = globalThis.MsfWarAnalysis;
+  const PLAYER_ALIASES = globalThis.MsfWarPlayerAliases;
 
-  if (!DRAFT_VALIDATION || !REPORT_CALCULATOR || !REPORT_RANKER || !WAR_ANALYSIS) {
+  if (!DRAFT_VALIDATION || !REPORT_CALCULATOR || !REPORT_RANKER || !WAR_ANALYSIS || !PLAYER_ALIASES) {
     throw new Error("Les modules locaux de validation, de calcul, de classement et d’analyse sont indisponibles.");
   }
 
@@ -1438,7 +1439,7 @@
     updateSessionReviewStatus();
   }
 
-  function handleCalculateReports() {
+  async function handleCalculateReports() {
     if (session.running) return;
     const available = getAvailableCaptures();
     if (available.length === 0 || !available.every(isOcrValidatedCapture)) {
@@ -1446,27 +1447,55 @@
       return;
     }
 
-    const errors = [];
-    for (const capture of available) {
-      if (capture.calculatedReport) continue;
-      try {
-        capture.calculatedReport = calculateReport(capture.validatedDraft);
-        capture.state = "calculated";
-        capture.detail = "Rapport calculé en mémoire. Publication non effectuée.";
-        addLog("Rapport calculé localement — publication non effectuée", capture);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "Erreur de calcul inconnue";
-        errors.push(`${capture.allianceLabel} : ${message}`);
-        addLog(`Calcul du rapport échoué : ${message}`, capture);
-      }
-    }
+    // Les noms OCR restent inchangés dans le brouillon validé.
+    // Le rapport dérivé utilise les pseudos officiels AVANT calcul/classement/IA.
+    session.running = true;
+    session.cancelled = false;
+    setStatus("running", "Correction des pseudos", "Alias", "Chargement des alias avant le calcul.");
+    updateControls();
+    renderSession();
 
-    if (errors.length > 0) {
-      setStatus("error", "Calcul incomplet", "Erreur", `${errors.join(" ")} Aucun rapport n’a été publié.`);
+    try {
+      const aliases = await PLAYER_ALIASES.load();
+      if (session.cancelled) return;
+
+      // Vérifier les collisions sur toutes les alliances avant tout calcul.
+      // Une identité en doublon ne doit jamais être fusionnée silencieusement.
+      const pending = available
+        .filter((capture) => !capture.calculatedReport)
+        .map((capture) => ({
+          capture,
+          draft: PLAYER_ALIASES.normalizeDraft(capture.validatedDraft, aliases)
+        }));
+
+      const errors = [];
+      for (const { capture, draft } of pending) {
+        try {
+          capture.calculatedReport = calculateReport(draft);
+          capture.state = "calculated";
+          capture.detail = "Rapport calculé en mémoire (pseudos corrigés). Publication non effectuée.";
+          addLog("Rapport calculé localement avec alias — publication non effectuée", capture);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Erreur de calcul inconnue";
+          errors.push(capture.allianceLabel + " : " + message);
+          addLog("Calcul du rapport échoué : " + message, capture);
+        }
+      }
+
+      if (errors.length) {
+        setStatus("error", "Calcul incomplet", "Erreur", errors.join(" ") + " Aucun rapport n’a été publié.");
+      } else {
+        session.running = false;
+        updateSessionReviewStatus();
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Alias indisponibles";
+      setStatus("error", "Calcul interrompu", "Alias", message + " Aucun rapport n’a été calculé ni publié.");
+    } finally {
+      session.running = false;
+      updateControls();
       renderSession();
-      return;
     }
-    updateSessionReviewStatus();
   }
 
   function handleRankReports() {
