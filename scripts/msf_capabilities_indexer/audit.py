@@ -9,7 +9,7 @@ from .diagnostics import IndexerAuditError, IndexerInputError
 
 
 SNAPSHOT_CAPABILITIES_CHECKSUM = (
-    "80740ce0620dfee9291b6d4d6332478cccfe2cfdecbadfdcbfab6874307f90da"
+    "92eeb9a510abf5deba553bc8fb532d796366c36ab6d22fad2878dc36a94d1a62"
 )
 
 KNOWN_OPERATION_KINDS = frozenset(
