@@ -1128,8 +1128,8 @@
         </section>
 
         <div class="viewTabs" role="tablist" aria-label="Mode d’affichage">
-          <button class="viewTab" type="button" role="tab" data-view="timeline" aria-selected="true">Chronologie</button>
-          <button class="viewTab" type="button" role="tab" data-view="characters" aria-selected="false">Personnages</button>
+          <button class="viewTab" type="button" role="tab" data-view="timeline" aria-selected="false">Chronologie</button>
+          <button class="viewTab" type="button" role="tab" data-view="characters" aria-selected="true">Personnages</button>
           <button class="viewTab" type="button" role="tab" data-view="rankings" aria-selected="false">Classements</button>
         </div>
 
@@ -1216,7 +1216,7 @@
           history: null,
           catalog: new Map(),
           characters: [],
-          view: "timeline",
+          view: "characters",
           filters: {
             query: "",
             year: "all",
@@ -1509,6 +1509,11 @@
             }
           }
 
+          // Un personnage jouable reste consultable même lorsque sa sortie n'a pas encore été auditée.
+          for (const character of catalogList || []) {
+            if (character?.player_Character === true && character.id) ensureRecord(character.id);
+          }
+
           return [...records.values()]
             .map((record) => ({
               ...record,
@@ -1553,7 +1558,7 @@
           const query = normalizeSearch(state.filters.query);
 
           let result = state.characters.filter((record) => {
-            if (!record.release) return false;
+            if (!record.release && (state.view !== "characters" || state.filters.year !== "all" || state.filters.type !== "all")) return false;
             if (query && !record.searchText.includes(query)) return false;
             if (state.filters.year !== "all" && String(record.release.temporal.year) !== state.filters.year) return false;
             if (state.filters.type !== "all" && record.release.type !== state.filters.type) return false;
@@ -1562,11 +1567,12 @@
             return true;
           });
 
+          const releaseKey = (record) => record.release?.temporal?.key || "9999-12-31";
           const sorters = {
-            oldest: (a, b) => a.release.temporal.key.localeCompare(b.release.temporal.key) || a.name.localeCompare(b.name, "fr"),
-            newest: (a, b) => b.release.temporal.key.localeCompare(a.release.temporal.key) || a.name.localeCompare(b.name, "fr"),
-            name: (a, b) => a.name.localeCompare(b.name, "fr") || a.release.temporal.key.localeCompare(b.release.temporal.key),
-            reworks: (a, b) => b.reworks.length - a.reworks.length || a.release.temporal.key.localeCompare(b.release.temporal.key)
+            oldest: (a, b) => releaseKey(a).localeCompare(releaseKey(b)) || a.name.localeCompare(b.name, "fr"),
+            newest: (a, b) => (Boolean(b.release) - Boolean(a.release)) || releaseKey(b).localeCompare(releaseKey(a)) || a.name.localeCompare(b.name, "fr"),
+            name: (a, b) => a.name.localeCompare(b.name, "fr") || releaseKey(a).localeCompare(releaseKey(b)),
+            reworks: (a, b) => b.reworks.length - a.reworks.length || releaseKey(a).localeCompare(releaseKey(b))
           };
 
           result = result.sort(sorters[state.filters.sort] || sorters.oldest);
@@ -1942,7 +1948,7 @@
                   <div class="listPortrait">${createPortraitHtml(record)}</div>
                   <div class="listInfo">
                     <strong>${escapeHtml(record.name)}</strong>
-                    <span>${escapeHtml(record.release.temporal.label)} · ${escapeHtml(getReleaseTypeLabel(record.release.type))}</span>
+                    <span>${record.release ? `${escapeHtml(record.release.temporal.label)} · ${escapeHtml(getReleaseTypeLabel(record.release.type))}` : "Date de sortie non encore auditée"}</span>
                     <span>${record.reworks.length ? `${record.reworks.length} rework${record.reworks.length > 1 ? "s" : ""} documenté${record.reworks.length > 1 ? "s" : ""}` : "Aucun rework documenté"}</span>
                   </div>
                   <span class="listChevron" aria-hidden="true">›</span>
