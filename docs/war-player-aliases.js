@@ -75,7 +75,6 @@
   function correctAnalysis(analysis, original, canonical) {
     if (typeof analysis !== "string" || !original || original === canonical) return analysis;
     const escaped = original.replace(/[.*+?^$()|[\]{}\\]/g, "\\$&");
-    const token = "[\\p{L}\\p{N}\\p{M}_]";
     const pattern = new RegExp("(^|[^\\p{L}\\p{N}\\p{M}_])(" + escaped + ")(?=$|[^\\p{L}\\p{N}\\p{M}_])", "giu");
     return analysis.replace(pattern, (_match, prefix) => prefix + canonical);
   }
