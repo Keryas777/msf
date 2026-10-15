@@ -1,14 +1,14 @@
 """Conservative health redistribution interpretation; never a combat simulation.
 
-Reviewed selector signatures are corroborated by the official ability descriptions
-in Audit-health-redistribute.md (Scarlet Witch, Apocalypse, Mantis, LokiTeen,
-Kahhori, Ronin, Symbiote Quicksilver, Phoenix and Mister Sinister). The technical
-Invisible Woman shape is identical to Scarlet Witch's verified shape. No formula,
-implicit multiplier, actor identity or percentage basis is inferred.
+Reviewed signatures are corroborated by official ability descriptions in
+docs/audits/health-redistribute-deep-audit-10.5.0.md. Confirmed results describe
+only the behavior family. No formula, implicit multiplier, actor identity or
+percentage basis is inferred.
 """
 from __future__ import annotations
 
 import copy
+import json
 from typing import Any
 
 REVIEWED_SIGNATURES = {'/Data/Apocalypse/special/actions/5': {'drain_pct': 100,
@@ -64,6 +64,242 @@ REVIEWED_SIGNATURES = {'/Data/Apocalypse/special/actions/5': {'drain_pct': 100,
                                                    'from': {'limit': 10,
                                                             'relation': 'ally',
                                                             'type': 'random'}}}
+
+# Exact 10.5.0 source signatures whose French ability text explicitly says that
+# life is stolen and returned/redistributed. These mappings establish only that
+# behavior family; percentage basis, cap application, actor accounting, and order
+# of operations remain unresolved. Any raw-action change fails closed.
+REVIEWED_OFFICIAL_TEXT_SIGNATURES = {
+    "/Data/Blade/ultimate/actions/2": {
+        "sha256": "79e18a2d17874a01096fd14e3c637ca583ce3c402e06f0a8f27561ca9422965d",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Blastaar/special/actions/1": {
+        "sha256": "b438d8fc7c099bf045796e1ac9e1292fa4ec4593eafe3fba836b28fa93bb3c35",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Cloak/passive/0/actions/0": {
+        "sha256": "9ca791c38c6018f1b927c3ce5bf90a86d5aae839db62a7752e91a1a5853f932c",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Cloak/passive/0/actions/1": {
+        "sha256": "9b60af7c8d6d3989c491cc00ec288e31331ae8597f6ff9f748dfd268bc530807",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Cloak/passive/0/actions/2": {
+        "sha256": "941a2cfd1c82721917718f636a5f4faa9e06659856f3bb1afc4d42416f3bccde",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Cloak/passive/0/actions/3": {
+        "sha256": "a11d03c5b5064ebdf5b3ec8fff4048033ab14b7e439da8f1a5e3e8a35c974b72",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Darkstar/special/actions/2": {
+        "sha256": "b33d71c916d22390c56be17ad3d65e32e0ff3f06a4f76666d80b7148e9de40c5",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Darkstar/special/actions/5": {
+        "sha256": "62a047c9a22a42041e382b7f4ad37b253a0f5887320f74b7252d677d7705432e",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Deathpool/special/actions/4": {
+        "sha256": "fe106c5a49e669cd77dfc963d17f5b76897c760ed9f0f71a71b4d4b535b6df97",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/EbonyMaw/ultimate/actions/0": {
+        "sha256": "f695fee18ac2eb5e4c2553b021db7679a8a453d4e9acda8d21ab809d89f558c3",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/EbonyMaw/ultimate/actions/2": {
+        "sha256": "b0ed625eef757cde44aee4b7a3ed67b3cc1bc053dd8f0f9d42d5da7206927731",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/EbonyMaw/ultimate/actions/4": {
+        "sha256": "bb6219ad7c1a3d621dd66f29df2961ccea8ef5745fdbe5db41d3ae5492cc10dd",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/EbonyMaw/ultimate/actions/6": {
+        "sha256": "1f3bd12d1b50b359e967d840ec8fd1c25e3220f86e46b6b3f3090d5d85f465dd",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/EbonyMaw/ultimate/actions/8": {
+        "sha256": "f578c91f9a8b0496d7a8d0f1b9243549e813e60950961dea706e7681681491d3",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Ghost/ultimate/actions/1": {
+        "sha256": "96fa9d3a644013ef1c6b3a557227d2a632dd234469ab69c39b712916e76324a2",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/HighEvolutionary/passive/1/actions/1": {
+        "sha256": "c346d0543c740f22f4338e9cfb50728a0c6fa5406931c41337785d5b959ebe8f",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/MagnetoPhoenixForce/passive/2/actions/0": {
+        "sha256": "ec6c5f04bc5b9f9c2f0bfe2a28d580c3db975a6eca3b6b3283d94c0f9c77657e",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Minerva/ultimate/actions/0": {
+        "sha256": "b0e35fa02556eded5988dd4c03628bc786f8eb0fa649d6d5ba972e2fa3d783d5",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Minerva/ultimate/actions/1": {
+        "sha256": "e418c2547305c0653463003912b51119da9280ba46b105db8fbdba7d008b46db",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/MorganLeFay/basic/actions/3": {
+        "sha256": "86727f85f78e4b7f142bac9806cf6e81014f51be71e8b60126906f2ddf94e9b4",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Nemesis/basic/actions/1": {
+        "sha256": "9ce3080271256cae94328063a5825b18d0d0a74ee9e289c50ad3129fb4fbee55",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Nemesis/special/actions/1": {
+        "sha256": "766c2cd6815994f2efabb98d249d0a31d42672a6e116777449c52c5090edb0c2",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Nemesis/ultimate/actions/1": {
+        "sha256": "46ef08aefe4e0e38d1ff19bf9871cf55587e237019021d51be6ca70f5c0d1037",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Oath/special/actions/0": {
+        "sha256": "13e95c7a2360b9c2737a539cee06f9b5138ff4fad2b0390738ad897eebf20125",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Oath/special/actions/1": {
+        "sha256": "b4f3046a27bd4f27cf91d7bb8042a67f0cea20fd3a4acedaf214e36a2fcaf560",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Odin/basic/actions/1": {
+        "sha256": "633dc10e66741037988c3e6d6f7adff13da773dc62cf4579facb9d037cfc3774",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Odin/ultimate/actions/4": {
+        "sha256": "26b3ce8d37d4837b5bb5f1d2f2944c92455d2de0482e4102d2cab1e50bf675a9",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/OmegaRed/basic/actions/1": {
+        "sha256": "664293c6aa39064820cbe28122137268ea72b963ac85d73d2b63f3a19c37cbe9",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/OmegaRed/passive/0/actions/1": {
+        "sha256": "14c3862457eef9d4156b8302abe84decd82f7ef556fbbea1579e85d5412834e4",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/OmegaRed/special/actions/4": {
+        "sha256": "db7fcb5cf1849f7798a9f438910255ddd6d599dd6c929ccfa35ff8c43e12dcfd",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/OmegaRed/ultimate/actions/10": {
+        "sha256": "55578b2cbd6d35cdc1fae27e8639122704284d96711eee68155cbc2e900f3034",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/OmegaRedPhoenix/passive/2/actions/0": {
+        "sha256": "0c8076fef95e9f9ae29c09e9d85cb2b716e099963aaf2169c2b772b48cff7c6e",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/OmegaRedPhoenix/ultimate/actions/3": {
+        "sha256": "f55aedafc0ce859d8d757480a6bb0b9a43f953282e23a602865286becefd3306",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/RavagerSupport_Heal/special/actions/0": {
+        "sha256": "f19af235dfd82dc926c8fa453a23fc768ce1044d720fa8e7a932425e2ab30630",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/RavagerSupport_Heal/special/actions/3": {
+        "sha256": "f19af235dfd82dc926c8fa453a23fc768ce1044d720fa8e7a932425e2ab30630",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Satana/basic/actions/1": {
+        "sha256": "cfd6d0b5922194946754a5b6cad91dde1287631253e76bd56536c057be10c225",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Satana/ultimate/actions/0": {
+        "sha256": "2f57d94f3f82e0dfcc0aafc430bbd71172c1ebd217feb7ce0e5ef3a9479b2795",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Satana/ultimate/actions/3": {
+        "sha256": "f68f4c3a5a501804f3c383552c3701fbe1afca271ac5f694eed093cc3e28ea1c",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Satana/ultimate/actions/6": {
+        "sha256": "ebee7a395fd8cb3ae0fc471f52c4a80f580318fef98013c1042fcb4a70d03566",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Satana/ultimate/actions/9": {
+        "sha256": "9daaedbe4a442bae8186758e6a5c9ce1584139ed67e2fe5e012e5d26109f7202",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Satana/ultimate/actions/12": {
+        "sha256": "c2bd91c41d06c5b2a80af62422969d2b6048654ff7ddca970f58a965a994596f",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/ShadowKing/passive/2/actions/2": {
+        "sha256": "5438d74aba498b89710fa894b503a73ea27026bde29c14350cfaa14e1153f7c6",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/ShadowKing/passive/3/actions/2": {
+        "sha256": "5438d74aba498b89710fa894b503a73ea27026bde29c14350cfaa14e1153f7c6",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/ShadowKing/passive/5/actions/2": {
+        "sha256": "5438d74aba498b89710fa894b503a73ea27026bde29c14350cfaa14e1153f7c6",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/SymbioteQuicksilver/basic/actions/1": {
+        "sha256": "9fd9d87305ce8aa6fa778f4276c53c8af2752559bc49c1b6f71d8ae0dd2aabd9",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/SymbioteQuicksilver/ultimate/actions/4": {
+        "sha256": "ebf9548c85b9ee6a4060c6a40f76915248440fca40cf3d3942269e7e4b810874",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/SymbioteQuicksilver/ultimate/actions/12": {
+        "sha256": "edaf1fe9bb89d43dc6a3f4c22db56f7a89afc62d14b1ea559c11acd0ea560c11",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Thunderstrike/passive/2/actions/1": {
+        "sha256": "e7928080931d45079b897df51913a339df4b58dbf1cbd6d510caeedc88d267f8",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Thunderstrike/special/actions/3": {
+        "sha256": "23c1aa509c2be1d9daf91013ecdf560bce376fff6137f41a557f4c6bdc4a0ec8",
+        "behavior": "health_steal_redistribute"
+    },
+    "/Data/Thunderstrike/ultimate/actions/5": {
+        "sha256": "29a7921a701e49fbace5aa9b114a00ddf3adac0e6875fc16f91bd063c6fa09be",
+        "behavior": "health_steal_redistribute"
+    }
+}
+
+# Text supports only the listed claim for these rows; keep behavior unresolved.
+PARTIAL_OFFICIAL_TEXT_SIGNATURES = {
+    "/Data/KangTheConqueror/passive/0/actions/3": {
+        "sha256": "1adb175c549658341ca042bdf2e7198e31c3b10d57bcfa2718bbf9a222a55cfd",
+        "assertion": "La description FR mentionne un vol de vie sur les ennemis. Le destinataire/traitement de restitution n’est pas établi par le texte."
+    },
+    "/Data/Morbius/basic/actions/1": {
+        "sha256": "fc2904eb821ce0aa7c5382d7299642e70ac2baaa26956c98e6e39b72c177bd88",
+        "assertion": "La description FR mentionne un vol de vie conditionné par Saignement. Le destinataire et le calcul de restitution ne sont pas établis."
+    },
+    "/Data/Quasar/basic/actions/3": {
+        "sha256": "b0db01272f5d939b2b38c06cbacf35342a7f39c5c819df09ba4f1f21f50d051a",
+        "assertion": "La description FR mentionne le vol de 5 % de vie à la cible principale si elle est cosmique. La destination n’est pas établie."
+    },
+    "/Data/Quasar/passive/4/actions/1": {
+        "sha256": "89c5561a46eca13e2288a421c8ff54232e90fecc52bb6001867a741dd3440efb",
+        "assertion": "La description FR mentionne le vol de 5 % de vie sur l’ennemi Exposé. La destination n’est pas établie."
+    },
+    "/Data/Yellowjacket/special/actions/0": {
+        "sha256": "0d6c0541fc93abea0abd20cc215a94d4570f9a00155614e5771d9163651acce2",
+        "assertion": "La description FR confirme le vol progressif de vie à la cible principale et mentionne aussi un soin fixe dans la capacité; le lien entre ce soin et les bénéficiaires de cette action n’est pas démontré."
+    }
+}
+
+def _raw_fingerprint(raw: dict[str, Any]) -> str:
+    encoded = json.dumps(raw, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    import hashlib
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 NUMERIC_UNITS = {
     "drain_pct": "source_percent_unknown_basis",
@@ -121,6 +357,20 @@ def normalize_health_redistribute(action: dict[str, Any]) -> dict[str, Any]:
           and isinstance(receiver, dict) and receiver.get("relation") == "ally"
           and drain and all(v > 0 for v in drain) and heal and all(v > 0 for v in heal)):
         behavior, rule, proof = "health_steal_redistribute", "explicit_enemy_to_ally_positive_restitution", "explicit_parameters"
+    # Apply reviewed official-text conclusions only to byte-for-byte-equivalent
+    # source actions from the 10.5.0 audit. This is a family classification, not
+    # a combat formula or proof of percentage basis.
+    reviewed_text = REVIEWED_OFFICIAL_TEXT_SIGNATURES.get(pointer)
+    if (reviewed_text and _raw_fingerprint(raw) == reviewed_text["sha256"]):
+        behavior, rule, proof = (
+            "health_steal_redistribute",
+            "reviewed_official_text_steal_and_redistribution",
+            "official_ability_text_and_exact_source_signature",
+        )
+    partial_text = PARTIAL_OFFICIAL_TEXT_SIGNATURES.get(pointer)
+    if partial_text and _raw_fingerprint(raw) == partial_text["sha256"]:
+        proof = "partial_official_ability_text"
+
     numeric = {}
     for key, unit in NUMERIC_UNITS.items():
         record = _field(raw, key)
@@ -130,7 +380,16 @@ def normalize_health_redistribute(action: dict[str, Any]) -> dict[str, Any]:
         numeric[key] = record
     return {
         "behavior": behavior, "resolved": behavior != "detected",
-        "evidence": {"basis": proof, "rule": rule, "sourcePointer": pointer},
+        "evidence": {"basis": proof, "rule": rule, "sourcePointer": pointer,
+                     **({"proofLevel": "confirmed",
+                         "scope": "behavior_family_only",
+                         "sourceGameVersion": "10_5_0",
+                         "limits": ["percentage_basis", "engine_formula", "recipient_allocation", "operation_order"]}
+                        if reviewed_text and _raw_fingerprint(raw) == reviewed_text["sha256"] else {}),
+                     **({"proofLevel": "partially_confirmed",
+                         "sourceGameVersion": "10_5_0",
+                         "assertion": partial_text["assertion"]}
+                        if partial_text and _raw_fingerprint(raw) == partial_text["sha256"] else {})},
         "selectors": {key: _field(raw, key) for key in ("from", "to", "target")},
         "numeric": numeric,
         "properties": {key: _field(raw, key) for key in FLAG_FIELDS},
