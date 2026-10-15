@@ -6645,12 +6645,13 @@
     },
     "2023": {
       "status": "partial",
-      "auditedThrough": "2023-06-30",
+      "auditedThrough": "2023-09-30",
       "startingPlayableRosterCount": 224,
       "dateConvention": "Playable-first dates use historical North American publication/event dates. Exact days are encoded only when first recruitment on that day is supported; a demonstrated latest-by date alone does not fix the first store reset.",
       "auditedPeriods": [
         "2023-01-01/2023-03-31",
-        "2023-04-01/2023-06-30"
+        "2023-04-01/2023-06-30",
+        "2023-07-01/2023-09-30"
       ],
       "individualReleases": [
         {
@@ -7346,13 +7347,16 @@
         {
           "month": "2023-06",
           "teamId": "bifrost-72-rollout-2023",
-          "label": "Bifrost — 7.2 rollout (partial through June)",
+          "label": "Bifrost — 7.2 rollout (completed July)",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "teamSize": 5,
           "members": [
             "Loki",
-            "Vahl"
+            "Vahl",
+            "Sylvie",
+            "BetaRayBill",
+            "LokiTeen"
           ],
           "core": [
             "Loki",
@@ -7360,7 +7364,10 @@
           ],
           "pool": [],
           "newCharacterIds": [
-            "Vahl"
+            "Vahl",
+            "LokiTeen",
+            "BetaRayBill",
+            "Sylvie"
           ],
           "existingCharacterIds": [
             "Loki"
@@ -7368,15 +7375,12 @@
           "reworkedCharacterIds": [
             "Loki"
           ],
-          "announcedNext": [
-            "Sylvie",
-            "BetaRayBill",
-            "LokiTeen"
-          ],
+          "announcedNext": [],
           "notes": [
             "7.2 June 21 announced all five Bifrost members; only Vahl first recruitability is evidenced in June, whereas Beta Ray Bill first shards arrive July 14 and the other new members also belong to later rollout months.",
             "Original Loki underwent major multi-stat/multi-ability rework on June 7.2 patch; this is distinct from announced future recruits.",
-            "One June–July team rollout; T3 must add Sylvie, Beta Ray Bill and Loki (Teen) here, not create a second annual teamEvent."
+            "One June–July team rollout; T3 must add Sylvie, Beta Ray Bill and Loki (Teen) here, not create a second annual teamEvent.",
+            "Single June–July Bifrost event: June Loki rework/Vahl kept; three July recruits complete five-member team."
           ],
           "characterReleases": [
             {
@@ -7391,6 +7395,43 @@
               "releaseMethod": "limited_offer; power_core_store",
               "notes": [
                 "Contemporary June 29/30 players already owned Vahl via purchases and core orbs; first store-reset day unverified, so no exact date. July event is not the first recruitment."
+              ]
+            },
+            {
+              "month": "2023-07",
+              "characterId": "LokiTeen",
+              "confidence": "high",
+              "sourceIds": [
+                "q3-jul07",
+                "q3-lokiteen-owner",
+                "q3-lokiteen-discuss"
+              ],
+              "releaseMethod": "event_orb",
+              "notes": [
+                "Contemporary July 13 unlock reported; event began July 11 but first possible unlock day not proven."
+              ]
+            },
+            {
+              "month": "2023-07",
+              "characterId": "BetaRayBill",
+              "confidence": "high",
+              "sourceIds": [
+                "q3-jul07",
+                "q3-jul21"
+              ],
+              "notes": [
+                "July 14 official first shard availability; later July 24 Voyage event is not necessarily first recruitability. First day/method unproven."
+              ]
+            },
+            {
+              "month": "2023-07",
+              "characterId": "Sylvie",
+              "confidence": "high",
+              "sourceIds": [
+                "q3-jul21"
+              ],
+              "notes": [
+                "July 24 initial character release and showcase publicized; earlier offers not excluded, exact first unlock date unproven."
               ]
             }
           ],
@@ -7412,21 +7453,26 @@
             "q2-notes-72-repost",
             "q2-vahl-jun29",
             "q2-vahl-jun30",
-            "q2-jul07"
+            "q2-jul07",
+            "q3-jul07",
+            "q3-jul21",
+            "q3-lokiteen-owner",
+            "q3-lokiteen-discuss"
           ]
         },
         {
           "month": "2023-06",
           "teamId": "infestation-72-rollout-2023",
-          "label": "Infestation — 7.2 rollout (partial through June)",
+          "label": "Infestation — 7.2 rollout (completed July)",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "teamSize": 5,
           "members": [
             "BlackWidow",
             "AntMan",
             "Swarm",
-            "Yellowjacket"
+            "Yellowjacket",
+            "SpiderManBigTime"
           ],
           "core": [
             "BlackWidow",
@@ -7435,7 +7481,9 @@
             "Yellowjacket"
           ],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "SpiderManBigTime"
+          ],
           "existingCharacterIds": [
             "BlackWidow",
             "AntMan",
@@ -7448,15 +7496,29 @@
             "Swarm",
             "Yellowjacket"
           ],
-          "announcedNext": [
-            "SpiderManBigTime"
-          ],
+          "announcedNext": [],
           "notes": [
             "The four existing Infestation members gained major stats and multiple War Defense/Infestation skill and team-synergy changes with June 21 version 7.2.",
             "Spider-Man (Big Time) shards were scheduled for Raid Season rewards beginning June 25, but that did not mean players could already claim enough to unlock him in June; first payout/unlock evidence points to July.",
-            "Do not count Spider-Man (Big Time) as a June release merely from patch presence or future season rewards. T3 should complete this same event."
+            "Do not count Spider-Man (Big Time) as a June release merely from patch presence or future season rewards. T3 should complete this same event.",
+            "Four original Infestation reworks remain in June; Spider-Man (Big Time) added to the same June rollout in July."
           ],
-          "characterReleases": [],
+          "characterReleases": [
+            {
+              "month": "2023-07",
+              "characterId": "SpiderManBigTime",
+              "confidence": "high",
+              "sourceIds": [
+                "q2-jun23",
+                "q3-bigtime-jul",
+                "q3-bigtime-aug"
+              ],
+              "releaseMethod": "raid_season_rewards",
+              "notes": [
+                "First unlock is July Raid Season payouts, as confirmed by contemporaneous July anticipation and August 13 first-person retrospective; June 25 season opening is not an unlock date."
+              ]
+            }
+          ],
           "reworks": [
             {
               "month": "2023-06",
@@ -7507,7 +7569,385 @@
             "q2-notes-72",
             "q2-notes-72-repost",
             "q2-jun23",
-            "q2-jul10-spidey"
+            "q2-jul10-spidey",
+            "q3-bigtime-jul",
+            "q3-bigtime-aug"
+          ]
+        },
+        {
+          "month": "2023-08",
+          "teamId": "secret-defenders-73-rollout-2023",
+          "label": "Secret Defenders — 7.3 rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "DoctorStrange",
+            "Photon",
+            "KamalaKhan",
+            "GhostRiderRobbie",
+            "BlackCat"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Photon",
+            "KamalaKhan",
+            "GhostRiderRobbie",
+            "BlackCat"
+          ],
+          "existingCharacterIds": [
+            "DoctorStrange"
+          ],
+          "reworkedCharacterIds": [
+            "DoctorStrange"
+          ],
+          "announcedNext": [],
+          "sourceIds": [
+            "q3-notes73",
+            "q3-marvel73",
+            "q3-jul28",
+            "q3-aug04",
+            "q3-aug18",
+            "q3-robbie-owner",
+            "q3-aug25"
+          ],
+          "characterReleases": [
+            {
+              "month": "2023-08",
+              "characterId": "Photon",
+              "confidence": "high",
+              "sourceIds": [
+                "q3-jul28"
+              ],
+              "releaseMethod": "limited_offer",
+              "date": "2023-08-03",
+              "dateConfidence": "high",
+              "notes": [
+                "Official July 28 update schedules initial Photon offers for August 3, earlier than event release."
+              ]
+            },
+            {
+              "month": "2023-08",
+              "characterId": "KamalaKhan",
+              "confidence": "high",
+              "sourceIds": [
+                "q3-aug04"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "notes": [
+                "Ms. Marvel (Hard Light) initial launch was early August, before August 23 Event Campaign. Exact first sales day not firmly established."
+              ]
+            },
+            {
+              "month": "2023-08",
+              "characterId": "GhostRiderRobbie",
+              "confidence": "high",
+              "sourceIds": [
+                "q3-aug18",
+                "q3-robbie-owner"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "date": "2023-08-21",
+              "dateConfidence": "high",
+              "notes": [
+                "August 18 official update identifies August 21 initial release; contemporary player confirms possession August 24."
+              ]
+            },
+            {
+              "month": "2023-08",
+              "characterId": "BlackCat",
+              "confidence": "high",
+              "sourceIds": [
+                "q3-aug25"
+              ],
+              "releaseMethod": "trial",
+              "date": "2023-08-29",
+              "dateConfidence": "high",
+              "notes": [
+                "First Black Cat Trials begin August 29; 600k score provides immediate three-star unlock before ranking payout."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2023-08",
+              "characterId": "DoctorStrange",
+              "sourceIds": [
+                "q3-notes73",
+                "q3-marvel73"
+              ],
+              "notes": [
+                "Original Doctor Strange received major version 7.3 stats/kit changes and new Secret Defenders synergies."
+              ]
+            }
+          ],
+          "notes": [
+            "Four August recruits and original Doctor Strange rework, grouped into one formation."
+          ]
+        },
+        {
+          "month": "2023-08",
+          "teamId": "new-avengers-73-rollout-2023",
+          "label": "New Avengers — 7.3/7.4 rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Thing",
+            "Coulson",
+            "Ronin",
+            "Mockingbird",
+            "Tigra"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Ronin",
+            "Mockingbird",
+            "Tigra"
+          ],
+          "existingCharacterIds": [
+            "Thing",
+            "Coulson"
+          ],
+          "reworkedCharacterIds": [
+            "Thing",
+            "Coulson"
+          ],
+          "announcedNext": [],
+          "sourceIds": [
+            "q3-notes73",
+            "q3-aug25",
+            "q3-new-avengers",
+            "q3-sep01",
+            "q3-sep08",
+            "q3-mock-sep08",
+            "q3-sep15",
+            "q3-sep22",
+            "q3-tigra-repost"
+          ],
+          "characterReleases": [
+            {
+              "month": "2023-09",
+              "characterId": "Ronin",
+              "confidence": "high",
+              "sourceIds": [
+                "q3-sep01"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "date": "2023-09-07",
+              "dateConfidence": "high",
+              "notes": [
+                "Official initial limited offers September 7, not the later recruitment event."
+              ]
+            },
+            {
+              "month": "2023-09",
+              "characterId": "Mockingbird",
+              "confidence": "high",
+              "sourceIds": [
+                "q3-sep08",
+                "q3-mock-sep08",
+                "q3-sep15"
+              ],
+              "releaseMethod": "limited_offer",
+              "date": "2023-09-15",
+              "dateConfidence": "high",
+              "notes": [
+                "Paid Mockingbird launch September 15 before later F2P rewards; kit tuned before release does not qualify as rework."
+              ]
+            },
+            {
+              "month": "2023-09",
+              "characterId": "Tigra",
+              "confidence": "high",
+              "sourceIds": [
+                "q3-sep22",
+                "q3-tigra-repost"
+              ],
+              "releaseMethod": "limited_offer; power_core_store",
+              "date": "2023-09-25",
+              "dateConfidence": "high",
+              "notes": [
+                "Official September 22 blog explicitly schedules September 25 INITIAL RELEASE; later October monthly event is not first recruitability."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "month": "2023-08",
+              "characterId": "Thing",
+              "sourceIds": [
+                "q3-notes73",
+                "q3-new-avengers"
+              ],
+              "notes": [
+                "7.3 major boosts to several base stats and reworked war-defense abilities/New Avengers synergy."
+              ]
+            },
+            {
+              "month": "2023-08",
+              "characterId": "Coulson",
+              "sourceIds": [
+                "q3-notes73",
+                "q3-new-avengers"
+              ],
+              "notes": [
+                "7.3 multi-stat and multi-ability improvements for New Avengers war-defense lineup."
+              ]
+            }
+          ],
+          "notes": [
+            "August original-character reworks anchor rollout; September adds three recruits including Tigra, not October."
+          ]
+        },
+        {
+          "month": "2023-08",
+          "teamId": "a-force-73-support-reworks-2023",
+          "label": "A-Force — 7.3 existing-character reworks",
+          "kind": "faction",
+          "formationStatus": "core-plus-pool",
+          "teamSize": 4,
+          "members": [
+            "CaptainMarvel",
+            "JessicaJones",
+            "NicoMinoru",
+            "SpiderWoman"
+          ],
+          "core": [
+            "CaptainMarvel",
+            "JessicaJones",
+            "NicoMinoru",
+            "SpiderWoman"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "CaptainMarvel",
+            "JessicaJones",
+            "NicoMinoru",
+            "SpiderWoman"
+          ],
+          "reworkedCharacterIds": [
+            "CaptainMarvel",
+            "JessicaJones",
+            "NicoMinoru",
+            "SpiderWoman"
+          ],
+          "announcedNext": [],
+          "sourceIds": [
+            "q3-notes73"
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2023-08",
+              "characterId": "CaptainMarvel",
+              "sourceIds": [
+                "q3-notes73"
+              ],
+              "notes": [
+                "7.3 revised Special Speed Bar and War Passive heals/Deflect for A-Force / Secret Defenders, plus defensive stats."
+              ]
+            },
+            {
+              "month": "2023-08",
+              "characterId": "JessicaJones",
+              "sourceIds": [
+                "q3-notes73"
+              ],
+              "notes": [
+                "7.3 additional Ultimate defense/ability energy and Passive war team heals/defense supporting A-Force and Secret Defenders."
+              ]
+            },
+            {
+              "month": "2023-08",
+              "characterId": "NicoMinoru",
+              "sourceIds": [
+                "q3-notes73"
+              ],
+              "notes": [
+                "7.3 multi-stat boosts, Disrupted application and new War Offense cleanse and heal mechanics."
+              ]
+            },
+            {
+              "month": "2023-08",
+              "characterId": "SpiderWoman",
+              "sourceIds": [
+                "q3-notes73"
+              ],
+              "notes": [
+                "7.3 Health/Armor/Resistance increases and War Offense repeated team Immunity/healing mechanics."
+              ]
+            }
+          ],
+          "notes": [
+            "Only already-playable A-Force members changed; no new recruit nor new initial team rollout."
+          ]
+        },
+        {
+          "month": "2023-09",
+          "teamId": "pegasus-74-rollout-2023",
+          "label": "P.E.G.A.S.U.S. — 7.4 rollout (partial through September)",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Sybil",
+            "Rescue"
+          ],
+          "core": [
+            "Sybil",
+            "Rescue"
+          ],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Sybil",
+            "Rescue"
+          ],
+          "reworkedCharacterIds": [
+            "Rescue",
+            "Sybil"
+          ],
+          "announcedNext": [
+            "IronManInfinityWar",
+            "IronheartMCU",
+            "Darkhawk"
+          ],
+          "sourceIds": [
+            "q3-notes74",
+            "q3-sep19",
+            "q3-pegasus-oct"
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "month": "2023-09",
+              "characterId": "Rescue",
+              "sourceIds": [
+                "q3-notes74",
+                "q3-sep19"
+              ],
+              "notes": [
+                "September 7.4 substantial stats and kit overhaul, P.E.G.A.S.U.S. Tech Raid support introduced; separate October balancing not backdated."
+              ]
+            },
+            {
+              "month": "2023-09",
+              "characterId": "Sybil",
+              "sourceIds": [
+                "q3-notes74",
+                "q3-sep19"
+              ],
+              "notes": [
+                "Kestrel received 7.4 P.E.G.A.S.U.S. Raid synergies and kit/stat changes; separate October buffs not backdated."
+              ]
+            }
+          ],
+          "notes": [
+            "September reworks start one 2023 September–October rollout; the three new members remain October-bound and are not charged to Q3."
           ]
         }
       ],
@@ -7570,6 +8010,38 @@
           "reason": "6.7 updates target Awakened / Apocalypse-related abilities; no independent evidence of a broad substantive base-kit rework warranting a second 2023 count",
           "sourceIds": [
             "notes-67"
+          ]
+        },
+        {
+          "label": "Black Order / Thanos",
+          "reason": "September 7.4 preview not release date; substantial Black Order and Thanos reworks confirmed live October 3, outside Q3.",
+          "sourceIds": [
+            "q3-notes74",
+            "q3-blackorder-oct"
+          ]
+        },
+        {
+          "label": "Undying expansion 2023",
+          "reason": "Zombie Juggernaut release and major Hela / Zombie Iron Man extension documented in October. September minor notes alone insufficient for substantive September rework.",
+          "sourceIds": [
+            "q3-notes74",
+            "q3-undying-oct"
+          ]
+        },
+        {
+          "characterId": "Morbius",
+          "reason": "September 7.4 Morbius adjustment lacks evidence for substantive multi-mechanic existing-character rework.",
+          "sourceIds": [
+            "q3-notes74"
+          ]
+        },
+        {
+          "label": "P.E.G.A.S.U.S. three new recruits",
+          "reason": "Iron Man (Infinity War), Ironheart (MKII), Darkhawk announced in September patch but recruitable only October; remain announcedNext.",
+          "sourceIds": [
+            "q3-notes74",
+            "q3-sep29",
+            "q3-pegasus-oct"
           ]
         }
       ],
@@ -7853,20 +8325,208 @@
           "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/14vw76m/",
           "publicationDate": "2023-07-10",
           "type": "contemporary_community"
+        },
+        {
+          "id": "q3-jul07",
+          "title": "July 7 blog, Teen Loki and Beta Ray Bill",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-7-7-23",
+          "publicationDate": "2023-07-07",
+          "type": "official"
+        },
+        {
+          "id": "q3-jul21",
+          "title": "July 21 blog, Sylvie and Beta Ray Bill",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-7-21-23",
+          "publicationDate": "2023-07-21",
+          "type": "official"
+        },
+        {
+          "id": "q3-lokiteen-owner",
+          "title": "July 13, contemporary Teen Loki unlock",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/14ys5iz/",
+          "publicationDate": "2023-07-13",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-lokiteen-discuss",
+          "title": "July 14, contemporary Teen Loki unlock discussion",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/14z73o2/",
+          "publicationDate": "2023-07-14",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-bigtime-jul",
+          "title": "July 10, Big Time Spider-Man Raid reward unlock discussion",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/14vw76m/",
+          "publicationDate": "2023-07-10",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-bigtime-aug",
+          "title": "August 13, player confirms two prior Raid reward payouts unlocked Big Time",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/15q3tc0/",
+          "publicationDate": "2023-08-13",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-notes73",
+          "title": "Version 7.3 character reworks and new teams",
+          "url": "https://marvelstrikeforce.com/en/updates/release-notes-7-3-0",
+          "publicationDate": "2023-08-02",
+          "type": "official"
+        },
+        {
+          "id": "q3-marvel73",
+          "title": "Marvel August 2, version 7.3 Secret Defenders overview",
+          "url": "https://www.marvel.com/articles/games/marvel-strike-force-v7-3-update-secret-defenders",
+          "publicationDate": "2023-08-02",
+          "type": "official"
+        },
+        {
+          "id": "q3-jul28",
+          "title": "July 28 blog, Photon August 3 initial release",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-7-28-23",
+          "publicationDate": "2023-07-28",
+          "type": "official"
+        },
+        {
+          "id": "q3-aug04",
+          "title": "August 4 blog, Hard Light early August release",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-8-4-23",
+          "publicationDate": "2023-08-04",
+          "type": "official"
+        },
+        {
+          "id": "q3-aug18",
+          "title": "August 18 blog, Robbie initial August 21",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-8-18-23",
+          "publicationDate": "2023-08-18",
+          "type": "official"
+        },
+        {
+          "id": "q3-robbie-owner",
+          "title": "August 24 player actually unlocked Ghost Rider Robbie",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/15zx2bq/",
+          "publicationDate": "2023-08-24",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-aug25",
+          "title": "August 25 blog, Black Cat trial and New Avengers",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-8-25-23",
+          "publicationDate": "2023-08-25",
+          "type": "official"
+        },
+        {
+          "id": "q3-new-avengers",
+          "title": "Official New Avengers roster and kits",
+          "url": "https://marvelstrikeforce.com/en/updates/meet-the-new-recruits",
+          "publicationDate": "2023-09-05",
+          "type": "official"
+        },
+        {
+          "id": "q3-sep01",
+          "title": "September 1 blog, Ronin initial September 7",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-9-1-23",
+          "publicationDate": "2023-09-01",
+          "type": "official"
+        },
+        {
+          "id": "q3-sep08",
+          "title": "September 8 blog, Mockingbird release",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-9-8-23",
+          "publicationDate": "2023-09-08",
+          "type": "official"
+        },
+        {
+          "id": "q3-mock-sep08",
+          "title": "September 8 contemporaneous Mockingbird offer schedule",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce_/comments/16dnj5d/",
+          "publicationDate": "2023-09-08",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-sep15",
+          "title": "September 15 blog, Mockingbird kit tuning",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-9-15-23",
+          "publicationDate": "2023-09-15",
+          "type": "official"
+        },
+        {
+          "id": "q3-notes74",
+          "title": "September 18 official repost, 7.4 notes",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/16m9yz2/",
+          "publicationDate": "2023-09-18",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-sep19",
+          "title": "September 19 7.4 live update corroboration",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce_/comments/16mfbbr/",
+          "publicationDate": "2023-09-19",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-sep22",
+          "title": "September 22 official blog, Tigra first release",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-9-22-23",
+          "publicationDate": "2023-09-22",
+          "type": "official"
+        },
+        {
+          "id": "q3-tigra-repost",
+          "title": "September 22 official blog repost, Tigra September 25 initial release",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/16plkkf/",
+          "publicationDate": "2023-09-22",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-sep29",
+          "title": "September 29 blog, October first Iron Man (Infinity War)",
+          "url": "https://marvelstrikeforce.com/updates/blog-update-9-29-23",
+          "publicationDate": "2023-09-29",
+          "type": "official"
+        },
+        {
+          "id": "q3-pegasus-oct",
+          "title": "October 6 Pegasus tuning proves separate later changes",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1715hg7/",
+          "publicationDate": "2023-10-06",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-blackorder-oct",
+          "title": "October 3 confirms Black Order overhaul live after September",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/16yebdi/",
+          "publicationDate": "2023-10-03",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-undying-oct",
+          "title": "October 20 official blog, Undying expansion details",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-20-23",
+          "publicationDate": "2023-10-20",
+          "type": "official"
         }
       ],
       "validation": {
-        "auditedPeriod": "2023-01-01/2023-06-30",
+        "auditedPeriod": "2023-01-01/2023-09-30",
         "individualReleaseCount": 3,
-        "teamEventNewCharacterCount": 18,
-        "distinctPlayableReleaseCount": 21,
-        "distinctReworkedCharacterCount": 13,
-        "quarterEndPlayableRosterCount": 245,
+        "teamEventNewCharacterCount": 29,
+        "distinctPlayableReleaseCount": 32,
+        "distinctReworkedCharacterCount": 22,
+        "quarterEndPlayableRosterCount": 256,
         "duplicatesAcrossReleaseBuckets": [],
         "q2DistinctPlayableReleaseCount": 12,
         "q2DistinctReworkedCharacterCount": 5,
         "q2StartingPlayableRosterCount": 233,
-        "q2EndPlayableRosterCount": 245
+        "q2EndPlayableRosterCount": 245,
+        "q3DistinctPlayableReleaseCount": 11,
+        "q3DistinctReworkedCharacterCount": 9,
+        "q3IndividualReleaseCount": 0,
+        "q3TeamEventReleaseCount": 11,
+        "q3StartingPlayableRosterCount": 245,
+        "q3EndPlayableRosterCount": 256
       }
     },
     "2026": {
