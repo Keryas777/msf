@@ -3,11 +3,12 @@ import test from "node:test";
 import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 
-const [validationApp, reportCalculator, reportRanker, analysisApp, app] = await Promise.all([
+const [validationApp, reportCalculator, reportRanker, analysisApp, playerAliasesApp, app] = await Promise.all([
   readFile(new URL("../docs/war-admin-validation.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin-report-calculator.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin-report-ranker.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin-analysis.js", import.meta.url), "utf8"),
+  readFile(new URL("../docs/war-player-aliases.js", import.meta.url), "utf8"),
   readFile(new URL("../docs/war-admin.js", import.meta.url), "utf8")
 ]);
 
@@ -262,6 +263,9 @@ function createHarness(options = {}) {
       }
     },
     fetch(url, fetchOptions) {
+      if (url === "./data/player-aliases.json") {
+        return Promise.resolve(Response.json({ aliases: options.aliases || {} }));
+      }
       fetchCalls.push({ url, options: fetchOptions });
       activeRequests += 1;
       maxActiveRequests = Math.max(maxActiveRequests, activeRequests);
@@ -290,6 +294,7 @@ function createHarness(options = {}) {
   vm.runInContext(reportCalculator, vmContext, { filename: "war-admin-report-calculator.js" });
   vm.runInContext(reportRanker, vmContext, { filename: "war-admin-report-ranker.js" });
   vm.runInContext(analysisApp, vmContext, { filename: "war-admin-analysis.js" });
+  vm.runInContext(playerAliasesApp, vmContext, { filename: "war-player-aliases.js" });
   vm.runInContext(app, vmContext, { filename: "war-admin.js" });
 
   return {
@@ -364,7 +369,7 @@ async function runAnalysisRetryCase(code, retryAfterSeconds) {
   openReviewFromCard(harness);
   harness.listener("warValidateDraft", "click")();
   harness.listener("warReviewBack", "click")();
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
   harness.listener("warRankReports", "click")();
   await harness.listener("warWriteAnalyses", "click")();
   return harness;
@@ -954,7 +959,7 @@ test("le calcul reste bloqué jusqu’à la validation puis enrichit le brouillo
   assert.equal(harness.elements.warCalculateReports.disabled, false);
   assert.equal(harness.elements.warValidatedCount.textContent, "1");
 
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
   const snapshot = harness.getSnapshot();
 
   assert.equal(harness.fetchCalls.length, 1, "le calcul ne relance pas Gemini");
@@ -988,7 +993,7 @@ test("le classement reste bloqué avant calcul, puis se reclasse après invalida
   openReviewFromCard(harness);
   harness.listener("warValidateDraft", "click")();
   harness.listener("warReviewBack", "click")();
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
   assert.equal(harness.elements.warRankReports.disabled, false);
 
   harness.listener("warRankReports", "click")();
@@ -1016,7 +1021,7 @@ test("le classement reste bloqué avant calcul, puis se reclasse après invalida
 
   harness.listener("warValidateDraft", "click")();
   harness.listener("warReviewBack", "click")();
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
   harness.listener("warRankReports", "click")();
   snapshot = harness.getSnapshot();
   assert.equal(snapshot.captures[0].state, "Rapport classé");
@@ -1045,7 +1050,7 @@ test("la rédaction fusionne uniquement les analyses dans le rapport classé", a
   openReviewFromCard(harness);
   harness.listener("warValidateDraft", "click")();
   harness.listener("warReviewBack", "click")();
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
   harness.listener("warRankReports", "click")();
 
   const before = structuredClone(harness.getSnapshot().captures[0].rankedReport);
@@ -1090,7 +1095,7 @@ test("le retour de veille resynchronise une rédaction déjà terminée et réac
   openReviewFromCard(harness);
   harness.listener("warValidateDraft", "click")();
   harness.listener("warReviewBack", "click")();
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
   harness.listener("warRankReports", "click")();
   await harness.listener("warWriteAnalyses", "click")();
 
@@ -1144,7 +1149,7 @@ test("un Load failed réseau pendant la rédaction est retryé puis fusionné", 
   openReviewFromCard(harness);
   harness.listener("warValidateDraft", "click")();
   harness.listener("warReviewBack", "click")();
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
   harness.listener("warRankReports", "click")();
   await harness.listener("warWriteAnalyses", "click")();
 
@@ -1206,7 +1211,7 @@ test("la rédaction consomme le flux keepalive puis fusionne le résultat final"
   openReviewFromCard(harness);
   harness.listener("warValidateDraft", "click")();
   harness.listener("warReviewBack", "click")();
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
   harness.listener("warRankReports", "click")();
   await harness.listener("warWriteAnalyses", "click")();
 
@@ -1266,7 +1271,7 @@ test("un rapport final est publié sans recalcul ni modification", async () => {
   openReviewFromCard(harness);
   harness.listener("warValidateDraft", "click")();
   harness.listener("warReviewBack", "click")();
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
   harness.listener("warRankReports", "click")();
   await harness.listener("warWriteAnalyses", "click")();
 
@@ -1327,7 +1332,7 @@ test("la publication reste séquentielle et poursuit après une erreur", async (
     harness.listener("warValidateDraft", "click")();
     harness.listener("warReviewBack", "click")();
   }
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
   harness.listener("warRankReports", "click")();
   await harness.listener("warWriteAnalyses", "click")();
   const before = harness.getSnapshot().captures.map((capture) => structuredClone(capture.finalReport));
@@ -1370,7 +1375,7 @@ test("deux alliances doivent être validées indépendamment avant le calcul gro
   harness.listener("warReviewBack", "click")();
   assert.equal(harness.elements.warCalculateReports.disabled, false);
 
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
   const snapshot = harness.getSnapshot();
   assert.equal(snapshot.reports.length, 2);
   assert.deepEqual(snapshot.reports.map(({ alliance }) => alliance), ["zeus", "kronos"]);
@@ -1393,7 +1398,7 @@ test("un rapport calculé s’ouvre dans une vue mobile consultable puis revient
   openReviewFromCard(harness);
   harness.listener("warValidateDraft", "click")();
   harness.listener("warReviewBackBottom", "click")();
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
 
   const captureId = harness.elements.warCaptureList.innerHTML.match(
     /data-action="open-report" data-capture-id="(\d+)"/
@@ -1426,7 +1431,7 @@ test("modifier après calcul invalide uniquement le rapport concerné et impose 
   openReviewFromCard(harness);
   harness.listener("warValidateDraft", "click")();
   harness.listener("warReviewBack", "click")();
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
 
   openReviewFromCard(harness, 0, true);
   harness.listener("warReviewUnlock", "click")();
@@ -1442,7 +1447,7 @@ test("modifier après calcul invalide uniquement le rapport concerné et impose 
 
   harness.listener("warValidateDraft", "click")();
   assert.equal(harness.elements.warCalculateReports.disabled, false);
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
   snapshot = harness.getSnapshot();
 
   assert.equal(snapshot.captures[0].state, "Rapport calculé");
@@ -1478,7 +1483,7 @@ test("le workflow complet calcule les six alliances validées en une seule actio
   }
 
   assert.equal(harness.elements.warCalculateReports.disabled, false);
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
   const snapshot = harness.getSnapshot();
 
   assert.equal(harness.fetchCalls.length, 6);
@@ -1571,7 +1576,7 @@ test("les alliances exclues sont absentes du calcul, de Groq et de la publicatio
     harness.listener("warValidateDraft", "click")();
     harness.listener("warReviewBack", "click")();
   }
-  harness.listener("warCalculateReports", "click")();
+  await harness.listener("warCalculateReports", "click")();
   harness.listener("warRankReports", "click")();
   await harness.listener("warWriteAnalyses", "click")();
   await harness.listener("warPublishReports", "click")();
