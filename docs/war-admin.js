@@ -1485,6 +1485,7 @@
       if (errors.length) {
         setStatus("error", "Calcul incomplet", "Erreur", errors.join(" ") + " Aucun rapport n’a été publié.");
       } else {
+        session.running = false;
         updateSessionReviewStatus();
       }
     } catch (error) {
