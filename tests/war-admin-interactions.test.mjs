@@ -1609,3 +1609,61 @@ test("la fusion ignore un fragment exclu et ne produit rien quand ils le sont to
   assert.equal(snapshot.reports.length, 0);
   assert.equal(harness.fetchCalls.length, 2);
 });
+
+
+test("un alias est appliqué avant calcul, classement et rédaction sans altérer l'OCR", async () => {
+  const harness = createHarness({ aliases: { "Joueur 1": "Joueur Corrigé" } });
+  harness.setFetchImplementation(async (url, options) => {
+    if (url.includes("parse-gemini-draft")) return Response.json(draftPayload("zeus", "Zeus"));
+    if (url.includes("write-analyses-stream")) {
+      const payload = JSON.parse(options.body);
+      assert.ok(payload.report.players.some((player) => player.name === "Joueur Corrigé"));
+      return Response.json({
+        analyses: payload.report.players.map(({ rank, name }) => ({
+          rank, name, analysis: "Analyse de " + name + "."
+        }))
+      });
+    }
+    throw new Error("Route inattendue : " + url);
+  });
+
+  harness.elements.warDate.value = "2026-08-02";
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  await harness.listener("warCalculateReports", "click")();
+
+  let capture = harness.getSnapshot().captures[0];
+  assert.equal(capture.validatedDraft.players[0].name, "Joueur 1");
+  assert.equal(capture.calculatedReport.players[0].name, "Joueur Corrigé");
+  assert.equal(capture.calculatedReport.players[0].damage, capture.validatedDraft.players[0].damage);
+
+  harness.listener("warRankReports", "click")();
+  capture = harness.getSnapshot().captures[0];
+  assert.ok(capture.rankedReport.report.ranking.some((row) => row.name === "Joueur Corrigé"));
+
+  await harness.listener("warWriteAnalyses", "click")();
+  capture = harness.getSnapshot().captures[0];
+  const corrected = capture.finalReport.report.players.find((row) => row.name === "Joueur Corrigé");
+  assert.ok(corrected);
+  assert.equal(corrected.analysis, "Analyse de Joueur Corrigé.");
+});
+
+test("deux alias convergents interrompent le calcul avant de produire des notes", async () => {
+  const harness = createHarness({ aliases: { "Joueur 1": "Joueur 2" } });
+  harness.setFetchImplementation(async () => Response.json(draftPayload("zeus", "Zeus")));
+  harness.elements.warDate.value = "2026-08-02";
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  await harness.listener("warCalculateReports", "click")();
+
+  assert.equal(harness.getSnapshot().captures[0].calculatedReport, null);
+  assert.match(harness.elements.warStatusMessage.textContent, /Collision de pseudos/);
+});
