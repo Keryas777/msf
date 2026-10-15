@@ -4,8 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
     <meta name="theme-color" content="#07111c" />
-    <title>Historique des personnages MSF — LoSP</title>
+    <title>Personnages MSF — LoSP</title>
 
+    <link rel="stylesheet" href="./historique-personnages-profile.css?v=1" />
     <style>
       html.authChecking body {
         opacity: 0;
@@ -1086,8 +1087,8 @@
         <div class="headerRow">
           <button id="backButton" class="navButton" type="button" aria-label="Retour">‹ <span>Retour</span></button>
           <div class="brand">
-            <strong>Historique MSF</strong>
-            <span>Sorties & reworks des personnages</span>
+            <strong>Personnages MSF</strong>
+            <span>Identité, capacités, classements & histoire</span>
           </div>
           <a class="navButton" href="./home.html" aria-label="Accueil LoSP">⌂ <span>Accueil</span></a>
         </div>
@@ -1096,10 +1097,10 @@
       <main>
         <section class="hero" aria-labelledby="pageTitle">
           <p class="eyebrow">Marvel Strike Force</p>
-          <h1 id="pageTitle">Quand chaque personnage est-il arrivé&nbsp;?</h1>
+          <h1 id="pageTitle">Tous les personnages MSF, au même endroit</h1>
           <p class="heroText">
-            Parcours chronologique du roster MSF depuis le lancement mondial, avec les portraits,
-            les méthodes de sortie connues et les reworks documentés dans l’historique du projet.
+            Explore les sorties et reworks depuis le lancement mondial, puis ouvre la fiche d’un personnage
+            pour consulter ses tags, ses capacités et son classement au sein du groupement LoSP.
           </p>
           <p class="sourceNote">
             <span class="sourceDot" aria-hidden="true"></span>
@@ -1201,6 +1202,9 @@
       <div class="errorState">Cette page nécessite JavaScript pour lire les données historiques.</div>
     </noscript>
 
+    <script src="./historique-personnages-profile-data.js?v=1"></script>
+    <script src="./historique-personnages-profile-codex.js?v=1"></script>
+    <script src="./historique-personnages-profile.js?v=1"></script>
     <script>
       (() => {
         "use strict";
@@ -2090,6 +2094,10 @@
             </section>
           `;
 
+          window.LoSPCharacterProfiles?.attach(record, els.detailContent);
+          const url = new URL(location.href);
+          url.searchParams.set("personnage", record.id);
+          history.replaceState(history.state, "", url);
           els.detailModal.hidden = false;
           document.body.style.overflow = "hidden";
           const closeButton = els.detailModal.querySelector(".closeButton");
@@ -2098,8 +2106,12 @@
 
         function closeDetail() {
           if (els.detailModal.hidden) return;
+          window.LoSPCharacterProfiles?.close();
           els.detailModal.hidden = true;
           document.body.style.overflow = "";
+          const url = new URL(location.href);
+          url.searchParams.delete("personnage");
+          history.replaceState(history.state, "", url);
         }
 
         function bindEvents() {
@@ -2197,6 +2209,8 @@
             populateYears();
             updateStats();
             render();
+            const directId = new URLSearchParams(location.search).get("personnage");
+            if (directId) openDetail(getRecordById(directId));
           } catch (error) {
             console.error("Impossible de charger l’historique MSF", error);
             els.dataScope.textContent = "Impossible de charger les données historiques.";
