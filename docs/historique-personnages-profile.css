@@ -1,0 +1,50 @@
+/* Extension de la fiche des personnages : mêmes codes visuels que les classements LoSP. */
+.profileTabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;position:sticky;top:0;z-index:2;margin:17px 0 0;padding:7px 0;background:#091522}
+.profileTabs button{min-width:0;min-height:42px;padding:8px 3px;border:1px solid var(--line);border-radius:10px;background:#102238;color:var(--muted);font-size:clamp(.65rem,2.5vw,.84rem);font-weight:750}
+.profileTabs button[aria-selected="true"]{background:var(--accent-soft);color:var(--text);border-color:var(--accent)}
+.profileTabs button:focus-visible,.profileFilterToggle:focus-within,.profileCodexLink:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.profilePanel{padding:18px 0 4px}
+.profilePanel[hidden]{display:none}
+.profilePanel>h3{font-size:1.03rem;margin:0 0 11px}
+.profilePanel .detailGrid{margin-top:0}
+.profilePanel .detailSection{margin-top:15px}
+.profileIdentitySummary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:18px}
+.profileIdentitySummary>div{padding:12px;border-radius:13px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+.profileIdentitySummary span,.profileIdentitySummary strong{display:block}
+.profileIdentitySummary span{font-size:.71rem;color:var(--muted)}
+.profileIdentitySummary strong{font-size:.9rem;margin-top:5px}
+.profileTraitGroups{display:grid;gap:12px;margin:14px 0}
+.profileTagGroup h4{font-size:.73rem;text-transform:uppercase;color:var(--muted);margin:0 0 7px}
+.profileTags{display:flex;flex-wrap:wrap;gap:6px}
+.profileTag{border:1px solid var(--line-strong);background:var(--accent-soft);padding:6px 10px;border-radius:999px;font-size:.8rem}
+.profileSmallNote{font-size:.77rem;line-height:1.55;color:var(--muted);margin:0 0 15px}
+.profileCodexLink{display:inline-flex;min-height:40px;align-items:center;padding:8px 12px;border:1px solid var(--line-strong);border-radius:10px;color:var(--accent);text-decoration:none;font-size:.82rem;font-weight:750;margin-top:10px}
+.profileAbility{border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025);padding:13px;margin:12px 0}
+.profileAbilityTop{display:flex;align-items:center;gap:12px}
+.profileAbilityTop h4{margin:0 0 3px;font-size:.93rem}
+.profileAbilityTop span:not(.profileAbilityIcon){font-size:.73rem;color:var(--muted)}
+.profileAbilityIcon{width:52px;height:52px;flex:0 0 52px;border:1px solid var(--line-strong);border-radius:12px;background:#132739;display:grid;place-items:center;overflow:hidden}
+.profileAbilityIcon img{width:100%;height:100%;object-fit:contain}
+.profileAbilityText{font-size:.82rem;line-height:1.56;white-space:normal;margin:12px 0 0;overflow-wrap:anywhere}
+.profileFiltersTitle{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px}
+.profileFiltersTitle strong{font-size:.84rem}
+.profileFiltersTitle button{border:1px solid var(--line-strong);border-radius:9px;background:var(--accent-soft);padding:8px 10px;color:var(--text);font-size:.73rem}
+.profileAllianceFilters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:6px 0 15px}
+.profileFilterToggle{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;min-height:58px;padding:8px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.025);user-select:none}
+.profileFilterToggle:has(input:checked){border-color:rgba(115,224,173,.6);background:rgba(115,224,173,.1)}
+.profileFilterToggle input{width:18px;height:18px;flex-shrink:0;accent-color:#b8ff7a}
+.profileFilterStack{min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1}
+.profileFilterStack strong{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.72rem}
+.profilePlayerCount{margin:0 0 10px;color:var(--muted);font-size:.8rem}
+.profilePlayerList{display:grid;gap:8px}
+.profilePlayerRow{display:flex;align-items:flex-start;gap:10px;padding:12px 10px;border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,.2)}
+.profileRank{width:26px;flex:0 0 26px;color:var(--muted);font-weight:800;font-size:.78rem;padding-top:2px}
+.profilePlayerInfo{flex:1;min-width:0}
+.profilePlayerInfo>strong{display:block;overflow-wrap:anywhere;font-size:.88rem}
+.profilePlayerInfo>span{display:block;font-size:.75rem;color:var(--muted);margin-top:3px}
+.profilePlayerStats{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.profilePlayerStats span{font-size:.66rem;padding:3px 6px;background:rgba(255,255,255,.055);border:1px solid var(--line);border-radius:7px}
+.profilePower{font-size:.83rem;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--gold)}
+@media(min-width:700px){.profileAllianceFilters{grid-template-columns:repeat(3,minmax(0,1fr))}.profileTabs button{font-size:.86rem}}
+@media(max-width:390px){.profilePlayerRow{gap:6px}.profileRank{width:22px;flex-basis:22px}.profilePower{font-size:.74rem}.profileAllianceFilters{gap:5px}.profileFilterToggle{gap:5px;padding:7px 4px}.profileFilterToggle input{width:16px;height:16px}}
+@supports not selector(:has(*)){.profileFilterToggle{border-color:var(--line-strong)}}
