@@ -48,6 +48,7 @@ let originalPlayers = [];
 let currentSortKey = null;
 let currentSortDir = "desc";
 let currentTab = "table";
+let playerAliases = new Map();
 
 if (
   !allianceSelect ||
@@ -71,6 +72,11 @@ async function init() {
     setMeta("Chargement de l'index...");
 
     await loadAllianceMeta();
+    try {
+      playerAliases = await window.MsfWarPlayerAliases.load();
+    } catch (error) {
+      console.warn("[war-history] Alias indisponibles, affichage des noms sources :", error);
+    }
     warIndex = await loadIndex();
 
     setupAllianceSelect();
@@ -373,7 +379,7 @@ async function loadSelectedWar() {
       throw new Error(`Fichier non trouvé (${res.status})`);
     }
 
-    const data = await res.json();
+    const data = window.MsfWarPlayerAliases.normalizeWarData(await res.json(), playerAliases);
 
     originalPlayers = getPlayersFromWarData(data);
     currentPlayers = originalPlayers.slice();
