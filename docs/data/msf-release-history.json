@@ -9250,12 +9250,26 @@
     },
     "2024": {
       "status": "partial",
-      "auditedThrough": "2024-03-31",
+      "auditedThrough": "2024-06-30",
       "dateConvention": "Scopely's North American PST/PDT event date; exact date only when first offers/orbs or actual unlock are documented.",
       "auditedPeriods": [
-        "2024-01-01/2024-03-31"
+        "2024-01-01/2024-03-31",
+        "2024-04-01/2024-06-30"
       ],
-      "individualReleases": [],
+      "individualReleases": [
+        {
+          "month": "2024-04",
+          "characterId": "Mephisto",
+          "releaseMethod": "dark_dimension",
+          "confidence": "high",
+          "sourceIds": [
+            "apr02dd7"
+          ],
+          "notes": [
+            "Dark Dimension VII opened March 20, but official first-clear confirmation was published April 2. The historic first actual unlock is April 2024; the exact day is not established sufficiently to encode. This is the first playable release, not DD7 opening."
+          ]
+        }
+      ],
       "teamEvents": [
         {
           "month": "2024-01",
@@ -9632,6 +9646,353 @@
             "IronPatriot": "limited_offer; power_core_store",
             "TheLeader": "limited_offer; power_core_store"
           }
+        },
+        {
+          "month": "2024-04",
+          "teamId": "spider-society-80-rollout-2024",
+          "label": "Spider-Society — April 2024 single rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "GhostSpider",
+            "SpiderManNoir",
+            "PeterBParker",
+            "SpiderManPavitr",
+            "PeniParker"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "PeterBParker",
+            "SpiderManPavitr",
+            "PeniParker"
+          ],
+          "existingCharacterIds": [
+            "GhostSpider",
+            "SpiderManNoir"
+          ],
+          "reworkedCharacterIds": [
+            "GhostSpider",
+            "SpiderManNoir"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "One five-member Spider-Society rollout. March 2024 announced the original veteran members and new recruits, but there is no proven first recruitability before April 1.",
+            "Original announcement did not disclose all five members at once; the recorded composition reflects the later historically confirmed lineup, not knowledge presumed at first announcement.",
+            "The Spider-Society veteran changes are classified as substantial Raid synergy/ability reworks, not 2024 new recruits; precise server activation dates remain unproven."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "PeterBParker",
+              "month": "2024-04",
+              "confidence": "medium",
+              "dateConfidence": "month_only",
+              "sourceIds": [
+                "mar29",
+                "apr12",
+                "q2-apr25"
+              ],
+              "notes": [
+                "A recruitable Peter B. Parker is explicitly acknowledged in the April 25 official player notice and associated April 22 Planetary Orb incident; no defensible exact FIRST paid/orb unlock day is established."
+              ]
+            },
+            {
+              "characterId": "SpiderManPavitr",
+              "month": "2024-04",
+              "date": "2024-04-15",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "apr12"
+              ],
+              "notes": [
+                "April 12 weekly blog schedules first Mumbattan Motion character orb (675 Power Cores) and paid offers for April 15; not merely the subsequent free event."
+              ]
+            },
+            {
+              "characterId": "PeniParker",
+              "month": "2024-04",
+              "date": "2024-04-26",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "apr19"
+              ],
+              "notes": [
+                "April 19 weekly blog sets Peni's first SP//dr Sensei 675-core orb and offers for April 26; the May 6 event is later."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "GhostSpider",
+              "month": "2024-04",
+              "sourceIds": [
+                "notes80",
+                "mar29",
+                "q2-spider-contemporary"
+              ],
+              "notes": [
+                "Existing Ghost-Spider is assigned Spider-Society Raid synergies and revised multi-ability kit. March patch/preview is not proof of March live activation; effective April rollout inferred from availability of the deployed team, exact day not proven."
+              ]
+            },
+            {
+              "characterId": "SpiderManNoir",
+              "month": "2024-04",
+              "sourceIds": [
+                "notes80",
+                "mar29",
+                "q2-spider-contemporary"
+              ],
+              "notes": [
+                "Existing Spider-Man (Noir) gains team Raid interactions and revised passive/attacks. April team deployment supports the Q2 period; March announcement alone is not used as the activation date."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "notes80",
+            "mar29",
+            "apr12",
+            "apr19",
+            "q2-apr25",
+            "q2-spider-contemporary"
+          ],
+          "releaseMethods": {
+            "SpiderManPavitr": "limited_offer; power_core_store",
+            "PeniParker": "limited_offer; power_core_store"
+          }
+        },
+        {
+          "month": "2024-05",
+          "teamId": "mercs-for-money-2024-rollout",
+          "label": "Mercs for Money — May 2024 single rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Deadpool",
+            "Deathpool",
+            "PandaPool",
+            "Daken",
+            "OldManLogan"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "PandaPool",
+            "Daken",
+            "OldManLogan"
+          ],
+          "existingCharacterIds": [
+            "Deadpool",
+            "Deathpool"
+          ],
+          "reworkedCharacterIds": [
+            "Deadpool",
+            "Deathpool"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "The Mercs for Money original formation is one rollout from the first May recruit through Old Man Logan's first successful legendary trials.",
+            "Existing Deadpool and Deathpool are reworks only; neither original recruitment is recounted.",
+            "May 3 source supplies kit preview; the precise live day of veteran reworks remains unknown."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "PandaPool",
+              "month": "2024-05",
+              "date": "2024-05-07",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q2-may03"
+              ],
+              "notes": [
+                "Scopely explicitly specifies Pandapool initial release May 7, 675-core Clawed Cuddler Orb and available offers. Internal ID is PandaPool, not Pandapool."
+              ]
+            },
+            {
+              "characterId": "Daken",
+              "month": "2024-05",
+              "confidence": "medium",
+              "dateConfidence": "month_only",
+              "sourceIds": [
+                "q2-may03",
+                "q2-may27-daken"
+              ],
+              "notes": [
+                "Introduced with May Mercs for Money roster and already subject to May 27 shard-release event. First offer/core-orb day not reliably established; no exact date or initial channel claimed."
+              ]
+            },
+            {
+              "characterId": "OldManLogan",
+              "month": "2024-05",
+              "date": "2024-05-24",
+              "releaseMethod": "trial",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q2-may24-trial",
+                "q2-may03"
+              ],
+              "notes": [
+                "First Old Man Logan legendary trial actually allowed players to unlock Old Man Logan May 24; not the earlier announcement or Showcase."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "Deadpool",
+              "month": "2024-05",
+              "sourceIds": [
+                "q2-may03"
+              ],
+              "notes": [
+                "Scopely May 3 Mercs for Money notes include major base stat raises (Health +119%, Armor +190%, Focus +155%, Resistance +97%) and multiple significant attack/passive team-war updates."
+              ]
+            },
+            {
+              "characterId": "Deathpool",
+              "month": "2024-05",
+              "sourceIds": [
+                "q2-may03"
+              ],
+              "notes": [
+                "New Mercs for Money war/team synergies and revised kit with meaningful stat adjustments and ability changes. Existing character, not a new May recruit."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q2-may03",
+            "q2-may24-trial",
+            "q2-may27-daken"
+          ],
+          "releaseMethods": {
+            "PandaPool": "limited_offer; power_core_store",
+            "OldManLogan": "trial"
+          }
+        },
+        {
+          "month": "2024-06",
+          "teamId": "alpha-flight-2024-rollout",
+          "label": "Alpha Flight — June 2024 single rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Wolverine",
+            "Sunfire",
+            "Northstar",
+            "Guardian",
+            "Sasquatch"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Northstar",
+            "Guardian",
+            "Sasquatch"
+          ],
+          "existingCharacterIds": [
+            "Wolverine",
+            "Sunfire"
+          ],
+          "reworkedCharacterIds": [
+            "Wolverine",
+            "Sunfire"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "Original Alpha Flight five-member formation is recorded once, although its recruitment spans June.",
+            "The May 24 kit announcement and May 20 discussion are contextual; they do not alone establish veteran reworks as active in May. June is independently supported by contemporary real combat reports.",
+            "Wolverine and Sunfire are already playable before 2024; only their substantial Alpha Flight reworks contribute to Q2 rework count."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "Northstar",
+              "month": "2024-06",
+              "confidence": "medium",
+              "dateConfidence": "month_only",
+              "sourceIds": [
+                "q2-alpha-announcement",
+                "q2-jun07-guardian",
+                "q2-msfbase"
+              ],
+              "notes": [
+                "First Northstar recruitment belongs to June and precedes June full Alpha Flight field deployment; retrospective June 4 date has not been independently proven as FIRST actual unlock."
+              ]
+            },
+            {
+              "characterId": "Guardian",
+              "month": "2024-06",
+              "date": "2024-06-13",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q2-jun07-guardian"
+              ],
+              "notes": [
+                "Contemporaneous June 7 Scopely weekly update schedules June 13 initial Guardian Alpha Leader character orb (675 Power Cores) and store offers."
+              ]
+            },
+            {
+              "characterId": "Sasquatch",
+              "month": "2024-06",
+              "confidence": "medium",
+              "dateConfidence": "month_only",
+              "sourceIds": [
+                "q2-jun22-sas",
+                "q2-jun23-alpha-live",
+                "q2-msfbase"
+              ],
+              "notes": [
+                "Contemporaneous full-team use in June confirms first playable month; retrospective June 21 date is insufficient without direct initial-orb or purchase confirmation."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "Wolverine",
+              "month": "2024-06",
+              "sourceIds": [
+                "q2-alpha-announcement",
+                "q2-alpha-may20",
+                "q2-jun23-alpha-live"
+              ],
+              "notes": [
+                "Alpha Flight stat/kit/synergy overhaul beyond existing Weapon X build; confirmed used in deployed Alpha Flight June 23. May announcement itself does not prove May activation, so June only and no exact day."
+              ]
+            },
+            {
+              "characterId": "Sunfire",
+              "month": "2024-06",
+              "sourceIds": [
+                "q2-alpha-announcement",
+                "q2-alpha-may20",
+                "q2-jun23-alpha-live"
+              ],
+              "notes": [
+                "Alpha Flight role and War/Raid synergy upgrades to former Unlimited X-Men veteran; confirmed part of active June roster, with precise live patch/reset day unproven."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q2-alpha-announcement",
+            "q2-alpha-may20",
+            "q2-jun07-guardian",
+            "q2-jun23-alpha-live"
+          ],
+          "releaseMethods": {
+            "Guardian": "limited_offer; power_core_store"
+          }
         }
       ],
       "excludedFrom2024Q1PlayableCount": [
@@ -9679,7 +10040,10 @@
       "schemaNotes": [
         "Spider-Society: March 24–29 sources establish announcement, expected dual origins and described small future Ghost-Spider/Spider-Man (Noir) changes. The March 26 version 8.0.0 patch notes do not establish substantial, already-live base reworks. Therefore no artificial March rollout/rework is created. Q2 audit must assess effective April reworks and extend one Spider-Society rollout rather than duplicate.",
         "December 2023 X-Treme X-Men members and reworks remain attributed to the future 2023-Q4 audit through stable rolloutId; only Sunspot counts toward Q1 2024.",
-        "The starting playable roster and quarter-end absolute roster remain unknown because 2023 is not audited continuously through 2023-12-31. The 2023 Q3 provisional count must not be reused as the 2024 starting count."
+        "The starting playable roster and quarter-end absolute roster remain unknown because 2023 is not audited continuously through 2023-12-31. The 2023 Q3 provisional count must not be reused as the 2024 starting count.",
+        "Q2 2024 audit extends 2024 through June 30 from the latest 2023 fully audited baseline. 2023 ended with 266 playable characters, making absolute Q1/Q2 end roster computable without a fabricated 2023 gap. Earlier Q1 notes about an unaudited 2023-Q4 refer to an older main state.",
+        "Illuminati was described in late June (Black Bolt, Iron Man, Mister Fantastic, Black Panther (Shuri), Hank Pym, Captain Britain), but July recruits and unverified June activation of veteran reworks are not counted in Q2; the Q3 audit should create/complete its one rollout only once proven.",
+        "First Q2 recruitability uses first player unlock; patch dates, showcase previews, and retrospective character dates do not substitute for actual recruitability. Exact dates are omitted when only month-level evidence is reliable."
       ],
       "sources": [
         {
@@ -9835,17 +10199,118 @@
           "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1bokaju/",
           "publicationDate": "2024-03-26",
           "type": "contemporary_community"
+        },
+        {
+          "id": "q2-apr25",
+          "title": "Planetary Orb correction confirms Peter B. Parker recruited by April 25",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1cd1yzu/",
+          "publicationDate": "2024-04-25",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q2-spider-contemporary",
+          "title": "2024 Spider-Society initial composition and veteran kit updates",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce_/comments/1bo7vii/",
+          "publicationDate": "2024-03-26",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q2-may03",
+          "title": "Weekly Blog: Eats Shoots and Leaves (Mercs for Money)",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-5-3-24",
+          "publicationDate": "2024-05-03",
+          "type": "official"
+        },
+        {
+          "id": "q2-may24-trial",
+          "title": "Old Man Logan first-day trial unlock accounts",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1czwlvb/",
+          "publicationDate": "2024-05-24",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q2-may27-daken",
+          "title": "Daken shards and release event, late May",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1d23prv/",
+          "publicationDate": "2024-05-27",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q2-alpha-announcement",
+          "title": "Weekly Blog: Oh Canada (Alpha Flight kit, May 24)",
+          "url": "https://marvelstrikeforce.com/en/updates/weekly-blog-oh-canada",
+          "publicationDate": "2024-05-24",
+          "type": "official"
+        },
+        {
+          "id": "q2-alpha-may20",
+          "title": "Alpha Flight composition and planned Wolverine/Sunfire reworks",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1cwmkch/",
+          "publicationDate": "2024-05-20",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q2-jun07-guardian",
+          "title": "Weekly Blog: Weapon Alpha, June 7",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1dam9kt/",
+          "publicationDate": "2024-06-07",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q2-jun23-alpha-live",
+          "title": "Contemporaneous full Alpha Flight battles and Wolverine interactions",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1dmrg99/",
+          "publicationDate": "2024-06-23",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q2-jun14-sas",
+          "title": "Contemporaneous Alpha Flight team status June 14",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1dfwmj8/",
+          "publicationDate": "2024-06-14",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q2-jun22-sas",
+          "title": "Sasquatch first-release window evidence",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1dlxceb/",
+          "publicationDate": "2024-06-22",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q2-illuminati",
+          "title": "The Light in the Shadows — Illuminati future recruits",
+          "url": "https://marvelstrikeforce.com/en/updates/the-light-in-the-shadows",
+          "publicationDate": "2024-06-26",
+          "type": "official"
+        },
+        {
+          "id": "q2-msfbase",
+          "title": "Historical character release dates (secondary retrospective, not proof of first unlock)",
+          "url": "https://www.msfbase.com/characters/stats/",
+          "type": "secondary"
         }
       ],
       "validation": {
-        "auditedPeriod": "2024-01-01/2024-03-31",
-        "individualReleaseCount": 0,
-        "teamEventNewCharacterCount": 9,
-        "distinctPlayableReleaseCount": 9,
-        "distinctReworkedCharacterCount": 5,
+        "auditedPeriod": "2024-01-01/2024-06-30",
+        "auditedPeriods": [
+          "2024-01-01/2024-03-31",
+          "2024-04-01/2024-06-30"
+        ],
+        "individualReleaseCount": 1,
+        "teamEventNewCharacterCount": 18,
+        "distinctPlayableReleaseCount": 19,
+        "distinctReworkedCharacterCount": 11,
         "duplicatesAcrossReleaseBuckets": [],
         "q1DistinctPlayableReleaseCount": 9,
-        "q1DistinctReworkedCharacterCount": 5
+        "q1DistinctReworkedCharacterCount": 5,
+        "q2IndividualReleaseCount": 1,
+        "q2TeamEventReleaseCount": 9,
+        "q2DistinctPlayableReleaseCount": 10,
+        "q2DistinctReworkedCharacterCount": 6,
+        "q2StartingPlayableRosterCount": 275,
+        "q2EndPlayableRosterCount": 285,
+        "quarterEndPlayableRosterCount": 285
       }
     },
     "2026": {
