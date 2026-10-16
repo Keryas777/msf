@@ -9250,11 +9250,12 @@
     },
     "2024": {
       "status": "partial",
-      "auditedThrough": "2024-06-30",
+      "auditedThrough": "2024-09-30",
       "dateConvention": "Scopely's North American PST/PDT event date; exact date only when first offers/orbs or actual unlock are documented.",
       "auditedPeriods": [
         "2024-01-01/2024-03-31",
-        "2024-04-01/2024-06-30"
+        "2024-04-01/2024-06-30",
+        "2024-07-01/2024-09-30"
       ],
       "individualReleases": [
         {
@@ -9267,6 +9268,40 @@
           ],
           "notes": [
             "Dark Dimension VII opened March 20, but official first-clear confirmation was published April 2. The historic first actual unlock is April 2024; the exact day is not established sufficiently to encode. This is the first playable release, not DD7 opening."
+          ]
+        },
+        {
+          "month": "2024-08",
+          "characterId": "Ares",
+          "releaseMethod": "battle_pass",
+          "confidence": "medium",
+          "sourceIds": [
+            "q3-ares-kit",
+            "q3-ares-pass",
+            "q3-ares-premium",
+            "q3-ares-owned"
+          ],
+          "notes": [
+            "Standalone War-focused Ares is not a newly introduced member of a five-person Annihilators or other formal team.",
+            "The initial Ares Battle Pass launched July 29, but the start of a tier-progressive pass does not itself prove a recruitable 100-shard unlock in July.",
+            "Contemporary August 22 discussion includes a player who had actually used Ares and another at 80/100 on the free path. August is the earliest positively corroborated ownership/playability MONTH found, not proof that no paid player could unlock in late July.",
+            "Premium versus free progression, premium-plus accelerated tiers, later pass seasons and awakened abilities are not confused with initial recruitment; exact first global full unlock remains unresolved."
+          ]
+        },
+        {
+          "month": "2024-09",
+          "characterId": "Odin",
+          "releaseMethod": "dark_dimension_first_clear",
+          "confidence": "high",
+          "sourceIds": [
+            "q3-odin-kit",
+            "q3-odin-dd8",
+            "q3-odin-first"
+          ],
+          "notes": [
+            "Dark Dimension VIII opened September 16 at 14:00 PDT; first completion rewards five-yellow-star playable Odin.",
+            "Contemporary September 17 thread reports player stocky187 already completed DD8, establishing an actual September playable unlock. Exact North American calendar date of that first completion remains unverified, so no invented release day.",
+            "Separate from any PVE Odin boss representation; never date him simply by the DD8 opening."
           ]
         }
       ],
@@ -9993,6 +10028,452 @@
           "releaseMethods": {
             "Guardian": "limited_offer; power_core_store"
           }
+        },
+        {
+          "month": "2024-07",
+          "teamId": "illuminati-2024-07-rollout",
+          "label": "Illuminati — six-member July 2024 rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 6,
+          "members": [
+            "BlackPantherShuri",
+            "HankPym",
+            "CaptainBritain",
+            "IronMan",
+            "MrFantastic",
+            "BlackBolt"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "BlackPantherShuri",
+            "HankPym",
+            "CaptainBritain"
+          ],
+          "existingCharacterIds": [
+            "IronMan",
+            "MrFantastic",
+            "BlackBolt"
+          ],
+          "reworkedCharacterIds": [
+            "IronMan",
+            "MrFantastic",
+            "BlackBolt"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "Canonical original Illuminati roster has SIX characters even though only five can enter a combat squad.",
+            "Three newly recruitable members, three preexisting substantially upgraded veterans. July 19 is corroborated by observed Captain Britain ownership, not mechanically inferred from the shield free-claim schedule.",
+            "First live date of each veteran rework within July is not demonstrated precisely, therefore reworks carry month only."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "BlackPantherShuri",
+              "month": "2024-07",
+              "date": "2024-07-02",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q3-ill-shuri",
+                "q3-ill-kit"
+              ],
+              "notes": [
+                "Initial Shuri core-orb/offer availability observed on July 2, rather than August free events."
+              ]
+            },
+            {
+              "characterId": "HankPym",
+              "month": "2024-07",
+              "date": "2024-07-11",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "medium",
+              "dateConfidence": "medium",
+              "sourceIds": [
+                "q3-ill-hank",
+                "q3-ill-kit"
+              ],
+              "notes": [
+                "Initial paid offer/core-orb release in July; July 11 first availability supported by contemporaneous release chronology."
+              ]
+            },
+            {
+              "characterId": "CaptainBritain",
+              "month": "2024-07",
+              "date": "2024-07-19",
+              "releaseMethod": "limited_offer; showcase; web_claim",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q3-ill-kit",
+                "q3-ill-brit",
+                "q3-ill-window"
+              ],
+              "notes": [
+                "Epic Captain Britain required four specific shields, account star requirements and Her Majesty's Finest/showcase progression. Contemporary players had actually recruited him July 19; this is not inferred from the web claim alone."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "IronMan",
+              "month": "2024-07",
+              "sourceIds": [
+                "q3-ill-kit",
+                "q3-ill-live"
+              ],
+              "notes": [
+                "Substantial Illuminati energy-generation and Crucible synergy/kit update plus base-stat increases, playable during July."
+              ]
+            },
+            {
+              "characterId": "MrFantastic",
+              "month": "2024-07",
+              "sourceIds": [
+                "q3-ill-kit",
+                "q3-ill-live"
+              ],
+              "notes": [
+                "Health +75%, Damage +86%, multi-ability updates and Illuminati synergy. June kit announcement alone cannot prove a June live rework."
+              ]
+            },
+            {
+              "characterId": "BlackBolt",
+              "month": "2024-07",
+              "sourceIds": [
+                "q3-ill-kit",
+                "q3-ill-live"
+              ],
+              "notes": [
+                "Health +66%, other base-stat increases and Illuminati synergy/ability updates. July adjustments are one substantive rework, not two."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q3-ill-kit",
+            "q3-ill-shuri",
+            "q3-ill-hank",
+            "q3-ill-brit",
+            "q3-ill-live"
+          ],
+          "releaseMethods": {
+            "BlackPantherShuri": "limited_offer; power_core_store",
+            "HankPym": "limited_offer; power_core_store",
+            "CaptainBritain": "limited_offer; showcase; web_claim"
+          }
+        },
+        {
+          "month": "2024-07",
+          "teamId": "annihilators-2024-07-aug-rollout",
+          "label": "Annihilators — July–August 2024 original rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Gladiator",
+            "Gorr",
+            "ThanosEndgame",
+            "SilverSurfer",
+            "Ultimus"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Gladiator",
+            "Gorr",
+            "ThanosEndgame"
+          ],
+          "existingCharacterIds": [
+            "SilverSurfer",
+            "Ultimus"
+          ],
+          "reworkedCharacterIds": [
+            "SilverSurfer",
+            "Ultimus"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "One team rollout anchored July on live veteran updates, followed by three separately dated August debut waves.",
+            "Arena Annihilator orbs with low featured-character drop rates are NOT the proof of instant unlock; paid character offers and Power Core orbs are distinguished.",
+            "Original five members include Silver Surfer and Ultimus; neither is a new 2024 recruit."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "Gladiator",
+              "month": "2024-08",
+              "date": "2024-08-06",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "medium",
+              "dateConfidence": "medium",
+              "sourceIds": [
+                "q3-ann-blog",
+                "q3-ann-road"
+              ],
+              "notes": [
+                "First Gladiator offers and 675-core character orb; incidental Arena orb fragments do not establish immediate recruitment."
+              ]
+            },
+            {
+              "characterId": "Gorr",
+              "month": "2024-08",
+              "date": "2024-08-14",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "medium",
+              "dateConfidence": "medium",
+              "sourceIds": [
+                "q3-ann-road",
+                "q3-ann-gorr"
+              ],
+              "notes": [
+                "Second new Annihilator offer/core-orb wave before eventual Arena-orb farming."
+              ]
+            },
+            {
+              "characterId": "ThanosEndgame",
+              "month": "2024-08",
+              "date": "2024-08-23",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q3-ann-thanos",
+                "q3-ann-thanos-eve",
+                "q3-ann-road"
+              ],
+              "notes": [
+                "August 23 player contemporaneously reported spending 6750 Power Cores to unlock this distinct Endgame variant."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "SilverSurfer",
+              "month": "2024-07",
+              "sourceIds": [
+                "q3-ann-blog",
+                "q3-ann-ult-live"
+              ],
+              "notes": [
+                "Substantive Arena/Annihilator stat and ability adjustment, already active by July 30; not a new character."
+              ]
+            },
+            {
+              "characterId": "Ultimus",
+              "month": "2024-07",
+              "sourceIds": [
+                "q3-ann-blog",
+                "q3-ann-ult-live"
+              ],
+              "notes": [
+                "Substantive original Ultimus ability/stat overhaul in Annihilators, already used by players July 30."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q3-ann-blog",
+            "q3-ann-road",
+            "q3-ann-ult-live",
+            "q3-ann-thanos"
+          ],
+          "releaseMethods": {
+            "Gladiator": "limited_offer; power_core_store",
+            "Gorr": "limited_offer; power_core_store",
+            "ThanosEndgame": "limited_offer; power_core_store"
+          }
+        },
+        {
+          "month": "2024-08",
+          "teamId": "orchis-2024-08-sep-rollout",
+          "label": "Orchis — August–September 2024 original rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Sentinel",
+            "Nimrod",
+            "OmegaSentinel",
+            "ScientistSupreme",
+            "LadyDeathstrike"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Sentinel",
+            "Nimrod",
+            "OmegaSentinel"
+          ],
+          "existingCharacterIds": [
+            "ScientistSupreme",
+            "LadyDeathstrike"
+          ],
+          "reworkedCharacterIds": [
+            "ScientistSupreme",
+            "LadyDeathstrike"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "Orchis starts in AUGUST due to actual Scientist Supreme rework evidence, not in September when Sentinel first recruited.",
+            "Both existing veterans receive significant upgrades; first recruitment waves of Sentinel, Nimrod, Omega Sentinel all occur by September 30.",
+            "Omega Sentinel September 21 purchase path was unusually hidden/brief and is supported by contemporary player ownership rather than a general schedule.",
+            "Playable Sentinel is not summoned Sentinel_Gun/Sentinel_Sword or PVE_Sentinel_RogueLike."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "Sentinel",
+              "month": "2024-09",
+              "date": "2024-09-03",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q3-orchis-sentinel",
+                "q3-orchis-kit"
+              ],
+              "notes": [
+                "September 3 official initial Halt Mutant 675-core orb and paid offers; excludes summoned Sentinel variants."
+              ]
+            },
+            {
+              "characterId": "Nimrod",
+              "month": "2024-09",
+              "date": "2024-09-12",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q3-orchis-nimrod",
+                "q3-orchis-nimrod-orbs"
+              ],
+              "notes": [
+                "September 12 firsthand report of a fully recruited GT18 three-star Nimrod via core orbs; Phase 1 event orbs do not guarantee shards."
+              ]
+            },
+            {
+              "characterId": "OmegaSentinel",
+              "month": "2024-09",
+              "date": "2024-09-21",
+              "releaseMethod": "limited_offer",
+              "confidence": "medium",
+              "dateConfidence": "medium",
+              "sourceIds": [
+                "q3-orchis-omega",
+                "q3-orchis-kit"
+              ],
+              "notes": [
+                "At least one normal player demonstrably owned Omega Sentinel on September 21 using a brief/poorly surfaced store offer accessible through Find Shards. Date predates broad later offer rollout; availability was inconsistent."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "ScientistSupreme",
+              "month": "2024-08",
+              "sourceIds": [
+                "q3-orchis-kit",
+                "q3-orchis-live"
+              ],
+              "notes": [
+                "Actual 2024-08-28 before/after roster screenshot proves live change: Health 1.85m→10.08m, Damage 99,730→521,589 and Speed 97→118, plus substantial kit changes."
+              ]
+            },
+            {
+              "characterId": "LadyDeathstrike",
+              "month": "2024-08",
+              "sourceIds": [
+                "q3-orchis-kit",
+                "q3-orchis-live"
+              ],
+              "notes": [
+                "Major Orchis damage/health/armor/focus/resistance buffs and revised kit associated with version 8.3 late-August rollout; precise day not independently proven."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q3-orchis-kit",
+            "q3-orchis-live",
+            "q3-orchis-sentinel",
+            "q3-orchis-nimrod",
+            "q3-orchis-omega"
+          ],
+          "releaseMethods": {
+            "Sentinel": "limited_offer; power_core_store",
+            "Nimrod": "limited_offer; power_core_store",
+            "OmegaSentinel": "limited_offer"
+          }
+        },
+        {
+          "month": "2024-09",
+          "teamId": "nightstalkers-2024-09-oct-rollout",
+          "label": "Nightstalkers — September 2024 groundwork for October completion",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Blade",
+            "Oath",
+            "ManThing",
+            "AgathaHarkness",
+            "MoonKnight"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "AgathaHarkness",
+            "MoonKnight"
+          ],
+          "reworkedCharacterIds": [
+            "AgathaHarkness",
+            "MoonKnight"
+          ],
+          "announcedNext": [
+            "Blade",
+            "Oath",
+            "ManThing"
+          ],
+          "notes": [
+            "Nightstalkers begins September with two demonstrably live veteran reworks. Exactly ZERO new Nightstalkers are counted in Q3.",
+            "Scopely officially dates first Blade core-orb/offers October 1 (PDT). Oath and Man-Thing belong to October Q4, not September.",
+            "Future T4 audit must COMPLETE THIS SAME teamEvent with October characterReleases, preserve its September anchor and clear announcedNext; never create a duplicate October teamEvent."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "characterId": "AgathaHarkness",
+              "month": "2024-09",
+              "sourceIds": [
+                "q3-night-kit",
+                "q3-night-agatha",
+                "q3-night-live"
+              ],
+              "notes": [
+                "Agatha +273% Health, +207% Damage, +180% Armor and substantial Nightstalkers ability/synergy changes; contemporary September discussion/strength supports live September."
+              ]
+            },
+            {
+              "characterId": "MoonKnight",
+              "month": "2024-09",
+              "sourceIds": [
+                "q3-night-kit",
+                "q3-night-live"
+              ],
+              "notes": [
+                "Moon Knight +250% Health, +153% Damage, +339% Focus, and multi-ability updates; September 28 player personally used reworked damage in combat."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q3-night-kit",
+            "q3-night-agatha",
+            "q3-night-live",
+            "q3-night-blade"
+          ],
+          "releaseMethods": {}
         }
       ],
       "excludedFrom2024Q1PlayableCount": [
@@ -10043,7 +10524,12 @@
         "The starting playable roster and quarter-end absolute roster remain unknown because 2023 is not audited continuously through 2023-12-31. The 2023 Q3 provisional count must not be reused as the 2024 starting count.",
         "Q2 2024 audit extends 2024 through June 30 from the latest 2023 fully audited baseline. 2023 ended with 266 playable characters, making absolute Q1/Q2 end roster computable without a fabricated 2023 gap. Earlier Q1 notes about an unaudited 2023-Q4 refer to an older main state.",
         "Illuminati was described in late June (Black Bolt, Iron Man, Mister Fantastic, Black Panther (Shuri), Hank Pym, Captain Britain), but July recruits and unverified June activation of veteran reworks are not counted in Q2; the Q3 audit should create/complete its one rollout only once proven.",
-        "First Q2 recruitability uses first player unlock; patch dates, showcase previews, and retrospective character dates do not substitute for actual recruitability. Exact dates are omitted when only month-level evidence is reliable."
+        "First Q2 recruitability uses first player unlock; patch dates, showcase previews, and retrospective character dates do not substitute for actual recruitability. Exact dates are omitted when only month-level evidence is reliable.",
+        "T3 2024 is integrated after T2 2024; Q1, Q2 and Q3 are continuously audited through September 30. The 2023 final playable roster of 266 and both prior quarterly totals establish a Q3 starting playable count of 285 and Q3 end of 296.",
+        "Alpha Flight (Northstar, Guardian, Sasquatch, Wolverine, Sunfire) had its complete June 2024 rollout integrated by the Q2 audit on main. No additional T3 Alpha Flight event is created or counted.",
+        "Nightstalkers September reworks of Agatha/Moon Knight are supported by contemporary actual in-game usage, despite Blade/Oath/Man-Thing first recruitments only in October. The Q4 audit must enrich this same September event if the October characters become recruitable.",
+        "Q3 date precision: Captain Britain July 19 and Omega Sentinel September 21 have contemporary unlock evidence; Odin remains September only, with exact first DD8 unlock date unresolved.",
+        "Ares July 29 is the Battle Pass launch, not a confirmed completed unlock; August actual ownership is documented, though a paid late-July unlock cannot be ruled out."
       ],
       "sources": [
         {
@@ -10289,18 +10775,236 @@
           "title": "Historical character release dates (secondary retrospective, not proof of first unlock)",
           "url": "https://www.msfbase.com/characters/stats/",
           "type": "secondary"
+        },
+        {
+          "id": "q3-ill-kit",
+          "title": "Illuminati — The Light in the Shadows",
+          "url": "https://marvelstrikeforce.com/en/updates/the-light-in-the-shadows",
+          "publicationDate": "2024-06-28",
+          "type": "official"
+        },
+        {
+          "id": "q3-ill-shuri",
+          "title": "July 2 Shuri offer/orb witnessed",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1dtwr1p/",
+          "publicationDate": "2024-07-02",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-ill-brit",
+          "title": "July 19 players report Captain Britain paywall and its immediate Crucible consequences",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1e7gl4t/",
+          "publicationDate": "2024-07-19",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-ill-hank",
+          "title": "July 11 Hank Pym orbs and offers — Rayge Gaming contemporary video",
+          "url": "https://www.youtube.com/watch?v=y7HkSD0fSEc",
+          "type": "contemporary_video",
+          "publicationDate": "2024-07-11"
+        },
+        {
+          "id": "q3-ill-window",
+          "title": "July 12 confirms Captain Britain showcase was not yet complete",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1e1sq3b/",
+          "publicationDate": "2024-07-12",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-ill-live",
+          "title": "Illuminati legacy reworks in use by July 20",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1e7jvd5/",
+          "publicationDate": "2024-07-20",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-ann-blog",
+          "title": "Annihilators — July 24 official blog",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-7-24-24",
+          "publicationDate": "2024-07-24",
+          "type": "official"
+        },
+        {
+          "id": "q3-ann-road",
+          "title": "The Road to the Annihilators",
+          "url": "https://marvelstrikeforce.com/en/updates/the-road-to-the-annihilators",
+          "type": "official"
+        },
+        {
+          "id": "q3-ann-ult-live",
+          "title": "Ultimus / Silver Surfer reworks already usable July 30",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1efl1ma/",
+          "publicationDate": "2024-07-30",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-ann-gorr",
+          "title": "Gorr August 14 initial unlock contemporaneous report",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1exof3c/",
+          "publicationDate": "2024-08-21",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-ann-thanos",
+          "title": "First actual Thanos (Endgame) core-orb unlock August 23",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1ezowmi/",
+          "publicationDate": "2024-08-23",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-ann-thanos-eve",
+          "title": "Thanos initial offers expected August 23",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1eymg0w/",
+          "publicationDate": "2024-08-22",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-orchis-kit",
+          "title": "Release the Sentinels — initial Orchis and existing character upgrades",
+          "url": "https://marvelstrikeforce.com/en/updates/release-the-sentinels",
+          "type": "official"
+        },
+        {
+          "id": "q3-orchis-live",
+          "title": "Scientist Supreme actual before/after rework documented August 28",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1f3nv7t/",
+          "publicationDate": "2024-08-28",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-orchis-sentinel",
+          "title": "August 30 weekly blog — Sentinel initial release September 3",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-8-30-24",
+          "publicationDate": "2024-08-30",
+          "type": "official"
+        },
+        {
+          "id": "q3-orchis-nimrod",
+          "title": "Nimrod actually unlocked via Power Cores September 12",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1ffeh56/",
+          "publicationDate": "2024-09-12",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-orchis-nimrod-orbs",
+          "title": "Nimrod event orbs do not guarantee unlock",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1fg4hll/",
+          "publicationDate": "2024-09-13",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-orchis-omega",
+          "title": "Omega Sentinel actual early purchase/unlock September 21",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1flqrqb/",
+          "publicationDate": "2024-09-21",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-night-kit",
+          "title": "Official Nightstalkers team and substantial reworks",
+          "url": "https://marvelstrikeforce.com/en/updates/nightstalker-team-blog",
+          "type": "official"
+        },
+        {
+          "id": "q3-night-live",
+          "title": "Moon Knight rework demonstrably active by September 28",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1fr27qb/",
+          "publicationDate": "2024-09-28",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-night-agatha",
+          "title": "Agatha Harkness rework discussed September 18",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1fk3tm9/",
+          "publicationDate": "2024-09-18",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-night-blade",
+          "title": "September 27 official blog — Blade first available October 1",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-9-27-24",
+          "publicationDate": "2024-09-27",
+          "type": "official"
+        },
+        {
+          "id": "q3-ares-kit",
+          "title": "Ares official introduction — The Wrath of Mars",
+          "url": "https://marvelstrikeforce.com/en/updates/the-wrath-of-mars",
+          "type": "official"
+        },
+        {
+          "id": "q3-ares-pass",
+          "title": "Ares premium Battle Pass anticipated July 29",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1ebgq0x/",
+          "publicationDate": "2024-07-25",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-ares-premium",
+          "title": "July 29 active Ares pass and premium reward discussion",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1efdf4n/",
+          "publicationDate": "2024-07-29",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-odin-kit",
+          "title": "Official Odin first unlock mechanics",
+          "url": "https://marvelstrikeforce.com/en/updates/the-all-father",
+          "type": "official"
+        },
+        {
+          "id": "q3-odin-dd8",
+          "title": "Dark Dimension VIII official September 16 opening",
+          "url": "https://marvelstrikeforce.com/en/updates/dark-dimension-8",
+          "type": "official"
+        },
+        {
+          "id": "q3-odin-first",
+          "title": "DD8 first completion by stocky187 attested September 17",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1file45/",
+          "publicationDate": "2024-09-17",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-alpha-kit",
+          "title": "Alpha Flight official five-member lineup",
+          "url": "https://marvelstrikeforce.com/en/updates/weekly-blog-oh-canada",
+          "type": "official"
+        },
+        {
+          "id": "q3-alpha-june",
+          "title": "June 26 players already fight complete Alpha Flight with Sasquatch",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1dpawhu/",
+          "publicationDate": "2024-06-26",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-alpha-guardian",
+          "title": "Guardian June 13 initial release official blog transcribed contemporaneously",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1dam9kt/",
+          "publicationDate": "2024-06-07",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-ares-owned",
+          "title": "August 22 player firsthand experience of owning and using Ares",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1eyyb3y/",
+          "publicationDate": "2024-08-22",
+          "type": "contemporary_community"
         }
       ],
       "validation": {
-        "auditedPeriod": "2024-01-01/2024-06-30",
+        "auditedPeriod": "2024-01-01/2024-09-30",
         "auditedPeriods": [
           "2024-01-01/2024-03-31",
-          "2024-04-01/2024-06-30"
+          "2024-04-01/2024-06-30",
+          "2024-07-01/2024-09-30"
         ],
-        "individualReleaseCount": 1,
-        "teamEventNewCharacterCount": 18,
-        "distinctPlayableReleaseCount": 19,
-        "distinctReworkedCharacterCount": 11,
+        "individualReleaseCount": 3,
+        "teamEventNewCharacterCount": 27,
+        "distinctPlayableReleaseCount": 30,
+        "distinctReworkedCharacterCount": 20,
         "duplicatesAcrossReleaseBuckets": [],
         "q1DistinctPlayableReleaseCount": 9,
         "q1DistinctReworkedCharacterCount": 5,
@@ -10310,7 +11014,16 @@
         "q2DistinctReworkedCharacterCount": 6,
         "q2StartingPlayableRosterCount": 275,
         "q2EndPlayableRosterCount": 285,
-        "quarterEndPlayableRosterCount": 285
+        "quarterEndPlayableRosterCount": 296,
+        "startingPlayableRosterCount": 266,
+        "q3IndividualReleaseCount": 2,
+        "q3TeamEventReleaseCount": 9,
+        "q3DistinctPlayableReleaseCount": 11,
+        "q3DistinctReworkedCharacterCount": 9,
+        "q3TeamEventsIntroducedCount": 4,
+        "q3AuditedPeriod": "2024-07-01/2024-09-30",
+        "q3StartingPlayableRosterCount": 285,
+        "q3EndPlayableRosterCount": 296
       }
     },
     "2025": {
