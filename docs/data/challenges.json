@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "updatedAt": "2026-10-16",
-  "disclaimer": "Guides communautaires résumés et adaptés par LoSP. Les recommandations peuvent évoluer et ne prouvent pas que l'événement est actuellement disponible.",
+  "disclaimer": "Les compositions et conseils sont reformulés en français. Les informations peuvent être complétées ou modifiées lors des prochaines ouvertures des événements.",
   "events": [
     {
       "id": "blade",
@@ -107,7 +107,9 @@
           ],
           "alternatives": []
         }
-      ]
+      ],
+      "totalStages": 24,
+      "stageUnit": "étage"
     },
     {
       "id": "spider-descent",
@@ -116,7 +118,9 @@
       "summary": "40 étages et quatre difficultés ; Kingo en récompense.",
       "rewardId": "Kingo",
       "sourceUrl": "https://www.marvel.church/spider-man-tower-descent/",
-      "stages": []
+      "stages": [],
+      "totalStages": 40,
+      "stageUnit": "étage"
     },
     {
       "id": "kyln-blazes",
@@ -125,7 +129,9 @@
       "summary": "20 cellules. Les combats utilisent des groupes de trois personnages.",
       "rewardId": null,
       "sourceUrl": "https://www.marvel.church/escape-from-kyln-code-blazes/",
-      "stages": []
+      "stages": [],
+      "totalStages": 20,
+      "stageUnit": "cellule"
     },
     {
       "id": "kyln-whiplash",
@@ -143,7 +149,9 @@
       "summary": "20 étages et trois difficultés.",
       "rewardId": "SymbioteQuicksilver",
       "sourceUrl": "https://www.marvel.church/fear-tower/",
-      "stages": []
+      "stages": [],
+      "totalStages": 20,
+      "stageUnit": "étage"
     },
     {
       "id": "storm",
@@ -152,7 +160,9 @@
       "summary": "12 étages et deux difficultés.",
       "rewardId": "StormMighty",
       "sourceUrl": "https://www.marvel.church/mighty-tower-storm/",
-      "stages": []
+      "stages": [],
+      "totalStages": 12,
+      "stageUnit": "étage"
     },
     {
       "id": "war",
@@ -170,7 +180,9 @@
       "summary": "18 cellules et équipes de trois personnages.",
       "rewardId": null,
       "sourceUrl": "https://www.marvel.church/escape-from-kyln/",
-      "stages": []
+      "stages": [],
+      "totalStages": 18,
+      "stageUnit": "cellule"
     },
     {
       "id": "surfer-breaker",
@@ -505,7 +517,7 @@
           "requirement": "Mondial, hors mythiques/épiques/légendaires",
           "characters": [],
           "advice": [
-            "La source ne propose pas encore une équipe complète de cinq pour cette section."
+            "Composition complète à renseigner pour cette section."
           ],
           "alternatives": []
         },
