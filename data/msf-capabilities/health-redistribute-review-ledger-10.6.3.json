@@ -24,8 +24,8 @@
     "verificationNote": "Le corpus est traité comme la référence 10.5.0 des PR #225/#251; aucune nouvelle vérification de provenance officielle n’est revendiquée dans ce registre."
   },
   "counts": {
-    "registeredAmbiguousActions": 54,
-    "partialKnowledgeB": 5,
+    "registeredAmbiguousActions": 52,
+    "partialKnowledgeB": 3,
     "unresolvedBehaviorC": 49,
     "engineFormulaUnresolved": 230
   },
@@ -186,143 +186,6 @@
         "trigger_below_health": true,
         "trigger_deathproof": true,
         "visualid": "novisual"
-      }
-    },
-    {
-      "knowledgeLevel": "B",
-      "behavior": "detected",
-      "resolved": false,
-      "engineFormula": "unresolved",
-      "corpusVersion": "10_6_3",
-      "corpusBuild": "1674780",
-      "versionVerified": false,
-      "sourcePointer": "/Data/Quasar/basic/actions/3",
-      "sourceActionId": "act_6659a850d08330e9",
-      "characterId": "Quasar",
-      "characterName": "Quasar",
-      "unitClass": "playable",
-      "playableCatalogValue": true,
-      "abilityId": "abl_83955e6233239990",
-      "abilityType": "basic",
-      "abilityName": "Explosion quantique",
-      "rawFingerprintSha256": "b0db01272f5d939b2b38c06cbacf35342a7f39c5c819df09ba4f1f21f50d051a",
-      "confirmedProperties": [
-        "Partiel — voir assertion ci-dessus"
-      ],
-      "unknownProperties": [
-        "Le comportement mécanique complet de cette action au-delà de son type technique.",
-        "L’assiette mathématique de drain_pct et sa relation aux PV actuels, maximums ou à une autre quantité.",
-        "L’ordre des opérations, le cumul avec soins/plafonds et le traitement du surplus.",
-        "La répartition réelle entre receveurs et les effets liés à la mort lorsque ces états sont pertinents.",
-        "La sélection de la source du transfert si elle est implicite.",
-        "Le moment exact d’évaluation des conditions et dépendances dans le moteur.",
-        "Les interactions précises entre mort, Deathproof, résurrection, soins et redistribution."
-      ],
-      "evidenceExamined": [
-        "Ressource brute characters.json et empreinte manifeste.",
-        "Structure brute, sélecteurs et paramètres imbriqués.",
-        "Conditions et dépendances explicites.",
-        "Description officielle française de capacité."
-      ],
-      "officialAbilityDescriptionAvailable": true,
-      "previousInvestigation": {
-        "status": "reviewed_in_10_5_0",
-        "priorAuditStatus": "Partiel — voir assertion ci-dessus",
-        "reference": "docs/audits/health-redistribute-deep-audit-10.5.0.md",
-        "summary": "Signature identique au corpus 10.5.0; limites et absence de preuve runtime déjà consignées."
-      },
-      "blocker": "Le texte FR ne prouve qu’une assertion partielle; la destination ou la restitution reste indéterminée.",
-      "evidenceRequiredToResolve": "Méthode runtime/symboles exploitables ou cas contrôlé comparant PV source/receveur, plafonds, ordre et états de mort.",
-      "investigationPriority": "P2",
-      "rawAction": {
-        "action": "health_redistribute",
-        "action_pct": [
-          0,
-          100
-        ],
-        "drain_pct": [
-          0,
-          5,
-          5,
-          5,
-          10,
-          10,
-          10
-        ],
-        "only_if_target": {
-          "traits": {
-            "has_any": [
-              "Cosmic"
-            ]
-          }
-        },
-        "target": {},
-        "to": {
-          "relation": "ally"
-        },
-        "trigger_below_health": true,
-        "trigger_deathproof": true,
-        "visualid": "no_visuals"
-      }
-    },
-    {
-      "knowledgeLevel": "B",
-      "behavior": "detected",
-      "resolved": false,
-      "engineFormula": "unresolved",
-      "corpusVersion": "10_6_3",
-      "corpusBuild": "1674780",
-      "versionVerified": false,
-      "sourcePointer": "/Data/Quasar/passive/4/actions/1",
-      "sourceActionId": "act_bd382a2cd0876ff3",
-      "characterId": "Quasar",
-      "characterName": "Quasar",
-      "unitClass": "playable",
-      "playableCatalogValue": true,
-      "abilityId": "abl_7565a7e479995133",
-      "abilityType": "passive",
-      "abilityName": "Chevalier galactique",
-      "rawFingerprintSha256": "89c5561a46eca13e2288a421c8ff54232e90fecc52bb6001867a741dd3440efb",
-      "confirmedProperties": [
-        "Partiel — voir assertion ci-dessus"
-      ],
-      "unknownProperties": [
-        "Le comportement mécanique complet de cette action au-delà de son type technique.",
-        "L’assiette mathématique de drain_pct et sa relation aux PV actuels, maximums ou à une autre quantité.",
-        "L’ordre des opérations, le cumul avec soins/plafonds et le traitement du surplus.",
-        "La répartition réelle entre receveurs et les effets liés à la mort lorsque ces états sont pertinents.",
-        "La sélection de la source du transfert si elle est implicite.",
-        "Le moment exact d’évaluation des conditions et dépendances dans le moteur.",
-        "Les interactions précises entre mort, Deathproof, résurrection, soins et redistribution."
-      ],
-      "evidenceExamined": [
-        "Ressource brute characters.json et empreinte manifeste.",
-        "Structure brute, sélecteurs et paramètres imbriqués.",
-        "Conditions et dépendances explicites.",
-        "Description officielle française de capacité."
-      ],
-      "officialAbilityDescriptionAvailable": true,
-      "previousInvestigation": {
-        "status": "reviewed_in_10_5_0",
-        "priorAuditStatus": "Partiel — voir assertion ci-dessus",
-        "reference": "docs/audits/health-redistribute-deep-audit-10.5.0.md",
-        "summary": "Signature identique au corpus 10.5.0; limites et absence de preuve runtime déjà consignées."
-      },
-      "blocker": "Le texte FR ne prouve qu’une assertion partielle; la destination ou la restitution reste indéterminée.",
-      "evidenceRequiredToResolve": "Méthode runtime/symboles exploitables ou cas contrôlé comparant PV source/receveur, plafonds, ordre et états de mort.",
-      "investigationPriority": "P2",
-      "rawAction": {
-        "action": "health_redistribute",
-        "action_cond": "if_prev_ran",
-        "drain_pct": [
-          5
-        ],
-        "target": {},
-        "to": {
-          "relation": "ally"
-        },
-        "trigger_below_health": true,
-        "trigger_deathproof": true
       }
     },
     {
