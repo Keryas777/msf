@@ -111,3 +111,17 @@
   .challenge-category-copy strong{font-size:17px;}
   .challenge-category-copy small{font-size:12px;}
 }
+
+/* Clarté des équipes et des variantes documentées dans les guides complets. */
+.challenge-team-name{
+  margin:10px 0 6px; font-size:15px; font-weight:850; color:#e5f3ff;
+  line-height:1.35;
+}
+.challenge-roster-note{
+  font-size:12px; color:var(--muted); margin:7px 0 0;
+}
+.challenge-guide-note{
+  padding:10px 12px; background:rgba(125,177,221,.08);
+  border-left:3px solid rgba(135,201,255,.55);
+  border-radius:6px; font-size:13px; line-height:1.5; color:var(--muted);
+}
