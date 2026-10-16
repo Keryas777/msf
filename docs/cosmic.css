@@ -34,3 +34,33 @@
 .cosmicFallback[hidden]{display:none}
 @media(min-width:600px){.cosmicHubGrid{gap:20px}.cosmicHubTile{min-height:230px;padding:24px}.cosmicInputs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.cosmicHubTile{transition:none}}
+
+/* Propositions : identité Discord affichée uniquement, sans édition. */
+.cosmicReadonlyField{
+  min-height:46px;display:flex;align-items:center;padding:10px 14px;
+  border:1px solid var(--border);border-radius:14px;background:rgba(0,0,0,.35);
+  color:var(--text);font-size:16px;line-height:1.3;overflow-wrap:anywhere;
+}
+.cosmicSelectedPortraits{margin:12px 0;gap:6px}
+.cosmicPortrait--empty{display:grid;place-items:center;background:rgba(255,255,255,.04)}
+.cosmicPortrait--empty span{color:#8588a8;font-weight:800;font-size:13px}
+.cosmicInputWrap{position:relative;min-width:0}
+.cosmicInputWrap input{width:100%}
+.cosmicRoom:focus-within{position:relative;z-index:3}
+.cosmicSuggestions{
+  position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:25;
+  display:grid;gap:4px;padding:5px;max-height:min(240px,42vh);
+  overflow-y:auto;overscroll-behavior:contain;border:1px solid #56547c;
+  border-radius:12px;background:#101225;box-shadow:0 14px 34px rgba(0,0,0,.65);
+}
+.cosmicSuggestions[hidden]{display:none}
+.cosmicSuggestion{
+  display:block;width:100%;min-height:42px;padding:9px 12px;
+  text-align:left;border:1px solid transparent;border-radius:9px;
+  background:#232741;color:#fff;font:inherit;font-size:14px;
+  cursor:pointer;overflow-wrap:anywhere;
+}
+.cosmicSuggestion:active,.cosmicSuggestion:focus-visible{
+  background:#454678;border-color:#b0aaff;
+}
+.cosmicAction:disabled{opacity:.55;cursor:not-allowed}

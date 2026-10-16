@@ -55,3 +55,28 @@ test("propositions : sauvegarde locale et partage, sans publication implicite", 
   assert.match(code, /proposition à vérifier|Proposition à vérifier/);
   assert.doesNotMatch(code, /method:\s*["']POST["']/);
 });
+
+test("identité Discord non éditable et suppression de la saisie source", async () => {
+  const [html, js] = await Promise.all([
+    read("docs/cosmic-defenses.html"), read("docs/cosmic-defenses.js")
+  ]);
+  assert.match(html, /id="proposalAuthorDisplay"/);
+  assert.doesNotMatch(html, /<input[^>]+id="proposalAuthor"/);
+  assert.doesNotMatch(html, /id="proposalSource"/);
+  assert.doesNotMatch(js, /const proposalSource =/);
+  assert.match(js, /session\?\.ok === true/);
+  assert.match(js, /const author = discordAuthor/);
+  assert.match(js, /"Défense de " \+ entry\.author/);
+});
+test("autocomplétion préfixe, validation par clic et portraits par salle", async () => {
+  const [js, css] = await Promise.all([
+    read("docs/cosmic-defenses.js"), read("docs/cosmic.css")
+  ]);
+  assert.match(js, /normalize\(character\.name\)\.startsWith\(query\)/);
+  assert.match(js, /button\.addEventListener\("click"/);
+  assert.match(js, /input\.dataset\.selectedId = character\.id/);
+  assert.match(js, /renderSelectedPortraits\(section\)/);
+  assert.match(js, /cosmicSelectedPortraits/);
+  assert.match(css, /\.cosmicSuggestions\[hidden\]/);
+  assert.match(css, /\.cosmicReadonlyField/);
+});

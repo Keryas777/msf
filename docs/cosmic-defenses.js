@@ -5,20 +5,21 @@
     defenses: "./data/cosmic-defenses.json",
     characters: "./data/msf-characters.json"
   };
-  const DRAFT_KEY = "losp:cosmic-defense-draft:v1";
+  const DRAFT_KEY = "losp:cosmic-defense-draft:v1"; // Conserve les brouillons existants.
   const publishedNode = document.getElementById("publishedDefenses");
   const publishedStatus = document.getElementById("publishedStatus");
   const proposalsNode = document.getElementById("proposalRooms");
   const proposalStatus = document.getElementById("proposalStatus");
-  const proposalAuthor = document.getElementById("proposalAuthor");
-  const proposalSource = document.getElementById("proposalSource");
+  const proposalAuthorDisplay = document.getElementById("proposalAuthorDisplay");
   const shareButton = document.getElementById("proposalShare");
   const shareFallback = document.getElementById("proposalFallback");
-  const datalist = document.getElementById("cosmicCharacters");
+
 
   let rooms = [];
   let charactersById = new Map();
   let aliases = new Map();
+  let characterList = [];
+  let discordAuthor = "";
 
   const normalize = (value) => String(value || "").trim().toLowerCase()
     .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ");
@@ -41,16 +42,14 @@
     } catch (_) { return {}; }
   }
   function saveDraft() {
-    const state = {
-      author: proposalAuthor.value,
-      source: proposalSource.value,
-      rooms: {}
-    };
+    const state = { rooms: {} };
     for (const room of rooms) {
       const node = proposalsNode.querySelector('[data-cosmic-room="' + room.id + '"]');
       if (!node) continue;
       state.rooms[room.id] = {
-        characters: [...node.querySelectorAll("[data-cosmic-character]")].map(el => el.value),
+        characters: [...node.querySelectorAll("[data-cosmic-character]")].map(input =>
+          input.dataset.selectedId || input.value.trim()
+        ),
         note: node.querySelector("[data-cosmic-note]")?.value || ""
       };
     }
@@ -58,38 +57,35 @@
     shareFallback.hidden = true;
   }
   function fillAuthorFromSession(session) {
-    if (proposalAuthor.value.trim()) return;
-    const name = session?.displayName || session?.global_name || session?.username;
-    if (name) { proposalAuthor.value = String(name).slice(0, 80); saveDraft(); }
+    // Seules les données de la session vérifiée par auth-guard.js font foi.
+    const name = session?.ok === true
+      ? (session.displayName || session.global_name || session.username || "")
+      : "";
+    discordAuthor = safeText(name, 80);
+    proposalAuthorDisplay.textContent = discordAuthor || "Identification Discord en cours…";
+    shareButton.disabled = !discordAuthor;
   }
-  function buildCharacterCatalogue(rows) {
+    function buildCharacterCatalogue(rows) {
     charactersById = new Map();
     aliases = new Map();
-    datalist.replaceChildren();
-    const seenLabels = new Set();
+    characterList = [];
     for (const item of Array.isArray(rows) ? rows : []) {
       if (item?.player_Character !== true || !item.id) continue;
       const id = String(item.id);
       const name = String(item.nameKey || item.nameFr || item.nameEn || id);
       const character = { id, name, portrait: item.portraitUrl || item.portrait || "" };
       charactersById.set(id, character);
+      characterList.push(character);
       for (const value of [id, name, item.nameFr, item.nameEn]) {
         const key = normalize(value);
         if (!key) continue;
-        // En cas d'alias ambigu, exiger l'identifiant interne exact.
         if (aliases.has(key) && aliases.get(key)?.id !== id) aliases.set(key, null);
         else if (!aliases.has(key)) aliases.set(key, character);
       }
-      if (!seenLabels.has(name)) {
-        const opt = document.createElement("option");
-        opt.value = name;
-        opt.label = id;
-        datalist.appendChild(opt);
-        seenLabels.add(name);
-      }
     }
+    characterList.sort((a,b) => a.name.localeCompare(b.name,"fr",{sensitivity:"base"}));
   }
-  function resolveCharacter(value) {
+    function resolveCharacter(value) {
     const text = String(value || "").trim();
     return charactersById.get(text) || aliases.get(normalize(text)) || null;
   }
@@ -125,7 +121,7 @@
       for (const entry of entries) {
         count++;
         const card = make("article", "cosmicDefense");
-        card.appendChild(make("p", "cosmicDefenseTitle", safeText(entry.name || "Composition proposée", 120)));
+        card.appendChild(make("p", "cosmicDefenseTitle", safeText(entry.name || (entry.author ? "Défense de " + entry.author : "Défense publiée"), 120)));
         const portraits = make("div", "cosmicPortraits");
         for (const id of entry.characters) portraits.appendChild(portrait(id));
         card.appendChild(portraits);
@@ -155,30 +151,133 @@
       ? count + " composition(s) publiée(s)."
       : "Aucune composition validée pour le moment. Tu peux déjà préparer et partager tes défenses.";
   }
+  function renderSelectedPortraits(section) {
+    const row = section.querySelector("[data-cosmic-portraits]");
+    if (!row) return;
+    row.replaceChildren();
+    [...section.querySelectorAll("[data-cosmic-character]")].forEach((input, index) => {
+      const selected = charactersById.get(input.dataset.selectedId || "");
+      if (selected) {
+        row.appendChild(portrait(selected.id));
+      } else {
+        const slot = make("div", "cosmicPortrait cosmicPortrait--empty");
+        slot.appendChild(make("span", "", String(index + 1)));
+        row.appendChild(slot);
+      }
+    });
+  }
+  function closeSuggestions(except = null) {
+    document.querySelectorAll(".cosmicSuggestions").forEach(panel => {
+      if (panel === except) return;
+      panel.hidden = true;
+      panel.replaceChildren();
+      panel.previousElementSibling?.setAttribute("aria-expanded", "false");
+    });
+  }
+  function showSuggestions(input) {
+    const panel = input.parentElement.querySelector(".cosmicSuggestions");
+    if (!panel) return;
+    panel.replaceChildren();
+    const query = normalize(input.value);
+    if (!query) {
+      panel.hidden = true;
+      input.setAttribute("aria-expanded", "false");
+      return;
+    }
+    closeSuggestions(panel);
+    const matches = characterList
+      .filter(character => normalize(character.name).startsWith(query))
+      .slice(0, 24);
+    if (!matches.length) {
+      panel.hidden = true;
+      input.setAttribute("aria-expanded", "false");
+      return;
+    }
+    const section = input.closest(".cosmicRoom");
+    for (const character of matches) {
+      const button = make("button", "cosmicSuggestion", character.name);
+      button.type = "button";
+      button.setAttribute("role", "option");
+      button.dataset.characterId = character.id;
+      // Évite la perte du focus de l'input avant le clic dans Safari/Chrome.
+      button.addEventListener("pointerdown", event => event.preventDefault());
+      button.addEventListener("click", () => {
+        const inputs = [...section.querySelectorAll("[data-cosmic-character]")];
+        if (inputs.some(other => other !== input && other.dataset.selectedId === character.id)) {
+          proposalStatus.textContent = character.name + " est déjà sélectionné dans cette salle.";
+          return;
+        }
+        input.value = character.name;
+        input.dataset.selectedId = character.id;
+        panel.replaceChildren();
+        panel.hidden = true;
+        input.setAttribute("aria-expanded", "false");
+        proposalStatus.textContent = "";
+        renderSelectedPortraits(section);
+        saveDraft();
+      });
+      panel.appendChild(button);
+    }
+    panel.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+  }
   function renderProposals() {
     proposalsNode.replaceChildren();
     const draft = loadDraft();
-    proposalAuthor.value = safeText(draft.author, 80);
-    proposalSource.value = safeText(draft.source, 160);
     for (const room of rooms) {
       const state = draft.rooms?.[room.id] || {};
       const section = make("section", "cosmicRoom");
       section.dataset.cosmicRoom = String(room.id);
       section.appendChild(make("h3", "", room.label));
       if (room.rule) section.appendChild(make("p", "cosmicRoomRule", room.rule));
+      const portraits = make("div", "cosmicPortraits cosmicSelectedPortraits");
+      portraits.dataset.cosmicPortraits = "1";
+      portraits.setAttribute("aria-label", "Portraits des cinq personnages de " + room.label);
+      section.appendChild(portraits);
       const inputs = make("div", "cosmicInputs");
       for (let i = 0; i < 5; i++) {
+        const wrap = make("div", "cosmicInputWrap");
         const input = make("input", "select");
         input.type = "text";
-        input.setAttribute("list", "cosmicCharacters");
         input.dataset.cosmicCharacter = String(i);
         input.placeholder = "Personnage " + (i + 1);
         input.autocomplete = "off";
         input.maxLength = 90;
         input.setAttribute("aria-label", room.label + " — personnage " + (i + 1));
-        const stored = safeText(state.characters?.[i], 90);
-        input.value = charactersById.get(stored)?.name || stored;
-        inputs.appendChild(input);
+        input.setAttribute("role", "combobox");
+        input.setAttribute("aria-autocomplete", "list");
+        input.setAttribute("aria-expanded", "false");
+        const saved = safeText(state.characters?.[i], 90);
+        const character = charactersById.get(saved) || resolveCharacter(saved);
+        input.value = character?.name || saved;
+        input.dataset.selectedId = character?.id || "";
+        const suggestions = make("div", "cosmicSuggestions");
+        suggestions.id = "cosmic-suggestions-" + room.id + "-" + i;
+        suggestions.setAttribute("role", "listbox");
+        suggestions.hidden = true;
+        input.setAttribute("aria-controls", suggestions.id);
+        input.addEventListener("input", () => {
+          input.dataset.selectedId = "";
+          renderSelectedPortraits(section);
+          showSuggestions(input);
+          saveDraft();
+        });
+        input.addEventListener("focus", () => showSuggestions(input));
+        input.addEventListener("keydown", event => {
+          if (event.key === "Escape") {
+            suggestions.hidden = true;
+            input.setAttribute("aria-expanded", "false");
+          }
+        });
+        input.addEventListener("blur", () => {
+          // Le clic tactile sur la suggestion doit pouvoir aboutir avant fermeture.
+          setTimeout(() => {
+            suggestions.hidden = true;
+            input.setAttribute("aria-expanded", "false");
+          }, 170);
+        });
+        wrap.append(input, suggestions);
+        inputs.appendChild(wrap);
       }
       section.appendChild(inputs);
       const note = make("input", "select cosmicRoomNote");
@@ -190,22 +289,26 @@
       note.value = safeText(state.note, 250);
       section.appendChild(note);
       proposalsNode.appendChild(section);
+      renderSelectedPortraits(section);
     }
   }
-  function buildSubmission() {
-    const author = safeText(proposalAuthor.value, 80);
-    if (!author) throw new Error("Indique ton pseudo avant de partager.");
+    function buildSubmission() {
+    // Aucune valeur d'auteur ne provient des champs ou de localStorage.
+    const author = discordAuthor;
+    if (!author) throw new Error("La session Discord doit être validée avant le partage.");
     const selectedRooms = [];
     for (const room of rooms) {
       const section = proposalsNode.querySelector('[data-cosmic-room="' + room.id + '"]');
-      const values = [...section.querySelectorAll("[data-cosmic-character]")].map(input => input.value.trim());
-      const filled = values.filter(Boolean).length;
-      if (!filled) continue;
-      if (filled !== 5) throw new Error(room.label + " : complète les 5 personnages ou laisse cette salle vide.");
-      const resolved = values.map(resolveCharacter);
-      if (resolved.some(value => !value)) throw new Error(room.label + " : un personnage n'est pas reconnu dans le catalogue MSF.");
-      const ids = resolved.map(value => value.id);
-      if (new Set(ids).size !== 5) throw new Error(room.label + " : un personnage est sélectionné plusieurs fois.");
+      const inputs = [...section.querySelectorAll("[data-cosmic-character]")];
+      const attempted = inputs.some(input => input.value.trim() || input.dataset.selectedId);
+      if (!attempted) continue;
+      const ids = inputs.map(input => input.dataset.selectedId || "");
+      if (ids.some(id => !charactersById.has(id))) {
+        throw new Error(room.label + " : sélectionne les 5 personnages dans les suggestions.");
+      }
+      if (new Set(ids).size !== 5) {
+        throw new Error(room.label + " : un personnage est sélectionné plusieurs fois.");
+      }
       selectedRooms.push({
         room: room.id,
         label: room.label,
@@ -214,17 +317,11 @@
       });
     }
     if (!selectedRooms.length) throw new Error("Renseigne au moins une salle complète.");
-    return {
-      schemaVersion: 1,
-      mode: "cosmic-crucible",
-      author,
-      source: safeText(proposalSource.value, 160) || "Proposition personnelle",
-      rooms: selectedRooms
-    };
+    return { schemaVersion: 1, mode: "cosmic-crucible", author, rooms: selectedRooms };
   }
-  function shareMessage(submission) {
+    function shareMessage(submission) {
     const result = ["🌌 Épreuve cosmique — proposition de défenses",
-      "Auteur : " + submission.author, "Source : " + submission.source, ""];
+      "Auteur : " + submission.author, ""];
     for (const room of submission.rooms) {
       result.push("🛡️ " + room.label + " :");
       result.push(room.characters.map(id => charactersById.get(id)?.name || id).join(" · "));
@@ -280,11 +377,14 @@
       renderProposals();
       fillAuthorFromSession(window.LoSP_SESSION);
       window.addEventListener("losp:auth-ready", event => fillAuthorFromSession(event.detail));
-      proposalsNode.addEventListener("input", saveDraft);
-      proposalAuthor.addEventListener("input", saveDraft);
-      proposalSource.addEventListener("input", saveDraft);
+      proposalsNode.addEventListener("input", event => {
+        if (event.target.matches("[data-cosmic-note]")) saveDraft();
+      });
+      document.addEventListener("pointerdown", event => {
+        if (!event.target.closest(".cosmicInputWrap")) closeSuggestions();
+      });
       shareButton.addEventListener("click", shareSubmission);
-      proposalStatus.textContent = "Sélectionne des personnages puis partage ta composition.";
+      proposalStatus.textContent = "Tape les premières lettres d’un personnage puis sélectionne-le dans la liste.";
     } catch (error) {
       publishedStatus.textContent = "Impossible de charger les défenses : " + error.message;
       proposalStatus.textContent = "Le formulaire n'est pas disponible.";
