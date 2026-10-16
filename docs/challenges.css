@@ -1,0 +1,68 @@
+/* Challenges LoSP — styles isolés pour préserver les autres pages. */
+.challenges-app { max-width: 960px; }
+.challenges-app main { display: flex; flex-direction: column; gap: 13px; }
+.challenges-header { min-height: 86px; padding-right: 60px; }
+.challenges-header .title { margin: 0; }
+.challenges-header .subtitle { margin: 5px 0 0; }
+.challenges-intro p { margin: 10px 0 0; line-height: 1.45; }
+.challenges-intro .cardTitle { margin: 0; }
+.challenges-note { font-size: 13px; color: var(--muted); }
+.challenge-tabs { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 15px; }
+.challenge-tab { flex: 1 1 auto; min-height: 42px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 12px; background: rgba(0,0,0,.3); color: var(--text); font-size: 13px; font-weight: 800; cursor: pointer; }
+.challenge-tab[aria-pressed="true"] { background: rgba(65,150,215,.28); border-color: rgba(130,200,255,.75); box-shadow: inset 0 0 0 1px rgba(130,200,255,.2); }
+.challenge-tab:focus-visible, .challenge-entry:focus-visible, .challenge-source:focus-visible, .challenge-search:focus-visible, .challenge-check:focus-visible { outline: 2px solid #9ed6ff; outline-offset: 3px; }
+.challenge-search-label { display: block; font-weight: 750; font-size: 13px; margin-bottom: 7px; color: var(--muted); }
+.challenge-search { appearance: none; -webkit-appearance: none; width: 100%; min-height: 43px; border: 1px solid var(--border); border-radius: 12px; color: var(--text); background: rgba(3,6,12,.76); font: inherit; font-size: 16px; padding: 10px 12px; }
+.challenge-search::placeholder { color: var(--muted2); }
+.challenges-count { margin: 9px 0 0; color: var(--muted); font-size: 12px; }
+.challenges-grid { display: grid; gap: 9px; grid-template-columns: repeat(2,minmax(0,1fr)); }
+.challenge-entry { display: flex; text-align: left; gap: 10px; align-items: center; min-width: 0; min-height: 81px; width: 100%; border: 1px solid var(--border); border-radius: 14px; padding: 10px; background: rgba(10,17,28,.85); color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.challenge-entry[aria-pressed="true"] { border-color: rgba(132,214,255,.9); background: rgba(34,67,92,.79); }
+.challenge-entry-text { display: grid; gap: 5px; min-width: 0; }
+.challenge-entry strong { overflow-wrap: anywhere; font-size: 14px; line-height: 1.2; }
+.challenge-entry small { color: var(--muted); font-size: 11px; line-height: 1.25; }
+.challenge-entry .challenge-avatar { flex: 0 0 52px; width: 52px; height: 52px; }
+.challenge-avatar { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 11px; border: 1px solid rgba(255,255,255,.14); background: linear-gradient(145deg,#2b3645,#131a27); color: #d6eaff; overflow: hidden; font-weight: 900; }
+.challenge-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.challenges-empty, .challenge-error { padding: 16px; color: var(--muted); text-align: center; }
+.challenges-detail { scroll-margin-top: 15px; }
+.challenge-detail-head { display: flex; align-items: center; gap: 12px; margin-bottom: 9px; }
+.challenge-detail-head h2 { margin: 0 0 5px; font-size: 22px; line-height: 1.2; }
+.challenge-detail-head p { margin: 0; font-size: 13px; color: var(--muted); }
+.challenge-summary { line-height: 1.48; }
+.challenge-pills { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0; }
+.challenge-pill { padding: 5px 8px; border-radius: 9px; background: rgba(110,167,231,.13); border: 1px solid rgba(126,193,232,.22); color: #d0eaff; font-size: 12px; font-weight: 750; }
+.challenge-source { display: inline-flex; min-height: 40px; align-items: center; padding: 9px 12px; color: #c2e3ff; background: rgba(72,120,166,.14); border: 1px solid rgba(130,194,234,.35); border-radius: 10px; text-decoration: none; font-weight: 800; font-size: 13px; }
+.challenge-source:hover { text-decoration: underline; }
+.challenge-section-heading { margin: 20px 0 12px; font-size: 17px; }
+.challenge-stage { border: 1px solid var(--border); border-radius: 14px; background: rgba(0,0,0,.22); margin-top: 10px; overflow: hidden; }
+.challenge-stage summary { cursor: pointer; padding: 13px; display: flex; align-items: center; gap: 10px; list-style: none; -webkit-tap-highlight-color: transparent; }
+.challenge-stage summary::-webkit-details-marker { display: none; }
+.challenge-stage summary::after { content: '⌄'; margin-left: auto; font-size: 20px; line-height: 1; color: var(--muted); }
+.challenge-stage[open] summary::after { transform: rotate(180deg); }
+.challenge-stage-title { display: grid; gap: 4px; min-width: 0; }
+.challenge-stage-title strong { font-size: 15px; }
+.challenge-stage-title small { color: var(--muted); line-height: 1.2; }
+.challenge-stage-body { padding: 0 12px 14px; }
+.challenge-team { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 6px; margin-top: 10px; }
+.challenge-hero { display: grid; justify-items: center; align-content: start; gap: 5px; margin: 0; min-width: 0; }
+.challenge-hero .challenge-avatar { width: 100%; max-width: 83px; height: auto; aspect-ratio: 1 / 1; border-radius: 10px; }
+.challenge-hero figcaption { font-size: 11px; text-align: center; line-height: 1.2; overflow-wrap: anywhere; color: var(--text); }
+.challenge-stage-body h4 { color: #dcecff; font-size: 13px; margin: 15px 0 6px; }
+.challenge-stage-body p { font-size: 13px; line-height: 1.5; margin: 7px 0; }
+.challenge-advice { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.55; }
+.challenge-advice li + li { margin-top: 5px; }
+.challenge-alternatives { display: flex; flex-wrap: wrap; gap: 10px; }
+.challenge-alternatives .challenge-hero { width: 74px; }
+.challenge-check-row { display: flex; align-items: center; gap: 9px; border-top: 1px solid var(--border); margin-top: 14px; padding-top: 12px; font-size: 13px; }
+.challenge-check { width: 19px; height: 19px; accent-color: #4cba85; }
+.challenge-section-note { font-size: 13px; line-height: 1.5; color: var(--muted); padding: 12px; border: 1px dashed var(--border); border-radius: 12px; }
+.challenges-credit { color: var(--muted2); text-align: center; font-size: 12px; margin: 0; }
+@media (max-width: 520px) {
+  .challenges-grid { grid-template-columns: 1fr; }
+  .challenges-intro p { font-size: 13px; }
+  .challenge-tab { font-size: 12px; }
+  .challenge-hero figcaption { font-size: 10px; }
+  .challenge-detail-head h2 { font-size: 19px; }
+}
+@media (prefers-reduced-motion: reduce) { .challenges-app * { scroll-behavior: auto !important; } }
