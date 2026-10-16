@@ -354,3 +354,18 @@
     transition: none !important;
   }
 }
+
+/* Entrée Challenges : une tuile CSS sans image externe. */
+.homeTile--challenges{
+  --glow: rgba(255, 180, 73, .65);
+  --glow-strong: rgba(255, 202, 102, 1);
+  background: radial-gradient(circle at 50% 32%, #444059 0%, #1d2943 44%, #0c111e 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+.homeTileChallengeIcon{ font-size: clamp(40px, 12vw, 84px); line-height: 1.1; text-shadow: 0 5px 25px rgba(245,183,69,.45); }
+.homeTileChallengeName{ color: #fff2ce; font-size: clamp(16px, 4vw, 24px); font-weight: 950; line-height: 1.05; text-shadow: 0 2px 12px rgba(0,0,0,.7); }
+.homeTileChallengeTagline{ color: rgba(255,239,205,.74); font-size: clamp(9px, 2.4vw, 13px); font-weight: 750; text-align: center; }
