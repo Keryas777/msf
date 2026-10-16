@@ -3,7 +3,9 @@
 Reviewed signatures are corroborated by official ability descriptions in
 docs/audits/health-redistribute-deep-audit-10.5.0.md. Confirmed results describe
 only the behavior family. No formula, implicit multiplier, actor identity or
-percentage basis is inferred.
+percentage basis is inferred. The separately fingerprinted Oath 10.6.3 variant
+is documented in docs/audits/health-redistribute-deep-audit-10.6.3.md; its
+resource version remains explicitly unverified.
 """
 from __future__ import annotations
 
@@ -272,6 +274,19 @@ REVIEWED_OFFICIAL_TEXT_SIGNATURES = {
     }
 }
 
+# This 10.5.0 action changed only its mode/count condition in the unverified
+# 10.6.3 resource set. The current French ability text still explicitly says
+# that life is stolen and redistributed to Oath, so the family-level claim is
+# revalidated for this exact raw signature. The engine formula remains unknown.
+REVIEWED_OFFICIAL_TEXT_SIGNATURE_VARIANTS = {
+    "/Data/Oath/special/actions/0": {
+        "sha256": "1364e5130ca4b99d8d2469bfeff4bbbb0c99ba7cc66dbde41e261d48a33d974e",
+        "sourceGameVersion": "10_6_3",
+        "sourceVersionVerified": False,
+        "assertion": "La description FR confirme le vol de vie à la cible principale et sa redistribution à soi.",
+    },
+}
+
 # Text supports only the listed claim for these rows; keep behavior unresolved.
 PARTIAL_OFFICIAL_TEXT_SIGNATURES = {
     "/Data/KangTheConqueror/passive/0/actions/3": {
@@ -361,7 +376,19 @@ def normalize_health_redistribute(action: dict[str, Any]) -> dict[str, Any]:
     # source actions from the 10.5.0 audit. This is a family classification, not
     # a combat formula or proof of percentage basis.
     reviewed_text = REVIEWED_OFFICIAL_TEXT_SIGNATURES.get(pointer)
-    if (reviewed_text and _raw_fingerprint(raw) == reviewed_text["sha256"]):
+    verified_review = None
+    if reviewed_text and _raw_fingerprint(raw) == reviewed_text["sha256"]:
+        verified_review = {
+            "sourceGameVersion": "10_5_0",
+            # Preserve the historical corpus label without claiming a fresh
+            # provenance verification in this migration.
+            "sourceVersionVerified": None,
+            "assertion": "L’action et le texte officiel FR établissent le vol de vie puis sa redistribution ou son retour.",
+        }
+    variant = REVIEWED_OFFICIAL_TEXT_SIGNATURE_VARIANTS.get(pointer)
+    if variant and _raw_fingerprint(raw) == variant["sha256"]:
+        verified_review = variant
+    if verified_review:
         behavior, rule, proof = (
             "health_steal_redistribute",
             "reviewed_official_text_steal_and_redistribution",
@@ -383,9 +410,11 @@ def normalize_health_redistribute(action: dict[str, Any]) -> dict[str, Any]:
         "evidence": {"basis": proof, "rule": rule, "sourcePointer": pointer,
                      **({"proofLevel": "confirmed",
                          "scope": "behavior_family_only",
-                         "sourceGameVersion": "10_5_0",
+                         "sourceGameVersion": verified_review["sourceGameVersion"],
+                         "sourceVersionVerified": verified_review["sourceVersionVerified"],
+                         "assertion": verified_review["assertion"],
                          "limits": ["percentage_basis", "engine_formula", "recipient_allocation", "operation_order"]}
-                        if reviewed_text and _raw_fingerprint(raw) == reviewed_text["sha256"] else {}),
+                        if verified_review else {}),
                      **({"proofLevel": "partially_confirmed",
                          "sourceGameVersion": "10_5_0",
                          "assertion": partial_text["assertion"]}
