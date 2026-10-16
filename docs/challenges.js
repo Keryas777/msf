@@ -120,7 +120,7 @@
         characters: [], alternatives: [], advice: [], pending: true
       });
     }
-    return result.concat(stages.filter(stage => !/^\\d+$/.test(String(stage.id)) || Number(stage.id) > total));
+    return result.concat(stages.filter(stage => !/^\d+$/.test(String(stage.id)) || Number(stage.id) > total));
   }
 
   function matchingEvents() {
