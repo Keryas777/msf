@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <style>html.authChecking body{opacity:0;pointer-events:none}</style>
+  <script>document.documentElement.classList.add("authChecking");</script>
+  <script src="./auth-guard.js?v=4"></script>
+  <meta name="theme-color" content="#0b0c0d">
+  <title>LoSP — Challenges MSF</title>
+  <meta name="description" content="Guides français pour les tours, Trials, Breakers et Dimensions noires de Marvel Strike Force.">
+  <link rel="stylesheet" href="./style.css?v=4">
+  <link rel="stylesheet" href="./challenges.css?v=1">
+  <link rel="manifest" href="./manifest.webmanifest">
+</head>
+<body>
+  <div class="app challenges-app">
+    <header class="header challenges-header">
+      <a class="homeBtn" href="./home.html" aria-label="Retour à l’accueil">🏠</a>
+      <div class="headerLeft">
+        <h1 class="title">🏆 Challenges</h1>
+        <p class="subtitle">Tours, Trials, Breakers et Dimension noire</p>
+      </div>
+    </header>
+    <main>
+      <section class="card challenges-intro">
+        <h2 class="cardTitle">Guides de progression MSF</h2>
+        <p>Retrouve rapidement les équipes conseillées, leurs portraits et les points tactiques à retenir. Les recommandations sont issues de guides communautaires et peuvent évoluer.</p>
+        <p class="challenges-note">Les événements répertoriés ne sont pas forcément actifs en jeu.</p>
+      </section>
+      <section class="card challenges-filters" aria-label="Rechercher un challenge">
+        <div class="challenge-tabs" id="challengeTabs" role="group" aria-label="Catégorie de challenge"></div>
+        <label class="challenge-search-label" for="challengeSearch">Rechercher un guide</label>
+        <input type="search" id="challengeSearch" class="challenge-search" placeholder="Ex. : Scorpion, Blade, DD9…" autocomplete="off">
+        <p class="challenges-count" id="challengeCount" role="status" aria-live="polite"></p>
+      </section>
+      <section class="challenges-directory" aria-label="Guides disponibles">
+        <div class="challenges-grid" id="challengeList"></div>
+        <p class="challenges-empty" id="challengeEmpty" hidden>Aucun guide trouvé pour cette recherche.</p>
+      </section>
+      <section class="card challenges-detail" id="challengeDetail" aria-label="Guide sélectionné" hidden></section>
+      <p class="challenges-credit" id="challengesCredit"></p>
+    </main>
+  </div>
+  <script src="./challenges.js?v=1" defer></script>
+</body>
+</html>
