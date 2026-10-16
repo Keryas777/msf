@@ -354,24 +354,3 @@
     transition: none !important;
   }
 }
-/* Épreuve cosmique : tuile sans image externe, utilisable hors ligne. */
-.homeTile--cosmic{
-  --glow: rgba(155,105,255,.75);
-  --glow-strong: rgba(196,148,255,.98);
-  background: radial-gradient(circle at 50% 12%, #3e287b, #151632 58%, #080d1c);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  gap:8px;
-}
-.homeTileCosmicIcon{ font-size:clamp(38px,10vw,72px); line-height:1; }
-.homeTileCosmicText{
-  color:#f5edff;
-  font-size:clamp(12px,3.3vw,22px);
-  line-height:1.15;
-  text-align:center;
-  font-weight:900;
-  letter-spacing:.08em;
-  text-shadow:0 2px 14px #000;
-}

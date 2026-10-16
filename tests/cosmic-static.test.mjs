@@ -8,7 +8,10 @@ test("hub cosmique : navigation et authentification", async () => {
     read("docs/home.html"), read("docs/cosmic.html"),
     read("docs/cosmic-counters.html"), read("docs/cosmic-defenses.html")
   ]);
-  assert.match(home, /href="\.\/cosmic\.html"/);
+  // En cours de validation : la rubrique ne doit pas encore être visible depuis l’accueil.
+  assert.doesNotMatch(home, /cosmic(?:-counters|-defenses)?\.html/);
+  const homeCss = await read("docs/home.css");
+  assert.doesNotMatch(homeCss, /homeTile--cosmic/);
   assert.match(hub, /href="\.\/cosmic-counters\.html"/);
   assert.match(hub, /href="\.\/cosmic-defenses\.html"/);
   for (const page of [hub, counters, defenses]) assert.match(page, /auth-guard\.js/);
