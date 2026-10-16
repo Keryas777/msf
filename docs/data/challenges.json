@@ -9,7 +9,6 @@
       "title": "Tour de Blade",
       "summary": "24 étages, trois difficultés et personnages Challenger I.",
       "rewardId": "BladeMighty",
-      "sourceUrl": "https://www.marvel.church/mighty-tower-blade/",
       "stages": [
         {
           "id": "1",
@@ -109,7 +108,8 @@
         }
       ],
       "totalStages": 24,
-      "stageUnit": "étage"
+      "stageUnit": "étage",
+      "editorialRef": "mighty-tower-blade/"
     },
     {
       "id": "spider-descent",
@@ -117,10 +117,10 @@
       "title": "Tour de Spider-Man : Descente",
       "summary": "40 étages et quatre difficultés ; Kingo en récompense.",
       "rewardId": "Kingo",
-      "sourceUrl": "https://www.marvel.church/spider-man-tower-descent/",
       "stages": [],
       "totalStages": 40,
-      "stageUnit": "étage"
+      "stageUnit": "étage",
+      "editorialRef": "spider-man-tower-descent/"
     },
     {
       "id": "kyln-blazes",
@@ -128,10 +128,10 @@
       "title": "Évasion de Kyln : Code Blazes",
       "summary": "20 cellules. Les combats utilisent des groupes de trois personnages.",
       "rewardId": null,
-      "sourceUrl": "https://www.marvel.church/escape-from-kyln-code-blazes/",
       "stages": [],
       "totalStages": 20,
-      "stageUnit": "cellule"
+      "stageUnit": "cellule",
+      "editorialRef": "escape-from-kyln-code-blazes/"
     },
     {
       "id": "kyln-whiplash",
@@ -139,8 +139,8 @@
       "title": "Évasion de Kyln : Code Whiplash",
       "summary": "Guide par cellule.",
       "rewardId": null,
-      "sourceUrl": "https://www.marvel.church/escape-from-kyln-code-whiplash/",
-      "stages": []
+      "stages": [],
+      "editorialRef": "escape-from-kyln-code-whiplash/"
     },
     {
       "id": "fear",
@@ -148,10 +148,10 @@
       "title": "Tour de la Peur",
       "summary": "20 étages et trois difficultés.",
       "rewardId": "SymbioteQuicksilver",
-      "sourceUrl": "https://www.marvel.church/fear-tower/",
       "stages": [],
       "totalStages": 20,
-      "stageUnit": "étage"
+      "stageUnit": "étage",
+      "editorialRef": "fear-tower/"
     },
     {
       "id": "storm",
@@ -159,10 +159,10 @@
       "title": "Tour de Tornade",
       "summary": "12 étages et deux difficultés.",
       "rewardId": "StormMighty",
-      "sourceUrl": "https://www.marvel.church/mighty-tower-storm/",
       "stages": [],
       "totalStages": 12,
-      "stageUnit": "étage"
+      "stageUnit": "étage",
+      "editorialRef": "mighty-tower-storm/"
     },
     {
       "id": "war",
@@ -170,8 +170,8 @@
       "title": "Tour de Guerre",
       "summary": "Défis axés sur les équipes de guerre.",
       "rewardId": "JeffTheLandShark",
-      "sourceUrl": "https://www.marvel.church/war-tower/",
-      "stages": []
+      "stages": [],
+      "editorialRef": "war-tower/"
     },
     {
       "id": "kyln-polarity",
@@ -179,10 +179,10 @@
       "title": "Évasion de Kyln : Polarity Shift",
       "summary": "18 cellules et équipes de trois personnages.",
       "rewardId": null,
-      "sourceUrl": "https://www.marvel.church/escape-from-kyln/",
       "stages": [],
       "totalStages": 18,
-      "stageUnit": "cellule"
+      "stageUnit": "cellule",
+      "editorialRef": "escape-from-kyln/"
     },
     {
       "id": "surfer-breaker",
@@ -190,7 +190,6 @@
       "title": "Surfer d'argent (Briseur)",
       "summary": "Événement Breaker avec modificateurs et restrictions par mission.",
       "rewardId": "SilverSurferBreaker",
-      "sourceUrl": "https://www.marvel.church/breaker-event-silver-surfer/",
       "stages": [
         {
           "id": "1",
@@ -224,7 +223,8 @@
           ],
           "alternatives": []
         }
-      ]
+      ],
+      "editorialRef": "breaker-event-silver-surfer/"
     },
     {
       "id": "scorpion-breaker",
@@ -232,7 +232,6 @@
       "title": "Scorpion (Briseur)",
       "summary": "Événement Breaker avec quatre difficultés.",
       "rewardId": "ScorpionBreaker",
-      "sourceUrl": "https://www.marvel.church/breaker-event-scorpion/",
       "stages": [
         {
           "id": "1",
@@ -266,7 +265,8 @@
           ],
           "alternatives": []
         }
-      ]
+      ],
+      "editorialRef": "breaker-event-scorpion/"
     },
     {
       "id": "magik-breaker",
@@ -274,8 +274,8 @@
       "title": "Première Briseuse : Magik",
       "summary": "Événement permanent ; la préparation passe par l'ISO-8 orange niveau 3 sur 15 personnages.",
       "rewardId": "MagikBreaker",
-      "sourceUrl": "https://www.marvel.church/first-breaker-magik/",
-      "stages": []
+      "stages": [],
+      "editorialRef": "first-breaker-magik/"
     },
     {
       "id": "shadow-king",
@@ -283,8 +283,8 @@
       "title": "Épreuves du Roi d'ombre",
       "summary": "Guide Trials avec difficultés et compositions.",
       "rewardId": "ShadowKing",
-      "sourceUrl": "https://www.marvel.church/shadow-king-trials/",
-      "stages": []
+      "stages": [],
+      "editorialRef": "shadow-king-trials/"
     },
     {
       "id": "old-man-logan",
@@ -292,8 +292,8 @@
       "title": "Épreuves d'Old Man Logan",
       "summary": "Guide Trials avec difficultés et compositions.",
       "rewardId": "OldManLogan",
-      "sourceUrl": "https://www.marvel.church/old-man-logan-trials/",
-      "stages": []
+      "stages": [],
+      "editorialRef": "old-man-logan-trials/"
     },
     {
       "id": "green-goblin",
@@ -301,8 +301,8 @@
       "title": "Épreuves du Bouffon vert (Classique)",
       "summary": "Guide Trials légendaire.",
       "rewardId": "GreenGoblinGlider",
-      "sourceUrl": "https://www.marvel.church/green-goblin-classic-trials/",
-      "stages": []
+      "stages": [],
+      "editorialRef": "green-goblin-classic-trials/"
     },
     {
       "id": "black-cat",
@@ -310,8 +310,8 @@
       "title": "Épreuves de Black Cat",
       "summary": "Guide Trials légendaire.",
       "rewardId": "BlackCat",
-      "sourceUrl": "https://www.marvel.church/black-cat-trials/",
-      "stages": []
+      "stages": [],
+      "editorialRef": "black-cat-trials/"
     },
     {
       "id": "nova",
@@ -319,8 +319,8 @@
       "title": "Épreuves de Nova",
       "summary": "Guide Trials légendaire.",
       "rewardId": "Nova",
-      "sourceUrl": "https://www.marvel.church/nova-trials/",
-      "stages": []
+      "stages": [],
+      "editorialRef": "nova-trials/"
     },
     {
       "id": "dd1",
@@ -328,8 +328,8 @@
       "title": "Dimension noire 1",
       "summary": "Guide de préparation et progression.",
       "rewardId": null,
-      "sourceUrl": "https://www.marvel.church/heroes-for-dark-dimension/",
-      "stages": []
+      "stages": [],
+      "editorialRef": "heroes-for-dark-dimension/"
     },
     {
       "id": "dd2",
@@ -337,8 +337,8 @@
       "title": "Dimension noire 2",
       "summary": "Guide de préparation et progression.",
       "rewardId": null,
-      "sourceUrl": "https://www.marvel.church/heroes-for-dark-dimension/",
-      "stages": []
+      "stages": [],
+      "editorialRef": "heroes-for-dark-dimension/"
     },
     {
       "id": "dd3",
@@ -346,8 +346,8 @@
       "title": "Dimension noire 3",
       "summary": "Guide de préparation et progression.",
       "rewardId": null,
-      "sourceUrl": "https://www.marvel.church/heroes-for-dark-dimension/",
-      "stages": []
+      "stages": [],
+      "editorialRef": "heroes-for-dark-dimension/"
     },
     {
       "id": "dd4",
@@ -355,8 +355,8 @@
       "title": "Dimension noire 4",
       "summary": "Guide de préparation et progression.",
       "rewardId": null,
-      "sourceUrl": "https://www.marvel.church/heroes-for-dark-dimension/",
-      "stages": []
+      "stages": [],
+      "editorialRef": "heroes-for-dark-dimension/"
     },
     {
       "id": "dd5",
@@ -364,8 +364,8 @@
       "title": "Dimension noire 5",
       "summary": "Guide de préparation et progression.",
       "rewardId": null,
-      "sourceUrl": "https://www.marvel.church/heroes-for-dark-dimension/",
-      "stages": []
+      "stages": [],
+      "editorialRef": "heroes-for-dark-dimension/"
     },
     {
       "id": "dd6",
@@ -373,8 +373,8 @@
       "title": "Dimension noire 6",
       "summary": "Guide de préparation et progression.",
       "rewardId": null,
-      "sourceUrl": "https://www.marvel.church/heroes-for-dark-dimension/",
-      "stages": []
+      "stages": [],
+      "editorialRef": "heroes-for-dark-dimension/"
     },
     {
       "id": "dd7",
@@ -382,8 +382,8 @@
       "title": "Dimension noire 7",
       "summary": "Guide de préparation et progression.",
       "rewardId": null,
-      "sourceUrl": "https://www.marvel.church/heroes-for-dark-dimension/",
-      "stages": []
+      "stages": [],
+      "editorialRef": "heroes-for-dark-dimension/"
     },
     {
       "id": "dd8",
@@ -391,7 +391,6 @@
       "title": "Dimension noire VIII",
       "summary": "ISO-8 violet niveau 3 : recommandations par section.",
       "rewardId": "Odin",
-      "sourceUrl": "https://www.marvel.church/characters-for-dark-dimension-viii/",
       "stages": [
         {
           "id": "city-heroes",
@@ -463,7 +462,8 @@
           "advice": [],
           "alternatives": []
         }
-      ]
+      ],
+      "editorialRef": "characters-for-dark-dimension-viii/"
     },
     {
       "id": "dd9",
@@ -471,7 +471,6 @@
       "title": "Dimension noire IX",
       "summary": "Équipement G21 requis sur les cinq personnages de chaque mission.",
       "rewardId": "Annihilus",
-      "sourceUrl": "https://www.marvel.church/characters-for-dark-dimension-ix/",
       "stages": [
         {
           "id": "city",
@@ -557,7 +556,8 @@
           "advice": [],
           "alternatives": []
         }
-      ]
+      ],
+      "editorialRef": "characters-for-dark-dimension-ix/"
     }
   ]
 }
