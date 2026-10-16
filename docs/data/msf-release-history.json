@@ -9254,7 +9254,8 @@
       "dateConvention": "Scopely's North American PST/PDT event date; exact date only when first offers/orbs or actual unlock are documented.",
       "auditedPeriods": [
         "2024-01-01/2024-03-31",
-        "2024-04-01/2024-06-30"
+        "2024-04-01/2024-06-30",
+        "2024-10-01/2024-12-31"
       ],
       "individualReleases": [
         {
@@ -9993,6 +9994,652 @@
           "releaseMethods": {
             "Guardian": "limited_offer; power_core_store"
           }
+        },
+        {
+          "month": "2024-08",
+          "teamId": "orchis-2024-08-sep-rollout",
+          "label": "Orchis — August–September 2024 original rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Sentinel",
+            "Nimrod",
+            "OmegaSentinel",
+            "ScientistSupreme",
+            "LadyDeathstrike"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Sentinel",
+            "Nimrod",
+            "OmegaSentinel"
+          ],
+          "existingCharacterIds": [
+            "ScientistSupreme",
+            "LadyDeathstrike"
+          ],
+          "reworkedCharacterIds": [
+            "ScientistSupreme",
+            "LadyDeathstrike"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "Orchis starts in AUGUST due to actual Scientist Supreme rework evidence, not in September when Sentinel first recruited.",
+            "Both existing veterans receive significant upgrades; first recruitment waves of Sentinel, Nimrod, Omega Sentinel all occur by September 30.",
+            "Omega Sentinel September 21 purchase path was unusually hidden/brief and is supported by contemporary player ownership rather than a general schedule.",
+            "Playable Sentinel is not summoned Sentinel_Gun/Sentinel_Sword or PVE_Sentinel_RogueLike."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "Sentinel",
+              "month": "2024-09",
+              "date": "2024-09-03",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q3-orchis-sentinel",
+                "q3-orchis-kit"
+              ],
+              "notes": [
+                "September 3 official initial Halt Mutant 675-core orb and paid offers; excludes summoned Sentinel variants."
+              ]
+            },
+            {
+              "characterId": "Nimrod",
+              "month": "2024-09",
+              "date": "2024-09-12",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q3-orchis-nimrod",
+                "q3-orchis-nimrod-orbs"
+              ],
+              "notes": [
+                "September 12 firsthand report of a fully recruited GT18 three-star Nimrod via core orbs; Phase 1 event orbs do not guarantee shards."
+              ]
+            },
+            {
+              "characterId": "OmegaSentinel",
+              "month": "2024-09",
+              "date": "2024-09-21",
+              "releaseMethod": "limited_offer",
+              "confidence": "medium",
+              "dateConfidence": "medium",
+              "sourceIds": [
+                "q3-orchis-omega",
+                "q3-orchis-kit"
+              ],
+              "notes": [
+                "At least one normal player demonstrably owned Omega Sentinel on September 21 using a brief/poorly surfaced store offer accessible through Find Shards. Date predates broad later offer rollout; availability was inconsistent."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "ScientistSupreme",
+              "month": "2024-08",
+              "sourceIds": [
+                "q3-orchis-kit",
+                "q3-orchis-live"
+              ],
+              "notes": [
+                "Actual 2024-08-28 before/after roster screenshot proves live change: Health 1.85m→10.08m, Damage 99,730→521,589 and Speed 97→118, plus substantial kit changes."
+              ]
+            },
+            {
+              "characterId": "LadyDeathstrike",
+              "month": "2024-08",
+              "sourceIds": [
+                "q3-orchis-kit",
+                "q3-orchis-live"
+              ],
+              "notes": [
+                "Major Orchis damage/health/armor/focus/resistance buffs and revised kit associated with version 8.3 late-August rollout; precise day not independently proven."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q3-orchis-kit",
+            "q3-orchis-live",
+            "q3-orchis-sentinel",
+            "q3-orchis-nimrod",
+            "q3-orchis-omega"
+          ],
+          "releaseMethods": {
+            "Sentinel": "limited_offer; power_core_store",
+            "Nimrod": "limited_offer; power_core_store",
+            "OmegaSentinel": "limited_offer"
+          }
+        },
+        {
+          "month": "2024-09",
+          "teamId": "nightstalkers-2024-09-oct-rollout",
+          "label": "Nightstalkers — September reworks and October 2024 recruits",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Blade",
+            "Oath",
+            "ManThing",
+            "AgathaHarkness",
+            "MoonKnight"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Blade",
+            "Oath",
+            "ManThing"
+          ],
+          "existingCharacterIds": [
+            "AgathaHarkness",
+            "MoonKnight"
+          ],
+          "reworkedCharacterIds": [
+            "AgathaHarkness",
+            "MoonKnight"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "Scopely officially dates first Blade core-orb/offers October 1 (PDT). Oath and Man-Thing belong to October Q4, not September.",
+            "Original Nightstalkers team anchored in September when the Moon Knight/Agatha veteran reworks were already live, completed by October recruitments.",
+            "Do not create separate Blade/Oath/Man-Thing events; only their three October first recruitments count in Q4.",
+            "Moon Knight and Agatha are September reworks and do not contribute to the Q4 rework counter."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "Blade",
+              "month": "2024-10",
+              "date": "2024-10-01",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q4-blade-sep27"
+              ],
+              "notes": [
+                "October 1 Daywalker Orb (675 Power Cores) and initial shop/web offers, not later F2P unlock."
+              ]
+            },
+            {
+              "characterId": "Oath",
+              "month": "2024-10",
+              "confidence": "high",
+              "sourceIds": [
+                "q4-oath-oct04",
+                "q4-oath-secondary"
+              ],
+              "notes": [
+                "October inaugural release (Oath/Karen Page); a secondary chronology says October 9, but the first immediately unlockable paid/orb channel is not independently established enough to encode that day."
+              ]
+            },
+            {
+              "characterId": "ManThing",
+              "month": "2024-10",
+              "date": "2024-10-17",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q4-man-oct11"
+              ],
+              "notes": [
+                "October 17 Swamp Sovereign 675-core orb and initial offers, before later events."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "AgathaHarkness",
+              "month": "2024-09",
+              "sourceIds": [
+                "q3-night-kit",
+                "q3-night-agatha",
+                "q3-night-live"
+              ],
+              "notes": [
+                "Agatha +273% Health, +207% Damage, +180% Armor and substantial Nightstalkers ability/synergy changes; contemporary September discussion/strength supports live September."
+              ]
+            },
+            {
+              "characterId": "MoonKnight",
+              "month": "2024-09",
+              "sourceIds": [
+                "q3-night-kit",
+                "q3-night-live"
+              ],
+              "notes": [
+                "Moon Knight +250% Health, +153% Damage, +339% Focus, and multi-ability updates; September 28 player personally used reworked damage in combat."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q3-night-kit",
+            "q3-night-agatha",
+            "q3-night-live",
+            "q3-night-blade",
+            "q4-night-kit",
+            "q4-night-live-sep",
+            "q4-blade-sep27",
+            "q4-oath-oct04",
+            "q4-man-oct11"
+          ],
+          "releaseMethods": {
+            "Blade": "limited_offer; power_core_store",
+            "ManThing": "limited_offer; power_core_store"
+          }
+        },
+        {
+          "month": "2024-10",
+          "teamId": "undying-zombie-scarlet-witch-expansion-2024",
+          "label": "Undying — Scarlet Witch (Zombie) expansion",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 4,
+          "members": [
+            "Hela",
+            "ZombieIronMan",
+            "ZombieJuggernaut",
+            "ZombieScarletWitch"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "ZombieScarletWitch"
+          ],
+          "existingCharacterIds": [
+            "Hela",
+            "ZombieIronMan",
+            "ZombieJuggernaut"
+          ],
+          "reworkedCharacterIds": [],
+          "announcedNext": [],
+          "notes": [
+            "Expansion of pre-existing Undying team, not a four-new-character launch.",
+            "Hela, Zombie Iron Man and Zombie Juggernaut were already playable. No new significant 2024 veteran rework is claimed without proof.",
+            "Scarlet Witch (Zombie) is distinct from base Scarlet Witch and zombie summons."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "ZombieScarletWitch",
+              "month": "2024-10",
+              "confidence": "high",
+              "sourceIds": [
+                "q4-undying-oct18",
+                "q4-undying-secondary"
+              ],
+              "notes": [
+                "Halloween 2024 introduction in the week after the October 21 challenges, consistent with October 28 secondary chronology; specific first immediate paid unlock/day and shard threshold remain to be independently evidenced. Do not confuse borrowed campaign characters with an owned recruit."
+              ]
+            }
+          ],
+          "reworks": [],
+          "confidence": "high",
+          "sourceIds": [
+            "q4-undying-oct18",
+            "q4-undying-secondary"
+          ]
+        },
+        {
+          "month": "2024-10",
+          "teamId": "astral-2024-rollout",
+          "label": "Astral — October veteran rework, November recruitment",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "ShadowKing",
+            "AncientOne",
+            "EmmaFrostXMen",
+            "DoctorStrange",
+            "Moondragon"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "ShadowKing",
+            "AncientOne",
+            "EmmaFrostXMen"
+          ],
+          "existingCharacterIds": [
+            "DoctorStrange",
+            "Moondragon"
+          ],
+          "reworkedCharacterIds": [
+            "DoctorStrange",
+            "Moondragon"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "One Astral team covering October Doctor Strange live rework and November Ancient One, Emma Frost (X-Men), Shadow King recruits.",
+            "Moondragon's awakened ability materials later in November do not create another event or standalone rework."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "AncientOne",
+              "month": "2024-11",
+              "confidence": "high",
+              "sourceIds": [
+                "q4-ancient-nov01",
+                "q4-ancient-secondary"
+              ],
+              "notes": [
+                "Already introduced and recruitable in early November; November 6 appears in secondary release chronology, but do not encode that day without initial-orb/paid-offer evidence."
+              ]
+            },
+            {
+              "characterId": "EmmaFrostXMen",
+              "month": "2024-11",
+              "date": "2024-11-14",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q4-emma-nov08"
+              ],
+              "notes": [
+                "November 14 Frost Queen Orb 675 Power Cores and first offers. Distinct from original Emma Frost."
+              ]
+            },
+            {
+              "characterId": "ShadowKing",
+              "month": "2024-11",
+              "date": "2024-11-22",
+              "releaseMethod": "trial",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q4-king-nov15",
+                "q4-king-nov22"
+              ],
+              "notes": [
+                "First Shadow King Trials started November 22 with achievable unlock reward; not an announcement-only or a later run."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "DoctorStrange",
+              "month": "2024-10",
+              "sourceIds": [
+                "q4-astral-team",
+                "q4-strange-oct19"
+              ],
+              "notes": [
+                "His revised passive and actual Wong summon worked in War on October 19; functional evidence predates the Astral recruits of November."
+              ]
+            },
+            {
+              "characterId": "Moondragon",
+              "month": "2024-11",
+              "sourceIds": [
+                "q4-astral-team",
+                "q4-king-nov22"
+              ],
+              "notes": [
+                "Astral veteran upgrade includes major stat increase and multiple baseline ability/synergy changes. The November awakened Ultimate offer is not counted as a separate rework; exact effective day unproven."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q4-astral-team",
+            "q4-strange-oct19",
+            "q4-ancient-nov01",
+            "q4-emma-nov08",
+            "q4-king-nov15",
+            "q4-king-nov22"
+          ],
+          "releaseMethods": {
+            "EmmaFrostXMen": "limited_offer; power_core_store",
+            "ShadowKing": "trial"
+          }
+        },
+        {
+          "month": "2024-12",
+          "teamId": "absolute-a-force-2024-12-rollout",
+          "label": "Absolute A-Force — December 2024 rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Kahhori",
+            "MsMarvelClassic",
+            "Medusa",
+            "Wasp",
+            "Ironheart"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Kahhori",
+            "MsMarvelClassic",
+            "Medusa"
+          ],
+          "existingCharacterIds": [
+            "Wasp",
+            "Ironheart"
+          ],
+          "reworkedCharacterIds": [
+            "Wasp",
+            "Ironheart"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "Single team, with three new December recruitments and two existing veterans reworked during December.",
+            "Do not substitute Ironheart (MKII) or original Ms. Marvel for the requested IDs."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "Kahhori",
+              "month": "2024-12",
+              "date": "2024-12-04",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q4-kahhori-nov22"
+              ],
+              "notes": [
+                "December 4 Stirs the Forest 675-core orb and initial offers."
+              ]
+            },
+            {
+              "characterId": "MsMarvelClassic",
+              "month": "2024-12",
+              "date": "2024-12-12",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q4-mmsdec06"
+              ],
+              "notes": [
+                "December 12 Absolute Ace Orb (675 Power Cores) and initial offers; not original/Hard Light Ms. Marvel."
+              ]
+            },
+            {
+              "characterId": "Medusa",
+              "month": "2024-12",
+              "date": "2024-12-20",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q4-meddec13"
+              ],
+              "notes": [
+                "December 20 Queen's Fury 675-core orb and initial offers."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "Wasp",
+              "month": "2024-12",
+              "sourceIds": [
+                "q4-aforce-team",
+                "q4-aforce-live-dec11"
+              ],
+              "notes": [
+                "Substantial multi-stat uplift and Absolute A-Force kit/synergy upgrade confirmed live by December 11; no exact activation day inferred."
+              ]
+            },
+            {
+              "characterId": "Ironheart",
+              "month": "2024-12",
+              "sourceIds": [
+                "q4-aforce-team",
+                "q4-aforce-live-dec11"
+              ],
+              "notes": [
+                "Large multi-stat increase plus Absolute A-Force synergy/ability changes were live by December 11; original Ironheart, not MKII."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q4-aforce-team",
+            "q4-kahhori-nov22",
+            "q4-mmsdec06",
+            "q4-meddec13",
+            "q4-aforce-live-dec11"
+          ],
+          "releaseMethods": {
+            "Kahhori": "limited_offer; power_core_store",
+            "MsMarvelClassic": "limited_offer; power_core_store",
+            "Medusa": "limited_offer; power_core_store"
+          }
+        },
+        {
+          "month": "2024-12",
+          "teamId": "immortal-x-men-2024-2025-rollout",
+          "label": "Immortal X-Men — December 2024 veteran reworks (partial)",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Storm",
+            "Beast",
+            "Cable",
+            "Polaris"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Storm",
+            "Beast",
+            "Cable",
+            "Polaris"
+          ],
+          "reworkedCharacterIds": [
+            "Storm",
+            "Beast"
+          ],
+          "announcedNext": [
+            "JeanGrey"
+          ],
+          "notes": [
+            "First two demonstrated December reworks in a crossover-year formation; January 3, 2025 Jean Grey must belong exclusively to the 2025 portion bearing the identical rolloutId.",
+            "Cable/Polaris were part of the historical formation but their individually effective December dates are not independently proven, so no extra Q4 rework is counted here.",
+            "Storm and Beast also participate in Uncanny Avengers; their single primary 2024 rework assignment is here and must not be duplicated there."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "characterId": "Storm",
+              "month": "2024-12",
+              "sourceIds": [
+                "q4-cross-dec20",
+                "q4-storm-live-dec26"
+              ],
+              "notes": [
+                "Substantial rework demonstrated by December 26 hands-on DD8 performance; neither future Jean Grey recruitment nor a mere December team announcement."
+              ]
+            },
+            {
+              "characterId": "Beast",
+              "month": "2024-12",
+              "sourceIds": [
+                "q4-cross-dec20",
+                "q4-beast-live-dec28"
+              ],
+              "notes": [
+                "Substantial veteran update referenced as already live by December 28; exact activation day not proven."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q4-cross-dec20",
+            "q4-storm-live-dec26",
+            "q4-beast-live-dec28"
+          ],
+          "rolloutId": "immortal-x-men-2024-2025-rollout",
+          "rolloutLabel": "Immortal X-Men"
+        },
+        {
+          "month": "2024-12",
+          "teamId": "mighty-avengers-2024-2025-rollout",
+          "label": "Mighty Avengers — December 2024 veteran update (partial)",
+          "kind": "team",
+          "formationStatus": "partial",
+          "teamSize": 5,
+          "members": [
+            "Falcon",
+            "ScarletWitch",
+            "Vision",
+            "InvisibleWoman"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Falcon",
+            "ScarletWitch",
+            "Vision",
+            "InvisibleWoman"
+          ],
+          "reworkedCharacterIds": [
+            "InvisibleWoman"
+          ],
+          "announcedNext": [
+            "Hercules"
+          ],
+          "notes": [
+            "December veteran upgrade while Hercules release was still future; he is not a December 2024 new character.",
+            "Falcon, Scarlet Witch and Vision are existing members but separately dated live December reworks remain unproven. If future evidence establishes December activation, enrich this same event rather than creating another.",
+            "Falcon also belongs to Uncanny Avengers and must not have a duplicate rework when that formation is completed."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "characterId": "InvisibleWoman",
+              "month": "2024-12",
+              "sourceIds": [
+                "q4-cross-dec20",
+                "q4-iw-live-dec21"
+              ],
+              "notes": [
+                "By December 21 players discussed Invisible Woman with her new live stats and kit in DD7, before Hercules was recruitable."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q4-cross-dec20",
+            "q4-iw-live-dec21"
+          ],
+          "rolloutId": "mighty-avengers-2024-2025-rollout",
+          "rolloutLabel": "Mighty Avengers"
         }
       ],
       "excludedFrom2024Q1PlayableCount": [
@@ -10043,7 +10690,14 @@
         "The starting playable roster and quarter-end absolute roster remain unknown because 2023 is not audited continuously through 2023-12-31. The 2023 Q3 provisional count must not be reused as the 2024 starting count.",
         "Q2 2024 audit extends 2024 through June 30 from the latest 2023 fully audited baseline. 2023 ended with 266 playable characters, making absolute Q1/Q2 end roster computable without a fabricated 2023 gap. Earlier Q1 notes about an unaudited 2023-Q4 refer to an older main state.",
         "Illuminati was described in late June (Black Bolt, Iron Man, Mister Fantastic, Black Panther (Shuri), Hank Pym, Captain Britain), but July recruits and unverified June activation of veteran reworks are not counted in Q2; the Q3 audit should create/complete its one rollout only once proven.",
-        "First Q2 recruitability uses first player unlock; patch dates, showcase previews, and retrospective character dates do not substitute for actual recruitability. Exact dates are omitted when only month-level evidence is reliable."
+        "First Q2 recruitability uses first player unlock; patch dates, showcase previews, and retrospective character dates do not substitute for actual recruitability. Exact dates are omitted when only month-level evidence is reliable.",
+        "Spider-Society: March 24–29 sources establish announcement, expected dual origins and described small future Ghost-Spider/Spider-Man (Noir) changes. The March 26 version 8.0.0 patch notes do not establish substantial, already-live base reworks. Therefore no artificial March rollout/rework is created. Q2 audit must assess effective April reworks and extend one Spider-Society rollout rather than duplicate.",
+        "December 2023 X-Treme X-Men members and reworks remain attributed to the future 2023-Q4 audit through stable rolloutId; only Sunspot counts toward Q1 2024.",
+        "The starting playable roster and quarter-end absolute roster remain unknown because 2023 is not audited continuously through 2023-12-31. The 2023 Q3 provisional count must not be reused as the 2024 starting count.",
+        "December 2024/January 2025 formation border: Immortal X-Men and Mighty Avengers are partial 2024 teamEvents only for veteran reworks documented live by December; Jean Grey/Hercules will be recruited in the 2025 portion with matching rolloutId. Uncanny Avengers is a separate future team and is not fabricated in 2024 with no uniquely attributed recruitment or rework. Other announced veteran reworks stay unresolved until proof of their live activation.",
+        "Orchis and Nightstalkers use the identical 2024 teamIds as the concurrent Q3 PR #253. Orchis began with August veteran reworks; all three initial Orchis recruits occurred in September and are NOT counted in Q4.",
+        "Nightstalkers veteran upgrades belong to September, first recruits to October, within one historical event. Future reconciliation with Q3 PR must preserve this one teamId and enriched event.",
+        "The 2024 quarterEndPlayableRosterCount retained from Q2 is the last continuously audited roster on June 30, not a Q4 end roster."
       ],
       "sources": [
         {
@@ -10289,18 +10943,310 @@
           "title": "Historical character release dates (secondary retrospective, not proof of first unlock)",
           "url": "https://www.msfbase.com/characters/stats/",
           "type": "secondary"
+        },
+        {
+          "id": "q3-orchis-kit",
+          "title": "Release the Sentinels — initial Orchis and existing character upgrades",
+          "url": "https://marvelstrikeforce.com/en/updates/release-the-sentinels",
+          "type": "official"
+        },
+        {
+          "id": "q3-orchis-live",
+          "title": "Scientist Supreme actual before/after rework documented August 28",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1f3nv7t/",
+          "publicationDate": "2024-08-28",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-orchis-sentinel",
+          "title": "August 30 weekly blog — Sentinel initial release September 3",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-8-30-24",
+          "publicationDate": "2024-08-30",
+          "type": "official"
+        },
+        {
+          "id": "q3-orchis-nimrod",
+          "title": "Nimrod actually unlocked via Power Cores September 12",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1ffeh56/",
+          "publicationDate": "2024-09-12",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-orchis-nimrod-orbs",
+          "title": "Nimrod event orbs do not guarantee unlock",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1fg4hll/",
+          "publicationDate": "2024-09-13",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-orchis-omega",
+          "title": "Omega Sentinel actual early purchase/unlock September 21",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1flqrqb/",
+          "publicationDate": "2024-09-21",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-night-kit",
+          "title": "Official Nightstalkers team and substantial reworks",
+          "url": "https://marvelstrikeforce.com/en/updates/nightstalker-team-blog",
+          "type": "official"
+        },
+        {
+          "id": "q3-night-live",
+          "title": "Moon Knight rework demonstrably active by September 28",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1fr27qb/",
+          "publicationDate": "2024-09-28",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-night-agatha",
+          "title": "Agatha Harkness rework discussed September 18",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1fk3tm9/",
+          "publicationDate": "2024-09-18",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q3-night-blade",
+          "title": "September 27 official blog — Blade first available October 1",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-9-27-24",
+          "publicationDate": "2024-09-27",
+          "type": "official"
+        },
+        {
+          "id": "q4-orchis-aug30",
+          "title": "Weekly Blog: Exterminate!",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-8-30-24",
+          "publicationDate": "2024-08-30",
+          "type": "official"
+        },
+        {
+          "id": "q4-orchis-sep06",
+          "title": "Weekly Blog: September Orchis",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-9-6-24",
+          "publicationDate": "2024-09-06",
+          "type": "official"
+        },
+        {
+          "id": "q4-orchis-sep27",
+          "title": "Weekly Blog: Uphill Ice Skating Awareness Day",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-9-27-24",
+          "publicationDate": "2024-09-27",
+          "type": "official"
+        },
+        {
+          "id": "q4-orchis-kit",
+          "title": "Release the Sentinels",
+          "url": "https://marvelstrikeforce.com/updates/release-the-sentinels",
+          "type": "official"
+        },
+        {
+          "id": "q4-orchis-omega-witness",
+          "title": "Omega Sentinel owned on September 26, 2024",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1fqsdr5/",
+          "publicationDate": "2024-09-27",
+          "type": "community"
+        },
+        {
+          "id": "q4-night-kit",
+          "title": "The Player-Created Team: Nightstalkers",
+          "url": "https://marvelstrikeforce.com/updates/nightstalker-team-blog",
+          "type": "official"
+        },
+        {
+          "id": "q4-night-live-sep",
+          "title": "Moon Knight and Agatha in-game after rework",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1fr27qb/",
+          "publicationDate": "2024-09-28",
+          "type": "community"
+        },
+        {
+          "id": "q4-blade-sep27",
+          "title": "Blade first orb and offers October 1",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-9-27-24",
+          "publicationDate": "2024-09-27",
+          "type": "official"
+        },
+        {
+          "id": "q4-oath-oct04",
+          "title": "Weekly Blog October 4 — Oath introduction",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-4-24",
+          "publicationDate": "2024-10-04",
+          "type": "official"
+        },
+        {
+          "id": "q4-oath-secondary",
+          "title": "Oath October 2024 initial release chronology",
+          "url": "https://www.msfbase.com/characters/Oath/",
+          "type": "secondary"
+        },
+        {
+          "id": "q4-man-oct11",
+          "title": "Weekly Blog: Straight Out of Swampton",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-11-24",
+          "publicationDate": "2024-10-11",
+          "type": "official"
+        },
+        {
+          "id": "q4-undying-oct18",
+          "title": "Weekly Blog: Eat, Drink, be Scary",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-18-24",
+          "publicationDate": "2024-10-18",
+          "type": "official"
+        },
+        {
+          "id": "q4-undying-secondary",
+          "title": "Scarlet Witch (Zombie) October 2024 chronology",
+          "url": "https://www.msfbase.com/characters/ZombieScarletWitch/",
+          "type": "secondary"
+        },
+        {
+          "id": "q4-astral-team",
+          "title": "Now Boarding: The Astral Plane",
+          "url": "https://marvelstrikeforce.com/updates/the-astral-team",
+          "type": "official"
+        },
+        {
+          "id": "q4-strange-oct19",
+          "title": "Contemporaneous report: Doctor Strange's Wong summon active in War on October 19",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1g71tlu/",
+          "publicationDate": "2024-10-19",
+          "type": "community"
+        },
+        {
+          "id": "q4-ancient-nov01",
+          "title": "Weekly Blog November 1 — Ancient One",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-11-1-24",
+          "publicationDate": "2024-11-01",
+          "type": "official"
+        },
+        {
+          "id": "q4-ancient-secondary",
+          "title": "Ancient One November 2024 chronology",
+          "url": "https://www.msfbase.com/characters/AncientOne/",
+          "type": "secondary"
+        },
+        {
+          "id": "q4-emma-nov08",
+          "title": "Weekly Blog: Omega Class Telepath",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-11-8-24",
+          "publicationDate": "2024-11-08",
+          "type": "official"
+        },
+        {
+          "id": "q4-king-nov15",
+          "title": "Weekly Blog: It's Shadowtime!",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-11-15-24",
+          "publicationDate": "2024-11-15",
+          "type": "official"
+        },
+        {
+          "id": "q4-king-nov22",
+          "title": "Weekly Blog: What If… Her Power Has No Limit?",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-11-22-24",
+          "publicationDate": "2024-11-22",
+          "type": "official"
+        },
+        {
+          "id": "q4-aforce-team",
+          "title": "An Absolute A-Force to Be Reckoned With",
+          "url": "https://marvelstrikeforce.com/en/updates/an-absolute-a-force-to-be-reckoned-with",
+          "type": "official"
+        },
+        {
+          "id": "q4-kahhori-nov22",
+          "title": "Absolute A-Force launch preview",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-11-22-24",
+          "publicationDate": "2024-11-22",
+          "type": "official"
+        },
+        {
+          "id": "q4-mmsdec06",
+          "title": "Weekly Blog: Absolutely Higher Further Faster",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-12-6-24",
+          "publicationDate": "2024-12-06",
+          "type": "official"
+        },
+        {
+          "id": "q4-meddec13",
+          "title": "Weekly Blog: Heavy is the Hair that Wears the Crown",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-12-13-24",
+          "publicationDate": "2024-12-13",
+          "type": "official"
+        },
+        {
+          "id": "q4-aforce-live-dec11",
+          "title": "Wasp and Ironheart reworks already live on December 11",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1hbr2ro/",
+          "publicationDate": "2024-12-11",
+          "type": "community"
+        },
+        {
+          "id": "q4-cross-dec20",
+          "title": "Weekly Blog: Mind Over Matter",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-12-20-24",
+          "publicationDate": "2024-12-20",
+          "type": "official"
+        },
+        {
+          "id": "q4-cross-announced-dec14",
+          "title": "Contemporaneous review of the three 2025 teams and eight planned veteran reworks",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1he5wbq/",
+          "publicationDate": "2024-12-14",
+          "type": "community"
+        },
+        {
+          "id": "q4-storm-live-dec26",
+          "title": "Storm rework used in DD8 by December 26",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1hmpm60/",
+          "publicationDate": "2024-12-26",
+          "type": "community"
+        },
+        {
+          "id": "q4-beast-live-dec28",
+          "title": "Beast rework demonstrably in use during December 2024",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1ho2vvs/",
+          "publicationDate": "2024-12-28",
+          "type": "community"
+        },
+        {
+          "id": "q4-iw-live-dec21",
+          "title": "Invisible Woman rework and new stats already used by December 21",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1hjlwa5/",
+          "publicationDate": "2024-12-21",
+          "type": "community"
+        },
+        {
+          "id": "q4-dd8-sep",
+          "title": "Dark Dimension VIII opened September 16",
+          "url": "https://marvelstrikeforce.com/en/updates/dark-dimension-8",
+          "type": "official"
+        },
+        {
+          "id": "q4-odin-first-sep",
+          "title": "Contemporaneous first DD8 clear on September 17, 2024",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1file45/",
+          "publicationDate": "2024-09-17",
+          "type": "community"
+        },
+        {
+          "id": "q4-knull-march25",
+          "title": "March 2025 Battleworld run enables many first Knull unlocks",
+          "url": "https://marvelstrikeforce.com/pt/updates/blog-update-3-14-25",
+          "publicationDate": "2025-03-14",
+          "type": "official"
         }
       ],
       "validation": {
-        "auditedPeriod": "2024-01-01/2024-06-30",
+        "auditedPeriod": "2024-01-01/2024-03-31; 2024-04-01/2024-06-30; 2024-10-01/2024-12-31 (noncontiguous)",
         "auditedPeriods": [
           "2024-01-01/2024-03-31",
-          "2024-04-01/2024-06-30"
+          "2024-04-01/2024-06-30",
+          "2024-10-01/2024-12-31"
         ],
         "individualReleaseCount": 1,
-        "teamEventNewCharacterCount": 18,
-        "distinctPlayableReleaseCount": 19,
-        "distinctReworkedCharacterCount": 11,
+        "teamEventNewCharacterCount": 31,
+        "distinctPlayableReleaseCount": 32,
+        "distinctReworkedCharacterCount": 22,
         "duplicatesAcrossReleaseBuckets": [],
         "q1DistinctPlayableReleaseCount": 9,
         "q1DistinctReworkedCharacterCount": 5,
@@ -10310,8 +11256,116 @@
         "q2DistinctReworkedCharacterCount": 6,
         "q2StartingPlayableRosterCount": 275,
         "q2EndPlayableRosterCount": 285,
-        "quarterEndPlayableRosterCount": 285
-      }
+        "quarterEndPlayableRosterCount": 285,
+        "q4IndividualReleaseCount": 0,
+        "q4TeamEventReleaseCount": 10,
+        "q4DistinctPlayableReleaseCount": 10,
+        "q4DistinctReworkedCharacterCount": 7,
+        "q4ReleaseCharacterIds": [
+          "Blade",
+          "Oath",
+          "ManThing",
+          "ZombieScarletWitch",
+          "AncientOne",
+          "EmmaFrostXMen",
+          "ShadowKing",
+          "Kahhori",
+          "MsMarvelClassic",
+          "Medusa"
+        ],
+        "q4ReworkedCharacterIds": [
+          "DoctorStrange",
+          "Moondragon",
+          "Wasp",
+          "Ironheart",
+          "Storm",
+          "Beast",
+          "InvisibleWoman"
+        ],
+        "q4DuplicatesAcrossReleaseBuckets": [],
+        "q4Status": "audited",
+        "annualTotalsStatus": "provisional while Q3 is not audited"
+      },
+      "excludedFrom2024Q4PlayableCount": [
+        {
+          "characterId": "Knull",
+          "reason": "The November 2024 Battleworld boss and initial shard drip were not an immediately recruitable playable Knull; March 2025 official communication still expects many first-time unlocks. Do not treat NPC boss PVE_Boss_Knull or insufficient fragments as a 2024 unlock.",
+          "firstPlayableQuarter": "2025-or-later; verify exact first",
+          "sourceIds": [
+            "q4-knull-march25"
+          ]
+        },
+        {
+          "characterId": "Odin",
+          "reason": "Dark Dimension VIII opened September 16, 2024 and contemporary September 17 testimony confirms the first actual full clear, awarding Odin; not an October first recruitment.",
+          "firstPlayableQuarter": "2024-Q3",
+          "sourceIds": [
+            "q4-dd8-sep",
+            "q4-odin-first-sep"
+          ]
+        },
+        {
+          "characterId": "JeanGrey",
+          "reason": "First recruitable January 3, 2025 per December 20 official blog; December announcement and 2024 rework context are not a playable Jean Grey release.",
+          "firstPlayableQuarter": "2025-Q1",
+          "sourceIds": [
+            "q4-cross-dec20"
+          ]
+        },
+        {
+          "characterId": "Hercules",
+          "reason": "Introduced as the subsequent new character for the 2025 Uncanny/Mighty rollout, not recruitable in December 2024.",
+          "firstPlayableQuarter": "2025-Q1",
+          "sourceIds": [
+            "q4-cross-dec20"
+          ]
+        },
+        {
+          "characterId": "Cable",
+          "reason": "Part of the announced 2024/2025 crossover veteran rework group, but individually effective December 2024 activation was not proven by the inspected primary or live-play sources. Do not invent a 2024 rework or first recruitment.",
+          "firstPlayableQuarter": "already-playable; rework-quarter unresolved",
+          "sourceIds": [
+            "q4-cross-dec20",
+            "q4-cross-announced-dec14"
+          ]
+        },
+        {
+          "characterId": "Polaris",
+          "reason": "Part of the announced 2024/2025 crossover veteran rework group, but individually effective December 2024 activation was not proven by the inspected primary or live-play sources. Do not invent a 2024 rework or first recruitment.",
+          "firstPlayableQuarter": "already-playable; rework-quarter unresolved",
+          "sourceIds": [
+            "q4-cross-dec20",
+            "q4-cross-announced-dec14"
+          ]
+        },
+        {
+          "characterId": "Falcon",
+          "reason": "Part of the announced 2024/2025 crossover veteran rework group, but individually effective December 2024 activation was not proven by the inspected primary or live-play sources. Do not invent a 2024 rework or first recruitment.",
+          "firstPlayableQuarter": "already-playable; rework-quarter unresolved",
+          "sourceIds": [
+            "q4-cross-dec20",
+            "q4-cross-announced-dec14"
+          ]
+        },
+        {
+          "characterId": "ScarletWitch",
+          "reason": "Part of the announced 2024/2025 crossover veteran rework group, but individually effective December 2024 activation was not proven by the inspected primary or live-play sources. Do not invent a 2024 rework or first recruitment.",
+          "firstPlayableQuarter": "already-playable; rework-quarter unresolved",
+          "sourceIds": [
+            "q4-cross-dec20",
+            "q4-cross-announced-dec14"
+          ]
+        },
+        {
+          "characterId": "Vision",
+          "reason": "Part of the announced 2024/2025 crossover veteran rework group, but individually effective December 2024 activation was not proven by the inspected primary or live-play sources. Do not invent a 2024 rework or first recruitment.",
+          "firstPlayableQuarter": "already-playable; rework-quarter unresolved",
+          "sourceIds": [
+            "q4-cross-dec20",
+            "q4-cross-announced-dec14"
+          ]
+        }
+      ]
     },
     "2025": {
       "status": "partial",
@@ -10446,7 +11500,9 @@
             "q125-dec-uncanny",
             "q125-dec-reworks-live"
           ],
-          "releaseMethods": {}
+          "releaseMethods": {},
+          "rolloutId": "immortal-x-men-2024-2025-rollout",
+          "rolloutLabel": "Immortal X-Men"
         },
         {
           "month": "2025-01",
@@ -10486,7 +11542,9 @@
             "q125-dec-reworks-live",
             "q125-omega-jan24"
           ],
-          "releaseMethods": {}
+          "releaseMethods": {},
+          "rolloutId": "mighty-avengers-2024-2025-rollout",
+          "rolloutLabel": "Mighty Avengers"
         },
         {
           "month": "2025-01",
@@ -10813,7 +11871,7 @@
       ],
       "schemaNotes": [
         "This is a quarter-specific audit, not an assertion that the whole calendar year 2025 has been audited. Later T2/T3/T4 audits should merge into this same yearly entry, keeping one teamEvent per team rollout.",
-        "The 2024 audit presently stops at March 31, 2024; no verified startingPlayableRosterCount or absolute Q1 end-roster count can be calculated. No 2024 T4 event is fabricated for Absolute A-Force.",
+        "The 2024 audit now contains Q1, Q2 and Q4, with continuous coverage through June 30, 2024 pending the Q3 audit. The Q2 end roster is known, but the Q4 absolute end roster must await Q3.",
         "Absolute A-Force's new recruits and initial Wasp/Ironheart reworks belong to December 2024, as shown by the November/December official release and community records; January 2025 shard campaigns are later distribution, not first recruitment.",
         "Storm and Beast were already substantially reworked and actually used in-game by December 26, 2024, so their December veteran changes and companion late-2024 Uncanny/Immortal/Mighty reworks are not counted again in 2025.",
         "January Jean Grey belongs to the Uncanny Avengers release bucket; Immortal X-Men is a separate contemporaneous team formation with Jean Grey as an existing/contextual member. Hercules likewise counted only once despite Mighty Avengers synergy.",
