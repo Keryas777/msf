@@ -1,0 +1,563 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-10-16",
+  "disclaimer": "Les compositions et conseils sont reformulés en français. Les informations peuvent être complétées ou modifiées lors des prochaines ouvertures des événements.",
+  "events": [
+    {
+      "id": "blade",
+      "type": "tower",
+      "title": "Tour de Blade",
+      "summary": "24 étages, trois difficultés et personnages Challenger I.",
+      "rewardId": "BladeMighty",
+      "stages": [
+        {
+          "id": "1",
+          "title": "Étage 1",
+          "requirement": "Challenger I",
+          "characters": [
+            "Havok",
+            "Lilandra",
+            "NovaSamAlexander",
+            "Eclipse",
+            "RachelSummers"
+          ],
+          "advice": [
+            "Encaisser l'assaut initial, puis cibler Shuri et Okoye."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "2",
+          "title": "Étage 2",
+          "requirement": "Challenger I",
+          "characters": [
+            "Quasar",
+            "Blastaar",
+            "Thunderstrike",
+            "Kahhori",
+            "MoonGirl"
+          ],
+          "advice": [
+            "L'immunité de Quasar protège de l'aveuglement. Se concentrer sur Emma Frost (X-Men)."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "3",
+          "title": "Étage 3",
+          "requirement": "Challenger I",
+          "characters": [
+            "Cannonball",
+            "Wolfsbane",
+            "Warlock",
+            "JeffTheLandShark",
+            "Darkstar"
+          ],
+          "advice": [
+            "Après l'ouverture adverse, enchaîner les contrôles de Cannonball, Jeff et Darkstar."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "4",
+          "title": "Étage 4",
+          "requirement": "Challenger I",
+          "characters": [
+            "SymbioteQuicksilver",
+            "Knull",
+            "Venom",
+            "Hulk",
+            "SpiderMan"
+          ],
+          "advice": [
+            "Invoquer Carnage avec Knull ; retirer Réanimation avec Vif-Argent symbiote."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "5",
+          "title": "Étage 5",
+          "requirement": "Challenger I",
+          "characters": [
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "Apocalypse",
+            "EmmaFrost"
+          ],
+          "advice": [
+            "Faire jouer l'équipe rapidement et neutraliser Iron Fist avant qu'il ne pèse sur le combat."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "6",
+          "title": "Étage 6",
+          "requirement": "Challenger I",
+          "characters": [
+            "SilverSurferBreaker",
+            "StormMighty",
+            "Sentry",
+            "EmmaFrostXMen",
+            "Oath"
+          ],
+          "advice": [
+            "Cibler Silver Sable ; neutraliser ensuite Daredevil (Moderne) et Hit-Monkey."
+          ],
+          "alternatives": []
+        }
+      ],
+      "totalStages": 24,
+      "stageUnit": "étage",
+      "editorialRef": "mighty-tower-blade/"
+    },
+    {
+      "id": "spider-descent",
+      "type": "tower",
+      "title": "Tour de Spider-Man : Descente",
+      "summary": "40 étages et quatre difficultés ; Kingo en récompense.",
+      "rewardId": "Kingo",
+      "stages": [],
+      "totalStages": 40,
+      "stageUnit": "étage",
+      "editorialRef": "spider-man-tower-descent/"
+    },
+    {
+      "id": "kyln-blazes",
+      "type": "tower",
+      "title": "Évasion de Kyln : Code Blazes",
+      "summary": "20 cellules. Les combats utilisent des groupes de trois personnages.",
+      "rewardId": null,
+      "stages": [],
+      "totalStages": 20,
+      "stageUnit": "cellule",
+      "editorialRef": "escape-from-kyln-code-blazes/"
+    },
+    {
+      "id": "kyln-whiplash",
+      "type": "tower",
+      "title": "Évasion de Kyln : Code Whiplash",
+      "summary": "Guide par cellule.",
+      "rewardId": null,
+      "stages": [],
+      "editorialRef": "escape-from-kyln-code-whiplash/"
+    },
+    {
+      "id": "fear",
+      "type": "tower",
+      "title": "Tour de la Peur",
+      "summary": "20 étages et trois difficultés.",
+      "rewardId": "SymbioteQuicksilver",
+      "stages": [],
+      "totalStages": 20,
+      "stageUnit": "étage",
+      "editorialRef": "fear-tower/"
+    },
+    {
+      "id": "storm",
+      "type": "tower",
+      "title": "Tour de Tornade",
+      "summary": "12 étages et deux difficultés.",
+      "rewardId": "StormMighty",
+      "stages": [],
+      "totalStages": 12,
+      "stageUnit": "étage",
+      "editorialRef": "mighty-tower-storm/"
+    },
+    {
+      "id": "war",
+      "type": "tower",
+      "title": "Tour de Guerre",
+      "summary": "Défis axés sur les équipes de guerre.",
+      "rewardId": "JeffTheLandShark",
+      "stages": [],
+      "editorialRef": "war-tower/"
+    },
+    {
+      "id": "kyln-polarity",
+      "type": "tower",
+      "title": "Évasion de Kyln : Polarity Shift",
+      "summary": "18 cellules et équipes de trois personnages.",
+      "rewardId": null,
+      "stages": [],
+      "totalStages": 18,
+      "stageUnit": "cellule",
+      "editorialRef": "escape-from-kyln/"
+    },
+    {
+      "id": "surfer-breaker",
+      "type": "trial",
+      "title": "Surfer d'argent (Briseur)",
+      "summary": "Événement Breaker avec modificateurs et restrictions par mission.",
+      "rewardId": "SilverSurferBreaker",
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction",
+          "characters": [
+            "Odin",
+            "Knull",
+            "Mephisto",
+            "Blastaar",
+            "Thunderstrike"
+          ],
+          "advice": [
+            "Traiter d'abord Havok et Lilandra. Odin aide à tenir face aux dégâts passifs des Starjammers."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Symbiotes",
+          "characters": [
+            "Knull",
+            "Gorr",
+            "Carnage",
+            "SymbioteSilverSurfer",
+            "Venom"
+          ],
+          "advice": [
+            "L'objectif est d'enchaîner les tours en faisant tomber les ennemis sous le seuil critique de santé."
+          ],
+          "alternatives": []
+        }
+      ],
+      "editorialRef": "breaker-event-silver-surfer/"
+    },
+    {
+      "id": "scorpion-breaker",
+      "type": "trial",
+      "title": "Scorpion (Briseur)",
+      "summary": "Événement Breaker avec quatre difficultés.",
+      "rewardId": "ScorpionBreaker",
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Aucune restriction (niveau 110 en Omega)",
+          "characters": [
+            "Odin",
+            "Xavier",
+            "Sentry",
+            "Mephisto",
+            "Knull"
+          ],
+          "advice": [
+            "Empêcher le Sentry adverse d'utiliser sa spéciale. Préserver le Sentry allié pour la suite."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Cosmique mystique non mythique",
+          "characters": [
+            "Knull",
+            "Thanos",
+            "SilverSurferBreaker",
+            "Quasar",
+            "Satana"
+          ],
+          "advice": [
+            "Placer Thanos au centre des alliés à recharger. Retirer les charges avec Quasar avant de cibler Red Hulk et Kestrel."
+          ],
+          "alternatives": []
+        }
+      ],
+      "editorialRef": "breaker-event-scorpion/"
+    },
+    {
+      "id": "magik-breaker",
+      "type": "trial",
+      "title": "Première Briseuse : Magik",
+      "summary": "Événement permanent ; la préparation passe par l'ISO-8 orange niveau 3 sur 15 personnages.",
+      "rewardId": "MagikBreaker",
+      "stages": [],
+      "editorialRef": "first-breaker-magik/"
+    },
+    {
+      "id": "shadow-king",
+      "type": "trial",
+      "title": "Épreuves du Roi d'ombre",
+      "summary": "Guide Trials avec difficultés et compositions.",
+      "rewardId": "ShadowKing",
+      "stages": [],
+      "editorialRef": "shadow-king-trials/"
+    },
+    {
+      "id": "old-man-logan",
+      "type": "trial",
+      "title": "Épreuves d'Old Man Logan",
+      "summary": "Guide Trials avec difficultés et compositions.",
+      "rewardId": "OldManLogan",
+      "stages": [],
+      "editorialRef": "old-man-logan-trials/"
+    },
+    {
+      "id": "green-goblin",
+      "type": "trial",
+      "title": "Épreuves du Bouffon vert (Classique)",
+      "summary": "Guide Trials légendaire.",
+      "rewardId": "GreenGoblinGlider",
+      "stages": [],
+      "editorialRef": "green-goblin-classic-trials/"
+    },
+    {
+      "id": "black-cat",
+      "type": "trial",
+      "title": "Épreuves de Black Cat",
+      "summary": "Guide Trials légendaire.",
+      "rewardId": "BlackCat",
+      "stages": [],
+      "editorialRef": "black-cat-trials/"
+    },
+    {
+      "id": "nova",
+      "type": "trial",
+      "title": "Épreuves de Nova",
+      "summary": "Guide Trials légendaire.",
+      "rewardId": "Nova",
+      "stages": [],
+      "editorialRef": "nova-trials/"
+    },
+    {
+      "id": "dd1",
+      "type": "dark-dimension",
+      "title": "Dimension noire 1",
+      "summary": "Guide de préparation et progression.",
+      "rewardId": null,
+      "stages": [],
+      "editorialRef": "heroes-for-dark-dimension/"
+    },
+    {
+      "id": "dd2",
+      "type": "dark-dimension",
+      "title": "Dimension noire 2",
+      "summary": "Guide de préparation et progression.",
+      "rewardId": null,
+      "stages": [],
+      "editorialRef": "heroes-for-dark-dimension/"
+    },
+    {
+      "id": "dd3",
+      "type": "dark-dimension",
+      "title": "Dimension noire 3",
+      "summary": "Guide de préparation et progression.",
+      "rewardId": null,
+      "stages": [],
+      "editorialRef": "heroes-for-dark-dimension/"
+    },
+    {
+      "id": "dd4",
+      "type": "dark-dimension",
+      "title": "Dimension noire 4",
+      "summary": "Guide de préparation et progression.",
+      "rewardId": null,
+      "stages": [],
+      "editorialRef": "heroes-for-dark-dimension/"
+    },
+    {
+      "id": "dd5",
+      "type": "dark-dimension",
+      "title": "Dimension noire 5",
+      "summary": "Guide de préparation et progression.",
+      "rewardId": null,
+      "stages": [],
+      "editorialRef": "heroes-for-dark-dimension/"
+    },
+    {
+      "id": "dd6",
+      "type": "dark-dimension",
+      "title": "Dimension noire 6",
+      "summary": "Guide de préparation et progression.",
+      "rewardId": null,
+      "stages": [],
+      "editorialRef": "heroes-for-dark-dimension/"
+    },
+    {
+      "id": "dd7",
+      "type": "dark-dimension",
+      "title": "Dimension noire 7",
+      "summary": "Guide de préparation et progression.",
+      "rewardId": null,
+      "stages": [],
+      "editorialRef": "heroes-for-dark-dimension/"
+    },
+    {
+      "id": "dd8",
+      "type": "dark-dimension",
+      "title": "Dimension noire VIII",
+      "summary": "ISO-8 violet niveau 3 : recommandations par section.",
+      "rewardId": "Odin",
+      "stages": [
+        {
+          "id": "city-heroes",
+          "title": "Missions 3–4",
+          "requirement": "Ville, héros non légendaires",
+          "characters": [
+            "SilverSable",
+            "DaredevilModern",
+            "Punisher",
+            "HitMonkey",
+            "Gwenpool"
+          ],
+          "advice": [],
+          "alternatives": []
+        },
+        {
+          "id": "city-villains",
+          "title": "Missions 5–6",
+          "requirement": "Ville, vilains non légendaires",
+          "characters": [
+            "Vulture",
+            "SuperiorSpiderMan",
+            "Hobgoblin",
+            "Scorpion",
+            "Shocker"
+          ],
+          "advice": [],
+          "alternatives": []
+        },
+        {
+          "id": "global-heroes",
+          "title": "Missions 7–8",
+          "requirement": "Mondial, héros non légendaires",
+          "characters": [
+            "DaimonHellstrom",
+            "LivingMummy",
+            "Hellcat",
+            "StormMighty",
+            "Eclipse"
+          ],
+          "advice": [],
+          "alternatives": []
+        },
+        {
+          "id": "global-villains",
+          "title": "Missions 9–10",
+          "requirement": "Mondial, vilains non légendaires",
+          "characters": [
+            "Apocalypse",
+            "OmegaRedPhoenix",
+            "MagnetoPhoenixForce",
+            "Darkstar",
+            "LadyBullseye"
+          ],
+          "advice": [],
+          "alternatives": []
+        },
+        {
+          "id": "cosmic",
+          "title": "Missions 11–13",
+          "requirement": "Cosmique ou légendaire",
+          "characters": [
+            "Mephisto",
+            "Thanos",
+            "ShadowKing",
+            "SilverSurferBreaker",
+            "Knull"
+          ],
+          "advice": [],
+          "alternatives": []
+        }
+      ],
+      "editorialRef": "characters-for-dark-dimension-viii/"
+    },
+    {
+      "id": "dd9",
+      "type": "dark-dimension",
+      "title": "Dimension noire IX",
+      "summary": "Équipement G21 requis sur les cinq personnages de chaque mission.",
+      "rewardId": "Annihilus",
+      "stages": [
+        {
+          "id": "city",
+          "title": "Missions 3–5",
+          "requirement": "Ville, hors mythiques/épiques/légendaires",
+          "characters": [
+            "Venom",
+            "Toxin",
+            "Riot",
+            "RachelColeAlves",
+            "Hobgoblin"
+          ],
+          "advice": [
+            "Anticiper le coût partagé en Bio pour Venom et Toxin."
+          ],
+          "alternatives": [
+            "Vulture",
+            "SuperiorSpiderMan"
+          ]
+        },
+        {
+          "id": "cosmic",
+          "title": "Missions 6–8",
+          "requirement": "Cosmique, hors mythiques/épiques/légendaires",
+          "characters": [
+            "Executioner",
+            "ThanosEndgame",
+            "Minerva",
+            "Thanos",
+            "Knull"
+          ],
+          "advice": [
+            "Répartir les origines d'équipement pour éviter les blocages."
+          ],
+          "alternatives": [
+            "FranklinRichards",
+            "HighEvolutionary"
+          ]
+        },
+        {
+          "id": "global",
+          "title": "Missions 9–11",
+          "requirement": "Mondial, hors mythiques/épiques/légendaires",
+          "characters": [],
+          "advice": [
+            "Composition complète à renseigner pour cette section."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "legendary",
+          "title": "Missions 12–13",
+          "requirement": "Légendaires ou épiques vilains",
+          "characters": [
+            "MagnetoPhoenixForce",
+            "OmegaRedPhoenix",
+            "OmegaRed",
+            "SilverSurferBreaker",
+            "OldManLogan"
+          ],
+          "advice": [],
+          "alternatives": []
+        },
+        {
+          "id": "mythic",
+          "title": "Missions 14–15",
+          "requirement": "Mythiques ou épiques héros",
+          "characters": [
+            "Xavier",
+            "Odin",
+            "Mephisto",
+            "BlueMarvel",
+            "CaptainBritain"
+          ],
+          "advice": [],
+          "alternatives": []
+        },
+        {
+          "id": "final",
+          "title": "Mission 16",
+          "requirement": "Sans restriction de trait",
+          "characters": [],
+          "advice": [],
+          "alternatives": []
+        }
+      ],
+      "editorialRef": "characters-for-dark-dimension-ix/"
+    }
+  ]
+}

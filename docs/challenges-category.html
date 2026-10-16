@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <style>html.authChecking body{opacity:0;pointer-events:none}</style>
+  <script>document.documentElement.classList.add("authChecking");</script>
+  <script src="./auth-guard.js?v=4"></script>
+  <meta name="theme-color" content="#0b0c0d">
+  <title>LoSP — Guides Challenges</title>
+  <link rel="stylesheet" href="./style.css?v=4">
+  <link rel="stylesheet" href="./challenges.css?v=2">
+  <link rel="manifest" href="./manifest.webmanifest">
+</head>
+<body>
+  <div class="app challenges-app">
+    <header class="header challenges-header">
+      <a class="backBtn" href="./challenges.html" aria-label="Retour aux catégories">⬅️</a>
+      <a class="homeBtn" href="./home.html" aria-label="Accueil LoSP">🏠</a>
+      <div class="headerLeft">
+        <h1 class="title" id="challengeCategoryTitle">Challenges</h1>
+        <p class="subtitle" id="challengeCategoryDescription">Choisis un guide pour consulter ses étapes.</p>
+      </div>
+    </header>
+    <main>
+      <section class="card challenges-filters" aria-label="Sélectionner un guide">
+        <label class="challenge-search-label" for="challengeSearch">Rechercher un guide</label>
+        <input type="search" id="challengeSearch" class="challenge-search" placeholder="Nom d'une tour, d'un trial ou d'une DD…" autocomplete="off">
+        <p class="challenges-count" id="challengeCount" role="status" aria-live="polite"></p>
+      </section>
+      <section class="challenges-directory" aria-label="Guides de cette catégorie">
+        <div class="challenges-grid" id="challengeList"></div>
+        <p class="challenges-empty" id="challengeEmpty" hidden>Aucun guide trouvé.</p>
+      </section>
+      <section class="card challenges-detail" id="challengeDetail" aria-label="Guide sélectionné" hidden></section>
+    </main>
+  </div>
+  <script src="./challenges.js?v=2" defer></script>
+</body>
+</html>
