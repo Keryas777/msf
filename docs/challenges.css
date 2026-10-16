@@ -83,7 +83,7 @@
 .challenge-category-copy small{font-size:13px;line-height:1.35;color:var(--muted);}
 .challenge-category-arrow{font-size:35px;color:rgba(255,255,255,.7);}
 .challenges-landing-note{text-align:center;font-size:13px;line-height:1.5;color:var(--muted);padding:6px 12px;}
-.challenges-header:has(.backBtn) .headerLeft{ padding-left:40px; }
+.challenges-header .backBtn ~ .headerLeft{ padding-left:40px; }
 .challenge-jump-bar {
   position:sticky;top:calc(6px + env(safe-area-inset-top)); z-index:8;
   margin:12px 0;padding:10px 11px;border:1px solid rgba(130,195,235,.45);
