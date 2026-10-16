@@ -254,7 +254,14 @@
 
     if (stages.length) {
       const jumpBar = el("div", "challenge-jump-bar");
-      const label = el("label", "challenge-search-label", "Aller directement à un étage / une salle");
+      const jumpText = event.type === "dark-dimension"
+        ? "Aller directement à un nœud / une section"
+        : event.type === "trial"
+          ? "Aller directement à une mission"
+          : event.stageUnit === "cellule"
+            ? "Aller directement à une cellule"
+            : "Aller directement à un étage";
+      const label = el("label", "challenge-search-label", jumpText);
       label.htmlFor = "challengeJump";
       const jump = el("select", "challenge-jump");
       jump.id = "challengeJump";
@@ -277,7 +284,7 @@
       });
       jumpBar.append(label, jump);
       ui.detail.append(jumpBar);
-      ui.detail.append(el("h3", "challenge-section-heading", "Salles, missions et compositions"));
+      ui.detail.append(el("h3", "challenge-section-heading", event.type === "dark-dimension" ? "Nœuds et équipes" : event.type === "trial" ? "Missions et équipes" : "Étages, cellules et équipes"));
       stages.forEach((stage, index) => ui.detail.append(renderStage(event, stage, index)));
     } else {
       ui.detail.append(el("p", "challenge-section-note", "Ce challenge est déjà répertorié. Les compositions et instructions seront intégrées au fur et à mesure de leur disponibilité."));
