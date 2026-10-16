@@ -1,0 +1,36 @@
+/* Pages Épreuve cosmique : styles locaux, mobile first. */
+.cosmicHeader{padding:56px 14px 18px;background:linear-gradient(135deg,rgba(56,29,108,.75),rgba(8,9,20,.88));}
+.cosmicHeader .subtitle{margin-top:8px}
+.cosmicHubGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.cosmicHubTile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:190px;padding:16px 10px;border-radius:20px;text-align:center;text-decoration:none;color:#f7f2ff;border:1px solid #7762ab;box-shadow:0 8px 24px #0008;background:linear-gradient(140deg,#231a51,#11172b);transition:transform .14s,border-color .14s}
+.cosmicHubTile:active{transform:scale(.97)}
+.cosmicHubTile:focus-visible,.cosmicAction:focus-visible{outline:3px solid #d9aaff;outline-offset:3px}
+.cosmicHubTile--defenses{background:linear-gradient(140deg,#1b4261,#15122e);border-color:#5c8db1}
+.cosmicHubIcon{font-size:42px;line-height:1}
+.cosmicHubTile strong{font-size:clamp(18px,4vw,24px)}
+.cosmicHubTile span:last-child{color:#cbd2e3;font-size:clamp(12px,2.9vw,14px);line-height:1.35}
+.cosmicSectionTitle{font-size:20px;margin:3px 0 10px;text-align:center}
+.cosmicIntro{color:#c6c8da;font-size:14px;line-height:1.5;margin:4px 0 18px}
+.cosmicRooms{display:grid;gap:14px;margin-top:16px}
+.cosmicRoom{padding:12px;border:1px solid #454365;border-radius:15px;background:rgba(17,20,38,.68);min-width:0}
+.cosmicRoom h3{margin:0 0 8px;font-size:17px}
+.cosmicRoomRule{color:#b5b6d1;font-size:13px;line-height:1.4;margin:0 0 10px}
+.cosmicEmpty{font-size:13px;color:#9ca0b7;font-style:italic;margin:8px 0 3px}
+.cosmicDefense{padding:10px;border-top:1px solid #3a3e59;margin-top:8px}
+.cosmicDefenseTitle{font-weight:800;margin:0 0 8px}
+.cosmicPortraits{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.cosmicPortrait{min-width:0;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#24283f;border:1px solid #454963}
+.cosmicPortrait img{width:100%;height:100%;display:block;object-fit:cover}
+.cosmicPortrait span{display:grid;place-items:center;overflow-wrap:anywhere;font-size:10px;height:100%;text-align:center;padding:3px}
+.cosmicDefenseMeta{color:#bfc2d6;font-size:12px;line-height:1.45;margin:8px 0 0;overflow-wrap:anywhere}
+.cosmicDefenseMeta a{color:#b8caff}
+.cosmicLabel{display:block;font-size:13px;font-weight:700;color:#dcd9ee;margin:13px 0 5px}
+.cosmicInputs{display:grid;grid-template-columns:1fr;gap:7px}
+.cosmicInputs input{width:100%;min-width:0}
+.cosmicRoomNote{margin-top:8px}
+.cosmicFeedback{color:#cfc9ed;line-height:1.4;font-size:13px;white-space:pre-wrap}
+.cosmicAction{display:block;width:100%;min-height:46px;border:1px solid #aa8de9;background:linear-gradient(125deg,#51369d,#28265c);border-radius:13px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;padding:10px}
+.cosmicFallback{display:block;width:100%;min-height:180px;margin-top:12px;font-size:12px}
+.cosmicFallback[hidden]{display:none}
+@media(min-width:600px){.cosmicHubGrid{gap:20px}.cosmicHubTile{min-height:230px;padding:24px}.cosmicInputs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.cosmicHubTile{transition:none}}

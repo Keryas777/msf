@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <style>html.authChecking body{opacity:0;pointer-events:none}</style>
+  <script>document.documentElement.classList.add("authChecking")</script>
+  <script src="./auth-guard.js?v=4"></script>
+  <meta name="theme-color" content="#0b0c0d" />
+  <title>LoSP — Défenses Épreuve cosmique</title>
+  <link rel="stylesheet" href="./style.css?v=4" />
+  <link rel="stylesheet" href="./cosmic.css?v=1" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+</head>
+<body>
+  <main class="app">
+    <header class="header cosmicHeader">
+      <a href="./cosmic.html" class="backBtn" aria-label="Retour">⬅️</a>
+      <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
+      <div class="headerLeft">
+        <h1 class="title">🛡️ Défenses cosmiques</h1>
+        <p class="subtitle">Six salles, des compositions proposées et un espace pour partager les tiennes.</p>
+      </div>
+    </header>
+    <section class="card">
+      <h2 class="cosmicSectionTitle">Défenses recommandées</h2>
+      <p class="cosmicIntro">Compositions publiées après validation. La source de chaque proposition est indiquée.</p>
+      <p class="cosmicFeedback" id="publishedStatus" role="status">Chargement…</p>
+      <div id="publishedDefenses" class="cosmicRooms"></div>
+    </section>
+    <section class="card">
+      <h2 class="cosmicSectionTitle">Proposer mes défenses</h2>
+      <p class="cosmicIntro">Complète une ou plusieurs salles (5 personnages par salle). Ton brouillon est conservé sur cet appareil. Le partage prépare un message à envoyer sur Discord pour validation : il ne publie rien automatiquement.</p>
+      <label class="cosmicLabel" for="proposalAuthor">Pseudo / auteur</label>
+      <input class="select" id="proposalAuthor" autocomplete="nickname" maxlength="80" placeholder="Ton pseudo LoSP" />
+      <label class="cosmicLabel" for="proposalSource">Source de la proposition</label>
+      <input class="select" id="proposalSource" maxlength="160" placeholder="Personnel, Marvel Church…" />
+      <div id="proposalRooms" class="cosmicRooms"></div>
+      <datalist id="cosmicCharacters"></datalist>
+      <p class="cosmicFeedback" id="proposalStatus" role="status" aria-live="polite"></p>
+      <button id="proposalShare" class="cosmicAction" type="button">Partager ma proposition</button>
+      <textarea id="proposalFallback" class="select cosmicFallback" readonly hidden aria-label="Texte de la proposition à copier"></textarea>
+    </section>
+  </main>
+  <script src="./cosmic-defenses.js?v=1" defer></script>
+</body>
+</html>
