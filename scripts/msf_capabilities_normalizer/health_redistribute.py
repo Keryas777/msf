@@ -287,6 +287,21 @@ REVIEWED_OFFICIAL_TEXT_SIGNATURE_VARIANTS = {
     },
 }
 
+# Review decision for two unchanged Quasar actions. The official French text
+# establishes life steal, while restitution to self is project-owner validated,
+# not an observed engine formula or an explicit recipient in the source text.
+# Keep separate from the independent drain/lifesteal stat_modifier mechanic.
+REVIEWED_USER_VALIDATED_SIGNATURES = {
+    "/Data/Quasar/basic/actions/3": {
+        "sha256": "b0db01272f5d939b2b38c06cbacf35342a7f39c5c819df09ba4f1f21f50d051a",
+        "assertion": "La description officielle confirme le vol de vie sur cible cosmique ; la restitution à Quasar est validée par le responsable du projet, non démontrée par la formule moteur.",
+    },
+    "/Data/Quasar/passive/4/actions/1": {
+        "sha256": "89c5561a46eca13e2288a421c8ff54232e90fecc52bb6001867a741dd3440efb",
+        "assertion": "La description officielle confirme le vol de vie sur ennemi Exposé ; la restitution à Quasar est validée par le responsable du projet, non démontrée par la formule moteur.",
+    },
+}
+
 # Text supports only the listed claim for these rows; keep behavior unresolved.
 PARTIAL_OFFICIAL_TEXT_SIGNATURES = {
     "/Data/KangTheConqueror/passive/0/actions/3": {
@@ -296,14 +311,6 @@ PARTIAL_OFFICIAL_TEXT_SIGNATURES = {
     "/Data/Morbius/basic/actions/1": {
         "sha256": "fc2904eb821ce0aa7c5382d7299642e70ac2baaa26956c98e6e39b72c177bd88",
         "assertion": "La description FR mentionne un vol de vie conditionné par Saignement. Le destinataire et le calcul de restitution ne sont pas établis."
-    },
-    "/Data/Quasar/basic/actions/3": {
-        "sha256": "b0db01272f5d939b2b38c06cbacf35342a7f39c5c819df09ba4f1f21f50d051a",
-        "assertion": "La description FR mentionne le vol de 5 % de vie à la cible principale si elle est cosmique. La destination n’est pas établie."
-    },
-    "/Data/Quasar/passive/4/actions/1": {
-        "sha256": "89c5561a46eca13e2288a421c8ff54232e90fecc52bb6001867a741dd3440efb",
-        "assertion": "La description FR mentionne le vol de 5 % de vie sur l’ennemi Exposé. La destination n’est pas établie."
     },
     "/Data/Yellowjacket/special/actions/0": {
         "sha256": "0d6c0541fc93abea0abd20cc215a94d4570f9a00155614e5771d9163651acce2",
@@ -388,11 +395,23 @@ def normalize_health_redistribute(action: dict[str, Any]) -> dict[str, Any]:
     variant = REVIEWED_OFFICIAL_TEXT_SIGNATURE_VARIANTS.get(pointer)
     if variant and _raw_fingerprint(raw) == variant["sha256"]:
         verified_review = variant
+    user_review = REVIEWED_USER_VALIDATED_SIGNATURES.get(pointer)
+    user_review_confirmed = bool(user_review and _raw_fingerprint(raw) == user_review["sha256"])
+    if user_review_confirmed:
+        verified_review = {
+            "sourceGameVersion": "10_6_3",
+            "sourceVersionVerified": False,
+            "assertion": user_review["assertion"],
+            "recipient": "self",
+            "recipientEvidence": "project_owner_validation",
+        }
     if verified_review:
         behavior, rule, proof = (
             "health_steal_redistribute",
-            "reviewed_official_text_steal_and_redistribution",
-            "official_ability_text_and_exact_source_signature",
+            "reviewed_user_validated_self_restitution" if user_review_confirmed
+            else "reviewed_official_text_steal_and_redistribution",
+            "official_text_and_user_validation" if user_review_confirmed
+            else "official_ability_text_and_exact_source_signature",
         )
     partial_text = PARTIAL_OFFICIAL_TEXT_SIGNATURES.get(pointer)
     if partial_text and _raw_fingerprint(raw) == partial_text["sha256"]:
@@ -413,6 +432,9 @@ def normalize_health_redistribute(action: dict[str, Any]) -> dict[str, Any]:
                          "sourceGameVersion": verified_review["sourceGameVersion"],
                          "sourceVersionVerified": verified_review["sourceVersionVerified"],
                          "assertion": verified_review["assertion"],
+                         **({"recipient": verified_review["recipient"],
+                             "recipientEvidence": verified_review["recipientEvidence"]}
+                            if user_review_confirmed else {}),
                          "limits": ["percentage_basis", "engine_formula", "recipient_allocation", "operation_order"]}
                         if verified_review else {}),
                      **({"proofLevel": "partially_confirmed",
