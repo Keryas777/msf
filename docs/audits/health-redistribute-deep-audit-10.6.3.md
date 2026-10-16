@@ -10,12 +10,12 @@ Ce rapport migre vers les sources courantes les résultats des PR #225 et #251. 
 | Capacités distinctes | 128 |
 | Personnages / unités distincts | 81 |
 | Actions sans `abilityId` | 26 |
-| Comportements identifiés (`resolved=true`) | 176 |
-| Comportements partiellement interprétés (`resolved=false`) | 5 |
+| Comportements identifiés (`resolved=true`) | 181 |
+| Comportements partiellement interprétés (`resolved=false`) | 0 |
 | Comportements entièrement non résolus | 49 |
 | Formules moteur non résolues | 230 |
 
-La répartition des comportements identifiés est : 98 pertes de vie, 68 vols et redistributions de vie, 8 égalisations et 2 transferts entre alliés. Toutes les opérations gardent `percentageBasis: unresolved` et `engineFormula: unresolved`.
+La répartition des comportements identifiés est : 98 pertes de vie, 73 vols et redistributions de vie, 8 égalisations et 2 transferts entre alliés. Toutes les opérations gardent `percentageBasis: unresolved` et `engineFormula: unresolved`.
 
 ## Provenance et statut de version
 
@@ -63,17 +63,68 @@ Pointeurs des 27 nouvelles actions :
 
 ### A — Comportement identifié
 
-176 actions ont une famille de comportement interprétée. Les 49 signatures textuelles confirmées de 10.5.0 restent identiques. La cinquantième, Oath, est réévaluée sur son nouveau JSON et son texte français courant, avec une empreinte versionnée séparément. Les classifications structurelles validées par la PR #225 sont conservées lorsqu’elles correspondent toujours aux paramètres.
+181 actions ont une famille de comportement interprétée. Les 49 signatures textuelles confirmées de 10.5.0 restent identiques. La cinquantième, Oath, est réévaluée sur son nouveau JSON et son texte français courant, avec une empreinte versionnée séparément. Les classifications structurelles validées par la PR #225 sont conservées lorsqu’elles correspondent toujours aux paramètres.
 
 ### B — Interprétation partielle
 
-Les 5 cas déjà documentés (Kang, Morbius, Quasar ×2 et Yellowjacket) ont des signatures brutes identiques à 10.5.0. Ils restent `behavior: detected` et `resolved: false`. Leur texte mentionne un vol de vie, mais ne prouve pas toute la destination ou la restitution.
+Aucune action ne reste au niveau B. Les cinq cas précédemment partiels sont désormais interprétés au niveau **famille de comportement seulement** : Quasar ×2 sur validation explicite du responsable du projet, et Kang, Morbius, Yellowjacket sur descriptions anglaises précisant leur restitution **à soi-même**. Cette clôture n'établit pas les formules de calcul du moteur.
+
+### B bis — Décision de validation Quasar (16 octobre 2026)
+
+Sur confirmation explicite du responsable du projet, deux signatures **inchangées**
+de Quasar sont classées `health_steal_redistribute` avec restitution **à Quasar
+lui-même** :
+
+- `/Data/Quasar/basic/actions/3` — **Explosion quantique** : vol de vie sur
+  une cible cosmique ;
+- `/Data/Quasar/passive/4/actions/1` — **Chevalier galactique** : vol de vie
+  sur un ennemi Exposé.
+
+Les textes officiels confirment le vol de vie, mais n’expriment pas explicitement
+le receveur dans ces deux actions. Cette validation du destinataire est donc
+**une décision humaine documentée**, pas une déduction prouvée par le runtime.
+La provenance est conservée dans `evidence.recipientEvidence:
+"project_owner_validation"` ; `evidence.recipient: "self"` signifie
+l'interprétation retenue, sans altérer le sélecteur JSON brut `to: ally`.
+Les deux règles sont protégées par leur pointeur et leur empreinte SHA-256 exacte ;
+un changement de source fait échouer l'interprétation spécifique.
+
+Le **drain de vie** (`stat_modifier`, bonus de 25 % cité dans la passive) est
+une mécanique distincte. Il n'est ni absorbé par ces deux actions ni
+interprété comme un multiplicateur de `health_redistribute`. La formule moteur,
+les bases de pourcentage et l'ordre des calculs restent non résolus.
+
+### B ter — Descriptions anglaises explicites : trois restitutions à soi (16 octobre 2026)
+
+Trois actions dont les textes français exploités par la PR #251 ne documentaient
+pas suffisamment le receveur disposent d'une description anglaise non ambiguë
+avec **« redistribute to self »** :
+
+- `/Data/KangTheConqueror/passive/0/actions/3` — **Kang**, *Time Warlord* /
+  *Seigneur de guerre temporel*, 3 % de vie volée aux ennemis, restituée à Kang.
+  Description anglaise reproduite sur [MSF Base](https://www.msfbase.com/characters/KangTheConqueror/).
+  **Provenance** : reproduction communautaire d'une description en anglais, à ne
+  pas présenter comme certification indépendante de la source officielle.
+- `/Data/Morbius/basic/actions/1` — **Morbius**, *Sanguine Slash* /
+  *Entaille sanglante*, vol de vie conditionné par Saignement, restituée à Morbius.
+  Preuve : [blog officiel Scopely du 13 octobre 2026](https://marvelstrikeforce.com/en/updates/blog-update-10-13-26).
+- `/Data/Yellowjacket/special/actions/0` — **Yellowjacket**, *Spiteful Sting* /
+  *Piqûre perfide*, vie volée à la cible principale, restituée à Yellowjacket.
+  Preuve : [fiche officielle du personnage](https://marvelstrikeforce.com/en/characters/Yellowjacket/abilities).
+
+Les trois règles utilisent un pointeur et l'empreinte SHA-256 du JSON source.
+L'assertion ajoute `evidence.recipient: "self"` et
+`evidence.recipientEvidence` (officiel ou description anglaise publiée) avec
+`evidence.sourceUrl`. Elle ne remplace pas le sélecteur brut `to: ally`
+et **n'extrapole ni quantité, ni allocation mathématique, ni formule moteur**.
+Une nouvelle version de l'action non couverte par l'empreinte redevient
+`detected`.
 
 ### C — Comportement non résolu
 
 49 cas restent entièrement non résolus : les 44 signatures déjà étudiées en 10.5.0, plus les 5 nouvelles actions de boss PvE (LokiTeen ×1, Odin ×4). Les 44 signatures antérieures n’ont pas déclenché de nouvel audit : leur structure est identique et aucune preuve runtime nouvelle n’est disponible.
 
-Les détails par action — personnage, capacité, identifiants, pointeur, empreinte, structure brute, éléments confirmés, inconnues, investigations antérieures, blocage, preuve nécessaire et priorité — se trouvent dans le registre lié au début du rapport. Il contient 54 entrées ambiguës : 5 niveau B et 49 niveau C. Il distingue les 30 cas C jouables des 19 cas C techniques/non jouables ; les cinq cas B sont jouables.
+Les détails par action — personnage, capacité, identifiants, pointeur, empreinte, structure brute, éléments confirmés, inconnues, investigations antérieures, blocage, preuve nécessaire et priorité — se trouvent dans le registre lié au début du rapport. Il contient 49 entrées ambiguës : 0 niveau B et 49 niveau C. Il distingue les 30 cas C jouables des 19 cas C techniques/non jouables.
 
 ### D — Formule moteur non résolue
 
@@ -82,7 +133,7 @@ Les 230 opérations conservent `percentageBasis` et `engineFormula` à `unresolv
 ## Priorités d’investigation restantes
 
 1. Cas non résolus de personnages jouables (30 niveau C) : exiger une nouvelle preuve runtime ou une observation de combat contrôlée avant de modifier le Codex.
-2. Cas partiels jouables (5 niveau B) : rechercher une description officielle qui relie explicitement le vol, sa destination et la restitution.
+2. Les cinq anciens cas partiels (Quasar ×2, Kang, Morbius et Yellowjacket) n'exigent plus de recherche sur le destinataire ; réouvrir uniquement sur changement de signature ou contradiction documentée.
 3. Cas de boss PvE (19 niveau C) : priorité basse ; les conserver et ne pas extrapoler leurs comportements aux personnages jouables.
 4. Formules moteur : traiter seulement avec symboles/runtime exploitable ou comparaison contrôlée des états de combat ; aucune décompilation générale n’est justifiée par les données présentes.
 
@@ -90,9 +141,9 @@ Une signature déjà enregistrée ne doit pas relancer la même enquête lors d�
 
 ## Validation
 
-- `python -m unittest tests.test_msf_health_redistribute -v` — contrat exhaustif, conservation sans perte, empreintes héritées, cas Oath, provenance des 11 ressources, registre des inconnues et non-régression hors famille.
-- Tests Builder Explorer et Web Publisher — projection, étiquettes, facettes et contenu préservé.
-- Tests Normalizer, Parser et Indexer — contrats amont et non-régression.
-- `git diff --check` et compilation Python des modules modifiés.
+- Tests spécialisés mis à jour (`python -m unittest tests.test_msf_health_redistribute -v`) : comptages de référence, conservation des signatures, provenance des textes anglais, destinataires à soi, échec fermé sur signature modifiée, préservation du JSON brut et absence de modification du `stat_modifier`. Exécution encore requise avant fusion.
+- Tests Builder Explorer et Web Publisher : exécution encore requise avant fusion.
+- Tests Normalizer, Parser et Indexer : exécution encore requise avant fusion.
+- Aucun build ni publication des artefacts du Codex n'a été déclenché par cette PR.
 
 Aucun artefact public, source brute officielle, snapshot 10.5.0 ou manifeste source n’est écrasé. Le Codex garde ses catégories et facettes existantes.
