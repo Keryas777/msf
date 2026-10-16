@@ -10,12 +10,12 @@ Ce rapport migre vers les sources courantes les résultats des PR #225 et #251. 
 | Capacités distinctes | 128 |
 | Personnages / unités distincts | 81 |
 | Actions sans `abilityId` | 26 |
-| Comportements identifiés (`resolved=true`) | 176 |
-| Comportements partiellement interprétés (`resolved=false`) | 5 |
+| Comportements identifiés (`resolved=true`) | 178 |
+| Comportements partiellement interprétés (`resolved=false`) | 3 |
 | Comportements entièrement non résolus | 49 |
 | Formules moteur non résolues | 230 |
 
-La répartition des comportements identifiés est : 98 pertes de vie, 68 vols et redistributions de vie, 8 égalisations et 2 transferts entre alliés. Toutes les opérations gardent `percentageBasis: unresolved` et `engineFormula: unresolved`.
+La répartition des comportements identifiés est : 98 pertes de vie, 70 vols et redistributions de vie, 8 égalisations et 2 transferts entre alliés. Toutes les opérations gardent `percentageBasis: unresolved` et `engineFormula: unresolved`.
 
 ## Provenance et statut de version
 
@@ -63,17 +63,42 @@ Pointeurs des 27 nouvelles actions :
 
 ### A — Comportement identifié
 
-176 actions ont une famille de comportement interprétée. Les 49 signatures textuelles confirmées de 10.5.0 restent identiques. La cinquantième, Oath, est réévaluée sur son nouveau JSON et son texte français courant, avec une empreinte versionnée séparément. Les classifications structurelles validées par la PR #225 sont conservées lorsqu’elles correspondent toujours aux paramètres.
+178 actions ont une famille de comportement interprétée. Les 49 signatures textuelles confirmées de 10.5.0 restent identiques. La cinquantième, Oath, est réévaluée sur son nouveau JSON et son texte français courant, avec une empreinte versionnée séparément. Les classifications structurelles validées par la PR #225 sont conservées lorsqu’elles correspondent toujours aux paramètres.
 
 ### B — Interprétation partielle
 
-Les 5 cas déjà documentés (Kang, Morbius, Quasar ×2 et Yellowjacket) ont des signatures brutes identiques à 10.5.0. Ils restent `behavior: detected` et `resolved: false`. Leur texte mentionne un vol de vie, mais ne prouve pas toute la destination ou la restitution.
+Trois cas partiels (Kang, Morbius et Yellowjacket) restent `behavior: detected` et `resolved: false`. Deux cas Quasar ont quitté cette liste à la suite d’une validation humaine explicite de la restitution à Quasar ; cette décision d’interprétation est tracée séparément de la preuve officielle et ne confirme aucune formule moteur.
+
+### B bis — Décision de validation Quasar (16 octobre 2026)
+
+Sur confirmation explicite du responsable du projet, deux signatures **inchangées**
+de Quasar sont classées `health_steal_redistribute` avec restitution **à Quasar
+lui-même** :
+
+- `/Data/Quasar/basic/actions/3` — **Explosion quantique** : vol de vie sur
+  une cible cosmique ;
+- `/Data/Quasar/passive/4/actions/1` — **Chevalier galactique** : vol de vie
+  sur un ennemi Exposé.
+
+Les textes officiels confirment le vol de vie, mais n’expriment pas explicitement
+le receveur dans ces deux actions. Cette validation du destinataire est donc
+**une décision humaine documentée**, pas une déduction prouvée par le runtime.
+La provenance est conservée dans `evidence.recipientEvidence:
+"project_owner_validation"` ; `evidence.recipient: "self"` signifie
+l'interprétation retenue, sans altérer le sélecteur JSON brut `to: ally`.
+Les deux règles sont protégées par leur pointeur et leur empreinte SHA-256 exacte ;
+un changement de source fait échouer l'interprétation spécifique.
+
+Le **drain de vie** (`stat_modifier`, bonus de 25 % cité dans la passive) est
+une mécanique distincte. Il n'est ni absorbé par ces deux actions ni
+interprété comme un multiplicateur de `health_redistribute`. La formule moteur,
+les bases de pourcentage et l'ordre des calculs restent non résolus.
 
 ### C — Comportement non résolu
 
 49 cas restent entièrement non résolus : les 44 signatures déjà étudiées en 10.5.0, plus les 5 nouvelles actions de boss PvE (LokiTeen ×1, Odin ×4). Les 44 signatures antérieures n’ont pas déclenché de nouvel audit : leur structure est identique et aucune preuve runtime nouvelle n’est disponible.
 
-Les détails par action — personnage, capacité, identifiants, pointeur, empreinte, structure brute, éléments confirmés, inconnues, investigations antérieures, blocage, preuve nécessaire et priorité — se trouvent dans le registre lié au début du rapport. Il contient 54 entrées ambiguës : 5 niveau B et 49 niveau C. Il distingue les 30 cas C jouables des 19 cas C techniques/non jouables ; les cinq cas B sont jouables.
+Les détails par action — personnage, capacité, identifiants, pointeur, empreinte, structure brute, éléments confirmés, inconnues, investigations antérieures, blocage, preuve nécessaire et priorité — se trouvent dans le registre lié au début du rapport. Il contient 52 entrées ambiguës : 3 niveau B et 49 niveau C. Il distingue les 30 cas C jouables des 19 cas C techniques/non jouables ; les trois cas B sont jouables.
 
 ### D — Formule moteur non résolue
 
@@ -82,7 +107,7 @@ Les 230 opérations conservent `percentageBasis` et `engineFormula` à `unresolv
 ## Priorités d’investigation restantes
 
 1. Cas non résolus de personnages jouables (30 niveau C) : exiger une nouvelle preuve runtime ou une observation de combat contrôlée avant de modifier le Codex.
-2. Cas partiels jouables (5 niveau B) : rechercher une description officielle qui relie explicitement le vol, sa destination et la restitution.
+2. Cas partiels jouables (3 niveau B) : rechercher une description officielle qui relie explicitement le vol, sa destination et la restitution.
 3. Cas de boss PvE (19 niveau C) : priorité basse ; les conserver et ne pas extrapoler leurs comportements aux personnages jouables.
 4. Formules moteur : traiter seulement avec symboles/runtime exploitable ou comparaison contrôlée des états de combat ; aucune décompilation générale n’est justifiée par les données présentes.
 
