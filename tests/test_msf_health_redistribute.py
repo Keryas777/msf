@@ -1,6 +1,7 @@
 """Lossless corpus contract and deliberately fail-closed health interpretation."""
 from collections import Counter
 import copy
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -9,6 +10,7 @@ import unittest
 from scripts.msf_capabilities_normalizer.health_redistribute import (
     PARTIAL_OFFICIAL_TEXT_SIGNATURES,
     REVIEWED_OFFICIAL_TEXT_SIGNATURES,
+    REVIEWED_OFFICIAL_TEXT_SIGNATURE_VARIANTS,
     _raw_fingerprint,
     normalize_health_redistribute,
 )
@@ -57,6 +59,18 @@ class HealthRedistributeTests(unittest.TestCase):
         self.assertEqual(len({o["abilityId"] for o in self.indexed if o["abilityId"]}), expected["abilities"])
         self.assertEqual(len({o["characterId"] for o in self.indexed}), expected["characters"])
         self.assertEqual(sum(o["abilityId"] is None for o in self.indexed), expected["without_ability"])
+        self.assertEqual(
+            Counter(o["healthRedistribute"]["behavior"] for o in self.operations),
+            Counter({
+                "health_loss": 98,
+                "health_steal_redistribute": 68,
+                "detected": 54,
+                "health_equalize": 8,
+                "health_transfer_allies": 2,
+            }),
+        )
+        self.assertEqual(sum(o["healthRedistribute"]["engineFormula"] == "unresolved"
+                             for o in self.operations), 230)
         mappings = {m["sourceActionId"]: m for m in self.capabilities["actionMappings"]}
         for op in self.indexed:
             with self.subTest(source=op["sourceActionId"]):
@@ -163,6 +177,7 @@ class HealthRedistributeTests(unittest.TestCase):
             self.assertEqual(result["behavior"], "health_steal_redistribute")
             self.assertTrue(result["resolved"])
             self.assertEqual(result["evidence"]["proofLevel"], "confirmed")
+            self.assertIsNone(result["evidence"]["sourceVersionVerified"])
             self.assertEqual(result["percentageBasis"], "unresolved")
             self.assertEqual(result["engineFormula"], "unresolved")
 
@@ -189,6 +204,72 @@ class HealthRedistributeTests(unittest.TestCase):
             self.assertEqual(result["evidence"]["proofLevel"], "partially_confirmed")
             self.assertIn("assertion", result["evidence"])
         self.assertEqual(matched, 5)
+
+    def test_oath_1063_changed_signature_is_revalidated_by_current_text(self):
+        pointer = "/Data/Oath/special/actions/0"
+        action = next(a for a in self.actions.values() if a["source"]["pointer"] == pointer)
+        variant = REVIEWED_OFFICIAL_TEXT_SIGNATURE_VARIANTS[pointer]
+        self.assertEqual(_raw_fingerprint(action["raw"]), variant["sha256"])
+        result = normalize_health_redistribute(action)
+        self.assertEqual(result["behavior"], "health_steal_redistribute")
+        self.assertTrue(result["resolved"])
+        self.assertEqual(result["evidence"]["sourceGameVersion"], "10_6_3")
+        self.assertFalse(result["evidence"]["sourceVersionVerified"])
+        description = " ".join(
+            level.get("description", "")
+            for level in self.official_presentations["Oath"]["abilityKit"]["special"]["levels"].values()
+        ).lower()
+        self.assertIn("vole", description)
+        self.assertIn("vie", description)
+        self.assertIn("redistrib", description)
+        self.assertEqual(result["percentageBasis"], "unresolved")
+        self.assertEqual(result["engineFormula"], "unresolved")
+
+    def test_unverified_source_provenance_and_resource_integrity(self):
+        manifest = self.source_manifest
+        self.assertEqual(manifest["game"]["version"], "10_6_3")
+        self.assertEqual(manifest["game"]["build"], "1674780")
+        self.assertFalse(manifest["game"]["versionVerified"])
+        self.assertFalse(manifest["catalog"]["gameVersionVerified"])
+        self.assertEqual(manifest["catalog"]["resourceCount"], 11)
+        for resource in manifest["resources"]:
+            path = ROOT / "data/msf-capabilities" / resource["file"]
+            content = path.read_bytes()
+            with self.subTest(resource=resource["id"]):
+                self.assertEqual(len(content), resource["sizeBytes"])
+                self.assertEqual(hashlib.md5(content).hexdigest(), resource["md5"])
+                self.assertEqual(hashlib.sha256(content).hexdigest(), resource["sha256"])
+                self.assertEqual(resource["sourceGameVersion"], None)
+                self.assertEqual(resource["sourceType"], "magneticzero")
+
+    def test_unresolved_review_ledger_covers_current_signatures(self):
+        ledger = json.loads(
+            (ROOT / "data/msf-capabilities/health-redistribute-review-ledger-10.6.3.json").read_text()
+        )
+        self.assertEqual(ledger["corpus"]["version"], self.game_version)
+        self.assertFalse(ledger["corpus"]["versionVerified"])
+        entries = {entry["sourcePointer"]: entry for entry in ledger["entries"]}
+        playable_catalog = {
+            item["id"]: item for item in json.loads((ROOT / "docs/data/msf-characters.json").read_text())
+        }
+        unresolved = {
+            operation["healthRedistribute"]["evidence"]["sourcePointer"]: operation
+            for operation in self.operations
+            if operation["healthRedistribute"]["behavior"] == "detected"
+        }
+        self.assertEqual(set(entries), set(unresolved))
+        self.assertEqual(Counter(entry["knowledgeLevel"] for entry in entries.values()),
+                         Counter({"B": 5, "C": 49}))
+        for pointer, operation in unresolved.items():
+            entry = entries[pointer]
+            with self.subTest(pointer=pointer):
+                self.assertEqual(entry["sourceActionId"], operation["sourceActionId"])
+                self.assertEqual(entry["rawFingerprintSha256"],
+                                 _raw_fingerprint(operation["healthRedistribute"]["rawAction"]))
+                self.assertEqual(entry["rawAction"], operation["healthRedistribute"]["rawAction"])
+                player_flag = playable_catalog[entry["characterId"]]["player_Character"]
+                expected_class = "playable" if player_flag else "technical_or_nonplayable"
+                self.assertEqual(entry["unitClass"], expected_class)
 
     def test_standalone_stat_modifier_is_unchanged(self):
         # Removing only this family's source actions must leave every other
