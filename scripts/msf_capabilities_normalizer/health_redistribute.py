@@ -302,21 +302,33 @@ REVIEWED_USER_VALIDATED_SIGNATURES = {
     },
 }
 
-# Text supports only the listed claim for these rows; keep behavior unresolved.
-PARTIAL_OFFICIAL_TEXT_SIGNATURES = {
+# English ability descriptions explicitly identify the recipient ("to self").
+# Source claims are separately attributed: Scopely for Morbius/Yellowjacket,
+# and a published ability-description mirror for Kang. This proves only the
+# behavior family and named recipient, not the combat calculation.
+REVIEWED_PUBLISHED_SELF_SIGNATURES = {
     "/Data/KangTheConqueror/passive/0/actions/3": {
         "sha256": "1adb175c549658341ca042bdf2e7198e31c3b10d57bcfa2718bbf9a222a55cfd",
-        "assertion": "La description FR mentionne un vol de vie sur les ennemis. Le destinataire/traitement de restitution n’est pas établi par le texte."
+        "assertion": "Le texte anglais de Time Warlord précise le vol de 3 % de vie à tous les ennemis et sa redistribution à Kang lui-même.",
+        "recipientEvidence": "published_english_ability_description",
+        "sourceUrl": "https://www.msfbase.com/characters/KangTheConqueror/",
     },
     "/Data/Morbius/basic/actions/1": {
         "sha256": "fc2904eb821ce0aa7c5382d7299642e70ac2baaa26956c98e6e39b72c177bd88",
-        "assertion": "La description FR mentionne un vol de vie conditionné par Saignement. Le destinataire et le calcul de restitution ne sont pas établis."
+        "assertion": "La description anglaise officielle de Sanguine Slash précise le vol de vie conditionné par Saignement et la redistribution à Morbius lui-même.",
+        "recipientEvidence": "official_english_ability_description",
+        "sourceUrl": "https://marvelstrikeforce.com/en/updates/blog-update-10-13-26",
     },
     "/Data/Yellowjacket/special/actions/0": {
         "sha256": "0d6c0541fc93abea0abd20cc215a94d4570f9a00155614e5771d9163651acce2",
-        "assertion": "La description FR confirme le vol progressif de vie à la cible principale et mentionne aussi un soin fixe dans la capacité; le lien entre ce soin et les bénéficiaires de cette action n’est pas démontré."
-    }
+        "assertion": "La description anglaise officielle de Spiteful Sting précise le vol de vie à la cible principale et sa redistribution à Yellowjacket lui-même.",
+        "recipientEvidence": "official_english_ability_description",
+        "sourceUrl": "https://marvelstrikeforce.com/en/characters/Yellowjacket/abilities",
+    },
 }
+
+# Retain the partial interpretation hook for future ambiguous source actions.
+PARTIAL_OFFICIAL_TEXT_SIGNATURES = {}
 
 def _raw_fingerprint(raw: dict[str, Any]) -> str:
     encoded = json.dumps(raw, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
@@ -405,12 +417,28 @@ def normalize_health_redistribute(action: dict[str, Any]) -> dict[str, Any]:
             "recipient": "self",
             "recipientEvidence": "project_owner_validation",
         }
+    published_review = REVIEWED_PUBLISHED_SELF_SIGNATURES.get(pointer)
+    published_review_confirmed = bool(
+        published_review and _raw_fingerprint(raw) == published_review["sha256"]
+    )
+    if published_review_confirmed:
+        verified_review = {
+            "sourceGameVersion": "10_6_3",
+            "sourceVersionVerified": False,
+            "assertion": published_review["assertion"],
+            "recipient": "self",
+            "recipientEvidence": published_review["recipientEvidence"],
+            "sourceUrl": published_review["sourceUrl"],
+        }
     if verified_review:
         behavior, rule, proof = (
             "health_steal_redistribute",
-            "reviewed_user_validated_self_restitution" if user_review_confirmed
+            "reviewed_published_english_self_restitution" if published_review_confirmed
+            else "reviewed_user_validated_self_restitution" if user_review_confirmed
             else "reviewed_official_text_steal_and_redistribution",
-            "official_text_and_user_validation" if user_review_confirmed
+            "published_english_ability_text_and_exact_source_signature"
+            if published_review_confirmed
+            else "official_text_and_user_validation" if user_review_confirmed
             else "official_ability_text_and_exact_source_signature",
         )
     partial_text = PARTIAL_OFFICIAL_TEXT_SIGNATURES.get(pointer)
@@ -433,8 +461,10 @@ def normalize_health_redistribute(action: dict[str, Any]) -> dict[str, Any]:
                          "sourceVersionVerified": verified_review["sourceVersionVerified"],
                          "assertion": verified_review["assertion"],
                          **({"recipient": verified_review["recipient"],
-                             "recipientEvidence": verified_review["recipientEvidence"]}
-                            if user_review_confirmed else {}),
+                             "recipientEvidence": verified_review["recipientEvidence"],
+                             **({"sourceUrl": verified_review["sourceUrl"]}
+                                if published_review_confirmed else {})}
+                            if user_review_confirmed or published_review_confirmed else {}),
                          "limits": ["percentage_basis", "engine_formula", "recipient_allocation", "operation_order"]}
                         if verified_review else {}),
                      **({"proofLevel": "partially_confirmed",
