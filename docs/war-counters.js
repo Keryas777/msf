@@ -1,11 +1,13 @@
 // docs/war-counters.js
 (() => {
+  const IS_COSMIC = document.body?.dataset?.counterMode === "cosmic";
   const USAGE_LOGGER_URL =
     "https://script.google.com/macros/s/AKfycbzTdFi7gEgRVCKjK2UBwFcQIlIzi2jp4eeO2ryR36sSrcy3QtzfEK8k7kNSXSJOGmFAbw/exec";
 
   const FILES = {
     alliances: "./data/alliances.json",
-    warCounters: "./data/war-counters.json",
+    warCounters: IS_COSMIC ? "./data/cosmic-counters.json" : "./data/war-counters.json",
+    cosmicConfig: "./data/cosmic-config.json",
     warSeasonRules: "./data/war-season-rules.json",
     joueurs: "./data/joueurs.json",
     characters: "./data/msf-characters.json",
@@ -19,6 +21,7 @@
 
   const allianceSelect = qs("#allianceSelect");
   const playerSelect = qs("#playerSelect");
+  const roomSelect = qs("#roomSelect");
   const defFamilySelect = qs("#defFamilySelect");
   const defVariantSelect = qs("#defVariantSelect");
   const enemyPowerInput = qs("#enemyPower");
@@ -110,7 +113,7 @@
   }
 
   function trackUsage(payload) {
-    if (!USAGE_LOGGER_URL) return;
+    if (IS_COSMIC || !USAGE_LOGGER_URL) return;
 
     fetch(USAGE_LOGGER_URL, {
       method: "POST",
@@ -623,6 +626,7 @@
 
   function normalizeWarRow(r) {
     return {
+      room: Number.isInteger(Number(r.room)) && Number(r.room) >= 1 && Number(r.room) <= 6 ? Number(r.room) : 0,
       def_family: (r.def_family ?? "").toString().trim(),
       def_variant: (r.def_variant ?? "").toString().trim(),
       def_key: (r.def_key ?? "").toString().trim(),
@@ -648,6 +652,28 @@
 
       notes: (r.notes ?? "").toString().trim(),
     };
+  }
+
+  function isRoomRelevant(row) {
+    if (!IS_COSMIC || !roomSelect?.value) return true;
+    return row.room === 0 || row.room === Number(roomSelect.value);
+  }
+
+  function renderRoomOptions(config) {
+    if (!IS_COSMIC || !roomSelect) return;
+    roomSelect.replaceChildren();
+    const all = document.createElement("option");
+    all.value = "";
+    all.textContent = "Toutes les salles";
+    roomSelect.appendChild(all);
+    for (const room of Array.isArray(config?.rooms) ? config.rooms : []) {
+      if (!Number.isInteger(room?.id) || room.id < 1 || room.id > 6) continue;
+      const option = document.createElement("option");
+      option.value = String(room.id);
+      option.textContent = String(room.label || `Salle ${room.id}`);
+      roomSelect.appendChild(option);
+    }
+    if (roomSelect.options.length > 1) roomSelect.selectedIndex = 1;
   }
 
   function isRealCounter(r) {
@@ -779,6 +805,7 @@
 
   function getWarAdjustedPower(player, teamMembers) {
     const rawPower = getPlayerRawPower(player, teamMembers);
+    if (IS_COSMIC) return rawPower;
     const defaultMultiplier = Number(WAR_SEASON_RULES?.defaultMultiplier) || 1.17;
     const matchedRule = getMatchingSeasonRule(teamMembers);
     const multiplier = matchedRule
@@ -890,7 +917,7 @@
     opt0.textContent = "— Choisir une team générique —";
     defFamilySelect.appendChild(opt0);
 
-    const families = [...new Set(WAR.map((r) => r.def_family).filter(Boolean))].sort((a, b) =>
+    const families = [...new Set(WAR.filter(isRoomRelevant).map((r) => r.def_family).filter(Boolean))].sort((a, b) =>
       a.localeCompare(b, "fr")
     );
 
@@ -923,7 +950,7 @@
     opt0.textContent = "— Choisir une variante —";
     defVariantSelect.appendChild(opt0);
 
-    const variants = WAR.filter((r) => r.def_family === fam)
+    const variants = WAR.filter((r) => r.def_family === fam && isRoomRelevant(r))
       .map((r) => r.def_variant)
       .filter(Boolean);
 
@@ -941,7 +968,7 @@
     const fam = (defFamilySelect?.value ?? "").trim();
     const vari = (defVariantSelect?.value ?? "").trim();
     if (!fam || !vari) return null;
-    return WAR.find((r) => r.def_family === fam && r.def_variant === vari) || null;
+    return WAR.find((r) => r.def_family === fam && r.def_variant === vari && isRoomRelevant(r)) || null;
   }
 
   function renderDefense() {
@@ -1181,6 +1208,9 @@
 
     if (!def) {
       if (resultsCount) resultsCount.textContent = "0";
+      if (IS_COSMIC && !WAR.length && resultsWrap) {
+        resultsWrap.textContent = "Le catalogue des contres cosmiques est encore vide. Aucun contre de guerre n'est utilisé ici.";
+      }
       return;
     }
 
@@ -1195,7 +1225,7 @@
 
     const baseRows = WAR.filter(
       (r) => r.def_family === def.def_family && r.def_variant === def.def_variant
-    ).filter(isRealCounter);
+    ).filter(isRoomRelevant).filter(isRealCounter);
 
     if (!baseRows.length) {
       if (resultsCount) resultsCount.textContent = "0";
@@ -1320,6 +1350,12 @@
 
   defVariantSelect?.addEventListener("change", renderAll);
 
+  roomSelect?.addEventListener("change", () => {
+    renderDefFamilyOptions();
+    renderDefVariantOptions();
+    renderAll();
+  });
+
   enemyPowerInput?.addEventListener("input", () => {
     if (!enemyPowerInput) return;
 
@@ -1336,18 +1372,19 @@
   });
 
   async function boot() {
-    const [war, warSeasonRules, joueurs, chars, rosters] = await Promise.all([
+    const [war, warSeasonRules, joueurs, chars, rosters, cosmicConfig] = await Promise.all([
       fetchJson(FILES.warCounters),
-      fetchJson(FILES.warSeasonRules),
+      IS_COSMIC ? Promise.resolve(null) : fetchJson(FILES.warSeasonRules),
       fetchJson(FILES.joueurs),
       fetchJson(FILES.characters),
       fetchJson(FILES.rosters),
+      IS_COSMIC ? fetchJson(FILES.cosmicConfig) : Promise.resolve(null),
     ]);
 
     await loadAllianceData();
 
     WAR = Array.isArray(war) ? war.map(normalizeWarRow) : [];
-    WAR_SEASON_RULES = normalizeSeasonRules(warSeasonRules);
+    WAR_SEASON_RULES = IS_COSMIC ? { defaultMultiplier: 1, rules: [] } : normalizeSeasonRules(warSeasonRules);
     JOUEURS = Array.isArray(joueurs) ? joueurs : [];
 
     buildCharMap(chars);
@@ -1356,6 +1393,7 @@
 
     renderAllianceOptions();
     renderPlayerOptions();
+    renderRoomOptions(cosmicConfig);
     renderDefFamilyOptions();
     renderDefVariantOptions();
 

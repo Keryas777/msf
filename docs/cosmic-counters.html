@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
+    />
+
+    <style>
+      html.authChecking body{
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
+
+    <script>
+      document.documentElement.classList.add("authChecking");
+    </script>
+
+    <script src="./auth-guard.js?v=4"></script>
+
+    <title>LoSP — Contres Épreuve cosmique</title>
+    <link rel="stylesheet" href="./style.css?v=3" />
+    <link rel="stylesheet" href="./war-counters-overkill.css?v=7" />
+  </head>
+
+  <body class="page-war-counters" data-counter-mode="cosmic">
+    <a class="homeBtn" href="./home.html" aria-label="Accueil">🏠</a>
+
+    <div class="app">
+      <header class="header">
+        <div class="headerLeft">
+          <a href="./cosmic.html" class="backBtn" aria-label="Retour">⬅️</a>
+          <h1 class="title">Contres — Épreuve cosmique</h1>
+          <p class="subtitle">
+            Choisis une salle et une défense adverse. Les puissances affichées sont celles des rosters, sans bonus de guerre.
+          </p>
+        </div>
+
+        <div class="headerRight">
+          <div>
+            <div class="label">Alliance</div>
+            <select id="allianceSelect" class="select" aria-label="Alliance"></select>
+          </div>
+
+          <div>
+            <div class="label">Joueur</div>
+            <select id="playerSelect" class="select" aria-label="Joueur"></select>
+          </div>
+
+          <div>
+            <label class="label" for="roomSelect">Salle de l'épreuve</label>
+            <select id="roomSelect" class="select" aria-label="Salle de l'épreuve"></select>
+          </div>
+
+          <div>
+            <div class="label">Défense adverse — Générique</div>
+            <select id="defFamilySelect" class="select" aria-label="Famille de défense"></select>
+          </div>
+
+          <div>
+            <div class="label">Défense adverse — Variante</div>
+            <select id="defVariantSelect" class="select" aria-label="Variante de défense"></select>
+          </div>
+
+          <div>
+            <div class="label">Puissance défense adverse</div>
+            <input
+              id="enemyPower"
+              class="select"
+              type="text"
+              inputmode="numeric"
+              enterkeyhint="done"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              placeholder="ex: 6500000"
+              aria-label="Puissance de la défense adverse"
+              pattern="[0-9\s\.\,]*"
+            />
+          </div>
+        </div>
+      </header>
+
+      <section class="card">
+        <div class="cardHeader">
+          <h2 class="cardTitle" id="defTitle">—</h2>
+        </div>
+
+        <div class="portraits" id="defPortraits" aria-label="Personnages de la défense"></div>
+      </section>
+
+      <section class="card">
+        <div class="cardHeader cardHeader--reco">
+          <div class="chipCount chipCount--sm" id="resultsCount">0</div>
+
+          <h2 class="cardTitle cardTitle--sm">Recommandations</h2>
+
+          <div class="chipCount chipCount--sm" id="playerChip">—</div>
+        </div>
+
+        <div id="results" aria-label="Liste des counters disponibles"></div>
+      </section>
+    </div>
+
+    <script src="./alliances.js?v=1"></script>
+    <script src="./war-counters.js?v=17"></script>
+
+    <script>
+      (() => {
+        function renderOverkillStatus() {
+          document
+            .querySelectorAll(
+              ".counterCard.is-green.is-overkill, .counterCard.is-green.is-overkill-plus"
+            )
+            .forEach((card) => {
+              const top = card.querySelector(".counterTop");
+              if (!top || top.querySelector(":scope > .overkill-status")) return;
+
+              const isPlus = card.classList.contains("is-overkill-plus");
+
+              const status = document.createElement("span");
+              status.className = "overkill-status";
+              status.setAttribute("aria-hidden", "true");
+
+              const safe = document.createElement("span");
+              safe.className = "overkill-safe";
+              safe.textContent = "SÛR";
+
+              const icon = document.createElement("span");
+              icon.className = "overkill-icon";
+              icon.textContent = isPlus ? "💀" : "⚠️";
+
+              const label = document.createElement("span");
+              label.className = "overkill-label";
+              label.textContent = isPlus ? "OVERKILL +" : "OVERKILL";
+
+              status.append(safe, icon, label);
+              top.appendChild(status);
+            });
+        }
+
+        renderOverkillStatus();
+
+        const observer = new MutationObserver(renderOverkillStatus);
+        observer.observe(document.getElementById("results"), {
+          childList: true,
+          subtree: true,
+        });
+      })();
+    </script>
+  </body>
+</html>

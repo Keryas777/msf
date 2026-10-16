@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <style>html.authChecking body{opacity:0;pointer-events:none}</style>
+  <script>document.documentElement.classList.add("authChecking")</script>
+  <script src="./auth-guard.js?v=4"></script>
+  <meta name="theme-color" content="#0b0c0d" />
+  <title>LoSP — Épreuve cosmique</title>
+  <link rel="stylesheet" href="./style.css?v=4" />
+  <link rel="stylesheet" href="./cosmic.css?v=1" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+</head>
+<body>
+  <main class="app">
+    <header class="header cosmicHeader">
+      <a href="./home.html" class="backBtn" aria-label="Retour">⬅️</a>
+      <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
+      <div class="headerLeft">
+        <h1 class="title">🌌 Épreuve cosmique</h1>
+        <p class="subtitle">Prépare tes attaques et tes six salles de défense.</p>
+      </div>
+    </header>
+    <nav class="cosmicHubGrid" aria-label="Outils Épreuve cosmique">
+      <a class="cosmicHubTile cosmicHubTile--counters" href="./cosmic-counters.html">
+        <span class="cosmicHubIcon" aria-hidden="true">⚔️</span>
+        <strong>Contres</strong>
+        <span>Recherche les attaques adaptées aux défenses adverses.</span>
+      </a>
+      <a class="cosmicHubTile cosmicHubTile--defenses" href="./cosmic-defenses.html">
+        <span class="cosmicHubIcon" aria-hidden="true">🛡️</span>
+        <strong>Défenses</strong>
+        <span>Explore les compositions et partage ta proposition pour les six salles.</span>
+      </a>
+    </nav>
+  </main>
+</body>
+</html>
