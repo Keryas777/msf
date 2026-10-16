@@ -205,6 +205,8 @@
       saveProgress();
       summary.querySelector(".challenge-pill")?.remove();
       if (check.checked) summary.append(el("span", "challenge-pill", "✓ Terminé"));
+      const total = ui.detail.querySelector("[data-challenge-progress]");
+      if (total) total.textContent = completedCount(event) + " / " + event.stages.length + " terminées";
     });
     line.append(check, el("span", "", "Marquer cette étape comme terminée (sur cet appareil)"));
     body.append(line);
@@ -230,7 +232,9 @@
     const tags = el("div", "challenge-pills");
     tags.append(el("span", "challenge-pill", CATEGORIES.find(c => c.id === event.type)?.label || "Challenge"));
     if (event.stages.length) {
-      tags.append(el("span", "challenge-pill", completedCount(event) + " / " + event.stages.length + " terminées"));
+      const progressLabel = el("span", "challenge-pill", completedCount(event) + " / " + event.stages.length + " terminées");
+      progressLabel.setAttribute("data-challenge-progress", "");
+      tags.append(progressLabel);
     }
     ui.detail.append(tags);
 
