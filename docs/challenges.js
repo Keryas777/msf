@@ -7,24 +7,22 @@
     characters: "./data/msf-characters.json",
   };
   const STORAGE_KEY = "losp_challenges_progress_v1";
-  const CATEGORIES = [
-    { id: "all", label: "Tous" },
-    { id: "tower", label: "🏰 Tours" },
-    { id: "trial", label: "⚔️ Trials / Breakers" },
-    { id: "dark-dimension", label: "🌌 Dimension noire" },
-  ];
+  const CATEGORIES = {
+    "dark-dimension": { label: "🌌 Dimension noire", description: "Choisis une dimension noire, puis une section ou mission." },
+    tower: { label: "🏰 Tours / Kyln", description: "Choisis une tour ou Kyln, puis un étage ou une cellule." },
+    trial: { label: "⚔️ Trials légendaires / Breakers", description: "Choisis un trial, puis une mission et sa composition." },
+  };
+  const URL_CATEGORY = new URLSearchParams(location.search).get("category") || "";
 
   const ui = {
-    tabs: document.getElementById("challengeTabs"),
     search: document.getElementById("challengeSearch"),
     list: document.getElementById("challengeList"),
     empty: document.getElementById("challengeEmpty"),
     count: document.getElementById("challengeCount"),
     detail: document.getElementById("challengeDetail"),
-    credit: document.getElementById("challengesCredit"),
   };
   const state = {
-    category: "all",
+    category: URL_CATEGORY,
     query: "",
     selected: new URLSearchParams(location.search).get("guide") || "",
     events: [],
@@ -107,24 +105,27 @@
     return event.stages.filter(stage => state.progress[event.id + ":" + stage.id]).length;
   }
 
-  function renderTabs() {
-    clear(ui.tabs);
-    for (const category of CATEGORIES) {
-      const button = el("button", "challenge-tab", category.label);
-      button.type = "button";
-      button.setAttribute("aria-pressed", String(state.category === category.id));
-      button.addEventListener("click", () => {
-        state.category = category.id;
-        renderTabs();
-        renderDirectory();
+  // Les étages ou cellules à venir restent visibles et accessibles depuis le sélecteur.
+  function displayStages(event) {
+    const stages = Array.isArray(event.stages) ? event.stages : [];
+    const total = Number(event.totalStages);
+    if (!Number.isInteger(total) || total <= 0 || total > 100) return stages;
+    const indexed = new Map(stages.map(stage => [String(stage.id), stage]));
+    const unit = event.stageUnit === "cellule" ? "Cellule" : "Étage";
+    const result = [];
+    for (let index = 1; index <= total; index += 1) {
+      const id = String(index);
+      result.push(indexed.get(id) || {
+        id, title: unit + " " + id, requirement: "Informations à compléter",
+        characters: [], alternatives: [], advice: [], pending: true
       });
-      ui.tabs.append(button);
     }
+    return result.concat(stages.filter(stage => !/^\\d+$/.test(String(stage.id)) || Number(stage.id) > total));
   }
 
   function matchingEvents() {
     return state.events.filter(event => {
-      if (state.category !== "all" && event.type !== state.category) return false;
+      if (event.type !== state.category) return false;
       const text = [event.title, event.summary, event.id].join(" ");
       return normalize(text).includes(normalize(state.query));
     });
@@ -145,7 +146,11 @@
       const content = el("span", "challenge-entry-text");
       content.append(el("strong", "", event.title));
       const count = event.stages.length;
-      content.append(el("small", "", count ? count + " missions / sections détaillées" : "Référence à enrichir"));
+      const total = Number.isInteger(event.totalStages) ? event.totalStages : null;
+      const info = total
+        ? count + " / " + total + " " + (event.stageUnit === "cellule" ? "cellules" : "étages") + " documentés"
+        : count ? count + " étapes documentées" : "Guide en cours d'enrichissement";
+      content.append(el("small", "", info));
       button.append(content);
       button.addEventListener("click", () => {
         state.selected = event.id;
@@ -163,13 +168,15 @@
   function renderStage(event, stage, index) {
     const key = event.id + ":" + stage.id;
     const details = el("details", "challenge-stage");
+    details.id = "challenge-node-" + event.id + "-" + stage.id;
     details.open = index === 0;
     const summary = el("summary");
     const heading = el("span", "challenge-stage-title");
     heading.append(el("strong", "", stage.title));
     heading.append(el("small", "", stage.requirement || "Aucune restriction indiquée"));
     summary.append(heading);
-    if (state.progress[key]) summary.append(el("span", "challenge-pill", "✓ Terminé"));
+    if (stage.pending) summary.append(el("span", "challenge-pill challenge-pill--pending", "À compléter"));
+    else if (state.progress[key]) summary.append(el("span", "challenge-pill", "✓ Terminé"));
     details.append(summary);
 
     const body = el("div", "challenge-stage-body");
@@ -179,7 +186,7 @@
       for (const id of stage.characters) team.append(makeHero(id));
       body.append(team);
     } else {
-      body.append(el("p", "challenge-section-note", "Composition encore à documenter : consulter le guide d'origine."));
+      body.append(el("p", "challenge-section-note", "Composition non renseignée pour le moment. Ce challenge sera enrichi progressivement."));
     }
 
     if (stage.alternatives?.length) {
@@ -195,21 +202,23 @@
       body.append(list);
     }
 
+    if (!stage.pending) {
     const line = el("label", "challenge-check-row");
-    const check = el("input", "challenge-check");
-    check.type = "checkbox";
-    check.checked = !!state.progress[key];
-    check.addEventListener("change", () => {
-      if (check.checked) state.progress[key] = true;
-      else delete state.progress[key];
-      saveProgress();
-      summary.querySelector(".challenge-pill")?.remove();
-      if (check.checked) summary.append(el("span", "challenge-pill", "✓ Terminé"));
-      const total = ui.detail.querySelector("[data-challenge-progress]");
-      if (total) total.textContent = completedCount(event) + " / " + event.stages.length + " terminées";
-    });
-    line.append(check, el("span", "", "Marquer cette étape comme terminée (sur cet appareil)"));
-    body.append(line);
+      const check = el("input", "challenge-check");
+      check.type = "checkbox";
+      check.checked = !!state.progress[key];
+      check.addEventListener("change", () => {
+        if (check.checked) state.progress[key] = true;
+        else delete state.progress[key];
+        saveProgress();
+        summary.querySelector(".challenge-pill")?.remove();
+        if (check.checked) summary.append(el("span", "challenge-pill", "✓ Terminé"));
+        const total = ui.detail.querySelector("[data-challenge-progress]");
+        if (total) total.textContent = completedCount(event) + " / " + event.stages.length + " terminées";
+      });
+      line.append(check, el("span", "", "Marquer cette étape comme terminée (sur cet appareil)"));
+      body.append(line);
+    }
     details.append(body);
     return details;
   }
@@ -230,7 +239,7 @@
     ui.detail.append(head);
 
     const tags = el("div", "challenge-pills");
-    tags.append(el("span", "challenge-pill", CATEGORIES.find(c => c.id === event.type)?.label || "Challenge"));
+    tags.append(el("span", "challenge-pill", CATEGORIES[event.type]?.label || "Challenge"));
     if (event.stages.length) {
       const progressLabel = el("span", "challenge-pill", completedCount(event) + " / " + event.stages.length + " terminées");
       progressLabel.setAttribute("data-challenge-progress", "");
@@ -238,18 +247,40 @@
     }
     ui.detail.append(tags);
 
-    if (typeof event.sourceUrl === "string" && event.sourceUrl.startsWith("https://www.marvel.church/")) {
-      const link = el("a", "challenge-source", "Lire le guide original sur Marvel Church ↗");
-      link.href = event.sourceUrl;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      ui.detail.append(link);
+    const stages = displayStages(event);
+    if (Number.isInteger(event.totalStages) && event.totalStages > 0 && event.stages.length < event.totalStages) {
+      ui.detail.append(el("p", "challenge-section-note", event.stages.length + " / " + event.totalStages + " étapes documentées. Les suivantes sont affichées en attente de conseils."));
     }
-    if (event.stages.length) {
-      ui.detail.append(el("h3", "challenge-section-heading", "Étages, missions et compositions"));
-      event.stages.forEach((stage, index) => ui.detail.append(renderStage(event, stage, index)));
+
+    if (stages.length) {
+      const jumpBar = el("div", "challenge-jump-bar");
+      const label = el("label", "challenge-search-label", "Aller directement à un étage / une salle");
+      label.htmlFor = "challengeJump";
+      const jump = el("select", "challenge-jump");
+      jump.id = "challengeJump";
+      const placeholder = el("option", "", "Choisir une étape…");
+      placeholder.value = "";
+      jump.append(placeholder);
+      for (const stage of stages) {
+        const option = el("option", "", stage.title + (stage.pending ? " — à compléter" : ""));
+        option.value = stage.id;
+        jump.append(option);
+      }
+      jump.addEventListener("change", () => {
+        if (!jump.value) return;
+        const target = document.getElementById("challenge-node-" + event.id + "-" + jump.value);
+        if (target) {
+          target.open = true;
+          target.scrollIntoView({ block: "start", behavior: "auto" });
+        }
+        jump.value = "";
+      });
+      jumpBar.append(label, jump);
+      ui.detail.append(jumpBar);
+      ui.detail.append(el("h3", "challenge-section-heading", "Salles, missions et compositions"));
+      stages.forEach((stage, index) => ui.detail.append(renderStage(event, stage, index)));
     } else {
-      ui.detail.append(el("p", "challenge-section-note", "Ce guide est référencé dans le catalogue. Les équipes détaillées et les tactiques en français n'ont pas encore été intégrées : utilise le lien source en attendant."));
+      ui.detail.append(el("p", "challenge-section-note", "Ce challenge est déjà répertorié. Les compositions et instructions seront intégrées au fur et à mesure de leur disponibilité."));
     }
   }
 
@@ -269,8 +300,16 @@
           state.characters.set(character.id, character);
         }
       }
-      ui.credit.textContent = "Sélection LoSP · Sources : Marvel Church · Données éditées le " + (guides.updatedAt || "—") + ". Guides communautaires non officiels.";
-      renderTabs();
+      const categoryInfo = CATEGORIES[state.category];
+      if (!categoryInfo) {
+        location.replace("./challenges.html");
+        return;
+      }
+      document.title = "LoSP — " + categoryInfo.label;
+      document.getElementById("challengeCategoryTitle").textContent = categoryInfo.label;
+      document.getElementById("challengeCategoryDescription").textContent = categoryInfo.description;
+      // Un lien direct vers un guide n'est accepté que dans sa propre catégorie.
+      if (!state.events.some(event => event.id === state.selected && event.type === state.category)) state.selected = "";
       renderDirectory();
       renderDetail();
     } catch (error) {
