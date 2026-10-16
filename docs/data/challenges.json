@@ -115,12 +115,771 @@
       "id": "spider-descent",
       "type": "tower",
       "title": "Tour de Spider-Man : Descente",
-      "summary": "40 étages et quatre difficultés ; Kingo en récompense.",
+      "summary": "40 étages répartis en quatre difficultés, avec Kingo en récompense. Guide tactique structuré sur la difficulté Omega.",
       "rewardId": "Kingo",
-      "stages": [],
+      "stages": [
+        {
+          "id": "1",
+          "title": "Étage 1",
+          "requirement": "Sans restriction",
+          "teamName": "Armes immortelles",
+          "characters": [
+            "IronFistOrson",
+            "IronFist",
+            "SwordMaster",
+            "SteelSerpent",
+            "LadyBullseye"
+          ],
+          "advice": [
+            "Encaisser le premier échange grâce à la résistance de l'équipe, puis lancer la spéciale du Maître de l'épée pour reprendre l'initiative."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "2",
+          "title": "Étage 2",
+          "requirement": "Sans restriction",
+          "teamName": "Club des Damnés",
+          "characters": [
+            "EmmaFrost",
+            "MadelynePryor",
+            "SebastianShaw",
+            "Azazel",
+            "RachelSummers"
+          ],
+          "advice": [
+            "Profiter des premiers tours pour affaiblir toute l'équipe ennemie. Priorité à Daken et Véga avant le reste des adversaires."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "3",
+          "title": "Étage 3",
+          "requirement": "Sans restriction",
+          "teamName": "Champions",
+          "characters": [
+            "MsMarvel",
+            "AmadeusCho",
+            "UltSpiderMan",
+            "MoonGirl",
+            "NovaSamAlexander"
+          ],
+          "advice": [
+            "Résister à Red Hulk et Nova au démarrage, puis utiliser l'ultime de Moon Girl pour contrôler le combat.",
+            "Vaincre Red Hulk, étourdir Nova (Sam Alexander), puis éliminer Baron Zemo rapidement lors de la deuxième vague."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "4",
+          "title": "Étage 4",
+          "requirement": "Spider-Verse",
+          "teamName": "Symbiote Six avec Scorpion (Briseur)",
+          "characters": [
+            "Knull",
+            "Venom",
+            "Riot",
+            "Toxin",
+            "SymbioteQuicksilver"
+          ],
+          "advice": [
+            "Scorpion (Briseur) est proposé en renfort à Symbiote Six, sans remplacement explicitement précisé ; conserver les Sinister Six pour les étages suivants.",
+            "Au deuxième groupe, le Provocation du Lézard peut imposer une cible temporaire."
+          ],
+          "alternatives": [
+            "SpiderManBigTime",
+            "Carnage",
+            "RedGoblin",
+            "BlackCat"
+          ],
+          "additionalCharacters": [
+            "ScorpionBreaker"
+          ],
+          "compositionKind": "base_with_options"
+        },
+        {
+          "id": "5",
+          "title": "Étage 5",
+          "requirement": "Sinister Six",
+          "teamName": "Insidious Six",
+          "characters": [
+            "Vulture",
+            "Shocker",
+            "Scorpion",
+            "Hobgoblin",
+            "SuperiorSpiderMan"
+          ],
+          "advice": [
+            "Bloquer les capacités de Lilandra avec la spéciale de Spider-Man supérieur, puis concentrer les attaques du Super-Bouffon sur elle et les Starjammers."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "6",
+          "title": "Étage 6",
+          "requirement": "Ville",
+          "teamName": "Justiciers",
+          "characters": [
+            "Punisher",
+            "Elektra",
+            "HitMonkey",
+            "SilverSable",
+            "DaredevilModern"
+          ],
+          "advice": [
+            "Contrôler en priorité le prochain adversaire susceptible d'agir : Tigra, puis Oiseau moqueur et Ronin.",
+            "Conserver l'élan pour neutraliser ensuite l'équipe Liberté."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "7",
+          "title": "Étage 7",
+          "requirement": "Cosmique",
+          "teamName": "Trio 4F (MCU) + Knull + Roi d'ombre",
+          "characters": [
+            "Knull",
+            "ShadowKing"
+          ],
+          "advice": [
+            "Bloquer les capacités de Morgan Le Fay avec le Roi d'ombre, puis concentrer le feu sur Apocalypse.",
+            "Les trois Fantastiques (MCU) ne sont pas identifiés individuellement dans le guide consulté."
+          ],
+          "alternatives": [
+            "Odin",
+            "Mephisto"
+          ],
+          "compositionKind": "partial"
+        },
+        {
+          "id": "8",
+          "title": "Étage 8",
+          "requirement": "Mondial",
+          "teamName": "Brimstone + Jeff le requin",
+          "characters": [
+            "DaimonHellstrom",
+            "ElsaBloodstone",
+            "StrangeSupreme",
+            "LivingMummy",
+            "Hellcat"
+          ],
+          "advice": [
+            "La Momie vivante doit supporter les deux premières attaques ennemies.",
+            "Cibler ensuite Minn-Erva avec toutes les capacités disponibles. Jeff est conseillé en renfort, mais le guide ne précise pas quel membre de Brimstone doit lui céder sa place."
+          ],
+          "alternatives": [],
+          "additionalCharacters": [
+            "JeffTheLandShark"
+          ],
+          "compositionKind": "base_with_options"
+        },
+        {
+          "id": "9",
+          "title": "Étage 9",
+          "requirement": "X-Men",
+          "teamName": "Tornade (Puissante), Tornade, Old Man Logan, Emma Frost (X-Men), Diablo",
+          "characters": [
+            "StormMighty",
+            "Storm",
+            "OldManLogan",
+            "EmmaFrostXMen",
+            "Nightcrawler"
+          ],
+          "advice": [
+            "Ne pas ouvrir sur Hyperion : étourdir Quasar avec la spéciale d'Old Man Logan.",
+            "Lorsque Hyperion perd Provocation, viser Victoria Hand et exploiter les ultimes de Logan et Tornade (Puissante)."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "10",
+          "title": "Étage 10",
+          "requirement": "Avengers",
+          "teamName": "Incroyables Avengers",
+          "characters": [
+            "Hulk",
+            "SpiderMan",
+            "BladeMighty",
+            "RachelColeAlves",
+            "SpiderWomanJulia"
+          ],
+          "advice": [
+            "Étourdir Iron Patriot avec l'ultime de Spider-Man et frapper Baron Zemo avec la spéciale de Blade (Puissant).",
+            "Après Iron Patriot, s'occuper de Namor et du Leader. Jean Grey peut remplacer Spider-Woman (Julia)."
+          ],
+          "alternatives": [
+            "JeanGrey"
+          ]
+        },
+        {
+          "id": "11",
+          "title": "Étage 11",
+          "requirement": "Sans restriction · Règles de raid",
+          "teamName": "Armes immortelles",
+          "characters": [
+            "IronFistOrson",
+            "IronFist",
+            "SwordMaster",
+            "SteelSerpent",
+            "LadyBullseye"
+          ],
+          "advice": [
+            "Utiliser la spéciale du Maître de l'épée pour réduire les effets positifs ennemis.",
+            "Éliminer Peter B. Parker au premier groupe, puis Spider-Man au deuxième."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "12",
+          "title": "Étage 12",
+          "requirement": "Sans restriction · Règles de raid",
+          "teamName": "Orchis (avec Odin en option)",
+          "characters": [
+            "Nimrod",
+            "OmegaSentinel",
+            "Sentinel",
+            "ScientistSupreme",
+            "LadyDeathstrike"
+          ],
+          "advice": [
+            "Éliminer l'Odin adverse le plus tôt possible ; Odin peut remplacer Sentinelle Oméga pour fiabiliser le combat.",
+            "Éviter d'abaisser trop vite Vahl sous 50 % de santé, ce qui provoquerait la Provocation de Beta Ray Bill."
+          ],
+          "alternatives": [
+            "Odin"
+          ]
+        },
+        {
+          "id": "13",
+          "title": "Étage 13",
+          "requirement": "Sans restriction · Règles de raid",
+          "teamName": "Nightstalkers + Méphisto",
+          "characters": [
+            "Oath",
+            "ManThing",
+            "Blade",
+            "AgathaHarkness",
+            "MoonKnight"
+          ],
+          "advice": [
+            "L'effet de champ de bataille de Méphisto est décisif pour encaisser les dégâts.",
+            "Après Sasquatch, cibler Hercule et Le Fauve."
+          ],
+          "alternatives": [],
+          "additionalCharacters": [
+            "Mephisto"
+          ],
+          "compositionKind": "base_with_options"
+        },
+        {
+          "id": "14",
+          "title": "Étage 14",
+          "requirement": "Spider-Verse · Règles de raid",
+          "teamName": "Hive-Mind + Silver Sable (sans Venom)",
+          "characters": [
+            "Carnage",
+            "SilverSable"
+          ],
+          "advice": [
+            "Préserver les Symbiote Six et Insidious Six pour les prochains étages.",
+            "La source recommande Hive-Mind, en remplaçant de préférence Venom par Silver Sable ; elle ne détaille pas les cinq emplacements."
+          ],
+          "alternatives": [],
+          "compositionKind": "partial"
+        },
+        {
+          "id": "15",
+          "title": "Étage 15",
+          "requirement": "Sinister Six · Règles de raid",
+          "teamName": "Insidious Six",
+          "characters": [
+            "Vulture",
+            "Shocker",
+            "Scorpion",
+            "Hobgoblin",
+            "SuperiorSpiderMan"
+          ],
+          "advice": [
+            "Tenter d'éliminer Apocalypse avant sa spéciale.",
+            "La Provocation de Blob et de Sebastian Shaw peut ralentir l'attaque sans changer la priorité."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "16",
+          "title": "Étage 16",
+          "requirement": "X-Men · Règles d'Épreuve cosmique",
+          "teamName": "Exalted X-Men",
+          "characters": [
+            "Wolverine",
+            "Jubilee",
+            "Angel",
+            "Morph",
+            "StormMighty"
+          ],
+          "advice": [
+            "Au premier groupe, cibler Black Knight et Daimon Hellstrom, mais contrôler Sentry plutôt que l'éliminer tout de suite.",
+            "Au deuxième groupe, viser Morgan Le Fay, puis Agatha et Scarlet Witch. Professeur Xavier peut aider une équipe trop faible."
+          ],
+          "alternatives": [
+            "Xavier"
+          ]
+        },
+        {
+          "id": "17",
+          "title": "Étage 17",
+          "requirement": "Cosmique · Règles de guerre",
+          "teamName": "Franklin + Femme invisible (MCU) + Torche humaine + Quasar + Roi d'ombre",
+          "characters": [
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "HumanTorch",
+            "Quasar",
+            "ShadowKing"
+          ],
+          "advice": [
+            "Quasar empêche l'accélération de la jauge de vitesse adverse.",
+            "Concentrer les attaques sur Odin ; idéalement, regrouper les adversaires avec la Femme invisible avant l'ultime de Quasar. Ensuite, viser Méduse et Moon Girl."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "18",
+          "title": "Étage 18",
+          "requirement": "Vilains cosmiques non mythiques · Règles de guerre",
+          "teamName": "Conclave de l'Ombre, éventuellement Surfer (Briseur)",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "HighEvolutionary",
+            "Executioner",
+            "SilverSurferBreaker"
+          ],
+          "advice": [
+            "Attribuer Fortificateur à Thanos pour supporter l'attaque initiale du Roi d'ombre.",
+            "Placer le Surfer (Briseur) et l'Exécuteur de part et d'autre de Thanos pour récupérer de l'énergie. Cibler Hela, puis le Roi d'ombre."
+          ],
+          "alternatives": [
+            "Malekith"
+          ]
+        },
+        {
+          "id": "19",
+          "title": "Étage 19",
+          "requirement": "Symbiotes · Règles de guerre",
+          "teamName": "Symbiote Six",
+          "characters": [
+            "Knull",
+            "Venom",
+            "Riot",
+            "Toxin",
+            "SymbioteQuicksilver"
+          ],
+          "advice": [
+            "Utiliser la spéciale de Knull au premier tour pour invoquer Carnage.",
+            "Éliminer Blue Marvel rapidement et conserver Sentry pour la fin. Gorr peut remplacer Venom."
+          ],
+          "alternatives": [
+            "Gorr"
+          ]
+        },
+        {
+          "id": "20",
+          "title": "Étage 20",
+          "requirement": "Avengers · Règles de raid",
+          "teamName": "Incroyables Avengers",
+          "characters": [
+            "Hulk",
+            "SpiderMan",
+            "BladeMighty",
+            "RachelColeAlves",
+            "SpiderWomanJulia"
+          ],
+          "advice": [
+            "Ouvrir avec la spéciale de Blade (Puissant) ; l'ultime de Spider-Woman (Julia) peut neutraliser Satana.",
+            "Au deuxième groupe, aveugler plusieurs Orchis avec la spéciale de Julia et contrôler Kang sans tarder."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "21",
+          "title": "Étage 21",
+          "requirement": "Sans restriction · Règles d'Épreuve cosmique",
+          "teamName": "Franklin + Femme invisible (MCU) + Torche humaine + Roi d'ombre + Songbird",
+          "characters": [
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "HumanTorch",
+            "ShadowKing",
+            "Songbird"
+          ],
+          "advice": [
+            "Déclencher rapidement les ultimes de Franklin, de la Femme invisible et de Songbird pour vaincre Azazel et Hellverine avant Odin.",
+            "Terminer Satana avec Torche humaine et Roi d'ombre ; sur Omega, cette tactique nécessite une équipe très puissante."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "22",
+          "title": "Étage 22",
+          "requirement": "Sans restriction · Règles d'Épreuve cosmique",
+          "teamName": "Guerriers audacieux + Odin (sans Jessica Jones)",
+          "characters": [
+            "Eclipse",
+            "Speedball",
+            "NightThrasher",
+            "Daredevil",
+            "Odin"
+          ],
+          "advice": [
+            "Après l'ultime de Magnéto, employer la spéciale d'Odin pour soigner et renforcer l'équipe.",
+            "Retirer les bonus avec Night Thrasher ; ne pas faire passer Apocalypse sous 50 % trop tôt.",
+            "Speedball doit agir avant Apocalypse et lui appliquer Blocage de capacité ; sinon, recommencer."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "23",
+          "title": "Étage 23",
+          "requirement": "Sans restriction · Règles d'Épreuve cosmique",
+          "teamName": "Professeur Xavier + Blastaar + Thunderstrike + Jeff + Lady Bullseye",
+          "characters": [
+            "Xavier",
+            "Blastaar",
+            "Thunderstrike",
+            "JeffTheLandShark",
+            "LadyBullseye"
+          ],
+          "advice": [
+            "Éliminer Night Thrasher avant son premier tour : spéciale de Jeff, ultime de Lady Bullseye puis attaques de Xavier, Blastaar et Thunderstrike.",
+            "Garder Xavier vivant pour finir la bataille avec son ultime."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "24",
+          "title": "Étage 24",
+          "requirement": "Spider-Verse · Règles d'Épreuve cosmique",
+          "teamName": "Superior Six sans Docteur Octopus, avec Vautour",
+          "characters": [
+            "Lizard",
+            "SpiderSlayer",
+            "GreenGoblinGlider",
+            "KravenTheHunter",
+            "Vulture"
+          ],
+          "advice": [
+            "Survivre aux deux attaques d'ouverture de Spider-Man Noir, puis utiliser la spéciale du Vautour contre Ikaris.",
+            "Éliminer Ikaris deux fois à cause de la Réanimation de Dormammu ; contrôler ensuite Spider-Weaver.",
+            "Electro peut remplacer Vautour, mais conserver Vautour facilite aussi le prochain étage."
+          ],
+          "alternatives": [
+            "Electro"
+          ]
+        },
+        {
+          "id": "25",
+          "title": "Étage 25",
+          "requirement": "Sinister Six · Règles d'Épreuve cosmique",
+          "teamName": "Spider-Man supérieur + Scorpion + Super-Bouffon + Shocker + Rhino",
+          "characters": [
+            "SuperiorSpiderMan",
+            "Scorpion",
+            "Hobgoblin",
+            "Shocker",
+            "Rhino"
+          ],
+          "advice": [
+            "La spéciale de Spider-Man supérieur doit affaiblir Iron Patriot jusqu'à en faire la cible la plus faible pour déclencher le passif du Super-Bouffon.",
+            "Viser Namor et Le Leader avant l'arrivée du Docteur Fatalis et de Red Hulk.",
+            "Si Vautour n'a pas servi à l'étage 24, il peut remplacer Rhino."
+          ],
+          "alternatives": [
+            "Vulture"
+          ]
+        },
+        {
+          "id": "26",
+          "title": "Étage 26",
+          "requirement": "X-Men non mythiques · Règles d'Épreuve cosmique",
+          "teamName": "Exalted X-Men avec Havok à la place de Wolverine",
+          "characters": [
+            "Jubilee",
+            "Angel",
+            "Morph",
+            "StormMighty",
+            "Havok"
+          ],
+          "advice": [
+            "Éliminer rapidement le Professeur Xavier, puis Hank Pym ; Havok aide face aux Boucliers et à l'Immunité.",
+            "Au deuxième groupe, empêcher le Surfer (Briseur) de jouer et utiliser les étourdissements disponibles."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "27",
+          "title": "Étage 27",
+          "requirement": "Cosmique · Règles de guerre",
+          "teamName": "Quasar + Méphisto + Surfer (Briseur) + Ikaris + Circé",
+          "characters": [
+            "Quasar",
+            "Mephisto",
+            "SilverSurferBreaker",
+            "Ikaris",
+            "Sersi"
+          ],
+          "advice": [
+            "Conserver l'ultime d'Ikaris pendant la première vague des Justiciers.",
+            "Utiliser cet ultime pour retourner les bonus de Liberté à l'arrivée du deuxième groupe."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "28",
+          "title": "Étage 28",
+          "requirement": "Vilains cosmiques non mythiques · Règles de guerre",
+          "teamName": "Conclave de l'Ombre",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "Malekith",
+            "HighEvolutionary",
+            "Executioner"
+          ],
+          "advice": [
+            "Garder l'ultime de Malekith pour le deuxième groupe des Héros à louer.",
+            "Bloquer les soins de Misty Knight avec Thanos et l'Exécuteur, répandre les effets négatifs avec Malekith, puis étourdir Colleen Wing avec Sylvie.",
+            "Placer Exécuteur et High Evolutionary près de Thanos pour améliorer leur génération d'énergie."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "29",
+          "title": "Étage 29",
+          "requirement": "Symbiotes · Règles de guerre",
+          "teamName": "Symbiote Six",
+          "characters": [
+            "Knull",
+            "Venom",
+            "Riot",
+            "Toxin",
+            "SymbioteQuicksilver"
+          ],
+          "advice": [
+            "Vaincre Spider-Man supérieur et le Super-Bouffon en priorité, puis Vautour et Scorpion.",
+            "Garder la spéciale de Riot disponible pour le deuxième groupe ; exploiter les ennemis affaiblis pour accélérer l'équipe."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "30",
+          "title": "Étage 30",
+          "requirement": "Avengers · Règles de raid",
+          "teamName": "Incroyables Avengers",
+          "characters": [
+            "Hulk",
+            "SpiderMan",
+            "BladeMighty",
+            "RachelColeAlves",
+            "SpiderWomanJulia"
+          ],
+          "advice": [
+            "Utiliser les spéciales de Spider-Man et de Julia sur Knull, puis celle de Rachel Cole-Alves sur Bouffon rouge.",
+            "Après Knull, cibler Anti-Venom : il représente davantage une menace de résurrection que Bouffon rouge."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "31",
+          "title": "Étage 31",
+          "requirement": "Sans restriction · Règles de guerre",
+          "teamName": "Brimstone + Guardian (sans Elsa Bloodstone)",
+          "characters": [
+            "DaimonHellstrom",
+            "StrangeSupreme",
+            "LivingMummy",
+            "Hellcat",
+            "Guardian"
+          ],
+          "advice": [
+            "Employer les ultimes de Daimon Hellstrom et Hellcat ; étourdir Black Cat, puis Black Knight avec Guardian.",
+            "La spéciale de Strange (Sans-cœur) doit viser Méphisto. Au deuxième groupe, vaincre rapidement Ikaris ou Circé.",
+            "La difficulté Omega exige un Brimstone très développé."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "32",
+          "title": "Étage 32",
+          "requirement": "Sans restriction · Règles de guerre",
+          "teamName": "Impérissables",
+          "characters": [
+            "ZombieIronMan",
+            "ZombieKestrel",
+            "ZombieScarletWitch",
+            "ZombieJuggernaut",
+            "Hela"
+          ],
+          "advice": [
+            "Avec les règles de guerre, lancer librement les capacités.",
+            "Éliminer Spider-Man (Big Time), puis Black Widow, Ant-Man et Scorpion ; le groupe Pym Tech suivant est moins dangereux."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "33",
+          "title": "Étage 33",
+          "requirement": "Spider-Verse · Règles de guerre",
+          "teamName": "Void Knight + Bouffon rouge + Carnage + Scorpion (Briseur) + Silver Sable",
+          "characters": [
+            "SymbioteSilverSurfer",
+            "RedGoblin",
+            "Carnage",
+            "ScorpionBreaker",
+            "SilverSable"
+          ],
+          "advice": [
+            "Le trio Hive-Mind contrôle et accélère le combat ; Scorpion (Briseur) et Silver Sable apportent les dégâts nécessaires pour finir les cibles."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "34",
+          "title": "Étage 34",
+          "requirement": "Sinister Six · Règles de guerre",
+          "teamName": "Spider-Man supérieur + Super-Bouffon + Vautour + Mystério + Bouffon vert (Classique)",
+          "characters": [
+            "SuperiorSpiderMan",
+            "Hobgoblin",
+            "Vulture",
+            "Mysterio",
+            "GreenGoblinGlider"
+          ],
+          "advice": [
+            "Mystério empêche l'Immunité ; Vautour récupère l'Accélération et ralentit l'équipe adverse.",
+            "Utiliser la spéciale du Bouffon vert sur Diablo ; éviter de faire passer Thanos (Endgame) sous 50 % trop tôt.",
+            "Contrôler ensuite Roi d'ombre et Diablo, et laisser Apocalypse pour la fin."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "35",
+          "title": "Étage 35",
+          "requirement": "X-Men non mythiques · Règles d'Épreuve cosmique",
+          "teamName": "Exalted X-Men + Old Man Logan (sans Wolverine)",
+          "characters": [
+            "Jubilee",
+            "Angel",
+            "Morph",
+            "StormMighty",
+            "OldManLogan"
+          ],
+          "advice": [
+            "Neutraliser Sebastian Shaw puis Emma Frost ; étourdir Azazel avec Old Man Logan.",
+            "Conserver les capacités de Tornade (Puissante) pour les ennemis Force Phénix du deuxième groupe. Cibler Omega Red avant Magnéto et Phénix."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "36",
+          "title": "Étage 36",
+          "requirement": "Cosmique · Règles de guerre",
+          "teamName": "Franklin + Femme invisible (MCU) + Mister Fantastic (MCU) + Quasar + Roi d'ombre",
+          "characters": [
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "Quasar",
+            "ShadowKing"
+          ],
+          "advice": [
+            "Quasar bloque les manipulations de jauge de vitesse ennemies, particulièrement celles de Super-Skrull.",
+            "Utiliser rapidement le contrôle du Roi d'ombre et de Quasar. Au deuxième groupe, prioriser Dormammu et Thunderstrike.",
+            "Les ennemis pouvant ressusciter, éviter de déclencher leur résurrection juste avant leur tour."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "37",
+          "title": "Étage 37",
+          "requirement": "Vilains cosmiques non mythiques · Règles de guerre",
+          "teamName": "Conclave de l'Ombre + Surfer (Briseur), sans Malekith",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "HighEvolutionary",
+            "Executioner",
+            "SilverSurferBreaker"
+          ],
+          "advice": [
+            "Cibler Old Man Logan dès l'ouverture ; garder Thanos au centre, près d'Exécuteur et High Evolutionary.",
+            "Essayer d'éliminer Dormammu avant le deuxième groupe, contrôler Pandapool et étourdir Daken.",
+            "Conserver l'ultime du Surfer (Briseur) pour l'arrivée de RetCon, puis accélérer les éliminations pour générer de l'énergie."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "38",
+          "title": "Étage 38",
+          "requirement": "Symbiotes · Règles de guerre",
+          "teamName": "Symbiote Six",
+          "characters": [
+            "Knull",
+            "Venom",
+            "Riot",
+            "Toxin",
+            "SymbioteQuicksilver"
+          ],
+          "advice": [
+            "Invoquer Carnage avec la spéciale de Knull.",
+            "Priorités : Darkstar et Ursa Major au premier groupe ; Victoria Hand et Taskmaster au deuxième, tout en contrôlant Songbird.",
+            "Le guide suggère ISO-8 Escarmouche pour Knull et Toxin, Attaquant pour les trois autres."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "39",
+          "title": "Étage 39",
+          "requirement": "Avengers · Règles de raid",
+          "teamName": "Incroyables Avengers",
+          "characters": [
+            "Hulk",
+            "SpiderMan",
+            "BladeMighty",
+            "RachelColeAlves",
+            "SpiderWomanJulia"
+          ],
+          "advice": [
+            "Pour ce parcours, Odin adverse doit agir avant Spider-Man ; dans le cas contraire, le guide recommande de recommencer.",
+            "Viser Odin avec les spéciales de Spider-Man, Blade et Hulk, et étourdir Sylvie avec Julia.",
+            "Au deuxième groupe, cibler l'Exécuteur puis High Evolutionary ; ne pas laisser Odin ou Sylvie survivre à cette transition."
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "40",
+          "title": "Étage 40",
+          "requirement": "Exalted X-Men ou Incroyables Avengers",
+          "teamName": "Exalted X-Men — double boss final",
+          "characters": [
+            "Wolverine",
+            "Jubilee",
+            "Angel",
+            "Morph",
+            "StormMighty"
+          ],
+          "advice": [
+            "Survivre aux attaques de Serment et Scorpion (Briseur), puis cibler Serment.",
+            "Éliminer régulièrement les clones de Scorpion pour déclencher le passif de Jubilé et gagner des tours.",
+            "Les récupérations sont réinitialisées avant ce combat ; l'équipe peut donc être réutilisée."
+          ],
+          "alternatives": []
+        }
+      ],
       "totalStages": 40,
       "stageUnit": "étage",
-      "editorialRef": "spider-man-tower-descent/"
+      "editorialRef": "spider-man-tower-descent/",
+      "guideNote": "Compositions tirées du parcours Omega. Les règles de traits peuvent différer dans les difficultés inférieures. Certaines formations ajoutent un renfort ou proposent une substitution : vérifier les indications propres à l'étage."
     },
     {
       "id": "kyln-blazes",
