@@ -369,3 +369,18 @@
 .homeTileChallengeIcon{ font-size: clamp(40px, 12vw, 84px); line-height: 1.1; text-shadow: 0 5px 25px rgba(245,183,69,.45); }
 .homeTileChallengeName{ color: #fff2ce; font-size: clamp(16px, 4vw, 24px); font-weight: 950; line-height: 1.05; text-shadow: 0 2px 12px rgba(0,0,0,.7); }
 .homeTileChallengeTagline{ color: rgba(255,239,205,.74); font-size: clamp(9px, 2.4vw, 13px); font-weight: 750; text-align: center; }
+
+/* Une neuvième tuile occupe toute la largeur sans déplacer les huit outils existants. */
+.homeTile--challenges{
+  grid-column: 1 / -1;
+  width: 95%;
+  aspect-ratio: auto;
+  min-height: 104px;
+  flex-direction: row;
+  gap: 16px;
+  padding: 12px 18px;
+}
+.homeTileChallengeIcon{ font-size: clamp(38px, 9vw, 62px); flex: 0 0 auto; }
+.homeTileChallengeCopy{ display: flex; flex-direction: column; gap: 5px; text-align: left; min-width: 0; }
+.homeTileChallengeName{ font-size: clamp(19px, 4.5vw, 28px); }
+.homeTileChallengeTagline{ font-size: clamp(11px, 2.5vw, 14px); text-align: left; }
