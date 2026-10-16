@@ -180,13 +180,28 @@
     details.append(summary);
 
     const body = el("div", "challenge-stage-body");
+    if (stage.teamName) body.append(el("p", "challenge-team-name", stage.teamName));
     if (stage.characters.length) {
-      body.append(el("h4", "", "Équipe conseillée"));
+      const label = stage.compositionKind === "partial"
+        ? "Personnages explicitement cités"
+        : stage.compositionKind === "base_with_options"
+          ? "Formation de base"
+          : "Équipe conseillée";
+      body.append(el("h4", "", label));
       const team = el("div", "challenge-team");
       for (const id of stage.characters) team.append(makeHero(id));
       body.append(team);
+      if (stage.compositionKind === "partial") {
+        body.append(el("p", "challenge-roster-note", "Tous les emplacements ne sont pas précisés : aucun membre manquant n'a été inventé."));
+      }
     } else {
       body.append(el("p", "challenge-section-note", "Composition non renseignée pour le moment. Ce challenge sera enrichi progressivement."));
+    }
+    if (stage.additionalCharacters?.length) {
+      body.append(el("h4", "", "Renfort cité (prévoir un remplacement)"));
+      const additions = el("div", "challenge-alternatives");
+      for (const id of stage.additionalCharacters) additions.append(makeHero(id));
+      body.append(additions);
     }
 
     if (stage.alternatives?.length) {
@@ -246,6 +261,7 @@
       tags.append(progressLabel);
     }
     ui.detail.append(tags);
+    if (event.guideNote) ui.detail.append(el("p", "challenge-guide-note", event.guideNote));
 
     const stages = displayStages(event);
     if (Number.isInteger(event.totalStages) && event.totalStages > 0 && event.stages.length < event.totalStages) {
