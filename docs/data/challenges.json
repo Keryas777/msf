@@ -183,7 +183,7 @@
             "SymbioteQuicksilver"
           ],
           "advice": [
-            "Utiliser Scorpion (Briseur) en renfort si nécessaire, mais conserver les Sinister Six pour les étages suivants.",
+            "Scorpion (Briseur) est proposé en renfort à Symbiote Six, sans remplacement explicitement précisé ; conserver les Sinister Six pour les étages suivants.",
             "Au deuxième groupe, le Provocation du Lézard peut imposer une cible temporaire."
           ],
           "alternatives": [
@@ -258,15 +258,20 @@
           "teamName": "Brimstone + Jeff le requin",
           "characters": [
             "DaimonHellstrom",
+            "ElsaBloodstone",
             "StrangeSupreme",
             "LivingMummy",
-            "Hellcat",
-            "JeffTheLandShark"
+            "Hellcat"
           ],
           "advice": [
-            "Préserver la Momie vivante pendant les deux premières attaques adverses, puis concentrer toute la puissance sur Minn-Erva."
+            "La Momie vivante doit supporter les deux premières attaques ennemies.",
+            "Cibler ensuite Minn-Erva avec toutes les capacités disponibles. Jeff est conseillé en renfort, mais le guide ne précise pas quel membre de Brimstone doit lui céder sa place."
           ],
-          "alternatives": []
+          "alternatives": [],
+          "additionalCharacters": [
+            "JeffTheLandShark"
+          ],
+          "compositionKind": "base_with_options"
         },
         {
           "id": "9",
