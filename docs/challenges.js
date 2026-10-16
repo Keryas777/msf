@@ -78,8 +78,6 @@
     const holder = el("span", "challenge-avatar");
     const character = state.characters.get(characterId);
     const url = character && typeof character.portraitUrl === "string" ? character.portraitUrl : "";
-    holder.textContent = fallback || "★";
-
     // On reprend exclusivement les portraits du catalogue officiel déjà présent chez LoSP.
     if (url && /^https:\/\/assets\.marvelstrikeforce\.com\/imgs\//.test(url)) {
       const img = el("img");
@@ -87,8 +85,10 @@
       img.alt = "";
       img.loading = "lazy";
       img.decoding = "async";
-      img.onerror = () => { img.remove(); };
+      img.onerror = () => { img.remove(); holder.textContent = fallback || "★"; };
       holder.append(img);
+    } else {
+      holder.textContent = fallback || "★";
     }
     return holder;
   }
