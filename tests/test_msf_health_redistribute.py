@@ -12,6 +12,7 @@ from scripts.msf_capabilities_normalizer.health_redistribute import (
     REVIEWED_OFFICIAL_TEXT_SIGNATURES,
     REVIEWED_OFFICIAL_TEXT_SIGNATURE_VARIANTS,
     REVIEWED_USER_VALIDATED_SIGNATURES,
+    REVIEWED_PUBLISHED_SELF_SIGNATURES,
     _raw_fingerprint,
     normalize_health_redistribute,
 )
@@ -64,8 +65,8 @@ class HealthRedistributeTests(unittest.TestCase):
             Counter(o["healthRedistribute"]["behavior"] for o in self.operations),
             Counter({
                 "health_loss": 98,
-                "health_steal_redistribute": 70,
-                "detected": 52,
+                "health_steal_redistribute": 73,
+                "detected": 49,
                 "health_equalize": 8,
                 "health_transfer_allies": 2,
             }),
@@ -159,7 +160,7 @@ class HealthRedistributeTests(unittest.TestCase):
 
     def test_official_text_interpretations_are_fingerprint_gated(self):
         self.assertEqual(len(REVIEWED_OFFICIAL_TEXT_SIGNATURES), 50)
-        self.assertEqual(len(PARTIAL_OFFICIAL_TEXT_SIGNATURES), 3)
+        self.assertEqual(len(PARTIAL_OFFICIAL_TEXT_SIGNATURES), 0)
         by_pointer = {a["source"]["pointer"]: a for a in self.actions.values()}
         matched = 0
         for pointer, reviewed in REVIEWED_OFFICIAL_TEXT_SIGNATURES.items():
@@ -204,7 +205,34 @@ class HealthRedistributeTests(unittest.TestCase):
             self.assertFalse(result["resolved"])
             self.assertEqual(result["evidence"]["proofLevel"], "partially_confirmed")
             self.assertIn("assertion", result["evidence"])
-        self.assertEqual(matched, 3)
+        self.assertEqual(matched, 0)
+
+    def test_three_published_self_restitutions_are_fingerprint_gated(self):
+        self.assertEqual(len(REVIEWED_PUBLISHED_SELF_SIGNATURES), 3)
+        by_pointer = {a["source"]["pointer"]: a for a in self.actions.values()}
+        for pointer, reviewed in REVIEWED_PUBLISHED_SELF_SIGNATURES.items():
+            with self.subTest(pointer=pointer):
+                action = by_pointer[pointer]
+                self.assertEqual(_raw_fingerprint(action["raw"]), reviewed["sha256"])
+                result = normalize_health_redistribute(action)
+                self.assertEqual(result["behavior"], "health_steal_redistribute")
+                self.assertTrue(result["resolved"])
+                self.assertEqual(result["evidence"]["proofLevel"], "confirmed")
+                self.assertEqual(result["evidence"]["recipient"], "self")
+                self.assertEqual(result["evidence"]["recipientEvidence"], reviewed["recipientEvidence"])
+                self.assertEqual(result["evidence"]["sourceUrl"], reviewed["sourceUrl"])
+                self.assertEqual(result["evidence"]["rule"], "reviewed_published_english_self_restitution")
+                self.assertFalse(result["evidence"]["sourceVersionVerified"])
+                self.assertEqual(result["percentageBasis"], "unresolved")
+                self.assertEqual(result["engineFormula"], "unresolved")
+                self.assertEqual(result["rawAction"], action["raw"])
+                self.assertEqual(result["selectors"]["to"]["raw"], {"relation": "ally"})
+                changed = copy.deepcopy(action)
+                changed["raw"]["drain_pct"] = [99]
+                fallback = normalize_health_redistribute(changed)
+                self.assertEqual(fallback["behavior"], "detected")
+                self.assertFalse(fallback["resolved"])
+                self.assertNotIn("recipient", fallback["evidence"])
 
     def test_quasar_user_reviewed_self_restitution_is_fingerprint_gated(self):
         self.assertEqual(len(REVIEWED_USER_VALIDATED_SIGNATURES), 2)
@@ -284,7 +312,7 @@ class HealthRedistributeTests(unittest.TestCase):
         }
         self.assertEqual(set(entries), set(unresolved))
         self.assertEqual(Counter(entry["knowledgeLevel"] for entry in entries.values()),
-                         Counter({"B": 3, "C": 49}))
+                         Counter({"B": 0, "C": 49}))
         for pointer, operation in unresolved.items():
             entry = entries[pointer]
             with self.subTest(pointer=pointer):
