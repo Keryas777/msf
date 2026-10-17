@@ -1735,12 +1735,262 @@
       "id": "storm",
       "type": "tower",
       "title": "Tour de Tornade",
-      "summary": "12 étages et deux difficultés.",
+      "summary": "Tour de Tornade (Puissante) : 12 étages Omega, restrictions par traits et stratégies en français.",
       "rewardId": "StormMighty",
-      "stages": [],
+      "stages": [
+        {
+          "id": "1",
+          "title": "Étage 1",
+          "requirement": "Mondial",
+          "teamName": "Brimstone + Old Man Logan",
+          "characters": [
+            "DaimonHellstrom",
+            "ElsaBloodstone",
+            "LivingMummy",
+            "Hellcat",
+            "OldManLogan"
+          ],
+          "advice": [
+            "Ouvrir avec l'ultime de Daimon puis la spéciale d'Old Man Logan contre Hyperion ou Victoria Hand.",
+            "Cibler Victoria Hand, Lady Bullseye et Songbird avant la vague Ikaris/Circé."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Étage 2",
+          "requirement": "Héros cosmiques",
+          "teamName": "Starjammers + Nova (Sam Alexander)",
+          "characters": [
+            "Havok",
+            "Lilandra",
+            "HowardTheDuck",
+            "Groot",
+            "NovaSamAlexander"
+          ],
+          "advice": [
+            "Havok et Howard doivent viser Emma Frost (X-Men) avec leurs spéciales ; Lilandra contrôle Apocalypse.",
+            "Contre la Winter Guard, retirer la Provocation de Red Guardian avant Darkstar et Omega Red."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Étage 3",
+          "requirement": "Mutants",
+          "teamName": "Force Phénix + Xavier + Roi d'ombre",
+          "characters": [
+            "MagnetoPhoenixForce",
+            "OmegaRedPhoenix",
+            "Phoenix",
+            "Xavier",
+            "ShadowKing"
+          ],
+          "advice": [
+            "Magnéto ouvre sur Scorpion et le groupe Sinister Six ; Xavier bloque Spider-Man supérieur.",
+            "Dans la seconde vague, concentrer le feu sur Knull avant les autres Hive-Mind."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Étage 4",
+          "requirement": "Vilains mystiques",
+          "teamName": "Maudits + Knull",
+          "characters": [
+            "Hellverine",
+            "TheHood",
+            "Satana",
+            "BaronMordo",
+            "Knull"
+          ],
+          "advice": [
+            "Knull applique son effet de champ avec l'ultime ; Satana et Hood attaquent d'abord Gladiator.",
+            "Hellverine se charge de l'ultime ; seconde vague : Roi d'ombre, Emma Frost (X-Men), Ancient One."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "5",
+          "title": "Étage 5",
+          "requirement": "Héros mondiaux ou Ville non mythiques",
+          "teamName": "Guerriers audacieux",
+          "characters": [
+            "Eclipse",
+            "Speedball",
+            "NightThrasher",
+            "Daredevil",
+            "JessicaJones"
+          ],
+          "advice": [
+            "Profiter de leurs contrôles contre Nouveaux Mutants.",
+            "Ne pas garder les capacités pour l'arrivée de Liberté : cette équipe fonctionne surtout en Guerre."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Étage 6",
+          "requirement": "X-Men non mythiques",
+          "teamName": "Nouveaux Mutants",
+          "characters": [
+            "Warlock",
+            "Magik",
+            "Wolfsbane",
+            "Cannonball",
+            "Sunspot"
+          ],
+          "advice": [
+            "Cannonball et Wolfsbane ouvrent avec leurs spéciales sur Apocalypse.",
+            "Utiliser l'ultime de Warlock ; à l'arrivée de Satana et Morgan Le Fay, étourdir une cible et concentrer les dégâts sur l'autre."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Étage 7",
+          "requirement": "Mondial",
+          "teamName": "Brimstone + Old Man Logan",
+          "characters": [
+            "DaimonHellstrom",
+            "ElsaBloodstone",
+            "LivingMummy",
+            "Hellcat",
+            "OldManLogan"
+          ],
+          "advice": [
+            "La même composition peut être réutilisée après la réinitialisation hebdomadaire.",
+            "Daimon et Old Man Logan assurent la gestion des dégâts et des étourdissements ; Sentry peut être envisagé comme remplaçant."
+          ],
+          "alternatives": [
+            "Sentry"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Étage 8",
+          "requirement": "Héros cosmiques",
+          "teamName": "Starjammers + Nova (Sam Alexander)",
+          "characters": [
+            "Havok",
+            "Lilandra",
+            "HowardTheDuck",
+            "Groot",
+            "NovaSamAlexander"
+          ],
+          "advice": [
+            "Havok doit retirer la Provocation de Cannonball ; viser Emma (X-Men) lorsque l'accès s'ouvre.",
+            "Utiliser l'ultime de Nova et Lilandra, puis la spéciale de Groot contre Femme invisible (MCU)."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Étage 9",
+          "requirement": "Mutants",
+          "teamName": "Force Phénix + Xavier + Roi d'ombre",
+          "characters": [
+            "MagnetoPhoenixForce",
+            "OmegaRedPhoenix",
+            "Phoenix",
+            "Xavier",
+            "ShadowKing"
+          ],
+          "advice": [
+            "Magnéto vise Emma Frost pour toucher Méphisto, Le Leader et Sebastian Shaw ; Roi d'ombre bloque Le Leader.",
+            "Seconde vague : Momie vivante est prioritaire avec sa Provocation ; utiliser les ultimes disponibles."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Étage 10",
+          "requirement": "Vilains mystiques",
+          "teamName": "Maudits + Knull",
+          "characters": [
+            "Hellverine",
+            "TheHood",
+            "Satana",
+            "BaronMordo",
+            "Knull"
+          ],
+          "advice": [
+            "Knull applique son effet de champ, Satana vise Lilandra et Hood gère les Starjammers.",
+            "La deuxième vague contient Quasar, Blastaar et Thunderstrike : contrôler ces cibles dès leur apparition."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "11",
+          "title": "Étage 11",
+          "requirement": "Héros mondiaux ou Ville non mythiques",
+          "teamName": "Guerriers audacieux",
+          "characters": [
+            "Eclipse",
+            "Speedball",
+            "NightThrasher",
+            "Daredevil",
+            "JessicaJones"
+          ],
+          "advice": [
+            "Survivre à l'ultime de Darkstar puis utiliser les ultimes de Night Thrasher et Daredevil.",
+            "La spéciale de Speedball doit viser Omega Red (Force Phénix). Dans la deuxième vague, éliminer Captain Britain et Shuri."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "12",
+          "title": "Étage 12",
+          "requirement": "X-Men non mythiques",
+          "teamName": "Nouveaux Mutants (variante plus risquée)",
+          "characters": [
+            "Warlock",
+            "Magik",
+            "Wolfsbane",
+            "Cannonball",
+            "Sunspot"
+          ],
+          "advice": [
+            "Résister aux premières attaques du Professeur Xavier et de Méphisto ; recommencer si Cannonball, Warlock ou Wolfsbane meurt.",
+            "Abattre Xavier avant son deuxième tour, puis Méphisto et Old Man Logan.",
+            "Deuxième vague : cibler Jean Grey et Lilandra. Exalted X-Men reste la voie la plus simple."
+          ],
+          "alternatives": [
+            "StormMighty",
+            "Wolverine",
+            "Jubilee",
+            "Angel"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        }
+      ],
       "totalStages": 12,
       "stageUnit": "étage",
-      "editorialRef": "mighty-tower-storm/"
+      "editorialRef": "mighty-tower-storm/",
+      "guideNote": "L'édition met les règles d'Épreuve cosmique à l'honneur. Les personnages utilisés passent en récupération jusqu'à la semaine suivante. Les étages 7–12 réutilisent plusieurs formations des étages 1–6. Les compositions Maudits + Knull représentent un assemblage éditorial parmi les membres cités, sans cinq places explicitement énumérées."
     },
     {
       "id": "war",
