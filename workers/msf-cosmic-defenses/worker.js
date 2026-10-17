@@ -142,7 +142,8 @@ function mergeRows(rows,season,author,rooms){
   const changed=new Set(rooms.map(r=>r.room));
   // Le serveur ne peut écraser que des lignes appartenant au même ID Discord.
   const other=rows.filter(row=>!(row?.season===season&&row?.authorDiscordId===author.id &&
-    changed.has(Number(row.room))));
+    changed.has(Number(row.room)) &&
+    (!row.source || row.source === "Personnel")));
   const now=new Date().toISOString();
   const added=rooms.map(r=>({
     season,room:r.room,characters:r.characters,
@@ -153,6 +154,11 @@ function mergeRows(rows,season,author,rooms){
   if(other.length+added.length>4000)
     throw new HttpError(409,"catalog_full","Catalogue plein : publication suspendue.");
   return [...other,...added];
+}
+function recentlyPublished(rows,season,id) {
+  const cutoff=Date.now()-15000;
+  return rows.some(row=>row?.season===season && row?.authorDiscordId===id &&
+    Number.isFinite(Date.parse(row.publishedAt)) && Date.parse(row.publishedAt)>cutoff);
 }
 async function commitRows(env,snapshot,rows) {
   const base=await api(env,"/git/commits/"+snapshot.sha);
@@ -185,6 +191,17 @@ async function publish(request,env){
     const current=await snapshot(env);
     const ids=await playableIds(env,current.sha);
     const rooms=parseRooms(payload,current.season,ids);
+    // Évite les commits inutiles et l'envoi de spam ; 6 salles maximum
+    // par compte Discord et au plus une publication toutes les 15 secondes.
+    const noChange=rooms.every(room=>current.rows.some(row=>
+      row?.season===current.season && row?.authorDiscordId===author.id &&
+      row?.source==="Personnel" && Number(row.room)===room.room &&
+      JSON.stringify(row.characters)===JSON.stringify(room.characters) &&
+      String(row.notes||"")===room.notes
+    ));
+    if(noChange)return {ok:true,season:current.season,published:rooms.length,unchanged:true};
+    if(recentlyPublished(current.rows,current.season,author.id))
+      throw new HttpError(429,"slow_down","Attends 15 secondes avant de republier.");
     const next=mergeRows(current.rows,current.season,author,rooms);
     try {
       const sha=await commitRows(env,current,next);

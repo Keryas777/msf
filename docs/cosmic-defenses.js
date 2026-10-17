@@ -67,7 +67,7 @@
       };
     }
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); } catch (_) {}
-    shareFallback.hidden = true;
+    if (shareFallback) shareFallback.hidden = true;
   }
   function fillAuthorFromSession(session) {
     // Seules les données de la session vérifiée par auth-guard.js font foi.
