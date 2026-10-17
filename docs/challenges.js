@@ -172,7 +172,7 @@
 
 
   const VISIBLE_SOURCE_STATES = new Set(["content_checked", "page_checked", "indexed_content"]);
-  const GUIDE_FORMATS = { article:"Guide écrit", walkthrough:"Parcours commenté", player_report:"Retour de combat", community_collection:"Solutions communautaires" };
+  const GUIDE_FORMATS = { article:"Guide écrit", walkthrough:"Parcours commenté", player_report:"Retour de combat", community_collection:"Solutions communautaires", video:"Vidéo de combat" };
   const GUIDE_EVIDENCE = { walkthrough:"Stratégie détaillée", reported_clear:"Victoire rapportée", historical_playthrough:"Parcours historique", unverified_player_submission:"Solutions non certifiées", recommendation:"Recommandations", guide:"Guide" };
 
   function relevantSources(event, stage) {
