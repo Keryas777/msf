@@ -6906,6 +6906,187 @@
           "compositionKind": "partial"
         }
       ]
+    },
+    {
+      "id": "apocalypse-saga",
+      "type": "event",
+      "title": "Saga d'Apocalypse",
+      "summary": "Saga des Cavaliers : restrictions, seuils d'équipement et conseils de préparation pour les difficultés Hard, Héroïque et Apocalyptique.",
+      "rewardId": "Apocalypse",
+      "totalStages": 9,
+      "stageUnit": "mission",
+      "editorialRef": "apocalypse-saga/",
+      "guideNote": "Le tableau représente la difficulté Apocalyptique : G17, ISO-8 bleu niveau 5. Hard demande G15 et Héroïque G16 avec ISO-8 bleu niveau 4. La mission 9 n'est présente qu'en Apocalyptique. Les compositions sont des RECOMMANDATIONS de préparation ; seules les obligations de traits/personnages proviennent du guide, aucune victoire par nœud n'est certifiée.",
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Mystiques · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "MorganLeFay",
+            "AgathaHarkness",
+            "StrangeSupreme",
+            "Wong",
+            "ScarletWitch"
+          ],
+          "advice": [
+            "Darkhold et personnages mystiques bien équipés permettent de tenir les premières vagues."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Mutants · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "Rogue",
+            "Archangel",
+            "Magneto",
+            "DarkBeast",
+            "Nemesis"
+          ],
+          "advice": [
+            "Préparer les ultimes Mutants pour la section Force Phénix/Death Seed ultérieure."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Bio · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "RedHulk",
+            "Hulk",
+            "Abomination",
+            "AmadeusCho",
+            "SheHulk"
+          ],
+          "advice": [
+            "Une équipe Gamma bio développée offre la durabilité nécessaire à la mission."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Mutants · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "Archangel",
+            "Magneto",
+            "DarkBeast",
+            "Nemesis",
+            "Psylocke"
+          ],
+          "advice": [
+            "Avec Death Seed, chaque élimination ralentit les adversaires ; cibler ceux susceptibles de mourir immédiatement.",
+            "La spéciale de Dark Beast ne clone pas hors Raid mais sert à réanimer et à appliquer des dégâts."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Trois personnages originaux MSF · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "Deathpool",
+            "SpiderWeaver"
+          ],
+          "advice": [
+            "La source impose trois personnages originaux. Kestrel normale était un troisième personnage d'époque mais manque au catalogue jouable actuel : ne pas utiliser son homonyme zombie.",
+            "La composition et les deux autres emplacements doivent être validés dans la sélection de personnages."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Morgan Le Fay obligatoire · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "MorganLeFay"
+          ],
+          "advice": [
+            "La mission porte sur le Cavalier de Pestilence : sécuriser Morgan Le Fay et garder ses contrôles disponibles."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Malicia et Archangel obligatoires · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "Rogue",
+            "Archangel"
+          ],
+          "advice": [
+            "Les deux Cavaliers doivent être admissibles ; compléter avec des personnages autorisés par le jeu sans inventer une équipe complète."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Morgan Le Fay, Malicia, Hulk rouge et Archangel obligatoires · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "MorganLeFay",
+            "Rogue",
+            "RedHulk",
+            "Archangel"
+          ],
+          "advice": [
+            "Réunir les quatre Cavaliers dans la même équipe et vérifier le cinquième emplacement autorisé.",
+            "Économiser les capacités de soin et de contrôle pour les longues vagues."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Quatre Cavaliers · parcours Apocalyptique uniquement",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "MorganLeFay",
+            "Rogue",
+            "RedHulk",
+            "Archangel"
+          ],
+          "advice": [
+            "Cette neuvième mission n'existe que dans la version Apocalyptique documentée.",
+            "La réussite dépend de l'équipement et des restrictions exactes de l'édition."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        }
+      ]
     }
   ]
 }
