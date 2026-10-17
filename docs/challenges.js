@@ -5,7 +5,7 @@
   const PATHS = {
     guides: "./data/challenges.json",
     characters: "./data/msf-characters.json",
-    guideSources: "./data/challenge-guide-sources.json",
+    guideSources: "./data/challenge-alternatives.json",
   };
   const STORAGE_KEY = "losp_challenges_progress_v1";
   const CATEGORIES = {
@@ -30,8 +30,7 @@
     events: [],
     characters: new Map(),
     progress: readProgress(),
-    sources: [],
-    difficulty: "all",
+    alternatives: [],
   };
 
   function readProgress() {
@@ -158,7 +157,6 @@
       button.append(content);
       button.addEventListener("click", () => {
         state.selected = event.id;
-        state.difficulty = "all";
         const url = new URL(location.href);
         url.searchParams.set("guide", event.id);
         history.replaceState(null, "", url.pathname + url.search + url.hash);
@@ -174,11 +172,10 @@
   // Les URL et auteurs sont conservés dans le catalogue éditorial mais jamais affichés.
   // Seules les compositions de joueurs renseignées deviennent des cartes LoSP internes.
   function buildAlternativeTeams(event, stage) {
-    const variants = state.sources
-      .filter(source => source.eventId === event.id && Array.isArray(source.solutions))
-      .flatMap(source => source.solutions.filter(solution =>
-        String(solution.stageId) === String(stage.id) && Array.isArray(solution.characters) && solution.characters.length
-      ));
+    const variants = state.alternatives.filter(item =>
+      item.eventId === event.id && String(item.stageId) === String(stage.id)
+      && Array.isArray(item.characters) && item.characters.length
+    );
     if (!variants.length) return null;
     const section = el("section", "challenge-guide-section");
     section.append(el("h4", "", "Autres compositions proposées"));
@@ -356,15 +353,15 @@
       const [guides, characters, sourceIndex] = await Promise.all([
         loadJson(PATHS.guides),
         loadJson(PATHS.characters),
-        loadJson(PATHS.guideSources).catch(() => ({ sources: [] })),
+        loadJson(PATHS.guideSources).catch(() => ({ alternatives: [] })),
       ]);
       if (!Array.isArray(guides.events) || !Array.isArray(characters)) {
         throw new Error("Format des données inattendu");
       }
       state.events = guides.events.filter(item => item && item.id && item.title);
       const knownEvents = new Set(state.events.map(item => item.id));
-      state.sources = (Array.isArray(sourceIndex.sources) ? sourceIndex.sources : [])
-        .filter(source => source && knownEvents.has(source.eventId) && typeof source.url === "string" && source.url.startsWith("https://"));
+      state.alternatives = (Array.isArray(sourceIndex.alternatives) ? sourceIndex.alternatives : [])
+        .filter(item => item && knownEvents.has(item.eventId) && Array.isArray(item.characters));
       // Jamais d'unité PVE / invocation comme portrait suggéré.
       for (const character of characters) {
         if (character?.id && character.player_Character === true) {
