@@ -202,3 +202,24 @@ test("croix de retrait plus discrète sans réduire la zone tactile mobile", asy
   assert.match(cross, /font:700 12px\/1 sans-serif/);
   assert.match(propose, /cosmic\.css\?v=7/);
 });
+
+
+test("cosmic visual design matches the common LoSP dark glass theme", async () => {
+  const [css, hub, browse, propose, counters] = await Promise.all([
+    read("docs/cosmic.css"), read("docs/cosmic.html"),
+    read("docs/cosmic-defenses.html"), read("docs/cosmic-defense-propose.html"),
+    read("docs/cosmic-counters.html")
+  ]);
+  assert.match(css, /\.cosmicHeader\{[^}]*background:rgba\(8,9,10,\.78\)/);
+  assert.match(css, /\.cosmicHubTile\{[^}]*background:radial-gradient\([^}]*rgba\(12,18,28,\.90\)/);
+  assert.match(css, /\.cosmicRoom\{[^}]*border:1px solid var\(--border\)/);
+  assert.match(css, /\.cosmicSeasonCard\{[^}]*var\(--panel\)/);
+  assert.match(css, /\.cosmicIntro\{[^}]*var\(--muted\)/);
+  assert.match(css, /\.cosmicHubGrid\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(css, /\.cosmicPortrait img\{[^}]*object-fit:contain/);
+  assert.match(css, /\.cosmicPortraitRemove::after\{[^}]*font:700 12px\/1 sans-serif/);
+  for (const page of [hub,browse,propose,counters]) {
+    assert.match(page, /cosmic\.css\?v=8/);
+    assert.match(page, /style\.css\?v=/);
+  }
+});
