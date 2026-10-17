@@ -10,12 +10,12 @@ Ce rapport migre vers les sources courantes les résultats des PR #225 et #251. 
 | Capacités distinctes | 128 |
 | Personnages / unités distincts | 81 |
 | Actions sans `abilityId` | 26 |
-| Comportements identifiés (`resolved=true`) | 181 |
+| Comportements identifiés (`resolved=true`) | 211 |
 | Comportements partiellement interprétés (`resolved=false`) | 0 |
-| Comportements entièrement non résolus | 49 |
+| Comportements entièrement non résolus | 19 |
 | Formules moteur non résolues | 230 |
 
-La répartition des comportements identifiés est : 98 pertes de vie, 73 vols et redistributions de vie, 8 égalisations et 2 transferts entre alliés. Toutes les opérations gardent `percentageBasis: unresolved` et `engineFormula: unresolved`.
+La répartition des comportements identifiés est : 98 pertes de vie, 103 vols et redistributions de vie, 8 égalisations et 2 transferts entre alliés. Toutes les opérations gardent `percentageBasis: unresolved` et `engineFormula: unresolved`.
 
 ## Provenance et statut de version
 
@@ -63,7 +63,7 @@ Pointeurs des 27 nouvelles actions :
 
 ### A — Comportement identifié
 
-181 actions ont une famille de comportement interprétée. Les 49 signatures textuelles confirmées de 10.5.0 restent identiques. La cinquantième, Oath, est réévaluée sur son nouveau JSON et son texte français courant, avec une empreinte versionnée séparément. Les classifications structurelles validées par la PR #225 sont conservées lorsqu’elles correspondent toujours aux paramètres.
+211 actions ont une famille de comportement interprétée. Les 49 signatures textuelles confirmées de 10.5.0 restent identiques. La cinquantième, Oath, est réévaluée sur son nouveau JSON et son texte français courant, avec une empreinte versionnée séparément. Les classifications structurelles validées par la PR #225 sont conservées lorsqu’elles correspondent toujours aux paramètres.
 
 ### B — Interprétation partielle
 
@@ -120,11 +120,24 @@ et **n'extrapole ni quantité, ni allocation mathématique, ni formule moteur**.
 Une nouvelle version de l'action non couverte par l'empreinte redevient
 `detected`.
 
+### B quater — Confrontation MSF Base et normalisation par empreinte (17 octobre 2026)
+
+Le [rapport exhaustif des 49 actions](health-redistribute-msfbase-crosscheck-10.6.3.md)
+distingue **18 descriptions directement concordantes** (dont 12
+actions de personnages possédés confirmées par le texte officiel de Scopely)
+et **12 variantes techniques corroborées** (10 `safety`, un
+`passive_visuals` et une ultime qui emprunte la spéciale).
+Ces 30 actions deviennent `health_steal_redistribute` à signature SHA-256
+exacte ; leur niveau de preuve est `confirmed` pour les directes et
+`corroborated` pour les techniques. Les contextes restent séparés.
+Aucune action de boss ou entité technique n'est reclassée par analogie.
+Les formules moteur des 230 opérations demeurent non résolues.
+
 ### C — Comportement non résolu
 
-49 cas restent entièrement non résolus : les 44 signatures déjà étudiées en 10.5.0, plus les 5 nouvelles actions de boss PvE (LokiTeen ×1, Odin ×4). Les 44 signatures antérieures n’ont pas déclenché de nouvel audit : leur structure est identique et aucune preuve runtime nouvelle n’est disponible.
+19 cas techniques ou PvE restent entièrement non résolus après la confrontation MSF Base : 15 analogues PvE non validés et 4 unités sans preuve textuelle directe. Les 30 actions jouables du registre précédent (18 directes et 12 corroborées au niveau technique) sont désormais identifiées au seul niveau de la famille de comportement, sans résolution du moteur.
 
-Les détails par action — personnage, capacité, identifiants, pointeur, empreinte, structure brute, éléments confirmés, inconnues, investigations antérieures, blocage, preuve nécessaire et priorité — se trouvent dans le registre lié au début du rapport. Il contient 49 entrées ambiguës : 0 niveau B et 49 niveau C. Il distingue les 30 cas C jouables des 19 cas C techniques/non jouables.
+Les détails par action — personnage, capacité, identifiants, pointeur, empreinte, structure brute, éléments confirmés, inconnues, investigations antérieures, blocage, preuve nécessaire et priorité — se trouvent dans le registre lié au début du rapport. Il contient 19 entrées ambiguës : 0 niveau B et 19 niveau C, toutes techniques ou non jouables. L’audit détaillé des 49 signatures et les justifications de la classification de 30 d'entre elles figurent dans [le rapport comparatif MSF Base](health-redistribute-msfbase-crosscheck-10.6.3.md).
 
 ### D — Formule moteur non résolue
 
@@ -132,16 +145,16 @@ Les 230 opérations conservent `percentageBasis` et `engineFormula` à `unresolv
 
 ## Priorités d’investigation restantes
 
-1. Cas non résolus de personnages jouables (30 niveau C) : exiger une nouvelle preuve runtime ou une observation de combat contrôlée avant de modifier le Codex.
+1. Les 30 actions jouables ont une famille de comportement classée après vérification des descriptions et signatures exactes ; garder un niveau de preuve distinct pour les 12 variantes techniques, ne pas réinventer leurs formules moteur.
 2. Les cinq anciens cas partiels (Quasar ×2, Kang, Morbius et Yellowjacket) n'exigent plus de recherche sur le destinataire ; réouvrir uniquement sur changement de signature ou contradiction documentée.
-3. Cas de boss PvE (19 niveau C) : priorité basse ; les conserver et ne pas extrapoler leurs comportements aux personnages jouables.
+3. 19 cas PvE/techniques niveau C : priorité basse, poursuivre uniquement sur preuve propre à l’unité et ne pas extrapoler les versions jouables. Le rapport distingue 15 analogues et 4 sans preuve directe.
 4. Formules moteur : traiter seulement avec symboles/runtime exploitable ou comparaison contrôlée des états de combat ; aucune décompilation générale n’est justifiée par les données présentes.
 
 Une signature déjà enregistrée ne doit pas relancer la même enquête lors d’une mise à jour, sauf changement de son empreinte ou apparition d’une preuve nouvelle.
 
 ## Validation
 
-- Tests spécialisés mis à jour (`python -m unittest tests.test_msf_health_redistribute -v`) : comptages de référence, conservation des signatures, provenance des textes anglais, destinataires à soi, échec fermé sur signature modifiée, préservation du JSON brut et absence de modification du `stat_modifier`. Exécution encore requise avant fusion.
+- Tests spécialisés mis à jour (`python -m unittest tests.test_msf_health_redistribute -v`) : 30 signatures comparatives et leurs empreintes, 19 actions PvE conservées, destination et contextes, échec fermé sur source modifiée, conservation sans perte et non-régression du Drain. Exécution encore requise avant fusion.
 - Tests Builder Explorer et Web Publisher : exécution encore requise avant fusion.
 - Tests Normalizer, Parser et Indexer : exécution encore requise avant fusion.
 - Aucun build ni publication des artefacts du Codex n'a été déclenché par cette PR.
