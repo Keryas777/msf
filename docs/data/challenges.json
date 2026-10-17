@@ -7,7 +7,7 @@
       "id": "blade",
       "type": "tower",
       "title": "Tour de Blade",
-      "summary": "24 étages, trois difficultés et personnages Challenger I.",
+      "summary": "Tour de Blade : 24 étages répartis sur quatre semaines, compositions et conseils en français.",
       "rewardId": "BladeMighty",
       "stages": [
         {
@@ -105,11 +105,382 @@
             "Cibler Silver Sable ; neutraliser ensuite Daredevil (Moderne) et Hit-Monkey."
           ],
           "alternatives": []
+        },
+        {
+          "id": "7",
+          "title": "Étage 7",
+          "requirement": "Challenger II",
+          "teamName": "Blastaar + Thunderstrike + Kahhori + Ms. Marvel classique + Moon Girl",
+          "characters": [
+            "Blastaar",
+            "Thunderstrike",
+            "Kahhori",
+            "MsMarvelClassic",
+            "MoonGirl"
+          ],
+          "advice": [
+            "Laisser Ms. Marvel classique encaisser l'ouverture de Malekith ; ses dégâts ne sont pas la priorité.",
+            "Kahhori charge Blastaar par ses attaques basiques ; attendre cinq Bomb-Bursts pour son ultime."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Étage 8",
+          "requirement": "Challenger II",
+          "teamName": "Knull + Apocalypse + Serment + Havok + Spider-Man",
+          "characters": [
+            "Knull",
+            "Apocalypse",
+            "Oath",
+            "Havok",
+            "SpiderMan"
+          ],
+          "advice": [
+            "Étourdir Hulk rouge avec l'ultime de Spider-Man et Gambit avec la spéciale de Havok.",
+            "Knull frappe plusieurs Gamma, puis Apocalypse utilise son ultime et son attaque renforcée sur Malicia."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Étage 9",
+          "requirement": "Challenger II",
+          "teamName": "Quasar + Sentry + Tornade (Puissante) + Nova (Sam Alexander) + Hulk",
+          "characters": [
+            "Quasar",
+            "Sentry",
+            "StormMighty",
+            "NovaSamAlexander",
+            "Hulk"
+          ],
+          "advice": [
+            "Utiliser l'ultime de Tornade pour retirer l'Immunité et appliquer Exposé/Ralenti.",
+            "La spéciale de Quasar doit viser Le Fauve : ses soins et améliorations sont prioritaires à empêcher.",
+            "L'ultime de Nova facilite l'élimination du reste de l'équipe X-Men."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Étage 10",
+          "requirement": "Challenger II",
+          "teamName": "Surfer (Briseur) + Jeff + Eclipse + Darkstar + Exécuteur",
+          "characters": [
+            "SilverSurferBreaker",
+            "JeffTheLandShark",
+            "Eclipse",
+            "Darkstar",
+            "Executioner"
+          ],
+          "advice": [
+            "L'Exécuteur ouvre avec son ultime, mais les charges du Bouffon vert protègent les adversaires.",
+            "Idéalement, Jeff joue avant le Surfer pour regrouper les ennemis ; cibler le Bouffon vert classique avec leurs spéciales afin de retirer ses charges et bloquer ses capacités."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "11",
+          "title": "Étage 11",
+          "requirement": "Challenger II",
+          "teamName": "Vif-Argent symbiote + Riot + Venom + Emma Frost + Cannonball",
+          "characters": [
+            "SymbioteQuicksilver",
+            "Riot",
+            "Venom",
+            "EmmaFrost",
+            "Cannonball"
+          ],
+          "advice": [
+            "Emma ralentit l'équipe adverse ; Vif-Argent, Riot et Cannonball doivent agir avant Quasar et Blastaar ennemis.",
+            "Riot et Venom en ISO-8 Attaquant, Vif-Argent et Cannonball en Ravageur.",
+            "Priorité à Fatalis et Roi d'ombre, puis Ancient One et Emma Frost (X-Men)."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "12",
+          "title": "Étage 12",
+          "requirement": "Challenger II",
+          "teamName": "Franklin + Reed (MCU) + Femme invisible (MCU) + Emma Frost (X-Men) + Rachel Summers",
+          "characters": [
+            "FranklinRichards",
+            "MrFantasticMCU",
+            "InvisibleWomanMCU",
+            "EmmaFrostXMen",
+            "RachelSummers"
+          ],
+          "advice": [
+            "Le trio Fantastiques MCU constitue la base ; le guide ne détaille pas suffisamment la rotation des compétences pour ce nœud."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "13",
+          "title": "Étage 13",
+          "requirement": "Challenger III",
+          "teamName": "Blastaar + Thunderstrike + Rachel Summers + Spider-Man + Hulk",
+          "characters": [
+            "Blastaar",
+            "Thunderstrike",
+            "RachelSummers",
+            "SpiderMan",
+            "Hulk"
+          ],
+          "advice": [
+            "Spider-Man applique Ralenti ; Blastaar bloque Forge avec sa spéciale et Thunderstrike lance son ultime.",
+            "Rachel réduit la jauge de Warlock ; terminer Forge avant qu'il ne protège son équipe.",
+            "Étourdir Wolfsbane puis traiter les dernières menaces mutantes."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "14",
+          "title": "Étage 14",
+          "requirement": "Challenger III",
+          "teamName": "Kahhori + Ms. Marvel classique + Moon Girl + Lilandra + Nova (Sam Alexander)",
+          "characters": [
+            "Kahhori",
+            "MsMarvelClassic",
+            "MoonGirl",
+            "Lilandra",
+            "NovaSamAlexander"
+          ],
+          "advice": [
+            "Le danger vient de la montée rapide de jauge de Super-Skrull.",
+            "Le guide conserve Xavier pour plus tard ; ne pas le consommer à cet étage si une autre composition suffit."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "15",
+          "title": "Étage 15",
+          "requirement": "Challenger III",
+          "teamName": "Cannonball + Warlock + Wolfsbane + Jeff + Exécuteur",
+          "characters": [
+            "Cannonball",
+            "Warlock",
+            "Wolfsbane",
+            "JeffTheLandShark",
+            "Executioner"
+          ],
+          "advice": [
+            "Placer Cannonball dans un coin et Wolfsbane à côté : l'ultime de Ms. Marvel (Hard Light) leur retirera de la jauge, sans ralentir Jeff ni Exécuteur.",
+            "Les Nouveaux Mutants agissent d'abord ; lancer l'ultime d'Exécuteur puis la spéciale de Jeff pour regrouper et contrôler.",
+            "Tenir face à Nova (Sam Alexander) et Spider-Man (Miles) avant le second tour."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "16",
+          "title": "Étage 16",
+          "requirement": "Challenger III",
+          "teamName": "Surfer (Briseur) + Tornade (Puissante) + Sentry + Eclipse + Emma Frost",
+          "characters": [
+            "SilverSurferBreaker",
+            "StormMighty",
+            "Sentry",
+            "Eclipse",
+            "EmmaFrost"
+          ],
+          "advice": [
+            "Composition de personnages rapides proposée ; la rotation détaillée n'est pas documentée dans l'extrait accessible."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "17",
+          "title": "Étage 17",
+          "requirement": "Challenger III",
+          "teamName": "Franklin + Femme invisible (MCU) + Reed (MCU) + Emma (X-Men) + Apocalypse",
+          "characters": [
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "EmmaFrostXMen",
+            "Apocalypse"
+          ],
+          "advice": [
+            "Apocalypse renforce les dégâts et peut reprendre son tour grâce à une contre-attaque provoquée par Sentry adverse.",
+            "Ultime d'Apocalypse puis attaque renforcée sur Darkstar ; priorité ensuite Songbird, Omega Red et Ursa Major.",
+            "Combiner les ultimes des trois Fantastiques MCU avec la spéciale d'Emma."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "18",
+          "title": "Étage 18",
+          "requirement": "Challenger III",
+          "teamName": "Vif-Argent symbiote + Riot + Knull + Venom + Quasar",
+          "characters": [
+            "SymbioteQuicksilver",
+            "Riot",
+            "Knull",
+            "Venom",
+            "Quasar"
+          ],
+          "advice": [
+            "Quasar fournit Immunité au départ contre Hank Pym et Shuri.",
+            "Vif-Argent enlève les charges de Kestrel et permet à Knull d'invoquer Carnage.",
+            "Viser les deux Illuminati puis Kestrel avant le trio Fantastiques MCU."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "19",
+          "title": "Étage 19",
+          "requirement": "Challenger IV",
+          "teamName": "Exalted X-Men",
+          "characters": [
+            "Wolverine",
+            "Jubilee",
+            "Angel",
+            "Morph",
+            "StormMighty"
+          ],
+          "advice": [
+            "L'équipe Exalted accélère sa propre jauge et convient aux ennemis rapides de la dernière semaine.",
+            "La difficulté est élevée : tous les adversaires sont au G21 avec cinq diamants dans l'édition documentée."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "20",
+          "title": "Étage 20",
+          "requirement": "Challenger IV",
+          "teamName": "Blastaar + Thunderstrike + Jeff + Serment + Rachel Summers",
+          "characters": [
+            "Blastaar",
+            "Thunderstrike",
+            "JeffTheLandShark",
+            "Oath",
+            "RachelSummers"
+          ],
+          "advice": [
+            "Jeff regroupe les ennemis et applique Défense réduite ; Blastaar bloque la cible centrale.",
+            "Thunderstrike frappe en zone et Rachel propage le Blocage de capacité.",
+            "Serment renforce la vitesse initiale, ce qui permet d'agir avant Force Phénix et les Ghost Riders."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "21",
+          "title": "Étage 21",
+          "requirement": "Challenger IV",
+          "teamName": "Kahhori + Apocalypse + Spider-Man + Exécuteur + Havok",
+          "characters": [
+            "Kahhori",
+            "Apocalypse",
+            "SpiderMan",
+            "Executioner",
+            "Havok"
+          ],
+          "advice": [
+            "Kahhori doit retirer la Provocation de Sebastian Shaw avant de frapper Emma Frost.",
+            "Exécuteur bloque Emma ; Spider-Man ralentit puis Havok étourdit Shaw.",
+            "Apocalypse termine Emma (X-Men) avec l'ultime et la frappe renforcée."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "22",
+          "title": "Étage 22",
+          "requirement": "Challenger IV",
+          "teamName": "Cannonball + Wolfsbane + Warlock + Moon Girl + Emma Frost",
+          "characters": [
+            "Cannonball",
+            "Wolfsbane",
+            "Warlock",
+            "MoonGirl",
+            "EmmaFrost"
+          ],
+          "advice": [
+            "Spider-Man 2099 se camoufle au départ, ce qui donne de la vitesse aux Nouveaux Mutants.",
+            "Utiliser immédiatement leurs compétences et concentrer le feu sur Jeff."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "23",
+          "title": "Étage 23",
+          "requirement": "Challenger IV",
+          "teamName": "Franklin + Femme invisible (MCU) + Reed (MCU) + Quasar + Surfer (Briseur)",
+          "characters": [
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "Quasar",
+            "SilverSurferBreaker"
+          ],
+          "advice": [
+            "Le trio 4F (MCU) agit en premier et accélère ses alliés après chaque spéciale/ultime.",
+            "La Femme invisible regroupe les ennemis pour Quasar et Surfer.",
+            "Éliminer Minn-Erva et Méphisto avant le Surfer ennemi."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "24",
+          "title": "Étage 24",
+          "requirement": "Challenger IV",
+          "teamName": "Symbiote Six",
+          "characters": [
+            "Knull",
+            "Venom",
+            "Riot",
+            "Toxin",
+            "SymbioteQuicksilver"
+          ],
+          "advice": [
+            "Shadow King représente la principale menace : son passif peut lui donner le tour immédiatement après Blue Marvel.",
+            "L'Emma Frost (X-Men) ennemie ralentit Knull ; Xavier peut remplacer Toxin pour empêcher la manipulation de jauge adverse.",
+            "Le tirage initial Blue Marvel/Vif-Argent est aléatoire : recommencer si l'ouverture élimine trop de personnages."
+          ],
+          "alternatives": [
+            "Xavier"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
         }
       ],
       "totalStages": 24,
       "stageUnit": "étage",
-      "editorialRef": "mighty-tower-blade/"
+      "editorialRef": "mighty-tower-blade/",
+      "guideNote": "Une rotation de six étages s'ouvre chaque semaine. Les personnages employés entrent en récupération selon les règles de l'édition. Le niveau et les modificateurs changent la difficulté. Les mentions Challenger II/III/IV sont des repères de semaine à revérifier en jeu."
     },
     {
       "id": "spider-descent",
