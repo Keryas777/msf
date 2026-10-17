@@ -177,7 +177,8 @@
 
   function relevantSources(event, stage) {
     return state.sources.filter(source => {
-      if (source.eventId !== event.id || !VISIBLE_SOURCE_STATES.has(source.verificationStatus)) return false;
+      if (!VISIBLE_SOURCE_STATES.has(source.verificationStatus)) return false;
+      if (source.eventId !== event.id && !(source.eventId === null && source.mode === event.type)) return false;
       if (state.difficulty !== "all" && source.difficulty && source.difficulty !== state.difficulty) return false;
       const scoped = [...(source.stageIds || []), ...(source.sectionIds || [])].map(String);
       return stage ? scoped.includes(String(stage.id)) : scoped.length === 0;
@@ -315,10 +316,10 @@
     }
 
     ui.detail.append(tags);
-    const available = state.sources.filter(source => source.eventId === event.id && VISIBLE_SOURCE_STATES.has(source.verificationStatus));
+    const available = state.sources.filter(source => (source.eventId === event.id || (source.eventId === null && source.mode === event.type)) && VISIBLE_SOURCE_STATES.has(source.verificationStatus));
     if (available.length) {
       const guideDifficulties = [...new Set(available.map(source => source.difficulty).filter(Boolean))];
-      if (guideDifficulties.length > 1) {
+      if (guideDifficulties.length > 0) {
         const selectRow = el("div", "challenge-guide-filter");
         const label = el("label", "challenge-search-label", "Difficulté des guides");
         label.htmlFor = "challengeGuideDifficulty";
