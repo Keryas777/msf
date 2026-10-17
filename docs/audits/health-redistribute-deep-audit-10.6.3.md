@@ -10,12 +10,12 @@ Ce rapport migre vers les sources courantes les résultats des PR #225 et #251. 
 | Capacités distinctes | 128 |
 | Personnages / unités distincts | 81 |
 | Actions sans `abilityId` | 26 |
-| Comportements identifiés (`resolved=true`) | 211 |
+| Comportements identifiés (`resolved=true`) | 213 |
 | Comportements partiellement interprétés (`resolved=false`) | 0 |
-| Comportements entièrement non résolus | 19 |
+| Comportements entièrement non résolus | 17 |
 | Formules moteur non résolues | 230 |
 
-La répartition des comportements identifiés est : 98 pertes de vie, 103 vols et redistributions de vie, 8 égalisations et 2 transferts entre alliés. Toutes les opérations gardent `percentageBasis: unresolved` et `engineFormula: unresolved`.
+La répartition des comportements identifiés est : 98 pertes de vie, 104 vols et redistributions de vie, 8 égalisations et 3 transferts entre alliés. Toutes les opérations gardent `percentageBasis: unresolved` et `engineFormula: unresolved`.
 
 ## Provenance et statut de version
 
@@ -63,7 +63,7 @@ Pointeurs des 27 nouvelles actions :
 
 ### A — Comportement identifié
 
-211 actions ont une famille de comportement interprétée. Les 49 signatures textuelles confirmées de 10.5.0 restent identiques. La cinquantième, Oath, est réévaluée sur son nouveau JSON et son texte français courant, avec une empreinte versionnée séparément. Les classifications structurelles validées par la PR #225 sont conservées lorsqu’elles correspondent toujours aux paramètres.
+213 actions ont une famille de comportement interprétée. Les 49 signatures textuelles confirmées de 10.5.0 restent identiques. La cinquantième, Oath, est réévaluée sur son nouveau JSON et son texte français courant, avec une empreinte versionnée séparément. Les classifications structurelles validées par la PR #225 sont conservées lorsqu’elles correspondent toujours aux paramètres.
 
 ### B — Interprétation partielle
 
@@ -133,11 +133,40 @@ exacte ; leur niveau de preuve est `confirmed` pour les directes et
 Aucune action de boss ou entité technique n'est reclassée par analogie.
 Les formules moteur des 230 opérations demeurent non résolues.
 
+### B quinquies — Formes invoquées accessibles via le roster (17 octobre 2026)
+
+**Correction importante de périmètre :** le drapeau `player_Character=false` ne
+signifie pas qu’une entité est réservée au PvE. Le Codex publié établit les
+invocations exactes suivantes :
+
+- `Phoenix` (jouable) → `DarkPhoenix`, invoquée dans le camp de Phénix via
+  `Renaissance du Phénix`. La spéciale vole de 5 à 20 % de vie aux ennemis
+  et la restitue **à Phénix noir**. [Description des capacités de Phénix noir](https://strikeforce.fandom.com/wiki/Dark_Phoenix).
+- `Sentry` (jouable) → `Void`, invoqué **dans l'équipe adverse** à la mort
+  de Sentry. La passive de Void prélève **10 % de vie sur ses alliés actuels**
+  et restitue cette vie **à Void**, contrairement à un vol sur les ennemis.
+  [Description anglaise publiée du kit de Void](https://www.reddit.com/r/MarvelStrikeForce/comments/1nqf410/).
+
+Les liens d’invocation sont établis par les opérations `spawn` des kits
+jouables du dépôt, et non par une similitude de noms. Les textes anglais
+proviennent de publications communautaires, ce qui justifie
+`proofLevel: corroborated` ; ils ne certifient ni la formule ni la
+provenance moteur. Deux signatures et leurs SHA-256 exacts permettent
+une identification limitée à la **famille de comportement** :
+`health_steal_redistribute` pour DarkPhoenix, `health_transfer_allies`
+pour Void. Les bénéficiaires, l’identité du personnage parent et le camp
+de l’invocation sont enregistrés séparément dans `evidence`.
+Le JSON brut des actions et leurs sélecteurs ne sont pas modifiés.
+
+Cette règle d’inclusion concerne les **formes invoquées pendant un combat
+à partir d’un personnage jouable**, et ne doit pas requalifier globalement
+les unités `PVE_*`, les boss ou tous les minions invoqués sans examen.
+
 ### C — Comportement non résolu
 
-19 cas techniques ou PvE restent entièrement non résolus après la confrontation MSF Base : 15 analogues PvE non validés et 4 unités sans preuve textuelle directe. Les 30 actions jouables du registre précédent (18 directes et 12 corroborées au niveau technique) sont désormais identifiées au seul niveau de la famille de comportement, sans résolution du moteur.
+17 cas techniques ou PvE restent entièrement non résolus après la vérification des formes invoquées. Parmi les quatre unités autrefois classées sans preuve, Phénix noir et Void ont désormais une provenance **directe depuis des personnages jouables**. Leurs deux signatures de famille sont interprétées en conservant l’invocation et le camp de Void, sans démontrer la formule moteur. Les 15 analogues PvE restent non validés, ainsi que le Loki boss et l’Occultiste vampire.
 
-Les détails par action — personnage, capacité, identifiants, pointeur, empreinte, structure brute, éléments confirmés, inconnues, investigations antérieures, blocage, preuve nécessaire et priorité — se trouvent dans le registre lié au début du rapport. Il contient 19 entrées ambiguës : 0 niveau B et 19 niveau C, toutes techniques ou non jouables. L’audit détaillé des 49 signatures et les justifications de la classification de 30 d'entre elles figurent dans [le rapport comparatif MSF Base](health-redistribute-msfbase-crosscheck-10.6.3.md).
+Les détails par action — personnage, capacité, identifiants, pointeur, empreinte, structure brute, éléments confirmés, inconnues, investigations antérieures, blocage, preuve nécessaire et priorité — se trouvent dans le registre lié au début du rapport. Il contient 17 entrées ambiguës : 0 niveau B et 17 niveau C, toutes techniques ou non jouables et **sans lien d’invocation confirmé depuis un personnage du roster**. Les 49 signatures initiales et leurs décisions historiques sont recensées dans [le rapport comparatif MSF Base](health-redistribute-msfbase-crosscheck-10.6.3.md), complété par une note de suivi sur les deux invocations.
 
 ### D — Formule moteur non résolue
 
@@ -147,14 +176,14 @@ Les 230 opérations conservent `percentageBasis` et `engineFormula` à `unresolv
 
 1. Les 30 actions jouables ont une famille de comportement classée après vérification des descriptions et signatures exactes ; garder un niveau de preuve distinct pour les 12 variantes techniques, ne pas réinventer leurs formules moteur.
 2. Les cinq anciens cas partiels (Quasar ×2, Kang, Morbius et Yellowjacket) n'exigent plus de recherche sur le destinataire ; réouvrir uniquement sur changement de signature ou contradiction documentée.
-3. 19 cas PvE/techniques niveau C : priorité basse, poursuivre uniquement sur preuve propre à l’unité et ne pas extrapoler les versions jouables. Le rapport distingue 15 analogues et 4 sans preuve directe.
+3. 17 cas PvE/techniques niveau C : priorité basse. Les formes invoquées depuis un personnage possédé par le joueur (Phénix noir et Void) sont maintenant **incluses**, même si `player_Character=false`. Il reste 15 analogues PvE et 2 unités techniques sans lien de forme dérivée démontré.
 4. Formules moteur : traiter seulement avec symboles/runtime exploitable ou comparaison contrôlée des états de combat ; aucune décompilation générale n’est justifiée par les données présentes.
 
 Une signature déjà enregistrée ne doit pas relancer la même enquête lors d’une mise à jour, sauf changement de son empreinte ou apparition d’une preuve nouvelle.
 
 ## Validation
 
-- Tests spécialisés mis à jour (`python -m unittest tests.test_msf_health_redistribute -v`) : 30 signatures comparatives et leurs empreintes, 19 actions PvE conservées, destination et contextes, échec fermé sur source modifiée, conservation sans perte et non-régression du Drain. Exécution encore requise avant fusion.
+- Tests spécialisés mis à jour (`python -m unittest tests.test_msf_health_redistribute -v`) : 30 signatures comparatives, 2 signatures de formes invoquées, 17 actions PvE/techniques conservées, destination/camp/contextes, échec fermé sur source modifiée, conservation sans perte et non-régression du Drain. Exécution encore requise avant fusion.
 - Tests Builder Explorer et Web Publisher : exécution encore requise avant fusion.
 - Tests Normalizer, Parser et Indexer : exécution encore requise avant fusion.
 - Aucun build ni publication des artefacts du Codex n'a été déclenché par cette PR.
