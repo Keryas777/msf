@@ -885,12 +885,119 @@
       "id": "kyln-blazes",
       "type": "tower",
       "title": "Évasion de Kyln : Code Blazes",
-      "summary": "20 cellules. Les combats utilisent des groupes de trois personnages.",
+      "summary": "Kyln Code Blazes : 20 cellules annoncées, seules les cinq premières disposent d'un guide publié. Format d'équipe à confirmer.",
       "rewardId": null,
-      "stages": [],
+      "stages": [
+        {
+          "id": "1",
+          "title": "Cellule 1",
+          "requirement": "Challengers 3 · taille d'équipe contradictoire",
+          "teamName": "Éternels intemporels : choisir le trio admissible",
+          "characters": [],
+          "advice": [
+            "L'article cite l'équipe entière, mais pas les trois personnages précis si la règle 3 est appliquée.",
+            "Cibler Docteur Octopus au début, puis Bouffon vert classique et Vautour après l'arrivée de la seconde vague."
+          ],
+          "alternatives": [
+            "Gilgamesh",
+            "Kingo",
+            "Thena",
+            "Ikaris",
+            "Sersi"
+          ],
+          "difficulty": "Omega (à confirmer)",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "2",
+          "title": "Cellule 2",
+          "requirement": "Challengers 3 · taille d'équipe contradictoire",
+          "teamName": "Tornade (Puissante), Blade (Puissant), Surfer (Briseur), Scorpion (Briseur), Super-Skrull",
+          "characters": [],
+          "advice": [
+            "La recommandation d'origine énumère cinq personnages sans détailler la sélection de trois ni les actions.",
+            "Ne pas présenter cette formation comme jouable à trois avant vérification."
+          ],
+          "alternatives": [
+            "StormMighty",
+            "BladeMighty",
+            "SilverSurferBreaker",
+            "ScorpionBreaker",
+            "SuperSkrull"
+          ],
+          "difficulty": "Omega (à confirmer)",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "3",
+          "title": "Cellule 3",
+          "requirement": "Challengers 3 · taille d'équipe contradictoire",
+          "teamName": "Insidious Six, Ultron et Vision : trio non précisé",
+          "characters": [],
+          "advice": [
+            "La source emploie trois Insidious Six avec Ultron et Vision : la composition complète compte cinq noms ou places.",
+            "Spider-Man supérieur doit bloquer Havok ; Vision contrôle Groot ; Super-Bouffon vise Howard.",
+            "Sur la deuxième vague, retirer Provocation de Red Guardian puis éliminer Darkstar et Omega Red."
+          ],
+          "alternatives": [
+            "SuperiorSpiderMan",
+            "Hobgoblin",
+            "Ultron",
+            "Vision"
+          ],
+          "difficulty": "Omega (à confirmer)",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "4",
+          "title": "Cellule 4",
+          "requirement": "Challengers 3 · taille d'équipe contradictoire",
+          "teamName": "Armes immortelles : trio à confirmer",
+          "characters": [],
+          "advice": [
+            "Tenir les premières attaques puis utiliser la spéciale du Maître de l'épée sur Mordo pour enlever les bonus et appliquer Trauma.",
+            "À la seconde vague, tuer Le Leader puis les autres Cabal."
+          ],
+          "alternatives": [
+            "IronFistOrson",
+            "IronFist",
+            "SwordMaster",
+            "SteelSerpent",
+            "LadyBullseye"
+          ],
+          "difficulty": "Omega (à confirmer)",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "5",
+          "title": "Cellule 5",
+          "requirement": "Challengers 3 · taille d'équipe contradictoire",
+          "teamName": "Fantassins de fer : trio à confirmer",
+          "characters": [],
+          "advice": [
+            "Forge est la cible qui résiste le plus longtemps dans la première vague.",
+            "Deuxième vague Force Phénix : cibler d'abord Magnéto, puis Omega Red (Force Phénix), Jean Grey et Rachel Summers ; Phénix en dernier."
+          ],
+          "alternatives": [
+            "Crossbones",
+            "Yellowjacket",
+            "IronMonger",
+            "UlyssesKlaue",
+            "Whiplash"
+          ],
+          "difficulty": "Omega (à confirmer)",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        }
+      ],
       "totalStages": 20,
       "stageUnit": "cellule",
-      "editorialRef": "escape-from-kyln-code-blazes/"
+      "editorialRef": "escape-from-kyln-code-blazes/",
+      "guideNote": "ATTENTION : la même publication décrit la règle Kyln à 3 personnages mais recommande des équipes de 5 personnages dans ses cellules 1 à 5. La contradiction n'est pas résolue : les portraits sont des CANDIDATS mentionnés, pas des trios validés. Confirmer la taille autorisée dans le jeu avant tout combat."
     },
     {
       "id": "kyln-whiplash",
