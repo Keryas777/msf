@@ -907,12 +907,419 @@
       "id": "fear",
       "type": "tower",
       "title": "Tour de la Peur",
-      "summary": "20 étages et trois difficultés.",
+      "summary": "Fear Tower Omega : 20 étages, restrictions, équipes conseillées et tactiques en français.",
       "rewardId": "SymbioteQuicksilver",
-      "stages": [],
+      "stages": [
+        {
+          "id": "1",
+          "title": "Étage 1",
+          "requirement": "Sans restriction",
+          "teamName": "Thunderbolts",
+          "characters": [
+            "Taskmaster",
+            "Ghost",
+            "Songbird",
+            "Hyperion",
+            "VictoriaHand"
+          ],
+          "advice": [
+            "Retourner les bonus initiaux de Black Widow avec Songbird.",
+            "Éliminer les Avengers rapides, puis utiliser toutes les capacités."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Étage 2",
+          "requirement": "Sans restriction",
+          "teamName": "Justiciers",
+          "characters": [
+            "Punisher",
+            "Elektra",
+            "HitMonkey",
+            "SilverSable",
+            "DaredevilModern"
+          ],
+          "advice": [
+            "Dissiper avec Silver Sable ; étourdir Peggy Carter avec Hit-Monkey.",
+            "Vaincre Black Knight, puis Nova dès son premier tour dans la deuxième vague."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Étage 3",
+          "requirement": "Sans restriction",
+          "teamName": "Armes Immortelles",
+          "characters": [
+            "IronFistOrson",
+            "IronFist",
+            "SwordMaster",
+            "SteelSerpent",
+            "LadyBullseye"
+          ],
+          "advice": [
+            "Retirer les bonus avec Lady Bullseye et Maître de l'épée.",
+            "Cibler Ghost Rider Robbie ; étourdir Black Cat."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Étage 4",
+          "requirement": "Sans restriction",
+          "teamName": "Insidious Six",
+          "characters": [
+            "Vulture",
+            "Shocker",
+            "Scorpion",
+            "Hobgoblin",
+            "SuperiorSpiderMan"
+          ],
+          "advice": [
+            "Bloquer Emma Frost avec Spider-Man supérieur.",
+            "Tuer Diablo et Azazel avant Apocalypse ; garder Sebastian Shaw pour la fin."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Étage 5",
+          "requirement": "Cosmique non mythique · Guerre",
+          "teamName": "4 Fantastiques (MCU) + Quasar",
+          "characters": [
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "HumanTorch",
+            "Quasar"
+          ],
+          "advice": [
+            "Bloquer Emma Frost (X-Men) avec Quasar.",
+            "Dès leur apparition, éliminer Roi d'ombre et Ancient One."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Étage 6",
+          "requirement": "Vilains cosmiques non mythiques · Guerre",
+          "teamName": "Conclave de l'Ombre",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "Malekith",
+            "HighEvolutionary",
+            "Executioner"
+          ],
+          "advice": [
+            "Focaliser Knull ; Malekith neutralise ses Ténèbres.",
+            "Placer Thanos entre Exécuteur et High Evolutionary pour l'énergie."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Étage 7",
+          "requirement": "Vilains cosmiques non mythiques · Guerre",
+          "teamName": "Knull + Surfer (Briseur) + Gorr + Gladiator + Hellverine",
+          "characters": [
+            "Knull",
+            "SilverSurferBreaker",
+            "Gorr",
+            "Gladiator",
+            "Hellverine"
+          ],
+          "advice": [
+            "Viser Fléau zombie, puis Hela et Wanda zombie.",
+            "Le Roi d'ombre peut remplacer Hellverine."
+          ],
+          "alternatives": [
+            "ShadowKing"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Étage 8",
+          "requirement": "Mutants · Épreuve cosmique",
+          "teamName": "Force Phénix + Xavier + Roi d'ombre",
+          "characters": [
+            "Phoenix",
+            "OmegaRedPhoenix",
+            "MagnetoPhoenixForce",
+            "Xavier",
+            "ShadowKing"
+          ],
+          "advice": [
+            "Ultime de Magnéto sur Le Leader ; spéciale de Xavier contre Super-Skrull.",
+            "Éliminer Iron Patriot et Black Knight avant le groupe final."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Étage 9",
+          "requirement": "X-Men non mythiques · Épreuve cosmique",
+          "teamName": "Nouveaux Mutants",
+          "characters": [
+            "Warlock",
+            "Magik",
+            "Wolfsbane",
+            "Cannonball",
+            "Sunspot"
+          ],
+          "advice": [
+            "Exploiter les contrôles des Nouveaux Mutants.",
+            "Conserver Sebastian Shaw pour la fin."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Étage 10",
+          "requirement": "X-Men non mythiques · Épreuve cosmique",
+          "teamName": "Exalted X-Men",
+          "characters": [
+            "Wolverine",
+            "Jubilee",
+            "Angel",
+            "Morph",
+            "StormMighty"
+          ],
+          "advice": [
+            "Commencer par l'ultime de Tornade (Puissante) pour exposer les ennemis.",
+            "Éliminer Captain Britain, puis Omega Red, Gambit et Roi d'ombre ; Phénix en dernier."
+          ],
+          "alternatives": [
+            "OldManLogan"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "11",
+          "title": "Étage 11",
+          "requirement": "Sans restriction",
+          "teamName": "Thunderbolts, avec Méphisto en renfort",
+          "characters": [
+            "Taskmaster",
+            "Ghost",
+            "Songbird",
+            "Hyperion",
+            "VictoriaHand"
+          ],
+          "advice": [
+            "Méphisto empêche les réanimations ennemies ; il faut remplacer un Thunderbolt.",
+            "Viser Momie vivante puis Docteur Fatalis, garder l'ultime de Méphisto pour la deuxième vague."
+          ],
+          "alternatives": [
+            "Mephisto"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "12",
+          "title": "Étage 12",
+          "requirement": "Sans restriction",
+          "teamName": "Vif-Argent symbiote + Riot + Venom + Odin + Super-Skrull",
+          "characters": [
+            "SymbioteQuicksilver",
+            "Riot",
+            "Venom",
+            "Odin",
+            "SuperSkrull"
+          ],
+          "advice": [
+            "La synergie symbiote limite l'accélération adverse.",
+            "Bloquer Darkstar avec Venom puis attaquer avant Méphisto."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "13",
+          "title": "Étage 13",
+          "requirement": "Sans restriction",
+          "teamName": "Insidious Six",
+          "characters": [
+            "Vulture",
+            "Shocker",
+            "Scorpion",
+            "Hobgoblin",
+            "SuperiorSpiderMan"
+          ],
+          "advice": [
+            "Vautour ralentit Ghost-Spider ; Spider-Man supérieur bloque Spider-Weaver.",
+            "Cibler Peni Parker et Pavitr, puis gérer les renforts."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "14",
+          "title": "Étage 14",
+          "requirement": "Sans restriction",
+          "teamName": "4 Fantastiques (MCU) + Darkstar",
+          "characters": [
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "HumanTorch",
+            "Darkstar"
+          ],
+          "advice": [
+            "Dissiper Gladiator puis cibler Knull, Thanos (Endgame) et Gorr.",
+            "Utiliser les attaques de zone pour déclencher les dégâts passifs de Darkstar."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "15",
+          "title": "Étage 15",
+          "requirement": "Cosmique non mythique · Guerre",
+          "teamName": "Kahhori + Medusa + Ms. Marvel classique + Quasar + Knull",
+          "characters": [
+            "Kahhori",
+            "Medusa",
+            "MsMarvelClassic",
+            "Quasar",
+            "Knull"
+          ],
+          "advice": [
+            "Composition citée, sans déroulement tactique suffisamment détaillé pour ajouter des consignes spécifiques."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "16",
+          "title": "Étage 16",
+          "requirement": "Vilains cosmiques non mythiques · Guerre",
+          "teamName": "Conclave de l'Ombre",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "Malekith",
+            "HighEvolutionary",
+            "Executioner"
+          ],
+          "advice": [
+            "Limiter les dégâts en renforçant Thanos.",
+            "Éliminer Jeff le requin terrestre ; la spéciale de High Evolutionary stabilise le combat."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "17",
+          "title": "Étage 17",
+          "requirement": "Vilains cosmiques non mythiques · Guerre",
+          "teamName": "Présage",
+          "characters": [
+            "Ronan",
+            "Minerva",
+            "EbonyMaw",
+            "CullObsidian",
+            "SilverSurferBreaker"
+          ],
+          "advice": [
+            "Utiliser les ultimes de Minn-Erva, Ebony Maw et Ronan pour reprendre l'avantage.",
+            "Cibler Méphisto ; protéger Cull Obsidian si possible."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "18",
+          "title": "Étage 18",
+          "requirement": "Mutants · Épreuve cosmique",
+          "teamName": "Force Phénix + Xavier + Roi d'ombre",
+          "characters": [
+            "Phoenix",
+            "OmegaRedPhoenix",
+            "MagnetoPhoenixForce",
+            "Xavier",
+            "ShadowKing"
+          ],
+          "advice": [
+            "Magnéto ouvre sur Hank Pym ; Xavier neutralise Apocalypse.",
+            "Survivre jusqu'au premier tour de Xavier est l'étape délicate."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "19",
+          "title": "Étage 19",
+          "requirement": "X-Men non mythiques · Épreuve cosmique",
+          "teamName": "Nouveaux Mutants",
+          "characters": [
+            "Warlock",
+            "Magik",
+            "Wolfsbane",
+            "Cannonball",
+            "Sunspot"
+          ],
+          "advice": [
+            "Utiliser Cannonball puis Wolfsbane sur Franklin Richards.",
+            "Après Franklin, viser Fatalis et Emma Frost."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "20",
+          "title": "Étage 20",
+          "requirement": "X-Men non mythiques · Épreuve cosmique",
+          "teamName": "Exalted X-Men",
+          "characters": [
+            "Wolverine",
+            "Jubilee",
+            "Angel",
+            "Morph",
+            "StormMighty"
+          ],
+          "advice": [
+            "Éliminer Xavier avant qu'il perturbe vos alliés ; Morph et Tornade (Puissante) contrôlent l'ouverture.",
+            "Neutraliser les personnages Force Phénix puis cibler Knull, Gorr et Venom."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        }
+      ],
       "totalStages": 20,
       "stageUnit": "étage",
-      "editorialRef": "fear-tower/"
+      "editorialRef": "fear-tower/",
+      "guideNote": "Guide synthétisé pour la difficulté Omega ; le premier groupe de 10 étages et le second peuvent être ouverts lors de semaines différentes. Les équipes utilisées passent en récupération."
     },
     {
       "id": "storm",
