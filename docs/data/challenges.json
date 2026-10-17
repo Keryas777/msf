@@ -3602,10 +3602,224 @@
       "id": "green-goblin",
       "type": "trial",
       "title": "Épreuves du Bouffon vert (Classique)",
-      "summary": "Guide Trials légendaire.",
+      "summary": "Bouffon vert classique : 10 missions, difficultés 5–8+, restrictions et instructions françaises.",
       "rewardId": "GreenGoblinGlider",
-      "stages": [],
-      "editorialRef": "green-goblin-classic-trials/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction",
+          "teamName": "Knowhere",
+          "characters": [
+            "Nova",
+            "StarLord_Annihilation",
+            "Thor_InfinityWar",
+            "Cosmo",
+            "Korg"
+          ],
+          "advice": [
+            "Nova commence par sa spéciale sur Taskmaster, puis cibler Black Cat avant la deuxième vague.",
+            "L'ultime de Nova accélère l'élimination du groupe suivant et donne l'effet de champ."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Rebirth (difficulté 8+)",
+          "teamName": "Rebirth",
+          "characters": [
+            "CaptainAmerica",
+            "CaptainCarter",
+            "USAgent",
+            "WinterSoldier",
+            "AgentVenom"
+          ],
+          "advice": [
+            "Si Captain Carter meurt dans les premiers coups, recommencer : elle peut réanimer ses alliés.",
+            "Viser les deux Okoye et Shuri en priorité, puis bloquer Captain Marvel dans la dernière vague."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Vilains Ville",
+          "teamName": "Black Cat + Sinister Six, sans Bouffon vert classique",
+          "characters": [
+            "BlackCat",
+            "DoctorOctopus",
+            "Lizard",
+            "Vulture",
+            "KravenTheHunter"
+          ],
+          "advice": [
+            "Face à Web-Warriors, ne gaspiller les ultimes qu'après avoir épuisé les esquives.",
+            "Dans la vague finale, prioriser Black Cat et Spider-Weaver ; Vautour réduit leur jauge.",
+            "Le guide recommande Bouffon vert classique pour les parcours suivants, mais il n'est pas encore débloqué lors de la première tentative."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Tireurs mondiaux",
+          "teamName": "Archangel, Gambit, Cyclops, Sunspot, Darkhawk",
+          "characters": [
+            "Archangel",
+            "Gambit",
+            "Cyclops",
+            "Sunspot",
+            "Darkhawk"
+          ],
+          "advice": [
+            "Éliminer Minn-Erva d'emblée pour éviter ses réanimations.",
+            "Quand la nouvelle vague apparaît, utiliser le pacte Warp World à votre avantage en abaissant une cible sous 50 %.",
+            "Viser ensuite Circé, Ebony Maw puis Star-Lord (Annihilation)."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Technique",
+          "teamName": "Docteur Octopus, Vautour, Mystério, Shocker, Kang",
+          "characters": [
+            "DoctorOctopus",
+            "Vulture",
+            "Mysterio",
+            "Shocker",
+            "KangTheConqueror"
+          ],
+          "advice": [
+            "Bouffon vert classique est conseillé dans les reprises mais n'est pas disponible au premier déblocage : Kang est une alternative explicite.",
+            "Tuer Dazzler rapidement puis exploiter les cibles sous Défense réduite.",
+            "Faire monter la puissance de Sinister Six avant les missions suivantes."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Nouveaux Avengers (difficulté 8+)",
+          "teamName": "Nouveaux Avengers",
+          "characters": [
+            "Mockingbird",
+            "Coulson",
+            "Thing",
+            "Ronin",
+            "Tigra"
+          ],
+          "advice": [
+            "La spéciale de Tigra sur les deux Spider-Man (Big Time) les fait jouer immédiatement : votre équipe doit survivre à leurs ultimes.",
+            "Alternative : viser Yellowjacket à droite pour éviter de déclencher l'accélération des deux Spider-Man ; étourdir un Spider-Man avec Thing.",
+            "Éliminer un Swarm avant l'arrivée de la vague suivante, puis neutraliser les deux Black Widows.",
+            "Économiser les grandes compétences pour la mission 10."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Vilains Ville",
+          "teamName": "Black Cat + Sinister Six (premier déblocage)",
+          "characters": [
+            "BlackCat",
+            "DoctorOctopus",
+            "Lizard",
+            "Vulture",
+            "KravenTheHunter"
+          ],
+          "advice": [
+            "Laisser Morgan Le Fay lancer son ultime puis bloquer Strange (Sans cœur).",
+            "Supprimer Morgan rapidement avant la vague suivante, puis Rogue et Archangel.",
+            "Vautour réduit la jauge de vitesse de tous les ennemis ; garder Apocalypse pour la fin.",
+            "Bouffon vert classique remplace Kraven seulement après déblocage."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Tireurs mondiaux",
+          "teamName": "Archangel, Gambit, Cyclops, Sunspot, Darkhawk",
+          "characters": [
+            "Archangel",
+            "Gambit",
+            "Cyclops",
+            "Sunspot",
+            "Darkhawk"
+          ],
+          "advice": [
+            "Conserver l'ultime d'Archangel pour l'arrivée de Baron Zemo.",
+            "Éliminer un Homme-absorbant rapidement, puis Kang dès sa première apparition.",
+            "Le passif d'Archangel et les attaques de Gambit font l'essentiel de la pression."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Technique",
+          "teamName": "Docteur Octopus, Vautour, Mystério, Shocker, Kang",
+          "characters": [
+            "DoctorOctopus",
+            "Vulture",
+            "Mysterio",
+            "Shocker",
+            "KangTheConqueror"
+          ],
+          "advice": [
+            "Tuer Deathlok dès le premier tour, puis viser les membres Gamma et Bionic.",
+            "Réduire la défense de Red Hulk et éviter ses ultimes.",
+            "Kang reste une alternative aux personnages non débloqués dans ce parcours."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Rebirth ou Nouveaux Avengers",
+          "teamName": "Nouveaux Avengers (première attaque)",
+          "characters": [
+            "Mockingbird",
+            "Coulson",
+            "Thing",
+            "Ronin",
+            "Tigra"
+          ],
+          "advice": [
+            "Sur la difficulté 8, une première attaque avec Nouveaux Avengers peut affaiblir l'équipe, suivie d'une seconde avec Rebirth.",
+            "L'ultime de Thing doit étourdir Shang-Chi avant son premier tour.",
+            "Survivre à l'ultime de Colleen Wing, puis reprendre le contrôle de la vague restante."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "multi_attempt"
+        }
+      ],
+      "editorialRef": "green-goblin-classic-trials/",
+      "totalStages": 10,
+      "stageUnit": "mission",
+      "guideNote": "Sur difficulté 8+, mission 2 impose Rebirth, mission 6 Nouveaux Avengers ; la dernière accepte l'une ou l'autre. Le pacte World at War déclenche les bonus de Guerre, mais cet événement reste un Trial PvE. Les compositions contenant Bouffon vert classique lui-même ne sont pas présentées comme utilisables au premier déblocage."
     },
     {
       "id": "black-cat",
