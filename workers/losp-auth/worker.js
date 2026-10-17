@@ -2,12 +2,12 @@ const SITE_ORIGIN = "https://keryas777.github.io";
 const SITE_BASE_URL = "https://keryas777.github.io/msf/";
 
 const CLIENT_ID = "1498718329953583266";
-const CLIENT_SECRET = "A_REMPLACER_PAR_LE_CLIENT_SECRET_DISCORD";
+// CLIENT_SECRET et BOT_TOKEN doivent être des secrets Cloudflare, jamais du code source.
 
 const CALLBACK_URL = "https://losp-auth.deliriousfan7.workers.dev/callback";
 const GUILD_ID = "758717819923333191";
 
-const BOT_TOKEN = "A_REMPLACER_PAR_LE_TOKEN_DU_BOT_DISCORD";
+
 
 const SESSION_COOKIE_NAME = "session";
 const SESSION_MAX_AGE_SECONDS = 7776000; // 90 jours
@@ -182,12 +182,14 @@ function expiredSessionCookie() {
   return `${SESSION_COOKIE_NAME}=; Path=/; Secure; HttpOnly; SameSite=None; Max-Age=0`;
 }
 
-async function getCurrentDiscordAccess(userId) {
+async function getCurrentDiscordAccess(userId, env) {
+  const botToken = String(env?.DISCORD_BOT_TOKEN || "");
+  if (!botToken) throw new Error("DISCORD_BOT_TOKEN_required");
   const memberRes = await fetch(
     `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
     {
       headers: {
-        Authorization: `Bot ${BOT_TOKEN}`
+        Authorization: `Bot ${botToken}`
       }
     }
   );
@@ -293,7 +295,7 @@ export default {
           throw new Error("missing_user_id");
         }
 
-        const access = await getCurrentDiscordAccess(session.id);
+        const access = await getCurrentDiscordAccess(session.id, env);
 
         if (!access.ok) {
           return jsonResponse(
@@ -383,7 +385,7 @@ export default {
         },
         body: new URLSearchParams({
           client_id: CLIENT_ID,
-          client_secret: CLIENT_SECRET,
+          client_secret: String(env?.DISCORD_CLIENT_SECRET || ""),
           grant_type: "authorization_code",
           code,
           redirect_uri: CALLBACK_URL
@@ -437,7 +439,7 @@ export default {
         );
       }
 
-      const access = await getCurrentDiscordAccess(user.id);
+      const access = await getCurrentDiscordAccess(user.id, env);
 
       if (!access.ok) {
         return new Response(
