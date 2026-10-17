@@ -4,6 +4,31 @@ Audit : 17 octobre 2026. Corpus du dépôt : version annoncée `10_6_3`,
 `versionVerified:false`. Source initiale : registre de 49 actions non résolues
 de `main`, sans refaire l'audit historique des PR #225, #251 et #257.
 
+## Mise à jour du 17 octobre 2026 : formes invoquées issues du roster
+
+La matrice A/B/C/D ci-dessous est le **relevé historique initial** des 49
+signatures. Elle ne doit pas être interprétée comme un état actuel du
+normaliseur après ce complément.
+
+L'audit du lien d'invocation dans les données publiées du Codex démontre :
+
+- **`Phoenix` → `DarkPhoenix`** : la passive de Phénix invoque Phénix noir
+  dans son camp ; la spéciale de la forme invoquée vole de la vie aux ennemis
+  pour la restituer à elle-même. Cette signature est maintenant rattachée
+  au parent jouable `Phoenix`.
+- **`Sentry` → `Void`** : la passive de Sentry invoque Void **dans le camp
+  adverse** ; la passive de Void vole de la vie **à ses propres alliés**
+  et se la restitue. Cette signature est rattachée au parent jouable
+  `Sentry`. Le camp d’invocation est explicitement conservé.
+
+Ces deux cas, auparavant numérotés 31 et 49 dans la matrice, ont
+`proofLevel: corroborated` avec source secondaire et SHA-256 exacte.
+Ils portent le total à **213 familles identifiées et 17 non résolues**.
+Ne pas déduire la jouabilité au combat du seul booléen `player_Character` :
+une invocation de kit joueur est pertinente, même non sélectionnable dans le
+roster. Les 15 analogues PvE et les deux autres unités techniques restent
+`detected`.
+
 ## Synthèse et décision
 
 | Preuve | Actions | Décision |
