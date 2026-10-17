@@ -8942,7 +8942,7 @@
       "stageId": "2",
       "origin": "migrated_legacy",
       "label": "Version existante",
-      "teamName": "Gambit + Kang + Titania + Kestrel + Wong (portrait Kestrel absent)",
+      "teamName": "Gambit, Kang, Titania, Kestrel et Wong — composition historique (Kestrel sans portrait)",
       "characters": [
         "KangTheConqueror",
         "Gambit",
@@ -8955,26 +8955,35 @@
       ],
       "additionalCharacters": [],
       "instructions": [
-        "Vaincre Ghost Rider avant que ses contres ne s'accumulent ; il a fallu plusieurs attaques.",
-        "Éliminer Squirrel Girl rapidement : ses soins risquent d'annuler les dégâts des jours précédents.",
-        "Le guide alterne Wong, Maria Hill et Scarlet Spider selon les récupérations."
+        "Le journal décrit plusieurs attaques consécutives, avec Gambit, Kang, Titania et Kestrel comme noyau ; Wong, Maria Hill et Scarlet Spider occupent tour à tour la place libre selon leur disponibilité.",
+        "Concentrer d'abord les attaques sur Ghost Rider, dont les représailles font tomber l'équipe avant qu'elle ait joué. Kang peut appliquer Défense réduite pour aider à le terminer.",
+        "Une fois Ghost Rider éliminé, passer sur Squirrel Girl : ses soins peuvent effacer une grande partie des dégâts accumulés. Utiliser les attaques de Gambit pour finir la cible la plus affaiblie."
       ],
-      "notes": [],
+      "notes": [
+        "Source : journal de septembre 2023, nombreuses attaques, pas victoire en une tentative.",
+        "L'absence de Kestrel normale dans le catalogue de portraits interdit de présenter les quatre portraits comme une équipe complète."
+      ],
       "difficulty": "Historique 2023 · équipement G18",
       "kind": "historical_playthrough",
       "compositionKind": null,
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "gamingfans-dd6-node2"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "heroes-for-dark-dimension/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-17",
+        "sourceEvidence": "original_2023_battle_log",
+        "sourceDate": null
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node",
-          "historical_strategy",
-          "partial_or_unspecified_team"
+          "historical_not_current_meta",
+          "multi_attempt_diary",
+          "normal_kestrel_not_in_playable_portrait_catalog",
+          "partial_portraits_not_full_lineup"
         ]
       }
     },
@@ -8984,7 +8993,7 @@
       "stageId": "3",
       "origin": "migrated_legacy",
       "label": "Version existante",
-      "teamName": "Apocalypse, Gambit, Titania, Wong, Captain America (Sam)",
+      "teamName": "Apocalypse, Gambit, Titania, Wong et Captain America (Sam) — équipe après remplacement",
       "characters": [
         "Apocalypse",
         "Gambit",
@@ -8997,25 +9006,33 @@
       ],
       "additionalCharacters": [],
       "instructions": [
-        "Spider-Weaver est une menace majeure avec ses charges et ses esquives ; utiliser les Blocages de capacité d'Apocalypse et Titania.",
-        "Neutraliser rapidement Kingpin, Taskmaster puis les invocations d'Ultron ; contrôler les invocations plutôt que les frapper sans fin.",
-        "Garder l'ultime d'Apocalypse pour les arrivées de vagues."
+        "Le premier essai utilisait Maria Hill. L'auteur l'a remplacée par Captain America (Sam) au troisième combat, afin de profiter de sa Provocation et de protéger Gambit.",
+        "Les charges de Spider-Weaver rendent plusieurs frappes de Gambit manquées. Utiliser Blocage de capacité sur Spider-Weaver quand c'est possible et les attaques imparables d'Apocalypse pour contourner ce problème.",
+        "Retirer les Provocations des Rhino ; Kingpin invoque à répétition des unités qui rendent les cibles principales difficiles à atteindre. Garder une attaque majeure d'Apocalypse pour une cible prioritaire plutôt que de tout dépenser sur les invocations."
       ],
-      "notes": [],
+      "notes": [
+        "Journal DD6 mission 3 (2023), avec changement d'équipe en cours de progression.",
+        "Les cinq portraits montrent la composition APRÈS remplacement de Maria Hill ; ils ne constituent pas la première tentative."
+      ],
       "difficulty": "Historique 2023 · équipement G18",
       "kind": "historical_playthrough",
       "compositionKind": null,
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "gamingfans-dd6-node3"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "heroes-for-dark-dimension/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-17",
+        "sourceEvidence": "original_2023_battle_log",
+        "sourceDate": null
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node",
-          "historical_strategy"
+          "historical_not_current_meta",
+          "multi_attempt_diary"
         ]
       }
     },
@@ -9025,7 +9042,7 @@
       "stageId": "4",
       "origin": "migrated_legacy",
       "label": "Version existante",
-      "teamName": "Apocalypse, Gambit, Titania, Wong, Captain America (Sam)",
+      "teamName": "Apocalypse, Gambit, Titania, Wong et Captain America (Sam)",
       "characters": [
         "Apocalypse",
         "Gambit",
@@ -9036,25 +9053,33 @@
       "alternatives": [],
       "additionalCharacters": [],
       "instructions": [
-        "Prioriser les soigneurs et dissipateurs comme Squirrel Girl, Shuri et Doctor Voodoo pour éviter de perdre les dégâts déjà infligés.",
-        "Le Blocage de capacité d'Apocalypse et Titania stabilise les vagues ; garder les Provocations de Wong et de Sam pour protéger Gambit.",
-        "Les ennemis Ghost Rider infligent de lourdes ripostes : choisir les attaques de zone avec prudence."
+        "Cette mission Mondial commence avec plusieurs ennemis de soin, dont Squirrel Girl, Shuri et Doctor Voodoo. Les cibler tôt évite de perdre l'avantage cumulé lors des attaques précédentes.",
+        "Apocalypse peut ouvrir avec son ultime puis sa frappe renforcée sur Squirrel Girl lorsqu'elle est accessible ; les contre-attaques de Gambit aident à la terminer.",
+        "Les Provocations de Wong et de Captain America (Sam) servent à absorber les dégâts pendant que Titania applique Blocage de capacité. Méfiance avec les Ghost Riders, qui ripostent fortement lorsque des alliés meurent."
       ],
-      "notes": [],
+      "notes": [
+        "Journal de la mission 4 : 44 adversaires au départ, progression sur de nombreuses tentatives.",
+        "La puissance d'Apocalypse a fortement augmenté durant ce nœud ; ne pas attribuer la réussite à la seule rotation des compétences."
+      ],
       "difficulty": "Historique 2023 · équipement G18",
       "kind": "historical_playthrough",
       "compositionKind": null,
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "gamingfans-dd6-node4"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "heroes-for-dark-dimension/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-17",
+        "sourceEvidence": "original_2023_battle_log",
+        "sourceDate": null
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node",
-          "historical_strategy"
+          "historical_not_current_meta",
+          "multi_attempt_diary"
         ]
       }
     },
@@ -9064,7 +9089,7 @@
       "stageId": "5",
       "origin": "migrated_legacy",
       "label": "Version existante",
-      "teamName": "Apocalypse, Gambit, Titania, Maria Hill, Captain America (Sam)",
+      "teamName": "Apocalypse, Gambit, Titania, Captain America (Sam) — Maria Hill ou Wong selon l'attaque",
       "characters": [
         "Apocalypse",
         "Gambit",
@@ -9077,25 +9102,34 @@
       ],
       "additionalCharacters": [],
       "instructions": [
-        "Commencer par supprimer Shuri et Dark Beast : ils retardent fortement l'attrition.",
-        "Contre Hela, viser d'abord Hela puis les morts-vivants invoqués, sous peine de les voir réapparaître.",
-        "Empêcher Dark Beast de ressusciter Archangel, puis contrôler Archangel et Kestrel ennemie."
+        "Lors du premier combat, l'auteur utilise Maria Hill : Apocalypse vise Shuri avec son ultime et sa frappe renforcée, puis Titania applique Blocage de capacité à Dark Beast.",
+        "Lors de l'attaque suivante, Wong remplace Maria Hill. La priorité reste de supprimer Archangel et Dark Beast avant qu'ils ne stabilisent l'équipe ennemie.",
+        "Contre Hela, viser la véritable Hela avant les morts-vivants invoqués : frapper plusieurs invocations sans la neutraliser les fait réapparaître et gaspille les capacités."
       ],
-      "notes": [],
+      "notes": [
+        "Deux compositions successives sont rapportées, pas une formation permanente.",
+        "La liste de cinq portraits correspond à l'ouverture avec Maria Hill. Le guide signale ensuite Wong comme remplaçant."
+      ],
       "difficulty": "Historique 2023 · équipement G18",
       "kind": "historical_playthrough",
       "compositionKind": null,
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "gamingfans-dd6-node5"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "heroes-for-dark-dimension/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-17",
+        "sourceEvidence": "original_2023_battle_log",
+        "sourceDate": null
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node",
-          "historical_strategy"
+          "historical_not_current_meta",
+          "multi_attempt_diary",
+          "team_changed_during_node"
         ]
       }
     },
@@ -9105,7 +9139,7 @@
       "stageId": "6",
       "origin": "migrated_legacy",
       "label": "Version existante",
-      "teamName": "Kang + Kestrel + Dormammu + Écorcheur ravageur + Nebula (portrait Kestrel absent)",
+      "teamName": "Kang, Kestrel, Dormammu, Écorcheur ravageur et Nebula (Kestrel sans portrait)",
       "characters": [
         "KangTheConqueror",
         "Dormammu",
@@ -9115,26 +9149,35 @@
       "alternatives": [],
       "additionalCharacters": [],
       "instructions": [
-        "Neutraliser d'abord la Femme invisible adverse pour arrêter l'application répétée de Barrière.",
-        "Dissiper les Provocations de Thanos ; profiter des attaques de zone de Kang et de l'ultime de Dormammu contre les vagues.",
-        "Le journal cible ensuite Doctor Doom puis Ebony Maw, et rapporte plusieurs tentatives avant la victoire."
+        "Le journal décrit une ouverture Cosmique avec Kang, Kestrel, Dormammu, Écorcheur ravageur et Nebula. La Femme invisible ennemie est la cible prioritaire, car elle pose Barrière et Camouflage à son groupe.",
+        "Lorsque Thanos provoque, tenter d'enlever sa Provocation ; Kang utilise ses attaques de zone pour affaiblir les groupes et l'ultime de Dormammu applique des effets négatifs lors de l'arrivée des renforts.",
+        "Après la Femme invisible, le joueur élimine notamment la Torche humaine et Thanos au fil des tentatives. La progression est cumulative, avec plusieurs attaques nécessaires ; le journal n'indique pas une victoire instantanée."
       ],
-      "notes": [],
+      "notes": [
+        "Source : journal historique Cosmique G18 de novembre 2023.",
+        "La Kestrel normale de la composition originale n'a pas de portrait jouable dans notre catalogue ; jamais de substitution automatique par Kestrel zombie."
+      ],
       "difficulty": "Historique 2023 · équipement G18",
       "kind": "historical_playthrough",
       "compositionKind": null,
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "gamingfans-dd6-node6"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "heroes-for-dark-dimension/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-17",
+        "sourceEvidence": "original_2023_battle_log",
+        "sourceDate": null
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node",
-          "historical_strategy",
-          "partial_or_unspecified_team"
+          "historical_not_current_meta",
+          "multi_attempt_diary",
+          "normal_kestrel_not_in_playable_portrait_catalog",
+          "partial_portraits_not_full_lineup"
         ]
       }
     },
