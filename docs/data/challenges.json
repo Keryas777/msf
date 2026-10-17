@@ -1996,10 +1996,259 @@
       "id": "war",
       "type": "tower",
       "title": "Tour de Guerre",
-      "summary": "Défis axés sur les équipes de guerre.",
+      "summary": "Tour de Guerre : 12 étages PvE sous les règles de Guerre, avec compositions et stratégies en français.",
       "rewardId": "JeffTheLandShark",
-      "stages": [],
-      "editorialRef": "war-tower/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Étage 1",
+          "requirement": "Héros",
+          "teamName": "Liberté + Sentry",
+          "characters": [
+            "Patriot",
+            "FalconJoaquin",
+            "PeggyCarter",
+            "SamWilson",
+            "Sentry"
+          ],
+          "advice": [
+            "Avec les héros Liberté, cibler Azazel, Rachel Summers et Emma Frost avant Sebastian Shaw.",
+            "Les autres équipes de guerre de héros associées à Sentry sont possibles."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "2",
+          "title": "Étage 2",
+          "requirement": "Vilains mondiaux",
+          "teamName": "Quatre Impérissables + Arès",
+          "characters": [
+            "ZombieJuggernaut",
+            "ZombieScarletWitch",
+            "ZombieKestrel",
+            "ZombieIronMan",
+            "Ares"
+          ],
+          "advice": [
+            "Hela est cosmique et ne peut participer : la remplacer par Arès.",
+            "Cibler Morgan Le Fay en première vague, puis Apocalypse et Red Hulk à leur arrivée."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Étage 3",
+          "requirement": "Héros",
+          "teamName": "4 Fantastiques (MCU) + Xavier",
+          "characters": [
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "FranklinRichards",
+            "HumanTorch",
+            "Xavier"
+          ],
+          "advice": [
+            "Éliminer Emma Frost (X-Men) et Ancient One avant leurs tours ; la spéciale de Xavier bloque Roi d'ombre.",
+            "Conserver l'ultime de Xavier pour l'arrivée des Thunderbolts."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Étage 4",
+          "requirement": "Compétence ou Mystique non mythique",
+          "teamName": "Brimstone",
+          "characters": [
+            "DaimonHellstrom",
+            "ElsaBloodstone",
+            "StrangeSupreme",
+            "LivingMummy",
+            "Hellcat"
+          ],
+          "advice": [
+            "Tout diriger sur Odin : les ultimes de Daimon et Hellcat ouvrent la voie.",
+            "Elsa permet de toucher Spider-Weaver même lorsque ses charges provoquent des esquives."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Étage 5",
+          "requirement": "Mondial non mythique",
+          "teamName": "Winter Guard",
+          "characters": [
+            "Darkstar",
+            "OmegaRed",
+            "Yelena",
+            "RedGuardian",
+            "UrsaMajor"
+          ],
+          "advice": [
+            "Encaisser les attaques avant le tour de Darkstar, puis lancer son ultime.",
+            "Contre la deuxième vague, éliminer d'abord un Éternel, puis les autres ; laisser Sentry si besoin."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Étage 6",
+          "requirement": "Vilains cosmiques non mythiques",
+          "teamName": "Conclave sans Malekith + Knull",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "HighEvolutionary",
+            "Executioner",
+            "Knull"
+          ],
+          "advice": [
+            "Thanos utilise sa spéciale pour obtenir Provocation, puis Knull pose son effet de champ.",
+            "Cibler Knull adverse puis Thanos (Endgame) et Gorr ; en deuxième vague, Vautour, Spider-Man supérieur et Super-Bouffon."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Étage 7",
+          "requirement": "Héros",
+          "teamName": "A-Force Absolute + Sentry",
+          "characters": [
+            "Kahhori",
+            "MsMarvelClassic",
+            "Medusa",
+            "Wasp",
+            "Sentry"
+          ],
+          "advice": [
+            "Kahhori enlève la Provocation de Cannonball ; éliminer ensuite Old Man Logan, puis Warlock et Wolfsbane.",
+            "Quand RetCon apparaît, Jeff devient la priorité."
+          ],
+          "alternatives": [
+            "Odin"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "8",
+          "title": "Étage 8",
+          "requirement": "Vilains mondiaux",
+          "teamName": "Impérissables sans Hela + Omega Red (Force Phénix)",
+          "characters": [
+            "ZombieIronMan",
+            "ZombieKestrel",
+            "ZombieScarletWitch",
+            "ZombieJuggernaut",
+            "OmegaRedPhoenix"
+          ],
+          "advice": [
+            "L'ultime d'Omega Red (Force Phénix) et la capacité des zombies aident contre Sasquatch.",
+            "Prévoir une équipe très solide : ce nœud figure parmi les plus difficiles de la tour."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Étage 9",
+          "requirement": "Héros",
+          "teamName": "4 Fantastiques (MCU) + Xavier",
+          "characters": [
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "FranklinRichards",
+            "HumanTorch",
+            "Xavier"
+          ],
+          "advice": [
+            "Profiter des dégâts rapides contre Héros à louer et Jeunes Avengers.",
+            "Odin est une alternative si la tour n'a pas encore nécessité son utilisation."
+          ],
+          "alternatives": [
+            "Odin"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Étage 10",
+          "requirement": "Compétence ou Mystique non mythique",
+          "teamName": "Brimstone",
+          "characters": [
+            "DaimonHellstrom",
+            "ElsaBloodstone",
+            "StrangeSupreme",
+            "LivingMummy",
+            "Hellcat"
+          ],
+          "advice": [
+            "Ne pas lancer les ultimes de Daimon et Hellcat dès la première vague : retirer d'abord la Provocation de Drax.",
+            "Éliminer Star-Lord et Gamora ; garder les capacités de zone pour Sasquatch et Jeff au deuxième groupe."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "11",
+          "title": "Étage 11",
+          "requirement": "Mondial non mythique",
+          "teamName": "Winter Guard",
+          "characters": [
+            "Darkstar",
+            "OmegaRed",
+            "Yelena",
+            "RedGuardian",
+            "UrsaMajor"
+          ],
+          "advice": [
+            "Red Guardian doit survivre au démarrage de Kahhori, qui peut jouer plusieurs fois.",
+            "Utiliser Darkstar pour inverser le combat après l'ouverture adverse."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "12",
+          "title": "Étage 12",
+          "requirement": "Vilains cosmiques non mythiques",
+          "teamName": "Conclave sans Malekith + Surfer (Briseur)",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "HighEvolutionary",
+            "Executioner",
+            "SilverSurferBreaker"
+          ],
+          "advice": [
+            "Conserver Sylvie : son passif réduit les dégâts ennemis à l'ouverture.",
+            "Thanos Fortificateur encaisse la première salve ; Exécuteur Écumeur améliore ses contrôles si son niveau est faible.",
+            "Cibler Quasar avec la spéciale de Thanos et l'ultime d'Exécuteur."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        }
+      ],
+      "editorialRef": "war-tower/",
+      "totalStages": 12,
+      "stageUnit": "étage",
+      "guideNote": "Bien qu'elle applique les règles de Guerre, cette tour est un challenge PvE et non un catalogue de contres d'alliances. Les équipes sont utilisées par étage selon les restrictions de traits. Certaines substitutions représentent une interprétation du noyau cité, signalée comme recommandation."
     },
     {
       "id": "kyln-polarity",
