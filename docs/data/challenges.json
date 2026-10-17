@@ -2732,12 +2732,327 @@
       "id": "kyln-polarity",
       "type": "tower",
       "title": "Évasion de Kyln : Polarity Shift",
-      "summary": "18 cellules et équipes de trois personnages.",
+      "summary": "Kyln Polarity Shift : 18 cellules à trois personnages, conditions d'étoiles et conseils en français.",
       "rewardId": null,
-      "stages": [],
+      "stages": [
+        {
+          "id": "1",
+          "title": "Cellule 1",
+          "requirement": "Aucune restriction",
+          "teamName": "Trois personnages au choix",
+          "characters": [],
+          "advice": [
+            "Choisir trois combattants déjà développés ; les ennemis des deux premières cellules ont une puissance modérée."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "2",
+          "title": "Cellule 2",
+          "requirement": "Aucune restriction",
+          "teamName": "Trois personnages au choix",
+          "characters": [],
+          "advice": [
+            "Conserver les équipes spécialisées pour les restrictions à venir.",
+            "Les autres personnages déjà équipés suffisent normalement aux premières cellules."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "3",
+          "title": "Cellule 3",
+          "requirement": "Ville · 3 étoiles jaunes",
+          "teamName": "Insidious Six",
+          "characters": [
+            "Hobgoblin",
+            "SuperiorSpiderMan",
+            "Vulture"
+          ],
+          "advice": [
+            "Les attaques de Spider-Man supérieur retirent les bonus et ralentissent les ennemis.",
+            "Conserver l'énergie pour la cellule 4 si nécessaire."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Cellule 4",
+          "requirement": "Ville · 3 étoiles jaunes",
+          "teamName": "Insidious Six",
+          "characters": [
+            "Hobgoblin",
+            "SuperiorSpiderMan",
+            "Vulture"
+          ],
+          "advice": [
+            "Même trio que cellule 3 ; viser les menaces rapides avec les contrôles de Spider-Man supérieur."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Cellule 5",
+          "requirement": "Mondial · 4 étoiles jaunes",
+          "teamName": "Brimstone (trois mondiaux)",
+          "characters": [
+            "DaimonHellstrom",
+            "LivingMummy",
+            "Hellcat"
+          ],
+          "advice": [
+            "Trois Brimstone bien développés contrôlent ces adversaires de faible puissance.",
+            "La guérison et les contrôles suffisent : ne pas investir davantage juste pour la cellule."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Cellule 6",
+          "requirement": "Mondial · 4 étoiles jaunes",
+          "teamName": "Brimstone (trois mondiaux)",
+          "characters": [
+            "DaimonHellstrom",
+            "LivingMummy",
+            "Hellcat"
+          ],
+          "advice": [
+            "Conserver les compétences si possible : l'équipe peut repartir dans un combat suivant selon les règles de récupération."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Cellule 7",
+          "requirement": "Cosmique non mythique · 4 étoiles jaunes",
+          "teamName": "Trio 4F (MCU)",
+          "characters": [
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU"
+          ],
+          "advice": [
+            "Franklin, Reed et la Femme invisible ont de bonnes synergies et sont souvent déjà améliorés.",
+            "Se concentrer sur les cibles menaçant la Femme invisible en priorité."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Cellule 8",
+          "requirement": "Cosmique non mythique · 4 étoiles jaunes",
+          "teamName": "Trio 4F (MCU)",
+          "characters": [
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU"
+          ],
+          "advice": [
+            "Même composition que cellule 7 ; profiter du contrôle et des soutiens des Fantastiques."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Cellule 9",
+          "requirement": "Mystique non mythique · 5 étoiles jaunes",
+          "teamName": "Knull + Daimon + Thunderstrike",
+          "characters": [
+            "Knull",
+            "DaimonHellstrom",
+            "Thunderstrike"
+          ],
+          "advice": [
+            "Knull limite les accélérations et prépare les dégâts, tandis que Thunderstrike assure la pression.",
+            "Ce trio convient aux deux cellules Mystiques."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Cellule 10",
+          "requirement": "Mystique non mythique · 5 étoiles jaunes",
+          "teamName": "Knull + Daimon + Thunderstrike",
+          "characters": [
+            "Knull",
+            "DaimonHellstrom",
+            "Thunderstrike"
+          ],
+          "advice": [
+            "Le passif de Knull empêche Méphisto d'être renforcé dès le départ.",
+            "Privilégier le contrôle et achever Méphisto avant qu'il n'impose le rythme."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "11",
+          "title": "Cellule 11",
+          "requirement": "Mutant · 5 étoiles jaunes",
+          "teamName": "Xavier + Havok + Roi d'ombre",
+          "characters": [
+            "Xavier",
+            "Havok",
+            "ShadowKing"
+          ],
+          "advice": [
+            "Éliminer rapidement les Starjammers ennemis pour éviter les enchaînements de vitesse.",
+            "Sans Xavier, Azazel ou Old Man Logan font partie des remplaçants proposés."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "12",
+          "title": "Cellule 12",
+          "requirement": "Mutant · 5 étoiles jaunes",
+          "teamName": "Xavier + Havok + Roi d'ombre",
+          "characters": [
+            "Xavier",
+            "Havok",
+            "ShadowKing"
+          ],
+          "advice": [
+            "Laisser les deux Mister Fantastic (MCU) adverses pour la fin.",
+            "Garder le contrôle du combat grâce à Xavier et Roi d'ombre."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "13",
+          "title": "Cellule 13",
+          "requirement": "Légendaire · 5 étoiles jaunes",
+          "teamName": "Quasar + Blastaar + Thunderstrike",
+          "characters": [
+            "Quasar",
+            "Blastaar",
+            "Thunderstrike"
+          ],
+          "advice": [
+            "Lancer surtout les basiques jusqu'à obtenir trois ou quatre Bomb-Bursts sur Blastaar.",
+            "Déclencher ensuite son ultime pour terminer la cellule."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "14",
+          "title": "Cellule 14",
+          "requirement": "Légendaire · 5 étoiles jaunes",
+          "teamName": "Quasar + Blastaar + Thunderstrike",
+          "characters": [
+            "Quasar",
+            "Blastaar",
+            "Thunderstrike"
+          ],
+          "advice": [
+            "Même trio et même principe que la cellule 13 : préparer les Bomb-Bursts, puis utiliser l'ultime de Blastaar."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "15",
+          "title": "Cellule 15",
+          "requirement": "Légendaire · 3–5 étoiles jaunes selon cellule",
+          "teamName": "Quasar + Blastaar + Thunderstrike",
+          "characters": [
+            "Quasar",
+            "Blastaar",
+            "Thunderstrike"
+          ],
+          "advice": [
+            "Cibler Thanos (Endgame) au premier groupe pour déclencher son passif.",
+            "À l'arrivée de Knull, Blastaar peut utiliser sa spéciale après au moins trois Bomb-Bursts, puis lancer son ultime."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "16",
+          "title": "Cellule 16",
+          "requirement": "Légendaire · 4–5 étoiles jaunes selon cellule",
+          "teamName": "Quasar + Blastaar + Thunderstrike",
+          "characters": [
+            "Quasar",
+            "Blastaar",
+            "Thunderstrike"
+          ],
+          "advice": [
+            "Éliminer Dormammu avant l'arrivée du deuxième groupe, puis Satana.",
+            "Quasar utilise surtout ses basiques ; Blastaar conserve ses cinq Bomb-Bursts pour l'ultime contre la deuxième vague."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "17",
+          "title": "Cellule 17",
+          "requirement": "Force Phénix · 5 étoiles jaunes",
+          "teamName": "Trio Force Phénix",
+          "characters": [
+            "MagnetoPhoenixForce",
+            "Phoenix",
+            "OmegaRedPhoenix"
+          ],
+          "advice": [
+            "La spéciale de Magnéto retire les bonus et perturbe Méphisto.",
+            "Utiliser l'ultime préparé d'Omega Red (Force Phénix) pour éliminer la première vague.",
+            "Contre Odin, rester sur les basiques tant que cela suffit."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "18",
+          "title": "Cellule 18",
+          "requirement": "Force Phénix · 5 étoiles jaunes",
+          "teamName": "Trio Force Phénix",
+          "characters": [
+            "MagnetoPhoenixForce",
+            "Phoenix",
+            "OmegaRedPhoenix"
+          ],
+          "advice": [
+            "Magnéto cible Thunderstrike avec son ultime ; Phénix peut immédiatement utiliser le sien.",
+            "Omega Red bloque les capacités de Sentry avec sa spéciale, puis l'équipe se concentre sur Blastaar et Quasar.",
+            "Dernière cellule : aucune capacité à préserver."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        }
+      ],
       "totalStages": 18,
       "stageUnit": "cellule",
-      "editorialRef": "escape-from-kyln/"
+      "editorialRef": "escape-from-kyln/",
+      "guideNote": "Trois personnages maximum par combat. Conditions d'étoiles progressives : 3 jaunes Ville, 4 jaunes Mondial/Cosmique, 5 jaunes dès Mystique/Mutant, et Force Phénix aux deux dernières cellules. Le guide distingue la préparation de Magnéto Force Phénix des véritables restrictions de fin de parcours. Les cellules 1 et 2 sont sans composition imposée."
     },
     {
       "id": "surfer-breaker",
