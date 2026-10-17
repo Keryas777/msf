@@ -49,13 +49,15 @@ test("reprise du moteur de contres sans bonus de guerre dans le mode cosmique", 
   assert.match(engine, /if \(IS_COSMIC \|\| !USAGE_LOGGER_URL\) return;/);
 });
 
-test("propositions : sauvegarde locale et partage, sans publication implicite", async () => {
+test("propositions : sauvegarde locale et publication directe confirmée", async () => {
   const code = await read("docs/cosmic-defenses.js");
   assert.match(code, /localStorage\.setItem\(DRAFT_KEY/);
-  assert.match(code, /navigator\.share/);
-  assert.match(code, /navigator\.clipboard/);
-  assert.match(code, /proposition à vérifier|Proposition à vérifier/);
-  assert.doesNotMatch(code, /method:\s*["']POST["']/);
+  assert.match(code, /publishSubmission/);
+  assert.match(code, /method:"POST"/);
+  assert.match(code, /PUBLISH_WORKER/);
+  assert.match(code, /signedSession/);
+  assert.match(code, /result\.published/);
+  assert.doesNotMatch(code, /navigator\.share/);
 });
 
 test("identité Discord non éditable et suppression de la saisie source", async () => {
@@ -127,7 +129,7 @@ test("les portraits du brouillon peuvent être retirés individuellement, puis s
   assert.match(css, /\.cosmicPortraitRemove:focus-visible/);
   // Pas de croix pour les défenses publiées ni de suppression de la note.
   assert.doesNotMatch(js.split("function renderPublished()")[1]?.split("function initPublishedSelector")[0] || "", /cosmicPortraitRemove/);
-  assert.match(html, /cosmic-defenses\.js\?v=6/);
+  assert.match(html, /cosmic-defenses\.js\?v=7/);
 });
 
 test("trois tuiles : consultation et proposition sont des pages indépendantes", async () => {
@@ -150,7 +152,7 @@ test("trois tuiles : consultation et proposition sont des pages indépendantes",
   assert.match(browse, /cosmic-defense-catalog\.js/);
   assert.doesNotMatch(propose, /cosmic-defense-catalog\.js/);
   assert.match(js, /IS_PROPOSE = document\.body\?\.dataset\?\.cosmicView === "propose"/);
-  assert.match(js, /IS_PROPOSE \? Promise\.resolve\(\[\]\) : fetchJson\(DATA\.defenses\)/);
+  assert.match(js, /IS_PROPOSE \? Promise\.resolve\(\[\]\) : loadPublishedLive\(config\?\.season\?\.id\)/);
   assert.match(js, /if \(IS_PROPOSE\) \{/);
   assert.match(js, /initPublishedSelector\(published\)/);
   assert.match(js, /renderProposals\(\)/);
@@ -167,7 +169,22 @@ test("le formulaire déplacé conserve la clé de brouillon et les suppressions"
   assert.match(js, /localStorage\.setItem\(DRAFT_KEY/);
   assert.match(js, /cosmicPortraitRemove/);
   assert.match(js, /input\.dataset\.selectedId = ""/);
-  assert.match(html, /cosmic-defenses\.js\?v=6/);
+  assert.match(html, /cosmic-defenses\.js\?v=7/);
   assert.match(html, /cosmic-season-ui\.js/);
   assert.match(css, /\.cosmicHubTile--propose/);
+});
+
+test("publication directe : backend requis, brouillon conservé, lecture live", async () => {
+  const [propose,browse,js] = await Promise.all([
+    read("docs/cosmic-defense-propose.html"),
+    read("docs/cosmic-defenses.html"),
+    read("docs/cosmic-defenses.js")
+  ]);
+  assert.match(propose,/Publier mes défenses/);
+  assert.match(propose,/proposalPublishedLink/);
+  assert.match(js,/checkPublishService\(\)/);
+  assert.match(js,/loadPublishedLive\(config\?\.season\?\.id\)/);
+  assert.match(js,/if \(!response\.ok \|\| !result\?\.ok\)/);
+  assert.match(js,/Aucune publication confirmée/);
+  assert.match(browse,/id="publishedDefenseSelect"/);
 });

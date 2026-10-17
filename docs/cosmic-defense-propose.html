@@ -19,7 +19,7 @@
       <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
       <div class="headerLeft">
         <h1 class="title">✍️ Proposer une défense</h1>
-        <p class="subtitle">Prépare tes six salles et partage ta composition avec LoSP.</p>
+        <p class="subtitle">Prépare tes six salles et publie-les pour les joueurs LoSP.</p>
       </div>
     </header>
     <section class="card cosmicSeasonCard" aria-label="Saison d'épreuve cosmique">
@@ -32,16 +32,16 @@
     </section>
     <section class="card">
       <h2 class="cosmicSectionTitle">Proposer mes défenses</h2>
-      <p class="cosmicIntro">Complète une ou plusieurs salles (5 personnages par salle). Ton brouillon est conservé sur cet appareil. Le partage prépare un message à envoyer sur Discord pour validation : il ne publie rien automatiquement.</p>
+      <p class="cosmicIntro">Choisis cinq personnages dans une ou plusieurs salles. Tes défenses seront publiées directement pour les autres joueurs. Tu pourras les modifier en les publiant à nouveau. Ton brouillon est conservé sur cet appareil.</p>
       <span class="cosmicLabel" id="proposalAuthorLabel">Pseudo Discord</span>
       <div class="cosmicReadonlyField" id="proposalAuthorDisplay" role="status" aria-labelledby="proposalAuthorLabel">Identification en cours…</div>
       <div id="proposalRooms" class="cosmicRooms"></div>
       <p class="cosmicFeedback" id="proposalStatus" role="status" aria-live="polite"></p>
-      <button id="proposalShare" class="cosmicAction" type="button">Partager ma proposition</button>
-      <textarea id="proposalFallback" class="select cosmicFallback" readonly hidden aria-label="Texte de la proposition à copier"></textarea>
+      <button id="proposalShare" class="cosmicAction" type="button" disabled>Publier mes défenses</button>
+      <a id="proposalPublishedLink" class="cosmicPublishLink" href="./cosmic-defenses.html" hidden>Consulter les défenses publiées →</a>
     </section>
   </main>
   <script src="./cosmic-season-ui.js?v=1" defer></script>
-  <script src="./cosmic-defenses.js?v=6" defer></script>
+  <script src="./cosmic-defenses.js?v=7" defer></script>
 </body>
 </html>

@@ -1,0 +1,9 @@
+{
+  "name": "msf-cosmic-defenses",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-01",
+  "services": [
+    { "binding": "LOSP_AUTH", "service": "losp-auth" }
+  ],
+  "vars": { "SITE_ORIGIN": "https://keryas777.github.io" }
+}

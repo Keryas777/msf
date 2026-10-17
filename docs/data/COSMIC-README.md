@@ -60,11 +60,13 @@ Chaque entrée de `cosmic-defenses.json` peut avoir cette structure :
 
 Les cinq IDs doivent correspondre aux personnages jouables de `msf-characters.json` et ne pas se répéter dans une équipe. Ne publier de proposition tierce qu'avec une attribution correcte et un lien réel si disponible.
 
-## Propositions des joueurs
+## Publication directe des défenses
 
-Le formulaire `cosmic-defenses.html` valide les personnages, accepte **une à six salles complètes**, mémorise un brouillon local et partage un texte via l'API de partage mobile ou le presse-papiers.
+Après avoir sélectionné les cinq personnages d'une ou plusieurs salles, le joueur appuie sur **Publier mes défenses**. Le Worker Cloudflare vérifie une session Discord signée (pas seulement le nom affiché), la saison active et les personnages jouables, puis enregistre automatiquement les données dans `docs/data/cosmic-defenses.json` via un commit GitHub.
 
-**Il ne soumet pas directement des données au dépôt ou à Google Sheets.** Le joueur partage sa proposition à l'équipe sur Discord ; un responsable la valide avant de l'ajouter à `cosmic-defenses.json`. Ce circuit évite de prétendre qu'une publication en écriture existe dans une application statique. Une future collecte automatisée devra employer un service dédié avec authentification, validation et modération.
+**Aucune validation administrateur préalable** : la publication confirmée apparaît dans « Consulter les défenses » via le Worker en direct. Republier une salle remplace uniquement la salle du même compte Discord, sans toucher aux autres joueurs ni aux défenses tierces comme Marvel Church. Le brouillon reste enregistré après publication.
+
+La configuration préalable de Cloudflare **est obligatoire** : suivre `workers/msf-cosmic-defenses/README.md`. Une session Discord ancienne (non signée) peut rester utilisable pour naviguer, mais pas pour publier.
 
 ## Vérification
 
@@ -78,7 +80,7 @@ Sur `cosmic-defenses.html`, le menu **Choisir des défenses** propose par défau
 
 Pour conserver plusieurs jeux de défenses d'un même auteur ou d'une même source, une entrée peut comporter un champ facultatif `"collection": "Nom du set"` : toutes les entrées qui partagent cet auteur/source et ce nom constituent un groupe distinct. Les cinq personnages d'une même salle sont toujours indiqués dans `characters`. Les crédits et les liens `sourceUrl` des entrées publiées restent visibles.
 
-Le menu **ne remplace pas** le formulaire permettant de proposer ses propres défenses : il sert uniquement à consulter les propositions validées, sans modifier le JSON ni les brouillons locaux.
+Le menu sert uniquement à consulter les publications directes des joueurs et les compositions ajoutées par l'administrateur, sans modification.
 
 ## Pages distinctes de consultation et de proposition
 
@@ -86,7 +88,7 @@ La rubrique `cosmic.html` contient **trois tuiles** :
 
 - `cosmic-counters.html` — Contres ;
 - `cosmic-defenses.html` — **Consulter les défenses** : le sélecteur de joueurs/sources et les six salles de la saison active, en lecture seule ;
-- `cosmic-defense-propose.html` — **Proposer une défense** : sélection des personnages, cinq portraits avec suppression, notes, pseudo Discord non éditable et partage.
+- `cosmic-defense-propose.html` — **Proposer une défense** : sélection des personnages, cinq portraits avec suppression, notes, pseudo Discord non éditable et publication directe.
 
 Le script `cosmic-defenses.js` est commun aux deux vues et n'initialise que les fonctionnalités de la page consultée via `data-cosmic-view`. Le catalogue `cosmic-defense-catalog.js` n'est chargé que pour consulter les défenses. Le formulaire conserve la **même clé localStorage par saison** : les brouillons existants restent accessibles après la séparation des pages.
 

@@ -2,12 +2,12 @@ const SITE_ORIGIN = "https://keryas777.github.io";
 const SITE_BASE_URL = "https://keryas777.github.io/msf/";
 
 const CLIENT_ID = "1498718329953583266";
-const CLIENT_SECRET = "A_REMPLACER_PAR_LE_CLIENT_SECRET_DISCORD";
+// CLIENT_SECRET et BOT_TOKEN doivent être des secrets Cloudflare, jamais du code source.
 
 const CALLBACK_URL = "https://losp-auth.deliriousfan7.workers.dev/callback";
 const GUILD_ID = "758717819923333191";
 
-const BOT_TOKEN = "A_REMPLACER_PAR_LE_TOKEN_DU_BOT_DISCORD";
+
 
 const SESSION_COOKIE_NAME = "session";
 const SESSION_MAX_AGE_SECONDS = 7776000; // 90 jours
@@ -105,6 +105,51 @@ function decodeSession(value) {
   return JSON.parse(new TextDecoder().decode(bytes));
 }
 
+
+// Écriture des défenses : seules les sessions Discord signées font foi.
+// Les anciennes sessions base64 restent utilisables en consultation.
+const SESSION_VERSION = "v1";
+function b64u(bytes) {
+  let s="";for(const b of bytes)s+=String.fromCharCode(b);
+  return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");
+}
+function unb64u(s) {
+  if(!/^[A-Za-z0-9_-]+$/.test(s))throw Error("invalid_base64");
+  const b=atob(s.replace(/-/g,"+").replace(/_/g,"/").padEnd(Math.ceil(s.length/4)*4,"="));
+  return Uint8Array.from(b,c=>c.charCodeAt(0));
+}
+async function signingKey(env) {
+  const secret=String(env?.SESSION_SIGNING_SECRET||"");
+  if(secret.length<32)throw Error("SESSION_SIGNING_SECRET_required");
+  return crypto.subtle.importKey("raw",new TextEncoder().encode(secret),
+    {name:"HMAC",hash:"SHA-256"},false,["sign","verify"]);
+}
+async function signSession(payload,env){
+  const now=Math.floor(Date.now()/1000);
+  const body="v1."+b64u(new TextEncoder().encode(JSON.stringify({
+    ...payload,iat:now,exp:now+SESSION_MAX_AGE_SECONDS
+  })));
+  const mac=await crypto.subtle.sign("HMAC",await signingKey(env),new TextEncoder().encode(body));
+  return body+"."+b64u(new Uint8Array(mac));
+}
+async function verifiedSession(token,env){
+  const parts=String(token||"").split(".");
+  if(parts.length!==3||parts[0]!==SESSION_VERSION||parts[1].length>4096)
+    throw Error("invalid_signed_session");
+  const mac=unb64u(parts[2]);
+  if(mac.byteLength!==32||!(await crypto.subtle.verify(
+    "HMAC",await signingKey(env),mac,new TextEncoder().encode(parts[0]+"."+parts[1])
+  )))throw Error("invalid_signature");
+  const data=JSON.parse(new TextDecoder().decode(unb64u(parts[1])));
+  const now=Math.floor(Date.now()/1000);
+  if(!/^\d{15,22}$/.test(String(data?.id||""))||
+    !Number.isSafeInteger(data?.iat)||!Number.isSafeInteger(data?.exp)||
+    data.iat>now+60||data.exp<=now||
+    data.exp-data.iat>SESSION_MAX_AGE_SECONDS+60)
+    throw Error("invalid_or_expired");
+  return data;
+}
+
 function sanitizeNext(value) {
   const raw = String(value || "home.html").trim();
 
@@ -137,12 +182,14 @@ function expiredSessionCookie() {
   return `${SESSION_COOKIE_NAME}=; Path=/; Secure; HttpOnly; SameSite=None; Max-Age=0`;
 }
 
-async function getCurrentDiscordAccess(userId) {
+async function getCurrentDiscordAccess(userId, env) {
+  const botToken = String(env?.DISCORD_BOT_TOKEN || "");
+  if (!botToken) throw new Error("DISCORD_BOT_TOKEN_required");
   const memberRes = await fetch(
     `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
     {
       headers: {
-        Authorization: `Bot ${BOT_TOKEN}`
+        Authorization: `Bot ${botToken}`
       }
     }
   );
@@ -186,7 +233,7 @@ async function getCurrentDiscordAccess(userId) {
 }
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     const url = new URL(request.url);
 
     if (request.method === "OPTIONS") {
@@ -224,9 +271,9 @@ export default {
       );
     }
 
-    if (url.pathname === "/me") {
-      const rawSession =
-        getCookie(request, SESSION_COOKIE_NAME) || getBearerSession(request);
+    if (url.pathname === "/me" || url.pathname === "/signed-me") {
+      const rawSession = getBearerSession(request) || getCookie(request, SESSION_COOKIE_NAME);
+      const signedOnly = url.pathname === "/signed-me";
 
       if (!rawSession) {
         return jsonResponse(
@@ -240,13 +287,15 @@ export default {
       }
 
       try {
-        const session = decodeSession(rawSession);
-
+        const isSigned = rawSession.startsWith(SESSION_VERSION + ".");
+        if (signedOnly && !isSigned)
+          return jsonResponse({ ok:false, reason:"signed_session_required" },request,401);
+        const session = isSigned ? await verifiedSession(rawSession,env) : decodeSession(rawSession);
         if (!session?.id) {
           throw new Error("missing_user_id");
         }
 
-        const access = await getCurrentDiscordAccess(session.id);
+        const access = await getCurrentDiscordAccess(session.id, env);
 
         if (!access.ok) {
           return jsonResponse(
@@ -276,12 +325,15 @@ export default {
           players: specialProfile?.players || []
         };
 
-        const refreshedSessionValue = encodeSession(refreshedSession);
+        // Ne pas convertir une ancienne session non signée en session fiable.
+        const refreshedSessionValue = isSigned
+          ? await signSession(refreshedSession,env) : encodeSession(refreshedSession);
 
         return jsonResponse(
           {
             ok: true,
-            ...refreshedSession
+            ...refreshedSession,
+            signedSession: isSigned
           },
           request,
           200,
@@ -333,7 +385,7 @@ export default {
         },
         body: new URLSearchParams({
           client_id: CLIENT_ID,
-          client_secret: CLIENT_SECRET,
+          client_secret: String(env?.DISCORD_CLIENT_SECRET || ""),
           grant_type: "authorization_code",
           code,
           redirect_uri: CALLBACK_URL
@@ -387,7 +439,7 @@ export default {
         );
       }
 
-      const access = await getCurrentDiscordAccess(user.id);
+      const access = await getCurrentDiscordAccess(user.id, env);
 
       if (!access.ok) {
         return new Response(
@@ -414,7 +466,10 @@ export default {
         players: specialProfile?.players || []
       };
 
-      const session = encodeSession(sessionPayload);
+      // OAuth uniquement : les nouveaux logins sont signés si le secret est prêt.
+      // Sans secret, la lecture LoSP continue, mais toute publication est bloquée.
+      const session = String(env?.SESSION_SIGNING_SECRET || "").length >= 32
+        ? await signSession(sessionPayload,env) : encodeSession(sessionPayload);
 
       const fallbackUrl =
         `${SITE_BASE_URL}auth.html` +
