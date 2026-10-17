@@ -1356,13 +1356,14 @@
       "id": "surfer-breaker",
       "type": "trial",
       "title": "Surfer d'argent (Briseur)",
-      "summary": "Événement Breaker avec modificateurs et restrictions par mission.",
+      "summary": "Surfer d'argent (Briseur) : 10 missions, restrictions et stratégies françaises.",
       "rewardId": "SilverSurferBreaker",
       "stages": [
         {
           "id": "1",
           "title": "Mission 1",
           "requirement": "Sans restriction",
+          "teamName": "Sans restriction",
           "characters": [
             "Odin",
             "Knull",
@@ -1371,28 +1372,198 @@
             "Thunderstrike"
           ],
           "advice": [
-            "Traiter d'abord Havok et Lilandra. Odin aide à tenir face aux dégâts passifs des Starjammers."
+            "Prioriser Havok et Lilandra pour réduire les dégâts des Starjammers.",
+            "Préserver les ultimes indispensables aux missions suivantes."
           ],
-          "alternatives": []
+          "alternatives": [],
+          "difficulty": "4",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Guerriers audacieux / Conclave de l'Ombre et/ou Tornade (Puissante)",
+          "teamName": "Guerriers audacieux / Conclave + Tornade (Puissante)",
+          "characters": [
+            "Eclipse",
+            "Speedball",
+            "NightThrasher",
+            "Daredevil",
+            "JessicaJones"
+          ],
+          "advice": [
+            "Eclipse neutralise Kraven à l'ouverture ; éliminer Bouffon vert classique et Vautour.",
+            "Garder le contrôle de Speedball pour l'arrivée de Knull."
+          ],
+          "alternatives": [],
+          "difficulty": "4",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Mutants non légendaires ou Best Buddies",
+          "teamName": "Mutants non légendaires ou Best Buddies",
+          "characters": [
+            "Magik",
+            "Wolfsbane",
+            "Cannonball",
+            "Sunspot",
+            "Xavier"
+          ],
+          "advice": [
+            "Commencer avec Cannonball ; cibler Serment, Agatha et Blade.",
+            "Conserver la spéciale de Xavier pour Apocalypse à la deuxième vague."
+          ],
+          "alternatives": [],
+          "difficulty": "4",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "X-Men",
+          "teamName": "X-Men",
+          "characters": [
+            "Warlock",
+            "Magik",
+            "Wolfsbane",
+            "Cannonball",
+            "Xavier"
+          ],
+          "advice": [
+            "L'ultime de Xavier facilite l'ouverture contre Ms. Marvel classique et Kahhori.",
+            "À la deuxième vague, viser Peggy Carter puis Joaquin et Patriot."
+          ],
+          "alternatives": [],
+          "difficulty": "4",
+          "strategyKind": "walkthrough"
         },
         {
           "id": "5",
           "title": "Mission 5",
           "requirement": "Symbiotes",
+          "teamName": "Symbiotes",
           "characters": [
             "Knull",
             "Gorr",
             "Carnage",
             "SymbioteSilverSurfer",
-            "Venom"
+            "RedGoblin"
           ],
           "advice": [
-            "L'objectif est d'enchaîner les tours en faisant tomber les ennemis sous le seuil critique de santé."
+            "Invoquer Carnage avec la spéciale de Knull ; cibler les ennemis proches du rouge.",
+            "Prioriser Lady Bullseye et Iron Fist dans la deuxième vague."
           ],
-          "alternatives": []
+          "alternatives": [],
+          "difficulty": "4",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Guerriers audacieux / Conclave de l'Ombre et/ou Tornade (Puissante)",
+          "teamName": "Guerriers audacieux / Conclave + Tornade (Puissante)",
+          "characters": [
+            "Eclipse",
+            "Speedball",
+            "NightThrasher",
+            "Daredevil",
+            "JessicaJones"
+          ],
+          "advice": [
+            "Spéciale d'Eclipse dès le départ, puis neutraliser Satana et Hood.",
+            "Cibler Méphisto à la seconde vague ; conserver ensuite les contrôles pour la mission 10."
+          ],
+          "alternatives": [],
+          "difficulty": "4",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Mutants non légendaires ou Best Buddies",
+          "teamName": "Mutants non légendaires ou Best Buddies",
+          "characters": [
+            "Magik",
+            "Wolfsbane",
+            "Cannonball",
+            "Sunspot",
+            "Xavier"
+          ],
+          "advice": [
+            "Contrôler Franklin Richards dès le début, puis Femme invisible et Diablo.",
+            "Cibler Quasar à l'apparition des renforts ; épargner des capacités pour le nœud 8."
+          ],
+          "alternatives": [],
+          "difficulty": "4",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "X-Men",
+          "teamName": "X-Men",
+          "characters": [
+            "Warlock",
+            "Magik",
+            "Wolfsbane",
+            "Cannonball",
+            "Xavier"
+          ],
+          "advice": [
+            "Xavier dissipe les effets négatifs infligés par Hellcat.",
+            "Éliminer Momie vivante et Agatha ; deuxième vague : Apocalypse, Morgan et Malicia."
+          ],
+          "alternatives": [],
+          "difficulty": "4",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Symbiotes",
+          "teamName": "Symbiotes",
+          "characters": [
+            "Knull",
+            "Gorr",
+            "Carnage",
+            "SymbioteSilverSurfer",
+            "RedGoblin"
+          ],
+          "advice": [
+            "Invoquer Carnage et éliminer les ennemis fragiles pour accélérer l'équipe.",
+            "À la deuxième vague, empêcher les réanimations et contrôler Thanos (Endgame)."
+          ],
+          "alternatives": [],
+          "difficulty": "4",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Guerriers audacieux / Conclave de l'Ombre et/ou Tornade (Puissante)",
+          "teamName": "Guerriers audacieux / Conclave + Tornade (Puissante)",
+          "characters": [
+            "Eclipse",
+            "Speedball",
+            "NightThrasher",
+            "Daredevil",
+            "JessicaJones"
+          ],
+          "advice": [
+            "Cibler Blue Marvel puis Hank Pym ; garder la spéciale d'Eclipse prête.",
+            "Dissiper avec Night Thrasher et réserver le contrôle de Speedball aux ennemis les plus dangereux."
+          ],
+          "alternatives": [],
+          "difficulty": "4",
+          "strategyKind": "walkthrough"
         }
       ],
-      "editorialRef": "breaker-event-silver-surfer/"
+      "editorialRef": "breaker-event-silver-surfer/",
+      "totalStages": 10,
+      "stageUnit": "mission",
+      "guideNote": "Recommandations de difficulté 4 avec modificateurs. Les restrictions varient selon le niveau sélectionné. Les compositions de Nouveaux Mutants sont reconstruites à partir du catalogue LoSP ; vérifier les personnages éligibles en jeu."
     },
     {
       "id": "scorpion-breaker",
