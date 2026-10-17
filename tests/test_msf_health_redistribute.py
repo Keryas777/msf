@@ -13,6 +13,8 @@ from scripts.msf_capabilities_normalizer.health_redistribute import (
     REVIEWED_OFFICIAL_TEXT_SIGNATURE_VARIANTS,
     REVIEWED_USER_VALIDATED_SIGNATURES,
     REVIEWED_PUBLISHED_SELF_SIGNATURES,
+    REVIEWED_COMPARATIVE_SIGNATURES,
+    REVIEWED_COMPARATIVE_REFERENCES,
     _raw_fingerprint,
     normalize_health_redistribute,
 )
@@ -65,8 +67,8 @@ class HealthRedistributeTests(unittest.TestCase):
             Counter(o["healthRedistribute"]["behavior"] for o in self.operations),
             Counter({
                 "health_loss": 98,
-                "health_steal_redistribute": 73,
-                "detected": 49,
+                "health_steal_redistribute": 103,
+                "detected": 19,
                 "health_equalize": 8,
                 "health_transfer_allies": 2,
             }),
@@ -258,6 +260,81 @@ class HealthRedistributeTests(unittest.TestCase):
                 self.assertEqual(fallback["behavior"], "detected")
                 self.assertNotIn("recipient", fallback["evidence"])
 
+    def test_msfbase_playable_correspondences_are_fingerprint_gated(self):
+        self.assertEqual(len(REVIEWED_COMPARATIVE_SIGNATURES), 30)
+        self.assertEqual(
+            Counter(item["tier"] for item in REVIEWED_COMPARATIVE_SIGNATURES.values()),
+            Counter({"direct": 18, "technical_correlated": 12}),
+        )
+        by_pointer = {a["source"]["pointer"]: a for a in self.actions.values()}
+        for pointer, signature in REVIEWED_COMPARATIVE_SIGNATURES.items():
+            with self.subTest(pointer=pointer):
+                action = by_pointer[pointer]
+                self.assertEqual(_raw_fingerprint(action["raw"]), signature["sha256"])
+                self.assertNotIn("PVE_", pointer)
+                reference = REVIEWED_COMPARATIVE_REFERENCES[signature["ref"]]
+                result = normalize_health_redistribute(action)
+                self.assertEqual(result["behavior"], "health_steal_redistribute")
+                self.assertTrue(result["resolved"])
+                self.assertEqual(result["evidence"]["recipient"], signature["recipient"])
+                self.assertEqual(result["evidence"]["sourceUrl"], reference["url"])
+                self.assertEqual(result["evidence"]["technicalContext"], signature["context"])
+                self.assertEqual(
+                    result["evidence"]["proofLevel"],
+                    "confirmed" if signature["tier"] == "direct" else "corroborated",
+                )
+                self.assertEqual(
+                    result["evidence"]["rule"],
+                    "reviewed_comparative_direct_description"
+                    if signature["tier"] == "direct"
+                    else "reviewed_comparative_technical_context",
+                )
+                self.assertFalse(result["evidence"]["sourceVersionVerified"])
+                self.assertEqual(result["percentageBasis"], "unresolved")
+                self.assertEqual(result["engineFormula"], "unresolved")
+                self.assertEqual(result["rawAction"], action["raw"])
+                self.assertEqual(result["selectors"]["to"]["raw"], action["raw"]["to"])
+                changed = copy.deepcopy(action)
+                changed["raw"]["drain_pct"] = [999]
+                fallback = normalize_health_redistribute(changed)
+                self.assertEqual(fallback["behavior"], "detected")
+                self.assertNotIn("recipient", fallback["evidence"])
+
+        shadow = [x for x in REVIEWED_COMPARATIVE_SIGNATURES if x.split("/")[2]
+                  in {"AncientOne", "DoctorStrange", "EmmaFrostXMen", "Moondragon"}]
+        self.assertEqual(len(shadow), 12)
+        self.assertTrue(all(REVIEWED_COMPARATIVE_SIGNATURES[x]["recipient"]
+                            == "possessed_character" for x in shadow))
+        self.assertEqual(REVIEWED_COMPARATIVE_REFERENCES["shadow"]["source"],
+                         "official_ability_text")
+        # Safety is a technical context, never silently merged with Basic.
+        for pointer, signature in REVIEWED_COMPARATIVE_SIGNATURES.items():
+            if signature["context"] == "safety_assist_counter":
+                self.assertIn("/safety/", pointer)
+
+    def test_all_residual_unresolved_actions_are_technical_or_pve(self):
+        ledger = json.loads(
+            (ROOT / "data/msf-capabilities/health-redistribute-review-ledger-10.6.3.json").read_text()
+        )
+        self.assertEqual(len(ledger["entries"]), 19)
+        self.assertTrue(all(item["unitClass"] == "technical_or_nonplayable"
+                            for item in ledger["entries"]))
+        for entry in ledger["entries"]:
+            operation = next(o for o in self.operations
+                             if o["healthRedistribute"]["evidence"]["sourcePointer"]
+                             == entry["sourcePointer"])
+            self.assertEqual(operation["healthRedistribute"]["behavior"], "detected")
+            self.assertFalse(operation["healthRedistribute"]["resolved"])
+        self.assertEqual(
+            Counter(entry["characterId"] for entry in ledger["entries"]),
+            Counter({
+                "DarkPhoenix": 1, "PVE_ChaosRaid_ShadowKing": 3,
+                "PVE_EbonyMaw_Gauntlet": 5, "PVE_LokiTeen_DestroyerBoss": 1,
+                "PVE_Odin_DestroyerBoss": 4, "PVE_SagaBoss_ShadowKing": 3,
+                "VampireSupport": 1, "Void": 1,
+            }),
+        )
+
     def test_oath_1063_changed_signature_is_revalidated_by_current_text(self):
         pointer = "/Data/Oath/special/actions/0"
         action = next(a for a in self.actions.values() if a["source"]["pointer"] == pointer)
@@ -312,7 +389,7 @@ class HealthRedistributeTests(unittest.TestCase):
         }
         self.assertEqual(set(entries), set(unresolved))
         self.assertEqual(Counter(entry["knowledgeLevel"] for entry in entries.values()),
-                         Counter({"B": 0, "C": 49}))
+                         Counter({"B": 0, "C": 19}))
         for pointer, operation in unresolved.items():
             entry = entries[pointer]
             with self.subTest(pointer=pointer):
