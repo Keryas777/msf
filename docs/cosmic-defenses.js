@@ -1,6 +1,10 @@
-// Épreuve cosmique : consultation publique (JSON) et propositions locales à partager.
+// Épreuve cosmique : consultation des données publiées et écriture sécurisée.
 (() => {
   const IS_PROPOSE = document.body?.dataset?.cosmicView === "propose";
+  const PUBLISH_WORKER = "https://msf-cosmic-defenses.deliriousfan7.workers.dev";
+  let publishConfigured = false;
+  let signedSession = false;
+  let publishing = false;
   const DATA = {
     config: "./data/cosmic-config.json",
     defenses: "./data/cosmic-defenses.json",
@@ -17,6 +21,7 @@
   const proposalStatus = document.getElementById("proposalStatus");
   const proposalAuthorDisplay = document.getElementById("proposalAuthorDisplay");
   const shareButton = document.getElementById("proposalShare");
+  const publishedLink = document.getElementById("proposalPublishedLink");
   const shareFallback = document.getElementById("proposalFallback");
 
 
@@ -71,7 +76,14 @@
       : "";
     discordAuthor = safeText(name, 80);
     proposalAuthorDisplay.textContent = discordAuthor || "Identification Discord en cours…";
-    shareButton.disabled = !discordAuthor;
+    const localToken = (() => {
+      try { return localStorage.getItem("losp_session") || ""; } catch { return ""; }
+    })();
+    signedSession = session?.signedSession === true && /^v1\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(localToken);
+    if (shareButton) shareButton.disabled = !discordAuthor || !signedSession || !publishConfigured || publishing;
+    if (proposalStatus && discordAuthor && !signedSession) {
+      proposalStatus.textContent = "Pour publier directement, reconnecte-toi à Discord avec la connexion sécurisée.";
+    }
   }
     function buildCharacterCatalogue(rows) {
     charactersById = new Map();
@@ -378,51 +390,89 @@
     if (!selectedRooms.length) throw new Error("Renseigne au moins une salle complète.");
     return { schemaVersion: 1, mode: "cosmic-crucible", season: COSMIC_SEASON_ID, author, rooms: selectedRooms };
   }
-    function shareMessage(submission) {
-    const result = ["🌌 Épreuve cosmique — " + submission.season + " — proposition de défenses",
-      "Auteur : " + submission.author, ""];
-    for (const room of submission.rooms) {
-      result.push("🛡️ " + room.label + " :");
-      result.push(room.characters.map(id => charactersById.get(id)?.name || id).join(" · "));
-      if (room.notes) result.push("Note : " + room.notes);
-      result.push("");
-    }
-    result.push("Proposition à vérifier avant publication dans la Web-app LoSP.");
-    return result.join("\n");
-  }
-  async function shareSubmission() {
-    shareFallback.hidden = true;
-    let message;
-    try { message = shareMessage(buildSubmission()); }
+    async function publishSubmission() {
+    if (publishing) return;
+    let submission;
+    try { submission = buildSubmission(); }
     catch (error) { proposalStatus.textContent = error.message; return; }
-    saveDraft();
-    if (typeof navigator.share === "function") {
-      try {
-        await navigator.share({ title: "Défenses Épreuve cosmique — LoSP", text: message });
-        proposalStatus.textContent = "Partage lancé. La publication nécessite encore une validation.";
-        return;
-      } catch (error) {
-        if (error?.name === "AbortError") return;
-      }
-    }
-    try {
-      if (!navigator.clipboard?.writeText) throw new Error("Clipboard indisponible");
-      await navigator.clipboard.writeText(message);
-      proposalStatus.textContent = "Proposition copiée. Colle-la dans Discord et envoie-la pour validation.";
+    const session = (() => {
+      try { return localStorage.getItem("losp_session") || ""; } catch { return ""; }
+    })();
+    if (!signedSession || !session.startsWith("v1.")) {
+      proposalStatus.textContent = "Reconnecte-toi à Discord pour publier en toute sécurité.";
       return;
-    } catch (_) {
-      shareFallback.value = message;
-      shareFallback.hidden = false;
-      shareFallback.focus();
-      shareFallback.select();
-      proposalStatus.textContent = "Copie le texte ci-dessous et envoie-le sur Discord pour validation.";
+    }
+    publishing = true;
+    shareButton.disabled = true;
+    if (publishedLink) publishedLink.hidden = true;
+    proposalStatus.textContent = "Publication en cours…";
+    try {
+      const response = await fetch(PUBLISH_WORKER + "/api/cosmic-defenses", {
+        method:"POST",mode:"cors",cache:"no-store",credentials:"omit",
+        headers:{"Content-Type":"application/json","Authorization":"Bearer " + session},
+        body:JSON.stringify({
+          season:submission.season,
+          rooms:submission.rooms.map(room => ({
+            room:room.room,characters:room.characters,notes:room.notes
+          }))
+        })
+      });
+      const result = await response.json().catch(() => null);
+      if (!response.ok || !result?.ok) {
+        const reason = result?.message || "Publication impossible. Réessaie un peu plus tard.";
+        throw Error(reason);
+      }
+      // Le serveur a confirmé le commit GitHub. Ne pas effacer le brouillon :
+      // le joueur doit pouvoir republier ses salles en conservant la saisie.
+      proposalStatus.textContent = result.published + " salle(s) publiée(s) avec succès ! Les autres joueurs peuvent maintenant les consulter.";
+      if (publishedLink) publishedLink.hidden = false;
+    } catch (error) {
+      proposalStatus.textContent = "Aucune publication confirmée : " +
+        (error?.message || "réseau indisponible") + " Ton brouillon est conservé.";
+    } finally {
+      publishing = false;
+      shareButton.disabled = !discordAuthor || !signedSession || !publishConfigured;
+    }
+  }
+  async function checkPublishService() {
+    try {
+      const response = await fetch(PUBLISH_WORKER + "/health", {cache:"no-store"});
+      const health = await response.json();
+      publishConfigured = response.ok && health?.configured === true;
+    } catch { publishConfigured = false; }
+    fillAuthorFromSession(window.LoSP_SESSION);
+    if (!publishConfigured) {
+      proposalStatus.textContent = "Publication directe en cours de configuration. Ton brouillon reste enregistré.";
+    }
+  }
+  async function loadPublishedLive(expectedSeason) {
+    try {
+      const response = await fetch(PUBLISH_WORKER + "/api/cosmic-defenses", {
+        cache:"no-store",mode:"cors",credentials:"omit"
+      });
+      if (!response.ok) throw Error("live_unavailable");
+      const data = await response.json();
+      if (!data?.ok || !Array.isArray(data.entries)) throw Error("invalid_live_data");
+      if (data.season !== expectedSeason) {
+        throw Error("sync_season");
+      }
+      return data.entries;
+    } catch (error) {
+      if (error?.message === "sync_season") {
+        throw Error("La nouvelle saison est en cours de synchronisation. Réessaie dans quelques minutes.");
+      }
+      // En cas d'indisponibilité, afficher l'ancien JSON en avertissant du
+      // caractère potentiellement incomplet de la copie GitHub Pages.
+      const stored = await fetchJson(DATA.defenses);
+      if (publishedStatus) publishedStatus.dataset.fallback = "true";
+      return stored;
     }
   }
   async function boot() {
     try {
-      const [config, published, chars] = await Promise.all([
-        fetchJson(DATA.config),
-        IS_PROPOSE ? Promise.resolve([]) : fetchJson(DATA.defenses),
+      const config = await fetchJson(DATA.config);
+      const [published, chars] = await Promise.all([
+        IS_PROPOSE ? Promise.resolve([]) : loadPublishedLive(config?.season?.id),
         fetchJson(DATA.characters)
       ]);
       const configRooms = Array.isArray(config?.rooms) ? config.rooms : [];
@@ -450,11 +500,18 @@
         document.addEventListener("pointerdown", event => {
           if (!event.target.closest(".cosmicInputWrap")) closeSuggestions();
         });
-        shareButton.addEventListener("click", shareSubmission);
+        shareButton.addEventListener("click", publishSubmission);
         proposalStatus.textContent = "Tape les premières lettres d’un personnage puis sélectionne-le dans la liste.";
+        checkPublishService();
       } else {
         initPublishedSelector(published);
         publishedDefenseSelect.addEventListener("change", renderPublished);
+        if (publishedStatus?.dataset.fallback) {
+          const notice = document.createElement("p");
+          notice.className = "cosmicFeedback";
+          notice.textContent = "Lecture provisoire du catalogue GitHub Pages : des publications récentes peuvent manquer.";
+          publishedNode.parentElement.insertBefore(notice, publishedNode);
+        }
       }
     } catch (error) {
       if (publishedStatus) publishedStatus.textContent = "Impossible de charger les défenses : " + error.message;
