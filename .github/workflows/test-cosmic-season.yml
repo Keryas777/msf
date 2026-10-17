@@ -25,9 +25,10 @@ jobs:
       - name: Validate seasonal data and transition
         run: |
           node --check scripts/roll-cosmic-season.mjs
+          node --check scripts/cosmic-localization.mjs
           node --check scripts/watch-cosmic-season.mjs
           node --check docs/cosmic-season-ui.js
           node --check docs/cosmic-defenses.js
           node --check docs/cosmic-defense-catalog.js
           node --check docs/war-counters.js
-          node --test tests/cosmic-static.test.mjs tests/cosmic-season-lifecycle.test.mjs tests/cosmic-defense-catalog.test.mjs
+          node --test tests/cosmic-static.test.mjs tests/cosmic-season-lifecycle.test.mjs tests/cosmic-defense-catalog.test.mjs tests/cosmic-localization.test.mjs
