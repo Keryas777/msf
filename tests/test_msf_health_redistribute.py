@@ -15,6 +15,7 @@ from scripts.msf_capabilities_normalizer.health_redistribute import (
     REVIEWED_PUBLISHED_SELF_SIGNATURES,
     REVIEWED_COMPARATIVE_SIGNATURES,
     REVIEWED_COMPARATIVE_REFERENCES,
+    REVIEWED_PLAYABLE_LINKED_SUMMON_SIGNATURES,
     _raw_fingerprint,
     normalize_health_redistribute,
 )
@@ -67,10 +68,10 @@ class HealthRedistributeTests(unittest.TestCase):
             Counter(o["healthRedistribute"]["behavior"] for o in self.operations),
             Counter({
                 "health_loss": 98,
-                "health_steal_redistribute": 103,
-                "detected": 19,
+                "health_steal_redistribute": 104,
+                "detected": 17,
                 "health_equalize": 8,
-                "health_transfer_allies": 2,
+                "health_transfer_allies": 3,
             }),
         )
         self.assertEqual(sum(o["healthRedistribute"]["engineFormula"] == "unresolved"
@@ -312,11 +313,62 @@ class HealthRedistributeTests(unittest.TestCase):
             if signature["context"] == "safety_assist_counter":
                 self.assertIn("/safety/", pointer)
 
+    def test_playable_linked_summons_are_reviewed_not_pve(self):
+        self.assertEqual(len(REVIEWED_PLAYABLE_LINKED_SUMMON_SIGNATURES), 2)
+        by_pointer = {a["source"]["pointer"]: a for a in self.actions.values()}
+        catalog = {
+            item["id"]: item for item in json.loads(
+                (ROOT / "docs/data/msf-characters.json").read_text()
+            )
+        }
+        expected = {
+            "DarkPhoenix": ("Phoenix", "ally", "health_steal_redistribute", "enemy"),
+            "Void": ("Sentry", "enemy", "health_transfer_allies", "ally"),
+        }
+        for pointer, review in REVIEWED_PLAYABLE_LINKED_SUMMON_SIGNATURES.items():
+            with self.subTest(pointer=pointer):
+                char = pointer.split("/")[2]
+                parent, side, family, donor = expected[char]
+                self.assertEqual(review["parentCharacterId"], parent)
+                self.assertTrue(catalog[parent]["player_Character"])
+                self.assertFalse(catalog[char]["player_Character"])
+                self.assertEqual((review["summonedSide"], review["behavior"],
+                                  review["sourceRelation"]), (side, family, donor))
+                # The official playable parent abilities identify this summon.
+                passive = self.official_presentations[parent]["abilityKit"]["passive"]
+                passive_text = " ".join(
+                    level.get("description", "") for level in passive["levels"].values()
+                ).lower()
+                self.assertIn("void" if char == "Void" else "phénix noir", passive_text)
+                action = by_pointer[pointer]
+                self.assertEqual(_raw_fingerprint(action["raw"]), review["sha256"])
+                result = normalize_health_redistribute(action)
+                self.assertTrue(result["resolved"])
+                self.assertEqual(result["behavior"], family)
+                self.assertEqual(result["evidence"]["rule"], "reviewed_playable_linked_summon")
+                self.assertEqual(result["evidence"]["proofLevel"], "corroborated")
+                self.assertEqual(result["evidence"]["playableParentCharacterId"], parent)
+                self.assertEqual(result["evidence"]["summonedSide"], side)
+                self.assertEqual(result["evidence"]["sourceRelation"], donor)
+                self.assertEqual(result["evidence"]["recipient"], "self")
+                self.assertFalse(result["evidence"]["sourceVersionVerified"])
+                self.assertEqual(result["percentageBasis"], "unresolved")
+                self.assertEqual(result["engineFormula"], "unresolved")
+                self.assertEqual(result["rawAction"], action["raw"])
+                self.assertEqual(result["selectors"]["from"]["raw"], action["raw"]["from"])
+                self.assertEqual(result["selectors"]["to"]["raw"], action["raw"]["to"])
+                changed = copy.deepcopy(action)
+                changed["raw"]["drain_pct"] = [999]
+                fallback = normalize_health_redistribute(changed)
+                self.assertEqual(fallback["behavior"], "detected")
+                self.assertFalse(fallback["resolved"])
+                self.assertNotIn("playableParentCharacterId", fallback["evidence"])
+
     def test_all_residual_unresolved_actions_are_technical_or_pve(self):
         ledger = json.loads(
             (ROOT / "data/msf-capabilities/health-redistribute-review-ledger-10.6.3.json").read_text()
         )
-        self.assertEqual(len(ledger["entries"]), 19)
+        self.assertEqual(len(ledger["entries"]), 17)
         self.assertTrue(all(item["unitClass"] == "technical_or_nonplayable"
                             for item in ledger["entries"]))
         for entry in ledger["entries"]:
@@ -328,10 +380,10 @@ class HealthRedistributeTests(unittest.TestCase):
         self.assertEqual(
             Counter(entry["characterId"] for entry in ledger["entries"]),
             Counter({
-                "DarkPhoenix": 1, "PVE_ChaosRaid_ShadowKing": 3,
+                "PVE_ChaosRaid_ShadowKing": 3,
                 "PVE_EbonyMaw_Gauntlet": 5, "PVE_LokiTeen_DestroyerBoss": 1,
                 "PVE_Odin_DestroyerBoss": 4, "PVE_SagaBoss_ShadowKing": 3,
-                "VampireSupport": 1, "Void": 1,
+                "VampireSupport": 1,
             }),
         )
 
@@ -389,7 +441,7 @@ class HealthRedistributeTests(unittest.TestCase):
         }
         self.assertEqual(set(entries), set(unresolved))
         self.assertEqual(Counter(entry["knowledgeLevel"] for entry in entries.values()),
-                         Counter({"B": 0, "C": 19}))
+                         Counter({"B": 0, "C": 17}))
         for pointer, operation in unresolved.items():
             entry = entries[pointer]
             with self.subTest(pointer=pointer):
