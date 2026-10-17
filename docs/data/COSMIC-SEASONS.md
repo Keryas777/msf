@@ -35,6 +35,23 @@ Ce fonctionnement est volontairement conservateur : **il ne peut pas inventer le
 Les brouillons de défense sont stockés en localStorage avec une clé par saison :
 `losp:cosmic-defense-draft:v1:season-N`. Les anciens brouillons saison 25 sont récupérés via l'ancienne clé ; les brouillons saison 25 ne sont pas réutilisés en saison 26. Les brouillons locaux ne sont pas publiés ni archivés sur GitHub : seules les défenses validées et présentes dans le JSON le sont.
 
+
+### Terminologie française ISO-8 (source officielle)
+
+Ne pas traduire les noms de classes ISO-8 littéralement depuis l'anglais : employer **les intitulés français officiels de MSF**. Correspondances vérifiées dans l'article Scopely « Présentation de l'iso-8 P2 » :
+
+| Anglais (données Scopely) | Français (jeu) |
+| --- | --- |
+| Striker | Attaquant |
+| Fortifier | Fortificateur |
+| Healer | Soigneur |
+| Skirmisher | Tirailleur |
+| Raider | **Fantassin** |
+
+Source française : https://marvelstrikeforce.com/fr/updates/iso-8-blue
+
+Exemple saison 25, salle 2 : **Tirailleur** (Skirmisher) et **Fantassin** (Raider). Le terme « Pillard » est une mauvaise traduction pour la classe Raider et ne doit pas apparaître dans les règles de salles. Lors de la préparation du JSON d'une nouvelle saison, vérifier les libellés français avec la terminologie du jeu, sans modifier le fonctionnement des mécaniques.
+
 ### Ajouter des contres / des défenses
 
 Toujours préciser l'identifiant de saison actif dans les objets JSON, par exemple :

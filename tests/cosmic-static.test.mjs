@@ -94,3 +94,15 @@ test("défenses cosmiques : portraits non rognés, règle par salle et sélecteu
   assert.match(js, /catalog\.activeEntries\(defenses, COSMIC_SEASON_ID\)/);
   assert.match(js, /publishedDefenseSelect\.addEventListener\("change", renderPublished\)/);
 });
+
+test("les classes ISO-8 des règles cosmiques utilisent les termes officiels français", async () => {
+  const config = JSON.parse(await read("docs/data/cosmic-config.json"));
+  const roomRules = config.rooms.map(room => room.rule).join("\n");
+  // Scopely FR : Raider = Fantassin, Skirmisher = Tirailleur.
+  assert.doesNotMatch(roomRules, /\bPillard\b/i);
+  if (config.season.id === "season-25") {
+    const rule = config.rooms.find(room => room.id === 2)?.rule || "";
+    assert.match(rule, /ISO-8 Tirailleur \(Skirmisher\)/);
+    assert.match(rule, /ISO-8 Fantassin \(Raider\)/);
+  }
+});
