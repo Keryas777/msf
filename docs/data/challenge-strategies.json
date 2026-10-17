@@ -15741,6 +15741,233 @@
           "no_rotation_confirmed"
         ]
       }
+    },
+    {
+      "id": "dd9/city/v5",
+      "eventId": "dd9",
+      "stageId": "city",
+      "origin": "source_reextraction",
+      "label": "Retour de combat d'un autre joueur",
+      "teamName": "Justiciers complets : victoire coûteuse en tentatives",
+      "characters": [
+        "SilverSable",
+        "HitMonkey",
+        "DaredevilModern",
+        "Punisher",
+        "Elektra"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [
+        "La première formation incluant Vautour et Night Thrasher a été bloquée par les Provocations, les Indestructibles et les charges de Spider-Weaver.",
+        "Après avoir ajouté Punisher et Elektra pour former les Justiciers complets, le joueur rapporte environ neuf attaques par nœud Ville."
+      ],
+      "notes": [
+        "L'auteur déconseille ce choix par rapport à Insidious Six : victoire obtenue, mais progression très lente."
+      ],
+      "difficulty": "DD9 · G21",
+      "kind": "player_report_unverified",
+      "compositionKind": null,
+      "provenance": {
+        "sourceIds": [
+          "reddit-dd9"
+        ],
+        "status": "source_text_checked",
+        "scope": "node",
+        "sourceCheckedAt": "2026-10-17",
+        "sourceEvidence": "reddit_comment_not_original_post",
+        "sourceCommentAuthor": "DrRedWolf",
+        "sourceDate": "2026-06-22",
+        "editorialReferenceOnly": null
+      },
+      "review": {
+        "status": "source_text_checked",
+        "flags": [
+          "community_comment_not_original_author"
+        ]
+      }
+    },
+    {
+      "id": "dd9/cosmic/v5",
+      "eventId": "dd9",
+      "stageId": "cosmic",
+      "origin": "source_reextraction",
+      "label": "Retour de combat d'un autre joueur",
+      "teamName": "Franklin, Reed (MCU), Femme invisible (MCU), Knull, High Evolutionary",
+      "characters": [
+        "FranklinRichards",
+        "MrFantasticMCU",
+        "InvisibleWomanMCU",
+        "Knull",
+        "HighEvolutionary"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [
+        "Les trois Fantastiques MCU ont ralenti la prise de vitesse de Méphisto, mais leurs temps de recharge sont longs.",
+        "Le joueur rapporte environ six à huit attaques pour chaque nœud Cosmique."
+      ],
+      "notes": [
+        "Il envisageait Thanos, mais ne l'avait pas équipé pour préserver les ressources Mystiques."
+      ],
+      "difficulty": "DD9 · G21",
+      "kind": "player_report_unverified",
+      "compositionKind": null,
+      "provenance": {
+        "sourceIds": [
+          "reddit-dd9"
+        ],
+        "status": "source_text_checked",
+        "scope": "node",
+        "sourceCheckedAt": "2026-10-17",
+        "sourceEvidence": "reddit_comment_not_original_post",
+        "sourceCommentAuthor": "DrRedWolf",
+        "sourceDate": "2026-06-22",
+        "editorialReferenceOnly": null
+      },
+      "review": {
+        "status": "source_text_checked",
+        "flags": [
+          "community_comment_not_original_author"
+        ]
+      }
+    },
+    {
+      "id": "dd9/global/v4",
+      "eventId": "dd9",
+      "stageId": "global",
+      "origin": "source_reextraction",
+      "label": "Retour de combat d'un autre joueur",
+      "teamName": "Daimon, Darkstar, Sentry, Yelena, Red Guardian",
+      "characters": [
+        "DaimonHellstrom",
+        "Darkstar",
+        "Sentry",
+        "Yelena",
+        "RedGuardian"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [
+        "Daimon et Darkstar assurent l'essentiel des dégâts ; Sentry peut démarrer avec davantage d'énergie après un soin.",
+        "Red Guardian offre Provocation, soins et purification. Yelena a été retenue pour son faible coût d'équipement et sa synergie.",
+        "Le joueur rapporte environ six à huit attaques par nœud."
+      ],
+      "notes": [
+        "Cette victoire repose aussi sur les diamants et l'équipement propres au compte de l'auteur."
+      ],
+      "difficulty": "DD9 · G21",
+      "kind": "player_report_unverified",
+      "compositionKind": null,
+      "provenance": {
+        "sourceIds": [
+          "reddit-dd9"
+        ],
+        "status": "source_text_checked",
+        "scope": "node",
+        "sourceCheckedAt": "2026-10-17",
+        "sourceEvidence": "reddit_comment_not_original_post",
+        "sourceCommentAuthor": "DrRedWolf",
+        "sourceDate": "2026-06-22",
+        "editorialReferenceOnly": null
+      },
+      "review": {
+        "status": "source_text_checked",
+        "flags": [
+          "community_comment_not_original_author"
+        ]
+      }
+    },
+    {
+      "id": "dd9/legendary/v4",
+      "eventId": "dd9",
+      "stageId": "legendary",
+      "origin": "source_reextraction",
+      "label": "Retour de combat d'un autre joueur",
+      "teamName": "Omega Red (Force Phénix), Magnéto (Force Phénix), Phénix, Old Man Logan, Blastaar",
+      "characters": [
+        "OmegaRedPhoenix",
+        "MagnetoPhoenixForce",
+        "Phoenix",
+        "OldManLogan",
+        "Blastaar"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [
+        "Le joueur rapporte avoir réussi les deux nœuds en une seule attaque chacun.",
+        "Il considère Old Man Logan comme le principal atout. Blastaar a été choisi pour équilibrer l'équipement Bio et éviter des recharges longues."
+      ],
+      "notes": [
+        "Témoignage d'une réussite, pas une rotation de capacités détaillée."
+      ],
+      "difficulty": "DD9 · G21",
+      "kind": "player_report_unverified",
+      "compositionKind": null,
+      "provenance": {
+        "sourceIds": [
+          "reddit-dd9"
+        ],
+        "status": "source_text_checked",
+        "scope": "node",
+        "sourceCheckedAt": "2026-10-17",
+        "sourceEvidence": "reddit_comment_not_original_post",
+        "sourceCommentAuthor": "DrRedWolf",
+        "sourceDate": "2026-06-22",
+        "editorialReferenceOnly": null
+      },
+      "review": {
+        "status": "source_text_checked",
+        "flags": [
+          "community_comment_not_original_author"
+        ]
+      }
+    },
+    {
+      "id": "dd9/mythic/v4",
+      "eventId": "dd9",
+      "stageId": "mythic",
+      "origin": "source_reextraction",
+      "label": "Retour de combat d'un autre joueur",
+      "teamName": "Blue Marvel, Xavier, Odin, Super-Skrull et Kestrel non illustrée",
+      "characters": [
+        "BlueMarvel",
+        "Xavier",
+        "Odin",
+        "SuperSkrull"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [
+        "Le joueur a volontairement retenu Super-Skrull plutôt que Méphisto pour limiter les dépenses d'équipement Mystique.",
+        "Il rapporte de nombreux essais et redémarrages. Kestrel normale limitait parfois les invocations de Void par Sentry.",
+        "Kestrel normale est le cinquième membre, mais son portrait n'existe pas parmi nos identifiants jouables actuels."
+      ],
+      "notes": [
+        "Attention : ne pas la remplacer par sa variante zombie."
+      ],
+      "difficulty": "DD9 · G21",
+      "kind": "player_report_unverified",
+      "compositionKind": "partial",
+      "provenance": {
+        "sourceIds": [
+          "reddit-dd9"
+        ],
+        "status": "source_text_checked",
+        "scope": "node",
+        "sourceCheckedAt": "2026-10-17",
+        "sourceEvidence": "reddit_comment_not_original_post",
+        "sourceCommentAuthor": "DrRedWolf",
+        "sourceDate": "2026-06-22",
+        "editorialReferenceOnly": null
+      },
+      "review": {
+        "status": "source_text_checked",
+        "flags": [
+          "community_comment_not_original_author",
+          "normal_kestrel_missing_from_playable_catalog"
+        ]
+      }
     }
   ]
 }
