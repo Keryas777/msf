@@ -237,6 +237,9 @@
       body.append(el("p", "challenge-guide-verification",
         "La source présente des restrictions contradictoires sur la taille de l'équipe."));
     }
+    if (strategy.review?.auditNote) {
+      body.append(el("p", "challenge-source-warning", strategy.review.auditNote));
+    }
     return body;
   }
 
