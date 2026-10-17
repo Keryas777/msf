@@ -6790,8 +6790,11 @@
       "review": {
         "status": "needs_source_audit",
         "flags": [
-          "source_not_attributed_to_this_node"
-        ]
+          "source_not_attributed_to_this_node",
+          "tactics_name_heroes_not_in_displayed_five",
+          "source_context_needs_reconstruction"
+        ],
+        "auditNote": "La fiche mentionne Old Man Logan et Deathpool dans les conseils de préparation alors qu'aucun ne figure parmi les cinq portraits de cette version. Le lien éventuel avec d'autres missions n'est pas vérifié. Ne pas fusionner ces instructions avec une autre équipe sans revenir à la source."
       }
     },
     {
