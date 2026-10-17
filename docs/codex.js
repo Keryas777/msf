@@ -504,6 +504,9 @@ function setBreadcrumbs(items = []) {
 function commitView(model, token, options = {}) {
   if (token !== state.renderToken) return;
   dom.main.innerHTML = model.html;
+  const landingSearchSlot = dom.main.querySelector("#codexLandingSearchSlot");
+  if (landingSearchSlot) landingSearchSlot.append(dom.searchForm);
+  document.body.classList.toggle("codexLandingView", Boolean(landingSearchSlot));
   titleForPage(model.title || "");
   setBreadcrumbs(model.breadcrumbs || []);
   state.activeMechanicContext = model.mechanicContext || null;
@@ -807,57 +810,63 @@ function homeModel() {
   return {
     title: "",
     breadcrumbs: [],
+    landing: true,
     html: `
-      <section class="codexHero">
-        <p class="codexEyebrow">Personnages, capacités et mécaniques</p>
-        <h1 class="codexPageTitle">Codex MSF</h1>
-        <p class="codexLead">
-          Explore les kits officiels, leurs capacités, les effets structurés,
-          les actions détectées et les mentions des textes français.
-        </p>
-        ${generationText ? `<p class="codexGeneration">${escapeHtml(generationText)}</p>` : ""}
+      <section class="codexLandingHero" aria-labelledby="codex-landing-title">
+        <span class="codexLandingHeroArtwork" aria-hidden="true"></span>
+        <a class="codexLandingNav codexLandingNav--back" href="./home.html" aria-label="Retour à l’accueil LoSP">⬅️</a>
+        <a class="codexLandingNav codexLandingNav--home" href="./home.html" aria-label="Accueil LoSP">🏠</a>
+        <div class="codexLandingHeroTitle">
+          <h1 id="codex-landing-title">Codex MSF</h1>
+          <p>Personnages, capacités et mécaniques</p>
+        </div>
       </section>
 
-      <nav class="codexGateGrid" aria-label="Portes d’entrée">
-        <a class="codexGate" href="${escapeHtml(buildCodexHref({ view: "characters" }))}" data-codex-link>
-          <span class="codexGateIcon" aria-hidden="true">◉</span>
-          <span>
-            <strong>Personnages</strong>
-            <small>Kits officiels, capacités et invocations</small>
-          </span>
+      <nav class="codexLandingTiles" aria-label="Explorer le Codex">
+        <a class="codexGate codexLandingTile codexLandingTile--characters" href="${escapeHtml(buildCodexHref({ view: "characters" }))}" data-codex-link>
+          <span class="codexLandingTileArtwork" aria-hidden="true"></span>
+          <span class="codexLandingTilePattern" aria-hidden="true"></span>
+          <span class="codexLandingTileIcon" aria-hidden="true">◉</span>
+          <strong>Personnages</strong>
         </a>
-        <a class="codexGate" href="${escapeHtml(buildCodexHref({ view: "mechanics" }))}" data-codex-link>
-          <span class="codexGateIcon" aria-hidden="true">⌘</span>
-          <span>
-            <strong>Mécaniques</strong>
-            <small>Effets, actions et mentions officielles</small>
-          </span>
+        <a class="codexGate codexLandingTile codexLandingTile--mechanics" href="${escapeHtml(buildCodexHref({ view: "mechanics" }))}" data-codex-link>
+          <span class="codexLandingTileArtwork" aria-hidden="true"></span>
+          <span class="codexLandingTilePattern" aria-hidden="true"></span>
+          <span class="codexLandingTileIcon" aria-hidden="true">✧</span>
+          <strong>Mécaniques</strong>
         </a>
       </nav>
 
-      <div class="codexHomeColumns">
-        <section class="codexSection" aria-labelledby="codex-suggestions-title">
-          <div class="codexSectionHeader">
-            <div>
-              <h2 id="codex-suggestions-title">Explorer…</h2>
-              <p>Quelques chemins pris en charge par cette génération.</p>
-            </div>
-          </div>
+      <section class="codexLandingPanel" aria-labelledby="codex-landing-search-title">
+        <h2 id="codex-landing-search-title">Rechercher dans le Codex</h2>
+        <div id="codexLandingSearchSlot"></div>
+      </section>
+
+      <section class="codexLandingPanel" aria-labelledby="codex-landing-quick-title">
+        <h2 id="codex-landing-quick-title">Accès rapides</h2>
+        <p class="codexLandingSubtitle">Retrouve directement les principaux types de contenus.</p>
+        <nav class="codexLandingShortcuts" aria-label="Recherches rapides dans le Codex">
+          <a href="${escapeHtml(buildCodexHref({ view: "search", q: "effet" }))}" data-codex-link>Effets</a>
+          <a href="${escapeHtml(buildCodexHref({ view: "search", q: "action" }))}" data-codex-link>Actions</a>
+          <a href="${escapeHtml(buildCodexHref({ view: "search", q: "invocation" }))}" data-codex-link>Invocations</a>
+        </nav>
+      </section>
+
+      <section class="codexLandingPanel" aria-labelledby="codex-landing-proof-title">
+        <h2 id="codex-landing-proof-title">Niveaux de preuve</h2>
+        <p class="codexLandingSubtitle">Chaque interprétation conserve son statut officiel ou technique.</p>
+        <div class="codexProofGuide">
+          ${proofGuideMarkup(["normalized", "preserved_uninterpreted", "official_text_only"])}
+        </div>
+      </section>
+
+      ${suggestions ? `
+        <section class="codexLandingPanel" aria-labelledby="codex-landing-suggestions-title">
+          <h2 id="codex-landing-suggestions-title">Explorer…</h2>
           <ul class="codexSuggestionList">${suggestions}</ul>
         </section>
-
-        <section class="codexSection" aria-labelledby="codex-proof-title">
-          <div class="codexSectionHeader">
-            <div>
-              <h2 id="codex-proof-title">Niveaux de preuve</h2>
-              <p>Le badge appartient à chaque occurrence affichée.</p>
-            </div>
-          </div>
-          <div class="codexProofGuide">
-            ${proofGuideMarkup(["normalized", "preserved_uninterpreted", "official_text_only"])}
-          </div>
-        </section>
-      </div>
+      ` : ""}
+      ${generationText ? `<p class="codexLandingGeneration">${escapeHtml(generationText)}</p>` : ""}
     `,
   };
 }
@@ -2331,6 +2340,10 @@ function operationModel(context) {
 }
 
 async function renderRoute(route, options = {}) {
+  // Keep the live search form and its listeners when replacing the landing markup.
+  if (dom.searchForm.parentElement !== dom.breadcrumbs.parentElement) {
+    dom.breadcrumbs.before(dom.searchForm);
+  }
   const token = ++state.renderToken;
   state.route = route;
   if (!options.background) renderLoading(route.view === "home" ? "Chargement du Codex…" : "Chargement de la fiche…");
