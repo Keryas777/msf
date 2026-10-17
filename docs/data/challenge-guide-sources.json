@@ -795,7 +795,7 @@
       ],
       "integration": {
         "linkedStrategies": 11,
-        "textCheckedStrategies": 1,
+        "textCheckedStrategies": 11,
         "status": "partially_integrated_and_source_text_read"
       }
     },
@@ -1174,9 +1174,9 @@
         }
       ],
       "integration": {
-        "linkedStrategies": 5,
-        "textCheckedStrategies": 0,
-        "status": "linked_but_not_independently_revalidated"
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "partially_integrated_and_source_text_read"
       }
     },
     {
@@ -1248,15 +1248,15 @@
       "sectionIds": [],
       "publishedAt": "2026-07-20",
       "updatedAt": null,
-      "verificationStatus": "indexed_content",
-      "evidence": "Publication Reddit retrouvée avec compositions et compte rendu de combats réels.",
+      "verificationStatus": "content_checked",
+      "evidence": "Publication Reddit Rayge publiée le 20 juillet 2026, texte intégral consulté le 17 octobre 2026. 18 compositions identifiées par étage ; plusieurs équipes seulement nommées, et vidéos non visionnées.",
       "evidenceLevel": "reported_clear",
       "editorialFamily": null,
-      "notes": "Retour joueur, solutions testées annoncées.",
+      "notes": "Ne pas inventer les personnages quand le message indique seulement « Omen », « New Mutants », « Sym6 » ou « + 3 ». Cela reste une réussite rapportée par Rayge, pas une validation LoSP.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 18,
+        "textCheckedStrategies": 18,
+        "status": "partially_integrated_and_source_text_read"
       }
     },
     {
@@ -1940,7 +1940,12 @@
       "evidence": "Publication de joueur ouverte via index Reddit, descriptions directes d'équipes aux étages 34 et 36, et rôle de Mystério à l'étage 34.",
       "evidenceLevel": "reported_clear",
       "editorialFamily": null,
-      "notes": "Source distincte de Rayge. Le joueur signale notamment une forte dépendance à l'aléatoire pour l'étage 34."
+      "notes": "Source distincte de Rayge. Le joueur signale notamment une forte dépendance à l'aléatoire pour l'étage 34.",
+      "integration": {
+        "linkedStrategies": 2,
+        "textCheckedStrategies": 2,
+        "status": "partially_integrated_and_source_text_read"
+      }
     }
   ],
   "reviewQueue": [
