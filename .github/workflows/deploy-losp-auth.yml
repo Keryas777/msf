@@ -1,0 +1,93 @@
+name: Déployer authentification LoSP sécurisée
+on:
+  pull_request:
+    paths:
+      - "workers/losp-auth/worker.js"
+      - "workers/losp-auth/wrangler.jsonc"
+      - "workers/msf-cosmic-defenses/test/**"
+      - "scripts/check-losp-auth-preview.mjs"
+      - "scripts/check-losp-auth-production.mjs"
+      - ".github/workflows/deploy-losp-auth.yml"
+  push:
+    branches: [main]
+    paths:
+      - "workers/losp-auth/worker.js"
+      - "workers/losp-auth/wrangler.jsonc"
+      - "scripts/check-losp-auth-preview.mjs"
+      - "scripts/check-losp-auth-production.mjs"
+      - ".github/workflows/deploy-losp-auth.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: losp-auth-production-deploy
+  cancel-in-progress: false
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Vérifier la syntaxe
+        run: |
+          node --check workers/losp-auth/worker.js
+          node --check scripts/check-losp-auth-preview.mjs
+          node --check scripts/check-losp-auth-production.mjs
+      - name: Tester les anciens et nouveaux jetons Discord
+        run: |
+          node --test workers/msf-cosmic-defenses/test/legacy-session.test.mjs
+          node --test workers/msf-cosmic-defenses/test/auth.test.mjs
+
+  preflight:
+    if: github.event_name != 'pull_request'
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Confirmer les permissions Cloudflare
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN"
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+      - name: Uploader le vrai Worker dans une version-test (0 % trafic)
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4 versions upload             --config workers/losp-auth/wrangler.jsonc             --preview-alias auth-release-check 2>&1 | tee "$RUNNER_TEMP/losp-auth-preflight.log"
+          url="$(grep -Eo 'Version Preview URL: https://[a-zA-Z0-9.-]+[.]workers[.]dev' "$RUNNER_TEMP/losp-auth-preflight.log" | head -1 | sed 's/^Version Preview URL: //' || true)"
+          if [ -z "$url" ]; then
+            echo "Aucune Version URL Cloudflare. Arrêt avant déploiement."
+            exit 1
+          fi
+          echo "LOSP_AUTH_PREVIEW_URL=$url" >> "$GITHUB_ENV"
+      - name: Vérifier l'accès des anciennes sessions et les protections
+        run: node scripts/check-losp-auth-preview.mjs "$LOSP_AUTH_PREVIEW_URL"
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Installer le VRAI losp-auth en production (secrets conservés)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: workers/losp-auth
+          wranglerVersion: "4"
+          command: deploy
+      - name: Vérifier la production sans jetons utilisateurs
+        run: node scripts/check-losp-auth-production.mjs
