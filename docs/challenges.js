@@ -313,8 +313,10 @@
       const jumpBar = el("div", "challenge-jump-bar");
       const jumpText = event.type === "dark-dimension"
         ? "Aller directement à un nœud / une section"
-        : event.type === "trial" || event.stageUnit === "mission"
-          ? "Aller directement à une mission"
+        : event.stageUnit === "section"
+          ? "Aller directement à une section"
+          : event.type === "trial" || event.stageUnit === "mission"
+            ? "Aller directement à une mission"
           : event.stageUnit === "cellule"
             ? "Aller directement à une cellule"
             : "Aller directement à un étage";
