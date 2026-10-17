@@ -78,20 +78,32 @@
 .cosmicPublishedSelect{display:block;width:100%;min-width:0;margin:5px 0 12px}
 .cosmicPublishedSelect:disabled{opacity:.65}
 
-/* Retirer un personnage de son brouillon : croix discrète, utilisable au doigt. */
+/* Petite croix visible (19 px) et zone tactile préservée (32 px). */
 .cosmicSelectedPortraits .cosmicPortrait{position:relative}
 .cosmicPortraitRemove{
-  position:absolute;top:2px;right:2px;z-index:1;
-  display:grid;place-items:center;
-  width:30px;height:30px;padding:0;
-  border:1px solid rgba(255,255,255,.55);border-radius:50%;
-  color:#fff;background:rgba(14,16,31,.88);
-  font:700 20px/1 sans-serif;
+  position:absolute;top:0;right:0;z-index:1;
+  width:32px;height:32px;padding:0;
+  border:0;background:transparent;color:transparent;
+  font-size:0;
   cursor:pointer;touch-action:manipulation;
   -webkit-tap-highlight-color:transparent;
 }
-.cosmicPortraitRemove:focus-visible{outline:2px solid #d9aaff;outline-offset:1px}
-.cosmicPortraitRemove:active{background:#64343f}
+.cosmicPortraitRemove::before,
+.cosmicPortraitRemove::after{
+  position:absolute;top:2px;right:2px;
+  width:19px;height:19px;box-sizing:border-box;
+  border-radius:50%;pointer-events:none;
+}
+.cosmicPortraitRemove::before{
+  content:"";border:1px solid rgba(255,255,255,.55);
+  background:rgba(14,16,31,.88);
+}
+.cosmicPortraitRemove::after{
+  content:"×";display:grid;place-items:center;
+  color:#fff;font:700 12px/1 sans-serif;
+}
+.cosmicPortraitRemove:focus-visible{outline:2px solid #d9aaff;outline-offset:-1px;border-radius:9px}
+.cosmicPortraitRemove:active::before{background:#64343f}
 
 /* Trois entrées distinctes : cartes lisibles et facilement touchables sur mobile. */
 .cosmicHubGrid{grid-template-columns:minmax(0,1fr)}
