@@ -16022,6 +16022,94 @@
           "normal_kestrel_missing_from_playable_catalog"
         ]
       }
+    },
+    {
+      "id": "echoes-abyss/boss/v1",
+      "eventId": "echoes-abyss",
+      "stageId": "boss",
+      "origin": "source_reextraction",
+      "label": "Composition recommandée par MSFWAR",
+      "teamName": "Quasar, Blastaar, Daimon, Momie vivante et Hellcat",
+      "characters": [
+        "Quasar",
+        "Blastaar",
+        "DaimonHellstrom",
+        "LivingMummy",
+        "Hellcat"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [
+        "Privilégier l'attaque basique de Quasar, la spéciale de Blastaar et la spéciale de Daimon : ce sont les sources de dégâts en pourcentage de santé décrites par le guide.",
+        "Placer la Momie vivante à l'opposé de Quasar, Blastaar et Daimon pour qu'elle absorbe les attaques visant les personnages voisins.",
+        "ISO-8 : Quasar en Attaquant pour les attaques bonus, Blastaar et Daimon en Ravageur, Momie vivante en Fortificateur."
+      ],
+      "notes": [
+        "Le cinquième emplacement est libre : cette version emploie Hellcat, comme proposé dans le guide. Les deux propositions relèvent de la même source, pas de deux victoires indépendamment démontrées."
+      ],
+      "difficulty": "8",
+      "kind": "recommendation",
+      "compositionKind": null,
+      "provenance": {
+        "sourceIds": [
+          "msfwar-echoes"
+        ],
+        "status": "source_text_checked",
+        "scope": "node",
+        "sourceCheckedAt": "2026-10-17",
+        "sourceEvidence": "msfwar_event_static_text",
+        "editorialReferenceOnly": null
+      },
+      "review": {
+        "status": "source_text_checked",
+        "flags": [
+          "two_options_same_source_not_independent_clears"
+        ]
+      }
+    },
+    {
+      "id": "echoes-abyss/boss/v2",
+      "eventId": "echoes-abyss",
+      "stageId": "boss",
+      "origin": "source_reextraction",
+      "label": "Composition recommandée par MSFWAR",
+      "teamName": "Quasar, Blastaar, Daimon, Momie vivante et Strange (Sans cœur)",
+      "characters": [
+        "Quasar",
+        "Blastaar",
+        "DaimonHellstrom",
+        "LivingMummy",
+        "StrangeSupreme"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [
+        "Privilégier l'attaque basique de Quasar, la spéciale de Blastaar et la spéciale de Daimon : ce sont les sources de dégâts en pourcentage de santé décrites par le guide.",
+        "Placer la Momie vivante à l'opposé de Quasar, Blastaar et Daimon pour qu'elle absorbe les attaques visant les personnages voisins.",
+        "ISO-8 : Quasar en Attaquant pour les attaques bonus, Blastaar et Daimon en Ravageur, Momie vivante en Fortificateur."
+      ],
+      "notes": [
+        "Le cinquième emplacement est libre : cette version emploie Strange (Sans cœur), comme proposé dans le guide. Les deux propositions relèvent de la même source, pas de deux victoires indépendamment démontrées."
+      ],
+      "difficulty": "8",
+      "kind": "recommendation",
+      "compositionKind": null,
+      "provenance": {
+        "sourceIds": [
+          "msfwar-echoes"
+        ],
+        "status": "source_text_checked",
+        "scope": "node",
+        "sourceCheckedAt": "2026-10-17",
+        "sourceEvidence": "msfwar_event_static_text",
+        "editorialReferenceOnly": null
+      },
+      "review": {
+        "status": "source_text_checked",
+        "flags": [
+          "two_options_same_source_not_independent_clears"
+        ]
+      }
     }
   ]
 }
