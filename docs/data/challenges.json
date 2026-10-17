@@ -6073,6 +6073,412 @@
       "totalStages": 10,
       "stageUnit": "mission",
       "guideNote": "Guide de préparation et recommandations de personnages, pas dix victoires individuelles démontrées. Deux parcours sont nécessaires pour obtenir les récompenses complètes."
+    },
+    {
+      "id": "scourge-famine",
+      "type": "trial",
+      "title": "Fléau Famine — Malicia",
+      "summary": "Scourge historique des Cavaliers : dix nœuds, équipes d'époque et conseils reformulés en français.",
+      "rewardId": "Rogue",
+      "editorialRef": "best-team-for-famine-scourge-and-scourge-tier-list/",
+      "totalStages": 10,
+      "stageUnit": "mission",
+      "guideNote": "Archive historique : les traits et équipes ont évolué. Une victoire ancienne ne garantit pas de battre le contenu avec les mêmes statistiques aujourd'hui ; vérifier l'éligibilité en jeu.",
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Ville",
+          "teamName": "Parcours historique",
+          "characters": [
+            "ScarletSpider",
+            "Cloak",
+            "GhostSpider",
+            "ShangChi",
+            "SpiderMan"
+          ],
+          "advice": [
+            "Cloak, Ghost-Spider et Shang-Chi font pression, préparer les contrôles pour le nœud 2."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Ville",
+          "teamName": "Parcours historique",
+          "characters": [
+            "SquirrelGirl",
+            "Cloak",
+            "GhostSpider",
+            "ShangChi",
+            "SpiderMan"
+          ],
+          "advice": [
+            "Squirrel Girl assure les soins, les autres se chargent des dégâts et perturbations."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Mutant",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Gambit",
+            "Bishop",
+            "OmegaRed",
+            "Jubilee",
+            "Rogue"
+          ],
+          "advice": [
+            "Malicia bloque Star-Lord (T'Challa), Jubilé aveugle Kate Bishop et Omega Red contrôle Ebony Maw."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Mutant",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Gambit",
+            "Bishop",
+            "OmegaRed",
+            "Jubilee",
+            "Rogue"
+          ],
+          "advice": [
+            "Réutiliser l'équipe Mutant ; entrer avec les compétences de Malicia rechargées."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Jeunes Avengers / A-Force / Nouveaux Guerriers",
+          "teamName": "Parcours historique",
+          "characters": [
+            "MsMarvel",
+            "SquirrelGirl",
+            "AmericaChavez",
+            "Echo",
+            "KateBishop"
+          ],
+          "advice": [
+            "Jeunes Avengers de l'ancien parcours : privilégier la survie et maîtriser les vagues."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Vilains",
+          "teamName": "Parcours historique",
+          "characters": [
+            "OmegaRed",
+            "Doom",
+            "Dormammu",
+            "MorganLeFay",
+            "AgathaHarkness"
+          ],
+          "advice": [
+            "Morgan et Agatha contrôlent, Fatalis et Omega Red lancent leurs ultimes sur les plus grosses menaces."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Vilains",
+          "teamName": "Parcours historique",
+          "characters": [
+            "OmegaRed",
+            "Doom",
+            "Dormammu",
+            "MorganLeFay",
+            "AgathaHarkness"
+          ],
+          "advice": [
+            "Réutiliser la composition et garder le contrôle de la jauge de vitesse ennemie."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Cosmique mystique",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Ikaris",
+            "Deathpool",
+            "Dormammu",
+            "SilverSurfer",
+            "Sersi"
+          ],
+          "advice": [
+            "Profiter des attaques d'Ikaris et de Circé ; concentrer le feu sur les ennemis qui soignent."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Cosmique mystique",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Ikaris",
+            "Deathpool",
+            "Dormammu",
+            "SilverSurfer",
+            "Sersi"
+          ],
+          "advice": [
+            "Même équipe, avec Vahl ou Thor (Infinity War) comme options plus récentes."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Jeunes Avengers / A-Force / Nouveaux Guerriers",
+          "teamName": "Parcours historique",
+          "characters": [
+            "MsMarvel",
+            "SquirrelGirl",
+            "AmericaChavez",
+            "Echo",
+            "KateBishop"
+          ],
+          "advice": [
+            "Le parcours historique utilise Jeunes Avengers ; les alternatives autorisées sont désormais plus nombreuses."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        }
+      ]
+    },
+    {
+      "id": "scourge-pestilence",
+      "type": "trial",
+      "title": "Fléau Pestilence — Morgan Le Fay",
+      "summary": "Scourge historique des Cavaliers : dix nœuds, équipes d'époque et conseils reformulés en français.",
+      "rewardId": "MorganLeFay",
+      "editorialRef": "pestilence-scourge-full-guide/",
+      "totalStages": 10,
+      "stageUnit": "mission",
+      "guideNote": "Archive historique : les traits et équipes ont évolué. Une victoire ancienne ne garantit pas de battre le contenu avec les mêmes statistiques aujourd'hui ; vérifier l'éligibilité en jeu.",
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Héros",
+          "teamName": "Parcours historique",
+          "characters": [
+            "SpiderWeaver",
+            "RedHulk",
+            "Rogue",
+            "SpiderMan2099",
+            "Gambit"
+          ],
+          "advice": [
+            "Spider-Weaver limite les dégâts, préparer l'ultime de Red Hulk."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Héros",
+          "teamName": "Parcours historique",
+          "characters": [
+            "RedHulk",
+            "Ikaris",
+            "Rogue",
+            "Sersi"
+          ],
+          "advice": [
+            "Le guide original utilisait aussi Kestrel, absente du catalogue de portraits jouables ; sa place reste non renseignée."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Mondial",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Wong",
+            "Rogue",
+            "RedHulk",
+            "MorganLeFay",
+            "AgathaHarkness"
+          ],
+          "advice": [
+            "Neutraliser Shang-Chi d'abord, puis perturber Ms. Marvel pour l'empêcher de provoquer."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Mondial",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Wong",
+            "Rogue",
+            "RedHulk",
+            "MorganLeFay",
+            "AgathaHarkness"
+          ],
+          "advice": [
+            "Empêcher Colossus et le Fléau de provoquer, puis neutraliser Rescue et Iron Man."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Dark Hunters / Web-Warriors / Underworld / Hive-Mind",
+          "teamName": "Parcours historique",
+          "characters": [
+            "GhostSpider",
+            "ScarletSpider",
+            "SpiderMan",
+            "SpiderPunk"
+          ],
+          "advice": [
+            "Ancienne composition Web-Warriors, avec Spider-Man (Miles) sans portrait jouable actuellement ; Hive-Mind est une alternative plus récente."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Vilains",
+          "teamName": "Parcours historique",
+          "characters": [
+            "OmegaRed",
+            "Doom",
+            "Dormammu",
+            "MorganLeFay",
+            "AgathaHarkness"
+          ],
+          "advice": [
+            "Conserver les contrôles et si possible les ultimes pour la mission suivante."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Vilains",
+          "teamName": "Parcours historique",
+          "characters": [
+            "OmegaRed",
+            "Doom",
+            "Dormammu",
+            "MorganLeFay",
+            "AgathaHarkness"
+          ],
+          "advice": [
+            "Utiliser les ultimes de Fatalis et Morgan pour éliminer les ennemis dangereux à leur arrivée."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Cosmique",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Ikaris",
+            "Deathpool",
+            "Dormammu",
+            "StrangeSupreme",
+            "Sersi"
+          ],
+          "advice": [
+            "Répartir les soins et contrôles, puis cibler les ennemis qui réaniment."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Cosmique",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Ikaris",
+            "Deathpool",
+            "Dormammu",
+            "StrangeSupreme",
+            "Sersi"
+          ],
+          "advice": [
+            "Dépenser librement les capacités lors de la dernière mission Cosmique."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Dark Hunters / Web-Warriors / Underworld / Hive-Mind",
+          "teamName": "Parcours historique",
+          "characters": [
+            "GhostSpider",
+            "ScarletSpider",
+            "SpiderMan",
+            "SpiderPunk"
+          ],
+          "advice": [
+            "Réutiliser la composition Web-Warriors historique, ou une équipe Hive-Mind éligible et mieux développée."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough",
+          "compositionKind": "partial"
+        }
+      ]
     }
   ]
 }
