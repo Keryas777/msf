@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "auditedAt": "2026-10-17",
   "scope": "Marvel Strike Force PvE challenge guides only",
-  "notes": "Seules les pages au contenu vérifiable/indexé apparaissent dans la sélection ; les ressources en reviewQueue ne sont pas exposées aux joueurs. Les publications traduites ou synthétisées ne constituent pas des victoires indépendantes.",
+  "notes": "Le catalogue distingue contenu contrôlé, index accessible, pages communautaires non validées et références en attente. Les traductions, synthèses et vidéos issues d'un même compte rendu sont rattachées à une même famille éditoriale ; elles ne constituent pas plusieurs preuves de victoire indépendantes.",
   "statuses": {
     "content_checked": "Page lue et contenu PvE contrôlé",
     "page_checked": "Page ouverte, mais solutions individuelles non vérifiées",
@@ -14,7 +14,7 @@
     {
       "id": "marvel-dd9",
       "eventId": "dd9",
-      "mode": "pve",
+      "mode": "dark-dimension",
       "title": "Personnages et préparation DD9",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/characters-for-dark-dimension-ix/",
@@ -34,7 +34,7 @@
     {
       "id": "marvel-dd-general",
       "eventId": null,
-      "mode": null,
+      "mode": "dark-dimension",
       "title": "Dimensions noires : guide général",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/heroes-for-dark-dimension/",
@@ -54,7 +54,7 @@
     {
       "id": "marvel-spider-descent",
       "eventId": "spider-descent",
-      "mode": "pve",
+      "mode": "tower",
       "title": "Tour Spider-Man : Descente",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/spider-man-tower-descent/",
@@ -74,7 +74,7 @@
     {
       "id": "marvel-fear",
       "eventId": "fear",
-      "mode": "pve",
+      "mode": "tower",
       "title": "Tour de la Peur",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/fear-tower/",
@@ -94,7 +94,7 @@
     {
       "id": "marvel-blade",
       "eventId": "blade",
-      "mode": "pve",
+      "mode": "tower",
       "title": "Tour de Blade",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/mighty-tower-blade/",
@@ -114,7 +114,7 @@
     {
       "id": "marvel-storm",
       "eventId": "storm",
-      "mode": "pve",
+      "mode": "tower",
       "title": "Tour de Tornade (Puissante)",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/mighty-tower-storm/",
@@ -134,7 +134,7 @@
     {
       "id": "marvel-kyln-whiplash",
       "eventId": "kyln-whiplash",
-      "mode": "pve",
+      "mode": "tower",
       "title": "Kyln : Code Whiplash",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/escape-from-kyln-code-whiplash/",
@@ -154,7 +154,7 @@
     {
       "id": "marvel-kyln-blazes",
       "eventId": "kyln-blazes",
-      "mode": "pve",
+      "mode": "tower",
       "title": "Kyln : Code Blazes",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/escape-from-kyln-code-blazes/",
@@ -174,7 +174,7 @@
     {
       "id": "marvel-kyln-polarity",
       "eventId": "kyln-polarity",
-      "mode": "pve",
+      "mode": "tower",
       "title": "Kyln : Polarity Shift",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/escape-from-kyln/",
@@ -194,7 +194,7 @@
     {
       "id": "marvel-shadow",
       "eventId": "shadow-king",
-      "mode": "pve",
+      "mode": "trial",
       "title": "Épreuves du Roi d’ombre",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/shadow-king-trials/",
@@ -214,7 +214,7 @@
     {
       "id": "marvel-oml",
       "eventId": "old-man-logan",
-      "mode": "pve",
+      "mode": "trial",
       "title": "Épreuves d’Old Man Logan",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/old-man-logan-trials/",
@@ -234,7 +234,7 @@
     {
       "id": "marvel-goblin",
       "eventId": "green-goblin",
-      "mode": "pve",
+      "mode": "trial",
       "title": "Épreuves du Bouffon vert (Classique)",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/green-goblin-classic-trials/",
@@ -254,7 +254,7 @@
     {
       "id": "marvel-black-cat",
       "eventId": "black-cat",
-      "mode": "pve",
+      "mode": "trial",
       "title": "Épreuves de Black Cat",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/black-cat-trials/",
@@ -274,7 +274,7 @@
     {
       "id": "marvel-nova",
       "eventId": "nova",
-      "mode": "pve",
+      "mode": "trial",
       "title": "Épreuves de Nova",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/nova-trials/",
@@ -294,7 +294,7 @@
     {
       "id": "marvel-quasar",
       "eventId": "invasion-quasar",
-      "mode": "pve",
+      "mode": "event",
       "title": "Invasion : Quasar",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/invasion-event-quasar/",
@@ -314,7 +314,7 @@
     {
       "id": "marvel-blastaar",
       "eventId": "invasion-blastaar",
-      "mode": "pve",
+      "mode": "event",
       "title": "Invasion : Blastaar",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/invasion-event-blastaar/",
@@ -334,7 +334,7 @@
     {
       "id": "marvel-surfer",
       "eventId": "surfer-breaker",
-      "mode": "pve",
+      "mode": "trial",
       "title": "Breaker : Surfer d’argent",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/breaker-event-silver-surfer/",
@@ -354,7 +354,7 @@
     {
       "id": "marvel-scorpion",
       "eventId": "scorpion-breaker",
-      "mode": "pve",
+      "mode": "trial",
       "title": "Breaker : Scorpion",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/breaker-event-scorpion/",
@@ -374,7 +374,7 @@
     {
       "id": "marvel-finding",
       "eventId": "finding-xavier",
-      "mode": "pve",
+      "mode": "event",
       "title": "Finding Xavier : Race to X",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/finding-xavier/",
@@ -394,7 +394,7 @@
     {
       "id": "marvel-blue-marvel",
       "eventId": "target-blue-marvel",
-      "mode": "pve",
+      "mode": "event",
       "title": "Target : Blue Marvel",
       "author": "Marvel Church",
       "url": "https://www.marvel.church/target-blue-marvel/",
@@ -414,7 +414,7 @@
     {
       "id": "msfbase-fear",
       "eventId": "fear",
-      "mode": null,
+      "mode": "tower",
       "title": "Solutions communautaires : Fear Tower",
       "author": "MSF Base / communauté",
       "url": "https://www.msfbase.com/planners/towers/fear-tower/solutions/",
@@ -434,7 +434,7 @@
     {
       "id": "msfbase-spider",
       "eventId": "spider-descent",
-      "mode": null,
+      "mode": "tower",
       "title": "Solutions communautaires : Tour Spider-Man",
       "author": "MSF Base / communauté",
       "url": "https://www.msfbase.com/planners/towers/spider-man/solutions/",
@@ -454,7 +454,7 @@
     {
       "id": "msfbase-blade",
       "eventId": "blade",
-      "mode": null,
+      "mode": "tower",
       "title": "Solutions communautaires : Tour Blade",
       "author": "MSF Base / communauté",
       "url": "https://www.msfbase.com/planners/towers/blade-mighty/solutions/",
@@ -474,7 +474,7 @@
     {
       "id": "reddit-rayge-fear",
       "eventId": "fear",
-      "mode": null,
+      "mode": "tower",
       "title": "Fear Tower Omega — étages 1 à 20 (F2P)",
       "author": "Rayge Gaming",
       "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1uhnp2b/",
@@ -515,7 +515,7 @@
     {
       "id": "reddit-rayge-spider-31",
       "eventId": "spider-descent",
-      "mode": null,
+      "mode": "tower",
       "title": "Spider-Man Tower — alternatives étages 31 à 40",
       "author": "Rayge Gaming",
       "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1vthxbd/",
@@ -546,7 +546,7 @@
     {
       "id": "reddit-fear-written",
       "eventId": "fear",
-      "mode": null,
+      "mode": "tower",
       "title": "Fear Tower — stratégies écrites des étages 11 à 20",
       "author": "Communauté Reddit",
       "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1ugobhl/",
@@ -577,7 +577,7 @@
     {
       "id": "reddit-rayge-whiplash",
       "eventId": "kyln-whiplash",
-      "mode": null,
+      "mode": "tower",
       "title": "Kyln Whiplash — cellules 1 à 4 sans Éternels",
       "author": "Rayge Gaming",
       "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1wdyt6c/",
@@ -602,7 +602,7 @@
     {
       "id": "reddit-rayge-fear-10",
       "eventId": "fear",
-      "mode": null,
+      "mode": "tower",
       "title": "Fear Tower — équipes alternatives 1 à 10",
       "author": "Rayge Gaming",
       "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1uawg59/",
@@ -633,7 +633,7 @@
     {
       "id": "reddit-rayge-spider-21",
       "eventId": "spider-descent",
-      "mode": null,
+      "mode": "tower",
       "title": "Spider-Man Tower — alternatives 21 à 30",
       "author": "Rayge Gaming",
       "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1vniyzy/",
@@ -664,7 +664,7 @@
     {
       "id": "reddit-rayge-spider-10",
       "eventId": "spider-descent",
-      "mode": null,
+      "mode": "tower",
       "title": "Spider-Man Tower — alternatives 1 à 10",
       "author": "Rayge Gaming",
       "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1vakcem/",
@@ -695,7 +695,7 @@
     {
       "id": "reddit-rayge-blade",
       "eventId": "blade",
-      "mode": null,
+      "mode": "tower",
       "title": "Tour Blade Omega — équipes 1 à 18",
       "author": "Rayge Gaming",
       "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1v1lmxm/",
@@ -734,7 +734,7 @@
     {
       "id": "reddit-whiplash-6",
       "eventId": "kyln-whiplash",
-      "mode": null,
+      "mode": "tower",
       "title": "Kyln Whiplash — cellules 6 à 10",
       "author": "Communauté Reddit",
       "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1wkqo5m/",
@@ -760,7 +760,7 @@
     {
       "id": "reddit-whiplash-16",
       "eventId": "kyln-whiplash",
-      "mode": null,
+      "mode": "tower",
       "title": "Kyln Whiplash — cellules 16 et 17",
       "author": "Communauté Reddit",
       "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1wyk86g/",
@@ -783,7 +783,7 @@
     {
       "id": "apptipps-dd9",
       "eventId": "dd9",
-      "mode": null,
+      "mode": "dark-dimension",
       "title": "DD9 — compositions recommandées par section",
       "author": "Michael Wilson / App-Tipps",
       "url": "https://app-tipps.com/msf-dark-dimension-9-teams/",
@@ -809,7 +809,7 @@
     {
       "id": "apptipps-dd-general",
       "eventId": null,
-      "mode": null,
+      "mode": "dark-dimension",
       "title": "Dimensions noires DD1–DD9 — guide général",
       "author": "App-Tipps",
       "url": "https://app-tipps.com/msf-dark-dimension-guide/",
@@ -829,7 +829,7 @@
     {
       "id": "gamingfans-dd6",
       "eventId": "dd6",
-      "mode": null,
+      "mode": "dark-dimension",
       "title": "Dark Dimension VI — journal de progression",
       "author": "Gaming-Fans",
       "url": "https://gaming-fans.com/marvel-strike-force/msf-resources/dark-dimension-walkthrough-live-blogs/dark-dimension-6/",
@@ -849,7 +849,7 @@
     {
       "id": "theria-dd8",
       "eventId": "dd8",
-      "mode": null,
+      "mode": "dark-dimension",
       "title": "Dimension noire VIII — guide français",
       "author": "Theria Games",
       "url": "https://theriagames.com/fr/guide/marvel-strike-force-dark-dimension-viii/",
@@ -869,7 +869,7 @@
     {
       "id": "theria-shadow-fr",
       "eventId": "shadow-king",
-      "mode": null,
+      "mode": "trial",
       "title": "Trial du Roi d’ombre — guide français",
       "author": "Theria Games / Angelo P",
       "url": "https://theriagames.com/fr/guide/marvel-strike-force-shadow-king-trial/",
@@ -885,6 +885,110 @@
       "evidenceLevel": "guide",
       "editorialFamily": "theria-shadow-king-july-2025",
       "notes": "Ne pas compter séparément les versions linguistiques de cet article."
+    },
+    {
+      "id": "rayge-fear-video-1-5",
+      "eventId": "fear",
+      "mode": "tower",
+      "title": "Fear Tower Omega — vidéo des étages 1–5",
+      "author": "Rayge Gaming",
+      "url": "https://youtu.be/ZMSnzFcpMZM",
+      "language": "en",
+      "format": "video",
+      "difficulty": "Omega",
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "sectionIds": [],
+      "publishedAt": "2026-06-20",
+      "updatedAt": null,
+      "verificationStatus": "indexed_content",
+      "evidence": "Lien vidéo cité dans un compte rendu de joueur consulté ; vidéo non visionnée directement.",
+      "evidenceLevel": "reported_clear",
+      "editorialFamily": "reddit-rayge-fear-10",
+      "notes": "Vidéo liée dans la publication d'origine ; le lien vidéo et la couverture doivent être revalidés avant de prétendre à un walkthrough entièrement vérifié."
+    },
+    {
+      "id": "rayge-fear-video-6-10",
+      "eventId": "fear",
+      "mode": "tower",
+      "title": "Fear Tower Omega — vidéo des étages 6–10",
+      "author": "Rayge Gaming",
+      "url": "https://youtu.be/liRjexYk0eI",
+      "language": "en",
+      "format": "video",
+      "difficulty": "Omega",
+      "stageIds": [
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "sectionIds": [],
+      "publishedAt": "2026-06-20",
+      "updatedAt": null,
+      "verificationStatus": "indexed_content",
+      "evidence": "Lien vidéo cité dans un compte rendu de joueur consulté ; vidéo non visionnée directement.",
+      "evidenceLevel": "reported_clear",
+      "editorialFamily": "reddit-rayge-fear-10",
+      "notes": "Vidéo liée dans la publication d'origine ; le lien vidéo et la couverture doivent être revalidés avant de prétendre à un walkthrough entièrement vérifié."
+    },
+    {
+      "id": "rayge-spider-video-31-35",
+      "eventId": "spider-descent",
+      "mode": "tower",
+      "title": "Spider-Man Omega — vidéo des étages 31–35",
+      "author": "Rayge Gaming",
+      "url": "https://youtu.be/akSDvn3MPOA",
+      "language": "en",
+      "format": "video",
+      "difficulty": "Omega",
+      "stageIds": [
+        "31",
+        "32",
+        "33",
+        "34",
+        "35"
+      ],
+      "sectionIds": [],
+      "publishedAt": "2026-08-20",
+      "updatedAt": null,
+      "verificationStatus": "indexed_content",
+      "evidence": "Lien vidéo cité dans un compte rendu de joueur consulté ; vidéo non visionnée directement.",
+      "evidenceLevel": "reported_clear",
+      "editorialFamily": "reddit-rayge-spider-31",
+      "notes": "Vidéo liée dans la publication d'origine ; le lien vidéo et la couverture doivent être revalidés avant de prétendre à un walkthrough entièrement vérifié."
+    },
+    {
+      "id": "rayge-spider-video-36-40",
+      "eventId": "spider-descent",
+      "mode": "tower",
+      "title": "Spider-Man Omega — vidéo des étages 36–40",
+      "author": "Rayge Gaming",
+      "url": "https://youtu.be/kDrDYvsiL8M",
+      "language": "en",
+      "format": "video",
+      "difficulty": "Omega",
+      "stageIds": [
+        "36",
+        "37",
+        "38",
+        "39",
+        "40"
+      ],
+      "sectionIds": [],
+      "publishedAt": "2026-08-20",
+      "updatedAt": null,
+      "verificationStatus": "indexed_content",
+      "evidence": "Lien vidéo cité dans un compte rendu de joueur consulté ; vidéo non visionnée directement.",
+      "evidenceLevel": "reported_clear",
+      "editorialFamily": "reddit-rayge-spider-31",
+      "notes": "Vidéo liée dans la publication d'origine ; le lien vidéo et la couverture doivent être revalidés avant de prétendre à un walkthrough entièrement vérifié."
     }
   ],
   "reviewQueue": [
