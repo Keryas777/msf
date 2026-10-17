@@ -241,7 +241,10 @@
         body.append(el("p", "challenge-roster-note", "Tous les emplacements ne sont pas précisés : aucun membre manquant n'a été inventé."));
       }
     } else {
-      body.append(el("p", "challenge-section-note", "Composition non renseignée pour le moment. Ce challenge sera enrichi progressivement."));
+      const message = stage.strategyKind === "recommendation" && stage.advice?.length
+        ? "Aucune équipe complète attestée pour cette section : consulter les conseils de préparation ci-dessous."
+        : "Composition non renseignée pour le moment. Ce challenge sera enrichi progressivement.";
+      body.append(el("p", "challenge-section-note", message));
     }
     if (stage.additionalCharacters?.length) {
       body.append(el("h4", "", "Renfort cité (prévoir un remplacement)"));
@@ -251,7 +254,10 @@
     }
 
     if (stage.alternatives?.length) {
-      body.append(el("h4", "", "Autres personnages proposés"));
+      const alternativesTitle = stage.compositionKind === "partial" && !stage.characters.length
+        ? "Personnages cités — composition non validée"
+        : "Autres personnages proposés";
+      body.append(el("h4", "", alternativesTitle));
       const group = el("div", "challenge-alternatives");
       for (const id of stage.alternatives) group.append(makeHero(id));
       body.append(group);
