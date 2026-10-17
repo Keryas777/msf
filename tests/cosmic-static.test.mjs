@@ -188,3 +188,17 @@ test("publication directe : backend requis, brouillon conservé, lecture live", 
   assert.match(js,/Aucune publication confirmée/);
   assert.match(browse,/id="publishedDefenseSelect"/);
 });
+
+test("croix de retrait plus discrète sans réduire la zone tactile mobile", async () => {
+  const [css, propose] = await Promise.all([
+    read("docs/cosmic.css"), read("docs/cosmic-defense-propose.html")
+  ]);
+  const button = css.match(/\.cosmicPortraitRemove\{([^}]*)\}/)?.[1] || "";
+  const circle = css.match(/\.cosmicPortraitRemove::before,\s*\.cosmicPortraitRemove::after\{([^}]*)\}/)?.[1] || "";
+  const cross = css.match(/\.cosmicPortraitRemove::after\{([^}]*)\}/)?.[1] || "";
+  assert.match(button, /width:32px;height:32px/);
+  assert.match(button, /touch-action:manipulation/);
+  assert.match(circle, /width:19px;height:19px/);
+  assert.match(cross, /font:700 12px\/1 sans-serif/);
+  assert.match(propose, /cosmic\.css\?v=7/);
+});
