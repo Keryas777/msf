@@ -5,7 +5,7 @@
   const PATHS = {
     guides: "./data/challenges.json",
     characters: "./data/msf-characters.json",
-    guideSources: "./data/challenge-alternatives.json",
+    strategies: "./data/challenge-strategies.json",
   };
   const STORAGE_KEY = "losp_challenges_progress_v1";
   const CATEGORIES = {
@@ -30,7 +30,7 @@
     events: [],
     characters: new Map(),
     progress: readProgress(),
-    alternatives: [],
+    strategies: new Map(),
   };
 
   function readProgress() {
@@ -120,7 +120,7 @@
       const id = String(index);
       result.push(indexed.get(id) || {
         id, title: unit + " " + id, requirement: "Informations à compléter",
-        characters: [], alternatives: [], advice: [], pending: true
+        pending: true
       });
     }
     return result.concat(stages.filter(stage => !/^\d+$/.test(String(stage.id)) || Number(stage.id) > total));
@@ -151,8 +151,8 @@
       const count = event.stages.length;
       const total = Number.isInteger(event.totalStages) ? event.totalStages : null;
       const info = total
-        ? count + " / " + total + " " + (event.stageUnit === "cellule" ? "cellules" : "étages") + " documentés"
-        : count ? count + " étapes documentées" : "Guide en cours d'enrichissement";
+        ? count + " / " + total + " " + (event.stageUnit === "cellule" ? "cellules" : event.stageUnit === "mission" ? "missions" : event.stageUnit === "section" ? "sections" : "étages") + " recensés"
+        : count ? count + " étapes recensées" : "Guide en cours d'enrichissement";
       content.append(el("small", "", info));
       button.append(content);
       button.addEventListener("click", () => {
@@ -169,125 +169,139 @@
   }
 
 
-  // Les URL et auteurs sont conservés dans le catalogue éditorial mais jamais affichés.
-  // Seules les compositions de joueurs renseignées deviennent des cartes LoSP internes.
-  function buildAlternativeTeams(event, stage) {
-    const variants = state.alternatives.filter(item =>
-      item.eventId === event.id && String(item.stageId) === String(stage.id)
-      && Array.isArray(item.characters) && item.characters.length
-    );
-    if (!variants.length) return null;
-    const section = el("section", "challenge-guide-section");
-    section.append(el("h4", "", "Autres compositions proposées"));
-    const list = el("div", "challenge-guide-list");
-    for (const item of variants) {
-      const card = el("div", "challenge-guide-link");
-      card.append(el("strong", "challenge-guide-title", item.teamName || "Composition alternative"));
-      const team = el("div", "challenge-guide-team-portraits");
-      for (const id of item.characters) team.append(makeHero(id));
-      card.append(team);
-      if (item.characters.length < 5) {
-        card.append(el("p", "challenge-guide-verification", "Composition partielle : personnages manquants non précisés."));
-      }
-      if (item.verification === "expanded_from_losp_team_catalog") {
-        card.append(el("p", "challenge-guide-verification", "Noms développés depuis le catalogue LoSP : composition exacte à confirmer."));
-      }
-      if (item.note) card.append(el("p", "challenge-guide-meta", item.note));
-      const provenanceLabel = item.verification === "editorial_recommendation"
-        ? "Équipe recommandée : résultat non vérifié."
-        : item.verification === "source_described_second_attack"
-          ? "Deuxième attaque prévue par le guide : résultat non garanti."
-          : item.verification === "expanded_from_losp_team_catalog"
-            ? "Reconstitution LoSP d'une proposition de joueur."
-            : "Retour de joueur : victoire non garantie.";
-      card.append(el("p", "challenge-guide-proof", provenanceLabel));
-      list.append(card);
+  // Une version = une composition + ses instructions. Ne jamais fusionner deux versions.
+  const KIND_LABELS = {
+    walkthrough: "Fiche de combat antérieure",
+    recommendation: "Recommandation, pas une victoire attestée",
+    historical_playthrough: "Parcours historique",
+    multi_attempt: "Combat en plusieurs attaques",
+    player_report_unverified: "Composition rapportée, non vérifiée",
+    reconstructed: "Reconstitution éditoriale",
+    unspecified: "Type de stratégie à vérifier"
+  };
+
+  function strategyStatus(strategy) {
+    if (strategy.provenance?.status === "catalog_match_unverified") {
+      return "Correspondance éditoriale trouvée — combat non revérifié";
     }
-    section.append(list);
-    return section;
+    return "Origine exacte non établie";
+  }
+
+  function strategyBody(strategy) {
+    const body = el("div", "challenge-strategy-body");
+    const meta = el("p", "challenge-guide-verification",
+      (KIND_LABELS[strategy.kind] || "Type à vérifier") + " · " + strategyStatus(strategy));
+    body.append(meta);
+    if (strategy.difficulty) body.append(el("p", "challenge-guide-meta", "Difficulté annoncée : " + strategy.difficulty));
+    if (strategy.teamName) body.append(el("p", "challenge-team-name", strategy.teamName));
+
+    if (strategy.characters.length) {
+      body.append(el("h4", "", strategy.characters.length === 5 ? "Composition héritée" : "Personnages identifiés (composition incomplète)"));
+      const team = el("div", "challenge-team");
+      for (const id of strategy.characters) team.append(makeHero(id));
+      body.append(team);
+    } else {
+      body.append(el("p", "challenge-section-note", "Aucune composition confirmée dans cette version."));
+    }
+    if (strategy.additionalCharacters?.length) {
+      body.append(el("h4", "", "Renforts cités, remplacement non établi"));
+      const group = el("div", "challenge-alternatives");
+      for (const id of strategy.additionalCharacters) group.append(makeHero(id));
+      body.append(group);
+    }
+    if (strategy.alternatives?.length) {
+      body.append(el("h4", "", "Personnages supplémentaires évoqués dans cette version"));
+      const group = el("div", "challenge-alternatives");
+      for (const id of strategy.alternatives) group.append(makeHero(id));
+      body.append(group);
+    }
+    if (strategy.instructions?.length) {
+      body.append(el("h4", "", "Instructions de cette version — à contrôler"));
+      const list = el("ul", "challenge-advice");
+      for (const tip of strategy.instructions) list.append(el("li", "", tip));
+      body.append(list);
+    } else {
+      body.append(el("p", "challenge-roster-note", "Aucun enchaînement tactique confirmé pour cette composition."));
+    }
+    if (strategy.notes?.length) {
+      body.append(el("h4", "", "Précisions sur cette version"));
+      const list = el("ul", "challenge-advice");
+      for (const note of strategy.notes) list.append(el("li", "", note));
+      body.append(list);
+    }
+    if (strategy.review?.flags?.includes("expanded_using_current_losp_team_members")) {
+      body.append(el("p", "challenge-guide-verification",
+        "Attention : certains membres ont été complétés depuis le catalogue LoSP, pas confirmés individuellement par la source."));
+    }
+    if (strategy.review?.flags?.includes("three_versus_five_team_size_conflict")) {
+      body.append(el("p", "challenge-guide-verification",
+        "La source présente des restrictions contradictoires sur la taille de l'équipe."));
+    }
+    return body;
+  }
+
+  function renderStrategy(strategy, index, count) {
+    const multiple = count > 1;
+    const container = el(multiple ? "details" : "section",
+      multiple ? "challenge-strategy-variant" : "challenge-strategy-single");
+    if (multiple) {
+      container.open = index === 0;
+      const summary = el("summary");
+      const label = el("span", "challenge-strategy-title");
+      label.append(el("strong", "", "Version " + (index + 1) + " — " + (strategy.teamName || strategy.label)));
+      label.append(el("small", "", strategyStatus(strategy)));
+      summary.append(label);
+      container.append(summary);
+    } else {
+      container.append(el("h4", "challenge-strategy-single-title", "Version actuelle — origine à vérifier"));
+    }
+    container.append(strategyBody(strategy));
+    return container;
   }
 
   function renderStage(event, stage, index) {
     const key = event.id + ":" + stage.id;
+    const versions = state.strategies.get(key) || [];
+    const hasContent = versions.length > 0;
     const details = el("details", "challenge-stage");
     details.id = "challenge-node-" + event.id + "-" + stage.id;
     details.open = index === 0;
     const summary = el("summary");
     const heading = el("span", "challenge-stage-title");
     heading.append(el("strong", "", stage.title));
-    heading.append(el("small", "", stage.requirement || "Aucune restriction indiquée"));
+    heading.append(el("small", "", stage.requirement || "Restrictions à préciser"));
     summary.append(heading);
-    if (stage.pending) summary.append(el("span", "challenge-pill challenge-pill--pending", "À compléter"));
-    else if (state.progress[key]) summary.append(el("span", "challenge-pill", "✓ Terminé"));
+    if (!hasContent) summary.append(el("span", "challenge-pill challenge-pill--pending", "À compléter"));
+    else {
+      if (versions.length > 1) summary.append(el("span", "challenge-versions-count", versions.length + " versions"));
+      if (state.progress[key]) summary.append(el("span", "challenge-pill", "✓ Terminé"));
+    }
     details.append(summary);
-
     const body = el("div", "challenge-stage-body");
-    if (stage.difficulty) body.append(el("p", "challenge-guide-meta", "Difficulté : " + stage.difficulty));
-    if (stage.strategyKind === "recommendation") body.append(el("p", "challenge-guide-verification", "Recommandation de préparation : victoire non attestée."));
-    if (stage.strategyKind === "historical_playthrough") body.append(el("p", "challenge-guide-verification", "Parcours de joueur historique, non optimisé pour la méta actuelle."));
-    if (stage.strategyKind === "multi_attempt") body.append(el("p", "challenge-guide-verification", "Stratégie en plusieurs attaques : l'équipe ci-dessous correspond à la première."));
-    if (stage.teamName) body.append(el("p", "challenge-team-name", stage.teamName));
-    if (stage.characters.length) {
-      const label = stage.compositionKind === "partial"
-        ? "Personnages explicitement cités"
-        : stage.compositionKind === "base_with_options"
-          ? "Formation de base"
-          : "Équipe conseillée";
-      body.append(el("h4", "", label));
-      const team = el("div", "challenge-team");
-      for (const id of stage.characters) team.append(makeHero(id));
-      body.append(team);
-      if (stage.compositionKind === "partial") {
-        body.append(el("p", "challenge-roster-note", "Tous les emplacements ne sont pas précisés : aucun membre manquant n'a été inventé."));
-      }
+    if (!hasContent) {
+      body.append(el("p", "challenge-section-note", "Aucune stratégie documentée pour cette étape."));
     } else {
-      const message = stage.strategyKind === "recommendation" && stage.advice?.length
-        ? "Aucune équipe complète attestée pour cette section : consulter les conseils de préparation ci-dessous."
-        : "Composition non renseignée pour le moment. Ce challenge sera enrichi progressivement.";
-      body.append(el("p", "challenge-section-note", message));
-    }
-    if (stage.additionalCharacters?.length) {
-      body.append(el("h4", "", "Renfort cité (prévoir un remplacement)"));
-      const additions = el("div", "challenge-alternatives");
-      for (const id of stage.additionalCharacters) additions.append(makeHero(id));
-      body.append(additions);
-    }
-
-    if (stage.alternatives?.length) {
-      const alternativesTitle = stage.compositionKind === "partial" && !stage.characters.length
-        ? "Personnages cités — composition non validée"
-        : "Autres personnages proposés";
-      body.append(el("h4", "", alternativesTitle));
-      const group = el("div", "challenge-alternatives");
-      for (const id of stage.alternatives) group.append(makeHero(id));
-      body.append(group);
-    }
-    if (stage.advice?.length) {
-      body.append(el("h4", "", "Conseils pratiques"));
-      const list = el("ul", "challenge-advice");
-      for (const tip of stage.advice) list.append(el("li", "", tip));
-      body.append(list);
-    }
-
-    const otherSolutions = buildAlternativeTeams(event, stage);
-    if (otherSolutions) body.append(otherSolutions);
-
-    if (!stage.pending) {
-    const line = el("label", "challenge-check-row");
-      const check = el("input", "challenge-check");
-      check.type = "checkbox";
-      check.checked = !!state.progress[key];
-      check.addEventListener("change", () => {
-        if (check.checked) state.progress[key] = true;
+      body.append(el("p", "challenge-source-warning",
+        "Ces versions proviennent de fiches antérieures non encore réauditées. Les conseils d'une version ne sont pas combinés avec ceux d'une autre."));
+      const variants = el("div", "challenge-strategies");
+      versions.forEach((strategy, i) => variants.append(renderStrategy(strategy, i, versions.length)));
+      body.append(variants);
+      const row = el("label", "challenge-check-row");
+      const checkbox = el("input", "challenge-check");
+      checkbox.type = "checkbox";
+      checkbox.checked = !!state.progress[key];
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) state.progress[key] = true;
         else delete state.progress[key];
         saveProgress();
-        summary.querySelector(".challenge-pill")?.remove();
-        if (check.checked) summary.append(el("span", "challenge-pill", "✓ Terminé"));
+        // Conserver les marqueurs de versions et retirer uniquement l'ancien état Terminé.
+        for (const pill of Array.from(summary.querySelectorAll(".challenge-pill"))) pill.remove();
+        if (checkbox.checked) summary.append(el("span", "challenge-pill", "✓ Terminé"));
         const total = ui.detail.querySelector("[data-challenge-progress]");
         if (total) total.textContent = completedCount(event) + " / " + event.stages.length + " terminées";
       });
-      line.append(check, el("span", "", "Marquer cette étape comme terminée (sur cet appareil)"));
-      body.append(line);
+      row.append(checkbox, el("span", "", "Marquer cette étape comme terminée (sur cet appareil)"));
+      body.append(row);
     }
     details.append(body);
     return details;
@@ -317,11 +331,11 @@
     }
 
     ui.detail.append(tags);
-    if (event.guideNote) ui.detail.append(el("p", "challenge-guide-note", event.guideNote));
+    if (event.guideNote) ui.detail.append(el("p", "challenge-guide-note", "Note générale héritée (à contrôler) : " + event.guideNote));
 
     const stages = displayStages(event);
     if (Number.isInteger(event.totalStages) && event.totalStages > 0 && event.stages.length < event.totalStages) {
-      ui.detail.append(el("p", "challenge-section-note", event.stages.length + " / " + event.totalStages + " étapes documentées. Les suivantes sont affichées en attente de conseils."));
+      ui.detail.append(el("p", "challenge-section-note", event.stages.length + " / " + event.totalStages + " étapes recensées. Les suivantes sont en attente de stratégies."));
     }
 
     if (stages.length) {
@@ -343,7 +357,7 @@
       placeholder.value = "";
       jump.append(placeholder);
       for (const stage of stages) {
-        const option = el("option", "", stage.title + (stage.pending ? " — à compléter" : ""));
+        const option = el("option", "", stage.title + (!(state.strategies.get(event.id + ":" + stage.id) || []).length ? " — à compléter" : ""));
         option.value = stage.id;
         jump.append(option);
       }
@@ -367,18 +381,32 @@
 
   async function init() {
     try {
-      const [guides, characters, sourceIndex] = await Promise.all([
+      const [guides, characters, strategyIndex] = await Promise.all([
         loadJson(PATHS.guides),
         loadJson(PATHS.characters),
-        loadJson(PATHS.guideSources).catch(() => ({ alternatives: [] })),
+        loadJson(PATHS.strategies),
       ]);
       if (!Array.isArray(guides.events) || !Array.isArray(characters)) {
         throw new Error("Format des données inattendu");
       }
       state.events = guides.events.filter(item => item && item.id && item.title);
-      const knownEvents = new Set(state.events.map(item => item.id));
-      state.alternatives = (Array.isArray(sourceIndex.alternatives) ? sourceIndex.alternatives : [])
-        .filter(item => item && knownEvents.has(item.eventId) && Array.isArray(item.characters));
+      if (!Array.isArray(strategyIndex.strategies) || strategyIndex.schemaVersion !== 1) {
+        throw new Error("Catalogue des versions de stratégies invalide");
+      }
+      const knownEvents = new Map(state.events.map(item => [item.id, item]));
+      const seen = new Set();
+      for (const strategy of strategyIndex.strategies) {
+        const event = knownEvents.get(strategy.eventId);
+        if (!event || !event.stages.some(s => String(s.id) === String(strategy.stageId)) ||
+            !strategy.id || seen.has(strategy.id) ||
+            !Array.isArray(strategy.characters) || !Array.isArray(strategy.instructions)) {
+          throw new Error("Version de stratégie incohérente : " + (strategy?.id || "sans ID"));
+        }
+        seen.add(strategy.id);
+        const key = strategy.eventId + ":" + strategy.stageId;
+        if (!state.strategies.has(key)) state.strategies.set(key, []);
+        state.strategies.get(key).push(strategy);
+      }
       // Jamais d'unité PVE / invocation comme portrait suggéré.
       for (const character of characters) {
         if (character?.id && character.player_Character === true) {
