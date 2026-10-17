@@ -158,6 +158,7 @@
       button.append(content);
       button.addEventListener("click", () => {
         state.selected = event.id;
+        state.difficulty = "all";
         const url = new URL(location.href);
         url.searchParams.set("guide", event.id);
         history.replaceState(null, "", url.pathname + url.search + url.hash);
@@ -266,6 +267,9 @@
       body.append(list);
     }
 
+    const otherSolutions = buildGuideGroup(relevantSources(event, stage), "Autres guides pour cette étape");
+    if (otherSolutions) body.append(otherSolutions);
+
     if (!stage.pending) {
     const line = el("label", "challenge-check-row");
       const check = el("input", "challenge-check");
@@ -309,7 +313,38 @@
       progressLabel.setAttribute("data-challenge-progress", "");
       tags.append(progressLabel);
     }
+
     ui.detail.append(tags);
+    const available = state.sources.filter(source => source.eventId === event.id && VISIBLE_SOURCE_STATES.has(source.verificationStatus));
+    if (available.length) {
+      const guideDifficulties = [...new Set(available.map(source => source.difficulty).filter(Boolean))];
+      if (guideDifficulties.length > 1) {
+        const selectRow = el("div", "challenge-guide-filter");
+        const label = el("label", "challenge-search-label", "Difficulté des guides");
+        label.htmlFor = "challengeGuideDifficulty";
+        const select = el("select", "challenge-jump");
+        select.id = "challengeGuideDifficulty";
+        for (const value of ["all", ...guideDifficulties]) {
+          const option = el("option", "", value === "all" ? "Toutes les difficultés" : value);
+          option.value = value;
+          select.append(option);
+        }
+        select.value = state.difficulty;
+        select.addEventListener("change", () => {
+          state.difficulty = select.value;
+          renderDetail();
+        });
+        selectRow.append(label, select);
+        ui.detail.append(selectRow);
+      }
+      const generalGuides = buildGuideGroup(relevantSources(event, null), "Guides généraux et collections");
+      if (generalGuides) ui.detail.append(generalGuides);
+      const matchedStages = available.filter(source => (source.stageIds || []).length || (source.sectionIds || []).length);
+      if (matchedStages.length) {
+        ui.detail.append(el("p", "challenge-sources-hint", matchedStages.length + " guide(s) associé(s) à des étapes précises : ouvre une fiche pour les consulter."));
+      }
+      ui.detail.append(el("p", "challenge-sources-hint", "Les retours de joueurs et les compositions communautaires ne garantissent pas la victoire."));
+    }
     if (event.guideNote) ui.detail.append(el("p", "challenge-guide-note", event.guideNote));
 
     const stages = displayStages(event);
