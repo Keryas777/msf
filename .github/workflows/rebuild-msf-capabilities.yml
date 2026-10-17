@@ -35,6 +35,7 @@ jobs:
           python -m unittest discover -s tests -p "test_msf_capabilities_explorer_builder.py" -v
           python -m unittest discover -s tests -p "test_msf_turn_meter_*.py" -v
           python -m unittest discover -s tests -p "test_msf_stat_modifier_normalization.py" -v
+          python -m unittest discover -s tests -p "test_msf_health_redistribute.py" -v
 
       - name: Record current publication checksums
         run: |
