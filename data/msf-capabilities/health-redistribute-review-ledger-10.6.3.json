@@ -24,78 +24,12 @@
     "verificationNote": "Le corpus est traité comme la référence 10.5.0 des PR #225/#251; aucune nouvelle vérification de provenance officielle n’est revendiquée dans ce registre."
   },
   "counts": {
-    "registeredAmbiguousActions": 19,
+    "registeredAmbiguousActions": 17,
     "partialKnowledgeB": 0,
-    "unresolvedBehaviorC": 19,
+    "unresolvedBehaviorC": 17,
     "engineFormulaUnresolved": 230
   },
   "entries": [
-    {
-      "knowledgeLevel": "C",
-      "behavior": "detected",
-      "resolved": false,
-      "engineFormula": "unresolved",
-      "corpusVersion": "10_6_3",
-      "corpusBuild": "1674780",
-      "versionVerified": false,
-      "sourcePointer": "/Data/DarkPhoenix/special/actions/0",
-      "sourceActionId": "act_7ba868934d9969a9",
-      "characterId": "DarkPhoenix",
-      "characterName": "Phénix noir",
-      "unitClass": "technical_or_nonplayable",
-      "playableCatalogValue": false,
-      "abilityId": "abl_1efb3fd25347eaa9",
-      "abilityType": "special",
-      "abilityName": null,
-      "rawFingerprintSha256": "da83f9070af64637eecaa980e07f1019f34b3b92fbc17c5c662d5fed397cc283",
-      "confirmedProperties": [
-        "Type source health_redistribute et structure brute de l’action établis; aucune famille de comportement déduite."
-      ],
-      "unknownProperties": [
-        "Le comportement mécanique complet de cette action au-delà de son type technique.",
-        "L’assiette mathématique de drain_pct et sa relation aux PV actuels, maximums ou à une autre quantité.",
-        "L’ordre des opérations, le cumul avec soins/plafonds et le traitement du surplus.",
-        "La répartition réelle entre receveurs et les effets liés à la mort lorsque ces états sont pertinents."
-      ],
-      "evidenceExamined": [
-        "Ressource brute characters.json et empreinte manifeste.",
-        "Structure brute, sélecteurs et paramètres imbriqués.",
-        "Conditions et dépendances explicites."
-      ],
-      "officialAbilityDescriptionAvailable": false,
-      "previousInvestigation": {
-        "status": "reviewed_in_10_5_0",
-        "priorAuditStatus": "Non résolu",
-        "reference": "docs/audits/health-redistribute-deep-audit-10.5.0.md",
-        "summary": "Signature identique au corpus 10.5.0; limites et absence de preuve runtime déjà consignées."
-      },
-      "blocker": "Unité technique/non jouable; aucune preuve runtime exploitable ne démontre le comportement.",
-      "evidenceRequiredToResolve": "Méthode runtime/symboles exploitables ou cas contrôlé comparant PV source/receveur, plafonds, ordre et états de mort.",
-      "investigationPriority": "P3",
-      "rawAction": {
-        "action": "health_redistribute",
-        "drain_pct": [
-          5,
-          5,
-          5,
-          20,
-          20,
-          20,
-          20
-        ],
-        "from": {
-          "filter": {
-            "owner_ok": false
-          },
-          "limit": 10,
-          "relation": "enemy",
-          "type": "random"
-        },
-        "to": {
-          "relation": "ally"
-        }
-      }
-    },
     {
       "knowledgeLevel": "C",
       "behavior": "detected",
@@ -1336,73 +1270,6 @@
           "relation": "ally",
           "type": "random"
         }
-      }
-    },
-    {
-      "knowledgeLevel": "C",
-      "behavior": "detected",
-      "resolved": false,
-      "engineFormula": "unresolved",
-      "corpusVersion": "10_6_3",
-      "corpusBuild": "1674780",
-      "versionVerified": false,
-      "sourcePointer": "/Data/Void/passive/3/actions/0",
-      "sourceActionId": "act_a616b0e9afa2629e",
-      "characterId": "Void",
-      "characterName": "Void",
-      "unitClass": "technical_or_nonplayable",
-      "playableCatalogValue": false,
-      "abilityId": "abl_c431abbb3ea33de7",
-      "abilityType": "passive",
-      "abilityName": null,
-      "rawFingerprintSha256": "988e3ca3e3e275cb52efd9abeedb9307ff91d2e61cec31b7b85c47192f2ca41a",
-      "confirmedProperties": [
-        "Type source health_redistribute et structure brute de l’action établis; aucune famille de comportement déduite."
-      ],
-      "unknownProperties": [
-        "Le comportement mécanique complet de cette action au-delà de son type technique.",
-        "L’assiette mathématique de drain_pct et sa relation aux PV actuels, maximums ou à une autre quantité.",
-        "L’ordre des opérations, le cumul avec soins/plafonds et le traitement du surplus.",
-        "La répartition réelle entre receveurs et les effets liés à la mort lorsque ces états sont pertinents."
-      ],
-      "evidenceExamined": [
-        "Ressource brute characters.json et empreinte manifeste.",
-        "Structure brute, sélecteurs et paramètres imbriqués.",
-        "Conditions et dépendances explicites."
-      ],
-      "officialAbilityDescriptionAvailable": false,
-      "previousInvestigation": {
-        "status": "reviewed_in_10_5_0",
-        "priorAuditStatus": "Non résolu",
-        "reference": "docs/audits/health-redistribute-deep-audit-10.5.0.md",
-        "summary": "Signature identique au corpus 10.5.0; limites et absence de preuve runtime déjà consignées."
-      },
-      "blocker": "Unité technique/non jouable; aucune preuve runtime exploitable ne démontre le comportement.",
-      "evidenceRequiredToResolve": "Méthode runtime/symboles exploitables ou cas contrôlé comparant PV source/receveur, plafonds, ordre et états de mort.",
-      "investigationPriority": "P3",
-      "rawAction": {
-        "action": "health_redistribute",
-        "drain_pct": [
-          10
-        ],
-        "from": {
-          "filter": {
-            "owner_ok": false
-          },
-          "limit": 10,
-          "relation": "ally",
-          "type": "random"
-        },
-        "target": {
-          "relation": "ally"
-        },
-        "to": {
-          "filter": {
-            "owner_ok": true
-          },
-          "relation": "ally"
-        },
-        "visualid": "void_pass_hpSteal"
       }
     }
   ]
