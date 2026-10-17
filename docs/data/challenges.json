@@ -6479,6 +6479,433 @@
           "compositionKind": "partial"
         }
       ]
+    },
+    {
+      "id": "scourge-war",
+      "type": "trial",
+      "title": "Fléau Guerre — Hulk rouge",
+      "summary": "Scourge historique des Cavaliers : dix nœuds, restrictions et tactiques en français.",
+      "rewardId": "RedHulk",
+      "editorialRef": "war-scourge-comprehensive-guide-for-reaching-1-5-1-6-million-points-with-an-average-roster/",
+      "totalStages": 10,
+      "stageUnit": "mission",
+      "guideNote": "ARCHIVE et adaptations : les anciens parcours utilisent des équipes ayant parfois disparu de la méta. Les équipes modernes explicitement recommandées sont illustrées sans être présentées comme des victoires testées en 2026. Le membre Kestrel normale n'a pas de portrait jouable dans notre catalogue.",
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Bio",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "SymbioteSilverSurfer",
+            "Gwenom",
+            "Carnage",
+            "RedGoblin",
+            "Venom"
+          ],
+          "advice": [
+            "Hive-Mind est la recommandation modernisée du guide pour les deux premiers nœuds Bio.",
+            "Éliminer les ennemis de soutien et conserver des ultimes pour le nœud 2."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Bio",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "SymbioteSilverSurfer",
+            "Gwenom",
+            "Carnage",
+            "RedGoblin",
+            "Venom"
+          ],
+          "advice": [
+            "Garder un contrôle pour Ghost Rider puis Shang-Chi.",
+            "Quand Kestrel ennemie arrive, éviter qu'elle enchaîne ses attaques passives."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Avengers",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Mockingbird",
+            "Coulson",
+            "Thing",
+            "Ronin",
+            "Tigra"
+          ],
+          "advice": [
+            "Nouveaux Avengers sont autorisés par la mise à jour du guide ; l'ancien parcours utilisait Avengers bioniques.",
+            "Éliminer Valkyrie avant son passif, puis empêcher Cloak d'utiliser son ultime au second groupe."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Avengers",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Mockingbird",
+            "Coulson",
+            "Thing",
+            "Ronin",
+            "Tigra"
+          ],
+          "advice": [
+            "Cibler les membres Gamma les plus dangereux et conserver les étourdissements.",
+            "L'ancien parcours utilisait Jeunes Avengers, mais les restrictions sont désormais plus larges."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Asgardiens / Ravageurs / Avengers V1 / Ordre noir",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Thor",
+            "JaneThor",
+            "Heimdall",
+            "Valkyrie",
+            "Sif"
+          ],
+          "advice": [
+            "Former les héros asgardiens avec Thor, Jane Foster, Heimdall, Valkyrie et Sif.",
+            "Conserver les capacités de Thor pour le boss final."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Vilains",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "AgathaHarkness",
+            "MorganLeFay",
+            "Doom",
+            "OmegaRed",
+            "StrangeSupreme"
+          ],
+          "advice": [
+            "Agatha étourdit Squirrel Girl ; économiser l'ultime de Fatalis pour la mission 7.",
+            "Morgan et Strange peuvent utiliser leurs ultimes pour contrôler."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Vilains",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "AgathaHarkness",
+            "MorganLeFay",
+            "Doom",
+            "OmegaRed",
+            "StrangeSupreme"
+          ],
+          "advice": [
+            "L'ultime d'Agatha étourdit Circé ; celui de Fatalis nettoie le groupe.",
+            "À l'arrivée d'Ikaris, le cibler avant qu'il n'attaque."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Compétence",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "BlackKnight",
+            "GhostSpider",
+            "PeterBParker",
+            "PeniParker",
+            "SpiderManPavitr"
+          ],
+          "advice": [
+            "Spider-Society est une mise à jour des anciens Skill Raid ; surveiller l'arrivée de Cloak et garder un étourdissement.",
+            "Éviter que Madelyne Pryor ne prenne le contrôle de la vague."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Compétence",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "BlackKnight",
+            "GhostSpider",
+            "PeterBParker",
+            "PeniParker",
+            "SpiderManPavitr"
+          ],
+          "advice": [
+            "La section Compétence peut être terminée avec Spider-Society ou les personnages Skill les plus développés.",
+            "Économiser les ultimes essentiels aux vagues dangereuses."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Asgardiens / Ravageurs / Avengers V1 / Ordre noir",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Thor",
+            "JaneThor",
+            "Heimdall",
+            "Valkyrie",
+            "Sif"
+          ],
+          "advice": [
+            "Interdire à Rescue son ultime ; tenter d'étourdir Hulkbuster avec Thor.",
+            "À la deuxième vague, cibler Deathlok avant toute autre menace.",
+            "Ces personnages sont historiques ; la source recommande aussi Ordre noir ou Bifrost selon les restrictions actuelles."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        }
+      ]
+    },
+    {
+      "id": "scourge-death",
+      "type": "trial",
+      "title": "Fléau Mort — Archangel",
+      "summary": "Scourge historique des Cavaliers : dix nœuds, restrictions et tactiques en français.",
+      "rewardId": "Archangel",
+      "editorialRef": "death-scourge-optimal-clearing-and-scourges/",
+      "totalStages": 10,
+      "stageUnit": "mission",
+      "guideNote": "ARCHIVE et adaptations : les anciens parcours utilisent des équipes ayant parfois disparu de la méta. Les équipes modernes explicitement recommandées sont illustrées sans être présentées comme des victoires testées en 2026. Le membre Kestrel normale n'a pas de portrait jouable dans notre catalogue.",
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Vilains ou sbires",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Apocalypse",
+            "SuperSkrull",
+            "MorganLeFay",
+            "Doom",
+            "Dormammu"
+          ],
+          "advice": [
+            "Les anciens sbires ne sont plus obligatoires dans l'édition source ; les vilains puissants conviennent.",
+            "Privilégier la survie pour économiser les soins."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Vilains ou sbires",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Apocalypse",
+            "SuperSkrull",
+            "MorganLeFay",
+            "Doom",
+            "Dormammu"
+          ],
+          "advice": [
+            "Même restriction : éviter de construire des sbires uniquement pour ce nœud.",
+            "Conserver les contrôles des vilains pour les prochains combats."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Héros",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Nightcrawler",
+            "Sunspot",
+            "Gambit",
+            "Forge",
+            "Cyclops"
+          ],
+          "advice": [
+            "Les X-Men Extrêmes sont une recommandation plus récente que la formation historique avec Kestrel.",
+            "Conserver les grands ultimes pour la mission 4."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Héros",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Nightcrawler",
+            "Sunspot",
+            "Gambit",
+            "Forge",
+            "Cyclops"
+          ],
+          "advice": [
+            "Avec les contrôles X-Men, empêcher Taskmaster et Mr Negative d'attaquer.",
+            "Conserver la santé avant les nœuds de restriction suivante."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Wakandais / Avengers bioniques / P.E.G.A.S.U.S.",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "IronManInfinityWar",
+            "Rescue",
+            "Darkhawk",
+            "IronheartMCU"
+          ],
+          "advice": [
+            "La source recommande P.E.G.A.S.U.S., dont Kestrel normale n'a pas de portrait jouable dans notre catalogue : quatre membres seulement.",
+            "Préparer une équipe avec au moins 60 % de santé en fin de nœud pour faciliter la mission 10."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": [],
+          "compositionKind": "partial"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Mutants non légendaires",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Nightcrawler",
+            "Sunspot",
+            "Gambit",
+            "Forge",
+            "Cyclops"
+          ],
+          "advice": [
+            "La source recommande X-Men Extrêmes ; la version historique utilisait Unlimited X-Men et Emma Frost.",
+            "Bloquer Taskmaster et Aveugler Colleen Wing lors de la deuxième vague."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Mutants non légendaires",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Nightcrawler",
+            "Sunspot",
+            "Gambit",
+            "Forge",
+            "Cyclops"
+          ],
+          "advice": [
+            "Éliminer Nakia avant son ultime ; empêcher Captain America (Sam) de lancer sa spéciale.",
+            "Garder les capacités décisives pour la rotation suivante."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Légendaires",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "RedHulk",
+            "Rogue",
+            "MorganLeFay",
+            "OmegaRed",
+            "Jubilee"
+          ],
+          "advice": [
+            "Utiliser Red Hulk pour étourdir Gambit, puis éliminer Hela avant Iron Man zombie.",
+            "Bloquer Dazzler et Squirrel Girl, et garder Phénix pour la fin."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Légendaires",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "RedHulk",
+            "Rogue",
+            "MorganLeFay",
+            "OmegaRed",
+            "Jubilee"
+          ],
+          "advice": [
+            "Les membres Infinity Watch ayant Sauvegarde conservent leurs bonus ; viser d'abord Moondragon.",
+            "Garder un étourdissement pour Spider-Man 2099 puis Spider-Weaver lors des vagues suivantes."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Wakandais / Avengers bioniques / P.E.G.A.S.U.S.",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "IronManInfinityWar",
+            "Rescue",
+            "Darkhawk",
+            "IronheartMCU"
+          ],
+          "advice": [
+            "L'ancien guide finissait en deux attaques, Avengers bioniques puis War Dogs ; la nouvelle option recommandée est P.E.G.A.S.U.S.",
+            "Dans la tactique historique, éliminer Gambit puis Deathlok et préserver Black Panther (1MM)."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": [],
+          "compositionKind": "partial"
+        }
+      ]
     }
   ]
 }
