@@ -7,13 +7,13 @@
       "id": "blade",
       "type": "tower",
       "title": "Tour de Blade",
-      "summary": "24 étages, trois difficultés et personnages Challenger I.",
+      "summary": "Tour de Blade : 24 étages répartis sur quatre semaines, compositions et conseils en français.",
       "rewardId": "BladeMighty",
       "stages": [
         {
           "id": "1",
           "title": "Étage 1",
-          "requirement": "Challenger I",
+          "requirement": "Tower Challenger I",
           "characters": [
             "Havok",
             "Lilandra",
@@ -29,7 +29,7 @@
         {
           "id": "2",
           "title": "Étage 2",
-          "requirement": "Challenger I",
+          "requirement": "Tower Challenger I",
           "characters": [
             "Quasar",
             "Blastaar",
@@ -45,7 +45,7 @@
         {
           "id": "3",
           "title": "Étage 3",
-          "requirement": "Challenger I",
+          "requirement": "Tower Challenger I",
           "characters": [
             "Cannonball",
             "Wolfsbane",
@@ -61,7 +61,7 @@
         {
           "id": "4",
           "title": "Étage 4",
-          "requirement": "Challenger I",
+          "requirement": "Tower Challenger I",
           "characters": [
             "SymbioteQuicksilver",
             "Knull",
@@ -77,7 +77,7 @@
         {
           "id": "5",
           "title": "Étage 5",
-          "requirement": "Challenger I",
+          "requirement": "Tower Challenger I",
           "characters": [
             "FranklinRichards",
             "InvisibleWomanMCU",
@@ -93,7 +93,7 @@
         {
           "id": "6",
           "title": "Étage 6",
-          "requirement": "Challenger I",
+          "requirement": "Tower Challenger I",
           "characters": [
             "SilverSurferBreaker",
             "StormMighty",
@@ -105,11 +105,382 @@
             "Cibler Silver Sable ; neutraliser ensuite Daredevil (Moderne) et Hit-Monkey."
           ],
           "alternatives": []
+        },
+        {
+          "id": "7",
+          "title": "Étage 7",
+          "requirement": "Tower Challenger I",
+          "teamName": "Blastaar + Thunderstrike + Kahhori + Ms. Marvel classique + Moon Girl",
+          "characters": [
+            "Blastaar",
+            "Thunderstrike",
+            "Kahhori",
+            "MsMarvelClassic",
+            "MoonGirl"
+          ],
+          "advice": [
+            "Laisser Ms. Marvel classique encaisser l'ouverture de Malekith ; ses dégâts ne sont pas la priorité.",
+            "Kahhori charge Blastaar par ses attaques basiques ; attendre cinq Bomb-Bursts pour son ultime."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Étage 8",
+          "requirement": "Tower Challenger I",
+          "teamName": "Knull + Apocalypse + Serment + Havok + Spider-Man",
+          "characters": [
+            "Knull",
+            "Apocalypse",
+            "Oath",
+            "Havok",
+            "SpiderMan"
+          ],
+          "advice": [
+            "Étourdir Hulk rouge avec l'ultime de Spider-Man et Gambit avec la spéciale de Havok.",
+            "Knull frappe plusieurs Gamma, puis Apocalypse utilise son ultime et son attaque renforcée sur Malicia."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Étage 9",
+          "requirement": "Tower Challenger I",
+          "teamName": "Quasar + Sentry + Tornade (Puissante) + Nova (Sam Alexander) + Hulk",
+          "characters": [
+            "Quasar",
+            "Sentry",
+            "StormMighty",
+            "NovaSamAlexander",
+            "Hulk"
+          ],
+          "advice": [
+            "Utiliser l'ultime de Tornade pour retirer l'Immunité et appliquer Exposé/Ralenti.",
+            "La spéciale de Quasar doit viser Le Fauve : ses soins et améliorations sont prioritaires à empêcher.",
+            "L'ultime de Nova facilite l'élimination du reste de l'équipe X-Men."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Étage 10",
+          "requirement": "Tower Challenger I",
+          "teamName": "Surfer (Briseur) + Jeff + Eclipse + Darkstar + Exécuteur",
+          "characters": [
+            "SilverSurferBreaker",
+            "JeffTheLandShark",
+            "Eclipse",
+            "Darkstar",
+            "Executioner"
+          ],
+          "advice": [
+            "L'Exécuteur ouvre avec son ultime, mais les charges du Bouffon vert protègent les adversaires.",
+            "Idéalement, Jeff joue avant le Surfer pour regrouper les ennemis ; cibler le Bouffon vert classique avec leurs spéciales afin de retirer ses charges et bloquer ses capacités."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "11",
+          "title": "Étage 11",
+          "requirement": "Tower Challenger I",
+          "teamName": "Vif-Argent symbiote + Riot + Venom + Emma Frost + Cannonball",
+          "characters": [
+            "SymbioteQuicksilver",
+            "Riot",
+            "Venom",
+            "EmmaFrost",
+            "Cannonball"
+          ],
+          "advice": [
+            "Emma ralentit l'équipe adverse ; Vif-Argent, Riot et Cannonball doivent agir avant Quasar et Blastaar ennemis.",
+            "Riot et Venom en ISO-8 Attaquant, Vif-Argent et Cannonball en Ravageur.",
+            "Priorité à Fatalis et Roi d'ombre, puis Ancient One et Emma Frost (X-Men)."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "12",
+          "title": "Étage 12",
+          "requirement": "Tower Challenger I",
+          "teamName": "Franklin + Reed (MCU) + Femme invisible (MCU) + Emma Frost (X-Men) + Rachel Summers",
+          "characters": [
+            "FranklinRichards",
+            "MrFantasticMCU",
+            "InvisibleWomanMCU",
+            "EmmaFrostXMen",
+            "RachelSummers"
+          ],
+          "advice": [
+            "Le trio Fantastiques MCU constitue la base ; le guide ne détaille pas suffisamment la rotation des compétences pour ce nœud."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "13",
+          "title": "Étage 13",
+          "requirement": "Tower Challenger I",
+          "teamName": "Blastaar + Thunderstrike + Rachel Summers + Spider-Man + Hulk",
+          "characters": [
+            "Blastaar",
+            "Thunderstrike",
+            "RachelSummers",
+            "SpiderMan",
+            "Hulk"
+          ],
+          "advice": [
+            "Spider-Man applique Ralenti ; Blastaar bloque Forge avec sa spéciale et Thunderstrike lance son ultime.",
+            "Rachel réduit la jauge de Warlock ; terminer Forge avant qu'il ne protège son équipe.",
+            "Étourdir Wolfsbane puis traiter les dernières menaces mutantes."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "14",
+          "title": "Étage 14",
+          "requirement": "Tower Challenger I",
+          "teamName": "Kahhori + Ms. Marvel classique + Moon Girl + Lilandra + Nova (Sam Alexander)",
+          "characters": [
+            "Kahhori",
+            "MsMarvelClassic",
+            "MoonGirl",
+            "Lilandra",
+            "NovaSamAlexander"
+          ],
+          "advice": [
+            "Le danger vient de la montée rapide de jauge de Super-Skrull.",
+            "Le guide conserve Xavier pour plus tard ; ne pas le consommer à cet étage si une autre composition suffit."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "15",
+          "title": "Étage 15",
+          "requirement": "Tower Challenger I",
+          "teamName": "Cannonball + Warlock + Wolfsbane + Jeff + Exécuteur",
+          "characters": [
+            "Cannonball",
+            "Warlock",
+            "Wolfsbane",
+            "JeffTheLandShark",
+            "Executioner"
+          ],
+          "advice": [
+            "Placer Cannonball dans un coin et Wolfsbane à côté : l'ultime de Ms. Marvel (Hard Light) leur retirera de la jauge, sans ralentir Jeff ni Exécuteur.",
+            "Les Nouveaux Mutants agissent d'abord ; lancer l'ultime d'Exécuteur puis la spéciale de Jeff pour regrouper et contrôler.",
+            "Tenir face à Nova (Sam Alexander) et Spider-Man (Miles) avant le second tour."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "16",
+          "title": "Étage 16",
+          "requirement": "Tower Challenger I",
+          "teamName": "Surfer (Briseur) + Tornade (Puissante) + Sentry + Eclipse + Emma Frost",
+          "characters": [
+            "SilverSurferBreaker",
+            "StormMighty",
+            "Sentry",
+            "Eclipse",
+            "EmmaFrost"
+          ],
+          "advice": [
+            "Composition de personnages rapides proposée ; la rotation détaillée n'est pas documentée dans l'extrait accessible."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "17",
+          "title": "Étage 17",
+          "requirement": "Tower Challenger I",
+          "teamName": "Franklin + Femme invisible (MCU) + Reed (MCU) + Emma (X-Men) + Apocalypse",
+          "characters": [
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "EmmaFrostXMen",
+            "Apocalypse"
+          ],
+          "advice": [
+            "Apocalypse renforce les dégâts et peut reprendre son tour grâce à une contre-attaque provoquée par Sentry adverse.",
+            "Ultime d'Apocalypse puis attaque renforcée sur Darkstar ; priorité ensuite Songbird, Omega Red et Ursa Major.",
+            "Combiner les ultimes des trois Fantastiques MCU avec la spéciale d'Emma."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "18",
+          "title": "Étage 18",
+          "requirement": "Tower Challenger I",
+          "teamName": "Vif-Argent symbiote + Riot + Knull + Venom + Quasar",
+          "characters": [
+            "SymbioteQuicksilver",
+            "Riot",
+            "Knull",
+            "Venom",
+            "Quasar"
+          ],
+          "advice": [
+            "Quasar fournit Immunité au départ contre Hank Pym et Shuri.",
+            "Vif-Argent enlève les charges de Kestrel et permet à Knull d'invoquer Carnage.",
+            "Viser les deux Illuminati puis Kestrel avant le trio Fantastiques MCU."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "19",
+          "title": "Étage 19",
+          "requirement": "Tower Challenger I",
+          "teamName": "Exalted X-Men",
+          "characters": [
+            "Wolverine",
+            "Jubilee",
+            "Angel",
+            "Morph",
+            "StormMighty"
+          ],
+          "advice": [
+            "L'équipe Exalted accélère sa propre jauge et convient aux ennemis rapides de la dernière semaine.",
+            "La difficulté est élevée : tous les adversaires sont au G21 avec cinq diamants dans l'édition documentée."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "20",
+          "title": "Étage 20",
+          "requirement": "Tower Challenger I",
+          "teamName": "Blastaar + Thunderstrike + Jeff + Serment + Rachel Summers",
+          "characters": [
+            "Blastaar",
+            "Thunderstrike",
+            "JeffTheLandShark",
+            "Oath",
+            "RachelSummers"
+          ],
+          "advice": [
+            "Jeff regroupe les ennemis et applique Défense réduite ; Blastaar bloque la cible centrale.",
+            "Thunderstrike frappe en zone et Rachel propage le Blocage de capacité.",
+            "Serment renforce la vitesse initiale, ce qui permet d'agir avant Force Phénix et les Ghost Riders."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "21",
+          "title": "Étage 21",
+          "requirement": "Tower Challenger I",
+          "teamName": "Kahhori + Apocalypse + Spider-Man + Exécuteur + Havok",
+          "characters": [
+            "Kahhori",
+            "Apocalypse",
+            "SpiderMan",
+            "Executioner",
+            "Havok"
+          ],
+          "advice": [
+            "Kahhori doit retirer la Provocation de Sebastian Shaw avant de frapper Emma Frost.",
+            "Exécuteur bloque Emma ; Spider-Man ralentit puis Havok étourdit Shaw.",
+            "Apocalypse termine Emma (X-Men) avec l'ultime et la frappe renforcée."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "22",
+          "title": "Étage 22",
+          "requirement": "Tower Challenger I",
+          "teamName": "Cannonball + Wolfsbane + Warlock + Moon Girl + Emma Frost",
+          "characters": [
+            "Cannonball",
+            "Wolfsbane",
+            "Warlock",
+            "MoonGirl",
+            "EmmaFrost"
+          ],
+          "advice": [
+            "Spider-Man 2099 se camoufle au départ, ce qui donne de la vitesse aux Nouveaux Mutants.",
+            "Utiliser immédiatement leurs compétences et concentrer le feu sur Jeff."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "23",
+          "title": "Étage 23",
+          "requirement": "Tower Challenger I",
+          "teamName": "Franklin + Femme invisible (MCU) + Reed (MCU) + Quasar + Surfer (Briseur)",
+          "characters": [
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "Quasar",
+            "SilverSurferBreaker"
+          ],
+          "advice": [
+            "Le trio 4F (MCU) agit en premier et accélère ses alliés après chaque spéciale/ultime.",
+            "La Femme invisible regroupe les ennemis pour Quasar et Surfer.",
+            "Éliminer Minn-Erva et Méphisto avant le Surfer ennemi."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "24",
+          "title": "Étage 24",
+          "requirement": "Tower Challenger I",
+          "teamName": "Symbiote Six",
+          "characters": [
+            "Knull",
+            "Venom",
+            "Riot",
+            "Toxin",
+            "SymbioteQuicksilver"
+          ],
+          "advice": [
+            "Shadow King représente la principale menace : son passif peut lui donner le tour immédiatement après Blue Marvel.",
+            "L'Emma Frost (X-Men) ennemie ralentit Knull ; Xavier peut remplacer Toxin pour empêcher la manipulation de jauge adverse.",
+            "Le tirage initial Blue Marvel/Vif-Argent est aléatoire : recommencer si l'ouverture élimine trop de personnages."
+          ],
+          "alternatives": [
+            "Xavier"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
         }
       ],
       "totalStages": 24,
       "stageUnit": "étage",
-      "editorialRef": "mighty-tower-blade/"
+      "editorialRef": "mighty-tower-blade/",
+      "guideNote": "Les 24 étages exigent tous le trait Tower Challenger I (cinq personnages). Difficultés Normal, Hard et Omega ; aucune règle générale Guerre/Raid/Épreuve cosmique. Six étages s'ouvrent chaque semaine. Les récupérations se réinitialisent après 6, 12, 18 et lors de l'ouverture des nouvelles semaines."
     },
     {
       "id": "spider-descent",
@@ -885,23 +1256,540 @@
       "id": "kyln-blazes",
       "type": "tower",
       "title": "Évasion de Kyln : Code Blazes",
-      "summary": "20 cellules. Les combats utilisent des groupes de trois personnages.",
+      "summary": "Kyln Code Blazes : 20 cellules annoncées, seules les cinq premières disposent d'un guide publié. Format d'équipe à confirmer.",
       "rewardId": null,
-      "stages": [],
+      "stages": [
+        {
+          "id": "1",
+          "title": "Cellule 1",
+          "requirement": "Challengers 3 · taille d'équipe contradictoire",
+          "teamName": "Éternels intemporels : choisir le trio admissible",
+          "characters": [],
+          "advice": [
+            "L'article cite l'équipe entière, mais pas les trois personnages précis si la règle 3 est appliquée.",
+            "Cibler Docteur Octopus au début, puis Bouffon vert classique et Vautour après l'arrivée de la seconde vague."
+          ],
+          "alternatives": [
+            "Gilgamesh",
+            "Kingo",
+            "Thena",
+            "Ikaris",
+            "Sersi"
+          ],
+          "difficulty": "Omega (à confirmer)",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "2",
+          "title": "Cellule 2",
+          "requirement": "Challengers 3 · taille d'équipe contradictoire",
+          "teamName": "Tornade (Puissante), Blade (Puissant), Surfer (Briseur), Scorpion (Briseur), Super-Skrull",
+          "characters": [],
+          "advice": [
+            "La recommandation d'origine énumère cinq personnages sans détailler la sélection de trois ni les actions.",
+            "Ne pas présenter cette formation comme jouable à trois avant vérification."
+          ],
+          "alternatives": [
+            "StormMighty",
+            "BladeMighty",
+            "SilverSurferBreaker",
+            "ScorpionBreaker",
+            "SuperSkrull"
+          ],
+          "difficulty": "Omega (à confirmer)",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "3",
+          "title": "Cellule 3",
+          "requirement": "Challengers 3 · taille d'équipe contradictoire",
+          "teamName": "Insidious Six, Ultron et Vision : trio non précisé",
+          "characters": [],
+          "advice": [
+            "La source emploie trois Insidious Six avec Ultron et Vision : la composition complète compte cinq noms ou places.",
+            "Spider-Man supérieur doit bloquer Havok ; Vision contrôle Groot ; Super-Bouffon vise Howard.",
+            "Sur la deuxième vague, retirer Provocation de Red Guardian puis éliminer Darkstar et Omega Red."
+          ],
+          "alternatives": [
+            "SuperiorSpiderMan",
+            "Hobgoblin",
+            "Ultron",
+            "Vision"
+          ],
+          "difficulty": "Omega (à confirmer)",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "4",
+          "title": "Cellule 4",
+          "requirement": "Challengers 3 · taille d'équipe contradictoire",
+          "teamName": "Armes immortelles : trio à confirmer",
+          "characters": [],
+          "advice": [
+            "Tenir les premières attaques puis utiliser la spéciale du Maître de l'épée sur Mordo pour enlever les bonus et appliquer Trauma.",
+            "À la seconde vague, tuer Le Leader puis les autres Cabal."
+          ],
+          "alternatives": [
+            "IronFistOrson",
+            "IronFist",
+            "SwordMaster",
+            "SteelSerpent",
+            "LadyBullseye"
+          ],
+          "difficulty": "Omega (à confirmer)",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "5",
+          "title": "Cellule 5",
+          "requirement": "Challengers 3 · taille d'équipe contradictoire",
+          "teamName": "Fantassins de fer : trio à confirmer",
+          "characters": [],
+          "advice": [
+            "Forge est la cible qui résiste le plus longtemps dans la première vague.",
+            "Deuxième vague Force Phénix : cibler d'abord Magnéto, puis Omega Red (Force Phénix), Jean Grey et Rachel Summers ; Phénix en dernier."
+          ],
+          "alternatives": [
+            "Crossbones",
+            "Yellowjacket",
+            "IronMonger",
+            "UlyssesKlaue",
+            "Whiplash"
+          ],
+          "difficulty": "Omega (à confirmer)",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        }
+      ],
       "totalStages": 20,
       "stageUnit": "cellule",
-      "editorialRef": "escape-from-kyln-code-blazes/"
+      "editorialRef": "escape-from-kyln-code-blazes/",
+      "guideNote": "ATTENTION : la même publication décrit la règle Kyln à 3 personnages mais recommande des équipes de 5 personnages dans ses cellules 1 à 5. La contradiction n'est pas résolue : les portraits sont des CANDIDATS mentionnés, pas des trios validés. Confirmer la taille autorisée dans le jeu avant tout combat."
     },
     {
       "id": "kyln-whiplash",
       "type": "tower",
       "title": "Évasion de Kyln : Code Whiplash",
-      "summary": "20 cellules · quatre difficultés, dont Omega. Des solutions externes sont associées aux cellules précisément documentées.",
+      "summary": "Kyln Code Whiplash : 20 cellules Omega, compositions et priorités de combat en français.",
       "rewardId": null,
-      "stages": [],
+      "stages": [
+        {
+          "id": "1",
+          "title": "Cellule 1",
+          "requirement": "Sans restriction",
+          "teamName": "Incroyables Avengers",
+          "characters": [
+            "Hulk",
+            "SpiderMan",
+            "BladeMighty",
+            "RachelColeAlves",
+            "SpiderWomanJulia"
+          ],
+          "advice": [
+            "Survivre à la spéciale initiale de Kang, puis étourdir Bouffon vert classique avec l'ultime de Spider-Man.",
+            "Cibler Sentinelle Oméga dès l'arrivée de la vague Orchis."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Cellule 2",
+          "requirement": "Sans restriction",
+          "teamName": "Quasar, Tornade (Puissante), Apocalypse, Daimon, Kang",
+          "characters": [
+            "Quasar",
+            "StormMighty",
+            "Apocalypse",
+            "DaimonHellstrom",
+            "KangTheConqueror"
+          ],
+          "advice": [
+            "Préserver Apocalypse jusqu'à son premier tour ; sa spéciale peut purifier l'équipe.",
+            "Quasar bloque Abomination ; réserver les ultimes de Tornade et Kang pour la vague Secret Defenders, puis viser Ghost Rider (Robbie)."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Cellule 3",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Impérissables + Scorpion (Briseur) + Mister Negative",
+          "characters": [
+            "ZombieKestrel",
+            "ZombieScarletWitch",
+            "ZombieJuggernaut",
+            "ScorpionBreaker",
+            "MrNegative"
+          ],
+          "advice": [
+            "Éliminer Taskmaster et Mister Negative adverses, puis économiser les capacités pour la deuxième vague.",
+            "Quand les Mercenaires apparaissent, neutraliser Old Man Logan avant son tour, puis Daken ; garder Pandapool pour la fin."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough",
+          "compositionKind": "editorial_inference"
+        },
+        {
+          "id": "4",
+          "title": "Cellule 4",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Éternels intemporels sans Thena + Darkstar",
+          "characters": [
+            "Gilgamesh",
+            "Kingo",
+            "Ikaris",
+            "Sersi",
+            "Darkstar"
+          ],
+          "advice": [
+            "Encaisser les premiers tours des mutants ; si Gilgamesh est étourdi ou ciblé par Malicia, recommencer.",
+            "Ouvrir avec la spéciale de Gilgamesh, puis celle de Kingo sur Apocalypse ; contrôler Ancient One, Emma (X-Men), puis Roi d'ombre."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Cellule 5",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Conclave de l'ombre sans Malekith + Surfer (Briseur)",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "HighEvolutionary",
+            "Executioner",
+            "SilverSurferBreaker"
+          ],
+          "advice": [
+            "La spéciale du Surfer retire les charges du Chevalier noir ; attaquer Dormammu puis Docteur Fatalis.",
+            "Placer Thanos pour alimenter l'énergie des alliés ; ne pas négliger la survie jusqu'au tour de High Evolutionary."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Cellule 6",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Incroyables Avengers",
+          "characters": [
+            "Hulk",
+            "SpiderMan",
+            "BladeMighty",
+            "RachelColeAlves",
+            "SpiderWomanJulia"
+          ],
+          "advice": [
+            "Cibler d'abord les personnages Death Seed puis Sebastian Shaw.",
+            "Passer aux attaques basiques en fin de vague pour préparer Azazel et Toad, puis éliminer Madelyne Pryor."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Cellule 7",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Daimon, Apocalypse, Maestro, Hulk rouge, Brawn",
+          "characters": [
+            "DaimonHellstrom",
+            "Apocalypse",
+            "Maestro",
+            "RedHulk",
+            "AmadeusCho"
+          ],
+          "advice": [
+            "Brawn donne de la vitesse aux Gamma ; utiliser les spéciales de Red Hulk et Maestro pour ralentir les ennemis.",
+            "Contrôler Angel et les ennemis ayant Provocation avant d'utiliser les ultimes."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Cellule 8",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Trois Impérissables + Quasar + Surfer (Briseur)",
+          "characters": [
+            "ZombieJuggernaut",
+            "ZombieScarletWitch",
+            "ZombieKestrel",
+            "Quasar",
+            "SilverSurferBreaker"
+          ],
+          "advice": [
+            "Quasar bloque Kahhori puis Surfer neutralise Thanos (Endgame).",
+            "Conserver des capacités pour les Nouveaux Avengers de la seconde vague : éliminer Mockingbird puis Tigra.",
+            "Sans Thena pour la cellule 10, remplacer Quasar par Jeff pour le réserver."
+          ],
+          "alternatives": [
+            "JeffTheLandShark"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Cellule 9",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Conclave de l'Ombre",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "Malekith",
+            "HighEvolutionary",
+            "Executioner"
+          ],
+          "advice": [
+            "Thanos au centre, entre Exécuteur et High Evolutionary ; Malekith et Sylvie aux extrémités.",
+            "Éliminer Hank Pym à la première vague ; les alliés rechargent leurs compétences après chaque élimination."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Cellule 10",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Éternels intemporels",
+          "characters": [
+            "Gilgamesh",
+            "Kingo",
+            "Thena",
+            "Ikaris",
+            "Sersi"
+          ],
+          "advice": [
+            "La passive de Thena empêche l'accélération ennemie : sans elle, Quasar peut la remplacer.",
+            "Après la spéciale de Gilgamesh, celle de Kingo doit viser Vif-Argent symbiote et bloquer ses alliés.",
+            "Abattre les Symbiote Six avant Liberté ; les dix ennemis sont présents dès l'ouverture."
+          ],
+          "alternatives": [
+            "Quasar"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "11",
+          "title": "Cellule 11",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Incroyables Avengers",
+          "characters": [
+            "Hulk",
+            "SpiderMan",
+            "BladeMighty",
+            "RachelColeAlves",
+            "SpiderWomanJulia"
+          ],
+          "advice": [
+            "Éliminer le Roi d'ombre avant son premier tour.",
+            "Pour la vague suivante, conserver les ultimes de Spider-Man et Spider-Woman (Julia) afin de contrôler Spider-Man et Wolverine."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "12",
+          "title": "Cellule 12",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Maestro, Quasar, Jeff, Daimon, Tornade (Puissante)",
+          "characters": [
+            "Maestro",
+            "Quasar",
+            "JeffTheLandShark",
+            "DaimonHellstrom",
+            "StormMighty"
+          ],
+          "advice": [
+            "Daimon ouvre avec son ultime pour bloquer Scorpion (Briseur), Madelyne Pryor et Gorr.",
+            "Jeff doit idéalement jouer avant Surfer (Briseur) ; regrouper les ennemis puis enchaîner les attaques de zone.",
+            "Surveiller les dégâts passifs de Thanos (Endgame), puis traiter Fatalis et Dormammu dans la seconde vague."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "13",
+          "title": "Cellule 13",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Trois Impérissables + Surfer (Briseur) + Darkstar",
+          "characters": [
+            "ZombieJuggernaut",
+            "ZombieScarletWitch",
+            "ZombieKestrel",
+            "SilverSurferBreaker",
+            "Darkstar"
+          ],
+          "advice": [
+            "Wanda zombie empêche Méphisto de gagner sa vitesse habituelle.",
+            "Profiter des attaques de Darkstar pour réduire la première vague avant Daimon et Hellcat."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "14",
+          "title": "Cellule 14",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Conclave de l'Ombre",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "Malekith",
+            "HighEvolutionary",
+            "Executioner"
+          ],
+          "advice": [
+            "La passive de Malekith transforme l'effet Ténèbres de Knull en avantage.",
+            "Maintenir la Provocation de Thanos pour protéger l'équipe ; les deux vagues restent contrôlables sous les règles de guerre."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "15",
+          "title": "Cellule 15",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Éternels intemporels",
+          "characters": [
+            "Gilgamesh",
+            "Kingo",
+            "Thena",
+            "Ikaris",
+            "Sersi"
+          ],
+          "advice": [
+            "Commencer par l'ultime de Gilgamesh et bloquer Xavier avec la spéciale de Kingo.",
+            "Réserver les étourdissements de Thena et Circé pour Scarlet Witch zombie et Crécerelle zombie en seconde vague."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "16",
+          "title": "Cellule 16",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Incroyables Avengers sans Hulk + Apocalypse",
+          "characters": [
+            "SpiderMan",
+            "BladeMighty",
+            "RachelColeAlves",
+            "SpiderWomanJulia",
+            "Apocalypse"
+          ],
+          "advice": [
+            "Apocalypse empêche les adversaires d'apparaître avec Sauvegarde.",
+            "Se concentrer sur les personnages dangereux avant qu'ils n'utilisent leurs capacités de contrôle."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "17",
+          "title": "Cellule 17",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Quasar, Jeff, Tornade (Puissante), Daimon, Maestro",
+          "characters": [
+            "Quasar",
+            "JeffTheLandShark",
+            "StormMighty",
+            "DaimonHellstrom",
+            "Maestro"
+          ],
+          "advice": [
+            "Daimon et Tornade ouvrent sur leurs ultimes ; Jeff rassemble les ennemis pour le contrôle de Quasar.",
+            "Viser Ms. Marvel classique pour retirer ses charges si Quasar joue trop tôt.",
+            "Dans la deuxième vague, neutraliser Pavitr puis Old Man Logan."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "18",
+          "title": "Cellule 18",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Trois Impérissables + Surfer (Briseur) + Black Cat",
+          "characters": [
+            "ZombieJuggernaut",
+            "ZombieScarletWitch",
+            "ZombieKestrel",
+            "SilverSurferBreaker",
+            "BlackCat"
+          ],
+          "advice": [
+            "Composition publiée, mais le détail des cibles et de l'ordre des capacités n'est pas documenté dans l'extrait accessible."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "19",
+          "title": "Cellule 19",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Conclave de l'Ombre",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "Malekith",
+            "HighEvolutionary",
+            "Executioner"
+          ],
+          "advice": [
+            "Si Toxin agit avant Exécuteur et élimine un allié, recommencer.",
+            "Contre RetCon, abattre Jeff en priorité pour réduire l'efficacité de la composition."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "20",
+          "title": "Cellule 20",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Éternels intemporels",
+          "characters": [
+            "Gilgamesh",
+            "Kingo",
+            "Thena",
+            "Ikaris",
+            "Sersi"
+          ],
+          "advice": [
+            "Kingo doit viser Malekith avec sa spéciale ; ensuite neutraliser High Evolutionary avant son tour.",
+            "Deuxième vague : éliminer Blue Marvel, puis Odin. L'équipe doit être très développée en Omega."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        }
+      ],
       "editorialRef": "escape-from-kyln-code-whiplash/",
       "totalStages": 20,
-      "stageUnit": "cellule"
+      "stageUnit": "cellule",
+      "guideNote": "Cette édition utilise cinq personnages par cellule et les règles de guerre, avec le trait Challengers 2. Les personnages entrent en récupération après une victoire et les paliers de récupération peuvent évoluer selon l'édition. Les solutions dépendent de la puissance et de l'ordre des tours."
     },
     {
       "id": "fear",
@@ -1325,32 +2213,846 @@
       "id": "storm",
       "type": "tower",
       "title": "Tour de Tornade",
-      "summary": "12 étages et deux difficultés.",
+      "summary": "Tour de Tornade (Puissante) : 12 étages Omega, restrictions par traits et stratégies en français.",
       "rewardId": "StormMighty",
-      "stages": [],
+      "stages": [
+        {
+          "id": "1",
+          "title": "Étage 1",
+          "requirement": "Mondial",
+          "teamName": "Brimstone + Old Man Logan",
+          "characters": [
+            "DaimonHellstrom",
+            "ElsaBloodstone",
+            "LivingMummy",
+            "Hellcat",
+            "OldManLogan"
+          ],
+          "advice": [
+            "Ouvrir avec l'ultime de Daimon puis la spéciale d'Old Man Logan contre Hyperion ou Victoria Hand.",
+            "Cibler Victoria Hand, Lady Bullseye et Songbird avant la vague Ikaris/Circé."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Étage 2",
+          "requirement": "Héros cosmiques",
+          "teamName": "Starjammers + Nova (Sam Alexander)",
+          "characters": [
+            "Havok",
+            "Lilandra",
+            "HowardTheDuck",
+            "Groot",
+            "NovaSamAlexander"
+          ],
+          "advice": [
+            "Havok et Howard doivent viser Emma Frost (X-Men) avec leurs spéciales ; Lilandra contrôle Apocalypse.",
+            "Contre la Winter Guard, retirer la Provocation de Red Guardian avant Darkstar et Omega Red."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Étage 3",
+          "requirement": "Mutants",
+          "teamName": "Force Phénix + Xavier + Roi d'ombre",
+          "characters": [
+            "MagnetoPhoenixForce",
+            "OmegaRedPhoenix",
+            "Phoenix",
+            "Xavier",
+            "ShadowKing"
+          ],
+          "advice": [
+            "Magnéto ouvre sur Scorpion et le groupe Sinister Six ; Xavier bloque Spider-Man supérieur.",
+            "Dans la seconde vague, concentrer le feu sur Knull avant les autres Hive-Mind."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Étage 4",
+          "requirement": "Vilains mystiques",
+          "teamName": "Maudits + Knull",
+          "characters": [
+            "Hellverine",
+            "TheHood",
+            "Satana",
+            "BaronMordo",
+            "Knull"
+          ],
+          "advice": [
+            "Knull applique son effet de champ avec l'ultime ; Satana et Hood attaquent d'abord Gladiator.",
+            "Hellverine se charge de l'ultime ; seconde vague : Roi d'ombre, Emma Frost (X-Men), Ancient One."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "5",
+          "title": "Étage 5",
+          "requirement": "Héros mondiaux ou Ville non mythiques",
+          "teamName": "Guerriers audacieux",
+          "characters": [
+            "Eclipse",
+            "Speedball",
+            "NightThrasher",
+            "Daredevil",
+            "JessicaJones"
+          ],
+          "advice": [
+            "Profiter de leurs contrôles contre Nouveaux Mutants.",
+            "Ne pas garder les capacités pour l'arrivée de Liberté : cette équipe fonctionne surtout en Guerre."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Étage 6",
+          "requirement": "X-Men non mythiques",
+          "teamName": "Nouveaux Mutants",
+          "characters": [
+            "Warlock",
+            "Magik",
+            "Wolfsbane",
+            "Cannonball",
+            "Sunspot"
+          ],
+          "advice": [
+            "Cannonball et Wolfsbane ouvrent avec leurs spéciales sur Apocalypse.",
+            "Utiliser l'ultime de Warlock ; à l'arrivée de Satana et Morgan Le Fay, étourdir une cible et concentrer les dégâts sur l'autre."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Étage 7",
+          "requirement": "Mondial",
+          "teamName": "Brimstone + Old Man Logan",
+          "characters": [
+            "DaimonHellstrom",
+            "ElsaBloodstone",
+            "LivingMummy",
+            "Hellcat",
+            "OldManLogan"
+          ],
+          "advice": [
+            "La même composition peut être réutilisée après la réinitialisation hebdomadaire.",
+            "Daimon et Old Man Logan assurent la gestion des dégâts et des étourdissements ; Sentry peut être envisagé comme remplaçant."
+          ],
+          "alternatives": [
+            "Sentry"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Étage 8",
+          "requirement": "Héros cosmiques",
+          "teamName": "Starjammers + Nova (Sam Alexander)",
+          "characters": [
+            "Havok",
+            "Lilandra",
+            "HowardTheDuck",
+            "Groot",
+            "NovaSamAlexander"
+          ],
+          "advice": [
+            "Havok doit retirer la Provocation de Cannonball ; viser Emma (X-Men) lorsque l'accès s'ouvre.",
+            "Utiliser l'ultime de Nova et Lilandra, puis la spéciale de Groot contre Femme invisible (MCU)."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Étage 9",
+          "requirement": "Mutants",
+          "teamName": "Force Phénix + Xavier + Roi d'ombre",
+          "characters": [
+            "MagnetoPhoenixForce",
+            "OmegaRedPhoenix",
+            "Phoenix",
+            "Xavier",
+            "ShadowKing"
+          ],
+          "advice": [
+            "Magnéto vise Emma Frost pour toucher Méphisto, Le Leader et Sebastian Shaw ; Roi d'ombre bloque Le Leader.",
+            "Seconde vague : Momie vivante est prioritaire avec sa Provocation ; utiliser les ultimes disponibles."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Étage 10",
+          "requirement": "Vilains mystiques",
+          "teamName": "Maudits + Knull",
+          "characters": [
+            "Hellverine",
+            "TheHood",
+            "Satana",
+            "BaronMordo",
+            "Knull"
+          ],
+          "advice": [
+            "Knull applique son effet de champ, Satana vise Lilandra et Hood gère les Starjammers.",
+            "La deuxième vague contient Quasar, Blastaar et Thunderstrike : contrôler ces cibles dès leur apparition."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "11",
+          "title": "Étage 11",
+          "requirement": "Héros mondiaux ou Ville non mythiques",
+          "teamName": "Guerriers audacieux",
+          "characters": [
+            "Eclipse",
+            "Speedball",
+            "NightThrasher",
+            "Daredevil",
+            "JessicaJones"
+          ],
+          "advice": [
+            "Survivre à l'ultime de Darkstar puis utiliser les ultimes de Night Thrasher et Daredevil.",
+            "La spéciale de Speedball doit viser Omega Red (Force Phénix). Dans la deuxième vague, éliminer Captain Britain et Shuri."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "12",
+          "title": "Étage 12",
+          "requirement": "X-Men non mythiques",
+          "teamName": "Nouveaux Mutants (variante plus risquée)",
+          "characters": [
+            "Warlock",
+            "Magik",
+            "Wolfsbane",
+            "Cannonball",
+            "Sunspot"
+          ],
+          "advice": [
+            "Résister aux premières attaques du Professeur Xavier et de Méphisto ; recommencer si Cannonball, Warlock ou Wolfsbane meurt.",
+            "Abattre Xavier avant son deuxième tour, puis Méphisto et Old Man Logan.",
+            "Deuxième vague : cibler Jean Grey et Lilandra. Exalted X-Men reste la voie la plus simple."
+          ],
+          "alternatives": [
+            "StormMighty",
+            "Wolverine",
+            "Jubilee",
+            "Angel"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        }
+      ],
       "totalStages": 12,
       "stageUnit": "étage",
-      "editorialRef": "mighty-tower-storm/"
+      "editorialRef": "mighty-tower-storm/",
+      "guideNote": "L'édition met les règles d'Épreuve cosmique à l'honneur. Les personnages utilisés passent en récupération jusqu'à la semaine suivante. Les étages 7–12 réutilisent plusieurs formations des étages 1–6. Les compositions Maudits + Knull représentent un assemblage éditorial parmi les membres cités, sans cinq places explicitement énumérées."
     },
     {
       "id": "war",
       "type": "tower",
       "title": "Tour de Guerre",
-      "summary": "Défis axés sur les équipes de guerre.",
+      "summary": "Tour de Guerre : 12 étages PvE sous les règles de Guerre, avec compositions et stratégies en français.",
       "rewardId": "JeffTheLandShark",
-      "stages": [],
-      "editorialRef": "war-tower/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Étage 1",
+          "requirement": "Héros",
+          "teamName": "Liberté + Sentry",
+          "characters": [
+            "Patriot",
+            "FalconJoaquin",
+            "PeggyCarter",
+            "SamWilson",
+            "Sentry"
+          ],
+          "advice": [
+            "Avec les héros Liberté, cibler Azazel, Rachel Summers et Emma Frost avant Sebastian Shaw.",
+            "Les autres équipes de guerre de héros associées à Sentry sont possibles."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "2",
+          "title": "Étage 2",
+          "requirement": "Vilains mondiaux",
+          "teamName": "Quatre Impérissables + Arès",
+          "characters": [
+            "ZombieJuggernaut",
+            "ZombieScarletWitch",
+            "ZombieKestrel",
+            "ZombieIronMan",
+            "Ares"
+          ],
+          "advice": [
+            "Hela est cosmique et ne peut participer : la remplacer par Arès.",
+            "Cibler Morgan Le Fay en première vague, puis Apocalypse et Red Hulk à leur arrivée."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Étage 3",
+          "requirement": "Héros",
+          "teamName": "4 Fantastiques (MCU) + Xavier",
+          "characters": [
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "FranklinRichards",
+            "HumanTorch",
+            "Xavier"
+          ],
+          "advice": [
+            "Éliminer Emma Frost (X-Men) et Ancient One avant leurs tours ; la spéciale de Xavier bloque Roi d'ombre.",
+            "Conserver l'ultime de Xavier pour l'arrivée des Thunderbolts."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Étage 4",
+          "requirement": "Compétence ou Mystique non mythique",
+          "teamName": "Brimstone",
+          "characters": [
+            "DaimonHellstrom",
+            "ElsaBloodstone",
+            "StrangeSupreme",
+            "LivingMummy",
+            "Hellcat"
+          ],
+          "advice": [
+            "Tout diriger sur Odin : les ultimes de Daimon et Hellcat ouvrent la voie.",
+            "Elsa permet de toucher Spider-Weaver même lorsque ses charges provoquent des esquives."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Étage 5",
+          "requirement": "Mondial non mythique",
+          "teamName": "Winter Guard",
+          "characters": [
+            "Darkstar",
+            "OmegaRed",
+            "Yelena",
+            "RedGuardian",
+            "UrsaMajor"
+          ],
+          "advice": [
+            "Encaisser les attaques avant le tour de Darkstar, puis lancer son ultime.",
+            "Contre la deuxième vague, éliminer d'abord un Éternel, puis les autres ; laisser Sentry si besoin."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Étage 6",
+          "requirement": "Vilains cosmiques non mythiques",
+          "teamName": "Conclave sans Malekith + Knull",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "HighEvolutionary",
+            "Executioner",
+            "Knull"
+          ],
+          "advice": [
+            "Thanos utilise sa spéciale pour obtenir Provocation, puis Knull pose son effet de champ.",
+            "Cibler Knull adverse puis Thanos (Endgame) et Gorr ; en deuxième vague, Vautour, Spider-Man supérieur et Super-Bouffon."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Étage 7",
+          "requirement": "Héros",
+          "teamName": "A-Force Absolute + Sentry",
+          "characters": [
+            "Kahhori",
+            "MsMarvelClassic",
+            "Medusa",
+            "Wasp",
+            "Sentry"
+          ],
+          "advice": [
+            "Kahhori enlève la Provocation de Cannonball ; éliminer ensuite Old Man Logan, puis Warlock et Wolfsbane.",
+            "Quand RetCon apparaît, Jeff devient la priorité."
+          ],
+          "alternatives": [
+            "Odin"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "8",
+          "title": "Étage 8",
+          "requirement": "Vilains mondiaux",
+          "teamName": "Impérissables sans Hela + Omega Red (Force Phénix)",
+          "characters": [
+            "ZombieIronMan",
+            "ZombieKestrel",
+            "ZombieScarletWitch",
+            "ZombieJuggernaut",
+            "OmegaRedPhoenix"
+          ],
+          "advice": [
+            "L'ultime d'Omega Red (Force Phénix) et la capacité des zombies aident contre Sasquatch.",
+            "Prévoir une équipe très solide : ce nœud figure parmi les plus difficiles de la tour."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Étage 9",
+          "requirement": "Héros",
+          "teamName": "4 Fantastiques (MCU) + Xavier",
+          "characters": [
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "FranklinRichards",
+            "HumanTorch",
+            "Xavier"
+          ],
+          "advice": [
+            "Profiter des dégâts rapides contre Héros à louer et Jeunes Avengers.",
+            "Odin est une alternative si la tour n'a pas encore nécessité son utilisation."
+          ],
+          "alternatives": [
+            "Odin"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Étage 10",
+          "requirement": "Compétence ou Mystique non mythique",
+          "teamName": "Brimstone",
+          "characters": [
+            "DaimonHellstrom",
+            "ElsaBloodstone",
+            "StrangeSupreme",
+            "LivingMummy",
+            "Hellcat"
+          ],
+          "advice": [
+            "Ne pas lancer les ultimes de Daimon et Hellcat dès la première vague : retirer d'abord la Provocation de Drax.",
+            "Éliminer Star-Lord et Gamora ; garder les capacités de zone pour Sasquatch et Jeff au deuxième groupe."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "11",
+          "title": "Étage 11",
+          "requirement": "Mondial non mythique",
+          "teamName": "Winter Guard",
+          "characters": [
+            "Darkstar",
+            "OmegaRed",
+            "Yelena",
+            "RedGuardian",
+            "UrsaMajor"
+          ],
+          "advice": [
+            "Red Guardian doit survivre au démarrage de Kahhori, qui peut jouer plusieurs fois.",
+            "Utiliser Darkstar pour inverser le combat après l'ouverture adverse."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "12",
+          "title": "Étage 12",
+          "requirement": "Vilains cosmiques non mythiques",
+          "teamName": "Conclave sans Malekith + Surfer (Briseur)",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "HighEvolutionary",
+            "Executioner",
+            "SilverSurferBreaker"
+          ],
+          "advice": [
+            "Conserver Sylvie : son passif réduit les dégâts ennemis à l'ouverture.",
+            "Thanos Fortificateur encaisse la première salve ; Exécuteur Écumeur améliore ses contrôles si son niveau est faible.",
+            "Cibler Quasar avec la spéciale de Thanos et l'ultime d'Exécuteur."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        }
+      ],
+      "editorialRef": "war-tower/",
+      "totalStages": 12,
+      "stageUnit": "étage",
+      "guideNote": "Bien qu'elle applique les règles de Guerre, cette tour est un challenge PvE et non un catalogue de contres d'alliances. Les équipes sont utilisées par étage selon les restrictions de traits. Certaines substitutions représentent une interprétation du noyau cité, signalée comme recommandation."
     },
     {
       "id": "kyln-polarity",
       "type": "tower",
       "title": "Évasion de Kyln : Polarity Shift",
-      "summary": "18 cellules et équipes de trois personnages.",
+      "summary": "Kyln Polarity Shift : 18 cellules à trois personnages, conditions d'étoiles et conseils en français.",
       "rewardId": null,
-      "stages": [],
+      "stages": [
+        {
+          "id": "1",
+          "title": "Cellule 1",
+          "requirement": "Aucune restriction",
+          "teamName": "Trois personnages au choix",
+          "characters": [],
+          "advice": [
+            "Choisir trois combattants déjà développés ; les ennemis des deux premières cellules ont une puissance modérée."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "2",
+          "title": "Cellule 2",
+          "requirement": "Aucune restriction",
+          "teamName": "Trois personnages au choix",
+          "characters": [],
+          "advice": [
+            "Conserver les équipes spécialisées pour les restrictions à venir.",
+            "Les autres personnages déjà équipés suffisent normalement aux premières cellules."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "3",
+          "title": "Cellule 3",
+          "requirement": "Ville · 3 étoiles jaunes",
+          "teamName": "Insidious Six",
+          "characters": [
+            "Hobgoblin",
+            "SuperiorSpiderMan",
+            "Vulture"
+          ],
+          "advice": [
+            "Les attaques de Spider-Man supérieur retirent les bonus et ralentissent les ennemis.",
+            "Conserver l'énergie pour la cellule 4 si nécessaire."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Cellule 4",
+          "requirement": "Ville · 3 étoiles jaunes",
+          "teamName": "Insidious Six",
+          "characters": [
+            "Hobgoblin",
+            "SuperiorSpiderMan",
+            "Vulture"
+          ],
+          "advice": [
+            "Même trio que cellule 3 ; viser les menaces rapides avec les contrôles de Spider-Man supérieur."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Cellule 5",
+          "requirement": "Mondial · 4 étoiles jaunes",
+          "teamName": "Brimstone (trois mondiaux)",
+          "characters": [
+            "DaimonHellstrom",
+            "LivingMummy",
+            "Hellcat"
+          ],
+          "advice": [
+            "Trois Brimstone bien développés contrôlent ces adversaires de faible puissance.",
+            "La guérison et les contrôles suffisent : ne pas investir davantage juste pour la cellule."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Cellule 6",
+          "requirement": "Mondial · 4 étoiles jaunes",
+          "teamName": "Brimstone (trois mondiaux)",
+          "characters": [
+            "DaimonHellstrom",
+            "LivingMummy",
+            "Hellcat"
+          ],
+          "advice": [
+            "Conserver les compétences si possible : l'équipe peut repartir dans un combat suivant selon les règles de récupération."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Cellule 7",
+          "requirement": "Cosmique non mythique · 4 étoiles jaunes",
+          "teamName": "Trio 4F (MCU)",
+          "characters": [
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU"
+          ],
+          "advice": [
+            "Franklin, Reed et la Femme invisible ont de bonnes synergies et sont souvent déjà améliorés.",
+            "Se concentrer sur les cibles menaçant la Femme invisible en priorité."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Cellule 8",
+          "requirement": "Cosmique non mythique · 4 étoiles jaunes",
+          "teamName": "Trio 4F (MCU)",
+          "characters": [
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU"
+          ],
+          "advice": [
+            "Même composition que cellule 7 ; profiter du contrôle et des soutiens des Fantastiques."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Cellule 9",
+          "requirement": "Mystique non mythique · 5 étoiles jaunes",
+          "teamName": "Knull + Daimon + Thunderstrike",
+          "characters": [
+            "Knull",
+            "DaimonHellstrom",
+            "Thunderstrike"
+          ],
+          "advice": [
+            "Knull limite les accélérations et prépare les dégâts, tandis que Thunderstrike assure la pression.",
+            "Ce trio convient aux deux cellules Mystiques."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Cellule 10",
+          "requirement": "Mystique non mythique · 5 étoiles jaunes",
+          "teamName": "Knull + Daimon + Thunderstrike",
+          "characters": [
+            "Knull",
+            "DaimonHellstrom",
+            "Thunderstrike"
+          ],
+          "advice": [
+            "Le passif de Knull empêche Méphisto d'être renforcé dès le départ.",
+            "Privilégier le contrôle et achever Méphisto avant qu'il n'impose le rythme."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "11",
+          "title": "Cellule 11",
+          "requirement": "Mutant · 5 étoiles jaunes",
+          "teamName": "Xavier + Havok + Roi d'ombre",
+          "characters": [
+            "Xavier",
+            "Havok",
+            "ShadowKing"
+          ],
+          "advice": [
+            "Éliminer rapidement les Starjammers ennemis pour éviter les enchaînements de vitesse.",
+            "Sans Xavier, Azazel ou Old Man Logan font partie des remplaçants proposés."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "12",
+          "title": "Cellule 12",
+          "requirement": "Mutant · 5 étoiles jaunes",
+          "teamName": "Xavier + Havok + Roi d'ombre",
+          "characters": [
+            "Xavier",
+            "Havok",
+            "ShadowKing"
+          ],
+          "advice": [
+            "Laisser les deux Mister Fantastic (MCU) adverses pour la fin.",
+            "Garder le contrôle du combat grâce à Xavier et Roi d'ombre."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "13",
+          "title": "Cellule 13",
+          "requirement": "Légendaire · 5 étoiles jaunes",
+          "teamName": "Quasar + Blastaar + Thunderstrike",
+          "characters": [
+            "Quasar",
+            "Blastaar",
+            "Thunderstrike"
+          ],
+          "advice": [
+            "Lancer surtout les basiques jusqu'à obtenir trois ou quatre Bomb-Bursts sur Blastaar.",
+            "Déclencher ensuite son ultime pour terminer la cellule."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "14",
+          "title": "Cellule 14",
+          "requirement": "Légendaire · 5 étoiles jaunes",
+          "teamName": "Quasar + Blastaar + Thunderstrike",
+          "characters": [
+            "Quasar",
+            "Blastaar",
+            "Thunderstrike"
+          ],
+          "advice": [
+            "Même trio et même principe que la cellule 13 : préparer les Bomb-Bursts, puis utiliser l'ultime de Blastaar."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "15",
+          "title": "Cellule 15",
+          "requirement": "Légendaires · étoiles contradictoires dans la source (3 ou 5)",
+          "teamName": "Quasar + Blastaar + Thunderstrike",
+          "characters": [
+            "Quasar",
+            "Blastaar",
+            "Thunderstrike"
+          ],
+          "advice": [
+            "Cibler Thanos (Endgame) au premier groupe pour déclencher son passif.",
+            "À l'arrivée de Knull, Blastaar peut utiliser sa spéciale après au moins trois Bomb-Bursts, puis lancer son ultime."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "16",
+          "title": "Cellule 16",
+          "requirement": "Légendaires · étoiles contradictoires dans la source (4 ou 5)",
+          "teamName": "Quasar + Blastaar + Thunderstrike",
+          "characters": [
+            "Quasar",
+            "Blastaar",
+            "Thunderstrike"
+          ],
+          "advice": [
+            "Éliminer Dormammu avant l'arrivée du deuxième groupe, puis Satana.",
+            "Quasar utilise surtout ses basiques ; Blastaar conserve ses cinq Bomb-Bursts pour l'ultime contre la deuxième vague."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "17",
+          "title": "Cellule 17",
+          "requirement": "Force Phénix · 5 étoiles jaunes",
+          "teamName": "Trio Force Phénix",
+          "characters": [
+            "MagnetoPhoenixForce",
+            "Phoenix",
+            "OmegaRedPhoenix"
+          ],
+          "advice": [
+            "La spéciale de Magnéto retire les bonus et perturbe Méphisto.",
+            "Utiliser l'ultime préparé d'Omega Red (Force Phénix) pour éliminer la première vague.",
+            "Contre Odin, rester sur les basiques tant que cela suffit."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "18",
+          "title": "Cellule 18",
+          "requirement": "Force Phénix · 5 étoiles jaunes",
+          "teamName": "Trio Force Phénix",
+          "characters": [
+            "MagnetoPhoenixForce",
+            "Phoenix",
+            "OmegaRedPhoenix"
+          ],
+          "advice": [
+            "Magnéto cible Thunderstrike avec son ultime ; Phénix peut immédiatement utiliser le sien.",
+            "Omega Red bloque les capacités de Sentry avec sa spéciale, puis l'équipe se concentre sur Blastaar et Quasar.",
+            "Dernière cellule : aucune capacité à préserver."
+          ],
+          "alternatives": [],
+          "difficulty": "Polarity Shift",
+          "strategyKind": "walkthrough"
+        }
+      ],
       "totalStages": 18,
       "stageUnit": "cellule",
-      "editorialRef": "escape-from-kyln/"
+      "editorialRef": "escape-from-kyln/",
+      "guideNote": "Trois personnages maximum par combat. Attention : le tableau des restrictions de la source annonce 5 étoiles jaunes pour les légendaires des cellules 13–16, mais son commentaire évoque 3 étoiles pour la cellule 15 et 4 pour la cellule 16. Cette contradiction n'est pas résolue : vérifier le seuil en jeu. Force Phénix demande 5 étoiles jaunes aux cellules 17–18."
     },
     {
       "id": "surfer-breaker",
@@ -1971,109 +3673,1418 @@
       "id": "shadow-king",
       "type": "trial",
       "title": "Épreuves du Roi d'ombre",
-      "summary": "Guide Trials avec difficultés et compositions.",
+      "summary": "Trial du Roi d'ombre : parcours détaillé des dix missions en difficulté 15, équipes, cibles prioritaires et ultimes à conserver.",
       "rewardId": "ShadowKing",
-      "stages": [],
-      "editorialRef": "shadow-king-trials/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction",
+          "teamName": "Cabale + Diablo + Spider-Man Pavitr",
+          "characters": [
+            "TheLeader",
+            "Namor",
+            "IronPatriot",
+            "Nightcrawler",
+            "SpiderManPavitr"
+          ],
+          "advice": [
+            "Charger l'ultime de Diablo avant la mission 4 ; conserver les compétences majeures de Cabale.",
+            "Préparer l'ultime d'Old Man Logan et au moins quatre charges de Deathpool pour les missions où ils participeront."
+          ],
+          "alternatives": [
+            "ThanosEndgame",
+            "SuperSkrull",
+            "OldManLogan",
+            "JeanGrey"
+          ],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Illuminati",
+          "teamName": "Illuminati avec Captain Britain",
+          "characters": [
+            "CaptainBritain",
+            "HankPym",
+            "BlackPantherShuri",
+            "BlackBolt",
+            "MrFantastic"
+          ],
+          "advice": [
+            "Bloquer Lézard et étourdir Kraven ou Le Leader avant leurs enchaînements.",
+            "À l'arrivée du Bouffon vert classique, le neutraliser puis traiter Docteur Octopus.",
+            "Iron Man peut remplacer Captain Britain, mais les chances diminuent suivant son développement."
+          ],
+          "alternatives": [
+            "IronMan"
+          ],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Vilains mondiaux",
+          "teamName": "Cabale + Apocalypse + Scientifique suprême",
+          "characters": [
+            "Namor",
+            "TheLeader",
+            "IronPatriot",
+            "Apocalypse",
+            "ScientistSupreme"
+          ],
+          "advice": [
+            "Neutraliser en priorité les ennemis capables de perturber l'équipe, notamment Chevalier noir et Captain Carter.",
+            "Garder l'ultime d'Apocalypse pour sa prochaine mission Vilains mondiaux.",
+            "L'option Orchis avec Apocalypse est également mentionnée."
+          ],
+          "alternatives": [],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Bagarreurs non mythiques",
+          "teamName": "Diablo, Hulk rouge, Vahl, Thanos (Endgame), Vautour",
+          "characters": [
+            "Nightcrawler",
+            "RedHulk",
+            "Vahl",
+            "ThanosEndgame",
+            "Vulture"
+          ],
+          "advice": [
+            "Ouvrir avec l'ultime préparé de Diablo pour retirer les Provocations des Sentinelles.",
+            "Alterner Étourdissement et Blocage de capacité sur les Sentinelles non contrôlées ; étourdir Sentinelle Oméga à son entrée.",
+            "Frapper les cibles Exposées pour régénérer de l'énergie. Plusieurs tentatives peuvent être nécessaires."
+          ],
+          "alternatives": [
+            "SpiderManPavitr",
+            "Blade",
+            "LadyDeathstrike"
+          ],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Mercenaires pour l'argent ou Impérissables",
+          "teamName": "Mercenaires pour l'argent",
+          "characters": [
+            "Daken",
+            "OldManLogan",
+            "PandaPool",
+            "Deadpool",
+            "Deathpool"
+          ],
+          "advice": [
+            "Éliminer Spider-Weaver avant qu'elle ne joue, ou épuiser ses charges.",
+            "Conserver l'ultime d'Old Man Logan pour renverser les bonus des Hommes-absorbants ; charger Deathpool pour la mission 9.",
+            "Cette mission dépend beaucoup de l'aléatoire : recommencer après une perte immédiate."
+          ],
+          "alternatives": [],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Annihilateurs",
+          "teamName": "Annihilateurs",
+          "characters": [
+            "ThanosEndgame",
+            "Gladiator",
+            "Gorr",
+            "Ultimus",
+            "SilverSurfer"
+          ],
+          "advice": [
+            "Bloquer les capacités des Pandapool avant l'arrivée de Deadpool.",
+            "Utiliser la spéciale d'Ultimus pour dérober les bonus et l'ultime de Thanos (Endgame) pour retirer la Provocation de Sasquatch.",
+            "Quand Old Man Logan apparaît, préparer la spéciale de Thanos pour le neutraliser."
+          ],
+          "alternatives": [],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Vilains mondiaux",
+          "teamName": "Cabale + Apocalypse + Scientifique suprême",
+          "characters": [
+            "Namor",
+            "TheLeader",
+            "IronPatriot",
+            "Apocalypse",
+            "ScientistSupreme"
+          ],
+          "advice": [
+            "Réutiliser l'approche de la mission 3 contre les vilains mondiaux.",
+            "Il n'est pas nécessaire de conserver les capacités pour une autre mission dans ce combat."
+          ],
+          "alternatives": [],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Bagarreurs non mythiques",
+          "teamName": "Diablo, Hulk rouge, Vahl, Thanos (Endgame), Vautour",
+          "characters": [
+            "Nightcrawler",
+            "RedHulk",
+            "Vahl",
+            "ThanosEndgame",
+            "Vulture"
+          ],
+          "advice": [
+            "Éliminer Malicia et Gambit rapidement ; bloquer Dazzler avant qu'elle n'efface les affaiblissements.",
+            "Conserver les capacités déterminantes de Thanos (Endgame) pour la mission 10.",
+            "Plusieurs reprises peuvent être utiles suivant l'ordre des tours."
+          ],
+          "alternatives": [
+            "SpiderManPavitr",
+            "Blade",
+            "LadyDeathstrike"
+          ],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Mercenaires pour l'argent ou Impérissables",
+          "teamName": "Mercenaires pour l'argent",
+          "characters": [
+            "Daken",
+            "OldManLogan",
+            "PandaPool",
+            "Deadpool",
+            "Deathpool"
+          ],
+          "advice": [
+            "Si Deathpool dispose de cinq charges, utiliser son ultime contre Nova.",
+            "Old Man Logan peut porter l'essentiel du combat ; économiser les compétences utiles au boss final."
+          ],
+          "alternatives": [],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Boss final Odin · Annihilateurs puis Illuminati",
+          "teamName": "Annihilateurs — première attaque",
+          "characters": [
+            "ThanosEndgame",
+            "Gladiator",
+            "Gorr",
+            "Ultimus",
+            "SilverSurfer"
+          ],
+          "advice": [
+            "Première tentative : éliminer les Asgardiens puis laisser Odin employer sa spéciale avant de retirer ses charges avec Gorr.",
+            "Éviter d'étourdir Odin, qui accélère dans cette situation.",
+            "Deuxième tentative : terminer avec les Illuminati ; monter les charges de Shuri avant son ultime et ouvrir par sa basique pour appliquer les malus."
+          ],
+          "alternatives": [],
+          "difficulty": "15",
+          "strategyKind": "multi_attempt"
+        }
+      ],
+      "editorialRef": "shadow-king-trials/",
+      "stageUnit": "mission",
+      "totalStages": 10,
+      "guideNote": "Difficulté 15, version du guide de juillet 2025. Préparer les Illuminati, les Annihilateurs et les Mercenaires. Les pactes modifient sensiblement les combats : « Sérum expérimental II/III » augmentent la santé ennemie et peuvent être désactivés. Les personnages modernes et rééquilibrages peuvent modifier ces stratégies."
     },
     {
       "id": "old-man-logan",
       "type": "trial",
       "title": "Épreuves d'Old Man Logan",
-      "summary": "Guide Trials avec difficultés et compositions.",
+      "summary": "Old Man Logan Trials : dix missions, restrictions de traits et conseils tactiques reformulés en français.",
       "rewardId": "OldManLogan",
-      "stages": [],
-      "editorialRef": "old-man-logan-trials/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction",
+          "teamName": "Sans restriction",
+          "characters": [
+            "Namor",
+            "TheLeader",
+            "IronPatriot",
+            "Apocalypse",
+            "SuperSkrull"
+          ],
+          "advice": [
+            "Préparer les ultimes des Cabal pour les prochaines missions en jouant surtout les attaques basiques.",
+            "Éliminer Rescue puis Kestrel ; au deuxième groupe, viser Maria Hill et Mockingbird, puis Nick Fury et Black Widow."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Out of Time",
+          "teamName": "Out of Time",
+          "characters": [
+            "CaptainAmerica",
+            "CaptainCarter",
+            "BlackKnight",
+            "CosmicGhostRider",
+            "StarBrand"
+          ],
+          "advice": [
+            "Ouvrir avec l'ultime de Captain Carter pour sécuriser les améliorations alliées.",
+            "Commencer sur Venom et Strange (Sans cœur), puis retirer la Provocation de Stryfe.",
+            "Lorsque Void Knight arrive, le neutraliser ; garder les capacités de Black Knight pour la mission 10."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Cosmique Bio",
+          "teamName": "Cosmiques Bio",
+          "characters": [
+            "SuperSkrull",
+            "Nova",
+            "Cosmo",
+            "SymbioteSilverSurfer",
+            "Korg"
+          ],
+          "advice": [
+            "Super-Skrull peut utiliser son ultime pour appliquer Trauma à toute l'équipe ennemie ; Void Knight rassemble ensuite les ennemis.",
+            "Cibler Lady Deathstrike et Silver Samurai, puis Magnéto et Archangel.",
+            "Sur Apocalypse : appliquer Exposé avec la spéciale de Super-Skrull pour empêcher Sauvegarde au tour suivant."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Héros Compétence",
+          "teamName": "Héros Compétence",
+          "characters": [
+            "BlackKnight",
+            "GhostSpider",
+            "PeterBParker",
+            "PeniParker",
+            "SpiderManPavitr"
+          ],
+          "advice": [
+            "La spéciale de Spider-Man Pavitr sur Lézard ralentit aussi Kraven ; Peni Parker et Peter B. Parker retirent les effets négatifs.",
+            "Prioriser Vautour dans la deuxième vague.",
+            "Garder un Étourdissement de Peni pour Bouffon vert classique : Blocage de capacité ne fonctionne pas tant qu'il est chargé."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Vilains",
+          "teamName": "Vilains",
+          "characters": [
+            "Apocalypse",
+            "SuperSkrull",
+            "Namor",
+            "TheLeader",
+            "IronPatriot"
+          ],
+          "advice": [
+            "Sur la deuxième vague, bloquer Forge puis éliminer Nova avant son ultime.",
+            "Apocalypse et Super-Skrull causent les dégâts en zone ; conserver les ultimes Cabal si possible.",
+            "Vautour constitue une alternative de contrôle contre les X-Men."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Cabale + Emma Frost + Loki",
+          "teamName": "Cabale + Emma Frost + Loki",
+          "characters": [
+            "Namor",
+            "TheLeader",
+            "IronPatriot",
+            "EmmaFrost",
+            "Loki"
+          ],
+          "advice": [
+            "Cibler Vahl au démarrage puis Peni et Peter B. Parker.",
+            "Éliminer les nouveaux Spider-Society et Spider-Weaver lorsqu'ils apparaissent.",
+            "Conserver si possible quelques capacités pour la mission 10."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Cosmique Bio",
+          "teamName": "Cosmiques Bio",
+          "characters": [
+            "SuperSkrull",
+            "Nova",
+            "Cosmo",
+            "SymbioteSilverSurfer",
+            "Korg"
+          ],
+          "advice": [
+            "L'ultime de Nova donne l'effet de champ ; utiliser Korg pour réduire la jauge de vitesse ennemie.",
+            "Cosmo purifie, Super-Skrull peut privilégier les basiques pour préserver ses capacités.",
+            "Au deuxième groupe, cibler Namor avant les autres ennemis."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Héros Compétence",
+          "teamName": "Héros Compétence",
+          "characters": [
+            "BlackKnight",
+            "GhostSpider",
+            "PeterBParker",
+            "PeniParker",
+            "SpiderManPavitr"
+          ],
+          "advice": [
+            "Retirer les Provocations des deux Hommes-absorbants puis concentrer le feu sur Brawn et She-Hulk.",
+            "À l'arrivée de Kang et Red Hulk, cibler Kang tant que Red Hulk conserve Sauvegarde et Immunité.",
+            "Si nécessaire, le combat peut être terminé en deux attaques."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Vilains",
+          "teamName": "Vilains",
+          "characters": [
+            "Apocalypse",
+            "SuperSkrull",
+            "Namor",
+            "TheLeader",
+            "IronPatriot"
+          ],
+          "advice": [
+            "Attaquer avec les meilleures compétences pour terminer vite, en conservant surtout les capacités des Cabal pour le boss final.",
+            "Black Cat, Morgan Le Fay ou les Sinister Six sont des remplaçants si leur développement est supérieur."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Out of Time ou Cabale, Emma Frost, Loki",
+          "teamName": "Out of Time / Cabale + Emma Frost + Loki",
+          "characters": [
+            "Namor",
+            "TheLeader",
+            "IronPatriot",
+            "BlackKnight",
+            "CosmicGhostRider"
+          ],
+          "advice": [
+            "Ouvrir en visant Black Cat et Ghost Rider (Robbie), puis éliminer Nova avant son ultime à la deuxième vague.",
+            "Lorsque Méphisto apparaît, le prioriser : conserver la spéciale et l'ultime de Namor, ainsi que la spéciale du Leader pour lui.",
+            "Cette variante utilise Cabale + Black Knight + Cosmic Ghost Rider, avec les bonus des pactes de Guerre et d'Épreuve cosmique."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        }
+      ],
+      "editorialRef": "old-man-logan-trials/",
+      "stageUnit": "mission",
+      "totalStages": 10,
+      "guideNote": "Guide de difficulté 8 et plus. À partir de la difficulté 11, les missions Out of Time et Cabale exigent 5 étoiles jaunes, puis 6 et 7 étoiles aux difficultés 13 et 15. Les pactes World at War et Forged in Fire activent les bonus de Guerre et d'Épreuve cosmique dans ce Trial PvE."
     },
     {
       "id": "green-goblin",
       "type": "trial",
       "title": "Épreuves du Bouffon vert (Classique)",
-      "summary": "Guide Trials légendaire.",
+      "summary": "Bouffon vert classique : 10 missions, difficultés 5–8+, restrictions et instructions françaises.",
       "rewardId": "GreenGoblinGlider",
-      "stages": [],
-      "editorialRef": "green-goblin-classic-trials/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction",
+          "teamName": "Knowhere",
+          "characters": [
+            "Nova",
+            "StarLord_Annihilation",
+            "Thor_InfinityWar",
+            "Cosmo",
+            "Korg"
+          ],
+          "advice": [
+            "Nova commence par sa spéciale sur Taskmaster, puis cibler Black Cat avant la deuxième vague.",
+            "L'ultime de Nova accélère l'élimination du groupe suivant et donne l'effet de champ."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Rebirth (difficulté 8+)",
+          "teamName": "Rebirth",
+          "characters": [
+            "CaptainAmerica",
+            "CaptainCarter",
+            "USAgent",
+            "WinterSoldier",
+            "AgentVenom"
+          ],
+          "advice": [
+            "Si Captain Carter meurt dans les premiers coups, recommencer : elle peut réanimer ses alliés.",
+            "Viser les deux Okoye et Shuri en priorité, puis bloquer Captain Marvel dans la dernière vague."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Vilains Ville",
+          "teamName": "Black Cat + Sinister Six, sans Bouffon vert classique",
+          "characters": [
+            "BlackCat",
+            "DoctorOctopus",
+            "Lizard",
+            "Vulture",
+            "KravenTheHunter"
+          ],
+          "advice": [
+            "Face à Web-Warriors, ne gaspiller les ultimes qu'après avoir épuisé les esquives.",
+            "Dans la vague finale, prioriser Black Cat et Spider-Weaver ; Vautour réduit leur jauge.",
+            "Le guide recommande Bouffon vert classique pour les parcours suivants, mais il n'est pas encore débloqué lors de la première tentative."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Tireurs mondiaux",
+          "teamName": "Archangel, Gambit, Cyclops, Sunspot, Darkhawk",
+          "characters": [
+            "Archangel",
+            "Gambit",
+            "Cyclops",
+            "Sunspot",
+            "Darkhawk"
+          ],
+          "advice": [
+            "Éliminer Minn-Erva d'emblée pour éviter ses réanimations.",
+            "Quand la nouvelle vague apparaît, utiliser le pacte Warp World à votre avantage en abaissant une cible sous 50 %.",
+            "Viser ensuite Circé, Ebony Maw puis Star-Lord (Annihilation)."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Technique",
+          "teamName": "Docteur Octopus, Vautour, Mystério, Shocker, Kang",
+          "characters": [
+            "DoctorOctopus",
+            "Vulture",
+            "Mysterio",
+            "Shocker",
+            "KangTheConqueror"
+          ],
+          "advice": [
+            "Bouffon vert classique est conseillé dans les reprises mais n'est pas disponible au premier déblocage : Kang est une alternative explicite.",
+            "Tuer Dazzler rapidement puis exploiter les cibles sous Défense réduite.",
+            "Faire monter la puissance de Sinister Six avant les missions suivantes."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Nouveaux Avengers (difficulté 8+)",
+          "teamName": "Nouveaux Avengers",
+          "characters": [
+            "Mockingbird",
+            "Coulson",
+            "Thing",
+            "Ronin",
+            "Tigra"
+          ],
+          "advice": [
+            "La spéciale de Tigra sur les deux Spider-Man (Big Time) les fait jouer immédiatement : votre équipe doit survivre à leurs ultimes.",
+            "Alternative : viser Yellowjacket à droite pour éviter de déclencher l'accélération des deux Spider-Man ; étourdir un Spider-Man avec Thing.",
+            "Éliminer un Swarm avant l'arrivée de la vague suivante, puis neutraliser les deux Black Widows.",
+            "Économiser les grandes compétences pour la mission 10."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Vilains Ville",
+          "teamName": "Black Cat + Sinister Six (premier déblocage)",
+          "characters": [
+            "BlackCat",
+            "DoctorOctopus",
+            "Lizard",
+            "Vulture",
+            "KravenTheHunter"
+          ],
+          "advice": [
+            "Laisser Morgan Le Fay lancer son ultime puis bloquer Strange (Sans cœur).",
+            "Supprimer Morgan rapidement avant la vague suivante, puis Rogue et Archangel.",
+            "Vautour réduit la jauge de vitesse de tous les ennemis ; garder Apocalypse pour la fin.",
+            "Bouffon vert classique remplace Kraven seulement après déblocage."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Tireurs mondiaux",
+          "teamName": "Archangel, Gambit, Cyclops, Sunspot, Darkhawk",
+          "characters": [
+            "Archangel",
+            "Gambit",
+            "Cyclops",
+            "Sunspot",
+            "Darkhawk"
+          ],
+          "advice": [
+            "Conserver l'ultime d'Archangel pour l'arrivée de Baron Zemo.",
+            "Éliminer un Homme-absorbant rapidement, puis Kang dès sa première apparition.",
+            "Le passif d'Archangel et les attaques de Gambit font l'essentiel de la pression."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Technique",
+          "teamName": "Docteur Octopus, Vautour, Mystério, Shocker, Kang",
+          "characters": [
+            "DoctorOctopus",
+            "Vulture",
+            "Mysterio",
+            "Shocker",
+            "KangTheConqueror"
+          ],
+          "advice": [
+            "Tuer Deathlok dès le premier tour, puis viser les membres Gamma et Bionic.",
+            "Réduire la défense de Red Hulk et éviter ses ultimes.",
+            "Kang reste une alternative aux personnages non débloqués dans ce parcours."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Rebirth ou Nouveaux Avengers",
+          "teamName": "Nouveaux Avengers (première attaque)",
+          "characters": [
+            "Mockingbird",
+            "Coulson",
+            "Thing",
+            "Ronin",
+            "Tigra"
+          ],
+          "advice": [
+            "Sur la difficulté 8, une première attaque avec Nouveaux Avengers peut affaiblir l'équipe, suivie d'une seconde avec Rebirth.",
+            "L'ultime de Thing doit étourdir Shang-Chi avant son premier tour.",
+            "Survivre à l'ultime de Colleen Wing, puis reprendre le contrôle de la vague restante."
+          ],
+          "difficulty": "8+",
+          "alternatives": [],
+          "strategyKind": "multi_attempt"
+        }
+      ],
+      "editorialRef": "green-goblin-classic-trials/",
+      "totalStages": 10,
+      "stageUnit": "mission",
+      "guideNote": "Sur difficulté 8+, mission 2 impose Rebirth, mission 6 Nouveaux Avengers ; la dernière accepte l'une ou l'autre. Le pacte World at War déclenche les bonus de Guerre, mais cet événement reste un Trial PvE. Les compositions contenant Bouffon vert classique lui-même ne sont pas présentées comme utilisables au premier déblocage."
     },
     {
       "id": "black-cat",
       "type": "trial",
       "title": "Épreuves de Black Cat",
-      "summary": "Guide Trials légendaire.",
+      "summary": "Black Cat Trials : 10 missions, restrictions dès difficulté 5, priorités de ciblage et compositions en français.",
       "rewardId": "BlackCat",
-      "stages": [],
-      "editorialRef": "black-cat-trials/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction",
+          "teamName": "Gamma",
+          "characters": [
+            "Hulk",
+            "RedHulk",
+            "SheHulk",
+            "Abomination",
+            "AmadeusCho"
+          ],
+          "advice": [
+            "Conserver de l'énergie sur Red Hulk pour utiliser son ultime dès la première mission Bagarreurs.",
+            "Morgan Le Fay adverse est la seule vraie urgence : la supprimer dès son apparition."
+          ],
+          "alternatives": [],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Knowhere ou Sinister Six",
+          "teamName": "Nulle-Part",
+          "characters": [
+            "Nova",
+            "StarLord_Annihilation",
+            "Thor_InfinityWar",
+            "Cosmo",
+            "Korg"
+          ],
+          "advice": [
+            "Nova étourdit Morgan Le Fay dès l'ouverture ; lancer ensuite son ultime au deuxième tour pour appliquer l'effet de champ.",
+            "Éliminer Spider-Weaver dès son entrée et purifier l'équipe grâce à Cosmo.",
+            "Conserver si possible la spéciale de Nova prête pour la mission 6."
+          ],
+          "alternatives": [],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Vilains mystiques",
+          "teamName": "Morgan + Strange + Agatha + Fatalis + Dormammu",
+          "characters": [
+            "MorganLeFay",
+            "StrangeSupreme",
+            "AgathaHarkness",
+            "Doom",
+            "Dormammu"
+          ],
+          "advice": [
+            "Morgan Le Fay ouvre avec son ultime ; Agatha soigne avec le sien.",
+            "La spéciale ou l'ultime de Fatalis permet de finir la vague en récupérant des points de vie.",
+            "Loki accélère l'équipe si Dormammu manque."
+          ],
+          "alternatives": [
+            "Hela",
+            "Loki",
+            "Sylvie",
+            "MrNegative"
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Contrôleurs mondiaux",
+          "teamName": "Morgan + Fatalis + Magnéto + Dark Beast + Omega Red",
+          "characters": [
+            "MorganLeFay",
+            "Doom",
+            "Magneto",
+            "DarkBeast",
+            "OmegaRed"
+          ],
+          "advice": [
+            "Magneto pose Aveuglement, Morgan Le Fay applique ses contrôles et les attaques doivent éliminer Ikaris avant Circé.",
+            "Garder l'ultime de Fatalis pour la fin ou l'arrivée des renforts.",
+            "Valkyrie et les Asgardiens peuvent modifier la distribution des améliorations."
+          ],
+          "alternatives": [],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Bagarreurs",
+          "teamName": "Red Hulk + Vautour + Deathpool + Super-Skrull",
+          "characters": [
+            "RedHulk",
+            "Vulture",
+            "Deathpool",
+            "SuperSkrull"
+          ],
+          "advice": [
+            "L'équipe n'a que quatre portraits vérifiés pour un premier déblocage : Black Cat figurait en cinquième dans la version rejouée du guide, mais n'est pas encore débloquée au premier parcours.",
+            "Les invocations de Multiple Man accélèrent la montée en charges de Deathpool.",
+            "Garder autant que possible les ultimes pour la mission 9."
+          ],
+          "alternatives": [
+            "Vahl",
+            "ShangChi",
+            "Quicksilver",
+            "Titania"
+          ],
+          "difficulty": "5+",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Knowhere ou Sinister Six",
+          "teamName": "Nulle-Part",
+          "characters": [
+            "Nova",
+            "StarLord_Annihilation",
+            "Thor_InfinityWar",
+            "Cosmo",
+            "Korg"
+          ],
+          "advice": [
+            "Éliminer Strange (sans-cœur) et Agatha rapidement, puis gérer les deux Ghost Riders pour limiter les frappes passives.",
+            "Bloquer Taskmaster dès son apparition ; les personnages de la pègre peuvent retarder le combat.",
+            "Conserver l'ultime de Nova pour la mission 10."
+          ],
+          "alternatives": [],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Vilains mystiques",
+          "teamName": "Morgan + Strange + Agatha + Fatalis + Dormammu",
+          "characters": [
+            "MorganLeFay",
+            "StrangeSupreme",
+            "AgathaHarkness",
+            "Doom",
+            "Dormammu"
+          ],
+          "advice": [
+            "Focaliser Vif-Argent et réduire rapidement sa jauge de vitesse.",
+            "Les ultimes de Strange et de Fatalis reprennent le contrôle ; Hela permet une ouverture plus rapide si besoin."
+          ],
+          "alternatives": [
+            "Hela",
+            "Loki"
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Contrôleurs mondiaux",
+          "teamName": "Morgan + Fatalis + Magnéto + Dark Beast + Omega Red",
+          "characters": [
+            "MorganLeFay",
+            "Doom",
+            "Magneto",
+            "DarkBeast",
+            "OmegaRed"
+          ],
+          "advice": [
+            "L'ultime de Magnéto doit ouvrir la mission pour gérer la première vague.",
+            "Préparer Fatalis pour l'arrivée des Gamma ; utiliser l'ultime avant que Kestrel ennemie empêche les invocations.",
+            "Bloquer Red Hulk avec Dark Beast dès qu'il apparaît."
+          ],
+          "alternatives": [],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Bagarreurs",
+          "teamName": "Red Hulk + Vautour + Deathpool + Super-Skrull",
+          "characters": [
+            "RedHulk",
+            "Vulture",
+            "Deathpool",
+            "SuperSkrull"
+          ],
+          "advice": [
+            "Ouvrir avec les ultimes de Red Hulk et Vahl si ces personnages sont utilisés.",
+            "Neutraliser Maria Hill, Squirrel Girl et Viv Vision pour empêcher les soins.",
+            "Kate Bishop peut appliquer Aveuglement : vérifier les affaiblissements avant une ultime coûteuse."
+          ],
+          "alternatives": [
+            "Vahl",
+            "ShangChi",
+            "Quicksilver"
+          ],
+          "difficulty": "5+",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Knowhere ou Sinister Six",
+          "teamName": "Nulle-Part",
+          "characters": [
+            "Nova",
+            "StarLord_Annihilation",
+            "Thor_InfinityWar",
+            "Cosmo",
+            "Korg"
+          ],
+          "advice": [
+            "L'ultime de Nova déclenche l'effet de champ ; éliminer le Nova ennemi avant qu'il ne monopolise le combat.",
+            "Minn-Erva peut ressusciter des ennemis : l'empêcher de jouer.",
+            "Garder les trois Cosmo pour la fin quand c'est possible ; appliquer Aveuglement sur Gambit et exploiter Thor (Infinity War)."
+          ],
+          "alternatives": [],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        }
+      ],
+      "editorialRef": "black-cat-trials/",
+      "stageUnit": "mission",
+      "totalStages": 10,
+      "guideNote": "Guide de difficulté 5 et supérieure, lié aux pactes anciens. Knowhere, Sinister Six, mystiques vilains, contrôleurs mondiaux et bagarreurs se succèdent. Le cinquième combattant Bagarreur du guide original (Black Cat) n'est pas disponible lors du premier déblocage : son portrait n'est donc pas présenté comme obligatoire."
     },
     {
       "id": "nova",
       "type": "trial",
       "title": "Épreuves de Nova",
-      "summary": "Guide Trials légendaire.",
+      "summary": "Trials de Nova : dix missions avec restrictions et stratégies françaises, difficulté 5 et supérieure.",
       "rewardId": "Nova",
-      "stages": [],
-      "editorialRef": "nova-trials/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction",
+          "teamName": "Nouveaux Guerriers : préparer les charges de Deathpool",
+          "characters": [
+            "Firestar",
+            "Cloak",
+            "Dagger",
+            "Gwenpool",
+            "Deathpool"
+          ],
+          "advice": [
+            "Faire monter Deathpool à cinq charges en tuant des ennemis ou des invocations.",
+            "Profiter de l'absence de restriction pour préparer son ultime contre Red Hulk à la mission 5."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Maîtres du Mal, Vif-Argent ou Facteur-X",
+          "teamName": "Maîtres du Mal sans Homme-absorbant, avec Vif-Argent",
+          "characters": [
+            "Moonstone",
+            "Titania",
+            "KangTheConqueror",
+            "Ultron",
+            "Quicksilver"
+          ],
+          "advice": [
+            "Moonstone étourdit Kate Bishop ; éliminer Quake ou Echo selon celle qui menace le plus.",
+            "Invoquer les robots d'Ultron avant Black Bolt.",
+            "À la nouvelle vague, bloquer Coulson puis éliminer Kestrel, Crystal ensuite."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Héros Ville",
+          "teamName": "Nouveaux Guerriers (sans Deathpool) + Shang-Chi",
+          "characters": [
+            "Firestar",
+            "Cloak",
+            "Dagger",
+            "Gwenpool",
+            "ShangChi"
+          ],
+          "advice": [
+            "Les héros Ville excluent Deathpool : utiliser Firestar, Cloak, Dagger, Gwenpool et Shang-Chi.",
+            "L'ultime de Firestar doit viser Black Panther (1MM) et Nakia ; viser ensuite Shuri.",
+            "Conserver les ultimes de Cloak et Dagger pour la prochaine mission Ville."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Bio Mondial",
+          "teamName": "Gamma sans She-Hulk + Captain America",
+          "characters": [
+            "RedHulk",
+            "Hulk",
+            "Abomination",
+            "AmadeusCho",
+            "CaptainAmerica"
+          ],
+          "advice": [
+            "Gamma porte les dégâts et Captain America apporte de la tenue.",
+            "L'ultime de Red Hulk peut être lancé immédiatement avec le pacte Bio-Charged.",
+            "Réserver les contrôles pour Gambit et les vagues suivantes."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Cosmique",
+          "teamName": "Ikaris, Sersi, Dormammu, Deathpool et Photon",
+          "characters": [
+            "Ikaris",
+            "Sersi",
+            "Dormammu",
+            "Deathpool",
+            "Photon"
+          ],
+          "advice": [
+            "Source initiale : quatre de ces personnages avec Kestrel, qui n'est pas disponible dans notre catalogue de portraits jouables ; Photon est une alternative explicitement citée.",
+            "Tuer Ghost-Spider puis Rhino, garder l'ultime de Deathpool pour l'apparition de Red Hulk.",
+            "Étourdir Strange (Sans cœur) ou Omega Red avec Circé et Dormammu."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Maîtres du Mal, Vif-Argent ou Facteur-X",
+          "teamName": "Maîtres du Mal + Vif-Argent",
+          "characters": [
+            "Moonstone",
+            "Titania",
+            "KangTheConqueror",
+            "Ultron",
+            "Quicksilver"
+          ],
+          "advice": [
+            "Protéger Moonstone des deux Gambit de départ, puis étourdir le premier et éliminer le second.",
+            "Bloquer Emma Frost à l'arrivée de la deuxième vague avec Titania ; étourdir Malicia quand la dernière vague apparaît.",
+            "Garder de l'énergie pour la mission 10."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Héros Ville",
+          "teamName": "Nouveaux Guerriers (sans Deathpool) + Shang-Chi",
+          "characters": [
+            "Firestar",
+            "Cloak",
+            "Dagger",
+            "Gwenpool",
+            "ShangChi"
+          ],
+          "advice": [
+            "L'ultime de Firestar frappe Captain Carter et Captain America ; éliminer les Yellowjackets.",
+            "Réserver les ultimes de Cloak et Dagger pour l'arrivée de Darkhold, puis tout utiliser.",
+            "Dernière mission Héros Ville : ne rien garder inutilement."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Bio Mondial",
+          "teamName": "Gamma sans She-Hulk + Captain America",
+          "characters": [
+            "RedHulk",
+            "Hulk",
+            "Abomination",
+            "AmadeusCho",
+            "CaptainAmerica"
+          ],
+          "advice": [
+            "Red Hulk peut lancer son ultime au tour 1 avec le pacte Bio-Charged.",
+            "Étourdir She-Hulk avec Abomination, puis tuer les deux Brawn et Phyla-Vell.",
+            "Attendre l'apparition du Red Hulk adverse avant d'utiliser le prochain ultime ; l'ultime de Captain America peut retirer la Provocation."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Cosmique",
+          "teamName": "Ikaris, Sersi, Dormammu, Deathpool et Photon",
+          "characters": [
+            "Ikaris",
+            "Sersi",
+            "Dormammu",
+            "Deathpool",
+            "Photon"
+          ],
+          "advice": [
+            "Dernière mission Cosmique : conserver surtout l'ultime de Dormammu pour l'arrivée de Death Seed.",
+            "Les ultimes des autres personnages peuvent être utilisés sans réserve.",
+            "Photon remplace Kestrel de l'ancien guide pour les portraits LoSP."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Maîtres du Mal, Vif-Argent ou Facteur-X",
+          "teamName": "Maîtres du Mal + Vif-Argent",
+          "characters": [
+            "Moonstone",
+            "Titania",
+            "KangTheConqueror",
+            "Ultron",
+            "Quicksilver"
+          ],
+          "advice": [
+            "Ouvrir avec Blocage de capacité sur Dazzler et Étourdissement sur Archangel.",
+            "Étourdir Gambit puis bloquer Malicia, contrôler Morgan Le Fay dès son apparition.",
+            "Vif-Argent retire la charge d'Apocalypse ; Kang peut alors lancer son ultime. Éviter de laisser Red Hulk jouer."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        }
+      ],
+      "editorialRef": "nova-trials/",
+      "stageUnit": "mission",
+      "totalStages": 10,
+      "guideNote": "Guide historique avec certains pactes (Power Cosmic, Bio-Charged, Power Crucible). Les formations évoluent avec la méta. Les missions Cosmique de l'ancien guide utilisaient Kestrel ; Photon est une alternative explicitement mentionnée, indiquée sans présenter l'équipe ainsi recomposée comme une victoire prouvée."
     },
     {
       "id": "dd1",
       "type": "dark-dimension",
       "title": "Dimension noire 1",
-      "summary": "Guide de préparation et progression.",
+      "summary": "Dimension noire I : premier parcours et récompenses Kestrel.",
       "rewardId": null,
-      "stages": [],
-      "editorialRef": "heroes-for-dark-dimension/"
+      "stages": [
+        {
+          "id": "preparation",
+          "title": "Préparation et progression",
+          "requirement": "Équipement G12",
+          "teamName": "Aucune composition de cinq personnages confirmée dans cette source",
+          "characters": [],
+          "advice": [
+            "Les personnages modernes admissibles peuvent dépasser largement les équipes historiquement conseillées.",
+            "Privilégier une composition déjà développée avec soins, contrôle et suppression des affaiblissements.",
+            "Ne pas construire cinq personnages anciens uniquement pour reproduire un guide de lancement."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        }
+      ],
+      "editorialRef": "heroes-for-dark-dimension/",
+      "stageUnit": "section",
+      "guideNote": "Informations de progression et de préparation, pas un walkthrough par nœud ni une équipe vainqueur. Les règles d'anciennes DD ont parfois évolué : vérifier les restrictions en jeu."
     },
     {
       "id": "dd2",
       "type": "dark-dimension",
       "title": "Dimension noire 2",
-      "summary": "Guide de préparation et progression.",
+      "summary": "Dimension noire II : débloquer Ultron et préparer les étapes suivantes.",
       "rewardId": null,
-      "stages": [],
-      "editorialRef": "heroes-for-dark-dimension/"
+      "stages": [
+        {
+          "id": "preparation",
+          "title": "Préparation et progression",
+          "requirement": "Équipement G13",
+          "teamName": "Aucune composition de cinq personnages confirmée dans cette source",
+          "characters": [],
+          "advice": [
+            "Se concentrer sur cinq personnages déjà utiles ailleurs plutôt que disperser les ressources.",
+            "Une équipe possédant du soin et des capacités de contrôle résistera mieux aux vagues longues.",
+            "La progression des nœuds persiste entre les tentatives : plusieurs attaques peuvent être nécessaires."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        }
+      ],
+      "editorialRef": "heroes-for-dark-dimension/",
+      "stageUnit": "section",
+      "guideNote": "Informations de progression et de préparation, pas un walkthrough par nœud ni une équipe vainqueur. Les règles d'anciennes DD ont parfois évolué : vérifier les restrictions en jeu."
     },
     {
       "id": "dd3",
       "type": "dark-dimension",
       "title": "Dimension noire 3",
-      "summary": "Guide de préparation et progression.",
+      "summary": "Dimension noire III : premières sections par traits.",
       "rewardId": null,
-      "stages": [],
-      "editorialRef": "heroes-for-dark-dimension/"
+      "stages": [
+        {
+          "id": "preparation",
+          "title": "Préparation et progression",
+          "requirement": "Équipement G14 · sections Ville / Mondial / Cosmique",
+          "teamName": "Aucune composition de cinq personnages confirmée dans cette source",
+          "characters": [],
+          "advice": [
+            "Préparer les restrictions de traits section par section : une seule équipe universelle ne suffit plus.",
+            "Ne pas répartir le matériel entre toutes les futures sections avant d'avoir cinq personnages admissibles à la première.",
+            "Utiliser les récompenses des premiers combats pour terminer la section suivante."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        }
+      ],
+      "editorialRef": "heroes-for-dark-dimension/",
+      "stageUnit": "section",
+      "guideNote": "Informations de progression et de préparation, pas un walkthrough par nœud ni une équipe vainqueur. Les règles d'anciennes DD ont parfois évolué : vérifier les restrictions en jeu."
     },
     {
       "id": "dd4",
       "type": "dark-dimension",
       "title": "Dimension noire 4",
-      "summary": "Guide de préparation et progression.",
+      "summary": "Dimension noire IV : progression vers Docteur Fatalis.",
       "rewardId": null,
-      "stages": [],
-      "editorialRef": "heroes-for-dark-dimension/"
+      "stages": [
+        {
+          "id": "preparation",
+          "title": "Préparation et progression",
+          "requirement": "Équipement G15 · sections par traits, dont Légendaires",
+          "teamName": "Aucune composition de cinq personnages confirmée dans cette source",
+          "characters": [],
+          "advice": [
+            "Anticiper les équipes Ville, Mondial, Cosmique puis les personnages légendaires éligibles.",
+            "Répartir les pièces rares d'équipement sans retarder l'entrée dans la première section.",
+            "Vérifier les exclusions de personnages dans l'écran de sélection avant tout investissement."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        }
+      ],
+      "editorialRef": "heroes-for-dark-dimension/",
+      "stageUnit": "section",
+      "guideNote": "Informations de progression et de préparation, pas un walkthrough par nœud ni une équipe vainqueur. Les règles d'anciennes DD ont parfois évolué : vérifier les restrictions en jeu."
     },
     {
       "id": "dd5",
       "type": "dark-dimension",
       "title": "Dimension noire 5",
-      "summary": "Guide de préparation et progression.",
+      "summary": "Dimension noire V : progression vers Dormammu.",
       "rewardId": null,
-      "stages": [],
-      "editorialRef": "heroes-for-dark-dimension/"
+      "stages": [
+        {
+          "id": "preparation",
+          "title": "Préparation et progression",
+          "requirement": "Équipement G16 · sections par traits",
+          "teamName": "Aucune composition de cinq personnages confirmée dans cette source",
+          "characters": [],
+          "advice": [
+            "Favoriser la survie, les contrôles et la récupération des capacités contre les vagues nombreuses.",
+            "Éviter de terminer un ancien plan de préparation sans le comparer aux personnages modernes éligibles.",
+            "Les deux parcours de récompenses justifient des équipes capables de gagner régulièrement, même sans victoire en une attaque."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        }
+      ],
+      "editorialRef": "heroes-for-dark-dimension/",
+      "stageUnit": "section",
+      "guideNote": "Informations de progression et de préparation, pas un walkthrough par nœud ni une équipe vainqueur. Les règles d'anciennes DD ont parfois évolué : vérifier les restrictions en jeu."
     },
     {
       "id": "dd6",
       "type": "dark-dimension",
       "title": "Dimension noire 6",
-      "summary": "Guide de préparation et progression.",
+      "summary": "DD6 G18 : guide par mission et témoignages de combats historiques, pour la progression vers Super-Skrull.",
       "rewardId": null,
-      "stages": [],
-      "editorialRef": "heroes-for-dark-dimension/"
+      "stages": [
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Sans restriction · G18",
+          "characters": [
+            "KangTheConqueror",
+            "Gambit",
+            "Titania",
+            "Wong"
+          ],
+          "teamName": "Gambit + Kang + Titania + Kestrel + Wong (portrait Kestrel absent)",
+          "advice": [
+            "Vaincre Ghost Rider avant que ses contres ne s'accumulent ; il a fallu plusieurs attaques.",
+            "Éliminer Squirrel Girl rapidement : ses soins risquent d'annuler les dégâts des jours précédents.",
+            "Le guide alterne Wong, Maria Hill et Scarlet Spider selon les récupérations."
+          ],
+          "alternatives": [
+            "MariaHill",
+            "ScarletSpider"
+          ],
+          "difficulty": "Historique 2023 · équipement G18",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Mondial non légendaire · G18",
+          "characters": [
+            "Apocalypse",
+            "Gambit",
+            "Titania",
+            "Wong",
+            "SamWilson"
+          ],
+          "teamName": "Apocalypse, Gambit, Titania, Wong, Captain America (Sam)",
+          "advice": [
+            "Spider-Weaver est une menace majeure avec ses charges et ses esquives ; utiliser les Blocages de capacité d'Apocalypse et Titania.",
+            "Neutraliser rapidement Kingpin, Taskmaster puis les invocations d'Ultron ; contrôler les invocations plutôt que les frapper sans fin.",
+            "Garder l'ultime d'Apocalypse pour les arrivées de vagues."
+          ],
+          "alternatives": [
+            "MariaHill"
+          ],
+          "difficulty": "Historique 2023 · équipement G18",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Mondial non légendaire · G18",
+          "characters": [
+            "Apocalypse",
+            "Gambit",
+            "Titania",
+            "Wong",
+            "SamWilson"
+          ],
+          "teamName": "Apocalypse, Gambit, Titania, Wong, Captain America (Sam)",
+          "advice": [
+            "Prioriser les soigneurs et dissipateurs comme Squirrel Girl, Shuri et Doctor Voodoo pour éviter de perdre les dégâts déjà infligés.",
+            "Le Blocage de capacité d'Apocalypse et Titania stabilise les vagues ; garder les Provocations de Wong et de Sam pour protéger Gambit.",
+            "Les ennemis Ghost Rider infligent de lourdes ripostes : choisir les attaques de zone avec prudence."
+          ],
+          "alternatives": [],
+          "difficulty": "Historique 2023 · équipement G18",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Mondial non légendaire · G18",
+          "characters": [
+            "Apocalypse",
+            "Gambit",
+            "Titania",
+            "MariaHill",
+            "SamWilson"
+          ],
+          "teamName": "Apocalypse, Gambit, Titania, Maria Hill, Captain America (Sam)",
+          "advice": [
+            "Commencer par supprimer Shuri et Dark Beast : ils retardent fortement l'attrition.",
+            "Contre Hela, viser d'abord Hela puis les morts-vivants invoqués, sous peine de les voir réapparaître.",
+            "Empêcher Dark Beast de ressusciter Archangel, puis contrôler Archangel et Kestrel ennemie."
+          ],
+          "alternatives": [
+            "Wong"
+          ],
+          "difficulty": "Historique 2023 · équipement G18",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Cosmique non légendaire · G18",
+          "characters": [
+            "KangTheConqueror",
+            "Dormammu",
+            "RavagerSupport_Heal",
+            "Nebula"
+          ],
+          "teamName": "Kang + Kestrel + Dormammu + Écorcheur ravageur + Nebula (portrait Kestrel absent)",
+          "advice": [
+            "Neutraliser d'abord la Femme invisible adverse pour arrêter l'application répétée de Barrière.",
+            "Dissiper les Provocations de Thanos ; profiter des attaques de zone de Kang et de l'ultime de Dormammu contre les vagues.",
+            "Le journal cible ensuite Doctor Doom puis Ebony Maw, et rapporte plusieurs tentatives avant la victoire."
+          ],
+          "alternatives": [],
+          "difficulty": "Historique 2023 · équipement G18",
+          "strategyKind": "historical_playthrough"
+        }
+      ],
+      "editorialRef": "heroes-for-dark-dimension/",
+      "guideNote": "Sources historiques (2023) : ces équipes illustrent des combats réellement racontés, mais ne constituent PAS les recommandations 2026. Kestrel, présente dans les combats, manque au catalogue LoSP jouable actuel : son portrait n'est pas substitué par Kestrel zombie.",
+      "stageUnit": "mission"
     },
     {
       "id": "dd7",
       "type": "dark-dimension",
       "title": "Dimension noire 7",
-      "summary": "Guide de préparation et progression.",
+      "summary": "Dimension noire VII : progression vers Méphisto.",
       "rewardId": null,
-      "stages": [],
-      "editorialRef": "heroes-for-dark-dimension/"
+      "stages": [
+        {
+          "id": "preparation",
+          "title": "Préparation et progression",
+          "requirement": "Équipement G19 · sections Ville / Mondial / Cosmique puis Légendaires / Mythiques",
+          "teamName": "Aucune composition de cinq personnages confirmée dans cette source",
+          "characters": [],
+          "advice": [
+            "Les sections initiales excluent certaines catégories : un héros possédant le bon trait de zone peut malgré tout être inéligible.",
+            "Conserver les choix des sections avancées flexibles : un personnage peut être rééquilibré avant d'y arriver.",
+            "Noter les vagues difficiles et les ultimes à préserver pour accélérer le deuxième parcours."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        }
+      ],
+      "editorialRef": "heroes-for-dark-dimension/",
+      "stageUnit": "section",
+      "guideNote": "Informations de progression et de préparation, pas un walkthrough par nœud ni une équipe vainqueur. Les règles d'anciennes DD ont parfois évolué : vérifier les restrictions en jeu."
     },
     {
       "id": "dd8",
@@ -2093,7 +5104,11 @@
             "HitMonkey",
             "Gwenpool"
           ],
-          "advice": [],
+          "advice": [
+            "Combiner des dégâts fiables, un Protecteur et du contrôle. Spider-Society est également citée pour ses synergies.",
+            "Silver Sable, Daredevil moderne, Punisher, Hit-Monkey et d'autres héros Ville constituent une base ; vérifier la survivabilité plutôt que le seul burst.",
+            "Privilégier les personnages encore utiles dans les contenus actuels."
+          ],
           "alternatives": []
         },
         {
@@ -2107,8 +5122,16 @@
             "Scorpion",
             "Shocker"
           ],
-          "advice": [],
-          "alternatives": []
+          "advice": [
+            "Cette section est particulièrement exigeante : prévoir au moins une dissipation, un Blocage de capacité et une source de survie.",
+            "Mystério apporte aveuglements et contrôles de zone ; Vautour, Kraven et Lézard sont d'autres options de l'époque du guide."
+          ],
+          "alternatives": [
+            "Mysterio",
+            "KravenTheHunter",
+            "Lizard",
+            "RedGoblin"
+          ]
         },
         {
           "id": "global-heroes",
@@ -2121,8 +5144,18 @@
             "StormMighty",
             "Eclipse"
           ],
-          "advice": [],
-          "alternatives": []
+          "advice": [
+            "Les Sentinelles et Sentinelle Oméga rendent les contrôles essentiels ; l'équipe X-Men Extrêmes est une autre piste.",
+            "Diablo assure les dégâts et Forge les soins/réanimations dans une formation X-Men adaptée.",
+            "Un Protecteur suffisamment équipé peut sécuriser les premières rotations."
+          ],
+          "alternatives": [
+            "Nightcrawler",
+            "Forge",
+            "Gambit",
+            "Sunspot",
+            "Beast"
+          ]
         },
         {
           "id": "global-villains",
@@ -2135,8 +5168,17 @@
             "Darkstar",
             "LadyBullseye"
           ],
-          "advice": [],
-          "alternatives": []
+          "advice": [
+            "Apocalypse ou un noyau Orchis renforcé sont recommandés pour absorber les vagues.",
+            "Nimrod, Sentinelle Oméga, Scientifique suprême et Lady Deathstrike permettent de constituer une alternative cohérente.",
+            "Conserver des ultimes prêts avant les vagues de Sentinelles."
+          ],
+          "alternatives": [
+            "Nimrod",
+            "OmegaSentinel",
+            "ScientistSupreme",
+            "Sentinel"
+          ]
         },
         {
           "id": "cosmic",
@@ -2149,11 +5191,21 @@
             "SilverSurferBreaker",
             "Knull"
           ],
-          "advice": [],
-          "alternatives": []
+          "advice": [
+            "Section finale exigeante : Méphisto et Super-Skrull sont particulièrement utiles pour éviter les réanimations et contrôler le combat.",
+            "Gorr aide contre les charges et assistances ; Vahl apporte des dégâts en pourcentage et une réanimation.",
+            "Sur le deuxième parcours, Odin débloqué peut rejoindre cette équipe."
+          ],
+          "alternatives": [
+            "SuperSkrull",
+            "Gorr",
+            "Vahl",
+            "OldManLogan"
+          ]
         }
       ],
-      "editorialRef": "characters-for-dark-dimension-viii/"
+      "editorialRef": "characters-for-dark-dimension-viii/",
+      "guideNote": "DD8 : Iso-8 violet niveau 3 obligatoire, 13 nœuds. Les cinq fiches ci-dessous correspondent à des sections (pas à des victoires sur chaque nœud). Les premiers nœuds sont sans restriction."
     },
     {
       "id": "dd9",
@@ -2174,7 +5226,9 @@
             "Hobgoblin"
           ],
           "advice": [
-            "Anticiper le coût partagé en Bio pour Venom et Toxin."
+            "Anticiper les Spores extraterrestres partagées par Venom et Toxin et la forte demande Bio de Riot.",
+            "Choisir des personnages Ville capables de soigner, contrôler ou encaisser plusieurs vagues ; la priorité est une équipe entière prête au G21.",
+            "Des remplaçants Vautour et Hit-Monkey sont recommandés si l'équipement Bio bloque."
           ],
           "alternatives": [
             "Vulture",
@@ -2193,7 +5247,9 @@
             "Knull"
           ],
           "advice": [
-            "Répartir les origines d'équipement pour éviter les blocages."
+            "Répartir les origines Technique, Mystique et Compétence ; Minn-Erva et High Evolutionary tirent sur les mêmes ressources Tech.",
+            "Les combats longs valorisent la guérison et le contrôle. Ne pas compter uniquement sur un bonus réservé à la Guerre ou au Raid.",
+            "Adapter le cinquième emplacement à l'équipement déjà disponible."
           ],
           "alternatives": [
             "FranklinRichards",
@@ -2204,11 +5260,26 @@
           "id": "global",
           "title": "Missions 9–11",
           "requirement": "Mondial, hors mythiques/épiques/légendaires",
-          "characters": [],
-          "advice": [
-            "Composition complète à renseigner pour cette section."
+          "characters": [
+            "SymbioteQuicksilver",
+            "LadyDeathstrike",
+            "DaimonHellstrom",
+            "Hellcat",
+            "Darkstar"
           ],
-          "alternatives": []
+          "advice": [
+            "Cette équipe répartit les cinq origines Bio, Technique, Mystique, Compétence et Mutant.",
+            "Ne pas équiper toute l'équipe trop tôt : terminer d'abord les sections Ville et Cosmique.",
+            "Alternatives identifiées : Sentry, Tornade puissante, Emma Frost (X-Men), Momie vivante ou Lady Bullseye."
+          ],
+          "alternatives": [
+            "Sentry",
+            "StormMighty",
+            "EmmaFrostXMen",
+            "LivingMummy",
+            "LadyBullseye"
+          ],
+          "teamName": "Vif-Argent symbiote, Lady Deathstrike, Daimon Hellstrom, Hellcat, Darkstar"
         },
         {
           "id": "legendary",
@@ -2221,8 +5292,17 @@
             "SilverSurferBreaker",
             "OldManLogan"
           ],
-          "advice": [],
-          "alternatives": []
+          "advice": [
+            "Le noyau recommandé consomme beaucoup de matériel Mutant : conserver une marge pour les futurs personnages.",
+            "Quasar, Blastaar ou Roi d'ombre peuvent répartir la dépense tout en respectant les restrictions d'éligibilité.",
+            "Valider la sélection réelle du mode avant d'investir au G21."
+          ],
+          "alternatives": [
+            "Quasar",
+            "Blastaar",
+            "ShadowKing",
+            "Thunderstrike"
+          ]
         },
         {
           "id": "mythic",
@@ -2235,19 +5315,31 @@
             "BlueMarvel",
             "CaptainBritain"
           ],
-          "advice": [],
-          "alternatives": []
+          "advice": [
+            "Cette équipe nécessite des ressources Mystiques importantes pour Odin, Méphisto et Captain Britain.",
+            "Si Apocalypse, Super-Skrull ou Dormammu est déjà équipé, comparer son coût à celui d'un nouveau personnage.",
+            "Réserver les uniques pour cette section tout en terminant les cinq personnages des sections précédentes."
+          ],
+          "alternatives": [
+            "Apocalypse",
+            "SuperSkrull",
+            "Dormammu"
+          ]
         },
         {
           "id": "final",
           "title": "Mission 16",
           "requirement": "Sans restriction de trait",
           "characters": [],
-          "advice": [],
+          "advice": [
+            "Dernière mission sans restriction de trait : réutiliser les meilleurs personnages déjà équipés en G21 pour les sections précédentes.",
+            "Ne pas investir dans une nouvelle équipe uniquement pour ce combat sans examiner les cinq personnages déjà disponibles."
+          ],
           "alternatives": []
         }
       ],
-      "editorialRef": "characters-for-dark-dimension-ix/"
+      "editorialRef": "characters-for-dark-dimension-ix/",
+      "guideNote": "Les propositions DD9 sont des compositions de préparation, non des victoires garanties. Tous les nœuds demandent cinq personnages G21. Les sections Ville, Cosmique et Mondial excluent Mythiques, Épiques et Légendaires."
     },
     {
       "id": "invasion-quasar",
@@ -2981,6 +6073,1020 @@
       "totalStages": 10,
       "stageUnit": "mission",
       "guideNote": "Guide de préparation et recommandations de personnages, pas dix victoires individuelles démontrées. Deux parcours sont nécessaires pour obtenir les récompenses complètes."
+    },
+    {
+      "id": "scourge-famine",
+      "type": "trial",
+      "title": "Fléau Famine — Malicia",
+      "summary": "Scourge historique des Cavaliers : dix nœuds, équipes d'époque et conseils reformulés en français.",
+      "rewardId": "Rogue",
+      "editorialRef": "best-team-for-famine-scourge-and-scourge-tier-list/",
+      "totalStages": 10,
+      "stageUnit": "mission",
+      "guideNote": "Archive historique : les traits et équipes ont évolué. Une victoire ancienne ne garantit pas de battre le contenu avec les mêmes statistiques aujourd'hui ; vérifier l'éligibilité en jeu.",
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Ville",
+          "teamName": "Parcours historique",
+          "characters": [
+            "ScarletSpider",
+            "Cloak",
+            "GhostSpider",
+            "ShangChi",
+            "SpiderMan"
+          ],
+          "advice": [
+            "Cloak, Ghost-Spider et Shang-Chi font pression, préparer les contrôles pour le nœud 2."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Ville",
+          "teamName": "Parcours historique",
+          "characters": [
+            "SquirrelGirl",
+            "Cloak",
+            "GhostSpider",
+            "ShangChi",
+            "SpiderMan"
+          ],
+          "advice": [
+            "Squirrel Girl assure les soins, les autres se chargent des dégâts et perturbations."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Mutant",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Gambit",
+            "Bishop",
+            "OmegaRed",
+            "Jubilee",
+            "Rogue"
+          ],
+          "advice": [
+            "Malicia bloque Star-Lord (T'Challa), Jubilé aveugle Kate Bishop et Omega Red contrôle Ebony Maw."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Mutant",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Gambit",
+            "Bishop",
+            "OmegaRed",
+            "Jubilee",
+            "Rogue"
+          ],
+          "advice": [
+            "Réutiliser l'équipe Mutant ; entrer avec les compétences de Malicia rechargées."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Jeunes Avengers / A-Force / Nouveaux Guerriers",
+          "teamName": "Parcours historique",
+          "characters": [
+            "MsMarvel",
+            "SquirrelGirl",
+            "AmericaChavez",
+            "Echo",
+            "KateBishop"
+          ],
+          "advice": [
+            "Jeunes Avengers de l'ancien parcours : privilégier la survie et maîtriser les vagues."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Vilains",
+          "teamName": "Parcours historique",
+          "characters": [
+            "OmegaRed",
+            "Doom",
+            "Dormammu",
+            "MorganLeFay",
+            "AgathaHarkness"
+          ],
+          "advice": [
+            "Morgan et Agatha contrôlent, Fatalis et Omega Red lancent leurs ultimes sur les plus grosses menaces."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Vilains",
+          "teamName": "Parcours historique",
+          "characters": [
+            "OmegaRed",
+            "Doom",
+            "Dormammu",
+            "MorganLeFay",
+            "AgathaHarkness"
+          ],
+          "advice": [
+            "Réutiliser la composition et garder le contrôle de la jauge de vitesse ennemie."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Cosmique mystique",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Ikaris",
+            "Deathpool",
+            "Dormammu",
+            "SilverSurfer",
+            "Sersi"
+          ],
+          "advice": [
+            "Profiter des attaques d'Ikaris et de Circé ; concentrer le feu sur les ennemis qui soignent."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Cosmique mystique",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Ikaris",
+            "Deathpool",
+            "Dormammu",
+            "SilverSurfer",
+            "Sersi"
+          ],
+          "advice": [
+            "Même équipe, avec Vahl ou Thor (Infinity War) comme options plus récentes."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Jeunes Avengers / A-Force / Nouveaux Guerriers",
+          "teamName": "Parcours historique",
+          "characters": [
+            "MsMarvel",
+            "SquirrelGirl",
+            "AmericaChavez",
+            "Echo",
+            "KateBishop"
+          ],
+          "advice": [
+            "Le parcours historique utilise Jeunes Avengers ; les alternatives autorisées sont désormais plus nombreuses."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        }
+      ]
+    },
+    {
+      "id": "scourge-pestilence",
+      "type": "trial",
+      "title": "Fléau Pestilence — Morgan Le Fay",
+      "summary": "Scourge historique des Cavaliers : dix nœuds, équipes d'époque et conseils reformulés en français.",
+      "rewardId": "MorganLeFay",
+      "editorialRef": "pestilence-scourge-full-guide/",
+      "totalStages": 10,
+      "stageUnit": "mission",
+      "guideNote": "Archive historique : les traits et équipes ont évolué. Une victoire ancienne ne garantit pas de battre le contenu avec les mêmes statistiques aujourd'hui ; vérifier l'éligibilité en jeu.",
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Héros",
+          "teamName": "Parcours historique",
+          "characters": [
+            "SpiderWeaver",
+            "RedHulk",
+            "Rogue",
+            "SpiderMan2099",
+            "Gambit"
+          ],
+          "advice": [
+            "Spider-Weaver limite les dégâts, préparer l'ultime de Red Hulk."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Héros",
+          "teamName": "Parcours historique",
+          "characters": [
+            "RedHulk",
+            "Ikaris",
+            "Rogue",
+            "Sersi"
+          ],
+          "advice": [
+            "Le guide original utilisait aussi Kestrel, absente du catalogue de portraits jouables ; sa place reste non renseignée."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Mondial",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Wong",
+            "Rogue",
+            "RedHulk",
+            "MorganLeFay",
+            "AgathaHarkness"
+          ],
+          "advice": [
+            "Neutraliser Shang-Chi d'abord, puis perturber Ms. Marvel pour l'empêcher de provoquer."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Mondial",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Wong",
+            "Rogue",
+            "RedHulk",
+            "MorganLeFay",
+            "AgathaHarkness"
+          ],
+          "advice": [
+            "Empêcher Colossus et le Fléau de provoquer, puis neutraliser Rescue et Iron Man."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Dark Hunters / Web-Warriors / Underworld / Hive-Mind",
+          "teamName": "Parcours historique",
+          "characters": [
+            "GhostSpider",
+            "ScarletSpider",
+            "SpiderMan",
+            "SpiderPunk"
+          ],
+          "advice": [
+            "Ancienne composition Web-Warriors, avec Spider-Man (Miles) sans portrait jouable actuellement ; Hive-Mind est une alternative plus récente."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Vilains",
+          "teamName": "Parcours historique",
+          "characters": [
+            "OmegaRed",
+            "Doom",
+            "Dormammu",
+            "MorganLeFay",
+            "AgathaHarkness"
+          ],
+          "advice": [
+            "Conserver les contrôles et si possible les ultimes pour la mission suivante."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Vilains",
+          "teamName": "Parcours historique",
+          "characters": [
+            "OmegaRed",
+            "Doom",
+            "Dormammu",
+            "MorganLeFay",
+            "AgathaHarkness"
+          ],
+          "advice": [
+            "Utiliser les ultimes de Fatalis et Morgan pour éliminer les ennemis dangereux à leur arrivée."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Cosmique",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Ikaris",
+            "Deathpool",
+            "Dormammu",
+            "StrangeSupreme",
+            "Sersi"
+          ],
+          "advice": [
+            "Répartir les soins et contrôles, puis cibler les ennemis qui réaniment."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Cosmique",
+          "teamName": "Parcours historique",
+          "characters": [
+            "Ikaris",
+            "Deathpool",
+            "Dormammu",
+            "StrangeSupreme",
+            "Sersi"
+          ],
+          "advice": [
+            "Dépenser librement les capacités lors de la dernière mission Cosmique."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Dark Hunters / Web-Warriors / Underworld / Hive-Mind",
+          "teamName": "Parcours historique",
+          "characters": [
+            "GhostSpider",
+            "ScarletSpider",
+            "SpiderMan",
+            "SpiderPunk"
+          ],
+          "advice": [
+            "Réutiliser la composition Web-Warriors historique, ou une équipe Hive-Mind éligible et mieux développée."
+          ],
+          "alternatives": [],
+          "difficulty": "5+ (historique)",
+          "strategyKind": "historical_playthrough",
+          "compositionKind": "partial"
+        }
+      ]
+    },
+    {
+      "id": "scourge-war",
+      "type": "trial",
+      "title": "Fléau Guerre — Hulk rouge",
+      "summary": "Scourge historique des Cavaliers : dix nœuds, restrictions et tactiques en français.",
+      "rewardId": "RedHulk",
+      "editorialRef": "war-scourge-comprehensive-guide-for-reaching-1-5-1-6-million-points-with-an-average-roster/",
+      "totalStages": 10,
+      "stageUnit": "mission",
+      "guideNote": "ARCHIVE et adaptations : les anciens parcours utilisent des équipes ayant parfois disparu de la méta. Les équipes modernes explicitement recommandées sont illustrées sans être présentées comme des victoires testées en 2026. Le membre Kestrel normale n'a pas de portrait jouable dans notre catalogue.",
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Bio",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "SymbioteSilverSurfer",
+            "Gwenom",
+            "Carnage",
+            "RedGoblin",
+            "Venom"
+          ],
+          "advice": [
+            "Hive-Mind est la recommandation modernisée du guide pour les deux premiers nœuds Bio.",
+            "Éliminer les ennemis de soutien et conserver des ultimes pour le nœud 2."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Bio",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "SymbioteSilverSurfer",
+            "Gwenom",
+            "Carnage",
+            "RedGoblin",
+            "Venom"
+          ],
+          "advice": [
+            "Garder un contrôle pour Ghost Rider puis Shang-Chi.",
+            "Quand Kestrel ennemie arrive, éviter qu'elle enchaîne ses attaques passives."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Avengers",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Mockingbird",
+            "Coulson",
+            "Thing",
+            "Ronin",
+            "Tigra"
+          ],
+          "advice": [
+            "Nouveaux Avengers sont autorisés par la mise à jour du guide ; l'ancien parcours utilisait Avengers bioniques.",
+            "Éliminer Valkyrie avant son passif, puis empêcher Cloak d'utiliser son ultime au second groupe."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Avengers",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Mockingbird",
+            "Coulson",
+            "Thing",
+            "Ronin",
+            "Tigra"
+          ],
+          "advice": [
+            "Cibler les membres Gamma les plus dangereux et conserver les étourdissements.",
+            "L'ancien parcours utilisait Jeunes Avengers, mais les restrictions sont désormais plus larges."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Asgardiens / Ravageurs / Avengers V1 / Ordre noir",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Thor",
+            "JaneThor",
+            "Heimdall",
+            "Valkyrie",
+            "Sif"
+          ],
+          "advice": [
+            "Former les héros asgardiens avec Thor, Jane Foster, Heimdall, Valkyrie et Sif.",
+            "Conserver les capacités de Thor pour le boss final."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Vilains",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "AgathaHarkness",
+            "MorganLeFay",
+            "Doom",
+            "OmegaRed",
+            "StrangeSupreme"
+          ],
+          "advice": [
+            "Agatha étourdit Squirrel Girl ; économiser l'ultime de Fatalis pour la mission 7.",
+            "Morgan et Strange peuvent utiliser leurs ultimes pour contrôler."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Vilains",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "AgathaHarkness",
+            "MorganLeFay",
+            "Doom",
+            "OmegaRed",
+            "StrangeSupreme"
+          ],
+          "advice": [
+            "L'ultime d'Agatha étourdit Circé ; celui de Fatalis nettoie le groupe.",
+            "À l'arrivée d'Ikaris, le cibler avant qu'il n'attaque."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Compétence",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "BlackKnight",
+            "GhostSpider",
+            "PeterBParker",
+            "PeniParker",
+            "SpiderManPavitr"
+          ],
+          "advice": [
+            "Spider-Society est une mise à jour des anciens Skill Raid ; surveiller l'arrivée de Cloak et garder un étourdissement.",
+            "Éviter que Madelyne Pryor ne prenne le contrôle de la vague."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Compétence",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "BlackKnight",
+            "GhostSpider",
+            "PeterBParker",
+            "PeniParker",
+            "SpiderManPavitr"
+          ],
+          "advice": [
+            "La section Compétence peut être terminée avec Spider-Society ou les personnages Skill les plus développés.",
+            "Économiser les ultimes essentiels aux vagues dangereuses."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Asgardiens / Ravageurs / Avengers V1 / Ordre noir",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Thor",
+            "JaneThor",
+            "Heimdall",
+            "Valkyrie",
+            "Sif"
+          ],
+          "advice": [
+            "Interdire à Rescue son ultime ; tenter d'étourdir Hulkbuster avec Thor.",
+            "À la deuxième vague, cibler Deathlok avant toute autre menace.",
+            "Ces personnages sont historiques ; la source recommande aussi Ordre noir ou Bifrost selon les restrictions actuelles."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        }
+      ]
+    },
+    {
+      "id": "scourge-death",
+      "type": "trial",
+      "title": "Fléau Mort — Archangel",
+      "summary": "Scourge historique des Cavaliers : dix nœuds, restrictions et tactiques en français.",
+      "rewardId": "Archangel",
+      "editorialRef": "death-scourge-optimal-clearing-and-scourges/",
+      "totalStages": 10,
+      "stageUnit": "mission",
+      "guideNote": "ARCHIVE et adaptations : les anciens parcours utilisent des équipes ayant parfois disparu de la méta. Les équipes modernes explicitement recommandées sont illustrées sans être présentées comme des victoires testées en 2026. Le membre Kestrel normale n'a pas de portrait jouable dans notre catalogue.",
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Vilains ou sbires",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Apocalypse",
+            "SuperSkrull",
+            "MorganLeFay",
+            "Doom",
+            "Dormammu"
+          ],
+          "advice": [
+            "Les anciens sbires ne sont plus obligatoires dans l'édition source ; les vilains puissants conviennent.",
+            "Privilégier la survie pour économiser les soins."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Vilains ou sbires",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Apocalypse",
+            "SuperSkrull",
+            "MorganLeFay",
+            "Doom",
+            "Dormammu"
+          ],
+          "advice": [
+            "Même restriction : éviter de construire des sbires uniquement pour ce nœud.",
+            "Conserver les contrôles des vilains pour les prochains combats."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Héros",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Nightcrawler",
+            "Sunspot",
+            "Gambit",
+            "Forge",
+            "Cyclops"
+          ],
+          "advice": [
+            "Les X-Men Extrêmes sont une recommandation plus récente que la formation historique avec Kestrel.",
+            "Conserver les grands ultimes pour la mission 4."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Héros",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Nightcrawler",
+            "Sunspot",
+            "Gambit",
+            "Forge",
+            "Cyclops"
+          ],
+          "advice": [
+            "Avec les contrôles X-Men, empêcher Taskmaster et Mr Negative d'attaquer.",
+            "Conserver la santé avant les nœuds de restriction suivante."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Wakandais / Avengers bioniques / P.E.G.A.S.U.S.",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "IronManInfinityWar",
+            "Rescue",
+            "Darkhawk",
+            "IronheartMCU"
+          ],
+          "advice": [
+            "La source recommande P.E.G.A.S.U.S., dont Kestrel normale n'a pas de portrait jouable dans notre catalogue : quatre membres seulement.",
+            "Préparer une équipe avec au moins 60 % de santé en fin de nœud pour faciliter la mission 10."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": [],
+          "compositionKind": "partial"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Mutants non légendaires",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Nightcrawler",
+            "Sunspot",
+            "Gambit",
+            "Forge",
+            "Cyclops"
+          ],
+          "advice": [
+            "La source recommande X-Men Extrêmes ; la version historique utilisait Unlimited X-Men et Emma Frost.",
+            "Bloquer Taskmaster et Aveugler Colleen Wing lors de la deuxième vague."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Mutants non légendaires",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "Nightcrawler",
+            "Sunspot",
+            "Gambit",
+            "Forge",
+            "Cyclops"
+          ],
+          "advice": [
+            "Éliminer Nakia avant son ultime ; empêcher Captain America (Sam) de lancer sa spéciale.",
+            "Garder les capacités décisives pour la rotation suivante."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Légendaires",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "RedHulk",
+            "Rogue",
+            "MorganLeFay",
+            "OmegaRed",
+            "Jubilee"
+          ],
+          "advice": [
+            "Utiliser Red Hulk pour étourdir Gambit, puis éliminer Hela avant Iron Man zombie.",
+            "Bloquer Dazzler et Squirrel Girl, et garder Phénix pour la fin."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Légendaires",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "RedHulk",
+            "Rogue",
+            "MorganLeFay",
+            "OmegaRed",
+            "Jubilee"
+          ],
+          "advice": [
+            "Les membres Infinity Watch ayant Sauvegarde conservent leurs bonus ; viser d'abord Moondragon.",
+            "Garder un étourdissement pour Spider-Man 2099 puis Spider-Weaver lors des vagues suivantes."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Wakandais / Avengers bioniques / P.E.G.A.S.U.S.",
+          "teamName": "Formation recommandée / historique",
+          "characters": [
+            "IronManInfinityWar",
+            "Rescue",
+            "Darkhawk",
+            "IronheartMCU"
+          ],
+          "advice": [
+            "L'ancien guide finissait en deux attaques, Avengers bioniques puis War Dogs ; la nouvelle option recommandée est P.E.G.A.S.U.S.",
+            "Dans la tactique historique, éliminer Gambit puis Deathlok et préserver Black Panther (1MM)."
+          ],
+          "difficulty": "5+ (archives)",
+          "strategyKind": "recommendation",
+          "alternatives": [],
+          "compositionKind": "partial"
+        }
+      ]
+    },
+    {
+      "id": "apocalypse-saga",
+      "type": "event",
+      "title": "Saga d'Apocalypse",
+      "summary": "Saga des Cavaliers : restrictions, seuils d'équipement et conseils de préparation pour les difficultés Hard, Héroïque et Apocalyptique.",
+      "rewardId": "Apocalypse",
+      "totalStages": 9,
+      "stageUnit": "mission",
+      "editorialRef": "apocalypse-saga/",
+      "guideNote": "Le tableau représente la difficulté Apocalyptique : G17, ISO-8 bleu niveau 5. Hard demande G15 et Héroïque G16 avec ISO-8 bleu niveau 4. La mission 9 n'est présente qu'en Apocalyptique. Les compositions sont des RECOMMANDATIONS de préparation ; seules les obligations de traits/personnages proviennent du guide, aucune victoire par nœud n'est certifiée.",
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Mystiques · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "MorganLeFay",
+            "AgathaHarkness",
+            "StrangeSupreme",
+            "Wong",
+            "ScarletWitch"
+          ],
+          "advice": [
+            "Darkhold et personnages mystiques bien équipés permettent de tenir les premières vagues."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Mutants · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "Rogue",
+            "Archangel",
+            "Magneto",
+            "DarkBeast",
+            "Nemesis"
+          ],
+          "advice": [
+            "Préparer les ultimes Mutants pour la section Force Phénix/Death Seed ultérieure."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Bio · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "RedHulk",
+            "Hulk",
+            "Abomination",
+            "AmadeusCho",
+            "SheHulk"
+          ],
+          "advice": [
+            "Une équipe Gamma bio développée offre la durabilité nécessaire à la mission."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Mutants · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "Archangel",
+            "Magneto",
+            "DarkBeast",
+            "Nemesis",
+            "Psylocke"
+          ],
+          "advice": [
+            "Avec Death Seed, chaque élimination ralentit les adversaires ; cibler ceux susceptibles de mourir immédiatement.",
+            "La spéciale de Dark Beast ne clone pas hors Raid mais sert à réanimer et à appliquer des dégâts."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Trois personnages originaux MSF · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "Deathpool",
+            "SpiderWeaver"
+          ],
+          "advice": [
+            "La source impose trois personnages originaux. Kestrel normale était un troisième personnage d'époque mais manque au catalogue jouable actuel : ne pas utiliser son homonyme zombie.",
+            "La composition et les deux autres emplacements doivent être validés dans la sélection de personnages."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Morgan Le Fay obligatoire · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "MorganLeFay"
+          ],
+          "advice": [
+            "La mission porte sur le Cavalier de Pestilence : sécuriser Morgan Le Fay et garder ses contrôles disponibles."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Malicia et Archangel obligatoires · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "Rogue",
+            "Archangel"
+          ],
+          "advice": [
+            "Les deux Cavaliers doivent être admissibles ; compléter avec des personnages autorisés par le jeu sans inventer une équipe complète."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Morgan Le Fay, Malicia, Hulk rouge et Archangel obligatoires · G17 + ISO-8 bleu N5",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "MorganLeFay",
+            "Rogue",
+            "RedHulk",
+            "Archangel"
+          ],
+          "advice": [
+            "Réunir les quatre Cavaliers dans la même équipe et vérifier le cinquième emplacement autorisé.",
+            "Économiser les capacités de soin et de contrôle pour les longues vagues."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Quatre Cavaliers · parcours Apocalyptique uniquement",
+          "teamName": "Personnages éligibles / imposés",
+          "characters": [
+            "MorganLeFay",
+            "Rogue",
+            "RedHulk",
+            "Archangel"
+          ],
+          "advice": [
+            "Cette neuvième mission n'existe que dans la version Apocalyptique documentée.",
+            "La réussite dépend de l'équipement et des restrictions exactes de l'édition."
+          ],
+          "alternatives": [],
+          "difficulty": "Apocalyptique",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        }
+      ]
     }
   ]
 }
