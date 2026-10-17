@@ -79,3 +79,15 @@ Sur `cosmic-defenses.html`, le menu **Choisir des défenses** propose par défau
 Pour conserver plusieurs jeux de défenses d'un même auteur ou d'une même source, une entrée peut comporter un champ facultatif `"collection": "Nom du set"` : toutes les entrées qui partagent cet auteur/source et ce nom constituent un groupe distinct. Les cinq personnages d'une même salle sont toujours indiqués dans `characters`. Les crédits et les liens `sourceUrl` des entrées publiées restent visibles.
 
 Le menu **ne remplace pas** le formulaire permettant de proposer ses propres défenses : il sert uniquement à consulter les propositions validées, sans modifier le JSON ni les brouillons locaux.
+
+## Pages distinctes de consultation et de proposition
+
+La rubrique `cosmic.html` contient **trois tuiles** :
+
+- `cosmic-counters.html` — Contres ;
+- `cosmic-defenses.html` — **Consulter les défenses** : le sélecteur de joueurs/sources et les six salles de la saison active, en lecture seule ;
+- `cosmic-defense-propose.html` — **Proposer une défense** : sélection des personnages, cinq portraits avec suppression, notes, pseudo Discord non éditable et partage.
+
+Le script `cosmic-defenses.js` est commun aux deux vues et n'initialise que les fonctionnalités de la page consultée via `data-cosmic-view`. Le catalogue `cosmic-defense-catalog.js` n'est chargé que pour consulter les défenses. Le formulaire conserve la **même clé localStorage par saison** : les brouillons existants restent accessibles après la séparation des pages.
+
+Aucune tuile n'est ajoutée à l'accueil général LoSP.

@@ -92,3 +92,15 @@
 }
 .cosmicPortraitRemove:focus-visible{outline:2px solid #d9aaff;outline-offset:1px}
 .cosmicPortraitRemove:active{background:#64343f}
+
+/* Trois entrées distinctes : cartes lisibles et facilement touchables sur mobile. */
+.cosmicHubGrid{grid-template-columns:minmax(0,1fr)}
+.cosmicHubTile{min-height:135px}
+.cosmicHubTile--propose{
+  background:linear-gradient(140deg,#234c55,#151c37);
+  border-color:#6397a2;
+}
+@media(min-width:600px){
+  .cosmicHubGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .cosmicHubTile{min-height:230px}
+}

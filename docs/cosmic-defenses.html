@@ -7,19 +7,19 @@
   <script>document.documentElement.classList.add("authChecking")</script>
   <script src="./auth-guard.js?v=4"></script>
   <meta name="theme-color" content="#0b0c0d" />
-  <title>LoSP — Défenses Épreuve cosmique</title>
+  <title>LoSP — Consulter les défenses cosmiques</title>
   <link rel="stylesheet" href="./style.css?v=4" />
-  <link rel="stylesheet" href="./cosmic.css?v=5" />
+  <link rel="stylesheet" href="./cosmic.css?v=6" />
   <link rel="manifest" href="./manifest.webmanifest" />
 </head>
-<body>
+<body data-cosmic-view="browse">
   <main class="app">
     <header class="header cosmicHeader">
       <a href="./cosmic.html" class="backBtn" aria-label="Retour">⬅️</a>
       <a href="./home.html" class="homeBtn" aria-label="Accueil">🏠</a>
       <div class="headerLeft">
-        <h1 class="title">🛡️ Défenses cosmiques</h1>
-        <p class="subtitle">Six salles, des compositions proposées et un espace pour partager les tiennes.</p>
+        <h1 class="title">🛡️ Consulter les défenses</h1>
+        <p class="subtitle">Parcours les défenses publiées pour les six salles de la saison.</p>
       </div>
     </header>
     <section class="card cosmicSeasonCard" aria-label="Saison d'épreuve cosmique">
@@ -40,19 +40,9 @@
       <p class="cosmicFeedback" id="publishedStatus" role="status">Chargement…</p>
       <div id="publishedDefenses" class="cosmicRooms"></div>
     </section>
-    <section class="card">
-      <h2 class="cosmicSectionTitle">Proposer mes défenses</h2>
-      <p class="cosmicIntro">Complète une ou plusieurs salles (5 personnages par salle). Ton brouillon est conservé sur cet appareil. Le partage prépare un message à envoyer sur Discord pour validation : il ne publie rien automatiquement.</p>
-      <span class="cosmicLabel" id="proposalAuthorLabel">Pseudo Discord</span>
-      <div class="cosmicReadonlyField" id="proposalAuthorDisplay" role="status" aria-labelledby="proposalAuthorLabel">Identification en cours…</div>
-      <div id="proposalRooms" class="cosmicRooms"></div>
-      <p class="cosmicFeedback" id="proposalStatus" role="status" aria-live="polite"></p>
-      <button id="proposalShare" class="cosmicAction" type="button">Partager ma proposition</button>
-      <textarea id="proposalFallback" class="select cosmicFallback" readonly hidden aria-label="Texte de la proposition à copier"></textarea>
-    </section>
   </main>
   <script src="./cosmic-season-ui.js?v=1" defer></script>
   <script src="./cosmic-defense-catalog.js?v=1" defer></script>
-  <script src="./cosmic-defenses.js?v=5" defer></script>
+  <script src="./cosmic-defenses.js?v=6" defer></script>
 </body>
 </html>
