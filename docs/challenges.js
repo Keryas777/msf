@@ -115,7 +115,7 @@
     const total = Number(event.totalStages);
     if (!Number.isInteger(total) || total <= 0 || total > 100) return stages;
     const indexed = new Map(stages.map(stage => [String(stage.id), stage]));
-    const unit = event.stageUnit === "cellule" ? "Cellule" : "Étage";
+    const unit = event.stageUnit === "cellule" ? "Cellule" : event.stageUnit === "mission" ? "Mission" : "Étage";
     const result = [];
     for (let index = 1; index <= total; index += 1) {
       const id = String(index);
@@ -171,64 +171,33 @@
   }
 
 
-  const VISIBLE_SOURCE_STATES = new Set(["content_checked", "page_checked", "indexed_content"]);
-  const GUIDE_FORMATS = { article:"Guide écrit", walkthrough:"Parcours commenté", player_report:"Retour de combat", community_collection:"Solutions communautaires", video:"Vidéo de combat" };
-  const GUIDE_EVIDENCE = { walkthrough:"Stratégie détaillée", reported_clear:"Victoire rapportée", historical_playthrough:"Parcours historique", unverified_player_submission:"Solutions non certifiées", recommendation:"Recommandations", guide:"Guide" };
-
-  function relevantSources(event, stage) {
-    return state.sources.filter(source => {
-      if (!VISIBLE_SOURCE_STATES.has(source.verificationStatus)) return false;
-      if (source.eventId !== event.id && !(source.eventId === null && source.mode === event.type)) return false;
-      if (state.difficulty !== "all" && source.difficulty && source.difficulty !== state.difficulty) return false;
-      const scoped = [...(source.stageIds || []), ...(source.sectionIds || [])].map(String);
-      return stage ? scoped.includes(String(stage.id)) : scoped.length === 0;
-    });
-  }
-
-  function buildGuideGroup(sources, label, stage = null) {
-    if (!sources.length) return null;
+  // Les URL et auteurs sont conservés dans le catalogue éditorial mais jamais affichés.
+  // Seules les compositions de joueurs renseignées deviennent des cartes LoSP internes.
+  function buildAlternativeTeams(event, stage) {
+    const variants = state.sources
+      .filter(source => source.eventId === event.id && Array.isArray(source.solutions))
+      .flatMap(source => source.solutions.filter(solution =>
+        String(solution.stageId) === String(stage.id) && Array.isArray(solution.characters) && solution.characters.length
+      ));
+    if (!variants.length) return null;
     const section = el("section", "challenge-guide-section");
-    section.append(el("h4", "", label));
+    section.append(el("h4", "", "Autres compositions proposées"));
     const list = el("div", "challenge-guide-list");
-    for (const source of sources) {
-      const a = el("a", "challenge-guide-link");
-      a.href = source.url;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.append(el("span", "challenge-guide-title", source.title + " ↗"));
-      const parts = [
-        source.author || "Auteur inconnu",
-        (source.language || "").toUpperCase(),
-        GUIDE_FORMATS[source.format] || "Guide",
-        source.difficulty ? "Difficulté : " + source.difficulty : "",
-        source.publishedAt ? "Publié : " + source.publishedAt : ""
-      ];
-      a.append(el("span", "challenge-guide-meta", parts.filter(Boolean).join(" · ")));
-      a.append(el("span", "challenge-guide-proof", GUIDE_EVIDENCE[source.evidenceLevel] || "Guide"));
-      const reportedTeam = stage && (source.solutions || []).find(solution => String(solution.stageId) === String(stage.id));
-      if (reportedTeam) {
-        const reportBox = el("span", "challenge-guide-team-summary");
-        reportBox.append(el("strong", "", "Équipe rapportée : " + reportedTeam.teamName));
-        if (reportedTeam.characters?.length) {
-          const portraits = el("span", "challenge-guide-team-portraits");
-          for (const id of reportedTeam.characters) portraits.append(makeHero(id));
-          reportBox.append(portraits);
-        }
-        if ((reportedTeam.characters || []).length < 5) {
-          reportBox.append(el("span", "challenge-guide-verification", "Composition partielle : places non précisées."));
-        }
-        if (reportedTeam.verification === "expanded_from_losp_team_catalog") {
-          reportBox.append(el("span", "challenge-guide-verification", "Membres de l'équipe développés depuis le catalogue LoSP, à recouper avec le combat original."));
-        }
-        if (reportedTeam.note) reportBox.append(el("span", "challenge-guide-meta", reportedTeam.note));
-        a.append(reportBox);
+    for (const item of variants) {
+      const card = el("div", "challenge-guide-link");
+      card.append(el("strong", "challenge-guide-title", item.teamName || "Composition alternative"));
+      const team = el("div", "challenge-guide-team-portraits");
+      for (const id of item.characters) team.append(makeHero(id));
+      card.append(team);
+      if (item.characters.length < 5) {
+        card.append(el("p", "challenge-guide-verification", "Composition partielle : personnages manquants non précisés."));
       }
-      if (source.verificationStatus === "indexed_content") {
-        a.append(el("span", "challenge-guide-verification", "Contenu indexé, lien non testé directement"));
-      } else if (source.verificationStatus === "page_checked") {
-        a.append(el("span", "challenge-guide-verification", "Contributions individuelles non vérifiées"));
+      if (item.verification === "expanded_from_losp_team_catalog") {
+        card.append(el("p", "challenge-guide-verification", "Noms développés depuis le catalogue LoSP : composition exacte à confirmer."));
       }
-      list.append(a);
+      if (item.note) card.append(el("p", "challenge-guide-meta", item.note));
+      card.append(el("p", "challenge-guide-proof", "Retour de joueur : victoire non garantie."));
+      list.append(card);
     }
     section.append(list);
     return section;
@@ -249,6 +218,8 @@
     details.append(summary);
 
     const body = el("div", "challenge-stage-body");
+    if (stage.difficulty) body.append(el("p", "challenge-guide-meta", "Difficulté : " + stage.difficulty));
+    if (stage.strategyKind === "recommendation") body.append(el("p", "challenge-guide-verification", "Équipe recommandée : victoire non vérifiée."));
     if (stage.teamName) body.append(el("p", "challenge-team-name", stage.teamName));
     if (stage.characters.length) {
       const label = stage.compositionKind === "partial"
@@ -286,7 +257,7 @@
       body.append(list);
     }
 
-    const otherSolutions = buildGuideGroup(relevantSources(event, stage), "Autres guides pour cette étape", stage);
+    const otherSolutions = buildAlternativeTeams(event, stage);
     if (otherSolutions) body.append(otherSolutions);
 
     if (!stage.pending) {
@@ -334,36 +305,6 @@
     }
 
     ui.detail.append(tags);
-    const available = state.sources.filter(source => (source.eventId === event.id || (source.eventId === null && source.mode === event.type)) && VISIBLE_SOURCE_STATES.has(source.verificationStatus));
-    if (available.length) {
-      const guideDifficulties = [...new Set(available.map(source => source.difficulty).filter(Boolean))];
-      if (guideDifficulties.length > 0) {
-        const selectRow = el("div", "challenge-guide-filter");
-        const label = el("label", "challenge-search-label", "Difficulté des guides");
-        label.htmlFor = "challengeGuideDifficulty";
-        const select = el("select", "challenge-jump");
-        select.id = "challengeGuideDifficulty";
-        for (const value of ["all", ...guideDifficulties]) {
-          const option = el("option", "", value === "all" ? "Toutes les difficultés" : value);
-          option.value = value;
-          select.append(option);
-        }
-        select.value = state.difficulty;
-        select.addEventListener("change", () => {
-          state.difficulty = select.value;
-          renderDetail();
-        });
-        selectRow.append(label, select);
-        ui.detail.append(selectRow);
-      }
-      const generalGuides = buildGuideGroup(relevantSources(event, null), "Guides généraux et collections");
-      if (generalGuides) ui.detail.append(generalGuides);
-      const matchedStages = available.filter(source => (source.stageIds || []).length || (source.sectionIds || []).length);
-      if (matchedStages.length) {
-        ui.detail.append(el("p", "challenge-sources-hint", matchedStages.length + " guide(s) associé(s) à des étapes précises : ouvre une fiche pour les consulter."));
-      }
-      ui.detail.append(el("p", "challenge-sources-hint", "Les retours de joueurs et les compositions communautaires ne garantissent pas la victoire."));
-    }
     if (event.guideNote) ui.detail.append(el("p", "challenge-guide-note", event.guideNote));
 
     const stages = displayStages(event);
@@ -375,7 +316,7 @@
       const jumpBar = el("div", "challenge-jump-bar");
       const jumpText = event.type === "dark-dimension"
         ? "Aller directement à un nœud / une section"
-        : event.type === "trial"
+        : event.type === "trial" || event.stageUnit === "mission"
           ? "Aller directement à une mission"
           : event.stageUnit === "cellule"
             ? "Aller directement à une cellule"
