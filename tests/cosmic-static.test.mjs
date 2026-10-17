@@ -152,7 +152,7 @@ test("trois tuiles : consultation et proposition sont des pages indépendantes",
   assert.match(browse, /cosmic-defense-catalog\.js/);
   assert.doesNotMatch(propose, /cosmic-defense-catalog\.js/);
   assert.match(js, /IS_PROPOSE = document\.body\?\.dataset\?\.cosmicView === "propose"/);
-  assert.match(js, /IS_PROPOSE \? Promise\.resolve\(\[\]\) : fetchJson\(DATA\.defenses\)/);
+  assert.match(js, /IS_PROPOSE \? Promise\.resolve\(\[\]\) : loadPublishedLive\(config\?\.season\?\.id\)/);
   assert.match(js, /if \(IS_PROPOSE\) \{/);
   assert.match(js, /initPublishedSelector\(published\)/);
   assert.match(js, /renderProposals\(\)/);
