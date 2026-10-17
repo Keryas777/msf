@@ -200,7 +200,7 @@ test("croix de retrait plus discrète sans réduire la zone tactile mobile", asy
   assert.match(button, /touch-action:manipulation/);
   assert.match(circle, /width:19px;height:19px/);
   assert.match(cross, /font:700 12px\/1 sans-serif/);
-  assert.match(propose, /cosmic\.css\?v=7/);
+  assert.match(propose, /cosmic\.css\?v=8/);
 });
 
 
