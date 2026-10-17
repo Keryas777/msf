@@ -5,12 +5,14 @@
   const PATHS = {
     guides: "./data/challenges.json",
     characters: "./data/msf-characters.json",
+    guideSources: "./data/challenge-guide-sources.json",
   };
   const STORAGE_KEY = "losp_challenges_progress_v1";
   const CATEGORIES = {
     "dark-dimension": { label: "🌌 Dimension noire", description: "Choisis une dimension noire, puis une section ou mission." },
     tower: { label: "🏰 Tours / Kyln", description: "Choisis une tour ou Kyln, puis un étage ou une cellule." },
     trial: { label: "⚔️ Trials légendaires / Breakers", description: "Choisis un trial, puis une mission et sa composition." },
+    event: { label: "🧭 Autres événements PvE", description: "Invasions, sagas et parcours de recrutement." },
   };
   const URL_CATEGORY = new URLSearchParams(location.search).get("category") || "";
 
@@ -28,6 +30,8 @@
     events: [],
     characters: new Map(),
     progress: readProgress(),
+    sources: [],
+    difficulty: "all",
   };
 
   function readProgress() {
@@ -154,6 +158,7 @@
       button.append(content);
       button.addEventListener("click", () => {
         state.selected = event.id;
+        state.difficulty = "all";
         const url = new URL(location.href);
         url.searchParams.set("guide", event.id);
         history.replaceState(null, "", url.pathname + url.search + url.hash);
@@ -163,6 +168,70 @@
       });
       ui.list.append(button);
     }
+  }
+
+
+  const VISIBLE_SOURCE_STATES = new Set(["content_checked", "page_checked", "indexed_content"]);
+  const GUIDE_FORMATS = { article:"Guide écrit", walkthrough:"Parcours commenté", player_report:"Retour de combat", community_collection:"Solutions communautaires", video:"Vidéo de combat" };
+  const GUIDE_EVIDENCE = { walkthrough:"Stratégie détaillée", reported_clear:"Victoire rapportée", historical_playthrough:"Parcours historique", unverified_player_submission:"Solutions non certifiées", recommendation:"Recommandations", guide:"Guide" };
+
+  function relevantSources(event, stage) {
+    return state.sources.filter(source => {
+      if (!VISIBLE_SOURCE_STATES.has(source.verificationStatus)) return false;
+      if (source.eventId !== event.id && !(source.eventId === null && source.mode === event.type)) return false;
+      if (state.difficulty !== "all" && source.difficulty && source.difficulty !== state.difficulty) return false;
+      const scoped = [...(source.stageIds || []), ...(source.sectionIds || [])].map(String);
+      return stage ? scoped.includes(String(stage.id)) : scoped.length === 0;
+    });
+  }
+
+  function buildGuideGroup(sources, label, stage = null) {
+    if (!sources.length) return null;
+    const section = el("section", "challenge-guide-section");
+    section.append(el("h4", "", label));
+    const list = el("div", "challenge-guide-list");
+    for (const source of sources) {
+      const a = el("a", "challenge-guide-link");
+      a.href = source.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.append(el("span", "challenge-guide-title", source.title + " ↗"));
+      const parts = [
+        source.author || "Auteur inconnu",
+        (source.language || "").toUpperCase(),
+        GUIDE_FORMATS[source.format] || "Guide",
+        source.difficulty ? "Difficulté : " + source.difficulty : "",
+        source.publishedAt ? "Publié : " + source.publishedAt : ""
+      ];
+      a.append(el("span", "challenge-guide-meta", parts.filter(Boolean).join(" · ")));
+      a.append(el("span", "challenge-guide-proof", GUIDE_EVIDENCE[source.evidenceLevel] || "Guide"));
+      const reportedTeam = stage && (source.solutions || []).find(solution => String(solution.stageId) === String(stage.id));
+      if (reportedTeam) {
+        const reportBox = el("span", "challenge-guide-team-summary");
+        reportBox.append(el("strong", "", "Équipe rapportée : " + reportedTeam.teamName));
+        if (reportedTeam.characters?.length) {
+          const portraits = el("span", "challenge-guide-team-portraits");
+          for (const id of reportedTeam.characters) portraits.append(makeHero(id));
+          reportBox.append(portraits);
+        }
+        if ((reportedTeam.characters || []).length < 5) {
+          reportBox.append(el("span", "challenge-guide-verification", "Composition partielle : places non précisées."));
+        }
+        if (reportedTeam.verification === "expanded_from_losp_team_catalog") {
+          reportBox.append(el("span", "challenge-guide-verification", "Membres de l'équipe développés depuis le catalogue LoSP, à recouper avec le combat original."));
+        }
+        if (reportedTeam.note) reportBox.append(el("span", "challenge-guide-meta", reportedTeam.note));
+        a.append(reportBox);
+      }
+      if (source.verificationStatus === "indexed_content") {
+        a.append(el("span", "challenge-guide-verification", "Contenu indexé, lien non testé directement"));
+      } else if (source.verificationStatus === "page_checked") {
+        a.append(el("span", "challenge-guide-verification", "Contributions individuelles non vérifiées"));
+      }
+      list.append(a);
+    }
+    section.append(list);
+    return section;
   }
 
   function renderStage(event, stage, index) {
@@ -217,6 +286,9 @@
       body.append(list);
     }
 
+    const otherSolutions = buildGuideGroup(relevantSources(event, stage), "Autres guides pour cette étape", stage);
+    if (otherSolutions) body.append(otherSolutions);
+
     if (!stage.pending) {
     const line = el("label", "challenge-check-row");
       const check = el("input", "challenge-check");
@@ -260,7 +332,38 @@
       progressLabel.setAttribute("data-challenge-progress", "");
       tags.append(progressLabel);
     }
+
     ui.detail.append(tags);
+    const available = state.sources.filter(source => (source.eventId === event.id || (source.eventId === null && source.mode === event.type)) && VISIBLE_SOURCE_STATES.has(source.verificationStatus));
+    if (available.length) {
+      const guideDifficulties = [...new Set(available.map(source => source.difficulty).filter(Boolean))];
+      if (guideDifficulties.length > 0) {
+        const selectRow = el("div", "challenge-guide-filter");
+        const label = el("label", "challenge-search-label", "Difficulté des guides");
+        label.htmlFor = "challengeGuideDifficulty";
+        const select = el("select", "challenge-jump");
+        select.id = "challengeGuideDifficulty";
+        for (const value of ["all", ...guideDifficulties]) {
+          const option = el("option", "", value === "all" ? "Toutes les difficultés" : value);
+          option.value = value;
+          select.append(option);
+        }
+        select.value = state.difficulty;
+        select.addEventListener("change", () => {
+          state.difficulty = select.value;
+          renderDetail();
+        });
+        selectRow.append(label, select);
+        ui.detail.append(selectRow);
+      }
+      const generalGuides = buildGuideGroup(relevantSources(event, null), "Guides généraux et collections");
+      if (generalGuides) ui.detail.append(generalGuides);
+      const matchedStages = available.filter(source => (source.stageIds || []).length || (source.sectionIds || []).length);
+      if (matchedStages.length) {
+        ui.detail.append(el("p", "challenge-sources-hint", matchedStages.length + " guide(s) associé(s) à des étapes précises : ouvre une fiche pour les consulter."));
+      }
+      ui.detail.append(el("p", "challenge-sources-hint", "Les retours de joueurs et les compositions communautaires ne garantissent pas la victoire."));
+    }
     if (event.guideNote) ui.detail.append(el("p", "challenge-guide-note", event.guideNote));
 
     const stages = displayStages(event);
@@ -309,14 +412,18 @@
 
   async function init() {
     try {
-      const [guides, characters] = await Promise.all([
+      const [guides, characters, sourceIndex] = await Promise.all([
         loadJson(PATHS.guides),
         loadJson(PATHS.characters),
+        loadJson(PATHS.guideSources).catch(() => ({ sources: [] })),
       ]);
       if (!Array.isArray(guides.events) || !Array.isArray(characters)) {
         throw new Error("Format des données inattendu");
       }
       state.events = guides.events.filter(item => item && item.id && item.title);
+      const knownEvents = new Set(state.events.map(item => item.id));
+      state.sources = (Array.isArray(sourceIndex.sources) ? sourceIndex.sources : [])
+        .filter(source => source && knownEvents.has(source.eventId) && typeof source.url === "string" && source.url.startsWith("https://"));
       // Jamais d'unité PVE / invocation comme portrait suggéré.
       for (const character of characters) {
         if (character?.id && character.player_Character === true) {

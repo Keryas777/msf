@@ -125,3 +125,29 @@
   border-left:3px solid rgba(135,201,255,.55);
   border-radius:6px; font-size:13px; line-height:1.5; color:var(--muted);
 }
+
+/* Références PvE complémentaires : isolées des conseils de combat existants. */
+.challenge-category--event{ --category-accent:rgba(75,204,176,.36); }
+.challenge-guide-section{margin:14px 0;padding-top:8px;border-top:1px solid var(--border);}
+.challenge-guide-section h4{margin:6px 0 9px;font-size:14px;color:var(--text);}
+.challenge-guide-list{display:grid;gap:8px;}
+.challenge-guide-link{display:flex;flex-direction:column;gap:5px;text-decoration:none;color:var(--text);
+  border-radius:12px;border:1px solid rgba(112,184,215,.25);background:rgba(10,21,31,.55);
+  padding:11px 12px;overflow-wrap:anywhere;min-height:58px;-webkit-tap-highlight-color:transparent;}
+.challenge-guide-link:active{background:rgba(24,60,81,.7);}
+.challenge-guide-link:focus-visible{outline:2px solid #9ed6ff;outline-offset:2px;}
+.challenge-guide-title{font-size:14px;line-height:1.3;font-weight:850;color:#d1ecff;}
+.challenge-guide-meta{font-size:11px;color:var(--muted);line-height:1.4;}
+.challenge-guide-proof{font-size:11px;font-weight:750;color:#c1f0d7;}
+.challenge-guide-verification{font-size:11px;color:#f3c992;}
+.challenge-sources-hint{font-size:12px;line-height:1.5;color:var(--muted);margin:7px 0 11px;}
+.challenge-guide-filter{margin:10px 0 14px;}
+@media(min-width:680px){.challenge-categories{grid-template-columns:repeat(2,minmax(0,1fr));}}
+
+/* Compositions secondaires réellement rapportées : portraits compacts dans la source. */
+.challenge-guide-team-summary{display:flex;flex-direction:column;gap:7px;margin-top:7px;padding:9px 0 2px;border-top:1px solid rgba(255,255,255,.09);}
+.challenge-guide-team-summary strong{font-size:12px;line-height:1.3;color:var(--text);font-weight:800;}
+.challenge-guide-team-portraits{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;}
+.challenge-guide-team-portraits .challenge-hero{max-width:78px;}
+.challenge-guide-team-portraits .challenge-hero .challenge-avatar{max-width:64px;}
+.challenge-guide-team-portraits .challenge-hero figcaption{font-size:10px;}

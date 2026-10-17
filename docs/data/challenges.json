@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-16",
+  "updatedAt": "2026-10-17",
   "disclaimer": "Les compositions et conseils sont reformulés en français. Les informations peuvent être complétées ou modifiées lors des prochaines ouvertures des événements.",
   "events": [
     {
@@ -896,10 +896,12 @@
       "id": "kyln-whiplash",
       "type": "tower",
       "title": "Évasion de Kyln : Code Whiplash",
-      "summary": "Guide par cellule.",
+      "summary": "20 cellules · quatre difficultés, dont Omega. Des solutions externes sont associées aux cellules précisément documentées.",
       "rewardId": null,
       "stages": [],
-      "editorialRef": "escape-from-kyln-code-whiplash/"
+      "editorialRef": "escape-from-kyln-code-whiplash/",
+      "totalStages": 20,
+      "stageUnit": "cellule"
     },
     {
       "id": "fear",
@@ -1317,6 +1319,42 @@
         }
       ],
       "editorialRef": "characters-for-dark-dimension-ix/"
+    },
+    {
+      "id": "invasion-quasar",
+      "type": "event",
+      "title": "Invasion : Quasar",
+      "summary": "Événement PvE à difficultés et modificateurs. Guide de missions et stratégies à enrichir.",
+      "rewardId": "Quasar",
+      "stages": [],
+      "editorialRef": "invasion-event-quasar/"
+    },
+    {
+      "id": "invasion-blastaar",
+      "type": "event",
+      "title": "Invasion : Blastaar",
+      "summary": "Épreuves Invasion, restrictions progressives et stratégies par mission.",
+      "rewardId": "Blastaar",
+      "stages": [],
+      "editorialRef": "invasion-event-blastaar/"
+    },
+    {
+      "id": "finding-xavier",
+      "type": "event",
+      "title": "Finding Xavier : Race to X",
+      "summary": "Saga de recrutement de Xavier avec différentes difficultés et plusieurs parties.",
+      "rewardId": "Xavier",
+      "stages": [],
+      "editorialRef": "finding-xavier/"
+    },
+    {
+      "id": "target-blue-marvel",
+      "type": "event",
+      "title": "Target : Blue Marvel",
+      "summary": "Parcours PvE de progression avec conditions de traits et d’ISO-8.",
+      "rewardId": "BlueMarvel",
+      "stages": [],
+      "editorialRef": "target-blue-marvel/"
     }
   ]
 }
