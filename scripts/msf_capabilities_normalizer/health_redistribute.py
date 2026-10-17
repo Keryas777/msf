@@ -327,6 +327,71 @@ REVIEWED_PUBLISHED_SELF_SIGNATURES = {
     },
 }
 
+# Exact-source review of the remaining playable actions, after comparing
+# MSF Base's published ability texts with the Codex raw-action ledger.
+# For Shadow King, the recipient statement is also available from Scopely.
+# "technical_correlated" establishes only the behavior family: the parser
+# keeps safety/passive_visuals as distinct technical contexts. No game
+# execution, formula, percentage basis, or recipient allocation is asserted.
+REVIEWED_COMPARATIVE_REFERENCES = {
+    "shadow": {"url": "https://marvelstrikeforce.com/en/characters/ShadowKing/abilities", "source": "official_ability_text",
+        "assertion": "La passive du Roi d’Ombre vole 5 % de vie maximale à l’ennemi le plus blessé et la redistribue au personnage possédé."},
+    "Gilgamesh": {"url": "https://www.msfbase.com/characters/Gilgamesh/", "source": "published_ability_text",
+        "assertion": "Le basique vole de la vie à la cible principale et la restitue à Gilgamesh ; son Drain est distinct."},
+    "Quasar": {"url": "https://www.msfbase.com/characters/Quasar/", "source": "published_ability_text",
+        "assertion": "Le basique vole de la vie, y compris contre une cible non Cosmique en attaque de guerre au niveau requis."},
+    "Thena": {"url": "https://www.msfbase.com/characters/Thena/", "source": "published_ability_text",
+        "assertion": "L’ultime vole de la vie aux cibles principales et secondaires, la restitue à Thena et affiche un plafond."},
+    "Morbius": {"url": "https://www.msfbase.com/characters/Morbius/", "source": "published_ability_text",
+        "assertion": "La basique et sa variante de contre/assistance volent de la vie en présence de Saignement."},
+    "MorganLeFay": {"url": "https://www.msfbase.com/characters/MorganLeFay/", "source": "published_ability_text",
+        "assertion": "La variante de contre/assistance de la basique vole jusqu’à 10 % de vie et la restitue à Morgan."},
+    "Nemesis": {"url": "https://www.msfbase.com/characters/Nemesis/", "source": "published_ability_text",
+        "assertion": "La variante de contre/assistance du basique vole de la vie et la redistribue aux alliés Deathseed."},
+    "Odin": {"url": "https://www.msfbase.com/characters/Odin/", "source": "published_ability_text",
+        "assertion": "La basique d’Odin vole 3 % de vie aux ennemis et la restitue à Odin ; des déclenchements techniques la réutilisent."},
+    "OmegaRed": {"url": "https://www.msfbase.com/characters/OmegaRed/", "source": "published_ability_text",
+        "assertion": "La variante contre/assistance vole de la vie à sa cible à hauteur de 3 ou 7 % selon le niveau."},
+    "Satana": {"url": "https://www.msfbase.com/characters/Satana/", "source": "published_ability_text",
+        "assertion": "La variante contre/assistance contient un vol de 7 % de vie, avec sélecteur brut pour les alliés Accursed."},
+    "SymbioteQuicksilver": {"url": "https://www.msfbase.com/characters/SymbioteQuicksilver/", "source": "published_ability_text",
+        "assertion": "La variante contre/assistance de la basique conserve le vol de vie conditionnel."},
+    "Yellowjacket": {"url": "https://www.msfbase.com/characters/Yellowjacket/", "source": "published_ability_text",
+        "assertion": "En défense de guerre avec Spider-Man Big Time, l’ultime reprend explicitement les effets de la spéciale, dont le vol de vie à soi."},
+}
+REVIEWED_COMPARATIVE_SIGNATURES = {
+    "/Data/AncientOne/passive/1/actions/2": {"sha256": "caa5e7cc5d27495659ed21cb6c23c98015758e771026cbc0772401054a6f287c", "ref": "shadow", "recipient": "possessed_character", "tier": "direct", "context": "direct"},
+    "/Data/AncientOne/passive/10/actions/2": {"sha256": "caa5e7cc5d27495659ed21cb6c23c98015758e771026cbc0772401054a6f287c", "ref": "shadow", "recipient": "possessed_character", "tier": "direct", "context": "direct"},
+    "/Data/AncientOne/passive/8/actions/2": {"sha256": "caa5e7cc5d27495659ed21cb6c23c98015758e771026cbc0772401054a6f287c", "ref": "shadow", "recipient": "possessed_character", "tier": "direct", "context": "direct"},
+    "/Data/DoctorStrange/passive/11/actions/2": {"sha256": "caa5e7cc5d27495659ed21cb6c23c98015758e771026cbc0772401054a6f287c", "ref": "shadow", "recipient": "possessed_character", "tier": "direct", "context": "direct"},
+    "/Data/DoctorStrange/passive/7/actions/2": {"sha256": "caa5e7cc5d27495659ed21cb6c23c98015758e771026cbc0772401054a6f287c", "ref": "shadow", "recipient": "possessed_character", "tier": "direct", "context": "direct"},
+    "/Data/DoctorStrange/passive/9/actions/2": {"sha256": "caa5e7cc5d27495659ed21cb6c23c98015758e771026cbc0772401054a6f287c", "ref": "shadow", "recipient": "possessed_character", "tier": "direct", "context": "direct"},
+    "/Data/EmmaFrostXMen/passive/3/actions/2": {"sha256": "caa5e7cc5d27495659ed21cb6c23c98015758e771026cbc0772401054a6f287c", "ref": "shadow", "recipient": "possessed_character", "tier": "direct", "context": "direct"},
+    "/Data/EmmaFrostXMen/passive/5/actions/2": {"sha256": "caa5e7cc5d27495659ed21cb6c23c98015758e771026cbc0772401054a6f287c", "ref": "shadow", "recipient": "possessed_character", "tier": "direct", "context": "direct"},
+    "/Data/EmmaFrostXMen/passive/7/actions/2": {"sha256": "caa5e7cc5d27495659ed21cb6c23c98015758e771026cbc0772401054a6f287c", "ref": "shadow", "recipient": "possessed_character", "tier": "direct", "context": "direct"},
+    "/Data/Gilgamesh/basic/actions/2": {"sha256": "91a4e0f3ae567aa0f9d533f0753d30bcdda078f1abf35fb8a9ff18171d6ec9c4", "ref": "Gilgamesh", "recipient": "self", "tier": "direct", "context": "direct"},
+    "/Data/Gilgamesh/safety/actions/2": {"sha256": "d3df0e63d129c641dfc7105091a1960a6d883addf69648f4540a234da6b593fc", "ref": "Gilgamesh", "recipient": "self", "tier": "technical_correlated", "context": "safety_assist_counter"},
+    "/Data/Moondragon/passive/1/actions/2": {"sha256": "caa5e7cc5d27495659ed21cb6c23c98015758e771026cbc0772401054a6f287c", "ref": "shadow", "recipient": "possessed_character", "tier": "direct", "context": "direct"},
+    "/Data/Moondragon/passive/4/actions/2": {"sha256": "caa5e7cc5d27495659ed21cb6c23c98015758e771026cbc0772401054a6f287c", "ref": "shadow", "recipient": "possessed_character", "tier": "direct", "context": "direct"},
+    "/Data/Moondragon/passive/6/actions/2": {"sha256": "caa5e7cc5d27495659ed21cb6c23c98015758e771026cbc0772401054a6f287c", "ref": "shadow", "recipient": "possessed_character", "tier": "direct", "context": "direct"},
+    "/Data/Morbius/safety/actions/1": {"sha256": "fc2904eb821ce0aa7c5382d7299642e70ac2baaa26956c98e6e39b72c177bd88", "ref": "Morbius", "recipient": "self", "tier": "technical_correlated", "context": "safety_assist_counter"},
+    "/Data/MorganLeFay/safety/actions/3": {"sha256": "66c4d2b77c3bb39d19d075d3c1b9792ba9a705d9e39679442d333cb77e0de387", "ref": "MorganLeFay", "recipient": "self", "tier": "technical_correlated", "context": "safety_assist_counter"},
+    "/Data/Nemesis/safety/actions/1": {"sha256": "33133c8683e57dcd4ab5c5af476d2d5270b5ab946e58f1550580f45296effadb", "ref": "Nemesis", "recipient": "deathseed_allies", "tier": "technical_correlated", "context": "safety_assist_counter"},
+    "/Data/Odin/passive_visuals/0/actions/16": {"sha256": "a7565cad762c0e807de689c4e2eba61f3f8f3adb7af91864208136a91b9b48e9", "ref": "Odin", "recipient": "self", "tier": "technical_correlated", "context": "passive_visuals"},
+    "/Data/Odin/safety/actions/2": {"sha256": "4cfe2d170c4c4d4730cd481f3460bcf130c8a58b8774a1f2485074b4781a9838", "ref": "Odin", "recipient": "self", "tier": "technical_correlated", "context": "safety_assist_counter"},
+    "/Data/OmegaRed/safety/actions/1": {"sha256": "711bc47d2b77f9aff16b441b2f0adce511ea4ae85a2464043349cc3a0f624759", "ref": "OmegaRed", "recipient": "self", "tier": "technical_correlated", "context": "safety_assist_counter"},
+    "/Data/Quasar/basic/actions/4": {"sha256": "3841b18be7d2e7da1e5cb04dcf81f23c908672d473d9264754532c18e552fba3", "ref": "Quasar", "recipient": "self", "tier": "direct", "context": "direct"},
+    "/Data/Quasar/safety/actions/3": {"sha256": "b0db01272f5d939b2b38c06cbacf35342a7f39c5c819df09ba4f1f21f50d051a", "ref": "Quasar", "recipient": "self", "tier": "technical_correlated", "context": "safety_assist_counter"},
+    "/Data/Quasar/safety/actions/4": {"sha256": "928f6b0006b8eb477fe6b4f77fc08d3943de1ffbbeed1a5a2e685b3cc28e2496", "ref": "Quasar", "recipient": "self", "tier": "technical_correlated", "context": "safety_assist_counter"},
+    "/Data/Satana/safety/actions/1": {"sha256": "ee8aade6b55fab466f7bfec10e1693e655a9958876264d36e107e2b6cd5f1cfb", "ref": "Satana", "recipient": "accursed_allies", "tier": "technical_correlated", "context": "safety_assist_counter"},
+    "/Data/SymbioteQuicksilver/safety/actions/2": {"sha256": "0c450808cf5631960175e259ebc7ef8ce1fefd1146e1238330f0bcf8ef81e475", "ref": "SymbioteQuicksilver", "recipient": "self", "tier": "technical_correlated", "context": "safety_assist_counter"},
+    "/Data/Thena/ultimate/actions/1": {"sha256": "100a64d38314570f52da444b4ca863526cbfb87c26d1d894184569feb5fc795e", "ref": "Thena", "recipient": "self", "tier": "direct", "context": "direct"},
+    "/Data/Thena/ultimate/actions/4": {"sha256": "e835a77eace3e98c54c6f70bf66cc8f11da1464720a633f52c827f6941d27067", "ref": "Thena", "recipient": "self", "tier": "direct", "context": "direct"},
+    "/Data/Thena/ultimate/actions/6": {"sha256": "0b65706ec5f90cf73786d6488084b27c010023ef69edca8adea4f8c9fecc6ab6", "ref": "Thena", "recipient": "self", "tier": "direct", "context": "direct"},
+    "/Data/Thena/ultimate/actions/9": {"sha256": "1e8e6d3834ae5e20eff9d6136ed61834c9244e215ee144bd661325676f591ade", "ref": "Thena", "recipient": "self", "tier": "direct", "context": "direct"},
+    "/Data/Yellowjacket/ultimate/actions/8": {"sha256": "e6248bc04c78788703b2208cf9cc5c8c0952cac004cd66dcda4ef21f54d26e0d", "ref": "Yellowjacket", "recipient": "self", "tier": "technical_correlated", "context": "cross_ability_ultimate"},
+}
+
 # Retain the partial interpretation hook for future ambiguous source actions.
 PARTIAL_OFFICIAL_TEXT_SIGNATURES = {}
 
@@ -430,13 +495,39 @@ def normalize_health_redistribute(action: dict[str, Any]) -> dict[str, Any]:
             "recipientEvidence": published_review["recipientEvidence"],
             "sourceUrl": published_review["sourceUrl"],
         }
+    comparison = REVIEWED_COMPARATIVE_SIGNATURES.get(pointer)
+    comparison_confirmed = bool(
+        comparison and _raw_fingerprint(raw) == comparison["sha256"]
+    )
+    if comparison_confirmed:
+        reference = REVIEWED_COMPARATIVE_REFERENCES[comparison["ref"]]
+        verified_review = {
+            "sourceGameVersion": "10_6_3",
+            "sourceVersionVerified": False,
+            "assertion": reference["assertion"],
+            "recipient": comparison["recipient"],
+            "recipientEvidence": (
+                "official_possession_description" if comparison["ref"] == "shadow"
+                else "published_ability_text_and_technical_context"
+                if comparison["tier"] == "technical_correlated"
+                else "published_ability_text"
+            ),
+            "sourceUrl": reference["url"],
+            "sourceType": reference["source"],
+            "context": comparison["context"],
+            "proofLevel": "corroborated" if comparison["tier"] == "technical_correlated" else "confirmed",
+        }
     if verified_review:
         behavior, rule, proof = (
             "health_steal_redistribute",
-            "reviewed_published_english_self_restitution" if published_review_confirmed
+            "reviewed_comparative_technical_context" if comparison_confirmed and comparison["tier"] == "technical_correlated"
+            else "reviewed_comparative_direct_description" if comparison_confirmed
+            else "reviewed_published_english_self_restitution" if published_review_confirmed
             else "reviewed_user_validated_self_restitution" if user_review_confirmed
             else "reviewed_official_text_steal_and_redistribution",
-            "published_english_ability_text_and_exact_source_signature"
+            "matched_technical_action_and_published_description" if comparison_confirmed and comparison["tier"] == "technical_correlated"
+            else "matched_official_or_published_description" if comparison_confirmed
+            else "published_english_ability_text_and_exact_source_signature"
             if published_review_confirmed
             else "official_text_and_user_validation" if user_review_confirmed
             else "official_ability_text_and_exact_source_signature",
@@ -455,7 +546,7 @@ def normalize_health_redistribute(action: dict[str, Any]) -> dict[str, Any]:
     return {
         "behavior": behavior, "resolved": behavior != "detected",
         "evidence": {"basis": proof, "rule": rule, "sourcePointer": pointer,
-                     **({"proofLevel": "confirmed",
+                     **({"proofLevel": verified_review.get("proofLevel", "confirmed"),
                          "scope": "behavior_family_only",
                          "sourceGameVersion": verified_review["sourceGameVersion"],
                          "sourceVersionVerified": verified_review["sourceVersionVerified"],
@@ -463,8 +554,11 @@ def normalize_health_redistribute(action: dict[str, Any]) -> dict[str, Any]:
                          **({"recipient": verified_review["recipient"],
                              "recipientEvidence": verified_review["recipientEvidence"],
                              **({"sourceUrl": verified_review["sourceUrl"]}
-                                if published_review_confirmed else {})}
-                            if user_review_confirmed or published_review_confirmed else {}),
+                                if "sourceUrl" in verified_review else {}),
+                             **({"sourceType": verified_review["sourceType"],
+                                 "technicalContext": verified_review["context"]}
+                                if comparison_confirmed else {})}
+                            if user_review_confirmed or published_review_confirmed or comparison_confirmed else {}),
                          "limits": ["percentage_basis", "engine_formula", "recipient_allocation", "operation_order"]}
                         if verified_review else {}),
                      **({"proofLevel": "partially_confirmed",
