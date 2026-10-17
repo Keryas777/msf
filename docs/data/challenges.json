@@ -1971,10 +1971,236 @@
       "id": "shadow-king",
       "type": "trial",
       "title": "Épreuves du Roi d'ombre",
-      "summary": "Guide Trials avec difficultés et compositions.",
+      "summary": "Trial du Roi d'ombre : parcours détaillé des dix missions en difficulté 15, équipes, cibles prioritaires et ultimes à conserver.",
       "rewardId": "ShadowKing",
-      "stages": [],
-      "editorialRef": "shadow-king-trials/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction",
+          "teamName": "Cabale + Diablo + Spider-Man Pavitr",
+          "characters": [
+            "TheLeader",
+            "Namor",
+            "IronPatriot",
+            "Nightcrawler",
+            "SpiderManPavitr"
+          ],
+          "advice": [
+            "Charger l'ultime de Diablo avant la mission 4 ; conserver les compétences majeures de Cabale.",
+            "Préparer l'ultime d'Old Man Logan et au moins quatre charges de Deathpool pour les missions où ils participeront."
+          ],
+          "alternatives": [
+            "ThanosEndgame",
+            "SuperSkrull",
+            "OldManLogan",
+            "JeanGrey"
+          ],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Illuminati",
+          "teamName": "Illuminati avec Captain Britain",
+          "characters": [
+            "CaptainBritain",
+            "HankPym",
+            "BlackPantherShuri",
+            "BlackBolt",
+            "MrFantastic"
+          ],
+          "advice": [
+            "Bloquer Lézard et étourdir Kraven ou Le Leader avant leurs enchaînements.",
+            "À l'arrivée du Bouffon vert classique, le neutraliser puis traiter Docteur Octopus.",
+            "Iron Man peut remplacer Captain Britain, mais les chances diminuent suivant son développement."
+          ],
+          "alternatives": [
+            "IronMan"
+          ],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Vilains mondiaux",
+          "teamName": "Cabale + Apocalypse + Scientifique suprême",
+          "characters": [
+            "Namor",
+            "TheLeader",
+            "IronPatriot",
+            "Apocalypse",
+            "ScientistSupreme"
+          ],
+          "advice": [
+            "Neutraliser en priorité les ennemis capables de perturber l'équipe, notamment Chevalier noir et Captain Carter.",
+            "Garder l'ultime d'Apocalypse pour sa prochaine mission Vilains mondiaux.",
+            "L'option Orchis avec Apocalypse est également mentionnée."
+          ],
+          "alternatives": [],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Bagarreurs non mythiques",
+          "teamName": "Diablo, Hulk rouge, Vahl, Thanos (Endgame), Vautour",
+          "characters": [
+            "Nightcrawler",
+            "RedHulk",
+            "Vahl",
+            "ThanosEndgame",
+            "Vulture"
+          ],
+          "advice": [
+            "Ouvrir avec l'ultime préparé de Diablo pour retirer les Provocations des Sentinelles.",
+            "Alterner Étourdissement et Blocage de capacité sur les Sentinelles non contrôlées ; étourdir Sentinelle Oméga à son entrée.",
+            "Frapper les cibles Exposées pour régénérer de l'énergie. Plusieurs tentatives peuvent être nécessaires."
+          ],
+          "alternatives": [
+            "SpiderManPavitr",
+            "Blade",
+            "LadyDeathstrike"
+          ],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Mercenaires pour l'argent ou Impérissables",
+          "teamName": "Mercenaires pour l'argent",
+          "characters": [
+            "Daken",
+            "OldManLogan",
+            "PandaPool",
+            "Deadpool",
+            "Deathpool"
+          ],
+          "advice": [
+            "Éliminer Spider-Weaver avant qu'elle ne joue, ou épuiser ses charges.",
+            "Conserver l'ultime d'Old Man Logan pour renverser les bonus des Hommes-absorbants ; charger Deathpool pour la mission 9.",
+            "Cette mission dépend beaucoup de l'aléatoire : recommencer après une perte immédiate."
+          ],
+          "alternatives": [],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Annihilateurs",
+          "teamName": "Annihilateurs",
+          "characters": [
+            "ThanosEndgame",
+            "Gladiator",
+            "Gorr",
+            "Ultimus",
+            "SilverSurfer"
+          ],
+          "advice": [
+            "Bloquer les capacités des Pandapool avant l'arrivée de Deadpool.",
+            "Utiliser la spéciale d'Ultimus pour dérober les bonus et l'ultime de Thanos (Endgame) pour retirer la Provocation de Sasquatch.",
+            "Quand Old Man Logan apparaît, préparer la spéciale de Thanos pour le neutraliser."
+          ],
+          "alternatives": [],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Vilains mondiaux",
+          "teamName": "Cabale + Apocalypse + Scientifique suprême",
+          "characters": [
+            "Namor",
+            "TheLeader",
+            "IronPatriot",
+            "Apocalypse",
+            "ScientistSupreme"
+          ],
+          "advice": [
+            "Réutiliser l'approche de la mission 3 contre les vilains mondiaux.",
+            "Il n'est pas nécessaire de conserver les capacités pour une autre mission dans ce combat."
+          ],
+          "alternatives": [],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Bagarreurs non mythiques",
+          "teamName": "Diablo, Hulk rouge, Vahl, Thanos (Endgame), Vautour",
+          "characters": [
+            "Nightcrawler",
+            "RedHulk",
+            "Vahl",
+            "ThanosEndgame",
+            "Vulture"
+          ],
+          "advice": [
+            "Éliminer Malicia et Gambit rapidement ; bloquer Dazzler avant qu'elle n'efface les affaiblissements.",
+            "Conserver les capacités déterminantes de Thanos (Endgame) pour la mission 10.",
+            "Plusieurs reprises peuvent être utiles suivant l'ordre des tours."
+          ],
+          "alternatives": [
+            "SpiderManPavitr",
+            "Blade",
+            "LadyDeathstrike"
+          ],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Mercenaires pour l'argent ou Impérissables",
+          "teamName": "Mercenaires pour l'argent",
+          "characters": [
+            "Daken",
+            "OldManLogan",
+            "PandaPool",
+            "Deadpool",
+            "Deathpool"
+          ],
+          "advice": [
+            "Si Deathpool dispose de cinq charges, utiliser son ultime contre Nova.",
+            "Old Man Logan peut porter l'essentiel du combat ; économiser les compétences utiles au boss final."
+          ],
+          "alternatives": [],
+          "difficulty": "15",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Boss final Odin · Annihilateurs puis Illuminati",
+          "teamName": "Annihilateurs — première attaque",
+          "characters": [
+            "ThanosEndgame",
+            "Gladiator",
+            "Gorr",
+            "Ultimus",
+            "SilverSurfer"
+          ],
+          "advice": [
+            "Première tentative : éliminer les Asgardiens puis laisser Odin employer sa spéciale avant de retirer ses charges avec Gorr.",
+            "Éviter d'étourdir Odin, qui accélère dans cette situation.",
+            "Deuxième tentative : terminer avec les Illuminati ; monter les charges de Shuri avant son ultime et ouvrir par sa basique pour appliquer les malus."
+          ],
+          "alternatives": [],
+          "difficulty": "15",
+          "strategyKind": "multi_attempt"
+        }
+      ],
+      "editorialRef": "shadow-king-trials/",
+      "stageUnit": "mission",
+      "totalStages": 10,
+      "guideNote": "Difficulté 15, version du guide de juillet 2025. Préparer les Illuminati, les Annihilateurs et les Mercenaires. Les pactes modifient sensiblement les combats : « Sérum expérimental II/III » augmentent la santé ennemie et peuvent être désactivés. Les personnages modernes et rééquilibrages peuvent modifier ces stratégies."
     },
     {
       "id": "old-man-logan",
@@ -2093,7 +2319,11 @@
             "HitMonkey",
             "Gwenpool"
           ],
-          "advice": [],
+          "advice": [
+            "Combiner des dégâts fiables, un Protecteur et du contrôle. Spider-Society est également citée pour ses synergies.",
+            "Silver Sable, Daredevil moderne, Punisher, Hit-Monkey et d'autres héros Ville constituent une base ; vérifier la survivabilité plutôt que le seul burst.",
+            "Privilégier les personnages encore utiles dans les contenus actuels."
+          ],
           "alternatives": []
         },
         {
@@ -2107,8 +2337,16 @@
             "Scorpion",
             "Shocker"
           ],
-          "advice": [],
-          "alternatives": []
+          "advice": [
+            "Cette section est particulièrement exigeante : prévoir au moins une dissipation, un Blocage de capacité et une source de survie.",
+            "Mystério apporte aveuglements et contrôles de zone ; Vautour, Kraven et Lézard sont d'autres options de l'époque du guide."
+          ],
+          "alternatives": [
+            "Mysterio",
+            "KravenTheHunter",
+            "Lizard",
+            "RedGoblin"
+          ]
         },
         {
           "id": "global-heroes",
@@ -2121,8 +2359,18 @@
             "StormMighty",
             "Eclipse"
           ],
-          "advice": [],
-          "alternatives": []
+          "advice": [
+            "Les Sentinelles et Sentinelle Oméga rendent les contrôles essentiels ; l'équipe X-Men Extrêmes est une autre piste.",
+            "Diablo assure les dégâts et Forge les soins/réanimations dans une formation X-Men adaptée.",
+            "Un Protecteur suffisamment équipé peut sécuriser les premières rotations."
+          ],
+          "alternatives": [
+            "Nightcrawler",
+            "Forge",
+            "Gambit",
+            "Sunspot",
+            "Beast"
+          ]
         },
         {
           "id": "global-villains",
@@ -2135,8 +2383,17 @@
             "Darkstar",
             "LadyBullseye"
           ],
-          "advice": [],
-          "alternatives": []
+          "advice": [
+            "Apocalypse ou un noyau Orchis renforcé sont recommandés pour absorber les vagues.",
+            "Nimrod, Sentinelle Oméga, Scientifique suprême et Lady Deathstrike permettent de constituer une alternative cohérente.",
+            "Conserver des ultimes prêts avant les vagues de Sentinelles."
+          ],
+          "alternatives": [
+            "Nimrod",
+            "OmegaSentinel",
+            "ScientistSupreme",
+            "Sentinel"
+          ]
         },
         {
           "id": "cosmic",
@@ -2149,11 +2406,21 @@
             "SilverSurferBreaker",
             "Knull"
           ],
-          "advice": [],
-          "alternatives": []
+          "advice": [
+            "Section finale exigeante : Méphisto et Super-Skrull sont particulièrement utiles pour éviter les réanimations et contrôler le combat.",
+            "Gorr aide contre les charges et assistances ; Vahl apporte des dégâts en pourcentage et une réanimation.",
+            "Sur le deuxième parcours, Odin débloqué peut rejoindre cette équipe."
+          ],
+          "alternatives": [
+            "SuperSkrull",
+            "Gorr",
+            "Vahl",
+            "OldManLogan"
+          ]
         }
       ],
-      "editorialRef": "characters-for-dark-dimension-viii/"
+      "editorialRef": "characters-for-dark-dimension-viii/",
+      "guideNote": "DD8 : Iso-8 violet niveau 3 obligatoire, 13 nœuds. Les cinq fiches ci-dessous correspondent à des sections (pas à des victoires sur chaque nœud). Les premiers nœuds sont sans restriction."
     },
     {
       "id": "dd9",
@@ -2174,7 +2441,9 @@
             "Hobgoblin"
           ],
           "advice": [
-            "Anticiper le coût partagé en Bio pour Venom et Toxin."
+            "Anticiper les Spores extraterrestres partagées par Venom et Toxin et la forte demande Bio de Riot.",
+            "Choisir des personnages Ville capables de soigner, contrôler ou encaisser plusieurs vagues ; la priorité est une équipe entière prête au G21.",
+            "Des remplaçants Vautour et Hit-Monkey sont recommandés si l'équipement Bio bloque."
           ],
           "alternatives": [
             "Vulture",
@@ -2193,7 +2462,9 @@
             "Knull"
           ],
           "advice": [
-            "Répartir les origines d'équipement pour éviter les blocages."
+            "Répartir les origines Technique, Mystique et Compétence ; Minn-Erva et High Evolutionary tirent sur les mêmes ressources Tech.",
+            "Les combats longs valorisent la guérison et le contrôle. Ne pas compter uniquement sur un bonus réservé à la Guerre ou au Raid.",
+            "Adapter le cinquième emplacement à l'équipement déjà disponible."
           ],
           "alternatives": [
             "FranklinRichards",
@@ -2204,11 +2475,26 @@
           "id": "global",
           "title": "Missions 9–11",
           "requirement": "Mondial, hors mythiques/épiques/légendaires",
-          "characters": [],
-          "advice": [
-            "Composition complète à renseigner pour cette section."
+          "characters": [
+            "SymbioteQuicksilver",
+            "LadyDeathstrike",
+            "DaimonHellstrom",
+            "Hellcat",
+            "Darkstar"
           ],
-          "alternatives": []
+          "advice": [
+            "Cette équipe répartit les cinq origines Bio, Technique, Mystique, Compétence et Mutant.",
+            "Ne pas équiper toute l'équipe trop tôt : terminer d'abord les sections Ville et Cosmique.",
+            "Alternatives identifiées : Sentry, Tornade puissante, Emma Frost (X-Men), Momie vivante ou Lady Bullseye."
+          ],
+          "alternatives": [
+            "Sentry",
+            "StormMighty",
+            "EmmaFrostXMen",
+            "LivingMummy",
+            "LadyBullseye"
+          ],
+          "teamName": "Vif-Argent symbiote, Lady Deathstrike, Daimon Hellstrom, Hellcat, Darkstar"
         },
         {
           "id": "legendary",
@@ -2221,8 +2507,17 @@
             "SilverSurferBreaker",
             "OldManLogan"
           ],
-          "advice": [],
-          "alternatives": []
+          "advice": [
+            "Le noyau recommandé consomme beaucoup de matériel Mutant : conserver une marge pour les futurs personnages.",
+            "Quasar, Blastaar ou Roi d'ombre peuvent répartir la dépense tout en respectant les restrictions d'éligibilité.",
+            "Valider la sélection réelle du mode avant d'investir au G21."
+          ],
+          "alternatives": [
+            "Quasar",
+            "Blastaar",
+            "ShadowKing",
+            "Thunderstrike"
+          ]
         },
         {
           "id": "mythic",
@@ -2235,19 +2530,31 @@
             "BlueMarvel",
             "CaptainBritain"
           ],
-          "advice": [],
-          "alternatives": []
+          "advice": [
+            "Cette équipe nécessite des ressources Mystiques importantes pour Odin, Méphisto et Captain Britain.",
+            "Si Apocalypse, Super-Skrull ou Dormammu est déjà équipé, comparer son coût à celui d'un nouveau personnage.",
+            "Réserver les uniques pour cette section tout en terminant les cinq personnages des sections précédentes."
+          ],
+          "alternatives": [
+            "Apocalypse",
+            "SuperSkrull",
+            "Dormammu"
+          ]
         },
         {
           "id": "final",
           "title": "Mission 16",
           "requirement": "Sans restriction de trait",
           "characters": [],
-          "advice": [],
+          "advice": [
+            "Dernière mission sans restriction de trait : réutiliser les meilleurs personnages déjà équipés en G21 pour les sections précédentes.",
+            "Ne pas investir dans une nouvelle équipe uniquement pour ce combat sans examiner les cinq personnages déjà disponibles."
+          ],
           "alternatives": []
         }
       ],
-      "editorialRef": "characters-for-dark-dimension-ix/"
+      "editorialRef": "characters-for-dark-dimension-ix/",
+      "guideNote": "Les propositions DD9 sont des compositions de préparation, non des victoires garanties. Tous les nœuds demandent cinq personnages G21. Les sections Ville, Cosmique et Mondial excluent Mythiques, Épiques et Légendaires."
     },
     {
       "id": "invasion-quasar",
