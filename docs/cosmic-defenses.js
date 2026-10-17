@@ -1,5 +1,6 @@
 // Épreuve cosmique : consultation publique (JSON) et propositions locales à partager.
 (() => {
+  const IS_PROPOSE = document.body?.dataset?.cosmicView === "propose";
   const DATA = {
     config: "./data/cosmic-config.json",
     defenses: "./data/cosmic-defenses.json",
@@ -420,7 +421,9 @@
   async function boot() {
     try {
       const [config, published, chars] = await Promise.all([
-        fetchJson(DATA.config), fetchJson(DATA.defenses), fetchJson(DATA.characters)
+        fetchJson(DATA.config),
+        IS_PROPOSE ? Promise.resolve([]) : fetchJson(DATA.defenses),
+        fetchJson(DATA.characters)
       ]);
       const configRooms = Array.isArray(config?.rooms) ? config.rooms : [];
       rooms = configRooms
@@ -435,23 +438,28 @@
       DRAFT_KEY = LEGACY_DRAFT_KEY + ":" + COSMIC_SEASON_ID;
       window.LoSPCosmicSeasonUi?.render(config);
       buildCharacterCatalogue(chars);
-      initPublishedSelector(published);
-      publishedDefenseSelect.addEventListener("change", renderPublished);
-      renderProposals();
-      fillAuthorFromSession(window.LoSP_SESSION);
-      window.addEventListener("losp:auth-ready", event => fillAuthorFromSession(event.detail));
-      proposalsNode.addEventListener("input", event => {
-        if (event.target.matches("[data-cosmic-note]")) saveDraft();
-      });
-      document.addEventListener("pointerdown", event => {
-        if (!event.target.closest(".cosmicInputWrap")) closeSuggestions();
-      });
-      shareButton.addEventListener("click", shareSubmission);
-      proposalStatus.textContent = "Tape les premières lettres d’un personnage puis sélectionne-le dans la liste.";
+      if (IS_PROPOSE) {
+        // Conserve les brouillons locaux de cette saison et tous les comportements
+        // déjà validés (sélection, portraits, croix, notes, partage Discord).
+        renderProposals();
+        fillAuthorFromSession(window.LoSP_SESSION);
+        window.addEventListener("losp:auth-ready", event => fillAuthorFromSession(event.detail));
+        proposalsNode.addEventListener("input", event => {
+          if (event.target.matches("[data-cosmic-note]")) saveDraft();
+        });
+        document.addEventListener("pointerdown", event => {
+          if (!event.target.closest(".cosmicInputWrap")) closeSuggestions();
+        });
+        shareButton.addEventListener("click", shareSubmission);
+        proposalStatus.textContent = "Tape les premières lettres d’un personnage puis sélectionne-le dans la liste.";
+      } else {
+        initPublishedSelector(published);
+        publishedDefenseSelect.addEventListener("change", renderPublished);
+      }
     } catch (error) {
-      publishedStatus.textContent = "Impossible de charger les défenses : " + error.message;
-      proposalStatus.textContent = "Le formulaire n'est pas disponible.";
-      shareButton.disabled = true;
+      if (publishedStatus) publishedStatus.textContent = "Impossible de charger les défenses : " + error.message;
+      if (proposalStatus) proposalStatus.textContent = "Le formulaire n'est pas disponible.";
+      if (shareButton) shareButton.disabled = true;
     }
   }
   boot();
