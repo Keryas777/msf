@@ -1,0 +1,67 @@
+name: Vérifier anciennes sessions LoSP sans déployer
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/test-losp-auth-compat.yml"
+      - ".github/workflows/deploy-cosmic-defenses.yml"
+      - "scripts/build-losp-auth-compat.mjs"
+      - "scripts/check-losp-auth-preview.mjs"
+      - "workers/msf-cosmic-defenses/test/legacy-session.test.mjs"
+      - "workers/losp-auth/worker.js"
+permissions:
+  contents: read
+concurrency:
+  group: losp-auth-compatibility
+  cancel-in-progress: false
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Vérifier le Worker et les scripts
+        run: |
+          node --check workers/losp-auth/worker.js
+          node --check scripts/build-losp-auth-compat.mjs
+          node --check scripts/check-losp-auth-preview.mjs
+      - name: Tester anciennes sessions, nouvelles signatures et navigateur
+        run: |
+          node --test workers/msf-cosmic-defenses/test/legacy-session.test.mjs
+          node --test workers/msf-cosmic-defenses/test/auth.test.mjs
+  preview:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Préparer une copie isolée du vrai Worker
+        run: node scripts/build-losp-auth-compat.mjs
+      - name: Charger une version Cloudflare SANS la déployer
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN"
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+          npx --yes wrangler@4 versions upload             --config "$LOSP_COMPAT_DIR/wrangler.jsonc"             --preview-alias auth-compat 2>&1 | tee "$RUNNER_TEMP/auth-compat-upload.log"
+          url="$(grep -Eo 'Version Preview URL: https://[a-zA-Z0-9.-]+[.]workers[.]dev' "$RUNNER_TEMP/auth-compat-upload.log" | head -1 | sed 's/^Version Preview URL: //' || true)"
+          if [ -z "$url" ]; then
+            echo "URL de version indisponible. Ne pas déployer le Worker !"
+            exit 1
+          fi
+          echo "LOSP_COMPAT_URL=$url" >> "$GITHUB_ENV"
+      - name: Test réel des anciennes sessions avec le Worker non déployé
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/check-losp-auth-preview.mjs "$LOSP_COMPAT_URL"
+          echo "Résultat : aucune session joueur supprimée et aucun déploiement effectué."

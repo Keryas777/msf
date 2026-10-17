@@ -35,6 +35,7 @@ jobs:
         run: |
           node --test workers/msf-cosmic-defenses/test/worker.test.mjs
           node --test workers/msf-cosmic-defenses/test/auth.test.mjs
+          node --test workers/msf-cosmic-defenses/test/legacy-session.test.mjs
           node --test tests/cosmic-static.test.mjs
   deploy:
     if: github.event_name != 'pull_request'
