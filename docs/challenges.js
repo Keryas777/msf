@@ -217,6 +217,9 @@
         if ((reportedTeam.characters || []).length < 5) {
           reportBox.append(el("span", "challenge-guide-verification", "Composition partielle : places non précisées."));
         }
+        if (reportedTeam.verification === "expanded_from_losp_team_catalog") {
+          reportBox.append(el("span", "challenge-guide-verification", "Membres de l'équipe développés depuis le catalogue LoSP, à recouper avec le combat original."));
+        }
         if (reportedTeam.note) reportBox.append(el("span", "challenge-guide-meta", reportedTeam.note));
         a.append(reportBox);
       }
