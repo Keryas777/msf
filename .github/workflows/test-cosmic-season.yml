@@ -1,0 +1,32 @@
+name: Test Cosmic Crucible Seasons
+on:
+  pull_request:
+    paths:
+      - "docs/cosmic*"
+      - "docs/data/cosmic*"
+      - "docs/data/COSMIC*"
+      - "docs/war-counters.js"
+      - "scripts/*cosmic*"
+      - "tests/cosmic*"
+      - ".github/workflows/*cosmic*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validate seasonal data and transition
+        run: |
+          node --check scripts/roll-cosmic-season.mjs
+          node --check scripts/watch-cosmic-season.mjs
+          node --check docs/cosmic-season-ui.js
+          node --check docs/cosmic-defenses.js
+          node --check docs/war-counters.js
+          node --test tests/cosmic-static.test.mjs tests/cosmic-season-lifecycle.test.mjs

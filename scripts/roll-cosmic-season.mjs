@@ -101,6 +101,7 @@ export async function rollCosmicSeason({ root = DEFAULT_ROOT, now = new Date() }
   if (await pathExists(archive)) {
     throw new Error("Archive déjà existante : " + archive + " — intervention humaine nécessaire");
   }
+  await mkdir(join(base, "cosmic-archive"), { recursive: true });
   await mkdir(archive, { recursive: false });
   await Promise.all(Object.entries(FILES).map(([key]) =>
     writeFile(join(archive, FILES[key]), originals[key], { flag: "wx" })
