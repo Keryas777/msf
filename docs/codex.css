@@ -2339,3 +2339,374 @@ img {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* LoSP illustrated Codex landing (CSS-only artwork until illustrations are available).
+   Scoped to the landing view: all existing character, mechanic and ability pages stay intact. */
+body.codexPage.codexLandingView {
+  background: #080b23 url("./Background.webp") center / cover fixed no-repeat;
+}
+
+body.codexPage.codexLandingView::before {
+  background: transparent;
+}
+
+.codexLandingView .codexShell {
+  max-width: 800px;
+  padding: max(16px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
+    calc(36px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+}
+
+.codexLandingView .codexHeader {
+  display: none;
+}
+
+.codexLandingView .codexMain {
+  padding: 0;
+}
+
+.codexLandingHero {
+  position: relative;
+  display: grid;
+  min-height: 156px;
+  place-items: center;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgba(242, 135, 242, .46);
+  border-radius: 23px;
+  background:
+    radial-gradient(ellipse at 45% 100%, rgba(235, 57, 151, .30), transparent 65%),
+    radial-gradient(ellipse at 95% 9%, rgba(155, 53, 250, .34), transparent 60%),
+    linear-gradient(140deg, #1c123e, #160e31 42%, #070b1c);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .35),
+    inset 0 0 25px rgba(255, 83, 206, .1), 0 7px 26px #0009,
+    0 0 18px rgba(214, 72, 200, .22);
+}
+
+.codexLandingHero::before {
+  position: absolute;
+  inset: 9px;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 17px;
+  content: "";
+  pointer-events: none;
+}
+
+.codexLandingHero::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(115deg, transparent 28%, rgba(255,114,208,.07) 41%, transparent 44%),
+    linear-gradient(70deg, transparent 58%, rgba(109,119,255,.1) 62%, transparent 67%);
+  content: "";
+  pointer-events: none;
+}
+
+/* Ready for a future background-image without changing the markup. */
+.codexLandingHeroArtwork,
+.codexLandingTileArtwork {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-position: center;
+  background-size: cover;
+  pointer-events: none;
+}
+
+.codexLandingHeroTitle {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  min-width: 0;
+  padding: 56px 57px 25px;
+  text-align: center;
+  text-shadow: 0 3px 6px #000, 0 0 18px #ff56c244;
+}
+
+.codexLandingHeroTitle h1 {
+  margin: 0;
+  font-size: clamp(27px, 7vw, 42px);
+  font-weight: 1000;
+  line-height: 1.08;
+  letter-spacing: .2px;
+}
+
+.codexLandingHeroTitle p {
+  margin: 6px 0 0;
+  color: #e2d7ef;
+  font-size: clamp(11px, 3vw, 14px);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.codexLandingNav {
+  position: absolute;
+  top: 14px;
+  z-index: 4;
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 14px;
+  background: rgba(2, 3, 11, .67);
+  box-shadow: 0 4px 16px #000a, inset 0 1px rgba(255,255,255,.12);
+  color: white;
+  font-size: 25px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.codexLandingNav--back { left: 15px; }
+.codexLandingNav--home { right: 15px; }
+.codexLandingNav:active { transform: scale(.96); }
+
+.codexLandingTiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.codexLandingTile.codexGate {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px 7px 15%;
+  isolation: isolate;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, .23);
+  border-radius: 25px;
+  box-shadow: var(--codex-shadow), inset 0 0 0 2px #0008;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  transform: translateZ(0);
+  transition: transform .16s ease, filter .16s ease;
+}
+
+.codexLandingTile::before {
+  position: absolute;
+  inset: 9px;
+  z-index: 2;
+  border: 1px solid var(--landing-edge);
+  border-radius: 19px;
+  box-shadow: inset 0 0 12px var(--landing-glow), 0 0 14px var(--landing-glow);
+  content: "";
+  pointer-events: none;
+}
+
+.codexLandingTile::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to bottom, transparent 12%, #02040a05 38%, #000b);
+  content: "";
+  pointer-events: none;
+}
+
+.codexLandingTile--characters {
+  --landing-edge: rgba(255, 87, 174, .86);
+  --landing-glow: rgba(255, 69, 154, .38);
+  background: radial-gradient(ellipse at 35% 43%, #6b174e, #260a30 51%, #10091d 91%);
+  box-shadow: var(--codex-shadow), 0 0 17px #ec368c46, inset 0 0 28px #ff429d24;
+}
+
+.codexLandingTile--mechanics {
+  --landing-edge: rgba(171, 109, 255, .86);
+  --landing-glow: rgba(166, 82, 255, .40);
+  background: radial-gradient(ellipse at 65% 34%, #482e85, #1d1543 49%, #090e29);
+  box-shadow: var(--codex-shadow), 0 0 17px #8c5fff46, inset 0 0 28px #a672ff28;
+}
+
+.codexLandingTilePattern {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: .48;
+  background:
+    repeating-linear-gradient(135deg, transparent 0 18px, rgba(255,255,255,.025) 19px 20px, transparent 21px 43px),
+    radial-gradient(circle at 50% 47%, transparent 0 43px, rgba(255,255,255,.11) 44px 45px,
+      transparent 47px 67px, rgba(255,255,255,.085) 68px 69px, transparent 71px);
+  pointer-events: none;
+}
+
+.codexLandingTileIcon {
+  position: absolute;
+  top: 27%;
+  left: 50%;
+  z-index: 1;
+  color: #ff9acb;
+  font-size: clamp(35px, 10vw, 65px);
+  font-weight: 300;
+  opacity: .32;
+  filter: drop-shadow(0 0 16px currentColor);
+  transform: translateX(-50%);
+  user-select: none;
+}
+
+.codexLandingTile--mechanics .codexLandingTileIcon { color: #bdb1ff; }
+
+.codexLandingTile.codexGate strong {
+  position: relative;
+  z-index: 3;
+  font-size: clamp(18px, 5.1vw, 32px);
+  font-weight: 1000;
+  line-height: 1.04;
+  letter-spacing: -.7px;
+  text-shadow: 0 3px 3px #000, 0 1px 15px #000, 0 0 9px #0006;
+}
+
+.codexLandingTile:active {
+  transform: scale(.975);
+  filter: brightness(1.14);
+}
+
+.codexLandingPanel {
+  position: relative;
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 20px;
+  background: var(--codex-panel);
+  box-shadow: var(--codex-shadow);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.codexLandingPanel h2 {
+  margin: 0 0 12px;
+  font-size: 19px;
+  font-weight: 900;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.codexLandingSubtitle {
+  margin: -4px 0 13px;
+  color: var(--codex-text-soft);
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.codexLandingView .codexSearch {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.codexLandingView .codexSearchLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.codexLandingView .codexSearchInput {
+  min-height: 54px;
+  padding-right: 96px;
+  border-radius: 15px;
+  background: rgba(1, 2, 10, .62);
+}
+
+.codexLandingView .codexSearchInput:focus {
+  border-color: rgba(253, 113, 214, .76);
+  box-shadow: 0 0 0 3px rgba(234, 73, 170, .14);
+}
+
+.codexSearchSubmit { display: none; }
+
+.codexLandingView .codexSearchSubmit {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 11px;
+  background: linear-gradient(155deg, #533067, #25203c);
+  color: #fef5ff;
+  cursor: pointer;
+  font-size: 19px;
+}
+
+.codexLandingView .codexSearchClear {
+  right: 51px;
+  top: 5px;
+}
+
+.codexLandingView .codexSearchIcon,
+.codexLandingView .codexSearchIcon::after {
+  border-color: #de91f2;
+}
+.codexLandingView .codexSearchIcon::after { background: #de91f2; }
+
+.codexLandingShortcuts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.codexLandingShortcuts a {
+  display: grid;
+  min-height: 46px;
+  place-items: center;
+  min-width: 0;
+  padding: 10px 5px;
+  border: 1px solid rgba(255, 255, 255, .19);
+  border-radius: 25px;
+  background: rgba(5, 7, 17, .48);
+  color: #f3edf7;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+}
+
+.codexLandingShortcuts a:active { background: rgba(200, 83, 180, .22); }
+.codexLandingView .codexProofGuide { margin-top: 0; }
+.codexLandingView .codexSuggestionList { justify-content: center; }
+
+.codexLandingGeneration {
+  margin: 22px 0 0;
+  color: var(--codex-text-muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (min-width: 600px) {
+  .codexLandingHero { min-height: 200px; }
+  .codexLandingHeroTitle h1 { font-size: 45px; }
+  .codexLandingTiles { gap: 20px; }
+  .codexLandingTile.codexGate strong { font-size: 36px; }
+  .codexLandingPanel { margin-top: 24px; }
+}
+
+@media (max-width: 375px) {
+  .codexLandingView .codexShell { padding-left: 10px; padding-right: 10px; }
+  .codexLandingHero { border-radius: 19px; }
+  .codexLandingTiles { gap: 10px; }
+  .codexLandingTile.codexGate { border-radius: 19px; }
+  .codexLandingTile::before { inset: 7px; border-radius: 14px; }
+  .codexLandingTile.codexGate strong { font-size: 18px; }
+  .codexLandingPanel h2 { font-size: 18px; }
+  .codexLandingShortcuts { gap: 6px; }
+  .codexLandingShortcuts a { font-size: 12px; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .codexLandingTile:hover { filter: brightness(1.12); }
+  .codexLandingShortcuts a:hover { border-color: rgba(255,255,255,.35); }
+}
