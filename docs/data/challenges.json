@@ -3611,10 +3611,239 @@
       "id": "black-cat",
       "type": "trial",
       "title": "Épreuves de Black Cat",
-      "summary": "Guide Trials légendaire.",
+      "summary": "Black Cat Trials : 10 missions, restrictions dès difficulté 5, priorités de ciblage et compositions en français.",
       "rewardId": "BlackCat",
-      "stages": [],
-      "editorialRef": "black-cat-trials/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction",
+          "teamName": "Gamma",
+          "characters": [
+            "Hulk",
+            "RedHulk",
+            "SheHulk",
+            "Abomination",
+            "AmadeusCho"
+          ],
+          "advice": [
+            "Conserver de l'énergie sur Red Hulk pour utiliser son ultime dès la première mission Bagarreurs.",
+            "Morgan Le Fay adverse est la seule vraie urgence : la supprimer dès son apparition."
+          ],
+          "alternatives": [],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Knowhere ou Sinister Six",
+          "teamName": "Nulle-Part",
+          "characters": [
+            "Nova",
+            "StarLord_Annihilation",
+            "Thor_InfinityWar",
+            "Cosmo",
+            "Korg"
+          ],
+          "advice": [
+            "Nova étourdit Morgan Le Fay dès l'ouverture ; lancer ensuite son ultime au deuxième tour pour appliquer l'effet de champ.",
+            "Éliminer Spider-Weaver dès son entrée et purifier l'équipe grâce à Cosmo.",
+            "Conserver si possible la spéciale de Nova prête pour la mission 6."
+          ],
+          "alternatives": [],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Vilains mystiques",
+          "teamName": "Morgan + Strange + Agatha + Fatalis + Dormammu",
+          "characters": [
+            "MorganLeFay",
+            "StrangeSupreme",
+            "AgathaHarkness",
+            "Doom",
+            "Dormammu"
+          ],
+          "advice": [
+            "Morgan Le Fay ouvre avec son ultime ; Agatha soigne avec le sien.",
+            "La spéciale ou l'ultime de Fatalis permet de finir la vague en récupérant des points de vie.",
+            "Loki accélère l'équipe si Dormammu manque."
+          ],
+          "alternatives": [
+            "Hela",
+            "Loki",
+            "Sylvie",
+            "MrNegative"
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Contrôleurs mondiaux",
+          "teamName": "Morgan + Fatalis + Magnéto + Dark Beast + Omega Red",
+          "characters": [
+            "MorganLeFay",
+            "Doom",
+            "Magneto",
+            "DarkBeast",
+            "OmegaRed"
+          ],
+          "advice": [
+            "Magneto pose Aveuglement, Morgan Le Fay applique ses contrôles et les attaques doivent éliminer Ikaris avant Circé.",
+            "Garder l'ultime de Fatalis pour la fin ou l'arrivée des renforts.",
+            "Valkyrie et les Asgardiens peuvent modifier la distribution des améliorations."
+          ],
+          "alternatives": [],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Bagarreurs",
+          "teamName": "Red Hulk + Vautour + Deathpool + Super-Skrull",
+          "characters": [
+            "RedHulk",
+            "Vulture",
+            "Deathpool",
+            "SuperSkrull"
+          ],
+          "advice": [
+            "L'équipe n'a que quatre portraits vérifiés pour un premier déblocage : Black Cat figurait en cinquième dans la version rejouée du guide, mais n'est pas encore débloquée au premier parcours.",
+            "Les invocations de Multiple Man accélèrent la montée en charges de Deathpool.",
+            "Garder autant que possible les ultimes pour la mission 9."
+          ],
+          "alternatives": [
+            "Vahl",
+            "ShangChi",
+            "Quicksilver",
+            "Titania"
+          ],
+          "difficulty": "5+",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Knowhere ou Sinister Six",
+          "teamName": "Nulle-Part",
+          "characters": [
+            "Nova",
+            "StarLord_Annihilation",
+            "Thor_InfinityWar",
+            "Cosmo",
+            "Korg"
+          ],
+          "advice": [
+            "Éliminer Strange (sans-cœur) et Agatha rapidement, puis gérer les deux Ghost Riders pour limiter les frappes passives.",
+            "Bloquer Taskmaster dès son apparition ; les personnages de la pègre peuvent retarder le combat.",
+            "Conserver l'ultime de Nova pour la mission 10."
+          ],
+          "alternatives": [],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Vilains mystiques",
+          "teamName": "Morgan + Strange + Agatha + Fatalis + Dormammu",
+          "characters": [
+            "MorganLeFay",
+            "StrangeSupreme",
+            "AgathaHarkness",
+            "Doom",
+            "Dormammu"
+          ],
+          "advice": [
+            "Focaliser Vif-Argent et réduire rapidement sa jauge de vitesse.",
+            "Les ultimes de Strange et de Fatalis reprennent le contrôle ; Hela permet une ouverture plus rapide si besoin."
+          ],
+          "alternatives": [
+            "Hela",
+            "Loki"
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Contrôleurs mondiaux",
+          "teamName": "Morgan + Fatalis + Magnéto + Dark Beast + Omega Red",
+          "characters": [
+            "MorganLeFay",
+            "Doom",
+            "Magneto",
+            "DarkBeast",
+            "OmegaRed"
+          ],
+          "advice": [
+            "L'ultime de Magnéto doit ouvrir la mission pour gérer la première vague.",
+            "Préparer Fatalis pour l'arrivée des Gamma ; utiliser l'ultime avant que Kestrel ennemie empêche les invocations.",
+            "Bloquer Red Hulk avec Dark Beast dès qu'il apparaît."
+          ],
+          "alternatives": [],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Bagarreurs",
+          "teamName": "Red Hulk + Vautour + Deathpool + Super-Skrull",
+          "characters": [
+            "RedHulk",
+            "Vulture",
+            "Deathpool",
+            "SuperSkrull"
+          ],
+          "advice": [
+            "Ouvrir avec les ultimes de Red Hulk et Vahl si ces personnages sont utilisés.",
+            "Neutraliser Maria Hill, Squirrel Girl et Viv Vision pour empêcher les soins.",
+            "Kate Bishop peut appliquer Aveuglement : vérifier les affaiblissements avant une ultime coûteuse."
+          ],
+          "alternatives": [
+            "Vahl",
+            "ShangChi",
+            "Quicksilver"
+          ],
+          "difficulty": "5+",
+          "strategyKind": "recommendation",
+          "compositionKind": "partial"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Knowhere ou Sinister Six",
+          "teamName": "Nulle-Part",
+          "characters": [
+            "Nova",
+            "StarLord_Annihilation",
+            "Thor_InfinityWar",
+            "Cosmo",
+            "Korg"
+          ],
+          "advice": [
+            "L'ultime de Nova déclenche l'effet de champ ; éliminer le Nova ennemi avant qu'il ne monopolise le combat.",
+            "Minn-Erva peut ressusciter des ennemis : l'empêcher de jouer.",
+            "Garder les trois Cosmo pour la fin quand c'est possible ; appliquer Aveuglement sur Gambit et exploiter Thor (Infinity War)."
+          ],
+          "alternatives": [],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough"
+        }
+      ],
+      "editorialRef": "black-cat-trials/",
+      "stageUnit": "mission",
+      "totalStages": 10,
+      "guideNote": "Guide de difficulté 5 et supérieure, lié aux pactes anciens. Knowhere, Sinister Six, mystiques vilains, contrôleurs mondiaux et bagarreurs se succèdent. Le cinquième combattant Bagarreur du guide original (Black Cat) n'est pas disponible lors du premier déblocage : son portrait n'est donc pas présenté comme obligatoire."
     },
     {
       "id": "nova",
