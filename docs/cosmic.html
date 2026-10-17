@@ -22,6 +22,14 @@
         <p class="subtitle">Prépare tes attaques et tes six salles de défense.</p>
       </div>
     </header>
+    <section class="card cosmicSeasonCard" aria-label="Saison d'épreuve cosmique">
+      <h2 class="cosmicSeasonTitle" data-cosmic-season-title>Saison en cours de chargement…</h2>
+      <p class="cosmicSeasonDates" data-cosmic-season-dates></p>
+      <details class="cosmicSeasonDetails">
+        <summary>Voir les règles de la saison et des 6 salles</summary>
+        <div data-cosmic-season-rules></div>
+      </details>
+    </section>
     <nav class="cosmicHubGrid" aria-label="Outils Épreuve cosmique">
       <a class="cosmicHubTile cosmicHubTile--counters" href="./cosmic-counters.html">
         <span class="cosmicHubIcon" aria-hidden="true">⚔️</span>
@@ -35,5 +43,6 @@
       </a>
     </nav>
   </main>
+  <script src="./cosmic-season-ui.js?v=1" defer></script>
 </body>
 </html>

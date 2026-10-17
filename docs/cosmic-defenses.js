@@ -5,7 +5,9 @@
     defenses: "./data/cosmic-defenses.json",
     characters: "./data/msf-characters.json"
   };
-  const DRAFT_KEY = "losp:cosmic-defense-draft:v1"; // Conserve les brouillons existants.
+  const LEGACY_DRAFT_KEY = "losp:cosmic-defense-draft:v1";
+  let DRAFT_KEY = LEGACY_DRAFT_KEY;
+  let COSMIC_SEASON_ID = "";
   const publishedNode = document.getElementById("publishedDefenses");
   const publishedStatus = document.getElementById("publishedStatus");
   const proposalsNode = document.getElementById("proposalRooms");
@@ -37,7 +39,10 @@
   }
   function loadDraft() {
     try {
-      const data = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+      let raw = localStorage.getItem(DRAFT_KEY);
+      // Migration unique des anciens brouillons lorsque la saison 25 est active.
+      if (!raw && COSMIC_SEASON_ID === "season-25") raw = localStorage.getItem(LEGACY_DRAFT_KEY);
+      const data = JSON.parse(raw || "null");
       return data && typeof data === "object" ? data : {};
     } catch (_) { return {}; }
   }
@@ -115,7 +120,7 @@
       const section = make("section", "cosmicRoom");
       section.appendChild(make("h3", "", room.label));
       if (room.rule) section.appendChild(make("p", "cosmicRoomRule", room.rule));
-      const entries = list.filter(d => Number(d?.room) === room.id && Array.isArray(d.characters)
+      const entries = list.filter(d => d?.season === COSMIC_SEASON_ID && Number(d?.room) === room.id && Array.isArray(d.characters)
         && d.characters.length === 5 && new Set(d.characters).size === 5);
       if (!entries.length) section.appendChild(make("p", "cosmicEmpty", "Aucune défense publiée dans cette salle."));
       for (const entry of entries) {
@@ -317,10 +322,10 @@
       });
     }
     if (!selectedRooms.length) throw new Error("Renseigne au moins une salle complète.");
-    return { schemaVersion: 1, mode: "cosmic-crucible", author, rooms: selectedRooms };
+    return { schemaVersion: 1, mode: "cosmic-crucible", season: COSMIC_SEASON_ID, author, rooms: selectedRooms };
   }
     function shareMessage(submission) {
-    const result = ["🌌 Épreuve cosmique — proposition de défenses",
+    const result = ["🌌 Épreuve cosmique — " + submission.season + " — proposition de défenses",
       "Auteur : " + submission.author, ""];
     for (const room of submission.rooms) {
       result.push("🛡️ " + room.label + " :");
@@ -372,6 +377,10 @@
           rule: safeText(r.rule, 800) }));
       if (rooms.length !== 6 || new Set(rooms.map(r => r.id)).size !== 6)
         throw new Error("Configuration des six salles invalide.");
+      COSMIC_SEASON_ID = config?.season?.id || "";
+      if (!/^season-[1-9][0-9]*$/.test(COSMIC_SEASON_ID)) throw new Error("Identifiant de saison invalide");
+      DRAFT_KEY = LEGACY_DRAFT_KEY + ":" + COSMIC_SEASON_ID;
+      window.LoSPCosmicSeasonUi?.render(config);
       buildCharacterCatalogue(chars);
       renderPublished(published);
       renderProposals();
