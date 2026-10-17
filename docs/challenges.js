@@ -169,6 +169,51 @@
     }
   }
 
+
+  const VISIBLE_SOURCE_STATES = new Set(["content_checked", "page_checked", "indexed_content"]);
+  const GUIDE_FORMATS = { article:"Guide écrit", walkthrough:"Parcours commenté", player_report:"Retour de combat", community_collection:"Solutions communautaires" };
+  const GUIDE_EVIDENCE = { walkthrough:"Stratégie détaillée", reported_clear:"Victoire rapportée", historical_playthrough:"Parcours historique", unverified_player_submission:"Solutions non certifiées", recommendation:"Recommandations", guide:"Guide" };
+
+  function relevantSources(event, stage) {
+    return state.sources.filter(source => {
+      if (source.eventId !== event.id || !VISIBLE_SOURCE_STATES.has(source.verificationStatus)) return false;
+      if (state.difficulty !== "all" && source.difficulty && source.difficulty !== state.difficulty) return false;
+      const scoped = [...(source.stageIds || []), ...(source.sectionIds || [])].map(String);
+      return stage ? scoped.includes(String(stage.id)) : scoped.length === 0;
+    });
+  }
+
+  function buildGuideGroup(sources, label) {
+    if (!sources.length) return null;
+    const section = el("section", "challenge-guide-section");
+    section.append(el("h4", "", label));
+    const list = el("div", "challenge-guide-list");
+    for (const source of sources) {
+      const a = el("a", "challenge-guide-link");
+      a.href = source.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.append(el("span", "challenge-guide-title", source.title + " ↗"));
+      const parts = [
+        source.author || "Auteur inconnu",
+        (source.language || "").toUpperCase(),
+        GUIDE_FORMATS[source.format] || "Guide",
+        source.difficulty ? "Difficulté : " + source.difficulty : "",
+        source.publishedAt ? "Publié : " + source.publishedAt : ""
+      ];
+      a.append(el("span", "challenge-guide-meta", parts.filter(Boolean).join(" · ")));
+      a.append(el("span", "challenge-guide-proof", GUIDE_EVIDENCE[source.evidenceLevel] || "Guide"));
+      if (source.verificationStatus === "indexed_content") {
+        a.append(el("span", "challenge-guide-verification", "Contenu indexé, lien non testé directement"));
+      } else if (source.verificationStatus === "page_checked") {
+        a.append(el("span", "challenge-guide-verification", "Contributions individuelles non vérifiées"));
+      }
+      list.append(a);
+    }
+    section.append(list);
+    return section;
+  }
+
   function renderStage(event, stage, index) {
     const key = event.id + ":" + stage.id;
     const details = el("details", "challenge-stage");
