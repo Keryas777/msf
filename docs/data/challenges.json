@@ -3593,10 +3593,222 @@
       "id": "old-man-logan",
       "type": "trial",
       "title": "Épreuves d'Old Man Logan",
-      "summary": "Guide Trials avec difficultés et compositions.",
+      "summary": "Old Man Logan Trials : dix missions, restrictions de traits et conseils tactiques reformulés en français.",
       "rewardId": "OldManLogan",
-      "stages": [],
-      "editorialRef": "old-man-logan-trials/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction",
+          "teamName": "Sans restriction",
+          "characters": [
+            "Namor",
+            "TheLeader",
+            "IronPatriot",
+            "Apocalypse",
+            "SuperSkrull"
+          ],
+          "advice": [
+            "Préparer les ultimes des Cabal pour les prochaines missions en jouant surtout les attaques basiques.",
+            "Éliminer Rescue puis Kestrel ; au deuxième groupe, viser Maria Hill et Mockingbird, puis Nick Fury et Black Widow."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Out of Time",
+          "teamName": "Out of Time",
+          "characters": [
+            "CaptainAmerica",
+            "CaptainCarter",
+            "BlackKnight",
+            "CosmicGhostRider",
+            "StarBrand"
+          ],
+          "advice": [
+            "Ouvrir avec l'ultime de Captain Carter pour sécuriser les améliorations alliées.",
+            "Commencer sur Venom et Strange (Sans cœur), puis retirer la Provocation de Stryfe.",
+            "Lorsque Void Knight arrive, le neutraliser ; garder les capacités de Black Knight pour la mission 10."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Cosmique Bio",
+          "teamName": "Cosmiques Bio",
+          "characters": [
+            "SuperSkrull",
+            "Nova",
+            "Cosmo",
+            "SymbioteSilverSurfer",
+            "Korg"
+          ],
+          "advice": [
+            "Super-Skrull peut utiliser son ultime pour appliquer Trauma à toute l'équipe ennemie ; Void Knight rassemble ensuite les ennemis.",
+            "Cibler Lady Deathstrike et Silver Samurai, puis Magnéto et Archangel.",
+            "Sur Apocalypse : appliquer Exposé avec la spéciale de Super-Skrull pour empêcher Sauvegarde au tour suivant."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Héros Compétence",
+          "teamName": "Héros Compétence",
+          "characters": [
+            "BlackKnight",
+            "GhostSpider",
+            "PeterBParker",
+            "PeniParker",
+            "SpiderManPavitr"
+          ],
+          "advice": [
+            "La spéciale de Spider-Man Pavitr sur Lézard ralentit aussi Kraven ; Peni Parker et Peter B. Parker retirent les effets négatifs.",
+            "Prioriser Vautour dans la deuxième vague.",
+            "Garder un Étourdissement de Peni pour Bouffon vert classique : Blocage de capacité ne fonctionne pas tant qu'il est chargé."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Vilains",
+          "teamName": "Vilains",
+          "characters": [
+            "Apocalypse",
+            "SuperSkrull",
+            "Namor",
+            "TheLeader",
+            "IronPatriot"
+          ],
+          "advice": [
+            "Sur la deuxième vague, bloquer Forge puis éliminer Nova avant son ultime.",
+            "Apocalypse et Super-Skrull causent les dégâts en zone ; conserver les ultimes Cabal si possible.",
+            "Vautour constitue une alternative de contrôle contre les X-Men."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Cabale + Emma Frost + Loki",
+          "teamName": "Cabale + Emma Frost + Loki",
+          "characters": [
+            "Namor",
+            "TheLeader",
+            "IronPatriot",
+            "EmmaFrost",
+            "Loki"
+          ],
+          "advice": [
+            "Cibler Vahl au démarrage puis Peni et Peter B. Parker.",
+            "Éliminer les nouveaux Spider-Society et Spider-Weaver lorsqu'ils apparaissent.",
+            "Conserver si possible quelques capacités pour la mission 10."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Cosmique Bio",
+          "teamName": "Cosmiques Bio",
+          "characters": [
+            "SuperSkrull",
+            "Nova",
+            "Cosmo",
+            "SymbioteSilverSurfer",
+            "Korg"
+          ],
+          "advice": [
+            "L'ultime de Nova donne l'effet de champ ; utiliser Korg pour réduire la jauge de vitesse ennemie.",
+            "Cosmo purifie, Super-Skrull peut privilégier les basiques pour préserver ses capacités.",
+            "Au deuxième groupe, cibler Namor avant les autres ennemis."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Héros Compétence",
+          "teamName": "Héros Compétence",
+          "characters": [
+            "BlackKnight",
+            "GhostSpider",
+            "PeterBParker",
+            "PeniParker",
+            "SpiderManPavitr"
+          ],
+          "advice": [
+            "Retirer les Provocations des deux Hommes-absorbants puis concentrer le feu sur Brawn et She-Hulk.",
+            "À l'arrivée de Kang et Red Hulk, cibler Kang tant que Red Hulk conserve Sauvegarde et Immunité.",
+            "Si nécessaire, le combat peut être terminé en deux attaques."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Vilains",
+          "teamName": "Vilains",
+          "characters": [
+            "Apocalypse",
+            "SuperSkrull",
+            "Namor",
+            "TheLeader",
+            "IronPatriot"
+          ],
+          "advice": [
+            "Attaquer avec les meilleures compétences pour terminer vite, en conservant surtout les capacités des Cabal pour le boss final.",
+            "Black Cat, Morgan Le Fay ou les Sinister Six sont des remplaçants si leur développement est supérieur."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Out of Time ou Cabale, Emma Frost, Loki",
+          "teamName": "Out of Time / Cabale + Emma Frost + Loki",
+          "characters": [
+            "Namor",
+            "TheLeader",
+            "IronPatriot",
+            "BlackKnight",
+            "CosmicGhostRider"
+          ],
+          "advice": [
+            "Ouvrir en visant Black Cat et Ghost Rider (Robbie), puis éliminer Nova avant son ultime à la deuxième vague.",
+            "Lorsque Méphisto apparaît, le prioriser : conserver la spéciale et l'ultime de Namor, ainsi que la spéciale du Leader pour lui.",
+            "Cette variante utilise Cabale + Black Knight + Cosmic Ghost Rider, avec les bonus des pactes de Guerre et d'Épreuve cosmique."
+          ],
+          "alternatives": [],
+          "difficulty": "8+",
+          "strategyKind": "walkthrough"
+        }
+      ],
+      "editorialRef": "old-man-logan-trials/",
+      "stageUnit": "mission",
+      "totalStages": 10,
+      "guideNote": "Guide de difficulté 8 et plus. À partir de la difficulté 11, les missions Out of Time et Cabale exigent 5 étoiles jaunes, puis 6 et 7 étoiles aux difficultés 13 et 15. Les pactes World at War et Forged in Fire activent les bonus de Guerre et d'Épreuve cosmique dans ce Trial PvE."
     },
     {
       "id": "green-goblin",
