@@ -193,7 +193,14 @@
         card.append(el("p", "challenge-guide-verification", "Noms développés depuis le catalogue LoSP : composition exacte à confirmer."));
       }
       if (item.note) card.append(el("p", "challenge-guide-meta", item.note));
-      card.append(el("p", "challenge-guide-proof", "Retour de joueur : victoire non garantie."));
+      const provenanceLabel = item.verification === "editorial_recommendation"
+        ? "Équipe recommandée : résultat non vérifié."
+        : item.verification === "source_described_second_attack"
+          ? "Deuxième attaque prévue par le guide : résultat non garanti."
+          : item.verification === "expanded_from_losp_team_catalog"
+            ? "Reconstitution LoSP d'une proposition de joueur."
+            : "Retour de joueur : victoire non garantie.";
+      card.append(el("p", "challenge-guide-proof", provenanceLabel));
       list.append(card);
     }
     section.append(list);
@@ -216,7 +223,9 @@
 
     const body = el("div", "challenge-stage-body");
     if (stage.difficulty) body.append(el("p", "challenge-guide-meta", "Difficulté : " + stage.difficulty));
-    if (stage.strategyKind === "recommendation") body.append(el("p", "challenge-guide-verification", "Équipe recommandée : victoire non vérifiée."));
+    if (stage.strategyKind === "recommendation") body.append(el("p", "challenge-guide-verification", "Recommandation de préparation : victoire non attestée."));
+    if (stage.strategyKind === "historical_playthrough") body.append(el("p", "challenge-guide-verification", "Parcours de joueur historique, non optimisé pour la méta actuelle."));
+    if (stage.strategyKind === "multi_attempt") body.append(el("p", "challenge-guide-verification", "Stratégie en plusieurs attaques : l'équipe ci-dessous correspond à la première."));
     if (stage.teamName) body.append(el("p", "challenge-team-name", stage.teamName));
     if (stage.characters.length) {
       const label = stage.compositionKind === "partial"
