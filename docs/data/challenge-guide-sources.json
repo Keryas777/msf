@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "auditedAt": "2026-10-17",
   "scope": "Marvel Strike Force PvE challenge guides only",
-  "notes": "Le catalogue distingue contenu contrôlé, index accessible, pages communautaires non validées et références en attente. Les traductions, synthèses et vidéos issues d'un même compte rendu sont rattachées à une même famille éditoriale ; elles ne constituent pas plusieurs preuves de victoire indépendantes.",
+  "notes": "Registre éditorial hors interface : une URL repérée ne prouve pas un nœud, une équipe, une rotation ni une victoire. integration.* reflète les versions réellement reliées à une source, sans compter les anciens brouillons à attribution inconnue.",
   "statuses": {
     "content_checked": "Page lue et contenu PvE contrôlé",
     "page_checked": "Page ouverte, mais solutions individuelles non vérifiées",
@@ -29,7 +29,12 @@
       "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
       "evidenceLevel": "recommendation",
       "editorialFamily": null,
-      "notes": "Conseils de compositions et équipement ; ne pas assimiler à une victoire documentée."
+      "notes": "Conseils de compositions et équipement ; ne pas assimiler à une victoire documentée.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "marvel-dd-general",
@@ -49,7 +54,12 @@
       "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "Guide historique transversal DD1–DD5. Non relié arbitrairement à une DD particulière."
+      "notes": "Guide historique transversal DD1–DD5. Non relié arbitrairement à une DD particulière.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "source_index_only"
+      }
     },
     {
       "id": "marvel-spider-descent",
@@ -69,7 +79,12 @@
       "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
-      "notes": ""
+      "notes": "",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "marvel-fear",
@@ -89,7 +104,12 @@
       "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": ""
+      "notes": "",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "source_index_only"
+      }
     },
     {
       "id": "marvel-blade",
@@ -109,7 +129,12 @@
       "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
-      "notes": ""
+      "notes": "",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "marvel-storm",
@@ -129,7 +154,12 @@
       "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": ""
+      "notes": "",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "source_index_only"
+      }
     },
     {
       "id": "marvel-kyln-whiplash",
@@ -149,7 +179,12 @@
       "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
-      "notes": "Événement à équipes de cinq et 20 cellules, ouverture hebdomadaire."
+      "notes": "Événement à équipes de cinq et 20 cellules, ouverture hebdomadaire.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "marvel-kyln-blazes",
@@ -169,7 +204,12 @@
       "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
-      "notes": "Guide par cellules ; vérifier les changements de format de trois ou cinq personnages suivant l'édition."
+      "notes": "Guide par cellules ; vérifier les changements de format de trois ou cinq personnages suivant l'édition.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "marvel-kyln-polarity",
@@ -189,7 +229,12 @@
       "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": ""
+      "notes": "",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "source_index_only"
+      }
     },
     {
       "id": "marvel-shadow",
@@ -209,7 +254,12 @@
       "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": ""
+      "notes": "",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "source_index_only"
+      }
     },
     {
       "id": "marvel-oml",
@@ -229,7 +279,12 @@
       "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": ""
+      "notes": "",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "marvel-goblin",
@@ -249,7 +304,12 @@
       "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": ""
+      "notes": "",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "source_index_only"
+      }
     },
     {
       "id": "marvel-black-cat",
@@ -269,7 +329,12 @@
       "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": ""
+      "notes": "",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "source_index_only"
+      }
     },
     {
       "id": "marvel-nova",
@@ -289,7 +354,12 @@
       "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": ""
+      "notes": "",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "source_index_only"
+      }
     },
     {
       "id": "marvel-quasar",
@@ -309,7 +379,12 @@
       "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
-      "notes": "La structure a évolué au fil des mois ; ne pas attribuer un total de missions fixe."
+      "notes": "La structure a évolué au fil des mois ; ne pas attribuer un total de missions fixe.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "marvel-blastaar",
@@ -329,7 +404,12 @@
       "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
-      "notes": ""
+      "notes": "",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "marvel-surfer",
@@ -349,7 +429,12 @@
       "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": ""
+      "notes": "",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "source_index_only"
+      }
     },
     {
       "id": "marvel-scorpion",
@@ -369,7 +454,12 @@
       "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": ""
+      "notes": "",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "marvel-finding",
@@ -389,7 +479,12 @@
       "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "Saga à nombreuses missions ; pas de couverture par nœud affirmée."
+      "notes": "Saga à nombreuses missions ; pas de couverture par nœud affirmée.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "marvel-blue-marvel",
@@ -409,7 +504,12 @@
       "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "Conseils de préparation et missions, pas nécessairement solutions testées."
+      "notes": "Conseils de préparation et missions, pas nécessairement solutions testées.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "msfbase-fear",
@@ -429,7 +529,12 @@
       "evidence": "Page consultée et contenu PvE pertinent contrôlé.",
       "evidenceLevel": "unverified_player_submission",
       "editorialFamily": null,
-      "notes": "Solutions individuelles dépendantes du chargement dynamique. Le site ne les valide pas."
+      "notes": "Solutions individuelles dépendantes du chargement dynamique. Le site ne les valide pas.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "collection_only_no_individual_clear_verified"
+      }
     },
     {
       "id": "msfbase-spider",
@@ -449,7 +554,12 @@
       "evidence": "Page consultée et contenu PvE pertinent contrôlé.",
       "evidenceLevel": "unverified_player_submission",
       "editorialFamily": null,
-      "notes": "Collection par tour, pas de validation indépendante de chaque combat."
+      "notes": "Collection par tour, pas de validation indépendante de chaque combat.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "collection_only_no_individual_clear_verified"
+      }
     },
     {
       "id": "msfbase-blade",
@@ -469,7 +579,12 @@
       "evidence": "Page consultée et contenu PvE pertinent contrôlé.",
       "evidenceLevel": "unverified_player_submission",
       "editorialFamily": null,
-      "notes": "Collection des soumissions de joueurs, pas des victoires certifiées."
+      "notes": "Collection des soumissions de joueurs, pas des victoires certifiées.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "collection_only_no_individual_clear_verified"
+      }
     },
     {
       "id": "reddit-rayge-fear",
@@ -510,7 +625,12 @@
       "evidence": "Article ou publication textuelle consulté(e) le 17/10/2026 : composition et portée vérifiées dans le texte. Vidéos liées NON visionnées. Il ne s'agit pas d'un contrôle des combats par LoSP.",
       "evidenceLevel": "reported_clear",
       "editorialFamily": null,
-      "notes": "Compositions testées rapportées par l'auteur ; puissance et RNG peuvent changer le résultat."
+      "notes": "Compositions testées rapportées par l'auteur ; puissance et RNG peuvent changer le résultat.",
+      "integration": {
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "partially_integrated_and_source_text_read"
+      }
     },
     {
       "id": "reddit-rayge-spider-31",
@@ -672,7 +792,12 @@
           "note": "Les membres d'équipe non énumérés individuellement dans la publication ont été développés à partir du catalogue LoSP actuel.",
           "verification": "expanded_from_losp_team_catalog"
         }
-      ]
+      ],
+      "integration": {
+        "linkedStrategies": 11,
+        "textCheckedStrategies": 1,
+        "status": "partially_integrated_and_source_text_read"
+      }
     },
     {
       "id": "reddit-fear-written",
@@ -703,7 +828,12 @@
       "evidence": "Article ou publication textuelle consulté(e) le 17/10/2026 : composition et portée vérifiées dans le texte. Vidéos liées NON visionnées. Il ne s'agit pas d'un contrôle des combats par LoSP.",
       "evidenceLevel": "reported_clear",
       "editorialFamily": null,
-      "notes": "Compte rendu écrit, dépend du niveau d'investissement et des vagues."
+      "notes": "Compte rendu écrit, dépend du niveau d'investissement et des vagues.",
+      "integration": {
+        "linkedStrategies": 11,
+        "textCheckedStrategies": 11,
+        "status": "partially_integrated_and_source_text_read"
+      }
     },
     {
       "id": "reddit-rayge-whiplash",
@@ -779,7 +909,12 @@
           "note": "Les membres d'équipe non énumérés individuellement dans la publication ont été développés à partir du catalogue LoSP actuel.",
           "verification": "expanded_from_losp_team_catalog"
         }
-      ]
+      ],
+      "integration": {
+        "linkedStrategies": 4,
+        "textCheckedStrategies": 0,
+        "status": "linked_but_not_independently_revalidated"
+      }
     },
     {
       "id": "reddit-rayge-fear-10",
@@ -934,7 +1069,12 @@
           "note": "",
           "verification": "reported_by_author"
         }
-      ]
+      ],
+      "integration": {
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "partially_integrated_and_source_text_read"
+      }
     },
     {
       "id": "reddit-rayge-spider-21",
@@ -1032,7 +1172,12 @@
           "note": "Les membres d'équipe non énumérés individuellement dans la publication ont été développés à partir du catalogue LoSP actuel.",
           "verification": "expanded_from_losp_team_catalog"
         }
-      ]
+      ],
+      "integration": {
+        "linkedStrategies": 5,
+        "textCheckedStrategies": 0,
+        "status": "linked_but_not_independently_revalidated"
+      }
     },
     {
       "id": "reddit-rayge-spider-10",
@@ -1063,7 +1208,12 @@
       "evidence": "Publication Reddit retrouvée avec compositions et compte rendu de combats réels.",
       "evidenceLevel": "reported_clear",
       "editorialFamily": null,
-      "notes": "Équipes F2P, sans tous les Incroyables Avengers."
+      "notes": "Équipes F2P, sans tous les Incroyables Avengers.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "reddit-rayge-blade",
@@ -1102,7 +1252,12 @@
       "evidence": "Publication Reddit retrouvée avec compositions et compte rendu de combats réels.",
       "evidenceLevel": "reported_clear",
       "editorialFamily": null,
-      "notes": "Retour joueur, solutions testées annoncées."
+      "notes": "Retour joueur, solutions testées annoncées.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "reddit-whiplash-6",
@@ -1128,7 +1283,12 @@
       "evidence": "Publication Reddit retrouvée avec compositions et compte rendu de combats réels.",
       "evidenceLevel": "reported_clear",
       "editorialFamily": null,
-      "notes": "Compteurs de puissance partagés par l'auteur."
+      "notes": "Compteurs de puissance partagés par l'auteur.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "reddit-whiplash-16",
@@ -1151,7 +1311,12 @@
       "evidence": "Publication Reddit retrouvée avec compositions et compte rendu de combats réels.",
       "evidenceLevel": "reported_clear",
       "editorialFamily": null,
-      "notes": "Parcours d'équipes relativement peu développées, mais pas toutes les cellules."
+      "notes": "Parcours d'équipes relativement peu développées, mais pas toutes les cellules.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "apptipps-dd9",
@@ -1177,7 +1342,12 @@
       "evidence": "Article ou publication textuelle consulté(e) le 17/10/2026 : composition et portée vérifiées dans le texte. Vidéos liées NON visionnées. Il ne s'agit pas d'un contrôle des combats par LoSP.",
       "evidenceLevel": "recommendation",
       "editorialFamily": "apptipps-synthesis-dd9",
-      "notes": "Synthèse éditoriale s'appuyant notamment sur Marvel Church : pas une victoire distincte à comptabiliser."
+      "notes": "Synthèse éditoriale s'appuyant notamment sur Marvel Church : pas une victoire distincte à comptabiliser.",
+      "integration": {
+        "linkedStrategies": 5,
+        "textCheckedStrategies": 5,
+        "status": "partially_integrated_and_source_text_read"
+      }
     },
     {
       "id": "apptipps-dd-general",
@@ -1197,7 +1367,12 @@
       "evidence": "Page consultée et contenu PvE pertinent contrôlé.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "Guide transversal, sans attribution artificielle à un étage particulier."
+      "notes": "Guide transversal, sans attribution artificielle à un étage particulier.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "page_checked_without_attributed_node_strategy"
+      }
     },
     {
       "id": "gamingfans-dd6",
@@ -1217,7 +1392,12 @@
       "evidence": "Article ou publication textuelle consulté(e) le 17/10/2026 : composition et portée vérifiées dans le texte. Vidéos liées NON visionnées. Il ne s'agit pas d'un contrôle des combats par LoSP.",
       "evidenceLevel": "historical_playthrough",
       "editorialFamily": null,
-      "notes": "Contenu historique, les anciennes compositions doivent être replacées dans leur date."
+      "notes": "Contenu historique, les anciennes compositions doivent être replacées dans leur date.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "page_checked_without_attributed_node_strategy"
+      }
     },
     {
       "id": "theria-dd8",
@@ -1237,7 +1417,12 @@
       "evidence": "Article ou publication textuelle consulté(e) le 17/10/2026 : composition et portée vérifiées dans le texte. Vidéos liées NON visionnées. Il ne s'agit pas d'un contrôle des combats par LoSP.",
       "evidenceLevel": "recommendation",
       "editorialFamily": null,
-      "notes": "Recommandations et préparation, pas victoire certifiée."
+      "notes": "Recommandations et préparation, pas victoire certifiée.",
+      "integration": {
+        "linkedStrategies": 6,
+        "textCheckedStrategies": 6,
+        "status": "partially_integrated_and_source_text_read"
+      }
     },
     {
       "id": "theria-shadow-fr",
@@ -1257,7 +1442,12 @@
       "evidence": "Article ou publication textuelle consulté(e) le 17/10/2026 : composition et portée vérifiées dans le texte. Vidéos liées NON visionnées. Il ne s'agit pas d'un contrôle des combats par LoSP.",
       "evidenceLevel": "guide",
       "editorialFamily": "theria-shadow-king-july-2025",
-      "notes": "Ne pas compter séparément les versions linguistiques de cet article."
+      "notes": "Ne pas compter séparément les versions linguistiques de cet article.",
+      "integration": {
+        "linkedStrategies": 11,
+        "textCheckedStrategies": 11,
+        "status": "partially_integrated_and_source_text_read"
+      }
     },
     {
       "id": "rayge-fear-video-1-5",
@@ -1283,7 +1473,12 @@
       "evidence": "Lien vidéo cité dans un compte rendu de joueur consulté ; vidéo non visionnée directement.",
       "evidenceLevel": "reported_clear",
       "editorialFamily": "reddit-rayge-fear-10",
-      "notes": "Vidéo liée dans la publication d'origine ; le lien vidéo et la couverture doivent être revalidés avant de prétendre à un walkthrough entièrement vérifié."
+      "notes": "Vidéo liée dans la publication d'origine ; le lien vidéo et la couverture doivent être revalidés avant de prétendre à un walkthrough entièrement vérifié.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "rayge-fear-video-6-10",
@@ -1309,7 +1504,12 @@
       "evidence": "Lien vidéo cité dans un compte rendu de joueur consulté ; vidéo non visionnée directement.",
       "evidenceLevel": "reported_clear",
       "editorialFamily": "reddit-rayge-fear-10",
-      "notes": "Vidéo liée dans la publication d'origine ; le lien vidéo et la couverture doivent être revalidés avant de prétendre à un walkthrough entièrement vérifié."
+      "notes": "Vidéo liée dans la publication d'origine ; le lien vidéo et la couverture doivent être revalidés avant de prétendre à un walkthrough entièrement vérifié.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "rayge-spider-video-31-35",
@@ -1335,7 +1535,12 @@
       "evidence": "Lien vidéo cité dans un compte rendu de joueur consulté ; vidéo non visionnée directement.",
       "evidenceLevel": "reported_clear",
       "editorialFamily": "reddit-rayge-spider-31",
-      "notes": "Vidéo liée dans la publication d'origine ; le lien vidéo et la couverture doivent être revalidés avant de prétendre à un walkthrough entièrement vérifié."
+      "notes": "Vidéo liée dans la publication d'origine ; le lien vidéo et la couverture doivent être revalidés avant de prétendre à un walkthrough entièrement vérifié.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "rayge-spider-video-36-40",
@@ -1361,7 +1566,12 @@
       "evidence": "Lien vidéo cité dans un compte rendu de joueur consulté ; vidéo non visionnée directement.",
       "evidenceLevel": "reported_clear",
       "editorialFamily": "reddit-rayge-spider-31",
-      "notes": "Vidéo liée dans la publication d'origine ; le lien vidéo et la couverture doivent être revalidés avant de prétendre à un walkthrough entièrement vérifié."
+      "notes": "Vidéo liée dans la publication d'origine ; le lien vidéo et la couverture doivent être revalidés avant de prétendre à un walkthrough entièrement vérifié.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "famine-scourge",
@@ -1381,7 +1591,12 @@
       "evidence": "Guide technique consulté via le contenu textuel indexé ; ouverture directe automatisée refusée (402).",
       "evidenceLevel": "historical_playthrough",
       "editorialFamily": null,
-      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page."
+      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "pestilence-scourge",
@@ -1401,7 +1616,12 @@
       "evidence": "Guide technique consulté via le contenu textuel indexé ; ouverture directe automatisée refusée (402).",
       "evidenceLevel": "historical_playthrough",
       "editorialFamily": null,
-      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page."
+      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "war-scourge",
@@ -1421,7 +1641,12 @@
       "evidence": "Guide technique consulté via le contenu textuel indexé ; ouverture directe automatisée refusée (402).",
       "evidenceLevel": "historical_playthrough",
       "editorialFamily": null,
-      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page."
+      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "death-scourge",
@@ -1441,7 +1666,12 @@
       "evidence": "Guide technique consulté via le contenu textuel indexé ; ouverture directe automatisée refusée (402).",
       "evidenceLevel": "historical_playthrough",
       "editorialFamily": null,
-      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page."
+      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "apocalypse-saga",
@@ -1461,7 +1691,12 @@
       "evidence": "Guide technique consulté via le contenu textuel indexé ; ouverture directe automatisée refusée (402).",
       "evidenceLevel": "recommendation",
       "editorialFamily": null,
-      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page."
+      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page.",
+      "integration": {
+        "linkedStrategies": 0,
+        "textCheckedStrategies": 0,
+        "status": "indexed_but_no_source_verified_tactics"
+      }
     },
     {
       "id": "reddit-whiplash-14",
@@ -1484,7 +1719,12 @@
       "evidence": "Publication complète ouverte le 17/10/2026 : cinq personnages, niveaux/paliers et ordre tactique décrits, victoire rapportée mais non rejouée par LoSP.",
       "evidenceLevel": "reported_clear",
       "editorialFamily": null,
-      "notes": "La cellule 14 est créditée par l'auteur à Rayge ; cellule 15 est sa propre solution. La réussite dépend de nombreux redémarrages et de la possibilité de rejouer Conclave de l'Ombre."
+      "notes": "La cellule 14 est créditée par l'auteur à Rayge ; cellule 15 est sa propre solution. La réussite dépend de nombreux redémarrages et de la possibilité de rejouer Conclave de l'Ombre.",
+      "integration": {
+        "linkedStrategies": 2,
+        "textCheckedStrategies": 2,
+        "status": "partially_integrated_and_source_text_read"
+      }
     },
     {
       "id": "reddit-dd9",
@@ -1510,7 +1750,12 @@
       "evidence": "Publication texte ouverte et vérifiée le 17/10/2026 avec composition exacte des cinq sections ; le lien vidéo n'a pas été visionné.",
       "evidenceLevel": "reported_clear",
       "editorialFamily": null,
-      "notes": "L'auteur indique avoir terminé DD9. Kestrel normale employée en Mythique ne correspond à aucun personnage jouable du catalogue local ; aucune substitution artificielle."
+      "notes": "L'auteur indique avoir terminé DD9. Kestrel normale employée en Mythique ne correspond à aucun personnage jouable du catalogue local ; aucune substitution artificielle.",
+      "integration": {
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "partially_integrated_and_source_text_read"
+      }
     },
     {
       "id": "msfwar-echoes",
@@ -1532,7 +1777,12 @@
       "evidence": "Section textuelle Echoes of the Abyss visible et lue dans la page MSFWAR le 17/10/2026 ; les solutions par étage des Tours restent dynamiques et non extraites.",
       "evidenceLevel": "recommendation",
       "editorialFamily": null,
-      "notes": "Source de 2 variantes du cinquième personnage, non deux victoires séparées. Aucune URL affichée à l'utilisateur."
+      "notes": "Source de 2 variantes du cinquième personnage, non deux victoires séparées. Aucune URL affichée à l'utilisateur.",
+      "integration": {
+        "linkedStrategies": 2,
+        "textCheckedStrategies": 2,
+        "status": "partially_integrated_and_source_text_read"
+      }
     }
   ],
   "reviewQueue": [
