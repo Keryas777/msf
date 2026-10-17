@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#0b0c0d" />
   <title>LoSP — Défenses Épreuve cosmique</title>
   <link rel="stylesheet" href="./style.css?v=4" />
-  <link rel="stylesheet" href="./cosmic.css?v=2" />
+  <link rel="stylesheet" href="./cosmic.css?v=3" />
   <link rel="manifest" href="./manifest.webmanifest" />
 </head>
 <body>
@@ -22,6 +22,14 @@
         <p class="subtitle">Six salles, des compositions proposées et un espace pour partager les tiennes.</p>
       </div>
     </header>
+    <section class="card cosmicSeasonCard" aria-label="Saison d'épreuve cosmique">
+      <h2 class="cosmicSeasonTitle" data-cosmic-season-title>Saison en cours de chargement…</h2>
+      <p class="cosmicSeasonDates" data-cosmic-season-dates></p>
+      <details class="cosmicSeasonDetails">
+        <summary>Voir les règles de la saison et des 6 salles</summary>
+        <div data-cosmic-season-rules></div>
+      </details>
+    </section>
     <section class="card">
       <h2 class="cosmicSectionTitle">Défenses recommandées</h2>
       <p class="cosmicIntro">Compositions publiées après validation.</p>
@@ -39,6 +47,7 @@
       <textarea id="proposalFallback" class="select cosmicFallback" readonly hidden aria-label="Texte de la proposition à copier"></textarea>
     </section>
   </main>
-  <script src="./cosmic-defenses.js?v=2" defer></script>
+  <script src="./cosmic-season-ui.js?v=1" defer></script>
+  <script src="./cosmic-defenses.js?v=3" defer></script>
 </body>
 </html>

@@ -23,6 +23,7 @@
     <title>LoSP — Contres Épreuve cosmique</title>
     <link rel="stylesheet" href="./style.css?v=3" />
     <link rel="stylesheet" href="./war-counters-overkill.css?v=7" />
+    <link rel="stylesheet" href="./cosmic.css?v=3" />
   </head>
 
   <body class="page-war-counters" data-counter-mode="cosmic">
@@ -83,6 +84,14 @@
         </div>
       </header>
 
+    <section class="card cosmicSeasonCard" aria-label="Saison d'épreuve cosmique">
+      <h2 class="cosmicSeasonTitle" data-cosmic-season-title>Saison en cours de chargement…</h2>
+      <p class="cosmicSeasonDates" data-cosmic-season-dates></p>
+      <details class="cosmicSeasonDetails">
+        <summary>Voir les règles de la saison et des 6 salles</summary>
+        <div data-cosmic-season-rules></div>
+      </details>
+    </section>
       <section class="card">
         <div class="cardHeader">
           <h2 class="cardTitle" id="defTitle">—</h2>
@@ -105,7 +114,8 @@
     </div>
 
     <script src="./alliances.js?v=1"></script>
-    <script src="./war-counters.js?v=17"></script>
+    <script src="./cosmic-season-ui.js?v=1"></script>
+    <script src="./war-counters.js?v=18"></script>
 
     <script>
       (() => {

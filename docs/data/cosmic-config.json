@@ -1,36 +1,56 @@
 {
-  "schemaVersion": 1,
-  "season": "",
+  "schemaVersion": 2,
+  "season": {
+    "id": "season-25",
+    "number": 25,
+    "name": "Artificial Dread",
+    "announcedAt": "2026-09-30",
+    "startAt": "2026-10-14T21:00:00Z",
+    "firstTrialAt": "2026-10-16T21:00:00Z",
+    "sourceUrl": "https://marvelstrikeforce.com/en/updates/blog-update-9-30-26",
+    "sourceTitle": "Crucible Season 25 & Ultimate 32",
+    "verified": "official-announcement"
+  },
+  "globalRule": {
+    "title": "Artificial Dread",
+    "rule": "EN ATTAQUE ET EN DÉFENSE : les personnages AI AVENGER possédant Réparation (Repair) ne peuvent pas gagner Défense diminuée ni Étourdissement. Les personnages DREAD appliquent +1 Contagion à la cible principale en cas de critique et gagnent +5 % de chances de critique et de dégâts critiques en cas de critique.\nEN DÉFENSE : tous les personnages gagnent +20 % de santé maximale et +10 % de dégâts. Après chaque attaque terminée, ils gagnent +1 Épuisement (pas après un combat annulé)."
+  },
   "rooms": [
     {
       "id": 1,
-      "label": "Salle 1",
-      "rule": ""
+      "label": "Salle 1 — Standard",
+      "name": "Standard Room",
+      "rule": "Aucune règle supplémentaire ; seules les règles globales s'appliquent."
     },
     {
       "id": 2,
-      "label": "Salle 2",
-      "rule": ""
+      "label": "Salle 2 — Point faible",
+      "name": "Weak Point",
+      "rule": "EN ATTAQUE ET EN DÉFENSE : les personnages ISO-8 Tirailleur (Skirmisher) inversent tous leurs effets négatifs sur eux-mêmes lorsqu'ils touchent une cible. Les personnages ISO-8 Pillard (Raider), en touchant une cible qui a Vulnérable, inversent tous les effets positifs de cette cible."
     },
     {
       "id": 3,
-      "label": "Salle 3",
-      "rule": ""
+      "label": "Salle 3 — Frénésie sanguinaire",
+      "name": "Blood Frenzy",
+      "rule": "EN ATTAQUE ET EN DÉFENSE : lorsqu'un personnage touche une cible affectée par Saignement, il effectue une attaque ISO-8 contre la cible principale."
     },
     {
       "id": 4,
-      "label": "Salle 4",
-      "rule": ""
+      "label": "Salle 4 — La meilleure défense, c'est l'attaque",
+      "name": "The Best Offense",
+      "rule": "EN ATTAQUE ET EN DÉFENSE : avec Défense augmentée, +50 % de Résistance et d'Armure ; avec Défense diminuée, +50 % de Dégâts et de Chances de critique. Avec la capacité ultime, gagne Défense augmentée ; avec la capacité spéciale, gagne Défense diminuée."
     },
     {
       "id": 5,
-      "label": "Salle 5",
-      "rule": ""
+      "label": "Salle 5 — Kit de réparation",
+      "name": "Repair Kit",
+      "rule": "EN ATTAQUE ET EN DÉFENSE : les personnages TECHNO gagnent Réparation (Repair) lorsqu'ils touchent une cible ayant Exposé."
     },
     {
       "id": 6,
-      "label": "Salle 6",
-      "rule": ""
+      "label": "Salle 6 — Marque du Serpent",
+      "name": "Mark of the Serpent",
+      "rule": "EN ATTAQUE ET EN DÉFENSE : au début de leur tour, les personnages s'infligent une attaque équivalente à 15 % de leur santé maximale. Sur un coup réussi, appliquent Blocage des soins et Saignement. Au début du tour, avec Blocage des soins, gagnent Provocation ; avec Provocation, leur Résistance est réduite de 50 %."
     }
   ]
 }

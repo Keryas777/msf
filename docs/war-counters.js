@@ -1,6 +1,7 @@
 // docs/war-counters.js
 (() => {
   const IS_COSMIC = document.body?.dataset?.counterMode === "cosmic";
+  let COSMIC_SEASON_ID = "";
   const USAGE_LOGGER_URL =
     "https://script.google.com/macros/s/AKfycbzTdFi7gEgRVCKjK2UBwFcQIlIzi2jp4eeO2ryR36sSrcy3QtzfEK8k7kNSXSJOGmFAbw/exec";
 
@@ -626,6 +627,7 @@
 
   function normalizeWarRow(r) {
     return {
+      season: (r.season ?? "").toString().trim(),
       room: Number.isInteger(Number(r.room)) && Number(r.room) >= 1 && Number(r.room) <= 6 ? Number(r.room) : 0,
       def_family: (r.def_family ?? "").toString().trim(),
       def_variant: (r.def_variant ?? "").toString().trim(),
@@ -655,6 +657,7 @@
   }
 
   function isRoomRelevant(row) {
+    if (IS_COSMIC && (!COSMIC_SEASON_ID || row.season !== COSMIC_SEASON_ID)) return false;
     if (!IS_COSMIC || !roomSelect?.value) return true;
     return row.room === 0 || row.room === Number(roomSelect.value);
   }
@@ -1382,6 +1385,12 @@
     ]);
 
     await loadAllianceData();
+
+    if (IS_COSMIC) {
+      window.LoSPCosmicSeasonUi?.render(cosmicConfig);
+      COSMIC_SEASON_ID = cosmicConfig?.season?.id || "";
+      if (!/^season-[1-9][0-9]*$/.test(COSMIC_SEASON_ID)) throw new Error("Saison cosmique invalide");
+    }
 
     WAR = Array.isArray(war) ? war.map(normalizeWarRow) : [];
     WAR_SEASON_RULES = IS_COSMIC ? { defaultMultiplier: 1, rules: [] } : normalizeSeasonRules(warSeasonRules);

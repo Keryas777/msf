@@ -64,3 +64,12 @@
   background:#454678;border-color:#b0aaff;
 }
 .cosmicAction:disabled{opacity:.55;cursor:not-allowed}
+
+/* Informations de saison : détails repliables pour l'affichage mobile. */
+.cosmicSeasonCard{background:linear-gradient(145deg,rgba(52,33,100,.86),rgba(15,19,40,.88))}
+.cosmicSeasonTitle{font-size:18px;text-align:center;margin:2px 0 8px}
+.cosmicSeasonDates{text-align:center;margin:0 0 12px;font-size:12px;color:#ddd6f0;line-height:1.5}
+.cosmicSeasonDetails{font-size:13px;line-height:1.45}
+.cosmicSeasonDetails summary{cursor:pointer;text-align:center;color:#d9c1ff;font-weight:750;padding:8px}
+.cosmicSeasonDetails a{color:#c5d9ff}
+.cosmicRuleText{white-space:pre-line;padding:10px 0;border-bottom:1px solid #ffffff24;margin:0;overflow-wrap:anywhere}
