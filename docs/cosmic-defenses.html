@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#0b0c0d" />
   <title>LoSP — Défenses Épreuve cosmique</title>
   <link rel="stylesheet" href="./style.css?v=4" />
-  <link rel="stylesheet" href="./cosmic.css?v=3" />
+  <link rel="stylesheet" href="./cosmic.css?v=4" />
   <link rel="manifest" href="./manifest.webmanifest" />
 </head>
 <body>
@@ -32,7 +32,11 @@
     </section>
     <section class="card">
       <h2 class="cosmicSectionTitle">Défenses recommandées</h2>
-      <p class="cosmicIntro">Compositions publiées après validation.</p>
+      <p class="cosmicIntro">Compositions publiées après validation, proposées par les joueurs ou issues de guides comme Marvel Church.</p>
+      <label class="cosmicLabel" for="publishedDefenseSelect">Choisir des défenses</label>
+      <select class="select cosmicPublishedSelect" id="publishedDefenseSelect" disabled aria-label="Choisir des défenses publiées">
+        <option value="">Chargement des défenses…</option>
+      </select>
       <p class="cosmicFeedback" id="publishedStatus" role="status">Chargement…</p>
       <div id="publishedDefenses" class="cosmicRooms"></div>
     </section>
@@ -48,6 +52,7 @@
     </section>
   </main>
   <script src="./cosmic-season-ui.js?v=1" defer></script>
-  <script src="./cosmic-defenses.js?v=3" defer></script>
+  <script src="./cosmic-defense-catalog.js?v=1" defer></script>
+  <script src="./cosmic-defenses.js?v=4" defer></script>
 </body>
 </html>

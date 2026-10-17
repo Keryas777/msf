@@ -14,13 +14,13 @@
 .cosmicRooms{display:grid;gap:14px;margin-top:16px}
 .cosmicRoom{padding:12px;border:1px solid #454365;border-radius:15px;background:rgba(17,20,38,.68);min-width:0}
 .cosmicRoom h3{margin:0 0 8px;font-size:17px}
-.cosmicRoomRule{color:#b5b6d1;font-size:13px;line-height:1.4;margin:0 0 10px}
+.cosmicRoomRule{color:#bfc1dc;font-size:12px;line-height:1.4;margin:2px 0 12px;white-space:pre-line;overflow-wrap:anywhere}
 .cosmicEmpty{font-size:13px;color:#9ca0b7;font-style:italic;margin:8px 0 3px}
 .cosmicDefense{padding:10px;border-top:1px solid #3a3e59;margin-top:8px}
 .cosmicDefenseTitle{font-weight:800;margin:0 0 8px}
 .cosmicPortraits{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
 .cosmicPortrait{min-width:0;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#24283f;border:1px solid #454963}
-.cosmicPortrait img{width:100%;height:100%;display:block;object-fit:cover}
+.cosmicPortrait img{width:100%;height:100%;display:block;object-fit:contain;padding:3px;background:rgba(255,255,255,.03)}
 .cosmicPortrait span{display:grid;place-items:center;overflow-wrap:anywhere;font-size:10px;height:100%;text-align:center;padding:3px}
 .cosmicDefenseMeta{color:#bfc2d6;font-size:12px;line-height:1.45;margin:8px 0 0;overflow-wrap:anywhere}
 .cosmicDefenseMeta a{color:#b8caff}
@@ -73,3 +73,7 @@
 .cosmicSeasonDetails summary{cursor:pointer;text-align:center;color:#d9c1ff;font-weight:750;padding:8px}
 .cosmicSeasonDetails a{color:#c5d9ff}
 .cosmicRuleText{white-space:pre-line;padding:10px 0;border-bottom:1px solid #ffffff24;margin:0;overflow-wrap:anywhere}
+
+/* Sélection des défenses publiées, toujours adaptée à la largeur mobile. */
+.cosmicPublishedSelect{display:block;width:100%;min-width:0;margin:5px 0 12px}
+.cosmicPublishedSelect:disabled{opacity:.65}

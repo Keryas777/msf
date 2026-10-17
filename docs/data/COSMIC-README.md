@@ -71,3 +71,11 @@ Le formulaire `cosmic-defenses.html` valide les personnages, accepte **une à si
 ```sh
 node --test tests/cosmic-static.test.mjs
 ```
+
+## Consultation : sélection des défenses publiées
+
+Sur `cosmic-defenses.html`, le menu **Choisir des défenses** propose par défaut « Toutes les défenses publiées », puis les groupes **Défenses des joueurs** (regroupés par `author`) et **Guides et autres sources** (regroupés par `source`, par exemple `Marvel Church`). Le menu ne contient que les compositions de la saison active et masque ses groupes tant que `cosmic-defenses.json` est vide.
+
+Pour conserver plusieurs jeux de défenses d'un même auteur ou d'une même source, une entrée peut comporter un champ facultatif `"collection": "Nom du set"` : toutes les entrées qui partagent cet auteur/source et ce nom constituent un groupe distinct. Les cinq personnages d'une même salle sont toujours indiqués dans `characters`. Les crédits et les liens `sourceUrl` des entrées publiées restent visibles.
+
+Le menu **ne remplace pas** le formulaire permettant de proposer ses propres défenses : il sert uniquement à consulter les propositions validées, sans modifier le JSON ni les brouillons locaux.
