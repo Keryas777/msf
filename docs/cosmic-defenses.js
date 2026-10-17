@@ -10,6 +10,8 @@
   let COSMIC_SEASON_ID = "";
   const publishedNode = document.getElementById("publishedDefenses");
   const publishedStatus = document.getElementById("publishedStatus");
+  const publishedDefenseSelect = document.getElementById("publishedDefenseSelect");
+  let publishedEntries = [];
   const proposalsNode = document.getElementById("proposalRooms");
   const proposalStatus = document.getElementById("proposalStatus");
   const proposalAuthorDisplay = document.getElementById("proposalAuthorDisplay");
@@ -112,16 +114,17 @@
     }
     return box;
   }
-  function renderPublished(defenses) {
+  function renderPublished() {
     publishedNode.replaceChildren();
-    const list = Array.isArray(defenses) ? defenses : [];
+    const catalog = window.LoSPCosmicDefenseCatalog;
+    const groupId = publishedDefenseSelect.value;
+    const list = catalog.entriesForGroup(publishedEntries, groupId);
     let count = 0;
     for (const room of rooms) {
       const section = make("section", "cosmicRoom");
       section.appendChild(make("h3", "", room.label));
-      if (room.rule) section.appendChild(make("p", "cosmicRoomRule", room.rule));
-      const entries = list.filter(d => d?.season === COSMIC_SEASON_ID && Number(d?.room) === room.id && Array.isArray(d.characters)
-        && d.characters.length === 5 && new Set(d.characters).size === 5);
+      if (room.rule) section.appendChild(make("p", "cosmicRoomRule", "Règle de la salle : " + room.rule));
+      const entries = list.filter(d => Number(d.room) === room.id);
       if (!entries.length) section.appendChild(make("p", "cosmicEmpty", "Aucune défense publiée dans cette salle."));
       for (const entry of entries) {
         count++;
@@ -152,9 +155,44 @@
       }
       publishedNode.appendChild(section);
     }
+    const selectedName = publishedDefenseSelect.selectedOptions[0]?.textContent || "";
     publishedStatus.textContent = count
-      ? count + " composition(s) publiée(s)."
-      : "Aucune composition validée pour le moment. Tu peux déjà préparer et partager tes défenses.";
+      ? count + " composition(s) publiée(s)" + (groupId ? " — " + selectedName : "") + "."
+      : "Aucune composition validée pour cette sélection. Tu peux préparer et partager tes défenses.";
+  }
+
+  function initPublishedSelector(defenses) {
+    const catalog = window.LoSPCosmicDefenseCatalog;
+    if (!catalog) throw new Error("Catalogue des défenses introuvable");
+    publishedEntries = catalog.activeEntries(defenses, COSMIC_SEASON_ID);
+    publishedDefenseSelect.replaceChildren();
+
+    const all = document.createElement("option");
+    all.value = "";
+    all.textContent = "Toutes les défenses publiées";
+    publishedDefenseSelect.appendChild(all);
+
+    const groups = catalog.groupsFor(publishedEntries);
+    const sections = [
+      { kind: "player", label: "Défenses des joueurs" },
+      { kind: "source", label: "Guides et autres sources" }
+    ];
+    for (const category of sections) {
+      const members = groups.filter(group => group.kind === category.kind);
+      if (!members.length) continue;
+      const optgroup = document.createElement("optgroup");
+      optgroup.label = category.label;
+      for (const group of members) {
+        const option = document.createElement("option");
+        option.value = group.id;
+        option.textContent = group.label + " (" + group.count + ")";
+        optgroup.appendChild(option);
+      }
+      publishedDefenseSelect.appendChild(optgroup);
+    }
+    publishedDefenseSelect.disabled = !groups.length;
+    publishedDefenseSelect.value = "";
+    renderPublished();
   }
   function renderSelectedPortraits(section) {
     const row = section.querySelector("[data-cosmic-portraits]");
@@ -234,7 +272,7 @@
       const section = make("section", "cosmicRoom");
       section.dataset.cosmicRoom = String(room.id);
       section.appendChild(make("h3", "", room.label));
-      if (room.rule) section.appendChild(make("p", "cosmicRoomRule", room.rule));
+      if (room.rule) section.appendChild(make("p", "cosmicRoomRule", "Règle de la salle : " + room.rule));
       const portraits = make("div", "cosmicPortraits cosmicSelectedPortraits");
       portraits.dataset.cosmicPortraits = "1";
       portraits.setAttribute("aria-label", "Portraits des cinq personnages de " + room.label);
@@ -382,7 +420,8 @@
       DRAFT_KEY = LEGACY_DRAFT_KEY + ":" + COSMIC_SEASON_ID;
       window.LoSPCosmicSeasonUi?.render(config);
       buildCharacterCatalogue(chars);
-      renderPublished(published);
+      initPublishedSelector(published);
+      publishedDefenseSelect.addEventListener("change", renderPublished);
       renderProposals();
       fillAuthorFromSession(window.LoSP_SESSION);
       window.addEventListener("losp:auth-ready", event => fillAuthorFromSession(event.detail));

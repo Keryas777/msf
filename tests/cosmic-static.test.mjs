@@ -80,3 +80,17 @@ test("autocomplétion préfixe, validation par clic et portraits par salle", asy
   assert.match(css, /\.cosmicSuggestions\[hidden\]/);
   assert.match(css, /\.cosmicReadonlyField/);
 });
+
+test("défenses cosmiques : portraits non rognés, règle par salle et sélecteur de collections", async () => {
+  const [html, css, js] = await Promise.all([
+    read("docs/cosmic-defenses.html"), read("docs/cosmic.css"), read("docs/cosmic-defenses.js")
+  ]);
+  assert.match(css, /\.cosmicPortrait img\{[^}]*object-fit:contain/);
+  assert.match(css, /\.cosmicRoomRule\{[^}]*font-size:12px/);
+  assert.match(html, /id="publishedDefenseSelect"/);
+  assert.match(html, /cosmic-defense-catalog\.js/);
+  assert.match(js, /"Règle de la salle : " \+ room\.rule/g);
+  assert.match(js, /function initPublishedSelector\(/);
+  assert.match(js, /catalog\.activeEntries\(defenses, COSMIC_SEASON_ID\)/);
+  assert.match(js, /publishedDefenseSelect\.addEventListener\("change", renderPublished\)/);
+});
