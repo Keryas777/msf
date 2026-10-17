@@ -28,5 +28,6 @@ jobs:
           node --check scripts/watch-cosmic-season.mjs
           node --check docs/cosmic-season-ui.js
           node --check docs/cosmic-defenses.js
+          node --check docs/cosmic-defense-catalog.js
           node --check docs/war-counters.js
-          node --test tests/cosmic-static.test.mjs tests/cosmic-season-lifecycle.test.mjs
+          node --test tests/cosmic-static.test.mjs tests/cosmic-season-lifecycle.test.mjs tests/cosmic-defense-catalog.test.mjs
