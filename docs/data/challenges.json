@@ -1324,37 +1324,733 @@
       "id": "invasion-quasar",
       "type": "event",
       "title": "Invasion : Quasar",
-      "summary": "Événement PvE à difficultés et modificateurs. Guide de missions et stratégies à enrichir.",
+      "summary": "Invasion Quasar : parcours initial détaillé sur les missions 1 à 10 ; les missions ajoutées ultérieurement restent à documenter.",
       "rewardId": "Quasar",
-      "stages": [],
-      "editorialRef": "invasion-event-quasar/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction",
+          "teamName": "Justiciers + Quasar",
+          "characters": [
+            "Punisher",
+            "SilverSable",
+            "DaredevilModern",
+            "HitMonkey",
+            "Quasar"
+          ],
+          "advice": [
+            "Ouvrir avec l'ultime de Quasar pour neutraliser Kang et Havok.",
+            "Éliminer rapidement Vahl et les Starjammers ; profiter des cibles Vulnérables."
+          ],
+          "alternatives": [],
+          "difficulty": "10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Sans restriction",
+          "teamName": "Justiciers + Quasar",
+          "characters": [
+            "Punisher",
+            "SilverSable",
+            "DaredevilModern",
+            "HitMonkey",
+            "Quasar"
+          ],
+          "advice": [
+            "Neutraliser le Lézard et Peter B. Parker avec Quasar ; étourdir Kahhori avec Hit-Monkey.",
+            "Supprimer le Bouffon vert classique avant son tour, puis conserver de l'énergie en fin de combat."
+          ],
+          "alternatives": [],
+          "difficulty": "10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Justiciers ou Thunderbolts",
+          "teamName": "Justiciers + Quasar",
+          "characters": [
+            "Punisher",
+            "SilverSable",
+            "DaredevilModern",
+            "HitMonkey",
+            "Quasar"
+          ],
+          "advice": [
+            "Bloquer Darkhawk ; étourdir Sentinelle Oméga avec Hit-Monkey.",
+            "Abattre les Nimrods non étourdis puis Nova ; recommencer le contrôle à chaque vague."
+          ],
+          "alternatives": [],
+          "difficulty": "10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Justiciers ou Thunderbolts",
+          "teamName": "Justiciers + Quasar",
+          "characters": [
+            "Punisher",
+            "SilverSable",
+            "DaredevilModern",
+            "HitMonkey",
+            "Quasar"
+          ],
+          "advice": [
+            "Contrôler Gladiator dès l'ouverture ; retirer les effets bénéfiques avec Silver Sable.",
+            "Éliminer Knull puis Gorr et Bouffon rouge, tout en surveillant Kahhori."
+          ],
+          "alternatives": [],
+          "difficulty": "10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Maudits ou 4 Fantastiques (MCU)",
+          "teamName": "4 Fantastiques (MCU) + Quasar",
+          "characters": [
+            "FranklinRichards",
+            "MrFantasticMCU",
+            "InvisibleWomanMCU",
+            "HumanTorch",
+            "Quasar"
+          ],
+          "advice": [
+            "Cibler Firestar avec l'ultime de Quasar et enchaîner avec Franklin.",
+            "Prioriser Gwenpool, Carnage puis Void Knight ; préserver les capacités si possible."
+          ],
+          "alternatives": [],
+          "difficulty": "10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Maudits ou 4 Fantastiques (MCU)",
+          "teamName": "4 Fantastiques (MCU) + Quasar",
+          "characters": [
+            "FranklinRichards",
+            "MrFantasticMCU",
+            "InvisibleWomanMCU",
+            "HumanTorch",
+            "Quasar"
+          ],
+          "advice": [
+            "Bloquer Patriot avec Quasar ; la spéciale de la Femme invisible gêne toute la première vague.",
+            "Éliminer Joaquin et Patriot, puis Peggy Carter lorsqu'elle réapparaît."
+          ],
+          "alternatives": [],
+          "difficulty": "10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Justiciers ou Thunderbolts",
+          "teamName": "Justiciers + Quasar",
+          "characters": [
+            "Punisher",
+            "SilverSable",
+            "DaredevilModern",
+            "HitMonkey",
+            "Quasar"
+          ],
+          "advice": [
+            "Utiliser l'ultime de Quasar sur Joaquin et celui de Hit-Monkey sur Wong.",
+            "Éliminer Vif-Argent et Agatha avant Peggy Carter ; réutiliser les ultimes grâce au regain d'énergie."
+          ],
+          "alternatives": [],
+          "difficulty": "10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Justiciers ou Thunderbolts",
+          "teamName": "Justiciers + Quasar",
+          "characters": [
+            "Punisher",
+            "SilverSable",
+            "DaredevilModern",
+            "HitMonkey",
+            "Quasar"
+          ],
+          "advice": [
+            "Neutraliser Spider-Man Pavitr et le Lézard dès les premières actions.",
+            "Contrôler Super-Skrull et Kraven puis dissiper les améliorations à chaque nouvelle vague."
+          ],
+          "alternatives": [],
+          "difficulty": "10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Maudits ou 4 Fantastiques (MCU)",
+          "teamName": "4 Fantastiques (MCU) + Quasar",
+          "characters": [
+            "FranklinRichards",
+            "MrFantasticMCU",
+            "InvisibleWomanMCU",
+            "HumanTorch",
+            "Quasar"
+          ],
+          "advice": [
+            "Bloquer Moon Knight et éliminer d'abord Man-Thing.",
+            "Étourdire Lilandra à l'arrivée des Starjammers, puis finir Howard le canard en dernier."
+          ],
+          "alternatives": [],
+          "difficulty": "10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Maudits ou 4 Fantastiques (MCU)",
+          "teamName": "4 Fantastiques (MCU) + Quasar",
+          "characters": [
+            "FranklinRichards",
+            "MrFantasticMCU",
+            "InvisibleWomanMCU",
+            "HumanTorch",
+            "Quasar"
+          ],
+          "advice": [
+            "Dissiper les charges de Black Knight avec Quasar et viser Diablo ensuite.",
+            "Au dernier groupe, contrôler Méphisto avant les deux Diablo ; inutile de conserver les ultimes."
+          ],
+          "alternatives": [],
+          "difficulty": "10",
+          "strategyKind": "walkthrough"
+        }
+      ],
+      "editorialRef": "invasion-event-quasar/",
+      "totalStages": 16,
+      "stageUnit": "mission",
+      "guideNote": "Tactiques résumées pour la difficulté 10 avec modificateurs. Les restrictions et adversaires peuvent différer lors d'une autre rotation."
     },
     {
       "id": "invasion-blastaar",
       "type": "event",
       "title": "Invasion : Blastaar",
-      "summary": "Épreuves Invasion, restrictions progressives et stratégies par mission.",
+      "summary": "Invasion Blastaar : 10 missions décrites avec restrictions, équipes et instructions de combat.",
       "rewardId": "Blastaar",
-      "stages": [],
-      "editorialRef": "invasion-event-blastaar/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction",
+          "teamName": "Justiciers ou personnages les plus puissants",
+          "characters": [
+            "Punisher",
+            "Elektra",
+            "HitMonkey",
+            "SilverSable",
+            "DaredevilModern"
+          ],
+          "advice": [
+            "Pour ces deux premières missions, privilégier une équipe robuste.",
+            "Des personnages mythiques puissants constituent aussi une option."
+          ],
+          "alternatives": [],
+          "difficulty": "5–10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Sans restriction",
+          "teamName": "Justiciers ou personnages les plus puissants",
+          "characters": [
+            "Punisher",
+            "Elektra",
+            "HitMonkey",
+            "SilverSable",
+            "DaredevilModern"
+          ],
+          "advice": [
+            "Même principe que la première mission : viser une victoire fiable.",
+            "Garder les combattants essentiels en état pour les restrictions suivantes."
+          ],
+          "alternatives": [],
+          "difficulty": "5–10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "4F (MCU), Club des Damnés, Quasar ou Blastaar",
+          "teamName": "Blastaar + Quasar + trio 4F (MCU)",
+          "characters": [
+            "Blastaar",
+            "MrFantasticMCU",
+            "InvisibleWomanMCU",
+            "FranklinRichards",
+            "Quasar"
+          ],
+          "advice": [
+            "Retirer Provocation au Fléau zombie avec Franklin ; bloquer Hellverine avec Quasar.",
+            "Regrouper les ennemis avec la Femme invisible ; le Mister Fantastic doit survivre au contre-assaut."
+          ],
+          "alternatives": [],
+          "difficulty": "5–10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "4F (MCU), Club des Damnés, Quasar ou Blastaar",
+          "teamName": "Blastaar + Quasar + trio 4F (MCU)",
+          "characters": [
+            "Blastaar",
+            "MrFantasticMCU",
+            "InvisibleWomanMCU",
+            "FranklinRichards",
+            "Quasar"
+          ],
+          "advice": [
+            "Garder Blastaar vivant : il sera nécessaire ensuite.",
+            "Dépouiller Phénix de ses bonus avec Franklin, puis contrôler Phénix noire avec Quasar."
+          ],
+          "alternatives": [],
+          "difficulty": "5–10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Club des Damnés, Sinister Six ou Blastaar",
+          "teamName": "Blastaar + Sinister Six",
+          "characters": [
+            "Blastaar",
+            "SuperiorSpiderMan",
+            "GreenGoblinGlider",
+            "Vulture",
+            "Mysterio"
+          ],
+          "advice": [
+            "Commencer par une attaque basique de Vautour sur Mister Fantastic provoquant une riposte.",
+            "Laisser Vautour encaisser certaines frappes d'Omega Sentinel ; cette mission exige une exécution précise."
+          ],
+          "alternatives": [],
+          "difficulty": "5–10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Club des Damnés, Sinister Six ou Blastaar",
+          "teamName": "Blastaar + Insidious Six",
+          "characters": [
+            "Blastaar",
+            "SuperiorSpiderMan",
+            "Hobgoblin",
+            "Vulture",
+            "Shocker"
+          ],
+          "advice": [
+            "Contrôler Gambit dès l'ouverture ; basculer ensuite sur Apocalypse.",
+            "Accumuler cinq Bomb-Bursts avant l'ultime de Blastaar pour maximiser les dégâts."
+          ],
+          "alternatives": [],
+          "difficulty": "5–10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Sinister Six ou Blastaar",
+          "teamName": "Blastaar + Insidious Six",
+          "characters": [
+            "Blastaar",
+            "SuperiorSpiderMan",
+            "Hobgoblin",
+            "Vulture",
+            "Shocker"
+          ],
+          "advice": [
+            "Éliminer Dormammu dès que possible pour empêcher Réanimation.",
+            "Garder les ennemis sous effets négatifs et charger l'ultime de Blastaar avec ses attaques basiques."
+          ],
+          "alternatives": [],
+          "difficulty": "5–10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Sinister Six ou Blastaar",
+          "teamName": "Blastaar + Sinister Six",
+          "characters": [
+            "Blastaar",
+            "SuperiorSpiderMan",
+            "Hobgoblin",
+            "GreenGoblinGlider",
+            "Vulture"
+          ],
+          "advice": [
+            "Ralentir Void Knight avec Vautour puis bloquer Knull avec Blastaar.",
+            "Viser Knull en priorité tout en profitant des effets du Bouffon vert classique."
+          ],
+          "alternatives": [],
+          "difficulty": "5–10",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Sinister Six, Brimstone ou Blastaar",
+          "teamName": "Blastaar + Insidious Six (tactique)",
+          "characters": [
+            "Blastaar",
+            "SuperiorSpiderMan",
+            "Hobgoblin",
+            "Vulture",
+            "Shocker"
+          ],
+          "advice": [
+            "Ouvrir sur Sebastian Shaw et Pandapool ; placer Trauma et Blocage des soins avec Super-Bouffon.",
+            "Activer la spéciale de Shocker et patienter jusqu'à cinq Bomb-Bursts avant l'ultime de Blastaar."
+          ],
+          "alternatives": [],
+          "difficulty": "5–10",
+          "strategyKind": "reconstructed"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Sinister Six, Brimstone ou Blastaar",
+          "teamName": "Brimstone (sans Elsa) + Blastaar",
+          "characters": [
+            "DaimonHellstrom",
+            "Hellcat",
+            "LivingMummy",
+            "StrangeSupreme",
+            "Blastaar"
+          ],
+          "advice": [
+            "Ne pas gaspiller l'ultime de Daimon contre les trois Immunités initiales.",
+            "Débuter avec son attaque basique sur Shannon Carter, éviter de toucher Ms. Marvel classique et exploiter les assists."
+          ],
+          "alternatives": [],
+          "difficulty": "5–10",
+          "strategyKind": "walkthrough"
+        }
+      ],
+      "editorialRef": "invasion-event-blastaar/",
+      "totalStages": 10,
+      "stageUnit": "mission",
+      "guideNote": "Solutions pour les difficultés élevées ; les modificateurs activés peuvent changer radicalement la difficulté. La mission 10 utilise Brimstone + Blastaar malgré un intitulé de composition contradictoire dans le guide."
     },
     {
       "id": "finding-xavier",
       "type": "event",
       "title": "Finding Xavier : Race to X",
-      "summary": "Saga de recrutement de Xavier avec différentes difficultés et plusieurs parties.",
+      "summary": "Saga Finding Xavier : progression par sections et difficultés Hard, Heroic et X-Treme.",
       "rewardId": "Xavier",
-      "stages": [],
-      "editorialRef": "finding-xavier/"
+      "stages": [
+        {
+          "id": "ville",
+          "title": "Section ville",
+          "requirement": "Ville",
+          "teamName": "Gladiator : missions de Ville · G17–G20 selon difficulté",
+          "characters": [
+            "SilverSable",
+            "Vulture",
+            "SuperiorSpiderMan",
+            "Hobgoblin",
+            "HitMonkey"
+          ],
+          "advice": [
+            "Prioriser les personnages utilisables ailleurs et capables de tenir jusqu'à trois étoiles."
+          ],
+          "alternatives": [],
+          "unit": "Section",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "mondial-vilains",
+          "title": "Section mondial-vilains",
+          "requirement": "Vilains mondiaux",
+          "teamName": "Roi d'ombre : voie Heroic",
+          "characters": [
+            "OmegaRedPhoenix",
+            "LadyDeathstrike",
+            "ZombieJuggernaut",
+            "MagnetoPhoenixForce",
+            "Darkstar"
+          ],
+          "advice": [
+            "Apocalypse peut faciliter le parcours mais coûte plus de pièces d'équipement."
+          ],
+          "alternatives": [],
+          "unit": "Section",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "mondial-heros",
+          "title": "Section mondial-heros",
+          "requirement": "Héros mondiaux",
+          "teamName": "Roi d'ombre : voie X-Treme",
+          "characters": [
+            "Sentry",
+            "Thunderstrike",
+            "Eclipse",
+            "StormMighty",
+            "Angel"
+          ],
+          "advice": [
+            "Choisir une équipe suffisamment robuste pour viser trois étoiles ; les personnages copiés peuvent être dangereux."
+          ],
+          "alternatives": [],
+          "unit": "Section",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "cosmique-vilains",
+          "title": "Section cosmique-vilains",
+          "requirement": "Vilains cosmiques",
+          "teamName": "Xavier corrompu : voie Heroic",
+          "characters": [
+            "Knull",
+            "Thanos",
+            "SilverSurferBreaker",
+            "HighEvolutionary",
+            "Executioner"
+          ],
+          "advice": [
+            "Le guide favorise un noyau cosmique à plusieurs origines d'équipement."
+          ],
+          "alternatives": [],
+          "unit": "Section",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "cosmique-heros",
+          "title": "Section cosmique-heros",
+          "requirement": "Lilandra + héros cosmiques",
+          "teamName": "Xavier corrompu : voie X-Treme",
+          "characters": [
+            "Lilandra",
+            "Quasar",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "FranklinRichards"
+          ],
+          "advice": [
+            "Lilandra est obligatoire ; Odin peut remplacer Quasar si les ressources mystiques le permettent."
+          ],
+          "alternatives": [
+            "Odin"
+          ],
+          "unit": "Section",
+          "strategyKind": "recommendation"
+        }
+      ],
+      "editorialRef": "finding-xavier/",
+      "guideNote": "Les cinq entrées ci-dessous sont des recommandations par section, pas des nœuds individuels. La saga compte plus de 50 missions ; aucun raccourci n'a été inventé pour des missions non identifiées."
     },
     {
       "id": "target-blue-marvel",
       "type": "event",
       "title": "Target : Blue Marvel",
-      "summary": "Parcours PvE de progression avec conditions de traits et d’ISO-8.",
+      "summary": "Target Blue Marvel : 10 missions avec combats persistants et progression ISO-8 violet.",
       "rewardId": "BlueMarvel",
-      "stages": [],
-      "editorialRef": "target-blue-marvel/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction · ISO-8 violet 4",
+          "teamName": "Équipe recommandée pour la section",
+          "characters": [
+            "Quasar",
+            "Blastaar",
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU"
+          ],
+          "advice": [
+            "Préparer dès le départ des personnages utilisables également dans les sections Conquérant et Cosmique."
+          ],
+          "alternatives": [],
+          "difficulty": "Événement",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Conquérants · ISO-8 violet 4",
+          "teamName": "Équipe recommandée pour la section",
+          "characters": [
+            "Quasar",
+            "Blastaar",
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU"
+          ],
+          "advice": [
+            "La combinaison Quasar/Blastaar/trio 4F (MCU) économise les investissements des missions suivantes."
+          ],
+          "alternatives": [],
+          "difficulty": "Événement",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Conquérants · ISO-8 violet 5",
+          "teamName": "Équipe recommandée pour la section",
+          "characters": [
+            "Quasar",
+            "Blastaar",
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU"
+          ],
+          "advice": [
+            "Les bonus d'événement favorisent notamment les membres des Fantastiques, Insidious Six et Brimstone."
+          ],
+          "alternatives": [],
+          "difficulty": "Événement",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Cosmique non mythique · ISO-8 violet 4",
+          "teamName": "Équipe recommandée pour la section",
+          "characters": [
+            "Quasar",
+            "Blastaar",
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU"
+          ],
+          "advice": [
+            "Réutiliser la même équipe si elle remplit les restrictions ; profiter des améliorations de 4F (MCU)."
+          ],
+          "alternatives": [],
+          "difficulty": "Événement",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Cosmique non mythique · ISO-8 violet 5",
+          "teamName": "Équipe recommandée pour la section",
+          "characters": [
+            "Quasar",
+            "Blastaar",
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU"
+          ],
+          "advice": [
+            "Même noyau cosmique que la mission 4 ; privilégier la montée ISO-8 plutôt qu'une nouvelle équipe."
+          ],
+          "alternatives": [],
+          "difficulty": "Événement",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Ville non mythique · ISO-8 violet 4 · Raid",
+          "teamName": "Équipe recommandée pour la section",
+          "characters": [
+            "SuperiorSpiderMan",
+            "Hobgoblin",
+            "Vulture",
+            "Scorpion",
+            "Shocker"
+          ],
+          "advice": [
+            "Le trio Insidious et Vautour/Shocker bénéficie des modificateurs ; les Justiciers sont une alternative."
+          ],
+          "alternatives": [],
+          "difficulty": "Événement",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Ville non mythique · ISO-8 violet 5 · Raid",
+          "teamName": "Équipe recommandée pour la section",
+          "characters": [
+            "SuperiorSpiderMan",
+            "Hobgoblin",
+            "Vulture",
+            "Scorpion",
+            "Shocker"
+          ],
+          "advice": [
+            "Les cinq personnages orientés Insidious Six permettent de profiter de leurs synergies et bonus."
+          ],
+          "alternatives": [],
+          "difficulty": "Événement",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Mondial non mythique · ISO-8 violet 4 · Guerre",
+          "teamName": "Équipe recommandée pour la section",
+          "characters": [
+            "DaimonHellstrom",
+            "Hellcat",
+            "LivingMummy",
+            "ElsaBloodstone",
+            "OldManLogan"
+          ],
+          "advice": [
+            "Quatre membres Brimstone mondiaux et Old Man Logan constituent une base recommandée."
+          ],
+          "alternatives": [],
+          "difficulty": "Événement",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Mondial non mythique · ISO-8 violet 5 · Guerre",
+          "teamName": "Équipe recommandée pour la section",
+          "characters": [
+            "DaimonHellstrom",
+            "Hellcat",
+            "LivingMummy",
+            "ElsaBloodstone",
+            "OldManLogan"
+          ],
+          "advice": [
+            "Maintenir la formation de mission 8 et renforcer l'ISO-8 ; Strange (Sans cœur) est cosmique, donc exclu."
+          ],
+          "alternatives": [],
+          "difficulty": "Événement",
+          "strategyKind": "recommendation"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Sans restriction · ISO-8 violet 5",
+          "teamName": "Plusieurs équipes possibles",
+          "characters": [],
+          "advice": [
+            "Boss Blue Marvel : envoyer les équipes des sections précédentes sur plusieurs attaques.",
+            "L'affrontement est persistant : les personnages récupèrent leur santé au jour suivant."
+          ],
+          "alternatives": [],
+          "difficulty": "Événement",
+          "strategyKind": "recommendation"
+        }
+      ],
+      "editorialRef": "target-blue-marvel/",
+      "totalStages": 10,
+      "stageUnit": "mission",
+      "guideNote": "Guide de préparation et recommandations de personnages, pas dix victoires individuelles démontrées. Deux parcours sont nécessaires pour obtenir les récompenses complètes."
     }
   ]
 }
