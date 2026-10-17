@@ -1440,10 +1440,188 @@
       "id": "magik-breaker",
       "type": "trial",
       "title": "Première Briseuse : Magik",
-      "summary": "Événement permanent ; la préparation passe par l'ISO-8 orange niveau 3 sur 15 personnages.",
+      "summary": "Magik (Briseuse) : 10 missions, prérequis ISO-8 orange et compositions recommandées par section.",
       "rewardId": "MagikBreaker",
-      "stages": [],
-      "editorialRef": "first-breaker-magik/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction · ISO-8 orange niveau 3",
+          "teamName": "Symbiotes + Insidious Six",
+          "characters": [
+            "Toxin",
+            "Riot",
+            "Venom",
+            "Hobgoblin",
+            "SuperiorSpiderMan"
+          ],
+          "advice": [
+            "Préparer cinq personnages Ville dès le départ permet de réutiliser les mêmes investissements jusqu'à la mission 5."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Sans restriction · ISO-8 orange niveau 3",
+          "teamName": "Symbiotes + Insidious Six",
+          "characters": [
+            "Toxin",
+            "Riot",
+            "Venom",
+            "Hobgoblin",
+            "SuperiorSpiderMan"
+          ],
+          "advice": [
+            "Préparer cinq personnages Ville dès le départ permet de réutiliser les mêmes investissements jusqu'à la mission 5."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Sans restriction · ISO-8 orange niveau 3",
+          "teamName": "Symbiotes + Insidious Six",
+          "characters": [
+            "Toxin",
+            "Riot",
+            "Venom",
+            "Hobgoblin",
+            "SuperiorSpiderMan"
+          ],
+          "advice": [
+            "Préparer cinq personnages Ville dès le départ permet de réutiliser les mêmes investissements jusqu'à la mission 5."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Ville · ISO-8 orange niveau 3",
+          "teamName": "Symbiotes + Insidious Six",
+          "characters": [
+            "Toxin",
+            "Riot",
+            "Venom",
+            "Hobgoblin",
+            "SuperiorSpiderMan"
+          ],
+          "advice": [
+            "Toxin, Riot et Venom bénéficient des traits Sinister Six et de la synergie avec les deux Insidious."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Ville · ISO-8 orange niveau 3",
+          "teamName": "Symbiotes + Insidious Six",
+          "characters": [
+            "Toxin",
+            "Riot",
+            "Venom",
+            "Hobgoblin",
+            "SuperiorSpiderMan"
+          ],
+          "advice": [
+            "Toxin, Riot et Venom bénéficient des traits Sinister Six et de la synergie avec les deux Insidious."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Mondial · ISO-8 orange niveau 3",
+          "teamName": "Personnages mondiaux recommandés",
+          "characters": [
+            "Xavier",
+            "Darkstar",
+            "SymbioteQuicksilver",
+            "StormMighty",
+            "MagnetoPhoenixForce"
+          ],
+          "advice": [
+            "Choisir Xavier, Darkstar, Vif-Argent symbiote, Tornade puissante et Magnéto Force Phénix selon la disponibilité."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Mondial · ISO-8 orange niveau 3",
+          "teamName": "Personnages mondiaux recommandés",
+          "characters": [
+            "Xavier",
+            "Darkstar",
+            "SymbioteQuicksilver",
+            "StormMighty",
+            "MagnetoPhoenixForce"
+          ],
+          "advice": [
+            "Choisir Xavier, Darkstar, Vif-Argent symbiote, Tornade puissante et Magnéto Force Phénix selon la disponibilité."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Cosmique · ISO-8 orange niveau 3",
+          "teamName": "Personnages cosmiques recommandés",
+          "characters": [
+            "Mephisto",
+            "Thanos",
+            "Odin",
+            "Knull",
+            "SilverSurferBreaker"
+          ],
+          "advice": [
+            "Les dégâts calculés sur un pourcentage de santé maximale sont neutralisés : ne pas compter sur le vol de santé d'Odin."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Cosmique · ISO-8 orange niveau 3",
+          "teamName": "Personnages cosmiques recommandés",
+          "characters": [
+            "Mephisto",
+            "Thanos",
+            "Odin",
+            "Knull",
+            "SilverSurferBreaker"
+          ],
+          "advice": [
+            "Les dégâts calculés sur un pourcentage de santé maximale sont neutralisés : ne pas compter sur le vol de santé d'Odin."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Sans restriction · ISO-8 orange niveau 3",
+          "teamName": "Boss Magik (Briseuse) — plusieurs équipes possibles",
+          "characters": [],
+          "advice": [
+            "Le guide n'annonce pas de composition universelle victorieuse : prévoir les trois équipes renforcées des sections précédentes."
+          ],
+          "strategyKind": "recommendation",
+          "alternatives": []
+        }
+      ],
+      "editorialRef": "first-breaker-magik/",
+      "stageUnit": "mission",
+      "totalStages": 10,
+      "guideNote": "Préparation recommandée : 15 personnages en ISO-8 orange niveau 3, à partir du niveau 95. Les équipes sont des suggestions de progression, non des victoires individuelles démontrées."
     },
     {
       "id": "shadow-king",
