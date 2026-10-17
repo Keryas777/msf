@@ -223,12 +223,12 @@
       body.append(group);
     }
     if (strategy.instructions?.length) {
-      body.append(el("h4", "", "Instructions de cette version — à contrôler"));
+      body.append(el("h4", "", strategy.provenance?.status === "source_text_checked" ? "Conseils reformulés depuis cette publication" : "Instructions héritées — à contrôler"));
       const list = el("ul", "challenge-advice");
       for (const tip of strategy.instructions) list.append(el("li", "", tip));
       body.append(list);
     } else {
-      body.append(el("p", "challenge-roster-note", "Aucun enchaînement tactique confirmé pour cette composition."));
+      body.append(el("p", "challenge-roster-note", strategy.provenance?.status === "source_text_checked" ? "La publication identifie cette équipe sans préciser une rotation de compétences exploitable." : "Aucun enchaînement tactique confirmé pour cette composition."));
     }
     if (strategy.notes?.length) {
       body.append(el("h4", "", "Précisions sur cette version"));
