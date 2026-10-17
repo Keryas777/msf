@@ -201,7 +201,22 @@
     [...section.querySelectorAll("[data-cosmic-character]")].forEach((input, index) => {
       const selected = charactersById.get(input.dataset.selectedId || "");
       if (selected) {
-        row.appendChild(portrait(selected.id));
+        const tile = portrait(selected.id);
+        const removeButton = make("button", "cosmicPortraitRemove", "×");
+        removeButton.type = "button";
+        removeButton.title = "Retirer " + selected.name;
+        removeButton.setAttribute("aria-label",
+          "Retirer " + selected.name + " de cette salle, emplacement " + (index + 1));
+        removeButton.addEventListener("click", () => {
+          // Ne touche qu'à l'emplacement correspondant, puis persiste le brouillon.
+          input.value = "";
+          input.dataset.selectedId = "";
+          closeSuggestions();
+          renderSelectedPortraits(section);
+          saveDraft();
+        });
+        tile.appendChild(removeButton);
+        row.appendChild(tile);
       } else {
         const slot = make("div", "cosmicPortrait cosmicPortrait--empty");
         slot.appendChild(make("span", "", String(index + 1)));

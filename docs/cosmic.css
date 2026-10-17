@@ -77,3 +77,18 @@
 /* Sélection des défenses publiées, toujours adaptée à la largeur mobile. */
 .cosmicPublishedSelect{display:block;width:100%;min-width:0;margin:5px 0 12px}
 .cosmicPublishedSelect:disabled{opacity:.65}
+
+/* Retirer un personnage de son brouillon : croix discrète, utilisable au doigt. */
+.cosmicSelectedPortraits .cosmicPortrait{position:relative}
+.cosmicPortraitRemove{
+  position:absolute;top:2px;right:2px;z-index:1;
+  display:grid;place-items:center;
+  width:30px;height:30px;padding:0;
+  border:1px solid rgba(255,255,255,.55);border-radius:50%;
+  color:#fff;background:rgba(14,16,31,.88);
+  font:700 20px/1 sans-serif;
+  cursor:pointer;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.cosmicPortraitRemove:focus-visible{outline:2px solid #d9aaff;outline-offset:1px}
+.cosmicPortraitRemove:active{background:#64343f}

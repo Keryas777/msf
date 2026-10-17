@@ -106,3 +106,24 @@ test("les classes ISO-8 des règles cosmiques utilisent les termes officiels fra
     assert.match(rule, /ISO-8 Fantassin \(Raider\)/);
   }
 });
+
+test("les portraits du brouillon peuvent être retirés individuellement, puis sauvegardés", async () => {
+  const [js, css, html] = await Promise.all([
+    read("docs/cosmic-defenses.js"), read("docs/cosmic.css"), read("docs/cosmic-defenses.html")
+  ]);
+  const selectedPortraits = js.split("function renderSelectedPortraits(section)")[1]?.split("function closeSuggestions")[0];
+  assert.ok(selectedPortraits, "section des portraits sélectionnés présente");
+  assert.match(selectedPortraits, /if \(selected\) \{/);
+  assert.match(selectedPortraits, /make\("button", "cosmicPortraitRemove", "×"\)/);
+  assert.match(selectedPortraits, /removeButton\.type = "button"/);
+  assert.match(selectedPortraits, /removeButton\.setAttribute\("aria-label"/);
+  assert.match(selectedPortraits, /removeButton\.addEventListener\("click", \(\) => \{/);
+  assert.match(selectedPortraits, /input\.value = "";/);
+  assert.match(selectedPortraits, /input\.dataset\.selectedId = "";/);
+  assert.match(selectedPortraits, /renderSelectedPortraits\(section\);\s*saveDraft\(\);/);
+  assert.match(css, /\.cosmicPortraitRemove\{/);
+  assert.match(css, /\.cosmicPortraitRemove:focus-visible/);
+  // Pas de croix pour les défenses publiées ni de suppression de la note.
+  assert.doesNotMatch(js.split("function renderPublished()")[1]?.split("function initPublishedSelector")[0] || "", /cosmicPortraitRemove/);
+  assert.match(html, /cosmic-defenses\.js\?v=5/);
+});
