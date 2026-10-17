@@ -1,0 +1,442 @@
+/*
+ * Identité visuelle du catalogue MSF, alignée sur style.css (classements LoSP).
+ * Surcharge volontairement limitée au look : aucune dépendance aux données ou au JS.
+ */
+:root {
+  color-scheme: dark;
+  --bg: #070809;
+  --bg-soft: #101214;
+  --panel: rgba(20,22,24,.72);
+  --panel-strong: rgba(20,22,24,.88);
+  --line: rgba(255,255,255,.10);
+  --line-strong: rgba(255,255,255,.22);
+  --text: rgba(255,255,255,.92);
+  --muted: rgba(255,255,255,.65);
+  --accent: #e8eff4;
+  --accent-strong: #fff;
+  --accent-soft: rgba(255,255,255,.09);
+  --green: #2ecc71;
+  --violet: #b7a5e5;
+  --gold: #ffd24a;
+  --danger: #ff8d91;
+  --shadow: 0 8px 24px rgba(0,0,0,.45);
+  --radius-lg: 18px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+html {
+  background: var(--bg);
+}
+
+body.archiveCharactersPage {
+  min-height: 100vh;
+  min-height: 100dvh;
+  color: var(--text);
+  background-color: #05070d;
+  background-image: url("./Background.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
+.archiveApp.app {
+  width: 100%;
+  max-width: 800px;
+  padding: max(12px, env(safe-area-inset-top))
+    max(12px, env(safe-area-inset-right))
+    max(24px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
+  gap: 14px;
+}
+
+.archiveApp main {
+  min-width: 0;
+  width: 100%;
+}
+
+/* Même en-tête à flèches, titre centré et bouton maison que les classements. */
+.archiveApp .archiveHeader.header {
+  position: relative;
+  z-index: 10;
+  padding: 14px 52px;
+  margin: 0;
+  min-height: 66px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(8,9,10,.72);
+  box-shadow: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.archiveApp .archiveHeader .headerLeft {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: center;
+}
+
+.archiveApp .archiveHeader .title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: .2px;
+  line-height: 1.05;
+  color: var(--text);
+}
+
+.archiveApp .archiveHeader .subtitle {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.archiveApp .archiveHeader .backBtn,
+.archiveApp .archiveHeader .homeBtn {
+  top: 12px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(0,0,0,.45);
+  color: var(--text);
+  font-size: 18px;
+  text-decoration: none;
+}
+
+.archiveApp .archiveHeader .backBtn { left: 12px; }
+.archiveApp .archiveHeader .homeBtn { right: 12px; }
+
+/* Résumé compact : mêmes cartes et transparences que le reste de l'app. */
+.archiveApp .hero.archiveSummary {
+  order: 0;
+  padding: 13px 12px 12px;
+  overflow: visible;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.archiveApp .hero.archiveSummary::after { display: none; }
+
+.archiveApp .heroText {
+  max-width: none;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.archiveApp .sourceNote {
+  justify-content: center;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 9px 0 0;
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.archiveApp .sourceDot {
+  width: 7px;
+  height: 7px;
+  margin-top: 5px;
+  background: var(--bar-green, #2ecc71);
+  box-shadow: none;
+}
+
+.archiveApp .statsGrid {
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 8px;
+  margin-top: 13px;
+}
+
+.archiveApp .statCard {
+  min-width: 0;
+  padding: 10px 8px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(0,0,0,.22);
+  text-align: center;
+}
+
+.archiveApp .statCard strong {
+  color: var(--text);
+  font-size: 21px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.archiveApp .statCard span {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+/* Onglets neutres, sans le dégradé bleu/violet de l'ancienne maquette. */
+.archiveApp .viewTabs {
+  order: 2;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.archiveApp .viewTab {
+  min-height: 43px;
+  padding: 8px 5px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: rgba(0,0,0,.22);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.archiveApp .viewTab[aria-selected="true"] {
+  color: #fff;
+  border-color: var(--toggle-on-border);
+  background: var(--toggle-on-bg);
+  box-shadow: none;
+}
+
+/* Barre de recherche et sélecteurs identiques à la famille classement. */
+.archiveApp .filters.archiveFilters {
+  order: 1;
+  display: block;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.archiveApp .filterGrid { gap: 10px; }
+.archiveApp .field label {
+  margin: 0 0 6px;
+  color: var(--muted2);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.archiveApp .field input,
+.archiveApp .field select {
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(0,0,0,.35);
+  color: var(--text);
+  font-size: 16px;
+}
+
+.archiveApp .field input:focus-visible,
+.archiveApp .field select:focus-visible {
+  border-color: rgba(255,255,255,.35);
+  box-shadow: 0 0 0 3px rgba(255,255,255,.08);
+}
+
+.archiveApp .resetButton {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(0,0,0,.22);
+  color: var(--text);
+}
+
+.archiveApp .resultCount { color: var(--muted); }
+.archiveApp .content { order: 3; margin-top: 12px; min-width: 0; }
+
+.archiveApp .loading,
+.archiveApp .emptyState,
+.archiveApp .errorState,
+.archiveApp .timelineGroup,
+.archiveApp .rankingPanel {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.archiveApp .timelineGroup--team {
+  border-color: var(--border);
+  background: var(--panel);
+}
+
+.archiveApp .timelineGroup--rework {
+  border-color: rgba(255,255,255,.17);
+}
+
+.archiveApp .timelineGroup::before {
+  border-color: #151719;
+  background: rgba(255,255,255,.7);
+  box-shadow: none;
+}
+
+.archiveApp .timelineGroup--rework::before {
+  background: var(--violet);
+  box-shadow: none;
+}
+
+.archiveApp .characterCard,
+.archiveApp .listCard {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(0,0,0,.26);
+  box-shadow: none;
+}
+
+.archiveApp .characterCard--rework { border-color: rgba(183,165,229,.36); }
+.archiveApp .characterCard--existing { border-color: rgba(255,210,74,.25); }
+
+.archiveApp .portraitWrap,
+.archiveApp .listPortrait,
+.archiveApp .rankPortrait {
+  border-color: var(--border);
+  background: rgba(0,0,0,.25);
+}
+
+.archiveApp .portraitWrap { background: rgba(0,0,0,.25); }
+
+.archiveApp .cardBadge {
+  border-color: rgba(255,255,255,.16);
+  background: rgba(0,0,0,.7);
+  color: var(--text);
+}
+
+.archiveApp .cardBadge--new { background: rgba(26,110,68,.8); }
+.archiveApp .cardBadge--rework { background: rgba(85,65,122,.8); }
+.archiveApp .cardBadge--existing { background: rgba(128,91,27,.8); }
+
+.archiveApp .listChevron,
+.archiveApp .rankValue { color: var(--text); }
+
+.archiveApp .rankingItem { border-bottom-color: var(--border); }
+
+/* Fiche personnage : fond, onglets et filtres dans la même charte sombre. */
+body.archiveCharactersPage .modalBackdrop { background: rgba(0,0,0,.74); }
+body.archiveCharactersPage .detailSheet {
+  border: 1px solid var(--line-strong);
+  border-bottom: 0;
+  border-radius: 20px 20px 0 0;
+  background: #141618;
+  box-shadow: 0 -14px 34px rgba(0,0,0,.55);
+}
+
+body.archiveCharactersPage .closeButton {
+  border-color: var(--border);
+  border-radius: 12px;
+  background: rgba(0,0,0,.3);
+}
+
+body.archiveCharactersPage .detailPortrait {
+  border-color: var(--border);
+  border-radius: 14px;
+  background: #101214;
+}
+
+body.archiveCharactersPage .detailFact,
+body.archiveCharactersPage .historyEntry,
+body.archiveCharactersPage .profileIdentitySummary>div,
+body.archiveCharactersPage .profileAbility,
+body.archiveCharactersPage .profilePlayerRow {
+  border-color: var(--border);
+  border-radius: 14px;
+  background: rgba(0,0,0,.2);
+}
+
+body.archiveCharactersPage .profileTabs {
+  gap: 5px;
+  background: #141618;
+}
+
+body.archiveCharactersPage .profileTabs button {
+  border-color: var(--border);
+  background: rgba(0,0,0,.22);
+  color: var(--muted);
+}
+
+body.archiveCharactersPage .profileTabs button[aria-selected="true"] {
+  border-color: var(--toggle-on-border);
+  background: var(--toggle-on-bg);
+  color: var(--text);
+}
+
+body.archiveCharactersPage .profileTag,
+body.archiveCharactersPage .profilePlayerStats span {
+  border-color: var(--border);
+  background: rgba(255,255,255,.08);
+}
+
+body.archiveCharactersPage .profileAbilityIcon {
+  border-color: var(--border);
+  background: rgba(0,0,0,.22);
+}
+
+body.archiveCharactersPage .profileCodexLink,
+body.archiveCharactersPage .profileFiltersTitle button {
+  border-color: var(--border);
+  background: rgba(255,255,255,.08);
+  color: var(--text);
+}
+
+body.archiveCharactersPage .profileFilterToggle {
+  border-color: var(--toggle-off-border);
+  background: var(--toggle-off-bg);
+}
+
+body.archiveCharactersPage .profileFilterToggle:has(input:checked) {
+  border-color: var(--toggle-on-border);
+  background: var(--toggle-on-bg);
+}
+
+body.archiveCharactersPage .profilePower { color: var(--gold); }
+
+.archiveApp button:focus-visible,
+.archiveApp a:focus-visible,
+body.archiveCharactersPage .detailSheet button:focus-visible,
+body.archiveCharactersPage .detailSheet a:focus-visible {
+  outline: 2px solid #fff3a6;
+  outline-offset: 2px;
+}
+
+@media (min-width: 520px) {
+  .archiveApp .filterGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+
+@media (min-width: 760px) {
+  .archiveApp.app {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .archiveApp .statsGrid { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  .archiveApp .filterGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .archiveApp .characterGrid { grid-template-columns: repeat(6,minmax(0,1fr)); }
+  .archiveApp .rankings { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  body.archiveCharactersPage .detailSheet {
+    border-bottom: 1px solid var(--line-strong);
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 370px) {
+  .archiveApp .archiveHeader.header { padding-right: 45px; padding-left: 45px; }
+  .archiveApp .archiveHeader .title { font-size: 21px; }
+  .archiveApp .archiveHeader .subtitle { font-size: 12px; }
+  .archiveApp .statCard { padding: 9px 6px; }
+  .archiveApp .statCard strong { font-size: 19px; }
+}
