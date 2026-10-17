@@ -11,7 +11,16 @@ const makeConfig = (number, startAt) => ({
     startAt, firstTrialAt: startAt, sourceUrl: "https://marvelstrikeforce.com/en/updates/example",
     verified: "official-announcement" },
   globalRule: { title: "Globale", rule: "Règle complète vérifiée" },
-  rooms: Array.from({length: 6}, (_,i) => ({ id:i+1, label:"Salle " + (i+1), rule:"Règle " + (i+1) }))
+  rooms: Array.from({length: 6}, (_,i) => ({ id:i+1, label:"Salle " + (i+1), rule:"Règle " + (i+1) })),
+  localizationReview: {
+    policy: "fr-first", status: "reviewed",
+    rules: Object.fromEntries(["global", ...Array.from({length:6},(_,i)=>"room-"+(i+1))].map(key => [key, {
+      frenchOfficialChecked: true, frenchTerminologyChecked: true,
+      sources: [{contentLanguage:"en",authority:"official",contentVerified:true,url:"https://marvelstrikeforce.com/en/updates/example"}],
+      selectedSourceUrl:"https://marvelstrikeforce.com/en/updates/example",
+      fallbackExplanation:"Source française indisponible ; termes français contrôlés"
+    }]))
+  }
 });
 async function fixture() {
   const root = await mkdtemp(join(tmpdir(), "losp-cosmic-"));

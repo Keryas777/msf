@@ -2,6 +2,7 @@
 import { readFile, writeFile, mkdir, access } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { validateCosmicLocalization } from "./cosmic-localization.mjs";
 
 const DEFAULT_ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const FILES = Object.freeze({
@@ -64,6 +65,9 @@ export async function rollCosmicSeason({ root = DEFAULT_ROOT, now = new Date() }
   if (pending === null) return { status: "no-pending" };
 
   const next = validSeasonConfig(pending);
+  // Bloquer toute réinitialisation si la règle globale ou une salle n'a pas
+  // été revue en privilégiant les textes officiels réellement en français.
+  validateCosmicLocalization(pending);
   const paths = Object.fromEntries(
     Object.entries(FILES).map(([key, filename]) => [key, join(base, filename)])
   );
