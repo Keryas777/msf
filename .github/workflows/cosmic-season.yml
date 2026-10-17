@@ -1,0 +1,52 @@
+name: Cosmic Crucible — season lifecycle
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "19 * * * *"
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
+
+jobs:
+  cosmic-season:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Check next official season announcement (non-destructive)
+        id: discover
+        run: node scripts/watch-cosmic-season.mjs
+      - name: Open issue when new season announcement is detected
+        if: steps.discover.outputs.candidate_number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE: ${{ steps.discover.outputs.candidate_number }}
+        run: |
+          title="Cosmic Crucible saison ${CANDIDATE} — vérifier l'annonce officielle"
+          existing=$(gh issue list --state all --search "in:title ${title}" --json number --jq 'length')
+          if [ "$existing" = "0" ]; then
+            gh issue create --title "$title" --body "Une mention de la saison ${CANDIDATE} a été détectée dans l'index officiel https://marvelstrikeforce.com/en/updates . Vérifier la date de début, la règle globale et les six salles dans l'annonce complète. Mettre le JSON officiel validé dans docs/data/cosmic-next-season.json. Le workflow basculera automatiquement à la date de début. Aucun basculement sur ce seul signal."
+          fi
+      - name: Archive previous season and activate verified scheduled season
+        id: rollover
+        run: node scripts/roll-cosmic-season.mjs
+      - name: Commit atomic season rollover
+        if: steps.rollover.outputs.rolled == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/cosmic-config.json docs/data/cosmic-counters.json docs/data/cosmic-defenses.json docs/data/cosmic-next-season.json docs/data/cosmic-archive
+          git commit -m "chore(cosmic): archive previous season and initialize next season"
+          git push
