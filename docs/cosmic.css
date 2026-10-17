@@ -1,38 +1,62 @@
 /* Pages Épreuve cosmique : styles locaux, mobile first. */
-.cosmicHeader{padding:56px 14px 18px;background:linear-gradient(135deg,rgba(56,29,108,.75),rgba(8,9,20,.88));}
+.cosmicHeader{
+  padding:56px 14px 16px;
+  background:rgba(8,9,10,.78);box-shadow:var(--shadow);
+}
 .cosmicHeader .subtitle{margin-top:8px}
-.cosmicHubGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.cosmicHubTile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:190px;padding:16px 10px;border-radius:20px;text-align:center;text-decoration:none;color:#f7f2ff;border:1px solid #7762ab;box-shadow:0 8px 24px #0008;background:linear-gradient(140deg,#231a51,#11172b);transition:transform .14s,border-color .14s}
-.cosmicHubTile:active{transform:scale(.97)}
-.cosmicHubTile:focus-visible,.cosmicAction:focus-visible{outline:3px solid #d9aaff;outline-offset:3px}
-.cosmicHubTile--defenses{background:linear-gradient(140deg,#1b4261,#15122e);border-color:#5c8db1}
-.cosmicHubIcon{font-size:42px;line-height:1}
-.cosmicHubTile strong{font-size:clamp(18px,4vw,24px)}
-.cosmicHubTile span:last-child{color:#cbd2e3;font-size:clamp(12px,2.9vw,14px);line-height:1.35}
-.cosmicSectionTitle{font-size:20px;margin:3px 0 10px;text-align:center}
-.cosmicIntro{color:#c6c8da;font-size:14px;line-height:1.5;margin:4px 0 18px}
-.cosmicRooms{display:grid;gap:14px;margin-top:16px}
-.cosmicRoom{padding:12px;border:1px solid #454365;border-radius:15px;background:rgba(17,20,38,.68);min-width:0}
+.cosmicHubGrid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.cosmicHubTile{
+  --cosmic-accent:rgba(197,157,93,.28);
+  display:grid;grid-template-columns:54px minmax(0,1fr);
+  grid-template-rows:auto auto;align-content:center;align-items:center;
+  column-gap:14px;row-gap:5px;
+  min-width:0;min-height:120px;padding:16px 15px;
+  border:1px solid rgba(255,255,255,.16);border-radius:20px;
+  text-align:left;text-decoration:none;color:var(--text);
+  background:radial-gradient(circle at 8% 20%,var(--cosmic-accent),transparent 75%),rgba(12,18,28,.90);
+  box-shadow:var(--shadow),inset 0 0 22px rgba(255,255,255,.025);
+  transition:transform .16s ease,border-color .16s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.cosmicHubTile:active{transform:scale(.985)}
+.cosmicHubTile:focus-visible,.cosmicAction:focus-visible{outline:2px solid #c5dcff;outline-offset:3px}
+.cosmicHubTile--defenses{--cosmic-accent:rgba(79,170,213,.30)}
+.cosmicHubIcon{grid-column:1;grid-row:1 / span 2;display:grid;place-items:center;font-size:36px;line-height:1}
+.cosmicHubTile strong{grid-column:2;font-size:clamp(18px,4vw,23px);line-height:1.15;overflow-wrap:anywhere}
+.cosmicHubTile span:last-child{grid-column:2;color:var(--muted);font-size:13px;line-height:1.35;overflow-wrap:anywhere}
+.cosmicSectionTitle{font-size:21px;font-weight:900;margin:3px 0 10px;text-align:center;color:var(--text)}
+.cosmicIntro{color:var(--muted);font-size:14px;line-height:1.5;margin:4px 0 18px}
+.cosmicRooms{display:grid;gap:12px;margin-top:14px}
+.cosmicRoom{
+  min-width:0;padding:12px;border:1px solid var(--border);border-radius:16px;
+  background:rgba(12,16,24,.82);box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+}
 .cosmicRoom h3{margin:0 0 8px;font-size:17px}
-.cosmicRoomRule{color:#bfc1dc;font-size:12px;line-height:1.4;margin:2px 0 12px;white-space:pre-line;overflow-wrap:anywhere}
-.cosmicEmpty{font-size:13px;color:#9ca0b7;font-style:italic;margin:8px 0 3px}
-.cosmicDefense{padding:10px;border-top:1px solid #3a3e59;margin-top:8px}
+.cosmicRoomRule{color:var(--muted);font-size:12px;line-height:1.45;margin:2px 0 12px;white-space:pre-line;overflow-wrap:anywhere}
+.cosmicEmpty{font-size:13px;color:var(--muted2);font-style:italic;margin:8px 0 3px}
+.cosmicDefense{padding:10px;border-top:1px solid var(--border);margin-top:8px}
 .cosmicDefenseTitle{font-weight:800;margin:0 0 8px}
 .cosmicPortraits{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
-.cosmicPortrait{min-width:0;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#24283f;border:1px solid #454963}
+.cosmicPortrait{min-width:0;aspect-ratio:1;border-radius:10px;overflow:hidden;background:rgba(20,25,34,.92);border:1px solid rgba(255,255,255,.16)}
 .cosmicPortrait img{width:100%;height:100%;display:block;object-fit:contain;padding:3px;background:rgba(255,255,255,.03)}
 .cosmicPortrait span{display:grid;place-items:center;overflow-wrap:anywhere;font-size:10px;height:100%;text-align:center;padding:3px}
-.cosmicDefenseMeta{color:#bfc2d6;font-size:12px;line-height:1.45;margin:8px 0 0;overflow-wrap:anywhere}
+.cosmicDefenseMeta{color:var(--muted);font-size:12px;line-height:1.45;margin:8px 0 0;overflow-wrap:anywhere}
 .cosmicDefenseMeta a{color:#b8caff}
-.cosmicLabel{display:block;font-size:13px;font-weight:700;color:#dcd9ee;margin:13px 0 5px}
+.cosmicLabel{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:13px 0 5px}
 .cosmicInputs{display:grid;grid-template-columns:1fr;gap:7px}
 .cosmicInputs input{width:100%;min-width:0}
 .cosmicRoomNote{margin-top:8px}
-.cosmicFeedback{color:#cfc9ed;line-height:1.4;font-size:13px;white-space:pre-wrap}
-.cosmicAction{display:block;width:100%;min-height:46px;border:1px solid #aa8de9;background:linear-gradient(125deg,#51369d,#28265c);border-radius:13px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;padding:10px}
+.cosmicFeedback{color:var(--muted);line-height:1.4;font-size:13px;white-space:pre-wrap}
+.cosmicAction{
+  display:block;width:100%;min-height:46px;padding:10px;
+  border:1px solid rgba(163,201,235,.44);border-radius:13px;
+  background:linear-gradient(135deg,rgba(49,76,101,.96),rgba(24,35,52,.96));
+  color:var(--text);font-family:inherit;font-size:15px;font-weight:800;line-height:1.3;
+  cursor:pointer;box-shadow:var(--shadow);
+}
 .cosmicFallback{display:block;width:100%;min-height:180px;margin-top:12px;font-size:12px}
 .cosmicFallback[hidden]{display:none}
-@media(min-width:600px){.cosmicHubGrid{gap:20px}.cosmicHubTile{min-height:230px;padding:24px}.cosmicInputs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:600px){.cosmicInputs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.cosmicHubTile{transition:none}}
 
 /* Propositions : identité Discord affichée uniquement, sans édition. */
@@ -50,28 +74,26 @@
 .cosmicSuggestions{
   position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:25;
   display:grid;gap:4px;padding:5px;max-height:min(240px,42vh);
-  overflow-y:auto;overscroll-behavior:contain;border:1px solid #56547c;
-  border-radius:12px;background:#101225;box-shadow:0 14px 34px rgba(0,0,0,.65);
+  overflow-y:auto;overscroll-behavior:contain;border:1px solid rgba(255,255,255,.20);
+  border-radius:12px;background:rgba(12,17,25,.98);box-shadow:0 14px 34px rgba(0,0,0,.65);
 }
 .cosmicSuggestions[hidden]{display:none}
 .cosmicSuggestion{
   display:block;width:100%;min-height:42px;padding:9px 12px;
   text-align:left;border:1px solid transparent;border-radius:9px;
-  background:#232741;color:#fff;font:inherit;font-size:14px;
+  background:rgba(32,39,53,.94);color:var(--text);font:inherit;font-size:14px;
   cursor:pointer;overflow-wrap:anywhere;
 }
-.cosmicSuggestion:active,.cosmicSuggestion:focus-visible{
-  background:#454678;border-color:#b0aaff;
-}
+.cosmicSuggestion:active,.cosmicSuggestion:focus-visible{background:rgba(55,78,99,.95);border-color:rgba(174,211,245,.75)}
 .cosmicAction:disabled{opacity:.55;cursor:not-allowed}
 
 /* Informations de saison : détails repliables pour l'affichage mobile. */
-.cosmicSeasonCard{background:linear-gradient(145deg,rgba(52,33,100,.86),rgba(15,19,40,.88))}
+.cosmicSeasonCard{background:radial-gradient(circle at 50% 0,rgba(107,101,170,.17),transparent 78%),var(--panel)}
 .cosmicSeasonTitle{font-size:18px;text-align:center;margin:2px 0 8px}
-.cosmicSeasonDates{text-align:center;margin:0 0 12px;font-size:12px;color:#ddd6f0;line-height:1.5}
+.cosmicSeasonDates{text-align:center;margin:0 0 12px;font-size:12px;color:var(--muted);line-height:1.5}
 .cosmicSeasonDetails{font-size:13px;line-height:1.45}
-.cosmicSeasonDetails summary{cursor:pointer;text-align:center;color:#d9c1ff;font-weight:750;padding:8px}
-.cosmicSeasonDetails a{color:#c5d9ff}
+.cosmicSeasonDetails summary{cursor:pointer;text-align:center;color:#c8d8f1;font-weight:750;padding:8px}
+.cosmicSeasonDetails a{color:#b8d6ff}
 .cosmicRuleText{white-space:pre-line;padding:10px 0;border-bottom:1px solid #ffffff24;margin:0;overflow-wrap:anywhere}
 
 /* Sélection des défenses publiées, toujours adaptée à la largeur mobile. */
@@ -102,17 +124,17 @@
   content:"×";display:grid;place-items:center;
   color:#fff;font:700 12px/1 sans-serif;
 }
-.cosmicPortraitRemove:focus-visible{outline:2px solid #d9aaff;outline-offset:-1px;border-radius:9px}
+.cosmicPortraitRemove:focus-visible{outline:2px solid #c5dcff;outline-offset:-1px;border-radius:9px}
 .cosmicPortraitRemove:active::before{background:#64343f}
 
-/* Trois entrées distinctes : cartes lisibles et facilement touchables sur mobile. */
-.cosmicHubGrid{grid-template-columns:minmax(0,1fr)}
-.cosmicHubTile{min-height:135px}
-.cosmicHubTile--propose{
-  background:linear-gradient(140deg,#234c55,#151c37);
-  border-color:#6397a2;
-}
+/* Trois accès sur mobile, trois colonnes sur tablette (comme Challenges). */
+.cosmicHubTile--propose{--cosmic-accent:rgba(68,181,153,.27)}
+@media(hover:hover){.cosmicHubTile:hover{border-color:rgba(190,222,255,.45)}}
 @media(min-width:600px){
   .cosmicHubGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .cosmicHubTile{min-height:230px}
+  .cosmicHubTile{
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    gap:10px;min-height:210px;padding:18px 12px;text-align:center;
+  }
+  .cosmicHubIcon{font-size:42px}
 }
