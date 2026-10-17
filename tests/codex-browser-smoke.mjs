@@ -125,6 +125,19 @@ try {
   assert.equal(report.initialJson.some((path) => path.endsWith("/search.json")), false);
   assert.equal(report.initialJson.some((path) => path.endsWith("/characters.json")), false);
   report.flows.push("accueil léger");
+  // The illustrated landing must reuse the live search form rather than duplicate it.
+  assert.equal(await page.locator(".codexLandingHero h1").innerText(), "Codex MSF");
+  assert.equal(await page.locator(".codexLandingTile").count(), 2);
+  assert.equal(await page.locator("#codexLandingSearchSlot #codexSearchInput").count(), 1);
+  assert.equal(await page.locator("#codexSearchSubmit:visible").count(), 1);
+  await page.locator(".codexLandingTile--characters").click();
+  await page.locator(".codexToolbar h1", { hasText: "Personnages" }).waitFor();
+  assert.equal(await page.locator(".codexHeader #codexSearchInput").count(), 1);
+  await page.goBack();
+  await page.locator(".codexLandingHero").waitFor();
+  assert.equal(await page.locator("#codexLandingSearchSlot #codexSearchInput").count(), 1);
+  report.flows.push("accueil LoSP, tuiles et recherche persistante");
+
 
   const historyBeforeSearch = await page.evaluate(() => history.length);
   await page.locator("#codexSearchInput").fill("Dorm");
