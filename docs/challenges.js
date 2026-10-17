@@ -185,7 +185,7 @@
     });
   }
 
-  function buildGuideGroup(sources, label) {
+  function buildGuideGroup(sources, label, stage = null) {
     if (!sources.length) return null;
     const section = el("section", "challenge-guide-section");
     section.append(el("h4", "", label));
@@ -205,6 +205,21 @@
       ];
       a.append(el("span", "challenge-guide-meta", parts.filter(Boolean).join(" · ")));
       a.append(el("span", "challenge-guide-proof", GUIDE_EVIDENCE[source.evidenceLevel] || "Guide"));
+      const reportedTeam = stage && (source.solutions || []).find(solution => String(solution.stageId) === String(stage.id));
+      if (reportedTeam) {
+        const reportBox = el("span", "challenge-guide-team-summary");
+        reportBox.append(el("strong", "", "Équipe rapportée : " + reportedTeam.teamName));
+        if (reportedTeam.characters?.length) {
+          const portraits = el("span", "challenge-guide-team-portraits");
+          for (const id of reportedTeam.characters) portraits.append(makeHero(id));
+          reportBox.append(portraits);
+        }
+        if ((reportedTeam.characters || []).length < 5) {
+          reportBox.append(el("span", "challenge-guide-verification", "Composition partielle : places non précisées."));
+        }
+        if (reportedTeam.note) reportBox.append(el("span", "challenge-guide-meta", reportedTeam.note));
+        a.append(reportBox);
+      }
       if (source.verificationStatus === "indexed_content") {
         a.append(el("span", "challenge-guide-verification", "Contenu indexé, lien non testé directement"));
       } else if (source.verificationStatus === "page_checked") {
@@ -268,7 +283,7 @@
       body.append(list);
     }
 
-    const otherSolutions = buildGuideGroup(relevantSources(event, stage), "Autres guides pour cette étape");
+    const otherSolutions = buildGuideGroup(relevantSources(event, stage), "Autres guides pour cette étape", stage);
     if (otherSolutions) body.append(otherSolutions);
 
     if (!stage.pending) {
