@@ -1398,13 +1398,14 @@
       "id": "scorpion-breaker",
       "type": "trial",
       "title": "Scorpion (Briseur)",
-      "summary": "Événement Breaker avec quatre difficultés.",
+      "summary": "Scorpion (Briseur) : dix missions détaillées pour la difficulté Omega.",
       "rewardId": "ScorpionBreaker",
       "stages": [
         {
           "id": "1",
           "title": "Mission 1",
-          "requirement": "Aucune restriction (niveau 110 en Omega)",
+          "requirement": "Sans restriction · Omega : niveau 110",
+          "teamName": "Personnages mythiques puissants",
           "characters": [
             "Odin",
             "Xavier",
@@ -1413,14 +1414,58 @@
             "Knull"
           ],
           "advice": [
-            "Empêcher le Sentry adverse d'utiliser sa spéciale. Préserver le Sentry allié pour la suite."
+            "Sentry doit bloquer la capacité spéciale du Sentry adverse.",
+            "Économiser ses capacités et ses PV pour la mission Bio suivante."
           ],
-          "alternatives": []
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Exalted X-Men",
+          "teamName": "Exalted X-Men",
+          "characters": [
+            "Wolverine",
+            "Jubilee",
+            "Angel",
+            "Morph",
+            "StormMighty"
+          ],
+          "advice": [
+            "Garder l'ultime de Tornade (Puissante) pour la deuxième vague.",
+            "Éliminer Apocalypse et exploiter les invocations de Multiple Man pour accélérer l'équipe."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Spider-Verse",
+          "teamName": "Insidious Six",
+          "characters": [
+            "Vulture",
+            "Shocker",
+            "Scorpion",
+            "Hobgoblin",
+            "SuperiorSpiderMan"
+          ],
+          "advice": [
+            "Abattre Lilandra et Havok en premier.",
+            "Après les deux frappes de Kahhori, la neutraliser rapidement."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
         },
         {
           "id": "4",
           "title": "Mission 4",
-          "requirement": "Cosmique mystique non mythique",
+          "requirement": "Mystiques cosmiques non mythiques",
+          "teamName": "Cosmiques mystiques",
           "characters": [
             "Knull",
             "Thanos",
@@ -1429,12 +1474,140 @@
             "Satana"
           ],
           "advice": [
-            "Placer Thanos au centre des alliés à recharger. Retirer les charges avec Quasar avant de cibler Red Hulk et Kestrel."
+            "Quasar retire les charges de Kestrel avant l'invocation de Carnage par Knull.",
+            "Cibler Red Hulk et Kestrel, puis garder l'ultime de Surfer (Briseur) pour Forge."
           ],
-          "alternatives": []
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Bio",
+          "teamName": "Trio 4F (MCU) + Sentry + Blue Marvel",
+          "characters": [
+            "FranklinRichards",
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "Sentry",
+            "BlueMarvel"
+          ],
+          "advice": [
+            "Protéger Sentry : cette mission fait partie des plus exigeantes.",
+            "La spéciale de Franklin sur Tornade (Puissante) est préférable à son ultime au démarrage."
+          ],
+          "alternatives": [
+            "JeffTheLandShark"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Incroyables Avengers",
+          "teamName": "Incroyables Avengers",
+          "characters": [
+            "Hulk",
+            "SpiderMan",
+            "BladeMighty",
+            "RachelColeAlves",
+            "SpiderWomanJulia"
+          ],
+          "advice": [
+            "Ralentir Gwenpool dès le premier tour avec Spider-Man.",
+            "Viser Strange puis Gwenpool et Deadpool ; conserver les ultimes pour la deuxième vague."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Spider-Verse",
+          "teamName": "Effroi + Super-Bouffon",
+          "characters": [
+            "ScorpionBreaker",
+            "Electro",
+            "MrNegative",
+            "Rhino",
+            "Hobgoblin"
+          ],
+          "advice": [
+            "Contrôler Apocalypse puis les trois Cabal.",
+            "La spéciale de Scorpion (Briseur) retire Provocation à Cannonball ; viser ensuite Magik et Warlock."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Mystiques cosmiques non mythiques",
+          "teamName": "Cosmiques mystiques",
+          "characters": [
+            "Knull",
+            "Thanos",
+            "SilverSurferBreaker",
+            "Quasar",
+            "Hellverine"
+          ],
+          "advice": [
+            "Placer Quasar et Surfer (Briseur) près de Thanos pour l'énergie.",
+            "Priorité Roi d'ombre, puis Fatalis à son arrivée ; préserver l'ultime de Quasar contre Iron Fist."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Bio",
+          "teamName": "Symbiotes + Jeff et Blue Marvel",
+          "characters": [
+            "SymbioteQuicksilver",
+            "Riot",
+            "Toxin",
+            "JeffTheLandShark",
+            "BlueMarvel"
+          ],
+          "advice": [
+            "Vif-Argent symbiote doit agir avant Blue Marvel : recommencer si nécessaire.",
+            "Jeff offre davantage de pression offensive que Venom sur cet affrontement."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Exalted X-Men ou Incroyables Avengers",
+          "teamName": "Exalted X-Men",
+          "characters": [
+            "Wolverine",
+            "Jubilee",
+            "Angel",
+            "Morph",
+            "StormMighty"
+          ],
+          "advice": [
+            "Éliminer Iron Man zombie et Kestrel zombie avant la deuxième vague.",
+            "Conserver l'ultime de Tornade (Puissante) pour Sentry et Véga."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
         }
       ],
-      "editorialRef": "breaker-event-scorpion/"
+      "editorialRef": "breaker-event-scorpion/",
+      "stageUnit": "mission",
+      "totalStages": 10,
+      "guideNote": "Les modificateurs de combat peuvent changer profondément l'ordre des tours. Les équipes sont proposées pour la difficulté Omega ; le niveau d'investissement compte."
     },
     {
       "id": "magik-breaker",
