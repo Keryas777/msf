@@ -23,6 +23,14 @@ Les sources `indexed_only` et la `reviewQueue` sont exclues de l'interface, mêm
 - **Gaming-Fans :** le récit DD6 est accessible, mais historique et non nécessairement applicable aux personnages actuels.
 - **Vidéos YouTube fournies :** aucune vidéo n'a pu être visionnée directement durant cet audit. Les URL proposées sans contrôle sont conservées dans la `reviewQueue`. Quatre liens de Rayge explicitement inclus dans des témoignages contrôlés sont indexés séparément, sans prétendre que leur contenu vidéo a été vérifié.
 
+## Compositions secondaires encodées
+
+**29 propositions** de formations sont rattachées à des étages précis dans la source elle-même. Elles correspondent à des retours de joueurs, et non à des tests exécutés par LoSP.
+
+- **24 propositions** possèdent cinq portraits, **5** seulement une composition partielle.
+- Parmi les propositions à cinq personnages, **16** développent les noms d'équipes cités en utilisant le catalogue d'équipes LoSP actuel : l'interface les signale comme **reconstructions éditoriales à vérifier**, et non comme cinq noms individuellement vérifiés dans les témoignages.
+- Ces formations n'écrasent jamais les stratégies LoSP existantes et peuvent se contredire : plusieurs solutions d'un même nœud restent disponibles côte à côte.
+
 ## Règles de granularité
 
 - Les références ayant des `stageIds` ou `sectionIds` sont associées **uniquement** aux étapes explicitement démontrées par leurs publications.
