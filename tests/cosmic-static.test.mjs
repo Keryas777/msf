@@ -195,7 +195,7 @@ test("croix de retrait plus discrète sans réduire la zone tactile mobile", asy
   ]);
   const button = css.match(/\.cosmicPortraitRemove\{([^}]*)\}/)?.[1] || "";
   const circle = css.match(/\.cosmicPortraitRemove::before,\s*\.cosmicPortraitRemove::after\{([^}]*)\}/)?.[1] || "";
-  const cross = css.match(/\.cosmicPortraitRemove::after\{([^}]*)\}/)?.[1] || "";
+  const cross = css.match(/\.cosmicPortraitRemove::after\{\s*content:"×";([^}]*)\}/)?.[1] || "";
   assert.match(button, /width:32px;height:32px/);
   assert.match(button, /touch-action:manipulation/);
   assert.match(circle, /width:19px;height:19px/);
