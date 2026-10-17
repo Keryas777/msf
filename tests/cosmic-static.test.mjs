@@ -111,7 +111,7 @@ test("les classes ISO-8 des règles cosmiques utilisent les termes officiels fra
 
 test("les portraits du brouillon peuvent être retirés individuellement, puis sauvegardés", async () => {
   const [js, css, html] = await Promise.all([
-    read("docs/cosmic-defenses.js"), read("docs/cosmic.css"), read("docs/cosmic-defenses.html")
+    read("docs/cosmic-defenses.js"), read("docs/cosmic.css"), read("docs/cosmic-defense-propose.html")
   ]);
   const selectedPortraits = js.split("function renderSelectedPortraits(section)")[1]?.split("function closeSuggestions")[0];
   assert.ok(selectedPortraits, "section des portraits sélectionnés présente");
@@ -127,7 +127,7 @@ test("les portraits du brouillon peuvent être retirés individuellement, puis s
   assert.match(css, /\.cosmicPortraitRemove:focus-visible/);
   // Pas de croix pour les défenses publiées ni de suppression de la note.
   assert.doesNotMatch(js.split("function renderPublished()")[1]?.split("function initPublishedSelector")[0] || "", /cosmicPortraitRemove/);
-  assert.match(html, /cosmic-defenses\.js\?v=5/);
+  assert.match(html, /cosmic-defenses\.js\?v=6/);
 });
 
 test("trois tuiles : consultation et proposition sont des pages indépendantes", async () => {
