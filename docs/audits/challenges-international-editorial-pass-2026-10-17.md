@@ -12,13 +12,14 @@ La présentation publique LoSP n'affiche **ni nom d'auteur ni lien vers une sour
 
 ## État de la migration
 
-- **35 événements**, **338 étapes renseignées** (contre 34 événements et 337 étapes avant l'ajout d'Échos des abysses).
-- **418 stratégies**, dont **41 nouvelles versions** ajoutées depuis la refonte structurelle.
-- **77 versions avec contenu textuel de source contrôlé** ; **341 versions** restant à réauditer individuellement.
-- **55 nœuds** possèdent plusieurs versions.
-- **55 références dans le registre éditorial** (dont 5 URL directes de missions DD6) et **17 en attente de vérification**.
+- **35 événements**, **338 étapes**.
+- **443 stratégies indépendantes**, dont **66 nouvelles versions** réellement introduites par la présente passe, et **78 nœuds à plusieurs versions**.
+- **117 versions** avec texte de source recoupé, et **326 versions** qui demandent encore une vérification individuelle : le travail éditorial n'est **pas terminé**.
+- **56 références** au catalogue, dont **19 ont contribué à au moins une version vérifiée sur texte**, et **17 restent en file de vérification**.
 
-**Limite fondamentale : « source_text_checked » signifie que le texte écrit a été consulté et rapproché de la fiche. Cela ne signifie ni que la vidéo associée a été visionnée, ni que l'équipe a été rejouée par LoSP.**
+**Statut strict : « source_text_checked » veut dire « article ou message lu et attribué », pas « vidéo visionnée », « combat rejoué » ou « validé par LoSP ».**
+
+
 
 ## Travail éditorial source-identifié
 
@@ -46,67 +47,75 @@ Le guide français Theria Games a servi à réécrire les missions 1 à 10, avec
 - Spider-Man Tower étage 34 : autre composition gagnante relatée dans un commentaire, distincte de l'approche Rayge.
 - MSFWAR Échos des abysses : stratégie PvE contre Knull avec Quasar, Blastaar, Daimon et Momie vivante, deux cinquièmes personnages possibles et instructions ISO-8/placement. Ce sont **deux options du même guide**, pas deux victoires distinctes.
 
+### Tour de Blade et Spider-Man Tower — Rayge, publications originales
+
+- Blade Omega étages **1–18** : compositions publiées après ses combats, enregistrées comme versions autonomes ; **neuf équipes de cinq explicitement listées**, neuf fiches conservées incomplètes car le texte mentionne un groupe ou des membres « +2/+3 ».
+- Spider-Man Omega étages **21–40** : publications de Rayge directement lues ; les cinq premiers étages 21–25 ont été rapprochés des variantes existantes et les étages 26–30 ajoutés. Les 31–40 ont été recoupés et gardent le drapeau « membres d'équipe développés par LoSP » lorsqu'il s'applique.
+- Autres joueurs : étages 34 et 36 de Spider-Man ont aussi deux compositions indépendantes d'une autre publication. Les actions de Mystério à l'étage 34 sont mentionnées, contrairement à l'étage 36 dont la source ne donne que l'équipe.
+- Aucune rotation n'est extrapolée des vidéos non visionnées.
+
 ## Catalogue source par source
 
-Les références reprises de la demande initiale sont listées même lorsqu'elles ne débouchent pas encore sur un véritable guide de combat. `content_checked` sans intégration signifie simplement que le lien est accessible, pas qu'un nœud précis a été prouvé.
+Références conservées en interne ; aucune URL ne doit être chargée par l'application publique.
 
-| Référence interne | Événement | Langue | Intégration vérifiable | Contrôle de source |
+| Référence interne | Événement | Langue | Travail établi | Statut de la page |
 |---|---|---|---|---|
-| marvel-dd9 | dd9 | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| marvel-dd-general | Transversal | EN | Index uniquement, contenu insuffisant | indexed_only |
-| marvel-spider-descent | spider-descent | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| marvel-fear | fear | EN | Index uniquement, contenu insuffisant | indexed_only |
-| marvel-blade | blade | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| marvel-storm | storm | EN | Index uniquement, contenu insuffisant | indexed_only |
-| marvel-kyln-whiplash | kyln-whiplash | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| marvel-kyln-blazes | kyln-blazes | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| marvel-kyln-polarity | kyln-polarity | EN | Index uniquement, contenu insuffisant | indexed_only |
-| marvel-shadow | shadow-king | EN | Index uniquement, contenu insuffisant | indexed_only |
-| marvel-oml | old-man-logan | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| marvel-goblin | green-goblin | EN | Index uniquement, contenu insuffisant | indexed_only |
-| marvel-black-cat | black-cat | EN | Index uniquement, contenu insuffisant | indexed_only |
-| marvel-nova | nova | EN | Index uniquement, contenu insuffisant | indexed_only |
-| marvel-quasar | invasion-quasar | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| marvel-blastaar | invasion-blastaar | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| marvel-surfer | surfer-breaker | EN | Index uniquement, contenu insuffisant | indexed_only |
-| marvel-scorpion | scorpion-breaker | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| marvel-finding | finding-xavier | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| marvel-blue-marvel | target-blue-marvel | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| msfbase-fear | fear | EN | Page consultée, contenu individuel non vérifié | page_checked |
-| msfbase-spider | spider-descent | EN | Page consultée, contenu individuel non vérifié | page_checked |
-| msfbase-blade | blade | EN | Page consultée, contenu individuel non vérifié | page_checked |
-| reddit-rayge-fear | fear | EN | Exploité pour 10 version(s) contrôlée(s) | content_checked |
-| reddit-rayge-spider-31 | spider-descent | EN | Exploité pour 1 version(s) contrôlée(s) | content_checked |
-| reddit-fear-written | fear | EN | Exploité pour 11 version(s) contrôlée(s) | content_checked |
-| reddit-rayge-whiplash | kyln-whiplash | EN | Exploité pour 4 version(s) contrôlée(s) | content_checked |
-| reddit-rayge-fear-10 | fear | EN | Exploité pour 10 version(s) contrôlée(s) | content_checked |
-| reddit-rayge-spider-21 | spider-descent | EN | Rattaché à 5 version(s), non revérifiées | indexed_content |
-| reddit-rayge-spider-10 | spider-descent | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| reddit-rayge-blade | blade | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| reddit-whiplash-6 | kyln-whiplash | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| reddit-whiplash-16 | kyln-whiplash | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| apptipps-dd9 | dd9 | EN | Exploité pour 5 version(s) contrôlée(s) | content_checked |
-| apptipps-dd-general | Transversal | EN | Page consultée, aucune stratégie attribuée | content_checked |
-| gamingfans-dd6 | dd6 | EN | Page consultée, aucune stratégie attribuée | content_checked |
-| theria-dd8 | dd8 | FR | Exploité pour 6 version(s) contrôlée(s) | content_checked |
-| theria-shadow-fr | shadow-king | FR | Exploité pour 11 version(s) contrôlée(s) | content_checked |
-| rayge-fear-video-1-5 | fear | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| rayge-fear-video-6-10 | fear | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| rayge-spider-video-31-35 | spider-descent | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| rayge-spider-video-36-40 | spider-descent | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| famine-scourge | scourge-famine | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| pestilence-scourge | scourge-pestilence | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| war-scourge | scourge-war | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| death-scourge | scourge-death | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| apocalypse-saga | apocalypse-saga | EN | Article ou vidéo indexé(e), extraction non confirmée | indexed_content |
-| reddit-whiplash-14 | kyln-whiplash | EN | Exploité pour 2 version(s) contrôlée(s) | content_checked |
-| reddit-dd9 | dd9 | EN | Exploité pour 10 version(s) contrôlée(s) | content_checked |
-| msfwar-echoes | echoes-abyss | EN | Exploité pour 2 version(s) contrôlée(s) | content_checked |
-| gamingfans-dd6-node2 | dd6 | EN | Exploité pour 1 version(s) contrôlée(s) | content_checked |
-| gamingfans-dd6-node3 | dd6 | EN | Exploité pour 1 version(s) contrôlée(s) | content_checked |
-| gamingfans-dd6-node4 | dd6 | EN | Exploité pour 1 version(s) contrôlée(s) | content_checked |
-| gamingfans-dd6-node5 | dd6 | EN | Exploité pour 1 version(s) contrôlée(s) | content_checked |
-| gamingfans-dd6-node6 | dd6 | EN | Exploité pour 1 version(s) contrôlée(s) | content_checked |
+| marvel-dd9 | dd9 | EN | Texte non récupéré de manière fiable | indexed_content |
+| marvel-dd-general | Transversal | EN | Référence indexée sans contenu tactique | indexed_only |
+| marvel-spider-descent | spider-descent | EN | Texte non récupéré de manière fiable | indexed_content |
+| marvel-fear | fear | EN | Référence indexée sans contenu tactique | indexed_only |
+| marvel-blade | blade | EN | Texte non récupéré de manière fiable | indexed_content |
+| marvel-storm | storm | EN | Référence indexée sans contenu tactique | indexed_only |
+| marvel-kyln-whiplash | kyln-whiplash | EN | Texte non récupéré de manière fiable | indexed_content |
+| marvel-kyln-blazes | kyln-blazes | EN | Texte non récupéré de manière fiable | indexed_content |
+| marvel-kyln-polarity | kyln-polarity | EN | Référence indexée sans contenu tactique | indexed_only |
+| marvel-shadow | shadow-king | EN | Référence indexée sans contenu tactique | indexed_only |
+| marvel-oml | old-man-logan | EN | Texte non récupéré de manière fiable | indexed_content |
+| marvel-goblin | green-goblin | EN | Référence indexée sans contenu tactique | indexed_only |
+| marvel-black-cat | black-cat | EN | Référence indexée sans contenu tactique | indexed_only |
+| marvel-nova | nova | EN | Référence indexée sans contenu tactique | indexed_only |
+| marvel-quasar | invasion-quasar | EN | Texte non récupéré de manière fiable | indexed_content |
+| marvel-blastaar | invasion-blastaar | EN | Texte non récupéré de manière fiable | indexed_content |
+| marvel-surfer | surfer-breaker | EN | Référence indexée sans contenu tactique | indexed_only |
+| marvel-scorpion | scorpion-breaker | EN | Texte non récupéré de manière fiable | indexed_content |
+| marvel-finding | finding-xavier | EN | Texte non récupéré de manière fiable | indexed_content |
+| marvel-blue-marvel | target-blue-marvel | EN | Texte non récupéré de manière fiable | indexed_content |
+| msfbase-fear | fear | EN | Collection consultée, solutions individuelles inconnues | page_checked |
+| msfbase-spider | spider-descent | EN | Collection consultée, solutions individuelles inconnues | page_checked |
+| msfbase-blade | blade | EN | Collection consultée, solutions individuelles inconnues | page_checked |
+| reddit-rayge-fear | fear | EN | 10 version(s) reliée(s) au texte consulté | content_checked |
+| reddit-rayge-spider-31 | spider-descent | EN | 11 version(s) reliée(s) au texte consulté | content_checked |
+| reddit-fear-written | fear | EN | 11 version(s) reliée(s) au texte consulté | content_checked |
+| reddit-rayge-whiplash | kyln-whiplash | EN | 4 version(s) reliée(s) au texte consulté | content_checked |
+| reddit-rayge-fear-10 | fear | EN | 10 version(s) reliée(s) au texte consulté | content_checked |
+| reddit-rayge-spider-21 | spider-descent | EN | 10 version(s) reliée(s) au texte consulté | indexed_content |
+| reddit-rayge-spider-10 | spider-descent | EN | Texte non récupéré de manière fiable | indexed_content |
+| reddit-rayge-blade | blade | EN | 18 version(s) reliée(s) au texte consulté | content_checked |
+| reddit-whiplash-6 | kyln-whiplash | EN | Texte non récupéré de manière fiable | indexed_content |
+| reddit-whiplash-16 | kyln-whiplash | EN | Texte non récupéré de manière fiable | indexed_content |
+| apptipps-dd9 | dd9 | EN | 5 version(s) reliée(s) au texte consulté | content_checked |
+| apptipps-dd-general | Transversal | EN | Page lue, pas d'équipe identifiée à un nœud | content_checked |
+| gamingfans-dd6 | dd6 | EN | Page lue, pas d'équipe identifiée à un nœud | content_checked |
+| theria-dd8 | dd8 | FR | 6 version(s) reliée(s) au texte consulté | content_checked |
+| theria-shadow-fr | shadow-king | FR | 11 version(s) reliée(s) au texte consulté | content_checked |
+| rayge-fear-video-1-5 | fear | EN | Texte non récupéré de manière fiable | indexed_content |
+| rayge-fear-video-6-10 | fear | EN | Texte non récupéré de manière fiable | indexed_content |
+| rayge-spider-video-31-35 | spider-descent | EN | Texte non récupéré de manière fiable | indexed_content |
+| rayge-spider-video-36-40 | spider-descent | EN | Texte non récupéré de manière fiable | indexed_content |
+| famine-scourge | scourge-famine | EN | Texte non récupéré de manière fiable | indexed_content |
+| pestilence-scourge | scourge-pestilence | EN | Texte non récupéré de manière fiable | indexed_content |
+| war-scourge | scourge-war | EN | Texte non récupéré de manière fiable | indexed_content |
+| death-scourge | scourge-death | EN | Texte non récupéré de manière fiable | indexed_content |
+| apocalypse-saga | apocalypse-saga | EN | Texte non récupéré de manière fiable | indexed_content |
+| reddit-whiplash-14 | kyln-whiplash | EN | 2 version(s) reliée(s) au texte consulté | content_checked |
+| reddit-dd9 | dd9 | EN | 10 version(s) reliée(s) au texte consulté | content_checked |
+| msfwar-echoes | echoes-abyss | EN | 2 version(s) reliée(s) au texte consulté | content_checked |
+| gamingfans-dd6-node2 | dd6 | EN | 1 version(s) reliée(s) au texte consulté | content_checked |
+| gamingfans-dd6-node3 | dd6 | EN | 1 version(s) reliée(s) au texte consulté | content_checked |
+| gamingfans-dd6-node4 | dd6 | EN | 1 version(s) reliée(s) au texte consulté | content_checked |
+| gamingfans-dd6-node5 | dd6 | EN | 1 version(s) reliée(s) au texte consulté | content_checked |
+| gamingfans-dd6-node6 | dd6 | EN | 1 version(s) reliée(s) au texte consulté | content_checked |
+| reddit-spider-week4-other-player | spider-descent | EN | 2 version(s) reliée(s) au texte consulté | content_checked |
 
 ## Sources encore en attente de contrôle
 
@@ -139,7 +148,7 @@ Les références reprises de la demande initiale sont listées même lorsqu'elle
 5. **Theria multilingue** : versions FR/ES/PT/JA d'une même publication ne constituent pas des stratégies indépendantes sauf différences substantielles démontrées.
 6. **Reddits** : la publication principale et les commentaires identifient des joueurs différents ; leurs équipes et taux de réussite ne sont jamais fusionnés.
 7. **Kestrel normale** : ne figure pas avec `player_Character === true` dans les données LoSP. Les compositions originales avec elle restent décrites en texte et partiellement illustrées.
-8. **Autres événements et 350 anciennes fiches** : la plupart de leurs compositions/nœuds ne disposent toujours pas d'une source directement validée. Les anciens conseils restent signalés comme hérités.
+8. **Autres événements et centaines de fiches héritées** : la plupart de leurs compositions/nœuds ne disposent toujours pas d'une source directement validée. Les anciens conseils restent signalés comme hérités.
 9. **Aucune validation tactique par simulation de combat** n'a été exécutée : la confirmation réelle exige le jeu ou une preuve vidéo complète.
 
 ## Tests
