@@ -1,0 +1,51 @@
+name: Cosmic Defenses — direct publishing
+on:
+  pull_request:
+    paths:
+      - "workers/msf-cosmic-defenses/**"
+      - "workers/losp-auth/**"
+      - "docs/cosmic-defenses.js"
+      - "docs/cosmic-defense-propose.html"
+      - "docs/cosmic-defenses.html"
+      - "tests/cosmic*"
+      - ".github/workflows/deploy-cosmic-defenses.yml"
+  push:
+    branches: [main]
+    paths:
+      - "workers/msf-cosmic-defenses/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check syntax
+        run: |
+          node --check workers/msf-cosmic-defenses/worker.js
+          node --check workers/losp-auth/worker.js
+          node --check docs/cosmic-defenses.js
+      - name: Test safe direct publication and signed Discord sessions
+        run: |
+          node --test workers/msf-cosmic-defenses/test/worker.test.mjs
+          node --test workers/msf-cosmic-defenses/test/auth.test.mjs
+          node --test tests/cosmic-static.test.mjs
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: workers/msf-cosmic-defenses
+          wranglerVersion: "4"
+          command: deploy
