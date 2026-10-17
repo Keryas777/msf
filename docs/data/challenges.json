@@ -896,12 +896,422 @@
       "id": "kyln-whiplash",
       "type": "tower",
       "title": "Évasion de Kyln : Code Whiplash",
-      "summary": "20 cellules · quatre difficultés, dont Omega. Des solutions externes sont associées aux cellules précisément documentées.",
+      "summary": "Kyln Code Whiplash : 20 cellules Omega, compositions et priorités de combat en français.",
       "rewardId": null,
-      "stages": [],
+      "stages": [
+        {
+          "id": "1",
+          "title": "Cellule 1",
+          "requirement": "Sans restriction",
+          "teamName": "Incroyables Avengers",
+          "characters": [
+            "Hulk",
+            "SpiderMan",
+            "BladeMighty",
+            "RachelColeAlves",
+            "SpiderWomanJulia"
+          ],
+          "advice": [
+            "Survivre à la spéciale initiale de Kang, puis étourdir Bouffon vert classique avec l'ultime de Spider-Man.",
+            "Cibler Sentinelle Oméga dès l'arrivée de la vague Orchis."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "2",
+          "title": "Cellule 2",
+          "requirement": "Sans restriction",
+          "teamName": "Quasar, Tornade (Puissante), Apocalypse, Daimon, Kang",
+          "characters": [
+            "Quasar",
+            "StormMighty",
+            "Apocalypse",
+            "DaimonHellstrom",
+            "KangTheConqueror"
+          ],
+          "advice": [
+            "Préserver Apocalypse jusqu'à son premier tour ; sa spéciale peut purifier l'équipe.",
+            "Quasar bloque Abomination ; réserver les ultimes de Tornade et Kang pour la vague Secret Defenders, puis viser Ghost Rider (Robbie)."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "3",
+          "title": "Cellule 3",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Impérissables + Scorpion (Briseur) + Mister Negative",
+          "characters": [
+            "ZombieKestrel",
+            "ZombieScarletWitch",
+            "ZombieJuggernaut",
+            "ScorpionBreaker",
+            "MrNegative"
+          ],
+          "advice": [
+            "Éliminer Taskmaster et Mister Negative adverses, puis économiser les capacités pour la deuxième vague.",
+            "Quand les Mercenaires apparaissent, neutraliser Old Man Logan avant son tour, puis Daken ; garder Pandapool pour la fin."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough",
+          "compositionKind": "editorial_inference"
+        },
+        {
+          "id": "4",
+          "title": "Cellule 4",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Éternels intemporels sans Thena + Darkstar",
+          "characters": [
+            "Gilgamesh",
+            "Kingo",
+            "Ikaris",
+            "Sersi",
+            "Darkstar"
+          ],
+          "advice": [
+            "Encaisser les premiers tours des mutants ; si Gilgamesh est étourdi ou ciblé par Malicia, recommencer.",
+            "Ouvrir avec la spéciale de Gilgamesh, puis celle de Kingo sur Apocalypse ; contrôler Ancient One, Emma (X-Men), puis Roi d'ombre."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "5",
+          "title": "Cellule 5",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Conclave de l'ombre sans Malekith + Surfer (Briseur)",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "HighEvolutionary",
+            "Executioner",
+            "SilverSurferBreaker"
+          ],
+          "advice": [
+            "La spéciale du Surfer retire les charges du Chevalier noir ; attaquer Dormammu puis Docteur Fatalis.",
+            "Placer Thanos pour alimenter l'énergie des alliés ; ne pas négliger la survie jusqu'au tour de High Evolutionary."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "6",
+          "title": "Cellule 6",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Incroyables Avengers",
+          "characters": [
+            "Hulk",
+            "SpiderMan",
+            "BladeMighty",
+            "RachelColeAlves",
+            "SpiderWomanJulia"
+          ],
+          "advice": [
+            "Cibler d'abord les personnages Death Seed puis Sebastian Shaw.",
+            "Passer aux attaques basiques en fin de vague pour préparer Azazel et Toad, puis éliminer Madelyne Pryor."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "7",
+          "title": "Cellule 7",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Daimon, Apocalypse, Maestro, Hulk rouge, Brawn",
+          "characters": [
+            "DaimonHellstrom",
+            "Apocalypse",
+            "Maestro",
+            "RedHulk",
+            "AmadeusCho"
+          ],
+          "advice": [
+            "Brawn donne de la vitesse aux Gamma ; utiliser les spéciales de Red Hulk et Maestro pour ralentir les ennemis.",
+            "Contrôler Angel et les ennemis ayant Provocation avant d'utiliser les ultimes."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "8",
+          "title": "Cellule 8",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Trois Impérissables + Quasar + Surfer (Briseur)",
+          "characters": [
+            "ZombieJuggernaut",
+            "ZombieScarletWitch",
+            "ZombieKestrel",
+            "Quasar",
+            "SilverSurferBreaker"
+          ],
+          "advice": [
+            "Quasar bloque Kahhori puis Surfer neutralise Thanos (Endgame).",
+            "Conserver des capacités pour les Nouveaux Avengers de la seconde vague : éliminer Mockingbird puis Tigra.",
+            "Sans Thena pour la cellule 10, remplacer Quasar par Jeff pour le réserver."
+          ],
+          "alternatives": [
+            "JeffTheLandShark"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "9",
+          "title": "Cellule 9",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Conclave de l'Ombre",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "Malekith",
+            "HighEvolutionary",
+            "Executioner"
+          ],
+          "advice": [
+            "Thanos au centre, entre Exécuteur et High Evolutionary ; Malekith et Sylvie aux extrémités.",
+            "Éliminer Hank Pym à la première vague ; les alliés rechargent leurs compétences après chaque élimination."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "10",
+          "title": "Cellule 10",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Éternels intemporels",
+          "characters": [
+            "Gilgamesh",
+            "Kingo",
+            "Thena",
+            "Ikaris",
+            "Sersi"
+          ],
+          "advice": [
+            "La passive de Thena empêche l'accélération ennemie : sans elle, Quasar peut la remplacer.",
+            "Après la spéciale de Gilgamesh, celle de Kingo doit viser Vif-Argent symbiote et bloquer ses alliés.",
+            "Abattre les Symbiote Six avant Liberté ; les dix ennemis sont présents dès l'ouverture."
+          ],
+          "alternatives": [
+            "Quasar"
+          ],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "11",
+          "title": "Cellule 11",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Incroyables Avengers",
+          "characters": [
+            "Hulk",
+            "SpiderMan",
+            "BladeMighty",
+            "RachelColeAlves",
+            "SpiderWomanJulia"
+          ],
+          "advice": [
+            "Éliminer le Roi d'ombre avant son premier tour.",
+            "Pour la vague suivante, conserver les ultimes de Spider-Man et Spider-Woman (Julia) afin de contrôler Spider-Man et Wolverine."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "12",
+          "title": "Cellule 12",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Maestro, Quasar, Jeff, Daimon, Tornade (Puissante)",
+          "characters": [
+            "Maestro",
+            "Quasar",
+            "JeffTheLandShark",
+            "DaimonHellstrom",
+            "StormMighty"
+          ],
+          "advice": [
+            "Daimon ouvre avec son ultime pour bloquer Scorpion (Briseur), Madelyne Pryor et Gorr.",
+            "Jeff doit idéalement jouer avant Surfer (Briseur) ; regrouper les ennemis puis enchaîner les attaques de zone.",
+            "Surveiller les dégâts passifs de Thanos (Endgame), puis traiter Fatalis et Dormammu dans la seconde vague."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "13",
+          "title": "Cellule 13",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Trois Impérissables + Surfer (Briseur) + Darkstar",
+          "characters": [
+            "ZombieJuggernaut",
+            "ZombieScarletWitch",
+            "ZombieKestrel",
+            "SilverSurferBreaker",
+            "Darkstar"
+          ],
+          "advice": [
+            "Wanda zombie empêche Méphisto de gagner sa vitesse habituelle.",
+            "Profiter des attaques de Darkstar pour réduire la première vague avant Daimon et Hellcat."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "14",
+          "title": "Cellule 14",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Conclave de l'Ombre",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "Malekith",
+            "HighEvolutionary",
+            "Executioner"
+          ],
+          "advice": [
+            "La passive de Malekith transforme l'effet Ténèbres de Knull en avantage.",
+            "Maintenir la Provocation de Thanos pour protéger l'équipe ; les deux vagues restent contrôlables sous les règles de guerre."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "15",
+          "title": "Cellule 15",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Éternels intemporels",
+          "characters": [
+            "Gilgamesh",
+            "Kingo",
+            "Thena",
+            "Ikaris",
+            "Sersi"
+          ],
+          "advice": [
+            "Commencer par l'ultime de Gilgamesh et bloquer Xavier avec la spéciale de Kingo.",
+            "Réserver les étourdissements de Thena et Circé pour Scarlet Witch zombie et Crécerelle zombie en seconde vague."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "16",
+          "title": "Cellule 16",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Incroyables Avengers sans Hulk + Apocalypse",
+          "characters": [
+            "SpiderMan",
+            "BladeMighty",
+            "RachelColeAlves",
+            "SpiderWomanJulia",
+            "Apocalypse"
+          ],
+          "advice": [
+            "Apocalypse empêche les adversaires d'apparaître avec Sauvegarde.",
+            "Se concentrer sur les personnages dangereux avant qu'ils n'utilisent leurs capacités de contrôle."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "17",
+          "title": "Cellule 17",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Quasar, Jeff, Tornade (Puissante), Daimon, Maestro",
+          "characters": [
+            "Quasar",
+            "JeffTheLandShark",
+            "StormMighty",
+            "DaimonHellstrom",
+            "Maestro"
+          ],
+          "advice": [
+            "Daimon et Tornade ouvrent sur leurs ultimes ; Jeff rassemble les ennemis pour le contrôle de Quasar.",
+            "Viser Ms. Marvel classique pour retirer ses charges si Quasar joue trop tôt.",
+            "Dans la deuxième vague, neutraliser Pavitr puis Old Man Logan."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "18",
+          "title": "Cellule 18",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Trois Impérissables + Surfer (Briseur) + Black Cat",
+          "characters": [
+            "ZombieJuggernaut",
+            "ZombieScarletWitch",
+            "ZombieKestrel",
+            "SilverSurferBreaker",
+            "BlackCat"
+          ],
+          "advice": [
+            "Composition publiée, mais le détail des cibles et de l'ordre des capacités n'est pas documenté dans l'extrait accessible."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "19",
+          "title": "Cellule 19",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Conclave de l'Ombre",
+          "characters": [
+            "Thanos",
+            "Sylvie",
+            "Malekith",
+            "HighEvolutionary",
+            "Executioner"
+          ],
+          "advice": [
+            "Si Toxin agit avant Exécuteur et élimine un allié, recommencer.",
+            "Contre RetCon, abattre Jeff en priorité pour réduire l'efficacité de la composition."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        },
+        {
+          "id": "20",
+          "title": "Cellule 20",
+          "requirement": "Challengers 2 · règles de guerre",
+          "teamName": "Éternels intemporels",
+          "characters": [
+            "Gilgamesh",
+            "Kingo",
+            "Thena",
+            "Ikaris",
+            "Sersi"
+          ],
+          "advice": [
+            "Kingo doit viser Malekith avec sa spéciale ; ensuite neutraliser High Evolutionary avant son tour.",
+            "Deuxième vague : éliminer Blue Marvel, puis Odin. L'équipe doit être très développée en Omega."
+          ],
+          "alternatives": [],
+          "difficulty": "Omega",
+          "strategyKind": "walkthrough"
+        }
+      ],
       "editorialRef": "escape-from-kyln-code-whiplash/",
       "totalStages": 20,
-      "stageUnit": "cellule"
+      "stageUnit": "cellule",
+      "guideNote": "Cette édition utilise cinq personnages par cellule et les règles de guerre, avec le trait Challengers 2. Les personnages entrent en récupération après une victoire et les paliers de récupération peuvent évoluer selon l'édition. Les solutions dépendent de la puissance et de l'ordre des tours."
     },
     {
       "id": "fear",
