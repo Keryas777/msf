@@ -5,12 +5,14 @@
   const PATHS = {
     guides: "./data/challenges.json",
     characters: "./data/msf-characters.json",
+    guideSources: "./data/challenge-guide-sources.json",
   };
   const STORAGE_KEY = "losp_challenges_progress_v1";
   const CATEGORIES = {
     "dark-dimension": { label: "🌌 Dimension noire", description: "Choisis une dimension noire, puis une section ou mission." },
     tower: { label: "🏰 Tours / Kyln", description: "Choisis une tour ou Kyln, puis un étage ou une cellule." },
     trial: { label: "⚔️ Trials légendaires / Breakers", description: "Choisis un trial, puis une mission et sa composition." },
+    event: { label: "🧭 Autres événements PvE", description: "Invasions, sagas et parcours de recrutement." },
   };
   const URL_CATEGORY = new URLSearchParams(location.search).get("category") || "";
 
@@ -28,6 +30,8 @@
     events: [],
     characters: new Map(),
     progress: readProgress(),
+    sources: [],
+    difficulty: "all",
   };
 
   function readProgress() {
@@ -309,14 +313,18 @@
 
   async function init() {
     try {
-      const [guides, characters] = await Promise.all([
+      const [guides, characters, sourceIndex] = await Promise.all([
         loadJson(PATHS.guides),
         loadJson(PATHS.characters),
+        loadJson(PATHS.guideSources).catch(() => ({ sources: [] })),
       ]);
       if (!Array.isArray(guides.events) || !Array.isArray(characters)) {
         throw new Error("Format des données inattendu");
       }
       state.events = guides.events.filter(item => item && item.id && item.title);
+      const knownEvents = new Set(state.events.map(item => item.id));
+      state.sources = (Array.isArray(sourceIndex.sources) ? sourceIndex.sources : [])
+        .filter(source => source && knownEvents.has(source.eventId) && typeof source.url === "string" && source.url.startsWith("https://"));
       // Jamais d'unité PVE / invocation comme portrait suggéré.
       for (const character of characters) {
         if (character?.id && character.player_Character === true) {
