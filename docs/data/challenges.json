@@ -3849,10 +3849,223 @@
       "id": "nova",
       "type": "trial",
       "title": "Épreuves de Nova",
-      "summary": "Guide Trials légendaire.",
+      "summary": "Trials de Nova : dix missions avec restrictions et stratégies françaises, difficulté 5 et supérieure.",
       "rewardId": "Nova",
-      "stages": [],
-      "editorialRef": "nova-trials/"
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction",
+          "teamName": "Nouveaux Guerriers : préparer les charges de Deathpool",
+          "characters": [
+            "Firestar",
+            "Cloak",
+            "Dagger",
+            "Gwenpool",
+            "Deathpool"
+          ],
+          "advice": [
+            "Faire monter Deathpool à cinq charges en tuant des ennemis ou des invocations.",
+            "Profiter de l'absence de restriction pour préparer son ultime contre Red Hulk à la mission 5."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Maîtres du Mal, Vif-Argent ou Facteur-X",
+          "teamName": "Maîtres du Mal sans Homme-absorbant, avec Vif-Argent",
+          "characters": [
+            "Moonstone",
+            "Titania",
+            "KangTheConqueror",
+            "Ultron",
+            "Quicksilver"
+          ],
+          "advice": [
+            "Moonstone étourdit Kate Bishop ; éliminer Quake ou Echo selon celle qui menace le plus.",
+            "Invoquer les robots d'Ultron avant Black Bolt.",
+            "À la nouvelle vague, bloquer Coulson puis éliminer Kestrel, Crystal ensuite."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Héros Ville",
+          "teamName": "Nouveaux Guerriers (sans Deathpool) + Shang-Chi",
+          "characters": [
+            "Firestar",
+            "Cloak",
+            "Dagger",
+            "Gwenpool",
+            "ShangChi"
+          ],
+          "advice": [
+            "Les héros Ville excluent Deathpool : utiliser Firestar, Cloak, Dagger, Gwenpool et Shang-Chi.",
+            "L'ultime de Firestar doit viser Black Panther (1MM) et Nakia ; viser ensuite Shuri.",
+            "Conserver les ultimes de Cloak et Dagger pour la prochaine mission Ville."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Bio Mondial",
+          "teamName": "Gamma sans She-Hulk + Captain America",
+          "characters": [
+            "RedHulk",
+            "Hulk",
+            "Abomination",
+            "AmadeusCho",
+            "CaptainAmerica"
+          ],
+          "advice": [
+            "Gamma porte les dégâts et Captain America apporte de la tenue.",
+            "L'ultime de Red Hulk peut être lancé immédiatement avec le pacte Bio-Charged.",
+            "Réserver les contrôles pour Gambit et les vagues suivantes."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Cosmique",
+          "teamName": "Ikaris, Sersi, Dormammu, Deathpool et Photon",
+          "characters": [
+            "Ikaris",
+            "Sersi",
+            "Dormammu",
+            "Deathpool",
+            "Photon"
+          ],
+          "advice": [
+            "Source initiale : quatre de ces personnages avec Kestrel, qui n'est pas disponible dans notre catalogue de portraits jouables ; Photon est une alternative explicitement citée.",
+            "Tuer Ghost-Spider puis Rhino, garder l'ultime de Deathpool pour l'apparition de Red Hulk.",
+            "Étourdir Strange (Sans cœur) ou Omega Red avec Circé et Dormammu."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "Maîtres du Mal, Vif-Argent ou Facteur-X",
+          "teamName": "Maîtres du Mal + Vif-Argent",
+          "characters": [
+            "Moonstone",
+            "Titania",
+            "KangTheConqueror",
+            "Ultron",
+            "Quicksilver"
+          ],
+          "advice": [
+            "Protéger Moonstone des deux Gambit de départ, puis étourdir le premier et éliminer le second.",
+            "Bloquer Emma Frost à l'arrivée de la deuxième vague avec Titania ; étourdir Malicia quand la dernière vague apparaît.",
+            "Garder de l'énergie pour la mission 10."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Héros Ville",
+          "teamName": "Nouveaux Guerriers (sans Deathpool) + Shang-Chi",
+          "characters": [
+            "Firestar",
+            "Cloak",
+            "Dagger",
+            "Gwenpool",
+            "ShangChi"
+          ],
+          "advice": [
+            "L'ultime de Firestar frappe Captain Carter et Captain America ; éliminer les Yellowjackets.",
+            "Réserver les ultimes de Cloak et Dagger pour l'arrivée de Darkhold, puis tout utiliser.",
+            "Dernière mission Héros Ville : ne rien garder inutilement."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Bio Mondial",
+          "teamName": "Gamma sans She-Hulk + Captain America",
+          "characters": [
+            "RedHulk",
+            "Hulk",
+            "Abomination",
+            "AmadeusCho",
+            "CaptainAmerica"
+          ],
+          "advice": [
+            "Red Hulk peut lancer son ultime au tour 1 avec le pacte Bio-Charged.",
+            "Étourdir She-Hulk avec Abomination, puis tuer les deux Brawn et Phyla-Vell.",
+            "Attendre l'apparition du Red Hulk adverse avant d'utiliser le prochain ultime ; l'ultime de Captain America peut retirer la Provocation."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Cosmique",
+          "teamName": "Ikaris, Sersi, Dormammu, Deathpool et Photon",
+          "characters": [
+            "Ikaris",
+            "Sersi",
+            "Dormammu",
+            "Deathpool",
+            "Photon"
+          ],
+          "advice": [
+            "Dernière mission Cosmique : conserver surtout l'ultime de Dormammu pour l'arrivée de Death Seed.",
+            "Les ultimes des autres personnages peuvent être utilisés sans réserve.",
+            "Photon remplace Kestrel de l'ancien guide pour les portraits LoSP."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "recommendation",
+          "alternatives": []
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Maîtres du Mal, Vif-Argent ou Facteur-X",
+          "teamName": "Maîtres du Mal + Vif-Argent",
+          "characters": [
+            "Moonstone",
+            "Titania",
+            "KangTheConqueror",
+            "Ultron",
+            "Quicksilver"
+          ],
+          "advice": [
+            "Ouvrir avec Blocage de capacité sur Dazzler et Étourdissement sur Archangel.",
+            "Étourdir Gambit puis bloquer Malicia, contrôler Morgan Le Fay dès son apparition.",
+            "Vif-Argent retire la charge d'Apocalypse ; Kang peut alors lancer son ultime. Éviter de laisser Red Hulk jouer."
+          ],
+          "difficulty": "5+",
+          "strategyKind": "walkthrough",
+          "alternatives": []
+        }
+      ],
+      "editorialRef": "nova-trials/",
+      "stageUnit": "mission",
+      "totalStages": 10,
+      "guideNote": "Guide historique avec certains pactes (Power Cosmic, Bio-Charged, Power Crucible). Les formations évoluent avec la méta. Les missions Cosmique de l'ancien guide utilisaient Kestrel ; Photon est une alternative explicitement mentionnée, indiquée sans présenter l'équipe ainsi recomposée comme une victoire prouvée."
     },
     {
       "id": "dd1",
