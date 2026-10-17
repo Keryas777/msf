@@ -392,6 +392,37 @@ REVIEWED_COMPARATIVE_SIGNATURES = {
     "/Data/Yellowjacket/ultimate/actions/8": {"sha256": "e6248bc04c78788703b2208cf9cc5c8c0952cac004cd66dcda4ef21f54d26e0d", "ref": "Yellowjacket", "recipient": "self", "tier": "technical_correlated", "context": "cross_ability_ultimate"},
 }
 
+# A summon can be a combat-relevant form of an owner-playable character.
+# Exact spawn links in the published Codex: Phoenix -> DarkPhoenix (allied),
+# Sentry -> Void (summoned into the opposing team upon Sentry's death).
+# Do not treat player_Character=false as proof that these kits are PvE-only.
+# The published kit text corroborates only the behavior family; the engine
+# formula and actual combat timing remain unresolved.
+REVIEWED_PLAYABLE_LINKED_SUMMON_SIGNATURES = {
+    "/Data/DarkPhoenix/special/actions/0": {
+        "sha256": "da83f9070af64637eecaa980e07f1019f34b3b92fbc17c5c662d5fed397cc283",
+        "behavior": "health_steal_redistribute",
+        "recipient": "self",
+        "sourceRelation": "enemy",
+        "parentCharacterId": "Phoenix",
+        "summonedSide": "ally",
+        "assertion": "La spéciale de Phénix noir vole 5 à 20 % de vie aux ennemis et la restitue à elle-même. Forme invoquée par la Phénix jouable.",
+        "sourceUrl": "https://strikeforce.fandom.com/wiki/Dark_Phoenix",
+        "recipientEvidence": "published_dark_phoenix_ability_description",
+    },
+    "/Data/Void/passive/3/actions/0": {
+        "sha256": "988e3ca3e3e275cb52efd9abeedb9307ff91d2e61cec31b7b85c47192f2ca41a",
+        "behavior": "health_transfer_allies",
+        "recipient": "self",
+        "sourceRelation": "ally",
+        "parentCharacterId": "Sentry",
+        "summonedSide": "enemy",
+        "assertion": "Au tour de Void, vol de 10 % de vie à ses alliés et redistribution à Void lui-même. Forme invoquée par Sentry dans le camp adverse.",
+        "sourceUrl": "https://www.reddit.com/r/MarvelStrikeForce/comments/1nqf410/",
+        "recipientEvidence": "community_published_void_ability_description",
+    },
+}
+
 # Retain the partial interpretation hook for future ambiguous source actions.
 PARTIAL_OFFICIAL_TEXT_SIGNATURES = {}
 
@@ -517,15 +548,34 @@ def normalize_health_redistribute(action: dict[str, Any]) -> dict[str, Any]:
             "context": comparison["context"],
             "proofLevel": "corroborated" if comparison["tier"] == "technical_correlated" else "confirmed",
         }
+    linked_summon = REVIEWED_PLAYABLE_LINKED_SUMMON_SIGNATURES.get(pointer)
+    linked_summon_confirmed = bool(
+        linked_summon and _raw_fingerprint(raw) == linked_summon["sha256"]
+    )
+    if linked_summon_confirmed:
+        verified_review = {
+            "sourceGameVersion": "10_6_3",
+            "sourceVersionVerified": False,
+            "proofLevel": "corroborated",
+            "assertion": linked_summon["assertion"],
+            "recipient": linked_summon["recipient"],
+            "recipientEvidence": linked_summon["recipientEvidence"],
+            "sourceUrl": linked_summon["sourceUrl"],
+            "parentCharacterId": linked_summon["parentCharacterId"],
+            "summonedSide": linked_summon["summonedSide"],
+            "sourceRelation": linked_summon["sourceRelation"],
+        }
     if verified_review:
         behavior, rule, proof = (
-            "health_steal_redistribute",
-            "reviewed_comparative_technical_context" if comparison_confirmed and comparison["tier"] == "technical_correlated"
+            linked_summon["behavior"] if linked_summon_confirmed else "health_steal_redistribute",
+            "reviewed_playable_linked_summon" if linked_summon_confirmed
+            else "reviewed_comparative_technical_context" if comparison_confirmed and comparison["tier"] == "technical_correlated"
             else "reviewed_comparative_direct_description" if comparison_confirmed
             else "reviewed_published_english_self_restitution" if published_review_confirmed
             else "reviewed_user_validated_self_restitution" if user_review_confirmed
             else "reviewed_official_text_steal_and_redistribution",
-            "matched_technical_action_and_published_description" if comparison_confirmed and comparison["tier"] == "technical_correlated"
+            "playable_owner_spawn_and_published_kit_text" if linked_summon_confirmed
+            else "matched_technical_action_and_published_description" if comparison_confirmed and comparison["tier"] == "technical_correlated"
             else "matched_official_or_published_description" if comparison_confirmed
             else "published_english_ability_text_and_exact_source_signature"
             if published_review_confirmed
@@ -557,8 +607,13 @@ def normalize_health_redistribute(action: dict[str, Any]) -> dict[str, Any]:
                                 if "sourceUrl" in verified_review else {}),
                              **({"sourceType": verified_review["sourceType"],
                                  "technicalContext": verified_review["context"]}
-                                if comparison_confirmed else {})}
-                            if user_review_confirmed or published_review_confirmed or comparison_confirmed else {}),
+                                if comparison_confirmed else {}),
+                             **({"playableParentCharacterId": verified_review["parentCharacterId"],
+                                 "summonedSide": verified_review["summonedSide"],
+                                 "sourceRelation": verified_review["sourceRelation"]}
+                                if linked_summon_confirmed else {})}
+                            if user_review_confirmed or published_review_confirmed
+                            or comparison_confirmed or linked_summon_confirmed else {}),
                          "limits": ["percentage_basis", "engine_formula", "recipient_allocation", "operation_order"]}
                         if verified_review else {}),
                      **({"proofLevel": "partially_confirmed",
