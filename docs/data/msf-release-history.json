@@ -11819,11 +11819,12 @@
     },
     "2025": {
       "status": "partial",
-      "auditedThrough": "2025-06-30",
+      "auditedThrough": "2025-09-30",
       "dateConvention": "Scopely's North American PST/PDT historical launch dates. A month without date means the precise first global unlock was not proven.",
       "auditedPeriods": [
         "2025-01-01/2025-03-31",
-        "2025-04-01/2025-06-30"
+        "2025-04-01/2025-06-30",
+        "2025-07-01/2025-09-30"
       ],
       "individualReleases": [
         {
@@ -11865,6 +11866,20 @@
           ],
           "notes": [
             "Harbinger May progress could reach his 180-shard unlock requirement and players had Quasar before May ended. May 27 Invasion event awards Red Stars for already recruitable Quasar, not first availability. Exact first playable day unproven."
+          ]
+        },
+        {
+          "characterId": "Blastaar",
+          "month": "2025-08",
+          "releaseMethod": "command_center_shard_rewards",
+          "confidence": "high",
+          "sourceIds": [
+            "q325-blastaar-first-month",
+            "q325-blastaar-aug16",
+            "q325-blastaar-aug18"
+          ],
+          "notes": [
+            "Age of Annihilus / Broken King Chapter 2 begins August 4 and first month awards enough cumulative shards for Legendary Blastaar. A real recruited Blastaar is reported by mid-August, so first playable month August; precise day and threshold crossing remain unproven. This is an individual release, not a new five-person team."
           ]
         }
       ],
@@ -12656,6 +12671,571 @@
           "releaseMethods": {
             "TheHood": "limited_offer; power_core_store"
           }
+        },
+        {
+          "month": "2025-07",
+          "teamId": "fantastic-four-mcu-2025-rollout",
+          "label": "Fantastic Four (MCU) — July 2025 initial rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "FranklinRichards",
+            "HumanTorch",
+            "Thing"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "InvisibleWomanMCU",
+            "MrFantasticMCU",
+            "FranklinRichards"
+          ],
+          "existingCharacterIds": [
+            "HumanTorch",
+            "Thing"
+          ],
+          "reworkedCharacterIds": [
+            "HumanTorch",
+            "Thing"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "Single original five-member rollout: July 2/14/24 initial recruitments, two veteran upgrades. No June event based only on a preview.",
+            "Distinguish MCU recruits from historical MrFantastic and InvisibleWoman characters."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "InvisibleWomanMCU",
+              "month": "2025-07",
+              "date": "2025-07-02",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q325-f4-jun27",
+                "q325-f4-announcement"
+              ],
+              "notes": [
+                "July 2 first available from direct recruit offers and 675-core character orb; earlier Showcase access is not recruitment."
+              ]
+            },
+            {
+              "characterId": "MrFantasticMCU",
+              "month": "2025-07",
+              "date": "2025-07-14",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q325-f4-jul11",
+                "q325-f4-announcement"
+              ],
+              "notes": [
+                "July 14 first availability per contemporary community-manager schedule; this MCU hero is distinct from veteran MrFantastic."
+              ]
+            },
+            {
+              "characterId": "FranklinRichards",
+              "month": "2025-07",
+              "date": "2025-07-24",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q325-f4-jul18",
+                "q325-f4-announcement"
+              ],
+              "notes": [
+                "July 24 first availability announced by contemporary community-manager blog; exact first offer/orb mechanism is not independently confirmed, so left unclassified."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "HumanTorch",
+              "month": "2025-07",
+              "sourceIds": [
+                "q325-f4-announcement",
+                "q325-f4-jul11"
+              ],
+              "notes": [
+                "Large stats and multiple Fantastic Four (MCU) kit/synergy changes. June 2025 preview is not proof of activation; substantial changes belong to July, exact live day unconfirmed."
+              ]
+            },
+            {
+              "characterId": "Thing",
+              "month": "2025-07",
+              "sourceIds": [
+                "q325-f4-announcement",
+                "q325-f4-jul11"
+              ],
+              "notes": [
+                "Major Fantastic Four (MCU) veteran overhaul and synergies. Announcement in June does not demonstrate a June live rework; July used conservatively."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q325-f4-announcement",
+            "q325-f4-jun27",
+            "q325-f4-jul11",
+            "q325-f4-jul18"
+          ],
+          "releaseMethods": {
+            "InvisibleWomanMCU": "limited_offer; power_core_store",
+            "MrFantasticMCU": "limited_offer; power_core_store"
+          }
+        },
+        {
+          "month": "2025-08",
+          "teamId": "hellfire-club-2025-rollout",
+          "label": "Hellfire Club — August 2025 initial rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Azazel",
+            "RachelSummers",
+            "SebastianShaw",
+            "EmmaFrost",
+            "MadelynePryor"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Azazel",
+            "RachelSummers",
+            "SebastianShaw"
+          ],
+          "existingCharacterIds": [
+            "EmmaFrost",
+            "MadelynePryor"
+          ],
+          "reworkedCharacterIds": [
+            "EmmaFrost",
+            "MadelynePryor"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "One Hellfire Club original rollout spanning three August recruitments; no new event for each shard wave.",
+            "July 28 kit previews are advance communication and are not silently recorded as July live reworks."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "Azazel",
+              "month": "2025-08",
+              "date": "2025-08-04",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q325-hellfire-official"
+              ],
+              "notes": [
+                "August 4 paid/core-orb first availability; Neyaphem Ruler Orb is a character-recruitment orb, not a Red Star event."
+              ]
+            },
+            {
+              "characterId": "RachelSummers",
+              "month": "2025-08",
+              "date": "2025-08-14",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q325-hellfire-aug8"
+              ],
+              "notes": [
+                "August 14 first recruitment window documented by contemporary manager schedule. Initial exact offer/orb contents were not independently established."
+              ]
+            },
+            {
+              "characterId": "SebastianShaw",
+              "month": "2025-08",
+              "date": "2025-08-22",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q325-hellfire-aug15",
+                "q325-hellfire-aug22"
+              ],
+              "notes": [
+                "August 22 first recruitability per contemporary schedule, distinct from earlier Shaw Red Star milestones and later discount campaigns."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "EmmaFrost",
+              "month": "2025-08",
+              "sourceIds": [
+                "q325-hellfire-preview",
+                "q325-hellfire-official"
+              ],
+              "notes": [
+                "Classic Emma Frost major stats/Hellfire synergy overhaul, not EmmaFrostXMen. July preview alone is not live proof; counted in August rollout, exact implementation day unconfirmed."
+              ]
+            },
+            {
+              "characterId": "MadelynePryor",
+              "month": "2025-08",
+              "sourceIds": [
+                "q325-hellfire-preview",
+                "q325-hellfire-official"
+              ],
+              "notes": [
+                "Substantial Hellfire-era stats and kit/synergy upgrade of veteran Madelyne Pryor; activation day not established."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q325-hellfire-official",
+            "q325-hellfire-preview",
+            "q325-hellfire-aug8",
+            "q325-hellfire-aug15",
+            "q325-hellfire-aug22"
+          ],
+          "releaseMethods": {
+            "Azazel": "limited_offer; power_core_store"
+          }
+        },
+        {
+          "month": "2025-08",
+          "teamId": "insidious-six-2025-rollout",
+          "label": "Insidious Six — August reworks, September recruits (flexible core and pool)",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Scorpion",
+            "Hobgoblin",
+            "SuperiorSpiderMan",
+            "Shocker",
+            "Vulture"
+          ],
+          "core": [
+            "Scorpion",
+            "Hobgoblin",
+            "SuperiorSpiderMan"
+          ],
+          "pool": [
+            "Shocker",
+            "Vulture"
+          ],
+          "newCharacterIds": [
+            "Scorpion",
+            "Hobgoblin",
+            "SuperiorSpiderMan"
+          ],
+          "existingCharacterIds": [
+            "Shocker",
+            "Vulture"
+          ],
+          "reworkedCharacterIds": [
+            "Shocker",
+            "Vulture"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "First effective changes occurred in August, before Scorpion September 2; one event anchored August despite three September recruits.",
+            "Three exclusive Insidious members form the required core; the other two slots are flexible across Sinister Six and Superior Six. Shocker/Vulture are preferred examples, not the only permitted partners.",
+            "Nine other old Sinister Six members received passive-stat compensation after Shocker's change; that does not count as nine independent substantive reworks or a second team rollout."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "Scorpion",
+              "month": "2025-09",
+              "date": "2025-09-02",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q325-insidious-aug29",
+                "q325-insidious-official"
+              ],
+              "notes": [
+                "September 2 debut, initial offers and core orb; August announcement and early versioned kit do not count as recruitment."
+              ]
+            },
+            {
+              "characterId": "Hobgoblin",
+              "month": "2025-09",
+              "date": "2025-09-12",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q325-insidious-sep05"
+              ],
+              "notes": [
+                "September 12 debut; 675-core Maniacal Mastermind Orb with possible 180-fragment drops plus regular instant-unlock offers."
+              ]
+            },
+            {
+              "characterId": "SuperiorSpiderMan",
+              "month": "2025-09",
+              "date": "2025-09-24",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q325-insidious-sep19"
+              ],
+              "notes": [
+                "September 24 debut; Spider Saboteur Orb for 675 cores and paid instant-unlock offers. Distinct from other Spider-Man variants."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "Shocker",
+              "month": "2025-08",
+              "sourceIds": [
+                "q325-insidious-official",
+                "q325-sinister-aug26"
+              ],
+              "notes": [
+                "Overhauled Insidious/legacy Sinister Six kit already active on August 26; manager described removing part of his old team-wide Damage/Armor passive and adjusting nine legacy base stats to compensate."
+              ]
+            },
+            {
+              "characterId": "Vulture",
+              "month": "2025-08",
+              "sourceIds": [
+                "q325-insidious-official",
+                "q325-sinister-aug26"
+              ],
+              "notes": [
+                "Substantial modernized Vulture stats and cross-Sinister/Insidious synergy in the same August rollout; exact individual activation day unproven."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q325-insidious-official",
+            "q325-sinister-aug26",
+            "q325-insidious-aug29",
+            "q325-insidious-sep05",
+            "q325-insidious-sep19"
+          ],
+          "releaseMethods": {
+            "Scorpion": "limited_offer; power_core_store",
+            "Hobgoblin": "limited_offer; power_core_store",
+            "SuperiorSpiderMan": "limited_offer; power_core_store"
+          }
+        },
+        {
+          "month": "2025-08",
+          "teamId": "infestation-2025-major-rework",
+          "label": "Infestation — substantive August 2025 five-veteran refit",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Swarm",
+            "SpiderManBigTime",
+            "Yellowjacket",
+            "BlackWidow",
+            "AntMan"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [],
+          "existingCharacterIds": [
+            "Swarm",
+            "SpiderManBigTime",
+            "Yellowjacket",
+            "BlackWidow",
+            "AntMan"
+          ],
+          "reworkedCharacterIds": [
+            "Swarm",
+            "SpiderManBigTime",
+            "Yellowjacket",
+            "BlackWidow",
+            "AntMan"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "Distinct substantial 2025 five-veteran rework of the pre-existing Infestation team, not a new character-release rollout.",
+            "The five-upgrade group is separately counted because the documented stat escalation is significant; no existing 2023 Infestation recruits are repeated.",
+            "A contemporary August 26 player reports Spider-Man (Big Time) upgraded Health already in game."
+          ],
+          "characterReleases": [],
+          "reworks": [
+            {
+              "characterId": "Swarm",
+              "month": "2025-08",
+              "sourceIds": [
+                "q325-insidious-official",
+                "q325-infestation-live"
+              ],
+              "notes": [
+                "Materially increased veteran Infestation combat statistics in the August 2025 rebalance, independently of original 2023 recruitments; not a new playable character or a second 2025 wave."
+              ]
+            },
+            {
+              "characterId": "SpiderManBigTime",
+              "month": "2025-08",
+              "sourceIds": [
+                "q325-insidious-official",
+                "q325-infestation-live"
+              ],
+              "notes": [
+                "Materially increased veteran Infestation combat statistics in the August 2025 rebalance, independently of original 2023 recruitments; not a new playable character or a second 2025 wave."
+              ]
+            },
+            {
+              "characterId": "Yellowjacket",
+              "month": "2025-08",
+              "sourceIds": [
+                "q325-insidious-official",
+                "q325-infestation-live"
+              ],
+              "notes": [
+                "Materially increased veteran Infestation combat statistics in the August 2025 rebalance, independently of original 2023 recruitments; not a new playable character or a second 2025 wave."
+              ]
+            },
+            {
+              "characterId": "BlackWidow",
+              "month": "2025-08",
+              "sourceIds": [
+                "q325-insidious-official",
+                "q325-infestation-live"
+              ],
+              "notes": [
+                "Materially increased veteran Infestation combat statistics in the August 2025 rebalance, independently of original 2023 recruitments; not a new playable character or a second 2025 wave."
+              ]
+            },
+            {
+              "characterId": "AntMan",
+              "month": "2025-08",
+              "sourceIds": [
+                "q325-insidious-official",
+                "q325-infestation-live"
+              ],
+              "notes": [
+                "Materially increased veteran Infestation combat statistics in the August 2025 rebalance, independently of original 2023 recruitments; not a new playable character or a second 2025 wave."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q325-insidious-official",
+            "q325-infestation-live"
+          ],
+          "releaseMethods": {}
+        },
+        {
+          "month": "2025-09",
+          "teamId": "secret-warriors-2025-rollout",
+          "label": "Secret Warriors — September 2025 major refit and Phantom Rider",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "PhantomRider",
+            "Quake",
+            "YoYo",
+            "Domino",
+            "Negasonic"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "PhantomRider"
+          ],
+          "existingCharacterIds": [
+            "Quake",
+            "YoYo",
+            "Domino",
+            "Negasonic"
+          ],
+          "reworkedCharacterIds": [
+            "Quake",
+            "YoYo",
+            "Domino",
+            "Negasonic"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "One Secret Warriors rollout, even though Phantom Rider's first Battle Pass is staged and later Standard Passes extend into T4.",
+            "Phantom Rider is a September first recruit based on firsthand mid-September roster testimony, not simply the September 8 Battle Pass start; no invented exact day.",
+            "Four returning members were substantially upgraded; August 18 announcement does not alone establish August live activation."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "PhantomRider",
+              "month": "2025-09",
+              "releaseMethod": "premium_battle_pass",
+              "confidence": "high",
+              "sourceIds": [
+                "q325-insidious-sep05",
+                "q325-phantom-sep14"
+              ],
+              "notes": [
+                "First Battle Pass began September 8 but this is NOT a September 8 instantaneous unlock. Completing one Premium Pass reaches the three-star threshold; three Standard Passes are needed for an eventual free unlock. A September 14 player independently reported an owned 3-yellow-star Phantom Rider; precise earliest global recruit day remains unproven."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "Quake",
+              "month": "2025-09",
+              "sourceIds": [
+                "q325-secret-preview",
+                "q325-insidious-sep05"
+              ],
+              "notes": [
+                "Substantially modernized Secret Warriors kit/stats and new coordinated play; August preview alone not evidence the kit went live in August."
+              ]
+            },
+            {
+              "characterId": "YoYo",
+              "month": "2025-09",
+              "sourceIds": [
+                "q325-secret-preview",
+                "q325-insidious-sep05"
+              ],
+              "notes": [
+                "Major Secret Warriors vintage-member stat and mechanic update effective by September."
+              ]
+            },
+            {
+              "characterId": "Domino",
+              "month": "2025-09",
+              "sourceIds": [
+                "q325-secret-preview",
+                "q325-insidious-sep05"
+              ],
+              "notes": [
+                "Significant older Domino combat stat/ability synergies changed for the Secret Warriors rollout."
+              ]
+            },
+            {
+              "characterId": "Negasonic",
+              "month": "2025-09",
+              "sourceIds": [
+                "q325-secret-preview",
+                "q325-insidious-sep05"
+              ],
+              "notes": [
+                "Major older Negasonic combat kit/stat modifications for the Secret Warriors team."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q325-secret-preview",
+            "q325-secret-ability-preview",
+            "q325-insidious-sep05",
+            "q325-phantom-sep14"
+          ],
+          "releaseMethods": {
+            "PhantomRider": "premium_battle_pass"
+          }
         }
       ],
       "excludedFrom2025Q1PlayableCount": [
@@ -12701,7 +13281,13 @@
         "T2 2025: one rollout each for Vigilante, Thunderbolts and Accursed. Thunderbolts' Taskmaster/Ghost reworks went live on April 29 before the May recruitment trio, so teamEvent.month is April.",
         "T2 2025: Xavier April unlock was not automatically granted by Saga April 14 opening; Quasar Harbinger May unlock not inferred from May 27 Red Stars.",
         "T2 2025: May 29 accidental Accursed recruit shard distribution was explicitly rolled back May 30 for all players; normal persistent recruitment belongs to June.",
-        "T2 2025: Starjammers' original February–March teamEvent preserved; April 3 minor base stat increases are not a new substantive rework or a new team rollout. Fantastic Four (MCU) starts with InvisibleWomanMCU July 2, not June, and awaits T3."
+        "T2 2025: Starjammers' original February–March teamEvent preserved; April 3 minor base stat increases are not a new substantive rework or a new team rollout. Fantastic Four (MCU) starts with InvisibleWomanMCU July 2, not June, and awaits T3.",
+        "T3 2025: Fantastic Four (MCU), Hellfire Club, Insidious Six and Secret Warriors each have one original rollout with individually dated recruits; Infestation has a separately justified major five-veteran 2025 refit.",
+        "T3 2025: Insidious Six is anchored in August when Shocker's kit had already changed; Scorpion, Hobgoblin and SuperiorSpiderMan first recruit in September. Team has an explicit three-member core with flexible Sinister/Superior two-slot partners.",
+        "T3 2025: the August 4 Broken King start did not itself establish Blastaar's first unlock day; eyewitness recruitment during August establishes month only.",
+        "T3 2025: Phantom Rider's September 8 Premium Battle Pass launch is not an automatic unlock; a player had a three-star recruit by September 14, while three free completed Standard Passes stretch beyond the initial period.",
+        "T3/T4 boundary: Brimstone announced September but no independently proved live ElsaBloodstone/Heartless veteran reworks before September 30. DaimonHellstrom, LivingMummy and Hellcat first availability is in October, so Brimstone rollout deliberately left to T4. Do not duplicate it.",
+        "T3 2025: Sentry boss appearances and accumulating Battleworld rewards are not evidence of a T3 playable recruit; Sentry is not counted. Red Star-only events, pre-release kit changes and minor passive stat compensation are also excluded."
       ],
       "sources": [
         {
@@ -13024,18 +13610,194 @@
           "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1jqsmvt/",
           "publicationDate": "2025-04-03",
           "type": "official_community_manager"
+        },
+        {
+          "id": "q325-f4-announcement",
+          "title": "Fantastic Four (MCU) original five-person formation and major veteran updates",
+          "url": "https://marvelstrikeforce.com/es/updates/a-fantastic-family",
+          "publicationDate": "2025-06-24",
+          "type": "official"
+        },
+        {
+          "id": "q325-f4-jun27",
+          "title": "June 27 official blog: Invisible Woman (MCU) debut July 2",
+          "url": "https://marvelstrikeforce.com/id/updates/blog-update-6-27-25",
+          "publicationDate": "2025-06-27",
+          "type": "official"
+        },
+        {
+          "id": "q325-f4-jul11",
+          "title": "July 11 contemporaneous community-manager weekly blog: Mister Fantastic (MCU) July 14",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1lxifqb",
+          "publicationDate": "2025-07-11",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q325-f4-jul18",
+          "title": "July 18 contemporaneous community-manager weekly blog: Franklin Richards July 24",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1m3dxu9",
+          "publicationDate": "2025-07-18",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q325-hellfire-official",
+          "title": "Hellfire Club official character rollout, vintage member updates",
+          "url": "https://marvelstrikeforce.com/ja/updates/blog-update-8-1-25",
+          "publicationDate": "2025-08-01",
+          "type": "official"
+        },
+        {
+          "id": "q325-hellfire-preview",
+          "title": "July 28 contemporary Hellfire Club kit and rework preview",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1mbqfln",
+          "publicationDate": "2025-07-28",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q325-hellfire-aug8",
+          "title": "August 8 contemporary community-manager blog: Rachel Summers first availability August 14",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1ml70t8",
+          "publicationDate": "2025-08-08",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q325-hellfire-aug15",
+          "title": "August 15 community-manager blog: Sebastian Shaw first availability August 22",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1mraaoi",
+          "publicationDate": "2025-08-15",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q325-hellfire-aug22",
+          "title": "August 22 Scopely weekly news confirming Hellfire August activity",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-08-22-25",
+          "publicationDate": "2025-08-22",
+          "type": "official"
+        },
+        {
+          "id": "q325-insidious-official",
+          "title": "Masterminds of Mayhem: three-member Insidious Six core, flexible two slots, veteran and Infestation upgrades",
+          "url": "https://marvelstrikeforce.com/en/updates/masterminds-of-mayhem",
+          "publicationDate": "2025-08-25",
+          "type": "official"
+        },
+        {
+          "id": "q325-sinister-aug26",
+          "title": "Scopely community manager confirms Shocker's revised Passive already implemented August 26",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1n102ys",
+          "publicationDate": "2025-08-26",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q325-infestation-live",
+          "title": "Contemporary August 26 player comparison confirms updated Big Time Spider-Man stats already live",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1n08sn5",
+          "publicationDate": "2025-08-26",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q325-insidious-aug29",
+          "title": "August 29 community manager blog: Scorpion first availability September 2",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1n3j8jq",
+          "publicationDate": "2025-08-29",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q325-insidious-sep05",
+          "title": "September 5 weekly blog: Hobgoblin September 12 debut, Phantom Rider Battle Pass",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-09-05-25",
+          "publicationDate": "2025-09-05",
+          "type": "official"
+        },
+        {
+          "id": "q325-insidious-sep19",
+          "title": "September 19 weekly blog: Superior Spider-Man September 24 release and core orb",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-09-19-25",
+          "publicationDate": "2025-09-19",
+          "type": "official"
+        },
+        {
+          "id": "q325-secret-preview",
+          "title": "August 18 contemporary preview of Phantom Rider and Secret Warriors veteran upgrades",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1mtyiku",
+          "publicationDate": "2025-08-18",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q325-secret-ability-preview",
+          "title": "August 18 Secret Warriors and Phantom Rider detailed ability preview",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1mtv3u1",
+          "publicationDate": "2025-08-18",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q325-phantom-sep14",
+          "title": "September 14 contemporary player reports owned three-yellow-star Phantom Rider",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1ngjhsu",
+          "publicationDate": "2025-09-14",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q325-blastaar-first-month",
+          "title": "August 1 official blog: August 4 Broken King chapter 2 and first month Blastaar shard rewards",
+          "url": "https://marvelstrikeforce.com/ja/updates/blog-update-8-1-25",
+          "publicationDate": "2025-08-01",
+          "type": "official"
+        },
+        {
+          "id": "q325-blastaar-aug16",
+          "title": "August 16 contemporary player report with playable recruited Blastaar",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1mrzaxj",
+          "publicationDate": "2025-08-16",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q325-blastaar-aug18",
+          "title": "August 18 contemporary recruited Blastaar testimonies",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1mtq4z3",
+          "publicationDate": "2025-08-18",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q325-brimstone-preview",
+          "title": "September Brimstone presentation: Daimon, Living Mummy, Hellcat, Elsa and Heartless",
+          "url": "https://marvelstrikeforce.com/en/updates/darkness-descends-on-war",
+          "publicationDate": "2025-09-19",
+          "type": "official"
+        },
+        {
+          "id": "q325-brimstone-sep26",
+          "title": "September 26 official announcement of first Daimon Hellstrom availability October 2",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-09-26-25",
+          "publicationDate": "2025-09-26",
+          "type": "official"
+        },
+        {
+          "id": "q325-brimstone-oct03",
+          "title": "October 3 official blog confirming October continuation of Brimstone rollout",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-03-25",
+          "publicationDate": "2025-10-03",
+          "type": "official"
+        },
+        {
+          "id": "q325-sentry-boundary",
+          "title": "Contemporary December player discussion, Sentry 5-star Battleworld unlock later than Q3",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1px4wtp",
+          "publicationDate": "2025-12-27",
+          "type": "contemporary_community"
         }
       ],
       "validation": {
-        "auditedPeriod": "2025-01-01/2025-06-30",
-        "individualReleaseCount": 3,
-        "teamEventNewCharacterCount": 18,
-        "distinctPlayableReleaseCount": 21,
-        "distinctReworkedCharacterCount": 11,
+        "auditedPeriod": "2025-01-01/2025-09-30",
+        "individualReleaseCount": 4,
+        "teamEventNewCharacterCount": 28,
+        "distinctPlayableReleaseCount": 32,
+        "distinctReworkedCharacterCount": 26,
         "duplicatesAcrossReleaseBuckets": [],
         "auditedPeriods": [
           "2025-01-01/2025-03-31",
-          "2025-04-01/2025-06-30"
+          "2025-04-01/2025-06-30",
+          "2025-07-01/2025-09-30"
         ],
         "q1DistinctPlayableReleaseCount": 10,
         "q1DistinctReworkedCharacterCount": 5,
@@ -13047,8 +13809,16 @@
         "q2StartingPlayableRosterCount": 316,
         "q2EndPlayableRosterCount": 327,
         "startingPlayableRosterCount": 306,
-        "quarterEndPlayableRosterCount": 327,
-        "annualTotalsStatus": "partial through June 30 2025"
+        "quarterEndPlayableRosterCount": 338,
+        "annualTotalsStatus": "partial through September 30 2025",
+        "q3AuditedPeriod": "2025-07-01/2025-09-30",
+        "q3IndividualReleaseCount": 1,
+        "q3TeamEventReleaseCount": 10,
+        "q3DistinctPlayableReleaseCount": 11,
+        "q3DistinctReworkedCharacterCount": 15,
+        "q3TeamEventsIntroducedCount": 5,
+        "q3StartingPlayableRosterCount": 327,
+        "q3EndPlayableRosterCount": 338
       }
     },
     "2026": {
