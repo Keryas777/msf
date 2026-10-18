@@ -114,6 +114,16 @@ test("fail closed on suspicious catalog shrink and invalid identifiers", () => {
   assert.throws(() => takeSnapshot(sources.catalog, sources.combat), /Invalid/);
 });
 
+test("temporary mass loss of player_Character metadata never overwrites the baseline", () => {
+  const { sources, history, state } = bootstrap();
+  for (let n = 0; n < 50; n++) sources.catalog[n].player_Character = false;
+  assert.throws(
+    () => advance(history, state, takeSnapshot(sources.catalog, sources.combat), "2026-10-19T08:00:00Z"),
+    /Playable catalog unexpectedly shrank/
+  );
+  assert.equal(history.years["2026"].teamEvents.length, 0);
+});
+
 test("year rollover creates only future partial year", () => {
   const { sources, history, state } = bootstrap();
   sources.catalog[100].player_Character = true;
