@@ -13,10 +13,13 @@
 .profileIdentitySummary span,.profileIdentitySummary strong{display:block}
 .profileIdentitySummary span{font-size:.71rem;color:var(--muted)}
 .profileIdentitySummary strong{font-size:.9rem;margin-top:5px}
-.profileTraitGroups{display:grid;gap:12px;margin:14px 0}
+/* Les familles de tags partagent la largeur disponible, y compris sur iPhone. */
+.profileTraitGroups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:12px;row-gap:18px;margin:14px 0}
+.profileTagGroup{min-width:0}
+.profileTagGroup--wide{grid-column:1/-1}
 .profileTagGroup h4{font-size:.73rem;text-transform:uppercase;color:var(--muted);margin:0 0 7px}
 .profileTags{display:flex;flex-wrap:wrap;gap:6px}
-.profileTag{border:1px solid var(--line-strong);background:var(--accent-soft);padding:6px 10px;border-radius:999px;font-size:.8rem}
+.profileTag{max-width:100%;overflow-wrap:anywhere;border:1px solid var(--line-strong);background:var(--accent-soft);padding:6px 10px;border-radius:999px;font-size:.8rem}
 .profileSmallNote{font-size:.77rem;line-height:1.55;color:var(--muted);margin:0 0 15px}
 .profileCodexLink{display:inline-flex;min-height:40px;align-items:center;padding:8px 12px;border:1px solid var(--line-strong);border-radius:10px;color:var(--accent);text-decoration:none;font-size:.82rem;font-weight:750;margin-top:10px}
 .profileAbility{border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025);padding:13px;margin:12px 0}
