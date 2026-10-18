@@ -46,7 +46,7 @@
   function renderTraits(shard) {
     const groups = groupTraits(shard.character);
     return groups.length ? groups.map(group =>
-      "<section class=\"profileTagGroup\"><h4>" + esc(group.title) + "</h4><div class=\"profileTags\">" +
+      "<section class=\"profileTagGroup" + (group.title === "Équipes et autres tags" ? " profileTagGroup--wide" : "") + "\"><h4>" + esc(group.title) + "</h4><div class=\"profileTags\">" +
       group.labels.map(label => "<span class=\"profileTag\">" + esc(label) + "</span>").join("") +
       "</div></section>").join("") : "<p class=\"detailEmpty\">Aucun tag publié.</p>";
   }
