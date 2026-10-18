@@ -190,6 +190,14 @@ export function advance(history, previousState, current, timestamp, scheduledEve
   if (!history?.years || typeof history.years !== "object") throw new Error("Invalid release history");
   const date = timestamp.slice(0, 10);
   const scheduled = applyScheduledEvents(history, current, timestamp, scheduledEvents);
+  // While an explicitly sourced rollout is due, inferred changes for those IDs/traits
+  // must not create premature releases or duplicate automatic team events.
+  const protectedRollouts = scheduledEvents.filter(event =>
+    Date.parse(timestamp) <= Date.parse(event.releaseAt) + 86400000
+  );
+  const scheduledRecruits = new Set(protectedRollouts.flatMap(event => event.teamEvent.newCharacterIds));
+  const scheduledReworks = new Set(protectedRollouts.flatMap(event => event.teamEvent.reworkedCharacterIds));
+  const scheduledTraits = new Set(protectedRollouts.map(event => event.sourceTrait).filter(Boolean));
   if (!previousState) {
     // First run only anchors observation: NEVER import the current roster as fresh releases.
     return {
@@ -218,8 +226,8 @@ export function advance(history, previousState, current, timestamp, scheduledEve
   const releasedBefore = existingReleases(history);
   for (const [id, now] of Object.entries(current)) {
     const before = old[id];
-    if (now.playable && (!before || !before.playable) && !releasedBefore.has(id)) releases.push(id);
-    if (!now.playable || !before?.playable || !now.fingerprints || !before.fingerprints) continue;
+    if (now.playable && (!before || !before.playable) && !releasedBefore.has(id) && !scheduledRecruits.has(id)) releases.push(id);
+    if (!now.playable || !before?.playable || !now.fingerprints || !before.fingerprints || scheduledReworks.has(id)) continue;
     const keys = new Set([...Object.keys(now.fingerprints), ...Object.keys(before.fingerprints)]);
     const changed = [...keys].filter(k => now.fingerprints[k] !== before.fingerprints[k]).sort();
     if (!changed.length) continue;
@@ -237,7 +245,7 @@ export function advance(history, previousState, current, timestamp, scheduledEve
   const groups = new Map();
   for (const [id, char] of active) {
     for (const trait of char.traits) {
-      if (GENERIC.has(trait)) continue;
+      if (GENERIC.has(trait) || scheduledTraits.has(trait)) continue;
       if (!groups.has(trait)) groups.set(trait, []);
       groups.get(trait).push(id);
     }
