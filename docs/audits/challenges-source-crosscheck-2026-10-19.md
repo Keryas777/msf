@@ -96,7 +96,7 @@ Quatre quintettes `best team (in our opinion)` recoupés exactement dans le guid
 | `dd5` | 1 |
 | `dd7` | 1 |
 
-Les causes sont significatives : absence d'équipe nominative dans les anciens DD, synthèses d'origine non rattachées à un combat particulier, neuf nœuds de Saga Apocalypse non confirmés version par version, variantes Shadow King ou DD9 reconstruites. **Aucune de ces 21 entrées n'a été convertie de force en source vérifiée.**
+Les causes sont significatives : absence d'équipe nominative dans les anciens DD, synthèses d'origine non rattachées à un combat particulier, neuf nœuds de Saga Apocalypse désormais recoupés séparément (avec réserves selon les sections), variantes Shadow King ou DD9 reconstruites. **Aucune des entrées encore en attente n'a été convertie de force en source vérifiée.**
 
 ## Contrôles statiques sur la branche
 
