@@ -1465,6 +1465,16 @@
               });
             }
 
+            for (const item of yearData?.individualReworks || []) {
+              const record = ensureRecord(item.characterId);
+              record.reworks.push({
+                temporal: parseTemporal(item.date || item.month || yearKey),
+                label: "Rework individuel (détecté)",
+                teamId: "",
+                notes: Array.isArray(item.notes) ? item.notes : []
+              });
+            }
+
             for (const event of yearData?.teamEvents || []) {
               const eventRawDate = event.date || event.month || yearKey;
 
@@ -1686,6 +1696,30 @@
                   yearKey,
                   temporal: parseTemporal(rawDate),
                   label: "Sorties individuelles",
+                  teamId: "",
+                  sequence: sequence++,
+                  occurrences
+                });
+              }
+            }
+
+            const individualReworkGroups = new Map();
+            for (const item of yearData?.individualReworks || []) {
+              const rawDate = item.date || item.month || yearKey;
+              if (!individualReworkGroups.has(rawDate)) individualReworkGroups.set(rawDate, []);
+              individualReworkGroups.get(rawDate).push(item);
+            }
+            for (const [rawDate, items] of individualReworkGroups.entries()) {
+              const occurrences = items
+                .map((item) => getTimelineRecord(item.characterId))
+                .filter(Boolean)
+                .map((record) => ({ record, status: "rework" }));
+              if (occurrences.length) {
+                events.push({
+                  type: "individual",
+                  yearKey,
+                  temporal: parseTemporal(rawDate),
+                  label: "Reworks individuels (détection automatique)",
                   teamId: "",
                   sequence: sequence++,
                   occurrences
