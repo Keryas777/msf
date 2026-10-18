@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "auditedAt": "2026-10-17",
+  "auditedAt": "2026-10-19",
   "scope": "Marvel Strike Force PvE challenge guides only",
   "notes": "Registre éditorial hors interface : une URL repérée ne prouve pas un nœud, une équipe, une rotation ni une victoire. integration.* reflète les versions réellement reliées à une source, sans compter les anciens brouillons à attribution inconnue.",
   "statuses": {
@@ -21,19 +21,24 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "city",
+        "cosmic",
+        "legendary",
+        "mythic"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "19/10/2026 : quatre quintettes explicitement listés par section dans la rubrique 'Here is the best team (in our opinion)' de la page DD IX indexée ; ce ne sont ni des victoires ni une rotation de capacité.",
       "evidenceLevel": "recommendation",
       "editorialFamily": null,
-      "notes": "Conseils de compositions et équipement ; ne pas assimiler à une victoire documentée.",
+      "notes": "Conseils de compositions et équipement ; ne pas assimiler à une victoire documentée. La sélection Mondial LoSP remplace Whiplash par Lady Deathstrike et n'est pas la composition exacte du guide ; garder cette variante en attente. Les variantes construites et la finale ne sont pas comptées.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 4,
+        "textCheckedStrategies": 4,
+        "status": "four_exact_prep_quintets_checked_remaining_dd9_compositions_pending"
       }
     },
     {
@@ -71,19 +76,60 @@
       "language": "en",
       "format": "article",
       "difficulty": "Omega",
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "18 octobre 2026 : sections de walkthrough identifiées et recoupées à leur nœud dans l'index de recherche public ; accès direct au site restreint (HTTP 402). Conformité des équipes rapportées au texte, sans visionnage vidéo ni combat rejoué. Les reconstructions et omissions sont signalées dans les stratégies.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
-      "notes": "",
+      "notes": "Floors 7 et 8 : membres incomplets ; floor 10 : substitution Jean Grey réellement jouée ; floor 13 : Nightstalkers avec Méphisto sans remplacement identifié ; floor 19 : priorité Surfer (Briseur).",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 40,
+        "textCheckedStrategies": 40,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
       }
     },
     {
@@ -96,19 +142,40 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
-      "verificationStatus": "indexed_only",
-      "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
+      "verificationStatus": "indexed_content",
+      "evidence": "18 octobre 2026 : sections de walkthrough identifiées et recoupées à leur nœud dans l'index de recherche public ; accès direct au site restreint (HTTP 402). Conformité des équipes rapportées au texte, sans visionnage vidéo ni combat rejoué. Les reconstructions et omissions sont signalées dans les stratégies.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "",
+      "notes": "Floor 11 Thunderbolts + Méphisto : cinquième place non identifiée ; ne pas afficher les cinq Thunderbolts comme équipe gagnante exacte.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "source_index_only"
+        "linkedStrategies": 20,
+        "textCheckedStrategies": 20,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
       }
     },
     {
@@ -121,19 +188,44 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "18 octobre 2026 : sections de walkthrough identifiées et recoupées à leur nœud dans l'index de recherche public ; accès direct au site restreint (HTTP 402). Conformité des équipes rapportées au texte, sans visionnage vidéo ni combat rejoué. Les reconstructions et omissions sont signalées dans les stratégies.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
-      "notes": "",
+      "notes": " Éditorial : 24 étages historiques recoupés avec le walkthrough de Marvel Church ; les textes incomplets restent signalés.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 24,
+        "textCheckedStrategies": 24,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
       }
     },
     {
@@ -146,19 +238,70 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
-      "verificationStatus": "indexed_only",
-      "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
+      "verificationStatus": "indexed_content",
+      "evidence": "18 octobre 2026 : sections de walkthrough identifiées et recoupées à leur nœud dans l'index de recherche public ; accès direct au site restreint (HTTP 402). Conformité des équipes rapportées au texte, sans visionnage vidéo ni combat rejoué. Les reconstructions et omissions sont signalées dans les stratégies.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "",
+      "notes": "Équipes Maudits + Knull : quatre Maudits non individuellement énumérés dans le texte ; portraits hérités restent des reconstitutions signalées.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "source_index_only"
+        "linkedStrategies": 12,
+        "textCheckedStrategies": 12,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
+      }
+    },
+    {
+      "id": "marvel-war",
+      "eventId": "war",
+      "mode": "tower",
+      "title": "Tour de Guerre — guide des 12 cellules",
+      "author": "Marvel Church",
+      "url": "https://www.marvel.church/war-tower/",
+      "language": "en",
+      "format": "article",
+      "difficulty": "Omega",
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
+      "sectionIds": [],
+      "publishedAt": null,
+      "updatedAt": null,
+      "verificationStatus": "indexed_content",
+      "evidence": "18 octobre 2026 : texte par cellule retrouvé et contrôlé dans l'index public ; accès direct HTTP 402. Compositions, priorités et réserves rapportées au texte, sans rejouer les combats.",
+      "evidenceLevel": "walkthrough",
+      "editorialFamily": null,
+      "notes": "Tour PvE sous règles de Guerre ; 12 cellules ; cinq personnages ; la réussite dépend de la puissance. Sources et auteurs restent internes à l'édition.",
+      "integration": {
+        "linkedStrategies": 12,
+        "textCheckedStrategies": 12,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
       }
     },
     {
@@ -171,19 +314,40 @@
       "language": "en",
       "format": "article",
       "difficulty": "Omega",
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "18 octobre 2026 : sections de walkthrough identifiées et recoupées à leur nœud dans l'index de recherche public ; accès direct au site restreint (HTTP 402). Conformité des équipes rapportées au texte, sans visionnage vidéo ni combat rejoué. Les reconstructions et omissions sont signalées dans les stratégies.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
-      "notes": "Événement à équipes de cinq et 20 cellules, ouverture hebdomadaire.",
+      "notes": "Événement à équipes de cinq et 20 cellules, ouverture hebdomadaire. Cellules 16 et 18 : le texte publié ne donne pas de rotation détaillée.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 20,
+        "textCheckedStrategies": 20,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
       }
     },
     {
@@ -196,19 +360,25 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "18 octobre 2026 : sections de walkthrough identifiées et recoupées à leur nœud dans l'index de recherche public ; accès direct au site restreint (HTTP 402). Conformité des équipes rapportées au texte, sans visionnage vidéo ni combat rejoué. Les reconstructions et omissions sont signalées dans les stratégies.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
-      "notes": "Guide par cellules ; vérifier les changements de format de trois ou cinq personnages suivant l'édition.",
+      "notes": "Guide par cellules ; vérifier les changements de format de trois ou cinq personnages suivant l'édition. Contradiction confirmée sur les cellules 1–5 : format de trois combattants mais recommandations souvent à cinq ou équipe complète ; aucun trio réel déduit.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 5,
+        "textCheckedStrategies": 5,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
       }
     },
     {
@@ -221,19 +391,38 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
-      "verificationStatus": "indexed_only",
-      "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
+      "verificationStatus": "indexed_content",
+      "evidence": "18 octobre 2026 : sections de walkthrough identifiées et recoupées à leur nœud dans l'index de recherche public ; accès direct au site restreint (HTTP 402). Conformité des équipes rapportées au texte, sans visionnage vidéo ni combat rejoué. Les reconstructions et omissions sont signalées dans les stratégies.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "",
+      "notes": " Cellules 1–2 : conseils généraux sans trio ; 5–8 : groupes sans noms des trois héros ; 15–16 : contradiction interne sur les étoiles.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "source_index_only"
+        "linkedStrategies": 18,
+        "textCheckedStrategies": 18,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
       }
     },
     {
@@ -271,19 +460,30 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "18 octobre 2026 : walkthrough des dix missions retrouvé dans l'index public, composition par mission recoupée. Accès direct limité, vidéos non visionnées.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "",
+      "notes": " Attention à Void Knight (ID SymbioteSilverSurfer) et aux alternatives avec Emma Frost qui ne font pas partie du quintette Cabale + BK + CGR.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "node_walkthrough_text_crosschecked_from_public_search_index"
       }
     },
     {
@@ -296,19 +496,30 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
-      "verificationStatus": "indexed_only",
-      "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
+      "verificationStatus": "indexed_content",
+      "evidence": "18 octobre 2026 : guide mission par mission recoupé dans l'index public ; ouverture directe protégée (HTTP 402). Alternatives et parcours historique séparés des cinq membres joués ; aucune vidéo visionnée, aucun combat reproduit.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
       "notes": "",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "source_index_only"
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
       }
     },
     {
@@ -321,19 +532,30 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
-      "verificationStatus": "indexed_only",
-      "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
+      "verificationStatus": "indexed_content",
+      "evidence": "18 octobre 2026 : guide mission par mission recoupé dans l'index public ; ouverture directe protégée (HTTP 402). Alternatives et parcours historique séparés des cinq membres joués ; aucune vidéo visionnée, aucun combat reproduit.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "",
+      "notes": " Nœuds Bagarreurs : Black Cat n'est sélectionnable qu'après son déblocage ; première montée partielle.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "source_index_only"
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
       }
     },
     {
@@ -346,19 +568,30 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
-      "verificationStatus": "indexed_only",
-      "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
+      "verificationStatus": "indexed_content",
+      "evidence": "18 octobre 2026 : guide mission par mission recoupé dans l'index public ; ouverture directe protégée (HTTP 402). Alternatives et parcours historique séparés des cinq membres joués ; aucune vidéo visionnée, aucun combat reproduit.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "",
+      "notes": " Recommandations avec Photon distinctes de la victoire historique incluant Kestrel normale.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "source_index_only"
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
       }
     },
     {
@@ -371,19 +604,30 @@
       "language": "en",
       "format": "article",
       "difficulty": "10",
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "18 octobre 2026 : missions individuelles du guide Marvel Church recoupées dans le texte de l'index public, sans rejouer les combats ni voir la vidéo. Ouverture directe restreinte.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
       "notes": "La structure a évolué au fil des mois ; ne pas attribuer un total de missions fixe.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
       }
     },
     {
@@ -396,19 +640,30 @@
       "language": "en",
       "format": "article",
       "difficulty": "5–10",
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "19/10/2026 : texte détaillé des 10 missions dans l'index public, avec compositions explicites pour les missions 3 et 4. L'ouverture directe demeure restreinte ; vidéo non visionnée. Mission 10 : discordance entre en-tête et déroulement.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
-      "notes": "",
+      "notes": "Missions 3–4 recoupées à partir de leur section détaillée : Blastaar, Quasar et trio Fantastiques MCU. La suggestion d'introduction avec Hellfire Club est une autre route. Mission 10 : en-tête suggérant Sinister Six et walkthrough décrivant quatre Brimstone + Blastaar ; la version LoSP reprend la composition du déroulement sans effacer cette divergence.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "ten_node_texts_checked_with_warnings"
       }
     },
     {
@@ -421,19 +676,30 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
-      "verificationStatus": "indexed_only",
-      "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
+      "verificationStatus": "indexed_content",
+      "evidence": "18 octobre 2026 : guide mission par mission recoupé dans l'index public ; ouverture directe protégée (HTTP 402). Alternatives et parcours historique séparés des cinq membres joués ; aucune vidéo visionnée, aucun combat reproduit.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "",
+      "notes": " Mission 1 : l'équipe illustrée dans LoSP est une alternative publiée, pas celle jouée par l'auteur.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "source_index_only"
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
       }
     },
     {
@@ -446,19 +712,30 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "18 octobre 2026 : missions individuelles du guide Marvel Church recoupées dans le texte de l'index public, sans rejouer les combats ni voir la vidéo. Ouverture directe restreinte.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "",
+      "notes": " Mission 3 : composition exacte des cinq membres encore à confirmer ; l'article distingue options suggérées et formation effectivement utilisée.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
       }
     },
     {
@@ -471,19 +748,25 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "ville",
+        "mondial-vilains",
+        "mondial-heros",
+        "cosmique-vilains",
+        "cosmique-heros"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "19/10/2026 : les cinq ensembles 'Our Pick' et les restrictions correspondantes ont été recoupés dans le texte public indexé ; il s'agit de recommandations d'équipement, pas de batailles attestées (vidéos non visionnées, site direct HTTP 402).",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "Saga à nombreuses missions ; pas de couverture par nœud affirmée.",
+      "notes": "Saga à nombreuses missions ; pas de couverture par nœud affirmée. Les cinq fiches LoSP représentent des sélections 'Our Pick' par section, pas une victoire individuelle ; le boss contient de nombreuses missions.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 5,
+        "textCheckedStrategies": 5,
+        "status": "five_preparation_sections_source_text_checked_no_clear_claim"
       }
     },
     {
@@ -496,19 +779,30 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "19/10/2026 : liste des conseils 'Our Pick' recoupée pour 1–10, en sections 1, 2–3, 4–5, 6–7, 8–9 et mission 10. Recommandations, pas des victoires ni une rotation.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
       "notes": "Conseils de préparation et missions, pas nécessairement solutions testées.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "ten_sections_recommendations_source_checked_not_clear_verified"
       }
     },
     {
@@ -1583,19 +1877,30 @@
       "language": "en",
       "format": "walkthrough",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Guide technique consulté via le contenu textuel indexé ; ouverture directe automatisée refusée (402).",
+      "evidence": "18 octobre 2026 : guide mission par mission recoupé dans l'index public ; ouverture directe protégée (HTTP 402). Alternatives et parcours historique séparés des cinq membres joués ; aucune vidéo visionnée, aucun combat reproduit.",
       "evidenceLevel": "historical_playthrough",
       "editorialFamily": null,
-      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page.",
+      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page. Parcours original daté dans l'histoire du jeu ; la section Update du guide n'est pas présentée comme la même victoire.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
       }
     },
     {
@@ -1608,19 +1913,30 @@
       "language": "en",
       "format": "walkthrough",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Guide technique consulté via le contenu textuel indexé ; ouverture directe automatisée refusée (402).",
+      "evidence": "18 octobre 2026 : guide mission par mission recoupé dans l'index public ; ouverture directe protégée (HTTP 402). Alternatives et parcours historique séparés des cinq membres joués ; aucune vidéo visionnée, aucun combat reproduit.",
       "evidenceLevel": "historical_playthrough",
       "editorialFamily": null,
-      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page.",
+      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page. Parcours original daté dans l'histoire du jeu ; la section Update du guide n'est pas présentée comme la même victoire.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
       }
     },
     {
@@ -1633,19 +1949,30 @@
       "language": "en",
       "format": "walkthrough",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Guide technique consulté via le contenu textuel indexé ; ouverture directe automatisée refusée (402).",
+      "evidence": "18 octobre 2026 : comparatif des sections Original Run et Update par nœud dans le texte indexé du guide. Les variantes modernes intégrées ne sont pas présentées comme des victoires du parcours historique.",
       "evidenceLevel": "historical_playthrough",
       "editorialFamily": null,
-      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page.",
+      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page. LoSP conserve les distinctions : composition jouée historiquement, recommandation ultérieure et équipe reconstruite à partir de famille. Vidéos non visionnées.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "historical_original_run_and_modern_updates_source_text_indexed"
       }
     },
     {
@@ -1658,19 +1985,30 @@
       "language": "en",
       "format": "walkthrough",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Guide technique consulté via le contenu textuel indexé ; ouverture directe automatisée refusée (402).",
+      "evidence": "18 octobre 2026 : comparatif des sections Original Run et Update par nœud dans le texte indexé du guide. Les variantes modernes intégrées ne sont pas présentées comme des victoires du parcours historique.",
       "evidenceLevel": "historical_playthrough",
       "editorialFamily": null,
-      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page.",
+      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page. LoSP conserve les distinctions : composition jouée historiquement, recommandation ultérieure et équipe reconstruite à partir de famille. Vidéos non visionnées.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "historical_original_run_and_modern_updates_source_text_indexed"
       }
     },
     {
@@ -1683,19 +2021,29 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Guide technique consulté via le contenu textuel indexé ; ouverture directe automatisée refusée (402).",
-      "evidenceLevel": "recommendation",
+      "evidence": "19 octobre 2026 : guide Apocalypse Saga — sections Node 1 à Node 8 [Archive] et exigences du Node 9 Apocalyptic retrouvées et lues via texte indexé (ouverture directe du site HTTP 402). Les rotations historiques et compositions explicites sont distinguées des recommandations actuelles.",
+      "evidenceLevel": "historical_walkthrough_and_requirements",
       "editorialFamily": null,
-      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page.",
+      "notes": "Node 1 Darkhold ; 2 Unlimited X-Men ; 3 Gamma ; 4 Death Seed ; 5 trois Originaux dont Kestrel normale sans portrait LoSP ; 6 quatre portraits + Kestrel normale ; 7 cinq membres explicitement énumérés ; 8 quatre Cavaliers + Apocalypse ; 9 quatrième Cavaliers obligatoires mais cinquième membre non prouvé. Vidéos non visionnées, guide archive historique.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 9,
+        "textCheckedStrategies": 9,
+        "status": "historical_node_text_crosschecked_and_missing_team_members_corrected"
       }
     },
     {
@@ -1945,6 +2293,73 @@
         "linkedStrategies": 2,
         "textCheckedStrategies": 2,
         "status": "partially_integrated_and_source_text_read"
+      }
+    },
+    {
+      "id": "marvel-dd8",
+      "eventId": "dd8",
+      "mode": "dark-dimension",
+      "title": "Personnages pour la Dimension noire VIII",
+      "author": "Marvel Church",
+      "url": "https://www.marvel.church/characters-for-dark-dimension-viii/",
+      "language": "en",
+      "format": "article",
+      "difficulty": null,
+      "stageIds": [
+        "city-heroes",
+        "city-villains",
+        "global-heroes",
+        "global-villains",
+        "cosmic"
+      ],
+      "sectionIds": [],
+      "publishedAt": null,
+      "updatedAt": null,
+      "verificationStatus": "indexed_content",
+      "evidence": "19/10/2026 : les cinq listes de personnages par section trouvées nom par nom dans l'index public. Il s'agit de suggestions de préparation, pas de rotations tactiques ni victoires sur les 13 missions.",
+      "evidenceLevel": "recommendation",
+      "editorialFamily": null,
+      "notes": "Nœuds 1-2 sans restriction non couverts ici ; suggestions Purple Iso-8 niveau 3, contenu historique de l'époque d'Odin. Page directe HTTP 402.",
+      "integration": {
+        "linkedStrategies": 5,
+        "textCheckedStrategies": 5,
+        "status": "five_preparation_recommendations_text_checked"
+      }
+    },
+    {
+      "id": "marvel-magik",
+      "eventId": "magik-breaker",
+      "mode": "trial",
+      "title": "First Breaker: Magik — préparation Orange Iso-8",
+      "author": "Marvel Church",
+      "url": "https://www.marvel.church/first-breaker-magik/",
+      "language": "en",
+      "format": "article",
+      "difficulty": null,
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "sectionIds": [],
+      "publishedAt": null,
+      "updatedAt": null,
+      "verificationStatus": "indexed_content",
+      "evidence": "19/10/2026 : sections Character Suggestions / Our Pick par mission lues dans l'index public, cinq noms exacts pour les groupes 1–5, 6–7, 8–9 ; mission 10 sans cinq personnages définis.",
+      "evidenceLevel": "recommendation",
+      "editorialFamily": null,
+      "notes": "Guide de préparation préalable (vidéo Coming Soon), pas un journal de victoire ; missions 1–3 libre, 4–5 Ville, 6–7 Mondial, 8–9 Cosmique, 10 libre. Mod anti-dégâts en % PV pour 1–3 et 8–10.",
+      "integration": {
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "ten_preparation_sections_text_checked_not_wins"
       }
     }
   ],
