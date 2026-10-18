@@ -1,31 +1,33 @@
-# Challenges LoSP — reprise éditoriale et recoupements de guides (18 octobre 2026)
+# Challenges LoSP — suite de l'audit éditorial (#284)
 
-## Périmètre et méthode
+**Date :** 18 octobre 2026  
+**Branche :** `feature/challenges-editorial-marvel-church-20261018`  
+**PR d'intégration :** [#296](https://github.com/Keryas777/msf/pull/296) — brouillon, ne pas fusionner avant revue.
 
-Continuation de la PR [#284](https://github.com/Keryas777/msf/pull/284), déjà fusionnée, **sans reprendre les 117 stratégies recoupées précédemment**. La branche de travail est `feature/challenges-editorial-marvel-church-20261018`.
+## Règles de recoupement et limites
 
-Une stratégie est liée à **une publication identifiable et une étape donnée**, jamais à une source seulement parce qu'elle parle du même événement. Les recommandations, compositions reconstruites, victoires décrites par un auteur et succès réellement rejoués par LoSP restent distincts. Aucun nom d'auteur, lien de source ni URL externe n'a été ajouté à l'interface joueurs.
+Les 117 stratégies déjà contrôlées par la PR #284 sont conservées sans refaire leur audit. Pour cette reprise, les guides Marvel Church et leurs étapes ont été recherchés dans l'**index public du moteur de recherche** (les pages directes retournent HTTP 402 lors des essais automatisés). Le marqueur `source_text_checked` indique **un rapprochement de la fiche LoSP avec des passages de texte identifiés à l'étape**, pas une lecture vidéo, une victoire reproduite, ni une preuve que les cinq portraits exacts étaient la formation personnellement jouée par l'auteur.
 
-**Méthode de lecture et limite majeure :** les walkthroughs Marvel Church sont retrouvés à travers leur **texte indexé par le moteur de recherche** ; l'ouverture directe automatisée reste refusée (HTTP 402). Le marquage `source_text_checked` signifie *rattachement de la version au texte de la mission et recoupement éditorial dans cet index*. Il **ne signifie ni accès direct garanti à l'article intégral, ni visionnage de vidéo, ni combat rejoué par LoSP**. Le drapeau `source_text_read_via_search_index_direct_url_402` est posé sur chacune des versions traitées pendant cette reprise. Les contenus de source incomplets, les membres inférés et les rotations non décrites restent réservés.
+Chaque version reprise possède `source_text_read_via_search_index_direct_url_402`. Des drapeaux supplémentaires précisent « composition conseillée seulement », « famille d'équipe reconstruite », « équipe incomplète », « ancienne victoire historique », « remplacement inconnu », etc.
 
-## Bilan chiffré exact de cette branche
+Les identités des auteurs et leurs liens restent dans `challenge-guide-sources.json` (registre interne éditorial non chargé par la page) ; le contenu destiné au joueur est en français. Aucune URL externe n'a été ajoutée à `challenges.js`.
 
-| Mesure | Nombre |
+## Bilan vérifié sur les JSON de cette branche
+
+| Indicateur | Valeur |
 | --- | ---: |
 | Événements | 35 |
-| Nœuds / étapes | 338 |
-| Stratégies (versions distinctes) | 443 |
-| Recoupées avant cette reprise (PR #284) | 117 |
-| Recoupées dans cette reprise | 171 |
-| Total classé `source_text_checked` | 288 |
-| Encore `needs_source_audit` | 155 |
-| Références au catalogue des sources | 57 |
+| Étapes | 338 |
+| Versions conservées | 443 |
+| Recoupements hérités de #284 | 117 |
+| Recoupements ajoutés dans cette reprise | **251** |
+| Statut `source_text_checked` au total | **368** |
+| Statut `needs_source_audit` | **75** |
+| Références au registre des sources | 57 |
 
-Les 171 recoupements correspondent à des **versions héritées** ; aucune stratégie supplémentaire n'a été créée, et les 117 de la PR #284 restent présentes.
+### 251 versions nouvellement contrôlées, par événement
 
-## Versions héritées traitées
-
-| Événement | Versions recoupées |
+| Événement | Nombre |
 | --- | ---: |
 | `spider-descent` | 40 |
 | `blade` | 24 |
@@ -34,51 +36,66 @@ Les 171 recoupements correspondent à des **versions héritées** ; aucune strat
 | `kyln-polarity` | 18 |
 | `storm` | 12 |
 | `war` | 12 |
-| `scorpion-breaker` | 10 |
-| `invasion-quasar` | 10 |
-| `kyln-blazes` | 5 |
-
-### Sources utilisées et portée
-
-- [Marvel Church — Code Whiplash](https://www.marvel.church/escape-from-kyln-code-whiplash/) : cellules 1–20.
-- [Marvel Church — Code Blazes](https://www.marvel.church/escape-from-kyln-code-blazes/) : cellules 1–5 ; **règle des 3 personnages contredite par des compositions recommandées à 5**. Aucun trio non mentionné n'a été inventé.
-- [Marvel Church — Polarity Shift](https://www.marvel.church/escape-from-kyln/) : cellules 1–18 ; 1–2 n'ont pas de trio identifiable ; 5–8 nomment des familles et non toujours leurs trois membres ; contradictions d'étoiles pour 15–16.
-- [Marvel Church — Blade Tower](https://www.marvel.church/mighty-tower-blade/) : 24 étages hérités, distincts des versions Rayge ajoutées dans #284.
-- [Marvel Church — Spider-Man Tower](https://www.marvel.church/spider-man-tower-descent/) : étages 1–40 ; compositions incomplètes traitées comme telles.
-- [Marvel Church — Fear Tower](https://www.marvel.church/fear-tower/) : étages 1–20 ; versions Rayge/FullMetalCOS de #284 laissées indépendantes.
-- [Marvel Church — Storm Tower](https://www.marvel.church/mighty-tower-storm/) : étages 1–12 ; Maudits + Knull reste une sélection de membres inférée.
-- [Marvel Church — War Tower](https://www.marvel.church/war-tower/) : 12 cellules ; nouvelle entrée interne `marvel-war` ajoutée au registre.
-- [Marvel Church — Invasion Quasar](https://www.marvel.church/invasion-event-quasar/) : missions 1–10, difficulté 10.
-- [Marvel Church — Breaker Scorpion](https://www.marvel.church/breaker-event-scorpion/) : missions 1–10, difficulté 4 Omega ; une composition exacte à cinq reste à confirmer dans le texte.
-
-## Corrections éditoriales apportées (sans modifications de la page elle-même)
-
-1. **Fear Tower étage 11** : Thunderbolts + Méphisto. Les cinq anciens portraits Thunderbolts étaient trompeurs : l'article ne nomme pas le remplacement. Seul Méphisto reste illustré jusqu'à confirmation d'une composition complète.
-2. **Spider-Man Tower étage 13** : même correction pour Nightstalkers + Méphisto ; ne pas afficher abusivement cinq Nightstalkers sans Méphisto.
-3. **Spider-Man Tower étage 10** : la variante réellement expliquée par le guide emploie **Jean Grey à la place de Spider-Woman (Julia)**. Portrait corrigé.
-4. **Spider-Man Tower étage 19** : priorité du guide = **Surfer (Briseur)**, et non Blue Marvel. Texte corrigé.
-5. **Spider-Man Tower étages 7, 8, 14** : les formations décrites n'énumèrent pas tous les personnages / remplacements ; les portraits incomplets et les avertissements conservent cette incertitude.
-6. **Blade Tour, missions 2–6** : précisions d'ouverture et de cibles à partir des passages du guide. Certaines autres rotations restent non documentées.
-7. **Code Blazes cellules 2 et 4** : consignes détaillées recoupées, mais taille d'équipe toujours **non résolue**.
-8. **Invasion Quasar mission 10** : charges du Chevalier noir et dernière vague de Méphisto précisées.
-9. **Breaker Scorpion** : distinction entre les conseils alternatifs, l'ordre des tours et les formations directement rapportées.
-
-## Ce qui reste à auditer — 155 anciennes versions
-
-| Événement | Nombre |
-| --- | ---: |
 | `surfer-breaker` | 10 |
-| `magik-breaker` | 10 |
-| `old-man-logan` | 10 |
+| `scorpion-breaker` | 10 |
 | `green-goblin` | 10 |
 | `black-cat` | 10 |
 | `nova` | 10 |
-| `invasion-blastaar` | 10 |
-| `target-blue-marvel` | 10 |
+| `invasion-quasar` | 10 |
 | `scourge-famine` | 10 |
 | `scourge-pestilence` | 10 |
 | `scourge-war` | 10 |
 | `scourge-death` | 10 |
+| `kyln-blazes` | 5 |
+
+### Pages sources internes impliquées
+
+| Référence du registre | Source | Nombre |
+| --- | --- | ---: |
+| `marvel-kyln-whiplash` | [Code Whiplash](https://www.marvel.church/escape-from-kyln-code-whiplash/) | 20 |
+| `marvel-kyln-blazes` | [Code Blazes](https://www.marvel.church/escape-from-kyln-code-blazes/) | 5 |
+| `marvel-kyln-polarity` | [Polarity Shift](https://www.marvel.church/escape-from-kyln/) | 18 |
+| `marvel-blade` | [Blade Tower](https://www.marvel.church/mighty-tower-blade/) | 24 |
+| `marvel-spider-descent` | [Spider-Man Tower](https://www.marvel.church/spider-man-tower-descent/) | 40 |
+| `marvel-fear` | [Fear Tower](https://www.marvel.church/fear-tower/) | 20 |
+| `marvel-storm` | [Storm Tower](https://www.marvel.church/mighty-tower-storm/) | 12 |
+| `marvel-war` | [War Tower](https://www.marvel.church/war-tower/) | 12 |
+| `marvel-quasar` | [Invasion Quasar](https://www.marvel.church/invasion-event-quasar/) | 10 |
+| `marvel-scorpion` | [Breaker Scorpion](https://www.marvel.church/breaker-event-scorpion/) | 10 |
+| `marvel-surfer` | [Breaker Surfer](https://www.marvel.church/breaker-event-silver-surfer/) | 10 |
+| `marvel-black-cat` | [Black Cat Trials](https://www.marvel.church/black-cat-trials/) | 10 |
+| `marvel-goblin` | [Green Goblin Trials](https://www.marvel.church/green-goblin-classic-trials/) | 10 |
+| `marvel-nova` | [Nova Trials](https://www.marvel.church/nova-trials/) | 10 |
+| `famine-scourge` | [Fléau Famine](https://www.marvel.church/best-team-for-famine-scourge-and-scourge-tier-list/) | 10 |
+| `pestilence-scourge` | [Fléau Pestilence](https://www.marvel.church/pestilence-scourge-full-guide/) | 10 |
+| `war-scourge` | [Fléau Guerre](https://www.marvel.church/war-scourge-comprehensive-guide-for-reaching-1-5-1-6-million-points-with-an-average-roster/) | 10 |
+| `death-scourge` | [Fléau Mort](https://www.marvel.church/death-scourge-optimal-clearing-and-scourges/) | 10 |
+
+## Corrections et réserves critiques
+
+1. **Kyln Code Blazes :** règle à trois combattants mais recommandations parfois décrites à cinq ; pas de trio inventé, problème explicite sur les cinq cellules.
+2. **Kyln Polarity Shift :** cellules 1–2 sans trio exact, cellules 5–8 avec groupes non énumérés, cellules 15–16 avec exigences d'étoiles contradictoires. Aucune déduction présentée comme un test de combat.
+3. **Fear Tower 11 :** Thunderbolts + Méphisto, sans identification du Thunderbolt à écarter ; les cinq portraits Thunderbolts d'origine ont été retirés pour ne pas promettre une composition incorrecte.
+4. **Spider-Man Tower 7/8/13/14 :** formations de cinq membres non entièrement explicitées. Au 13, Nightstalkers + Méphisto ne peut pas être illustré honnêtement par cinq Nightstalkers sans Méphisto.
+5. **Spider-Man Tower 10 :** composition publiée avec **Jean Grey à la place de Spider-Woman (Julia)**, portrait corrigé.
+6. **Spider-Man Tower 19 :** la priorité source est **Surfer (Briseur)**, non Blue Marvel ; conseil rectifié.
+7. **Tour de Blade :** rotations décrites lorsque la source apporte les actions et cibles, mais avertissements conservés sur les cas non détaillés.
+8. **Invasion Quasar 10 :** les dix charges du Chevalier noir et l'apparition finale de Méphisto avec deux Diablo sont précisées.
+9. **Scorpion Breaker :** distinguer option proposée et équipe réellement jouée ; composition exacte des cinq du nœud 3 à préciser.
+10. **Surfer Breaker 1 :** la formation Odin/Knull/Méphisto/Blastaar/Thunderstrike est un **choix alternatif conseillé**, pas la victoire personnelle documentée avec Guerriers audacieux + Odin.
+11. **Nova 5/9 :** la source historique contient Kestrel normale, tandis que Photon est une alternative : ne pas les confondre.
+12. **Black Cat :** des équipes affichées sont des recommandations et non la variante exacte jouée par l'auteur ; le cinquième Bagarreur peut dépendre du déblocage préalable de Black Cat.
+13. **Bouffon vert classique :** certains personnages proposés sont des substitutions de premier déblocage ; le nœud 10 peut demander deux attaques distinctes.
+14. **Fléaux de Famine, Pestilence, Guerre, Mort :** séparation systématique entre **Original Run** et **Update** sur les guides historiques ; les équipes modernes représentent des propositions, pas les victoires enregistrées lors de la première édition. Le manque de portraits Kestrel normale reste explicite.
+
+## File résiduelle : 75 stratégies sans vérification individuelle suffisante
+
+| Événement | Versions |
+| --- | ---: |
+| `magik-breaker` | 10 |
+| `old-man-logan` | 10 |
+| `invasion-blastaar` | 10 |
+| `target-blue-marvel` | 10 |
 | `apocalypse-saga` | 9 |
 | `dd9` | 8 |
 | `dd8` | 5 |
@@ -91,25 +108,17 @@ Les 171 recoupements correspondent à des **versions héritées** ; aucune strat
 | `dd5` | 1 |
 | `dd7` | 1 |
 
-### Priorités et blocages
+**Priorités de reprise :** 
+- **Invasion Blastaar** : des équipes des anciennes fiches ne correspondent pas toujours aux familles indiquées dans les passages indexés ; retrouver la variante jouée avant d'attribuer les compositions.
+- **Épreuves Old Man Logan et Breaker Magik** : confirmer les versions de difficulté, les restrictions et les combattants exacts de chacune des missions.
+- **Target Blue Marvel / Finding Xavier** : séparer recommandations d'investissement, compositions de section et victoires par nœud.
+- **Apocalypse Saga et DD historiques** : identifier des sources précises correspondant à chaque section, sans convertir un conseil générique en preuve de réussite.
+- **Shadow King** : deux solutions alternatives reconstituées (missions 2 et 3) restent explicitement non prouvées.
 
-- **Invasion Blastaar (10 versions)** : la page annonce notamment *Hellfire Club + Quasar* pour certaines missions alors que des portraits hérités présentent d'autres compositions. **Ne pas rattacher arbitrairement** sans établir la variante exacte et la période de l'événement.
-- **Surfer / Magik Breaker, OML, Goblin, Black Cat, Nova, Invasions** : obtenir une source de difficulté et de nœud exacts ; les guides transversaux ne suffisent pas.
-- **DD1–DD9** : certaines anciennes propositions sont des conseils d'investissement ou des reconstitutions, non des combats relatés.
-- **Scourges (40 versions), Apocalypse Saga (9)** : rechercher des guides mission-spécifiques et distinguer les règles historiques des éditions postérieures.
-- **Shadow King (2 alternatives)** : leurs cinq personnages ont été reconstruits à partir d'options, sans victoire à ces formations documentée ; la version principale a déjà été vérifiée par PR #284.
-- **Vidéos / MSF Base** : aucune nouvelle transcription ni victoire communautaire indépendante certifiée. Sources inaccessibles ou chargées dynamiquement à traiter sans extrapolation.
+## Vérification technique
 
-## Contrôles effectués
+Contrôles de structure : JSON valide, 443 IDs de versions sans doublon, 35 événements et 338 étapes, existence de toutes les étapes et de toutes les références de source, aucune équipe > 5, aucun portrait non jouable (catalogue `player_Character`), aucune fiche non auditée prétendant une provenance certaine. Le JS public `docs/challenges.js` ne charge pas `challenge-guide-sources.json`.
 
-- JSON des stratégies et sources analysables ; 443 versions préservées.
-- 35 événements / 338 étapes, identifiants de stratégies uniques et étapes existantes.
-- Chaque `provenance.sourceIds` correspond à une entrée existante du catalogue, chaque fiche vérifiée dispose d'une source ; aucune version encore en attente ne revendique une source certaine.
-- Aucun personnage invalide ou non jouable dans les 443 `characters`; nouveaux portraits JeanGrey, Mephisto, LivingMummy et JeffTheLandShark présents et jouables.
-- Aucun tableau de portraits contenant plus de cinq personnages.
-- `docs/challenges.js` ne télécharge pas `challenge-guide-sources.json` et n'injecte pas d'URL Marvel Church ; structure UI inchangée.
-- **Non exécutés** : simulation de bataille, intégralité des vidéos, tests visuels mobiles réels iOS Safari/Android/Discord/PWA ; comportement du JS non modifié dans cette branche.
+**Non vérifiés :** déroulement réel des batailles, intégralité des vidéos, tests tactiles physiques dans Safari iOS / Android Chrome / navigateur Discord / PWA. Aucun JS/CSS/HTML, service worker, workflow ou cache n'a été modifié dans la PR.
 
-## Livraison
-
-Uniquement `docs/data/challenge-strategies.json`, `docs/data/challenge-guide-sources.json` et ce rapport sont modifiés / créés. Aucun changement aux workflows, au service worker, à la page d'accueil, au JS de Challenges ou à la navigation. PR à relire avant fusion, notamment les compositions partielles et la distinction *texte indexé* versus *page directement consultée*.
+Cette PR est une **étape de vérification éditoriale** sur 251 stratégies. **75 restent ouvertes**, et `source_text_checked` ne doit jamais être converti en « victoire garantie » dans l'interface.
