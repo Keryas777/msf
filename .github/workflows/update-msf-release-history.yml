@@ -3,10 +3,11 @@ name: Maintain MSF release history
 on:
   workflow_dispatch:
   schedule:
-    - cron: "37 9 * * *"
+    - cron: "37 */3 * * *"
   pull_request:
     paths:
       - "scripts/update-msf-release-history.mjs"
+      - "data/msf-release-monitor/scheduled-events.json"
       - "tests/msf-release-monitor.test.mjs"
       - ".github/workflows/update-msf-release-history.yml"
       - "docs/historique-personnages.html"
