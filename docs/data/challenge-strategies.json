@@ -14142,34 +14142,41 @@
       "stageId": "1",
       "origin": "migrated_legacy",
       "label": "Version existante",
-      "teamName": "Personnages éligibles / imposés",
+      "teamName": "Darkhold complète",
       "characters": [
         "MorganLeFay",
-        "AgathaHarkness",
-        "StrangeSupreme",
         "Wong",
+        "StrangeSupreme",
+        "AgathaHarkness",
         "ScarletWitch"
       ],
       "alternatives": [],
       "additionalCharacters": [],
       "instructions": [
-        "Darkhold et personnages mystiques bien équipés permettent de tenir les premières vagues."
+        "Réserver l'ultime d'Agatha au départ et utiliser sa spéciale sur Mister Sinister pour empêcher son clonage.",
+        "Se concentrer sur Hela plutôt que sur Iron Man zombie, puis éliminer Emma Frost avant son ultime si possible.",
+        "Le guide décrit un parcours historique : des compositions plus modernes peuvent désormais être autorisées."
       ],
       "notes": [],
       "difficulty": "Apocalyptique",
-      "kind": "recommendation",
+      "kind": "walkthrough",
       "compositionKind": null,
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "apocalypse-saga"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "apocalypse-saga/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-19",
+        "sourceEvidence": "explicit_archived_node_text_from_indexed_apocalypse_saga_article;direct_site_402;videos_not_viewed"
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node",
-          "recommendation_not_a_proven_clear"
+          "recommendation_not_a_proven_clear",
+          "source_text_read_via_search_index_direct_url_402",
+          "archival_run_not_current_meta"
         ]
       }
     },
@@ -14179,34 +14186,42 @@
       "stageId": "2",
       "origin": "migrated_legacy",
       "label": "Version existante",
-      "teamName": "Personnages éligibles / imposés",
+      "teamName": "Unlimited X-Men (parcours historique)",
       "characters": [
         "Rogue",
-        "Archangel",
-        "Magneto",
-        "DarkBeast",
-        "Nemesis"
+        "Gambit",
+        "Dazzler",
+        "Fantomex",
+        "Sunfire"
       ],
       "alternatives": [],
       "additionalCharacters": [],
       "instructions": [
-        "Préparer les ultimes Mutants pour la section Force Phénix/Death Seed ultérieure."
+        "Dazzler doit jouer avant Spider-Weaver : utiliser sa spéciale sur elle pour appliquer Blocage de capacité et retirer les effets négatifs infligés par Spider-Man (2099).",
+        "Si Spider-Weaver étourdit Dazzler ou Malicia avant cette action, recommencer.",
+        "Empêcher ensuite Captain America (Sam) d'utiliser sa spéciale, avec Blocage de capacité, Étourdissement ou Perturbation."
       ],
       "notes": [],
       "difficulty": "Apocalyptique",
-      "kind": "recommendation",
+      "kind": "walkthrough",
       "compositionKind": null,
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "apocalypse-saga"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "apocalypse-saga/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-19",
+        "sourceEvidence": "explicit_archived_node_text_from_indexed_apocalypse_saga_article;direct_site_402;videos_not_viewed"
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node",
-          "recommendation_not_a_proven_clear"
+          "recommendation_not_a_proven_clear",
+          "source_text_read_via_search_index_direct_url_402",
+          "archival_run_not_current_meta",
+          "archived_full_team_from_named_faction_not_individually_listed"
         ]
       }
     },
@@ -14229,21 +14244,29 @@
       "instructions": [
         "Une équipe Gamma bio développée offre la durabilité nécessaire à la mission."
       ],
-      "notes": [],
+      "notes": [
+        "Le guide historique utilise Gamma pour cette mission Bio. Les cinq portraits reflètent une équipe Gamma éligible, mais les rotations individuelles ne sont pas toutes confirmées dans le texte consulté."
+      ],
       "difficulty": "Apocalyptique",
-      "kind": "recommendation",
+      "kind": "walkthrough",
       "compositionKind": null,
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "apocalypse-saga"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "apocalypse-saga/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-19",
+        "sourceEvidence": "explicit_archived_node_text_from_indexed_apocalypse_saga_article;direct_site_402;videos_not_viewed"
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node",
-          "recommendation_not_a_proven_clear"
+          "recommendation_not_a_proven_clear",
+          "source_text_read_via_search_index_direct_url_402",
+          "archival_run_not_current_meta",
+          "exact_ability_rotation_not_verified"
         ]
       }
     },
@@ -14253,7 +14276,7 @@
       "stageId": "4",
       "origin": "migrated_legacy",
       "label": "Version existante",
-      "teamName": "Personnages éligibles / imposés",
+      "teamName": "Death Seed complète",
       "characters": [
         "Archangel",
         "Magneto",
@@ -14264,24 +14287,30 @@
       "alternatives": [],
       "additionalCharacters": [],
       "instructions": [
-        "Avec Death Seed, chaque élimination ralentit les adversaires ; cibler ceux susceptibles de mourir immédiatement.",
-        "La spéciale de Dark Beast ne clone pas hors Raid mais sert à réanimer et à appliquer des dégâts."
+        "Utiliser les contrôles et les attaques des Death Seed sans retenir les temps de recharge : les éliminations réduisent la jauge de vitesse ennemie et rapportent de l'énergie.",
+        "Éliminer rapidement Black Panther (1MM) et Moondragon plutôt que de se laisser distraire par Gambit.",
+        "Dans la dernière vague, neutraliser Spider-Weaver avant son ultime si possible et ne pas sous-estimer Lady Deathstrike."
       ],
       "notes": [],
       "difficulty": "Apocalyptique",
-      "kind": "recommendation",
+      "kind": "walkthrough",
       "compositionKind": null,
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "apocalypse-saga"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "apocalypse-saga/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-19",
+        "sourceEvidence": "explicit_archived_node_text_from_indexed_apocalypse_saga_article;direct_site_402;videos_not_viewed"
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node",
-          "recommendation_not_a_proven_clear"
+          "recommendation_not_a_proven_clear",
+          "source_text_read_via_search_index_direct_url_402",
+          "archival_run_not_current_meta"
         ]
       }
     },
@@ -14299,25 +14328,33 @@
       "alternatives": [],
       "additionalCharacters": [],
       "instructions": [
-        "La source impose trois personnages originaux. Kestrel normale était un troisième personnage d'époque mais manque au catalogue jouable actuel : ne pas utiliser son homonyme zombie.",
-        "La composition et les deux autres emplacements doivent être validés dans la sélection de personnages."
+        "Trois personnages MSF d'origine sont obligatoires : Kestrel normale, Deathpool et Spider-Weaver. Nick Fury rejoint le combat mais n'est pas un quatrième personnage à sélectionner.",
+        "Pour stabiliser l'ouverture, étourdir She-Hulk et contrôler les deux Ghost Riders afin de préserver les charges de Spider-Weaver.",
+        "Kestrel normale n'étant pas disponible dans le catalogue de portraits LoSP, seuls les deux autres combattants sont illustrés."
       ],
       "notes": [],
       "difficulty": "Apocalyptique",
-      "kind": "recommendation",
+      "kind": "walkthrough",
       "compositionKind": "partial",
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "apocalypse-saga"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "apocalypse-saga/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-19",
+        "sourceEvidence": "explicit_archived_node_text_from_indexed_apocalypse_saga_article;direct_site_402;videos_not_viewed"
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node",
           "recommendation_not_a_proven_clear",
-          "partial_or_unspecified_team"
+          "partial_or_unspecified_team",
+          "source_text_read_via_search_index_direct_url_402",
+          "archival_run_not_current_meta",
+          "normal_kestrel_unavailable_portrait",
+          "only_two_of_three_portrayed"
         ]
       }
     },
@@ -14327,31 +14364,42 @@
       "stageId": "6",
       "origin": "migrated_legacy",
       "label": "Version existante",
-      "teamName": "Personnages éligibles / imposés",
+      "teamName": "Morgan, Gambit, Spider-Weaver, Agatha + Kestrel normale",
       "characters": [
-        "MorganLeFay"
+        "MorganLeFay",
+        "Gambit",
+        "SpiderWeaver",
+        "AgathaHarkness"
       ],
       "alternatives": [],
       "additionalCharacters": [],
       "instructions": [
-        "La mission porte sur le Cavalier de Pestilence : sécuriser Morgan Le Fay et garder ses contrôles disponibles."
+        "Le parcours historique du guide utilise Morgan Le Fay, Gambit, Spider-Weaver, Agatha Harkness et Kestrel normale.",
+        "Le cinquième membre, Kestrel normale, n'a pas de portrait jouable dans le catalogue LoSP ; ne pas la remplacer par Kestrel zombie."
       ],
       "notes": [],
       "difficulty": "Apocalyptique",
-      "kind": "recommendation",
+      "kind": "walkthrough",
       "compositionKind": "partial",
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "apocalypse-saga"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "apocalypse-saga/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-19",
+        "sourceEvidence": "explicit_archived_node_text_from_indexed_apocalypse_saga_article;direct_site_402;videos_not_viewed"
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node",
           "recommendation_not_a_proven_clear",
-          "partial_or_unspecified_team"
+          "partial_or_unspecified_team",
+          "source_text_read_via_search_index_direct_url_402",
+          "archival_run_not_current_meta",
+          "normal_kestrel_unavailable_portrait",
+          "four_of_five_portrayed"
         ]
       }
     },
@@ -14361,32 +14409,42 @@
       "stageId": "7",
       "origin": "migrated_legacy",
       "label": "Version existante",
-      "teamName": "Personnages éligibles / imposés",
+      "teamName": "Hulk + Archangel + Deathpool + Strange (sans cœur) + Malicia",
       "characters": [
-        "Rogue",
-        "Archangel"
+        "Hulk",
+        "Archangel",
+        "Deathpool",
+        "StrangeSupreme",
+        "Rogue"
       ],
       "alternatives": [],
       "additionalCharacters": [],
       "instructions": [
-        "Les deux Cavaliers doivent être admissibles ; compléter avec des personnages autorisés par le jeu sans inventer une équipe complète."
+        "Malicia doit pouvoir utiliser ses capacités dès son premier tour ; si les contrôles ennemis l'en empêchent, recommencer la tentative.",
+        "Hulk en ISO-8 Soigneur doit recevoir l'attaque de contrôle mental de Mister Negative. Neutraliser rapidement les adversaires faibles pour déclencher les passifs d'Archangel et de Deathpool.",
+        "À l'arrivée de Red Hulk dans la dernière vague, utiliser la spéciale de Malicia pour le neutraliser. Le guide considère cette mission comme la plus difficile du parcours historique."
       ],
       "notes": [],
       "difficulty": "Apocalyptique",
-      "kind": "recommendation",
+      "kind": "walkthrough",
       "compositionKind": "partial",
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "apocalypse-saga"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "apocalypse-saga/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-19",
+        "sourceEvidence": "explicit_archived_node_text_from_indexed_apocalypse_saga_article;direct_site_402;videos_not_viewed"
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node",
           "recommendation_not_a_proven_clear",
-          "partial_or_unspecified_team"
+          "partial_or_unspecified_team",
+          "source_text_read_via_search_index_direct_url_402",
+          "archival_run_not_current_meta"
         ]
       }
     },
@@ -14396,35 +14454,41 @@
       "stageId": "8",
       "origin": "migrated_legacy",
       "label": "Version existante",
-      "teamName": "Personnages éligibles / imposés",
+      "teamName": "Quatre Cavaliers + Apocalypse",
       "characters": [
         "MorganLeFay",
         "Rogue",
         "RedHulk",
-        "Archangel"
+        "Archangel",
+        "Apocalypse"
       ],
       "alternatives": [],
       "additionalCharacters": [],
       "instructions": [
-        "Réunir les quatre Cavaliers dans la même équipe et vérifier le cinquième emplacement autorisé.",
-        "Économiser les capacités de soin et de contrôle pour les longues vagues."
+        "Le guide historique joue les quatre Cavaliers accompagnés d'Apocalypse pour cette huitième mission.",
+        "La mission est conçue comme une introduction aux capacités d'Apocalypse et ne demande pas une rotation complexe dans le texte consulté."
       ],
       "notes": [],
       "difficulty": "Apocalyptique",
-      "kind": "recommendation",
+      "kind": "walkthrough",
       "compositionKind": "partial",
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "apocalypse-saga"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "apocalypse-saga/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-19",
+        "sourceEvidence": "explicit_archived_node_text_from_indexed_apocalypse_saga_article;direct_site_402;videos_not_viewed"
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node",
           "recommendation_not_a_proven_clear",
-          "partial_or_unspecified_team"
+          "partial_or_unspecified_team",
+          "source_text_read_via_search_index_direct_url_402",
+          "archival_run_not_current_meta"
         ]
       }
     },
@@ -14434,7 +14498,7 @@
       "stageId": "9",
       "origin": "migrated_legacy",
       "label": "Version existante",
-      "teamName": "Personnages éligibles / imposés",
+      "teamName": "Quatre Cavaliers — neuvième nœud Apocalyptique",
       "characters": [
         "MorganLeFay",
         "Rogue",
@@ -14444,25 +14508,32 @@
       "alternatives": [],
       "additionalCharacters": [],
       "instructions": [
-        "Cette neuvième mission n'existe que dans la version Apocalyptique documentée.",
-        "La réussite dépend de l'équipement et des restrictions exactes de l'édition."
+        "La neuvième mission n'existe que dans la difficulté Apocalyptique. Les quatre Cavaliers y sont requis.",
+        "Le guide consulté ne documente pas clairement le cinquième portrait et sa rotation pour cette mission : ne pas ajouter automatiquement Apocalypse."
       ],
       "notes": [],
       "difficulty": "Apocalyptique",
-      "kind": "recommendation",
+      "kind": "walkthrough",
       "compositionKind": "partial",
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "apocalypse-saga"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "apocalypse-saga/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-19",
+        "sourceEvidence": "explicit_archived_node_text_from_indexed_apocalypse_saga_article;direct_site_402;videos_not_viewed"
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node",
           "recommendation_not_a_proven_clear",
-          "partial_or_unspecified_team"
+          "partial_or_unspecified_team",
+          "source_text_read_via_search_index_direct_url_402",
+          "archival_run_not_current_meta",
+          "fifth_member_not_source_attested",
+          "no_verified_node_specific_rotation"
         ]
       }
     },
