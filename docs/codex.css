@@ -2427,14 +2427,17 @@ body.codexPage.codexLandingView::before {
   background-image: url("./CodexMecaniques.webp");
 }
 
+/* The banner artwork already includes its title. Keep the accessible
+   HTML heading and subtitle without drawing them over CodexHeader.webp. */
 .codexLandingHeroTitle {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  min-width: 0;
-  padding: 56px 57px 25px;
-  text-align: center;
-  text-shadow: 0 3px 6px #000, 0 0 18px #ff56c244;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .codexLandingHeroTitle h1 {
