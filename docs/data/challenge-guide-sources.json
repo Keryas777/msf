@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "auditedAt": "2026-10-17",
+  "auditedAt": "2026-10-18",
   "scope": "Marvel Strike Force PvE challenge guides only",
   "notes": "Registre éditorial hors interface : une URL repérée ne prouve pas un nœud, une équipe, une rotation ni une victoire. integration.* reflète les versions réellement reliées à une source, sans compter les anciens brouillons à attribution inconnue.",
   "statuses": {
@@ -121,19 +121,26 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "18/10/2026 : texte des sections et consignes retrouvé et recoupé dans l'index public de recherche ; ouverture directe du site toujours refusée (HTTP 402). Attribution limitée aux cellules/étages indiqués ; vidéos non visionnées.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
       "notes": "",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 6,
+        "textCheckedStrategies": 6,
+        "status": "node_text_crosschecked_from_search_index_direct_site_402"
       }
     },
     {
@@ -171,19 +178,40 @@
       "language": "en",
       "format": "article",
       "difficulty": "Omega",
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "18/10/2026 : texte des sections et consignes retrouvé et recoupé dans l'index public de recherche ; ouverture directe du site toujours refusée (HTTP 402). Attribution limitée aux cellules/étages indiqués ; vidéos non visionnées.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
-      "notes": "Événement à équipes de cinq et 20 cellules, ouverture hebdomadaire.",
+      "notes": "Événement à équipes de cinq et 20 cellules, ouverture hebdomadaire. Cellules 16 et 18 : le texte publié ne donne pas de rotation détaillée.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 20,
+        "textCheckedStrategies": 20,
+        "status": "node_text_crosschecked_from_search_index_direct_site_402"
       }
     },
     {
@@ -196,19 +224,25 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "18/10/2026 : texte des sections et consignes retrouvé et recoupé dans l'index public de recherche ; ouverture directe du site toujours refusée (HTTP 402). Attribution limitée aux cellules/étages indiqués ; vidéos non visionnées.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
-      "notes": "Guide par cellules ; vérifier les changements de format de trois ou cinq personnages suivant l'édition.",
+      "notes": "Guide par cellules ; vérifier les changements de format de trois ou cinq personnages suivant l'édition. Contradiction confirmée sur les cellules 1–5 : format de trois combattants mais recommandations souvent à cinq ou équipe complète ; aucun trio réel déduit.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 5,
+        "textCheckedStrategies": 5,
+        "status": "node_text_crosschecked_from_search_index_direct_site_402"
       }
     },
     {
@@ -221,19 +255,38 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
-      "verificationStatus": "indexed_only",
-      "evidence": "Page référencée dans l'index Marvel Church, contenu détaillé non recontrôlé.",
+      "verificationStatus": "indexed_content",
+      "evidence": "18/10/2026 : texte des sections et consignes retrouvé et recoupé dans l'index public de recherche ; ouverture directe du site toujours refusée (HTTP 402). Attribution limitée aux cellules/étages indiqués ; vidéos non visionnées.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "",
+      "notes": " Cellules 1–2 : conseils généraux sans trio ; 5–8 : groupes sans noms des trois héros ; 15–16 : contradiction interne sur les étoiles.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "source_index_only"
+        "linkedStrategies": 18,
+        "textCheckedStrategies": 18,
+        "status": "node_text_crosschecked_from_search_index_direct_site_402"
       }
     },
     {
