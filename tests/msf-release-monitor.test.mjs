@@ -133,3 +133,69 @@ test("year rollover creates only future partial year", () => {
   assert.equal(history.years["2027"].status, "partial");
   assert.equal(history.years["2027"].individualReleases[0].month, "2027-01");
 });
+
+test("scheduled character already present at baseline is not counted early, then lands once", () => {
+  const { sources, history, state } = bootstrap();
+  const future = [{
+    releaseAt: "2026-10-19T21:00:00Z",
+    sourceTrait: "Nightreaver",
+    teamEvent: {
+      month: "2026-10", teamId: "nightreavers-2026-10", label: "Nightreavers",
+      kind: "team", members: ["Hero0", "Hero1", "Hero2"], core: ["Hero0", "Hero1", "Hero2"],
+      newCharacterIds: ["Hero0"], existingCharacterIds: ["Hero1", "Hero2"],
+      reworkedCharacterIds: ["Hero1", "Hero2"], characterReleases: [{ characterId: "Hero0", date: "2026-10-19" }],
+      reworks: [{ characterId: "Hero1", month: "2026-10" }, { characterId: "Hero2", month: "2026-10" }]
+    },
+    sources: [{ id: "official-blog", title: "Official announcement", url: "https://example.org/blog" }]
+  }];
+  for (let n = 0; n < 3; n++) sources.combat.Data["Hero" + n].traits.push("Nightreaver");
+  const current = takeSnapshot(sources.catalog, sources.combat);
+  const historical = JSON.stringify(history.years["2025"]);
+  let before = advance(history, state, current, "2026-10-19T20:59:59Z", future);
+  assert.deepEqual(before.summary.scheduled, []);
+  assert.equal(history.years["2026"].teamEvents.length, 0);
+  const onTime = advance(history, before.state, current, "2026-10-19T21:00:00Z", future);
+  assert.deepEqual(onTime.summary.scheduled, ["nightreavers-2026-10"]);
+  assert.equal(history.years["2026"].teamEvents.length, 1);
+  assert.deepEqual(history.years["2026"].teamEvents[0].newCharacterIds, ["Hero0"]);
+  assert.equal(history.years["2026"].validation.distinctPlayableReleaseCount, 1);
+  assert.equal(history.years["2026"].validation.distinctReworkedCharacterCount, 2);
+  assert.equal(history.years["2026"].auditedThrough, "2026-10-05");
+  assert.equal(JSON.stringify(history.years["2025"]), historical);
+  const second = advance(history, onTime.state, current, "2026-10-20T09:37:00Z", future);
+  assert.deepEqual(second.summary.scheduled, []);
+  assert.equal(history.years["2026"].teamEvents.length, 1);
+});
+
+test("scheduled promotion works even on first monitor run after unlock", () => {
+  const sources = makeSources();
+  for (let n = 0; n < 3; n++) sources.combat.Data["Hero" + n].traits.push("Nightreaver");
+  const schedule = [{
+    releaseAt: "2026-10-19T21:00:00Z", sourceTrait: "Nightreaver",
+    teamEvent: {
+      month: "2026-10", teamId: "nightreavers-2026-10", members: ["Hero0", "Hero1", "Hero2"],
+      newCharacterIds: ["Hero0"], reworkedCharacterIds: ["Hero1", "Hero2"]
+    },
+    sources: [{id: "blog",title: "Announcement",url:"https://example.org"}]
+  }];
+  const history = makeHistory();
+  const result = advance(history, null, takeSnapshot(sources.catalog,sources.combat), "2026-10-20T01:00:00Z", schedule);
+  assert.equal(result.summary.baseline, true);
+  assert.deepEqual(result.summary.scheduled, ["nightreavers-2026-10"]);
+  assert.equal(history.years["2026"].teamEvents.length, 1);
+});
+
+test("scheduled rollout refuses nonplayable unit and previously counted recruits", () => {
+  const { sources, history, state } = bootstrap();
+  for (let n = 0; n < 3; n++) sources.combat.Data["Hero" + n].traits.push("Nightreaver");
+  const schedule = [{
+    releaseAt:"2026-10-19T21:00:00Z",sourceTrait:"Nightreaver",
+    teamEvent:{teamId:"nightreavers",members:["Hero0","Hero1","Hero2"],newCharacterIds:["Hero0"],reworkedCharacterIds:["Hero1","Hero2"]},
+    sources:[{id:"source",url:"https://example.org",title:"Source"}]
+  }];
+  sources.catalog[0].player_Character = false;
+  assert.throws(() => advance(history,state,takeSnapshot(sources.catalog,sources.combat),"2026-10-20T09:37:00Z",schedule),/conflicts with playable/);
+  sources.catalog[0].player_Character = true;
+  history.years["2025"].individualReleases.push({characterId:"Hero0",month:"2025-07"});
+  assert.throws(() => advance(history,state,takeSnapshot(sources.catalog,sources.combat),"2026-10-20T09:37:00Z",schedule),/already counted/);
+});
