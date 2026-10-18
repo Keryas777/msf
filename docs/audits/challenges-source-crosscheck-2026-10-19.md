@@ -108,4 +108,4 @@ Les causes sont significatives : absence d'équipe nominative dans les anciens D
 - `docs/challenges.js` ne charge pas le catalogue éditorial ni de lien Marvel Church.
 - Pas de changements nécessaires aux HTML/CSS/JS ni à `sw.js`.
 
-**Avant fusion :** relire les réserves de qualité et, si possible, tester la page Challenges sur iOS Safari, Android Chrome et le navigateur Discord. Le corpus des 21 restants doit faire l'objet d'une investigation ciblée sans inverser la charge de la preuve.
+**Avant fusion :** relire les réserves de qualité et, si possible, tester la page Challenges sur iOS Safari, Android Chrome et le navigateur Discord. Les 12 versions restantes doivent faire l'objet d'une investigation ciblée, sans inverser la charge de la preuve.
