@@ -2021,19 +2021,29 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Guide technique consulté via le contenu textuel indexé ; ouverture directe automatisée refusée (402).",
-      "evidenceLevel": "recommendation",
+      "evidence": "19 octobre 2026 : guide Apocalypse Saga — sections Node 1 à Node 8 [Archive] et exigences du Node 9 Apocalyptic retrouvées et lues via texte indexé (ouverture directe du site HTTP 402). Les rotations historiques et compositions explicites sont distinguées des recommandations actuelles.",
+      "evidenceLevel": "historical_walkthrough_and_requirements",
       "editorialFamily": null,
-      "notes": "Intégré dans Challenges en français avec avertissements sur la validité historique ; source conservée exclusivement pour le travail éditorial, non chargée par la page.",
+      "notes": "Node 1 Darkhold ; 2 Unlimited X-Men ; 3 Gamma ; 4 Death Seed ; 5 trois Originaux dont Kestrel normale sans portrait LoSP ; 6 quatre portraits + Kestrel normale ; 7 cinq membres explicitement énumérés ; 8 quatre Cavaliers + Apocalypse ; 9 quatrième Cavaliers obligatoires mais cinquième membre non prouvé. Vidéos non visionnées, guide archive historique.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 9,
+        "textCheckedStrategies": 9,
+        "status": "historical_node_text_crosschecked_and_missing_team_members_corrected"
       }
     },
     {
