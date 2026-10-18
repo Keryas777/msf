@@ -2413,6 +2413,20 @@ body.codexPage.codexLandingView::before {
   pointer-events: none;
 }
 
+/* Fichiers WebP optionnels dans /docs : le dégradé du parent reste visible
+   si l'illustration n'a pas encore été déposée. */
+.codexLandingHeroArtwork {
+  background-image: url("./CodexHeader.webp");
+}
+
+.codexLandingTile--characters .codexLandingTileArtwork {
+  background-image: url("./CodexPersonnages.webp");
+}
+
+.codexLandingTile--mechanics .codexLandingTileArtwork {
+  background-image: url("./CodexMecaniques.webp");
+}
+
 .codexLandingHeroTitle {
   position: relative;
   z-index: 2;
