@@ -1,6 +1,8 @@
 import {
   FILTER_DEFAULTS,
   buildCodexHref,
+  displayAbilityName,
+  displayAbilityTypeLabel,
   filterMechanicResults,
   formatFrenchDate,
   getModeLabel,
@@ -311,7 +313,21 @@ async function ensureSearchIndex() {
           throw new ArtifactError("Index de recherche invalide");
         }
         state.searchIndex = data;
-        state.preparedSearch = prepareSearchRecords(data.records);
+        // Keep immutable published JSON untouched; old generations can retain
+        // feminine ability labels until the next normal builder publication.
+        const displayRecords = data.records.map((record) => {
+          if (record.kind !== "ability") return record;
+          const label = displayAbilityName(record.label, record.context);
+          return {
+            ...record,
+            label,
+            context: displayAbilityTypeLabel(record.context),
+            aliases: label === record.label
+              ? record.aliases
+              : [...(record.aliases || []), record.label],
+          };
+        });
+        state.preparedSearch = prepareSearchRecords(displayRecords);
         return data;
       })
       .catch((error) => {
@@ -751,16 +767,16 @@ function abilityStripMarkup(abilities, activeAbilityId = "") {
             href="${escapeHtml(buildCodexHref(abilityRoute(ability)))}"
             data-codex-link
             ${isActive ? 'aria-current="page"' : ""}
-            aria-label="${escapeHtml(`${ability.typeLabel} : ${ability.name}${isActive ? " — capacité ouverte" : ""}`)}"
+            aria-label="${escapeHtml(`${displayAbilityTypeLabel(ability.typeLabel)} : ${displayAbilityName(ability.name, ability.typeLabel)}${isActive ? " — capacité ouverte" : ""}`)}"
           >
             ${imageMarkup({
               url: ability.iconUrl,
               alt: "",
-              fallback: abilityFallback(ability.typeLabel),
+              fallback: abilityFallback(displayAbilityTypeLabel(ability.typeLabel)),
               kind: "ability",
             })}
             <small>
-              ${escapeHtml(ability.typeLabel)}
+              ${escapeHtml(displayAbilityTypeLabel(ability.typeLabel))}
               ${isActive ? '<span class="codexAbilitySelectedLabel">Ouverte</span>' : ""}
             </small>
           </a>
@@ -1179,15 +1195,15 @@ function abilityCardMarkup(ability) {
     >
       ${imageMarkup({
         url: ability.iconUrl,
-        alt: `Icône de ${ability.name}`,
-        fallback: abilityFallback(ability.typeLabel),
+        alt: `Icône de ${displayAbilityName(ability.name, ability.typeLabel)}`,
+        fallback: abilityFallback(displayAbilityTypeLabel(ability.typeLabel)),
         kind: "ability",
       })}
       <span class="codexAbilityCardBody">
         <span class="codexTypeBadge${ability.isEmpowered ? " codexTypeBadge--empowered" : ""}">
-          ${escapeHtml(ability.typeLabel)}
+          ${escapeHtml(displayAbilityTypeLabel(ability.typeLabel))}
         </span>
-        <h3>${escapeHtml(ability.name)}</h3>
+        <h3>${escapeHtml(displayAbilityName(ability.name, ability.typeLabel))}</h3>
         <p>
           ${ability.isEmpowered ? "Version renforcée · " : ""}
           ${mechanicsCount
@@ -1246,7 +1262,7 @@ function invocationMarkup(shard) {
             </div>
             ${ability ? `
               <a class="codexInlineLink" href="${escapeHtml(buildCodexHref(abilityRoute(ability)))}" data-codex-link>
-                Invoquée par ${escapeHtml(ability.name)}
+                Invoquée par ${escapeHtml(displayAbilityName(ability.name, ability.typeLabel))}
               </a>
             ` : ""}
           </article>
@@ -1324,7 +1340,7 @@ function technicalContextsMarkup(shard) {
                 Type : <code>${escapeHtml(context.variantType)}</code>
                 ${parent ? ` · Reliée par règle contrôlée à
                   <a class="codexInlineLink" href="${escapeHtml(buildCodexHref(abilityRoute(parent)))}" data-codex-link>
-                    ${escapeHtml(parent.typeLabel)} — ${escapeHtml(parent.name)}
+                    ${escapeHtml(displayAbilityTypeLabel(parent.typeLabel))} — ${escapeHtml(displayAbilityName(parent.name, parent.typeLabel))}
                   </a>` : " · Capacité parente non établie"}
               </p>
             ` : ""}
@@ -1405,7 +1421,7 @@ function characterModel(shard) {
         <div class="codexSectionHeader">
           <div>
             <h2 id="character-abilities-title">Capacités</h2>
-            <p>Ordre : Basique, Spéciale, Ultime, Passive, avec les versions renforcées adjacentes.</p>
+            <p>Ordre : Basique, Spéciel, Ultime, Passif, avec les versions renforcées adjacentes.</p>
           </div>
         </div>
         ${shard.abilities?.length
@@ -1605,7 +1621,7 @@ function empoweredRelationshipMarkup(ability, shard) {
     if (parent) {
       links.push(`
         <a class="codexInlineLink" href="${escapeHtml(buildCodexHref(abilityRoute(parent)))}" data-codex-link>
-          Capacité d’origine : ${escapeHtml(parent.name)}
+          Capacité d’origine : ${escapeHtml(displayAbilityName(parent.name, parent.typeLabel))}
         </a>
       `);
     }
@@ -1854,7 +1870,7 @@ function abilityModel(shard, ability) {
         Number.isFinite(energy.start) ? `départ ${energy.start}` : "",
       ].filter(Boolean).join(" · ")
     : "";
-  const shareTitle = `${ability.name} — ${character.name} | Codex MSF`;
+  const shareTitle = `${displayAbilityName(ability.name, ability.typeLabel)} — ${character.name} | Codex MSF`;
 
   const mechanicsContent = presentationPhasesMarkup(presentation);
 
@@ -1865,10 +1881,10 @@ function abilityModel(shard, ability) {
       : "Texte officiel indisponible pour cette capacité."}</p>`;
 
   return {
-    title: `${ability.name} — ${character.name}`,
+    title: `${displayAbilityName(ability.name, ability.typeLabel)} — ${character.name}`,
     breadcrumbs: [
       { label: character.name, route: characterRoute(character) },
-      { label: ability.typeLabel },
+      { label: displayAbilityTypeLabel(ability.typeLabel) },
     ],
     html: `
       <section class="codexIdentity">
@@ -1877,18 +1893,18 @@ function abilityModel(shard, ability) {
         <div class="codexIdentityTop">
           ${imageMarkup({
             url: ability.iconUrl,
-            alt: `Icône de ${ability.name}`,
-            fallback: abilityFallback(ability.typeLabel),
+            alt: `Icône de ${displayAbilityName(ability.name, ability.typeLabel)}`,
+            fallback: abilityFallback(displayAbilityTypeLabel(ability.typeLabel)),
             kind: "ability",
             loading: "eager",
             className: "codexIdentityPortrait",
           })}
           <div class="codexIdentityText">
             <p class="codexEyebrow">${escapeHtml(character.name)}</p>
-            <h1>${escapeHtml(ability.name)}</h1>
+            <h1>${escapeHtml(displayAbilityName(ability.name, ability.typeLabel))}</h1>
             <div class="codexMetaList">
               <span class="codexTypeBadge${ability.isEmpowered ? " codexTypeBadge--empowered" : ""}">
-                ${escapeHtml(ability.typeLabel)}
+                ${escapeHtml(displayAbilityTypeLabel(ability.typeLabel))}
               </span>
               ${energyText ? `<span class="codexMetaChip">Énergie : ${escapeHtml(energyText)}</span>` : ""}
               ${ability.maxLevel ? `<span class="codexMetaChip">Niveau max : ${escapeHtml(ability.maxLevel)}</span>` : ""}
@@ -1962,9 +1978,9 @@ function renderFilterControls(filters, records, draft = false) {
       <select id="${prefix}filter-type" class="codexSelect" ${dataAttribute}="type">
         <option value="all"${selected(filters.type, "all")}>Toutes</option>
         <option value="basic"${selected(filters.type, "basic")}>Basique</option>
-        <option value="special"${selected(filters.type, "special")}>Spéciale</option>
+        <option value="special"${selected(filters.type, "special")}>Spéciel</option>
         <option value="ultimate"${selected(filters.type, "ultimate")}>Ultime</option>
-        <option value="passive"${selected(filters.type, "passive")}>Passive</option>
+        <option value="passive"${selected(filters.type, "passive")}>Passif</option>
         <option value="empowered"${selected(filters.type, "empowered")}>Renforcée</option>
       </select>
     </div>
@@ -2056,15 +2072,15 @@ function mechanicResultCardMarkup(record) {
           ${imageMarkup({
             url: record.iconUrl,
             alt: "",
-            fallback: abilityFallback(record.abilityTypeLabel),
+            fallback: abilityFallback(displayAbilityTypeLabel(record.abilityTypeLabel)),
             kind: "result",
           })}
         </div>
         <div class="codexResultBody">
           <p class="codexResultCharacter">${escapeHtml(record.characterName)}</p>
-          <h3>${escapeHtml(isTechnical ? "Contexte technique" : record.abilityName)}</h3>
+          <h3>${escapeHtml(isTechnical ? "Contexte technique" : displayAbilityName(record.abilityName, record.abilityTypeLabel))}</h3>
           <span class="codexTypeBadge${record.isEmpowered ? " codexTypeBadge--empowered" : ""}">
-            ${escapeHtml(isTechnical ? "Variante et contexte technique" : record.abilityTypeLabel)}
+            ${escapeHtml(isTechnical ? "Variante et contexte technique" : displayAbilityTypeLabel(record.abilityTypeLabel))}
           </span>
           <p class="codexResultSummary">${escapeHtml(record.summary || "")}</p>
           ${record.occurrences?.[0]?.excerpt
@@ -2279,7 +2295,7 @@ function operationModel(context) {
     title: `${title} — ${contextLabel}`,
     breadcrumbs: [
       { label: character.name, route: characterRoute(character) },
-      ...(ability ? [{ label: ability.typeLabel, route: abilityRoute(ability) }] : []),
+      ...(ability ? [{ label: displayAbilityTypeLabel(ability.typeLabel), route: abilityRoute(ability) }] : []),
       { label: title },
     ],
     html: `
@@ -2289,8 +2305,8 @@ function operationModel(context) {
             ${ability
               ? imageMarkup({
                   url: ability.iconUrl,
-                  alt: `Icône de ${ability.name}`,
-                  fallback: abilityFallback(ability.typeLabel),
+                  alt: `Icône de ${displayAbilityName(ability.name, ability.typeLabel)}`,
+                  fallback: abilityFallback(displayAbilityTypeLabel(ability.typeLabel)),
                   kind: "ability",
                   loading: "eager",
                 })
