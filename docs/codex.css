@@ -2596,6 +2596,12 @@ body.codexPage.codexLandingView::before {
   -webkit-backdrop-filter: blur(6px);
 }
 
+/* Les autres panneaux sont des contextes d'empilement (backdrop-filter).
+   Rehausser leur voisin de recherche fait passer les suggestions devant. */
+.codexLandingView .codexLandingPanel[aria-labelledby="codex-landing-search-title"] {
+  z-index: 3;
+}
+
 .codexLandingPanel h2 {
   margin: 0 0 12px;
   font-size: 19px;
