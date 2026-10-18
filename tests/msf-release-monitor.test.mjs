@@ -199,3 +199,30 @@ test("scheduled rollout refuses nonplayable unit and previously counted recruits
   history.years["2025"].individualReleases.push({characterId:"Hero0",month:"2025-07"});
   assert.throws(() => advance(history,state,takeSnapshot(sources.catalog,sources.combat),"2026-10-20T09:37:00Z",schedule),/already counted/);
 });
+
+test("nightreavers announced release is immediately part of the chronology without a scheduled duplicate", async () => {
+  const fs = await import("node:fs/promises");
+  const read = async relative => JSON.parse(await fs.readFile(new URL(relative, import.meta.url), "utf8"));
+  const [history, schedule] = await Promise.all([
+    read("../docs/data/msf-release-history.json"),
+    read("../data/msf-release-monitor/scheduled-events.json")
+  ]);
+  const year = history.years["2026"];
+  const entries = year.teamEvents.filter(event => event.teamId === "nightreavers-2026-10");
+  assert.equal(entries.length, 1);
+  const team = entries[0];
+  assert.equal(team.date, "2026-10-19");
+  assert.deepEqual(team.members, ["Dracula", "Morbius", "Oath"]);
+  assert.deepEqual(team.newCharacterIds, ["Dracula"]);
+  assert.deepEqual(team.reworkedCharacterIds, ["Morbius", "Oath"]);
+  assert.equal(team.characterReleases[0].date, "2026-10-19");
+  assert.equal(team.characterReleases[0].releaseStatus, "announced");
+  assert.equal(year.auditedThrough, "2026-10-05");
+  assert.equal(schedule.events.filter(event => event.id === "nightreavers-2026-10").length, 0);
+  for (const id of team.sourceIds) assert.ok(year.sources.some(source => source.id === id));
+  const allReleases = [
+    ...(year.individualReleases || []).map(event => event.characterId),
+    ...year.teamEvents.flatMap(event => event.newCharacterIds || [])
+  ];
+  assert.equal(allReleases.filter(id => id === "Dracula").length, 1);
+});
