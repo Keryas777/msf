@@ -11818,13 +11818,14 @@
       ]
     },
     "2025": {
-      "status": "partial",
-      "auditedThrough": "2025-09-30",
+      "status": "audited",
+      "auditedThrough": "2025-12-31",
       "dateConvention": "Scopely's North American PST/PDT historical launch dates. A month without date means the precise first global unlock was not proven.",
       "auditedPeriods": [
         "2025-01-01/2025-03-31",
         "2025-04-01/2025-06-30",
-        "2025-07-01/2025-09-30"
+        "2025-07-01/2025-09-30",
+        "2025-10-01/2025-12-31"
       ],
       "individualReleases": [
         {
@@ -11880,6 +11881,51 @@
           ],
           "notes": [
             "Age of Annihilus / Broken King Chapter 2 begins August 4 and first month awards enough cumulative shards for Legendary Blastaar. A real recruited Blastaar is reported by mid-August, so first playable month August; precise day and threshold crossing remain unproven. This is an individual release, not a new five-person team."
+          ]
+        },
+        {
+          "characterId": "BlueMarvel",
+          "month": "2025-11",
+          "releaseMethod": "target_blue_marvel_event",
+          "confidence": "medium",
+          "sourceIds": [
+            "q325-blue-marvel-oct31",
+            "q425-blue-nov03-video",
+            "q425-blue-nov03-community"
+          ],
+          "notes": [
+            "Target: Blue Marvel starts November 3 with restrictive Purple Iso-8 character and mission requirements. Contemporaneous November 3 recruitment video suggests first successful playability, but first global threshold crossing has not been independently reconstructed: month only.",
+            "Character unlock distinct from parallel Race to Blue Marvel Red Star rewards; not a Mythic Dark Dimension release or invented team."
+          ]
+        },
+        {
+          "characterId": "Thunderstrike",
+          "month": "2025-11",
+          "releaseMethod": "command_center_shard_rewards; raid_season_rewards",
+          "confidence": "high",
+          "sourceIds": [
+            "q325-blue-marvel-oct31",
+            "q425-thunder-nov24",
+            "q425-steel-nov21"
+          ],
+          "notes": [
+            "Legendary Age of Annihilus Chapter 3 reward. Fragments via Command Center, Raid Season leaderboard (up to 175 per season), premium objectives and Month 1; recruitment demonstrated by November 24. Neither November 3 chapter opening nor that testimony proves universally earliest unlock day.",
+            "Existing character in 2026 Galactic Council, not new again in 2026; December/January shards increase stars."
+          ]
+        },
+        {
+          "characterId": "Sentry",
+          "month": "2025-12",
+          "releaseMethod": "battleworld_reward",
+          "confidence": "medium",
+          "sourceIds": [
+            "q425-sentry-dec05",
+            "q425-sentry-dec10",
+            "q325-sentry-boundary"
+          ],
+          "notes": [
+            "Five-star 310-shard cumulative Battleworld unlock, demonstrated playable among top alliances by December 27; precise globally first possible date and full earliest reward schedule not independently established.",
+            "Battleworld boss/PVE form, partial earlier rewards and Golden Guardian Red Star rewards do not constitute separate playable recruits."
           ]
         }
       ],
@@ -13236,6 +13282,462 @@
           "releaseMethods": {
             "PhantomRider": "premium_battle_pass"
           }
+        },
+        {
+          "month": "2025-10",
+          "teamId": "brimstone-2025-rollout",
+          "label": "Brimstone — October 2025 original rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "DaimonHellstrom",
+            "LivingMummy",
+            "Hellcat",
+            "StrangeSupreme",
+            "ElsaBloodstone"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "DaimonHellstrom",
+            "LivingMummy",
+            "Hellcat"
+          ],
+          "existingCharacterIds": [
+            "StrangeSupreme",
+            "ElsaBloodstone"
+          ],
+          "reworkedCharacterIds": [
+            "StrangeSupreme",
+            "ElsaBloodstone"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "One original rollout with three independent October recruit dates and two substantive veteran reworks.",
+            "No September team event from the September preview alone; individual activation days are not fabricated."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "DaimonHellstrom",
+              "month": "2025-10",
+              "date": "2025-10-02",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q325-brimstone-sep26",
+                "q325-brimstone-preview"
+              ],
+              "notes": [
+                "Initial offers and Power Core orb on October 2; September announcement did not recruit Daimon."
+              ]
+            },
+            {
+              "characterId": "LivingMummy",
+              "month": "2025-10",
+              "date": "2025-10-10",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q325-brimstone-oct03",
+                "q325-brimstone-preview"
+              ],
+              "notes": [
+                "Initial paid offers and Power Core orb October 10; later shard events are not first recruitment."
+              ]
+            },
+            {
+              "characterId": "Hellcat",
+              "month": "2025-10",
+              "date": "2025-10-21",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q425-brimstone-oct17",
+                "q325-brimstone-preview"
+              ],
+              "notes": [
+                "Initial offers and 675-core Demonic Heir Orb on October 21; showcased characters are borrowed."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "StrangeSupreme",
+              "month": "2025-10",
+              "sourceIds": [
+                "q325-brimstone-preview",
+                "q325-brimstone-oct03"
+              ],
+              "notes": [
+                "Large Heartless Doctor Strange stat/kit overhaul; September preview not proof active before September 30. October activation day not proven."
+              ]
+            },
+            {
+              "characterId": "ElsaBloodstone",
+              "month": "2025-10",
+              "sourceIds": [
+                "q325-brimstone-preview",
+                "q325-brimstone-oct03"
+              ],
+              "notes": [
+                "Large Elsa Bloodstone stat/kit overhaul; exact first live day unproven; conservatively October."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q325-brimstone-preview",
+            "q325-brimstone-sep26",
+            "q325-brimstone-oct03",
+            "q425-brimstone-oct17"
+          ],
+          "releaseMethods": {
+            "DaimonHellstrom": "limited_offer; power_core_store",
+            "LivingMummy": "limited_offer; power_core_store",
+            "Hellcat": "limited_offer; power_core_store"
+          }
+        },
+        {
+          "month": "2025-10",
+          "teamId": "undying-zombie-kestrel-expansion-2025",
+          "label": "Undying — historical Kestrel (Zombie) extension (2025)",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Hela",
+            "ZombieIronMan",
+            "ZombieJuggernaut",
+            "ZombieScarletWitch",
+            "ZombieKestrel"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "ZombieKestrel"
+          ],
+          "existingCharacterIds": [
+            "Hela",
+            "ZombieIronMan",
+            "ZombieJuggernaut",
+            "ZombieScarletWitch"
+          ],
+          "reworkedCharacterIds": [
+            "Hela",
+            "ZombieIronMan",
+            "ZombieJuggernaut",
+            "ZombieScarletWitch"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "Legitimate extension of 2022 Undying original; 2023 Juggernaut and 2024 Scarlet Witch extensions are preserved.",
+            "All four veteran reworks are distinct from the original releases; activation day is not independently proven."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "ZombieKestrel",
+              "month": "2025-10",
+              "date": "2025-10-29",
+              "releaseMethod": "limited_offer; undying_orb",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q425-undying-oct24",
+                "q425-undying-preview"
+              ],
+              "notes": [
+                "Epic character recruitable at 2 stars; October 29 paid offers, additional Undying Orbs/events. Different ID from ordinary Kestrel."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "Hela",
+              "month": "2025-10",
+              "sourceIds": [
+                "q425-undying-preview"
+              ],
+              "notes": [
+                "Huge Hela base-stat increases (+291% Health) and revised Undying interactions."
+              ]
+            },
+            {
+              "characterId": "ZombieIronMan",
+              "month": "2025-10",
+              "sourceIds": [
+                "q425-undying-preview"
+              ],
+              "notes": [
+                "Large veteran stats and War-offense ability changes accompany new Undying member."
+              ]
+            },
+            {
+              "characterId": "ZombieJuggernaut",
+              "month": "2025-10",
+              "sourceIds": [
+                "q425-undying-preview"
+              ],
+              "notes": [
+                "Large veteran base-stat increase and renewed Undying viability; not a new playable release."
+              ]
+            },
+            {
+              "characterId": "ZombieScarletWitch",
+              "month": "2025-10",
+              "sourceIds": [
+                "q425-undying-preview"
+              ],
+              "notes": [
+                "Substantial zombie veteran stats and ability/synergy changes; not new recruit."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q425-undying-preview",
+            "q425-undying-oct24"
+          ],
+          "releaseMethods": {
+            "ZombieKestrel": "limited_offer; undying_orb"
+          }
+        },
+        {
+          "month": "2025-11",
+          "teamId": "immortal-weapons-2025-rollout",
+          "label": "Immortal Weapons — November 2025 original rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "LadyBullseye",
+            "SwordMaster",
+            "SteelSerpent",
+            "IronFist",
+            "IronFistOrson"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "LadyBullseye",
+            "SwordMaster",
+            "SteelSerpent"
+          ],
+          "existingCharacterIds": [
+            "IronFist",
+            "IronFistOrson"
+          ],
+          "reworkedCharacterIds": [
+            "IronFist",
+            "IronFistOrson"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "One event covers November 7, 18 and 26 recruit dates; no successive team versions.",
+            "War, Thunderbolts synergy and borrowed Raid/Showcase teams are not additional first releases."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "LadyBullseye",
+              "month": "2025-11",
+              "date": "2025-11-07",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q325-blue-marvel-oct31",
+                "q425-immortal-preview"
+              ],
+              "notes": [
+                "First direct offers and 675-core Deadly Precision Orb November 7; Thunderbolt synergy does not duplicate release."
+              ]
+            },
+            {
+              "characterId": "SwordMaster",
+              "month": "2025-11",
+              "date": "2025-11-18",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q425-immortal-nov14",
+                "q425-immortal-preview"
+              ],
+              "notes": [
+                "Contemporaneous November 18 paid/orb debut; showcased borrowed character is not ownership."
+              ]
+            },
+            {
+              "characterId": "SteelSerpent",
+              "month": "2025-11",
+              "date": "2025-11-26",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q425-steel-nov21",
+                "q425-immortal-preview"
+              ],
+              "notes": [
+                "First offers and 675-core Dragon's Bane Orb November 26; later Satellite shards are not first release."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "IronFist",
+              "month": "2025-11",
+              "sourceIds": [
+                "q425-immortal-preview"
+              ],
+              "notes": [
+                "Large stats and multi-ability/synergy modernisation for Immortal Weapons; exact live patch day unknown."
+              ]
+            },
+            {
+              "characterId": "IronFistOrson",
+              "month": "2025-11",
+              "sourceIds": [
+                "q425-immortal-preview"
+              ],
+              "notes": [
+                "Separate playable WWII Iron Fist rework with dramatic base-stat gains and kit revisions."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q425-immortal-preview",
+            "q325-blue-marvel-oct31",
+            "q425-immortal-nov14",
+            "q425-steel-nov21"
+          ],
+          "releaseMethods": {
+            "LadyBullseye": "limited_offer; power_core_store",
+            "SwordMaster": "limited_offer; power_core_store",
+            "SteelSerpent": "limited_offer; power_core_store"
+          }
+        },
+        {
+          "month": "2025-12",
+          "teamId": "new-mutants-2025-rollout",
+          "label": "New Mutants — December 2025 original rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Wolfsbane",
+            "Cannonball",
+            "Warlock",
+            "Magik",
+            "Sunspot"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Wolfsbane",
+            "Cannonball",
+            "Warlock"
+          ],
+          "existingCharacterIds": [
+            "Magik",
+            "Sunspot"
+          ],
+          "reworkedCharacterIds": [
+            "Magik",
+            "Sunspot"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "One December team event for three staggered recruitments and two veteran reworks.",
+            "Borrowed Mysterious Rift teammates and subsequent January shard distribution are not first recruitment."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "Wolfsbane",
+              "month": "2025-12",
+              "date": "2025-12-05",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q425-wolfsbane-nov28",
+                "q425-newmutants-preview"
+              ],
+              "notes": [
+                "First paid offers and 675-core Wolf Within Orb December 5, not mission-provided Showcase character."
+              ]
+            },
+            {
+              "characterId": "Cannonball",
+              "month": "2025-12",
+              "date": "2025-12-17",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q425-cannonball-dec12",
+                "q425-newmutants-preview"
+              ],
+              "notes": [
+                "First offers and 675-core Kinetic Cannon Orb December 17."
+              ]
+            },
+            {
+              "characterId": "Warlock",
+              "month": "2025-12",
+              "date": "2025-12-26",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q425-warlock-dec19",
+                "q425-newmutants-preview"
+              ],
+              "notes": [
+                "First paid offers and orb December 26; New Mutants Warlock distinct from existing AdamWarlock."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "Magik",
+              "month": "2025-12",
+              "sourceIds": [
+                "q425-newmutants-preview",
+                "q425-wolfsbane-nov28"
+              ],
+              "notes": [
+                "Major stats and kit redesign for New Mutants; November preview not proof live before December; not MagikBreaker."
+              ]
+            },
+            {
+              "characterId": "Sunspot",
+              "month": "2025-12",
+              "sourceIds": [
+                "q425-newmutants-preview",
+                "q425-wolfsbane-nov28"
+              ],
+              "notes": [
+                "Very substantial Sunspot stats/ability rework; activation day unknown."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q425-newmutants-preview",
+            "q425-wolfsbane-nov28",
+            "q425-cannonball-dec12",
+            "q425-warlock-dec19"
+          ],
+          "releaseMethods": {
+            "Wolfsbane": "limited_offer; power_core_store",
+            "Cannonball": "limited_offer; power_core_store",
+            "Warlock": "limited_offer; power_core_store"
+          }
         }
       ],
       "excludedFrom2025Q1PlayableCount": [
@@ -13288,7 +13790,10 @@
         "T3 2025: Phantom Rider's September 8 Premium Battle Pass launch is not an automatic unlock; a player had a three-star recruit by September 14, while three free completed Standard Passes stretch beyond the initial period.",
         "T3/T4 boundary: Brimstone announced September but no independently proved live ElsaBloodstone/Heartless veteran reworks before September 30. DaimonHellstrom, LivingMummy and Hellcat first availability is in October, so Brimstone rollout deliberately left to T4. Do not duplicate it.",
         "T3 2025: Sentry boss appearances and accumulating Battleworld rewards are not evidence of a T3 playable recruit; Sentry is not counted. Red Star-only events, pre-release kit changes and minor passive stat compensation are also excluded.",
-        "T3/T4 boundary: Blue Marvel was previewed in an official September 29 presentation but Target: Blue Marvel first recruit challenge was officially scheduled for November 3; the September announcement does not create a T3 playable release."
+        "T3/T4 boundary: Blue Marvel was previewed in an official September 29 presentation but Target: Blue Marvel first recruit challenge was officially scheduled for November 3; the September announcement does not create a T3 playable release.",
+        "Q4 2025: Brimstone, Immortal Weapons and New Mutants each use one original rollout with individually dated recruits; Undying 2025 is a new historical extension, preserving the earlier 2022/2023/2024 events. Reworks stay month-only where live activation day is not proven.",
+        "Boundary 2025/2026: Retcon was presented late December with four planned veteran reworks, but December 31 live activation is not demonstrated independently. No speculative 2025 Retcon team event/reworks: existing Jeff February 2026 Retcon, Winter Guard January 2026 and Galactic Council February 2026 remain unchanged.",
+        "Blue Marvel and Thunderstrike belong to November based on demonstrated unlocks; Sentry belongs to December. First globally possible day of progressive unlock is not guessed."
       ],
       "sources": [
         {
@@ -13800,19 +14305,135 @@
           "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-31-25",
           "publicationDate": "2025-10-31",
           "type": "official"
+        },
+        {
+          "id": "q425-brimstone-oct17",
+          "title": "Official October 17 blog: Hellcat debut October 21",
+          "url": "https://marvelstrikeforce.com/ja/updates/blog-update-10-17-25",
+          "publicationDate": "2025-10-17",
+          "type": "official"
+        },
+        {
+          "id": "q425-undying-preview",
+          "title": "Official Kestrel Zombie Undying expansion and upgraded veterans",
+          "url": "https://marvelstrikeforce.com/en/updates/interdimensional-undead",
+          "type": "official"
+        },
+        {
+          "id": "q425-undying-oct24",
+          "title": "Official October 24 blog: two-star Zombie Kestrel offers October 29",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-24-25",
+          "publicationDate": "2025-10-24",
+          "type": "official"
+        },
+        {
+          "id": "q425-immortal-preview",
+          "title": "Official Immortal Weapons kits and both veteran Iron Fist redesigns",
+          "url": "https://marvelstrikeforce.com/de/updates/weapons-of-choice",
+          "type": "official"
+        },
+        {
+          "id": "q425-immortal-nov14",
+          "title": "Contemporary November 14 discussion on Immortal Weapons rollout",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1oxbfbl",
+          "publicationDate": "2025-11-14",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q425-steel-nov21",
+          "title": "Official November 21 blog: Steel Serpent debut November 26",
+          "url": "https://marvelstrikeforce.com/nb/updates/blog-update-11-21-25",
+          "publicationDate": "2025-11-21",
+          "type": "official"
+        },
+        {
+          "id": "q425-newmutants-preview",
+          "title": "Official New Mutants kits and veteran Magik/Sunspot improvements",
+          "url": "https://marvelstrikeforce.com/th/updates/in-with-the-new-mutants",
+          "type": "official"
+        },
+        {
+          "id": "q425-wolfsbane-nov28",
+          "title": "Official November 28 blog: Wolfsbane December 5 debut",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-11-28-25",
+          "publicationDate": "2025-11-28",
+          "type": "official"
+        },
+        {
+          "id": "q425-cannonball-dec12",
+          "title": "Official December 12 blog: Cannonball December 17 debut",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-12-12-25",
+          "publicationDate": "2025-12-12",
+          "type": "official"
+        },
+        {
+          "id": "q425-warlock-dec19",
+          "title": "Official December 19 blog: New Mutants Warlock December 26 debut",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-12-19-25",
+          "publicationDate": "2025-12-19",
+          "type": "official"
+        },
+        {
+          "id": "q425-thunder-nov24",
+          "title": "Contemporary November 24 player evidence of playable Thunderstrike",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1p5aacs/",
+          "publicationDate": "2025-11-24",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q425-sentry-dec05",
+          "title": "Official December 5 blog: Sentry City and Golden Guardian separate",
+          "url": "https://msf.gg/en/updates/blog-update-12-05-25",
+          "publicationDate": "2025-12-05",
+          "type": "official"
+        },
+        {
+          "id": "q425-sentry-dec10",
+          "title": "Contemporary December 10 testimony: 310-shard unlock threshold",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1piu006/",
+          "publicationDate": "2025-12-10",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q425-blue-nov03-video",
+          "title": "Contemporary November 3 Blue Marvel unlock video (initial date not independently established)",
+          "url": "https://www.youtube.com/watch?v=JXcHF-iAivU",
+          "publicationDate": "2025-11-03",
+          "type": "contemporary_video"
+        },
+        {
+          "id": "q425-blue-nov03-community",
+          "title": "Contemporary November 3 player discussion of Blue Marvel",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1onpcdj/",
+          "publicationDate": "2025-11-03",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q425-retcon-preview",
+          "title": "Official late-2025 Retcon veteran rework announcement, Jeff in 2026",
+          "url": "https://marvelstrikeforce.com/en/updates/devouring-the-4th-wall",
+          "type": "official"
+        },
+        {
+          "id": "q425-retcon-dec30",
+          "title": "Contemporary December 30 Retcon discussion, does not confirm activation",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1pznimg/",
+          "publicationDate": "2025-12-30",
+          "type": "contemporary_community"
         }
       ],
       "validation": {
-        "auditedPeriod": "2025-01-01/2025-09-30",
-        "individualReleaseCount": 4,
-        "teamEventNewCharacterCount": 28,
-        "distinctPlayableReleaseCount": 32,
-        "distinctReworkedCharacterCount": 26,
+        "auditedPeriod": "2025-01-01/2025-12-31",
+        "individualReleaseCount": 7,
+        "teamEventNewCharacterCount": 38,
+        "distinctPlayableReleaseCount": 45,
+        "distinctReworkedCharacterCount": 36,
         "duplicatesAcrossReleaseBuckets": [],
         "auditedPeriods": [
           "2025-01-01/2025-03-31",
           "2025-04-01/2025-06-30",
-          "2025-07-01/2025-09-30"
+          "2025-07-01/2025-09-30",
+          "2025-10-01/2025-12-31"
         ],
         "q1DistinctPlayableReleaseCount": 10,
         "q1DistinctReworkedCharacterCount": 5,
@@ -13824,8 +14445,8 @@
         "q2StartingPlayableRosterCount": 316,
         "q2EndPlayableRosterCount": 327,
         "startingPlayableRosterCount": 306,
-        "quarterEndPlayableRosterCount": 338,
-        "annualTotalsStatus": "partial through September 30 2025",
+        "quarterEndPlayableRosterCount": 351,
+        "annualTotalsStatus": "audited through December 31 2025",
         "q3AuditedPeriod": "2025-07-01/2025-09-30",
         "q3IndividualReleaseCount": 1,
         "q3TeamEventReleaseCount": 10,
@@ -13833,7 +14454,16 @@
         "q3DistinctReworkedCharacterCount": 15,
         "q3TeamEventsIntroducedCount": 5,
         "q3StartingPlayableRosterCount": 327,
-        "q3EndPlayableRosterCount": 338
+        "q3EndPlayableRosterCount": 338,
+        "q4AuditedPeriod": "2025-10-01/2025-12-31",
+        "q4IndividualReleaseCount": 3,
+        "q4TeamEventReleaseCount": 10,
+        "q4DistinctPlayableReleaseCount": 13,
+        "q4DistinctReworkedCharacterCount": 10,
+        "q4TeamEventsIntroducedCount": 4,
+        "q4StartingPlayableRosterCount": 338,
+        "q4EndPlayableRosterCount": 351,
+        "endOfYearPlayableRosterCount": 351
       }
     },
     "2026": {
