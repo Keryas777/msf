@@ -154,7 +154,7 @@ export function advance(history, previousState, current, timestamp) {
   }
   const previouslyPlayable = Object.values(old).filter(item => item.playable).length;
   const currentlyPlayable = Object.values(current).filter(item => item.playable).length;
-  if (previouslyPlayable > 100 && currentlyPlayable < previouslyPlayable * 0.90) {
+  if (previouslyPlayable >= 100 && currentlyPlayable < previouslyPlayable * 0.90) {
     throw new Error("Playable catalog unexpectedly shrank: possible metadata outage");
   }
   const tracked = { ...old, ...current }; // temporary omissions must never reset an ID.
