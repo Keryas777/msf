@@ -152,6 +152,11 @@ export function advance(history, previousState, current, timestamp) {
   if (oldKeys.length > 100 && Object.keys(current).length < oldKeys.length * 0.85) {
     throw new Error("Catalog unexpectedly shrank: refusing update");
   }
+  const previouslyPlayable = Object.values(old).filter(item => item.playable).length;
+  const currentlyPlayable = Object.values(current).filter(item => item.playable).length;
+  if (previouslyPlayable > 100 && currentlyPlayable < previouslyPlayable * 0.90) {
+    throw new Error("Playable catalog unexpectedly shrank: possible metadata outage");
+  }
   const tracked = { ...old, ...current }; // temporary omissions must never reset an ID.
   const releases = [];
   const reworks = [];
