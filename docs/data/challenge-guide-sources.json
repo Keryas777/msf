@@ -21,19 +21,24 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "city",
+        "cosmic",
+        "legendary",
+        "mythic"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "19/10/2026 : quatre quintettes explicitement listés par section dans la rubrique 'Here is the best team (in our opinion)' de la page DD IX indexée ; ce ne sont ni des victoires ni une rotation de capacité.",
       "evidenceLevel": "recommendation",
       "editorialFamily": null,
-      "notes": "Conseils de compositions et équipement ; ne pas assimiler à une victoire documentée.",
+      "notes": "Conseils de compositions et équipement ; ne pas assimiler à une victoire documentée. La sélection Mondial LoSP remplace Whiplash par Lady Deathstrike et n'est pas la composition exacte du guide ; garder cette variante en attente. Les variantes construites et la finale ne sont pas comptées.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 4,
+        "textCheckedStrategies": 4,
+        "status": "four_exact_prep_quintets_checked_remaining_dd9_compositions_pending"
       }
     },
     {
