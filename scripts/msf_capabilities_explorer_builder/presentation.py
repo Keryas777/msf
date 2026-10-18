@@ -43,9 +43,9 @@ PROOF = {
 ABILITY_TYPES = {
     "basic": {"label": "Basique", "order": 10, "base": "basic"},
     "basic_empower": {"label": "Basique renforcée", "order": 11, "base": "basic"},
-    "special": {"label": "Spéciale", "order": 20, "base": "special"},
+    "special": {"label": "Spéciel", "order": 20, "base": "special"},
     "special_empower": {
-        "label": "Spéciale renforcée",
+        "label": "Spéciel renforcé",
         "order": 21,
         "base": "special",
     },
@@ -55,9 +55,9 @@ ABILITY_TYPES = {
         "order": 31,
         "base": "ultimate",
     },
-    "passive": {"label": "Passive", "order": 40, "base": "passive"},
+    "passive": {"label": "Passif", "order": 40, "base": "passive"},
     "passive_empower": {
-        "label": "Passive renforcée",
+        "label": "Passif renforcé",
         "order": 41,
         "base": "passive",
     },
