@@ -3,9 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-    <meta name="theme-color" content="#07111c" />
+    <meta name="theme-color" content="#0b0c0d" />
     <title>Personnages MSF — LoSP</title>
 
+    <link rel="stylesheet" href="./style.css?v=4" />
     <link rel="stylesheet" href="./historique-personnages-profile.css?v=1" />
     <style>
       html.authChecking body {
@@ -1072,6 +1073,7 @@
         }
       }
     </style>
+    <link rel="stylesheet" href="./historique-personnages-theme.css?v=1" />
 
     <script src="./auth-guard.js?v=4"></script>
     <link rel="manifest" href="./manifest.webmanifest" />
@@ -1081,26 +1083,21 @@
     <meta name="apple-mobile-web-app-title" content="LoSP" />
   </head>
 
-  <body>
-    <div class="pageShell">
-      <header class="pageHeader">
-        <div class="headerRow">
-          <button id="backButton" class="navButton" type="button" aria-label="Retour">‹ <span>Retour</span></button>
-          <div class="brand">
-            <strong>Personnages MSF</strong>
-            <span>Identité, capacités, classements & histoire</span>
-          </div>
-          <a class="navButton" href="./home.html" aria-label="Accueil LoSP">⌂ <span>Accueil</span></a>
+  <body class="archiveCharactersPage">
+    <div class="app archiveApp">
+      <header class="header archiveHeader" aria-label="Navigation des personnages">
+        <button id="backButton" class="backBtn" type="button" aria-label="Retour">⬅️</button>
+        <a class="homeBtn" href="./home.html" aria-label="Accueil LoSP">🏠</a>
+        <div class="headerLeft">
+          <h1 id="pageTitle" class="title">Personnages MSF</h1>
+          <p class="subtitle">Identité, capacités, classements et historique du groupement</p>
         </div>
       </header>
 
       <main>
-        <section class="hero" aria-labelledby="pageTitle">
-          <p class="eyebrow">Marvel Strike Force</p>
-          <h1 id="pageTitle">Tous les personnages MSF, au même endroit</h1>
+        <section class="hero card archiveSummary" aria-label="Résumé de l’historique">
           <p class="heroText">
-            Explore les sorties et reworks depuis le lancement mondial, puis ouvre la fiche d’un personnage
-            pour consulter ses tags, ses capacités et son classement au sein du groupement LoSP.
+            Sorties et reworks, capacités et classement des personnages au sein du groupement LoSP.
           </p>
           <p class="sourceNote">
             <span class="sourceDot" aria-hidden="true"></span>
@@ -1133,7 +1130,7 @@
           <button class="viewTab" type="button" role="tab" data-view="rankings" aria-selected="false">Classements</button>
         </div>
 
-        <section class="filters" aria-label="Filtres de l’historique">
+        <section class="filters archiveFilters" aria-label="Filtres de l’historique">
           <div class="filterGrid">
             <div class="field">
               <label for="searchInput">Recherche</label>
