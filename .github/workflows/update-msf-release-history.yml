@@ -3,10 +3,11 @@ name: Maintain MSF release history
 on:
   workflow_dispatch:
   schedule:
-    - cron: "37 9 * * *"
+    - cron: "37 */3 * * *"
   pull_request:
     paths:
       - "scripts/update-msf-release-history.mjs"
+      - "data/msf-release-monitor/scheduled-events.json"
       - "tests/msf-release-monitor.test.mjs"
       - ".github/workflows/update-msf-release-history.yml"
       - "docs/historique-personnages.html"
@@ -34,7 +35,8 @@ jobs:
       - name: Exercise first-run baseline without modifying history
         run: |
           cp docs/data/msf-release-history.json /tmp/msf-release-history-before.json
-          node scripts/update-msf-release-history.mjs
+          # Fixed pre-release timestamp: baseline cannot pre-count future announcements.
+          node --input-type=module -e "import {run} from './scripts/update-msf-release-history.mjs'; await run('2026-10-18T12:00:00Z')"
           cmp /tmp/msf-release-history-before.json docs/data/msf-release-history.json
           test -s data/msf-release-monitor/state.json
 

@@ -131,16 +131,78 @@ function updateCounts(year) {
   });
 }
 
-export function advance(history, previousState, current, timestamp) {
+// Officially dated future releases can already be present in the game's catalogue.
+// Keep them outside the release history until the first actual unlock window opens.
+export function applyScheduledEvents(history, current, timestamp, scheduledEvents = []) {
+  const recorded = [];
+  if (!Array.isArray(scheduledEvents)) throw new Error("Invalid scheduled events");
+  const seen = new Set();
+  for (const event of scheduledEvents) {
+    const releaseAt = event?.releaseAt;
+    const team = event?.teamEvent;
+    if (typeof releaseAt !== "string" ||
+        !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(releaseAt) ||
+        Number.isNaN(Date.parse(releaseAt)) ||
+        !team?.teamId || !Array.isArray(team.members) ||
+        !Array.isArray(team.newCharacterIds) ||
+        !Array.isArray(team.reworkedCharacterIds) ||
+        !Array.isArray(event.sources)) {
+      throw new Error("Invalid scheduled team event");
+    }
+    if (seen.has(team.teamId)) throw new Error("Duplicate scheduled team ID");
+    seen.add(team.teamId);
+    if (Date.parse(timestamp) < Date.parse(releaseAt)) continue;
+    const yearKey = releaseAt.slice(0, 4);
+    const previousYear = history.years[yearKey];
+    if (previousYear?.auditedThrough && previousYear.auditedThrough >= releaseAt.slice(0, 10)) {
+      throw new Error("Scheduled release overlaps an audited period");
+    }
+    if (previousYear?.teamEvents?.some(item => item.teamId === team.teamId)) continue;
+    const members = [...new Set(team.members)];
+    if (members.length !== team.members.length ||
+        [...team.newCharacterIds, ...team.reworkedCharacterIds].some(id => !members.includes(id)) ||
+        members.some(id => !current[id]?.playable || (event.sourceTrait && !current[id].traits.includes(event.sourceTrait)))) {
+      throw new Error("Scheduled event conflicts with playable character catalogue");
+    }
+    const recordedReleases = existingReleases(history);
+    const alreadyRecorded = team.newCharacterIds.filter(id => recordedReleases.has(id));
+    if (alreadyRecorded.length) {
+      throw new Error("Scheduled recruit already counted: " + alreadyRecorded.join(", "));
+    }
+    const year = upsertYear(history, yearKey);
+    year.teamEvents.push(JSON.parse(JSON.stringify(team)));
+    year.sources ||= [];
+    for (const source of event.sources) {
+      if (!source?.id || !source?.url || !source?.title) throw new Error("Invalid scheduled source");
+      if (!year.sources.some(item => item.id === source.id)) {
+        year.sources.push(JSON.parse(JSON.stringify(source)));
+      }
+    }
+    updateCounts(year);
+    recorded.push(team.teamId);
+  }
+  return recorded;
+}
+
+export function advance(history, previousState, current, timestamp, scheduledEvents = []) {
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(timestamp) ||
       Number.isNaN(Date.parse(timestamp))) throw new Error("Invalid UTC timestamp");
   if (!history?.years || typeof history.years !== "object") throw new Error("Invalid release history");
   const date = timestamp.slice(0, 10);
+  const scheduled = applyScheduledEvents(history, current, timestamp, scheduledEvents);
+  // While an explicitly sourced rollout is due, inferred changes for those IDs/traits
+  // must not create premature releases or duplicate automatic team events.
+  const protectedRollouts = scheduledEvents.filter(event =>
+    Date.parse(timestamp) <= Date.parse(event.releaseAt) + 86400000
+  );
+  const scheduledRecruits = new Set(protectedRollouts.flatMap(event => event.teamEvent.newCharacterIds));
+  const scheduledReworks = new Set(protectedRollouts.flatMap(event => event.teamEvent.reworkedCharacterIds));
+  const scheduledTraits = new Set(protectedRollouts.map(event => event.sourceTrait).filter(Boolean));
   if (!previousState) {
     // First run only anchors observation: NEVER import the current roster as fresh releases.
     return {
       history, state: { schemaVersion: 1, trackingStartedAt: timestamp, characters: current },
-      summary: { baseline: true, releases: [], reworks: [], teams: [], candidates: [] }
+      summary: { baseline: true, releases: [], reworks: [], teams: [], candidates: [], scheduled }
     };
   }
   if (previousState.schemaVersion !== 1 || !previousState.characters ||
@@ -164,8 +226,8 @@ export function advance(history, previousState, current, timestamp) {
   const releasedBefore = existingReleases(history);
   for (const [id, now] of Object.entries(current)) {
     const before = old[id];
-    if (now.playable && (!before || !before.playable) && !releasedBefore.has(id)) releases.push(id);
-    if (!now.playable || !before?.playable || !now.fingerprints || !before.fingerprints) continue;
+    if (now.playable && (!before || !before.playable) && !releasedBefore.has(id) && !scheduledRecruits.has(id)) releases.push(id);
+    if (!now.playable || !before?.playable || !now.fingerprints || !before.fingerprints || scheduledReworks.has(id)) continue;
     const keys = new Set([...Object.keys(now.fingerprints), ...Object.keys(before.fingerprints)]);
     const changed = [...keys].filter(k => now.fingerprints[k] !== before.fingerprints[k]).sort();
     if (!changed.length) continue;
@@ -183,7 +245,7 @@ export function advance(history, previousState, current, timestamp) {
   const groups = new Map();
   for (const [id, char] of active) {
     for (const trait of char.traits) {
-      if (GENERIC.has(trait)) continue;
+      if (GENERIC.has(trait) || scheduledTraits.has(trait)) continue;
       if (!groups.has(trait)) groups.set(trait, []);
       groups.get(trait).push(id);
     }
@@ -211,7 +273,7 @@ export function advance(history, previousState, current, timestamp) {
   }
   const changed = releases.length || reworks.length || candidates.length || selectedTeams.length;
   const nextState = { ...previousState, characters: tracked };
-  if (!changed) return { history, state: nextState, summary: { baseline: false, releases, reworks, teams: [], candidates } };
+  if (!changed) return { history, state: nextState, summary: { baseline: false, releases, reworks, teams: [], candidates, scheduled } };
   // Only the year of this detection may be extended. Earlier audited years remain unchanged.
   const yearKey = date.slice(0, 4);
   if (+yearKey < +previousState.trackingStartedAt.slice(0, 4)) throw new Error("Cannot write historical year");
@@ -252,22 +314,26 @@ export function advance(history, previousState, current, timestamp) {
   updateCounts(year);
   return {
     history, state: nextState,
-    summary: { baseline: false, releases, reworks: reworks.map(x => x.id), teams: selectedTeams.map(x => x.trait), candidates }
+    summary: { baseline: false, releases, reworks: reworks.map(x => x.id), teams: selectedTeams.map(x => x.trait), candidates, scheduled }
   };
 }
 
 export async function run(now = new Date().toISOString().replace(/\.\d{3}Z$/, "Z")) {
   const read = async path => JSON.parse(await fs.readFile(path, "utf8"));
-  const [catalog, combat, history] = await Promise.all([
-    read(CATALOG_PATH), read(COMBAT_PATH), read(HISTORY_PATH)
+  const [catalog, combat, history, scheduled] = await Promise.all([
+    read(CATALOG_PATH), read(COMBAT_PATH), read(HISTORY_PATH),
+    read("data/msf-release-monitor/scheduled-events.json")
   ]);
+  if (scheduled?.schemaVersion !== 1 || !Array.isArray(scheduled.events)) {
+    throw new Error("Unsupported scheduled event format");
+  }
   let previous = null;
   try { previous = await read(STATE_PATH); }
   catch (error) { if (error.code !== "ENOENT") throw error; }
   const current = takeSnapshot(catalog, combat);
   const originalHistory = JSON.stringify(history);
   const originalState = previous ? JSON.stringify(previous) : null;
-  const result = advance(history, previous, current, now);
+  const result = advance(history, previous, current, now, scheduled.events);
   const stateData = JSON.stringify(result.state, null, 2) + "\n";
   const historyData = JSON.stringify(result.history, null, 2) + "\n";
   if (!previous || originalState !== JSON.stringify(result.state)) {

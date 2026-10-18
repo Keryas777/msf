@@ -8,7 +8,7 @@ Le suivi est prospectif uniquement. Les années et trimestres déjà audités ne
 - data/msf-capabilities/raw/characters.json : kits officiels et traits des formations.
 - docs/data/msf-release-history.json : chronologie éditoriale dont les observations nouvelles sont ajoutées sans effacer les audits.
 
-Le workflow quotidien .github/workflows/update-msf-release-history.yml peut aussi être lancé à la demande. Il repose sur les deux collecteurs existants sans les modifier.
+Le workflow .github/workflows/update-msf-release-history.yml s'exécute toutes les 3 heures et peut aussi être lancé à la demande. Il repose sur les deux collecteurs existants sans les modifier.
 
 ## Première utilisation
 
@@ -39,3 +39,23 @@ Le suivi prospectif ne modifie pas auditedThrough, ne promeut jamais le statut a
 - Les commits ne concernent que state.json et msf-release-history.json.
 - Tests : node --test tests/msf-release-monitor.test.mjs
 - En PR, le workflow exécute les tests et vérifie que le premier lancement ne modifie pas l'historique.
+
+## Sorties annoncées déjà présentes dans les données
+
+Les annonces officielles peuvent précéder la disponibilité effective. Un personnage
+peut donc être player_Character=true avant de pouvoir être recruté : le simple
+bootstrap du registre ne suffit pas à déterminer sa sortie.
+
+Le fichier data/msf-release-monitor/scheduled-events.json contient une file de
+sorties explicitement datées et sourcées. Tant que l'heure UTC annoncée n'est
+pas atteinte, la release et son équipe ne sont pas ajoutées à l'historique.
+Lorsque le créneau commence, le script vérifie les personnages et leurs traits,
+préserve les dates d'audit passées, puis insère l'événement une seule fois.
+Une déclaration planifiée prime sur les heuristiques pour ces membres afin
+d'éviter les fausses sorties anticipées et les équipes en double.
+
+Premier cas : Dracula, Morbius, Oath / Nightreavers ; date officielle de
+recrutement de Dracula : 2026-10-19 à 21:00 UTC (14:00 PDT).
+Les reworks de Morbius et Oath sont documentés pour octobre, sans leur
+attribuer une date d'activation exacte non prouvée.
+Les deux places restantes de l'équipe ne sont pas fixes.
