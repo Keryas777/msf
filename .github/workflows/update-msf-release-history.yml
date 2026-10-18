@@ -1,0 +1,70 @@
+name: Maintain MSF release history
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "37 9 * * *"
+  pull_request:
+    paths:
+      - "scripts/update-msf-release-history.mjs"
+      - "tests/msf-release-monitor.test.mjs"
+      - ".github/workflows/update-msf-release-history.yml"
+      - "docs/historique-personnages.html"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
+
+jobs:
+  test:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Verify observation and timeline regression tests
+        run: |
+          node --test tests/msf-release-monitor.test.mjs
+          node --test tests/historique-personnages-profile.test.mjs
+      - name: Exercise first-run baseline without modifying history
+        run: |
+          cp docs/data/msf-release-history.json /tmp/msf-release-history-before.json
+          node scripts/update-msf-release-history.mjs
+          cmp /tmp/msf-release-history-before.json docs/data/msf-release-history.json
+          test -s data/msf-release-monitor/state.json
+
+  update:
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main including collected source JSONs
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Verify detector before publishing
+        run: node --test tests/msf-release-monitor.test.mjs
+      - name: Detect playable recruits, team traits and substantial reworks
+        run: node scripts/update-msf-release-history.mjs
+      - name: Commit only monitoring state and release history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- data/msf-release-monitor/state.json docs/data/msf-release-history.json
+          if git diff --cached --quiet; then
+            echo "No detected source changes"
+            exit 0
+          fi
+          git commit -m "Observe MSF playable, teams and kit changes"
+          git pull --rebase origin main
+          git push origin HEAD:main

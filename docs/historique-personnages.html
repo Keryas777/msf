@@ -1461,7 +1461,18 @@
                 yearKey,
                 temporal: parseTemporal(rawDate),
                 method: item.releaseMethod || "",
-                eventLabel: item.label || "Sortie individuelle"
+                eventLabel: item.label || (item.dateConfidence === "unverified" ? "Détecté dans les données, date non confirmée" : "Sortie individuelle"),
+                automatic: item.releaseMethod === "automated_catalog_observation"
+              });
+            }
+
+            for (const item of yearData?.individualReworks || []) {
+              const record = ensureRecord(item.characterId);
+              record.reworks.push({
+                temporal: parseTemporal(item.date || item.month || yearKey),
+                label: "Rework individuel (détecté)",
+                teamId: "",
+                notes: Array.isArray(item.notes) ? item.notes : []
               });
             }
 
@@ -1685,7 +1696,33 @@
                   type: "individual",
                   yearKey,
                   temporal: parseTemporal(rawDate),
-                  label: "Sorties individuelles",
+                  label: items.every((item) => item.releaseMethod === "automated_catalog_observation")
+                    ? "Personnages détectés (sortie non confirmée)"
+                    : "Sorties individuelles",
+                  teamId: "",
+                  sequence: sequence++,
+                  occurrences
+                });
+              }
+            }
+
+            const individualReworkGroups = new Map();
+            for (const item of yearData?.individualReworks || []) {
+              const rawDate = item.date || item.month || yearKey;
+              if (!individualReworkGroups.has(rawDate)) individualReworkGroups.set(rawDate, []);
+              individualReworkGroups.get(rawDate).push(item);
+            }
+            for (const [rawDate, items] of individualReworkGroups.entries()) {
+              const occurrences = items
+                .map((item) => getTimelineRecord(item.characterId))
+                .filter(Boolean)
+                .map((record) => ({ record, status: "rework" }));
+              if (occurrences.length) {
+                events.push({
+                  type: "individual",
+                  yearKey,
+                  temporal: parseTemporal(rawDate),
+                  label: "Reworks individuels (détection automatique)",
                   teamId: "",
                   sequence: sequence++,
                   occurrences
@@ -1857,6 +1894,9 @@
 
           if (event.type === "launch") return "Roster disponible au lancement mondial";
           if (event.type === "individual") {
+            if (counts.rework && !counts.new) {
+              return `${counts.rework} rework${counts.rework > 1 ? "s" : ""} détecté${counts.rework > 1 ? "s" : ""}`;
+            }
             const count = counts.new || event.occurrences.length;
             return `${count} nouvelle${count > 1 ? "s" : ""} sortie${count > 1 ? "s" : ""}`;
           }
@@ -1945,7 +1985,7 @@
                   <div class="listPortrait">${createPortraitHtml(record)}</div>
                   <div class="listInfo">
                     <strong>${escapeHtml(record.name)}</strong>
-                    <span>${record.release ? `${escapeHtml(record.release.temporal.label)} · ${escapeHtml(getReleaseTypeLabel(record.release.type))}` : "Date de sortie non encore auditée"}</span>
+                    <span>${record.release ? `${escapeHtml(record.release.temporal.label)} · ${record.release.automatic ? "Première observation (non confirmée)" : escapeHtml(getReleaseTypeLabel(record.release.type))}` : "Date de sortie non encore auditée"}</span>
                     <span>${record.reworks.length ? `${record.reworks.length} rework${record.reworks.length > 1 ? "s" : ""} documenté${record.reworks.length > 1 ? "s" : ""}` : "Aucun rework documenté"}</span>
                   </div>
                   <span class="listChevron" aria-hidden="true">›</span>
