@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-18",
+  "updatedAt": "2026-10-19",
   "policy": "Aucun lien source ne doit être déduit d'une référence d'événement. Seule une correspondance exacte à une composition du catalogue établit une association éditoriale, non une preuve de victoire.",
   "strategies": [
     {
@@ -11194,23 +11194,31 @@
       "alternatives": [],
       "additionalCharacters": [],
       "instructions": [
-        "Retirer Provocation au Fléau zombie avec Franklin ; bloquer Hellverine avec Quasar.",
-        "Regrouper les ennemis avec la Femme invisible ; le Mister Fantastic doit survivre au contre-assaut."
+        "Composition spécifiquement proposée pour la mission 3 : Blastaar, Mister Fantastic (MCU), Femme invisible (MCU), Franklin et Quasar.",
+        "Avec Franklin, utiliser le basique sur le Fléau zombie pour enlever sa Provocation, puis viser Hellverine avec l'ultime de Quasar pour appliquer Blocage de capacité.",
+        "Regrouper les ennemis avec l'ultime de la Femme invisible. Mister Fantastic doit survivre au contre-assaut avant d'utiliser sa spéciale, suivi de l'ultime de Franklin."
       ],
-      "notes": [],
-      "difficulty": "5–10",
+      "notes": [
+        "Le résumé d'introduction du guide propose une autre route avec le Club des Damnés et Quasar ; la section détaillée de cette mission fournit explicitement cette composition Fantastiques MCU + Blastaar + Quasar. Ce sont des recommandations distinctes, pas une contradiction concernant les cinq portraits."
+      ],
+      "difficulty": "10",
       "kind": "walkthrough",
       "compositionKind": null,
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "marvel-blastaar"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "invasion-event-blastaar/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-19",
+        "sourceEvidence": "explicit_mission_suggested_team_and_mission_specific_walkthrough_in_search_index;direct_site_402;no_video_reviewed"
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node"
+          "source_text_read_via_search_index_direct_url_402",
+          "source_contains_other_route_alternative_not_same_lineup"
         ]
       }
     },
@@ -11231,23 +11239,30 @@
       "alternatives": [],
       "additionalCharacters": [],
       "instructions": [
-        "Garder Blastaar vivant : il sera nécessaire ensuite.",
-        "Dépouiller Phénix de ses bonus avec Franklin, puis contrôler Phénix noire avec Quasar."
+        "Même composition à cinq que pour la mission 3 ; conserver impérativement Blastaar vivant pour les missions suivantes.",
+        "Ouvrir avec la spéciale de Franklin sur Phénix pour copier les effets positifs. Puis utiliser la spéciale de Blastaar sur Arès, suivie de l'ultime de Quasar également sur Arès, afin de traiter Phénix puis Phénix noire."
       ],
-      "notes": [],
-      "difficulty": "5–10",
+      "notes": [
+        "Le résumé d'introduction du guide propose une autre route avec le Club des Damnés et Quasar ; la section détaillée de cette mission fournit explicitement cette composition Fantastiques MCU + Blastaar + Quasar. Ce sont des recommandations distinctes, pas une contradiction concernant les cinq portraits."
+      ],
+      "difficulty": "10",
       "kind": "walkthrough",
       "compositionKind": null,
       "provenance": {
-        "sourceIds": [],
-        "status": "not_established",
+        "sourceIds": [
+          "marvel-blastaar"
+        ],
+        "status": "source_text_checked",
         "scope": "node",
-        "editorialReferenceOnly": "invasion-event-blastaar/"
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-19",
+        "sourceEvidence": "explicit_mission_suggested_team_and_mission_specific_walkthrough_in_search_index;direct_site_402;no_video_reviewed"
       },
       "review": {
-        "status": "needs_source_audit",
+        "status": "source_text_checked",
         "flags": [
-          "source_not_attributed_to_this_node"
+          "source_text_read_via_search_index_direct_url_402",
+          "source_contains_other_route_alternative_not_same_lineup"
         ]
       }
     },
