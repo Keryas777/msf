@@ -11819,10 +11819,11 @@
     },
     "2025": {
       "status": "partial",
-      "auditedThrough": "2025-03-31",
+      "auditedThrough": "2025-06-30",
       "dateConvention": "Scopely's North American PST/PDT historical launch dates. A month without date means the precise first global unlock was not proven.",
       "auditedPeriods": [
-        "2025-01-01/2025-03-31"
+        "2025-01-01/2025-03-31",
+        "2025-04-01/2025-06-30"
       ],
       "individualReleases": [
         {
@@ -11837,6 +11838,33 @@
           ],
           "notes": [
             "A player demonstrated a recruited usable Knull by March 22-23, distinct from the PVE boss. February 18 and March 18 are Battleworld start dates, not unlock dates. Earlier accumulated shards and earliest global unlock timestamp need more proof."
+          ]
+        },
+        {
+          "characterId": "Xavier",
+          "month": "2025-04",
+          "releaseMethod": "professor_x_saga",
+          "confidence": "high",
+          "sourceIds": [
+            "q225-xavier-blog",
+            "q225-xavier-player"
+          ],
+          "notes": [
+            "Saga started April 14, but opening did not instantly recruit Xavier. Players had completed it by April 15; first globally possible completion day is unproven. The non-player PVE boss is excluded."
+          ]
+        },
+        {
+          "characterId": "Quasar",
+          "month": "2025-05",
+          "releaseMethod": "harbinger_shard_rewards",
+          "confidence": "high",
+          "sourceIds": [
+            "q225-quasar-invasion",
+            "q225-quasar-may",
+            "q225-quasar-shards"
+          ],
+          "notes": [
+            "Harbinger May progress could reach his 180-shard unlock requirement and players had Quasar before May ended. May 27 Invasion event awards Red Stars for already recruitable Quasar, not first availability. Exact first playable day unproven."
           ]
         }
       ],
@@ -12288,6 +12316,346 @@
             "Lilandra": "m_kraan_crystals; milestone_rewards",
             "Havok": "limited_offer; power_core_store"
           }
+        },
+        {
+          "month": "2025-04",
+          "teamId": "vigilante-2025-rollout",
+          "label": "Vigilante — April 2025 original rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "DaredevilModern",
+            "SilverSable",
+            "HitMonkey",
+            "Punisher",
+            "Elektra"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "DaredevilModern",
+            "SilverSable",
+            "HitMonkey"
+          ],
+          "existingCharacterIds": [
+            "Punisher",
+            "Elektra"
+          ],
+          "reworkedCharacterIds": [
+            "Punisher",
+            "Elektra"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "One April rollout and five members, not separate versions for each paid/core newcomer.",
+            "April 8 balance adjustments to unreleased new character kits are not new veteran reworks.",
+            "Both legacy characters were substantially reworked in April; precise patch day unknown."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "DaredevilModern",
+              "month": "2025-04",
+              "date": "2025-04-01",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q225-daredevil"
+              ],
+              "notes": [
+                "March 28 announcement promised first instant unlock April 1 at 2 PM PDT; no March recruit."
+              ]
+            },
+            {
+              "characterId": "SilverSable",
+              "month": "2025-04",
+              "date": "2025-04-10",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q125-april-next"
+              ],
+              "notes": [
+                "Official April 4 blog says April 10 at 2 PM PDT, 675-Power-Core orb and paid offers."
+              ]
+            },
+            {
+              "characterId": "HitMonkey",
+              "month": "2025-04",
+              "date": "2025-04-21",
+              "releaseMethod": "power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q225-hitmonkey"
+              ],
+              "notes": [
+                "Player unlocked Hit-Monkey using Power Cores on April 21 and played complete five-member team the same day."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "Punisher",
+              "month": "2025-04",
+              "sourceIds": [
+                "q225-vigilante-live"
+              ],
+              "notes": [
+                "Substantial kit, raid and repeated retaliation/damage synergy redesign shown live by April 23; exact activation day unknown."
+              ]
+            },
+            {
+              "characterId": "Elektra",
+              "month": "2025-04",
+              "sourceIds": [
+                "q225-vigilante-live"
+              ],
+              "notes": [
+                "Substantial Veteran Vigilante kit/synergy transformation in April; exact live patch day unknown."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q225-daredevil",
+            "q125-april-next",
+            "q225-hitmonkey",
+            "q225-vigilantes-update",
+            "q225-vigilante-live"
+          ],
+          "releaseMethods": {
+            "DaredevilModern": "limited_offer; power_core_store",
+            "SilverSable": "limited_offer; power_core_store",
+            "HitMonkey": "power_core_store"
+          }
+        },
+        {
+          "month": "2025-04",
+          "teamId": "thunderbolts-2025-rollout",
+          "label": "Thunderbolts — April–May 2025 rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "VictoriaHand",
+            "Songbird",
+            "Hyperion",
+            "Taskmaster",
+            "Ghost"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "VictoriaHand",
+            "Songbird",
+            "Hyperion"
+          ],
+          "existingCharacterIds": [
+            "Taskmaster",
+            "Ghost"
+          ],
+          "reworkedCharacterIds": [
+            "Taskmaster",
+            "Ghost"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "One team rollout anchored in April, when Taskmaster and Ghost reworks were confirmed LIVE on April 29; Victoria Hand, Songbird and Hyperion become recruited during May.",
+            "No guessed exact dates for the three May first unlocks; free June events are not re-dated as first releases."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "VictoriaHand",
+              "month": "2025-05",
+              "confidence": "high",
+              "sourceIds": [
+                "q225-thunderbolts-kits",
+                "q225-thunderbolts-player"
+              ],
+              "notes": [
+                "Recruited by players during May. Precise first day and initial mechanism not established."
+              ]
+            },
+            {
+              "characterId": "Songbird",
+              "month": "2025-05",
+              "confidence": "high",
+              "sourceIds": [
+                "q225-thunderbolts-kits",
+                "q225-thunderbolts-player"
+              ],
+              "notes": [
+                "Recruited via core spending in May; later June pass and milestones were subsequent distributions. Precise initial date/orb naming not verified."
+              ]
+            },
+            {
+              "characterId": "Hyperion",
+              "month": "2025-05",
+              "confidence": "high",
+              "sourceIds": [
+                "q225-thunderbolts-kits",
+                "q225-thunderbolts-player",
+                "q225-thunderbolts-hyperion"
+              ],
+              "notes": [
+                "Available to purchase/core during May; June STRIKE Pass and Harbinger rewards are not his initial recruitment. Exact first day remains unresolved."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "Taskmaster",
+              "month": "2025-04",
+              "sourceIds": [
+                "q225-thunderbolts-kits",
+                "q225-thunderbolts-live"
+              ],
+              "notes": [
+                "Major new +440% base Health, +380% Damage, renewed kit/synergies; live April 29."
+              ],
+              "date": "2025-04-29"
+            },
+            {
+              "characterId": "Ghost",
+              "month": "2025-04",
+              "sourceIds": [
+                "q225-thunderbolts-kits",
+                "q225-thunderbolts-live"
+              ],
+              "notes": [
+                "Major +600% base Health, +500% Damage and new Thunderbolt Special/Ultimate effects; live April 29."
+              ],
+              "date": "2025-04-29"
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q225-thunderbolts-kits",
+            "q225-thunderbolts-live",
+            "q225-thunderbolts-player",
+            "q225-thunderbolts-hyperion"
+          ],
+          "releaseMethods": {}
+        },
+        {
+          "month": "2025-06",
+          "teamId": "accursed-2025-rollout",
+          "label": "Accursed — June 2025 original Cosmic Crucible rollout",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 5,
+          "members": [
+            "Hellverine",
+            "TheHood",
+            "Satana",
+            "Juggernaut",
+            "BaronMordo"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "Hellverine",
+            "TheHood",
+            "Satana"
+          ],
+          "existingCharacterIds": [
+            "Juggernaut",
+            "BaronMordo"
+          ],
+          "reworkedCharacterIds": [
+            "Juggernaut",
+            "BaronMordo"
+          ],
+          "announcedNext": [],
+          "notes": [
+            "May 29 unintended Intel store/orbs briefly allowed accidental unlocks of all three newcomers; official May 30 message ordered complete shard removal and refunds. Do not miscount glitch as permanent recruit.",
+            "First persistent recruits and completed team occurred in June. Actual veteran rework implementation day unverified; June month conservative.",
+            "Complete by June 23 with normal Satana unlock; do not move any recruitment to July."
+          ],
+          "characterReleases": [
+            {
+              "characterId": "Hellverine",
+              "month": "2025-06",
+              "confidence": "high",
+              "sourceIds": [
+                "q225-accursed-reworks",
+                "q225-accursed-rollback",
+                "q225-satana"
+              ],
+              "notes": [
+                "Normal retained June recruitment; May 29 shop/orb unlock accidentally possible but all shards removed May 30, so not an effective historical first release. Exact June launch day and first mechanism unproved."
+              ]
+            },
+            {
+              "characterId": "TheHood",
+              "month": "2025-06",
+              "date": "2025-06-12",
+              "releaseMethod": "limited_offer; power_core_store",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q225-hood",
+                "q225-accursed-rollback"
+              ],
+              "notes": [
+                "June 12 at 2 PM PDT first paid offers and 675-core Demon's Cloth Orb; May 29 glitch fully reversed."
+              ]
+            },
+            {
+              "characterId": "Satana",
+              "month": "2025-06",
+              "date": "2025-06-23",
+              "confidence": "high",
+              "dateConfidence": "high",
+              "sourceIds": [
+                "q225-satana",
+                "q225-accursed-unlock",
+                "q225-accursed-rollback"
+              ],
+              "notes": [
+                "Official June 20 community-manager blog announced June 23 first available; actual player unlock verified that day. Exact first offer/orb mechanism unconfirmed."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "Juggernaut",
+              "month": "2025-06",
+              "sourceIds": [
+                "q225-accursed-reworks",
+                "q225-accursed-unlock"
+              ],
+              "notes": [
+                "Substantial Accursed kit overhaul announced May 26 and effective by June; exact patch activation day unproven."
+              ]
+            },
+            {
+              "characterId": "BaronMordo",
+              "month": "2025-06",
+              "sourceIds": [
+                "q225-accursed-reworks",
+                "q225-accursed-unlock"
+              ],
+              "notes": [
+                "Substantial Accursed kit/synergy overhaul announced May 26 and effective by June; exact patch activation day unproven."
+              ]
+            }
+          ],
+          "confidence": "high",
+          "sourceIds": [
+            "q225-accursed-reworks",
+            "q225-accursed-bug",
+            "q225-accursed-rollback",
+            "q225-hood",
+            "q225-satana",
+            "q225-accursed-unlock"
+          ],
+          "releaseMethods": {
+            "TheHood": "limited_offer; power_core_store"
+          }
         }
       ],
       "excludedFrom2025Q1PlayableCount": [
@@ -12329,7 +12697,11 @@
         "Lilandra's February 14 program start is not a player unlock. First actual use by March 5 supports March with no invented day. Howard has likewise been observed owned by March 5.",
         "First global unlock day remains unresolved for Hercules, Patriot, Lilandra, Howard and Knull. Knull's March observation does not by itself exclude an earlier rare unlock; additional Battleworld payout research could shift the month.",
         "Patriot and Hercules initial offer mechanics are not filled without sufficient proof. April 3 Starjammers modest stat changes and April 10 Silver Sable debut stay in Q2.",
-        "Any 2026 Phoenix Force team expansion already audited remains untouched. No automatic merge or double-count between the 2025 initial duo and 2026 later rework/expansion."
+        "Any 2026 Phoenix Force team expansion already audited remains untouched. No automatic merge or double-count between the 2025 initial duo and 2026 later rework/expansion.",
+        "T2 2025: one rollout each for Vigilante, Thunderbolts and Accursed. Thunderbolts' Taskmaster/Ghost reworks went live on April 29 before the May recruitment trio, so teamEvent.month is April.",
+        "T2 2025: Xavier April unlock was not automatically granted by Saga April 14 opening; Quasar Harbinger May unlock not inferred from May 27 Red Stars.",
+        "T2 2025: May 29 accidental Accursed recruit shard distribution was explicitly rolled back May 30 for all players; normal persistent recruitment belongs to June.",
+        "T2 2025: Starjammers' original February–March teamEvent preserved; April 3 minor base stat increases are not a new substantive rework or a new team rollout. Fantastic Four (MCU) starts with InvisibleWomanMCU July 2, not June, and awaits T3."
       ],
       "sources": [
         {
@@ -12510,15 +12882,173 @@
           "url": "https://marvelstrikeforce.com/en/updates/blog-update-04-04-25",
           "publicationDate": "2025-04-04",
           "type": "official"
+        },
+        {
+          "id": "q225-daredevil",
+          "title": "Official March 28 announcement of April 1 Daredevil (Modern)",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1jm5pf0/",
+          "publicationDate": "2025-03-28",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q225-vigilantes-update",
+          "title": "Official follow-up adjustments to Vigilante newcomers",
+          "url": "https://marvelstrikeforce.com/en/updates/updates-to-the-vigilante-team",
+          "type": "official"
+        },
+        {
+          "id": "q225-hitmonkey",
+          "title": "April 21 Power Core orb Hit-Monkey first owned and used",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1k4kjyg",
+          "publicationDate": "2025-04-21",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q225-vigilante-live",
+          "title": "April 23 complete Vigilante played in War with revised Punisher and Elektra",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1k5qo3f",
+          "publicationDate": "2025-04-23",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q225-xavier-blog",
+          "title": "Professor Xavier Saga April 14 launch schedule",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-4-11-25",
+          "publicationDate": "2025-04-11",
+          "type": "official"
+        },
+        {
+          "id": "q225-xavier-player",
+          "title": "By April 15 players had already cleared Professor Xavier Saga",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1jzpvwy",
+          "publicationDate": "2025-04-15",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q225-thunderbolts-kits",
+          "title": "Official Thunderbolts newcomers and veteran kit overhauls",
+          "url": "https://marvelstrikeforce.com/en/updates/chapter-1-thunderbolts",
+          "type": "official"
+        },
+        {
+          "id": "q225-thunderbolts-live",
+          "title": "Official CM confirms Thunderbolts reworks live April 29",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1kaelrf",
+          "publicationDate": "2025-04-29",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q225-thunderbolts-player",
+          "title": "Contemporary early June paid/Core Songbird Victoria Hyperion already released",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1l1vj7a",
+          "publicationDate": "2025-06-02",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q225-thunderbolts-hyperion",
+          "title": "Hyperion player unlock by June 11, Songbird free path later",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1l8vkhd",
+          "publicationDate": "2025-06-11",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q225-quasar-invasion",
+          "title": "Official May 27 Quasar event is Red Stars, not initial recruit",
+          "url": "https://marvelstrikeforce.com/en/updates/invasion-event-quasar",
+          "type": "official"
+        },
+        {
+          "id": "q225-quasar-may",
+          "title": "Contemporary Quasar Harbinger recruitment and May ownership",
+          "url": "https://www.marvel.church/marvel-strike-force-news/",
+          "type": "contemporary_article"
+        },
+        {
+          "id": "q225-quasar-shards",
+          "title": "Harbinger shards progression and Quasar 180 shard threshold",
+          "url": "https://www.marvel.church/monthly-active-events-how-to-prepare/",
+          "type": "contemporary_article"
+        },
+        {
+          "id": "q225-accursed-reworks",
+          "title": "Contemporary May 26 preview of Juggernaut and Mordo Accursed changes",
+          "url": "https://www.youtube.com/watch?v=fMsgCzl67-E",
+          "publicationDate": "2025-05-26",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q225-accursed-bug",
+          "title": "CM confirms unintended 3 Accursed recruits in Intel store May 29",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1kyn0yn",
+          "publicationDate": "2025-05-29",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q225-accursed-rollback",
+          "title": "CM orders full rollback of 3 Accursed recruit shards May 30",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1kyq713",
+          "publicationDate": "2025-05-30",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q225-accursed-unlock",
+          "title": "June 23 Satana actual unlock and full Accursed use",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1liuq7d",
+          "publicationDate": "2025-06-23",
+          "type": "contemporary_community"
+        },
+        {
+          "id": "q225-hood",
+          "title": "Official June 6 blog schedules Hood June 12 orb and offers",
+          "url": "https://marvelstrikeforce.com/es/updates/blog-update-6-6-25",
+          "publicationDate": "2025-06-06",
+          "type": "official"
+        },
+        {
+          "id": "q225-satana",
+          "title": "CM June 20 weekly blog schedules June 23 Satana unlock",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1lgeysq",
+          "publicationDate": "2025-06-20",
+          "type": "official_community_manager"
+        },
+        {
+          "id": "q225-f4july",
+          "title": "June 27 official announcement of first MCU Fantastic Four recruit July 2",
+          "url": "https://marvelstrikeforce.com/id/updates/blog-update-6-27-25",
+          "publicationDate": "2025-06-27",
+          "type": "official"
+        },
+        {
+          "id": "q225-starjammers",
+          "title": "April 3 modest Starjammer stat adjustments: 5–20% Health, 8–10% Damage",
+          "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1jqsmvt/",
+          "publicationDate": "2025-04-03",
+          "type": "official_community_manager"
         }
       ],
       "validation": {
-        "auditedPeriod": "2025-01-01/2025-03-31",
-        "individualReleaseCount": 1,
-        "teamEventNewCharacterCount": 9,
-        "distinctPlayableReleaseCount": 10,
-        "distinctReworkedCharacterCount": 5,
-        "duplicatesAcrossReleaseBuckets": []
+        "auditedPeriod": "2025-01-01/2025-06-30",
+        "individualReleaseCount": 3,
+        "teamEventNewCharacterCount": 18,
+        "distinctPlayableReleaseCount": 21,
+        "distinctReworkedCharacterCount": 11,
+        "duplicatesAcrossReleaseBuckets": [],
+        "auditedPeriods": [
+          "2025-01-01/2025-03-31",
+          "2025-04-01/2025-06-30"
+        ],
+        "q1DistinctPlayableReleaseCount": 10,
+        "q1DistinctReworkedCharacterCount": 5,
+        "q2IndividualReleaseCount": 2,
+        "q2TeamEventReleaseCount": 9,
+        "q2DistinctPlayableReleaseCount": 11,
+        "q2DistinctReworkedCharacterCount": 6,
+        "q2TeamEventsIntroducedCount": 3,
+        "q2StartingPlayableRosterCount": 316,
+        "q2EndPlayableRosterCount": 327,
+        "startingPlayableRosterCount": 306,
+        "quarterEndPlayableRosterCount": 327,
+        "annualTotalsStatus": "partial through June 30 2025"
       }
     },
     "2026": {
