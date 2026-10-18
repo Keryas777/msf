@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "auditedAt": "2026-10-18",
+  "auditedAt": "2026-10-19",
   "scope": "Marvel Strike Force PvE challenge guides only",
   "notes": "Registre éditorial hors interface : une URL repérée ne prouve pas un nœud, une équipe, une rotation ni une victoire. integration.* reflète les versions réellement reliées à une source, sans compter les anciens brouillons à attribution inconnue.",
   "statuses": {
@@ -741,19 +741,25 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "ville",
+        "mondial-vilains",
+        "mondial-heros",
+        "cosmique-vilains",
+        "cosmique-heros"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "19/10/2026 : les cinq ensembles 'Our Pick' et les restrictions correspondantes ont été recoupés dans le texte public indexé ; il s'agit de recommandations d'équipement, pas de batailles attestées (vidéos non visionnées, site direct HTTP 402).",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "Saga à nombreuses missions ; pas de couverture par nœud affirmée.",
+      "notes": "Saga à nombreuses missions ; pas de couverture par nœud affirmée. Les cinq fiches LoSP représentent des sélections 'Our Pick' par section, pas une victoire individuelle ; le boss contient de nombreuses missions.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 5,
+        "textCheckedStrategies": 5,
+        "status": "five_preparation_sections_source_text_checked_no_clear_claim"
       }
     },
     {
@@ -2259,6 +2265,37 @@
         "linkedStrategies": 2,
         "textCheckedStrategies": 2,
         "status": "partially_integrated_and_source_text_read"
+      }
+    },
+    {
+      "id": "marvel-dd8",
+      "eventId": "dd8",
+      "mode": "dark-dimension",
+      "title": "Personnages pour la Dimension noire VIII",
+      "author": "Marvel Church",
+      "url": "https://www.marvel.church/characters-for-dark-dimension-viii/",
+      "language": "en",
+      "format": "article",
+      "difficulty": null,
+      "stageIds": [
+        "city-heroes",
+        "city-villains",
+        "global-heroes",
+        "global-villains",
+        "cosmic"
+      ],
+      "sectionIds": [],
+      "publishedAt": null,
+      "updatedAt": null,
+      "verificationStatus": "indexed_content",
+      "evidence": "19/10/2026 : les cinq listes de personnages par section trouvées nom par nom dans l'index public. Il s'agit de suggestions de préparation, pas de rotations tactiques ni victoires sur les 13 missions.",
+      "evidenceLevel": "recommendation",
+      "editorialFamily": null,
+      "notes": "Nœuds 1-2 sans restriction non couverts ici ; suggestions Purple Iso-8 niveau 3, contenu historique de l'époque d'Odin. Page directe HTTP 402.",
+      "integration": {
+        "linkedStrategies": 5,
+        "textCheckedStrategies": 5,
+        "status": "five_preparation_recommendations_text_checked"
       }
     }
   ],
