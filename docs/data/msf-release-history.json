@@ -15781,6 +15781,97 @@
             "blog-update-9-22-26",
             "ai-reworks-live"
           ]
+        },
+        {
+          "month": "2026-10",
+          "teamId": "nightreavers-2026-10",
+          "label": "Nightreavers",
+          "kind": "team",
+          "formationStatus": "complete",
+          "teamSize": 3,
+          "members": [
+            "Dracula",
+            "Morbius",
+            "Oath"
+          ],
+          "core": [
+            "Dracula",
+            "Morbius",
+            "Oath"
+          ],
+          "pool": [],
+          "newCharacterIds": [
+            "Dracula"
+          ],
+          "existingCharacterIds": [
+            "Morbius",
+            "Oath"
+          ],
+          "reworkedCharacterIds": [
+            "Morbius",
+            "Oath"
+          ],
+          "announcedNext": [],
+          "characterReleases": [
+            {
+              "characterId": "Dracula",
+              "date": "2026-10-19",
+              "month": "2026-10",
+              "releaseMethod": "limited_offer; king_of_the_night_campaign",
+              "confidence": "very_high",
+              "dateConfidence": "very_high",
+              "sourceIds": [
+                "scopely-nightreavers-2026-10-13",
+                "scopely-dracula-2026-10-16"
+              ],
+              "notes": [
+                "Scopely confirms first purchasable/recruitable availability October 19, 2026 at 2 PM PDT (21:00 UTC). Earlier appearance in the character catalog was pre-release and must not be counted.",
+                "Date officielle annoncée et enregistrée à l'avance : elle n'implique pas que Dracula soit déjà recrutable."
+              ],
+              "releaseStatus": "announced"
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "Morbius",
+              "month": "2026-10",
+              "observedAt": "2026-10-14T19:24:00Z",
+              "dateConfidence": "observed_not_verified_live",
+              "sourceIds": [
+                "scopely-nightreavers-2026-10-13"
+              ],
+              "notes": [
+                "Scopely describes upgraded Morbius kit/stats for Nightreavers. October 14 JSON observation is not a proven first live use."
+              ]
+            },
+            {
+              "characterId": "Oath",
+              "month": "2026-10",
+              "observedAt": "2026-10-14T19:24:00Z",
+              "dateConfidence": "observed_not_verified_live",
+              "sourceIds": [
+                "scopely-nightreavers-2026-10-13"
+              ],
+              "notes": [
+                "Scopely describes upgraded Oath kit/stats for Nightreavers. October 14 JSON observation is not a proven first live use."
+              ]
+            }
+          ],
+          "releaseMethods": {
+            "Dracula": "limited_offer; king_of_the_night_campaign"
+          },
+          "sourceIds": [
+            "scopely-nightreavers-2026-10-13",
+            "scopely-dracula-2026-10-16"
+          ],
+          "confidence": "very_high",
+          "notes": [
+            "Official three-character War Offense core. The remaining two slots are flexible and are not fixed members.",
+            "The Morbius and Oath reworks were announced in October; their exact live deployment times are not independently proven.",
+            "Date de sortie du nouveau personnage Dracula officiellement annoncée pour le 19 octobre 2026 ; entrée enregistrée avant l'ouverture du recrutement à la demande du responsable du projet."
+          ],
+          "date": "2026-10-19",
+          "releaseStatus": "announced"
         }
       ],
       "excludedFrom2026PlayableCount": [
@@ -16285,15 +16376,30 @@
           "url": "https://www.reddit.com/r/MarvelStrikeForce/comments/1v75957/maestro_shard_difficulty_chart/",
           "publicationDate": "2026-07-26",
           "type": "community"
+        },
+        {
+          "id": "scopely-nightreavers-2026-10-13",
+          "title": "A Bite After Dark — Dracula and the Nightreavers",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-13-26",
+          "publicationDate": "2026-10-13",
+          "type": "official"
+        },
+        {
+          "id": "scopely-dracula-2026-10-16",
+          "title": "King of the Vampires — Dracula October 19 availability",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-16-26",
+          "publicationDate": "2026-10-16",
+          "type": "official"
         }
       ],
       "validation": {
         "auditedPeriod": "2026-01-01/2026-10-05",
         "individualReleaseCount": 2,
-        "teamEventNewCharacterCount": 31,
-        "distinctPlayableReleaseCount": 33,
-        "distinctReworkedCharacterCount": 37,
-        "duplicatesAcrossReleaseBuckets": []
+        "teamEventNewCharacterCount": 32,
+        "distinctPlayableReleaseCount": 34,
+        "distinctReworkedCharacterCount": 39,
+        "duplicatesAcrossReleaseBuckets": [],
+        "annualTotalsStatus": "partial: audited through 2026-10-05; includes officially announced Dracula/Nightreavers release dated 2026-10-19"
       }
     }
   }
