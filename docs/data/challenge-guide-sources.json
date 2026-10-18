@@ -455,19 +455,30 @@
       "language": "en",
       "format": "article",
       "difficulty": null,
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "18 octobre 2026 : walkthrough des dix missions retrouvé dans l'index public, composition par mission recoupée. Accès direct limité, vidéos non visionnées.",
       "evidenceLevel": "guide",
       "editorialFamily": null,
-      "notes": "",
+      "notes": " Attention à Void Knight (ID SymbioteSilverSurfer) et aux alternatives avec Emma Frost qui ne font pas partie du quintette Cabale + BK + CGR.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 10,
+        "textCheckedStrategies": 10,
+        "status": "node_walkthrough_text_crosschecked_from_public_search_index"
       }
     },
     {
@@ -624,19 +635,28 @@
       "language": "en",
       "format": "article",
       "difficulty": "5–10",
-      "stageIds": [],
+      "stageIds": [
+        "1",
+        "2",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
       "sectionIds": [],
       "publishedAt": null,
       "updatedAt": null,
       "verificationStatus": "indexed_content",
-      "evidence": "Contenu du guide consulté dans l'index de recherche ; ouverture directe renvoie une erreur d'accès automatisé.",
+      "evidence": "18 octobre 2026 : huit missions recoupées par texte indexé ; missions 3 et 4 laissées en attente pour discordance des compositions. En mission 10 l'en-tête Suggested team est en contradiction avec la formation du corps de texte.",
       "evidenceLevel": "walkthrough",
       "editorialFamily": null,
-      "notes": "",
+      "notes": " Missions 3–4 à revoir avant attribution. Mission 10 : titre propose les Sinister Six, déroulement décrit quatre Brimstone + Blastaar ; LoSP suit seulement le déroulement explicite.",
       "integration": {
-        "linkedStrategies": 0,
-        "textCheckedStrategies": 0,
-        "status": "indexed_but_no_source_verified_tactics"
+        "linkedStrategies": 8,
+        "textCheckedStrategies": 8,
+        "status": "8_of_10_source_text_checked_two_unresolved"
       }
     },
     {
