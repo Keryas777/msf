@@ -4,6 +4,8 @@ import assert from "node:assert/strict";
 import {
   FILTER_DEFAULTS,
   buildCodexHref,
+  displayAbilityName,
+  displayAbilityTypeLabel,
   compactSearch,
   filterMechanicResults,
   getSearchMatchMessage,
@@ -48,6 +50,17 @@ const searchRecords = prepareSearchRecords([
     resultGroup: "abilities",
   },
 ]);
+
+test("les types de capacités emploient le masculin sans changer les identifiants ni les noms officiels", () => {
+  assert.equal(displayAbilityTypeLabel("Spéciale"), "Spéciel");
+  assert.equal(displayAbilityTypeLabel("Spéciale renforcée"), "Spéciel renforcé");
+  assert.equal(displayAbilityTypeLabel("Passive"), "Passif");
+  assert.equal(displayAbilityTypeLabel("Passive renforcée"), "Passif renforcé");
+  assert.equal(displayAbilityTypeLabel("Ultime"), "Ultime");
+  assert.equal(displayAbilityName("Spéciale — Civil terrifié", "Spéciale"), "Spéciel — Civil terrifié");
+  assert.equal(displayAbilityName("Passive — Civil terrifié", "Passive"), "Passif — Civil terrifié");
+  assert.equal(displayAbilityName("Œil de la panthère", "Spéciale"), "Œil de la panthère");
+});
 
 test("la normalisation ignore casse, accents, espaces, apostrophes et tirets", () => {
   assert.equal(normalizeSearch("  L’Homme--Fourmi  "), "l homme fourmi");

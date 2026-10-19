@@ -19,6 +19,7 @@ from scripts.msf_capabilities_explorer_builder.builder import (
     load_source_documents,
     normalize_search,
 )
+from scripts.msf_capabilities_explorer_builder.presentation import ABILITY_TYPES
 from scripts.msf_capabilities_explorer_builder.ability_presentation import (
     build_ability_presentation,
 )
@@ -45,6 +46,12 @@ class DiskPayloads(Mapping):
 
 
 class ExplorerBuilderTests(unittest.TestCase):
+    def test_ability_type_labels_use_masculine_vocabulary(self):
+        self.assertEqual(ABILITY_TYPES["special"]["label"], "Spéciel")
+        self.assertEqual(ABILITY_TYPES["special_empower"]["label"], "Spéciel renforcé")
+        self.assertEqual(ABILITY_TYPES["passive"]["label"], "Passif")
+        self.assertEqual(ABILITY_TYPES["passive_empower"]["label"], "Passif renforcé")
+
     def test_health_facets_preserve_sources_routes_and_playable_policy(self):
         mechanic = self.payload("mechanics/action-health-redistribute.json")
         expected_ids = {"health_equalize", "health_steal_redistribute",

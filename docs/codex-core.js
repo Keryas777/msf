@@ -13,6 +13,30 @@ export const PROOF_ORDER = Object.freeze([
   "official_text_only",
 ]);
 
+// Display-only translation for historical Codex generations still carrying
+// the previous feminine labels. Never change the stable ability type IDs.
+const ABILITY_TYPE_LABELS_FR = Object.freeze({
+  "Spéciale": "Spéciel",
+  "Spéciale renforcée": "Spéciel renforcé",
+  "Passive": "Passif",
+  "Passive renforcée": "Passif renforcé",
+});
+
+export function displayAbilityTypeLabel(label) {
+  return ABILITY_TYPE_LABELS_FR[label] || label || "";
+}
+
+// Only rewrite synthetic fallback names built as "Type — Character".
+// Official ability names and source IDs must remain untouched.
+export function displayAbilityName(name, typeLabel) {
+  const original = String(name ?? "");
+  const prefix = `${String(typeLabel || "")} — `;
+  const updatedType = displayAbilityTypeLabel(typeLabel);
+  return updatedType !== typeLabel && original.startsWith(prefix)
+    ? `${updatedType}${original.slice(String(typeLabel).length)}`
+    : original;
+}
+
 export const ABILITY_TYPE_ORDER = Object.freeze({
   basic: 10,
   basic_empower: 11,

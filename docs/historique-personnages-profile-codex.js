@@ -50,6 +50,21 @@
       group.labels.map(label => "<span class=\"profileTag\">" + esc(label) + "</span>").join("") +
       "</div></section>").join("") : "<p class=\"detailEmpty\">Aucun tag publié.</p>";
   }
+  // Display-only fallback for existing content-addressed Codex generations.
+  const abilityTypeLabel = label => ({
+    "Spéciale": "Spéciel",
+    "Spéciale renforcée": "Spéciel renforcé",
+    "Passive": "Passif",
+    "Passive renforcée": "Passif renforcé",
+  })[label] || label || "";
+  function abilityName(ability) {
+    const name = String(ability.name || "");
+    const oldType = String(ability.typeLabel || "");
+    const prefix = oldType + " — ";
+    return name.startsWith(prefix) && abilityTypeLabel(oldType) !== oldType
+      ? abilityTypeLabel(oldType) + name.slice(oldType.length)
+      : name;
+  }
   function abilityMarkup(ability) {
     const image = safeImage(ability.iconUrl);
     const icon = image ? "<img src=\"" + esc(image) + "\" alt=\"\" loading=\"lazy\" decoding=\"async\">"
@@ -62,8 +77,8 @@
       ? "<a class=\"profileCodexLink\" href=\"" + link("ability", ability.id) +
         "\">Mécaniques et détails dans le Codex →</a>" : "";
     return "<article class=\"profileAbility\"><div class=\"profileAbilityTop\"><span class=\"profileAbilityIcon\">" +
-      icon + "</span><div><h4>" + esc(ability.name || ability.typeLabel || "Capacité") +
-      "</h4><span>" + esc(ability.typeLabel || ability.type || "") + level +
+      icon + "</span><div><h4>" + esc(abilityName(ability) || abilityTypeLabel(ability.typeLabel) || "Capacité") +
+      "</h4><span>" + esc(abilityTypeLabel(ability.typeLabel) || ability.type || "") + level +
       "</span></div></div>" + text + seeMore + "</article>";
   }
   function renderAbilities(shard) {

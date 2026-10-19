@@ -149,6 +149,12 @@ try {
   assert.ok(await page.locator("#codexSearchInput").getAttribute("aria-activedescendant"));
   await page.locator("#codexSearchInput").press("Enter");
   await page.locator("h1", { hasText: "Dormammu" }).waitFor();
+  const displayedTypes = await page.locator(".codexAbilityChip small").allTextContents();
+  assert.ok(displayedTypes.some((label) => label.includes("Spéciel")));
+  assert.ok(displayedTypes.some((label) => label.includes("Passif")));
+  assert.ok(displayedTypes.every((label) => !/Spéciale|Passive/.test(label)));
+  report.flows.push("labels masculins des capacités de personnage");
+
   assert.match(await page.locator("#codexImageNotice").textContent(), /images officielles sont indisponibles/);
   assert.ok(await page.locator(".codexPortraitFallback:visible").count());
   report.flows.push("recherche clavier et fallbacks d’images");
