@@ -129,6 +129,8 @@ test("affiche des étoiles SVG colorées et une pastille ISO, jamais les nombres
   assert.match(html, /class="profileStarBadge profileStarBadge--yellow"/);
   assert.match(html, /class="profileStarBadge profileStarBadge--red"/);
   assert.equal((html.match(/<svg /g) || []).length, 2);
+  assert.equal((html.match(/<svg[^>]*fill="currentColor"[^>]*stroke="none"/g) || []).length, 2);
+  assert.equal((html.match(/<path[^>]*fill="currentColor"[^>]*stroke="none"/g) || []).length, 2);
   assert.doesNotMatch(html, /🔴|★ 7|étoiles jaunes<\/span>|étoiles rouges<\/span>/);
   assert.match(html, /ISO : Attaquant/);
   assert.match(html, /profileIsoDot--purple/);
@@ -138,5 +140,6 @@ test("affiche des étoiles SVG colorées et une pastille ISO, jamais les nombres
   const css = readFileSync(new URL("../docs/historique-personnages-profile.css", import.meta.url), "utf8");
   assert.match(css, /\.profileStarBadge--yellow\{color:#ffd24a\}/);
   assert.match(css, /\.profileStarBadge--red\{color:#ff545c\}/);
+  assert.match(css, /\.profileStarBadge svg path\{fill:currentColor;stroke:none\}/);
   assert.match(css, /\.profilePlayerStats \.profileIsoDot--orange\{background:/);
 });
