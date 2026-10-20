@@ -21,8 +21,8 @@
   const available = value => value !== null && value !== undefined && value !== "";
   const badge = text => "<span>" + text + "</span>";
   // Étoiles vectorielles : couleur contrôlée par CSS, sans rendu emoji propre à iOS.
-  const starIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-    '<path d="M12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26Z"/></svg>';
+  const starIcon = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true" focusable="false">' +
+    '<path fill="currentColor" stroke="none" d="M12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26Z"/></svg>';
   function starBadge(value, kind) {
     const name = kind === "yellow" ? "jaunes" : "rouges";
     return '<span class="profileStarBadge profileStarBadge--' + kind +
