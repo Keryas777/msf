@@ -6,7 +6,7 @@ import { runInNewContext } from "node:vm";
 const source = readFileSync(new URL("../docs/historique-personnages-profile-data.js", import.meta.url), "utf8");
 const window = {};
 runInNewContext(source, { window });
-const { rankPlayers, groupTraits } = window.LoSPProfileData;
+const { rankPlayers, groupTraits, decodeIsoProgress, presentIso } = window.LoSPProfileData;
 
 test("classe par puissance uniquement les membres des alliances actives", () => {
   const alliances = [
@@ -70,4 +70,73 @@ test("la page garde la chronologie et charge les rosters à la demande", () => {
   assert.match(html, /LoSPCharacterProfiles\?\.attach/);
   assert.match(ui, /if \(name === "players"\) loadRanking\(state\)/);
   assert.doesNotMatch(ui, /getGear|getCharacterAbilities|T4/);
+});
+
+
+test("convertit les paliers ISO avec les niveaux réels, y compris l'orange", () => {
+  const cases = [
+    [1, "green", 1], [5, "green", 5],
+    [6, "blue", 1], [10, "blue", 5],
+    [11, "purple", 1], [14, "purple", 4], [15, "purple", 5],
+    [16, "orange", 1], [18, "orange", 3]
+  ];
+  for (const [total, color, level] of cases) {
+    const value = decodeIsoProgress(total);
+    assert.equal(value.key, color, "couleur ISO pour " + total);
+    assert.equal(value.level, level, "niveau ISO pour " + total);
+  }
+  assert.equal(decodeIsoProgress("14").level, 4);
+  for (const invalid of [null, undefined, "", 0, -1, 2.5, 19, "inconnu"]) {
+    assert.equal(decodeIsoProgress(invalid), null);
+  }
+});
+
+test("utilise les traductions françaises officielles et la couleur du palier", () => {
+  const expected = {
+    striker: "Attaquant",
+    raider: "Fantassin",
+    skirmisher: "Tirailleur",
+    healer: "Soigneur",
+    fortifier: "Fortificateur"
+  };
+  for (const [english, french] of Object.entries(expected)) {
+    assert.equal(presentIso(english, "purple", 14).classLabel, french);
+  }
+  assert.equal(presentIso("Striker", "orange", 14).colorKey, "purple");
+  assert.equal(presentIso("Striker", "orange", 14).level, 4);
+  assert.equal(presentIso("striker", "", 16).colorKey, "orange");
+  assert.equal(presentIso("healer", "violet", null).colorLabel, "Violet");
+  assert.equal(presentIso("", "", null), null);
+});
+
+test("affiche des étoiles SVG colorées et une pastille ISO, jamais les nombres bruts", () => {
+  const uiSource = readFileSync(new URL("../docs/historique-personnages-profile.js", import.meta.url), "utf8");
+  const testWindow = { LoSPProfileData: window.LoSPProfileData, LoSPProfileCodex: {} };
+  const exported = uiSource.replace(
+    "window.LoSPCharacterProfiles = Object.freeze({ attach, close });",
+    "window.__testPlayerMarkup = playerMarkup;\n  window.LoSPCharacterProfiles = Object.freeze({ attach, close });"
+  );
+  assert.notEqual(exported, uiSource, "point d'export test disponible");
+  runInNewContext(exported, { window: testWindow });
+  const row = {
+    player: "Exemple", alliance: "zeus", power: 800000,
+    yellowStars: 7, redStars: 7, diamonds: 3,
+    isoClass: "striker", isoColor: "purple", isoMax: 14
+  };
+  const html = testWindow.__testPlayerMarkup(row, 1, [
+    { key: "zeus", name: "Zeus", emoji: "⚡️" }
+  ]);
+  assert.match(html, /class="profileStarBadge profileStarBadge--yellow"/);
+  assert.match(html, /class="profileStarBadge profileStarBadge--red"/);
+  assert.equal((html.match(/<svg /g) || []).length, 2);
+  assert.doesNotMatch(html, /🔴|★ 7|étoiles jaunes<\/span>|étoiles rouges<\/span>/);
+  assert.match(html, /ISO : Attaquant/);
+  assert.match(html, /profileIsoDot--purple/);
+  assert.match(html, /ISO · Attaquant · Violet niveau 4/);
+  assert.doesNotMatch(html, /purple · niveau 14|niveau 14|niveau 15/);
+
+  const css = readFileSync(new URL("../docs/historique-personnages-profile.css", import.meta.url), "utf8");
+  assert.match(css, /\.profileStarBadge--yellow\{color:#ffd24a\}/);
+  assert.match(css, /\.profileStarBadge--red\{color:#ff545c\}/);
+  assert.match(css, /\.profilePlayerStats \.profileIsoDot--orange\{background:/);
 });
