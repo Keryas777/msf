@@ -94,5 +94,50 @@
     return groups.filter(g => g.labels.length);
   }
 
-  window.LoSPProfileData = Object.freeze({ normal, esc, rankPlayers, groupTraits });
+  // Terminologie française officielle, déjà documentée dans docs/data/COSMIC-SEASONS.md.
+  const ISO_CLASSES_FR = Object.freeze({
+    striker: "Attaquant",
+    raider: "Fantassin",
+    skirmisher: "Tirailleur",
+    healer: "Soigneur",
+    fortifier: "Fortificateur"
+  });
+  const ISO_COLORS = Object.freeze({
+    green: { key: "green", label: "Vert" },
+    vert: { key: "green", label: "Vert" },
+    blue: { key: "blue", label: "Bleu" },
+    bleu: { key: "blue", label: "Bleu" },
+    purple: { key: "purple", label: "Violet" },
+    violet: { key: "purple", label: "Violet" },
+    orange: { key: "orange", label: "Orange" }
+  });
+
+  function decodeIsoProgress(raw) {
+    if (raw === null || raw === undefined || String(raw).trim() === "") return null;
+    const value = Number(raw);
+    if (!Number.isInteger(value) || value < 1 || value > 18) return null;
+    if (value <= 5) return { ...ISO_COLORS.green, level: value };
+    if (value <= 10) return { ...ISO_COLORS.blue, level: value - 5 };
+    if (value <= 15) return { ...ISO_COLORS.purple, level: value - 10 };
+    return { ...ISO_COLORS.orange, level: value - 15 };
+  }
+
+  function presentIso(isoClass, isoColor, isoMax) {
+    const rawClass = String(isoClass ?? "").trim();
+    const classLabel = ISO_CLASSES_FR[rawClass.toLowerCase()] || rawClass;
+    // Le palier numérique fait foi ; la couleur brute sert uniquement de repli.
+    const tier = decodeIsoProgress(isoMax);
+    const color = tier || ISO_COLORS[String(isoColor ?? "").trim().toLowerCase()] || null;
+    if (!classLabel && !color) return null;
+    return {
+      classLabel,
+      colorKey: color?.key || "",
+      colorLabel: color?.label || "",
+      level: tier?.level ?? null
+    };
+  }
+
+  window.LoSPProfileData = Object.freeze({
+    normal, esc, rankPlayers, groupTraits, decodeIsoProgress, presentIso
+  });
 })();
