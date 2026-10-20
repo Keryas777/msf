@@ -193,3 +193,36 @@ test("la charte LoSP ne masque pas les pastilles colorées ISO", () => {
   // Changer l'URL évite qu'iOS Safari/PWA affiche une ancienne version de la charte.
   assert.match(html, /historique-personnages-theme\.css\?v=2/);
 });
+
+
+test("le rang n'empiète plus sur les pseudos dès #100, même en largeur mobile", () => {
+  const css = readFileSync(new URL("../docs/historique-personnages-profile.css", import.meta.url), "utf8");
+  assert.match(css, /\.profileRank\{flex:0 0 auto;min-width:3\.1em;white-space:nowrap;text-align:right;/);
+  assert.doesNotMatch(css, /\.profileRank\{width:(?:22|26)px;/);
+  assert.doesNotMatch(css, /flex-basis:(?:22|26)px/);
+});
+
+test("la puissance utilise un espace visible entre les milliers sans changer la valeur", () => {
+  const source = readFileSync(new URL("../docs/historique-personnages-profile.js", import.meta.url), "utf8");
+  const testWindow = { LoSPProfileData: window.LoSPProfileData, LoSPProfileCodex: {} };
+  const exported = source.replace(
+    "window.LoSPCharacterProfiles = Object.freeze({ attach, close });",
+    "window.__testPlayerMarkup = playerMarkup;\n  window.LoSPCharacterProfiles = Object.freeze({ attach, close });"
+  );
+  assert.notEqual(exported, source);
+  runInNewContext(exported, { window: testWindow });
+  const alliances = [{ key: "zeus", name: "Zeus", emoji: "⚡️" }];
+  function render(rank, power) {
+    return testWindow.__testPlayerMarkup({
+      player: "Joueur exemple", alliance: "zeus", power
+    }, rank, alliances);
+  }
+  assert.match(render(100, 628775), /class="profileRank">#100<\/span>/);
+  assert.match(render(104, 628775), /#104<\/span><div class="profilePlayerInfo"><strong>Joueur exemple<\/strong>/);
+  assert.match(render(100, 628775), /class="profilePower">628\u2002775<\/strong>/);
+  assert.match(render(1000, 1234567), /class="profilePower">1\u2002234\u2002567<\/strong>/);
+  assert.match(render(1, 999), /class="profilePower">999<\/strong>/);
+  const html = readFileSync(new URL("../docs/historique-personnages.html", import.meta.url), "utf8");
+  assert.match(html, /historique-personnages-profile\.css\?v=3/);
+  assert.match(html, /historique-personnages-profile\.js\?v=4/);
+});
