@@ -64,6 +64,16 @@
     gap: 6px;
   }
   .challenge-strategy-body .challenge-alternatives .challenge-hero { width: 100%; }
+  /* Conserver tout le portrait visible malgré les cinq colonnes étroites. */
+  .challenge-strategy-body .challenge-alternatives .challenge-avatar {
+    box-sizing: border-box;
+    padding: 4px;
+  }
+  .challenge-strategy-body .challenge-alternatives .challenge-avatar img {
+    min-width: 0;
+    min-height: 0;
+    object-fit: contain;
+  }
 }
 @media (prefers-reduced-motion: reduce) { .challenges-app * { scroll-behavior: auto !important; } }
 
