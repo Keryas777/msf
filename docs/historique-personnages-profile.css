@@ -47,6 +47,18 @@
 .profilePlayerInfo>span{display:block;font-size:.75rem;color:var(--muted);margin-top:3px}
 .profilePlayerStats{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .profilePlayerStats span{font-size:.66rem;padding:3px 6px;background:rgba(255,255,255,.055);border:1px solid var(--line);border-radius:7px}
+/* Icônes SVG : le chiffre reste à côté d'une vraie étoile colorée. */
+.profilePlayerStats .profileStarBadge{display:inline-flex;align-items:center;gap:4px;font-weight:850;white-space:nowrap}
+.profileStarBadge svg{width:1.2em;height:1.2em;display:block;flex:0 0 auto;fill:currentColor;stroke:none}
+.profileStarBadge svg path{fill:currentColor;stroke:none}
+.profileStarBadge--yellow{color:#ffd24a}
+.profileStarBadge--red{color:#ff545c}
+.profilePlayerStats .profileIsoBadge{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap;white-space:normal}
+.profilePlayerStats .profileIsoDot{display:inline-block;width:11px;height:11px;min-width:11px;border:1px solid rgba(255,255,255,.22);border-radius:50%;padding:0;box-shadow:0 0 0 1px rgba(0,0,0,.16)}
+.profilePlayerStats .profileIsoDot--green{background:#69d36e}
+.profilePlayerStats .profileIsoDot--blue{background:#4da3ff}
+.profilePlayerStats .profileIsoDot--purple{background:#a56dff}
+.profilePlayerStats .profileIsoDot--orange{background:#ff9c38}
 .profilePower{font-size:.83rem;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--gold)}
 @media(min-width:700px){.profileAllianceFilters{grid-template-columns:repeat(3,minmax(0,1fr))}.profileTabs button{font-size:.86rem}}
 @media(max-width:390px){.profilePlayerRow{gap:6px}.profileRank{width:22px;flex-basis:22px}.profilePower{font-size:.74rem}.profileAllianceFilters{gap:5px}.profileFilterToggle{gap:5px;padding:7px 4px}.profileFilterToggle input{width:16px;height:16px}}
