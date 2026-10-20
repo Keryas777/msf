@@ -57,6 +57,13 @@
   .challenges-intro p { font-size: 13px; }
   .challenge-hero figcaption { font-size: 10px; }
   .challenge-detail-head h2 { font-size: 19px; }
+  /* Les portraits supplémentaires tiennent sur une ligne, même sur iPhone. */
+  .challenge-strategy-body .challenge-alternatives {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .challenge-strategy-body .challenge-alternatives .challenge-hero { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { .challenges-app * { scroll-behavior: auto !important; } }
 
