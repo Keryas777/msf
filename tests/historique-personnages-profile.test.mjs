@@ -177,3 +177,19 @@ test("versionne ensemble les scripts de fiche après un changement de contrat IS
   assert.match(html, /historique-personnages-profile-data\.js\?v=2/);
   assert.match(html, /historique-personnages-profile\.js\?v=3/);
 });
+
+
+test("la charte LoSP ne masque pas les pastilles colorées ISO", () => {
+  const theme = readFileSync(new URL("../docs/historique-personnages-theme.css", import.meta.url), "utf8");
+  const profile = readFileSync(new URL("../docs/historique-personnages-profile.css", import.meta.url), "utf8");
+  const html = readFileSync(new URL("../docs/historique-personnages.html", import.meta.url), "utf8");
+
+  // Le fond neutre des badges ne doit pas s'appliquer aux pastilles ISO imbriquées.
+  assert.match(theme, /body\.archiveCharactersPage \.profilePlayerStats span:not\(\.profileIsoDot\) \{/);
+  assert.doesNotMatch(theme, /body\.archiveCharactersPage \.profilePlayerStats span \{/);
+  for (const color of ["green", "blue", "purple", "orange"]) {
+    assert.match(profile, new RegExp("\\.profilePlayerStats \\.profileIsoDot--" + color + "\\{background:#[0-9a-f]{6}\\}", "i"));
+  }
+  // Changer l'URL évite qu'iOS Safari/PWA affiche une ancienne version de la charte.
+  assert.match(html, /historique-personnages-theme\.css\?v=2/);
+});
