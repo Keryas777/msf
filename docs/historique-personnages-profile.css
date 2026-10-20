@@ -49,7 +49,8 @@
 .profilePlayerStats span{font-size:.66rem;padding:3px 6px;background:rgba(255,255,255,.055);border:1px solid var(--line);border-radius:7px}
 /* Icônes SVG : le chiffre reste à côté d'une vraie étoile colorée. */
 .profilePlayerStats .profileStarBadge{display:inline-flex;align-items:center;gap:4px;font-weight:850;white-space:nowrap}
-.profileStarBadge svg{width:1.2em;height:1.2em;display:block;flex:0 0 auto;fill:currentColor}
+.profileStarBadge svg{width:1.2em;height:1.2em;display:block;flex:0 0 auto;fill:currentColor;stroke:none}
+.profileStarBadge svg path{fill:currentColor;stroke:none}
 .profileStarBadge--yellow{color:#ffd24a}
 .profileStarBadge--red{color:#ff545c}
 .profilePlayerStats .profileIsoBadge{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap;white-space:normal}
