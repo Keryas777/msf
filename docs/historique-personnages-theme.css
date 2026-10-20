@@ -377,7 +377,7 @@ body.archiveCharactersPage .profileTabs button[aria-selected="true"] {
 }
 
 body.archiveCharactersPage .profileTag,
-body.archiveCharactersPage .profilePlayerStats span {
+body.archiveCharactersPage .profilePlayerStats span:not(.profileIsoDot) {
   border-color: var(--border);
   background: rgba(255,255,255,.08);
 }
