@@ -143,3 +143,37 @@ test("affiche des étoiles SVG colorées et une pastille ISO, jamais les nombres
   assert.match(css, /\.profileStarBadge svg path\{fill:currentColor;stroke:none\}/);
   assert.match(css, /\.profilePlayerStats \.profileIsoDot--orange\{background:/);
 });
+
+
+test("ne masque pas les joueurs quand le module ISO reste en cache dans Safari", () => {
+  const source = readFileSync(new URL("../docs/historique-personnages-profile.js", import.meta.url), "utf8");
+  const legacyData = { ...window.LoSPProfileData };
+  delete legacyData.presentIso;
+  delete legacyData.decodeIsoProgress;
+  const oldWindow = { LoSPProfileData: legacyData, LoSPProfileCodex: {} };
+  const exposed = source.replace(
+    "window.LoSPCharacterProfiles = Object.freeze({ attach, close });",
+    "window.__testPlayerMarkup = playerMarkup;\n  window.LoSPCharacterProfiles = Object.freeze({ attach, close });"
+  );
+  assert.notEqual(exposed, source, "fonction de rendu disponible pour le test");
+  runInNewContext(exposed, { window: oldWindow });
+  const row = {
+    player: "Joueur en cache", alliance: "zeus", power: 987654,
+    yellowStars: 7, redStars: 7, diamonds: 3,
+    isoClass: "striker", isoColor: "purple", isoMax: 14
+  };
+  const markup = oldWindow.__testPlayerMarkup(row, 1, [
+    { key: "zeus", name: "Zeus", emoji: "⚡️" }
+  ]);
+  assert.match(markup, /Joueur en cache/);
+  assert.match(markup, /profileStarBadge--yellow/);
+  assert.match(markup, /profileStarBadge--red/);
+  assert.match(markup, /987.654/);
+  assert.doesNotMatch(markup, /ISO :/); // Fallback sûr jusqu'au chargement du nouveau module.
+});
+
+test("versionne ensemble les scripts de fiche après un changement de contrat ISO", () => {
+  const html = readFileSync(new URL("../docs/historique-personnages.html", import.meta.url), "utf8");
+  assert.match(html, /historique-personnages-profile-data\.js\?v=2/);
+  assert.match(html, /historique-personnages-profile\.js\?v=3/);
+});

@@ -40,7 +40,10 @@
     if (available(row.diamonds) && Number(row.diamonds) > 0) {
       stats.push(badge("◆ " + esc(row.diamonds)));
     }
-    const iso = presentIso(row.isoClass, row.isoColor, row.isoMax);
+    // Tolère un ancien module de données encore en cache (Safari/PWA) : ne pas masquer le classement.
+    const iso = typeof presentIso === "function"
+      ? presentIso(row.isoClass, row.isoColor, row.isoMax)
+      : null;
     if (iso) {
       const coloredDot = iso.colorKey
         ? '<span class="profileIsoDot profileIsoDot--' + iso.colorKey + '" aria-hidden="true"></span>'
