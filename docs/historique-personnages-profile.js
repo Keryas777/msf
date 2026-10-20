@@ -1,7 +1,7 @@
 // Onglets enrichis de la fiche personnage, sans remplacer la chronologie d'origine.
 (() => {
   "use strict";
-  const { esc, rankPlayers } = window.LoSPProfileData;
+  const { esc, rankPlayers, presentIso } = window.LoSPProfileData;
   const codex = window.LoSPProfileCodex;
   const numberFr = new Intl.NumberFormat("fr-FR");
   const downloads = new Map();
@@ -20,22 +20,42 @@
   const alive = state => current === state && state.token === token && state.root.isConnected;
   const available = value => value !== null && value !== undefined && value !== "";
   const badge = text => "<span>" + text + "</span>";
+  // Étoiles vectorielles : couleur contrôlée par CSS, sans rendu emoji propre à iOS.
+  const starIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+    '<path d="M12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26Z"/></svg>';
+  function starBadge(value, kind) {
+    const name = kind === "yellow" ? "jaunes" : "rouges";
+    return '<span class="profileStarBadge profileStarBadge--' + kind +
+      '" aria-label="' + esc(value) + ' étoiles ' + name + '">' +
+      starIcon + esc(value) + '</span>';
+  }
 
   function playerMarkup(row, rank, alliances) {
     const alliance = alliances.find(item => item.key === row.alliance);
     const stats = [];
-    if (available(row.level)) stats.push("Niv. " + esc(row.level));
-    if (available(row.gear)) stats.push("G" + esc(row.gear));
-    if (available(row.yellowStars)) stats.push("★ " + esc(row.yellowStars));
-    if (available(row.redStars)) stats.push("🔴 " + esc(row.redStars));
-    if (available(row.diamonds) && Number(row.diamonds) > 0) stats.push("◆ " + esc(row.diamonds));
-    const iso = [row.isoClass, row.isoColor, available(row.isoMax) ? "niveau " + row.isoMax : ""]
-      .filter(Boolean).join(" · ");
-    if (iso) stats.push("ISO : " + esc(iso));
+    if (available(row.level)) stats.push(badge("Niv. " + esc(row.level)));
+    if (available(row.gear)) stats.push(badge("G" + esc(row.gear)));
+    if (available(row.yellowStars)) stats.push(starBadge(row.yellowStars, "yellow"));
+    if (available(row.redStars)) stats.push(starBadge(row.redStars, "red"));
+    if (available(row.diamonds) && Number(row.diamonds) > 0) {
+      stats.push(badge("◆ " + esc(row.diamonds)));
+    }
+    const iso = presentIso(row.isoClass, row.isoColor, row.isoMax);
+    if (iso) {
+      const coloredDot = iso.colorKey
+        ? '<span class="profileIsoDot profileIsoDot--' + iso.colorKey + '" aria-hidden="true"></span>'
+        : '';
+      const level = iso.level !== null ? " " + esc(iso.level) : "";
+      const description = ["ISO", iso.classLabel,
+        iso.colorLabel ? iso.colorLabel + (iso.level !== null ? " niveau " + iso.level : "") : ""]
+        .filter(Boolean).join(" · ");
+      stats.push('<span class="profileIsoBadge" aria-label="' + esc(description) +
+        '">ISO : ' + esc(iso.classLabel) + coloredDot + level + '</span>');
+    }
     return "<article class=\"profilePlayerRow\"><span class=\"profileRank\">#" + rank +
       "</span><div class=\"profilePlayerInfo\"><strong>" + esc(row.player) + "</strong><span>" +
       esc(alliance?.emoji || "") + " " + esc(alliance?.name || row.alliance) +
-      "</span><div class=\"profilePlayerStats\">" + stats.map(badge).join("") +
+      "</span><div class=\"profilePlayerStats\">" + stats.join("") +
       "</div></div><strong class=\"profilePower\">" + numberFr.format(row.power) + "</strong></article>";
   }
 
