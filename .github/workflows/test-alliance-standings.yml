@@ -1,0 +1,24 @@
+name: Validate Alliance Standings History
+
+on:
+  pull_request:
+    paths:
+      - "docs/data/alliance-standings/**"
+      - "docs/data/alliances.json"
+      - "tests/alliance-standings-data.test.mjs"
+      - ".github/workflows/test-alliance-standings.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validate timestamped alliance snapshots and chart contract
+        run: node --test tests/alliance-standings-data.test.mjs

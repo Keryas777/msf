@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "allianceRegistry": "../alliances.json",
+  "capture": {
+    "targetPerWeek": 2,
+    "metrics": [
+      "warTrophies",
+      "raidRank",
+      "warRank"
+    ],
+    "timezone": "Europe/Paris"
+  },
+  "charts": [
+    {
+      "id": "war-trophies",
+      "field": "warTrophies",
+      "title": "Évolution des trophées de guerre",
+      "frequency": "all-snapshots",
+      "higherIsBetter": true
+    },
+    {
+      "id": "raid-season-rank",
+      "field": "raidRank",
+      "title": "Classement raid",
+      "frequency": "15-days",
+      "intervalDays": 15,
+      "higherIsBetter": false,
+      "requiresSeasonQualification": true
+    },
+    {
+      "id": "war-season-rank",
+      "field": "warRank",
+      "title": "Classement guerre",
+      "frequency": "15-days",
+      "intervalDays": 15,
+      "higherIsBetter": false,
+      "requiresSeasonQualification": true
+    }
+  ]
+}
