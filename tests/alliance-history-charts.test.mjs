@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const read=file=>fs.readFileSync(new URL('../'+file,import.meta.url),'utf8');
 const context=vm.createContext({window:{}});
 vm.runInContext(read('docs/alliance-history-data.js'),context);
-const {chooseSnapshots,prepare}=context.window.LoSPStandingsSeries;
+const {chooseSnapshots,prepare,rankLatest}=context.window.LoSPStandingsSeries;
 const config=JSON.parse(read('docs/data/alliance-standings/config.json'));
 const registry=JSON.parse(read('docs/data/alliances.json'));
 const index=JSON.parse(read('docs/data/alliance-standings/index.json'));
@@ -97,4 +97,53 @@ test('rank chart axis is inverted and source JSON is loaded via index',()=>{
   assert.match(js,/cache:'no-store'/);
   assert.match(js,/ResizeObserver/);
   assert.doesNotMatch(js,/api\.marvelstrikeforce\.com|chart\.js|react|vue/i);
+});
+
+test('the latest standings display is titled and uses exactly one vertical row per alliance',()=>{
+  const html=read('docs/alliance-history.html');
+  const css=read('docs/alliance-history.css');
+  const js=read('docs/alliance-history.js');
+  assert.match(html,/id="history-latest-title"/);
+  assert.match(html,/id="history-latest" class="historyLatest" role="list"/);
+  assert.match(css,/\.historyLatest \{ display: grid; grid-template-columns: minmax\(0, 1fr\);/);
+  assert.doesNotMatch(css,/\.historyLatest \{ grid-template-columns: repeat\(5/);
+  assert.match(js,/Derniers trophées de guerre/);
+  assert.match(js,/Derniers classements de saison/);
+  assert.match(js,/setAttribute\('role','listitem'\)/);
+});
+test('trophies descend, world war and raid ranks ascend across all five alliances',()=>{
+  const trophies=rankLatest([original],registry,byId('war-trophies'));
+  const war=rankLatest([original],registry,byId('war-season-rank'));
+  const raid=rankLatest([original],registry,byId('raid-season-rank'));
+  assert.deepEqual(Array.from(trophies,x=>[x.key,x.value]),[
+    ['zeus',2875],['kronos',2758],['athena',2678],
+    ['dionysos',2607],['poseidon',2189]]);
+  assert.deepEqual(Array.from(war,x=>[x.key,x.value]),[
+    ['kronos',93],['zeus',322],['dionysos',332],
+    ['athena',427],['poseidon',722]]);
+  assert.deepEqual(Array.from(raid,x=>[x.key,x.value]),[
+    ['zeus',77],['athena',157],['kronos',235],
+    ['dionysos',285],['poseidon',767]]);
+});
+test('the latest displayed ranks stay fresh independently from fifteen-day line sampling',()=>{
+  const newer=shifted(7);
+  const sampled=prepare([original,newer],registry,byId('raid-season-rank'));
+  assert.equal(sampled.rows.length,1);
+  const latest=rankLatest([original,newer],registry,byId('raid-season-rank'));
+  assert.equal(latest.find(x=>x.key==='zeus').value,84);
+  assert.equal(latest.find(x=>x.key==='zeus').capturedAt,newer.capturedAt);
+});
+test('incomplete capture preserves last real reading and always sorts unavailable rows last',()=>{
+  const noAthena=shifted(7,{alliances:original.alliances.filter(x=>x.key!=='athena')});
+  const latest=rankLatest([original,noAthena],registry,byId('war-trophies'));
+  assert.equal(latest.find(x=>x.key==='athena').value,2678);
+  assert.equal(latest.find(x=>x.key==='athena').capturedAt,original.capturedAt);
+  const onlyZeus=shifted(15,{alliances:[original.alliances.find(x=>x.key==='zeus')]});
+  const incompleteRegistry=[...registry.filter(x=>x.key!=='hades')];
+  // An alliance seen in a prior capture but with an absent numeric field
+  // must not show a fabricated zero (the row falls to the bottom).
+  const bad=shifted(22,{alliances:onlyZeus.alliances.map(x=>({...x,warTrophies:null}))});
+  const partial=rankLatest([bad],incompleteRegistry,byId('war-trophies'));
+  assert.equal(partial[0].value,null);
+  assert.equal(partial[0].capturedAt,null);
 });
