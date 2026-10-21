@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "kind": "losp-alliance-standings-snapshot",
+  "capturedAt": "2026-10-21T10:55:00.466Z",
+  "source": "/player/v1/alliance/card",
+  "seasonId": null,
+  "seasonVerified": false,
+  "coverage": {
+    "scannedSessions": 9,
+    "validSessions": 9,
+    "unavailableSessions": 0,
+    "truncated": false,
+    "connectedAlliances": 5,
+    "completeSessionScan": true
+  },
+  "alliances": [
+    {
+      "key": "kronos",
+      "nameAtCapture": "<#FFFFFF>LoSP <#E10D17>Κroηos",
+      "warRank": 93,
+      "raidRank": 235,
+      "warTrophies": 2758,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND II"
+      }
+    },
+    {
+      "key": "poseidon",
+      "nameAtCapture": "LoSP <#00D0FF>Pοsειδoη",
+      "warRank": 722,
+      "raidRank": 767,
+      "warTrophies": 2189,
+      "warLeague": {
+        "id": null,
+        "name": "PLATINUM IV"
+      }
+    },
+    {
+      "key": "dionysos",
+      "nameAtCapture": "LoSP <#93328E>Dισπγsσs",
+      "warRank": 332,
+      "raidRank": 285,
+      "warTrophies": 2607,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND II"
+      }
+    },
+    {
+      "key": "athena",
+      "nameAtCapture": "LoSP <#F28C28>Athεηα",
+      "warRank": 427,
+      "raidRank": 157,
+      "warTrophies": 2678,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND II"
+      }
+    },
+    {
+      "key": "zeus",
+      "nameAtCapture": "LoSP <#F8FF00>Zεμs",
+      "warRank": 322,
+      "raidRank": 77,
+      "warTrophies": 2875,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND III"
+      }
+    }
+  ],
+  "note": "Rangs renvoyés au moment de la capture ; saison non identifiée par la réponse. Les trophées ne sont pas des points de saison. Aucune donnée de score de saison raid."
+}
