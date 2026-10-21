@@ -61,8 +61,9 @@ test("propositions : sauvegarde locale et publication directe confirmée", async
 });
 
 test("identité Discord non éditable et suppression de la saisie source", async () => {
-  const [html, js] = await Promise.all([
-    read("docs/cosmic-defense-propose.html"), read("docs/cosmic-defenses.js")
+  const [html, js, catalog] = await Promise.all([
+    read("docs/cosmic-defense-propose.html"), read("docs/cosmic-defenses.js"),
+    read("docs/cosmic-defense-catalog.js")
   ]);
   assert.match(html, /id="proposalAuthorDisplay"/);
   assert.doesNotMatch(html, /<input[^>]+id="proposalAuthor"/);
@@ -70,7 +71,7 @@ test("identité Discord non éditable et suppression de la saisie source", async
   assert.doesNotMatch(js, /const proposalSource =/);
   assert.match(js, /session\?\.ok === true/);
   assert.match(js, /const author = discordAuthor/);
-  assert.match(js, /"Défense de " \+ entry\.author/);
+  assert.match(catalog, /"Défense de " \+ text\(entry\.author\)/);
 });
 test("autocomplétion préfixe, validation par clic et portraits par salle", async () => {
   const [js, css] = await Promise.all([
@@ -218,10 +219,12 @@ test("cosmic visual design matches the common LoSP dark glass theme", async () =
   assert.match(css, /\.cosmicHubGrid\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
   assert.match(css, /\.cosmicPortrait img\{[^}]*object-fit:contain/);
   assert.match(css, /\.cosmicPortraitRemove::after\{[^}]*font:700 12px\/1 sans-serif/);
-  for (const page of [hub,browse,propose,counters]) {
+  for (const page of [hub,propose,counters]) {
     assert.match(page, /cosmic\.css\?v=8/);
     assert.match(page, /style\.css\?v=/);
   }
+  assert.match(browse, /cosmic\.css\?v=9/);
+  assert.match(browse, /style\.css\?v=/);
 });
 
 
