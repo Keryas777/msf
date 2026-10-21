@@ -223,3 +223,37 @@ test("cosmic visual design matches the common LoSP dark glass theme", async () =
     assert.match(page, /style\.css\?v=/);
   }
 });
+
+
+test("Marvel Church saison 25 : recommandations DÉFENSIVES importées sans inventer les cinq personnages", async () => {
+  const [raw, catalog, config, characters] = await Promise.all([
+    read("docs/data/cosmic-defenses.json"),
+    read("docs/data/cosmic-defense-catalog.js"),
+    read("docs/data/cosmic-config.json"),
+    read("docs/data/msf-characters.json")
+  ]);
+  const rows=JSON.parse(raw), season=JSON.parse(config).season.id;
+  const playable=new Set(JSON.parse(characters).filter(c=>c.player_Character===true).map(c=>c.id));
+  const church=rows.filter(c=>c.source==="Marvel Church");
+  assert.equal(season,"season-25");
+  assert.equal(church.length,12);
+  assert.deepEqual(church.reduce((acc,c)=>(acc[c.room]=(acc[c.room]||0)+1,acc),{}),
+    {1:2,2:2,3:3,4:2,5:2,6:1});
+  assert.equal(church.filter(c=>c.name.startsWith("Best Defense")).length,4);
+  assert.equal(church.filter(c=>c.name.startsWith("Optimal Defense")).length,4);
+  assert.equal(church.filter(c=>c.name.startsWith("Budget Defense")).length,4);
+  for (const entry of church) {
+    assert.equal(entry.season,season);
+    assert.equal(entry.collection,"Marvel Church — Saison 25");
+    assert.equal(entry.sourceUrl,"https://www.marvel.church/cosmic-crucible-the-best-defensive-setup/");
+    assert.equal(entry.characters.length,5);
+    assert.equal(new Set(entry.characters).size,5);
+    assert.ok(entry.characters.every(id=>playable.has(id)),entry.name);
+    assert.doesNotMatch(entry.name+" "+entry.notes,/offensive setup|offense heavy/i);
+    assert.equal("authorDiscordId" in entry,false);
+  }
+  const specific=church.find(c=>c.room===3&&c.name.startsWith("Optimal Defense"));
+  assert.ok(specific?.characters.includes("EmmaFrost"));
+  assert.ok(specific?.characters.includes("EmmaFrostXMen"));
+  assert.match(catalog,/collection \|\| \(external \? source/);
+});
