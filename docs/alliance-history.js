@@ -144,7 +144,8 @@
     const bounds=scale(values,rank);
     const y=v=>margin.top+
       (rank?(v-bounds.lo):(bounds.hi-v))/(bounds.hi-bounds.lo)*h;
-    const times=model.rows.map(r=>Date.parse(r.capturedAt));
+    const plotDates=model.series[0].points.map(p=>p.plotAt||p.capturedAt);
+    const times=plotDates.map(iso=>Date.parse(iso));
     const first=times[0],last=times[times.length-1];
     const x=t=>first===last?margin.left+w/2:
       margin.left+(t-first)/(last-first)*w;
@@ -160,7 +161,7 @@
     const labels=model.rows.length===1?[0]:
       [0,Math.floor((model.rows.length-1)/2),model.rows.length-1];
     for(const i of new Set(labels)){
-      const date=model.rows[i].capturedAt;
+      const date=plotDates[i];
       const position=x(Date.parse(date));
       const anchor=i===0&&model.rows.length>1?'start':
         i===model.rows.length-1&&model.rows.length>1?'end':'middle';
@@ -181,21 +182,25 @@
         if(p.value===null){flush();previous=null;continue;}
         if(previous?.seasonId&&p.seasonId&&
             previous.seasonId!==p.seasonId)flush();
-        segment.push({x:x(Date.parse(p.capturedAt)),y:y(p.value)});
+        segment.push({x:x(Date.parse(p.plotAt||p.capturedAt)),y:y(p.value)});
         previous=p;
       }
       flush();
       for(const p of s.points){
         if(p.value===null)continue;
-        const dot=svg('circle',{cx:x(Date.parse(p.capturedAt)),
+        const dot=svg('circle',{cx:x(Date.parse(p.plotAt||p.capturedAt)),
           cy:y(p.value),r:5.5,fill:color,
           class:'historyPlotDot',tabindex:0,role:'button',
-          'aria-label':s.name+' : '+number.format(p.value)+' le '+formatDate(p.capturedAt)});
+          'aria-label':s.name+' : '+number.format(p.value)+
+            (p.seasonStartAt?' pour la saison du '+formatDate(p.seasonStartAt)+
+              ' au '+formatDate(p.plotAt):' le '+formatDate(p.capturedAt))});
         dot.append(svg('title',{},s.name+' — '+number.format(p.value)+
-          ' — '+formatDate(p.capturedAt)));
+          ' — '+(p.seasonStartAt?'Saison du '+formatDate(p.seasonStartAt)+
+          ' au '+formatDate(p.plotAt):formatDate(p.capturedAt))));
         const announce=()=>{refs.status.textContent=s.emoji+' '+s.name+
           ' : '+number.format(p.value)+(rank?' (rang)':' trophées')+
-          ' le '+formatDate(p.capturedAt)+'.';};
+          (p.seasonStartAt?' pour la saison du '+formatDate(p.seasonStartAt)+
+          ' au '+formatDate(p.plotAt):' le '+formatDate(p.capturedAt))+'.';};
         dot.addEventListener('click',announce);
         dot.addEventListener('keydown',event=>{
           if(event.key==='Enter'||event.key===' '){
@@ -205,6 +210,10 @@
         refs.plot.append(dot);
       }
     }
+  }
+  function plotDatesForPeriod(model,index){
+    return model.series[0]?.points[index]?.plotAt ||
+      model.rows[index].capturedAt;
   }
   function render(){
     if(!state.config)return;
@@ -220,7 +229,7 @@
     refs.latest.replaceChildren();
     refs.plotWrap.hidden=!model.rows.length||!model.series.length;
     refs.note.textContent=chart.requiresSeasonQualification?
-      'Ces rangs sont les dernières valeurs retournées par MSF. Sans identifiant de saison confirmé, ils ne garantissent pas une comparaison dans la même saison. Rang 1 = meilleur classement.':
+      'Les rangs sont ceux des saisons terminées (pas de la saison en cours). Les périodes connues sont attribuées manuellement, et non fournies par l’API. Rang 1 = meilleur classement.':
       'Les trophées représentent le total détenu par chaque alliance à la date du relevé. Les courbes utilisent exclusivement les valeurs réellement capturées.';
     if(state.failures)refs.note.textContent+=' Attention : '+
       state.failures+' instantané(s) indisponible(s).';
@@ -230,10 +239,16 @@
       refs.plot.replaceChildren();
       return;
     }
-    refs.period.textContent=model.rows.length===1?
-      'Capture du '+formatDate(model.rows[0].capturedAt):
-      'Du '+formatDate(model.rows[0].capturedAt)+' au '+
-        formatDate(model.rows[model.rows.length-1].capturedAt);
+    const knownSeason=chart.frequency==='per-season'&&
+      model.rows.length===1&&
+      model.rows[0].seasonVerified===true&&
+      model.rows[0].rankingSeason;
+    refs.period.textContent=knownSeason?
+      'Saison du '+formatDate(knownSeason.startAt)+' au '+
+        formatDate(knownSeason.endExclusiveAt):
+      model.rows.length===1?'Capture du '+formatDate(model.rows[0].capturedAt):
+      'Du '+formatDate(plotDatesForPeriod(model,0))+' au '+
+        formatDate(plotDatesForPeriod(model,model.rows.length-1));
     refs.status.textContent=model.rows.length===1?
       'Un premier relevé : les cinq points sont visibles. Les courbes se traceront avec les prochaines captures.':
       model.rows.length+' relevés réels, sans valeurs inventées.';
@@ -264,7 +279,10 @@
       result.append(el('div','historyLatestValue',
         alliance.value===null?'—':number.format(alliance.value)));
       result.append(el('div','historyLatestDate',
-        alliance.capturedAt?formatDate(alliance.capturedAt):'Aucun relevé'));
+        alliance.seasonStartAt&&alliance.seasonEndAt?
+          'Saison '+formatDate(alliance.seasonStartAt)+' – '+
+          formatDate(alliance.seasonEndAt):
+          alliance.capturedAt?formatDate(alliance.capturedAt):'Aucun relevé'));
       item.append(result);
       refs.latest.append(item);
     }
