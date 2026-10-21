@@ -87,7 +87,10 @@
         key: alliance.key, name: alliance.name, emoji: alliance.emoji,
         color: alliance.color, order: index,
         value: last ? last.value : null,
-        capturedAt: last ? last.capturedAt : null
+        capturedAt: last ? last.capturedAt : null,
+        seasonStartAt: last ? last.seasonStartAt : null,
+        seasonEndAt: last && chart.frequency === 'per-season' ?
+          last.plotAt : null
       };
     }).sort((a, b) => {
       if (a.value === null) return b.value === null ? a.order - b.order : 1;
