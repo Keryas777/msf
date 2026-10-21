@@ -8,6 +8,7 @@
   const meta = document.getElementById("bw-guide-meta");
   const content = document.getElementById("bw-content");
   const errorBox = document.getElementById("bw-error");
+  const tabBar = document.querySelector(".bw-tabs");
   const tabs = Array.from(document.querySelectorAll(".bw-tab"));
 
   let index = null;
@@ -168,7 +169,7 @@
   }
 
   function renderZone() {
-    const zone = guide.zones.find(value => value && value.id === activeTab);
+    const zone = (guide.zones || []).find(value => value && value.id === activeTab);
     if (!zone) {
       content.append(el("section", "card bw-empty", "Cette zone n'est pas encore configurée."));
       return;
@@ -213,6 +214,10 @@
 
   function render() {
     if (!guide || !selectedEntry || !index) return;
+    // Sans zones dans le JSON, le guide historique est exclusivement consacré au boss.
+    const hasZones = Array.isArray(guide.zones) && guide.zones.length === 3;
+    if (!hasZones) activeTab = "boss";
+    tabBar.hidden = !hasZones;
     clear(content);
     content.removeAttribute("aria-busy");
     title.textContent = selectedEntry.name;
@@ -253,12 +258,17 @@
     guide = null;
     selectedEntry = entry;
     charMap = null;
+    tabBar.hidden = true;
     loading("Ouverture du guide " + entry.name + "…");
     try {
       const data = await readJson("./data/battleworld/" + entry.file);
       if (serial !== requestId) return;
-      if (data.id !== entry.id || !Array.isArray(data.zones) || data.zones.length !== 3 ||
-          data.zones.some(zone => !Array.isArray(zone.nodes) || zone.nodes.length !== 3) ||
+      const validZones = !Object.prototype.hasOwnProperty.call(data, "zones") ||
+        (Array.isArray(data.zones) && data.zones.length === 3 &&
+         data.zones.every((zone, i) =>
+           zone.id === "zone-" + (i + 1) &&
+           Array.isArray(zone.nodes) && zone.nodes.length === 3));
+      if (data.id !== entry.id || !validZones ||
           !data.boss || typeof data.boss !== "object") {
         throw new Error("Structure des zones ou du boss invalide");
       }
