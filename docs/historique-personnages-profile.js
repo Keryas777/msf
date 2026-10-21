@@ -4,6 +4,8 @@
   const { esc, rankPlayers, presentIso } = window.LoSPProfileData;
   const codex = window.LoSPProfileCodex;
   const numberFr = new Intl.NumberFormat("fr-FR");
+  // Espace demi-cadratin : milliers plus distincts que l’espace fine insécable de fr-FR.
+  const formatPower = value => numberFr.format(value).replace(/[\u00a0\u202f ]/g, "\u2002");
   const downloads = new Map();
   let current = null, token = 0;
 
@@ -59,7 +61,7 @@
       "</span><div class=\"profilePlayerInfo\"><strong>" + esc(row.player) + "</strong><span>" +
       esc(alliance?.emoji || "") + " " + esc(alliance?.name || row.alliance) +
       "</span><div class=\"profilePlayerStats\">" + stats.join("") +
-      "</div></div><strong class=\"profilePower\">" + numberFr.format(row.power) + "</strong></article>";
+      "</div></div><strong class=\"profilePower\">" + formatPower(row.power) + "</strong></article>";
   }
 
   function displayRanking(state) {

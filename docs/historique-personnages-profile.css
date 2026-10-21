@@ -41,7 +41,7 @@
 .profilePlayerCount{margin:0 0 10px;color:var(--muted);font-size:.8rem}
 .profilePlayerList{display:grid;gap:8px}
 .profilePlayerRow{display:flex;align-items:flex-start;gap:10px;padding:12px 10px;border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,.2)}
-.profileRank{width:26px;flex:0 0 26px;color:var(--muted);font-weight:800;font-size:.78rem;padding-top:2px}
+.profileRank{flex:0 0 auto;min-width:3.1em;white-space:nowrap;text-align:right;color:var(--muted);font-weight:800;font-size:.78rem;padding-top:2px}
 .profilePlayerInfo{flex:1;min-width:0}
 .profilePlayerInfo>strong{display:block;overflow-wrap:anywhere;font-size:.88rem}
 .profilePlayerInfo>span{display:block;font-size:.75rem;color:var(--muted);margin-top:3px}
@@ -61,5 +61,5 @@
 .profilePlayerStats .profileIsoDot--orange{background:#ff9c38}
 .profilePower{font-size:.83rem;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--gold)}
 @media(min-width:700px){.profileAllianceFilters{grid-template-columns:repeat(3,minmax(0,1fr))}.profileTabs button{font-size:.86rem}}
-@media(max-width:390px){.profilePlayerRow{gap:6px}.profileRank{width:22px;flex-basis:22px}.profilePower{font-size:.74rem}.profileAllianceFilters{gap:5px}.profileFilterToggle{gap:5px;padding:7px 4px}.profileFilterToggle input{width:16px;height:16px}}
+@media(max-width:390px){.profilePlayerRow{gap:6px}.profilePower{font-size:.74rem}.profileAllianceFilters{gap:5px}.profileFilterToggle{gap:5px;padding:7px 4px}.profileFilterToggle input{width:16px;height:16px}}
 @supports not selector(:has(*)){.profileFilterToggle{border-color:var(--line-strong)}}
