@@ -292,3 +292,27 @@ test("Marvel Church saison 25 : recommandations DÉFENSIVES importées sans inve
   }
   assert.match(catalog,/collection \|\| \(external \? source/);
 });
+
+
+test("consultation : badges français, titres séparés, sources homogènes et cache mobile", async () => {
+  const [html,js,css,catalog]=await Promise.all([
+    read("docs/cosmic-defenses.html"),read("docs/cosmic-defenses.js"),
+    read("docs/cosmic.css"),read("docs/cosmic-defense-catalog.js")
+  ]);
+  assert.match(html,/cosmic\.css\?v=9/);
+  assert.match(html,/cosmic-defense-catalog\.js\?v=2/);
+  assert.match(html,/cosmic-defenses\.js\?v=8/);
+  assert.match(js,/catalog\.sortedForDisplay\(list\.filter/);
+  assert.match(js,/catalog\.presentationFor\(entry\)/);
+  assert.match(js,/make\("span", "cosmicDefenseTier cosmicDefenseTier--" \+ presentation\.key/);
+  assert.match(js,/make\("h4", "cosmicDefenseTeam"/);
+  assert.match(js,/"Source : " \+ safeText\(catalog\.displaySource\(entry\), 100\)/);
+  assert.doesNotMatch(js,/Proposé par :/);
+  assert.match(css,/\.cosmicDefenseTier\{[^}]*white-space:nowrap/);
+  assert.match(css,/\.cosmicDefenseTier--best\{/);
+  assert.match(css,/\.cosmicDefenseTier--optimal\{/);
+  assert.match(css,/\.cosmicDefenseTier--budget\{/);
+  assert.match(catalog,/function sortedForDisplay\(entries\)/);
+  // Le formulaire et le moteur de publication ne changent pas.
+  assert.match(js,/localStorage\.setItem\(DRAFT_KEY/);
+});

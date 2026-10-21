@@ -137,18 +137,20 @@
       const section = make("section", "cosmicRoom");
       section.appendChild(make("h3", "", room.label));
       if (room.rule) section.appendChild(make("p", "cosmicRoomRule", "Règle de la salle : " + room.rule));
-      const entries = list.filter(d => Number(d.room) === room.id);
+      const entries = catalog.sortedForDisplay(list.filter(d => Number(d.room) === room.id));
       if (!entries.length) section.appendChild(make("p", "cosmicEmpty", "Aucune défense publiée dans cette salle."));
       for (const entry of entries) {
         count++;
         const card = make("article", "cosmicDefense");
-        card.appendChild(make("p", "cosmicDefenseTitle", safeText(entry.name || (entry.author ? "Défense de " + entry.author : "Défense publiée"), 120)));
+        const presentation = catalog.presentationFor(entry);
+        if (presentation.label) {
+          card.appendChild(make("span", "cosmicDefenseTier cosmicDefenseTier--" + presentation.key, presentation.label));
+        }
+        card.appendChild(make("h4", "cosmicDefenseTeam", safeText(presentation.team, 120)));
         const portraits = make("div", "cosmicPortraits");
         for (const id of entry.characters) portraits.appendChild(portrait(id));
         card.appendChild(portraits);
-        const credit = [entry.source && "Source : " + safeText(entry.source, 100),
-          entry.author && "Proposé par : " + safeText(entry.author, 80)].filter(Boolean).join(" · ");
-        if (credit) card.appendChild(make("p", "cosmicDefenseMeta", credit));
+        card.appendChild(make("p", "cosmicDefenseMeta", "Source : " + safeText(catalog.displaySource(entry), 100)));
         if (entry.notes) card.appendChild(make("p", "cosmicDefenseMeta", safeText(entry.notes)));
         if (entry.sourceUrl) {
           try {

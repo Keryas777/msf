@@ -52,7 +52,43 @@
     return entries.filter(entry => groupFor(entry).id === selectedId);
   }
 
+  // Les recommandations gardent leur nom brut dans le JSON ; seuls les libellés
+  // et leur ordre sont traduits pour la consultation (Best, Optimal, Budget).
+  const tiers = new Map([
+    ["best defense", { key: "best", label: "Meilleure défense", order: 1 }],
+    ["meilleure defense", { key: "best", label: "Meilleure défense", order: 1 }],
+    ["optimal defense", { key: "optimal", label: "Défense optimisée", order: 2 }],
+    ["defense optimisee", { key: "optimal", label: "Défense optimisée", order: 2 }],
+    ["budget defense", { key: "budget", label: "Défense économique", order: 3 }],
+    ["defense economique", { key: "budget", label: "Défense économique", order: 3 }]
+  ]);
+  function presentationFor(entry) {
+    const name = text(entry?.name) || (entry?.author ? "Défense de " + text(entry.author) : "Défense publiée");
+    const parts = name.match(/^(.+?)\s+[—–-]\s+(.+)$/);
+    const tier = parts ? tiers.get(normalize(parts[1])) : null;
+    return tier
+      ? { key: tier.key, label: tier.label, team: parts[2].trim(), order: tier.order }
+      : { key: "other", label: "", team: name, order: 99 };
+  }
+
+  function sortedForDisplay(entries) {
+    // Stable au sein d'une catégorie, même lorsque deux variantes coexistent.
+    return (Array.isArray(entries) ? entries : [])
+      .map((entry, index) => ({ entry, index, order: presentationFor(entry).order }))
+      .sort((a, b) => a.order - b.order || a.index - b.index)
+      .map(item => item.entry);
+  }
+
+  function displaySource(entry) {
+    const source = text(entry?.source);
+    const author = text(entry?.author);
+    return personalSources.has(normalize(source))
+      ? (author || "Joueur LoSP")
+      : (source || author || "Joueur LoSP");
+  }
+
   root.LoSPCosmicDefenseCatalog = Object.freeze({
-    activeEntries, groupFor, groupsFor, entriesForGroup
+    activeEntries, groupFor, groupsFor, entriesForGroup,
+    presentationFor, sortedForDisplay, displaySource
   });
 })(globalThis);
