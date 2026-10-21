@@ -223,3 +223,72 @@ test("cosmic visual design matches the common LoSP dark glass theme", async () =
     assert.match(page, /style\.css\?v=/);
   }
 });
+
+
+test("Marvel Church saison 25 : recommandations DÉFENSIVES importées sans inventer les cinq personnages", async () => {
+  const [raw, catalog, config, characters] = await Promise.all([
+    read("docs/data/cosmic-defenses.json"),
+    read("docs/cosmic-defense-catalog.js"),
+    read("docs/data/cosmic-config.json"),
+    read("docs/data/msf-characters.json")
+  ]);
+  const rows=JSON.parse(raw), season=JSON.parse(config).season.id;
+  const playable=new Set(JSON.parse(characters).filter(c=>c.player_Character===true).map(c=>c.id));
+  const church=rows.filter(c=>c.source==="Marvel Church");
+  assert.equal(season,"season-25");
+  assert.equal(church.length,20);
+  assert.deepEqual(church.reduce((acc,c)=>(acc[c.room]=(acc[c.room]||0)+1,acc),{}),
+    {1:3,2:3,3:3,4:4,5:4,6:3});
+  assert.equal(church.filter(c=>c.name.startsWith("Best Defense")).length,7);
+  assert.equal(church.filter(c=>c.name.startsWith("Optimal Defense")).length,7);
+  assert.equal(church.filter(c=>c.name.startsWith("Budget Defense")).length,6);
+  for (const entry of church) {
+    assert.equal(entry.season,season);
+    assert.equal(entry.collection,"Marvel Church — Saison 25");
+    assert.equal(entry.sourceUrl,"https://www.marvel.church/cosmic-crucible-the-best-defensive-setup/");
+    assert.equal(entry.characters.length,5);
+    assert.equal(new Set(entry.characters).size,5);
+    assert.ok(entry.characters.every(id=>playable.has(id)),entry.name);
+    assert.doesNotMatch(entry.name+" "+entry.notes,/offensive setup|offense heavy/i);
+    assert.equal("authorDiscordId" in entry,false);
+  }
+  const specific=church.find(c=>c.room===3&&c.name.startsWith("Optimal Defense"));
+  assert.ok(specific?.characters.includes("EmmaFrost"));
+  assert.ok(specific?.characters.includes("EmmaFrostXMen"));
+  const room6=church.filter(c=>c.room===6);
+  const best=room6.find(c=>c.name.startsWith("Best Defense"));
+  const optimal=room6.find(c=>c.name.startsWith("Optimal Defense"));
+  assert.deepEqual(best?.characters,
+    ["InvisibleWomanMCU","MrFantasticMCU","FranklinRichards","Sentry","BlueMarvel"]);
+  assert.deepEqual(optimal?.characters,
+    ["InvisibleWomanMCU","MrFantasticMCU","FranklinRichards","CaptainBritain","Nightcrawler"]);
+  for (const entry of [best,optimal]) {
+    assert.equal(entry.characters.includes("Thing"),false);
+    assert.equal(entry.characters.includes("HumanTorch"),false);
+    assert.match(entry.notes,/non détaillée sur le guide Marvel Church/);
+  }
+  const group=(room,match)=>church.find(e=>e.room===room && e.name.includes(match));
+  assert.deepEqual(group(1,"Budget Defense")?.characters,
+    ["IronFist","SwordMaster","SteelSerpent","LadyBullseye","CaptainBritain"]);
+  assert.deepEqual(group(2,"Optimal Defense")?.characters,
+    ["Hellverine","TheHood","Satana","Juggernaut","Odin"]);
+  const variants4=church.filter(e=>e.room===4 && e.name.startsWith("Best Defense"));
+  assert.equal(variants4.length,2);
+  assert.deepEqual(variants4.map(x=>x.characters.at(-1)).sort(),["Annihilus","Quasar"]);
+  for(const variant of variants4){
+    assert.deepEqual(variant.characters.slice(0,4),["Wolverine","Angel","Morph","StormMighty"]);
+    assert.equal(variant.characters.includes("Jubilee"),false);
+    assert.ok(variant.notes.length>60);
+  }
+  assert.match(variants4.find(x=>x.characters.includes("Annihilus"))?.notes,/barrières/);
+  assert.match(variants4.find(x=>x.characters.includes("Quasar"))?.notes,/assistances/);
+  const variants5=church.filter(e=>e.room===5 && e.name.startsWith("Optimal Defense"));
+  assert.equal(variants5.length,2);
+  assert.deepEqual(variants5.map(x=>x.characters.at(-1)).sort(),["Mephisto","SilverSurferBreaker"]);
+  for(const variant of variants5){
+    assert.deepEqual(variant.characters.slice(0,4),["Warlock","Magik","Wolfsbane","Cannonball"]);
+    assert.equal(variant.characters.includes("Sunspot"),false);
+    assert.match(variant.notes,/Solar/);
+  }
+  assert.match(catalog,/collection \|\| \(external \? source/);
+});
