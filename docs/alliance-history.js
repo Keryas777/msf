@@ -17,6 +17,8 @@
     plot:document.getElementById('history-plot'),
     legend:document.getElementById('history-legend'),
     latest:document.getElementById('history-latest'),
+    latestTitle:document.getElementById('history-latest-title'),
+    latestCaption:document.getElementById('history-latest-caption'),
     note:document.getElementById('history-note')
   };
   if(!refs.plot||!window.LoSPStandingsSeries)return;
@@ -241,14 +243,29 @@
       dot.style.backgroundColor=safeColor(s.color);
       legend.append(dot,el('span','',s.emoji+' '+s.name));
       refs.legend.append(legend);
-      const recent=[...s.points].reverse().find(p=>p.value!==null);
+    }
+    // Unlike the 15-day chart, this ranking uses the latest real reading
+    // per alliance, so recently captured results are not hidden by sampling.
+    const standings=window.LoSPStandingsSeries.rankLatest(
+      state.snapshots,state.registry,chart);
+    refs.latestTitle.textContent=chart.field==='warTrophies'?
+      'Derniers trophées de guerre':
+      'Derniers classements de saison — '+(state.mode==='raid'?'Raid':'Guerre');
+    refs.latestCaption.textContent=chart.higherIsBetter?
+      'Alliances LoSP classées du plus grand au plus petit total.':
+      'Alliances LoSP classées du meilleur au moins bon rang.';
+    for(const [position,alliance] of standings.entries()){
       const item=el('div','historyLatestItem');
-      item.style.setProperty('--alliance-color',safeColor(s.color));
-      item.append(el('div','historyLatestName',s.emoji+' '+s.name));
-      item.append(el('div','historyLatestValue',
-        recent?number.format(recent.value):'—'));
-      item.append(el('div','historyLatestDate',
-        recent?formatDate(recent.capturedAt):'Aucun relevé'));
+      item.setAttribute('role','listitem');
+      item.style.setProperty('--alliance-color',safeColor(alliance.color));
+      item.append(el('span','historyLatestPosition',String(position+1)+'.'));
+      item.append(el('span','historyLatestName',alliance.emoji+' '+alliance.name));
+      const result=el('div','historyLatestResult');
+      result.append(el('div','historyLatestValue',
+        alliance.value===null?'—':number.format(alliance.value)));
+      result.append(el('div','historyLatestDate',
+        alliance.capturedAt?formatDate(alliance.capturedAt):'Aucun relevé'));
+      item.append(result);
       refs.latest.append(item);
     }
     drawPlot(model,chart);
