@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0c0d" />
+  <title>LoSP — Battleworld</title>
+  <style>html.authChecking body { opacity:0; pointer-events:none; }</style>
+  <script>document.documentElement.classList.add("authChecking");</script>
+  <script src="./auth-guard.js?v=4"></script>
+  <link rel="stylesheet" href="./style.css?v=4" />
+  <link rel="stylesheet" href="./battleworld.css?v=1" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./icon-512.PNG" />
+</head>
+<body class="page-battleworld">
+  <div class="app bw-app">
+    <header class="header bw-header">
+      <a class="backBtn" href="./home.html" aria-label="Retour à l'accueil">⬅️</a>
+      <a class="homeBtn" href="./home.html" aria-label="Accueil">🏠</a>
+      <div class="headerLeft">
+        <h1 class="title">Battleworld</h1>
+        <p class="subtitle">Guides des 9 nodes et stratégies contre le boss</p>
+      </div>
+      <div class="bw-season-field">
+        <label class="label" for="bw-guide-select">Boss / historique</label>
+        <select class="select" id="bw-guide-select" aria-label="Choisir un boss" disabled>
+          <option>Chargement…</option>
+        </select>
+      </div>
+    </header>
+
+    <section class="card bw-summary" aria-label="Guide sélectionné">
+      <div class="bw-summary-top">
+        <div>
+          <span class="bw-eyebrow">Guide Battleworld</span>
+          <h2 id="bw-guide-title">Chargement…</h2>
+        </div>
+        <span class="bw-state" id="bw-guide-status">—</span>
+      </div>
+      <p id="bw-guide-meta" class="bw-meta">Les contenus non renseignés sont indiqués clairement.</p>
+    </section>
+
+    <nav class="bw-tabs" role="tablist" aria-label="Choisir une zone ou le boss">
+      <button class="bw-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="bw-content" data-tab="zone-1">Zone 1</button>
+      <button class="bw-tab" type="button" role="tab" aria-selected="false" aria-controls="bw-content" data-tab="zone-2">Zone 2</button>
+      <button class="bw-tab" type="button" role="tab" aria-selected="false" aria-controls="bw-content" data-tab="zone-3">Zone 3</button>
+      <button class="bw-tab" type="button" role="tab" aria-selected="false" aria-controls="bw-content" data-tab="boss">⚔️ Boss</button>
+    </nav>
+
+    <main id="bw-content" role="tabpanel" aria-live="polite" aria-label="Contenu du guide">
+      <section class="card bw-empty">Chargement du guide…</section>
+    </main>
+    <p id="bw-error" class="bw-error" role="alert" hidden></p>
+  </div>
+  <script src="./battleworld.js?v=1" defer></script>
+</body>
+</html>
