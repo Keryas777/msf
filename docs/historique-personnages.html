@@ -1131,8 +1131,8 @@
         </div>
 
         <section class="filters archiveFilters" aria-label="Filtres de l’historique">
-          <div class="filterGrid">
-            <div class="field">
+          <div class="filterGrid filterGrid--compact">
+            <div class="field field--search">
               <label for="searchInput">Recherche</label>
               <input id="searchInput" type="search" autocomplete="off" placeholder="Nom du personnage…" />
             </div>
@@ -1142,28 +1142,11 @@
                 <option value="all">Toutes</option>
               </select>
             </div>
-            <div class="field">
-              <label for="typeFilter">Type de sortie</label>
-              <select id="typeFilter">
-                <option value="all">Tous</option>
-                <option value="launch">Lancement</option>
-                <option value="individual">Sortie individuelle</option>
-                <option value="team">Événement d’équipe</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="reworkFilter">Reworks</label>
-              <select id="reworkFilter">
-                <option value="all">Tous</option>
-                <option value="yes">Avec rework documenté</option>
-                <option value="no">Sans rework documenté</option>
-              </select>
-            </div>
             <div class="field" id="sortField">
               <label for="sortSelect">Tri</label>
               <select id="sortSelect">
-                <option value="oldest">Plus anciens d’abord</option>
-                <option value="newest">Plus récents d’abord</option>
+                <option value="oldest">Plus anciens</option>
+                <option value="newest">Plus récents</option>
                 <option value="name">Nom A → Z</option>
                 <option value="reworks">Plus reworkés</option>
               </select>
@@ -1217,8 +1200,6 @@
           filters: {
             query: "",
             year: "all",
-            type: "all",
-            rework: "all",
             sort: "oldest"
           }
         };
@@ -1227,10 +1208,7 @@
           content: document.getElementById("content"),
           searchInput: document.getElementById("searchInput"),
           yearFilter: document.getElementById("yearFilter"),
-          typeFilter: document.getElementById("typeFilter"),
-          reworkFilter: document.getElementById("reworkFilter"),
           sortSelect: document.getElementById("sortSelect"),
-          sortField: document.getElementById("sortField"),
           resultCount: document.getElementById("resultCount"),
           resetFilters: document.getElementById("resetFilters"),
           dataScope: document.getElementById("dataScope"),
@@ -1566,12 +1544,9 @@
           const query = normalizeSearch(state.filters.query);
 
           let result = state.characters.filter((record) => {
-            if (!record.release && (state.view !== "characters" || state.filters.year !== "all" || state.filters.type !== "all")) return false;
+            if (!record.release && (state.view !== "characters" || state.filters.year !== "all")) return false;
             if (query && !record.searchText.includes(query)) return false;
             if (state.filters.year !== "all" && String(record.release.temporal.year) !== state.filters.year) return false;
-            if (state.filters.type !== "all" && record.release.type !== state.filters.type) return false;
-            if (state.filters.rework === "yes" && record.reworks.length === 0) return false;
-            if (state.filters.rework === "no" && record.reworks.length > 0) return false;
             return true;
           });
 
@@ -1862,15 +1837,12 @@
                 state.filters.year !== "all" &&
                 !(event.years || [String(event.temporal.year)]).includes(state.filters.year)
               ) return false;
-              if (state.filters.type !== "all" && event.type !== state.filters.type) return false;
               return true;
             })
             .map((event) => {
               const eventMatchesQuery = query && normalizeSearch(`${event.label} ${event.teamId}`).includes(query);
               const occurrences = event.occurrences.filter(({ record }) => {
                 if (query && !eventMatchesQuery && !record.searchText.includes(query)) return false;
-                if (state.filters.rework === "yes" && record.reworks.length === 0) return false;
-                if (state.filters.rework === "no" && record.reworks.length > 0) return false;
                 return true;
               });
               return { ...event, occurrences };
@@ -2185,16 +2157,6 @@
             render();
           });
 
-          els.typeFilter.addEventListener("change", () => {
-            state.filters.type = els.typeFilter.value;
-            render();
-          });
-
-          els.reworkFilter.addEventListener("change", () => {
-            state.filters.rework = els.reworkFilter.value;
-            render();
-          });
-
           els.sortSelect.addEventListener("change", () => {
             state.filters.sort = els.sortSelect.value;
             render();
@@ -2204,14 +2166,10 @@
             state.filters = {
               query: "",
               year: "all",
-              type: "all",
-              rework: "all",
               sort: "oldest"
             };
             els.searchInput.value = "";
             els.yearFilter.value = "all";
-            els.typeFilter.value = "all";
-            els.reworkFilter.value = "all";
             els.sortSelect.value = "oldest";
             render();
           });
