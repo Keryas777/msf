@@ -4,8 +4,10 @@ on:
   pull_request:
     paths:
       - "docs/data/alliance-standings/**"
+      - "docs/alliance-history*"
       - "docs/data/alliances.json"
       - "tests/alliance-standings-data.test.mjs"
+      - "tests/alliance-history-charts.test.mjs"
       - ".github/workflows/test-alliance-standings.yml"
   workflow_dispatch:
 
@@ -21,4 +23,7 @@ jobs:
         with:
           node-version: "20"
       - name: Validate timestamped alliance snapshots and chart contract
-        run: node --test tests/alliance-standings-data.test.mjs
+        run: |
+          node --check docs/alliance-history-data.js
+          node --check docs/alliance-history.js
+          node --test tests/alliance-standings-data.test.mjs tests/alliance-history-charts.test.mjs
