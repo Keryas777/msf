@@ -236,12 +236,12 @@ test("Marvel Church saison 25 : recommandations DÉFENSIVES importées sans inve
   const playable=new Set(JSON.parse(characters).filter(c=>c.player_Character===true).map(c=>c.id));
   const church=rows.filter(c=>c.source==="Marvel Church");
   assert.equal(season,"season-25");
-  assert.equal(church.length,14);
+  assert.equal(church.length,20);
   assert.deepEqual(church.reduce((acc,c)=>(acc[c.room]=(acc[c.room]||0)+1,acc),{}),
-    {1:2,2:2,3:3,4:2,5:2,6:3});
-  assert.equal(church.filter(c=>c.name.startsWith("Best Defense")).length,5);
-  assert.equal(church.filter(c=>c.name.startsWith("Optimal Defense")).length,4);
-  assert.equal(church.filter(c=>c.name.startsWith("Budget Defense")).length,5);
+    {1:3,2:3,3:3,4:4,5:4,6:3});
+  assert.equal(church.filter(c=>c.name.startsWith("Best Defense")).length,7);
+  assert.equal(church.filter(c=>c.name.startsWith("Optimal Defense")).length,7);
+  assert.equal(church.filter(c=>c.name.startsWith("Budget Defense")).length,6);
   for (const entry of church) {
     assert.equal(entry.season,season);
     assert.equal(entry.collection,"Marvel Church — Saison 25");
@@ -266,6 +266,29 @@ test("Marvel Church saison 25 : recommandations DÉFENSIVES importées sans inve
     assert.equal(entry.characters.includes("Thing"),false);
     assert.equal(entry.characters.includes("HumanTorch"),false);
     assert.match(entry.notes,/non détaillée sur le guide Marvel Church/);
+  }
+  const group=(room,match)=>church.find(e=>e.room===room && e.name.includes(match));
+  assert.deepEqual(group(1,"Budget Defense")?.characters,
+    ["IronFist","SwordMaster","SteelSerpent","LadyBullseye","CaptainBritain"]);
+  assert.deepEqual(group(2,"Optimal Defense")?.characters,
+    ["Hellverine","TheHood","Satana","Juggernaut","Odin"]);
+  const variants4=church.filter(e=>e.room===4 && e.name.startsWith("Best Defense"));
+  assert.equal(variants4.length,2);
+  assert.deepEqual(variants4.map(x=>x.characters.at(-1)).sort(),["Annihilus","Quasar"]);
+  for(const variant of variants4){
+    assert.deepEqual(variant.characters.slice(0,4),["Wolverine","Angel","Morph","StormMighty"]);
+    assert.equal(variant.characters.includes("Jubilee"),false);
+    assert.ok(variant.notes.length>60);
+  }
+  assert.match(variants4.find(x=>x.characters.includes("Annihilus"))?.notes,/barrières/);
+  assert.match(variants4.find(x=>x.characters.includes("Quasar"))?.notes,/assistances/);
+  const variants5=church.filter(e=>e.room===5 && e.name.startsWith("Optimal Defense"));
+  assert.equal(variants5.length,2);
+  assert.deepEqual(variants5.map(x=>x.characters.at(-1)).sort(),["Mephisto","SilverSurferBreaker"]);
+  for(const variant of variants5){
+    assert.deepEqual(variant.characters.slice(0,4),["Warlock","Magik","Wolfsbane","Cannonball"]);
+    assert.equal(variant.characters.includes("Sunspot"),false);
+    assert.match(variant.notes,/Solar/);
   }
   assert.match(catalog,/collection \|\| \(external \? source/);
 });
