@@ -3,8 +3,8 @@
   "kind": "losp-alliance-standings-snapshot",
   "capturedAt": "2026-10-21T10:55:00.466Z",
   "source": "/player/v1/alliance/card",
-  "seasonId": null,
-  "seasonVerified": false,
+  "seasonId": "2026-09-27/2026-10-11",
+  "seasonVerified": true,
   "coverage": {
     "scannedSessions": 9,
     "validSessions": 9,
@@ -70,5 +70,11 @@
       }
     }
   ],
-  "note": "Rangs renvoyés au moment de la capture ; saison non identifiée par la réponse. Les trophées ne sont pas des points de saison. Aucune donnée de score de saison raid."
+  "note": "Les rangs raid et guerre du relevé du 21 octobre correspondent à la saison terminée du 27 septembre au 11 octobre 2026 (période confirmée par l'administrateur). Les trophées sont mesurés au 21 octobre 2026. Les trophées ne représentent pas les points de saison.",
+  "rankingSeason": {
+    "startAt": "2026-09-27T20:00:00.000Z",
+    "endExclusiveAt": "2026-10-11T20:00:00.000Z",
+    "identification": "user-confirmed",
+    "timezone": "Europe/Paris"
+  }
 }

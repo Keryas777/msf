@@ -9,7 +9,7 @@
   <script src="./auth-guard.js?v=4"></script>
   <title>Historique des alliances — LoSP</title>
   <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./alliance-history.css?v=1">
+  <link rel="stylesheet" href="./alliance-history.css?v=2">
 </head>
 <body class="pageAllianceHistory">
   <main class="app allianceHistory">
@@ -53,11 +53,15 @@
         <svg id="history-plot" class="historyPlot" role="img" aria-label="Graphique d'évolution des cinq alliances"></svg>
       </div>
       <div id="history-legend" class="historyLegend" aria-label="Légende des alliances"></div>
-      <div id="history-latest" class="historyLatest" aria-label="Derniers résultats"></div>
+      <section class="historyLatestSection" aria-labelledby="history-latest-title">
+        <h3 id="history-latest-title">Derniers trophées</h3>
+        <p class="historyLatestCaption" id="history-latest-caption">Classement des alliances LoSP</p>
+        <div id="history-latest" class="historyLatest" role="list" aria-label="Alliances classées selon la valeur sélectionnée"></div>
+      </section>
       <p id="history-note" class="historyNote"></p>
     </section>
   </main>
-  <script src="./alliance-history-data.js?v=1" defer></script>
-  <script src="./alliance-history.js?v=1" defer></script>
+  <script src="./alliance-history-data.js?v=2" defer></script>
+  <script src="./alliance-history.js?v=2" defer></script>
 </body>
 </html>

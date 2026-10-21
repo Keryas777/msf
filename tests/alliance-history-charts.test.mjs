@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const read=file=>fs.readFileSync(new URL('../'+file,import.meta.url),'utf8');
 const context=vm.createContext({window:{}});
 vm.runInContext(read('docs/alliance-history-data.js'),context);
-const {chooseSnapshots,prepare}=context.window.LoSPStandingsSeries;
+const {chooseSnapshots,prepare,rankLatest}=context.window.LoSPStandingsSeries;
 const config=JSON.parse(read('docs/data/alliance-standings/config.json'));
 const registry=JSON.parse(read('docs/data/alliances.json'));
 const index=JSON.parse(read('docs/data/alliance-standings/index.json'));
@@ -17,6 +17,7 @@ const shifted=(days,options={})=>({
   ...original,capturedAt:addDays(original.capturedAt,days),
   seasonId:options.seasonId??null,
   seasonVerified:options.seasonVerified===true,
+  rankingSeason:options.rankingSeason??original.rankingSeason,
   alliances:options.alliances??original.alliances.map(a=>({...a,
     warTrophies:a.warTrophies+days,
     raidRank:a.raidRank+days,
@@ -49,18 +50,30 @@ test('five original alliances render by dynamic registry with official colors an
   assert.equal(prepare([original],registry,byId('raid-season-rank'))
     .series.find(s=>s.key==='zeus').points[0].value,77);
 });
-test('all trophy snapshots, but only 15-day-spaced raid and war rankings',()=>{
-  const snapshots=[shifted(30),original,shifted(7),shifted(15)];
+test('all trophy observations and exactly one selected point per completed ranking season',()=>{
+  const repeat=shifted(2,{seasonVerified:true,seasonId:original.seasonId});
+  const next=shifted(7,{
+    seasonVerified:true,seasonId:'2026-10-11/2026-10-25',
+    rankingSeason:{startAt:'2026-10-11T20:00:00.000Z',
+      endExclusiveAt:'2026-10-25T20:00:00.000Z',
+      identification:'user-confirmed',timezone:'Europe/Paris'}
+  });
+  const snapshots=[next,repeat,original];
   const trophy=prepare(snapshots,registry,byId('war-trophies'));
   const raid=prepare(snapshots,registry,byId('raid-season-rank'));
   const war=prepare(snapshots,registry,byId('war-season-rank'));
-  assert.equal(trophy.rows.length,4);
-  assert.equal(raid.rows.length,3);
-  assert.equal(war.rows.length,3);
-  assert.deepEqual(Array.from(raid.rows,x=>x.capturedAt),[
-    original.capturedAt,addDays(original.capturedAt,15),
-    addDays(original.capturedAt,30)]);
-  assert.equal(trophy.series.find(s=>s.key==='zeus').points[1].value,2882);
+  assert.equal(trophy.rows.length,3);
+  assert.equal(raid.rows.length,2);
+  assert.equal(war.rows.length,2);
+  // Subsequent captures of the SAME completed season do not create extra points.
+  assert.equal(raid.rows[0].capturedAt,repeat.capturedAt);
+  assert.equal(raid.series[0].points[0].plotAt,'2026-10-11T20:00:00.000Z');
+  assert.equal(raid.series[0].points[1].plotAt,'2026-10-25T20:00:00.000Z');
+  assert.equal(raid.series[0].points[1].capturedAt,next.capturedAt);
+  assert.equal(trophy.series.find(x=>x.key==='zeus').points[1].value,2877);
+  const latest=rankLatest(snapshots,registry,byId('raid-season-rank'));
+  assert.equal(latest.find(x=>x.key==='zeus').value,
+    raid.series.find(x=>x.key==='zeus').points[1].value);
 });
 test('missing alliance stays absent, never zero or interpolated',()=>{
   const fewer=shifted(15,{alliances:original.alliances.filter(a=>a.key!=='athena')});
@@ -97,4 +110,68 @@ test('rank chart axis is inverted and source JSON is loaded via index',()=>{
   assert.match(js,/cache:'no-store'/);
   assert.match(js,/ResizeObserver/);
   assert.doesNotMatch(js,/api\.marvelstrikeforce\.com|chart\.js|react|vue/i);
+});
+
+test('the latest standings display is titled and uses exactly one vertical row per alliance',()=>{
+  const html=read('docs/alliance-history.html');
+  const css=read('docs/alliance-history.css');
+  const js=read('docs/alliance-history.js');
+  assert.match(html,/id="history-latest-title"/);
+  assert.match(html,/id="history-latest" class="historyLatest" role="list"/);
+  assert.match(css,/\.historyLatest \{ display: grid; grid-template-columns: minmax\(0, 1fr\);/);
+  assert.doesNotMatch(css,/\.historyLatest \{ grid-template-columns: repeat\(5/);
+  assert.match(js,/Derniers trophées de guerre/);
+  assert.match(js,/Derniers classements de saison/);
+  assert.match(js,/setAttribute\('role','listitem'\)/);
+});
+test('trophies descend, world war and raid ranks ascend across all five alliances',()=>{
+  const trophies=rankLatest([original],registry,byId('war-trophies'));
+  const war=rankLatest([original],registry,byId('war-season-rank'));
+  const raid=rankLatest([original],registry,byId('raid-season-rank'));
+  assert.deepEqual(Array.from(trophies,x=>[x.key,x.value]),[
+    ['zeus',2875],['kronos',2758],['athena',2678],
+    ['dionysos',2607],['poseidon',2189]]);
+  assert.deepEqual(Array.from(war,x=>[x.key,x.value]),[
+    ['kronos',93],['zeus',322],['dionysos',332],
+    ['athena',427],['poseidon',722]]);
+  assert.deepEqual(Array.from(raid,x=>[x.key,x.value]),[
+    ['zeus',77],['athena',157],['kronos',235],
+    ['dionysos',285],['poseidon',767]]);
+});
+test('latest rank list matches the season point shown by its graph',()=>{
+  const newer=shifted(7,{seasonId:original.seasonId,seasonVerified:true});
+  const sampled=prepare([original,newer],registry,byId('raid-season-rank'));
+  assert.equal(sampled.rows.length,1);
+  const latest=rankLatest([original,newer],registry,byId('raid-season-rank'));
+  assert.equal(latest.find(x=>x.key==='zeus').value,84);
+  assert.equal(sampled.series.find(x=>x.key==='zeus').points[0].value,84);
+  assert.equal(latest.find(x=>x.key==='zeus').capturedAt,newer.capturedAt);
+  assert.equal(latest.find(x=>x.key==='zeus').seasonEndAt,
+    '2026-10-11T20:00:00.000Z');
+});
+test('incomplete capture preserves last real reading and always sorts unavailable rows last',()=>{
+  const noAthena=shifted(7,{alliances:original.alliances.filter(x=>x.key!=='athena')});
+  const latest=rankLatest([original,noAthena],registry,byId('war-trophies'));
+  assert.equal(latest.find(x=>x.key==='athena').value,2678);
+  assert.equal(latest.find(x=>x.key==='athena').capturedAt,original.capturedAt);
+  const onlyZeus=shifted(15,{alliances:[original.alliances.find(x=>x.key==='zeus')]});
+  const incompleteRegistry=[...registry.filter(x=>x.key!=='hades')];
+  // An alliance seen in a prior capture but with an absent numeric field
+  // must not show a fabricated zero (the row falls to the bottom).
+  const bad=shifted(22,{alliances:onlyZeus.alliances.map(x=>({...x,warTrophies:null}))});
+  const partial=rankLatest([bad],incompleteRegistry,byId('war-trophies'));
+  assert.equal(partial[0].value,null);
+  assert.equal(partial[0].capturedAt,null);
+});
+
+test('a completed ranking season is dated by its end, not by the OAuth capture date',()=>{
+  const chart=byId('war-season-rank');
+  const model=prepare([original],registry,chart);
+  assert.equal(model.rows[0].capturedAt,'2026-10-21T10:55:00.466Z');
+  assert.equal(model.series[0].points[0].plotAt,
+    '2026-10-11T20:00:00.000Z');
+  const js=read('docs/alliance-history.js');
+  assert.match(js,/plotAt\|\|p.capturedAt/);
+  assert.match(js,/Saison du /);
+  assert.doesNotMatch(js,/previous\.seasonId!==p\.seasonId\)flush\(\)/);
 });

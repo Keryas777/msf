@@ -22,8 +22,7 @@
       "id": "raid-season-rank",
       "field": "raidRank",
       "title": "Classement raid",
-      "frequency": "15-days",
-      "intervalDays": 15,
+      "frequency": "per-season",
       "higherIsBetter": false,
       "requiresSeasonQualification": true
     },
@@ -31,8 +30,7 @@
       "id": "war-season-rank",
       "field": "warRank",
       "title": "Classement guerre",
-      "frequency": "15-days",
-      "intervalDays": 15,
+      "frequency": "per-season",
       "higherIsBetter": false,
       "requiresSeasonQualification": true
     }

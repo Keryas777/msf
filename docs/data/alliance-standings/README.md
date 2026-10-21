@@ -10,25 +10,62 @@ Ce dossier définit le **contrat de données** des futurs graphiques de la WebAp
 
 Les clés `alliances[].key` sont celles de `../alliances.json`, qui fournit l'ordre, les noms, emojis et couleurs d'affichage. Les variantes Unicode du nom officiel (`nameAtCapture`) ne servent **jamais** de clé de rapprochement. Ne pas publier les empreintes internes `allianceFingerprint` ni les données de sessions OAuth.
 
-## Fréquences des futures courbes
+## Mesures et saisons : règles de tracé
 
-Une capture deux fois par semaine suffit à alimenter **les trois métriques**, sans effectuer trois collectes redondantes :
+La WebApp n'interroge pas directement Scopely. Les fréquences de capture seront
+définies dans un chantier séparé. Le contrat des graphiques est désormais :
 
 | Courbe | Champ | Points affichés | Sens de lecture |
 | --- | --- | --- | --- |
-| Trophées de guerre | `warTrophies` | Tous les relevés (objectif : 2/semaine) | Plus = mieux |
-| Classement raid | `raidRank` | Un relevé réel environ tous les 15 jours | **Plus petit = mieux** |
-| Classement guerre | `warRank` | Un relevé réel environ tous les 15 jours | **Plus petit = mieux** |
+| Trophées de guerre | `warTrophies` | Chaque relevé disponible après une guerre (objectif : deux/semaine) | Plus = mieux |
+| Classement raid | `raidRank` | **Un point par saison terminée identifiée** | Rang 1 = meilleur |
+| Classement guerre | `warRank` | **Un point par saison terminée identifiée** | Rang 1 = meilleur |
 
-Les points « tous les 15 jours » seront sélectionnés parmi les **dates réellement capturées**, sans interpolation ni ajout de valeurs supposées. Le filtre doit rester déterministe par date UTC. L'affichage des rangs inversera l'axe vertical ou explicitera que le rang 1 est le meilleur.
+Les rangs d'AllianceCard sont ceux de la **dernière saison achevée**.
+Ce n'est **pas** le classement de la saison en cours au moment du relevé.
+Si plusieurs relevés appartiennent à une même saison, conserver **un seul point**
+pour ce `seasonId` ; privilégier le dernier relevé complet. Ne pas
+calculer artificiellement « tous les 15 jours » à partir de `capturedAt`.
+Les listes de dernières valeurs sous les courbes utilisent le **même
+échantillon que leur graphique**, sans données supplémentaires.
 
-## Saisons et fiabilité
+Chaque capture garde sa date réelle `capturedAt` (celle des trophées),
+mais ses rangs sont liés à la saison **achevée** grâce à :
 
-L'API `/player/v1/alliance/card` renvoie les **derniers rangs connus**, mais **pas l'identifiant de saison**. Ainsi, `seasonId:null` et `seasonVerified:false` sont des informations substantielles : ne pas inventer une saison à partir de la date du relevé, ni tracer une continuité trompeuse entre deux saisons sans avoir identifié la transition.
+- `seasonId` : clé stable de la période, p. ex. `2026-09-27/2026-10-11` ;
+- `seasonVerified` : affectation validée par l'administrateur, et non par l'API ;
+- `rankingSeason.startAt` et `rankingSeason.endExclusiveAt` : bornes
+  **UTC**, borne finale exclusive ;
+- `rankingSeason.identification: "user-confirmed"` :
+  source de la qualification de saison ;
+- `rankingSeason.timezone: "Europe/Paris"` : fuseau d'affichage.
 
-`warTrophies` est le niveau de trophées détenu par l'alliance ; **ce n'est pas le score de classement d'une saison de guerre**. Aucun champ de points saisonniers de raid n'est présent dans le relevé.
+L'API ne renvoie aucun identifiant de saison. Pour une capture non attribuable
+avec certitude, laisser `seasonVerified:false` ; ne jamais deviner sa période.
 
-Un instantané incomplet garde `completeSessionScan:false` et ses compteurs de couverture ; les alliances manquantes restent manquantes (pas de valeur 0 ou de reprise implicite d'une capture antérieure).
+### Relevé initial et passage à l'heure d'hiver
+
+Le relevé du **21 octobre 2026, à 10:55:00 UTC**, contient les rangs guerre
+et raid de la saison **du 27 septembre 2026 à 22 h (CEST) au 11 octobre
+2026 à 21 h 59 (CEST)**, confirmé par l'administrateur. En UTC :
+
+`[2026-09-27T20:00:00.000Z, 2026-10-11T20:00:00.000Z[`
+
+Le total de trophées enregistré simultanément est, lui, celui du
+**21 octobre**, et ne doit pas être reporté au 11 octobre.
+
+La saison suivante est annoncée du **11 au 25 octobre 2026**. Sous
+l'hypothèse (à confirmer côté MSF) d'un changement de saison conservé
+à **20 h UTC**, elle se terminera le dimanche 25 octobre à **20 h 59,
+heure française CET**, avec une saison suivante commençant à 21 h CET.
+Le retour à l'heure d'hiver survient dans la nuit du 24 au 25 octobre.
+Ne pas inscrire cette hypothèse comme saison vérifiée avant observation.
+
+`warTrophies` reste un total de trophées, non un score saisonnier.
+L'API ne fournit pas le total de points de saison raid.
+
+Les captures partielles conservent `completeSessionScan:false` et leurs
+compteurs de couverture ; aucune valeur manquante n'est transformée en zéro.
 
 ## Ajout d'un relevé
 
@@ -36,7 +73,7 @@ Un instantané incomplet garde `completeSessionScan:false` et ses compteurs de c
 2. Créer **un nouveau fichier** sous `snapshots/`, sans réécrire les anciens. Conserver `capturedAt`, les champs numériques et la qualification de saison.
 3. Ajouter **une seule entrée** à `index.json`, ordonnée par `capturedAt` et sans doublon.
 4. Valider les clés dans `../alliances.json` et exécuter `node --test tests/alliance-standings-data.test.mjs`.
-5. Les graphiques seront créés plus tard ; aucun code actuel de classement, PWA, roster ou guerre n'est modifié dans cette première étape.
+5. Vérifier la provenance de l'affectation de saison. Les graphiques existants lisent l'index et les captures, sans modification de l'accueil.
 
 ## Provenance et conservation
 
