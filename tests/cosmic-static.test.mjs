@@ -228,7 +228,7 @@ test("cosmic visual design matches the common LoSP dark glass theme", async () =
 test("Marvel Church saison 25 : recommandations DÉFENSIVES importées sans inventer les cinq personnages", async () => {
   const [raw, catalog, config, characters] = await Promise.all([
     read("docs/data/cosmic-defenses.json"),
-    read("docs/data/cosmic-defense-catalog.js"),
+    read("docs/cosmic-defense-catalog.js"),
     read("docs/data/cosmic-config.json"),
     read("docs/data/msf-characters.json")
   ]);
