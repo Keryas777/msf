@@ -240,8 +240,8 @@ test("Marvel Church saison 25 : recommandations DÉFENSIVES importées sans inve
   assert.deepEqual(church.reduce((acc,c)=>(acc[c.room]=(acc[c.room]||0)+1,acc),{}),
     {1:2,2:2,3:3,4:2,5:2,6:1});
   assert.equal(church.filter(c=>c.name.startsWith("Best Defense")).length,4);
-  assert.equal(church.filter(c=>c.name.startsWith("Optimal Defense")).length,4);
-  assert.equal(church.filter(c=>c.name.startsWith("Budget Defense")).length,4);
+  assert.equal(church.filter(c=>c.name.startsWith("Optimal Defense")).length,3);
+  assert.equal(church.filter(c=>c.name.startsWith("Budget Defense")).length,5);
   for (const entry of church) {
     assert.equal(entry.season,season);
     assert.equal(entry.collection,"Marvel Church — Saison 25");
