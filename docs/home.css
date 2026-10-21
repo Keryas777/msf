@@ -354,19 +354,3 @@
     transition: none !important;
   }
 }
-/* Accès Battleworld : lien autonome pour préserver la grille d'images existante */
-.homeBattleworld {
-  display:flex; align-items:center; gap:12px;
-  width:92%; margin:0 auto 4px; min-height:66px; padding:10px 14px;
-  border:1px solid rgba(191,136,255,.42); border-radius:17px;
-  background:linear-gradient(120deg,rgba(87,43,138,.70),rgba(21,18,40,.86));
-  color:var(--text); text-decoration:none; box-shadow:0 6px 24px rgba(48,20,85,.32);
-  -webkit-tap-highlight-color:transparent;
-}
-.homeBattleworld:active { transform:scale(.988); }
-.homeBattleworld:focus-visible { outline:2px solid #e6c4ff; outline-offset:3px; }
-.homeBattleworldIcon { font-size:27px; flex:0 0 auto; }
-.homeBattleworldText { display:flex; flex-direction:column; gap:3px; min-width:0; }
-.homeBattleworldText strong { font-size:17px; letter-spacing:.02em; }
-.homeBattleworldText small { color:rgba(238,220,255,.8); font-size:12px; }
-.homeBattleworldArrow { margin-left:auto; font-size:28px; color:#dfb6ff; }
