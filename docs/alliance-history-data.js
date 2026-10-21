@@ -59,5 +59,26 @@
     return {rows, series, field: chart.field,
       latestAt: rows.length ? rows[rows.length - 1].capturedAt : null};
   }
-  root.LoSPStandingsSeries = Object.freeze({chooseSnapshots, prepare});
+  // The current standings list always uses the latest AVAILABLE actual reading
+  // for each alliance. Graph sampling (e.g. every 15 days) must not make the
+  // displayed 'latest' figures stale when newer snapshots exist.
+  function rankLatest(snapshots, alliances, chart) {
+    const full = prepare(snapshots, alliances, {...chart, frequency: 'all-snapshots'});
+    return full.series.map((alliance, index) => {
+      const last = [...alliance.points].reverse().find(point => point.value !== null);
+      return {
+        key: alliance.key, name: alliance.name, emoji: alliance.emoji,
+        color: alliance.color, order: index,
+        value: last ? last.value : null,
+        capturedAt: last ? last.capturedAt : null
+      };
+    }).sort((a, b) => {
+      if (a.value === null) return b.value === null ? a.order - b.order : 1;
+      if (b.value === null) return -1;
+      if (a.value !== b.value)
+        return chart.higherIsBetter ? b.value - a.value : a.value - b.value;
+      return a.order - b.order;
+    });
+  }
+  root.LoSPStandingsSeries = Object.freeze({chooseSnapshots, prepare, rankLatest});
 })(window);
