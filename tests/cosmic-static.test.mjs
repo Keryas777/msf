@@ -236,11 +236,11 @@ test("Marvel Church saison 25 : recommandations DÉFENSIVES importées sans inve
   const playable=new Set(JSON.parse(characters).filter(c=>c.player_Character===true).map(c=>c.id));
   const church=rows.filter(c=>c.source==="Marvel Church");
   assert.equal(season,"season-25");
-  assert.equal(church.length,12);
+  assert.equal(church.length,14);
   assert.deepEqual(church.reduce((acc,c)=>(acc[c.room]=(acc[c.room]||0)+1,acc),{}),
-    {1:2,2:2,3:3,4:2,5:2,6:1});
-  assert.equal(church.filter(c=>c.name.startsWith("Best Defense")).length,4);
-  assert.equal(church.filter(c=>c.name.startsWith("Optimal Defense")).length,3);
+    {1:2,2:2,3:3,4:2,5:2,6:3});
+  assert.equal(church.filter(c=>c.name.startsWith("Best Defense")).length,5);
+  assert.equal(church.filter(c=>c.name.startsWith("Optimal Defense")).length,4);
   assert.equal(church.filter(c=>c.name.startsWith("Budget Defense")).length,5);
   for (const entry of church) {
     assert.equal(entry.season,season);
@@ -255,5 +255,17 @@ test("Marvel Church saison 25 : recommandations DÉFENSIVES importées sans inve
   const specific=church.find(c=>c.room===3&&c.name.startsWith("Optimal Defense"));
   assert.ok(specific?.characters.includes("EmmaFrost"));
   assert.ok(specific?.characters.includes("EmmaFrostXMen"));
+  const room6=church.filter(c=>c.room===6);
+  const best=room6.find(c=>c.name.startsWith("Best Defense"));
+  const optimal=room6.find(c=>c.name.startsWith("Optimal Defense"));
+  assert.deepEqual(best?.characters,
+    ["InvisibleWomanMCU","MrFantasticMCU","FranklinRichards","Sentry","BlueMarvel"]);
+  assert.deepEqual(optimal?.characters,
+    ["InvisibleWomanMCU","MrFantasticMCU","FranklinRichards","CaptainBritain","Nightcrawler"]);
+  for (const entry of [best,optimal]) {
+    assert.equal(entry.characters.includes("Thing"),false);
+    assert.equal(entry.characters.includes("HumanTorch"),false);
+    assert.match(entry.notes,/non détaillée sur le guide Marvel Church/);
+  }
   assert.match(catalog,/collection \|\| \(external \? source/);
 });
