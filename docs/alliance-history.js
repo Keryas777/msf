@@ -170,7 +170,7 @@
     }
     for(const s of model.series){
       const color=safeColor(s.color);
-      let segment=[],previous=null;
+      let segment=[];
       const flush=()=>{
         if(segment.length>1)
           refs.plot.append(svg('polyline',{
@@ -179,11 +179,10 @@
         segment=[];
       };
       for(const p of s.points){
-        if(p.value===null){flush();previous=null;continue;}
-        if(previous?.seasonId&&p.seasonId&&
-            previous.seasonId!==p.seasonId)flush();
+        if(p.value===null){flush();continue;}
+        // Adjacent completed seasons must be connected to show
+        // how each alliance's ranking evolves between seasons.
         segment.push({x:x(Date.parse(p.plotAt||p.capturedAt)),y:y(p.value)});
-        previous=p;
       }
       flush();
       for(const p of s.points){
@@ -259,8 +258,8 @@
       legend.append(dot,el('span','',s.emoji+' '+s.name));
       refs.legend.append(legend);
     }
-    // Unlike the 15-day chart, this ranking uses the latest real reading
-    // per alliance, so recently captured results are not hidden by sampling.
+    // The summary uses the same snapshots selected for the chart:
+    // one point per completed season, or every measured trophy reading.
     const standings=window.LoSPStandingsSeries.rankLatest(
       state.snapshots,state.registry,chart);
     refs.latestTitle.textContent=chart.field==='warTrophies'?
