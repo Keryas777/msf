@@ -46,7 +46,7 @@ test("index is ordered, references real snapshots and has unique capture timesta
     }
   }
 });
-test("three charts use one capture source; ranks have real 15-day samples",()=>{
+test("three charts use one capture source; ranks use one point per completed season",()=>{
   assert.equal(config.version,1);
   assert.equal(config.allianceRegistry,"../alliances.json");
   assert.equal(config.capture.targetPerWeek,2);
@@ -56,9 +56,9 @@ test("three charts use one capture source; ranks have real 15-day samples",()=>{
   assert.equal(new Set(config.charts.map(x=>x.id)).size,3);
   for(const [i,chart] of config.charts.entries()){
     assert.equal(chart.higherIsBetter,i===0);
-    assert.equal(chart.frequency,i===0?"all-snapshots":"15-days");
+    assert.equal(chart.frequency,i===0?"all-snapshots":"per-season");
     if(i>0){
-      assert.equal(chart.intervalDays,15);
+      assert.equal(Object.hasOwn(chart,"intervalDays"),false);
       assert.equal(chart.requiresSeasonQualification,true);
     }
     assert.equal(Object.hasOwn(chart,"alliances"),false);
@@ -68,8 +68,12 @@ test("the 21 October source capture matches user-confirmed Zeus values",()=>{
   const first=data(index.snapshots[0].file);
   assert.equal(first.capturedAt,"2026-10-21T10:55:00.466Z");
   assert.equal(first.source,"/player/v1/alliance/card");
-  assert.equal(first.seasonId,null);
-  assert.equal(first.seasonVerified,false);
+  assert.equal(first.seasonId,"2026-09-27/2026-10-11");
+  assert.equal(first.seasonVerified,true);
+  assert.equal(first.rankingSeason.identification,"user-confirmed");
+  assert.equal(first.rankingSeason.startAt,"2026-09-27T20:00:00.000Z");
+  assert.equal(first.rankingSeason.endExclusiveAt,"2026-10-11T20:00:00.000Z");
+  assert.equal(index.snapshots[0].seasonId,first.seasonId);
   assert.equal(first.alliances.length,5);
   const zeus=first.alliances.find(x=>x.key==="zeus");
   assert.equal(zeus.warTrophies,2875);
