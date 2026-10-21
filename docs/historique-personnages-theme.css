@@ -440,3 +440,15 @@ body.archiveCharactersPage .detailSheet a:focus-visible {
   .archiveApp .statCard { padding: 9px 6px; }
   .archiveApp .statCard strong { font-size: 19px; }
 }
+
+/* Catalogue personnages : recherche pleine largeur, année et tri sur une même ligne. */
+.archiveApp .filterGrid.filterGrid--compact {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+}
+.archiveApp .filterGrid--compact .field,
+.archiveApp .filterGrid--compact select {
+  min-width: 0;
+}
+.archiveApp .filterGrid--compact .field--search {
+  grid-column: 1 / -1;
+}
