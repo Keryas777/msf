@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080a12">
+  <style>html.authChecking body{opacity:0;pointer-events:none}</style>
+  <script>document.documentElement.classList.add("authChecking");</script>
+  <script src="./auth-guard.js?v=4"></script>
+  <title>Historique des alliances — LoSP</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./alliance-history.css?v=1">
+</head>
+<body class="pageAllianceHistory">
+  <main class="app allianceHistory">
+    <header class="historyHeader">
+      <p class="historyEyebrow">GROUPEMENT LoSP</p>
+      <h1>Historique des alliances</h1>
+      <p>Évolution des trophées et des classements</p>
+    </header>
+
+    <section class="historyControls" aria-label="Choisir un graphique">
+      <div class="historyPrimaryTabs" role="tablist" aria-label="Mode de jeu">
+        <button id="history-war" class="historyChip historyChip--primary is-active" type="button"
+          role="tab" aria-selected="true" aria-controls="history-panel" data-mode="war">⚔️ Guerre</button>
+        <button id="history-raid" class="historyChip historyChip--primary" type="button"
+          role="tab" aria-selected="false" aria-controls="history-panel" data-mode="raid">🛡️ Raid</button>
+      </div>
+      <div class="historySecondaryTabs" role="group" aria-label="Graphique choisi">
+        <div class="historySecondaryGroup" id="history-war-choices">
+          <button class="historyChip historyChip--secondary is-active" type="button"
+            aria-pressed="true" data-chart="war-trophies">Trophées</button>
+          <button class="historyChip historyChip--secondary" type="button"
+            aria-pressed="false" data-chart="war-season-rank">Classement saison</button>
+        </div>
+        <div class="historySecondaryGroup" id="history-raid-choices" hidden>
+          <button class="historyChip historyChip--secondary is-active" type="button"
+            aria-pressed="true" data-chart="raid-season-rank">Classement saison</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="historyChartCard" id="history-panel" role="tabpanel" aria-labelledby="history-war">
+      <div class="historyChartHead">
+        <div>
+          <h2 id="history-chart-title">Évolution des trophées de guerre</h2>
+          <p id="history-chart-period">Chargement des relevés…</p>
+        </div>
+        <span id="history-chart-count" class="historyCount">—</span>
+      </div>
+      <p class="historyStatus" id="history-status" role="status">Chargement de l’historique…</p>
+      <div id="history-plot-wrap" class="historyPlotWrap" hidden>
+        <svg id="history-plot" class="historyPlot" role="img" aria-label="Graphique d'évolution des cinq alliances"></svg>
+      </div>
+      <div id="history-legend" class="historyLegend" aria-label="Légende des alliances"></div>
+      <div id="history-latest" class="historyLatest" aria-label="Derniers résultats"></div>
+      <p id="history-note" class="historyNote"></p>
+    </section>
+  </main>
+  <script src="./alliance-history-data.js?v=1" defer></script>
+  <script src="./alliance-history.js?v=1" defer></script>
+</body>
+</html>

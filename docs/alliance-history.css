@@ -1,0 +1,59 @@
+/* Standalone LoSP alliance standings page — vanilla CSS, mobile first. */
+.pageAllianceHistory {
+  min-height: 100vh;
+  background: #070b16 radial-gradient(ellipse at 50% 0, #1d2345 0, #0d1224 48%, #070b16 100%) no-repeat;
+  color: #f6f7fc;
+}
+.pageAllianceHistory [hidden] { display: none !important; }
+.allianceHistory { max-width: 1040px; padding: 16px 12px calc(28px + env(safe-area-inset-bottom)); gap: 16px; }
+.historyHeader { text-align: center; padding: 28px 10px 10px; }
+.historyEyebrow { margin: 0 0 7px; color: #b0b9d4; font-size: .7rem; font-weight: 900; letter-spacing: .18em; }
+.historyHeader h1 { font-size: clamp(1.65rem, 6vw, 2.5rem); line-height: 1.1; margin: 0; font-weight: 900; }
+.historyHeader > p:last-child { margin: 10px 0 0; color: #adb7d2; font-size: .92rem; }
+.historyControls { display: grid; gap: 10px; }
+.historyPrimaryTabs,
+.historySecondaryGroup { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+#history-raid-choices { grid-template-columns: minmax(0, 1fr); }
+.historyChip {
+  min-width: 0; min-height: 48px; padding: 12px 8px; border-radius: 16px;
+  border: 1px solid #404968; background: #151c30; color: #b6bfd9;
+  font: inherit; font-size: .94rem; font-weight: 800; text-align: center;
+  cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.historyChip--primary { min-height: 54px; font-size: 1.08rem; }
+.historyChip--primary.is-active { background: #293557; border-color: #9aaedf; color: #fff; box-shadow: inset 0 -2px 0 #aec1f5; }
+.historyChip--secondary.is-active { background: #364268; border-color: #a9bff8; color: #fff; }
+.historyChip:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.historyChartCard { padding: 16px 11px 17px; border: 1px solid #343e5a; border-radius: 20px; background: rgba(10,16,33,.92); box-shadow: 0 9px 40px rgba(0,0,0,.22); }
+.historyChartHead { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 0 3px 10px; }
+.historyChartHead h2 { font-size: 1.17rem; line-height: 1.23; margin: 0; }
+.historyChartHead p { font-size: .78rem; line-height: 1.3; color: #aeb8d0; margin: 7px 0 0; }
+.historyCount { background: #202b48; border: 1px solid #374665; padding: 7px 9px; border-radius: 11px; white-space: nowrap; font-size: .75rem; font-weight: 800; }
+.historyStatus { color: #d0dbf3; font-size: .88rem; line-height: 1.4; margin: 7px 2px 13px; }
+.historyPlotWrap { border: 1px solid #2c3552; border-radius: 16px; background: #0b1122; padding: 8px 3px 2px; overflow: hidden; }
+.historyPlot { display: block; width: 100%; height: auto; overflow: visible; touch-action: manipulation; }
+.historyPlot .historyGridLine { stroke: #27324b; stroke-width: 1; }
+.historyPlot .historyAxisText { fill: #b0bed8; font: 11px system-ui, -apple-system, sans-serif; }
+.historyPlot .historyPlotLine { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.historyPlot .historyPlotDot { cursor: pointer; stroke: #0b1122; stroke-width: 2.5; }
+.historyPlot .historyPlotDot:focus { stroke: #fff; stroke-width: 3; outline: none; }
+.historyLegend { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; margin: 14px 3px; }
+.historyLegendEntry { display: flex; align-items: center; min-width: 0; gap: 7px; color: #e8eaf3; font-weight: 800; font-size: .86rem; }
+.historyLegendDot { flex: 0 0 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(255,255,255,.35); }
+.historyLegendEntry span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.historyLatest { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.historyLatestItem { min-width: 0; border: 1px solid #2d3856; border-radius: 13px; padding: 10px; background: #131d35; border-left: 3px solid var(--alliance-color, #fff); }
+.historyLatestName { color: #c6cfe4; font-size: .78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.historyLatestValue { font-size: 1.32rem; font-weight: 900; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.historyLatestDate { margin-top: 4px; font-size: .68rem; color: #9faecb; }
+.historyNote { color: #aab5cf; font-size: .76rem; line-height: 1.5; margin: 14px 3px 0; }
+@media (min-width: 600px) {
+  .allianceHistory { padding: 24px; }
+  .historyControls { max-width: 680px; margin: 0 auto; width: 100%; }
+  .historyChartCard { padding: 23px 22px; }
+  .historyChartHead h2 { font-size: 1.45rem; }
+  .historyLegend { grid-template-columns: repeat(5,minmax(0,1fr)); }
+  .historyLatest { grid-template-columns: repeat(5,minmax(0,1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { .historyChip { transition: none; } }
