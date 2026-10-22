@@ -36,7 +36,9 @@
     const tier = presentationFor(entry);
 
     if (!external) {
-      const title = text(entry?.title) || collection || "Mes défenses";
+      // Ancien défaut migré à l'affichage sans modifier les contributions historiques.
+      const rawTitle=text(entry?.title)||collection;
+      const title=!rawTitle||rawTitle==="Mes défenses"?"Défense standard":rawTitle;
       // L'ID Discord est stable même si le membre change de pseudo serveur.
       const authorKey = text(entry?.authorDiscordId) || normalize(owner);
       return {

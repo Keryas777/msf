@@ -203,7 +203,7 @@ test("titre vide par défaut, titre trop long ou mal typé rejeté",async()=>{
   const empty=fixture();
   await withMock(empty.mockFetch,async()=>{
     assert.equal((await worker.fetch(post([make()],{title:"   "}),empty.env)).status,200);
-    assert.equal(empty.getRows()[0].title,"Mes défenses");
+    assert.equal(empty.getRows()[0].title,"Défense standard");
   });
   for(const bad of ["X".repeat(61),{unsafe:"object"},5]) {
     const x=fixture();
@@ -213,4 +213,20 @@ test("titre vide par défaut, titre trop long ou mal typé rejeté",async()=>{
       assert.equal(x.calls.filter(c=>c.method!=="GET").length,0);
     });
   }
+});
+
+
+test("anciens titres génériques deviennent Défense standard sans effacer d'autres salles",async()=>{
+  const old={season:"season-25",room:2,characters:make(2).characters,
+    authorDiscordId:"300305626926415874",source:"Personnel",
+    title:"Mes défenses",author:"Keryas",notes:"Ne rien perdre"};
+  const x=fixture({old:[old]});
+  await withMock(x.mockFetch,async()=>{
+    assert.equal((await worker.fetch(post([make(1)]),x.env)).status,200);
+    const rows=x.getRows().filter(r=>r.source==="Personnel");
+    assert.equal(rows.length,2);
+    assert.ok(rows.every(r=>r.title==="Défense standard"));
+    assert.deepEqual(rows.find(r=>r.room===2).characters,old.characters);
+    assert.equal(rows.find(r=>r.room===2).notes,"Ne rien perdre");
+  });
 });
