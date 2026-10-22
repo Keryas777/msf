@@ -293,7 +293,7 @@ test("Marvel Church saison 25 : recommandations DÉFENSIVES importées sans inve
     assert.equal(variant.characters.includes("Sunspot"),false);
     assert.match(variant.notes,/Solar/);
   }
-  assert.match(catalog,/collection \|\| \(external \? source/);
+  assert.match(catalog,/const title = text\(entry\?\.title\) \|\| collection \|\| "Mes défenses"/);
 });
 
 
@@ -303,8 +303,8 @@ test("consultation : badges français, titres séparés, sources homogènes et c
     read("docs/cosmic.css"),read("docs/cosmic-defense-catalog.js")
   ]);
   assert.match(html,/cosmic\.css\?v=9/);
-  assert.match(html,/cosmic-defense-catalog\.js\?v=2/);
-  assert.match(html,/cosmic-defenses\.js\?v=8/);
+  assert.match(html,/cosmic-defense-catalog\.js\?v=3/);
+  assert.match(html,/cosmic-defenses\.js\?v=9/);
   assert.match(js,/catalog\.sortedForDisplay\(list\.filter/);
   assert.match(js,/catalog\.presentationFor\(entry\)/);
   assert.match(js,/make\("span", "cosmicDefenseTier cosmicDefenseTier--" \+ presentation\.key/);
@@ -318,4 +318,23 @@ test("consultation : badges français, titres séparés, sources homogènes et c
   assert.match(catalog,/function sortedForDisplay\(entries\)/);
   // Le formulaire et le moteur de publication ne changent pas.
   assert.match(js,/localStorage\.setItem\(DRAFT_KEY/);
+});
+
+
+test("publication : titre facultatif, conservé dans le brouillon et envoyé au Worker",async()=>{
+  const [js,html,browse,server]=await Promise.all([
+    read("docs/cosmic-defenses.js"),read("docs/cosmic-defense-propose.html"),
+    read("docs/cosmic-defenses.html"),read("workers/msf-cosmic-defenses/worker.js")
+  ]);
+  assert.match(html,/id="proposalTitle"[^>]*maxlength="60"/);
+  assert.match(html,/cosmic-defenses\.js\?v=9/);
+  assert.match(browse,/cosmic-defense-catalog\.js\?v=3/);
+  assert.match(browse,/cosmic-defenses\.js\?v=9/);
+  assert.match(js,/title: safeText\(proposalTitle\?\.value, 60\)/);
+  assert.match(js,/if \(proposalTitle\) proposalTitle\.value = safeText\(draft\.title, 60\)/);
+  assert.match(js,/proposalTitle\?\.addEventListener\("input", saveDraft\)/);
+  assert.match(js,/title:submission\.title/);
+  assert.match(server,/name:"Défense de "\+author\.name,title,notes:r\.notes/);
+  assert.match(server,/payload\.title\.length > 60/);
+  assert.doesNotMatch(server,/author:payload\.author/);
 });

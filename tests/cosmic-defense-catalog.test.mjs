@@ -34,11 +34,11 @@ test("groupement joueurs et Marvel Church, plusieurs salles par contributeur", (
   const groups = groupsFor(rows);
   assert.equal(groups.length, 3);
   assert.equal(groups[0].kind, "player");
-  assert.equal(groups[0].label, "Défenses de Autre");
-  const playerGroup = groups.find(x => x.label === "Défenses de Keryas");
+  assert.equal(groups[0].label, "Autre (Mes défenses) S25");
+  const playerGroup = groups.find(x => x.label === "Keryas (Mes défenses) S25");
   assert.equal(playerGroup.count, 2);
   assert.equal(entriesForGroup(rows, playerGroup.id).length, 2);
-  const external = groups.find(x => x.label === "Marvel Church");
+  const external = groups.find(x => x.label === "Marvel Church S25");
   assert.equal(external.kind, "source");
   assert.equal(external.count, 2);
   assert.equal(entriesForGroup(rows, external.id).length, 2);
@@ -103,4 +103,47 @@ test("toutes les 20 compositions saison 25 se trient par priorité à chaque sal
     assert.deepEqual(ranks,[...ranks].sort((a,b)=>a-b));
     assert.ok(entries.every(e=>presentationFor(e).label),"label de guide traduit");
   }
+});
+
+
+test("Marvel Church est présent trois fois : meilleure, optimisée, économique dans cet ordre", async () => {
+  const rows=JSON.parse(await readFile(new URL("../docs/data/cosmic-defenses.json",import.meta.url),"utf8"));
+  const church=activeEntries(rows,"season-25").filter(row=>row.source==="Marvel Church");
+  const groups=groupsFor(church);
+  assert.deepEqual(groups.map(group=>group.label),[
+    "Marvel Church (meilleure défense) S25",
+    "Marvel Church (défense optimisée) S25",
+    "Marvel Church (défense économique) S25"
+  ]);
+  assert.deepEqual(groups.map(group=>group.count),[7,7,6]);
+  for(const group of groups) {
+    const members=entriesForGroup(church,group.id);
+    assert.equal(members.length,group.count);
+    assert.ok(members.every(row=>groupFor(row).id===group.id));
+  }
+  assert.equal(rows[0].collection,"Marvel Church — Saison 25","le JSON n'est pas modifié");
+});
+
+test("pseudo Discord (titre personnel) S25, titre ancien manquant et saison suivante", () => {
+  const me={...make("season-25",1,"🚂Keryas","Personnel"),title:"Défense polyvalente",authorDiscordId:"300305626926415874"};
+  const second={...me,room:2};
+  const other={...make("season-25",3,"Autre","Personnel"),title:"Ma défense"};
+  const legacy=make("season-25",4,"Ancien","Personnel");
+  const next={...me,season:"season-26"};
+  const groups=groupsFor([me,second,other,legacy,next]);
+  assert.equal(groups.find(g=>g.label==="🚂Keryas (Défense polyvalente) S25").count,2);
+  assert.equal(groups.find(g=>g.label==="🚂Keryas (Défense polyvalente) S26").count,1);
+  assert.ok(groups.some(g=>g.label==="Ancien (Mes défenses) S25"));
+  assert.ok(groups.some(g=>g.label==="Autre (Ma défense) S25"));
+  assert.notEqual(groupFor(me).id,groupFor(next).id);
+  assert.equal(groupFor({...me,author:"Nouveau pseudo"}).id,groupFor(me).id,
+    "le changement du pseudo Discord ne change pas la clé de propriété");
+});
+
+test("une autre source conserve ses collections et une catégorie non classée", () => {
+  const one={...make("season-25",1,"","Autre guide","Collection A"),name:"Équipe spéciale"};
+  const two={...make("season-25",2,"","Autre guide","Collection B"),name:"Équipe B"};
+  const groups=groupsFor([one,two]);
+  assert.deepEqual(groups.map(g=>g.label),["Collection A S25","Collection B S25"]);
+  assert.notEqual(groupFor(one).id,groupFor(two).id);
 });
