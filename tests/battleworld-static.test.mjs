@@ -133,7 +133,7 @@ test("Le portrait conserve son cadrage et essaie la variante jouable après PVE"
   assert.match(js, /bossPortrait\.onerror = \(\) => \{/);
   assert.match(js, /tryNext\(\);/);
   assert.match(js, /portraitState\.token\+\+/);
-  assert.match(read("battleworld.html"), /battleworld\.js\?v=4/);
+  assert.match(read("battleworld.html"), /battleworld\.js\?v=5/);
   assert.match(read("battleworld.html"), /battleworld\.css\?v=4/);
 });
 
@@ -206,10 +206,63 @@ test("Affichage des rubriques et compatibilité des boss historiques", () => {
   assert.match(js, /renderMissionGroup\("Missions Élite"/);
   assert.match(js, /renderMissionGroup\("Missions Bonus"/);
   assert.match(js, /"Les stratégies contre ce boss sont à compléter/);
-  assert.match(html, /battleworld\.js\?v=4/);
+  assert.match(html, /battleworld\.js\?v=5/);
   assert.match(html, /battleworld\.css\?v=4/);
   for (const name of ["knull", "sentry", "maestro"]) {
     const archived = JSON.parse(read("data/battleworld/" + name + ".json"));
     assert.equal(Object.hasOwn(archived, "zones"), false);
   }
+});
+
+test("Tous les panneaux de mission commencent repliés, y compris le premier", () => {
+  const script = read("battleworld.js");
+  const begin = script.indexOf("  function makeMissionDetails(item) {");
+  const end = script.indexOf("  function renderOverview() {", begin);
+  assert.ok(begin >= 0 && end > begin, "Constructeurs de mission absents");
+  const missionFunctions = script.slice(begin, end);
+  assert.doesNotMatch(missionFunctions, /details\.open\s*=/);
+  assert.doesNotMatch(missionFunctions, /openFirst/);
+  assert.match(missionFunctions, /items\.forEach\(item => group\.append\(makeMissionDetails\(item\)\)\)/);
+  assert.doesNotMatch(script, /renderMissionGroup\("Missions Standard"[^\n]*true\)/);
+});
+
+test("Toutes les équipes documentées présentent cinq portraits, avec variantes illustratives identifiées", () => {
+  const guide = JSON.parse(read("data/battleworld/destroyer.json"));
+  const characterIds = new Set(JSON.parse(read("data/msf-characters.json")).map(row => row.id));
+  const roster = JSON.parse(read("data/teams.json"));
+  const documented = [
+    ...guide.zones.flatMap(zone => [...zone.nodes, zone.miniboss, ...zone.eliteMissions, ...zone.bonusMissions].flatMap(m => m.teams)),
+    ...guide.boss.teams
+  ];
+  assert.equal(documented.length, 33);
+  const verified = new Map(roster.map(team => [team.team, team.characters]));
+  const expectedRosters = [
+    ["z1-standard3", "Insidious Six"],
+    ["z1-miniboss", "Eternels Intemporels"],
+    ["z2-standard2", "Insidious Six"],
+    ["z2-miniboss", "Eternels Intemporels"],
+    ["destroyer-timeless", "Eternels Intemporels"],
+    ["destroyer-daring", "Guerriers Audacieux"]
+  ];
+  for (const [id, name] of expectedRosters) {
+    const entry = documented.find(t => t.id === id);
+    assert.deepEqual(entry.characters, verified.get(name), id + " ne correspond pas au roster LoSP");
+  }
+  let illustrative = 0;
+  for (const team of documented) {
+    const members = team.illustrativeCharacters || team.characters;
+    assert.equal(members.length, 5, team.id + " doit afficher cinq personnages");
+    assert.equal(new Set(members).size, 5, team.id + " contient des doublons");
+    for (const member of members) assert.ok(characterIds.has(member), team.id + " : ID inconnu " + member);
+    if (team.illustrativeCharacters) {
+      illustrative++;
+      assert.ok(team.characters.length > 0 && team.characters.length < 5);
+      assert.ok(team.notes.some(note => /non confirmée|non confirmé|ne précise pas/.test(note)), team.id);
+    }
+  }
+  assert.equal(illustrative, 3, "Les trois hybrides doivent rester explicitement illustratifs");
+  const script = read("battleworld.js");
+  assert.match(script, /illustrativeCharacters/);
+  assert.match(script, /Composition illustrative/);
+  assert.match(read("battleworld.html"), /battleworld\.js\?v=5/);
 });
