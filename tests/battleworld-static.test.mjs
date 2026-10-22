@@ -133,6 +133,83 @@ test("Le portrait conserve son cadrage et essaie la variante jouable après PVE"
   assert.match(js, /bossPortrait\.onerror = \(\) => \{/);
   assert.match(js, /tryNext\(\);/);
   assert.match(js, /portraitState\.token\+\+/);
-  assert.match(read("battleworld.html"), /battleworld\.js\?v=3/);
-  assert.match(read("battleworld.html"), /battleworld\.css\?v=3/);
+  assert.match(read("battleworld.html"), /battleworld\.js\?v=4/);
+  assert.match(read("battleworld.html"), /battleworld\.css\?v=4/);
+});
+
+
+test("Fallen Asgard documente les 27 missions, 3 mini-boss, bonus et Elite", () => {
+  const guide = JSON.parse(read("data/battleworld/destroyer.json"));
+  assert.equal(guide.zones.length, 3);
+  assert.ok(guide.overview);
+  assert.equal(guide.overview.eliteDebuffs.length, 3);
+  guide.overview.eliteDebuffs.forEach(item => assert.equal(item.levels.length, 3));
+  assert.ok(guide.overview.progression.length >= 3);
+  assert.ok(guide.overview.tokens.length >= 3);
+  assert.ok(guide.overview.rewards.length >= 4);
+
+  let total = 0;
+  for (const zone of guide.zones) {
+    assert.equal(zone.nodes.length, 3);
+    assert.equal(zone.eliteMissions.length, 3);
+    assert.equal(zone.bonusMissions.length, 2);
+    assert.ok(zone.miniboss && zone.miniboss.id === "mini-boss");
+    const missions = [...zone.nodes, zone.miniboss, ...zone.eliteMissions, ...zone.bonusMissions];
+    assert.equal(missions.length, 9);
+    total += missions.length;
+    assert.equal(new Set(missions.map(item => item.id)).size, 9);
+    missions.forEach(item => {
+      for (const field of ["restrictions","enemies","mechanics","objectives","strategy","avoid","instructions","teams","notes","warnings","sources"]) {
+        assert.ok(Array.isArray(item[field]), zone.id + "/" + item.id + " missing " + field);
+      }
+      assert.ok(item.sources.some(source => source.url === "https://www.marvel.church/battleworld-fallen-asgard/"));
+    });
+  }
+  assert.equal(total, 27);
+  assert.equal(guide.boss.teams.length, 5);
+  assert.ok(guide.boss.mechanics.length >= 12);
+  assert.equal(guide.boss.baseSpeed, 100);
+});
+
+test("Équipes et sources : IDs jouables vérifiés, lacunes visibles, ancienne rotation conservée", () => {
+  const guide = JSON.parse(read("data/battleworld/destroyer.json"));
+  const ids = new Set(JSON.parse(read("data/msf-characters.json")).map(item => item.id));
+  const sources = new Set();
+  const all = guide.zones.flatMap(z => [...z.nodes, z.miniboss, ...z.eliteMissions, ...z.bonusMissions]);
+  for (const item of [...all, guide.boss]) {
+    for (const team of item.teams) {
+      assert.ok(team.id && team.title);
+      for (const id of team.characters || []) assert.ok(ids.has(id), "Unknown character " + id);
+    }
+    item.sources.forEach(source => sources.add(source.url));
+  }
+  assert.ok(sources.has("https://www.marvel.church/battleworld-fallen-asgard/"));
+  const former = guide.zones[2].nodes[0];
+  assert.deepEqual(former.restrictions, ["Tech uniquement (restriction modifiée, auparavant Tech ET Héros)."]);
+  assert.equal(former.instructions.length, 0);
+  assert.ok(former.historicalInstructions.length >= 7);
+  assert.ok(guide.zones[0].bonusMissions[1].warnings.length > 0);
+  for (const zone of guide.zones.slice(1)) {
+    assert.equal(zone.bonusMissions.length, 2);
+    assert.ok(zone.bonusMissions.every(m => !m.teams.length && m.warnings.length));
+  }
+});
+
+test("Affichage des rubriques et compatibilité des boss historiques", () => {
+  const js = read("battleworld.js");
+  const html = read("battleworld.html");
+  assert.match(js, /function renderMissionGroup\(/);
+  assert.match(js, /function renderOverview\(/);
+  assert.match(js, /historicalInstructions/);
+  assert.match(js, /renderMissionGroup\("Missions Standard"/);
+  assert.match(js, /renderMissionGroup\("Mini-boss"/);
+  assert.match(js, /renderMissionGroup\("Missions Élite"/);
+  assert.match(js, /renderMissionGroup\("Missions Bonus"/);
+  assert.match(js, /"Les stratégies contre ce boss sont à compléter/);
+  assert.match(html, /battleworld\.js\?v=4/);
+  assert.match(html, /battleworld\.css\?v=4/);
+  for (const name of ["knull", "sentry", "maestro"]) {
+    const archived = JSON.parse(read("data/battleworld/" + name + ".json"));
+    assert.equal(Object.hasOwn(archived, "zones"), false);
+  }
 });

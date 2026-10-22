@@ -77,3 +77,20 @@
   .bw-character { min-width:42px; }
 }
 @media (prefers-reduced-motion:reduce) { .bw-tab { transition:none; } }
+
+/* Battleworld Fallen Asgard : groupes de missions et annexes détaillées. */
+.bw-mission-group { display:flex; flex-direction:column; gap:9px; min-width:0; }
+.bw-mission-heading {
+  margin:2px 0 0; padding:0 2px; color:#efdfff;
+  font-size:17px; line-height:1.35; letter-spacing:.01em;
+}
+.bw-group-note { margin:0 2px 3px; color:var(--muted); font-size:13px; line-height:1.5; }
+.bw-zone-note { padding-top:7px; }
+.bw-section-title { margin:0; font-size:18px; color:#f4e7ff; }
+.bw-boss-tactics .bw-section { margin-top:14px; }
+.bw-node summary:focus-visible { outline:2px solid #d5aaff; outline-offset:-3px; border-radius:12px; }
+.bw-overview, .bw-boss-mechanics { border-color:rgba(176,118,240,.36); }
+@media (max-width:420px) {
+  .bw-mission-heading { font-size:16px; }
+  .bw-node-title strong { font-size:15px; }
+}
