@@ -344,6 +344,18 @@
   }
 
   function renderBoss() {
+    // Les anciens boss n'ont pas encore de guide : conserver le message d'attente historique.
+    const hasContent = ["mechanics", "objectives", "strategy", "avoid", "instructions", "notes"].some(
+      field => validList(guide.boss[field]).length
+    ) || (Array.isArray(guide.boss.teams) && guide.boss.teams.length > 0);
+    if (!hasContent && !guide.overview) {
+      const intro = el("section", "card bw-intro");
+      intro.append(el("h2", "", "Boss — " + (guide.boss.name || selectedEntry.name)));
+      intro.append(el("p", "", "Mécaniques, erreurs à éviter, compositions conseillées et déroulement du combat."));
+      content.append(intro);
+      content.append(el("section", "card bw-empty", "Les stratégies contre ce boss sont à compléter. Aucune équipe n'est encore validée dans ce guide."));
+      return;
+    }
     const intro = el("section", "card bw-intro");
     intro.append(el("h2", "", "Boss — " + (guide.boss.name || selectedEntry.name)));
     intro.append(el("p", "", "Mécaniques, Rage, compositions utilisées et déroulement du combat."));
