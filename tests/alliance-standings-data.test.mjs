@@ -133,7 +133,7 @@ test('trophy post-war window has margins and includes the 22 October capture',()
   const cfg=config.capture.trophies;
   const w=cfg.window;
   const minutes=s=>{
-    assert.match(s,/^\\d{2}:\\d{2}$/);
+    assert.match(s,/^\d{2}:\d{2}$/);
     const [hour,minute]=s.split(':').map(Number);
     assert.ok(hour<24&&minute<60);
     return hour*60+minute;
