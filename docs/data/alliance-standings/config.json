@@ -16,10 +16,15 @@
         "friday"
       ],
       "scheduledAtUtc": "21:00",
-      "zone4WarEndsAtUtc": "19:00",
-      "nextZone1WarStartsAtUtc": "01:00",
       "requireCompleteSessionScan": true,
-      "note": "Collection after all zone-4 wars finish and before zone-1 restarts. Do not label off-window captures as post-war trophy observations."
+      "note": "Post-war trophies are persistent totals; the temporary season rank gap between zone 4 and zone 1 is irrelevant. Window: 20:00 UTC after war until 13:00 UTC the following day (two-hour margins around 18:00 war end and 15:00 next preparation). The recurring planned collection remains Wednesday/Friday at 21:00 UTC; confirm provider freshness and full coverage.",
+      "window": {
+        "warEndsAtUtc": "18:00",
+        "nextPreparationStartsAtUtc": "15:00",
+        "preparationDayOffset": 1,
+        "marginAfterWarEndMinutes": 120,
+        "marginBeforePreparationMinutes": 120
+      }
     }
   },
   "charts": [
