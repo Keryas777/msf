@@ -9,7 +9,7 @@
   <script>document.documentElement.classList.add("authChecking");</script>
   <script src="./auth-guard.js?v=4"></script>
   <link rel="stylesheet" href="./style.css?v=4" />
-  <link rel="stylesheet" href="./battleworld.css?v=1" />
+  <link rel="stylesheet" href="./battleworld.css?v=2" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="apple-touch-icon" href="./icon-512.PNG" />
 </head>
@@ -31,14 +31,22 @@
     </header>
 
     <section class="card bw-summary" aria-label="Guide sélectionné">
-      <div class="bw-summary-top">
-        <div>
-          <span class="bw-eyebrow">Guide Battleworld</span>
-          <h2 id="bw-guide-title">Chargement…</h2>
+      <div class="bw-summary-layout">
+        <div class="bw-boss-portrait-frame" aria-label="Portrait du boss">
+          <img id="bw-boss-portrait" class="bw-boss-portrait" alt="" loading="eager" decoding="async" hidden />
+          <span id="bw-boss-portrait-fallback" class="bw-boss-portrait-fallback" aria-hidden="true">⚔️</span>
         </div>
-        <span class="bw-state" id="bw-guide-status">—</span>
+        <div class="bw-summary-info">
+          <div class="bw-summary-top">
+            <div>
+              <span class="bw-eyebrow">Guide Battleworld</span>
+              <h2 id="bw-guide-title">Chargement…</h2>
+            </div>
+            <span class="bw-state" id="bw-guide-status">—</span>
+          </div>
+          <p id="bw-guide-meta" class="bw-meta">Les contenus non renseignés sont indiqués clairement.</p>
+        </div>
       </div>
-      <p id="bw-guide-meta" class="bw-meta">Les contenus non renseignés sont indiqués clairement.</p>
     </section>
 
     <nav class="bw-tabs" role="tablist" aria-label="Choisir une zone ou le boss">
@@ -53,6 +61,6 @@
     </main>
     <p id="bw-error" class="bw-error" role="alert" hidden></p>
   </div>
-  <script src="./battleworld.js?v=1" defer></script>
+  <script src="./battleworld.js?v=2" defer></script>
 </body>
 </html>
