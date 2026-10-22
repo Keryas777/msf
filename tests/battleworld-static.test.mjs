@@ -206,7 +206,7 @@ test("Affichage des rubriques et compatibilité des boss historiques", () => {
   assert.match(js, /renderMissionGroup\("Missions Élite"/);
   assert.match(js, /renderMissionGroup\("Missions Bonus"/);
   assert.match(js, /"Les stratégies contre ce boss sont à compléter/);
-  assert.match(html, /battleworld\.js\?v=5/);
+  assert.match(html, /battleworld\.js\?v=6/);
   assert.match(html, /battleworld\.css\?v=4/);
   for (const name of ["knull", "sentry", "maestro"]) {
     const archived = JSON.parse(read("data/battleworld/" + name + ".json"));
@@ -264,7 +264,7 @@ test("Toutes les équipes documentées présentent cinq portraits, avec variante
   const script = read("battleworld.js");
   assert.match(script, /illustrativeCharacters/);
   assert.match(script, /Composition illustrative/);
-  assert.match(read("battleworld.html"), /battleworld\.js\?v=5/);
+  assert.match(read("battleworld.html"), /battleworld\.js\?v=6/);
 });
 
 test("Les 27 missions ont chacune un unique bloc éditorial de conseils, sans perte des champs sources", () => {
