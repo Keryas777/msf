@@ -126,6 +126,9 @@ body.archiveCharactersPage {
 
 .archiveApp .hero.archiveSummary::after { display: none; }
 
+/* Les statistiques historiques ne prennent pas de place dans le catalogue principal. */
+.archiveApp .hero.archiveSummary[hidden] { display: none; }
+
 .archiveApp .heroText {
   max-width: none;
   margin: 0;
