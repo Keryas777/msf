@@ -66,7 +66,7 @@ Depuis cette révision, les **27 missions du Destructeur** possèdent chacune un
 - ses `restrictions` s'il y en a ;
 - un seul bloc **Conseils de combat** (mécaniques pertinentes, priorités, déroulement, avertissements indispensables) ;
 - les compositions recommandées, avec portraits et leurs notes propres ;
-- les sources.
+- les sources ne sont plus affichées sous chaque mission ni dans les compositions de ces missions ; elles restent dans les JSON et dans les sections globales du boss.
 
 Les anciens champs `enemies`, `mechanics`, `objectives`, `strategy`, `avoid`, `instructions`, `notes`, `warnings` et `historicalInstructions` sont **conservés dans les JSON pour audit et révision**, mais ne s'affichent plus séparément lorsque `combatGuide` est présent. Les futurs guides qui ne disposent pas de `combatGuide` continuent de fonctionner selon le schéma historique.
 

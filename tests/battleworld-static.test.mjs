@@ -133,7 +133,7 @@ test("Le portrait conserve son cadrage et essaie la variante jouable après PVE"
   assert.match(js, /bossPortrait\.onerror = \(\) => \{/);
   assert.match(js, /tryNext\(\);/);
   assert.match(js, /portraitState\.token\+\+/);
-  assert.match(read("battleworld.html"), /battleworld\.js\?v=6/);
+  assert.match(read("battleworld.html"), /battleworld\.js\?v=7/);
   assert.match(read("battleworld.html"), /battleworld\.css\?v=4/);
 });
 
@@ -206,7 +206,7 @@ test("Affichage des rubriques et compatibilité des boss historiques", () => {
   assert.match(js, /renderMissionGroup\("Missions Élite"/);
   assert.match(js, /renderMissionGroup\("Missions Bonus"/);
   assert.match(js, /"Les stratégies contre ce boss sont à compléter/);
-  assert.match(html, /battleworld\.js\?v=6/);
+  assert.match(html, /battleworld\.js\?v=7/);
   assert.match(html, /battleworld\.css\?v=4/);
   for (const name of ["knull", "sentry", "maestro"]) {
     const archived = JSON.parse(read("data/battleworld/" + name + ".json"));
@@ -264,7 +264,7 @@ test("Toutes les équipes documentées présentent cinq portraits, avec variante
   const script = read("battleworld.js");
   assert.match(script, /illustrativeCharacters/);
   assert.match(script, /Composition illustrative/);
-  assert.match(read("battleworld.html"), /battleworld\.js\?v=6/);
+  assert.match(read("battleworld.html"), /battleworld\.js\?v=7/);
 });
 
 test("Les 27 missions ont chacune un unique bloc éditorial de conseils, sans perte des champs sources", () => {
@@ -316,7 +316,43 @@ test("Une mission compacte affiche Restriction et Conseils, sans répéter Ennem
       assert.deepEqual(labels, expected, mission.title);
     }
   }
-  assert.match(read("battleworld.html"), /battleworld\.js\?v=6/);
+  assert.match(read("battleworld.html"), /battleworld\.js\?v=7/);
   // Le moteur des fiches boss historiques reste rétrocompatible avec leurs anciens champs.
   assert.match(script.slice(start, end), /\["enemies", "Ennemis"\]/);
+});
+
+test("Les liens Sources restent dans les JSON, mais ne sont plus répétés dans les 27 missions", () => {
+  const js = read("battleworld.js");
+  const guide = JSON.parse(read("data/battleworld/destroyer.json"));
+  const missions = guide.zones.flatMap(z => [...z.nodes, z.miniboss, ...z.eliteMissions, ...z.bonusMissions]);
+  assert.equal(missions.length, 27);
+  assert.ok(missions.every(m => m.sources.some(s => s.url.startsWith("https://"))));
+  assert.ok(guide.boss.sources.length > 0);
+  assert.ok(guide.overview.sources.length > 0);
+
+  const begin = js.indexOf("  function renderFields(parent, item) {");
+  const end = js.indexOf("\n\n  // Les boss disposent", begin);
+  assert.ok(begin >= 0 && end > begin);
+  let teamSourcesEnabled = [];
+  let calledSourceSection = 0;
+  const sectionList = (_parent, _name, values) => Array.isArray(values) && values.length > 0;
+  const teamsSection = (_parent, _teams, flag) => {
+    teamSourcesEnabled.push(flag);
+    return true;
+  };
+  const sourcesSection = () => { calledSourceSection++; return true; };
+  const renderFields = new Function(
+    "sectionList", "teamsSection", "sourcesSection",
+    js.slice(begin, end) + "\nreturn renderFields;"
+  )(sectionList, teamsSection, sourcesSection);
+  for (const mission of missions) assert.equal(renderFields({}, mission), true);
+  assert.equal(calledSourceSection, 0, "Aucun lien de source individuel ne doit apparaître");
+  assert.equal(teamSourcesEnabled.length, 27);
+  assert.ok(teamSourcesEnabled.every(x => x === false), "Aucune source dans les compositions des missions");
+
+  // Les références globales du boss et de la préparation restent affichables.
+  assert.match(js, /sourcesSection\(body, guide\.boss\.sources\)/);
+  assert.match(js, /sourcesSection\(body, overview\.sources\)/);
+  assert.match(js, /if \(showSources\) sourcesSection\(card, team\.sources\)/);
+  assert.match(read("battleworld.html"), /battleworld\.js\?v=7/);
 });

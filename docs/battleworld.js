@@ -122,7 +122,7 @@
     return box;
   }
 
-  function teamsSection(parent, teams) {
+  function teamsSection(parent, teams, showSources = true) {
     if (!Array.isArray(teams)) return false;
     const rows = teams.filter(team => team && typeof team.title === "string" && team.title.trim());
     if (!rows.length) return false;
@@ -149,7 +149,7 @@
       sectionList(card, "Déroulement du combat", team.steps, true);
       sectionList(card, "Alternatives", team.alternatives);
       sectionList(card, "Notes", team.notes);
-      sourcesSection(card, team.sources);
+      if (showSources) sourcesSection(card, team.sources);
       list.append(card);
     });
     section.append(list);
@@ -165,9 +165,8 @@
     if (Array.isArray(item.combatGuide)) {
       const restrictions = sectionList(parent, "Restrictions", item.restrictions);
       const advice = sectionList(parent, "Conseils de combat", item.combatGuide);
-      const teams = teamsSection(parent, item.teams);
-      const sources = sourcesSection(parent, item.sources);
-      return restrictions || advice || teams || sources;
+      const teams = teamsSection(parent, item.teams, false);
+      return restrictions || advice || teams;
     }
 
     let found = false;
@@ -185,8 +184,8 @@
     ].forEach(([field, label]) => {
       found = sectionList(parent, label, item[field], field === "instructions") || found;
     });
-    found = teamsSection(parent, item.teams) || found;
-    found = sourcesSection(parent, item.sources) || found;
+    found = teamsSection(parent, item.teams, false) || found;
+    // Les sources sont conservées dans le JSON, mais non répétées sous chaque mission.
     return found;
   }
 
