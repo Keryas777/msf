@@ -207,3 +207,56 @@ Un jour de collecte déjà présent dans `index.json` est ignoré (idempotence) 
 les anciens relevés ne sont pas écrasés. Les rangs utilisent toujours le
 calendrier de 14 jours existant, sans ajouter de saison fictive.
 Les archives brutes restent dans R2 avec leur durée de vie propre.
+
+## Lecture passive des rosters R2 (dans la même PR #330)
+
+Le même dépôt WebApp prépare désormais une **seconde GitHub Action**, distincte
+des classements : `.github/workflows/pull-rosters-r2.yml`. Le Roster Service
+continue à fonctionner **sans aucune modification** et **sans aucun push** vers
+GitHub. Aucune requête Scopely supplémentaire n'est effectuée.
+
+- Deux horaires UTC : **tous les jours à 06:40 et 18:40 UTC**, après les
+  campagnes de collecte Roster Service **02:00–06:00** et **14:00–18:00**.
+- Sources privées : `roster-batches/v1/<fingerprint>/progress.json`,
+  `latest-complete.json`, puis les objets `<runId>/member-N.json` et
+  `<runId>/member-self.json` du run **effectivement terminé**.
+- Le couple `progress` + `latest-complete` doit appartenir à **la même
+  campagne de date et de demi-journée**, avec même `runId`, digest d'effectif,
+  effectifs cohérents et objet personnel présent. Un run partiel, obsolète ou
+  un joueur manquant n'est **jamais** importé.
+- Correspondance avec le registre dynamique `alliances.json` via le même
+  secret d'empreintes privées que pour les classements, et rapprochement
+  des pseudos via `player-aliases.json`.
+- Pour chaque alliance complète, génération conservatrice du fichier
+  `docs/data/rosters_<alliance>.json` ; les alliances incomplètes conservent
+  leurs fichiers précédents. **Après validation**, relancement de
+  `scripts/merge-rosters.mjs` pour produire le `rosters.json` déjà attendu
+  par toutes les pages de la WebApp.
+- Puissance, niveau, équipement et étoiles sont relus depuis les personnages
+  officiels. Les données ISO sans équivalence prouvée sont **conservées depuis
+  la version existante**, jamais mises à zéro arbitrairement. Un personnage
+  nouveau sans ses données de matrice ISO nécessaires n'est pas introduit
+  automatiquement avant vérification du schéma réel : ses champs incertains
+  ne doivent pas être inventés.
+- Les identifiants volatils des membres, les empreintes d'alliance, les
+  métadonnées internes R2 et les sessions OAuth ne sont **jamais copiés**
+  dans les fichiers publics.
+- Le script refuse les collisions d'identités de joueurs au sein d'une
+  alliance **et entre alliances**, y compris lorsque certaines n'ont pas
+  été mises à jour. Une campagne valide ne justifie jamais d'écraser le
+  roster d'une autre alliance.
+
+La vérification sans écriture s'effectue depuis
+**Pull LoSP rosters from private R2** (`publish=false`), avec les mêmes
+secrets de lecture seule R2 que l'import des trophées. La publication
+exige séparément `LOSP_R2_ROSTERS_PUBLICATION_APPROVED=true` ; l'exécution
+programmée exige en plus `LOSP_R2_ROSTER_IMPORT_ENABLED=true`.
+**Ces variables ne sont pas configurées par la PR.** Les permissions de
+publication/redistribution et la rétention maximale de 30 jours des données
+obtenues par l'API MSF doivent être clarifiées auparavant. Les anciennes
+versions Git restent accessibles même si le JSON est écrasé deux fois par jour.
+
+**Limites à vérifier en essai réel :** la présence d'un manifeste complet
+dans chaque campagne et les variantes du schéma ISO de l'API `/roster`.
+Les tests de la PR utilisent des fixtures, pas une lecture des R2 de production.
+L'accès du navigateur aux données privées n'est pas ouvert.
