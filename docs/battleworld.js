@@ -10,12 +10,16 @@
   const errorBox = document.getElementById("bw-error");
   const tabBar = document.querySelector(".bw-tabs");
   const tabs = Array.from(document.querySelectorAll(".bw-tab"));
+  const bossPortrait = document.getElementById("bw-boss-portrait");
+  const bossPortraitFallback = document.getElementById("bw-boss-portrait-fallback");
 
   let index = null;
   let guide = null;
   let selectedEntry = null;
   let activeTab = "zone-1";
   let charMap = null;
+  let charMapPromise = null;
+  const failedPortraitUrls = new Set();
   let serial = 0;
 
   function el(tag, className, value) {
@@ -168,6 +172,64 @@
     return found;
   }
 
+
+  // Les boss disposent d'un ID PVE exact dans les JSON, indépendant des personnages jouables.
+  // On charge le catalogue une seule fois pour les portraits des boss et des équipes.
+  function loadCharacterCatalog() {
+    if (!charMapPromise) {
+      charMapPromise = readJson("./data/msf-characters.json").then(rows => {
+        if (!Array.isArray(rows)) throw new Error("Catalogue personnages invalide");
+        charMap = new Map(
+          rows.filter(row => row && typeof row.id === "string")
+            .map(row => [row.id.toLowerCase(), row])
+        );
+        return charMap;
+      }).catch(error => {
+        charMapPromise = null; // Permet de réessayer au prochain changement de boss.
+        throw error;
+      });
+    }
+    return charMapPromise;
+  }
+
+  function validHttpsImage(url) {
+    if (typeof url !== "string") return false;
+    try {
+      return new URL(url).protocol === "https:";
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  function renderBossPortrait() {
+    const boss = guide && guide.boss;
+    const characterId = String((boss && boss.characterId) || "").trim().toLowerCase();
+    const character = characterId && charMap ? charMap.get(characterId) : null;
+    const overrideUrl = boss && boss.portraitUrl;
+    const url = validHttpsImage(overrideUrl)
+      ? overrideUrl
+      : (character && validHttpsImage(character.portraitUrl) ? character.portraitUrl : "");
+
+    if (!url || failedPortraitUrls.has(url)) {
+      bossPortrait.hidden = true;
+      bossPortraitFallback.hidden = false;
+      bossPortrait.removeAttribute("src");
+      return;
+    }
+
+    bossPortrait.alt = "Portrait de " + ((boss && boss.name) || selectedEntry.name);
+    bossPortrait.onerror = () => {
+      failedPortraitUrls.add(url);
+      if (bossPortrait.getAttribute("src") === url) {
+        bossPortrait.hidden = true;
+        bossPortraitFallback.hidden = false;
+      }
+    };
+    if (bossPortrait.getAttribute("src") !== url) bossPortrait.src = url;
+    bossPortrait.hidden = false;
+    bossPortraitFallback.hidden = true;
+  }
+
   function renderZone() {
     const zone = (guide.zones || []).find(value => value && value.id === activeTab);
     if (!zone) {
@@ -221,6 +283,7 @@
     clear(content);
     content.removeAttribute("aria-busy");
     title.textContent = selectedEntry.name;
+    renderBossPortrait();
     const current = selectedEntry.id === index.activeGuideId;
     status.textContent = current ? "Boss actuel" : "Archives";
     const details = [];
@@ -238,15 +301,6 @@
     else renderZone();
   }
 
-  function guideHasCharacters(data) {
-    const lists = [];
-    if (data.boss && Array.isArray(data.boss.teams)) lists.push(data.boss.teams);
-    (data.zones || []).forEach(zone => (zone.nodes || []).forEach(node => {
-      if (Array.isArray(node.teams)) lists.push(node.teams);
-    }));
-    return lists.some(teams => teams.some(team => validList(team && team.characters).length));
-  }
-
   async function loadGuide(id) {
     const entry = index && index.guides.find(item => item.id === id);
     if (!entry || !/^[a-z0-9-]+\.json$/.test(entry.file)) {
@@ -257,7 +311,8 @@
     select.value = entry.id;
     guide = null;
     selectedEntry = entry;
-    charMap = null;
+    bossPortrait.hidden = true;
+    bossPortraitFallback.hidden = false;
     tabBar.hidden = true;
     loading("Ouverture du guide " + entry.name + "…");
     try {
@@ -274,18 +329,12 @@
       }
       guide = data;
       render();
-      if (guideHasCharacters(data)) {
-        try {
-          const rows = await readJson("./data/msf-characters.json");
-          if (serial !== requestId) return;
-          if (Array.isArray(rows)) {
-            charMap = new Map(rows.filter(row => row && typeof row.id === "string").map(row => [row.id.toLowerCase(), row]));
-            render();
-          }
-        } catch (err) {
-          // Les noms/IDs restent visibles même si les portraits ne chargent pas.
-          console.warn("Portraits Battleworld indisponibles", err);
-        }
+      try {
+        await loadCharacterCatalog();
+        if (serial !== requestId) return;
+        render(); // Le portrait du boss est désormais disponible même sans équipe renseignée.
+      } catch (err) {
+        console.warn("Portraits Battleworld indisponibles", err);
       }
     } catch (err) {
       if (serial !== requestId) return;
