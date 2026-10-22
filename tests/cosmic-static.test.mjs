@@ -201,7 +201,7 @@ test("croix de retrait plus discrète sans réduire la zone tactile mobile", asy
   assert.match(button, /touch-action:manipulation/);
   assert.match(circle, /width:19px;height:19px/);
   assert.match(cross, /font:700 12px\/1 sans-serif/);
-  assert.match(propose, /cosmic\.css\?v=8/);
+  assert.match(propose, /cosmic\.css\?v=9/);
 });
 
 
@@ -225,7 +225,7 @@ test("cosmic visual design matches the common LoSP dark glass theme", async () =
   }
   assert.match(propose,/cosmic\.css\?v=9/);
   assert.match(propose,/style\.css\?v=/);
-  assert.match(browse, /cosmic\.css\?v=9/);
+  assert.match(browse, /cosmic\.css\?v=10/);
   assert.match(browse, /style\.css\?v=/);
 });
 
