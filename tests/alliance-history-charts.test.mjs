@@ -234,7 +234,7 @@ test('22 October adds exactly a second real trophy point, not a second season ra
   const trophies=prepare([original,later],registry,byId('war-trophies'),config.rankingSeasons);
   assert.equal(trophies.rows.length,2);
   assert.equal(trophies.series.length,5);
-  assert.deepEqual(Array.from(trophies.series,s=>[s.key,s.points.map(p=>p.value)]),[
+  assert.deepEqual(Array.from(trophies.series,s=>[s.key,Array.from(s.points,p=>p.value)]),[
     ['zeus',[2875,2806]],['athena',[2678,2604]],['kronos',[2758,2684]],
     ['dionysos',[2607,2663]],['poseidon',[2189,2264]]
   ]);
