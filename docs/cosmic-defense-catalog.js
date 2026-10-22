@@ -20,17 +20,47 @@
     );
   }
 
+  const seasonLabel = season => {
+    const match = /^season-([1-9][0-9]*)$/.exec(text(season));
+    return match ? "S" + Number(match[1]) : "";
+  };
+
   function groupFor(entry) {
     const source = text(entry?.source);
     const author = text(entry?.author);
     const collection = text(entry?.collection);
+    const season = seasonLabel(entry?.season);
     const external = !personalSources.has(normalize(source));
     const kind = external ? "source" : "player";
-    const owner = external ? source : (author || "Sans auteur");
-    const label = collection || (external ? source : "Défenses de " + owner);
-    // Le libellé peut évoluer indépendamment de la clé stable.
-    const id = JSON.stringify([kind, normalize(owner), normalize(collection)]);
-    return { id, kind, label };
+    const owner = external ? (source || "Guide") : (author || "Joueur LoSP");
+    const tier = presentationFor(entry);
+
+    if (!external) {
+      const title = text(entry?.title) || collection || "Mes défenses";
+      // L'ID Discord est stable même si le membre change de pseudo serveur.
+      const authorKey = text(entry?.authorDiscordId) || normalize(owner);
+      return {
+        id: JSON.stringify([kind, authorKey, normalize(title), season]),
+        kind, owner, tierOrder: 99,
+        label: owner + " (" + title + ")" + (season ? " " + season : "")
+      };
+    }
+
+    if (tier.key !== "other") {
+      // Le niveau prime sur collection, commune aux 20 entrées Marvel Church.
+      return {
+        id: JSON.stringify([kind, normalize(owner), tier.key, season]),
+        kind, owner, tierOrder: tier.order,
+        label: owner + " (" + tier.label.toLocaleLowerCase("fr") + ")" + (season ? " " + season : "")
+      };
+    }
+
+    // Compatibilité avec les autres guides non classés et collections existantes.
+    return {
+      id: JSON.stringify([kind, normalize(owner), normalize(collection), season]),
+      kind, owner, tierOrder: 99,
+      label: (collection || owner) + (season ? " " + season : "")
+    };
   }
 
   function groupsFor(entries) {
@@ -43,6 +73,9 @@
     }
     return [...groups.values()].sort((a, b) => {
       if (a.kind !== b.kind) return a.kind === "player" ? -1 : 1;
+      const byOwner = a.owner.localeCompare(b.owner, "fr", { sensitivity: "base" });
+      if (byOwner) return byOwner;
+      if (a.tierOrder !== b.tierOrder) return a.tierOrder - b.tierOrder;
       return a.label.localeCompare(b.label, "fr", { sensitivity: "base" });
     });
   }
