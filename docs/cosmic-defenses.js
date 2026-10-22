@@ -161,20 +161,6 @@
         card.appendChild(portraits);
         card.appendChild(make("p", "cosmicDefenseMeta", "Source : " + safeText(catalog.displaySource(entry), 100)));
         if (entry.notes) card.appendChild(make("p", "cosmicDefenseMeta", safeText(entry.notes)));
-        if (entry.sourceUrl) {
-          try {
-            const url = new URL(entry.sourceUrl);
-            if (url.protocol === "https:") {
-              const link = make("a", "", "Consulter la source");
-              link.href = url.href;
-              link.rel = "noopener noreferrer";
-              link.target = "_blank";
-              const meta = make("p", "cosmicDefenseMeta");
-              meta.appendChild(link);
-              card.appendChild(meta);
-            }
-          } catch (_) {}
-        }
         section.appendChild(card);
       }
       publishedNode.appendChild(section);

@@ -270,7 +270,7 @@ test("Marvel Church saison 25 : recommandations DÉFENSIVES importées sans inve
   for (const entry of [best,optimal]) {
     assert.equal(entry.characters.includes("Thing"),false);
     assert.equal(entry.characters.includes("HumanTorch"),false);
-    assert.match(entry.notes,/non détaillée sur le guide Marvel Church/);
+    assert.equal("notes" in entry,false);
   }
   const group=(room,match)=>church.find(e=>e.room===room && e.name.includes(match));
   assert.deepEqual(group(1,"Budget Defense")?.characters,
@@ -286,14 +286,18 @@ test("Marvel Church saison 25 : recommandations DÉFENSIVES importées sans inve
     assert.ok(variant.notes.length>60);
   }
   assert.match(variants4.find(x=>x.characters.includes("Annihilus"))?.notes,/barrières/);
-  assert.match(variants4.find(x=>x.characters.includes("Quasar"))?.notes,/assistances/);
+  const quasarNote=variants4.find(x=>x.characters.includes("Quasar"))?.notes;
+  assert.match(quasarNote,/Immunité/);
+  assert.match(quasarNote,/réservés à l'attaque de guerre/);
+  assert.doesNotMatch(quasarNote,/gêne des assistances, des soins/);
   const variants5=church.filter(e=>e.room===5 && e.name.startsWith("Optimal Defense"));
   assert.equal(variants5.length,2);
   assert.deepEqual(variants5.map(x=>x.characters.at(-1)).sort(),["Mephisto","SilverSurferBreaker"]);
   for(const variant of variants5){
     assert.deepEqual(variant.characters.slice(0,4),["Warlock","Magik","Wolfsbane","Cannonball"]);
     assert.equal(variant.characters.includes("Sunspot"),false);
-    assert.match(variant.notes,/Solar/);
+    assert.ok(variant.notes.length>100);
+    assert.doesNotMatch(variant.notes,/remplace Solar/);
   }
   assert.match(catalog,/rawTitle==="Mes défenses"\?"Défense standard"/);
 });
@@ -306,7 +310,7 @@ test("consultation : badges français, titres séparés, sources homogènes et c
   ]);
   assert.match(html,/cosmic\.css\?v=10/);
   assert.match(html,/cosmic-defense-catalog\.js\?v=3/);
-  assert.match(html,/cosmic-defenses\.js\?v=11/);
+  assert.match(html,/cosmic-defenses\.js\?v=12/);
   assert.match(js,/catalog\.sortedForDisplay\(list\.filter/);
   assert.match(js,/catalog\.presentationFor\(entry\)/);
   assert.match(js,/make\("span", "cosmicDefenseTier cosmicDefenseTier--" \+ presentation\.key/);
@@ -331,7 +335,7 @@ test("publication : titre facultatif, conservé dans le brouillon et envoyé au 
   assert.match(html,/id="proposalTitle"[^>]*maxlength="60"/);
   assert.match(html,/cosmic-defenses\.js\?v=10/);
   assert.match(browse,/cosmic-defense-catalog\.js\?v=3/);
-  assert.match(browse,/cosmic-defenses\.js\?v=11/);
+  assert.match(browse,/cosmic-defenses\.js\?v=12/);
   assert.match(js,/title: safeText\(proposalTitle\?\.value, 60\)/);
   assert.match(js,/if \(proposalTitle\) proposalTitle\.value = safeText\(draft\.title, 60\)/);
   assert.match(js,/proposalTitle\?\.addEventListener\("input", saveDraft\)/);
@@ -359,7 +363,7 @@ test("les en-têtes de salles sont centrés et visibles sur les deux pages",asyn
   assert.equal(JSON.parse(config).rooms.length,6);
   assert.match(browse,/cosmic\.css\?v=10/);
   assert.match(propose,/cosmic\.css\?v=9/);
-  assert.match(browse,/cosmic-defenses\.js\?v=11/);
+  assert.match(browse,/cosmic-defenses\.js\?v=12/);
   assert.match(propose,/cosmic-defenses\.js\?v=10/);
   assert.match(propose,/placeholder="Défense standard"/);
   assert.match(propose,/Sans titre : « Défense standard »/);
@@ -372,7 +376,7 @@ test("consultation : messages utiles aux joueurs, sans références techniques",
   ]);
   assert.match(html,/Les équipes conseillées par les joueurs et les guides/);
   assert.match(html,/Afficher les défenses/);
-  assert.match(html,/cosmic-defenses\.js\?v=11/);
+  assert.match(html,/cosmic-defenses\.js\?v=12/);
   assert.match(js,/all\.textContent = "Toutes les défenses"/);
   assert.match(js,/count \+ " défense" \+ \(count > 1 \? "s" : ""\)/);
   assert.match(js,/Certaines défenses récentes peuvent ne pas encore apparaître/);
@@ -383,4 +387,32 @@ test("consultation : messages utiles aux joueurs, sans références techniques",
   assert.match(js,/loadPublishedLive\(config\?\.season\?\.id\)/);
   assert.match(js,/publishedStatus\.dataset\.fallback = "true"/);
   assert.match(js,/fetchJson\(DATA\.defenses\)/);
+});
+
+
+test("défenses Marvel Church : uniquement quatre notes stratégiques et aucun lien affiché",async()=>{
+  const [raw,html,js]=await Promise.all([
+    read("docs/data/cosmic-defenses.json"),read("docs/cosmic-defenses.html"),
+    read("docs/cosmic-defenses.js")
+  ]);
+  const rows=JSON.parse(raw),church=rows.filter(x=>x.source==="Marvel Church");
+  assert.equal(church.length,20);
+  const strategic=church.filter(x=>typeof x.notes==="string"&&x.notes.trim());
+  assert.equal(strategic.length,4);
+  assert.deepEqual(strategic.map(x=>x.characters.at(-1)).sort(),
+    ["Annihilus","Mephisto","Quasar","SilverSurferBreaker"]);
+  for(const row of church){
+    assert.equal(row.sourceUrl,"https://www.marvel.church/cosmic-crucible-the-best-defensive-setup/");
+    if(!strategic.includes(row))assert.equal("notes" in row,false);
+  }
+  const find=id=>strategic.find(x=>x.characters.includes(id)).notes;
+  assert.match(find("Annihilus"),/assistances passives/);
+  assert.match(find("Quasar"),/Immunité/);
+  assert.match(find("SilverSurferBreaker"),/Singularité instable/);
+  assert.match(find("Mephisto"),/Marque/);
+  assert.doesNotMatch(js,/Consulter la source/);
+  assert.doesNotMatch(js,/entry\.sourceUrl/);
+  assert.match(js,/"Source : " \+ safeText\(catalog\.displaySource\(entry\), 100\)/);
+  assert.match(js,/if \(entry\.notes\) card\.appendChild/);
+  assert.match(html,/cosmic-defenses\.js\?v=12/);
 });
