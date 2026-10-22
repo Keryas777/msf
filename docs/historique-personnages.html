@@ -1073,7 +1073,7 @@
         }
       }
     </style>
-    <link rel="stylesheet" href="./historique-personnages-theme.css?v=3" />
+    <link rel="stylesheet" href="./historique-personnages-theme.css?v=4" />
 
     <script src="./auth-guard.js?v=4"></script>
     <link rel="manifest" href="./manifest.webmanifest" />
@@ -1090,15 +1090,11 @@
         <a class="homeBtn" href="./home.html" aria-label="Accueil LoSP">🏠</a>
         <div class="headerLeft">
           <h1 id="pageTitle" class="title">Personnages MSF</h1>
-          <p class="subtitle">Identité, capacités, classements et historique du groupement</p>
         </div>
       </header>
 
       <main>
-        <section class="hero card archiveSummary" aria-label="Résumé de l’historique">
-          <p class="heroText">
-            Sorties et reworks, capacités et classement des personnages au sein du groupement LoSP.
-          </p>
+        <section class="hero card archiveSummary" aria-label="Statistiques historiques" hidden>
           <p class="sourceNote">
             <span class="sourceDot" aria-hidden="true"></span>
             <span id="dataScope">Chargement de l’historique…</span>
@@ -1206,6 +1202,7 @@
 
         const els = {
           content: document.getElementById("content"),
+          archiveSummary: document.querySelector(".archiveSummary"),
           searchInput: document.getElementById("searchInput"),
           yearFilter: document.getElementById("yearFilter"),
           sortSelect: document.getElementById("sortSelect"),
@@ -1524,7 +1521,6 @@
           const launchCount = releasedCharacters.filter((record) => record.release.type === "launch").length;
           const reworkCount = state.characters.reduce((total, record) => total + record.reworks.length, 0);
           const years = Object.keys(state.history?.years || {}).sort();
-          const lockedYears = years.filter((year) => state.history.years[year]?.status === "locked");
 
           els.statCharacters.textContent = String(releasedCharacters.length);
           els.statLaunch.textContent = String(launchCount);
@@ -1533,8 +1529,7 @@
 
           if (years.length) {
             const range = years.length === 1 ? years[0] : `${years[0]}–${years[years.length - 1]}`;
-            const lockedText = lockedYears.length ? ` · ${lockedYears.length} année${lockedYears.length > 1 ? "s" : ""} verrouillée${lockedYears.length > 1 ? "s" : ""}` : "";
-            els.dataScope.textContent = `Historique disponible : ${range}${lockedText}. Les futures années du JSON s’ajouteront automatiquement à cette page.`;
+            els.dataScope.textContent = `Historique renseigné : ${range}`;
           } else {
             els.dataScope.textContent = "Aucune année historique disponible.";
           }
@@ -2026,6 +2021,7 @@
         }
 
         function render() {
+          els.archiveSummary.hidden = state.view === "characters";
           if (state.view === "timeline") {
             const events = getFilteredTimelineEvents();
             const occurrenceCount = events.reduce((total, event) => total + event.occurrences.length, 0);
