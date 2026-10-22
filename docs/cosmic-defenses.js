@@ -128,6 +128,14 @@
     }
     return box;
   }
+  function appendRoomHeading(section,room) {
+    // Noms et règles fournis par la configuration de la saison.
+    const heading=make("div","cosmicRoomHeading");
+    heading.appendChild(make("h3","cosmicRoomNumber","SALLE "+room.id));
+    const name=safeText(room.label,80).replace(/^Salle\s*\d+\s*[—–-]\s*/i,"");
+    heading.appendChild(make("p","cosmicRoomName",name||room.label));
+    section.appendChild(heading);
+  }
   function renderPublished() {
     publishedNode.replaceChildren();
     const catalog = window.LoSPCosmicDefenseCatalog;
@@ -136,7 +144,7 @@
     let count = 0;
     for (const room of rooms) {
       const section = make("section", "cosmicRoom");
-      section.appendChild(make("h3", "", room.label));
+      appendRoomHeading(section,room);
       if (room.rule) section.appendChild(make("p", "cosmicRoomRule", "Règle de la salle : " + room.rule));
       const entries = catalog.sortedForDisplay(list.filter(d => Number(d.room) === room.id));
       if (!entries.length) section.appendChild(make("p", "cosmicEmpty", "Aucune défense publiée dans cette salle."));
@@ -303,7 +311,7 @@
       const state = draft.rooms?.[room.id] || {};
       const section = make("section", "cosmicRoom");
       section.dataset.cosmicRoom = String(room.id);
-      section.appendChild(make("h3", "", room.label));
+      appendRoomHeading(section,room);
       if (room.rule) section.appendChild(make("p", "cosmicRoomRule", "Règle de la salle : " + room.rule));
       const portraits = make("div", "cosmicPortraits cosmicSelectedPortraits");
       portraits.dataset.cosmicPortraits = "1";

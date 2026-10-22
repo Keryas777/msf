@@ -198,9 +198,10 @@ async function publish(request,env){
       throw new HttpError(400,"invalid_title","Titre de défense invalide (60 caractères maximum).");
     const previousTitle=current.rows.find(row=>row?.season===current.season &&
       row?.authorDiscordId===author.id && (!row.source||row.source==="Personnel"))?.title;
-    const title=payload.title===undefined
-      ? (clean(previousTitle,60)||"Mes défenses")
-      : (clean(payload.title,60)||"Mes défenses");
+    const requestedTitle=payload.title===undefined?previousTitle:payload.title;
+    const cleanedTitle=clean(requestedTitle,60);
+    const title=!cleanedTitle||cleanedTitle==="Mes défenses"
+      ?"Défense standard":cleanedTitle;
     // Évite les commits inutiles et l'envoi de spam ; 6 salles maximum
     // par compte Discord et au plus une publication toutes les 15 secondes.
     const noChange=rooms.every(room=>current.rows.some(row=>
