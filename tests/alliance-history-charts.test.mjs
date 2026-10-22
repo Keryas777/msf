@@ -228,3 +228,25 @@ test('page reads the configured calendar, preserves authorization and cache bust
   assert.match(html,/alliance-history-data\.js\?v=3/);
   assert.match(html,/alliance-history\.js\?v=3/);
 });
+
+test('22 October adds exactly a second real trophy point, not a second season ranking',()=>{
+  const later=JSON.parse(read('docs/data/alliance-standings/snapshots/2026-10-22T120208591Z.json'));
+  const trophies=prepare([original,later],registry,byId('war-trophies'),config.rankingSeasons);
+  assert.equal(trophies.rows.length,2);
+  assert.equal(trophies.series.length,5);
+  assert.deepEqual(Array.from(trophies.series,s=>[s.key,Array.from(s.points,p=>p.value)]),[
+    ['zeus',[2875,2806]],['athena',[2678,2604]],['kronos',[2758,2684]],
+    ['dionysos',[2607,2663]],['poseidon',[2189,2264]]
+  ]);
+  for(const id of ['war-season-rank','raid-season-rank']){
+    const model=prepare([original,later],registry,byId(id),config.rankingSeasons);
+    assert.equal(model.rows.length,1);
+    assert.equal(model.rows[0].capturedAt,original.capturedAt);
+    assert.equal(model.series[0].points[0].plotAt,'2026-10-11T20:00:00.000Z');
+  }
+  assert.deepEqual(Array.from(rankLatest([original,later],registry,
+    byId('war-trophies'),config.rankingSeasons),x=>[x.key,x.value]),[
+    ['zeus',2806],['kronos',2684],['dionysos',2663],
+    ['athena',2604],['poseidon',2264]
+  ]);
+});

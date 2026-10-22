@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "kind": "losp-alliance-standings-snapshot",
+  "capturedAt": "2026-10-22T12:02:08.591Z",
+  "source": "/player/v1/alliance/card",
+  "seasonId": null,
+  "seasonVerified": false,
+  "coverage": {
+    "scannedSessions": 9,
+    "validSessions": 9,
+    "unavailableSessions": 0,
+    "truncated": false,
+    "connectedAlliances": 5,
+    "completeSessionScan": true
+  },
+  "alliances": [
+    {
+      "key": "kronos",
+      "nameAtCapture": "<#FFFFFF>LoSP <#E10D17>Κroηos",
+      "warRank": 93,
+      "raidRank": 235,
+      "warTrophies": 2684,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND II"
+      }
+    },
+    {
+      "key": "poseidon",
+      "nameAtCapture": "LoSP <#00D0FF>Pοsειδoη",
+      "warRank": 722,
+      "raidRank": 767,
+      "warTrophies": 2264,
+      "warLeague": {
+        "id": null,
+        "name": "PLATINUM IV"
+      }
+    },
+    {
+      "key": "dionysos",
+      "nameAtCapture": "LoSP <#93328E>Dισπγsσs",
+      "warRank": 332,
+      "raidRank": 285,
+      "warTrophies": 2663,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND II"
+      }
+    },
+    {
+      "key": "athena",
+      "nameAtCapture": "LoSP <#F28C28>Athεηα",
+      "warRank": 427,
+      "raidRank": 157,
+      "warTrophies": 2604,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND II"
+      }
+    },
+    {
+      "key": "zeus",
+      "nameAtCapture": "LoSP <#F8FF00>Zεμs",
+      "warRank": 322,
+      "raidRank": 77,
+      "warTrophies": 2806,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND III"
+      }
+    }
+  ],
+  "note": "Capture manuelle du 22 octobre 2026 à 12:02:08.591 UTC, transmise par l'administrateur depuis le Roster Service. Les cinq valeurs de trophées sont celles retournées par Scopely à cet instant. Collecte hors horaire du futur planning (mercredi/vendredi 21h UTC) : ne pas la requalifier rétroactivement en collecte planifiée. Les rangs guerre et raid n'ont pas changé depuis le relevé du 21 octobre ; aucune saison supplémentaire n'est confirmée par l'API. Les empreintes privées des alliances ne sont pas publiées."
+}

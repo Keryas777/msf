@@ -98,3 +98,27 @@ test('future collection configuration is UTC-based and disabled until collector 
   assert.equal(config.rankingSeasons.publicationDelayMinutes,60);
   assert.equal(config.rankingSeasons.identification,'schedule-derived');
 });
+
+test("22 October manual trophy snapshot is genuine, complete and changes all five values",()=>{
+  const after=data("snapshots/2026-10-22T120208591Z.json");
+  assert.equal(index.snapshots.at(-1).capturedAt,after.capturedAt);
+  assert.equal(after.capturedAt,"2026-10-22T12:02:08.591Z");
+  assert.equal(after.source,"/player/v1/alliance/card");
+  assert.equal(after.coverage.scannedSessions,9);
+  assert.equal(after.coverage.validSessions,9);
+  assert.equal(after.coverage.unavailableSessions,0);
+  assert.equal(after.coverage.completeSessionScan,true);
+  assert.equal(after.seasonVerified,false);
+  assert.equal(after.seasonId,null);
+  const expected={zeus:2806,athena:2604,kronos:2684,dionysos:2663,poseidon:2264};
+  assert.deepEqual(Object.fromEntries(after.alliances.map(a=>[a.key,a.warTrophies])),expected);
+  const first=data(index.snapshots[0].file);
+  for(const now of after.alliances){
+    const previous=first.alliances.find(a=>a.key===now.key);
+    assert.ok(previous,"missing previous alliance");
+    assert.notEqual(now.warTrophies,previous.warTrophies);
+    assert.equal(now.warRank,previous.warRank);
+    assert.equal(now.raidRank,previous.raidRank);
+    assert.equal(Object.hasOwn(now,"allianceFingerprint"),false);
+  }
+});
