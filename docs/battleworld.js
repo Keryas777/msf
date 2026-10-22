@@ -159,6 +159,17 @@
 
   function renderFields(parent, item) {
     if (!item || typeof item !== "object") return false;
+
+    // Le guide éditorial compact remplace les listes Ennemis/Objectifs/Stratégie/Instructions
+    // pour les missions révisées. Les champs historiques restent intacts dans le JSON.
+    if (Array.isArray(item.combatGuide)) {
+      const restrictions = sectionList(parent, "Restrictions", item.restrictions);
+      const advice = sectionList(parent, "Conseils de combat", item.combatGuide);
+      const teams = teamsSection(parent, item.teams);
+      const sources = sourcesSection(parent, item.sources);
+      return restrictions || advice || teams || sources;
+    }
+
     let found = false;
     [
       ["restrictions", "Restrictions"],
@@ -283,7 +294,7 @@
     name.append(el("strong", "", item.title || item.id || "Mission"));
     const written = ["mechanics", "objectives", "strategy", "instructions"].some(field => validList(item[field]).length) ||
       (Array.isArray(item.teams) && item.teams.length > 0);
-    name.append(el("small", "", written ? "Conseils et stratégie" : "À documenter"));
+    name.append(el("small", "", written || validList(item.combatGuide).length ? "Conseils de combat" : "À documenter"));
     summary.append(name);
     details.append(summary);
     const body = el("div", "bw-node-body");
