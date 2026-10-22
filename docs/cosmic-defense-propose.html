@@ -35,6 +35,9 @@
       <p class="cosmicIntro">Choisis cinq personnages dans une ou plusieurs salles. Tes défenses seront publiées directement pour les autres joueurs. Tu pourras les modifier en les publiant à nouveau. Ton brouillon est conservé sur cet appareil.</p>
       <span class="cosmicLabel" id="proposalAuthorLabel">Pseudo Discord</span>
       <div class="cosmicReadonlyField" id="proposalAuthorDisplay" role="status" aria-labelledby="proposalAuthorLabel">Identification en cours…</div>
+      <label class="cosmicLabel" for="proposalTitle">Titre de ma défense (facultatif)</label>
+      <input class="select" id="proposalTitle" type="text" maxlength="60" autocomplete="off" placeholder="Mes défenses" aria-describedby="proposalTitleHelp" />
+      <p class="cosmicIntro" id="proposalTitleHelp">Le sélecteur affichera ton pseudo Discord, ce titre et le numéro de saison. Sans titre : « Mes défenses ».</p>
       <div id="proposalRooms" class="cosmicRooms"></div>
       <p class="cosmicFeedback" id="proposalStatus" role="status" aria-live="polite"></p>
       <button id="proposalShare" class="cosmicAction" type="button" disabled>Publier mes défenses</button>
@@ -42,6 +45,6 @@
     </section>
   </main>
   <script src="./cosmic-season-ui.js?v=1" defer></script>
-  <script src="./cosmic-defenses.js?v=7" defer></script>
+  <script src="./cosmic-defenses.js?v=9" defer></script>
 </body>
 </html>

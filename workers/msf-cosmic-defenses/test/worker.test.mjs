@@ -158,3 +158,59 @@ test("Worker unconfigured : publication disabled and no false success",async()=>
     assert.equal(response.status,503);
   });
 });
+
+
+test("titre personnel publié sur toutes les salles du même Discord sans toucher aux autres",async()=>{
+  const mine={season:"season-25",room:2,characters:make(2).characters,
+    source:"Personnel",authorDiscordId:"300305626926415874",
+    author:"Ancien pseudo",title:"Ancien titre",name:"Défense de Keryas",
+    notes:"Salle non modifiée",publishedAt:"2026-01-01T00:00:00.000Z"};
+  const other={...mine,room:3,authorDiscordId:"999999999999999999",title:"Autre titre"};
+  const church={...mine,source:"Marvel Church"};
+  delete church.authorDiscordId;
+  delete church.title;
+  const x=fixture({old:[mine,other,church]});
+  await withMock(x.mockFetch,async()=>{
+    const response=await worker.fetch(post([make(1)],{title:"Défense polyvalente",author:"Faux"}),x.env);
+    assert.equal(response.status,200);
+    const rows=x.getRows();
+    assert.equal(rows.length,4);
+    assert.deepEqual(rows.find(r=>r.room===3),other);
+    assert.deepEqual(rows.find(r=>r.source==="Marvel Church"),church);
+    const existing=rows.find(r=>r.room===2 && r.source==="Personnel");
+    assert.deepEqual(existing.characters,mine.characters);
+    assert.equal(existing.notes,"Salle non modifiée");
+    assert.equal(existing.title,"Défense polyvalente");
+    assert.equal(existing.author,"Keryas");
+    const newly=rows.find(r=>r.room===1 && r.source==="Personnel");
+    assert.equal(newly.title,"Défense polyvalente");
+    assert.equal(newly.author,"Keryas");
+  });
+});
+
+test("ancienne version client : titre facultatif et conservé s'il existe",async()=>{
+  const old={season:"season-25",room:2,characters:make(2).characters,
+    authorDiscordId:"300305626926415874",source:"Personnel",
+    title:"Mon plan",author:"Keryas",notes:"À conserver"};
+  const x=fixture({old:[old]});
+  await withMock(x.mockFetch,async()=>{
+    assert.equal((await worker.fetch(post([make(1)]),x.env)).status,200);
+    assert.ok(x.getRows().filter(r=>r.source==="Personnel").every(r=>r.title==="Mon plan"));
+  });
+});
+
+test("titre vide par défaut, titre trop long ou mal typé rejeté",async()=>{
+  const empty=fixture();
+  await withMock(empty.mockFetch,async()=>{
+    assert.equal((await worker.fetch(post([make()],{title:"   "}),empty.env)).status,200);
+    assert.equal(empty.getRows()[0].title,"Mes défenses");
+  });
+  for(const bad of ["X".repeat(61),{unsafe:"object"},5]) {
+    const x=fixture();
+    await withMock(x.mockFetch,async()=>{
+      const response=await worker.fetch(post([make()],{title:bad}),x.env);
+      assert.equal(response.status,400);
+      assert.equal(x.calls.filter(c=>c.method!=="GET").length,0);
+    });
+  }
+});

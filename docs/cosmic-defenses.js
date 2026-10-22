@@ -20,6 +20,7 @@
   const proposalsNode = document.getElementById("proposalRooms");
   const proposalStatus = document.getElementById("proposalStatus");
   const proposalAuthorDisplay = document.getElementById("proposalAuthorDisplay");
+  const proposalTitle = document.getElementById("proposalTitle");
   const shareButton = document.getElementById("proposalShare");
   const publishedLink = document.getElementById("proposalPublishedLink");
   const shareFallback = document.getElementById("proposalFallback");
@@ -55,7 +56,7 @@
     } catch (_) { return {}; }
   }
   function saveDraft() {
-    const state = { rooms: {} };
+    const state = { title: safeText(proposalTitle?.value, 60), rooms: {} };
     for (const room of rooms) {
       const node = proposalsNode.querySelector('[data-cosmic-room="' + room.id + '"]');
       if (!node) continue;
@@ -297,6 +298,7 @@
   function renderProposals() {
     proposalsNode.replaceChildren();
     const draft = loadDraft();
+    if (proposalTitle) proposalTitle.value = safeText(draft.title, 60);
     for (const room of rooms) {
       const state = draft.rooms?.[room.id] || {};
       const section = make("section", "cosmicRoom");
@@ -390,7 +392,8 @@
       });
     }
     if (!selectedRooms.length) throw new Error("Renseigne au moins une salle complète.");
-    return { schemaVersion: 1, mode: "cosmic-crucible", season: COSMIC_SEASON_ID, author, rooms: selectedRooms };
+    return { schemaVersion: 1, mode: "cosmic-crucible", season: COSMIC_SEASON_ID,
+      title: safeText(proposalTitle?.value, 60), author, rooms: selectedRooms };
   }
     async function publishSubmission() {
     if (publishing) return;
@@ -414,6 +417,7 @@
         headers:{"Content-Type":"application/json","Authorization":"Bearer " + session},
         body:JSON.stringify({
           season:submission.season,
+          title:submission.title,
           rooms:submission.rooms.map(room => ({
             room:room.room,characters:room.characters,notes:room.notes
           }))
@@ -499,6 +503,7 @@
         proposalsNode.addEventListener("input", event => {
           if (event.target.matches("[data-cosmic-note]")) saveDraft();
         });
+        proposalTitle?.addEventListener("input", saveDraft);
         document.addEventListener("pointerdown", event => {
           if (!event.target.closest(".cosmicInputWrap")) closeSuggestions();
         });
