@@ -34,8 +34,8 @@ test("groupement joueurs et Marvel Church, plusieurs salles par contributeur", (
   const groups = groupsFor(rows);
   assert.equal(groups.length, 3);
   assert.equal(groups[0].kind, "player");
-  assert.equal(groups[0].label, "Autre (Mes défenses) S25");
-  const playerGroup = groups.find(x => x.label === "Keryas (Mes défenses) S25");
+  assert.equal(groups[0].label, "Autre (Défense standard) S25");
+  const playerGroup = groups.find(x => x.label === "Keryas (Défense standard) S25");
   assert.equal(playerGroup.count, 2);
   assert.equal(entriesForGroup(rows, playerGroup.id).length, 2);
   const external = groups.find(x => x.label === "Marvel Church S25");
@@ -133,7 +133,7 @@ test("pseudo Discord (titre personnel) S25, titre ancien manquant et saison suiv
   const groups=groupsFor([me,second,other,legacy,next]);
   assert.equal(groups.find(g=>g.label==="🚂Keryas (Défense polyvalente) S25").count,2);
   assert.equal(groups.find(g=>g.label==="🚂Keryas (Défense polyvalente) S26").count,1);
-  assert.ok(groups.some(g=>g.label==="Ancien (Mes défenses) S25"));
+  assert.ok(groups.some(g=>g.label==="Ancien (Défense standard) S25"));
   assert.ok(groups.some(g=>g.label==="Autre (Ma défense) S25"));
   assert.notEqual(groupFor(me).id,groupFor(next).id);
   assert.equal(groupFor({...me,author:"Nouveau pseudo"}).id,groupFor(me).id,
@@ -146,4 +146,16 @@ test("une autre source conserve ses collections et une catégorie non classée",
   const groups=groupsFor([one,two]);
   assert.deepEqual(Array.from(groups,g=>g.label),["Collection A S25","Collection B S25"]);
   assert.notEqual(groupFor(one).id,groupFor(two).id);
+});
+
+
+test("titre de défense standard par défaut et anciennes entrées sans perte",()=>{
+  const blank={...make("season-25",1,"🚂Keryas","Personnel"),title:""};
+  const old={...make("season-25",2,"🚂Keryas","Personnel"),title:"Mes défenses"};
+  const custom={...make("season-25",3,"🚂Keryas","Personnel"),title:"Stratégie anti-Méta"};
+  assert.equal(groupFor(blank).label,"🚂Keryas (Défense standard) S25");
+  assert.equal(groupFor(old).label,"🚂Keryas (Défense standard) S25");
+  assert.equal(groupFor(blank).id,groupFor(old).id);
+  assert.equal(groupFor(custom).label,"🚂Keryas (Stratégie anti-Méta) S25");
+  assert.equal(old.title,"Mes défenses");
 });

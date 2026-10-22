@@ -130,7 +130,7 @@ test("les portraits du brouillon peuvent être retirés individuellement, puis s
   assert.match(css, /\.cosmicPortraitRemove:focus-visible/);
   // Pas de croix pour les défenses publiées ni de suppression de la note.
   assert.doesNotMatch(js.split("function renderPublished()")[1]?.split("function initPublishedSelector")[0] || "", /cosmicPortraitRemove/);
-  assert.match(html, /cosmic-defenses\.js\?v=9/);
+  assert.match(html, /cosmic-defenses\.js\?v=10/);
 });
 
 test("trois tuiles : consultation et proposition sont des pages indépendantes", async () => {
@@ -170,7 +170,7 @@ test("le formulaire déplacé conserve la clé de brouillon et les suppressions"
   assert.match(js, /localStorage\.setItem\(DRAFT_KEY/);
   assert.match(js, /cosmicPortraitRemove/);
   assert.match(js, /input\.dataset\.selectedId = ""/);
-  assert.match(html, /cosmic-defenses\.js\?v=9/);
+  assert.match(html, /cosmic-defenses\.js\?v=10/);
   assert.match(html, /cosmic-season-ui\.js/);
   assert.match(css, /\.cosmicHubTile--propose/);
 });
@@ -219,10 +219,12 @@ test("cosmic visual design matches the common LoSP dark glass theme", async () =
   assert.match(css, /\.cosmicHubGrid\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
   assert.match(css, /\.cosmicPortrait img\{[^}]*object-fit:contain/);
   assert.match(css, /\.cosmicPortraitRemove::after\{[^}]*font:700 12px\/1 sans-serif/);
-  for (const page of [hub,propose,counters]) {
+  for (const page of [hub,counters]) {
     assert.match(page, /cosmic\.css\?v=8/);
     assert.match(page, /style\.css\?v=/);
   }
+  assert.match(propose,/cosmic\.css\?v=9/);
+  assert.match(propose,/style\.css\?v=/);
   assert.match(browse, /cosmic\.css\?v=9/);
   assert.match(browse, /style\.css\?v=/);
 });
@@ -293,7 +295,7 @@ test("Marvel Church saison 25 : recommandations DÉFENSIVES importées sans inve
     assert.equal(variant.characters.includes("Sunspot"),false);
     assert.match(variant.notes,/Solar/);
   }
-  assert.match(catalog,/const title = text\(entry\?\.title\) \|\| collection \|\| "Mes défenses"/);
+  assert.match(catalog,/rawTitle==="Mes défenses"\?"Défense standard"/);
 });
 
 
@@ -302,9 +304,9 @@ test("consultation : badges français, titres séparés, sources homogènes et c
     read("docs/cosmic-defenses.html"),read("docs/cosmic-defenses.js"),
     read("docs/cosmic.css"),read("docs/cosmic-defense-catalog.js")
   ]);
-  assert.match(html,/cosmic\.css\?v=9/);
+  assert.match(html,/cosmic\.css\?v=10/);
   assert.match(html,/cosmic-defense-catalog\.js\?v=3/);
-  assert.match(html,/cosmic-defenses\.js\?v=9/);
+  assert.match(html,/cosmic-defenses\.js\?v=10/);
   assert.match(js,/catalog\.sortedForDisplay\(list\.filter/);
   assert.match(js,/catalog\.presentationFor\(entry\)/);
   assert.match(js,/make\("span", "cosmicDefenseTier cosmicDefenseTier--" \+ presentation\.key/);
@@ -327,9 +329,9 @@ test("publication : titre facultatif, conservé dans le brouillon et envoyé au 
     read("docs/cosmic-defenses.html"),read("workers/msf-cosmic-defenses/worker.js")
   ]);
   assert.match(html,/id="proposalTitle"[^>]*maxlength="60"/);
-  assert.match(html,/cosmic-defenses\.js\?v=9/);
+  assert.match(html,/cosmic-defenses\.js\?v=10/);
   assert.match(browse,/cosmic-defense-catalog\.js\?v=3/);
-  assert.match(browse,/cosmic-defenses\.js\?v=9/);
+  assert.match(browse,/cosmic-defenses\.js\?v=10/);
   assert.match(js,/title: safeText\(proposalTitle\?\.value, 60\)/);
   assert.match(js,/if \(proposalTitle\) proposalTitle\.value = safeText\(draft\.title, 60\)/);
   assert.match(js,/proposalTitle\?\.addEventListener\("input", saveDraft\)/);
@@ -337,4 +339,28 @@ test("publication : titre facultatif, conservé dans le brouillon et envoyé au 
   assert.match(server,/name:"Défense de "\+author\.name,title,notes:r\.notes/);
   assert.match(server,/payload\.title\.length > 60/);
   assert.doesNotMatch(server,/author:payload\.author/);
+});
+
+
+test("les en-têtes de salles sont centrés et visibles sur les deux pages",async()=>{
+  const [js,css,browse,propose,config]=await Promise.all([
+    read("docs/cosmic-defenses.js"),read("docs/cosmic.css"),
+    read("docs/cosmic-defenses.html"),read("docs/cosmic-defense-propose.html"),
+    read("docs/data/cosmic-config.json")
+  ]);
+  assert.match(js,/function appendRoomHeading\(section,room\)/);
+  assert.match(js,/make\("h3","cosmicRoomNumber","SALLE "\+room\.id\)/);
+  assert.match(js,/make\("p","cosmicRoomName",name\|\|room\.label\)/);
+  assert.equal((js.match(/appendRoomHeading\(section,room\);/g)||[]).length,2);
+  assert.match(css,/\.cosmicRoomHeading\{[^}]*text-align:center/);
+  assert.match(css,/\.cosmicRoom \.cosmicRoomNumber\{/);
+  assert.match(css,/\.cosmicRoomName\{[^}]*overflow-wrap:anywhere/);
+  assert.match(js,/"Règle de la salle : " \+ room\.rule/);
+  assert.equal(JSON.parse(config).rooms.length,6);
+  assert.match(browse,/cosmic\.css\?v=10/);
+  assert.match(propose,/cosmic\.css\?v=9/);
+  assert.match(browse,/cosmic-defenses\.js\?v=10/);
+  assert.match(propose,/cosmic-defenses\.js\?v=10/);
+  assert.match(propose,/placeholder="Défense standard"/);
+  assert.match(propose,/Sans titre : « Défense standard »/);
 });
