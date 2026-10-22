@@ -133,7 +133,7 @@ test("Le portrait conserve son cadrage et essaie la variante jouable après PVE"
   assert.match(js, /bossPortrait\.onerror = \(\) => \{/);
   assert.match(js, /tryNext\(\);/);
   assert.match(js, /portraitState\.token\+\+/);
-  assert.match(read("battleworld.html"), /battleworld\.js\?v=4/);
+  assert.match(read("battleworld.html"), /battleworld\.js\?v=5/);
   assert.match(read("battleworld.html"), /battleworld\.css\?v=4/);
 });
 
