@@ -63,3 +63,36 @@ test("Battleworld n'ajoute pas de lien à l'accueil, mais reste accessible via U
   assert.match(css, /\.bw-tabs\[hidden\]\s*\{\s*display:none;/);
   execFileSync(process.execPath, ["--check", new URL("../docs/battleworld.js", import.meta.url).pathname]);
 });
+
+
+test("Chaque fiche identifie la variante PVE du boss avec un portrait officiel", () => {
+  const characters = JSON.parse(read("data/msf-characters.json"));
+  const byId = new Map(characters.map(character => [character.id, character]));
+  const expected = {
+    destroyer: "PVE_Boss_Destroyer",
+    maestro: "PVE_Boss_Maestro",
+    sentry: "PVE_Boss_Sentry",
+    knull: "PVE_Boss_Knull"
+  };
+  for (const entry of manifest.guides) {
+    const guide = JSON.parse(read("data/battleworld/" + entry.file));
+    assert.equal(guide.boss.characterId, expected[entry.id]);
+    const character = byId.get(guide.boss.characterId);
+    assert.ok(character, "Boss PVE absent du catalogue pour " + entry.id);
+    assert.match(character.portraitUrl, /^https:\/\//);
+  }
+});
+
+test("Le portrait est à gauche et le catalogue se charge sans dépendre des équipes", () => {
+  const page = read("battleworld.html");
+  const css = read("battleworld.css");
+  const script = read("battleworld.js");
+  assert.match(page, /id="bw-boss-portrait"/);
+  assert.match(page, /id="bw-boss-portrait-fallback"/);
+  assert.ok(page.indexOf('id="bw-boss-portrait"') < page.indexOf('id="bw-guide-title"'));
+  assert.match(css, /\.bw-summary-layout\s*\{\s*display:grid;/);
+  assert.match(css, /\.bw-boss-portrait\[hidden\]/);
+  assert.match(script, /function renderBossPortrait\(/);
+  assert.match(script, /await loadCharacterCatalog\(\)/);
+  assert.doesNotMatch(script, /guideHasCharacters\(data\)/);
+});
