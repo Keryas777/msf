@@ -87,8 +87,11 @@ test("the 21 October source capture matches user-confirmed Zeus values",()=>{
 
 test('future collection configuration is UTC-based and disabled until collector integration',()=>{
   assert.deepEqual(config.capture.trophies.scheduledWeekdaysUtc,
-    ['wednesday','friday']);
-  assert.equal(config.capture.trophies.scheduledAtUtc,'21:00');
+    ['thursday','saturday']);
+  assert.equal(config.capture.trophies.scheduledAtUtc,'06:40');
+  assert.deepEqual(config.capture.trophies.sourceSampling,{
+    dayOffsetFromWar:1,startAtUtc:'02:00',endExclusiveAtUtc:'06:00'
+  });
   assert.equal(config.capture.trophies.collectionTimezone,'UTC');
   const window=config.capture.trophies.window;
   assert.equal(window.warEndsAtUtc,'18:00');
@@ -141,10 +144,13 @@ test('trophy post-war window has margins and includes the 22 October capture',()
   const start=minutes(w.warEndsAtUtc)+w.marginAfterWarEndMinutes;
   const end=minutes(w.nextPreparationStartsAtUtc)+
     1440*w.preparationDayOffset-w.marginBeforePreparationMinutes;
-  const scheduled=minutes(cfg.scheduledAtUtc);
+  const scheduled=1440+minutes(cfg.scheduledAtUtc);
+  const sampleStart=1440+minutes(cfg.sourceSampling.startAtUtc);
+  const sampleEnd=1440+minutes(cfg.sourceSampling.endExclusiveAtUtc);
   assert.equal(start,20*60);
   assert.equal(end,24*60+13*60);
-  assert.ok(scheduled>=start && scheduled<end);
+  assert.ok(sampleStart>=start && sampleEnd<=end);
+  assert.ok(scheduled>sampleEnd && scheduled<end);
   const wednesday=Date.parse('2026-10-21T00:00:00.000Z');
   const observed=Date.parse('2026-10-22T12:02:08.591Z');
   assert.ok(observed>=wednesday+start*60000);

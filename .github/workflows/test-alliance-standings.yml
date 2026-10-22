@@ -8,6 +8,15 @@ on:
       - "docs/data/alliances.json"
       - "tests/alliance-standings-data.test.mjs"
       - "tests/alliance-history-charts.test.mjs"
+      - "tests/alliance-r2-import.test.mjs"
+      - "tests/roster-r2-import.test.mjs"
+      - "scripts/lib/roster-r2-import.mjs"
+      - "scripts/lib/private-r2-read.mjs"
+      - "scripts/pull-rosters-r2.mjs"
+      - ".github/workflows/pull-rosters-r2.yml"
+      - "scripts/lib/alliance-r2-history.mjs"
+      - "scripts/pull-alliance-history-r2.mjs"
+      - ".github/workflows/pull-alliance-standings-r2.yml"
       - ".github/workflows/test-alliance-standings.yml"
   workflow_dispatch:
 
@@ -26,4 +35,5 @@ jobs:
         run: |
           node --check docs/alliance-history-data.js
           node --check docs/alliance-history.js
-          node --test tests/alliance-standings-data.test.mjs tests/alliance-history-charts.test.mjs
+          node --check scripts/pull-rosters-r2.mjs
+          node --test tests/alliance-standings-data.test.mjs tests/alliance-history-charts.test.mjs tests/alliance-r2-import.test.mjs tests/roster-r2-import.test.mjs

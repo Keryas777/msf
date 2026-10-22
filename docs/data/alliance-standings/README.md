@@ -102,8 +102,11 @@ captures complètes. Si le calendrier s'avère incorrect, le corriger dans
 `config.json` **avant** d'importer de nouvelles captures. Ne jamais fabriquer
 de rangs ni de trophées.
 
-**Trophées de guerre** : le planning retenu reste le **mercredi et le vendredi
-à 21:00 UTC**, soit 23:00 en été / 22:00 en hiver en France.
+**Trophées de guerre** : la WebApp récupère les données **le jeudi et le samedi
+à 06:40 UTC**, après les campagnes existantes du Roster Service
+(02:00–06:00 UTC le lendemain des guerres du mercredi et du vendredi).
+La WebApp **lit le R2 privé** et n'ajoute aucune requête Scopely ;
+le Roster Service n'envoie rien à la WebApp.
 
 Contrairement au **classement temporaire de saison**, les trophées sont des
 totaux persistants : l'intervalle entre fin de zone 4 et début de zone 1
@@ -112,17 +115,23 @@ précisés par l'administrateur, la guerre s'achève à **18:00 UTC** et la
 préparation de la guerre suivante débute le lendemain à **15:00 UTC**.
 Avec une marge configurable de **deux heures de chaque côté**, la fenêtre
 prudente est de **20:00 UTC après la guerre à 13:00 UTC le lendemain**.
-Le créneau prévu à 21:00 UTC s'y trouve.
+La fenêtre 02:00–06:00 UTC du lendemain s'y trouve aussi : le système
+récupère les fiches **déjà archivées** pendant cette plage, après 06:00.
 
 Ces horaires, le décalage jusqu'au lendemain et les marges sont définis
 dans `config.json` sous `capture.trophies.window`, indépendamment du
 calendrier de 14 jours des classements. Ces valeurs sont la convention
 opérationnelle LoSP, sans prétendre vérifier un horaire officiel Scopely.
-Le planning demeure une **configuration pour le futur collecteur** :
-il ne déclenche actuellement aucune requête ni aucun cron. Pour chaque
-capture, vérifier la date UTC réelle, l'actualisation des résultats et
-`completeSessionScan`. Ne jamais antidater une capture.
-Si Scopely modifie les horaires, ajuster la configuration et ses tests.
+Le workflow **pull-alliance-standings-r2.yml** est installé côté WebApp,
+mais son exécution programmée reste désactivée par défaut et la publication
+nécessite une validation explicite. Une capture issue d'archives R2 est
+composée des dernières fiches valides disponibles dans la plage 02:00–06:00,
+avec l'horodatage réel de chaque alliance. Cela **ne garantit pas** le même
+niveau de couverture qu'un scan simultané de 9 sessions ; le champ
+`completeSessionScan` reste donc `false`, même si toutes les alliances
+actives ont leur relevé. Aucune valeur absente n'est inventée.
+Ne jamais antidater une capture. Si Scopely modifie les horaires,
+ajuster la configuration et ses tests.
 
 **Attention** : les données d'AllianceCard proviennent de l'API officielle.
 La limite de conservation de 30 jours mentionnée plus haut demeure à
@@ -150,3 +159,104 @@ fenêtre prudente suivant la guerre du mercredi (**20:00 UTC mercredi –
 qu'une collecte automatique a été exécutée. Aucun jeton, empreinte privée
 ni donnée de session n'est publié.
 Les réserves contractuelles de conservation des données de l'API restent applicables.
+
+## Importation passive depuis R2 — préparation GitHub Actions
+
+Le dépôt `Keryas777/msf` est **l'initiateur de toutes les lectures**.
+Le service `losp-roster-service` n'est pas modifié ; aucun webhook, POST,
+cron supplémentaire côté Worker ou appel Scopely n'est ajouté.
+L'import s'exécute côté **GitHub Actions**, pas dans `alliance-history.js`
+(compatible GitHub Pages et navigateur iOS).
+
+1. Dans Cloudflare R2, créer des **identifiants S3 de lecture seule**
+   limités au bucket `losp-roster-sessions` (ne jamais utiliser les secrets
+   OAuth ou la clé de chiffrement des sessions capitaines).
+   **Attention : le bucket contient aussi des informations privées** ;
+   contrôler soigneusement les permissions, les environnements Actions et
+   les personnes pouvant modifier les workflows.
+2. Dans les **GitHub Actions Secrets** de `Keryas777/msf`, définir :
+   `LOSP_R2_ACCOUNT_ID`, `LOSP_R2_ACCESS_KEY_ID`,
+   `LOSP_R2_SECRET_ACCESS_KEY`, `LOSP_R2_BUCKET` et
+   `LOSP_R2_ALLIANCE_MAP_JSON`. Cette dernière valeur est un objet JSON
+   privé `{"cle_registre":"empreinte_sha256_de_l_AID"}` pour chaque
+   alliance active de `docs/data/alliances.json`. Ne jamais committer
+   les empreintes ni les données brutes d'alliance.
+3. Le bouton GitHub Actions **Pull LoSP alliance history from private R2**
+   permet une vérification manuelle **sans écriture** (`publish=false`).
+   Une date passée au format UTC `YYYY-MM-DD` peut être fournie pour
+   jeudi/samedi, tant que les objets R2 existent encore.
+4. Avant toute publication automatique et conservation durable, **résoudre
+   les droits de rétention et de redistribution des données Scopely** :
+   les conditions API du 3 mars 2022 imposent un TTL maximum de 30 jours.
+   Un historique permanent dans Git reste problématique sans autorisation
+   explicite ou source indépendante autorisée. Après validation,
+   `LOSP_R2_HISTORY_PUBLICATION_APPROVED=true` déverrouille l'option
+   `publish=true` ; `LOSP_R2_HISTORY_IMPORT_ENABLED=true` active en plus
+   les horaires du cron (jeudi/samedi 06:40 UTC). Ces variables de dépôt
+   ne constituent pas, en elles-mêmes, une dérogation contractuelle.
+
+Le lecteur R2 n'utilise que les objets
+`roster-batches/v1/<fingerprint>/<run>/provider-source/<uuid>/alliance-card.json`,
+vérifie la signature de l'AID stable, les bornes UTC et les valeurs numériques,
+et n'écrit **que** le petit JSON public nettoyé si toutes les alliances
+actives possèdent une capture valide. Chaque alliance conserve son
+`capturedAt` distinct, le `capturedAt` global désigne le plus récent.
+On ne prétend donc pas avoir effectué un scan complet de sessions OAuth.
+
+Un jour de collecte déjà présent dans `index.json` est ignoré (idempotence) ;
+les anciens relevés ne sont pas écrasés. Les rangs utilisent toujours le
+calendrier de 14 jours existant, sans ajouter de saison fictive.
+Les archives brutes restent dans R2 avec leur durée de vie propre.
+
+## Lecture passive des rosters R2 (dans la même PR #330)
+
+Le même dépôt WebApp prépare désormais une **seconde GitHub Action**, distincte
+des classements : `.github/workflows/pull-rosters-r2.yml`. Le Roster Service
+continue à fonctionner **sans aucune modification** et **sans aucun push** vers
+GitHub. Aucune requête Scopely supplémentaire n'est effectuée.
+
+- Deux horaires UTC : **tous les jours à 06:40 et 18:40 UTC**, après les
+  campagnes de collecte Roster Service **02:00–06:00** et **14:00–18:00**.
+- Sources privées : `roster-batches/v1/<fingerprint>/progress.json`,
+  `latest-complete.json`, puis les objets `<runId>/member-N.json` et
+  `<runId>/member-self.json` du run **effectivement terminé**.
+- Le couple `progress` + `latest-complete` doit appartenir à **la même
+  campagne de date et de demi-journée**, avec même `runId`, digest d'effectif,
+  effectifs cohérents et objet personnel présent. Un run partiel, obsolète ou
+  un joueur manquant n'est **jamais** importé.
+- Correspondance avec le registre dynamique `alliances.json` via le même
+  secret d'empreintes privées que pour les classements, et rapprochement
+  des pseudos via `player-aliases.json`.
+- Pour chaque alliance complète, génération conservatrice du fichier
+  `docs/data/rosters_<alliance>.json` ; les alliances incomplètes conservent
+  leurs fichiers précédents. **Après validation**, relancement de
+  `scripts/merge-rosters.mjs` pour produire le `rosters.json` déjà attendu
+  par toutes les pages de la WebApp.
+- Puissance, niveau, équipement et étoiles sont relus depuis les personnages
+  officiels. Les données ISO sans équivalence prouvée sont **conservées depuis
+  la version existante**, jamais mises à zéro arbitrairement. Un personnage
+  nouveau sans ses données de matrice ISO nécessaires n'est pas introduit
+  automatiquement avant vérification du schéma réel : ses champs incertains
+  ne doivent pas être inventés.
+- Les identifiants volatils des membres, les empreintes d'alliance, les
+  métadonnées internes R2 et les sessions OAuth ne sont **jamais copiés**
+  dans les fichiers publics.
+- Le script refuse les collisions d'identités de joueurs au sein d'une
+  alliance **et entre alliances**, y compris lorsque certaines n'ont pas
+  été mises à jour. Une campagne valide ne justifie jamais d'écraser le
+  roster d'une autre alliance.
+
+La vérification sans écriture s'effectue depuis
+**Pull LoSP rosters from private R2** (`publish=false`), avec les mêmes
+secrets de lecture seule R2 que l'import des trophées. La publication
+exige séparément `LOSP_R2_ROSTERS_PUBLICATION_APPROVED=true` ; l'exécution
+programmée exige en plus `LOSP_R2_ROSTER_IMPORT_ENABLED=true`.
+**Ces variables ne sont pas configurées par la PR.** Les permissions de
+publication/redistribution et la rétention maximale de 30 jours des données
+obtenues par l'API MSF doivent être clarifiées auparavant. Les anciennes
+versions Git restent accessibles même si le JSON est écrasé deux fois par jour.
+
+**Limites à vérifier en essai réel :** la présence d'un manifeste complet
+dans chaque campagne et les variantes du schéma ISO de l'API `/roster`.
+Les tests de la PR utilisent des fixtures, pas une lecture des R2 de production.
+L'accès du navigateur aux données privées n'est pas ouvert.
