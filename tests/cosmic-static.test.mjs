@@ -306,7 +306,7 @@ test("consultation : badges français, titres séparés, sources homogènes et c
   ]);
   assert.match(html,/cosmic\.css\?v=10/);
   assert.match(html,/cosmic-defense-catalog\.js\?v=3/);
-  assert.match(html,/cosmic-defenses\.js\?v=10/);
+  assert.match(html,/cosmic-defenses\.js\?v=11/);
   assert.match(js,/catalog\.sortedForDisplay\(list\.filter/);
   assert.match(js,/catalog\.presentationFor\(entry\)/);
   assert.match(js,/make\("span", "cosmicDefenseTier cosmicDefenseTier--" \+ presentation\.key/);
@@ -331,7 +331,7 @@ test("publication : titre facultatif, conservé dans le brouillon et envoyé au 
   assert.match(html,/id="proposalTitle"[^>]*maxlength="60"/);
   assert.match(html,/cosmic-defenses\.js\?v=10/);
   assert.match(browse,/cosmic-defense-catalog\.js\?v=3/);
-  assert.match(browse,/cosmic-defenses\.js\?v=10/);
+  assert.match(browse,/cosmic-defenses\.js\?v=11/);
   assert.match(js,/title: safeText\(proposalTitle\?\.value, 60\)/);
   assert.match(js,/if \(proposalTitle\) proposalTitle\.value = safeText\(draft\.title, 60\)/);
   assert.match(js,/proposalTitle\?\.addEventListener\("input", saveDraft\)/);
@@ -359,8 +359,28 @@ test("les en-têtes de salles sont centrés et visibles sur les deux pages",asyn
   assert.equal(JSON.parse(config).rooms.length,6);
   assert.match(browse,/cosmic\.css\?v=10/);
   assert.match(propose,/cosmic\.css\?v=9/);
-  assert.match(browse,/cosmic-defenses\.js\?v=10/);
+  assert.match(browse,/cosmic-defenses\.js\?v=11/);
   assert.match(propose,/cosmic-defenses\.js\?v=10/);
   assert.match(propose,/placeholder="Défense standard"/);
   assert.match(propose,/Sans titre : « Défense standard »/);
+});
+
+
+test("consultation : messages utiles aux joueurs, sans références techniques", async () => {
+  const [html,js]=await Promise.all([
+    read("docs/cosmic-defenses.html"),read("docs/cosmic-defenses.js")
+  ]);
+  assert.match(html,/Les équipes conseillées par les joueurs et les guides/);
+  assert.match(html,/Afficher les défenses/);
+  assert.match(html,/cosmic-defenses\.js\?v=11/);
+  assert.match(js,/all\.textContent = "Toutes les défenses"/);
+  assert.match(js,/count \+ " défense" \+ \(count > 1 \? "s" : ""\)/);
+  assert.match(js,/Certaines défenses récentes peuvent ne pas encore apparaître/);
+  assert.match(js,/Aucune défense pour cette sélection/);
+  assert.doesNotMatch(html,/GitHub|JSON|catalogue|après validation/);
+  assert.doesNotMatch(js,/Lecture provisoire du catalogue GitHub Pages/);
+  assert.doesNotMatch(js,/composition\(s\) publiée\(s\)/);
+  assert.match(js,/loadPublishedLive\(config\?\.season\?\.id\)/);
+  assert.match(js,/publishedStatus\.dataset\.fallback = "true"/);
+  assert.match(js,/fetchJson\(DATA\.defenses\)/);
 });

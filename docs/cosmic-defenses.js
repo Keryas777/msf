@@ -147,7 +147,7 @@
       appendRoomHeading(section,room);
       if (room.rule) section.appendChild(make("p", "cosmicRoomRule", "Règle de la salle : " + room.rule));
       const entries = catalog.sortedForDisplay(list.filter(d => Number(d.room) === room.id));
-      if (!entries.length) section.appendChild(make("p", "cosmicEmpty", "Aucune défense publiée dans cette salle."));
+      if (!entries.length) section.appendChild(make("p", "cosmicEmpty", "Aucune défense proposée pour cette salle."));
       for (const entry of entries) {
         count++;
         const card = make("article", "cosmicDefense");
@@ -179,10 +179,12 @@
       }
       publishedNode.appendChild(section);
     }
-    const selectedName = publishedDefenseSelect.selectedOptions[0]?.textContent || "";
+    // Un éventuel retard reste signalé sans exposer les détails techniques.
+    const freshnessNote = publishedStatus?.dataset.fallback === "true"
+      ? " Certaines défenses récentes peuvent ne pas encore apparaître." : "";
     publishedStatus.textContent = count
-      ? count + " composition(s) publiée(s)" + (groupId ? " — " + selectedName : "") + "."
-      : "Aucune composition validée pour cette sélection. Tu peux préparer et partager tes défenses.";
+      ? count + " défense" + (count > 1 ? "s" : "") + " disponible" + (count > 1 ? "s" : "") + "." + freshnessNote
+      : "Aucune défense pour cette sélection." + freshnessNote;
   }
 
   function initPublishedSelector(defenses) {
@@ -193,7 +195,7 @@
 
     const all = document.createElement("option");
     all.value = "";
-    all.textContent = "Toutes les défenses publiées";
+    all.textContent = "Toutes les défenses";
     publishedDefenseSelect.appendChild(all);
 
     const groups = catalog.groupsFor(publishedEntries);
@@ -521,15 +523,10 @@
       } else {
         initPublishedSelector(published);
         publishedDefenseSelect.addEventListener("change", renderPublished);
-        if (publishedStatus?.dataset.fallback) {
-          const notice = document.createElement("p");
-          notice.className = "cosmicFeedback";
-          notice.textContent = "Lecture provisoire du catalogue GitHub Pages : des publications récentes peuvent manquer.";
-          publishedNode.parentElement.insertBefore(notice, publishedNode);
-        }
+        // Le compteur signale directement si certaines défenses sont en retard.
       }
     } catch (error) {
-      if (publishedStatus) publishedStatus.textContent = "Impossible de charger les défenses : " + error.message;
+      if (publishedStatus) publishedStatus.textContent = "Impossible d’afficher les défenses pour le moment. Réessaie un peu plus tard.";
       if (proposalStatus) proposalStatus.textContent = "Le formulaire n'est pas disponible.";
       if (shareButton) shareButton.disabled = true;
     }
