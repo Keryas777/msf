@@ -90,8 +90,14 @@ test('future collection configuration is UTC-based and disabled until collector 
     ['wednesday','friday']);
   assert.equal(config.capture.trophies.scheduledAtUtc,'21:00');
   assert.equal(config.capture.trophies.collectionTimezone,'UTC');
-  assert.equal(config.capture.trophies.zone4WarEndsAtUtc,'19:00');
-  assert.equal(config.capture.trophies.nextZone1WarStartsAtUtc,'01:00');
+  const window=config.capture.trophies.window;
+  assert.equal(window.warEndsAtUtc,'18:00');
+  assert.equal(window.nextPreparationStartsAtUtc,'15:00');
+  assert.equal(window.preparationDayOffset,1);
+  assert.equal(window.marginAfterWarEndMinutes,120);
+  assert.equal(window.marginBeforePreparationMinutes,120);
+  assert.equal(Object.hasOwn(config.capture.trophies,'zone4WarEndsAtUtc'),false);
+  assert.equal(Object.hasOwn(config.capture.trophies,'nextZone1WarStartsAtUtc'),false);
   assert.equal(config.capture.trophies.requireCompleteSessionScan,true);
   assert.equal(config.rankingSeasons.cycleDays,14);
   assert.equal(config.rankingSeasons.referenceEndExclusiveAt,'2026-10-11T20:00:00.000Z');
@@ -121,4 +127,26 @@ test("22 October manual trophy snapshot is genuine, complete and changes all fiv
     assert.equal(now.raidRank,previous.raidRank);
     assert.equal(Object.hasOwn(now,"allianceFingerprint"),false);
   }
+});
+
+test('trophy post-war window has margins and includes the 22 October capture',()=>{
+  const cfg=config.capture.trophies;
+  const w=cfg.window;
+  const minutes=s=>{
+    assert.match(s,/^\\d{2}:\\d{2}$/);
+    const [hour,minute]=s.split(':').map(Number);
+    assert.ok(hour<24&&minute<60);
+    return hour*60+minute;
+  };
+  const start=minutes(w.warEndsAtUtc)+w.marginAfterWarEndMinutes;
+  const end=minutes(w.nextPreparationStartsAtUtc)+
+    1440*w.preparationDayOffset-w.marginBeforePreparationMinutes;
+  const scheduled=minutes(cfg.scheduledAtUtc);
+  assert.equal(start,20*60);
+  assert.equal(end,24*60+13*60);
+  assert.ok(scheduled>=start && scheduled<end);
+  const wednesday=Date.parse('2026-10-21T00:00:00.000Z');
+  const observed=Date.parse('2026-10-22T12:02:08.591Z');
+  assert.ok(observed>=wednesday+start*60000);
+  assert.ok(observed<wednesday+end*60000);
 });
