@@ -164,6 +164,7 @@
       ["strategy", "Stratégie"],
       ["avoid", "À éviter"],
       ["instructions", "Instructions de combat"],
+      ["historicalInstructions", "Ancienne rotation — restriction précédente"],
       ["notes", "Précisions"],
       ["warnings", "Points à vérifier"]
     ].forEach(([field, label]) => {
@@ -331,7 +332,11 @@
     }
     const intro = el("section", "card bw-intro");
     intro.append(el("h2", "", zone.title || "Zone"));
-    intro.append(el("p", "", "3 Standard · 1 mini-boss · 3 Élite · 2 Bonus"));
+    const counts = [zone.nodes && zone.nodes.length ? zone.nodes.length + " Standard" : "",
+      zone.miniboss ? "1 mini-boss" : "",
+      Array.isArray(zone.eliteMissions) ? zone.eliteMissions.length + " Élite" : "",
+      Array.isArray(zone.bonusMissions) ? zone.bonusMissions.length + " Bonus" : ""].filter(Boolean);
+    intro.append(el("p", "", counts.join(" · ")));
     validList(zone.notes).forEach(note => intro.append(el("p", "bw-zone-note", note)));
     content.append(intro);
 
@@ -374,7 +379,7 @@
     const details = el("details", "bw-node bw-boss-mechanics");
     const summary = el("summary");
     const label = el("span", "bw-node-title");
-    label.append(el("strong", "", "Mécaniques complètes du Destructeur"));
+    label.append(el("strong", "", "Mécaniques complètes du boss"));
     label.append(el("small", "", "Immunités, Rage, invocations, dégâts et restrictions"));
     summary.append(label);
     details.append(summary);
