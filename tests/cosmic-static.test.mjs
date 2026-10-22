@@ -410,6 +410,10 @@ test("défenses Marvel Church : uniquement quatre notes stratégiques et aucun l
   assert.match(find("Quasar"),/Immunité/);
   assert.match(find("SilverSurferBreaker"),/Singularité instable/);
   assert.match(find("Mephisto"),/Marque/);
+  assert.match(find("Annihilus"),/^Annihilus — choix offensif :/);
+  assert.match(find("Quasar"),/^Quasar — choix protecteur :/);
+  assert.match(find("SilverSurferBreaker"),/^Surfeur d'argent \(Briseur\) — choix agressif :/);
+  assert.match(find("Mephisto"),/^Méphisto — choix de résistance :/);
   assert.doesNotMatch(js,/Consulter la source/);
   assert.doesNotMatch(js,/entry\.sourceUrl/);
   assert.match(js,/"Source : " \+ safeText\(catalog\.displaySource\(entry\), 100\)/);
