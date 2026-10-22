@@ -13,9 +13,21 @@
 .bw-season-field .label { color:rgba(236,219,255,.78); }
 .bw-season-field .select { background:#1a1328; border-color:rgba(208,171,255,.35); }
 .bw-summary { background:linear-gradient(135deg,rgba(43,27,70,.95),rgba(18,19,32,.92)); }
-.bw-summary-top { display:flex; gap:12px; align-items:flex-start; justify-content:space-between; }
+/* Fiche d'identité : portrait officiel à gauche, contenu toujours lisible sur mobile. */
+.bw-summary-layout { display:grid; grid-template-columns:clamp(82px,24vw,116px) minmax(0,1fr); gap:12px; align-items:center; }
+.bw-summary-info { min-width:0; }
+.bw-boss-portrait-frame {
+  aspect-ratio:1; overflow:hidden; border-radius:14px;
+  display:grid; place-items:center;
+  border:1px solid rgba(213,174,255,.4);
+  background:radial-gradient(circle at 35% 25%,rgba(173,106,255,.26),transparent 60%),rgba(8,9,20,.68);
+}
+.bw-boss-portrait { display:block; width:100%; height:100%; object-fit:contain; }
+.bw-boss-portrait-fallback { font-size:30px; color:#ecd9ff; }
+.bw-boss-portrait[hidden], .bw-boss-portrait-fallback[hidden] { display:none; }
+.bw-summary-top { display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start; justify-content:space-between; }
 .bw-eyebrow { font-size:11px; text-transform:uppercase; letter-spacing:.13em; color:#c8a7ed; font-weight:800; }
-.bw-summary h2 { margin:6px 0 0; font-size:23px; line-height:1.15; }
+.bw-summary h2 { margin:6px 0 0; font-size:clamp(18px,4.8vw,23px); line-height:1.15; overflow-wrap:anywhere; }
 .bw-state { border:1px solid rgba(209,177,255,.38); border-radius:999px; padding:6px 9px; font-size:11px; font-weight:800; white-space:nowrap; color:#e5d0ff; background:rgba(127,82,179,.18); }
 .bw-meta { color:var(--muted); margin:9px 0 0; font-size:13px; line-height:1.5; }
 .bw-tabs { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; position:sticky; top:0; z-index:9; padding:3px 0; background:rgba(7,8,15,.9); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-radius:12px; }
