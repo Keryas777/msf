@@ -8,82 +8,816 @@
     {
       "id": "zone-1",
       "title": "Zone 1",
+      "day": 1,
+      "notes": [
+        "Les trois Standard et Élite sont jugées simples par Marvel Church ; les missions Bonus demandent davantage de préparation."
+      ],
       "nodes": [
         {
           "id": "node-1",
-          "title": "Node 1",
-          "restrictions": [],
-          "enemies": [],
+          "title": "Standard 1 — Cosmique + Vilain",
+          "restrictions": [
+            "Cosmique ET Vilain"
+          ],
+          "enemies": [
+            "Vague 1 : Gardiens de la Galaxie.",
+            "Vague 2 : Asgardiens."
+          ],
           "mechanics": [],
-          "objectives": [],
-          "strategy": [],
+          "objectives": [
+            "Vague 2 : cibler Vahl puis Valkyrie."
+          ],
+          "strategy": [
+            "Mission jugée simple par Marvel Church, même en difficulté maximale."
+          ],
           "avoid": [],
-          "instructions": [],
-          "teams": [],
-          "sources": []
+          "instructions": [
+            "Placer Thanos entre Knull et Exécuteur : Thanos leur fournit de l'énergie de capacité à chaque ennemi éliminé.",
+            "Combattre les Gardiens à la première vague.",
+            "À l'arrivée des Asgardiens, éliminer Vahl puis Valkyrie."
+          ],
+          "teams": [
+            {
+              "id": "z1-standard1",
+              "title": "Méphisto + Knull + Surfer d'argent (Briseur) + Exécuteur + Thanos",
+              "characters": [
+                "Mephisto",
+                "Knull",
+                "SilverSurferBreaker",
+                "Executioner",
+                "Thanos"
+              ],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Placement de Thanos important pour recharger Knull et Exécuteur."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
         },
         {
           "id": "node-2",
-          "title": "Node 2",
-          "restrictions": [],
-          "enemies": [],
+          "title": "Standard 2 — Mutant + Héros",
+          "restrictions": [
+            "Mutant ET Héros"
+          ],
+          "enemies": [
+            "Vague 1 : Azazel, Mister Sinistre et autres ennemis.",
+            "Vague 2 : Confrérie des Mutants, dont Crapaud et Magnéto."
+          ],
           "mechanics": [],
-          "objectives": [],
-          "strategy": [],
+          "objectives": [
+            "Vague 1 : Azazel → Mister Sinistre.",
+            "Vague 2 : Crapaud → Magnéto."
+          ],
+          "strategy": [
+            "Mission facile selon la source ; utiliser les capacités dès qu'elles sont disponibles."
+          ],
           "avoid": [],
           "instructions": [],
-          "teams": [],
-          "sources": []
+          "teams": [
+            {
+              "id": "z1-standard2",
+              "title": "Professeur Xavier + Exalted X-Men",
+              "characters": [
+                "Xavier"
+              ],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Le site ne détaille pas nominativement les quatre autres Exalted X-Men."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
         },
         {
           "id": "node-3",
-          "title": "Node 3",
-          "restrictions": [],
-          "enemies": [],
+          "title": "Standard 3 — Ville + Vilain",
+          "restrictions": [
+            "Ville ET Vilain"
+          ],
+          "enemies": [
+            "Vague 1 : Défenseurs.",
+            "Vague 2 : différentes versions de Spider-Man."
+          ],
           "mechanics": [],
-          "objectives": [],
-          "strategy": [],
+          "objectives": [
+            "Vague 1 : Iron Fist d'abord.",
+            "Vague 2 : Spider-Man d'abord."
+          ],
+          "strategy": [
+            "Mission simple avec Insidious Six."
+          ],
           "avoid": [],
           "instructions": [],
-          "teams": [],
-          "sources": []
+          "teams": [
+            {
+              "id": "z1-standard3",
+              "title": "Insidious Six — équipe complète",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": []
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
+        }
+      ],
+      "miniboss": {
+        "id": "mini-boss",
+        "title": "Mini-boss — The Gatekeepers (Thunderstrike)",
+        "restrictions": [
+          "Timeless Eternal OU Global ET non mythique"
+        ],
+        "enemies": [
+          "Thunderstrike (mini-boss), Sif et Heimdall."
+        ],
+        "mechanics": [
+          "Protectors of Fallen Asgard : au moins un mini-boss, immunisé à Étourdissement, Épuisé et Exposé.",
+          "Thundering Rage : quand un allié asgardien meurt, Thunderstrike gagne 1 à 2 Rage, Blocage des capacités et Blocage des soins pendant 1 tour (irrésistibles), ainsi que 100 % de jauge de vitesse.",
+          "Thunderstrike gagne +10 Vitesse par cumul de Rage ; à chaque passage sous 50 % de santé maximale, il gagne 1 Rage.",
+          "Gatekeepers : attaquer Thunderstrike donne +45 % de jauge de vitesse à Sif et Heimdall."
+        ],
+        "objectives": [
+          "Éliminer Thunderstrike en priorité."
+        ],
+        "strategy": [],
+        "avoid": [
+          "Ne pas achever Sif ou Heimdall : leur mort renforce brutalement Thunderstrike.",
+          "Éviter de disperser les attaques hors Provocation de Sif."
+        ],
+        "instructions": [
+          "Utiliser Timeless Eternal et concentrer les dégâts sur Thunderstrike.",
+          "Attaquer Sif uniquement lorsque sa Provocation oblige à la cibler.",
+          "Les attaques de zone (spéciale de Gilgamesh, ultimes de Circé et Ikaris) restent possibles à condition de ne pas tuer les protecteurs.",
+          "Une fois Thunderstrike éliminé, terminer Sif et Heimdall."
+        ],
+        "teams": [
+          {
+            "id": "z1-miniboss",
+            "title": "Timeless Eternal — équipe complète",
+            "characters": [],
+            "requirements": [],
+            "steps": [],
+            "alternatives": [],
+            "notes": [
+              "Le guide cite Gilgamesh, Circé et Ikaris comme exemples de capacités de zone."
+            ]
+          }
+        ],
+        "notes": [
+          "Marvel Church signale de très gros dégâts infligés par les trois ennemis à difficulté élevée, mais considère la survie de Timeless Eternal suffisante."
+        ],
+        "warnings": [],
+        "sources": [
+          {
+            "label": "Marvel Church — Battleworld: Fallen Asgard",
+            "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+          }
+        ]
+      },
+      "eliteMissions": [
+        {
+          "id": "elite-1",
+          "title": "Élite 1 — Gamma et New Mutants",
+          "restrictions": [
+            "Timeless Eternal OU Daring Warrior"
+          ],
+          "enemies": [
+            "Vague 1 : équipe Gamma.",
+            "Vague 2 : New Mutants."
+          ],
+          "mechanics": [],
+          "objectives": [],
+          "strategy": [
+            "Jugée très facile par Marvel Church ; pas de rotation spécifique."
+          ],
+          "avoid": [],
+          "instructions": [],
+          "teams": [
+            {
+              "id": "daring-warrior",
+              "title": "Daring Warrior — équipe complète",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Équipe utilisée dans les Élite ; alternative : Timeless Eternal."
+              ]
+            },
+            {
+              "id": "timeless-eternal",
+              "title": "Timeless Eternal — équipe complète",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Composition complète citée par Marvel Church, mais pas de liste nominative des cinq personnages dans ce guide."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
+        },
+        {
+          "id": "elite-2",
+          "title": "Élite 2 — X-Factor et X-Force",
+          "restrictions": [
+            "Timeless Eternal OU Daring Warrior"
+          ],
+          "enemies": [
+            "Vague 1 : Havok avec X-Factor.",
+            "Vague 2 : X-Force."
+          ],
+          "mechanics": [],
+          "objectives": [],
+          "strategy": [
+            "Jugée facile ; aucune consigne spécifique."
+          ],
+          "avoid": [],
+          "instructions": [],
+          "teams": [
+            {
+              "id": "daring-warrior",
+              "title": "Daring Warrior — équipe complète",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Équipe utilisée dans les Élite ; alternative : Timeless Eternal."
+              ]
+            },
+            {
+              "id": "timeless-eternal",
+              "title": "Timeless Eternal — équipe complète",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Composition complète citée par Marvel Church, mais pas de liste nominative des cinq personnages dans ce guide."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
+        },
+        {
+          "id": "elite-3",
+          "title": "Élite 3 — Confrérie puis Out of Time",
+          "restrictions": [
+            "Timeless Eternal OU Daring Warrior"
+          ],
+          "enemies": [
+            "Vague 1 : Confrérie des Mutants.",
+            "Vague 2 : Out of Time."
+          ],
+          "mechanics": [],
+          "objectives": [
+            "Vague 2 : Chevalier noir, puis Captain Carter."
+          ],
+          "strategy": [],
+          "avoid": [],
+          "instructions": [
+            "Passer la vague de la Confrérie.",
+            "Dans Out of Time, éliminer Chevalier noir avant Captain Carter."
+          ],
+          "teams": [
+            {
+              "id": "daring-warrior",
+              "title": "Daring Warrior — équipe complète",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Équipe utilisée dans les Élite ; alternative : Timeless Eternal."
+              ]
+            },
+            {
+              "id": "timeless-eternal",
+              "title": "Timeless Eternal — équipe complète",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Composition complète citée par Marvel Church, mais pas de liste nominative des cinq personnages dans ce guide."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
+        }
+      ],
+      "bonusMissions": [
+        {
+          "id": "bonus-1",
+          "title": "Bonus 1 — Avengers / Ultron",
+          "restrictions": [
+            "Personnages Avengers"
+          ],
+          "enemies": [
+            "Début : Ultron, Crossbones, Vision, Yellowjacket et Ghost.",
+            "Après chaque mort ennemie, arrivent successivement Baron Zemo, Taskmaster, Titania, Red Skull et Iron Patriot."
+          ],
+          "mechanics": [
+            "Ultron joue Soigneur ISO-8, possède une puissance proche de 10 millions selon le test de Marvel Church et soigne massivement ses alliés à chaque tour.",
+            "Sa Résistance est très élevée, particulièrement avec Défense augmentée ; l'Étourdissement initial de Spider-Man peut échouer.",
+            "Ultron a généralement le temps de jouer une première fois."
+          ],
+          "objectives": [
+            "Empêcher Ultron de rejouer après son premier tour.",
+            "Maintenir Ultron sous Étourdissement, puis éliminer les autres ennemis."
+          ],
+          "strategy": [],
+          "avoid": [
+            "Laisser Ultron enchaîner les tours : son soin passif et les capacités des nouveaux arrivants rendent la mission beaucoup plus difficile."
+          ],
+          "instructions": [
+            "Premier tour : Spider-Man utilise sa spéciale sur Vision pour le cibler.",
+            "Julia utilise sa spéciale sur Crossbones ; cela peut aussi éliminer les invocations d'Ultron.",
+            "Au deuxième tour de Spider-Man, utiliser son ultime sur Ultron pour le mettre sous Étourdissement.",
+            "Garder ensuite l'ultime de Julia pour renouveler l'Étourdissement au tour suivant.",
+            "Éliminer les autres adversaires et leurs renforts tant qu'Ultron est contrôlé.",
+            "Si Hulk meurt sous Provocation, Blade (Puissant) peut le ressusciter."
+          ],
+          "teams": [
+            {
+              "id": "z1-bonus1",
+              "title": "Amazing Avenger",
+              "characters": [
+                "SpiderMan",
+                "SpiderWomanJulia",
+                "RachelColeAlves",
+                "BladeMighty",
+                "Hulk"
+              ],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Composition complète déductible des cinq personnages explicitement cités pour cette équipe dans le déroulé.",
+                "Une équipe très puissante est nécessaire au niveau maximal selon la source."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [
+            "L'article annonce des essais en difficulté 5, mais appelle ici difficulté 4 « la plus haute » : conserver cette contradiction avant validation en jeu."
+          ],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
+        },
+        {
+          "id": "bonus-2",
+          "title": "Bonus 2 — Chaos Team / Sinister Six",
+          "restrictions": [
+            "Chaos Team (intitulé de la mission dans la source)"
+          ],
+          "enemies": [
+            "Ennemis Sinister Six, notamment Electro, Kraven, Vautour, Mystério et Lézard."
+          ],
+          "mechanics": [],
+          "objectives": [
+            "Éliminer en priorité Vautour, Kraven et Electro, idéalement avant leur deuxième tour."
+          ],
+          "strategy": [
+            "Amazing Avenger résiste mieux à la rafale initiale que les alternatives essayées grâce à sa mitigation et à ses soins."
+          ],
+          "avoid": [],
+          "instructions": [
+            "Spider-Man commence par sa spéciale, inévitable, pour gérer les Esquives ennemies.",
+            "Julia utilise sa spéciale pour retirer une Esquive à chaque ennemi.",
+            "Rachel Cole-Alves utilise son ultime, Blade (Puissant) sa spéciale et Hulk sa spéciale contre l'un des ennemis prioritaires.",
+            "Au deuxième tour de Spider-Man, utiliser son ultime sur Lézard.",
+            "Achever Vautour, Kraven et Electro avant de nettoyer le reste."
+          ],
+          "teams": [
+            {
+              "id": "z1-bonus2",
+              "title": "Amazing Avenger (composition citée par Marvel Church)",
+              "characters": [
+                "SpiderMan",
+                "SpiderWomanJulia",
+                "RachelColeAlves",
+                "BladeMighty",
+                "Hulk"
+              ],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [
+                "Iron Raider ; West Coast Avenger ; assemblage Tornade (Puissante) + Surfer d'argent (Briseur) + Scorpion (Briseur) : essais rapportés comme moins efficaces."
+              ],
+              "notes": [
+                "La source affirme cette composition utilisable malgré l'intitulé de restriction Chaos Team.",
+                "L'équipe a réussi alors que Rachel Cole-Alves a été éliminée au deuxième tour de Kraven."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [
+            "Éligibilité d'Amazing Avenger sous la restriction « Chaos Team » à vérifier en jeu avant de la présenter comme garantie."
+          ],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
         }
       ]
     },
     {
       "id": "zone-2",
       "title": "Zone 2",
+      "day": 2,
+      "notes": [
+        "La mission Standard Ville + Héros est plus délicate ; le mini-boss des deux Thor gagne de la Rage et de la vitesse en réaction aux attaques."
+      ],
       "nodes": [
         {
           "id": "node-1",
-          "title": "Node 1",
-          "restrictions": [],
+          "title": "Standard 1 — Cosmique + Héros",
+          "restrictions": [
+            "Cosmique ET Héros"
+          ],
           "enemies": [],
           "mechanics": [],
           "objectives": [],
-          "strategy": [],
+          "strategy": [
+            "Mission considérée comme très facile ; aucune priorité de ciblage spécifique."
+          ],
           "avoid": [],
           "instructions": [],
-          "teams": [],
-          "sources": []
+          "teams": [
+            {
+              "id": "z2-standard1",
+              "title": "Fantastic Four (MCU) ×4 + Odin",
+              "characters": [
+                "Odin"
+              ],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "La source précise les quatre membres Fantastic Four (MCU), sans en lister ici les quatre noms individuellement."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
         },
         {
           "id": "node-2",
-          "title": "Node 2",
-          "restrictions": [],
-          "enemies": [],
+          "title": "Standard 2 — Tech + Vilain",
+          "restrictions": [
+            "Tech ET Vilain"
+          ],
+          "enemies": [
+            "Vague 1 : Hank Pym, Kestrel, Moon Girl et deux autres.",
+            "Vague 2 : ennemis incluant Rescue."
+          ],
           "mechanics": [],
-          "objectives": [],
+          "objectives": [
+            "Vague 1 : Hank Pym → Kestrel → Moon Girl.",
+            "Vague 2 : Rescue d'abord."
+          ],
           "strategy": [],
           "avoid": [],
-          "instructions": [],
-          "teams": [],
-          "sources": []
+          "instructions": [
+            "Éliminer Hank Pym, Kestrel et Moon Girl en priorité dans la première vague.",
+            "À l'arrivée des nouveaux ennemis, dissiper ou retourner leurs effets positifs.",
+            "Cibler ensuite Rescue avant le reste."
+          ],
+          "teams": [
+            {
+              "id": "z2-standard2",
+              "title": "Insidious Six — équipe complète",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": []
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
         },
         {
           "id": "node-3",
-          "title": "Node 3",
-          "restrictions": [],
+          "title": "Standard 3 — Ville + Héros",
+          "restrictions": [
+            "Ville ET Héros"
+          ],
+          "enemies": [
+            "Vague 1 : quatre Insidious Six, notamment Spider-Man supérieur et Super-Bouffon.",
+            "Vague 2 : Vilains de la Ville, notamment Chatte noire et Mister Negative."
+          ],
+          "mechanics": [],
+          "objectives": [
+            "Vague 1 : éliminer Super-Bouffon.",
+            "Vague 2 : Chatte noire, puis les autres."
+          ],
+          "strategy": [],
+          "avoid": [],
+          "instructions": [
+            "Remplacer Hulk (non Ville) par Hit-Monkey pour satisfaire la restriction.",
+            "Spider-Man commence par sa spéciale ; son ultime est peu utile face aux protections initiales.",
+            "Hit-Monkey utilise son ultime pour gagner Vitesse augmentée et Attaque augmentée ; les ennemis disposent de Sauvegarde et Immunité, empêchant l'Étourdissement prévu.",
+            "Julia utilise sa spéciale pour retirer les Esquives ; Rachel Cole-Alves utilise son ultime.",
+            "Blade (Puissant) utilise sa spéciale pour se concentrer sur Super-Bouffon.",
+            "Au tour suivant, Spider-Man peut réutiliser sa spéciale.",
+            "Vague 2 : ultime de Spider-Man sur Chatte noire pour retirer ses Indestructibles ; ultime de Julia sur Mister Negative pour l'étourdir.",
+            "Cibler ensuite Chatte noire puis le reste."
+          ],
+          "teams": [
+            {
+              "id": "z2-standard3",
+              "title": "Amazing Avenger sans Hulk + Hit-Monkey",
+              "characters": [
+                "SpiderMan",
+                "SpiderWomanJulia",
+                "RachelColeAlves",
+                "BladeMighty",
+                "HitMonkey"
+              ],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Hit-Monkey ne profite pas de tous les bonus Amazing Avenger. Dans le test, il est mort, les quatre autres ont terminé."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [
+            "Une des missions Standard les plus difficiles dans le guide, à cause de la sélection limitée de personnages."
+          ],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
+        }
+      ],
+      "miniboss": {
+        "id": "mini-boss",
+        "title": "Mini-boss — The Lovers (les deux Thor)",
+        "restrictions": [
+          "Timeless Eternal OU Cosmique ET Héros ET non mythique"
+        ],
+        "enemies": [
+          "Thor et Thor (Puissant / Mighty Thor)."
+        ],
+        "mechanics": [
+          "Protectors of Fallen Asgard : mini-boss immunisés à Étourdissement, Épuisé et Exposé.",
+          "Quand l'un des deux Thor est attaqué, l'autre gagne 30 % de jauge de vitesse et 1 Rage.",
+          "Chaque Rage accorde +5 % de dégâts à son porteur.",
+          "À la mort de l'un, l'autre gagne 20 Rage, 50 % de jauge de vitesse, Sauvegarde, Immunité, Attaque augmentée et Vitesse augmentée pendant 3 tours."
+        ],
+        "objectives": [],
+        "strategy": [
+          "Deux approches : répartir les dégâts pour essayer de tuer les deux presque en même temps, ou éliminer Thor d'abord comme dans le test de Marvel Church."
+        ],
+        "avoid": [],
+        "instructions": [
+          "Avec Timeless Eternal, cibler Thor en premier (approche testée).",
+          "Accepter les bonus gagnés par Thor (Puissant) après la mort de Thor, puis l'achever rapidement."
+        ],
+        "teams": [
+          {
+            "id": "z2-miniboss",
+            "title": "Timeless Eternal — équipe complète",
+            "characters": [],
+            "requirements": [],
+            "steps": [],
+            "alternatives": [],
+            "notes": [
+              "Marvel Church a réussi en éliminant Thor avant Thor (Puissant)."
+            ]
+          }
+        ],
+        "notes": [],
+        "warnings": [
+          "L'idée d'éliminer les deux Thor presque simultanément est proposée comme alternative théorique, non comme approche effectivement testée dans cet article."
+        ],
+        "sources": [
+          {
+            "label": "Marvel Church — Battleworld: Fallen Asgard",
+            "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+          }
+        ]
+      },
+      "eliteMissions": [
+        {
+          "id": "elite-1",
+          "title": "Élite 1 — Spider-Verse / Spider-Weaver",
+          "restrictions": [
+            "Timeless Eternal OU Daring Warrior"
+          ],
+          "enemies": [
+            "Vague 1 : Spider-Verse.",
+            "Vague 2 : Spider-Verse incluant Spider-Weaver et Tangled Web."
+          ],
+          "mechanics": [],
+          "objectives": [
+            "Étourdir Spider-Weaver avec l'ultime de Speedball avant qu'elle ne joue."
+          ],
+          "strategy": [
+            "Affrontement parfois long, mais pas particulièrement dangereux d'après le test."
+          ],
+          "avoid": [
+            "Attaquer plusieurs fois Tangled Web avant le tour de Speedball : cela remplit passivement la jauge de Spider-Weaver et peut lui permettre de devenir immunisée à l'ultime."
+          ],
+          "instructions": [
+            "Terminer normalement la première vague.",
+            "En vague 2, préserver le timing de Speedball et utiliser son ultime sur Spider-Weaver.",
+            "Une fois Spider-Weaver éliminée, achever les autres ennemis progressivement."
+          ],
+          "teams": [
+            {
+              "id": "daring-warrior",
+              "title": "Daring Warrior — équipe complète",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Équipe utilisée dans les Élite ; alternative : Timeless Eternal."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
+        },
+        {
+          "id": "elite-2",
+          "title": "Élite 2 — Invaders et Rebirth",
+          "restrictions": [
+            "Timeless Eternal OU Daring Warrior"
+          ],
+          "enemies": [
+            "Vague 1 : Invaders.",
+            "Vague 2 : Rebirth."
+          ],
+          "mechanics": [],
+          "objectives": [
+            "Vague 1 : Nick Fury.",
+            "Vague 2 : Captain Carter."
+          ],
+          "strategy": [
+            "Mission facile selon Marvel Church."
+          ],
+          "avoid": [],
+          "instructions": [
+            "Éliminer Nick Fury d'abord.",
+            "À la vague suivante, éliminer Captain Carter d'abord."
+          ],
+          "teams": [
+            {
+              "id": "daring-warrior",
+              "title": "Daring Warrior — équipe complète",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Équipe utilisée dans les Élite ; alternative : Timeless Eternal."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
+        },
+        {
+          "id": "elite-3",
+          "title": "Élite 3 — X-Treme X-Men et Mercenaires",
+          "restrictions": [
+            "Timeless Eternal OU Daring Warrior"
+          ],
+          "enemies": [
+            "Vague 1 : X-Treme X-Men.",
+            "Vague 2 : Mercenaires."
+          ],
+          "mechanics": [],
+          "objectives": [
+            "Vague 1 : Forge → Diablo (Nightcrawler).",
+            "Vague 2 : Pandapool → Silver Sable."
+          ],
+          "strategy": [],
+          "avoid": [],
+          "instructions": [
+            "Éliminer Forge puis Diablo (Nightcrawler).",
+            "Gambit et ses dégâts passifs ne constituent pas une menace majeure face aux Barrières : le laisser pour la fin.",
+            "Cibler ensuite Pandapool, puis Silver Sable."
+          ],
+          "teams": [
+            {
+              "id": "daring-warrior",
+              "title": "Daring Warrior — équipe complète",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Équipe utilisée dans les Élite ; alternative : Timeless Eternal."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
+        }
+      ],
+      "bonusMissions": [
+        {
+          "id": "bonus-1",
+          "title": "Bonus 1 — Breaker Team",
+          "restrictions": [
+            "Breaker Team"
+          ],
           "enemies": [],
           "mechanics": [],
           "objectives": [],
@@ -91,43 +825,406 @@
           "avoid": [],
           "instructions": [],
           "teams": [],
-          "sources": []
+          "notes": [
+            "Marvel Church liste cette mission, mais ne donne ni composition testée ni rotation de capacités."
+          ],
+          "warnings": [
+            "Guide à documenter — ne pas inventer d'équipe."
+          ],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
+        },
+        {
+          "id": "bonus-2",
+          "title": "Bonus 2 — Chaos Team",
+          "restrictions": [
+            "Chaos Team"
+          ],
+          "enemies": [],
+          "mechanics": [],
+          "objectives": [],
+          "strategy": [],
+          "avoid": [],
+          "instructions": [],
+          "teams": [],
+          "notes": [
+            "Marvel Church liste cette mission, sans description tactique."
+          ],
+          "warnings": [
+            "Guide à documenter — ne pas inventer d'équipe."
+          ],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
         }
       ]
     },
     {
       "id": "zone-3",
       "title": "Zone 3",
+      "day": 3,
+      "notes": [
+        "Standard 1 a été assouplie de Tech + Héros à Tech seule ; la longue rotation d'origine reste archivée dans sa fiche."
+      ],
       "nodes": [
         {
           "id": "node-1",
-          "title": "Node 1",
-          "restrictions": [],
-          "enemies": [],
+          "title": "Standard 1 — Tech (restriction actualisée)",
+          "restrictions": [
+            "Tech uniquement (restriction modifiée, auparavant Tech ET Héros)."
+          ],
+          "enemies": [
+            "Vague 1 : Leader, Kestrel (Zombie), Lady Deathstrike, Iron Patriot et autres ennemis.",
+            "Vague 2 : Omega Sentinel, Nimrod, Sentinel, Viv Vision, Vision."
+          ],
           "mechanics": [],
           "objectives": [],
-          "strategy": [],
+          "strategy": [
+            "La restriction Tech seule permet désormais Insidious Six, Iron Raider et potentiellement A.I. Avenger ; l'article n'apporte pas de rotation testée sous cette restriction assouplie.",
+            "Conserver l'ancienne rotation Tech + Héros à titre historique, sans la présenter comme stratégie principale."
+          ],
           "avoid": [],
-          "instructions": [],
-          "teams": [],
-          "sources": []
+          "instructions": [
+            "Ancienne stratégie (Tech + Héros) : Hank Pym utilise sa spéciale sur Leader pour retirer ses Esquives.",
+            "Guêpe (Janet), idéalement ISO-8 Escarmouche pour augmenter sa Concentration, utilise sa spéciale sur Leader afin de l'étourdir et de transformer ses 15 Charges en Saignements ; sinon recommencer.",
+            "Si Lady Deathstrike touche Howard avec sa spéciale, recommencer : la réduction de jauge permettrait à Iron Patriot de jouer avant lui.",
+            "Howard utilise son ultime sur Lady Deathstrike et bloque les capacités de Kestrel (Zombie) et surtout Iron Patriot ; si le Blocage échoue sur Iron Patriot, recommencer.",
+            "Night Thrasher utilise sa spéciale sur la ligne Leader / Kestrel (Zombie) / Iron Patriot ; Moon Girl utilise son ultime sur Kestrel (Zombie).",
+            "Poursuivre avec ultime de Hank, spéciale de Howard et ultime de Night Thrasher. Kestrel (Zombie) doit mourir avant son second tour (attention à sa Résurrection).",
+            "Vague 2 : éliminer Omega Sentinel avant son tour, puis Nimrod → Sentinel → Viv Vision → Vision."
+          ],
+          "teams": [
+            {
+              "id": "z3-standard1-a",
+              "title": "Insidious Six (possible depuis la nouvelle restriction)",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Proposition de l'auteur après changement de restriction, sans rotation actualisée."
+              ]
+            },
+            {
+              "id": "z3-standard1-b",
+              "title": "Iron Raider (possible depuis la nouvelle restriction)",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Proposition de l'auteur après changement de restriction."
+              ]
+            },
+            {
+              "id": "z3-standard1-old",
+              "title": "Ancien essai : Guêpe (Janet), Hank Pym, Night Thrasher, Howard le Canard, Moon Girl",
+              "characters": [
+                "WaspJanet",
+                "HankPym",
+                "NightThrasher",
+                "HowardTheDuck",
+                "MoonGirl"
+              ],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Ancienne stratégie sous Tech + Héros. Exigeait des conditions de RNG très strictes ; réservée aux archives."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [
+            "L'ancienne stratégie est conservée pour mémoire. L'article parle d'une difficulté 4 maximale dans cet ancien essai tout en présentant désormais cinq difficultés.",
+            "Nouvelle restriction Tech seule à confirmer dans la version du jeu jouée si elle a été modifiée ultérieurement."
+          ],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
         },
         {
           "id": "node-2",
-          "title": "Node 2",
-          "restrictions": [],
-          "enemies": [],
+          "title": "Standard 2 — Légendaire ou Épique",
+          "restrictions": [
+            "Légendaire OU Épique"
+          ],
+          "enemies": [
+            "Vague 2 : Chevalier noir, Ikaris et Circé."
+          ],
           "mechanics": [],
-          "objectives": [],
-          "strategy": [],
+          "objectives": [
+            "En vague 2, éliminer Chevalier noir en premier, puis Ikaris ou Circé."
+          ],
+          "strategy": [
+            "Mission jugée facile par la source."
+          ],
           "avoid": [],
-          "instructions": [],
-          "teams": [],
-          "sources": []
+          "instructions": [
+            "Utiliser les capacités disponibles sans retenue particulière.",
+            "Vague 2 : éliminer Chevalier noir, puis un des deux Éternels."
+          ],
+          "teams": [
+            {
+              "id": "z3-standard2",
+              "title": "Roi d'ombre + Quasar + Surfer (Briseur) + Omega Red + Omega Red (Force Phénix)",
+              "characters": [
+                "ShadowKing",
+                "Quasar",
+                "SilverSurferBreaker",
+                "OmegaRed",
+                "OmegaRedPhoenix"
+              ],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [
+                "Blue Marvel peut remplacer l'un des deux Omega Red."
+              ],
+              "notes": [
+                "Roi d'ombre conseillé pour sa spécialisation Battleworld."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
         },
         {
           "id": "node-3",
-          "title": "Node 3",
+          "title": "Standard 3 — Mystique + Vilain",
+          "restrictions": [
+            "Mystique ET Vilain"
+          ],
+          "enemies": [],
+          "mechanics": [],
+          "objectives": [],
+          "strategy": [
+            "Mission très facile avec une équipe adaptée, selon la source."
+          ],
+          "avoid": [],
+          "instructions": [],
+          "teams": [
+            {
+              "id": "z3-standard3",
+              "title": "Knull + Surfer (Briseur) + Méphisto + Thanos + Scorpion (Briseur)",
+              "characters": [
+                "Knull",
+                "SilverSurferBreaker",
+                "Mephisto",
+                "Thanos",
+                "ScorpionBreaker"
+              ],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": []
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
+        }
+      ],
+      "miniboss": {
+        "id": "mini-boss",
+        "title": "Mini-boss — The Brothers (Thor Infinity War)",
+        "restrictions": [
+          "Timeless Eternal OU Chaos Team"
+        ],
+        "enemies": [
+          "Thor (Infinity War) — mini-boss ; Loki — ennemi secondaire."
+        ],
+        "mechanics": [
+          "Protectors of Fallen Asgard : immunité mini-boss à Étourdissement, Épuisé et Exposé.",
+          "Thor (Infinity War) gagne 30 % de jauge de vitesse chaque fois qu'il est attaqué.",
+          "Sous 25 % de santé maximale, Thor gagne +50 % dégâts, +50 % armure et +20 % vitesse ; il est immunisé aux dégâts proportionnels à la santé.",
+          "Le site évoque également un gros gain de santé maximale sous 25 %, sans valeur chiffrée dans les effets listés."
+        ],
+        "objectives": [
+          "Éliminer Loki en premier ; achever rapidement Thor à partir du seuil de 25 %."
+        ],
+        "strategy": [],
+        "avoid": [],
+        "instructions": [
+          "Se concentrer d'abord sur Loki.",
+          "Attaquer ensuite Thor (Infinity War) en tenant compte du gain de jauge de vitesse à chaque coup.",
+          "Sous 25 % de santé, terminer rapidement Thor avant que ses bonus deviennent ingérables."
+        ],
+        "teams": [
+          {
+            "id": "z3-miniboss",
+            "title": "Timeless Eternal — équipe complète",
+            "characters": [],
+            "requirements": [],
+            "steps": [],
+            "alternatives": [],
+            "notes": [
+              "Dans le test de Marvel Church, Timeless Eternal gagne même si Thor tue Circé."
+            ]
+          }
+        ],
+        "notes": [],
+        "warnings": [],
+        "sources": [
+          {
+            "label": "Marvel Church — Battleworld: Fallen Asgard",
+            "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+          }
+        ]
+      },
+      "eliteMissions": [
+        {
+          "id": "elite-1",
+          "title": "Élite 1 — New Warriors / Infinity Watch",
+          "restrictions": [
+            "Timeless Eternal OU Daring Warrior"
+          ],
+          "enemies": [
+            "Vague 1 : New Warriors.",
+            "Vague 2 : Infinity Watch."
+          ],
+          "mechanics": [],
+          "objectives": [
+            "Vague 2 : Adam Warlock."
+          ],
+          "strategy": [
+            "Pas de rotation particulière ; Daring Warrior empêche les ennemis de ressusciter, ce qui facilite Adam Warlock."
+          ],
+          "avoid": [],
+          "instructions": [],
+          "teams": [
+            {
+              "id": "daring-warrior",
+              "title": "Daring Warrior — équipe complète",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Équipe utilisée dans les Élite ; alternative : Timeless Eternal."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
+        },
+        {
+          "id": "elite-2",
+          "title": "Élite 2 — Power Armor / Death Seed",
+          "restrictions": [
+            "Timeless Eternal OU Daring Warrior"
+          ],
+          "enemies": [
+            "Vague 1 : Power Armor.",
+            "Vague 2 : Death Seed."
+          ],
+          "mechanics": [],
+          "objectives": [
+            "Vague 1 : Rescue.",
+            "Vague 2 : Angela puis Magnéto."
+          ],
+          "strategy": [],
+          "avoid": [],
+          "instructions": [
+            "Éliminer Rescue.",
+            "Éliminer Angela puis Magnéto en deuxième vague."
+          ],
+          "teams": [
+            {
+              "id": "daring-warrior",
+              "title": "Daring Warrior — équipe complète",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Équipe utilisée dans les Élite ; alternative : Timeless Eternal."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
+        },
+        {
+          "id": "elite-3",
+          "title": "Élite 3 — Annihilators / Hellfire Club",
+          "restrictions": [
+            "Timeless Eternal OU Daring Warrior"
+          ],
+          "enemies": [
+            "Vague 1 : Annihilators.",
+            "Vague 2 : Hellfire Club."
+          ],
+          "mechanics": [],
+          "objectives": [
+            "Vague 1 : Thanos (Endgame) et Gorr.",
+            "Vague 2 : Azazel et Rachel Summers."
+          ],
+          "strategy": [],
+          "avoid": [],
+          "instructions": [
+            "Éliminer Thanos (Endgame) et Gorr.",
+            "Vague 2 : cibler Azazel et Rachel Summers."
+          ],
+          "teams": [
+            {
+              "id": "daring-warrior",
+              "title": "Daring Warrior — équipe complète",
+              "characters": [],
+              "requirements": [],
+              "steps": [],
+              "alternatives": [],
+              "notes": [
+                "Équipe utilisée dans les Élite ; alternative : Timeless Eternal."
+              ]
+            }
+          ],
+          "notes": [],
+          "warnings": [],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
+        }
+      ],
+      "bonusMissions": [
+        {
+          "id": "bonus-1",
+          "title": "Bonus 1 — non précisé",
           "restrictions": [],
           "enemies": [],
           "mechanics": [],
@@ -136,7 +1233,44 @@
           "avoid": [],
           "instructions": [],
           "teams": [],
-          "sources": []
+          "notes": [
+            "Mission Bonus listée sans intitulé, restriction ni stratégie dans la source."
+          ],
+          "warnings": [
+            "Aucune information opérationnelle publiée : à compléter."
+          ],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
+        },
+        {
+          "id": "bonus-2",
+          "title": "Bonus 2 — Asgardien",
+          "restrictions": [
+            "Asgardien"
+          ],
+          "enemies": [],
+          "mechanics": [],
+          "objectives": [],
+          "strategy": [],
+          "avoid": [],
+          "instructions": [],
+          "teams": [],
+          "notes": [
+            "Mission Bonus Asgardien listée sans équipe ni rotation testée."
+          ],
+          "warnings": [
+            "Guide à documenter."
+          ],
+          "sources": [
+            {
+              "label": "Marvel Church — Battleworld: Fallen Asgard",
+              "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+            }
+          ]
         }
       ]
     }
@@ -144,12 +1278,208 @@
   "boss": {
     "name": "Le Destructeur",
     "characterId": "PVE_Boss_Destroyer",
-    "mechanics": [],
-    "objectives": [],
-    "strategy": [],
-    "avoid": [],
-    "instructions": [],
-    "teams": [],
-    "sources": []
+    "mechanics": [
+      "Attaque de base « Visor Blast » : cible un ennemi aléatoire pour l'équivalent de 25 % de sa santé maximale en dégâts ; priorité aux personnages non Battleworld, non légendaires et non mythiques, selon la formulation du guide.",
+      "L'attaque de base réduit la santé maximale de la cible d'une quantité correspondant à 50 % des dégâts infligés.",
+      "L'attaque de base donne +1 Rage au Destructeur ; à 10 Rage, les dégâts sont doublés.",
+      "Blocage des capacités appliqué au Destructeur divise les dégâts de son attaque de base par deux.",
+      "Attaque de base inévitable et pouvant toucher les ennemis normalement immunisés aux dégâts proportionnels à la santé.",
+      "À l'apparition : invoque Loki (Adolescent).",
+      "Chaque tour d'allié invoqué hors Odin : +2 Rage et retrait de 3 effets négatifs sur le Destructeur.",
+      "Au tour d'Odin : −3 Rage et aucun retrait d'effet négatif.",
+      "Lorsqu'aucun allié n'est présent, à chaque tour de personnage : le Destructeur gagne Défense réduite pendant 2 tours, Blocage des capacités pendant 1 tour et +5 Rage.",
+      "Le Destructeur reçoit +5 dégâts et +5 vitesse par point de Rage (formulation issue de la source ; unité exacte de dégâts non précisée).",
+      "+100 % chance de blocage, +60 % montant du blocage et +60 % réduction de dégâts avant affaiblissements Élite.",
+      "Immunité aux attaques proportionnelles à la santé ; empêche les assistances passives et les résurrections ennemies.",
+      "Les ennemis ne peuvent pas remplir leur jauge de vitesse ; sa propre vitesse et sa jauge ne peuvent pas être réduites.",
+      "Immunités : Ténèbres, Épuisé, Exposé, Régénération, Silence, Ralenti, Furtivité, Étourdissement et Trauma.",
+      "Tant qu'un de ses alliés est présent, le Destructeur ne peut pas recevoir Défense réduite."
+    ],
+    "objectives": [
+      "Limiter la Rage et les attaques de base dangereuses du Destructeur.",
+      "Profiter des affaiblissements obtenus par les missions Élite des trois zones.",
+      "Maximiser les dégâts cumulés de l'alliance sur le boss final."
+    ],
+    "strategy": [
+      "Conserver si possible une invocation vivante aux côtés du Destructeur, pour éviter le gain automatique de +5 Rage sur les tours où le boss se retrouve seul.",
+      "Maintenir autant que possible Blocage des capacités sur le Destructeur afin de réduire les dégâts de sa capacité de base.",
+      "Gérer soigneusement le calendrier des renforts ; éliminer les invocations trop rapidement peut amplifier la Rage, tandis que certaines invocations doivent parfois être contrôlées.",
+      "Odin constitue un cas particulier : son tour retire 3 Rage au lieu de la faire augmenter.",
+      "Marvel Church rapporte environ 6,8 milliards de dégâts cumulés avec cinq attaques/équipes testées, sans détail par équipe ni rotation complète."
+    ],
+    "avoid": [
+      "Éliminer systématiquement toutes les invocations dès leur apparition sans surveiller la Rage.",
+      "Compter sur l'Étourdissement, le Ralentissement, Trauma, Exposé ou la résurrection contre ses immunités et restrictions.",
+      "Présenter les 6,8 milliards de dégâts comme un score attendu pour une équipe isolée."
+    ],
+    "instructions": [
+      "Avant le boss, terminer autant d'Élites que possible afin d'atténuer son blocage, les invocations et sa réduction de dégâts.",
+      "À l'ouverture du combat, tenir compte de Loki (Adolescent) et des renforts annoncés.",
+      "Surveiller la Rage et éviter de laisser le Destructeur seul lorsque cela provoquerait une accélération dangereuse.",
+      "Chercher à maintenir Blocage des capacités sur le boss.",
+      "Si Odin est invoqué, intégrer sa réduction de Rage dans les décisions de ciblage."
+    ],
+    "teams": [
+      {
+        "id": "destroyer-timeless",
+        "title": "Timeless Eternal",
+        "characters": [],
+        "requirements": [],
+        "steps": [],
+        "alternatives": [],
+        "notes": [
+          "Équipe complète utilisée contre le boss ; membres non listés par l'article.",
+          "Pas de rotation détaillée publiée pour cette équipe."
+        ]
+      },
+      {
+        "id": "destroyer-iron",
+        "title": "Iron Raider",
+        "characters": [],
+        "requirements": [],
+        "steps": [],
+        "alternatives": [],
+        "notes": [
+          "Équipe complète testée, sans composition nominative ni rotation spécifique."
+        ]
+      },
+      {
+        "id": "destroyer-daring",
+        "title": "Daring Warrior",
+        "characters": [],
+        "requirements": [],
+        "steps": [],
+        "alternatives": [],
+        "notes": [
+          "Équipe complète testée, sans rotation spécifique."
+        ]
+      },
+      {
+        "id": "destroyer-galactic",
+        "title": "Galactic Council + Surfer d'argent (Briseur) + Professeur Xavier",
+        "characters": [
+          "SilverSurferBreaker",
+          "Xavier"
+        ],
+        "requirements": [],
+        "steps": [],
+        "alternatives": [],
+        "notes": [
+          "L'article ne détaille pas les membres de Galactic Council employés : les deux personnages cités sont les seuls portraits explicitement associés."
+        ]
+      },
+      {
+        "id": "destroyer-hybrid",
+        "title": "Roi d'ombre + Omega Red + Femme invisible (MCU) + Spider-Man supérieur + Super-Bouffon",
+        "characters": [
+          "ShadowKing",
+          "OmegaRed",
+          "InvisibleWomanMCU",
+          "SuperiorSpiderMan",
+          "Hobgoblin"
+        ],
+        "requirements": [],
+        "steps": [],
+        "alternatives": [],
+        "notes": [
+          "Équipe de cinq personnages intégralement nommée dans le guide."
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "label": "Marvel Church — Battleworld: Fallen Asgard",
+        "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+      }
+    ],
+    "traits": [
+      "Vilain",
+      "Cosmique",
+      "Mystique",
+      "Bagarreur",
+      "Asgardien"
+    ],
+    "baseSpeed": 100,
+    "enemies": [
+      "Au début : Loki (Adolescent).",
+      "Ordre des renforts après élimination : Hela → Sylvie → Exécuteur → Odin.",
+      "Après chaque invocation individuelle, le boss peut invoquer tous ces alliés ; le cycle reprend ensuite avec Loki (Adolescent)."
+    ],
+    "notes": [
+      "Les cinq équipes ont totalisé environ 6,8 milliards de dégâts lors des essais rapportés, pas chacune séparément.",
+      "La source se présente comme évolutive et indique que les meilleures compositions restent à optimiser.",
+      "Le guide d'origine ne fournit pas de rotation tour par tour propre à chacune des cinq équipes."
+    ],
+    "warnings": [
+      "Les résultats et les propositions sont issus des essais de Marvel Church, pas d'une certification officielle du jeu."
+    ]
+  },
+  "overview": {
+    "title": "Fallen Asgard — Continent 4",
+    "introduction": [
+      "Fallen Asgard débute le 29 septembre 2026 selon Marvel Church.",
+      "Battleworld dure 4 jours : trois zones de missions, puis un quatrième jour consacré au Destructeur.",
+      "Le guide Marvel Church a été réalisé sur les difficultés maximales annoncées ; plusieurs passages décrivent toutefois la difficulté 4 comme « maximale » alors que l'introduction mentionne cinq difficultés.",
+      "Les personnages restent disponibles pour les autres missions, même après une victoire ou une défaite."
+    ],
+    "progression": [
+      "Dans chacune des 3 premières zones, terminer les 3 missions Standard pour débloquer le mini-boss.",
+      "Vaincre le mini-boss pour ouvrir simultanément les 3 missions Élite.",
+      "Chaque mini-boss vaincu donne 1 clé Bonus universelle.",
+      "Certaines missions Bonus nécessitent plusieurs clés accumulées entre les runs : Bonus 1 de Zone 1 = 1 clé, Bonus 2 de Zone 1 = 4 clés. Maximum 3 clés gagnées par run."
+    ],
+    "rewards": [
+      "Standard : pas de récompense directe de mission.",
+      "Mini-boss : ions T3 niveau 1.",
+      "Élite : ions T3 niveau 4.",
+      "Bonus : ions T4 niveau 1 (orange) et jetons de renforcement Battleworld.",
+      "Mini-boss et Élite génèrent des points de victoire (VP) cumulés pour l'alliance. Récompenses globales : ions T3 niveau 5 et fragments du Destructeur.",
+      "Victoires collectives contre le Destructeur : fragments du Destructeur, fragments d'orbe ISO-8 T4 de base et Essence commune."
+    ],
+    "tokens": [
+      "Jeton Puissance : +4 % dégâts par jeton, maximum 10 jetons actifs et +40 % dégâts.",
+      "Jeton Armure : +4 % armure par jeton, maximum +40 %.",
+      "Jeton Vitesse : +2 vitesse par jeton, maximum +20.",
+      "Les jetons excédentaires peuvent être collectés, mais seuls les 10 premiers de chaque type produisent un bonus."
+    ],
+    "eliteDebuffs": [
+      {
+        "id": "elite-1",
+        "title": "Élite 1 — Blocage du Destructeur",
+        "levels": [
+          "1 mission réussie : chance de blocage ET montant du blocage réduits de 25 %.",
+          "2 missions : réduction totale de 50 %.",
+          "3 missions : réduction totale de 100 %."
+        ]
+      },
+      {
+        "id": "elite-2",
+        "title": "Élite 2 — Statistiques des invocations",
+        "levels": [
+          "1 mission : −10 % statistiques de base des invocations.",
+          "2 missions : −25 % cumulés.",
+          "3 missions : −50 % cumulés."
+        ]
+      },
+      {
+        "id": "elite-3",
+        "title": "Élite 3 — Réduction de dégâts du Destructeur",
+        "levels": [
+          "1 mission : −15 % réduction de dégâts du boss.",
+          "2 missions : −30 % cumulés.",
+          "3 missions : −60 % cumulés."
+        ]
+      }
+    ],
+    "warnings": [
+      "La source ne précise pas suffisamment la méthode exacte d'application des réductions (points de pourcentage ou multiplicatives) pour simuler numériquement le combat.",
+      "La composition Amazing Avenger dans le Bonus Chaos Team de Zone 1 paraît contradictoire avec l'intitulé de restriction : éligibilité à vérifier."
+    ],
+    "sources": [
+      {
+        "label": "Marvel Church — Battleworld: Fallen Asgard",
+        "url": "https://www.marvel.church/battleworld-fallen-asgard/"
+      }
+    ]
   }
 }
