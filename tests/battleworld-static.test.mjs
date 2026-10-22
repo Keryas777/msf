@@ -356,3 +356,31 @@ test("Les liens Sources restent dans les JSON, mais ne sont plus répétés dans
   assert.match(js, /if \(showSources\) sourcesSection\(card, team\.sources\)/);
   assert.match(read("battleworld.html"), /battleworld\.js\?v=7/);
 });
+
+test("Les équipes fixes de cinq ne présentent pas de notes de provenance inutiles", () => {
+  const guide = JSON.parse(read("data/battleworld/destroyer.json"));
+  const teams = [
+    ...guide.zones.flatMap(zone =>
+      [...zone.nodes, zone.miniboss, ...zone.eliteMissions, ...zone.bonusMissions]
+        .flatMap(mission => mission.teams)),
+    ...guide.boss.teams
+  ];
+  const allFixedEternals = teams.filter(team =>
+    team.id === "timeless-eternal" || team.id === "destroyer-timeless"
+  );
+  assert.equal(allFixedEternals.length, 4);
+  for (const team of allFixedEternals) {
+    assert.equal(team.characters.length, 5);
+    assert.deepEqual(team.notes, [], team.title + " : note de provenance redondante");
+  }
+  const fixedBossTeams = teams.filter(team =>
+    ["destroyer-iron", "destroyer-daring", "destroyer-hybrid"].includes(team.id)
+  );
+  assert.equal(fixedBossTeams.length, 3);
+  assert.ok(fixedBossTeams.every(team => team.notes.length === 0));
+  const uncertain = teams.filter(team => team.illustrativeCharacters);
+  assert.equal(uncertain.length, 3);
+  assert.ok(uncertain.every(team => team.notes.some(note => note.includes("ne précise pas"))),
+    "L'incertitude sur les compositions hybrides doit rester visible");
+  assert.equal(guide.zones[0].bonusMissions[0].teams[0].notes.length, 1);
+});
