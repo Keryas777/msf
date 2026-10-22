@@ -163,7 +163,9 @@
       ["objectives", "Objectifs"],
       ["strategy", "Stratégie"],
       ["avoid", "À éviter"],
-      ["instructions", "Instructions de combat"]
+      ["instructions", "Instructions de combat"],
+      ["notes", "Précisions"],
+      ["warnings", "Points à vérifier"]
     ].forEach(([field, label]) => {
       found = sectionList(parent, label, item[field], field === "instructions") || found;
     });
@@ -268,6 +270,59 @@
     tryNext();
   }
 
+  function makeMissionDetails(item, open) {
+    const details = el("details", "bw-node");
+    details.open = Boolean(open);
+    const summary = el("summary");
+    const name = el("span", "bw-node-title");
+    name.append(el("strong", "", item.title || item.id || "Mission"));
+    const written = ["mechanics", "objectives", "strategy", "instructions"].some(field => validList(item[field]).length) ||
+      (Array.isArray(item.teams) && item.teams.length > 0);
+    name.append(el("small", "", written ? "Conseils et stratégie" : "À documenter"));
+    summary.append(name);
+    details.append(summary);
+    const body = el("div", "bw-node-body");
+    if (!renderFields(body, item)) {
+      body.append(el("p", "bw-note", "Aucune information renseignée pour cette mission."));
+    }
+    details.append(body);
+    return details;
+  }
+
+  function renderMissionGroup(label, items, note, openFirst) {
+    if (!Array.isArray(items) || !items.length) return;
+    const group = el("section", "bw-mission-group");
+    const heading = el("h3", "bw-mission-heading", label + " (" + items.length + ")");
+    group.append(heading);
+    if (note) group.append(el("p", "bw-group-note", note));
+    items.forEach((item, i) => group.append(makeMissionDetails(item, openFirst && i === 0)));
+    content.append(group);
+  }
+
+  function renderOverview() {
+    const overview = guide.overview;
+    if (!overview) return;
+    const details = el("details", "bw-node bw-overview");
+    const summary = el("summary");
+    const label = el("span", "bw-node-title");
+    label.append(el("strong", "", overview.title || "Préparation générale"));
+    label.append(el("small", "", "Déblocages, jetons, affaiblissements et récompenses"));
+    summary.append(label);
+    details.append(summary);
+    const body = el("div", "bw-node-body");
+    sectionList(body, "Présentation", overview.introduction);
+    sectionList(body, "Déblocage des missions et clés Bonus", overview.progression, true);
+    sectionList(body, "Jetons permanents", overview.tokens);
+    if (Array.isArray(overview.eliteDebuffs)) {
+      overview.eliteDebuffs.forEach(effect => sectionList(body, effect.title, effect.levels));
+    }
+    sectionList(body, "Récompenses", overview.rewards);
+    sectionList(body, "Points à vérifier", overview.warnings);
+    sourcesSection(body, overview.sources);
+    details.append(body);
+    content.append(details);
+  }
+
   function renderZone() {
     const zone = (guide.zones || []).find(value => value && value.id === activeTab);
     if (!zone) {
@@ -276,40 +331,53 @@
     }
     const intro = el("section", "card bw-intro");
     intro.append(el("h2", "", zone.title || "Zone"));
-    intro.append(el("p", "", "Sélectionne un node pour consulter les restrictions, les équipes et les consignes."));
+    intro.append(el("p", "", "3 Standard · 1 mini-boss · 3 Élite · 2 Bonus"));
+    validList(zone.notes).forEach(note => intro.append(el("p", "bw-zone-note", note)));
     content.append(intro);
 
-    zone.nodes.forEach((node, i) => {
-      const details = el("details", "bw-node");
-      if (i === 0) details.open = true;
-      const summary = el("summary");
-      const name = el("span", "bw-node-title");
-      name.append(el("strong", "", node.title || "Node " + (i + 1)));
-      const indicator = validList(node.strategy).length || validList(node.instructions).length ||
-        validList(node.mechanics).length || (Array.isArray(node.teams) && node.teams.length)
-        ? "Guide en cours de rédaction" : "À compléter";
-      name.append(el("small", "", indicator));
-      summary.append(name);
-      details.append(summary);
-      const body = el("div", "bw-node-body");
-      if (!renderFields(body, node)) {
-        body.append(el("p", "bw-note", "Aucune stratégie renseignée pour ce node."));
-      }
-      details.append(body);
-      content.append(details);
-    });
+    renderMissionGroup("Missions Standard", zone.nodes, "Débloquer le mini-boss en terminant les trois missions.", true);
+    if (zone.miniboss) {
+      renderMissionGroup("Mini-boss", [zone.miniboss], "Le vaincre débloque les missions Élite et donne une clé Bonus.", false);
+    }
+    renderMissionGroup("Missions Élite", zone.eliteMissions, "Chaque Élite terminée affaiblit le Destructeur au jour 4.", false);
+    renderMissionGroup("Missions Bonus", zone.bonusMissions, "Donnent des jetons de renforcement permanents. Certaines nécessitent plusieurs clés.", false);
   }
 
   function renderBoss() {
     const intro = el("section", "card bw-intro");
     intro.append(el("h2", "", "Boss — " + (guide.boss.name || selectedEntry.name)));
-    intro.append(el("p", "", "Mécaniques, erreurs à éviter, compositions conseillées et déroulement du combat."));
+    intro.append(el("p", "", "Mécaniques, Rage, compositions utilisées et déroulement du combat."));
     content.append(intro);
-    const card = el("section", "card");
-    if (!renderFields(card, guide.boss)) {
-      card.append(el("p", "bw-empty", "Les stratégies contre ce boss sont à compléter. Aucune équipe n'est encore validée dans ce guide."));
-    }
-    content.append(card);
+
+    const tactics = el("section", "card bw-boss-tactics");
+    tactics.append(el("h3", "bw-section-title", "Objectifs et équipes"));
+    sectionList(tactics, "Objectifs", guide.boss.objectives);
+    sectionList(tactics, "Stratégie générale", guide.boss.strategy);
+    sectionList(tactics, "Instructions", guide.boss.instructions, true);
+    teamsSection(tactics, guide.boss.teams);
+    content.append(tactics);
+
+    // Les mécaniques et la préparation détaillées restent disponibles sans occuper
+    // immédiatement tout l'écran d'un joueur qui cherche une composition.
+    const details = el("details", "bw-node bw-boss-mechanics");
+    const summary = el("summary");
+    const label = el("span", "bw-node-title");
+    label.append(el("strong", "", "Mécaniques complètes du Destructeur"));
+    label.append(el("small", "", "Immunités, Rage, invocations, dégâts et restrictions"));
+    summary.append(label);
+    details.append(summary);
+    const body = el("div", "bw-node-body");
+    sectionList(body, "Traits", guide.boss.traits);
+    if (guide.boss.baseSpeed != null) sectionList(body, "Vitesse de base", [String(guide.boss.baseSpeed)]);
+    sectionList(body, "Invocations / ennemis", guide.boss.enemies);
+    sectionList(body, "Capacités et passifs", guide.boss.mechanics);
+    sectionList(body, "Erreurs à éviter", guide.boss.avoid);
+    sectionList(body, "Précisions", guide.boss.notes);
+    sectionList(body, "Points à vérifier", guide.boss.warnings);
+    sourcesSection(body, guide.boss.sources);
+    details.append(body);
+    content.append(details);
+    renderOverview();
   }
 
   function render() {
@@ -366,7 +434,12 @@
          data.zones.every((zone, i) =>
            zone.id === "zone-" + (i + 1) &&
            Array.isArray(zone.nodes) && zone.nodes.length === 3));
-      if (data.id !== entry.id || !validZones ||
+      const validMissionGroups = !Array.isArray(data.zones) || data.zones.every(zone =>
+        (!Object.prototype.hasOwnProperty.call(zone, "miniboss") || (zone.miniboss && typeof zone.miniboss === "object")) &&
+        (!Object.prototype.hasOwnProperty.call(zone, "eliteMissions") || (Array.isArray(zone.eliteMissions) && zone.eliteMissions.length === 3)) &&
+        (!Object.prototype.hasOwnProperty.call(zone, "bonusMissions") || (Array.isArray(zone.bonusMissions) && zone.bonusMissions.length === 2))
+      );
+      if (data.id !== entry.id || !validZones || !validMissionGroups ||
           !data.boss || typeof data.boss !== "object") {
         throw new Error("Structure des zones ou du boss invalide");
       }
