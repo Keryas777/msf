@@ -5,50 +5,99 @@
   const validDate = value => typeof value === 'string' &&
     Number.isFinite(Date.parse(value));
   const validValue = value => Number.isSafeInteger(value) && value >= 0;
-  function chooseSnapshots(input, chart) {
+  const isoDay = ms => new Date(ms).toISOString().slice(0, 10);
+  // A completed season is inferred from a known UTC boundary, not from
+  // 14 days since the OAuth capture. Scopely does not return season IDs.
+  // The release delay prevents attributing newly ended seasons before
+  // the provider is expected to have published their final standings.
+  function resolveRankingSeason(capturedAt, calendar) {
+    if (!validDate(capturedAt) || !calendar ||
+        !validDate(calendar.referenceEndExclusiveAt) ||
+        !Number.isSafeInteger(calendar.cycleDays) ||
+        calendar.cycleDays < 1 || calendar.cycleDays > 60 ||
+        !Number.isSafeInteger(calendar.publicationDelayMinutes) ||
+        calendar.publicationDelayMinutes < 0 ||
+        calendar.publicationDelayMinutes > 2880) return null;
+    const cycleMs = calendar.cycleDays * MS_PER_DAY;
+    const anchor = Date.parse(calendar.referenceEndExclusiveAt);
+    const observed = Date.parse(capturedAt) - calendar.publicationDelayMinutes * 60000;
+    const periods = Math.floor((observed - anchor) / cycleMs);
+    const end = anchor + periods * cycleMs;
+    const start = end - cycleMs;
+    if (!Number.isFinite(end) || !Number.isFinite(start)) return null;
+    return {
+      seasonId: isoDay(start) + '/' + isoDay(end),
+      startAt: new Date(start).toISOString(),
+      endExclusiveAt: new Date(end).toISOString(),
+      identification: 'schedule-derived',
+      timezone: calendar.timezone || 'Europe/Paris'
+    };
+  }
+  function chooseSnapshots(input, chart, calendar) {
     const sorted = (Array.isArray(input) ? input : [])
       .filter(row => validDate(row && row.capturedAt))
       .slice().sort((a, b) => a.capturedAt.localeCompare(b.capturedAt));
     const rows = [];
     const seen = new Set();
-    for (const row of sorted) {
-      if (seen.has(row.capturedAt)) continue;
-      seen.add(row.capturedAt);
-      rows.push(row);
+    for (const raw of sorted) {
+      if (seen.has(raw.capturedAt)) continue;
+      seen.add(raw.capturedAt);
+      if (chart.frequency !== 'per-season' || raw.seasonVerified === true) {
+        rows.push(raw);
+        continue;
+      }
+      const computed = resolveRankingSeason(raw.capturedAt, calendar);
+      if (!computed) {
+        // If a calendar was supplied but is invalid, never assign an
+        // unidentified season to a date in the season graphs.
+        if (!calendar) rows.push(raw);
+        continue;
+      }
+      rows.push({
+        ...raw,
+        seasonId: computed.seasonId,
+        rankingSeason: {
+          startAt: computed.startAt,
+          endExclusiveAt: computed.endExclusiveAt,
+          identification: computed.identification,
+          timezone: computed.timezone
+        },
+        seasonDerived: true,
+        seasonVerified: false
+      });
     }
     if (chart.frequency !== 'per-season') return rows;
-    // The provider ranks refer to the PREVIOUS completed season.
-    // Group by confirmed season ID, never by elapsed capture days.
-    // If a second capture occurs within the same season, keep its newest
-    // verified values, with preference for complete captures.
     const bySeason = new Map();
     const legacy = [];
     for (const row of rows) {
-      const known = row.seasonVerified === true &&
-        typeof row.seasonId === 'string' && row.seasonId.length > 0;
+      const known = (row.seasonVerified === true || row.seasonDerived === true) &&
+        typeof row.seasonId === 'string' && row.seasonId.length > 0 &&
+        validDate(row.rankingSeason?.endExclusiveAt);
       if (!known) {
-        // Legacy unidentified data: retain separately, never infer its season.
+        // Legacy without a calendar: do not pretend dates are known seasons.
         legacy.push(row);
         continue;
       }
       const prev = bySeason.get(row.seasonId);
-      if (!prev || row.coverage?.completeSessionScan === true ||
-          prev.coverage?.completeSessionScan !== true)
-        bySeason.set(row.seasonId, row);
+      // Prefer complete captures, then verified attribution, then newest.
+      const quality = item => (item.coverage?.completeSessionScan === true ? 2 : 0) +
+        (item.seasonVerified === true ? 1 : 0);
+      if (!prev || quality(row) >= quality(prev)) bySeason.set(row.seasonId, row);
     }
     const selected = [...bySeason.values(), ...legacy];
-    return selected.sort((a,b) => {
-      const when = row => aValidSeasonEnd(row) ?
+    return selected.sort((a, b) => {
+      const when = row => validDate(row.rankingSeason?.endExclusiveAt) &&
+        (row.seasonVerified === true || row.seasonDerived === true) ?
         row.rankingSeason.endExclusiveAt : row.capturedAt;
       return when(a).localeCompare(when(b));
     });
   }
   function aValidSeasonEnd(row) {
-    return row?.seasonVerified === true &&
+    return (row?.seasonVerified === true || row?.seasonDerived === true) &&
       validDate(row?.rankingSeason?.endExclusiveAt);
   }
-  function prepare(snapshots, alliances, chart) {
-    const rows = chooseSnapshots(snapshots, chart);
+  function prepare(snapshots, alliances, chart, calendar) {
+    const rows = chooseSnapshots(snapshots, chart, calendar);
     const possible = Array.isArray(alliances) ? alliances : [];
     // No hardcoded alliance count: the registry is the source of identities.
     const existing = new Set();
@@ -69,18 +118,17 @@
             row.rankingSeason.endExclusiveAt : row.capturedAt,
           seasonStartAt: aValidSeasonEnd(row) ? row.rankingSeason.startAt : null,
           value: validValue(value) ? value : null,
-          seasonId: row.seasonVerified && row.seasonId || null,
-          seasonVerified: row.seasonVerified === true};
+          seasonId: aValidSeasonEnd(row) ? row.seasonId : null,
+          seasonVerified: row.seasonVerified === true,
+          seasonDerived: row.seasonDerived === true};
       })
     }));
     return {rows, series, field: chart.field,
       latestAt: rows.length ? rows[rows.length - 1].capturedAt : null};
   }
-  // The summary and graph use the SAME selected seasonal data.
-  // For trophies this is every captured measurement; for ranks one
-  // representative reading per identified completed season.
-  function rankLatest(snapshots, alliances, chart) {
-    const full = prepare(snapshots, alliances, chart);
+  // Summary and graph intentionally share the same selected season/captures.
+  function rankLatest(snapshots, alliances, chart, calendar) {
+    const full = prepare(snapshots, alliances, chart, calendar);
     return full.series.map((alliance, index) => {
       const last = [...alliance.points].reverse().find(point => point.value !== null);
       return {
@@ -100,5 +148,7 @@
       return a.order - b.order;
     });
   }
-  root.LoSPStandingsSeries = Object.freeze({chooseSnapshots, prepare, rankLatest});
+  root.LoSPStandingsSeries = Object.freeze({
+    chooseSnapshots, prepare, rankLatest, resolveRankingSeason
+  });
 })(window);

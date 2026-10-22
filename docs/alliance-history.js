@@ -220,7 +220,7 @@
     if(!chart)return;
     state.chart=chart;
     const model=window.LoSPStandingsSeries.prepare(
-      state.snapshots,state.registry,chart);
+      state.snapshots,state.registry,chart,state.config.rankingSeasons);
     state.prepared=model;
     refs.title.textContent=chart.title;
     refs.count.textContent=model.rows.length+' relevé'+(model.rows.length>1?'s':'');
@@ -228,7 +228,7 @@
     refs.latest.replaceChildren();
     refs.plotWrap.hidden=!model.rows.length||!model.series.length;
     refs.note.textContent=chart.requiresSeasonQualification?
-      'Les rangs sont ceux des saisons terminées (pas de la saison en cours). Les périodes connues sont attribuées manuellement, et non fournies par l’API. Rang 1 = meilleur classement.':
+      'Les rangs sont ceux des saisons terminées (pas de la saison en cours). Les périodes sont déduites du calendrier de 14 jours, sauf relevé confirmé ; l’API ne fournit pas de numéro de saison. Rang 1 = meilleur classement.':
       'Les trophées représentent le total détenu par chaque alliance à la date du relevé. Les courbes utilisent exclusivement les valeurs réellement capturées.';
     if(state.failures)refs.note.textContent+=' Attention : '+
       state.failures+' instantané(s) indisponible(s).';
@@ -240,7 +240,7 @@
     }
     const knownSeason=chart.frequency==='per-season'&&
       model.rows.length===1&&
-      model.rows[0].seasonVerified===true&&
+      (model.rows[0].seasonVerified===true||model.rows[0].seasonDerived===true)&&
       model.rows[0].rankingSeason;
     refs.period.textContent=knownSeason?
       'Saison du '+formatDate(knownSeason.startAt)+' au '+
@@ -261,7 +261,7 @@
     // The summary uses the same snapshots selected for the chart:
     // one point per completed season, or every measured trophy reading.
     const standings=window.LoSPStandingsSeries.rankLatest(
-      state.snapshots,state.registry,chart);
+      state.snapshots,state.registry,chart,state.config.rankingSeasons);
     refs.latestTitle.textContent=chart.field==='warTrophies'?
       'Derniers trophées de guerre':
       'Derniers classements de saison — '+(state.mode==='raid'?'Raid':'Guerre');

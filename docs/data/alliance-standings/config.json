@@ -8,7 +8,19 @@
       "raidRank",
       "warRank"
     ],
-    "timezone": "Europe/Paris"
+    "timezone": "Europe/Paris",
+    "trophies": {
+      "collectionTimezone": "UTC",
+      "scheduledWeekdaysUtc": [
+        "wednesday",
+        "friday"
+      ],
+      "scheduledAtUtc": "21:00",
+      "zone4WarEndsAtUtc": "19:00",
+      "nextZone1WarStartsAtUtc": "01:00",
+      "requireCompleteSessionScan": true,
+      "note": "Collection after all zone-4 wars finish and before zone-1 restarts. Do not label off-window captures as post-war trophy observations."
+    }
   },
   "charts": [
     {
@@ -34,5 +46,13 @@
       "higherIsBetter": false,
       "requiresSeasonQualification": true
     }
-  ]
+  ],
+  "rankingSeasons": {
+    "cycleDays": 14,
+    "referenceEndExclusiveAt": "2026-10-11T20:00:00.000Z",
+    "publicationDelayMinutes": 60,
+    "timezone": "Europe/Paris",
+    "identification": "schedule-derived",
+    "note": "Historical confirmed snapshot metadata always wins. Update the anchor if Scopely changes the calendar; avoid labeling automatic calculations as user-confirmed."
+  }
 }

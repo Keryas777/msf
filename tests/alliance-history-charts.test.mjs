@@ -175,3 +175,56 @@ test('a completed ranking season is dated by its end, not by the OAuth capture d
   assert.match(js,/Saison du /);
   assert.doesNotMatch(js,/previous\.seasonId!==p\.seasonId\)flush\(\)/);
 });
+
+test('calculated season picks previous completed 14-day cycle across winter DST',()=>{
+  const resolve=context.window.LoSPStandingsSeries.resolveRankingSeason;
+  const calendar=config.rankingSeasons;
+  assert.equal(calendar.cycleDays,14);
+  assert.equal(resolve('2026-10-21T10:55:00.466Z',calendar).seasonId,
+    '2026-09-27/2026-10-11');
+  // One hour after 25 October's UTC cutoff, the prior season advances.
+  assert.equal(resolve('2026-10-25T20:59:59.000Z',calendar).seasonId,
+    '2026-09-27/2026-10-11');
+  const next=resolve('2026-10-25T21:00:00.000Z',calendar);
+  assert.equal(next.seasonId,'2026-10-11/2026-10-25');
+  assert.equal(next.startAt,'2026-10-11T20:00:00.000Z');
+  assert.equal(next.endExclusiveAt,'2026-10-25T20:00:00.000Z');
+  assert.equal(next.identification,'schedule-derived');
+});
+test('unverified future captures are grouped by calculated season, without false verification',()=>{
+  const calendar=config.rankingSeasons;
+  const early=shifted(2);
+  const same=shifted(3);
+  const future=shifted(7);
+  const chart=byId('raid-season-rank');
+  const chosen=chooseSnapshots([future,same,original,early],chart,calendar);
+  assert.equal(chosen.length,2);
+  assert.equal(chosen[0].capturedAt,original.capturedAt);
+  assert.equal(chosen[0].seasonVerified,true);
+  assert.equal(chosen[1].capturedAt,future.capturedAt);
+  assert.equal(chosen[1].seasonVerified,false);
+  assert.equal(chosen[1].seasonDerived,true);
+  const model=prepare([future,original],registry,chart,calendar);
+  assert.equal(model.series[0].points[1].seasonVerified,false);
+  assert.equal(model.series[0].points[1].plotAt,'2026-10-25T20:00:00.000Z');
+  assert.equal(rankLatest([original,future],registry,chart,calendar)[0].seasonEndAt,
+    '2026-10-25T20:00:00.000Z');
+});
+test('trophies retain every genuine measurement regardless of season calendar',()=>{
+  const chart=byId('war-trophies');
+  const extra=shifted(3);
+  assert.equal(prepare([original,extra],registry,chart,config.rankingSeasons).rows.length,2);
+  assert.equal(chooseSnapshots([original,extra],chart,config.rankingSeasons)[1].capturedAt,
+    extra.capturedAt);
+  assert.equal(prepare([original],registry,byId('war-season-rank'),
+    {referenceEndExclusiveAt:'invalid',cycleDays:14,publicationDelayMinutes:60}).rows.length,1);
+  // Verified metadata remains usable even if the inferred schedule is invalid.
+});
+test('page reads the configured calendar, preserves authorization and cache busting',()=>{
+  const source=read('docs/alliance-history.js');
+  const html=read('docs/alliance-history.html');
+  assert.match(source,/state\.config\.rankingSeasons/);
+  assert.match(html,/auth-guard\.js/);
+  assert.match(html,/alliance-history-data\.js\?v=3/);
+  assert.match(html,/alliance-history\.js\?v=3/);
+});
