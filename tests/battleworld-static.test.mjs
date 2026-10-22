@@ -96,3 +96,43 @@ test("Le portrait est à gauche et le catalogue se charge sans dépendre des éq
   assert.match(script, /await loadCharacterCatalog\(\)/);
   assert.doesNotMatch(script, /guideHasCharacters\(data\)/);
 });
+
+test("Le portrait conserve son cadrage et essaie la variante jouable après PVE", () => {
+  const css = read("battleworld.css");
+  const js = read("battleworld.js");
+  const characters = JSON.parse(read("data/msf-characters.json"));
+  const catalog = new Map(characters.map(row => [row.id.toLowerCase(), row]));
+  assert.match(css, /\.bw-boss-portrait-frame\s*\{[^}]*padding:8px/s);
+  assert.match(css, /\.bw-boss-portrait\s*\{[^}]*object-fit:contain;/s);
+  assert.match(css, /object-position:center;/);
+
+  // Exécuter réellement le constructeur de candidats extrait du JS de production.
+  const begin = js.indexOf("  function getBossPortraitCandidates(boss) {");
+  const end = js.indexOf("  function renderBossPortrait() {", begin);
+  assert.ok(begin >= 0 && end > begin);
+  const source = js.slice(begin, end);
+  const buildCandidates = new Function(
+    "charMap", "validHttpsImage",
+    source + "\nreturn getBossPortraitCandidates;"
+  )(catalog, url => {
+    try { return typeof url === "string" && new URL(url).protocol === "https:"; }
+    catch { return false; }
+  });
+
+  for (const bossId of ["destroyer", "maestro"]) {
+    const guide = JSON.parse(read("data/battleworld/" + bossId + ".json"));
+    const pveId = guide.boss.characterId;
+    const playableId = pveId.replace(/^PVE_Boss_/, "");
+    const pveUrl = catalog.get(pveId.toLowerCase()).portraitUrl;
+    const playableUrl = catalog.get(playableId.toLowerCase()).portraitUrl;
+    const urls = buildCandidates(guide.boss);
+    assert.ok(urls.includes(pveUrl) && urls.includes(playableUrl), bossId);
+    assert.ok(urls.indexOf(pveUrl) < urls.indexOf(playableUrl), "PVE prioritaire pour " + bossId);
+  }
+
+  assert.match(js, /bossPortrait\.onerror = \(\) => \{/);
+  assert.match(js, /tryNext\(\);/);
+  assert.match(js, /portraitState\.token\+\+/);
+  assert.match(read("battleworld.html"), /battleworld\.js\?v=3/);
+  assert.match(read("battleworld.html"), /battleworld\.css\?v=3/);
+});

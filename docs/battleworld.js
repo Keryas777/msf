@@ -19,7 +19,7 @@
   let activeTab = "zone-1";
   let charMap = null;
   let charMapPromise = null;
-  const failedPortraitUrls = new Set();
+  const portraitState = { key: null, token: 0 };
   let serial = 0;
 
   function el(tag, className, value) {
@@ -201,33 +201,71 @@
     }
   }
 
+  // Le catalogue peut référencer une image PVE non servie par le CDN.
+  // Préserver sa priorité, puis essayer la version jouable du même personnage.
+  function getBossPortraitCandidates(boss) {
+    const urls = [];
+    const seen = new Set();
+    const addUrl = url => {
+      if (!validHttpsImage(url) || seen.has(url)) return;
+      seen.add(url);
+      urls.push(url);
+    };
+    if (!boss) return urls;
+
+    addUrl(boss.portraitUrl);
+    const id = String(boss.characterId || "").trim();
+    const ids = [
+      id,
+      ...(Array.isArray(boss.portraitFallbackCharacterIds) ? boss.portraitFallbackCharacterIds : []),
+      id.startsWith("PVE_Boss_") ? id.slice("PVE_Boss_".length) : ""
+    ];
+
+    ids.forEach(candidateId => {
+      const character = charMap && charMap.get(String(candidateId || "").trim().toLowerCase());
+      if (character) addUrl(character.portraitUrl);
+    });
+    return urls;
+  }
+
   function renderBossPortrait() {
     const boss = guide && guide.boss;
-    const characterId = String((boss && boss.characterId) || "").trim().toLowerCase();
-    const character = characterId && charMap ? charMap.get(characterId) : null;
-    const overrideUrl = boss && boss.portraitUrl;
-    const url = validHttpsImage(overrideUrl)
-      ? overrideUrl
-      : (character && validHttpsImage(character.portraitUrl) ? character.portraitUrl : "");
+    const candidates = getBossPortraitCandidates(boss);
+    const key = String(guide && guide.id) + "|" + candidates.join("|");
+    if (portraitState.key === key) return; // Ne pas recharger sur un changement d'onglet.
 
-    if (!url || failedPortraitUrls.has(url)) {
-      bossPortrait.hidden = true;
-      bossPortraitFallback.hidden = false;
-      bossPortrait.removeAttribute("src");
-      return;
-    }
-
+    portraitState.key = key;
+    const token = ++portraitState.token;
     bossPortrait.alt = "Portrait de " + ((boss && boss.name) || selectedEntry.name);
-    bossPortrait.onerror = () => {
-      failedPortraitUrls.add(url);
-      if (bossPortrait.getAttribute("src") === url) {
+
+    let index = 0;
+    const tryNext = () => {
+      if (token !== portraitState.token) return;
+      const url = candidates[index++];
+      if (!url) {
+        bossPortrait.onload = null;
+        bossPortrait.onerror = null;
+        bossPortrait.removeAttribute("src");
         bossPortrait.hidden = true;
         bossPortraitFallback.hidden = false;
+        return;
       }
+
+      bossPortrait.hidden = true;
+      bossPortraitFallback.hidden = false;
+      bossPortrait.onload = () => {
+        if (token !== portraitState.token || bossPortrait.getAttribute("src") !== url) return;
+        bossPortrait.hidden = false;
+        bossPortraitFallback.hidden = true;
+      };
+      bossPortrait.onerror = () => {
+        if (token === portraitState.token && bossPortrait.getAttribute("src") === url) {
+          tryNext();
+        }
+      };
+      bossPortrait.src = url;
     };
-    if (bossPortrait.getAttribute("src") !== url) bossPortrait.src = url;
-    bossPortrait.hidden = false;
-    bossPortraitFallback.hidden = true;
+    tryNext();
   }
 
   function renderZone() {
@@ -311,6 +349,11 @@
     select.value = entry.id;
     guide = null;
     selectedEntry = entry;
+    portraitState.key = null;
+    portraitState.token++;
+    bossPortrait.onload = null;
+    bossPortrait.onerror = null;
+    bossPortrait.removeAttribute("src");
     bossPortrait.hidden = true;
     bossPortraitFallback.hidden = false;
     tabBar.hidden = true;

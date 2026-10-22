@@ -17,12 +17,13 @@
 .bw-summary-layout { display:grid; grid-template-columns:clamp(82px,24vw,116px) minmax(0,1fr); gap:12px; align-items:center; }
 .bw-summary-info { min-width:0; }
 .bw-boss-portrait-frame {
-  aspect-ratio:1; overflow:hidden; border-radius:14px;
+  aspect-ratio:1; min-width:0; padding:8px; overflow:hidden; border-radius:14px;
   display:grid; place-items:center;
   border:1px solid rgba(213,174,255,.4);
   background:radial-gradient(circle at 35% 25%,rgba(173,106,255,.26),transparent 60%),rgba(8,9,20,.68);
 }
-.bw-boss-portrait { display:block; width:100%; height:100%; object-fit:contain; }
+/* Contain + marge intérieure : aucune découpe CSS, même sur un écran étroit. */
+.bw-boss-portrait { display:block; width:100%; height:100%; min-width:0; min-height:0; object-fit:contain; object-position:center; }
 .bw-boss-portrait-fallback { font-size:30px; color:#ecd9ff; }
 .bw-boss-portrait[hidden], .bw-boss-portrait-fallback[hidden] { display:none; }
 .bw-summary-top { display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start; justify-content:space-between; }
