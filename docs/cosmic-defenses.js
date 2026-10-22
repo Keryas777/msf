@@ -145,7 +145,7 @@
     for (const room of rooms) {
       const section = make("section", "cosmicRoom");
       appendRoomHeading(section,room);
-      if (room.rule) section.appendChild(make("p", "cosmicRoomRule", "Règle de la salle : " + room.rule));
+      if (room.rule) section.appendChild(make("p", "cosmicRoomRule", "Règle de la salle :\n" + room.rule));
       const entries = catalog.sortedForDisplay(list.filter(d => Number(d.room) === room.id));
       if (!entries.length) section.appendChild(make("p", "cosmicEmpty", "Aucune défense proposée pour cette salle."));
       for (const entry of entries) {
@@ -300,7 +300,7 @@
       const section = make("section", "cosmicRoom");
       section.dataset.cosmicRoom = String(room.id);
       appendRoomHeading(section,room);
-      if (room.rule) section.appendChild(make("p", "cosmicRoomRule", "Règle de la salle : " + room.rule));
+      if (room.rule) section.appendChild(make("p", "cosmicRoomRule", "Règle de la salle :\n" + room.rule));
       const portraits = make("div", "cosmicPortraits cosmicSelectedPortraits");
       portraits.dataset.cosmicPortraits = "1";
       portraits.setAttribute("aria-label", "Portraits des cinq personnages de " + room.label);
