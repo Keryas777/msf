@@ -1,0 +1,123 @@
+name: Pull LoSP rosters from private R2
+
+on:
+  schedule:
+    # After Roster Service's 02-06 and 14-18 UTC campaigns.
+    - cron: "40 6,18 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "UTC collection day YYYY-MM-DD (blank = today)"
+        required: false
+        default: ""
+      period:
+        description: "Roster campaign"
+        type: choice
+        options:
+          - am
+          - pm
+        default: am
+        required: true
+      publish:
+        description: "Update roster JSON in GitHub (requires separate approval)"
+        type: boolean
+        default: false
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
+
+jobs:
+  pull:
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.LOSP_R2_ROSTER_IMPORT_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Read previously completed private R2 campaigns
+        shell: bash
+        env:
+          LOSP_R2_ACCOUNT_ID: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
+          LOSP_R2_ACCESS_KEY_ID: ${{ secrets.LOSP_R2_ACCESS_KEY_ID }}
+          LOSP_R2_SECRET_ACCESS_KEY: ${{ secrets.LOSP_R2_SECRET_ACCESS_KEY }}
+          LOSP_R2_BUCKET: ${{ secrets.LOSP_R2_BUCKET }}
+          LOSP_R2_ALLIANCE_MAP_JSON: ${{ secrets.LOSP_R2_ALLIANCE_MAP_JSON }}
+          LOSP_R2_ROSTERS_PUBLICATION_APPROVED: ${{ vars.LOSP_R2_ROSTERS_PUBLICATION_APPROVED }}
+          INPUT_DATE: ${{ inputs.date }}
+          INPUT_PERIOD: ${{ inputs.period }}
+          INPUT_PUBLISH: ${{ inputs.publish }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          args=()
+          if [ -n "$INPUT_DATE" ]; then
+            args+=("--date=$INPUT_DATE")
+          fi
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            args+=("--period=$INPUT_PERIOD")
+          elif [ "$(date -u +%H)" = "06" ]; then
+            args+=("--period=am")
+          else
+            args+=("--period=pm")
+          fi
+          if [ "$EVENT_NAME" = "schedule" ] || [ "$INPUT_PUBLISH" = "true" ]; then
+            if [ "$LOSP_R2_ROSTERS_PUBLICATION_APPROVED" != "true" ]; then
+              echo "R2 roster publication is locked pending authorized retention review."
+              exit 1
+            fi
+            args+=("--write")
+          fi
+          node scripts/pull-rosters-r2.mjs "${args[@]}"
+
+      - name: Merge all alliance roster files only after a successful import
+        env:
+          DATA_DIR: docs/data
+          OUT_FILE: docs/data/rosters.json
+        run: |
+          node --test tests/roster-r2-import.test.mjs
+          node --check scripts/pull-rosters-r2.mjs
+          node --check scripts/lib/roster-r2-import.mjs
+          node --check scripts/lib/private-r2-read.mjs
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.publish }}" = "true" ]; then
+            node scripts/merge-rosters.mjs
+          fi
+
+      - name: Verify write scope
+        shell: bash
+        run: |
+          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' |
+            grep -Ev '^docs/data/rosters(_[a-z0-9-]+)?[.]json$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected modifications:"; echo "$unexpected"; exit 1
+          fi
+
+      - name: Commit validated roster files
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PUBLISH: ${{ inputs.publish }}
+        run: |
+          if [ "$EVENT_NAME" != "schedule" ] && [ "$INPUT_PUBLISH" != "true" ]; then
+            echo "Dry run: no GitHub write."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/rosters.json docs/data/rosters_*.json
+          if git diff --cached --quiet; then
+            echo "No changes to publish."
+            exit 0
+          fi
+          git commit -m "data: import authorized LoSP rosters from private R2"
+          git push origin HEAD:main
