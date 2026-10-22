@@ -110,12 +110,12 @@ test("Marvel Church est présent trois fois : meilleure, optimisée, économique
   const rows=JSON.parse(await readFile(new URL("../docs/data/cosmic-defenses.json",import.meta.url),"utf8"));
   const church=activeEntries(rows,"season-25").filter(row=>row.source==="Marvel Church");
   const groups=groupsFor(church);
-  assert.deepEqual(groups.map(group=>group.label),[
+  assert.deepEqual(Array.from(groups,group=>group.label),[
     "Marvel Church (meilleure défense) S25",
     "Marvel Church (défense optimisée) S25",
     "Marvel Church (défense économique) S25"
   ]);
-  assert.deepEqual(groups.map(group=>group.count),[7,7,6]);
+  assert.deepEqual(Array.from(groups,group=>group.count),[7,7,6]);
   for(const group of groups) {
     const members=entriesForGroup(church,group.id);
     assert.equal(members.length,group.count);
@@ -144,6 +144,6 @@ test("une autre source conserve ses collections et une catégorie non classée",
   const one={...make("season-25",1,"","Autre guide","Collection A"),name:"Équipe spéciale"};
   const two={...make("season-25",2,"","Autre guide","Collection B"),name:"Équipe B"};
   const groups=groupsFor([one,two]);
-  assert.deepEqual(groups.map(g=>g.label),["Collection A S25","Collection B S25"]);
+  assert.deepEqual(Array.from(groups,g=>g.label),["Collection A S25","Collection B S25"]);
   assert.notEqual(groupFor(one).id,groupFor(two).id);
 });

@@ -130,7 +130,7 @@ test("les portraits du brouillon peuvent être retirés individuellement, puis s
   assert.match(css, /\.cosmicPortraitRemove:focus-visible/);
   // Pas de croix pour les défenses publiées ni de suppression de la note.
   assert.doesNotMatch(js.split("function renderPublished()")[1]?.split("function initPublishedSelector")[0] || "", /cosmicPortraitRemove/);
-  assert.match(html, /cosmic-defenses\.js\?v=7/);
+  assert.match(html, /cosmic-defenses\.js\?v=9/);
 });
 
 test("trois tuiles : consultation et proposition sont des pages indépendantes", async () => {
@@ -170,7 +170,7 @@ test("le formulaire déplacé conserve la clé de brouillon et les suppressions"
   assert.match(js, /localStorage\.setItem\(DRAFT_KEY/);
   assert.match(js, /cosmicPortraitRemove/);
   assert.match(js, /input\.dataset\.selectedId = ""/);
-  assert.match(html, /cosmic-defenses\.js\?v=7/);
+  assert.match(html, /cosmic-defenses\.js\?v=9/);
   assert.match(html, /cosmic-season-ui\.js/);
   assert.match(css, /\.cosmicHubTile--propose/);
 });

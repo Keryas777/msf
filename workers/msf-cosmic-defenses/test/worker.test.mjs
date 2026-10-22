@@ -166,7 +166,9 @@ test("titre personnel publié sur toutes les salles du même Discord sans touche
     author:"Ancien pseudo",title:"Ancien titre",name:"Défense de Keryas",
     notes:"Salle non modifiée",publishedAt:"2026-01-01T00:00:00.000Z"};
   const other={...mine,room:3,authorDiscordId:"999999999999999999",title:"Autre titre"};
-  const church={...mine,source:"Marvel Church",authorDiscordId:undefined,title:undefined};
+  const church={...mine,source:"Marvel Church"};
+  delete church.authorDiscordId;
+  delete church.title;
   const x=fixture({old:[mine,other,church]});
   await withMock(x.mockFetch,async()=>{
     const response=await worker.fetch(post([make(1)],{title:"Défense polyvalente",author:"Faux"}),x.env);
