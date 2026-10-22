@@ -102,17 +102,27 @@ captures complètes. Si le calendrier s'avère incorrect, le corriger dans
 `config.json` **avant** d'importer de nouvelles captures. Ne jamais fabriquer
 de rangs ni de trophées.
 
-**Trophées de guerre** : le planning retenu est le **mercredi et le vendredi
+**Trophées de guerre** : le planning retenu reste le **mercredi et le vendredi
 à 21:00 UTC**, soit 23:00 en été / 22:00 en hiver en France.
-La zone 4 doit avoir terminé sa guerre (19:00 UTC) et la zone 1 ne doit
-pas encore avoir lancé la suivante (01:00 UTC le lendemain du mercredi,
-01:00 UTC le mardi suivant après le vendredi).
-Ce planning est une **configuration de consommation pour le futur collecteur** :
+
+Contrairement au **classement temporaire de saison**, les trophées sont des
+totaux persistants : l'intervalle entre fin de zone 4 et début de zone 1
+n'est **pas** une contrainte de collecte des trophées. Selon les horaires
+précisés par l'administrateur, la guerre s'achève à **18:00 UTC** et la
+préparation de la guerre suivante débute le lendemain à **15:00 UTC**.
+Avec une marge configurable de **deux heures de chaque côté**, la fenêtre
+prudente est de **20:00 UTC après la guerre à 13:00 UTC le lendemain**.
+Le créneau prévu à 21:00 UTC s'y trouve.
+
+Ces horaires, le décalage jusqu'au lendemain et les marges sont définis
+dans `config.json` sous `capture.trophies.window`, indépendamment du
+calendrier de 14 jours des classements. Ces valeurs sont la convention
+opérationnelle LoSP, sans prétendre vérifier un horaire officiel Scopely.
+Le planning demeure une **configuration pour le futur collecteur** :
 il ne déclenche actuellement aucune requête ni aucun cron. Pour chaque
 capture, vérifier la date UTC réelle, l'actualisation des résultats et
-`completeSessionScan`. Ne pas antidater une capture obtenue trop tard.
-Si Scopely modifie les horaires des guerres ou la longueur des saisons,
-ajuster la configuration et ses tests avant la collecte.
+`completeSessionScan`. Ne jamais antidater une capture.
+Si Scopely modifie les horaires, ajuster la configuration et ses tests.
 
 **Attention** : les données d'AllianceCard proviennent de l'API officielle.
 La limite de conservation de 30 jours mentionnée plus haut demeure à
@@ -133,7 +143,10 @@ saison achevée, sans ajouter de point saisonnier : le premier relevé confirmé
 est conservé en priorité. Pour les trophées, **les deux observations réelles**
 sont affichées, sans interpolation.
 
-Cette capture ponctuelle a eu lieu **hors du créneau futur configuré à 21h UTC** ;
-le fichier conserve l'heure réelle et ne prétend pas qu'une collecte planifiée
-a été exécutée. Aucun jeton, empreinte privée ni donnée de session n'est publié.
+Cette capture ponctuelle n'a pas été exécutée au créneau récurrent de
+21:00 UTC, mais le jeudi **22 octobre à 12:02 UTC** se situe dans la
+fenêtre prudente suivant la guerre du mercredi (**20:00 UTC mercredi –
+13:00 UTC jeudi**). Le fichier conserve l'heure réelle et ne prétend pas
+qu'une collecte automatique a été exécutée. Aucun jeton, empreinte privée
+ni donnée de session n'est publié.
 Les réserves contractuelles de conservation des données de l'API restent applicables.
