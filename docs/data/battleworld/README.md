@@ -46,6 +46,16 @@ Chaque mission utilise les tableaux d'origine (restrictions, ennemis, mécanique
 
 Le boss peut comporter `traits`, `baseSpeed`, `enemies` et les mécaniques détaillées ; les équipes restent des objets `teams` avec `title`, `characters`, `notes`, `steps`, `alternatives` et `requirements`. Quand l'article source nomme une équipe complète sans citer tous ses membres, ne pas deviner les IDs des personnages manquants.
 
+## Affichage des compositions et panneaux
+
+Tous les panneaux de missions (Standard, Mini-boss, Élite, Bonus) sont **fermés à l'ouverture** de chaque zone ; seules les sections sélectionnées par le joueur sont développées.
+
+Une équipe entièrement déterminée utilise `teams[].characters` avec ses cinq IDs exacts, idéalement recoupés avec `docs/data/teams.json` et `docs/data/msf-characters.json`.
+
+Si une source nomme un groupe (ex. « 4 Fantastic Four (MCU) » ou « 3 Galactic Council ») **sans préciser quels membres ont réellement été joués**, ne pas modifier les membres certains : `characters` conserve uniquement ces IDs explicitement nommés. Le champ facultatif `illustrativeCharacters` contient alors cinq IDs pour représenter **une proposition illustrative**, jamais une composition attestée. Un avertissement est automatiquement affiché au-dessus des portraits et les `notes` conservent l'incertitude.
+
+Cette distinction concerne actuellement Xavier + Exalted X-Men, Fantastic Four (MCU) ×4 + Odin et Galactic Council + Surfer d'argent (Briseur) + Xavier. Les alternatives illustratives pourront être remplacées après confirmation des cinq personnages testés.
+
 **Source éditoriale :** https://www.marvel.church/battleworld-fallen-asgard/ (recommandations communautaires, non confirmation officielle).
 
 **Points en attente :** les quatre missions Bonus des Zones 2 et 3 restent sans stratégie confirmée ; l'éligibilité d'Amazing Avenger dans Bonus Zone 1 « Chaos Team » doit être testée ; la source décrit cinq difficultés tout en appelant plusieurs fois difficulté 4 « maximale ». La restriction Zone 3 Standard 1 est indiquée Tech seule avec l'ancienne rotation Tech + Héros stockée dans `historicalInstructions`. Ne pas effacer ces avertissements sans vérification.
