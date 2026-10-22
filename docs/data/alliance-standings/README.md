@@ -82,3 +82,39 @@ Le premier relevé est le JSON fourni par l'administrateur depuis le Roster Serv
 **Point de conformité à résoudre avant de mettre en place un historique permanent** : les *Marvel Strike Force API Terms of Use* (clause « maximum 30-day TTL », version du 3 mars 2022) s'appliquent explicitement aux données obtenues par leur API. Le fait de déposer le fichier dans un autre dépôt ou que certains chiffres soient visibles sur le site ne prouve pas une dérogation à cette clause. L'historique Git ne garantit pas l'effacement. Une source indépendante autorisée ou l'accord de Scopely est à vérifier pour des archives durables. Cette documentation ne prétend pas que la conservation historique indéfinie de captures OAuth est autorisée.
 
 Aucune automatisation de récupération, aucun accès aux tokens et aucune modification du Roster Service ne sont réalisés ici.
+
+## Calendrier validé pour les prochaines collectes (22 octobre 2026)
+
+`config.json` contient un calendrier **prévisionnel** partagé pour les rangs de
+guerre et de raid : cycle normal de **14 jours**, ancré sur la borne confirmée
+du **11 octobre 2026 à 20:00 UTC**. Une nouvelle saison commence à cette borne
+et s'achève 14 jours après. L'horodatage reste en UTC, l'affichage dans
+`Europe/Paris` (y compris autour du changement d'heure).
+
+Le sélecteur `resolveRankingSeason` calcule la **dernière saison achevée**,
+avec 60 minutes de réserve pour la publication des rangs par Scopely.
+Les saisons calculées portent `identification: "schedule-derived"` et
+`seasonVerified: false`, sans se faire passer pour des données vérifiées.
+Un snapshot possédant `seasonVerified: true` conserve toujours ses dates
+et son identifiant confirmés. Les captures non qualifiées sont regroupées
+par saison calculée, à raison d'un point par saison, avec préférence aux
+captures complètes. Si le calendrier s'avère incorrect, le corriger dans
+`config.json` **avant** d'importer de nouvelles captures. Ne jamais fabriquer
+de rangs ni de trophées.
+
+**Trophées de guerre** : le planning retenu est le **mercredi et le vendredi
+à 21:00 UTC**, soit 23:00 en été / 22:00 en hiver en France.
+La zone 4 doit avoir terminé sa guerre (19:00 UTC) et la zone 1 ne doit
+pas encore avoir lancé la suivante (01:00 UTC le lendemain du mercredi,
+01:00 UTC le mardi suivant après le vendredi).
+Ce planning est une **configuration de consommation pour le futur collecteur** :
+il ne déclenche actuellement aucune requête ni aucun cron. Pour chaque
+capture, vérifier la date UTC réelle, l'actualisation des résultats et
+`completeSessionScan`. Ne pas antidater une capture obtenue trop tard.
+Si Scopely modifie les horaires des guerres ou la longueur des saisons,
+ajuster la configuration et ses tests avant la collecte.
+
+**Attention** : les données d'AllianceCard proviennent de l'API officielle.
+La limite de conservation de 30 jours mentionnée plus haut demeure à
+résoudre avant d'automatiser un archivage durable. La configuration de
+collecte n'autorise pas à elle seule la conservation illimitée.

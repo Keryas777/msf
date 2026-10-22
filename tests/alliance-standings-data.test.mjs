@@ -84,3 +84,17 @@ test("the 21 October source capture matches user-confirmed Zeus values",()=>{
   assert.equal(first.coverage.validSessions,9);
   assert.equal(first.coverage.unavailableSessions,0);
 });
+
+test('future collection configuration is UTC-based and disabled until collector integration',()=>{
+  assert.deepEqual(config.capture.trophies.scheduledWeekdaysUtc,
+    ['wednesday','friday']);
+  assert.equal(config.capture.trophies.scheduledAtUtc,'21:00');
+  assert.equal(config.capture.trophies.collectionTimezone,'UTC');
+  assert.equal(config.capture.trophies.zone4WarEndsAtUtc,'19:00');
+  assert.equal(config.capture.trophies.nextZone1WarStartsAtUtc,'01:00');
+  assert.equal(config.capture.trophies.requireCompleteSessionScan,true);
+  assert.equal(config.rankingSeasons.cycleDays,14);
+  assert.equal(config.rankingSeasons.referenceEndExclusiveAt,'2026-10-11T20:00:00.000Z');
+  assert.equal(config.rankingSeasons.publicationDelayMinutes,60);
+  assert.equal(config.rankingSeasons.identification,'schedule-derived');
+});
