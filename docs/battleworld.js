@@ -135,7 +135,11 @@
       const card = el("article", "bw-team");
       card.append(el("h4", "", team.title));
       if (team.phase) card.append(el("p", "bw-team-phase", team.phase));
-      const members = validList(team.characters);
+      const illustrative = validList(team.illustrativeCharacters);
+      const members = illustrative.length === 5 ? illustrative : validList(team.characters);
+      if (illustrative.length === 5) {
+        card.append(el("p", "bw-team-phase", "Composition illustrative — sélection exacte non précisée par Marvel Church"));
+      }
       if (members.length) {
         const portraits = el("div", "bw-characters");
         members.forEach(id => portraits.append(characterCard(id)));
@@ -271,9 +275,9 @@
     tryNext();
   }
 
-  function makeMissionDetails(item, open) {
+  function makeMissionDetails(item) {
     const details = el("details", "bw-node");
-    details.open = Boolean(open);
+    // Aucun panneau ouvert par défaut : lecture rapide sur mobile.
     const summary = el("summary");
     const name = el("span", "bw-node-title");
     name.append(el("strong", "", item.title || item.id || "Mission"));
@@ -290,13 +294,13 @@
     return details;
   }
 
-  function renderMissionGroup(label, items, note, openFirst) {
+  function renderMissionGroup(label, items, note) {
     if (!Array.isArray(items) || !items.length) return;
     const group = el("section", "bw-mission-group");
     const heading = el("h3", "bw-mission-heading", label + " (" + items.length + ")");
     group.append(heading);
     if (note) group.append(el("p", "bw-group-note", note));
-    items.forEach((item, i) => group.append(makeMissionDetails(item, openFirst && i === 0)));
+    items.forEach(item => group.append(makeMissionDetails(item)));
     content.append(group);
   }
 
@@ -340,12 +344,12 @@
     validList(zone.notes).forEach(note => intro.append(el("p", "bw-zone-note", note)));
     content.append(intro);
 
-    renderMissionGroup("Missions Standard", zone.nodes, "Débloquer le mini-boss en terminant les trois missions.", true);
+    renderMissionGroup("Missions Standard", zone.nodes, "Débloquer le mini-boss en terminant les trois missions.");
     if (zone.miniboss) {
-      renderMissionGroup("Mini-boss", [zone.miniboss], "Le vaincre débloque les missions Élite et donne une clé Bonus.", false);
+      renderMissionGroup("Mini-boss", [zone.miniboss], "Le vaincre débloque les missions Élite et donne une clé Bonus.");
     }
-    renderMissionGroup("Missions Élite", zone.eliteMissions, "Chaque Élite terminée affaiblit le Destructeur au jour 4.", false);
-    renderMissionGroup("Missions Bonus", zone.bonusMissions, "Donnent des jetons de renforcement permanents. Certaines nécessitent plusieurs clés.", false);
+    renderMissionGroup("Missions Élite", zone.eliteMissions, "Chaque Élite terminée affaiblit le Destructeur au jour 4.");
+    renderMissionGroup("Missions Bonus", zone.bonusMissions, "Donnent des jetons de renforcement permanents. Certaines nécessitent plusieurs clés.");
   }
 
   function renderBoss() {
