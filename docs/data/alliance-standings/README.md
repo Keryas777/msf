@@ -1,6 +1,6 @@
 # Historique LoSP — trophées et rangs d'alliance
 
-Ce dossier définit le **contrat de données** des futurs graphiques de la WebApp statique. Le jeu de données du 21 octobre 2026 est un premier relevé, pas encore une série chronologique permettant de tracer des courbes.
+Ce dossier définit le **contrat de données** des graphiques de la WebApp statique. Deux relevés réels (21 et 22 octobre 2026) sont désormais disponibles pour les trophées de guerre ; les classements de saison restent sur un seul point pour la dernière saison terminée.
 
 ## Organisation
 
@@ -118,3 +118,22 @@ ajuster la configuration et ses tests avant la collecte.
 La limite de conservation de 30 jours mentionnée plus haut demeure à
 résoudre avant d'automatiser un archivage durable. La configuration de
 collecte n'autorise pas à elle seule la conservation illimitée.
+
+## Relevé manuel du 22 octobre 2026
+
+Le relevé à **2026-10-22T12:02:08.591Z** (14:02 heure française) a été transmis par
+l'administrateur via la capture `/player/v1/alliance/card` de l'interface
+privée du Roster Service. Couverture : 9 sessions valides sur 9, 5 alliances,
+`completeSessionScan: true`. Les trophées ont évolué pour toutes les alliances :
+Zeus 2 806, Athéna 2 604, Kronos 2 684, Dionysos 2 663, Poséidon 2 264.
+Les rangs retournés n'ont pas changé par rapport au 21 octobre ;
+`seasonVerified: false` est conservé conformément à la capture source.
+Le calendrier déjà présent dans la WebApp attribue ces rangs à la dernière
+saison achevée, sans ajouter de point saisonnier : le premier relevé confirmé
+est conservé en priorité. Pour les trophées, **les deux observations réelles**
+sont affichées, sans interpolation.
+
+Cette capture ponctuelle a eu lieu **hors du créneau futur configuré à 21h UTC** ;
+le fichier conserve l'heure réelle et ne prétend pas qu'une collecte planifiée
+a été exécutée. Aucun jeton, empreinte privée ni donnée de session n'est publié.
+Les réserves contractuelles de conservation des données de l'API restent applicables.
