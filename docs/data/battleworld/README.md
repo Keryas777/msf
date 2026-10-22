@@ -59,3 +59,17 @@ Cette distinction concerne actuellement Xavier + Exalted X-Men, Fantastic Four (
 **Source éditoriale :** https://www.marvel.church/battleworld-fallen-asgard/ (recommandations communautaires, non confirmation officielle).
 
 **Points en attente :** les quatre missions Bonus des Zones 2 et 3 restent sans stratégie confirmée ; l'éligibilité d'Amazing Avenger dans Bonus Zone 1 « Chaos Team » doit être testée ; la source décrit cinq difficultés tout en appelant plusieurs fois difficulté 4 « maximale ». La restriction Zone 3 Standard 1 est indiquée Tech seule avec l'ancienne rotation Tech + Héros stockée dans `historicalInstructions`. Ne pas effacer ces avertissements sans vérification.
+
+## Conseils de combat unifiés — édition des missions
+
+Depuis cette révision, les **27 missions du Destructeur** possèdent chacune un tableau `combatGuide` de phrases ordonnées pour une lecture mobile sans redondance. Le rendu d'une mission présente uniquement :
+- ses `restrictions` s'il y en a ;
+- un seul bloc **Conseils de combat** (mécaniques pertinentes, priorités, déroulement, avertissements indispensables) ;
+- les compositions recommandées, avec portraits et leurs notes propres ;
+- les sources.
+
+Les anciens champs `enemies`, `mechanics`, `objectives`, `strategy`, `avoid`, `instructions`, `notes`, `warnings` et `historicalInstructions` sont **conservés dans les JSON pour audit et révision**, mais ne s'affichent plus séparément lorsque `combatGuide` est présent. Les futurs guides qui ne disposent pas de `combatGuide` continuent de fonctionner selon le schéma historique.
+
+Les anciennes instructions détaillées de la Zone 3 Standard 1 restent intégralement consultables dans `combatGuide` avec le préfixe **« Ancienne rotation »**, et dans `historicalInstructions` comme archive. Les quatre missions Bonus sans stratégie contiennent une mention de manque d'information explicite, jamais une consigne inventée.
+
+Pour ajouter ou corriger une recommandation, modifier **`combatGuide` en priorité** ; ne pas réintroduire les doublons dans le rendu. Les champs sources seront conservés jusqu'à une éventuelle refonte éditoriale validée.

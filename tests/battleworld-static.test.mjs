@@ -133,7 +133,7 @@ test("Le portrait conserve son cadrage et essaie la variante jouable après PVE"
   assert.match(js, /bossPortrait\.onerror = \(\) => \{/);
   assert.match(js, /tryNext\(\);/);
   assert.match(js, /portraitState\.token\+\+/);
-  assert.match(read("battleworld.html"), /battleworld\.js\?v=5/);
+  assert.match(read("battleworld.html"), /battleworld\.js\?v=6/);
   assert.match(read("battleworld.html"), /battleworld\.css\?v=4/);
 });
 
@@ -206,7 +206,7 @@ test("Affichage des rubriques et compatibilité des boss historiques", () => {
   assert.match(js, /renderMissionGroup\("Missions Élite"/);
   assert.match(js, /renderMissionGroup\("Missions Bonus"/);
   assert.match(js, /"Les stratégies contre ce boss sont à compléter/);
-  assert.match(html, /battleworld\.js\?v=5/);
+  assert.match(html, /battleworld\.js\?v=6/);
   assert.match(html, /battleworld\.css\?v=4/);
   for (const name of ["knull", "sentry", "maestro"]) {
     const archived = JSON.parse(read("data/battleworld/" + name + ".json"));
@@ -264,5 +264,59 @@ test("Toutes les équipes documentées présentent cinq portraits, avec variante
   const script = read("battleworld.js");
   assert.match(script, /illustrativeCharacters/);
   assert.match(script, /Composition illustrative/);
-  assert.match(read("battleworld.html"), /battleworld\.js\?v=5/);
+  assert.match(read("battleworld.html"), /battleworld\.js\?v=6/);
+});
+
+test("Les 27 missions ont chacune un unique bloc éditorial de conseils, sans perte des champs sources", () => {
+  const guide = JSON.parse(read("data/battleworld/destroyer.json"));
+  const missions = guide.zones.flatMap(zone =>
+    [...zone.nodes, zone.miniboss, ...zone.eliteMissions, ...zone.bonusMissions]
+  );
+  assert.equal(missions.length, 27);
+  const signatures = new Set();
+  for (const item of missions) {
+    assert.ok(Array.isArray(item.combatGuide) && item.combatGuide.length, item.title);
+    assert.ok(item.combatGuide.every(line => typeof line === "string" && line.trim().length > 0), item.title);
+    assert.equal(new Set(item.combatGuide).size, item.combatGuide.length, "Conseil répété : " + item.title);
+    for (const field of ["restrictions", "enemies", "objectives", "strategy", "instructions", "teams", "sources"]) {
+      assert.ok(Array.isArray(item[field]), "Les données originales doivent rester disponibles : " + field);
+    }
+    signatures.add(item.title);
+  }
+  assert.equal(signatures.size, 27);
+  assert.ok(guide.zones[0].nodes[0].combatGuide.some(line => line.includes("Vahl")));
+  assert.ok(guide.zones[0].bonusMissions[0].combatGuide.some(line => line.includes("Ultron")));
+  assert.ok(guide.zones[1].miniboss.combatGuide.some(line => line.includes("Rage")));
+  assert.ok(guide.zones[2].nodes[0].combatGuide.some(line => line.includes("Ancienne rotation")));
+  assert.equal(guide.zones[2].nodes[0].historicalInstructions.length, 7);
+  assert.ok(guide.zones[1].bonusMissions.every(m => m.combatGuide.some(s => s.includes("document"))));
+});
+
+test("Une mission compacte affiche Restriction et Conseils, sans répéter Ennemis/Objectifs/Stratégie", () => {
+  const script = read("battleworld.js");
+  const start = script.indexOf("  function renderFields(parent, item) {");
+  const end = script.indexOf("\n\n  // Les boss disposent", start);
+  assert.ok(start >= 0 && end > start);
+  const labels = [];
+  const sectionList = (_parent, label, items) => {
+    if (!Array.isArray(items) || !items.length) return false;
+    labels.push(label);
+    return true;
+  };
+  const renderFields = new Function(
+    "sectionList", "teamsSection", "sourcesSection",
+    script.slice(start, end) + "\nreturn renderFields;"
+  )(sectionList, () => true, () => true);
+  const guide = JSON.parse(read("data/battleworld/destroyer.json"));
+  for (const zone of guide.zones) {
+    for (const mission of [...zone.nodes, zone.miniboss, ...zone.eliteMissions, ...zone.bonusMissions]) {
+      labels.length = 0;
+      assert.equal(renderFields({}, mission), true);
+      const expected = mission.restrictions.length ? ["Restrictions", "Conseils de combat"] : ["Conseils de combat"];
+      assert.deepEqual(labels, expected, mission.title);
+    }
+  }
+  assert.match(read("battleworld.html"), /battleworld\.js\?v=6/);
+  // Le moteur des fiches boss historiques reste rétrocompatible avec leurs anciens champs.
+  assert.match(script.slice(start, end), /\["enemies", "Ennemis"\]/);
 });
