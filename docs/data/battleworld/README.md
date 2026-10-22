@@ -20,7 +20,7 @@ Les anciens guides restent accessibles par le sélecteur de boss sur `battleworl
 ## Champs à renseigner
 
 - Chaque node : `restrictions`, `enemies`, `mechanics`, `objectives`, `strategy`, `avoid`, `instructions`, `teams`, `sources`.
-- `boss` : `name`, `mechanics`, `objectives`, `strategy`, `avoid`, `instructions`, `teams`, `sources`.
+- `boss` : `name`, `characterId`, `portraitUrl` (facultatif), `mechanics`, `objectives`, `strategy`, `avoid`, `instructions`, `teams`, `sources`.
 - `instructions` et `steps` sont des tableaux de phrases dans l'ordre d'exécution.
 - Une équipe dans `teams` possède `id` et `title`, puis facultativement `characters` (IDs internes de `msf-characters.json`), `phase`, `requirements`, `steps`, `alternatives`, `notes`, et `sources`.
 - `sources` est un tableau d'objets `{ "label": "Source", "url": "https://..." }`.
