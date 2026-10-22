@@ -240,7 +240,7 @@
     }
     const knownSeason=chart.frequency==='per-season'&&
       model.rows.length===1&&
-      model.rows[0].seasonVerified===true&&
+      (model.rows[0].seasonVerified===true||model.rows[0].seasonDerived===true)&&
       model.rows[0].rankingSeason;
     refs.period.textContent=knownSeason?
       'Saison du '+formatDate(knownSeason.startAt)+' au '+
