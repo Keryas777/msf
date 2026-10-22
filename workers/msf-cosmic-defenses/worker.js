@@ -138,17 +138,19 @@ async function playableIds(env,sha){
   if(!Array.isArray(rows))throw new HttpError(503,"characters_unavailable");
   return new Set(rows.filter(row=>row?.player_Character===true && row.id).map(row=>String(row.id)));
 }
-function mergeRows(rows,season,author,rooms){
+function mergeRows(rows,season,author,rooms,title){
   const changed=new Set(rooms.map(r=>r.room));
-  // Le serveur ne peut écraser que des lignes appartenant au même ID Discord.
-  const other=rows.filter(row=>!(row?.season===season&&row?.authorDiscordId===author.id &&
-    changed.has(Number(row.room)) &&
-    (!row.source || row.source === "Personnel")));
+  const isOwned=row=>row?.season===season&&row?.authorDiscordId===author.id &&
+    (!row.source || row.source==="Personnel");
+  // Les salles du même membre restent sous un seul titre sans changer leurs compositions.
+  // Seul l'ID Discord signé détermine la propriété d'une ligne.
+  const other=rows.filter(row=>!(isOwned(row)&&changed.has(Number(row.room))))
+    .map(row=>isOwned(row)?{...row,title,author:author.name}:row);
   const now=new Date().toISOString();
   const added=rooms.map(r=>({
     season,room:r.room,characters:r.characters,
     authorDiscordId:author.id,author:author.name,source:"Personnel",
-    name:"Défense de "+author.name,notes:r.notes,
+    name:"Défense de "+author.name,title,notes:r.notes,
     publishedAt:now
   }));
   if(other.length+added.length>4000)
@@ -191,18 +193,26 @@ async function publish(request,env){
     const current=await snapshot(env);
     const ids=await playableIds(env,current.sha);
     const rooms=parseRooms(payload,current.season,ids);
+    if (payload.title !== undefined &&
+        (typeof payload.title !== "string" || payload.title.length > 60))
+      throw new HttpError(400,"invalid_title","Titre de défense invalide (60 caractères maximum).");
+    const previousTitle=current.rows.find(row=>row?.season===current.season &&
+      row?.authorDiscordId===author.id && (!row.source||row.source==="Personnel"))?.title;
+    const title=payload.title===undefined
+      ? (clean(previousTitle,60)||"Mes défenses")
+      : (clean(payload.title,60)||"Mes défenses");
     // Évite les commits inutiles et l'envoi de spam ; 6 salles maximum
     // par compte Discord et au plus une publication toutes les 15 secondes.
     const noChange=rooms.every(room=>current.rows.some(row=>
       row?.season===current.season && row?.authorDiscordId===author.id &&
       row?.source==="Personnel" && Number(row.room)===room.room &&
       JSON.stringify(row.characters)===JSON.stringify(room.characters) &&
-      String(row.notes||"")===room.notes
+      String(row.notes||"")===room.notes && clean(row.title,60)===title
     ));
     if(noChange)return {ok:true,season:current.season,published:rooms.length,unchanged:true};
     if(recentlyPublished(current.rows,current.season,author.id))
       throw new HttpError(429,"slow_down","Attends 15 secondes avant de republier.");
-    const next=mergeRows(current.rows,current.season,author,rooms);
+    const next=mergeRows(current.rows,current.season,author,rooms,title);
     try {
       const sha=await commitRows(env,current,next);
       return {ok:true,season:current.season,published:rooms.length,commit:sha};
