@@ -384,3 +384,19 @@ test("Les équipes fixes de cinq ne présentent pas de notes de provenance inuti
     "L'incertitude sur les compositions hybrides doit rester visible");
   assert.equal(guide.zones[0].bonusMissions[0].teams[0].notes.length, 1);
 });
+
+test("Zone 1 Standard 1 : portraits dans le même ordre que la consigne de placement", () => {
+  const guide = JSON.parse(read("data/battleworld/destroyer.json"));
+  const mission = guide.zones[0].nodes[0];
+  const team = mission.teams.find(t => t.id === "z1-standard1");
+  assert.ok(team);
+  assert.ok(mission.combatGuide.some(line => /Thanos entre Knull et Exécuteur/.test(line)));
+  assert.deepEqual(team.characters, [
+    "Mephisto", "Knull", "Thanos", "Executioner", "SilverSurferBreaker"
+  ]);
+  const thanosPosition = team.characters.indexOf("Thanos");
+  assert.equal(team.characters[thanosPosition - 1], "Knull");
+  assert.equal(team.characters[thanosPosition + 1], "Executioner");
+  assert.equal(new Set(team.characters).size, 5);
+  assert.equal(team.title, "Méphisto + Knull + Thanos + Exécuteur + Surfer d'argent (Briseur)");
+});
