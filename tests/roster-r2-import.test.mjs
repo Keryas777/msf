@@ -1,7 +1,8 @@
 import test from 'node:test';
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import {rosterWindow,validManifestAndProgress,loadRosterCampaign,
-  convertAllianceRosters,convertCharacter,keyOf} from '../scripts/lib/roster-r2-import.mjs';
+  convertAllianceRosters,convertCharacter,keyOf,resolveAlias} from '../scripts/lib/roster-r2-import.mjs';
 import {createPrivateR2Reader} from '../scripts/lib/private-r2-read.mjs';
 
 const fp='a'.repeat(64),digest='b'.repeat(64);
@@ -116,4 +117,16 @@ test('R2 credentials remain in Actions, requests are signed and read-only',async
   assert.deepEqual(await reader.getJSON('roster-batches/v1/test.json'),{status:'ok'});
   assert.equal(called,true);
   await assert.rejects(reader.getJSON('../oauth-captains/v1/test.json'),/Unsafe/);
+});
+
+test('canonical no-op alias is not a cycle, but genuine conflicting loops still fail',()=>{
+  const source=JSON.parse(readFileSync(new URL('../docs/data/player-aliases.json',import.meta.url),'utf8'));
+  assert.equal(resolveAlias('⚔️Zabuza⚔️',source),'Zabuza');
+  assert.equal(resolveAlias('Zabuuza',source),'Zabuza');
+  assert.equal(resolveAlias('Zabuzα',source),'Zabuza');
+  assert.equal(resolveAlias('Ttt!Le Fléau !!',source),'Ttt!!Le Fléau !!');
+  assert.equal(resolveAlias('Zabuza',source),'Zabuza');
+  assert.equal(resolveAlias('Nouveau Joueur',source),'Nouveau Joueur');
+  assert.throws(()=>resolveAlias('First',{aliases:{First:'Second',Second:'First'}}),
+    /Cyclic player alias/);
 });
