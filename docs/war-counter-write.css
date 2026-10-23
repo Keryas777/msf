@@ -1,3 +1,47 @@
+.write-inline-note,
+.write-existing-note{
+  display:grid;
+  gap:6px;
+  margin-top:12px;
+  color:#c9d6ee;
+  font-size:.84rem;
+  font-weight:700;
+}
+.write-inline-note textarea,
+.write-existing-note textarea{
+  width:100%;
+  min-height:76px;
+  padding:10px 11px;
+  border:1px solid #40517d;
+  border-radius:11px;
+  background:#07101f;
+  color:#fff;
+  font:inherit;
+  font-weight:400;
+  resize:vertical;
+}
+.write-inline-note textarea:focus,
+.write-existing-note textarea:focus{
+  outline:2px solid #6e9bff;
+  outline-offset:1px;
+}
+.write-inline-note small,
+.write-existing-note small{
+  font-size:.76rem;
+  color:#9eabc5;
+  line-height:1.4;
+  font-weight:400;
+}
+.write-existing-note[hidden],
+.sheet-write-button[hidden]{display:none}
+.batch-note-preview{
+  display:block;
+  margin-top:4px;
+  color:#c1cfe8;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+
 .sheet-write-button{
   width:100%;
   margin-top:8px;
