@@ -338,6 +338,42 @@ function validatedMetadata(value) {
   return result;
 }
 
+function mergeMatchupNote(existing, incoming) {
+  const previous = String(existing ?? "").trim();
+  const addition = cleanText(incoming, 500);
+  if (!addition || previous === addition || previous.split("\n\n").includes(addition)) return previous;
+  const merged = previous ? `${previous}\n\n${addition}` : addition;
+  if (merged.length > 500) {
+    const error = new Error("Note trop longue : la note existante doit être conservée (500 caractères maximum).");
+    error.status = 400;
+    throw error;
+  }
+  return merged;
+}
+
+function noteRanges(matches, note, sheetName) {
+  if (!note) return [];
+  return matches.flatMap((row) => {
+    const previous = String(row.notes ?? "").trim();
+    const merged = mergeMatchupNote(previous, note);
+    return merged === previous ? [] : [{
+      range: `${sheetName}!V${row.__sheetRow}`,
+      majorDimension: "ROWS",
+      values: [[merged]]
+    }];
+  });
+}
+
+async function writeSheetCells(env, accessToken, data) {
+  if (!data.length) return;
+  const { spreadsheetId } = sheetConfig(env);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(spreadsheetId)}/values:batchUpdate`;
+  await googleJson(url, accessToken, {
+    method: "POST",
+    body: JSON.stringify({ valueInputOption: "RAW", data })
+  });
+}
+
 function normalizeBatchItems(value) {
   const rawItems = Array.isArray(value) ? value : [];
   if (!rawItems.length) {
@@ -402,6 +438,7 @@ function buildBatchPlan(rows, items) {
   const creates = [];
   const updates = [];
   const skipped = [];
+  const annotations = [];
   const conflicts = [];
 
   for (const item of items) {
@@ -418,12 +455,17 @@ function buildBatchPlan(rows, items) {
     }
 
     if (comparison.status === "same" || comparison.status === "worse") {
-      skipped.push({
-        ...item,
-        status: comparison.status,
-        existingRatio: comparison.existingRatio,
-        rows: matches.map((row) => row.__sheetRow)
-      });
+      const note = cleanText(item.metadata?.notes, 500);
+      if (note && matches.some((row) => mergeMatchupNote(row.notes, note) !== String(row.notes ?? "").trim())) {
+        annotations.push({ ...item, status: "annotated", matches });
+      } else {
+        skipped.push({
+          ...item,
+          status: comparison.status,
+          existingRatio: comparison.existingRatio,
+          rows: matches.map((row) => row.__sheetRow)
+        });
+      }
       continue;
     }
 
@@ -444,38 +486,33 @@ function buildBatchPlan(rows, items) {
     });
   }
 
-  return { creates, updates, skipped, conflicts };
+  return { creates, updates, annotations, skipped, conflicts };
 }
 
-async function updateHardRatios(env, accessToken, matches, ratio) {
-  const { spreadsheetId, sheetName } = sheetConfig(env);
+async function updateHardRatios(env, accessToken, matches, ratio, note = "") {
+  const { sheetName } = sheetConfig(env);
   const data = matches.map((row) => ({
     range: `${sheetName}!Q${row.__sheetRow}`,
     majorDimension: "ROWS",
     values: [[ratio]]
   }));
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(spreadsheetId)}/values:batchUpdate`;
-  await googleJson(url, accessToken, {
-    method: "POST",
-    body: JSON.stringify({ valueInputOption: "RAW", data })
-  });
+  data.push(...noteRanges(matches, note, sheetName));
+  await writeSheetCells(env, accessToken, data);
   return matches.map((row) => row.__sheetRow);
 }
 
-async function updateHardRatiosBatch(env, accessToken, updates) {
-  if (!updates.length) return [];
-  const { spreadsheetId, sheetName } = sheetConfig(env);
+async function updateHardRatiosBatch(env, accessToken, updates, annotations = []) {
+  const { sheetName } = sheetConfig(env);
   const data = updates.flatMap((entry) => entry.matches.map((row) => ({
     range: `${sheetName}!Q${row.__sheetRow}`,
     majorDimension: "ROWS",
     values: [[entry.ratio]]
   })));
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(spreadsheetId)}/values:batchUpdate`;
-  await googleJson(url, accessToken, {
-    method: "POST",
-    body: JSON.stringify({ valueInputOption: "RAW", data })
-  });
-  return updates.map((entry) => ({
+  for (const entry of [...updates, ...annotations]) {
+    data.push(...noteRanges(entry.matches, cleanText(entry.metadata?.notes, 500), sheetName));
+  }
+  await writeSheetCells(env, accessToken, data);
+  return [...updates, ...annotations].map((entry) => ({
     key: entry.key,
     rows: entry.matches.map((row) => row.__sheetRow)
   }));
@@ -635,7 +672,24 @@ async function handleApply(request, env) {
     }, request, env, 409);
   }
 
+  const note = cleanText(body?.metadata?.notes, 500);
   if (comparison.status === "same" || comparison.status === "worse") {
+    const { sheetName } = sheetConfig(env);
+    const data = noteRanges(matches, note, sheetName);
+    if (data.length) {
+      await writeSheetCells(env, accessToken, data);
+      const workflow = await dispatchJsonRefresh(env);
+      return jsonResponse({
+        ok: true,
+        changed: true,
+        status: "annotated",
+        ratio,
+        existingRatio: comparison.existingRatio,
+        rows: data.map((entry) => Number(entry.range.match(/V(\d+)$/)?.[1])),
+        message: "Note ajoutée au matchup existant.",
+        workflow
+      }, request, env);
+    }
     return jsonResponse({
       ok: true,
       changed: false,
@@ -650,7 +704,7 @@ async function handleApply(request, env) {
 
   let result;
   if (comparison.status === "improves") {
-    const sheetRows = await updateHardRatios(env, accessToken, matches, ratio);
+    const sheetRows = await updateHardRatios(env, accessToken, matches, ratio, note);
     result = {
       ok: true,
       changed: true,
@@ -696,7 +750,7 @@ async function handleApplyBatch(request, env) {
   const rows = rowsAsObjects(rawValues);
   const plan = buildBatchPlan(rows, normalized.items);
 
-  const updatedRows = await updateHardRatiosBatch(env, accessToken, plan.updates);
+  const updatedRows = await updateHardRatiosBatch(env, accessToken, plan.updates, plan.annotations);
   const createdRows = await appendNewCountersBatch(env, accessToken, plan.creates, rawValues);
   const updatedByKey = new Map(updatedRows.map((entry) => [entry.key, entry.rows]));
   const createdByKey = new Map(createdRows.map((entry) => [entry.key, entry.row]));
@@ -717,6 +771,13 @@ async function handleApplyBatch(request, env) {
       rows: updatedByKey.get(entry.key) || [],
       sourceIndexes: entry.sourceIndexes
     })),
+    ...plan.annotations.map((entry) => ({
+      key: entry.key,
+      status: "annotated",
+      ratio: entry.ratio,
+      rows: updatedByKey.get(entry.key) || [],
+      sourceIndexes: entry.sourceIndexes
+    })),
     ...plan.skipped.map((entry) => ({
       key: entry.key,
       status: entry.status,
@@ -734,7 +795,7 @@ async function handleApplyBatch(request, env) {
     }))
   ].sort((a, b) => (a.sourceIndexes?.[0] ?? 0) - (b.sourceIndexes?.[0] ?? 0));
 
-  const changed = plan.creates.length > 0 || plan.updates.length > 0;
+  const changed = plan.creates.length > 0 || plan.updates.length > 0 || plan.annotations.length > 0;
   const workflow = changed
     ? await dispatchJsonRefresh(env)
     : { dispatched: false, reason: "no_changes" };
@@ -748,6 +809,7 @@ async function handleApplyBatch(request, env) {
       duplicates: normalized.duplicateCount,
       created: plan.creates.length,
       updated: plan.updates.length,
+      annotated: plan.annotations.length,
       same: plan.skipped.filter((entry) => entry.status === "same").length,
       worse: plan.skipped.filter((entry) => entry.status === "worse").length,
       conflicts: plan.conflicts.length
@@ -813,6 +875,7 @@ export {
   fetchAuthMe,
   matchingRows,
   matchupKey,
+  mergeMatchupNote,
   normalizeBatchItems,
   ratioFromPowers,
   requireAdmin,
