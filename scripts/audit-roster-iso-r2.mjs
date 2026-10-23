@@ -26,7 +26,7 @@ for(const alliance of ['poseidon','zeus']){
   if(!result){console.log(JSON.stringify({alliance,verifiedCampaign:false}));continue;}
   const old=JSON.parse(execFileSync('git',['show','f4f7bca89a0e8a2a2254c0de4de9258fa996ce23^:docs/data/rosters_'+alliance+'.json'],{encoding:'utf8',maxBuffer:12*1024*1024}));
   const byPlayer=new Map(old.map(row=>[keyOf(row.playerKey||row.player),row]));
-  const shapes=new Map(),lengths=new Map(),sample=[],stats={rosters:result.records.length,characters:0,withIsoCsv:0,parseable:0,unparseable:0,withOldCsv:0,oldLess:0,oldSame:0,oldGreater:0};
+  const shapes=new Map(),lengths=new Map(),sample=[],byLength=new Map(),stats={rosters:result.records.length,characters:0,withIsoCsv:0,parseable:0,unparseable:0,withOldCsv:0,oldLess:0,oldSame:0,oldGreater:0};
   for(const member of result.records){
     const playerKey=keyOf(resolveAlias(member.name,aliases));
     const baseline=byPlayer.get(playerKey);
@@ -34,6 +34,29 @@ for(const alliance of ['poseidon','zeus']){
       stats.characters++;
       counts(shapes,c.iso8===null?'null':Array.isArray(c.iso8)?'array':typeof c.iso8);
       if(typeof c.iso8==='string'){stats.withIsoCsv++;counts(lengths,c.iso8.split(',').length);}
+      const fields=typeof c.iso8==='string'?c.iso8.split(','):[];
+      const n=fields.length;
+      const prev=baseline?.chars?.[keyOf(c.id)];
+      const row=byLength.get(n)||{total:0,validPrefix:0,knownOld:0,oldZero:0,same:0,increase:0,decrease:0,shortSamples:[]};
+      byLength.set(n,row);row.total++;
+      const entries=fields.slice(7);
+      const validPrefix=n>=8&&n<=12&&entries.every(s=>/^\d+$/.test(s.trim()))&&
+        entries.every(s=>Number.isSafeInteger(Number(s))&&Number(s)<=30);
+      if(validPrefix){
+        row.validPrefix++;
+        const mx=Math.max(0,...entries.map(Number));
+        if(prev&&Number.isSafeInteger(prev.isoMax)){
+          row.knownOld++;
+          if(prev.isoMax===0)row.oldZero++;
+          if(mx===prev.isoMax)row.same++;
+          else if(mx>prev.isoMax)row.increase++;
+          else row.decrease++;
+          if(n<12&&row.shortSamples.length<3)
+            row.shortSamples.push({isoClass:fields[6],levels:entries.map(Number),oldIsoMax:prev.isoMax,prefixMax:mx});
+        }
+      }else if(prev&&Number.isSafeInteger(prev.isoMax)){
+        row.knownOld++;if(prev.isoMax===0)row.oldZero++;
+      }
       const p=parse(c.iso8);
       if(!p){stats.unparseable++;continue;}
       stats.parseable++;
@@ -47,5 +70,5 @@ for(const alliance of ['poseidon','zeus']){
         levels:p.levels});
     }
   }
-  console.log(JSON.stringify({alliance,verifiedCampaign:true,...stats,iso8Types:Object.fromEntries(shapes),iso8CsvLengths:Object.fromEntries(lengths),anonymousSamples:sample}));
+  console.log(JSON.stringify({alliance,verifiedCampaign:true,...stats,iso8Types:Object.fromEntries(shapes),iso8CsvLengths:Object.fromEntries(lengths),byLength:Object.fromEntries(byLength),anonymousSamples:sample}));
 }
