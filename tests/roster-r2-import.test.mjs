@@ -116,8 +116,16 @@ test('character conversion takes API stars, preserves known ISO matrix fields',(
   assert.deepEqual(result.value,{power:3000000,level:110,gear:21,
     isoMax:15,yellowStars:7,redStars:7,diamonds:2});
   assert.equal(result.isoClass,'raider');
-  assert.equal(convertCharacter(chars[1],undefined),null);
+  const unknownIso=convertCharacter(chars[1],undefined);
+  assert.equal(unknownIso.value.power,1000);
+  assert.equal(unknownIso.value.level,50);
+  assert.equal(unknownIso.value.gear,10);
+  assert.equal(unknownIso.value.yellowStars,5);
+  assert.equal(unknownIso.value.redStars,5);
+  assert.equal(Object.hasOwn(unknownIso.value,'isoMax'),false);
   assert.equal(convertCharacter({...chars[1],isoMax:12},undefined).value.isoMax,12);
+  assert.equal(convertCharacter({...chars[1],gearTier:undefined},undefined),null);
+  assert.equal(convertCharacter({...chars[1],activeRed:undefined},undefined),null);
 });
 test('alliance transform reuses historical player keys and does not invent ISO levels',()=>{
   const prior=[{alliance:'zeus',player:'Keryas I',playerKey:'keryasi',
@@ -136,11 +144,31 @@ test('alliance transform reuses historical player keys and does not invent ISO l
   assert.equal(result[0].chars.spiderman.isoMax,15);
   assert.equal(result[0].iso.spiderman.isoClass,'raider');
   assert.equal(result[0].iso.spiderman.isoColor,'orange');
-  assert.equal(Object.hasOwn(result[0].chars,'newcharacter'),false);
+  // A newly discovered character with official core stats is retained,
+  // but its unknown ISO level must stay absent.
+  assert.equal(result[0].chars.newcharacter.power,1000);
+  assert.equal(Object.hasOwn(result[0].chars.newcharacter,'isoMax'),false);
+  assert.equal(result[0].iso.newcharacter.isoClass,'striker');
   assert.equal(result[1].chars.spiderman.isoMax,10);
   assert.equal(keyOf('Améline67'),'ameline67');
   assert.equal(keyOf('Lord Fanfan'),'lordfanfan');
 });
+test('new authorized player without a CSV baseline is included when core stats are known',()=>{
+  const member=row(0,'New Poseidon Captain','volatile-new');
+  member.characters=[chars[0],chars[1]];
+  const result=convertAllianceRosters('poseidon',[member],[],{aliases:{}});
+  assert.equal(result.length,1);
+  assert.equal(result[0].player,'New Poseidon Captain');
+  assert.equal(result[0].chars.spiderman.power,3000000);
+  assert.equal(result[0].chars.newcharacter.power,1000);
+  assert.equal(Object.hasOwn(result[0].chars.spiderman,'isoMax'),false);
+  assert.equal(Object.hasOwn(result[0].chars.newcharacter,'isoMax'),false);
+  assert.equal(result[0].iso.spiderman.isoClass,'raider');
+  const noCore={...member,characters:[{id:'BadCharacter',power:5000}]};
+  assert.throws(()=>convertAllianceRosters('poseidon',[noCore],[],{aliases:{}}),
+    /Member has no convertible characters/);
+});
+
 test('R2 credentials remain in Actions, requests are signed and read-only',async()=>{
   const env={LOSP_R2_ACCOUNT_ID:'a'.repeat(32),
     LOSP_R2_ACCESS_KEY_ID:'TEST_READ_ONLY',
