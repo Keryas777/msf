@@ -182,6 +182,7 @@
     sessionScrollY: 0
   };
   let captureSequence = 0;
+  let finalizationRunning = false;
 
   // Sauvegarde des brouillons, rapports et images pour récupérer une session après
   // la destruction de l'onglet par iOS. Aucun envoi supplémentaire vers un serveur.
@@ -557,20 +558,21 @@
     rankedCount.textContent = String(ranked);
     analyzedCount.textContent = String(analyzed);
     publishedCount.textContent = String(published);
-    calculateReportsButton.disabled = session.running || !allValidated || allCalculated;
+    const busy = session.running || finalizationRunning;
+    calculateReportsButton.disabled = busy || !allValidated || allCalculated;
     calculateReportsButton.textContent = allCalculated ? "Rapports calculés" : "Calculer les rapports";
-    rankReportsButton.disabled = session.running || !allCalculated || allRanked;
+    rankReportsButton.disabled = busy || !allCalculated || allRanked;
     rankReportsButton.textContent = allRanked ? "Rapports classés" : "Classer les rapports";
-    writeAnalysesButton.disabled = session.running || !allRanked || allAnalyzed;
+    writeAnalysesButton.disabled = busy || !allRanked || allAnalyzed;
     writeAnalysesButton.textContent = allAnalyzed ? "Analyses rédigées" : "Rédiger les analyses";
     const unresolved = session.captures.some((capture) =>
       !capture.excluded && !capture.mergedIntoId && !isOcrValidatedCapture(capture)
     );
-    finalizeReportsButton.disabled = session.running || !allValidated || unresolved || published === available.length;
+    finalizeReportsButton.disabled = busy || !allValidated || unresolved || published === available.length;
     finalizeReportsButton.textContent = published === available.length
       ? "Débriefs publiés"
       : (session.running ? "Finalisation en cours…" : "Classer, rédiger et publier");
-    publishReportsButton.disabled = session.running || !allAnalyzed || published === available.length;
+    publishReportsButton.disabled = busy || !allAnalyzed || published === available.length;
     publishReportsButton.textContent = session.running && allAnalyzed
       ? "Publication…"
       : (published === available.length ? "Publié" : "Publier");
@@ -700,11 +702,12 @@
   function updateControls() {
     const selectedCount = getSelectedFiles().length;
     const canSubmit = Boolean(dateInput.value) && selectedCount >= 1 && selectedCount <= MAX_CAPTURES;
+    const busy = session.running || finalizationRunning;
 
-    form.setAttribute("aria-busy", String(session.running));
-    dateInput.disabled = session.running;
-    imageInput.disabled = session.running;
-    submitButton.disabled = session.running || !canSubmit;
+    form.setAttribute("aria-busy", String(busy));
+    dateInput.disabled = busy;
+    imageInput.disabled = busy;
+    submitButton.disabled = busy || !canSubmit;
     cancelButton.disabled = !session.running;
     submitButton.textContent = session.running ? "Session en cours…" : SUBMIT_LABEL;
   }
@@ -1941,7 +1944,7 @@
   }
 
   async function handleFinalizeAndPublish() {
-    if (session.running) return;
+    if (session.running || finalizationRunning) return;
     const available = getAvailableCaptures();
     const unresolved = session.captures.some((capture) =>
       !capture.excluded && !capture.mergedIntoId && !isOcrValidatedCapture(capture)
@@ -1953,7 +1956,11 @@
       return;
     }
 
+    finalizationRunning = true;
+    updateControls();
+    renderSession();
     addLog("Finalisation automatique : calcul, classement, rédaction, publication");
+    try {
     await saveCheckpoint();
 
     if (!available.every((capture) => Boolean(capture.calculatedReport))) {
@@ -1987,6 +1994,11 @@
 
     if (available.some((capture) => capture.publication?.state !== "published")) {
       await handlePublishReports();
+    }
+    } finally {
+      finalizationRunning = false;
+      updateControls();
+      renderSession();
     }
   }
 
