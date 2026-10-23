@@ -10,6 +10,8 @@ on:
       - "tests/alliance-history-charts.test.mjs"
       - "tests/alliance-r2-import.test.mjs"
       - "tests/roster-r2-import.test.mjs"
+      - "tests/merge-rosters-optional-iso.test.mjs"
+      - "scripts/merge-rosters.mjs"
       - "scripts/lib/roster-r2-import.mjs"
       - "scripts/lib/private-r2-read.mjs"
       - "scripts/pull-rosters-r2.mjs"
@@ -36,4 +38,4 @@ jobs:
           node --check docs/alliance-history-data.js
           node --check docs/alliance-history.js
           node --check scripts/pull-rosters-r2.mjs
-          node --test tests/alliance-standings-data.test.mjs tests/alliance-history-charts.test.mjs tests/alliance-r2-import.test.mjs tests/roster-r2-import.test.mjs
+          node --test tests/alliance-standings-data.test.mjs tests/alliance-history-charts.test.mjs tests/alliance-r2-import.test.mjs tests/roster-r2-import.test.mjs tests/merge-rosters-optional-iso.test.mjs
