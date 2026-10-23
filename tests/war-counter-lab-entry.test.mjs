@@ -6,7 +6,7 @@ const html = fs.readFileSync(new URL("../docs/war-counter-lab.html", import.meta
 const entry = fs.readFileSync(new URL("../docs/war-counter-lab-entry.js", import.meta.url), "utf8");
 
 test("le labo charge l'entrée qui privilégie le Sheet direct", () => {
-  assert.match(html, /war-counter-lab-entry\.js\?v=r7-entry-16/);
+  assert.match(html, /war-counter-lab-entry\.js\?v=r7-entry-17/);
   assert.match(html, /id="counterSourceStatus"/);
   assert.match(entry, /loadLiveWarCounters/);
   assert.match(entry, /data\/war-counters\.json/);
