@@ -116,8 +116,20 @@ test('character conversion takes API stars, preserves known ISO matrix fields',(
   assert.deepEqual(result.value,{power:3000000,level:110,gear:21,
     isoMax:15,yellowStars:7,redStars:7,diamonds:2});
   assert.equal(result.isoClass,'raider');
-  assert.equal(convertCharacter(chars[1],undefined),null);
+  const newCharacter=convertCharacter(chars[1],undefined);
+  assert.equal(newCharacter.key,'newcharacter');
+  assert.deepEqual(newCharacter.value,{
+    power:1000,level:50,gear:10,yellowStars:5,redStars:5,diamonds:0
+  });
+  assert.equal(Object.hasOwn(newCharacter.value,'isoMax'),false,
+    'Unknown API ISO matrix tier must remain absent, not invented as 0');
+  assert.equal(convertCharacter({...chars[1],iso8:{class:'striker',level:5}},undefined)
+    .value.isoMax,undefined,'ISO class level is not the matrix tier');
   assert.equal(convertCharacter({...chars[1],isoMax:12},undefined).value.isoMax,12);
+  assert.equal(convertCharacter({...chars[0],isoMax:17},old).value.isoMax,17,
+    'An explicit numeric matrix tier can update an existing character');
+  assert.equal(convertCharacter({id:'MissingCore',power:120},undefined),null,
+    'New characters without validated core fields still require manual review');
 });
 test('alliance transform reuses historical player keys and does not invent ISO levels',()=>{
   const prior=[{alliance:'zeus',player:'Keryas I',playerKey:'keryasi',
@@ -136,7 +148,9 @@ test('alliance transform reuses historical player keys and does not invent ISO l
   assert.equal(result[0].chars.spiderman.isoMax,15);
   assert.equal(result[0].iso.spiderman.isoClass,'raider');
   assert.equal(result[0].iso.spiderman.isoColor,'orange');
-  assert.equal(Object.hasOwn(result[0].chars,'newcharacter'),false);
+  assert.equal(Object.hasOwn(result[0].chars,'newcharacter'),true);
+  assert.equal(result[0].chars.newcharacter.power,1000);
+  assert.equal(Object.hasOwn(result[0].chars.newcharacter,'isoMax'),false);
   assert.equal(result[1].chars.spiderman.isoMax,10);
   assert.equal(keyOf('Améline67'),'ameline67');
   assert.equal(keyOf('Lord Fanfan'),'lordfanfan');
