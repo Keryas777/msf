@@ -74,20 +74,28 @@ function mergePlayerEntry(target, source) {
     const srcPower = toInt(srcChar.power);
     const srcLevel = toInt(srcChar.level);
     const srcGear = toInt(srcChar.gear);
-    const srcIsoMax = toInt(srcChar.isoMax);
+    // An unknown ISO matrix tier must not become 0 during the public merge.
+    // Numeric 0, when explicitly supplied, remains a legitimate known value.
+    const isoKnown = srcChar.isoMax !== null && srcChar.isoMax !== undefined &&
+      srcChar.isoMax !== "" && Number.isSafeInteger(Number(srcChar.isoMax)) &&
+      Number(srcChar.isoMax) >= 0;
+    const srcIsoMax = isoKnown ? Number(srcChar.isoMax) : null;
     const srcYellowStars = toInt(srcChar.yellowStars);
     const srcRedStars = toInt(srcChar.redStars);
     const srcDiamonds = toInt(srcChar.diamonds);
 
     const prev = target.chars[charKey];
     const prevPower = prev ? toInt(prev.power) : -1;
+    const prevIsoKnown = prev?.isoMax !== null && prev?.isoMax !== undefined &&
+      Number.isSafeInteger(Number(prev.isoMax)) && Number(prev.isoMax) >= 0;
 
     if (!prev || srcPower > prevPower) {
       target.chars[charKey] = {
         power: srcPower,
         level: srcLevel,
         gear: srcGear,
-        isoMax: srcIsoMax,
+        ...(isoKnown ? { isoMax: srcIsoMax } :
+          prevIsoKnown ? { isoMax: Number(prev.isoMax) } : {}),
         yellowStars: srcYellowStars,
         redStars: srcRedStars,
         diamonds: srcDiamonds,
@@ -106,7 +114,7 @@ function mergePlayerEntry(target, source) {
     if (srcPower === prevPower) {
       prev.level = Math.max(toInt(prev.level), srcLevel);
       prev.gear = Math.max(toInt(prev.gear), srcGear);
-      prev.isoMax = Math.max(toInt(prev.isoMax), srcIsoMax);
+      if (isoKnown) prev.isoMax = Math.max(prevIsoKnown ? Number(prev.isoMax) : 0, srcIsoMax);
       prev.yellowStars = Math.max(toInt(prev.yellowStars), srcYellowStars);
       prev.redStars = Math.max(toInt(prev.redStars), srcRedStars);
       prev.diamonds = Math.max(toInt(prev.diamonds), srcDiamonds);
