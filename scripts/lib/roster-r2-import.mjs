@@ -109,7 +109,15 @@ export function resolveAlias(name,aliases){
     seen.add(key);
     const next=map.get(key);
     if(typeof next!=='string'||!next.trim())break;
-    value=cleanName(next);
+    const canonical=cleanName(next);
+    // Display-only alias variants can normalize to their own target
+    // (e.g. "⚔️Zabuza⚔️" -> "Zabuza"). This is a terminal mapping,
+    // not an identity cycle. Keep the canonical spelling and stop.
+    if(keyOf(canonical)===key){
+      value=canonical;
+      break;
+    }
+    value=canonical;
   }
   return value;
 }
