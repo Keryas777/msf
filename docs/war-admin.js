@@ -183,6 +183,115 @@
   };
   let captureSequence = 0;
 
+  // Sauvegarde des brouillons, rapports et images pour récupérer une session après
+  // la destruction de l'onglet par iOS. Aucun envoi supplémentaire vers un serveur.
+  let checkpointDbPromise = null;
+  let checkpointWriteQueue = Promise.resolve();
+  const CHECKPOINT_DB = "losp-war-admin-checkpoints";
+  const CHECKPOINT_STORE = "sessions";
+
+  function openCheckpointDb() {
+    if (!globalThis.indexedDB) return Promise.resolve(null);
+    if (!checkpointDbPromise) {
+      checkpointDbPromise = new Promise((resolve, reject) => {
+        const request = globalThis.indexedDB.open(CHECKPOINT_DB, 1);
+        request.onupgradeneeded = () => request.result.createObjectStore(CHECKPOINT_STORE);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      }).catch((error) => {
+        checkpointDbPromise = null;
+        throw error;
+      });
+    }
+    return checkpointDbPromise;
+  }
+
+  function saveCheckpoint() {
+    const captures = session.captures.map(({ previewUrl, sources, ...capture }) => ({
+      ...capture,
+      fileName: capture.file?.name || capture.fileName || "",
+      sources: Array.isArray(sources)
+        ? sources.map(({ previewUrl: sourceUrl, ...source }) => source)
+        : null
+    }));
+    const payload = {
+      schemaVersion: 1,
+      warDate: session.warDate || dateInput.value,
+      updatedAt: Date.now(),
+      captures,
+      logs: session.logs.slice(-200)
+    };
+    const write = async () => {
+      const db = await openCheckpointDb();
+      if (!db) return false;
+      await new Promise((resolve, reject) => {
+        const transaction = db.transaction(CHECKPOINT_STORE, "readwrite");
+        transaction.objectStore(CHECKPOINT_STORE).put(payload, "current");
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+        transaction.onabort = () => reject(transaction.error);
+      });
+      return true;
+    };
+    checkpointWriteQueue = checkpointWriteQueue.catch(() => {}).then(write);
+    return checkpointWriteQueue.catch((error) => {
+      console.warn("Sauvegarde locale du débrief impossible", error);
+      return false;
+    });
+  }
+
+  async function restoreCheckpoint() {
+    try {
+      const db = await openCheckpointDb();
+      if (!db) return;
+      const saved = await new Promise((resolve, reject) => {
+        const transaction = db.transaction(CHECKPOINT_STORE, "readonly");
+        const request = transaction.objectStore(CHECKPOINT_STORE).get("current");
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      if (!saved || saved.schemaVersion !== 1 || !Array.isArray(saved.captures) ||
+          !saved.captures.length || session.captures.length || getSelectedFiles().length) return;
+
+      session.captures = saved.captures.map((capture) => {
+        const file = capture.file;
+        const previewUrl = file && typeof file.size === "number"
+          ? URL.createObjectURL(file) : "";
+        return {
+          ...capture,
+          file: file || { name: capture.fileName || "Capture restaurée", size: 0 },
+          previewUrl,
+          state: capture.state === "writing" ? "ranked" :
+            (capture.state === "publishing" ? "analyzed" : capture.state),
+          publication: capture.publication?.state === "publishing"
+            ? { state: "pending", path: null, commit_sha: null, error: null }
+            : capture.publication
+        };
+      });
+      const previews = new Map(session.captures.map((capture) => [capture.id, capture.previewUrl]));
+      for (const capture of session.captures) {
+        if (Array.isArray(capture.sources)) {
+          capture.sources = capture.sources.map((source) => ({
+            ...source,
+            previewUrl: previews.get(source.id) || ""
+          }));
+        }
+      }
+      captureSequence = Math.max(captureSequence, ...session.captures.map((capture) => Number(capture.id) || 0));
+      session.logs = Array.isArray(saved.logs) ? saved.logs : [];
+      session.warDate = saved.warDate || "";
+      dateInput.value = session.warDate || getLocalDateValue();
+      fileMeta.textContent = "Session précédente récupérée depuis cet appareil.";
+      setStatus("warning", "Session récupérée", "Reprise",
+        "Les étapes terminées sont conservées. Après vérification, tu peux reprendre avec « Classer, rédiger et publier ».");
+      renderLog();
+      renderSession();
+      updateControls();
+    } catch (error) {
+      console.warn("Restauration locale du débrief impossible", error);
+    }
+  }
+
   class SessionCancelledError extends Error {
     constructor() {
       super("Session interrompue");
@@ -1361,6 +1470,7 @@
     const fragmentCount = session.captures.filter((item) => item.alliance === capture.alliance && item.fragmentDraft).length;
     if (fragmentCount > 1) mergeAllianceFragments(capture.alliance);
     updateSessionReviewStatus();
+    void saveCheckpoint();
   }
 
   function handleSourceTabsClick(event) {
@@ -1409,6 +1519,7 @@
     addLog(`Ligne ${parsed.row.rank} modifiée`, capture);
     closeEditor();
     updateSessionReviewStatus();
+    void saveCheckpoint();
   }
 
   function handleEditorReset() {
@@ -1422,6 +1533,7 @@
     addLog(`Ligne ${original.rank} restaurée aux valeurs OCR`, capture);
     closeEditor();
     updateSessionReviewStatus();
+    void saveCheckpoint();
   }
 
   function handleValidateDraft() {
@@ -1445,6 +1557,7 @@
     addLog("Brouillon OCR validé — aucun calcul ni publication", capture);
     renderReview();
     updateSessionReviewStatus();
+    void saveCheckpoint();
   }
 
   async function handleCalculateReports() {
@@ -1490,6 +1603,7 @@
         }
       }
 
+      await saveCheckpoint();
       if (errors.length) {
         setStatus("error", "Calcul incomplet", "Erreur", errors.join(" ") + " Aucun rapport n’a été publié.");
       } else {
@@ -1531,6 +1645,7 @@
       }
     }
     if (errors.length > 0) setStatus("error", "Classement incomplet", "Erreur", errors.join(" "));
+    void saveCheckpoint();
     renderSession();
   }
 
@@ -1671,6 +1786,7 @@
         capture.state = "analyzed";
         capture.detail = "Analyses validées et fusionnées en mémoire. Publication non effectuée.";
         addLog("Analyses validées et fusionnées — publication non effectuée", capture);
+        await saveCheckpoint();
         renderSession();
         return true;
       } catch (error) {
@@ -1767,6 +1883,7 @@
       capture.state = "published";
       capture.detail = `Publié sur la branche de travail : ${data.path}.`;
       addLog(`Publié — ${data.path}`, capture);
+      await saveCheckpoint();
       renderSession();
       return true;
     } catch (error) {
@@ -1775,6 +1892,7 @@
       capture.state = "publish_error";
       capture.detail = `Publication échouée. ${message}`;
       addLog(`Erreur de publication : ${message}`, capture);
+      await saveCheckpoint();
       renderSession();
       return false;
     } finally {
@@ -1886,6 +2004,7 @@
     if (!detectedAlliance) {
       requireManualAlliance(capture, "");
       addLog("Alliance incertaine : choix manuel demandé uniquement pour cette capture", capture);
+      void saveCheckpoint();
       renderSession();
       return;
     }
@@ -1897,6 +2016,7 @@
     } else {
       addLog("Brouillon fusionné créé — published = false", capture);
     }
+    void saveCheckpoint();
     renderSession();
   }
 
@@ -2047,6 +2167,7 @@
     setStatus("running", "File OCR en cours", "OCR", "Préparation de la première capture.");
     renderSession();
     updateControls();
+    await saveCheckpoint();
 
     try {
       for (let index = 0; index < session.captures.length; index += 1) {
@@ -2111,6 +2232,7 @@
     addLog(`Alliance confirmée manuellement : ${capture.allianceLabel}`, capture);
     if (primary.id !== capture.id) addLog(`Fragment fusionné avec la capture ${primary.index + 1}`, capture);
     else addLog("Brouillon fusionné créé — published = false", capture);
+    void saveCheckpoint();
     renderSession();
     if (!session.running) updateFinalStatus();
   }
@@ -2141,7 +2263,8 @@
     session.cancelled = true;
     if (session.abortController) session.abortController.abort();
     if (session.cancelWait) session.cancelWait();
-    releaseCaptureUrls();
+    void saveCheckpoint();
+    // Ne pas révoquer les miniatures : la page peut rester vivante en bfcache iOS.
   }
 
   dateInput.value = getLocalDateValue();
@@ -2184,6 +2307,7 @@
   window.addEventListener("focus", handlePageResume);
   window.addEventListener("pageshow", handlePageResume);
   window.addEventListener("pagehide", handlePageHide);
+  void restoreCheckpoint();
 
   if (testConfig.exposeState) {
     window.__MSF_WAR_ADMIN_TEST_API__ = {
