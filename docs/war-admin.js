@@ -1833,7 +1833,12 @@
           await waitWithCountdown(delay, capture, (remaining) => `Alliance suivante dans ${formatSeconds(remaining)}.`);
         }
       }
-      setStatus("success", "Analyses terminées", "Prêt", "Les rapports finaux restent uniquement en mémoire.");
+      if (available.every((capture) => Boolean(capture.finalReport))) {
+        setStatus("success", "Analyses terminées", "Prêt", "Rapports disponibles et sauvegardés localement.");
+      } else {
+        setStatus("warning", "Rédaction incomplète", "À reprendre",
+          "Au moins une rédaction a échoué. Les résultats obtenus sont conservés, publication en attente.");
+      }
     } catch (error) {
       if (error instanceof SessionCancelledError) {
         for (const capture of pending) {
