@@ -86,6 +86,7 @@
   const rankedCount = document.getElementById("warRankedCount");
   const analyzedCount = document.getElementById("warAnalyzedCount");
   const publishedCount = document.getElementById("warPublishedCount");
+  const finalizeReportsButton = document.getElementById("warFinalizeReports");
   const calculateReportsButton = document.getElementById("warCalculateReports");
   const rankReportsButton = document.getElementById("warRankReports");
   const writeAnalysesButton = document.getElementById("warWriteAnalyses");
@@ -453,6 +454,13 @@
     rankReportsButton.textContent = allRanked ? "Rapports classés" : "Classer les rapports";
     writeAnalysesButton.disabled = session.running || !allRanked || allAnalyzed;
     writeAnalysesButton.textContent = allAnalyzed ? "Analyses rédigées" : "Rédiger les analyses";
+    const unresolved = session.captures.some((capture) =>
+      !capture.excluded && !capture.mergedIntoId && !isOcrValidatedCapture(capture)
+    );
+    finalizeReportsButton.disabled = session.running || !allValidated || unresolved || published === available.length;
+    finalizeReportsButton.textContent = published === available.length
+      ? "Débriefs publiés"
+      : (session.running ? "Finalisation en cours…" : "Classer, rédiger et publier");
     publishReportsButton.disabled = session.running || !allAnalyzed || published === available.length;
     publishReportsButton.textContent = session.running && allAnalyzed
       ? "Publication…"
@@ -1809,6 +1817,56 @@
     renderSession();
   }
 
+  async function handleFinalizeAndPublish() {
+    if (session.running) return;
+    const available = getAvailableCaptures();
+    const unresolved = session.captures.some((capture) =>
+      !capture.excluded && !capture.mergedIntoId && !isOcrValidatedCapture(capture)
+    );
+    if (!available.length || unresolved || !available.every(isOcrValidatedCapture)) {
+      setStatus("warning", "OCR à vérifier", "Validation requise",
+        "Valide chaque OCR ou exclus explicitement une capture avant la finalisation.");
+      renderSession();
+      return;
+    }
+
+    addLog("Finalisation automatique : calcul, classement, rédaction, publication");
+    await saveCheckpoint();
+
+    if (!available.every((capture) => Boolean(capture.calculatedReport))) {
+      await handleCalculateReports();
+    }
+    if (session.cancelled || !available.every((capture) => Boolean(capture.calculatedReport))) {
+      setStatus("warning", "Finalisation en pause", "Calcul", "Corrige le calcul, puis relance la finalisation.");
+      renderSession();
+      return;
+    }
+
+    if (!available.every((capture) => Boolean(capture.rankedReport))) {
+      handleRankReports();
+    }
+    await saveCheckpoint();
+    if (session.cancelled || !available.every((capture) => Boolean(capture.rankedReport))) {
+      setStatus("warning", "Finalisation en pause", "Classement", "Corrige l’erreur, puis relance la finalisation.");
+      renderSession();
+      return;
+    }
+
+    if (!available.every((capture) => Boolean(capture.finalReport))) {
+      await handleWriteAnalyses();
+    }
+    if (session.cancelled || !available.every((capture) => Boolean(capture.finalReport))) {
+      setStatus("warning", "Finalisation en pause", "Rédaction",
+        "Publication bloquée : une analyse manque. Les analyses terminées restent récupérables.");
+      renderSession();
+      return;
+    }
+
+    if (available.some((capture) => capture.publication?.state !== "published")) {
+      await handlePublishReports();
+    }
+  }
+
   function handleReviewUnlock() {
     const capture = getActiveCapture();
     if (!capture?.validatedDraft) return;
@@ -2106,6 +2164,7 @@
   sourceTabs.addEventListener("click", handleSourceTabsClick);
   reviewBackButton.addEventListener("click", closeReview);
   reviewBackBottomButton.addEventListener("click", closeReview);
+  finalizeReportsButton.addEventListener("click", handleFinalizeAndPublish);
   calculateReportsButton.addEventListener("click", handleCalculateReports);
   rankReportsButton.addEventListener("click", handleRankReports);
   writeAnalysesButton.addEventListener("click", handleWriteAnalyses);
