@@ -24,7 +24,7 @@ const window=rosterWindow('2026-10-23','pm');
 for(const alliance of ['poseidon','zeus']){
   const result=await loadRosterCampaign(r2,mapping[alliance],window);
   if(!result){console.log(JSON.stringify({alliance,verifiedCampaign:false}));continue;}
-  const old=JSON.parse(execFileSync('git',['show','f4f7bca89a0e8a2a2254c0de4de9258fa996ce23^:docs/data/rosters_'+alliance+'.json'],{encoding:'utf8'}));
+  const old=JSON.parse(execFileSync('git',['show','f4f7bca89a0e8a2a2254c0de4de9258fa996ce23^:docs/data/rosters_'+alliance+'.json'],{encoding:'utf8',maxBuffer:12*1024*1024}));
   const byPlayer=new Map(old.map(row=>[keyOf(row.playerKey||row.player),row]));
   const shapes=new Map(),lengths=new Map(),sample=[],stats={rosters:result.records.length,characters:0,withIsoCsv:0,parseable:0,unparseable:0,withOldCsv:0,oldLess:0,oldSame:0,oldGreater:0};
   for(const member of result.records){
