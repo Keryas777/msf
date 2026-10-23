@@ -36,7 +36,7 @@ for(const alliance of ['poseidon','zeus']){
       if(typeof c.iso8==='string'){stats.withIsoCsv++;counts(lengths,c.iso8.split(',').length);}
       const fields=typeof c.iso8==='string'?c.iso8.split(','):[];
       const n=fields.length;
-      const prev=baseline?.chars?.[keyOf(c.id)];
+      const priorChar=baseline?.chars?.[keyOf(c.id)];
       const row=byLength.get(n)||{total:0,validPrefix:0,knownOld:0,oldZero:0,same:0,increase:0,decrease:0,shortSamples:[]};
       byLength.set(n,row);row.total++;
       const entries=fields.slice(7);
@@ -45,17 +45,17 @@ for(const alliance of ['poseidon','zeus']){
       if(validPrefix){
         row.validPrefix++;
         const mx=Math.max(0,...entries.map(Number));
-        if(prev&&Number.isSafeInteger(prev.isoMax)){
+        if(priorChar&&Number.isSafeInteger(priorChar.isoMax)){
           row.knownOld++;
-          if(prev.isoMax===0)row.oldZero++;
-          if(mx===prev.isoMax)row.same++;
-          else if(mx>prev.isoMax)row.increase++;
+          if(priorChar.isoMax===0)row.oldZero++;
+          if(mx===priorChar.isoMax)row.same++;
+          else if(mx>priorChar.isoMax)row.increase++;
           else row.decrease++;
           if(n<12&&row.shortSamples.length<3)
-            row.shortSamples.push({isoClass:fields[6],levels:entries.map(Number),oldIsoMax:prev.isoMax,prefixMax:mx});
+            row.shortSamples.push({isoClass:fields[6],levels:entries.map(Number),oldIsoMax:priorChar.isoMax,prefixMax:mx});
         }
-      }else if(prev&&Number.isSafeInteger(prev.isoMax)){
-        row.knownOld++;if(prev.isoMax===0)row.oldZero++;
+      }else if(priorChar&&Number.isSafeInteger(priorChar.isoMax)){
+        row.knownOld++;if(priorChar.isoMax===0)row.oldZero++;
       }
       const p=parse(c.iso8);
       if(!p){stats.unparseable++;continue;}
