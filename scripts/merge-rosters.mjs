@@ -74,7 +74,12 @@ function mergePlayerEntry(target, source) {
     const srcPower = toInt(srcChar.power);
     const srcLevel = toInt(srcChar.level);
     const srcGear = toInt(srcChar.gear);
-    const srcIsoMax = toInt(srcChar.isoMax);
+    // R2 may omit ISO matrix progress for a newly observed character.
+    // An absent value means unknown, not ISO level zero.
+    const hasIsoMax = srcChar.isoMax !== undefined && srcChar.isoMax !== null &&
+      srcChar.isoMax !== "" && Number.isSafeInteger(Number(srcChar.isoMax)) &&
+      Number(srcChar.isoMax) >= 0;
+    const srcIsoMax = hasIsoMax ? toInt(srcChar.isoMax) : null;
     const srcYellowStars = toInt(srcChar.yellowStars);
     const srcRedStars = toInt(srcChar.redStars);
     const srcDiamonds = toInt(srcChar.diamonds);
@@ -87,7 +92,8 @@ function mergePlayerEntry(target, source) {
         power: srcPower,
         level: srcLevel,
         gear: srcGear,
-        isoMax: srcIsoMax,
+        ...(hasIsoMax ? {isoMax: srcIsoMax} :
+          prev?.isoMax !== undefined ? {isoMax: toInt(prev.isoMax)} : {}),
         yellowStars: srcYellowStars,
         redStars: srcRedStars,
         diamonds: srcDiamonds,
@@ -106,7 +112,7 @@ function mergePlayerEntry(target, source) {
     if (srcPower === prevPower) {
       prev.level = Math.max(toInt(prev.level), srcLevel);
       prev.gear = Math.max(toInt(prev.gear), srcGear);
-      prev.isoMax = Math.max(toInt(prev.isoMax), srcIsoMax);
+      if (hasIsoMax) prev.isoMax = Math.max(toInt(prev.isoMax), srcIsoMax);
       prev.yellowStars = Math.max(toInt(prev.yellowStars), srcYellowStars);
       prev.redStars = Math.max(toInt(prev.redStars), srcRedStars);
       prev.diamonds = Math.max(toInt(prev.diamonds), srcDiamonds);
