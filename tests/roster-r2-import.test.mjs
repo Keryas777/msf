@@ -59,6 +59,46 @@ test('only current completed same-campaign manifests are usable',async()=>{
     fixture().getJSON(k);
   assert.equal(await loadRosterCampaign(missing,fp,window,now),null);
 });
+test('authorized-only manifest is valid only for every consenting roster, not all 24 players',async()=>{
+  const limitedProgress={...progress,observedMembers:3};
+  const limitedManifest={...manifest,observedMembers:3,
+    coverage:'authorized-only',notSharedCount:1};
+  assert.equal(validManifestAndProgress(limitedProgress,limitedManifest,fp,window,now),true);
+  const result=await loadRosterCampaign(fixture(limitedProgress,limitedManifest),fp,window,now);
+  assert.equal(result.records.length,2);
+  assert.equal(result.records[0].name,'Keryas I');
+  for(const invalid of [
+    {...limitedManifest,notSharedCount:0},
+    {...limitedManifest,coverage:'all-members'},
+    {...limitedManifest,coverage:undefined},
+    {...limitedManifest,observedMembers:2},
+    {...limitedManifest,total:3},
+    {...limitedManifest,coMembers:2}
+  ])assert.equal(validManifestAndProgress(limitedProgress,invalid,fp,window,now),false);
+  assert.equal(validManifestAndProgress(progress,
+    {...manifest,coverage:'all-members',notSharedCount:0},fp,window,now),true);
+  assert.equal(validManifestAndProgress(progress,
+    {...manifest,coverage:'authorized-only',notSharedCount:0},fp,window,now),false);
+});
+
+test('Poséidon-style 22 shared co-members, one OAuth and one opt-out passes strict verification',async()=>{
+  const p={...progress,totalEligible:22,completed:22,observedMembers:24};
+  const m={...manifest,total:23,coMembers:22,observedMembers:24,
+    coverage:'authorized-only',notSharedCount:1};
+  assert.equal(validManifestAndProgress(p,m,fp,window,now),true);
+  const root='roster-batches/v1/'+fp+'/';
+  const map=new Map([[root+'progress.json',p],[root+'latest-complete.json',m]]);
+  for(let i=0;i<22;i++)map.set(root+runId+'/member-'+i+'.json',
+    row(i,'Roster '+i,'co'+i));
+  map.set(root+runId+'/member-self.json',row('self','Captain','self'));
+  const load=async key=>map.get(key)||null;
+  const result=await loadRosterCampaign({getJSON:load},fp,window,now);
+  assert.equal(result.records.length,23);
+  assert.equal(result.records.filter(x=>x.memberIndex==='self').length,1);
+  map.delete(root+runId+'/member-7.json');
+  assert.equal(await loadRosterCampaign({getJSON:load},fp,window,now),null);
+});
+
 test('partial or duplicated roster data refuses publication',async()=>{
   const bad=[row(0,'Keryas I','id-1'),row('self','Keryas I','id-2')];
   await assert.rejects(loadRosterCampaign(fixture(progress,manifest,bad),fp,window,now),
