@@ -32,8 +32,9 @@ export function validManifestAndProgress(progress,manifest,fp,window,now=Date.no
     progress.completed!==progress.totalEligible||
     manifest.coMembers!==progress.completed||
     manifest.total!==progress.completed+1||
-    progress.observedMembers!==manifest.total||
-    manifest.observedMembers!==manifest.total||
+    !num(progress.observedMembers)||
+    manifest.observedMembers!==progress.observedMembers||
+    manifest.observedMembers<manifest.total||manifest.observedMembers>100||
     !Number.isFinite(stamp(manifest.capturedAt))||
     stamp(manifest.capturedAt)<stamp(window.start)||
     stamp(manifest.capturedAt)>=stamp(window.endExclusive)||
@@ -41,7 +42,16 @@ export function validManifestAndProgress(progress,manifest,fp,window,now=Date.no
     stamp(progress.expiresAt)<=now||
     manifest.expiresAt!==progress.expiresAt)
     return false;
-  return true;
+  // Older manifests without coverage fields represented full sharing.
+  // New authorized-only manifests attest ONLY the rosters actually collected.
+  // A missing consent must be explicit, never silently treated as a player.
+  const omitted=manifest.observedMembers-manifest.total;
+  if(manifest.coverage===undefined)
+    return omitted===0&&manifest.notSharedCount===undefined;
+  if(manifest.coverage==='all-members')
+    return omitted===0&&manifest.notSharedCount===0;
+  return manifest.coverage==='authorized-only'&&omitted>0&&
+    num(manifest.notSharedCount)&&manifest.notSharedCount===omitted;
 }
 export function validateRosterRecord(row,fp,runId,index,window,now=Date.now()){
   if(!object(row)||row.version!==1||row.allianceFingerprint!==fp||
