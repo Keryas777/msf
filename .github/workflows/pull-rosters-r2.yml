@@ -85,7 +85,7 @@ jobs:
           DATA_DIR: docs/data
           OUT_FILE: docs/data/rosters.json
         run: |
-          node --test tests/roster-r2-import.test.mjs
+          node --test tests/roster-r2-import.test.mjs tests/merge-rosters-optional-iso.test.mjs
           node --check scripts/pull-rosters-r2.mjs
           node --check scripts/lib/roster-r2-import.mjs
           node --check scripts/lib/private-r2-read.mjs
