@@ -115,6 +115,7 @@ function createHarness(options = {}) {
     "warRankedCount",
     "warAnalyzedCount",
     "warPublishedCount",
+    "warFinalizeReports",
     "warCalculateReports",
     "warRankReports",
     "warWriteAnalyses",
@@ -1241,6 +1242,71 @@ test("la rédaction ne retry pas une erreur Workers AI permanente", async () => 
   const permanent = await runAnalysisRetryCase("WORKERS_AI_ERROR", 44);
   assert.deepEqual(permanent.timerCalls, []);
   assert.equal(permanent.fetchCalls.filter(({ url }) => url.includes("write-analyses")).length, 1);
+});
+
+
+test("un clic après la validation OCR enchaîne calcul, classement, rédaction et publication", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async (url, options) => {
+    if (url.includes("parse-gemini-draft")) return Response.json(draftPayload("zeus", "Zeus"));
+    if (url.includes("write-analyses")) {
+      const payload = JSON.parse(options.body);
+      return Response.json({
+        analyses: payload.report.players.map(({ rank, name }) => ({
+          rank, name, analysis: `Analyse de ${name}.`
+        }))
+      });
+    }
+    return Response.json({
+      ok: true, published: true,
+      path: "docs/data/war/2026-08-02/zeus.json",
+      commit_sha: "commit-automatic"
+    });
+  });
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  assert.equal(harness.elements.warFinalizeReports.disabled, false);
+
+  await harness.listener("warFinalizeReports", "click")();
+  const snapshot = harness.getSnapshot();
+  assert.equal(snapshot.published, true);
+  assert.equal(snapshot.captures[0].publication.commit_sha, "commit-automatic");
+  assert.ok(snapshot.captures[0].calculatedReport);
+  assert.ok(snapshot.captures[0].rankedReport);
+  assert.ok(snapshot.captures[0].finalReport);
+  assert.deepEqual(harness.fetchCalls.map((call) => new URL(call.url).pathname), [
+    "/api/war/parse-gemini-draft",
+    "/api/war/write-analyses-stream",
+    "/api/war/publish-report"
+  ]);
+});
+
+test("la publication reste bloquée en un clic si une rédaction IA échoue", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async (url) => {
+    if (url.includes("parse-gemini-draft")) return Response.json(draftPayload("zeus", "Zeus"));
+    return Response.json({
+      code: "WORKERS_AI_DAILY_LIMIT",
+      error: "Quota atteint"
+    }, { status: 429 });
+  });
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  await harness.listener("warFinalizeReports", "click")();
+
+  assert.equal(harness.getSnapshot().published, false);
+  assert.equal(harness.getSnapshot().captures[0].finalReport, null);
+  assert.equal(harness.fetchCalls.filter((call) => call.url.includes("publish-report")).length, 0);
 });
 
 test("un rapport final est publié sans recalcul ni modification", async () => {
