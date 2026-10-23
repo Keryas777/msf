@@ -148,10 +148,10 @@ export function convertCharacter(raw,prior){
   if(num(gear))value.gear=gear;
   if(num(yellow))value.yellowStars=yellow;
   if(num(red)){value.redStars=Math.min(red,7);value.diamonds=num(diamond)?diamond:0;}
-  // ISO matrix progress is not demonstrated by the currently stored API
-  // schema: preserve earlier ISO levels, never derive them from ISO class level.
-  if(!prior&&num(raw.isoMax))value.isoMax=raw.isoMax;
-  if(!prior&&!num(raw.isoMax))return null;
+  // Only an explicit numeric ISO matrix level can update isoMax.
+  // ISO class/selected-class level are NOT a substitute for matrix progress.
+  // If the source has no matrix level, keep a prior known value or omit it.
+  if(num(raw.isoMax))value.isoMax=raw.isoMax;
   return {key,value,isoClass:
     typeof raw.iso8?.activeClass==='string'?raw.iso8.activeClass:
     typeof raw.iso8?.class==='string'?raw.iso8.class:null,
