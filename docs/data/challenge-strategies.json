@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-19",
+  "updatedAt": "2026-10-24",
   "policy": "Aucun lien source ne doit être déduit d'une référence d'événement. Seule une correspondance exacte à une composition du catalogue établit une association éditoriale, non une preuve de victoire.",
   "strategies": [
     {
@@ -2705,6 +2705,180 @@
       }
     },
     {
+      "id": "kyln-blazes/1/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "1",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Éternels intemporels — équipe principale DRENGR",
+      "characters": [
+        "Thena",
+        "Gilgamesh",
+        "Sersi",
+        "Kingo",
+        "Ikaris"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 1 ; équipe principale (à gauche).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_1_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/1/v3",
+      "eventId": "kyln-blazes",
+      "stageId": "1",
+      "origin": "community_infographic",
+      "label": "Alternative n°1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "SuperiorSpiderMan",
+        "Scorpion",
+        "Hobgoblin",
+        "SuperSkrull",
+        "OmegaSentinel"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 1 ; alternative 1 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image.",
+        "Identification de la femme en armure sombre comme Sentinelle Oméga à confirmer d'après le portrait réduit."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_with_uncertain_portrait",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_1_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide",
+          "portrait_identity_to_recheck_omega_sentinel"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/1/v4",
+      "eventId": "kyln-blazes",
+      "stageId": "1",
+      "origin": "community_infographic",
+      "label": "Alternative n°2 de l'infographie",
+      "teamName": "Alternative 2 — DRENGR",
+      "characters": [
+        "Nightcrawler",
+        "Sunfire",
+        "Sunspot",
+        "StormMighty",
+        "Ultron"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 1 ; alternative 2 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_1_alternative_2_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/1/v5",
+      "eventId": "kyln-blazes",
+      "stageId": "1",
+      "origin": "community_infographic",
+      "label": "Alternative n°3 de l'infographie",
+      "teamName": "Alternative 3 — DRENGR",
+      "characters": [
+        "Vision",
+        "Ultron",
+        "SilverSurferBreaker",
+        "SuperSkrull",
+        "BladeMighty"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 1 ; alternative 3 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_1_alternative_3_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
       "id": "kyln-blazes/1/v1",
       "eventId": "kyln-blazes",
       "stageId": "1",
@@ -2747,6 +2921,135 @@
           "partial_or_unspecified_team",
           "three_versus_five_team_size_conflict",
           "source_text_read_via_search_index_direct_url_402"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/2/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "2",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Super-Skrull, Tornade, Blade et deux Briseurs — équipe principale DRENGR",
+      "characters": [
+        "SuperSkrull",
+        "StormMighty",
+        "BladeMighty",
+        "SilverSurferBreaker",
+        "ScorpionBreaker"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 2 ; équipe principale (à gauche).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_2_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/2/v3",
+      "eventId": "kyln-blazes",
+      "stageId": "2",
+      "origin": "community_infographic",
+      "label": "Alternative n°1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "IronFist",
+        "IronFistOrson",
+        "SteelSerpent",
+        "SwordMaster",
+        "LadyBullseye"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 2 ; alternative 1 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_2_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/2/v4",
+      "eventId": "kyln-blazes",
+      "stageId": "2",
+      "origin": "community_infographic",
+      "label": "Alternative n°2 de l'infographie",
+      "teamName": "Alternative 2 — DRENGR",
+      "characters": [
+        "Sasquatch",
+        "Northstar",
+        "ScorpionBreaker",
+        "SuperSkrull",
+        "Dormammu"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 2 ; alternative 2 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_2_alternative_2_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
         ]
       }
     },
@@ -2798,6 +3101,178 @@
       }
     },
     {
+      "id": "kyln-blazes/3/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "3",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Insidious Six + Ultron + Vision — équipe principale DRENGR",
+      "characters": [
+        "Hobgoblin",
+        "SuperiorSpiderMan",
+        "Scorpion",
+        "Ultron",
+        "Vision"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 3 ; équipe principale (à gauche).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_3_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/3/v3",
+      "eventId": "kyln-blazes",
+      "stageId": "3",
+      "origin": "community_infographic",
+      "label": "Alternative n°1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "BladeMighty",
+        "StormMighty",
+        "ScorpionBreaker",
+        "Maestro",
+        "Northstar"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 3 ; alternative 1 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_3_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/3/v4",
+      "eventId": "kyln-blazes",
+      "stageId": "3",
+      "origin": "community_infographic",
+      "label": "Alternative n°2 de l'infographie",
+      "teamName": "Alternative 2 — DRENGR",
+      "characters": [
+        "SuperiorSpiderMan",
+        "Hobgoblin",
+        "Maestro",
+        "SilverSurferBreaker",
+        "Kingo"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 3 ; alternative 2 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_3_alternative_2_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/3/v5",
+      "eventId": "kyln-blazes",
+      "stageId": "3",
+      "origin": "community_infographic",
+      "label": "Alternative n°3 de l'infographie",
+      "teamName": "Alternative 3 — DRENGR",
+      "characters": [
+        "SuperiorSpiderMan",
+        "Scorpion",
+        "Hobgoblin",
+        "Dormammu",
+        "StormMighty"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 3 ; alternative 3 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_3_alternative_3_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
       "id": "kyln-blazes/3/v1",
       "eventId": "kyln-blazes",
       "stageId": "3",
@@ -2840,6 +3315,135 @@
           "partial_or_unspecified_team",
           "three_versus_five_team_size_conflict",
           "source_text_read_via_search_index_direct_url_402"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/4/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "4",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Armes immortelles — équipe principale DRENGR",
+      "characters": [
+        "IronFist",
+        "IronFistOrson",
+        "SteelSerpent",
+        "SwordMaster",
+        "LadyBullseye"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 4 ; équipe principale (à gauche).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_4_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/4/v3",
+      "eventId": "kyln-blazes",
+      "stageId": "4",
+      "origin": "community_infographic",
+      "label": "Alternative n°1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "IronMonger",
+        "Whiplash",
+        "UlyssesKlaue",
+        "Yellowjacket",
+        "Crossbones"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 4 ; alternative 1 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_4_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/4/v4",
+      "eventId": "kyln-blazes",
+      "stageId": "4",
+      "origin": "community_infographic",
+      "label": "Alternative n°2 de l'infographie",
+      "teamName": "Alternative 2 — DRENGR",
+      "characters": [
+        "Gilgamesh",
+        "Ikaris",
+        "Sersi",
+        "Kingo",
+        "Deathpool"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 4 ; alternative 2 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_4_alternative_2_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
         ]
       }
     },
@@ -2891,6 +3495,92 @@
       }
     },
     {
+      "id": "kyln-blazes/5/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "5",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Fantassins de fer — équipe principale DRENGR",
+      "characters": [
+        "IronMonger",
+        "Whiplash",
+        "UlyssesKlaue",
+        "Yellowjacket",
+        "Crossbones"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 5 ; équipe principale (à gauche).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_5_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/5/v3",
+      "eventId": "kyln-blazes",
+      "stageId": "5",
+      "origin": "community_infographic",
+      "label": "Alternative n°1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "Thena",
+        "Ikaris",
+        "Sersi",
+        "Kingo",
+        "SilverSurferBreaker"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 1, cellule 5 ; alternative 1 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-1"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_1_cell_5_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
       "id": "kyln-blazes/5/v1",
       "eventId": "kyln-blazes",
       "stageId": "5",
@@ -2933,6 +3623,1255 @@
           "partial_or_unspecified_team",
           "three_versus_five_team_size_conflict",
           "source_text_read_via_search_index_direct_url_402"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/6/v1",
+      "eventId": "kyln-blazes",
+      "stageId": "6",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Super-Skrull, Tornade, Blade et deux Briseurs — équipe principale DRENGR",
+      "characters": [
+        "SuperSkrull",
+        "StormMighty",
+        "BladeMighty",
+        "SilverSurferBreaker",
+        "ScorpionBreaker"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 2, cellule 6 ; équipe principale (à gauche).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-2"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_2_cell_6_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/6/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "6",
+      "origin": "community_infographic",
+      "label": "Alternative n°1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "Hobgoblin",
+        "SuperiorSpiderMan",
+        "BladeMighty",
+        "Ultron",
+        "Vision"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 2, cellule 6 ; alternative 1 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-2"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_2_cell_6_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/7/v1",
+      "eventId": "kyln-blazes",
+      "stageId": "7",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Éternels intemporels — équipe principale DRENGR",
+      "characters": [
+        "Thena",
+        "Gilgamesh",
+        "Sersi",
+        "Kingo",
+        "Ikaris"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 2, cellule 7 ; équipe principale (à gauche).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-2"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_2_cell_7_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/7/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "7",
+      "origin": "community_infographic",
+      "label": "Alternative n°1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "SilverSurferBreaker",
+        "Gilgamesh",
+        "Sersi",
+        "Kingo",
+        "Ikaris"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 2, cellule 7 ; alternative 1 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-2"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_2_cell_7_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/8/v1",
+      "eventId": "kyln-blazes",
+      "stageId": "8",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Insidious Six + Ultron + Vision — équipe principale DRENGR",
+      "characters": [
+        "Hobgoblin",
+        "SuperiorSpiderMan",
+        "Scorpion",
+        "Ultron",
+        "Vision"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 2, cellule 8 ; équipe principale (à gauche).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-2"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_2_cell_8_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/8/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "8",
+      "origin": "community_infographic",
+      "label": "Alternative n°1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "Sasquatch",
+        "Nightcrawler",
+        "Northstar",
+        "Sunfire",
+        "StormMighty"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 2, cellule 8 ; alternative 1 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-2"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_2_cell_8_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/9/v1",
+      "eventId": "kyln-blazes",
+      "stageId": "9",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Armes immortelles — équipe principale DRENGR",
+      "characters": [
+        "IronFist",
+        "IronFistOrson",
+        "SteelSerpent",
+        "SwordMaster",
+        "LadyBullseye"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 2, cellule 9 ; équipe principale (à gauche).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-2"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_2_cell_9_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/9/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "9",
+      "origin": "community_infographic",
+      "label": "Alternative n°1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "IronMonger",
+        "Whiplash",
+        "UlyssesKlaue",
+        "Yellowjacket",
+        "Crossbones"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 2, cellule 9 ; alternative 1 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-2"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_2_cell_9_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/10/v1",
+      "eventId": "kyln-blazes",
+      "stageId": "10",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Fantassins de fer — équipe principale DRENGR",
+      "characters": [
+        "IronMonger",
+        "Whiplash",
+        "UlyssesKlaue",
+        "Yellowjacket",
+        "Crossbones"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 2, cellule 10 ; équipe principale (à gauche).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-2"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_2_cell_10_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/10/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "10",
+      "origin": "community_infographic",
+      "label": "Alternative n°1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "IronFist",
+        "IronFistOrson",
+        "SteelSerpent",
+        "SwordMaster",
+        "LadyBullseye"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 2, cellule 10 ; alternative 1 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-2"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_2_cell_10_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/11/v1",
+      "eventId": "kyln-blazes",
+      "stageId": "11",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Insidious Six + Diablo + Solar — équipe principale DRENGR",
+      "characters": [
+        "Hobgoblin",
+        "SuperiorSpiderMan",
+        "Scorpion",
+        "Nightcrawler",
+        "Sunspot"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 11 ; équipe principale (à gauche).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_11_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/11/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "11",
+      "origin": "community_infographic",
+      "label": "Alternative n°1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "Sasquatch",
+        "Nightcrawler",
+        "Northstar",
+        "Sunfire",
+        "StormMighty"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 11 ; alternative 1 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_11_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/11/v3",
+      "eventId": "kyln-blazes",
+      "stageId": "11",
+      "origin": "community_infographic",
+      "label": "Alternative n°2 de l'infographie",
+      "teamName": "Alternative 2 — DRENGR",
+      "characters": [
+        "Nightcrawler",
+        "Sunfire",
+        "Sunspot",
+        "StormMighty",
+        "Ultron"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 11 ; alternative 2 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_11_alternative_2_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/11/v4",
+      "eventId": "kyln-blazes",
+      "stageId": "11",
+      "origin": "community_infographic",
+      "label": "Alternative n°3 de l'infographie",
+      "teamName": "Alternative 3 — DRENGR",
+      "characters": [
+        "StormMighty",
+        "Ultron",
+        "SilverSurferBreaker",
+        "SuperSkrull",
+        "BladeMighty"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 11 ; alternative 3 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_11_alternative_3_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/12/v1",
+      "eventId": "kyln-blazes",
+      "stageId": "12",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Super-Skrull, Tornade, Scorpion, Maestro et Véga — équipe principale DRENGR",
+      "characters": [
+        "SuperSkrull",
+        "StormMighty",
+        "ScorpionBreaker",
+        "Maestro",
+        "Northstar"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 12 ; équipe principale (à gauche).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_12_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/12/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "12",
+      "origin": "community_infographic",
+      "label": "Alternative n°1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "IronFist",
+        "IronFistOrson",
+        "SteelSerpent",
+        "SwordMaster",
+        "LadyBullseye"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 12 ; alternative 1 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_12_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/12/v3",
+      "eventId": "kyln-blazes",
+      "stageId": "12",
+      "origin": "community_infographic",
+      "label": "Alternative n°2 de l'infographie",
+      "teamName": "Alternative 2 — DRENGR",
+      "characters": [
+        "Sasquatch",
+        "Northstar",
+        "ScorpionBreaker",
+        "SuperSkrull",
+        "Dormammu"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 12 ; alternative 2 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_12_alternative_2_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/12/v4",
+      "eventId": "kyln-blazes",
+      "stageId": "12",
+      "origin": "community_infographic",
+      "label": "Alternative n°3 de l'infographie",
+      "teamName": "Alternative 3 — DRENGR",
+      "characters": [
+        "Deathpool",
+        "Kingo",
+        "Sersi",
+        "Ikaris",
+        "Gilgamesh"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 12 ; alternative 3 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_12_alternative_3_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/13/v1",
+      "eventId": "kyln-blazes",
+      "stageId": "13",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Armes immortelles — équipe principale DRENGR",
+      "characters": [
+        "IronFist",
+        "IronFistOrson",
+        "SteelSerpent",
+        "SwordMaster",
+        "LadyBullseye"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 13 ; équipe principale (à gauche).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_13_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/13/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "13",
+      "origin": "community_infographic",
+      "label": "Alternative n°1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "Kingo",
+        "Sersi",
+        "Ikaris",
+        "Nightcrawler",
+        "Northstar"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 13 ; alternative 1 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_13_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/13/v3",
+      "eventId": "kyln-blazes",
+      "stageId": "13",
+      "origin": "community_infographic",
+      "label": "Alternative n°2 de l'infographie",
+      "teamName": "Alternative 2 — DRENGR",
+      "characters": [
+        "Maestro",
+        "SilverSurferBreaker",
+        "StormMighty",
+        "SuperSkrull",
+        "OmegaSentinel"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 13 ; alternative 2 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image.",
+        "Identification de la femme en armure sombre comme Sentinelle Oméga à confirmer d'après le portrait réduit."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_with_uncertain_portrait",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_13_alternative_2_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide",
+          "portrait_identity_to_recheck_omega_sentinel"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/13/v4",
+      "eventId": "kyln-blazes",
+      "stageId": "13",
+      "origin": "community_infographic",
+      "label": "Alternative n°3 de l'infographie",
+      "teamName": "Alternative 3 — DRENGR",
+      "characters": [
+        "SuperiorSpiderMan",
+        "Hobgoblin",
+        "SuperSkrull",
+        "BladeMighty",
+        "Vision"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 13 ; alternative 3 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_13_alternative_3_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/14/v1",
+      "eventId": "kyln-blazes",
+      "stageId": "14",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Éternels intemporels avec Surfer (Briseur) — équipe principale DRENGR",
+      "characters": [
+        "SilverSurferBreaker",
+        "Gilgamesh",
+        "Sersi",
+        "Kingo",
+        "Ikaris"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 14 ; équipe principale (à gauche).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_14_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/14/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "14",
+      "origin": "community_infographic",
+      "label": "Alternative n°1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "IronMonger",
+        "Whiplash",
+        "UlyssesKlaue",
+        "Yellowjacket",
+        "Crossbones"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 14 ; alternative 1 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_14_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/14/v3",
+      "eventId": "kyln-blazes",
+      "stageId": "14",
+      "origin": "community_infographic",
+      "label": "Alternative n°2 de l'infographie",
+      "teamName": "Alternative 2 — DRENGR",
+      "characters": [
+        "SilverSurferBreaker",
+        "Maestro",
+        "Kingo",
+        "SuperiorSpiderMan",
+        "Hobgoblin"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 14 ; alternative 2 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_14_alternative_2_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/14/v4",
+      "eventId": "kyln-blazes",
+      "stageId": "14",
+      "origin": "community_infographic",
+      "label": "Alternative n°3 de l'infographie",
+      "teamName": "Alternative 3 — DRENGR",
+      "characters": [
+        "ScorpionBreaker",
+        "Scorpion",
+        "Maestro",
+        "SuperiorSpiderMan",
+        "Hobgoblin"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 14 ; alternative 3 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_14_alternative_3_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/14/v5",
+      "eventId": "kyln-blazes",
+      "stageId": "14",
+      "origin": "community_infographic",
+      "label": "Alternative n°4 de l'infographie",
+      "teamName": "Alternative 4 — DRENGR",
+      "characters": [
+        "Gilgamesh",
+        "Kingo",
+        "Thena",
+        "ScorpionBreaker",
+        "BladeMighty"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 14 ; alternative 4 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_14_alternative_4_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/15/v1",
+      "eventId": "kyln-blazes",
+      "stageId": "15",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Fantassins de fer — équipe principale DRENGR",
+      "characters": [
+        "IronMonger",
+        "Whiplash",
+        "UlyssesKlaue",
+        "Yellowjacket",
+        "Crossbones"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 15 ; équipe principale (à gauche).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_15_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/15/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "15",
+      "origin": "community_infographic",
+      "label": "Alternative n°1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "SwordMaster",
+        "SteelSerpent",
+        "LadyBullseye",
+        "IronFist",
+        "SilverSurferBreaker"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 3, cellule 15 ; alternative 1 (à droite).",
+        "Cinq personnages sont représentés dans le visuel. Marvel Church décrit parallèlement un format à trois combattants : vérifier les règles du jeu avant d'engager une équipe.",
+        "Aucune rotation de compétences ni victoire individuelle n'est attestée par cette image."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-3"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-24",
+        "sourceEvidence": "provided_infographic_week_3_cell_15_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
         ]
       }
     },
