@@ -54,6 +54,7 @@ function r2Client(){
 
   return {list,getJSON:reader.getJSON};
 }
+const HEX=/^[a-f0-9]{64}$/;
 const getJson=async path=>JSON.parse(await fs.readFile(path,'utf8'));
 const isCard=(key,prefix)=>key.startsWith(prefix)&&
   /\/provider-source\/[0-9a-f-]{36}\/alliance-card\.json$/.test(key);
