@@ -75,19 +75,28 @@
     return res.json();
   }
 
-  function makeAvatar(characterId, fallback) {
+  function makeAvatar(characterId, fallback, eager = false) {
     const holder = el("span", "challenge-avatar");
     const character = state.characters.get(characterId);
     const url = character && typeof character.portraitUrl === "string" ? character.portraitUrl : "";
     // On reprend exclusivement les portraits du catalogue officiel déjà présent chez LoSP.
     if (url && /^https:\/\/assets\.marvelstrikeforce\.com\/imgs\//.test(url)) {
       const img = el("img");
-      img.src = url;
       img.alt = "";
-      img.loading = "lazy";
+      img.loading = eager ? "eager" : "lazy";
       img.decoding = "async";
-      img.onerror = () => { img.remove(); holder.textContent = fallback || "★"; };
-      holder.append(img);
+      if (eager) {
+        // Sur iOS, un portrait différé peut rester blanc malgré une URL valide.
+        // Garder un repère visible jusqu'au chargement réel de la vignette.
+        holder.textContent = fallback || "★";
+        img.onload = () => {
+          if (img.naturalWidth > 0) holder.replaceChildren(img);
+        };
+      } else {
+        img.onerror = () => { img.remove(); holder.textContent = fallback || "★"; };
+        holder.append(img);
+      }
+      img.src = url;
     } else {
       holder.textContent = fallback || "★";
     }
@@ -145,7 +154,7 @@
       button.type = "button";
       button.setAttribute("aria-pressed", String(state.selected === event.id));
       button.setAttribute("aria-label", "Ouvrir le guide : " + event.title);
-      button.append(makeAvatar(event.rewardId, event.type === "tower" ? "🏰" : event.type === "trial" ? "⚔" : "🌌"));
+      button.append(makeAvatar(event.rewardId, event.type === "tower" ? "🏰" : event.type === "trial" ? "⚔" : "🌌", true));
       const content = el("span", "challenge-entry-text");
       content.append(el("strong", "", event.title));
       const count = event.stages.length;
