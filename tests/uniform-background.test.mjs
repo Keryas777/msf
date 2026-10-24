@@ -52,3 +52,10 @@ test("les bannières graphiques principales restent présentes", () => {
   assert.match(read("war-stats.css"), /HeaderStatGA\.webp/);
   assert.match(read("codex.css"), /CodexHeader\.webp/);
 });
+
+test("aucun voile sombre ne recouvre les images communes", () => {
+  assert.doesNotMatch(read("codex.css"), /body\.codexPage::before\s*\{/);
+  assert.doesNotMatch(read("codex.css"), /body\.codexPage\.codexLandingView\s*\{[^}]*background\s*:/);
+  assert.doesNotMatch(read("auth.html"), /body\.authPage::(?:before|after)\s*\{/);
+  assert.doesNotMatch(read("style.css"), /body\.page-war-history::(?:before|after)\s*\{/);
+});
