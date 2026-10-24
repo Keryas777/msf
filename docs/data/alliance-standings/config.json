@@ -57,6 +57,31 @@
       "requiresSeasonQualification": true
     }
   ],
+  "trophyDivisions": [
+    {
+      "label": "D-I",
+      "min": 2250,
+      "max": 2499,
+      "fill": "#636873"
+    },
+    {
+      "label": "D-II",
+      "min": 2500,
+      "max": 2749,
+      "fill": "#484e58"
+    },
+    {
+      "label": "D-III",
+      "min": 2750,
+      "max": 2999,
+      "fill": "#333b45"
+    },
+    {
+      "label": "D-IV",
+      "min": 3000,
+      "fill": "#222c36"
+    }
+  ],
   "rankingSeasons": {
     "cycleDays": 14,
     "referenceEndExclusiveAt": "2026-10-11T20:00:00.000Z",
