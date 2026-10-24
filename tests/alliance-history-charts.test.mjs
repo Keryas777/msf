@@ -226,7 +226,7 @@ test('page reads the configured calendar, preserves authorization and cache bust
   assert.match(source,/state\.config\.rankingSeasons/);
   assert.match(html,/auth-guard\.js/);
   assert.match(html,/alliance-history-data\.js\?v=3/);
-  assert.match(html,/alliance-history\.js\?v=5/);
+  assert.match(html,/alliance-history\.js\?v=6/);
 });
 
 test('22 October adds exactly a second real trophy point, not a second season ranking',()=>{
@@ -323,15 +323,32 @@ test('rankings shade Top 100 dark green and 101-200 light green behind points',(
       'Bands must also be behind the grid');
   }
 });
-test('trophy plot keeps its previous axis, dimensions and has no green bands',()=>{
-  for(const width of [390,680]){
+test('trophies show four visible grey Diamond divisions with right-side labels',()=>{
+  const divisions=config.trophyDivisions;
+  assert.deepEqual(divisions.map(b=>[b.label,b.min,b.max??null]),[
+    ['D-I',2250,2499],['D-II',2500,2749],
+    ['D-III',2750,2999],['D-IV',3000,null]
+  ]);
+  for(const width of [320,390,680]){
     const plot=drawRenderedChart('war-trophies',width);
     assert.equal(plot.attributes.viewBox,
       '0 0 '+(width-8)+' '+(width<500?320:370));
-    assert.equal(plot.children.some(n=>n.tag==='rect'),false);
+    const bands=plot.children.filter(n=>n.attrs.class==='historyTrophyBand');
+    const separators=plot.children.filter(n=>n.attrs.class==='historyTrophyBoundary');
+    const labels=plot.children.filter(n=>n.attrs.class==='historyTrophyLabel');
+    assert.equal(bands.length,4);
+    assert.equal(new Set(bands.map(b=>b.attrs.fill)).size,4);
+    assert.deepEqual(labels.map(n=>n.text),['D-I','D-II','D-III','D-IV']);
+    assert.equal(separators.length,3);
+    assert.ok(bands.every(b=>b.attrs.height>16));
+    assert.ok(labels.every(l=>l.attrs.x>width-8-50));
+    assert.ok(plot.children.indexOf(bands.at(-1))<
+      plot.children.findIndex(n=>n.tag==='circle'),
+      'Grey zones remain behind the alliance curves');
     assert.equal(plot.children.filter(n=>n.tag==='line'&&
       n.attrs.class==='historyGridLine').length,5);
     assert.equal(plot.children.filter(n=>n.tag==='circle').length,5);
+    assert.equal(plot.children.filter(n=>n.attrs.class==='historyRankBand').length,0);
   }
 });
 
@@ -374,5 +391,6 @@ test('trophy graph is still independent of shared ranking ceiling',()=>{
     changed.children.filter(n=>n.tag==='text'&&n.attrs['text-anchor']==='end').map(n=>n.text),
     baseline.children.filter(n=>n.tag==='text'&&n.attrs['text-anchor']==='end').map(n=>n.text)
   );
-  assert.equal(changed.children.some(n=>n.tag==='rect'),false);
+  assert.equal(changed.children.filter(n=>
+    n.attrs.class==='historyTrophyBand').length,4);
 });
