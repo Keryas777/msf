@@ -244,15 +244,55 @@
         'text-anchor':'end',class:'historyAxisText'},
         number.format(Math.round(value))));
     }
-    const labels=model.rows.length===1?[0]:
-      [0,Math.floor((model.rows.length-1)/2),model.rows.length-1];
-    for(const i of new Set(labels)){
-      const date=plotDates[i];
-      const position=x(Date.parse(date));
-      const anchor=i===0&&model.rows.length>1?'start':
-        i===model.rows.length-1&&model.rows.length>1?'end':'middle';
-      refs.plot.append(svg('text',{x:position,y:height-17,
-        'text-anchor':anchor,class:'historyAxisText'},formatDate(date)));
+    // Keep dates readable as the number of snapshots grows. The date range
+    // above the chart and each point tooltip still show the complete date.
+    const axisYear=new Intl.DateTimeFormat('fr-FR',{
+      year:'numeric',timeZone:'Europe/Paris'});
+    const crossesYear=axisYear.format(new Date(first))!==
+      axisYear.format(new Date(last));
+    const axisDate=new Intl.DateTimeFormat('fr-FR',{
+      day:'numeric',month:'short',timeZone:'Europe/Paris',
+      ...(crossesYear?{year:'2-digit'}:{})});
+    const dateEntries=[];
+    const seenDates=new Set();
+    for(let i=0;i<plotDates.length;i++){
+      if(!Number.isFinite(times[i]))continue;
+      const label=axisDate.format(new Date(times[i]));
+      if(seenDates.has(label))continue;
+      seenDates.add(label);
+      dateEntries.push({i,label,position:x(times[i])});
+    }
+    const occupied=[];
+    const addDateLabel=(entry,anchor)=>{
+      const text=svg('text',{x:entry.position,y:height-17,
+        'text-anchor':anchor,class:'historyAxisText historyDateLabel',
+        'aria-label':formatDate(plotDates[entry.i])},entry.label);
+      refs.plot.append(text);
+      // SVG measures real glyph widths on Safari/Chrome; use a conservative
+      // fallback only in environments without getComputedTextLength.
+      const measured=typeof text.getComputedTextLength==='function'?
+        text.getComputedTextLength():entry.label.length*7;
+      const left=entry.position-(anchor==='end'?measured:
+        anchor==='middle'?measured/2:0);
+      const right=left+measured;
+      if(occupied.some(space=>left<space.right+10&&right>space.left-10)){
+        text.remove();
+        return;
+      }
+      occupied.push({left,right});
+      text.append(svg('title',{},formatDate(plotDates[entry.i])));
+    };
+    if(dateEntries.length){
+      addDateLabel(dateEntries[0],dateEntries.length===1?'middle':'start');
+      if(dateEntries.length>1)addDateLabel(dateEntries.at(-1),'end');
+      const maxLabels=width<500?3:5;
+      const center=margin.left+w/2;
+      const interior=dateEntries.slice(1,-1).sort((a,b)=>
+        Math.abs(a.position-center)-Math.abs(b.position-center));
+      for(const entry of interior){
+        if(occupied.length>=maxLabels)break;
+        addDateLabel(entry,'middle');
+      }
     }
     for(const s of model.series){
       const color=safeColor(s.color);
