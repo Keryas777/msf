@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 import {
   collectionWindow,readMapping,extractAllianceSource,
-  createR2Snapshot,addSnapshotToIndex,resolveStandingsSchedule
+  createR2Snapshot,addSnapshotToIndex,resolveStandingsSchedule,hasCollectionForDay
 } from '../scripts/lib/alliance-r2-history.mjs';
 
 const read=p=>JSON.parse(fs.readFileSync(new URL('../'+p,import.meta.url),'utf8'));
@@ -104,4 +104,17 @@ test('global snapshot uses latest REAL source per alliance and never leaks priva
   sources.delete('team-b');
   assert.throws(()=>createR2Snapshot({window,registry,map:identities,sources}),
     /No validated AllianceCard/);
+});
+
+test('existing complete manual 24 October reading prevents a duplicate R2 import',()=>{
+  assert.equal(originalIndex.snapshots.length,3);
+  assert.deepEqual(originalIndex.snapshots.map(x=>x.capturedAt.slice(0,10)),
+    ['2026-10-21','2026-10-22','2026-10-24']);
+  assert.equal(hasCollectionForDay(originalIndex,'2026-10-24'),true);
+  assert.equal(hasCollectionForDay(originalIndex,'2026-10-22'),true);
+  assert.equal(hasCollectionForDay(originalIndex,'2026-10-29'),false);
+  const automated={snapshots:[{
+    capturedAt:'2026-10-29T04:20:00.000Z',collectionDayUtc:'2026-10-29'
+  }]};
+  assert.equal(hasCollectionForDay(automated,'2026-10-29'),true);
 });
