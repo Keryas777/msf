@@ -133,6 +133,15 @@ export function createR2Snapshot({window,registry,map,sources}){
     note:'Fiches d’alliance déjà collectées par le Roster Service durant les micro-lots de rosters. Horodatages propres à chaque alliance ; aucune lecture Scopely supplémentaire. Saison déduite séparément par la WebApp et non vérifiée par l’API.'
   };
 }
+// Treat any already published reading on that UTC day as the day's
+// record, including a complete manual capture. An automatic retry must
+// never add a second point for the same calendar collection day.
+export function hasCollectionForDay(index,day){
+  return Array.isArray(index?.snapshots) &&
+    index.snapshots.some(row=>row.collectionDayUtc===day ||
+      (typeof row.capturedAt==='string' &&
+        row.capturedAt.slice(0,10)===day));
+}
 export function addSnapshotToIndex(index,snapshot){
   if(index?.kind!=='losp-alliance-standings-index'||!Array.isArray(index.snapshots))
     throw Error('Invalid public standings index');
