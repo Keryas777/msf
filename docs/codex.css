@@ -149,7 +149,7 @@ img {
 
 .codexHeaderRow {
   display: grid;
-  grid-template-columns: minmax(44px, auto) minmax(0, 1fr) minmax(44px, auto);
+  grid-template-columns: minmax(0, 1fr) minmax(44px, auto);
   align-items: center;
   gap: 6px;
 }

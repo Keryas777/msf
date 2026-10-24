@@ -30,7 +30,6 @@ const SEARCH_DELAY_MS = 120;
 
 const dom = {
   main: document.querySelector("#codexMain"),
-  back: document.querySelector("#codexBack"),
   breadcrumbs: document.querySelector("#codexBreadcrumbs"),
   searchForm: document.querySelector("#codexSearchForm"),
   searchInput: document.querySelector("#codexSearchInput"),
@@ -2607,19 +2606,6 @@ function showImageFailureNotice() {
 }
 
 function bindEvents() {
-  dom.back.addEventListener("click", () => {
-    closeSearchPanel();
-    if (currentDepth() > 0) {
-      history.back();
-      return;
-    }
-    if (state.route.view !== "home") {
-      navigate({ view: "home" }, "replace");
-      return;
-    }
-    window.location.href = "./home.html";
-  });
-
   dom.searchInput.addEventListener("input", scheduleSearchPreview);
   dom.searchInput.addEventListener("focus", () => {
     if (normalizeSearch(dom.searchInput.value).replace(/ /g, "").length >= 2) {
