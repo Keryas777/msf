@@ -133,14 +133,31 @@
 
   function playersForAlliance(allianceKey) {
     const wanted = normalizeKey(allianceKey);
-    return state.rosters
-      .filter((roster) => normalizeKey(roster?.alliance) === wanted)
-      .map((roster) => ({
-        key: getRosterPlayerKey(roster),
-        label: canonicalPlayerName(roster?.player || roster?.name || roster?.playerKey || ""),
-      }))
-      .filter((player) => player.key && player.label && state.historyIndex?.players?.[player.key])
-      .sort((a, b) => a.label.localeCompare(b.label, "fr", { sensitivity: "base" }));
+    const history = state.historyIndex?.players || {};
+    // Live rosters contain only members who shared data during the latest
+    // capture. Historical players must remain selectable without reusing or
+    // republishing their old roster as if it were current.
+    const currentKeys = new Set(state.rosters.map(getRosterPlayerKey).filter(Boolean));
+    const players = new Map();
+
+    for (const [key, entry] of Object.entries(history)) {
+      if (currentKeys.has(key) || normalizeKey(entry?.currentAlliance) !== wanted ||
+          !Array.isArray(entry?.checkpoints) || !entry.checkpoints.length) continue;
+      const label = canonicalPlayerName(entry.name || key);
+      if (label) players.set(key, { key, label: label + " (historique)" });
+    }
+
+    for (const roster of state.rosters) {
+      if (normalizeKey(roster?.alliance) !== wanted) continue;
+      const key = getRosterPlayerKey(roster);
+      if (!key || !Array.isArray(history[key]?.checkpoints) ||
+          !history[key].checkpoints.length) continue;
+      const label = canonicalPlayerName(roster?.player || roster?.name || roster?.playerKey || "");
+      if (label) players.set(key, { key, label });
+    }
+
+    return [...players.values()].sort((a, b) =>
+      a.label.localeCompare(b.label, "fr", { sensitivity: "base" }));
   }
 
   function sessionPlayerNames(player) {
