@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "kind": "losp-alliance-standings-snapshot",
+  "capturedAt": "2026-10-24T21:31:12.523Z",
+  "source": "/player/v1/alliance/card",
+  "seasonId": null,
+  "seasonVerified": false,
+  "coverage": {
+    "scannedSessions": 10,
+    "validSessions": 10,
+    "unavailableSessions": 0,
+    "truncated": false,
+    "connectedAlliances": 6,
+    "completeSessionScan": true
+  },
+  "alliances": [
+    {
+      "key": "kronos",
+      "nameAtCapture": "<#FFFFFF>LoSP <#E10D17>Κroηos",
+      "warRank": 93,
+      "raidRank": 235,
+      "warTrophies": 2759,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND II"
+      }
+    },
+    {
+      "key": "poseidon",
+      "nameAtCapture": "LoSP <#00D0FF>Pοsειδoη",
+      "warRank": 722,
+      "raidRank": 767,
+      "warTrophies": 2339,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND I"
+      }
+    },
+    {
+      "key": "hades",
+      "nameAtCapture": "LoSP <#1EA164>Hαδεs",
+      "warRank": 12228,
+      "raidRank": 6998,
+      "warTrophies": 1651,
+      "warLeague": {
+        "id": null,
+        "name": "PLATINUM II"
+      }
+    },
+    {
+      "key": "dionysos",
+      "nameAtCapture": "LoSP <#93328E>Dισπγsσs",
+      "warRank": 332,
+      "raidRank": 285,
+      "warTrophies": 2588,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND II"
+      }
+    },
+    {
+      "key": "athena",
+      "nameAtCapture": "LoSP <#F28C28>Athεηα",
+      "warRank": 427,
+      "raidRank": 157,
+      "warTrophies": 2679,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND II"
+      }
+    },
+    {
+      "key": "zeus",
+      "nameAtCapture": "LoSP <#F8FF00>Zεμs",
+      "warRank": 322,
+      "raidRank": 77,
+      "warTrophies": 2881,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND III"
+      }
+    }
+  ],
+  "note": "Relevé manuel complet transmis par l’administrateur le 24 octobre 2026 à 21:31:12 UTC (10 sessions, 6 alliances). Rangs de la dernière saison terminée d’après le calendrier, non confirmés par l’API. Les dates et valeurs des relevés précédents sont conservées ; aucune empreinte privée n’est publiée."
+}
