@@ -41,7 +41,12 @@ function r2Client(){
       headers:{'x-amz-date':date,'x-amz-content-sha256':EMPTY_SHA,
         Authorization:authorization}
     });
-    if(!response.ok)throw Error('Private R2 read failed (HTTP '+response.status+')');
+    if(!response.ok){
+      const errorText=await response.text();
+      // S3-style error code only; never include private bucket, fingerprints or keys.
+      const s3Code=/<Code>([A-Za-z0-9]+)<\/Code>/.exec(errorText)?.[1]||'unspecified';
+      throw Error('Private R2 read failed (HTTP '+response.status+', S3 '+s3Code+')');
+    }
     const length=Number(response.headers.get('content-length')||0);
     if(length>1000000)throw Error('Unexpectedly large R2 response');
     const body=await response.text();

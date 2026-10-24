@@ -5,6 +5,7 @@ on:
       - fix/standings-r2-20261024
     paths:
       - .github/workflows/standings-r2-recovery-once.yml
+      - scripts/pull-alliance-history-r2.mjs
 permissions:
   contents: read
 jobs:
