@@ -14,12 +14,12 @@ const [html, css, validation, reportCalculator, reportRanker, analysis, app, wor
 ]);
 
 test("la page charge les Phases E et E.2 locales sans bloquer le zoom", () => {
-  assert.match(html, /href="\.\/war-admin\.css\?v=5"/);
-  assert.match(html, /src="\.\/war-admin-validation\.js\?v=1" defer/);
+  assert.match(html, /href="\.\/war-admin\.css\?v=6"/);
+  assert.match(html, /src="\.\/war-admin-validation\.js\?v=2" defer/);
   assert.match(html, /src="\.\/war-admin-report-calculator\.js\?v=1" defer/);
   assert.match(html, /src="\.\/war-admin-report-ranker\.js\?v=1" defer/);
   assert.match(html, /src="\.\/war-admin-analysis\.js\?v=1" defer/);
-  assert.match(html, /src="\.\/war-admin\.js\?v=7" defer/);
+  assert.match(html, /src="\.\/war-admin\.js\?v=10" defer/);
   assert.match(html, /name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/);
   assert.doesNotMatch(html, /user-scalable=no|maximum-scale=1/);
   assert.doesNotMatch(html, /auth-(?:guard|session)\.js/);
@@ -146,6 +146,7 @@ test("le pipeline distingue validation, calcul, classement, analyse et publicati
   assert.match(html, /id="warAnalyzedCount"/);
   assert.match(html, /id="warPublishedCount"/);
   assert.match(html, /Publication non effectuée/);
+  assert.match(html, /id="warFinalizeReports"[\s\S]*?Classer, rédiger et publier/);
   assert.match(html, /id="warCalculateReports"[\s\S]*?disabled[\s\S]*?Calculer les rapports/);
   assert.match(html, /id="warRankReports"[\s\S]*?disabled[\s\S]*?Classer les rapports/);
   assert.match(html, /id="warWriteAnalyses"[\s\S]*?disabled[\s\S]*?Rédiger les analyses/);

@@ -14,7 +14,7 @@
     <script src="./war-admin-analysis.js?v=1" defer></script>
     <script src="./war-player-aliases.js?v=1" defer></script>
     <script src="./war-admin-wake-lock.js?v=1" defer></script>
-    <script src="./war-admin.js?v=9" defer></script>
+    <script src="./war-admin.js?v=10" defer></script>
   </head>
 
   <body class="warAdminPage">
@@ -141,6 +141,11 @@
               </div>
             </div>
 
+            <button id="warFinalizeReports" class="warAdminCalculateButton" type="button" disabled>
+              Classer, rédiger et publier
+            </button>
+            <details class="warAdminTechnical">
+              <summary>Étapes séparées (dépannage)</summary>
             <button id="warCalculateReports" class="warAdminCalculateButton" type="button" disabled>
               Calculer les rapports
             </button>
@@ -153,6 +158,7 @@
             <button id="warPublishReports" class="warAdminCalculateButton" type="button" disabled>
               Publier
             </button>
+            </details>
             <p id="warCalculateHelp" class="warAdminValidationHelp" role="status"></p>
           </section>
 
