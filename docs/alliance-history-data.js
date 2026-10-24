@@ -126,6 +126,11 @@
         }
       }
     }
+    // Include newcomer keys supplied by another real reading of a selected
+    // season, even when the primary verified snapshot predates their arrival.
+    for(const row of rows)
+      for(const key of seasonAdditions.get(row.seasonId)?.keys() || [])
+        existing.add(key);
     const members = possible.filter(a => a && a.active !== false &&
       typeof a.key === 'string' && existing.has(a.key))
       .slice().sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
