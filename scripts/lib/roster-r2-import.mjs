@@ -131,6 +131,23 @@ export function resolveAlias(name,aliases){
   }
   return value;
 }
+// Scopely's statsFormat=csv ISO field is a trimmed CSV string:
+// [0..5] additional ISO fields, [6] active class, [7..11] the five
+// class levels (Striker, Fortifier, Healer, Skirmisher, Raider).
+// Trailing levels are omitted by the provider, not assumed present.
+// Require at least one explicitly reported class level before inferring ISO.
+function isoFromProviderCsv(iso8){
+  if(typeof iso8!=='string')return null;
+  const fields=iso8.split(',');
+  if(fields.length<8||fields.length>12)return null;
+  const isoClass=fields[6].trim().toLowerCase();
+  if(!['striker','fortifier','healer','skirmisher','raider'].includes(isoClass))
+    return null;
+  const levels=fields.slice(7).map(s=>s.trim());
+  if(!levels.every(s=>/^\d+$/.test(s)&&Number.isSafeInteger(Number(s))))
+    return null;
+  return {isoMax:Math.max(...levels.map(Number)),isoClass};
+}
 export function convertCharacter(raw,prior){
   const key=keyOf(raw.id);
   if(!key||!num(raw.power))throw Error('Invalid character');
@@ -148,14 +165,15 @@ export function convertCharacter(raw,prior){
   if(num(gear))value.gear=gear;
   if(num(yellow))value.yellowStars=yellow;
   if(num(red)){value.redStars=Math.min(red,7);value.diamonds=num(diamond)?diamond:0;}
-  // The source API does not guarantee the ISO matrix progress value.
-  // Preserve the previous measured value; for a new character store it only
-  // when explicitly supplied. Missing ISO must not discard valid core stats
-  // or be silently invented as zero.
-  if(!prior&&num(raw.isoMax))value.isoMax=raw.isoMax;
-  return {key,value,isoClass:
-    typeof raw.iso8?.activeClass==='string'?raw.iso8.activeClass:
-    typeof raw.iso8?.class==='string'?raw.iso8.class:null,
+  // Preserve known CSV measurements, but use actual reported ISO class
+  // levels to detect newer progress. Never infer ISO 0 from absent levels.
+  const csvIso=isoFromProviderCsv(raw.iso8);
+  if(csvIso)value.isoMax=num(value.isoMax)?
+    Math.max(value.isoMax,csvIso.isoMax):csvIso.isoMax;
+  else if(!prior&&num(raw.isoMax))value.isoMax=raw.isoMax;
+  return {key,value,isoClass:csvIso?.isoClass??
+    (typeof raw.iso8?.activeClass==='string'?raw.iso8.activeClass:
+    typeof raw.iso8?.class==='string'?raw.iso8.class:null),
     isoColor:typeof raw.iso8?.matrixColor==='string'?raw.iso8.matrixColor:null};
 }
 export function convertAllianceRosters(alliance,records,priorRows,aliases){
