@@ -226,7 +226,7 @@ test('page reads the configured calendar, preserves authorization and cache bust
   assert.match(source,/state\.config\.rankingSeasons/);
   assert.match(html,/auth-guard\.js/);
   assert.match(html,/alliance-history-data\.js\?v=3/);
-  assert.match(html,/alliance-history\.js\?v=3/);
+  assert.match(html,/alliance-history\.js\?v=4/);
 });
 
 test('22 October adds exactly a second real trophy point, not a second season ranking',()=>{
@@ -249,4 +249,85 @@ test('22 October adds exactly a second real trophy point, not a second season ra
     ['zeus',2806],['kronos',2684],['dionysos',2663],
     ['athena',2604],['poseidon',2264]
   ]);
+});
+
+
+function drawRenderedChart(id,clientWidth=390){
+  // Execute the same SVG plotting function shipped to GitHub Pages.
+  // A tiny DOM stub is sufficient; no dependency on a browser framework.
+  const source=read('docs/alliance-history.js');
+  const begin=source.indexOf('  function niceStep(');
+  const end=source.indexOf('  function plotDatesForPeriod(',begin);
+  assert.ok(begin>=0&&end>begin,'Plot function must remain present');
+  const plot={
+    children:[],attributes:{},
+    replaceChildren(){this.children=[];},
+    setAttribute(name,value){this.attributes[name]=String(value);},
+    append(node){this.children.push(node);}
+  };
+  const makeNode=(tag,attrs={},text)=>({
+    tag,attrs,text,children:[],
+    append(node){this.children.push(node);},
+    addEventListener(){}
+  });
+  const ctx=vm.createContext({
+    refs:{plot,plotWrap:{clientWidth}},svg:makeNode,
+    safeColor:value=>value,formatDate:date=>date.slice(0,10),
+    number:new Intl.NumberFormat('fr-FR')
+  });
+  vm.runInContext(source.slice(begin,end)+'\nthis.plotFn=drawPlot;',ctx);
+  ctx.plotFn(prepare([original],registry,byId(id),config.rankingSeasons),byId(id));
+  return plot;
+}
+test('raid and war ranking charts use exact 1, 100, 200 ... hundred ticks and taller SVG',()=>{
+  for(const id of ['raid-season-rank','war-season-rank']){
+    const plot=drawRenderedChart(id);
+    assert.equal(plot.attributes.viewBox,'0 0 382 350');
+    const labels=plot.children.filter(n=>n.tag==='text'&&
+      n.attrs['text-anchor']==='end').map(n=>n.text);
+    assert.deepEqual(labels,['1','100','200','300','400','500','600','700','800']);
+    assert.equal(plot.children.filter(n=>n.tag==='line'&&
+      n.attrs.class==='historyGridLine').length,9);
+    const points=plot.children.filter(n=>n.tag==='circle');
+    assert.equal(points.length,5,'All five official rank values remain plotted');
+    const y=rank=>14+(rank-1)/(800-1)*(350-14-48);
+    for(const point of points){
+      assert.ok(point.attrs.cy>=14&&point.attrs.cy<=302);
+    }
+    assert.equal(plot.children.find(n=>n.tag==='line').attrs.y1,14);
+  }
+});
+test('rankings shade Top 100 dark green and 101-200 light green behind points',()=>{
+  for(const id of ['raid-season-rank','war-season-rank']){
+    const plot=drawRenderedChart(id);
+    const bands=plot.children.filter(n=>n.tag==='rect');
+    assert.equal(bands.length,2);
+    assert.equal(bands[0].attrs.class,'historyRankBand');
+    assert.equal(bands[1].attrs.class,'historyRankBand');
+    assert.notEqual(bands[0].attrs.fill,bands[1].attrs.fill);
+    assert.ok(Number(bands[0].attrs['fill-opacity'])>0);
+    assert.ok(Number(bands[1].attrs['fill-opacity'])>0);
+    assert.ok(Number(bands[0].attrs['fill-opacity'])<1);
+    assert.ok(Number(bands[1].attrs['fill-opacity'])<1);
+    assert.equal(bands[0].attrs.y,14);
+    assert.ok(Math.abs(bands[0].attrs.y+bands[0].attrs.height-
+      bands[1].attrs.y)<1e-7,'The two bands must touch');
+    assert.ok(plot.children.indexOf(bands[1])<
+      plot.children.findIndex(n=>n.tag==='circle'),
+      'Bands must be behind all alliance dots');
+    assert.ok(plot.children.indexOf(bands[1])<
+      plot.children.findIndex(n=>n.tag==='line'),
+      'Bands must also be behind the grid');
+  }
+});
+test('trophy plot keeps its previous axis, dimensions and has no green bands',()=>{
+  for(const width of [390,680]){
+    const plot=drawRenderedChart('war-trophies',width);
+    assert.equal(plot.attributes.viewBox,
+      '0 0 '+(width-8)+' '+(width<500?320:370));
+    assert.equal(plot.children.some(n=>n.tag==='rect'),false);
+    assert.equal(plot.children.filter(n=>n.tag==='line'&&
+      n.attrs.class==='historyGridLine').length,5);
+    assert.equal(plot.children.filter(n=>n.tag==='circle').length,5);
+  }
 });
