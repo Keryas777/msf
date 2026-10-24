@@ -1,0 +1,27 @@
+name: Temporary verify 24 Oct R2 trophies
+on:
+  push:
+    branches:
+      - fix/standings-r2-20261024
+    paths:
+      - .github/workflows/standings-r2-recovery-once.yml
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate real post-war R2 archive without publishing
+        env:
+          LOSP_R2_ACCOUNT_ID: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
+          LOSP_R2_ACCESS_KEY_ID: ${{ secrets.LOSP_R2_ACCESS_KEY_ID }}
+          LOSP_R2_SECRET_ACCESS_KEY: ${{ secrets.LOSP_R2_SECRET_ACCESS_KEY }}
+          LOSP_R2_BUCKET: ${{ secrets.LOSP_R2_BUCKET }}
+          LOSP_R2_ALLIANCE_MAP_JSON: ${{ secrets.LOSP_R2_ALLIANCE_MAP_JSON }}
+        run: node scripts/pull-alliance-history-r2.mjs --date=2026-10-24
