@@ -542,3 +542,17 @@ test('missing seasons and values never inherit a later observed new alliance',()
   assert.equal(points[0].value,6998);
   assert.equal(points[1].value,null);
 });
+
+test('24 October counts as one trophy reading, and Hadès begins there',()=>{
+  const captured=index.snapshots.map(s=>
+    JSON.parse(read('docs/data/alliance-standings/'+s.file)));
+  assert.equal(captured.length,3);
+  const days=captured.map(row=>row.capturedAt.slice(0,10));
+  assert.deepEqual(days,['2026-10-21','2026-10-22','2026-10-24']);
+  const model=prepare(captured,registry,byId('war-trophies'),config.rankingSeasons);
+  assert.equal(model.rows.length,3);
+  assert.equal(model.series.length,6);
+  const hades=model.series.find(s=>s.key==='hades');
+  assert.deepEqual(Array.from(hades.points,p=>p.value),[null,null,1651]);
+  assert.equal(model.series.find(s=>s.key==='zeus').points.length,3);
+});
