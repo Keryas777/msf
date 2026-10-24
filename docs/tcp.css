@@ -25,43 +25,12 @@
 html, body{
   margin:0;
   color: var(--text);
-  background: var(--bg);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   overflow-x: hidden;
   overscroll-behavior-x: none;
 }
 
 body{ touch-action: pan-y; }
-
-/* ===== Fond noir + filigranes aigles ===== */
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  z-index:-2;
-  background:
-    radial-gradient(1200px 700px at 10% 0%, rgba(255,255,255,.06), transparent 60%),
-    radial-gradient(1200px 700px at 90% 30%, rgba(255,255,255,.05), transparent 60%),
-    radial-gradient(900px 600px at 50% 100%, rgba(255,255,255,.04), transparent 60%),
-    linear-gradient(180deg, #060708, #090a0c 60%, #050607);
-}
-
-body::after{
-  content:"";
-  position:fixed;
-  inset:0;
-  z-index:-1;
-  pointer-events:none;
-  opacity:.12;
-  background-image: url("./00E91333-9E9F-44E5-9BE4-93AA78D3B650.png");
-  background-repeat: repeat;
-  background-size: 420px 420px;
-  background-position: 0 0;
-}
-
-@supports not (background-image: url("./x.webp")) {
-  body::after{ background-image: url("./eagle-pattern.min.png"); }
-}
 
 /* ===== App layout ===== */
 .app{
