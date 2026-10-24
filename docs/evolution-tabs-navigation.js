@@ -115,7 +115,12 @@
 
   async function showPage(url, pushHistory) {
     const key = pageKey(url);
-    if (!key || key === activeKey) return;
+    if (!key) return;
+    if (key === activeKey) {
+      await loadScripts(pages.get(key)); // Autoriser un nouvel essai après une erreur réseau.
+      document.querySelector('#evolutionNavigationError')?.remove();
+      return;
+    }
 
     const entry = await preparePage(url);
     await Promise.all(entry.styles.map(loadStyle));
@@ -132,6 +137,7 @@
     // Executer les scripts uniquement lorsque leur vue est dans le document :
     // les deux moteurs existants utilisent des selecteurs ID identiques.
     await loadScripts(entry);
+    document.querySelector('#evolutionNavigationError')?.remove();
     window.scrollTo(0, entry.scrollY);
   }
 
