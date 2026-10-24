@@ -118,12 +118,17 @@ async function privateCards(r2,fp,window){
   if(!HEX.test(fp))throw Error('Invalid private fingerprint');
   const prefix='roster-batches/v1/'+fp+'/';
   const candidates=[];let token=null,pages=0;
+  let totalListed=0,totalCards=0,latestCardModified=null;
   const lo=Date.parse(window.start)-15*60000,hi=Date.parse(window.endExclusive)+15*60000;
   do{
     if(++pages>40)throw Error('R2 listing too large: refusing partial history');
     const listing=r2.list(prefix,token);
     for(const entry of listing.rows){
+      totalListed++;
       if(!isCard(entry.key,prefix))continue;
+      totalCards++;
+      if(!latestCardModified||entry.modified>latestCardModified)
+        latestCardModified=entry.modified;
       const modified=Date.parse(entry.modified);
       if(modified>=lo&&modified<=hi)candidates.push(entry.key);
     }
@@ -131,6 +136,9 @@ async function privateCards(r2,fp,window){
     if(!listing.cursor||listing.cursor===token)throw Error('Invalid R2 listing cursor');
     token=listing.cursor;
   }while(true);
+  console.log('Private R2 source scan (aggregate):',JSON.stringify({
+    totalListed,totalCards,eligible:candidates.length,latestCardModified,pages
+  }));
   if(candidates.length>500)throw Error('Too many eligible source documents');
   const rows=[];
   for(const path of candidates){
