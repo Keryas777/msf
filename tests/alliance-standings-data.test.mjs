@@ -110,7 +110,8 @@ test('future collection configuration is UTC-based and disabled until collector 
 
 test("22 October manual trophy snapshot is genuine, complete and changes all five values",()=>{
   const after=data("snapshots/2026-10-22T120208591Z.json");
-  assert.equal(index.snapshots.at(-1).capturedAt,after.capturedAt);
+  assert.ok(index.snapshots.some(x=>x.capturedAt===after.capturedAt),
+    'Keep the real 22 October capture even after later automatic imports');
   assert.equal(after.capturedAt,"2026-10-22T12:02:08.591Z");
   assert.equal(after.source,"/player/v1/alliance/card");
   assert.equal(after.coverage.scannedSessions,9);
