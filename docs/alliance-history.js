@@ -1,4 +1,4 @@
-// Five LoSP alliance lines, driven by JSON under /docs/data.
+// Dynamic LoSP alliance lines, driven by JSON under /docs/data.
 // No chart framework, server, Scopely call, hardcoded names or colors.
 (() => {
   'use strict';
@@ -27,7 +27,8 @@
     day:'numeric',month:'short',year:'numeric',timeZone:'Europe/Paris'});
   const number=new Intl.NumberFormat('fr-FR');
   const state={mode:'war',warChart:'war-trophies',snapshots:[],
-    registry:[],config:null,failures:0,prepared:null,chart:null};
+    registry:[],config:null,failures:0,prepared:null,chart:null,
+    hiddenAlliances:new Set()};
   const byId=id=>state.config?.charts?.find(chart=>chart.id===id);
   const safeColor=value=>/^#[0-9a-f]{6}$/i.test(value||'')?value:'#ffffff';
   const formatDate=iso=>dates.format(new Date(iso));
@@ -135,7 +136,7 @@
       if(!chart)continue;
       const prepared=window.LoSPStandingsSeries.prepare(
         state.snapshots,state.registry,chart,state.config.rankingSeasons);
-      for(const series of prepared.series)
+      for(const series of prepared.series.filter(s=>!state.hiddenAlliances.has(s.key)))
         for(const point of series.points)
           if(Number.isSafeInteger(point.value)&&point.value>worst)
             worst=point.value;
@@ -145,13 +146,21 @@
   function drawPlot(model,chart){
     refs.plot.replaceChildren();
     if(!model.rows.length||!model.series.length)return;
+    const visibleSeries=model.series.filter(s=>!state.hiddenAlliances.has(s.key));
     const width=Math.max(290,Math.round(refs.plotWrap.clientWidth-8));
     const rank=!chart.higherIsBetter;
     // Keep trophy, war-rank and raid-rank charts at the same height.
     const height=width<500?350:400;
     refs.plot.setAttribute('viewBox','0 0 '+width+' '+height);
-    refs.plot.setAttribute('aria-label',chart.title+'. '+model.series.length+
-      ' alliances et '+model.rows.length+' relevés.');
+    refs.plot.setAttribute('aria-label',chart.title+'. '+visibleSeries.length+
+      ' alliances affichées sur '+model.series.length+
+      ', '+model.rows.length+' relevés.');
+    if(!visibleSeries.length){
+      refs.plot.append(svg('text',{x:width/2,y:height/2,
+        'text-anchor':'middle',class:'historyAxisText'},
+        'Toutes les alliances sont masquées'));
+      return;
+    }
     const trophyDivisions=!rank&&chart.field==='warTrophies'&&
       Array.isArray(state.config?.trophyDivisions)?
       state.config.trophyDivisions.filter(b=>
@@ -163,7 +172,7 @@
     const margin={left:53,right:rank?17:50,top:rank?14:22,bottom:48};
     const w=width-margin.left-margin.right;
     const h=height-margin.top-margin.bottom;
-    const values=model.series.flatMap(s=>s.points.map(p=>p.value))
+    const values=visibleSeries.flatMap(s=>s.points.map(p=>p.value))
       .filter(v=>v!==null);
     if(!values.length)return;
     // Rank 1 belongs at the top; use exact hundred boundaries, not
@@ -190,7 +199,7 @@
       .7*(v-bounds.lo)/(1000-bounds.lo):
       .7+.3*Math.log(v/1000)/Math.log(bounds.hi/1000);
     const y=v=>compressedRank?margin.top+rankRatio(v)*h:linearY(v);
-    const plotDates=model.series[0].points.map(p=>p.plotAt||p.capturedAt);
+    const plotDates=visibleSeries[0].points.map(p=>p.plotAt||p.capturedAt);
     const times=plotDates.map(iso=>Date.parse(iso));
     const first=times[0],last=times[times.length-1];
     const x=t=>first===last?margin.left+w/2:
@@ -313,7 +322,7 @@
         addDateLabel(entry,'middle');
       }
     }
-    for(const s of model.series){
+    for(const s of visibleSeries){
       const color=safeColor(s.color);
       let segment=[];
       const flush=()=>{
@@ -395,14 +404,40 @@
       model.rows.length===1?'Capture du '+formatDate(model.rows[0].capturedAt):
       'Du '+formatDate(plotDatesForPeriod(model,0))+' au '+
         formatDate(plotDatesForPeriod(model,model.rows.length-1));
+    const shown=model.series.filter(s=>!state.hiddenAlliances.has(s.key));
+    const visiblePoints=shown.reduce((sum,s)=>
+      sum+s.points.filter(p=>p.value!==null).length,0);
     refs.status.textContent=model.rows.length===1?
-      'Un premier relevé : les cinq points sont visibles. Les courbes se traceront avec les prochaines captures.':
+      'Un premier relevé : '+visiblePoints+' point(s) visibles. Les courbes se traceront avec les prochaines captures.':
       model.rows.length+' relevés réels, sans valeurs inventées.';
     for(const s of model.series){
-      const legend=el('div','historyLegendEntry');
+      const shownNow=!state.hiddenAlliances.has(s.key);
+      const legend=el('button','historyLegendEntry');
+      legend.type='button';
+      legend.dataset.allianceKey=s.key;
+      legend.style.setProperty('--alliance-color',safeColor(s.color));
+      legend.classList.toggle('is-hidden',!shownNow);
+      legend.setAttribute('aria-pressed',String(shownNow));
+      legend.setAttribute('aria-label',(shownNow?'Masquer':'Afficher')+
+        ' la courbe de '+s.name);
       const dot=el('span','historyLegendDot');
-      dot.style.backgroundColor=safeColor(s.color);
+      dot.setAttribute('aria-hidden','true');
       legend.append(dot,el('span','',s.emoji+' '+s.name));
+      legend.addEventListener('click',()=>{
+        if(state.hiddenAlliances.has(s.key))state.hiddenAlliances.delete(s.key);
+        else state.hiddenAlliances.add(s.key);
+        render();
+        // Keep keyboard focus on the rebuilt legend button, without
+        // jumping the scroll position in iOS Safari.
+        const updated=[...refs.legend.children].find(button=>
+          button.dataset.allianceKey===s.key);
+        if(updated)updated.focus({preventScroll:true});
+        const count=state.prepared.series.filter(entry=>
+          !state.hiddenAlliances.has(entry.key)).length;
+        refs.status.textContent=s.name+
+          (state.hiddenAlliances.has(s.key)?' : courbe masquée.':' : courbe affichée.')+
+          ' '+count+' alliance(s) affichée(s) sur '+state.prepared.series.length+'.';
+      });
       refs.legend.append(legend);
     }
     // The summary uses the same snapshots selected for the chart:
