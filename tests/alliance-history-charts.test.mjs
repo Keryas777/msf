@@ -226,7 +226,7 @@ test('page reads the configured calendar, preserves authorization and cache bust
   assert.match(source,/state\.config\.rankingSeasons/);
   assert.match(html,/auth-guard\.js/);
   assert.match(html,/alliance-history-data\.js\?v=3/);
-  assert.match(html,/alliance-history\.js\?v=8/);
+  assert.match(html,/alliance-history\.js\?v=9/);
 });
 
 test('22 October adds exactly a second real trophy point, not a second season ranking',()=>{
@@ -268,6 +268,10 @@ function drawRenderedChart(id,clientWidth=390,snapshots=[original]){
   const makeNode=(tag,attrs={},text)=>({
     tag,attrs,text,children:[],
     append(node){this.children.push(node);},
+    remove(){const i=plot.children.indexOf(this);
+      if(i>=0)plot.children.splice(i,1);},
+    // Approximate browser SVG text measurement for the isolated test DOM.
+    getComputedTextLength(){return String(this.text||'').length*7;},
     addEventListener(){}
   });
   const ctx=vm.createContext({
@@ -419,4 +423,49 @@ test('trophy graph is still independent of shared ranking ceiling',()=>{
   );
   assert.equal(changed.children.filter(n=>
     n.attrs.class==='historyTrophyBand').length,5);
+});
+
+test('all three graphs use abbreviated, non-overlapping dates on mobile',()=>{
+  const scenarios=[
+    ['war-trophies',[original,shifted(1),shifted(3)]],
+    ['war-season-rank',[original,shifted(17),shifted(34)]],
+    ['raid-season-rank',[original,shifted(17),shifted(34)]]
+  ];
+  for(const [id,snapshots] of scenarios){
+    for(const width of [300,320,390,680]){
+      const plot=drawRenderedChart(id,width,snapshots);
+      const labels=plot.children.filter(n=>
+        n.tag==='text'&&n.attrs.class?.includes('historyDateLabel'));
+      assert.ok(labels.length>=2&&labels.length<=(width<500?3:5),
+        id+' should show 2–3 dates on mobile and no more than 5 on desktop');
+      assert.ok(labels.every(n=>!/20\\d{2}/.test(n.text)),
+        'Same-year labels omit the redundant four-digit year');
+      const extents=labels.map(n=>{
+        const len=n.getComputedTextLength();
+        const x=Number(n.attrs.x);
+        const left=x-(n.attrs['text-anchor']==='end'?len:
+          n.attrs['text-anchor']==='middle'?len/2:0);
+        return {left,right:left+len};
+      }).sort((a,b)=>a.left-b.left);
+      for(let i=1;i<extents.length;i++)
+        assert.ok(extents[i].left-extents[i-1].right>=9.9,
+          id+' has overlapping dates at width '+width);
+      assert.equal(plot.children.filter(n=>n.tag==='circle').length,
+        5*snapshots.length,
+        'All real data points remain unchanged');
+    }
+  }
+});
+test('date labels de-duplicate same-day captures and add short year across years',()=>{
+  const sameDay=shifted(.01);
+  const sameDayPlot=drawRenderedChart('war-trophies',390,[original,sameDay]);
+  assert.equal(sameDayPlot.children.filter(n=>
+    n.attrs.class?.includes('historyDateLabel')).length,1);
+  const acrossYears=drawRenderedChart('war-trophies',390,
+    [original,shifted(22),shifted(85)]);
+  const labels=acrossYears.children.filter(n=>
+    n.attrs.class?.includes('historyDateLabel'));
+  assert.ok(labels.length>=2);
+  assert.ok(labels.some(n=>/26$/.test(n.text)));
+  assert.ok(labels.some(n=>/27$/.test(n.text)));
 });
