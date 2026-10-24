@@ -4,6 +4,10 @@ on:
   schedule:
     # After the Roster Service 02:00-06:00 UTC campaigns, Thursday/Saturday.
     - cron: "40 6 * * 4,6"
+    # GitHub scheduled events may be delayed or silently dropped.
+    # Each import is idempotent; repeated successful checks create no new point.
+    - cron: "47 7 * * 4,6"
+    - cron: "17 9 * * 4,6"
   workflow_dispatch:
     inputs:
       date:
@@ -49,9 +53,12 @@ jobs:
           INPUT_DATE: ${{ inputs.date }}
           INPUT_PUBLISH: ${{ inputs.publish }}
           EVENT_NAME: ${{ github.event_name }}
+          SCHEDULE_CRON: ${{ github.event.schedule }}
         run: |
           args=()
-          if [ -n "$INPUT_DATE" ]; then
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            args+=("--schedule=$SCHEDULE_CRON")
+          elif [ -n "$INPUT_DATE" ]; then
             args+=("--date=$INPUT_DATE")
           fi
           if [ "$EVENT_NAME" = "schedule" ] || [ "$INPUT_PUBLISH" = "true" ]; then

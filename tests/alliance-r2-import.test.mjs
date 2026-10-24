@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 import {
   collectionWindow,readMapping,extractAllianceSource,
-  createR2Snapshot,addSnapshotToIndex
+  createR2Snapshot,addSnapshotToIndex,resolveStandingsSchedule
 } from '../scripts/lib/alliance-r2-history.mjs';
 
 const read=p=>JSON.parse(fs.readFileSync(new URL('../'+p,import.meta.url),'utf8'));
@@ -30,6 +30,20 @@ function record(key,clock,values=[2000,12,26]){
       warLeague:{id:null,name:'DIAMOND II'}}}
   };
 }
+test('delayed or backup standings cron selects original Thursday/Saturday UTC day',()=>{
+  for(const [cron,time,expected] of [
+    ['40 6 * * 4,6','2026-10-24T06:42:00Z','2026-10-24'],
+    ['47 7 * * 4,6','2026-10-24T08:15:00Z','2026-10-24'],
+    ['17 9 * * 4,6','2026-10-24T11:59:00Z','2026-10-24'],
+    ['40 6 * * 4,6','2026-10-25T00:12:00Z','2026-10-24'],
+    ['40 6 * * 4,6','2026-10-22T11:00:00Z','2026-10-22']
+  ])assert.equal(resolveStandingsSchedule(cron,new Date(time)),expected);
+  assert.throws(()=>resolveStandingsSchedule('40 6 * * *',new Date('2026-10-24T08:00:00Z')));
+  assert.throws(()=>resolveStandingsSchedule('40 6 * * 4,6',new Date(NaN)));
+  assert.throws(()=>resolveStandingsSchedule('40 6 * * 4,6',
+    new Date('2026-10-26T18:00:00Z')),/stale/);
+});
+
 test('next-day R2 sampling fits the validated trophy postwar window',()=>{
   assert.equal(window.warDay,'2026-10-21');
   assert.equal(window.start,'2026-10-22T02:00:00.000Z');

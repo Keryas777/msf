@@ -157,3 +157,15 @@ test('trophy post-war window has margins and includes the 22 October capture',()
   assert.ok(observed>=wednesday+start*60000);
   assert.ok(observed<wednesday+end*60000);
 });
+
+test('24 October automated R2 capture adds a third genuine trophy reading',()=>{
+  const observed=data('snapshots/2026-10-24T042033728Z.json');
+  assert.equal(observed.collection.sourceDayUtc,'2026-10-24');
+  assert.equal(observed.collection.warDayUtc,'2026-10-23');
+  assert.equal(observed.coverage.allActiveAlliancesSampled,true);
+  assert.equal(observed.alliances.length,5);
+  const scores=Object.fromEntries(observed.alliances.map(a=>[a.key,a.warTrophies]));
+  assert.deepEqual(scores,{zeus:2881,athena:2679,kronos:2759,dionysos:2588,poseidon:2339});
+  assert.ok(index.snapshots.some(x=>x.capturedAt===observed.capturedAt&&
+    x.collectionDayUtc==='2026-10-24'));
+});

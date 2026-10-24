@@ -8,6 +8,29 @@ const MS_DAY=86400000;
 const validDate=x=>typeof x==='string'&&Number.isFinite(Date.parse(x));
 const validInteger=x=>Number.isSafeInteger(x)&&x>=0;
 
+// Anchor delayed GitHub Actions to the actual scheduled Thursday/Saturday,
+// never to the runner's execution date (which might be Sunday).
+const STANDINGS_SCHEDULES=Object.freeze({
+  '40 6 * * 4,6':{hour:6,minute:40},
+  '47 7 * * 4,6':{hour:7,minute:47},
+  '17 9 * * 4,6':{hour:9,minute:17}
+});
+export function resolveStandingsSchedule(cron,now=new Date()){
+  const slot=Object.hasOwn(STANDINGS_SCHEDULES,cron)?
+    STANDINGS_SCHEDULES[cron]:null;
+  if(!slot||!(now instanceof Date)||!Number.isFinite(now.getTime()))
+    throw Error('Invalid or unknown standings scheduled event');
+  const date=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),
+    now.getUTCDate(),slot.hour,slot.minute));
+  for(let i=0;i<8;i++){
+    if((date.getUTCDay()===4||date.getUTCDay()===6)&&date<=now)break;
+    date.setUTCDate(date.getUTCDate()-1);
+  }
+  if(now.getTime()-date.getTime()>36*3600000)
+    throw Error('Standings scheduled event too stale for reliable backfill');
+  return date.toISOString().slice(0,10);
+}
+
 export function collectionWindow(day,config){
   if(!ISO_DAY.test(day)||new Date(day+'T00:00:00.000Z').toISOString().slice(0,10)!==day)
     throw Error('Invalid UTC collection day');
