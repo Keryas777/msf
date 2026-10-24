@@ -147,9 +147,8 @@
     if(!model.rows.length||!model.series.length)return;
     const width=Math.max(290,Math.round(refs.plotWrap.clientWidth-8));
     const rank=!chart.higherIsBetter;
-    // Rank plots need enough vertical breathing room for each hundred.
-    // Trophy charts deliberately retain their original dimensions.
-    const height=width<500?(rank?350:320):(rank?400:370);
+    // Keep trophy, war-rank and raid-rank charts at the same height.
+    const height=width<500?350:400;
     refs.plot.setAttribute('viewBox','0 0 '+width+' '+height);
     refs.plot.setAttribute('aria-label',chart.title+'. '+model.series.length+
       ' alliances et '+model.rows.length+' relevés.');
@@ -237,7 +236,9 @@
       Array.from({length:5},(_,i)=>bounds.lo+(bounds.hi-bounds.lo)*i/4);
     for(const value of ticks){
       const pos=y(value);
-      refs.plot.append(svg('line',{x1:margin.left,y1:pos,
+      // Trophy divisions already have separators; skip generic grid lines
+      // to avoid dark strokes crossing their grey background.
+      if(rank)refs.plot.append(svg('line',{x1:margin.left,y1:pos,
         x2:width-margin.right,y2:pos,class:'historyGridLine'}));
       refs.plot.append(svg('text',{x:margin.left-9,y:pos+4,
         'text-anchor':'end',class:'historyAxisText'},
