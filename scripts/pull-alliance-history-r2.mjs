@@ -2,6 +2,7 @@
 // GitHub Actions ONLY. Pulls already archived AllianceCard responses from
 // Cloudflare R2 with read-only credentials; no calls to Scopely or Roster Service.
 import fs from 'node:fs/promises';
+import {execFileSync} from 'node:child_process';
 import {createHash,createHmac} from 'node:crypto';
 import {collectionWindow,readMapping,createR2Snapshot,addSnapshotToIndex}
   from './lib/alliance-r2-history.mjs';
@@ -53,7 +54,44 @@ function r2Client(){
     if(body.length>1000000)throw Error('Unexpectedly large R2 body');
     return body;
   }
-  return {get};
+  // S3 ListObjectsV2 needs query-string SigV4. Use the tested AWS CLI
+  // client on the GitHub-hosted runner instead of a custom query signer.
+  // Keys and API credentials must never appear in CI logs.
+  function list(prefix,token=null){
+    if(!/^roster-batches\/v1\/[a-f0-9]{64}\/$/.test(prefix)||
+      (token!==null&&(typeof token!=='string'||token.length>4096)))
+      throw Error('Invalid private R2 listing request');
+    const args=['s3api','list-objects-v2','--bucket',bucket,
+      '--endpoint-url',endpoint,'--prefix',prefix,'--max-keys','1000',
+      '--no-paginate','--output','json',
+      ...(token?['--continuation-token',token]:[])];
+    let output;
+    try{
+      output=execFileSync('aws',args,{
+        encoding:'utf8',maxBuffer:3_000_000,timeout:30000,
+        stdio:['ignore','pipe','pipe'],
+        env:{...process.env,AWS_ACCESS_KEY_ID:access,
+          AWS_SECRET_ACCESS_KEY:key,AWS_DEFAULT_REGION:'auto',
+          AWS_EC2_METADATA_DISABLED:'true'}
+      });
+    }catch{throw Error('Private R2 ListObjectsV2 failed');}
+    let parsed;
+    try{parsed=JSON.parse(output);}catch{throw Error('Invalid R2 list response');}
+    if(!Array.isArray(parsed.Contents??[])||(parsed.Contents||[]).length>1000||
+      typeof parsed.IsTruncated!=='boolean')
+      throw Error('Invalid R2 list response');
+    const rows=(parsed.Contents||[]).map(x=>{
+      if(typeof x?.Key!=='string'||!x.Key.startsWith(prefix)||
+        typeof x.LastModified!=='string'||
+        !Number.isFinite(Date.parse(x.LastModified)))
+        throw Error('Invalid R2 listing entry');
+      return {key:x.Key,modified:x.LastModified};
+    });
+    return {rows,truncated:parsed.IsTruncated,
+      cursor:typeof parsed.NextContinuationToken==='string'?
+        parsed.NextContinuationToken:null};
+  }
+  return {get,list};
 }
 const unxml=s=>s.replace(/&amp;/g,'&').replace(/&lt;/g,'<')
   .replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'");
@@ -83,9 +121,7 @@ async function privateCards(r2,fp,window){
   const lo=Date.parse(window.start)-15*60000,hi=Date.parse(window.endExclusive)+15*60000;
   do{
     if(++pages>40)throw Error('R2 listing too large: refusing partial history');
-    const query=[['list-type','2'],['prefix',prefix],['max-keys','1000'],
-      ...(token?[['continuation-token',token]]:[])];
-    const listing=decodeListing(await r2.get('',query));
+    const listing=r2.list(prefix,token);
     for(const entry of listing.rows){
       if(!isCard(entry.key,prefix))continue;
       const modified=Date.parse(entry.modified);
