@@ -226,7 +226,7 @@ test('page reads the configured calendar, preserves authorization and cache bust
   assert.match(source,/state\.config\.rankingSeasons/);
   assert.match(html,/auth-guard\.js/);
   assert.match(html,/alliance-history-data\.js\?v=3/);
-  assert.match(html,/alliance-history\.js\?v=6/);
+  assert.match(html,/alliance-history\.js\?v=7/);
 });
 
 test('22 October adds exactly a second real trophy point, not a second season ranking',()=>{
@@ -323,10 +323,10 @@ test('rankings shade Top 100 dark green and 101-200 light green behind points',(
       'Bands must also be behind the grid');
   }
 });
-test('trophies show four visible grey Diamond divisions with right-side labels',()=>{
+test('trophy plot shows P-IV and four Diamond tiers, with smaller empty edge zones',()=>{
   const divisions=config.trophyDivisions;
-  assert.deepEqual(divisions.map(b=>[b.label,b.min,b.max??null]),[
-    ['D-I',2250,2499],['D-II',2500,2749],
+  assert.deepEqual(divisions.map(b=>[b.label,b.min??null,b.max??null]),[
+    ['P-IV',null,2249],['D-I',2250,2499],['D-II',2500,2749],
     ['D-III',2750,2999],['D-IV',3000,null]
   ]);
   for(const width of [320,390,680]){
@@ -336,11 +336,15 @@ test('trophies show four visible grey Diamond divisions with right-side labels',
     const bands=plot.children.filter(n=>n.attrs.class==='historyTrophyBand');
     const separators=plot.children.filter(n=>n.attrs.class==='historyTrophyBoundary');
     const labels=plot.children.filter(n=>n.attrs.class==='historyTrophyLabel');
-    assert.equal(bands.length,4);
-    assert.equal(new Set(bands.map(b=>b.attrs.fill)).size,4);
-    assert.deepEqual(labels.map(n=>n.text),['D-I','D-II','D-III','D-IV']);
-    assert.equal(separators.length,3);
+    assert.equal(bands.length,5);
+    assert.equal(new Set(bands.map(b=>b.attrs.fill)).size,5);
+    assert.deepEqual(labels.map(n=>n.text),['P-IV','D-I','D-II','D-III','D-IV']);
+    assert.equal(separators.length,4);
     assert.ok(bands.every(b=>b.attrs.height>16));
+    assert.ok(bands[0].attrs.height<bands[1].attrs.height,
+      'Empty P-IV is smaller than D-I');
+    assert.ok(bands[4].attrs.height<bands[3].attrs.height,
+      'Empty D-IV is smaller than D-III');
     assert.ok(labels.every(l=>l.attrs.x>width-8-50));
     assert.ok(plot.children.indexOf(bands.at(-1))<
       plot.children.findIndex(n=>n.tag==='circle'),
@@ -350,6 +354,17 @@ test('trophies show four visible grey Diamond divisions with right-side labels',
     assert.equal(plot.children.filter(n=>n.tag==='circle').length,5);
     assert.equal(plot.children.filter(n=>n.attrs.class==='historyRankBand').length,0);
   }
+});
+test('trophy chart expands beyond P-IV and D-IV for observed outliers',()=>{
+  const unusual={...original,alliances:original.alliances.map((a,i)=>(
+    i===0?{...a,warTrophies:2040}:
+    i===1?{...a,warTrophies:3450}:a))};
+  const plot=drawRenderedChart('war-trophies',390,[unusual]);
+  const points=plot.children.filter(n=>n.tag==='circle');
+  assert.equal(points.length,5);
+  for(const dot of points)assert.ok(dot.attrs.cy>=22&&dot.attrs.cy<=272);
+  const labels=plot.children.filter(n=>n.attrs.class==='historyTrophyLabel');
+  assert.deepEqual(labels.map(n=>n.text),['P-IV','D-I','D-II','D-III','D-IV']);
 });
 
 test('both seasonal charts always share the largest hundred ceiling, regardless of which has worse ranks',()=>{
@@ -392,5 +407,5 @@ test('trophy graph is still independent of shared ranking ceiling',()=>{
     baseline.children.filter(n=>n.tag==='text'&&n.attrs['text-anchor']==='end').map(n=>n.text)
   );
   assert.equal(changed.children.filter(n=>
-    n.attrs.class==='historyTrophyBand').length,4);
+    n.attrs.class==='historyTrophyBand').length,5);
 });
