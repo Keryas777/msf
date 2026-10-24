@@ -155,8 +155,11 @@
       ' alliances et '+model.rows.length+' relevés.');
     const trophyDivisions=!rank&&chart.field==='warTrophies'&&
       Array.isArray(state.config?.trophyDivisions)?
-      state.config.trophyDivisions.filter(b=>Number.isSafeInteger(b.min)&&
-        (b.max===undefined||(Number.isSafeInteger(b.max)&&b.max>=b.min))&&
+      state.config.trophyDivisions.filter(b=>
+        (b.min===undefined||Number.isSafeInteger(b.min))&&
+        (b.max===undefined||Number.isSafeInteger(b.max))&&
+        (b.min!==undefined||b.max!==undefined)&&
+        (b.min===undefined||b.max===undefined||b.max>=b.min)&&
         typeof b.label==='string'&&/^#[0-9a-f]{6}$/i.test(b.fill||'')):[];
     const margin={left:53,right:rank?17:50,top:rank?14:22,bottom:48};
     const w=width-margin.left-margin.right;
@@ -166,18 +169,19 @@
     if(!values.length)return;
     // Rank 1 belongs at the top; use exact hundred boundaries, not
     // interpolated labels such as 101, 251 or 501.
-    // Reserve a meaningful vertical extent for the open-ended final division.
-    // This is only a display aid; it never creates a trophy cap or data point.
+    // Make empty P-IV / D-IV areas smaller; expand only for real values.
+    const firstDiamond=trophyDivisions.find(b=>Number.isSafeInteger(b.min)&&
+      Number.isSafeInteger(b.max));
     const finalDivision=trophyDivisions.at(-1);
-    const previousDivision=trophyDivisions.at(-2);
-    const visibleTop=finalDivision?.max!==undefined?
-      finalDivision.max+1:finalDivision?
-        finalDivision.min+Math.max(1,previousDivision?
-          previousDivision.max-previousDivision.min+1:1):null;
-    const trophyScaleValues=visibleTop===null?values:
-      [...values,...trophyDivisions.map(b=>b.min),visibleTop];
-    const bounds=rank?{lo:1,hi:sharedRankCeiling()}:
-      scale(trophyScaleValues,false);
+    const tierSize=firstDiamond?.max-firstDiamond?.min+1;
+    const tickStep=tierSize/5;
+    const trophyBounds=tierSize>0&&Number.isSafeInteger(finalDivision?.min)?
+      {lo:Math.max(0,Math.floor(Math.min(
+        firstDiamond.min-tierSize*.4,Math.min(...values)-tierSize*.12)/tickStep)*tickStep),
+       hi:Math.ceil(Math.max(finalDivision.min+tierSize*.6,
+         Math.max(...values)+tierSize*.12)/tickStep)*tickStep}:
+      scale(values,false);
+    const bounds=rank?{lo:1,hi:sharedRankCeiling()}:trophyBounds;
     const y=v=>margin.top+
       (rank?(v-bounds.lo):(bounds.hi-v))/(bounds.hi-bounds.lo)*h;
     const plotDates=model.series[0].points.map(p=>p.plotAt||p.capturedAt);
@@ -199,10 +203,10 @@
       }
     }
     if(trophyDivisions.length){
-      // Four visible grey tiers and the labels in a separate right-hand gutter.
-      // Intervals use [min, max+1), so no pixel gap appears at transitions.
+      // Grey tiers and labels occupy the right-hand gutter.
+      // Intervals use [min, max+1), including open-ended P-IV and D-IV.
       for(const band of trophyDivisions){
-        const low=Math.max(bounds.lo,band.min);
+        const low=Math.max(bounds.lo,band.min??bounds.lo);
         const high=Math.min(bounds.hi,band.max===undefined?
           bounds.hi:band.max+1);
         if(high<=low)continue;
@@ -219,7 +223,7 @@
           'aria-hidden':'true'}));
       });
       for(const band of trophyDivisions){
-        const low=Math.max(bounds.lo,band.min);
+        const low=Math.max(bounds.lo,band.min??bounds.lo);
         const high=Math.min(bounds.hi,band.max===undefined?
           bounds.hi:band.max+1);
         if(high<=low||y(low)-y(high)<16)continue;
