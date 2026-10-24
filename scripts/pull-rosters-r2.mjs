@@ -2,6 +2,7 @@
 // WebApp-initiated pull of the existing Roster Service's completed R2 batches.
 // GitHub Actions only: no OAuth, Scopely calls or public R2 endpoints.
 import fs from 'node:fs/promises';
+import {resolveRosterSchedule} from './lib/roster-r2-schedule.mjs';
 import {createPrivateR2Reader} from './lib/private-r2-read.mjs';
 import {readMapping} from './lib/alliance-r2-history.mjs';
 import {rosterWindow,loadRosterCampaign,convertAllianceRosters,keyOf}
@@ -9,16 +10,24 @@ import {rosterWindow,loadRosterCampaign,convertAllianceRosters,keyOf}
 
 async function json(path){return JSON.parse(await fs.readFile(path,'utf8'));}
 function args(argv){
-  let day=null,period=null,write=false;
+  let day=null,period=null,write=false,schedule=null;
   for(const arg of argv){
     if(arg==='--write')write=true;
     else if(/^--date=\d{4}-\d{2}-\d{2}$/.test(arg))day=arg.slice(7);
     else if(/^--period=(am|pm)$/.test(arg))period=arg.slice(9);
-    else throw Error('Usage: [--date=YYYY-MM-DD] [--period=am|pm] [--write]');
+    else if(arg.startsWith('--schedule='))schedule=arg.slice('--schedule='.length);
+    else throw Error('Usage: [--date=YYYY-MM-DD] [--period=am|pm] [--schedule=CRON] [--write]');
   }
   const current=new Date();
-  day??=current.toISOString().slice(0,10);
-  period??=current.getUTCHours()>=14?'pm':'am';
+  if(schedule!==null){
+    if(day!==null||period!==null)
+      throw Error('Do not combine a scheduled cron with manual campaign overrides');
+    const selected=resolveRosterSchedule(schedule,current);
+    day=selected.day;period=selected.period;
+  }else{
+    day??=current.toISOString().slice(0,10);
+    period??=current.getUTCHours()>=14?'pm':'am';
+  }
   return {day,period,write};
 }
 async function main(){

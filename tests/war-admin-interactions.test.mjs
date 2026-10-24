@@ -115,6 +115,11 @@ function createHarness(options = {}) {
     "warRankedCount",
     "warAnalyzedCount",
     "warPublishedCount",
+    "warFinalizeReports",
+    "warCompletionFeedback",
+    "warCompletionIcon",
+    "warCompletionTitle",
+    "warCompletionDetail",
     "warCalculateReports",
     "warRankReports",
     "warWriteAnalyses",
@@ -1243,6 +1248,98 @@ test("la rédaction ne retry pas une erreur Workers AI permanente", async () => 
   assert.equal(permanent.fetchCalls.filter(({ url }) => url.includes("write-analyses")).length, 1);
 });
 
+
+test("un clic après la validation OCR enchaîne calcul, classement, rédaction et publication", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async (url, options) => {
+    if (url.includes("parse-gemini-draft")) return Response.json(draftPayload("zeus", "Zeus"));
+    if (url.includes("write-analyses")) {
+      const payload = JSON.parse(options.body);
+      return Response.json({
+        analyses: payload.report.players.map(({ rank, name }) => ({
+          rank, name, analysis: `Analyse de ${name}.`
+        }))
+      });
+    }
+    return Response.json({
+      ok: true, published: true,
+      path: "docs/data/war/2026-08-02/zeus.json",
+      commit_sha: "commit-automatic"
+    });
+  });
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  assert.equal(harness.elements.warFinalizeReports.disabled, false);
+  assert.equal(harness.elements.warCompletionFeedback.hidden, true,
+    "aucune confirmation avant d’avoir lancé la finalisation");
+
+  // Le Screen Wake Lock observe aria-busy : aucun passage à false ne doit
+  // avoir lieu entre calcul, classement, rédaction et publication.
+  const form = harness.elements.warAdminForm;
+  const busyTimeline = [];
+  const originalSetAttribute = form.setAttribute.bind(form);
+  form.setAttribute = (name, value) => {
+    if (name === "aria-busy") busyTimeline.push(String(value));
+    originalSetAttribute(name, value);
+  };
+
+  await harness.listener("warFinalizeReports", "click")();
+  assert.ok(busyTimeline.length >= 3, "la finalisation actualise les contrôles plusieurs fois");
+  assert.equal(busyTimeline[0], "true", "le wake lock démarre dès le clic");
+  assert.ok(busyTimeline.slice(0, -1).every((state) => state === "true"),
+    "le wake lock ne se relâche à aucune transition intermédiaire");
+  assert.equal(busyTimeline.at(-1), "false",
+    "le wake lock est libéré uniquement après la publication");
+  const snapshot = harness.getSnapshot();
+  assert.equal(snapshot.published, true);
+  assert.equal(harness.elements.warCompletionFeedback.hidden, false);
+  assert.equal(harness.elements.warCompletionFeedback.dataset.state, "success");
+  assert.equal(harness.elements.warCompletionTitle.textContent, "Débrief terminé");
+  assert.match(harness.elements.warCompletionDetail.textContent, /1\/1 rapports publiés avec succès/);
+  assert.equal(harness.elements.warCompletionIcon.textContent, "✓");
+  assert.equal(snapshot.captures[0].publication.commit_sha, "commit-automatic");
+  assert.ok(snapshot.captures[0].calculatedReport);
+  assert.ok(snapshot.captures[0].rankedReport);
+  assert.ok(snapshot.captures[0].finalReport);
+  assert.deepEqual(harness.fetchCalls.map((call) => new URL(call.url).pathname), [
+    "/api/war/parse-gemini-draft",
+    "/api/war/write-analyses-stream",
+    "/api/war/publish-report"
+  ]);
+});
+
+test("la publication reste bloquée en un clic si une rédaction IA échoue", async () => {
+  const harness = createHarness();
+  harness.setFetchImplementation(async (url) => {
+    if (url.includes("parse-gemini-draft")) return Response.json(draftPayload("zeus", "Zeus"));
+    return Response.json({
+      code: "WORKERS_AI_DAILY_LIMIT",
+      error: "Quota atteint"
+    }, { status: 429 });
+  });
+
+  harness.elements.warImage.files = files(1);
+  harness.listener("warImage", "change")();
+  await harness.listener("warAdminForm", "submit")(submitEvent());
+  openReviewFromCard(harness);
+  harness.listener("warValidateDraft", "click")();
+  harness.listener("warReviewBack", "click")();
+  await harness.listener("warFinalizeReports", "click")();
+
+  assert.equal(harness.getSnapshot().published, false);
+  assert.equal(harness.getSnapshot().captures[0].finalReport, null);
+  assert.equal(harness.elements.warCompletionFeedback.dataset.state, "error");
+  assert.equal(harness.elements.warCompletionTitle.textContent, "Débrief incomplet");
+  assert.match(harness.elements.warCompletionDetail.textContent, /0\/1 rapports publiés/);
+  assert.match(harness.elements.warCompletionDetail.textContent, /Zeus \(rédaction IA\)/);
+  assert.equal(harness.fetchCalls.filter((call) => call.url.includes("publish-report")).length, 0);
+});
+
 test("un rapport final est publié sans recalcul ni modification", async () => {
   const harness = createHarness();
   harness.setFetchImplementation(async (url, options) => {
@@ -1348,6 +1445,10 @@ test("la publication reste séquentielle et poursuit après une erreur", async (
   assert.equal(snapshot.captures[0].publication.state, "error");
   assert.equal(snapshot.captures[1].publication.state, "published");
   assert.equal(snapshot.published, false);
+  assert.equal(harness.elements.warCompletionFeedback.dataset.state, "error");
+  assert.match(harness.elements.warCompletionDetail.textContent, /1\/2 rapports publiés/);
+  assert.match(harness.elements.warCompletionDetail.textContent, /Zeus \(publication GitHub\)/);
+  assert.doesNotMatch(harness.elements.warCompletionDetail.textContent, /Kronos/);
   assert.match(harness.elements.warStatusMessage.textContent, /1 rapport publié · 1 échec conservé/);
 });
 

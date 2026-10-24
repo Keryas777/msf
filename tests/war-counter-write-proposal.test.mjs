@@ -181,3 +181,25 @@ test("n'écrit pas automatiquement un nouveau matchup si le nom d'équipe est am
   const proposal = buildWriteProposal({ preview, rows: [] });
   assert.equal(proposal.action, "blocked");
 });
+
+test("une note crée une proposition sans changer un ratio déjà enregistré", () => {
+  const preview = {
+    state: {
+      attackIds: ["A1", "A2"],
+      defenseIds: ["D1", "D2"],
+      attackPower: 120,
+      defensePower: 100,
+      ratio: 1.2
+    },
+    comparison: {
+      status: "worse",
+      matches: [{ index: 5 }],
+      existingRatio: 0.9
+    }
+  };
+  assert.equal(buildWriteProposal({ preview, rows: [] }), null);
+  const action = buildWriteProposal({ preview, rows: [], note: "Attaquer après le spécial" });
+  assert.equal(action.action, "annotate");
+  assert.equal(action.ratio, 1.2);
+  assert.deepEqual(action.matchingRows, [7]);
+});

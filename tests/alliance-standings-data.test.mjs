@@ -110,7 +110,8 @@ test('future collection configuration is UTC-based and disabled until collector 
 
 test("22 October manual trophy snapshot is genuine, complete and changes all five values",()=>{
   const after=data("snapshots/2026-10-22T120208591Z.json");
-  assert.equal(index.snapshots.at(-1).capturedAt,after.capturedAt);
+  assert.ok(index.snapshots.some(x=>x.capturedAt===after.capturedAt),
+    'Keep the real 22 October capture even after later automatic imports');
   assert.equal(after.capturedAt,"2026-10-22T12:02:08.591Z");
   assert.equal(after.source,"/player/v1/alliance/card");
   assert.equal(after.coverage.scannedSessions,9);
@@ -155,4 +156,16 @@ test('trophy post-war window has margins and includes the 22 October capture',()
   const observed=Date.parse('2026-10-22T12:02:08.591Z');
   assert.ok(observed>=wednesday+start*60000);
   assert.ok(observed<wednesday+end*60000);
+});
+
+test('24 October automated R2 capture adds a third genuine trophy reading',()=>{
+  const observed=data('snapshots/2026-10-24T042033728Z.json');
+  assert.equal(observed.collection.sourceDayUtc,'2026-10-24');
+  assert.equal(observed.collection.warDayUtc,'2026-10-23');
+  assert.equal(observed.coverage.allActiveAlliancesSampled,true);
+  assert.equal(observed.alliances.length,5);
+  const scores=Object.fromEntries(observed.alliances.map(a=>[a.key,a.warTrophies]));
+  assert.deepEqual(scores,{zeus:2881,athena:2679,kronos:2759,dionysos:2588,poseidon:2339});
+  assert.ok(index.snapshots.some(x=>x.capturedAt===observed.capturedAt&&
+    x.collectionDayUtc==='2026-10-24'));
 });

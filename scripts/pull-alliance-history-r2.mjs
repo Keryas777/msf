@@ -2,72 +2,59 @@
 // GitHub Actions ONLY. Pulls already archived AllianceCard responses from
 // Cloudflare R2 with read-only credentials; no calls to Scopely or Roster Service.
 import fs from 'node:fs/promises';
+import {execFileSync} from 'node:child_process';
+import {createPrivateR2Reader} from './lib/private-r2-read.mjs';
 import {createHash,createHmac} from 'node:crypto';
-import {collectionWindow,readMapping,createR2Snapshot,addSnapshotToIndex}
-  from './lib/alliance-r2-history.mjs';
+import {collectionWindow,readMapping,createR2Snapshot,addSnapshotToIndex,
+  resolveStandingsSchedule} from './lib/alliance-r2-history.mjs';
 
-const sha=s=>createHash('sha256').update(s).digest('hex');
-const hmac=(key,data)=>createHmac('sha256',key).update(data).digest();
-const enc=s=>encodeURIComponent(s).replace(/[!'()*]/g,
-  c=>'%'+c.charCodeAt(0).toString(16).toUpperCase());
-const EMPTY_SHA=sha('');
-const HEX=/^[a-f0-9]{64}$/;
-const NAME=/^[a-z0-9-]{3,64}$/;
 function secret(name){const v=process.env[name];if(!v)throw Error('Missing required secret '+name);return v;}
 function r2Client(){
-  const account=secret('LOSP_R2_ACCOUNT_ID'),access=secret('LOSP_R2_ACCESS_KEY_ID'),
-    key=secret('LOSP_R2_SECRET_ACCESS_KEY'),bucket=secret('LOSP_R2_BUCKET');
-  if(!/^[0-9a-f]{32}$/.test(account)||!NAME.test(bucket))
-    throw Error('Invalid R2 account or bucket configuration');
-  const host=account+'.r2.cloudflarestorage.com';
-  const endpoint='https://'+host;
-  async function get(path='',query=[]){
-    const resource='/'+[bucket,...(path?path.split('/'):[])].map(enc).join('/');
-    const qs=query.slice().sort(([a,x],[b,y])=>a.localeCompare(b)||x.localeCompare(y))
-      .map(([k,v])=>enc(k)+'='+enc(String(v))).join('&');
-    const now=new Date(),date=now.toISOString().replace(/[-:]|\.\d{3}/g,'').slice(0,15)+'Z';
-    const day=date.slice(0,8);
-    const canonical=['GET',resource,qs,'host:'+host+'\n'+
-      'x-amz-content-sha256:'+EMPTY_SHA+'\n'+'x-amz-date:'+date+'\n',
-      'host;x-amz-content-sha256;x-amz-date',EMPTY_SHA].join('\n');
-    const scope=day+'/auto/s3/aws4_request';
-    const digest=sha('AWS4-HMAC-SHA256\n'+date+'\n'+scope+'\n'+sha(canonical));
-    const signing=hmac(hmac(hmac(hmac('AWS4'+key,day),'auto'),'s3'),'aws4_request');
-    const signature=hmac(signing,digest).toString('hex');
-    const authorization='AWS4-HMAC-SHA256 Credential='+access+'/'+scope+
-      ', SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature='+signature;
-    const response=await fetch(endpoint+resource+(qs?'?'+qs:''),{
-      method:'GET',redirect:'error',signal:AbortSignal.timeout(20000),
-      headers:{'x-amz-date':date,'x-amz-content-sha256':EMPTY_SHA,
-        Authorization:authorization}
+  const account=secret('LOSP_R2_ACCOUNT_ID');
+  const access=secret('LOSP_R2_ACCESS_KEY_ID');
+  const key=secret('LOSP_R2_SECRET_ACCESS_KEY');
+  const bucket=secret('LOSP_R2_BUCKET');
+  const endpoint='https://'+account+'.r2.cloudflarestorage.com';
+  // Use the exact GET signer already exercised by the roster import.
+  const reader=createPrivateR2Reader();
+  function list(prefix,token=null){
+    if(!/^roster-batches\/v1\/[a-f0-9]{64}\/$/.test(prefix)||
+      (token!==null&&(typeof token!=='string'||token.length>4096)))
+      throw Error('Invalid private R2 listing request');
+    const args=['s3api','list-objects-v2','--bucket',bucket,
+      '--endpoint-url',endpoint,'--prefix',prefix,'--max-keys','1000',
+      '--no-paginate','--output','json',
+      ...(token?['--continuation-token',token]:[])];
+    let output;
+    try{
+      output=execFileSync('aws',args,{
+        encoding:'utf8',maxBuffer:3_000_000,timeout:30000,
+        stdio:['ignore','pipe','pipe'],
+        env:{...process.env,AWS_ACCESS_KEY_ID:access,
+          AWS_SECRET_ACCESS_KEY:key,AWS_DEFAULT_REGION:'auto',
+          AWS_EC2_METADATA_DISABLED:'true'}
+      });
+    }catch{throw Error('Private R2 ListObjectsV2 failed');}
+    let parsed;
+    try{parsed=JSON.parse(output);}catch{throw Error('Invalid R2 list response');}
+    if(!Array.isArray(parsed.Contents??[])||(parsed.Contents||[]).length>1000||
+      typeof parsed.IsTruncated!=='boolean')
+      throw Error('Invalid R2 list response');
+    const rows=(parsed.Contents||[]).map(x=>{
+      if(typeof x?.Key!=='string'||!x.Key.startsWith(prefix)||
+        typeof x.LastModified!=='string'||
+        !Number.isFinite(Date.parse(x.LastModified)))
+        throw Error('Invalid R2 listing entry');
+      return {key:x.Key,modified:x.LastModified};
     });
-    if(!response.ok)throw Error('Private R2 read failed (HTTP '+response.status+')');
-    const length=Number(response.headers.get('content-length')||0);
-    if(length>1000000)throw Error('Unexpectedly large R2 response');
-    const body=await response.text();
-    if(body.length>1000000)throw Error('Unexpectedly large R2 body');
-    return body;
+    return {rows,truncated:parsed.IsTruncated,
+      cursor:typeof parsed.NextContinuationToken==='string'?
+        parsed.NextContinuationToken:null};
   }
-  return {get};
+
+  return {list,getJSON:reader.getJSON};
 }
-const unxml=s=>s.replace(/&amp;/g,'&').replace(/&lt;/g,'<')
-  .replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'");
-function tag(xml,name){
-  const match=new RegExp('<'+name+'>([\\s\\S]*?)<\\/'+name+'>').exec(xml);
-  return match?unxml(match[1]):null;
-}
-function decodeListing(xml){
-  if(!xml.includes('<ListBucketResult'))throw Error('Invalid R2 list response');
-  const rows=[];
-  for(const content of xml.matchAll(/<Contents>([\s\S]*?)<\/Contents>/g)){
-    const key=tag(content[1],'Key'),modified=tag(content[1],'LastModified');
-    if(!key||!modified||!Number.isFinite(Date.parse(modified)))
-      throw Error('Invalid R2 listing entry');
-    rows.push({key,modified});
-  }
-  return {rows,truncated:tag(xml,'IsTruncated')==='true',
-    cursor:tag(xml,'NextContinuationToken')};
-}
+const HEX=/^[a-f0-9]{64}$/;
 const getJson=async path=>JSON.parse(await fs.readFile(path,'utf8'));
 const isCard=(key,prefix)=>key.startsWith(prefix)&&
   /\/provider-source\/[0-9a-f-]{36}\/alliance-card\.json$/.test(key);
@@ -78,9 +65,7 @@ async function privateCards(r2,fp,window){
   const lo=Date.parse(window.start)-15*60000,hi=Date.parse(window.endExclusive)+15*60000;
   do{
     if(++pages>40)throw Error('R2 listing too large: refusing partial history');
-    const query=[['list-type','2'],['prefix',prefix],['max-keys','1000'],
-      ...(token?[['continuation-token',token]]:[])];
-    const listing=decodeListing(await r2.get('',query));
+    const listing=r2.list(prefix,token);
     for(const entry of listing.rows){
       if(!isCard(entry.key,prefix))continue;
       const modified=Date.parse(entry.modified);
@@ -94,19 +79,24 @@ async function privateCards(r2,fp,window){
   const rows=[];
   for(const path of candidates){
     let body;
-    try{body=JSON.parse(await r2.get(path));}catch{continue;}
+    try{body=await r2.getJSON(path,1000000);}catch{continue;}
     if(body?.allianceFingerprint===fp)rows.push(body);
   }
   return rows;
 }
 async function main(){
   const args=process.argv.slice(2);
-  if(args.some(x=>x!=='--write'&&!/^--date=\d{4}-\d{2}-\d{2}$/.test(x)))
-    throw Error('Usage: --date=YYYY-MM-DD [--write]');
+  if(args.some(x=>x!=='--write'&&!/^--date=\d{4}-\d{2}-\d{2}$/.test(x)&&
+    !x.startsWith('--schedule=')))
+    throw Error('Usage: [--date=YYYY-MM-DD] [--schedule=CRON] [--write]');
   const write=args.includes('--write');
   const now=new Date();
   const dateArg=args.find(x=>x.startsWith('--date='));
-  const day=dateArg?dateArg.slice(7):now.toISOString().slice(0,10);
+  const scheduledArg=args.find(x=>x.startsWith('--schedule='));
+  if(dateArg&&scheduledArg)throw Error('Do not combine manual date with scheduled cron');
+  const day=dateArg?dateArg.slice(7):scheduledArg?
+    resolveStandingsSchedule(scheduledArg.slice('--schedule='.length),now):
+    now.toISOString().slice(0,10);
   const config=await getJson('docs/data/alliance-standings/config.json');
   const registry=await getJson('docs/data/alliances.json');
   const index=await getJson('docs/data/alliance-standings/index.json');

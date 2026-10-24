@@ -116,21 +116,61 @@ test('character conversion takes API stars, preserves known ISO matrix fields',(
   assert.deepEqual(result.value,{power:3000000,level:110,gear:21,
     isoMax:15,yellowStars:7,redStars:7,diamonds:2});
   assert.equal(result.isoClass,'raider');
-  const newCharacter=convertCharacter(chars[1],undefined);
-  assert.equal(newCharacter.key,'newcharacter');
-  assert.deepEqual(newCharacter.value,{
-    power:1000,level:50,gear:10,yellowStars:5,redStars:5,diamonds:0
-  });
-  assert.equal(Object.hasOwn(newCharacter.value,'isoMax'),false,
-    'Unknown API ISO matrix tier must remain absent, not invented as 0');
-  assert.equal(convertCharacter({...chars[1],iso8:{class:'striker',level:5}},undefined)
-    .value.isoMax,undefined,'ISO class level is not the matrix tier');
+  const unknownIso=convertCharacter(chars[1],undefined);
+  assert.equal(unknownIso.value.power,1000);
+  assert.equal(unknownIso.value.level,50);
+  assert.equal(unknownIso.value.gear,10);
+  assert.equal(unknownIso.value.yellowStars,5);
+  assert.equal(unknownIso.value.redStars,5);
+  assert.equal(Object.hasOwn(unknownIso.value,'isoMax'),false);
   assert.equal(convertCharacter({...chars[1],isoMax:12},undefined).value.isoMax,12);
-  assert.equal(convertCharacter({...chars[0],isoMax:17},old).value.isoMax,17,
-    'An explicit numeric matrix tier can update an existing character');
-  assert.equal(convertCharacter({id:'MissingCore',power:120},undefined),null,
-    'New characters without validated core fields still require manual review');
+  assert.equal(convertCharacter({...chars[1],gearTier:undefined},undefined),null);
+  assert.equal(convertCharacter({...chars[1],activeRed:undefined},undefined),null);
 });
+
+test('real R2 ISO8 CSV class levels reconstruct the historic five-column ISO maximum',()=>{
+  const source={id:'SpiderMan',power:3000000,level:110,gearTier:21,
+    activeYellow:7,activeRed:9};
+  // These anonymized ISO combinations were cross-checked with the 23 Oct R2
+  // campaigns and the historical pre-import CSV-derived roster values.
+  for(const [iso8,expected,isoClass] of [
+    ['0,0,0,0,0,0,striker,13',13,'striker'],
+    ['0,0,0,0,0,0,fortifier,3,4',4,'fortifier'],
+    ['0,0,0,0,0,0,healer,0,0,4',4,'healer'],
+    ['0,0,0,0,0,0,skirmisher,0,0,0,11',11,'skirmisher'],
+    ['0,0,0,0,0,0,raider,0,0,0,1,13',13,'raider'],
+    ['0,0,0,0,0,0,striker,0',0,'striker']
+  ]){
+    const parsed=convertCharacter({...source,iso8});
+    assert.equal(parsed.value.isoMax,expected);
+    assert.equal(parsed.isoClass,isoClass);
+    assert.deepEqual({...parsed.value,isoMax:undefined},{
+      power:3000000,level:110,gear:21,yellowStars:7,
+      redStars:7,diamonds:2,isoMax:undefined
+    },'Only ISO is affected; power, gear, level and stars must be unchanged');
+  }
+  // A real upgrade is picked up, a previously measured maximum cannot regress.
+  const old={power:1,level:100,gear:20,isoMax:12,
+    yellowStars:7,redStars:7,diamonds:0};
+  assert.equal(convertCharacter({...source,
+    iso8:'0,0,0,0,0,0,raider,0,0,0,0,13'},old).value.isoMax,13);
+  assert.equal(convertCharacter({...source,
+    iso8:'0,0,0,0,0,0,raider,0,0,0,0,10'},old).value.isoMax,12);
+  // No explicit level (even if class info was absent) must not invent ISO 0.
+  for(const iso8 of ['0','0,0,0,0,0,0','0,0,0,0,0,0,raider',
+    '0,0,0,0,0,0,raider,13,bad']){
+    const fresh=convertCharacter({...source,iso8});
+    assert.equal(Object.hasOwn(fresh.value,'isoMax'),false);
+    assert.equal(convertCharacter({...source,iso8},old).value.isoMax,12);
+  }
+  const newCaptain=convertAllianceRosters('poseidon',[{
+    name:'ISO CSV Captain',characters:[{...source,
+      iso8:'0,0,0,0,0,0,raider,0,0,0,0,15'}]
+  }],[],{aliases:{}});
+  assert.equal(newCaptain[0].chars.spiderman.isoMax,15);
+  assert.equal(newCaptain[0].iso.spiderman.isoClass,'raider');
+});
+
 test('alliance transform reuses historical player keys and does not invent ISO levels',()=>{
   const prior=[{alliance:'zeus',player:'Keryas I',playerKey:'keryasi',
     chars:{spiderman:{power:100,level:100,gear:20,isoMax:15,
@@ -148,13 +188,31 @@ test('alliance transform reuses historical player keys and does not invent ISO l
   assert.equal(result[0].chars.spiderman.isoMax,15);
   assert.equal(result[0].iso.spiderman.isoClass,'raider');
   assert.equal(result[0].iso.spiderman.isoColor,'orange');
-  assert.equal(Object.hasOwn(result[0].chars,'newcharacter'),true);
+  // A newly discovered character with official core stats is retained,
+  // but its unknown ISO level must stay absent.
   assert.equal(result[0].chars.newcharacter.power,1000);
   assert.equal(Object.hasOwn(result[0].chars.newcharacter,'isoMax'),false);
+  assert.equal(result[0].iso.newcharacter.isoClass,'striker');
   assert.equal(result[1].chars.spiderman.isoMax,10);
   assert.equal(keyOf('Améline67'),'ameline67');
   assert.equal(keyOf('Lord Fanfan'),'lordfanfan');
 });
+test('new authorized player without a CSV baseline is included when core stats are known',()=>{
+  const member=row(0,'New Poseidon Captain','volatile-new');
+  member.characters=[chars[0],chars[1]];
+  const result=convertAllianceRosters('poseidon',[member],[],{aliases:{}});
+  assert.equal(result.length,1);
+  assert.equal(result[0].player,'New Poseidon Captain');
+  assert.equal(result[0].chars.spiderman.power,3000000);
+  assert.equal(result[0].chars.newcharacter.power,1000);
+  assert.equal(Object.hasOwn(result[0].chars.spiderman,'isoMax'),false);
+  assert.equal(Object.hasOwn(result[0].chars.newcharacter,'isoMax'),false);
+  assert.equal(result[0].iso.spiderman.isoClass,'raider');
+  const noCore={...member,characters:[{id:'BadCharacter',power:5000}]};
+  assert.throws(()=>convertAllianceRosters('poseidon',[noCore],[],{aliases:{}}),
+    /Member has no convertible characters/);
+});
+
 test('R2 credentials remain in Actions, requests are signed and read-only',async()=>{
   const env={LOSP_R2_ACCOUNT_ID:'a'.repeat(32),
     LOSP_R2_ACCESS_KEY_ID:'TEST_READ_ONLY',

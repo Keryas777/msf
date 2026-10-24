@@ -11,9 +11,11 @@ on:
       - "tests/alliance-r2-import.test.mjs"
       - "tests/roster-r2-import.test.mjs"
       - "tests/evolution-history-players.test.mjs"
-      - "tests/merge-rosters-iso.test.mjs"
       - "docs/evolution.js"
       - "docs/evolution.html"
+      - "tests/roster-r2-schedule.test.mjs"
+      - "scripts/lib/roster-r2-schedule.mjs"
+      - "tests/merge-rosters-optional-iso.test.mjs"
       - "scripts/merge-rosters.mjs"
       - "scripts/lib/roster-r2-import.mjs"
       - "scripts/lib/private-r2-read.mjs"
@@ -41,6 +43,5 @@ jobs:
           node --check docs/alliance-history-data.js
           node --check docs/alliance-history.js
           node --check docs/evolution.js
-          node --check scripts/merge-rosters.mjs
           node --check scripts/pull-rosters-r2.mjs
-          node --test tests/alliance-standings-data.test.mjs tests/alliance-history-charts.test.mjs tests/alliance-r2-import.test.mjs tests/roster-r2-import.test.mjs tests/evolution-history-players.test.mjs tests/merge-rosters-iso.test.mjs
+          node --test tests/alliance-standings-data.test.mjs tests/alliance-history-charts.test.mjs tests/alliance-r2-import.test.mjs tests/roster-r2-import.test.mjs tests/merge-rosters-optional-iso.test.mjs tests/roster-r2-schedule.test.mjs tests/evolution-history-players.test.mjs
