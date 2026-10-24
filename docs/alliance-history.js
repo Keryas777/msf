@@ -181,8 +181,15 @@
          Math.max(...values)+tierSize*.12)/tickStep)*tickStep}:
       scale(values,false);
     const bounds=rank?{lo:1,hi:sharedRankCeiling()}:trophyBounds;
-    const y=v=>margin.top+
+    const compressedRank=rank&&bounds.hi>2000;
+    // Keep Top 100/200 readable even if a new alliance has a rank above
+    // 10,000. Both ranking charts use this same labelled, piecewise axis.
+    const linearY=v=>margin.top+
       (rank?(v-bounds.lo):(bounds.hi-v))/(bounds.hi-bounds.lo)*h;
+    const rankRatio=v=>v<=1000?
+      .7*(v-bounds.lo)/(1000-bounds.lo):
+      .7+.3*Math.log(v/1000)/Math.log(bounds.hi/1000);
+    const y=v=>compressedRank?margin.top+rankRatio(v)*h:linearY(v);
     const plotDates=model.series[0].points.map(p=>p.plotAt||p.capturedAt);
     const times=plotDates.map(iso=>Date.parse(iso));
     const first=times[0],last=times[times.length-1];
@@ -231,8 +238,20 @@
           class:'historyTrophyLabel','aria-hidden':'true'},band.label));
       }
     }
+    const compressedTicks=[1,100,200,500,1000,2500,5000,10000]
+      .filter(v=>v<bounds.hi);
+    const spacedTicks=[];
+    if(compressedRank){
+      for(const value of compressedTicks){
+        const pos=y(value);
+        if((!spacedTicks.length||pos-y(spacedTicks.at(-1))>=16)&&
+          y(bounds.hi)-pos>=16)spacedTicks.push(value);
+      }
+      spacedTicks.push(bounds.hi);
+    }
     const ticks=rank?
-      [1,...Array.from({length:bounds.hi/100},(_,i)=>(i+1)*100)]:
+      (compressedRank?spacedTicks:
+        [1,...Array.from({length:bounds.hi/100},(_,i)=>(i+1)*100)]):
       Array.from({length:5},(_,i)=>bounds.lo+(bounds.hi-bounds.lo)*i/4);
     for(const value of ticks){
       const pos=y(value);
@@ -356,6 +375,8 @@
     refs.note.textContent=chart.requiresSeasonQualification?
       'Les rangs sont ceux des saisons terminées (pas de la saison en cours). Les périodes sont déduites du calendrier de 14 jours, sauf relevé confirmé ; l’API ne fournit pas de numéro de saison. Rang 1 = meilleur classement.':
       'Les trophées représentent le total détenu par chaque alliance à la date du relevé. Les courbes utilisent exclusivement les valeurs réellement capturées.';
+    if(!chart.higherIsBetter&&sharedRankCeiling()>2000)
+      refs.note.textContent+=' Échelle verticale compressée au-delà du rang 1 000 pour rendre toutes les alliances lisibles.';
     if(state.failures)refs.note.textContent+=' Attention : '+
       state.failures+' instantané(s) indisponible(s).';
     if(!model.rows.length){
