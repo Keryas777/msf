@@ -226,7 +226,8 @@ test('page reads the configured calendar, preserves authorization and cache bust
   assert.match(source,/state\.config\.rankingSeasons/);
   assert.match(html,/auth-guard\.js/);
   assert.match(html,/alliance-history-data\.js\?v=4/);
-  assert.match(html,/alliance-history\.js\?v=10/);
+  assert.match(html,/alliance-history\.js\?v=11/);
+  assert.match(html,/alliance-history\.css\?v=4/);
 });
 
 test('22 October adds exactly a second real trophy point, not a second season ranking',()=>{
@@ -252,7 +253,7 @@ test('22 October adds exactly a second real trophy point, not a second season ra
 });
 
 
-function drawRenderedChart(id,clientWidth=390,snapshots=[original]){
+function drawRenderedChart(id,clientWidth=390,snapshots=[original],hiddenKeys=[]){
   // Execute the same SVG plotting function shipped to GitHub Pages.
   // A tiny DOM stub is sufficient; no dependency on a browser framework.
   const source=read('docs/alliance-history.js');
@@ -278,7 +279,7 @@ function drawRenderedChart(id,clientWidth=390,snapshots=[original]){
     refs:{plot,plotWrap:{clientWidth}},svg:makeNode,
     safeColor:value=>value,formatDate:date=>date.slice(0,10),
     number:new Intl.NumberFormat('fr-FR'),
-    state:{snapshots,registry,config},
+    state:{snapshots,registry,config,hiddenAlliances:new Set(hiddenKeys)},
     byId,
     window:{LoSPStandingsSeries:context.window.LoSPStandingsSeries}
   });
@@ -555,4 +556,58 @@ test('24 October counts as one trophy reading, and Hadès begins there',()=>{
   const hades=model.series.find(s=>s.key==='hades');
   assert.deepEqual(Array.from(hades.points,p=>p.value),[null,null,1651]);
   assert.equal(model.series.find(s=>s.key==='zeus').points.length,3);
+});
+
+test('legend controls are accessible buttons with filled and hollow alliance markers',()=>{
+  const source=read('docs/alliance-history.js');
+  const css=read('docs/alliance-history.css');
+  assert.match(source,/el\('button','historyLegendEntry'\)/);
+  assert.match(source,/legend\.type='button'/);
+  assert.match(source,/legend\.setAttribute\('aria-pressed',String\(shownNow\)\)/);
+  assert.match(source,/state\.hiddenAlliances\.add\(s\.key\)/);
+  assert.match(source,/state\.hiddenAlliances\.delete\(s\.key\)/);
+  assert.match(source,/render\(\);[\s\S]*updated\.focus\(\{preventScroll:true\}\)/);
+  assert.match(css,/\.historyLegendEntry\.is-hidden \.historyLegendDot \{ background: transparent; \}/);
+  assert.match(css,/\.historyLegendEntry:focus-visible/);
+});
+
+test('hiding Hadès filters dots and restores the standard rank scale on mobile',()=>{
+  const readings=index.snapshots.map(s=>
+    JSON.parse(read('docs/data/alliance-standings/'+s.file)));
+  for(const id of ['war-season-rank','raid-season-rank']){
+    const full=drawRenderedChart(id,390,readings);
+    const filtered=drawRenderedChart(id,390,readings,['hades']);
+    assert.equal(full.children.filter(n=>n.tag==='circle').length,6);
+    assert.equal(filtered.children.filter(n=>n.tag==='circle').length,5);
+    const fullTicks=full.children.filter(n=>n.attrs.class==='historyGridLine');
+    const filteredTicks=filtered.children.filter(n=>n.attrs.class==='historyGridLine');
+    assert.ok(fullTicks.length<=12);
+    assert.equal(filteredTicks.length,9,'Without Hadès return to 1–800 linear rank axis');
+    const end=filtered.children.filter(n=>n.tag==='text'&&
+      n.attrs['text-anchor']==='end').at(-1);
+    assert.equal(end.text,'800');
+    assert.equal(filtered.attributes.viewBox,full.attributes.viewBox);
+  }
+  for(const width of [320,390,680]){
+    const full=drawRenderedChart('war-trophies',width,readings);
+    const filtered=drawRenderedChart('war-trophies',width,readings,['hades']);
+    assert.equal(full.children.filter(n=>n.tag==='circle').length,16);
+    assert.equal(filtered.children.filter(n=>n.tag==='circle').length,15);
+    assert.equal(full.attributes.viewBox,filtered.attributes.viewBox);
+    const fullLabels=full.children.filter(n=>n.attrs.class==='historyTrophyLabel');
+    const filteredLabels=filtered.children.filter(n=>n.attrs.class==='historyTrophyLabel');
+    assert.ok(fullLabels.some(n=>n.text==='P-IV'));
+    assert.ok(filteredLabels.some(n=>n.text==='D-I'));
+  }
+});
+test('all hidden curves do not create a fake data series or break SVG rendering',()=>{
+  const readings=index.snapshots.map(s=>
+    JSON.parse(read('docs/data/alliance-standings/'+s.file)));
+  for(const id of ['war-trophies','war-season-rank','raid-season-rank']){
+    const plot=drawRenderedChart(id,320,readings,registry.map(a=>a.key));
+    assert.equal(plot.children.filter(n=>n.tag==='circle').length,0);
+    assert.equal(plot.children.filter(n=>n.tag==='polyline').length,0);
+    assert.ok(plot.children.some(n=>n.tag==='text'&&
+      n.text==='Toutes les alliances sont masquées'));
+  }
 });
