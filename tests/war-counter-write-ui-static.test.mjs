@@ -25,7 +25,7 @@ test("la clé d'écriture n'est conservée qu'en sessionStorage", () => {
 
 test("la confirmation d'écriture groupée est chargée autour du moteur Vision", () => {
   assert.match(entry, /war-counter-lab\.js\?v=r7-vertical-2/);
-  assert.match(entry, /war-counter-write-ui\.js\?v=r3/);
+  assert.match(entry, /war-counter-write-ui\.js\?v=r4/);
   assert.match(entry, /war-counter-write-auth\.js\?v=2/);
   assert.match(entry, /war-counter-lab-stability\.js\?v=1/);
   assert.match(entry, /war-counter-write-team-source\.js\?v=2/);
@@ -33,10 +33,10 @@ test("la confirmation d'écriture groupée est chargée autour du moteur Vision"
   assert.match(entry, /installWarCounterLabStability\(\)/);
   assert.match(entry, /initWarCounterManualTeamUi\(\)/);
   assert.match(entry, /initWarCounterWriteUi\(\)/);
-  assert.match(html, /war-counter-write\.css\?v=r2/);
+  assert.match(html, /war-counter-write\.css\?v=r3/);
   assert.match(html, /id="sheetBatchPanel"/);
   assert.match(html, /id="sheetBatchButton"/);
-  assert.match(html, /war-counter-lab-entry\.js\?v=r7-entry-16/);
+  assert.match(html, /war-counter-lab-entry\.js\?v=r7-entry-17/);
 });
 
 test("la vérification reste stable pendant que les captures suivantes sont analysées", () => {
@@ -77,4 +77,14 @@ test("le lot est regroupé côté navigateur et reste revérifié côté Worker"
   assert.match(ui, /groupBatchEntries/);
   assert.match(ui, /apply-batch/);
   assert.match(ui, /Une seule confirmation et une seule saisie de clé pour tout le lot/);
+});
+
+test("les notes du matchup sont éditables avant l'écriture individuelle et groupée", () => {
+  assert.match(ui, /function addInlineNote\(/);
+  assert.match(ui, /write-inline-note/);
+  assert.match(ui, /noteDrafts = new Map\(\)/);
+  assert.match(ui, /readDraftNote\(matchupKey\(proposal\.attackIds, proposal\.defenseIds\)\)/);
+  assert.match(ui, /note: readDraftNote\(matchupKey\(preview\.state\.attackIds, preview\.state\.defenseIds\)\)/);
+  assert.match(ui, /writeExistingNoteText/);
+  assert.match(ui, /Enregistrer cette note seule/);
 });

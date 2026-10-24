@@ -7,6 +7,7 @@ import {
   ceilRatioToHundredth,
   matchingRows,
   matchupKey,
+  mergeMatchupNote,
   normalizeBatchItems,
   ratioFromPowers,
   rowsAsObjects
@@ -137,4 +138,32 @@ test("le plan batch décide toutes les actions depuis une seule vue du Sheet", (
   assert.equal(plan.creates[0].metadata.atk_key, "atk2");
   assert.equal(plan.skipped.length, 0);
   assert.equal(plan.conflicts.length, 0);
+});
+
+test("une note s'ajoute à la note existante sans l'écraser ni la dupliquer", () => {
+  assert.equal(mergeMatchupNote("", "Focus sur le chef"), "Focus sur le chef");
+  assert.equal(mergeMatchupNote("Ordre de jeu", "Focus sur le chef"), "Ordre de jeu\n\nFocus sur le chef");
+  assert.equal(mergeMatchupNote("Ordre de jeu\n\nFocus sur le chef", "Focus sur le chef"), "Ordre de jeu\n\nFocus sur le chef");
+  assert.throws(() => mergeMatchupNote("x".repeat(499), "Texte complémentaire"), /Note trop longue/);
+});
+
+test("une note seule est écrite même sans amélioration de ratio", () => {
+  const values = [
+    header,
+    ["Def", "Def classique", "def", "D1", "D2", "D3", "D4", "D5", "Atk", "Atk classique", "atk", "A1", "A2", "A3", "A4", "A5", "0.9", "1.05", "1.2", "2.2", "2.7", "Consigne existante"]
+  ];
+  const rows = rowsAsObjects(values);
+  const normalized = normalizeBatchItems([{
+    attackIds: ["A1", "A2", "A3", "A4", "A5"],
+    defenseIds: ["D1", "D2", "D3", "D4", "D5"],
+    attackPower: 110,
+    defensePower: 100,
+    metadata: { notes: "Nouvelle précision" }
+  }]);
+  const plan = buildBatchPlan(rows, normalized.items);
+  assert.equal(plan.creates.length, 0);
+  assert.equal(plan.updates.length, 0);
+  assert.equal(plan.annotations.length, 1);
+  assert.equal(plan.skipped.length, 0);
+  assert.equal(plan.annotations[0].matches[0].notes, "Consigne existante");
 });

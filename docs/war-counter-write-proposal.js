@@ -87,14 +87,27 @@ export function suggestTeamSheetKey({ role, ids, teamInfo, rows, nameForId = (id
   return { key: baseKey || normalizeSheetKey(variant), source };
 }
 
-export function buildWriteProposal({ preview, rows, nameForId = (id) => id }) {
+export function buildWriteProposal({ preview, rows, nameForId = (id) => id, note = "" }) {
   if (!preview?.state || !preview?.comparison) return null;
   const action = preview.comparison.status;
-  if (action !== "new" && action !== "improves") return null;
-
   const state = preview.state;
   const ratio = ceilRatioToHundredth(state.ratio);
   if (!ratio) return null;
+
+  // Une note peut être ajoutée même si le ratio existant est déjà meilleur.
+  if ((action === "same" || action === "worse") && String(note).trim()) {
+    return {
+      action: "annotate",
+      ratio,
+      attackIds: [...state.attackIds],
+      defenseIds: [...state.defenseIds],
+      attackPower: state.attackPower,
+      defensePower: state.defensePower,
+      matchingRows: preview.comparison.matches.map((match) => match.index + 2),
+      metadata: null
+    };
+  }
+  if (action !== "new" && action !== "improves") return null;
 
   if (action === "improves") {
     return {

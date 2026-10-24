@@ -14,6 +14,7 @@ let activeWrite = null;
 let activeBatch = null;
 let observer = null;
 let enhanceScheduled = false;
+const noteDrafts = new Map();
 
 function parsePowerText(value) {
   const digits = String(value ?? "").replace(/\D+/g, "");
@@ -36,6 +37,45 @@ function canonicalIds(ids) {
 
 function matchupKey(attackIds, defenseIds) {
   return `${canonicalIds(attackIds)}>>${canonicalIds(defenseIds)}`;
+}
+
+function readDraftNote(key) {
+  return noteDrafts.get(key) || "";
+}
+
+function saveDraftNote(key, value) {
+  noteDrafts.set(key, String(value).slice(0, 500));
+  for (const field of document.querySelectorAll(".write-inline-note textarea")) {
+    if (field.dataset.matchupKey !== key) continue;
+    if (field.value !== value) field.value = value;
+    const button = field.closest(".counter-summary")?.querySelector(".sheet-write-button");
+    if (button?.dataset.annotationOnly === "1") button.hidden = !String(value).trim();
+  }
+  void refreshBatchPanel();
+}
+
+function addInlineNote(summary, preview) {
+  const key = matchupKey(preview.state.attackIds, preview.state.defenseIds);
+  const existing = summary.querySelector(".write-inline-note");
+  if (existing) return;
+
+  const label = document.createElement("label");
+  label.className = "write-inline-note";
+  const title = document.createElement("span");
+  title.textContent = "Note du match-up (facultatif)";
+  const textarea = document.createElement("textarea");
+  textarea.rows = 3;
+  textarea.maxLength = 500;
+  textarea.placeholder = "Ex. : ordre des attaques, conditions particulières…";
+  textarea.dataset.matchupKey = key;
+  textarea.value = readDraftNote(key);
+  textarea.addEventListener("input", () => saveDraftNote(key, textarea.value));
+  const hint = document.createElement("small");
+  hint.textContent = preview.comparison.matches.length
+    ? "Sera ajoutée aux notes existantes du Sheet, sans les remplacer."
+    : "Sera enregistrée dans la colonne Notes du nouveau match-up.";
+  label.append(title, textarea, hint);
+  summary.querySelector(".sheet-state")?.append(label);
 }
 
 function readSessionToken() {
@@ -157,6 +197,11 @@ function createDialog() {
         <label>Clé attaque<input data-field="atk_key" maxlength="100" autocapitalize="off" autocomplete="off"></label>
         <label class="write-notes">Notes<textarea data-field="notes" maxlength="500" rows="3" placeholder="Facultatif"></textarea></label>
       </div>
+      <label id="writeExistingNote" class="write-existing-note" hidden>
+        Ajouter une note au match-up
+        <textarea id="writeExistingNoteText" maxlength="500" rows="3" placeholder="Facultatif"></textarea>
+        <small>La note sera ajoutée à celles qui existent déjà, sans les effacer.</small>
+      </label>
       <label class="write-admin-key">
         Clé d’écriture administrateur
         <input id="writeAdminKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Conservée seulement jusqu’à la fermeture de cet onglet">
@@ -174,6 +219,11 @@ function createDialog() {
     if (status) status.textContent = "";
   });
   dialog.querySelector("#confirmSheetWrite")?.addEventListener("click", submitActiveWrite);
+  for (const field of [dialog.querySelector('[data-field="notes"]'), dialog.querySelector("#writeExistingNoteText")]) {
+    field?.addEventListener("input", () => {
+      if (activeWrite?.noteKey) saveDraftNote(activeWrite.noteKey, field.value);
+    });
+  }
   return dialog;
 }
 
@@ -257,27 +307,36 @@ function renderDialogSummary(dialog, proposal, preview) {
   const summary = dialog.querySelector("#writeDialogSummary");
   const metadataFields = dialog.querySelector("#writeMetadataFields");
   const adminKey = dialog.querySelector("#writeAdminKey");
+  const existingNotes = dialog.querySelector("#writeExistingNote");
+  const noteKey = matchupKey(proposal.attackIds, proposal.defenseIds);
   summary.replaceChildren();
 
   const title = document.createElement("strong");
   const detail = document.createElement("span");
   const teams = document.createElement("small");
 
-  if (proposal.action === "update") {
-    title.textContent = "Améliorer un matchup existant";
-    detail.textContent = `Ratio hard ${proposal.previousRatio.toFixed(2).replace(".", ",")} → ${proposal.ratio.toFixed(2).replace(".", ",")}.`;
+  if (proposal.action === "update" || proposal.action === "annotate") {
+    title.textContent = proposal.action === "update"
+      ? "Améliorer un matchup existant"
+      : "Ajouter une note au matchup existant";
+    detail.textContent = proposal.action === "update"
+      ? `Ratio hard ${proposal.previousRatio.toFixed(2).replace(".", ",")} → ${proposal.ratio.toFixed(2).replace(".", ",")}.`
+      : "Le ratio hard actuel reste inchangé.";
     teams.textContent = proposal.matchingRows.length > 1
-      ? `${proposal.matchingRows.length} classifications seront mises à jour ensemble (lignes ${proposal.matchingRows.join(", ")}).`
-      : `La colonne Q de la ligne ${proposal.matchingRows[0]} sera mise à jour.`;
+      ? `${proposal.matchingRows.length} classifications concernées (lignes ${proposal.matchingRows.join(", ")}).`
+      : `Ligne ${proposal.matchingRows[0]} du Sheet.`;
     metadataFields.hidden = true;
+    existingNotes.hidden = false;
+    dialog.querySelector("#writeExistingNoteText").value = readDraftNote(noteKey);
   } else {
     title.textContent = "Ajouter un nouveau matchup";
     detail.textContent = `Ratio hard à enregistrer : ${proposal.ratio.toFixed(2).replace(".", ",")}.`;
     teams.textContent = `${preview.defenseTeam.variant} ← défense · ${preview.attackTeam.variant} ← attaque`;
     metadataFields.hidden = false;
+    existingNotes.hidden = true;
     for (const [field, value] of Object.entries(proposal.metadata || {})) {
       const input = dialog.querySelector(`[data-field="${field}"]`);
-      if (input) input.value = value;
+      if (input) input.value = field === "notes" ? readDraftNote(noteKey) : value;
     }
   }
 
@@ -287,7 +346,7 @@ function renderDialogSummary(dialog, proposal, preview) {
 
 function openWriteDialog(summaryNode, button, proposal, preview) {
   const dialog = createDialog();
-  activeWrite = { summaryNode, button, proposal, preview };
+  activeWrite = { summaryNode, button, proposal, preview, noteKey: matchupKey(proposal.attackIds, proposal.defenseIds) };
   renderDialogSummary(dialog, proposal, preview);
   setDialogStatus("Aucune écriture n’est faite avant ta confirmation.");
   dialog.showModal();
@@ -300,9 +359,11 @@ function markSummaryProcessed(summary, status = "done") {
   if (!button) return;
   button.disabled = true;
   button.classList.add("is-written");
-  button.textContent = status === "same" || status === "worse"
-    ? "Déjà à jour ✓"
-    : "Enregistré ✓";
+  button.textContent = status === "annotated"
+    ? "Note enregistrée ✓"
+    : status === "same" || status === "worse"
+      ? "Déjà à jour ✓"
+      : "Enregistré ✓";
 }
 
 async function submitActiveWrite() {
@@ -322,7 +383,7 @@ async function submitActiveWrite() {
   }
 
   const { proposal, summaryNode } = activeWrite;
-  let metadata = proposal.metadata;
+  let metadata = { notes: String(dialog.querySelector("#writeExistingNoteText")?.value || "").trim() };
   if (proposal.action === "create") {
     metadata = metadataFromDialog(dialog);
     const required = ["def_family", "def_variant", "def_key", "atk_family", "atk_team", "atk_key"];
@@ -389,7 +450,10 @@ function proposalPayload(proposal) {
     defenseIds: [...proposal.defenseIds],
     attackPower: proposal.attackPower,
     defensePower: proposal.defensePower,
-    metadata: proposal.action === "create" ? { ...proposal.metadata } : null
+    metadata: {
+      ...(proposal.action === "create" ? proposal.metadata : {}),
+      notes: readDraftNote(matchupKey(proposal.attackIds, proposal.defenseIds)).trim()
+    }
   };
 }
 
@@ -406,7 +470,8 @@ async function collectBatchEntries() {
     const proposal = buildWriteProposal({
       preview,
       rows: support.counters,
-      nameForId: preview.nameForId
+      nameForId: preview.nameForId,
+      note: readDraftNote(matchupKey(preview.state.attackIds, preview.state.defenseIds))
     });
     if (!proposal) continue;
     if (proposal.action === "blocked") {
@@ -449,6 +514,7 @@ function batchCounts(groups) {
     total: groups.length,
     create: groups.filter((entry) => entry.proposal.action === "create").length,
     update: groups.filter((entry) => entry.proposal.action === "update").length,
+    annotated: groups.filter((entry) => entry.proposal.action === "annotate").length,
     duplicates: groups.reduce((sum, entry) => sum + Math.max(0, entry.sourceCount - 1), 0)
   };
 }
@@ -485,6 +551,7 @@ async function refreshBatchPanel() {
     const parts = [];
     if (counts.create) parts.push(`${counts.create} nouveau${counts.create > 1 ? "x" : ""}`);
     if (counts.update) parts.push(`${counts.update} amélioration${counts.update > 1 ? "s" : ""}`);
+    if (counts.annotated) parts.push(`${counts.annotated} note${counts.annotated > 1 ? "s" : ""} seule${counts.annotated > 1 ? "s" : ""}`);
     if (counts.duplicates) parts.push(`${counts.duplicates} doublon${counts.duplicates > 1 ? "s" : ""} regroupé${counts.duplicates > 1 ? "s" : ""}`);
     if (collection.blocked) parts.push(`${collection.blocked} à corriger`);
     text.textContent = `${parts.join(" · ")}. Vérifie les captures puis enregistre tout le lot en une seule fois.`;
@@ -510,7 +577,7 @@ function renderBatchDialog(dialog, groups, blocked) {
   const title = document.createElement("strong");
   title.textContent = `${counts.total} matchup${counts.total > 1 ? "s" : ""} unique${counts.total > 1 ? "s" : ""} à traiter`;
   const detail = document.createElement("span");
-  detail.textContent = `${counts.create} nouveau${counts.create > 1 ? "x" : ""} · ${counts.update} amélioration${counts.update > 1 ? "s" : ""}`;
+  detail.textContent = `${counts.create} nouveau${counts.create > 1 ? "x" : ""} · ${counts.update} amélioration${counts.update > 1 ? "s" : ""} · ${counts.annotated} note${counts.annotated > 1 ? "s" : ""} seule${counts.annotated > 1 ? "s" : ""}`;
   const extra = document.createElement("small");
   const extras = [];
   if (counts.duplicates) extras.push(`${counts.duplicates} capture${counts.duplicates > 1 ? "s" : ""} en doublon regroupée${counts.duplicates > 1 ? "s" : ""} automatiquement sur le meilleur ratio`);
@@ -524,6 +591,13 @@ function renderBatchDialog(dialog, groups, blocked) {
     const item = document.createElement("li");
     const ratio = entry.proposal.ratio.toFixed(2).replace(".", ",");
     item.textContent = `${entry.preview.defenseTeam.variant} ← ${entry.preview.attackTeam.variant} · ${ratio}`;
+    const note = readDraftNote(entry.key).trim();
+    if (note) {
+      const notePreview = document.createElement("small");
+      notePreview.className = "batch-note-preview";
+      notePreview.textContent = `Note : ${note}`;
+      item.append(notePreview);
+    }
     list.append(item);
   });
   preview.append(list);
@@ -557,6 +631,7 @@ function batchResultMessage(summary, workflow) {
   const parts = [];
   if (summary.created) parts.push(`${summary.created} créé${summary.created > 1 ? "s" : ""}`);
   if (summary.updated) parts.push(`${summary.updated} amélioré${summary.updated > 1 ? "s" : ""}`);
+  if (summary.annotated) parts.push(`${summary.annotated} annoté${summary.annotated > 1 ? "s" : ""}`);
   if (summary.same) parts.push(`${summary.same} déjà identique${summary.same > 1 ? "s" : ""}`);
   if (summary.worse) parts.push(`${summary.worse} déjà meilleur${summary.worse > 1 ? "s" : ""}`);
   if (summary.conflicts) parts.push(`${summary.conflicts} conflit${summary.conflicts > 1 ? "s" : ""}`);
@@ -624,7 +699,7 @@ async function submitBatchWrite() {
 
     saveWriteKey(writeKey);
     const groupsByKey = new Map(groups.map((entry) => [entry.key, entry]));
-    const terminalStatuses = new Set(["created", "updated", "same", "worse"]);
+    const terminalStatuses = new Set(["created", "updated", "annotated", "same", "worse"]);
     for (const result of Array.isArray(data.results) ? data.results : []) {
       if (!terminalStatuses.has(result.status)) continue;
       const group = groupsByKey.get(result.key);
@@ -647,7 +722,7 @@ async function enhanceSummary(summary) {
   if (summary.dataset.writeEnhancing === "1") return;
   const sheetState = summary.querySelector(".sheet-state");
   if (!sheetState) return;
-  if (summary.querySelector(".sheet-write-button")) return;
+  if (summary.querySelector(".write-inline-note")) return;
 
   summary.dataset.writeEnhancing = "1";
   try {
@@ -655,20 +730,34 @@ async function enhanceSummary(summary) {
     if (!summary.isConnected || summary.querySelector(".sheet-write-button")) return;
     const preview = reconstructPreview(summary, support);
     if (!preview) return;
-    const proposal = buildWriteProposal({
+    addInlineNote(summary, preview);
+    const noteKey = matchupKey(preview.state.attackIds, preview.state.defenseIds);
+    const annotationOnly = preview.comparison.status === "same" || preview.comparison.status === "worse";
+    const makeProposal = () => buildWriteProposal({
       preview,
       rows: support.counters,
-      nameForId: preview.nameForId
+      nameForId: preview.nameForId,
+      note: readDraftNote(noteKey)
     });
-    if (!proposal || proposal.action === "blocked") return;
+    const proposal = makeProposal();
+    if ((!proposal && !annotationOnly) || proposal?.action === "blocked") return;
 
     const button = document.createElement("button");
     button.type = "button";
     button.className = "primary-button sheet-write-button";
-    button.textContent = proposal.action === "create"
-      ? "Écrire ce contre seul"
-      : "Appliquer cette amélioration seule";
-    button.addEventListener("click", () => openWriteDialog(summary, button, proposal, preview));
+    button.dataset.annotationOnly = annotationOnly ? "1" : "0";
+    button.hidden = annotationOnly && !readDraftNote(noteKey).trim();
+    button.textContent = annotationOnly
+      ? "Enregistrer cette note seule"
+      : proposal.action === "create"
+        ? "Écrire ce contre seul"
+        : "Appliquer cette amélioration seule";
+    button.addEventListener("click", () => {
+      const currentProposal = makeProposal();
+      if (currentProposal && currentProposal.action !== "blocked") {
+        openWriteDialog(summary, button, currentProposal, preview);
+      }
+    });
     sheetState.append(button);
   } catch (error) {
     console.warn("[war-counter-write] préparation indisponible:", error);
