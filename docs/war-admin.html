@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#071225" />
     <title>LoSP — Administration des guerres</title>
 
-    <link rel="stylesheet" href="./war-admin.css?v=6" />
+    <link rel="stylesheet" href="./war-admin.css?v=7" />
 
     <script src="./war-admin-validation.js?v=2" defer></script>
     <script src="./war-admin-report-calculator.js?v=1" defer></script>
@@ -14,7 +14,7 @@
     <script src="./war-admin-analysis.js?v=1" defer></script>
     <script src="./war-player-aliases.js?v=1" defer></script>
     <script src="./war-admin-wake-lock.js?v=1" defer></script>
-    <script src="./war-admin.js?v=10" defer></script>
+    <script src="./war-admin.js?v=11" defer></script>
   </head>
 
   <body class="warAdminPage">
@@ -144,6 +144,13 @@
             <button id="warFinalizeReports" class="warAdminCalculateButton" type="button" disabled>
               Classer, rédiger et publier
             </button>
+            <div id="warCompletionFeedback" class="warAdminCompletionFeedback" role="status" aria-live="polite" aria-atomic="true" hidden>
+              <span id="warCompletionIcon" class="warAdminCompletionIcon" aria-hidden="true"></span>
+              <div class="warAdminCompletionBody">
+                <strong id="warCompletionTitle"></strong>
+                <p id="warCompletionDetail"></p>
+              </div>
+            </div>
             <details class="warAdminTechnical">
               <summary>Étapes séparées (dépannage)</summary>
             <button id="warCalculateReports" class="warAdminCalculateButton" type="button" disabled>
