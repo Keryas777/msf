@@ -1272,7 +1272,23 @@ test("un clic après la validation OCR enchaîne calcul, classement, rédaction 
   harness.listener("warReviewBack", "click")();
   assert.equal(harness.elements.warFinalizeReports.disabled, false);
 
+  // Le Screen Wake Lock observe aria-busy : aucun passage à false ne doit
+  // avoir lieu entre calcul, classement, rédaction et publication.
+  const form = harness.elements.warAdminForm;
+  const busyTimeline = [];
+  const originalSetAttribute = form.setAttribute.bind(form);
+  form.setAttribute = (name, value) => {
+    if (name === "aria-busy") busyTimeline.push(String(value));
+    originalSetAttribute(name, value);
+  };
+
   await harness.listener("warFinalizeReports", "click")();
+  assert.ok(busyTimeline.length >= 3, "la finalisation actualise les contrôles plusieurs fois");
+  assert.equal(busyTimeline[0], "true", "le wake lock démarre dès le clic");
+  assert.ok(busyTimeline.slice(0, -1).every((state) => state === "true"),
+    "le wake lock ne se relâche à aucune transition intermédiaire");
+  assert.equal(busyTimeline.at(-1), "false",
+    "le wake lock est libéré uniquement après la publication");
   const snapshot = harness.getSnapshot();
   assert.equal(snapshot.published, true);
   assert.equal(snapshot.captures[0].publication.commit_sha, "commit-automatic");
