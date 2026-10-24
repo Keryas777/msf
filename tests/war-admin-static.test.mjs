@@ -16,7 +16,7 @@ const [html, css, validation, reportCalculator, reportRanker, analysis, app, wor
 test("la page charge les Phases E et E.2 locales sans bloquer le zoom", () => {
   assert.match(html, /href="\.\/war-admin\.css\?v=7"/);
   assert.match(html, /src="\.\/war-admin-validation\.js\?v=2" defer/);
-  assert.match(html, /src="\.\/war-admin-report-calculator\.js\?v=1" defer/);
+  assert.match(html, /src="\.\/war-admin-report-calculator\.js\?v=2" defer/);
   assert.match(html, /src="\.\/war-admin-report-ranker\.js\?v=1" defer/);
   assert.match(html, /src="\.\/war-admin-analysis\.js\?v=1" defer/);
   assert.match(html, /src="\.\/war-admin\.js\?v=11" defer/);
