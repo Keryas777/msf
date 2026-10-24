@@ -181,6 +181,9 @@
   };
 
   function strategyStatus(strategy) {
+    if (strategy.provenance?.status === "source_visual_checked") {
+      return "Composition relevée d’une infographie — victoire non attestée";
+    }
     if (strategy.provenance?.status === "source_text_checked") {
       return strategy.provenance.sourceEvidence === "reddit_comment_not_original_post"
         ? "Témoignage d'un joueur retrouvé — victoire non reproduite"
@@ -202,7 +205,7 @@
 
     if (strategy.characters.length) {
       body.append(el("h4", "", strategy.characters.length === 5
-        ? (strategy.provenance?.status === "source_text_checked" ? "Composition de cette version" : "Composition héritée — à vérifier")
+        ? (["source_text_checked", "source_visual_checked"].includes(strategy.provenance?.status) ? "Composition de cette version" : "Composition héritée — à vérifier")
         : "Personnages cités (composition incomplète)"));
       const team = el("div", "challenge-team");
       for (const id of strategy.characters) team.append(makeHero(id));
@@ -293,16 +296,20 @@
       body.append(el("p", "challenge-section-note", "Aucune stratégie documentée pour cette étape."));
     } else {
       const checked = versions.filter(item => item.provenance?.status === "source_text_checked").length;
-      const message = checked
-        ? checked + " version(s) reprise(s) directement d'une source textuelle. Les autres restent à vérifier ; aucune victoire n'est garantie."
-        : "Ces versions proviennent de fiches antérieures dont la source exacte reste à vérifier.";
+      const illustrated = versions.filter(item => item.provenance?.status === "source_visual_checked").length;
+      const message = [
+        checked ? checked + " version(s) recoupée(s) avec une source textuelle." : "",
+        illustrated ? illustrated + " composition(s) relevée(s) sur une infographie, sans victoire attestée." : "",
+        !checked && !illustrated ? "Ces versions proviennent de fiches antérieures dont la source exacte reste à vérifier." : "",
+        "Aucune victoire n'est garantie."
+      ].filter(Boolean).join(" ");
       body.append(el("p", "challenge-source-warning", message +
         " Chaque équipe et ses instructions restent indépendantes."));
       const variants = el("div", "challenge-strategies");
-      // Les versions effectivement recoupées avec une publication passent avant les anciens brouillons.
-      const ordered = versions.slice().sort((a, b) =>
-        Number(b.provenance?.status === "source_text_checked") -
-        Number(a.provenance?.status === "source_text_checked"));
+      // Les compositions illustrées passent avant les versions textuelles, sans fusionner leurs tactiques.
+      const rank = item => item.provenance?.status === "source_visual_checked" ? 2 :
+        item.provenance?.status === "source_text_checked" ? 1 : 0;
+      const ordered = versions.slice().sort((a, b) => rank(b) - rank(a));
       ordered.forEach((strategy, i) => variants.append(renderStrategy(strategy, i, ordered.length)));
       body.append(variants);
       const row = el("label", "challenge-check-row");
