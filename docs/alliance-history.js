@@ -130,18 +130,23 @@
     refs.plot.replaceChildren();
     if(!model.rows.length||!model.series.length)return;
     const width=Math.max(290,Math.round(refs.plotWrap.clientWidth-8));
-    const height=width<500?320:370;
+    const rank=!chart.higherIsBetter;
+    // Rank plots need enough vertical breathing room for each hundred.
+    // Trophy charts deliberately retain their original dimensions.
+    const height=width<500?(rank?350:320):(rank?400:370);
     refs.plot.setAttribute('viewBox','0 0 '+width+' '+height);
     refs.plot.setAttribute('aria-label',chart.title+'. '+model.series.length+
       ' alliances et '+model.rows.length+' relevés.');
-    const margin={left:53,right:17,top:22,bottom:48};
+    const margin={left:53,right:17,top:rank?14:22,bottom:48};
     const w=width-margin.left-margin.right;
     const h=height-margin.top-margin.bottom;
     const values=model.series.flatMap(s=>s.points.map(p=>p.value))
       .filter(v=>v!==null);
     if(!values.length)return;
-    const rank=!chart.higherIsBetter;
-    const bounds=scale(values,rank);
+    // Rank 1 belongs at the top; use exact hundred boundaries, not
+    // interpolated labels such as 101, 251 or 501.
+    const bounds=rank?{lo:1,hi:Math.max(200,
+      Math.ceil(Math.max(...values)/100)*100)}:scale(values,false);
     const y=v=>margin.top+
       (rank?(v-bounds.lo):(bounds.hi-v))/(bounds.hi-bounds.lo)*h;
     const plotDates=model.series[0].points.map(p=>p.plotAt||p.capturedAt);
@@ -149,8 +154,23 @@
     const first=times[0],last=times[times.length-1];
     const x=t=>first===last?margin.left+w/2:
       margin.left+(t-first)/(last-first)*w;
-    for(let i=0;i<=4;i++){
-      const value=bounds.lo+(bounds.hi-bounds.lo)*i/4;
+    if(rank){
+      // The half-step boundaries separate whole-number ranks cleanly:
+      // 1-100 = dark green; 101-200 = light green.
+      for(const band of [
+        {from:1,to:100.5,fill:'#147448',opacity:.30},
+        {from:100.5,to:200,fill:'#9adc9c',opacity:.20}
+      ]){
+        const top=y(band.from),bottom=y(band.to);
+        refs.plot.append(svg('rect',{x:margin.left,y:top,width:w,
+          height:bottom-top,fill:band.fill,'fill-opacity':band.opacity,
+          class:'historyRankBand','aria-hidden':'true'}));
+      }
+    }
+    const ticks=rank?
+      [1,...Array.from({length:bounds.hi/100},(_,i)=>(i+1)*100)]:
+      Array.from({length:5},(_,i)=>bounds.lo+(bounds.hi-bounds.lo)*i/4);
+    for(const value of ticks){
       const pos=y(value);
       refs.plot.append(svg('line',{x1:margin.left,y1:pos,
         x2:width-margin.right,y2:pos,class:'historyGridLine'}));
