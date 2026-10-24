@@ -225,8 +225,8 @@ test('page reads the configured calendar, preserves authorization and cache bust
   const html=read('docs/alliance-history.html');
   assert.match(source,/state\.config\.rankingSeasons/);
   assert.match(html,/auth-guard\.js/);
-  assert.match(html,/alliance-history-data\.js\?v=3/);
-  assert.match(html,/alliance-history\.js\?v=9/);
+  assert.match(html,/alliance-history-data\.js\?v=4/);
+  assert.match(html,/alliance-history\.js\?v=10/);
 });
 
 test('22 October adds exactly a second real trophy point, not a second season ranking',()=>{
@@ -468,4 +468,77 @@ test('date labels de-duplicate same-day captures and add short year across years
   assert.ok(labels.length>=2);
   assert.ok(labels.some(n=>/26$/.test(n.text)));
   assert.ok(labels.some(n=>/27$/.test(n.text)));
+});
+
+test('Hadès 🔥 is active and present on all three charts from the real 24 October reading',()=>{
+  const hades=registry.find(a=>a.key==='hades');
+  assert.equal(hades?.active,true);
+  assert.equal(hades.emoji,'🔥');
+  assert.equal(hades.color,'#1EA164');
+  const history=index.snapshots.map(s=>
+    JSON.parse(read('docs/data/alliance-standings/'+s.file)));
+  const current=history.at(-1);
+  assert.equal(current.capturedAt,'2026-10-24T21:31:12.523Z');
+  assert.equal(current.coverage.completeSessionScan,true);
+  assert.equal(current.coverage.validSessions,10);
+  assert.equal(current.alliances.length,6);
+  assert.doesNotMatch(JSON.stringify(current),/allianceFingerprint/);
+  const expected={'war-trophies':1651,'war-season-rank':12228,'raid-season-rank':6998};
+  for(const [id,value] of Object.entries(expected)){
+    const model=prepare(history,registry,byId(id),config.rankingSeasons);
+    assert.equal(model.series.length,6);
+    const points=model.series.find(s=>s.key==='hades')?.points;
+    assert.ok(points);
+    assert.equal(points.at(-1).value,value);
+    assert.equal(points.at(-1).capturedAt,current.capturedAt);
+    assert.ok(points.slice(0,-1).every(p=>p.value===null),
+      'No invented Hadès readings before his first capture');
+    const standings=rankLatest(history,registry,byId(id),config.rankingSeasons);
+    assert.equal(standings.find(s=>s.key==='hades').value,value);
+  }
+  for(const id of ['war-season-rank','raid-season-rank']){
+    const model=prepare(history,registry,byId(id),config.rankingSeasons);
+    assert.equal(model.rows.length,1,'Only one point for the completed season');
+    assert.equal(model.rows[0].seasonVerified,true,
+      'Preserve the original administrator-confirmed season reference');
+    const hadesPoint=model.series.find(s=>s.key==='hades').points[0];
+    assert.equal(hadesPoint.plotAt,'2026-10-11T20:00:00.000Z');
+    assert.equal(hadesPoint.seasonVerified,false,
+      'Do not present the newly observed Hadès value as independently verified');
+    assert.equal(model.series.find(s=>s.key==='zeus').points[0].capturedAt,
+      original.capturedAt,'Keep original confirmed alliance values');
+  }
+});
+test('large Hadès ranks use a readable shared compressed axis without hundreds of ticks',()=>{
+  const history=index.snapshots.map(s=>
+    JSON.parse(read('docs/data/alliance-standings/'+s.file)));
+  const labels=[];
+  for(const id of ['war-season-rank','raid-season-rank']){
+    const plot=drawRenderedChart(id,390,history);
+    const ticks=plot.children.filter(n=>n.attrs.class==='historyGridLine');
+    assert.ok(ticks.length>=6&&ticks.length<=12);
+    assert.equal(plot.children.filter(n=>n.tag==='circle').length,6);
+    const yValues=plot.children.filter(n=>n.tag==='circle').map(n=>Number(n.attrs.cy));
+    assert.ok(yValues.every(y=>y>=14&&y<=302));
+    assert.ok(Math.max(...yValues)-Math.min(...yValues)>150,
+      'The huge rank gap must not collapse all alliance points');
+    const values=plot.children.filter(n=>n.tag==='text'&&
+      n.attrs['text-anchor']==='end').map(n=>n.text);
+    assert.ok(values.includes('100')&&values.includes('200'));
+    labels.push(values);
+  }
+  assert.deepEqual(labels[0],labels[1],'Rank charts retain a shared axis');
+});
+test('missing seasons and values never inherit a later observed new alliance',()=>{
+  const history=index.snapshots.map(s=>
+    JSON.parse(read('docs/data/alliance-standings/'+s.file)));
+  const future={...history.at(-1),capturedAt:'2026-11-10T10:00:00.000Z',
+    alliances:history.at(-1).alliances.filter(a=>a.key!=='hades'),
+    seasonVerified:false,seasonId:null};
+  const model=prepare([...history,future],registry,
+    byId('raid-season-rank'),config.rankingSeasons);
+  const points=model.series.find(s=>s.key==='hades').points;
+  assert.equal(points.length,2);
+  assert.equal(points[0].value,6998);
+  assert.equal(points[1].value,null);
 });

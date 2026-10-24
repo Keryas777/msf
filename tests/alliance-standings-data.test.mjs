@@ -169,3 +169,24 @@ test('24 October automated R2 capture adds a third genuine trophy reading',()=>{
   assert.ok(index.snapshots.some(x=>x.capturedAt===observed.capturedAt&&
     x.collectionDayUtc==='2026-10-24'));
 });
+
+test("24 October evening administrator capture adds Hadès without private fingerprints",()=>{
+  const latest=index.snapshots.at(-1);
+  assert.equal(latest.capturedAt,"2026-10-24T21:31:12.523Z");
+  assert.equal(latest.allianceCount,6);
+  assert.equal(latest.completeSessionScan,true);
+  assert.equal(latest.seasonVerified,false);
+  assert.equal(latest.collectionDayUtc,undefined,
+    "A manual reading must not claim the automated R2 collection day");
+  const snapshot=data(latest.file);
+  assert.equal(snapshot.coverage.scannedSessions,10);
+  assert.equal(snapshot.coverage.validSessions,10);
+  assert.equal(snapshot.coverage.connectedAlliances,6);
+  assert.deepEqual(snapshot.alliances.map(a=>a.key),
+    ['kronos','poseidon','hades','dionysos','athena','zeus']);
+  const hades=snapshot.alliances.find(a=>a.key==="hades");
+  assert.deepEqual([hades.warTrophies,hades.warRank,hades.raidRank],
+    [1651,12228,6998]);
+  assert.equal(hades.warLeague.name,"PLATINUM II");
+  assert.equal(registry.find(a=>a.key==="hades").emoji,"🔥");
+});

@@ -104,6 +104,33 @@
     for (const row of rows)
       for (const alliance of (row.alliances || []))
         if (typeof alliance.key === 'string') existing.add(alliance.key);
+    // For a selected season snapshot, keep its confirmed values. A newly
+    // tracked alliance may have its first REAL rank only in a later capture
+    // of that same completed season: fill just that missing alliance.
+    // Never backfill earlier seasons or manufacture absent metrics.
+    const seasonAdditions = new Map();
+    if(chart.frequency === 'per-season' && calendar){
+      const candidates = (Array.isArray(snapshots) ? snapshots : [])
+        .filter(row => validDate(row?.capturedAt))
+        .slice().sort((a,b)=>a.capturedAt.localeCompare(b.capturedAt));
+      for(const capture of candidates){
+        const seasonId = capture.seasonVerified === true &&
+          typeof capture.seasonId === 'string' ? capture.seasonId :
+          resolveRankingSeason(capture.capturedAt,calendar)?.seasonId;
+        if(!seasonId)continue;
+        if(!seasonAdditions.has(seasonId))seasonAdditions.set(seasonId,new Map());
+        const additions=seasonAdditions.get(seasonId);
+        for(const source of capture.alliances || []){
+          if(typeof source.key === 'string' && validValue(source[chart.field]))
+            additions.set(source.key,{source,capturedAt:capture.capturedAt});
+        }
+      }
+    }
+    // Include newcomer keys supplied by another real reading of a selected
+    // season, even when the primary verified snapshot predates their arrival.
+    for(const row of rows)
+      for(const key of seasonAdditions.get(row.seasonId)?.keys() || [])
+        existing.add(key);
     const members = possible.filter(a => a && a.active !== false &&
       typeof a.key === 'string' && existing.has(a.key))
       .slice().sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
@@ -111,16 +138,19 @@
       key: alliance.key, name: alliance.name || alliance.key,
       emoji: alliance.emoji || '', color: alliance.color || '#ffffff',
       points: rows.map(row => {
-        const source = (row.alliances || []).find(a => a.key === alliance.key);
+        const direct = (row.alliances || []).find(a => a.key === alliance.key);
+        const fallback = !direct && chart.frequency === 'per-season' ?
+          seasonAdditions.get(row.seasonId)?.get(alliance.key):null;
+        const source = direct || fallback?.source;
         const value = source && source[chart.field];
-        return {capturedAt: row.capturedAt,
+        return {capturedAt: fallback?.capturedAt || row.capturedAt,
           plotAt: chart.frequency === 'per-season' && aValidSeasonEnd(row) ?
             row.rankingSeason.endExclusiveAt : row.capturedAt,
           seasonStartAt: aValidSeasonEnd(row) ? row.rankingSeason.startAt : null,
           value: validValue(value) ? value : null,
           seasonId: aValidSeasonEnd(row) ? row.seasonId : null,
-          seasonVerified: row.seasonVerified === true,
-          seasonDerived: row.seasonDerived === true};
+          seasonVerified: !fallback && row.seasonVerified === true,
+          seasonDerived: Boolean(fallback) || row.seasonDerived === true};
       })
     }));
     return {rows, series, field: chart.field,
