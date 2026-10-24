@@ -6,7 +6,7 @@ import {execFileSync} from 'node:child_process';
 import {createPrivateR2Reader} from './lib/private-r2-read.mjs';
 import {createHash,createHmac} from 'node:crypto';
 import {collectionWindow,readMapping,createR2Snapshot,addSnapshotToIndex,
-  resolveStandingsSchedule} from './lib/alliance-r2-history.mjs';
+  resolveStandingsSchedule,hasCollectionForDay} from './lib/alliance-r2-history.mjs';
 
 function secret(name){const v=process.env[name];if(!v)throw Error('Missing required secret '+name);return v;}
 function r2Client(){
@@ -105,8 +105,8 @@ async function main(){
     throw Error('Collection sampling window has not yet ended');
   if(Date.parse(window.endExclusive)<now.getTime()-6*86400000)
     throw Error('Requested sampling window is outside the expected R2 retention');
-  if(index.snapshots.some(x=>x.collectionDayUtc===day)){
-    console.log('Idempotent: collection day already indexed:',day);return;
+  if(hasCollectionForDay(index,day)){
+    console.log('Idempotent: a reading is already published for:',day);return;
   }
   const map=readMapping(secret('LOSP_R2_ALLIANCE_MAP_JSON'),registry);
   const r2=r2Client();

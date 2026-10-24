@@ -158,16 +158,17 @@ test('trophy post-war window has margins and includes the 22 October capture',()
   assert.ok(observed<wednesday+end*60000);
 });
 
-test('24 October automated R2 capture adds a third genuine trophy reading',()=>{
-  const observed=data('snapshots/2026-10-24T042033728Z.json');
-  assert.equal(observed.collection.sourceDayUtc,'2026-10-24');
-  assert.equal(observed.collection.warDayUtc,'2026-10-23');
-  assert.equal(observed.coverage.allActiveAlliancesSampled,true);
-  assert.equal(observed.alliances.length,5);
+test('24 October has one complete six-alliance reading, replacing same-value morning point',()=>{
+  assert.equal(index.snapshots.length,3,'Only one reading per represented day');
+  assert.equal(index.snapshots.filter(x=>x.capturedAt.startsWith('2026-10-24')).length,1);
+  assert.equal(index.snapshots.some(x=>x.file.includes('042033728')),false);
+  const observed=data(index.snapshots.at(-1).file);
+  assert.equal(observed.capturedAt,'2026-10-24T21:31:12.523Z');
+  assert.equal(observed.coverage.completeSessionScan,true);
+  assert.equal(observed.alliances.length,6);
   const scores=Object.fromEntries(observed.alliances.map(a=>[a.key,a.warTrophies]));
-  assert.deepEqual(scores,{zeus:2881,athena:2679,kronos:2759,dionysos:2588,poseidon:2339});
-  assert.ok(index.snapshots.some(x=>x.capturedAt===observed.capturedAt&&
-    x.collectionDayUtc==='2026-10-24'));
+  assert.deepEqual(scores,{kronos:2759,poseidon:2339,hades:1651,
+    dionysos:2588,athena:2679,zeus:2881});
 });
 
 test("24 October evening administrator capture adds Hadès without private fingerprints",()=>{
