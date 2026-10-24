@@ -153,7 +153,12 @@
     refs.plot.setAttribute('viewBox','0 0 '+width+' '+height);
     refs.plot.setAttribute('aria-label',chart.title+'. '+model.series.length+
       ' alliances et '+model.rows.length+' relevés.');
-    const margin={left:53,right:17,top:rank?14:22,bottom:48};
+    const trophyDivisions=!rank&&chart.field==='warTrophies'&&
+      Array.isArray(state.config?.trophyDivisions)?
+      state.config.trophyDivisions.filter(b=>Number.isSafeInteger(b.min)&&
+        (b.max===undefined||(Number.isSafeInteger(b.max)&&b.max>=b.min))&&
+        typeof b.label==='string'&&/^#[0-9a-f]{6}$/i.test(b.fill||'')):[];
+    const margin={left:53,right:rank?17:50,top:rank?14:22,bottom:48};
     const w=width-margin.left-margin.right;
     const h=height-margin.top-margin.bottom;
     const values=model.series.flatMap(s=>s.points.map(p=>p.value))
@@ -161,7 +166,18 @@
     if(!values.length)return;
     // Rank 1 belongs at the top; use exact hundred boundaries, not
     // interpolated labels such as 101, 251 or 501.
-    const bounds=rank?{lo:1,hi:sharedRankCeiling()}:scale(values,false);
+    // Reserve a meaningful vertical extent for the open-ended final division.
+    // This is only a display aid; it never creates a trophy cap or data point.
+    const finalDivision=trophyDivisions.at(-1);
+    const previousDivision=trophyDivisions.at(-2);
+    const visibleTop=finalDivision?.max!==undefined?
+      finalDivision.max+1:finalDivision?
+        finalDivision.min+Math.max(1,previousDivision?
+          previousDivision.max-previousDivision.min+1:1):null;
+    const trophyScaleValues=visibleTop===null?values:
+      [...values,...trophyDivisions.map(b=>b.min),visibleTop];
+    const bounds=rank?{lo:1,hi:sharedRankCeiling()}:
+      scale(trophyScaleValues,false);
     const y=v=>margin.top+
       (rank?(v-bounds.lo):(bounds.hi-v))/(bounds.hi-bounds.lo)*h;
     const plotDates=model.series[0].points.map(p=>p.plotAt||p.capturedAt);
@@ -180,6 +196,36 @@
         refs.plot.append(svg('rect',{x:margin.left,y:top,width:w,
           height:bottom-top,fill:band.fill,'fill-opacity':band.opacity,
           class:'historyRankBand','aria-hidden':'true'}));
+      }
+    }
+    if(trophyDivisions.length){
+      // Four visible grey tiers and the labels in a separate right-hand gutter.
+      // Intervals use [min, max+1), so no pixel gap appears at transitions.
+      for(const band of trophyDivisions){
+        const low=Math.max(bounds.lo,band.min);
+        const high=Math.min(bounds.hi,band.max===undefined?
+          bounds.hi:band.max+1);
+        if(high<=low)continue;
+        const top=y(high),bottom=y(low);
+        refs.plot.append(svg('rect',{x:margin.left,y:top,
+          width:width-margin.left-4,height:bottom-top,
+          fill:band.fill,class:'historyTrophyBand','aria-hidden':'true'}));
+      }
+      trophyDivisions.forEach((band,index)=>{
+        if(index===0||band.min<=bounds.lo||band.min>=bounds.hi)return;
+        const at=y(band.min);
+        refs.plot.append(svg('line',{x1:margin.left,y1:at,
+          x2:width-4,y2:at,class:'historyTrophyBoundary',
+          'aria-hidden':'true'}));
+      });
+      for(const band of trophyDivisions){
+        const low=Math.max(bounds.lo,band.min);
+        const high=Math.min(bounds.hi,band.max===undefined?
+          bounds.hi:band.max+1);
+        if(high<=low||y(low)-y(high)<16)continue;
+        refs.plot.append(svg('text',{x:width-margin.right/2,
+          y:(y(high)+y(low))/2+4,'text-anchor':'middle',
+          class:'historyTrophyLabel','aria-hidden':'true'},band.label));
       }
     }
     const ticks=rank?
