@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "kind": "losp-alliance-standings-snapshot",
+  "capturedAt": "2026-10-24T04:20:33.728Z",
+  "source": "/player/v1/alliance/card",
+  "seasonId": null,
+  "seasonVerified": false,
+  "coverage": {
+    "scannedSessions": null,
+    "validSessions": null,
+    "unavailableSessions": null,
+    "truncated": false,
+    "connectedAlliances": 5,
+    "completeSessionScan": false,
+    "source": "existing-private-roster-r2",
+    "allActiveAlliancesSampled": true
+  },
+  "collection": {
+    "method": "r2-pull",
+    "sourceDayUtc": "2026-10-24",
+    "warDayUtc": "2026-10-23",
+    "selectionStartAt": "2026-10-24T02:00:00.000Z",
+    "selectionEndExclusiveAt": "2026-10-24T06:00:00.000Z"
+  },
+  "alliances": [
+    {
+      "key": "zeus",
+      "nameAtCapture": "LoSP <#F8FF00>Zεμs",
+      "capturedAt": "2026-10-24T04:08:33.728Z",
+      "warTrophies": 2881,
+      "warRank": 322,
+      "raidRank": 77,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND III"
+      }
+    },
+    {
+      "key": "athena",
+      "nameAtCapture": "LoSP <#F28C28>Athεηα",
+      "capturedAt": "2026-10-24T04:20:33.728Z",
+      "warTrophies": 2679,
+      "warRank": 427,
+      "raidRank": 157,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND II"
+      }
+    },
+    {
+      "key": "kronos",
+      "nameAtCapture": "<#FFFFFF>LoSP <#E10D17>Κroηos",
+      "capturedAt": "2026-10-24T04:04:33.728Z",
+      "warTrophies": 2759,
+      "warRank": 93,
+      "raidRank": 235,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND II"
+      }
+    },
+    {
+      "key": "dionysos",
+      "nameAtCapture": "LoSP <#93328E>Dισπγsσs",
+      "capturedAt": "2026-10-24T04:06:33.728Z",
+      "warTrophies": 2588,
+      "warRank": 332,
+      "raidRank": 285,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND II"
+      }
+    },
+    {
+      "key": "poseidon",
+      "nameAtCapture": "LoSP <#00D0FF>Pοsειδoη",
+      "capturedAt": "2026-10-24T03:52:33.728Z",
+      "warTrophies": 2339,
+      "warRank": 722,
+      "raidRank": 767,
+      "warLeague": {
+        "id": null,
+        "name": "DIAMOND I"
+      }
+    }
+  ],
+  "note": "Fiches d’alliance déjà collectées par le Roster Service durant les micro-lots de rosters. Horodatages propres à chaque alliance ; aucune lecture Scopely supplémentaire. Saison déduite séparément par la WebApp et non vérifiée par l’API."
+}
