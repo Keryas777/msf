@@ -226,7 +226,7 @@ test('page reads the configured calendar, preserves authorization and cache bust
   assert.match(source,/state\.config\.rankingSeasons/);
   assert.match(html,/auth-guard\.js/);
   assert.match(html,/alliance-history-data\.js\?v=3/);
-  assert.match(html,/alliance-history\.js\?v=7/);
+  assert.match(html,/alliance-history\.js\?v=8/);
 });
 
 test('22 October adds exactly a second real trophy point, not a second season ranking',()=>{
@@ -332,12 +332,22 @@ test('trophy plot shows P-IV and four Diamond tiers, with smaller empty edge zon
   for(const width of [320,390,680]){
     const plot=drawRenderedChart('war-trophies',width);
     assert.equal(plot.attributes.viewBox,
-      '0 0 '+(width-8)+' '+(width<500?320:370));
+      '0 0 '+(width-8)+' '+(width<500?350:400));
     const bands=plot.children.filter(n=>n.attrs.class==='historyTrophyBand');
     const separators=plot.children.filter(n=>n.attrs.class==='historyTrophyBoundary');
     const labels=plot.children.filter(n=>n.attrs.class==='historyTrophyLabel');
     assert.equal(bands.length,5);
     assert.equal(new Set(bands.map(b=>b.attrs.fill)).size,5);
+    const rgb=hex=>[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));
+    const luminance=hex=>rgb(hex).reduce((sum,v)=>sum+v,0);
+    assert.ok(luminance(bands[0].attrs.fill)>luminance(bands[1].attrs.fill),
+      'P-IV must be visually lighter than D-I');
+    assert.equal(plot.attributes.viewBox,
+      drawRenderedChart('war-season-rank',width).attributes.viewBox,
+      'Trophy and war ranking graphs have the same mobile/desktop height');
+    assert.equal(plot.attributes.viewBox,
+      drawRenderedChart('raid-season-rank',width).attributes.viewBox,
+      'Trophy and raid ranking graphs have the same mobile/desktop height');
     assert.deepEqual(labels.map(n=>n.text),['P-IV','D-I','D-II','D-III','D-IV']);
     assert.equal(separators.length,4);
     assert.ok(bands.every(b=>b.attrs.height>16));
@@ -350,7 +360,8 @@ test('trophy plot shows P-IV and four Diamond tiers, with smaller empty edge zon
       plot.children.findIndex(n=>n.tag==='circle'),
       'Grey zones remain behind the alliance curves');
     assert.equal(plot.children.filter(n=>n.tag==='line'&&
-      n.attrs.class==='historyGridLine').length,5);
+      n.attrs.class==='historyGridLine').length,0,
+      'No generic horizontal grid lines in the trophy chart');
     assert.equal(plot.children.filter(n=>n.tag==='circle').length,5);
     assert.equal(plot.children.filter(n=>n.attrs.class==='historyRankBand').length,0);
   }
@@ -362,7 +373,7 @@ test('trophy chart expands beyond P-IV and D-IV for observed outliers',()=>{
   const plot=drawRenderedChart('war-trophies',390,[unusual]);
   const points=plot.children.filter(n=>n.tag==='circle');
   assert.equal(points.length,5);
-  for(const dot of points)assert.ok(dot.attrs.cy>=22&&dot.attrs.cy<=272);
+  for(const dot of points)assert.ok(dot.attrs.cy>=22&&dot.attrs.cy<=302);
   const labels=plot.children.filter(n=>n.attrs.class==='historyTrophyLabel');
   assert.deepEqual(labels.map(n=>n.text),['P-IV','D-I','D-II','D-III','D-IV']);
 });
