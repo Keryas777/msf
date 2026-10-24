@@ -126,6 +126,22 @@
     lo=Math.max(rank?1:0,lo);
     return {lo,hi};
   }
+  function sharedRankCeiling(){
+    // Both completed-season charts use the same maximum, based on the
+    // least favorable rank visible in EITHER chart (all available seasons).
+    let worst=1;
+    for(const id of ['raid-season-rank','war-season-rank']){
+      const chart=byId(id);
+      if(!chart)continue;
+      const prepared=window.LoSPStandingsSeries.prepare(
+        state.snapshots,state.registry,chart,state.config.rankingSeasons);
+      for(const series of prepared.series)
+        for(const point of series.points)
+          if(Number.isSafeInteger(point.value)&&point.value>worst)
+            worst=point.value;
+    }
+    return Math.max(200,Math.ceil(worst/100)*100);
+  }
   function drawPlot(model,chart){
     refs.plot.replaceChildren();
     if(!model.rows.length||!model.series.length)return;
@@ -145,8 +161,7 @@
     if(!values.length)return;
     // Rank 1 belongs at the top; use exact hundred boundaries, not
     // interpolated labels such as 101, 251 or 501.
-    const bounds=rank?{lo:1,hi:Math.max(200,
-      Math.ceil(Math.max(...values)/100)*100)}:scale(values,false);
+    const bounds=rank?{lo:1,hi:sharedRankCeiling()}:scale(values,false);
     const y=v=>margin.top+
       (rank?(v-bounds.lo):(bounds.hi-v))/(bounds.hi-bounds.lo)*h;
     const plotDates=model.series[0].points.map(p=>p.plotAt||p.capturedAt);

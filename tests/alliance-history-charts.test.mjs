@@ -226,7 +226,7 @@ test('page reads the configured calendar, preserves authorization and cache bust
   assert.match(source,/state\.config\.rankingSeasons/);
   assert.match(html,/auth-guard\.js/);
   assert.match(html,/alliance-history-data\.js\?v=3/);
-  assert.match(html,/alliance-history\.js\?v=4/);
+  assert.match(html,/alliance-history\.js\?v=5/);
 });
 
 test('22 October adds exactly a second real trophy point, not a second season ranking',()=>{
@@ -252,7 +252,7 @@ test('22 October adds exactly a second real trophy point, not a second season ra
 });
 
 
-function drawRenderedChart(id,clientWidth=390){
+function drawRenderedChart(id,clientWidth=390,snapshots=[original]){
   // Execute the same SVG plotting function shipped to GitHub Pages.
   // A tiny DOM stub is sufficient; no dependency on a browser framework.
   const source=read('docs/alliance-history.js');
@@ -273,10 +273,13 @@ function drawRenderedChart(id,clientWidth=390){
   const ctx=vm.createContext({
     refs:{plot,plotWrap:{clientWidth}},svg:makeNode,
     safeColor:value=>value,formatDate:date=>date.slice(0,10),
-    number:new Intl.NumberFormat('fr-FR')
+    number:new Intl.NumberFormat('fr-FR'),
+    state:{snapshots,registry,config},
+    byId,
+    window:{LoSPStandingsSeries:context.window.LoSPStandingsSeries}
   });
   vm.runInContext(source.slice(begin,end)+'\nthis.plotFn=drawPlot;',ctx);
-  ctx.plotFn(prepare([original],registry,byId(id),config.rankingSeasons),byId(id));
+  ctx.plotFn(prepare(snapshots,registry,byId(id),config.rankingSeasons),byId(id));
   return plot;
 }
 test('raid and war ranking charts use exact 1, 100, 200 ... hundred ticks and taller SVG',()=>{
@@ -330,4 +333,46 @@ test('trophy plot keeps its previous axis, dimensions and has no green bands',()
       n.attrs.class==='historyGridLine').length,5);
     assert.equal(plot.children.filter(n=>n.tag==='circle').length,5);
   }
+});
+
+test('both seasonal charts always share the largest hundred ceiling, regardless of which has worse ranks',()=>{
+  const cases=[
+    {raid:930,war:722,expected:1000},
+    {raid:767,war:1044,expected:1100},
+    {raid:1395,war:1201,expected:1400}
+  ];
+  for(const {raid,war,expected} of cases){
+    const modified={...original,alliances:original.alliances.map((a,i)=>
+      i===0?{...a,raidRank:raid,warRank:war}:a)};
+    const plots=['raid-season-rank','war-season-rank'].map(id=>
+      drawRenderedChart(id,390,[modified]));
+    const scales=plots.map(plot=>plot.children.filter(n=>
+      n.tag==='text'&&n.attrs['text-anchor']==='end').map(n=>
+      Number(String(n.text).replace(/\D/g,''))));
+    assert.deepEqual(scales[0],scales[1],
+      'Switching between raid and war must keep identical Y-axis ticks');
+    assert.equal(scales[0][0],1);
+    assert.equal(scales[0].at(-1),expected);
+    assert.equal(scales[0].length,expected/100+1);
+    for(const plot of plots){
+      const ticks=plot.children.filter(n=>n.tag==='line'&&
+        n.attrs.class==='historyGridLine');
+      assert.equal(ticks.length,scales[0].length);
+      assert.equal(ticks[0].attrs.y1,14);
+      assert.equal(ticks.at(-1).attrs.y1,302);
+      assert.equal(plot.children.filter(n=>n.tag==='rect').length,2);
+    }
+  }
+});
+test('trophy graph is still independent of shared ranking ceiling',()=>{
+  const altered={...original,alliances:original.alliances.map(a=>
+    ({...a,raidRank:2750,warRank:3400}))};
+  const baseline=drawRenderedChart('war-trophies',390);
+  const changed=drawRenderedChart('war-trophies',390,[altered]);
+  assert.equal(changed.attributes.viewBox,baseline.attributes.viewBox);
+  assert.deepEqual(
+    changed.children.filter(n=>n.tag==='text'&&n.attrs['text-anchor']==='end').map(n=>n.text),
+    baseline.children.filter(n=>n.tag==='text'&&n.attrs['text-anchor']==='end').map(n=>n.text)
+  );
+  assert.equal(changed.children.some(n=>n.tag==='rect'),false);
 });
