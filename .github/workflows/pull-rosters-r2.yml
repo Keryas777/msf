@@ -2,8 +2,13 @@ name: Pull LoSP rosters from private R2
 
 on:
   schedule:
-    # After Roster Service's 02-06 and 14-18 UTC campaigns.
-    - cron: "40 6,18 * * *"
+    # Primary slots after the 02-06 and 14-18 UTC R2 campaigns.
+    - cron: "40 6 * * *"
+    - cron: "40 18 * * *"
+    # Independent fallbacks if GitHub drops/delays one scheduled trigger.
+    # Both attempts are R2-only; repeat imports create no commit if unchanged.
+    - cron: "47 7 * * *"
+    - cron: "47 19 * * *"
   workflow_dispatch:
     inputs:
       date:
@@ -59,17 +64,21 @@ jobs:
           INPUT_PERIOD: ${{ inputs.period }}
           INPUT_PUBLISH: ${{ inputs.publish }}
           EVENT_NAME: ${{ github.event_name }}
+          SCHEDULE_CRON: ${{ github.event.schedule }}
         run: |
           args=()
-          if [ -n "$INPUT_DATE" ]; then
-            args+=("--date=$INPUT_DATE")
-          fi
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            if [ -n "$INPUT_DATE" ]; then
+              args+=("--date=$INPUT_DATE")
+            fi
             args+=("--period=$INPUT_PERIOD")
-          elif [ "$(date -u +%H)" = "06" ]; then
-            args+=("--period=am")
+          elif [ "$EVENT_NAME" = "schedule" ]; then
+            # Never guess AM/PM using the runner's start hour:
+            # GitHub scheduled events may arrive hours after their due time.
+            args+=("--schedule=$SCHEDULE_CRON")
           else
-            args+=("--period=pm")
+            echo "::error::Unsupported roster import event"
+            exit 1
           fi
           if [ "$EVENT_NAME" = "schedule" ] || [ "$INPUT_PUBLISH" = "true" ]; then
             if [ "$LOSP_R2_ROSTERS_PUBLICATION_APPROVED" != "true" ]; then
@@ -85,7 +94,7 @@ jobs:
           DATA_DIR: docs/data
           OUT_FILE: docs/data/rosters.json
         run: |
-          node --test tests/roster-r2-import.test.mjs tests/merge-rosters-optional-iso.test.mjs
+          node --test tests/roster-r2-import.test.mjs tests/merge-rosters-optional-iso.test.mjs tests/roster-r2-schedule.test.mjs
           node --check scripts/pull-rosters-r2.mjs
           node --check scripts/lib/roster-r2-import.mjs
           node --check scripts/lib/private-r2-read.mjs
