@@ -10,6 +10,9 @@
     hades: Object.freeze({ minimum_attacks: 10, minimum_deviations: 0 })
   });
 
+  // Estimation actuelle des points de guerre par attaque gagnée (12 défenses).
+  const ESTIMATED_POINTS_PER_SUCCESS = 841;
+
   const PLAYER_NUMERIC_FIELDS = [
     "rank",
     "attack_points",
@@ -153,7 +156,7 @@
       ? 0
       : Math.min(
           player.attacks,
-          Math.round(player.attack_points / 918)
+          Math.round(player.attack_points / ESTIMATED_POINTS_PER_SUCCESS)
         );
 
     const misses = noAttack
