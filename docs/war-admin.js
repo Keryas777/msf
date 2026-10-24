@@ -91,6 +91,10 @@
   const rankReportsButton = document.getElementById("warRankReports");
   const writeAnalysesButton = document.getElementById("warWriteAnalyses");
   const publishReportsButton = document.getElementById("warPublishReports");
+  const completionFeedback = document.getElementById("warCompletionFeedback");
+  const completionIcon = document.getElementById("warCompletionIcon");
+  const completionTitle = document.getElementById("warCompletionTitle");
+  const completionDetail = document.getElementById("warCompletionDetail");
   const calculateHelp = document.getElementById("warCalculateHelp");
   const logPanel = document.getElementById("warLog");
   const result = document.getElementById("warResult");
@@ -169,6 +173,7 @@
     running: false,
     cancelled: false,
     warDate: "",
+    finalizationAttempted: false,
     captures: [],
     logs: [],
     abortController: null,
@@ -183,6 +188,7 @@
   };
   let captureSequence = 0;
   let finalizationRunning = false;
+  let finalizationStage = "";
 
   // Sauvegarde des brouillons, rapports et images pour récupérer une session après
   // la destruction de l'onglet par iOS. Aucun envoi supplémentaire vers un serveur.
@@ -219,6 +225,7 @@
       schemaVersion: 1,
       warDate: session.warDate || dateInput.value,
       updatedAt: Date.now(),
+      finalizationAttempted: session.finalizationAttempted,
       captures,
       logs: session.logs.slice(-200)
     };
@@ -281,6 +288,7 @@
       captureSequence = Math.max(captureSequence, ...session.captures.map((capture) => Number(capture.id) || 0));
       session.logs = Array.isArray(saved.logs) ? saved.logs : [];
       session.warDate = saved.warDate || "";
+      session.finalizationAttempted = Boolean(saved.finalizationAttempted);
       dateInput.value = session.warDate || getLocalDateValue();
       fileMeta.textContent = "Session précédente récupérée depuis cet appareil.";
       setStatus("warning", "Session récupérée", "Reprise",
@@ -538,6 +546,49 @@
     return validatedDraftMatches(capture, classifyDraft(capture.editableDraft));
   }
 
+  function renderCompletionFeedback(available, published) {
+    const total = available.length;
+    if (!total) {
+      completionFeedback.hidden = true;
+      return;
+    }
+
+    let state = "";
+    let title = "";
+    let detail = "";
+
+    if (finalizationRunning) {
+      state = "running";
+      title = "⏳ Finalisation en cours";
+      detail = `${finalizationStage || "Traitement"} · ${published}/${total} rapports publiés.`;
+    } else if (published === total) {
+      state = "success";
+      title = "Débrief terminé";
+      detail = `${published}/${total} rapports publiés avec succès sur GitHub.`;
+    } else if (session.finalizationAttempted ||
+      available.some((capture) => capture.publication?.state === "error")) {
+      state = "error";
+      title = "Débrief incomplet";
+      const remaining = available.filter((capture) => capture.publication?.state !== "published");
+      const problems = remaining.map((capture) => {
+        const alliance = capture.allianceLabel || capture.alliance || `Capture ${capture.index + 1}`;
+        const stage = !capture.calculatedReport ? "calcul" :
+          !capture.rankedReport ? "classement" :
+          !capture.finalReport ? "rédaction IA" : "publication GitHub";
+        return `${alliance} (${stage})`;
+      });
+      detail = `${published}/${total} rapports publiés. À reprendre : ${problems.join(" · ")}. Relance la finalisation.`;
+    }
+
+    completionFeedback.hidden = !state;
+    if (!state) return;
+    completionFeedback.dataset.state = state;
+    const icon = state === "success" ? "✓" : (state === "error" ? "!" : "…");
+    if (completionIcon.textContent !== icon) completionIcon.textContent = icon;
+    if (completionTitle.textContent !== title) completionTitle.textContent = title;
+    if (completionDetail.textContent !== detail) completionDetail.textContent = detail;
+  }
+
   function renderReportProgress() {
     const available = getAvailableCaptures();
     reportProgress.hidden = available.length === 0;
@@ -548,6 +599,7 @@
     const ranked = available.filter((capture) => isOcrValidatedCapture(capture) && Boolean(capture.rankedReport)).length;
     const analyzed = available.filter((capture) => isOcrValidatedCapture(capture) && Boolean(capture.finalReport)).length;
     const published = available.filter((capture) => capture.publication?.state === "published").length;
+    renderCompletionFeedback(available, published);
     const allValidated = validated === available.length;
     const allCalculated = calculated === available.length;
     const allRanked = ranked === available.length;
@@ -753,6 +805,7 @@
     session.captures = [];
     session.logs = [];
     session.warDate = "";
+    session.finalizationAttempted = false;
     renderLog();
 
     const files = getSelectedFiles();
@@ -1957,6 +2010,8 @@
     }
 
     finalizationRunning = true;
+    finalizationStage = "Calcul et classement";
+    session.finalizationAttempted = true;
     updateControls();
     renderSession();
     addLog("Finalisation automatique : calcul, classement, rédaction, publication");
@@ -1982,6 +2037,8 @@
       return;
     }
 
+    finalizationStage = "Rédaction IA";
+    renderSession();
     if (!available.every((capture) => Boolean(capture.finalReport))) {
       await handleWriteAnalyses();
     }
@@ -1992,11 +2049,14 @@
       return;
     }
 
+    finalizationStage = "Publication GitHub";
+    renderSession();
     if (available.some((capture) => capture.publication?.state !== "published")) {
       await handlePublishReports();
     }
     } finally {
       finalizationRunning = false;
+      finalizationStage = "";
       updateControls();
       renderSession();
     }
@@ -2174,6 +2234,7 @@
     if (session.captures.length !== files.length) handleImageChange();
 
     resetCapturesForRun();
+    session.finalizationAttempted = false;
     session.logs = [];
     session.warDate = warDate;
     session.cancelled = false;
