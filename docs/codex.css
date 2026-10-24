@@ -41,26 +41,16 @@ body.codexPage {
   min-height: 100dvh;
   margin: 0;
   overflow-x: hidden;
-  background: var(--codex-bg);
+  background-color: #05070d;
+  background-image: url("./Background.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--codex-text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 1.5;
-}
-
-body.codexPage::before {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background-image:
-    linear-gradient(rgba(5, 7, 13, 0.7), rgba(5, 7, 13, 0.7)),
-    radial-gradient(circle at 90% 8%, rgba(113, 231, 255, 0.035), transparent 30rem),
-    url("./Background.webp");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  content: "";
-  pointer-events: none;
 }
 
 button,
@@ -2342,14 +2332,6 @@ img {
 
 /* LoSP illustrated Codex landing (CSS-only artwork until illustrations are available).
    Scoped to the landing view: all existing character, mechanic and ability pages stay intact. */
-body.codexPage.codexLandingView {
-  background: #080b23 url("./Background.webp") center / cover fixed no-repeat;
-}
-
-body.codexPage.codexLandingView::before {
-  background: transparent;
-}
-
 .codexLandingView .codexShell {
   max-width: 800px;
   padding: max(16px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))

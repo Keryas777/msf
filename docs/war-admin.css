@@ -35,10 +35,12 @@ body.warAdminPage {
   min-height: 100dvh;
   margin: 0;
   overflow-x: hidden;
-  background:
-    radial-gradient(circle at 12% 0%, rgba(48, 130, 214, 0.2), transparent 34rem),
-    radial-gradient(circle at 92% 18%, rgba(99, 79, 220, 0.16), transparent 28rem),
-    linear-gradient(180deg, #071225 0%, var(--war-admin-bg) 52%, #040913 100%);
+  background-color: #05070d;
+  background-image: url("./Background.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--war-admin-text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 16px;

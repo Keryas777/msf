@@ -21,37 +21,7 @@
         isolation: isolate;
         min-height: 100vh;
         overflow: hidden;
-        background:
-          radial-gradient(circle at 50% 18%, rgba(105,126,255,.32), transparent 34%),
-          radial-gradient(circle at 15% 80%, rgba(255,130,70,.16), transparent 32%),
-          radial-gradient(circle at 88% 78%, rgba(80,200,255,.18), transparent 30%),
-          linear-gradient(180deg, #050712, #07091b 55%, #03040a);
-      }
-
-      body.authPage::before{
-        content: "";
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        pointer-events: none;
-        opacity: .36;
-        background-image: url("./Background.webp");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        filter: contrast(1.12) brightness(.72) saturate(1.15);
-      }
-
-      body.authPage::after{
-        content: "";
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        pointer-events: none;
-        background:
-          radial-gradient(circle at 50% 42%, rgba(110,130,255,.18), transparent 34%),
-          linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.48));
-      }
+}
 
       .authParticles{
         position: fixed;
