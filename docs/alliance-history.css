@@ -34,6 +34,8 @@
 .historyPlotWrap { border: 1px solid #2c3552; border-radius: 16px; background: #0b1122; padding: 8px 3px 2px; overflow: hidden; }
 .historyPlot { display: block; width: 100%; height: auto; overflow: visible; touch-action: manipulation; }
 .historyPlot .historyGridLine { stroke: #27324b; stroke-width: 1; }
+.historyPlot .historyTrophyBoundary { stroke: #d9dde5; stroke-width: 1; stroke-opacity: .65; stroke-dasharray: 4 3; }
+.historyPlot .historyTrophyLabel { fill: #fff; font: 800 11px system-ui, -apple-system, sans-serif; paint-order: stroke fill; stroke: #111827; stroke-width: 2px; }
 .historyPlot .historyAxisText { fill: #b0bed8; font: 11px system-ui, -apple-system, sans-serif; }
 .historyPlot .historyPlotLine { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
 .historyPlot .historyPlotDot { cursor: pointer; stroke: #0b1122; stroke-width: 2.5; }
