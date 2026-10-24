@@ -21,7 +21,7 @@
 - **Attention à la taille d'équipe :** les infographies montrent des groupes de cinq ; un autre guide (Marvel Church) affirme que cet événement autorise **trois combattants**. Les cinq visages ne prouvent donc pas qu'ils peuvent être utilisés simultanément. La contradiction est clairement mentionnée dans `challenges.json` et les nouvelles fiches.
 - Les anciennes cinq fiches Marvel Church (cellules 1–5) sont conservées intégralement avec leur propre source et leurs tactiques, sans fusionner le contenu de publications différentes.
 - Les cellules 16–20 restent non documentées et doivent demeurer des cases futures.
-- Deux occurrences du portrait féminin sombre, en alternatives **cellules 1 et 13**, sont provisoirement associées à `OmegaSentinel`. Drapeau `portrait_identity_to_recheck_omega_sentinel` et note d'incertitude obligatoires.
+- **Rectificatif utilisateur du 24 octobre 2026 :** les deux portraits des alternatives **cellule 1, alternative 1**, et **cellule 13, alternative 2**, précédemment rapprochés de `OmegaSentinel`, représentent en réalité **Crécerelle (Kestrel)**, dont l'ID officiel jouable est `Sybil`. Les deux compositions sont corrigées ; le drapeau provisoire est remplacé par `portrait_identity_confirmed_by_user_sybil`. Il ne s'agit pas de `ZombieKestrel`.
 
 ## Transcription détaillée par cellule
 
@@ -58,4 +58,4 @@ Les -180 formations alternatives sont conservées séparément dans `docs/data/c
 
 ## Travail éventuel ultérieur
 
-Confirmer l'identité des deux portraits féminins difficiles à discerner (provisoirement `OmegaSentinel`), confronter la taille d'équipe réellement autorisée à l'interface du jeu, conserver des équipes supplémentaires indépendantes plutôt que les fusionner, et intégrer les cellules 16–20 une fois les visuels disponibles.
+Confronter la taille d'équipe réellement autorisée à l'interface du jeu, conserver des équipes supplémentaires indépendantes plutôt que les fusionner, et intégrer les cellules 16–20 une fois les visuels disponibles. L'identification des deux portraits Crécerelle (`Sybil`) a été corrigée et confirmée par l'utilisateur.
