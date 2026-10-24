@@ -1,15 +1,17 @@
-name: Temporary verify 24 Oct R2 trophies
+name: Temporary publish validated 24 Oct trophies to review branch
 on:
   push:
     branches:
       - fix/standings-r2-20261024
     paths:
       - .github/workflows/standings-r2-recovery-once.yml
-      - scripts/pull-alliance-history-r2.mjs
 permissions:
-  contents: read
+  contents: write
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
 jobs:
-  verify:
+  verify-and-stage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,29 +20,29 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Verify R2 list with AWS CLI without exposing any objects
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.LOSP_R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.LOSP_R2_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: auto
-          ACCOUNT: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
-          BUCKET: ${{ secrets.LOSP_R2_BUCKET }}
-        shell: bash
-        run: |
-          if command -v aws >/dev/null; then
-            if aws s3api list-objects-v2 --bucket "$BUCKET" --endpoint-url "https://$ACCOUNT.r2.cloudflarestorage.com" --max-keys 1 >/dev/null 2>&1; then
-              echo "AWS CLI R2 ListObjectsV2 succeeded."
-            else
-              echo "AWS CLI R2 ListObjectsV2 failed."
-            fi
-          else
-            echo "AWS CLI not installed."
-          fi
-      - name: Validate real post-war R2 archive without publishing
+      - name: Publish 24 October real official AllianceCards to this branch only
         env:
           LOSP_R2_ACCOUNT_ID: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
           LOSP_R2_ACCESS_KEY_ID: ${{ secrets.LOSP_R2_ACCESS_KEY_ID }}
           LOSP_R2_SECRET_ACCESS_KEY: ${{ secrets.LOSP_R2_SECRET_ACCESS_KEY }}
           LOSP_R2_BUCKET: ${{ secrets.LOSP_R2_BUCKET }}
           LOSP_R2_ALLIANCE_MAP_JSON: ${{ secrets.LOSP_R2_ALLIANCE_MAP_JSON }}
-        run: node scripts/pull-alliance-history-r2.mjs --date=2026-10-24
+          LOSP_R2_HISTORY_PUBLICATION_APPROVED: ${{ vars.LOSP_R2_HISTORY_PUBLICATION_APPROVED }}
+        run: node scripts/pull-alliance-history-r2.mjs --date=2026-10-24 --write
+      - name: Validate published index, charts and source contract
+        run: |
+          node --check scripts/pull-alliance-history-r2.mjs
+          node --test tests/alliance-standings-data.test.mjs tests/alliance-history-charts.test.mjs tests/alliance-r2-import.test.mjs
+      - name: Confirm only sanitized trophies were modified
+        shell: bash
+        run: |
+          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' | grep -Ev '^docs/data/alliance-standings/(index[.]json|snapshots/)' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "::error::Unexpected modified files"; exit 1
+          fi
+          git add docs/data/alliance-standings/index.json docs/data/alliance-standings/snapshots
+          git diff --cached --quiet && { echo "::error::No new real source data"; exit 1; }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "data: import actual 24 October war trophies from private R2"
+          git push origin HEAD:fix/standings-r2-20261024
