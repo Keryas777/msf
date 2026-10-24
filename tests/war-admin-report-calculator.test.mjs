@@ -216,7 +216,7 @@ test("activité et efficacité brute conservent leurs barèmes lorsque le seuil 
         rank: index + 1,
         name: `Efficacité ${value}`,
         attacks: 14,
-        attack_points: (14 - value) * 918,
+        attack_points: (14 - value) * 841,
         damage: 100_000_000
       })
     )
@@ -356,28 +356,28 @@ test("la pondération atteint 100 % dès que le minimum d’attaques est atteint
   }
 });
 
-test("les ratés utilisent une estimation à 918 points par victoire sans modifier les attaques de dégâts", () => {
+test("les ratés utilisent une estimation à 841 points par victoire sans modifier les attaques de dégâts", () => {
   const output = plain(
     calculator.calculateReport(
       draft("dionysos", [
         player({
           rank: 1,
           name: "Parfait",
-          attack_points: 12852,
+          attack_points: 11774,
           attacks: 14,
           damage: 1_100_000_000
         }),
         player({
           rank: 2,
           name: "Un raté",
-          attack_points: 11932,
+          attack_points: 10933,
           attacks: 14,
           damage: 1_000_000_000
         }),
         player({
           rank: 3,
           name: "Deux ratés",
-          attack_points: 11012,
+          attack_points: 10092,
           attacks: 14,
           damage: 900_000_000
         }),
@@ -408,22 +408,22 @@ test("les ratés utilisent une estimation à 918 points par victoire sans modifi
     ),
     [
       {
-        attack_points: 12852,
+        attack_points: 11774,
         successful_attacks: 14,
         misses: 0,
-        damage_attacks: 13
+        damage_attacks: 12
       },
       {
-        attack_points: 11932,
+        attack_points: 10933,
         successful_attacks: 13,
         misses: 1,
-        damage_attacks: 12
+        damage_attacks: 11
       },
       {
-        attack_points: 11012,
+        attack_points: 10092,
         successful_attacks: 12,
         misses: 2,
-        damage_attacks: 12
+        damage_attacks: 11
       },
       {
         attack_points: 12000,
