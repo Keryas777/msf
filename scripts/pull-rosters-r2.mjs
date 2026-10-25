@@ -43,6 +43,7 @@ async function main(){
   const aliases=await json('docs/data/player-aliases.json');
   const r2=createPrivateR2Reader();
   const updates=new Map();
+  const skipped=[];
   const existing=new Map();
   for(const alliance of registry){
     const path='docs/data/rosters_'+alliance.key+'.json';
@@ -55,6 +56,11 @@ async function main(){
     const result=await loadRosterCampaign(r2,fp[alliance.key],window);
     if(!result){
       console.log(alliance.key+': no verified complete '+period+' campaign; keep current file');
+      skipped.push(alliance.key);
+      if(process.env.GITHUB_ACTIONS==='true')
+        console.log('::warning title=Roster R2 partiel::'+alliance.key+
+          ': aucune campagne '+day+'-'+period+' complète validée dans R2. '+
+          'Le roster publié précédemment est conservé.');
       continue;
     }
     const rows=convertAllianceRosters(alliance.key,result.records,
@@ -63,6 +69,29 @@ async function main(){
     updates.set(alliance.key,rows);
     console.log(alliance.key+': validated '+rows.length+' rosters, completed at '+
       result.capturedAt);
+  }
+  // Surface precisely WHY a green workflow did not refresh every alliance.
+  // The GitHub run may legitimately publish 1/6 without overwriting the
+  // older five; do not mistake a green check for a full synchronization.
+  if(process.env.GITHUB_STEP_SUMMARY){
+    const lines=[
+      '## Import LoSP R2 — '+day+' / '+period.toUpperCase(),
+      '',
+      '**Alliances avec nouvelle campagne validée : '+
+        updates.size+'/'+registry.length+'**',
+      '',
+      '| Alliance | Campagne du jour |',
+      '|---|---|',
+      ...registry.map(a=>'| '+a.key+' | '+
+        (updates.has(a.key)?'✅ Nouvelle archive R2 complète':
+          '⚠️ Absente ou incomplète — ancien roster conservé')+' |'),
+      '',
+      skipped.length?'⚠️ Import partiel : '+skipped.length+
+        ' alliance(s) sans campagne complète dans R2.':'✅ Toutes les alliances actualisées.',
+      ''
+    ];
+    try{await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,lines.join('\n'));}
+    catch{console.error('Could not write optional GitHub Actions summary');}
   }
   if(!updates.size)throw Error('No complete and current R2 roster campaign');
   // Reject duplicates even across a mix of updated and retained alliances.
