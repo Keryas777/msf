@@ -159,10 +159,11 @@ test('trophy post-war window has margins and includes the 22 October capture',()
 });
 
 test('24 October has one complete six-alliance reading, replacing same-value morning point',()=>{
-  assert.equal(index.snapshots.length,3,'Only one reading per represented day');
-  assert.equal(index.snapshots.filter(x=>x.capturedAt.startsWith('2026-10-24')).length,1);
+  const trophyReadings=index.snapshots.filter(x=>x.captureType!=='season-ranks');
+  assert.equal(trophyReadings.length,3,'Only one trophy reading per represented day');
+  assert.equal(trophyReadings.filter(x=>x.capturedAt.startsWith('2026-10-24')).length,1);
   assert.equal(index.snapshots.some(x=>x.file.includes('042033728')),false);
-  const observed=data(index.snapshots.at(-1).file);
+  const observed=data(trophyReadings.at(-1).file);
   assert.equal(observed.capturedAt,'2026-10-24T21:31:12.523Z');
   assert.equal(observed.coverage.completeSessionScan,true);
   assert.equal(observed.alliances.length,6);
@@ -172,7 +173,8 @@ test('24 October has one complete six-alliance reading, replacing same-value mor
 });
 
 test("24 October evening administrator capture adds Hadès without private fingerprints",()=>{
-  const latest=index.snapshots.at(-1);
+  const latest=index.snapshots.find(x=>
+    x.capturedAt==="2026-10-24T21:31:12.523Z");
   assert.equal(latest.capturedAt,"2026-10-24T21:31:12.523Z");
   assert.equal(latest.allianceCount,6);
   assert.equal(latest.completeSessionScan,true);
