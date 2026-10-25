@@ -27,7 +27,8 @@ test('alternating Mondays use the official JSON anchor; winter and summer unchan
   assert.equal(early.availableAfter,'2026-10-25T21:00:00.000Z');
   assert.equal(mondaySeason('2026-11-02',config),null);
   assert.equal(mondaySeason('2026-11-09',config).seasonId,'2026-10-25/2026-11-08');
-  assert.equal(mondaySeason('2027-03-29',config),null);
+  assert.equal(mondaySeason('2027-03-29',config).seasonId,'2027-03-14/2027-03-28');
+  assert.equal(mondaySeason('2027-03-22',config),null);
   assert.throws(()=>mondaySeason('2026-02-30',config));
   assert.equal(scheduledMonday('40 4 * * 1',new Date('2026-10-26T04:42:00Z')),'2026-10-26');
   assert.equal(scheduledMonday('17 6 * * 1',new Date('2026-10-26T08:00:00Z')),'2026-10-26');
