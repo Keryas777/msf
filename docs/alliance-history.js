@@ -202,8 +202,10 @@
     const plotDates=visibleSeries[0].points.map(p=>p.plotAt||p.capturedAt);
     const times=plotDates.map(iso=>Date.parse(iso));
     const first=times[0],last=times[times.length-1];
-    const x=t=>first===last?margin.left+w/2:
-      margin.left+(t-first)/(last-first)*w;
+    // Keep every measured checkpoint equally spaced. Real timestamps are
+    // still used for axis labels, tooltips and the displayed date range.
+    const xAt=index=>plotDates.length===1?margin.left+w/2:
+      margin.left+index/(plotDates.length-1)*w;
     if(rank){
       // The half-step boundaries separate whole-number ranks cleanly:
       // 1-100 = dark green; 101-200 = light green.
@@ -288,7 +290,7 @@
       const label=axisDate.format(new Date(times[i]));
       if(seenDates.has(label))continue;
       seenDates.add(label);
-      dateEntries.push({i,label,position:x(times[i])});
+      dateEntries.push({i,label,position:xAt(i)});
     }
     const occupied=[];
     const addDateLabel=(entry,anchor)=>{
@@ -332,16 +334,16 @@
             stroke:color,class:'historyPlotLine'}));
         segment=[];
       };
-      for(const p of s.points){
+      for(const [i,p] of s.points.entries()){
         if(p.value===null){flush();continue;}
         // Adjacent completed seasons must be connected to show
         // how each alliance's ranking evolves between seasons.
-        segment.push({x:x(Date.parse(p.plotAt||p.capturedAt)),y:y(p.value)});
+        segment.push({x:xAt(i),y:y(p.value)});
       }
       flush();
-      for(const p of s.points){
+      for(const [i,p] of s.points.entries()){
         if(p.value===null)continue;
-        const dot=svg('circle',{cx:x(Date.parse(p.plotAt||p.capturedAt)),
+        const dot=svg('circle',{cx:xAt(i),
           cy:y(p.value),r:5.5,fill:color,
           class:'historyPlotDot',tabindex:0,role:'button',
           'aria-label':s.name+' : '+number.format(p.value)+
