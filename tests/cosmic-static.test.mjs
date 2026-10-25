@@ -217,12 +217,16 @@ test("cosmic visual design matches the common LoSP dark glass theme", async () =
   assert.match(css, /\.cosmicSeasonCard\{[^}]*var\(--panel\)/);
   assert.match(css, /\.cosmicIntro\{[^}]*var\(--muted\)/);
   assert.match(css, /\.cosmicHubGrid\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(css, /\.cosmicHubPage \.cosmicHubGrid\{/);
+  assert.match(css, /grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(css, /\.cosmicHubPage \.cosmicHubTile--propose\{/);
+  assert.match(css, /grid-column:1\/-1;aspect-ratio:2\.25\/1/);
   assert.match(css, /\.cosmicPortrait img\{[^}]*object-fit:contain/);
   assert.match(css, /\.cosmicPortraitRemove::after\{[^}]*font:700 12px\/1 sans-serif/);
-  for (const page of [hub,counters]) {
-    assert.match(page, /cosmic\.css\?v=8/);
-    assert.match(page, /style\.css\?v=/);
-  }
+  assert.match(hub, /cosmic\.css\?v=9/);
+  assert.match(hub, /style\.css\?v=/);
+  assert.match(counters, /cosmic\.css\?v=8/);
+  assert.match(counters, /style\.css\?v=/);
   assert.match(propose,/cosmic\.css\?v=9/);
   assert.match(propose,/style\.css\?v=/);
   assert.match(browse, /cosmic\.css\?v=10/);
@@ -431,4 +435,39 @@ test("le texte des règles démarre sous leur intitulé sur les deux pages", asy
   assert.match(css, /\.cosmicRoomRule\{[^}]*white-space:pre-line/);
   assert.match(browse, /cosmic-defenses\.js\?v=13/);
   assert.match(propose, /cosmic-defenses\.js\?v=11/);
+});
+
+
+test("hub cosmique : bannière illustrée et trois tuiles comme la sélection Guerre", async () => {
+  const [hub,css,war,warCss] = await Promise.all([
+    read("docs/cosmic.html"),read("docs/cosmic.css"),
+    read("docs/war-choose.html"),read("docs/war-choose.css")
+  ]);
+  assert.match(war,/class="rankingsGrid"/);
+  assert.match(warCss,/grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(hub,/class="app cosmicHubPage"/);
+  assert.match(hub,/cosmic\.css\?v=9/);
+  assert.equal((hub.match(/class="cosmicHubTile /g)||[]).length,3);
+  assert.match(hub,/href="\.\/cosmic-counters\.html"/);
+  assert.match(hub,/href="\.\/cosmic-defenses\.html"/);
+  assert.match(hub,/href="\.\/cosmic-defense-propose\.html"/);
+  assert.match(hub,/data-cosmic-season-title/);
+  assert.match(hub,/data-cosmic-season-rules/);
+  assert.ok(hub.indexOf('class="cosmicHubGrid"')<hub.indexOf('class="card cosmicSeasonCard"'));
+  assert.match(css,/\.cosmicHubPage \.cosmicHeader\{[^}]*cosmic-hub-banner\.svg/);
+  assert.match(css,/\.cosmicHubPage \.cosmicHubTile\{[^}]*cosmic-hub-contres\.svg/);
+  assert.match(css,/\.cosmicHubPage \.cosmicHubTile--defenses\{[^}]*cosmic-hub-defenses\.svg/);
+  assert.match(css,/\.cosmicHubPage \.cosmicHubTile--propose\{[^}]*cosmic-hub-propose\.svg/);
+  assert.match(css,/\.cosmicHubPage \.cosmicHubTile:focus-visible/);
+  assert.match(css,/prefers-reduced-motion:reduce/);
+  assert.doesNotMatch(hub,/⚔️|🛡️|✍️/);
+  for(const asset of [
+    "docs/cosmic-hub-banner.svg","docs/cosmic-hub-contres.svg",
+    "docs/cosmic-hub-defenses.svg","docs/cosmic-hub-propose.svg"
+  ]) {
+    const svg=await read(asset);
+    assert.match(svg,/<svg /);
+    assert.match(svg,/<\/svg>/);
+    assert.doesNotMatch(svg,/<script|<foreignObject|href=["']https?:/i);
+  }
 });
