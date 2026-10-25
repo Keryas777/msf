@@ -242,3 +242,40 @@ test('canonical no-op alias is not a cycle, but genuine conflicting loops still 
   assert.throws(()=>resolveAlias('First',{aliases:{First:'Second',Second:'First'}}),
     /Cyclic player alias/);
 });
+
+
+test('OAuth-only campaign: zero shared co-members, personal roster present, still importable',async()=>{
+  // A real alliance can have 24 members with 23 rosterShare=false.
+  // That is an authorized-only archive, not an empty or failed campaign.
+  const p={...progress,completed:0,totalEligible:0,
+    observedMembers:24,selfCompleted:true};
+  const m={...manifest,total:1,coMembers:0,observedMembers:24,
+    coverage:'authorized-only',notSharedCount:23};
+  assert.equal(validManifestAndProgress(p,m,fp,window,now),true);
+  const root='roster-batches/v1/'+fp+'/';
+  const onlySelf=row('self','Hades Captain','captain-1');
+  const storage=new Map([
+    [root+'progress.json',p],
+    [root+'latest-complete.json',m],
+    [root+runId+'/member-self.json',onlySelf]
+  ]);
+  const r2={getJSON:async key=>storage.get(key)||null};
+  const found=await loadRosterCampaign(r2,fp,window,now);
+  assert.equal(found.records.length,1);
+  assert.equal(found.records[0].memberIndex,'self');
+  const rows=convertAllianceRosters('hades',found.records,[],{aliases:{}});
+  assert.equal(rows.length,1);
+  assert.equal(rows[0].alliance,'hades');
+  // No imaginary co-member roster, and no publication without the owner file.
+  storage.delete(root+runId+'/member-self.json');
+  assert.equal(await loadRosterCampaign(r2,fp,window,now),null);
+  for(const invalid of [
+    {...m,coverage:'all-members'},
+    {...m,notSharedCount:22},
+    {...m,coMembers:1},
+    {...m,total:2},
+    {...m,includesPersonal:false}
+  ])assert.equal(validManifestAndProgress(p,invalid,fp,window,now),false);
+  assert.equal(validManifestAndProgress({...p,selfCompleted:false},m,fp,window,now),false);
+  assert.equal(validManifestAndProgress({...p,completed:-1},m,fp,window,now),false);
+});

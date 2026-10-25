@@ -28,7 +28,7 @@ export function validManifestAndProgress(progress,manifest,fp,window,now=Date.no
     progress.membershipDigest!==manifest.membershipDigest||
     !FP.test(manifest.membershipDigest)||progress.selfCompleted!==true||
     manifest.includesPersonal!==true||
-    !Number.isInteger(progress.completed)||progress.completed<1||
+    !Number.isInteger(progress.completed)||progress.completed<0||
     progress.completed!==progress.totalEligible||
     manifest.coMembers!==progress.completed||
     manifest.total!==progress.completed+1||
