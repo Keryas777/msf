@@ -471,13 +471,16 @@ test('date labels de-duplicate same-day captures and add short year across years
   assert.ok(labels.some(n=>/27$/.test(n.text)));
 });
 
-test('Hadès 🔥 is active and present on all three charts from the real 24 October reading',()=>{
+test('Hadès 🔥 first appears in the true 24 October snapshot, not the earlier season',()=>{
   const hades=registry.find(a=>a.key==='hades');
   assert.equal(hades?.active,true);
   assert.equal(hades.emoji,'🔥');
   assert.equal(hades.color,'#1EA164');
   const history=index.snapshots.map(s=>
     JSON.parse(read('docs/data/alliance-standings/'+s.file)));
+  // Keep this historical regression scoped to the snapshots that existed
+  // before the separate seasonal rank-only import was added.
+  history.splice(3);
   const current=history.at(-1);
   assert.equal(current.capturedAt,'2026-10-24T21:31:12.523Z');
   assert.equal(current.coverage.completeSessionScan,true);
@@ -518,7 +521,7 @@ test('large Hadès ranks use a readable shared compressed axis without hundreds 
     const plot=drawRenderedChart(id,390,history);
     const ticks=plot.children.filter(n=>n.attrs.class==='historyGridLine');
     assert.ok(ticks.length>=6&&ticks.length<=12);
-    assert.equal(plot.children.filter(n=>n.tag==='circle').length,6);
+    assert.equal(plot.children.filter(n=>n.tag==='circle').length,12);
     const yValues=plot.children.filter(n=>n.tag==='circle').map(n=>Number(n.attrs.cy));
     assert.ok(yValues.every(y=>y>=14&&y<=302));
     assert.ok(Math.max(...yValues)-Math.min(...yValues)>150,
@@ -539,16 +542,18 @@ test('missing seasons and values never inherit a later observed new alliance',()
   const model=prepare([...history,future],registry,
     byId('raid-season-rank'),config.rankingSeasons);
   const points=model.series.find(s=>s.key==='hades').points;
-  assert.equal(points.length,2);
+  assert.equal(points.length,3);
   assert.equal(points[0].value,6998);
-  assert.equal(points[1].value,null);
+  assert.equal(points[1].value,6998);
+  assert.equal(points[2].value,null);
 });
 
 test('24 October counts as one trophy reading, and Hadès begins there',()=>{
   const captured=index.snapshots.map(s=>
     JSON.parse(read('docs/data/alliance-standings/'+s.file)));
-  assert.equal(captured.length,3);
-  const days=captured.map(row=>row.capturedAt.slice(0,10));
+  assert.equal(captured.length,4);
+  const days=captured.filter(row=>row.captureType!=='season-ranks')
+    .map(row=>row.capturedAt.slice(0,10));
   assert.deepEqual(days,['2026-10-21','2026-10-22','2026-10-24']);
   const model=prepare(captured,registry,byId('war-trophies'),config.rankingSeasons);
   assert.equal(model.rows.length,3);
@@ -577,15 +582,16 @@ test('hiding Hadès filters dots and restores the standard rank scale on mobile'
   for(const id of ['war-season-rank','raid-season-rank']){
     const full=drawRenderedChart(id,390,readings);
     const filtered=drawRenderedChart(id,390,readings,['hades']);
-    assert.equal(full.children.filter(n=>n.tag==='circle').length,6);
-    assert.equal(filtered.children.filter(n=>n.tag==='circle').length,5);
+    assert.equal(full.children.filter(n=>n.tag==='circle').length,12);
+    assert.equal(filtered.children.filter(n=>n.tag==='circle').length,10);
     const fullTicks=full.children.filter(n=>n.attrs.class==='historyGridLine');
     const filteredTicks=filtered.children.filter(n=>n.attrs.class==='historyGridLine');
     assert.ok(fullTicks.length<=12);
-    assert.equal(filteredTicks.length,9,'Without Hadès return to 1–800 linear rank axis');
+    assert.equal(filteredTicks.length,18,
+      'Without Hadès the shared rank scale is linear through rank 1 700');
     const end=filtered.children.filter(n=>n.tag==='text'&&
       n.attrs['text-anchor']==='end').at(-1);
-    assert.equal(end.text,'800');
+    assert.equal(Number(String(end.text).replace(/\D/g,'')),1700);
     assert.equal(filtered.attributes.viewBox,full.attributes.viewBox);
   }
   for(const width of [320,390,680]){
