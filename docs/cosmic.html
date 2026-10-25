@@ -9,19 +9,33 @@
   <meta name="theme-color" content="#0b0c0d" />
   <title>LoSP — Épreuve cosmique</title>
   <link rel="stylesheet" href="./style.css?v=4" />
-  <link rel="stylesheet" href="./cosmic.css?v=8" />
+  <link rel="stylesheet" href="./cosmic.css?v=9" />
   <link rel="manifest" href="./manifest.webmanifest" />
 </head>
 <body>
-  <main class="app">
+  <main class="app cosmicHubPage">
     <header class="header cosmicHeader">
       <a href="./home.html" class="backBtn" aria-label="Retour">‹</a>
       <a href="./home.html" class="homeBtn" aria-label="Accueil">⌂</a>
       <div class="headerLeft">
-        <h1 class="title">🌌 Épreuve cosmique</h1>
-        <p class="subtitle">Prépare tes attaques et tes six salles de défense.</p>
+        <h1 class="title">Épreuve cosmique</h1>
       </div>
     </header>
+
+    <nav class="cosmicHubGrid" aria-label="Outils Épreuve cosmique">
+      <a class="cosmicHubTile cosmicHubTile--counters" href="./cosmic-counters.html" aria-label="Contres de l'épreuve cosmique">
+        <strong>Contres</strong>
+        <span class="cosmicHubDescription srOnly">Recherche les attaques adaptées aux défenses adverses.</span>
+      </a>
+      <a class="cosmicHubTile cosmicHubTile--defenses" href="./cosmic-defenses.html" aria-label="Consulter les défenses">
+        <strong>Consulter les défenses</strong>
+        <span class="cosmicHubDescription srOnly">Découvre les compositions publiées pour les six salles.</span>
+      </a>
+      <a class="cosmicHubTile cosmicHubTile--propose" href="./cosmic-defense-propose.html" aria-label="Proposer une défense">
+        <strong>Proposer une défense</strong>
+        <span class="cosmicHubDescription srOnly">Compose tes équipes et partage ta proposition.</span>
+      </a>
+    </nav>
     <section class="card cosmicSeasonCard" aria-label="Saison d'épreuve cosmique">
       <h2 class="cosmicSeasonTitle" data-cosmic-season-title>Saison en cours de chargement…</h2>
       <p class="cosmicSeasonDates" data-cosmic-season-dates></p>
@@ -30,23 +44,6 @@
         <div data-cosmic-season-rules></div>
       </details>
     </section>
-    <nav class="cosmicHubGrid" aria-label="Outils Épreuve cosmique">
-      <a class="cosmicHubTile cosmicHubTile--counters" href="./cosmic-counters.html">
-        <span class="cosmicHubIcon" aria-hidden="true">⚔️</span>
-        <strong>Contres</strong>
-        <span>Recherche les attaques adaptées aux défenses adverses.</span>
-      </a>
-      <a class="cosmicHubTile cosmicHubTile--defenses" href="./cosmic-defenses.html">
-        <span class="cosmicHubIcon" aria-hidden="true">🛡️</span>
-        <strong>Consulter les défenses</strong>
-        <span>Découvre les compositions publiées pour les six salles.</span>
-      </a>
-      <a class="cosmicHubTile cosmicHubTile--propose" href="./cosmic-defense-propose.html">
-        <span class="cosmicHubIcon" aria-hidden="true">✍️</span>
-        <strong>Proposer une défense</strong>
-        <span>Compose tes équipes et partage ta proposition.</span>
-      </a>
-    </nav>
   </main>
   <script src="./cosmic-season-ui.js?v=1" defer></script>
 </body>

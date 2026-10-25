@@ -164,3 +164,111 @@
   }
   .cosmicHubIcon{font-size:42px}
 }
+
+/* Accueil cosmique : la même structure visuelle que war-choose
+   (bannière + tuiles illustrées). Portée strictement limitée à cosmic.html. */
+.cosmicHubPage{gap:12px}
+.cosmicHubPage .cosmicHeader{
+  position:relative;isolation:isolate;min-height:140px;height:140px;padding:0;
+  border-radius:18px;overflow:hidden;
+  background:#080c24 url("./cosmic-hub-banner.svg") center/cover no-repeat;
+  border:1px solid var(--border);box-shadow:var(--shadow);
+  display:flex;align-items:flex-end;justify-content:center;
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+}
+.cosmicHubPage .cosmicHeader::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(3,5,20,.28),rgba(2,4,19,.17) 38%,rgba(3,5,19,.72));
+}
+.cosmicHubPage .cosmicHeader .headerLeft{
+  position:relative;z-index:1;align-self:flex-end;flex:0 1 auto;min-width:0;width:100%;padding:0 52px 17px;
+}
+.cosmicHubPage .cosmicHeader .title{
+  color:#fff;font-size:clamp(22px,5.5vw,42px);font-weight:950;
+  line-height:1.05;letter-spacing:.015em;
+  text-shadow:0 3px 2px #02051a,0 5px 13px #010312,0 0 23px rgba(116,186,255,.86);
+}
+.cosmicHubPage .cosmicHeader .homeBtn,
+.cosmicHubPage .cosmicHeader .backBtn{
+  width:40px;height:40px;top:12px;background:rgba(2,5,16,.74);
+  border:1px solid rgba(255,255,255,.24);
+}
+/* Deux tuiles carrées, puis une troisième large en mobile, comme la grille Guerre. */
+.cosmicHubPage .cosmicHubGrid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;margin-top:4px;
+}
+.cosmicHubPage .cosmicHubTile{
+  --cosmic-glow:rgba(116,188,255,.72);
+  --cosmic-glow-bright:rgba(137,208,255,.96);
+  position:relative;isolation:isolate;display:flex;
+  align-items:flex-end;justify-content:center;
+  width:100%;min-width:0;min-height:0;aspect-ratio:1/1;
+  padding:13px 7px 17px;text-align:center;overflow:hidden;
+  border-radius:22px;border:2px solid rgba(255,255,255,.21);
+  background:#081226 url("./cosmic-hub-contres.svg") center/cover no-repeat;
+  box-shadow:0 8px 23px rgba(0,0,0,.53),0 0 16px var(--cosmic-glow);
+  color:#fff;text-decoration:none;
+  transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
+}
+.cosmicHubPage .cosmicHubTile::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 38%,rgba(1,4,17,.16) 58%,rgba(2,4,16,.83));
+}
+.cosmicHubPage .cosmicHubTile::after{
+  content:"";position:absolute;inset:5px;border-radius:16px;pointer-events:none;
+  border:1px solid rgba(255,255,255,.28);
+  box-shadow:inset 0 0 16px rgba(255,255,255,.10),0 0 12px var(--cosmic-glow);
+}
+.cosmicHubPage .cosmicHubTile strong{
+  position:relative;z-index:1;display:block;grid-column:auto;
+  max-width:100%;font-size:clamp(17px,4vw,30px);
+  line-height:1.09;font-weight:950;letter-spacing:-.025em;
+  color:#fff;overflow-wrap:normal;hyphens:none;
+  text-shadow:0 2px 0 #080b20,0 3px 5px #01020a,0 0 16px rgba(1,3,17,.92);
+}
+.cosmicHubPage .cosmicHubTile .cosmicHubDescription.srOnly{
+  position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+.cosmicHubPage .cosmicHubTile--counters{
+  --cosmic-glow:rgba(255,101,87,.64);--cosmic-glow-bright:rgba(255,127,83,.94);
+}
+.cosmicHubPage .cosmicHubTile--defenses{
+  background-image:url("./cosmic-hub-defenses.svg");
+  --cosmic-glow:rgba(70,168,255,.64);--cosmic-glow-bright:rgba(113,211,255,.96);
+}
+.cosmicHubPage .cosmicHubTile--propose{
+  grid-column:1/-1;aspect-ratio:2.25/1;
+  background-image:url("./cosmic-hub-propose.svg");
+  --cosmic-glow:rgba(168,104,248,.61);--cosmic-glow-bright:rgba(199,143,255,.97);
+}
+.cosmicHubPage .cosmicHubTile:hover{
+  filter:brightness(1.12) contrast(1.05);
+  box-shadow:0 9px 26px rgba(0,0,0,.55),0 0 26px var(--cosmic-glow-bright);
+}
+.cosmicHubPage .cosmicHubTile:active{transform:scale(.985);filter:brightness(1.17)}
+.cosmicHubPage .cosmicHubTile:focus-visible{outline:3px solid #eaf4ff;outline-offset:3px}
+/* Les règles dynamiques sont préservées dans un panneau secondaire compact. */
+.cosmicHubPage .cosmicSeasonCard{
+  margin-top:7px;padding:12px 14px;border-radius:16px;
+  background:radial-gradient(circle at 50% 0%,rgba(102,101,189,.24),transparent 80%),rgba(12,15,29,.85);
+}
+.cosmicHubPage .cosmicSeasonTitle{font-size:clamp(15px,3.5vw,19px);margin:0 0 5px}
+.cosmicHubPage .cosmicSeasonDates{font-size:11px;line-height:1.45;margin:0 0 4px}
+.cosmicHubPage .cosmicSeasonDetails summary{font-size:12px;padding:6px 4px}
+
+@media(min-width:680px){
+  .cosmicHubPage .cosmicHubGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .cosmicHubPage .cosmicHubTile--propose{grid-column:auto;aspect-ratio:1/1}
+  .cosmicHubPage .cosmicHubTile strong{font-size:clamp(19px,2.8vw,30px)}
+}
+@media(max-width:390px){
+  .cosmicHubPage .cosmicHeader{height:125px;min-height:125px}
+  .cosmicHubPage .cosmicHubGrid{gap:10px}
+  .cosmicHubPage .cosmicHubTile{border-radius:18px;padding-bottom:13px}
+  .cosmicHubPage .cosmicHubTile strong{font-size:clamp(15px,4.3vw,20px)}
+}
+@media(prefers-reduced-motion:reduce){
+  .cosmicHubPage .cosmicHubTile{transition:none}
+}
