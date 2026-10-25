@@ -225,7 +225,7 @@ test('page reads the configured calendar, preserves authorization and cache bust
   const html=read('docs/alliance-history.html');
   assert.match(source,/state\.config\.rankingSeasons/);
   assert.match(html,/auth-guard\.js/);
-  assert.match(html,/alliance-history-data\.js\?v=4/);
+  assert.match(html,/alliance-history-data\.js\?v=5/);
   assert.match(html,/alliance-history\.js\?v=11/);
   assert.match(html,/alliance-history\.css\?v=4/);
 });
@@ -609,5 +609,30 @@ test('all hidden curves do not create a fake data series or break SVG rendering'
     assert.equal(plot.children.filter(n=>n.tag==='polyline').length,0);
     assert.ok(plot.children.some(n=>n.tag==='text'&&
       n.text==='Toutes les alliances sont masquées'));
+  }
+});
+
+test('new 25 October ranks create a second season point, not a fourth trophy reading',()=>{
+  const readings=index.snapshots.map(s=>
+    JSON.parse(read('docs/data/alliance-standings/'+s.file)));
+  assert.equal(readings.length,4);
+  const trophies=prepare(readings,registry,byId('war-trophies'),config.rankingSeasons);
+  assert.equal(trophies.rows.length,3);
+  assert.deepEqual(Array.from(trophies.series.find(s=>s.key==='hades').points,
+    p=>p.value),[null,null,1651]);
+  const expected={
+    kronos:[195,159],poseidon:[1601,865],hades:[12228,6998],
+    dionysos:[1006,231],athena:[383,162],zeus:[55,31]
+  };
+  for(const [id,indexOfMetric] of [['war-season-rank',0],['raid-season-rank',1]]){
+    const rank=prepare(readings,registry,byId(id),config.rankingSeasons);
+    assert.equal(rank.rows.length,2);
+    assert.equal(rank.rows[1].seasonVerified,false);
+    assert.equal(rank.rows[1].rankingSeason.endExclusiveAt,'2026-10-25T20:00:00.000Z');
+    for(const series of rank.series){
+      assert.equal(series.points[0].plotAt,'2026-10-11T20:00:00.000Z');
+      assert.equal(series.points[1].plotAt,'2026-10-25T20:00:00.000Z');
+      assert.equal(series.points[1].value,expected[series.key][indexOfMetric]);
+    }
   }
 });
