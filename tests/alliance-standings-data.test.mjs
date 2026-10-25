@@ -191,3 +191,23 @@ test("24 October evening administrator capture adds Hadès without private finge
   assert.equal(hades.warLeague.name,"PLATINUM II");
   assert.equal(registry.find(a=>a.key==="hades").emoji,"🔥");
 });
+
+test("25 October manual rank snapshot adds a second season without an extra trophy point",()=>{
+  assert.equal(index.snapshots.length,4);
+  const season=index.snapshots.at(-1);
+  assert.equal(season.capturedAt,"2026-10-25T23:07:38.867Z");
+  assert.equal(season.captureType,"season-ranks");
+  assert.equal(season.rankingSeasonId,"2026-10-11/2026-10-25");
+  const snap=data(season.file);
+  assert.equal(snap.collection.purpose,"season-ranks");
+  assert.equal(snap.seasonVerified,false);
+  assert.equal(snap.coverage.completeSessionScan,true);
+  assert.equal(snap.alliances.length,6);
+  assert.deepEqual(Object.fromEntries(snap.alliances.map(a=>[a.key,[a.warRank,a.raidRank]])),{
+    kronos:[195,159],poseidon:[1601,865],hades:[12228,6998],
+    dionysos:[1006,231],athena:[383,162],zeus:[55,31]
+  });
+  assert.ok(snap.alliances.every(a=>a.warTrophies===null));
+  assert.doesNotMatch(JSON.stringify(snap),/allianceFingerprint/);
+  assert.equal(config.capture.seasonRanks.intervalDays,14);
+});
