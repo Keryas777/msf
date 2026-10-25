@@ -21,3 +21,35 @@ test('Unknown cron is rejected instead of choosing a guessed campaign',()=>{
   assert.throws(()=>resolveRosterSchedule('* * * * *',at('2026-10-24T09:00:00Z')));
   assert.throws(()=>resolveRosterSchedule('40 6 * * *',new Date(NaN)));
 });
+
+
+test('late GitHub recovery slots always point at the intended completed campaign',()=>{
+  assert.deepEqual(resolveRosterSchedule('17 10 * * *',at('2026-10-25T10:18:00Z')),
+    {day:'2026-10-25',period:'am'});
+  assert.deepEqual(resolveRosterSchedule('17 21 * * *',at('2026-10-25T21:18:00Z')),
+    {day:'2026-10-25',period:'pm'});
+  assert.deepEqual(resolveRosterSchedule('23 0 * * *',at('2026-10-26T00:24:00Z')),
+    {day:'2026-10-25',period:'pm'});
+});
+test('late GitHub scheduled triggers preserve previous UTC day after delayed dispatch',()=>{
+  assert.deepEqual(resolveRosterSchedule('17 10 * * *',at('2026-10-26T05:55:00Z')),
+    {day:'2026-10-25',period:'am'});
+  assert.deepEqual(resolveRosterSchedule('17 21 * * *',at('2026-10-26T06:15:00Z')),
+    {day:'2026-10-25',period:'pm'});
+  assert.deepEqual(resolveRosterSchedule('23 0 * * *',at('2026-10-26T18:30:00Z')),
+    {day:'2026-10-25',period:'pm'});
+  // A midnight recovery job delayed until just before next midnight should
+  // still import the older campaign, never the new day's incomplete PM.
+  assert.deepEqual(resolveRosterSchedule('23 0 * * *',at('2026-10-27T00:04:00Z')),
+    {day:'2026-10-25',period:'pm'});
+});
+test('workflow declares each supported scheduled recovery slot in UTC',async()=>{
+  const {readFile}=await import('node:fs/promises');
+  const workflow=await readFile(new URL('../.github/workflows/pull-rosters-r2.yml',import.meta.url),'utf8');
+  for(const cron of ['40 6','47 7','17 10','40 18','47 19','17 21','23 0'])
+    assert.ok(workflow.includes('cron: "'+cron+' * * *"'));
+  assert.match(workflow,/group: main-data-writer/);
+  assert.match(workflow,/cancel-in-progress: false/);
+  assert.match(workflow,/--schedule=\$SCHEDULE_CRON/);
+  assert.match(workflow,/No complete and current R2 roster campaign|scripts\/pull-rosters-r2\.mjs/);
+});

@@ -9,6 +9,11 @@ on:
     # Both attempts are R2-only; repeat imports create no commit if unchanged.
     - cron: "47 7 * * *"
     - cron: "47 19 * * *"
+    # Recovery slots against GitHub schedule delays/drops. No Scopely calls.
+    # The 00:23 UTC slot imports PREVIOUS day's completed PM campaign.
+    - cron: "17 10 * * *"
+    - cron: "17 21 * * *"
+    - cron: "23 0 * * *"
   workflow_dispatch:
     inputs:
       date:

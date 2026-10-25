@@ -4,8 +4,11 @@
 const TIMES=Object.freeze({
   "40 6 * * *":{period:"am",hour:6,minute:40},
   "47 7 * * *":{period:"am",hour:6,minute:40}, // bounded backup
+  "17 10 * * *":{period:"am",hour:6,minute:40}, // later AM recovery
   "40 18 * * *":{period:"pm",hour:18,minute:40},
-  "47 19 * * *":{period:"pm",hour:18,minute:40} // bounded backup
+  "47 19 * * *":{period:"pm",hour:18,minute:40}, // bounded backup
+  "17 21 * * *":{period:"pm",hour:18,minute:40}, // later PM recovery
+  "23 0 * * *":{period:"pm",hour:0,minute:23,previousDay:true} // after UTC midnight
 });
 export function resolveRosterSchedule(cron,now=new Date()){
   const item=Object.hasOwn(TIMES,cron)?TIMES[cron]:null;
@@ -16,5 +19,8 @@ export function resolveRosterSchedule(cron,now=new Date()){
   const occurrence=new Date(Date.UTC(now.getUTCFullYear(),
     now.getUTCMonth(),now.getUTCDate(),item.hour,item.minute));
   if(now<occurrence)occurrence.setUTCDate(occurrence.getUTCDate()-1);
+  // The 00:23 UTC safety net belongs to the previous day's PM campaign.
+  // The cron expression, rather than the runner's current hour, selects it.
+  if(item.previousDay===true)occurrence.setUTCDate(occurrence.getUTCDate()-1);
   return {day:occurrence.toISOString().slice(0,10),period:item.period};
 }
