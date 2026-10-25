@@ -30,6 +30,15 @@
         "startAtUtc": "02:00",
         "endExclusiveAtUtc": "06:00"
       }
+    },
+    "seasonRanks": {
+      "scheduledWeekdayUtc": "monday",
+      "intervalDays": 14,
+      "source": "roster-batches/v1/season-ranks/captures/",
+      "primaryAtUtc": "04:40",
+      "fallbackAtUtc": "06:17",
+      "scope": "season-ranks",
+      "note": "GitHub Actions reads existing private R2 rank snapshots created by the Worker at 03:15 UTC; only Mondays immediately after a completed season, as derived from rankingSeasons.referenceEndExclusiveAt. Never create a trophy point or call Scopely. Source R2 objects expire under the existing seven-day lifecycle."
     }
   },
   "charts": [

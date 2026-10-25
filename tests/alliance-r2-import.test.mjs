@@ -107,8 +107,9 @@ test('global snapshot uses latest REAL source per alliance and never leaks priva
 });
 
 test('existing complete manual 24 October reading prevents a duplicate R2 import',()=>{
-  assert.equal(originalIndex.snapshots.length,3);
-  assert.deepEqual(originalIndex.snapshots.map(x=>x.capturedAt.slice(0,10)),
+  const trophies=originalIndex.snapshots.filter(x=>x.captureType!=='season-ranks');
+  assert.equal(trophies.length,3);
+  assert.deepEqual(trophies.map(x=>x.capturedAt.slice(0,10)),
     ['2026-10-21','2026-10-22','2026-10-24']);
   assert.equal(hasCollectionForDay(originalIndex,'2026-10-24'),true);
   assert.equal(hasCollectionForDay(originalIndex,'2026-10-22'),true);

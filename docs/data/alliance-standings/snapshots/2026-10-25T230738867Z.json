@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "kind": "losp-alliance-standings-snapshot",
+  "capturedAt": "2026-10-25T23:07:38.867Z",
+  "source": "/player/v1/alliance/card",
+  "seasonId": null,
+  "seasonVerified": false,
+  "captureType": "season-ranks",
+  "coverage": {
+    "scannedSessions": 10,
+    "validSessions": 10,
+    "unavailableSessions": 0,
+    "truncated": false,
+    "connectedAlliances": 6,
+    "completeSessionScan": true
+  },
+  "collection": {
+    "method": "admin-manual-season-ranks",
+    "purpose": "season-ranks"
+  },
+  "alliances": [
+    {
+      "key": "kronos",
+      "nameAtCapture": "<#FFFFFF>LoSP <#E10D17>Κroηos",
+      "warRank": 195,
+      "raidRank": 159,
+      "warTrophies": null
+    },
+    {
+      "key": "poseidon",
+      "nameAtCapture": "LoSP <#00D0FF>Pοsειδoη",
+      "warRank": 1601,
+      "raidRank": 865,
+      "warTrophies": null
+    },
+    {
+      "key": "hades",
+      "nameAtCapture": "LoSP <#1EA164>Hαδεs",
+      "warRank": 12228,
+      "raidRank": 6998,
+      "warTrophies": null
+    },
+    {
+      "key": "dionysos",
+      "nameAtCapture": "LoSP <#93328E>Dισπγsσs",
+      "warRank": 1006,
+      "raidRank": 231,
+      "warTrophies": null
+    },
+    {
+      "key": "athena",
+      "nameAtCapture": "LoSP <#F28C28>Athεηα",
+      "warRank": 383,
+      "raidRank": 162,
+      "warTrophies": null
+    },
+    {
+      "key": "zeus",
+      "nameAtCapture": "LoSP <#F8FF00>Zεμs",
+      "warRank": 55,
+      "raidRank": 31,
+      "warTrophies": null
+    }
+  ],
+  "note": "Rangs observés via la capture manuelle de l'administrateur du 25 octobre 2026 à 23:07 UTC, après la fin de saison du 25 octobre. Saison identifiée uniquement par le calendrier LoSP (14 jours), jamais par l'API. Aucune donnée de trophée de guerre ajoutée à l'historique depuis cette capture."
+}

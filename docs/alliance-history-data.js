@@ -40,6 +40,8 @@
     const rows = [];
     const seen = new Set();
     for (const raw of sorted) {
+      // Seasonal captures must never introduce an extra trophy checkpoint.
+      if (chart.field === 'warTrophies' && raw.captureType === 'season-ranks') continue;
       if (seen.has(raw.capturedAt)) continue;
       seen.add(raw.capturedAt);
       if (chart.frequency !== 'per-season' || raw.seasonVerified === true) {

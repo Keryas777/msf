@@ -1,0 +1,100 @@
+name: Pull completed-season LoSP rankings from private R2
+
+on:
+  schedule:
+    # Existing Worker auto-capture is at 03:15 UTC; 04:40 is ~05:40 Paris winter.
+    # Cron runs every Monday; the script permits only Mondays after a 14-day season.
+    - cron: "40 4 * * 1"
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "UTC Monday after season end (YYYY-MM-DD); blank = today"
+        required: false
+        default: ""
+      publish:
+        description: "Write sanitized seasonal ranks to GitHub (requires prior approval)"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
+
+jobs:
+  pull:
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.LOSP_R2_HISTORY_IMPORT_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Pull only existing approved private season ranks
+        shell: bash
+        env:
+          LOSP_R2_ACCOUNT_ID: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
+          LOSP_R2_ACCESS_KEY_ID: ${{ secrets.LOSP_R2_ACCESS_KEY_ID }}
+          LOSP_R2_SECRET_ACCESS_KEY: ${{ secrets.LOSP_R2_SECRET_ACCESS_KEY }}
+          LOSP_R2_BUCKET: ${{ secrets.LOSP_R2_BUCKET }}
+          LOSP_R2_ALLIANCE_MAP_JSON: ${{ secrets.LOSP_R2_ALLIANCE_MAP_JSON }}
+          LOSP_R2_HISTORY_PUBLICATION_APPROVED: ${{ vars.LOSP_R2_HISTORY_PUBLICATION_APPROVED }}
+          INPUT_DATE: ${{ inputs.date }}
+          INPUT_PUBLISH: ${{ inputs.publish }}
+          EVENT_NAME: ${{ github.event_name }}
+          SCHEDULE_CRON: ${{ github.event.schedule }}
+        run: |
+          args=()
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            args+=("--schedule=$SCHEDULE_CRON")
+          elif [ -n "$INPUT_DATE" ]; then
+            args+=("--date=$INPUT_DATE")
+          fi
+          if [ "$EVENT_NAME" = "schedule" ] || [ "$INPUT_PUBLISH" = "true" ]; then
+            if [ "$LOSP_R2_HISTORY_PUBLICATION_APPROVED" != "true" ]; then
+              echo "Season rank publication is disabled pending approval of authorized data retention."
+              exit 1
+            fi
+            args+=("--write")
+          fi
+          node scripts/pull-alliance-season-ranks-r2.mjs "${args[@]}"
+
+      - name: Validate sanitized season ranks
+        run: |
+          node --check scripts/pull-alliance-season-ranks-r2.mjs
+          node --test tests/alliance-season-ranks-r2.test.mjs tests/alliance-standings-data.test.mjs tests/alliance-history-charts.test.mjs
+
+      - name: Check output write scope
+        run: |
+          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' | grep -Ev '^docs/data/alliance-standings/(index[.]json|snapshots/)' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected files created:"; echo "$unexpected"; exit 1
+          fi
+
+      - name: Commit if a new authorized season exists
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PUBLISH: ${{ inputs.publish }}
+        run: |
+          if [ "$EVENT_NAME" != "schedule" ] && [ "$INPUT_PUBLISH" != "true" ]; then
+            echo "Dry run; no commit."
+            exit 0
+          fi
+          git add docs/data/alliance-standings/index.json docs/data/alliance-standings/snapshots
+          if git diff --cached --quiet; then
+            echo "No new complete season ranking to publish."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "data: import LoSP completed-season ranks from private R2"
+          git push origin HEAD:main
