@@ -226,7 +226,7 @@ test('page reads the configured calendar, preserves authorization and cache bust
   assert.match(source,/state\.config\.rankingSeasons/);
   assert.match(html,/auth-guard\.js/);
   assert.match(html,/alliance-history-data\.js\?v=5/);
-  assert.match(html,/alliance-history\.js\?v=11/);
+  assert.match(html,/alliance-history\.js\?v=12/);
   assert.match(html,/alliance-history\.css\?v=4/);
 });
 
@@ -641,5 +641,66 @@ test('new 25 October ranks create a second season point, not a fourth trophy rea
       assert.equal(series.points[1].plotAt,'2026-10-25T20:00:00.000Z');
       assert.equal(series.points[1].value,expected[series.key][indexOfMetric]);
     }
+  }
+});
+
+test('trophy observations have equal horizontal spacing despite irregular capture dates',()=>{
+  const captures=index.snapshots.map(s=>
+    JSON.parse(read('docs/data/alliance-standings/'+s.file)));
+  const model=prepare(captures,registry,byId('war-trophies'),config.rankingSeasons);
+  assert.equal(model.rows.length,3);
+  const times=model.rows.map(row=>Date.parse(row.capturedAt));
+  assert.ok(times[2]-times[1]>2*(times[1]-times[0]),
+    'The actual source dates remain irregular in time');
+  for(const width of [320,390,680]){
+    const plot=drawRenderedChart('war-trophies',width,captures);
+    const zeusDots=plot.children.filter(node=>node.tag==='circle'&&
+      node.attrs.fill==='#F8FF00');
+    assert.equal(zeusDots.length,3);
+    const positions=zeusDots.map(node=>Number(node.attrs.cx));
+    const expectedLeft=53, expectedRight=width-8-50;
+    assert.ok(Math.abs(positions[0]-expectedLeft)<1e-7);
+    assert.ok(Math.abs(positions[2]-expectedRight)<1e-7);
+    assert.ok(Math.abs(positions[1]-(expectedLeft+expectedRight)/2)<1e-7);
+    const hadesDots=plot.children.filter(node=>node.tag==='circle'&&
+      node.attrs.fill==='#1EA164');
+    assert.equal(hadesDots.length,1,'Hadès is not backfilled before 24 October');
+    assert.equal(hadesDots[0].attrs.cx,zeusDots[2].attrs.cx);
+    const dates=plot.children.filter(node=>node.attrs.class?.includes('historyDateLabel'));
+    assert.deepEqual(dates.map(node=>node.attrs['aria-label']),
+      ['2026-10-21','2026-10-24','2026-10-22'],
+      'The date labels still represent the real, selected capture dates');
+  }
+});
+
+test('both seasonal ranking charts use equal step spacing for uneven season gaps',()=>{
+  const captures=[original,shifted(15),shifted(45)];
+  for(const id of ['war-season-rank','raid-season-rank']){
+    const model=prepare(captures,registry,byId(id),config.rankingSeasons);
+    assert.equal(model.rows.length,3);
+    assert.equal(model.series[0].points.length,3);
+    const seasonEnds=model.series[0].points.map(p=>Date.parse(p.plotAt));
+    assert.notEqual(seasonEnds[1]-seasonEnds[0],seasonEnds[2]-seasonEnds[1]);
+    for(const width of [320,390,680]){
+      const plot=drawRenderedChart(id,width,captures);
+      const dots=plot.children.filter(node=>node.tag==='circle'&&
+        node.attrs.fill==='#F8FF00');
+      assert.equal(dots.length,3);
+      const xs=dots.map(node=>Number(node.attrs.cx));
+      assert.ok(Math.abs((xs[1]-xs[0])-(xs[2]-xs[1]))<1e-7);
+      assert.equal(xs[0],53);
+      assert.equal(xs[2],width-8-17);
+      assert.ok(dots.every(dot=>Number(dot.attrs.cy)>=14));
+    }
+  }
+});
+
+test('a single plotted season or capture remains horizontally centered',()=>{
+  for(const id of ['war-trophies','war-season-rank','raid-season-rank']){
+    const plot=drawRenderedChart(id,390,[original]);
+    const dots=plot.children.filter(node=>node.tag==='circle');
+    assert.equal(dots.length,5);
+    const middle=(53+(390-8-(id==='war-trophies'?50:17)))/2;
+    assert.ok(dots.every(dot=>Math.abs(Number(dot.attrs.cx)-middle)<1e-7));
   }
 });
