@@ -590,7 +590,8 @@ test('hiding Hadès filters dots and restores the standard rank scale on mobile'
     assert.equal(filteredTicks.length,18,
       'Without Hadès the shared rank scale is linear through rank 1 700');
     const end=filtered.children.filter(n=>n.tag==='text'&&
-      n.attrs['text-anchor']==='end').at(-1);
+      n.attrs['text-anchor']==='end'&&
+      n.attrs.class==='historyAxisText').at(-1);
     assert.equal(Number(String(end.text).replace(/\D/g,'')),1700);
     assert.equal(filtered.attributes.viewBox,full.attributes.viewBox);
   }
