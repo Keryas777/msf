@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#0b0c0d" />
   <title>LoSP — Épreuve cosmique</title>
   <link rel="stylesheet" href="./style.css?v=4" />
-  <link rel="stylesheet" href="./cosmic.css?v=11" />
+  <link rel="stylesheet" href="./cosmic.css?v=12" />
   <link rel="manifest" href="./manifest.webmanifest" />
 </head>
 <body>
@@ -23,10 +23,19 @@
     </header>
 
     <nav class="cosmicHubGrid" aria-label="Outils Épreuve cosmique">
-      <a class="cosmicHubTile cosmicHubTile--counters" href="./cosmic-counters.html" aria-label="Contres de l'épreuve cosmique">
+      <div class="cosmicHubTile cosmicHubTile--counters cosmicHubTile--disabled"
+           role="group" aria-disabled="true" aria-label="Contres : en chantier, indisponible">
         <strong>Contres</strong>
-        <span class="cosmicHubDescription srOnly">Recherche les attaques adaptées aux défenses adverses.</span>
-      </a>
+        <span class="cosmicHubWorkBadge" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7h18v10H3z"/>
+            <path d="m7 7 5 10m1-10 5 10M7 17v4m10-4v4"/>
+          </svg>
+          CHANTIER
+        </span>
+        <span class="cosmicHubDescription srOnly">Fonctionnalité temporairement indisponible.</span>
+      </div>
       <a class="cosmicHubTile cosmicHubTile--defenses" href="./cosmic-defenses.html" aria-label="Consulter les défenses">
         <strong>Consulter les défenses</strong>
         <span class="cosmicHubDescription srOnly">Découvre les compositions publiées pour les six salles.</span>
