@@ -20,10 +20,10 @@
 
 <script src="./auth-guard.js?v=2"></script>
     <meta name="theme-color" content="#0b0c0d" />
-    <title>Contres GA</title>
+    <title>Guerre — LoSP</title>
 
     <link rel="stylesheet" href="./style.css" />
-    <link rel="stylesheet" href="./war-choose.css" />
+    <link rel="stylesheet" href="./war-choose.css?v=20261026" />
 
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icon-512.PNG" />
@@ -32,12 +32,12 @@
 
   <body>
     <div class="app">
-      <header class="header rankingsHeader" aria-label="Contres GA">
+      <header class="header rankingsHeader" aria-label="Guerre">
         <a href="./home.html" class="homeBtn" aria-label="Accueil">⌂</a>
         <a href="./home.html" class="backBtn" aria-label="Retour">‹</a>
       </header>
 
-      <section class="rankingsGrid" aria-label="Choix du mode GA">
+      <section class="rankingsGrid" aria-label="Outils de guerre">
         <!-- Contres -->
         <a href="./war-counters.html" class="rankingsTile rankingsTile--teams">
           <img
@@ -60,6 +60,43 @@
             decoding="async"
           />
           <span class="srOnly">Attaques</span>
+        </a>
+
+        
+        <!-- Historique des guerres -->
+        <a href="./war-history.html" class="rankingsTile rankingsTile--history">
+          <img
+            class="rankingsTileImg"
+            src="./HistoryGA.webp"
+            alt="Historique Stats GA"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="srOnly">Historique Stats GA</span>
+        </a>
+
+        <!-- Classements des données de guerre -->
+        <a href="./war-rankings.html" class="rankingsTile rankingsTile--rankings">
+          <img
+            class="rankingsTileImg"
+            src="./ClassementDatas.webp"
+            alt="Classement datas"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="srOnly">Classement datas</span>
+        </a>
+
+        <!-- Données individuelles -->
+        <a href="./war-graphs.html" class="rankingsTile rankingsTile--graphs">
+          <img
+            class="rankingsTileImg"
+            src="./DonneesIndividuelles.webp?v=2"
+            alt="Données individuelles"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="srOnly">Données individuelles</span>
         </a>
       </section>
     </div>
