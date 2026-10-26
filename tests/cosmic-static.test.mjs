@@ -222,10 +222,10 @@ test("cosmic visual design matches the common LoSP dark glass theme", async () =
   assert.match(css, /\.cosmicHubPage \.cosmicHubGrid\{/);
   assert.match(css, /grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(css, /\.cosmicHubPage \.cosmicHubTile--propose\{/);
-  assert.match(css, /grid-column:1\/-1;aspect-ratio:2\.25\/1/);
+  assert.match(css, /grid-column:2;justify-self:stretch;/);
   assert.match(css, /\.cosmicPortrait img\{[^}]*object-fit:contain/);
   assert.match(css, /\.cosmicPortraitRemove::after\{[^}]*font:700 12px\/1 sans-serif/);
-  assert.match(hub, /cosmic\.css\?v=9/);
+  assert.match(hub, /cosmic\.css\?v=12/);
   assert.match(hub, /style\.css\?v=/);
   assert.match(counters, /cosmic\.css\?v=8/);
   assert.match(counters, /style\.css\?v=/);
