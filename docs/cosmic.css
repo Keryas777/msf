@@ -188,6 +188,15 @@
   line-height:1.05;letter-spacing:.015em;
   text-shadow:0 3px 2px #02051a,0 5px 13px #010312,0 0 23px rgba(116,186,255,.86);
 }
+/* La bannière WebP contient déjà son titre : le masquer visuellement sans retirer le h1 accessible.
+   Si le WebP est absent, le SVG et le titre HTML restent affichés. */
+.cosmicHubPage .cosmicHeader.cosmicHeader--webp{
+  background-image:url("./cosmic-hub-banner.webp");
+}
+.cosmicHubPage .cosmicHeader.cosmicHeader--webp .title{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
 .cosmicHubPage .cosmicHeader .homeBtn,
 .cosmicHubPage .cosmicHeader .backBtn{
   width:40px;height:40px;top:12px;background:rgba(2,5,16,.74);

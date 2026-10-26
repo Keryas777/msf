@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#0b0c0d" />
   <title>LoSP — Épreuve cosmique</title>
   <link rel="stylesheet" href="./style.css?v=4" />
-  <link rel="stylesheet" href="./cosmic.css?v=9" />
+  <link rel="stylesheet" href="./cosmic.css?v=10" />
   <link rel="manifest" href="./manifest.webmanifest" />
 </head>
 <body>
@@ -46,5 +46,14 @@
     </section>
   </main>
   <script src="./cosmic-season-ui.js?v=1" defer></script>
+  <script>
+    (() => {
+      const header = document.querySelector(".cosmicHubPage .cosmicHeader");
+      if (!header) return;
+      const banner = new Image();
+      banner.onload = () => header.classList.add("cosmicHeader--webp");
+      banner.src = "./cosmic-hub-banner.webp";
+    })();
+  </script>
 </body>
 </html>

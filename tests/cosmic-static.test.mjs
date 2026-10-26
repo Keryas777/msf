@@ -446,7 +446,7 @@ test("hub cosmique : bannière illustrée et trois tuiles comme la sélection Gu
   assert.match(war,/class="rankingsGrid"/);
   assert.match(warCss,/grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(hub,/class="app cosmicHubPage"/);
-  assert.match(hub,/cosmic\.css\?v=9/);
+  assert.match(hub,/cosmic\.css\?v=10/);
   assert.equal((hub.match(/class="cosmicHubTile /g)||[]).length,3);
   assert.match(hub,/href="\.\/cosmic-counters\.html"/);
   assert.match(hub,/href="\.\/cosmic-defenses\.html"/);
@@ -455,6 +455,10 @@ test("hub cosmique : bannière illustrée et trois tuiles comme la sélection Gu
   assert.match(hub,/data-cosmic-season-rules/);
   assert.ok(hub.indexOf('class="cosmicHubGrid"')<hub.indexOf('class="card cosmicSeasonCard"'));
   assert.match(css,/\.cosmicHubPage \.cosmicHeader\{[^}]*cosmic-hub-banner\.svg/);
+  assert.match(css,/\.cosmicHubPage \.cosmicHeader\.cosmicHeader--webp\{[^}]*cosmic-hub-banner\.webp/);
+  assert.match(css,/\.cosmicHubPage \.cosmicHeader\.cosmicHeader--webp \.title\{[^}]*clip:rect/);
+  assert.match(hub,/banner\.onload = \(\) => header\.classList\.add\("cosmicHeader--webp"\)/);
+  assert.match(hub,/banner\.src = "\.\/cosmic-hub-banner\.webp"/);
   assert.match(css,/\.cosmicHubPage \.cosmicHubTile\{[^}]*cosmic-hub-contres\.svg/);
   assert.match(css,/\.cosmicHubPage \.cosmicHubTile--defenses\{[^}]*cosmic-hub-defenses\.svg/);
   assert.match(css,/\.cosmicHubPage \.cosmicHubTile--propose\{[^}]*cosmic-hub-propose\.svg/);
