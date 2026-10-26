@@ -2,7 +2,7 @@
 // WebApp-initiated pull of the existing Roster Service's completed R2 batches.
 // GitHub Actions only: no OAuth, Scopely calls or public R2 endpoints.
 import fs from 'node:fs/promises';
-import {resolveRosterSchedule} from './lib/roster-r2-schedule.mjs';
+import {resolveRosterSchedule,earlyImportReady} from './lib/roster-r2-schedule.mjs';
 import {createPrivateR2Reader} from './lib/private-r2-read.mjs';
 import {readMapping} from './lib/alliance-r2-history.mjs';
 import {rosterWindow,loadRosterCampaign,convertAllianceRosters,keyOf}
@@ -100,7 +100,7 @@ async function main(){
     try{await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,lines.join('\n'));}
     catch{console.error('Could not write optional GitHub Actions summary');}
   }
-  if(early&&updates.size!==registry.length){
+  if(!earlyImportReady(early,updates.size,registry.length)){
     console.log('Early R2 check: '+updates.size+'/'+registry.length+
       ' alliances complete; no publication until all are verified. '+
       'Later schedules will retry.');
