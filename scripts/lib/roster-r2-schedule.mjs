@@ -26,3 +26,12 @@ export function resolveRosterSchedule(cron,now=new Date()){
   if(item.previousDay===true)occurrence.setUTCDate(occurrence.getUTCDate()-1);
   return {day:occurrence.toISOString().slice(0,10),period:item.period};
 }
+
+export function earlyImportReady(early,verified,total){
+  if(typeof early!=='boolean'||!Number.isSafeInteger(verified)||
+     !Number.isSafeInteger(total)||verified<0||total<1||verified>total)
+    throw Error('Invalid roster completion counters');
+  // The early slots are a read-only probe until every approved alliance
+  // has a complete current-campaign manifest and validated member files.
+  return !early||verified===total;
+}
