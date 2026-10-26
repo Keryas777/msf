@@ -202,7 +202,7 @@
   width:40px;height:40px;top:12px;background:rgba(2,5,16,.74);
   border:1px solid rgba(255,255,255,.24);
 }
-/* Deux tuiles carrées, puis une troisième large en mobile, comme la grille Guerre. */
+/* Trois tuiles carrées : deux sur la première ligne, la troisième centrée sur mobile. */
 .cosmicHubPage .cosmicHubGrid{
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
   gap:14px;margin-top:4px;
@@ -248,10 +248,28 @@
   --cosmic-glow:rgba(70,168,255,.64);--cosmic-glow-bright:rgba(113,211,255,.96);
 }
 .cosmicHubPage .cosmicHubTile--propose{
-  grid-column:1/-1;aspect-ratio:2.25/1;
+  grid-column:1/-1;justify-self:center;
+  width:calc((100% - 14px)/2);aspect-ratio:1/1;
   background-image:url("./cosmic-hub-propose.svg");
   --cosmic-glow:rgba(168,104,248,.61);--cosmic-glow-bright:rgba(199,143,255,.97);
 }
+
+/* Les WebP intègrent leurs titres. SVG + texte HTML restent en secours. */
+.cosmicHubPage .cosmicHubTile--counters.cosmicHubTile--webp{
+  background-image:url("./cosmic-hub-contres.webp");
+}
+.cosmicHubPage .cosmicHubTile--defenses.cosmicHubTile--webp{
+  background-image:url("./cosmic-hub-defenses.webp");
+}
+.cosmicHubPage .cosmicHubTile--propose.cosmicHubTile--webp{
+  background-image:url("./cosmic-hub-propose.webp");
+}
+.cosmicHubPage .cosmicHubTile.cosmicHubTile--webp strong{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+.cosmicHubPage .cosmicHubTile.cosmicHubTile--webp::before,
+.cosmicHubPage .cosmicHubTile.cosmicHubTile--webp::after{display:none}
 .cosmicHubPage .cosmicHubTile:hover{
   filter:brightness(1.12) contrast(1.05);
   box-shadow:0 9px 26px rgba(0,0,0,.55),0 0 26px var(--cosmic-glow-bright);
@@ -269,13 +287,16 @@
 
 @media(min-width:680px){
   .cosmicHubPage .cosmicHubGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .cosmicHubPage .cosmicHubTile--propose{grid-column:auto;aspect-ratio:1/1}
+  .cosmicHubPage .cosmicHubTile--propose{
+    grid-column:auto;justify-self:stretch;width:100%;aspect-ratio:1/1;
+  }
   .cosmicHubPage .cosmicHubTile strong{font-size:clamp(19px,2.8vw,30px)}
 }
 @media(max-width:390px){
   .cosmicHubPage .cosmicHeader{height:125px;min-height:125px}
   .cosmicHubPage .cosmicHubGrid{gap:10px}
   .cosmicHubPage .cosmicHubTile{border-radius:18px;padding-bottom:13px}
+  .cosmicHubPage .cosmicHubTile--propose{width:calc((100% - 10px)/2)}
   .cosmicHubPage .cosmicHubTile strong{font-size:clamp(15px,4.3vw,20px)}
 }
 @media(prefers-reduced-motion:reduce){

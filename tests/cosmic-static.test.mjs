@@ -446,7 +446,7 @@ test("hub cosmique : bannière illustrée et trois tuiles comme la sélection Gu
   assert.match(war,/class="rankingsGrid"/);
   assert.match(warCss,/grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(hub,/class="app cosmicHubPage"/);
-  assert.match(hub,/cosmic\.css\?v=10/);
+  assert.match(hub,/cosmic\.css\?v=11/);
   assert.equal((hub.match(/class="cosmicHubTile /g)||[]).length,3);
   assert.match(hub,/href="\.\/cosmic-counters\.html"/);
   assert.match(hub,/href="\.\/cosmic-defenses\.html"/);
@@ -462,6 +462,20 @@ test("hub cosmique : bannière illustrée et trois tuiles comme la sélection Gu
   assert.match(css,/\.cosmicHubPage \.cosmicHubTile\{[^}]*cosmic-hub-contres\.svg/);
   assert.match(css,/\.cosmicHubPage \.cosmicHubTile--defenses\{[^}]*cosmic-hub-defenses\.svg/);
   assert.match(css,/\.cosmicHubPage \.cosmicHubTile--propose\{[^}]*cosmic-hub-propose\.svg/);
+  // Les SVG restent les secours et les trois WebP contiennent déjà le texte.
+  for (const name of ["contres", "defenses", "propose"]) {
+    assert.ok(hub.includes("./cosmic-hub-" + name + ".webp"));
+    const tileClass = name === "contres" ? "counters" : name;
+    assert.ok(css.includes(".cosmicHubTile--" + tileClass + ".cosmicHubTile--webp"));
+    assert.ok(css.includes('background-image:url("./cosmic-hub-' + name + '.webp")'));
+  }
+  assert.ok(hub.includes('image.onload = () => tile.classList.add("cosmicHubTile--webp")'));
+  assert.ok(css.includes(".cosmicHubTile.cosmicHubTile--webp strong{"));
+  assert.ok(css.includes("width:calc((100% - 14px)/2);aspect-ratio:1/1"));
+  assert.ok(css.includes("width:calc((100% - 10px)/2)"));
+  assert.ok(css.includes("grid-column:auto;justify-self:stretch;width:100%;aspect-ratio:1/1"));
+  assert.ok(!css.includes("aspect-ratio:2.25/1"));
+
   assert.match(css,/\.cosmicHubPage \.cosmicHubTile:focus-visible/);
   assert.match(css,/prefers-reduced-motion:reduce/);
   assert.doesNotMatch(hub,/⚔️|🛡️|✍️/);
