@@ -469,12 +469,12 @@ test("hub cosmique : bannière illustrée et trois tuiles comme la sélection Gu
     assert.ok(css.includes(".cosmicHubTile--" + tileClass + ".cosmicHubTile--webp"));
     assert.ok(css.includes('background-image:url("./cosmic-hub-' + name + '.webp")'));
   }
-  assert.match(hub,/image\\.onload = \\(\\) => tile\\.classList\\.add\\("cosmicHubTile--webp"\\)/);
+  assert.ok(hub.includes('image.onload = () => tile.classList.add("cosmicHubTile--webp")'));
   assert.ok(css.includes(".cosmicHubTile.cosmicHubTile--webp strong{"));
   assert.ok(css.includes("width:calc((100% - 14px)/2);aspect-ratio:1/1"));
   assert.ok(css.includes("width:calc((100% - 10px)/2)"));
   assert.ok(css.includes("grid-column:auto;justify-self:stretch;width:100%;aspect-ratio:1/1"));
-  assert.doesNotMatch(css,/aspect-ratio:2\\.25\\/1/);
+  assert.ok(!css.includes("aspect-ratio:2.25/1"));
 
   assert.match(css,/\.cosmicHubPage \.cosmicHubTile:focus-visible/);
   assert.match(css,/prefers-reduced-motion:reduce/);
