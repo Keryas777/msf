@@ -13,7 +13,7 @@ test("hub cosmique : navigation et authentification", async () => {
   assert.doesNotMatch(home, /cosmic(?:-counters|-defenses)?\.html/);
   const homeCss = await read("docs/home.css");
   assert.doesNotMatch(homeCss, /homeTile--cosmic/);
-  assert.doesNotMatch(hub, /href="\\.\\/cosmic-counters\\.html"/);
+  assert.ok(!hub.includes('href="./cosmic-counters.html"'));
   assert.match(hub, /class="cosmicHubTile cosmicHubTile--counters cosmicHubTile--disabled"/);
   assert.match(hub, /aria-disabled="true"/);
   assert.match(hub, /href="\.\/cosmic-defenses\.html"/);
@@ -450,7 +450,7 @@ test("hub cosmique : bannière illustrée et trois tuiles comme la sélection Gu
   assert.match(hub,/class="app cosmicHubPage"/);
   assert.match(hub,/cosmic\.css\?v=12/);
   assert.equal((hub.match(/class="cosmicHubTile /g)||[]).length,3);
-  assert.doesNotMatch(hub,/href="\\.\\/cosmic-counters\\.html"/);
+  assert.ok(!hub.includes('href="./cosmic-counters.html"'));
   assert.match(hub,/role="group" aria-disabled="true"/);
   assert.match(hub,/class="cosmicHubWorkBadge"/);
   assert.match(hub,/href="\.\/cosmic-defenses\.html"/);
