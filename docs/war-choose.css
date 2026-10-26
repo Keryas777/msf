@@ -132,6 +132,23 @@
   --glow-strong: rgba(80, 170, 255, .98);
 }
 
+/* Tuiles déplacées depuis le menu Statistiques Guerres :
+   conserver leurs halos rouge, turquoise et rose. */
+.rankingsTile--history{
+  --glow: rgba(255,85,85,.62);
+  --glow-strong: rgba(255,85,85,.98);
+}
+
+.rankingsTile--rankings{
+  --glow: rgba(83,230,190,.62);
+  --glow-strong: rgba(83,230,190,.98);
+}
+
+.rankingsTile--graphs{
+  --glow: rgba(255,105,190,.62);
+  --glow-strong: rgba(255,105,190,.98);
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 720px){
   .rankingsGrid{
