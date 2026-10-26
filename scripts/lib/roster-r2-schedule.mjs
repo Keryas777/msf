@@ -2,6 +2,8 @@
 // Identify the roster campaign from the scheduled cron, never from the
 // runner's actual clock hour. No network calls or access to private R2.
 const TIMES=Object.freeze({
+  "17 4 * * *":{period:"am",hour:4,minute:17}, // early if all manifests are complete
+  "47 16 * * *":{period:"pm",hour:16,minute:47}, // early if all manifests are complete
   "40 6 * * *":{period:"am",hour:6,minute:40},
   "47 7 * * *":{period:"am",hour:6,minute:40}, // bounded backup
   "17 10 * * *":{period:"am",hour:6,minute:40}, // later AM recovery
