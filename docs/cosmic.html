@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#0b0c0d" />
   <title>LoSP — Épreuve cosmique</title>
   <link rel="stylesheet" href="./style.css?v=4" />
-  <link rel="stylesheet" href="./cosmic.css?v=10" />
+  <link rel="stylesheet" href="./cosmic.css?v=11" />
   <link rel="manifest" href="./manifest.webmanifest" />
 </head>
 <body>
@@ -53,6 +53,19 @@
       const banner = new Image();
       banner.onload = () => header.classList.add("cosmicHeader--webp");
       banner.src = "./cosmic-hub-banner.webp";
+      // Activer les images uniquement si elles sont disponibles et lisibles.
+      const tiles = [
+        [".cosmicHubTile--counters", "./cosmic-hub-contres.webp"],
+        [".cosmicHubTile--defenses", "./cosmic-hub-defenses.webp"],
+        [".cosmicHubTile--propose", "./cosmic-hub-propose.webp"]
+      ];
+      for (const [selector, src] of tiles) {
+        const tile = document.querySelector(".cosmicHubPage " + selector);
+        if (!tile) continue;
+        const image = new Image();
+        image.onload = () => tile.classList.add("cosmicHubTile--webp");
+        image.src = src;
+      }
     })();
   </script>
 </body>
