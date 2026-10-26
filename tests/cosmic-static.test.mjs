@@ -13,7 +13,9 @@ test("hub cosmique : navigation et authentification", async () => {
   assert.doesNotMatch(home, /cosmic(?:-counters|-defenses)?\.html/);
   const homeCss = await read("docs/home.css");
   assert.doesNotMatch(homeCss, /homeTile--cosmic/);
-  assert.match(hub, /href="\.\/cosmic-counters\.html"/);
+  assert.ok(!hub.includes('href="./cosmic-counters.html"'));
+  assert.match(hub, /class="cosmicHubTile cosmicHubTile--counters cosmicHubTile--disabled"/);
+  assert.match(hub, /aria-disabled="true"/);
   assert.match(hub, /href="\.\/cosmic-defenses\.html"/);
   assert.match(hub, /href="\.\/cosmic-defense-propose\.html"/);
   for (const page of [hub, counters, defenses, propose]) assert.match(page, /auth-guard\.js/);
@@ -220,10 +222,10 @@ test("cosmic visual design matches the common LoSP dark glass theme", async () =
   assert.match(css, /\.cosmicHubPage \.cosmicHubGrid\{/);
   assert.match(css, /grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(css, /\.cosmicHubPage \.cosmicHubTile--propose\{/);
-  assert.match(css, /grid-column:1\/-1;aspect-ratio:2\.25\/1/);
+  assert.match(css, /grid-column:2;justify-self:stretch;/);
   assert.match(css, /\.cosmicPortrait img\{[^}]*object-fit:contain/);
   assert.match(css, /\.cosmicPortraitRemove::after\{[^}]*font:700 12px\/1 sans-serif/);
-  assert.match(hub, /cosmic\.css\?v=9/);
+  assert.match(hub, /cosmic\.css\?v=12/);
   assert.match(hub, /style\.css\?v=/);
   assert.match(counters, /cosmic\.css\?v=8/);
   assert.match(counters, /style\.css\?v=/);
@@ -446,9 +448,11 @@ test("hub cosmique : bannière illustrée et trois tuiles comme la sélection Gu
   assert.match(war,/class="rankingsGrid"/);
   assert.match(warCss,/grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(hub,/class="app cosmicHubPage"/);
-  assert.match(hub,/cosmic\.css\?v=11/);
+  assert.match(hub,/cosmic\.css\?v=12/);
   assert.equal((hub.match(/class="cosmicHubTile /g)||[]).length,3);
-  assert.match(hub,/href="\.\/cosmic-counters\.html"/);
+  assert.ok(!hub.includes('href="./cosmic-counters.html"'));
+  assert.match(hub,/role="group" aria-disabled="true"/);
+  assert.match(hub,/class="cosmicHubWorkBadge"/);
   assert.match(hub,/href="\.\/cosmic-defenses\.html"/);
   assert.match(hub,/href="\.\/cosmic-defense-propose\.html"/);
   assert.match(hub,/data-cosmic-season-title/);
@@ -471,8 +475,14 @@ test("hub cosmique : bannière illustrée et trois tuiles comme la sélection Gu
   }
   assert.ok(hub.includes('image.onload = () => tile.classList.add("cosmicHubTile--webp")'));
   assert.ok(css.includes(".cosmicHubTile.cosmicHubTile--webp strong{"));
-  assert.ok(css.includes("width:calc((100% - 14px)/2);aspect-ratio:1/1"));
-  assert.ok(css.includes("width:calc((100% - 10px)/2)"));
+  assert.ok(css.includes("grid-column:2;justify-self:stretch;"));
+  assert.ok(css.includes("width:100%;aspect-ratio:1/1"));
+  assert.ok(!css.includes("width:calc((100% - 14px)/2)"));
+  assert.ok(!css.includes("width:calc((100% - 10px)/2)"));
+  assert.ok(css.includes("filter:grayscale(1) brightness(.48)"));
+  assert.ok(css.includes(".cosmicHubTile.cosmicHubTile--disabled.cosmicHubTile--webp::before"));
+  assert.ok(css.includes(".cosmicHubWorkBadge svg"));
+  assert.ok(!hub.includes('<a class="cosmicHubTile cosmicHubTile--counters"'));
   assert.ok(css.includes("grid-column:auto;justify-self:stretch;width:100%;aspect-ratio:1/1"));
   assert.ok(!css.includes("aspect-ratio:2.25/1"));
 
