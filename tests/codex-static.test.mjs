@@ -135,16 +135,16 @@ test("le CSS couvre les seuils mobile, tablette, desktop et le mouvement réduit
   assert.match(css, /min-height: 44px/);
 });
 
-test("la tuile Codex est ajoutée après les tuiles existantes avec son fallback", () => {
+test("les tuiles de l'accueil conservent leur ordre sans Statistiques Guerres", () => {
   const links = [...homeHtml.matchAll(/<a href="([^"]+)" class="homeTile[^\"]*">/g)]
     .map((match) => match[1]);
   assert.deepEqual(links, [
     "./war-choose.html",
-    "./war-stats.html",
     "./conseils.html",
-    "./iso.html",
     "./classements.html",
+    "./evolution-classement.html",
     "./joueur.html",
+    "./iso.html",
     "./codex.html",
   ]);
   assert.match(homeHtml, /Codex MSF — Personnages, capacités et mécaniques/);
