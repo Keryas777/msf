@@ -83,10 +83,14 @@ test('first post-window slots preserve the all-six complete R2 gate',async()=>{
   assert.match(workflow,/cron: "30 4 \* \* \*"/);
   assert.match(workflow,/cron: "30 16 \* \* \*"/);
   assert.match(workflow,/args\+=\("--early"\)/);
-  assert.match(script,/end>Date\.now\(\)&&!early/);
-  assert.match(script,/!earlyImportReady\(early,updates\.size,registry\.length\)/);
+  assert.match(script,/end>Date\.now\(\)&&!early&&!requireComplete/);
+  assert.match(script,/early\|\|requireComplete/);
+  assert.match(workflow,/args\+=\("--require-complete"\)/);
+  assert.match(script,/!earlyImportReady\(early\|\|requireComplete,updates\.size\+already\.length,registry\.length\)/);
   assert.match(script,/Later schedules will retry/);
-  assert.match(script,/if\(!updates\.size\)throw Error/);
+  assert.match(script,/if\(!updates\.size\)\{/);
+  assert.match(script,/No newer verified R2 roster campaign/);
+  assert.match(script,/rosterCampaignIsNewer\(publicationState,alliance\.key,window\.campaign\)/);
   assert.match(workflow,/group: main-data-writer/);
   assert.match(workflow,/cancel-in-progress: false/);
 });

@@ -32,6 +32,11 @@ on:
           - pm
         default: am
         required: true
+      strict:
+        description: "Require all alliance receipts (Worker-triggered import)"
+        type: boolean
+        default: false
+        required: false
       publish:
         description: "Update roster JSON in GitHub (requires separate approval)"
         type: boolean
@@ -72,6 +77,7 @@ jobs:
           INPUT_DATE: ${{ inputs.date }}
           INPUT_PERIOD: ${{ inputs.period }}
           INPUT_PUBLISH: ${{ inputs.publish }}
+          INPUT_STRICT: ${{ inputs.strict }}
           EVENT_NAME: ${{ github.event_name }}
           SCHEDULE_CRON: ${{ github.event.schedule }}
         run: |
@@ -81,6 +87,9 @@ jobs:
               args+=("--date=$INPUT_DATE")
             fi
             args+=("--period=$INPUT_PERIOD")
+            if [ "$INPUT_STRICT" = "true" ]; then
+              args+=("--require-complete")
+            fi
           elif [ "$EVENT_NAME" = "schedule" ]; then
             # Never guess AM/PM using the runner's start hour:
             # GitHub scheduled events may arrive hours after their due time.
@@ -108,9 +117,10 @@ jobs:
           DATA_DIR: docs/data
           OUT_FILE: docs/data/rosters.json
         run: |
-          node --test tests/roster-r2-import.test.mjs tests/merge-rosters-optional-iso.test.mjs tests/roster-r2-schedule.test.mjs
+          node --test tests/roster-r2-import.test.mjs tests/merge-rosters-optional-iso.test.mjs tests/roster-r2-schedule.test.mjs tests/roster-r2-publish-state.test.mjs
           node --check scripts/pull-rosters-r2.mjs
           node --check scripts/lib/roster-r2-import.mjs
+          node --check scripts/lib/roster-r2-publish-state.mjs
           node --check scripts/lib/private-r2-read.mjs
           if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.publish }}" = "true" ]; then
             node scripts/merge-rosters.mjs
@@ -120,7 +130,7 @@ jobs:
         shell: bash
         run: |
           unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' |
-            grep -Ev '^docs/data/rosters(_[a-z0-9-]+)?[.]json$' || true)"
+            grep -Ev '^(docs/data/rosters(_[a-z0-9-]+)?[.]json|[.]github/roster-r2-import-state[.]json)$' || true)"
           if [ -n "$unexpected" ]; then
             echo "Unexpected modifications:"; echo "$unexpected"; exit 1
           fi
@@ -138,6 +148,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/data/rosters.json docs/data/rosters_*.json
+          # Before the first successful import the checkpoint does not yet exist.
+          if [ -f .github/roster-r2-import-state.json ]; then
+            git add .github/roster-r2-import-state.json
+          fi
           if git diff --cached --quiet; then
             echo "No changes to publish."
             exit 0
