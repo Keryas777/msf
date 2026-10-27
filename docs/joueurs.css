@@ -1,0 +1,72 @@
+/* Hub Joueurs — réutilise les tuiles et le fond global de l'accueil. */
+.playersHubPage {
+  padding: 9px;
+  gap: 9px;
+}
+
+.playersHubHeader {
+  height: 132px;
+  min-height: 132px;
+  padding: 0 54px 16px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+  background-color: #071532;
+  background-image:
+    linear-gradient(180deg, rgba(3,9,30,.10), rgba(3,9,30,.24) 45%, rgba(3,9,30,.88)),
+    url("./Joueurs.webp");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center, center 41%;
+  overflow: hidden;
+}
+
+.playersHubHeader .headerLeft {
+  min-width: 0;
+}
+
+.playersHubHeader .title {
+  font-size: clamp(26px, 6vw, 36px);
+  color: #fff;
+  text-shadow: 0 2px 4px #02061b, 0 0 16px rgba(70,170,255,.95);
+}
+
+.playersHubHeader .homeBtn {
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  background: rgba(2,9,27,.72);
+  border: 1px solid rgba(255,255,255,.3);
+}
+
+.playersHubPage .homeGrid {
+  gap: 9px;
+  margin-top: 0;
+}
+
+.playersHubPage .homeTile {
+  width: 91%;
+}
+
+.playersHubPage .homeTile--profils {
+  --glow: rgba(255,185,70,.72);
+  --glow-strong: rgba(255,185,70,.98);
+}
+
+@media (min-width: 721px) {
+  .playersHubPage .homeGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .playersHubHeader {
+    height: 112px;
+    min-height: 112px;
+  }
+  .playersHubPage .homeTile {
+    width: 90%;
+  }
+}
