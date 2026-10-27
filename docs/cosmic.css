@@ -336,3 +336,13 @@
 @media(prefers-reduced-motion:reduce){
   .cosmicHubPage .cosmicHubTile{transition:none}
 }
+
+
+/* Gabarit des tuiles du hub cosmique ; le mode chantier reste inchangé. */
+@media (orientation:portrait){
+  .cosmicHubPage .cosmicHubTile,
+  .cosmicHubPage .cosmicHubTile--propose{
+    width:min(84%, calc((100vh - 290px - env(safe-area-inset-bottom, 0px)) / 4));
+    width:min(84%, calc((100dvh - clamp(260px, 31dvh, 290px) - env(safe-area-inset-bottom, 0px)) / 4));
+  }
+}

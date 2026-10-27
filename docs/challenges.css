@@ -207,3 +207,13 @@
   .challenge-versions-count{font-size:10px;padding:4px 5px;}
   .challenge-strategy-title strong{font-size:12px;}
 }
+
+
+/* Quatre catégories compactes et entièrement tactiles sur téléphone. */
+@media (max-width:679px){
+  .challenge-categories{gap:8px}
+  .challenge-category-tile{min-height:112px;gap:12px;padding:13px 14px}
+}
+@media (max-width:420px){
+  .challenge-category-tile{min-height:98px;gap:8px;padding:10px 12px}
+}
