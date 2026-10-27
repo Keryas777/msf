@@ -837,21 +837,6 @@ function homeModel() {
         </div>
       </section>
 
-      <nav class="codexLandingTiles" aria-label="Explorer le Codex">
-        <a class="codexGate codexLandingTile codexLandingTile--characters" href="${escapeHtml(buildCodexHref({ view: "characters" }))}" data-codex-link>
-          <span class="codexLandingTileArtwork" aria-hidden="true"></span>
-          <span class="codexLandingTilePattern" aria-hidden="true"></span>
-          <span class="codexLandingTileIcon" aria-hidden="true">◉</span>
-          <strong>Personnages</strong>
-        </a>
-        <a class="codexGate codexLandingTile codexLandingTile--mechanics" href="${escapeHtml(buildCodexHref({ view: "mechanics" }))}" data-codex-link>
-          <span class="codexLandingTileArtwork" aria-hidden="true"></span>
-          <span class="codexLandingTilePattern" aria-hidden="true"></span>
-          <span class="codexLandingTileIcon" aria-hidden="true">✧</span>
-          <strong>Mécaniques</strong>
-        </a>
-      </nav>
-
       <section class="codexLandingPanel" aria-labelledby="codex-landing-search-title">
         <h2 id="codex-landing-search-title">Rechercher dans le Codex</h2>
         <div id="codexLandingSearchSlot"></div>
