@@ -20,6 +20,8 @@ test('Unknown cron is rejected instead of choosing a guessed campaign',()=>{
   assert.throws(()=>resolveRosterSchedule('40 6,18 * * *',at('2026-10-24T09:00:00Z')));
   assert.throws(()=>resolveRosterSchedule('* * * * *',at('2026-10-24T09:00:00Z')));
   assert.throws(()=>resolveRosterSchedule('40 6 * * *',new Date(NaN)));
+  assert.throws(()=>resolveRosterSchedule('17 4 * * *',at('2026-10-24T04:31:00Z')));
+  assert.throws(()=>resolveRosterSchedule('47 16 * * *',at('2026-10-24T16:31:00Z')));
 });
 
 
@@ -46,7 +48,7 @@ test('late GitHub scheduled triggers preserve previous UTC day after delayed dis
 test('workflow declares each supported scheduled recovery slot in UTC',async()=>{
   const {readFile}=await import('node:fs/promises');
   const workflow=await readFile(new URL('../.github/workflows/pull-rosters-r2.yml',import.meta.url),'utf8');
-  for(const cron of ['17 4','40 6','47 7','17 10','47 16','40 18','47 19','17 21','23 0'])
+  for(const cron of ['30 4','40 6','47 7','17 10','30 16','40 18','47 19','17 21','23 0'])
     assert.ok(workflow.includes('cron: "'+cron+' * * *"'));
   assert.match(workflow,/group: main-data-writer/);
   assert.match(workflow,/cancel-in-progress: false/);
@@ -55,13 +57,13 @@ test('workflow declares each supported scheduled recovery slot in UTC',async()=>
 });
 
 test('fast R2 slots use UTC campaign date even when the runner starts late',()=>{
-  assert.deepEqual(resolveRosterSchedule('17 4 * * *',at('2026-10-26T04:30:00Z')),
+  assert.deepEqual(resolveRosterSchedule('30 4 * * *',at('2026-10-26T04:31:00Z')),
     {day:'2026-10-26',period:'am'});
-  assert.deepEqual(resolveRosterSchedule('47 16 * * *',at('2026-10-26T17:00:00Z')),
+  assert.deepEqual(resolveRosterSchedule('30 16 * * *',at('2026-10-26T16:31:00Z')),
     {day:'2026-10-26',period:'pm'});
-  assert.deepEqual(resolveRosterSchedule('17 4 * * *',at('2026-10-27T02:00:00Z')),
+  assert.deepEqual(resolveRosterSchedule('30 4 * * *',at('2026-10-27T02:00:00Z')),
     {day:'2026-10-26',period:'am'});
-  assert.deepEqual(resolveRosterSchedule('47 16 * * *',at('2026-10-27T01:00:00Z')),
+  assert.deepEqual(resolveRosterSchedule('30 16 * * *',at('2026-10-27T01:00:00Z')),
     {day:'2026-10-26',period:'pm'});
 });
 test('early imports are all-or-nothing; later backup imports retain partial-coverage rules',()=>{
@@ -74,12 +76,12 @@ test('early imports are all-or-nothing; later backup imports retain partial-cove
     assert.throws(()=>earlyImportReady(true,count,6),/Invalid roster completion/);
   assert.throws(()=>earlyImportReady(true,0,0),/Invalid roster completion/);
 });
-test('fast GitHub slots may run before window closure only with complete R2 data',async()=>{
+test('first post-window slots preserve the all-six complete R2 gate',async()=>{
   const {readFile}=await import('node:fs/promises');
   const workflow=await readFile(new URL('../.github/workflows/pull-rosters-r2.yml',import.meta.url),'utf8');
   const script=await readFile(new URL('../scripts/pull-rosters-r2.mjs',import.meta.url),'utf8');
-  assert.match(workflow,/cron: "17 4 \* \* \*"/);
-  assert.match(workflow,/cron: "47 16 \* \* \*"/);
+  assert.match(workflow,/cron: "30 4 \* \* \*"/);
+  assert.match(workflow,/cron: "30 16 \* \* \*"/);
   assert.match(workflow,/args\+=\("--early"\)/);
   assert.match(script,/end>Date\.now\(\)&&!early/);
   assert.match(script,/!earlyImportReady\(early,updates\.size,registry\.length\)/);
