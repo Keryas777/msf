@@ -303,6 +303,11 @@
   z-index:1;
 }
 
+.homeTile--codex-personnages{
+  --glow: rgba(190, 85, 255, .72);
+  --glow-strong: rgba(220, 130, 255, 1);
+}
+
 .homeTile--iso{
   --glow: rgba(190, 110, 255, .70);
   --glow-strong: rgba(190, 110, 255, .98);
@@ -377,3 +382,4 @@
 .homeTile--recommandations{grid-row:2;grid-column:2}
 .homeTile--alliance-history{grid-row:2;grid-column:3}
 .homeTile--codex{grid-row:3;grid-column:1}
+.homeTile--codex-personnages{grid-row:3;grid-column:2}
