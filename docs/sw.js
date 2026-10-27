@@ -1,6 +1,6 @@
 // docs/sw.js
 
-const CACHE = "losp-v17";
+const CACHE = "losp-v18";
 
 const CORE_ASSETS = [
   "./",
@@ -13,6 +13,7 @@ const CORE_ASSETS = [
   // Images home
   "./HeaderHome.webp",
   "./Contres.webp",
+  "./Battleworld.webp",
   "./Classement.webp",
   "./ISO-8.webp",
 
