@@ -188,7 +188,7 @@ body.archiveCharactersPage {
 
 /* Onglets neutres, sans le dégradé bleu/violet de l'ancienne maquette. */
 .archiveApp .viewTabs {
-  order: 2;
+  order: 1;
   gap: 6px;
   margin-top: 12px;
   padding: 6px;
@@ -218,7 +218,7 @@ body.archiveCharactersPage {
 
 /* Barre de recherche et sélecteurs identiques à la famille classement. */
 .archiveApp .filters.archiveFilters {
-  order: 1;
+  order: 2;
   display: block;
   margin-top: 12px;
   padding: 12px;
@@ -227,6 +227,8 @@ body.archiveCharactersPage {
   background: var(--panel);
   box-shadow: var(--shadow);
 }
+
+.archiveApp .filters.archiveFilters[hidden] { display: none; }
 
 .archiveApp .filterGrid { gap: 10px; }
 .archiveApp .field label {
