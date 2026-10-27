@@ -13,6 +13,9 @@
   border:0;
 }
 
+/* Compactage du menu Guerre, sans affecter les pages de contenu. */
+.app{padding:9px;gap:9px}
+
 /* ===== Header banner ===== */
 .rankingsHeader{
   position: relative;
@@ -26,7 +29,7 @@
   background-position: center;
   background-size: cover;
 
-  height: 140px;
+  height: 132px;
   overflow: hidden;
 }
 
@@ -34,8 +37,8 @@
 .rankingsGrid{
   display:grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 16px;
+  gap: 8px;
+  margin-top: 2px;
   align-items: stretch;
 }
 
@@ -43,6 +46,8 @@
 .rankingsTile{
   position: relative;
   display:block;
+  justify-self:center;
+  width:91%;
   border-radius: 22px;
   overflow: hidden;
 
@@ -157,7 +162,7 @@
 }
 
 @media (max-width: 420px){
-  .rankingsHeader{ height: 120px; }
+  .rankingsHeader{ height: 112px; }
   .rankingsTile{ border-radius: 20px; }
 }
 
