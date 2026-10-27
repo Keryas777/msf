@@ -58,8 +58,9 @@ test('only current completed same-campaign manifests are usable',async()=>{
     {...manifest,capturedAt:'2026-10-23T16:00:00Z'},fp,window,now),false);
   const afterEnd=row(0,'Keryas I','volatile1');
   afterEnd.capturedAt='2026-10-23T16:00:00Z';
-  assert.equal(await loadRosterCampaign(fixture(progress,manifest,[afterEnd,
-    row('self','Second Player','volatile2')]),fp,window,now),null);
+  await assert.rejects(loadRosterCampaign(fixture(progress,manifest,[afterEnd,
+    row('self','Second Player','volatile2')]),fp,window,now),
+    /Invalid or stale private roster record/);
   assert.equal(await loadRosterCampaign(fixture(progress,earlier),fp,window,now),null);
   const missing=fixture();
   missing.getJSON=async k=>k.endsWith('/member-0.json')?null:
