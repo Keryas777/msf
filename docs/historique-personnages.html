@@ -1069,7 +1069,7 @@
         }
       }
     </style>
-    <link rel="stylesheet" href="./historique-personnages-theme.css?v=5" />
+    <link rel="stylesheet" href="./historique-personnages-theme.css?v=6" />
 
     <script src="./auth-guard.js?v=4"></script>
     <link rel="manifest" href="./manifest.webmanifest" />
@@ -2037,7 +2037,7 @@
         }
 
         function render() {
-          els.archiveSummary.hidden = state.view === "characters";
+          els.archiveSummary.hidden = false;
           if (state.view === "timeline") {
             const events = getFilteredTimelineEvents();
             const occurrenceCount = events.reduce((total, event) => total + event.occurrences.length, 0);
