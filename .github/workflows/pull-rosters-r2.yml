@@ -32,6 +32,11 @@ on:
           - pm
         default: am
         required: true
+      strict:
+        description: "Require every alliance R2 receipt (Worker-triggered import)"
+        type: boolean
+        default: false
+        required: false
       publish:
         description: "Update roster JSON in GitHub (requires separate approval)"
         type: boolean
@@ -72,6 +77,7 @@ jobs:
           INPUT_DATE: ${{ inputs.date }}
           INPUT_PERIOD: ${{ inputs.period }}
           INPUT_PUBLISH: ${{ inputs.publish }}
+          INPUT_STRICT: ${{ inputs.strict }}
           EVENT_NAME: ${{ github.event_name }}
           SCHEDULE_CRON: ${{ github.event.schedule }}
         run: |
@@ -81,6 +87,9 @@ jobs:
               args+=("--date=$INPUT_DATE")
             fi
             args+=("--period=$INPUT_PERIOD")
+            if [ "$INPUT_STRICT" = "true" ]; then
+              args+=("--require-complete")
+            fi
           elif [ "$EVENT_NAME" = "schedule" ]; then
             # Never guess AM/PM using the runner's start hour:
             # GitHub scheduled events may arrive hours after their due time.
