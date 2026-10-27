@@ -1,136 +1,18 @@
-<!-- /docs/war-stats.html -->
+<!-- /docs/war-stats.html — ancienne entrée, conservée pour les favoris et liens existants -->
 <!doctype html>
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
-    />
-
-    <style>
-      html.authChecking body{
-        opacity: 0;
-        pointer-events: none;
-      }
-    </style>
-
-    <script>
-      document.documentElement.classList.add("authChecking");
-    </script>
-
-    <script src="./auth-guard.js?v=2"></script>
-
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
     <meta name="theme-color" content="#0b0c0d" />
-    <title>Stats de guerre</title>
-
-    <link rel="stylesheet" href="./style.css?v=8" />
-    <link rel="stylesheet" href="./war-stats.css?v=ts" />
-
-    <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="./icon-512.PNG" />
-    <meta name="apple-mobile-web-app-title" content="LoSP" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Statistiques Guerres — LoSP</title>
+    <meta http-equiv="refresh" content="0;url=./war-choose.html" />
+    <script>
+      // Conserver les anciens liens sans laisser un menu de statistiques vide.
+      window.location.replace("./war-choose.html");
+    </script>
   </head>
-
   <body>
-    <div class="app">
-      <header class="header warStatsHeader" aria-label="Stats de guerre">
-        <a href="./home.html" class="homeBtn" aria-label="Accueil">⌂</a>
-        <button class="backBtn" type="button" aria-label="Retour">‹</button>
-      </header>
-
-      <section class="warStatsGrid" aria-label="Stats de guerre">
-        <a href="./war-history.html" class="warStatsTile warStatsTile--history">
-          <img
-            class="warStatsTileImg"
-            src="./HistoryGA.webp"
-            alt="Historique Stats GA"
-            loading="eager"
-            decoding="async"
-          />
-          <span class="srOnly">Historique Stats GA</span>
-        </a>
-
-        <a href="./war-rankings.html" class="warStatsTile warStatsTile--rankings">
-          <img
-            class="warStatsTileImg"
-            src="./ClassementDatas.webp"
-            alt="Classement datas"
-            loading="eager"
-            decoding="async"
-          />
-          <span class="srOnly">Classement datas</span>
-        </a>
-
-        <a href="./war-graphs.html" class="warStatsTile warStatsTile--graphs">
-          <img
-            class="warStatsTileImg"
-            src="./DonneesIndividuelles.webp?v=2"
-            alt="Données individuelles"
-            loading="eager"
-            decoding="async"
-          />
-          <span class="srOnly">Données individuelles</span>
-        </a>
-      </section>
-    </div>
-
-    <script>
-      (function () {
-        document.querySelectorAll(".backBtn").forEach((btn) => {
-          btn.addEventListener("click", () => history.back());
-        });
-
-        document.querySelectorAll('link[rel="stylesheet"]').forEach((l) => {
-          if (l.href.includes("v=ts")) {
-            l.href = l.href.replace("v=ts", "v=" + Date.now());
-          }
-        });
-
-        const tiles = document.querySelectorAll(".warStatsTile");
-
-        tiles.forEach((t) => {
-          const press = () => {
-            t.classList.add("is-pressed");
-            clearTimeout(t.__pressTimer);
-            t.__pressTimer = setTimeout(() => t.classList.remove("is-pressed"), 220);
-          };
-
-          const release = () => {
-            t.classList.remove("is-pressed");
-          };
-
-          t.addEventListener("pointerdown", press, { passive: true });
-          t.addEventListener("pointerup", release, { passive: true });
-          t.addEventListener("pointercancel", release, { passive: true });
-          t.addEventListener("mouseleave", release, { passive: true });
-        });
-      })();
-    </script>
-
-    <script>
-      (function () {
-        if (!("serviceWorker" in navigator)) return;
-
-        let reloading = false;
-
-        navigator.serviceWorker.addEventListener("controllerchange", () => {
-          if (reloading) return;
-          reloading = true;
-          window.location.reload();
-        });
-
-        window.addEventListener("load", async () => {
-          try {
-            const reg = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
-            if (reg && typeof reg.update === "function") reg.update();
-          } catch (e) {
-            console.error(e);
-          }
-        });
-      })();
-    </script>
+    <p>Les statistiques sont désormais dans le menu <a href="./war-choose.html">Guerre</a>.</p>
   </body>
 </html>
