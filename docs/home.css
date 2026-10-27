@@ -276,6 +276,11 @@
   --glow-strong: rgba(90, 255, 243, 1);
 }
 
+.homeTile--alliance-history{
+  --glow: rgba(255, 150, 45, .76);
+  --glow-strong: rgba(255, 185, 65, 1);
+}
+
 .homeTile--codex{
   --glow: rgba(72, 218, 255, .72);
   --glow-strong: rgba(111, 232, 255, 1);
@@ -370,4 +375,5 @@
 .homeTile--battleworld{grid-row:1;grid-column:3}
 .homeTile--joueurs{grid-row:2;grid-column:1}
 .homeTile--recommandations{grid-row:2;grid-column:2}
+.homeTile--alliance-history{grid-row:2;grid-column:3}
 .homeTile--codex{grid-row:3;grid-column:1}
