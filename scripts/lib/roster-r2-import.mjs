@@ -15,7 +15,7 @@ export function rosterWindow(day,period){
     new Date(day+'T00:00:00Z').toISOString().slice(0,10)!==day)
     throw Error('Invalid UTC roster campaign');
   const from=period==='am'?'02:00:00':'14:00:00';
-  const to=period==='am'?'06:00:00':'18:00:00';
+  const to=period==='am'?'04:00:00':'16:00:00';
   return {day,period,campaign:day+'-'+period,
     start:day+'T'+from+'.000Z',endExclusive:day+'T'+to+'.000Z'};
 }
