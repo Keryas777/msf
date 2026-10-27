@@ -83,7 +83,9 @@ test('first post-window slots preserve the all-six complete R2 gate',async()=>{
   assert.match(workflow,/cron: "30 4 \* \* \*"/);
   assert.match(workflow,/cron: "30 16 \* \* \*"/);
   assert.match(workflow,/args\+=\("--early"\)/);
-  assert.match(script,/end>Date\.now\(\)&&!early/);
+  assert.match(script,/end>Date\.now\(\)&&!early&&!requireComplete/);
+  assert.match(script,/early\|\|requireComplete/);
+  assert.match(workflow,/args\+=\("--require-complete"\)/);
   assert.match(script,/!earlyImportReady\(early\|\|requireComplete,updates\.size\+already\.length,registry\.length\)/);
   assert.match(script,/Later schedules will retry/);
   assert.match(script,/if\(!updates\.size\)\{/);
