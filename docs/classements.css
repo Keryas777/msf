@@ -161,3 +161,12 @@
 @media (prefers-reduced-motion: reduce){
   .rankingsTile, .rankingsTile::after{ transition: none !important; }
 }
+
+
+/* Même gabarit compact pour les hubs de navigation en portrait. */
+@media (orientation:portrait){
+  .rankingsTile{
+    width:min(84%, calc((100vh - 290px - env(safe-area-inset-bottom, 0px)) / 4));
+    width:min(84%, calc((100dvh - clamp(260px, 31dvh, 290px) - env(safe-area-inset-bottom, 0px)) / 4));
+  }
+}
