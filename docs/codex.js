@@ -490,7 +490,7 @@ function renderError(message, title = "Fiche indisponible", action = true) {
     <section class="codexErrorState">
       <h1>${escapeHtml(title)}</h1>
       <p>${escapeHtml(message)}</p>
-      ${action ? `<a class="codexPrimaryButton" href="./codex.html?view=mechanics" data-codex-link>Revenir au Codex</a>` : ""}
+      ${action ? `<a class="codexPrimaryButton" href="./codex.html" data-codex-link>Revenir au Codex</a>` : ""}
     </section>
   `;
 }
@@ -501,17 +501,14 @@ function setBreadcrumbs(items = []) {
     dom.breadcrumbs.replaceChildren();
     return;
   }
-  const fullItems = [{ label: "Accueil", href: "./home.html" }, ...items];
+  const fullItems = [{ label: "Codex", route: { view: "home" } }, ...items];
   dom.breadcrumbs.innerHTML = fullItems.map((item, index) => {
     const isLast = index === fullItems.length - 1;
     const separator = index
       ? `<span class="codexBreadcrumbSeparator" aria-hidden="true">›</span>`
       : "";
-    if (isLast || (!item.route && !item.href)) {
+    if (isLast || !item.route) {
       return `${separator}<span aria-current="page">${escapeHtml(item.label)}</span>`;
-    }
-    if (item.href) {
-      return `${separator}<a href="${escapeHtml(item.href)}">${escapeHtml(item.label)}</a>`;
     }
     return `${separator}<a href="${escapeHtml(buildCodexHref(item.route))}" data-codex-link>${escapeHtml(item.label)}</a>`;
   }).join("");
@@ -839,6 +836,21 @@ function homeModel() {
           <p>Personnages, capacités et mécaniques</p>
         </div>
       </section>
+
+      <nav class="codexLandingTiles" aria-label="Explorer le Codex">
+        <a class="codexGate codexLandingTile codexLandingTile--characters" href="${escapeHtml(buildCodexHref({ view: "characters" }))}" data-codex-link>
+          <span class="codexLandingTileArtwork" aria-hidden="true"></span>
+          <span class="codexLandingTilePattern" aria-hidden="true"></span>
+          <span class="codexLandingTileIcon" aria-hidden="true">◉</span>
+          <strong>Personnages</strong>
+        </a>
+        <a class="codexGate codexLandingTile codexLandingTile--mechanics" href="${escapeHtml(buildCodexHref({ view: "mechanics" }))}" data-codex-link>
+          <span class="codexLandingTileArtwork" aria-hidden="true"></span>
+          <span class="codexLandingTilePattern" aria-hidden="true"></span>
+          <span class="codexLandingTileIcon" aria-hidden="true">✧</span>
+          <strong>Mécaniques</strong>
+        </a>
+      </nav>
 
       <section class="codexLandingPanel" aria-labelledby="codex-landing-search-title">
         <h2 id="codex-landing-search-title">Rechercher dans le Codex</h2>
@@ -2343,11 +2355,6 @@ function operationModel(context) {
 }
 
 async function renderRoute(route, options = {}) {
-  // L'ancien hub n'est plus une destination : les anciens liens ouvrent les mécaniques.
-  if (route.view === "home" && !route.invalid) {
-    route = parseRoute("?view=mechanics");
-    history.replaceState(history.state, "", buildCodexHref(route));
-  }
   // Keep the live search form and its listeners when replacing the landing markup.
   if (dom.searchForm.parentElement !== dom.breadcrumbs.parentElement) {
     dom.breadcrumbs.before(dom.searchForm);
@@ -2368,6 +2375,9 @@ async function renderRoute(route, options = {}) {
   try {
     let model;
     switch (route.view) {
+      case "home":
+        model = homeModel();
+        break;
       case "characters":
         model = await charactersModel();
         break;
@@ -2642,7 +2652,7 @@ function bindEvents() {
     dom.searchStatus.textContent = "";
     closeSearchPanel();
     if (state.route.view === "search") {
-      await navigate({ view: "mechanics" }, "replace", { focusMain: false });
+      await navigate({ view: "home" }, "replace", { focusMain: false });
     }
     dom.searchInput.focus();
   });
