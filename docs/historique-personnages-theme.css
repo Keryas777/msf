@@ -116,7 +116,7 @@ body.archiveCharactersPage {
 /* Résumé compact : mêmes cartes et transparences que le reste de l'app. */
 .archiveApp .hero.archiveSummary {
   order: 0;
-  padding: 13px 12px 12px;
+  padding: 8px 10px 9px;
   overflow: visible;
   border: 1px solid var(--border);
   border-radius: 18px;
@@ -126,7 +126,7 @@ body.archiveCharactersPage {
 
 .archiveApp .hero.archiveSummary::after { display: none; }
 
-/* Les statistiques historiques ne prennent pas de place dans le catalogue principal. */
+/* Résumé masqué seulement pendant le chargement initial. */
 .archiveApp .hero.archiveSummary[hidden] { display: none; }
 
 .archiveApp .heroText {
@@ -140,50 +140,56 @@ body.archiveCharactersPage {
 
 .archiveApp .sourceNote {
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   gap: 7px;
-  margin: 9px 0 0;
+  margin: 0;
   color: var(--muted);
-  font-size: 11.5px;
-  line-height: 1.45;
+  font-size: 11px;
+  line-height: 1.25;
   text-align: center;
 }
 
 .archiveApp .sourceDot {
   width: 7px;
   height: 7px;
-  margin-top: 5px;
+  margin-top: 0;
   background: var(--bar-green, #2ecc71);
   box-shadow: none;
 }
 
 .archiveApp .statsGrid {
   grid-template-columns: repeat(2,minmax(0,1fr));
-  gap: 8px;
-  margin-top: 13px;
+  gap: 6px;
+  margin-top: 8px;
 }
 
 .archiveApp .statCard {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   min-width: 0;
-  padding: 10px 8px;
+  padding: 7px 8px;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 11px;
   background: rgba(0,0,0,.22);
-  text-align: center;
+  text-align: left;
 }
 
 .archiveApp .statCard strong {
+  flex: 0 0 auto;
   color: var(--text);
-  font-size: 21px;
+  font-size: 18px;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 .archiveApp .statCard span {
-  margin-top: 5px;
+  min-width: 0;
+  margin-top: 0;
   color: var(--muted);
   font-size: 11px;
-  line-height: 1.3;
+  line-height: 1.2;
 }
 
 /* Onglets neutres, sans le dégradé bleu/violet de l'ancienne maquette. */
@@ -442,8 +448,8 @@ body.archiveCharactersPage .detailSheet a:focus-visible {
   .archiveApp .archiveHeader.header { padding-right: 45px; padding-left: 45px; }
   .archiveApp .archiveHeader .title { font-size: 21px; }
   .archiveApp .archiveHeader .subtitle { font-size: 12px; }
-  .archiveApp .statCard { padding: 9px 6px; }
-  .archiveApp .statCard strong { font-size: 19px; }
+  .archiveApp .statCard { gap: 5px; padding: 6px; }
+  .archiveApp .statCard strong { font-size: 17px; }
 }
 
 /* Catalogue personnages : recherche pleine largeur, année et tri sur une même ligne. */
