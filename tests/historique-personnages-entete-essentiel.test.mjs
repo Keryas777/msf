@@ -21,7 +21,7 @@ test("la vue Personnages s'ouvre sans textes de présentation ni bloc historique
   assert.doesNotMatch(html, /Sorties et reworks, capacités et classement des personnages/);
   assert.match(html, /<section class="hero card archiveSummary"[^>]* hidden>/);
   assert.match(theme, /\.archiveApp \.hero\.archiveSummary\[hidden\] \{ display: none; \}/);
-  assert.match(html, /historique-personnages-theme\.css\?v=4/);
+  assert.match(html, /historique-personnages-theme\.css\?v=5/);
   assert.doesNotThrow(() => new Function(script));
 });
 
