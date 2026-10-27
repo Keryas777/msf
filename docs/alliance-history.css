@@ -6,7 +6,7 @@
 }
 .pageAllianceHistory [hidden] { display: none !important; }
 .allianceHistory { max-width: 1040px; padding: 16px 12px calc(28px + env(safe-area-inset-bottom)); gap: 16px; }
-.historyHeader { text-align: center; padding: 28px 10px 10px; }
+.historyHeader { position: relative; text-align: center; padding: 28px 10px 10px; }
 .historyEyebrow { margin: 0 0 7px; color: #b0b9d4; font-size: .7rem; font-weight: 900; letter-spacing: .18em; }
 .historyHeader h1 { font-size: clamp(1.65rem, 6vw, 2.5rem); line-height: 1.1; margin: 0; font-weight: 900; }
 .historyHeader > p:last-child { margin: 10px 0 0; color: #adb7d2; font-size: .92rem; }
