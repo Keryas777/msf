@@ -2,7 +2,7 @@
 // WebApp-initiated pull of the existing Roster Service's completed R2 batches.
 // GitHub Actions only: no OAuth, Scopely calls or public R2 endpoints.
 import fs from 'node:fs/promises';
-import {resolveRosterSchedule} from './lib/roster-r2-schedule.mjs';
+import {resolveRosterSchedule,earlyImportReady} from './lib/roster-r2-schedule.mjs';
 import {createPrivateR2Reader} from './lib/private-r2-read.mjs';
 import {readMapping} from './lib/alliance-r2-history.mjs';
 import {rosterWindow,loadRosterCampaign,convertAllianceRosters,keyOf}
@@ -10,14 +10,17 @@ import {rosterWindow,loadRosterCampaign,convertAllianceRosters,keyOf}
 
 async function json(path){return JSON.parse(await fs.readFile(path,'utf8'));}
 function args(argv){
-  let day=null,period=null,write=false,schedule=null;
+  let day=null,period=null,write=false,early=false,schedule=null;
   for(const arg of argv){
     if(arg==='--write')write=true;
+    else if(arg==='--early')early=true;
     else if(/^--date=\d{4}-\d{2}-\d{2}$/.test(arg))day=arg.slice(7);
     else if(/^--period=(am|pm)$/.test(arg))period=arg.slice(9);
     else if(arg.startsWith('--schedule='))schedule=arg.slice('--schedule='.length);
-    else throw Error('Usage: [--date=YYYY-MM-DD] [--period=am|pm] [--schedule=CRON] [--write]');
+    else throw Error('Usage: [--date=YYYY-MM-DD] [--period=am|pm] [--schedule=CRON] [--write] [--early]');
   }
+  if(early&&!['17 4 * * *','47 16 * * *'].includes(schedule))
+    throw Error('Early import allowed only for dedicated scheduled trigger');
   const current=new Date();
   if(schedule!==null){
     if(day!==null||period!==null)
@@ -28,12 +31,14 @@ function args(argv){
     day??=current.toISOString().slice(0,10);
     period??=current.getUTCHours()>=14?'pm':'am';
   }
-  return {day,period,write};
+  return {day,period,write,early};
 }
 async function main(){
-  const {day,period,write}=args(process.argv.slice(2));
+  const {day,period,write,early}=args(process.argv.slice(2));
   const window=rosterWindow(day,period),end=Date.parse(window.endExclusive);
-  if(end>Date.now())throw Error('Current roster campaign window has not finished');
+  // Early scheduled import is allowed only with every current-window R2
+  // manifest and every roster file already fully validated below.
+  if(end>Date.now()&&!early)throw Error('Current roster campaign window has not finished');
   if(end<Date.now()-6*86400000)throw Error('Campaign window exceeds R2 retention');
   const registry=(await json('docs/data/alliances.json'))
     .filter(a=>a&&a.active!==false);
@@ -86,12 +91,24 @@ async function main(){
         (updates.has(a.key)?'✅ Nouvelle archive R2 complète':
           '⚠️ Absente ou incomplète — ancien roster conservé')+' |'),
       '',
-      skipped.length?'⚠️ Import partiel : '+skipped.length+
+      early&&skipped.length?'⏱️ Tentative anticipée : aucune écriture. '+
+        'Une ou plusieurs alliances sont encore en collecte ; les anciens fichiers restent inchangés.':
+        skipped.length?'⚠️ Import partiel : '+skipped.length+
         ' alliance(s) sans campagne complète dans R2.':'✅ Toutes les alliances actualisées.',
       ''
     ];
     try{await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,lines.join('\n'));}
     catch{console.error('Could not write optional GitHub Actions summary');}
+  }
+  if(!earlyImportReady(early,updates.size,registry.length)){
+    console.log('Early R2 check: '+updates.size+'/'+registry.length+
+      ' alliances complete; no publication until all are verified. '+
+      'Later schedules will retry.');
+    if(process.env.GITHUB_ACTIONS==='true')
+      console.log('::notice title=Attente des rosters R2::'+
+        'Collecte encore en cours ('+updates.size+'/'+registry.length+
+        '). Aucun fichier publié par cette tentative anticipée.');
+    return;
   }
   if(!updates.size)throw Error('No complete and current R2 roster campaign');
   // Reject duplicates even across a mix of updated and retained alliances.

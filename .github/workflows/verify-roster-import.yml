@@ -1,0 +1,29 @@
+name: Verify private R2 roster import
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/pull-rosters-r2.yml'
+      - '.github/workflows/verify-roster-import.yml'
+      - 'scripts/pull-rosters-r2.mjs'
+      - 'scripts/lib/roster-r2-schedule.mjs'
+      - 'scripts/lib/roster-r2-import.mjs'
+      - 'tests/roster-r2-schedule.test.mjs'
+      - 'tests/roster-r2-import.test.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate syntax and early scheduling safeguards
+        run: |
+          node --check scripts/pull-rosters-r2.mjs
+          node --check scripts/lib/roster-r2-schedule.mjs
+          node --test tests/roster-r2-schedule.test.mjs tests/roster-r2-import.test.mjs

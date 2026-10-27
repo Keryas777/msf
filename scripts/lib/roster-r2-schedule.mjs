@@ -2,6 +2,8 @@
 // Identify the roster campaign from the scheduled cron, never from the
 // runner's actual clock hour. No network calls or access to private R2.
 const TIMES=Object.freeze({
+  "17 4 * * *":{period:"am",hour:4,minute:17}, // early if all manifests are complete
+  "47 16 * * *":{period:"pm",hour:16,minute:47}, // early if all manifests are complete
   "40 6 * * *":{period:"am",hour:6,minute:40},
   "47 7 * * *":{period:"am",hour:6,minute:40}, // bounded backup
   "17 10 * * *":{period:"am",hour:6,minute:40}, // later AM recovery
@@ -23,4 +25,13 @@ export function resolveRosterSchedule(cron,now=new Date()){
   // The cron expression, rather than the runner's current hour, selects it.
   if(item.previousDay===true)occurrence.setUTCDate(occurrence.getUTCDate()-1);
   return {day:occurrence.toISOString().slice(0,10),period:item.period};
+}
+
+export function earlyImportReady(early,verified,total){
+  if(typeof early!=='boolean'||!Number.isSafeInteger(verified)||
+     !Number.isSafeInteger(total)||verified<0||total<1||verified>total)
+    throw Error('Invalid roster completion counters');
+  // The early slots are a read-only probe until every approved alliance
+  // has a complete current-campaign manifest and validated member files.
+  return !early||verified===total;
 }

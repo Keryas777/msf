@@ -2,7 +2,11 @@ name: Pull LoSP rosters from private R2
 
 on:
   schedule:
-    # Primary slots after the 02-06 and 14-18 UTC R2 campaigns.
+    # Fast imports: only publish when ALL six current R2 campaigns are complete.
+    # Times are UTC, not Paris local time; main backup slots stay unchanged.
+    - cron: "17 4 * * *"
+    - cron: "47 16 * * *"
+    # Primary fallback slots after the 02-06 and 14-18 UTC R2 campaigns.
     - cron: "40 6 * * *"
     - cron: "40 18 * * *"
     # Independent fallbacks if GitHub drops/delays one scheduled trigger.
@@ -81,6 +85,11 @@ jobs:
             # Never guess AM/PM using the runner's start hour:
             # GitHub scheduled events may arrive hours after their due time.
             args+=("--schedule=$SCHEDULE_CRON")
+            # Before the official R2 window ends, a complete-coverage guard
+            # allows early publication but NEVER a partial export.
+            if [ "$SCHEDULE_CRON" = "17 4 * * *" ] || [ "$SCHEDULE_CRON" = "47 16 * * *" ]; then
+              args+=("--early")
+            fi
           else
             echo "::error::Unsupported roster import event"
             exit 1
