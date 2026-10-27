@@ -90,10 +90,27 @@ export function validateCampaignMembers(records,expected){
 export async function loadRosterCampaign(r2,fp,window,now=Date.now()){
   if(!FP.test(fp))throw Error('Invalid alliance fingerprint');
   const root='roster-batches/v1/'+fp+'/';
-  const [progress,manifest]=await Promise.all([
-    r2.getJSON(root+'progress.json',32000),
-    r2.getJSON(root+'latest-complete.json',32000)
-  ]);
+  // Prefer a durable, self-contained receipt for the requested UTC
+  // campaign. The current progress/latest pointers are overwritten as soon
+  // as a newer AM/PM campaign starts, so they cannot support late retries.
+  const receipt=await r2.getJSON(root+'campaigns/'+window.campaign+'.json',64000);
+  let progress,manifest;
+  if(receipt!==null){
+    // Fail closed on a malformed receipt. Never silently fall back to a
+    // different campaign or mark a corrupt archive as complete.
+    if(!object(receipt)||receipt.version!==1||
+       receipt.campaign!==window.campaign||
+       !object(receipt.progress)||!object(receipt.manifest))
+      throw Error('Invalid private R2 campaign completion receipt');
+    ({progress,manifest}=receipt);
+  }else{
+    // Compatibility with pre-upgrade captures, only when their mutable
+    // pointers STILL refer to this exact campaign.
+    [progress,manifest]=await Promise.all([
+      r2.getJSON(root+'progress.json',32000),
+      r2.getJSON(root+'latest-complete.json',32000)
+    ]);
+  }
   if(!validManifestAndProgress(progress,manifest,fp,window,now))return null;
   const rootRun=root+manifest.runId+'/';
   const records=[];
