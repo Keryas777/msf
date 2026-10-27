@@ -25,7 +25,7 @@ test("uniquement recherche, année et tri, avec Année/Tri sur la même ligne", 
   assert.doesNotMatch(filters, /id="typeFilter"|id="reworkFilter"/);
   assert.match(theme, /\.archiveApp \.filterGrid\.filterGrid--compact \{\s*grid-template-columns: minmax\(0, 2fr\) minmax\(0, 3fr\)/);
   assert.match(theme, /\.archiveApp \.filterGrid--compact \.field--search \{\s*grid-column: 1 \/ -1;/);
-  assert.match(html, /historique-personnages-theme\.css\?v=5/);
+  assert.match(html, /historique-personnages-theme\.css\?v=6/);
 });
 
 test("aucun accès aux champs supprimés, reset sécurisé et script valide", () => {
