@@ -19,7 +19,7 @@ function args(argv){
     else if(arg.startsWith('--schedule='))schedule=arg.slice('--schedule='.length);
     else throw Error('Usage: [--date=YYYY-MM-DD] [--period=am|pm] [--schedule=CRON] [--write] [--early]');
   }
-  if(early&&!['17 4 * * *','47 16 * * *'].includes(schedule))
+  if(early&&!['30 4 * * *','30 16 * * *'].includes(schedule))
     throw Error('Early import allowed only for dedicated scheduled trigger');
   const current=new Date();
   if(schedule!==null){
@@ -36,8 +36,8 @@ function args(argv){
 async function main(){
   const {day,period,write,early}=args(process.argv.slice(2));
   const window=rosterWindow(day,period),end=Date.parse(window.endExclusive);
-  // Early scheduled import is allowed only with every current-window R2
-  // manifest and every roster file already fully validated below.
+  // First post-window import is all-or-nothing: every current-campaign R2
+  // manifest and every roster file must be validated below.
   if(end>Date.now()&&!early)throw Error('Current roster campaign window has not finished');
   if(end<Date.now()-6*86400000)throw Error('Campaign window exceeds R2 retention');
   const registry=(await json('docs/data/alliances.json'))
