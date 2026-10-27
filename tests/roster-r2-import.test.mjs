@@ -279,3 +279,77 @@ test('OAuth-only campaign: zero shared co-members, personal roster present, stil
   assert.equal(validManifestAndProgress({...p,selfCompleted:false},m,fp,window,now),false);
   assert.equal(validManifestAndProgress({...p,completed:-1},m,fp,window,now),false);
 });
+
+
+test('late import uses immutable requested PM receipt after next-day AM overwrites live pointers',async()=>{
+  const root='roster-batches/v1/'+fp+'/';
+  const map=new Map([
+    [root+'campaigns/'+window.campaign+'.json',{
+      version:1,campaign:window.campaign,progress:{...progress},
+      manifest:{...manifest}
+    }],
+    [root+'progress.json',{...progress,
+      campaign:'2026-10-24-am',runId:'a'.repeat(36)}],
+    [root+'latest-complete.json',{...manifest,
+      runId:'a'.repeat(36),capturedAt:'2026-10-24T04:30:00Z'}],
+    [root+runId+'/member-0.json',row(0,'Keryas I','volatile1')],
+    [root+runId+'/member-self.json',row('self','Second Player','volatile2')]
+  ]);
+  const reads=[];
+  const r2={getJSON:async key=>{reads.push(key);return map.get(key)??null;}};
+  const got=await loadRosterCampaign(r2,fp,window,now);
+  assert.equal(got.records.length,2);
+  assert.equal(got.capturedAt,manifest.capturedAt);
+  assert.equal(got.records[0].name,'Keryas I');
+  assert.ok(reads.includes(root+'campaigns/'+window.campaign+'.json'));
+  assert.equal(reads.includes(root+'progress.json'),false,
+    'A valid stored historical receipt must not depend on live progress');
+  assert.equal(reads.includes(root+'latest-complete.json'),false);
+  // Without the historical receipt the overwritten live pointers cannot
+  // legitimately reconstruct the previous campaign.
+  map.delete(root+'campaigns/'+window.campaign+'.json');
+  assert.equal(await loadRosterCampaign(r2,fp,window,now),null);
+});
+test('completed receipts retain strict scope, expiry and per-member integrity checks',async()=>{
+ const root='roster-batches/v1/'+fp+'/';
+ const receipts=[
+   {...progress,campaign:'2026-10-24-am'},
+   {...progress,completed:0},
+   {...progress,runId:'a'.repeat(36)}
+ ];
+ for(const p of receipts){
+   const map=new Map([
+     [root+'campaigns/'+window.campaign+'.json',{
+       version:1,campaign:window.campaign,progress:p,manifest
+     }],
+     [root+runId+'/member-0.json',row(0,'Keryas I','volatile1')],
+     [root+runId+'/member-self.json',row('self','Second Player','volatile2')]
+   ]);
+   assert.equal(await loadRosterCampaign({getJSON:async k=>map.get(k)??null},
+     fp,window,now),null);
+ }
+ const expired={...manifest,expiresAt:'2026-10-23T18:39:00Z'};
+ const map=new Map([
+   [root+'campaigns/'+window.campaign+'.json',{
+     version:1,campaign:window.campaign,progress,manifest:expired
+   }]
+ ]);
+ assert.equal(await loadRosterCampaign({getJSON:async k=>map.get(k)??null},
+   fp,window,now),null);
+ for(const corrupted of [
+   {version:1,campaign:'2026-10-24-am',progress,manifest},
+   {version:1,campaign:window.campaign,progress:null,manifest},
+   {version:7,campaign:window.campaign,progress,manifest}
+ ]){
+   map.set(root+'campaigns/'+window.campaign+'.json',corrupted);
+   await assert.rejects(loadRosterCampaign(
+     {getJSON:async k=>map.get(k)??null},fp,window,now),
+   /Invalid private R2 campaign completion receipt/);
+ }
+ // A valid receipt is never sufficient without every physical member file.
+ map.set(root+'campaigns/'+window.campaign+'.json',{
+   version:1,campaign:window.campaign,progress,manifest
+ });
+ assert.equal(await loadRosterCampaign({getJSON:async k=>map.get(k)??null},
+   fp,window,now),null);
+});
