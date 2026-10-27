@@ -147,7 +147,11 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/rosters.json docs/data/rosters_*.json .github/roster-r2-import-state.json
+          git add docs/data/rosters.json docs/data/rosters_*.json
+          # Before the first successful import the checkpoint does not yet exist.
+          if [ -f .github/roster-r2-import-state.json ]; then
+            git add .github/roster-r2-import-state.json
+          fi
           if git diff --cached --quiet; then
             echo "No changes to publish."
             exit 0
