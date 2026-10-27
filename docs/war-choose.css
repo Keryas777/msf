@@ -36,7 +36,7 @@
 /* ===== GRID ===== */
 .rankingsGrid{
   display:grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin-top: 2px;
   align-items: stretch;
@@ -47,7 +47,7 @@
   position: relative;
   display:block;
   justify-self:center;
-  width:91%;
+  width:min(100%,180px);
   border-radius: 22px;
   overflow: hidden;
 
@@ -157,7 +157,7 @@
 /* ===== RESPONSIVE ===== */
 @media (max-width: 720px){
   .rankingsGrid{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -171,11 +171,3 @@
   .rankingsTile, .rankingsTile::after{ transition: none !important; }
 }
 
-
-/* Même gabarit compact pour les hubs de navigation en portrait. */
-@media (orientation:portrait){
-  .rankingsTile{
-    width:min(84%, calc((100vh - 290px - env(safe-area-inset-bottom, 0px)) / 4));
-    width:min(84%, calc((100dvh - clamp(260px, 31dvh, 290px) - env(safe-area-inset-bottom, 0px)) / 4));
-  }
-}

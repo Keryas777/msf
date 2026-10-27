@@ -202,9 +202,9 @@
   width:40px;height:40px;top:12px;background:rgba(2,5,16,.74);
   border:1px solid rgba(255,255,255,.24);
 }
-/* Trois tuiles carrées : deux sur la première ligne, la troisième sous celle de droite. */
+/* Trois tuiles carrées sur la même ligne, y compris sur mobile. */
 .cosmicHubPage .cosmicHubGrid{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
   gap:9px;margin-top:0;
 }
 .cosmicHubPage .cosmicHubTile{
@@ -212,7 +212,7 @@
   --cosmic-glow-bright:rgba(137,208,255,.96);
   position:relative;isolation:isolate;display:flex;
   align-items:flex-end;justify-content:center;
-  width:92%;justify-self:center;min-width:0;min-height:0;aspect-ratio:1/1;
+  width:min(100%,180px);justify-self:center;min-width:0;min-height:0;aspect-ratio:1/1;
   padding:13px 7px 17px;text-align:center;overflow:hidden;
   border-radius:22px;border:2px solid rgba(255,255,255,.21);
   background:#081226 url("./cosmic-hub-contres.svg") center/cover no-repeat;
@@ -248,8 +248,8 @@
   --cosmic-glow:rgba(70,168,255,.64);--cosmic-glow-bright:rgba(113,211,255,.96);
 }
 .cosmicHubPage .cosmicHubTile--propose{
-  grid-column:2;justify-self:center;
-  width:92%;aspect-ratio:1/1;
+  grid-column:auto;justify-self:center;
+  width:min(100%,180px);aspect-ratio:1/1;
   background-image:url("./cosmic-hub-propose.svg");
   --cosmic-glow:rgba(168,104,248,.61);--cosmic-glow-bright:rgba(199,143,255,.97);
 }
@@ -322,7 +322,7 @@
 @media(min-width:680px){
   .cosmicHubPage .cosmicHubGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .cosmicHubPage .cosmicHubTile--propose{
-    grid-column:auto;justify-self:center;width:92%;aspect-ratio:1/1;
+    grid-column:auto;justify-self:center;width:min(100%,180px);aspect-ratio:1/1;
   }
   .cosmicHubPage .cosmicHubTile strong{font-size:clamp(19px,2.8vw,30px)}
 }
@@ -330,19 +330,10 @@
   .cosmicHubPage .cosmicHeader{height:116px;min-height:116px}
   .cosmicHubPage .cosmicHubGrid{gap:8px}
   .cosmicHubPage .cosmicHubTile{border-radius:18px;padding-bottom:13px}
-  .cosmicHubPage .cosmicHubTile--propose{width:92%}
+  .cosmicHubPage .cosmicHubTile--propose{width:min(100%,180px)}
   .cosmicHubPage .cosmicHubTile strong{font-size:clamp(15px,4.3vw,20px)}
 }
 @media(prefers-reduced-motion:reduce){
   .cosmicHubPage .cosmicHubTile{transition:none}
 }
 
-
-/* Gabarit des tuiles du hub cosmique ; le mode chantier reste inchangé. */
-@media (orientation:portrait){
-  .cosmicHubPage .cosmicHubTile,
-  .cosmicHubPage .cosmicHubTile--propose{
-    width:min(84%, calc((100vh - 290px - env(safe-area-inset-bottom, 0px)) / 4));
-    width:min(84%, calc((100dvh - clamp(260px, 31dvh, 290px) - env(safe-area-inset-bottom, 0px)) / 4));
-  }
-}
