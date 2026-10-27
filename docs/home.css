@@ -271,6 +271,11 @@
   --glow-strong: rgba(100, 245, 255, 1);
 }
 
+.homeTile--battleworld{
+  --glow: rgba(45, 236, 225, .72);
+  --glow-strong: rgba(90, 255, 243, 1);
+}
+
 .homeTile--codex{
   --glow: rgba(72, 218, 255, .72);
   --glow-strong: rgba(111, 232, 255, 1);
@@ -362,6 +367,7 @@
    de futures tuiles pourront les occuper naturellement. */
 .homeTile--contres{grid-row:1;grid-column:1}
 .homeTile--cosmic{grid-row:1;grid-column:2}
-.homeTile--joueurs{grid-row:2;grid-column:1}
-.homeTile--recommandations{grid-row:2;grid-column:2}
-.homeTile--codex{grid-row:3;grid-column:1}
+.homeTile--battleworld{grid-row:2;grid-column:1}
+.homeTile--joueurs{grid-row:2;grid-column:2}
+.homeTile--recommandations{grid-row:3;grid-column:1}
+.homeTile--codex{grid-row:3;grid-column:2}
