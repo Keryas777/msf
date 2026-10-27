@@ -254,7 +254,8 @@
   --glow-strong: rgba(255, 185, 70, .98);
 }
 
-.homeTile--conseils{
+.homeTile--conseils,
+.homeTile--recommandations{
   --glow: rgba(90, 255, 160, .68);
   --glow-strong: rgba(90, 255, 160, .98);
 }
@@ -362,11 +363,9 @@
 }
 
 
-/* Quatre rangées visibles en portrait, y compris dans la PWA iOS.
-   Codex reste en ligne 4, colonne 1 ; la case (ligne 3, colonne 2)
-   est volontairement libre pour une future tuile. */
+/* Accueil à cinq tuiles : Codex occupe la troisième rangée, sans rangée vide. */
 .homeTile--codex{
-  grid-row:4;
+  grid-row:3;
   grid-column:1;
 }
 @media (orientation:portrait){

@@ -1,0 +1,71 @@
+<!-- /docs/recommandations.html -->
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no" />
+    <style>
+      html.authChecking body { opacity: 0; pointer-events: none; }
+    </style>
+    <script>document.documentElement.classList.add("authChecking");</script>
+    <script src="./auth-guard.js?v=4"></script>
+    <meta name="theme-color" content="#0b0c0d" />
+    <title>Recommandations — LoSP</title>
+
+    <link rel="stylesheet" href="./style.css?v=4" />
+    <link rel="stylesheet" href="./home.css?v=11" />
+    <link rel="stylesheet" href="./recommandations.css?v=1" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icon-512.PNG" />
+    <meta name="apple-mobile-web-app-title" content="LoSP" />
+  </head>
+  <body>
+    <main class="app recommendationsHubPage">
+      <header class="header recommendationsHubHeader" aria-label="Recommandations">
+        <a href="./home.html" class="homeBtn" aria-label="Accueil">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+               aria-hidden="true">
+            <path d="m3 10 9-7 9 7" />
+            <path d="M5 9v12h14V9" />
+            <path d="M9 21v-7h6v7" />
+          </svg>
+        </a>
+        <div class="headerLeft">
+          <h1 class="title">Recommandations</h1>
+        </div>
+      </header>
+
+      <nav class="homeGrid" aria-label="Outils de recommandations">
+        <a href="./conseils.html" class="homeTile homeTile--conseils">
+          <img class="homeTileImg" src="./Conseils.webp" alt="Équipes recommandées"
+               loading="eager" decoding="async" />
+          <span class="srOnly">Équipes recommandées</span>
+        </a>
+
+        <a href="./iso.html" class="homeTile homeTile--iso">
+          <img class="homeTileImg" src="./ISO-8.webp" alt="ISO-8"
+               loading="eager" decoding="async" />
+          <span class="srOnly">ISO-8</span>
+        </a>
+      </nav>
+    </main>
+
+    <script>
+      (function () {
+        document.querySelectorAll(".recommendationsHubPage .homeTile").forEach((tile) => {
+          const press = () => {
+            tile.classList.add("is-pressed");
+            clearTimeout(tile.__pressTimer);
+            tile.__pressTimer = setTimeout(() => tile.classList.remove("is-pressed"), 220);
+          };
+          const release = () => tile.classList.remove("is-pressed");
+          tile.addEventListener("pointerdown", press, { passive: true });
+          tile.addEventListener("pointerup", release, { passive: true });
+          tile.addEventListener("pointercancel", release, { passive: true });
+          tile.addEventListener("mouseleave", release, { passive: true });
+        });
+      })();
+    </script>
+  </body>
+</html>
