@@ -108,9 +108,10 @@ jobs:
           DATA_DIR: docs/data
           OUT_FILE: docs/data/rosters.json
         run: |
-          node --test tests/roster-r2-import.test.mjs tests/merge-rosters-optional-iso.test.mjs tests/roster-r2-schedule.test.mjs
+          node --test tests/roster-r2-import.test.mjs tests/merge-rosters-optional-iso.test.mjs tests/roster-r2-schedule.test.mjs tests/roster-r2-publish-state.test.mjs
           node --check scripts/pull-rosters-r2.mjs
           node --check scripts/lib/roster-r2-import.mjs
+          node --check scripts/lib/roster-r2-publish-state.mjs
           node --check scripts/lib/private-r2-read.mjs
           if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.publish }}" = "true" ]; then
             node scripts/merge-rosters.mjs
@@ -120,7 +121,31 @@ jobs:
         shell: bash
         run: |
           unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' |
-            grep -Ev '^docs/data/rosters(_[a-z0-9-]+)?[.]json$' || true)"
+            grep -Ev '^(docs/data/rosters(_[a-z0-9-]+)?[.]json|[.]github/roster-r2-import-state[.]json)
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected modifications:"; echo "$unexpected"; exit 1
+          fi
+
+      - name: Commit validated roster files
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PUBLISH: ${{ inputs.publish }}
+        run: |
+          if [ "$EVENT_NAME" != "schedule" ] && [ "$INPUT_PUBLISH" != "true" ]; then
+            echo "Dry run: no GitHub write."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/rosters.json docs/data/rosters_*.json .github/roster-r2-import-state.json
+          if git diff --cached --quiet; then
+            echo "No changes to publish."
+            exit 0
+          fi
+          git commit -m "data: import authorized LoSP rosters from private R2"
+          git push origin HEAD:main
+ || true)"
           if [ -n "$unexpected" ]; then
             echo "Unexpected modifications:"; echo "$unexpected"; exit 1
           fi
