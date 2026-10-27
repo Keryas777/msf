@@ -21,7 +21,7 @@ function args(argv){
     else if(/^--date=\d{4}-\d{2}-\d{2}$/.test(arg))day=arg.slice(7);
     else if(/^--period=(am|pm)$/.test(arg))period=arg.slice(9);
     else if(arg.startsWith('--schedule='))schedule=arg.slice('--schedule='.length);
-    else throw Error('Usage: [--date=YYYY-MM-DD] [--period=am|pm] [--schedule=CRON] [--write] [--early]');
+    else throw Error('Usage: [--date=YYYY-MM-DD] [--period=am|pm] [--schedule=CRON] [--write] [--early] [--require-complete]');
   }
   if(early&&!['30 4 * * *','30 16 * * *'].includes(schedule))
     throw Error('Early import allowed only for dedicated scheduled trigger');
@@ -113,7 +113,7 @@ async function main(){
           already.includes(a.key)?'↩️ Campagne égale ou plus récente déjà publiée':
           '⚠️ Absente ou incomplète — ancien roster conservé')+' |'),
       '',
-      early&&skipped.length?'⏱️ Tentative anticipée : aucune écriture. '+
+      (early||requireComplete)&&skipped.length?'⏱️ Tentative stricte : aucune écriture. '+
         'Une ou plusieurs alliances sont encore en collecte ; les anciens fichiers restent inchangés.':
         skipped.length?'⚠️ Import partiel : '+skipped.length+
         ' alliance(s) sans campagne complète dans R2.':'✅ Toutes les alliances actualisées.',
@@ -123,7 +123,7 @@ async function main(){
     catch{console.error('Could not write optional GitHub Actions summary');}
   }
   if(!earlyImportReady(early||requireComplete,updates.size+already.length,registry.length)){
-    console.log('Early R2 check: '+updates.size+'/'+registry.length+
+    console.log('Strict R2 check: '+(updates.size+already.length)+'/'+registry.length+
       ' alliances complete; no publication until all are verified. '+
       'Later schedules will retry.');
     if(process.env.GITHUB_ACTIONS==='true')
