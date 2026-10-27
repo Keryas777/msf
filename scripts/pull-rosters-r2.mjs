@@ -3,6 +3,9 @@
 // GitHub Actions only: no OAuth, Scopely calls or public R2 endpoints.
 import fs from 'node:fs/promises';
 import {resolveRosterSchedule,earlyImportReady} from './lib/roster-r2-schedule.mjs';
+import {ROSTER_IMPORT_STATE_PATH,parseRosterImportState,
+  rosterCampaignIsNewer,advanceRosterImportState}
+  from './lib/roster-r2-publish-state.mjs';
 import {createPrivateR2Reader} from './lib/private-r2-read.mjs';
 import {readMapping} from './lib/alliance-r2-history.mjs';
 import {rosterWindow,loadRosterCampaign,convertAllianceRosters,keyOf}
@@ -36,6 +39,12 @@ function args(argv){
 async function main(){
   const {day,period,write,early}=args(process.argv.slice(2));
   const window=rosterWindow(day,period),end=Date.parse(window.endExclusive);
+  // Strict monotonic checkpoint across delayed, duplicated and out-of-order
+  // scheduled events. The checkpoint contains NO token, player ID or roster.
+  let priorState=null;
+  try{priorState=await json(ROSTER_IMPORT_STATE_PATH);}
+  catch(e){if(e.code!=='ENOENT')throw e;}
+  const publicationState=parseRosterImportState(priorState);
   // First post-window import is all-or-nothing: every current-campaign R2
   // manifest and every roster file must be validated below.
   if(end>Date.now()&&!early)throw Error('Current roster campaign window has not finished');
@@ -49,6 +58,7 @@ async function main(){
   const r2=createPrivateR2Reader();
   const updates=new Map();
   const skipped=[];
+  const already=[];
   const existing=new Map();
   for(const alliance of registry){
     const path='docs/data/rosters_'+alliance.key+'.json';
@@ -57,6 +67,12 @@ async function main(){
     existing.set(alliance.key,rows);
   }
   for(const alliance of registry){
+    if(!rosterCampaignIsNewer(publicationState,alliance.key,window.campaign)){
+      console.log(alliance.key+': already published '+
+        publicationState.alliances[alliance.key]+'; refuse older/equal '+window.campaign);
+      already.push(alliance.key);
+      continue;
+    }
     // Never treat a staged member batch or a previous campaign as complete.
     const result=await loadRosterCampaign(r2,fp[alliance.key],window);
     if(!result){
@@ -82,13 +98,15 @@ async function main(){
     const lines=[
       '## Import LoSP R2 — '+day+' / '+period.toUpperCase(),
       '',
-      '**Alliances avec nouvelle campagne validée : '+
-        updates.size+'/'+registry.length+'**',
+      '**Campagne '+window.campaign+' : '+updates.size+' nouveau(x), '+
+        already.length+' déjà à jour / plus récent(s), '+skipped.length+
+        ' absent(s) ou incomplet(s)**',
       '',
       '| Alliance | Campagne du jour |',
       '|---|---|',
       ...registry.map(a=>'| '+a.key+' | '+
         (updates.has(a.key)?'✅ Nouvelle archive R2 complète':
+          already.includes(a.key)?'↩️ Campagne égale ou plus récente déjà publiée':
           '⚠️ Absente ou incomplète — ancien roster conservé')+' |'),
       '',
       early&&skipped.length?'⏱️ Tentative anticipée : aucune écriture. '+
@@ -100,17 +118,23 @@ async function main(){
     try{await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,lines.join('\n'));}
     catch{console.error('Could not write optional GitHub Actions summary');}
   }
-  if(!earlyImportReady(early,updates.size,registry.length)){
+  if(!earlyImportReady(early,updates.size+already.length,registry.length)){
     console.log('Early R2 check: '+updates.size+'/'+registry.length+
       ' alliances complete; no publication until all are verified. '+
       'Later schedules will retry.');
     if(process.env.GITHUB_ACTIONS==='true')
       console.log('::notice title=Attente des rosters R2::'+
-        'Collecte encore en cours ('+updates.size+'/'+registry.length+
+        'Collecte encore en cours ('+(updates.size+already.length)+'/'+registry.length+
         '). Aucun fichier publié par cette tentative anticipée.');
     return;
   }
-  if(!updates.size)throw Error('No complete and current R2 roster campaign');
+  if(!updates.size){
+    console.log('No newer verified R2 roster campaign; existing published data retained.');
+    if(skipped.length&&process.env.GITHUB_ACTIONS==='true')
+      console.log('::warning title=Rattrapage R2 indisponible::'+
+        skipped.length+' alliance(s) sans archive historique complète pour '+window.campaign);
+    return;
+  }
   // Reject duplicates even across a mix of updated and retained alliances.
   const global=new Map();
   for(const alliance of registry){
@@ -132,5 +156,9 @@ async function main(){
     await fs.writeFile('docs/data/rosters_'+key+'.json',
       JSON.stringify(rows,null,2)+'\n');
   }
+  // Commit the checkpoint atomically with roster outputs in the workflow.
+  // If Git push fails, none of the updates or this checkpoint are published.
+  const next=advanceRosterImportState(publicationState,updates.keys(),window.campaign);
+  await fs.writeFile(ROSTER_IMPORT_STATE_PATH,JSON.stringify(next,null,2)+'\n');
 }
 main().catch(e=>{console.error('Private R2 roster importer:',e.message);process.exitCode=1;});
