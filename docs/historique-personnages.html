@@ -966,11 +966,11 @@
       }
 
       .filters {
-        order: 1;
+        order: 2;
       }
 
       .viewTabs {
-        order: 2;
+        order: 1;
       }
 
       .content {
@@ -1069,7 +1069,7 @@
         }
       }
     </style>
-    <link rel="stylesheet" href="./historique-personnages-theme.css?v=4" />
+    <link rel="stylesheet" href="./historique-personnages-theme.css?v=5" />
 
     <script src="./auth-guard.js?v=4"></script>
     <link rel="manifest" href="./manifest.webmanifest" />
@@ -1119,7 +1119,7 @@
         <div class="viewTabs" role="tablist" aria-label="Mode d’affichage">
           <button class="viewTab" type="button" role="tab" data-view="timeline" aria-selected="false">Chronologie</button>
           <button class="viewTab" type="button" role="tab" data-view="characters" aria-selected="true">Personnages</button>
-          <button class="viewTab" type="button" role="tab" data-view="rankings" aria-selected="false">Classements</button>
+          <button class="viewTab" type="button" role="tab" data-view="rankings" aria-selected="false">Top 10</button>
         </div>
 
         <section class="filters archiveFilters" aria-label="Filtres de l’historique">
@@ -1199,6 +1199,7 @@
         const els = {
           content: document.getElementById("content"),
           archiveSummary: document.querySelector(".archiveSummary"),
+          filterPanel: document.querySelector(".archiveFilters"),
           searchInput: document.getElementById("searchInput"),
           yearFilter: document.getElementById("yearFilter"),
           sortSelect: document.getElementById("sortSelect"),
@@ -1213,6 +1214,8 @@
           detailModal: document.getElementById("detailModal"),
           detailContent: document.getElementById("detailContent")
         };
+
+        const allSortOptions = Array.from(els.sortSelect.options, (option) => option.cloneNode(true));
 
         const monthFormatter = new Intl.DateTimeFormat("fr-FR", {
           month: "long",
@@ -1531,7 +1534,24 @@
           }
         }
 
+        function syncViewControls() {
+          const isRankings = state.view === "rankings";
+          els.filterPanel.hidden = isRankings;
+          if (isRankings) return;
+
+          const options = state.view === "timeline" ? allSortOptions.slice(0, 2) : allSortOptions;
+          els.sortSelect.replaceChildren(...options.map((option) => option.cloneNode(true)));
+          if (!options.some((option) => option.value === state.filters.sort)) {
+            state.filters.sort = "oldest";
+          }
+          els.sortSelect.value = state.filters.sort;
+        }
+
         function getFilteredCharacters() {
+          if (state.view === "rankings") {
+            return state.characters.filter((record) => Boolean(record.release));
+          }
+
           const query = normalizeSearch(state.filters.query);
 
           let result = state.characters.filter((record) => {
@@ -2132,6 +2152,7 @@
               const view = button.dataset.view;
               if (!view || view === state.view) return;
               state.view = view;
+              syncViewControls();
               document.querySelectorAll(".viewTab").forEach((tab) => {
                 tab.setAttribute("aria-selected", String(tab === button));
               });
@@ -2183,6 +2204,7 @@
 
         async function load() {
           bindEvents();
+          syncViewControls();
           try {
             const [historyResponse, charactersResponse] = await Promise.all([
               fetch(DATA_URL, { cache: "no-store" }),
