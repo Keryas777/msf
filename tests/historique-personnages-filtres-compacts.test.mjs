@@ -25,7 +25,7 @@ test("uniquement recherche, année et tri, avec Année/Tri sur la même ligne", 
   assert.doesNotMatch(filters, /id="typeFilter"|id="reworkFilter"/);
   assert.match(theme, /\.archiveApp \.filterGrid\.filterGrid--compact \{\s*grid-template-columns: minmax\(0, 2fr\) minmax\(0, 3fr\)/);
   assert.match(theme, /\.archiveApp \.filterGrid--compact \.field--search \{\s*grid-column: 1 \/ -1;/);
-  assert.match(html, /historique-personnages-theme\.css\?v=3/);
+  assert.match(html, /historique-personnages-theme\.css\?v=5/);
 });
 
 test("aucun accès aux champs supprimés, reset sécurisé et script valide", () => {
@@ -93,4 +93,60 @@ test("chronologie conserve tous les types d'événements et le filtre année", (
   state.filters.query = "alpha";
   assert.equal(getEvents().length, 1);
   assert.equal(getEvents()[0].type, "launch");
+});
+
+test("les onglets précèdent les filtres et Classements devient Top 10", () => {
+  assert.ok(html.indexOf('class="viewTabs"') < html.indexOf('class="filters archiveFilters"'));
+  assert.match(html, /data-view="rankings" aria-selected="false">Top 10<\/button>/);
+  assert.match(theme, /\.archiveApp \.viewTabs \{\s*order: 1;/);
+  assert.match(theme, /\.archiveApp \.filters\.archiveFilters \{\s*order: 2;/);
+  assert.match(theme, /\.archiveApp \.filters\.archiveFilters\[hidden\] \{ display: none; \}/);
+});
+
+test("Top 10 ignore tous les filtres actifs sans masquer les personnages des autres vues", () => {
+  const snippet = extractFunction("getFilteredCharacters", "createPortraitHtml");
+  const character = (id, year) => ({
+    id, name: id, searchText: id.toLowerCase(),
+    release: year ? { temporal: { year, key: year + "-01-01" } } : null,
+    reworks: []
+  });
+  const state = {
+    view: "rankings",
+    characters: [character("Alpha", 2018), character("Beta", 2026), character("Unknown", null)],
+    filters: { query: "absent", year: "2020", sort: "reworks" }
+  };
+  const filtered = runInNewContext(snippet + "\ngetFilteredCharacters", {
+    state,
+    normalizeSearch: value => String(value).toLowerCase().trim()
+  });
+  assert.deepEqual(Array.from(filtered(), record => record.id), ["Alpha", "Beta"]);
+  state.view = "characters";
+  assert.equal(filtered().length, 0, "la recherche reste active dans Personnages");
+});
+
+test("la chronologie propose deux tris, le catalogue conserve quatre tris", () => {
+  const snippet = extractFunction("syncViewControls", "getFilteredCharacters");
+  const makeOption = value => ({
+    value,
+    cloneNode() { return makeOption(value); }
+  });
+  const state = { view: "timeline", filters: { sort: "reworks" } };
+  const select = {
+    options: [],
+    value: "",
+    replaceChildren(...options) { this.options = options; }
+  };
+  const els = { filterPanel: { hidden: false }, sortSelect: select };
+  const allSortOptions = ["oldest", "newest", "name", "reworks"].map(makeOption);
+  const sync = runInNewContext(snippet + "\nsyncViewControls", { state, els, allSortOptions });
+  sync();
+  assert.deepEqual(select.options.map(option => option.value), ["oldest", "newest"]);
+  assert.equal(state.filters.sort, "oldest", "un ancien tri non applicable est réinitialisé");
+  state.view = "characters";
+  sync();
+  assert.deepEqual(select.options.map(option => option.value), ["oldest", "newest", "name", "reworks"]);
+  state.view = "rankings";
+  sync();
+  assert.equal(els.filterPanel.hidden, true);
+  assert.equal(select.options.length, 4, "Top 10 n'altère pas le tri d'une autre vue");
 });
