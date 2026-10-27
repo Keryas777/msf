@@ -13,7 +13,7 @@ const progress={version:1,fingerprint:fp,runId,campaign:day+'-pm',
   membershipDigest:digest,completed:1,totalEligible:1,observedMembers:2,
   selfCompleted:true,expiresAt:'2026-10-29T16:00:00Z'};
 const manifest={version:1,fingerprint:fp,runId,membershipDigest:digest,
-  capturedAt:'2026-10-23T17:30:00Z',expiresAt:progress.expiresAt,
+  capturedAt:'2026-10-23T15:30:00Z',expiresAt:progress.expiresAt,
   total:2,coMembers:1,observedMembers:2,includesPersonal:true};
 const chars=[{id:'SpiderMan',power:3000000,level:110,gearTier:21,
   activeYellow:7,activeRed:9,iso8:{activeClass:'raider'}},
@@ -22,7 +22,7 @@ const chars=[{id:'SpiderMan',power:3000000,level:110,gearTier:21,
 const row=(index,name,id)=>({
   version:1,kind:index==='self'?'private-staged-personal-roster':'private-staged-microbatch',
   allianceFingerprint:fp,runId,memberIndex:index,name,
-  volatileMemberId:id,capturedAt:'2026-10-23T17:22:00Z',
+  volatileMemberId:id,capturedAt:'2026-10-23T15:22:00Z',
   expiresAt:progress.expiresAt,characters:chars
 });
 function fixture(p=progress,m=manifest,members=[row(0,'Keryas I','volatile1'),
@@ -37,8 +37,9 @@ function fixture(p=progress,m=manifest,members=[row(0,'Keryas I','volatile1'),
 }
 test('roster campaign windows are strictly UTC and distinct',()=>{
   assert.equal(window.start,'2026-10-23T14:00:00.000Z');
-  assert.equal(window.endExclusive,'2026-10-23T18:00:00.000Z');
+  assert.equal(window.endExclusive,'2026-10-23T16:00:00.000Z');
   assert.equal(rosterWindow(day,'am').start,'2026-10-23T02:00:00.000Z');
+  assert.equal(rosterWindow(day,'am').endExclusive,'2026-10-23T04:00:00.000Z');
   assert.throws(()=>rosterWindow('2026-02-30','am'));
   assert.throws(()=>rosterWindow(day,'invalid'));
 });
@@ -53,6 +54,12 @@ test('only current completed same-campaign manifests are usable',async()=>{
   assert.equal(await loadRosterCampaign(fixture(progress,{...manifest,runId:'0'.repeat(36)}),fp,window,now),null);
   assert.equal(await loadRosterCampaign(fixture(progress,{...manifest,observedMembers:3}),fp,window,now),null);
   const earlier={...manifest,capturedAt:'2026-10-23T05:50:00Z'};
+  assert.equal(validManifestAndProgress(progress,
+    {...manifest,capturedAt:'2026-10-23T16:00:00Z'},fp,window,now),false);
+  const afterEnd=row(0,'Keryas I','volatile1');
+  afterEnd.capturedAt='2026-10-23T16:00:00Z';
+  assert.equal(await loadRosterCampaign(fixture(progress,manifest,[afterEnd,
+    row('self','Second Player','volatile2')]),fp,window,now),null);
   assert.equal(await loadRosterCampaign(fixture(progress,earlier),fp,window,now),null);
   const missing=fixture();
   missing.getJSON=async k=>k.endsWith('/member-0.json')?null:
