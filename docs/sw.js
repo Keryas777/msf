@@ -1,6 +1,6 @@
 // docs/sw.js
 
-const CACHE = "losp-v16";
+const CACHE = "losp-v17";
 
 const CORE_ASSETS = [
   "./",
@@ -31,7 +31,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(CACHE)
-      .then((cache) => cache.addAll(CORE_ASSETS))
+      .then((cache) => cache.addAll(CORE_ASSETS.map((asset) => new Request(asset, { cache: "reload" }))))
       .then(() => self.skipWaiting())
   );
 });
@@ -73,9 +73,9 @@ const isImageOrFont = (url) => {
   return /\.(png|jpg|jpeg|webp|svg|woff2?|ico)$/i.test(url.pathname);
 };
 
-async function networkFirst(request, fallbackUrl = null) {
+async function networkFirst(request, fallbackUrl = null, bypassHttpCache = false) {
   try {
-    const response = await fetch(request);
+    const response = bypassHttpCache ? await fetch(request, { cache: "no-store" }) : await fetch(request);
 
     if (response && response.ok) {
       const cache = await caches.open(CACHE);
@@ -137,7 +137,7 @@ self.addEventListener("fetch", (event) => {
 
   // HTML : toujours réseau d'abord, fallback home si offline.
   if (isHtmlRequest(request, url)) {
-    event.respondWith(networkFirst(request, "./home.html"));
+    event.respondWith(networkFirst(request, "./home.html", true));
     return;
   }
 
