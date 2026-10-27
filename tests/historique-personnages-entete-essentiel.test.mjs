@@ -21,7 +21,7 @@ test("la vue Personnages s'ouvre sans textes de présentation ni bloc historique
   assert.doesNotMatch(html, /Sorties et reworks, capacités et classement des personnages/);
   assert.match(html, /<section class="hero card archiveSummary"[^>]* hidden>/);
   assert.match(theme, /\.archiveApp \.hero\.archiveSummary\[hidden\] \{ display: none; \}/);
-  assert.match(html, /historique-personnages-theme\.css\?v=5/);
+  assert.match(html, /historique-personnages-theme\.css\?v=6/);
   assert.doesNotThrow(() => new Function(script));
 });
 
@@ -33,7 +33,7 @@ test("les quatre statistiques et le statut historique restent disponibles", () =
   assert.doesNotMatch(script, /Les futures années du JSON s’ajouteront automatiquement/);
 });
 
-test("la navigation affiche les statistiques seulement dans les deux vues historiques", () => {
+test("la navigation conserve les statistiques dans les trois vues", () => {
   const state = { view: "characters" };
   const els = {
     archiveSummary: { hidden: true },
@@ -50,7 +50,7 @@ test("la navigation affiche les statistiques seulement dans les deux vues histor
     renderTimeline: () => "chronologie visible"
   });
   render();
-  assert.equal(els.archiveSummary.hidden, true);
+  assert.equal(els.archiveSummary.hidden, false);
   assert.equal(els.content.innerHTML, "catalogue visible");
   state.view = "timeline";
   render();
@@ -62,7 +62,7 @@ test("la navigation affiche les statistiques seulement dans les deux vues histor
   assert.equal(els.content.innerHTML, "classements visibles");
   state.view = "characters";
   render();
-  assert.equal(els.archiveSummary.hidden, true);
+  assert.equal(els.archiveSummary.hidden, false);
   assert.equal(els.content.innerHTML, "catalogue visible");
 });
 
@@ -74,4 +74,13 @@ test("la recherche, les filtres, les trois vues et les fiches restent accessible
     assert.match(html, new RegExp('data-view="' + view + '"'));
   }
   assert.match(script, /LoSPCharacterProfiles\?\.attach/);
+});
+
+test("le résumé historique est compact sur mobile", () => {
+  assert.match(theme, /\.archiveApp \.hero\.archiveSummary \{\s*order: 0;\s*padding: 8px 10px 9px;/);
+  assert.match(theme, /\.archiveApp \.statsGrid \{\s*grid-template-columns: repeat\(2,minmax\(0,1fr\)\);/);
+  assert.match(theme, /\.archiveApp \.statCard \{\s*display: flex;\s*align-items: center;/);
+  assert.match(theme, /\.archiveApp \.statCard span \{\s*min-width: 0;\s*margin-top: 0;/);
+  assert.match(theme, /@media \(max-width: 370px\)/);
+  assert.match(script, /els\.archiveSummary\.hidden = false;/);
 });
