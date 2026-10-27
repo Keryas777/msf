@@ -48,7 +48,10 @@ async function main(){
   const publicationState=parseRosterImportState(priorState);
   // First post-window import is all-or-nothing: every current-campaign R2
   // manifest and every roster file must be validated below.
-  if(end>Date.now()&&!early)throw Error('Current roster campaign window has not finished');
+  // A Worker-issued strict dispatch may run BEFORE the scheduled window end,
+  // but is all-or-nothing and validates the complete receipt for every alliance.
+  if(end>Date.now()&&!early&&!requireComplete)
+    throw Error('Current roster campaign window has not finished');
   if(end<Date.now()-6*86400000)throw Error('Campaign window exceeds R2 retention');
   const registry=(await json('docs/data/alliances.json'))
     .filter(a=>a&&a.active!==false);
