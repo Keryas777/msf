@@ -13,10 +13,11 @@ import {rosterWindow,loadRosterCampaign,convertAllianceRosters,keyOf}
 
 async function json(path){return JSON.parse(await fs.readFile(path,'utf8'));}
 function args(argv){
-  let day=null,period=null,write=false,early=false,schedule=null;
+  let day=null,period=null,write=false,early=false,requireComplete=false,schedule=null;
   for(const arg of argv){
     if(arg==='--write')write=true;
     else if(arg==='--early')early=true;
+    else if(arg==='--require-complete')requireComplete=true;
     else if(/^--date=\d{4}-\d{2}-\d{2}$/.test(arg))day=arg.slice(7);
     else if(/^--period=(am|pm)$/.test(arg))period=arg.slice(9);
     else if(arg.startsWith('--schedule='))schedule=arg.slice('--schedule='.length);
@@ -34,10 +35,10 @@ function args(argv){
     day??=current.toISOString().slice(0,10);
     period??=current.getUTCHours()>=14?'pm':'am';
   }
-  return {day,period,write,early};
+  return {day,period,write,early,requireComplete};
 }
 async function main(){
-  const {day,period,write,early}=args(process.argv.slice(2));
+  const {day,period,write,early,requireComplete}=args(process.argv.slice(2));
   const window=rosterWindow(day,period),end=Date.parse(window.endExclusive);
   // Strict monotonic checkpoint across delayed, duplicated and out-of-order
   // scheduled events. The checkpoint contains NO token, player ID or roster.
@@ -118,7 +119,7 @@ async function main(){
     try{await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,lines.join('\n'));}
     catch{console.error('Could not write optional GitHub Actions summary');}
   }
-  if(!earlyImportReady(early,updates.size+already.length,registry.length)){
+  if(!earlyImportReady(early||requireComplete,updates.size+already.length,registry.length)){
     console.log('Early R2 check: '+updates.size+'/'+registry.length+
       ' alliances complete; no publication until all are verified. '+
       'Later schedules will retry.');
