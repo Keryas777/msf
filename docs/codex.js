@@ -490,7 +490,7 @@ function renderError(message, title = "Fiche indisponible", action = true) {
     <section class="codexErrorState">
       <h1>${escapeHtml(title)}</h1>
       <p>${escapeHtml(message)}</p>
-      ${action ? `<a class="codexPrimaryButton" href="./codex.html" data-codex-link>Revenir au Codex</a>` : ""}
+      ${action ? `<a class="codexPrimaryButton" href="./codex.html?view=mechanics" data-codex-link>Revenir au Codex</a>` : ""}
     </section>
   `;
 }
@@ -501,14 +501,17 @@ function setBreadcrumbs(items = []) {
     dom.breadcrumbs.replaceChildren();
     return;
   }
-  const fullItems = [{ label: "Codex", route: { view: "home" } }, ...items];
+  const fullItems = [{ label: "Accueil", href: "./home.html" }, ...items];
   dom.breadcrumbs.innerHTML = fullItems.map((item, index) => {
     const isLast = index === fullItems.length - 1;
     const separator = index
       ? `<span class="codexBreadcrumbSeparator" aria-hidden="true">›</span>`
       : "";
-    if (isLast || !item.route) {
+    if (isLast || (!item.route && !item.href)) {
       return `${separator}<span aria-current="page">${escapeHtml(item.label)}</span>`;
+    }
+    if (item.href) {
+      return `${separator}<a href="${escapeHtml(item.href)}">${escapeHtml(item.label)}</a>`;
     }
     return `${separator}<a href="${escapeHtml(buildCodexHref(item.route))}" data-codex-link>${escapeHtml(item.label)}</a>`;
   }).join("");
@@ -2340,6 +2343,11 @@ function operationModel(context) {
 }
 
 async function renderRoute(route, options = {}) {
+  // L'ancien hub n'est plus une destination : les anciens liens ouvrent les mécaniques.
+  if (route.view === "home" && !route.invalid) {
+    route = parseRoute("?view=mechanics");
+    history.replaceState(history.state, "", buildCodexHref(route));
+  }
   // Keep the live search form and its listeners when replacing the landing markup.
   if (dom.searchForm.parentElement !== dom.breadcrumbs.parentElement) {
     dom.breadcrumbs.before(dom.searchForm);
@@ -2360,9 +2368,6 @@ async function renderRoute(route, options = {}) {
   try {
     let model;
     switch (route.view) {
-      case "home":
-        model = homeModel();
-        break;
       case "characters":
         model = await charactersModel();
         break;
@@ -2637,7 +2642,7 @@ function bindEvents() {
     dom.searchStatus.textContent = "";
     closeSearchPanel();
     if (state.route.view === "search") {
-      await navigate({ view: "home" }, "replace", { focusMain: false });
+      await navigate({ view: "mechanics" }, "replace", { focusMain: false });
     }
     dom.searchInput.focus();
   });
