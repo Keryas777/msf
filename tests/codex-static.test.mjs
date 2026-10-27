@@ -150,7 +150,7 @@ test("les tuiles de l'accueil conservent leur ordre sans Statistiques Guerres", 
   // Battleworld garde l'emplacement n°2, sans lien ni tuile factice.
   assert.match(
     homeHtml,
-    /<span class="srOnly">Guerre<\/span>\s*<\/a>\s*<div class="homeTileSlot--battleworld" aria-hidden="true"><\/div>\s*<a href="\.\/conseils\.html"/
+    /<span class="srOnly">Guerre<\/span>\s*<\/a>\s*<!-- Case volontairement vide : future tuile Battleworld\. -->\s*<div class="homeTileSlot--battleworld" aria-hidden="true"><\/div>\s*<a href="\.\/conseils\.html"/
   );
   assert.match(homeHtml, /Codex MSF — Personnages, capacités et mécaniques/);
   assert.match(homeCss, /homeTile--codex::before[\s\S]*content:"📖"/);
