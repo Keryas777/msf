@@ -33,7 +33,7 @@ on:
         default: am
         required: true
       strict:
-        description: "Require every alliance R2 receipt (Worker-triggered import)"
+        description: "Require all alliance receipts (Worker-triggered import)"
         type: boolean
         default: false
         required: false
@@ -130,7 +130,7 @@ jobs:
         shell: bash
         run: |
           unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' |
-            grep -Ev '^(docs/data/rosters(_[a-z0-9-]+)?[.]json|[.]github/roster-r2-import-state[.]json)
+            grep -Ev '^(docs/data/rosters(_[a-z0-9-]+)?[.]json|[.]github/roster-r2-import-state[.]json)$' || true)"
           if [ -n "$unexpected" ]; then
             echo "Unexpected modifications:"; echo "$unexpected"; exit 1
           fi
@@ -148,30 +148,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/data/rosters.json docs/data/rosters_*.json .github/roster-r2-import-state.json
-          if git diff --cached --quiet; then
-            echo "No changes to publish."
-            exit 0
-          fi
-          git commit -m "data: import authorized LoSP rosters from private R2"
-          git push origin HEAD:main
- || true)"
-          if [ -n "$unexpected" ]; then
-            echo "Unexpected modifications:"; echo "$unexpected"; exit 1
-          fi
-
-      - name: Commit validated roster files
-        shell: bash
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          INPUT_PUBLISH: ${{ inputs.publish }}
-        run: |
-          if [ "$EVENT_NAME" != "schedule" ] && [ "$INPUT_PUBLISH" != "true" ]; then
-            echo "Dry run: no GitHub write."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/rosters.json docs/data/rosters_*.json
           if git diff --cached --quiet; then
             echo "No changes to publish."
             exit 0
