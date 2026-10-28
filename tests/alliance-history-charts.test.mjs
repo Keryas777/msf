@@ -23,7 +23,7 @@ const shifted=(days,options={})=>({
     raidRank:a.raidRank+days,
     warRank:a.warRank+days}))
 });
-test('standalone page is not linked from home and has exactly two levels of chips',()=>{
+test('history is linked from home and has exactly two levels of chips',()=>{
   const html=read('docs/alliance-history.html');
   assert.match(html,/id="history-war"[^>]*data-mode="war"/);
   assert.match(html,/id="history-raid"[^>]*data-mode="raid"/);
@@ -33,7 +33,7 @@ test('standalone page is not linked from home and has exactly two levels of chip
   assert.match(html,/data-chart="war-season-rank"/);
   assert.match(html,/data-chart="raid-season-rank"/);
   assert.match(html,/id="history-plot"/);
-  assert.doesNotMatch(read('docs/home.html'),/alliance-history\.html/);
+  assert.match(read('docs/home.html'),/alliance-history\.html/);
   assert.doesNotMatch(read('docs/classements.html'),/alliance-history\.html/);
 });
 test('five original alliances render by dynamic registry with official colors and values',()=>{
@@ -227,7 +227,7 @@ test('page reads the configured calendar, preserves authorization and cache bust
   assert.match(html,/auth-guard\.js/);
   assert.match(html,/alliance-history-data\.js\?v=5/);
   assert.match(html,/alliance-history\.js\?v=12/);
-  assert.match(html,/alliance-history\.css\?v=4/);
+  assert.match(html,/alliance-history\.css\?v=5/);
 });
 
 test('22 October adds exactly a second real trophy point, not a second season ranking',()=>{
