@@ -200,6 +200,18 @@
   color: #fff;
 }
 
+.evolutionStatIcon {
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+  line-height: 1;
+  font-family: Arial, sans-serif;
+}
+
+.evolutionStatIcon--yellow { color: #ffd54a; }
+.evolutionStatIcon--red { color: #ff5867; }
+.evolutionStatIcon--diamond { color: #4dabff; }
+
 @media (max-width: 420px) {
   .evolutionField .label {
     font-size: .78rem;
