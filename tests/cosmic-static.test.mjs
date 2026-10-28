@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { runInNewContext } from "node:vm";
 const read = path => readFile(new URL("../" + path, import.meta.url), "utf8");
 
 test("hub cosmique : navigation et authentification", async () => {
@@ -309,13 +310,30 @@ test("Marvel Church saison 25 : recommandations DÉFENSIVES importées sans inve
 });
 
 
+test("consultation : défenses des joueurs avant Marvel Church, ordre des guides conservé", async () => {
+  const sandbox = {};
+  runInNewContext(await read("docs/cosmic-defense-catalog.js"), sandbox);
+  const catalog = sandbox.LoSPCosmicDefenseCatalog;
+  const entries = [
+    { source: "Marvel Church", name: "Best Defense — Guide 1" },
+    { source: "Personnel", author: "Alice", name: "Défense de Alice" },
+    { source: "Marvel Church", name: "Budget Defense — Guide 3" },
+    { source: "", author: "Bob", name: "Défense de Bob" },
+    { source: "Marvel Church", name: "Optimal Defense — Guide 2" }
+  ];
+  assert.deepEqual(Array.from(catalog.sortedForDisplay(entries), entry => entry.name), [
+    "Défense de Alice", "Défense de Bob",
+    "Best Defense — Guide 1", "Optimal Defense — Guide 2", "Budget Defense — Guide 3"
+  ]);
+});
+
 test("consultation : badges français, titres séparés, sources homogènes et cache mobile", async () => {
   const [html,js,css,catalog]=await Promise.all([
     read("docs/cosmic-defenses.html"),read("docs/cosmic-defenses.js"),
     read("docs/cosmic.css"),read("docs/cosmic-defense-catalog.js")
   ]);
   assert.match(html,/cosmic\.css\?v=10/);
-  assert.match(html,/cosmic-defense-catalog\.js\?v=3/);
+  assert.match(html,/cosmic-defense-catalog\.js\?v=4/);
   assert.match(html,/cosmic-defenses\.js\?v=13/);
   assert.match(js,/catalog\.sortedForDisplay\(list\.filter/);
   assert.match(js,/catalog\.presentationFor\(entry\)/);
@@ -340,7 +358,7 @@ test("publication : titre facultatif, conservé dans le brouillon et envoyé au 
   ]);
   assert.match(html,/id="proposalTitle"[^>]*maxlength="60"/);
   assert.match(html,/cosmic-defenses\.js\?v=11/);
-  assert.match(browse,/cosmic-defense-catalog\.js\?v=3/);
+  assert.match(browse,/cosmic-defense-catalog\.js\?v=4/);
   assert.match(browse,/cosmic-defenses\.js\?v=13/);
   assert.match(js,/title: safeText\(proposalTitle\?\.value, 60\)/);
   assert.match(js,/if \(proposalTitle\) proposalTitle\.value = safeText\(draft\.title, 60\)/);

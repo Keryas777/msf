@@ -107,10 +107,14 @@
   }
 
   function sortedForDisplay(entries) {
-    // Stable au sein d'une catégorie, même lorsque deux variantes coexistent.
+    // Les défenses LoSP passent en premier ; les guides conservent leur ordre stratégique.
     return (Array.isArray(entries) ? entries : [])
-      .map((entry, index) => ({ entry, index, order: presentationFor(entry).order }))
-      .sort((a, b) => a.order - b.order || a.index - b.index)
+      .map((entry, index) => ({
+        entry, index,
+        sourceOrder: personalSources.has(normalize(entry?.source)) ? 0 : 1,
+        order: presentationFor(entry).order
+      }))
+      .sort((a, b) => a.sourceOrder - b.sourceOrder || a.order - b.order || a.index - b.index)
       .map(item => item.entry);
   }
 
