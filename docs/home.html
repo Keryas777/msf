@@ -221,24 +221,55 @@
     </script>
 
     <script>
-      (async function () {
+      (function () {
         const el = document.getElementById("homeRosterUpdatedAt");
         if (!el) return;
-        try {
-          const response = await fetch("./data/rosters-meta.json", { cache: "no-store" });
-          if (!response.ok) throw new Error("Roster metadata unavailable");
-          const { updatedAt } = await response.json();
-          if (typeof updatedAt !== "string") throw new Error("Missing roster date");
-          const date = new Date(updatedAt);
-          if (Number.isNaN(date.getTime())) throw new Error("Invalid roster date");
-          const formatted = new Intl.DateTimeFormat("fr-FR", {
-            day: "2-digit", month: "2-digit", year: "numeric",
-            hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris"
-          }).format(date);
-          el.textContent = "Rosters actualisés le " + formatted;
-        } catch (error) {
-          el.textContent = "Dernière actualisation des rosters indisponible";
+
+        let refreshCounter = 0;
+
+        async function refreshRosterDate() {
+          const current = ++refreshCounter;
+          el.textContent = "Actualisation des rosters : vérification en ligne…";
+
+          try {
+            // Un URL unique par lecture évite tout fallback en cache,
+            // y compris avec un ancien service worker encore actif sur iOS.
+            const url = new URL("./data/rosters-meta.json", location.href);
+            url.searchParams.set("_live", Date.now() + "-" + current);
+            const response = await fetch(url.href, { cache: "no-store" });
+            if (!response.ok) throw new Error("Roster metadata unavailable");
+
+            const { updatedAt } = await response.json();
+            if (typeof updatedAt !== "string") throw new Error("Missing roster date");
+            const date = new Date(updatedAt);
+            if (Number.isNaN(date.getTime())) throw new Error("Invalid roster date");
+
+            const formatted = new Intl.DateTimeFormat("fr-FR", {
+              day: "2-digit", month: "2-digit", year: "numeric",
+              hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris"
+            }).format(date);
+
+            if (current === refreshCounter) {
+              el.textContent = "Rosters actualisés le " + formatted;
+            }
+          } catch (_) {
+            if (current === refreshCounter) {
+              el.textContent = "Actualisation des rosters indisponible (connexion requise)";
+            }
+          }
         }
+
+        refreshRosterDate();
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden) refreshRosterDate();
+        });
+        window.addEventListener("pageshow", (event) => {
+          if (event.persisted) refreshRosterDate();
+        });
+        window.addEventListener("online", refreshRosterDate);
+        window.setInterval(() => {
+          if (!document.hidden) refreshRosterDate();
+        }, 60000);
       })();
     </script>
 
