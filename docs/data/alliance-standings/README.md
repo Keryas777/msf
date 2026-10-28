@@ -260,3 +260,27 @@ versions Git restent accessibles même si le JSON est écrasé deux fois par jou
 dans chaque campagne et les variantes du schéma ISO de l'API `/roster`.
 Les tests de la PR utilisent des fixtures, pas une lecture des R2 de production.
 L'accès du navigateur aux données privées n'est pas ouvert.
+
+## Réveil Cloudflare anticipé pour les trophées (octobre 2026)
+
+Le Roster Service possède déjà un `workflow_dispatch` rapide pour les rosters.
+Le même mécanisme est prévu pour les trophées : la première requête
+`/player/v1/alliance/card` faite lors de la vérification d'un capitaine
+autorisé est archivée dans R2 privé, sans requête officielle supplémentaire.
+Quand les alliances approuvées ont chacune leur fiche du jeudi ou samedi
+matin (02:00–04:00 UTC), Cloudflare lance
+`pull-alliance-standings-r2.yml` avec `early=true` et le jour UTC.
+
+Le script d'import utilise alors les marqueurs privés
+`roster-batches/v1/<empreinte>/campaigns/<jour>-am-trophy-card.json`
+pour retrouver les sources. Il **relit et revalide les enveloppes officielles**,
+identités, timestamps et valeurs : aucun résultat partiel, obsolète ou
+falsifié n'est publié. Les marqueurs servent seulement de pointeurs.
+Le traitement reste idempotent par jour UTC. L'import normal basé sur
+`02:00–06:00 UTC`, conservé en compatibilité, reste disponible lors des
+schedules GitHub de secours ; il n'attend pas des reçus de rosters complets.
+
+L'autorisation de publication et les réserves contractuelles de rétention
+restent inchangées : `LOSP_R2_HISTORY_PUBLICATION_APPROVED=true` est
+nécessaire avant tout commit de ces données. L'appel Cloudflare à GitHub
+ne transporte ni carte d'alliance ni jeton OAuth.

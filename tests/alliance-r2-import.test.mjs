@@ -4,7 +4,8 @@ import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 import {
   collectionWindow,readMapping,extractAllianceSource,
-  createR2Snapshot,addSnapshotToIndex,resolveStandingsSchedule,hasCollectionForDay
+  createR2Snapshot,addSnapshotToIndex,resolveStandingsSchedule,hasCollectionForDay,
+  validatedTrophyCardKey
 } from '../scripts/lib/alliance-r2-history.mjs';
 
 const read=p=>JSON.parse(fs.readFileSync(new URL('../'+p,import.meta.url),'utf8'));
@@ -118,4 +119,30 @@ test('existing complete manual 24 October reading prevents a duplicate R2 import
     capturedAt:'2026-10-29T04:20:00.000Z',collectionDayUtc:'2026-10-29'
   }]};
   assert.equal(hasCollectionForDay(automated,'2026-10-29'),true);
+});
+
+test('early trophy imports require fresh private pointers to original sources',()=>{
+  const day='2026-10-22',fp=identities['team-a'];
+  const source='roster-batches/v1/'+fp+
+    '/01234567-89ab-cdef-0123-456789abcdef/provider-source/'+
+    '00000000-aaaa-4bbb-8ccc-111111111111/alliance-card.json';
+  const marker={version:1,kind:'trophy-card-ready',fingerprint:fp,
+    campaign:day+'-am',capturedAt:'2026-10-22T02:04:00Z',sourceKey:source};
+  const now=new Date('2026-10-22T02:05:00Z');
+  assert.equal(validatedTrophyCardKey(marker,fp,day,window,now),source);
+  for(const changed of [
+    {fingerprint:identities['team-b']},
+    {campaign:'2026-10-21-am'},
+    {capturedAt:'2026-10-22T01:59:00Z'},
+    {capturedAt:'2026-10-22T02:06:00Z'},
+    {sourceKey:'roster-batches/v1/'+identities['team-b']+'/x.json'},
+    {sourceKey:'../private.json'}
+  ]){
+    assert.throws(()=>validatedTrophyCardKey({...marker,...changed},
+      fp,day,window,now),/Invalid or stale/);
+  }
+  // A valid pointer is not a bypass for the official AllianceCard validation.
+  const forged=record('team-a','02:04:00');
+  forged.providerResponse.data.warTrophies=-1;
+  assert.throws(()=>extractAllianceSource(forged,fp,window),/Missing or invalid/);
 });
