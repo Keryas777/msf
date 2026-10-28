@@ -42,12 +42,19 @@
 }
 
 .playersHubPage .homeGrid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 9px;
   margin-top: 0;
 }
 
 .playersHubPage .homeTile {
+  grid-column: span 2;
   width: 91%;
+}
+
+/* Centre les deux tuiles de la seconde ligne sur une grille à trois tuiles. */
+.playersHubPage .homeTile:nth-child(4) {
+  grid-column: 2 / span 2;
 }
 
 .playersHubPage .homeTile--profils {
@@ -55,10 +62,19 @@
   --glow-strong: rgba(255,185,70,.98);
 }
 
-@media (min-width: 721px) {
-  .playersHubPage .homeGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+.playersHubPage .homeTile--teams {
+  --glow: rgba(90, 255, 160, .62);
+  --glow-strong: rgba(90, 255, 160, .98);
+}
+
+.playersHubPage .homeTile--mvp {
+  --glow: rgba(255, 85, 85, .62);
+  --glow-strong: rgba(255, 85, 85, .98);
+}
+
+.playersHubPage .homeTile--tcp {
+  --glow: rgba(255, 210, 90, .72);
+  --glow-strong: rgba(255, 210, 90, .98);
 }
 
 @media (max-width: 420px) {
