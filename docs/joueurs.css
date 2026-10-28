@@ -1,9 +1,4 @@
 /* Hub Joueurs — réutilise les tuiles et le fond global de l'accueil. */
-.playersHubPage {
-  padding: 9px;
-  gap: 9px;
-}
-
 .playersHubHeader {
   height: 132px;
   min-height: 132px;
@@ -41,22 +36,6 @@
   border: 1px solid rgba(255,255,255,.3);
 }
 
-.playersHubPage .homeGrid {
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 9px;
-  margin-top: 0;
-}
-
-.playersHubPage .homeTile {
-  grid-column: span 2;
-  width: 91%;
-}
-
-/* Centre les deux tuiles de la seconde ligne sur une grille à trois tuiles. */
-.playersHubPage .homeTile:nth-child(4) {
-  grid-column: 2 / span 2;
-}
-
 .playersHubPage .homeTile--profils {
   --glow: rgba(255,185,70,.72);
   --glow-strong: rgba(255,185,70,.98);
@@ -81,8 +60,5 @@
   .playersHubHeader {
     height: 112px;
     min-height: 112px;
-  }
-  .playersHubPage .homeTile {
-    width: 90%;
   }
 }
