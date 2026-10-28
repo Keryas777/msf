@@ -413,3 +413,9 @@
 .homeTile--alliance-history{grid-row:2;grid-column:3}
 .homeTile--codex{grid-row:3;grid-column:1}
 .homeTile--codex-personnages{grid-row:3;grid-column:2}
+
+/* Reserve footer space below the tiles on every responsive breakpoint. */
+.app{
+  padding-bottom: 80px;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+}
