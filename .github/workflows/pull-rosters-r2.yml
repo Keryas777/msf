@@ -1,23 +1,6 @@
 name: Pull LoSP rosters from private R2
 
 on:
-  schedule:
-    # First post-window imports: only publish when ALL six campaigns are complete.
-    # Times are UTC, not Paris local time; backup slots stay unchanged.
-    - cron: "30 4 * * *"
-    - cron: "30 16 * * *"
-    # Primary fallback slots after the 02-04 and 14-16 UTC R2 campaigns.
-    - cron: "40 6 * * *"
-    - cron: "40 18 * * *"
-    # Independent fallbacks if GitHub drops/delays one scheduled trigger.
-    # Both attempts are R2-only; repeat imports create no commit if unchanged.
-    - cron: "47 7 * * *"
-    - cron: "47 19 * * *"
-    # Recovery slots against GitHub schedule delays/drops. No Scopely calls.
-    # The 00:23 UTC slot imports PREVIOUS day's completed PM campaign.
-    - cron: "17 10 * * *"
-    - cron: "17 21 * * *"
-    - cron: "23 0 * * *"
   workflow_dispatch:
     inputs:
       date:
@@ -52,7 +35,6 @@ concurrency:
 
 jobs:
   pull:
-    if: ${{ github.event_name == 'workflow_dispatch' || vars.LOSP_R2_ROSTER_IMPORT_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
@@ -78,32 +60,16 @@ jobs:
           INPUT_PERIOD: ${{ inputs.period }}
           INPUT_PUBLISH: ${{ inputs.publish }}
           INPUT_STRICT: ${{ inputs.strict }}
-          EVENT_NAME: ${{ github.event_name }}
-          SCHEDULE_CRON: ${{ github.event.schedule }}
         run: |
           args=()
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            if [ -n "$INPUT_DATE" ]; then
-              args+=("--date=$INPUT_DATE")
-            fi
-            args+=("--period=$INPUT_PERIOD")
-            if [ "$INPUT_STRICT" = "true" ]; then
-              args+=("--require-complete")
-            fi
-          elif [ "$EVENT_NAME" = "schedule" ]; then
-            # Never guess AM/PM using the runner's start hour:
-            # GitHub scheduled events may arrive hours after their due time.
-            args+=("--schedule=$SCHEDULE_CRON")
-            # The first post-window imports keep their strict all-six gate;
-            # only backup slots may retain older partial-coverage behavior.
-            if [ "$SCHEDULE_CRON" = "30 4 * * *" ] || [ "$SCHEDULE_CRON" = "30 16 * * *" ]; then
-              args+=("--early")
-            fi
-          else
-            echo "::error::Unsupported roster import event"
-            exit 1
+          if [ -n "$INPUT_DATE" ]; then
+            args+=("--date=$INPUT_DATE")
           fi
-          if [ "$EVENT_NAME" = "schedule" ] || [ "$INPUT_PUBLISH" = "true" ]; then
+          args+=("--period=$INPUT_PERIOD")
+          if [ "$INPUT_STRICT" = "true" ]; then
+            args+=("--require-complete")
+          fi
+          if [ "$INPUT_PUBLISH" = "true" ]; then
             if [ "$LOSP_R2_ROSTERS_PUBLICATION_APPROVED" != "true" ]; then
               echo "R2 roster publication is locked pending authorized retention review."
               exit 1
@@ -122,7 +88,7 @@ jobs:
           node --check scripts/lib/roster-r2-import.mjs
           node --check scripts/lib/roster-r2-publish-state.mjs
           node --check scripts/lib/private-r2-read.mjs
-          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.publish }}" = "true" ]; then
+          if [ "${{ inputs.publish }}" = "true" ]; then
             node scripts/merge-rosters.mjs
           fi
 
@@ -138,10 +104,9 @@ jobs:
       - name: Commit validated roster files
         shell: bash
         env:
-          EVENT_NAME: ${{ github.event_name }}
           INPUT_PUBLISH: ${{ inputs.publish }}
         run: |
-          if [ "$EVENT_NAME" != "schedule" ] && [ "$INPUT_PUBLISH" != "true" ]; then
+          if [ "$INPUT_PUBLISH" != "true" ]; then
             echo "Dry run: no GitHub write."
             exit 0
           fi
