@@ -430,7 +430,7 @@
       charName,
       `${okLevel ? "✅" : "⚠️"} Level : ${level || "—"} (≥ ${THRESH.level})`,
       `${okGear ? "✅" : "⚠️"} Gear  : ${gear || "—"} (≥ ${THRESH.gear})`,
-      `${okIso ? "✅" : "⚠️"} ISO max: ${isoMax || "—"} (≥ ${THRESH.iso})`,
+      `${okIso ? "✅" : "⚠️"} ISO : ${getIsoDetail({ isoMax }, null).text} (objectif : ${getIsoDetail({ isoMax: THRESH.iso }, null).text})`,
     ].join("\n");
   }
 
@@ -543,11 +543,10 @@
     return {
       max, role, color, icon,
       text: [
-        max === null ? "Progression inconnue" : `ISO max ${max}`,
         tier === null ? (ISO_COLOR_LABELS[color] || "") :
           `${ISO_COLOR_LABELS[color] || color} ${tier}`,
         role,
-      ].filter(Boolean).join(" · "),
+      ].filter(Boolean).join(" · ") || "ISO non renseigné",
     };
   }
 
