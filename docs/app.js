@@ -430,7 +430,7 @@
       charName,
       `${okLevel ? "✅" : "⚠️"} Level : ${level || "—"} (≥ ${THRESH.level})`,
       `${okGear ? "✅" : "⚠️"} Gear  : ${gear || "—"} (≥ ${THRESH.gear})`,
-      `${okIso ? "✅" : "⚠️"} ISO : ${getIsoDetail({ isoMax }, null).text} (objectif : ${getIsoDetail({ isoMax: THRESH.iso }, null).text})`,
+      `${okIso ? "✅" : "⚠️"} ${getIsoDetail({ isoMax }, null).text} (objectif : ${getIsoDetail({ isoMax: THRESH.iso }, null).text})`,
     ].join("\n");
   }
 
@@ -540,13 +540,12 @@
     }
     const role = ISO_CLASS_LABELS[cls] || (cls || "");
     const icon = ISO_ICONS?.[cls]?.[color] || "";
+    const progress = tier === null ? (ISO_COLOR_LABELS[color] || "") :
+      `${ISO_COLOR_LABELS[color] || color} ${tier}`;
+    const label = [progress.toLowerCase(), role].filter(Boolean).join(" - ");
     return {
       max, role, color, icon,
-      text: [
-        tier === null ? (ISO_COLOR_LABELS[color] || "") :
-          `${ISO_COLOR_LABELS[color] || color} ${tier}`,
-        role,
-      ].filter(Boolean).join(" · ") || "ISO non renseigné",
+      text: label ? `ISO ${label}` : "ISO non renseigné",
     };
   }
 
