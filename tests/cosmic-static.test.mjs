@@ -321,7 +321,7 @@ test("consultation : défenses des joueurs avant Marvel Church, ordre des guides
     { source: "", author: "Bob", name: "Défense de Bob" },
     { source: "Marvel Church", name: "Optimal Defense — Guide 2" }
   ];
-  assert.deepEqual(catalog.sortedForDisplay(entries).map(entry => entry.name), [
+  assert.deepEqual(Array.from(catalog.sortedForDisplay(entries), entry => entry.name), [
     "Défense de Alice", "Défense de Bob",
     "Best Defense — Guide 1", "Optimal Defense — Guide 2", "Budget Defense — Guide 3"
   ]);
