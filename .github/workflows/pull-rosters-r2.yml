@@ -90,13 +90,14 @@ jobs:
           node --check scripts/lib/private-r2-read.mjs
           if [ "${{ inputs.publish }}" = "true" ]; then
             node scripts/merge-rosters.mjs
+            node scripts/update-roster-freshness.mjs
           fi
 
       - name: Verify write scope
         shell: bash
         run: |
           unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' |
-            grep -Ev '^(docs/data/rosters(_[a-z0-9-]+)?[.]json|[.]github/roster-r2-import-state[.]json)$' || true)"
+            grep -Ev '^(docs/data/rosters(_[a-z0-9-]+)?[.]json|docs/data/rosters-meta[.]json|[.]github/roster-r2-import-state[.]json)$' || true)"
           if [ -n "$unexpected" ]; then
             echo "Unexpected modifications:"; echo "$unexpected"; exit 1
           fi
@@ -112,7 +113,7 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/rosters.json docs/data/rosters_*.json
+          git add docs/data/rosters.json docs/data/rosters-meta.json docs/data/rosters_*.json
           # Before the first successful import the checkpoint does not yet exist.
           if [ -f .github/roster-r2-import-state.json ]; then
             git add .github/roster-r2-import-state.json
