@@ -208,6 +208,14 @@
   font-family: Arial, sans-serif;
 }
 
+.evolutionStatIcon svg {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.12em;
+  fill: currentColor;
+}
+
 .evolutionStatIcon--yellow { color: #ffd54a; }
 .evolutionStatIcon--red { color: #ff5867; }
 .evolutionStatIcon--diamond { color: #4dabff; }
