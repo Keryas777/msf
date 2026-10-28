@@ -486,7 +486,7 @@
         if (hasOwn(current, "gear")) changes.push(buildChange("Équipement", "—", `G${current.gear}`));
         if (hasOwn(current, "yellowStars")) changes.push(buildChange("Étoiles jaunes", "—", `${current.yellowStars} ★`));
         if (hasOwn(current, "redStars")) changes.push(buildChange("Étoiles rouges", "—", `${current.redStars} ★`));
-        if (hasOwn(current, "diamonds")) changes.push(buildChange("Diamants", "—", `${current.diamonds} 💎`));
+        if (hasOwn(current, "diamonds")) changes.push(buildChange("Diamants", "—", `${current.diamonds} ◆`));
         const iso = isoDisplay(newSnapshot, charKey, current, true);
         if (iso) changes.push(buildChange("ISO", "—", iso));
         if (hasOwn(current, "power")) {
@@ -510,7 +510,7 @@
         for (const [field, label, suffix] of [
           ["yellowStars", "Étoiles jaunes", " ★"],
           ["redStars", "Étoiles rouges", " ★"],
-          ["diamonds", "Diamants", " 💎"],
+          ["diamonds", "Diamants", " ◆"],
         ]) {
           if (!hasOwn(before, field) || !hasOwn(current, field)) continue;
           const gain = numericIncrease(before[field], current[field]);
@@ -586,6 +586,37 @@
     return image;
   }
 
+  function renderChangeValue(node, label, text) {
+    const symbol = label === "Diamants" ? "◆"
+      : (label === "Étoiles jaunes" || label === "Étoiles rouges" ? "★" : null);
+    if (!symbol || !text.endsWith(` ${symbol}`)) {
+      node.textContent = text;
+      return;
+    }
+
+    node.append(document.createTextNode(text.slice(0, -symbol.length)));
+    const icon = document.createElement("span");
+    icon.className = "evolutionStatIcon " + (
+      label === "Diamants" ? "evolutionStatIcon--diamond"
+        : label === "Étoiles rouges" ? "evolutionStatIcon--red"
+          : "evolutionStatIcon--yellow"
+    );
+    icon.setAttribute("aria-hidden", "true");
+    if (symbol === "★") {
+      // SVG filled star: stable across iOS/Android fonts, unlike text glyphs.
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("viewBox", "0 0 24 24");
+      svg.setAttribute("focusable", "false");
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", "M12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26Z");
+      svg.appendChild(path);
+      icon.appendChild(svg);
+    } else {
+      icon.textContent = symbol;
+    }
+    node.appendChild(icon);
+  }
+
   function renderCards(cards) {
     clear(evolutionList);
 
@@ -630,13 +661,13 @@
           const value = document.createElement("span");
           value.className = "evolutionChangeValue";
           const oldValue = document.createElement("span");
-          oldValue.textContent = change.oldValue;
+          renderChangeValue(oldValue, change.label, change.oldValue);
           const arrow = document.createElement("span");
           arrow.className = "evolutionArrow";
           arrow.textContent = "→";
           const newValue = document.createElement("span");
           newValue.className = "evolutionNewValue";
-          newValue.textContent = change.newValue;
+          renderChangeValue(newValue, change.label, change.newValue);
           value.append(oldValue, arrow, newValue);
 
           row.append(label, value);
