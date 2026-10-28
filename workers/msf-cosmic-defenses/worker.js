@@ -49,6 +49,7 @@ async function api(env,path,options={}) {
   const headers = new Headers({
     "Authorization":"Bearer " + token(env),
     "Accept":"application/vnd.github+json",
+    "User-Agent":"LoSP-Cosmic-Defenses",
     "X-GitHub-Api-Version":"2022-11-28",
     "Cache-Control":"no-store",
     ...options.headers
