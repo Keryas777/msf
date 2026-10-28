@@ -1360,10 +1360,13 @@ body:has(#atkFamilySelect) .counterCard{
 .rankDetailCharacterTop strong{font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums}
 .rankDetailStats{
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-columns:repeat(6,minmax(0,1fr));
   gap:7px 10px;
   margin-top:10px;
 }
+/* Ligne 1 : niveau et équipement ; ligne 2 : étoiles et diamants. */
+.rankDetailStat:nth-child(-n+2){grid-column:span 3}
+.rankDetailStat:nth-child(n+3){grid-column:span 2}
 .rankDetailStat{display:flex;flex-direction:column;gap:2px;min-width:0}
 .rankDetailStatLabel{color:var(--muted);font-size:11px}
 .rankDetailStatValue{font-weight:800;font-size:14px;white-space:nowrap}
@@ -1390,4 +1393,6 @@ body:has(#atkFamilySelect) .counterCard{
   .rankDetailDialog{padding:12px}
   .rankDetailCharacter{gap:9px;padding:8px}
   .rankDetailPortrait{flex-basis:54px;width:54px;height:54px}
+  .rankDetailStats{column-gap:6px}
+  .rankDetailStatLabel{font-size:10px;line-height:1.2}
 }
