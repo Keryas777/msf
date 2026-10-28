@@ -6,7 +6,7 @@ import {execFileSync} from 'node:child_process';
 import {createPrivateR2Reader} from './lib/private-r2-read.mjs';
 import {createHash,createHmac} from 'node:crypto';
 import {collectionWindow,readMapping,createR2Snapshot,addSnapshotToIndex,
-  resolveStandingsSchedule,hasCollectionForDay} from './lib/alliance-r2-history.mjs';
+  resolveStandingsSchedule,hasCollectionForDay,validatedTrophyCardKey} from './lib/alliance-r2-history.mjs';
 
 function secret(name){const v=process.env[name];if(!v)throw Error('Missing required secret '+name);return v;}
 function r2Client(){
@@ -86,14 +86,16 @@ async function privateCards(r2,fp,window){
 }
 async function main(){
   const args=process.argv.slice(2);
-  if(args.some(x=>x!=='--write'&&!/^--date=\d{4}-\d{2}-\d{2}$/.test(x)&&
+  if(args.some(x=>x!=='--write'&&x!=='--early-ready'&&!/^--date=\d{4}-\d{2}-\d{2}$/.test(x)&&
     !x.startsWith('--schedule=')))
-    throw Error('Usage: [--date=YYYY-MM-DD] [--schedule=CRON] [--write]');
+    throw Error('Usage: [--date=YYYY-MM-DD] [--schedule=CRON] [--early-ready] [--write]');
   const write=args.includes('--write');
+  const early=args.includes('--early-ready');
   const now=new Date();
   const dateArg=args.find(x=>x.startsWith('--date='));
   const scheduledArg=args.find(x=>x.startsWith('--schedule='));
   if(dateArg&&scheduledArg)throw Error('Do not combine manual date with scheduled cron');
+  if(early&&(!dateArg||scheduledArg))throw Error('Early readiness requires an explicit UTC day');
   const day=dateArg?dateArg.slice(7):scheduledArg?
     resolveStandingsSchedule(scheduledArg.slice('--schedule='.length),now):
     now.toISOString().slice(0,10);
@@ -101,8 +103,10 @@ async function main(){
   const registry=await getJson('docs/data/alliances.json');
   const index=await getJson('docs/data/alliance-standings/index.json');
   const window=collectionWindow(day,config);
-  if(Date.parse(window.endExclusive)>now.getTime())
+  if(!early&&Date.parse(window.endExclusive)>now.getTime())
     throw Error('Collection sampling window has not yet ended');
+  if(Date.parse(window.start)>now.getTime())
+    throw Error('Trophy collection has not begun');
   if(Date.parse(window.endExclusive)<now.getTime()-6*86400000)
     throw Error('Requested sampling window is outside the expected R2 retention');
   if(hasCollectionForDay(index,day)){
@@ -112,7 +116,14 @@ async function main(){
   const r2=r2Client();
   const sources=new Map();
   for(const alliance of registry.filter(a=>a.active!==false)){
-    const rows=await privateCards(r2,map[alliance.key],window);
+    let rows;
+    if(early){
+      const fp=map[alliance.key];
+      const markerPath='roster-batches/v1/'+fp+'/campaigns/'+day+'-am-trophy-card.json';
+      const marker=await r2.getJSON(markerPath,5000);
+      const sourceKey=validatedTrophyCardKey(marker,fp,day,window,now);
+      rows=[await r2.getJSON(sourceKey,1000000)];
+    }else rows=await privateCards(r2,map[alliance.key],window);
     sources.set(alliance.key,rows);
     console.log('Private source candidates for',alliance.key+':',rows.length);
   }
