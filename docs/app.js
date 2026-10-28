@@ -5,6 +5,7 @@
     characters: "./data/msf-characters.json",
     joueurs: "./data/joueurs.json",
     rosters: "./data/rosters.json",
+    isoIcons: "./data/iso-icons.json",
   };
 
   const FALLBACK_ALLIANCES = Object.freeze([
@@ -52,6 +53,11 @@
   let JOUEURS = [];
   let ROSTERS = [];
   let ROSTER_MAP = new Map();
+  let ROSTER_ISO_MAP = new Map();
+  let ISO_ICONS = {};
+  let detailOverlay = null;
+  let detailReturnFocus = null;
+  let detailPreviousOverflow = "";
 
   const bust = (url) => {
     const u = new URL(url, window.location.href);
@@ -494,7 +500,205 @@
     return { sum, bars };
   }
 
+
+  // Individual data is read from the same roster used to calculate ranking powers.
+  // Missing fields are unknown (never reconstructed from the total power).
+  function readOptionalStat(raw, field) {
+    if (!raw || typeof raw !== "object" || raw[field] === null ||
+        raw[field] === undefined || raw[field] === "") return null;
+    const n = Number(raw[field]);
+    return Number.isSafeInteger(n) && n >= 0 ? n : null;
+  }
+
+  const ISO_CLASS_LABELS = {
+    striker: "Attaquant",
+    raider: "Fantassin",
+    skirmisher: "Tirailleur",
+    healer: "Soigneur",
+    fortifier: "Fortificateur",
+  };
+
+  const ISO_COLOR_LABELS = {
+    green: "Vert", blue: "Bleu", purple: "Violet", orange: "Orange",
+  };
+
+  function getIsoDetail(raw, isoRow) {
+    const max = readOptionalStat(raw, "isoMax");
+    const source = isoRow && typeof isoRow === "object" ? isoRow : {};
+    const cls = String(source.isoClass ?? raw?.isoClass ?? "").trim().toLowerCase();
+    const rawColor = String(source.isoColor ?? raw?.isoColor ?? "")
+      .trim().toLowerCase();
+    const colors = { vert: "green", bleu: "blue", violet: "purple" };
+    // Numeric ISO progress is authoritative; the stored color is a fallback.
+    let color = colors[rawColor] || rawColor;
+    let tier = null;
+    if (max !== null && max >= 1 && max <= 18) {
+      color = max <= 5 ? "green" : max <= 10 ? "blue" :
+        max <= 15 ? "purple" : "orange";
+      tier = max <= 5 ? max : max <= 10 ? max - 5 :
+        max <= 15 ? max - 10 : max - 15;
+    }
+    const role = ISO_CLASS_LABELS[cls] || (cls || "");
+    const icon = ISO_ICONS?.[cls]?.[color] || "";
+    return {
+      max, role, color, icon,
+      text: [
+        max === null ? "Progression inconnue" : `ISO max ${max}`,
+        tier === null ? (ISO_COLOR_LABELS[color] || "") :
+          `${ISO_COLOR_LABELS[color] || color} ${tier}`,
+        role,
+      ].filter(Boolean).join(" · "),
+    };
+  }
+
+  function detailNode(tag, className, textContent) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (textContent !== undefined) node.textContent = textContent;
+    return node;
+  }
+
+  function detailStat(label, value, kind) {
+    const node = detailNode("div", "rankDetailStat");
+    node.appendChild(detailNode("span", "rankDetailStatLabel", label));
+    node.appendChild(detailNode("span",
+      `rankDetailStatValue${kind ? ` is-${kind}` : ""}`, value));
+    return node;
+  }
+
+  function closeDetail() {
+    if (!detailOverlay) return;
+    document.removeEventListener("keydown", onDetailKeydown);
+    detailOverlay.remove();
+    detailOverlay = null;
+    document.body.style.overflow = detailPreviousOverflow;
+    if (detailReturnFocus?.isConnected) detailReturnFocus.focus();
+    detailReturnFocus = null;
+  }
+
+  function onDetailKeydown(event) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeDetail();
+    } else if (event.key === "Tab" && detailOverlay) {
+      // Only the close button is interactive inside this dialog.
+      event.preventDefault();
+      detailOverlay.querySelector(".rankDetailClose")?.focus();
+    }
+  }
+
+  function openPlayerDetail(player, teamName, rank, totalPower) {
+    closeDetail();
+    const team = getTeamListFilteredByMode().find(t => t.team === teamName);
+    if (!team) return;
+
+    const playerK = normalizePlayerKey(player.player);
+    const charsMap = ROSTER_MAP.get(playerK) || null;
+    const isoMap = ROSTER_ISO_MAP.get(playerK) || null;
+    detailReturnFocus = document.activeElement;
+    detailPreviousOverflow = document.body.style.overflow;
+
+    const overlay = detailNode("div", "rankDetailOverlay");
+    const dialog = detailNode("section", "rankDetailDialog");
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    dialog.setAttribute("aria-labelledby", "rankDetailTitle");
+    dialog.setAttribute("aria-describedby", "rankDetailContext");
+
+    const heading = detailNode("div", "rankDetailHeading");
+    const headingText = detailNode("div", "rankDetailHeadingText");
+    const title = detailNode("h2", "rankDetailTitle", player.player);
+    title.id = "rankDetailTitle";
+    const context = detailNode("p", "rankDetailContext",
+      `${teamName} · ${allianceEmoji(player.allianceKey)} ${allianceLabel(player.allianceKey)} · #${rank}`);
+    context.id = "rankDetailContext";
+    headingText.append(title, context);
+
+    const close = detailNode("button", "rankDetailClose", "×");
+    close.type = "button";
+    close.setAttribute("aria-label", "Fermer les détails");
+    close.addEventListener("click", closeDetail);
+    heading.append(headingText, close);
+    dialog.appendChild(heading);
+
+    dialog.appendChild(detailNode("div", "rankDetailTotal",
+      `Puissance de l'équipe : ${formatThousandsDot(totalPower)}`));
+
+    const list = detailNode("div", "rankDetailCharacters");
+    for (const charId of team.characters || []) {
+      const raw = getRosterValueForCharacter(charsMap, charId);
+      const isoRaw = getRosterValueForCharacter(isoMap, charId);
+      const info = findPortraitFor(charId);
+      const card = detailNode("article", "rankDetailCharacter");
+      const portrait = detailNode("div", "rankDetailPortrait");
+      if (info?.portraitUrl) {
+        const img = document.createElement("img");
+        img.src = info.portraitUrl;
+        img.alt = charId;
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.referrerPolicy = "no-referrer";
+        portrait.appendChild(img);
+      } else {
+        portrait.appendChild(detailNode("span", "", "?"));
+      }
+      card.appendChild(portrait);
+
+      const body = detailNode("div", "rankDetailCharacterBody");
+      const top = detailNode("div", "rankDetailCharacterTop");
+      top.appendChild(detailNode("h3", "", info?.nameFr || info?.nameEn || charId));
+      top.appendChild(detailNode("strong", "",
+        raw === null ? "Absent du roster" :
+        `${formatThousandsDot(readCharPower(raw))} pts`));
+      body.appendChild(top);
+
+      const stats = detailNode("div", "rankDetailStats");
+      const val = (field, prefix = "", suffix = "") => {
+        const n = readOptionalStat(raw, field);
+        return n === null ? "—" : `${prefix}${n}${suffix}`;
+      };
+      stats.appendChild(detailStat("Niveau", val("level")));
+      stats.appendChild(detailStat("Équipement", val("gear", "G")));
+      stats.appendChild(detailStat("Étoiles jaunes", val("yellowStars", "", " ★"), "yellow"));
+      stats.appendChild(detailStat("Étoiles rouges", val("redStars", "", " ★"), "red"));
+      stats.appendChild(detailStat("Diamants", val("diamonds", "", " ◆"), "diamond"));
+      body.appendChild(stats);
+
+      const iso = getIsoDetail(raw, isoRaw);
+      const isoBox = detailNode("div", "rankDetailIso");
+      if (iso.icon) {
+        const icon = document.createElement("img");
+        icon.src = iso.icon;
+        icon.alt = "";
+        icon.loading = "lazy";
+        icon.decoding = "async";
+        icon.referrerPolicy = "no-referrer";
+        isoBox.appendChild(icon);
+      }
+      isoBox.appendChild(detailNode("span", "", iso.text));
+      body.appendChild(isoBox);
+      card.appendChild(body);
+      list.appendChild(card);
+    }
+    if (!charsMap) list.prepend(detailNode("p", "rankDetailMissing",
+      "Aucune donnée de roster disponible pour ce joueur."));
+    dialog.appendChild(list);
+
+    dialog.appendChild(detailNode("p", "rankDetailNote",
+      "Niveaux des capacités : non disponibles dans les rosters actuels."));
+    overlay.appendChild(dialog);
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) closeDetail();
+    });
+    document.body.appendChild(overlay);
+    detailOverlay = overlay;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onDetailKeydown);
+    close.focus();
+  }
+
   function renderRanking() {
+    closeDetail();
     clearNode(playersWrap);
 
     const selectedMode = getSelectedMode();
@@ -546,8 +750,12 @@
       const emoji = allianceEmoji(key);
       const label = allianceLabel(key);
 
-      const row = document.createElement("div");
+      const row = document.createElement("button");
+      row.type = "button";
       row.className = "rankRow";
+      row.setAttribute("aria-haspopup", "dialog");
+      row.setAttribute("aria-label", `Voir ${teamName} de ${r.player}`);
+      row.addEventListener("click", () => openPlayerDetail(r, teamName, idx + 1, r.power));
 
       const left = document.createElement("div");
       left.className = "rankLeft";
@@ -616,12 +824,14 @@
 
     renderAllianceFilters();
 
-    const [teamsRaw, charsRaw, joueursRaw, rostersRaw] = await Promise.all([
+    const [teamsRaw, charsRaw, joueursRaw, rostersRaw, isoIconsRaw] = await Promise.all([
       fetchJson(FILES.teams),
       fetchJson(FILES.characters),
       fetchJson(FILES.joueurs),
       fetchJson(FILES.rosters),
+      fetchJson(FILES.isoIcons).catch(() => ({})),
     ]);
+    ISO_ICONS = isoIconsRaw && typeof isoIconsRaw === "object" ? isoIconsRaw : {};
 
     CHARS = Array.isArray(charsRaw) ? charsRaw : [];
 
@@ -689,10 +899,12 @@
       .map((r) => ({
         player: String(r.playerKey ?? r.player ?? "").trim(),
         chars: r.chars && typeof r.chars === "object" ? r.chars : {},
+        iso: r.iso && typeof r.iso === "object" ? r.iso : {},
       }))
       .filter((r) => r.player);
 
     ROSTER_MAP = new Map();
+    ROSTER_ISO_MAP = new Map();
 
     for (const r of ROSTERS) {
       const playerK = normalizePlayerKey(r.player);
@@ -710,6 +922,12 @@
       }
 
       ROSTER_MAP.set(playerK, normChars);
+      const normIso = {};
+      for (const [k, v] of Object.entries(r.iso || {})) {
+        const key = normalizeKey(k);
+        if (key) normIso[key] = v;
+      }
+      ROSTER_ISO_MAP.set(playerK, normIso);
     }
 
     renderModeOptions();
