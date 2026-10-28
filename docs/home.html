@@ -225,6 +225,40 @@
         const el = document.getElementById("homeRosterUpdatedAt");
         if (!el) return;
 
+        const parisDateParts = new Intl.DateTimeFormat("fr-FR", {
+          timeZone: "Europe/Paris",
+          year: "numeric", month: "2-digit", day: "2-digit"
+        });
+
+        function parisDayKey(date) {
+          const parts = parisDateParts.formatToParts(date);
+          const part = (name) => parts.find((p) => p.type === name).value;
+          return part("year") + "-" + part("month") + "-" + part("day");
+        }
+
+        function formatRosterDate(date) {
+          const todayKey = parisDayKey(new Date());
+          const yesterday = new Date(Date.parse(todayKey + "T00:00:00Z") - 86400000);
+          const updateKey = parisDayKey(date);
+
+          if (updateKey === todayKey || updateKey === yesterday.toISOString().slice(0, 10)) {
+            const clock = new Intl.DateTimeFormat("fr-FR", {
+              hour: "2-digit", minute: "2-digit",
+              hourCycle: "h23", timeZone: "Europe/Paris"
+            }).formatToParts(date);
+            const hour = clock.find((p) => p.type === "hour").value;
+            const minute = clock.find((p) => p.type === "minute").value;
+            const label = updateKey === todayKey ? "aujourd'hui" : "hier";
+            return "Rosters actualisés " + label + " à " + hour + "h" + minute;
+          }
+
+          const full = new Intl.DateTimeFormat("fr-FR", {
+            day: "2-digit", month: "2-digit", year: "numeric",
+            hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris"
+          }).format(date);
+          return "Rosters actualisés le " + full;
+        }
+
         let refreshCounter = 0;
 
         async function refreshRosterDate() {
@@ -244,13 +278,8 @@
             const date = new Date(updatedAt);
             if (Number.isNaN(date.getTime())) throw new Error("Invalid roster date");
 
-            const formatted = new Intl.DateTimeFormat("fr-FR", {
-              day: "2-digit", month: "2-digit", year: "numeric",
-              hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris"
-            }).format(date);
-
             if (current === refreshCounter) {
-              el.textContent = "Rosters actualisés le " + formatted;
+              el.textContent = formatRosterDate(date);
             }
           } catch (_) {
             if (current === refreshCounter) {
