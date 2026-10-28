@@ -13,6 +13,7 @@ on:
     branches: [main]
     paths:
       - "workers/msf-cosmic-defenses/**"
+      - ".github/workflows/deploy-cosmic-defenses.yml"
   workflow_dispatch:
 
 permissions:
@@ -36,7 +37,15 @@ jobs:
           node --test workers/msf-cosmic-defenses/test/worker.test.mjs
           node --test workers/msf-cosmic-defenses/test/auth.test.mjs
           node --test workers/msf-cosmic-defenses/test/legacy-session.test.mjs
-          node --test tests/cosmic-static.test.mjs
+  test-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate Cosmic UI (independent of Worker deployment)
+        run: node --test tests/cosmic-static.test.mjs
   deploy:
     if: github.event_name != 'pull_request'
     needs: test
