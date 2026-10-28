@@ -45,15 +45,19 @@ test('late GitHub scheduled triggers preserve previous UTC day after delayed dis
   assert.deepEqual(resolveRosterSchedule('23 0 * * *',at('2026-10-27T00:04:00Z')),
     {day:'2026-10-25',period:'pm'});
 });
-test('workflow declares each supported scheduled recovery slot in UTC',async()=>{
+test('roster publishing is dispatch-only, without any scheduled pull or recovery',async()=>{
   const {readFile}=await import('node:fs/promises');
   const workflow=await readFile(new URL('../.github/workflows/pull-rosters-r2.yml',import.meta.url),'utf8');
-  for(const cron of ['30 4','40 6','47 7','17 10','30 16','40 18','47 19','17 21','23 0'])
-    assert.ok(workflow.includes('cron: "'+cron+' * * *"'));
+  assert.match(workflow,/^on:\n  workflow_dispatch:/m);
+  assert.doesNotMatch(workflow,/^\s*schedule:/m);
+  assert.doesNotMatch(workflow,/^\s*- cron:/m);
+  assert.doesNotMatch(workflow,/github\.event\.schedule|SCHEDULE_CRON/);
   assert.match(workflow,/group: main-data-writer/);
   assert.match(workflow,/cancel-in-progress: false/);
-  assert.match(workflow,/--schedule=\$SCHEDULE_CRON/);
-  assert.match(workflow,/No complete and current R2 roster campaign|scripts\/pull-rosters-r2\.mjs/);
+  assert.match(workflow,/INPUT_DATE:/);
+  assert.match(workflow,/INPUT_PERIOD:/);
+  assert.match(workflow,/INPUT_STRICT:/);
+  assert.match(workflow,/INPUT_PUBLISH:/);
 });
 
 test('fast R2 slots use UTC campaign date even when the runner starts late',()=>{
@@ -76,21 +80,19 @@ test('early imports are all-or-nothing; later backup imports retain partial-cove
     assert.throws(()=>earlyImportReady(true,count,6),/Invalid roster completion/);
   assert.throws(()=>earlyImportReady(true,0,0),/Invalid roster completion/);
 });
-test('first post-window slots preserve the all-six complete R2 gate',async()=>{
+test('Worker-triggered strict import keeps all-six and monotonic publication safeguards',async()=>{
   const {readFile}=await import('node:fs/promises');
   const workflow=await readFile(new URL('../.github/workflows/pull-rosters-r2.yml',import.meta.url),'utf8');
   const script=await readFile(new URL('../scripts/pull-rosters-r2.mjs',import.meta.url),'utf8');
-  assert.match(workflow,/cron: "30 4 \* \* \*"/);
-  assert.match(workflow,/cron: "30 16 \* \* \*"/);
-  assert.match(workflow,/args\+=\("--early"\)/);
-  assert.match(script,/end>Date\.now\(\)&&!early&&!requireComplete/);
-  assert.match(script,/early\|\|requireComplete/);
+  assert.match(workflow,/args\+=\("--period=\$INPUT_PERIOD"\)/);
   assert.match(workflow,/args\+=\("--require-complete"\)/);
+  assert.match(workflow,/args\+=\("--write"\)/);
+  assert.match(workflow,/LOSP_R2_ROSTERS_PUBLICATION_APPROVED/);
+  assert.match(script,/end>Date\.now\(\)&&!early&&!requireComplete/);
   assert.match(script,/!earlyImportReady\(early\|\|requireComplete,updates\.size\+already\.length,registry\.length\)/);
-  assert.match(script,/Later schedules will retry/);
+  assert.match(script,/rosterCampaignIsNewer\(publicationState,alliance\.key,window\.campaign\)/);
   assert.match(script,/if\(!updates\.size\)\{/);
   assert.match(script,/No newer verified R2 roster campaign/);
-  assert.match(script,/rosterCampaignIsNewer\(publicationState,alliance\.key,window\.campaign\)/);
   assert.match(workflow,/group: main-data-writer/);
   assert.match(workflow,/cancel-in-progress: false/);
 });
