@@ -14,6 +14,11 @@ on:
         description: "UTC collection day, Thursday or Saturday (YYYY-MM-DD); blank = today"
         required: false
         default: ""
+      early:
+        description: "Import already-archived trophy cards immediately (Worker-triggered only)"
+        type: boolean
+        required: false
+        default: false
       publish:
         description: "Write sanitized snapshots to GitHub (requires separate repository approval)"
         type: boolean
@@ -52,6 +57,7 @@ jobs:
           LOSP_R2_HISTORY_PUBLICATION_APPROVED: ${{ vars.LOSP_R2_HISTORY_PUBLICATION_APPROVED }}
           INPUT_DATE: ${{ inputs.date }}
           INPUT_PUBLISH: ${{ inputs.publish }}
+          INPUT_EARLY: ${{ inputs.early }}
           EVENT_NAME: ${{ github.event_name }}
           SCHEDULE_CRON: ${{ github.event.schedule }}
         run: |
@@ -60,6 +66,9 @@ jobs:
             args+=("--schedule=$SCHEDULE_CRON")
           elif [ -n "$INPUT_DATE" ]; then
             args+=("--date=$INPUT_DATE")
+          fi
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$INPUT_EARLY" = "true" ]; then
+            args+=("--early-ready")
           fi
           if [ "$EVENT_NAME" = "schedule" ] || [ "$INPUT_PUBLISH" = "true" ]; then
             if [ "$LOSP_R2_HISTORY_PUBLICATION_APPROVED" != "true" ]; then
