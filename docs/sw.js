@@ -144,8 +144,11 @@ self.addEventListener("fetch", (event) => {
   if (!isSameOrigin(url)) return;
 
   // Les rosters sont exclusivement en ligne (même en mode PWA).
+  // Le paramètre unique empêche également de réutiliser une réponse CDN.
   if (isLiveRosterRequest(url)) {
-    event.respondWith(fetch(request, { cache: "no-store" }));
+    const liveUrl = new URL(request.url);
+    liveUrl.searchParams.set("_live", Date.now() + "-" + Math.random().toString(36).slice(2));
+    event.respondWith(fetch(new Request(liveUrl.href, request), { cache: "no-store" }));
     return;
   }
 
