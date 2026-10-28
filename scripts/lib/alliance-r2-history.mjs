@@ -31,6 +31,26 @@ export function resolveStandingsSchedule(cron,now=new Date()){
   return date.toISOString().slice(0,10);
 }
 
+
+// An early R2 marker locates the original source; it never validates scores.
+// The referenced AllianceCard must still pass extractAllianceSource.
+export function validatedTrophyCardKey(marker,fp,day,window,now=new Date()){
+  const prefix='roster-batches/v1/'+fp+'/';
+  const source=marker?.sourceKey;
+  const captured=Date.parse(marker?.capturedAt||'');
+  const limit=now instanceof Date?now.getTime():NaN;
+  if(!HEX.test(fp)||!ISO_DAY.test(day)||marker?.version!==1||
+     marker.kind!=='trophy-card-ready'||marker.fingerprint!==fp||
+     marker.campaign!==day+'-am'||typeof source!=='string'||
+     !source.startsWith(prefix)||
+     !/^roster-batches\/v1\/[a-f0-9]{64}\/[a-f0-9-]{36}\/provider-source\/[a-f0-9-]{36}\/alliance-card\.json$/.test(source)||
+     !Number.isFinite(captured)||!Number.isFinite(limit)||
+     captured<Date.parse(window.start)||captured>=Date.parse(window.endExclusive)||
+     captured>limit)
+    throw Error('Invalid or stale private trophy-card readiness marker');
+  return source;
+}
+
 export function collectionWindow(day,config){
   if(!ISO_DAY.test(day)||new Date(day+'T00:00:00.000Z').toISOString().slice(0,10)!==day)
     throw Error('Invalid UTC collection day');
