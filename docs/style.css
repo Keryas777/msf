@@ -1257,3 +1257,137 @@ body:has(#atkFamilySelect) .counterCard::after{
 body:has(#atkFamilySelect) .counterCard{
   --tint: rgba(255,255,255,0.02) !important;
 }
+/* Classement Teams : détails individuels (page index.html uniquement). */
+.rankRow[type="button"]{
+  width:100%;
+  appearance:none;
+  -webkit-appearance:none;
+  font:inherit;
+  color:inherit;
+  text-align:left;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.rankRow[type="button"]:active{background:rgba(255,255,255,.07)}
+.rankRow[type="button"]:focus-visible,
+.rankDetailClose:focus-visible{
+  outline:2px solid #68d2ff;
+  outline-offset:3px;
+}
+.rankDetailOverlay{
+  position:fixed;
+  inset:0;
+  z-index:1200;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  padding-top:max(16px,env(safe-area-inset-top));
+  padding-bottom:max(16px,env(safe-area-inset-bottom));
+  background:rgba(0,0,0,.82);
+  overscroll-behavior:contain;
+}
+.rankDetailDialog{
+  box-sizing:border-box;
+  width:min(100%,760px);
+  max-height:88vh;
+  max-height:88dvh;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  color:var(--text);
+  background:#13141e;
+  border:1px solid rgba(255,255,255,.19);
+  border-radius:20px;
+  box-shadow:0 18px 70px rgba(0,0,0,.7);
+  padding:16px;
+}
+.rankDetailHeading{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.rankDetailHeadingText{min-width:0}
+.rankDetailTitle{font-size:23px;line-height:1.15;margin:0 0 6px;overflow-wrap:anywhere}
+.rankDetailContext{color:var(--muted);margin:0;font-size:13px;line-height:1.45}
+.rankDetailClose{
+  flex:0 0 40px;
+  height:40px;
+  border-radius:50%;
+  border:1px solid var(--border);
+  background:#262836;
+  color:#fff;
+  cursor:pointer;
+  font-size:26px;
+  line-height:1;
+}
+.rankDetailTotal{
+  margin:14px 0;
+  border-radius:12px;
+  background:rgba(100,160,255,.10);
+  border:1px solid rgba(100,160,255,.2);
+  padding:10px 12px;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+}
+.rankDetailCharacters{display:grid;grid-template-columns:1fr;gap:10px}
+.rankDetailMissing{grid-column:1/-1;color:var(--muted);margin:0}
+.rankDetailCharacter{
+  display:flex;
+  gap:12px;
+  min-width:0;
+  padding:10px;
+  background:rgba(0,0,0,.25);
+  border:1px solid var(--border);
+  border-radius:14px;
+}
+.rankDetailPortrait{
+  flex:0 0 66px;
+  width:66px;
+  height:66px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  border-radius:10px;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+}
+.rankDetailPortrait img{display:block;width:100%;height:100%;object-fit:contain}
+.rankDetailCharacterBody{min-width:0;flex:1}
+.rankDetailCharacterTop{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;justify-content:space-between}
+.rankDetailCharacterTop h3{font-size:15px;margin:0;overflow-wrap:anywhere}
+.rankDetailCharacterTop strong{font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rankDetailStats{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px 10px;
+  margin-top:10px;
+}
+.rankDetailStat{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rankDetailStatLabel{color:var(--muted);font-size:11px}
+.rankDetailStatValue{font-weight:800;font-size:14px;white-space:nowrap}
+.rankDetailStatValue.is-yellow{color:#ffe071}
+.rankDetailStatValue.is-red{color:#ff6d78}
+.rankDetailStatValue.is-diamond{color:#83c8ff}
+.rankDetailIso{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#dadde9;
+  font-size:12px;
+  line-height:1.4;
+  margin-top:9px;
+  overflow-wrap:anywhere;
+}
+.rankDetailIso img{flex:0 0 24px;width:24px;height:24px;object-fit:contain}
+.rankDetailNote{color:var(--muted);font-size:12px;margin:14px 0 0;line-height:1.4}
+@media(min-width:640px){
+  .rankDetailCharacters{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:400px){
+  .rankDetailOverlay{padding:8px;padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom))}
+  .rankDetailDialog{padding:12px}
+  .rankDetailCharacter{gap:9px;padding:8px}
+  .rankDetailPortrait{flex-basis:54px;width:54px;height:54px}
+}
