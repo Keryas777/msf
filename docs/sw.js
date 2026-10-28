@@ -1,6 +1,6 @@
 // docs/sw.js
 
-const CACHE = "losp-v18";
+const CACHE = "losp-v19";
 
 const CORE_ASSETS = [
   "./",
@@ -64,6 +64,13 @@ const isHtmlRequest = (request, url) => {
 
 const isJsonRequest = (url) => {
   return url.pathname.endsWith(".json");
+};
+
+// Les rosters et leur horodatage doivent impérativement venir du réseau.
+// Pas de Cache API, pas de cache HTTP et pas de repli hors ligne.
+const isLiveRosterRequest = (url) => {
+  return /\/data\/rosters(?:_[a-z0-9-]+)?\.json$/i.test(url.pathname) ||
+    url.pathname.endsWith("/data/rosters-meta.json");
 };
 
 const isScriptOrStyle = (url) => {
@@ -135,6 +142,12 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
 
   if (!isSameOrigin(url)) return;
+
+  // Les rosters sont exclusivement en ligne (même en mode PWA).
+  if (isLiveRosterRequest(url)) {
+    event.respondWith(fetch(request, { cache: "no-store" }));
+    return;
+  }
 
   // HTML : toujours réseau d'abord, fallback home si offline.
   if (isHtmlRequest(request, url)) {
