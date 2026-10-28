@@ -9808,12 +9808,12 @@
     "atk_char3": "Scorpion",
     "atk_char4": "SuperiorSpiderMan",
     "atk_char5": "Vulture",
-    "min_ratio_hard": "0.77",
-    "min_ratio_ok": "0.92",
-    "min_ratio_safe": "1.07",
-    "min_ratio_overkill": "2.07",
-    "min_ratio_overkill_plus": "2.57",
-    "notes": "La Caserne adverse doit être tombée"
+    "min_ratio_hard": "0.52",
+    "min_ratio_ok": "0.67",
+    "min_ratio_safe": "0.82",
+    "min_ratio_overkill": "1.82",
+    "min_ratio_overkill_plus": "2.32",
+    "notes": "La Caserne adverse doit être tombée\n\nSeulement une fois la Caserne tombée"
   },
   {
     "def_family": "Eternels Intemporels",
@@ -10029,6 +10029,30 @@
     "min_ratio_safe": "1.06",
     "min_ratio_overkill": "2.06",
     "min_ratio_overkill_plus": "2.56",
+    "notes": ""
+  },
+  {
+    "def_family": "Conclave de l'Ombre",
+    "def_variant": "Conclave de l'Ombre \"classique\"",
+    "def_key": "conclave",
+    "def_char1": "Executioner",
+    "def_char2": "HighEvolutionary",
+    "def_char3": "Malekith",
+    "def_char4": "Sylvie",
+    "def_char5": "Thanos",
+    "atk_family": "Silent Dominion ©",
+    "atk_team": "Silent Dominion © + Thanos (Endgame)",
+    "atk_key": "silentdominionthanosendgame",
+    "atk_char1": "Kingpin",
+    "atk_char2": "Quasar",
+    "atk_char3": "Storm",
+    "atk_char4": "ThanosEndgame",
+    "atk_char5": "Xavier",
+    "min_ratio_hard": "0.49",
+    "min_ratio_ok": "0.64",
+    "min_ratio_safe": "0.79",
+    "min_ratio_overkill": "1.79",
+    "min_ratio_overkill_plus": "2.29",
     "notes": ""
   }
 ]
