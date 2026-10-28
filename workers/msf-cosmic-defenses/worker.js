@@ -133,6 +133,22 @@ function parseRooms(payload,season,knownIds){
     return {room:id,characters:chars,notes:clean(room.notes,250)};
   });
 }
+function assertUniqueCharactersAcrossRooms(rooms,rows,season,authorId){
+  const updated=new Set(rooms.map(room=>room.room));
+  const retained=rows.filter(row=>row?.season===season &&
+    row?.authorDiscordId===authorId && (!row.source||row.source==="Personnel") &&
+    !updated.has(Number(row.room)));
+  const seen=new Map();
+  for (const room of [...retained,...rooms]) {
+    for (const id of Array.isArray(room.characters)?room.characters:[]) {
+      if (seen.has(id)) {
+        throw new HttpError(400,"duplicate_character",
+          id+" est déjà utilisé en salle "+seen.get(id)+" et en salle "+room.room+".");
+      }
+      seen.set(id,room.room);
+    }
+  }
+}
 async function playableIds(env,sha){
   // Snapshot figé au commit, pour refuser IDs arbitraires/boss/NPC.
   const rows=await fileAt(env,"docs/data/msf-characters.json",sha);
@@ -194,6 +210,7 @@ async function publish(request,env){
     const current=await snapshot(env);
     const ids=await playableIds(env,current.sha);
     const rooms=parseRooms(payload,current.season,ids);
+    assertUniqueCharactersAcrossRooms(rooms,current.rows,current.season,author.id);
     if (payload.title !== undefined &&
         (typeof payload.title !== "string" || payload.title.length > 60))
       throw new HttpError(400,"invalid_title","Titre de défense invalide (60 caractères maximum).");

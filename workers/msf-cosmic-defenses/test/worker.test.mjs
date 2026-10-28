@@ -10,15 +10,23 @@ const json = (obj,status=200) => new Response(JSON.stringify(obj),{
   status,headers:{"Content-Type":"application/json"}
 });
 const b64 = obj => Buffer.from(JSON.stringify(obj),"utf8").toString("base64");
+const teams=[
+  ["Hulk","SpiderMan","Blade","Thor","Odin"],
+  ["Gamora","Nebula","Drax","Groot","RocketRaccoon"],
+  ["Vahl","Kahhori","CaptainAmerica","IronMan","Hulkbuster"],
+  ["ScarletWitch","Vision","Quicksilver","Ultron","Thanos"],
+  ["Deadpool","Wolverine","X23","Cable","Domino"],
+  ["PhantomRider","Patriot","PeggyCarter","PeniParker","PandaPool"]
+];
 const make = (room=1) => ({
-  room,characters:["Hulk","SpiderMan","Blade","Thor","Odin"],notes:"Equipe test"
+  room,characters:[...teams[room-1]],notes:"Equipe test"
 });
 const fixture = ({season="season-25",old=[],conflict=false}={}) => {
   const calls=[];
   let version=head;
   let current=old;
   let conflicts=0;
-  const chars=["Hulk","SpiderMan","Blade","Thor","Odin"].map(id=>({
+  const chars=teams.flat().map(id=>({
     id,player_Character:true
   }));
   const mockFetch=async (url,options={})=>{
@@ -128,6 +136,51 @@ test("saison différente ou IDs non jouables : rejet sans commit",async()=>{
     const invalid={...make(),characters:["Hulk","SpiderMan","Blade","Thor","NPC"]};
     assert.equal((await worker.fetch(post([invalid]),y.env)).status,400);
     assert.equal(y.calls.filter(c=>c.method!=="GET").length,0);
+  });
+});
+test("six salles distinctes : 30 personnages uniques acceptés",async()=>{
+  const x=fixture();
+  await withMock(x.mockFetch,async()=>{
+    const result=await worker.fetch(post(Array.from({length:6},(_,i)=>make(i+1))),x.env);
+    assert.equal(result.status,200);
+    assert.equal(x.getRows().length,6);
+  });
+});
+test("un personnage répété entre deux salles soumises est refusé",async()=>{
+  const x=fixture();
+  const second={...make(2),characters:["Hulk",...make(2).characters.slice(1)]};
+  await withMock(x.mockFetch,async()=>{
+    const response=await worker.fetch(post([make(1),second]),x.env);
+    assert.equal(response.status,400);
+    const data=await response.json();
+    assert.equal(data.error,"duplicate_character");
+    assert.match(data.message,/Hulk.*salle 1.*salle 2/);
+    assert.equal(x.calls.filter(c=>c.method!=="GET").length,0);
+  });
+});
+test("publication partielle : interdit le doublon avec une salle déjà publiée par le même Discord",async()=>{
+  const mine={...make(1),season:"season-25",source:"Personnel",
+    authorDiscordId:"300305626926415874",author:"Keryas"};
+  const x=fixture({old:[mine]});
+  const second={...make(2),characters:["Hulk",...make(2).characters.slice(1)]};
+  await withMock(x.mockFetch,async()=>{
+    const response=await worker.fetch(post([second]),x.env);
+    assert.equal(response.status,400);
+    assert.equal((await response.json()).error,"duplicate_character");
+    assert.equal(x.calls.filter(c=>c.method!=="GET").length,0);
+    assert.deepEqual(x.getRows(),[mine]);
+  });
+});
+test("un héros d'un autre joueur ou de Marvel Church reste autorisé",async()=>{
+  const external={...make(1),season:"season-25",source:"Marvel Church"};
+  const other={...make(2),season:"season-25",source:"Personnel",
+    authorDiscordId:"999999999999999999",author:"Autre"};
+  const x=fixture({old:[external,other]});
+  await withMock(x.mockFetch,async()=>{
+    const response=await worker.fetch(post([make(1),make(2)]),x.env);
+    assert.equal(response.status,200);
+    assert.equal(x.getRows().length,4);
+    assert.deepEqual(x.getRows().slice(0,2),[external,other]);
   });
 });
 test("GET en direct affiche uniquement la saison active",async()=>{

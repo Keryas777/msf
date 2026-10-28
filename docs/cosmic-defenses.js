@@ -272,9 +272,11 @@
       // Évite la perte du focus de l'input avant le clic dans Safari/Chrome.
       button.addEventListener("pointerdown", event => event.preventDefault());
       button.addEventListener("click", () => {
-        const inputs = [...section.querySelectorAll("[data-cosmic-character]")];
-        if (inputs.some(other => other !== input && other.dataset.selectedId === character.id)) {
-          proposalStatus.textContent = character.name + " est déjà sélectionné dans cette salle.";
+        const duplicate = [...proposalsNode.querySelectorAll("[data-cosmic-character]")]
+          .find(other => other !== input && other.dataset.selectedId === character.id);
+        if (duplicate) {
+          const roomId = duplicate.closest("[data-cosmic-room]")?.dataset.cosmicRoom;
+          proposalStatus.textContent = character.name + " est déjà sélectionné en salle " + roomId + ".";
           return;
         }
         input.value = character.name;
@@ -368,6 +370,7 @@
     const author = discordAuthor;
     if (!author) throw new Error("La session Discord doit être validée avant le partage.");
     const selectedRooms = [];
+    const usedCharacters = new Map();
     for (const room of rooms) {
       const section = proposalsNode.querySelector('[data-cosmic-room="' + room.id + '"]');
       const inputs = [...section.querySelectorAll("[data-cosmic-character]")];
@@ -379,6 +382,14 @@
       }
       if (new Set(ids).size !== 5) {
         throw new Error(room.label + " : un personnage est sélectionné plusieurs fois.");
+      }
+      for (const id of ids) {
+        if (usedCharacters.has(id)) {
+          throw new Error((charactersById.get(id)?.name || id) +
+            " est déjà sélectionné en salle " + usedCharacters.get(id) +
+            " (doublon avec la salle " + room.id + ").");
+        }
+        usedCharacters.set(id, room.id);
       }
       selectedRooms.push({
         room: room.id,

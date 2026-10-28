@@ -52,6 +52,15 @@ test("reprise du moteur de contres sans bonus de guerre dans le mode cosmique", 
   assert.match(engine, /if \(IS_COSMIC \|\| !USAGE_LOGGER_URL\) return;/);
 });
 
+test("propositions : anti-doublon entre toutes les salles, y compris brouillon restauré", async () => {
+  const js = await read("docs/cosmic-defenses.js");
+  const html = await read("docs/cosmic-defense-propose.html");
+  assert.match(js, /proposalsNode\.querySelectorAll\("\[data-cosmic-character\]"\)/);
+  assert.match(js, /usedCharacters\.has\(id\)/);
+  assert.match(js, /usedCharacters\.set\(id, room\.id\)/);
+  assert.match(html, /cosmic-defenses\.js\?v=12/);
+});
+
 test("propositions : sauvegarde locale et publication directe confirmée", async () => {
   const code = await read("docs/cosmic-defenses.js");
   assert.match(code, /localStorage\.setItem\(DRAFT_KEY/);
@@ -133,7 +142,7 @@ test("les portraits du brouillon peuvent être retirés individuellement, puis s
   assert.match(css, /\.cosmicPortraitRemove:focus-visible/);
   // Pas de croix pour les défenses publiées ni de suppression de la note.
   assert.doesNotMatch(js.split("function renderPublished()")[1]?.split("function initPublishedSelector")[0] || "", /cosmicPortraitRemove/);
-  assert.match(html, /cosmic-defenses\.js\?v=11/);
+  assert.match(html, /cosmic-defenses\.js\?v=12/);
 });
 
 test("trois tuiles : consultation et proposition sont des pages indépendantes", async () => {
@@ -173,7 +182,7 @@ test("le formulaire déplacé conserve la clé de brouillon et les suppressions"
   assert.match(js, /localStorage\.setItem\(DRAFT_KEY/);
   assert.match(js, /cosmicPortraitRemove/);
   assert.match(js, /input\.dataset\.selectedId = ""/);
-  assert.match(html, /cosmic-defenses\.js\?v=11/);
+  assert.match(html, /cosmic-defenses\.js\?v=12/);
   assert.match(html, /cosmic-season-ui\.js/);
   assert.match(css, /\.cosmicHubTile--propose/);
 });
@@ -357,7 +366,7 @@ test("publication : titre facultatif, conservé dans le brouillon et envoyé au 
     read("docs/cosmic-defenses.html"),read("workers/msf-cosmic-defenses/worker.js")
   ]);
   assert.match(html,/id="proposalTitle"[^>]*maxlength="60"/);
-  assert.match(html,/cosmic-defenses\.js\?v=11/);
+  assert.match(html,/cosmic-defenses\.js\?v=12/);
   assert.match(browse,/cosmic-defense-catalog\.js\?v=4/);
   assert.match(browse,/cosmic-defenses\.js\?v=13/);
   assert.match(js,/title: safeText\(proposalTitle\?\.value, 60\)/);
@@ -388,7 +397,7 @@ test("les en-têtes de salles sont centrés et visibles sur les deux pages",asyn
   assert.match(browse,/cosmic\.css\?v=10/);
   assert.match(propose,/cosmic\.css\?v=9/);
   assert.match(browse,/cosmic-defenses\.js\?v=13/);
-  assert.match(propose,/cosmic-defenses\.js\?v=11/);
+  assert.match(propose,/cosmic-defenses\.js\?v=12/);
   assert.match(propose,/placeholder="Défense standard"/);
   assert.match(propose,/Sans titre : « Défense standard »/);
 });
@@ -454,7 +463,7 @@ test("le texte des règles démarre sous leur intitulé sur les deux pages", asy
   assert.equal(matches.length, 2, "consultation et proposition");
   assert.match(css, /\.cosmicRoomRule\{[^}]*white-space:pre-line/);
   assert.match(browse, /cosmic-defenses\.js\?v=13/);
-  assert.match(propose, /cosmic-defenses\.js\?v=11/);
+  assert.match(propose, /cosmic-defenses\.js\?v=12/);
 });
 
 
