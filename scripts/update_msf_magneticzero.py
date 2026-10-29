@@ -130,7 +130,11 @@ def run(
     records = verify_local(existing, directory)
     candidate, files, summary = build_candidate(existing, records, directory)
     change = without_updated_at(existing) != candidate
-    summary.update({"changed": change, "apply": apply})
+    summary.update({
+        "changed": change,
+        "contentChanged": bool(summary["differentFiles"]),
+        "apply": apply,
+    })
     if apply and change:
         # Complete all HTTP/JSON/hash checks before writing any tracked file.
         with tempfile.TemporaryDirectory(prefix="magneticzero-staging-") as tmp:
@@ -157,6 +161,7 @@ def main() -> int:
         if output:
             with open(output, "a", encoding="utf-8") as out:
                 out.write(f"changed={'true' if result['changed'] else 'false'}\n")
+                out.write(f"content_changed={'true' if result['contentChanged'] else 'false'}\n")
         return 0
     except (PipelineError, ProbeError, OSError, ValueError, KeyError, TypeError) as exc:
         print(f"MagneticZero collection failed without publishing: {exc}", file=os.sys.stderr)

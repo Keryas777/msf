@@ -87,6 +87,7 @@ class MagneticZeroUpdateTests(unittest.TestCase):
         self.remote["missiontraits.json"]["Data"]["TowerChallenger3"] = {"flags": []}
         first = self.run_with_fake_site(apply=True)
         self.assertTrue(first["changed"])
+        self.assertTrue(first["contentChanged"])
         updated = json.loads(self.manifest.read_text())
         self.assertEqual(updated["catalog"]["source"], "magneticzero")
         self.assertFalse(updated["game"]["versionVerified"])
@@ -96,7 +97,20 @@ class MagneticZeroUpdateTests(unittest.TestCase):
         self.assertEqual(updated["updatedAt"], "2026-10-13T12:00:00Z")
         second = self.run_with_fake_site(apply=True)
         self.assertFalse(second["changed"])
+        self.assertFalse(second["contentChanged"])
         self.assertEqual(json.loads(self.manifest.read_text()), updated)
+
+    def test_revision_only_change_updates_provenance_without_marking_content_changed(self):
+        old = self.remote["procs.json"]
+        self.remote["procs.json"] = {
+            "Data": old["Data"],
+            "ForceImportVersion": old["ForceImportVersion"],
+            "Name": old["Name"],
+        }
+        result = self.run_with_fake_site(apply=True)
+        self.assertTrue(result["changed"])
+        self.assertFalse(result["contentChanged"])
+        self.assertEqual(result["differentFiles"], [])
 
     def test_bad_remote_hash_aborts_without_writing(self):
         old_manifest = self.manifest.read_bytes()

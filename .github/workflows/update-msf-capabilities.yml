@@ -4,87 +4,80 @@ on:
   pull_request:
     paths:
       - "scripts/update_msf_capabilities.py"
+      - "scripts/update_msf_magneticzero.py"
+      - "scripts/audit_msf_playable_presentations.py"
       - "tests/test_update_msf_capabilities.py"
+      - "tests/test_update_msf_magneticzero.py"
+      - "tests/test_audit_msf_playable_presentations.py"
+      - "tests/test_msf_capabilities_explorer_builder.py"
       - ".github/workflows/update-msf-capabilities.yml"
-      - "data/msf-capabilities/bootstrap-sources.tar.gz"
       - "MSF_CAPABILITIES_PIPELINE.md"
-
+  schedule:
+    - cron: "17 3 * * 1"
   workflow_dispatch:
     inputs:
       game_version:
-        description: "Version MSF détectée, par exemple 10_3_0"
-        required: true
+        description: "Version pour le secours Chrome (ex. 10_3_0)"
+        required: false
         type: string
       game_build:
-        description: "Numéro de build détecté, par exemple 1654625"
+        description: "Build pour le secours Chrome"
         required: false
         default: ""
         type: string
       database_base64:
-        description: "combat_data.db encodé en Base64 par l’extension"
-        required: true
+        description: "combat_data.db en Base64 pour le secours Chrome"
+        required: false
         type: string
 
 permissions:
   contents: read
-
 concurrency:
-  group: msf-capabilities-${{ github.event_name == 'pull_request' && github.workflow || 'publication' }}-${{ github.event_name == 'pull_request' && github.head_ref || 'main' }}
+  group: main-data-writer
   cancel-in-progress: false
 
 jobs:
   test:
-    name: Validate pipeline
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Run regression tests
-        run: python -m unittest discover -s tests -p "test_update_msf_capabilities.py" -v
+      - name: Source and presentation regression tests
+        run: |
+          python -m unittest discover -s tests -p "test_update_msf_capabilities.py" -v
+          python -m unittest discover -s tests -p "test_update_msf_magneticzero.py" -v
+          python -m unittest discover -s tests -p "test_audit_msf_playable_presentations.py" -v
+          python -m unittest discover -s tests -p "test_msf_capabilities_explorer_builder.py" -v
 
   update:
-    name: Download official sources
-    if: github.event_name == 'workflow_dispatch'
     needs: test
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
-      - name: Checkout main
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Bootstrap the first verified source set
+      - name: Bootstrap first verified source set
         run: |
           if [[ -f data/msf-capabilities/bootstrap-sources.tar.gz ]]; then
             mkdir -p data/msf-capabilities/raw
-            tar -xzf data/msf-capabilities/bootstrap-sources.tar.gz \
-              -C data/msf-capabilities/raw
+            tar -xzf data/msf-capabilities/bootstrap-sources.tar.gz -C data/msf-capabilities/raw
           fi
-
-      - name: Check whether MagneticZero primary source is available
+      - name: Collect MagneticZero revisions and update changed sources
         id: primary
         continue-on-error: true
-        run: python scripts/probe_magneticzero.py
-
-      - name: Validate catalog and download official JSON files (fallback only)
-        if: steps.primary.outcome == 'failure'
-        id: sources
+        run: python scripts/update_msf_magneticzero.py --apply
+      - name: Use Chrome fallback only when explicitly supplied
+        id: fallback
+        if: steps.primary.outcome == 'failure' && github.event_name == 'workflow_dispatch' && inputs.database_base64 != ''
         env:
           MSF_DATABASE_BASE64: ${{ inputs.database_base64 }}
           MSF_GAME_VERSION: ${{ inputs.game_version }}
@@ -95,43 +88,56 @@ jobs:
             --game-version "$MSF_GAME_VERSION" \
             --game-build "$MSF_GAME_BUILD" \
             --allow-magneticzero-fallback
-
-      - name: Rebuild Codex from validated Chrome fallback
-        if: steps.primary.outcome == 'failure' && steps.sources.outputs.changed == 'true'
+      - name: Report playable presentation gaps
+        if: always()
+        run: python scripts/audit_msf_playable_presentations.py
+      - name: Fail safely when all collection sources are unavailable
+        if: steps.primary.outcome == 'failure' && steps.fallback.outcome != 'success'
+        run: |
+          echo "::error::MagneticZero failed; previous verified publication remains unchanged."
+          exit 1
+      - name: Run Codex regression suites
+        if: (steps.primary.outcome == 'success' && steps.primary.outputs.content_changed == 'true') || (steps.fallback.outcome == 'success' && steps.fallback.outputs.changed == 'true')
+        run: |
+          python -m unittest discover -s tests -p "test_msf_capabilities_parser.py" -v
+          python -m unittest discover -s tests -p "test_msf_capabilities_normalizer.py" -v
+          python -m unittest discover -s tests -p "test_msf_capabilities_indexer.py" -v
+          python -m unittest discover -s tests -p "test_msf_capabilities_web_publisher.py" -v
+          python -m unittest discover -s tests -p "test_msf_capabilities_explorer_builder.py" -v
+          python -m unittest discover -s tests -p "test_msf_turn_meter_*.py" -v
+          python -m unittest discover -s tests -p "test_msf_stat_modifier_normalization.py" -v
+          python -m unittest discover -s tests -p "test_msf_health_redistribute.py" -v
+      - name: Rebuild existing Codex stages
+        if: (steps.primary.outcome == 'success' && steps.primary.outputs.content_changed == 'true') || (steps.fallback.outcome == 'success' && steps.fallback.outputs.changed == 'true')
         run: |
           python -m scripts.msf_capabilities_parser.cli
           python -m scripts.msf_capabilities_normalizer.cli
           python -m scripts.msf_capabilities_indexer.cli
           python -m scripts.msf_capabilities_web_publisher.cli
           python -m scripts.msf_capabilities_explorer_builder.cli
-          python -m unittest discover -s tests -p 'test_msf_capabilities_parser.py' -v
-          python -m unittest discover -s tests -p 'test_msf_capabilities_normalizer.py' -v
-          python -m unittest discover -s tests -p 'test_msf_capabilities_indexer.py' -v
-          python -m unittest discover -s tests -p 'test_msf_capabilities_web_publisher.py' -v
-          python -m unittest discover -s tests -p 'test_msf_capabilities_explorer_builder.py' -v
+      - name: Verify every generated stage and coverage
+        if: (steps.primary.outcome == 'success' && steps.primary.outputs.content_changed == 'true') || (steps.fallback.outcome == 'success' && steps.fallback.outputs.changed == 'true')
+        run: |
           python -m scripts.msf_capabilities_parser.cli --check
           python -m scripts.msf_capabilities_normalizer.cli --check
           python -m scripts.msf_capabilities_indexer.cli --check
           python -m scripts.msf_capabilities_web_publisher.cli --check
           python -m scripts.msf_capabilities_explorer_builder.cli --check
-
-      - name: Commit and push if changed
-        if: steps.primary.outcome == 'failure'
+          python scripts/audit_msf_playable_presentations.py
+      - name: Commit and push validated source and generations
+        if: (steps.primary.outcome == 'success' && steps.primary.outputs.changed == 'true') || (steps.fallback.outcome == 'success' && steps.fallback.outputs.changed == 'true')
         env:
-          MSF_GAME_VERSION: ${{ inputs.game_version }}
+          VERSION_LABEL: ${{ inputs.game_version || 'magneticzero' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           git rm --ignore-unmatch data/msf-capabilities/bootstrap-sources.tar.gz
           git add data/msf-capabilities/raw data/msf-capabilities/source-manifest.json
           git add -- docs/data/msf-capabilities docs/data/msf-capabilities-explorer
-
           if git diff --staged --quiet; then
-            echo "No MSF capabilities source changes to commit."
+            echo "No source or Codex changes; no commit created."
             exit 0
           fi
-
-          git commit -m "Update MSF capabilities sources (${MSF_GAME_VERSION})"
+          git commit -m "Update MSF capabilities sources ($VERSION_LABEL)"
           git pull --rebase origin main
           git push origin HEAD:main

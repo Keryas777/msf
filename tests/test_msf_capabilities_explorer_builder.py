@@ -52,6 +52,15 @@ class ExplorerBuilderTests(unittest.TestCase):
         self.assertEqual(ABILITY_TYPES["passive"]["label"], "Passif")
         self.assertEqual(ABILITY_TYPES["passive_empower"]["label"], "Passif renforcé")
 
+    def test_dracula_playability_comes_from_character_catalog(self):
+        catalog = {item["id"]: item for item in self.documents["portraits"]}
+        if "Dracula" not in catalog:
+            self.skipTest("Dracula is absent from this source snapshot")
+        self.assertIs(catalog["Dracula"]["player_Character"], True)
+        dracula = self.payload("characters/Dracula.json")["character"]
+        self.assertTrue(dracula["playable"])
+        self.assertEqual(dracula["status"]["label"], "Personnage jouable")
+
     def test_health_facets_preserve_sources_routes_and_playable_policy(self):
         mechanic = self.payload("mechanics/action-health-redistribute.json")
         expected_ids = {"health_equalize", "health_steal_redistribute",
@@ -88,10 +97,17 @@ class ExplorerBuilderTests(unittest.TestCase):
         search = self.payload("search.json")["records"]
         self.assertEqual({r["operation"] for r in search
                           if r["id"] == "action-health-redistribute" and r.get("operation")}, expected_ids)
+        playable_by_id = {
+            item["id"]: item.get("player_Character") is True
+            for item in self.documents["portraits"]
+        }
         for path in self.generated.payloads:
             if path.startswith("characters/"):
                 character = self.payload(path)["character"]
-                self.assertEqual(character["playable"], character["official"])
+                self.assertEqual(
+                    character["playable"],
+                    playable_by_id.get(character["id"], False),
+                )
         for character_id in ("IronMonger", "Thena", "Gilgamesh"):
             self.assertFalse(self.payload(f"characters/{character_id}.json")["character"]["playable"])
 
