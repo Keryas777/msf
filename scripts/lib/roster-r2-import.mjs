@@ -182,6 +182,13 @@ export function convertCharacter(raw,prior){
   if(num(gear))value.gear=gear;
   if(num(yellow))value.yellowStars=yellow;
   if(num(red)){value.redStars=Math.min(red,7);value.diamonds=num(diamond)?diamond:0;}
+  // CharacterInstance provides the player's four actual ability levels.
+  // An omitted/invalid level is unknown, not zero. Preserve prior values.
+  const abilities=object(value.abilities)?{...value.abilities}:{};
+  for(const kind of ['basic','special','ultimate','passive']){
+    if(num(raw[kind]))abilities[kind]=raw[kind];
+  }
+  if(Object.keys(abilities).length)value.abilities=abilities;
   // Preserve known CSV measurements, but use actual reported ISO class
   // levels to detect newer progress. Never infer ISO 0 from absent levels.
   const csvIso=isoFromProviderCsv(raw.iso8);

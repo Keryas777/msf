@@ -136,6 +136,25 @@ test('character conversion takes API stars, preserves known ISO matrix fields',(
   assert.equal(convertCharacter({...chars[1],activeRed:undefined},undefined),null);
 });
 
+test('R2 ability levels are preserved per character without inventing missing levels',()=>{
+  const source={...chars[0],basic:7,special:7,ultimate:7,passive:5};
+  const converted=convertCharacter(source);
+  assert.deepEqual(converted.value.abilities,
+    {basic:7,special:7,ultimate:7,passive:5});
+  const old={...converted.value,abilities:{basic:7,special:6,ultimate:7,passive:5}};
+  const partial=convertCharacter({...chars[0],special:7,passive:null},old);
+  assert.deepEqual(partial.value.abilities,
+    {basic:7,special:7,ultimate:7,passive:5});
+  const unknown=convertCharacter({...chars[0],basic:'',special:-1},undefined);
+  assert.equal(Object.hasOwn(unknown.value,'abilities'),false);
+  assert.equal(convertCharacter({...chars[0],basic:0}).value.abilities.basic,0);
+  const member={name:'Ability Player',characters:[source,chars[1]]};
+  const rows=convertAllianceRosters('zeus',[member],[],{aliases:{}});
+  assert.deepEqual(rows[0].chars.spiderman.abilities,
+    {basic:7,special:7,ultimate:7,passive:5});
+  assert.equal(Object.hasOwn(rows[0].chars.newcharacter,'abilities'),false);
+});
+
 test('real R2 ISO8 CSV class levels reconstruct the historic five-column ISO maximum',()=>{
   const source={id:'SpiderMan',power:3000000,level:110,gearTier:21,
     activeYellow:7,activeRed:9};

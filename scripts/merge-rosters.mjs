@@ -37,6 +37,24 @@ function toInt(x) {
   return Number.isFinite(n) ? Math.trunc(n) : 0;
 }
 
+// Ability levels are optional. Never replace missing levels with zero.
+// Highest-power record wins; ties retain the highest valid observed level.
+function mergeAbilityLevels(previous, incoming, preferIncoming) {
+  const prior = previous?.abilities && typeof previous.abilities === "object"
+    && !Array.isArray(previous.abilities) ? previous.abilities : {};
+  const source = incoming?.abilities && typeof incoming.abilities === "object"
+    && !Array.isArray(incoming.abilities) ? incoming.abilities : {};
+  const abilities = {};
+  const valid = x => Number.isSafeInteger(x) && x >= 0;
+  for (const kind of ["basic", "special", "ultimate", "passive"]) {
+    const p = prior[kind], s = source[kind];
+    if (valid(s)) abilities[kind] = preferIncoming || !valid(p)
+      ? s : Math.max(p, s);
+    else if (valid(p)) abilities[kind] = p;
+  }
+  return Object.keys(abilities).length ? {abilities} : {};
+}
+
 async function readJsonArray(source) {
   const file = source.file;
   try {
@@ -97,6 +115,7 @@ function mergePlayerEntry(target, source) {
         yellowStars: srcYellowStars,
         redStars: srcRedStars,
         diamonds: srcDiamonds,
+        ...mergeAbilityLevels(prev, srcChar, true),
       };
 
       if (sourceIso[charKey] && typeof sourceIso[charKey] === "object") {
@@ -116,6 +135,7 @@ function mergePlayerEntry(target, source) {
       prev.yellowStars = Math.max(toInt(prev.yellowStars), srcYellowStars);
       prev.redStars = Math.max(toInt(prev.redStars), srcRedStars);
       prev.diamonds = Math.max(toInt(prev.diamonds), srcDiamonds);
+      Object.assign(prev, mergeAbilityLevels(prev, srcChar, false));
 
       if (!target.iso[charKey] && sourceIso[charKey] && typeof sourceIso[charKey] === "object") {
         target.iso[charKey] = {
