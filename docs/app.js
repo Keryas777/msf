@@ -39,6 +39,24 @@
     { key: "passive", label: "Passif" },
   ]);
 
+  // Official /game/v1 materials, verified against the LoSP R2 audit (29 Oct 2026).
+  const ABILITY_MATERIAL_ICONS = Object.freeze({
+    T1: "https://assets.marvelstrikeforce.com/imgs/ICON_ABILITY_MATERIAL_GREEN_ABILITY_MAT_b4780c94.png",
+    T2: "https://assets.marvelstrikeforce.com/imgs/ICON_ABILITY_MATERIAL_BLUE_ABILITY_MAT_66eb7f9d.png",
+    T3: "https://assets.marvelstrikeforce.com/imgs/ICON_ABILITY_MATERIAL_PURPLE_ABILITY_MAT_2250890d.png",
+    T4: "https://assets.marvelstrikeforce.com/imgs/ICON_ABILITY_MATERIAL_ORANGE_ABILITY_MAT_bb60fc90.png",
+  });
+  // Material used to reach each level; awakened levels are character-specific.
+  const ABILITY_MATERIAL_TIERS = Object.freeze({
+    basic: [null, null, "T1", "T1", "T2", "T2", "T3", "T4"],
+    special: [null, null, "T1", "T2", "T2", "T3", "T3", "T4"],
+    ultimate: [null, null, "T1", "T2", "T2", "T3", "T3", "T4"],
+    passive: [null, null, "T2", "T3", "T3", "T4"],
+  });
+  const AWAKENED_MATERIALS_URL =
+    "https://losp-roster-service.deliriousfan7.workers.dev/api/public/awakened-materials";
+  let awakenedMaterialsPromise = null;
+
   const qs = (s) => document.querySelector(s);
 
   const modeSelect = qs("#modeSelect");
@@ -612,6 +630,44 @@
     return abilityReferenceCache.get(charId);
   }
 
+  function getAbilityMaterialTier(type, level) {
+    return ABILITY_MATERIAL_TIERS[type]?.[level] || null;
+  }
+
+  function isAwakenedAbilityLevel(type, level) {
+    return type === "passive" ? level === 6 :
+      ["basic", "special", "ultimate"].includes(type) && level === 8;
+  }
+
+  function abilityMaterialImage(url, label) {
+    // Only known official image URLs are accepted; never synthesize a CDN path.
+    if (typeof url !== "string" ||
+        !/^https:\/\/assets\.marvelstrikeforce\.com\/(?:imgs|key_art)\/[A-Za-z0-9_./%-]+\.(?:png|webp|jpg|jpeg)$/i.test(url)) return null;
+    const icon = detailNode("img", "rankDetailAbilityMaterial");
+    icon.src = url;
+    icon.alt = label;
+    icon.title = label;
+    icon.loading = "lazy";
+    icon.decoding = "async";
+    icon.referrerPolicy = "no-referrer";
+    return icon;
+  }
+
+  async function getAwakenedAbilityMaterials() {
+    if (!awakenedMaterialsPromise) {
+      awakenedMaterialsPromise = fetchJson(AWAKENED_MATERIALS_URL).then(data => {
+        if (data?.schemaVersion !== 1 || data.status !== "ok" ||
+            !Array.isArray(data.materials)) throw new Error("Catalogue d'éveil invalide");
+        return data.materials;
+      }).catch(() => {
+        // Optional decoration: never break the roster when the catalog is down.
+        awakenedMaterialsPromise = null;
+        return [];
+      });
+    }
+    return awakenedMaterialsPromise;
+  }
+
   function detailAbilities(raw, charId) {
     const grid = detailNode("div", "rankDetailAbilities");
     grid.setAttribute("role", "group");
@@ -627,6 +683,14 @@
       const tile = detailNode("div", "rankDetailAbility");
       const iconSlot = detailNode("span", "rankDetailAbilityIcon");
       iconSlot.setAttribute("aria-hidden", "true");
+      const iconRow = detailNode("div", "rankDetailAbilityIcons");
+      iconRow.appendChild(iconSlot);
+      const tier = getAbilityMaterialTier(key, level);
+      if (tier) {
+        const material = abilityMaterialImage(ABILITY_MATERIAL_ICONS[tier],
+          "Matériau de capacité " + tier);
+        if (material) iconRow.appendChild(material);
+      }
       const name = detailNode("span", "rankDetailAbilityName", label);
       const levels = detailNode("div", "rankDetailAbilityNumbers");
       levels.append(
@@ -638,9 +702,25 @@
       const status = detailNode("span", "rankDetailAbilityStatus",
         level === null ? "Non renseigné" : "Niveau relevé");
       if (level === null) tile.classList.add("is-unknown");
-      tile.append(iconSlot, name, levels, status);
+      tile.append(iconRow, name, levels, status);
       grid.appendChild(tile);
-      items.set(key, { tile, iconSlot, maxText, status, level });
+      items.set(key, { tile, iconSlot, iconRow, maxText, status, level });
+    }
+
+    const awakened = [...items].filter(([key, item]) =>
+      isAwakenedAbilityLevel(key, item.level));
+    if (awakened.length) {
+      getAwakenedAbilityMaterials().then(materials => {
+        if (!grid.isConnected) return;
+        for (const [key, item] of awakened) {
+          const match = materials.find(material =>
+            String(material?.characterId || "").toLowerCase() ===
+              String(charId).toLowerCase() &&
+            String(material?.abilityType || "").toLowerCase() === key);
+          const image = abilityMaterialImage(match?.iconUrl, "Matériau de capacité éveillée");
+          if (image) item.iconRow.appendChild(image);
+        }
+      });
     }
 
     if (hasLevel) {
@@ -751,7 +831,7 @@
 
       const body = detailNode("div", "rankDetailCharacterBody");
       const top = detailNode("div", "rankDetailCharacterTop");
-      top.appendChild(detailNode("h3", "", info?.nameFr || info?.nameEn || charId));
+      top.appendChild(detailNode("h3", "", info?.nameFr || info?.nameKey || info?.nameEn || charId));
       top.appendChild(detailNode("strong", "",
         raw === null ? "Absent du roster" :
         `${formatThousandsDot(readCharPower(raw))} pts`));
