@@ -394,6 +394,9 @@
       buildInfoMap(infos);
       renderAllianceFilters();
       bindEvents();
+      if (checkpoints().some((date) => periodStart(date, '1w'))) {
+        periodSelect.value = '1w';
+      }
       refreshControls();
     } catch (error) {
       console.error(error);
