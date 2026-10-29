@@ -2,11 +2,12 @@ name: Snapshot roster history
 
 on:
   schedule:
-    - cron: "15 4 1 * *"
+    - cron: "0 23 * * 0"
+      timezone: "Europe/Paris"
   workflow_dispatch:
     inputs:
       checkpoint:
-        description: Optional checkpoint (YYYY-MM-01). Leave empty for current month in Europe/Paris.
+        description: Optional Sunday checkpoint (YYYY-MM-DD). Empty means last completed Sunday at 23:00 Europe/Paris.
         required: false
         default: ""
 
@@ -41,23 +42,24 @@ jobs:
           if [ -n "$REQUESTED_CHECKPOINT" ]; then
             checkpoint="$REQUESTED_CHECKPOINT"
           else
-            checkpoint="$(TZ=Europe/Paris date +%Y-%m-01)"
+            checkpoint="$(node --input-type=module -e 'import {lastCompletedWeeklyCheckpoint} from "./scripts/lib/roster-checkpoint-dates.mjs"; console.log(lastCompletedWeeklyCheckpoint())')"
           fi
 
           echo "checkpoint=$checkpoint" >> "$GITHUB_OUTPUT"
-          echo "Roster checkpoint: $checkpoint"
+          echo "Roster checkpoint: $checkpoint (Sunday 23:00 Europe/Paris)"
 
-      - name: Validate roster history ability-level contract
+      - name: Validate roster history and shared date resolution
         run: |
           node --check docs/evolution.js
-          node --test tests/roster-history-abilities.test.mjs tests/roster-monthly-snapshot-smoke.test.mjs
+          node --check docs/evolution-classement.js
+          node --check docs/evolution-periods.js
+          node --test tests/roster-history-abilities.test.mjs tests/roster-monthly-snapshot-smoke.test.mjs tests/roster-weekly-checkpoints.test.mjs
 
-      - name: Build monthly roster snapshot
+      - name: Build weekly roster snapshot
         env:
           DATA_DIR: docs/data
           ROSTER_HISTORY_TZ: Europe/Paris
         run: |
-          node --version
           node scripts/snapshot-rosters.mjs \
             --checkpoint="${{ steps.checkpoint.outputs.checkpoint }}" \
             --write
@@ -90,11 +92,10 @@ jobs:
             exit 1
           fi
 
-      - name: Commit and push monthly roster history
+      - name: Commit and push weekly roster history
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           git add docs/data/roster-history
 
           if git diff --staged --quiet; then
