@@ -47,6 +47,11 @@ jobs:
           echo "checkpoint=$checkpoint" >> "$GITHUB_OUTPUT"
           echo "Roster checkpoint: $checkpoint"
 
+      - name: Validate roster history ability-level contract
+        run: |
+          node --check docs/evolution.js
+          node --test tests/roster-history-abilities.test.mjs
+
       - name: Build monthly roster snapshot
         env:
           DATA_DIR: docs/data

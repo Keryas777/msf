@@ -461,6 +461,31 @@
     return { label, oldValue: String(oldValue), newValue: String(newValue) };
   }
 
+  const ABILITY_LABELS = [
+    ["basic", "Basique"],
+    ["special", "Spéciale"],
+    ["ultimate", "Ultime"],
+    ["passive", "Passive"],
+  ];
+
+  function appendAbilityChanges(before, current, changes, isUnlocked) {
+    let gained = 0;
+    for (const [key, label] of ABILITY_LABELS) {
+      const now = current?.abilities?.[key];
+      if (!Number.isSafeInteger(now) || now < 0) continue;
+      if (isUnlocked) {
+        changes.push(buildChange(`Capacité ${label}`, "—", String(now)));
+        continue;
+      }
+      const prior = before?.abilities?.[key];
+      // Missing prior values are unknown, not an implicit level zero.
+      if (!Number.isSafeInteger(prior) || prior < 0 || now <= prior) continue;
+      gained += now - prior;
+      changes.push(buildChange(`Capacité ${label}`, String(prior), String(now)));
+    }
+    return gained;
+  }
+
   function diffSnapshots(oldSnapshot, newSnapshot) {
     const oldChars = oldSnapshot?.chars || {};
     const newChars = newSnapshot?.chars || {};
@@ -469,6 +494,7 @@
     let gears = 0;
     let diamonds = 0;
     let isoLevels = 0;
+    let abilityLevels = 0;
     let powerGain = 0;
     let unlocked = 0;
     let improved = 0;
@@ -489,6 +515,7 @@
         if (hasOwn(current, "diamonds")) changes.push(buildChange("Diamants", "—", `${current.diamonds} ◆`));
         const iso = isoDisplay(newSnapshot, charKey, current, true);
         if (iso) changes.push(buildChange("ISO", "—", iso));
+        appendAbilityChanges(null, current, changes, true);
         if (hasOwn(current, "power")) {
           changes.push(buildChange("Puissance", "—", formatNumber(current.power)));
           charPowerGain = Number(current.power) || 0;
@@ -533,6 +560,8 @@
           }
         }
 
+        abilityLevels += appendAbilityChanges(before, current, changes, false);
+
         const powerDelta = numericIncrease(before.power, current.power);
         if (powerDelta) {
           charPowerGain = powerDelta;
@@ -560,7 +589,7 @@
       return a.name.localeCompare(b.name, "fr", { sensitivity: "base" });
     });
 
-    return { cards, unlocked, improved, powerGain, levels, gears, diamonds, isoLevels };
+    return { cards, unlocked, improved, powerGain, levels, gears, diamonds, isoLevels, abilityLevels };
   }
 
   function clear(node) {
@@ -693,6 +722,7 @@
     if (diff.gears) details.push(`${formatNumber(diff.gears)} amélioration${diff.gears > 1 ? "s" : ""} de Gear`);
     if (diff.diamonds) details.push(`${formatNumber(diff.diamonds)} diamant${diff.diamonds > 1 ? "s" : ""} gagné${diff.diamonds > 1 ? "s" : ""}`);
     if (diff.isoLevels) details.push(`${formatNumber(diff.isoLevels)} niveau${diff.isoLevels > 1 ? "x" : ""} ISO gagné${diff.isoLevels > 1 ? "s" : ""}`);
+    if (diff.abilityLevels) details.push(`${formatNumber(diff.abilityLevels)} niveau${diff.abilityLevels > 1 ? "x" : ""} de capacité gagné${diff.abilityLevels > 1 ? "s" : ""}`);
     summaryDetails.textContent = details.join(" · ");
   }
 
