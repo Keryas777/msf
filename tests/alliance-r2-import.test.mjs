@@ -108,13 +108,15 @@ test('global snapshot uses latest REAL source per alliance and never leaks priva
 });
 
 test('existing complete manual 24 October reading prevents a duplicate R2 import',()=>{
-  const trophies=originalIndex.snapshots.filter(x=>x.captureType!=='season-ranks');
+  const trophies=originalIndex.snapshots.filter(x=>
+    x.captureType!=='season-ranks'&&x.capturedAt<'2026-10-26T00:00:00.000Z');
   assert.equal(trophies.length,3);
   assert.deepEqual(trophies.map(x=>x.capturedAt.slice(0,10)),
     ['2026-10-21','2026-10-22','2026-10-24']);
   assert.equal(hasCollectionForDay(originalIndex,'2026-10-24'),true);
   assert.equal(hasCollectionForDay(originalIndex,'2026-10-22'),true);
-  assert.equal(hasCollectionForDay(originalIndex,'2026-10-29'),false);
+  assert.equal(hasCollectionForDay({snapshots:trophies},'2026-10-29'),false);
+  // The live index may already contain an authorized 29 October import.
   const automated={snapshots:[{
     capturedAt:'2026-10-29T04:20:00.000Z',collectionDayUtc:'2026-10-29'
   }]};
