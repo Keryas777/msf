@@ -1335,6 +1335,7 @@ body:has(#atkFamilySelect) .counterCard{
 .rankDetailMissing{grid-column:1/-1;color:var(--muted);margin:0}
 .rankDetailCharacter{
   display:flex;
+  flex-wrap:wrap;
   gap:12px;
   min-width:0;
   padding:10px;
@@ -1384,7 +1385,54 @@ body:has(#atkFamilySelect) .counterCard{
   overflow-wrap:anywhere;
 }
 .rankDetailIso img{flex:0 0 24px;width:24px;height:24px;object-fit:contain}
-.rankDetailNote{color:var(--muted);font-size:12px;margin:14px 0 0;line-height:1.4}
+/* Four compact abilities below each character; icons come from Codex when available. */
+.rankDetailAbilities{
+  flex:0 0 100%;
+  min-width:0;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
+}
+.rankDetailAbility{
+  box-sizing:border-box;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:space-between;
+  gap:2px;
+  padding:5px 3px;
+  border:1px solid rgba(107,161,203,.35);
+  border-radius:10px;
+  background:rgba(29,58,82,.45);
+  text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+.rankDetailAbility.is-max{
+  border-color:rgba(244,188,91,.85);
+  background:rgba(97,75,35,.15);
+}
+.rankDetailAbility.is-unknown{opacity:.72}
+.rankDetailAbilityIcon{
+  flex:0 0 19px;
+  width:19px;
+  height:19px;
+  display:block;
+  overflow:hidden;
+  border:1px solid rgba(147,180,205,.33);
+  border-radius:5px;
+  background:rgba(255,255,255,.05);
+}
+.rankDetailAbilityIcon img{display:block;width:100%;height:100%;object-fit:contain}
+.rankDetailAbilityName{font-size:10px;line-height:1.2;color:#d6dfed}
+.rankDetailAbilityNumbers{display:flex;justify-content:center;align-items:baseline;gap:3px}
+.rankDetailAbilityLevel{font-size:20px;line-height:1.1;font-weight:800}
+.rankDetailAbilityMaximum{font-size:11px;color:var(--muted)}
+.rankDetailAbilityStatus{font-size:9px;line-height:1.2;color:#aabfd0;white-space:nowrap}
+.rankDetailAbility.is-max .rankDetailAbilityLevel,
+.rankDetailAbility.is-max .rankDetailAbilityStatus{color:#f4c36b}
+.rankDetailAbility.is-upgrade .rankDetailAbilityStatus{color:#c4d2e1}
+
 @media(min-width:640px){
   .rankDetailCharacters{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
@@ -1394,5 +1442,9 @@ body:has(#atkFamilySelect) .counterCard{
   .rankDetailCharacter{gap:9px;padding:8px}
   .rankDetailPortrait{flex-basis:54px;width:54px;height:54px}
   .rankDetailStats{column-gap:6px}
+  .rankDetailAbilities{gap:4px}
+  .rankDetailAbility{padding:5px 2px}
+  .rankDetailAbilityName{font-size:9px}
+  .rankDetailAbilityStatus{font-size:8px}
   .rankDetailStatLabel{font-size:10px;line-height:1.2}
 }
