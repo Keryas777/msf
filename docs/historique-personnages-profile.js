@@ -145,6 +145,17 @@
       if (!alive(state)) return;
       state.root.querySelector("#profile-identity-traits").innerHTML = codex.renderTraits(shard);
       state.root.querySelector("#profile-abilities-content").innerHTML = codex.renderAbilities(shard);
+      // Material-icon catalogue is optional: a network failure cannot hide
+      // existing Codex abilities, traits or official ability icons.
+      try {
+        const materials = await codex.getAwakenedMaterials(state.record.id);
+        if (alive(state)) {
+          state.root.querySelector("#profile-abilities-content").innerHTML =
+            codex.renderAbilities(shard, materials);
+        }
+      } catch (error) {
+        console.warn("[personnages] Matériaux d'éveil indisponibles :", error);
+      }
     } catch (error) {
       if (!alive(state)) return;
       console.warn("[personnages] Codex :", error);
