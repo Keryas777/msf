@@ -32,6 +32,7 @@ jobs:
         run: |
           node --test tests/msf-release-monitor.test.mjs
           node --test tests/historique-personnages-profile.test.mjs
+          node --test tests/awakened-material-profile.test.mjs
       - name: Exercise first-run baseline without modifying history
         run: |
           cp docs/data/msf-release-history.json /tmp/msf-release-history-before.json
