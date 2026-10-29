@@ -25,7 +25,7 @@ function fixture(payload={schemaVersion:1,status:"ok",materials}){
 }
 const shard={abilities:[
   {id:"a",type:"basic",typeLabel:"Basique",name:"Basic",iconUrl:""},
-  {id:"b",type:"passive",typeLabel:"Passif",name:"Passive",iconUrl:""}
+  {id:"b",type:"passive",typeLabel:"Passive",name:"Passive — Aura protectrice",iconUrl:""}
 ]};
 test("fetches public catalog lazily and matches character IDs without a hardcoded list",async()=>{
   const f=fixture();
@@ -61,4 +61,49 @@ test("missing material catalog does not remove official abilities",async()=>{
   assert.match(html,/Basic/);
   assert.match(html,/Passive/);
   assert.doesNotMatch(html,/Matériau d'éveil/);
+});
+
+test("short French awakened-material captions replace long English names for all types",()=>{
+  const f=fixture();
+  const types=[
+    ["basic","Basique","BASIC"],
+    ["special","Spécial","SPECIAL"],
+    ["ultimate","Ultime","ULTIMATE"],
+    ["passive","Passif","PASSIVE"]
+  ];
+  const abilities=types.map(([type,label])=>({
+    id:"abl_"+type,type,typeLabel:label,name:"Capacité "+label,iconUrl:""
+  }));
+  const icons=types.map(([,label,abilityType])=>({
+    abilityType,
+    iconUrl:img,
+    name:"Adam Warlock's "+abilityType+" Awakened Ability Material"
+  }));
+  const html=f.api.renderAbilities({abilities},icons);
+  for(const [,label] of types)
+    assert.match(html,new RegExp("Matériau d'éveil · "+label+"<\\/span>"));
+  assert.equal((html.match(/profileAwakenedMaterial/g)||[]).length,4);
+  assert.doesNotMatch(html,/Adam Warlock's|Awakened Ability Material/);
+  assert.match(html,/profileAbilityIcon/);
+});
+
+test("older Codex shards and roster/evolution displays consistently use Spécial and Passif",()=>{
+  const f=fixture();
+  const html=f.api.renderAbilities({abilities:[
+    {id:"one",type:"special",typeLabel:"Spéciale",
+      name:"Spéciale — Décharge affaiblissante",iconUrl:""},
+    {id:"two",type:"passive",typeLabel:"Passive",
+      name:"Passive — Aura protectrice",iconUrl:""}
+  ]});
+  assert.match(html,/Spéciel — Décharge affaiblissante/);
+  assert.match(html,/Passif — Aura protectrice/);
+  assert.doesNotMatch(html,/Spéciale —|Passive —/);
+  const roster=readFileSync(new URL("../docs/app.js",import.meta.url),"utf8");
+  const evolution=readFileSync(new URL("../docs/evolution.js",import.meta.url),"utf8");
+  assert.match(roster,/key: "special", label: "Spécial"/);
+  assert.match(roster,/key: "passive", label: "Passif"/);
+  assert.match(evolution,/\["special", "Spécial"\]/);
+  assert.match(evolution,/\["passive", "Passif"\]/);
+  assert.doesNotMatch(roster,/label: "(?:Spéciale|Passive)"/);
+  assert.doesNotMatch(evolution,/\["(?:special|passive)", "(?:Spéciale|Passive)"\]/);
 });
