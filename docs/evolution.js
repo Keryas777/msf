@@ -809,6 +809,11 @@
       populateAllianceSelect();
       bootReady = true;
       applyDiscordDefault(window.LoSP_SESSION);
+      const dates = availableCheckpoints(state.selectedPlayerKey);
+      if (dates.some((date) => window.LoSPEvolutionPeriods.resolveStart(dates, date, '1w'))) {
+        periodSelect.value = '1w';
+        refreshCheckpointControls();
+      }
     } catch (error) {
       console.error(error);
       loadingState.hidden = true;
