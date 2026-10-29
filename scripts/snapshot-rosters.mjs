@@ -1,11 +1,16 @@
 // scripts/snapshot-rosters.mjs
-// Ajoute un unique checkpoint mensuel à docs/data/roster-history/ sans reconstruire l'historique existant.
+// Ajoute un checkpoint hebdomadaire (ou conserve les anciens mensuels) sans reconstruire l'historique.
 // Dry-run par défaut. Utiliser --write pour écrire le nouveau checkpoint et mettre à jour index.json.
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { loadAllianceRegistry } from './lib/alliances-node.mjs';
+import {
+  FIRST_WEEKLY_CHECKPOINT, ROSTER_CHECKPOINT_TIMEZONE,
+  lastCompletedWeeklyCheckpoint, isWeeklyCheckpoint, checkpointCutoff,
+  validateCheckpointDate,
+} from './lib/roster-checkpoint-dates.mjs';
 
 const ROOT_DIR = process.cwd();
 const DATA_DIR = process.env.DATA_DIR || 'docs/data';
@@ -13,61 +18,22 @@ const HISTORY_DIR = process.env.HISTORY_DIR || path.join(DATA_DIR, 'roster-histo
 const INDEX_FILE = path.join(HISTORY_DIR, 'index.json');
 const ALIASES_FILE = process.env.PLAYER_ALIASES_FILE || path.join(DATA_DIR, 'player-aliases.json');
 const ALLIANCES_FILE = process.env.ALLIANCES_FILE || path.join(DATA_DIR, 'alliances.json');
-const GIT_TZ = process.env.ROSTER_HISTORY_TZ || 'Europe/Paris';
+const GIT_TZ = process.env.ROSTER_HISTORY_TZ || ROSTER_CHECKPOINT_TIMEZONE;
 const GIT_MAX_BUFFER = 64 * 1024 * 1024;
 
-function currentCheckpoint() {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: GIT_TZ,
-    year: 'numeric',
-    month: '2-digit',
-  }).formatToParts(new Date());
-  const year = parts.find((part) => part.type === 'year')?.value;
-  const month = parts.find((part) => part.type === 'month')?.value;
-  return `${year}-${month}-01`;
-}
-
-function assertCheckpointDate(value, label = '--checkpoint') {
-  if (!/^\d{4}-\d{2}-01$/.test(value)) {
-    throw new Error(`${label} must use YYYY-MM-01, got: ${value}`);
-  }
-  const parsed = new Date(`${value}T00:00:00Z`);
-  if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== value) {
-    throw new Error(`${label} is not a valid date: ${value}`);
-  }
-}
-
 function parseArgs(argv) {
-  const options = {
-    checkpoint: currentCheckpoint(),
-    write: false,
-  };
-
+  const options = { checkpoint: lastCompletedWeeklyCheckpoint(), write: false };
   for (const arg of argv) {
-    if (arg === '--write') {
-      options.write = true;
-      continue;
-    }
-    if (arg === '--dry-run') {
-      options.write = false;
-      continue;
-    }
-    if (arg.startsWith('--checkpoint=')) {
+    if (arg === '--write') options.write = true;
+    else if (arg === '--dry-run') options.write = false;
+    else if (arg.startsWith('--checkpoint=')) {
       options.checkpoint = arg.slice('--checkpoint='.length);
-      continue;
-    }
-    if (arg === '--help' || arg === '-h') {
-      console.log(`Usage: node scripts/snapshot-rosters.mjs [options]\n\nOptions:\n  --checkpoint=YYYY-MM-01  Checkpoint to add (default: current month in ${GIT_TZ})\n  --write                  Write the checkpoint and update index.json\n  --dry-run                Analyse only (default)\n  -h, --help               Show this help`);
+    } else if (arg === '--help' || arg === '-h') {
+      console.log('Usage: node scripts/snapshot-rosters.mjs [--checkpoint=YYYY-MM-DD] [--write|--dry-run]');
       process.exit(0);
-    }
-    throw new Error(`Unknown argument: ${arg}`);
+    } else throw new Error(`Unknown argument: ${arg}`);
   }
-
-  assertCheckpointDate(options.checkpoint);
-  const current = currentCheckpoint();
-  if (options.checkpoint > current) {
-    throw new Error(`Refusing future checkpoint ${options.checkpoint}; current checkpoint is ${current}`);
-  }
+  validateCheckpointDate(options.checkpoint);
   return options;
 }
 
@@ -164,7 +130,7 @@ function assertFullGitHistory() {
 function findSourceRevision(file, checkpoint) {
   let line = '';
   try {
-    line = runGit(['log', '-1', '--format=%H%x09%cI', `--before=${checkpoint}T00:00:00`, '--', file]);
+    line = runGit(['log', '-1', '--format=%H%x09%cI', `--before=${checkpointCutoff(checkpoint)}`, '--', file]);
   } catch {
     return null;
   }
@@ -360,7 +326,9 @@ async function writeJson(file, value) {
 function mergeIndex(index, checkpoint, snapshots) {
   const next = structuredClone(index);
   next.version = next.version || 1;
-  next.checkpoints.push({ date: checkpoint, players: snapshots.length });
+  next.checkpoints.push(isWeeklyCheckpoint(checkpoint)
+    ? { date: checkpoint, players: snapshots.length, cadence: 'weekly', cutoffLocalTime: '23:00', timezone: GIT_TZ }
+    : { date: checkpoint, players: snapshots.length });
   next.checkpoints.sort((a, b) => String(a.date).localeCompare(String(b.date)));
 
   for (const snapshot of snapshots) {
@@ -386,6 +354,9 @@ function mergeIndex(index, checkpoint, snapshots) {
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
+  if (GIT_TZ !== ROSTER_CHECKPOINT_TIMEZONE) {
+    throw new Error('Roster checkpoint timezone must remain Europe/Paris');
+  }
   assertFullGitHistory();
 
   const index = await loadIndex();
