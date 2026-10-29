@@ -235,6 +235,16 @@ function normalizePlayerSnapshot(row, canonicalName, playerKey, allianceKey, che
     for (const field of ['power', 'level', 'gear', 'isoMax', 'yellowStars', 'redStars', 'diamonds']) {
       copyIfPresent(char, rawChar, field);
     }
+    // Optional progression captured since PR #410; do not invent older levels.
+    const observed = rawChar.abilities;
+    if (observed && typeof observed === 'object' && !Array.isArray(observed)) {
+      const abilities = {};
+      for (const field of ['basic', 'special', 'ultimate', 'passive']) {
+        const value = observed[field];
+        if (Number.isSafeInteger(value) && value >= 0) abilities[field] = value;
+      }
+      if (Object.keys(abilities).length) char.abilities = abilities;
+    }
     chars[charKey] = char;
   }
 
