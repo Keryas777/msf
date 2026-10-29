@@ -1695,9 +1695,17 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
         character_id: _display_character(character_id, portraits.get(character_id))
         for character_id in sorted(characters)
     }
+    playable_by_character = {
+        character_id: (
+            portrait.get("player_Character")
+            if isinstance(portrait.get("player_Character"), bool)
+            else character_id in official
+        )
+        for character_id, portrait in portraits.items()
+    }
     character_statuses = {
         character_id: _entity_status(
-            character_id, character_id in official, spawned_ids
+            character_id, playable_by_character.get(character_id, character_id in official), spawned_ids
         )
         for character_id in sorted(characters)
     }
@@ -1711,7 +1719,7 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
             "name": character_names[character_id],
             "sourceName": character_id,
             "official": character_id in official,
-            "playable": character_id in official,
+            "playable": playable_by_character.get(character_id, False),
             "status": character_statuses[character_id],
             "portraitUrl": portrait.get("portraitUrl")
             if isinstance(portrait.get("portraitUrl"), str)

@@ -1,0 +1,11 @@
+# MSF Codex: automatisation et surveillance
+
+Le workflow des capacités vérifie chaque lundi, mercredi et vendredi à 03:17 UTC les onze révisions `combat_data` de MagneticZero. Le collecteur existant ne télécharge que les révisions nouvelles; il valide leur schéma et leurs empreintes SHA-256/MD5, conserve les contenus inchangés et écrit les changements de façon atomique. Une source vide ou en erreur ne supprime rien.
+
+Une modification de source lance les CLI existantes du parser, normalizer, indexer, Web Publisher et Explorer Builder. Les suites de non-régression sont exécutées et chaque étape passe ensuite son contrôle `--check`. Les générations demeurent immuables; aucune reconstruction ou publication n’est faite si les données métier sont identiques. Le workflow partage `main-data-writer` avec les collectes qui écrivent sur `main`.
+
+À chaque passage, un audit compare `docs/data/msf-characters.json`, la source de présentations françaises et la génération Explorer publiée. Le rapport distingue source absente, source incomplète et donnée disponible mais mal intégrée; il est ajouté au résumé GitHub Actions. Les capacités renforcées sont exclues du contrôle des quatre capacités principales.
+
+Le builder prend désormais `player_Character` dans le catalogue des personnages pour définir la jouabilité. « Présentation officielle » reste un statut distinct. Cela corrige le faux `playable: false` de Dracula. La génération publiée vérifiée le 20 octobre 2026 n’avait toutefois pas ses quatre présentations FR: la collecte MagneticZero ne récupère que les onze fichiers `combat_data`, et le collecteur de personnages ne récupère que les identifiants, portraits et métadonnées de jouabilité. Ces sources ne fournissent pas ses noms, descriptions françaises, icônes de capacités et niveaux maximaux.
+
+Le rapport signalera Dracula et les prochains cas équivalents sans inventer de valeurs. L’automatisation de la source FR reste à connecter à un export officiel vérifié ou un mécanisme autorisé de collecte de l’API publique; les données `/game/v1/` ou `combat_data` ne sont pas supposées équivalentes. Pour une panne MagneticZero, l’ancienne génération reste en place; une base Chrome n’est acceptée qu’en secours manuel explicite.
