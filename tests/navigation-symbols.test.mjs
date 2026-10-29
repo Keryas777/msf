@@ -41,3 +41,16 @@ for (const page of pages) {
     }
   });
 }
+
+test("navigation du hub Codex : une seule maison SVG, sans emojis", () => {
+  const js = readFileSync(new URL("../docs/codex.js", import.meta.url), "utf8");
+  const landing = js.match(/<section class="codexLandingHero"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(landing, "Bannière Codex introuvable");
+  assert.equal((landing.match(/class="codexLandingNav /g) || []).length, 1);
+  assert.doesNotMatch(landing, /codexLandingNav--back|⬅️|🏠/);
+  assert.match(landing, /class="codexLandingNav codexLandingNav--home" href="\.\/home\.html"/);
+  assert.match(landing, /<svg\b[^>]*aria-hidden="true"/);
+
+  const css = readFileSync(new URL("../docs/codex.css", import.meta.url), "utf8");
+  assert.match(css, /\.codexLandingNav--home\s*\{\s*left:\s*15px;\s*\}/);
+});
