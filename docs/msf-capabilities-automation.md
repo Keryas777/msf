@@ -1,6 +1,6 @@
 # MSF Codex: automatisation et surveillance
 
-Le workflow des capacités vérifie chaque lundi à 03:17 UTC les onze révisions `combat_data` de MagneticZero. Le collecteur existant ne télécharge que les révisions nouvelles; il valide leur schéma et leurs empreintes SHA-256/MD5, conserve les contenus inchangés et écrit les changements de façon atomique. Une source vide ou en erreur ne supprime rien.
+Le workflow des capacités vérifie chaque lundi, mercredi et vendredi à 03:17 UTC les onze révisions `combat_data` de MagneticZero. Le collecteur existant ne télécharge que les révisions nouvelles; il valide leur schéma et leurs empreintes SHA-256/MD5, conserve les contenus inchangés et écrit les changements de façon atomique. Une source vide ou en erreur ne supprime rien.
 
 Une modification de source lance les CLI existantes du parser, normalizer, indexer, Web Publisher et Explorer Builder. Les suites de non-régression sont exécutées et chaque étape passe ensuite son contrôle `--check`. Les générations demeurent immuables; aucune reconstruction ou publication n’est faite si les données métier sont identiques. Le workflow partage `main-data-writer` avec les collectes qui écrivent sur `main`.
 
