@@ -59,7 +59,8 @@ test("missing material catalog does not remove official abilities",async()=>{
   await assert.rejects(f.api.getAwakenedMaterials("Archangel"),/invalide/);
   const html=f.api.renderAbilities(shard);
   assert.match(html,/Basic/);
-  assert.match(html,/Passive/);
+  assert.match(html,/Passif — Aura protectrice/);
+  assert.doesNotMatch(html,/Passive — Aura protectrice/);
   assert.doesNotMatch(html,/Matériau d'éveil/);
 });
 
