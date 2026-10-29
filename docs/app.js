@@ -34,9 +34,9 @@
 
   const ABILITY_TYPES = Object.freeze([
     { key: "basic", label: "Basique" },
-    { key: "special", label: "Spéciale" },
+    { key: "special", label: "Spécial" },
     { key: "ultimate", label: "Ultime" },
-    { key: "passive", label: "Passive" },
+    { key: "passive", label: "Passif" },
   ]);
 
   const qs = (s) => document.querySelector(s);

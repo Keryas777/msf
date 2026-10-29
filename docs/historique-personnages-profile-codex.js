@@ -82,6 +82,13 @@
       ? abilityTypeLabel(oldType) + name.slice(oldType.length)
       : name;
   }
+  // Only the short UI caption is translated. Official item names and IDs
+  // remain untouched in the public catalog for identification/provenance.
+  const awakenedMaterialTypeLabel = type => ({
+    BASIC: "Basique", SPECIAL: "Spécial",
+    ULTIMATE: "Ultime", PASSIVE: "Passif"
+  })[String(type || "").toUpperCase()] || "";
+
   function abilityMarkup(ability, material) {
     const image = safeImage(ability.iconUrl);
     const icon = image ? "<img src=\"" + esc(image) + "\" alt=\"\" loading=\"lazy\" decoding=\"async\">"
@@ -96,7 +103,9 @@
       new URL(material.iconUrl).hostname === "assets.marvelstrikeforce.com"
       ? "<div class=\"profileAwakenedMaterial\"><img src=\"" + esc(material.iconUrl) +
         "\" alt=\"\" loading=\"lazy\" decoding=\"async\"><span>Matériau d'éveil" +
-        (material.name ? " · " + esc(material.name) : "") + "</span></div>"
+        (awakenedMaterialTypeLabel(material.abilityType)
+          ? " · " + awakenedMaterialTypeLabel(material.abilityType) : "") +
+        "</span></div>"
       : "";
     const seeMore = /^[a-z0-9_-]+$/i.test(String(ability.id || ""))
       ? "<a class=\"profileCodexLink\" href=\"" + link("ability", ability.id) +
