@@ -11,7 +11,6 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
-const root = fileURLToPath(new URL('../', import.meta.url));
 const snapshotScript = fileURLToPath(new URL('../scripts/snapshot-rosters.mjs', import.meta.url));
 const summaryScript = fileURLToPath(new URL('../scripts/build-roster-evolution-summaries.mjs', import.meta.url));
 const sourceRoster = fileURLToPath(new URL('../docs/data/rosters_hades.json', import.meta.url));
@@ -41,18 +40,36 @@ test('real monthly snapshot script preserves ability levels, writes summary, and
     const history = join(data, 'roster-history');
     mkdirSync(history, { recursive: true });
     copyFileSync(sourceAlliances, join(data, 'alliances.json'));
-    copyFileSync(sourceRoster, join(data, 'rosters_hades.json'));
     writeFileSync(join(history, 'index.json'), JSON.stringify({
       version: 1, checkpoints: [], players: {},
     }, null, 2));
 
-    const published = JSON.parse(readFileSync(sourceRoster, 'utf8'));
-    assert.ok(Array.isArray(published) && published.length > 0);
+    // Prefer the published roster for a realistic E2E exercise (320 real
+    // characters on 2026-10-29). If it is later empty/withdrawn, fall back to
+    // stable anonymized fixture data; a departed player must not prevent the
+    // regular monthly snapshot of the remaining alliances.
+    const current = existsSync(sourceRoster)
+      ? JSON.parse(readFileSync(sourceRoster, 'utf8')) : [];
+    const complete = row => Object.values(row?.chars || {}).some(c =>
+      ['basic', 'special', 'ultimate', 'passive']
+        .every(k => Number.isSafeInteger(c?.abilities?.[k])));
+    const real = Array.isArray(current) ? current.find(complete) : null;
+    const published = real ? [real] : [{
+      player: 'Snapshot Fixture',
+      playerKey: 'snapshotfixture',
+      alliance: 'hades',
+      chars: { SpiderMan: {
+        power: 123000, level: 100, gear: 19,
+        abilities: { basic: 7, special: 6, ultimate: 5, passive: 4 },
+      } },
+      iso: {},
+    }];
+    writeFileSync(join(data, 'rosters_hades.json'), JSON.stringify(published));
     const sourceChars = Object.values(published[0].chars || {});
     const withLevels = sourceChars.filter(c =>
       ['basic', 'special', 'ultimate', 'passive']
         .every(k => Number.isSafeInteger(c?.abilities?.[k])));
-    assert.ok(withLevels.length > 0, 'The real source must contain ability levels');
+    assert.ok(withLevels.length > 0);
 
     // Git metadata must precede the synthetic checkpoint for the actual git-log
     // cutoff selection to find the roster. Never commit anything to the real repo.
@@ -108,7 +125,6 @@ test('real monthly snapshot script preserves ability levels, writes summary, and
       [snapshotScript, '--checkpoint=' + checkpoint, '--write'], dir);
     assert.match(second, /already exists -> no-op/);
     assert.equal(readFileSync(snapshotFile, 'utf8'), snapshotBeforeRerun);
-    assert.equal(root.length > 0, true);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
