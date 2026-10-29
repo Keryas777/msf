@@ -70,12 +70,6 @@
     }).format(d);
   }
 
-  function monthOffset(checkpoint, months) {
-    const date = new Date(`${checkpoint}T00:00:00Z`);
-    date.setUTCMonth(date.getUTCMonth() - months);
-    return date.toISOString().slice(0, 10);
-  }
-
   function checkpoints() {
     return (state.historyIndex?.checkpoints || [])
       .map((entry) => entry?.date)
@@ -83,8 +77,8 @@
       .sort();
   }
 
-  function canUsePeriod(end, months) {
-    return checkpoints().includes(monthOffset(end, months));
+  function periodStart(end, period) {
+    return window.LoSPEvolutionPeriods.resolveStart(checkpoints(), end, period);
   }
 
   function allianceLabel(key) {
@@ -99,7 +93,8 @@
     if (periodSelect.value === 'custom') {
       return startSelect.value ? { start: startSelect.value, end } : null;
     }
-    return { start: monthOffset(end, Number(periodSelect.value)), end };
+    const start = periodStart(end, periodSelect.value);
+    return start ? { start, end } : null;
   }
 
   function refreshControls() {
@@ -110,7 +105,7 @@
 
     const eligible = period === 'custom'
       ? all.slice(1)
-      : all.filter((checkpoint) => canUsePeriod(checkpoint, Number(period)));
+      : all.filter((checkpoint) => Boolean(periodStart(checkpoint, period)));
 
     for (const checkpoint of eligible) {
       const option = document.createElement('option');
@@ -399,6 +394,9 @@
       buildInfoMap(infos);
       renderAllianceFilters();
       bindEvents();
+      if (checkpoints().some((date) => periodStart(date, '1w'))) {
+        periodSelect.value = '1w';
+      }
       refreshControls();
     } catch (error) {
       console.error(error);

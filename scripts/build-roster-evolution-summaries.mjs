@@ -16,11 +16,13 @@ function parseArgs(argv) {
     else if (arg === '--dry-run') options.write = false;
     else if (arg.startsWith('--checkpoint=')) options.checkpoint = arg.slice('--checkpoint='.length);
     else if (arg === '--help' || arg === '-h') {
-      console.log('Usage: node scripts/build-roster-evolution-summaries.mjs [--write] [--checkpoint=YYYY-MM-01]');
+      console.log('Usage: node scripts/build-roster-evolution-summaries.mjs [--write] [--checkpoint=YYYY-MM-DD]');
       process.exit(0);
     } else throw new Error(`Unknown argument: ${arg}`);
   }
-  if (options.checkpoint && !/^\d{4}-\d{2}-01$/.test(options.checkpoint)) {
+  if (options.checkpoint && !/^\d{4}-\d{2}-\d{2}$/.test(options.checkpoint) ||
+      Number.isNaN(Date.parse(options.checkpoint + 'T00:00:00Z')) ||
+      new Date(options.checkpoint + 'T00:00:00Z').toISOString().slice(0, 10) !== options.checkpoint) {
     throw new Error(`Invalid checkpoint: ${options.checkpoint}`);
   }
   return options;

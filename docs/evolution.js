@@ -294,12 +294,6 @@
     return Math.trunc(n).toLocaleString("fr-FR").replace(/[\u202f\u00a0 ]/g, ".");
   }
 
-  function monthOffset(checkpoint, months) {
-    const date = new Date(`${checkpoint}T00:00:00Z`);
-    date.setUTCMonth(date.getUTCMonth() - months);
-    return date.toISOString().slice(0, 10);
-  }
-
   function getHistoryEntry(playerKey) {
     return state.historyIndex?.players?.[playerKey] || null;
   }
@@ -309,8 +303,10 @@
     return Array.isArray(entry?.checkpoints) ? [...entry.checkpoints].sort() : [];
   }
 
-  function canUsePeriod(endCheckpoint, period) {
-    return availableCheckpoints(state.selectedPlayerKey).includes(monthOffset(endCheckpoint, period));
+  function periodStart(endCheckpoint, period) {
+    return window.LoSPEvolutionPeriods.resolveStart(
+      availableCheckpoints(state.selectedPlayerKey), endCheckpoint, period,
+    );
   }
 
   function populateAllianceSelect() {
@@ -353,7 +349,7 @@
 
     const eligibleEnds = period === "custom"
       ? checkpoints.slice(1)
-      : checkpoints.filter((checkpoint) => canUsePeriod(checkpoint, Number(period)));
+      : checkpoints.filter((checkpoint) => Boolean(periodStart(checkpoint, period)));
 
     for (const checkpoint of eligibleEnds) {
       const option = document.createElement("option");
@@ -394,7 +390,8 @@
     if (periodSelect.value === "custom") {
       return startSelect.value ? { start: startSelect.value, end } : null;
     }
-    return { start: monthOffset(end, Number(periodSelect.value)), end };
+    const start = periodStart(end, periodSelect.value);
+    return start ? { start, end } : null;
   }
 
   async function fetchSnapshot(playerKey, checkpoint) {
@@ -812,6 +809,11 @@
       populateAllianceSelect();
       bootReady = true;
       applyDiscordDefault(window.LoSP_SESSION);
+      const dates = availableCheckpoints(state.selectedPlayerKey);
+      if (dates.some((date) => window.LoSPEvolutionPeriods.resolveStart(dates, date, '1w'))) {
+        periodSelect.value = '1w';
+        refreshCheckpointControls();
+      }
     } catch (error) {
       console.error(error);
       loadingState.hidden = true;
