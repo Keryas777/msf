@@ -678,7 +678,10 @@ test('a subsequent verified R2 trophy reading adds one graph point, not a new ra
   const baseline=octoberBaseline();
   const previous=baseline.find(s=>s.capturedAt==='2026-10-24T21:31:12.523Z');
   const added={...previous,capturedAt:'2026-10-29T02:02:50.024Z',
-    seasonId:null,seasonVerified:false};
+    seasonId:null,seasonVerified:false,
+    coverage:{...previous.coverage,completeSessionScan:false,
+      scannedSessions:null,validSessions:null},
+    collection:{method:'r2-pull',sourceDayUtc:'2026-10-29'}};
   const after=[...baseline,added];
   const trophyBefore=prepare(baseline,registry,byId('war-trophies'),config.rankingSeasons);
   const trophyAfter=prepare(after,registry,byId('war-trophies'),config.rankingSeasons);
