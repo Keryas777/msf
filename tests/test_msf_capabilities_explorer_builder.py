@@ -98,7 +98,11 @@ class ExplorerBuilderTests(unittest.TestCase):
         self.assertEqual({r["operation"] for r in search
                           if r["id"] == "action-health-redistribute" and r.get("operation")}, expected_ids)
         playable_by_id = {
-            item["id"]: item.get("player_Character") is True
+            item["id"]: (
+                item.get("player_Character")
+                if isinstance(item.get("player_Character"), bool)
+                else None
+            )
             for item in self.documents["portraits"]
         }
         for path in self.generated.payloads:
@@ -106,7 +110,9 @@ class ExplorerBuilderTests(unittest.TestCase):
                 character = self.payload(path)["character"]
                 self.assertEqual(
                     character["playable"],
-                    playable_by_id.get(character["id"], False),
+                    playable_by_id.get(character["id"], character["official"])
+                    if playable_by_id.get(character["id"]) is not None
+                    else character["official"],
                 )
         for character_id in ("IronMonger", "Thena", "Gilgamesh"):
             self.assertFalse(self.payload(f"characters/{character_id}.json")["character"]["playable"])

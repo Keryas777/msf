@@ -1705,7 +1705,7 @@ def generate_artifacts(documents: Mapping[str, Any]) -> GeneratedArtifacts:
     }
     character_statuses = {
         character_id: _entity_status(
-            character_id, playable_by_character.get(character_id, False), spawned_ids
+            character_id, playable_by_character.get(character_id, character_id in official), spawned_ids
         )
         for character_id in sorted(characters)
     }
