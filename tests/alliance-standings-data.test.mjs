@@ -159,8 +159,13 @@ test('trophy post-war window has margins and includes the 22 October capture',()
 });
 
 test('24 October has one complete six-alliance reading, replacing same-value morning point',()=>{
-  const trophyReadings=index.snapshots.filter(x=>x.captureType!=='season-ranks');
-  assert.equal(trophyReadings.length,3,'Only one trophy reading per represented day');
+  const allTrophies=index.snapshots.filter(x=>x.captureType!=='season-ranks');
+  const days=allTrophies.map(x=>x.collectionDayUtc||x.capturedAt.slice(0,10));
+  assert.equal(new Set(days).size,days.length,
+    'Only one trophy reading per represented day, including future imports');
+  const trophyReadings=allTrophies.filter(x=>
+    x.capturedAt<'2026-10-26T00:00:00.000Z');
+  assert.equal(trophyReadings.length,3,'Three historical readings through 24 October');
   assert.equal(trophyReadings.filter(x=>x.capturedAt.startsWith('2026-10-24')).length,1);
   assert.equal(index.snapshots.some(x=>x.file.includes('042033728')),false);
   const observed=data(trophyReadings.at(-1).file);
@@ -195,8 +200,11 @@ test("24 October evening administrator capture adds Hadès without private finge
 });
 
 test("25 October manual rank snapshot adds a second season without an extra trophy point",()=>{
-  assert.equal(index.snapshots.length,4);
-  const season=index.snapshots.at(-1);
+  assert.equal(index.snapshots.filter(x=>
+    x.capturedAt<'2026-10-26T00:00:00.000Z').length,4);
+  const season=index.snapshots.find(x=>
+    x.capturedAt==="2026-10-25T23:07:38.867Z");
+  assert.ok(season,'The original season-rank snapshot must remain available');
   assert.equal(season.capturedAt,"2026-10-25T23:07:38.867Z");
   assert.equal(season.captureType,"season-ranks");
   assert.equal(season.rankingSeasonId,"2026-10-11/2026-10-25");
