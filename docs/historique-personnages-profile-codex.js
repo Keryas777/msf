@@ -5,6 +5,23 @@
   const { esc, groupTraits } = window.LoSPProfileData;
   const cache = new Map();
   let manifestPromise = null;
+  // Public-only game-material projection; never fetch private archives or
+  // Scopely OAuth resources from the browser.
+  const materialsUrl =
+    "https://losp-roster-service.deliriousfan7.workers.dev/api/public/awakened-materials";
+  let materialsPromise = null;
+  async function getAwakenedMaterials(characterId) {
+    if (!materialsPromise) {
+      materialsPromise = fetchJson(materialsUrl).then(data => {
+        if (data?.schemaVersion !== 1 || data.status !== "ok" ||
+            !Array.isArray(data.materials)) throw new Error("Catalogue d'éveil invalide");
+        return data.materials;
+      }).catch(error => { materialsPromise = null; throw error; });
+    }
+    const materials = await materialsPromise;
+    return materials.filter(item =>
+      String(item?.characterId || "").toLowerCase() === String(characterId).toLowerCase());
+  }
   const safeImage = value => {
     try {
       const url = new URL(String(value || ""));
@@ -65,7 +82,7 @@
       ? abilityTypeLabel(oldType) + name.slice(oldType.length)
       : name;
   }
-  function abilityMarkup(ability) {
+  function abilityMarkup(ability, material) {
     const image = safeImage(ability.iconUrl);
     const icon = image ? "<img src=\"" + esc(image) + "\" alt=\"\" loading=\"lazy\" decoding=\"async\">"
       : "<span aria-hidden=\"true\">✦</span>";
@@ -73,18 +90,32 @@
       "<p class=\"profileAbilityText\">" + esc(ability.officialText).replace(/\r?\n/g, "<br>") + "</p>" :
       "<p class=\"detailEmpty\">Texte officiel indisponible dans cette génération.</p>";
     const level = ability.maxLevel != null ? " · Niveau max. " + esc(ability.maxLevel) : "";
+    // This is the MATERIAL icon, not the skill icon; never imply that
+    // the selected player already owns or has upgraded this ability.
+    const materialIcon = material && safeImage(material.iconUrl) &&
+      new URL(material.iconUrl).hostname === "assets.marvelstrikeforce.com"
+      ? "<div class=\"profileAwakenedMaterial\"><img src=\"" + esc(material.iconUrl) +
+        "\" alt=\"\" loading=\"lazy\" decoding=\"async\"><span>Matériau d'éveil" +
+        (material.name ? " · " + esc(material.name) : "") + "</span></div>"
+      : "";
     const seeMore = /^[a-z0-9_-]+$/i.test(String(ability.id || ""))
       ? "<a class=\"profileCodexLink\" href=\"" + link("ability", ability.id) +
         "\">Mécaniques et détails dans le Codex →</a>" : "";
     return "<article class=\"profileAbility\"><div class=\"profileAbilityTop\"><span class=\"profileAbilityIcon\">" +
       icon + "</span><div><h4>" + esc(abilityName(ability) || abilityTypeLabel(ability.typeLabel) || "Capacité") +
       "</h4><span>" + esc(abilityTypeLabel(ability.typeLabel) || ability.type || "") + level +
-      "</span></div></div>" + text + seeMore + "</article>";
+      "</span></div></div>" + text + materialIcon + seeMore + "</article>";
   }
-  function renderAbilities(shard) {
+  function renderAbilities(shard, materials = []) {
+    const byType = new Map(materials.map(item =>
+      [String(item.abilityType || "").toLowerCase(), item]));
     return shard.abilities.length
-      ? shard.abilities.map(abilityMarkup).join("")
+      ? shard.abilities.map(ability =>
+          abilityMarkup(ability, ability.isEmpowered ? null :
+            byType.get(String(ability.baseType || ability.type).toLowerCase()))).join("")
       : "<p class=\"detailEmpty\">Aucune capacité publiée pour ce personnage.</p>";
   }
-  window.LoSPProfileCodex = Object.freeze({ getShard, link, renderTraits, renderAbilities });
+  window.LoSPProfileCodex = Object.freeze({
+    getShard, getAwakenedMaterials, link, renderTraits, renderAbilities
+  });
 })();

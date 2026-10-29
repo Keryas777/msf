@@ -28,6 +28,11 @@
 .profileAbilityTop span:not(.profileAbilityIcon){font-size:.73rem;color:var(--muted)}
 .profileAbilityIcon{width:52px;height:52px;flex:0 0 52px;border:1px solid var(--line-strong);border-radius:12px;background:#132739;display:grid;place-items:center;overflow:hidden}
 .profileAbilityIcon img{width:100%;height:100%;object-fit:contain}
+.profileAwakenedMaterial{display:flex;align-items:center;gap:9px;margin-top:12px;
+  padding:8px 10px;border:1px solid var(--line-strong);border-radius:10px;
+  background:rgba(45,167,190,.09);color:var(--muted);font-size:.76rem;line-height:1.35}
+.profileAwakenedMaterial img{width:34px;height:34px;flex:0 0 34px;object-fit:contain}
+.profileAwakenedMaterial span{overflow-wrap:anywhere}
 .profileAbilityText{font-size:.82rem;line-height:1.56;white-space:normal;margin:12px 0 0;overflow-wrap:anywhere}
 .profileFiltersTitle{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px}
 .profileFiltersTitle strong{font-size:.84rem}
