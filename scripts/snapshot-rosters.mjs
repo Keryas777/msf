@@ -7,7 +7,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { loadAllianceRegistry } from './lib/alliances-node.mjs';
 import {
-  FIRST_WEEKLY_CHECKPOINT, ROSTER_CHECKPOINT_TIMEZONE,
+  ROSTER_CHECKPOINT_TIMEZONE,
   lastCompletedWeeklyCheckpoint, isWeeklyCheckpoint, checkpointCutoff,
   validateCheckpointDate,
 } from './lib/roster-checkpoint-dates.mjs';
