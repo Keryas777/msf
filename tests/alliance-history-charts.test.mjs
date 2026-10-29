@@ -11,6 +11,11 @@ const config=JSON.parse(read('docs/data/alliance-standings/config.json'));
 const registry=JSON.parse(read('docs/data/alliances.json'));
 const index=JSON.parse(read('docs/data/alliance-standings/index.json'));
 const original=JSON.parse(read('docs/data/alliance-standings/'+index.snapshots[0].file));
+// Fixture for assertions specifically about the 21–25 October readings.
+// Live index.json can grow with each authorized Thursday/Saturday R2 import.
+const octoberBaseline=()=>index.snapshots
+  .filter(s=>s.capturedAt<'2026-10-26T00:00:00.000Z')
+  .map(s=>JSON.parse(read('docs/data/alliance-standings/'+s.file)));
 const byId=id=>config.charts.find(x=>x.id===id);
 const addDays=(base,days)=>new Date(Date.parse(base)+days*86400000).toISOString();
 const shifted=(days,options={})=>({
@@ -549,8 +554,7 @@ test('missing seasons and values never inherit a later observed new alliance',()
 });
 
 test('24 October counts as one trophy reading, and Hadès begins there',()=>{
-  const captured=index.snapshots.map(s=>
-    JSON.parse(read('docs/data/alliance-standings/'+s.file)));
+  const captured=octoberBaseline();
   assert.equal(captured.length,4);
   const days=captured.filter(row=>row.captureType!=='season-ranks')
     .map(row=>row.capturedAt.slice(0,10));
@@ -577,8 +581,7 @@ test('legend controls are accessible buttons with filled and hollow alliance mar
 });
 
 test('hiding Hadès filters dots and restores the standard rank scale on mobile',()=>{
-  const readings=index.snapshots.map(s=>
-    JSON.parse(read('docs/data/alliance-standings/'+s.file)));
+  const readings=octoberBaseline();
   for(const id of ['war-season-rank','raid-season-rank']){
     const full=drawRenderedChart(id,390,readings);
     const filtered=drawRenderedChart(id,390,readings,['hades']);
@@ -620,8 +623,7 @@ test('all hidden curves do not create a fake data series or break SVG rendering'
 });
 
 test('new 25 October ranks create a second season point, not a fourth trophy reading',()=>{
-  const readings=index.snapshots.map(s=>
-    JSON.parse(read('docs/data/alliance-standings/'+s.file)));
+  const readings=octoberBaseline();
   assert.equal(readings.length,4);
   const trophies=prepare(readings,registry,byId('war-trophies'),config.rankingSeasons);
   assert.equal(trophies.rows.length,3);
@@ -645,8 +647,7 @@ test('new 25 October ranks create a second season point, not a fourth trophy rea
 });
 
 test('trophy observations have equal horizontal spacing despite irregular capture dates',()=>{
-  const captures=index.snapshots.map(s=>
-    JSON.parse(read('docs/data/alliance-standings/'+s.file)));
+  const captures=octoberBaseline();
   const model=prepare(captures,registry,byId('war-trophies'),config.rankingSeasons);
   assert.equal(model.rows.length,3);
   const times=model.rows.map(row=>Date.parse(row.capturedAt));
@@ -670,6 +671,27 @@ test('trophy observations have equal horizontal spacing despite irregular captur
     assert.deepEqual(dates.map(node=>node.attrs['aria-label']),
       ['2026-10-21','2026-10-24','2026-10-22'],
       'The date labels still represent the real, selected capture dates');
+  }
+});
+
+test('a subsequent verified R2 trophy reading adds one graph point, not a new rank season',()=>{
+  const baseline=octoberBaseline();
+  const previous=baseline.find(s=>s.capturedAt==='2026-10-24T21:31:12.523Z');
+  const added={...previous,capturedAt:'2026-10-29T02:02:50.024Z',
+    seasonId:null,seasonVerified:false,
+    coverage:{...previous.coverage,completeSessionScan:false,
+      scannedSessions:null,validSessions:null},
+    collection:{method:'r2-pull',sourceDayUtc:'2026-10-29'}};
+  const after=[...baseline,added];
+  const trophyBefore=prepare(baseline,registry,byId('war-trophies'),config.rankingSeasons);
+  const trophyAfter=prepare(after,registry,byId('war-trophies'),config.rankingSeasons);
+  assert.equal(trophyAfter.rows.length,trophyBefore.rows.length+1);
+  assert.equal(trophyAfter.series.find(s=>s.key==='zeus').points.length,4);
+  for(const id of ['war-season-rank','raid-season-rank']){
+    const before=prepare(baseline,registry,byId(id),config.rankingSeasons);
+    const afterRank=prepare(after,registry,byId(id),config.rankingSeasons);
+    assert.deepEqual(Array.from(afterRank.rows,r=>r.capturedAt),
+      Array.from(before.rows,r=>r.capturedAt));
   }
 });
 
