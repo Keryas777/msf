@@ -32,6 +32,13 @@
     iso: 13,
   };
 
+  const ABILITY_TYPES = Object.freeze([
+    { key: "basic", label: "Basique" },
+    { key: "special", label: "Spéciale" },
+    { key: "ultimate", label: "Ultime" },
+    { key: "passive", label: "Passive" },
+  ]);
+
   const qs = (s) => document.querySelector(s);
 
   const modeSelect = qs("#modeSelect");
@@ -58,6 +65,8 @@
   let detailOverlay = null;
   let detailReturnFocus = null;
   let detailPreviousOverflow = "";
+  let abilityManifestPromise = null;
+  const abilityReferenceCache = new Map();
 
   const bust = (url) => {
     const u = new URL(url, window.location.href);
@@ -564,6 +573,104 @@
     return node;
   }
 
+
+  // Fetch official maxima and icon URLs only when the player opens a detail.
+  // Some characters have no published reference: never assume 7/7/7/5.
+  async function getAbilityReferences(charId) {
+    if (!/^[A-Za-z0-9_-]+$/.test(String(charId ?? ""))) return {};
+    if (!abilityManifestPromise) {
+      abilityManifestPromise = fetchJson("./data/msf-capabilities-explorer/manifest.json")
+        .catch(() => null);
+    }
+    if (!abilityReferenceCache.has(charId)) {
+      const promise = (async () => {
+        const manifest = await abilityManifestPromise;
+        const folder = String(manifest?.currentPath ?? "");
+        if (!/^generations\/sha256-[a-f0-9]{64}\/$/.test(folder)) return {};
+        const url = "./data/msf-capabilities-explorer/" + folder +
+          "characters/" + encodeURIComponent(charId) + ".json";
+        const shard = await fetchJson(url);
+        if (shard?.character?.id !== charId || !Array.isArray(shard.abilities)) return {};
+        const details = {};
+        for (const ability of shard.abilities) {
+          const key = ability?.baseType;
+          if (!ABILITY_TYPES.some(item => item.key === key) ||
+              ability.isEmpowered) continue;
+          const rawMax = ability.maxLevel;
+          const n = rawMax === null || rawMax === undefined ||
+            rawMax === "" ? null : Number(rawMax);
+          const max = Number.isSafeInteger(n) && n > 0 && n <= 20 ? n : null;
+          const iconUrl = typeof ability.iconUrl === "string" &&
+            /^https:\/\/assets\.marvelstrikeforce\.com\/imgs\/[A-Za-z0-9_./%-]+\.(?:png|webp|jpg|jpeg)$/.test(ability.iconUrl)
+            ? ability.iconUrl : null;
+          details[key] = { max, iconUrl };
+        }
+        return details;
+      })().catch(() => ({}));
+      abilityReferenceCache.set(charId, promise);
+    }
+    return abilityReferenceCache.get(charId);
+  }
+
+  function detailAbilities(raw, charId) {
+    const grid = detailNode("div", "rankDetailAbilities");
+    grid.setAttribute("role", "group");
+    grid.setAttribute("aria-label", "Niveaux des capacités");
+    const items = new Map();
+    let hasLevel = false;
+
+    for (const { key, label } of ABILITY_TYPES) {
+      const value = raw?.abilities?.[key];
+      const level = Number.isSafeInteger(value) && value >= 0 ? value : null;
+      if (level !== null) hasLevel = true;
+
+      const tile = detailNode("div", "rankDetailAbility");
+      const iconSlot = detailNode("span", "rankDetailAbilityIcon");
+      iconSlot.setAttribute("aria-hidden", "true");
+      const name = detailNode("span", "rankDetailAbilityName", label);
+      const levels = detailNode("div", "rankDetailAbilityNumbers");
+      levels.append(
+        detailNode("strong", "rankDetailAbilityLevel",
+          level === null ? "—" : String(level)),
+        detailNode("span", "rankDetailAbilityMaximum", "/ —")
+      );
+      const maxText = levels.lastChild;
+      const status = detailNode("span", "rankDetailAbilityStatus",
+        level === null ? "Non renseigné" : "Niveau relevé");
+      if (level === null) tile.classList.add("is-unknown");
+      tile.append(iconSlot, name, levels, status);
+      grid.appendChild(tile);
+      items.set(key, { tile, iconSlot, maxText, status, level });
+    }
+
+    if (hasLevel) {
+      getAbilityReferences(charId).then(references => {
+        if (!grid.isConnected) return;
+        for (const [key, item] of items) {
+          const reference = references[key];
+          if (reference?.iconUrl) {
+            const icon = document.createElement("img");
+            icon.src = reference.iconUrl;
+            icon.alt = "";
+            icon.loading = "lazy";
+            icon.decoding = "async";
+            icon.referrerPolicy = "no-referrer";
+            item.iconSlot.appendChild(icon);
+          }
+          // An absent or outdated Codex maximum must not be shown as MAX.
+          const max = reference?.max;
+          if (item.level === null || !Number.isSafeInteger(max) ||
+              max < item.level) continue;
+          item.maxText.textContent = "/ " + max;
+          const complete = item.level === max;
+          item.status.textContent = complete ? "MAX" : "À améliorer";
+          item.tile.classList.add(complete ? "is-max" : "is-upgrade");
+        }
+      });
+    }
+    return grid;
+  }
+
   function closeDetail() {
     if (!detailOverlay) return;
     document.removeEventListener("keydown", onDetailKeydown);
@@ -676,14 +783,13 @@
       isoBox.appendChild(detailNode("span", "", iso.text));
       body.appendChild(isoBox);
       card.appendChild(body);
+      card.appendChild(detailAbilities(raw, info?.id || charId));
       list.appendChild(card);
     }
     if (!charsMap) list.prepend(detailNode("p", "rankDetailMissing",
       "Aucune donnée de roster disponible pour ce joueur."));
     dialog.appendChild(list);
 
-    dialog.appendChild(detailNode("p", "rankDetailNote",
-      "Niveaux des capacités : non disponibles dans les rosters actuels."));
     overlay.appendChild(dialog);
     overlay.addEventListener("click", (event) => {
       if (event.target === overlay) closeDetail();
