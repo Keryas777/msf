@@ -12,9 +12,10 @@ test('merged rosters preserve real ISO measurements and omit unknown values',asy
     const sample=[
       {alliance:'zeus',player:'A',playerKey:'a',chars:{
         newchar:{power:5000,level:95,gear:19,yellowStars:5,
-          redStars:5,diamonds:0},
+          redStars:5,diamonds:0,abilities:{basic:4,special:3}},
         oldchar:{power:4000,level:80,gear:18,isoMax:13,
-          yellowStars:6,redStars:6,diamonds:0},
+          yellowStars:6,redStars:6,diamonds:0,
+          abilities:{basic:7,special:6,passive:5}},
         zerochar:{power:100,level:50,gear:10,isoMax:0,
           yellowStars:3,redStars:3,diamonds:0}
       },iso:{}}
@@ -22,7 +23,7 @@ test('merged rosters preserve real ISO measurements and omit unknown values',asy
     const fresher=[
       {alliance:'poseidon',player:'A',playerKey:'a',chars:{
         oldchar:{power:5000,level:81,gear:19,
-          yellowStars:6,redStars:6,diamonds:0}
+          yellowStars:6,redStars:6,diamonds:0,abilities:{special:7,ultimate:7}}
       },iso:{}}
     ];
     await writeFile(join(dir,'rosters_zeus.json'),JSON.stringify(sample));
@@ -43,5 +44,10 @@ test('merged rosters preserve real ISO measurements and omit unknown values',asy
       'A later record without ISO must preserve prior measured ISO');
     assert.equal(data[0].chars.zerochar.isoMax,0,
       'A genuine ISO value of 0 must remain distinguishable from unknown');
+    assert.deepEqual(data[0].chars.oldchar.abilities,
+      {basic:7,special:7,ultimate:7,passive:5},
+      'Higher-power record must retain known ability levels if omitted');
+    assert.deepEqual(data[0].chars.newchar.abilities,{basic:4,special:3});
+    assert.equal(Object.hasOwn(data[0].chars.zerochar,'abilities'),false);
   }finally{await rm(dir,{recursive:true,force:true});}
 });
