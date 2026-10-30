@@ -425,7 +425,7 @@
         "passive_power_mul": "bdaf5c81bfab66ef2b31411df3bdd68b58b7c85d1f9767bbc198200f222b35d0",
         "passive_stats": "5b82b44ecd6e1577c63df8431d6c1e59e9475f2e751d86f68fc6d0e091e9826e",
         "special": "bb6ce1389b273cbeebdc985707c0df744f018cba080adbf9a0ee1b026af24cc5",
-        "ultimate": "bfee7642793a4fb2024ad549b0672a77134623b368bcceb56f13b7246b38d37e"
+        "ultimate": "0014949ddf616c4c9eff6c40e1d4025525ff820b3794b1692dbc048e4a8cb51c"
       }
     },
     "BaronMordo": {
@@ -714,18 +714,20 @@
       "traits": [
         "Brotherhood",
         "Global",
+        "Menace",
         "Mutant",
         "Protector",
         "Villain"
       ],
       "fingerprints": {
         "basic": "b22580d2b0b549882a2476855136791256780af63724b721b4b0bc4d939d790a",
-        "global_stats": "191062ba9dcefb469df596df4021d72bac78d403657aeaa999abd82a18341583",
-        "passive": "b1f09ad6d2b227d330ce5942133e3935a6a966a5a08026a6dce3c6f0a895fdf4",
+        "dynamic_stats": "7253bb962c99fc8d8ec4b17d48f07026f122e8d930b4b9e2b05c445e5759bf24",
+        "global_stats": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "passive": "dd2990122dba225b2c0d07fa9328c0e907ab355b020562eee0df035daab9a7e4",
         "passive_power_mul": "bdaf5c81bfab66ef2b31411df3bdd68b58b7c85d1f9767bbc198200f222b35d0",
-        "passive_stats": "3e45d4a892996d7aded91ee91e53baf82a213ea7c45fb904860ac8f4c437b58e",
-        "special": "532524bf54ef4d6933dab04ab85d27156a102dc229c3e25bbfc09b06e9e49cb7",
-        "ultimate": "cf764170afd3f038017b6a246b86853379f5ab62b604c082afc09bf7d3f54b40"
+        "passive_stats": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "special": "eff14e57e4d157ff34a35988d9a9dba5fa0e46fe1dfec534213b16e3ff2d9851",
+        "ultimate": "c2035cad43bf2825cb8d8fa31ece079fde7639b898407630bba109a143b92ba3"
       }
     },
     "BlueMarvel": {
@@ -5529,7 +5531,7 @@
         "basic": "9ebe0cb8ce71fafd1030c1ee520960ab50846ba939add17460d272d623990344",
         "dynamic_stats": "780eca7761188cb5e679d00306f54f5b1a86e58018c4fc52721458be5d81fec3",
         "global_stats": "7b2f8bdfa2555c835a084454b7e8af7730c7e31d5b050eef3a193e187676230c",
-        "passive": "f59c44b978420995697c80010ebf1763bb75d95668d88ef42650750404210c60",
+        "passive": "3ecac2341a9c25f4ee64275b3a0485eff1fb209c3773485fec7abf4f16d53e2e",
         "passive_power_mul": "88d1af78c586d445f54eeaf0ca17823430bf6def9a36c1131365cdba7d76f6d9",
         "passive_stats": "3904ec856e22de519f89ea1bdc8efa187212e155ae9c45b46a438a0f453171ff",
         "stat_immunity": "d77f170eecf28fc677df02b68454487f51ca90abac2a109a4be7ca974535044a"
@@ -6820,16 +6822,16 @@
         "Legendary",
         "Mutant",
         "Protector",
+        "SavageLand",
         "Unlimited"
       ],
       "fingerprints": {
-        "basic": "688eae0d44b31821439bb0b51949ba4802d3abb107385d5cc5fa7f54131b9a99",
-        "global_stats": "7fdf13fbc49d997e9301d98c20caf91031e27d82f8fc9b1ed8d6d67bfdf8e367",
-        "passive": "ad05ce907b6a15707238d1437a6e99176353d831f0e8f73dd896121971f45365",
+        "basic": "5167b18b28b9848f348c4088bd85f9ec2205dacfaf38055c9f959a2c7e08c29e",
+        "passive": "0ce5cd6f87d973dade6adea4aaa254ed22d73860d2cd775b39a968eb0c7138f7",
         "passive_power_mul": "56ef1adb3ac8dcd5f55a12d176f254165592c09528888a96389bc59540c619d7",
-        "passive_stats": "af1661ccb705261a8923efb3d33e56bbc3fe43e8e82d808046b2b085a5dd9683",
-        "special": "d9bbe87352f5ac2e15a36aa3c9a4f624bdc92b390ab33dd20f41c704b7e313d5",
-        "ultimate": "8f94bf4abef21ce4d72382379a247ae07f9563ec506ee8bf007f9e7cb46e29b6"
+        "passive_stats": "4ed35cdc43b8dea3e8f225853ed28bf47c9adf105b6882c465dda7cb034cc1d8",
+        "special": "8324ff1ec2fe06428f1ebb828f0a3eb854f23f2644495c48a6f0a385f41d26eb",
+        "ultimate": "2b2e9e43041400adaef01b88c701882aa5438217bfc19e8fd1bb88274d7f2141"
       }
     },
     "Ronan": {
@@ -7528,19 +7530,21 @@
       "playable": true,
       "traits": [
         "Global",
+        "Menace",
         "Mutant",
         "Protector",
         "Villain",
         "WeaponX"
       ],
       "fingerprints": {
-        "basic": "08b740f9285211543cab648536128905b9ddaa0a7370b8a61228bedf73e5c1f3",
-        "global_stats": "5841e05fa30b79369b3e809ed2fa404de377d10e6a0f1bc81b2a71602c2b2a74",
-        "passive": "dab6f19ff9953148e3f7b1beedee21da76695dba2a5793de843aae4842654a6c",
+        "basic": "ade410ad8ceb13d79456e160b7d01fdc0638c44eefcbe199048da49cde1c12ce",
+        "dynamic_stats": "51c6999ff15cb3ec1ccd4e3fb0f745dc90c3e712bb083a137b4137e945dc54b8",
+        "global_stats": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "passive": "fc9df9395c811bb8e342f7097ba2505bb4d08ef56617bd2fe2aa259033560278",
         "passive_power_mul": "bdaf5c81bfab66ef2b31411df3bdd68b58b7c85d1f9767bbc198200f222b35d0",
-        "passive_stats": "4ba2af2f50df5315dc0c27c8e90edfe26e3cd58b40ae190dee210218e6959ce3",
-        "special": "44b0576c8cd5de3085357a432b8080b10cc8b9d686c14267cd7b28656238c20f",
-        "ultimate": "85c79e3a4133e0d63dfc2bf68a572b0126a218e7ed74c6ca5b4f3427c7018fb9"
+        "passive_stats": "67cea86fca200974f1f0a5c86e92f8208046f024964f8ae2f83ba7d6ad8881f3",
+        "special": "b1500daae18241754d84ad1f3c5596ac70808c87bf720a445bc9e1ce401b9d2e",
+        "ultimate": "8b95d1a8acf1d5d2894a3f51ddf4d83a10d213606d3c04a0004a03c37ebfc1de"
       }
     },
     "SilverSurfer": {
@@ -8011,18 +8015,21 @@
       "traits": [
         "Global",
         "Marauders",
+        "Menace",
         "Mutant",
         "Protector",
         "Villain"
       ],
       "fingerprints": {
         "basic": "5516ade64b56131d0310abf0bf348e2bf89222838ffbfd62b2e9b4db86e6c67a",
-        "global_stats": "204fe7e81a9db0166f9b30a043f2b6f73e92b2083793a3866d82960126a0f651",
-        "passive": "dd2c6a39f7d1d50dc59c0546914d42474578c55323fe46ebc01c4d5e4eb44457",
+        "dynamic_stats": "d9ff9de6628491fba5ddaa72e3449521ad8f39d6dfb550eded680874b4202d8a",
+        "global_stats": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "passive": "f0f3dff9cec1d1d6a3edaed36ebe48a9678baa6ef9c6fa0c8c58285644843c04",
         "passive_power_mul": "bdaf5c81bfab66ef2b31411df3bdd68b58b7c85d1f9767bbc198200f222b35d0",
-        "passive_stats": "35f14d1b53ec5649b6bda006871d1aad8bf3381b771489d866ec1bf0d696bec0",
-        "special": "3e823d46d3b5f09174b67b641bdedc12e1b336c52222bc0c10e376add5f61ad4",
-        "ultimate": "081e83d2d4f64d8afe779f77c4aa66c2398eeaee0a7c5022afdeca535cad7489"
+        "passive_stats": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "special": "ad1fda6c8083a3d0d3b704aceb094b37e7d52d64272529e0dbe23c08591cb3ba",
+        "stat_immunity": "602f9d0428a7e9136c19a206eb9a4a237286adfb83d85ae899784ff62befaa90",
+        "ultimate": "8a1af7496bf8610c0b31601027313d063f550a1c44705a7099d34c183cbb588e"
       }
     },
     "Sunfire": {
@@ -8521,17 +8528,19 @@
         "Brotherhood",
         "Controller",
         "Global",
+        "Menace",
         "Mutant",
         "Villain"
       ],
       "fingerprints": {
         "basic": "b674a480d36acd6a08c345b5c20555eb9edf03195197586a9dc10f45b93b99e0",
-        "global_stats": "b25c38a16d8d031e344382357ff81388c6eab9ce70f06e377065c013d46577b2",
-        "passive": "492d07885e50ea775443ec2e393de43be0a5805973ff71fb0484347d767a9c86",
+        "dynamic_stats": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "global_stats": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "passive": "b7ee3f974e152fb8f546cf6d054cac6e5c8e2907e365b539ea45567ff90c70d9",
         "passive_power_mul": "bdaf5c81bfab66ef2b31411df3bdd68b58b7c85d1f9767bbc198200f222b35d0",
-        "passive_stats": "0580c2d67398dc5e58ebdb71c11a38f5094a3b5f5c0b2d49eec11d613f72b8a4",
-        "special": "8a17f720f46cf8b962a53ddd0084ad1eaac1a614bed9946bf527f43986e8bda9",
-        "ultimate": "244834dbded3fbc0dcc93682b5302789594d2af1a0b4a6a3810315e0cb503e30"
+        "passive_stats": "5b8a65b6af2b1e68279cbb4161074a0a657fe2766cc5b51498d83ac0b52fc734",
+        "special": "4c0c84666c1c56eefb3f678734ba51b953daeef93fb7077cec1377c305028b56",
+        "ultimate": "ff62b74baed1adf093a90794a1ac0bf5192abffdbd50a9b51e6157f15e8d05af"
       }
     },
     "Toxin": {
@@ -9252,18 +9261,18 @@
         "Global",
         "Hero",
         "Mutant",
+        "SavageLand",
         "WeaponX",
         "Xforce",
         "Xmen"
       ],
       "fingerprints": {
         "basic": "c7c90b3e8fc6426eb582354762ad9435201bfa15bce4ae9a8ed3e7acf55d0ff8",
-        "global_stats": "216a633ffe8b20fd5cdfc703e16a129325916e09b93182d380a8324228665687",
         "passive": "96e56d4ee8a19efa632a791d6300b8e619d53394fdbc7d28b783dacdf22bf567",
         "passive_power_mul": "bdaf5c81bfab66ef2b31411df3bdd68b58b7c85d1f9767bbc198200f222b35d0",
-        "passive_stats": "477e87cfb9436295501b0ff3a8cef3feb89523ae9dea773b35a04f417b8b67fb",
-        "special": "5732809532ed169b56c52e1bf9111ce1fe647570792b70bacb9cc60a3f8afc47",
-        "ultimate": "4df43c0a250eea2d6db85da1ed769193b67a888efae18d9d5808f93299d06a79"
+        "passive_stats": "e8c29f19778952c85992314c66ac74c74ea8a26fdb5483ead5a696bc358fc6d9",
+        "special": "8d9dd2c36498e662efa7a5f6f73c39da7e2510e2517def289872d0c8038231e8",
+        "ultimate": "5ec9876933826a757acb33274ac5fa03bf5b45c9cf1a94d860e673ef76a03108"
       }
     },
     "Xavier": {
@@ -9323,7 +9332,7 @@
       "fingerprints": {
         "basic": "5fc1b86438d73f8b43237f87694230d08d2aa3197b8e753849fdb3482795cb0a",
         "dynamic_stats": "f8e657883b9c8f2eab53d1ad52a1a8f019b4b6469059ca76e6b1b37164bfb873",
-        "passive": "05d16f26542f9e153199337868afc80adbd861c47713b6809ed61c2fa5b20828",
+        "passive": "e3d153a12dceae44690512da68c5b4413de4af24d947118adf3aea3762f3a2f6",
         "passive_power_mul": "bdaf5c81bfab66ef2b31411df3bdd68b58b7c85d1f9767bbc198200f222b35d0",
         "special": "eb1c217cee7a084017417b27e870634d25a8332e32c7ffe698a4c19b1e08886c",
         "ultimate": "5a1a65413746ced4c12ed43039c81c917f272ff07e0a54cb1aff5a76add1f22c"
@@ -9923,6 +9932,101 @@
         "special": "5c54faec6040a23f2d2da797ea335c9b51149af3745b98057cf4e46815632ad0",
         "ultimate": "771e8c646aedb58d59810ea1fd99a8946cfb95d62d6e4b216e31661807a774eb"
       }
+    },
+    "CyclopsMighty": {
+      "playable": true,
+      "traits": [
+        "Brawler",
+        "Global",
+        "Hero",
+        "Mutant",
+        "SavageLand",
+        "Xmen"
+      ],
+      "fingerprints": {
+        "basic": "7d271c30f7313a8c8af401929d54b052bbab5c11fcedf2dd614bbd38f936b7e2",
+        "dynamic_stats": "ee13282117d59237f067bd948f06d76edf6598a4a91ac9dc07598a8edbd489d1",
+        "passive": "ce095c94626e1cc639590ccb077006df54a531a33d11bdcfe2c554ab60dca7b3",
+        "passive_power_mul": "bdaf5c81bfab66ef2b31411df3bdd68b58b7c85d1f9767bbc198200f222b35d0",
+        "special": "400dbcbf76fa1ece5b8f64ee2be6193a806b4e41b9c66e304e7c31320a0819da",
+        "stat_immunity": "d477a913ca3d4668abcbf73ec312ef16c726f0947ff6daea8880794387419b58",
+        "ultimate": "a224dd7c426fee98bcede6ccea698638e80203964ef147e495d10726a6928bc9"
+      }
+    },
+    "Kazar": {
+      "playable": true,
+      "traits": [
+        "Global",
+        "Hero",
+        "SavageLand",
+        "Skill",
+        "Support"
+      ],
+      "fingerprints": {
+        "basic": "35961f912a0b27dba6288886a06b7749698570eb766706faef786be3258432f4",
+        "dynamic_stats": "8c5a9a38ac1e8aefa4cba8d86577e733c56313b3339c919e9491eadd6f42dc51",
+        "passive": "a7591e34419f5302d0fdec3e7d99e42da7a2381cd22eb258bc125f4003f5f52b",
+        "passive_power_mul": "bdaf5c81bfab66ef2b31411df3bdd68b58b7c85d1f9767bbc198200f222b35d0",
+        "special": "1990fbedfebcd737b334c828e0a183d720f7893a86e47fa72a8352e04dd9d62b",
+        "ultimate": "095f6bedcb5569e816165a1bed9b44207545f68a303a688e61ddf7d3ff658293"
+      }
+    },
+    "SabretoothBreaker": {
+      "playable": true,
+      "traits": [
+        "Controller",
+        "Global",
+        "Menace",
+        "Mystic",
+        "Villain"
+      ],
+      "fingerprints": {
+        "basic": "b8a345bdf3ebb0030ef7681ba6ae4bcdd22f76dae60c1fffe41a73b9cd5705d6",
+        "dynamic_stats": "b06398dfcb37c2ba6f3f765544ea03c377bf79e1758cc82fc2462a97d215d73a",
+        "passive": "16bce296d941ccdf9df1c8fe4ee471d2473f66f8d1071d85eb76a907314bb9ac",
+        "passive_power_mul": "bdaf5c81bfab66ef2b31411df3bdd68b58b7c85d1f9767bbc198200f222b35d0",
+        "passive_stats": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "special": "2b8a28a25eee5c5a7b1d68bc6395346d7a4a71c8c71623eb120148e61b0dacd3",
+        "ultimate": "e98767f016d77c859d4ee5b4f7aba684857434a802a6c7ec9fb4053600d6c5af"
+      }
+    },
+    "Sauron": {
+      "playable": true,
+      "traits": [
+        "Controller",
+        "Global",
+        "Mutant",
+        "SavageLand",
+        "Villain"
+      ],
+      "fingerprints": {
+        "basic": "9a743bf05532b658ad7763a964d9431a126025ac4cfebbb3f8dc58d15e121f9b",
+        "dynamic_stats": "2496985c12a7f758c0bf47f7467f6d4bdb0c383e8959fd7d943a42134660a1ea",
+        "global_stats": "2b81b9b5d3013fb2f5c7b7a91f243b2d850a77065bfec78eaf987fd9f157636c",
+        "passive": "a0d2deb8107f1b4b4759f373f23972f73f6764729bf6126b0cf19817ce85c059",
+        "passive_power_mul": "bdaf5c81bfab66ef2b31411df3bdd68b58b7c85d1f9767bbc198200f222b35d0",
+        "special": "d288503872498be1df7297c5a713ce9f2b5bf25e6f7f5d75a1a2d06fb78f6805",
+        "stat_immunity": "4b1d97ee7c8cea7a17f8b67dd2c571246fad9134896b90837c12eb9c61ca8e33",
+        "ultimate": "7fc0ad4a3d504cf7230fe732cdfbde7fb8c7084619a0f7983b47556a0f9e24a2"
+      }
     }
-  }
+  },
+  "unclassifiedChanges": [
+    {
+      "characterId": "Azazel",
+      "observedAt": "2026-10-30T10:25:02Z",
+      "changedFields": [
+        "ultimate"
+      ],
+      "status": "kit_change_not_classified_as_rework"
+    },
+    {
+      "characterId": "Yellowjacket",
+      "observedAt": "2026-10-30T10:25:02Z",
+      "changedFields": [
+        "passive"
+      ],
+      "status": "kit_change_not_classified_as_rework"
+    }
+  ]
 }

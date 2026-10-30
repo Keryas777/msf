@@ -15872,6 +15872,242 @@
           ],
           "date": "2026-10-19",
           "releaseStatus": "announced"
+        },
+        {
+          "month": "2026-10",
+          "teamId": "auto-menace-20261030",
+          "label": "Menace (detection automatique)",
+          "kind": "team",
+          "formationStatus": "observed",
+          "teamSize": 5,
+          "members": [
+            "Blob",
+            "SabretoothBreaker",
+            "SilverSamurai",
+            "Stryfe",
+            "Toad"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "SabretoothBreaker"
+          ],
+          "existingCharacterIds": [
+            "Blob",
+            "SilverSamurai",
+            "Stryfe",
+            "Toad"
+          ],
+          "reworkedCharacterIds": [
+            "Blob",
+            "SilverSamurai",
+            "Stryfe",
+            "Toad"
+          ],
+          "announcedNext": [],
+          "characterReleases": [
+            {
+              "characterId": "SabretoothBreaker",
+              "month": "2026-10",
+              "observedAt": "2026-10-30",
+              "releaseMethod": "automated_catalog_observation",
+              "confidence": "low",
+              "dateConfidence": "unverified",
+              "notes": [
+                "Premiere observation automatique d'un personnage marque player_Character=true.",
+                "La date observee n'est PAS une preuve de premiere disponibilite au recrutement."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "Blob",
+              "month": "2026-10",
+              "observedAt": "2026-10-30",
+              "changedFields": [
+                "dynamic_stats",
+                "global_stats",
+                "passive",
+                "passive_stats",
+                "special",
+                "ultimate"
+              ],
+              "confidence": "automated_observation",
+              "notes": [
+                "Changement de kit/statistiques detecte dans combat_data; date de mise en ligne reelle non prouvee."
+              ]
+            },
+            {
+              "characterId": "SilverSamurai",
+              "month": "2026-10",
+              "observedAt": "2026-10-30",
+              "changedFields": [
+                "basic",
+                "dynamic_stats",
+                "global_stats",
+                "passive",
+                "passive_stats",
+                "special",
+                "ultimate"
+              ],
+              "confidence": "automated_observation",
+              "notes": [
+                "Changement de kit/statistiques detecte dans combat_data; date de mise en ligne reelle non prouvee."
+              ]
+            },
+            {
+              "characterId": "Stryfe",
+              "month": "2026-10",
+              "observedAt": "2026-10-30",
+              "changedFields": [
+                "dynamic_stats",
+                "global_stats",
+                "passive",
+                "passive_stats",
+                "special",
+                "stat_immunity",
+                "ultimate"
+              ],
+              "confidence": "automated_observation",
+              "notes": [
+                "Changement de kit/statistiques detecte dans combat_data; date de mise en ligne reelle non prouvee."
+              ]
+            },
+            {
+              "characterId": "Toad",
+              "month": "2026-10",
+              "observedAt": "2026-10-30",
+              "changedFields": [
+                "dynamic_stats",
+                "global_stats",
+                "passive",
+                "passive_stats",
+                "special",
+                "ultimate"
+              ],
+              "confidence": "automated_observation",
+              "notes": [
+                "Changement de kit/statistiques detecte dans combat_data; date de mise en ligne reelle non prouvee."
+              ]
+            }
+          ],
+          "observedAt": "2026-10-30T10:25:02Z",
+          "confidence": "automated_observation",
+          "sourceTrait": "Menace",
+          "notes": [
+            "Composition deduite des traits du jeu, non necessairement une annonce officielle.",
+            "La date est celle de l'observation, pas une preuve de sortie effective."
+          ]
+        },
+        {
+          "month": "2026-10",
+          "teamId": "auto-savageland-20261030",
+          "label": "Savage Land (detection automatique)",
+          "kind": "team",
+          "formationStatus": "observed",
+          "teamSize": 5,
+          "members": [
+            "CyclopsMighty",
+            "Kazar",
+            "Rogue",
+            "Sauron",
+            "X23"
+          ],
+          "core": [],
+          "pool": [],
+          "newCharacterIds": [
+            "CyclopsMighty",
+            "Kazar",
+            "Sauron"
+          ],
+          "existingCharacterIds": [
+            "Rogue",
+            "X23"
+          ],
+          "reworkedCharacterIds": [
+            "Rogue",
+            "X23"
+          ],
+          "announcedNext": [],
+          "characterReleases": [
+            {
+              "characterId": "CyclopsMighty",
+              "month": "2026-10",
+              "observedAt": "2026-10-30",
+              "releaseMethod": "automated_catalog_observation",
+              "confidence": "low",
+              "dateConfidence": "unverified",
+              "notes": [
+                "Premiere observation automatique d'un personnage marque player_Character=true.",
+                "La date observee n'est PAS une preuve de premiere disponibilite au recrutement."
+              ]
+            },
+            {
+              "characterId": "Kazar",
+              "month": "2026-10",
+              "observedAt": "2026-10-30",
+              "releaseMethod": "automated_catalog_observation",
+              "confidence": "low",
+              "dateConfidence": "unverified",
+              "notes": [
+                "Premiere observation automatique d'un personnage marque player_Character=true.",
+                "La date observee n'est PAS une preuve de premiere disponibilite au recrutement."
+              ]
+            },
+            {
+              "characterId": "Sauron",
+              "month": "2026-10",
+              "observedAt": "2026-10-30",
+              "releaseMethod": "automated_catalog_observation",
+              "confidence": "low",
+              "dateConfidence": "unverified",
+              "notes": [
+                "Premiere observation automatique d'un personnage marque player_Character=true.",
+                "La date observee n'est PAS une preuve de premiere disponibilite au recrutement."
+              ]
+            }
+          ],
+          "reworks": [
+            {
+              "characterId": "Rogue",
+              "month": "2026-10",
+              "observedAt": "2026-10-30",
+              "changedFields": [
+                "basic",
+                "global_stats",
+                "passive",
+                "passive_stats",
+                "special",
+                "ultimate"
+              ],
+              "confidence": "automated_observation",
+              "notes": [
+                "Changement de kit/statistiques detecte dans combat_data; date de mise en ligne reelle non prouvee."
+              ]
+            },
+            {
+              "characterId": "X23",
+              "month": "2026-10",
+              "observedAt": "2026-10-30",
+              "changedFields": [
+                "global_stats",
+                "passive_stats",
+                "special",
+                "ultimate"
+              ],
+              "confidence": "automated_observation",
+              "notes": [
+                "Changement de kit/statistiques detecte dans combat_data; date de mise en ligne reelle non prouvee."
+              ]
+            }
+          ],
+          "observedAt": "2026-10-30T10:25:02Z",
+          "confidence": "automated_observation",
+          "sourceTrait": "SavageLand",
+          "notes": [
+            "Composition deduite des traits du jeu, non necessairement une annonce officielle.",
+            "La date est celle de l'observation, pas une preuve de sortie effective."
+          ]
         }
       ],
       "excludedFrom2026PlayableCount": [
@@ -16395,11 +16631,17 @@
       "validation": {
         "auditedPeriod": "2026-01-01/2026-10-05",
         "individualReleaseCount": 2,
-        "teamEventNewCharacterCount": 32,
-        "distinctPlayableReleaseCount": 34,
-        "distinctReworkedCharacterCount": 39,
+        "teamEventNewCharacterCount": 36,
+        "distinctPlayableReleaseCount": 38,
+        "distinctReworkedCharacterCount": 45,
         "duplicatesAcrossReleaseBuckets": [],
         "annualTotalsStatus": "partial: audited through 2026-10-05; includes officially announced Dracula/Nightreavers release dated 2026-10-19"
+      },
+      "individualReworks": [],
+      "automatedMonitoring": {
+        "firstTrackedAt": "2026-10-18T23:35:49Z",
+        "lastChangeObservedAt": "2026-10-30T10:25:02Z",
+        "dateSemantics": "first_seen_in_sources_not_first_playable_date"
       }
     }
   }
