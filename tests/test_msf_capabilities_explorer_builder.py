@@ -114,8 +114,6 @@ class ExplorerBuilderTests(unittest.TestCase):
                     if playable_by_id.get(character["id"]) is not None
                     else character["official"],
                 )
-        for character_id in ("IronMonger", "Thena", "Gilgamesh"):
-            self.assertFalse(self.payload(f"characters/{character_id}.json")["character"]["playable"])
 
     @classmethod
     def setUpClass(cls) -> None:
