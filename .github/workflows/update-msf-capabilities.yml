@@ -6,9 +6,11 @@ on:
       - "scripts/update_msf_capabilities.py"
       - "scripts/update_msf_magneticzero.py"
       - "scripts/audit_msf_playable_presentations.py"
+      - "scripts/update_msf_presentations_fr.py"
       - "tests/test_update_msf_capabilities.py"
       - "tests/test_update_msf_magneticzero.py"
       - "tests/test_audit_msf_playable_presentations.py"
+      - "tests/test_update_msf_presentations_fr.py"
       - "tests/test_msf_capabilities_explorer_builder.py"
       - ".github/workflows/update-msf-capabilities.yml"
       - "MSF_CAPABILITIES_PIPELINE.md"
@@ -49,6 +51,7 @@ jobs:
           python -m unittest discover -s tests -p "test_update_msf_capabilities.py" -v
           python -m unittest discover -s tests -p "test_update_msf_magneticzero.py" -v
           python -m unittest discover -s tests -p "test_audit_msf_playable_presentations.py" -v
+          python -m unittest discover -s tests -p "test_update_msf_presentations_fr.py" -v
           python -m unittest discover -s tests -p "test_msf_capabilities_explorer_builder.py" -v
 
   update:
@@ -88,6 +91,13 @@ jobs:
             --game-version "$MSF_GAME_VERSION" \
             --game-build "$MSF_GAME_BUILD" \
             --allow-magneticzero-fallback
+      - name: Refresh official French ability presentations (fail closed)
+        id: french
+        continue-on-error: true
+        run: python -m scripts.update_msf_presentations_fr --apply
+      - name: Warn if the French source is unavailable or unverifiable
+        if: steps.french.outcome == 'failure'
+        run: echo "::warning::French ability source not validated; previous presentations are retained."
       - name: Report playable presentation gaps
         if: always()
         run: python scripts/audit_msf_playable_presentations.py
@@ -97,7 +107,7 @@ jobs:
           echo "::error::MagneticZero failed; previous verified publication remains unchanged."
           exit 1
       - name: Run Codex regression suites
-        if: (steps.primary.outcome == 'success' && steps.primary.outputs.content_changed == 'true') || (steps.fallback.outcome == 'success' && steps.fallback.outputs.changed == 'true')
+        if: (steps.primary.outcome == 'success' && steps.primary.outputs.content_changed == 'true') || (steps.fallback.outcome == 'success' && steps.fallback.outputs.changed == 'true') || steps.french.outputs.changed == 'true'
         run: |
           python -m unittest discover -s tests -p "test_msf_capabilities_parser.py" -v
           python -m unittest discover -s tests -p "test_msf_capabilities_normalizer.py" -v
@@ -107,7 +117,7 @@ jobs:
           python -m unittest discover -s tests -p "test_msf_turn_meter_*.py" -v
           python -m unittest discover -s tests -p "test_msf_stat_modifier_normalization.py" -v
       - name: Rebuild existing Codex stages
-        if: (steps.primary.outcome == 'success' && steps.primary.outputs.content_changed == 'true') || (steps.fallback.outcome == 'success' && steps.fallback.outputs.changed == 'true')
+        if: (steps.primary.outcome == 'success' && steps.primary.outputs.content_changed == 'true') || (steps.fallback.outcome == 'success' && steps.fallback.outputs.changed == 'true') || steps.french.outputs.changed == 'true'
         run: |
           python -m scripts.msf_capabilities_parser.cli
           python -m scripts.msf_capabilities_normalizer.cli
@@ -115,13 +125,13 @@ jobs:
           python -m scripts.msf_capabilities_web_publisher.cli
           python -m scripts.msf_capabilities_explorer_builder.cli
       - name: Report historical health redistribution expectations (advisory)
-        if: (steps.primary.outcome == 'success' && steps.primary.outputs.content_changed == 'true') || (steps.fallback.outcome == 'success' && steps.fallback.outputs.changed == 'true')
+        if: (steps.primary.outcome == 'success' && steps.primary.outputs.content_changed == 'true') || (steps.fallback.outcome == 'success' && steps.fallback.outputs.changed == 'true') || steps.french.outputs.changed == 'true'
         continue-on-error: true
         run: |
           echo "Historical fixture expectations may change after Scopely reworks; report failures without blocking valid updates."
           python -m unittest discover -s tests -p "test_msf_health_redistribute.py" -v
       - name: Verify every generated stage and coverage
-        if: (steps.primary.outcome == 'success' && steps.primary.outputs.content_changed == 'true') || (steps.fallback.outcome == 'success' && steps.fallback.outputs.changed == 'true')
+        if: (steps.primary.outcome == 'success' && steps.primary.outputs.content_changed == 'true') || (steps.fallback.outcome == 'success' && steps.fallback.outputs.changed == 'true') || steps.french.outputs.changed == 'true'
         run: |
           python -m scripts.msf_capabilities_parser.cli --check
           python -m scripts.msf_capabilities_normalizer.cli --check
