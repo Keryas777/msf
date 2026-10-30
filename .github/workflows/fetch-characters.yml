@@ -3,9 +3,7 @@ name: Fetch MSF Characters (API)
 on:
   workflow_dispatch:
 
-  # Toutes les 3 heures (à xx:10)
-  schedule:
-    - cron: "10 */3 * * *"
+  # Déclenché par Cloudflare (Europe/Paris : 00h10 puis toutes les 3 h).
 
 permissions:
   contents: write
