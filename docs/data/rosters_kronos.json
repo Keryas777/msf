@@ -110,13 +110,13 @@
         }
       },
       "bullseye": {
-        "power": 325381,
+        "power": 377637,
         "level": 75,
         "gear": 14,
         "isoMax": 10,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 4,
+        "diamonds": 5,
         "abilities": {
           "basic": 6,
           "special": 6,
@@ -1325,7 +1325,7 @@
         }
       },
       "stryfe": {
-        "power": 84725,
+        "power": 132394,
         "level": 65,
         "gear": 12,
         "isoMax": 5,
@@ -1670,7 +1670,7 @@
         }
       },
       "toad": {
-        "power": 64838,
+        "power": 100304,
         "level": 60,
         "gear": 11,
         "isoMax": 1,
@@ -1700,7 +1700,7 @@
         }
       },
       "blob": {
-        "power": 54999,
+        "power": 84774,
         "level": 60,
         "gear": 11,
         "isoMax": 1,
@@ -1880,7 +1880,7 @@
         }
       },
       "x23": {
-        "power": 197275,
+        "power": 295158,
         "level": 80,
         "gear": 15,
         "isoMax": 5,
@@ -2300,13 +2300,13 @@
         }
       },
       "kittypryde": {
-        "power": 164079,
+        "power": 221478,
         "level": 80,
         "gear": 15,
         "isoMax": 10,
         "yellowStars": 7,
-        "redStars": 6,
-        "diamonds": 0,
+        "redStars": 7,
+        "diamonds": 3,
         "abilities": {
           "basic": 6,
           "special": 6,
@@ -2645,7 +2645,7 @@
         }
       },
       "silversamurai": {
-        "power": 121625,
+        "power": 198427,
         "level": 78,
         "gear": 14,
         "isoMax": 5,
@@ -3050,13 +3050,13 @@
         }
       },
       "mrnegative": {
-        "power": 354289,
+        "power": 410664,
         "level": 75,
         "gear": 14,
         "isoMax": 10,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 4,
+        "diamonds": 5,
         "abilities": {
           "basic": 6,
           "special": 6,
@@ -3590,13 +3590,13 @@
         }
       },
       "zombieironman": {
-        "power": 595007,
+        "power": 684337,
         "level": 90,
         "gear": 17,
         "isoMax": 14,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 4,
+        "diamonds": 5,
         "abilities": {
           "basic": 6,
           "special": 6,
@@ -3755,7 +3755,7 @@
         }
       },
       "rogue": {
-        "power": 258192,
+        "power": 430088,
         "level": 90,
         "gear": 17,
         "isoMax": 13,
@@ -3770,12 +3770,12 @@
         }
       },
       "cosmo": {
-        "power": 361,
+        "power": 446,
         "level": 1,
         "gear": 1,
         "isoMax": 5,
         "yellowStars": 4,
-        "redStars": 2,
+        "redStars": 3,
         "diamonds": 0,
         "abilities": {
           "basic": 1,
@@ -4865,10 +4865,10 @@
         }
       },
       "hobgoblin": {
-        "power": 2584189,
+        "power": 3028388,
         "level": 110,
         "gear": 21,
-        "isoMax": 15,
+        "isoMax": 18,
         "yellowStars": 7,
         "redStars": 7,
         "diamonds": 3,
@@ -5105,13 +5105,13 @@
         }
       },
       "knull": {
-        "power": 3851047,
+        "power": 4393407,
         "level": 110,
         "gear": 21,
         "isoMax": 16,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 4,
+        "diamonds": 5,
         "abilities": {
           "basic": 7,
           "special": 7,
@@ -5555,10 +5555,10 @@
         }
       },
       "spiderwomanjulia": {
-        "power": 3393103,
+        "power": 3798399,
         "level": 110,
         "gear": 21,
-        "isoMax": 16,
+        "isoMax": 18,
         "yellowStars": 7,
         "redStars": 7,
         "diamonds": 3,
@@ -5735,9 +5735,9 @@
         }
       },
       "humantorchjim": {
-        "power": 1107382,
+        "power": 1269293,
         "level": 105,
-        "gear": 19,
+        "gear": 20,
         "isoMax": 15,
         "yellowStars": 5,
         "redStars": 5,
@@ -5763,6 +5763,36 @@
           "ultimate": 6,
           "passive": 5
         }
+      },
+      "dracula": {
+        "power": 783832,
+        "level": 101,
+        "gear": 19,
+        "yellowStars": 2,
+        "redStars": 0,
+        "diamonds": 0,
+        "abilities": {
+          "basic": 6,
+          "special": 6,
+          "ultimate": 6,
+          "passive": 4
+        },
+        "isoMax": 15
+      },
+      "hawkeyerobot": {
+        "power": 798599,
+        "level": 105,
+        "gear": 20,
+        "yellowStars": 2,
+        "redStars": 2,
+        "diamonds": 0,
+        "abilities": {
+          "basic": 6,
+          "special": 7,
+          "ultimate": 7,
+          "passive": 5
+        },
+        "isoMax": 15
       }
     },
     "iso": {
@@ -7065,6 +7095,14 @@
       "quicksilver": {
         "isoClass": "striker",
         "isoColor": ""
+      },
+      "dracula": {
+        "isoClass": "striker",
+        "isoColor": ""
+      },
+      "hawkeyerobot": {
+        "isoClass": "striker",
+        "isoColor": ""
       }
     }
   },
@@ -7854,7 +7892,7 @@
         }
       },
       "stryfe": {
-        "power": 572,
+        "power": 590,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -7884,7 +7922,7 @@
         }
       },
       "x23": {
-        "power": 49616,
+        "power": 70253,
         "level": 50,
         "gear": 9,
         "isoMax": 0,
@@ -7944,7 +7982,7 @@
         }
       },
       "toad": {
-        "power": 476,
+        "power": 492,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -8229,7 +8267,7 @@
         }
       },
       "blob": {
-        "power": 476,
+        "power": 491,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -8484,7 +8522,7 @@
         }
       },
       "silversamurai": {
-        "power": 735,
+        "power": 759,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -10074,7 +10112,7 @@
         }
       },
       "rogue": {
-        "power": 278816,
+        "power": 457681,
         "level": 90,
         "gear": 17,
         "isoMax": 10,
@@ -14185,10 +14223,10 @@
         }
       },
       "crossbones": {
-        "power": 1361004,
-        "level": 101,
+        "power": 1762613,
+        "level": 105,
         "gear": 19,
-        "isoMax": 14,
+        "isoMax": 15,
         "yellowStars": 7,
         "redStars": 7,
         "diamonds": 3,
@@ -14575,13 +14613,13 @@
         }
       },
       "ironfist": {
-        "power": 1393963,
+        "power": 1497973,
         "level": 105,
         "gear": 19,
         "isoMax": 14,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 2,
+        "diamonds": 3,
         "abilities": {
           "basic": 7,
           "special": 7,
@@ -15730,7 +15768,7 @@
         }
       },
       "stryfe": {
-        "power": 87504,
+        "power": 135782,
         "level": 60,
         "gear": 11,
         "isoMax": 5,
@@ -15925,7 +15963,7 @@
         }
       },
       "toad": {
-        "power": 81040,
+        "power": 126353,
         "level": 60,
         "gear": 11,
         "isoMax": 5,
@@ -15940,7 +15978,7 @@
         }
       },
       "blob": {
-        "power": 79206,
+        "power": 124668,
         "level": 60,
         "gear": 11,
         "isoMax": 5,
@@ -16120,7 +16158,7 @@
         }
       },
       "x23": {
-        "power": 124634,
+        "power": 180307,
         "level": 60,
         "gear": 11,
         "isoMax": 5,
@@ -16765,7 +16803,7 @@
         }
       },
       "silversamurai": {
-        "power": 173417,
+        "power": 286813,
         "level": 75,
         "gear": 14,
         "isoMax": 10,
@@ -17170,7 +17208,7 @@
         }
       },
       "rogue": {
-        "power": 755318,
+        "power": 1325360,
         "level": 100,
         "gear": 19,
         "isoMax": 13,
@@ -18865,7 +18903,7 @@
         }
       },
       "silversable": {
-        "power": 2529997,
+        "power": 2535790,
         "level": 110,
         "gear": 20,
         "isoMax": 14,
@@ -19585,7 +19623,7 @@
         }
       },
       "symbiotequicksilver": {
-        "power": 2832229,
+        "power": 2836662,
         "level": 110,
         "gear": 20,
         "isoMax": 16,
@@ -19720,8 +19758,8 @@
         }
       },
       "thena": {
-        "power": 995633,
-        "level": 100,
+        "power": 1049505,
+        "level": 101,
         "gear": 18,
         "isoMax": 16,
         "yellowStars": 6,
@@ -19810,8 +19848,8 @@
         }
       },
       "ulyssesklaue": {
-        "power": 1012931,
-        "level": 101,
+        "power": 1060808,
+        "level": 102,
         "gear": 19,
         "isoMax": 16,
         "yellowStars": 5,
@@ -19825,8 +19863,8 @@
         }
       },
       "ironmonger": {
-        "power": 812349,
-        "level": 101,
+        "power": 846911,
+        "level": 102,
         "gear": 19,
         "isoMax": 15,
         "yellowStars": 4,
@@ -23110,7 +23148,7 @@
         }
       },
       "stryfe": {
-        "power": 106502,
+        "power": 164589,
         "level": 70,
         "gear": 13,
         "isoMax": 5,
@@ -23245,7 +23283,7 @@
         }
       },
       "toad": {
-        "power": 92332,
+        "power": 143509,
         "level": 65,
         "gear": 12,
         "isoMax": 5,
@@ -23260,7 +23298,7 @@
         }
       },
       "blob": {
-        "power": 86001,
+        "power": 134861,
         "level": 65,
         "gear": 12,
         "isoMax": 5,
@@ -23440,7 +23478,7 @@
         }
       },
       "x23": {
-        "power": 81847,
+        "power": 119082,
         "level": 60,
         "gear": 11,
         "isoMax": 5,
@@ -24040,7 +24078,7 @@
         }
       },
       "silversamurai": {
-        "power": 219964,
+        "power": 376557,
         "level": 85,
         "gear": 16,
         "isoMax": 10,
@@ -24430,7 +24468,7 @@
         }
       },
       "rogue": {
-        "power": 550550,
+        "power": 969854,
         "level": 100,
         "gear": 19,
         "isoMax": 11,
@@ -26980,12 +27018,12 @@
         }
       },
       "spiderwomanjulia": {
-        "power": 1644476,
+        "power": 1983176,
         "level": 110,
         "gear": 19,
         "isoMax": 14,
-        "yellowStars": 6,
-        "redStars": 6,
+        "yellowStars": 7,
+        "redStars": 7,
         "diamonds": 0,
         "abilities": {
           "basic": 7,
@@ -27172,6 +27210,20 @@
           "special": 7,
           "ultimate": 7,
           "passive": 5
+        }
+      },
+      "hawkeyerobot": {
+        "power": 82,
+        "level": 1,
+        "gear": 1,
+        "yellowStars": 2,
+        "redStars": 0,
+        "diamonds": 0,
+        "abilities": {
+          "basic": 1,
+          "special": 1,
+          "ultimate": 0,
+          "passive": 0
         }
       }
     },
@@ -29407,8 +29459,8 @@
         }
       },
       "daredevil": {
-        "power": 1626927,
-        "level": 104,
+        "power": 1712053,
+        "level": 105,
         "gear": 19,
         "isoMax": 13,
         "yellowStars": 7,
@@ -29587,7 +29639,7 @@
         }
       },
       "toad": {
-        "power": 29866,
+        "power": 43353,
         "level": 40,
         "gear": 7,
         "isoMax": 5,
@@ -29677,7 +29729,7 @@
         }
       },
       "venom": {
-        "power": 1293266,
+        "power": 1300472,
         "level": 101,
         "gear": 19,
         "isoMax": 13,
@@ -29782,18 +29834,18 @@
         }
       },
       "x23": {
-        "power": 41254,
-        "level": 44,
-        "gear": 8,
-        "isoMax": 5,
+        "power": 261423,
+        "level": 75,
+        "gear": 14,
+        "isoMax": 10,
         "yellowStars": 7,
         "redStars": 7,
         "diamonds": 2,
         "abilities": {
-          "basic": 4,
-          "special": 4,
-          "ultimate": 4,
-          "passive": 3
+          "basic": 6,
+          "special": 6,
+          "ultimate": 6,
+          "passive": 4
         }
       },
       "mystique": {
@@ -29842,7 +29894,7 @@
         }
       },
       "blob": {
-        "power": 10265,
+        "power": 14246,
         "level": 25,
         "gear": 5,
         "isoMax": 5,
@@ -30382,7 +30434,7 @@
         }
       },
       "stryfe": {
-        "power": 20879,
+        "power": 29761,
         "level": 36,
         "gear": 7,
         "isoMax": 5,
@@ -30562,7 +30614,7 @@
         }
       },
       "silversamurai": {
-        "power": 26720,
+        "power": 39004,
         "level": 40,
         "gear": 7,
         "isoMax": 5,
@@ -30922,9 +30974,9 @@
         }
       },
       "yelena": {
-        "power": 1411347,
-        "level": 103,
-        "gear": 19,
+        "power": 1746525,
+        "level": 105,
+        "gear": 20,
         "isoMax": 13,
         "yellowStars": 7,
         "redStars": 7,
@@ -31162,7 +31214,7 @@
         }
       },
       "rogue": {
-        "power": 381727,
+        "power": 649468,
         "level": 95,
         "gear": 18,
         "isoMax": 11,
@@ -31642,8 +31694,8 @@
         }
       },
       "amadeuscho": {
-        "power": 1429985,
-        "level": 104,
+        "power": 1507315,
+        "level": 105,
         "gear": 19,
         "isoMax": 13,
         "yellowStars": 7,
@@ -33862,9 +33914,9 @@
         }
       },
       "darkstar": {
-        "power": 1668188,
-        "level": 101,
-        "gear": 19,
+        "power": 2299617,
+        "level": 105,
+        "gear": 20,
         "isoMax": 13,
         "yellowStars": 7,
         "redStars": 7,
@@ -33931,7 +33983,7 @@
         "diamonds": 0,
         "abilities": {
           "basic": 8,
-          "special": 7,
+          "special": 8,
           "ultimate": 6,
           "passive": 6
         }
@@ -33967,12 +34019,12 @@
         }
       },
       "eclipse": {
-        "power": 1115769,
+        "power": 1263691,
         "level": 105,
         "gear": 20,
         "isoMax": 13,
-        "yellowStars": 4,
-        "redStars": 4,
+        "yellowStars": 5,
+        "redStars": 5,
         "diamonds": 0,
         "abilities": {
           "basic": 7,
@@ -35935,9 +35987,9 @@
         }
       },
       "spiderman": {
-        "power": 3555515,
+        "power": 3993081,
         "level": 110,
-        "gear": 20,
+        "gear": 21,
         "yellowStars": 7,
         "redStars": 7,
         "diamonds": 5,
@@ -36040,8 +36092,8 @@
         }
       },
       "hawkeye": {
-        "power": 1769347,
-        "level": 105,
+        "power": 2282147,
+        "level": 110,
         "gear": 20,
         "yellowStars": 7,
         "redStars": 7,
@@ -36055,7 +36107,7 @@
         }
       },
       "crossbones": {
-        "power": 2491787,
+        "power": 2562108,
         "level": 110,
         "gear": 20,
         "yellowStars": 7,
@@ -36063,7 +36115,7 @@
         "diamonds": 3,
         "isoMax": 15,
         "abilities": {
-          "basic": 6,
+          "basic": 7,
           "special": 6,
           "ultimate": 7,
           "passive": 5
@@ -36400,7 +36452,7 @@
         }
       },
       "rhino": {
-        "power": 2679610,
+        "power": 2689818,
         "level": 110,
         "gear": 19,
         "yellowStars": 7,
@@ -36790,7 +36842,7 @@
         }
       },
       "silversamurai": {
-        "power": 175458,
+        "power": 290562,
         "level": 75,
         "gear": 14,
         "yellowStars": 7,
@@ -36880,7 +36932,7 @@
         }
       },
       "toad": {
-        "power": 82773,
+        "power": 130859,
         "level": 60,
         "gear": 11,
         "yellowStars": 7,
@@ -37030,7 +37082,7 @@
         }
       },
       "yelena": {
-        "power": 2905404,
+        "power": 3016713,
         "level": 110,
         "gear": 20,
         "yellowStars": 7,
@@ -37630,7 +37682,7 @@
         }
       },
       "gwenpool": {
-        "power": 2389075,
+        "power": 2524552,
         "level": 110,
         "gear": 20,
         "yellowStars": 7,
@@ -37750,7 +37802,7 @@
         }
       },
       "stryfe": {
-        "power": 95607,
+        "power": 148132,
         "level": 60,
         "gear": 11,
         "yellowStars": 7,
@@ -38230,8 +38282,8 @@
         }
       },
       "warmachine": {
-        "power": 1707278,
-        "level": 105,
+        "power": 2257627,
+        "level": 110,
         "gear": 19,
         "yellowStars": 7,
         "redStars": 7,
@@ -38425,7 +38477,7 @@
         }
       },
       "negasonic": {
-        "power": 1000880,
+        "power": 1046313,
         "level": 101,
         "gear": 19,
         "yellowStars": 7,
@@ -38435,12 +38487,12 @@
         "abilities": {
           "basic": 6,
           "special": 6,
-          "ultimate": 6,
+          "ultimate": 7,
           "passive": 4
         }
       },
       "shehulk": {
-        "power": 1675221,
+        "power": 1742957,
         "level": 105,
         "gear": 20,
         "yellowStars": 7,
@@ -38530,7 +38582,7 @@
         }
       },
       "sersi": {
-        "power": 2956318,
+        "power": 2958194,
         "level": 110,
         "gear": 20,
         "yellowStars": 7,
@@ -38860,7 +38912,7 @@
         }
       },
       "blob": {
-        "power": 94369,
+        "power": 147993,
         "level": 60,
         "gear": 11,
         "yellowStars": 7,
@@ -38905,7 +38957,7 @@
         }
       },
       "yoyo": {
-        "power": 2616974,
+        "power": 2727642,
         "level": 110,
         "gear": 20,
         "yellowStars": 7,
@@ -38915,7 +38967,7 @@
         "abilities": {
           "basic": 7,
           "special": 6,
-          "ultimate": 6,
+          "ultimate": 7,
           "passive": 5
         }
       },
@@ -38965,9 +39017,9 @@
         }
       },
       "x23": {
-        "power": 740764,
-        "level": 101,
-        "gear": 19,
+        "power": 1721547,
+        "level": 105,
+        "gear": 20,
         "yellowStars": 7,
         "redStars": 7,
         "diamonds": 3,
@@ -39670,8 +39722,8 @@
         }
       },
       "rogue": {
-        "power": 1163237,
-        "level": 105,
+        "power": 2760981,
+        "level": 110,
         "gear": 20,
         "yellowStars": 7,
         "redStars": 7,
@@ -40615,7 +40667,7 @@
         }
       },
       "knull": {
-        "power": 4324325,
+        "power": 4580723,
         "level": 110,
         "gear": 21,
         "yellowStars": 7,
@@ -40930,7 +40982,7 @@
         }
       },
       "phantomrider": {
-        "power": 2332847,
+        "power": 2518482,
         "level": 110,
         "gear": 20,
         "yellowStars": 7,
@@ -41005,12 +41057,12 @@
         }
       },
       "zombiekestrel": {
-        "power": 1518919,
+        "power": 2969764,
         "level": 110,
         "gear": 20,
         "yellowStars": 7,
-        "redStars": 2,
-        "diamonds": 0,
+        "redStars": 7,
+        "diamonds": 4,
         "isoMax": 14,
         "abilities": {
           "basic": 6,
@@ -41035,7 +41087,7 @@
         }
       },
       "xavier": {
-        "power": 3134488,
+        "power": 3200467,
         "level": 110,
         "gear": 21,
         "yellowStars": 7,
@@ -41500,7 +41552,7 @@
         }
       },
       "spiderwomanjulia": {
-        "power": 2889556,
+        "power": 2890275,
         "level": 110,
         "gear": 20,
         "yellowStars": 7,
@@ -41590,7 +41642,7 @@
         }
       },
       "whiplash": {
-        "power": 2854442,
+        "power": 2855168,
         "level": 110,
         "gear": 20,
         "yellowStars": 7,
@@ -41635,7 +41687,7 @@
         }
       },
       "waspjanet": {
-        "power": 1826471,
+        "power": 1989569,
         "level": 110,
         "gear": 20,
         "yellowStars": 6,
@@ -41665,9 +41717,9 @@
         }
       },
       "jocasta": {
-        "power": 838920,
+        "power": 912658,
         "level": 110,
-        "gear": 19,
+        "gear": 20,
         "yellowStars": 2,
         "redStars": 2,
         "diamonds": 0,
@@ -41680,7 +41732,7 @@
         }
       },
       "dracula": {
-        "power": 1192868,
+        "power": 1246729,
         "level": 110,
         "gear": 19,
         "yellowStars": 2,
@@ -41690,9 +41742,24 @@
         "abilities": {
           "basic": 6,
           "special": 6,
-          "ultimate": 6,
+          "ultimate": 7,
           "passive": 5
         }
+      },
+      "hawkeyerobot": {
+        "power": 213156,
+        "level": 90,
+        "gear": 17,
+        "yellowStars": 2,
+        "redStars": 2,
+        "diamonds": 0,
+        "abilities": {
+          "basic": 6,
+          "special": 6,
+          "ultimate": 6,
+          "passive": 4
+        },
+        "isoMax": 13
       }
     },
     "iso": {
@@ -41993,7 +42060,7 @@
         "isoColor": ""
       },
       "yelena": {
-        "isoClass": "skirmisher",
+        "isoClass": "raider",
         "isoColor": ""
       },
       "ironheart": {
@@ -42153,7 +42220,7 @@
         "isoColor": ""
       },
       "gwenpool": {
-        "isoClass": "striker",
+        "isoClass": "raider",
         "isoColor": ""
       },
       "hela": {
@@ -42949,7 +43016,7 @@
         "isoColor": ""
       },
       "knull": {
-        "isoClass": "skirmisher",
+        "isoClass": "raider",
         "isoColor": ""
       },
       "havok": {
@@ -43061,7 +43128,7 @@
         "isoColor": ""
       },
       "xavier": {
-        "isoClass": "striker",
+        "isoClass": "raider",
         "isoColor": ""
       },
       "ladybullseye": {
@@ -43233,6 +43300,10 @@
         "isoColor": ""
       },
       "dracula": {
+        "isoClass": "striker",
+        "isoColor": ""
+      },
+      "hawkeyerobot": {
         "isoClass": "striker",
         "isoColor": ""
       }
@@ -44519,10 +44590,10 @@
         }
       },
       "blob": {
-        "power": 1209997,
+        "power": 2433517,
         "level": 110,
         "gear": 20,
-        "isoMax": 13,
+        "isoMax": 14,
         "yellowStars": 7,
         "redStars": 7,
         "diamonds": 3,
@@ -44654,10 +44725,10 @@
         }
       },
       "silversamurai": {
-        "power": 1261502,
+        "power": 2560631,
         "level": 110,
         "gear": 20,
-        "isoMax": 13,
+        "isoMax": 14,
         "yellowStars": 7,
         "redStars": 7,
         "diamonds": 3,
@@ -44774,7 +44845,7 @@
         }
       },
       "x23": {
-        "power": 452061,
+        "power": 731101,
         "level": 95,
         "gear": 18,
         "isoMax": 10,
@@ -45074,10 +45145,10 @@
         }
       },
       "toad": {
-        "power": 1164133,
+        "power": 2401463,
         "level": 110,
         "gear": 20,
-        "isoMax": 13,
+        "isoMax": 14,
         "yellowStars": 7,
         "redStars": 7,
         "diamonds": 3,
@@ -45179,10 +45250,10 @@
         }
       },
       "stryfe": {
-        "power": 1228458,
+        "power": 2464023,
         "level": 110,
         "gear": 20,
-        "isoMax": 13,
+        "isoMax": 14,
         "yellowStars": 7,
         "redStars": 7,
         "diamonds": 3,
@@ -46244,7 +46315,7 @@
         }
       },
       "rogue": {
-        "power": 1149323,
+        "power": 2066902,
         "level": 105,
         "gear": 20,
         "isoMax": 13,
@@ -49047,6 +49118,21 @@
           "ultimate": 7,
           "passive": 5
         }
+      },
+      "hawkeyerobot": {
+        "power": 1409221,
+        "level": 110,
+        "gear": 20,
+        "yellowStars": 5,
+        "redStars": 5,
+        "diamonds": 0,
+        "abilities": {
+          "basic": 6,
+          "special": 7,
+          "ultimate": 7,
+          "passive": 5
+        },
+        "isoMax": 15
       }
     },
     "iso": {
@@ -50567,6 +50653,10 @@
         "isoColor": "purple"
       },
       "dracula": {
+        "isoClass": "striker",
+        "isoColor": ""
+      },
+      "hawkeyerobot": {
         "isoClass": "striker",
         "isoColor": ""
       }
@@ -52288,7 +52378,7 @@
         }
       },
       "toad": {
-        "power": 24933,
+        "power": 36069,
         "level": 40,
         "gear": 7,
         "isoMax": 1,
@@ -52333,7 +52423,7 @@
         }
       },
       "blob": {
-        "power": 29570,
+        "power": 42267,
         "level": 40,
         "gear": 7,
         "isoMax": 1,
@@ -52348,7 +52438,7 @@
         }
       },
       "stryfe": {
-        "power": 237951,
+        "power": 400759,
         "level": 85,
         "gear": 16,
         "isoMax": 8,
@@ -52543,7 +52633,7 @@
         }
       },
       "x23": {
-        "power": 427975,
+        "power": 693449,
         "level": 95,
         "gear": 18,
         "isoMax": 9,
@@ -53173,7 +53263,7 @@
         }
       },
       "silversamurai": {
-        "power": 284304,
+        "power": 499495,
         "level": 90,
         "gear": 17,
         "isoMax": 9,
@@ -53713,7 +53803,7 @@
         }
       },
       "rogue": {
-        "power": 1064089,
+        "power": 1819111,
         "level": 105,
         "gear": 19,
         "isoMax": 13,
@@ -59591,7 +59681,7 @@
         }
       },
       "stryfe": {
-        "power": 112788,
+        "power": 171875,
         "level": 71,
         "gear": 13,
         "isoMax": 3,
@@ -59696,7 +59786,7 @@
         }
       },
       "toad": {
-        "power": 94253,
+        "power": 146014,
         "level": 71,
         "gear": 13,
         "isoMax": 3,
@@ -59726,7 +59816,7 @@
         }
       },
       "blob": {
-        "power": 144523,
+        "power": 232258,
         "level": 75,
         "gear": 14,
         "isoMax": 3,
@@ -59876,7 +59966,7 @@
         }
       },
       "x23": {
-        "power": 450037,
+        "power": 726513,
         "level": 95,
         "gear": 18,
         "isoMax": 10,
@@ -60506,7 +60596,7 @@
         }
       },
       "silversamurai": {
-        "power": 190477,
+        "power": 319778,
         "level": 80,
         "gear": 15,
         "isoMax": 8,
@@ -60896,7 +60986,7 @@
         }
       },
       "rogue": {
-        "power": 539021,
+        "power": 949816,
         "level": 100,
         "gear": 19,
         "isoMax": 10,
@@ -66095,7 +66185,7 @@
         }
       },
       "toad": {
-        "power": 15795,
+        "power": 23134,
         "level": 40,
         "gear": 7,
         "isoMax": 1,
@@ -66110,7 +66200,7 @@
         }
       },
       "stryfe": {
-        "power": 5706,
+        "power": 7513,
         "level": 20,
         "gear": 4,
         "isoMax": 0,
@@ -66425,7 +66515,7 @@
         }
       },
       "x23": {
-        "power": 361817,
+        "power": 560866,
         "level": 90,
         "gear": 17,
         "isoMax": 10,
@@ -66815,7 +66905,7 @@
         }
       },
       "blob": {
-        "power": 287,
+        "power": 298,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -67355,7 +67445,7 @@
         }
       },
       "silversamurai": {
-        "power": 269310,
+        "power": 473869,
         "level": 90,
         "gear": 17,
         "isoMax": 10,
@@ -67550,13 +67640,13 @@
         }
       },
       "ikaris": {
-        "power": 1884261,
+        "power": 2025409,
         "level": 105,
         "gear": 20,
         "isoMax": 13,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 2,
+        "diamonds": 3,
         "abilities": {
           "basic": 7,
           "special": 7,
@@ -68075,7 +68165,7 @@
         }
       },
       "rogue": {
-        "power": 412177,
+        "power": 696325,
         "level": 96,
         "gear": 18,
         "isoMax": 10,
@@ -68255,13 +68345,13 @@
         }
       },
       "zombieironman": {
-        "power": 1594290,
+        "power": 1866373,
         "level": 106,
         "gear": 19,
         "isoMax": 14,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 3,
+        "diamonds": 4,
         "abilities": {
           "basic": 7,
           "special": 7,
@@ -70460,13 +70550,13 @@
         }
       },
       "highevolutionary": {
-        "power": 1370659,
+        "power": 1474330,
         "level": 102,
         "gear": 19,
         "isoMax": 13,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 2,
+        "diamonds": 3,
         "abilities": {
           "basic": 6,
           "special": 7,
@@ -73730,13 +73820,13 @@
         }
       },
       "rhino": {
-        "power": 152097,
+        "power": 165942,
         "level": 67,
         "gear": 12,
         "isoMax": 5,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 2,
+        "diamonds": 3,
         "abilities": {
           "basic": 6,
           "special": 6,
@@ -73955,7 +74045,7 @@
         }
       },
       "stryfe": {
-        "power": 201975,
+        "power": 337663,
         "level": 81,
         "gear": 15,
         "isoMax": 9,
@@ -74120,7 +74210,7 @@
         }
       },
       "toad": {
-        "power": 104994,
+        "power": 164400,
         "level": 70,
         "gear": 13,
         "isoMax": 5,
@@ -74165,7 +74255,7 @@
         }
       },
       "blob": {
-        "power": 94781,
+        "power": 149185,
         "level": 70,
         "gear": 13,
         "isoMax": 5,
@@ -74315,7 +74405,7 @@
         }
       },
       "x23": {
-        "power": 722870,
+        "power": 1197575,
         "level": 100,
         "gear": 19,
         "isoMax": 10,
@@ -74945,7 +75035,7 @@
         }
       },
       "silversamurai": {
-        "power": 361928,
+        "power": 672833,
         "level": 95,
         "gear": 18,
         "isoMax": 10,
@@ -75305,7 +75395,7 @@
         }
       },
       "rogue": {
-        "power": 831653,
+        "power": 1472558,
         "level": 101,
         "gear": 19,
         "isoMax": 13,
@@ -77630,8 +77720,8 @@
         }
       },
       "eclipse": {
-        "power": 1580242,
-        "level": 108,
+        "power": 1734609,
+        "level": 110,
         "gear": 20,
         "isoMax": 14,
         "yellowStars": 5,
@@ -80386,7 +80476,7 @@
         }
       },
       "stryfe": {
-        "power": 799,
+        "power": 824,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -81001,7 +81091,7 @@
         }
       },
       "x23": {
-        "power": 352234,
+        "power": 553547,
         "level": 90,
         "gear": 17,
         "isoMax": 13,
@@ -81031,13 +81121,13 @@
         }
       },
       "electro": {
-        "power": 126211,
+        "power": 148186,
         "level": 56,
         "gear": 10,
         "isoMax": 1,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 4,
+        "diamonds": 5,
         "abilities": {
           "basic": 6,
           "special": 5,
@@ -81061,7 +81151,7 @@
         }
       },
       "silversamurai": {
-        "power": 101766,
+        "power": 159197,
         "level": 70,
         "gear": 13,
         "isoMax": 5,
@@ -81286,7 +81376,7 @@
         }
       },
       "toad": {
-        "power": 734,
+        "power": 757,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -81871,7 +81961,7 @@
         }
       },
       "blob": {
-        "power": 798,
+        "power": 822,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -82261,13 +82351,13 @@
         }
       },
       "magneto": {
-        "power": 331874,
+        "power": 359544,
         "level": 90,
         "gear": 17,
         "isoMax": 13,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 2,
+        "diamonds": 3,
         "abilities": {
           "basic": 7,
           "special": 7,
@@ -82291,7 +82381,7 @@
         }
       },
       "rogue": {
-        "power": 385540,
+        "power": 659411,
         "level": 95,
         "gear": 18,
         "isoMax": 10,
@@ -83656,13 +83746,13 @@
         }
       },
       "cosmicghostrider": {
-        "power": 706246,
+        "power": 750047,
         "level": 100,
         "gear": 19,
         "isoMax": 13,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 1,
+        "diamonds": 2,
         "abilities": {
           "basic": 6,
           "special": 7,
@@ -85319,6 +85409,21 @@
           "ultimate": 6,
           "passive": 5
         }
+      },
+      "dracula": {
+        "power": 827841,
+        "level": 100,
+        "gear": 19,
+        "yellowStars": 2,
+        "redStars": 0,
+        "diamonds": 0,
+        "abilities": {
+          "basic": 6,
+          "special": 7,
+          "ultimate": 7,
+          "passive": 5
+        },
+        "isoMax": 15
       }
     },
     "iso": {
@@ -86601,6 +86706,10 @@
       "humantorchjim": {
         "isoClass": "striker",
         "isoColor": "purple"
+      },
+      "dracula": {
+        "isoClass": "striker",
+        "isoColor": ""
       }
     }
   },
@@ -87586,7 +87695,7 @@
         }
       },
       "blob": {
-        "power": 5925,
+        "power": 7733,
         "level": 20,
         "gear": 4,
         "yellowStars": 7,
@@ -87674,7 +87783,7 @@
         }
       },
       "stryfe": {
-        "power": 81328,
+        "power": 126421,
         "level": 60,
         "gear": 11,
         "yellowStars": 7,
@@ -87718,7 +87827,7 @@
         }
       },
       "toad": {
-        "power": 7961,
+        "power": 10805,
         "level": 25,
         "gear": 5,
         "yellowStars": 7,
@@ -87985,7 +88094,7 @@
         }
       },
       "x23": {
-        "power": 104920,
+        "power": 151454,
         "level": 65,
         "gear": 12,
         "yellowStars": 7,
@@ -88356,7 +88465,7 @@
         }
       },
       "silversamurai": {
-        "power": 113103,
+        "power": 176945,
         "level": 70,
         "gear": 13,
         "yellowStars": 7,
@@ -89111,11 +89220,11 @@
         }
       },
       "ultron": {
-        "power": 225798,
+        "power": 238152,
         "level": 80,
         "gear": 15,
         "yellowStars": 7,
-        "redStars": 5,
+        "redStars": 6,
         "diamonds": 0,
         "isoMax": 10,
         "abilities": {
@@ -89362,17 +89471,17 @@
         }
       },
       "morbius": {
-        "power": 21003,
-        "level": 30,
-        "gear": 6,
+        "power": 849451,
+        "level": 105,
+        "gear": 18,
         "yellowStars": 7,
         "redStars": 7,
         "diamonds": 2,
         "abilities": {
-          "basic": 3,
-          "special": 3,
-          "ultimate": 3,
-          "passive": 1
+          "basic": 6,
+          "special": 6,
+          "ultimate": 6,
+          "passive": 4
         }
       },
       "magik": {
@@ -89720,7 +89829,7 @@
         }
       },
       "rogue": {
-        "power": 385540,
+        "power": 659411,
         "level": 95,
         "gear": 18,
         "yellowStars": 7,
@@ -91265,12 +91374,12 @@
         }
       },
       "knull": {
-        "power": 2200885,
+        "power": 3375023,
         "level": 109,
         "gear": 20,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 1,
+        "diamonds": 5,
         "isoMax": 14,
         "abilities": {
           "basic": 7,
@@ -91610,7 +91719,7 @@
         }
       },
       "phantomrider": {
-        "power": 1559279,
+        "power": 1606076,
         "level": 105,
         "gear": 20,
         "yellowStars": 7,
@@ -91618,7 +91727,7 @@
         "diamonds": 1,
         "isoMax": 14,
         "abilities": {
-          "basic": 6,
+          "basic": 8,
           "special": 8,
           "ultimate": 8,
           "passive": 6
@@ -91908,18 +92017,18 @@
         }
       },
       "jeffthelandshark": {
-        "power": 1222715,
+        "power": 1306539,
         "level": 110,
         "gear": 20,
         "yellowStars": 6,
         "redStars": 0,
         "diamonds": 0,
-        "isoMax": 13,
+        "isoMax": 14,
         "abilities": {
           "basic": 8,
           "special": 8,
-          "ultimate": 7,
-          "passive": 5
+          "ultimate": 8,
+          "passive": 6
         }
       },
       "nightthrasher": {
@@ -92146,8 +92255,8 @@
         }
       },
       "scorpionbreaker": {
-        "power": 463371,
-        "level": 96,
+        "power": 480370,
+        "level": 97,
         "gear": 18,
         "yellowStars": 3,
         "redStars": 3,
@@ -92263,10 +92372,10 @@
         }
       },
       "waspjanet": {
-        "power": 115643,
+        "power": 119444,
         "level": 85,
         "gear": 16,
-        "yellowStars": 2,
+        "yellowStars": 3,
         "redStars": 0,
         "diamonds": 0,
         "abilities": {
@@ -92277,23 +92386,23 @@
         }
       },
       "jocasta": {
-        "power": 204,
-        "level": 1,
-        "gear": 1,
+        "power": 78636,
+        "level": 75,
+        "gear": 14,
         "yellowStars": 2,
         "redStars": 2,
         "diamonds": 0,
         "abilities": {
-          "basic": 1,
-          "special": 1,
-          "ultimate": 0,
-          "passive": 0
+          "basic": 6,
+          "special": 6,
+          "ultimate": 6,
+          "passive": 4
         }
       },
       "dracula": {
-        "power": 700575,
-        "level": 103,
-        "gear": 18,
+        "power": 884414,
+        "level": 105,
+        "gear": 19,
         "yellowStars": 2,
         "redStars": 0,
         "diamonds": 0,
@@ -94956,12 +95065,12 @@
         }
       },
       "ultgreengoblin": {
-        "power": 13763,
+        "power": 16740,
         "level": 50,
         "gear": 4,
         "isoMax": 0,
-        "yellowStars": 4,
-        "redStars": 4,
+        "yellowStars": 5,
+        "redStars": 5,
         "diamonds": 0,
         "abilities": {
           "basic": 5,
@@ -95016,7 +95125,7 @@
         }
       },
       "shocker": {
-        "power": 3015836,
+        "power": 3249000,
         "level": 110,
         "gear": 21,
         "isoMax": 15,
@@ -95025,8 +95134,8 @@
         "diamonds": 5,
         "abilities": {
           "basic": 6,
-          "special": 6,
-          "ultimate": 6,
+          "special": 7,
+          "ultimate": 7,
           "passive": 5
         }
       },
@@ -95316,7 +95425,7 @@
         }
       },
       "blob": {
-        "power": 287,
+        "power": 298,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -95391,7 +95500,7 @@
         }
       },
       "stryfe": {
-        "power": 382,
+        "power": 395,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -95451,7 +95560,7 @@
         }
       },
       "toad": {
-        "power": 382,
+        "power": 395,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -96906,7 +97015,7 @@
         }
       },
       "scorpion": {
-        "power": 3105910,
+        "power": 3193561,
         "level": 110,
         "gear": 21,
         "isoMax": 15,
@@ -96914,7 +97023,7 @@
         "redStars": 7,
         "diamonds": 5,
         "abilities": {
-          "basic": 6,
+          "basic": 7,
           "special": 6,
           "ultimate": 7,
           "passive": 5
@@ -97281,7 +97390,7 @@
         }
       },
       "rogue": {
-        "power": 444735,
+        "power": 785431,
         "level": 100,
         "gear": 19,
         "isoMax": 10,
@@ -97341,7 +97450,7 @@
         }
       },
       "silversamurai": {
-        "power": 288,
+        "power": 299,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -97356,17 +97465,17 @@
         }
       },
       "moonknight": {
-        "power": 123922,
-        "level": 55,
-        "gear": 10,
-        "isoMax": 5,
+        "power": 312896,
+        "level": 76,
+        "gear": 14,
+        "isoMax": 10,
         "yellowStars": 7,
         "redStars": 7,
         "diamonds": 5,
         "abilities": {
           "basic": 6,
-          "special": 5,
-          "ultimate": 5,
+          "special": 6,
+          "ultimate": 6,
           "passive": 4
         }
       },
@@ -97926,12 +98035,12 @@
         }
       },
       "spidermanpavitr": {
-        "power": 806237,
+        "power": 916859,
         "level": 110,
         "gear": 20,
         "isoMax": 13,
-        "yellowStars": 5,
-        "redStars": 5,
+        "yellowStars": 6,
+        "redStars": 6,
         "diamonds": 0,
         "abilities": {
           "basic": 6,
@@ -98226,7 +98335,7 @@
         }
       },
       "x23": {
-        "power": 290,
+        "power": 299,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -99381,11 +99490,11 @@
         }
       },
       "dracula": {
-        "power": 1651052,
+        "power": 1866167,
         "level": 110,
         "gear": 20,
-        "yellowStars": 3,
-        "redStars": 3,
+        "yellowStars": 4,
+        "redStars": 4,
         "diamonds": 0,
         "isoMax": 15,
         "abilities": {
@@ -99394,6 +99503,21 @@
           "ultimate": 6,
           "passive": 5
         }
+      },
+      "hawkeyerobot": {
+        "power": 137428,
+        "level": 83,
+        "gear": 15,
+        "yellowStars": 2,
+        "redStars": 2,
+        "diamonds": 0,
+        "abilities": {
+          "basic": 6,
+          "special": 6,
+          "ultimate": 6,
+          "passive": 4
+        },
+        "isoMax": 10
       }
     },
     "iso": {
@@ -100338,6 +100462,10 @@
         "isoColor": ""
       },
       "moonknight": {
+        "isoClass": "raider",
+        "isoColor": ""
+      },
+      "hawkeyerobot": {
         "isoClass": "striker",
         "isoColor": ""
       }
@@ -100424,8 +100552,8 @@
         }
       },
       "crossbones": {
-        "power": 1707369,
-        "level": 105,
+        "power": 2018732,
+        "level": 108,
         "gear": 19,
         "isoMax": 15,
         "yellowStars": 7,
@@ -102074,7 +102202,7 @@
         }
       },
       "stryfe": {
-        "power": 198758,
+        "power": 330476,
         "level": 85,
         "gear": 15,
         "isoMax": 8,
@@ -102209,7 +102337,7 @@
         }
       },
       "toad": {
-        "power": 109447,
+        "power": 171973,
         "level": 70,
         "gear": 13,
         "isoMax": 3,
@@ -102239,7 +102367,7 @@
         }
       },
       "blob": {
-        "power": 99780,
+        "power": 156717,
         "level": 71,
         "gear": 13,
         "isoMax": 4,
@@ -102389,7 +102517,7 @@
         }
       },
       "x23": {
-        "power": 148712,
+        "power": 213847,
         "level": 70,
         "gear": 13,
         "isoMax": 4,
@@ -103019,7 +103147,7 @@
         }
       },
       "silversamurai": {
-        "power": 258815,
+        "power": 442294,
         "level": 85,
         "gear": 16,
         "isoMax": 9,
@@ -103394,7 +103522,7 @@
         }
       },
       "rogue": {
-        "power": 617066,
+        "power": 1094039,
         "level": 100,
         "gear": 19,
         "isoMax": 13,
@@ -105653,7 +105781,7 @@
         "diamonds": 0,
         "abilities": {
           "basic": 8,
-          "special": 7,
+          "special": 8,
           "ultimate": 8,
           "passive": 6
         }
@@ -108462,7 +108590,7 @@
         }
       },
       "toad": {
-        "power": 59465,
+        "power": 93163,
         "level": 55,
         "gear": 10,
         "isoMax": 5,
@@ -108687,13 +108815,13 @@
         }
       },
       "stryfe": {
-        "power": 117859,
+        "power": 199204,
         "level": 70,
         "gear": 13,
         "isoMax": 5,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 2,
+        "diamonds": 3,
         "abilities": {
           "basic": 6,
           "special": 7,
@@ -109167,7 +109295,7 @@
         }
       },
       "blob": {
-        "power": 71016,
+        "power": 111669,
         "level": 65,
         "gear": 12,
         "isoMax": 5,
@@ -109287,7 +109415,7 @@
         }
       },
       "x23": {
-        "power": 669314,
+        "power": 1063516,
         "level": 100,
         "gear": 18,
         "isoMax": 13,
@@ -110097,7 +110225,7 @@
         }
       },
       "silversamurai": {
-        "power": 647197,
+        "power": 1187312,
         "level": 100,
         "gear": 18,
         "isoMax": 13,
@@ -110727,7 +110855,7 @@
         }
       },
       "rogue": {
-        "power": 805859,
+        "power": 1418078,
         "level": 100,
         "gear": 19,
         "isoMax": 13,
@@ -113307,11 +113435,11 @@
         }
       },
       "humantorchjim": {
-        "power": 1572561,
+        "power": 1686402,
         "level": 110,
         "gear": 20,
         "isoMax": 14,
-        "yellowStars": 5,
+        "yellowStars": 6,
         "redStars": 5,
         "diamonds": 0,
         "abilities": {
@@ -116408,7 +116536,7 @@
         }
       },
       "stryfe": {
-        "power": 116136,
+        "power": 179896,
         "level": 70,
         "gear": 13,
         "isoMax": 5,
@@ -116558,7 +116686,7 @@
         }
       },
       "toad": {
-        "power": 95824,
+        "power": 150576,
         "level": 65,
         "gear": 12,
         "isoMax": 5,
@@ -116603,7 +116731,7 @@
         }
       },
       "blob": {
-        "power": 97543,
+        "power": 153679,
         "level": 65,
         "gear": 12,
         "isoMax": 5,
@@ -116768,7 +116896,7 @@
         }
       },
       "x23": {
-        "power": 86607,
+        "power": 126611,
         "level": 60,
         "gear": 11,
         "isoMax": 5,
@@ -117428,7 +117556,7 @@
         }
       },
       "silversamurai": {
-        "power": 1022,
+        "power": 1057,
         "level": 1,
         "gear": 1,
         "isoMax": 5,
@@ -117818,7 +117946,7 @@
         }
       },
       "rogue": {
-        "power": 301046,
+        "power": 493426,
         "level": 93,
         "gear": 17,
         "isoMax": 10,
@@ -118268,12 +118396,12 @@
         }
       },
       "quicksilver": {
-        "power": 148796,
+        "power": 159519,
         "level": 80,
         "gear": 15,
         "isoMax": 10,
         "yellowStars": 7,
-        "redStars": 2,
+        "redStars": 3,
         "diamonds": 0,
         "abilities": {
           "basic": 7,
@@ -120509,6 +120637,20 @@
         "isoMax": 0,
         "yellowStars": 5,
         "redStars": 5,
+        "diamonds": 0,
+        "abilities": {
+          "basic": 1,
+          "special": 1,
+          "ultimate": 0,
+          "passive": 0
+        }
+      },
+      "dracula": {
+        "power": 85,
+        "level": 1,
+        "gear": 1,
+        "yellowStars": 2,
+        "redStars": 0,
         "diamonds": 0,
         "abilities": {
           "basic": 1,
@@ -123776,7 +123918,7 @@
         }
       },
       "stryfe": {
-        "power": 143589,
+        "power": 231476,
         "level": 77,
         "gear": 14,
         "isoMax": 4,
@@ -123926,7 +124068,7 @@
         }
       },
       "toad": {
-        "power": 78381,
+        "power": 122000,
         "level": 65,
         "gear": 12,
         "isoMax": 3,
@@ -123941,7 +124083,7 @@
         }
       },
       "blob": {
-        "power": 88634,
+        "power": 139666,
         "level": 65,
         "gear": 12,
         "isoMax": 4,
@@ -124106,7 +124248,7 @@
         }
       },
       "x23": {
-        "power": 123504,
+        "power": 178015,
         "level": 77,
         "gear": 13,
         "isoMax": 4,
@@ -124181,13 +124323,13 @@
         }
       },
       "electro": {
-        "power": 143518,
+        "power": 154435,
         "level": 67,
         "gear": 12,
         "isoMax": 3,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 1,
+        "diamonds": 2,
         "abilities": {
           "basic": 6,
           "special": 6,
@@ -124721,7 +124863,7 @@
         }
       },
       "silversamurai": {
-        "power": 211452,
+        "power": 362375,
         "level": 85,
         "gear": 16,
         "isoMax": 8,
@@ -125111,7 +125253,7 @@
         }
       },
       "rogue": {
-        "power": 567398,
+        "power": 998386,
         "level": 100,
         "gear": 19,
         "isoMax": 10,
@@ -125381,13 +125523,13 @@
         }
       },
       "mrnegative": {
-        "power": 154084,
+        "power": 165515,
         "level": 68,
         "gear": 12,
         "isoMax": 4,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 1,
+        "diamonds": 2,
         "abilities": {
           "basic": 6,
           "special": 6,
@@ -125846,8 +125988,8 @@
         }
       },
       "mockingbird": {
-        "power": 1182459,
-        "level": 100,
+        "power": 1363471,
+        "level": 103,
         "gear": 19,
         "isoMax": 13,
         "yellowStars": 7,
@@ -127766,8 +127908,8 @@
         }
       },
       "waspjanet": {
-        "power": 625034,
-        "level": 100,
+        "power": 769057,
+        "level": 105,
         "gear": 19,
         "isoMax": 14,
         "yellowStars": 3,
@@ -130051,7 +130193,7 @@
         }
       },
       "silversamurai": {
-        "power": 242116,
+        "power": 427227,
         "level": 85,
         "gear": 16,
         "isoMax": 14,
@@ -130276,7 +130418,7 @@
         }
       },
       "x23": {
-        "power": 338504,
+        "power": 524728,
         "level": 90,
         "gear": 17,
         "isoMax": 10,
@@ -130561,7 +130703,7 @@
         }
       },
       "toad": {
-        "power": 2186,
+        "power": 2990,
         "level": 25,
         "gear": 2,
         "isoMax": 0,
@@ -131326,7 +131468,7 @@
         }
       },
       "stryfe": {
-        "power": 167553,
+        "power": 274306,
         "level": 75,
         "gear": 14,
         "isoMax": 10,
@@ -131611,13 +131753,13 @@
         }
       },
       "ultron": {
-        "power": 1014613,
+        "power": 1145161,
         "level": 101,
         "gear": 19,
         "isoMax": 15,
         "yellowStars": 7,
-        "redStars": 6,
-        "diamonds": 0,
+        "redStars": 7,
+        "diamonds": 1,
         "abilities": {
           "basic": 7,
           "special": 7,
@@ -131881,7 +132023,7 @@
         }
       },
       "blob": {
-        "power": 885,
+        "power": 942,
         "level": 3,
         "gear": 1,
         "isoMax": 0,
@@ -132466,7 +132608,7 @@
         }
       },
       "rogue": {
-        "power": 587826,
+        "power": 1043992,
         "level": 100,
         "gear": 19,
         "isoMax": 13,
@@ -137480,7 +137622,7 @@
         }
       },
       "toad": {
-        "power": 734,
+        "power": 757,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -137690,7 +137832,7 @@
         }
       },
       "blob": {
-        "power": 798,
+        "power": 822,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -137990,7 +138132,7 @@
         }
       },
       "x23": {
-        "power": 417653,
+        "power": 676775,
         "level": 95,
         "gear": 18,
         "isoMax": 10,
@@ -138050,7 +138192,7 @@
         }
       },
       "stryfe": {
-        "power": 120725,
+        "power": 184578,
         "level": 70,
         "gear": 13,
         "isoMax": 3,
@@ -138065,7 +138207,7 @@
         }
       },
       "silversamurai": {
-        "power": 363309,
+        "power": 673379,
         "level": 95,
         "gear": 18,
         "isoMax": 10,
@@ -139130,13 +139272,13 @@
         }
       },
       "morbius": {
-        "power": 1723664,
+        "power": 1956625,
         "level": 105,
         "gear": 19,
         "isoMax": 15,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 1,
+        "diamonds": 3,
         "abilities": {
           "basic": 7,
           "special": 7,
@@ -139580,7 +139722,7 @@
         }
       },
       "rogue": {
-        "power": 539021,
+        "power": 949816,
         "level": 100,
         "gear": 19,
         "isoMax": 10,
@@ -141455,9 +141597,9 @@
         }
       },
       "hobgoblin": {
-        "power": 2257481,
+        "power": 2301367,
         "level": 110,
-        "gear": 19,
+        "gear": 20,
         "isoMax": 15,
         "yellowStars": 7,
         "redStars": 7,
@@ -141800,13 +141942,13 @@
         }
       },
       "speedball": {
-        "power": 1170274,
+        "power": 1258953,
         "level": 100,
         "gear": 19,
         "isoMax": 13,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 2,
+        "diamonds": 3,
         "abilities": {
           "basic": 6,
           "special": 6,
@@ -144892,7 +145034,7 @@
         }
       },
       "stryfe": {
-        "power": 80361,
+        "power": 122242,
         "level": 60,
         "gear": 11,
         "isoMax": 1,
@@ -145327,7 +145469,7 @@
         }
       },
       "toad": {
-        "power": 67491,
+        "power": 102967,
         "level": 60,
         "gear": 11,
         "isoMax": 1,
@@ -145372,7 +145514,7 @@
         }
       },
       "blob": {
-        "power": 73018,
+        "power": 112414,
         "level": 60,
         "gear": 11,
         "isoMax": 1,
@@ -145582,7 +145724,7 @@
         }
       },
       "x23": {
-        "power": 103634,
+        "power": 150088,
         "level": 60,
         "gear": 11,
         "isoMax": 5,
@@ -145717,13 +145859,13 @@
         }
       },
       "electro": {
-        "power": 123243,
+        "power": 135108,
         "level": 60,
         "gear": 11,
         "isoMax": 1,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 2,
+        "diamonds": 3,
         "abilities": {
           "basic": 6,
           "special": 6,
@@ -146272,7 +146414,7 @@
         }
       },
       "silversamurai": {
-        "power": 104350,
+        "power": 161763,
         "level": 70,
         "gear": 13,
         "isoMax": 3,
@@ -146647,7 +146789,7 @@
         }
       },
       "rogue": {
-        "power": 407879,
+        "power": 711184,
         "level": 95,
         "gear": 18,
         "isoMax": 10,
@@ -149272,8 +149414,8 @@
         }
       },
       "bluemarvel": {
-        "power": 1144487,
-        "level": 100,
+        "power": 1333134,
+        "level": 103,
         "gear": 19,
         "isoMax": 16,
         "yellowStars": 7,
@@ -152600,7 +152742,7 @@
         }
       },
       "stryfe": {
-        "power": 145504,
+        "power": 236374,
         "level": 75,
         "gear": 14,
         "isoMax": 7,
@@ -152735,7 +152877,7 @@
         }
       },
       "toad": {
-        "power": 92000,
+        "power": 145328,
         "level": 65,
         "gear": 12,
         "isoMax": 3,
@@ -152765,7 +152907,7 @@
         }
       },
       "blob": {
-        "power": 87707,
+        "power": 138242,
         "level": 65,
         "gear": 12,
         "isoMax": 4,
@@ -152930,7 +153072,7 @@
         }
       },
       "x23": {
-        "power": 338504,
+        "power": 524728,
         "level": 90,
         "gear": 17,
         "isoMax": 10,
@@ -153545,7 +153687,7 @@
         }
       },
       "silversamurai": {
-        "power": 192414,
+        "power": 325942,
         "level": 80,
         "gear": 15,
         "isoMax": 10,
@@ -153590,8 +153732,8 @@
         }
       },
       "ikaris": {
-        "power": 2226875,
-        "level": 105,
+        "power": 2453617,
+        "level": 107,
         "gear": 20,
         "isoMax": 15,
         "yellowStars": 7,
@@ -153920,7 +154062,7 @@
         }
       },
       "rogue": {
-        "power": 278816,
+        "power": 457681,
         "level": 90,
         "gear": 17,
         "isoMax": 10,
@@ -156455,8 +156597,8 @@
         }
       },
       "kingo": {
-        "power": 1762552,
-        "level": 105,
+        "power": 1942776,
+        "level": 107,
         "gear": 20,
         "isoMax": 15,
         "yellowStars": 7,
@@ -156618,6 +156760,21 @@
           "ultimate": 6,
           "passive": 5
         }
+      },
+      "dracula": {
+        "power": 346936,
+        "level": 90,
+        "gear": 17,
+        "yellowStars": 2,
+        "redStars": 0,
+        "diamonds": 0,
+        "abilities": {
+          "basic": 6,
+          "special": 7,
+          "ultimate": 7,
+          "passive": 5
+        },
+        "isoMax": 14
       }
     },
     "iso": {
@@ -158048,6 +158205,10 @@
       "humantorchjim": {
         "isoClass": "striker",
         "isoColor": ""
+      },
+      "dracula": {
+        "isoClass": "striker",
+        "isoColor": ""
       }
     }
   },
@@ -158323,7 +158484,7 @@
         }
       },
       "x23": {
-        "power": 88373,
+        "power": 127876,
         "level": 60,
         "gear": 11,
         "yellowStars": 7,
@@ -158765,12 +158926,12 @@
         }
       },
       "toad": {
-        "power": 734,
+        "power": 823,
         "level": 1,
         "gear": 1,
         "yellowStars": 7,
         "redStars": 7,
-        "diamonds": 1,
+        "diamonds": 2,
         "abilities": {
           "basic": 1,
           "special": 1,
@@ -158779,7 +158940,7 @@
         }
       },
       "stryfe": {
-        "power": 735,
+        "power": 758,
         "level": 1,
         "gear": 1,
         "yellowStars": 7,
@@ -159102,7 +159263,7 @@
         }
       },
       "silversamurai": {
-        "power": 208251,
+        "power": 352917,
         "level": 85,
         "gear": 16,
         "yellowStars": 7,
@@ -159147,7 +159308,7 @@
         }
       },
       "blob": {
-        "power": 476,
+        "power": 491,
         "level": 1,
         "gear": 1,
         "yellowStars": 5,
@@ -160865,9 +161026,9 @@
         }
       },
       "morbius": {
-        "power": 545169,
-        "level": 85,
-        "gear": 16,
+        "power": 666226,
+        "level": 90,
+        "gear": 17,
         "yellowStars": 7,
         "redStars": 7,
         "diamonds": 3,
@@ -161087,7 +161248,7 @@
         }
       },
       "rogue": {
-        "power": 539021,
+        "power": 949816,
         "level": 100,
         "gear": 19,
         "yellowStars": 7,
@@ -166561,7 +166722,7 @@
         }
       },
       "toad": {
-        "power": 4105,
+        "power": 5267,
         "level": 18,
         "gear": 4,
         "isoMax": 0,
@@ -166681,7 +166842,7 @@
         }
       },
       "blob": {
-        "power": 13389,
+        "power": 18602,
         "level": 30,
         "gear": 6,
         "isoMax": 0,
@@ -166756,7 +166917,7 @@
         }
       },
       "stryfe": {
-        "power": 47109,
+        "power": 70022,
         "level": 50,
         "gear": 9,
         "isoMax": 1,
@@ -166861,7 +167022,7 @@
         }
       },
       "x23": {
-        "power": 31296,
+        "power": 42429,
         "level": 42,
         "gear": 8,
         "isoMax": 1,
@@ -167581,7 +167742,7 @@
         }
       },
       "silversamurai": {
-        "power": 918,
+        "power": 947,
         "level": 1,
         "gear": 1,
         "isoMax": 0,
@@ -167821,7 +167982,7 @@
         }
       },
       "rogue": {
-        "power": 769516,
+        "power": 1347354,
         "level": 100,
         "gear": 19,
         "isoMax": 11,
