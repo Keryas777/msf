@@ -74,7 +74,7 @@ jobs:
       - name: Collect MagneticZero revisions and update changed sources
         id: primary
         continue-on-error: true
-        run: python scripts/update_msf_magneticzero.py --apply
+        run: python -m scripts.update_msf_magneticzero --apply
       - name: Use Chrome fallback only when explicitly supplied
         id: fallback
         if: steps.primary.outcome == 'failure' && github.event_name == 'workflow_dispatch' && inputs.database_base64 != ''
