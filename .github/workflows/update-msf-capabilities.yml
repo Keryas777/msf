@@ -13,7 +13,7 @@ on:
       - ".github/workflows/update-msf-capabilities.yml"
       - "MSF_CAPABILITIES_PIPELINE.md"
   schedule:
-    - cron: "45 21 * * *"
+    - cron: "30 21 * * *"
   workflow_dispatch:
     inputs:
       game_version:
