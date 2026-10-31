@@ -1,0 +1,30 @@
+name: Test private R2 enriched Infos import
+
+on:
+  pull_request:
+    paths:
+      - "scripts/pull-infos-r2.mjs"
+      - "scripts/lib/infos-r2-import.mjs"
+      - "scripts/merge-infos.mjs"
+      - "tests/infos-r2-import.test.mjs"
+      - "tests/merge-alliance-data.test.mjs"
+      - ".github/workflows/pull-infos-r2.yml"
+      - ".github/workflows/test-infos-r2.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Syntax and offline import regression tests
+        run: |
+          node --check scripts/pull-infos-r2.mjs
+          node --check scripts/lib/infos-r2-import.mjs
+          node --check scripts/merge-infos.mjs
+          node --test tests/infos-r2-import.test.mjs tests/merge-alliance-data.test.mjs
