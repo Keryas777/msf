@@ -28,6 +28,8 @@ concurrency:
 
 jobs:
   infos:
+    # Publication opt-in: private collection does not authorize permanent Git history.
+    if: vars.LOSP_R2_INFOS_PUBLICATION_APPROVED == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
