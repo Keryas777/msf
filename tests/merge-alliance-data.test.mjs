@@ -151,3 +151,33 @@ test("merge-rosters handles all six sources deterministically without dropping H
   assert.equal(rosters.filter((row) => row.alliance === "hades").length, 1);
   assert.equal(new Set(rosters.map((row) => row.playerKey)).size, rosters.length);
 });
+
+
+test("merge-infos preserves enriched profile fields without changing joueurs.json", async (t) => {
+  const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "msf-infos-enriched-"));
+  t.after(() => fs.rm(dataDir, { recursive: true, force: true }));
+  for (const key of ALLIANCE_KEYS) {
+    await writeJson(path.join(dataDir, `infos_${key}.json`), []);
+  }
+  const detailed = {
+    ...infoRow("Edge", "Dionysos"),
+    rosterShare: false,
+    stp: 8000000,
+    rank: "captain",
+    level: { completedTier: 110 },
+    bestArena: 22,
+    charactersAtMaxStarRank: 350,
+    qualifications: { playStyle: "casual" },
+  };
+  await writeJson(path.join(dataDir, "infos_dionysos.json"), [detailed]);
+  const env = {
+    DATA_DIR: dataDir,
+    OUT_FILE: path.join(dataDir, "infos.json"),
+    JOUEURS_OUT_FILE: path.join(dataDir, "joueurs.json"),
+  };
+  await runScript("scripts/merge-infos.mjs", env);
+  const infos = JSON.parse(await fs.readFile(env.OUT_FILE, "utf8"));
+  const joueurs = JSON.parse(await fs.readFile(env.JOUEURS_OUT_FILE, "utf8"));
+  assert.deepEqual(infos, [detailed]);
+  assert.deepEqual(joueurs, [{ player: "Edge", alliance: "Dionysos" }]);
+});

@@ -1,0 +1,95 @@
+name: Import enriched alliance Infos from private R2
+
+on:
+  schedule:
+    - cron: "40 4,16 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "UTC date YYYY-MM-DD (blank = today)"
+        required: false
+        default: ""
+      period:
+        description: "AM or PM campaign (auto = based on current UTC time)"
+        required: false
+        type: choice
+        options:
+          - auto
+          - am
+          - pm
+        default: auto
+
+permissions:
+  contents: write
+
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
+
+jobs:
+  infos:
+    # Publication opt-in: private collection does not authorize permanent Git history.
+    if: vars.LOSP_R2_INFOS_PUBLICATION_APPROVED == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate Infos importer and existing merge
+        run: |
+          node --check scripts/pull-infos-r2.mjs
+          node --check scripts/lib/infos-r2-import.mjs
+          node --test tests/infos-r2-import.test.mjs tests/merge-alliance-data.test.mjs
+
+      - name: Import completed private AM/PM snapshots
+        env:
+          LOSP_R2_ACCOUNT_ID: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
+          LOSP_R2_ACCESS_KEY_ID: ${{ secrets.LOSP_R2_ACCESS_KEY_ID }}
+          LOSP_R2_SECRET_ACCESS_KEY: ${{ secrets.LOSP_R2_SECRET_ACCESS_KEY }}
+          LOSP_R2_BUCKET: ${{ secrets.LOSP_R2_BUCKET }}
+          LOSP_R2_ALLIANCE_MAP_JSON: ${{ secrets.LOSP_R2_ALLIANCE_MAP_JSON }}
+          INPUT_DAY: ${{ inputs.date }}
+          INPUT_PERIOD: ${{ inputs.period }}
+        run: node scripts/pull-infos-r2.mjs --write
+
+      - name: Merge Infos and joueurs only when alliance infos changed
+        shell: bash
+        run: |
+          if git diff --quiet -- docs/data/infos_*.json; then
+            echo "No modified alliance infos files; nothing to merge"
+          else
+            node scripts/merge-infos.mjs
+          fi
+
+      - name: Verify write scope
+        shell: bash
+        run: |
+          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' |
+            grep -Ev '^(docs/data/infos(_[a-z0-9-]+)?[.]json|docs/data/joueurs[.]json|[.]github/infos-r2-import-state[.]json)$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected modifications:"
+            echo "$unexpected"
+            exit 1
+          fi
+
+      - name: Commit all Infos and joueurs together
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/infos.json docs/data/joueurs.json docs/data/infos_*.json
+          if [ -f .github/infos-r2-import-state.json ]; then
+            git add .github/infos-r2-import-state.json
+          fi
+          if git diff --cached --quiet; then
+            echo "No new published Info data"
+            exit 0
+          fi
+          git commit -m "data: import enriched alliance Infos from private R2"
+          git push origin HEAD:main
