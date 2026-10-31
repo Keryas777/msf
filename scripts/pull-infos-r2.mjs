@@ -9,8 +9,9 @@ import {infoCampaign,validateInfoSnapshot,assertNoAmbiguousPlayers,
 
 async function json(path){return JSON.parse(await fs.readFile(path,"utf8"));}
 const day=process.env.INPUT_DAY||new Date().toISOString().slice(0,10);
-const period=process.env.INPUT_PERIOD||
-  (new Date().getUTCHours()<12?"am":"pm");
+const period=process.env.INPUT_PERIOD&&process.env.INPUT_PERIOD!=="auto"
+  ?process.env.INPUT_PERIOD
+  :(new Date().getUTCHours()<12?"am":"pm");
 const campaign=infoCampaign(day,period);
 const write=process.argv.includes("--write");
 if(process.argv.some(a=>a!=="--write"))
