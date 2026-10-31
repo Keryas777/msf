@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-24",
+  "updatedAt": "2026-10-31",
   "policy": "Aucun lien source ne doit être déduit d'une référence d'événement. Seule une correspondance exacte à une composition du catalogue établit une association éditoriale, non une preuve de victoire.",
   "strategies": [
     {
@@ -20939,6 +20939,152 @@
         "flags": [
           "source_team_not_fully_enumerated",
           "video_not_reviewed"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/16/v1",
+      "eventId": "kyln-blazes",
+      "stageId": "16",
+      "origin": "community_article",
+      "label": "Conseils Marvel Church — captures fournies",
+      "teamName": "Éternels intemporels — trio à déterminer",
+      "characters": [],
+      "alternatives": [
+        "Thena",
+        "Gilgamesh",
+        "Sersi",
+        "Kingo",
+        "Ikaris"
+      ],
+      "additionalCharacters": [],
+      "instructions": [
+        "En ouverture, utiliser la spéciale de Kingo sur Jeff le requin pour lui appliquer Blocage de capacité.",
+        "Première vague : cibler Jeff, puis Écureuillette et Miss Hulk ; garder Gwenpool et Quasar pour la fin."
+      ],
+      "notes": [
+        "La capture confirme le choix des Éternels intemporels, mais ne désigne pas les trois combattants jouables.",
+        "La description de la seconde vague est tronquée : aucune cible ou rotation supplémentaire n'est déduite.",
+        "Le guide annonce trois combattants par cellule, alors que cette proposition cite cinq personnages ou places. Aucune composition jouable de trois n'est confirmée."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "partial",
+      "provenance": {
+        "sourceIds": [
+          "marvel-kyln-blazes"
+        ],
+        "status": "source_text_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-31",
+        "sourceEvidence": "user_supplied_partial_screenshot_2026_10_31_cell_16;direct_page_index_stale;no_combat_replayed"
+      },
+      "review": {
+        "status": "source_text_checked",
+        "flags": [
+          "recommendation_not_a_proven_clear",
+          "partial_or_unspecified_team",
+          "three_versus_five_team_size_conflict",
+          "user_supplied_screenshot_partial"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/17/v1",
+      "eventId": "kyln-blazes",
+      "stageId": "17",
+      "origin": "community_article",
+      "label": "Conseils Marvel Church — captures fournies",
+      "teamName": "Maestro + Tornade (Puissante) + Scorpion (Breaker) + Super Skrull + Northstar — trio à déterminer",
+      "characters": [],
+      "alternatives": [
+        "Maestro",
+        "StormMighty",
+        "ScorpionBreaker",
+        "SuperSkrull",
+        "Northstar"
+      ],
+      "additionalCharacters": [],
+      "instructions": [
+        "En ouverture, concentrer les attaques sur Spider-Man et Spider-Woman (Julia). Northstar limite le gain de barre de vitesse de Spider-Man après une esquive.",
+        "Si possible, conserver l'ultime de Tornade (Puissante) pour la deuxième vague ; l'utiliser plus tôt si nécessaire.",
+        "En deuxième vague, Maestro est recommandé contre Blue Marvel. La source indique que Northstar peut tomber après son ultime sans empêcher la victoire."
+      ],
+      "notes": [
+        "Les cinq personnages sont nommés sur la capture, sans préciser de trio conforme à la règle annoncée.",
+        "La suite du déroulé est partiellement masquée : aucun conseil tactique supplémentaire n'est attribué à la source.",
+        "Le guide annonce trois combattants par cellule, alors que cette proposition cite cinq personnages ou places. Aucune composition jouable de trois n'est confirmée."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "partial",
+      "provenance": {
+        "sourceIds": [
+          "marvel-kyln-blazes"
+        ],
+        "status": "source_text_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-31",
+        "sourceEvidence": "user_supplied_partial_screenshot_2026_10_31_cell_17;direct_page_index_stale;no_combat_replayed"
+      },
+      "review": {
+        "status": "source_text_checked",
+        "flags": [
+          "recommendation_not_a_proven_clear",
+          "partial_or_unspecified_team",
+          "three_versus_five_team_size_conflict",
+          "user_supplied_screenshot_partial"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/18/v1",
+      "eventId": "kyln-blazes",
+      "stageId": "18",
+      "origin": "community_article",
+      "label": "Conseils Marvel Church — captures fournies",
+      "teamName": "Six Insidieux + Vision + Ultron — troisième membre Insidieux non nommé",
+      "characters": [],
+      "alternatives": [
+        "SuperiorSpiderMan",
+        "Hobgoblin",
+        "Vision",
+        "Ultron"
+      ],
+      "additionalCharacters": [],
+      "instructions": [
+        "Survivre à l'ouverture de Kahhori, Nico Minoru et Blastaar, puis utiliser la spéciale de Spider-Man supérieur.",
+        "Utiliser la spéciale de Vision sur Kahhori pour lui appliquer Blocage de capacité ; avec Hobgoblin, cibler Blastaar avec sa spéciale.",
+        "Éliminer d'abord Blastaar, Nico Minoru et Médusa ; finir ensuite Kahhori et la Guêpe.",
+        "Utiliser la spéciale d'Ultron pour invoquer ses sbires avant de terminer les ennemis restants."
+      ],
+      "notes": [
+        "La source propose trois membres des Six Insidieux avec Vision et Ultron ; seuls Spider-Man supérieur et Hobgoblin sont nommés parmi les trois.",
+        "La capture est tronquée à la fin : ne pas en déduire d'autre rotation.",
+        "Le guide annonce trois combattants par cellule, alors que cette proposition cite cinq personnages ou places. Aucune composition jouable de trois n'est confirmée."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "partial",
+      "provenance": {
+        "sourceIds": [
+          "marvel-kyln-blazes"
+        ],
+        "status": "source_text_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-10-31",
+        "sourceEvidence": "user_supplied_partial_screenshot_2026_10_31_cell_18;direct_page_index_stale;no_combat_replayed"
+      },
+      "review": {
+        "status": "source_text_checked",
+        "flags": [
+          "recommendation_not_a_proven_clear",
+          "partial_or_unspecified_team",
+          "three_versus_five_team_size_conflict",
+          "user_supplied_screenshot_partial"
         ]
       }
     }
