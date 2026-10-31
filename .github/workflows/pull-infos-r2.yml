@@ -10,14 +10,14 @@ on:
         required: false
         default: ""
       period:
-        description: "AM or PM campaign (blank = based on current UTC time)"
+        description: "AM or PM campaign (auto = based on current UTC time)"
         required: false
         type: choice
         options:
-          - ""
+          - auto
           - am
           - pm
-        default: ""
+        default: auto
 
 permissions:
   contents: write
