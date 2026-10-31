@@ -22,7 +22,7 @@ export function validateInfoSnapshot(snapshot,fp,campaign,alliance,now=Date.now(
      typeof snapshot.allianceName!=="string"||!snapshot.allianceName.trim()||
      !Array.isArray(snapshot.rows)||snapshot.rows.length<1||
      snapshot.rows.length>100)throw Error("Invalid infos campaign receipt");
-  const [day,period]=campaign.split("-");
+  const day=campaign.slice(0,10),period=campaign.slice(11);
   const start=Date.parse(day+(period==="am"?"T02:00:00Z":"T14:00:00Z"));
   const end=start+2*3600000;
   const captured=Date.parse(snapshot.capturedAt||"");
