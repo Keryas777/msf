@@ -15,6 +15,10 @@ const JOUEURS_OUT_FILE =
   path.join(DATA_DIR, "joueurs.json");
 const DRY_RUN = process.env.DRY_RUN === "1";
 const OUTPUT_KEYS = ["name", "alliance", "tcp", "war_mvp", "icon", "frame"];
+const ENRICHED_KEYS = ["rank", "rosterShare", "level", "stp",
+  "charactersCollected", "daysInAlliance", "charactersAtMaxStarRank",
+  "bestArena", "latestArena", "latestBlitz", "blitzWins", "wwPoints",
+  "qualifications", "aid", "profileStatus"];
 
 function validateString(row, file, index, field) {
   if (typeof row?.[field] !== "string") {
@@ -92,7 +96,13 @@ function normalizeInfoRow(row, file, index) {
   validateString(row, file, index, "icon");
   validateString(row, file, index, "frame");
 
-  return Object.fromEntries(OUTPUT_KEYS.map((key) => [key, row[key]]));
+  const result = Object.fromEntries(OUTPUT_KEYS.map((key) => [key, row[key]]));
+  // Optional enriched profile fields: preserve them without changing any
+  // of the six historical public properties expected by the WebApp.
+  for (const key of ENRICHED_KEYS) {
+    if (Object.hasOwn(row, key)) result[key] = row[key];
+  }
+  return result;
 }
 
 async function readJsonArray(file) {
