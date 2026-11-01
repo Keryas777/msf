@@ -27,10 +27,19 @@
 .arenaRemove:focus-visible{outline:2px solid #69bcff;outline-offset:3px}
 .arenaHint{font-size:12px;line-height:1.55;color:#adbedc;margin:4px 0}
 .arenaRanking{display:flex;flex-direction:column;gap:7px;margin-top:10px}
-.arenaRankRow{display:grid;grid-template-columns:64px minmax(0,1fr) 55px;gap:10px;
+.arenaRankRow{display:grid;grid-template-columns:50px 46px minmax(0,1fr) 55px;gap:9px;
   align-items:center;padding:11px 12px;border-radius:13px;
   border:1px solid rgba(140,174,225,.17);background:rgba(10,21,43,.9)}
 .arenaPosition{font-size:20px;font-variant-numeric:tabular-nums;color:#f7faff}
+.arenaAvatar{position:relative;width:46px;height:46px;border-radius:13px;
+  flex:0 0 auto;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.13);overflow:hidden}
+.arenaAvatarFrame,.arenaAvatarIcon{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:contain;object-position:center;display:block}
+.arenaAvatarFrame{z-index:1;padding:1px;pointer-events:none}
+.arenaAvatarIcon{z-index:2;padding:6px;filter:drop-shadow(0 2px 5px rgba(0,0,0,.5))}
+.arenaAvatarFallback{display:grid;place-items:center;width:100%;height:100%;
+  font-size:17px;color:#b7c8e9}
 .arenaRankIdentity{min-width:0;display:flex;flex-direction:column;gap:3px}
 .arenaRankName{font-size:15px;overflow-wrap:anywhere}
 .arenaRankAlliance{color:var(--alliance-color);font-size:12px;font-weight:650}
@@ -68,7 +77,8 @@
 @media(max-width:480px){
   .arenaApp{padding:9px;gap:10px}
   .arenaHeader{padding-left:12px}
-  .arenaRankRow{grid-template-columns:55px minmax(0,1fr) 46px;gap:7px;padding:10px}
+  .arenaRankRow{grid-template-columns:38px 42px minmax(0,1fr) 40px;gap:7px;padding:9px}
+  .arenaAvatar{width:42px;height:42px}
   .arenaPosition{font-size:17px}
   .arenaRankName{font-size:14px}
   .arenaSelectors{grid-template-columns:1fr}
