@@ -20,9 +20,11 @@ function parseArgs(argv) {
       process.exit(0);
     } else throw new Error(`Unknown argument: ${arg}`);
   }
-  if (options.checkpoint && !/^\d{4}-\d{2}-\d{2}$/.test(options.checkpoint) ||
+  if (options.checkpoint && (
+      !/^\d{4}-\d{2}-\d{2}$/.test(options.checkpoint) ||
       Number.isNaN(Date.parse(options.checkpoint + 'T00:00:00Z')) ||
-      new Date(options.checkpoint + 'T00:00:00Z').toISOString().slice(0, 10) !== options.checkpoint) {
+      new Date(options.checkpoint + 'T00:00:00Z').toISOString().slice(0, 10) !== options.checkpoint
+  )) {
     throw new Error(`Invalid checkpoint: ${options.checkpoint}`);
   }
   return options;
