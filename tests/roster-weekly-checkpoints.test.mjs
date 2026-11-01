@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { runInNewContext } from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import {
@@ -61,4 +62,14 @@ test('periods refuse distant missing checkpoints and month-end overflow', () => 
   assert.equal(resolveStart(['2027-01-31', '2027-02-28', '2027-03-31'], '2027-03-31', '1'), '2027-02-28');
   assert.equal(resolveStart(['2026-10-01', '2026-11-29'], '2026-11-29', '1w'), null);
   assert.equal(resolveStart(['2026-11-08'], '2026-11-08', '1w'), null);
+});
+
+test('full group summary rebuild remains available without --checkpoint', () => {
+  const root = fileURLToPath(new URL('../', import.meta.url));
+  const result = spawnSync(process.execPath, [
+    'scripts/build-roster-evolution-summaries.mjs', '--dry-run',
+  ], { cwd: root, encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /Mode: DRY-RUN/);
+  assert.match(result.stdout, /2026-10-01:/);
 });
