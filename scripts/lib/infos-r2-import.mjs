@@ -15,19 +15,6 @@ export function infoCampaign(day,period){
      !["am","pm"].includes(period))throw Error("Invalid infos campaign");
   return day+"-"+period;
 }
-// UTC timestamp of 17:01 Europe/Paris on a given day. The noon probe
-// handles both CET and CEST without freezing a fixed offset in the cron.
-export function memberInfoPMWindowStart(day){
-  if(!DAY.test(day)||new Date(day+"T00:00:00Z").toISOString().slice(0,10)!==day)
-    throw Error("Invalid Infos PM day");
-  const parts=new Intl.DateTimeFormat("en-GB",{
-    timeZone:"Europe/Paris",hour:"2-digit",hourCycle:"h23"
-  }).formatToParts(new Date(day+"T12:00:00Z"));
-  const localNoonHour=Number(parts.find(p=>p.type==="hour")?.value);
-  if(localNoonHour!==13&&localNoonHour!==14)throw Error("Unexpected Paris offset");
-  const utcHour=17-(localNoonHour-12);
-  return Date.parse(day+"T"+String(utcHour).padStart(2,"0")+":01:00Z");
-}
 export function validateInfoSnapshot(snapshot,fp,campaign,alliance,now=Date.now()){
   if(!FP.test(fp)||!object(snapshot)||snapshot.version!==1||
      snapshot.kind!=="alliance-infos-campaign"||
@@ -36,17 +23,10 @@ export function validateInfoSnapshot(snapshot,fp,campaign,alliance,now=Date.now(
      !Array.isArray(snapshot.rows)||snapshot.rows.length<1||
      snapshot.rows.length>100)throw Error("Invalid infos campaign receipt");
   const day=campaign.slice(0,10),period=campaign.slice(11);
-  const start=period==="am"
-    ?Date.parse(day+"T02:00:00Z")
-    :memberInfoPMWindowStart(day);
+  const start=Date.parse(day+(period==="am"?"T02:00:00Z":"T14:00:00Z"));
   const end=start+2*3600000;
   const captured=Date.parse(snapshot.capturedAt||"");
-  // During the cutover, preexisting 2026-11-01 PM receipts were collected
-  // using the old 14:00–16:00 UTC window. Do not invalidate historical data.
-  const legacyStart=Date.parse(day+"T14:00:00Z");
-  const legacyPM=period==="pm"&&day<="2026-11-01"&&
-    captured>=legacyStart&&captured<legacyStart+2*3600000;
-  if(!Number.isFinite(captured)||(!(captured>=start&&captured<end)&&!legacyPM)||
+  if(!Number.isFinite(captured)||captured<start||captured>=end||
      captured>now||!(Date.parse(snapshot.expiresAt||"")>now))
     throw Error("Expired or out-of-window infos receipt");
   const names=new Set();
