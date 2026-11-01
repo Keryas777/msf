@@ -277,8 +277,6 @@ function fillChart(){
       return p?(S.people.get(id)?.name||p.name)+" : #"+p.arenaRank:null;
     }).filter(Boolean);
     row.append(make("span",scores.join(" · ")||"Non relevé"));
-    if(s.attribution==="backdated-from-first-next-day-collection")
-      row.append(make("small","Mesuré le "+date(s.sourceDay)+" matin"));
     details.append(row);
   }
 }
