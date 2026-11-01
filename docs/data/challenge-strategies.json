@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-31",
+  "updatedAt": "2026-11-01",
   "policy": "Aucun lien source ne doit être déduit d'une référence d'événement. Seule une correspondance exacte à une composition du catalogue établit une association éditoriale, non une preuve de victoire.",
   "strategies": [
     {
@@ -21085,6 +21085,695 @@
           "partial_or_unspecified_team",
           "three_versus_five_team_size_conflict",
           "user_supplied_screenshot_partial"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/16/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "16",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Éternels intemporels",
+      "characters": [
+        "Thena",
+        "Gilgamesh",
+        "Sersi",
+        "Kingo",
+        "Ikaris"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 16 ; équipe principale (à gauche).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_16_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/16/v3",
+      "eventId": "kyln-blazes",
+      "stageId": "16",
+      "origin": "community_infographic",
+      "label": "Alternative 1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "Ikaris",
+        "Sersi",
+        "Kingo",
+        "ScorpionBreaker",
+        "Deathpool"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 16 ; alternative 1 (à droite).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_16_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/16/v4",
+      "eventId": "kyln-blazes",
+      "stageId": "16",
+      "origin": "community_infographic",
+      "label": "Alternative 2 de l'infographie",
+      "teamName": "Alternative 2 — DRENGR",
+      "characters": [
+        "Ikaris",
+        "Sersi",
+        "Kingo",
+        "Gilgamesh",
+        "Deathpool"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 16 ; alternative 2 (à droite).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_16_alternative_2_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/17/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "17",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Super Skrull, Tornade, Scorpion (Briseur), Maestro et Véga",
+      "characters": [
+        "SuperSkrull",
+        "StormMighty",
+        "ScorpionBreaker",
+        "Maestro",
+        "Northstar"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 17 ; équipe principale (à gauche).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_17_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/17/v3",
+      "eventId": "kyln-blazes",
+      "stageId": "17",
+      "origin": "community_infographic",
+      "label": "Alternative 1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "IronFist",
+        "IronFistOrson",
+        "SteelSerpent",
+        "SwordMaster",
+        "LadyBullseye"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 17 ; alternative 1 (à droite).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_17_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/17/v4",
+      "eventId": "kyln-blazes",
+      "stageId": "17",
+      "origin": "community_infographic",
+      "label": "Alternative 2 de l'infographie",
+      "teamName": "Alternative 2 — DRENGR (même équipe que l'alternative 1)",
+      "characters": [
+        "IronFist",
+        "IronFistOrson",
+        "SteelSerpent",
+        "SwordMaster",
+        "LadyBullseye"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 17 ; alternative 2 (à droite).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences.",
+        "Cette formation est graphiquement identique à l'alternative 1 : les deux encadrés de l'infographie sont conservés."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_17_alternative_2_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/17/v5",
+      "eventId": "kyln-blazes",
+      "stageId": "17",
+      "origin": "community_infographic",
+      "label": "Alternative 3 de l'infographie",
+      "teamName": "Alternative 3 — DRENGR",
+      "characters": [
+        "Nightcrawler",
+        "Sunfire",
+        "Sunspot",
+        "StormMighty",
+        "Northstar"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 17 ; alternative 3 (à droite).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_17_alternative_3_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/18/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "18",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Six Insidieux, Vision et Ultron",
+      "characters": [
+        "Hobgoblin",
+        "SuperiorSpiderMan",
+        "Scorpion",
+        "Vision",
+        "Ultron"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 18 ; équipe principale (à gauche).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_18_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/18/v3",
+      "eventId": "kyln-blazes",
+      "stageId": "18",
+      "origin": "community_infographic",
+      "label": "Alternative 1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "SilverSurferBreaker",
+        "BladeMighty",
+        "StormMighty",
+        "SuperSkrull",
+        "Sybil"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 18 ; alternative 1 (à droite).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_18_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/18/v4",
+      "eventId": "kyln-blazes",
+      "stageId": "18",
+      "origin": "community_infographic",
+      "label": "Alternative 2 de l'infographie",
+      "teamName": "Alternative 2 — DRENGR",
+      "characters": [
+        "SilverSurferBreaker",
+        "BladeMighty",
+        "StormMighty",
+        "SuperSkrull",
+        "Ultron"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 18 ; alternative 2 (à droite).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_18_alternative_2_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/18/v5",
+      "eventId": "kyln-blazes",
+      "stageId": "18",
+      "origin": "community_infographic",
+      "label": "Alternative 3 de l'infographie",
+      "teamName": "Alternative 3 — DRENGR",
+      "characters": [
+        "SuperiorSpiderMan",
+        "Hobgoblin",
+        "Scorpion",
+        "BladeMighty",
+        "SilverSurferBreaker"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 18 ; alternative 3 (à droite).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_18_alternative_3_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/19/v1",
+      "eventId": "kyln-blazes",
+      "stageId": "19",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Armes immortelles",
+      "characters": [
+        "IronFist",
+        "IronFistOrson",
+        "SteelSerpent",
+        "SwordMaster",
+        "LadyBullseye"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 19 ; équipe principale (à gauche).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_19_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/19/v2",
+      "eventId": "kyln-blazes",
+      "stageId": "19",
+      "origin": "community_infographic",
+      "label": "Alternative 1 de l'infographie",
+      "teamName": "Alternative 1 — DRENGR",
+      "characters": [
+        "Dormammu",
+        "Nightcrawler",
+        "Scorpion",
+        "SuperiorSpiderMan",
+        "Hobgoblin"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 19 ; alternative 1 (à droite).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_19_alternative_1_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/19/v3",
+      "eventId": "kyln-blazes",
+      "stageId": "19",
+      "origin": "community_infographic",
+      "label": "Alternative 2 de l'infographie",
+      "teamName": "Alternative 2 — DRENGR",
+      "characters": [
+        "Dormammu",
+        "Northstar",
+        "Scorpion",
+        "SuperiorSpiderMan",
+        "Hobgoblin"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 19 ; alternative 2 (à droite).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_19_alternative_2_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/19/v4",
+      "eventId": "kyln-blazes",
+      "stageId": "19",
+      "origin": "community_infographic",
+      "label": "Alternative 3 de l'infographie",
+      "teamName": "Alternative 3 — DRENGR",
+      "characters": [
+        "IronFist",
+        "IronFistOrson",
+        "SwordMaster",
+        "LadyBullseye",
+        "SuperSkrull"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 19 ; alternative 3 (à droite).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_19_alternative_3_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
+        ]
+      }
+    },
+    {
+      "id": "kyln-blazes/20/v1",
+      "eventId": "kyln-blazes",
+      "stageId": "20",
+      "origin": "community_infographic",
+      "label": "Composition principale de l'infographie",
+      "teamName": "Fantassins de fer",
+      "characters": [
+        "IronMonger",
+        "Whiplash",
+        "UlyssesKlaue",
+        "Yellowjacket",
+        "Crossbones"
+      ],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [],
+      "notes": [
+        "Infographie DRENGR — semaine 4, cellule 20 ; équipe principale (à gauche).",
+        "Cinq portraits illustrés ; Marvel Church annonce trois combattants par cellule. Vérifier la restriction en jeu : la formation entière n'est pas confirmée comme jouable.",
+        "Le visuel n'atteste ni victoire reproduite ni rotation de compétences."
+      ],
+      "difficulty": null,
+      "kind": "recommendation",
+      "compositionKind": "illustrated_five",
+      "provenance": {
+        "sourceIds": [
+          "drengr-kyln-blazes-week-4"
+        ],
+        "status": "source_visual_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-01",
+        "sourceEvidence": "user_supplied_infographic_week_4_cell_20_main_portraits_only"
+      },
+      "review": {
+        "status": "source_visual_checked",
+        "flags": [
+          "infographic_portraits_not_victory_evidence",
+          "five_character_group_in_three_character_mode_guide"
         ]
       }
     }
