@@ -314,8 +314,9 @@ async function load(){
     mapSourceAlliances(data);
     S.snapshots=readSnapshots(data);
     if(!S.snapshots.length)throw Error("Aucun relevé complet");
-    $("arenaStatus").textContent="Relevés Arène vérifiés — historique disponible.";
-    $("arenaStatus").classList.add("arenaReady");
+    // Le chargement réussi ne nécessite aucun bandeau permanent.
+    // Conserver le même élément pour signaler un éventuel repli ou une erreur.
+    $("arenaStatus").hidden=true;
   }catch{
     // Fallback is visibly UNDATED and never contributes to a historical line.
     try{
