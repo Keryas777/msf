@@ -8,7 +8,7 @@ const source=fs.readFileSync(new URL("../docs/arena.js",import.meta.url),"utf8")
 const cut=source.indexOf('$("tabRanking").addEventListener(');
 if(cut<0)throw Error("Arena event attachment marker missing");
 const isolated=source.slice(source.indexOf("(()=>{"),cut)+
-  "return {S,canonical,mapSourceAlliances,readSnapshots,label,fillRanking};\n})();";
+  "return {S,canonical,mapSourceAlliances,readSnapshots,label,fillRanking,setupPeople,fillChart};\n})();";
 const metadata=[
   {key:"zeus",name:"Zeus",emoji:"⚡️",color:"#ffff00"},
   {key:"athena",name:"Athéna",emoji:"🦉",color:"#ff9900"},
@@ -19,9 +19,9 @@ const allianceApi={
 };
 function element(tag){
   return {
-    tag,children:[],value:"",textContent:"",className:"",
+    tag,children:[],value:"",textContent:"",className:"",attrs:{},
     style:{setProperty(){}},classList:{add(){},toggle(){}},
-    setAttribute(){},addEventListener(){},
+    setAttribute(k,v){this.attrs[k]=v;},addEventListener(){},
     append(...children){this.children.push(...children);},
     replaceChildren(...children){this.children=children;}
   };
@@ -29,6 +29,8 @@ function element(tag){
 function setup(){
   const nodes={rankingAlliance:element("select"),rankingList:element("div")};
   nodes.rankingAlliance.value="all";
+  nodes.historyAlliance=element("select");nodes.historyAlliance.value="all";
+  nodes.arenaChart=element("svg");nodes.arenaChart.parentElement={clientWidth:320};
   const document={
     createElement:element,
     createElementNS:(_ns,tag)=>element(tag),
@@ -98,4 +100,51 @@ test("foreign asset URLs and unrecognized alliance codes are not displayed",()=>
   const snap=page.readSnapshots(history)[0];
   assert.equal(snap.players.find(p=>p.name==="Ghost")?.alliance,"unknown");
   assert.equal(page.label("unknown"),"Alliance non identifiée");
+});
+
+
+test("player options show only names, because alliance is already a filter",()=>{
+  const {page,nodes}=setup(),history=records(page);
+  page.mapSourceAlliances(history);
+  page.S.snapshots=page.readSnapshots(history);
+  for(const person of page.S.snapshots[1].players)page.S.people.set(person.id,person);
+  nodes.historyAlliance.value="zeus";
+  page.setupPeople();
+  assert.deepEqual(nodes.historyPlayer.children.map(x=>x.textContent),
+    ["Choisir un joueur","A","B"]);
+  assert.ok(nodes.historyPlayer.children.every(x=>!x.textContent.includes(" — ")));
+});
+
+test("two Arena dates fit a 320px viewport without horizontal scroll",()=>{
+  const {page,nodes}=setup(),history=records(page);
+  page.mapSourceAlliances(history);
+  page.S.snapshots=page.readSnapshots(history);
+  for(const person of page.S.snapshots[1].players)page.S.people.set(person.id,person);
+  page.S.selected=["a","b"];
+  page.fillChart();
+  assert.equal(nodes.arenaChart.style.width,"320px");
+  assert.equal(nodes.arenaChart.attrs.viewBox,"0 0 320 320");
+  const circles=nodes.arenaChart.children.filter(x=>x.tag==="circle");
+  assert.equal(circles.length,4);
+  assert.ok(circles.every(x=>Number(x.attrs.cx)>=0&&Number(x.attrs.cx)<=320));
+  // The rendering also adapts when the available width changes.
+  nodes.arenaChart.parentElement.clientWidth=420;
+  page.fillChart();
+  assert.equal(nodes.arenaChart.style.width,"420px");
+});
+
+test("long histories retain horizontal scroll without hiding graph points",()=>{
+  const {page,nodes}=setup(),history=records(page);
+  page.mapSourceAlliances(history);
+  const example=page.readSnapshots(history).at(-1);
+  page.S.snapshots=Array.from({length:12},(_,i)=>({
+    ...example,date:"2026-11-"+String(i+1).padStart(2,"0")
+  }));
+  for(const person of example.players)page.S.people.set(person.id,person);
+  page.S.selected=["a"];
+  page.fillChart();
+  const width=Number.parseInt(nodes.arenaChart.style.width,10);
+  assert.ok(width>320,"long history must scroll rather than crush daily points");
+  assert.equal(Number(nodes.arenaChart.attrs.viewBox.split(" ")[2]),width);
+  assert.equal(nodes.arenaChart.children.filter(x=>x.tag==="circle").length,12);
 });
