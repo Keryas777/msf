@@ -1,0 +1,82 @@
+name: Daily arena standings snapshot
+
+on:
+  schedule:
+    # UTC: after the 16:40 enriched Infos import; not a Scopely collection.
+    - cron: "30 21 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: daily-arena-snapshot
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main with original first enriched Infos commit
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate Arena snapshot tools
+        run: |
+          node --check scripts/snapshot-arena.mjs
+          node --check scripts/publish-arena-r2.mjs
+          node --test tests/arena-snapshot.test.mjs
+
+      - name: Generate snapshots from published Infos only
+        id: generate
+        shell: bash
+        run: |
+          day="$(date -u +%F)"
+          echo "day=$day" >> "$GITHUB_OUTPUT"
+          node scripts/snapshot-arena.mjs --day="$day"
+
+          # Back-attributed 31 Oct snapshot must not be retained longer than
+          # the original 30-day window even when bundled in later artifacts.
+          retention=30
+          if [ -f .tmp/arena-snapshots/2026-10-31.json ]; then
+            retention="$(node --input-type=module -e '
+              const d=Math.floor((Date.now()-Date.parse("2026-10-31T00:00:00Z"))/86400000);
+              console.log(Math.max(1,30-d));
+            ')"
+          fi
+          echo "retention=$retention" >> "$GITHUB_OUTPUT"
+          if compgen -G ".tmp/arena-snapshots/*.json" > /dev/null; then
+            echo "generated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "generated=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No fresh Infos snapshot for this date; no point fabricated."
+          fi
+
+      - name: Archive daily temporary snapshots (automatic 30-day expiry)
+        if: steps.generate.outputs.generated == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: arena-${ steps.generate.outputs.day }-${ github.run_id }
+          path: .tmp/arena-snapshots/*.json
+          if-no-files-found: error
+          retention-days: ${ steps.generate.outputs.retention }
+
+      - name: Update private R2 rolling history (optional credential-gated)
+        shell: bash
+        env:
+          LOSP_R2_ACCOUNT_ID: ${ secrets.LOSP_R2_ACCOUNT_ID }
+          LOSP_R2_BUCKET: ${ secrets.LOSP_R2_BUCKET }
+          LOSP_R2_ARENA_ACCESS_KEY_ID: ${ secrets.LOSP_R2_ARENA_ACCESS_KEY_ID }
+          LOSP_R2_ARENA_SECRET_ACCESS_KEY: ${ secrets.LOSP_R2_ARENA_SECRET_ACCESS_KEY }
+        run: |
+          if [ -z "$LOSP_R2_ARENA_ACCESS_KEY_ID" ] || [ -z "$LOSP_R2_ARENA_SECRET_ACCESS_KEY" ]; then
+            echo "::notice::R2 Arena credentials missing; daily snapshots retained as expiring Actions artifacts only."
+          else
+            node scripts/publish-arena-r2.mjs --day="${ steps.generate.outputs.day }"
+          fi
