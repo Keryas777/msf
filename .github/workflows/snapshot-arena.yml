@@ -51,8 +51,15 @@ jobs:
             ')"
           fi
           echo "retention=$retention" >> "$GITHUB_OUTPUT"
+          if compgen -G ".tmp/arena-snapshots/*.json" > /dev/null; then
+            echo "generated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "generated=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No fresh Infos snapshot for this date; no point fabricated."
+          fi
 
       - name: Archive daily temporary snapshots (automatic 30-day expiry)
+        if: steps.generate.outputs.generated == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: arena-${ steps.generate.outputs.day }-${ github.run_id }
