@@ -2,7 +2,9 @@ name: Import enriched alliance Infos from private R2
 
 on:
   schedule:
-    - cron: "40 4,16 * * *"
+    - cron: "40 4 * * *"     # Existing AM import, unchanged (UTC)
+    - cron: "40 19 * * *"    # PM campaign finishes around 19:00 French time
+      timezone: "Europe/Paris"
   workflow_dispatch:
     inputs:
       date:
