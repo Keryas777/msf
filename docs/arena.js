@@ -124,7 +124,7 @@ function setupFilters(){
   $("rankingAlliance").replaceChildren(opt("all","Toutes les alliances"),
     ...alliances.map(a=>opt(a.key,label(a.key))));
   $("historyAlliance").replaceChildren(opt("all","Toutes les alliances"),
-    ...alliances.map(a=>opt(a.key,a.name)));
+    ...alliances.map(a=>opt(a.key,label(a.key))));
   setupPeople();
 }
 function setupPeople(){
@@ -147,7 +147,8 @@ function fillSummary(){
     "Aperçu non daté depuis infos.json : la collecte après récompenses n'est pas vérifiée.":
     current.attribution==="backdated-from-first-next-day-collection"?
     "Point initial réattribué : source réelle du "+date(current.sourceDay)+" matin.":
-    "Relevé après récompenses du "+date(current.date)+" ; source R2 vérifiée.";
+    "Relevé après récompenses du "+date(current.date)+
+    " ; comparaison avec le relevé précédent (source du 01/11 matin pour le premier point).";
 }
 function fillRanking(){
   const host=$("rankingList");host.replaceChildren();
@@ -155,7 +156,8 @@ function fillRanking(){
   const alliance=$("rankingAlliance").value;
   const rows=current.players.filter(p=>alliance==="all"||p.alliance===alliance)
     .sort((a,b)=>a.arenaRank-b.arenaRank||cmp.compare(a.name,b.name));
-  const previous=new Map((S.fallback?[]:(S.snapshots.at(-2)?.players||[]))
+  const previousSnapshot=S.fallback?null:S.snapshots.at(-2);
+  const previous=new Map((previousSnapshot?.players||[])
     .map(p=>[p.id,p.arenaRank]));
   if(!rows.length)host.append(make("p","Aucun joueur classé.","arenaHint"));
   let lastRank=null;
@@ -175,7 +177,9 @@ function fillRanking(){
       const diff=prior-p.arenaRank;
       delta.textContent=diff>0?"▲ "+diff:diff<0?"▼ "+(-diff):"—";
       delta.classList.add(diff>0?"arenaBetter":diff<0?"arenaWorse":"arenaNeutral");
-      delta.title="Évolution depuis le point précédent";
+      delta.title=previousSnapshot?.attribution==="backdated-from-first-next-day-collection"?
+        "Écart depuis le relevé réel du "+date(previousSnapshot.sourceDay)+" matin":
+        "Écart depuis le relevé du "+date(previousSnapshot?.date);
     }
     line.append(delta);host.append(line);
   }
