@@ -50,3 +50,22 @@ test("fail closed on a transfer into one newly published alliance",()=>{
     ["kronos",[{name:"Eki"}]],["dionysos",[{name:"Edge"}]]
   ])));
 });
+
+test("CLI accepts --write and reaches private configuration validation",async()=>{
+  const {spawnSync}=await import("node:child_process");
+  const {fileURLToPath}=await import("node:url");
+  const script=fileURLToPath(new URL("../scripts/pull-infos-r2.mjs",import.meta.url));
+  const env={...process.env,LOSP_R2_ALLIANCE_MAP_JSON:"",
+    INPUT_DAY:"2026-11-01",INPUT_PERIOD:"am"};
+  const run=spawnSync(process.execPath,[script,"--write"],{
+    env,encoding:"utf8",timeout:15000
+  });
+  assert.equal(run.status,1);
+  assert.match(run.stderr,/Invalid private alliance mapping JSON/);
+  assert.doesNotMatch(run.stderr,/Only --write is supported/);
+  const invalid=spawnSync(process.execPath,[script,"--unknown"],{
+    env,encoding:"utf8",timeout:15000
+  });
+  assert.equal(invalid.status,1);
+  assert.match(invalid.stderr,/Only --write is supported/);
+});
