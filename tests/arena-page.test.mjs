@@ -207,3 +207,16 @@ test("Arena chart omits explanatory text but preserves point dates and ranks",()
   assert.equal(page.S.snapshots[0].sourceDay,"2026-11-01",
     "historic provenance stays in the data");
 });
+
+
+test("Arena portrait/frame use 1:1 scale without changing tile or row dimensions",()=>{
+  const css=fs.readFileSync(new URL("../docs/arena.css",import.meta.url),"utf8");
+  const html=fs.readFileSync(new URL("../docs/arena.html",import.meta.url),"utf8");
+  assert.match(css,/\.arenaAvatarFrame,\s*\.arenaAvatarIcon\{[^}]*width:100%;height:100%/);
+  assert.match(css,/\.arenaAvatarFrame\{z-index:2;padding:0;pointer-events:none\}/);
+  assert.match(css,/\.arenaAvatarIcon\{z-index:1;padding:0;/);
+  assert.match(css,/\.arenaAvatar\{position:relative;width:46px;height:46px/);
+  assert.match(css,/@media\(max-width:480px\)[\s\S]*?\.arenaAvatar\{width:42px;height:42px\}/);
+  assert.match(css,/\.arenaRankRow\{display:grid;grid-template-columns:50px 46px minmax\(0,1fr\) 55px/);
+  assert.match(html,/arena\.css\?v=7/);
+});
