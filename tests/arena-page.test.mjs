@@ -185,5 +185,25 @@ test("successful Arena loading hides the redundant banner but keeps error feedba
   assert.match(source,/Données Arène indisponibles/);
   assert.match(css,/\.arenaState\[hidden\]\{display:none!important\}/);
   assert.match(html,/id="arenaStatus"/);
-  assert.match(html,/arena\.js\?v=5/);
+  assert.match(html,/arena\.js\?v=6/);
+});
+
+
+test("Arena chart omits explanatory text but preserves point dates and ranks",()=>{
+  const html=fs.readFileSync(new URL("../docs/arena.html",import.meta.url),"utf8");
+  assert.doesNotMatch(html,/Plus le rang est petit, meilleur est le classement/);
+  assert.doesNotMatch(source,/Mesuré le /);
+  const {page,nodes}=setup(),history=records(page);
+  page.mapSourceAlliances(history);
+  page.S.snapshots=page.readSnapshots(history);
+  for(const person of page.S.snapshots[1].players)page.S.people.set(person.id,person);
+  page.S.selected=["a","b"];
+  page.fillChart();
+  assert.ok(nodes.historyDetails.children.length>1,"date/rank table remains present");
+  assert.ok(nodes.historyDetails.children.some(entry=>
+    entry.children.some(child=>child.textContent.includes("31/10/2026"))));
+  assert.ok(nodes.historyDetails.children.every(entry=>
+    !entry.children.some(child=>String(child.textContent).includes("Mesuré le"))));
+  assert.equal(page.S.snapshots[0].sourceDay,"2026-11-01",
+    "historic provenance stays in the data");
 });
