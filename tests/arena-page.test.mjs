@@ -174,3 +174,16 @@ test("Arena HTML no longer displays the provenance disclaimer",()=>{
   assert.doesNotMatch(html,/attribution rétrospective/);
   assert.match(html,/id="rankingSource"/);
 });
+
+
+test("successful Arena loading hides the redundant banner but keeps error feedback",()=>{
+  const html=fs.readFileSync(new URL("../docs/arena.html",import.meta.url),"utf8");
+  const css=fs.readFileSync(new URL("../docs/arena.css",import.meta.url),"utf8");
+  assert.match(source,/arenaStatus"\)\.hidden=true/);
+  assert.doesNotMatch(source,/Relevés Arène vérifiés — historique disponible/);
+  assert.match(source,/Historique R2 inaccessible/);
+  assert.match(source,/Données Arène indisponibles/);
+  assert.match(css,/\.arenaState\[hidden\]\{display:none!important\}/);
+  assert.match(html,/id="arenaStatus"/);
+  assert.match(html,/arena\.js\?v=5/);
+});
