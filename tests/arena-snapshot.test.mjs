@@ -47,12 +47,12 @@ test("No fictitious calendar dates accepted", () => {
 test("R2 rolling history preserves first observation, prunes older than 30 days", () => {
   const base = snapshot("2026-10-31", 1);
   const old = snapshot("2026-10-30", 10);
-  const today = snapshot("2026-11-28", 5);
+  const today = snapshot("2026-11-29", 5);
   const updatedBase = snapshot("2026-10-31", 99);
-  const merged = mergeHistory({ snapshots: [old, base] }, [updatedBase, today], "2026-11-28");
-  assert.deepEqual(merged.snapshots.map(x => x.date), ["2026-10-31", "2026-11-28"]);
+  const merged = mergeHistory({ snapshots: [old, base] }, [updatedBase, today], "2026-11-29");
+  assert.deepEqual(merged.snapshots.map(x => x.date), ["2026-10-31", "2026-11-29"]);
   assert.equal(merged.snapshots[0].players[0].arenaRank, 1);
   assert.equal(earliestAllowedDay("2026-11-29"), "2026-10-31");
   const pruned = mergeHistory(merged, [], "2026-11-30");
-  assert.deepEqual(pruned.snapshots.map(x => x.date), ["2026-11-28"]);
+  assert.deepEqual(pruned.snapshots.map(x => x.date), ["2026-11-29"]);
 });
