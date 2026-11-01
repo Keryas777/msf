@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b0c0d">
+  <style>html.authChecking body{opacity:0;pointer-events:none}</style>
+  <script>document.documentElement.classList.add("authChecking");</script>
+  <script src="./auth-guard.js?v=4"></script>
+  <title>Arène — LoSP</title>
+  <link rel="stylesheet" href="./style.css?v=4">
+  <link rel="stylesheet" href="./arena.css?v=1">
+  <link rel="manifest" href="./manifest.webmanifest">
+</head>
+<body class="arenaPage">
+  <main class="app arenaApp">
+    <header class="header arenaHeader">
+      <div class="headerLeft">
+        <h1 class="title">Arène</h1>
+        <p class="subtitle">Classements et évolution des rangs du groupement</p>
+      </div>
+      <a href="./home.html" class="homeBtn" aria-label="Accueil">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9"/><path d="M9 21v-7h6v7"/>
+        </svg>
+      </a>
+    </header>
+
+    <nav class="arenaTabs" aria-label="Affichage Arène">
+      <button class="arenaTab isActive" type="button" id="tabRanking" aria-controls="panelRanking" aria-selected="true">Classement</button>
+      <button class="arenaTab" type="button" id="tabHistory" aria-controls="panelHistory" aria-selected="false">Évolution</button>
+    </nav>
+
+    <p class="arenaState" id="arenaStatus" role="status" aria-live="polite">Chargement des relevés officiels…</p>
+    <section class="card arenaSummary" id="arenaSummary" hidden>
+      <div><span class="arenaMeta">Dernier relevé</span><strong id="arenaLatestDate">—</strong></div>
+      <div><span class="arenaMeta">Joueurs classés</span><strong id="arenaPlayerCount">—</strong></div>
+      <div><span class="arenaMeta">Historique</span><strong id="arenaDateCount">—</strong></div>
+    </section>
+
+    <section id="panelRanking" aria-labelledby="tabRanking">
+      <div class="card arenaFilterCard">
+        <label for="rankingAlliance">Alliance</label>
+        <select class="arenaSelect" id="rankingAlliance"><option value="all">Toutes les alliances</option></select>
+        <p class="arenaHint" id="rankingSource"></p>
+      </div>
+      <div class="arenaRanking" id="rankingList" aria-live="polite"></div>
+    </section>
+
+    <section id="panelHistory" aria-labelledby="tabHistory" hidden>
+      <div class="card arenaFilterCard">
+        <p class="arenaBlockTitle">Comparer jusqu’à 4 joueurs</p>
+        <div class="arenaSelectors">
+          <label>Alliance
+            <select class="arenaSelect" id="historyAlliance"></select>
+          </label>
+          <label>Joueur
+            <select class="arenaSelect" id="historyPlayer"></select>
+          </label>
+        </div>
+        <button class="arenaAdd" id="addPlayer" type="button">Ajouter au graphique</button>
+        <div id="selectedPlayers" class="arenaSelected" aria-live="polite"></div>
+      </div>
+      <section class="card arenaChartCard">
+        <h2 class="arenaBlockTitle">Évolution du rang Arène</h2>
+        <p class="arenaHint">Plus le rang est petit, meilleur est le classement. Rang 1 en haut.</p>
+        <div class="arenaChartScroll">
+          <svg id="arenaChart" viewBox="0 0 640 320" role="img" aria-label="Évolution des rangs Arène des joueurs sélectionnés"></svg>
+        </div>
+        <div id="chartLegend" class="arenaLegend"></div>
+        <div id="chartEmpty" class="arenaHint">Sélectionne un joueur pour afficher sa progression.</div>
+      </section>
+      <div class="card arenaHistoryDetails" id="historyDetails"></div>
+    </section>
+
+    <p class="arenaDisclaimer">Le point initial du 31/10 est une <strong>attribution rétrospective</strong> du relevé du 01/11 au matin. Il ne constitue pas une mesure effectuée le 31/10. Les autres dates sont issues des collectes après récompenses.</p>
+  </main>
+
+  <script src="./alliances.js?v=2" defer></script>
+  <script src="./arena.js?v=1" defer></script>
+</body>
+</html>
