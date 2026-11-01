@@ -13,8 +13,9 @@ const period=process.env.INPUT_PERIOD&&process.env.INPUT_PERIOD!=="auto"
   ?process.env.INPUT_PERIOD
   :(new Date().getUTCHours()<12?"am":"pm");
 const campaign=infoCampaign(day,period);
-const write=process.argv.includes("--write");
-if(process.argv.some(a=>a!=="--write"))
+const args=process.argv.slice(2);
+const write=args.includes("--write");
+if(args.some(a=>a!=="--write"))
   throw Error("Only --write is supported");
 const registry=(await json("docs/data/alliances.json"))
   .filter(a=>a&&a.active!==false);
