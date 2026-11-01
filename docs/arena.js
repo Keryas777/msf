@@ -133,7 +133,7 @@ function setupPeople(){
     !S.selected.includes(p.id)).sort((a,b)=>cmp.compare(a.name,b.name));
   const select=$("historyPlayer"),before=select.value;
   select.replaceChildren(opt("","Choisir un joueur"),...choices.map(p=>
-    opt(p.id,p.name+" — "+label(p.alliance))));
+    opt(p.id,p.name)));
   if(choices.some(p=>p.id===before))select.value=before;
   $("addPlayer").disabled=!select.value||S.selected.length>=4;
 }
@@ -220,8 +220,13 @@ function fillChart(){
   const snaps=S.fallback?[]:S.snapshots;
   $("chartEmpty").hidden=snaps.length>0&&S.selected.length>0;
   if(!snaps.length||!S.selected.length)return;
-  const width=Math.max(640,75*snaps.length+80),height=320,
-    left=52,right=22,top=20,bottom=54,plot=width-left-right,vertical=height-top-bottom;
+  const height=320,left=52,right=34,top=20,bottom=54;
+  // Fit all dates into the visible mobile card while they remain readable.
+  // Only a long history creates a scrollable horizontal chart.
+  const viewport=Math.ceil(chart.parentElement?.clientWidth||0);
+  const minWidth=left+right+Math.max(0,snaps.length-1)*78+8;
+  const width=Math.max(viewport||320,minWidth);
+  const plot=width-left-right,vertical=height-top-bottom;
   chart.setAttribute("viewBox","0 0 "+width+" "+height);chart.style.width=width+"px";
   const values=snaps.flatMap(s=>s.players.filter(p=>S.selected.includes(p.id))
     .map(p=>p.arenaRank));
@@ -336,6 +341,9 @@ $("tabHistory").addEventListener("click",()=>switchTab("history"));
 $("rankingAlliance").addEventListener("change",fillRanking);
 $("historyAlliance").addEventListener("change",setupPeople);
 $("historyPlayer").addEventListener("change",setupPeople);
+window.addEventListener("resize",()=>{
+  if(!$("panelHistory").hidden)fillChart();
+});
 $("addPlayer").addEventListener("click",()=>{
   const id=$("historyPlayer").value;
   if(!id||!S.people.has(id)||S.selected.includes(id)||S.selected.length>=4)return;
