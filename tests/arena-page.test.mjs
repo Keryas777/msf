@@ -8,7 +8,7 @@ const source=fs.readFileSync(new URL("../docs/arena.js",import.meta.url),"utf8")
 const cut=source.indexOf('$("tabRanking").addEventListener(');
 if(cut<0)throw Error("Arena event attachment marker missing");
 const isolated=source.slice(source.indexOf("(()=>{"),cut)+
-  "return {S,canonical,mapSourceAlliances,readSnapshots,label,fillRanking,setupPeople,fillChart};\n})();";
+  "return {S,canonical,mapSourceAlliances,readSnapshots,label,fillRanking,setupPeople,fillChart,fillSummary};\n})();";
 const metadata=[
   {key:"zeus",name:"Zeus",emoji:"⚡️",color:"#ffff00"},
   {key:"athena",name:"Athéna",emoji:"🦉",color:"#ff9900"},
@@ -147,4 +147,43 @@ test("long histories retain horizontal scroll without hiding graph points",()=>{
   assert.ok(width>320,"long history must scroll rather than crush daily points");
   assert.equal(Number(nodes.arenaChart.attrs.viewBox.split(" ")[2]),width);
   assert.equal(nodes.arenaChart.children.filter(x=>x.tag==="circle").length,12);
+});
+
+
+test("ranking caption stays concise and uses the real latest date",()=>{
+  const {page,nodes}=setup(),history=records(page);
+  page.mapSourceAlliances(history);
+  page.S.snapshots=page.readSnapshots(history);
+  page.fillSummary();
+  assert.equal(nodes.rankingSource.textContent,
+    "Classement du 01/11/2026 à 17h et comparatif avec la veille");
+  assert.equal(nodes.arenaLatestDate.textContent,"01/11/2026");
+  page.S.snapshots=page.S.snapshots.slice(0,1);
+  page.fillSummary();
+  assert.equal(nodes.rankingSource.textContent,
+    "Classement initial du 31/10/2026");
+  page.S.fallback=true;
+  page.fillSummary();
+  assert.equal(nodes.rankingSource.textContent,
+    "Classement actuel — date non vérifiée");
+});
+
+test("Arena HTML no longer displays the provenance disclaimer",()=>{
+  const html=fs.readFileSync(new URL("../docs/arena.html",import.meta.url),"utf8");
+  assert.doesNotMatch(html,/class="arenaDisclaimer"/);
+  assert.doesNotMatch(html,/attribution rétrospective/);
+  assert.match(html,/id="rankingSource"/);
+});
+
+
+test("successful Arena loading hides the redundant banner but keeps error feedback",()=>{
+  const html=fs.readFileSync(new URL("../docs/arena.html",import.meta.url),"utf8");
+  const css=fs.readFileSync(new URL("../docs/arena.css",import.meta.url),"utf8");
+  assert.match(source,/arenaStatus"\)\.hidden=true/);
+  assert.doesNotMatch(source,/Relevés Arène vérifiés — historique disponible/);
+  assert.match(source,/Historique R2 inaccessible/);
+  assert.match(source,/Données Arène indisponibles/);
+  assert.match(css,/\.arenaState\[hidden\]\{display:none!important\}/);
+  assert.match(html,/id="arenaStatus"/);
+  assert.match(html,/arena\.js\?v=5/);
 });

@@ -9,7 +9,7 @@
   color:#fff;border-color:#4fa8f0;box-shadow:0 0 0 1px rgba(60,158,250,.18)}
 .arenaState{margin:0;padding:10px 13px;border:1px solid rgba(104,140,207,.26);
   border-radius:12px;background:rgba(9,20,42,.78);font-size:13px;color:#e0c798}
-.arenaState.arenaReady{color:#b7e6cf}
+.arenaState[hidden]{display:none!important}
 .arenaSummary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
   background:rgba(12,20,39,.92);padding:14px}
 .arenaSummary>div{display:flex;flex-direction:column;gap:5px;min-width:0}
@@ -73,7 +73,6 @@
 .arenaHistoryLine:last-child{border:0;padding-bottom:0}
 .arenaHistoryLine span{color:#d0deef;overflow-wrap:anywhere}
 .arenaHistoryLine small{color:#ffcc89}
-.arenaDisclaimer{margin:0;color:#abbcdb;font-size:12px;line-height:1.55;padding:6px 2px 16px}
 @media(max-width:480px){
   .arenaApp{padding:9px;gap:10px}
   .arenaHeader{padding-left:12px}
