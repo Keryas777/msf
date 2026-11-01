@@ -144,11 +144,11 @@ function fillSummary(){
   $("arenaPlayerCount").textContent=String(current.players.length);
   $("arenaDateCount").textContent=S.fallback?"Indisponible":S.snapshots.length+" date(s)";
   $("rankingSource").textContent=S.fallback?
-    "Aperçu non daté depuis infos.json : la collecte après récompenses n'est pas vérifiée.":
+    "Classement actuel — date non vérifiée":
     current.attribution==="backdated-from-first-next-day-collection"?
-    "Point initial réattribué : source réelle du "+date(current.sourceDay)+" matin.":
-    "Relevé après récompenses du "+date(current.date)+
-    " ; comparaison avec le relevé précédent (source du 01/11 matin pour le premier point).";
+    "Classement initial du "+date(current.date):
+    "Classement du "+date(current.date)+" à 17h"+
+      (S.snapshots.length>1?" et comparatif avec la veille":"");
 }
 function fillRanking(){
   const host=$("rankingList");host.replaceChildren();
