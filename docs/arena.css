@@ -75,3 +75,6 @@
   .arenaSummary{gap:5px;padding:11px}
   .arenaSummary strong{font-size:13px}
 }
+
+/* Preserve semantic hidden state against author display declarations. */
+.arenaSummary[hidden]{display:none!important}
