@@ -460,9 +460,9 @@
 
   const ABILITY_LABELS = [
     ["basic", "Basique"],
-    ["special", "Spécial"],
+    ["special", "Spéciale"],
     ["ultimate", "Ultime"],
-    ["passive", "Passif"],
+    ["passive", "Passive"],
   ];
 
   function appendAbilityChanges(before, current, changes, isUnlocked) {
