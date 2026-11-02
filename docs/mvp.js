@@ -56,6 +56,13 @@
     return window.LoSPAlliances?.getAllianceMeta?.(key)?.name || fallbackByKey.get(key)?.name || String(a ?? "").trim();
   }
 
+  function allianceColor(value) {
+    const key = allianceKey(value);
+    const color = window.LoSPAlliances?.getAllianceMeta?.(key)?.color
+      || fallbackByKey.get(key)?.color || "";
+    return /^#[0-9a-fA-F]{3,8}$/.test(color) ? color : "#b5c6e3";
+  }
+
   function isAllianceEnabled(key) {
     const input = filterInputs.get(key);
     return !input || input.checked;
@@ -82,6 +89,19 @@
     return merged;
   }
 
+  function updateFilterSummary() {
+    const summary = document.getElementById("allianceFilterSummaryText");
+    if (!summary) return;
+    const selected = knownAlliances.filter((alliance) => isAllianceEnabled(allianceKey(alliance.key)));
+    summary.textContent = selected.length === knownAlliances.length
+      ? "Toutes les alliances"
+      : selected.length === 0
+        ? "Aucune alliance sélectionnée"
+        : selected.length === 1
+          ? selected[0].name
+          : selected.length + " alliances sélectionnées";
+  }
+
   function renderAllianceFilters() {
     if (!$allianceFilters) return;
 
@@ -105,8 +125,9 @@
     filterInputs.clear();
     $allianceFilters.querySelectorAll("input[data-alliance-key]").forEach((input) => {
       filterInputs.set(input.dataset.allianceKey, input);
-      input.addEventListener("change", applyFilters);
+      input.addEventListener("change", () => { updateFilterSummary(); applyFilters(); });
     });
+    updateFilterSummary();
   }
 
   function formatNumberFR(n) {
@@ -135,9 +156,9 @@
         const frame = safeUrl(p.frame);
 
         return `
-          <div class="rankRow">
+          <article class="rankRow">
             <div class="rankLeft">
-              <div class="rankNum">${i + 1}</div>
+              <strong class="rankNum">#${i + 1}</strong>
               <div class="rankAvatar">
                 ${frame ? `<img class="rankAvatarFrame" src="${escapeHtml(frame)}" alt="">` : ""}
                 ${icon ? `<img class="rankAvatarIcon" src="${escapeHtml(icon)}" alt="">` : ""}
@@ -145,12 +166,12 @@
             </div>
 
             <div class="rankCenter">
-              <div class="rankEmoji">${escapeHtml(allianceEmoji(p.alliance))}</div>
-              <div class="rankName">${escapeHtml(p.name)}</div>
+              <strong class="rankName">${escapeHtml(p.name)}</strong>
+              <small class="rankAlliance" style="--alliance-color:${allianceColor(p.alliance)}">${escapeHtml(allianceEmoji(p.alliance))} ${escapeHtml(allianceLabel(p.alliance))}</small>
             </div>
 
             <div class="rankPower">${formatNumberFR(p.war_mvp)}</div>
-          </div>
+          </article>
         `;
       })
       .join("");

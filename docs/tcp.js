@@ -115,9 +115,37 @@
     return knownAlliances.find((alliance) => alliance.key === key)?.emoji || "👤";
   }
 
+  function allianceLabel(value) {
+    const key = allianceKey(value);
+    return getAllianceApi()?.getAllianceMeta?.(key)?.name
+      || knownAlliances.find((alliance) => alliance.key === key)?.name
+      || String(value || "");
+  }
+
+  function allianceColor(value) {
+    const key = allianceKey(value);
+    const color = getAllianceApi()?.getAllianceMeta?.(key)?.color
+      || knownAlliances.find((alliance) => alliance.key === key)?.color
+      || "";
+    return /^#[0-9a-fA-F]{3,8}$/.test(color) ? color : "#b5c6e3";
+  }
+
   function isAllianceEnabled(key) {
     const filter = allianceFilters.get(key);
     return filter ? filter.checked : true;
+  }
+
+  function updateFilterSummary() {
+    const summary = document.getElementById("allianceFilterSummaryText");
+    if (!summary) return;
+    const selected = knownAlliances.filter((alliance) => isAllianceEnabled(alliance.key));
+    summary.textContent = selected.length === knownAlliances.length
+      ? "Toutes les alliances"
+      : selected.length === 0
+        ? "Aucune alliance sélectionnée"
+        : selected.length === 1
+          ? selected[0].name
+          : selected.length + " alliances sélectionnées";
   }
 
   function renderAllianceFilters() {
@@ -142,8 +170,9 @@
     allianceFilters.clear();
     $filters.querySelectorAll("input[data-alliance-key]").forEach((cb) => {
       allianceFilters.set(cb.dataset.allianceKey, cb);
-      cb.addEventListener("change", applyFiltersAndRender);
+      cb.addEventListener("change", () => { updateFilterSummary(); applyFiltersAndRender(); });
     });
+    updateFilterSummary();
   }
   // ---------- Formatting ----------
   function formatNumberFR(n) {
@@ -212,19 +241,19 @@
             : `<div class="rankAvatar" aria-hidden="true"></div>`;
 
         return `
-          <div class="rankRow">
+          <article class="rankRow">
             <div class="rankLeft">
-              <div class="rankNum">${idx + 1}</div>
+              <strong class="rankNum">#${idx + 1}</strong>
               ${avatarHtml}
             </div>
 
             <div class="rankCenter">
-              <div class="rankEmoji" aria-label="Alliance">${emoji}</div>
-              <div class="rankName" title="${nameSafe}">${nameSafe}</div>
+              <strong class="rankName" title="${nameSafe}">${nameSafe}</strong>
+              <small class="rankAlliance" style="--alliance-color:${allianceColor(p.alliance)}">${escapeHtml(emoji)} ${escapeHtml(allianceLabel(p.alliance))}</small>
             </div>
 
             <div class="rankPower">${formatNumberFR(p.tcp)}</div>
-          </div>
+          </article>
         `;
       })
       .join("");

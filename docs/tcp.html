@@ -24,18 +24,18 @@
     <title>Classement TCP — Groupement</title>
 
     <link rel="stylesheet" href="./style.css" />
-    <link rel="stylesheet" href="./tcp.css?v=19" />
+    <link rel="stylesheet" href="./rankings-shared.css?v=1" />
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="manifest" href="./manifest.webmanifest" />
   </head>
 
-  <body>
-    <div class="app">
-      <header class="header">
-        <button class="backBtn" type="button" aria-label="Retour">‹</button>
-        <a href="./home.html" class="homeBtn" aria-label="Accueil">⌂</a>
+  <body class="rankingPage">
+    <main class="app rankingsApp">
+      <header class="header rankingsHeader">
+        <button class="backBtn" type="button" aria-label="Retour"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+        <a href="./home.html" class="homeBtn" aria-label="Accueil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9"/><path d="M9 21v-7h6v7"/></svg></a>
 
         <div class="headerLeft">
           <h1 class="title">Classement TCP</h1>
@@ -45,19 +45,30 @@
         </div>
       </header>
 
-      <section class="card filtersCard">
-        <div id="allianceFilters" class="filters" role="group" aria-label="Filtres alliances"></div>
-      </section>
-
-      <section class="card">
-        <div class="cardHeader">
-          <div></div>
-          <div class="chipCount"><span id="playersCount">0</span></div>
+      <section class="card rankingsSummary" aria-label="Résumé du classement">
+        <div>
+          <span class="rankingsMeta">Joueurs classés</span>
+          <strong id="playersCount">0</strong>
         </div>
-
-        <div id="players" class="players"></div>
+        <span class="rankingsSummaryNote">Groupement LoSP</span>
       </section>
-    </div>
+
+      <section class="card rankingsFiltersCard">
+        <span class="rankingsFilterLabel" id="allianceFilterLabel">Alliances</span>
+        <details class="rankingsFilterDetails">
+          <summary class="rankingsFilterSummary" aria-labelledby="allianceFilterLabel allianceFilterSummaryText">
+            <span id="allianceFilterSummaryText">Toutes les alliances</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </summary>
+          <div id="allianceFilters" class="filters" role="group" aria-label="Filtres alliances"></div>
+        </details>
+        <p class="rankingsHint">Sélectionne une ou plusieurs alliances pour affiner le classement.</p>
+      </section>
+
+      <section id="players" class="players" aria-label="Classement des joueurs"></section>
+    </main>
 
     <script>
       document.querySelectorAll(".backBtn").forEach((btn) => {
@@ -66,6 +77,6 @@
     </script>
 
     <script src="./alliances.js?v=1"></script>
-    <script src="./tcp.js?v=19"></script>
+    <script src="./tcp.js?v=20"></script>
   </body>
 </html>
