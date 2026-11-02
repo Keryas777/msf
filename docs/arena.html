@@ -9,10 +9,11 @@
   <script src="./auth-guard.js?v=4"></script>
   <title>Arène — LoSP</title>
   <link rel="stylesheet" href="./style.css?v=4">
+  <link rel="stylesheet" href="./rankings-shared.css?v=1">
   <link rel="stylesheet" href="./arena.css?v=9">
   <link rel="manifest" href="./manifest.webmanifest">
 </head>
-<body class="arenaPage">
+<body class="arenaPage rankingPage">
   <main class="app arenaApp">
     <header class="header arenaHeader">
       <a href="./joueurs.html" class="backBtn" aria-label="Retour au hub Joueurs">
@@ -44,9 +45,17 @@
     </section>
 
     <section id="panelRanking" aria-labelledby="tabRanking">
-      <div class="card arenaFilterCard">
-        <label for="rankingAlliance">Alliance</label>
-        <select class="arenaSelect" id="rankingAlliance"><option value="all">Toutes les alliances</option></select>
+      <div class="card arenaFilterCard rankingsFiltersCard">
+        <span class="rankingsFilterLabel" id="rankingAllianceLabel">Alliances</span>
+        <details class="rankingsFilterDetails">
+          <summary class="rankingsFilterSummary" aria-labelledby="rankingAllianceLabel rankingAllianceSummaryText">
+            <span id="rankingAllianceSummaryText">Toutes les alliances</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </summary>
+          <div id="rankingAllianceFilters" class="filters" role="group" aria-label="Filtres alliances"></div>
+        </details>
         <p class="arenaHint" id="rankingSource"></p>
       </div>
       <div class="arenaRanking" id="rankingList" aria-live="polite"></div>
@@ -80,6 +89,6 @@
   </main>
 
   <script src="./alliances.js?v=2" defer></script>
-  <script src="./arena.js?v=6" defer></script>
+  <script src="./arena.js?v=7" defer></script>
 </body>
 </html>
