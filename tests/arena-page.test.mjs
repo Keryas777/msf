@@ -8,27 +8,30 @@ const source=fs.readFileSync(new URL("../docs/arena.js",import.meta.url),"utf8")
 const cut=source.indexOf('$("tabRanking").addEventListener(');
 if(cut<0)throw Error("Arena event attachment marker missing");
 const isolated=source.slice(source.indexOf("(()=>{"),cut)+
-  "return {S,canonical,mapSourceAlliances,readSnapshots,label,fillRanking,setupPeople,fillChart,fillSummary};\n})();";
+  "return {S,canonical,mapSourceAlliances,readSnapshots,label,fillRanking,setupFilters,setupPeople,fillChart,fillSummary};\n})();";
 const metadata=[
   {key:"zeus",name:"Zeus",emoji:"⚡️",color:"#ffff00"},
   {key:"athena",name:"Athéna",emoji:"🦉",color:"#ff9900"},
   {key:"hades",name:"Hadès",emoji:"🔥",color:"#21bb77"}
 ];
 const allianceApi={
-  getAllianceMeta:value=>metadata.find(a=>value===a.key||value===a.name)||null
+  getAllianceMeta:value=>metadata.find(a=>value===a.key||value===a.name)||null,
+  getKnownAlliances:()=>metadata
 };
 function element(tag){
   return {
     tag,children:[],value:"",textContent:"",className:"",attrs:{},
+    dataset:{},listeners:{},checked:false,
     style:{setProperty(){}},classList:{add(){},toggle(){}},
-    setAttribute(k,v){this.attrs[k]=v;},addEventListener(){},
+    setAttribute(k,v){this.attrs[k]=v;},
+    addEventListener(name,callback){this.listeners[name]=callback;},
     append(...children){this.children.push(...children);},
     replaceChildren(...children){this.children=children;}
   };
 }
 function setup(){
-  const nodes={rankingAlliance:element("select"),rankingList:element("div")};
-  nodes.rankingAlliance.value="all";
+  const nodes={rankingAllianceFilters:element("div"),
+    rankingAllianceSummaryText:element("span"),rankingList:element("div")};
   nodes.historyAlliance=element("select");nodes.historyAlliance.value="all";
   nodes.arenaChart=element("svg");nodes.arenaChart.parentElement={clientWidth:320};
   const document={
@@ -185,7 +188,7 @@ test("successful Arena loading hides the redundant banner but keeps error feedba
   assert.match(source,/Données Arène indisponibles/);
   assert.match(css,/\.arenaState\[hidden\]\{display:none!important\}/);
   assert.match(html,/id="arenaStatus"/);
-  assert.match(html,/arena\.js\?v=6/);
+  assert.match(html,/arena\.js\?v=7/);
 });
 
 
@@ -218,5 +221,50 @@ test("Arena portrait/frame use 1:1 scale without changing tile or row dimensions
   assert.match(css,/\.arenaAvatar\{position:relative;width:46px;height:46px/);
   assert.match(css,/@media\(max-width:480px\)[\s\S]*?\.arenaAvatar\{width:42px;height:42px\}/);
   assert.match(css,/\.arenaRankRow\{display:grid;grid-template-columns:50px 46px minmax\(0,1fr\) 55px/);
-  assert.match(html,/arena\.css\?v=8/);
+  assert.match(html,/arena\.css\?v=9/);
+});
+
+
+test("Arena uses the same expandable multi-alliance checkboxes as MVP/TCP",()=>{
+  const html=fs.readFileSync(new URL("../docs/arena.html",import.meta.url),"utf8");
+  assert.match(html,/class="arenaPage rankingPage"/);
+  assert.match(html,/rankings-shared\\.css\\?v=1/);
+  assert.match(html,/id="rankingAllianceFilters"/);
+  assert.match(html,/id="rankingAllianceSummaryText"/);
+  assert.doesNotMatch(html,/id="rankingAlliance"/);
+});
+
+test("Arena multi-alliance filtering retains absolute ranks and updates its summary",()=>{
+  const {page,nodes}=setup(),history=records(page);
+  page.mapSourceAlliances(history);
+  page.S.snapshots=page.readSnapshots(history);
+  for(const person of page.S.snapshots[1].players)page.S.people.set(person.id,person);
+  page.setupFilters();
+  page.fillRanking();
+  const inputs=nodes.rankingAllianceFilters.children.map(toggle=>toggle.children[0]);
+  assert.deepEqual(inputs.map(input=>input.dataset.allianceKey),
+    ["zeus","athena","hades"]);
+  assert.ok(inputs.every(input=>input.checked));
+  assert.equal(nodes.rankingAllianceSummaryText.textContent,"Toutes les alliances");
+  assert.equal(nodes.rankingList.children.length,6);
+  const setChecked=(key,checked)=>{
+    const input=inputs.find(cb=>cb.dataset.allianceKey===key);
+    input.checked=checked;
+    input.listeners.change();
+  };
+  setChecked("zeus",false);
+  assert.equal(nodes.rankingAllianceSummaryText.textContent,"2 alliances sélectionnées");
+  assert.deepEqual(nodes.rankingList.children.map(row=>row.children[0].textContent),
+    ["#3","—","#5","#6"]);
+  setChecked("athena",false);
+  assert.equal(nodes.rankingAllianceSummaryText.textContent,"🔥 Hadès");
+  assert.deepEqual(nodes.rankingList.children.map(row=>row.children[0].textContent),
+    ["#5","#6"]);
+  setChecked("hades",false);
+  assert.equal(nodes.rankingAllianceSummaryText.textContent,
+    "Aucune alliance sélectionnée");
+  assert.equal(nodes.rankingList.children[0].textContent,"Aucun joueur classé.");
+  for(const input of inputs)setChecked(input.dataset.allianceKey,true);
+  assert.equal(nodes.rankingList.children.length,6);
+  assert.equal(nodes.rankingAllianceSummaryText.textContent,"Toutes les alliances");
 });
