@@ -7,6 +7,7 @@ const $=id=>document.getElementById(id);
 const S={snapshots:[],aliases:{},people:new Map(),selected:[],fallback:false,
   infos:new Map(),sourceAlliances:new Map()};
 const cmp=new Intl.Collator("fr",{numeric:true,sensitivity:"base"});
+const rankingFilters=new Map();
 const norm=s=>String(s||"").replace(/<[^>]*>/g,"").normalize("NFD")
   .replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
 const knownKey=s=>window.LoSPAlliances?.getAllianceMeta(s)?.key||"";
@@ -119,10 +120,40 @@ function knownAlliances(){
   return [...declared.filter(x=>used.delete(x.key)),
     ...[...used].map(k=>({key:k,name:k}))];
 }
+function updateRankingFilterSummary(){
+  const enabled=[...rankingFilters].filter(([,input])=>input.checked);
+  const summary=$("rankingAllianceSummaryText");
+  summary.textContent=enabled.length===rankingFilters.size?"Toutes les alliances":
+    enabled.length===0?"Aucune alliance sélectionnée":
+    enabled.length===1?label(enabled[0][0]):
+    enabled.length+" alliances sélectionnées";
+}
 function setupFilters(){
   const alliances=knownAlliances();
-  $("rankingAlliance").replaceChildren(opt("all","Toutes les alliances"),
-    ...alliances.map(a=>opt(a.key,label(a.key))));
+  const host=$("rankingAllianceFilters");
+  host.replaceChildren();
+  rankingFilters.clear();
+  for(const alliance of alliances){
+    const meta=window.LoSPAlliances?.getAllianceMeta(alliance.key);
+    const toggle=document.createElement("label");
+    toggle.className="filterToggle";
+    const input=document.createElement("input");
+    input.type="checkbox";
+    input.checked=true;
+    input.dataset.allianceKey=alliance.key;
+    const stack=document.createElement("span");
+    stack.className="fStack";
+    stack.append(make("span",meta?.emoji||"","fEmoji"),
+      make("span",meta?.name||alliance.name||"Alliance non identifiée","fName"));
+    toggle.append(input,stack);
+    host.append(toggle);
+    rankingFilters.set(alliance.key,input);
+    input.addEventListener("change",()=>{
+      updateRankingFilterSummary();
+      fillRanking();
+    });
+  }
+  updateRankingFilterSummary();
   $("historyAlliance").replaceChildren(opt("all","Toutes les alliances"),
     ...alliances.map(a=>opt(a.key,label(a.key))));
   setupPeople();
@@ -153,8 +184,7 @@ function fillSummary(){
 function fillRanking(){
   const host=$("rankingList");host.replaceChildren();
   const current=newest();if(!current)return;
-  const alliance=$("rankingAlliance").value;
-  const rows=current.players.filter(p=>alliance==="all"||p.alliance===alliance)
+  const rows=current.players.filter(p=>rankingFilters.get(p.alliance)?.checked!==false)
     .sort((a,b)=>a.arenaRank-b.arenaRank||cmp.compare(a.name,b.name));
   const previousSnapshot=S.fallback?null:S.snapshots.at(-2);
   const previous=new Map((previousSnapshot?.players||[])
@@ -337,7 +367,6 @@ async function load(){
 }
 $("tabRanking").addEventListener("click",()=>switchTab("rank"));
 $("tabHistory").addEventListener("click",()=>switchTab("history"));
-$("rankingAlliance").addEventListener("change",fillRanking);
 $("historyAlliance").addEventListener("change",setupPeople);
 $("historyPlayer").addEventListener("change",setupPeople);
 window.addEventListener("resize",()=>{
