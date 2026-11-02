@@ -1,5 +1,5 @@
 .arenaApp{max-width:920px;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
-.arenaHeader{min-height:86px;padding-right:60px}
+.arenaHeader{min-height:86px;padding-right:60px;padding-left:60px}
 .arenaHeader .headerLeft{min-width:0}
 .arenaTabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .arenaTab{appearance:none;border:1px solid rgba(140,173,231,.22);border-radius:14px;
@@ -75,7 +75,7 @@
 .arenaHistoryLine span{color:#d0deef;overflow-wrap:anywhere}
 @media(max-width:480px){
   .arenaApp{padding:9px;gap:10px}
-  .arenaHeader{padding-left:12px}
+  .arenaHeader{padding-left:60px}
   .arenaRankRow{grid-template-columns:38px 42px minmax(0,1fr) 40px;gap:7px;padding:9px}
   .arenaAvatar{width:42px;height:42px}
   .arenaPosition{font-size:17px}
