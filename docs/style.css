@@ -1344,9 +1344,9 @@ body:has(#atkFamilySelect) .counterCard{
   border-radius:14px;
 }
 .rankDetailPortrait{
-  flex:0 0 66px;
-  width:66px;
-  height:66px;
+  flex:0 0 96px;
+  width:96px;
+  height:96px;
   display:grid;
   place-items:center;
   overflow:hidden;
@@ -1442,7 +1442,7 @@ body:has(#atkFamilySelect) .counterCard{
   .rankDetailOverlay{padding:8px;padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom))}
   .rankDetailDialog{padding:12px}
   .rankDetailCharacter{gap:9px;padding:8px}
-  .rankDetailPortrait{flex-basis:54px;width:54px;height:54px}
+  .rankDetailPortrait{flex-basis:88px;width:88px;height:88px}
   .rankDetailStats{column-gap:6px}
   .rankDetailAbilities{gap:4px}
   .rankDetailAbility{padding:5px 2px}
