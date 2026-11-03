@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-11-01",
+  "updatedAt": "2026-11-03",
   "disclaimer": "Les compositions et conseils sont reformulés en français. Les informations peuvent être complétées ou modifiées lors des prochaines ouvertures des événements.",
   "events": [
     {
@@ -1062,6 +1062,69 @@
       "stageUnit": "mission",
       "totalStages": 10,
       "guideNote": "Les modificateurs de combat peuvent changer profondément l'ordre des tours. Les équipes sont proposées pour la difficulté Omega ; le niveau d'investissement compte."
+    },
+    {
+      "id": "sabretooth-breaker",
+      "type": "trial",
+      "title": "Dent-de-sabre (Briseur)",
+      "summary": "Sabretooth (Breaker) : 10 missions, restrictions Hard/Omega et conseils de déblocage.",
+      "rewardId": "SabretoothBreaker",
+      "stages": [
+        {
+          "id": "1",
+          "title": "Mission 1",
+          "requirement": "Sans restriction"
+        },
+        {
+          "id": "2",
+          "title": "Mission 2",
+          "requirement": "Iron Raiders · Hard / Omega"
+        },
+        {
+          "id": "3",
+          "title": "Mission 3",
+          "requirement": "Mutants non mythiques, Mighty ou Breakers · Hard / Omega"
+        },
+        {
+          "id": "4",
+          "title": "Mission 4",
+          "requirement": "Mondial + Compétence ou Mondial + Technologie · Hard / Omega"
+        },
+        {
+          "id": "5",
+          "title": "Mission 5",
+          "requirement": "Mondial + Mystique ou Ville + Mystique · Hard / Omega"
+        },
+        {
+          "id": "6",
+          "title": "Mission 6",
+          "requirement": "A.I. Avengers · Hard / Omega"
+        },
+        {
+          "id": "7",
+          "title": "Mission 7",
+          "requirement": "Mutants non mythiques, Mighty ou Breakers · Hard / Omega"
+        },
+        {
+          "id": "8",
+          "title": "Mission 8",
+          "requirement": "Mondial + Compétence ou Mondial + Technologie · Hard / Omega"
+        },
+        {
+          "id": "9",
+          "title": "Mission 9",
+          "requirement": "Mondial + Mystique ou Ville + Mystique · Hard / Omega"
+        },
+        {
+          "id": "10",
+          "title": "Mission 10",
+          "requirement": "Iron Raiders ou A.I. Avengers · Hard / Omega"
+        }
+      ],
+      "editorialRef": "breaker-event-sabretooth/",
+      "stageUnit": "mission",
+      "totalStages": 10,
+      "guideNote": "Source Marvel Church du 2 novembre 2026. Règles de guerre actives ; seuls les A.I. Avengers du joueur profitent de leurs règles de Creuset. Un bonus d'Attaque est attribué à un allié aléatoire lorsqu'un ennemi reçoit Défense réduite. Les restrictions ci-dessous concernent les difficultés Hard et Omega ; les compositions détaillées par mission ne sont pas confirmées dans le texte consultable."
     },
     {
       "id": "magik-breaker",

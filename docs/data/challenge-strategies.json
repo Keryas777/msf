@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-11-01",
+  "updatedAt": "2026-11-03",
   "policy": "Aucun lien source ne doit être déduit d'une référence d'événement. Seule une correspondance exacte à une composition du catalogue établit une association éditoriale, non une preuve de victoire.",
   "strategies": [
     {
@@ -9125,6 +9125,45 @@
         "status": "source_text_checked",
         "flags": [
           "source_text_read_via_search_index_direct_url_402"
+        ]
+      }
+    },
+    {
+      "id": "sabretooth-breaker/1/v1",
+      "eventId": "sabretooth-breaker",
+      "stageId": "1",
+      "origin": "source_reextraction",
+      "label": "Conseil de déblocage confirmé",
+      "teamName": "",
+      "characters": [],
+      "alternatives": [],
+      "additionalCharacters": [],
+      "instructions": [
+        "Selon Marvel Church, pour atteindre 5 étoiles jaunes et 5 étoiles rouges, lancer la difficulté 4 (Omega), activer « Blinded by Power », « Hold’em », « The Curse of Blood » et « The Creators », puis terminer la mission 1.",
+        "Les tentatives peuvent être relancées pour ajuster les modificateurs et chercher le meilleur score."
+      ],
+      "notes": [
+        "Cette indication porte sur la progression et les modificateurs ; aucune équipe précise ni rotation de capacités n'est confirmée dans le texte consultable. Les autres missions sont répertoriées avec leurs restrictions, sans inventer de stratégie."
+      ],
+      "difficulty": "4 (Omega)",
+      "kind": "recommendation",
+      "compositionKind": null,
+      "provenance": {
+        "sourceIds": [
+          "marvel-sabretooth"
+        ],
+        "status": "source_text_checked",
+        "scope": "node",
+        "editorialReferenceOnly": null,
+        "sourceCheckedAt": "2026-11-03",
+        "sourceEvidence": "marvel_church_public_search_index_mission_1_unlock_mods_not_combat_walkthrough"
+      },
+      "review": {
+        "status": "source_text_checked",
+        "flags": [
+          "unlock_advice_not_combat_playthrough",
+          "no_verified_five_character_team",
+          "individual_missions_not_in_accessible_index"
         ]
       }
     },
