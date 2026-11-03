@@ -67,6 +67,55 @@ test('only current completed same-campaign manifests are usable',async()=>{
     fixture().getJSON(k);
   assert.equal(await loadRosterCampaign(missing,fp,window,now),null);
 });
+test('late manual PM recovery accepts explicitly marked complete receipts and every physical roster',async()=>{
+  const lateProgress={...progress,manualRecovery:true};
+  const lateManifest={...manifest,capturedAt:'2026-10-23T18:30:00Z'};
+  const lateMember={...row(0,'Keryas I','volatile1'),capturedAt:'2026-10-23T18:15:00Z'};
+  const lateSelf={...row('self','Second Player','volatile2'),
+    capturedAt:'2026-10-23T18:30:00Z'};
+  const root='roster-batches/v1/'+fp+'/';
+  const receipt={version:1,campaign:window.campaign,manualRecovery:true,
+    progress:lateProgress,manifest:lateManifest};
+  const storage=new Map([
+    [root+'campaigns/'+window.campaign+'.json',receipt],
+    [root+runId+'/member-0.json',lateMember],
+    [root+runId+'/member-self.json',lateSelf]
+  ]);
+  const r2={getJSON:async key=>storage.get(key)??null};
+  assert.equal(validManifestAndProgress(lateProgress,lateManifest,fp,window,now,true),true);
+  assert.equal(validManifestAndProgress(lateProgress,lateManifest,fp,window,now),false);
+  const result=await loadRosterCampaign(r2,fp,window,now);
+  assert.equal(result.records.length,2);
+  assert.equal(result.capturedAt,lateManifest.capturedAt);
+  // A mutable pointer or unmarked receipt cannot expand the normal window.
+  storage.set(root+'campaigns/'+window.campaign+'.json',
+    {...receipt,manualRecovery:undefined});
+  assert.equal(await loadRosterCampaign(r2,fp,window,now),null);
+  storage.set(root+'campaigns/'+window.campaign+'.json',
+    {...receipt,progress:{...lateProgress,manualRecovery:undefined}});
+  assert.equal(await loadRosterCampaign(r2,fp,window,now),null);
+  storage.delete(root+'campaigns/'+window.campaign+'.json');
+  storage.set(root+'progress.json',lateProgress);
+  storage.set(root+'latest-complete.json',lateManifest);
+  assert.equal(await loadRosterCampaign(r2,fp,window,now),null);
+  storage.set(root+'campaigns/'+window.campaign+'.json',receipt);
+  // Still reject a snapshot outside this UTC day, even with a marked receipt.
+  storage.set(root+runId+'/member-self.json',
+    {...lateSelf,capturedAt:'2026-10-24T00:00:00Z'});
+  await assert.rejects(loadRosterCampaign(r2,fp,window,now),
+    /Invalid or stale private roster record/);
+  storage.set(root+runId+'/member-self.json',lateSelf);
+  assert.equal(validManifestAndProgress(lateProgress,
+    {...lateManifest,capturedAt:'2026-10-24T00:00:00Z'},fp,window,now,true),false);
+});
+test('late AM recovery is bounded by PM opening, not the following midnight',()=>{
+  const am=rosterWindow(day,'am');
+  const p={...progress,campaign:am.campaign,manualRecovery:true};
+  const m={...manifest,capturedAt:'2026-10-23T13:59:00Z'};
+  assert.equal(validManifestAndProgress(p,m,fp,am,now,true),true);
+  assert.equal(validManifestAndProgress(p,
+    {...m,capturedAt:'2026-10-23T14:00:00Z'},fp,am,now,true),false);
+});
 test('authorized-only manifest is valid only for every consenting roster, not all 24 players',async()=>{
   const limitedProgress={...progress,observedMembers:3};
   const limitedManifest={...manifest,observedMembers:3,

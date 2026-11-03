@@ -19,12 +19,20 @@ export function rosterWindow(day,period){
   return {day,period,campaign:day+'-'+period,
     start:day+'T'+from+'.000Z',endExclusive:day+'T'+to+'.000Z'};
 }
-export function validManifestAndProgress(progress,manifest,fp,window,now=Date.now()){
+// Late recovery requires an explicit immutable receipt, not mutable pointers.
+// AM recovery ends when PM begins; PM ends at the next UTC midnight.
+function effectiveEnd(window,recovery){
+  if(!recovery)return Date.parse(window.endExclusive);
+  return window.period==="am"?Date.parse(window.day+"T14:00:00Z"):
+    Date.parse(window.day+"T00:00:00Z")+86400000;
+}
+export function validManifestAndProgress(progress,manifest,fp,window,now=Date.now(),recovery=false){
   if(!FP.test(fp)||!object(progress)||!object(manifest)||
     progress.version!==1||manifest.version!==1||
     progress.fingerprint!==fp||manifest.fingerprint!==fp||
     !RUN.test(progress.runId)||manifest.runId!==progress.runId||
     progress.campaign!==window.campaign||
+    (recovery?progress.manualRecovery!==true:progress.manualRecovery===true)||
     progress.membershipDigest!==manifest.membershipDigest||
     !FP.test(manifest.membershipDigest)||progress.selfCompleted!==true||
     manifest.includesPersonal!==true||
@@ -37,7 +45,7 @@ export function validManifestAndProgress(progress,manifest,fp,window,now=Date.no
     manifest.observedMembers<manifest.total||manifest.observedMembers>100||
     !Number.isFinite(stamp(manifest.capturedAt))||
     stamp(manifest.capturedAt)<stamp(window.start)||
-    stamp(manifest.capturedAt)>=stamp(window.endExclusive)||
+    stamp(manifest.capturedAt)>=effectiveEnd(window,recovery)||
     stamp(manifest.expiresAt)<=now||
     stamp(progress.expiresAt)<=now||
     manifest.expiresAt!==progress.expiresAt)
@@ -53,7 +61,7 @@ export function validManifestAndProgress(progress,manifest,fp,window,now=Date.no
   return manifest.coverage==='authorized-only'&&omitted>0&&
     num(manifest.notSharedCount)&&manifest.notSharedCount===omitted;
 }
-export function validateRosterRecord(row,fp,runId,index,window,now=Date.now()){
+export function validateRosterRecord(row,fp,runId,index,window,now=Date.now(),recovery=false){
   if(!object(row)||row.version!==1||row.allianceFingerprint!==fp||
     row.runId!==runId||row.memberIndex!==index||
     row.kind!==(index==='self'?'private-staged-personal-roster':'private-staged-microbatch')||
@@ -62,7 +70,7 @@ export function validateRosterRecord(row,fp,runId,index,window,now=Date.now()){
     typeof row.volatileMemberId!=='string'||!row.volatileMemberId||
     row.volatileMemberId.length>256||
     stamp(row.capturedAt)<stamp(window.start)||
-    stamp(row.capturedAt)>=stamp(window.endExclusive)||
+    stamp(row.capturedAt)>=effectiveEnd(window,recovery)||
     stamp(row.expiresAt)<=now||
     !Array.isArray(row.characters)||row.characters.length<1||
     row.characters.length>800)
@@ -94,15 +102,17 @@ export async function loadRosterCampaign(r2,fp,window,now=Date.now()){
   // campaign. The current progress/latest pointers are overwritten as soon
   // as a newer AM/PM campaign starts, so they cannot support late retries.
   const receipt=await r2.getJSON(root+'campaigns/'+window.campaign+'.json',64000);
-  let progress,manifest;
+  let progress,manifest,recovery=false;
   if(receipt!==null){
     // Fail closed on a malformed receipt. Never silently fall back to a
     // different campaign or mark a corrupt archive as complete.
     if(!object(receipt)||receipt.version!==1||
        receipt.campaign!==window.campaign||
-       !object(receipt.progress)||!object(receipt.manifest))
+       !object(receipt.progress)||!object(receipt.manifest)||
+       (receipt.manualRecovery!==undefined&&receipt.manualRecovery!==true))
       throw Error('Invalid private R2 campaign completion receipt');
     ({progress,manifest}=receipt);
+    recovery=receipt.manualRecovery===true;
   }else{
     // Compatibility with pre-upgrade captures, only when their mutable
     // pointers STILL refer to this exact campaign.
@@ -111,17 +121,17 @@ export async function loadRosterCampaign(r2,fp,window,now=Date.now()){
       r2.getJSON(root+'latest-complete.json',32000)
     ]);
   }
-  if(!validManifestAndProgress(progress,manifest,fp,window,now))return null;
+  if(!validManifestAndProgress(progress,manifest,fp,window,now,recovery))return null;
   const rootRun=root+manifest.runId+'/';
   const records=[];
   for(let i=0;i<manifest.coMembers;i++){
     const row=await r2.getJSON(rootRun+'member-'+i+'.json',3100000);
     if(!row)return null;
-    records.push(validateRosterRecord(row,fp,manifest.runId,i,window,now));
+    records.push(validateRosterRecord(row,fp,manifest.runId,i,window,now,recovery));
   }
   const self=await r2.getJSON(rootRun+'member-self.json',3100000);
   if(!self)return null;
-  records.push(validateRosterRecord(self,fp,manifest.runId,'self',window,now));
+  records.push(validateRosterRecord(self,fp,manifest.runId,'self',window,now,recovery));
   validateCampaignMembers(records,manifest.total);
   return {window,records,capturedAt:manifest.capturedAt};
 }
