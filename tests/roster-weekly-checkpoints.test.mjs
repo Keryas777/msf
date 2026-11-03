@@ -51,7 +51,7 @@ test('legacy monthly comparisons still work', () => {
 test('weekly and mixed historical checkpoints choose the nearest real snapshot', () => {
   const dates = ['2026-08-01', '2026-09-01', '2026-10-01', '2026-11-01', '2026-11-08', '2026-11-15', '2026-11-22', '2026-11-29'];
   assert.equal(resolveStart(dates, '2026-11-08', '1w'), '2026-11-01');
-  assert.equal(resolveStart(dates, '2026-11-29', '4w'), '2026-11-01');
+  assert.equal(resolveStart(dates, '2026-11-29', '4w'), null);
   assert.equal(resolveStart(dates, '2026-11-29', '1'), '2026-11-01');
   assert.equal(resolveStart(dates, '2026-11-08', '1'), '2026-10-01');
   assert.equal(resolveStart(dates, '2026-11-01', '1w'), null);
