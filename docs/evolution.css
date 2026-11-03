@@ -200,6 +200,26 @@
   color: #fff;
 }
 
+.evolutionIsoIcon,
+.evolutionMaterialIcon {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  margin-left: 5px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.evolutionIsoIcon {
+  margin-left: 0;
+  margin-right: 4px;
+}
+
+/* No official orange class icon exists in iso-icons.json yet. */
+.evolutionIsoIcon--orange {
+  filter: hue-rotate(120deg) saturate(1.25);
+}
+
 .evolutionStatIcon {
   display: inline-block;
   width: 1em;
