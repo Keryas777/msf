@@ -1629,7 +1629,7 @@
       ],
       "fingerprints": {
         "basic": "cd7cf1f41797f78f54440c2eae86eb45f4c9076519ea13cbe4b7c18f2fa38ca0",
-        "dynamic_stats": "dc67b9cabd07a1d98abc68c6a8126f95139f1d830939a15dd26523b13ef0b9c8",
+        "dynamic_stats": "47eb5bfbd8e7c7537fd57b173d4b576f9274231b570d7beb9b83a9e80cfca0f3",
         "global_stats": "3e6c9e8702419d925ca5f986a047a6be914274f983a5181eaac79a2345026111",
         "passive": "bc02075d566c67e194d030b0c3d4266b97d623e56bfab7f642c952ae2511d5d6",
         "passive_power_mul": "bdaf5c81bfab66ef2b31411df3bdd68b58b7c85d1f9767bbc198200f222b35d0",
@@ -10026,6 +10026,14 @@
       "observedAt": "2026-10-30T10:25:02Z",
       "changedFields": [
         "passive"
+      ],
+      "status": "kit_change_not_classified_as_rework"
+    },
+    {
+      "characterId": "Dracula",
+      "observedAt": "2026-11-03T03:12:54Z",
+      "changedFields": [
+        "dynamic_stats"
       ],
       "status": "kit_change_not_classified_as_rework"
     }
