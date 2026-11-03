@@ -11,8 +11,8 @@
 
   function targetDate(end, period) {
     const date = new Date(end + 'T00:00:00Z');
-    if (period === '1w' || period === '4w') {
-      date.setUTCDate(date.getUTCDate() - (period === '1w' ? 7 : 28));
+    if (period === '1w') {
+      date.setUTCDate(date.getUTCDate() - 7);
     } else if (MONTH_PERIODS.has(period)) {
       // Clamp month ends (e.g. March 31 -> February 28), no JS overflow.
       const day = date.getUTCDate();
@@ -46,8 +46,7 @@
       }
     }
 
-    const tolerance = period === '1w' ? 3 * DAY :
-      period === '4w' ? 7 * DAY : 16 * DAY;
+    const tolerance = period === '1w' ? 3 * DAY : 16 * DAY;
     return distance <= tolerance ? best : null;
   }
 
