@@ -5,6 +5,7 @@
     rosters: "./data/rosters.json",
     characters: "./data/msf-characters.json",
     historyIndex: "./data/roster-history/index.json",
+    isoIcons: "./data/iso-icons.json",
     aliases: "./data/player-aliases.json",
   };
 
@@ -31,6 +32,7 @@
     rosters: [],
     characters: [],
     historyIndex: null,
+    isoIcons: {},
     aliases: new Map(),
     charMap: new Map(),
     selectedAlliance: "",
@@ -577,6 +579,8 @@
         unlocked: isUnlocked,
         powerGain: charPowerGain,
         changes,
+        isoBefore: { ...isoMeta(oldSnapshot, charKey), isoMax: before?.isoMax },
+        isoAfter: { ...isoMeta(newSnapshot, charKey), isoMax: current.isoMax },
       });
     }
 
@@ -643,8 +647,76 @@
     node.appendChild(icon);
   }
 
+  const AWAKENED_MATERIALS_URL =
+    "https://losp-roster-service.deliriousfan7.workers.dev/api/public/awakened-materials";
+  let awakenedMaterialsPromise = null;
+
+  function getAwakenedMaterials() {
+    if (!awakenedMaterialsPromise) {
+      awakenedMaterialsPromise = fetch(AWAKENED_MATERIALS_URL, { cache: "no-store" })
+        .then(response => {
+          if (!response.ok) throw new Error("Catalogue d'éveil indisponible");
+          return response.json();
+        })
+        .then(data => data?.schemaVersion === 1 && data?.status === "ok" &&
+          Array.isArray(data.materials) ? data.materials : [])
+        .catch(() => {
+          awakenedMaterialsPromise = null;
+          return [];
+        });
+    }
+    return awakenedMaterialsPromise;
+  }
+
+  function evolutionMaterialIcon(url, label, className = "evolutionMaterialIcon") {
+    if (!window.LoSPEvolutionVisuals?.officialAssetUrl(url)) return null;
+    const image = document.createElement("img");
+    image.className = className;
+    image.src = url;
+    image.alt = label;
+    image.title = label;
+    image.loading = "lazy";
+    image.decoding = "async";
+    image.referrerPolicy = "no-referrer";
+    return image;
+  }
+
+  function renderIsoValue(node, iso, originalValue) {
+    if (originalValue === "—") {
+      node.textContent = originalValue;
+      return;
+    }
+    const visual = window.LoSPEvolutionVisuals?.isoVisual(iso, state.isoIcons);
+    if (!visual) {
+      node.textContent = originalValue;
+      return;
+    }
+    if (visual.url) {
+      const image = evolutionMaterialIcon(visual.url, visual.description,
+        "evolutionIsoIcon" + (visual.approximate ? " evolutionIsoIcon--orange" : ""));
+      if (image) node.appendChild(image);
+    }
+    node.appendChild(document.createTextNode(visual.label));
+  }
+
+  function renderAbilityMaterial(node, change, card, awakenedSlots) {
+    const material = window.LoSPEvolutionVisuals?.abilityMaterial(change.label, change.newValue);
+    if (!material) return;
+    if (material.awakened) {
+      awakenedSlots.push({
+        node, type: material.type,
+        characterId: characterInfo(card.charKey)?.id || card.charKey,
+      });
+      return;
+    }
+    const icon = evolutionMaterialIcon(material.url,
+      "Matériau de capacité " + material.tier);
+    if (icon) node.appendChild(icon);
+  }
+
   function renderCards(cards) {
     clear(evolutionList);
+    const awakenedSlots = [];
 
     for (const card of cards) {
       const article = document.createElement("article");
@@ -687,13 +759,18 @@
           const value = document.createElement("span");
           value.className = "evolutionChangeValue";
           const oldValue = document.createElement("span");
-          renderChangeValue(oldValue, change.label, change.oldValue);
+          if (change.label === "ISO") renderIsoValue(oldValue, card.isoBefore, change.oldValue);
+          else renderChangeValue(oldValue, change.label, change.oldValue);
           const arrow = document.createElement("span");
           arrow.className = "evolutionArrow";
           arrow.textContent = "→";
           const newValue = document.createElement("span");
           newValue.className = "evolutionNewValue";
-          renderChangeValue(newValue, change.label, change.newValue);
+          if (change.label === "ISO") renderIsoValue(newValue, card.isoAfter, change.newValue);
+          else {
+            renderChangeValue(newValue, change.label, change.newValue);
+            renderAbilityMaterial(newValue, change, card, awakenedSlots);
+          }
           value.append(oldValue, arrow, newValue);
 
           row.append(label, value);
@@ -703,6 +780,21 @@
       }
 
       evolutionList.appendChild(article);
+    }
+
+    if (awakenedSlots.length) {
+      const generation = compareGeneration;
+      getAwakenedMaterials().then(materials => {
+        if (generation !== compareGeneration) return;
+        for (const slot of awakenedSlots) {
+          if (!slot.node.isConnected) continue;
+          const url = window.LoSPEvolutionVisuals?.awakenedMaterialUrl(
+            materials, slot.characterId, slot.type,
+          );
+          const icon = evolutionMaterialIcon(url, "Matériau de capacité éveillée");
+          if (icon) slot.node.appendChild(icon);
+        }
+      });
     }
   }
 
@@ -791,18 +883,20 @@
 
   async function boot() {
     try {
-      const [alliances, rosters, characters, historyIndex, aliases] = await Promise.all([
+      const [alliances, rosters, characters, historyIndex, aliases, isoIcons] = await Promise.all([
         fetchJson(FILES.alliances),
         fetchJson(FILES.rosters),
         fetchJson(FILES.characters),
         fetchJson(FILES.historyIndex),
         fetchJson(FILES.aliases),
+        fetchJson(FILES.isoIcons).catch(() => ({})),
       ]);
 
       state.alliances = Array.isArray(alliances) ? alliances : [];
       state.rosters = Array.isArray(rosters) ? rosters : [];
       state.characters = Array.isArray(characters) ? characters : [];
       state.historyIndex = historyIndex || {};
+      state.isoIcons = isoIcons && typeof isoIcons === "object" ? isoIcons : {};
       buildAliasMap(aliases);
       buildCharacterMap();
       bindEvents();
