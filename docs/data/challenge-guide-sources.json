@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "auditedAt": "2026-11-01",
+  "auditedAt": "2026-11-03",
   "scope": "Marvel Strike Force PvE challenge guides only",
   "notes": "Registre éditorial hors interface : une URL repérée ne prouve pas un nœud, une équipe, une rotation ni une victoire. integration.* reflète les versions réellement reliées à une source, sans compter les anciens brouillons à attribution inconnue.",
   "statuses": {
@@ -832,6 +832,42 @@
         "linkedStrategies": 10,
         "textCheckedStrategies": 10,
         "status": "node_text_crosschecked_from_public_search_index_not_direct_site"
+      }
+    },
+    {
+      "id": "marvel-sabretooth",
+      "eventId": "sabretooth-breaker",
+      "mode": "trial",
+      "title": "Breaker Event: Sabretooth",
+      "author": "Marvel Church",
+      "url": "https://www.marvel.church/breaker-event-sabretooth/",
+      "language": "en",
+      "format": "article",
+      "difficulty": null,
+      "stageIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "sectionIds": [],
+      "publishedAt": "2026-11-02",
+      "updatedAt": null,
+      "verificationStatus": "indexed_content",
+      "evidence": "3 novembre 2026 : texte du guide consulté via l'index public. Conditions des 10 missions Hard/Omega, modificateurs et recommandation de déblocage dès la mission 1 recoupés ; les compositions et tactiques propres à chaque mission ne sont pas présentes dans le texte consultable. Vidéo non visionnée.",
+      "evidenceLevel": "guide",
+      "editorialFamily": null,
+      "notes": "Source de portée générale pour les missions 1–10 ; seule la recommandation de score de la mission 1 est intégrée comme stratégie, sans équipe attribuée ni victoire reproduite.",
+      "integration": {
+        "linkedStrategies": 1,
+        "textCheckedStrategies": 1,
+        "status": "event_requirements_and_first_mission_unlock_checked_no_node_combat_walkthrough"
       }
     },
     {
