@@ -55,8 +55,8 @@ export function suggestTeamSheetKey({ role, ids, teamInfo, rows, nameForId = (id
   const variant = String(teamInfo?.variant || "").trim();
   const sameVariantKeys = uniqueNonEmpty(list
     .filter((row) =>
-      normalizeSheetKey(row?.[fields.family]) === normalizeSheetKey(family) &&
-      normalizeSheetKey(row?.[fields.label]) === normalizeSheetKey(variant)
+      String(row?.[fields.family] || "").trim().toLowerCase() === family.toLowerCase() &&
+      String(row?.[fields.label] || "").trim().toLowerCase() === variant.toLowerCase()
     )
     .map((row) => row[fields.key]));
 
@@ -72,7 +72,7 @@ export function suggestTeamSheetKey({ role, ids, teamInfo, rows, nameForId = (id
     .filter((row) => {
       const rowFamily = String(row?.[fields.family] || "").trim();
       const rowLabel = String(row?.[fields.label] || "").trim().toLowerCase();
-      return normalizeSheetKey(rowFamily) === normalizeSheetKey(family) && rowLabel.includes("classique") && String(row?.[fields.key] || "").trim();
+      return rowFamily.toLowerCase() === family.toLowerCase() && rowLabel.includes("classique") && String(row?.[fields.key] || "").trim();
     })
     .map((row) => String(row[fields.key]).trim());
 
