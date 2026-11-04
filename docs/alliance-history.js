@@ -489,9 +489,15 @@
       if(!Array.isArray(registry)||!Array.isArray(config?.charts))
         throw Error('Structure des données invalide');
       state.config=config;
-      state.registry=registry;
-      state.snapshots=await readSnapshots(index);
+      await window.LoSP_AUTH_READY;
+      state.registry=registry.filter(a => window.LoSPAccess?.isAllianceAllowed(a?.key));
+      state.snapshots=(await readSnapshots(index)).map(snapshot => ({
+        ...snapshot,
+        alliances:snapshot.alliances.filter(a => window.LoSPAccess?.isAllianceAllowed(a?.key || a?.alliance))
+      }));
       syncChips();render();
+      if (!state.registry.length) refs.status.textContent =
+        "Aucun relevé disponible pour les alliances de ton groupement.";
     }catch{
       refs.status.textContent=
         'Impossible de charger les relevés. Vérifie la connexion puis actualise la page.';
