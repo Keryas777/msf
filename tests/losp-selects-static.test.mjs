@@ -121,3 +121,15 @@ test("LoSP bicolor labels keep emojis; ENDGAME and MARINES remain unchanged", ()
     ["END", "GAME R-évolution"],
   ]);
 });
+
+test("historical character profile also renders bicolor LoSP chips without emoji placeholders", () => {
+  const js = read("docs/historique-personnages-profile.js");
+  const css = read("docs/historique-personnages-profile.css");
+  assert.match(js, /a\.group === "losp"/);
+  assert.match(js, /meta\.displayParts\[0\]/);
+  assert.match(js, /meta\.displayParts\[1\]/);
+  assert.match(js, /meta\.group === "losp"\) prefix\.style\.whiteSpace = "pre"/);
+  assert.match(js, /name\.textContent = meta\?\.displayName \|\| meta\?\.name/);
+  assert.match(css, /\.profileFilterToggle\.is-losp \.profileFilterStack/);
+  assert.match(css, /\.profileFilterStack>span:empty\{display:none\}/);
+});
