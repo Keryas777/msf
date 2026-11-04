@@ -32,8 +32,9 @@
       container.append(emoji);
     }
     const name = document.createElement("span");
-    name.textContent = meta.name;
+    name.textContent = meta.displayName || meta.name;
     if (meta.nameColor) name.style.color = meta.nameColor;
+    if (meta.nameItalic) name.style.fontStyle = "italic";
     container.append(name);
   }
 
