@@ -6,7 +6,7 @@ import vm from "node:vm";
 const code = await readFile(new URL("../docs/cosmic-defense-catalog.js", import.meta.url), "utf8");
 const context = vm.createContext({});
 vm.runInContext(code, context);
-const { activeEntries, groupsFor, entriesForGroup, groupFor, presentationFor, sortedForDisplay, displaySource } = context.LoSPCosmicDefenseCatalog;
+const { activeEntries, groupsFor, entriesForGroup, groupFor, presentationFor, sortedForDisplay, displaySource, displayNote } = context.LoSPCosmicDefenseCatalog;
 
 const make = (season, room, author, source = "", collection = "") => ({
   season, room, author, source, collection, characters: ["Hulk", "SpiderMan", "Blade", "Thor", "Odin"]
@@ -91,6 +91,15 @@ test("ligne Source uniforme pour guides et joueurs (pseudo serveur conservé)", 
   assert.equal(displaySource({source:"Personnel",author:"Autre joueur"}),"Autre joueur");
   assert.equal(displaySource({source:"Personnel"}),"Joueur LoSP");
   assert.equal(displaySource({source:"Autre guide",author:"Administrateur"}),"Autre guide");
+});
+
+test("notes de défense : tirets seuls masqués, vraies notes conservées", () => {
+  for (const value of [null, undefined, "", "  ", "-", " – ", "—", "--", " –—- "]) {
+    assert.equal(displayNote(value), "", "aucune note visible pour un marqueur vide");
+  }
+  assert.equal(displayNote("  Appliquer Vulnérable avant d'attaquer  "), "Appliquer Vulnérable avant d'attaquer");
+  assert.equal(displayNote("- Priorité au personnage central"), "- Priorité au personnage central");
+  assert.equal(displayNote("Retirer Défense augmentée — puis attaquer"), "Retirer Défense augmentée — puis attaquer");
 });
 
 test("toutes les 20 compositions saison 25 se trient par priorité à chaque salle", async () => {
