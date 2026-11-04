@@ -23,8 +23,14 @@
   function category(e,t){return e.startTime*1000>t?'future':e.endTime*1000<=t?'past':'current';}
   function secondary(e){return Array.isArray(e.locationHints)&&(e.locationHints.includes('lohub_feeder')||e.locationHints.includes('mercy_orb'));}
   const NON_EVENT_TYPES=new Set(['raid','raidSeason','warSeason','strikePass','battlePass']);
+  const ONBOARDING_MILESTONES=new Set([
+    'first s.t.r.i.k.e.','second s.t.r.i.k.e.',
+    'third s.t.r.i.k.e.','s.t.r.i.k.e. back'
+  ]);
   function isCalendarEvent(e){
     if(NON_EVENT_TYPES.has(e.type))return false;
+    // Onboarding/returning-player milestones are not general calendar events.
+    if(e.type==='milestone'&&ONBOARDING_MILESTONES.has((e.name||'').trim().toLowerCase()))return false;
     // Some Battle Pass objectives are exposed as milestone feeder entries.
     return !(e.type==='milestone'&&
       /(?:battle\s*pass|strike\s*pass|s\.t\.r\.i\.k\.e\.\s*pass)/i.test(e.name||''));
