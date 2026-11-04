@@ -25,6 +25,7 @@
       const first = document.createElement("span");
       first.textContent = meta.displayParts[0];
       first.className = "losp-choice__name-white";
+      if (meta.group === "losp") first.style.whiteSpace = "pre";
       const second = document.createElement("span");
       second.textContent = meta.displayParts[1];
       second.style.color = meta.color || "inherit";
