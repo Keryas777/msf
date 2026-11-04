@@ -221,9 +221,11 @@
 
       const identity = document.createElement('span');
       identity.className = 'evolutionAllianceChipIdentity';
+      if (alliance?.group === 'losp') identity.classList.add('evolutionAllianceChipIdentity--losp');
 
-      // Alliances with custom name typography do not show an emoji in chips.
-      if (alliance?.emoji && !alliance?.nameColor && !alliance?.displayParts?.length) {
+      // Keep LoSP emojis inline; hide badges for MARINES and the two ENDGAME variants.
+      if (alliance?.emoji && !alliance?.nameColor &&
+          (!alliance?.displayParts?.length || alliance.group === 'losp')) {
         const emoji = document.createElement('span');
         emoji.className = 'evolutionAllianceChipEmoji';
         emoji.textContent = alliance.emoji;
