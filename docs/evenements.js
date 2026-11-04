@@ -27,10 +27,22 @@
     'first s.t.r.i.k.e.','second s.t.r.i.k.e.',
     'third s.t.r.i.k.e.','s.t.r.i.k.e. back'
   ]);
+  // Not all pickYourPoison entries are permanent legendary trials:
+  // KYLN and Breaker Scorpion are kept as ordinary temporary events.
+  const LEGENDARY_TRIALS=new Set([
+    'shadow king','old man logan','nova','black cat','green goblin (classic)',
+    'pestilence','famine','war','death'
+  ]);
   function isCalendarEvent(e){
     if(NON_EVENT_TYPES.has(e.type))return false;
+    const name=(e.name||'').trim().toLowerCase();
+    // Danger Room is a recurring game mode, not a calendar event.
+    if(name==='danger room')return false;
+    if(e.type==='pickYourPoison'&&
+      (String(e.pickYourPoison?.typeName||'').toLowerCase()==='scourge'||
+       LEGENDARY_TRIALS.has(name)))return false;
     // Onboarding/returning-player milestones are not general calendar events.
-    if(e.type==='milestone'&&ONBOARDING_MILESTONES.has((e.name||'').trim().toLowerCase()))return false;
+    if(e.type==='milestone'&&ONBOARDING_MILESTONES.has(name))return false;
     // Some Battle Pass objectives are exposed as milestone feeder entries.
     return !(e.type==='milestone'&&
       /(?:battle\s*pass|strike\s*pass|s\.t\.r\.i\.k\.e\.\s*pass)/i.test(e.name||''));
