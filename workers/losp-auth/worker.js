@@ -268,9 +268,10 @@ export default {
       );
     }
 
-    if (url.pathname === "/me" || url.pathname === "/signed-me") {
+    if (["/me", "/signed-me", "/signed-access"].includes(url.pathname)) {
       const rawSession = getBearerSession(request) || getCookie(request, SESSION_COOKIE_NAME);
-      const signedOnly = url.pathname === "/signed-me";
+      const signedOnly = url.pathname !== "/me";
+      const publishOnly = url.pathname === "/signed-me";
 
       if (!rawSession) {
         return jsonResponse(
@@ -309,7 +310,7 @@ export default {
         }
 
         // La publication exige un rôle LoSP ou administrateur, même avec un jeton HMAC.
-        if (signedOnly && access.role === "guest") {
+        if (publishOnly && access.role === "guest") {
           return jsonResponse({ ok: false, reason: "guest_publish_forbidden" }, request, 403);
         }
         const specialProfile = PLAYER_PROFILES[session.id];
