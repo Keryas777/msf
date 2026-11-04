@@ -33,6 +33,7 @@
     }
     const name = document.createElement("span");
     name.textContent = meta.name;
+    if (meta.nameColor) name.style.color = meta.nameColor;
     container.append(name);
   }
 
