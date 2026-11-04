@@ -165,6 +165,7 @@
   }
 
   async function loadAlliances(options = {}) {
+    if (window.LoSP_AUTH_READY) await window.LoSP_AUTH_READY;
     if (loaded && !options.force) return getKnownAlliances();
     if (loadingPromise && !options.force) return loadingPromise;
 
@@ -215,16 +216,22 @@
 
   function getKnownAlliances() {
     ensureFallbackLoaded();
-    return alliances.map((alliance) => ({
-      key: alliance.key,
-      name: alliance.name,
-      emoji: alliance.emoji,
-      color: alliance.color,
-      group: alliance.group,
-      displayParts: [...(alliance.displayParts || [])],
-      order: alliance.order,
-      aliases: [...(alliance.aliases || [])],
-    }));
+    const permitted = window.LoSP_SESSION?.allowedAlliances;
+    const allowedKeys = Array.isArray(permitted)
+      ? new Set(permitted.map(normalizeAllianceKey))
+      : null;
+    return alliances
+      .filter((alliance) => allowedKeys ? allowedKeys.has(alliance.key) : alliance.group === "losp")
+      .map((alliance) => ({
+        key: alliance.key,
+        name: alliance.name,
+        emoji: alliance.emoji,
+        color: alliance.color,
+        group: alliance.group,
+        displayParts: [...(alliance.displayParts || [])],
+        order: alliance.order,
+        aliases: [...(alliance.aliases || [])],
+      }));
   }
 
   window.LoSPAlliances = Object.freeze({
