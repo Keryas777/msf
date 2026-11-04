@@ -99,6 +99,19 @@
         esc(a.key) + "\" checked><span class=\"profileFilterStack\"><span>" +
         esc(a.emoji || "👤") + "</span><strong>" + esc(a.name) +
         "</strong></span></label>").join("");
+      filters.querySelectorAll("input[data-alliance]").forEach(input => {
+        const meta = state.alliances.find(a => a.key === input.dataset.alliance);
+        const name = input.closest("label")?.querySelector("strong");
+        if (!name || !Array.isArray(meta?.displayParts) || meta.displayParts.length !== 2) return;
+        name.textContent = "";
+        const prefix = document.createElement("span");
+        prefix.textContent = meta.displayParts[0];
+        prefix.style.color = "#fff";
+        const colored = document.createElement("span");
+        colored.textContent = meta.displayParts[1];
+        colored.style.color = /^#[0-9a-fA-F]{6}$/.test(meta.color || "") ? meta.color : "#fff";
+        name.append(prefix, colored);
+      });
       filters.addEventListener("change", event => {
         if (!event.target.matches("input[data-alliance]")) return;
         const key = event.target.dataset.alliance;
