@@ -223,6 +223,8 @@
     target.textContent = "";
     target.style.color = meta?.nameColor || "";
     target.style.fontStyle = meta?.nameItalic ? "italic" : "";
+    target.style.display = meta?.nameItalic ? "inline-block" : "";
+    target.style.transform = meta?.nameItalic ? "skewX(-7deg)" : "";
     target.classList.remove("alliance-name--two-lines");
     if (meta?.displayParts?.length === 2) {
       const prefix = document.createElement("span");
