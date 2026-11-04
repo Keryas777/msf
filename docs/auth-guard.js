@@ -134,6 +134,9 @@
         }
         .lospReservedTile:hover,.lospReservedTile:active { transform:none !important; }
         .lospReservedTile::after { opacity:0 !important; }
+        @media (max-width: 480px) {
+          .lospReservedMask > span {font-size:clamp(9px,2.3vw,12px);padding:5px 4px;letter-spacing:.01em;}
+        }
       `;
       document.head.appendChild(style);
     }
@@ -158,7 +161,7 @@
   }
 
   function guardGuestPage(data) {
-    if (isLoSPMember(data)) return true;
+    if (data?.role !== "guest") return true;
     const page = window.location.pathname.split("/").pop() || "index.html";
     if (LOSP_ONLY_PAGES.has(page)) {
       window.location.replace("./home.html");
