@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#050913">
+  <title>Événements — LoSP</title>
+  <style>html.authChecking body{opacity:0;pointer-events:none}</style>
+  <script>document.documentElement.classList.add("authChecking");</script>
+  <script src="./auth-guard.js?v=4"></script>
+  <link rel="stylesheet" href="./style.css?v=4">
+  <link rel="stylesheet" href="./evenements.css?v=1">
+  <link rel="manifest" href="./manifest.webmanifest">
+</head>
+<body class="ev-body">
+  <main class="ev-page" aria-label="Calendrier des événements MSF">
+    <header class="ev-top">
+      <div class="ev-brand"><span class="ev-brand-mark">✦</span> LoSP <span style="opacity:.45">/</span> MSF</div>
+      <a class="ev-home" href="./home.html" aria-label="Retour à l’accueil LoSP">⌂ Accueil</a>
+    </header>
+    <section class="ev-hero">
+      <p class="ev-eyebrow">Centre de commandement · Événements</p>
+      <h1><span>Événements</span> MSF</h1>
+      <p class="ev-intro">À venir, en cours ou terminés : retrouve le calendrier du jeu et explore les premières données officielles archivées.</p>
+      <div class="ev-source"><span class="ev-spark" aria-hidden="true">ⓘ</span><div><strong>Prototype à partir d'une archive historique</strong><div id="source-line">Chargement du catalogue R2…</div><div id="source-provenance"></div></div></div>
+    </section>
+    <nav class="ev-overview" aria-label="Aller à une section">
+      <a class="ev-stat ev-stat--future" href="#section-future"><strong id="stat-future">—</strong><span>À venir</span></a>
+      <a class="ev-stat ev-stat--current" href="#section-current"><strong id="stat-current">—</strong><span>En cours</span></a>
+      <a class="ev-stat ev-stat--past" href="#section-past"><strong id="stat-past">—</strong><span>Passés</span></a>
+    </nav>
+    <section class="ev-toolbar" aria-label="Filtres du calendrier">
+      <div class="ev-filters">
+        <label class="ev-field"><span>Rechercher</span><input class="ev-input" type="search" id="search-filter" placeholder="Vision, Dracula, raid…" autocomplete="off"></label>
+        <label class="ev-field"><span>Catégorie</span><select class="ev-select" id="type-filter"><option value="">Tous les types</option></select></label>
+      </div>
+      <div class="ev-date-controls">
+        <label class="ev-field"><span>Date de référence</span><input class="ev-input" type="date" id="date-filter"></label>
+        <button id="reset-date" class="ev-btn" type="button">Aujourd'hui</button>
+      </div>
+      <div class="ev-toolbar-bottom">
+        <label class="ev-checkbox"><input type="checkbox" id="secondary-filter"> Afficher aussi les événements secondaires / techniques</label>
+        <span class="ev-filter-note" id="filter-context">Classement selon les dates archivées.</span>
+      </div>
+    </section>
+    <section class="ev-section ev-section--future" id="section-future" aria-labelledby="title-future"><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">◷</span><div><h2 id="title-future">Événements à venir</h2><p class="ev-section-desc">Les prochains rendez-vous</p></div></div><span class="ev-count" id="count-future">—</span></div><div class="ev-grid" id="events-future"></div><button class="ev-more" id="more-future" type="button" hidden>Voir plus</button></section>
+    <section class="ev-section ev-section--current" id="section-current" aria-labelledby="title-current"><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">◉</span><div><h2 id="title-current">Événements en cours</h2><p class="ev-section-desc">Ce que tu peux jouer maintenant, selon l'archive</p></div></div><span class="ev-count" id="count-current">—</span></div><div class="ev-grid" id="events-current"></div><button class="ev-more" id="more-current" type="button" hidden>Voir plus</button></section>
+    <section class="ev-section ev-section--past" id="section-past" aria-labelledby="title-past"><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">↶</span><div><h2 id="title-past">Événements passés</h2><p class="ev-section-desc">L'historique, du plus récent au plus ancien</p></div></div><span class="ev-count" id="count-past">—</span></div><div class="ev-grid" id="events-past"></div><button class="ev-more" id="more-past" type="button" hidden>Voir plus</button></section>
+    <footer class="ev-footnote">Maquette V1 · 100 fiches archivées sur 150, sans mise à jour en direct · Aucun appel à l'API Scopely.</footer>
+  </main>
+  <dialog id="event-dialog" class="ev-dialog" aria-label="Détail de l'événement"><div id="event-dialog-content"></div></dialog>
+<script src="./evenements.js?v=1" defer></script>
+</body>
+</html>
