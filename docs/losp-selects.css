@@ -70,6 +70,7 @@ select.losp-native-select {
 .filterToggle.losp-alliance-chip .fName {
   white-space: nowrap;
   overflow-wrap: normal;
+  font-size: clamp(10px, 2.8vw, 13px);
 }
 .losp-choice__name-white { color: #fff; }
 .losp-choice__emoji { flex: 0 0 auto; line-height: 1; }
