@@ -1,12 +1,12 @@
 /* LoSP événements : affichage uniquement de l'archive locale, aucun appel Scopely.
-   Source actuelle : ./data/evenements-snapshot.json, 100 entrées sur 150 annoncées.
+   Source actuelle : ./data/evenements-snapshot.json, pages 1 et 2 (150 entrées).
    Page autonome et sans bibliothèque externe. */
 (()=>{
   'use strict';
   const $=id=>document.getElementById(id);
   const TIMEZONE='Europe/Paris';
-  const TYPES={milestone:'Jalons',episodic:'Campagne / événement',raid:'Raid',blitz:'Blitz',battlePass:'Passe de combat',strikePass:'Passe S.T.R.I.K.E.',pickYourPoison:'Épreuve',info:'Informations'};
-  const EMOJI={milestone:'🏆',episodic:'⚔️',raid:'🛡️',blitz:'⚡',battlePass:'🎖️',strikePass:'🎫',pickYourPoison:'🔥',info:'✦'};
+  const TYPES={milestone:'Jalons',episodic:'Campagne / événement',raid:'Raid',blitz:'Blitz',battlePass:'Passe de combat',strikePass:'Passe S.T.R.I.K.E.',pickYourPoison:'Épreuve',info:'Informations',raidSeason:'Saison de raid',warSeason:'Saison de guerre',donation:'Dons'};
+  const EMOJI={milestone:'🏆',episodic:'⚔️',raid:'🛡️',blitz:'⚡',battlePass:'🎖️',strikePass:'🎫',pickYourPoison:'🔥',info:'✦',raidSeason:'🛡️',warSeason:'⚔️',donation:'🤝'};
   const LIMIT={future:6,current:8,past:8};
   const SECTIONS={future:'À venir',current:'En cours',past:'Passés'};
   const state={events:[],metadata:{},verifiedDetails:{},date:null,manualDate:false,search:'',type:'',includeSecondary:false,expanded:new Set(),lastButton:null};
@@ -71,7 +71,7 @@
     const holder=create('div','ev-empty');
     holder.append(create('p','ev-empty-emoji',group==='future'?'🌙':group==='current'?'🪐':'📚'));
     holder.append(create('h3','',group==='future'?'Aucun événement à venir dans cet extrait':group==='current'?'Aucun événement en cours':'Aucun événement passé'));
-    let message=group==='future'?'Notre archive date d’octobre 2026 et ne contient que la première page du catalogue. Cela ne signifie pas qu’aucun événement n’est annoncé dans MSF.':'Essaie un autre filtre ou une autre date de référence.';
+    let message=group==='future'?'Ce catalogue est un instantané historique : l’absence d’événements à venir dans ce fichier ne signifie pas qu’aucun n’est annoncé dans MSF.':'Essaie un autre filtre ou une autre date de référence.';
     if(state.search||state.type||state.includeSecondary)message='Modifie les filtres ou la date de référence pour afficher d’autres événements.';
     holder.append(create('p','',message));return holder;
   }
@@ -124,7 +124,7 @@
       state.events=data.events.filter(e=>e&&Number.isFinite(e.startTime)&&Number.isFinite(e.endTime)&&e.id);
       state.metadata=data.metadata||{};state.verifiedDetails=data.verifiedDetails||{};
       const stamp=new Date(state.metadata.snapshotUploadedAt);const pretty=Number.isFinite(stamp.getTime())?fmtDate.format(stamp):'date inconnue';
-      $('source-line').textContent=`Archive R2 du ${pretty} · ${state.events.length} événements sur ${data.metadata?.perTotal??'?' } annoncés · page 1 seulement. Aucune actualisation automatique.`;
+      $('source-line').textContent=`Catalogue historique R2 (page 1 du ${pretty}, page 2 fournie) · ${state.events.length} événements sur ${data.metadata?.perTotal??'?' } annoncés · Aucune actualisation automatique.`;
       $('source-provenance').textContent='Dates et fiches issues d’une archive historique. SHA-256 vérifié ; URL d’origine des objets non prouvée.';
       const values=[...new Set(state.events.map(x=>x.type))].sort((a,b)=>(TYPES[a]||a).localeCompare(TYPES[b]||b,'fr'));
       const type=$('type-filter');for(const value of values){const option=create('option','',TYPES[value]||value);option.value=value;type.append(option);}
