@@ -11,7 +11,7 @@ const zeusRole = "758722419128401992";
 async function sessionFor(id, roles) {
   const oldFetch = globalThis.fetch;
   globalThis.fetch = async (url, options) => {
-    assert.match(String(url), /\\/guilds\\/758717819923333191\\/members\\//);
+    assert.ok(String(url).includes("/guilds/758717819923333191/members/"));
     assert.equal(options.headers.Authorization, "Bot test-bot");
     return Response.json({ nick: "Test", roles });
   };
