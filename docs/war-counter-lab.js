@@ -949,7 +949,7 @@ function renderCounterSummary(run) {
         teamName.textContent = `Nom d’équipe à vérifier : ${candidates.join(" / ")}`;
         teamName.classList.add("is-warning");
       } else {
-        teamName.textContent = "Équipe non déterminée dans teams.json";
+        teamName.textContent = "Composition personnalisée";
         teamName.classList.add("is-warning");
       }
 
