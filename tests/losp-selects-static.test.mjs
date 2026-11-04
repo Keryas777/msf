@@ -91,5 +91,8 @@ test("MARINES has a stylized red italic display name without changing its techni
   assert.match(dropdown, /name\.textContent = meta\.displayName \|\| meta\.name/);
   assert.match(dropdown, /if \(meta\.nameItalic\) name\.style\.fontStyle = "italic"/);
   assert.match(evolution, /name\.textContent = alliance\?\.displayName \|\| alliance\?\.name/);
-  assert.match(evolution, /if \(alliance\?\.nameItalic\) name\.style\.fontStyle = 'italic'/);
+  assert.match(evolution, /if \(alliance\?\.nameItalic\)/);
+  assert.match(helper, /target\.style\.transform = meta\?\.nameItalic \? "skewX\(-7deg\)" : ""/);
+  assert.match(dropdown, /name\.style\.transform = "skewX\(-7deg\)"/);
+  assert.match(evolution, /name\.style\.transform = 'skewX\(-7deg\)'/);
 });
