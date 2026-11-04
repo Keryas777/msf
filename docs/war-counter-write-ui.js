@@ -3,7 +3,7 @@ import {
   findMatchingCounters,
   summarizeCounterComparison
 } from "./war-counter-matchup-preview.js";
-import { buildWriteProposal } from "./war-counter-write-proposal.js";
+import { buildWriteProposal, canonicalWarCounterTeamName } from "./war-counter-write-proposal.js";
 
 const WRITE_WORKER_URL = "https://msf-war-counter-write.deliriousfan7.workers.dev";
 const LOCAL_SESSION_KEY = "losp_session";
@@ -298,7 +298,10 @@ function setBatchActionButton(dialog, mode = "submit") {
 function metadataFromDialog(dialog) {
   const metadata = {};
   for (const field of ["def_family", "def_variant", "def_key", "atk_family", "atk_team", "atk_key", "notes"]) {
-    metadata[field] = String(dialog.querySelector(`[data-field="${field}"]`)?.value || "").trim();
+    const value = String(dialog.querySelector(`[data-field="${field}"]`)?.value || "").trim();
+    metadata[field] = ["def_family", "def_variant", "atk_family", "atk_team"].includes(field)
+      ? canonicalWarCounterTeamName(value)
+      : value;
   }
   return metadata;
 }
