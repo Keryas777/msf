@@ -22,6 +22,13 @@
   function dayLabel(t){return new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'2-digit',month:'short'}).format(new Date(t*1000));}
   function category(e,t){return e.startTime*1000>t?'future':e.endTime*1000<=t?'past':'current';}
   function secondary(e){return Array.isArray(e.locationHints)&&(e.locationHints.includes('lohub_feeder')||e.locationHints.includes('mercy_orb'));}
+  const NON_EVENT_TYPES=new Set(['raid','raidSeason','warSeason','strikePass','battlePass']);
+  function isCalendarEvent(e){
+    if(NON_EVENT_TYPES.has(e.type))return false;
+    // Some Battle Pass objectives are exposed as milestone feeder entries.
+    return !(e.type==='milestone'&&
+      /(?:battle\s*pass|strike\s*pass|s\.t\.r\.i\.k\.e\.\s*pass)/i.test(e.name||''));
+  }
   function artwork(e){for(const img of [e.cardArt,e.popupArt,e.icon,...(Array.isArray(e.hubArt)?e.hubArt:[])]){const url=cleanImage(img);if(url)return url;}return '';}
   function eventTitle(e){return strip(e.name)||'Événement sans titre';}
   function eventSub(e){return strip(e.subName||e.details||'');}
@@ -125,9 +132,9 @@
   }
   function installCatalog(data,isLive){
     if(!validCatalog(data.events))throw new Error('Catalogue invalide');
-    // Recurring daily raid sessions are not calendar events.
-    // Keep them in the source API; exclude only from the WebApp display.
-    state.events=data.events.filter(e=>e.type!=='raid');
+    // Keep recurring seasons, raids and paid passes out of the calendar.
+    // The official R2 data and fallback snapshot are left unchanged.
+    state.events=data.events.filter(isCalendarEvent);
     state.metadata={...(data.metadata||{}),liveSource:isLive};
     // Historical reward details must not be presented as freshly verified.
     state.verifiedDetails=isLive?data.historicalDetails||{}:data.verifiedDetails||{};
@@ -147,7 +154,7 @@
       const time=Date.parse(data.updatedAt||'');
       const dated=Number.isFinite(time)?fmtDate.format(new Date(time)):'date inconnue';
       $('source-line').textContent='Catalogue synchronisé via R2 · '+state.events.length+
-        ' événements hors raids ('+data.events.length+' récupérés) · '+data.pages+
+        ' événements affichables ('+data.events.length+' récupérés) · '+data.pages+
         ' page(s) · dernière vérification '+dated+'.';
       $('source-provenance').textContent=
         'Données de jeu issues du collecteur hebdomadaire LoSP : reçus, SHA-256 et pagination vérifiés. Aucun appel direct à Scopely depuis cette page.';
@@ -155,7 +162,7 @@
       const time=Date.parse(data.metadata?.snapshotUploadedAt||'');
       const dated=Number.isFinite(time)?fmtDate.format(new Date(time)):'date inconnue';
       $('source-line').textContent='Archive locale de secours du '+dated+
-        ' · '+state.events.length+' événements hors raids · synchronisation momentanément indisponible.';
+        ' · '+state.events.length+' événements affichables · synchronisation momentanément indisponible.';
       $('source-provenance').textContent=
         'Cet instantané historique ne prouve pas la disponibilité actuelle des événements. La page réessaiera la source R2 lors du prochain chargement.';
     }
