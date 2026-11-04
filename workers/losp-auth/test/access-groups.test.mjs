@@ -71,6 +71,15 @@ test("Rôles incompatibles et compte sans rôle sont refusés", async () => {
   assert.equal((await sessionFor("123456789012345678", [])).data.reason, "no_authorized_alliance");
 });
 
+test("Une session legacy non signée ne peut lire les données cloisonnées", async () => {
+  const legacy = Buffer.from(JSON.stringify({ id: "123456789012345678" })).toString("base64url");
+  const response = await auth.fetch(new Request(BASE_URL + "/signed-access", {
+    headers: { Authorization: "Bearer " + legacy }
+  }), env);
+  assert.equal(response.status, 401);
+  assert.equal((await response.json()).reason, "signed_session_required");
+});
+
 test("Aucun invité ne peut publier avec signed-me, même avec un jeton signé", async () => {
   // Le contrôle de publication est redondant avec le Worker de publication.
   const oldFetch = globalThis.fetch;
