@@ -1,6 +1,6 @@
 // docs/sw.js
 
-const CACHE = "losp-v19";
+const CACHE = "losp-v20";
 
 const CORE_ASSETS = [
   "./",
@@ -162,6 +162,13 @@ self.addEventListener("fetch", (event) => {
   // Important pour les debriefs, war/index.json, war-history-lite.json, war-stats.json, joueurs.json, etc.
   if (isJsonRequest(url)) {
     event.respondWith(networkFirst(request));
+    return;
+  }
+
+  // Auth guard : toujours à jour, même si iOS Safari garde une réponse HTTP
+  // avec un ancien ?v=... (les droits et l'aperçu ne doivent pas rester périmés).
+  if (url.pathname.endsWith("/auth-guard.js")) {
+    event.respondWith(networkFirst(request, null, true));
     return;
   }
 
