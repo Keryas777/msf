@@ -97,6 +97,8 @@
         const name = String(alliance?.name ?? "").trim();
         const emoji = String(alliance?.emoji ?? "").trim();
         const color = String(alliance?.color ?? "").trim();
+        const group = String(alliance?.group ?? "losp").trim();
+        const displayParts = Array.isArray(alliance?.displayParts) ? alliance.displayParts.map(String) : [];
         const order = Number(alliance?.order);
         const aliases = Array.isArray(alliance?.aliases) ? alliance.aliases : [];
 
@@ -107,6 +109,8 @@
           name,
           emoji,
           color,
+          group,
+          displayParts,
           order: Number.isFinite(order) ? order : 999,
           aliases: [...new Set([key, name, ...aliases].map(String).map((v) => v.trim()).filter(Boolean))],
         };
@@ -134,13 +138,22 @@
     allianceByKey = new Map();
     aliasToKey = new Map();
 
+    const aliasOwners = new Map();
     alliances.forEach((alliance) => {
       allianceByKey.set(alliance.key, alliance);
-
       [alliance.key, alliance.name, ...(alliance.aliases || [])].forEach((alias) => {
         const aliasKey = normalizeAllianceKey(alias);
-        if (aliasKey) aliasToKey.set(aliasKey, alliance.key);
+        if (!aliasKey) return;
+        // Deux alliances Endgame portent le même nom : leur identifiant reste distinct.
+        if (aliasOwners.has(aliasKey) && aliasOwners.get(aliasKey) !== alliance.key) {
+          aliasOwners.set(aliasKey, null);
+        } else if (!aliasOwners.has(aliasKey)) {
+          aliasOwners.set(aliasKey, alliance.key);
+        }
       });
+    });
+    aliasOwners.forEach((key, alias) => {
+      if (key) aliasToKey.set(alias, key);
     });
 
     loaded = options.loaded === true;
@@ -178,6 +191,7 @@
 
     const key = normalizeAllianceKey(value);
     if (!key) return "";
+    if (allianceByKey.has(key)) return key;
     if (aliasToKey.has(key)) return aliasToKey.get(key);
     return key;
   }
@@ -206,6 +220,8 @@
       name: alliance.name,
       emoji: alliance.emoji,
       color: alliance.color,
+      group: alliance.group,
+      displayParts: [...(alliance.displayParts || [])],
       order: alliance.order,
       aliases: [...(alliance.aliases || [])],
     }));
