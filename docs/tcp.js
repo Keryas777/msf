@@ -152,11 +152,13 @@
     $filters.innerHTML = knownAlliances
       .map((alliance) => {
         const keySafe = escapeHtml(alliance.key);
-        const emojiSafe = escapeHtml(alliance.emoji || "👤");
+        const emojiSafe = alliance.nameColor || alliance.displayParts?.length === 2
+          ? ""
+          : escapeHtml(alliance.emoji || "");
         const labelSafe = escapeHtml(alliance.name || alliance.key);
 
         return `
-          <label class="filterToggle">
+          <label class="filterToggle" data-alliance-name-lines="two">
             <input id="filter-${keySafe}" type="checkbox" data-alliance-key="${keySafe}" checked />
             <span class="fStack">
               <span class="fEmoji">${emojiSafe}</span>
