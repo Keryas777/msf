@@ -146,7 +146,7 @@
     state.infosByPlayer = new Map();
     for (const info of Array.isArray(infos) ? infos : []) {
       const key = normalizeKey(info?.name);
-      if (key && !state.infosByPlayer.has(key)) state.infosByPlayer.set(key, info);
+      if (key && window.LoSPAccess?.isAllianceAllowed(info?.alliance) && !state.infosByPlayer.has(key)) state.infosByPlayer.set(key, info);
     }
   }
 
@@ -166,6 +166,7 @@
       const newPower = Number(current.totalPower);
       if (!Number.isFinite(oldPower) || !Number.isFinite(newPower)) continue;
 
+      if (!window.LoSPAccess?.isAllianceAllowed(current.alliance || before.alliance)) continue;
       rows.push({
         player: current.player || before.player || current.playerKey,
         playerKey: current.playerKey,
@@ -227,7 +228,8 @@
 
       const name = document.createElement('span');
       name.className = 'evolutionAllianceChipName';
-      name.textContent = alliance?.name || alliance?.key || key;
+      window.LoSPAlliances?.renderAllianceName?.(name, key);
+      if (!name.textContent) name.textContent = alliance?.name || alliance?.key || key;
 
       identity.append(emoji, name);
       button.append(check, identity);
@@ -389,8 +391,9 @@
         fetchJson(FILES.historyIndex),
         fetchJson(FILES.infos),
       ]);
-      state.alliances = Array.isArray(alliances) ? alliances : [];
-      state.historyIndex = historyIndex || {};
+      await window.LoSP_AUTH_READY;
+      state.alliances = (Array.isArray(alliances) ? alliances : []).filter(a => window.LoSPAccess?.isAllianceAllowed(a.key));
+      state.historyIndex = { ...(historyIndex || {}), players: Object.fromEntries(Object.entries(historyIndex?.players || {}).filter(([,p]) => window.LoSPAccess?.isAllianceAllowed(p?.currentAlliance))) };
       buildInfoMap(infos);
       renderAllianceFilters();
       bindEvents();
