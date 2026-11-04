@@ -312,6 +312,7 @@ export default {
         if (signedOnly && access.role === "guest") {
           return jsonResponse({ ok: false, reason: "guest_publish_forbidden" }, request, 403);
         }
+        const specialProfile = PLAYER_PROFILES[session.id];
         const refreshedSession = {
           ...session,
           displayName:
@@ -454,6 +455,7 @@ export default {
         );
       }
 
+      const specialProfile = PLAYER_PROFILES[user.id];
       const sessionPayload = {
         id: user.id,
         username: user.username,
