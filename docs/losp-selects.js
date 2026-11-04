@@ -301,7 +301,8 @@
 
   function refreshAll() {
     for (const state of states.values()) {
-      if (state.value !== state.select.value || state.button.disabled !== state.select.matches(":disabled")) {
+      if (state.value !== state.select.value ||
+        state.button.disabled !== (state.select.matches(":disabled") || !state.select.options.length)) {
         updateTrigger(state);
       }
     }
