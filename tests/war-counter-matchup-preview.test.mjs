@@ -4,6 +4,7 @@ import {
   buildTeamLabels,
   canonicalTeamKey,
   ceilRatioToHundredth,
+  existingCounterNotes,
   findMatchingCounters,
   resolveTeamFromDefinitions,
   summarizeCounterComparison
@@ -95,6 +96,23 @@ test("plusieurs classifications avec le même ratio restent un seul matchup coh�
   assert.equal(comparison.ratio, 1.19);
   assert.equal(comparison.existingRatio, 1.19);
   assert.equal(comparison.matches.length, 2);
+});
+
+test("notes existantes conservées, distinctes et visibles pour un matchup connu", () => {
+  const matches = [
+    { index: 0, row: { min_ratio_hard: "0.8", notes: "La Caserne adverse doit être tombée" } },
+    { index: 1, row: { min_ratio_hard: "0.8", notes: "La Caserne adverse doit être tombée" } },
+    { index: 2, row: { min_ratio_hard: "0.8", notes: "Attaquer après le bonus\\nNe pas utiliser l'ultime" } },
+    { index: 3, row: { min_ratio_hard: "0.8", notes: "  " } }
+  ];
+  const comparison = summarizeCounterComparison(matches, 0.79);
+  assert.equal(comparison.status, "improves");
+  assert.deepEqual(existingCounterNotes(comparison.matches), [
+    "La Caserne adverse doit être tombée",
+    "Attaquer après le bonus\\nNe pas utiliser l'ultime"
+  ]);
+  assert.deepEqual(existingCounterNotes([]), []);
+  assert.deepEqual(existingCounterNotes(summarizeCounterComparison([], 0.8).matches), []);
 });
 
 test("ratios divergents pour les mêmes compositions sont bloqués comme conflit", () => {
