@@ -73,9 +73,10 @@
     label.replaceChildren();
     if (option) optionLabel(label, select, option);
     else label.textContent = "— Choisir —";
-    button.disabled = select.disabled || !select.options.length;
-    button.setAttribute("aria-label", select.getAttribute("aria-label") ||
-      (select.labels?.[0]?.textContent || "Choisir une option").trim());
+    button.disabled = select.matches(":disabled") || !select.options.length;
+    const fieldLabel = select.getAttribute("aria-label") ||
+      (select.labels?.[0]?.textContent || "Choisir une option").trim();
+    button.setAttribute("aria-label", fieldLabel + (option ? " : " + option.textContent.trim() : ""));
     state.host.hidden = select.hidden || select.style.display === "none";
     if (active === state && button.disabled) closeDropdown();
     state.value = select.value;
@@ -172,7 +173,7 @@
   }
 
   function openDropdown(state) {
-    if (state.select.disabled) return;
+    if (state.select.matches(":disabled")) return;
     closeDropdown();
     updateTrigger(state);
     if (state.button.disabled) return;
@@ -300,7 +301,7 @@
 
   function refreshAll() {
     for (const state of states.values()) {
-      if (state.value !== state.select.value || state.button.disabled !== state.select.disabled) {
+      if (state.value !== state.select.value || state.button.disabled !== state.select.matches(":disabled")) {
         updateTrigger(state);
       }
     }
