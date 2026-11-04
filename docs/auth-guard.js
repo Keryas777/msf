@@ -260,6 +260,12 @@
         z-index:99990;max-width:min(340px,calc(100vw - 24px));
         font:500 13px/1.4 system-ui,-apple-system,sans-serif;color:#f6f7fa;
       }
+      /* Accueil : le contrôle reste dans le flux, loin du footer Déconnexion fixé en bas. */
+      #lospAdminPreview.lospPreviewInline {
+        position:relative;inset:auto;right:auto;bottom:auto;
+        width:min(340px,100%);max-width:100%;margin:2px 0 8px auto;
+        align-self:flex-end;z-index:2;
+      }
       #lospAdminPreview button,#lospAdminPreview select {font:inherit;}
       .lospPreviewToggle {
         display:block;margin-left:auto;border:1px solid #8290a8;border-radius:999px;
@@ -361,7 +367,14 @@
       panel.appendChild(reset);
     }
     wrap.append(panel, toggle);
-    document.body.appendChild(wrap);
+    const homeGrid = document.querySelector?.(".homeGrid");
+    if (homeGrid && window.location.pathname.split("/").pop() === "home.html") {
+      // Entre la fraîcheur des rosters et les tuiles, jamais sur la déconnexion fixe.
+      wrap.classList.add("lospPreviewInline");
+      homeGrid.before(wrap);
+    } else {
+      document.body.appendChild(wrap);
+    }
   }
 
   function showAdminPreview(preview) {
