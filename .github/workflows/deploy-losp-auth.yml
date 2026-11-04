@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - "workers/losp-auth/worker.js"
+      - "workers/losp-auth/test/**"
+      - "docs/data/access-groups.json"
       - "workers/losp-auth/wrangler.jsonc"
       - "workers/msf-cosmic-defenses/test/**"
       - "scripts/check-losp-auth-preview.mjs"
@@ -39,6 +41,7 @@ jobs:
         run: |
           node --test workers/msf-cosmic-defenses/test/legacy-session.test.mjs
           node --test workers/msf-cosmic-defenses/test/auth.test.mjs
+          node --test workers/losp-auth/test/access-groups.test.mjs
 
   preflight:
     if: github.event_name != 'pull_request'
