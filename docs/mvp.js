@@ -109,7 +109,7 @@
       .map((alliance) => {
         const key = allianceKey(alliance.key);
         const id = `filterAlliance${key.charAt(0).toUpperCase()}${key.slice(1)}`;
-        const emojiSafe = alliance.nameColor || alliance.displayParts?.length === 2
+        const emojiSafe = alliance.nameColor || (alliance.displayParts?.length === 2 && alliance.group !== "losp")
           ? ""
           : escapeHtml(allianceEmoji(key));
 
