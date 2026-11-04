@@ -12,6 +12,10 @@ export function normalizeSheetKey(value) {
     .replace(/[^a-z0-9]/g, "");
 }
 
+export function canonicalWarCounterTeamName(value) {
+  return String(value ?? "").trim().replace(/Société des araignées/gi, "Société des Araignées");
+}
+
 function roleFields(role) {
   return role === "def"
     ? { family: "def_family", label: "def_variant", key: "def_key", charPrefix: "def_char" }
@@ -51,8 +55,8 @@ export function suggestTeamSheetKey({ role, ids, teamInfo, rows, nameForId = (id
   const variant = String(teamInfo?.variant || "").trim();
   const sameVariantKeys = uniqueNonEmpty(list
     .filter((row) =>
-      String(row?.[fields.family] || "").trim() === family &&
-      String(row?.[fields.label] || "").trim() === variant
+      normalizeSheetKey(row?.[fields.family]) === normalizeSheetKey(family) &&
+      normalizeSheetKey(row?.[fields.label]) === normalizeSheetKey(variant)
     )
     .map((row) => row[fields.key]));
 
@@ -68,7 +72,7 @@ export function suggestTeamSheetKey({ role, ids, teamInfo, rows, nameForId = (id
     .filter((row) => {
       const rowFamily = String(row?.[fields.family] || "").trim();
       const rowLabel = String(row?.[fields.label] || "").trim().toLowerCase();
-      return rowFamily === family && rowLabel.includes("classique") && String(row?.[fields.key] || "").trim();
+      return normalizeSheetKey(rowFamily) === normalizeSheetKey(family) && rowLabel.includes("classique") && String(row?.[fields.key] || "").trim();
     })
     .map((row) => String(row[fields.key]).trim());
 
@@ -156,11 +160,11 @@ export function buildWriteProposal({ preview, rows, nameForId = (id) => id, note
     attackPower: state.attackPower,
     defensePower: state.defensePower,
     metadata: {
-      def_family: preview.defenseTeam.family,
-      def_variant: preview.defenseTeam.variant,
+      def_family: canonicalWarCounterTeamName(preview.defenseTeam.family),
+      def_variant: canonicalWarCounterTeamName(preview.defenseTeam.variant),
       def_key: defKey.key,
-      atk_family: preview.attackTeam.family,
-      atk_team: preview.attackTeam.variant,
+      atk_family: canonicalWarCounterTeamName(preview.attackTeam.family),
+      atk_team: canonicalWarCounterTeamName(preview.attackTeam.variant),
       atk_key: atkKey.key,
       notes: ""
     },
