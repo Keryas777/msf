@@ -1,5 +1,6 @@
 import {
   buildTeamLabels,
+  existingCounterNotes,
   findMatchingCounters,
   summarizeCounterComparison
 } from "./war-counter-matchup-preview.js";
@@ -54,6 +55,26 @@ function saveDraftNote(key, value) {
   void refreshBatchPanel();
 }
 
+function renderSavedMatchupNotes(preview) {
+  const notes = existingCounterNotes(preview?.comparison?.matches);
+  if (!notes.length) return null;
+
+  const block = document.createElement("div");
+  block.className = "write-saved-notes";
+  const heading = document.createElement("strong");
+  heading.textContent = notes.length > 1
+    ? `Notes déjà enregistrées (${notes.length})`
+    : "Note déjà enregistrée";
+  block.append(heading);
+
+  for (const note of notes) {
+    const content = document.createElement("p");
+    content.textContent = note;
+    block.append(content);
+  }
+  return block;
+}
+
 function addInlineNote(summary, preview) {
   const key = matchupKey(preview.state.attackIds, preview.state.defenseIds);
   const existing = summary.querySelector(".write-inline-note");
@@ -72,10 +93,14 @@ function addInlineNote(summary, preview) {
   textarea.addEventListener("input", () => saveDraftNote(key, textarea.value));
   const hint = document.createElement("small");
   hint.textContent = preview.comparison.matches.length
-    ? "Sera ajoutée aux notes existantes du Sheet, sans les remplacer."
+    ? "Ajoute seulement une information absente des notes ci-dessus. L’ancienne note sera conservée."
     : "Sera enregistrée dans la colonne Notes du nouveau match-up.";
   label.append(title, textarea, hint);
-  summary.querySelector(".sheet-state")?.append(label);
+
+  const sheetState = summary.querySelector(".sheet-state");
+  const savedNotes = renderSavedMatchupNotes(preview);
+  if (savedNotes) sheetState?.append(savedNotes);
+  sheetState?.append(label);
 }
 
 function readSessionToken() {
@@ -345,6 +370,8 @@ function renderDialogSummary(dialog, proposal, preview) {
 
   if (adminKey) adminKey.value = readWriteKey();
   summary.append(title, detail, teams);
+  const savedNotes = renderSavedMatchupNotes(preview);
+  if (savedNotes) summary.append(savedNotes);
 }
 
 function openWriteDialog(summaryNode, button, proposal, preview) {
@@ -594,6 +621,8 @@ function renderBatchDialog(dialog, groups, blocked) {
     const item = document.createElement("li");
     const ratio = entry.proposal.ratio.toFixed(2).replace(".", ",");
     item.textContent = `${entry.preview.defenseTeam.variant} ← ${entry.preview.attackTeam.variant} · ${ratio}`;
+    const savedNotes = renderSavedMatchupNotes(entry.preview);
+    if (savedNotes) item.append(savedNotes);
     const note = readDraftNote(entry.key).trim();
     if (note) {
       const notePreview = document.createElement("small");
