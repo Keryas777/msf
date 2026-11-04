@@ -9,7 +9,7 @@ const CATALOG_PATH = "docs/data/msf-characters.json";
 const COMBAT_PATH = "data/msf-capabilities/raw/characters.json";
 const CORE = /^(basic|special|ultimate|passive)(?:_empower)?$/;
 const BALANCE = new Set(["global_stats", "passive_stats", "dynamic_stats", "stat_immunity", "passive_power_mul"]);
-const GENERIC = new Set([
+export const GENERIC = new Set([
   "Hero", "Villain", "City", "Global", "Cosmic", "Bio", "Skill", "Tech", "Mystic",
   "Mutant", "Brawler", "Blaster", "Controller", "Protector", "Support", "Minion",
   "Legendary", "Mythic", "Epic", "Military", "Summon", "Summoned"
