@@ -34,11 +34,6 @@
     const name = document.createElement("span");
     name.textContent = meta.displayName || meta.name;
     if (meta.nameColor) name.style.color = meta.nameColor;
-    if (meta.nameItalic) {
-      name.style.fontStyle = "italic";
-      name.style.display = "inline-block";
-      name.style.transform = "skewX(-7deg)";
-    }
     container.append(name);
   }
 
