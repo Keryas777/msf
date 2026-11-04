@@ -91,14 +91,16 @@ function addInlineNote(summary, preview) {
   textarea.dataset.matchupKey = key;
   textarea.value = readDraftNote(key);
   textarea.addEventListener("input", () => saveDraftNote(key, textarea.value));
+  const savedNotes = renderSavedMatchupNotes(preview);
   const hint = document.createElement("small");
-  hint.textContent = preview.comparison.matches.length
-    ? "Ajoute seulement une information absente des notes ci-dessus. L’ancienne note sera conservée."
-    : "Sera enregistrée dans la colonne Notes du nouveau match-up.";
+  hint.textContent = savedNotes
+    ? "Ajoute seulement une information absente des notes ci-dessus. Les anciennes notes seront conservées."
+    : preview.comparison.matches.length
+      ? "Aucune note déjà enregistrée. Ton texte sera ajouté sans modifier le contre."
+      : "Sera enregistrée dans la colonne Notes du nouveau match-up.";
   label.append(title, textarea, hint);
 
   const sheetState = summary.querySelector(".sheet-state");
-  const savedNotes = renderSavedMatchupNotes(preview);
   if (savedNotes) sheetState?.append(savedNotes);
   sheetState?.append(label);
 }
