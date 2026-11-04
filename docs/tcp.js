@@ -156,7 +156,7 @@
         const labelSafe = escapeHtml(alliance.name || alliance.key);
 
         return `
-          <label class="filterToggle">
+          <label class="filterToggle" data-alliance-name-lines="two">
             <input id="filter-${keySafe}" type="checkbox" data-alliance-key="${keySafe}" checked />
             <span class="fStack">
               <span class="fEmoji">${emojiSafe}</span>
