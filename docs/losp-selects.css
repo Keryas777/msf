@@ -1,0 +1,127 @@
+/* Shared mobile dropdowns: identical across Safari iOS, Android Chrome and PWA. */
+select.losp-native-select {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  opacity: 0 !important;
+  border: 0 !important;
+  clip-path: inset(50%) !important;
+  pointer-events: none !important;
+}
+.losp-choice {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  font: inherit;
+  box-sizing: border-box;
+}
+.losp-choice[hidden] { display: none !important; }
+.losp-choice > .losp-select-trigger {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid rgba(151, 153, 192, .35);
+  border-radius: 12px;
+  background: rgba(15, 16, 30, .94);
+  color: #f3f2fb;
+  font: inherit;
+  font-size: max(14px, 1em);
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.losp-choice--compact > .losp-select-trigger { min-height: 39px; padding: 8px 10px; }
+.losp-choice > .losp-select-trigger:focus-visible {
+  outline: 2px solid #9696e7;
+  outline-offset: 2px;
+}
+.losp-choice > .losp-select-trigger:disabled { opacity: .55; cursor: not-allowed; }
+.losp-choice__value,
+.losp-choice__option-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  flex-wrap: wrap;
+  overflow-wrap: anywhere;
+}
+.losp-choice__bicolor { gap: 0; }
+.losp-choice__name-white { color: #fff; }
+.losp-choice__emoji { flex: 0 0 auto; line-height: 1; }
+.losp-choice__arrow {
+  width: 8px;
+  height: 8px;
+  margin-right: 3px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  flex: 0 0 auto;
+  opacity: .75;
+}
+.losp-select-trigger[aria-expanded="true"] .losp-choice__arrow { transform: rotate(225deg); }
+.losp-choice__panel {
+  position: fixed;
+  z-index: 2147483000;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 6px;
+  border: 1px solid rgba(113, 112, 186, .55);
+  border-radius: 17px;
+  background: #1a192a;
+  color: #f7f6ff;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .55);
+  font: inherit;
+  font-size: 16px;
+}
+.losp-choice__group {
+  padding: 10px 12px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  color: #aaa9c6;
+}
+.losp-choice__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.losp-choice__option.is-highlighted,
+.losp-choice__option:active { background: rgba(118, 106, 195, .25); }
+.losp-choice__option[aria-disabled="true"] { opacity: .45; cursor: default; }
+.losp-choice__check {
+  width: 18px;
+  flex: 0 0 auto;
+  color: #e8e1ff;
+  font-weight: 800;
+  opacity: 0;
+}
+.losp-choice__option[aria-selected="true"] .losp-choice__check { opacity: 1; }
+/* Keep checkbox filter chips, with the same lettering as the single-choice menus. */
+.filterToggle .fEmoji:empty { display: none; }
+.filterToggle .fName { font-family: inherit; }
+@media (prefers-reduced-motion: reduce) {
+  .losp-choice__panel { scroll-behavior: auto; }
+}
