@@ -231,7 +231,11 @@
 
       const name = document.createElement("span");
       name.className = "fName";
-      name.textContent = allianceLabel(key);
+      if (typeof allianceHelper()?.renderAllianceName === "function") {
+        allianceHelper().renderAllianceName(name, key);
+      } else {
+        name.textContent = allianceLabel(key);
+      }
 
       stack.appendChild(emoji);
       stack.appendChild(name);
