@@ -77,7 +77,7 @@
       if (!byKey.has(alliance.key)) byKey.set(alliance.key, alliance);
     });
 
-    return Array.from(byKey.values()).sort((a, b) => {
+    return Array.from(byKey.values()).filter(a => window.LoSPAccess?.isAllianceAllowed(a.key)).sort((a, b) => {
       const orderA = Number.isFinite(Number(a.order)) ? Number(a.order) : 999;
       const orderB = Number.isFinite(Number(b.order)) ? Number(b.order) : 999;
 
@@ -313,7 +313,7 @@
           icon: String(p?.icon ?? "").trim(),
           frame: String(p?.frame ?? "").trim(),
         }))
-        .filter((p) => p.name);
+        .filter((p) => p.name && window.LoSPAccess?.isAllianceAllowed(p.alliance));
 
       applyFiltersAndRender();
     } catch (err) {
