@@ -16,9 +16,16 @@
   function allianceLabel(container, meta) {
     if (meta.displayParts?.length === 2) {
       container.classList.add("losp-choice__bicolor");
+      if (meta.group === "losp" && meta.emoji) {
+        const emoji = document.createElement("span");
+        emoji.className = "losp-choice__emoji";
+        emoji.textContent = meta.emoji;
+        container.appendChild(emoji);
+      }
       const first = document.createElement("span");
       first.textContent = meta.displayParts[0];
       first.className = "losp-choice__name-white";
+      if (meta.group === "losp") first.style.whiteSpace = "pre";
       const second = document.createElement("span");
       second.textContent = meta.displayParts[1];
       second.style.color = meta.color || "inherit";
@@ -38,6 +45,7 @@
   }
 
   function optionLabel(container, select, option) {
+    container.classList.remove("losp-choice__bicolor");
     const meta = isAllianceSelect(select) ? allianceMeta(option.value) : null;
     if (meta) {
       allianceLabel(container, meta);
@@ -288,7 +296,9 @@
       window.LoSPAlliances.renderAllianceName(label, key);
     }
     const emoji = toggle.querySelector(".fEmoji");
-    if (emoji) emoji.textContent = meta.displayParts?.length === 2 ? "" : (meta.emoji || "");
+    if (emoji) emoji.textContent = meta.displayParts?.length === 2 && meta.group !== "losp"
+      ? "" : (meta.emoji || "");
+    toggle.classList.toggle("losp-alliance-chip", meta.group === "losp");
     toggle.dataset.lospFormattedAlliance = meta.key;
   }
 

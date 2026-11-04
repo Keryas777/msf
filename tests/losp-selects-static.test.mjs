@@ -13,7 +13,7 @@ const pages = [
 test("all selected public pages load the same mobile dropdown assets", () => {
   for (const page of pages) {
     const html = read("docs/" + page + ".html");
-    assert.match(html, /href="\.\/losp-selects\.css\?v=1"/, page);
+    assert.match(html, /href="\.\/losp-selects\.css\?v=\d+"/, page);
     assert.match(html, /src="\.\/losp-selects\.js\?v=\d+"/, page);
   }
 });
@@ -66,7 +66,7 @@ test("evolution ranking chips omit decorative emojis for custom alliance typogra
   );
   assert.equal(special.length, 3);
   assert.ok(special.every((alliance) => alliance.nameColor || alliance.displayParts?.length === 2));
-  assert.match(js, /alliance\?\.emoji && !alliance\?\.nameColor && !alliance\?\.displayParts\?\.length/);
+  assert.match(js, /!alliance\?\.displayParts\?\.length \|\| alliance\.group === 'losp'/);
   assert.doesNotMatch(js, /alliance\?\.emoji \|\| '👤'/);
   assert.match(js, /name\.style\.color = alliance\.nameColor/);
   assert.match(js, /identity\.appendChild\(name\)/);
@@ -92,4 +92,44 @@ test("MARINES keeps its stylized red display name without italic or skew", () =>
   for (const script of [helper, dropdown, evolution]) {
     assert.doesNotMatch(script, /nameItalic|skewX\(-7deg\)/);
   }
+});
+
+test("LoSP bicolor labels keep emojis; ENDGAME and MARINES remain unchanged", () => {
+  const dropdown = read("docs/losp-selects.js");
+  const dropdownCss = read("docs/losp-selects.css");
+  const evolution = read("docs/evolution-classement.js");
+  const evolutionCss = read("docs/evolution-classement.css");
+  const metadata = JSON.parse(read("docs/data/alliances.json"));
+
+  const losp = metadata.filter((alliance) => alliance.group === "losp");
+  assert.equal(losp.length, 6);
+  assert.ok(losp.every((alliance) => alliance.displayParts?.[0] === "LoSP "));
+  assert.ok(losp.every((alliance) => alliance.emoji && alliance.color));
+  assert.match(dropdown, /meta\.group === "losp" && meta\.emoji/);
+  assert.match(dropdown, /meta\.displayParts\?\.length === 2 && meta\.group !== "losp"/);
+  assert.match(dropdown, /toggle\.classList\.toggle\("losp-alliance-chip", meta\.group === "losp"\)/);
+  assert.match(dropdownCss, /\.filterToggle\.losp-alliance-chip \.fStack/);
+  assert.match(evolution, /alliance\.group === 'losp'/);
+  assert.match(evolutionCss, /\.evolutionAllianceChipIdentity--losp/);
+
+  const marines = metadata.find((alliance) => alliance.key === "marines");
+  assert.equal(marines.displayName, "MΛЯIΠΣƧ");
+  assert.equal(marines.nameColor, "#E53935");
+  const endgame = metadata.filter((alliance) => alliance.group === "endgame-revolution");
+  assert.deepEqual(endgame.map((alliance) => alliance.displayParts), [
+    ["END", "GAME R-évolution"],
+    ["END", "GAME R-évolution"],
+  ]);
+});
+
+test("historical character profile also renders bicolor LoSP chips without emoji placeholders", () => {
+  const js = read("docs/historique-personnages-profile.js");
+  const css = read("docs/historique-personnages-profile.css");
+  assert.match(js, /a\.group === "losp"/);
+  assert.match(js, /meta\.displayParts\[0\]/);
+  assert.match(js, /meta\.displayParts\[1\]/);
+  assert.match(js, /meta\.group === "losp"\) prefix\.style\.whiteSpace = "pre"/);
+  assert.match(js, /name\.textContent = meta\?\.displayName \|\| meta\?\.name/);
+  assert.match(css, /\.profileFilterToggle\.is-losp \.profileFilterStack/);
+  assert.match(css, /\.profileFilterStack>span:empty\{display:none\}/);
 });

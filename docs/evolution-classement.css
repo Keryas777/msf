@@ -83,6 +83,20 @@
   line-height: 1.05;
 }
 
+/* LoSP: emoji, white prefix, and colored deity stay on one line on mobile. */
+.evolutionAllianceChipIdentity--losp {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 4px;
+}
+
+.evolutionAllianceChipIdentity--losp .evolutionAllianceChipName {
+  font-size: clamp(.62rem, 2.45vw, .8rem);
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+
 .evolutionAllianceChipEmoji {
   font-size: 1.1rem;
 }

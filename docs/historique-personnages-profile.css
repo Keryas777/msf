@@ -68,3 +68,8 @@
 @media(min-width:700px){.profileAllianceFilters{grid-template-columns:repeat(3,minmax(0,1fr))}.profileTabs button{font-size:.86rem}}
 @media(max-width:390px){.profilePlayerRow{gap:6px}.profilePower{font-size:.74rem}.profileAllianceFilters{gap:5px}.profileFilterToggle{gap:5px;padding:7px 4px}.profileFilterToggle input{width:16px;height:16px}}
 @supports not selector(:has(*)){.profileFilterToggle{border-color:var(--line-strong)}}
+
+/* LoSP chips: icon and bicolor title stay inline, including on narrow mobiles. */
+.profileFilterToggle.is-losp .profileFilterStack{flex-direction:row;align-items:center;gap:4px}
+.profileFilterToggle.is-losp .profileFilterStack strong{font-size:clamp(.58rem,2.5vw,.72rem);overflow:visible;white-space:nowrap}
+.profileFilterStack>span:empty{display:none}

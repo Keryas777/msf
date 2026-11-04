@@ -59,6 +59,19 @@ select.losp-native-select {
   overflow-wrap: anywhere;
 }
 .losp-choice__bicolor { gap: 0; }
+.losp-choice__bicolor > .losp-choice__emoji { margin-right: 5px; }
+/* Align the LoSP icon with its colored name; leave checkbox selection intact. */
+.filterToggle.losp-alliance-chip .fStack {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.filterToggle.losp-alliance-chip .fName {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  font-size: clamp(10px, 2.8vw, 13px);
+}
 .losp-choice__name-white { color: #fff; }
 .losp-choice__emoji { flex: 0 0 auto; line-height: 1; }
 .losp-choice__arrow {
