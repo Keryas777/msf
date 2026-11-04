@@ -168,10 +168,14 @@
       return false;
     }
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", applyGuestTiles, { once:true });
-    } else {
-      applyGuestTiles();
+      // Ne dévoiler les tuiles qu'une fois leur masque posé, y compris sur Safari/PWA.
+      document.addEventListener("DOMContentLoaded", () => {
+        applyGuestTiles();
+        document.documentElement.classList.remove("authChecking");
+      }, { once:true });
+      return false;
     }
+    applyGuestTiles();
     return true;
   }
 
