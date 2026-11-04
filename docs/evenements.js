@@ -100,7 +100,7 @@
     const body=create('div','ev-dialog-body');const info=create('div','ev-dialog-data');
     for(const [label,value] of [['Début',dateLabel(e.startTime)],['Fin',dateLabel(e.endTime)]]){const box=create('div');box.append(create('span','ev-dialog-label',label),create('strong','',value));info.append(box);}body.append(info);
     const description=strip(e.details||e.subName);if(description){const sec=detailSection(body,'Présentation');sec.append(create('p','',description));}
-    const extra=state.verifiedDetails[e.id];if(extra){const sec=detailSection(body,'Paliers et récompenses vérifiés');sec.append(create('p','',`${extra.tiers} paliers · objectif final : ${extra.maxGoal} points.`));listFor(sec,extra.highlights);}
+    const extra=state.verifiedDetails[e.id];if(extra){const sec=detailSection(body,state.metadata?.liveSource?'Paliers historiques (archive d’octobre, non actualisés)':'Paliers et récompenses archivés');sec.append(create('p','',`${extra.tiers} paliers · objectif final : ${extra.maxGoal} points.`));listFor(sec,extra.highlights);}
     const scoring=e.milestone?.scoring;const methods=Array.isArray(scoring?.methods)?scoring.methods:[];
     const caps=Array.isArray(scoring?.cappedScorings)?scoring.cappedScorings:[];
     if(methods.length){const sec=detailSection(body,'Méthodes de progression');listFor(sec,methods.map(x=>`${strip(x.description)||'Action'} : ${fmtNumber.format(x.points||0)} point(s)`));}
@@ -126,9 +126,9 @@
   function installCatalog(data,isLive){
     if(!validCatalog(data.events))throw new Error('Catalogue invalide');
     state.events=data.events;
-    state.metadata=data.metadata||{};
+    state.metadata={...(data.metadata||{}),liveSource:isLive};
     // Historical reward details must not be presented as freshly verified.
-    state.verifiedDetails=isLive?{}:data.verifiedDetails||{};
+    state.verifiedDetails=isLive?data.historicalDetails||{}:data.verifiedDetails||{};
     const types=[...new Set(state.events.map(x=>x.type))]
       .sort((a,b)=>(TYPES[a]||a).localeCompare(TYPES[b]||b,'fr'));
     const selected=state.type,type=$('type-filter');
@@ -180,7 +180,7 @@
         !Number.isSafeInteger(live.total)||live.total!==live.count||
         live.events?.length!==live.total||!validCatalog(live.events))
         throw new Error('Catalogue incomplet');
-      installCatalog(live,true);
+      installCatalog({...live,historicalDetails:hasUsableFallback?fallback.verifiedDetails||{}:{}},true);
     }catch{
       if(!hasUsableFallback){
         $('source-line').textContent=
