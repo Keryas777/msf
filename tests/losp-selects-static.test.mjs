@@ -1,0 +1,45 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+
+const read = (path) => readFileSync(new URL("../" + path, import.meta.url), "utf8");
+const pages = [
+  "arena", "battleworld", "codex", "conseils", "cosmic-counters",
+  "cosmic-defenses", "evenements", "evolution", "evolution-classement",
+  "historique-personnages", "index", "iso", "joueur", "mvp", "tcp",
+  "war-attack-checker", "war-counters", "war-graphs", "war-history", "war-rankings",
+];
+
+test("all selected public pages load the same mobile dropdown assets", () => {
+  for (const page of pages) {
+    const html = read("docs/" + page + ".html");
+    assert.match(html, /href="\.\/losp-selects\.css\?v=1"/, page);
+    assert.match(html, /src="\.\/losp-selects\.js\?v=1"/, page);
+  }
+});
+
+test("the enhancer preserves native selects and existing checkbox chips", () => {
+  const js = read("docs/losp-selects.js");
+  assert.match(js, /select\.insertAdjacentElement\("afterend", host\)/);
+  assert.match(js, /select\.multiple/);
+  assert.match(js, /state\.select\.dispatchEvent\(new Event\("change", \{ bubbles: true \}\)\)/);
+  assert.match(js, /input\[type="checkbox"\]\[data-alliance\]/);
+  assert.match(js, /window\.LoSPAlliances\.renderAllianceName\(label, key\)/);
+  assert.doesNotMatch(js, /select\.replaceWith\(/);
+});
+
+test("ENDGAME two-tone names are read from alliance metadata, not duplicated in UI code", () => {
+  const js = read("docs/losp-selects.js");
+  const css = read("docs/losp-selects.css");
+  const alliances = JSON.parse(read("docs/data/alliances.json"));
+  const endgame = alliances.filter((entry) => entry.group === "endgame-revolution");
+  assert.equal(endgame.length, 2);
+  for (const entry of endgame) {
+    assert.deepEqual(entry.displayParts, ["END", "GAME R-évolution"]);
+    assert.match(entry.color, /^#[\da-fA-F]{6}$/);
+  }
+  assert.match(js, /meta\.displayParts\?\.length === 2/);
+  assert.match(js, /second\.style\.color = meta\.color/);
+  assert.match(css, /\.losp-choice__bicolor \{ gap: 0; \}/);
+  assert.doesNotMatch(js, /#ED3946|#F6952C/);
+});
