@@ -68,16 +68,16 @@ test("ENDGAME shows ENDGAME and R-évolution as two distinct lines in chips", as
     assert.ok(chip.classList.contains("alliance-name--two-lines"));
     assert.equal(chip.children.length, 2);
     const first = chip.children[0];
-    assert.equal(first.textContent, "ENDGAME");
+    assert.equal(first.textContent, "ENDGΛME");
     assert.equal(first.children[0].textContent, "END");
     assert.equal(first.children[0].style.color, "#fff");
-    assert.equal(first.children[1].textContent, "GAME");
+    assert.equal(first.children[1].textContent, "GΛME");
     assert.equal(first.children[1].style.color, color);
     assert.equal(chip.children[1].textContent, "R-évolution");
     assert.equal(chip.children[1].style.color, color);
     const ordinary = node(false);
     helper.renderAllianceName(ordinary, key);
-    assert.equal(ordinary.children[1].textContent, "GAME R-évolution");
+    assert.equal(ordinary.children[1].textContent, "GΛME R-évolution");
   }
 });
 
