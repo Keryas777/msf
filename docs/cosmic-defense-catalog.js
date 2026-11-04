@@ -118,6 +118,12 @@
       .map(item => item.entry);
   }
 
+  // Une note composée uniquement de tirets est un marqueur vide, pas un conseil.
+  function displayNote(value) {
+    const note = text(value);
+    return note && !/^[-–—\s]+$/.test(note) ? note : "";
+  }
+
   function displaySource(entry) {
     const source = text(entry?.source);
     const author = text(entry?.author);
@@ -128,6 +134,6 @@
 
   root.LoSPCosmicDefenseCatalog = Object.freeze({
     activeEntries, groupFor, groupsFor, entriesForGroup,
-    presentationFor, sortedForDisplay, displaySource
+    presentationFor, sortedForDisplay, displaySource, displayNote
   });
 })(globalThis);
