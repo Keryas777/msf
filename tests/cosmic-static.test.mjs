@@ -342,8 +342,8 @@ test("consultation : badges français, titres séparés, sources homogènes et c
     read("docs/cosmic.css"),read("docs/cosmic-defense-catalog.js")
   ]);
   assert.match(html,/cosmic\.css\?v=10/);
-  assert.match(html,/cosmic-defense-catalog\.js\?v=4/);
-  assert.match(html,/cosmic-defenses\.js\?v=13/);
+  assert.match(html,/cosmic-defense-catalog\.js\?v=5/);
+  assert.match(html,/cosmic-defenses\.js\?v=14/);
   assert.match(js,/catalog\.sortedForDisplay\(list\.filter/);
   assert.match(js,/catalog\.presentationFor\(entry\)/);
   assert.match(js,/make\("span", "cosmicDefenseTier cosmicDefenseTier--" \+ presentation\.key/);
@@ -367,8 +367,8 @@ test("publication : titre facultatif, conservé dans le brouillon et envoyé au 
   ]);
   assert.match(html,/id="proposalTitle"[^>]*maxlength="60"/);
   assert.match(html,/cosmic-defenses\.js\?v=12/);
-  assert.match(browse,/cosmic-defense-catalog\.js\?v=4/);
-  assert.match(browse,/cosmic-defenses\.js\?v=13/);
+  assert.match(browse,/cosmic-defense-catalog\.js\?v=5/);
+  assert.match(browse,/cosmic-defenses\.js\?v=14/);
   assert.match(js,/title: safeText\(proposalTitle\?\.value, 60\)/);
   assert.match(js,/if \(proposalTitle\) proposalTitle\.value = safeText\(draft\.title, 60\)/);
   assert.match(js,/proposalTitle\?\.addEventListener\("input", saveDraft\)/);
@@ -396,7 +396,7 @@ test("les en-têtes de salles sont centrés et visibles sur les deux pages",asyn
   assert.equal(JSON.parse(config).rooms.length,6);
   assert.match(browse,/cosmic\.css\?v=10/);
   assert.match(propose,/cosmic\.css\?v=9/);
-  assert.match(browse,/cosmic-defenses\.js\?v=13/);
+  assert.match(browse,/cosmic-defenses\.js\?v=14/);
   assert.match(propose,/cosmic-defenses\.js\?v=12/);
   assert.match(propose,/placeholder="Défense standard"/);
   assert.match(propose,/Sans titre : « Défense standard »/);
@@ -409,7 +409,7 @@ test("consultation : messages utiles aux joueurs, sans références techniques",
   ]);
   assert.match(html,/Les équipes conseillées par les joueurs et les guides/);
   assert.match(html,/Afficher les défenses/);
-  assert.match(html,/cosmic-defenses\.js\?v=13/);
+  assert.match(html,/cosmic-defenses\.js\?v=14/);
   assert.match(js,/all\.textContent = "Toutes les défenses"/);
   assert.match(js,/count \+ " défense" \+ \(count > 1 \? "s" : ""\)/);
   assert.match(js,/Certaines défenses récentes peuvent ne pas encore apparaître/);
@@ -450,8 +450,9 @@ test("défenses Marvel Church : uniquement quatre notes stratégiques et aucun l
   assert.doesNotMatch(js,/Consulter la source/);
   assert.doesNotMatch(js,/entry\.sourceUrl/);
   assert.match(js,/"Source : " \+ safeText\(catalog\.displaySource\(entry\), 100\)/);
-  assert.match(js,/if \(entry\.notes\) card\.appendChild/);
-  assert.match(html,/cosmic-defenses\.js\?v=13/);
+  assert.match(js,/catalog\.displayNote\(entry\.notes\)/);
+  assert.match(js,/if \(note\) card\.appendChild/);
+  assert.match(html,/cosmic-defenses\.js\?v=14/);
 });
 
 test("le texte des règles démarre sous leur intitulé sur les deux pages", async () => {
@@ -462,7 +463,7 @@ test("le texte des règles démarre sous leur intitulé sur les deux pages", asy
   const matches = js.match(/"Règle de la salle :\\n" \+ room\.rule/g) || [];
   assert.equal(matches.length, 2, "consultation et proposition");
   assert.match(css, /\.cosmicRoomRule\{[^}]*white-space:pre-line/);
-  assert.match(browse, /cosmic-defenses\.js\?v=13/);
+  assert.match(browse, /cosmic-defenses\.js\?v=14/);
   assert.match(propose, /cosmic-defenses\.js\?v=12/);
 });
 
