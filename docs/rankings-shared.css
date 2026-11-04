@@ -145,6 +145,29 @@
   gap:6px;
   min-width:0;
 }
+/* TCP/MVP filter chips: keep LoSP emojis beside names, not above them. */
+.rankingPage .filterToggle[data-alliance-name-lines="two"] .fStack{
+  flex-direction:row;
+  align-items:center;
+  flex-wrap:nowrap;
+  gap:6px;
+}
+.rankingPage .filterToggle[data-alliance-name-lines="two"] .fName.alliance-name--two-lines{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  max-width:100%;
+  overflow:visible;
+  text-overflow:clip;
+  white-space:nowrap;
+  line-height:1.1;
+}
+.rankingPage .filterToggle[data-alliance-name-lines="two"] .fName.alliance-name--two-lines > span{
+  display:inline-flex;
+  justify-content:center;
+  white-space:nowrap;
+}
 .rankingPage .fEmoji{font-size:17px;line-height:1}
 .rankingPage .fName{
   min-width:0;
