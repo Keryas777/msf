@@ -111,7 +111,7 @@
         const id = `filterAlliance${key.charAt(0).toUpperCase()}${key.slice(1)}`;
 
         return `
-          <label class="filterToggle">
+          <label class="filterToggle" data-alliance-name-lines="two">
             <input id="${escapeHtml(id)}" type="checkbox" data-alliance-key="${escapeHtml(key)}" checked />
             <span class="fStack">
               <span class="fEmoji">${escapeHtml(allianceEmoji(key))}</span>
