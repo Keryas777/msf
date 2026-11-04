@@ -210,6 +210,24 @@
     return getAllianceMeta(value)?.name || String(value ?? "").trim();
   }
 
+  // Rend le nom officiel sans suffixe rouge/orange ; seuls les caractères changent de couleur.
+  function renderAllianceName(target, value) {
+    if (!target) return;
+    const meta = getAllianceMeta(value);
+    target.textContent = "";
+    if (meta?.displayParts?.length === 2) {
+      const prefix = document.createElement("span");
+      prefix.textContent = meta.displayParts[0];
+      prefix.style.color = "#fff";
+      const colored = document.createElement("span");
+      colored.textContent = meta.displayParts[1];
+      colored.style.color = meta.color;
+      target.append(prefix, colored);
+    } else {
+      target.textContent = meta?.name || String(value ?? "").trim();
+    }
+  }
+
   function getAllianceOrder(value) {
     return getAllianceMeta(value)?.order ?? 999;
   }
@@ -241,6 +259,7 @@
     getAllianceMeta,
     getAllianceEmoji,
     getAllianceLabel,
+    renderAllianceName,
     getAllianceOrder,
     getKnownAlliances,
   });
