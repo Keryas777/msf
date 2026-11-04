@@ -242,7 +242,25 @@
         const colored = document.createElement('span');
         colored.textContent = alliance.displayParts[1];
         colored.style.color = /^#[0-9a-fA-F]{6}$/.test(alliance.color || '') ? alliance.color : '#fff';
-        name.append(prefix, colored);
+        // ENDGAME uses two fixed lines so the full name stays legible on mobile.
+        const lineBreak = alliance.group === 'endgame-revolution'
+          ? alliance.displayParts[1].indexOf(' ')
+          : -1;
+        if (lineBreak > 0) {
+          name.classList.add('evolutionAllianceChipName--two-lines');
+          const topLine = document.createElement('span');
+          topLine.className = 'evolutionAllianceChipLine';
+          colored.textContent = alliance.displayParts[1].slice(0, lineBreak);
+          topLine.append(prefix, colored);
+
+          const bottomLine = document.createElement('span');
+          bottomLine.className = 'evolutionAllianceChipLine';
+          bottomLine.textContent = alliance.displayParts[1].slice(lineBreak + 1);
+          bottomLine.style.color = colored.style.color;
+          name.append(topLine, bottomLine);
+        } else {
+          name.append(prefix, colored);
+        }
       } else {
         name.textContent = alliance?.displayName || alliance?.name || alliance?.key || key;
         if (/^#[0-9a-fA-F]{6}$/.test(alliance?.nameColor || '')) {
