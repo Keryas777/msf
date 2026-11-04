@@ -1,3 +1,30 @@
+.write-saved-notes{
+  display:grid;
+  gap:7px;
+  margin-top:12px;
+  padding:11px;
+  border:1px solid #40517d;
+  border-radius:11px;
+  background:#101b33;
+  color:#e2eafa;
+  font-size:.83rem;
+  line-height:1.45;
+  min-width:0;
+}
+.write-saved-notes strong{
+  color:#c4d6ff;
+  font-size:.83rem;
+}
+.write-saved-notes p{
+  margin:0;
+  font-weight:400;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+.write-saved-notes p + p{
+  padding-top:7px;
+  border-top:1px solid #304061;
+}
 .write-inline-note,
 .write-existing-note{
   display:grid;
