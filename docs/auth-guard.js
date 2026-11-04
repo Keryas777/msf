@@ -3,6 +3,12 @@
   const LOSP_AUTH_WORKER = "https://losp-auth.deliriousfan7.workers.dev";
   const AUTH_PAGE = "./auth.html";
   const LOCAL_SESSION_KEY = "losp_session";
+  // Identifiant Discord administrateur déjà déclaré dans le Worker losp-auth.
+  // L'aperçu est une simulation UI : ce contrôle ne remplace jamais l'authentification serveur.
+  const PREVIEW_OWNER_ID = "300305626926415874";
+  const PREVIEW_STORAGE_KEY = "losp:admin-preview:group";
+  const PREVIEW_GROUPS_URL = "./data/access-groups.json";
+
 
   let resolveAuthReady;
   window.LoSP_AUTH_READY = new Promise((resolve) => { resolveAuthReady = resolve; });
@@ -179,6 +185,194 @@
     return true;
   }
 
+  function isPreviewOwner(session) {
+    return session?.ok === true && session.role === "admin" &&
+      String(session.id || "") === PREVIEW_OWNER_ID;
+  }
+
+  function getStoredPreviewGroup() {
+    try {
+      return sessionStorage.getItem(PREVIEW_STORAGE_KEY) || "";
+    } catch (_) {
+      return "";
+    }
+  }
+
+  function savePreviewGroup(key) {
+    try {
+      if (key) sessionStorage.setItem(PREVIEW_STORAGE_KEY, key);
+      else sessionStorage.removeItem(PREVIEW_STORAGE_KEY);
+    } catch (_) {}
+  }
+
+  async function resolveAdminPreview(realSession) {
+    if (!isPreviewOwner(realSession)) return { view: realSession, preview: null };
+
+    // Le statut administrateur réel n'est jamais écrasé par le rôle simulé.
+    window.LoSP_REAL_SESSION = realSession;
+
+    try {
+      const response = await fetch(PREVIEW_GROUPS_URL, { cache: "no-store" });
+      if (!response.ok) throw new Error("preview_groups_http_" + response.status);
+      const config = await response.json();
+      const groups = (Array.isArray(config?.groups) ? config.groups : [])
+        .filter(group => typeof group?.key === "string" &&
+          Array.isArray(group.alliances) && group.alliances.length > 0)
+        .map(group => ({
+          key: group.key,
+          name: String(group.name || group.key),
+          alliances: group.alliances.map(String).filter(Boolean)
+        }));
+      const requested = getStoredPreviewGroup();
+      const active = groups.find(group => group.key === requested) || null;
+      if (requested && !active) savePreviewGroup("");
+
+      if (!active) return { view: realSession, preview: { groups, selected: "" } };
+
+      const memberView = active.key === "losp";
+      const view = {
+        ...realSession,
+        role: memberView ? "member" : "guest",
+        groupKey: active.key,
+        alliances: memberView ? [...active.alliances] : [],
+        allowedAlliances: [...active.alliances],
+        primaryAlliance: memberView ? active.alliances[0] : null,
+        players: [],
+        username: "Aperçu",
+        displayName: "Aperçu " + active.name,
+        previewMode: true,
+        previewGroupKey: active.key
+      };
+      return { view, preview: { groups, selected: active.key } };
+    } catch (error) {
+      console.warn("[LoSP] Mode aperçu indisponible : affichage administrateur conservé.", error);
+      return { view: realSession, preview: null };
+    }
+  }
+
+  function mountAdminPreview(preview) {
+    if (!preview || document.getElementById("lospAdminPreview")) return;
+
+    const style = document.createElement("style");
+    style.textContent = `
+      #lospAdminPreview {
+        position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));
+        z-index:99990;max-width:min(340px,calc(100vw - 24px));
+        font:500 13px/1.4 system-ui,-apple-system,sans-serif;color:#f6f7fa;
+      }
+      #lospAdminPreview button,#lospAdminPreview select {font:inherit;}
+      .lospPreviewToggle {
+        display:block;margin-left:auto;border:1px solid #8290a8;border-radius:999px;
+        background:#192335;color:white;padding:10px 14px;min-height:42px;
+        box-shadow:0 6px 20px #0009;cursor:pointer;
+      }
+      .lospPreviewActive .lospPreviewToggle {border-color:#ff5656;color:#ffdcdf;background:#392028;}
+      .lospPreviewPanel {
+        margin-bottom:8px;padding:14px;border:1px solid #64748b;border-radius:15px;
+        background:#141b29;box-shadow:0 8px 28px #000b;
+      }
+      .lospPreviewPanel[hidden] {display:none!important;}
+      .lospPreviewTitle {font-weight:800;margin:0 0 8px;color:#fff;}
+      .lospPreviewPanel label {display:block;margin-bottom:6px;color:#d4dce8;}
+      .lospPreviewPanel select {
+        display:block;width:100%;padding:10px;color:#fff;background:#273248;
+        border:1px solid #8596ac;border-radius:9px;min-height:44px;
+      }
+      .lospPreviewHelp {margin:9px 0 0;color:#b7c2d2;font-size:12px;}
+      .lospPreviewReset {
+        display:block;margin-top:10px;border:1px solid #f18b8b;border-radius:8px;
+        color:#ffe6e6;background:#47252e;padding:8px 12px;min-height:40px;cursor:pointer;
+      }
+      @media(max-width:400px){#lospAdminPreview{right:8px;bottom:calc(8px + env(safe-area-inset-bottom));}}
+    `;
+    document.head.appendChild(style);
+
+    const wrap = document.createElement("aside");
+    wrap.id = "lospAdminPreview";
+    if (preview.selected) wrap.classList.add("lospPreviewActive");
+
+    const panel = document.createElement("section");
+    panel.className = "lospPreviewPanel";
+    panel.id = "lospAdminPreviewPanel";
+    panel.hidden = true;
+
+    const title = document.createElement("p");
+    title.className = "lospPreviewTitle";
+    title.textContent = "Aperçu administrateur";
+
+    const label = document.createElement("label");
+    label.textContent = "Voir l'application comme :";
+    const select = document.createElement("select");
+    select.id = "lospPreviewGroup";
+    label.htmlFor = select.id;
+
+    function addOption(value, name) {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = name;
+      select.appendChild(option);
+    }
+    addOption("", "Mon compte — Administrateur");
+    preview.groups.forEach(group => {
+      addOption(group.key, group.key === "losp"
+        ? "Membre LoSP" : "WebApp " + group.name);
+    });
+    select.value = preview.selected;
+
+    const hint = document.createElement("p");
+    hint.className = "lospPreviewHelp";
+    hint.textContent = "Simulation d'affichage uniquement. Tes droits Discord restent administrateur.";
+
+    panel.append(title, label, select, hint);
+
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "lospPreviewToggle";
+    const selectedGroup = preview.groups.find(group => group.key === preview.selected);
+    toggle.textContent = selectedGroup ? "👁 Aperçu : " + selectedGroup.name : "👁 Aperçu des rôles";
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-controls", panel.id);
+    toggle.addEventListener("click", () => {
+      panel.hidden = !panel.hidden;
+      toggle.setAttribute("aria-expanded", String(!panel.hidden));
+      if (!panel.hidden) select.focus();
+    });
+    panel.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        panel.hidden = true;
+        toggle.setAttribute("aria-expanded", "false");
+        toggle.focus();
+      }
+    });
+    function changePreview(key) {
+      if (key === preview.selected) return;
+      savePreviewGroup(key);
+      // Le rechargement assure que tous les modules reçoivent le même contexte.
+      window.location.reload();
+    }
+    select.addEventListener("change", () => changePreview(select.value));
+
+    if (preview.selected) {
+      const reset = document.createElement("button");
+      reset.className = "lospPreviewReset";
+      reset.type = "button";
+      reset.textContent = "Quitter l'aperçu";
+      reset.addEventListener("click", () => changePreview(""));
+      panel.appendChild(reset);
+    }
+    wrap.append(panel, toggle);
+    document.body.appendChild(wrap);
+  }
+
+  function showAdminPreview(preview) {
+    if (!preview) return;
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => mountAdminPreview(preview), { once: true });
+    } else {
+      mountAdminPreview(preview);
+    }
+  }
+
   function dispatchSession(data) {
     window.LoSP_SESSION = data;
     if (resolveAuthReady) { resolveAuthReady(data); resolveAuthReady = null; }
@@ -263,8 +457,10 @@
         throw new Error(data?.reason || "not_connected");
       }
 
-      dispatchSession(data);
-      if (!guardGuestPage(data)) return;
+      const { view, preview } = await resolveAdminPreview(data);
+      dispatchSession(view);
+      showAdminPreview(preview);
+      if (!guardGuestPage(view)) return;
 
       document.documentElement.classList.remove("authChecking");
     } catch (error) {
