@@ -57,3 +57,18 @@ test("MARINES name uses its red color in dropdowns and checkbox chips", () => {
   assert.match(helper, /target\.style\.color = meta\?\.nameColor \|\| ""/);
   assert.match(dropdown, /if \(meta\.nameColor\) name\.style\.color = meta\.nameColor/);
 });
+
+test("evolution ranking chips omit decorative emojis for custom alliance typography", () => {
+  const js = read("docs/evolution-classement.js");
+  const alliances = JSON.parse(read("docs/data/alliances.json"));
+  const special = alliances.filter((alliance) =>
+    alliance.key === "marines" || alliance.group === "endgame-revolution"
+  );
+  assert.equal(special.length, 3);
+  assert.ok(special.every((alliance) => alliance.nameColor || alliance.displayParts?.length === 2));
+  assert.match(js, /alliance\?\.emoji && !alliance\?\.nameColor && !alliance\?\.displayParts\?\.length/);
+  assert.doesNotMatch(js, /alliance\?\.emoji \|\| '👤'/);
+  assert.match(js, /name\.style\.color = alliance\.nameColor/);
+  assert.match(js, /identity\.appendChild\(name\)/);
+  assert.match(js, /check\.textContent = selected \? '✅' : '○'/);
+});
