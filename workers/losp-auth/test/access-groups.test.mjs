@@ -87,6 +87,11 @@ test("Aucun invité ne peut publier avec signed-me, même avec un jeton signé",
     });
     assert.equal(callback.status, 302);
     const token = new URL(callback.headers.get("location")).hash.slice("#session=".length);
+    const signedAccess = await auth.fetch(new Request(BASE_URL + "/signed-access", {
+      headers: { Authorization: "Bearer " + decodeURIComponent(token) }
+    }), env);
+    assert.equal(signedAccess.status, 200);
+    assert.deepEqual((await signedAccess.json()).allowedAlliances, ["marines"]);
     const response = await auth.fetch(new Request(BASE_URL + "/signed-me", {
       headers: { Authorization: "Bearer " + decodeURIComponent(token) }
     }), env);
