@@ -109,12 +109,15 @@
       .map((alliance) => {
         const key = allianceKey(alliance.key);
         const id = `filterAlliance${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+        const emojiSafe = alliance.nameColor || alliance.displayParts?.length === 2
+          ? ""
+          : escapeHtml(allianceEmoji(key));
 
         return `
           <label class="filterToggle" data-alliance-name-lines="two">
             <input id="${escapeHtml(id)}" type="checkbox" data-alliance-key="${escapeHtml(key)}" checked />
             <span class="fStack">
-              <span class="fEmoji">${escapeHtml(allianceEmoji(key))}</span>
+              <span class="fEmoji">${emojiSafe}</span>
               <span class="fName">${escapeHtml(allianceLabel(key))}</span>
             </span>
           </label>
