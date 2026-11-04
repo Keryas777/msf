@@ -143,8 +143,9 @@ function setupFilters(){
     input.dataset.allianceKey=alliance.key;
     const stack=document.createElement("span");
     stack.className="fStack";
-    stack.append(make("span",meta?.emoji||"","fEmoji"),
-      make("span",meta?.name||alliance.name||"Alliance non identifiée","fName"));
+    const name=make("span",meta?.name||alliance.name||"Alliance non identifiée","fName");
+    window.LoSPAlliances?.renderAllianceName?.(name, alliance.key);
+    stack.append(make("span",meta?.emoji||"","fEmoji"), name);
     toggle.append(input,stack);
     host.append(toggle);
     rankingFilters.set(alliance.key,input);
