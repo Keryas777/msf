@@ -21,6 +21,7 @@ function domElement(tag, elements) {
     setAttribute: (k,v) => { attrs[k] = v; },
     getAttribute: k => attrs[k] ?? null,
     appendChild(child) { node.children.push(child); },
+    prepend(child) { node.children.unshift(child); },
     append(...children) { node.children.push(...children); },
     addEventListener(name,cb) { listeners[name] = cb; },
     emit(name,event={}) { listeners[name]?.(event); },
@@ -30,19 +31,21 @@ function domElement(tag, elements) {
 }
 
 async function scenario({ id=OWNER, role="admin", groupKey="all",
-  stored="", path="home.html", config=groups, failConfig=false, inlineHome=false }={}) {
+  stored="", path="home.html", config=groups, failConfig=false, inlineHome=false, inlineOther=false }={}) {
   const elements = new Map(), saved = new Map(stored ? [[STORE,stored]] : []);
   const body = domElement("body",elements);
   const head = domElement("head",elements);
   const redirects=[], requests=[];
   const homeGrid = { inserted: [], before(node) { this.inserted.push(node); } };
+  const pageHeader = { inserted: [], after(node) { this.inserted.push(node); } };
   let reloads=0;
   const document = {
     readyState: "complete", body, head,
     documentElement: { classList: {remove() {}} },
     getElementById: id => elements.get(id) || null,
     createElement: tag => domElement(tag,elements),
-    querySelector: selector => inlineHome && selector === ".homeGrid" ? homeGrid : null,
+    querySelector: selector => inlineHome && selector === ".homeGrid" ? homeGrid :
+      inlineOther && selector === ".app > .header" ? pageHeader : null,
     querySelectorAll: () => [],
     addEventListener() {}
   };
@@ -80,19 +83,29 @@ async function scenario({ id=OWNER, role="admin", groupKey="all",
   };
   runInNewContext(script,context,{filename:"docs/auth-guard.js"});
   await new Promise(resolve=>setImmediate(resolve));
-  return {window,document,body,head,homeGrid,elements,saved,redirects,requests,
+  return {window,document,body,head,homeGrid,pageHeader,elements,saved,redirects,requests,
     get reloads(){return reloads;}};
 }
 
-test("Sur l'accueil le sélecteur s'insère avant les tuiles sans masquer Déconnexion",async()=>{
+test("Sur l'accueil le menu unique s'insère avant les tuiles, sans recouvrir Déconnexion",async()=>{
   const x=await scenario({inlineHome:true,path:"home.html"});
   assert.equal(x.homeGrid.inserted.length,1);
-  assert.equal(x.homeGrid.inserted[0].id,"lospAdminPreview");
-  assert.equal(x.homeGrid.inserted[0].classList.contains("lospPreviewInline"),true);
+  const preview=x.homeGrid.inserted[0];
+  assert.equal(preview.id,"lospAdminPreview");
+  assert.equal(preview.children.length,2);
+  assert.equal(preview.children[0].tag,"label");
+  assert.equal(preview.children[1].tag,"select");
   assert.equal(x.body.children.length,0);
   const guard=await readFile(new URL("../docs/auth-guard.js", import.meta.url),"utf8");
-  assert.match(guard,/#lospAdminPreview\.lospPreviewInline\s*\{/);
-  assert.match(guard,/position:relative;inset:auto/);
+  assert.match(guard,/#lospAdminPreview\s*\{\s*position:relative/);
+  assert.doesNotMatch(guard,/lospPreviewToggle|lospPreviewPanel|position:fixed;right:12px/);
+});
+
+test("Sur les autres pages le menu est placé sous le header dans le flux",async()=>{
+  const x=await scenario({inlineOther:true,path:"joueur.html"});
+  assert.equal(x.pageHeader.inserted.length,1);
+  assert.equal(x.pageHeader.inserted[0].id,"lospAdminPreview");
+  assert.equal(x.body.children.length,0);
 });
 
 test("Seul le propriétaire admin vérifié par Discord voit le sélecteur",async()=>{
@@ -117,8 +130,9 @@ test("Marines : droits effectifs limités à une seule alliance sans modifier le
   assert.equal(x.window.LoSPAccess.isAllianceAllowed("zeus"),false);
   assert.deepEqual(Array.from(x.window.LoSP_SESSION.allowedAlliances),["marines"]);
   assert.equal(x.elements.get("lospPreviewGroup").value,"marines");
-  const toggle=x.elements.get("lospAdminPreview").children.at(-1);
-  assert.match(toggle.textContent,/MARINES/);
+  const preview=x.elements.get("lospAdminPreview");
+  assert.equal(preview.children.length,2);
+  assert.ok(preview.children[1].children.some(option=>option.textContent==="WebApp MARINES"));
 });
 
 test("Endgame : les deux variantes uniquement, et pages LoSP bloquées",async()=>{
@@ -149,10 +163,9 @@ test("Changer de groupe utilise uniquement sessionStorage puis recharge la vue",
   assert.equal(x.reloads,1);
   assert.equal(x.window.LoSP_SESSION.role,"admin");
   const y=await scenario({stored:"marines"});
-  const container=y.elements.get("lospAdminPreview");
-  const panel=container.children[0];
-  const reset=panel.children.at(-1);
-  reset.emit("click");
+  const reset=y.elements.get("lospPreviewGroup");
+  reset.value="";
+  reset.emit("change");
   assert.equal(y.saved.has(STORE),false);
   assert.equal(y.reloads,1);
 });

@@ -253,63 +253,50 @@
   function mountAdminPreview(preview) {
     if (!preview || document.getElementById("lospAdminPreview")) return;
 
+    // Un seul contrôle natif, dans le flux de la page : aucun bouton flottant ni panneau.
     const style = document.createElement("style");
     style.textContent = `
       #lospAdminPreview {
-        position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));
-        z-index:99990;max-width:min(340px,calc(100vw - 24px));
-        font:500 13px/1.4 system-ui,-apple-system,sans-serif;color:#f6f7fa;
+        position:relative;box-sizing:border-box;
+        display:flex;align-items:center;justify-content:flex-end;gap:8px;
+        width:min(100%,430px);max-width:100%;margin:2px 0 8px auto;
+        padding:7px 9px;border:1px solid rgba(141,163,199,.29);
+        border-radius:12px;background:rgba(9,16,37,.72);
+        color:#e4ecfc;font:500 13px/1.3 system-ui,-apple-system,sans-serif;
       }
-      /* Accueil : le contrôle reste dans le flux, loin du footer Déconnexion fixé en bas. */
-      #lospAdminPreview.lospPreviewInline {
-        position:relative;inset:auto;right:auto;bottom:auto;
-        width:min(340px,100%);max-width:100%;margin:2px 0 8px auto;
-        align-self:flex-end;z-index:2;
+      #lospAdminPreview .lospPreviewLabel {
+        flex:0 0 auto;white-space:nowrap;font-size:12px;color:#d1ddf4;
       }
-      #lospAdminPreview button,#lospAdminPreview select {font:inherit;}
-      .lospPreviewToggle {
-        display:block;margin-left:auto;border:1px solid #8290a8;border-radius:999px;
-        background:#192335;color:white;padding:10px 14px;min-height:42px;
-        box-shadow:0 6px 20px #0009;cursor:pointer;
+      #lospAdminPreview select {
+        box-sizing:border-box;flex:1 1 170px;min-width:0;max-width:275px;
+        width:100%;height:38px;padding:5px 8px;border-radius:9px;
+        border:1px solid #7488aa;background:#1c2943;color:#fff;
+        font:500 13px/1.2 system-ui,-apple-system,sans-serif;
+        -webkit-appearance:menulist;appearance:auto;
       }
-      .lospPreviewActive .lospPreviewToggle {border-color:#ff5656;color:#ffdcdf;background:#392028;}
-      .lospPreviewPanel {
-        margin-bottom:8px;padding:14px;border:1px solid #64748b;border-radius:15px;
-        background:#141b29;box-shadow:0 8px 28px #000b;
+      #lospAdminPreview.lospPreviewActive {
+        border-color:rgba(255,100,100,.72);background:rgba(52,22,34,.66);
       }
-      .lospPreviewPanel[hidden] {display:none!important;}
-      .lospPreviewTitle {font-weight:800;margin:0 0 8px;color:#fff;}
-      .lospPreviewPanel label {display:block;margin-bottom:6px;color:#d4dce8;}
-      .lospPreviewPanel select {
-        display:block;width:100%;padding:10px;color:#fff;background:#273248;
-        border:1px solid #8596ac;border-radius:9px;min-height:44px;
+      #lospAdminPreview.lospPreviewActive select {border-color:#fb7979;}
+      @media(max-width:360px) {
+        #lospAdminPreview {gap:5px;padding:6px;}
+        #lospAdminPreview .lospPreviewLabel {font-size:11px;}
+        #lospAdminPreview select {font-size:12px;}
       }
-      .lospPreviewHelp {margin:9px 0 0;color:#b7c2d2;font-size:12px;}
-      .lospPreviewReset {
-        display:block;margin-top:10px;border:1px solid #f18b8b;border-radius:8px;
-        color:#ffe6e6;background:#47252e;padding:8px 12px;min-height:40px;cursor:pointer;
-      }
-      @media(max-width:400px){#lospAdminPreview{right:8px;bottom:calc(8px + env(safe-area-inset-bottom));}}
     `;
     document.head.appendChild(style);
 
     const wrap = document.createElement("aside");
     wrap.id = "lospAdminPreview";
+    wrap.setAttribute("aria-label", "Simulation des rôles Discord");
     if (preview.selected) wrap.classList.add("lospPreviewActive");
 
-    const panel = document.createElement("section");
-    panel.className = "lospPreviewPanel";
-    panel.id = "lospAdminPreviewPanel";
-    panel.hidden = true;
-
-    const title = document.createElement("p");
-    title.className = "lospPreviewTitle";
-    title.textContent = "Aperçu administrateur";
-
     const label = document.createElement("label");
-    label.textContent = "Voir l'application comme :";
+    label.className = "lospPreviewLabel";
+    label.textContent = "👁 Voir comme";
     const select = document.createElement("select");
     select.id = "lospPreviewGroup";
+    select.setAttribute("aria-label", "Voir l'application avec les droits d'un autre groupement");
     label.htmlFor = select.id;
 
     function addOption(value, name) {
@@ -318,62 +305,30 @@
       option.textContent = name;
       select.appendChild(option);
     }
-    addOption("", "Mon compte — Administrateur");
+    addOption("", "Administrateur");
     preview.groups.forEach(group => {
       addOption(group.key, group.key === "losp"
         ? "Membre LoSP" : "WebApp " + group.name);
     });
     select.value = preview.selected;
-
-    const hint = document.createElement("p");
-    hint.className = "lospPreviewHelp";
-    hint.textContent = "Simulation d'affichage uniquement. Tes droits Discord restent administrateur.";
-
-    panel.append(title, label, select, hint);
-
-    const toggle = document.createElement("button");
-    toggle.type = "button";
-    toggle.className = "lospPreviewToggle";
-    const selectedGroup = preview.groups.find(group => group.key === preview.selected);
-    toggle.textContent = selectedGroup ? "👁 Aperçu : " + selectedGroup.name : "👁 Aperçu des rôles";
-    toggle.setAttribute("aria-expanded", "false");
-    toggle.setAttribute("aria-controls", panel.id);
-    toggle.addEventListener("click", () => {
-      panel.hidden = !panel.hidden;
-      toggle.setAttribute("aria-expanded", String(!panel.hidden));
-      if (!panel.hidden) select.focus();
-    });
-    panel.addEventListener("keydown", event => {
-      if (event.key === "Escape") {
-        panel.hidden = true;
-        toggle.setAttribute("aria-expanded", "false");
-        toggle.focus();
-      }
-    });
-    function changePreview(key) {
-      if (key === preview.selected) return;
-      savePreviewGroup(key);
-      // Le rechargement assure que tous les modules reçoivent le même contexte.
+    select.addEventListener("change", () => {
+      if (select.value === preview.selected) return;
+      savePreviewGroup(select.value);
       window.location.reload();
-    }
-    select.addEventListener("change", () => changePreview(select.value));
+    });
 
-    if (preview.selected) {
-      const reset = document.createElement("button");
-      reset.className = "lospPreviewReset";
-      reset.type = "button";
-      reset.textContent = "Quitter l'aperçu";
-      reset.addEventListener("click", () => changePreview(""));
-      panel.appendChild(reset);
-    }
-    wrap.append(panel, toggle);
+    wrap.append(label, select);
     const homeGrid = document.querySelector?.(".homeGrid");
     if (homeGrid && window.location.pathname.split("/").pop() === "home.html") {
-      // Entre la fraîcheur des rosters et les tuiles, jamais sur la déconnexion fixe.
-      wrap.classList.add("lospPreviewInline");
+      // Après la fraîcheur des rosters, avant les tuiles, loin de Déconnexion.
       homeGrid.before(wrap);
     } else {
-      document.body.appendChild(wrap);
+      // Dans les autres pages, sous l'en-tête et jamais par-dessus les commandes.
+      const pageHeader = document.querySelector?.(".app > .header");
+      const app = document.querySelector?.(".app");
+      if (pageHeader) pageHeader.after(wrap);
+      else if (app) app.prepend(wrap);
+      else document.body.prepend(wrap);
     }
   }
 
