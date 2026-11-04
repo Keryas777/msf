@@ -218,6 +218,7 @@
     const meta = getAllianceMeta(value);
     target.textContent = "";
     target.style.color = meta?.nameColor || "";
+    target.classList.remove("alliance-name--two-lines");
     if (meta?.displayParts?.length === 2) {
       const prefix = document.createElement("span");
       prefix.textContent = meta.displayParts[0];
@@ -225,7 +226,23 @@
       const colored = document.createElement("span");
       colored.textContent = meta.displayParts[1];
       colored.style.color = meta.color;
-      target.append(prefix, colored);
+
+      // Uniquement dans les chips de classement : ENDGAME sur la première ligne,
+      // R-évolution sur la seconde, sans changer les autres rendus de l'alliance.
+      const stacked = target.closest('[data-alliance-name-lines="two"]');
+      const splitAt = colored.textContent.indexOf(" ");
+      if (stacked && splitAt > 0) {
+        const firstLine = document.createElement("span");
+        colored.textContent = meta.displayParts[1].slice(0, splitAt);
+        firstLine.append(prefix, colored);
+        const secondLine = document.createElement("span");
+        secondLine.textContent = meta.displayParts[1].slice(splitAt + 1);
+        secondLine.style.color = meta.color;
+        target.classList.add("alliance-name--two-lines");
+        target.append(firstLine, secondLine);
+      } else {
+        target.append(prefix, colored);
+      }
     } else {
       target.textContent = meta?.name || String(value ?? "").trim();
     }
