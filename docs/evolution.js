@@ -892,10 +892,11 @@
         fetchJson(FILES.isoIcons).catch(() => ({})),
       ]);
 
-      state.alliances = Array.isArray(alliances) ? alliances : [];
-      state.rosters = Array.isArray(rosters) ? rosters : [];
+      await window.LoSP_AUTH_READY;
+      state.alliances = (Array.isArray(alliances) ? alliances : []).filter(a => window.LoSPAccess?.isAllianceAllowed(a.key));
+      state.rosters = (Array.isArray(rosters) ? rosters : []).filter(r => window.LoSPAccess?.isAllianceAllowed(r?.alliance));
       state.characters = Array.isArray(characters) ? characters : [];
-      state.historyIndex = historyIndex || {};
+      state.historyIndex = { ...(historyIndex || {}), players: Object.fromEntries(Object.entries(historyIndex?.players || {}).filter(([,p]) => window.LoSPAccess?.isAllianceAllowed(p?.currentAlliance))) };
       state.isoIcons = isoIcons && typeof isoIcons === "object" ? isoIcons : {};
       buildAliasMap(aliases);
       buildCharacterMap();
