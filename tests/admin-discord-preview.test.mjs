@@ -30,17 +30,19 @@ function domElement(tag, elements) {
 }
 
 async function scenario({ id=OWNER, role="admin", groupKey="all",
-  stored="", path="home.html", config=groups, failConfig=false }={}) {
+  stored="", path="home.html", config=groups, failConfig=false, inlineHome=false }={}) {
   const elements = new Map(), saved = new Map(stored ? [[STORE,stored]] : []);
   const body = domElement("body",elements);
   const head = domElement("head",elements);
   const redirects=[], requests=[];
+  const homeGrid = { inserted: [], before(node) { this.inserted.push(node); } };
   let reloads=0;
   const document = {
     readyState: "complete", body, head,
     documentElement: { classList: {remove() {}} },
     getElementById: id => elements.get(id) || null,
     createElement: tag => domElement(tag,elements),
+    querySelector: selector => inlineHome && selector === ".homeGrid" ? homeGrid : null,
     querySelectorAll: () => [],
     addEventListener() {}
   };
@@ -78,9 +80,20 @@ async function scenario({ id=OWNER, role="admin", groupKey="all",
   };
   runInNewContext(script,context,{filename:"docs/auth-guard.js"});
   await new Promise(resolve=>setImmediate(resolve));
-  return {window,document,body,head,elements,saved,redirects,requests,
+  return {window,document,body,head,homeGrid,elements,saved,redirects,requests,
     get reloads(){return reloads;}};
 }
+
+test("Sur l'accueil le sélecteur s'insère avant les tuiles sans masquer Déconnexion",async()=>{
+  const x=await scenario({inlineHome:true,path:"home.html"});
+  assert.equal(x.homeGrid.inserted.length,1);
+  assert.equal(x.homeGrid.inserted[0].id,"lospAdminPreview");
+  assert.equal(x.homeGrid.inserted[0].classList.contains("lospPreviewInline"),true);
+  assert.equal(x.body.children.length,0);
+  const guard=await readFile(new URL("../docs/auth-guard.js", import.meta.url),"utf8");
+  assert.match(guard,/#lospAdminPreview\.lospPreviewInline\s*\{/);
+  assert.match(guard,/position:relative;inset:auto/);
+});
 
 test("Seul le propriétaire admin vérifié par Discord voit le sélecteur",async()=>{
   const mine=await scenario();
