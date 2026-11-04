@@ -936,6 +936,59 @@
     });
   }
 
+  // Les libellés de variante ne garantissent pas une composition unique dans le Sheet.
+  // Distinguer les 5 défenseurs empêche de mélanger leurs ratios et leurs contres.
+  function defenseSignature(row) {
+    return [...new Set((Array.isArray(row?.def_chars) ? row.def_chars : [])
+      .map((id) => String(id ?? "").trim())
+      .filter(Boolean))].sort().join("|");
+  }
+
+  function defenseSelectionKey(row) {
+    return JSON.stringify([row.def_variant, defenseSignature(row)]);
+  }
+
+  function matchesSelectedDefense(row, selected) {
+    return row.def_family === selected.def_family &&
+      row.def_variant === selected.def_variant &&
+      defenseSignature(row) === defenseSignature(selected);
+  }
+
+  function defenseVariantOptions(family) {
+    const unique = new Map();
+    for (const row of WAR.filter((r) => r.def_family === family && isRoomRelevant(r))) {
+      if (!row.def_variant) continue;
+      const key = defenseSelectionKey(row);
+      if (!unique.has(key)) unique.set(key, { row, key });
+    }
+
+    const entries = [...unique.values()];
+    const groups = new Map();
+    for (const entry of entries) {
+      const name = entry.row.def_variant;
+      if (!groups.has(name)) groups.set(name, []);
+      groups.get(name).push(entry);
+    }
+
+    return entries.map((entry) => {
+      const alternatives = groups.get(entry.row.def_variant);
+      let label = entry.row.def_variant;
+      if (alternatives.length > 1) {
+        const common = entry.row.def_chars.filter((id) =>
+          alternatives.every((other) => other.row.def_chars.includes(id))
+        );
+        const distinctive = entry.row.def_chars.filter((id) => !common.includes(id));
+        const characters = distinctive.length ? distinctive : entry.row.def_chars;
+        const suffix = characters.map((id) => {
+          const character = CHAR_MAP.get(normalizeKey(id));
+          return character?.nameFr || character?.nameKey || character?.nameEn || id;
+        }).join(" + ");
+        if (suffix) label += ` — ${suffix}`;
+      }
+      return { ...entry, label };
+    }).sort((a, b) => a.label.localeCompare(b.label, "fr"));
+  }
+
   function renderDefVariantOptions() {
     if (!defVariantSelect) return;
 
@@ -957,25 +1010,21 @@
     opt0.textContent = "— Choisir une variante —";
     defVariantSelect.appendChild(opt0);
 
-    const variants = WAR.filter((r) => r.def_family === fam && isRoomRelevant(r))
-      .map((r) => r.def_variant)
-      .filter(Boolean);
-
-    [...new Set(variants)]
-      .sort((a, b) => a.localeCompare(b, "fr"))
-      .forEach((v) => {
-        const opt = document.createElement("option");
-        opt.value = v;
-        opt.textContent = v;
-        defVariantSelect.appendChild(opt);
-      });
+    defenseVariantOptions(fam).forEach(({ key, label }) => {
+      const opt = document.createElement("option");
+      opt.value = key;
+      opt.textContent = label;
+      defVariantSelect.appendChild(opt);
+    });
   }
 
   function getSelectedDef() {
     const fam = (defFamilySelect?.value ?? "").trim();
-    const vari = (defVariantSelect?.value ?? "").trim();
-    if (!fam || !vari) return null;
-    return WAR.find((r) => r.def_family === fam && r.def_variant === vari && isRoomRelevant(r)) || null;
+    const selected = (defVariantSelect?.value ?? "").trim();
+    if (!fam || !selected) return null;
+    return WAR.find((r) =>
+      r.def_family === fam && defenseSelectionKey(r) === selected && isRoomRelevant(r)
+    ) || null;
   }
 
   function renderDefense() {
@@ -988,7 +1037,10 @@
       return;
     }
 
-    if (defTitle) defTitle.textContent = row.def_variant || row.def_family || "Défense";
+    if (defTitle) {
+      defTitle.textContent = defVariantSelect?.selectedOptions?.[0]?.textContent ||
+        row.def_variant || row.def_family || "Défense";
+    }
 
     row.def_chars.forEach((name) => {
       const card = document.createElement("div");
@@ -1231,7 +1283,7 @@
     }
 
     const baseRows = WAR.filter(
-      (r) => r.def_family === def.def_family && r.def_variant === def.def_variant
+      (r) => matchesSelectedDefense(r, def)
     ).filter(isRoomRelevant).filter(isRealCounter);
 
     if (!baseRows.length) {
@@ -1246,6 +1298,7 @@
       player,
       defense_family: def.def_family || "",
       defense_variant: def.def_variant || "",
+      defense_signature: defenseSignature(def),
     });
 
     if (trackKey !== LAST_TRACKED_KEY) {
