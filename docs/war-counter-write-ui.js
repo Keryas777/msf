@@ -3,7 +3,7 @@ import {
   findMatchingCounters,
   summarizeCounterComparison
 } from "./war-counter-matchup-preview.js";
-import { buildWriteProposal, canonicalWarCounterTeamName } from "./war-counter-write-proposal.js";
+import { buildWriteProposal, canonicalWarCounterTeamName } from "./war-counter-write-proposal.js?v=spider-society-1";
 
 const WRITE_WORKER_URL = "https://msf-war-counter-write.deliriousfan7.workers.dev";
 const LOCAL_SESSION_KEY = "losp_session";
