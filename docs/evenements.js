@@ -180,7 +180,9 @@
       const frenchVerified=data.locale==='fr'&&data.localizationStatus==='verified';
       $('source-provenance').textContent=(frenchVerified?
         'Textes officiels français disponibles. ':
-        'Textes anglais : français en attente d’une collecte hebdomadaire complète. ')+
+        data.localizationStatus==='no-translated-text'?
+          'Source française vérifiée, mais aucun texte traduit détecté ; anglais conservé. ':
+          'Textes anglais : français en attente d’une collecte hebdomadaire complète. ')+
         'Reçus et SHA-256 vérifiés ; aucun appel Scopely depuis cette page.';
     }else{
       const time=Date.parse(data.metadata?.snapshotUploadedAt||'');
