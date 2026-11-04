@@ -51,7 +51,7 @@ test("TCP and MVP keep emojis beside LoSP names and preserve checkboxes", () => 
     const html = read("docs/" + page + ".html");
     assert.match(js, /data-alliance-name-lines="two"/);
     assert.match(js, /type="checkbox" data-alliance-key/);
-    assert.match(js, /alliance\.nameColor \|\| alliance\.displayParts\?\.length === 2/);
+    assert.match(js, /alliance\.nameColor \|\| \(alliance\.displayParts\?\.length === 2 && alliance\.group !== "losp"\)/);
     assert.match(html, /rankings-shared\.css\?v=2/);
     assert.match(html, /alliances\.js\?v=\d+/);
   }
@@ -91,4 +91,29 @@ test("MARINES remains red without a two-line layout", async () => {
   assert.equal(chip.style.display, undefined);
   assert.equal(chip.style.transform, undefined);
   assert.equal(chip.classList.contains("alliance-name--two-lines"), false);
+});
+test("LoSP alliance chips use exact Unicode deity names with white prefix and JSON colors", async () => {
+  const helper = await allianceHelper();
+  for (const [key, emoji, deity, color, official] of [
+    ["zeus", "⚡️", "Zευs", "#F8FF00", "Zeus"],
+    ["athena", "🦉", "Athεηα", "#F28C28", "Athéna"],
+    ["kronos", "⏳", "Κroηos", "#E10D17", "Kronos"],
+    ["dionysos", "🍇", "Dισπγsσs", "#93328E", "Dionysos"],
+    ["poseidon", "🔱", "Pοsειδoη", "#0000FF", "Poséidon"],
+    ["hades", "🔥", "Hαδεs", "#1EA164", "Hadès"],
+  ]) {
+    const meta = helper.getAllianceMeta(key);
+    assert.equal(meta.name, official);
+    assert.equal(meta.emoji, emoji);
+    assert.equal(meta.color, color);
+    assert.equal(meta.group, "losp");
+    const chip = node(true);
+    helper.renderAllianceName(chip, key);
+    assert.equal(chip.children.length, 2);
+    assert.equal(chip.children[0].textContent, "LoSP ");
+    assert.equal(chip.children[0].style.color, "#fff");
+    assert.equal(chip.children[1].textContent, deity);
+    assert.equal(chip.children[1].style.color, color);
+    assert.equal(chip.classList.contains("alliance-name--two-lines"), false);
+  }
 });
