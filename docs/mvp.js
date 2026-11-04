@@ -74,7 +74,7 @@
 
     function addAlliance(alliance) {
       const key = allianceKey(alliance?.key || alliance?.name);
-      if (!key || seen.has(key)) return;
+      if (!key || seen.has(key) || !window.LoSPAccess?.isAllianceAllowed(key)) return;
 
       seen.add(key);
       merged.push({ ...alliance, key });
@@ -212,7 +212,7 @@
 
     const data = await res.json();
 
-    allPlayers = (Array.isArray(data) ? data : []).map((p) => ({
+    allPlayers = (Array.isArray(data) ? data : []).filter(p => window.LoSPAccess?.isAllianceAllowed(p?.alliance)).map((p) => ({
       name: p.name,
       alliance: p.alliance,
       war_mvp: Number(p.war_mvp || 0),
