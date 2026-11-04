@@ -226,3 +226,46 @@ test("nightreavers announced release is immediately part of the chronology witho
   ];
   assert.equal(allReleases.filter(id => id === "Dracula").length, 1);
 });
+
+test("A.I. Avengers recruits are recorded exactly once with sourced first availability", async () => {
+  const fs = await import("node:fs/promises");
+  const read = async relative => JSON.parse(await fs.readFile(new URL(relative, import.meta.url), "utf8"));
+  const [history, catalog, state] = await Promise.all([
+    read("../docs/data/msf-release-history.json"),
+    read("../docs/data/msf-characters.json"),
+    read("../data/msf-release-monitor/state.json")
+  ]);
+  const year = history.years["2026"];
+  const teams = year.teamEvents.filter(event => event.teamId === "ai-avengers-2026-10-44");
+  assert.equal(teams.length, 1);
+  const team = teams[0];
+  assert.equal(team.formationStatus, "complete");
+  assert.deepEqual(team.members, ["Ultron", "Vision", "Jocasta", "HumanTorchJim", "HawkeyeRobot"]);
+  assert.deepEqual(team.reworkedCharacterIds, ["Ultron", "Vision"]);
+  assert.deepEqual(team.newCharacterIds, ["Jocasta", "HumanTorchJim", "HawkeyeRobot"]);
+  assert.deepEqual(team.announcedNext, []);
+  assert.deepEqual(
+    Object.fromEntries(team.characterReleases.map(({ characterId, date }) => [characterId, date])),
+    { Jocasta: "2026-10-09", HumanTorchJim: "2026-10-09", HawkeyeRobot: "2026-10-29" }
+  );
+  const sources = new Set(year.sources.map(item => item.id));
+  for (const item of team.characterReleases) {
+    assert.ok(item.sourceIds.every(id => sources.has(id)), "missing release source: " + item.characterId);
+    assert.equal(catalog.find(entry => entry.id === item.characterId)?.player_Character, true);
+    assert.equal(state.characters[item.characterId]?.playable, true);
+  }
+  const releases = Object.values(history.years).flatMap(entry => [
+    ...(entry.individualReleases || []).map(item => item.characterId),
+    ...(entry.teamEvents || []).flatMap(item => item.newCharacterIds || [])
+  ]);
+  for (const id of team.newCharacterIds) {
+    assert.equal(releases.filter(item => item === id).length, 1, id + " is not uniquely released");
+  }
+  assert.equal(year.validation.teamEventNewCharacterCount,
+    year.teamEvents.reduce((sum, event) => sum + (event.newCharacterIds || []).length, 0));
+  assert.equal(year.validation.distinctPlayableReleaseCount,
+    new Set(releases.filter(id =>
+      year.individualReleases.some(item => item.characterId === id) ||
+      year.teamEvents.some(event => (event.newCharacterIds || []).includes(id))
+    )).size);
+});
