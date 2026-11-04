@@ -4,8 +4,12 @@ import { mkdtemp,readFile,writeFile,appendFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 const work=await mkdtemp(join(process.env.RUNNER_TEMP||tmpdir(),"losp-compat-"));
-const source=await readFile(new URL("../workers/losp-auth/worker.js",import.meta.url));
-await writeFile(join(work,"worker.js"),source,{mode:0o600});
+const source=await readFile(new URL("../workers/losp-auth/worker.js",import.meta.url),"utf8");
+const groups=await readFile(new URL("../docs/data/access-groups.json",import.meta.url),"utf8");
+const importLine='import ACCESS_GROUPS from "../../docs/data/access-groups.json" with { type: "json" };';
+if(!source.includes(importLine))throw Error("Le Worker n'importe pas le registre attendu");
+const standalone=source.replace(importLine,"const ACCESS_GROUPS = "+groups.trim()+";");
+await writeFile(join(work,"worker.js"),standalone,{mode:0o600});
 await writeFile(join(work,"wrangler.jsonc"),JSON.stringify({
   name:"losp-auth",
   main:"worker.js",
