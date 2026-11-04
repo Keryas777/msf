@@ -245,11 +245,6 @@
         if (/^#[0-9a-fA-F]{6}$/.test(alliance?.nameColor || '')) {
           name.style.color = alliance.nameColor;
         }
-        if (alliance?.nameItalic) {
-          name.style.fontStyle = 'italic';
-          name.style.display = 'inline-block';
-          name.style.transform = 'skewX(-7deg)';
-        }
       }
 
       identity.appendChild(name);
