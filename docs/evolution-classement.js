@@ -222,9 +222,13 @@
       const identity = document.createElement('span');
       identity.className = 'evolutionAllianceChipIdentity';
 
-      const emoji = document.createElement('span');
-      emoji.className = 'evolutionAllianceChipEmoji';
-      emoji.textContent = alliance?.emoji || '👤';
+      // Alliances with custom name typography do not show an emoji in chips.
+      if (alliance?.emoji && !alliance?.nameColor && !alliance?.displayParts?.length) {
+        const emoji = document.createElement('span');
+        emoji.className = 'evolutionAllianceChipEmoji';
+        emoji.textContent = alliance.emoji;
+        identity.appendChild(emoji);
+      }
 
       const name = document.createElement('span');
       name.className = 'evolutionAllianceChipName';
@@ -238,9 +242,12 @@
         name.append(prefix, colored);
       } else {
         name.textContent = alliance?.name || alliance?.key || key;
+        if (/^#[0-9a-fA-F]{6}$/.test(alliance?.nameColor || '')) {
+          name.style.color = alliance.nameColor;
+        }
       }
 
-      identity.append(emoji, name);
+      identity.appendChild(name);
       button.append(check, identity);
 
       button.addEventListener('click', () => {
