@@ -21,7 +21,7 @@ import {
   ceilRatioToHundredth,
   findMatchingCounters,
   summarizeCounterComparison
-} from "./war-counter-matchup-preview.js";
+} from "./war-counter-matchup-preview.js?v=existing-notes-1";
 
 const WORKER_URL = new URL("./war-counter-akaze-worker.js?v=r5-akaze-worker-2", import.meta.url);
 const REALIGNED_RIGHT_TEAM_X_SHIFT = 0.125;
