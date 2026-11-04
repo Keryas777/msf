@@ -125,7 +125,9 @@
   }
   function installCatalog(data,isLive){
     if(!validCatalog(data.events))throw new Error('Catalogue invalide');
-    state.events=data.events;
+    // Recurring daily raid sessions are not calendar events.
+    // Keep them in the source API; exclude only from the WebApp display.
+    state.events=data.events.filter(e=>e.type!=='raid');
     state.metadata={...(data.metadata||{}),liveSource:isLive};
     // Historical reward details must not be presented as freshly verified.
     state.verifiedDetails=isLive?data.historicalDetails||{}:data.verifiedDetails||{};
@@ -144,15 +146,16 @@
     if(isLive){
       const time=Date.parse(data.updatedAt||'');
       const dated=Number.isFinite(time)?fmtDate.format(new Date(time)):'date inconnue';
-      $('source-line').textContent='Catalogue synchronisé via R2 · '+data.events.length+
-        ' événements · '+data.pages+' page(s) · dernière vérification '+dated+'.';
+      $('source-line').textContent='Catalogue synchronisé via R2 · '+state.events.length+
+        ' événements hors raids ('+data.events.length+' récupérés) · '+data.pages+
+        ' page(s) · dernière vérification '+dated+'.';
       $('source-provenance').textContent=
         'Données de jeu issues du collecteur hebdomadaire LoSP : reçus, SHA-256 et pagination vérifiés. Aucun appel direct à Scopely depuis cette page.';
     }else{
       const time=Date.parse(data.metadata?.snapshotUploadedAt||'');
       const dated=Number.isFinite(time)?fmtDate.format(new Date(time)):'date inconnue';
       $('source-line').textContent='Archive locale de secours du '+dated+
-        ' · '+data.events.length+' événements · synchronisation momentanément indisponible.';
+        ' · '+state.events.length+' événements hors raids · synchronisation momentanément indisponible.';
       $('source-provenance').textContent=
         'Cet instantané historique ne prouve pas la disponibilité actuelle des événements. La page réessaiera la source R2 lors du prochain chargement.';
     }
