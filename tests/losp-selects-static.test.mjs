@@ -43,3 +43,17 @@ test("ENDGAME two-tone names are read from alliance metadata, not duplicated in 
   assert.match(css, /\.losp-choice__bicolor \{ gap: 0; \}/);
   assert.doesNotMatch(js, /#ED3946|#F6952C/);
 });
+
+test("MARINES name uses its red color in dropdowns and checkbox chips", () => {
+  const alliances = JSON.parse(read("docs/data/alliances.json"));
+  const marines = alliances.find((alliance) => alliance.key === "marines");
+  assert.ok(marines);
+  assert.equal(marines.name, "MARINES");
+  assert.equal(marines.nameColor, marines.color);
+  assert.match(marines.nameColor, /^#[\da-fA-F]{6}$/);
+  const helper = read("docs/alliances.js");
+  const dropdown = read("docs/losp-selects.js");
+  assert.match(helper, /nameColor = String\(alliance\?\.nameColor/);
+  assert.match(helper, /target\.style\.color = meta\?\.nameColor \|\| ""/);
+  assert.match(dropdown, /if \(meta\.nameColor\) name\.style\.color = meta\.nameColor/);
+});
