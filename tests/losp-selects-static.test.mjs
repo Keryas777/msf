@@ -35,7 +35,7 @@ test("ENDGAME two-tone names are read from alliance metadata, not duplicated in 
   const endgame = alliances.filter((entry) => entry.group === "endgame-revolution");
   assert.equal(endgame.length, 2);
   for (const entry of endgame) {
-    assert.deepEqual(entry.displayParts, ["END", "GΛME R-évolution"]);
+    assert.deepEqual(entry.displayParts, ["END", "GΔME R-évolution"]);
     assert.match(entry.color, /^#[\da-fA-F]{6}$/);
   }
   assert.match(js, /meta\.displayParts\?\.length === 2/);
@@ -117,8 +117,8 @@ test("LoSP bicolor labels keep emojis; ENDGAME and MARINES remain unchanged", ()
   assert.equal(marines.nameColor, "#E53935");
   const endgame = metadata.filter((alliance) => alliance.group === "endgame-revolution");
   assert.deepEqual(endgame.map((alliance) => alliance.displayParts), [
-    ["END", "GΛME R-évolution"],
-    ["END", "GΛME R-évolution"],
+    ["END", "GΔME R-évolution"],
+    ["END", "GΔME R-évolution"],
   ]);
 });
 
