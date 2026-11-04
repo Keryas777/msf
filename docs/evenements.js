@@ -1,5 +1,5 @@
 /* LoSP événements : affichage uniquement de l'archive locale, aucun appel Scopely.
-   Source actuelle : ./data/evenements-snapshot.json, pages 1 et 2 (150 entrées).
+   Source : GET /api/public/events, avec recours temporaire au snapshot local.
    Page autonome et sans bibliothèque externe. */
 (()=>{
   'use strict';
@@ -100,7 +100,7 @@
     const body=create('div','ev-dialog-body');const info=create('div','ev-dialog-data');
     for(const [label,value] of [['Début',dateLabel(e.startTime)],['Fin',dateLabel(e.endTime)]]){const box=create('div');box.append(create('span','ev-dialog-label',label),create('strong','',value));info.append(box);}body.append(info);
     const description=strip(e.details||e.subName);if(description){const sec=detailSection(body,'Présentation');sec.append(create('p','',description));}
-    const extra=state.verifiedDetails[e.id];if(extra){const sec=detailSection(body,'Paliers et récompenses vérifiés');sec.append(create('p','',`${extra.tiers} paliers · objectif final : ${extra.maxGoal} points.`));listFor(sec,extra.highlights);}
+    const extra=state.verifiedDetails[e.id];if(extra){const sec=detailSection(body,state.metadata?.liveSource?'Paliers historiques (archive d’octobre, non actualisés)':'Paliers et récompenses archivés');sec.append(create('p','',`${extra.tiers} paliers · objectif final : ${extra.maxGoal} points.`));listFor(sec,extra.highlights);}
     const scoring=e.milestone?.scoring;const methods=Array.isArray(scoring?.methods)?scoring.methods:[];
     const caps=Array.isArray(scoring?.cappedScorings)?scoring.cappedScorings:[];
     if(methods.length){const sec=detailSection(body,'Méthodes de progression');listFor(sec,methods.map(x=>`${strip(x.description)||'Action'} : ${fmtNumber.format(x.points||0)} point(s)`));}
@@ -114,22 +114,81 @@
     body.append(create('p','ev-dialog-disclaimer','Données archivées : elles ne prouvent pas l’état actuel des événements. Les récompenses détaillées sont encore incomplètes pour de nombreuses fiches.'));
     host.append(body);if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');
   }
+  const EVENTS_API="https://losp-roster-service.deliriousfan7.workers.dev/api/public/events";
+  const FALLBACK_MAX_AGE=30*86400000;
+  function validCatalog(events){
+    return Array.isArray(events)&&events.length>0&&events.length<=1000&&
+      new Set(events.map(e=>e?.id)).size===events.length&&
+      events.every(e=>e&&typeof e.id==="string"&&
+        Number.isFinite(e.startTime)&&Number.isFinite(e.endTime)&&
+        e.endTime>e.startTime&&typeof e.type==="string");
+  }
+  function installCatalog(data,isLive){
+    if(!validCatalog(data.events))throw new Error('Catalogue invalide');
+    state.events=data.events;
+    state.metadata={...(data.metadata||{}),liveSource:isLive};
+    // Historical reward details must not be presented as freshly verified.
+    state.verifiedDetails=isLive?data.historicalDetails||{}:data.verifiedDetails||{};
+    const types=[...new Set(state.events.map(x=>x.type))]
+      .sort((a,b)=>(TYPES[a]||a).localeCompare(TYPES[b]||b,'fr'));
+    const selected=state.type,type=$('type-filter');
+    type.replaceChildren();
+    const all=create('option','','Tous les types');all.value='';type.append(all);
+    for(const value of types){
+      const option=create('option','',TYPES[value]||value);
+      option.value=value;type.append(option);
+    }
+    state.type=types.includes(selected)?selected:'';
+    type.value=state.type;
+    state.expanded.clear();
+    if(isLive){
+      const time=Date.parse(data.updatedAt||'');
+      const dated=Number.isFinite(time)?fmtDate.format(new Date(time)):'date inconnue';
+      $('source-line').textContent='Catalogue synchronisé via R2 · '+data.events.length+
+        ' événements · '+data.pages+' page(s) · dernière vérification '+dated+'.';
+      $('source-provenance').textContent=
+        'Données de jeu issues du collecteur hebdomadaire LoSP : reçus, SHA-256 et pagination vérifiés. Aucun appel direct à Scopely depuis cette page.';
+    }else{
+      const time=Date.parse(data.metadata?.snapshotUploadedAt||'');
+      const dated=Number.isFinite(time)?fmtDate.format(new Date(time)):'date inconnue';
+      $('source-line').textContent='Archive locale de secours du '+dated+
+        ' · '+data.events.length+' événements · synchronisation momentanément indisponible.';
+      $('source-provenance').textContent=
+        'Cet instantané historique ne prouve pas la disponibilité actuelle des événements. La page réessaiera la source R2 lors du prochain chargement.';
+    }
+    render();
+  }
   async function load(){
+    let fallback=null,hasUsableFallback=false;
     try{
       const embedded=$('embedded-events');
-      let data;if(embedded){data=JSON.parse(embedded.textContent);}else{
-        const response=await fetch('./data/evenements-snapshot.json',{cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);data=await response.json();
+      if(embedded)fallback=JSON.parse(embedded.textContent);
+      else{
+        const response=await fetch('./data/evenements-snapshot.json',{cache:'no-store'});
+        if(response.ok)fallback=await response.json();
       }
-      if(!Array.isArray(data.events))throw new Error('Archive invalide');
-      state.events=data.events.filter(e=>e&&Number.isFinite(e.startTime)&&Number.isFinite(e.endTime)&&e.id);
-      state.metadata=data.metadata||{};state.verifiedDetails=data.verifiedDetails||{};
-      const stamp=new Date(state.metadata.snapshotUploadedAt);const pretty=Number.isFinite(stamp.getTime())?fmtDate.format(stamp):'date inconnue';
-      $('source-line').textContent=`Catalogue historique R2 (page 1 du ${pretty}, page 2 fournie) · ${state.events.length} événements sur ${data.metadata?.perTotal??'?' } annoncés · Aucune actualisation automatique.`;
-      $('source-provenance').textContent='Dates et fiches issues d’une archive historique. SHA-256 vérifié ; URL d’origine des objets non prouvée.';
-      const values=[...new Set(state.events.map(x=>x.type))].sort((a,b)=>(TYPES[a]||a).localeCompare(TYPES[b]||b,'fr'));
-      const type=$('type-filter');for(const value of values){const option=create('option','',TYPES[value]||value);option.value=value;type.append(option);}
-      render();
-    }catch(error){$('source-line').textContent='Impossible de lire le fichier local des événements : '+error.message;$('source-provenance').textContent='Vérifie que ./data/evenements-snapshot.json est présent à côté des fichiers de la page.';}
+      const captured=Date.parse(fallback?.metadata?.snapshotUploadedAt||'');
+      hasUsableFallback=validCatalog(fallback?.events)&&Number.isFinite(captured)&&
+        Date.now()>=captured&&Date.now()-captured<FALLBACK_MAX_AGE;
+      if(hasUsableFallback)installCatalog(fallback,false);
+    }catch{fallback=null;}
+    try{
+      const response=await fetch(EVENTS_API,{mode:'cors'});
+      if(!response.ok)throw new Error('HTTP '+response.status);
+      const live=await response.json();
+      if(live?.schemaVersion!==1||live.status!=='ok'||
+        !Number.isSafeInteger(live.total)||live.total!==live.count||
+        live.events?.length!==live.total||!validCatalog(live.events))
+        throw new Error('Catalogue incomplet');
+      installCatalog({...live,historicalDetails:hasUsableFallback?fallback.verifiedDetails||{}:{}},true);
+    }catch{
+      if(!hasUsableFallback){
+        $('source-line').textContent=
+          'Catalogue indisponible : aucune archive locale encore valide.';
+        $('source-provenance').textContent=
+          'La publication attend des pages R2 complètes et vérifiées. Réessayer après la prochaine collecte.';
+      }
+    }
   }
   function init(){
     const initial=new URLSearchParams(location.search).get('date');
