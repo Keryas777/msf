@@ -169,6 +169,7 @@
 
     allianceFilters.clear();
     $filters.querySelectorAll("input[data-alliance-key]").forEach((cb) => {
+      window.LoSPAlliances?.renderAllianceName?.(cb.closest("label")?.querySelector(".fName"), cb.dataset.allianceKey);
       allianceFilters.set(cb.dataset.allianceKey, cb);
       cb.addEventListener("change", () => { updateFilterSummary(); applyFiltersAndRender(); });
     });
