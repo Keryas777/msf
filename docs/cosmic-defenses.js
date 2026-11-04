@@ -160,7 +160,8 @@
         for (const id of entry.characters) portraits.appendChild(portrait(id));
         card.appendChild(portraits);
         card.appendChild(make("p", "cosmicDefenseMeta", "Source : " + safeText(catalog.displaySource(entry), 100)));
-        if (entry.notes) card.appendChild(make("p", "cosmicDefenseMeta", safeText(entry.notes)));
+        const note = catalog.displayNote(entry.notes);
+        if (note) card.appendChild(make("p", "cosmicDefenseMeta", safeText(note)));
         section.appendChild(card);
       }
       publishedNode.appendChild(section);
