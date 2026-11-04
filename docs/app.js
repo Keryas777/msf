@@ -1081,9 +1081,13 @@
           allianceRaw: rawAlliance,
         };
       })
-      .filter((r) => r.player && r.alliance);
+      .filter((r) => r.player && r.alliance && window.LoSPAccess?.isAllianceAllowed(r.alliance));
 
+    const authorizedNames = new Set(JOUEURS.map((p) => normalizePlayerKey(p.player)));
     ROSTERS = (Array.isArray(rostersRaw) ? rostersRaw : [])
+      .filter((r) => r?.alliance
+        ? window.LoSPAccess?.isAllianceAllowed(r.alliance)
+        : authorizedNames.has(normalizePlayerKey(r?.playerKey ?? r?.player)))
       .map((r) => ({
         player: String(r.playerKey ?? r.player ?? "").trim(),
         chars: r.chars && typeof r.chars === "object" ? r.chars : {},
