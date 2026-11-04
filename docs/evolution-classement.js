@@ -238,6 +238,7 @@
         const prefix = document.createElement('span');
         prefix.textContent = alliance.displayParts[0];
         prefix.style.color = '#fff';
+        if (alliance.group === 'losp') prefix.style.whiteSpace = 'pre';
         const colored = document.createElement('span');
         colored.textContent = alliance.displayParts[1];
         colored.style.color = /^#[0-9a-fA-F]{6}$/.test(alliance.color || '') ? alliance.color : '#fff';
