@@ -169,6 +169,12 @@ export function findMatchingCounters(rows, attackIds, defenseIds) {
     );
 }
 
+export function existingCounterNotes(matches) {
+  return [...new Set((Array.isArray(matches) ? matches : [])
+    .map((match) => String(match?.notes ?? match?.row?.notes ?? "").trim())
+    .filter(Boolean))];
+}
+
 export function summarizeCounterComparison(matches, newRatio) {
   const ratio = ceilRatioToHundredth(newRatio);
   if (!ratio) return { status: "invalid", ratio: null, matches: [] };
@@ -180,6 +186,7 @@ export function summarizeCounterComparison(matches, newRatio) {
     defVariant: String(row.def_variant || "").trim(),
     atkFamily: String(row.atk_family || "").trim(),
     atkTeam: String(row.atk_team || "").trim(),
+    notes: String(row.notes ?? "").trim(),
     hardRatio: Number(String(row.min_ratio_hard || "").replace(",", "."))
   }));
 
