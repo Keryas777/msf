@@ -1,0 +1,15 @@
+name: Guest LoSP access checks
+on:
+  pull_request:
+    paths: ["docs/**", "tests/guest-access-view.test.mjs", ".github/workflows/test-guest-access.yml"]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test tests/guest-access-view.test.mjs workers/msf-cosmic-defenses/test/legacy-session.test.mjs tests/access-group-ui.test.mjs
