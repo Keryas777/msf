@@ -152,7 +152,7 @@
     $filters.innerHTML = knownAlliances
       .map((alliance) => {
         const keySafe = escapeHtml(alliance.key);
-        const emojiSafe = alliance.nameColor || alliance.displayParts?.length === 2
+        const emojiSafe = alliance.nameColor || (alliance.displayParts?.length === 2 && alliance.group !== "losp")
           ? ""
           : escapeHtml(alliance.emoji || "");
         const labelSafe = escapeHtml(alliance.name || alliance.key);
