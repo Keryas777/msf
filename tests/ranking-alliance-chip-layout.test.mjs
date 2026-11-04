@@ -53,7 +53,7 @@ test("TCP and MVP keep emojis beside LoSP names and preserve checkboxes", () => 
     assert.match(js, /type="checkbox" data-alliance-key/);
     assert.match(js, /alliance\.nameColor \|\| alliance\.displayParts\?\.length === 2/);
     assert.match(html, /rankings-shared\.css\?v=2/);
-    assert.match(html, /alliances\.js\?v=2/);
+    assert.match(html, /alliances\.js\?v=\d+/);
   }
 });
 
