@@ -88,10 +88,11 @@
       ]);
       if (!alive(state)) return;
       state.alliances = (Array.isArray(allianceData) ? allianceData : [])
-        .filter(a => a?.key && a.active !== false)
+        .filter(a => a?.key && a.active !== false && window.LoSPAccess?.isAllianceAllowed(a.key))
         .sort((a, b) => Number(a.order || 999) - Number(b.order || 999));
       state.selected = new Set(state.alliances.map(a => a.key));
-      state.ranking = rankPlayers(state.record.id, rosters, players, aliases, state.alliances);
+      const scopedPlayers = (Array.isArray(players) ? players : []).filter(p => window.LoSPAccess?.isAllianceAllowed(p?.alliance));
+      state.ranking = rankPlayers(state.record.id, rosters, scopedPlayers, aliases, state.alliances);
       const filters = state.root.querySelector("#profile-alliance-filters");
       filters.innerHTML = state.alliances.map(a =>
         "<label class=\"profileFilterToggle\"><input type=\"checkbox\" data-alliance=\"" +
@@ -116,7 +117,7 @@
       displayRanking(state);
     } catch (error) {
       if (alive(state)) {
-        console.warn("[personnages] Classement LoSP :", error);
+        console.warn("[personnages] Classement des joueurs :", error);
         state.root.querySelector("#profile-player-count").textContent = "Classement indisponible";
         state.root.querySelector("#profile-player-list").innerHTML =
           "<p class=\"detailEmpty\">Impossible de charger les rosters. Ferme puis rouvre la fiche pour réessayer.</p>";
@@ -200,7 +201,7 @@
       "<a class=\"profileCodexLink\" href=\"" + codex.link("character", record.id) +
       "\">Fiche technique dans le Codex →</a></section>" +
       "<section class=\"profilePanel\" id=\"profile-panel-players\" role=\"tabpanel\" data-profile-panel=\"players\" hidden>" +
-      "<h3>Classement LoSP</h3><p class=\"profileSmallNote\">Membres actuels du groupement, par puissance décroissante, d'après leurs derniers rosters disponibles.</p>" +
+      "<h3>Classement des joueurs</h3><p class=\"profileSmallNote\">Membres actuels du groupement, par puissance décroissante, d'après leurs derniers rosters disponibles.</p>" +
       "<div id=\"profile-player-filters\" hidden><div class=\"profileFiltersTitle\"><strong>Filtrer les alliances</strong>" +
       "<button type=\"button\" id=\"profile-toggle-all\">Tout décocher</button></div>" +
       "<div id=\"profile-alliance-filters\" class=\"profileAllianceFilters\" role=\"group\" aria-label=\"Filtrer par alliance\"></div></div>" +
