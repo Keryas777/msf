@@ -72,3 +72,24 @@ test("evolution ranking chips omit decorative emojis for custom alliance typogra
   assert.match(js, /identity\.appendChild\(name\)/);
   assert.match(js, /check\.textContent = selected \? '✅' : '○'/);
 });
+
+test("MARINES has a stylized red italic display name without changing its technical identity", () => {
+  const alliances = JSON.parse(read("docs/data/alliances.json"));
+  const marines = alliances.find((alliance) => alliance.key === "marines");
+  assert.equal(marines.key, "marines");
+  assert.equal(marines.name, "MARINES");
+  assert.equal(marines.displayName, "MΛЯIΠΣƧ");
+  assert.equal(marines.nameItalic, true);
+  assert.equal(marines.nameColor, "#E53935");
+  assert.ok(marines.aliases.includes("MARINES"));
+
+  const helper = read("docs/alliances.js");
+  const dropdown = read("docs/losp-selects.js");
+  const evolution = read("docs/evolution-classement.js");
+  assert.match(helper, /target\.textContent = meta\?\.displayName \|\| meta\?\.name/);
+  assert.match(helper, /target\.style\.fontStyle = meta\?\.nameItalic \? "italic" : ""/);
+  assert.match(dropdown, /name\.textContent = meta\.displayName \|\| meta\.name/);
+  assert.match(dropdown, /if \(meta\.nameItalic\) name\.style\.fontStyle = "italic"/);
+  assert.match(evolution, /name\.textContent = alliance\?\.displayName \|\| alliance\?\.name/);
+  assert.match(evolution, /if \(alliance\?\.nameItalic\) name\.style\.fontStyle = 'italic'/);
+});
