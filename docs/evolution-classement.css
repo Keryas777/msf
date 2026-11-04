@@ -38,19 +38,21 @@
   gap: 8px;
 }
 
+/* Two-column chips: fixed check on the left, centered alliance identity on the right. */
 .evolutionAllianceChip {
+  position: relative;
   min-width: 0;
-  min-height: 60px;
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
+  min-height: 70px;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 9px 12px;
+  justify-content: center;
+  padding: 10px 8px 10px 40px;
   border: 1px solid rgba(255,255,255,.14);
   border-radius: 999px;
   background: rgba(0,0,0,.22);
   color: rgba(255,255,255,.72);
   font: inherit;
+  text-align: center;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -61,8 +63,17 @@
   color: rgba(255,255,255,.94);
 }
 
+.evolutionAllianceChip:focus-visible {
+  outline: 2px solid var(--accent, #9d9ce7);
+  outline-offset: 2px;
+}
+
 .evolutionAllianceChipCheck {
-  width: 28px;
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
   text-align: center;
   font-size: 1.02rem;
   line-height: 1;
@@ -74,40 +85,51 @@
 }
 
 .evolutionAllianceChipIdentity {
+  width: 100%;
   min-width: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  line-height: 1.05;
-}
-
-/* LoSP: emoji, white prefix, and colored deity stay on one line on mobile. */
-.evolutionAllianceChipIdentity--losp {
-  flex-direction: row;
-  flex-wrap: nowrap;
   gap: 4px;
+  line-height: 1.12;
 }
 
-.evolutionAllianceChipIdentity--losp .evolutionAllianceChipName {
-  font-size: clamp(.62rem, 2.45vw, .8rem);
+/* LoSP: icon, white prefix and colored deity share one centered line. */
+.evolutionAllianceChipIdentity--losp {
+  flex-wrap: nowrap;
+}
+
+.evolutionAllianceChipEmoji {
+  flex: 0 0 auto;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.evolutionAllianceChipName {
+  display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(11px, 2.7vw, 13px);
+  font-weight: 850;
   white-space: nowrap;
   overflow: visible;
   text-overflow: clip;
 }
 
-.evolutionAllianceChipEmoji {
-  font-size: 1.1rem;
+/* ENDGAME alone uses two explicit, centered lines without truncation. */
+.evolutionAllianceChipName--two-lines {
+  flex-direction: column;
+  gap: 3px;
+  line-height: 1.12;
 }
 
-.evolutionAllianceChipName {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.evolutionAllianceChipLine {
+  display: inline-flex;
+  justify-content: center;
   white-space: nowrap;
-  font-size: .8rem;
-  font-weight: 850;
 }
 
 .evolutionRankingSummary {
@@ -246,11 +268,23 @@
   text-align: right;
 }
 
-@media (max-width: 390px) {
-  .evolutionAllianceChip {
-    min-height: 56px;
-    padding: 8px 10px;
+/* Very narrow screens use a single column rather than clipping long alliance names. */
+@media (max-width: 380px) {
+  .evolutionAllianceFilterGrid {
+    grid-template-columns: minmax(0, 1fr);
   }
+
+  .evolutionAllianceChip {
+    min-height: 58px;
+    padding: 8px 12px 8px 46px;
+  }
+
+  .evolutionAllianceChipCheck { left: 14px; }
+  .evolutionAllianceChipName { font-size: .85rem; }
+  .evolutionAllianceChipEmoji { font-size: 1.12rem; }
+}
+
+@media (max-width: 390px) {
 
   .evolutionRankingRow {
     grid-template-columns: 14px 40px minmax(0, 1fr) auto;
