@@ -44,6 +44,7 @@
   }
 
   function optionLabel(container, select, option) {
+    container.classList.remove("losp-choice__bicolor");
     const meta = isAllianceSelect(select) ? allianceMeta(option.value) : null;
     if (meta) {
       allianceLabel(container, meta);
