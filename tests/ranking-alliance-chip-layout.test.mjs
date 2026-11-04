@@ -85,7 +85,8 @@ test("MARINES remains red without a two-line layout", async () => {
   const helper = await allianceHelper();
   const chip = node(true);
   helper.renderAllianceName(chip, "marines");
-  assert.equal(chip.textContent, "MARINES");
+  assert.equal(chip.textContent, "MΛЯIΠΣƧ");
   assert.equal(chip.style.color, "#E53935");
+  assert.equal(chip.style.fontStyle, "italic");
   assert.equal(chip.classList.contains("alliance-name--two-lines"), false);
 });
