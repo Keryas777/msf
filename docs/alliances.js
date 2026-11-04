@@ -233,7 +233,7 @@
       // R-évolution sur la seconde, sans changer les autres rendus de l'alliance.
       const stacked = target.closest('[data-alliance-name-lines="two"]');
       const splitAt = colored.textContent.indexOf(" ");
-      if (stacked && splitAt > 0) {
+      if (stacked && meta.group === "endgame-revolution" && splitAt > 0) {
         const firstLine = document.createElement("span");
         colored.textContent = meta.displayParts[1].slice(0, splitAt);
         firstLine.append(prefix, colored);
