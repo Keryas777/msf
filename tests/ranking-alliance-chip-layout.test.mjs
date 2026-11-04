@@ -87,8 +87,8 @@ test("MARINES remains red without a two-line layout", async () => {
   helper.renderAllianceName(chip, "marines");
   assert.equal(chip.textContent, "MΛЯIΠΣƧ");
   assert.equal(chip.style.color, "#E53935");
-  assert.equal(chip.style.fontStyle, "italic");
-  assert.equal(chip.style.display, "inline-block");
-  assert.equal(chip.style.transform, "skewX(-7deg)");
+  assert.equal(chip.style.fontStyle, undefined);
+  assert.equal(chip.style.display, undefined);
+  assert.equal(chip.style.transform, undefined);
   assert.equal(chip.classList.contains("alliance-name--two-lines"), false);
 });
