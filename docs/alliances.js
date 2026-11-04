@@ -97,6 +97,7 @@
         const name = String(alliance?.name ?? "").trim();
         const emoji = String(alliance?.emoji ?? "").trim();
         const color = String(alliance?.color ?? "").trim();
+        const nameColor = String(alliance?.nameColor ?? "").trim();
         const group = String(alliance?.group ?? "losp").trim();
         const displayParts = Array.isArray(alliance?.displayParts) ? alliance.displayParts.map(String) : [];
         const order = Number(alliance?.order);
@@ -109,6 +110,7 @@
           name,
           emoji,
           color,
+          nameColor,
           group,
           displayParts,
           order: Number.isFinite(order) ? order : 999,
@@ -215,6 +217,7 @@
     if (!target) return;
     const meta = getAllianceMeta(value);
     target.textContent = "";
+    target.style.color = meta?.nameColor || "";
     if (meta?.displayParts?.length === 2) {
       const prefix = document.createElement("span");
       prefix.textContent = meta.displayParts[0];
@@ -245,6 +248,7 @@
         name: alliance.name,
         emoji: alliance.emoji,
         color: alliance.color,
+        nameColor: alliance.nameColor,
         group: alliance.group,
         displayParts: [...(alliance.displayParts || [])],
         order: alliance.order,
