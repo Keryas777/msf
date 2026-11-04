@@ -2733,7 +2733,7 @@ function bindEvents() {
     if (event.key !== "Tab") return;
     const focusable = [...dom.filterSheet.querySelectorAll(
       'button:not([disabled]), input:not([disabled]), select:not([disabled]), a[href]'
-    )].filter((element) => !element.hidden);
+    )].filter((element) => !element.hidden && !element.classList.contains("losp-native-select"));
     if (!focusable.length) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
