@@ -625,21 +625,25 @@
     rules: [],
   };
 
+  function canonicalWarCounterTeamName(value) {
+    return String(value ?? "").trim().replace(/Société des araignées/gi, "Société des Araignées");
+  }
+
   function normalizeWarRow(r) {
     return {
       season: (r.season ?? "").toString().trim(),
       room: Number.isInteger(Number(r.room)) && Number(r.room) >= 1 && Number(r.room) <= 6 ? Number(r.room) : 0,
-      def_family: (r.def_family ?? "").toString().trim(),
-      def_variant: (r.def_variant ?? "").toString().trim(),
+      def_family: canonicalWarCounterTeamName(r.def_family),
+      def_variant: canonicalWarCounterTeamName(r.def_variant),
       def_key: (r.def_key ?? "").toString().trim(),
 
       def_chars: [r.def_char1, r.def_char2, r.def_char3, r.def_char4, r.def_char5]
         .map((x) => (x ?? "").toString().trim())
         .filter(Boolean),
 
-      def_team: (r.def_team ?? "").toString().trim(),
-      atk_family: (r.atk_family ?? "").toString().trim(),
-      atk_team: (r.atk_team ?? "").toString().trim(),
+      def_team: canonicalWarCounterTeamName(r.def_team),
+      atk_family: canonicalWarCounterTeamName(r.atk_family),
+      atk_team: canonicalWarCounterTeamName(r.atk_team),
       atk_key: (r.atk_key ?? "").toString().trim(),
 
       atk_chars: [r.atk_char1, r.atk_char2, r.atk_char3, r.atk_char4, r.atk_char5].map((x) =>
