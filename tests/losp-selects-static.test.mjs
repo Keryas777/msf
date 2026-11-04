@@ -13,7 +13,7 @@ const pages = [
 test("all selected public pages load the same mobile dropdown assets", () => {
   for (const page of pages) {
     const html = read("docs/" + page + ".html");
-    assert.match(html, /href="\.\/losp-selects\.css\?v=1"/, page);
+    assert.match(html, /href="\.\/losp-selects\.css\?v=\d+"/, page);
     assert.match(html, /src="\.\/losp-selects\.js\?v=\d+"/, page);
   }
 });
