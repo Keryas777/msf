@@ -15736,19 +15736,29 @@
         {
           "month": "2026-10",
           "teamId": "ai-avengers-2026-10-44",
-          "label": "A.I. Avengers — Reworked veterans at the frontier",
+          "label": "A.I. Avengers",
           "kind": "team",
-          "formationStatus": "partial",
+          "formationStatus": "complete",
           "members": [
             "Ultron",
-            "Vision"
+            "Vision",
+            "Jocasta",
+            "HumanTorchJim",
+            "HawkeyeRobot"
           ],
           "core": [
             "Ultron",
-            "Vision"
+            "Vision",
+            "Jocasta",
+            "HumanTorchJim",
+            "HawkeyeRobot"
           ],
           "pool": [],
-          "newCharacterIds": [],
+          "newCharacterIds": [
+            "Jocasta",
+            "HumanTorchJim",
+            "HawkeyeRobot"
+          ],
           "existingCharacterIds": [
             "Ultron",
             "Vision"
@@ -15757,16 +15767,56 @@
             "Ultron",
             "Vision"
           ],
-          "announcedNext": [
-            "Jocasta",
-            "HumanTorchJim",
-            "HawkeyeRobot"
-          ],
+          "announcedNext": [],
           "notes": [
             "The official article describes competitive base-stat modernization for both veterans and Vision’s updated abilities, including Repair and the A.I. energy/Speed Bar architecture. The October 5 contemporary discussion confirms both updated veterans are already in use; no exact initial activation day is inferred.",
-            "Ultron qualifies through the substantial base-stat modernization, not the Ultimate text correction: the official article explicitly says that correction changes no combat behavior. The three newcomers remain announcedNext, not members."
+            "Ultron qualifies through the substantial base-stat modernization, not the Ultimate text correction: the official article explicitly says that correction changes no combat behavior.",
+            "The new A.I. Avengers recruits became available on October 9 (Jocasta and Human Torch (Jim)) and October 29 (Hawkeye (Robot)), according to Scopely's dated announcements. The October 9 A.I. Takeover loan characters are not treated as recruitable releases."
           ],
-          "characterReleases": [],
+          "characterReleases": [
+            {
+              "month": "2026-10",
+              "characterId": "Jocasta",
+              "date": "2026-10-09",
+              "releaseMethod": "limited_offer; power_core_orb",
+              "confidence": "very_high",
+              "dateConfidence": "very_high",
+              "sourceIds": [
+                "blog-update-10-2-26"
+              ],
+              "notes": [
+                "Scopely announced first availability on October 9 at 2 PM PDT through offers and the Second Life Power Core Orb. Prior presence in the game catalog was not a confirmed recruitable release."
+              ]
+            },
+            {
+              "month": "2026-10",
+              "characterId": "HumanTorchJim",
+              "date": "2026-10-09",
+              "releaseMethod": "kyln_event",
+              "confidence": "very_high",
+              "dateConfidence": "very_high",
+              "sourceIds": [
+                "blog-update-10-2-26"
+              ],
+              "notes": [
+                "Kyln: Code Blazes launched on October 9 at 2 PM PDT with Human Torch (Jim) shards and an announced unlock path. Presence as a loaned campaign character does not establish an earlier release."
+              ]
+            },
+            {
+              "month": "2026-10",
+              "characterId": "HawkeyeRobot",
+              "date": "2026-10-29",
+              "releaseMethod": "limited_offer; power_core_orb",
+              "confidence": "very_high",
+              "dateConfidence": "very_high",
+              "sourceIds": [
+                "blog-update-10-23-26"
+              ],
+              "notes": [
+                "Scopely announced first availability on October 29 at 2 PM PDT via offers and orbs. The earlier A.I. Takeover campaign provided a temporary loan character, not an earlier recruitable release."
+              ]
+            }
+          ],
           "reworks": [
             {
               "month": "2026-10",
@@ -15779,8 +15829,16 @@
           ],
           "sourceIds": [
             "blog-update-9-22-26",
-            "ai-reworks-live"
-          ]
+            "ai-reworks-live",
+            "blog-update-10-2-26",
+            "blog-update-10-23-26"
+          ],
+          "teamSize": 5,
+          "releaseMethods": {
+            "Jocasta": "limited_offer; power_core_orb",
+            "HumanTorchJim": "kyln_event",
+            "HawkeyeRobot": "limited_offer; power_core_orb"
+          }
         },
         {
           "month": "2026-10",
@@ -16626,13 +16684,20 @@
           "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-16-26",
           "publicationDate": "2026-10-16",
           "type": "official"
+        },
+        {
+          "id": "blog-update-10-23-26",
+          "title": "The Mechanical Marksman",
+          "url": "https://marvelstrikeforce.com/en/updates/blog-update-10-23-26",
+          "publicationDate": "2026-10-23",
+          "type": "official"
         }
       ],
       "validation": {
         "auditedPeriod": "2026-01-01/2026-10-05",
         "individualReleaseCount": 2,
-        "teamEventNewCharacterCount": 36,
-        "distinctPlayableReleaseCount": 38,
+        "teamEventNewCharacterCount": 39,
+        "distinctPlayableReleaseCount": 41,
         "distinctReworkedCharacterCount": 45,
         "duplicatesAcrossReleaseBuckets": [],
         "annualTotalsStatus": "partial: audited through 2026-10-05; includes officially announced Dracula/Nightreavers release dated 2026-10-19"
