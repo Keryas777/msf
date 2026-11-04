@@ -10,7 +10,8 @@
       "zeus",
       "LoSP Zeus",
       "losp zeus"
-    ]
+    ],
+    "group": "losp"
   },
   {
     "key": "athena",
@@ -27,7 +28,8 @@
       "LoSP Athena",
       "losp athéna",
       "losp athena"
-    ]
+    ],
+    "group": "losp"
   },
   {
     "key": "kronos",
@@ -40,7 +42,8 @@
       "kronos",
       "LoSP Kronos",
       "losp kronos"
-    ]
+    ],
+    "group": "losp"
   },
   {
     "key": "dionysos",
@@ -53,7 +56,8 @@
       "dionysos",
       "LoSP Dionysos",
       "losp dionysos"
-    ]
+    ],
+    "group": "losp"
   },
   {
     "key": "poseidon",
@@ -68,7 +72,8 @@
       "poseidon",
       "LoSP Poséidon",
       "losp poseidon"
-    ]
+    ],
+    "group": "losp"
   },
   {
     "key": "hades",
@@ -84,6 +89,47 @@
       "hades",
       "LoSP Hadès",
       "losp hades"
+    ],
+    "group": "losp"
+  },
+  {
+    "key": "marines",
+    "name": "MARINES",
+    "group": "marines",
+    "color": "#E53935",
+    "order": 7,
+    "aliases": [
+      "MARINES"
     ]
+  },
+  {
+    "key": "endgame-revolution-red",
+    "name": "ENDGAME R-évolution",
+    "group": "endgame-revolution",
+    "color": "#ED3946",
+    "order": 8,
+    "displayParts": [
+      "END",
+      "GAME R-évolution"
+    ],
+    "aliases": [
+      "endgame-revolution-red"
+    ],
+    "emoji": "🔴"
+  },
+  {
+    "key": "endgame-revolution-orange",
+    "name": "ENDGAME R-évolution",
+    "group": "endgame-revolution",
+    "color": "#F6952C",
+    "order": 9,
+    "displayParts": [
+      "END",
+      "GAME R-évolution"
+    ],
+    "aliases": [
+      "endgame-revolution-orange"
+    ],
+    "emoji": "🟠"
   }
 ]

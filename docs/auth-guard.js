@@ -4,6 +4,9 @@
   const AUTH_PAGE = "./auth.html";
   const LOCAL_SESSION_KEY = "losp_session";
 
+  let resolveAuthReady;
+  window.LoSP_AUTH_READY = new Promise((resolve) => { resolveAuthReady = resolve; });
+
   function getLocalSession() {
     try {
       return localStorage.getItem(LOCAL_SESSION_KEY) || "";
@@ -63,8 +66,45 @@
     return `${path}${search}${hash}`;
   }
 
+  // Les pages de gestion LoSP restent invisibles aux invités.
+  // Ce filtre de navigation ne remplace PAS une protection des fichiers JSON côté serveur.
+  const GUEST_TOOL_PAGES = new Set([
+    "home.html", "war-choose.html", "war-counters.html",
+    "war-attack-checker.html", "codex.html", "historique-personnages.html",
+    "cosmic-counters.html"
+  ]);
+
+  function guardGuestPage(data) {
+    if (data?.role !== "guest") return true;
+    const page = window.location.pathname.split("/").pop() || "index.html";
+    if (!GUEST_TOOL_PAGES.has(page)) {
+      window.location.replace("./home.html");
+      return false;
+    }
+    if (page === "home.html") {
+      const filterTiles = () => {
+        const allowed = new Set([
+          "war-choose.html", "codex.html", "historique-personnages.html"
+        ]);
+        document.querySelectorAll(".homeTile[href]").forEach((tile) => {
+          const target = (tile.getAttribute("href") || "").split("/").pop();
+          if (!allowed.has(target)) tile.setAttribute("hidden", "");
+        });
+        const rosterUpdate = document.querySelector(".homeRosterUpdate");
+        if (rosterUpdate) rosterUpdate.setAttribute("hidden", "");
+      };
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", filterTiles, { once: true });
+      } else {
+        filterTiles();
+      }
+    }
+    return true;
+  }
+
   function dispatchSession(data) {
     window.LoSP_SESSION = data;
+    if (resolveAuthReady) { resolveAuthReady(data); resolveAuthReady = null; }
 
     window.dispatchEvent(
       new CustomEvent("losp:auth-ready", {
@@ -147,6 +187,7 @@
       }
 
       dispatchSession(data);
+      if (!guardGuestPage(data)) return;
 
       document.documentElement.classList.remove("authChecking");
     } catch (error) {

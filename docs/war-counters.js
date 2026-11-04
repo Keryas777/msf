@@ -307,6 +307,8 @@
     const helperKey = window.LoSPAlliances?.getAllianceKey?.(value);
     const key = normalizeKey(helperKey || value);
 
+    // Priorité à la clé interne exacte lorsque deux alliances ont le même nom.
+    if (ALLIANCE_BY_KEY.has(key)) return key;
     if (ALLIANCE_ALIAS_TO_KEY.has(key)) {
       return ALLIANCE_ALIAS_TO_KEY.get(key);
     }
@@ -374,17 +376,16 @@
   }
 
   function getAllowedAllianceKeys() {
-    if (!hasUsableSession(lospSession)) return null;
-    if (!Array.isArray(lospSession.alliances) || !lospSession.alliances.length) return null;
-
-    return new Set(lospSession.alliances.map((a) => allianceKey(a)).filter(Boolean));
+    // Une liste vide ne signifie JAMAIS accès illimité.
+    if (!lospSession?.ok) return new Set();
+    const keys = Array.isArray(lospSession.allowedAlliances)
+      ? lospSession.allowedAlliances
+      : lospSession.role === "guest" ? [] : (lospSession.alliances || []);
+    return new Set(keys.map((a) => allianceKey(a)).filter(Boolean));
   }
 
   function isAllianceAllowed(alliance) {
-    const allowedKeys = getAllowedAllianceKeys();
-    if (!allowedKeys) return true;
-
-    return allowedKeys.has(allianceKey(alliance));
+    return getAllowedAllianceKeys().has(allianceKey(alliance));
   }
 
   function getSessionAlliancePreferenceKeys() {
@@ -408,6 +409,9 @@
       });
     }
 
+    if (Array.isArray(lospSession.allowedAlliances)) {
+      lospSession.allowedAlliances.forEach((alliance) => keys.push(allianceKey(alliance)));
+    }
     return [...new Set(keys.filter(Boolean))];
   }
 

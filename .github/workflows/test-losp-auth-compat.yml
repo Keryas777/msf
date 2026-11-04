@@ -9,6 +9,8 @@ on:
       - "scripts/check-losp-auth-preview.mjs"
       - "workers/msf-cosmic-defenses/test/legacy-session.test.mjs"
       - "workers/losp-auth/worker.js"
+      - "workers/losp-auth/test/**"
+      - "docs/data/access-groups.json"
 permissions:
   contents: read
 concurrency:
@@ -31,6 +33,7 @@ jobs:
         run: |
           node --test workers/msf-cosmic-defenses/test/legacy-session.test.mjs
           node --test workers/msf-cosmic-defenses/test/auth.test.mjs
+          node --test workers/losp-auth/test/access-groups.test.mjs
   preview:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     needs: unit-tests

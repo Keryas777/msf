@@ -97,6 +97,8 @@
         const name = String(alliance?.name ?? "").trim();
         const emoji = String(alliance?.emoji ?? "").trim();
         const color = String(alliance?.color ?? "").trim();
+        const group = String(alliance?.group ?? "losp").trim();
+        const displayParts = Array.isArray(alliance?.displayParts) ? alliance.displayParts.map(String) : [];
         const order = Number(alliance?.order);
         const aliases = Array.isArray(alliance?.aliases) ? alliance.aliases : [];
 
@@ -107,6 +109,8 @@
           name,
           emoji,
           color,
+          group,
+          displayParts,
           order: Number.isFinite(order) ? order : 999,
           aliases: [...new Set([key, name, ...aliases].map(String).map((v) => v.trim()).filter(Boolean))],
         };
@@ -134,13 +138,22 @@
     allianceByKey = new Map();
     aliasToKey = new Map();
 
+    const aliasOwners = new Map();
     alliances.forEach((alliance) => {
       allianceByKey.set(alliance.key, alliance);
-
       [alliance.key, alliance.name, ...(alliance.aliases || [])].forEach((alias) => {
         const aliasKey = normalizeAllianceKey(alias);
-        if (aliasKey) aliasToKey.set(aliasKey, alliance.key);
+        if (!aliasKey) return;
+        // Deux alliances Endgame portent le même nom : leur identifiant reste distinct.
+        if (aliasOwners.has(aliasKey) && aliasOwners.get(aliasKey) !== alliance.key) {
+          aliasOwners.set(aliasKey, null);
+        } else if (!aliasOwners.has(aliasKey)) {
+          aliasOwners.set(aliasKey, alliance.key);
+        }
       });
+    });
+    aliasOwners.forEach((key, alias) => {
+      if (key) aliasToKey.set(alias, key);
     });
 
     loaded = options.loaded === true;
@@ -152,6 +165,7 @@
   }
 
   async function loadAlliances(options = {}) {
+    if (window.LoSP_AUTH_READY) await window.LoSP_AUTH_READY;
     if (loaded && !options.force) return getKnownAlliances();
     if (loadingPromise && !options.force) return loadingPromise;
 
@@ -178,6 +192,7 @@
 
     const key = normalizeAllianceKey(value);
     if (!key) return "";
+    if (allianceByKey.has(key)) return key;
     if (aliasToKey.has(key)) return aliasToKey.get(key);
     return key;
   }
@@ -195,20 +210,46 @@
     return getAllianceMeta(value)?.name || String(value ?? "").trim();
   }
 
+  // Rend le nom officiel sans suffixe rouge/orange ; seuls les caractères changent de couleur.
+  function renderAllianceName(target, value) {
+    if (!target) return;
+    const meta = getAllianceMeta(value);
+    target.textContent = "";
+    if (meta?.displayParts?.length === 2) {
+      const prefix = document.createElement("span");
+      prefix.textContent = meta.displayParts[0];
+      prefix.style.color = "#fff";
+      const colored = document.createElement("span");
+      colored.textContent = meta.displayParts[1];
+      colored.style.color = meta.color;
+      target.append(prefix, colored);
+    } else {
+      target.textContent = meta?.name || String(value ?? "").trim();
+    }
+  }
+
   function getAllianceOrder(value) {
     return getAllianceMeta(value)?.order ?? 999;
   }
 
   function getKnownAlliances() {
     ensureFallbackLoaded();
-    return alliances.map((alliance) => ({
-      key: alliance.key,
-      name: alliance.name,
-      emoji: alliance.emoji,
-      color: alliance.color,
-      order: alliance.order,
-      aliases: [...(alliance.aliases || [])],
-    }));
+    const permitted = window.LoSP_SESSION?.allowedAlliances;
+    const allowedKeys = Array.isArray(permitted)
+      ? new Set(permitted.map(normalizeAllianceKey))
+      : null;
+    return alliances
+      .filter((alliance) => allowedKeys ? allowedKeys.has(alliance.key) : alliance.group === "losp")
+      .map((alliance) => ({
+        key: alliance.key,
+        name: alliance.name,
+        emoji: alliance.emoji,
+        color: alliance.color,
+        group: alliance.group,
+        displayParts: [...(alliance.displayParts || [])],
+        order: alliance.order,
+        aliases: [...(alliance.aliases || [])],
+      }));
   }
 
   window.LoSPAlliances = Object.freeze({
@@ -218,6 +259,7 @@
     getAllianceMeta,
     getAllianceEmoji,
     getAllianceLabel,
+    renderAllianceName,
     getAllianceOrder,
     getKnownAlliances,
   });
