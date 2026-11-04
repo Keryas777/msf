@@ -74,7 +74,7 @@
 
     function addAlliance(alliance) {
       const key = allianceKey(alliance?.key || alliance?.name);
-      if (!key || seen.has(key)) return;
+      if (!key || seen.has(key) || !window.LoSPAccess?.isAllianceAllowed(key)) return;
 
       seen.add(key);
       merged.push({ ...alliance, key });
@@ -124,6 +124,7 @@
 
     filterInputs.clear();
     $allianceFilters.querySelectorAll("input[data-alliance-key]").forEach((input) => {
+      window.LoSPAlliances?.renderAllianceName?.(input.closest("label")?.querySelector(".fName"), input.dataset.allianceKey);
       filterInputs.set(input.dataset.allianceKey, input);
       input.addEventListener("change", () => { updateFilterSummary(); applyFilters(); });
     });
@@ -212,7 +213,7 @@
 
     const data = await res.json();
 
-    allPlayers = (Array.isArray(data) ? data : []).map((p) => ({
+    allPlayers = (Array.isArray(data) ? data : []).filter(p => window.LoSPAccess?.isAllianceAllowed(p?.alliance)).map((p) => ({
       name: p.name,
       alliance: p.alliance,
       war_mvp: Number(p.war_mvp || 0),

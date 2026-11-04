@@ -230,7 +230,7 @@
     const helperByKey = new Map(normalizeAllianceData(data).map((a) => [a.key, a]));
     const keys = [...new Set([...fallbackByKey.keys(), ...helperByKey.keys()])];
 
-    ALLIANCES = keys
+    ALLIANCES = keys.filter((key) => window.LoSPAccess?.isAllianceAllowed(key))
       .map((key) => {
         const fallback = fallbackByKey.get(key) || {};
         const helper = helperByKey.get(key) || {};
@@ -292,6 +292,7 @@
     const helperKey = typeof helper?.getAllianceKey === "function" ? helper.getAllianceKey(value) : "";
     const key = normalizeAllianceAlias(helperKey || value);
 
+    if (ALLIANCE_BY_KEY.has(key)) return key;
     if (ALLIANCE_ALIAS_TO_KEY.has(key)) {
       return ALLIANCE_ALIAS_TO_KEY.get(key);
     }
@@ -897,14 +898,18 @@
         player: (r.player ?? r.joueur ?? r.JOUEURS ?? "").toString().trim(),
         alliance: (r.alliance ?? r.ALLIANCES ?? "").toString().trim(),
       }))
-      .filter((r) => r.player);
+      .filter((r) => r.player && window.LoSPAccess?.isAllianceAllowed(r.alliance));
 
     buildPlayersByAlliance();
 
     ISO_ICONS = isoIconsRaw && typeof isoIconsRaw === "object" ? isoIconsRaw : {};
     buildIsoRecoMap(isoRecoRaw);
 
-    ROSTERS = Array.isArray(rostersRaw) ? rostersRaw : [];
+    const authorizedPlayers = new Set(JOUEURS.map((row) => normalizeKey(row.player)));
+    ROSTERS = (Array.isArray(rostersRaw) ? rostersRaw : []).filter((row) =>
+      row?.alliance ? window.LoSPAccess?.isAllianceAllowed(row.alliance) :
+      authorizedPlayers.has(normalizeKey(row?.playerKey || row?.player))
+    );
     buildRosterIsoMap(ROSTERS);
 
     renderAllianceOptions();

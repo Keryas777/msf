@@ -286,7 +286,7 @@
       byKey.set(key, mergeAllianceMeta(fallback, alliance));
     });
 
-    state.alliances = Array.from(byKey.values()).sort((a, b) => {
+    state.alliances = Array.from(byKey.values()).filter(a => window.LoSPAccess?.isAllianceAllowed(a.key)).sort((a, b) => {
       if (a.order !== b.order) return a.order - b.order;
       return a.name.localeCompare(b.name, "fr");
     });
@@ -1887,13 +1887,18 @@
 
     await loadAllianceMetadata();
 
-    state.infos = Array.isArray(infosRaw) ? infosRaw : [];
-    state.joueurs = normalizeJoueurs(joueursRaw);
-    state.rosters = Array.isArray(rostersRaw) ? rostersRaw : [];
+    state.infos = (Array.isArray(infosRaw) ? infosRaw : []).filter(row => window.LoSPAccess?.isAllianceAllowed(row?.alliance));
+    state.joueurs = normalizeJoueurs(joueursRaw).filter(row => window.LoSPAccess?.isAllianceAllowed(row?.alliance));
+    const authorizedPlayers = new Set(state.joueurs.map((row) => normalizeKey(row.player)));
+    state.rosters = (Array.isArray(rostersRaw) ? rostersRaw : []).filter(row =>
+      row?.alliance ? window.LoSPAccess?.isAllianceAllowed(row.alliance) :
+      authorizedPlayers.has(normalizeKey(row?.playerKey || row?.player))
+    );
     state.teams = normalizeTeams(teamsRaw);
     state.chars = Array.isArray(charsRaw) ? charsRaw : [];
     state.isoIcons = isoIconsRaw && typeof isoIconsRaw === "object" ? isoIconsRaw : {};
-    state.warHistory = normalizeWarHistory(Array.isArray(warHistoryRaw) ? warHistoryRaw : []);
+    state.warHistory = normalizeWarHistory(Array.isArray(warHistoryRaw) ? warHistoryRaw : [])
+      .filter(row => window.LoSPAccess?.isAllianceAllowed(row?.alliance));
 
     buildAliasMap(aliasesRaw);
     buildCharacterMaps();

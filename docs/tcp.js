@@ -77,7 +77,7 @@
       if (!byKey.has(alliance.key)) byKey.set(alliance.key, alliance);
     });
 
-    return Array.from(byKey.values()).sort((a, b) => {
+    return Array.from(byKey.values()).filter(a => window.LoSPAccess?.isAllianceAllowed(a.key)).sort((a, b) => {
       const orderA = Number.isFinite(Number(a.order)) ? Number(a.order) : 999;
       const orderB = Number.isFinite(Number(b.order)) ? Number(b.order) : 999;
 
@@ -169,6 +169,7 @@
 
     allianceFilters.clear();
     $filters.querySelectorAll("input[data-alliance-key]").forEach((cb) => {
+      window.LoSPAlliances?.renderAllianceName?.(cb.closest("label")?.querySelector(".fName"), cb.dataset.allianceKey);
       allianceFilters.set(cb.dataset.allianceKey, cb);
       cb.addEventListener("change", () => { updateFilterSummary(); applyFiltersAndRender(); });
     });
@@ -313,7 +314,7 @@
           icon: String(p?.icon ?? "").trim(),
           frame: String(p?.frame ?? "").trim(),
         }))
-        .filter((p) => p.name);
+        .filter((p) => p.name && window.LoSPAccess?.isAllianceAllowed(p.alliance));
 
       applyFiltersAndRender();
     } catch (err) {

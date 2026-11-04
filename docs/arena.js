@@ -98,7 +98,7 @@ function readSnapshots(data){
       const seen=new Set(),players=[];
       for(const p of source.players){
         const name=canonical(p?.name),a=resolveAlliance(p?.alliance,name),r=p?.arenaRank,id=norm(name);
-        if(!name||!a||!id||!Number.isSafeInteger(r)||r<1)continue;
+        if(!name||!a||!id||!Number.isSafeInteger(r)||r<1||!window.LoSPAccess?.isAllianceAllowed(a))continue;
         const unique=a+":"+id;if(seen.has(unique))continue;
         seen.add(unique);
         players.push({id,name,alliance:a,arenaRank:r,observedAt:p.observedAt||null,
@@ -117,8 +117,8 @@ function rebuildPeople(){
 function knownAlliances(){
   const declared=window.LoSPAlliances?.getKnownAlliances()||[];
   const used=new Set([...S.people.values()].map(x=>x.alliance));
-  return [...declared.filter(x=>used.delete(x.key)),
-    ...[...used].map(k=>({key:k,name:k}))];
+  return [...declared.filter(x=>window.LoSPAccess?.isAllianceAllowed(x.key)&&used.delete(x.key)),
+    ...[...used].filter(k=>window.LoSPAccess?.isAllianceAllowed(k)).map(k=>({key:k,name:k}))];
 }
 function updateRankingFilterSummary(){
   const enabled=[...rankingFilters].filter(([,input])=>input.checked);
@@ -143,8 +143,9 @@ function setupFilters(){
     input.dataset.allianceKey=alliance.key;
     const stack=document.createElement("span");
     stack.className="fStack";
-    stack.append(make("span",meta?.emoji||"","fEmoji"),
-      make("span",meta?.name||alliance.name||"Alliance non identifiée","fName"));
+    const name=make("span",meta?.name||alliance.name||"Alliance non identifiée","fName");
+    window.LoSPAlliances?.renderAllianceName?.(name, alliance.key);
+    stack.append(make("span",meta?.emoji||"","fEmoji"), name);
     toggle.append(input,stack);
     host.append(toggle);
     rankingFilters.set(alliance.key,input);
@@ -330,7 +331,7 @@ async function load(){
         infoRows=rows;
         for(const row of rows){
           const id=norm(canonical(row?.name));
-          if(id&&!S.infos.has(id))S.infos.set(id,row);
+          if(id&&window.LoSPAccess?.isAllianceAllowed(row?.alliance)&&!S.infos.has(id))S.infos.set(id,row);
         }
       }
     }
