@@ -133,15 +133,15 @@
         }
         .lospReservedMask > span {
           display:block;max-width:96%;padding:8px 12px;border:2px solid #ef4545;border-radius:6px;
-          color:#ff5353;background:rgba(12,12,14,.79);font:900 clamp(13px,3.5vw,23px)/1.14 system-ui,sans-serif;
+          color:#ff5353;background:rgba(12,12,14,.79);font:900 clamp(14px,3.8vw,24px)/1.14 system-ui,sans-serif;
           text-align:center;text-transform:uppercase;letter-spacing:.04em;
-          text-shadow:0 1px 2px #000;transform:rotate(-17deg);
+          text-shadow:0 1px 2px #000;transform:translateY(-8px) rotate(-17deg);
           box-shadow:0 3px 14px rgba(0,0,0,.5);white-space:nowrap;
         }
         .lospReservedTile:hover,.lospReservedTile:active { transform:none !important; }
         .lospReservedTile::after { opacity:0 !important; }
         @media (max-width: 480px) {
-          .lospReservedMask > span {font-size:clamp(9px,2.3vw,12px);padding:5px 4px;letter-spacing:.01em;}
+          .lospReservedMask > span {font-size:clamp(9px,2.7vw,14px);padding:6px 5px;letter-spacing:.01em;}
         }
       `;
       document.head.appendChild(style);
