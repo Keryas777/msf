@@ -177,8 +177,11 @@
       $('source-line').textContent='Catalogue synchronisé via R2 · '+state.events.length+
         ' événements affichables ('+data.events.length+' récupérés) · '+data.pages+
         ' page(s) · dernière vérification '+dated+'.';
-      $('source-provenance').textContent=
-        'Données de jeu issues du collecteur hebdomadaire LoSP : reçus, SHA-256 et pagination vérifiés. Aucun appel direct à Scopely depuis cette page.';
+      const frenchVerified=data.locale==='fr'&&data.localizationStatus==='verified';
+      $('source-provenance').textContent=(frenchVerified?
+        'Textes officiels français disponibles. ':
+        'Textes anglais : français en attente d’une collecte hebdomadaire complète. ')+
+        'Reçus et SHA-256 vérifiés ; aucun appel Scopely depuis cette page.';
     }else{
       const time=Date.parse(data.metadata?.snapshotUploadedAt||'');
       const dated=Number.isFinite(time)?fmtDate.format(new Date(time)):'date inconnue';
