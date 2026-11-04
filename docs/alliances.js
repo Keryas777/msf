@@ -225,6 +225,7 @@
       const prefix = document.createElement("span");
       prefix.textContent = meta.displayParts[0];
       prefix.style.color = "#fff";
+      if (meta.group === "losp") prefix.style.whiteSpace = "pre";
       const colored = document.createElement("span");
       colored.textContent = meta.displayParts[1];
       colored.style.color = meta.color;
