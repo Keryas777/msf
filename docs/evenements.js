@@ -35,6 +35,9 @@
   ]);
   function isCalendarEvent(e){
     if(NON_EVENT_TYPES.has(e.type))return false;
+    // Multi-year endpoints represent permanent sagas/unlocks, not calendar events.
+    // Use the scheduled duration rather than a list of character names.
+    if(e.endTime-e.startTime>=730*86400)return false;
     const name=(e.name||'').trim().toLowerCase();
     // Danger Room is a recurring game mode, not a calendar event.
     if(name==='danger room')return false;
