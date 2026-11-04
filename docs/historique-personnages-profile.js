@@ -95,22 +95,30 @@
       state.ranking = rankPlayers(state.record.id, rosters, scopedPlayers, aliases, state.alliances);
       const filters = state.root.querySelector("#profile-alliance-filters");
       filters.innerHTML = state.alliances.map(a =>
-        "<label class=\"profileFilterToggle\"><input type=\"checkbox\" data-alliance=\"" +
-        esc(a.key) + "\" checked><span class=\"profileFilterStack\"><span>" +
-        esc(a.emoji || "👤") + "</span><strong>" + esc(a.name) +
-        "</strong></span></label>").join("");
+        "<label class=\"profileFilterToggle" + (a.group === "losp" ? " is-losp" : "") +
+        "\"><input type=\"checkbox\" data-alliance=\"" + esc(a.key) +
+        "\" checked><span class=\"profileFilterStack\"><span>" +
+        esc(a.group === "losp" ? (a.emoji || "") :
+          ((a.displayParts?.length === 2 || a.nameColor) ? "" : (a.emoji || ""))) +
+        "</span><strong>" + esc(a.name) + "</strong></span></label>").join("");
       filters.querySelectorAll("input[data-alliance]").forEach(input => {
         const meta = state.alliances.find(a => a.key === input.dataset.alliance);
         const name = input.closest("label")?.querySelector("strong");
-        if (!name || !Array.isArray(meta?.displayParts) || meta.displayParts.length !== 2) return;
-        name.textContent = "";
-        const prefix = document.createElement("span");
-        prefix.textContent = meta.displayParts[0];
-        prefix.style.color = "#fff";
-        const colored = document.createElement("span");
-        colored.textContent = meta.displayParts[1];
-        colored.style.color = /^#[0-9a-fA-F]{6}$/.test(meta.color || "") ? meta.color : "#fff";
-        name.append(prefix, colored);
+        if (!name) return;
+        if (Array.isArray(meta?.displayParts) && meta.displayParts.length === 2) {
+          name.textContent = "";
+          const prefix = document.createElement("span");
+          prefix.textContent = meta.displayParts[0];
+          prefix.style.color = "#fff";
+          if (meta.group === "losp") prefix.style.whiteSpace = "pre";
+          const colored = document.createElement("span");
+          colored.textContent = meta.displayParts[1];
+          colored.style.color = /^#[0-9a-fA-F]{6}$/.test(meta.color || "") ? meta.color : "#fff";
+          name.append(prefix, colored);
+        } else {
+          name.textContent = meta?.displayName || meta?.name || "";
+          if (meta?.nameColor) name.style.color = meta.nameColor;
+        }
       });
       filters.addEventListener("change", event => {
         if (!event.target.matches("input[data-alliance]")) return;
