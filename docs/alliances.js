@@ -95,6 +95,8 @@
       .map((alliance) => {
         const key = normalizeAllianceKey(alliance?.key);
         const name = String(alliance?.name ?? "").trim();
+        const displayName = String(alliance?.displayName ?? "").trim();
+        const nameItalic = alliance?.nameItalic === true;
         const emoji = String(alliance?.emoji ?? "").trim();
         const color = String(alliance?.color ?? "").trim();
         const nameColor = String(alliance?.nameColor ?? "").trim();
@@ -108,6 +110,8 @@
         return {
           key,
           name,
+          displayName,
+          nameItalic,
           emoji,
           color,
           nameColor,
@@ -218,6 +222,7 @@
     const meta = getAllianceMeta(value);
     target.textContent = "";
     target.style.color = meta?.nameColor || "";
+    target.style.fontStyle = meta?.nameItalic ? "italic" : "";
     target.classList.remove("alliance-name--two-lines");
     if (meta?.displayParts?.length === 2) {
       const prefix = document.createElement("span");
@@ -244,7 +249,7 @@
         target.append(prefix, colored);
       }
     } else {
-      target.textContent = meta?.name || String(value ?? "").trim();
+      target.textContent = meta?.displayName || meta?.name || String(value ?? "").trim();
     }
   }
 
@@ -263,6 +268,8 @@
       .map((alliance) => ({
         key: alliance.key,
         name: alliance.name,
+        displayName: alliance.displayName,
+        nameItalic: alliance.nameItalic,
         emoji: alliance.emoji,
         color: alliance.color,
         nameColor: alliance.nameColor,
