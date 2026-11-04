@@ -4,6 +4,9 @@
   const AUTH_PAGE = "./auth.html";
   const LOCAL_SESSION_KEY = "losp_session";
 
+  let resolveAuthReady;
+  window.LoSP_AUTH_READY = new Promise((resolve) => { resolveAuthReady = resolve; });
+
   function getLocalSession() {
     try {
       return localStorage.getItem(LOCAL_SESSION_KEY) || "";
@@ -101,6 +104,7 @@
 
   function dispatchSession(data) {
     window.LoSP_SESSION = data;
+    if (resolveAuthReady) { resolveAuthReady(data); resolveAuthReady = null; }
 
     window.dispatchEvent(
       new CustomEvent("losp:auth-ready", {
