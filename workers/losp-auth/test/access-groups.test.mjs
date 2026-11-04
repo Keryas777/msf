@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import auth from "../worker.js";
 
 const env = { DISCORD_BOT_TOKEN: "test-bot", SESSION_SIGNING_SECRET: "test-signing-secret-with-at-least-32-characters" };
-const URL = "https://losp-auth.test";
+const BASE_URL = "https://losp-auth.test";
 const marineRole = "1567463791543717979";
 const endgameRole = "1567461415495667823";
 const zeusRole = "758722419128401992";
@@ -17,7 +17,7 @@ async function sessionFor(id, roles) {
   };
   try {
     const token = Buffer.from(JSON.stringify({ id, username: "Test" }), "utf8").toString("base64url");
-    const response = await auth.fetch(new Request(URL + "/me", {
+    const response = await auth.fetch(new Request(BASE_URL + "/me", {
       headers: { Authorization: "Bearer " + token }
     }), env);
     return { status: response.status, data: await response.json() };
@@ -82,12 +82,12 @@ test("Aucun invité ne peut publier avec signed-me, même avec un jeton signé",
     throw Error("Unknown mocked URL " + url);
   };
   try {
-    const callback = await auth.fetch(new Request(URL + "/callback?code=fake&state=home.html"), {
+    const callback = await auth.fetch(new Request(BASE_URL + "/callback?code=fake&state=home.html"), {
       ...env, DISCORD_CLIENT_SECRET: "test-oauth-secret"
     });
     assert.equal(callback.status, 302);
     const token = new URL(callback.headers.get("location")).hash.slice("#session=".length);
-    const response = await auth.fetch(new Request(URL + "/signed-me", {
+    const response = await auth.fetch(new Request(BASE_URL + "/signed-me", {
       headers: { Authorization: "Bearer " + decodeURIComponent(token) }
     }), env);
     assert.equal(response.status, 403);
