@@ -241,10 +241,11 @@
         colored.style.color = /^#[0-9a-fA-F]{6}$/.test(alliance.color || '') ? alliance.color : '#fff';
         name.append(prefix, colored);
       } else {
-        name.textContent = alliance?.name || alliance?.key || key;
+        name.textContent = alliance?.displayName || alliance?.name || alliance?.key || key;
         if (/^#[0-9a-fA-F]{6}$/.test(alliance?.nameColor || '')) {
           name.style.color = alliance.nameColor;
         }
+        if (alliance?.nameItalic) name.style.fontStyle = 'italic';
       }
 
       identity.appendChild(name);
