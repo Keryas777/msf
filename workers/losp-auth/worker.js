@@ -1,3 +1,5 @@
+import ACCESS_GROUPS from "../../docs/data/access-groups.json" with { type: "json" };
+
 const SITE_ORIGIN = "https://keryas777.github.io";
 const SITE_BASE_URL = "https://keryas777.github.io/msf/";
 
@@ -12,14 +14,8 @@ const GUILD_ID = "758717819923333191";
 const SESSION_COOKIE_NAME = "session";
 const SESSION_MAX_AGE_SECONDS = 7776000; // 90 jours
 
-const ROLE_TO_ALLIANCE = {
-  "758722419128401992": "zeus",
-  "1064618131491934258": "dionysos",
-  "820428635071971328": "poseidon",
-  "1503132379567624222": "kronos",
-  "1532666598643466420": "hades",
-  "1522162077807018024": "athena"
-};
+// Source unique des groupements et rôles Discord, également lisible par le frontend.
+const ACCESS_GROUPS_LIST = ACCESS_GROUPS.groups;
 
 const PLAYER_PROFILES = {
   "300305626926415874": {
@@ -187,48 +183,49 @@ async function getCurrentDiscordAccess(userId, env) {
   if (!botToken) throw new Error("DISCORD_BOT_TOKEN_required");
   const memberRes = await fetch(
     `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
-    {
-      headers: {
-        Authorization: `Bot ${botToken}`
-      }
-    }
+    { headers: { Authorization: `Bot ${botToken}` } }
   );
 
   if (memberRes.status === 404) {
-    return {
-      ok: false,
-      reason: "not_guild_member",
-      status: 404
-    };
+    return { ok: false, reason: "not_guild_member", status: 404 };
   }
-
   if (!memberRes.ok) {
-    return {
-      ok: false,
-      reason: "discord_check_failed",
-      status: memberRes.status
-    };
+    return { ok: false, reason: "discord_check_failed", status: memberRes.status };
   }
 
   const member = await memberRes.json();
   const memberRoles = Array.isArray(member.roles) ? member.roles : [];
+  const groupMatches = ACCESS_GROUPS_LIST.map((group) => {
+    const memberAlliances = Object.entries(group.allianceRoles || {})
+      .filter(([roleId]) => memberRoles.includes(roleId))
+      .map(([, allianceKey]) => allianceKey);
+    const hasGroupRole = (group.roleIds || []).some((roleId) => memberRoles.includes(roleId));
+    return memberAlliances.length || hasGroupRole
+      ? { group, memberAlliances } : null;
+  }).filter(Boolean);
 
-  const alliances = Object.entries(ROLE_TO_ALLIANCE)
-    .filter(([roleId]) => memberRoles.includes(roleId))
-    .map(([, alliance]) => alliance);
-
-  if (!alliances.length) {
-    return {
-      ok: false,
-      reason: "no_authorized_alliance",
-      status: 403
-    };
+  if (!groupMatches.length) {
+    return { ok: false, reason: "no_authorized_alliance", status: 403 };
   }
+
+  const isAdmin = PLAYER_PROFILES[userId]?.role === "admin";
+  if (groupMatches.length > 1 && !isAdmin) {
+    return { ok: false, reason: "conflicting_group_roles", status: 403 };
+  }
+
+  const isExternal = !isAdmin && groupMatches[0].group.key !== "losp";
+  const allowedAlliances = isAdmin
+    ? [...new Set(ACCESS_GROUPS_LIST.flatMap((group) => group.alliances))]
+    : [...groupMatches[0].group.alliances];
 
   return {
     ok: true,
     member,
-    alliances
+    role: isAdmin ? "admin" : isExternal ? "guest" : "member",
+    groupKey: isAdmin ? "all" : groupMatches[0].group.key,
+    // Les rôles d'alliance Discord restent distincts du périmètre de consultation.
+    alliances: groupMatches.flatMap(({ memberAlliances }) => memberAlliances),
+    allowedAlliances
   };
 }
 
@@ -311,7 +308,10 @@ export default {
           );
         }
 
-        const specialProfile = PLAYER_PROFILES[session.id];
+        // La publication exige un rôle LoSP ou administrateur, même avec un jeton HMAC.
+        if (signedOnly && access.role === "guest") {
+          return jsonResponse({ ok: false, reason: "guest_publish_forbidden" }, request, 403);
+        }
         const refreshedSession = {
           ...session,
           displayName:
@@ -319,9 +319,11 @@ export default {
             session.global_name ||
             session.username ||
             "",
-          role: specialProfile?.role || "member",
+          role: access.role,
+          groupKey: access.groupKey,
+          allowedAlliances: access.allowedAlliances,
           alliances: access.alliances,
-          primaryAlliance: access.alliances[0],
+          primaryAlliance: access.alliances[0] || null,
           players: specialProfile?.players || []
         };
 
@@ -452,17 +454,17 @@ export default {
         );
       }
 
-      const specialProfile = PLAYER_PROFILES[user.id];
-
       const sessionPayload = {
         id: user.id,
         username: user.username,
         global_name: user.global_name || "",
         displayName:
           access.member.nick || user.global_name || user.username || "",
-        role: specialProfile?.role || "member",
+        role: access.role,
+        groupKey: access.groupKey,
+        allowedAlliances: access.allowedAlliances,
         alliances: access.alliances,
-        primaryAlliance: access.alliances[0],
+        primaryAlliance: access.alliances[0] || null,
         players: specialProfile?.players || []
       };
 
