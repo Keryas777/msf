@@ -124,6 +124,7 @@
 
     filterInputs.clear();
     $allianceFilters.querySelectorAll("input[data-alliance-key]").forEach((input) => {
+      window.LoSPAlliances?.renderAllianceName?.(input.closest("label")?.querySelector(".fName"), input.dataset.allianceKey);
       filterInputs.set(input.dataset.allianceKey, input);
       input.addEventListener("change", () => { updateFilterSummary(); applyFilters(); });
     });
