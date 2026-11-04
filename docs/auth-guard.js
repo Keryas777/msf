@@ -76,7 +76,7 @@
 
   function guardGuestPage(data) {
     if (data?.role !== "guest") return true;
-    const page = window.location.pathname.split("/").pop() || "home.html";
+    const page = window.location.pathname.split("/").pop() || "index.html";
     if (!GUEST_TOOL_PAGES.has(page)) {
       window.location.replace("./home.html");
       return false;
