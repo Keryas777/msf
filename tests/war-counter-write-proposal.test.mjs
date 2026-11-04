@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   buildWriteProposal,
+  canonicalWarCounterTeamName,
   normalizeSheetKey,
   suggestTeamSheetKey
 } from "../docs/war-counter-write-proposal.js";
@@ -9,6 +10,73 @@ import {
 test("normalise une clé Sheet comme le frontend War Counters", () => {
   assert.equal(normalizeSheetKey("Conclave de l'Ombre"), "conclavedelombre");
   assert.equal(normalizeSheetKey("Incroyables Avengers"), "incroyablesavengers");
+});
+
+test("conserve Société des Araignées et ses variantes avec un A majuscule", () => {
+  assert.equal(canonicalWarCounterTeamName("Société des araignées"), "Société des Araignées");
+  assert.equal(canonicalWarCounterTeamName('Société des araignées "classique"'), 'Société des Araignées "classique"');
+  assert.equal(canonicalWarCounterTeamName("Société des araignées + Xavier"), "Société des Araignées + Xavier");
+  assert.equal(canonicalWarCounterTeamName("Secret Warriors"), "Secret Warriors");
+});
+
+test("réutilise la clé historique quand la casse de la famille change", () => {
+  const rows = [{
+    def_family: "Société des araignées",
+    def_variant: 'Société des araignées "classique"',
+    def_key: "spidersociety",
+    def_char1: "A", def_char2: "B", def_char3: "C", def_char4: "D", def_char5: "E"
+  }];
+  const teamInfo = {
+    family: "Société des Araignées",
+    variant: "Société des Araignées + X",
+    exact: false,
+    extraIds: ["X"]
+  };
+  const result = suggestTeamSheetKey({
+    role: "def", ids: ["A", "B", "C", "D", "X"], teamInfo, rows
+  });
+  assert.equal(result.key, "spidersocietyx");
+  assert.equal(result.source, "family");
+
+  const variantResult = suggestTeamSheetKey({
+    role: "def",
+    ids: ["Y", "Z", "X", "B", "A"],
+    teamInfo: {
+      ...teamInfo,
+      variant: 'Société des Araignées "classique"',
+      exact: true,
+      extraIds: []
+    },
+    rows
+  });
+  assert.equal(variantResult.key, "spidersociety");
+  assert.equal(variantResult.source, "variant");
+});
+
+test("une proposition Vision harmonise les métadonnées attaque et défense", () => {
+  const preview = {
+    state: {
+      attackIds: ["A1", "A2", "A3", "A4", "A5"],
+      defenseIds: ["D1", "D2", "D3", "D4", "D5"],
+      attackPower: 90,
+      defensePower: 100,
+      ratio: 0.9
+    },
+    attackTeam: {
+      status: "resolved", exact: true, family: "Société des araignées",
+      variant: 'Société des araignées "classique"', extraIds: []
+    },
+    defenseTeam: {
+      status: "resolved", exact: true, family: "Société des araignées",
+      variant: "Société des araignées + Xavier", extraIds: []
+    },
+    comparison: { status: "new", matches: [] }
+  };
+  const result = buildWriteProposal({ preview, rows: [] });
+  assert.equal(result.metadata.def_family, "Société des Araignées");
+  assert.equal(result.metadata.def_variant, "Société des Araignées + Xavier");
+  assert.equal(result.metadata.atk_family, "Société des Araignées");
+  assert.equal(result.metadata.atk_team, 'Société des Araignées "classique"');
 });
 
 test("réutilise la clé classique existante d'une famille", () => {
