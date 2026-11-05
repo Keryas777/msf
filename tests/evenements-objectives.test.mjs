@@ -20,7 +20,7 @@ function node(tag='div'){
     focus(){this.focused=true;}
   };
 }
-function makePage(){
+async function makePage({failure=false}={}){
   const ids=[...html.matchAll(/id="([^"]+)"/g)].map(x=>x[1]);
   const elements=new Map(ids.map(id=>[id,node()]));
   const now=Math.floor(Date.now()/1000),day=86400;
@@ -44,9 +44,6 @@ function makePage(){
     event('Future Event','Battle in Raid',{dates:{startTime:now+day,endTime:now+day*5}}),
     event('Past Event','Battle in War',{dates:{startTime:now-day*5,endTime:now-day}})
   ];
-  elements.set('embedded-events',{textContent:JSON.stringify({
-    metadata:{snapshotUploadedAt:new Date().toISOString()},events
-  })});
   let onReady;
   const document={
     readyState:'loading',
@@ -54,20 +51,33 @@ function makePage(){
     createElement:node,
     addEventListener:(type,handler)=>{if(type==='DOMContentLoaded')onReady=handler;}
   };
-  // Ne jamais contacter Scopely ni le Worker pendant ces tests.
+  // Only the live R2 endpoint is mocked. No real external request.
+  const fetchCalls=[];
   runInNewContext(script,{
     document,location:{search:''},URLSearchParams,Intl,Date,
-    fetch:()=>new Promise(()=>{})
+    fetch:async url=>{
+      fetchCalls.push(url);
+      if(failure)return {ok:false,status:503};
+      return {ok:true,json:async()=>({
+        status:'ok',schemaVersion:1,total:events.length,count:events.length,
+        pages:1,updatedAt:new Date().toISOString(),locale:'en',
+        localizationStatus:'no-translated-text',events
+      })};
+    }
   });
   assert.equal(typeof onReady,'function');
   onReady();
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.deepEqual(fetchCalls,[
+    'https://losp-roster-service.deliriousfan7.workers.dev/api/public/events'
+  ]);
   return elements;
 }
 const sections=nodes=>nodes.get('events-objectives').children.filter(x=>x.tag==='section');
 const actions=nodes=>sections(nodes).flatMap(x=>x.children[1].children.map(item=>item.children[0].textContent));
 
-test('Le résumé rassemble les objectifs actifs, y compris les feeders, sans doublons',()=>{
-  const nodes=makePage();
+test('Le résumé rassemble les objectifs actifs, y compris les feeders, sans doublons',async()=>{
+  const nodes=await makePage();
   assert.equal(nodes.get('stat-objectives').textContent,'3');
   assert.equal(nodes.get('count-objectives').textContent,'3');
   assert.deepEqual(sections(nodes).map(x=>x.children[0].textContent),[
@@ -79,8 +89,8 @@ test('Le résumé rassemble les objectifs actifs, y compris les feeders, sans do
   assert.ok(!actions(nodes).some(x=>x.includes('Future')));
 });
 
-test('Un plafond de scoring reste un maximum, pas un objectif obligatoire',()=>{
-  const nodes=makePage();
+test('Un plafond de scoring reste un maximum, pas un objectif obligatoire',async()=>{
+  const nodes=await makePage();
   const raid=sections(nodes)[0].children[1].children[0];
   const notes=raid.children[1].children.map(x=>x.textContent);
   assert.ok(notes.includes('Jusqu’à 8 actions comptabilisées'));
@@ -90,8 +100,8 @@ test('Un plafond de scoring reste un maximum, pas un objectif obligatoire',()=>{
   assert.ok(!loginNotes.some(x=>x.includes('7 fois')));
 });
 
-test('La recherche trouve aussi le texte des objectifs secondaires',()=>{
-  const nodes=makePage();
+test('La recherche trouve aussi le texte des objectifs secondaires',async()=>{
+  const nodes=await makePage();
   nodes.get('search-filter').handlers.get('input')({target:{value:'Iron Raider'}});
   assert.equal(nodes.get('stat-objectives').textContent,'1');
   assert.equal(actions(nodes).length,1);
@@ -103,4 +113,14 @@ test('Les identifiants obligatoires de la vue Objectifs existent dans le HTML',(
     assert.match(html,new RegExp('id="'+id+'"'));
   }
   assert.doesNotMatch(html,/section-future|events-future|stat-future/);
+});
+
+test('Une panne R2 n’utilise aucun snapshot local et affiche une indisponibilité',async()=>{
+  const nodes=await makePage({failure:true});
+  assert.match(nodes.get('source-line').textContent,/indisponible/);
+  assert.equal(nodes.get('events-current').children.length,1);
+  assert.match(nodes.get('events-current').children[0].textContent,
+    /temporairement indisponibles/);
+  assert.equal(nodes.get('stat-current').textContent,'');
+  assert.doesNotMatch(script,/evenements-snapshot\.json|embedded-events/);
 });
