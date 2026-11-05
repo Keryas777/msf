@@ -53,9 +53,11 @@ test("ENDGAME same-name identities remain separated by verified administrative k
   assert.equal(war.series.find(x=>x.key==="endgame-revolution-red").points[0].value,900);
   assert.equal(war.series.find(x=>x.key==="endgame-revolution-orange").points[0].value,1234);
 });
-test("ordinary Mondays and same-name guests without binding never acquire a rank",()=>{
-  assert.equal(adapter.fromCloudflare(make("2026-11-16T03:15:00.000Z"),
-    registry,()=>true,config.rankingSeasons).length,0);
+test("ordinary midseason captures retain the last completed season; unknown ENDGAME remains hidden",()=>{
+  const midseason=adapter.fromCloudflare(make("2026-11-16T03:15:00.000Z"),
+    registry,()=>true,config.rankingSeasons);
+  assert.equal(midseason.length,1);
+  assert.equal(midseason[0].seasonId,"2026-10-25/2026-11-08");
   const unsigned=make();for(const a of unsigned.snapshots[0].alliances)
     if(a.allianceKey)delete a.allianceKey;
   const onlyMarines=adapter.fromCloudflare(unsigned,registry,()=>true,
@@ -70,7 +72,9 @@ test("ordinary Mondays and same-name guests without binding never acquire a rank
 test("calendar changes are respected, no hardcoded season schedule",()=>{
   const shifted={...config.rankingSeasons,
     referenceEndExclusiveAt:"2026-10-18T20:00:00.000Z"};
-  assert.equal(adapter.fromCloudflare(make(),registry,()=>true,shifted).length,0);
+  const recalculated=adapter.fromCloudflare(make(),registry,()=>true,shifted);
+  assert.equal(recalculated.length,1);
+  assert.equal(recalculated[0].seasonId,"2026-10-18/2026-11-01");
   assert.equal(adapter.fromCloudflare(make(),registry,()=>true,null).length,0);
 });
 
@@ -116,8 +120,10 @@ test("manual MARINES Oct 11–25 attaches to existing LoSP season for admin with
 test("wrong, unconfirmed and unsupported historical labels are discarded",()=>{
   const observed="2026-11-05T15:15:00.000Z",payload=make(observed);
   const marine=payload.snapshots[0].alliances[0];
-  assert.equal(adapter.fromCloudflare(payload,registry,key=>key==="marines",
-    config.rankingSeasons).length,0,"unqualified Thursday cannot become season");
+  const inferred=adapter.fromCloudflare(payload,registry,key=>key==="marines",
+    config.rankingSeasons);
+  assert.equal(inferred.length,1,"a real Thursday capture can show a finished season");
+  assert.equal(inferred[0].seasonId,"2026-10-11/2026-10-25");
   marine.manualSeasonId="2026-09-27/2026-10-11";
   marine.seasonConfirmation="admin-in-game";
   assert.equal(adapter.fromCloudflare(payload,registry,key=>key==="marines",
@@ -131,4 +137,49 @@ test("wrong, unconfirmed and unsupported historical labels are discarded",()=>{
     referenceEndExclusiveAt:"2026-10-18T20:00:00.000Z"};
   assert.equal(adapter.fromCloudflare(payload,registry,key=>key==="marines",
     shifted).length,0,"JSON calendar change invalidates a stale claim");
+});
+
+test("MARINES 5 November real ranks 5/12 publish automatically with no manual label",()=>{
+  const observed="2026-11-05T15:15:23.000Z";
+  const payload=make(observed);
+  payload.snapshots[0].alliances[0].warRank=5;
+  payload.snapshots[0].alliances[0].raidRank=12;
+  const selected=adapter.fromCloudflare(payload,registry,key=>key==="marines",
+    config.rankingSeasons);
+  assert.equal(selected.length,1);
+  assert.equal(selected[0].seasonId,"2026-10-11/2026-10-25");
+  assert.equal(selected[0].rankingSeason.identification,"schedule-derived");
+  assert.equal(selected[0].capturedAt,observed);
+  const war=prepare(selected,registry,config.charts[2],config.rankingSeasons);
+  const raid=prepare(selected,registry,config.charts[1],config.rankingSeasons);
+  assert.equal(war.series[0].points[0].value,5);
+  assert.equal(raid.series[0].points[0].value,12);
+  assert.equal(prepare(selected,registry,config.charts[0],
+    config.rankingSeasons).rows.length,0);
+});
+test("only one true rank per alliance/season despite successive valid snapshots",()=>{
+  const a=make("2026-11-05T03:15:00.000Z");
+  const b=make("2026-11-06T15:15:00.000Z");
+  a.snapshots[0].alliances[0].warRank=5;
+  b.snapshots[0].alliances[0].warRank=5;
+  const readings=adapter.fromCloudflare({status:"ok",
+    kind:"connected-guest-season-ranks",
+    snapshots:[...a.snapshots,...b.snapshots]},
+    registry,key=>key==="marines",config.rankingSeasons);
+  assert.equal(readings.length,2,"retain real capture provenance");
+  const model=prepare(readings,registry,config.charts[2],
+    config.rankingSeasons);
+  assert.equal(model.rows.length,1,"one point per completed season");
+  assert.equal(model.series[0].points.length,1);
+  assert.equal(model.series[0].points[0].value,5);
+});
+test("rollover delay never attributes ranks to a two-seasons-old result",()=>{
+  const before=make("2026-11-08T20:15:00.000Z");
+  assert.equal(adapter.fromCloudflare(before,registry,()=>true,
+    config.rankingSeasons).length,0);
+  const after=make("2026-11-08T21:10:00.000Z");
+  const data=adapter.fromCloudflare(after,registry,key=>key==="marines",
+    config.rankingSeasons);
+  assert.equal(data.length,1);
+  assert.equal(data[0].seasonId,"2026-10-25/2026-11-08");
 });
