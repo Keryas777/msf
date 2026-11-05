@@ -1865,27 +1865,26 @@
   // ---------- Boot ----------
 
   async function boot() {
+    if (window.LoSP_AUTH_READY) await window.LoSP_AUTH_READY;
     const [
-      infosRaw,
-      joueursRaw,
-      rostersRaw,
+      allianceSources,
       teamsRaw,
       charsRaw,
       isoIconsRaw,
       warHistoryRaw,
       aliasesRaw,
     ] = await Promise.all([
-      fetchJson(FILES.infos).catch(() => []),
-      fetchJson(FILES.joueurs).catch(() => []),
-      fetchJson(FILES.rosters),
+      window.LoSPAllianceData.load({ infos: true, joueurs: true, rosters: true }),
       fetchJson(FILES.teams),
       fetchJson(FILES.characters).catch(() => []),
       fetchJson(FILES.isoIcons).catch(() => ({})),
       fetchJson(FILES.warHistory).catch(() => []),
       fetchJson(FILES.aliases).catch(() => ({})),
     ]);
+    const { infos: infosRaw, joueurs: joueursRaw, rosters: rostersRaw } = allianceSources;
 
     await loadAllianceMetadata();
+    window.LoSPAllianceData.showWarnings(allianceSources.warnings);
 
     state.infos = (Array.isArray(infosRaw) ? infosRaw : []).filter(row => window.LoSPAccess?.isAllianceAllowed(row?.alliance));
     state.joueurs = normalizeJoueurs(joueursRaw).filter(row => window.LoSPAccess?.isAllianceAllowed(row?.alliance));
