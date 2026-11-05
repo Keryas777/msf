@@ -20,16 +20,44 @@ function signedSession(){
       value:"";
   }catch{return "";}
 }
-async function readArenaAPI(){
-  if(!isGuestView()){
-    const res=await fetch(API,{mode:"cors",cache:"no-store"});
-    if(!res.ok)throw Error("R2 indisponible");
-    return res.json();
+// The admin view combines two separately authorized sources. The public
+// LoSP history stays public; guests always require real signed credentials.
+const isAdminView=()=>window.LoSP_SESSION?.ok===true&&
+  window.LoSP_SESSION.role==="admin";
+function mergeArenaHistories(losp,guest){
+  if(!Array.isArray(losp?.snapshots)||!Array.isArray(guest?.snapshots))
+    throw Error("Historique Arène invalide.");
+  const byDay=new Map();
+  for(const source of [losp,guest]){
+    for(const snap of source.snapshots){
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(snap?.date||"")||
+         !Array.isArray(snap.players))continue;
+      if(!byDay.has(snap.date)){
+        byDay.set(snap.date,{date:snap.date,sourceDay:snap.sourceDay,
+          attribution:snap.attribution,players:[]});
+      }
+      const target=byDay.get(snap.date),seen=new Set(
+        target.players.map(p=>p.alliance+"\u0000"+p.name));
+      for(const p of snap.players){
+        const identity=p?.alliance+"\u0000"+p?.name;
+        if(!p||typeof p.name!=="string"||typeof p.alliance!=="string"||
+           seen.has(identity))continue;
+        seen.add(identity);target.players.push(p);
+      }
+    }
   }
-  const token=signedSession(),keys=guestAllianceKeys();
+  return {status:"ok",snapshots:[...byDay.values()]
+    .sort((a,b)=>a.date.localeCompare(b.date))};
+}
+async function readPublicArena(){
+  const res=await fetch(API,{mode:"cors",cache:"no-store"});
+  if(!res.ok)throw Error("R2 indisponible");
+  return res.json();
+}
+async function readPrivateArena(alliances){
+  const token=signedSession();
   if(!token)throw Error("Session Discord signée nécessaire. Reconnecte-toi pour consulter l’Arène.");
-  if(!keys.length||keys.length>20)throw Error("Aucune alliance invitée autorisée.");
-  const url=GUEST_API+"?alliances="+encodeURIComponent(keys.join(","));
+  const url=GUEST_API+"?alliances="+encodeURIComponent(alliances);
   const res=await fetch(url,{mode:"cors",cache:"no-store",
     headers:{Authorization:"Bearer "+token}});
   if(res.status===401)throw Error("Session Discord expirée ou non signée. Reconnecte-toi.");
@@ -41,6 +69,26 @@ async function readArenaAPI(){
     data?.status!=="ok"||!Array.isArray(data.snapshots))
     throw Error("Historique privé Arène invalide.");
   return data;
+}
+async function readArenaAPI(){
+  if(isGuestView()){
+    const keys=guestAllianceKeys();
+    if(!keys.length||keys.length>20)throw Error("Aucune alliance invitée autorisée.");
+    return readPrivateArena(keys.join(","));
+  }
+  const losp=await readPublicArena();
+  if(!isAdminView())return losp;
+  // The signed administrator's SERVER-verified allowlist determines which
+  // currently approved guests are returned; no client group can grant access.
+  try{
+    const guests=await readPrivateArena("approved");
+    return mergeArenaHistories(losp,guests);
+  }catch(error){
+    // Keep LoSP available; show the guest failure instead of implying
+    // that all connected groups were included in "Toutes les alliances".
+    return {...losp,guestWarning:error instanceof Error?error.message:
+      "Rangs Arène des invités indisponibles."};
+  }
 }
 const COLORS=["#65b8ff","#f9a44e","#b29aff","#53dfaa"];
 const $=id=>document.getElementById(id);
@@ -383,12 +431,17 @@ async function load(){
   }catch{/* History still works if enriched Infos are unavailable. */}
   try{
     const data=await readArenaAPI();
+    if(data.guestWarning){
+      $("arenaStatus").hidden=false;
+      $("arenaStatus").textContent="Alliances invitées non chargées : "+
+        data.guestWarning;
+    }
     mapSourceAlliances(data);
     S.snapshots=readSnapshots(data);
     if(!S.snapshots.length)throw Error("Aucun relevé complet");
     // Le chargement réussi ne nécessite aucun bandeau permanent.
     // Conserver le même élément pour signaler un éventuel repli ou une erreur.
-    $("arenaStatus").hidden=true;
+    if(!data.guestWarning)$("arenaStatus").hidden=true;
   }catch(error){
     // Guest history contains private player names; never fall back to
     // public LoSP data or bypass server-side Discord authorization.
