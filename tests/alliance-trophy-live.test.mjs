@@ -56,3 +56,22 @@ test("static fallback, one checkpoint per day, seasons remain untouched",()=>{
   assert.equal(fallback.length,2);
   assert.ok(fallback.includes(local));
 });
+
+test("real 5 November Scopely formatted names resolve all seven alliances",()=>{
+  const names=[
+    ["LoSP <#F8FF00>Zεus","zeus"],
+    ["LoSP <#93328E>Diσπγsσs","dionysos"],
+    ["<#FFFFFF>LoSP <#E10D17>Kronos","kronos"],
+    ["<color=red>MΛЯIΠΣƧ</color>","marines"],
+    ["LoSP <#F28C28>Athεηα","athena"],
+    ["LoSP <#0000FF>Posειδoη","poseidon"],
+    ["LoSP <#1EA164>Hαδεs","hades"]
+  ];
+  for(const [realName,key] of names){
+    assert.equal(adapter.mappedKey(realName,registry),key,realName);
+  }
+  const records=adapter.fromCloudflare(payload([sample("2026-11-05",
+    names.map(([name],i)=>[name,2800+i]))]),registry,()=>true);
+  assert.equal(records[0].alliances.length,7);
+  assert.equal(new Set(records[0].alliances.map(a=>a.key)).size,7);
+});
