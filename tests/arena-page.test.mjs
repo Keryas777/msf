@@ -8,7 +8,7 @@ const source=fs.readFileSync(new URL("../docs/arena.js",import.meta.url),"utf8")
 const cut=source.indexOf('$("tabRanking").addEventListener(');
 if(cut<0)throw Error("Arena event attachment marker missing");
 const isolated=source.slice(source.indexOf("(()=>{"),cut)+
-  "return {S,canonical,mapSourceAlliances,readSnapshots,label,fillRanking,setupFilters,setupPeople,fillChart,fillSummary,isGuestView,isAdminView,guestAllianceKeys,signedSession,mergeArenaHistories,readArenaAPI};\n})();";
+  "return {S,canonical,mapSourceAlliances,readSnapshots,label,fillRanking,setupFilters,setupPeople,fillChart,fillSummary,isGuestView,isAdminView,guestAllianceKeys,signedSession,mergeArenaHistories,readArenaAPI,loadGuestProfiles};\n})();";
 const metadata=[
   {key:"zeus",name:"Zeus",emoji:"⚡️",color:"#ffff00"},
   {key:"athena",name:"Athéna",emoji:"🦉",color:"#ff9900"},
@@ -191,7 +191,7 @@ test("successful Arena loading hides the redundant banner but keeps error feedba
   assert.match(source,/Données Arène indisponibles/);
   assert.match(css,/\.arenaState\[hidden\]\{display:none!important\}/);
   assert.match(html,/id="arenaStatus"/);
-  assert.match(html,/arena\.js\?v=10/);
+  assert.match(html,/arena\.js\?v=11/);
 });
 
 
@@ -473,4 +473,104 @@ test("R2 failure code is rendered as text, no private Worker traces",async()=>{
   const data=await page.readArenaAPI();
   assert.match(data.guestWarning,/private-r2-read-failed/);
   assert.doesNotMatch(data.guestWarning,/oauth token/);
+});
+
+
+const marineIcon="https://assets.marvelstrikeforce.com/imgs/Portrait_Marine_1234abcd.png";
+const marineFrame="https://assets.marvelstrikeforce.com/imgs/ICON_FRAME_Marine_aabbcc11.png";
+const lospIcon="https://assets.marvelstrikeforce.com/imgs/Portrait_Zeus_1234abcd.png";
+const lospFrame="https://assets.marvelstrikeforce.com/imgs/ICON_FRAME_Zeus_aabbcc11.png";
+test("24 MARINES Arena players use authorized portrait and frame URLs in admin ranking",async()=>{
+  const signed="v1."+"P".repeat(65)+"."+"Q".repeat(43);
+  const people=Array.from({length:24},(_,i)=>({
+    name:"Marine "+i,alliance:"marines",arenaRank:i+1,
+    icon:marineIcon,frame:marineFrame
+  }));
+  const profiles=people.map(p=>({
+    name:p.name,alliance:p.alliance,icon:p.icon,frame:p.frame
+  }));
+  const {page,nodes}=setup({
+    window:{LoSP_SESSION:{ok:true,role:"admin",allowedAlliances:["zeus","marines"]}},
+    storage:{getItem:()=>signed},
+    fetch:async url=>url.includes("/api/secure/")?
+      Response.json({status:"ok",kind:"authorized-guest-arena-history",
+        alliances:["marines"],profiles,snapshots:[{date:"2026-11-05",players:people}]}):
+      Response.json({snapshots:[{date:"2026-11-05",
+        players:[{name:"Zeus Player",alliance:"zeus",arenaRank:25}]}]})
+  });
+  const data=await page.readArenaAPI();
+  assert.equal(data.snapshots[0].players.length,25);
+  page.loadGuestProfiles(data);
+  page.S.snapshots=page.readSnapshots(data);
+  page.fillRanking();
+  assert.equal(page.S.snapshots[0].players.filter(p=>p.alliance==="marines").length,24);
+  const rows=nodes.rankingList.children.filter(row=>row.tag==="article");
+  assert.equal(rows.length,25);
+  for(const row of rows.filter(row=>row.children[2].children[1].textContent.includes("MARINES"))){
+    const avatar=row.children[1];
+    assert.deepEqual(avatar.children.map(img=>img.className),
+      ["arenaAvatarFrame","arenaAvatarIcon"]);
+    assert.deepEqual(avatar.children.map(img=>img.src),[marineFrame,marineIcon]);
+  }
+});
+test("same player name in LoSP and MARINES never shares avatar, frame or chart identity",()=>{
+  const {page,nodes}=setup();
+  page.S.infos.set("shared",{name:"Shared",alliance:"zeus",
+    icon:lospIcon,frame:lospFrame});
+  page.loadGuestProfiles({guestAlliances:["marines"],
+    guestProfiles:[{name:"Shared",alliance:"marines",
+      icon:marineIcon,frame:marineFrame}]});
+  const data={snapshots:[{date:"2026-11-05",players:[
+    {name:"Shared",alliance:"zeus",arenaRank:12},
+    {name:"Shared",alliance:"marines",arenaRank:13}
+  ]}]};
+  const points=page.readSnapshots(data)[0].players;
+  assert.equal(points.length,2);
+  assert.deepEqual(points.map(p=>p.id),["shared","marines:shared"]);
+  assert.equal(points[0].profile.icon,lospIcon);
+  assert.equal(points[1].profile.icon,marineIcon);
+  assert.equal(points[1].profile.frame,marineFrame);
+  page.S.snapshots=[{date:"2026-11-05",players:points}];
+  for(const person of points)page.S.people.set(person.id,person);
+  assert.equal(page.S.people.size,2,"chart player keys are tenant-specific");
+  page.fillRanking();
+  const rows=nodes.rankingList.children;
+  assert.deepEqual(rows[0].children[1].children.map(img=>img.src),
+    [lospFrame,lospIcon]);
+  assert.deepEqual(rows[1].children[1].children.map(img=>img.src),
+    [marineFrame,marineIcon]);
+});
+test("untrusted image addresses and unknown guest media never fall back to LoSP photos",()=>{
+  const {page,nodes}=setup();
+  page.S.infos.set("same",{name:"Same",alliance:"zeus",
+    icon:lospIcon,frame:lospFrame});
+  page.loadGuestProfiles({alliances:["marines"],profiles:[
+    {name:"Same",alliance:"marines",
+      icon:"https://evil.example/steal.png",frame:"javascript:alert(1)"},
+    {name:"Good",alliance:"marines",icon:marineIcon,
+      frame:"https://assets.marvelstrikeforce.com/imgs/../../evil.png"}
+  ]});
+  const data={snapshots:[{date:"2026-11-05",players:[
+    {name:"Same",alliance:"marines",arenaRank:1,
+      icon:"https://evil.example/steal.png",frame:"javascript:alert(1)"},
+    {name:"Good",alliance:"marines",arenaRank:2}
+  ]}]};
+  page.S.snapshots=page.readSnapshots(data);
+  page.fillRanking();
+  assert.equal(page.S.snapshots[0].players[0].profile,null);
+  assert.deepEqual(nodes.rankingList.children[0].children[1].children.map(x=>x.textContent),["?"]);
+  const good=nodes.rankingList.children[1].children[1].children;
+  assert.equal(good.length,1);
+  assert.equal(good[0].src,marineIcon);
+});
+test("guest profile metadata can be supplied separately from immutable older rank points",()=>{
+  const {page}=setup();
+  page.loadGuestProfiles({alliances:["marines"],
+    profiles:[{name:"Veteran",alliance:"marines",
+      icon:marineIcon,frame:marineFrame}]});
+  const points=page.readSnapshots({snapshots:[{
+    date:"2026-11-05",players:[{name:"Veteran",alliance:"marines",arenaRank:13}]
+  }]})[0].players;
+  assert.equal(points[0].profile.icon,marineIcon);
+  assert.equal(points[0].profile.frame,marineFrame);
 });
