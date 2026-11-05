@@ -154,6 +154,10 @@
   function render(list) {
     $count.textContent = list.length;
 
+    if (!list.length) {
+      $players.textContent = "Aucun joueur ne correspond aux filtres.";
+      return;
+    }
     $players.innerHTML = list
       .map((p, i) => {
         const icon = safeUrl(p.icon);
@@ -199,6 +203,7 @@
   }
 
   async function init() {
+    if (window.LoSP_AUTH_READY) await window.LoSP_AUTH_READY;
     if (window.LoSPAlliances?.loadAlliances) {
       knownAlliances = await window.LoSPAlliances.loadAlliances();
     }
@@ -206,15 +211,12 @@
     knownAlliances = mergeWithFallbackAlliances(knownAlliances);
     renderAllianceFilters();
 
-    const res = await fetch("./data/infos.json?v=" + Date.now(), {
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      throw new Error(`[mvp] infos.json HTTP ${res.status}`);
+    const { rows: data, warning } = await window.LoSPRankingInfos.load();
+    const notice = document.getElementById("rankingsDataNotice");
+    if (notice) {
+      notice.hidden = !warning;
+      notice.textContent = warning;
     }
-
-    const data = await res.json();
 
     allPlayers = (Array.isArray(data) ? data : []).filter(p => window.LoSPAccess?.isAllianceAllowed(p?.alliance)).map((p) => ({
       name: p.name,
@@ -229,6 +231,6 @@
 
   init().catch((error) => {
     console.error("[mvp] init error:", error);
-    $players.innerHTML = `<p class="subtitle">Impossible de charger le classement MVP.</p>`;
+    $players.textContent = error?.message || "Impossible de charger le classement MVP.";
   });
 })();
