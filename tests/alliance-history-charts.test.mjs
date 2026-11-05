@@ -231,8 +231,8 @@ test('page reads the configured calendar, preserves authorization and cache bust
   assert.match(source,/state\.config\.rankingSeasons/);
   assert.match(html,/auth-guard\.js/);
   assert.match(html,/alliance-history-data\.js\?v=6/);
-  assert.match(html,/alliance-trophy-live\.js\?v=2/);
-  assert.match(html,/alliance-history\.js\?v=14/);
+  assert.match(html,/alliance-trophy-live\.js\?v=3/);
+  assert.match(html,/alliance-history\.js\?v=15/);
   assert.match(html,/alliance-history\.css\?v=5/);
 });
 
