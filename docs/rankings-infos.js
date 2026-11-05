@@ -23,7 +23,11 @@
     if(!res.ok)throw Error("Impossible de charger les joueurs LoSP (HTTP "+res.status+").");
     const data=await res.json();
     if(!Array.isArray(data))throw Error("Données joueurs LoSP invalides.");
-    return data.filter(p=>window.LoSPAccess?.isAllianceAllowed(p?.alliance));
+    return data.filter(p=>{
+      const meta=window.LoSPAlliances?.getAllianceMeta?.(p?.alliance);
+      return window.LoSPAccess?.isAllianceAllowed(p?.alliance)&&
+        (!meta?.group||meta.group==="losp");
+    });
   }
   async function privateInfos(keys){
     const token=signedSession();
