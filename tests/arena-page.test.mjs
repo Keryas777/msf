@@ -191,7 +191,7 @@ test("successful Arena loading hides the redundant banner but keeps error feedba
   assert.match(source,/Données Arène indisponibles/);
   assert.match(css,/\.arenaState\[hidden\]\{display:none!important\}/);
   assert.match(html,/id="arenaStatus"/);
-  assert.match(html,/arena\.js\?v=9/);
+  assert.match(html,/arena\.js\?v=10/);
 });
 
 
@@ -423,4 +423,54 @@ test("merging by date preserves earlier LoSP history without fabricating guest p
   assert.deepEqual(history.snapshots.map(x=>x.date),["2026-11-04","2026-11-05"]);
   assert.equal(history.snapshots[0].players.length,1);
   assert.equal(history.snapshots[1].players.length,2);
+});
+
+test("admin sees an exact Cloudflare auth-binding failure instead of a generic unavailable message",async()=>{
+  const signed="v1."+"R".repeat(65)+"."+"S".repeat(43);
+  const {page}=setup({
+    window:{LoSP_SESSION:{ok:true,role:"admin",allowedAlliances:["marines","zeus"]}},
+    storage:{getItem:()=>signed},
+    fetch:async(url)=>{
+      if(url.includes("/api/secure/guest-arena-history"))
+        return Response.json({status:"auth-unavailable",reason:"auth-binding-missing"},{status:503});
+      return Response.json({snapshots:[{date:"2026-11-05",
+        players:[{name:"Zeus",alliance:"zeus",arenaRank:2}]}]});
+    }
+  });
+  const data=await page.readArenaAPI();
+  assert.equal(data.snapshots[0].players.length,1);
+  assert.match(data.guestWarning,/HTTP 503.*auth-binding-missing/);
+  assert.match(data.guestWarning,/Liaison Cloudflare losp-auth absente/);
+});
+test("404 identifies a Worker deployment mismatch without inventing any guests",async()=>{
+  const signed="v1."+"R".repeat(65)+"."+"S".repeat(43);
+  const {page}=setup({
+    window:{LoSP_SESSION:{ok:true,role:"admin",allowedAlliances:["marines","zeus"]}},
+    storage:{getItem:()=>signed},
+    fetch:async(url)=>{
+      if(url.includes("/api/secure/guest-arena-history"))
+        return new Response("<html>Not Found</html>",{status:404,
+          headers:{"Content-Type":"text/html"}});
+      return Response.json({snapshots:[]});
+    }
+  });
+  const data=await page.readArenaAPI();
+  assert.match(data.guestWarning,/API Arène privée absente.*HTTP 404/);
+  assert.deepEqual(data.snapshots,[]);
+});
+test("R2 failure code is rendered as text, no private Worker traces",async()=>{
+  const signed="v1."+"R".repeat(65)+"."+"S".repeat(43);
+  const {page}=setup({
+    window:{LoSP_SESSION:{ok:true,role:"admin",allowedAlliances:["marines","zeus"]}},
+    storage:{getItem:()=>signed},
+    fetch:async(url)=>{
+      if(url.includes("/api/secure/guest-arena-history"))
+        return Response.json({status:"unavailable",reason:"private-r2-read-failed",
+          stack:"private oauth token must not display"}, {status:503});
+      return Response.json({snapshots:[]});
+    }
+  });
+  const data=await page.readArenaAPI();
+  assert.match(data.guestWarning,/private-r2-read-failed/);
+  assert.doesNotMatch(data.guestWarning,/oauth token/);
 });
