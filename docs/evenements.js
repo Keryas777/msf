@@ -199,13 +199,11 @@
   function objectiveEntries(reference){
     const match=state.search.trim().toLocaleLowerCase('fr');
     const active=state.events.filter(e=>category(e,reference)==='current'&&(!state.type||e.type===state.type));
-    const parents=new Map();
-    for(const e of active)if(!secondary(e)&&!parents.has(eventTitle(e)))parents.set(eventTitle(e),e);
     const dedup=new Set(),items=[];
     for(const event of active){
       const scoring=event.milestone?.scoring;
       if(!scoring)continue;
-      const add=(method,cap,premium)=>{
+      const add=(method,cap,premium,sharedCap)=>{
         const description=strip(method?.description);
         if(!description)return;
         const label=objectiveLabel(description);
@@ -218,11 +216,12 @@
         const key=[eventTitle(event).toLocaleLowerCase('fr'),description.toLocaleLowerCase('fr'),mode,score,ceiling,Boolean(premium)].join('|');
         if(dedup.has(key))return;
         dedup.add(key);
-        items.push({event:parents.get(eventTitle(event))||event,label,mode,description,points:score,cap:ceiling,premium:Boolean(premium)});
+        items.push({event,label,mode,description,points:score,cap:ceiling,premium:Boolean(premium),sharedCap:Boolean(sharedCap)});
       };
-      for(const method of Array.isArray(scoring.methods)?scoring.methods:[])add(method,null,false);
+      for(const method of Array.isArray(scoring.methods)?scoring.methods:[])add(method,null,false,false);
       for(const capped of Array.isArray(scoring.cappedScorings)?scoring.cappedScorings:[]){
-        for(const method of Array.isArray(capped.methods)?capped.methods:[])add(method,Number(capped.cap),capped.isPremium);
+        const methods=Array.isArray(capped.methods)?capped.methods:[];
+        for(const method of methods)add(method,Number(capped.cap),capped.isPremium,methods.length>1);
       }
     }
     return items;
@@ -274,8 +273,9 @@
         if(item.cap!==null){
           const repeat=item.points&&item.cap/item.points;
           const explicitCount=/\b(?:times?|days?|fois|jours)\b/i.test(item.description);
-          const label=!explicitCount&&Number.isInteger(repeat)&&repeat>1&&repeat<=200?
-            'Jusqu’à '+fmtNumber.format(repeat)+' fois comptabilisées':'Plafond '+fmtNumber.format(item.cap)+' pts';
+          const label=!item.sharedCap&&!explicitCount&&Number.isInteger(repeat)&&repeat>1&&repeat<=200?
+            'Jusqu’à '+fmtNumber.format(repeat)+' actions comptabilisées':
+            (item.sharedCap?'Plafond partagé ':'Plafond ')+fmtNumber.format(item.cap)+' pts';
           row.append(create('span','ev-objective-cap',label));
         }
         if(item.premium)row.append(create('span','ev-objective-premium','Premium'));
