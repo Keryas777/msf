@@ -191,8 +191,11 @@
     // Rank 1 belongs at the top; use exact hundred boundaries, not
     // interpolated labels such as 101, 251 or 501.
     // Keep empty edge areas compact; expand only for real values.
-    const firstDiamond=trophyDivisions.find(b=>Number.isSafeInteger(b.min)&&
-      Number.isSafeInteger(b.max));
+    const firstDiamond=trophyDivisions.find(b=>
+      b.label===state.config?.trophyAxisAnchorDivision&&
+      Number.isSafeInteger(b.min)&&Number.isSafeInteger(b.max))||
+      trophyDivisions.find(b=>Number.isSafeInteger(b.min)&&
+        Number.isSafeInteger(b.max));
     const finalDivision=trophyDivisions.at(-1);
     const tierSize=firstDiamond?.max-firstDiamond?.min+1;
     const tickStep=tierSize/5;
