@@ -167,7 +167,7 @@ test("LoSP-only user never sends a request for private guest rosters",async()=>{
     localStorage:{getItem:()=>token},
     fetch:async()=>{requests++;throw Error("no request expected");}},
   {filename:"docs/app.js"});
-  assert.deepEqual(await window.__privateRead(),[]);
+  assert.equal((await window.__privateRead()).length,0);
   assert.equal(requests,0);
 });
 test("unsigned legacy sessions never receive guest rosters",async()=>{
