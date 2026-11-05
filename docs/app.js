@@ -1153,11 +1153,10 @@
 
     renderAllianceFilters();
 
-    const [teamsRaw, charsRaw, joueursRaw, rostersRaw, isoIconsRaw] = await Promise.all([
+    const [teamsRaw, charsRaw, allianceSources, isoIconsRaw] = await Promise.all([
       fetchJson(FILES.teams),
       fetchJson(FILES.characters),
-      fetchJson(FILES.joueurs),
-      fetchJson(FILES.rosters),
+      window.LoSPAllianceData.load({ joueurs: true, rosters: true }),
       fetchJson(FILES.isoIcons).catch(() => ({})),
     ]);
     ISO_ICONS = isoIconsRaw && typeof isoIconsRaw === "object" ? isoIconsRaw : {};
@@ -1210,11 +1209,9 @@
       })
       .filter((t) => t.team);
 
-    const guestRosters = await fetchAuthorizedGuestRosters();
-    const sources = buildRankSources(joueursRaw, [
-      ...(Array.isArray(rostersRaw) ? rostersRaw : []),
-      ...guestRosters,
-    ]);
+    guestRosterMessage = allianceSources.warnings.join(" ");
+    window.LoSPAllianceData.showWarnings(allianceSources.warnings);
+    const sources = buildRankSources(allianceSources.joueurs, allianceSources.rosters);
     JOUEURS = sources.players;
     ROSTERS = sources.rosters;
 
