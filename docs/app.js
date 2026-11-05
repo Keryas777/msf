@@ -158,6 +158,67 @@
     return "";
   }
 
+  // Identify a roster by BOTH its player and alliance: guest groups can share names.
+  function rosterIdentity(alliance, player) {
+    const key = allianceKey(alliance);
+    const name = normalizePlayerKey(player);
+    return key && name ? key + ":" + name : "";
+  }
+
+  // LoSP keeps its existing player directory. Guest membership comes ONLY from
+  // authorized roster rows; no manual player list or alliance-name guessing.
+  function buildRankSources(joueursRaw, rostersRaw) {
+    const known = new Map(getKnownAlliances().map(a => [allianceKey(a.key), a]));
+    const allowed = key => known.has(key) &&
+      window.LoSPAccess?.isAllianceAllowed(key) === true;
+    const players = (Array.isArray(joueursRaw) ? joueursRaw : [])
+      .map(r => {
+        const player = String(r?.player ?? r?.joueur ?? r?.JOUEURS ?? "").trim();
+        const rawAlliance = String(r?.alliance ?? r?.ALLIANCES ?? "").trim();
+        return { player, alliance: allianceKey(rawAlliance), allianceRaw: rawAlliance };
+      })
+      .filter(r => r.player && allowed(r.alliance));
+
+    // Historical LoSP rosters may omit the alliance. Permit a fallback only
+    // when a known, authorized directory entry identifies ONE exact alliance.
+    const directory = new Map();
+    for (const player of players) {
+      const name = normalizePlayerKey(player.player);
+      if (!directory.has(name)) directory.set(name, new Set());
+      directory.get(name).add(player.alliance);
+    }
+
+    const rosters = [];
+    const byIdentity = new Map(players.map(p =>
+      [rosterIdentity(p.alliance, p.player), p]));
+    for (const record of Array.isArray(rostersRaw) ? rostersRaw : []) {
+      if (!record || typeof record !== "object") continue;
+      const player = String(record.player ?? record.playerKey ?? "").trim();
+      if (!player) continue;
+      const rawAlliance = String(record.alliance ?? "").trim();
+      let key = rawAlliance ? allianceKey(rawAlliance) : "";
+      if (!rawAlliance) {
+        const matches = directory.get(normalizePlayerKey(player));
+        if (matches?.size === 1) key = [...matches][0];
+      }
+      // Never infer which of two same-name guest alliances a roster belongs to.
+      if (!allowed(key)) continue;
+      const id = rosterIdentity(key, player);
+      if (!id) continue;
+      rosters.push({
+        alliance: key, player,
+        chars: record.chars && typeof record.chars === "object" &&
+          !Array.isArray(record.chars) ? record.chars : {},
+        iso: record.iso && typeof record.iso === "object" &&
+          !Array.isArray(record.iso) ? record.iso : {},
+      });
+      if (known.get(key)?.group !== "losp") {
+        byIdentity.set(id, { player, alliance: key, allianceRaw: rawAlliance });
+      }
+    }
+    return { players: [...byIdentity.values()], rosters };
+  }
+
   function allianceEmoji(value) {
     const helper = allianceHelper();
 
@@ -489,8 +550,8 @@
     return null;
   }
 
-  function computeTeamStatsForPlayer(playerName, teamName) {
-    const playerK = normalizePlayerKey(playerName);
+  function computeTeamStatsForPlayer(playerName, teamName, alliance) {
+    const playerK = rosterIdentity(alliance, playerName);
     const charsMap = ROSTER_MAP.get(playerK) || null;
 
     if (!charsMap) return { sum: 0, bars: [] };
@@ -781,7 +842,7 @@
     const team = getTeamListFilteredByMode().find(t => t.team === teamName);
     if (!team) return;
 
-    const playerK = normalizePlayerKey(player.player);
+    const playerK = rosterIdentity(player.allianceKey, player.player);
     const charsMap = ROSTER_MAP.get(playerK) || null;
     const isoMap = ROSTER_ISO_MAP.get(playerK) || null;
     detailReturnFocus = document.activeElement;
@@ -908,7 +969,7 @@
         return allianceEnabled[key] === true;
       })
       .map((p) => {
-        const stats = computeTeamStatsForPlayer(p.player, teamName);
+        const stats = computeTeamStatsForPlayer(p.player, teamName, p.alliance);
         const key = allianceKey(p.alliance);
 
         return {
@@ -928,6 +989,13 @@
 
     if (playersCount) {
       playersCount.textContent = String(rows.length);
+    }
+    if (!rows.length) {
+      const note = document.createElement("p");
+      note.className = "subtitle";
+      note.textContent = "Aucun roster de joueur disponible pour les alliances sélectionnées.";
+      playersWrap.appendChild(note);
+      return;
     }
 
     const list = document.createElement("div");
@@ -1069,37 +1137,15 @@
       })
       .filter((t) => t.team);
 
-    JOUEURS = (Array.isArray(joueursRaw) ? joueursRaw : [])
-      .map((r) => {
-        const player = String(r.player ?? r.joueur ?? r.JOUEURS ?? "").trim();
-        const rawAlliance = String(r.alliance ?? r.ALLIANCES ?? "").trim();
-        const key = allianceKey(rawAlliance);
-
-        return {
-          player,
-          alliance: key,
-          allianceRaw: rawAlliance,
-        };
-      })
-      .filter((r) => r.player && r.alliance && window.LoSPAccess?.isAllianceAllowed(r.alliance));
-
-    const authorizedNames = new Set(JOUEURS.map((p) => normalizePlayerKey(p.player)));
-    ROSTERS = (Array.isArray(rostersRaw) ? rostersRaw : [])
-      .filter((r) => r?.alliance
-        ? window.LoSPAccess?.isAllianceAllowed(r.alliance)
-        : authorizedNames.has(normalizePlayerKey(r?.playerKey ?? r?.player)))
-      .map((r) => ({
-        player: String(r.playerKey ?? r.player ?? "").trim(),
-        chars: r.chars && typeof r.chars === "object" ? r.chars : {},
-        iso: r.iso && typeof r.iso === "object" ? r.iso : {},
-      }))
-      .filter((r) => r.player);
+    const sources = buildRankSources(joueursRaw, rostersRaw);
+    JOUEURS = sources.players;
+    ROSTERS = sources.rosters;
 
     ROSTER_MAP = new Map();
     ROSTER_ISO_MAP = new Map();
 
     for (const r of ROSTERS) {
-      const playerK = normalizePlayerKey(r.player);
+      const playerK = rosterIdentity(r.alliance, r.player);
 
       if (!playerK) continue;
 
