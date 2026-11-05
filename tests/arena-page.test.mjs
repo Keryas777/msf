@@ -412,7 +412,7 @@ test("admin guest-source error never silently hides missing invited ranks",async
   });
   const data=await page.readArenaAPI();
   assert.equal(data.snapshots.length,1);
-  assert.match(data.guestWarning,/Historique privé Arène/);
+  assert.match(data.guestWarning,/Historique Arène invité indisponible \(HTTP 503/);
 });
 test("merging by date preserves earlier LoSP history without fabricating guest points",()=>{
   const {page}=setup();
