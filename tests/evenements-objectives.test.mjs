@@ -20,7 +20,7 @@ function node(tag='div'){
     focus(){this.focused=true;}
   };
 }
-async function makePage({failure=false}={}){
+async function makePage({failure=false,stale=false}={}){
   const ids=[...html.matchAll(/id="([^"]+)"/g)].map(x=>x[1]);
   const elements=new Map(ids.map(id=>[id,node()]));
   const now=Math.floor(Date.now()/1000),day=86400;
@@ -51,7 +51,7 @@ async function makePage({failure=false}={}){
     createElement:node,
     addEventListener:(type,handler)=>{if(type==='DOMContentLoaded')onReady=handler;}
   };
-  // Only the live R2 endpoint is mocked. No real external request.
+  // The canonical GitHub Pages JSON is mocked. No real external request.
   const fetchCalls=[];
   runInNewContext(script,{
     document,location:{search:''},URLSearchParams,Intl,Date,
@@ -59,8 +59,9 @@ async function makePage({failure=false}={}){
       fetchCalls.push(url);
       if(failure)return {ok:false,status:503};
       return {ok:true,json:async()=>({
-        status:'ok',schemaVersion:1,total:events.length,count:events.length,
-        pages:1,updatedAt:new Date().toISOString(),locale:'en',
+        status:'ok',source:'verified-daily-game-events',schemaVersion:1,
+        total:events.length,count:events.length,
+        pages:1,updatedAt:new Date(Date.now()-(stale?3*86400000:0)).toISOString(),locale:'en',
         localizationStatus:'no-translated-text',events
       })};
     }
@@ -69,7 +70,7 @@ async function makePage({failure=false}={}){
   onReady();
   await new Promise(resolve=>setImmediate(resolve));
   assert.deepEqual(fetchCalls,[
-    'https://losp-roster-service.deliriousfan7.workers.dev/api/public/events'
+    './data/evenements-snapshot.json'
   ]);
   return elements;
 }
@@ -115,7 +116,7 @@ test('Les identifiants obligatoires de la vue Objectifs existent dans le HTML',(
   assert.doesNotMatch(html,/section-future|events-future|stat-future/);
 });
 
-test('Une panne R2 n’utilise aucun snapshot local et affiche une indisponibilité',async()=>{
+test('Une panne du JSON GitHub n’utilise aucune autre source et affiche une indisponibilité',async()=>{
   const nodes=await makePage({failure:true});
   assert.match(nodes.get('source-line').textContent,/indisponible/);
   assert.equal(nodes.get('events-current').children.length,1);
@@ -125,5 +126,14 @@ test('Une panne R2 n’utilise aucun snapshot local et affiche une indisponibili
   nodes.get('search-filter').handlers.get('input')({target:{value:'raid'}});
   assert.match(nodes.get('events-current').children[0].textContent,
     /temporairement indisponibles/);
-  assert.doesNotMatch(script,/evenements-snapshot\.json|embedded-events/);
+  assert.match(script,/evenements-snapshot\\.json/);
+  assert.doesNotMatch(script,/api\\/public\\/events|embedded-events/);
+});
+
+test('Un fichier GitHub de plus de 48h est refusé, même si la requête fonctionne',async()=>{
+  const nodes=await makePage({stale:true});
+  assert.match(nodes.get('source-line').textContent,/trop ancien/);
+  assert.equal(nodes.get('stat-current').textContent,'—');
+  assert.match(nodes.get('events-objectives').children[0].textContent,
+    /temporairement indisponibles/);
 });
