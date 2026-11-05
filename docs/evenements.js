@@ -118,7 +118,7 @@
     const text=strip(description).toLocaleLowerCase('fr');
     const modes=[];
     if(/\braids?\b/.test(text))modes.push('raid');
-    if(/\b(?:alliance war|battle in war|in war|en guerre|guerre d.alliance)\b/.test(text))modes.push('war');
+    if(/\b(?:alliance war|battle in war|in war|en guerre|guerre d.alliance)\b|^play war\b|\bwar or\b/.test(text))modes.push('war');
     if(/\b(?:arena|arène)\b/.test(text))modes.push('arena');
     if(/\bblitz\b/.test(text))modes.push('blitz');
     if(/\b(?:cosmic crucible|crucible|épreuve cosmique)\b/.test(text))modes.push('crucible');
@@ -131,6 +131,7 @@
     // Conserver les noms de personnages/équipes de la source et ne traduire
     // que des constructions anglophones identifiables sans ambiguïté.
     const requirement=value=>value
+      .replace(/^an /i,'un ').replace(/^a /i,'un ')
       .replace(/\bat (\d+) Yellow Stars\b/gi,'avec $1 étoiles jaunes')
       .replace(/\bat Gear Tier (\d+)\b/gi,'au palier G$1')
       .replace(/\bat GT(\d+)\b/gi,'au palier G$1')
@@ -159,6 +160,40 @@
     if(/^Spend Power Cores$/i.test(description))return 'Dépenser des noyaux d’énergie';
     if((m=description.match(/^Spend (\d+) Power Cores?$/i)))return 'Dépenser '+m[1]+' noyau(x) d’énergie';
     if(/^Claim a free offer\.?$/i.test(description))return 'Récupérer une offre gratuite';
+
+    if((m=description.match(/^Play Arena, Blitz, Crucible, or Alliance War with (.+)$/i)))
+      return 'Jouer en arène, Blitz, Épreuve cosmique ou guerre avec '+requirement(m[1]);
+    if((m=description.match(/^Play War or Cosmic Crucible with (.+)$/i)))
+      return 'Jouer en guerre ou en Épreuve cosmique avec '+requirement(m[1]);
+    if(/^Play War$/i.test(description))return 'Faire un combat en guerre';
+    if(/^Play Raids$/i.test(description))return 'Faire des combats en raid';
+    if(/^Play Crucible$/i.test(description))return 'Faire un combat en Épreuve cosmique';
+    if((m=description.match(/^Play (the )?(.+ Campaigns?)$/i)))return 'Jouer '+(m[1]?'la ':'une ')+m[2];
+    if(/^Clear Waves in Battleworld$/i.test(description))return 'Terminer des vagues en Battleworld';
+    if((m=description.match(/^Upgrade any character(?: Level)? to Level (\d+)$/i)))
+      return 'Améliorer un personnage au niveau '+m[1];
+    if((m=description.match(/^Upgrade (.+) to (?:Tier |T)([234]) Level (\d+) Iso-8$/i))){
+      const subject=requirement(m[1]).replace(/^any character$/i,'un personnage')
+        .replace(/^any City character$/i,'un personnage Ville')
+        .replace(/^any Global character$/i,'un personnage Global')
+        .replace(/^any Cosmic character$/i,'un personnage Cosmique');
+      return 'Améliorer '+subject+' en ISO-8 T'+m[2]+' niveau '+m[3];
+    }
+    if((m=description.match(/^Spend (\d+) (?:Tier |T)([234]) Level (\d+) Ion$/i)))
+      return 'Dépenser '+m[1]+' ion(s) ISO-8 (palier '+m[2]+', niveau '+m[3]+')';
+    if(/^Spend Gold$/i.test(description))return 'Dépenser de l’or';
+    if((m=description.match(/^Spend (\d+) Gold$/i)))return 'Dépenser '+m[1]+' or';
+    if(/^Spend L4 Training Modules$/i.test(description))return 'Dépenser des modules d’entraînement L4';
+    if((m=description.match(/^Earn (.+) Milestone Points in select Offers$/i)))
+      return 'Obtenir des points de jalon « '+m[1]+' » via certaines offres';
+    if((m=description.match(/^Get points by completing the (.+)$/i)))
+      return 'Gagner des points en terminant '+m[1];
+    if(/^Make a purchase from the Web Store\.?$/i.test(description))return 'Effectuer un achat dans la boutique Web';
+    if(/^Make a Strike Store purchase\.?$/i.test(description))return 'Effectuer un achat dans la boutique S.T.R.I.K.E.';
+    if(/^Login to Web Playable\.?$/i.test(description))return 'Se connecter sur la version Web du jeu';
+    if(/^Use 1 Power Core$/i.test(description))return 'Utiliser 1 noyau d’énergie';
+    if((m=description.match(/^Upgrade characters to Gear Tier (\d+) or higher$/i)))
+      return 'Améliorer des personnages au palier G'+m[1]+' ou supérieur';
     return description;
   }
   function objectiveEntries(reference){
