@@ -1,6 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {infoCampaign,validateInfoSnapshot,assertNoAmbiguousPlayers}
+import {infoCampaign,validateInfoSnapshot,assertNoAmbiguousPlayers,publishedInfosAlliances}
   from "../scripts/lib/infos-r2-import.mjs";
 
 const fp="a".repeat(64);
@@ -68,4 +68,19 @@ test("CLI accepts --write and reaches private configuration validation",async()=
   });
   assert.equal(invalid.status,1);
   assert.match(invalid.stderr,/Only --write is supported/);
+});
+
+test("legacy Infos publisher ignores registered guests without their own source files",()=>{
+  const registered=[
+    {key:"zeus",group:"losp"},{key:"hades",group:"losp"},
+    {key:"marines",group:"marines"},
+    {key:"endgame-revolution-red",group:"endgame-revolution"},
+    {key:"endgame-revolution-orange",group:"endgame-revolution"},
+    {key:"retired",group:"losp",active:false}
+  ];
+  assert.deepEqual(publishedInfosAlliances(registered).map(a=>a.key),
+    ["zeus","hades"]);
+  assert.throws(()=>publishedInfosAlliances([{key:"marines",group:"marines"}]),
+    /No valid published/);
+  assert.throws(()=>publishedInfosAlliances(null),/Invalid Infos/);
 });
