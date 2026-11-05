@@ -121,6 +121,9 @@ test('Une panne R2 n’utilise aucun snapshot local et affiche une indisponibili
   assert.equal(nodes.get('events-current').children.length,1);
   assert.match(nodes.get('events-current').children[0].textContent,
     /temporairement indisponibles/);
-  assert.equal(nodes.get('stat-current').textContent,'');
+  assert.equal(nodes.get('stat-current').textContent,'—');
+  nodes.get('search-filter').handlers.get('input')({target:{value:'raid'}});
+  assert.match(nodes.get('events-current').children[0].textContent,
+    /temporairement indisponibles/);
   assert.doesNotMatch(script,/evenements-snapshot\.json|embedded-events/);
 });
