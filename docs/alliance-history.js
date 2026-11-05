@@ -4,6 +4,7 @@
   'use strict';
   const BASE='./data/alliance-standings/';
   const TROPHY_API='https://losp-roster-service.deliriousfan7.workers.dev/api/public/trophy-history';
+  const GUEST_RANKS_API='https://losp-roster-service.deliriousfan7.workers.dev/api/public/guest-season-ranks';
   const refs={
     tabs:[...document.querySelectorAll('[data-mode]')],
     charts:[...document.querySelectorAll('[data-chart]')],
@@ -29,7 +30,8 @@
   const number=new Intl.NumberFormat('fr-FR');
   const state={mode:'war',warChart:'war-trophies',snapshots:[],
     registry:[],config:null,failures:0,prepared:null,chart:null,
-    hiddenAlliances:new Set(),liveCoverage:null,liveAvailable:false};
+    hiddenAlliances:new Set(),liveCoverage:null,liveAvailable:false,
+    guestRanksAvailable:false};
   const byId=id=>state.config?.charts?.find(chart=>chart.id===id);
   const safeColor=value=>/^#[0-9a-f]{6}$/i.test(value||'')?value:'#ffffff';
   const formatDate=iso=>dates.format(new Date(iso));
@@ -51,18 +53,20 @@
     if(!response.ok)throw Error('HTTP '+response.status);
     return response.json();
   }
-  async function readLiveTrophies(){
+  async function readLive(url){
     // A Cloudflare outage must never prevent the existing static charts.
     const controller=new AbortController();
     const timer=setTimeout(()=>controller.abort(),6000);
     try{
-      const response=await fetch(TROPHY_API,{cache:'no-store',
+      const response=await fetch(url,{cache:'no-store',
         signal:controller.signal});
       if(!response.ok)throw Error('Cloudflare HTTP '+response.status);
       return await response.json();
     }catch{return null;}
     finally{clearTimeout(timer);}
   }
+  const readLiveTrophies=()=>readLive(TROPHY_API);
+  const readGuestRanks=()=>readLive(GUEST_RANKS_API);
   async function readSnapshots(index){
     const entries=Array.isArray(index?.snapshots)?index.snapshots:[];
     const valid=entries.filter(item=>typeof item?.capturedAt==='string'&&
@@ -411,9 +415,13 @@
       refs.note.textContent+=' Dernière collecte Cloudflare partielle : seules les alliances effectivement relevées apparaissent, aucune valeur n’est inventée.';
     if(!model.rows.length){
       refs.period.textContent='Aucune date disponible';
-      refs.status.textContent=state.liveAvailable?
-        'Aucun relevé exploitable pour ton groupement dans la collecte Cloudflare.':
-        'Aucun relevé pour ton groupement ; source Cloudflare indisponible.';
+      refs.status.textContent=chart.frequency==='per-season'?
+        (state.guestRanksAvailable?
+          'Aucun rang de saison terminée disponible pour ton groupement.':
+          'Aucun rang de saison terminée disponible pour ton groupement actuellement.'):
+        (state.liveAvailable?
+          'Aucun relevé exploitable pour ton groupement dans la collecte Cloudflare.':
+          'Aucun relevé pour ton groupement ; source Cloudflare indisponible.');
       refs.plot.replaceChildren();
       return;
     }
@@ -512,14 +520,19 @@
       state.config=config;
       await window.LoSP_AUTH_READY;
       state.registry=registry.filter(a => window.LoSPAccess?.isAllianceAllowed(a?.key));
-      const [published,live]=await Promise.all([readSnapshots(index),readLiveTrophies()]);
+      const [published,live,guestRanks]=await Promise.all([
+        readSnapshots(index),readLiveTrophies(),readGuestRanks()]);
       const recent=live?.snapshots?.at(-1);
       state.liveCoverage=recent?.coverage||null;
       state.liveAvailable=live?.status==='ok';
+      state.guestRanksAvailable=guestRanks?.status==='ok';
       const merged=window.LoSPTrophyLive?
         window.LoSPTrophyLive.merge(published,live,registry,
           key=>window.LoSPAccess?.isAllianceAllowed(key)):published;
-      state.snapshots=merged.map(snapshot => ({
+      const incoming=window.LoSPGuestSeasonLive?
+        window.LoSPGuestSeasonLive.fromCloudflare(guestRanks,registry,
+          key=>window.LoSPAccess?.isAllianceAllowed(key),config.rankingSeasons):[];
+      state.snapshots=[...merged,...incoming].map(snapshot => ({
         ...snapshot,
         alliances:snapshot.alliances.filter(a =>
           window.LoSPAccess?.isAllianceAllowed(a?.key || a?.alliance))
