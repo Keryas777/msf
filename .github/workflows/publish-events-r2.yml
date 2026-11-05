@@ -1,0 +1,66 @@
+name: Publish daily MSF events to GitHub Pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Source update (daily or differential)"
+        required: false
+        default: "manual"
+        type: choice
+        options: [manual, daily, differential]
+  schedule:
+    # Safety net if the Worker's GitHub dispatch is missed.
+    # The actual provider collection runs at 03:17 UTC.
+    - cron: "47 4 * * *"
+
+permissions:
+  contents: write
+
+# Same serialization group as roster/Infos writers, preventing main push races.
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate GitHub events publisher
+        run: |
+          node --check scripts/publish-events-r2.mjs
+          node --test tests/publish-events-r2.test.mjs tests/evenements-objectives.test.mjs
+
+      - name: Publish complete, fresh R2 events to GitHub file
+        run: node scripts/publish-events-r2.mjs --write
+
+      - name: Verify exact write scope
+        shell: bash
+        run: |
+          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' |
+            grep -Ev '^docs/data/evenements-snapshot[.]json$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected files changed:"; echo "$unexpected"; exit 1
+          fi
+
+      - name: Commit events JSON only if changed
+        shell: bash
+        run: |
+          git add docs/data/evenements-snapshot.json
+          if git diff --cached --quiet; then
+            echo "Already published, nothing to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "data(events): publish verified daily R2 events"
+          git push origin HEAD:main

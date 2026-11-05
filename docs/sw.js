@@ -1,6 +1,6 @@
 // docs/sw.js
 
-const CACHE = "losp-v22";
+const CACHE = "losp-v23";
 
 const CORE_ASSETS = [
   "./",
@@ -72,6 +72,9 @@ const isLiveRosterRequest = (url) => {
   return /\/data\/rosters(?:_[a-z0-9-]+)?\.json$/i.test(url.pathname) ||
     url.pathname.endsWith("/data/rosters-meta.json");
 };
+const isLiveEventsRequest = url =>
+  url.pathname.endsWith("/data/evenements-snapshot.json");
+
 
 const isScriptOrStyle = (url) => {
   return /\.(css|js)$/i.test(url.pathname);
@@ -143,9 +146,9 @@ self.addEventListener("fetch", (event) => {
 
   if (!isSameOrigin(url)) return;
 
-  // Les rosters sont exclusivement en ligne (même en mode PWA).
+  // Les rosters et événements vérifiés sont exclusivement en ligne (PWA incluse).
   // Le paramètre unique empêche également de réutiliser une réponse CDN.
-  if (isLiveRosterRequest(url)) {
+  if (isLiveRosterRequest(url) || isLiveEventsRequest(url)) {
     const liveUrl = new URL(request.url);
     liveUrl.searchParams.set("_live", Date.now() + "-" + Math.random().toString(36).slice(2));
     event.respondWith(fetch(new Request(liveUrl.href, request), { cache: "no-store" }));
