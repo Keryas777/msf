@@ -25,7 +25,17 @@
     Number.isFinite(Date.parse(value));
   const dayOf=s=>s.collectionDayUtc||
     (s.captureType==="season-ranks"?"":s.capturedAt?.slice(0,10));
-  function mappedKey(name,registry){
+  // Stable within the Worker's rolling archive. This public, non-provider ID
+  // is optional registry metadata; never treat a display name as identity
+  // when an explicitly registered public ID is available.
+  const validPublicId=value=>typeof value==="string"&&
+    /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(value);
+  function mappedKey(name,registry,publicId){
+    if(validPublicId(publicId)){
+      const identified=registry.filter(entry=>entry?.trophyPublicId===publicId);
+      if(identified.length>1)return null; // Fail closed on conflicting registry IDs.
+      if(identified.length===1)return identified[0].key;
+    }
     const needle=normalize(name);
     if(!needle)return null;
     const matches=registry.filter(entry=>{
@@ -53,7 +63,7 @@
         if(!record||!safeNum(record.warTrophies)||
            !validDate(record.capturedAt)||typeof record.nameAtCapture!=="string")
           continue;
-        const key=mappedKey(record.nameAtCapture,registry);
+        const key=mappedKey(record.nameAtCapture,registry,record.publicId);
         if(!key||seen.has(key)||!allowed(key))continue;
         seen.add(key);
         alliances.push({key,nameAtCapture:record.nameAtCapture,
