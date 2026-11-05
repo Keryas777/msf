@@ -1,6 +1,6 @@
-/* LoSP événements : catalogue R2 vérifié uniquement, sans snapshot local.
-   Source : GET /api/public/events ; aucun appel direct à Scopely.
-   Page autonome et sans bibliothèque externe. */
+/* LoSP événements : fichier GitHub Pages publié depuis les sources R2 vérifiées.
+   Une seule source publique : docs/data/evenements-snapshot.json (canonique).
+   Pas de second fichier de secours, et aucun appel direct à Scopely. */
 (()=>{
   'use strict';
   const $=id=>document.getElementById(id);
@@ -240,7 +240,7 @@
       return;
     }
     host.append(create('p','ev-objectives-note',
-      'Méthodes de progression des événements actifs (catalogue R2).'+
+      'Méthodes de progression des événements actifs (catalogue GitHub actualisé depuis R2).'+
       ' La progression personnelle n’est pas synchronisée.'));
     const grouped=new Map();
     for(const item of items){
@@ -339,7 +339,7 @@
     body.append(create('p','ev-dialog-disclaimer','Données archivées : elles ne prouvent pas l’état actuel des événements. Les récompenses détaillées sont encore incomplètes pour de nombreuses fiches.'));
     host.append(body);if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');
   }
-  const EVENTS_API="https://losp-roster-service.deliriousfan7.workers.dev/api/public/events";
+  const EVENTS_API='./data/evenements-snapshot.json';
   function validCatalog(events){
     return Array.isArray(events)&&events.length>0&&events.length<=1000&&
       new Set(events.map(e=>e?.id)).size===events.length&&
@@ -349,7 +349,7 @@
   }
   function installCatalog(data){
     if(!validCatalog(data.events))throw new Error('Catalogue invalide');
-    // The public R2 projection is the sole source of event data.
+    // The verified GitHub Pages JSON is the sole browser source.
     state.events=data.events.filter(isCalendarEvent);
     state.sourceError=false;
     state.metadata={liveSource:true,updatedAt:data.updatedAt};
@@ -367,7 +367,7 @@
     state.expanded.clear();
     const time=Date.parse(data.updatedAt||'');
     const dated=Number.isFinite(time)?fmtDate.format(new Date(time)):'date inconnue';
-    $('source-line').textContent='Catalogue vérifié via R2 · '+state.events.length+
+    $('source-line').textContent='Catalogue GitHub vérifié · '+state.events.length+
       ' événements affichables ('+data.events.length+' récupérés) · '+data.pages+
       ' page(s) · dernière vérification '+dated+'.';
     const frenchVerified=data.locale==='fr'&&data.localizationStatus==='verified';
@@ -376,16 +376,17 @@
       data.localizationStatus==='no-translated-text'?
         'Source française vérifiée, mais aucun texte traduit détecté ; anglais conservé. ':
         'Textes anglais : traduction française non disponible pour cette collecte. ')+
-      'Données vérifiées dans R2 ; aucun appel Scopely depuis cette page.';
+      'Import automatique des données R2 vérifiées ; aucun appel Scopely depuis cette page.';
     render();
   }
   async function load(){
     try{
-      const response=await fetch(EVENTS_API,{mode:'cors',cache:'no-store'});
+      const response=await fetch(EVENTS_API,{cache:'no-store'});
       if(!response.ok)throw new Error('HTTP '+response.status);
       const live=await response.json();
       const checkedAt=Date.parse(live?.updatedAt||'');
       if(live?.schemaVersion!==1||live.status!=='ok'||
+        live.source!=='verified-daily-game-events'||
         !Number.isSafeInteger(live.total)||live.total!==live.count||
         live.events?.length!==live.total||!validCatalog(live.events)||
         !Number.isFinite(checkedAt)||checkedAt>Date.now()+300000||
@@ -393,11 +394,11 @@
         throw new Error('Catalogue incomplet ou périmé');
       installCatalog(live);
     }catch{
-      // Fail closed: never reintroduce a stale local JSON or claim there are
+      // Fail closed: never use an outdated GitHub JSON or claim there are
       // no events when the provider's verified R2 projection is unavailable.
-      $('source-line').textContent='Catalogue R2 indisponible ou trop ancien.';
+      $('source-line').textContent='Catalogue GitHub indisponible ou trop ancien.';
       $('source-provenance').textContent=
-        'Aucune archive locale n’est affichée. Réessayez après la prochaine collecte quotidienne.';
+        'Aucune ancienne version n’est affichée. Réessayez après la prochaine publication GitHub.';
       state.sourceError=true;
       render();
     }
