@@ -84,6 +84,7 @@
       </section>
     </div>
 
+    <script src="./alliance-data.js?v=1"></script>
     <script>
       (function () {
         const allianceSelect = document.querySelector("#allianceSelect");
@@ -223,7 +224,7 @@
         alliances.defer = true;
 
         const s = document.createElement("script");
-        s.src = "./iso.js?v=2-" + Date.now();
+        s.src = "./iso.js?v=3-" + Date.now();
         s.defer = true;
         s.addEventListener("load", applyDiscordDefaults);
 
