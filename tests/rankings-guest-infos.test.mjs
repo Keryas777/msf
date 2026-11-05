@@ -89,3 +89,9 @@ test("both page HTMLs load shared signed source before their ranking scripts",as
     assert.ok(html.indexOf("rankings-infos.js")<html.indexOf(page+".js"));
   }
 });
+
+test("TCP preserves canonical hyphenated guest slugs in checkbox filters",async()=>{
+  const tcp=await readFile(new URL("../docs/tcp.js",import.meta.url),"utf8");
+  assert.match(tcp,/String\(alliance\?\.key \?\? ""\)\.trim\(\)\.toLowerCase\(\)/);
+  assert.doesNotMatch(tcp,/normalizeFallbackKey\(alliance\?\.key\)/);
+});
