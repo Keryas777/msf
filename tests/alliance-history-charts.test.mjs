@@ -336,6 +336,8 @@ test('rankings shade Top 100 dark green and 101-200 light green behind points',(
 });
 test('default trophy viewport clips low Platinum tiers, preserving compact edge zones',()=>{
   const divisions=config.trophyDivisions;
+  assert.equal(config.trophyAxisAnchorDivision,'D-I',
+    'Adding lower Platinum tiers must not shift the normal vertical axis');
   assert.deepEqual(divisions.map(b=>[b.label,b.min??null,b.max??null]),[
     ['P-I',null,1499],['P-II',1500,1749],['P-III',1750,1999],
     ['P-IV',2000,2249],['D-I',2250,2499],['D-II',2500,2749],
@@ -348,6 +350,10 @@ test('default trophy viewport clips low Platinum tiers, preserving compact edge 
     const bands=plot.children.filter(n=>n.attrs.class==='historyTrophyBand');
     const separators=plot.children.filter(n=>n.attrs.class==='historyTrophyBoundary');
     const labels=plot.children.filter(n=>n.attrs.class==='historyTrophyLabel');
+    const axisLabels=plot.children.filter(n=>n.attrs.class==='historyAxisText'&&
+      n.attrs['text-anchor']==='end');
+    assert.equal(Number(String(axisLabels[0].text).replace(/\D/g,'')),2150,
+      'The original 2189-trophy minimum keeps its prior 2150 axis floor');
     assert.equal(bands.length,6,
       'Only P-IV through U-I appear when all sampled values are above 2000');
     assert.equal(new Set(bands.map(b=>b.attrs.fill)).size,6);
