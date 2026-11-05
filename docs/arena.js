@@ -2,6 +2,46 @@
 (()=>{
 "use strict";
 const API="https://losp-roster-service.deliriousfan7.workers.dev/api/public/arena-history";
+const GUEST_API="https://losp-roster-service.deliriousfan7.workers.dev/api/secure/guest-arena-history";
+// Only the official Discord HMAC session is accepted by the guest API.
+// Preview group selection changes the VIEW, never the signed credentials.
+const isGuestView=()=>window.LoSP_SESSION?.ok===true&&
+  window.LoSP_SESSION.role==="guest";
+function guestAllianceKeys(){
+  const list=window.LoSP_SESSION?.allowedAlliances;
+  if(!Array.isArray(list))return [];
+  return [...new Set(list.filter(k=>typeof k==="string"&&
+    /^[a-z][a-z0-9-]{1,63}$/.test(k)))].sort();
+}
+function signedSession(){
+  try{
+    const value=localStorage.getItem("losp_session")||"";
+    return /^v1\.[A-Za-z0-9_-]{12,4096}\.[A-Za-z0-9_-]{40,80}$/.test(value)?
+      value:"";
+  }catch{return "";}
+}
+async function readArenaAPI(){
+  if(!isGuestView()){
+    const res=await fetch(API,{mode:"cors",cache:"no-store"});
+    if(!res.ok)throw Error("R2 indisponible");
+    return res.json();
+  }
+  const token=signedSession(),keys=guestAllianceKeys();
+  if(!token)throw Error("Session Discord signée nécessaire. Reconnecte-toi pour consulter l’Arène.");
+  if(!keys.length||keys.length>20)throw Error("Aucune alliance invitée autorisée.");
+  const url=GUEST_API+"?alliances="+encodeURIComponent(keys.join(","));
+  const res=await fetch(url,{mode:"cors",cache:"no-store",
+    headers:{Authorization:"Bearer "+token}});
+  if(res.status===401)throw Error("Session Discord expirée ou non signée. Reconnecte-toi.");
+  if(res.status===403)throw Error("Accès Arène refusé pour ce groupement.");
+  if(res.status===409)throw Error("Alliance invitée non liée ou non approuvée dans l’administration.");
+  if(!res.ok)throw Error("Historique privé Arène momentanément indisponible.");
+  const data=await res.json();
+  if(data?.kind!=="authorized-guest-arena-history"||
+    data?.status!=="ok"||!Array.isArray(data.snapshots))
+    throw Error("Historique privé Arène invalide.");
+  return data;
+}
 const COLORS=["#65b8ff","#f9a44e","#b29aff","#53dfaa"];
 const $=id=>document.getElementById(id);
 const S={snapshots:[],aliases:{},people:new Map(),selected:[],fallback:false,
@@ -312,6 +352,10 @@ function fillChart(){
   }
 }
 async function load(){
+  // The Discord-auth guard has to resolve first, including admin preview.
+  // Never guess guest permissions from the URL or the selected filter.
+  try{await window.LoSP_AUTH_READY;}catch{/* Auth errors fail closed below. */}
+  const guest=isGuestView();
   try{
     await window.LoSPAlliances?.loadAlliances();
     const res=await fetch("./data/player-aliases.json",{cache:"no-store"});
@@ -324,6 +368,7 @@ async function load(){
   // portraits and frames. R2 is authoritative for historical arena ranks.
   let infoRows=null;
   try{
+    if(guest)throw Error("Guest portraits are not published in LoSP Infos");
     const infos=await fetch("./data/infos.json",{cache:"no-store"});
     if(infos.ok){
       const rows=await infos.json();
@@ -337,17 +382,23 @@ async function load(){
     }
   }catch{/* History still works if enriched Infos are unavailable. */}
   try{
-    const r=await fetch(API,{mode:"cors",cache:"no-store"});
-    if(!r.ok)throw Error("R2 indisponible");
-    const data=await r.json();
+    const data=await readArenaAPI();
     mapSourceAlliances(data);
     S.snapshots=readSnapshots(data);
     if(!S.snapshots.length)throw Error("Aucun relevé complet");
     // Le chargement réussi ne nécessite aucun bandeau permanent.
     // Conserver le même élément pour signaler un éventuel repli ou une erreur.
     $("arenaStatus").hidden=true;
-  }catch{
-    // Fallback is visibly UNDATED and never contributes to a historical line.
+  }catch(error){
+    // Guest history contains private player names; never fall back to
+    // public LoSP data or bypass server-side Discord authorization.
+    if(guest){
+      $("arenaStatus").hidden=false;
+      $("arenaStatus").textContent=error instanceof Error?
+        error.message:"Historique Arène invité indisponible.";
+      return;
+    }
+    // LoSP's pre-existing static fallback remains visibly undated.
     try{
       if(!infoRows)throw Error("Infos indisponibles");
       const rows=infoRows;
