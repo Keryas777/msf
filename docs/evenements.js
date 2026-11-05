@@ -170,7 +170,7 @@
     if(/^Play Crucible$/i.test(description))return 'Faire un combat en Épreuve cosmique';
     if((m=description.match(/^Play (the )?(.+ Campaigns?)$/i)))return 'Jouer '+(m[1]?'la ':'une ')+m[2];
     if(/^Clear Waves in Battleworld$/i.test(description))return 'Terminer des vagues en Battleworld';
-    if((m=description.match(/^Upgrade any character(?: Level)? to Level (\d+)$/i)))
+    if((m=description.match(/^Upgrade any character(?: to Level| Level to) (\d+)$/i)))
       return 'Améliorer un personnage au niveau '+m[1];
     if((m=description.match(/^Upgrade (.+) to (?:Tier |T)([234]) Level (\d+) Iso-8$/i))){
       const subject=requirement(m[1]).replace(/^any character$/i,'un personnage')
