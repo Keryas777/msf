@@ -71,6 +71,15 @@
     return {rows,pending};
   }
   async function load(){
+    // Prefer the single source used by player cards, ISO and team rankings.
+    if(window.LoSPAllianceData?.load){
+      const data=await window.LoSPAllianceData.load({infos:true});
+      const summary=document.querySelector(".rankingsSummaryNote");
+      const role=window.LoSP_SESSION?.role;
+      if(summary)summary.textContent=role==="guest"?"Alliance invitée":
+        role==="admin"?"Groupement et invités":"Groupement LoSP";
+      return {rows:data.infos,warning:data.warnings.join(" ")};
+    }
     if(window.LoSP_AUTH_READY)await window.LoSP_AUTH_READY;
     const session=window.LoSP_SESSION;
     if(session?.ok!==true)throw Error("Connexion Discord nécessaire.");
