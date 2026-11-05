@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "scripts/pull-infos-r2.mjs"
+      - "scripts/snapshot-arena.mjs"
+      - "tests/arena-snapshot.test.mjs"
       - "scripts/lib/infos-r2-import.mjs"
       - "scripts/merge-infos.mjs"
       - "tests/infos-r2-import.test.mjs"
@@ -25,6 +27,7 @@ jobs:
       - name: Syntax and offline import regression tests
         run: |
           node --check scripts/pull-infos-r2.mjs
+          node --check scripts/snapshot-arena.mjs
           node --check scripts/lib/infos-r2-import.mjs
           node --check scripts/merge-infos.mjs
-          node --test tests/infos-r2-import.test.mjs tests/merge-alliance-data.test.mjs
+          node --test tests/infos-r2-import.test.mjs tests/merge-alliance-data.test.mjs tests/arena-snapshot.test.mjs
