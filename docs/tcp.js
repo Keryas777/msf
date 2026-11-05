@@ -48,12 +48,13 @@
   function normalizeAllianceList(rows) {
     return (Array.isArray(rows) ? rows : [])
       .map((alliance) => {
-        const key = normalizeFallbackKey(alliance?.key);
+        // Keep canonical registry slugs intact (e.g. invited "endgame-revolution-red").
+        const key = String(alliance?.key ?? "").trim().toLowerCase();
         const name = String(alliance?.name ?? alliance?.label ?? key).trim();
         const emoji = String(alliance?.emoji ?? "").trim();
         const order = Number(alliance?.order);
 
-        if (!key) return null;
+        if (!/^[a-z][a-z0-9-]*$/.test(key)) return null;
 
         return {
           ...alliance,
@@ -289,23 +290,17 @@
   // ---------- Init ----------
   async function init() {
     try {
+      if (window.LoSP_AUTH_READY) await window.LoSP_AUTH_READY;
       const api = getAllianceApi();
       const rows = api?.loadAlliances ? await api.loadAlliances() : [];
       knownAlliances = mergeWithFallback(api?.getKnownAlliances ? api.getKnownAlliances() : rows);
       renderAllianceFilters();
 
-      const res = await fetch("./data/infos.json?v=" + Date.now(), {
-        cache: "no-store",
-      });
-
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-
-      const data = await res.json();
-
-      if (!Array.isArray(data)) {
-        throw new Error("infos.json is not an array");
+      const { rows: data, warning } = await window.LoSPRankingInfos.load();
+      const notice = document.getElementById("rankingsDataNotice");
+      if (notice) {
+        notice.hidden = !warning;
+        notice.textContent = warning;
       }
 
       allPlayers = data
