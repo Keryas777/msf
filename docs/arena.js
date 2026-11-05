@@ -108,7 +108,8 @@ async function readArenaAPI(){
   // currently approved guests are returned; no client group can grant access.
   try{
     const guests=await readPrivateArena("approved");
-    return mergeArenaHistories(losp,guests);
+    return {...mergeArenaHistories(losp,guests),
+      guestAlliances:guests.alliances||[],guestProfiles:guests.profiles||[]};
   }catch(error){
     // Keep LoSP available; show the guest failure instead of implying
     // that all connected groups were included in "Toutes les alliances".
@@ -119,7 +120,8 @@ async function readArenaAPI(){
 const COLORS=["#65b8ff","#f9a44e","#b29aff","#53dfaa"];
 const $=id=>document.getElementById(id);
 const S={snapshots:[],aliases:{},people:new Map(),selected:[],fallback:false,
-  infos:new Map(),sourceAlliances:new Map()};
+  infos:new Map(),sourceAlliances:new Map(),guestKeys:new Set(),
+  guestProfiles:new Map()};
 const cmp=new Intl.Collator("fr",{numeric:true,sensitivity:"base"});
 const rankingFilters=new Map();
 const norm=s=>String(s||"").replace(/<[^>]*>/g,"").normalize("NFD")
@@ -131,7 +133,7 @@ const label=s=>{
   return meta?(meta.emoji?meta.emoji+" ":"")+meta.name:"Alliance non identifiée";
 };
 const color=s=>window.LoSPAlliances?.getAllianceMeta(s)?.color||"#84beff";
-const safeAsset=s=>typeof s==="string"&&
+const safeAsset=s=>typeof s==="string"&&s.length<=320&&
   /^https:\/\/assets\.marvelstrikeforce\.com\/imgs\/[A-Za-z0-9_.%-]+$/.test(s)?
   s:"";
 const plainName=s=>String(s||"").replace(/<[^>]*>/g,"").trim();
@@ -167,6 +169,29 @@ function mapSourceAlliances(data){
     // on color strings, icon codes, or hardcoded alliance fingerprint lists.
     if(ordered[0]?.[1]>=2&&ordered[0][1]>(ordered[1]?.[1]||0))
       S.sourceAlliances.set(raw,ordered[0][0]);
+  }
+}
+// The secure Worker returns only media for explicitly approved tenants.
+// Keep profiles keyed by alliance + player, never by name alone: different
+// invited groups (or LoSP) may contain a player with the same name.
+function loadGuestProfiles(data){
+  S.guestProfiles.clear();
+  S.guestKeys.clear();
+  const names=Array.isArray(data?.guestAlliances)?data.guestAlliances:
+    Array.isArray(data?.alliances)?data.alliances:[];
+  for(const k of names){
+    if(typeof k==="string"&&/^[a-z][a-z0-9-]{1,63}$/.test(k))
+      S.guestKeys.add(k);
+  }
+  const rows=Array.isArray(data?.guestProfiles)?data.guestProfiles:
+    Array.isArray(data?.profiles)?data.profiles:[];
+  for(const item of rows){
+    const alliance=item?.alliance,name=item?.name;
+    if(!S.guestKeys.has(alliance)||typeof name!=="string"||!name.trim())continue;
+    const normalized=norm(canonical(name));
+    const icon=safeAsset(item.icon),frame=safeAsset(item.frame);
+    if(normalized&&(icon||frame))S.guestProfiles.set(alliance+":"+normalized,
+      {icon,frame});
   }
 }
 function avatar(profile){
@@ -211,12 +236,23 @@ function readSnapshots(data){
     .map(source=>{
       const seen=new Set(),players=[];
       for(const p of source.players){
-        const name=canonical(p?.name),a=resolveAlliance(p?.alliance,name),r=p?.arenaRank,id=norm(name);
-        if(!name||!a||!id||!Number.isSafeInteger(r)||r<1||!window.LoSPAccess?.isAllianceAllowed(a))continue;
-        const unique=a+":"+id;if(seen.has(unique))continue;
+        const name=canonical(p?.name),a=resolveAlliance(p?.alliance,name),
+          r=p?.arenaRank,baseId=norm(name),guest=S.guestKeys.has(a);
+        if(!name||!a||!baseId||!Number.isSafeInteger(r)||r<1||
+           !window.LoSPAccess?.isAllianceAllowed(a))continue;
+        const unique=a+":"+baseId;if(seen.has(unique))continue;
         seen.add(unique);
-        players.push({id,name,alliance:a,arenaRank:r,observedAt:p.observedAt||null,
-          profile:S.infos.get(id)||null});
+        // Preserve existing LoSP IDs; scope invited IDs to their alliance
+        // so future guests with identical names do not collide in charts.
+        const id=guest?unique:baseId;
+        const inline=guest?{
+          icon:safeAsset(p.icon),frame:safeAsset(p.frame)}:null;
+        const profile=guest?(
+          S.guestProfiles.get(unique)||
+          (inline.icon||inline.frame?inline:null)):
+          S.infos.get(baseId)||null;
+        players.push({id,name,alliance:a,arenaRank:r,
+          observedAt:p.observedAt||null,profile});
       }
       return {date:source.date,sourceDay:source.sourceDay,
         attribution:source.attribution,players};
@@ -457,6 +493,7 @@ async function load(){
   }catch{/* History still works if enriched Infos are unavailable. */}
   try{
     const data=await readArenaAPI();
+    loadGuestProfiles(data);
     if(data.guestWarning){
       $("arenaStatus").hidden=false;
       $("arenaStatus").textContent="Alliances invitées non chargées : "+
