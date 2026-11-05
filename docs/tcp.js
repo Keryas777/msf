@@ -48,12 +48,13 @@
   function normalizeAllianceList(rows) {
     return (Array.isArray(rows) ? rows : [])
       .map((alliance) => {
-        const key = normalizeFallbackKey(alliance?.key);
+        // Keep canonical registry slugs intact (e.g. invited "endgame-revolution-red").
+        const key = String(alliance?.key ?? "").trim().toLowerCase();
         const name = String(alliance?.name ?? alliance?.label ?? key).trim();
         const emoji = String(alliance?.emoji ?? "").trim();
         const order = Number(alliance?.order);
 
-        if (!key) return null;
+        if (!/^[a-z][a-z0-9-]*$/.test(key)) return null;
 
         return {
           ...alliance,
