@@ -34,7 +34,7 @@ function make(role,keys,{signed=true,failGuest=false,pending=false}={}){
 test("MARINES guest ranks never read public LoSP Infos and use signed auth",async()=>{
   const x=make("guest",["marines"]);
   const result=await x.window.LoSPRankingInfos.load();
-  assert.deepEqual(result.rows.map(p=>p.name),["marines player"]);
+  assert.deepEqual(Array.from(result.rows,p=>p.name),["marines player"]);
   assert.equal(x.calls.length,1);
   assert.match(x.calls[0].url,/\/api\/secure\/guest-infos\?alliances=marines$/);
   assert.equal(x.calls[0].opts.headers.Authorization,"Bearer "+token);
@@ -43,7 +43,7 @@ test("MARINES guest ranks never read public LoSP Infos and use signed auth",asyn
 test("future approved guest keys need no new hardcode",async()=>{
   const x=make("guest",["future-guest-2027"]);
   const result=await x.window.LoSPRankingInfos.load();
-  assert.deepEqual(result.rows.map(p=>p.alliance),["future-guest-2027"]);
+  assert.deepEqual(Array.from(result.rows,p=>p.alliance),["future-guest-2027"]);
   assert.match(x.calls[0].url,/alliances=future-guest-2027/);
 });
 test("missing signed session fails closed before any public Infos fetch",async()=>{
@@ -54,7 +54,7 @@ test("missing signed session fails closed before any public Infos fetch",async()
 test("members remain on existing public Infos only and cannot load guests",async()=>{
   const x=make("member",["zeus"]);
   const r=await x.window.LoSPRankingInfos.load();
-  assert.deepEqual(r.rows.map(p=>p.name),["Z"]);
+  assert.deepEqual(Array.from(r.rows,p=>p.name),["Z"]);
   assert.equal(x.calls.length,1);
   assert.match(x.calls[0].url,/infos.json/);
   assert.equal(x.summary.textContent,"Groupement LoSP");
@@ -62,7 +62,7 @@ test("members remain on existing public Infos only and cannot load guests",async
 test("admins merge LoSP with signed approved guests without duplicates of tenant scope",async()=>{
   const x=make("admin",["zeus","marines","future-guest-2027"]);
   const r=await x.window.LoSPRankingInfos.load();
-  assert.deepEqual(r.rows.map(p=>p.name),["Z","MUST NOT LEAK",
+  assert.deepEqual(Array.from(r.rows,p=>p.name),["Z","MUST NOT LEAK",
     "marines player","future-guest-2027 player"]);
   assert.equal(x.calls.length,2);
   assert.match(x.calls[1].url,/alliances=approved/);
@@ -77,7 +77,7 @@ test("admin missing private API keeps LoSP and reports warning, never claims ful
 test("guest without complete private collection gets explicit warning instead of fake rank",async()=>{
   const x=make("guest",["marines"],{pending:true});
   const r=await x.window.LoSPRankingInfos.load();
-  assert.deepEqual(r.rows,[]);
+  assert.equal(r.rows.length,0);
   assert.match(r.warning,/non encore collectées/);
 });
 test("both page HTMLs load shared signed source before their ranking scripts",async()=>{
