@@ -1,6 +1,7 @@
-// Guest-only read adapter for the Worker's approved, rank-only Monday capture.
-// The existing JSON season calendar decides which Mondays represent a completed
-// season. Never label a non-final reading or turn a rank into war trophies.
+// Guest rank-only adapter for already approved real AllianceCard captures.
+// Scopely keeps the previous completed season's ranks visible throughout the
+// next season. Determine it from the existing JSON calendar, never the weekday.
+// Do not invent a capture, season or war trophy value.
 (function(root){
   "use strict";
   const validDate=value=>typeof value==="string"&&Number.isFinite(Date.parse(value));
