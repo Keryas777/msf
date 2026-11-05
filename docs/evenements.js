@@ -1,5 +1,5 @@
-/* LoSP événements : affichage uniquement de l'archive locale, aucun appel Scopely.
-   Source : GET /api/public/events, avec recours temporaire au snapshot local.
+/* LoSP événements : catalogue R2 vérifié uniquement, sans snapshot local.
+   Source : GET /api/public/events ; aucun appel direct à Scopely.
    Page autonome et sans bibliothèque externe. */
 (()=>{
   'use strict';
@@ -9,7 +9,7 @@
   const EMOJI={milestone:'🏆',episodic:'⚔️',raid:'🛡️',blitz:'⚡',battlePass:'🎖️',strikePass:'🎫',pickYourPoison:'🔥',info:'✦',raidSeason:'🛡️',warSeason:'⚔️',donation:'🤝'};
   const LIMIT={current:8,past:8};
   const SECTIONS={current:'En cours',past:'Passés'};
-  const state={events:[],metadata:{},verifiedDetails:{},date:null,manualDate:false,search:'',type:'',includeSecondary:false,expanded:new Set(),lastButton:null};
+  const state={events:[],metadata:{},sourceError:false,date:null,manualDate:false,search:'',type:'',includeSecondary:false,expanded:new Set(),lastButton:null};
   const fmtDate=new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'numeric',month:'short',year:'numeric'});
   const fmtNumber=new Intl.NumberFormat('fr-FR');
   const now=()=>Date.now();
@@ -240,7 +240,7 @@
       return;
     }
     host.append(create('p','ev-objectives-note',
-      'Méthodes de progression des événements actifs'+(state.metadata.liveSource?' (catalogue R2).':' (archive de secours, non actualisée).')+
+      'Méthodes de progression des événements actifs (catalogue R2).'+
       ' La progression personnelle n’est pas synchronisée.'));
     const grouped=new Map();
     for(const item of items){
@@ -286,6 +286,21 @@
   }
 
   function render(){
+    if(state.sourceError){
+      for(const key of ['current','past']){
+        $('events-'+key).replaceChildren(create('p','ev-empty',
+          'Événements temporairement indisponibles : données non vérifiées.'));
+        $('count-'+key).textContent='—';
+        $('stat-'+key).textContent='—';
+      }
+      $('events-objectives').replaceChildren(create('p','ev-empty',
+        'Objectifs temporairement indisponibles : données non vérifiées.'));
+      $('count-objectives').textContent='—';
+      $('stat-objectives').textContent='—';
+      $('more-current').hidden=true;
+      $('more-past').hidden=true;
+      return;
+    }
     const {grouped,reference}=groupEvents();
     renderObjectives(reference);
     for(const key of Object.keys(SECTIONS)){
@@ -311,7 +326,6 @@
     const body=create('div','ev-dialog-body');const info=create('div','ev-dialog-data');
     for(const [label,value] of [['Début',dateLabel(e.startTime)],['Fin',dateLabel(e.endTime)]]){const box=create('div');box.append(create('span','ev-dialog-label',label),create('strong','',value));info.append(box);}body.append(info);
     const description=strip(e.details||e.subName);if(description){const sec=detailSection(body,'Présentation');sec.append(create('p','',description));}
-    const extra=state.verifiedDetails[e.id];if(extra){const sec=detailSection(body,state.metadata?.liveSource?'Paliers historiques (archive d’octobre, non actualisés)':'Paliers et récompenses archivés');sec.append(create('p','',`${extra.tiers} paliers · objectif final : ${extra.maxGoal} points.`));listFor(sec,extra.highlights);}
     const scoring=e.milestone?.scoring;const methods=Array.isArray(scoring?.methods)?scoring.methods:[];
     const caps=Array.isArray(scoring?.cappedScorings)?scoring.cappedScorings:[];
     if(methods.length){const sec=detailSection(body,'Méthodes de progression');listFor(sec,methods.map(x=>`${strip(x.description)||'Action'} : ${fmtNumber.format(x.points||0)} point(s)`));}
@@ -326,7 +340,6 @@
     host.append(body);if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');
   }
   const EVENTS_API="https://losp-roster-service.deliriousfan7.workers.dev/api/public/events";
-  const FALLBACK_MAX_AGE=30*86400000;
   function validCatalog(events){
     return Array.isArray(events)&&events.length>0&&events.length<=1000&&
       new Set(events.map(e=>e?.id)).size===events.length&&
@@ -334,14 +347,12 @@
         Number.isFinite(e.startTime)&&Number.isFinite(e.endTime)&&
         e.endTime>e.startTime&&typeof e.type==="string");
   }
-  function installCatalog(data,isLive){
+  function installCatalog(data){
     if(!validCatalog(data.events))throw new Error('Catalogue invalide');
-    // Keep recurring seasons, raids and paid passes out of the calendar.
-    // The official R2 data and fallback snapshot are left unchanged.
+    // The public R2 projection is the sole source of event data.
     state.events=data.events.filter(isCalendarEvent);
-    state.metadata={...(data.metadata||{}),liveSource:isLive};
-    // Historical reward details must not be presented as freshly verified.
-    state.verifiedDetails=isLive?data.historicalDetails||{}:data.verifiedDetails||{};
+    state.sourceError=false;
+    state.metadata={liveSource:true,updatedAt:data.updatedAt};
     const types=[...new Set(state.events.map(x=>x.type))]
       .sort((a,b)=>(TYPES[a]||a).localeCompare(TYPES[b]||b,'fr'));
     const selected=state.type,type=$('type-filter');
@@ -354,59 +365,41 @@
     state.type=types.includes(selected)?selected:'';
     type.value=state.type;
     state.expanded.clear();
-    if(isLive){
-      const time=Date.parse(data.updatedAt||'');
-      const dated=Number.isFinite(time)?fmtDate.format(new Date(time)):'date inconnue';
-      $('source-line').textContent='Catalogue synchronisé via R2 · '+state.events.length+
-        ' événements affichables ('+data.events.length+' récupérés) · '+data.pages+
-        ' page(s) · dernière vérification '+dated+'.';
-      const frenchVerified=data.locale==='fr'&&data.localizationStatus==='verified';
-      $('source-provenance').textContent=(frenchVerified?
-        'Textes officiels français disponibles. ':
-        data.localizationStatus==='no-translated-text'?
-          'Source française vérifiée, mais aucun texte traduit détecté ; anglais conservé. ':
-          'Textes anglais : français en attente d’une collecte hebdomadaire complète. ')+
-        'Reçus et SHA-256 vérifiés ; aucun appel Scopely depuis cette page.';
-    }else{
-      const time=Date.parse(data.metadata?.snapshotUploadedAt||'');
-      const dated=Number.isFinite(time)?fmtDate.format(new Date(time)):'date inconnue';
-      $('source-line').textContent='Archive locale de secours du '+dated+
-        ' · '+state.events.length+' événements affichables · synchronisation momentanément indisponible.';
-      $('source-provenance').textContent=
-        'Cet instantané historique ne prouve pas la disponibilité actuelle des événements. La page réessaiera la source R2 lors du prochain chargement.';
-    }
+    const time=Date.parse(data.updatedAt||'');
+    const dated=Number.isFinite(time)?fmtDate.format(new Date(time)):'date inconnue';
+    $('source-line').textContent='Catalogue vérifié via R2 · '+state.events.length+
+      ' événements affichables ('+data.events.length+' récupérés) · '+data.pages+
+      ' page(s) · dernière vérification '+dated+'.';
+    const frenchVerified=data.locale==='fr'&&data.localizationStatus==='verified';
+    $('source-provenance').textContent=(frenchVerified?
+      'Textes officiels français disponibles. ':
+      data.localizationStatus==='no-translated-text'?
+        'Source française vérifiée, mais aucun texte traduit détecté ; anglais conservé. ':
+        'Textes anglais : traduction française non disponible pour cette collecte. ')+
+      'Données vérifiées dans R2 ; aucun appel Scopely depuis cette page.';
     render();
   }
   async function load(){
-    let fallback=null,hasUsableFallback=false;
     try{
-      const embedded=$('embedded-events');
-      if(embedded)fallback=JSON.parse(embedded.textContent);
-      else{
-        const response=await fetch('./data/evenements-snapshot.json',{cache:'no-store'});
-        if(response.ok)fallback=await response.json();
-      }
-      const captured=Date.parse(fallback?.metadata?.snapshotUploadedAt||'');
-      hasUsableFallback=validCatalog(fallback?.events)&&Number.isFinite(captured)&&
-        Date.now()>=captured&&Date.now()-captured<FALLBACK_MAX_AGE;
-      if(hasUsableFallback)installCatalog(fallback,false);
-    }catch{fallback=null;}
-    try{
-      const response=await fetch(EVENTS_API,{mode:'cors'});
+      const response=await fetch(EVENTS_API,{mode:'cors',cache:'no-store'});
       if(!response.ok)throw new Error('HTTP '+response.status);
       const live=await response.json();
+      const checkedAt=Date.parse(live?.updatedAt||'');
       if(live?.schemaVersion!==1||live.status!=='ok'||
         !Number.isSafeInteger(live.total)||live.total!==live.count||
-        live.events?.length!==live.total||!validCatalog(live.events))
-        throw new Error('Catalogue incomplet');
-      installCatalog({...live,historicalDetails:hasUsableFallback?fallback.verifiedDetails||{}:{}},true);
+        live.events?.length!==live.total||!validCatalog(live.events)||
+        !Number.isFinite(checkedAt)||checkedAt>Date.now()+300000||
+        Date.now()-checkedAt>=48*3600000)
+        throw new Error('Catalogue incomplet ou périmé');
+      installCatalog(live);
     }catch{
-      if(!hasUsableFallback){
-        $('source-line').textContent=
-          'Catalogue indisponible : aucune archive locale encore valide.';
-        $('source-provenance').textContent=
-          'La publication attend des pages R2 complètes et vérifiées. Réessayer après la prochaine collecte.';
-      }
+      // Fail closed: never reintroduce a stale local JSON or claim there are
+      // no events when the provider's verified R2 projection is unavailable.
+      $('source-line').textContent='Catalogue R2 indisponible ou trop ancien.';
+      $('source-provenance').textContent=
+        'Aucune archive locale n’est affichée. Réessayez après la prochaine collecte quotidienne.';
+      state.sourceError=true;
+      render();
     }
   }
   function init(){
