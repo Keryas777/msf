@@ -42,6 +42,8 @@
     for (const raw of sorted) {
       // Seasonal captures must never introduce an extra trophy checkpoint.
       if (chart.field === 'warTrophies' && raw.captureType === 'season-ranks') continue;
+      // Live trophy-only captures cannot replace a completed-season ranking.
+      if (chart.frequency === 'per-season' && raw.captureType === 'war-trophies') continue;
       if (seen.has(raw.capturedAt)) continue;
       seen.add(raw.capturedAt);
       if (chart.frequency !== 'per-season' || raw.seasonVerified === true) {
@@ -113,7 +115,8 @@
     const seasonAdditions = new Map();
     if(chart.frequency === 'per-season' && calendar){
       const candidates = (Array.isArray(snapshots) ? snapshots : [])
-        .filter(row => validDate(row?.capturedAt))
+        .filter(row => validDate(row?.capturedAt) &&
+          row.captureType !== 'war-trophies')
         .slice().sort((a,b)=>a.capturedAt.localeCompare(b.capturedAt));
       for(const capture of candidates){
         const seasonId = capture.seasonVerified === true &&

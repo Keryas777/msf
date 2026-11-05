@@ -100,7 +100,12 @@ async function main(){
     resolveStandingsSchedule(scheduledArg.slice('--schedule='.length),now):
     now.toISOString().slice(0,10);
   const config=await getJson('docs/data/alliance-standings/config.json');
-  const registry=await getJson('docs/data/alliances.json');
+  // Legacy GitHub fallback imports only the registered LoSP scope.
+  // Guests (including MARINES) are published directly by the R2 Worker
+  // when actually connected and approved; do not require their fingerprints
+  // in the older GitHub secret mapping.
+  const registry=(await getJson('docs/data/alliances.json'))
+    .filter(a=>a?.active!==false&&a?.group==='losp');
   const index=await getJson('docs/data/alliance-standings/index.json');
   const window=collectionWindow(day,config);
   if(!early&&Date.parse(window.endExclusive)>now.getTime())

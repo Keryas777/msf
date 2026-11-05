@@ -3,6 +3,7 @@
 (() => {
   'use strict';
   const BASE='./data/alliance-standings/';
+  const TROPHY_API='https://losp-roster-service.deliriousfan7.workers.dev/api/public/trophy-history';
   const refs={
     tabs:[...document.querySelectorAll('[data-mode]')],
     charts:[...document.querySelectorAll('[data-chart]')],
@@ -28,7 +29,7 @@
   const number=new Intl.NumberFormat('fr-FR');
   const state={mode:'war',warChart:'war-trophies',snapshots:[],
     registry:[],config:null,failures:0,prepared:null,chart:null,
-    hiddenAlliances:new Set()};
+    hiddenAlliances:new Set(),liveCoverage:null};
   const byId=id=>state.config?.charts?.find(chart=>chart.id===id);
   const safeColor=value=>/^#[0-9a-f]{6}$/i.test(value||'')?value:'#ffffff';
   const formatDate=iso=>dates.format(new Date(iso));
@@ -49,6 +50,18 @@
     const response=await fetch(url,{cache:'no-store'});
     if(!response.ok)throw Error('HTTP '+response.status);
     return response.json();
+  }
+  async function readLiveTrophies(){
+    // A Cloudflare outage must never prevent the existing static charts.
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),6000);
+    try{
+      const response=await fetch(TROPHY_API,{cache:'no-store',
+        signal:controller.signal});
+      if(!response.ok)throw Error('Cloudflare HTTP '+response.status);
+      return await response.json();
+    }catch{return null;}
+    finally{clearTimeout(timer);}
   }
   async function readSnapshots(index){
     const entries=Array.isArray(index?.snapshots)?index.snapshots:[];
@@ -390,6 +403,9 @@
       refs.note.textContent+=' Échelle verticale compressée au-delà du rang 1 000 pour rendre toutes les alliances lisibles.';
     if(state.failures)refs.note.textContent+=' Attention : '+
       state.failures+' instantané(s) indisponible(s).';
+    if(chart.field==='warTrophies'&&state.liveCoverage&&
+       state.liveCoverage.complete===false)
+      refs.note.textContent+=' Dernière collecte Cloudflare partielle : seules les alliances effectivement relevées apparaissent, aucune valeur n’est inventée.';
     if(!model.rows.length){
       refs.period.textContent='Aucune date disponible';
       refs.status.textContent='Aucun instantané disponible pour ce graphique.';
@@ -450,8 +466,8 @@
       'Derniers trophées de guerre':
       'Derniers classements de saison — '+(state.mode==='raid'?'Raid':'Guerre');
     refs.latestCaption.textContent=chart.higherIsBetter?
-      'Alliances LoSP classées du plus grand au plus petit total.':
-      'Alliances LoSP classées du meilleur au moins bon rang.';
+      'Alliances du groupement classées du plus grand au plus petit total.':
+      'Alliances du groupement classées du meilleur au moins bon rang.';
     for(const [position,alliance] of standings.entries()){
       const item=el('div','historyLatestItem');
       item.setAttribute('role','listitem');
@@ -491,9 +507,16 @@
       state.config=config;
       await window.LoSP_AUTH_READY;
       state.registry=registry.filter(a => window.LoSPAccess?.isAllianceAllowed(a?.key));
-      state.snapshots=(await readSnapshots(index)).map(snapshot => ({
+      const [published,live]=await Promise.all([readSnapshots(index),readLiveTrophies()]);
+      const recent=live?.snapshots?.at(-1);
+      state.liveCoverage=recent?.coverage||null;
+      const merged=window.LoSPTrophyLive?
+        window.LoSPTrophyLive.merge(published,live,registry,
+          key=>window.LoSPAccess?.isAllianceAllowed(key)):published;
+      state.snapshots=merged.map(snapshot => ({
         ...snapshot,
-        alliances:snapshot.alliances.filter(a => window.LoSPAccess?.isAllianceAllowed(a?.key || a?.alliance))
+        alliances:snapshot.alliances.filter(a =>
+          window.LoSPAccess?.isAllianceAllowed(a?.key || a?.alliance))
       }));
       syncChips();render();
       if (!state.registry.length) refs.status.textContent =
