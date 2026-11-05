@@ -5,7 +5,7 @@ import fs from "node:fs/promises";
 import {createPrivateR2Reader} from "./lib/private-r2-read.mjs";
 import {readMapping} from "./lib/alliance-r2-history.mjs";
 import {infoCampaign,validateInfoSnapshot,assertNoAmbiguousPlayers,
-  INFO_IMPORT_STATE_PATH} from "./lib/infos-r2-import.mjs";
+  INFO_IMPORT_STATE_PATH,publishedInfosAlliances} from "./lib/infos-r2-import.mjs";
 
 async function json(path){return JSON.parse(await fs.readFile(path,"utf8"));}
 const day=process.env.INPUT_DAY||new Date().toISOString().slice(0,10);
@@ -17,8 +17,9 @@ const args=process.argv.slice(2);
 const write=args.includes("--write");
 if(args.some(a=>a!=="--write"))
   throw Error("Only --write is supported");
-const registry=(await json("docs/data/alliances.json"))
-  .filter(a=>a&&a.active!==false);
+// The existing per-alliance Infos files and GitHub mapping belong to LoSP.
+// Do not require guest entries that merely exist in the shared UI registry.
+const registry=publishedInfosAlliances(await json("docs/data/alliances.json"));
 const mapping=readMapping(process.env.LOSP_R2_ALLIANCE_MAP_JSON||"",registry);
 let state={version:1,alliances:{}};
 try{state=await json(INFO_IMPORT_STATE_PATH);}
