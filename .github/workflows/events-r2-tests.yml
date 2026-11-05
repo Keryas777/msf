@@ -1,0 +1,27 @@
+name: Events R2 validation
+
+on:
+  pull_request:
+    paths:
+      - "docs/evenements.js"
+      - "docs/evenements.html"
+      - "tests/evenements-objectives.test.mjs"
+      - ".github/workflows/events-r2-tests.yml"
+  push:
+    branches: [main]
+    paths:
+      - "docs/evenements.js"
+      - "docs/evenements.html"
+      - "tests/evenements-objectives.test.mjs"
+      - ".github/workflows/events-r2-tests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify events UI and live R2 fallback rules
+        run: node --test tests/evenements-objectives.test.mjs
