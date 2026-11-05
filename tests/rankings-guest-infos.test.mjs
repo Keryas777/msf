@@ -7,13 +7,14 @@ const source=await readFile(new URL("../docs/rankings-infos.js",import.meta.url)
 const token="v1."+"X".repeat(50)+"."+"Y".repeat(43);
 const info=(name,alliance)=>({name,alliance,tcp:400000000,
   war_mvp:12,icon:"",frame:""});
-const allowed=keys=>({isAllianceAllowed:key=>keys.includes(key)});
+const allowed=keys=>({isAllianceAllowed:key=>keys.includes(String(key).toLowerCase())});
 function make(role,keys,{signed=true,failGuest=false,pending=false}={}){
   const calls=[],summary={textContent:""};
   const session={ok:true,role,groupKey:role==="guest"?"marines":"losp",
     allowedAlliances:keys};
   const window={LoSP_SESSION:session,LoSP_AUTH_READY:Promise.resolve(),
-    LoSPAccess:allowed(keys)};
+    LoSPAccess:allowed(keys),
+    LoSPAlliances:{getAllianceMeta:key=>({group:String(key).toLowerCase()==="zeus"?"losp":"guest"})}};
   const localStorage={getItem:()=>signed?token:""};
   const document={querySelector:q=>q===".rankingsSummaryNote"?summary:null};
   const fetch=async(url,opts)=>{
@@ -62,7 +63,7 @@ test("members remain on existing public Infos only and cannot load guests",async
 test("admins merge LoSP with signed approved guests without duplicates of tenant scope",async()=>{
   const x=make("admin",["zeus","marines","future-guest-2027"]);
   const r=await x.window.LoSPRankingInfos.load();
-  assert.deepEqual(Array.from(r.rows,p=>p.name),["Z","MUST NOT LEAK",
+  assert.deepEqual(Array.from(r.rows,p=>p.name),["Z",
     "marines player","future-guest-2027 player"]);
   assert.equal(x.calls.length,2);
   assert.match(x.calls[1].url,/alliances=approved/);
@@ -71,7 +72,8 @@ test("admins merge LoSP with signed approved guests without duplicates of tenant
 test("admin missing private API keeps LoSP and reports warning, never claims full ranking",async()=>{
   const x=make("admin",["zeus","marines"],{failGuest:true});
   const r=await x.window.LoSPRankingInfos.load();
-  assert.equal(r.rows.length,2);
+  assert.equal(r.rows.length,1);
+  assert.equal(r.rows[0].name,"Z");
   assert.match(r.warning,/HTTP 503/);
 });
 test("guest without complete private collection gets explicit warning instead of fake rank",async()=>{
