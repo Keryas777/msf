@@ -121,3 +121,69 @@ test("the screen and player detail both use alliance-scoped roster identity", ()
   assert.match(source, /rosterIdentity\(player\.allianceKey, player\.player\)/);
   assert.match(source, /rosterIdentity\(r\.alliance, r\.player\)/);
 });
+
+
+test("MARINES guest roster is fetched with existing signed Discord session",async()=>{
+  const calls=[];
+  const token="v1."+"A".repeat(55)+"."+"B".repeat(43);
+  const app = source.replace(bootstrap,`
+    window.__guestRead = {fetchAuthorizedGuestRosters, message:()=>guestRosterMessage};
+  `);
+  const window={
+    location:{href:"https://keryas777.github.io/msf/index.html"},
+    LoSPAlliances:{getKnownAlliances:()=>alliances,
+      getAllianceKey:value=>String(value||"").toLowerCase()},
+    LoSPAccess:{isAllianceAllowed:key=>key==="marines"}
+  };
+  const context={URL,window,console,
+    document:{querySelector:()=>null},
+    localStorage:{getItem:()=>token},
+    fetch:async (url,opts)=>{
+      calls.push({url:String(url),opts});
+      return Response.json({status:"ok",version:1,kind:"authorized-guest-rosters",
+        alliance:"marines",state:"complete",rosters:[roster("marines","Marine",990000)]});
+    }};
+  runInNewContext(app,context,{filename:"docs/app.js"});
+  const data=await window.__guestRead.fetchAuthorizedGuestRosters();
+  assert.equal(data.length,1);
+  assert.equal(data[0].player,"Marine");
+  assert.equal(calls.length,1);
+  assert.ok(calls[0].url.endsWith("/api/secure/guest-rosters?alliance=marines"));
+  assert.equal(calls[0].opts.headers.Authorization,"Bearer "+token);
+  assert.equal(calls[0].opts.cache,"no-store");
+  assert.equal(window.__guestRead.message(),"");
+});
+test("LoSP-only user never sends a request for private guest rosters",async()=>{
+  const token="v1."+"A".repeat(55)+"."+"B".repeat(43);
+  const instrumentedSource=source.replace(bootstrap,
+    "window.__privateRead=fetchAuthorizedGuestRosters;");
+  const window={location:{href:"https://example.test/"},
+    LoSPAlliances:{getKnownAlliances:()=>alliances,
+      getAllianceKey:value=>String(value||"").toLowerCase()},
+    LoSPAccess:{isAllianceAllowed:key=>key==="zeus"}};
+  let requests=0;
+  runInNewContext(instrumentedSource,{window,URL,console,
+    document:{querySelector:()=>null},
+    localStorage:{getItem:()=>token},
+    fetch:async()=>{requests++;throw Error("no request expected");}},
+  {filename:"docs/app.js"});
+  assert.equal((await window.__privateRead()).length,0);
+  assert.equal(requests,0);
+});
+test("unsigned legacy sessions never receive guest rosters",async()=>{
+  const instrumentedSource=source.replace(bootstrap,
+    "window.__privateRead={read:fetchAuthorizedGuestRosters,warning:()=>guestRosterMessage};");
+  const window={location:{href:"https://example.test/"},
+    LoSPAlliances:{getKnownAlliances:()=>alliances,
+      getAllianceKey:value=>String(value||"").toLowerCase()},
+    LoSPAccess:{isAllianceAllowed:key=>key==="marines"}};
+  let calls=0;
+  runInNewContext(instrumentedSource,{window,URL,console,
+    document:{querySelector:()=>null},
+    localStorage:{getItem:()=>"eyJyb2xlIjoiYWRtaW4ifQ"},
+    fetch:async()=>{calls++;return Response.json({});}},
+  {filename:"docs/app.js"});
+  assert.equal((await window.__privateRead.read()).length,0);
+  assert.match(window.__privateRead.warning(),/Reconnecte-toi/);
+  assert.equal(calls,0);
+});

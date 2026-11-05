@@ -55,6 +55,8 @@
   });
   const AWAKENED_MATERIALS_URL =
     "https://losp-roster-service.deliriousfan7.workers.dev/api/public/awakened-materials";
+  const GUEST_ROSTERS_API =
+    "https://losp-roster-service.deliriousfan7.workers.dev/api/secure/guest-rosters";
   let awakenedMaterialsPromise = null;
 
   const qs = (s) => document.querySelector(s);
@@ -80,6 +82,7 @@
   let ROSTER_MAP = new Map();
   let ROSTER_ISO_MAP = new Map();
   let ISO_ICONS = {};
+  let guestRosterMessage = "";
   let detailOverlay = null;
   let detailReturnFocus = null;
   let detailPreviousOverflow = "";
@@ -217,6 +220,70 @@
       }
     }
     return { players: [...byIdentity.values()], rosters };
+  }
+
+  // All guest data stays private in R2. The existing signed Discord session
+  // authorizes only the selected guest's alliances on the Roster Service.
+  // An administrator's preview changes the visible group, NOT their credentials.
+  function signedDiscordSession() {
+    try {
+      const value = localStorage.getItem("losp_session") || "";
+      return /^v1\.[A-Za-z0-9_-]{12,4096}\.[A-Za-z0-9_-]{40,80}$/.test(value)
+        ? value : "";
+    } catch {
+      return "";
+    }
+  }
+
+  async function fetchAuthorizedGuestRosters() {
+    const guests = getKnownAlliances().filter((alliance) =>
+      alliance.group && alliance.group !== "losp" &&
+      window.LoSPAccess?.isAllianceAllowed(alliance.key) === true
+    );
+    guestRosterMessage = "";
+    if (!guests.length) return [];
+    const signed = signedDiscordSession();
+    if (!signed) {
+      guestRosterMessage = "Rosters invités : session Discord signée nécessaire. Reconnecte-toi.";
+      return [];
+    }
+    const rows = [];
+    const warnings = [];
+    for (const alliance of guests) {
+      const key = allianceKey(alliance.key);
+      try {
+        const url = GUEST_ROSTERS_API + "?alliance=" + encodeURIComponent(key);
+        const response = await fetch(url, { mode: "cors", cache: "no-store",
+          headers: { Authorization: "Bearer " + signed } });
+        if (!response.ok) {
+          const reason = response.status === 401 ? "session Discord expirée" :
+            response.status === 403 ? "accès refusé" :
+            response.status === 409 ? "association Scopely/WebApp à vérifier" :
+            "lecture R2 indisponible";
+          warnings.push(alliance.name + " : " + reason + ".");
+          continue;
+        }
+        const data = await response.json();
+        if (data?.status !== "ok" || data.kind !== "authorized-guest-rosters" ||
+            data.alliance !== key || !Array.isArray(data.rosters) ||
+            !["complete", "not-collected", "no-valid-snapshot"].includes(data.state) ||
+            data.rosters.some((r) => r?.alliance !== key ||
+              typeof r.player !== "string" || !r.player.trim() ||
+              !r.chars || typeof r.chars !== "object" || Array.isArray(r.chars))) {
+          throw new Error("invalid-guest-roster-response");
+        }
+        if (data.state !== "complete") {
+          warnings.push(alliance.name +
+            " : aucune collecte complète récente disponible.");
+          continue;
+        }
+        rows.push(...data.rosters);
+      } catch {
+        warnings.push(alliance.name + " : rosters temporairement indisponibles.");
+      }
+    }
+    guestRosterMessage = warnings.join(" ");
+    return rows;
   }
 
   function allianceEmoji(value) {
@@ -990,6 +1057,12 @@
     if (playersCount) {
       playersCount.textContent = String(rows.length);
     }
+    if (guestRosterMessage) {
+      const warning = document.createElement("p");
+      warning.className = "subtitle";
+      warning.textContent = guestRosterMessage;
+      playersWrap.appendChild(warning);
+    }
     if (!rows.length) {
       const note = document.createElement("p");
       note.className = "subtitle";
@@ -1137,7 +1210,11 @@
       })
       .filter((t) => t.team);
 
-    const sources = buildRankSources(joueursRaw, rostersRaw);
+    const guestRosters = await fetchAuthorizedGuestRosters();
+    const sources = buildRankSources(joueursRaw, [
+      ...(Array.isArray(rostersRaw) ? rostersRaw : []),
+      ...guestRosters,
+    ]);
     JOUEURS = sources.players;
     ROSTERS = sources.rosters;
 
