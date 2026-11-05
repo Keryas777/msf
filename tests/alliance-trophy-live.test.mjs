@@ -59,7 +59,7 @@ test("static fallback, one checkpoint per day, seasons remain untouched",()=>{
 
 test("real 5 November Scopely formatted names resolve all seven alliances",()=>{
   const names=[
-    ["LoSP <#F8FF00>Zεus","zeus"],
+    ["LoSP <#F8FF00>Zεμs","zeus"],
     ["LoSP <#93328E>Diσπγsσs","dionysos"],
     ["<#FFFFFF>LoSP <#E10D17>Kronos","kronos"],
     ["<color=red>MΛЯIΠΣƧ</color>","marines"],
