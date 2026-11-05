@@ -837,17 +837,20 @@
 
   // -------- Boot --------
   async function boot() {
-    const [teamsRaw, charsRaw, joueursRaw, rostersRaw, isoRecoRaw, isoIconsRaw] =
+    if (window.LoSP_AUTH_READY) await window.LoSP_AUTH_READY;
+    const [teamsRaw, charsRaw, allianceSources, isoRecoRaw, isoIconsRaw] =
       await Promise.all([
         fetchJson(FILES.teams),
         fetchJson(FILES.characters),
-        fetchJson(FILES.joueurs),
-        fetchJson(FILES.rosters),
+        window.LoSPAllianceData.load({ joueurs: true, rosters: true }),
         fetchJson(FILES.isoReco).catch(() => ({})),
         fetchJson(FILES.isoIcons).catch(() => ({})),
       ]);
 
     await loadAllianceMetadata();
+    window.LoSPAllianceData.showWarnings(allianceSources.warnings);
+    const joueursRaw = allianceSources.joueurs;
+    const rostersRaw = allianceSources.rosters;
 
     CHARS = Array.isArray(charsRaw) ? charsRaw : [];
 
