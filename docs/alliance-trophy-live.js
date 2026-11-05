@@ -15,10 +15,10 @@
     "Χ":"x","χ":"x","γ":"y","Я":"r","я":"r","Ƨ":"s","Ѕ":"s","ѕ":"s"
   });
   const normalize=value=>String(value??"")
-    .replace(/<#[a-f0-9]{6}>|<\\/?color(?:=[^<>]{1,32})?>/gi,"")
+    .replace(/<#[a-f0-9]{6}>|<\/?color(?:=[^<>]{1,32})?>/gi,"")
     .replace(/[Α-ωϵА-яƧЅѕ]/g,char=>inGameLetters[char]||char)
     .trim().toLowerCase()
-    .normalize("NFD").replace(/[\\u0300-\\u036f]/g,"")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
     .replace(/[^a-z0-9]/g,"");
   const safeNum=value=>Number.isSafeInteger(value)&&value>=0;
   const validDate=value=>typeof value==="string"&&
