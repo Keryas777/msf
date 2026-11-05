@@ -228,7 +228,7 @@
   function signedDiscordSession() {
     try {
       const value = localStorage.getItem("losp_session") || "";
-      return /^v1\\.[A-Za-z0-9_-]{12,4096}\\.[A-Za-z0-9_-]{40,80}$/.test(value)
+      return /^v1\.[A-Za-z0-9_-]{12,4096}\.[A-Za-z0-9_-]{40,80}$/.test(value)
         ? value : "";
     } catch {
       return "";
