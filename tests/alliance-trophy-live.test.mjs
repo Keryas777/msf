@@ -30,6 +30,7 @@ test("same-name ENDGAME alliances are never guessed from an ambiguous public nam
   assert.equal(adapter.mappedKey("ENDGAME R-évolution",registry),null);
   assert.equal(adapter.mappedKey("MΛЯIΠΣƧ",registry),"marines");
   assert.equal(adapter.mappedKey("LoSP Zευs",registry),"zeus");
+  assert.equal(adapter.mappedKey("LoSP Zεμs",registry),"zeus");
 });
 
 test("group permissions filter guest data even if the API returns other alliances",()=>{
