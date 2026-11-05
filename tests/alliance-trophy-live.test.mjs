@@ -132,3 +132,52 @@ test("real 5 November Scopely formatted names resolve all seven alliances",()=>{
   assert.equal(records[0].alliances.length,7);
   assert.equal(new Set(records[0].alliances.map(a=>a.key)).size,7);
 });
+
+test("5 November: merge LoSP and guest trophies by key before the Discord view filter",()=>{
+  const published=JSON.parse(readFileSync(new URL(
+    "../docs/data/alliance-standings/snapshots/2026-11-05T032350024Z.json",
+    import.meta.url),"utf8"));
+  const live=payload([sample("2026-11-05",[
+    ["LoSP <#F8FF00>Zεμs",2940],
+    ["<color=red>MΛЯIΠΣƨ</color>",3205]
+  ])]);
+  const guest=adapter.merge([published],live,registry,key=>key==="marines");
+  assert.equal(guest.length,1,"one real daily checkpoint, not two");
+  assert.equal(guest[0].alliances.length,7,
+    "keep the six published alliances and add the approved guest");
+  const preview=guest[0].alliances.filter(a=>a.key==="marines");
+  assert.equal(preview.length,1);
+  assert.equal(preview[0].warTrophies,3205);
+  assert.equal(guest[0].captureType,undefined,
+    "retain the published snapshot's eligibility for season ranks");
+  const admin=adapter.merge([published],live,registry,()=>true);
+  assert.equal(admin[0].alliances.length,7);
+  assert.equal(admin[0].alliances.filter(a=>a.key==="marines").length,1);
+  assert.equal(admin[0].alliances.find(a=>a.key==="zeus").warTrophies,2941,
+    "the newer real static Zeus observation wins over older Cloudflare data");
+  assert.equal(admin[0].alliances.find(a=>a.key==="zeus").warRank,55);
+  const losp=admin[0].alliances.filter(a=>a.key==="zeus");
+  assert.equal(losp.length,1,"never duplicate overlapping alliance keys");
+});
+
+test("same-day newer live trophy value keeps static rank fields",()=>{
+  const published=JSON.parse(readFileSync(new URL(
+    "../docs/data/alliance-standings/snapshots/2026-11-05T032350024Z.json",
+    import.meta.url),"utf8"));
+  const live=payload([sample("2026-11-05",[["Zeus",3000]])]);
+  live.snapshots[0].capturedAt="2026-11-05T03:40:00Z";
+  live.snapshots[0].alliances[0].capturedAt="2026-11-05T03:40:00Z";
+  const rows=adapter.merge([published],live,registry,()=>true);
+  assert.equal(rows.length,1);
+  assert.equal(rows[0].capturedAt,"2026-11-05T03:40:00Z");
+  assert.equal(rows[0].alliances.length,6);
+  const zeus=rows[0].alliances.find(a=>a.key==="zeus");
+  assert.equal(zeus.warTrophies,3000);
+  assert.equal(zeus.warRank,55);
+  assert.equal(zeus.raidRank,31);
+  assert.equal(zeus.capturedAt,"2026-11-05T03:40:00Z");
+  assert.equal(rows[0].captureType,undefined);
+  const standalone=adapter.merge([],live,registry,()=>true);
+  assert.equal(standalone[0].captureType,"war-trophies",
+    "live-only days never become invented season-rank checkpoints");
+});
