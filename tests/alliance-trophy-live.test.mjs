@@ -86,6 +86,34 @@ test("real MARINES U+01A8 glyph is visible to admin and MARINES preview",()=>{
   assert.equal(scoped[0].collectionDayUtc,"2026-11-05");
 });
 
+
+test("5 November MARINES: bind official publicId even when decorative glyphs change",()=>{
+  // Observed publicId in the real 7/7 Worker projection, not a provider ID.
+  const publicId="83937048-ec30-47d3-8b56-cca351fca34b";
+  const name="<color=red>MΛЯIΠΣꙅ</color>"; // Simulate another unhandled stylized glyph.
+  assert.equal(adapter.mappedKey(name,registry),null);
+  assert.equal(adapter.mappedKey(name,registry,publicId),"marines");
+  const live=payload([sample("2026-11-05",[["Zeus",2941]])]);
+  live.snapshots[0].alliances.push({
+    publicId,nameAtCapture:name,warTrophies:3205,
+    capturedAt:"2026-11-05T02:02:50.024Z"
+  });
+  const admin=adapter.fromCloudflare(live,registry,()=>true);
+  assert.equal(admin.length,1);
+  assert.equal(admin[0].alliances.find(x=>x.key==="marines").warTrophies,3205);
+  const guest=adapter.fromCloudflare(live,registry,key=>key==="marines");
+  assert.equal(guest.length,1);
+  assert.deepEqual(Array.from(guest[0].alliances,x=>x.key),["marines"]);
+  assert.equal(guest[0].alliances[0].warTrophies,3205);
+  const forbidden=adapter.fromCloudflare(live,registry,key=>key==="zeus");
+  assert.equal(forbidden[0].alliances.some(x=>x.key==="marines"),false);
+  assert.equal(adapter.mappedKey(name,registry,"00000000-0000-0000-0000-000000000000"),null);
+  assert.equal(adapter.mappedKey("ENDGAME R-évolution",registry),null);
+  const duplicate=registry.map(entry=>({...entry}));
+  duplicate.find(entry=>entry.key==="endgame-revolution-red").trophyPublicId=publicId;
+  assert.equal(adapter.mappedKey(name,duplicate,publicId),null);
+});
+
 test("real 5 November Scopely formatted names resolve all seven alliances",()=>{
   const names=[
     ["LoSP <#F8FF00>Zεμs","zeus"],
