@@ -9,28 +9,24 @@
   function completedSeason(capturedAt,day,calendar){
     if(!validDate(capturedAt)||!/^\d{4}-\d{2}-\d{2}$/.test(day||"")||
        capturedAt.slice(0,10)!==day||
-       !validDate(calendar?.referenceEndExclusiveAt)||
        !Number.isSafeInteger(calendar?.cycleDays)||calendar.cycleDays<7||
-       calendar.cycleDays>60||!Number.isSafeInteger(calendar?.publicationDelayMinutes)||
-       calendar.publicationDelayMinutes<0||calendar.publicationDelayMinutes>2880)
-      return null;
-    const at=Date.parse(capturedAt),anchor=Date.parse(calendar.referenceEndExclusiveAt);
-    const endDelay=calendar.publicationDelayMinutes*60000;
-    const duration=calendar.cycleDays*DAY_MS;
-    const n=Math.floor((at-anchor-endDelay)/duration);
-    const end=anchor+n*duration,start=end-duration;
-    // Only the real Monday 03:15 UTC after a completed season; never an
-    // ordinary Monday within the season or a later, potentially reset rank.
-    const observed=new Date(at);
-    if(observed.getUTCDay()!==1||observed.getUTCHours()!==3||
-       observed.getUTCMinutes()!==15||at<end+endDelay||
-       at>=end+DAY_MS||!Number.isFinite(start))return null;
-    return {seasonId:new Date(start).toISOString().slice(0,10)+"/"+
-        new Date(end).toISOString().slice(0,10),
-      startAt:new Date(start).toISOString(),
-      endExclusiveAt:new Date(end).toISOString(),
-      identification:"schedule-derived",
-      timezone:calendar.timezone||"Europe/Paris"};
+       calendar.cycleDays>60||
+       !Number.isSafeInteger(calendar?.publicationDelayMinutes)||
+       calendar.publicationDelayMinutes<0||
+       calendar.publicationDelayMinutes>2880)return null;
+    const season=root.LoSPStandingsSeries?.resolveRankingSeason?.(
+      capturedAt,calendar);
+    if(!season)return null;
+    const observed=Date.parse(capturedAt);
+    const elapsed=observed-Date.parse(season.endExclusiveAt);
+    // Scopely keeps the last completed season on screen throughout the NEXT
+    // season. Reject the small period immediately after a rollover before
+    // release, rather than accidentally showing a two-seasons-old result.
+    if(elapsed<calendar.publicationDelayMinutes*60000||
+       elapsed>=calendar.cycleDays*DAY_MS)return null;
+    return {seasonId:season.seasonId,startAt:season.startAt,
+      endExclusiveAt:season.endExclusiveAt,
+      identification:"schedule-derived",timezone:season.timezone};
   }
   // An exceptional in-game-verified reading can be observed on a weekday
   // after the last season ended. Recompute the ID from the dynamic calendar:
