@@ -334,11 +334,11 @@ test('rankings shade Top 100 dark green and 101-200 light green behind points',(
       'Bands must also be behind the grid');
   }
 });
-test('trophy plot shows P-IV and four Diamond tiers, with smaller empty edge zones',()=>{
+test('trophy plot shows P-IV, four Diamond tiers and U-I, with smaller empty edge zones',()=>{
   const divisions=config.trophyDivisions;
   assert.deepEqual(divisions.map(b=>[b.label,b.min??null,b.max??null]),[
     ['P-IV',null,2249],['D-I',2250,2499],['D-II',2500,2749],
-    ['D-III',2750,2999],['D-IV',3000,null]
+    ['D-III',2750,2999],['D-IV',3000,3249],['U-I',3250,null]
   ]);
   for(const width of [320,390,680]){
     const plot=drawRenderedChart('war-trophies',width);
@@ -347,8 +347,13 @@ test('trophy plot shows P-IV and four Diamond tiers, with smaller empty edge zon
     const bands=plot.children.filter(n=>n.attrs.class==='historyTrophyBand');
     const separators=plot.children.filter(n=>n.attrs.class==='historyTrophyBoundary');
     const labels=plot.children.filter(n=>n.attrs.class==='historyTrophyLabel');
-    assert.equal(bands.length,5);
-    assert.equal(new Set(bands.map(b=>b.attrs.fill)).size,5);
+    assert.equal(bands.length,6);
+    assert.equal(new Set(bands.map(b=>b.attrs.fill)).size,6);
+    for(let i=1;i<bands.length;i++){
+      assert.ok(Math.abs(bands[i].attrs.y+bands[i].attrs.height-
+        bands[i-1].attrs.y)<1e-7,
+        'Adjacent trophy backgrounds must touch exactly');
+    }
     const rgb=hex=>[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));
     const luminance=hex=>rgb(hex).reduce((sum,v)=>sum+v,0);
     assert.ok(luminance(bands[0].attrs.fill)>luminance(bands[1].attrs.fill),
@@ -359,13 +364,18 @@ test('trophy plot shows P-IV and four Diamond tiers, with smaller empty edge zon
     assert.equal(plot.attributes.viewBox,
       drawRenderedChart('raid-season-rank',width).attributes.viewBox,
       'Trophy and raid ranking graphs have the same mobile/desktop height');
-    assert.deepEqual(labels.map(n=>n.text),['P-IV','D-I','D-II','D-III','D-IV']);
-    assert.equal(separators.length,4);
+    assert.deepEqual(labels.map(n=>n.text),['P-IV','D-I','D-II','D-III','D-IV','U-I']);
+    assert.equal(separators.length,5);
+    assert.ok(Math.abs(separators.at(-1).attrs.y1-
+      (bands.at(-1).attrs.y+bands.at(-1).attrs.height))<1e-7,
+      'D-IV / U-I boundary must be at exactly 3250 trophies');
     assert.ok(bands.every(b=>b.attrs.height>16));
     assert.ok(bands[0].attrs.height<bands[1].attrs.height,
       'Empty P-IV is smaller than D-I');
-    assert.ok(bands[4].attrs.height<bands[3].attrs.height,
-      'Empty D-IV is smaller than D-III');
+    assert.ok(Math.abs(bands[4].attrs.height-bands[3].attrs.height)<1e-7,
+      'D-IV and D-III are both full 250-trophy tiers');
+    assert.ok(bands[5].attrs.height<bands[4].attrs.height,
+      'The partially visible U-I is smaller than D-IV');
     assert.ok(labels.every(l=>l.attrs.x>width-8-50));
     assert.ok(plot.children.indexOf(bands.at(-1))<
       plot.children.findIndex(n=>n.tag==='circle'),
@@ -377,7 +387,7 @@ test('trophy plot shows P-IV and four Diamond tiers, with smaller empty edge zon
     assert.equal(plot.children.filter(n=>n.attrs.class==='historyRankBand').length,0);
   }
 });
-test('trophy chart expands beyond P-IV and D-IV for observed outliers',()=>{
+test('trophy chart expands beyond P-IV and into U-I for observed outliers',()=>{
   const unusual={...original,alliances:original.alliances.map((a,i)=>(
     i===0?{...a,warTrophies:2040}:
     i===1?{...a,warTrophies:3450}:a))};
@@ -386,7 +396,7 @@ test('trophy chart expands beyond P-IV and D-IV for observed outliers',()=>{
   assert.equal(points.length,5);
   for(const dot of points)assert.ok(dot.attrs.cy>=22&&dot.attrs.cy<=302);
   const labels=plot.children.filter(n=>n.attrs.class==='historyTrophyLabel');
-  assert.deepEqual(labels.map(n=>n.text),['P-IV','D-I','D-II','D-III','D-IV']);
+  assert.deepEqual(labels.map(n=>n.text),['P-IV','D-I','D-II','D-III','D-IV','U-I']);
 });
 
 test('both seasonal charts always share the largest hundred ceiling, regardless of which has worse ranks',()=>{
@@ -429,7 +439,7 @@ test('trophy graph is still independent of shared ranking ceiling',()=>{
     baseline.children.filter(n=>n.tag==='text'&&n.attrs['text-anchor']==='end').map(n=>n.text)
   );
   assert.equal(changed.children.filter(n=>
-    n.attrs.class==='historyTrophyBand').length,5);
+    n.attrs.class==='historyTrophyBand').length,6);
 });
 
 test('all three graphs use abbreviated, non-overlapping dates on mobile',()=>{
