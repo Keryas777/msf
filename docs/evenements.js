@@ -7,8 +7,8 @@
   const TIMEZONE='Europe/Paris';
   const TYPES={milestone:'Jalons',episodic:'Campagne / événement',raid:'Raid',blitz:'Blitz',battlePass:'Passe de combat',strikePass:'Passe S.T.R.I.K.E.',pickYourPoison:'Épreuve',info:'Informations',raidSeason:'Saison de raid',warSeason:'Saison de guerre',donation:'Dons'};
   const EMOJI={milestone:'🏆',episodic:'⚔️',raid:'🛡️',blitz:'⚡',battlePass:'🎖️',strikePass:'🎫',pickYourPoison:'🔥',info:'✦',raidSeason:'🛡️',warSeason:'⚔️',donation:'🤝'};
-  const LIMIT={future:6,current:8,past:8};
-  const SECTIONS={future:'À venir',current:'En cours',past:'Passés'};
+  const LIMIT={current:8,past:8};
+  const SECTIONS={current:'En cours',past:'Passés'};
   const state={events:[],metadata:{},verifiedDetails:{},date:null,manualDate:false,search:'',type:'',includeSecondary:false,expanded:new Set(),lastButton:null};
   const fmtDate=new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'numeric',month:'short',year:'numeric'});
   const fmtNumber=new Intl.NumberFormat('fr-FR');
@@ -55,7 +55,6 @@
   function eventSub(e){return strip(e.subName||e.details||'');}
   function durationDays(ms){return Math.max(0,Math.ceil(ms/86400000));}
   function relative(e,group,reference){
-    if(group==='future')return `Débute dans ${durationDays(e.startTime*1000-reference)} j`;
     if(group==='current')return `Fin dans ${durationDays(e.endTime*1000-reference)} j`;
     return 'Terminé';
   }
@@ -68,9 +67,11 @@
     });
   }
   function groupEvents(){
-    const reference=timestamp();const grouped={future:[],current:[],past:[]};
-    for(const e of filterEvents())grouped[category(e,reference)].push(e);
-    grouped.future.sort((a,b)=>a.startTime-b.startTime||eventTitle(a).localeCompare(eventTitle(b),'fr'));
+    const reference=timestamp();const grouped={current:[],past:[]};
+    for(const e of filterEvents()){
+      const status=category(e,reference);
+      if(status!=='future')grouped[status].push(e);
+    }
     grouped.current.sort((a,b)=>a.endTime-b.endTime||eventTitle(a).localeCompare(eventTitle(b),'fr'));
     grouped.past.sort((a,b)=>b.endTime-a.endTime||eventTitle(a).localeCompare(eventTitle(b),'fr'));
     return {grouped,reference};
@@ -97,14 +98,196 @@
   }
   function emptyState(group){
     const holder=create('div','ev-empty');
-    holder.append(create('p','ev-empty-emoji',group==='future'?'🌙':group==='current'?'🪐':'📚'));
-    holder.append(create('h3','',group==='future'?'Aucun événement à venir dans cet extrait':group==='current'?'Aucun événement en cours':'Aucun événement passé'));
-    let message=group==='future'?'Ce catalogue est un instantané historique : l’absence d’événements à venir dans ce fichier ne signifie pas qu’aucun n’est annoncé dans MSF.':'Essaie un autre filtre ou une autre date de référence.';
+    holder.append(create('p','ev-empty-emoji',group==='current'?'🪐':'📚'));
+    holder.append(create('h3','',group==='current'?'Aucun événement en cours':'Aucun événement passé'));
+    let message='Essaie un autre filtre ou une autre date de référence.';
     if(state.search||state.type||state.includeSecondary)message='Modifie les filtres ou la date de référence pour afficher d’autres événements.';
     holder.append(create('p','',message));return holder;
   }
+
+  // Vue transversale des objectifs : seules les méthodes de scoring archivées
+  // sont utilisées. Les "feeders" sont inclus même lorsqu'ils sont cachés du calendrier.
+  const OBJECTIVE_MODES=[
+    ['raid','🛡️','RAID'],['war','⚔️','GUERRE'],['arena','🏟️','ARÈNE'],
+    ['blitz','⚡','BLITZ'],['crucible','🔷','ÉPREUVE COSMIQUE'],
+    ['campaign','📖','CAMPAGNE'],['battleworld','🌌','BATTLEWORLD'],
+    ['divers','📋','DIVERS']
+  ];
+  const MODE_BY_KEY=new Map(OBJECTIVE_MODES.map(([key,emoji,label])=>[key,{emoji,label}]));
+  function objectiveMode(description){
+    const text=strip(description).toLocaleLowerCase('fr');
+    const modes=[];
+    if(/\braids?\b/.test(text))modes.push('raid');
+    if(/\b(?:alliance war|battle in war|in war|en guerre|guerre d.alliance)\b|^play war\b|\bwar or\b/.test(text))modes.push('war');
+    if(/\b(?:arena|arène)\b/.test(text))modes.push('arena');
+    if(/\bblitz\b/.test(text))modes.push('blitz');
+    if(/\b(?:cosmic crucible|crucible|épreuve cosmique)\b/.test(text))modes.push('crucible');
+    if(/\b(?:campaign|campagne)\b/.test(text))modes.push('campaign');
+    if(/\bbattleworld\b/.test(text))modes.push('battleworld');
+    return modes.length?modes.join('+'):'divers';
+  }
+  function objectiveLabel(raw){
+    const description=strip(raw);
+    // Conserver les noms de personnages/équipes de la source et ne traduire
+    // que des constructions anglophones identifiables sans ambiguïté.
+    const requirement=value=>value
+      .replace(/^an /i,'un ').replace(/^a /i,'un ')
+      .replace(/\bat (\d+) Yellow Stars\b/gi,'avec $1 étoiles jaunes')
+      .replace(/\bat Gear Tier (\d+)\b/gi,'au palier G$1')
+      .replace(/\bat GT(\d+)\b/gi,'au palier G$1')
+      .replace(/\band GT(\d+)\b/gi,'et au palier G$1');
+    let m;
+    if((m=description.match(/^Play Alliance Raid with (.+)$/i)))return 'Utiliser '+requirement(m[1])+' en raid';
+    if((m=description.match(/^Play Alliance War with (.+)$/i)))return 'Utiliser '+requirement(m[1])+' en guerre';
+    if((m=description.match(/^Play Blitz or Crucible with (.+)$/i)))return 'Jouer en Blitz ou en Épreuve cosmique avec '+requirement(m[1]);
+    if((m=description.match(/^Play Blitz with (.+)$/i)))return 'Utiliser '+requirement(m[1])+' en Blitz';
+    if((m=description.match(/^Battle with (.+)$/i)))return 'Faire un combat avec '+requirement(m[1]);
+    if((m=description.match(/^Play with (.+)$/i)))return 'Jouer avec '+requirement(m[1]);
+    if((m=description.match(/^Battle in Raid(?: \((.+)\))?$/i)))return 'Faire un combat en raid'+(m[1]?' ('+m[1]+')':'');
+    if((m=description.match(/^Battle in War(?: \((.+)\))?$/i)))return 'Faire un combat en guerre'+(m[1]?' ('+m[1]+')':'');
+    if((m=description.match(/^Battle in Arena(?: \((.+)\))?$/i)))return 'Faire un combat en arène'+(m[1]?' ('+m[1]+')':'');
+    if(/^Battle in Cosmic Crucible$/i.test(description))return 'Faire un combat en Épreuve cosmique';
+    if(/^Play Arena$/i.test(description))return 'Faire un combat en arène';
+    if(/^Play any Battle$/i.test(description))return 'Faire un combat';
+    if((m=description.match(/^Log In for (\d+) Days$/i)))return 'Se connecter au jeu pendant '+m[1]+' jours';
+    if(/^Log ?In$/i.test(description))return 'Se connecter au jeu';
+    if(/^Daily Login$/i.test(description))return 'Se connecter quotidiennement';
+    if((m=description.match(/^Complete "([^"]+)" Daily Mission (\d+) times$/i)))return 'Terminer '+m[2]+' fois la mission quotidienne « '+m[1]+' »';
+    if((m=description.match(/^Complete "([^"]+)" Daily Mission$/i)))return 'Terminer la mission quotidienne « '+m[1]+' »';
+    if((m=description.match(/^Upgrade (.+) to Gear Tier (\d+)$/i)))return 'Améliorer '+m[1].replace(/^any character$/i,'un personnage')+' au palier G'+m[2];
+    if((m=description.match(/^Spend (\d+) Campaign Energy$/i)))return 'Dépenser '+m[1]+' énergie de campagne';
+    if((m=description.match(/^Spend (\d+) Iso-8 Campaign Energy$/i)))return 'Dépenser '+m[1]+' énergie de campagne ISO-8';
+    if(/^Spend Power Cores$/i.test(description))return 'Dépenser des noyaux d’énergie';
+    if((m=description.match(/^Spend (\d+) Power Cores?$/i)))return 'Dépenser '+m[1]+' noyau(x) d’énergie';
+    if(/^Claim a free offer\.?$/i.test(description))return 'Récupérer une offre gratuite';
+
+    if((m=description.match(/^Play Arena, Blitz, Crucible, or Alliance War with (.+)$/i)))
+      return 'Jouer en arène, Blitz, Épreuve cosmique ou guerre avec '+requirement(m[1]);
+    if((m=description.match(/^Play War or Cosmic Crucible with (.+)$/i)))
+      return 'Jouer en guerre ou en Épreuve cosmique avec '+requirement(m[1]);
+    if(/^Play War$/i.test(description))return 'Faire un combat en guerre';
+    if(/^Play Raids$/i.test(description))return 'Faire des combats en raid';
+    if(/^Play Crucible$/i.test(description))return 'Faire un combat en Épreuve cosmique';
+    if((m=description.match(/^Play (the )?(.+ Campaigns?)$/i)))return 'Jouer '+(m[1]?'la ':'une ')+m[2];
+    if(/^Clear Waves in Battleworld$/i.test(description))return 'Terminer des vagues en Battleworld';
+    if((m=description.match(/^Upgrade any character(?: to Level| Level to) (\d+)$/i)))
+      return 'Améliorer un personnage au niveau '+m[1];
+    if((m=description.match(/^Upgrade (.+) to (?:Tier |T)([234]) Level (\d+) Iso-8$/i))){
+      const subject=requirement(m[1]).replace(/^any character$/i,'un personnage')
+        .replace(/^any City character$/i,'un personnage Ville')
+        .replace(/^any Global character$/i,'un personnage Global')
+        .replace(/^any Cosmic character$/i,'un personnage Cosmique');
+      return 'Améliorer '+subject+' en ISO-8 T'+m[2]+' niveau '+m[3];
+    }
+    if((m=description.match(/^Spend (\d+) (?:Tier |T)([234]) Level (\d+) Ion$/i)))
+      return 'Dépenser '+m[1]+' ion(s) ISO-8 (palier '+m[2]+', niveau '+m[3]+')';
+    if(/^Spend Gold$/i.test(description))return 'Dépenser de l’or';
+    if((m=description.match(/^Spend (\d+) Gold$/i)))return 'Dépenser '+m[1]+' or';
+    if(/^Spend L4 Training Modules$/i.test(description))return 'Dépenser des modules d’entraînement L4';
+    if((m=description.match(/^Earn (.+) Milestone Points in select Offers$/i)))
+      return 'Obtenir des points de jalon « '+m[1]+' » via certaines offres';
+    if((m=description.match(/^Get points by completing the (.+)$/i)))
+      return 'Gagner des points en terminant '+m[1];
+    if(/^Make a purchase from the Web Store\.?$/i.test(description))return 'Effectuer un achat dans la boutique Web';
+    if(/^Make a Strike Store purchase\.?$/i.test(description))return 'Effectuer un achat dans la boutique S.T.R.I.K.E.';
+    if(/^Login to Web Playable\.?$/i.test(description))return 'Se connecter sur la version Web du jeu';
+    if(/^Use 1 Power Core$/i.test(description))return 'Utiliser 1 noyau d’énergie';
+    if((m=description.match(/^Upgrade characters to Gear Tier (\d+) or higher$/i)))
+      return 'Améliorer des personnages au palier G'+m[1]+' ou supérieur';
+    return description;
+  }
+  function objectiveEntries(reference){
+    const match=state.search.trim().toLocaleLowerCase('fr');
+    const active=state.events.filter(e=>category(e,reference)==='current'&&(!state.type||e.type===state.type));
+    const dedup=new Set(),items=[];
+    for(const event of active){
+      const scoring=event.milestone?.scoring;
+      if(!scoring)continue;
+      const add=(method,cap,premium,sharedCap)=>{
+        const description=strip(method?.description);
+        if(!description)return;
+        const label=objectiveLabel(description);
+        if(match&&![event.name,event.subName,event.details,event.id,description,label]
+          .some(value=>strip(value).toLocaleLowerCase('fr').includes(match)))return;
+        const mode=objectiveMode(description);
+        const points=Number(method.points);
+        const score=Number.isFinite(points)&&points>0?points:null;
+        const ceiling=Number.isFinite(cap)&&cap>0?cap:null;
+        const key=[eventTitle(event).toLocaleLowerCase('fr'),description.toLocaleLowerCase('fr'),mode,score,ceiling,Boolean(premium)].join('|');
+        if(dedup.has(key))return;
+        dedup.add(key);
+        items.push({event,label,mode,description,points:score,cap:ceiling,premium:Boolean(premium),sharedCap:Boolean(sharedCap)});
+      };
+      for(const method of Array.isArray(scoring.methods)?scoring.methods:[])add(method,null,false,false);
+      for(const capped of Array.isArray(scoring.cappedScorings)?scoring.cappedScorings:[]){
+        const methods=Array.isArray(capped.methods)?capped.methods:[];
+        for(const method of methods)add(method,Number(capped.cap),capped.isPremium,methods.length>1);
+      }
+    }
+    return items;
+  }
+  function renderObjectives(reference){
+    const host=$('events-objectives');host.replaceChildren();
+    const items=objectiveEntries(reference);
+    $('stat-objectives').textContent=fmtNumber.format(items.length);
+    $('count-objectives').textContent=fmtNumber.format(items.length);
+    if(!items.length){
+      const holder=create('div','ev-empty');
+      holder.append(create('p','ev-empty-emoji','📋'));
+      holder.append(create('h3','','Aucun objectif de score disponible'));
+      holder.append(create('p','','Les événements en cours ne fournissent pas de méthode de progression exploitable pour cette date ou ces filtres.'));
+      host.append(holder);
+      return;
+    }
+    host.append(create('p','ev-objectives-note',
+      'Méthodes de progression des événements actifs'+(state.metadata.liveSource?' (catalogue R2).':' (archive de secours, non actualisée).')+
+      ' La progression personnelle n’est pas synchronisée.'));
+    const grouped=new Map();
+    for(const item of items){
+      if(!grouped.has(item.mode))grouped.set(item.mode,[]);
+      grouped.get(item.mode).push(item);
+    }
+    const order=new Map(OBJECTIVE_MODES.map(([mode],index)=>[mode,index]));
+    const keys=[...grouped.keys()].sort((a,b)=>{
+      const rank=mode=>Math.min(...mode.split('+').map(part=>order.get(part)??99));
+      return rank(a)-rank(b)||a.localeCompare(b,'fr');
+    });
+    for(const key of keys){
+      const entries=grouped.get(key);
+      entries.sort((a,b)=>a.event.endTime-b.event.endTime||
+        eventTitle(a.event).localeCompare(eventTitle(b.event),'fr')||
+        a.label.localeCompare(b.label,'fr'));
+      const group=create('section','ev-objective-mode');
+      const meta=key.split('+').map(part=>MODE_BY_KEY.get(part)||MODE_BY_KEY.get('divers'));
+      const heading=create('h3','ev-objective-heading',meta[0].emoji+' '+meta.map(x=>x.label).join(' / '));
+      heading.append(create('span','ev-objective-count',fmtNumber.format(entries.length)));
+      const list=create('ul','ev-objective-list');
+      for(const item of entries){
+        const li=create('li','ev-objective-item');
+        li.append(create('p','ev-objective-action',item.label));
+        const row=create('div','ev-objective-footer');
+        const trigger=create('button','ev-objective-event',eventTitle(item.event));
+        trigger.type='button';trigger.addEventListener('click',()=>openDetail(item.event,trigger));
+        row.append(trigger);
+        if(item.points!==null)row.append(create('span','ev-objective-score','+'+fmtNumber.format(item.points)+' pt(s) / action'));
+        if(item.cap!==null){
+          const repeat=item.points&&item.cap/item.points;
+          const explicitCount=/\b(?:times?|days?|fois|jours)\b/i.test(item.description);
+          const label=!item.sharedCap&&!explicitCount&&Number.isInteger(repeat)&&repeat>1&&repeat<=200?
+            'Jusqu’à '+fmtNumber.format(repeat)+' actions comptabilisées':
+            (item.sharedCap?'Plafond partagé ':'Plafond ')+fmtNumber.format(item.cap)+' pts';
+          row.append(create('span','ev-objective-cap',label));
+        }
+        if(item.premium)row.append(create('span','ev-objective-premium','Premium'));
+        li.append(row);list.append(li);
+      }
+      group.append(heading,list);host.append(group);
+    }
+  }
+
   function render(){
     const {grouped,reference}=groupEvents();
+    renderObjectives(reference);
     for(const key of Object.keys(SECTIONS)){
       const items=grouped[key],host=$(`events-${key}`);host.replaceChildren();
       $(`count-${key}`).textContent=fmtNumber.format(items.length);
