@@ -2,8 +2,23 @@
 // access-control behavior remains in alliance-history.js and the shared selectors.
 (function(root){
   "use strict";
-  const normalize=value=>String(value??"").trim().toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+  // Scopely alliance names can contain in-game colour markup and
+  // lookalike letters (Greek, Cyrillic, etc). These are display characters,
+  // not part of the stable alliance name. Never execute the markup.
+  const inGameLetters=Object.freeze({
+    "Α":"a","α":"a","Λ":"a","Β":"b","β":"b","С":"c","с":"c",
+    "Δ":"d","δ":"d","Ε":"e","ε":"e","Σ":"e","ϵ":"e",
+    "Ζ":"z","ζ":"z","Η":"h","η":"n","Ι":"i","ι":"i",
+    "Κ":"k","κ":"k","Μ":"m","μ":"m","Ν":"n","ν":"n","Π":"n","π":"n",
+    "Ο":"o","ο":"o","σ":"o","Ω":"w","ω":"w",
+    "Ρ":"p","ρ":"p","Τ":"t","τ":"t","Υ":"u","υ":"u",
+    "Χ":"x","χ":"x","γ":"y","Я":"r","я":"r","Ƨ":"s","Ѕ":"s","ѕ":"s"
+  });
+  const normalize=value=>String(value??"")
+    .replace(/<#[a-f0-9]{6}>|<\\/?color(?:=[^<>]{1,32})?>/gi,"")
+    .replace(/[Α-ωϵА-яƧЅѕ]/g,char=>inGameLetters[char]||char)
+    .trim().toLowerCase()
+    .normalize("NFD").replace(/[\\u0300-\\u036f]/g,"")
     .replace(/[^a-z0-9]/g,"");
   const safeNum=value=>Number.isSafeInteger(value)&&value>=0;
   const validDate=value=>typeof value==="string"&&
