@@ -623,7 +623,8 @@
     const player = getSelectedPlayer();
     if (!team || !player) return;
 
-    const pKey = normalizeKey(player);
+    const allianceK = allianceKey(getSelectedAlliance());
+    const pKey = allianceK + ":" + normalizeKey(player);
     const isoByChar = ROSTER_ISO_MAP.get(pKey) || {};
 
     (team.characters || []).forEach((charName) => {
@@ -771,7 +772,17 @@
       const player = (r.player ?? "").toString().trim();
       if (!player) return;
 
-      const pKey = normalizeKey(player);
+      let allianceK = allianceKey(r.alliance);
+      if (!allianceK) {
+        // Only legacy LoSP exports may omit the alliance. Never guess if
+        // identical nicknames exist in two authorized alliances.
+        const matches = new Set(JOUEURS
+          .filter(j => normalizeKey(j.player) === normalizeKey(player))
+          .map(j => allianceKey(j.alliance)).filter(Boolean));
+        if (matches.size !== 1) return;
+        allianceK = [...matches][0];
+      }
+      const pKey = allianceK + ":" + normalizeKey(player);
       const out = {};
 
       if (r.iso && typeof r.iso === "object") {
