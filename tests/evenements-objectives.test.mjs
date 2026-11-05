@@ -126,8 +126,9 @@ test('Une panne du JSON GitHub n’utilise aucune autre source et affiche une in
   nodes.get('search-filter').handlers.get('input')({target:{value:'raid'}});
   assert.match(nodes.get('events-current').children[0].textContent,
     /temporairement indisponibles/);
-  assert.match(script,/evenements-snapshot\\.json/);
-  assert.doesNotMatch(script,/api\\/public\\/events|embedded-events/);
+  assert.ok(script.includes('evenements-snapshot.json'));
+  assert.ok(!script.includes('api/public/events'));
+  assert.ok(!script.includes('embedded-events'));
 });
 
 test('Un fichier GitHub de plus de 48h est refusé, même si la requête fonctionne',async()=>{
