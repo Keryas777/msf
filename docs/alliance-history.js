@@ -190,9 +190,12 @@
     if(!values.length)return;
     // Rank 1 belongs at the top; use exact hundred boundaries, not
     // interpolated labels such as 101, 251 or 501.
-    // Make empty P-IV / U-I areas smaller; expand only for real values.
-    const firstDiamond=trophyDivisions.find(b=>Number.isSafeInteger(b.min)&&
-      Number.isSafeInteger(b.max));
+    // Keep empty edge areas compact; expand only for real values.
+    const firstDiamond=trophyDivisions.find(b=>
+      b.label===state.config?.trophyAxisAnchorDivision&&
+      Number.isSafeInteger(b.min)&&Number.isSafeInteger(b.max))||
+      trophyDivisions.find(b=>Number.isSafeInteger(b.min)&&
+        Number.isSafeInteger(b.max));
     const finalDivision=trophyDivisions.at(-1);
     const tierSize=firstDiamond?.max-firstDiamond?.min+1;
     const tickStep=tierSize/5;
@@ -234,7 +237,7 @@
     }
     if(trophyDivisions.length){
       // Grey tiers and labels occupy the right-hand gutter.
-      // Intervals use [min, max+1), including open-ended P-IV and U-I.
+      // Intervals use [min, max+1), including open-ended P-I and U-I.
       for(const band of trophyDivisions){
         const low=Math.max(bounds.lo,band.min??bounds.lo);
         const high=Math.min(bounds.hi,band.max===undefined?

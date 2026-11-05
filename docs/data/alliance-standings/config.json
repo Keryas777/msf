@@ -66,9 +66,28 @@
       "requiresSeasonQualification": true
     }
   ],
+  "trophyAxisAnchorDivision": "D-I",
   "trophyDivisions": [
     {
+      "label": "P-I",
+      "max": 1499,
+      "fill": "#bcc1c9"
+    },
+    {
+      "label": "P-II",
+      "min": 1500,
+      "max": 1749,
+      "fill": "#a8aeb8"
+    },
+    {
+      "label": "P-III",
+      "min": 1750,
+      "max": 1999,
+      "fill": "#969ca6"
+    },
+    {
       "label": "P-IV",
+      "min": 2000,
       "max": 2249,
       "fill": "#848a95"
     },

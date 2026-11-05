@@ -334,10 +334,13 @@ test('rankings shade Top 100 dark green and 101-200 light green behind points',(
       'Bands must also be behind the grid');
   }
 });
-test('trophy plot shows P-IV, four Diamond tiers and U-I, with smaller empty edge zones',()=>{
+test('default trophy viewport clips low Platinum tiers, preserving compact edge zones',()=>{
   const divisions=config.trophyDivisions;
+  assert.equal(config.trophyAxisAnchorDivision,'D-I',
+    'Adding lower Platinum tiers must not shift the normal vertical axis');
   assert.deepEqual(divisions.map(b=>[b.label,b.min??null,b.max??null]),[
-    ['P-IV',null,2249],['D-I',2250,2499],['D-II',2500,2749],
+    ['P-I',null,1499],['P-II',1500,1749],['P-III',1750,1999],
+    ['P-IV',2000,2249],['D-I',2250,2499],['D-II',2500,2749],
     ['D-III',2750,2999],['D-IV',3000,3249],['U-I',3250,null]
   ]);
   for(const width of [320,390,680]){
@@ -347,7 +350,12 @@ test('trophy plot shows P-IV, four Diamond tiers and U-I, with smaller empty edg
     const bands=plot.children.filter(n=>n.attrs.class==='historyTrophyBand');
     const separators=plot.children.filter(n=>n.attrs.class==='historyTrophyBoundary');
     const labels=plot.children.filter(n=>n.attrs.class==='historyTrophyLabel');
-    assert.equal(bands.length,6);
+    const axisLabels=plot.children.filter(n=>n.attrs.class==='historyAxisText'&&
+      n.attrs['text-anchor']==='end');
+    assert.equal(Number(String(axisLabels[0].text).replace(/\D/g,'')),2150,
+      'The original 2189-trophy minimum keeps its prior 2150 axis floor');
+    assert.equal(bands.length,6,
+      'Only P-IV through U-I appear when all sampled values are above 2000');
     assert.equal(new Set(bands.map(b=>b.attrs.fill)).size,6);
     for(let i=1;i<bands.length;i++){
       assert.ok(Math.abs(bands[i].attrs.y+bands[i].attrs.height-
@@ -385,6 +393,36 @@ test('trophy plot shows P-IV, four Diamond tiers and U-I, with smaller empty edg
       'No generic horizontal grid lines in the trophy chart');
     assert.equal(plot.children.filter(n=>n.tag==='circle').length,5);
     assert.equal(plot.children.filter(n=>n.attrs.class==='historyRankBand').length,0);
+  }
+});
+test('low Platinum and high Uru trophy values reveal all nine configured bands',()=>{
+  const unusual={...original,alliances:original.alliances.map((a,i)=>(
+    i===0?{...a,warTrophies:1375}:
+    i===1?{...a,warTrophies:3450}:a))};
+  for(const width of [320,390,680]){
+    const plot=drawRenderedChart('war-trophies',width,[unusual]);
+    const bands=plot.children.filter(n=>n.attrs.class==='historyTrophyBand');
+    const separators=plot.children.filter(n=>n.attrs.class==='historyTrophyBoundary');
+    const labels=plot.children.filter(n=>n.attrs.class==='historyTrophyLabel');
+    assert.equal(bands.length,9);
+    assert.deepEqual(labels.map(n=>n.text),
+      ['P-I','P-II','P-III','P-IV','D-I','D-II','D-III','D-IV','U-I']);
+    assert.equal(separators.length,8);
+    assert.equal(plot.children.filter(n=>n.tag==='circle').length,5);
+    const rgb=hex=>[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));
+    for(let i=1;i<bands.length;i++){
+      assert.ok(Math.abs(bands[i].attrs.y+bands[i].attrs.height-
+        bands[i-1].attrs.y)<1e-7,
+        'Platinum, Diamond and Uru backgrounds must join without gaps');
+      assert.ok(rgb(bands[i-1].attrs.fill).reduce((s,v)=>s+v,0)>
+        rgb(bands[i].attrs.fill).reduce((s,v)=>s+v,0),
+        'Each higher division must use a darker background');
+    }
+    const y=value=>22+(3500-value)/(3500-1300)*(width<500?350-22-48:400-22-48);
+    for(const [index,boundary] of [1500,1750,2000,2250,2500,2750,3000,3250].entries()){
+      assert.ok(Math.abs(separators[index].attrs.y1-y(boundary))<1e-7,
+        'Division separator must use its exact trophy threshold');
+    }
   }
 });
 test('trophy chart expands beyond P-IV and into U-I for observed outliers',()=>{
