@@ -58,6 +58,34 @@ test("static fallback, one checkpoint per day, seasons remain untouched",()=>{
   assert.ok(fallback.includes(local));
 });
 
+
+test("real MARINES U+01A8 glyph is visible to admin and MARINES preview",()=>{
+  // The official capture can use lowercase ƨ rather than uppercase Ƨ.
+  // The two glyphs look almost identical but were matched differently.
+  const realName="<color=red>MΛЯIΠΣƨ</color>";
+  assert.equal(adapter.mappedKey(realName,registry),"marines");
+  const live=payload([sample("2026-11-05",[
+    ["LoSP <#F8FF00>Zεμs",2941],[realName,3205]])]);
+  const admin=adapter.fromCloudflare(live,registry,()=>true);
+  assert.equal(admin.length,1);
+  assert.equal(admin[0].alliances.length,2);
+  const guest=adapter.fromCloudflare(live,registry,key=>key==="marines");
+  assert.equal(guest.length,1);
+  assert.equal(guest[0].alliances.length,1);
+  assert.equal(guest[0].alliances[0].key,"marines");
+  assert.equal(guest[0].alliances[0].warTrophies,3205);
+  // An invited alliance must not count unrelated historical LoSP snapshots.
+  const older=[{kind:"losp-alliance-standings-snapshot",
+    capturedAt:"2026-10-31T02:02:50.024Z",
+    alliances:[{key:"zeus",warTrophies:2900}]}];
+  const scoped=adapter.merge(older,live,registry,key=>key==="marines")
+    .map(row=>({...row,
+      alliances:row.alliances.filter(a=>a.key==="marines")}))
+    .filter(row=>row.alliances.length);
+  assert.equal(scoped.length,1);
+  assert.equal(scoped[0].collectionDayUtc,"2026-11-05");
+});
+
 test("real 5 November Scopely formatted names resolve all seven alliances",()=>{
   const names=[
     ["LoSP <#F8FF00>Zεμs","zeus"],
