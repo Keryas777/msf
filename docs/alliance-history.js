@@ -408,7 +408,7 @@
       refs.note.textContent+=' Dernière collecte Cloudflare partielle : seules les alliances effectivement relevées apparaissent, aucune valeur n’est inventée.';
     if(!model.rows.length){
       refs.period.textContent='Aucune date disponible';
-      refs.status.textContent='Aucun instantané disponible pour ce graphique.';
+      refs.status.textContent='Aucun relevé disponible pour les alliances de ton groupement.';
       refs.plot.replaceChildren();
       return;
     }
@@ -517,7 +517,7 @@
         ...snapshot,
         alliances:snapshot.alliances.filter(a =>
           window.LoSPAccess?.isAllianceAllowed(a?.key || a?.alliance))
-      }));
+      })).filter(snapshot=>snapshot.alliances.length);
       syncChips();render();
       if (!state.registry.length) refs.status.textContent =
         "Aucun relevé disponible pour les alliances de ton groupement.";
