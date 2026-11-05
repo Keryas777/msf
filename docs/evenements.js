@@ -9,7 +9,7 @@
   const EMOJI={milestone:'🏆',episodic:'⚔️',raid:'🛡️',blitz:'⚡',battlePass:'🎖️',strikePass:'🎫',pickYourPoison:'🔥',info:'✦',raidSeason:'🛡️',warSeason:'⚔️',donation:'🤝'};
   const LIMIT={current:8,past:8};
   const SECTIONS={current:'En cours',past:'Passés'};
-  const state={events:[],metadata:{},date:null,manualDate:false,search:'',type:'',includeSecondary:false,expanded:new Set(),lastButton:null};
+  const state={events:[],metadata:{},sourceError:false,date:null,manualDate:false,search:'',type:'',includeSecondary:false,expanded:new Set(),lastButton:null};
   const fmtDate=new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'numeric',month:'short',year:'numeric'});
   const fmtNumber=new Intl.NumberFormat('fr-FR');
   const now=()=>Date.now();
@@ -286,6 +286,21 @@
   }
 
   function render(){
+    if(state.sourceError){
+      for(const key of ['current','past']){
+        $('events-'+key).replaceChildren(create('p','ev-empty',
+          'Événements temporairement indisponibles : données non vérifiées.'));
+        $('count-'+key).textContent='—';
+        $('stat-'+key).textContent='—';
+      }
+      $('events-objectives').replaceChildren(create('p','ev-empty',
+        'Objectifs temporairement indisponibles : données non vérifiées.'));
+      $('count-objectives').textContent='—';
+      $('stat-objectives').textContent='—';
+      $('more-current').hidden=true;
+      $('more-past').hidden=true;
+      return;
+    }
     const {grouped,reference}=groupEvents();
     renderObjectives(reference);
     for(const key of Object.keys(SECTIONS)){
@@ -336,6 +351,7 @@
     if(!validCatalog(data.events))throw new Error('Catalogue invalide');
     // The public R2 projection is the sole source of event data.
     state.events=data.events.filter(isCalendarEvent);
+    state.sourceError=false;
     state.metadata={liveSource:true,updatedAt:data.updatedAt};
     const types=[...new Set(state.events.map(x=>x.type))]
       .sort((a,b)=>(TYPES[a]||a).localeCompare(TYPES[b]||b,'fr'));
@@ -382,11 +398,8 @@
       $('source-line').textContent='Catalogue R2 indisponible ou trop ancien.';
       $('source-provenance').textContent=
         'Aucune archive locale n’est affichée. Réessayez après la prochaine collecte quotidienne.';
-      for(const key of ['events-current','events-past','events-objectives']){
-        const host=$(key);
-        if(host)host.replaceChildren(create('p','ev-empty',
-          'Événements temporairement indisponibles : données non vérifiées.'));
-      }
+      state.sourceError=true;
+      render();
     }
   }
   function init(){
