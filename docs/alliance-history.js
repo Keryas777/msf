@@ -29,7 +29,7 @@
   const number=new Intl.NumberFormat('fr-FR');
   const state={mode:'war',warChart:'war-trophies',snapshots:[],
     registry:[],config:null,failures:0,prepared:null,chart:null,
-    hiddenAlliances:new Set(),liveCoverage:null};
+    hiddenAlliances:new Set(),liveCoverage:null,liveAvailable:false};
   const byId=id=>state.config?.charts?.find(chart=>chart.id===id);
   const safeColor=value=>/^#[0-9a-f]{6}$/i.test(value||'')?value:'#ffffff';
   const formatDate=iso=>dates.format(new Date(iso));
@@ -408,7 +408,9 @@
       refs.note.textContent+=' Dernière collecte Cloudflare partielle : seules les alliances effectivement relevées apparaissent, aucune valeur n’est inventée.';
     if(!model.rows.length){
       refs.period.textContent='Aucune date disponible';
-      refs.status.textContent='Aucun relevé disponible pour les alliances de ton groupement.';
+      refs.status.textContent=state.liveAvailable?
+        'Aucun relevé exploitable pour ton groupement dans la collecte Cloudflare.':
+        'Aucun relevé pour ton groupement ; source Cloudflare indisponible.';
       refs.plot.replaceChildren();
       return;
     }
@@ -510,6 +512,7 @@
       const [published,live]=await Promise.all([readSnapshots(index),readLiveTrophies()]);
       const recent=live?.snapshots?.at(-1);
       state.liveCoverage=recent?.coverage||null;
+      state.liveAvailable=live?.status==='ok';
       const merged=window.LoSPTrophyLive?
         window.LoSPTrophyLive.merge(published,live,registry,
           key=>window.LoSPAccess?.isAllianceAllowed(key)):published;
