@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildSnapshot, canonicalPlayer, normalizeKey, validDay } from "../scripts/snapshot-arena.mjs";
+import { buildSnapshot, canonicalPlayer, normalizeKey, validDay, originalArenaAllianceKeys } from "../scripts/snapshot-arena.mjs";
 import { earliestAllowedDay, mergeHistory } from "../scripts/publish-arena-r2.mjs";
 
 function snapshot(day, rank = 4) {
@@ -55,4 +55,20 @@ test("R2 rolling history preserves first observation, prunes older than 30 days"
   assert.equal(earliestAllowedDay("2026-11-29"), "2026-10-31");
   const pruned = mergeHistory(merged, [], "2026-11-30");
   assert.deepEqual(pruned.snapshots.map(x => x.date), ["2026-11-29"]);
+});
+
+test("31 October arena baseline uses immutable original provenance, not later guests",()=>{
+  const first={version:1,alliances:Object.fromEntries([
+    "zeus","athena","kronos","dionysos","poseidon","hades"
+  ].map(key=>[key,"2026-11-01-am"]))};
+  assert.deepEqual(originalArenaAllianceKeys(first),[
+    "zeus","athena","kronos","dionysos","poseidon","hades"
+  ]);
+  // A new connected MARINES does not exist in the original 1 November capture.
+  const currentRegistry=[...Object.keys(first.alliances),"marines",
+    "endgame-revolution-red","endgame-revolution-orange"];
+  assert.ok(currentRegistry.length>originalArenaAllianceKeys(first).length);
+  assert.throws(()=>originalArenaAllianceKeys({alliances:{...first.alliances,
+    marines:"2026-11-05-am"}}),/First Infos provenance/);
+  assert.throws(()=>originalArenaAllianceKeys({alliances:{}}),/First Infos provenance/);
 });
