@@ -32,6 +32,25 @@
       identification:"schedule-derived",
       timezone:calendar.timezone||"Europe/Paris"};
   }
+  // An exceptional in-game-verified reading can be observed on a weekday
+  // after the last season ended. Recompute the ID from the dynamic calendar:
+  // never trust the posted label by itself or invent a later season.
+  function confirmedManualSeason(record,calendar){
+    if(record?.seasonConfirmation!=="admin-in-game"||
+      !/^\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2}$/.test(record.manualSeasonId||"")||
+      !validDate(record.capturedAt))return null;
+    const derived=root.LoSPStandingsSeries?.resolveRankingSeason?.(
+      record.capturedAt,calendar);
+    if(!derived||derived.seasonId!==record.manualSeasonId)return null;
+    const observed=Date.parse(record.capturedAt),
+      end=Date.parse(derived.endExclusiveAt);
+    if(!Number.isSafeInteger(calendar?.cycleDays)||
+      observed<end+calendar.publicationDelayMinutes*60000||
+      observed>=end+calendar.cycleDays*DAY_MS)return null;
+    return {seasonId:derived.seasonId,startAt:derived.startAt,
+      endExclusiveAt:derived.endExclusiveAt,
+      identification:"admin-in-game",timezone:derived.timezone};
+  }
   function mappedKey(record,registry){
     // A manually verified admin binding distinguishes the two same-name
     // ENDGAME alliances; the existing trophy public ID serves MARINES.
@@ -54,30 +73,44 @@
        !Array.isArray(registry))return [];
     const out=[];
     for(const row of payload.snapshots){
-      const season=completedSeason(row?.capturedAt,row?.collectionDayUtc,calendar);
-      if(!season||!Array.isArray(row.alliances)||row.alliances.length>30)continue;
-      const alliances=[],seen=new Set();
+      if(!Array.isArray(row?.alliances)||row.alliances.length>30)continue;
+      const scheduled=completedSeason(row.capturedAt,row.collectionDayUtc,calendar);
+      const grouped=new Map();
       for(const entry of row.alliances){
         if(!entry||typeof entry.nameAtCapture!=="string"||
            !validDate(entry.capturedAt)||!validRank(entry.warRank)||
            !validRank(entry.raidRank))continue;
+        // A manual marker requires a genuinely confirmed completed season;
+        // it must never fall back to guessing from another capture's date.
+        const manual=entry.manualSeasonId!==undefined;
+        const season=manual?confirmedManualSeason(entry,calendar):scheduled;
+        if(!season||(!manual&&entry.capturedAt!==row.capturedAt))continue;
         const key=mappedKey(entry,registry);
-        if(!key||seen.has(key)||!allowed(key))continue;
-        seen.add(key);
-        alliances.push({key,nameAtCapture:entry.nameAtCapture,
+        if(!key||!allowed(key))continue;
+        if(!grouped.has(season.seasonId))
+          grouped.set(season.seasonId,{season,alliances:[],seen:new Set(),
+            capturedAt:entry.capturedAt});
+        const group=grouped.get(season.seasonId);
+        if(group.seen.has(key))continue;
+        group.seen.add(key);
+        if(entry.capturedAt>group.capturedAt)group.capturedAt=entry.capturedAt;
+        group.alliances.push({key,nameAtCapture:entry.nameAtCapture,
           warRank:entry.warRank,raidRank:entry.raidRank,warTrophies:null});
       }
-      if(!alliances.length)continue;
-      out.push({version:1,kind:"losp-alliance-standings-snapshot",
-        capturedAt:row.capturedAt,collectionDayUtc:row.collectionDayUtc,
-        captureType:"season-ranks",seasonId:season.seasonId,
-        seasonVerified:false,seasonDerived:true,rankingSeason:{
-          startAt:season.startAt,endExclusiveAt:season.endExclusiveAt,
-          identification:season.identification,timezone:season.timezone},
-        source:"/player/v1/alliance/card",
-        coverage:{completeSessionScan:row.coverage?.complete===true,
-          source:"cloudflare-approved-guest-season-ranks"},
-        alliances});
+      for(const group of grouped.values()){
+        const season=group.season;
+        out.push({version:1,kind:"losp-alliance-standings-snapshot",
+          capturedAt:group.capturedAt,
+          collectionDayUtc:row.collectionDayUtc,
+          captureType:"season-ranks",seasonId:season.seasonId,
+          seasonVerified:false,seasonDerived:true,rankingSeason:{
+            startAt:season.startAt,endExclusiveAt:season.endExclusiveAt,
+            identification:season.identification,timezone:season.timezone},
+          source:"/player/v1/alliance/card",
+          coverage:{completeSessionScan:row.coverage?.complete===true,
+            source:"cloudflare-approved-guest-season-ranks"},
+          alliances:group.alliances});
+      }
     }
     return out.sort((a,b)=>a.capturedAt.localeCompare(b.capturedAt));
   }

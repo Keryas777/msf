@@ -73,3 +73,62 @@ test("calendar changes are respected, no hardcoded season schedule",()=>{
   assert.equal(adapter.fromCloudflare(make(),registry,()=>true,shifted).length,0);
   assert.equal(adapter.fromCloudflare(make(),registry,()=>true,null).length,0);
 });
+
+test("NOV 5 confirmed MARINES war and raid ranks are attributed to OCT 11–25",()=>{
+  const capturedAt="2026-11-05T15:15:00.000Z";
+  const payload=make(capturedAt);
+  const marine=payload.snapshots[0].alliances[0];
+  marine.manualSeasonId="2026-10-11/2026-10-25";
+  marine.seasonConfirmation="admin-in-game";
+  const snapshots=adapter.fromCloudflare(payload,registry,key=>key==="marines",
+    config.rankingSeasons);
+  assert.equal(snapshots.length,1);
+  assert.equal(snapshots[0].captureType,"season-ranks");
+  assert.equal(snapshots[0].capturedAt,capturedAt,"do not backdate actual measurement");
+  assert.equal(snapshots[0].seasonId,"2026-10-11/2026-10-25");
+  assert.equal(snapshots[0].rankingSeason.identification,"admin-in-game");
+  const charts=config.charts;
+  const war=prepare(snapshots,registry,charts.find(c=>c.id==="war-season-rank"),
+    config.rankingSeasons);
+  const raid=prepare(snapshots,registry,charts.find(c=>c.id==="raid-season-rank"),
+    config.rankingSeasons);
+  assert.equal(war.series[0].points[0].value,300);
+  assert.equal(raid.series[0].points[0].value,80);
+  assert.equal(war.series[0].points[0].seasonId,"2026-10-11/2026-10-25");
+  assert.equal(prepare(snapshots,registry,charts[0],config.rankingSeasons)
+    .rows.length,0,"no fabricated trophy measurement");
+});
+test("manual MARINES Oct 11–25 attaches to existing LoSP season for admin without erasing LoSP",()=>{
+  const actualLoSP=JSON.parse(read(
+    "docs/data/alliance-standings/snapshots/2026-10-25T230738867Z.json"));
+  const observed="2026-11-05T15:15:00.000Z",payload=make(observed);
+  payload.snapshots[0].alliances[0].manualSeasonId="2026-10-11/2026-10-25";
+  payload.snapshots[0].alliances[0].seasonConfirmation="admin-in-game";
+  const data=adapter.fromCloudflare(payload,registry,()=>true,config.rankingSeasons);
+  const chart=config.charts.find(c=>c.id==="raid-season-rank");
+  const prepared=prepare([actualLoSP,...data],registry,chart,config.rankingSeasons);
+  assert.equal(prepared.rows.length,1,"two captures, one completed season");
+  const old=prepared.series.find(x=>x.key==="zeus");
+  const marine=prepared.series.find(x=>x.key==="marines");
+  assert.ok(old&&old.points[0].value===31);
+  assert.ok(marine&&marine.points[0].value===80);
+});
+test("wrong, unconfirmed and unsupported historical labels are discarded",()=>{
+  const observed="2026-11-05T15:15:00.000Z",payload=make(observed);
+  const marine=payload.snapshots[0].alliances[0];
+  assert.equal(adapter.fromCloudflare(payload,registry,key=>key==="marines",
+    config.rankingSeasons).length,0,"unqualified Thursday cannot become season");
+  marine.manualSeasonId="2026-09-27/2026-10-11";
+  marine.seasonConfirmation="admin-in-game";
+  assert.equal(adapter.fromCloudflare(payload,registry,key=>key==="marines",
+    config.rankingSeasons).length,0,"wrong previous season rejected");
+  marine.manualSeasonId="2026-10-11/2026-10-25";
+  marine.seasonConfirmation="user-claimed";
+  assert.equal(adapter.fromCloudflare(payload,registry,key=>key==="marines",
+    config.rankingSeasons).length,0,"unconfirmed marker rejected");
+  marine.seasonConfirmation="admin-in-game";
+  const shifted={...config.rankingSeasons,
+    referenceEndExclusiveAt:"2026-10-18T20:00:00.000Z"};
+  assert.equal(adapter.fromCloudflare(payload,registry,key=>key==="marines",
+    shifted).length,0,"JSON calendar change invalidates a stale claim");
+});
