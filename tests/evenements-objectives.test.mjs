@@ -83,7 +83,7 @@ test('Un plafond de scoring reste un maximum, pas un objectif obligatoire',()=>{
   const nodes=makePage();
   const raid=sections(nodes)[0].children[1].children[0];
   const notes=raid.children[1].children.map(x=>x.textContent);
-  assert.ok(notes.includes('Jusqu’à 8 fois comptabilisées'));
+  assert.ok(notes.includes('Jusqu’à 8 actions comptabilisées'));
   const login=sections(nodes)[2].children[1].children[0];
   const loginNotes=login.children[1].children.map(x=>x.textContent);
   assert.ok(loginNotes.includes('Plafond 7 pts'));
