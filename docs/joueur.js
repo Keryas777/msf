@@ -1812,12 +1812,15 @@
     const resolvedPlayerKey = resolvePlayerKey(rawPlayer);
 
     if (resolvedPlayerKey) {
-      state.selectedPlayerKey = resolvedPlayerKey;
-      state.selectedAllianceKey =
-        urlAllianceKey ||
-        findAllianceForPlayerKey(resolvedPlayerKey) ||
-        state.selectedAllianceKey;
-      return true;
+      const targetAlliance = urlAllianceKey ||
+        findAllianceForPlayerKey(resolvedPlayerKey);
+      // Ambiguous player-only links must never resolve to an arbitrary guest.
+      if (targetAlliance &&
+          playersForAlliance(targetAlliance).some(p => p.key === resolvedPlayerKey)) {
+        state.selectedPlayerKey = resolvedPlayerKey;
+        state.selectedAllianceKey = targetAlliance;
+        return true;
+      }
     }
 
     if (urlAllianceKey) {
