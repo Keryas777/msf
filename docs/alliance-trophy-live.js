@@ -84,17 +84,40 @@
   }
   function merge(published,payload,registry,allowed){
     const byDay=new Map(),others=[];
-    for(const row of published){
+    const add=row=>{
       const day=dayOf(row);
-      if(row.captureType==="season-ranks"||!day){others.push(row);continue;}
-      if(!byDay.has(day)||(row.alliances?.length||0)>
-         (byDay.get(day).alliances?.length||0))byDay.set(day,row);
-    }
-    for(const row of fromCloudflare(payload,registry,allowed)){
-      const current=byDay.get(row.collectionDayUtc);
-      if(!current||(row.alliances?.length||0)>=(current.alliances?.length||0))
-        byDay.set(row.collectionDayUtc,row);
-    }
+      if(row.captureType==="season-ranks"||!day){others.push(row);return;}
+      const current=byDay.get(day);
+      if(!current){byDay.set(day,row);return;}
+      // Merge each alliance's real observation, not the size of a
+      // permission-filtered Cloudflare snapshot versus a LoSP snapshot.
+      const byKey=new Map();
+      for(const alliance of current.alliances||[])
+        if(typeof alliance?.key==="string")byKey.set(alliance.key,alliance);
+      for(const alliance of row.alliances||[]){
+        if(typeof alliance?.key!=="string")continue;
+        const previous=byKey.get(alliance.key);
+        if(!previous){byKey.set(alliance.key,alliance);continue;}
+        const previousAt=Date.parse(previous.capturedAt||current.capturedAt);
+        const incomingAt=Date.parse(alliance.capturedAt||row.capturedAt);
+        const incomingIsNewer=Number.isFinite(incomingAt)&&
+          (!Number.isFinite(previousAt)||incomingAt>=previousAt);
+        // Retain rank fields from static AllianceCards when the live
+        // projection provides only warTrophies.
+        byKey.set(alliance.key,incomingIsNewer?
+          {...previous,...alliance}:{...alliance,...previous});
+      }
+      // Preserve the static snapshot's seasonal eligibility if it exists:
+      // live-only days must remain trophy-only.
+      const base=current.captureType==="war-trophies"&&
+        row.captureType!=="war-trophies"?row:current;
+      byDay.set(day,{...base,collectionDayUtc:day,
+        capturedAt:row.capturedAt>current.capturedAt?
+          row.capturedAt:current.capturedAt,
+        alliances:[...byKey.values()]});
+    };
+    for(const row of published)add(row);
+    for(const row of fromCloudflare(payload,registry,allowed))add(row);
     return [...others,...byDay.values()].sort((a,b)=>
       a.capturedAt.localeCompare(b.capturedAt));
   }
