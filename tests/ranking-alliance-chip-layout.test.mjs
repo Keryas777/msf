@@ -95,7 +95,7 @@ test("MARINES remains red without a two-line layout", async () => {
 test("LoSP alliance chips use exact Unicode deity names with white prefix and JSON colors", async () => {
   const helper = await allianceHelper();
   for (const [key, emoji, deity, color, official] of [
-    ["zeus", "⚡️", "Zευs", "#F8FF00", "Zeus"],
+    ["zeus", "⚡️", "Zεμs", "#F8FF00", "Zeus"],
     ["athena", "🦉", "Athεηα", "#F28C28", "Athéna"],
     ["kronos", "⏳", "Κroηos", "#E10D17", "Kronos"],
     ["dionysos", "🍇", "Dισπγsσs", "#93328E", "Dionysos"],
