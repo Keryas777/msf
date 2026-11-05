@@ -60,10 +60,36 @@ async function readPrivateArena(alliances){
   const url=GUEST_API+"?alliances="+encodeURIComponent(alliances);
   const res=await fetch(url,{mode:"cors",cache:"no-store",
     headers:{Authorization:"Bearer "+token}});
-  if(res.status===401)throw Error("Session Discord expirée ou non signée. Reconnecte-toi.");
-  if(res.status===403)throw Error("Accès Arène refusé pour ce groupement.");
-  if(res.status===409)throw Error("Alliance invitée non liée ou non approuvée dans l’administration.");
-  if(!res.ok)throw Error("Historique privé Arène momentanément indisponible.");
+  // Do not erase the Worker failure stage: the last generic message made
+  // a missing deployment, missing auth binding and R2 fault look identical.
+  // Only expose stable, non-sensitive error codes (never private payloads).
+  if(!res.ok){
+    let fault=null;
+    try{fault=await res.json();}catch{/* 404 HTML, failed deploy, etc. */}
+    if(res.status===401)
+      throw Error("Session Discord expirée ou non signée. Reconnecte-toi.");
+    if(res.status===403)
+      throw Error("Accès Arène refusé pour ce groupement.");
+    if(res.status===409)
+      throw Error("Alliance invitée non liée ou non approuvée dans l’administration.");
+    if(res.status===404)
+      throw Error("API Arène privée absente du Worker déployé (HTTP 404).");
+    const reasons={
+      "r2-binding-missing":"Liaison R2 absente sur le Worker Cloudflare",
+      "auth-binding-missing":"Liaison Cloudflare losp-auth absente",
+      "auth-service-unreachable":"Worker losp-auth inaccessible",
+      "auth-service-error":"Worker losp-auth en erreur",
+      "auth-invalid-response":"Réponse losp-auth invalide",
+      "approval-registry-invalid":"Registre des alliances non conforme",
+      "private-r2-read-failed":"Lecture R2 privée en erreur"
+    };
+    const code=typeof fault?.reason==="string"&&
+      Object.hasOwn(reasons,fault.reason)?fault.reason:
+      typeof fault?.status==="string"&&
+        /^[a-z][a-z-]{1,50}$/.test(fault.status)?fault.status:"inconnue";
+    throw Error("Historique Arène invité indisponible (HTTP "+res.status+
+      " · "+code+"). "+(reasons[code]||"Vérifier le déploiement Cloudflare."));
+  }
   const data=await res.json();
   if(data?.kind!=="authorized-guest-arena-history"||
     data?.status!=="ok"||!Array.isArray(data.snapshots))
