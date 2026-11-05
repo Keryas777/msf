@@ -1147,6 +1147,8 @@
   }
 
   async function boot() {
+    // Admin preview and guest scopes must settle before rendering filters.
+    if (window.LoSP_AUTH_READY) await window.LoSP_AUTH_READY;
     if (allianceHelper()?.loadAlliances) {
       await allianceHelper().loadAlliances();
     }
