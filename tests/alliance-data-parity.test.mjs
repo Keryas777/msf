@@ -118,3 +118,12 @@ test("alliance pages load shared data before their consuming scripts",async()=>{
     assert.ok(html.indexOf("alliance-data.js")<html.indexOf(script+".js"));
   }
 });
+
+test("ISO and player pages scope same-named guest identities by alliance",async()=>{
+  const iso=await readFile(new URL("../docs/iso.js",import.meta.url),"utf8");
+  const player=await readFile(new URL("../docs/joueur.js",import.meta.url),"utf8");
+  assert.match(iso,/const pKey = allianceK \+ ":" \+ normalizeKey\(player\)/);
+  assert.match(iso,/ROSTER_ISO_MAP\.set\(pKey, out\)/);
+  assert.match(player,/getSelectedInfo\(\) \{\s*return findInfoByPlayerKey\(state\.selectedPlayerKey\)/);
+  assert.match(player,/sameAlliance\(i, allianceK\)/);
+});
