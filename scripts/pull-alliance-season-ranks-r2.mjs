@@ -68,6 +68,9 @@ async function main(){
     read('docs/data/alliance-standings/config.json'),
     read('docs/data/alliances.json'),
     read('docs/data/alliance-standings/index.json')]);
+  // This legacy season-ranks archive contains LoSP only; external alliances
+  // have their own private sources and must not block the older import.
+  const lospRegistry=registry.filter(a=>a?.active!==false&&a?.group==='losp');
   const season=mondaySeason(day,config);
   if(!season){console.log('Not a season rollover Monday:',day);return;}
   if(now<Date.parse(season.availableAfter))throw Error('Season still unpublished');
@@ -76,11 +79,11 @@ async function main(){
   if(alreadyImported(index,season.seasonId)){
     console.log('Idempotent: season already indexed:',season.seasonId);return;
   }
-  const mapping=readMapping(secret('LOSP_R2_ALLIANCE_MAP_JSON'),registry);
+  const mapping=readMapping(secret('LOSP_R2_ALLIANCE_MAP_JSON'),lospRegistry);
   const captures=await privateCaptures(day);
   let published=null;
   for(const capture of captures){
-    try{published=publicSeasonSnapshot(capture,registry,mapping,season);break;}
+    try{published=publicSeasonSnapshot(capture,lospRegistry,mapping,season);break;}
     catch{/* Ignore incomplete snapshots; never synthesize missing ranks. */}
   }
   if(!published)throw Error('No complete authorized season rank snapshot for '+day);
