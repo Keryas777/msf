@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import {publishedInfosAlliances} from "./lib/infos-r2-import.mjs";
 
 export const FIRST_INFOS_COMMIT = "f7079efc3b5b498415644b78ecd13148b2196190";
 export const BASELINE_DAY = "2026-10-31";
@@ -15,6 +16,19 @@ const STATE_FILE = ".github/infos-r2-import-state.json";
 export function validDay(day) {
   return DAY_RE.test(day) && !Number.isNaN(Date.parse(day + "T00:00:00Z")) &&
     new Date(day + "T00:00:00Z").toISOString().slice(0, 10) === day;
+}
+
+// The baseline is an immutable November 1 source, whose historical set of
+// alliances must never depend on which guests joined the registry later.
+export function originalArenaAllianceKeys(firstState){
+  const assignments=firstState?.alliances;
+  if(!assignments||typeof assignments!=="object"||Array.isArray(assignments))
+    throw Error("First Infos provenance does not match 2026-11-01-am");
+  const keys=Object.keys(assignments);
+  if(!keys.length||keys.some(key=>!/^[a-z0-9-]+$/.test(key)||
+       assignments[key]!==FIRST_SOURCE_DAY+"-am"))
+    throw Error("First Infos provenance does not match 2026-11-01-am");
+  return keys;
 }
 
 export function normalizeKey(value) {
@@ -102,7 +116,7 @@ async function main() {
   const state = await loadJson(STATE_FILE);
   const registry = await loadJson("docs/data/alliances.json");
   const aliases = (await loadJson("docs/data/player-aliases.json")).aliases || {};
-  const allianceKeys = registry.filter(a => a && a.active !== false).map(a => a.key);
+  const allianceKeys=publishedInfosAlliances(registry).map(a=>a.key);
   if (!allianceKeys.length) throw new Error("No active alliance");
   if (!state?.alliances || typeof state.alliances !== "object") {
     throw new Error("Missing Infos import provenance");
@@ -122,12 +136,10 @@ async function main() {
   if (day >= FIRST_SOURCE_DAY && day < "2026-11-29") {
     const firstRows = gitFile(FIRST_INFOS_COMMIT, INFO_FILE);
     const firstState = gitFile(FIRST_INFOS_COMMIT, STATE_FILE);
-    if (!allianceKeys.every(key => firstState.alliances?.[key] === "2026-11-01-am")) {
-      throw new Error("First Infos provenance does not match 2026-11-01-am");
-    }
+    const firstKeys=originalArenaAllianceKeys(firstState);
     await write(buildSnapshot(firstRows, {
       day: BASELINE_DAY, sourceDay: FIRST_SOURCE_DAY,
-      sourceCampaigns: Object.fromEntries(allianceKeys.map(key => [key, "2026-11-01-am"])),
+      sourceCampaigns: Object.fromEntries(firstKeys.map(key => [key, FIRST_SOURCE_DAY+"-am"])),
       sourceCommit: FIRST_INFOS_COMMIT, sourcePublishedAt: FIRST_SOURCE_PUBLISHED,
       recordedAt: null, attribution: "backdated-from-first-next-day-collection", aliases
     }));
