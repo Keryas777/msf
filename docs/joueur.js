@@ -868,43 +868,44 @@
     return playerKey(joueur?.playerKey || joueur?.player || joueur?.name || "");
   }
 
-  function getSelectedRoster() {
-    if (!state.selectedPlayerKey) return null;
+  // A nickname can be shared by several invited alliances.
+  // Never use a different tenant's Infos or roster for the selected player.
+  function sameAlliance(row, allianceK) {
+    return allianceKey(row?.alliance) === allianceK;
+  }
 
-    return (
-      state.rosters.find((r) => getRosterPlayerKey(r) === state.selectedPlayerKey) ||
-      null
-    );
+  function findRosterByPlayerKey(key, allianceK = state.selectedAllianceKey) {
+    if (!key || !allianceK) return null;
+    const tagged = state.rosters.find(r =>
+      getRosterPlayerKey(r) === key && sameAlliance(r, allianceK));
+    if (tagged) return tagged;
+    // Historical LoSP exports sometimes omitted alliance on roster rows.
+    // Only reuse an untagged row when exactly one directory entry proves its alliance.
+    const matching = state.joueurs.filter(j => getJoueurPlayerKey(j) === key);
+    if (matching.length !== 1 || !sameAlliance(matching[0], allianceK)) return null;
+    return state.rosters.find(r =>
+      !r.alliance && getRosterPlayerKey(r) === key) || null;
+  }
+
+  function findInfoByPlayerKey(key, allianceK = state.selectedAllianceKey) {
+    if (!key || !allianceK) return null;
+    return state.infos.find(i => getInfoPlayerKey(i) === key &&
+      sameAlliance(i, allianceK)) || null;
+  }
+
+  function getSelectedRoster() {
+    return findRosterByPlayerKey(state.selectedPlayerKey);
   }
 
   function getSelectedJoueur() {
     if (!state.selectedPlayerKey) return null;
-
-    return (
-      state.joueurs.find((j) => getJoueurPlayerKey(j) === state.selectedPlayerKey) ||
-      null
-    );
+    return state.joueurs.find(j =>
+      getJoueurPlayerKey(j) === state.selectedPlayerKey &&
+      sameAlliance(j, state.selectedAllianceKey)) || null;
   }
 
   function getSelectedInfo() {
-    if (!state.selectedPlayerKey) return null;
-
-    return (
-      state.infos.find((i) => getInfoPlayerKey(i) === state.selectedPlayerKey) ||
-      null
-    );
-  }
-
-  function findRosterByPlayerKey(key) {
-    if (!key) return null;
-
-    return state.rosters.find((r) => getRosterPlayerKey(r) === key) || null;
-  }
-
-  function findInfoByPlayerKey(key) {
-    if (!key) return null;
-
-    return state.infos.find((i) => getInfoPlayerKey(i) === key) || null;
+    return findInfoByPlayerKey(state.selectedPlayerKey);
   }
 
   function resolvePlayerKey(value) {
@@ -963,17 +964,17 @@
 
   function findAllianceForPlayerKey(key) {
     if (!key) return "";
-
-    const joueur = state.joueurs.find((j) => getJoueurPlayerKey(j) === key);
-    const roster = state.rosters.find((r) => getRosterPlayerKey(r) === key);
-    const info = state.infos.find((i) => getInfoPlayerKey(i) === key);
-
-    return (
-      allianceKey(joueur?.alliance) ||
-      allianceKey(roster?.alliance) ||
-      allianceKey(info?.alliance) ||
-      ""
-    );
+    const choices = new Set();
+    for (const row of state.joueurs)
+      if (getJoueurPlayerKey(row) === key && allianceKey(row.alliance))
+        choices.add(allianceKey(row.alliance));
+    for (const row of state.rosters)
+      if (getRosterPlayerKey(row) === key && allianceKey(row.alliance))
+        choices.add(allianceKey(row.alliance));
+    for (const row of state.infos)
+      if (getInfoPlayerKey(row) === key && allianceKey(row.alliance))
+        choices.add(allianceKey(row.alliance));
+    return choices.size === 1 ? [...choices][0] : "";
   }
 
   // ---------- Roster / ISO ----------
@@ -1438,8 +1439,8 @@
 
       if (!key) return;
 
-      const roster = findRosterByPlayerKey(key);
-      const info = findInfoByPlayerKey(key);
+      const roster = findRosterByPlayerKey(key, allianceK);
+      const info = findInfoByPlayerKey(key, allianceK);
 
       rows.set(key, {
         key,
@@ -1455,7 +1456,7 @@
 
       if (!key || rows.has(key)) return;
 
-      const info = findInfoByPlayerKey(key);
+      const info = findInfoByPlayerKey(key, allianceK);
 
       rows.set(key, {
         key,
