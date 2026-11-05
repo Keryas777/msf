@@ -10,6 +10,16 @@ const optionalInts=["stp","charactersCollected","daysInAlliance",
 const optionalKeys=new Set(["rank","rosterShare","level","profileStatus","aid",
   "qualifications",...optionalInts]);
 export const INFO_IMPORT_STATE_PATH=".github/infos-r2-import-state.json";
+// This legacy GitHub Infos importer owns the LoSP group only. A registered
+// guest (even a connected one) has no docs/data/infos_<key>.json legacy input.
+// Guests use their separately authorized private service collection instead.
+export function publishedInfosAlliances(registry){
+  if(!Array.isArray(registry))throw Error("Invalid Infos alliance registry");
+  const scoped=registry.filter(a=>a&&a.active!==false&&a.group==="losp");
+  if(!scoped.length||scoped.some(a=>typeof a.key!=="string"||!a.key))
+    throw Error("No valid published LoSP Infos alliances");
+  return scoped;
+}
 export function infoCampaign(day,period){
   if(!DAY.test(day)||new Date(day+"T00:00:00Z").toISOString().slice(0,10)!==day||
      !["am","pm"].includes(period))throw Error("Invalid infos campaign");
