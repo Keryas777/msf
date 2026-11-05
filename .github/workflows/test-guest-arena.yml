@@ -1,0 +1,25 @@
+name: Verify signed guest Arena display
+on:
+  pull_request:
+    paths:
+      - "docs/arena.js"
+      - "docs/arena.html"
+      - "tests/arena-page.test.mjs"
+      - ".github/workflows/test-guest-arena.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  arena:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check vanilla JS and Arena regressions
+        run: |
+          node --check docs/arena.js
+          node --test tests/arena-page.test.mjs
