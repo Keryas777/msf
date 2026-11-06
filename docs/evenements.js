@@ -9,6 +9,7 @@
   const EMOJI={milestone:'🏆',episodic:'⚔️',raid:'🛡️',blitz:'⚡',battlePass:'🎖️',strikePass:'🎫',pickYourPoison:'🔥',info:'✦',raidSeason:'🛡️',warSeason:'⚔️',donation:'🤝'};
   const LIMIT={current:8,past:8};
   const SECTIONS={current:'En cours',past:'Passés'};
+  const TABS=['objectives','current','past'];
   const state={events:[],metadata:{},sourceError:false,date:null,manualDate:false,search:'',type:'',includeSecondary:false,expanded:new Set(),lastButton:null};
   const fmtDate=new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'numeric',month:'short',year:'numeric'});
   const fmtNumber=new Intl.NumberFormat('fr-FR');
@@ -285,6 +286,16 @@
     }
   }
 
+  function activateTab(key,focus=false){
+    for(const name of TABS){
+      const tab=$('tab-'+name),active=name===key;
+      tab.setAttribute('aria-selected',String(active));
+      tab.tabIndex=active?0:-1;
+      $('section-'+name).hidden=!active;
+    }
+    if(focus)$('tab-'+key).focus();
+  }
+
   function render(){
     if(state.sourceError){
       for(const key of ['current','past']){
@@ -407,6 +418,22 @@
     const initial=new URLSearchParams(location.search).get('date');
     if(initial&&/^\d{4}-\d{2}-\d{2}$/.test(initial)&&!Number.isNaN(new Date(initial+'T12:00:00').getTime())){state.manualDate=true;state.date=initial;}else{state.date=localToday();}
     $('date-filter').value=state.date;
+    for(const [index,key] of TABS.entries()){
+      const tab=$('tab-'+key);
+      tab.addEventListener('click',()=>activateTab(key));
+      tab.addEventListener('keydown',event=>{
+        let next;
+        if(event.key==='ArrowRight')next=(index+1)%TABS.length;
+        else if(event.key==='ArrowLeft')next=(index+TABS.length-1)%TABS.length;
+        else if(event.key==='Home')next=0;
+        else if(event.key==='End')next=TABS.length-1;
+        else return;
+        event.preventDefault();
+        activateTab(TABS[next],true);
+      });
+    }
+    const linkedTab=(location.hash||'').replace(/^#section-/,'');
+    activateTab(TABS.includes(linkedTab)?linkedTab:'current');
     $('date-filter').addEventListener('change',e=>{state.date=e.target.value||localToday();state.manualDate=true;state.expanded.clear();render();});
     $('reset-date').addEventListener('click',()=>{state.date=localToday();state.manualDate=false;$('date-filter').value=state.date;state.expanded.clear();render();});
     $('search-filter').addEventListener('input',e=>{state.search=e.target.value;state.expanded.clear();render();});
