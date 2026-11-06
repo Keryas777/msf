@@ -7,17 +7,18 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import { loadAllianceRegistry } from "./lib/alliances-node.mjs";
-
 const DATA_DIR = process.env.DATA_DIR || "docs/data";
 const OUT_FILE = process.env.OUT_FILE || path.join(DATA_DIR, "rosters.json");
 const DRY_RUN = process.env.DRY_RUN === "1";
 
-const registry = loadAllianceRegistry();
-const SOURCES = registry.knownKeys.map((key) => ({
-  key,
-  file: path.join(DATA_DIR, `rosters_${key}.json`),
-}));
+// Use exact canonical file keys (including ENDGAME hyphens). The general
+// alliance lookup normalizer intentionally strips separators for aliases,
+// but a roster file path must not lose its registered source key.
+const registry = JSON.parse(await fs.readFile(
+  new URL("../docs/data/alliances.json", import.meta.url), "utf8"));
+const SOURCES = registry.filter(a=>a&&a.active!==false&&
+  typeof a.key==="string"&&/^[a-z][a-z0-9-]{1,63}$/.test(a.key))
+  .map(({key})=>({key,file:path.join(DATA_DIR,`rosters_${key}.json`)}));
 
 function normalizeKey(s) {
   return (s ?? "")
