@@ -7,9 +7,7 @@
     alliances: "./data/alliances.json",
     warCounters: "./data/war-counters.json",
     warSeasonRules: "./data/war-season-rules.json",
-    joueurs: "./data/joueurs.json",
     characters: "./data/msf-characters.json",
-    rosters: "./data/rosters.json",
   };
 
   const AUTH_PLAYER_STORAGE_KEY = "losp:lastAttackCheckerPlayerByAlliance";
@@ -759,7 +757,9 @@
       const player = (r.player ?? "").toString().trim();
       if (!player) return;
 
-      const playerKey = normalizeKey(player);
+      const key = allianceKey(r.alliance);
+      const playerKey = key && isAllianceAllowed(key)
+        ? key + ":" + normalizeKey(player) : "";
       if (!playerKey) return;
 
       const map = {};
@@ -776,7 +776,7 @@
   }
 
   function getPlayerRawPower(player, chars) {
-    const playerKey = normalizeKey(player);
+    const playerKey = allianceKey(allianceSelect?.value) + ":" + normalizeKey(player);
     const roster = ROSTERS.get(playerKey);
 
     if (!roster) return 0;
@@ -1290,20 +1290,20 @@
   async function boot() {
     await loadAllianceMetadata();
 
-    const [war, warSeasonRules, joueurs, chars, rosters] = await Promise.all([
+    const [war, warSeasonRules, sources, chars] = await Promise.all([
       fetchJson(FILES.warCounters),
       fetchJson(FILES.warSeasonRules),
-      fetchJson(FILES.joueurs),
+      window.LoSPAllianceData.load({ joueurs: true, rosters: true }),
       fetchJson(FILES.characters),
-      fetchJson(FILES.rosters),
     ]);
 
     WAR = Array.isArray(war) ? war.map(normalizeWarRow) : [];
     WAR_SEASON_RULES = normalizeSeasonRules(warSeasonRules);
-    JOUEURS = Array.isArray(joueurs) ? joueurs : [];
+    JOUEURS = Array.isArray(sources.joueurs) ? sources.joueurs : [];
 
+    window.LoSPAllianceData.showWarnings(sources.warnings);
     buildCharMap(chars);
-    buildRosterMap(rosters);
+    buildRosterMap(sources.rosters);
     buildPlayersByAlliance();
 
     renderAllianceOptions();
