@@ -1,0 +1,56 @@
+name: Publish shared player directory from private R2
+
+on:
+  schedule:
+    - cron: "55 5,17 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validate minimal guest directory publisher
+        run: |
+          node --check scripts/lib/guest-player-directory.mjs
+          node --check scripts/pull-guest-joueurs-r2.mjs
+          node --test tests/guest-player-directory.test.mjs tests/merge-alliance-data.test.mjs
+      - name: Read verified guest Info receipts from R2
+        env:
+          LOSP_R2_ACCOUNT_ID: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
+          LOSP_R2_ACCESS_KEY_ID: ${{ secrets.LOSP_R2_ACCESS_KEY_ID }}
+          LOSP_R2_SECRET_ACCESS_KEY: ${{ secrets.LOSP_R2_SECRET_ACCESS_KEY }}
+          LOSP_R2_BUCKET: ${{ secrets.LOSP_R2_BUCKET }}
+        run: node scripts/pull-guest-joueurs-r2.mjs --write
+      - name: Verify write scope
+        run: |
+          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' |
+            grep -Ev '^(docs/data/joueurs[.]json|[.]github/guest-joueurs-publication-state[.]json)$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected changes: $unexpected"
+            exit 1
+          fi
+      - name: Commit only updated public directory and state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.noreply.github.com"
+          git add docs/data/joueurs.json .github/guest-joueurs-publication-state.json
+          if git diff --cached --quiet; then
+            echo "No directory update"
+            exit 0
+          fi
+          git commit -m "data: refresh unified player directory"
+          git push origin HEAD:main
