@@ -21,14 +21,19 @@
   }
   function validate(rows, meta) {
     if (!Array.isArray(rows)) throw new Error("Roster JSON invalide.");
-    for (const row of rows) {
+    return rows.map(row => {
       if (!row || typeof row.player !== "string" || !row.player.trim() ||
           !row.chars || typeof row.chars !== "object" ||
-          Array.isArray(row.chars) ||
-          window.LoSPAlliances?.getAllianceKey?.(row.alliance) !== meta.key)
+          Array.isArray(row.chars))
         throw new Error("Roster incohérent pour " + meta.slug);
-    }
-    return rows;
+      // Old LoSP individual exports sometimes omitted this field. Their
+      // per-alliance file path proves the provenance; guests must be tagged.
+      const alliance = row.alliance ||
+        (meta.group === "losp" ? meta.slug : "");
+      if (window.LoSPAlliances?.getAllianceKey?.(alliance) !== meta.key)
+        throw new Error("Roster incohérent pour " + meta.slug);
+      return row.alliance ? row : {...row,alliance};
+    });
   }
   async function guestFallback(meta) {
     let token = "";
