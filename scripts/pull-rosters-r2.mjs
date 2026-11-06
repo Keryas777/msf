@@ -80,7 +80,14 @@ async function main(){
   const existing=new Map();
   for(const alliance of registry){
     const path='docs/data/rosters_'+alliance.key+'.json';
-    const rows=await json(path);
+    let rows;
+    try{rows=await json(path);}
+    catch(error){
+      // The first guest publication creates its per-alliance file.
+      // Missing LoSP roster files remain a hard error.
+      if(!guestAlliance||error.code!=='ENOENT')throw error;
+      rows=[];
+    }
     if(!Array.isArray(rows))throw Error('Invalid prior roster for '+alliance.key);
     existing.set(alliance.key,rows);
   }
@@ -114,7 +121,7 @@ async function main(){
   // older five; do not mistake a green check for a full synchronization.
   if(process.env.GITHUB_STEP_SUMMARY){
     const lines=[
-      '## Import LoSP R2 — '+day+' / '+period.toUpperCase(),
+      '## Import '+(guestAlliance||'LoSP')+' R2 — '+day+' / '+period.toUpperCase(),
       '',
       '**Campagne '+window.campaign+' : '+updates.size+' nouveau(x), '+
         already.length+' déjà à jour / plus récent(s), '+skipped.length+
