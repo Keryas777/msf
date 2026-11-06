@@ -8,6 +8,11 @@ on:
       - "tests/arena-snapshot.test.mjs"
       - "scripts/lib/infos-r2-import.mjs"
       - "scripts/merge-infos.mjs"
+      - "scripts/lib/guest-player-directory.mjs"
+      - "scripts/pull-guest-joueurs-r2.mjs"
+      - "scripts/fetch-joueurs.mjs"
+      - "tests/guest-player-directory.test.mjs"
+      - ".github/workflows/publish-guest-joueurs.yml"
       - "tests/infos-r2-import.test.mjs"
       - "tests/merge-alliance-data.test.mjs"
       - ".github/workflows/pull-infos-r2.yml"
@@ -30,4 +35,7 @@ jobs:
           node --check scripts/snapshot-arena.mjs
           node --check scripts/lib/infos-r2-import.mjs
           node --check scripts/merge-infos.mjs
-          node --test tests/infos-r2-import.test.mjs tests/merge-alliance-data.test.mjs tests/arena-snapshot.test.mjs
+          node --check scripts/lib/guest-player-directory.mjs
+          node --check scripts/pull-guest-joueurs-r2.mjs
+          node --check scripts/fetch-joueurs.mjs
+          node --test tests/infos-r2-import.test.mjs tests/merge-alliance-data.test.mjs tests/guest-player-directory.test.mjs tests/arena-snapshot.test.mjs
