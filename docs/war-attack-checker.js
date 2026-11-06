@@ -1360,7 +1360,6 @@
 
     buildCharMap(chars);
     refreshLoSPSession();
-    linkedProfiles = await loadLinkedProfiles();
     buildPlayersByAlliance();
 
     renderAllianceOptions();
@@ -1379,6 +1378,13 @@
     if (!tryApplyAuthDefaults()) {
       renderAll();
     }
+    // A private identity lookup must not delay rendering the manual selector.
+    void loadLinkedProfiles().then(links => {
+      if (!links.length) return;
+      linkedProfiles = links;
+      authDefaultsApplied = false;
+      tryApplyAuthDefaults({ force: true });
+    }).catch(() => {});
   }
 
   boot().catch((e) => console.error("[war-attack-checker] boot error:", e));
