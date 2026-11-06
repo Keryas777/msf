@@ -35,6 +35,8 @@
   let authDefaultsApplied = false;
   let bootReady = false;
   let linkedProfiles = [];
+  let userChangedSelection = false;
+  let selectingAutomatically = false;
   async function loadLinkedProfiles() {
     return window.LoSPIdentityLinks?.load ?
       await window.LoSPIdentityLinks.load() : [];
@@ -603,7 +605,9 @@
     playerSelect.value = option.value;
 
     if (shouldDispatch) {
-      playerSelect.dispatchEvent(new Event("change", { bubbles: true }));
+      selectingAutomatically = true;
+      try { playerSelect.dispatchEvent(new Event("change", { bubbles: true })); }
+      finally { selectingAutomatically = false; }
     }
 
     return true;
@@ -1316,6 +1320,7 @@
 
   // ---------- EVENTS ----------
   allianceSelect?.addEventListener("change", () => {
+    userChangedSelection = true;
     renderPlayerOptions();
 
     const didSelectPlayer = selectBestPlayerForCurrentAlliance();
@@ -1325,6 +1330,7 @@
   });
 
   playerSelect?.addEventListener("change", () => {
+    if (!selectingAutomatically) userChangedSelection = true;
     const alliance = (allianceSelect?.value ?? "").trim();
     const player = (playerSelect?.value ?? "").trim();
 
@@ -1380,7 +1386,7 @@
     }
     // A private identity lookup must not delay rendering the manual selector.
     void loadLinkedProfiles().then(links => {
-      if (!links.length) return;
+      if (!links.length || userChangedSelection) return;
       linkedProfiles = links;
       authDefaultsApplied = false;
       tryApplyAuthDefaults({ force: true });
