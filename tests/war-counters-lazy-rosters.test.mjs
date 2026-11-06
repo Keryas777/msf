@@ -191,7 +191,7 @@ test("public guest directory keeps non-sharing MARINES members selectable",()=>{
     rosterIdentity:(a,p)=>normalized(a)+":"+normalized(p),
     allianceKey:normalized,isAllianceAllowed:key=>key==="marines",
     getAllianceMeta:key=>registry[normalized(key)]||null};
-  runInNewContext(source.slice(first,last)+"\\n(buildPlayersByAlliance)",env)();
+  runInNewContext(source.slice(first,last)+"\n(buildPlayersByAlliance)",env)();
   assert.deepEqual(Array.from(env.PLAYERS_BY_ALLIANCE.get("marines"),p=>p.player),
     ["No roster"]);
   assert.equal(env.PLAYERS_BY_ALLIANCE.has("zeus"),false);
