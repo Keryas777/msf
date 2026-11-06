@@ -91,7 +91,7 @@ test("awakened materials resolve only a matching character/type and safe officia
 
 test("Evolution loads visuals before renderer and keeps snapshot comparison labels intact", () => {
   const html = read("docs/evolution.html");
-  assert.ok(html.indexOf("evolution-visuals.js?v=1") < html.indexOf("evolution.js?v=12"));
+  assert.ok(html.indexOf("evolution-visuals.js?v=1") < html.indexOf("evolution.js?v="));
   const source = read("docs/evolution.js");
   assert.match(source, /renderIsoValue\(newValue, card\.isoAfter, change\.newValue\)/);
   assert.match(source, /renderAbilityMaterial\(newValue, change, card, awakenedSlots\)/);
