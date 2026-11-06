@@ -65,10 +65,23 @@ async function main() {
     players.push({ player, alliance });
   }
 
+  // Workflow manuel historique : conserver les entrées invitées déjà
+  // publiées par le pipeline R2, même si le Sheet ne les contient pas.
+  const registry = JSON.parse(await fs.readFile("docs/data/alliances.json", "utf8"));
+  const guests = new Set(registry.filter(a => a?.active !== false &&
+    a?.group && a.group !== "losp").map(a => a.key));
+  let existing = [];
+  try {
+    existing = JSON.parse(await fs.readFile("docs/data/joueurs.json", "utf8"));
+  } catch (e) {
+    if (e?.code !== "ENOENT") throw e;
+  }
+  if (!Array.isArray(existing)) throw Error("Invalid existing joueurs.json");
+  const output = [...players, ...existing.filter(p => guests.has(p?.alliance))];
   await fs.mkdir("docs/data", { recursive: true });
-  await fs.writeFile("docs/data/joueurs.json", JSON.stringify(players, null, 2), "utf8");
+  await fs.writeFile("docs/data/joueurs.json", JSON.stringify(output, null, 2), "utf8");
 
-  console.log(`OK: wrote ${players.length} players -> docs/data/joueurs.json`);
+  console.log(`OK: wrote ${output.length} players -> docs/data/joueurs.json`);
   console.log("Sample:", players.slice(0, 5));
 }
 
