@@ -76,11 +76,12 @@
   const LOSP_ONLY_PAGES = new Set([
     "war-history.html", "war-rankings.html", "war-graphs.html",
     "cosmic.html", "cosmic-counters.html", "cosmic-defenses.html",
-    "cosmic-defense-propose.html", "battleworld.html"
+    "cosmic-defense-propose.html", "battleworld.html",
+    "recommandations.html", "conseils.html", "iso.html"
   ]);
   const LOSP_ONLY_TILES = new Set([
     "war-history.html", "war-rankings.html", "war-graphs.html",
-    "cosmic.html", "battleworld.html"
+    "cosmic.html", "battleworld.html", "recommandations.html"
   ]);
 
   function normalizeAlliance(value) {
