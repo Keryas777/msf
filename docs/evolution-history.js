@@ -131,7 +131,7 @@
     for(const item of results)if(item)guestIndex.set(...item);
     return {historyIndex:mergeIndices(publicData,guestIndex),
       warnings,guestAlliances:wanted,
-      retentionDays:29};
+      historyPolicy:"checkpoint-archive"};
   }
   async function infos(){
     if(window.LoSP_AUTH_READY)await window.LoSP_AUTH_READY;
