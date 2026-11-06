@@ -8,9 +8,11 @@ on:
       - 'scripts/pull-rosters-r2.mjs'
       - 'scripts/lib/roster-r2-schedule.mjs'
       - 'scripts/lib/roster-r2-import.mjs'
+      - 'scripts/lib/roster-r2-alliance-scope.mjs'
       - 'scripts/lib/roster-r2-publish-state.mjs'
       - 'tests/roster-r2-schedule.test.mjs'
       - 'tests/roster-r2-import.test.mjs'
+      - 'tests/roster-r2-alliance-scope.test.mjs'
       - 'tests/roster-r2-publish-state.test.mjs'
 
 permissions:
@@ -28,5 +30,6 @@ jobs:
         run: |
           node --check scripts/pull-rosters-r2.mjs
           node --check scripts/lib/roster-r2-schedule.mjs
+          node --check scripts/lib/roster-r2-alliance-scope.mjs
           node --check scripts/lib/roster-r2-publish-state.mjs
-          node --test tests/roster-r2-schedule.test.mjs tests/roster-r2-import.test.mjs tests/roster-r2-publish-state.test.mjs
+          node --test tests/roster-r2-schedule.test.mjs tests/roster-r2-import.test.mjs tests/roster-r2-alliance-scope.test.mjs tests/roster-r2-publish-state.test.mjs

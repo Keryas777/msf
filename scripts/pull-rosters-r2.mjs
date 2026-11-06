@@ -8,6 +8,7 @@ import {ROSTER_IMPORT_STATE_PATH,parseRosterImportState,
   from './lib/roster-r2-publish-state.mjs';
 import {createPrivateR2Reader} from './lib/private-r2-read.mjs';
 import {readMapping} from './lib/alliance-r2-history.mjs';
+import {selectLoSPRosterAlliances} from './lib/roster-r2-alliance-scope.mjs';
 import {rosterWindow,loadRosterCampaign,convertAllianceRosters,keyOf}
   from './lib/roster-r2-import.mjs';
 
@@ -53,8 +54,11 @@ async function main(){
   if(end>Date.now()&&!early&&!requireComplete)
     throw Error('Current roster campaign window has not finished');
   if(end<Date.now()-6*86400000)throw Error('Campaign window exceeds R2 retention');
-  const registry=(await json('docs/data/alliances.json'))
-    .filter(a=>a&&a.active!==false);
+  // Guest rosters have a separate private, signed-data path.
+  // Never require their (intentionally absent) public JSON or fingerprints
+  // when importing the existing six LoSP rosters from R2.
+  const registry=selectLoSPRosterAlliances(
+    await json('docs/data/alliances.json'));
   const secret=process.env.LOSP_R2_ALLIANCE_MAP_JSON;
   if(!secret)throw Error('Missing private alliance mapping');
   const fp=readMapping(secret,registry);

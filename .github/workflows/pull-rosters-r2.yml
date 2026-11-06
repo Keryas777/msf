@@ -83,9 +83,10 @@ jobs:
           DATA_DIR: docs/data
           OUT_FILE: docs/data/rosters.json
         run: |
-          node --test tests/roster-r2-import.test.mjs tests/merge-rosters-optional-iso.test.mjs tests/roster-r2-schedule.test.mjs tests/roster-r2-publish-state.test.mjs
+          node --test tests/roster-r2-import.test.mjs tests/roster-r2-alliance-scope.test.mjs tests/merge-rosters-optional-iso.test.mjs tests/roster-r2-schedule.test.mjs tests/roster-r2-publish-state.test.mjs
           node --check scripts/pull-rosters-r2.mjs
           node --check scripts/lib/roster-r2-import.mjs
+          node --check scripts/lib/roster-r2-alliance-scope.mjs
           node --check scripts/lib/roster-r2-publish-state.mjs
           node --check scripts/lib/private-r2-read.mjs
           if [ "${{ inputs.publish }}" = "true" ]; then
