@@ -58,32 +58,31 @@ permissions : parité de données collectées ne signifie pas accorder aux
 invités l'accès aux rapports internes des autres alliances.
 
 
-## Évolution : conservation et visibilité des checkpoints
+## Évolution : checkpoints cumulés pour les invités
 
-L'interface Évolution (détail + classement) est **la même** pour LoSP et les
-invités. Les invités commencent leur chronologie au premier dimanche de
-collecte effectivement réussie (au plus tôt le 8 novembre 2026). Deux
-checkpoints véritables sont nécessaires pour calculer une progression.
+Les pages Évolution individuelles et collectives utilisent les mêmes périodes
+et les mêmes calculs pour les alliances invitées et pour LoSP. Chaque alliance
+invitée commence son histoire à son **premier checkpoint réel** (au plus tôt
+le dimanche 8 novembre 2026). Deux checkpoints sont nécessaires pour une
+comparaison ; aucun relevé antérieur n'est inventé.
 
-**Exigence produit :** une fois un checkpoint valide enregistré pour la
-WebApp, il ne doit pas disparaître *simplement parce qu'un nouvel état a été
-collecté ou qu'une fenêtre glissante s'est écoulée*. Les périodes 1, 3, 6 et
-12 mois et les dates personnalisées deviennent progressivement disponibles
-selon les relevés réellement conservés, sans reconstituer le passé.
+Le collecteur Roster Service alimente un tampon R2 temporaire.
+L'**historique de la WebApp est indépendant de ce tampon** : il possède
+un index cumulatif et un fichier de checkpoint par dimanche sous
+`webapp-evolution/v1/`, distinct du préfixe temporaire
+`roster-batches/v1/`. L'archivage cumulatif est activé par
+`GUEST_EVOLUTION_LONG_TERM_AUTHORIZED=true` dans `wrangler.jsonc`.
+Il n'y a **pas de fenêtre glissante de 29 ou 30 jours dans Évolution**.
 
-La WebApp GitHub Pages est statique : elle ne peut pas stocker elle-même des
-données privées. La solution technique préparée garde une archive
-**WebApp privée** sous un préfixe R2 distinct des reçus éphémères du
-Roster Service, avec un index et **un fichier immutable par dimanche**.
-Les pages existantes continuent à lire la même API signée et vérifient les
-droits Discord. Aucun fichier invité n'est publié dans `docs/data/`.
+Un checkpoint enregistré est immuable : si un enregistrement est interrompu
+après l'écriture du fichier mais avant celle de l'index, l'exécution suivante
+vérifie et récupère l'archive existante au lieu de la réécrire. Les objets
+corrompus ou incohérents sont signalés, jamais silencieusement remplacés.
 
-**Réserve contractuelle impérative avant activation :** les API Terms of Use
-Scopely fournis dans le projet (3 mars 2022) indiquent une durée maximale
-de 30 jours pour les données obtenues via les API, indépendamment de la
-destination de stockage. Une conservation indéfinie de relevés individuels
-requiert donc une autorisation/clarification écrite de Scopely. Le code
-d'archivage durable est préparé derrière un drapeau explicitement désactivé
-tant que cette question et le traitement de suppression sur demande ne
-sont pas validés. Les exceptions d'effacement et de retrait de consentement
-priment toujours sur le souhait de conserver l'historique.
+Les données des invités ne sont pas publiées dans les JSON publics de GitHub
+Pages. L'accès nécessite la session Discord signée et l'approbation
+administrative de l'alliance. **Le joueur absent du dernier recensement
+d'alliance n'apparaît plus** dans les listes, classements ou comparaisons de
+la WebApp ; ses anciens checkpoints restent enregistrés, et aucune suppression
+automatique n'est déclenchée par son départ. La révocation et la suppression
+des données sur demande restent du ressort du Roster Service.
