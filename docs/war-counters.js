@@ -578,6 +578,8 @@
     }
 
     renderAll();
+    // The selected alliance is known only after the Discord defaults settle.
+    void loadSelectedAllianceRoster();
 
     return true;
   }
@@ -1510,9 +1512,8 @@
 
     const didSelectPlayer = selectBestPlayerForCurrentAlliance();
 
-    if (!didSelectPlayer) {
-      renderAll();
-    }
+    if (!didSelectPlayer) renderAll();
+    void loadSelectedAllianceRoster();
   });
 
   playerSelect?.addEventListener("change", () => {
@@ -1556,12 +1557,11 @@
   });
 
   async function boot() {
-    const [war, warSeasonRules, joueurs, chars, rosters, cosmicConfig] = await Promise.all([
+    const [war, warSeasonRules, joueurs, chars, cosmicConfig] = await Promise.all([
       fetchJson(FILES.warCounters),
       IS_COSMIC ? Promise.resolve(null) : fetchJson(FILES.warSeasonRules),
       fetchJson(FILES.joueurs),
       fetchJson(FILES.characters),
-      fetchJson(FILES.rosters),
       IS_COSMIC ? fetchJson(FILES.cosmicConfig) : Promise.resolve(null),
     ]);
 
@@ -1578,9 +1578,9 @@
     JOUEURS = Array.isArray(joueurs) ? joueurs : [];
 
     buildCharMap(chars);
-    buildRosterMap(rosters);
     buildPlayersByAlliance();
 
+    refreshLoSPSession();
     renderAllianceOptions();
     renderPlayerOptions();
     renderRoomOptions(cosmicConfig);
