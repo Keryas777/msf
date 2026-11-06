@@ -117,16 +117,18 @@
   }
 
   function resolveAllianceKey(value) {
+    const raw = String(value || "").trim().toLowerCase();
+    const exact = activeAlliances().find(a => String(a?.key || "") === raw);
+    if (exact) return exact.key;
     const wanted = normalizeKey(value);
     if (!wanted) return "";
-
-    for (const alliance of activeAlliances()) {
-      const candidates = [alliance?.key, alliance?.name, ...(Array.isArray(alliance?.aliases) ? alliance.aliases : [])];
-      if (candidates.some((candidate) => normalizeKey(candidate) === wanted)) {
-        return String(alliance.key || "");
-      }
-    }
-    return "";
+    const matches = activeAlliances().filter(alliance => {
+      const candidates = [alliance?.key, alliance?.name,
+        ...(Array.isArray(alliance?.aliases) ? alliance.aliases : [])];
+      return candidates.some(candidate => normalizeKey(candidate) === wanted);
+    });
+    // A normalized alias is never enough when multiple guest keys collide.
+    return matches.length === 1 ? String(matches[0].key) : "";
   }
 
   function allianceLabel(key) {
@@ -138,7 +140,12 @@
   function playersForAlliance(allianceKey) {
     const isGuestAlliance = typeof window !== "undefined" &&
       window.LoSPEvolutionHistory?.isGuestAlliance?.(allianceKey) === true;
-    const wanted = normalizeKey(allianceKey);
+    const canonical = value => {
+      const helper = typeof window !== "undefined" &&
+        window.LoSPAlliances?.getAllianceKey;
+      return String((helper ? helper(value) : value) || "").trim().toLowerCase();
+    };
+    const wanted = canonical(allianceKey);
     const history = state.historyIndex?.players || {};
     // Live rosters contain only members who shared data during the latest
     // capture. Historical players must remain selectable without reusing or
@@ -147,7 +154,7 @@
     const players = new Map();
 
     for (const [key, entry] of Object.entries(history)) {
-      if (currentKeys.has(key) || normalizeKey(entry?.currentAlliance) !== wanted ||
+      if (currentKeys.has(key) || canonical(entry?.currentAlliance) !== wanted ||
           !Array.isArray(entry?.checkpoints) || !entry.checkpoints.length) continue;
       const label = isGuestAlliance
         ? String(entry.name || key) : canonicalPlayerName(entry.name || key);
@@ -155,7 +162,7 @@
     }
 
     for (const roster of state.rosters) {
-      if (normalizeKey(roster?.alliance) !== wanted) continue;
+      if (canonical(roster?.alliance) !== wanted) continue;
       const key = getRosterPlayerKey(roster);
       if (!key || !Array.isArray(history[key]?.checkpoints) ||
           !history[key].checkpoints.length) continue;
