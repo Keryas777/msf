@@ -10,8 +10,8 @@ un nouveau `if (alliance === ...)` dans une page.
 | Famille | LoSP | Alliances invitées | Consommateurs |
 | --- | --- | --- | --- |
 | Fiches Infos complètes | `docs/data/infos.json` | `/api/secure/guest-infos` (R2, session Discord signée) | TCP, MVP, fiche joueur |
-| Répertoire des membres | `docs/data/joueurs.json` (LoSP actuellement) | Dérivé des Infos ; fallback des rosters autorisés (accès privé actuellement) | Fiche joueur, ISO, classement des équipes |
-| Rosters/ISO | `docs/data/rosters.json` | `/api/secure/guest-rosters?alliance=<key>` (R2, session signée) | Fiche joueur, ISO, classement des équipes |
+| Répertoire des membres | `docs/data/joueurs.json` (LoSP actuellement) | Infos autorisées et noms présents dans les rosters publiés de l'alliance | Fiche joueur, ISO, classement des équipes |
+| Rosters/ISO | `docs/data/rosters_<alliance>.json` | `docs/data/rosters_<alliance>.json` après publication GitHub ; R2 privé signé en repli temporaire avant le premier import | Fiche joueur, ISO, classements, contres |
 | Arène quotidienne | `/api/public/arena-history` | `/api/secure/guest-arena-history` | Classement Arène |
 | Rangs de saison Guerre/Raid | données de saison publiées | `/api/public/guest-season-ranks` | Historique d'alliances |
 | Trophées | historique public | historique public avec liaison explicite | Historique d'alliances |
@@ -32,13 +32,16 @@ L'ajout d'une alliance ne doit nécessiter aucun branchement codé en dur.
 Un échec de collecte ne doit pas effacer silencieusement les joueurs
 précédemment publiés.
 
-**Cette cible est approuvée mais n'est pas encore déployée** : les sources
-décrites dans le tableau ci-dessus restent celles du code actuel. Les
-fiches Infos détaillées, les rosters, les puissances, les données ISO et
-les historiques privés des invités ne sont pas publiés dans ce fichier.
-Leur accès reste soumis aux autorisations et aux consentements existants,
-notamment `rosterShare`. L'affichage filtré dans la WebApp ne rend pas
-privés les pseudos déjà présents dans ce JSON public.
+**L'annuaire commun n'est pas encore déployé** : `joueurs.json` reste
+l'annuaire LoSP. Les rosters de chaque alliance, invitée comprise, sont
+désormais compilés dans leurs fichiers individuels GitHub (après la première
+publication complète), puis fusionnés dans `rosters.json` pour les outils
+de traitement. Les lecteurs navigateur chargent les fichiers individuels.
+Les fichiers GitHub Pages sont **publics par URL**, même si les menus
+de la WebApp utilisent les droits Discord pour déterminer quoi charger.
+Le consentement `rosterShare` doit être appliqué avant la publication.
+Les fiches Infos détaillées et les archives privées R2 ne sont pas intégrées
+à `joueurs.json`.
 
 ## Même structure Infos
 
@@ -56,16 +59,18 @@ répertoire et les Infos, mais leurs **rosters ne sont pas divulgués**.
 
 ## Accès et fraîcheur
 
-- La session et les rôles Discord sont revérifiés **côté Worker** ;
-  les cases à cocher et l'aperçu administrateur ne donnent aucun droit.
+- La session et les rôles Discord sont revérifiés **côté Worker** pour les
+  données privées R2 ; les cases à cocher et l'aperçu administrateur ne
+  donnent aucun droit supplémentaire sur ces API.
 - Seules les **données privées** des alliances invitées encore approuvées
   et liées à une clé WebApp peuvent être lues via le Worker. Les homonymes
   sont indexés par **`alliance + joueur`**.
-- Seuls les pseudos et les clés d'alliance du répertoire commun peuvent
-  être fusionnés dans le JSON public `docs/data/joueurs.json`. Les
-  fiches Infos détaillées, rosters et autres données privées des invités
-  ne sont ni publiés dans les JSON publics ni stockés dans le
-  `localStorage` du navigateur.
+- Les rosters ayant reçu le consentement de partage sont publiés dans les
+  fichiers individuels et le fichier consolidé GitHub Pages : leur accès
+  direct par URL n'est pas protégé par Discord. Le lecteur navigateur
+  applique le filtre de session avant le téléchargement, et garde les
+  fichiers uniquement en mémoire de la page (pas en `localStorage`).
+  Les autres données privées invitées restent dans le service sécurisé.
 - Les collectes utilisent les permissions `rosterShare` et les fenêtres de
   rétention R2 existantes ; pas de nouvelle requête Scopely pour l'affichage.
 - Quand aucune collecte complète valide n'existe, l'interface signale
@@ -106,10 +111,10 @@ après l'écriture du fichier mais avant celle de l'index, l'exécution suivante
 vérifie et récupère l'archive existante au lieu de la réécrire. Les objets
 corrompus ou incohérents sont signalés, jamais silencieusement remplacés.
 
-Les données des invités ne sont pas publiées dans les JSON publics de GitHub
-Pages : seule l'exception d'annuaire minimal déjà décrite plus haut subsiste.
-L'accès nécessite une session Discord signée et l'approbation administrative
-de l'alliance. **Un joueur absent du dernier recensement d'alliance n'apparaît
+Les **checkpoints d'Évolution invités**, distincts des rosters courants
+publiés, ne sont pas publiés dans les JSON publics de GitHub Pages.
+Leur lecture nécessite une session Discord signée et l'approbation
+administrative de l'alliance. **Un joueur absent du dernier recensement d'alliance n'apparaît
 plus** dans les listes, classements ou comparaisons de la WebApp ; ses anciens
 checkpoints restent enregistrés, sans suppression automatique liée au départ.
 La révocation et la suppression des données sur demande restent du ressort
