@@ -853,12 +853,9 @@
       if (!PLAYERS_BY_ALLIANCE.has(aKey)) PLAYERS_BY_ALLIANCE.set(aKey, []);
       PLAYERS_BY_ALLIANCE.get(aKey).push({ alliance: aKey, player: p });
     };
-    // Keep the historical LoSP directory for members lacking a shared roster.
-    for (const row of JOUEURS) {
-      if (getAllianceMeta(row?.alliance)?.group === "losp")
-        add(row.alliance, row.player);
-    }
-    // Guest players are discovered directly from the roster; no manual list.
+    // Le répertoire public contient aussi les invités sans roster partagé.
+    for (const row of JOUEURS) add(row.alliance, row.player);
+    // Repli sur les rosters accessibles avant la première publication.
     for (const [key, rows] of ROSTER_ROWS)
       for (const row of rows) add(key, row.player);
   }
@@ -953,11 +950,9 @@
           getAllianceLabel(key) + ". Change d'alliance puis réessaie.";
         resultsWrap.appendChild(warning);
       }
-      if (playerSelect) {
-        playerSelect.disabled = true;
-        const option = playerSelect.options?.[0];
-        if (option) option.textContent = "Roster indisponible";
-      }
+      // Un roster absent ne doit pas faire disparaître le pseudo du joueur.
+      // Le sélecteur reste consultable même sans puissance calculable.
+      renderPlayerOptions({ ignoreRosterLoading: true });
     }
   }
 
@@ -1006,7 +1001,7 @@
     }
   }
 
-  function renderPlayerOptions() {
+  function renderPlayerOptions(options = {}) {
     if (!playerSelect) return;
 
     const a = (allianceSelect?.value ?? "").trim();
@@ -1022,7 +1017,7 @@
     }
 
     const aKey = allianceKey(a);
-    const loading = !ROSTER_ROWS.has(aKey);
+    const loading = !ROSTER_ROWS.has(aKey) && !options.ignoreRosterLoading;
     playerSelect.disabled = loading;
 
     const opt0 = document.createElement("option");
@@ -1030,7 +1025,6 @@
     opt0.textContent = loading ? "Chargement du roster…" : "— Choisir un joueur —";
     playerSelect.appendChild(opt0);
 
-    if (loading) return;
     const players = (PLAYERS_BY_ALLIANCE.get(allianceKey(a)) || [])
       .slice()
       .sort((x, y) => x.player.localeCompare(y.player, "fr"));
@@ -1406,6 +1400,15 @@
       const hint = document.createElement("p");
       hint.className = "subtitle";
       hint.textContent = "Choisis un joueur pour afficher les counters disponibles.";
+      resultsWrap.appendChild(hint);
+      return;
+    }
+
+    if (!ROSTERS.has(rosterIdentity(allianceSelect?.value, player))) {
+      if (resultsCount) resultsCount.textContent = "0";
+      const hint = document.createElement("p");
+      hint.className = "subtitle";
+      hint.textContent = "Roster non partagé ou indisponible : impossible de calculer les puissances.";
       resultsWrap.appendChild(hint);
       return;
     }

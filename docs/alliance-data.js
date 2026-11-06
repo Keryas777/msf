@@ -1,7 +1,7 @@
 // Shared Infos / joueurs / rosters access for the static WebApp.
-// All alliances use the existing GitHub Pages compiled roster JSON.
-// The signed, tenant-checked R2 route remains a temporary fallback while
-// an invited alliance's first public roster campaign is being published.
+// L'annuaire joueurs.json est commun aux alliances LoSP et invitées.
+// Le chargement des rosters passe par le lecteur partagé de shards autorisés.
+// Les Infos détaillées invitées restent derrière la session Discord signée.
 (()=>{
   "use strict";
   const API="https://losp-roster-service.deliriousfan7.workers.dev/api/secure/";
@@ -161,8 +161,8 @@
       await guestInfos(token,keys,admin,warnings):[];
     const filteredInfos=infosPublic.filter(p=>allowed(p?.alliance)&&
       losp(p?.alliance));
-    const filteredJoueurs=joueursPublic.filter(p=>allowed(p?.alliance)&&
-      losp(p?.alliance));
+    // Annuaire public commun, mais affichage limité aux droits Discord.
+    const filteredJoueurs=joueursPublic.filter(p=>allowed(p?.alliance));
     const filteredRosters=rostersPublic.filter(p=>allowed(p?.alliance));
     const combinedInfos=unique([...filteredInfos,...infosPrivate],
       p=>rowIdentity(p.alliance,p.name));

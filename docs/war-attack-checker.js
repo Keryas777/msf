@@ -1191,6 +1191,16 @@
       return;
     }
 
+    if (!ROSTERS.has(allianceKey(allianceSelect?.value) + ":" + normalizeKey(player))) {
+      if (resultsCount) resultsCount.textContent = "0";
+      if (playerChip) playerChip.textContent = player;
+      const hint = document.createElement("p");
+      hint.className = "subtitle";
+      hint.textContent = "Roster non partagé ou indisponible : impossible de calculer les puissances.";
+      resultsWrap.appendChild(hint);
+      return;
+    }
+
     const atkChars = (atk.atk_chars || []).filter((c) => (c || "").trim());
     const attackPower = getWarAdjustedPower(player, atkChars);
 

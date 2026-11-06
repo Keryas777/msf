@@ -179,3 +179,20 @@ test("Discord scope is refreshed before building the initial LoSP directory",()=
   assert.ok(refresh>=0&&directory>refresh,
     "LoSP members without a shared roster must remain selectable on first boot");
 });
+
+test("public guest directory keeps non-sharing MARINES members selectable",()=>{
+  const first=source.indexOf("  function buildPlayersByAlliance() {");
+  const last=source.indexOf("  const GUEST_ROSTERS_API =",first);
+  const env={PLAYERS_BY_ALLIANCE:new Map(),JOUEURS:[
+    {alliance:"marines",player:"No roster"},
+    {alliance:"zeus",player:"LoSP"},
+    {alliance:"endgame-revolution-red",player:"Other"}],
+    ROSTER_ROWS:new Map(),
+    rosterIdentity:(a,p)=>normalized(a)+":"+normalized(p),
+    allianceKey:normalized,isAllianceAllowed:key=>key==="marines",
+    getAllianceMeta:key=>registry[normalized(key)]||null};
+  runInNewContext(source.slice(first,last)+"\n(buildPlayersByAlliance)",env)();
+  assert.deepEqual(Array.from(env.PLAYERS_BY_ALLIANCE.get("marines"),p=>p.player),
+    ["No roster"]);
+  assert.equal(env.PLAYERS_BY_ALLIANCE.has("zeus"),false);
+});

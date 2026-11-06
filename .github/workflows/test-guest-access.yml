@@ -1,7 +1,7 @@
 name: Guest LoSP access checks
 on:
   pull_request:
-    paths: ["docs/**", "tests/guest-access-view.test.mjs", "tests/rankings-guest-infos.test.mjs", "tests/alliance-data-parity.test.mjs", "tests/evolution-guests.test.mjs", "tests/team-ranking-guest-rosters.test.mjs", "tests/war-counters-lazy-rosters.test.mjs", "tests/scoped-roster-loader.test.mjs", "tests/scoped-roster-pages.test.mjs", "tests/admin-discord-preview.test.mjs", ".github/workflows/test-guest-access.yml"]
+    paths: ["docs/**", "tests/guest-access-view.test.mjs", "tests/rankings-guest-infos.test.mjs", "tests/alliance-data-parity.test.mjs", "tests/evolution-guests.test.mjs", "tests/team-ranking-guest-rosters.test.mjs", "tests/war-counters-lazy-rosters.test.mjs", "tests/war-attack-checker-guests.test.mjs", "tests/scoped-roster-loader.test.mjs", "tests/scoped-roster-pages.test.mjs", "tests/admin-discord-preview.test.mjs", ".github/workflows/test-guest-access.yml"]
 permissions:
   contents: read
 jobs:
@@ -12,5 +12,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: node --check docs/roster-loader.js && node --check docs/evolution-history.js && node --check docs/evolution.js && node --check docs/evolution-classement.js && node --check docs/alliance-data.js && node --check docs/rankings-infos.js && node --check docs/tcp.js && node --check docs/mvp.js
-      - run: node --test tests/scoped-roster-loader.test.mjs tests/scoped-roster-pages.test.mjs tests/evolution-guests.test.mjs tests/roster-weekly-checkpoints.test.mjs tests/alliance-data-parity.test.mjs tests/rankings-guest-infos.test.mjs tests/admin-discord-preview.test.mjs tests/guest-access-view.test.mjs tests/team-ranking-guest-rosters.test.mjs tests/war-counters-lazy-rosters.test.mjs workers/msf-cosmic-defenses/test/legacy-session.test.mjs tests/access-group-ui.test.mjs
+      - run: node --check docs/roster-loader.js && node --check docs/evolution-history.js && node --check docs/evolution.js && node --check docs/evolution-classement.js && node --check docs/alliance-data.js && node --check docs/war-counters.js && node --check docs/war-attack-checker.js && node --check docs/rankings-infos.js && node --check docs/tcp.js && node --check docs/mvp.js
+      - run: node --test tests/scoped-roster-loader.test.mjs tests/scoped-roster-pages.test.mjs tests/evolution-guests.test.mjs tests/roster-weekly-checkpoints.test.mjs tests/alliance-data-parity.test.mjs tests/rankings-guest-infos.test.mjs tests/admin-discord-preview.test.mjs tests/guest-access-view.test.mjs tests/team-ranking-guest-rosters.test.mjs tests/war-counters-lazy-rosters.test.mjs tests/war-attack-checker-guests.test.mjs workers/msf-cosmic-defenses/test/legacy-session.test.mjs tests/access-group-ui.test.mjs

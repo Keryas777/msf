@@ -18,7 +18,8 @@ const info=(name,alliance)=>({name,alliance,tcp:500000000,
   latestArena:12,charactersCollected:380});
 const roster=(player,alliance,power)=>({player,alliance,
   chars:{blob:{power}},iso:{blob:{isoClass:"raider",isoColor:"purple"}}});
-function setup(role,keys,{token=signed,missing=false,publishedGuest=false}={}){
+function setup(role,keys,{token=signed,missing=false,publishedGuest=false,
+                         publishedDirectory=false}={}){
   const calls=[];
   const byKey=new Map(registry.map(x=>[x.key,x]));
   const window={LoSP_SESSION:{ok:true,role,allowedAlliances:keys},
@@ -40,7 +41,11 @@ function setup(role,keys,{token=signed,missing=false,publishedGuest=false}={}){
       return Response.json([info("Zeus member","Zeus"),info("SECRET","marines")]);
     if(url.startsWith("./data/joueurs.json"))
       return Response.json([{player:"Zeus member",alliance:"Zeus"},
-        {player:"SECRET",alliance:"marines"}]);
+        ...(publishedDirectory?[
+          {player:"Public Marine",alliance:"marines"},
+          {player:"Public Red",alliance:"endgame-revolution-red"},
+          {player:"Public Orange",alliance:"endgame-revolution-orange"}
+        ]:[])]);
     if(url.startsWith("./data/rosters_")){
       if(missing)return new Response(null,{status:503});
       const key=String(url).split("rosters_")[1]?.split(".json")[0];
@@ -127,6 +132,23 @@ test("guest API failure never falls back to public data or fabricates rosters",a
   assert.equal(r.joueurs.length,0);
   assert.equal(r.rosters.length,0);
   assert.match(r.warnings.join(" "),/HTTP 503/);
+});
+test("public guest directory is visible under the same authorized scope as LoSP",async()=>{
+  const x=setup("guest",["marines"],{publishedDirectory:true});
+  const result=await load(x,{joueurs:true,rosters:true});
+  assert.deepEqual(Array.from(result.joueurs,p=>p.player),
+    ["Public Marine","Shared Name","Not sharing"]);
+  assert.equal(result.joueurs.some(p=>p.player==="Public Red"),false);
+  assert.equal(result.joueurs.some(p=>p.player==="Zeus member"),false);
+  assert.equal(result.joueurs.every(p=>p.alliance==="marines"),true);
+});
+test("public invited pseudonyms do not grant unsigned users private rosters",async()=>{
+  const x=setup("guest",["marines"],{
+    token:"legacy-unsigned",publishedDirectory:true});
+  const result=await load(x,{joueurs:true,rosters:true});
+  assert.deepEqual(Array.from(result.joueurs,p=>p.player),["Public Marine"]);
+  assert.equal(result.rosters.length,0);
+  assert.equal(x.calls.filter(c=>c.url.includes("/api/secure/")).length,0);
 });
 test("published GitHub guest rosters take precedence over private R2 projections",async()=>{
   const keys=["zeus","marines","endgame-revolution-red","endgame-revolution-orange"];
