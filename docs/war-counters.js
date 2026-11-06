@@ -1404,6 +1404,15 @@
       return;
     }
 
+    if (!ROSTERS.has(rosterIdentity(allianceSelect?.value, player))) {
+      if (resultsCount) resultsCount.textContent = "0";
+      const hint = document.createElement("p");
+      hint.className = "subtitle";
+      hint.textContent = "Roster non partagé ou indisponible : impossible de calculer les puissances.";
+      resultsWrap.appendChild(hint);
+      return;
+    }
+
     const baseRows = WAR.filter(
       (r) => matchesSelectedDefense(r, def)
     ).filter(isRoomRelevant).filter(isRealCounter);
