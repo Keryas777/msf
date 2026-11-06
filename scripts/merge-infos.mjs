@@ -88,6 +88,18 @@ function buildJoueurs(rows) {
   }));
 }
 
+// Le merge historique LoSP ne doit jamais écraser les pseudos invités
+// publiés séparément depuis R2. Le registre définit les clés invitées.
+async function readPublishedGuestJoueurs() {
+  const registry = JSON.parse(await fs.readFile("docs/data/alliances.json", "utf8"));
+  if (!Array.isArray(registry)) throw new Error("Invalid alliance registry");
+  const guestKeys = new Set(registry
+    .filter((row) => row?.active !== false && row?.group && row.group !== "losp")
+    .map((row) => row.key));
+  const published = await readJsonArray(JOUEURS_OUT_FILE) || [];
+  return published.filter((row) => guestKeys.has(row?.alliance));
+}
+
 function normalizeInfoRow(row, file, index) {
   validateString(row, file, index, "name");
   validateString(row, file, index, "alliance");
@@ -159,7 +171,7 @@ async function main() {
   }
   console.log(`[merge-infos] Total rows: ${rows.length}`);
 
-  const joueurs = buildJoueurs(rows);
+  const joueurs = [...buildJoueurs(rows), ...await readPublishedGuestJoueurs()];
   const playerWarnings = validateJoueurs(joueurs);
 
   console.log(`[merge-infos] Total joueurs rows: ${joueurs.length}`);
