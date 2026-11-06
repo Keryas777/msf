@@ -7,7 +7,6 @@
     alliances: "./data/alliances.json",
     infos: "./data/infos.json",
     joueurs: "./data/joueurs.json",
-    rosters: "./data/rosters.json",
     teams: "./data/teams.json",
     characters: "./data/msf-characters.json",
     isoIcons: "./data/iso-icons.json",
