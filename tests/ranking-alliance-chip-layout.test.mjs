@@ -63,6 +63,9 @@ test("ENDGAME shows ENDGAME and R-évolution as two distinct lines in chips", as
     ["endgame-revolution-red", "#ED3946"],
     ["endgame-revolution-orange", "#F6952C"],
   ]) {
+    const meta = helper.getAllianceMeta(key);
+    assert.equal(meta.emoji, "", "ENDGAME must not declare an emoji");
+    assert.equal(helper.getAllianceEmoji(key), "", "no placeholder emoji for ENDGAME");
     const chip = node(true);
     helper.renderAllianceName(chip, key);
     assert.ok(chip.classList.contains("alliance-name--two-lines"));
@@ -116,4 +119,30 @@ test("LoSP alliance chips use exact Unicode deity names with white prefix and JS
     assert.equal(chip.children[1].style.color, color);
     assert.equal(chip.classList.contains("alliance-name--two-lines"), false);
   }
+});
+
+test("ranking pages render custom alliance names instead of a single colored label", () => {
+  for (const page of ["tcp", "mvp"]) {
+    const js = read("docs/" + page + ".js");
+    assert.match(js, /customName \? ""/);
+    assert.match(js, /rankAlliance" data-alliance-key/);
+    assert.match(js, /renderAllianceName\?\.\(node, key\)/);
+  }
+
+  const war = read("docs/war-rankings.js");
+  assert.match(war, /group !== "losp"/);
+  assert.match(war, /renderAllianceName\?\.\(node, key\)/);
+  assert.match(war, /rankAllianceName--custom/);
+  const warCss = read("docs/war-rankings.css");
+  assert.match(warCss, /\.rankAllianceEmoji:empty\{display:none\}/);
+  assert.match(warCss, /\.rankAllianceName--custom\{/);
+
+  const arena = read("docs/arena.js");
+  assert.match(arena, /renderAllianceName\?\.\(sub,p\.alliance\)/);
+  const evolution = read("docs/evolution-classement.js");
+  assert.match(evolution, /renderAllianceName\?\.\(alliance, row\.alliance\)/);
+  const profile = read("docs/historique-personnages-profile.js");
+  assert.match(profile, /renderAllianceName\?\.\(info\.querySelector\("span"\), key\)/);
+  const teams = read("docs/app.js");
+  assert.match(teams, /if \(meta\) return meta\.emoji \|\| ""/);
 });
