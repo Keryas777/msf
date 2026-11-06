@@ -129,8 +129,19 @@
   async function group(date){
     if(!DAY.test(date||""))throw Error("Date de comparaison invalide.");
     const isGuest=window.LoSP_SESSION?.role==="guest";
-    const publicData=isGuest?{version:1,checkpoint:date,players:[]}:
-      await staticJson("./data/roster-history/group/"+date+".json");
+    let publicData={version:1,checkpoint:date,players:[]};
+    if(!isGuest){
+      try{
+        publicData=await staticJson("./data/roster-history/group/"+date+".json");
+      }catch(error){
+        const guestAvailable=[...guestIndex.values()].some(index=>
+          index.checkpoints.some(c=>c.date===date));
+        // An invited checkpoint can exist before a LoSP static export;
+        // a network or non-404 error still fails visibly.
+        if(!guestAvailable||!String(error?.message||"").includes("HTTP 404"))
+          throw error;
+      }
+    }
     const players=(publicData?.players||[]).filter(p=>allowed(p.alliance)&&
       losp(p.alliance));
     const requests=[...guestIndex].filter(([,index])=>
