@@ -181,3 +181,27 @@ test("merge-infos preserves enriched profile fields without changing joueurs.jso
   assert.deepEqual(infos, [detailed]);
   assert.deepEqual(joueurs, [{ player: "Edge", alliance: "Dionysos" }]);
 });
+
+test("merge-infos preserves published invited members while refreshing LoSP", async (t) => {
+  const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "msf-guest-merge-"));
+  t.after(() => fs.rm(dataDir, { recursive: true, force: true }));
+  for (const key of ALLIANCE_KEYS)
+    await writeJson(path.join(dataDir, `infos_${key}.json`), []);
+  await writeJson(path.join(dataDir, "infos_zeus.json"),
+    [infoRow("Same Name", "Zeus")]);
+  const output = path.join(dataDir, "joueurs.json");
+  await writeJson(output, [
+    {player:"Previous Zeus",alliance:"Zeus"},
+    {player:"Same Name",alliance:"marines"},
+    {player:"Guest without roster",alliance:"endgame-revolution-red"}
+  ]);
+  const env = {DATA_DIR:dataDir,OUT_FILE:path.join(dataDir,"infos.json"),
+    JOUEURS_OUT_FILE:output};
+  await runScript("scripts/merge-infos.mjs",env);
+  assert.deepEqual(JSON.parse(await fs.readFile(output,"utf8")),[
+    {player:"Same Name",alliance:"Zeus"},
+    {player:"Same Name",alliance:"marines"},
+    {player:"Guest without roster",alliance:"endgame-revolution-red"}
+  ]);
+});
+
