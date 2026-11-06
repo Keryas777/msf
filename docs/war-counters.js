@@ -1595,7 +1595,6 @@
     buildCharMap(chars);
     // The Discord rights must be ready before deriving the visible directory.
     refreshLoSPSession();
-    linkedProfiles = await loadLinkedProfiles();
     buildPlayersByAlliance();
 
     renderAllianceOptions();
@@ -1614,6 +1613,13 @@
     if (!tryApplyAuthDefaults()) {
       renderAll();
     }
+    // Never block a quick war lookup on an optional private service.
+    void loadLinkedProfiles().then(links => {
+      if (!links.length) return;
+      linkedProfiles = links;
+      authDefaultsApplied = false;
+      tryApplyAuthDefaults({ force: true });
+    }).catch(() => {});
   }
 
   boot().catch((e) => console.error("[war-counters] boot error:", e));
