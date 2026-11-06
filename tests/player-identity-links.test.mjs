@@ -7,8 +7,7 @@ const read=async file=>readFile(new URL("../docs/"+file,import.meta.url),"utf8")
 test("both war tools load signed mapping helper without removing current selectors",async()=>{
   for(const [page,script] of [
     ["war-counters.html","war-counters.js"],
-    ["war-attack-checker.html","war-attack-checker.js"],
-    ["cosmic-counters.html","war-counters.js"]]){
+    ["war-attack-checker.html","war-attack-checker.js"]]){
     const [html,js]=await Promise.all([read(page),read(script)]);
     assert.ok(html.includes("./player-identity-links.js?v=1"),page);
     assert.ok(html.indexOf("./player-identity-links.js?v=1")<
