@@ -31,11 +31,18 @@ function domElement(tag, elements) {
 }
 
 async function scenario({ id=OWNER, role="admin", groupKey="all",
-  stored="", path="home.html", config=groups, failConfig=false, inlineHome=false, inlineOther=false }={}) {
+  stored="", path="home.html", config=groups, failConfig=false, inlineHome=false, inlineOther=false,
+  tileHref="" }={}) {
   const elements = new Map(), saved = new Map(stored ? [[STORE,stored]] : []);
   const body = domElement("body",elements);
   const head = domElement("head",elements);
   const redirects=[], requests=[];
+  const tiles = tileHref ? [domElement("a",elements)] : [];
+  if (tiles.length) {
+    tiles[0].setAttribute("href",tileHref);
+    tiles[0].querySelector = selector => selector === "img" ? {alt:"Recommandations"} : null;
+    tiles[0].removeAttribute = key => tiles[0].setAttribute(key,null);
+  }
   const homeGrid = { inserted: [], before(node) { this.inserted.push(node); } };
   const pageHeader = { inserted: [], after(node) { this.inserted.push(node); } };
   let reloads=0;
@@ -46,7 +53,7 @@ async function scenario({ id=OWNER, role="admin", groupKey="all",
     createElement: tag => domElement(tag,elements),
     querySelector: selector => inlineHome && selector === ".homeGrid" ? homeGrid :
       inlineOther && selector === ".app > .header" ? pageHeader : null,
-    querySelectorAll: () => [],
+    querySelectorAll: selector => selector === "a.homeTile[href], a.rankingsTile[href]" ? tiles : [],
     addEventListener() {}
   };
   const window = {
@@ -83,7 +90,7 @@ async function scenario({ id=OWNER, role="admin", groupKey="all",
   };
   runInNewContext(script,context,{filename:"docs/auth-guard.js"});
   await new Promise(resolve=>setImmediate(resolve));
-  return {window,document,body,head,homeGrid,pageHeader,elements,saved,redirects,requests,
+  return {window,document,body,head,homeGrid,pageHeader,tiles,elements,saved,redirects,requests,
     get reloads(){return reloads;}};
 }
 
@@ -177,4 +184,29 @@ test("Configuration indisponible ou valeur invalide : aucune escalade, retour vu
   const offline=await scenario({stored:"marines",failConfig:true});
   assert.equal(offline.window.LoSP_SESSION.role,"admin");
   assert.equal(offline.elements.has("lospAdminPreview"),false);
+});
+
+
+test("Invités : Recommandations est grisée, marquée Réservé LoSP et non cliquable",async()=>{
+  const guest=await scenario({stored:"marines",path:"home.html",tileHref:"./recommandations.html"});
+  const tile=guest.tiles[0];
+  assert.equal(guest.redirects.length,0);
+  assert.equal(tile.classList.contains("lospReservedTile"),true);
+  assert.equal(tile.getAttribute("href"),null);
+  assert.equal(tile.getAttribute("aria-disabled"),"true");
+  assert.match(tile.getAttribute("aria-label"),/Recommandations — Réservé LoSP/);
+  assert.equal(tile.children.at(-1).children[0].textContent,"Réservé LoSP");
+
+  const member=await scenario({stored:"losp",path:"home.html",tileHref:"./recommandations.html"});
+  assert.equal(member.tiles[0].getAttribute("href"),"./recommandations.html");
+  assert.equal(member.tiles[0].classList.contains("lospReservedTile"),false);
+});
+
+test("Invités : Recommandations et ses sous-pages refusent l'accès direct",async()=>{
+  for (const path of ["recommandations.html","conseils.html","iso.html"]) {
+    const guest=await scenario({stored:"marines",path});
+    assert.deepEqual(guest.redirects,["./home.html"],path);
+    const member=await scenario({stored:"losp",path});
+    assert.deepEqual(member.redirects,[],path);
+  }
 });
