@@ -46,7 +46,7 @@ jobs:
       - name: Commit only updated public directory and state
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/data/joueurs.json .github/guest-joueurs-publication-state.json
           if git diff --cached --quiet; then
             echo "No directory update"
