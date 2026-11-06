@@ -355,7 +355,9 @@
       if (generation !== rosterDirectoryGeneration ||
           key !== state.selectedAlliance) return;
       state.loadedRosterKeys.add(key);
-      state.rosters = [...state.guestRosterDirectory, ...rows];
+      // Retain only shards explicitly opened during this visit. Switching
+      // back to an earlier alliance keeps its correct current labels.
+      state.rosters.push(...rows);
       populatePlayerSelect();
     } catch (error) {
       if (generation === rosterDirectoryGeneration)
