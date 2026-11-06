@@ -12,7 +12,7 @@
     warSeasonRules: "./data/war-season-rules.json",
     joueurs: "./data/joueurs.json",
     characters: "./data/msf-characters.json",
-    rosters: "./data/rosters.json",
+    // Rosters are now fetched only for the selected alliance.
   };
 
   const AUTH_PLAYER_STORAGE_KEY = "losp:lastPlayerByAlliance";
@@ -90,6 +90,8 @@
 
     if (bootReady) {
       authDefaultsApplied = false;
+      // Rebuild authorized choices if a Discord session changes in this tab.
+      buildPlayersByAlliance();
       renderAllianceOptions();
       renderPlayerOptions();
       tryApplyAuthDefaults({ force: true });
@@ -233,6 +235,8 @@
 
         return {
           key,
+          sourceKey: String(a?.sourceKey || a?.key || "").trim(),
+          group: String(a?.group || "losp").trim(),
           name: (a?.name ?? "").toString().trim(),
           emoji: (a?.emoji ?? "").toString().trim(),
           color: (a?.color ?? "").toString().trim(),
@@ -254,6 +258,8 @@
       const fallback = merged.get(row.key) || { aliases: [] };
       merged.set(row.key, {
         key: row.key,
+        sourceKey: row.sourceKey || fallback.sourceKey || row.key,
+        group: row.group || fallback.group || "losp",
         name: row.name || fallback.name || row.key,
         emoji: row.emoji || fallback.emoji || "",
         color: row.color || fallback.color || "",
@@ -574,6 +580,8 @@
     }
 
     renderAll();
+    // The selected alliance is known only after the Discord defaults settle.
+    void loadSelectedAllianceRoster();
 
     return true;
   }
@@ -620,6 +628,10 @@
 
   let WAR = [];
   let JOUEURS = [];
+  // Cache only alliances actually opened in this tab, including in-flight reads.
+  const ROSTER_CACHE = new Map();
+  const ROSTER_ROWS = new Map();
+  let rosterRequestSerial = 0;
   let ROSTERS = new Map();
   let PLAYERS_BY_ALLIANCE = new Map();
   let CHAR_MAP = new Map();
@@ -744,14 +756,19 @@
     return c?.portraitUrl || c?.portrait || c?.iconUrl || "";
   }
 
-  function buildRosterMap(data) {
-    ROSTERS = new Map();
+  function rosterIdentity(alliance, player) {
+    const allianceK = allianceKey(alliance);
+    const playerK = normalizeKey(player);
+    return allianceK && playerK ? allianceK + ":" + playerK : "";
+  }
 
+  function buildRosterMap(data, requestedAlliance) {
+    const requestedKey = allianceKey(requestedAlliance);
     (Array.isArray(data) ? data : []).forEach((r) => {
-      const player = (r.player ?? "").toString().trim();
-      if (!player) return;
-
-      const playerKey = normalizeKey(player);
+      const player = String(r?.player ?? "").trim();
+      // Never let an incorrectly labelled record cross alliance boundaries.
+      if (!player || allianceKey(r?.alliance) !== requestedKey) return;
+      const playerKey = rosterIdentity(requestedKey, player);
       if (!playerKey) return;
 
       const map = {};
@@ -765,12 +782,10 @@
 
       ROSTERS.set(playerKey, map);
     });
-
-    console.log("[war-counters] rosters chargés :", ROSTERS.size);
   }
 
   function getPlayerRawPower(player, chars) {
-    const playerKey = normalizeKey(player);
+    const playerKey = rosterIdentity(allianceSelect?.value, player);
     const roster = ROSTERS.get(playerKey);
 
     if (!roster) {
@@ -828,16 +843,122 @@
 
   function buildPlayersByAlliance() {
     PLAYERS_BY_ALLIANCE = new Map();
-
-    (Array.isArray(JOUEURS) ? JOUEURS : []).forEach((j) => {
-      const a = (j.alliance ?? "").toString().trim();
-      const p = (j.player ?? "").toString().trim();
-      const aKey = allianceKey(a);
-      if (!aKey || !p) return;
-
+    const seen = new Set();
+    const add = (alliance, player) => {
+      const aKey = allianceKey(alliance);
+      const p = String(player || "").trim();
+      const identity = rosterIdentity(aKey, p);
+      if (!identity || !isAllianceAllowed(aKey) || seen.has(identity)) return;
+      seen.add(identity);
       if (!PLAYERS_BY_ALLIANCE.has(aKey)) PLAYERS_BY_ALLIANCE.set(aKey, []);
-      PLAYERS_BY_ALLIANCE.get(aKey).push({ alliance: a, player: p });
-    });
+      PLAYERS_BY_ALLIANCE.get(aKey).push({ alliance: aKey, player: p });
+    };
+    // Keep the historical LoSP directory for members lacking a shared roster.
+    for (const row of JOUEURS) {
+      if (getAllianceMeta(row?.alliance)?.group === "losp")
+        add(row.alliance, row.player);
+    }
+    // Guest players are discovered directly from the roster; no manual list.
+    for (const [key, rows] of ROSTER_ROWS)
+      for (const row of rows) add(key, row.player);
+  }
+
+  const GUEST_ROSTERS_API =
+    "https://losp-roster-service.deliriousfan7.workers.dev/api/secure/guest-rosters";
+  const SIGNED_SESSION = /^v1\.[A-Za-z0-9_-]{12,4096}\.[A-Za-z0-9_-]{40,80}$/;
+
+  async function fetchGuestRosterFallback(meta) {
+    let token = "";
+    try { token = localStorage.getItem(LOCAL_SESSION_KEY) || ""; }
+    catch (_) {}
+    if (!SIGNED_SESSION.test(token))
+      throw new Error("Session Discord signée nécessaire pour ce roster invité.");
+    const response = await fetch(
+      GUEST_ROSTERS_API + "?alliance=" + encodeURIComponent(meta.sourceKey),
+      { mode: "cors", cache: "no-store",
+        headers: { Authorization: "Bearer " + token } }
+    );
+    if (!response.ok)
+      throw new Error("Lecture du roster invité indisponible (HTTP " + response.status + ").");
+    const body = await response.json();
+    if (body?.status !== "ok" || body.kind !== "authorized-guest-rosters" ||
+        body.alliance !== meta.sourceKey || !Array.isArray(body.rosters) ||
+        body.state !== "complete")
+      throw new Error("Aucune collecte complète disponible pour cette alliance.");
+    return body.rosters;
+  }
+
+  async function fetchAllianceRoster(key) {
+    if (!key || !isAllianceAllowed(key)) throw new Error("Alliance non autorisée.");
+    const meta = getAllianceMeta(key);
+    if (!meta || !/^[a-z][a-z0-9-]{1,63}$/.test(meta.sourceKey || ""))
+      throw new Error("Identifiant de roster inconnu.");
+    const path = "./data/rosters_" + meta.sourceKey + ".json";
+    let rows;
+    try {
+      rows = await fetchJson(path);
+    } catch (error) {
+      // Before the first GitHub import, use the existing signed R2 route for
+      // guests only. LoSP continues using its published per-alliance JSON.
+      if (meta.group === "losp") throw error;
+      rows = await fetchGuestRosterFallback(meta);
+    }
+    if (!Array.isArray(rows) || rows.some((row) =>
+      !row || typeof row.player !== "string" || !row.player.trim() ||
+      !row.chars || typeof row.chars !== "object" || Array.isArray(row.chars) ||
+      allianceKey(row.alliance) !== key))
+      throw new Error("Roster invalide ou associé à une autre alliance.");
+    return rows;
+  }
+
+  async function loadSelectedAllianceRoster() {
+    const serial = ++rosterRequestSerial;
+    const key = allianceKey(allianceSelect?.value);
+    if (!key || !isAllianceAllowed(key)) return;
+    try {
+      let pending = ROSTER_CACHE.get(key);
+      if (!pending) {
+        pending = fetchAllianceRoster(key).then((rows) => {
+          ROSTER_ROWS.set(key, rows);
+          buildRosterMap(rows, key);
+          buildPlayersByAlliance();
+          return rows;
+        }).catch((error) => {
+          // Failures are retryable; do not retain a rejected promise.
+          ROSTER_CACHE.delete(key);
+          throw error;
+        });
+        ROSTER_CACHE.set(key, pending);
+      }
+      await pending;
+      if (serial !== rosterRequestSerial ||
+          allianceKey(allianceSelect?.value) !== key ||
+          !isAllianceAllowed(key)) return;
+      const previouslySelected = playerSelect?.value || "";
+      renderPlayerOptions();
+      if (!(previouslySelected && selectPlayerByName(previouslySelected,
+          { dispatch: false })))
+        selectBestPlayerForCurrentAlliance({ dispatch: false });
+      renderAll();
+    } catch (error) {
+      if (serial !== rosterRequestSerial ||
+          allianceKey(allianceSelect?.value) !== key) return;
+      console.warn("[war-counters] chargement du roster :", error);
+      if (resultsCount) resultsCount.textContent = "0";
+      if (resultsWrap) {
+        clearNode(resultsWrap);
+        const warning = document.createElement("p");
+        warning.className = "subtitle";
+        warning.textContent = "Roster indisponible pour " +
+          getAllianceLabel(key) + ". Change d'alliance puis réessaie.";
+        resultsWrap.appendChild(warning);
+      }
+      if (playerSelect) {
+        playerSelect.disabled = true;
+        const option = playerSelect.options?.[0];
+        if (option) option.textContent = "Roster indisponible";
+      }
+    }
   }
 
   function renderAllianceOptions() {
@@ -900,13 +1021,16 @@
       return;
     }
 
-    playerSelect.disabled = false;
+    const aKey = allianceKey(a);
+    const loading = !ROSTER_ROWS.has(aKey);
+    playerSelect.disabled = loading;
 
     const opt0 = document.createElement("option");
     opt0.value = "";
-    opt0.textContent = "— Choisir un joueur —";
+    opt0.textContent = loading ? "Chargement du roster…" : "— Choisir un joueur —";
     playerSelect.appendChild(opt0);
 
+    if (loading) return;
     const players = (PLAYERS_BY_ALLIANCE.get(allianceKey(a)) || [])
       .slice()
       .sort((x, y) => x.player.localeCompare(y.player, "fr"));
@@ -1390,9 +1514,8 @@
 
     const didSelectPlayer = selectBestPlayerForCurrentAlliance();
 
-    if (!didSelectPlayer) {
-      renderAll();
-    }
+    if (!didSelectPlayer) renderAll();
+    void loadSelectedAllianceRoster();
   });
 
   playerSelect?.addEventListener("change", () => {
@@ -1436,12 +1559,11 @@
   });
 
   async function boot() {
-    const [war, warSeasonRules, joueurs, chars, rosters, cosmicConfig] = await Promise.all([
+    const [war, warSeasonRules, joueurs, chars, cosmicConfig] = await Promise.all([
       fetchJson(FILES.warCounters),
       IS_COSMIC ? Promise.resolve(null) : fetchJson(FILES.warSeasonRules),
       fetchJson(FILES.joueurs),
       fetchJson(FILES.characters),
-      fetchJson(FILES.rosters),
       IS_COSMIC ? fetchJson(FILES.cosmicConfig) : Promise.resolve(null),
     ]);
 
@@ -1458,9 +1580,9 @@
     JOUEURS = Array.isArray(joueurs) ? joueurs : [];
 
     buildCharMap(chars);
-    buildRosterMap(rosters);
     buildPlayersByAlliance();
 
+    refreshLoSPSession();
     renderAllianceOptions();
     renderPlayerOptions();
     renderRoomOptions(cosmicConfig);
