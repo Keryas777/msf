@@ -51,3 +51,22 @@ test("multi-alliance ranking loads only the permitted subset and preserves playe
   assert.match(profile,/LoSPRosterLoader\.loadMany\(/);
   assert.match(profile,/state\.alliances\.map\(a => a\.key\)/);
 });
+
+test("Fiche joueur starts Discord auth before loading private guest profile data",async()=>{
+  const html=await read("joueur.html");
+  const head=html.slice(0,html.indexOf("</head>"));
+  const guard=head.match(/<script src="\.\/auth-guard\.js\?v=\d+"><\/script>/);
+  assert.ok(guard,"the auth guard must be a synchronous head script");
+  assert.match(head.slice(0,guard.index),/html\.authChecking body/);
+  assert.match(head.slice(0,guard.index),/document\.documentElement\.classList\.add\("authChecking"\)/);
+  for(const file of ["roster-loader.js","alliance-data.js","joueur.js"]){
+    assert.ok(html.indexOf(file)>guard.index,file+" must run after the auth guard");
+  }
+  const auth=await read("auth-guard.js");
+  assert.match(auth,/window\.LoSP_AUTH_READY = new Promise/);
+  assert.match(auth,/window\.LoSPAccess = Object\.freeze/);
+  const player=await read("joueur.js");
+  assert.match(player,/if \(window\.LoSP_AUTH_READY\) await window\.LoSP_AUTH_READY/);
+  assert.match(player,/state\.joueurs\.push\(\{player:row\.player,alliance:row\.alliance\}\)/);
+  assert.match(player,/renderPlayerOptions\(\);\s*renderAll\(\)/);
+});
