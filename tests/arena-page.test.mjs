@@ -231,7 +231,7 @@ test("Arena portrait/frame use 1:1 scale without changing tile or row dimensions
 test("Arena uses the same expandable multi-alliance checkboxes as MVP/TCP",()=>{
   const html=fs.readFileSync(new URL("../docs/arena.html",import.meta.url),"utf8");
   assert.match(html,/class="arenaPage rankingPage"/);
-  assert.match(html,/rankings-shared\.css\?v=1/);
+  assert.match(html,/rankings-shared\.css\?v=\d+/);
   assert.match(html,/id="rankingAllianceFilters"/);
   assert.match(html,/id="rankingAllianceSummaryText"/);
   assert.doesNotMatch(html,/id="rankingAlliance"/);
