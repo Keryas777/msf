@@ -44,7 +44,7 @@
     <title>Classements de Guerre — Groupement</title>
 
     <link rel="stylesheet" href="./style.css" />
-    <link rel="stylesheet" href="./war-rankings.css?v=bg1" />
+    <link rel="stylesheet" href="./war-rankings.css?v=bg2" />
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -154,18 +154,18 @@
         });
 
         const alliances = document.createElement("script");
-        alliances.src = "./alliances.js?v=5";
+        alliances.src = "./alliances.js?v=6";
         alliances.defer = true;
         document.body.appendChild(alliances);
 
         const s = document.createElement("script");
-        s.src = "./war-rankings.js?v=4";
+        s.src = "./war-rankings.js?v=5";
         s.defer = true;
         alliances.addEventListener("load", () => document.body.appendChild(s));
         alliances.addEventListener("error", () => document.body.appendChild(s));
       })();
     </script>
-    <script src="./alliances.js?v=5"></script>
+    <script src="./alliances.js?v=6"></script>
   <script src="./losp-selects.js?v=4"></script>
   </body>
 </html>
