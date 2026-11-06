@@ -9,6 +9,7 @@
   const DAY=/^\d{4}-\d{2}-\d{2}$/;
   const PLAYER=/^g_[a-z][a-z0-9-]{1,63}__[a-z0-9]{1,140}$/;
   const guestIndex=new Map();
+  let canonicalRegistry=[];
   const norm=s=>String(s??"").trim().toLowerCase().normalize("NFD")
     .replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"");
   const meta=s=>window.LoSPAlliances?.getAllianceMeta?.(s);
@@ -24,8 +25,11 @@
     }catch{return "";}
   }
   function keys(){
-    return [...new Set((window.LoSPAlliances?.getKnownAlliances?.()||[])
-      .filter(a=>SLUG.test(a?.key||"")&&guest(a.key)&&allowed(a.key))
+    // The display helper normalizes punctuation in IDs. The private Worker
+    // requires the ORIGINAL canonical key from alliances.json, especially
+    // the two ENDGAME slugs. Never send a display-normalized alias.
+    return [...new Set(canonicalRegistry.filter(a=>
+      SLUG.test(a?.key||"")&&a.group&&a.group!=="losp"&&allowed(a.key))
       .map(a=>a.key))].sort();
   }
   async function staticJson(url){
@@ -100,6 +104,9 @@
     if(window.LoSP_AUTH_READY)await window.LoSP_AUTH_READY;
     if(window.LoSP_SESSION?.ok!==true)throw Error("Connexion Discord nécessaire.");
     await window.LoSPAlliances?.loadAlliances?.();
+    const rawRegistry=await staticJson("./data/alliances.json");
+    if(!Array.isArray(rawRegistry))throw Error("Registre d'alliances invalide.");
+    canonicalRegistry=rawRegistry;
     guestIndex.clear();
     const isGuest=window.LoSP_SESSION.role==="guest";
     const warnings=[];
@@ -125,6 +132,51 @@
     return {historyIndex:mergeIndices(publicData,guestIndex),
       warnings,guestAlliances:wanted,
       retentionDays:29};
+  }
+  async function infos(){
+    if(window.LoSP_AUTH_READY)await window.LoSP_AUTH_READY;
+    if(window.LoSP_SESSION?.ok!==true)throw Error("Connexion Discord nécessaire.");
+    if(!canonicalRegistry.length)await window.LoSPEvolutionHistory.loadIndex();
+    const isGuest=window.LoSP_SESSION.role==="guest";
+    const warnings=[];
+    const publicRows=isGuest?[]:
+      (await staticJson("./data/infos.json")).filter(p=>
+        allowed(p?.alliance)&&losp(p?.alliance));
+    const token=signed();
+    const privateRows=await Promise.all(keys().map(async key=>{
+      if(!token){
+        warnings.push(key+" : session Discord signée nécessaire.");
+        return [];
+      }
+      try{
+        const res=await fetch("https://losp-roster-service.deliriousfan7.workers.dev"+
+          "/api/secure/guest-infos?alliances="+encodeURIComponent(key),{
+          cache:"no-store",mode:"cors",
+          headers:{Authorization:"Bearer "+token}
+        });
+        if(!res.ok)throw Error("HTTP "+res.status);
+        const payload=await res.json();
+        if(payload?.status!=="ok"||
+           payload.kind!=="authorized-guest-infos"||
+           !Array.isArray(payload.alliances)||
+           payload.alliances.length!==1||
+           payload.alliances[0]?.alliance!==key||
+           !Array.isArray(payload.alliances[0].players))
+          throw Error("réponse invalide");
+        if(payload.alliances[0].state!=="complete"){
+          warnings.push(key+" : fiche Infos en cours de collecte.");
+          return [];
+        }
+        if(payload.alliances[0].players.some(p=>p?.alliance!==key||
+           typeof p.name!=="string"))
+          throw Error("périmètre invalide");
+        return payload.alliances[0].players;
+      }catch(error){
+        warnings.push(key+" : Infos privées "+String(error?.message||"indisponibles"));
+        return [];
+      }
+    }));
+    return {infos:[...publicRows,...privateRows.flat()],warnings};
   }
   async function group(date){
     if(!DAY.test(date||""))throw Error("Date de comparaison invalide.");
@@ -176,6 +228,6 @@
     return SLUG.test(alliance)&&n?"g_"+alliance+"__"+n:"";
   };
   window.LoSPEvolutionHistory=Object.freeze({
-    loadIndex,group,player,playerKey,isGuestAlliance:guest
+    loadIndex,group,player,infos,playerKey,isGuestAlliance:guest
   });
 })();
