@@ -128,62 +128,52 @@
     const key=canonical(alliance);
     return key&&normalized(player)?key+"\u0000"+normalized(player):"";
   }
-  async function load({infos=false,joueurs=false,rosters=false}={}){
+  // rosterAlliances may be a single selected key or a multi-alliance ranking
+  // scope. No page should download the unfiltered global rosters.json.
+  async function load({infos=false,joueurs=false,rosters=false,
+      rosterAlliances=null}={}){
     if(window.LoSP_AUTH_READY)await window.LoSP_AUTH_READY;
     if(window.LoSP_SESSION?.ok!==true)
       throw Error("Connexion Discord nécessaire.");
     await window.LoSPAlliances?.loadAlliances?.();
     const admin=window.LoSP_SESSION.role==="admin";
-    const isGuest=window.LoSP_SESSION.role==="guest";
-    const keys=guestKeys();
-    const warnings=[];
+    const keys=guestKeys(),warnings=[];
     const needInfos=infos||joueurs;
-    const readPublic=true;
-    const tasks=[
-      readPublic&&needInfos?publicJson("infos").catch(e=>{
-        warnings.push(String(e.message));return [];}):Promise.resolve([]),
-      readPublic&&joueurs?publicJson("joueurs").catch(e=>{
-        warnings.push(String(e.message));return [];}):Promise.resolve([]),
-      readPublic&&rosters?publicJson("rosters").catch(e=>{
-        warnings.push(String(e.message));return [];}):Promise.resolve([]),
-    ];
-    const [infosPublic,joueursPublic,rostersPublic]=await Promise.all(tasks);
-    // A complete GitHub roster is the primary data source for EVERY alliance.
-    // Only alliances with no published roster use the signed R2 projection.
-    const publicGuestKeys=new Set(rostersPublic
-      .filter(r=>guest(r?.alliance)&&allowed(r.alliance)&&
-        validRoster(r,sourceKey(r.alliance)))
-      .map(r=>sourceKey(r.alliance)));
-    const privateRosterKeys=rosters?
-      keys.filter(key=>!publicGuestKeys.has(key)):[];
-    const needPrivate=needInfos||privateRosterKeys.length>0;
-    const token=needPrivate?signedSession():"";
-    if(needPrivate&&!token)
-      warnings.push("Session Discord signée nécessaire pour les données invitées.");
-    const [infosPrivate,rostersPrivate]=await Promise.all([
-      token&&needInfos?guestInfos(token,keys,admin,warnings):Promise.resolve([]),
-      token&&privateRosterKeys.length?
-        guestRosters(token,privateRosterKeys,warnings):Promise.resolve([])
+    const selected=rosterAlliances==null
+      ?registry().map(a=>a.key)
+      :(Array.isArray(rosterAlliances)?rosterAlliances:[rosterAlliances]);
+    // Only current Discord-authorized alliances reach the shard loader.
+    const rosterKeys=selected.filter(k=>allowed(k));
+    const [[infosPublic,joueursPublic],rosterResult]=await Promise.all([
+      Promise.all([
+        needInfos?publicJson("infos").catch(e=>{warnings.push(String(e.message));return [];}):[],
+        joueurs?publicJson("joueurs").catch(e=>{warnings.push(String(e.message));return [];}):[],
+      ]),
+      rosters?window.LoSPRosterLoader.loadMany(rosterKeys):
+        Promise.resolve({rosters:[],warnings:[]})
     ]);
+    warnings.push(...rosterResult.warnings);
+    const rostersPublic=rosterResult.rosters;
+    const token=needInfos&&keys.length?signedSession():"";
+    if(needInfos&&keys.length&&!token)
+      warnings.push("Session Discord signée nécessaire pour les données invitées.");
+    const infosPrivate=token&&needInfos?
+      await guestInfos(token,keys,admin,warnings):[];
     const filteredInfos=infosPublic.filter(p=>allowed(p?.alliance)&&
       losp(p?.alliance));
     const filteredJoueurs=joueursPublic.filter(p=>allowed(p?.alliance)&&
       losp(p?.alliance));
-    const filteredRosters=rostersPublic.filter(p=>
-      p?.alliance?allowed(p.alliance):!isGuest);
+    const filteredRosters=rostersPublic.filter(p=>allowed(p?.alliance));
     const combinedInfos=unique([...filteredInfos,...infosPrivate],
       p=>rowIdentity(p.alliance,p.name));
-    // Infos includes members without rosterShare; this does NOT grant roster
-    // permission. Add roster-only members if a valid Info campaign is delayed.
     const guestDirectory=[
       ...infosPrivate.map(p=>({player:p.name,alliance:p.alliance})),
       ...filteredRosters.filter(p=>guest(p.alliance))
-        .map(p=>({player:p.player,alliance:p.alliance})),
-      ...rostersPrivate.map(p=>({player:p.player,alliance:p.alliance}))
+        .map(p=>({player:p.player,alliance:p.alliance}))
     ];
     const combinedJoueurs=unique([...filteredJoueurs,...guestDirectory],
       p=>rowIdentity(p.alliance,p.player));
-    const combinedRosters=unique([...filteredRosters,...rostersPrivate],
+    const combinedRosters=unique(filteredRosters,
       p=>rowIdentity(p.alliance,p.player||p.playerKey));
     return {infos:combinedInfos,joueurs:combinedJoueurs,
       rosters:combinedRosters,warnings};
