@@ -56,3 +56,34 @@ LoSP ou la réutilisation d'un joueur au même pseudo.
 Les pages réservées au groupement LoSP par `auth-guard.js` conservent leurs
 permissions : parité de données collectées ne signifie pas accorder aux
 invités l'accès aux rapports internes des autres alliances.
+
+
+## Évolution : conservation et visibilité des checkpoints
+
+L'interface Évolution (détail + classement) est **la même** pour LoSP et les
+invités. Les invités commencent leur chronologie au premier dimanche de
+collecte effectivement réussie (au plus tôt le 8 novembre 2026). Deux
+checkpoints véritables sont nécessaires pour calculer une progression.
+
+**Exigence produit :** une fois un checkpoint valide enregistré pour la
+WebApp, il ne doit pas disparaître *simplement parce qu'un nouvel état a été
+collecté ou qu'une fenêtre glissante s'est écoulée*. Les périodes 1, 3, 6 et
+12 mois et les dates personnalisées deviennent progressivement disponibles
+selon les relevés réellement conservés, sans reconstituer le passé.
+
+La WebApp GitHub Pages est statique : elle ne peut pas stocker elle-même des
+données privées. La solution technique préparée garde une archive
+**WebApp privée** sous un préfixe R2 distinct des reçus éphémères du
+Roster Service, avec un index et **un fichier immutable par dimanche**.
+Les pages existantes continuent à lire la même API signée et vérifient les
+droits Discord. Aucun fichier invité n'est publié dans `docs/data/`.
+
+**Réserve contractuelle impérative avant activation :** les API Terms of Use
+Scopely fournis dans le projet (3 mars 2022) indiquent une durée maximale
+de 30 jours pour les données obtenues via les API, indépendamment de la
+destination de stockage. Une conservation indéfinie de relevés individuels
+requiert donc une autorisation/clarification écrite de Scopely. Le code
+d'archivage durable est préparé derrière un drapeau explicitement désactivé
+tant que cette question et le traitement de suppression sur demande ne
+sont pas validés. Les exceptions d'effacement et de retrait de consentement
+priment toujours sur le souhait de conserver l'historique.
