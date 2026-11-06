@@ -7,17 +7,18 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import { loadAllianceRegistry } from "./lib/alliances-node.mjs";
-
 const DATA_DIR = process.env.DATA_DIR || "docs/data";
 const OUT_FILE = process.env.OUT_FILE || path.join(DATA_DIR, "rosters.json");
 const DRY_RUN = process.env.DRY_RUN === "1";
 
-const registry = loadAllianceRegistry();
-const SOURCES = registry.knownKeys.map((key) => ({
-  key,
-  file: path.join(DATA_DIR, `rosters_${key}.json`),
-}));
+// Use exact canonical file keys (including ENDGAME hyphens). The general
+// alliance lookup normalizer intentionally strips separators for aliases,
+// but a roster file path must not lose its registered source key.
+const registry = JSON.parse(await fs.readFile(
+  new URL("../docs/data/alliances.json", import.meta.url), "utf8"));
+const SOURCES = registry.filter(a=>a&&a.active!==false&&
+  typeof a.key==="string"&&/^[a-z][a-z0-9-]{1,63}$/.test(a.key))
+  .map(({key})=>({key,file:path.join(DATA_DIR,`rosters_${key}.json`)}));
 
 function normalizeKey(s) {
   return (s ?? "")
@@ -156,20 +157,24 @@ async function main() {
   for (const row of allPlayers) {
     const player = (row?.player ?? "").toString().trim();
     const playerKey = normalizeKey(row?.playerKey || row?.player || "");
+    const alliance = (row?.alliance ?? "").toString().trim();
+    const allianceKey = normalizeKey(alliance);
+    if (!playerKey || !allianceKey) continue;
+    // Same nicknames can exist in distinct independent alliances.
+    // Never merge their character powers or ISO in one roster.
+    const identity = allianceKey + ":" + playerKey;
 
-    if (!playerKey) continue;
-
-    if (!byPlayer.has(playerKey)) {
-      byPlayer.set(playerKey, {
+    if (!byPlayer.has(identity)) {
+      byPlayer.set(identity, {
         player,
         playerKey,
-        alliance: (row?.alliance ?? "").toString().trim(),
+        alliance,
         chars: {},
         iso: {},
       });
     }
 
-    mergePlayerEntry(byPlayer.get(playerKey), row);
+    mergePlayerEntry(byPlayer.get(identity), row);
   }
 
   const out = Array.from(byPlayer.values()).sort((a, b) =>

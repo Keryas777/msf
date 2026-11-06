@@ -17,7 +17,7 @@ const info=(name,alliance)=>({name,alliance,tcp:500000000,
   latestArena:12,charactersCollected:380});
 const roster=(player,alliance,power)=>({player,alliance,
   chars:{blob:{power}},iso:{blob:{isoClass:"raider",isoColor:"purple"}}});
-function setup(role,keys,{token=signed,missing=false}={}){
+function setup(role,keys,{token=signed,missing=false,publishedGuest=false}={}){
   const calls=[];
   const byKey=new Map(registry.map(x=>[x.key,x]));
   const window={LoSP_SESSION:{ok:true,role,allowedAlliances:keys},
@@ -38,7 +38,11 @@ function setup(role,keys,{token=signed,missing=false}={}){
         {player:"SECRET",alliance:"marines"}]);
     if(url.startsWith("./data/rosters.json"))
       return Response.json([roster("Zeus member","Zeus",100),
-        roster("SECRET","marines",9999)]);
+        ...(publishedGuest?[
+          roster("Static Marine","marines",9999),
+          roster("Shared Name","endgame-revolution-red",1234),
+          roster("Shared Name","endgame-revolution-orange",5678)
+        ]:[])]);
     if(missing)return new Response(null,{status:503});
     if(url.includes("/guest-infos"))
       return Response.json({status:"ok",kind:"authorized-guest-infos",
@@ -69,8 +73,9 @@ test("MARINES gets complete Infos, non-sharing membership and authorized rosters
   assert.equal(result.joueurs.length,2);
   assert.equal(result.rosters.length,1);
   assert.equal(result.rosters[0].chars.blob.power,200);
-  assert.ok(x.calls.every(c=>c.url.includes("/api/secure/")));
-  assert.ok(x.calls.every(c=>c.options.headers.Authorization==="Bearer "+signed));
+  assert.equal(x.calls.filter(c=>c.url.startsWith("./data/")).length,3);
+  assert.ok(x.calls.filter(c=>c.url.includes("/api/secure/"))
+    .every(c=>c.options.headers.Authorization==="Bearer "+signed));
   assert.equal(result.warnings.length,0);
 });
 test("LoSP members keep existing public sources without private calls",async()=>{
@@ -99,7 +104,8 @@ test("legacy unsigned guest session receives no LoSP data and no R2 calls",async
   assert.equal(r.infos.length,0);
   assert.equal(r.joueurs.length,0);
   assert.equal(r.rosters.length,0);
-  assert.equal(x.calls.length,0);
+  assert.equal(x.calls.filter(c=>c.url.startsWith("./data/")).length,3);
+  assert.equal(x.calls.filter(c=>c.url.includes("/api/secure/")).length,0);
   assert.match(r.warnings.join(" "),/signée nécessaire/);
 });
 test("guest API failure never falls back to public data or fabricates rosters",async()=>{
@@ -109,6 +115,20 @@ test("guest API failure never falls back to public data or fabricates rosters",a
   assert.equal(r.joueurs.length,0);
   assert.equal(r.rosters.length,0);
   assert.match(r.warnings.join(" "),/HTTP 503/);
+});
+test("published GitHub guest rosters take precedence over private R2 projections",async()=>{
+  const keys=["zeus","marines","endgame-revolution-red","endgame-revolution-orange"];
+  const x=setup("admin",keys,{publishedGuest:true});
+  const result=await load(x,{infos:true,joueurs:true,rosters:true});
+  const rosters=result.rosters.filter(r=>r.alliance!=="Zeus");
+  assert.equal(rosters.length,3);
+  assert.equal(rosters.find(r=>r.alliance==="marines").chars.blob.power,9999);
+  assert.deepEqual(Array.from(rosters.filter(r=>r.player==="Shared Name"),
+    r=>r.chars.blob.power),[1234,5678]);
+  assert.equal(x.calls.filter(c=>c.url.includes("/guest-rosters")).length,0,
+    "published guests must not trigger redundant signed R2 roster reads");
+  assert.equal(result.joueurs.filter(p=>p.player==="Shared Name" &&
+    p.alliance.startsWith("endgame-")).length,2);
 });
 test("alliance pages load shared data before their consuming scripts",async()=>{
   for(const [page,script] of [

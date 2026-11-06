@@ -42,7 +42,7 @@ test("production importer selects LoSP scope before private mapping and JSON loo
     new URL("../scripts/pull-rosters-r2.mjs",import.meta.url),"utf8");
   assert.match(source,/selectLoSPRosterAlliances\(/);
   assert.ok(source.indexOf("selectLoSPRosterAlliances(")<
-    source.indexOf("readMapping(secret,registry)"));
+    source.indexOf("readMapping(secret,lospRegistry)"));
   assert.ok(source.indexOf("selectLoSPRosterAlliances(")<
     source.indexOf("for(const alliance of registry)"));
 });

@@ -8,13 +8,14 @@ import {ROSTER_IMPORT_STATE_PATH,parseRosterImportState,
   from './lib/roster-r2-publish-state.mjs';
 import {createPrivateR2Reader} from './lib/private-r2-read.mjs';
 import {readMapping} from './lib/alliance-r2-history.mjs';
+import {guestRosterFingerprint} from './lib/roster-guest-r2-map.mjs';
 import {selectLoSPRosterAlliances} from './lib/roster-r2-alliance-scope.mjs';
 import {rosterWindow,loadRosterCampaign,convertAllianceRosters,keyOf}
   from './lib/roster-r2-import.mjs';
 
 async function json(path){return JSON.parse(await fs.readFile(path,'utf8'));}
 function args(argv){
-  let day=null,period=null,write=false,early=false,requireComplete=false,schedule=null;
+  let day=null,period=null,write=false,early=false,requireComplete=false,schedule=null,guestAlliance=null;
   for(const arg of argv){
     if(arg==='--write')write=true;
     else if(arg==='--early')early=true;
@@ -22,6 +23,7 @@ function args(argv){
     else if(/^--date=\d{4}-\d{2}-\d{2}$/.test(arg))day=arg.slice(7);
     else if(/^--period=(am|pm)$/.test(arg))period=arg.slice(9);
     else if(arg.startsWith('--schedule='))schedule=arg.slice('--schedule='.length);
+    else if(/^--guest-alliance=[a-z][a-z0-9-]{1,63}$/.test(arg))guestAlliance=arg.slice(17);
     else throw Error('Usage: [--date=YYYY-MM-DD] [--period=am|pm] [--schedule=CRON] [--write] [--early] [--require-complete]');
   }
   if(early&&!['30 4 * * *','30 16 * * *'].includes(schedule))
@@ -36,10 +38,10 @@ function args(argv){
     day??=current.toISOString().slice(0,10);
     period??=current.getUTCHours()>=14?'pm':'am';
   }
-  return {day,period,write,early,requireComplete};
+  return {day,period,write,early,requireComplete,guestAlliance};
 }
 async function main(){
-  const {day,period,write,early,requireComplete}=args(process.argv.slice(2));
+  const {day,period,write,early,requireComplete,guestAlliance}=args(process.argv.slice(2));
   const window=rosterWindow(day,period),end=Date.parse(window.endExclusive);
   // Strict monotonic checkpoint across delayed, duplicated and out-of-order
   // scheduled events. The checkpoint contains NO token, player ID or roster.
@@ -54,23 +56,38 @@ async function main(){
   if(end>Date.now()&&!early&&!requireComplete)
     throw Error('Current roster campaign window has not finished');
   if(end<Date.now()-6*86400000)throw Error('Campaign window exceeds R2 retention');
-  // Guest rosters have a separate private, signed-data path.
-  // Never require their (intentionally absent) public JSON or fingerprints
-  // when importing the existing six LoSP rosters from R2.
-  const registry=selectLoSPRosterAlliances(
-    await json('docs/data/alliances.json'));
+  const allAlliances=await json('docs/data/alliances.json');
+  const lospRegistry=selectLoSPRosterAlliances(allAlliances);
+  const registry=guestAlliance
+    ?allAlliances.filter(a=>a?.key===guestAlliance&&
+      a.active!==false&&a.group&&a.group!=='losp')
+    :lospRegistry;
+  if(guestAlliance&&registry.length!==1)
+    throw Error('Invalid guest alliance selection');
   const secret=process.env.LOSP_R2_ALLIANCE_MAP_JSON;
-  if(!secret)throw Error('Missing private alliance mapping');
-  const fp=readMapping(secret,registry);
-  const aliases=await json('docs/data/player-aliases.json');
+  if(!secret)throw Error('Missing private LoSP alliance mapping');
+  const lospFp=readMapping(secret,lospRegistry);
   const r2=createPrivateR2Reader();
+  const fp=guestAlliance?{
+    [guestAlliance]:guestRosterFingerprint(allAlliances,
+      await r2.getJSON('roster-sync/v1/approved-guest-alliances.json',200000),
+      guestAlliance,lospFp)
+  }:lospFp;
+  const aliases=await json('docs/data/player-aliases.json');
   const updates=new Map();
   const skipped=[];
   const already=[];
   const existing=new Map();
   for(const alliance of registry){
     const path='docs/data/rosters_'+alliance.key+'.json';
-    const rows=await json(path);
+    let rows;
+    try{rows=await json(path);}
+    catch(error){
+      // The first guest publication creates its per-alliance file.
+      // Missing LoSP roster files remain a hard error.
+      if(!guestAlliance||error.code!=='ENOENT')throw error;
+      rows=[];
+    }
     if(!Array.isArray(rows))throw Error('Invalid prior roster for '+alliance.key);
     existing.set(alliance.key,rows);
   }
@@ -104,7 +121,7 @@ async function main(){
   // older five; do not mistake a green check for a full synchronization.
   if(process.env.GITHUB_STEP_SUMMARY){
     const lines=[
-      '## Import LoSP R2 — '+day+' / '+period.toUpperCase(),
+      '## Import '+(guestAlliance||'LoSP')+' R2 — '+day+' / '+period.toUpperCase(),
       '',
       '**Campagne '+window.campaign+' : '+updates.size+' nouveau(x), '+
         already.length+' déjà à jour / plus récent(s), '+skipped.length+

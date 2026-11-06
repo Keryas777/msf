@@ -33,6 +33,10 @@ test("invités Marines et Endgame : scopes disjoints", async () => {
   assert.equal(endgame.getAllianceLabel("endgame-revolution-red"), "ENDGAME R-évolution");
   assert.equal(endgame.getAllianceLabel("endgame-revolution-orange"), "ENDGAME R-évolution");
   assert.equal(endgame.getAllianceMeta("ENDGAME R-évolution"), null);
+  // UI aliases stay normalized; the Scopely/GitHub source IDs retain hyphens.
+  assert.deepEqual(Array.from(endgame.getKnownAlliances(),x=>x.sourceKey),[
+    "endgame-revolution-red","endgame-revolution-orange"
+  ]);
 });
 
 test("administrateur : les neuf identifiants internes sont visibles", async () => {
