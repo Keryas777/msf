@@ -7,10 +7,10 @@ const source=await readFile(new URL("../docs/alliance-data.js",import.meta.url),
 const loader=await readFile(new URL("../docs/roster-loader.js",import.meta.url),"utf8");
 const signed="v1."+"R".repeat(60)+"."+"T".repeat(43);
 const registry=[
-  {key:"zeus",name:"Zeus",group:"losp"},
-  {key:"marines",name:"MARINES",group:"marines"},
-  {key:"endgame-revolution-red",name:"ENDGAME R-évolution",group:"endgame"},
-  {key:"endgame-revolution-orange",name:"ENDGAME R-évolution",group:"endgame"}
+  {key:"zeus",sourceKey:"zeus",name:"Zeus",group:"losp"},
+  {key:"marines",sourceKey:"marines",name:"MARINES",group:"marines"},
+  {key:"endgame-revolution-red",sourceKey:"endgame-revolution-red",name:"ENDGAME R-évolution",group:"endgame"},
+  {key:"endgame-revolution-orange",sourceKey:"endgame-revolution-orange",name:"ENDGAME R-évolution",group:"endgame"}
 ];
 const info=(name,alliance)=>({name,alliance,tcp:500000000,
   war_mvp:30,icon:"https://assets.marvelstrikeforce.com/imgs/icon.png",
