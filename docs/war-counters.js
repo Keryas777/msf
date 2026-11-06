@@ -1580,9 +1580,10 @@
     JOUEURS = Array.isArray(joueurs) ? joueurs : [];
 
     buildCharMap(chars);
+    // The Discord rights must be ready before deriving the visible directory.
+    refreshLoSPSession();
     buildPlayersByAlliance();
 
-    refreshLoSPSession();
     renderAllianceOptions();
     renderPlayerOptions();
     renderRoomOptions(cosmicConfig);
