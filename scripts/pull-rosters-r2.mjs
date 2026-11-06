@@ -56,16 +56,24 @@ async function main(){
   if(end>Date.now()&&!early&&!requireComplete)
     throw Error('Current roster campaign window has not finished');
   if(end<Date.now()-6*86400000)throw Error('Campaign window exceeds R2 retention');
-  // Guest rosters have a separate private, signed-data path.
-  // Never require their (intentionally absent) public JSON or fingerprints
-  // when importing the existing six LoSP rosters from R2.
-  const registry=selectLoSPRosterAlliances(
-    await json('docs/data/alliances.json'));
+  const allAlliances=await json('docs/data/alliances.json');
+  const lospRegistry=selectLoSPRosterAlliances(allAlliances);
+  const registry=guestAlliance
+    ?allAlliances.filter(a=>a?.key===guestAlliance&&
+      a.active!==false&&a.group&&a.group!=='losp')
+    :lospRegistry;
+  if(guestAlliance&&registry.length!==1)
+    throw Error('Invalid guest alliance selection');
   const secret=process.env.LOSP_R2_ALLIANCE_MAP_JSON;
-  if(!secret)throw Error('Missing private alliance mapping');
-  const fp=readMapping(secret,registry);
-  const aliases=await json('docs/data/player-aliases.json');
+  if(!secret)throw Error('Missing private LoSP alliance mapping');
+  const lospFp=readMapping(secret,lospRegistry);
   const r2=createPrivateR2Reader();
+  const fp=guestAlliance?{
+    [guestAlliance]:guestRosterFingerprint(allAlliances,
+      await r2.getJSON('roster-sync/v1/approved-guest-alliances.json',200000),
+      guestAlliance,lospFp)
+  }:lospFp;
+  const aliases=await json('docs/data/player-aliases.json');
   const updates=new Map();
   const skipped=[];
   const already=[];
