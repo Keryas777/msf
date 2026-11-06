@@ -1,0 +1,30 @@
+name: Verify Discord-to-MSF war selection
+on:
+  pull_request:
+    paths:
+      - "docs/player-identity-links.js"
+      - "docs/war-counters.js"
+      - "docs/war-attack-checker.js"
+      - "docs/war-counters.html"
+      - "docs/war-attack-checker.html"
+      - "tests/player-identity-links.test.mjs"
+      - ".github/workflows/validate-player-identity-links.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Syntax and signed identity selection checks
+        run: |
+          node --check docs/player-identity-links.js
+          node --check docs/war-counters.js
+          node --check docs/war-attack-checker.js
+          node --test tests/player-identity-links.test.mjs
