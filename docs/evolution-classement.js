@@ -145,8 +145,11 @@
   // An identical nickname in two guest alliances must never inherit
   // another tenant's frame or portrait.
   function infoIdentity(alliance,player) {
-    const key = window.LoSPAlliances?.getAllianceKey?.(alliance) ||
-      allianceKey(alliance);
+    const raw=allianceKey(alliance);
+    // Keep real tenant IDs, including hyphens; never rely on the display
+    // helper's punctuation-stripping key for private player identities.
+    const key=(state.alliances||[]).some(a=>a.key===raw)?raw:
+      window.LoSPAlliances?.getAllianceKey?.(alliance)||raw;
     return key + ":" + normalizeKey(player);
   }
 
