@@ -254,7 +254,9 @@
       byKey.set(key, {
         key,
         name: String(alliance?.name || alliance?.label || existing?.name || key).trim() || key,
-        emoji: String(alliance?.emoji || existing?.emoji || "👤").trim() || "👤",
+        emoji: alliance?.group && alliance.group !== "losp"
+          ? ""
+          : String(alliance?.emoji || existing?.emoji || "👤").trim() || "👤",
         order: Number.isFinite(Number(alliance?.order))
           ? Number(alliance.order)
           : existing?.order ?? 999,
@@ -293,7 +295,8 @@
   }
 
   function allianceEmoji(key) {
-    return allianceMeta(key)?.emoji || "👤";
+    const meta = allianceMeta(key);
+    return meta ? meta.emoji || "" : "👤";
   }
 
   function allianceLabel(key) {
@@ -336,6 +339,9 @@
       })
       .join("");
 
+    $filters.querySelectorAll("input[data-alliance]").forEach((input) => {
+      allianceHelper()?.renderAllianceName?.(input.closest("label")?.querySelector(".fName"), input.dataset.alliance);
+    });
     Object.keys(filters).forEach((key) => delete filters[key]);
     $filters.querySelectorAll("input[data-alliance]").forEach((input) => {
       filters[input.dataset.alliance] = input;
@@ -929,7 +935,7 @@
 
               <div class="rankAllianceLine">
                 <span class="rankAllianceEmoji" aria-label="${esc(alliance)}">${emoji}</span>
-                <span class="rankAllianceName">${esc(alliance)}</span>
+                <span class="rankAllianceName" data-alliance-key="${esc(key)}">${esc(alliance)}</span>
               </div>
 
               <div class="rankWarsLine">
@@ -944,6 +950,13 @@
         `;
       })
       .join("");
+    $players.querySelectorAll(".rankAllianceName[data-alliance-key]").forEach((node) => {
+      const key = node.dataset.allianceKey;
+      const meta = allianceMeta(key);
+      if (meta?.nameColor || meta?.displayParts?.length === 2) {
+        allianceHelper()?.renderAllianceName?.(node, key);
+      }
+    });
   }
 
   function apply() {
