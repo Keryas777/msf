@@ -46,13 +46,14 @@ test("TCP and MVP keep emojis beside LoSP names and preserve checkboxes", () => 
   const rule = css.match(/\.rankingPage \.filterToggle\[data-alliance-name-lines="two"\] \.fStack\s*\{([^}]+)\}/);
   assert.ok(rule, "missing scoped alignment rule");
   assert.match(rule[1], /flex-direction:\s*row/);
+  assert.match(css, /\.rankingPage \.fEmoji:empty\{display:none\}/);
   for (const page of ["tcp", "mvp"]) {
     const js = read("docs/" + page + ".js");
     const html = read("docs/" + page + ".html");
     assert.match(js, /data-alliance-name-lines="two"/);
     assert.match(js, /type="checkbox" data-alliance-key/);
     assert.match(js, /alliance\.nameColor \|\| \(alliance\.displayParts\?\.length === 2 && alliance\.group !== "losp"\)/);
-    assert.match(html, /rankings-shared\.css\?v=2/);
+    assert.match(html, /rankings-shared\.css\?v=\d+/);
     assert.match(html, /alliances\.js\?v=\d+/);
   }
 });
