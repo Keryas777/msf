@@ -96,6 +96,8 @@
   let PLAYERS_BY_ALLIANCE = new Map();
 
   let ROSTERS = [];
+  const rosterByAlliance = new Map();
+  let rosterGeneration = 0;
   let ROSTER_ISO_MAP = new Map(); // playerKey -> { charKey -> {isoClass, isoColor} }
 
   let ISO_RECO_MAP = new Map(); // canonCharKey -> {isoClass, isoColor}
@@ -835,11 +837,40 @@
     renderAll();
   }
 
-  function onAllianceChange() {
+  async function onAllianceChange() {
+    const generation = ++rosterGeneration;
+    const alliance = getSelectedAlliance();
     renderPlayerOptions();
     playerTitle.textContent = "—";
     clearNode(playerWrap);
     renderAll();
+    if (!alliance || !window.LoSPAccess?.isAllianceAllowed(alliance)) return;
+    const key = allianceKey(alliance);
+    try {
+      let rows = rosterByAlliance.get(key);
+      if (!rows) {
+        rows = await window.LoSPRosterLoader.load(alliance);
+        rosterByAlliance.set(key, rows);
+      }
+      // One alliance at a time in the ISO viewer; no other team's roster
+      // needs to stay in its working ISO map.
+      if (generation !== rosterGeneration || getSelectedAlliance() !== alliance) return;
+      ROSTERS = rows;
+      buildRosterIsoMap(rows);
+      const already = new Set(JOUEURS.filter(j=>allianceKey(j.alliance)===key)
+        .map(j=>normalizeKey(j.player)));
+      for (const row of rows) {
+        if (already.has(normalizeKey(row.player))) continue;
+        JOUEURS.push({player:row.player,alliance:row.alliance});
+        already.add(normalizeKey(row.player));
+      }
+      buildPlayersByAlliance();
+      renderPlayerOptions();
+      renderAll();
+    } catch (error) {
+      if (generation === rosterGeneration)
+        window.LoSPAllianceData.showWarnings([String(error.message||error)]);
+    }
   }
 
   function onPlayerChange() {
@@ -853,7 +884,7 @@
       await Promise.all([
         fetchJson(FILES.teams),
         fetchJson(FILES.characters),
-        window.LoSPAllianceData.load({ joueurs: true, rosters: true }),
+        window.LoSPAllianceData.load({ joueurs: true }),
         fetchJson(FILES.isoReco).catch(() => ({})),
         fetchJson(FILES.isoIcons).catch(() => ({})),
       ]);
@@ -861,7 +892,7 @@
     await loadAllianceMetadata();
     window.LoSPAllianceData.showWarnings(allianceSources.warnings);
     const joueursRaw = allianceSources.joueurs;
-    const rostersRaw = allianceSources.rosters;
+    const rostersRaw = []; // loaded after selecting an alliance
 
     CHARS = Array.isArray(charsRaw) ? charsRaw : [];
 
@@ -920,10 +951,7 @@
     buildIsoRecoMap(isoRecoRaw);
 
     const authorizedPlayers = new Set(JOUEURS.map((row) => normalizeKey(row.player)));
-    ROSTERS = (Array.isArray(rostersRaw) ? rostersRaw : []).filter((row) =>
-      row?.alliance ? window.LoSPAccess?.isAllianceAllowed(row.alliance) :
-      authorizedPlayers.has(normalizeKey(row?.playerKey || row?.player))
-    );
+    ROSTERS = rostersRaw;
     buildRosterIsoMap(ROSTERS);
 
     renderAllianceOptions();
