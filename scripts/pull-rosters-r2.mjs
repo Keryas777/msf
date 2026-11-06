@@ -8,13 +8,14 @@ import {ROSTER_IMPORT_STATE_PATH,parseRosterImportState,
   from './lib/roster-r2-publish-state.mjs';
 import {createPrivateR2Reader} from './lib/private-r2-read.mjs';
 import {readMapping} from './lib/alliance-r2-history.mjs';
+import {guestRosterFingerprint} from './lib/roster-guest-r2-map.mjs';
 import {selectLoSPRosterAlliances} from './lib/roster-r2-alliance-scope.mjs';
 import {rosterWindow,loadRosterCampaign,convertAllianceRosters,keyOf}
   from './lib/roster-r2-import.mjs';
 
 async function json(path){return JSON.parse(await fs.readFile(path,'utf8'));}
 function args(argv){
-  let day=null,period=null,write=false,early=false,requireComplete=false,schedule=null;
+  let day=null,period=null,write=false,early=false,requireComplete=false,schedule=null,guestAlliance=null;
   for(const arg of argv){
     if(arg==='--write')write=true;
     else if(arg==='--early')early=true;
@@ -22,6 +23,7 @@ function args(argv){
     else if(/^--date=\d{4}-\d{2}-\d{2}$/.test(arg))day=arg.slice(7);
     else if(/^--period=(am|pm)$/.test(arg))period=arg.slice(9);
     else if(arg.startsWith('--schedule='))schedule=arg.slice('--schedule='.length);
+    else if(/^--guest-alliance=[a-z][a-z0-9-]{1,63}$/.test(arg))guestAlliance=arg.slice(17);
     else throw Error('Usage: [--date=YYYY-MM-DD] [--period=am|pm] [--schedule=CRON] [--write] [--early] [--require-complete]');
   }
   if(early&&!['30 4 * * *','30 16 * * *'].includes(schedule))
@@ -36,10 +38,10 @@ function args(argv){
     day??=current.toISOString().slice(0,10);
     period??=current.getUTCHours()>=14?'pm':'am';
   }
-  return {day,period,write,early,requireComplete};
+  return {day,period,write,early,requireComplete,guestAlliance};
 }
 async function main(){
-  const {day,period,write,early,requireComplete}=args(process.argv.slice(2));
+  const {day,period,write,early,requireComplete,guestAlliance}=args(process.argv.slice(2));
   const window=rosterWindow(day,period),end=Date.parse(window.endExclusive);
   // Strict monotonic checkpoint across delayed, duplicated and out-of-order
   // scheduled events. The checkpoint contains NO token, player ID or roster.
