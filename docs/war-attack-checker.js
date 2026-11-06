@@ -34,6 +34,11 @@
   let lospSession = window.LoSP_SESSION || readLocalSessionPayload() || null;
   let authDefaultsApplied = false;
   let bootReady = false;
+  let linkedProfiles = [];
+  async function loadLinkedProfiles() {
+    return window.LoSPIdentityLinks?.load ?
+      await window.LoSPIdentityLinks.load() : [];
+  }
 
   function decodeBase64UrlJson(value) {
     try {
@@ -86,9 +91,12 @@
 
     if (bootReady) {
       authDefaultsApplied = false;
-      renderAllianceOptions();
-      renderPlayerOptions();
-      tryApplyAuthDefaults({ force: true });
+      void (async () => {
+        linkedProfiles = await loadLinkedProfiles();
+        renderAllianceOptions();
+        renderPlayerOptions();
+        tryApplyAuthDefaults({ force: true });
+      })();
     }
   });
 
@@ -477,7 +485,7 @@
   function getSessionAlliancePreferenceKeys() {
     if (!hasUsableSession(lospSession)) return [];
 
-    const keys = [];
+    const keys = linkedProfiles.map(link => allianceKey(link.alliance));
 
     if (lospSession.primaryAlliance) {
       keys.push(allianceKey(lospSession.primaryAlliance));
@@ -525,6 +533,8 @@
 
   function getSessionPlayerForAlliance(session, alliance) {
     const allianceK = allianceKey(alliance);
+    const linked = linkedProfiles.find(link => allianceKey(link.alliance) === allianceK);
+    if (linked) return { name: linked.player, alliance: linked.alliance };
 
     if (!hasUsableSession(session) || !Array.isArray(session.players)) return null;
 
@@ -1349,6 +1359,8 @@
     JOUEURS = Array.isArray(joueurs) ? joueurs : [];
 
     buildCharMap(chars);
+    refreshLoSPSession();
+    linkedProfiles = await loadLinkedProfiles();
     buildPlayersByAlliance();
 
     renderAllianceOptions();
