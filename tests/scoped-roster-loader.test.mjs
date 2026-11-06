@@ -102,3 +102,14 @@ test("only requested alliances are loaded for partial multi-alliance rankings",a
   assert.equal(x.requests.length,1);
   assert.ok(x.requests[0].url.includes("marines"));
 });
+
+test("legacy LoSP shard without alliance can be used only for its own file",async()=>{
+  const x=setup({allowed:["zeus"],read:async()=>
+    Response.json([{player:"Old LoSP",chars:{blob:{power:999}},iso:{}}])});
+  const rows=await x.load.load("zeus");
+  assert.equal(rows[0].alliance,"zeus");
+  assert.equal(rows[0].chars.blob.power,999);
+  const guest=setup({read:async()=>
+    Response.json([{player:"Untagged guest",chars:{blob:{power:123}}}])});
+  await assert.rejects(guest.load.load("marines"),/incohérent/);
+});
