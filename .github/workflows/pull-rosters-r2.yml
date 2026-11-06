@@ -15,6 +15,10 @@ on:
           - pm
         default: am
         required: true
+      guest_alliance:
+        description: "Guest alliance WebApp key (empty = existing LoSP import)"
+        required: false
+        default: ""
       strict:
         description: "Require all alliance receipts (Worker-triggered import)"
         type: boolean
@@ -56,6 +60,7 @@ jobs:
           LOSP_R2_BUCKET: ${{ secrets.LOSP_R2_BUCKET }}
           LOSP_R2_ALLIANCE_MAP_JSON: ${{ secrets.LOSP_R2_ALLIANCE_MAP_JSON }}
           LOSP_R2_ROSTERS_PUBLICATION_APPROVED: ${{ vars.LOSP_R2_ROSTERS_PUBLICATION_APPROVED }}
+          INPUT_GUEST_ALLIANCE: ${{ inputs.guest_alliance }}
           INPUT_DATE: ${{ inputs.date }}
           INPUT_PERIOD: ${{ inputs.period }}
           INPUT_PUBLISH: ${{ inputs.publish }}
@@ -66,6 +71,9 @@ jobs:
             args+=("--date=$INPUT_DATE")
           fi
           args+=("--period=$INPUT_PERIOD")
+          if [ -n "$INPUT_GUEST_ALLIANCE" ]; then
+            args+=("--guest-alliance=$INPUT_GUEST_ALLIANCE")
+          fi
           if [ "$INPUT_STRICT" = "true" ]; then
             args+=("--require-complete")
           fi
@@ -83,9 +91,10 @@ jobs:
           DATA_DIR: docs/data
           OUT_FILE: docs/data/rosters.json
         run: |
-          node --test tests/roster-r2-import.test.mjs tests/roster-r2-alliance-scope.test.mjs tests/merge-rosters-optional-iso.test.mjs tests/roster-r2-schedule.test.mjs tests/roster-r2-publish-state.test.mjs
+          node --test tests/roster-r2-import.test.mjs tests/roster-r2-alliance-scope.test.mjs tests/roster-guest-r2-map.test.mjs tests/merge-rosters-optional-iso.test.mjs tests/roster-r2-schedule.test.mjs tests/roster-r2-publish-state.test.mjs
           node --check scripts/pull-rosters-r2.mjs
           node --check scripts/lib/roster-r2-import.mjs
+          node --check scripts/lib/roster-guest-r2-map.mjs
           node --check scripts/lib/roster-r2-alliance-scope.mjs
           node --check scripts/lib/roster-r2-publish-state.mjs
           node --check scripts/lib/private-r2-read.mjs
@@ -123,5 +132,5 @@ jobs:
             echo "No changes to publish."
             exit 0
           fi
-          git commit -m "data: import authorized LoSP rosters from private R2"
+          git commit -m "data: import approved rosters from private R2"
           git push origin HEAD:main
