@@ -9,7 +9,7 @@
   <script>document.documentElement.classList.add("authChecking");</script>
   <script src="./auth-guard.js?v=4"></script>
   <link rel="stylesheet" href="./style.css?v=4">
-  <link rel="stylesheet" href="./evenements.css?v=2">
+  <link rel="stylesheet" href="./evenements.css?v=3">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./losp-selects.css?v=2" />
   </head>
@@ -25,10 +25,10 @@
       <p class="ev-intro">Les actions qui rapportent des points, les événements en cours et leur historique, au même endroit.</p>
       <div class="ev-source"><span class="ev-spark" aria-hidden="true">ⓘ</span><div><strong>Catalogue des événements MSF</strong><div id="source-line">Chargement du catalogue R2…</div><div id="source-provenance"></div></div></div>
     </section>
-    <nav class="ev-overview" aria-label="Aller à une section">
-      <a class="ev-stat ev-stat--objectives" href="#section-objectives"><strong id="stat-objectives">—</strong><span>Objectifs</span></a>
-      <a class="ev-stat ev-stat--current" href="#section-current"><strong id="stat-current">—</strong><span>En cours</span></a>
-      <a class="ev-stat ev-stat--past" href="#section-past"><strong id="stat-past">—</strong><span>Passés</span></a>
+    <nav class="ev-overview" role="tablist" aria-label="Vues des événements">
+      <button class="ev-stat ev-stat--objectives" id="tab-objectives" type="button" role="tab" aria-controls="section-objectives" aria-selected="false" tabindex="-1"><strong id="stat-objectives">—</strong><span>Objectifs</span></button>
+      <button class="ev-stat ev-stat--current" id="tab-current" type="button" role="tab" aria-controls="section-current" aria-selected="true" tabindex="0"><strong id="stat-current">—</strong><span>En cours</span></button>
+      <button class="ev-stat ev-stat--past" id="tab-past" type="button" role="tab" aria-controls="section-past" aria-selected="false" tabindex="-1"><strong id="stat-past">—</strong><span>Passés</span></button>
     </nav>
     <section class="ev-toolbar" aria-label="Filtres du calendrier">
       <div class="ev-filters">
@@ -44,13 +44,13 @@
         <span class="ev-filter-note" id="filter-context">Classement selon les dates archivées.</span>
       </div>
     </section>
-    <section class="ev-section ev-section--objectives" id="section-objectives" aria-labelledby="title-objectives"><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">☑</span><div><h2 id="title-objectives">Objectifs à réaliser</h2><p class="ev-section-desc">Comment gagner des points, par mode de jeu</p></div></div><span class="ev-count" id="count-objectives">—</span></div><div class="ev-objectives" id="events-objectives"></div></section>
-    <section class="ev-section ev-section--current" id="section-current" aria-labelledby="title-current"><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">◉</span><div><h2 id="title-current">Événements en cours</h2><p class="ev-section-desc">Ce que tu peux jouer maintenant, selon le catalogue GitHub</p></div></div><span class="ev-count" id="count-current">—</span></div><div class="ev-grid" id="events-current"></div><button class="ev-more" id="more-current" type="button" hidden>Voir plus</button></section>
-    <section class="ev-section ev-section--past" id="section-past" aria-labelledby="title-past"><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">↶</span><div><h2 id="title-past">Événements passés</h2><p class="ev-section-desc">L'historique, du plus récent au plus ancien</p></div></div><span class="ev-count" id="count-past">—</span></div><div class="ev-grid" id="events-past"></div><button class="ev-more" id="more-past" type="button" hidden>Voir plus</button></section>
+    <section class="ev-section ev-section--objectives" id="section-objectives" role="tabpanel" aria-labelledby="tab-objectives" hidden><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">☑</span><div><h2 id="title-objectives">Objectifs à réaliser</h2><p class="ev-section-desc">Comment gagner des points, par mode de jeu</p></div></div><span class="ev-count" id="count-objectives">—</span></div><div class="ev-objectives" id="events-objectives"></div></section>
+    <section class="ev-section ev-section--current" id="section-current" role="tabpanel" aria-labelledby="tab-current"><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">◉</span><div><h2 id="title-current">Événements en cours</h2><p class="ev-section-desc">Ce que tu peux jouer maintenant, selon le catalogue GitHub</p></div></div><span class="ev-count" id="count-current">—</span></div><div class="ev-grid" id="events-current"></div><button class="ev-more" id="more-current" type="button" hidden>Voir plus</button></section>
+    <section class="ev-section ev-section--past" id="section-past" role="tabpanel" aria-labelledby="tab-past" hidden><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">↶</span><div><h2 id="title-past">Événements passés</h2><p class="ev-section-desc">L'historique, du plus récent au plus ancien</p></div></div><span class="ev-count" id="count-past">—</span></div><div class="ev-grid" id="events-past"></div><button class="ev-more" id="more-past" type="button" hidden>Voir plus</button></section>
     <footer class="ev-footnote">Catalogue des événements · fichier GitHub actualisé via R2 chaque jour et après les changements différentiels.</footer>
   </main>
   <dialog id="event-dialog" class="ev-dialog" aria-label="Détail de l'événement"><div id="event-dialog-content"></div></dialog>
-<script src="./evenements.js?v=12" defer></script>
+<script src="./evenements.js?v=13" defer></script>
   <script src="./losp-selects.js?v=4"></script>
   </body>
 </html>
