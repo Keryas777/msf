@@ -70,3 +70,13 @@ test("Fiche joueur starts Discord auth before loading private guest profile data
   assert.match(player,/state\.joueurs\.push\(\{player:row\.player,alliance:row\.alliance\}\)/);
   assert.match(player,/renderPlayerOptions\(\);\s*renderAll\(\)/);
 });
+
+test("player identity omits the placeholder dot for alliances without an emoji",async()=>{
+  const code=await read("joueur.js");
+  const match=code.match(/function getAllianceEmoji\(value\) \{([\s\S]*?)\n  \}/);
+  assert.ok(match,"player alliance emoji helper must remain present");
+  assert.match(match[1],/getAllianceMeta\(value\)\?\.emoji \|\| ""/);
+  assert.doesNotMatch(match[1],/["']•["']/);
+  const html=await read("joueur.html");
+  assert.match(html,/<script src="\.\/joueur\.js\?v=7" defer><\/script>/);
+});

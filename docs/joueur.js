@@ -353,7 +353,7 @@
   }
 
   function getAllianceEmoji(value) {
-    return getAllianceMeta(value)?.emoji || "•";
+    return getAllianceMeta(value)?.emoji || "";
   }
 
   function getAllianceSortIndex(value) {
