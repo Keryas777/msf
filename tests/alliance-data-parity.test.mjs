@@ -123,8 +123,8 @@ test("published GitHub guest rosters take precedence over private R2 projections
   const rosters=result.rosters.filter(r=>r.alliance!=="Zeus");
   assert.equal(rosters.length,3);
   assert.equal(rosters.find(r=>r.alliance==="marines").chars.blob.power,9999);
-  assert.deepEqual(rosters.filter(r=>r.player==="Shared Name")
-    .map(r=>r.chars.blob.power),[1234,5678]);
+  assert.deepEqual(Array.from(rosters.filter(r=>r.player==="Shared Name"),
+    r=>r.chars.blob.power),[1234,5678]);
   assert.equal(x.calls.filter(c=>c.url.includes("/guest-rosters")).length,0,
     "published guests must not trigger redundant signed R2 roster reads");
   assert.equal(result.joueurs.filter(p=>p.player==="Shared Name").length,2);
