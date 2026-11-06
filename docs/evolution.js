@@ -141,6 +141,8 @@
     const isGuestAlliance = typeof window !== "undefined" &&
       window.LoSPEvolutionHistory?.isGuestAlliance?.(allianceKey) === true;
     const canonical = value => {
+      const raw = String(value || "").trim().toLowerCase();
+      if(isGuestAlliance)return raw; // Keep canonical ENDGAME hyphens.
       const helper = typeof window !== "undefined" &&
         window.LoSPAlliances?.getAllianceKey;
       return String((helper ? helper(value) : value) || "").trim().toLowerCase();
@@ -899,20 +901,31 @@
   async function boot() {
     try {
       await window.LoSP_AUTH_READY;
-      const [alliances, source, history, characters, aliases, isoIcons] =
+      const isGuest = window.LoSP_SESSION?.role === "guest";
+      const [alliances, history, characters, aliases, isoIcons, rosters] =
         await Promise.all([
           fetchJson(FILES.alliances),
-          window.LoSPAllianceData.load({rosters:true}),
           window.LoSPEvolutionHistory.loadIndex(),
           fetchJson(FILES.characters),
           fetchJson(FILES.aliases),
           fetchJson(FILES.isoIcons).catch(() => ({})),
+          isGuest ? Promise.resolve([]) : fetchJson(FILES.rosters),
         ]);
-      window.LoSPAllianceData.showWarnings(
-        [...source.warnings,...history.warnings]);
+      window.LoSPAllianceData.showWarnings(history.warnings);
       state.alliances = (Array.isArray(alliances) ? alliances : [])
         .filter(a => window.LoSPAccess?.isAllianceAllowed(a.key));
-      state.rosters = source.rosters;
+      // Only the public LoSP roster directory is needed for the old view.
+      // Guest membership is derived from signed historical checkpoints;
+      // their full private rosters are read on-demand by the secure endpoint.
+      const lospRosters = (Array.isArray(rosters) ? rosters : [])
+        .filter(r => window.LoSPAccess?.isAllianceAllowed(r?.alliance) &&
+          window.LoSPAlliances?.getAllianceMeta?.(r.alliance)?.group === "losp");
+      const guestPlayers = Object.entries(history.historyIndex.players)
+        .filter(([id,entry]) =>
+          id.startsWith("g_") &&
+          window.LoSPEvolutionHistory.isGuestAlliance(entry.currentAlliance))
+        .map(([,entry])=>({player:entry.name,alliance:entry.currentAlliance}));
+      state.rosters = [...lospRosters,...guestPlayers];
       state.characters = Array.isArray(characters) ? characters : [];
       state.historyIndex = history.historyIndex;
       state.isoIcons = isoIcons && typeof isoIcons === "object" ? isoIcons : {};
