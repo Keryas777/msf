@@ -90,6 +90,8 @@
 
     if (bootReady) {
       authDefaultsApplied = false;
+      // Rebuild authorized choices if a Discord session changes in this tab.
+      buildPlayersByAlliance();
       renderAllianceOptions();
       renderPlayerOptions();
       tryApplyAuthDefaults({ force: true });
