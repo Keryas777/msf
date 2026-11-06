@@ -100,6 +100,8 @@
 
   function getRosterPlayerKey(roster) {
     const rawName = roster?.player || roster?.name || roster?.playerKey || "";
+    if (window.LoSPEvolutionHistory?.isGuestAlliance(roster?.alliance))
+      return window.LoSPEvolutionHistory.playerKey(roster.alliance, rawName);
     const canonical = canonicalPlayerName(rawName);
     return normalizeKey(canonical || roster?.playerKey || rawName);
   }
@@ -145,7 +147,8 @@
     for (const [key, entry] of Object.entries(history)) {
       if (currentKeys.has(key) || normalizeKey(entry?.currentAlliance) !== wanted ||
           !Array.isArray(entry?.checkpoints) || !entry.checkpoints.length) continue;
-      const label = canonicalPlayerName(entry.name || key);
+      const label = window.LoSPEvolutionHistory.isGuestAlliance(allianceKey)
+        ? String(entry.name || key) : canonicalPlayerName(entry.name || key);
       if (label) players.set(key, { key, label: label + " (historique)" });
     }
 
@@ -154,7 +157,9 @@
       const key = getRosterPlayerKey(roster);
       if (!key || !Array.isArray(history[key]?.checkpoints) ||
           !history[key].checkpoints.length) continue;
-      const label = canonicalPlayerName(roster?.player || roster?.name || roster?.playerKey || "");
+      const label = window.LoSPEvolutionHistory.isGuestAlliance(allianceKey)
+        ? String(roster?.player || roster?.name || roster?.playerKey || "")
+        : canonicalPlayerName(roster?.player || roster?.name || roster?.playerKey || "");
       if (label) players.set(key, { key, label });
     }
 
@@ -396,8 +401,8 @@
     return start ? { start, end } : null;
   }
 
-  async function fetchSnapshot(playerKey, checkpoint) {
-    return fetchJson(`./data/roster-history/players/${encodeURIComponent(playerKey)}/${checkpoint}.json`);
+  async function fetchSnapshot(playerKey, checkpoint, alliance) {
+    return window.LoSPEvolutionHistory.player(alliance, playerKey, checkpoint);
   }
 
   function hasOwn(object, key) {
@@ -834,9 +839,10 @@
     loadingState.textContent = "Comparaison en cours…";
 
     try {
+      const alliance = state.selectedAlliance;
       const [oldSnapshot, newSnapshot] = await Promise.all([
-        fetchSnapshot(playerKey, range.start),
-        fetchSnapshot(playerKey, range.end),
+        fetchSnapshot(playerKey, range.start, alliance),
+        fetchSnapshot(playerKey, range.end, alliance),
       ]);
       if (generation !== compareGeneration) return;
 
@@ -883,20 +889,23 @@
 
   async function boot() {
     try {
-      const [alliances, rosters, characters, historyIndex, aliases, isoIcons] = await Promise.all([
-        fetchJson(FILES.alliances),
-        fetchJson(FILES.rosters),
-        fetchJson(FILES.characters),
-        fetchJson(FILES.historyIndex),
-        fetchJson(FILES.aliases),
-        fetchJson(FILES.isoIcons).catch(() => ({})),
-      ]);
-
       await window.LoSP_AUTH_READY;
-      state.alliances = (Array.isArray(alliances) ? alliances : []).filter(a => window.LoSPAccess?.isAllianceAllowed(a.key));
-      state.rosters = (Array.isArray(rosters) ? rosters : []).filter(r => window.LoSPAccess?.isAllianceAllowed(r?.alliance));
+      const [alliances, source, history, characters, aliases, isoIcons] =
+        await Promise.all([
+          fetchJson(FILES.alliances),
+          window.LoSPAllianceData.load({rosters:true}),
+          window.LoSPEvolutionHistory.loadIndex(),
+          fetchJson(FILES.characters),
+          fetchJson(FILES.aliases),
+          fetchJson(FILES.isoIcons).catch(() => ({})),
+        ]);
+      window.LoSPAllianceData.showWarnings(
+        [...source.warnings,...history.warnings]);
+      state.alliances = (Array.isArray(alliances) ? alliances : [])
+        .filter(a => window.LoSPAccess?.isAllianceAllowed(a.key));
+      state.rosters = source.rosters;
       state.characters = Array.isArray(characters) ? characters : [];
-      state.historyIndex = { ...(historyIndex || {}), players: Object.fromEntries(Object.entries(historyIndex?.players || {}).filter(([,p]) => window.LoSPAccess?.isAllianceAllowed(p?.currentAlliance))) };
+      state.historyIndex = history.historyIndex;
       state.isoIcons = isoIcons && typeof isoIcons === "object" ? isoIcons : {};
       buildAliasMap(aliases);
       buildCharacterMap();
@@ -908,6 +917,10 @@
       if (dates.some((date) => window.LoSPEvolutionPeriods.resolveStart(dates, date, '1w'))) {
         periodSelect.value = '1w';
         refreshCheckpointControls();
+      } else if (history.guestAlliances.length && !dates.length) {
+        emptyState.hidden = false;
+        emptyState.textContent = "Historique invité en constitution : les comparaisons apparaîtront après deux checkpoints réels.";
+        loadingState.hidden = true;
       }
     } catch (error) {
       console.error(error);
