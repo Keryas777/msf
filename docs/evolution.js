@@ -100,6 +100,8 @@
 
   function getRosterPlayerKey(roster) {
     const rawName = roster?.player || roster?.name || roster?.playerKey || "";
+    if (window.LoSPEvolutionHistory?.isGuestAlliance(roster?.alliance))
+      return window.LoSPEvolutionHistory.playerKey(roster.alliance, rawName);
     const canonical = canonicalPlayerName(rawName);
     return normalizeKey(canonical || roster?.playerKey || rawName);
   }
@@ -115,16 +117,18 @@
   }
 
   function resolveAllianceKey(value) {
+    const raw = String(value || "").trim().toLowerCase();
+    const exact = activeAlliances().find(a => String(a?.key || "") === raw);
+    if (exact) return exact.key;
     const wanted = normalizeKey(value);
     if (!wanted) return "";
-
-    for (const alliance of activeAlliances()) {
-      const candidates = [alliance?.key, alliance?.name, ...(Array.isArray(alliance?.aliases) ? alliance.aliases : [])];
-      if (candidates.some((candidate) => normalizeKey(candidate) === wanted)) {
-        return String(alliance.key || "");
-      }
-    }
-    return "";
+    const matches = activeAlliances().filter(alliance => {
+      const candidates = [alliance?.key, alliance?.name,
+        ...(Array.isArray(alliance?.aliases) ? alliance.aliases : [])];
+      return candidates.some(candidate => normalizeKey(candidate) === wanted);
+    });
+    // A normalized alias is never enough when multiple guest keys collide.
+    return matches.length === 1 ? String(matches[0].key) : "";
   }
 
   function allianceLabel(key) {
@@ -134,7 +138,16 @@
   }
 
   function playersForAlliance(allianceKey) {
-    const wanted = normalizeKey(allianceKey);
+    const isGuestAlliance = typeof window !== "undefined" &&
+      window.LoSPEvolutionHistory?.isGuestAlliance?.(allianceKey) === true;
+    const canonical = value => {
+      const raw = String(value || "").trim().toLowerCase();
+      if(isGuestAlliance)return raw; // Keep canonical ENDGAME hyphens.
+      const helper = typeof window !== "undefined" &&
+        window.LoSPAlliances?.getAllianceKey;
+      return String((helper ? helper(value) : value) || "").trim().toLowerCase();
+    };
+    const wanted = canonical(allianceKey);
     const history = state.historyIndex?.players || {};
     // Live rosters contain only members who shared data during the latest
     // capture. Historical players must remain selectable without reusing or
@@ -143,18 +156,21 @@
     const players = new Map();
 
     for (const [key, entry] of Object.entries(history)) {
-      if (currentKeys.has(key) || normalizeKey(entry?.currentAlliance) !== wanted ||
+      if (currentKeys.has(key) || canonical(entry?.currentAlliance) !== wanted ||
           !Array.isArray(entry?.checkpoints) || !entry.checkpoints.length) continue;
-      const label = canonicalPlayerName(entry.name || key);
+      const label = isGuestAlliance
+        ? String(entry.name || key) : canonicalPlayerName(entry.name || key);
       if (label) players.set(key, { key, label: label + " (historique)" });
     }
 
     for (const roster of state.rosters) {
-      if (normalizeKey(roster?.alliance) !== wanted) continue;
+      if (canonical(roster?.alliance) !== wanted) continue;
       const key = getRosterPlayerKey(roster);
       if (!key || !Array.isArray(history[key]?.checkpoints) ||
           !history[key].checkpoints.length) continue;
-      const label = canonicalPlayerName(roster?.player || roster?.name || roster?.playerKey || "");
+      const label = isGuestAlliance
+        ? String(roster?.player || roster?.name || roster?.playerKey || "")
+        : canonicalPlayerName(roster?.player || roster?.name || roster?.playerKey || "");
       if (label) players.set(key, { key, label });
     }
 
@@ -396,8 +412,8 @@
     return start ? { start, end } : null;
   }
 
-  async function fetchSnapshot(playerKey, checkpoint) {
-    return fetchJson(`./data/roster-history/players/${encodeURIComponent(playerKey)}/${checkpoint}.json`);
+  async function fetchSnapshot(playerKey, checkpoint, alliance) {
+    return window.LoSPEvolutionHistory.player(alliance, playerKey, checkpoint);
   }
 
   function hasOwn(object, key) {
@@ -834,9 +850,10 @@
     loadingState.textContent = "Comparaison en cours…";
 
     try {
+      const alliance = state.selectedAlliance;
       const [oldSnapshot, newSnapshot] = await Promise.all([
-        fetchSnapshot(playerKey, range.start),
-        fetchSnapshot(playerKey, range.end),
+        fetchSnapshot(playerKey, range.start, alliance),
+        fetchSnapshot(playerKey, range.end, alliance),
       ]);
       if (generation !== compareGeneration) return;
 
@@ -883,20 +900,34 @@
 
   async function boot() {
     try {
-      const [alliances, rosters, characters, historyIndex, aliases, isoIcons] = await Promise.all([
-        fetchJson(FILES.alliances),
-        fetchJson(FILES.rosters),
-        fetchJson(FILES.characters),
-        fetchJson(FILES.historyIndex),
-        fetchJson(FILES.aliases),
-        fetchJson(FILES.isoIcons).catch(() => ({})),
-      ]);
-
       await window.LoSP_AUTH_READY;
-      state.alliances = (Array.isArray(alliances) ? alliances : []).filter(a => window.LoSPAccess?.isAllianceAllowed(a.key));
-      state.rosters = (Array.isArray(rosters) ? rosters : []).filter(r => window.LoSPAccess?.isAllianceAllowed(r?.alliance));
+      const isGuest = window.LoSP_SESSION?.role === "guest";
+      const [alliances, history, characters, aliases, isoIcons, rosters] =
+        await Promise.all([
+          fetchJson(FILES.alliances),
+          window.LoSPEvolutionHistory.loadIndex(),
+          fetchJson(FILES.characters),
+          fetchJson(FILES.aliases),
+          fetchJson(FILES.isoIcons).catch(() => ({})),
+          isGuest ? Promise.resolve([]) : fetchJson(FILES.rosters),
+        ]);
+      window.LoSPAllianceData.showWarnings(history.warnings);
+      state.alliances = (Array.isArray(alliances) ? alliances : [])
+        .filter(a => window.LoSPAccess?.isAllianceAllowed(a.key));
+      // Only the public LoSP roster directory is needed for the old view.
+      // Guest membership is derived from signed historical checkpoints;
+      // their full private rosters are read on-demand by the secure endpoint.
+      const lospRosters = (Array.isArray(rosters) ? rosters : [])
+        .filter(r => window.LoSPAccess?.isAllianceAllowed(r?.alliance) &&
+          window.LoSPAlliances?.getAllianceMeta?.(r.alliance)?.group === "losp");
+      const guestPlayers = Object.entries(history.historyIndex.players)
+        .filter(([id,entry]) =>
+          id.startsWith("g_") &&
+          window.LoSPEvolutionHistory.isGuestAlliance(entry.currentAlliance))
+        .map(([,entry])=>({player:entry.name,alliance:entry.currentAlliance}));
+      state.rosters = [...lospRosters,...guestPlayers];
       state.characters = Array.isArray(characters) ? characters : [];
-      state.historyIndex = { ...(historyIndex || {}), players: Object.fromEntries(Object.entries(historyIndex?.players || {}).filter(([,p]) => window.LoSPAccess?.isAllianceAllowed(p?.currentAlliance))) };
+      state.historyIndex = history.historyIndex;
       state.isoIcons = isoIcons && typeof isoIcons === "object" ? isoIcons : {};
       buildAliasMap(aliases);
       buildCharacterMap();
@@ -908,6 +939,10 @@
       if (dates.some((date) => window.LoSPEvolutionPeriods.resolveStart(dates, date, '1w'))) {
         periodSelect.value = '1w';
         refreshCheckpointControls();
+      } else if (history.guestAlliances.length && !dates.length) {
+        emptyState.hidden = false;
+        emptyState.textContent = "Historique invité en constitution : les comparaisons apparaîtront après deux checkpoints réels.";
+        loadingState.hidden = true;
       }
     } catch (error) {
       console.error(error);
