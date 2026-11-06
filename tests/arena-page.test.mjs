@@ -155,7 +155,7 @@ test("seven Arena dates fit narrow mobile screens without scrolling",()=>{
     assert.equal(nodes.arenaChart.attrs.viewBox,"0 0 "+viewport+" 320");
     assert.equal(nodes.arenaChart.children.filter(x=>x.tag==="circle").length,14);
     const dates=nodes.arenaChart.children.filter(x=>x.tag==="text"&&
-      /^\\d{2}\\/\\d{2}$/.test(x.textContent));
+      /^\d{2}\/\d{2}$/.test(x.textContent));
     assert.equal(dates.length,7);
     assert.ok(dates.every(x=>Number(x.attrs.x)>=0&&Number(x.attrs.x)<=viewport));
   }
