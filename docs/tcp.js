@@ -22,7 +22,7 @@
     Object.freeze({ key: "athena", name: "Athéna", emoji: "🦉", color: "#F28C28", order: 2, aliases: ["Athena", "LoSP Athéna", "LoSP Athena"] }),
     Object.freeze({ key: "kronos", name: "Kronos", emoji: "⏳", color: "#E10D17", order: 3, aliases: ["LoSP Kronos"] }),
     Object.freeze({ key: "dionysos", name: "Dionysos", emoji: "🍇", color: "#93328E", order: 4, aliases: ["LoSP Dionysos"] }),
-    Object.freeze({ key: "poseidon", name: "Poséidon", emoji: "🔱", color: "#0000FF", order: 5, aliases: ["Poseidon", "LoSP Poséidon", "LoSP Poseidon"] }),
+    Object.freeze({ key: "poseidon", name: "Poséidon", emoji: "🔱", color: "#0073ff", order: 5, aliases: ["Poseidon", "LoSP Poséidon", "LoSP Poseidon"] }),
     Object.freeze({ key: "hades", name: "Hadès", emoji: "🔥", color: "#1EA164", order: 6, aliases: ["Hades", "LoSP Hadès", "LoSP Hades"] }),
   ]);
 
