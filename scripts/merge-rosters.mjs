@@ -156,20 +156,24 @@ async function main() {
   for (const row of allPlayers) {
     const player = (row?.player ?? "").toString().trim();
     const playerKey = normalizeKey(row?.playerKey || row?.player || "");
+    const alliance = (row?.alliance ?? "").toString().trim();
+    const allianceKey = normalizeKey(alliance);
+    if (!playerKey || !allianceKey) continue;
+    // Same nicknames can exist in distinct independent alliances.
+    // Never merge their character powers or ISO in one roster.
+    const identity = allianceKey + ":" + playerKey;
 
-    if (!playerKey) continue;
-
-    if (!byPlayer.has(playerKey)) {
-      byPlayer.set(playerKey, {
+    if (!byPlayer.has(identity)) {
+      byPlayer.set(identity, {
         player,
         playerKey,
-        alliance: (row?.alliance ?? "").toString().trim(),
+        alliance,
         chars: {},
         iso: {},
       });
     }
 
-    mergePlayerEntry(byPlayer.get(playerKey), row);
+    mergePlayerEntry(byPlayer.get(identity), row);
   }
 
   const out = Array.from(byPlayer.values()).sort((a, b) =>
