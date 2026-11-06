@@ -93,7 +93,8 @@
 
     return rows
       .map((alliance) => {
-        const key = normalizeAllianceKey(alliance?.key);
+        const sourceKey = String(alliance?.key ?? "").trim();
+        const key = normalizeAllianceKey(sourceKey);
         const name = String(alliance?.name ?? "").trim();
         const displayName = String(alliance?.displayName ?? "").trim();
         const emoji = String(alliance?.emoji ?? "").trim();
@@ -108,6 +109,7 @@
 
         return {
           key,
+          sourceKey,
           name,
           displayName,
           emoji,
