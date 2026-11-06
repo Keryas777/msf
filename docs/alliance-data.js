@@ -15,6 +15,8 @@
   const allowed=value=>window.LoSPAccess?.isAllianceAllowed(value)===true;
   const canonical=value=>meta(value)?.key||
     (SLUG.test(String(value||""))?String(value):"");
+  const sourceKey=value=>meta(value)?.sourceKey||meta(value)?.key||
+    (SLUG.test(String(value||""))?String(value):"");
   const losp=value=>meta(value)?.group==="losp";
   const guest=value=>{
     const m=meta(value);
@@ -28,8 +30,8 @@
   }
   function guestKeys(){
     return [...new Set(registry()
-      .filter(a=>guest(a.key)&&allowed(a.key)&&SLUG.test(a.key))
-      .map(a=>a.key))].sort();
+      .filter(a=>guest(a.key)&&allowed(a.key)&&SLUG.test(sourceKey(a.key)))
+      .map(a=>sourceKey(a.key)))].sort();
   }
   async function publicJson(file){
     const res=await fetch("./data/"+file+".json?v="+Date.now(),{cache:"no-store"});
@@ -150,8 +152,8 @@
     // Only alliances with no published roster use the signed R2 projection.
     const publicGuestKeys=new Set(rostersPublic
       .filter(r=>guest(r?.alliance)&&allowed(r.alliance)&&
-        validRoster(r,canonical(r.alliance)))
-      .map(r=>canonical(r.alliance)));
+        validRoster(r,sourceKey(r.alliance)))
+      .map(r=>sourceKey(r.alliance)));
     const privateRosterKeys=rosters?
       keys.filter(key=>!publicGuestKeys.has(key)):[];
     const needPrivate=needInfos||privateRosterKeys.length>0;
