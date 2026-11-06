@@ -859,6 +859,104 @@
       for (const row of rows) add(key, row.player);
   }
 
+  const GUEST_ROSTERS_API =
+    "https://losp-roster-service.deliriousfan7.workers.dev/api/secure/guest-rosters";
+  const SIGNED_SESSION = /^v1\.[A-Za-z0-9_-]{12,4096}\.[A-Za-z0-9_-]{40,80}$/;
+
+  async function fetchGuestRosterFallback(meta) {
+    let token = "";
+    try { token = localStorage.getItem(LOCAL_SESSION_KEY) || ""; }
+    catch (_) {}
+    if (!SIGNED_SESSION.test(token))
+      throw new Error("Session Discord signée nécessaire pour ce roster invité.");
+    const response = await fetch(
+      GUEST_ROSTERS_API + "?alliance=" + encodeURIComponent(meta.sourceKey),
+      { mode: "cors", cache: "no-store",
+        headers: { Authorization: "Bearer " + token } }
+    );
+    if (!response.ok)
+      throw new Error("Lecture du roster invité indisponible (HTTP " + response.status + ").");
+    const body = await response.json();
+    if (body?.status !== "ok" || body.kind !== "authorized-guest-rosters" ||
+        body.alliance !== meta.sourceKey || !Array.isArray(body.rosters) ||
+        body.state !== "complete")
+      throw new Error("Aucune collecte complète disponible pour cette alliance.");
+    return body.rosters;
+  }
+
+  async function fetchAllianceRoster(key) {
+    if (!key || !isAllianceAllowed(key)) throw new Error("Alliance non autorisée.");
+    const meta = getAllianceMeta(key);
+    if (!meta || !/^[a-z][a-z0-9-]{1,63}$/.test(meta.sourceKey || ""))
+      throw new Error("Identifiant de roster inconnu.");
+    const path = "./data/rosters_" + meta.sourceKey + ".json";
+    let rows;
+    try {
+      rows = await fetchJson(path);
+    } catch (error) {
+      // Before the first GitHub import, use the existing signed R2 route for
+      // guests only. LoSP continues using its published per-alliance JSON.
+      if (meta.group === "losp") throw error;
+      rows = await fetchGuestRosterFallback(meta);
+    }
+    if (!Array.isArray(rows) || rows.some((row) =>
+      !row || typeof row.player !== "string" || !row.player.trim() ||
+      !row.chars || typeof row.chars !== "object" || Array.isArray(row.chars) ||
+      allianceKey(row.alliance) !== key))
+      throw new Error("Roster invalide ou associé à une autre alliance.");
+    return rows;
+  }
+
+  async function loadSelectedAllianceRoster() {
+    const serial = ++rosterRequestSerial;
+    const key = allianceKey(allianceSelect?.value);
+    if (!key || !isAllianceAllowed(key)) return;
+    try {
+      let pending = ROSTER_CACHE.get(key);
+      if (!pending) {
+        pending = fetchAllianceRoster(key).then((rows) => {
+          ROSTER_ROWS.set(key, rows);
+          buildRosterMap(rows, key);
+          buildPlayersByAlliance();
+          return rows;
+        }).catch((error) => {
+          // Failures are retryable; do not retain a rejected promise.
+          ROSTER_CACHE.delete(key);
+          throw error;
+        });
+        ROSTER_CACHE.set(key, pending);
+      }
+      await pending;
+      if (serial !== rosterRequestSerial ||
+          allianceKey(allianceSelect?.value) !== key ||
+          !isAllianceAllowed(key)) return;
+      const previouslySelected = playerSelect?.value || "";
+      renderPlayerOptions();
+      if (!(previouslySelected && selectPlayerByName(previouslySelected,
+          { dispatch: false })))
+        selectBestPlayerForCurrentAlliance({ dispatch: false });
+      renderAll();
+    } catch (error) {
+      if (serial !== rosterRequestSerial ||
+          allianceKey(allianceSelect?.value) !== key) return;
+      console.warn("[war-counters] chargement du roster :", error);
+      if (resultsCount) resultsCount.textContent = "0";
+      if (resultsWrap) {
+        clearNode(resultsWrap);
+        const warning = document.createElement("p");
+        warning.className = "subtitle";
+        warning.textContent = "Roster indisponible pour " +
+          getAllianceLabel(key) + ". Change d'alliance puis réessaie.";
+        resultsWrap.appendChild(warning);
+      }
+      if (playerSelect) {
+        playerSelect.disabled = true;
+        const option = playerSelect.options?.[0];
+        if (option) option.textContent = "Roster indisponible";
+      }
+    }
+  }
+
   function renderAllianceOptions() {
     if (!allianceSelect) return;
 
