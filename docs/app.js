@@ -366,7 +366,7 @@
         name.textContent = allianceLabel(key);
       }
 
-      stack.appendChild(emoji);
+      if (emoji.textContent) stack.appendChild(emoji);
       stack.appendChild(name);
       label.appendChild(input);
       label.appendChild(stack);
