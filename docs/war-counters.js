@@ -37,6 +37,11 @@
   let lospSession = window.LoSP_SESSION || readLocalSessionPayload() || null;
   let authDefaultsApplied = false;
   let bootReady = false;
+  let linkedProfiles = [];
+  async function loadLinkedProfiles() {
+    return window.LoSPIdentityLinks?.load ?
+      await window.LoSPIdentityLinks.load() : [];
+  }
 
   function decodeBase64UrlJson(value) {
     try {
@@ -90,11 +95,14 @@
 
     if (bootReady) {
       authDefaultsApplied = false;
-      // Rebuild authorized choices if a Discord session changes in this tab.
-      buildPlayersByAlliance();
-      renderAllianceOptions();
-      renderPlayerOptions();
-      tryApplyAuthDefaults({ force: true });
+      // Rebuild after revalidating this Discord session and its private link.
+      void (async () => {
+        linkedProfiles = await loadLinkedProfiles();
+        buildPlayersByAlliance();
+        renderAllianceOptions();
+        renderPlayerOptions();
+        tryApplyAuthDefaults({ force: true });
+      })();
     }
   });
 
@@ -397,7 +405,7 @@
   function getSessionAlliancePreferenceKeys() {
     if (!hasUsableSession(lospSession)) return [];
 
-    const keys = [];
+    const keys = linkedProfiles.map(link => allianceKey(link.alliance));
 
     if (lospSession.primaryAlliance) {
       keys.push(allianceKey(lospSession.primaryAlliance));
@@ -445,6 +453,8 @@
 
   function getSessionPlayerForAlliance(session, alliance) {
     const allianceK = allianceKey(alliance);
+    const linked = linkedProfiles.find(link => allianceKey(link.alliance) === allianceK);
+    if (linked) return { name: linked.player, alliance: linked.alliance };
 
     if (!hasUsableSession(session) || !Array.isArray(session.players)) return null;
 
@@ -1585,6 +1595,7 @@
     buildCharMap(chars);
     // The Discord rights must be ready before deriving the visible directory.
     refreshLoSPSession();
+    linkedProfiles = await loadLinkedProfiles();
     buildPlayersByAlliance();
 
     renderAllianceOptions();
