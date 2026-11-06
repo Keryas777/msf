@@ -139,19 +139,28 @@
   }
 
   async function fetchGroup(checkpoint) {
-    return fetchJson(`./data/roster-history/group/${checkpoint}.json`);
+    return window.LoSPEvolutionHistory.group(checkpoint);
+  }
+
+  // An identical nickname in two guest alliances must never inherit
+  // another tenant's frame or portrait.
+  function infoIdentity(alliance,player) {
+    const key = window.LoSPAlliances?.getAllianceKey?.(alliance) ||
+      allianceKey(alliance);
+    return key + ":" + normalizeKey(player);
   }
 
   function buildInfoMap(infos) {
     state.infosByPlayer = new Map();
     for (const info of Array.isArray(infos) ? infos : []) {
-      const key = normalizeKey(info?.name);
-      if (key && window.LoSPAccess?.isAllianceAllowed(info?.alliance) && !state.infosByPlayer.has(key)) state.infosByPlayer.set(key, info);
+      const key = infoIdentity(info?.alliance,info?.name);
+      if (key && window.LoSPAccess?.isAllianceAllowed(info?.alliance) &&
+          !state.infosByPlayer.has(key)) state.infosByPlayer.set(key, info);
     }
   }
 
   function playerInfo(row) {
-    return state.infosByPlayer.get(normalizeKey(row.player)) || state.infosByPlayer.get(normalizeKey(row.playerKey)) || null;
+    return state.infosByPlayer.get(infoIdentity(row.alliance,row.player)) || null;
   }
 
   function buildRows(oldSummary, newSummary) {
@@ -424,15 +433,18 @@
 
   async function boot() {
     try {
-      const [alliances, historyIndex, infos] = await Promise.all([
-        fetchJson(FILES.alliances),
-        fetchJson(FILES.historyIndex),
-        fetchJson(FILES.infos),
-      ]);
       await window.LoSP_AUTH_READY;
-      state.alliances = (Array.isArray(alliances) ? alliances : []).filter(a => window.LoSPAccess?.isAllianceAllowed(a.key));
-      state.historyIndex = { ...(historyIndex || {}), players: Object.fromEntries(Object.entries(historyIndex?.players || {}).filter(([,p]) => window.LoSPAccess?.isAllianceAllowed(p?.currentAlliance))) };
-      buildInfoMap(infos);
+      const [alliances, history, source] = await Promise.all([
+        fetchJson(FILES.alliances),
+        window.LoSPEvolutionHistory.loadIndex(),
+        window.LoSPAllianceData.load({infos:true}),
+      ]);
+      window.LoSPAllianceData.showWarnings(
+        [...history.warnings,...source.warnings]);
+      state.alliances = (Array.isArray(alliances) ? alliances : [])
+        .filter(a => window.LoSPAccess?.isAllianceAllowed(a.key));
+      state.historyIndex = history.historyIndex;
+      buildInfoMap(source.infos);
       renderAllianceFilters();
       bindEvents();
       if (checkpoints().some((date) => periodStart(date, '1w'))) {
