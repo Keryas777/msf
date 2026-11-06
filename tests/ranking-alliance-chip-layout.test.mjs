@@ -99,7 +99,7 @@ test("LoSP alliance chips use exact Unicode deity names with white prefix and JS
     ["athena", "🦉", "Athεηα", "#F28C28", "Athéna"],
     ["kronos", "⏳", "Κroηos", "#E10D17", "Kronos"],
     ["dionysos", "🍇", "Dισπγsσs", "#93328E", "Dionysos"],
-    ["poseidon", "🔱", "Pοsειδoη", "#0000FF", "Poséidon"],
+    ["poseidon", "🔱", "Pοsειδoη", "#0073ff", "Poséidon"],
     ["hades", "🔥", "Hαδεs", "#1EA164", "Hadès"],
   ]) {
     const meta = helper.getAllianceMeta(key);

@@ -19,7 +19,7 @@ const FALLBACK_ALLIANCES = [
   { key: "athena", name: "Athéna", emoji: "🦉", color: "#F28C28", order: 2, aliases: ["Athéna", "Athena", "athéna", "athena", "LoSP Athéna", "LoSP Athena", "losp athéna", "losp athena"] },
   { key: "kronos", name: "Kronos", emoji: "⏳", color: "#E10D17", order: 3, aliases: ["Kronos", "kronos", "Cronos", "Chronos", "LoSP Kronos", "losp kronos"] },
   { key: "dionysos", name: "Dionysos", emoji: "🍇", color: "#93328E", order: 4, aliases: ["Dionysos", "dionysos", "LoSP Dionysos", "losp dionysos"] },
-  { key: "poseidon", name: "Poséidon", emoji: "🔱", color: "#0000FF", order: 5, aliases: ["Poséidon", "Poseidon", "Posseidon", "poséidon", "poseidon", "LoSP Poséidon", "losp poseidon"] },
+  { key: "poseidon", name: "Poséidon", emoji: "🔱", color: "#0073ff", order: 5, aliases: ["Poséidon", "Poseidon", "Posseidon", "poséidon", "poseidon", "LoSP Poséidon", "losp poseidon"] },
   { key: "hades", name: "Hadès", emoji: "🔥", color: "#1EA164", order: 6, aliases: ["Hadès", "Hades", "hadès", "hades", "LoSP Hadès", "losp hades"] }
 ];
 

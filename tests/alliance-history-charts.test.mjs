@@ -48,7 +48,7 @@ test('five original alliances render by dynamic registry with official colors an
   assert.deepEqual(Array.from(model.series,s=>s.key),
     ['zeus','athena','kronos','dionysos','poseidon']);
   assert.deepEqual(Array.from(model.series,s=>s.color),[
-    '#F8FF00','#F28C28','#E10D17','#93328E','#0000FF']);
+    '#F8FF00','#F28C28','#E10D17','#93328E','#0073ff']);
   assert.equal(model.series.find(s=>s.key==='zeus').points[0].value,2875);
   assert.equal(prepare([original],registry,byId('war-season-rank'))
     .series.find(s=>s.key==='kronos').points[0].value,93);

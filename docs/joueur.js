@@ -157,7 +157,7 @@
       key: "poseidon",
       name: "Poséidon",
       emoji: "🔱",
-      color: "#0000FF",
+      color: "#0073ff",
       order: 5,
       aliases: [
         "Poséidon",
