@@ -116,6 +116,34 @@ test('Les identifiants obligatoires de la vue Objectifs existent dans le HTML',(
   assert.doesNotMatch(html,/section-future|events-future|stat-future/);
 });
 
+test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',async()=>{
+  const nodes=await makePage();
+  const tabs=['objectives','current','past'];
+  const visible=()=>tabs.filter(key=>!nodes.get('section-'+key).hidden);
+  assert.match(html,/role="tablist"/);
+  assert.doesNotMatch(html,/href="#section-(?:objectives|current|past)"/);
+  assert.deepEqual(visible(),['current']);
+  assert.equal(nodes.get('tab-current')['aria-selected'],'true');
+
+  const count=nodes.get('stat-objectives').textContent;
+  nodes.get('tab-objectives').handlers.get('click')();
+  assert.deepEqual(visible(),['objectives']);
+  assert.equal(nodes.get('tab-objectives')['aria-selected'],'true');
+  assert.equal(nodes.get('tab-current')['aria-selected'],'false');
+  assert.equal(nodes.get('tab-objectives').tabIndex,0);
+
+  let prevented=false;
+  nodes.get('tab-objectives').handlers.get('keydown')({
+    key:'ArrowRight',preventDefault(){prevented=true;}
+  });
+  assert.equal(prevented,true);
+  assert.deepEqual(visible(),['current']);
+  assert.equal(nodes.get('tab-current').focused,true);
+  nodes.get('tab-current').handlers.get('keydown')({key:'End',preventDefault(){}});
+  assert.deepEqual(visible(),['past']);
+  assert.equal(nodes.get('stat-objectives').textContent,count);
+});
+
 test('Une panne du JSON GitHub n’utilise aucune autre source et affiche une indisponibilité',async()=>{
   const nodes=await makePage({failure:true});
   assert.match(nodes.get('source-line').textContent,/indisponible/);
