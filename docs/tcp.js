@@ -219,6 +219,8 @@
       .map((p, idx) => {
         const nameSafe = escapeHtml(p.name);
         const emoji = allianceEmoji(p.alliance);
+        const meta = getAllianceApi()?.getAllianceMeta?.(p.alliance);
+        const customName = !!(meta?.nameColor || meta?.displayParts?.length === 2);
 
         const icon = safeUrl(p.icon);
         const frame = safeUrl(p.frame);
@@ -253,7 +255,7 @@
 
             <div class="rankCenter">
               <strong class="rankName" title="${nameSafe}">${nameSafe}</strong>
-              <small class="rankAlliance" style="--alliance-color:${allianceColor(p.alliance)}">${escapeHtml(emoji)} ${escapeHtml(allianceLabel(p.alliance))}</small>
+              <small class="rankAlliance" data-alliance-key="${escapeHtml(p.alliance)}" style="--alliance-color:${allianceColor(p.alliance)}">${customName ? "" : escapeHtml(emoji) + " "}${escapeHtml(allianceLabel(p.alliance))}</small>
             </div>
 
             <div class="rankPower">${formatNumberFR(p.tcp)}</div>
@@ -263,6 +265,13 @@
       .join("");
 
     $players.innerHTML = html;
+    $players.querySelectorAll(".rankAlliance[data-alliance-key]").forEach((node) => {
+      const key = node.dataset.allianceKey;
+      const meta = getAllianceApi()?.getAllianceMeta?.(key);
+      if (meta?.nameColor || meta?.displayParts?.length === 2) {
+        getAllianceApi()?.renderAllianceName?.(node, key);
+      }
+    });
   }
 
   // ---------- Data / State ----------
