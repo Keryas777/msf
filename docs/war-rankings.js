@@ -328,7 +328,7 @@
         const keySafe = esc(alliance.key);
 
         return `
-          <label class="filterToggle">
+          <label class="filterToggle"${allianceMeta(alliance.key)?.group === "endgame-revolution" ? ' data-alliance-name-lines="two"' : ""}>
             <input id="filter-${keySafe}" type="checkbox" data-alliance="${keySafe}" checked />
             <span class="fStack">
               <span class="fEmoji">${esc(alliance.emoji)}</span>
@@ -955,6 +955,7 @@
       const meta = allianceMeta(key);
       if (meta?.nameColor || meta?.displayParts?.length === 2) {
         allianceHelper()?.renderAllianceName?.(node, key);
+        node.classList.add("rankAllianceName--custom");
       }
     });
   }
