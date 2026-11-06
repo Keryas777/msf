@@ -10,11 +10,35 @@ un nouveau `if (alliance === ...)` dans une page.
 | Famille | LoSP | Alliances invitées | Consommateurs |
 | --- | --- | --- | --- |
 | Fiches Infos complètes | `docs/data/infos.json` | `/api/secure/guest-infos` (R2, session Discord signée) | TCP, MVP, fiche joueur |
-| Répertoire des membres | `docs/data/joueurs.json` | Dérivé des Infos ; fallback des rosters autorisés | Fiche joueur, ISO, classement des équipes |
+| Répertoire des membres | `docs/data/joueurs.json` (LoSP actuellement) | Dérivé des Infos ; fallback des rosters autorisés (accès privé actuellement) | Fiche joueur, ISO, classement des équipes |
 | Rosters/ISO | `docs/data/rosters.json` | `/api/secure/guest-rosters?alliance=<key>` (R2, session signée) | Fiche joueur, ISO, classement des équipes |
 | Arène quotidienne | `/api/public/arena-history` | `/api/secure/guest-arena-history` | Classement Arène |
 | Rangs de saison Guerre/Raid | données de saison publiées | `/api/public/guest-season-ranks` | Historique d'alliances |
 | Trophées | historique public | historique public avec liaison explicite | Historique d'alliances |
+
+## Cible validée : annuaire public commun
+
+Un unique `docs/data/joueurs.json` doit à terme contenir le répertoire
+des **alliances LoSP et invitées**, sans traitement différent selon leur
+groupement. Les entrées publiées sont limitées à la structure minimale
+existante : `player` (pseudo en jeu) et `alliance` (clé WebApp canonique).
+Ce fichier est public et sa consultation ne requiert pas de session Discord.
+
+Le répertoire est généré automatiquement à partir des données d'alliances
+collectées et validées par le Roster Service, via un processus de
+synchronisation adapté à GitHub Pages (et non par une écriture depuis le
+navigateur). `alliance-data.js` reste le point d'accès commun aux pages.
+L'ajout d'une alliance ne doit nécessiter aucun branchement codé en dur.
+Un échec de collecte ne doit pas effacer silencieusement les joueurs
+précédemment publiés.
+
+**Cette cible est approuvée mais n'est pas encore déployée** : les sources
+décrites dans le tableau ci-dessus restent celles du code actuel. Les
+fiches Infos détaillées, les rosters, les puissances, les données ISO et
+les historiques privés des invités ne sont pas publiés dans ce fichier.
+Leur accès reste soumis aux autorisations et aux consentements existants,
+notamment `rosterShare`. L'affichage filtré dans la WebApp ne rend pas
+privés les pseudos déjà présents dans ce JSON public.
 
 ## Même structure Infos
 
@@ -34,11 +58,14 @@ répertoire et les Infos, mais leurs **rosters ne sont pas divulgués**.
 
 - La session et les rôles Discord sont revérifiés **côté Worker** ;
   les cases à cocher et l'aperçu administrateur ne donnent aucun droit.
-- Seules les alliances invitées encore approuvées et liées à une clé
-  WebApp peuvent être lues. Les homonymes sont indexés par
-  **`alliance + joueur`**.
-- Les données des invités ne sont **jamais** fusionnées dans les JSON
-  publics de GitHub Pages, ni stockées dans le localStorage du navigateur.
+- Seules les **données privées** des alliances invitées encore approuvées
+  et liées à une clé WebApp peuvent être lues via le Worker. Les homonymes
+  sont indexés par **`alliance + joueur`**.
+- Seuls les pseudos et les clés d'alliance du répertoire commun peuvent
+  être fusionnés dans le JSON public `docs/data/joueurs.json`. Les
+  fiches Infos détaillées, rosters et autres données privées des invités
+  ne sont ni publiés dans les JSON publics ni stockés dans le
+  `localStorage` du navigateur.
 - Les collectes utilisent les permissions `rosterShare` et les fenêtres de
   rétention R2 existantes ; pas de nouvelle requête Scopely pour l'affichage.
 - Quand aucune collecte complète valide n'existe, l'interface signale
@@ -76,7 +103,8 @@ données privées. La solution technique préparée garde une archive
 **WebApp privée** sous un préfixe R2 distinct des reçus éphémères du
 Roster Service, avec un index et **un fichier immutable par dimanche**.
 Les pages existantes continuent à lire la même API signée et vérifient les
-droits Discord. Aucun fichier invité n'est publié dans `docs/data/`.
+droits Discord. Aucun checkpoint ni historique privé invité n'est publié
+dans `docs/data/` ; seul l'annuaire minimal décrit plus haut fait exception.
 
 **Réserve contractuelle impérative avant activation :** les API Terms of Use
 Scopely fournis dans le projet (3 mars 2022) indiquent une durée maximale
