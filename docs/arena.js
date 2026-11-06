@@ -408,7 +408,8 @@ function fillChart(){
   // Fit all dates into the visible mobile card while they remain readable.
   // Only a long history creates a scrollable horizontal chart.
   const viewport=Math.ceil(chart.parentElement?.clientWidth||0);
-  const minWidth=left+right+Math.max(0,snaps.length-1)*78+8;
+  const minWidth=snaps.length<=7?0:
+    left+right+(snaps.length-1)*40+8;
   const width=Math.max(viewport||320,minWidth);
   const plot=width-left-right,vertical=height-top-bottom;
   chart.setAttribute("viewBox","0 0 "+width+" "+height);chart.style.width=width+"px";
@@ -424,8 +425,9 @@ function fillChart(){
     chart.append(sv("text",{x:left-9,y:yy+4,fill:"#ccd4e6",
       "text-anchor":"end","font-size":13},String(Math.round(value))));
   }
+  const dateFontSize=snaps.length>1&&plot/(snaps.length-1)<36?11:13;
   snaps.forEach((s,i)=>chart.append(sv("text",{x:x(i),y:height-25,
-    fill:"#cdd7eb","text-anchor":"middle","font-size":13},date(s.date).slice(0,5))));
+    fill:"#cdd7eb","text-anchor":"middle","font-size":dateFontSize},date(s.date).slice(0,5))));
   S.selected.forEach((id,i)=>{
     const p=S.people.get(id);if(!p)return;
     const records=snaps.map((s,n)=>({n,p:s.players.find(q=>q.id===id)}))
