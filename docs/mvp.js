@@ -162,6 +162,8 @@
       .map((p, i) => {
         const icon = safeUrl(p.icon);
         const frame = safeUrl(p.frame);
+        const meta = window.LoSPAlliances?.getAllianceMeta?.(p.alliance);
+        const customName = !!(meta?.nameColor || meta?.displayParts?.length === 2);
 
         return `
           <article class="rankRow">
@@ -175,7 +177,7 @@
 
             <div class="rankCenter">
               <strong class="rankName">${escapeHtml(p.name)}</strong>
-              <small class="rankAlliance" style="--alliance-color:${allianceColor(p.alliance)}">${escapeHtml(allianceEmoji(p.alliance))} ${escapeHtml(allianceLabel(p.alliance))}</small>
+              <small class="rankAlliance" data-alliance-key="${escapeHtml(p.alliance)}" style="--alliance-color:${allianceColor(p.alliance)}">${customName ? "" : escapeHtml(allianceEmoji(p.alliance)) + " "}${escapeHtml(allianceLabel(p.alliance))}</small>
             </div>
 
             <div class="rankPower">${formatNumberFR(p.war_mvp)}</div>
@@ -183,6 +185,13 @@
         `;
       })
       .join("");
+    $players.querySelectorAll(".rankAlliance[data-alliance-key]").forEach((node) => {
+      const key = node.dataset.allianceKey;
+      const meta = window.LoSPAlliances?.getAllianceMeta?.(key);
+      if (meta?.nameColor || meta?.displayParts?.length === 2) {
+        window.LoSPAlliances?.renderAllianceName?.(node, key);
+      }
+    });
   }
 
   let allPlayers = [];
