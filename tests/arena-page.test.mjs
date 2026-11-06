@@ -139,6 +139,41 @@ test("two Arena dates fit a 320px viewport without horizontal scroll",()=>{
   assert.equal(nodes.arenaChart.style.width,"420px");
 });
 
+test("seven Arena dates fit narrow mobile screens without scrolling",()=>{
+  const {page,nodes}=setup(),history=records(page);
+  page.mapSourceAlliances(history);
+  const example=page.readSnapshots(history).at(-1);
+  page.S.snapshots=Array.from({length:7},(_,i)=>({
+    ...example,date:"2026-11-"+String(i+1).padStart(2,"0")
+  }));
+  for(const person of example.players)page.S.people.set(person.id,person);
+  page.S.selected=["a","b"];
+  for(const viewport of [320,280]){
+    nodes.arenaChart.parentElement.clientWidth=viewport;
+    page.fillChart();
+    assert.equal(nodes.arenaChart.style.width,viewport+"px");
+    assert.equal(nodes.arenaChart.attrs.viewBox,"0 0 "+viewport+" 320");
+    assert.equal(nodes.arenaChart.children.filter(x=>x.tag==="circle").length,14);
+    const dates=nodes.arenaChart.children.filter(x=>x.tag==="text"&&
+      /^\\d{2}\\/\\d{2}$/.test(x.textContent));
+    assert.equal(dates.length,7);
+    assert.ok(dates.every(x=>Number(x.attrs.x)>=0&&Number(x.attrs.x)<=viewport));
+  }
+});
+
+test("eight Arena dates keep horizontal scrolling on narrow mobile screens",()=>{
+  const {page,nodes}=setup(),history=records(page);
+  page.mapSourceAlliances(history);
+  const example=page.readSnapshots(history).at(-1);
+  page.S.snapshots=Array.from({length:8},(_,i)=>({
+    ...example,date:"2026-11-"+String(i+1).padStart(2,"0")
+  }));
+  for(const person of example.players)page.S.people.set(person.id,person);
+  page.S.selected=["a"];
+  page.fillChart();
+  assert.ok(Number.parseInt(nodes.arenaChart.style.width,10)>320);
+});
+
 test("long histories retain horizontal scroll without hiding graph points",()=>{
   const {page,nodes}=setup(),history=records(page);
   page.mapSourceAlliances(history);
