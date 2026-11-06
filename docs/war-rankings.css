@@ -512,6 +512,24 @@ body{
   text-overflow:ellipsis;
   white-space:nowrap;
 }
+.rankAllianceName--custom{
+  overflow:visible;
+  text-overflow:clip;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.filterToggle[data-alliance-name-lines="two"] .fName.alliance-name--two-lines{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  overflow:visible;
+  white-space:nowrap;
+  text-overflow:clip;
+}
+.filterToggle[data-alliance-name-lines="two"] .fName.alliance-name--two-lines > span{
+  white-space:nowrap;
+}
 
 .rankWarsLine{
   color:var(--muted2);
