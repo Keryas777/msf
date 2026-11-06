@@ -171,3 +171,11 @@ test("guest roster players populate the player selector without manual joueurs.j
   assert.equal(env.PLAYERS_BY_ALLIANCE.get("marines").length,2);
   assert.equal(env.PLAYERS_BY_ALLIANCE.get("zeus"),undefined);
 });
+
+test("Discord scope is refreshed before building the initial LoSP directory",()=>{
+  const boot=source.slice(source.indexOf("  async function boot() {"));
+  const refresh=boot.indexOf("    refreshLoSPSession();");
+  const directory=boot.indexOf("    buildPlayersByAlliance();");
+  assert.ok(refresh>=0&&directory>refresh,
+    "LoSP members without a shared roster must remain selectable on first boot");
+});
