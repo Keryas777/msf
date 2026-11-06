@@ -209,7 +209,8 @@
   }
 
   function getAllianceEmoji(value) {
-    return getAllianceMeta(value)?.emoji || "•";
+    const meta = getAllianceMeta(value);
+    return meta ? meta.emoji || "" : "•";
   }
 
   function getAllianceLabel(value) {
