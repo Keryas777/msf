@@ -82,17 +82,24 @@
     if (!alive(state) || state.ranking || state.loadingRanking) return;
     state.loadingRanking = true;
     try {
-      const [allianceData, players, aliases, rosters] = await Promise.all([
+      const [allianceData, players, aliases] = await Promise.all([
         fetchData("alliances.json"), fetchData("joueurs.json"),
-        fetchData("player-aliases.json"), fetchData("rosters.json")
+        fetchData("player-aliases.json")
       ]);
       if (!alive(state)) return;
       state.alliances = (Array.isArray(allianceData) ? allianceData : [])
         .filter(a => a?.key && a.active !== false && window.LoSPAccess?.isAllianceAllowed(a.key))
         .sort((a, b) => Number(a.order || 999) - Number(b.order || 999));
       state.selected = new Set(state.alliances.map(a => a.key));
+      // This ranking intentionally compares all authorized alliances, so
+      // load each corresponding shard, never the complete global rosters.json.
+      const scoped = await window.LoSPRosterLoader.loadMany(
+        state.alliances.map(a => a.key));
+      if (!alive(state)) return;
+      if (scoped.warnings.length)
+        console.warn("[personnages] rosters indisponibles :",scoped.warnings.join(" ; "));
       const scopedPlayers = (Array.isArray(players) ? players : []).filter(p => window.LoSPAccess?.isAllianceAllowed(p?.alliance));
-      state.ranking = rankPlayers(state.record.id, rosters, scopedPlayers, aliases, state.alliances);
+      state.ranking = rankPlayers(state.record.id, scoped.rosters, scopedPlayers, aliases, state.alliances);
       const filters = state.root.querySelector("#profile-alliance-filters");
       filters.innerHTML = state.alliances.map(a =>
         "<label class=\"profileFilterToggle" + (a.group === "losp" ? " is-losp" : "") +

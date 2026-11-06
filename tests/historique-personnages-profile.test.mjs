@@ -175,7 +175,7 @@ test("ne masque pas les joueurs quand le module ISO reste en cache dans Safari",
 test("versionne ensemble les scripts de fiche après un changement de contrat ISO", () => {
   const html = readFileSync(new URL("../docs/historique-personnages.html", import.meta.url), "utf8");
   assert.match(html, /historique-personnages-profile-data\.js\?v=2/);
-  assert.match(html, /historique-personnages-profile\.js\?v=5/);
+  assert.match(html, /historique-personnages-profile\.js\?v=7/);
 });
 
 
@@ -223,6 +223,6 @@ test("la puissance utilise un espace visible entre les milliers sans changer la 
   assert.match(render(1000, 1234567), /class="profilePower">1\u2002234\u2002567<\/strong>/);
   assert.match(render(1, 999), /class="profilePower">999<\/strong>/);
   const html = readFileSync(new URL("../docs/historique-personnages.html", import.meta.url), "utf8");
-  assert.match(html, /historique-personnages-profile\.css\?v=4/);
-  assert.match(html, /historique-personnages-profile\.js\?v=5/);
+  assert.match(html, /historique-personnages-profile\.css\?v=5/);
+  assert.match(html, /historique-personnages-profile\.js\?v=7/);
 });

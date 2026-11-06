@@ -9,7 +9,7 @@
     warSeasonRules: "./data/war-season-rules.json",
     joueurs: "./data/joueurs.json",
     characters: "./data/msf-characters.json",
-    rosters: "./data/rosters.json",
+    // Roster shards are loaded only after an alliance is selected.
   };
 
   const AUTH_PLAYER_STORAGE_KEY = "losp:lastAttackCheckerPlayerByAlliance";
@@ -658,6 +658,7 @@
     }
 
     renderAll();
+    void loadSelectedRoster();
 
     return true;
   }
@@ -666,6 +667,7 @@
   let WAR = [];
   let JOUEURS = [];
   let ROSTERS = new Map();
+  let rosterGeneration = 0;
   let PLAYERS_BY_ALLIANCE = new Map();
   let CHAR_MAP = new Map();
   let LAST_TRACKED_KEY = "";
@@ -752,31 +754,28 @@
   }
 
   // ---------- ROSTER ----------
-  function buildRosterMap(data) {
+  function buildRosterMap(data, alliance) {
     ROSTERS = new Map();
-
+    const aKey = allianceKey(alliance);
     (Array.isArray(data) ? data : []).forEach((r) => {
       const player = (r.player ?? "").toString().trim();
-      if (!player) return;
-
-      const playerKey = normalizeKey(player);
+      if (!player || allianceKey(r.alliance) !== aKey) return;
+      const playerKey = aKey + ":" + normalizeKey(player);
       if (!playerKey) return;
 
       const map = {};
       const chars = r.chars && typeof r.chars === "object" ? r.chars : {};
-
       Object.entries(chars).forEach(([k, v]) => {
         const kk = normalizeKey(k);
         if (!kk) return;
         map[kk] = typeof v === "object" ? Number(v.power) || 0 : Number(v) || 0;
       });
-
       ROSTERS.set(playerKey, map);
     });
   }
 
   function getPlayerRawPower(player, chars) {
-    const playerKey = normalizeKey(player);
+    const playerKey = allianceKey(allianceSelect?.value) + ":" + normalizeKey(player);
     const roster = ROSTERS.get(playerKey);
 
     if (!roster) return 0;
@@ -838,6 +837,45 @@
       if (!PLAYERS_BY_ALLIANCE.has(allianceK)) PLAYERS_BY_ALLIANCE.set(allianceK, []);
       PLAYERS_BY_ALLIANCE.get(allianceK).push({ alliance: a, player: p });
     });
+  }
+
+  // As in War Counters, a roster download is limited to the selected
+  // tenant; the shared loader caches successful reads for this page.
+  async function loadSelectedRoster() {
+    const generation = ++rosterGeneration;
+    const key = allianceKey(allianceSelect?.value);
+    if (!key || !isAllianceAllowed(key)) return;
+    try {
+      const rows = await window.LoSPRosterLoader.load(key);
+      if (generation !== rosterGeneration ||
+          allianceKey(allianceSelect?.value) !== key) return;
+      buildRosterMap(rows,key);
+      const existing = new Set((PLAYERS_BY_ALLIANCE.get(key)||[])
+        .map(row=>normalizeKey(row.player)));
+      if (!PLAYERS_BY_ALLIANCE.has(key)) PLAYERS_BY_ALLIANCE.set(key,[]);
+      for (const row of rows) {
+        if (existing.has(normalizeKey(row.player))) continue;
+        PLAYERS_BY_ALLIANCE.get(key).push({alliance:key,player:row.player});
+        existing.add(normalizeKey(row.player));
+      }
+      const previous = playerSelect?.value;
+      renderPlayerOptions();
+      if (previous && Array.from(playerSelect.options).some(o=>o.value===previous))
+        playerSelect.value=previous;
+      else selectBestPlayerForCurrentAlliance({dispatch:false});
+      renderAll();
+    } catch (error) {
+      if (generation !== rosterGeneration) return;
+      console.warn("[war-attack-checker] roster :",error);
+      if (resultsCount) resultsCount.textContent="0";
+      if (resultsWrap) {
+        clearNode(resultsWrap);
+        const text=document.createElement("p");
+        text.className="subtitle";
+        text.textContent="Roster indisponible : "+String(error?.message||error);
+        resultsWrap.appendChild(text);
+      }
+    }
   }
 
   function renderAllianceOptions() {
@@ -1262,9 +1300,8 @@
 
     const didSelectPlayer = selectBestPlayerForCurrentAlliance();
 
-    if (!didSelectPlayer) {
-      renderAll();
-    }
+    if (!didSelectPlayer) renderAll();
+    void loadSelectedRoster();
   });
 
   playerSelect?.addEventListener("change", () => {
@@ -1290,12 +1327,11 @@
   async function boot() {
     await loadAllianceMetadata();
 
-    const [war, warSeasonRules, joueurs, chars, rosters] = await Promise.all([
+    const [war, warSeasonRules, joueurs, chars] = await Promise.all([
       fetchJson(FILES.warCounters),
       fetchJson(FILES.warSeasonRules),
       fetchJson(FILES.joueurs),
       fetchJson(FILES.characters),
-      fetchJson(FILES.rosters),
     ]);
 
     WAR = Array.isArray(war) ? war.map(normalizeWarRow) : [];
@@ -1303,7 +1339,6 @@
     JOUEURS = Array.isArray(joueurs) ? joueurs : [];
 
     buildCharMap(chars);
-    buildRosterMap(rosters);
     buildPlayersByAlliance();
 
     renderAllianceOptions();

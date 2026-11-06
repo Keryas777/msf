@@ -4,7 +4,6 @@
     teams: "./data/teams.json",
     characters: "./data/msf-characters.json",
     joueurs: "./data/joueurs.json",
-    rosters: "./data/rosters.json",
     isoIcons: "./data/iso-icons.json",
   };
 

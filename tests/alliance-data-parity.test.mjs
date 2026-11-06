@@ -4,12 +4,13 @@ import {readFile} from "node:fs/promises";
 import {runInNewContext} from "node:vm";
 
 const source=await readFile(new URL("../docs/alliance-data.js",import.meta.url),"utf8");
+const loader=await readFile(new URL("../docs/roster-loader.js",import.meta.url),"utf8");
 const signed="v1."+"R".repeat(60)+"."+"T".repeat(43);
 const registry=[
-  {key:"zeus",name:"Zeus",group:"losp"},
-  {key:"marines",name:"MARINES",group:"marines"},
-  {key:"endgame-revolution-red",name:"ENDGAME R-évolution",group:"endgame"},
-  {key:"endgame-revolution-orange",name:"ENDGAME R-évolution",group:"endgame"}
+  {key:"zeus",sourceKey:"zeus",name:"Zeus",group:"losp"},
+  {key:"marines",sourceKey:"marines",name:"MARINES",group:"marines"},
+  {key:"endgame-revolution-red",sourceKey:"endgame-revolution-red",name:"ENDGAME R-évolution",group:"endgame"},
+  {key:"endgame-revolution-orange",sourceKey:"endgame-revolution-orange",name:"ENDGAME R-évolution",group:"endgame"}
 ];
 const info=(name,alliance)=>({name,alliance,tcp:500000000,
   war_mvp:30,icon:"https://assets.marvelstrikeforce.com/imgs/icon.png",
@@ -24,6 +25,10 @@ function setup(role,keys,{token=signed,missing=false,publishedGuest=false}={}){
     LoSP_AUTH_READY:Promise.resolve(),
     LoSPAlliances:{loadAlliances:async()=>registry,
       getKnownAlliances:()=>registry,
+      getAllianceKey:value=>{
+        const text=String(value||"");
+        return byKey.has(text)?text:registry.find(a=>a.name===text)?.key||text;
+      },
       getAllianceMeta:value=>byKey.get(value)||
         registry.find(a=>a.name===value)||null},
     LoSPAccess:{isAllianceAllowed:value=>keys.includes(
@@ -36,13 +41,18 @@ function setup(role,keys,{token=signed,missing=false,publishedGuest=false}={}){
     if(url.startsWith("./data/joueurs.json"))
       return Response.json([{player:"Zeus member",alliance:"Zeus"},
         {player:"SECRET",alliance:"marines"}]);
-    if(url.startsWith("./data/rosters.json"))
-      return Response.json([roster("Zeus member","Zeus",100),
-        ...(publishedGuest?[
-          roster("Static Marine","marines",9999),
-          roster("Shared Name","endgame-revolution-red",1234),
-          roster("Shared Name","endgame-revolution-orange",5678)
-        ]:[])]);
+    if(url.startsWith("./data/rosters_")){
+      if(missing)return new Response(null,{status:503});
+      const key=String(url).split("rosters_")[1]?.split(".json")[0];
+      if(key==="zeus")return Response.json([roster("Zeus member","Zeus",100)]);
+      if(!publishedGuest)return new Response(null,{status:404});
+      const rosterData={
+        marines:[roster("Static Marine","marines",9999)],
+        "endgame-revolution-red":[roster("Shared Name","endgame-revolution-red",1234)],
+        "endgame-revolution-orange":[roster("Shared Name","endgame-revolution-orange",5678)]
+      };
+      return Response.json(rosterData[key]||[]);
+    }
     if(missing)return new Response(null,{status:503});
     if(url.includes("/guest-infos"))
       return Response.json({status:"ok",kind:"authorized-guest-infos",
@@ -58,9 +68,11 @@ function setup(role,keys,{token=signed,missing=false,publishedGuest=false}={}){
         ]});
     throw Error("unexpected request "+url);
   };
-  runInNewContext(source,{window,localStorage:{getItem:()=>token},fetch,
+  const context={window,localStorage:{getItem:()=>token},fetch,
     document:{},Date,URL,Set,Map,Number,Object,Array,String,RegExp,
-    encodeURIComponent,console});
+    encodeURIComponent,console};
+  runInNewContext(loader,context);
+  runInNewContext(source,context);
   return {window,calls};
 }
 const load=(x,options)=>x.window.LoSPAllianceData.load(options);
@@ -134,7 +146,9 @@ test("alliance pages load shared data before their consuming scripts",async()=>{
   for(const [page,script] of [
     ["index","app"],["iso","iso"],["joueur","joueur"]]){
     const html=await readFile(new URL("../docs/"+page+".html",import.meta.url),"utf8");
+    assert.match(html,/roster-loader.js/);
     assert.match(html,/alliance-data.js/);
+    assert.ok(html.indexOf("roster-loader.js")<html.indexOf("alliance-data.js"));
     assert.ok(html.indexOf("alliance-data.js")<html.indexOf(script+".js"));
   }
 });

@@ -2,7 +2,7 @@
 (() => {
   const FILES = {
     alliances: "./data/alliances.json",
-    rosters: "./data/rosters.json",
+    // Full rosters are read only for the selected alliance.
     characters: "./data/msf-characters.json",
     historyIndex: "./data/roster-history/index.json",
     isoIcons: "./data/iso-icons.json",
@@ -30,6 +30,8 @@
   const state = {
     alliances: [],
     rosters: [],
+    guestRosterDirectory: [],
+    loadedRosterKeys: new Set(),
     characters: [],
     historyIndex: null,
     isoIcons: {},
@@ -342,6 +344,28 @@
     populatePlayerSelect();
   }
 
+  let rosterDirectoryGeneration = 0;
+  async function loadSelectedRosterDirectory() {
+    const key = state.selectedAlliance;
+    const generation = ++rosterDirectoryGeneration;
+    if (!key || state.loadedRosterKeys.has(key) ||
+        window.LoSPAccess?.isAllianceAllowed(key) !== true) return;
+    try {
+      const rows = await window.LoSPRosterLoader.load(key);
+      if (generation !== rosterDirectoryGeneration ||
+          key !== state.selectedAlliance) return;
+      state.loadedRosterKeys.add(key);
+      // Retain only shards explicitly opened during this visit. Switching
+      // back to an earlier alliance keeps its correct current labels.
+      state.rosters.push(...rows);
+      populatePlayerSelect();
+    } catch (error) {
+      if (generation === rosterDirectoryGeneration)
+        console.warn("[evolution] roster courant non disponible :",error);
+      // Historical checkpoints stay available without current roster data.
+    }
+  }
+
   function populatePlayerSelect() {
     const players = playersForAlliance(state.selectedAlliance);
     const previous = state.selectedPlayerKey;
@@ -357,6 +381,9 @@
     if (players.some((player) => player.key === previous)) playerSelect.value = previous;
     state.selectedPlayerKey = playerSelect.value || "";
     refreshCheckpointControls();
+    // History is small and can render immediately; current roster labels
+    // are enhanced only for the alliance the user is inspecting.
+    void loadSelectedRosterDirectory();
   }
 
   function refreshCheckpointControls() {
@@ -901,31 +928,26 @@
   async function boot() {
     try {
       await window.LoSP_AUTH_READY;
-      const isGuest = window.LoSP_SESSION?.role === "guest";
-      const [alliances, history, characters, aliases, isoIcons, rosters] =
+      const [alliances, history, characters, aliases, isoIcons] =
         await Promise.all([
           fetchJson(FILES.alliances),
           window.LoSPEvolutionHistory.loadIndex(),
           fetchJson(FILES.characters),
           fetchJson(FILES.aliases),
           fetchJson(FILES.isoIcons).catch(() => ({})),
-          isGuest ? Promise.resolve([]) : fetchJson(FILES.rosters),
         ]);
       window.LoSPAllianceData.showWarnings(history.warnings);
       state.alliances = (Array.isArray(alliances) ? alliances : [])
         .filter(a => window.LoSPAccess?.isAllianceAllowed(a.key));
-      // Only the public LoSP roster directory is needed for the old view.
-      // Guest membership is derived from signed historical checkpoints;
-      // their full private rosters are read on-demand by the secure endpoint.
-      const lospRosters = (Array.isArray(rosters) ? rosters : [])
-        .filter(r => window.LoSPAccess?.isAllianceAllowed(r?.alliance) &&
-          window.LoSPAlliances?.getAllianceMeta?.(r.alliance)?.group === "losp");
+      // No consolidated roster download. Historical checkpoints are the
+      // directory source; active roster details load for the chosen alliance.
       const guestPlayers = Object.entries(history.historyIndex.players)
         .filter(([id,entry]) =>
           id.startsWith("g_") &&
           window.LoSPEvolutionHistory.isGuestAlliance(entry.currentAlliance))
         .map(([,entry])=>({player:entry.name,alliance:entry.currentAlliance}));
-      state.rosters = [...lospRosters,...guestPlayers];
+      state.guestRosterDirectory = guestPlayers;
+      state.rosters = [...guestPlayers];
       state.characters = Array.isArray(characters) ? characters : [];
       state.historyIndex = history.historyIndex;
       state.isoIcons = isoIcons && typeof isoIcons === "object" ? isoIcons : {};

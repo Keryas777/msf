@@ -7,7 +7,6 @@
     alliances: "./data/alliances.json",
     infos: "./data/infos.json",
     joueurs: "./data/joueurs.json",
-    rosters: "./data/rosters.json",
     teams: "./data/teams.json",
     characters: "./data/msf-characters.json",
     isoIcons: "./data/iso-icons.json",
@@ -1866,6 +1865,34 @@
     applyFallbackSelection();
   }
 
+  // Fetch only the currently displayed player's alliance, not all rosters.
+  let selectedRosterGeneration = 0;
+  async function loadSelectedAllianceRoster() {
+    const generation = ++selectedRosterGeneration;
+    const key = state.selectedAllianceKey;
+    if (!key || window.LoSPAccess?.isAllianceAllowed(key) !== true) return;
+    try {
+      const rows = await window.LoSPRosterLoader.load(key);
+      if (generation !== selectedRosterGeneration ||
+          key !== state.selectedAllianceKey) return;
+      state.rosters = rows;
+      // Invitees may have roster sharing even if their Infos directory is late.
+      const known = new Set(state.joueurs.filter(j=>allianceKey(j.alliance)===key)
+        .map(j=>getJoueurPlayerKey(j)));
+      for (const row of rows) {
+        const playerKey = getRosterPlayerKey(row);
+        if (!playerKey || known.has(playerKey)) continue;
+        state.joueurs.push({player:row.player,alliance:row.alliance});
+        known.add(playerKey);
+      }
+      renderPlayerOptions();
+      renderAll();
+    } catch (error) {
+      if (generation === selectedRosterGeneration)
+        window.LoSPAllianceData.showWarnings([String(error?.message||error)]);
+    }
+  }
+
   // ---------- Boot ----------
 
   async function boot() {
@@ -1878,25 +1905,21 @@
       warHistoryRaw,
       aliasesRaw,
     ] = await Promise.all([
-      window.LoSPAllianceData.load({ infos: true, joueurs: true, rosters: true }),
+      window.LoSPAllianceData.load({ infos: true, joueurs: true }),
       fetchJson(FILES.teams),
       fetchJson(FILES.characters).catch(() => []),
       fetchJson(FILES.isoIcons).catch(() => ({})),
       fetchJson(FILES.warHistory).catch(() => []),
       fetchJson(FILES.aliases).catch(() => ({})),
     ]);
-    const { infos: infosRaw, joueurs: joueursRaw, rosters: rostersRaw } = allianceSources;
+    const { infos: infosRaw, joueurs: joueursRaw } = allianceSources;
 
     await loadAllianceMetadata();
     window.LoSPAllianceData.showWarnings(allianceSources.warnings);
 
     state.infos = (Array.isArray(infosRaw) ? infosRaw : []).filter(row => window.LoSPAccess?.isAllianceAllowed(row?.alliance));
     state.joueurs = normalizeJoueurs(joueursRaw).filter(row => window.LoSPAccess?.isAllianceAllowed(row?.alliance));
-    const authorizedPlayers = new Set(state.joueurs.map((row) => normalizeKey(row.player)));
-    state.rosters = (Array.isArray(rostersRaw) ? rostersRaw : []).filter(row =>
-      row?.alliance ? window.LoSPAccess?.isAllianceAllowed(row.alliance) :
-      authorizedPlayers.has(normalizeKey(row?.playerKey || row?.player))
-    );
+    state.rosters = []; // The selected alliance shard is fetched on demand.
     state.teams = normalizeTeams(teamsRaw);
     state.chars = Array.isArray(charsRaw) ? charsRaw : [];
     state.isoIcons = isoIconsRaw && typeof isoIconsRaw === "object" ? isoIconsRaw : {};
@@ -1912,6 +1935,7 @@
     renderAllianceOptions();
     renderPlayerOptions();
     renderAll();
+    void loadSelectedAllianceRoster();
 
     bootReady = true;
   }
@@ -1938,6 +1962,7 @@
     renderAllianceOptions();
     renderPlayerOptions();
     renderAll();
+    void loadSelectedAllianceRoster();
   });
 
   allianceSelect?.addEventListener("change", () => {
@@ -1945,9 +1970,11 @@
     authDefaultsApplied = true;
 
     state.selectedAllianceKey = allianceSelect.value;
+    state.rosters = [];
     renderPlayerOptions();
     saveStoredSelection();
     renderAll();
+    void loadSelectedAllianceRoster();
   });
 
   allianceSelect?.addEventListener("input", () => {
@@ -1955,9 +1982,11 @@
     authDefaultsApplied = true;
 
     state.selectedAllianceKey = allianceSelect.value;
+    state.rosters = [];
     renderPlayerOptions();
     saveStoredSelection();
     renderAll();
+    void loadSelectedAllianceRoster();
   });
 
   playerSelect?.addEventListener("change", () => {
