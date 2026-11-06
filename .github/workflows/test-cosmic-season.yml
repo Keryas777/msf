@@ -6,6 +6,8 @@ on:
       - "docs/data/cosmic*"
       - "docs/data/COSMIC*"
       - "docs/war-counters.js"
+      - "docs/war-counters.html"
+      - "tests/war-counters-lazy-rosters.test.mjs"
       - "scripts/*cosmic*"
       - "tests/cosmic*"
       - ".github/workflows/*cosmic*"
@@ -31,4 +33,4 @@ jobs:
           node --check docs/cosmic-defenses.js
           node --check docs/cosmic-defense-catalog.js
           node --check docs/war-counters.js
-          node --test tests/cosmic-static.test.mjs tests/cosmic-season-lifecycle.test.mjs tests/cosmic-defense-catalog.test.mjs tests/cosmic-localization.test.mjs
+          node --test tests/war-counters-lazy-rosters.test.mjs tests/war-counters-defense-variants.test.mjs tests/cosmic-static.test.mjs tests/cosmic-season-lifecycle.test.mjs tests/cosmic-defense-catalog.test.mjs tests/cosmic-localization.test.mjs
