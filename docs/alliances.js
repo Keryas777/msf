@@ -267,6 +267,7 @@
       .filter((alliance) => allowedKeys ? allowedKeys.has(alliance.key) : alliance.group === "losp")
       .map((alliance) => ({
         key: alliance.key,
+        sourceKey: alliance.sourceKey,
         name: alliance.name,
         displayName: alliance.displayName,
         emoji: alliance.emoji,
