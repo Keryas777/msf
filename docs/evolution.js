@@ -136,6 +136,8 @@
   }
 
   function playersForAlliance(allianceKey) {
+    const isGuestAlliance = typeof window !== "undefined" &&
+      window.LoSPEvolutionHistory?.isGuestAlliance?.(allianceKey) === true;
     const wanted = normalizeKey(allianceKey);
     const history = state.historyIndex?.players || {};
     // Live rosters contain only members who shared data during the latest
@@ -147,7 +149,7 @@
     for (const [key, entry] of Object.entries(history)) {
       if (currentKeys.has(key) || normalizeKey(entry?.currentAlliance) !== wanted ||
           !Array.isArray(entry?.checkpoints) || !entry.checkpoints.length) continue;
-      const label = window.LoSPEvolutionHistory.isGuestAlliance(allianceKey)
+      const label = isGuestAlliance
         ? String(entry.name || key) : canonicalPlayerName(entry.name || key);
       if (label) players.set(key, { key, label: label + " (historique)" });
     }
@@ -157,7 +159,7 @@
       const key = getRosterPlayerKey(roster);
       if (!key || !Array.isArray(history[key]?.checkpoints) ||
           !history[key].checkpoints.length) continue;
-      const label = window.LoSPEvolutionHistory.isGuestAlliance(allianceKey)
+      const label = isGuestAlliance
         ? String(roster?.player || roster?.name || roster?.playerKey || "")
         : canonicalPlayerName(roster?.player || roster?.name || roster?.playerKey || "");
       if (label) players.set(key, { key, label });
