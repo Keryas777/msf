@@ -127,7 +127,8 @@ test("published GitHub guest rosters take precedence over private R2 projections
     r=>r.chars.blob.power),[1234,5678]);
   assert.equal(x.calls.filter(c=>c.url.includes("/guest-rosters")).length,0,
     "published guests must not trigger redundant signed R2 roster reads");
-  assert.equal(result.joueurs.filter(p=>p.player==="Shared Name").length,2);
+  assert.equal(result.joueurs.filter(p=>p.player==="Shared Name" &&
+    p.alliance.startsWith("endgame-")).length,2);
 });
 test("alliance pages load shared data before their consuming scripts",async()=>{
   for(const [page,script] of [
