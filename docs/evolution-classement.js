@@ -434,11 +434,13 @@
   async function boot() {
     try {
       await window.LoSP_AUTH_READY;
-      const [alliances, history, source] = await Promise.all([
+      const [alliances, history] = await Promise.all([
         fetchJson(FILES.alliances),
         window.LoSPEvolutionHistory.loadIndex(),
-        window.LoSPAllianceData.load({infos:true}),
       ]);
+      // Read canonical guest keys directly from the Evolution registry:
+      // the display helper strips hyphens from ENDGAME identifiers.
+      const source = await window.LoSPEvolutionHistory.infos();
       window.LoSPAllianceData.showWarnings(
         [...history.warnings,...source.warnings]);
       state.alliances = (Array.isArray(alliances) ? alliances : [])
