@@ -169,6 +169,7 @@
   white-space:nowrap;
 }
 .rankingPage .fEmoji{font-size:17px;line-height:1}
+.rankingPage .fEmoji:empty{display:none}
 .rankingPage .fName{
   min-width:0;
   font-size:12px;

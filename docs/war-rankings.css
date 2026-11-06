@@ -221,6 +221,7 @@ body{
   font-size:18px;
   line-height:1;
 }
+.fEmoji:empty{display:none}
 
 .fName{
   font-size:13px;
@@ -497,6 +498,8 @@ body{
   font-weight:750;
 }
 
+.rankAllianceEmoji:empty{display:none}
+
 .rankAllianceEmoji{
   font-size:15px;
   line-height:1;
@@ -508,6 +511,24 @@ body{
   min-width:0;
   overflow:hidden;
   text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.rankAllianceName--custom{
+  overflow:visible;
+  text-overflow:clip;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.filterToggle[data-alliance-name-lines="two"] .fName.alliance-name--two-lines{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  overflow:visible;
+  white-space:nowrap;
+  text-overflow:clip;
+}
+.filterToggle[data-alliance-name-lines="two"] .fName.alliance-name--two-lines > span{
   white-space:nowrap;
 }
 

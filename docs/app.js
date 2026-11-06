@@ -288,6 +288,8 @@
   function allianceEmoji(value) {
     const helper = allianceHelper();
 
+    const meta = helper?.getAllianceMeta?.(value);
+    if (meta) return meta.emoji || "";
     if (helper?.getAllianceEmoji) return helper.getAllianceEmoji(value);
 
     return FALLBACK_ALLIANCES.find((a) => a.key === value)?.emoji || "•";
@@ -364,7 +366,7 @@
         name.textContent = allianceLabel(key);
       }
 
-      stack.appendChild(emoji);
+      if (emoji.textContent) stack.appendChild(emoji);
       stack.appendChild(name);
       label.appendChild(input);
       label.appendChild(stack);

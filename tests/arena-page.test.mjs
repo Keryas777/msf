@@ -191,7 +191,7 @@ test("successful Arena loading hides the redundant banner but keeps error feedba
   assert.match(source,/Données Arène indisponibles/);
   assert.match(css,/\.arenaState\[hidden\]\{display:none!important\}/);
   assert.match(html,/id="arenaStatus"/);
-  assert.match(html,/arena\.js\?v=11/);
+  assert.match(html,/arena\.js\?v=\d+/);
 });
 
 
@@ -231,7 +231,7 @@ test("Arena portrait/frame use 1:1 scale without changing tile or row dimensions
 test("Arena uses the same expandable multi-alliance checkboxes as MVP/TCP",()=>{
   const html=fs.readFileSync(new URL("../docs/arena.html",import.meta.url),"utf8");
   assert.match(html,/class="arenaPage rankingPage"/);
-  assert.match(html,/rankings-shared\.css\?v=1/);
+  assert.match(html,/rankings-shared\.css\?v=\d+/);
   assert.match(html,/id="rankingAllianceFilters"/);
   assert.match(html,/id="rankingAllianceSummaryText"/);
   assert.doesNotMatch(html,/id="rankingAlliance"/);

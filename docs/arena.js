@@ -351,6 +351,9 @@ function fillRanking(){
     const info=document.createElement("div");info.className="arenaRankIdentity";
     info.append(make("strong",p.name,"arenaRankName"));
     const sub=make("small",label(p.alliance),"arenaRankAlliance");
+    const meta=window.LoSPAlliances?.getAllianceMeta?.(p.alliance);
+    if(meta?.nameColor||meta?.displayParts?.length===2)
+      window.LoSPAlliances?.renderAllianceName?.(sub,p.alliance);
     sub.style.setProperty("--alliance-color",color(p.alliance));info.append(sub);
     line.append(info);
     const prior=previous.get(p.id),delta=make("span","—","arenaDelta");

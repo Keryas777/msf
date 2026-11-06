@@ -74,6 +74,13 @@
       ? "<p class=\"detailEmpty\">Coche au moins une alliance.</p>"
       : !filtered.length ? "<p class=\"detailEmpty\">Aucun personnage détenu dans les alliances sélectionnées.</p>"
       : filtered.map((row, i) => playerMarkup(row, i + 1, state.alliances)).join("");
+    state.root.querySelectorAll?.("#profile-player-list .profilePlayerInfo")?.forEach((info, index) => {
+      const key = filtered[index]?.alliance;
+      const meta = window.LoSPAlliances?.getAllianceMeta?.(key);
+      if (meta?.nameColor || meta?.displayParts?.length === 2) {
+        window.LoSPAlliances?.renderAllianceName?.(info.querySelector("span"), key);
+      }
+    });
     state.root.querySelector("#profile-toggle-all").textContent =
       state.selected.size === state.alliances.length ? "Tout décocher" : "Tout cocher";
   }

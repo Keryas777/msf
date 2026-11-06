@@ -363,6 +363,10 @@
       const alliance = document.createElement('div');
       alliance.className = 'evolutionRankingAlliance';
       alliance.textContent = allianceLabel(row.alliance);
+      const meta = window.LoSPAlliances?.getAllianceMeta?.(row.alliance);
+      if (meta?.nameColor || meta?.displayParts?.length === 2) {
+        window.LoSPAlliances?.renderAllianceName?.(alliance, row.alliance);
+      }
       identity.append(player, alliance);
 
       const gain = document.createElement('div');
