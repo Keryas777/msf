@@ -16698,14 +16698,28 @@
         "individualReleaseCount": 2,
         "teamEventNewCharacterCount": 39,
         "distinctPlayableReleaseCount": 41,
-        "distinctReworkedCharacterCount": 45,
+        "distinctReworkedCharacterCount": 46,
         "duplicatesAcrossReleaseBuckets": [],
         "annualTotalsStatus": "partial: audited through 2026-10-05; includes officially announced Dracula/Nightreavers release dated 2026-10-19"
       },
-      "individualReworks": [],
+      "individualReworks": [
+        {
+          "characterId": "MagikBreaker",
+          "month": "2026-11",
+          "observedAt": "2026-11-07",
+          "changedFields": [
+            "basic",
+            "ultimate"
+          ],
+          "confidence": "automated_observation",
+          "notes": [
+            "Changement de kit/statistiques detecte dans combat_data; date de mise en ligne reelle non prouvee."
+          ]
+        }
+      ],
       "automatedMonitoring": {
         "firstTrackedAt": "2026-10-18T23:35:49Z",
-        "lastChangeObservedAt": "2026-11-03T03:12:54Z",
+        "lastChangeObservedAt": "2026-11-07T01:17:28Z",
         "dateSemantics": "first_seen_in_sources_not_first_playable_date"
       }
     }
