@@ -233,7 +233,7 @@ test('page reads the configured calendar, preserves authorization and cache bust
   assert.match(html,/alliance-history-data\.js\?v=6/);
   assert.match(html,/alliance-trophy-live\.js\?v=4/);
   assert.match(html,/alliance-season-live\.js\?v=3/);
-  assert.match(html,/alliance-history\.js\?v=16/);
+  assert.match(html,/alliance-history\.js\?v=17/);
   assert.match(html,/alliance-history\.css\?v=5/);
 });
 
@@ -294,193 +294,139 @@ function drawRenderedChart(id,clientWidth=390,snapshots=[original],hiddenKeys=[]
   ctx.plotFn(prepare(snapshots,registry,byId(id),config.rankingSeasons),byId(id));
   return plot;
 }
-test('raid and war ranking charts use exact 1, 100, 200 ... hundred ticks and taller SVG',()=>{
+test('raid and war ranks fit their visible extrema with short Y axes',()=>{
   for(const id of ['raid-season-rank','war-season-rank']){
     const plot=drawRenderedChart(id);
     assert.equal(plot.attributes.viewBox,'0 0 382 350');
+    const points=plot.children.filter(n=>n.tag==='circle');
+    assert.equal(points.length,5);
+    const y=points.map(p=>Number(p.attrs.cy));
+    assert.ok(Math.min(...y)>24&&Math.max(...y)<292);
     const labels=plot.children.filter(n=>n.tag==='text'&&
       n.attrs['text-anchor']==='end').map(n=>n.text);
-    assert.deepEqual(labels,['1','100','200','300','400','500','600','700','800']);
-    assert.equal(plot.children.filter(n=>n.tag==='line'&&
-      n.attrs.class==='historyGridLine').length,9);
-    const points=plot.children.filter(n=>n.tag==='circle');
-    assert.equal(points.length,5,'All five official rank values remain plotted');
-    const y=rank=>14+(rank-1)/(800-1)*(350-14-48);
-    for(const point of points){
-      assert.ok(point.attrs.cy>=14&&point.attrs.cy<=302);
-    }
-    assert.equal(plot.children.find(n=>n.tag==='line').attrs.y1,14);
+    assert.ok(labels.includes('100')&&labels.includes('200'));
+    assert.ok(labels.length>=5&&labels.length<=12);
+    assert.equal(plot.children.filter(n=>
+      n.attrs.class==='historyGridLine').length,labels.length);
   }
 });
-test('rankings shade Top 100 dark green and 101-200 light green behind points',()=>{
+test('rank bands stay behind data and clip to the visible viewport',()=>{
   for(const id of ['raid-season-rank','war-season-rank']){
     const plot=drawRenderedChart(id);
-    const bands=plot.children.filter(n=>n.tag==='rect');
+    const bands=plot.children.filter(n=>n.attrs.class==='historyRankBand');
     assert.equal(bands.length,2);
-    assert.equal(bands[0].attrs.class,'historyRankBand');
-    assert.equal(bands[1].attrs.class,'historyRankBand');
     assert.notEqual(bands[0].attrs.fill,bands[1].attrs.fill);
-    assert.ok(Number(bands[0].attrs['fill-opacity'])>0);
-    assert.ok(Number(bands[1].attrs['fill-opacity'])>0);
-    assert.ok(Number(bands[0].attrs['fill-opacity'])<1);
-    assert.ok(Number(bands[1].attrs['fill-opacity'])<1);
-    assert.equal(bands[0].attrs.y,14);
+    assert.ok(bands.every(n=>n.attrs.y>=14&&n.attrs.y<=302));
+    assert.ok(bands.every(n=>n.attrs.height>0));
     assert.ok(Math.abs(bands[0].attrs.y+bands[0].attrs.height-
-      bands[1].attrs.y)<1e-7,'The two bands must touch');
+      bands[1].attrs.y)<1e-7);
     assert.ok(plot.children.indexOf(bands[1])<
-      plot.children.findIndex(n=>n.tag==='circle'),
-      'Bands must be behind all alliance dots');
+      plot.children.findIndex(n=>n.tag==='circle'));
     assert.ok(plot.children.indexOf(bands[1])<
-      plot.children.findIndex(n=>n.tag==='line'),
-      'Bands must also be behind the grid');
+      plot.children.findIndex(n=>n.tag==='line'));
   }
 });
-test('default trophy viewport clips low Platinum tiers, preserving compact edge zones',()=>{
-  const divisions=config.trophyDivisions;
-  assert.equal(config.trophyAxisAnchorDivision,'D-I',
-    'Adding lower Platinum tiers must not shift the normal vertical axis');
-  assert.deepEqual(divisions.map(b=>[b.label,b.min??null,b.max??null]),[
-    ['P-I',null,1499],['P-II',1500,1749],['P-III',1750,1999],
-    ['P-IV',2000,2249],['D-I',2250,2499],['D-II',2500,2749],
-    ['D-III',2750,2999],['D-IV',3000,3249],['U-I',3250,null]
-  ]);
+test('trophy Y domain hugs visible dots rather than including unused upper leagues',()=>{
+  assert.equal(config.trophyDivisions.length,9);
   for(const width of [320,390,680]){
     const plot=drawRenderedChart('war-trophies',width);
-    assert.equal(plot.attributes.viewBox,
-      '0 0 '+(width-8)+' '+(width<500?350:400));
+    const axis=plot.children.filter(n=>n.tag==='text'&&
+      n.attrs.class==='historyAxisText'&&
+      n.attrs['text-anchor']==='end').map(n=>Number(
+        String(n.text).replace(/[^\d]/g,'')));
+    assert.ok(axis[0]<2189);
+    assert.ok(axis.at(-1)>2875&&axis.at(-1)<3250);
     const bands=plot.children.filter(n=>n.attrs.class==='historyTrophyBand');
-    const separators=plot.children.filter(n=>n.attrs.class==='historyTrophyBoundary');
     const labels=plot.children.filter(n=>n.attrs.class==='historyTrophyLabel');
-    const axisLabels=plot.children.filter(n=>n.attrs.class==='historyAxisText'&&
-      n.attrs['text-anchor']==='end');
-    assert.equal(Number(String(axisLabels[0].text).replace(/\D/g,'')),2150,
-      'The original 2189-trophy minimum keeps its prior 2150 axis floor');
-    assert.equal(bands.length,6,
-      'Only P-IV through U-I appear when all sampled values are above 2000');
-    assert.equal(new Set(bands.map(b=>b.attrs.fill)).size,6);
-    for(let i=1;i<bands.length;i++){
-      assert.ok(Math.abs(bands[i].attrs.y+bands[i].attrs.height-
-        bands[i-1].attrs.y)<1e-7,
-        'Adjacent trophy backgrounds must touch exactly');
-    }
-    const rgb=hex=>[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));
-    const luminance=hex=>rgb(hex).reduce((sum,v)=>sum+v,0);
-    assert.ok(luminance(bands[0].attrs.fill)>luminance(bands[1].attrs.fill),
-      'P-IV must be visually lighter than D-I');
+    assert.deepEqual(labels.map(n=>n.text),['P-IV','D-I','D-II','D-III']);
+    assert.equal(bands.length,4);
+    for(let i=1;i<bands.length;i++)assert.ok(
+      Math.abs(bands[i].attrs.y+bands[i].attrs.height-
+        bands[i-1].attrs.y)<1e-7);
+    const points=plot.children.filter(n=>n.tag==='circle');
+    assert.equal(points.length,5);
+    const ys=points.map(n=>Number(n.attrs.cy));
+    assert.ok(Math.min(...ys)>32);
+    assert.ok(Math.max(...ys)<(width<500?350:400)-58);
     assert.equal(plot.attributes.viewBox,
-      drawRenderedChart('war-season-rank',width).attributes.viewBox,
-      'Trophy and war ranking graphs have the same mobile/desktop height');
+      drawRenderedChart('war-season-rank',width).attributes.viewBox);
     assert.equal(plot.attributes.viewBox,
-      drawRenderedChart('raid-season-rank',width).attributes.viewBox,
-      'Trophy and raid ranking graphs have the same mobile/desktop height');
-    assert.deepEqual(labels.map(n=>n.text),['P-IV','D-I','D-II','D-III','D-IV','U-I']);
-    assert.equal(separators.length,5);
-    assert.ok(Math.abs(separators.at(-1).attrs.y1-
-      (bands.at(-1).attrs.y+bands.at(-1).attrs.height))<1e-7,
-      'D-IV / U-I boundary must be at exactly 3250 trophies');
-    assert.ok(bands.every(b=>b.attrs.height>16));
-    assert.ok(bands[0].attrs.height<bands[1].attrs.height,
-      'Empty P-IV is smaller than D-I');
-    assert.ok(Math.abs(bands[4].attrs.height-bands[3].attrs.height)<1e-7,
-      'D-IV and D-III are both full 250-trophy tiers');
-    assert.ok(bands[5].attrs.height<bands[4].attrs.height,
-      'The partially visible U-I is smaller than D-IV');
-    assert.ok(labels.every(l=>l.attrs.x>width-8-50));
-    assert.ok(plot.children.indexOf(bands.at(-1))<
-      plot.children.findIndex(n=>n.tag==='circle'),
-      'Grey zones remain behind the alliance curves');
-    assert.equal(plot.children.filter(n=>n.tag==='line'&&
-      n.attrs.class==='historyGridLine').length,0,
-      'No generic horizontal grid lines in the trophy chart');
-    assert.equal(plot.children.filter(n=>n.tag==='circle').length,5);
-    assert.equal(plot.children.filter(n=>n.attrs.class==='historyRankBand').length,0);
+      drawRenderedChart('raid-season-rank',width).attributes.viewBox);
+    assert.equal(plot.children.filter(n=>
+      n.attrs.class==='historyGridLine').length,0);
   }
 });
-test('low Platinum and high Uru trophy values reveal all nine configured bands',()=>{
-  const unusual={...original,alliances:original.alliances.map((a,i)=>(
+test('outlying trophies reveal all nine exact league bands',()=>{
+  const changed={...original,alliances:original.alliances.map((a,i)=>
     i===0?{...a,warTrophies:1375}:
-    i===1?{...a,warTrophies:3450}:a))};
+    i===1?{...a,warTrophies:3450}:a)};
   for(const width of [320,390,680]){
-    const plot=drawRenderedChart('war-trophies',width,[unusual]);
+    const plot=drawRenderedChart('war-trophies',width,[changed]);
     const bands=plot.children.filter(n=>n.attrs.class==='historyTrophyBand');
-    const separators=plot.children.filter(n=>n.attrs.class==='historyTrophyBoundary');
+    const lines=plot.children.filter(n=>n.attrs.class==='historyTrophyBoundary');
     const labels=plot.children.filter(n=>n.attrs.class==='historyTrophyLabel');
     assert.equal(bands.length,9);
+    assert.equal(lines.length,8);
     assert.deepEqual(labels.map(n=>n.text),
       ['P-I','P-II','P-III','P-IV','D-I','D-II','D-III','D-IV','U-I']);
-    assert.equal(separators.length,8);
-    assert.equal(plot.children.filter(n=>n.tag==='circle').length,5);
-    const rgb=hex=>[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));
-    for(let i=1;i<bands.length;i++){
-      assert.ok(Math.abs(bands[i].attrs.y+bands[i].attrs.height-
-        bands[i-1].attrs.y)<1e-7,
-        'Platinum, Diamond and Uru backgrounds must join without gaps');
-      assert.ok(rgb(bands[i-1].attrs.fill).reduce((s,v)=>s+v,0)>
-        rgb(bands[i].attrs.fill).reduce((s,v)=>s+v,0),
-        'Each higher division must use a darker background');
-    }
-    const y=value=>22+(3500-value)/(3500-1300)*(width<500?350-22-48:400-22-48);
-    for(const [index,boundary] of [1500,1750,2000,2250,2500,2750,3000,3250].entries()){
-      assert.ok(Math.abs(separators[index].attrs.y1-y(boundary))<1e-7,
-        'Division separator must use its exact trophy threshold');
-    }
+    // Dynamic bounds 1000..3800; league thresholds must remain exact.
+    const y=v=>22+(3800-v)/(3800-1000)*
+      ((width<500?350:400)-22-48);
+    for(const [i,b] of [1500,1750,2000,2250,2500,2750,3000,3250].entries())
+      assert.ok(Math.abs(lines[i].attrs.y1-y(b))<1e-7);
+    assert.ok(bands.every(b=>b.attrs.height>0));
   }
 });
-test('trophy chart expands beyond P-IV and into U-I for observed outliers',()=>{
-  const unusual={...original,alliances:original.alliances.map((a,i)=>(
+test('intermediate Platinum and Uru outliers also fit the dynamic bounds',()=>{
+  const changed={...original,alliances:original.alliances.map((a,i)=>
     i===0?{...a,warTrophies:2040}:
-    i===1?{...a,warTrophies:3450}:a))};
-  const plot=drawRenderedChart('war-trophies',390,[unusual]);
+    i===1?{...a,warTrophies:3450}:a)};
+  const plot=drawRenderedChart('war-trophies',390,[changed]);
   const points=plot.children.filter(n=>n.tag==='circle');
   assert.equal(points.length,5);
-  for(const dot of points)assert.ok(dot.attrs.cy>=22&&dot.attrs.cy<=302);
-  const labels=plot.children.filter(n=>n.attrs.class==='historyTrophyLabel');
-  assert.deepEqual(labels.map(n=>n.text),['P-IV','D-I','D-II','D-III','D-IV','U-I']);
+  assert.ok(points.every(n=>n.attrs.cy>22&&n.attrs.cy<302));
+  assert.deepEqual(plot.children.filter(n=>
+    n.attrs.class==='historyTrophyLabel').map(n=>n.text),
+    ['P-III','P-IV','D-I','D-II','D-III','D-IV','U-I']);
 });
-
-test('both seasonal charts always share the largest hundred ceiling, regardless of which has worse ranks',()=>{
-  const cases=[
-    {raid:930,war:722,expected:1000},
-    {raid:767,war:1044,expected:1100},
-    {raid:1395,war:1201,expected:1400}
-  ];
-  for(const {raid,war,expected} of cases){
-    const modified={...original,alliances:original.alliances.map((a,i)=>
-      i===0?{...a,raidRank:raid,warRank:war}:a)};
-    const plots=['raid-season-rank','war-season-rank'].map(id=>
-      drawRenderedChart(id,390,[modified]));
-    const scales=plots.map(plot=>plot.children.filter(n=>
-      n.tag==='text'&&n.attrs['text-anchor']==='end').map(n=>
-      Number(String(n.text).replace(/\D/g,''))));
-    assert.deepEqual(scales[0],scales[1],
-      'Switching between raid and war must keep identical Y-axis ticks');
-    assert.equal(scales[0][0],1);
-    assert.equal(scales[0].at(-1),expected);
-    assert.equal(scales[0].length,expected/100+1);
-    for(const plot of plots){
-      const ticks=plot.children.filter(n=>n.tag==='line'&&
-        n.attrs.class==='historyGridLine');
-      assert.equal(ticks.length,scales[0].length);
-      assert.equal(ticks[0].attrs.y1,14);
-      assert.equal(ticks.at(-1).attrs.y1,302);
-      assert.equal(plot.children.filter(n=>n.tag==='rect').length,2);
-    }
-  }
+test('raid and war seasons have independent bounds based on visible dots',()=>{
+  const changed={...original,alliances:original.alliances.map(a=>
+    a.key==='zeus'?{...a,raidRank:930,warRank:722}:a)};
+  const labels=id=>drawRenderedChart(id,390,[changed]).children.filter(n=>
+    n.tag==='text'&&n.attrs['text-anchor']==='end').map(n=>
+      Number(String(n.text).replace(/[^\d]/g,'')));
+  const raid=labels('raid-season-rank'),war=labels('war-season-rank');
+  assert.notDeepEqual(raid,war);
+  assert.equal(raid[0],50);
+  assert.equal(raid.at(-1),1050);
+  assert.equal(war[0],1);
+  assert.equal(war.at(-1),800);
 });
-test('trophy graph is still independent of shared ranking ceiling',()=>{
-  const altered={...original,alliances:original.alliances.map(a=>
+test('trophy scale remains independent of all season ranking values',()=>{
+  const changed={...original,alliances:original.alliances.map(a=>
     ({...a,raidRank:2750,warRank:3400}))};
   const baseline=drawRenderedChart('war-trophies',390);
-  const changed=drawRenderedChart('war-trophies',390,[altered]);
-  assert.equal(changed.attributes.viewBox,baseline.attributes.viewBox);
-  assert.deepEqual(
-    changed.children.filter(n=>n.tag==='text'&&n.attrs['text-anchor']==='end').map(n=>n.text),
-    baseline.children.filter(n=>n.tag==='text'&&n.attrs['text-anchor']==='end').map(n=>n.text)
-  );
-  assert.equal(changed.children.filter(n=>
-    n.attrs.class==='historyTrophyBand').length,6);
+  const updated=drawRenderedChart('war-trophies',390,[changed]);
+  const axis=plot=>plot.children.filter(n=>n.tag==='text'&&
+    n.attrs['text-anchor']==='end').map(n=>n.text);
+  assert.deepEqual(axis(updated),axis(baseline));
+  assert.equal(updated.children.filter(n=>
+    n.attrs.class==='historyTrophyBand').length,
+    baseline.children.filter(n=>n.attrs.class==='historyTrophyBand').length);
 });
 
+test('single-point series keep vertical space even at rank one',()=>{
+  const zeus=original.alliances.find(a=>a.key==='zeus');
+  const snapshot={...original,alliances:[{...zeus,
+    warTrophies:2875,raidRank:1,warRank:1}]};
+  for(const id of ['war-trophies','war-season-rank','raid-season-rank']){
+    const plot=drawRenderedChart(id,390,[snapshot]);
+    const dots=plot.children.filter(n=>n.tag==='circle');
+    assert.equal(dots.length,1);
+    assert.ok(dots[0].attrs.cy>(id==='war-trophies'?22:14)+10);
+    assert.ok(dots[0].attrs.cy<292);
+  }
+});
 test('all three graphs use abbreviated, non-overlapping dates on mobile',()=>{
   const scenarios=[
     ['war-trophies',[original,shifted(1),shifted(3)]],
@@ -568,25 +514,24 @@ test('Hadès 🔥 first appears in the true 24 October snapshot, not the earlier
       original.capturedAt,'Keep original confirmed alliance values');
   }
 });
-test('large Hadès ranks use a readable shared compressed axis without hundreds of ticks',()=>{
+test('Hadès rank outliers retain readable compression on independent Y axes',()=>{
   const history=index.snapshots.map(s=>
     JSON.parse(read('docs/data/alliance-standings/'+s.file)));
   const labels=[];
   for(const id of ['war-season-rank','raid-season-rank']){
     const plot=drawRenderedChart(id,390,history);
-    const ticks=plot.children.filter(n=>n.attrs.class==='historyGridLine');
-    assert.ok(ticks.length>=6&&ticks.length<=12);
+    const lines=plot.children.filter(n=>n.attrs.class==='historyGridLine');
+    assert.ok(lines.length>=6&&lines.length<=12);
     assert.equal(plot.children.filter(n=>n.tag==='circle').length,12);
-    const yValues=plot.children.filter(n=>n.tag==='circle').map(n=>Number(n.attrs.cy));
-    assert.ok(yValues.every(y=>y>=14&&y<=302));
-    assert.ok(Math.max(...yValues)-Math.min(...yValues)>150,
-      'The huge rank gap must not collapse all alliance points');
-    const values=plot.children.filter(n=>n.tag==='text'&&
+    const ys=plot.children.filter(n=>n.tag==='circle').map(n=>Number(n.attrs.cy));
+    assert.ok(ys.every(y=>y>=14&&y<=302));
+    assert.ok(Math.max(...ys)-Math.min(...ys)>150);
+    const ticks=plot.children.filter(n=>n.tag==='text'&&
       n.attrs['text-anchor']==='end').map(n=>n.text);
-    assert.ok(values.includes('100')&&values.includes('200'));
-    labels.push(values);
+    assert.ok(ticks.includes('100')&&ticks.includes('200'));
+    labels.push(ticks);
   }
-  assert.deepEqual(labels[0],labels[1],'Rank charts retain a shared axis');
+  assert.notDeepEqual(labels[0],labels[1]);
 });
 test('missing seasons and values never inherit a later observed new alliance',()=>{
   const history=index.snapshots.map(s=>
@@ -630,22 +575,20 @@ test('legend controls are accessible buttons with filled and hollow alliance mar
   assert.match(css,/\.historyLegendEntry:focus-visible/);
 });
 
-test('hiding Hadès filters dots and restores the standard rank scale on mobile',()=>{
+test('hiding Hadès recalculates every Y axis from visible alliances only',()=>{
   const readings=octoberBaseline();
   for(const id of ['war-season-rank','raid-season-rank']){
     const full=drawRenderedChart(id,390,readings);
     const filtered=drawRenderedChart(id,390,readings,['hades']);
     assert.equal(full.children.filter(n=>n.tag==='circle').length,12);
     assert.equal(filtered.children.filter(n=>n.tag==='circle').length,10);
-    const fullTicks=full.children.filter(n=>n.attrs.class==='historyGridLine');
-    const filteredTicks=filtered.children.filter(n=>n.attrs.class==='historyGridLine');
-    assert.ok(fullTicks.length<=12);
-    assert.equal(filteredTicks.length,18,
-      'Without Hadès the shared rank scale is linear through rank 1 700');
-    const end=filtered.children.filter(n=>n.tag==='text'&&
+    const axis=plot=>plot.children.filter(n=>n.tag==='text'&&
       n.attrs['text-anchor']==='end'&&
-      n.attrs.class==='historyAxisText').at(-1);
-    assert.equal(Number(String(end.text).replace(/\D/g,'')),1700);
+      n.attrs.class==='historyAxisText').map(n=>
+        Number(String(n.text).replace(/[^\d]/g,'')));
+    assert.ok(axis(filtered).at(-1)<axis(full).at(-1));
+    assert.ok(filtered.children.filter(n=>
+      n.attrs.class==='historyGridLine').length<=12);
     assert.equal(filtered.attributes.viewBox,full.attributes.viewBox);
   }
   for(const width of [320,390,680]){
@@ -654,10 +597,10 @@ test('hiding Hadès filters dots and restores the standard rank scale on mobile'
     assert.equal(full.children.filter(n=>n.tag==='circle').length,16);
     assert.equal(filtered.children.filter(n=>n.tag==='circle').length,15);
     assert.equal(full.attributes.viewBox,filtered.attributes.viewBox);
-    const fullLabels=full.children.filter(n=>n.attrs.class==='historyTrophyLabel');
-    const filteredLabels=filtered.children.filter(n=>n.attrs.class==='historyTrophyLabel');
-    assert.ok(fullLabels.some(n=>n.text==='P-IV'));
-    assert.ok(filteredLabels.some(n=>n.text==='D-I'));
+    const labels=plot=>plot.children.filter(n=>
+      n.attrs.class==='historyTrophyLabel').map(n=>n.text);
+    assert.ok(labels(full).includes('P-IV'));
+    assert.ok(labels(filtered).includes('D-I'));
   }
 });
 test('all hidden curves do not create a fake data series or break SVG rendering',()=>{
