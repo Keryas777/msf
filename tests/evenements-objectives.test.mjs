@@ -22,7 +22,7 @@ function node(tag='div'){
     focus(){this.focused=true;}
   };
 }
-async function makePage({failure=false,stale=false,extraEvents=[]}={}){
+async function makePage({failure=false,stale=false,extraEvents=[],includeBase=true}={}){
   const ids=[...html.matchAll(/id="([^"]+)"/g)].map(x=>x[1]);
   const elements=new Map(ids.map(id=>[id,node()]));
   const now=Math.floor(Date.now()/1000),day=86400;
@@ -30,6 +30,9 @@ async function makePage({failure=false,stale=false,extraEvents=[]}={}){
   const event=(name,description,{secondary=false,cap=null,points=1,dates=null}={})=>({
     id:'fixture-'+(++sequence),name,type:'milestone',
     startTime:now-day,endTime:now+day*2,
+    cardArt:'https://assets.marvelstrikeforce.com/key_art/FixtureCard.jpg',
+    popupArt:'https://assets.marvelstrikeforce.com/key_art/FixtureBanner.jpg',
+    milestoneType:'solo',
     ...(secondary?{locationHints:['lohub_feeder']}:{}),
     milestone:{scoring:{
       methods:cap===null&&description?[{description,points}]:[],
@@ -37,7 +40,7 @@ async function makePage({failure=false,stale=false,extraEvents=[]}={}){
     }},
     ...(dates||{})
   });
-  const events=[
+  const events=includeBase?[
     event('Raid Event',''),
     event('Raid Event','Play Alliance Raid with an Iron Raider at Gear Tier 21',{secondary:true,cap:8}),
     event('Raid Event','Play Alliance Raid with an Iron Raider at Gear Tier 21',{secondary:true,cap:8}),
@@ -45,11 +48,16 @@ async function makePage({failure=false,stale=false,extraEvents=[]}={}){
     event('Daily Event','Log In for 7 Days',{cap:7}),
     event('Future Event','Battle in Raid',{dates:{startTime:now+day,endTime:now+day*5}}),
     event('Past Event','Battle in War',{dates:{startTime:now-day*5,endTime:now-day}})
-  ];
+  ]:[];
   for(const [name,type,more] of extraEvents){
     events.push({
       id:'fixture-'+(++sequence),name,type,
       startTime:now-day,endTime:now+day*2,
+      ...(type==='milestone'?{
+        cardArt:'https://assets.marvelstrikeforce.com/key_art/FixtureCard.jpg',
+        popupArt:'https://assets.marvelstrikeforce.com/key_art/FixtureBanner.jpg',
+        milestone:{type:'solo',scoring:{methods:[],cappedScorings:[]}}
+      }:{}),
       ...more
     });
   }
@@ -85,6 +93,11 @@ async function makePage({failure=false,stale=false,extraEvents=[]}={}){
 }
 const sections=nodes=>nodes.get('events-objectives').children.filter(x=>x.tag==='section');
 const actions=nodes=>sections(nodes).flatMap(x=>x.children[1].children.map(item=>item.children[0].textContent));
+const calendarGroups=(nodes,key='current')=>nodes.get('events-'+key).children.filter(child=>child.tag==='section');
+const cards=(nodes,key='current')=>calendarGroups(nodes,key).flatMap(group=>group.children[1].children);
+const titles=(nodes,key='current')=>cards(nodes,key).map(card=>card.children[1].children[1].textContent);
+const groupTitles=(nodes,key='current')=>calendarGroups(nodes,key).map(group=>group.children[0].children[0].textContent);
+
 
 test('Le résumé rassemble les objectifs actifs, y compris les feeders, sans doublons',async()=>{
   const nodes=await makePage();
