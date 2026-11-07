@@ -443,6 +443,7 @@ test('Une même action Raid ou Guerre rassemble les événements et conserve cha
 
 test('Les actions montrent les plafonds réels et distinguent le rythme conseillé',async()=>{
   const now=Math.floor(Date.now()/1000);
+  const oneDay={startTime:now-3600,endTime:now+23*3600};
   const sevenDays={startTime:now-86400,endTime:now+6*86400};
   const twentyEightDays={startTime:now-86400,endTime:now+27*86400};
   const nodes=await makePage({includeBase:false,extraEvents:[
@@ -459,6 +460,11 @@ test('Les actions montrent les plafonds réels et distinguent le rythme conseill
         {cap:384000,methods:[{description:'Combattre en guerre',points:800}]}
       ]}}
     }],
+    ['Raid journalier','milestone',{
+      ...oneDay,milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:2,methods:[{description:'Combattre en raid',points:1}]}
+      ]}}
+    }],
     ['Arène mensuelle','milestone',{
       ...twentyEightDays,milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
         {cap:3,methods:[{description:'Combattre dans l’arène',points:1}]}
@@ -470,17 +476,17 @@ test('Les actions montrent les plafonds réels et distinguent le rythme conseill
   const hints=(mode)=>heading(mode).children.filter(child=>
     child.className==='ev-objective-limit').map(child=>child.textContent);
   const raid=hints('RAID'),war=hints('GUERRE'),arena=hints('ARÈNE');
-  assert.ok(raid.includes('Solo : 6 et 24 combats pris en compte sur 7 j'));
-  assert.ok(raid.includes('Alliance : '+new Intl.NumberFormat('fr-FR').format(1152)+
-    ' combats pris en compte collectivement sur 7 j'));
-  assert.ok(raid.includes('Pour atteindre 24 : ≈ 4 combats/j conseillés (pas un plafond quotidien)'));
-  assert.ok(war.includes('Solo : 5 combats pris en compte sur 7 j'));
-  assert.ok(war.includes('Alliance : 480 combats pris en compte collectivement sur 7 j'));
+  assert.ok(raid.includes('Solo : 6 et 24 combats comptabilisés sur 7 jours'));
+  assert.ok(raid.includes('Solo : 2 combats comptabilisés sur 24 h'));
+  assert.ok(!raid.some(x=>x.includes('Alliance')||x.includes('1 152')));
+  assert.ok(!raid.some(x=>x.includes('/j conseillés')));
+  assert.ok(war.includes('Solo : 5 combats comptabilisés sur 7 jours'));
+  assert.ok(!war.some(x=>x.includes('Alliance')||x.includes('480')));
   assert.ok(!war.some(x=>x.includes('/j')));
-  assert.ok(arena.includes('Solo : 3 combats pris en compte sur 28 j'));
+  assert.ok(arena.includes('Solo : 3 combats comptabilisés sur 28 jours'));
   assert.ok(!arena.some(x=>x.includes('/j')));
-  assert.equal(nodes.get('stat-objectives').textContent,'6');
-  assert.equal(objectiveNodes(nodes).length,6);
+  assert.equal(nodes.get('stat-objectives').textContent,'7');
+  assert.equal(objectiveNodes(nodes).length,7);
 });
 
 test('Une action sans plafond explicite ne devient pas artificiellement illimitée',async()=>{
@@ -491,7 +497,21 @@ test('Une action sans plafond explicite ne devient pas artificiellement illimit�
   const summary=sections(nodes)[0].children[1].children[0].children[0];
   const hints=summary.children.filter(child=>child.className==='ev-objective-limit')
     .map(child=>child.textContent);
-  assert.deepEqual(hints,['Autre méthode : aucun plafond indiqué']);
+  assert.deepEqual(hints,['Solo : aucun plafond indiqué']);
+});
+
+test('Un objectif uniquement alliance n’ajoute aucune limite solo',async()=>{
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Guerre d’alliance','milestone',{milestone:{type:'alliance',scoring:{
+      methods:[],cappedScorings:[
+        {cap:384000,methods:[{description:'Combattre en guerre',points:800}]}
+      ]}}}]
+  ]});
+  const summary=sections(nodes)[0].children[1].children[0].children[0];
+  const hints=summary.children.filter(child=>child.className==='ev-objective-limit');
+  assert.equal(hints.length,0);
+  assert.ok(objectiveNodes(nodes)[0].children[1].children.some(child=>
+    child.textContent?.includes('384')));
 });
 
 test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP communs',()=>{
@@ -527,7 +547,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=23/);
+  assert.match(html,/evenements\.js\?v=24/);
 });
 
 test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',async()=>{
