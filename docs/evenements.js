@@ -14,7 +14,8 @@
   ];
   const SECTIONS={current:'En cours',past:'Passés'};
   const TABS=['objectives','current','past'];
-  const state={events:[],metadata:{},sourceError:false,date:null,manualDate:false,search:'',type:'',includeSecondary:false,lastButton:null};
+  const state={events:[],metadata:{},sourceError:false,date:null,manualDate:false,search:'',type:'',includeSecondary:false,lastButton:null,
+    teams:[],characters:[],characterAliases:[]};
   const fmtDate=new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'numeric',month:'short',year:'numeric'});
   const fmtNumber=new Intl.NumberFormat('fr-FR');
   const now=()=>Date.now();
@@ -309,6 +310,115 @@
       return 'Améliorer des personnages au palier G'+m[1]+' ou supérieur';
     return description;
   }
+  // Les équipes sont décrites par teams.json (Google Sheets) et les portraits
+  // par msf-characters.json. Aucun nom de personnage ou d'équipe codé en dur.
+  function characterAliases(characters){
+    const aliases=[];
+    for(const character of characters){
+      if(!character||typeof character.id!=='string')continue;
+      const names=new Set([character.nameKey,character.nameFr,character.nameEn,character.id]
+        .filter(value=>typeof value==='string'&&strip(value))
+        .flatMap(value=>{
+          const name=eventNameKey(value);
+          return [name,name.replace(/^(?:la |le |les |l'|un |une |the )/,'')];
+        }));
+      for(const alias of names)if(alias.length>=3)aliases.push({character,alias});
+    }
+    return aliases.sort((a,b)=>b.alias.length-a.alias.length||
+      a.character.id.localeCompare(b.character.id));
+  }
+  function objectiveCharacter(description){
+    if(!state.characterAliases.length)return null;
+    const text=eventNameKey(description);
+    const markers=/\b(?:avec|with)\s+/g;
+    let marker;
+    while((marker=markers.exec(text))){
+      const remaining=text.slice(marker.index+marker[0].length);
+      const possibilities=[remaining,remaining.replace(/^(?:la |le |les |l'|un |une |a |an |the )/,'')];
+      for(const {character,alias} of state.characterAliases){
+        if(possibilities.some(part=>part.startsWith(alias)&&
+          !/[a-z0-9]/.test(part.charAt(alias.length))))return character;
+      }
+    }
+    return null;
+  }
+  function objectiveTeams(entries){
+    const members=new Map(),other=[];
+    for(const item of entries){
+      const character=item.character;
+      if(!character){other.push(item);continue;}
+      if(!members.has(character.id))members.set(character.id,{character,items:[]});
+      members.get(character.id).items.push(item);
+    }
+    const candidates=state.teams.filter(team=>team&&typeof team.team==='string'&&
+      Array.isArray(team.characters)).map(team=>({
+        team,matched:[...new Set(team.characters)].filter(id=>members.has(id))
+      })).filter(group=>group.matched.length>=2).sort((a,b)=>
+        b.matched.length-a.matched.length||a.team.team.localeCompare(b.team.team,'fr'));
+    const assigned=new Set(),teams=[];
+    for(const candidate of candidates){
+      const chars=candidate.matched.filter(id=>!assigned.has(id));
+      if(chars.length<2)continue;
+      for(const id of chars)assigned.add(id);
+      teams.push({name:candidate.team.team,characters:chars.map(id=>members.get(id))});
+    }
+    const individual=[...members.values()].filter(member=>!assigned.has(member.character.id));
+    teams.sort((a,b)=>a.name.localeCompare(b.name,'fr'));
+    individual.sort((a,b)=>(a.character.nameKey||a.character.id)
+      .localeCompare(b.character.nameKey||b.character.id,'fr'));
+    return {teams,individual,other};
+  }
+  function objectiveCondition(item){
+    const label=item.label;
+    const stars=label.match(/\b(\d+)\s+étoiles?\s+jaunes\b/i);
+    if(stars)return stars[1]+' étoiles jaunes';
+    const gear=label.match(/\bpalier d[’']équipement\s+(\d+)\b/i);
+    if(gear)return 'Palier d’équipement '+gear[1];
+    if(/^(?:combattre|jouer|battle|play)\b/i.test(label))return 'Combat';
+    return label;
+  }
+  function objectiveRow(item,short=false){
+    const li=create('li','ev-objective-item');
+    const label=short?objectiveCondition(item):item.label;
+    const action=create('p','ev-objective-action',label);
+    if(label!==item.label)action.title=item.label;
+    li.append(action);
+    const row=create('div','ev-objective-footer');
+    if(item.points!==null)row.append(create('span','ev-objective-score',
+      '+'+fmtNumber.format(item.points)+' pt(s) / action'));
+    if(item.cap!==null){
+      const repeat=item.points&&item.cap/item.points;
+      const explicitCount=/\b(?:times?|days?|fois|jours)\b/i.test(item.description);
+      let limit=(item.sharedCap?'Plafond partagé ':'Plafond ')+
+        fmtNumber.format(item.cap)+' pts';
+      if(!item.sharedCap&&!explicitCount&&Number.isInteger(repeat)&&repeat>1&&repeat<=200)
+        limit+=' · Jusqu’à '+fmtNumber.format(repeat)+' actions comptabilisées';
+      row.append(create('span','ev-objective-cap',limit));
+    }
+    if(item.premium)row.append(create('span','ev-objective-premium','Premium'));
+    li.append(row);return li;
+  }
+  function objectiveList(items,short=false){
+    const list=create('ul','ev-objective-list');
+    for(const item of items)list.append(objectiveRow(item,short));
+    return list;
+  }
+  function objectiveCharacterCard(member){
+    const card=create('details','ev-objective-character');
+    const heading=create('summary','ev-objective-character-summary');
+    const url=cleanImage(member.character.portraitUrl);
+    if(url){
+      const img=create('img','ev-objective-portrait');img.src=url;img.alt='';
+      img.loading='lazy';img.decoding='async';
+      img.addEventListener('error',()=>img.remove(),{once:true});
+      heading.append(img);
+    }
+    heading.append(create('strong','',strip(member.character.nameKey||
+      member.character.nameFr||member.character.nameEn||member.character.id)));
+    heading.append(create('span','ev-objective-mini-count',
+      fmtNumber.format(member.items.length)+' condition(s)'));
+    card.append(heading,objectiveList(member.items,true));return card;
+  }
   function objectiveEntries(reference){
     const match=state.search.trim().toLocaleLowerCase('fr');
     const active=state.events.filter(e=>category(e,reference)==='current'&&
@@ -321,7 +431,12 @@
         const description=strip(method?.description);
         if(!description)return;
         const label=objectiveLabel(description);
-        if(match&&![event.name,event.subName,event.details,event.id,description,label]
+        const character=objectiveCharacter(description);
+        const teamNames=character?state.teams.filter(team=>
+          Array.isArray(team.characters)&&team.characters.includes(character.id))
+          .map(team=>team.team):[];
+        if(match&&![event.name,event.subName,event.details,event.id,description,label,
+          character?.nameKey,...teamNames]
           .some(value=>strip(value).toLocaleLowerCase('fr').includes(match)))return;
         const mode=objectiveMode(description);
         const points=Number(method.points);
@@ -330,7 +445,8 @@
         const key=[eventTitle(event).toLocaleLowerCase('fr'),description.toLocaleLowerCase('fr'),mode,score,ceiling,Boolean(premium)].join('|');
         if(dedup.has(key))return;
         dedup.add(key);
-        items.push({event,label,mode,description,points:score,cap:ceiling,premium:Boolean(premium),sharedCap:Boolean(sharedCap)});
+        items.push({event,label,mode,description,points:score,cap:ceiling,
+          premium:Boolean(premium),sharedCap:Boolean(sharedCap),character});
       };
       for(const method of Array.isArray(scoring.methods)?scoring.methods:[])add(method,null,false,false);
       for(const capped of Array.isArray(scoring.cappedScorings)?scoring.cappedScorings:[]){
