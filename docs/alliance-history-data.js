@@ -148,7 +148,7 @@
           seasonAdditions.get(row.seasonId)?.get(alliance.key):null;
         const source = direct || fallback?.source;
         const value = source && source[chart.field];
-        return {capturedAt: fallback?.capturedAt || row.capturedAt,
+        return {capturedAt: source?.capturedAt || fallback?.capturedAt || row.capturedAt,
           plotAt: chart.frequency === 'per-season' && aValidSeasonEnd(row) ?
             row.rankingSeason.endExclusiveAt : row.capturedAt,
           seasonStartAt: aValidSeasonEnd(row) ? row.rankingSeason.startAt : null,
