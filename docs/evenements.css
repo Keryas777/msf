@@ -25,8 +25,6 @@ body.ev-body{margin:0;min-height:100vh;color:var(--text);font-family:system-ui,-
 .ev-date-controls{display:flex;align-items:flex-end;gap:8px}
 .ev-date-controls .ev-field{flex:1}
 .ev-btn{min-height:44px;border:1px solid var(--toggle-on-border);border-radius:12px;padding:10px 12px;color:var(--text);background:var(--toggle-on-bg);font:inherit;font-size:12px;font-weight:750;white-space:nowrap;cursor:pointer}
-.ev-checkbox{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;line-height:1.35;cursor:pointer}
-.ev-checkbox input{accent-color:#8e9fff;width:17px;height:17px;flex-shrink:0}
 .ev-toolbar-bottom{display:flex;flex-direction:column;gap:10px}
 .ev-filter-note{color:var(--muted2);font-size:11px}
 .ev-section{display:flex;flex-direction:column;gap:11px;scroll-margin-top:18px}

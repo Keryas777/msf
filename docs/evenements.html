@@ -7,9 +7,18 @@
   <title>Événements — LoSP</title>
   <style>html.authChecking body{opacity:0;pointer-events:none}</style>
   <script>document.documentElement.classList.add("authChecking");</script>
+  <script>
+    // Avant le rendu, neutraliser les anciens liens d'ancrage du calendrier.
+    // Ils forçaient Safari à rouvrir « Passés » même après un rafraîchissement.
+    try {
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      if (/^#section-(?:objectives|current|past)$/.test(location.hash))
+        history.replaceState(history.state, '', location.pathname + location.search);
+    } catch (_) {}
+  </script>
   <script src="./auth-guard.js?v=4"></script>
   <link rel="stylesheet" href="./style.css?v=4">
-  <link rel="stylesheet" href="./evenements.css?v=9">
+  <link rel="stylesheet" href="./evenements.css?v=10">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./losp-selects.css?v=2" />
   </head>
@@ -38,7 +47,6 @@
         <button id="reset-date" class="ev-btn" type="button">Aujourd'hui</button>
       </div>
       <div class="ev-toolbar-bottom">
-        <label class="ev-checkbox"><input type="checkbox" id="secondary-filter"> Afficher aussi les fiches secondaires / techniques dans le calendrier</label>
         <span class="ev-filter-note" id="filter-context">Classement selon les dates archivées.</span>
       </div>
     </section>
@@ -47,7 +55,7 @@
     <section class="ev-section ev-section--past" id="section-past" role="tabpanel" aria-labelledby="tab-past" hidden><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">↶</span><div><h2 id="title-past">Événements passés</h2><p class="ev-section-desc">Historique par rubrique du jeu</p></div></div><span class="ev-count" id="count-past">—</span></div><div class="ev-groups" id="events-past"></div></section>
   </main>
   <dialog id="event-dialog" class="ev-dialog" aria-label="Détail de l'événement"><div id="event-dialog-content"></div></dialog>
-<script src="./evenements.js?v=20" defer></script>
+<script src="./evenements.js?v=21" defer></script>
   <script src="./losp-selects.js?v=4"></script>
   </body>
 </html>
