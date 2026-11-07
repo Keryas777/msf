@@ -10,6 +10,7 @@ on:
   push:
     paths:
       - "scripts/fetch-teams.mjs"
+      - "tests/fetch-teams.test.mjs"
       - ".github/workflows/fetch-teams.yml"
 
 permissions:
@@ -31,6 +32,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Verify Teams export
+        run: node --test tests/fetch-teams.test.mjs
 
       - name: Run fetch teams
         run: node scripts/fetch-teams.mjs

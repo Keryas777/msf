@@ -75,6 +75,7 @@ async function main() {
 
   const iTeam = idx("team");
   const iMode = idx("mode");
+  const iSide = idx("side");
 
   const charIndexes = [
     idx("character1"),
@@ -86,6 +87,7 @@ async function main() {
 
   if (iTeam < 0) throw new Error("Missing header: team");
   if (iMode < 0) throw new Error("Missing header: mode");
+  if (iSide < 0) throw new Error("Missing header: side");
   if (!charIndexes.length) throw new Error("No character columns found");
 
   const teams = [];
@@ -95,6 +97,7 @@ async function main() {
     if (!team) continue;
 
     const mode = norm(row[iMode]);
+    const side = norm(row[iSide]);
 
     // 🔥 accepte 1 à 5 persos
     const characters = charIndexes
@@ -106,7 +109,8 @@ async function main() {
     teams.push({
       team,
       mode,
-      characters
+      characters,
+      ...(side ? { warRole: side } : {})
     });
   }
 
