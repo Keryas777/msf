@@ -47,7 +47,8 @@ test("Questionable Propriety : registre blanc et accès isolé", async () => {
   assert.equal(meta.color, "#FFFFFF");
   assert.equal(meta.nameColor, "#FFFFFF");
   assert.equal(meta.sourceKey, "questionable-propriety");
-  assert.equal(helper.getAllianceMeta("endgame-revolution-red"), null);
+  // Les métadonnées restent résolubles globalement, mais pas visibles dans cette session.
+  assert.deepEqual(visibleKeys(helper), ["questionablepropriety"]);
 });
 
 test("administrateur : les dix identifiants internes sont visibles", async () => {
