@@ -466,12 +466,11 @@
       holder.append(create('p','ev-empty-emoji','📋'));
       holder.append(create('h3','','Aucun objectif de score disponible'));
       holder.append(create('p','','Les événements en cours ne fournissent pas de méthode de progression exploitable pour cette date ou ces filtres.'));
-      host.append(holder);
-      return;
+      host.append(holder);return;
     }
     host.append(create('p','ev-objectives-note',
-      'Méthodes de progression des Phases et du Poste de commandement actifs.'+
-      ' La progression personnelle n’est pas synchronisée.'));
+      fmtNumber.format(items.length)+' méthodes de score, regroupées par mode, événement, équipe et personnage. '+
+      'Les plafonds sont indépendants sauf mention contraire. Progression personnelle non synchronisée.'));
     const grouped=new Map();
     for(const item of items){
       if(!grouped.has(item.mode))grouped.set(item.mode,[]);
@@ -487,33 +486,66 @@
       entries.sort((a,b)=>a.event.endTime-b.event.endTime||
         eventTitle(a.event).localeCompare(eventTitle(b.event),'fr')||
         a.label.localeCompare(b.label,'fr'));
-      const group=create('section','ev-objective-mode');
+      const modeSection=create('section','ev-objective-mode');
       const meta=key.split('+').map(part=>MODE_BY_KEY.get(part)||MODE_BY_KEY.get('divers'));
-      const heading=create('h3','ev-objective-heading',meta[0].emoji+' '+meta.map(x=>x.label).join(' / '));
-      heading.append(create('span','ev-objective-count',fmtNumber.format(entries.length)));
-      const list=create('ul','ev-objective-list');
+      const heading=create('h3','ev-objective-heading',
+        meta[0].emoji+' '+meta.map(x=>x.label).join(' / '));
+      heading.append(create('span','ev-objective-count',
+        fmtNumber.format(entries.length)+' méthodes'));
+      const eventList=create('div','ev-objective-events');
+      const byEvent=new Map();
       for(const item of entries){
-        const li=create('li','ev-objective-item');
-        li.append(create('p','ev-objective-action',item.label));
-        const row=create('div','ev-objective-footer');
-        const trigger=create('button','ev-objective-event',eventTitle(item.event));
-        trigger.type='button';trigger.addEventListener('click',()=>openDetail(item.event,trigger));
-        row.append(trigger);
-        row.append(create('span','ev-objective-scope',
-          item.event.milestone?.type==='alliance'?'Alliance':'Solo'));
-        if(item.points!==null)row.append(create('span','ev-objective-score','+'+fmtNumber.format(item.points)+' pt(s) / action'));
-        if(item.cap!==null){
-          const repeat=item.points&&item.cap/item.points;
-          const explicitCount=/\b(?:times?|days?|fois|jours)\b/i.test(item.description);
-          const label=!item.sharedCap&&!explicitCount&&Number.isInteger(repeat)&&repeat>1&&repeat<=200?
-            'Jusqu’à '+fmtNumber.format(repeat)+' actions comptabilisées':
-            (item.sharedCap?'Plafond partagé ':'Plafond ')+fmtNumber.format(item.cap)+' pts';
-          row.append(create('span','ev-objective-cap',label));
-        }
-        if(item.premium)row.append(create('span','ev-objective-premium','Premium'));
-        li.append(row);list.append(li);
+        const id=objectiveGroup(item.event)+'|'+eventNameKey(item.event.name);
+        if(!byEvent.has(id))byEvent.set(id,{event:item.event,items:[]});
+        const record=byEvent.get(id);
+        if(item.event.locationHints?.includes('lohub_wrapper'))record.event=item.event;
+        record.items.push(item);
       }
-      group.append(heading,list);host.append(group);
+      for(const {event,items:methods} of byEvent.values()){
+        const parent=state.events.find(candidate=>
+          (calendarGroup(candidate)==='phases'||calendarGroup(candidate)==='command')&&
+          eventNameKey(candidate.name)===eventNameKey(event.name)&&
+          candidate.startTime<event.endTime&&candidate.endTime>event.startTime)||event;
+        const eventBlock=create('details','ev-objective-event-group');
+        // Un seul événement dans un mode : montrer immédiatement les équipes.
+        eventBlock.open=byEvent.size===1;
+        const eventTitleLine=create('summary','ev-objective-event-summary');
+        eventTitleLine.append(create('strong','',eventTitle(parent)));
+        eventTitleLine.append(create('span','ev-objective-scope',
+          parent.milestone?.type==='alliance'?'Alliance':'Solo'));
+        eventTitleLine.append(create('span','ev-objective-mini-count',
+          fmtNumber.format(methods.length)+' méthodes'));
+        const body=create('div','ev-objective-event-content');
+        const link=create('button','ev-objective-event','Détails de l’événement');
+        link.type='button';link.addEventListener('click',()=>openDetail(parent,link));
+        body.append(link);
+        const {teams,individual,other}=objectiveTeams(methods);
+        for(const team of teams){
+          const teamBlock=create('details','ev-objective-team');
+          const summary=create('summary','ev-objective-team-summary');
+          summary.append(create('strong','',team.name));
+          summary.append(create('span','ev-objective-mini-count',
+            fmtNumber.format(team.characters.length)+' personnages · '+
+            fmtNumber.format(team.characters.reduce((sum,entry)=>sum+entry.items.length,0))+' méthodes'));
+          const people=create('div','ev-objective-people');
+          for(const member of team.characters)people.append(objectiveCharacterCard(member));
+          teamBlock.append(summary,people);body.append(teamBlock);
+        }
+        if(individual.length){
+          const heading=create('h4','ev-objective-subhead','Personnages');
+          body.append(heading);
+          const people=create('div','ev-objective-people');
+          for(const member of individual)people.append(objectiveCharacterCard(member));
+          body.append(people);
+        }
+        if(other.length){
+          body.append(create('h4','ev-objective-subhead',
+            'Autres actions · '+fmtNumber.format(other.length)));
+          body.append(objectiveList(other));
+        }
+        eventBlock.append(eventTitleLine,body);eventList.append(eventBlock);
+      }
+      modeSection.append(heading,eventList);host.append(modeSection);
     }
   }
 
