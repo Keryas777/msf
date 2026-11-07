@@ -131,6 +131,10 @@ details[open]>.ev-objective-character-summary::after{transform:rotate(180deg)}
 .ev-objective-mini-count{font-size:10px;font-weight:700;color:var(--muted);white-space:normal}
 .ev-objective-event-content{display:flex;flex-direction:column;gap:11px;border-top:1px solid var(--border);padding:12px}
 .ev-objective-event-content>.ev-objective-event{align-self:flex-start}
+.ev-objective-source{display:flex;flex-direction:column;gap:7px;min-width:0}
+.ev-objective-source+.ev-objective-source{border-top:1px solid var(--border);padding-top:10px}
+.ev-objective-source-head{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;min-width:0}
+.ev-objective-source .ev-objective-footer{margin-top:0}
 .ev-objective-team{border:1px solid var(--border);border-radius:12px;background:var(--panel2);min-width:0}
 .ev-objective-team-summary{padding:12px;gap:5px 10px}
 .ev-objective-team-summary strong{font-size:13px;color:var(--text)}
