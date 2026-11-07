@@ -680,6 +680,24 @@
       'Import automatique des données R2 vérifiées ; aucun appel Scopely depuis cette page.';
     render();
   }
+  async function loadObjectiveReferences(){
+    // Catalogues déjà publiés par LoSP ; facultatifs et indépendants du flux
+    // vérifié des événements. Une erreur n'empêche jamais les objectifs bruts.
+    const sources=['./data/teams.json','./data/msf-characters.json'];
+    const results=await Promise.allSettled(sources.map(async url=>{
+      const response=await fetch(url,{cache:'no-store'});
+      if(!response.ok)throw new Error('HTTP '+response.status);
+      return response.json();
+    }));
+    const teams=results[0].status==='fulfilled'?results[0].value:null;
+    const characters=results[1].status==='fulfilled'?results[1].value:null;
+    state.teams=Array.isArray(teams)?teams.filter(team=>team&&
+      typeof team.team==='string'&&Array.isArray(team.characters)):[];
+    state.characters=Array.isArray(characters)?characters.filter(character=>
+      character&&typeof character.id==='string'):[];
+    state.characterAliases=characterAliases(state.characters);
+    if(!state.sourceError)renderObjectives(timestamp());
+  }
   async function load(){
     try{
       const response=await fetch(EVENTS_API,{cache:'no-store'});
@@ -694,6 +712,7 @@
         Date.now()-checkedAt>=48*3600000)
         throw new Error('Catalogue incomplet ou périmé');
       installCatalog(live);
+      await loadObjectiveReferences();
     }catch{
       // Fail closed: never use an outdated GitHub JSON or claim there are
       // no events when the provider's verified R2 projection is unavailable.
