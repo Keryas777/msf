@@ -41,12 +41,12 @@ export function validatePublishedGuestHistory(history,registry,calendar){
   if(history?.version!==1||history.kind!==GUEST_SEASON_HISTORY_KIND||
      !Array.isArray(history.results)||!Array.isArray(registry))
     throw Error("Invalid permanent guest-season history");
-  const keys=new Set(registry.filter(a=>a&&a.group!=="losp"&&a.active!==false)
-    .map(a=>a.key));
+  // Retired alliances must keep their historical results; do not require
+  // old tenant keys to remain registered forever.
   const seen=new Set();
   for(const item of history.results){
     if(!SEASON.test(item?.seasonId||"")||!KEY.test(item?.allianceKey||"")||
-       !keys.has(item.allianceKey)||!validDate(item.capturedAt)||
+       !validDate(item.capturedAt)||
        !rank(item.warRank)||!rank(item.raidRank)||
        identity(item)==="\u0000"||seen.has(identity(item))||
        seasonForObservation(item.capturedAt,calendar)?.seasonId!==item.seasonId)
