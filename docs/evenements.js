@@ -346,7 +346,8 @@
   // proviennent exclusivement des catalogues, les variantes FR/EN étant
   // normalisées sans associer arbitrairement deux équipes différentes.
   function objectiveTeamKey(value){
-    return eventNameKey(value).replace(/[^a-z0-9 ]/g,' ')
+    return eventNameKey(value).replace(/(?:\b[a-z]\.){2,}/g,word=>word.replace(/\./g,''))
+      .replace(/[^a-z0-9 ]/g,' ')
       .split(/\s+/).filter(Boolean).map(word=>word.length>3?word.replace(/s$/,''):word)
       .join(' ');
   }
@@ -488,7 +489,6 @@
     card.append(heading,objectiveList(member.items,true));return card;
   }
   function objectiveEntries(reference){
-    const match=state.search.trim().toLocaleLowerCase('fr');
     const active=state.events.filter(e=>category(e,reference)==='current'&&
       objectiveGroup(e)&&(!state.type||objectiveGroup(e)===state.type));
     const dedup=new Set(),items=[];
@@ -500,12 +500,7 @@
         if(!description)return;
         const label=objectiveLabel(description);
         const character=objectiveCharacter(description);
-        const teamNames=character?state.teams.filter(team=>
-          Array.isArray(team.characters)&&team.characters.includes(character.id))
-          .map(team=>team.team):[];
-        if(match&&![event.name,event.subName,event.details,event.id,description,label,
-          character?.nameKey,...teamNames]
-          .some(value=>strip(value).toLocaleLowerCase('fr').includes(match)))return;
+        const team=objectiveTeam(description);
         const mode=objectiveMode(description);
         const points=Number(method.points);
         const score=Number.isFinite(points)&&points>0?points:null;
@@ -514,7 +509,9 @@
         if(dedup.has(key))return;
         dedup.add(key);
         items.push({event,label,mode,description,points:score,cap:ceiling,
-          premium:Boolean(premium),sharedCap:Boolean(sharedCap),character});
+          premium:Boolean(premium),sharedCap:Boolean(sharedCap),
+          character,team,isBattle:isBattleObjective(description),
+          teamComplete:Boolean(team&&isFullTeamObjective(description))});
       };
       for(const method of Array.isArray(scoring.methods)?scoring.methods:[])add(method,null,false,false);
       for(const capped of Array.isArray(scoring.cappedScorings)?scoring.cappedScorings:[]){
@@ -522,7 +519,18 @@
         for(const method of methods)add(method,Number(capped.cap),capped.isPremium,methods.length>1);
       }
     }
-    return items;
+    routeBattleObjectives(items);
+    const match=state.search.trim().toLocaleLowerCase('fr');
+    if(!match)return items;
+    return items.filter(item=>{
+      const characterTeams=item.character?state.teams.filter(team=>
+        Array.isArray(team.characters)&&team.characters.includes(item.character.id))
+        .map(team=>team.team):[];
+      return [item.event.name,item.event.subName,item.event.details,item.event.id,
+        item.description,item.label,item.character?.nameKey,item.team?.team,
+        ...characterTeams,item.mode,MODE_BY_KEY.get(item.mode)?.label]
+        .some(value=>strip(value).toLocaleLowerCase('fr').includes(match));
+    });
   }
   function renderObjectives(reference){
     const host=$('events-objectives');host.replaceChildren();
