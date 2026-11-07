@@ -9,7 +9,7 @@
   <script>document.documentElement.classList.add("authChecking");</script>
   <script src="./auth-guard.js?v=4"></script>
   <link rel="stylesheet" href="./style.css?v=4">
-  <link rel="stylesheet" href="./evenements.css?v=5">
+  <link rel="stylesheet" href="./evenements.css?v=6">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./losp-selects.css?v=2" />
   </head>
@@ -31,7 +31,7 @@
     <section class="ev-toolbar" aria-label="Filtres du calendrier">
       <div class="ev-filters">
         <label class="ev-field"><span>Rechercher</span><input class="ev-input" type="search" id="search-filter" placeholder="Vision, Dracula, raid…" autocomplete="off"></label>
-        <label class="ev-field"><span>Catégorie</span><select class="ev-select" id="type-filter"><option value="">Tous les types</option></select></label>
+        <label class="ev-field"><span>Catégorie</span><select class="ev-select" id="type-filter"><option value="">Toutes les rubriques</option></select></label>
       </div>
       <div class="ev-date-controls">
         <label class="ev-field"><span>Date de référence</span><input class="ev-input" type="date" id="date-filter"></label>
@@ -43,11 +43,11 @@
       </div>
     </section>
     <section class="ev-section ev-section--objectives" id="section-objectives" role="tabpanel" aria-labelledby="tab-objectives" hidden><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">☑</span><div><h2 id="title-objectives">Objectifs à réaliser</h2><p class="ev-section-desc">Comment gagner des points, par mode de jeu</p></div></div><span class="ev-count" id="count-objectives">—</span></div><div class="ev-objectives" id="events-objectives"></div></section>
-    <section class="ev-section ev-section--current" id="section-current" role="tabpanel" aria-labelledby="tab-current"><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">◉</span><div><h2 id="title-current">Événements en cours</h2><p class="ev-section-desc">Ce que tu peux jouer maintenant, selon le catalogue GitHub</p></div></div><span class="ev-count" id="count-current">—</span></div><div class="ev-grid" id="events-current"></div><button class="ev-more" id="more-current" type="button" hidden>Voir plus</button></section>
-    <section class="ev-section ev-section--past" id="section-past" role="tabpanel" aria-labelledby="tab-past" hidden><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">↶</span><div><h2 id="title-past">Événements passés</h2><p class="ev-section-desc">L'historique, du plus récent au plus ancien</p></div></div><span class="ev-count" id="count-past">—</span></div><div class="ev-grid" id="events-past"></div><button class="ev-more" id="more-past" type="button" hidden>Voir plus</button></section>
+    <section class="ev-section ev-section--current" id="section-current" role="tabpanel" aria-labelledby="tab-current"><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">◉</span><div><h2 id="title-current">Événements en cours</h2><p class="ev-section-desc">Phases, Poste de commandement et Événements temporaires</p></div></div><span class="ev-count" id="count-current">—</span></div><div class="ev-groups" id="events-current"></div><button class="ev-more" id="more-current" type="button" hidden>Voir plus</button></section>
+    <section class="ev-section ev-section--past" id="section-past" role="tabpanel" aria-labelledby="tab-past" hidden><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">↶</span><div><h2 id="title-past">Événements passés</h2><p class="ev-section-desc">Historique par rubrique du jeu</p></div></div><span class="ev-count" id="count-past">—</span></div><div class="ev-groups" id="events-past"></div><button class="ev-more" id="more-past" type="button" hidden>Voir plus</button></section>
   </main>
   <dialog id="event-dialog" class="ev-dialog" aria-label="Détail de l'événement"><div id="event-dialog-content"></div></dialog>
-<script src="./evenements.js?v=14" defer></script>
+<script src="./evenements.js?v=15" defer></script>
   <script src="./losp-selects.js?v=4"></script>
   </body>
 </html>
