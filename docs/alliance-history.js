@@ -262,8 +262,15 @@
       }
       return spaced;
     };
-    const ticks=rank?rankTicks():
-      Array.from({length:5},(_,i)=>bounds.lo+(bounds.hi-bounds.lo)*i/4);
+    const trophyTickStep=niceStep((bounds.hi-bounds.lo)/6);
+    const trophyTicks=[...new Set([
+      bounds.lo,
+      ...Array.from({length:Math.floor(
+        (bounds.hi-bounds.lo)/trophyTickStep)+2},
+        (_,i)=>(Math.ceil(bounds.lo/trophyTickStep)+i)*trophyTickStep),
+      bounds.hi
+    ])].filter(v=>v>=bounds.lo&&v<=bounds.hi).sort((a,b)=>a-b);
+    const ticks=rank?rankTicks():trophyTicks;
     for(const value of ticks){
       const pos=y(value);
       // Trophy divisions already have separators; skip generic grid lines
