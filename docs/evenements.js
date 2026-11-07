@@ -7,7 +7,6 @@
   const TIMEZONE='Europe/Paris';
   const TYPES={milestone:'Jalons',episodic:'Campagne / événement',raid:'Raid',blitz:'Blitz',battlePass:'Passe de combat',strikePass:'Passe S.T.R.I.K.E.',pickYourPoison:'Épreuve',info:'Informations',raidSeason:'Saison de raid',warSeason:'Saison de guerre',donation:'Dons'};
   const EMOJI={milestone:'🏆',episodic:'⚔️',raid:'🛡️',blitz:'⚡',battlePass:'🎖️',strikePass:'🎫',pickYourPoison:'🔥',info:'✦',raidSeason:'🛡️',warSeason:'⚔️',donation:'🤝'};
-  const LIMIT={current:24,past:12};
   const GAME_GROUPS=[
     {key:'phases',label:'Phases',icon:'📋'},
     {key:'command',label:'Poste de commandement',icon:'🛡️'},
@@ -15,7 +14,7 @@
   ];
   const SECTIONS={current:'En cours',past:'Passés'};
   const TABS=['objectives','current','past'];
-  const state={events:[],metadata:{},sourceError:false,date:null,manualDate:false,search:'',type:'',includeSecondary:false,expanded:new Set(),lastButton:null};
+  const state={events:[],metadata:{},sourceError:false,date:null,manualDate:false,search:'',type:'',includeSecondary:false,lastButton:null};
   const fmtDate=new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'numeric',month:'short',year:'numeric'});
   const fmtNumber=new Intl.NumberFormat('fr-FR');
   const now=()=>Date.now();
@@ -130,7 +129,15 @@
     return [...groups.values()].map(group=>group.variants.length>1?
       {...group.event,calendarVariantKind:group.kind,calendarVariants:group.variants}:group.event);
   }
-  function artwork(e){for(const img of [e.cardArt,e.popupArt,e.icon,...(Array.isArray(e.hubArt)?e.hubArt:[])]){const url=cleanImage(img);if(url)return url;}return '';}
+  function artwork(e){
+    // Le Poste de commandement fournit une icône transparente dédiée.
+    // Ne pas l'empiler sur d'autres illustrations ou images de secours.
+    const command=e.type==='milestone'&&e.locationHints?.includes('lohub_wrapper');
+    const sources=command?[e.icon]:
+      [e.cardArt,e.popupArt,...(Array.isArray(e.hubArt)?e.hubArt:[]),e.icon];
+    for(const source of sources){const url=cleanImage(source);if(url)return url;}
+    return '';
+  }
   function eventTitle(e){return strip(e.name)||'Événement sans titre';}
   function eventSub(e){return strip(e.subName||e.details||'');}
   function durationDays(ms){return Math.max(0,Math.ceil(ms/86400000));}
@@ -163,9 +170,24 @@
     return {grouped,reference};
   }
   function cover(e){
-    const wrap=create('div','ev-cover');const image=artwork(e);
-    wrap.append(create('span','ev-cover-fallback',EMOJI[e.type]||'✦'));
-    if(image){const img=create('img',image.includes('/imgs/')?'ev-icon-img':'');img.alt='';img.loading='lazy';img.decoding='async';img.src=image;img.addEventListener('error',()=>img.remove(),{once:true});wrap.append(img);}
+    const command=e.type==='milestone'&&e.locationHints?.includes('lohub_wrapper');
+    const image=artwork(e);
+    const wrap=create('div','ev-cover'+(command?' ev-cover--command':'')+
+      (!image?' ev-cover--placeholder':''));
+    // Jamais de symbole sous les pixels transparents d'une illustration.
+    const fallback=create('span','ev-cover-fallback',EMOJI[e.type]||'✦');
+    fallback.hidden=Boolean(image);
+    wrap.append(fallback);
+    if(image){
+      const img=create('img',command?'ev-command-icon':image.includes('/imgs/')?'ev-icon-img':'');
+      img.alt='';img.loading='lazy';img.decoding='async';img.src=image;
+      img.addEventListener('error',()=>{
+        img.remove();
+        fallback.hidden=false;
+        wrap.className+=' ev-cover--placeholder';
+      },{once:true});
+      wrap.append(img);
+    }
     return wrap;
   }
   function makeCard(e,group,reference){
@@ -401,8 +423,6 @@
         'Objectifs temporairement indisponibles : données non vérifiées.'));
       $('count-objectives').textContent='—';
       $('stat-objectives').textContent='—';
-      $('more-current').hidden=true;
-      $('more-past').hidden=true;
       return;
     }
     const {grouped,reference}=groupEvents();
@@ -411,11 +431,9 @@
       const items=grouped[key],host=$(`events-${key}`);host.replaceChildren();
       $(`count-${key}`).textContent=fmtNumber.format(items.length);
       $(`stat-${key}`).textContent=fmtNumber.format(items.length);
-      const limit=state.expanded.has(key)?items.length:LIMIT[key];
       if(!items.length)host.append(emptyState(key));
-      const shown=items.slice(0,limit);
       for(const category of GAME_GROUPS){
-        const entries=shown.filter(item=>
+        const entries=items.filter(item=>
           calendarGroup(item,state.includeSecondary)===category.key);
         if(!entries.length)continue;
         const section=create('section','ev-calendar-group');
@@ -428,8 +446,6 @@
         for(const item of entries)grid.append(makeCard(item,key,reference));
         section.append(head,grid);host.append(section);
       }
-      const more=$(`more-${key}`);more.hidden=items.length<=LIMIT[key];
-      more.textContent=state.expanded.has(key)?'Afficher moins':`Voir les ${fmtNumber.format(items.length-LIMIT[key])} autres`;
     }
     $('filter-context').textContent=state.manualDate?'Simulation au '+state.date.split('-').reverse().join('/'):'Classement selon les dates archivées, à l’instant présent.';
   }
@@ -502,7 +518,6 @@
     }
     state.type=groups.some(group=>group.key===selected)?selected:'';
     type.value=state.type;
-    state.expanded.clear();
     const time=Date.parse(data.updatedAt||'');
     const dated=Number.isFinite(time)?fmtDate.format(new Date(time)):'date inconnue';
     $('source-line').textContent='Catalogue GitHub vérifié · '+data.events.length+
@@ -561,12 +576,11 @@
     }
     const linkedTab=(location.hash||'').replace(/^#section-/,'');
     activateTab(TABS.includes(linkedTab)?linkedTab:'current');
-    $('date-filter').addEventListener('change',e=>{state.date=e.target.value||localToday();state.manualDate=true;state.expanded.clear();render();});
-    $('reset-date').addEventListener('click',()=>{state.date=localToday();state.manualDate=false;$('date-filter').value=state.date;state.expanded.clear();render();});
-    $('search-filter').addEventListener('input',e=>{state.search=e.target.value;state.expanded.clear();render();});
-    $('type-filter').addEventListener('change',e=>{state.type=e.target.value;state.expanded.clear();render();});
-    $('secondary-filter').addEventListener('change',e=>{state.includeSecondary=e.target.checked;state.expanded.clear();render();});
-    for(const key of Object.keys(SECTIONS))$('more-'+key).addEventListener('click',()=>{if(state.expanded.has(key))state.expanded.delete(key);else state.expanded.add(key);render();});
+    $('date-filter').addEventListener('change',e=>{state.date=e.target.value||localToday();state.manualDate=true;render();});
+    $('reset-date').addEventListener('click',()=>{state.date=localToday();state.manualDate=false;$('date-filter').value=state.date;render();});
+    $('search-filter').addEventListener('input',e=>{state.search=e.target.value;render();});
+    $('type-filter').addEventListener('change',e=>{state.type=e.target.value;render();});
+    $('secondary-filter').addEventListener('change',e=>{state.includeSecondary=e.target.checked;render();});
     const dialog=$('event-dialog');dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});dialog.addEventListener('close',()=>state.lastButton?.focus());
     load();
   }
