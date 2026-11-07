@@ -159,14 +159,23 @@ test('Les identifiants obligatoires de la vue Objectifs existent dans le HTML',(
   assert.doesNotMatch(html,/section-future|events-future|stat-future/);
 });
 
+test('Objectifs est sélectionné au premier affichage, même avant chargement JS',()=>{
+  assert.match(html,/id="tab-objectives"[^>]*aria-selected="true" tabindex="0"/);
+  assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
+  assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
+  assert.match(html,/id="section-current"[^>]*hidden>/);
+  assert.match(html,/evenements\.js\?v=17/);
+});
+
 test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',async()=>{
   const nodes=await makePage();
   const tabs=['objectives','current','past'];
   const visible=()=>tabs.filter(key=>!nodes.get('section-'+key).hidden);
   assert.match(html,/role="tablist"/);
   assert.doesNotMatch(html,/href="#section-(?:objectives|current|past)"/);
-  assert.deepEqual(visible(),['current']);
-  assert.equal(nodes.get('tab-current')['aria-selected'],'true');
+  assert.deepEqual(visible(),['objectives']);
+  assert.equal(nodes.get('tab-objectives')['aria-selected'],'true');
+  assert.equal(nodes.get('tab-current')['aria-selected'],'false');
 
   const count=nodes.get('stat-objectives').textContent;
   nodes.get('tab-objectives').handlers.get('click')();
