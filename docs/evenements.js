@@ -57,6 +57,56 @@
     return !(e.type==='milestone'&&
       /(?:battle\s*pass|strike\s*pass|s\.t\.r\.i\.k\.e\.\s*pass)/i.test(e.name||''));
   }
+  // Le catalogue officiel fournit aussi des activités Web récurrentes, des
+  // campagnes longues et des variantes de paliers qui ne sont pas des
+  // événements indépendants à afficher dans le calendrier.
+  // Ces fiches restent dans state.events pour conserver leurs objectifs.
+  function isCalendarDisplayEvent(e){
+    if(e.type==='donation'||!strip(e.name))return false;
+    const duration=e.endTime-e.startTime;
+    if((e.type==='episodic'||e.type==='info')&&duration>=300*86400)return false;
+    const hints=Array.isArray(e.locationHints)?e.locationHints:[];
+    if(e.type==='milestone'&&hints.some(hint=>
+      ['web_exclusive','portal_featured','portal_standard'].includes(hint)))return false;
+    // Exclure les jalons quotidiens récurrents identifiables par plusieurs
+    // occurrences archivées du même titre, sans bloquer tous les jalons d'un jour.
+    if(e.type==='milestone'&&duration<=36*3600&&state.events.some(other=>
+      other.id!==e.id&&other.type===e.type&&
+      eventNameKey(other.name)===eventNameKey(e.name)&&
+      other.startTime!==e.startTime&&
+      Math.abs(other.startTime-e.startTime)<=7*86400&&
+      other.endTime-other.startTime<=36*3600))return false;
+    return true;
+  }
+  function calendarTierKey(e){
+    const family=eventNameKey(e.name).replace(/\s*:\s*[ivxlcdm]+$/,'');
+    return [e.type,e.startTime,e.endTime,eventNameKey(e.subName),family].join('|');
+  }
+  function collapseCurrentEvents(items){
+    // Les niveaux I-XI d'un même jalon sont des variantes, pas onze événements.
+    // L'édition canonique (sans suffixe romain) est préférée pour la carte.
+    const tierKeys=new Set(items.filter(e=>e.type==='milestone'&&!secondary(e)&&
+      /:\s*[ivxlcdm]+$/i.test(strip(e.name))).map(calendarTierKey));
+    const groups=new Map();
+    for(const event of items){
+      let kind='',key='id:'+event.id;
+      if(event.type==='milestone'&&!secondary(event)&&tierKeys.has(calendarTierKey(event))){
+        kind='tiers';key='tiers:'+calendarTierKey(event);
+      }else if(event.type==='episodic'&&Array.isArray(event.episodic?.ids)&&event.episodic.ids.length){
+        // Deux fenêtres de publication d'une même campagne peuvent se chevaucher.
+        kind='editions';
+        key='campaign:'+JSON.stringify([eventNameKey(event.name),eventNameKey(event.subName),
+          event.episodic.type,[...event.episodic.ids].sort()]);
+      }
+      let group=groups.get(key);
+      if(!group){group={event,kind,variants:[event]};groups.set(key,group);continue;}
+      group.variants.push(event);
+      if((kind==='tiers'&&!/:\s*[ivxlcdm]+$/i.test(strip(event.name)))||
+        (kind==='editions'&&event.startTime>group.event.startTime))group.event=event;
+    }
+    return [...groups.values()].map(group=>group.variants.length>1?
+      {...group.event,calendarVariantKind:group.kind,calendarVariants:group.variants}:group.event);
+  }
   function artwork(e){for(const img of [e.cardArt,e.popupArt,e.icon,...(Array.isArray(e.hubArt)?e.hubArt:[])]){const url=cleanImage(img);if(url)return url;}return '';}
   function eventTitle(e){return strip(e.name)||'Événement sans titre';}
   function eventSub(e){return strip(e.subName||e.details||'');}
@@ -68,6 +118,7 @@
   function filterEvents(){
     const match=state.search.trim().toLocaleLowerCase('fr');
     return state.events.filter(e=>{
+      if(!isCalendarDisplayEvent(e))return false;
       if(!state.includeSecondary&&secondary(e))return false;
       if(state.type&&e.type!==state.type)return false;
       return !match||[e.name,e.subName,e.details,e.id].some(v=>strip(v).toLocaleLowerCase('fr').includes(match));
@@ -79,6 +130,7 @@
       const status=category(e,reference);
       if(status!=='future')grouped[status].push(e);
     }
+    grouped.current=collapseCurrentEvents(grouped.current);
     grouped.current.sort((a,b)=>a.endTime-b.endTime||eventTitle(a).localeCompare(eventTitle(b),'fr'));
     grouped.past.sort((a,b)=>b.endTime-a.endTime||eventTitle(a).localeCompare(eventTitle(b),'fr'));
     return {grouped,reference};
@@ -94,6 +146,8 @@
     const body=create('div','ev-card-copy'),top=create('div','ev-card-top');
     top.append(create('span','ev-category',TYPES[e.type]||e.type));
     if(secondary(e))top.append(create('span','ev-tech-tag','Secondaire'));
+    if(e.calendarVariantKind==='tiers')top.append(create('span','ev-tier-tag',
+      fmtNumber.format(e.calendarVariants.length)+' paliers'));
     body.append(top,create('h3','',eventTitle(e)));
     const sub=eventSub(e);if(sub)body.append(create('p','ev-sub',sub));
     const dates=create('div','ev-dates');
@@ -352,6 +406,16 @@
       const rows=linked.flatMap(item=>(item.milestone?.scoring?.cappedScorings||[]).flatMap(c=>(c.methods||[]).map(m=>strip(m.description))));
       if(rows.length)listFor(sec,[...new Set(rows)].slice(0,20));else sec.append(create('p','','Aucune règle détaillée disponible dans cet extrait.'));
     }
+    if(e.calendarVariantKind==='tiers'&&e.calendarVariants?.length>1){
+      const sec=detailSection(body,'Autres paliers de la même phase');
+      const rows=e.calendarVariants.filter(variant=>variant.id!==e.id).map(variant=>{
+        const methods=variant.milestone?.scoring?.methods||[];
+        return eventTitle(variant)+' : '+(methods.length?
+          methods.map(method=>strip(method.description)+' (+'+fmtNumber.format(method.points||0)+' pts)').join(' · '):
+          'Détails de score non disponibles');
+      });
+      listFor(sec,rows);
+    }
     if(e.episodic){const sec=detailSection(body,'Campagnes associées');const ids=e.episodic.ids||[e.episodic.id].filter(Boolean);if(ids.length)listFor(sec,ids);else sec.append(create('p','','Identifiants des campagnes non disponibles dans cet extrait.'));}
     body.append(create('p','ev-dialog-disclaimer','Données archivées : elles ne prouvent pas l’état actuel des événements. Les récompenses détaillées sont encore incomplètes pour de nombreuses fiches.'));
     host.append(body);if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');
@@ -370,7 +434,7 @@
     state.events=data.events.filter(isCalendarEvent);
     state.sourceError=false;
     state.metadata={liveSource:true,updatedAt:data.updatedAt};
-    const types=[...new Set(state.events.map(x=>x.type))]
+    const types=[...new Set(state.events.filter(isCalendarDisplayEvent).map(x=>x.type))]
       .sort((a,b)=>(TYPES[a]||a).localeCompare(TYPES[b]||b,'fr'));
     const selected=state.type,type=$('type-filter');
     type.replaceChildren();
@@ -384,8 +448,8 @@
     state.expanded.clear();
     const time=Date.parse(data.updatedAt||'');
     const dated=Number.isFinite(time)?fmtDate.format(new Date(time)):'date inconnue';
-    $('source-line').textContent='Catalogue GitHub vérifié · '+state.events.length+
-      ' événements affichables ('+data.events.length+' récupérés) · '+data.pages+
+    $('source-line').textContent='Catalogue GitHub vérifié · '+data.events.length+
+      ' fiches récupérées · '+data.pages+
       ' page(s) · dernière vérification '+dated+'.';
     const frenchVerified=data.locale==='fr'&&data.localizationStatus==='verified';
     $('source-provenance').textContent=(frenchVerified?
