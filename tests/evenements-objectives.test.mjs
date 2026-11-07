@@ -157,6 +157,109 @@ test('La recherche trouve aussi le texte des objectifs secondaires',async()=>{
   assert.ok(actions(nodes)[0].includes('Iron Raider'));
 });
 
+test('Faille cybernétique : 30 conditions réparties sur 2 équipes et 10 portraits',async()=>{
+  const targets=realTeams.filter(team=>['Avengers IA','Fantassin de fer'].includes(team.team));
+  assert.equal(targets.length,2);
+  const characters=targets.flatMap(team=>team.characters.map(id=>{
+    const character=realCharacters.find(c=>c.id===id);
+    assert.ok(character,'Personnage manquant dans le catalogue : '+id);
+    return character;
+  }));
+  const cappedScorings=characters.flatMap(character=>[
+    {cap:13000,methods:[{description:'Combattre en choc avec '+character.nameKey,points:1000}]},
+    {cap:30000,methods:[{description:'Combattre en choc avec '+character.nameKey+' à 7 étoiles jaunes',points:6000}]},
+    {cap:50000,methods:[{description:'Combattre en choc avec '+character.nameKey+' au palier d’équipement 21',points:10000}]}
+  ]);
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Faille cybernétique','milestone',{
+      milestone:{type:'solo',scoring:{
+        methods:[{description:'Dépenser 1 noyau d’énergie',points:20}],
+        cappedScorings
+      }}
+    }]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'31');
+  assert.deepEqual(sections(nodes).map(m=>m.children[0].textContent),['⚡ CHOC','📋 DIVERS']);
+  const teams=objectiveDetails(nodes,'ev-objective-team');
+  assert.deepEqual(teams.map(team=>team.children[0].children[0].textContent),
+    ['Avengers IA','Fantassin de fer']);
+  assert.equal(objectiveDetails(nodes,'ev-objective-character').length,10);
+  assert.equal(objectiveNodes(nodes).length,31);
+  const names=objectiveDetails(nodes,'ev-objective-character').map(card=>
+    card.children[0].children.find(child=>child.tag==='strong').textContent);
+  for(const character of characters)assert.ok(names.includes(character.nameKey));
+  for(const card of objectiveDetails(nodes,'ev-objective-character')){
+    assert.ok(card.children[0].children.some(child=>child.tag==='img'&&
+      child.src?.startsWith('https://assets.marvelstrikeforce.com/imgs/Portrait_')));
+    assert.equal(card.children[1].children.length,3);
+  }
+  const ch=objectiveDetails(nodes,'ev-objective-character')[0];
+  assert.deepEqual(ch.children[1].children.map(row=>row.children[0].textContent),
+    ['Combat','7 étoiles jaunes','Palier d’équipement 21']);
+  const caps=ch.children[1].children.map(row=>row.children[1].children.map(x=>x.textContent).join(' '));
+  assert.ok(caps.some(x=>x.includes('13 000 pts')||x.includes('13 000 pts')));
+  assert.ok(caps.some(x=>x.includes('30 000 pts')||x.includes('30 000 pts')));
+  assert.ok(caps.some(x=>x.includes('50 000 pts')||x.includes('50 000 pts')));
+  assert.doesNotMatch(script,/Avengers IA|Fantassin de fer|IronMonger|HawkeyeRobot/);
+
+  // La recherche retrouve aussi les membres de l'équipe sélectionnée.
+  nodes.get('search-filter').handlers.get('input')({target:{value:'Avengers IA'}});
+  assert.equal(nodes.get('stat-objectives').textContent,'15');
+  assert.equal(objectiveDetails(nodes,'ev-objective-team').length,1);
+  assert.equal(objectiveDetails(nodes,'ev-objective-character').length,5);
+  assert.equal(objectiveNodes(nodes).length,15);
+});
+
+test('Personnage isolé ou équipes qui se chevauchent : aucune méthode dupliquée',async()=>{
+  const names=['Vision','Ultron'].map(id=>realCharacters.find(c=>c.id===id));
+  const extraEvents=[['Objectif test','milestone',{
+    milestone:{type:'solo',scoring:{
+      methods:names.map(c=>({description:'Combattre en choc avec '+c.nameKey,points:1000})),
+      cappedScorings:[]
+    }}
+  }]];
+  const overlapTeams=[
+    {team:'Équipe Alpha',characters:['Vision','Ultron']},
+    {team:'Équipe Bêta',characters:['Vision','Ultron']}
+  ];
+  const nodes=await makePage({includeBase:false,extraEvents,teams:overlapTeams});
+  assert.equal(nodes.get('stat-objectives').textContent,'2');
+  assert.equal(objectiveDetails(nodes,'ev-objective-team').length,1);
+  assert.equal(objectiveDetails(nodes,'ev-objective-character').length,2);
+  assert.equal(objectiveNodes(nodes).length,2);
+  const solo=await makePage({includeBase:false,teams:realTeams,extraEvents:[
+    ['Solo test','milestone',{
+      milestone:{type:'solo',scoring:{methods:[
+        {description:'Combattre en choc avec Vision',points:1000}
+      ],cappedScorings:[]}}
+    }]
+  ]});
+  assert.equal(objectiveDetails(solo,'ev-objective-team').length,0);
+  assert.equal(objectiveDetails(solo,'ev-objective-character').length,1);
+  assert.equal(objectiveNodes(solo).length,1);
+});
+
+test('Catalogues complémentaires indisponibles : méthodes et plafonds restent visibles',async()=>{
+  const nodes=await makePage({includeBase:false,failReferences:true,extraEvents:[
+    ['Phase test','milestone',{
+      milestone:{type:'solo',scoring:{methods:[],
+        cappedScorings:[{cap:13000,methods:[
+          {description:'Combattre en choc avec Vision',points:1000}
+        ]}]
+      }}
+    }]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'1');
+  assert.equal(objectiveDetails(nodes,'ev-objective-team').length,0);
+  assert.equal(objectiveNodes(nodes).length,1);
+  assert.ok(actions(nodes)[0].includes('Vision'));
+  assert.ok(objectiveNodes(nodes)[0].children[1].children
+    .some(x=>x.textContent.includes('13')));
+  assert.ok(!nodes.get('source-line').textContent.includes('indisponible'));
+  assert.match(css,/\.ev-objective-portrait/);
+  assert.match(css,/\.ev-objective-character-summary/);
+});
+
 test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP communs',()=>{
   assert.match(commonCss,/background-image:\s*url\("\.\/Background\.webp"\)/);
   assert.match(html,/class="app ev-page"/);
