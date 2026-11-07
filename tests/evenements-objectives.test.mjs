@@ -20,7 +20,7 @@ function node(tag='div'){
     focus(){this.focused=true;}
   };
 }
-async function makePage({failure=false,stale=false}={}){
+async function makePage({failure=false,stale=false,extraEvents=[]}={}){
   const ids=[...html.matchAll(/id="([^"]+)"/g)].map(x=>x[1]);
   const elements=new Map(ids.map(id=>[id,node()]));
   const now=Math.floor(Date.now()/1000),day=86400;
@@ -44,6 +44,13 @@ async function makePage({failure=false,stale=false}={}){
     event('Future Event','Battle in Raid',{dates:{startTime:now+day,endTime:now+day*5}}),
     event('Past Event','Battle in War',{dates:{startTime:now-day*5,endTime:now-day}})
   ];
+  for(const [name,type,more] of extraEvents){
+    events.push({
+      id:'fixture-'+(++sequence),name,type,
+      startTime:now-day,endTime:now+day*2,
+      ...more
+    });
+  }
   let onReady;
   const document={
     readyState:'loading',
@@ -142,6 +149,33 @@ test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',
   nodes.get('tab-current').handlers.get('keydown')({key:'End',preventDefault(){}});
   assert.deepEqual(visible(),['past']);
   assert.equal(nodes.get('stat-objectives').textContent,count);
+});
+
+test('La localisation FR ne réintroduit pas les épreuves légendaires et jalons S.T.R.I.K.E.',async()=>{
+  const trial=name=>[name,'pickYourPoison',{pickYourPoison:{typeName:'Fléau'}}];
+  const milestone=name=>[name,'milestone',{milestone:{scoring:{methods:[],cappedScorings:[]}}}];
+  const extraEvents=[
+    trial('MORT'),trial('GUERRE'),trial('ROI D’OMBRE'),
+    trial('Death'),trial('Shadow King'),trial('SALLE DES DANGERS'),
+    milestone('S.T.R.I.K.E. : premier assaut'),
+    milestone('Deuxième S.T.R.I.K.E.'),
+    milestone('S.T.R.I.K.E. : troisième assaut'),
+    milestone('Coup du S.T.R.I.K.E.'),
+    milestone('First S.T.R.I.K.E.'),milestone('S.T.R.I.K.E. Back'),
+    trial('KYLN : CODE FLAMMES'),
+    trial('ÉVÉNEMENT BRISEUR : DENTS-DE-SABRE'),
+    milestone('S.T.R.I.K.E. : raid spécial')
+  ];
+  const nodes=await makePage({extraEvents});
+  const visible=nodes.get('events-current').children;
+  assert.equal(nodes.get('stat-current').textContent,'6');
+  assert.equal(visible.length,6);
+  const shown=visible.map(card=>card.children[1].children[1].textContent);
+  assert.ok(shown.includes('KYLN : CODE FLAMMES'));
+  assert.ok(shown.includes('ÉVÉNEMENT BRISEUR : DENTS-DE-SABRE'));
+  assert.ok(shown.includes('S.T.R.I.K.E. : raid spécial'));
+  for(const [name] of extraEvents.slice(0,12))assert.ok(!shown.includes(name),name);
+  assert.equal(nodes.get('stat-objectives').textContent,'3');
 });
 
 test('Une panne du JSON GitHub n’utilise aucune autre source et affiche une indisponibilité',async()=>{
