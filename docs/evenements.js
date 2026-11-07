@@ -328,7 +328,7 @@
       return;
     }
     host.append(create('p','ev-objectives-note',
-      'Méthodes de progression des événements actifs (catalogue GitHub actualisé depuis R2).'+
+      'Méthodes de progression des Phases et du Poste de commandement actifs.'+
       ' La progression personnelle n’est pas synchronisée.'));
     const grouped=new Map();
     for(const item of items){
@@ -409,7 +409,21 @@
       $(`stat-${key}`).textContent=fmtNumber.format(items.length);
       const limit=state.expanded.has(key)?items.length:LIMIT[key];
       if(!items.length)host.append(emptyState(key));
-      for(const item of items.slice(0,limit))host.append(makeCard(item,key,reference));
+      const shown=items.slice(0,limit);
+      for(const category of GAME_GROUPS){
+        const entries=shown.filter(item=>
+          calendarGroup(item,state.includeSecondary)===category.key);
+        if(!entries.length)continue;
+        const section=create('section','ev-calendar-group');
+        const head=create('div','ev-calendar-group-head');
+        head.append(create('h3','ev-calendar-group-title',category.icon+' '+category.label));
+        head.append(create('span','ev-calendar-group-count',
+          fmtNumber.format(items.filter(item=>
+            calendarGroup(item,state.includeSecondary)===category.key).length)));
+        const grid=create('div','ev-grid');
+        for(const item of entries)grid.append(makeCard(item,key,reference));
+        section.append(head,grid);host.append(section);
+      }
       const more=$(`more-${key}`);more.hidden=items.length<=LIMIT[key];
       more.textContent=state.expanded.has(key)?'Afficher moins':`Voir les ${fmtNumber.format(items.length-LIMIT[key])} autres`;
     }
@@ -421,10 +435,20 @@
     state.lastButton=trigger;const dialog=$('event-dialog'),host=$('event-dialog-content');host.replaceChildren();
     const hero=create('div','ev-dialog-header'),art=artwork(e);
     if(art){const img=create('img');img.src=art;img.alt='';img.loading='lazy';hero.append(img);}
-    const head=create('div','ev-dialog-headcopy');head.append(create('span','ev-category',TYPES[e.type]||e.type),create('h2','',eventTitle(e)));hero.append(head);
+    const head=create('div','ev-dialog-headcopy');
+    const group=GAME_GROUPS.find(item=>item.key===calendarGroup(e,true));
+    head.append(create('span','ev-category',group?.label||TYPES[e.type]||e.type),
+      create('h2','',eventTitle(e)));hero.append(head);
     const close=create('button','ev-dialog-close','×');close.type='button';close.setAttribute('aria-label','Fermer');close.addEventListener('click',()=>dialog.close());hero.append(close);host.append(hero);
     const body=create('div','ev-dialog-body');const info=create('div','ev-dialog-data');
-    for(const [label,value] of [['Début',dateLabel(e.startTime)],['Fin',dateLabel(e.endTime)]]){const box=create('div');box.append(create('span','ev-dialog-label',label),create('strong','',value));info.append(box);}body.append(info);
+    const fields=[['Début',dateLabel(e.startTime)],['Fin',dateLabel(e.endTime)]];
+    if(e.type==='milestone')fields.push(['Progression',
+      e.milestone?.type==='alliance'?'Alliance':'Solo']);
+    for(const [label,value] of fields){
+      const box=create('div');
+      box.append(create('span','ev-dialog-label',label),create('strong','',value));info.append(box);
+    }
+    body.append(info);
     const description=strip(e.details||e.subName);if(description){const sec=detailSection(body,'Présentation');sec.append(create('p','',description));}
     const scoring=e.milestone?.scoring;const methods=Array.isArray(scoring?.methods)?scoring.methods:[];
     const caps=Array.isArray(scoring?.cappedScorings)?scoring.cappedScorings:[];
@@ -463,16 +487,16 @@
     state.events=data.events.filter(isCalendarEvent);
     state.sourceError=false;
     state.metadata={liveSource:true,updatedAt:data.updatedAt};
-    const types=[...new Set(state.events.filter(isCalendarDisplayEvent).map(x=>x.type))]
-      .sort((a,b)=>(TYPES[a]||a).localeCompare(TYPES[b]||b,'fr'));
+    const groups=GAME_GROUPS.filter(group=>
+      state.events.some(event=>calendarGroup(event)===group.key));
     const selected=state.type,type=$('type-filter');
     type.replaceChildren();
-    const all=create('option','','Tous les types');all.value='';type.append(all);
-    for(const value of types){
-      const option=create('option','',TYPES[value]||value);
-      option.value=value;type.append(option);
+    const all=create('option','','Toutes les rubriques');all.value='';type.append(all);
+    for(const group of groups){
+      const option=create('option','',group.label);
+      option.value=group.key;type.append(option);
     }
-    state.type=types.includes(selected)?selected:'';
+    state.type=groups.some(group=>group.key===selected)?selected:'';
     type.value=state.type;
     state.expanded.clear();
     const time=Date.parse(data.updatedAt||'');
