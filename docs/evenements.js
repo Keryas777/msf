@@ -7,7 +7,12 @@
   const TIMEZONE='Europe/Paris';
   const TYPES={milestone:'Jalons',episodic:'Campagne / événement',raid:'Raid',blitz:'Blitz',battlePass:'Passe de combat',strikePass:'Passe S.T.R.I.K.E.',pickYourPoison:'Épreuve',info:'Informations',raidSeason:'Saison de raid',warSeason:'Saison de guerre',donation:'Dons'};
   const EMOJI={milestone:'🏆',episodic:'⚔️',raid:'🛡️',blitz:'⚡',battlePass:'🎖️',strikePass:'🎫',pickYourPoison:'🔥',info:'✦',raidSeason:'🛡️',warSeason:'⚔️',donation:'🤝'};
-  const LIMIT={current:8,past:8};
+  const LIMIT={current:24,past:12};
+  const GAME_GROUPS=[
+    {key:'phases',label:'Phases',icon:'📋'},
+    {key:'command',label:'Poste de commandement',icon:'🛡️'},
+    {key:'events',label:'Événements',icon:'⚔️'}
+  ];
   const SECTIONS={current:'En cours',past:'Passés'};
   const TABS=['objectives','current','past'];
   const state={events:[],metadata:{},sourceError:false,date:null,manualDate:false,search:'',type:'',includeSecondary:false,expanded:new Set(),lastButton:null};
@@ -23,9 +28,10 @@
   function dayLabel(t){return new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'2-digit',month:'short'}).format(new Date(t*1000));}
   function category(e,t){return e.startTime*1000>t?'future':e.endTime*1000<=t?'past':'current';}
   function secondary(e){return Array.isArray(e.locationHints)&&(e.locationHints.includes('lohub_feeder')||e.locationHints.includes('mercy_orb'));}
-  // Modes de jeu / Trials : ces fiches ne sont pas des événements du calendrier.
-  // Le filtrage par type résiste aux changements de nom et à la localisation FR.
-  const NON_EVENT_TYPES=new Set(['raid','raidSeason','warSeason','strikePass','battlePass','blitz','pickYourPoison']);
+  // L'API ne fournit pas de champ indiquant l'emplacement exact dans le
+  // menu du jeu. Ces règles sont conservatrices, indépendantes de la langue.
+  const NON_EVENT_TYPES=new Set(['raid','raidSeason','warSeason','strikePass','battlePass','blitz','donation','info']);
+  const MAX_TEMPORARY_CAMPAIGN_DAYS=35;
   function eventNameKey(value){
     return strip(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
       .replace(/[’‘]/g,"'").toLocaleLowerCase('fr');
@@ -38,38 +44,62 @@
   ]);
   function isCalendarEvent(e){
     if(NON_EVENT_TYPES.has(e.type))return false;
-    // Multi-year endpoints represent permanent sagas/unlocks, not calendar events.
-    // Use the scheduled duration rather than a list of character names.
-    if(e.endTime-e.startTime>=730*86400)return false;
+    if(e.type==='episodic')return e.episodic?.type==='eventCampaign';
+    if(e.type==='pickYourPoison')return true;
+    if(e.type!=='milestone')return false;
     const name=eventNameKey(e.name);
-    // Danger Room est un mode récurrent, même lorsqu'il est localisé en français.
-    if(name==='danger room'||name==='salle des dangers')return false;
-    // Onboarding/returning-player milestones are not general calendar events.
-    if(e.type==='milestone'&&ONBOARDING_MILESTONES.has(name))return false;
-    // Some Battle Pass objectives are exposed as milestone feeder entries.
-    return !(e.type==='milestone'&&
-      /(?:battle\s*pass|strike\s*pass|s\.t\.r\.i\.k\.e\.\s*pass)/i.test(e.name||''));
+    if(ONBOARDING_MILESTONES.has(name))return false;
+    return !/(?:battle\s*pass|strike\s*pass|s\.t\.r\.i\.k\.e\.\s*pass)/i.test(e.name||'');
   }
-  // Le catalogue officiel fournit aussi des activités Web récurrentes, des
-  // campagnes longues et des variantes de paliers qui ne sont pas des
-  // événements indépendants à afficher dans le calendrier.
-  // Ces fiches restent dans state.events pour conserver leurs objectifs.
+  function isTierCollection(e){
+    if(e.type!=='milestone')return false;
+    const key=calendarTierKey(e);
+    const family=state.events.filter(other=>other.type==='milestone'&&
+      calendarTierKey(other)===key);
+    // Les déclinaisons d'un même palier ne représentent pas des phases
+    // autonomes du menu (ex. onze variantes d'équipement).
+    return family.length>=3&&family.some(other=>/:\s*[ivxlcdm]+$/i.test(strip(other.name)));
+  }
+  function isLegacyTrial(e){
+    const brackets=e.pickYourPoison?.brackets;
+    if(Array.isArray(brackets)&&brackets.length>1)return true;
+    // Pas de signal "affiché dans Événements" dans le JSON :
+    // les familles d'illustrations distinguent ici les Trials légendaires
+    // récurrents de l'événement Briseur à durée limitée.
+    const image=cleanImage(e.cardArt).split('/').pop()||'';
+    return /(?:^Scourge_|_Scourge_)/i.test(image)&&!/Breaker/i.test(image);
+  }
+  function calendarGroup(e,includeSecondary=false){
+    if(e.type==='milestone'){
+      const hints=Array.isArray(e.locationHints)?e.locationHints:[];
+      if(hints.includes('lohub_wrapper'))return 'command';
+      if(hints.includes('lohub_feeder'))return includeSecondary?'command':null;
+      if(hints.length||!strip(e.name)||isTierCollection(e))return null;
+      return cleanImage(e.cardArt)&&cleanImage(e.popupArt)?'phases':null;
+    }
+    if(e.type==='pickYourPoison')
+      return cleanImage(e.cardArt)&&!isLegacyTrial(e)?'events':null;
+    if(e.type==='episodic'&&e.episodic?.type==='eventCampaign'&&
+      Array.isArray(e.episodic.ids)&&e.episodic.ids.length&&
+      e.endTime-e.startTime<=MAX_TEMPORARY_CAMPAIGN_DAYS*86400&&
+      strip(e.name))return 'events';
+    return null;
+  }
+  function objectiveGroup(e){
+    if(e.type!=='milestone')return null;
+    const group=calendarGroup(e);
+    if(group==='phases'||group==='command')return group;
+    if(!e.locationHints?.includes('lohub_feeder'))return null;
+    const parent=state.events.find(candidate=>{
+      const parentGroup=calendarGroup(candidate);
+      return (parentGroup==='phases'||parentGroup==='command')&&
+        eventNameKey(candidate.name)===eventNameKey(e.name)&&
+        candidate.startTime<e.endTime&&candidate.endTime>e.startTime;
+    });
+    return parent?calendarGroup(parent):null;
+  }
   function isCalendarDisplayEvent(e){
-    if(e.type==='donation'||!strip(e.name))return false;
-    const duration=e.endTime-e.startTime;
-    if((e.type==='episodic'||e.type==='info')&&duration>=300*86400)return false;
-    const hints=Array.isArray(e.locationHints)?e.locationHints:[];
-    if(e.type==='milestone'&&hints.some(hint=>
-      ['web_exclusive','portal_featured','portal_standard'].includes(hint)))return false;
-    // Exclure les jalons quotidiens récurrents identifiables par plusieurs
-    // occurrences archivées du même titre, sans bloquer tous les jalons d'un jour.
-    if(e.type==='milestone'&&duration<=36*3600&&state.events.some(other=>
-      other.id!==e.id&&other.type===e.type&&
-      eventNameKey(other.name)===eventNameKey(e.name)&&
-      other.startTime!==e.startTime&&
-      Math.abs(other.startTime-e.startTime)<=7*86400&&
-      other.endTime-other.startTime<=36*3600))return false;
-    return true;
+    return Boolean(calendarGroup(e,state.includeSecondary));
   }
   function calendarTierKey(e){
     const family=eventNameKey(e.name).replace(/\s*:\s*[ivxlcdm]+$/,'');
@@ -111,9 +141,9 @@
   function filterEvents(){
     const match=state.search.trim().toLocaleLowerCase('fr');
     return state.events.filter(e=>{
-      if(!isCalendarDisplayEvent(e))return false;
-      if(!state.includeSecondary&&secondary(e))return false;
-      if(state.type&&e.type!==state.type)return false;
+      const group=calendarGroup(e,state.includeSecondary);
+      if(!group)return false;
+      if(state.type&&group!==state.type)return false;
       return !match||[e.name,e.subName,e.details,e.id].some(v=>strip(v).toLocaleLowerCase('fr').includes(match));
     });
   }
@@ -124,8 +154,12 @@
       if(status!=='future')grouped[status].push(e);
     }
     grouped.current=collapseCurrentEvents(grouped.current);
-    grouped.current.sort((a,b)=>a.endTime-b.endTime||eventTitle(a).localeCompare(eventTitle(b),'fr'));
-    grouped.past.sort((a,b)=>b.endTime-a.endTime||eventTitle(a).localeCompare(eventTitle(b),'fr'));
+    grouped.past=collapseCurrentEvents(grouped.past);
+    const rank=e=>GAME_GROUPS.findIndex(group=>group.key===calendarGroup(e,state.includeSecondary));
+    grouped.current.sort((a,b)=>rank(a)-rank(b)||a.endTime-b.endTime||
+      eventTitle(a).localeCompare(eventTitle(b),'fr'));
+    grouped.past.sort((a,b)=>rank(a)-rank(b)||b.endTime-a.endTime||
+      eventTitle(a).localeCompare(eventTitle(b),'fr'));
     return {grouped,reference};
   }
   function cover(e){
@@ -137,7 +171,10 @@
   function makeCard(e,group,reference){
     const card=create('article','ev-card');card.append(cover(e));
     const body=create('div','ev-card-copy'),top=create('div','ev-card-top');
-    top.append(create('span','ev-category',TYPES[e.type]||e.type));
+    const menu=GAME_GROUPS.find(item=>item.key===calendarGroup(e,state.includeSecondary));
+    top.append(create('span','ev-category',menu?.label||TYPES[e.type]||e.type));
+    if(e.type==='milestone')top.append(create('span','ev-scope',
+      e.milestone?.type==='alliance'?'Alliance':'Solo'));
     if(secondary(e))top.append(create('span','ev-tech-tag','Secondaire'));
     if(e.calendarVariantKind==='tiers')top.append(create('span','ev-tier-tag',
       fmtNumber.format(e.calendarVariants.length)+' paliers'));
@@ -163,7 +200,7 @@
   // sont utilisées. Les "feeders" sont inclus même lorsqu'ils sont cachés du calendrier.
   const OBJECTIVE_MODES=[
     ['raid','🛡️','RAID'],['war','⚔️','GUERRE'],['arena','🏟️','ARÈNE'],
-    ['blitz','⚡','BLITZ'],['crucible','🔷','ÉPREUVE COSMIQUE'],
+    ['blitz','⚡','CHOC'],['crucible','🔷','ÉPREUVE COSMIQUE'],
     ['campaign','📖','CAMPAGNE'],['battleworld','🌌','BATTLEWORLD'],
     ['divers','📋','DIVERS']
   ];
@@ -174,7 +211,7 @@
     if(/\braids?\b/.test(text))modes.push('raid');
     if(/\b(?:alliance war|battle in war|in war|en guerre|guerre d.alliance)\b|^play war\b|\bwar or\b/.test(text))modes.push('war');
     if(/\b(?:arena|arène)\b/.test(text))modes.push('arena');
-    if(/\bblitz\b/.test(text))modes.push('blitz');
+    if(/\b(?:blitz|choc)\b/.test(text))modes.push('blitz');
     if(/\b(?:cosmic crucible|crucible|épreuve cosmique)\b/.test(text))modes.push('crucible');
     if(/\b(?:campaign|campagne)\b/.test(text))modes.push('campaign');
     if(/\bbattleworld\b/.test(text))modes.push('battleworld');
@@ -252,7 +289,8 @@
   }
   function objectiveEntries(reference){
     const match=state.search.trim().toLocaleLowerCase('fr');
-    const active=state.events.filter(e=>category(e,reference)==='current'&&(!state.type||e.type===state.type));
+    const active=state.events.filter(e=>category(e,reference)==='current'&&
+      objectiveGroup(e)&&(!state.type||objectiveGroup(e)===state.type));
     const dedup=new Set(),items=[];
     for(const event of active){
       const scoring=event.milestone?.scoring;
@@ -294,7 +332,7 @@
       return;
     }
     host.append(create('p','ev-objectives-note',
-      'Méthodes de progression des événements actifs (catalogue GitHub actualisé depuis R2).'+
+      'Méthodes de progression des Phases et du Poste de commandement actifs.'+
       ' La progression personnelle n’est pas synchronisée.'));
     const grouped=new Map();
     for(const item of items){
@@ -323,6 +361,8 @@
         const trigger=create('button','ev-objective-event',eventTitle(item.event));
         trigger.type='button';trigger.addEventListener('click',()=>openDetail(item.event,trigger));
         row.append(trigger);
+        row.append(create('span','ev-objective-scope',
+          item.event.milestone?.type==='alliance'?'Alliance':'Solo'));
         if(item.points!==null)row.append(create('span','ev-objective-score','+'+fmtNumber.format(item.points)+' pt(s) / action'));
         if(item.cap!==null){
           const repeat=item.points&&item.cap/item.points;
@@ -373,7 +413,21 @@
       $(`stat-${key}`).textContent=fmtNumber.format(items.length);
       const limit=state.expanded.has(key)?items.length:LIMIT[key];
       if(!items.length)host.append(emptyState(key));
-      for(const item of items.slice(0,limit))host.append(makeCard(item,key,reference));
+      const shown=items.slice(0,limit);
+      for(const category of GAME_GROUPS){
+        const entries=shown.filter(item=>
+          calendarGroup(item,state.includeSecondary)===category.key);
+        if(!entries.length)continue;
+        const section=create('section','ev-calendar-group');
+        const head=create('div','ev-calendar-group-head');
+        head.append(create('h3','ev-calendar-group-title',category.icon+' '+category.label));
+        head.append(create('span','ev-calendar-group-count',
+          fmtNumber.format(items.filter(item=>
+            calendarGroup(item,state.includeSecondary)===category.key).length)));
+        const grid=create('div','ev-grid');
+        for(const item of entries)grid.append(makeCard(item,key,reference));
+        section.append(head,grid);host.append(section);
+      }
       const more=$(`more-${key}`);more.hidden=items.length<=LIMIT[key];
       more.textContent=state.expanded.has(key)?'Afficher moins':`Voir les ${fmtNumber.format(items.length-LIMIT[key])} autres`;
     }
@@ -385,10 +439,20 @@
     state.lastButton=trigger;const dialog=$('event-dialog'),host=$('event-dialog-content');host.replaceChildren();
     const hero=create('div','ev-dialog-header'),art=artwork(e);
     if(art){const img=create('img');img.src=art;img.alt='';img.loading='lazy';hero.append(img);}
-    const head=create('div','ev-dialog-headcopy');head.append(create('span','ev-category',TYPES[e.type]||e.type),create('h2','',eventTitle(e)));hero.append(head);
+    const head=create('div','ev-dialog-headcopy');
+    const group=GAME_GROUPS.find(item=>item.key===calendarGroup(e,true));
+    head.append(create('span','ev-category',group?.label||TYPES[e.type]||e.type),
+      create('h2','',eventTitle(e)));hero.append(head);
     const close=create('button','ev-dialog-close','×');close.type='button';close.setAttribute('aria-label','Fermer');close.addEventListener('click',()=>dialog.close());hero.append(close);host.append(hero);
     const body=create('div','ev-dialog-body');const info=create('div','ev-dialog-data');
-    for(const [label,value] of [['Début',dateLabel(e.startTime)],['Fin',dateLabel(e.endTime)]]){const box=create('div');box.append(create('span','ev-dialog-label',label),create('strong','',value));info.append(box);}body.append(info);
+    const fields=[['Début',dateLabel(e.startTime)],['Fin',dateLabel(e.endTime)]];
+    if(e.type==='milestone')fields.push(['Progression',
+      e.milestone?.type==='alliance'?'Alliance':'Solo']);
+    for(const [label,value] of fields){
+      const box=create('div');
+      box.append(create('span','ev-dialog-label',label),create('strong','',value));info.append(box);
+    }
+    body.append(info);
     const description=strip(e.details||e.subName);if(description){const sec=detailSection(body,'Présentation');sec.append(create('p','',description));}
     const scoring=e.milestone?.scoring;const methods=Array.isArray(scoring?.methods)?scoring.methods:[];
     const caps=Array.isArray(scoring?.cappedScorings)?scoring.cappedScorings:[];
@@ -427,16 +491,16 @@
     state.events=data.events.filter(isCalendarEvent);
     state.sourceError=false;
     state.metadata={liveSource:true,updatedAt:data.updatedAt};
-    const types=[...new Set(state.events.filter(isCalendarDisplayEvent).map(x=>x.type))]
-      .sort((a,b)=>(TYPES[a]||a).localeCompare(TYPES[b]||b,'fr'));
+    const groups=GAME_GROUPS.filter(group=>
+      state.events.some(event=>calendarGroup(event)===group.key));
     const selected=state.type,type=$('type-filter');
     type.replaceChildren();
-    const all=create('option','','Tous les types');all.value='';type.append(all);
-    for(const value of types){
-      const option=create('option','',TYPES[value]||value);
-      option.value=value;type.append(option);
+    const all=create('option','','Toutes les rubriques');all.value='';type.append(all);
+    for(const group of groups){
+      const option=create('option','',group.label);
+      option.value=group.key;type.append(option);
     }
-    state.type=types.includes(selected)?selected:'';
+    state.type=groups.some(group=>group.key===selected)?selected:'';
     type.value=state.type;
     state.expanded.clear();
     const time=Date.parse(data.updatedAt||'');

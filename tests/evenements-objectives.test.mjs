@@ -22,7 +22,7 @@ function node(tag='div'){
     focus(){this.focused=true;}
   };
 }
-async function makePage({failure=false,stale=false,extraEvents=[]}={}){
+async function makePage({failure=false,stale=false,extraEvents=[],includeBase=true}={}){
   const ids=[...html.matchAll(/id="([^"]+)"/g)].map(x=>x[1]);
   const elements=new Map(ids.map(id=>[id,node()]));
   const now=Math.floor(Date.now()/1000),day=86400;
@@ -30,6 +30,9 @@ async function makePage({failure=false,stale=false,extraEvents=[]}={}){
   const event=(name,description,{secondary=false,cap=null,points=1,dates=null}={})=>({
     id:'fixture-'+(++sequence),name,type:'milestone',
     startTime:now-day,endTime:now+day*2,
+    cardArt:'https://assets.marvelstrikeforce.com/key_art/FixtureCard.jpg',
+    popupArt:'https://assets.marvelstrikeforce.com/key_art/FixtureBanner.jpg',
+    milestoneType:'solo',
     ...(secondary?{locationHints:['lohub_feeder']}:{}),
     milestone:{scoring:{
       methods:cap===null&&description?[{description,points}]:[],
@@ -37,7 +40,7 @@ async function makePage({failure=false,stale=false,extraEvents=[]}={}){
     }},
     ...(dates||{})
   });
-  const events=[
+  const events=includeBase?[
     event('Raid Event',''),
     event('Raid Event','Play Alliance Raid with an Iron Raider at Gear Tier 21',{secondary:true,cap:8}),
     event('Raid Event','Play Alliance Raid with an Iron Raider at Gear Tier 21',{secondary:true,cap:8}),
@@ -45,11 +48,16 @@ async function makePage({failure=false,stale=false,extraEvents=[]}={}){
     event('Daily Event','Log In for 7 Days',{cap:7}),
     event('Future Event','Battle in Raid',{dates:{startTime:now+day,endTime:now+day*5}}),
     event('Past Event','Battle in War',{dates:{startTime:now-day*5,endTime:now-day}})
-  ];
+  ]:[];
   for(const [name,type,more] of extraEvents){
     events.push({
       id:'fixture-'+(++sequence),name,type,
       startTime:now-day,endTime:now+day*2,
+      ...(type==='milestone'?{
+        cardArt:'https://assets.marvelstrikeforce.com/key_art/FixtureCard.jpg',
+        popupArt:'https://assets.marvelstrikeforce.com/key_art/FixtureBanner.jpg',
+        milestone:{type:'solo',scoring:{methods:[],cappedScorings:[]}}
+      }:{}),
       ...more
     });
   }
@@ -85,6 +93,11 @@ async function makePage({failure=false,stale=false,extraEvents=[]}={}){
 }
 const sections=nodes=>nodes.get('events-objectives').children.filter(x=>x.tag==='section');
 const actions=nodes=>sections(nodes).flatMap(x=>x.children[1].children.map(item=>item.children[0].textContent));
+const calendarGroups=(nodes,key='current')=>nodes.get('events-'+key).children.filter(child=>child.tag==='section');
+const cards=(nodes,key='current')=>calendarGroups(nodes,key).flatMap(group=>group.children[1].children);
+const titles=(nodes,key='current')=>cards(nodes,key).map(card=>card.children[1].children[1].textContent);
+const groupTitles=(nodes,key='current')=>calendarGroups(nodes,key).map(group=>group.children[0].children[0].textContent);
+
 
 test('Le résumé rassemble les objectifs actifs, y compris les feeders, sans doublons',async()=>{
   const nodes=await makePage();
@@ -124,7 +137,7 @@ test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP co
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=5"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=6"/);
   assert.match(css,/\.ev-toolbar\{[^}]*background:var\(--panel\)/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -174,115 +187,162 @@ test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',
   assert.equal(nodes.get('stat-objectives').textContent,count);
 });
 
-test('Les Trials FR/EN et les jalons S.T.R.I.K.E. restent hors du calendrier',async()=>{
-  const trial=name=>[name,'pickYourPoison',{pickYourPoison:{typeName:'Fléau'}}];
-  const milestone=name=>[name,'milestone',{milestone:{scoring:{methods:[],cappedScorings:[]}}}];
-  const extraEvents=[
-    trial('MORT'),trial('GUERRE'),trial('ROI D’OMBRE'),
-    trial('Death'),trial('Shadow King'),trial('SALLE DES DANGERS'),
-    milestone('S.T.R.I.K.E. : premier assaut'),
-    milestone('Deuxième S.T.R.I.K.E.'),
-    milestone('S.T.R.I.K.E. : troisième assaut'),
-    milestone('Coup du S.T.R.I.K.E.'),
-    milestone('First S.T.R.I.K.E.'),milestone('S.T.R.I.K.E. Back'),
-    trial('KYLN : CODE FLAMMES'),
-    trial('ÉVÉNEMENT BRISEUR : DENTS-DE-SABRE'),
-    milestone('S.T.R.I.K.E. : raid spécial')
-  ];
-  const nodes=await makePage({extraEvents});
-  const visible=nodes.get('events-current').children;
-  assert.equal(nodes.get('stat-current').textContent,'4');
-  assert.equal(visible.length,4);
-  const shown=visible.map(card=>card.children[1].children[1].textContent);
-  assert.ok(shown.includes('S.T.R.I.K.E. : raid spécial'));
-  for(const [name] of extraEvents.slice(0,14))assert.ok(!shown.includes(name),name);
-  assert.equal(nodes.get('stat-objectives').textContent,'3');
-});
-
-test('Blitz et Trials sont exclus en cours et passés, sans masquer les jalons Choc',async()=>{
+test('La liste des événements reproduit les 6 Phases, 2 Postes et 4 Événements des captures',async()=>{
   const now=Math.floor(Date.now()/1000),day=86400;
+  const art=(name)=>'https://assets.marvelstrikeforce.com/key_art/'+name+'.jpg';
+  const phase=(name,description,type='solo')=>[name,'milestone',{
+    cardArt:art('Fixture_Phase'),popupArt:art('Fixture_PhaseBanner'),
+    milestone:{type,scoring:{methods:[{description,points:100}],cappedScorings:[]}}
+  }];
+  const command=name=>[name,'milestone',{
+    locationHints:['lohub_wrapper'],
+    milestone:{type:'solo',scoring:{methods:[],cappedScorings:[]}}
+  }];
+  const feeder=(name,description)=>[name,'milestone',{
+    locationHints:['lohub_feeder'],
+    milestone:{type:'solo',scoring:{methods:[{description,points:20}],cappedScorings:[]}}
+  }];
+  const trial=(name,image,brackets=[{id:'default'}])=>[name,'pickYourPoison',{
+    cardArt:art(image),pickYourPoison:{typeName:'Fléau',brackets}
+  }];
+  const earth=['LA TERRE SAUVAGE','episodic',{
+    endTime:now+27*day,
+    episodic:{type:'eventCampaign',typeName:'Personnage',ids:['ECM_SAVAGELANDS_A']}
+  }];
+  const sameWindow={startTime:now-day,endTime:now+3*day,subName:'Équipez votre effectif'};
+  const gear=['Fête de l’équipement',...Array.from({length:10},(_,i)=>
+    'Fête de l’équipement : '+['II','III','IV','V','VI','VII','VIII','IX','X','XI'][i])];
   const extraEvents=[
-    ['Justicier enragé','blitz',{}],
-    ['Rixe rapide','blitz',{startTime:now-3*day,endTime:now-day}],
-    ['Échos de Dystopia','pickYourPoison',{pickYourPoison:{typeName:'Fléau'}}],
-    ['KYLN : CODE FLAMMES','pickYourPoison',{}],
-    ['ÉVÉNEMENT BRISEUR : DENTS-DE-SABRE','pickYourPoison',{}],
-    ['Objectif Choc','milestone',{
-      milestone:{scoring:{methods:[{description:'Gagner des points en Choc',points:100}],cappedScorings:[]}}
-    }]
-  ];
-  const nodes=await makePage({extraEvents});
-  assert.equal(nodes.get('stat-current').textContent,'4');
-  assert.equal(nodes.get('stat-past').textContent,'1');
-  assert.equal(nodes.get('stat-objectives').textContent,'4');
-  const currentTitles=nodes.get('events-current').children.map(card=>card.children[1].children[1].textContent);
-  assert.ok(currentTitles.includes('Objectif Choc'));
-  assert.ok(actions(nodes).includes('Gagner des points en Choc'));
-  const pastTitles=nodes.get('events-past').children.map(card=>card.children[1].children[1].textContent);
-  for(const [name,type] of extraEvents.filter(entry=>entry[1]!=='milestone')){
-    assert.ok(!currentTitles.includes(name),type+': '+name);
-    assert.ok(!pastTitles.includes(name),type+': '+name);
-  }
-  const categories=nodes.get('type-filter').children.map(option=>option.value);
-  assert.ok(!categories.includes('blitz'));
-  assert.ok(!categories.includes('pickYourPoison'));
-});
-
-test('Le calendrier regroupe les paliers et éditions, sans perdre leurs méthodes dans Objectifs',async()=>{
-  const now=Math.floor(Date.now()/1000),day=86400;
-  const festival=(name,description)=>[name,'milestone',{
-    subName:'Équipez votre effectif',
-    startTime:now-day,endTime:now+3*day,
-    milestone:{scoring:{methods:[{description,points:50}],cappedScorings:[]}}
-  }];
-  const campaign=(start,end)=>['Fils à retordre','episodic',{
-    subName:'Société des araignées',startTime:start,endTime:end,
-    episodic:{type:'eventCampaign',ids:['TEAM_SPIDERS_A','TEAM_SPIDERS_B']}
-  }];
-  const daily=(start,end)=>['Sauvez le monde !','milestone',{
-    startTime:start,endTime:end,
-    milestone:{scoring:{methods:[{description:'Dépensez 1 énergie de campagne',points:5}],cappedScorings:[]}}
-  }];
-  const extraEvents=[
-    festival('Fête de l’équipement','Atteindre le palier G3'),
-    festival('Fête de l’équipement : II','Atteindre le palier G4'),
-    festival('Fête de l’équipement : III','Atteindre le palier G5'),
-    campaign(now-day*2,now+day*9),
-    campaign(now-day,now+day*10),
-    daily(now-day*2,now-day),
-    daily(now-day,now+60*60),
+    phase('Faille cybernétique','Combattre en choc avec Vision'),
+    phase('Faite pour piquer','Utiliser des noyaux'),
+    phase('Force fondatrice','Dépenser de l’énergie'),
+    phase('Prêt au combat : Dents-de-sabre (Briseur)','Combattre avec Dents-de-sabre'),
+    phase('Zone de guerre du raid','Combattre en guerre','alliance'),
+    phase('Sauvez le monde !','Dépensez 1 point d’énergie de campagne'),
+    command('Nuit des Sentinelles'),
+    command('Briseur de volontés - Plan de bataille du mois 1'),
+    feeder('Nuit des Sentinelles','Gagner un combat en choc'),
+    feeder('Briseur de volontés - Plan de bataille du mois 1','Jouer un raid'),
+    trial('SALLE DES DANGERS','Event_HalloweenDangerRoom_Card'),
+    trial('ÉCHOS DE DYSTOPIA','BW_Maestro_Card'),
+    trial('ÉVÉNEMENT BRISEUR : DENTS-DE-SABRE','Scourge_SabertoothBreaker_TopCard'),
+    earth,
+    ...gear.map(name=>phase(name,'Améliorer un équipement').map((v,i)=>
+      i===2?{...v,...sameWindow}:v)),
+    trial('ROI D’OMBRE','Scourge_ShadowKing_Card'),
+    trial('OLD MAN LOGAN','OldManLogan_Scourge_Card'),
+    trial('MORT','Scourge_Death_Card',
+      [{id:'victor'},{id:'6star'},{id:'5star'},{id:'4star'},{id:'default'}]),
+    ['ÈRE DE LA PEUR','info',{endTime:now+362*day}],
+    ['ÉCLIPSE TROUVÉE','episodic',{endTime:now+370*day,
+      episodic:{type:'unlockEvent',id:'CHASE_ECLIPSE_FOUND',ids:[]}}],
+    ['Fils à retordre','episodic',{endTime:now+65*day,
+      episodic:{type:'eventCampaign',ids:['SSE_SPIDERSOCIETY_A']}}],
     ['Récompense Web','milestone',{
       locationHints:['web_exclusive'],
-      milestone:{scoring:{methods:[{description:'Récupérer une offre Web',points:1}],cappedScorings:[]}}
+      milestone:{type:'solo',scoring:{methods:[{description:'Récupérer une offre',points:1}],cappedScorings:[]}}
     }],
-    ['Dons du jour','donation',{}],
-    ['Saga permanente','episodic',{
-      endTime:now+360*day,episodic:{type:'eventCampaign',ids:['SAGA']}
+    ['Justicier enragé','blitz',{}],
+    ['S.T.R.I.K.E. : premier assaut','milestone',{}]
+  ];
+  const nodes=await makePage({includeBase:false,extraEvents});
+  assert.equal(nodes.get('stat-current').textContent,'12');
+  assert.equal(cards(nodes).length,12);
+  assert.deepEqual(groupTitles(nodes),[
+    '📋 Phases','🛡️ Poste de commandement','⚔️ Événements'
+  ]);
+  assert.deepEqual(calendarGroups(nodes).map(group=>group.children[1].children.length),[6,2,4]);
+  assert.equal(nodes.get('stat-objectives').textContent,'8');
+  assert.ok(actions(nodes).includes('Combattre en choc avec Vision'));
+  assert.ok(actions(nodes).includes('Gagner un combat en choc'));
+  assert.ok(actions(nodes).includes('Jouer un raid'));
+  assert.ok(!actions(nodes).includes('Améliorer un équipement'));
+  assert.ok(!titles(nodes).includes('Fête de l’équipement'));
+  assert.ok(!titles(nodes).includes('ROI D’OMBRE'));
+  assert.ok(!titles(nodes).includes('OLD MAN LOGAN'));
+  assert.ok(!titles(nodes).includes('ÈRE DE LA PEUR'));
+  assert.ok(!titles(nodes).includes('ÉCLIPSE TROUVÉE'));
+  assert.ok(!titles(nodes).includes('Fils à retordre'));
+  assert.ok(!titles(nodes).includes('Justicier enragé'));
+  const alliance=cards(nodes).find(card=>card.children[1].children[1].textContent==='Zone de guerre du raid');
+  assert.equal(alliance.children[1].children[0].children[1].textContent,'Alliance');
+  assert.ok(sections(nodes).some(section=>section.children[0].textContent.startsWith('⚡ CHOC')));
+  assert.ok(sections(nodes).some(section=>section.children[0].textContent.startsWith('⚔️ GUERRE')));
+  const filter=nodes.get('type-filter');
+  assert.deepEqual(filter.children.map(option=>option.value),['','phases','command','events']);
+  filter.handlers.get('change')({target:{value:'command'}});
+  assert.equal(nodes.get('stat-current').textContent,'2');
+  assert.equal(nodes.get('stat-objectives').textContent,'2');
+  filter.handlers.get('change')({target:{value:'events'}});
+  assert.equal(nodes.get('stat-current').textContent,'4');
+  assert.equal(nodes.get('stat-objectives').textContent,'0');
+  filter.handlers.get('change')({target:{value:''}});
+  nodes.get('search-filter').handlers.get('input')({target:{value:'Fête de l’équipement'}});
+  assert.equal(nodes.get('stat-current').textContent,'0');
+  assert.equal(nodes.get('stat-objectives').textContent,'0');
+});
+
+test('Les phases quotidiennes et les feeders sont traités séparément',async()=>{
+  const now=Math.floor(Date.now()/1000),day=86400;
+  const extraEvents=[
+    ['Sauvez le monde !','milestone',{
+      cardArt:'https://assets.marvelstrikeforce.com/key_art/DailyCard.jpg',
+      popupArt:'https://assets.marvelstrikeforce.com/key_art/DailyBanner.jpg',
+      endTime:now+6*3600,
+      milestone:{type:'solo',scoring:{methods:[{description:'Dépensez 1 énergie',points:5}],cappedScorings:[]}}
     }],
-    ['Contexte de saga','info',{endTime:now+360*day}],
-    ['Épreuve Briseur temporaire','pickYourPoison',{
-      pickYourPoison:{typeName:'Fléau'},endTime:now+14*day
+    ['Sauvez le monde !','milestone',{
+      cardArt:'https://assets.marvelstrikeforce.com/key_art/DailyCard.jpg',
+      popupArt:'https://assets.marvelstrikeforce.com/key_art/DailyBanner.jpg',
+      startTime:now-day-3600,endTime:now-day+6*3600,
+      milestone:{type:'solo',scoring:{methods:[{description:'Dépensez 1 énergie',points:5}],cappedScorings:[]}}
+    }],
+    ['Poste mensuel','milestone',{
+      locationHints:['lohub_wrapper'],
+      milestone:{type:'solo',scoring:{methods:[],cappedScorings:[]}}
+    }],
+    ['Poste mensuel','milestone',{
+      locationHints:['lohub_feeder'],
+      milestone:{type:'solo',scoring:{methods:[{description:'Combattre en raid',points:10}],cappedScorings:[]}}
     }]
   ];
-  const nodes=await makePage({extraEvents});
-  assert.equal(nodes.get('stat-current').textContent,'5');
-  assert.equal(nodes.get('events-current').children.length,5);
-  assert.equal(nodes.get('stat-objectives').textContent,'8');
-  const titles=nodes.get('events-current').children.map(card=>card.children[1].children[1].textContent);
-  assert.equal(titles.filter(title=>title==='Fête de l’équipement').length,1);
-  assert.equal(titles.filter(title=>title==='Fils à retordre').length,1);
-  assert.ok(!titles.includes('Épreuve Briseur temporaire'));
-  assert.ok(!titles.includes('Récompense Web'));
-  assert.ok(!titles.includes('Sauvez le monde !'));
-  assert.ok(!titles.includes('Dons du jour'));
-  assert.ok(!titles.includes('Saga permanente'));
-  assert.ok(!titles.includes('Contexte de saga'));
-  assert.ok(actions(nodes).some(text=>text.includes('palier G3')));
-  assert.ok(actions(nodes).some(text=>text.includes('palier G4')));
-  assert.ok(actions(nodes).some(text=>text.includes('palier G5')));
-  assert.ok(actions(nodes).some(text=>text.includes('offre Web')));
-  nodes.get('search-filter').handlers.get('input')({target:{value:'Fête de l’équipement'}});
-  assert.equal(nodes.get('stat-current').textContent,'1');
+  const nodes=await makePage({includeBase:false,extraEvents});
+  assert.equal(nodes.get('stat-current').textContent,'2');
+  assert.deepEqual(groupTitles(nodes),['📋 Phases','🛡️ Poste de commandement']);
+  assert.equal(nodes.get('stat-objectives').textContent,'2');
+  assert.ok(actions(nodes).includes('Combattre en raid'));
+  const checkbox=nodes.get('secondary-filter');
+  checkbox.handlers.get('change')({target:{checked:true}});
+  assert.equal(nodes.get('stat-current').textContent,'3');
+  assert.equal(nodes.get('stat-objectives').textContent,'2');
+});
+
+test('Les événements courts passés restent listés ; ni déblocages ni modes Blitz',async()=>{
+  const now=Math.floor(Date.now()/1000),day=86400;
+  const extraEvents=[
+    ['KYLN : CODE FLAMMES','pickYourPoison',{
+      cardArt:'https://assets.marvelstrikeforce.com/key_art/KylnTower_HumanTorchJim_Card.jpg',
+      pickYourPoison:{typeName:'Fléau',brackets:[{id:'default'}]},
+      startTime:now-29*day,endTime:now-day
+    }],
+    ['PRISE DE CONTRÔLE DE L’IA','episodic',{
+      episodic:{type:'eventCampaign',ids:['ECM_AIAVENGERS_A']},
+      startTime:now-30*day,endTime:now-2*day
+    }],
+    ['Rixe rapide','blitz',{startTime:now-3*day,endTime:now-day}],
+    ['ÉPREUVES','info',{startTime:now-400*day,endTime:now-2*day}],
+    ['FAMINE','pickYourPoison',{
+      cardArt:'https://assets.marvelstrikeforce.com/key_art/Scourge_Famine_Card.jpg',
+      pickYourPoison:{typeName:'Fléau',brackets:[{id:'victor'},{id:'default'}]},
+      startTime:now-8*day,endTime:now-day
+    }]
+  ];
+  const nodes=await makePage({includeBase:false,extraEvents});
+  assert.equal(nodes.get('stat-past').textContent,'2');
+  assert.deepEqual(groupTitles(nodes,'past'),['⚔️ Événements']);
+  assert.deepEqual(titles(nodes,'past'),['KYLN : CODE FLAMMES','PRISE DE CONTRÔLE DE L’IA']);
+  assert.equal(nodes.get('stat-current').textContent,'0');
+  assert.equal(nodes.get('stat-objectives').textContent,'0');
 });
 
 test('Une panne du JSON GitHub n’utilise aucune autre source et affiche une indisponibilité',async()=>{
