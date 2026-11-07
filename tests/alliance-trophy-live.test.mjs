@@ -181,3 +181,78 @@ test("same-day newer live trophy value keeps static rank fields",()=>{
   assert.equal(standalone[0].captureType,"war-trophies",
     "live-only days never become invented season-rank checkpoints");
 });
+
+test("7 November: actual orange ENDGAME trophies resolve through the approved key",()=>{
+  const live=payload([{collectionDayUtc:"2026-11-07",
+    capturedAt:"2026-11-07T02:12:50.024Z",coverage:{observed:8,expected:8,
+      complete:true},
+    alliances:[{publicId:"a2f70310-f183-42e0-987a-73764c07ae5d",
+      allianceKey:"endgame-revolution-orange",
+      nameAtCapture:"END<color=#f60>GAME R-évolution",
+      capturedAt:"2026-11-07T02:00:50.024Z",warTrophies:2534}]}]);
+  const guest=adapter.fromCloudflare(live,registry,
+    key=>key==="endgame-revolution-orange");
+  assert.equal(guest.length,1);
+  assert.equal(guest[0].alliances.length,1);
+  assert.equal(guest[0].alliances[0].key,"endgame-revolution-orange");
+  assert.equal(guest[0].alliances[0].warTrophies,2534);
+  assert.equal(guest[0].coverage.completeSessionScan,true);
+  assert.equal(adapter.fromCloudflare(live,registry,
+    key=>key==="endgame-revolution-red").length,0,
+    "a red-group viewer must never see the orange alliance's trophies");
+});
+test("eight ENDGAME variants with the same name and different colours stay separate",()=>{
+  const future=["blue","green","purple","yellow","white","black"];
+  const variants=[
+    ...registry.filter(a=>a.group==="endgame-revolution"),
+    ...future.map((colour,i)=>({key:"endgame-revolution-"+colour,
+      name:"ENDGAME R-évolution",group:"endgame-revolution",
+      color:["#0073ff","#00a164","#9900cc","#ffff00",
+        "#ffffff","#222222"][i]}))
+  ];
+  assert.equal(variants.length,8);
+  const rows=variants.map((variant,i)=>({
+    publicId:"10000000-0000-4000-8000-"+String(i+1).padStart(12,"0"),
+    allianceKey:variant.key,
+    nameAtCapture:"END<color="+variant.color+">GAME R-évolution",
+    capturedAt:"2026-11-07T02:05:00Z",
+    warTrophies:2500+i
+  }));
+  const live=payload([{collectionDayUtc:"2026-11-07",
+    capturedAt:"2026-11-07T02:15:00Z",coverage:{observed:8,expected:8,
+      complete:true},alliances:rows}]);
+  const results=adapter.fromCloudflare(live,variants,()=>true);
+  assert.equal(results.length,1);
+  assert.equal(results[0].alliances.length,8);
+  assert.deepEqual(new Set(results[0].alliances.map(a=>a.key)),
+    new Set(variants.map(a=>a.key)));
+  const white=adapter.fromCloudflare(live,variants,
+    key=>key==="endgame-revolution-white");
+  assert.deepEqual(white[0].alliances.map(a=>a.key),
+    ["endgame-revolution-white"]);
+  assert.equal(adapter.mappedKey("ENDGAME R-évolution",variants),null,
+    "shared names must remain ambiguous without an approved key");
+});
+test("invalid, unknown or contradictory bindings fail closed",()=>{
+  const id="a2f70310-f183-42e0-987a-73764c07ae5d";
+  assert.equal(adapter.mappedKey("ENDGAME R-évolution",registry,id,
+    "endgame-revolution-unknown"),null);
+  assert.equal(adapter.mappedKey("ENDGAME R-évolution",registry,id,
+    "endgame-revolution-orange/other"),null);
+  assert.equal(adapter.mappedKey("ENDGAME R-évolution",registry,undefined,
+    "endgame-revolution-orange"),null);
+  assert.equal(adapter.mappedKey("Zeus",registry,id,"zeus"),null,
+    "a guest key must not silently override a LoSP identity");
+  assert.equal(adapter.mappedKey("ENDGAME R-évolution",registry,
+    "83937048-ec30-47d3-8b56-cca351fca34b",
+    "endgame-revolution-orange"),null,
+    "a known MARINES public ID must not be rebound to ENDGAME");
+  assert.equal(adapter.mappedKey("ENDGAME R-évolution",registry,id,
+    "endgame-revolution-orange"),"endgame-revolution-orange");
+  assert.equal(adapter.fromCloudflare(payload([{
+    collectionDayUtc:"2026-11-07",capturedAt:"2026-11-07T02:15:00Z",
+    alliances:[{publicId:id,allianceKey:"endgame-revolution-unknown",
+      nameAtCapture:"ENDGAME R-évolution",
+      capturedAt:"2026-11-07T02:05:00Z",warTrophies:2534}]
+  }]),registry,()=>true).length,0);
+});
