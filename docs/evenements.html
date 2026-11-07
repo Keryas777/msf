@@ -3,28 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#050913">
+  <meta name="theme-color" content="#0b0c0d">
   <title>Événements — LoSP</title>
   <style>html.authChecking body{opacity:0;pointer-events:none}</style>
   <script>document.documentElement.classList.add("authChecking");</script>
   <script src="./auth-guard.js?v=4"></script>
   <link rel="stylesheet" href="./style.css?v=4">
-  <link rel="stylesheet" href="./evenements.css?v=4">
+  <link rel="stylesheet" href="./evenements.css?v=5">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./losp-selects.css?v=2" />
   </head>
 <body class="ev-body">
-  <main class="ev-page" aria-label="Événements et objectifs MSF">
-    <header class="ev-top">
-      <div class="ev-brand"><span class="ev-brand-mark">✦</span> LoSP <span style="opacity:.45">/</span> MSF</div>
-      <a class="ev-home" href="./home.html" aria-label="Retour à l’accueil LoSP">⌂ Accueil</a>
+  <main class="app ev-page" aria-label="Événements et objectifs MSF">
+    <header class="header ev-header" aria-label="Événements MSF">
+      <a class="homeBtn" href="./home.html" aria-label="Accueil LoSP">⌂</a>
+      <div class="headerLeft">
+        <h1 class="title">Événements MSF</h1>
+        <p class="subtitle">Objectifs, événements en cours et historique</p>
+      </div>
     </header>
-    <section class="ev-hero">
-      <p class="ev-eyebrow">Centre de commandement · Événements</p>
-      <h1><span>Événements</span> MSF</h1>
-      <p class="ev-intro">Les actions qui rapportent des points, les événements en cours et leur historique, au même endroit.</p>
-      <div hidden aria-hidden="true"><span id="source-line"></span><span id="source-provenance"></span></div>
-    </section>
+    <div hidden aria-hidden="true"><span id="source-line"></span><span id="source-provenance"></span></div>
     <nav class="ev-overview" role="tablist" aria-label="Vues des événements">
       <button class="ev-stat ev-stat--objectives" id="tab-objectives" type="button" role="tab" aria-controls="section-objectives" aria-selected="false" tabindex="-1"><strong id="stat-objectives">—</strong><span>Objectifs</span></button>
       <button class="ev-stat ev-stat--current" id="tab-current" type="button" role="tab" aria-controls="section-current" aria-selected="true" tabindex="0"><strong id="stat-current">—</strong><span>En cours</span></button>
@@ -47,7 +45,6 @@
     <section class="ev-section ev-section--objectives" id="section-objectives" role="tabpanel" aria-labelledby="tab-objectives" hidden><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">☑</span><div><h2 id="title-objectives">Objectifs à réaliser</h2><p class="ev-section-desc">Comment gagner des points, par mode de jeu</p></div></div><span class="ev-count" id="count-objectives">—</span></div><div class="ev-objectives" id="events-objectives"></div></section>
     <section class="ev-section ev-section--current" id="section-current" role="tabpanel" aria-labelledby="tab-current"><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">◉</span><div><h2 id="title-current">Événements en cours</h2><p class="ev-section-desc">Ce que tu peux jouer maintenant, selon le catalogue GitHub</p></div></div><span class="ev-count" id="count-current">—</span></div><div class="ev-grid" id="events-current"></div><button class="ev-more" id="more-current" type="button" hidden>Voir plus</button></section>
     <section class="ev-section ev-section--past" id="section-past" role="tabpanel" aria-labelledby="tab-past" hidden><div class="ev-section-head"><div class="ev-section-name"><span class="ev-section-icon">↶</span><div><h2 id="title-past">Événements passés</h2><p class="ev-section-desc">L'historique, du plus récent au plus ancien</p></div></div><span class="ev-count" id="count-past">—</span></div><div class="ev-grid" id="events-past"></div><button class="ev-more" id="more-past" type="button" hidden>Voir plus</button></section>
-    <footer class="ev-footnote">Catalogue des événements · fichier GitHub actualisé via R2 chaque jour et après les changements différentiels.</footer>
   </main>
   <dialog id="event-dialog" class="ev-dialog" aria-label="Détail de l'événement"><div id="event-dialog-content"></div></dialog>
 <script src="./evenements.js?v=14" defer></script>

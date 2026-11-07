@@ -5,6 +5,8 @@ import {runInNewContext} from 'node:vm';
 
 const script=readFileSync(new URL('../docs/evenements.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../docs/evenements.html',import.meta.url),'utf8');
+const css=readFileSync(new URL('../docs/evenements.css',import.meta.url),'utf8');
+const commonCss=readFileSync(new URL('../docs/style.css',import.meta.url),'utf8');
 
 function node(tag='div'){
   const handlers=new Map();
@@ -114,6 +116,22 @@ test('La recherche trouve aussi le texte des objectifs secondaires',async()=>{
   assert.equal(nodes.get('stat-objectives').textContent,'1');
   assert.equal(actions(nodes).length,1);
   assert.ok(actions(nodes)[0].includes('Iron Raider'));
+});
+
+test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP communs',()=>{
+  assert.match(commonCss,/background-image:\s*url\("\.\/Background\.webp"\)/);
+  assert.match(html,/class="app ev-page"/);
+  assert.match(html,/class="header ev-header"/);
+  assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
+  assert.match(html,/href="\.\/style\.css\?v=4"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=5"/);
+  assert.match(css,/\.ev-toolbar\{[^}]*background:var\(--panel\)/);
+  assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
+  assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
+  assert.doesNotMatch(css,/body\.ev-body\{[^}]*background(?:-image|-color)?:/);
+  for(const id of ['tab-objectives','tab-current','tab-past','events-objectives','events-current','events-past']){
+    assert.match(html,new RegExp('id="'+id+'"'));
+  }
 });
 
 test('Le bandeau technique du catalogue est masqué sans supprimer le diagnostic interne',()=>{
