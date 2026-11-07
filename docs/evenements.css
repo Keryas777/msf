@@ -111,6 +111,40 @@ body.ev-body{margin:0;min-height:100vh;color:var(--text);font-family:system-ui,-
 .ev-objective-score,.ev-objective-cap,.ev-objective-premium{font-size:10px;line-height:1.4;color:var(--muted)}
 .ev-objective-score{color:#81d5bd}
 .ev-objective-premium{color:#e7bc81}
+/* Hiérarchie compacte des objectifs : mode > événement > équipe > personnage. */
+.ev-objective-events{display:flex;flex-direction:column;gap:9px;min-width:0}
+.ev-objective-event-group{border:1px solid var(--border);border-radius:15px;background:var(--panel);overflow:hidden;min-width:0}
+.ev-objective-event-summary,.ev-objective-team-summary,.ev-objective-character-summary{
+  display:flex;align-items:center;flex-wrap:wrap;gap:6px 9px;cursor:pointer;list-style:none;min-width:0}
+.ev-objective-event-summary::-webkit-details-marker,.ev-objective-team-summary::-webkit-details-marker,
+.ev-objective-character-summary::-webkit-details-marker{display:none}
+.ev-objective-event-summary::after,.ev-objective-team-summary::after,.ev-objective-character-summary::after{
+  content:'⌄';margin-left:auto;font-size:18px;color:var(--muted)}
+details[open]>.ev-objective-event-summary::after,details[open]>.ev-objective-team-summary::after,
+details[open]>.ev-objective-character-summary::after{transform:rotate(180deg)}
+.ev-objective-event-summary{padding:14px;gap:7px 10px}
+.ev-objective-event-summary strong{font-size:13px;line-height:1.4;overflow-wrap:anywhere;max-width:100%;color:var(--text)}
+.ev-objective-mini-count{font-size:10px;font-weight:700;color:var(--muted);white-space:normal}
+.ev-objective-event-content{display:flex;flex-direction:column;gap:11px;border-top:1px solid var(--border);padding:12px}
+.ev-objective-event-content>.ev-objective-event{align-self:flex-start}
+.ev-objective-team{border:1px solid var(--border);border-radius:12px;background:var(--panel2);min-width:0}
+.ev-objective-team-summary{padding:12px;gap:5px 10px}
+.ev-objective-team-summary strong{font-size:13px;color:var(--text)}
+.ev-objective-people{display:flex;flex-direction:column;gap:7px;min-width:0;padding:9px}
+.ev-objective-team>.ev-objective-people{border-top:1px solid var(--border)}
+.ev-objective-character{border:1px solid var(--border);border-radius:10px;background:rgba(0,0,0,.20);min-width:0}
+.ev-objective-character-summary{padding:8px 10px;min-height:48px;flex-wrap:nowrap}
+.ev-objective-character-summary strong{font-size:12px;line-height:1.3;min-width:0;overflow-wrap:anywhere}
+.ev-objective-character-summary .ev-objective-mini-count{margin-left:auto}
+.ev-objective-portrait{width:38px;height:38px;flex:0 0 38px;object-fit:cover;border-radius:8px;background:var(--panel2)}
+.ev-objective-character>.ev-objective-list{margin:0 8px 9px}
+.ev-objective-subhead{color:var(--muted);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin:2px 0 0}
+.ev-objective-event-group .ev-objective-list{grid-template-columns:minmax(0,1fr)}
+.ev-objective-event-group .ev-objective-item{padding:9px 11px;background:rgba(0,0,0,.18)}
+.ev-objective-event-group .ev-objective-action{font-size:12px}
+.ev-objective-event-summary:focus-visible,.ev-objective-team-summary:focus-visible,
+.ev-objective-character-summary:focus-visible{outline:2px solid #a4d8ff;outline-offset:-2px}
+
 @media(min-width:610px){.ev-objective-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.ev-objective-item{padding:14px}}
 @media(min-width:610px){.ev-page{padding-left:22px;padding-right:22px;gap:18px}.ev-overview{gap:13px}.ev-stat{padding:17px}.ev-stat strong{font-size:33px}.ev-stat span{font-size:12px}.ev-toolbar{grid-template-columns:1.2fr .8fr;align-items:end}.ev-toolbar-bottom{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center}.ev-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ev-card{min-height:165px}.ev-cover{width:130px;flex-basis:130px;min-height:165px}.ev-card-copy{padding:14px}.ev-card h3{font-size:16px}}
 @media(max-width:365px){.ev-card{min-height:143px}.ev-cover{width:89px;flex-basis:89px;min-height:143px}.ev-card-copy{padding:10px}.ev-card h3{font-size:14px}.ev-sub{font-size:10px}.ev-filters{grid-template-columns:1fr}.ev-header{padding-left:54px;padding-right:54px}.ev-date-controls{flex-wrap:wrap}.ev-stat strong{font-size:22px}}
