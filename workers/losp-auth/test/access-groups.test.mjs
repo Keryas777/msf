@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import auth from "../worker.js";
+import {readFile} from "node:fs/promises";
+const registry=JSON.parse(await readFile(new URL("../../../docs/data/access-groups.json",import.meta.url),"utf8"));
+const allAuthorizedKeys=new Set(registry.groups.flatMap(x=>x.alliances));
 
 const env = { DISCORD_BOT_TOKEN: "test-bot", SESSION_SIGNING_SECRET: "test-signing-secret-with-at-least-32-characters" };
 const BASE_URL = "https://losp-auth.test";
@@ -65,12 +68,12 @@ test("LoSP: les six alliances sont autorisées indépendamment du rôle d'allian
   assert.deepEqual(data.alliances, ["zeus"]);
 });
 
-test("Admin LoSP: toutes les dix alliances sans cumul de rôles", async () => {
+test("Admin LoSP: toutes les alliances du registre, sans cumul de rôles", async () => {
   const { status, data } = await sessionFor("300305626926415874", [zeusRole]);
   assert.equal(status, 200);
   assert.equal(data.role, "admin");
   assert.equal(data.groupKey, "all");
-  assert.equal(data.allowedAlliances.length, 10);
+  assert.equal(data.allowedAlliances.length, allAuthorizedKeys.size);
   assert.ok(data.allowedAlliances.includes("questionable-propriety"));
   assert.ok(data.allowedAlliances.includes("marines"));
   assert.ok(data.allowedAlliances.includes("endgame-revolution-orange"));
