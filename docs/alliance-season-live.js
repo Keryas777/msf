@@ -111,5 +111,42 @@
     }
     return out.sort((a,b)=>a.capturedAt.localeCompare(b.capturedAt));
   }
-  root.LoSPGuestSeasonLive=Object.freeze({fromCloudflare,completedSeason,mappedKey});
+
+  // Immutable GitHub-published season points survive R2's short retention.
+  // This reader never consults private sources and never guesses a tenant.
+  function fromArchive(payload,registry,allowed,calendar){
+    if(payload?.version!==1||payload.kind!=="losp-guest-season-results"||
+       !Array.isArray(payload.results)||!Array.isArray(registry))return [];
+    const known=new Set(registry.filter(a=>a?.group!=="losp"&&
+      a?.active!==false).map(a=>a.key));
+    const groups=new Map(),seen=new Set();
+    for(const record of payload.results){
+      const key=record?.allianceKey;
+      if(!known.has(key)||!allowed(key)||!validDate(record.capturedAt)||
+         !validRank(record.warRank)||!validRank(record.raidRank))continue;
+      const season=completedSeason(record.capturedAt,
+        record.capturedAt.slice(0,10),calendar);
+      if(!season||season.seasonId!==record.seasonId)continue;
+      const identity=season.seasonId+"\u0000"+key;
+      if(seen.has(identity))continue;
+      seen.add(identity);
+      if(!groups.has(season.seasonId))
+        groups.set(season.seasonId,{season,alliances:[],capturedAt:record.capturedAt});
+      const group=groups.get(season.seasonId);
+      if(record.capturedAt>group.capturedAt)group.capturedAt=record.capturedAt;
+      group.alliances.push({key,warRank:record.warRank,
+        raidRank:record.raidRank,warTrophies:null,capturedAt:record.capturedAt});
+    }
+    return [...groups.values()].map(group=>({
+      version:1,kind:"losp-alliance-standings-snapshot",
+      capturedAt:group.capturedAt,captureType:"season-ranks",
+      seasonId:group.season.seasonId,seasonVerified:false,seasonDerived:true,
+      rankingSeason:{startAt:group.season.startAt,
+        endExclusiveAt:group.season.endExclusiveAt,
+        identification:"schedule-derived",timezone:group.season.timezone},
+      coverage:{completeSessionScan:false,source:"github-guest-season-history"},
+      alliances:group.alliances
+    })).sort((a,b)=>a.capturedAt.localeCompare(b.capturedAt));
+  }
+  root.LoSPGuestSeasonLive=Object.freeze({fromCloudflare,fromArchive,completedSeason,mappedKey});
 })(window);
