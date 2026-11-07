@@ -7,6 +7,8 @@ const script=readFileSync(new URL('../docs/evenements.js',import.meta.url),'utf8
 const html=readFileSync(new URL('../docs/evenements.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../docs/evenements.css',import.meta.url),'utf8');
 const commonCss=readFileSync(new URL('../docs/style.css',import.meta.url),'utf8');
+const realTeams=JSON.parse(readFileSync(new URL('../docs/data/teams.json',import.meta.url),'utf8'));
+const realCharacters=JSON.parse(readFileSync(new URL('../docs/data/msf-characters.json',import.meta.url),'utf8'));
 
 function node(tag='div'){
   const handlers=new Map();
@@ -22,7 +24,8 @@ function node(tag='div'){
     focus(){this.focused=true;}
   };
 }
-async function makePage({failure=false,stale=false,extraEvents=[],includeBase=true}={}){
+async function makePage({failure=false,stale=false,extraEvents=[],includeBase=true,
+  teams=realTeams,characters=realCharacters,failReferences=false}={}){
   const ids=[...html.matchAll(/id="([^"]+)"/g)].map(x=>x[1]);
   const elements=new Map(ids.map(id=>[id,node()]));
   const now=Math.floor(Date.now()/1000),day=86400;
@@ -74,6 +77,10 @@ async function makePage({failure=false,stale=false,extraEvents=[],includeBase=tr
     document,location:{search:''},URLSearchParams,Intl,Date,
     fetch:async url=>{
       fetchCalls.push(url);
+      if(url==='./data/teams.json')
+        return failReferences?{ok:false,status:503}:{ok:true,json:async()=>teams};
+      if(url==='./data/msf-characters.json')
+        return failReferences?{ok:false,status:503}:{ok:true,json:async()=>characters};
       if(failure)return {ok:false,status:503};
       return {ok:true,json:async()=>({
         status:'ok',source:'verified-daily-game-events',schemaVersion:1,
@@ -86,13 +93,31 @@ async function makePage({failure=false,stale=false,extraEvents=[],includeBase=tr
   assert.equal(typeof onReady,'function');
   onReady();
   await new Promise(resolve=>setImmediate(resolve));
-  assert.deepEqual(fetchCalls,[
-    './data/evenements-snapshot.json'
-  ]);
+  assert.deepEqual(fetchCalls,failure||stale?
+    ['./data/evenements-snapshot.json']:
+    ['./data/evenements-snapshot.json','./data/teams.json',
+      './data/msf-characters.json']);
   return elements;
 }
 const sections=nodes=>nodes.get('events-objectives').children.filter(x=>x.tag==='section');
-const actions=nodes=>sections(nodes).flatMap(x=>x.children[1].children.map(item=>item.children[0].textContent));
+const objectiveNodes=nodes=>{
+  const rows=[];
+  const visit=element=>{
+    if(element.className==='ev-objective-item')rows.push(element);
+    for(const child of element.children||[])visit(child);
+  };
+  visit(nodes.get('events-objectives'));
+  return rows;
+};
+const actions=nodes=>objectiveNodes(nodes).map(item=>item.children[0].textContent);
+const objectiveDetails=(nodes,cssClass)=>{
+  const details=[];
+  const visit=element=>{
+    if(element.tag==='details'&&element.className===cssClass)details.push(element);
+    for(const child of element.children||[])visit(child);
+  };
+  visit(nodes.get('events-objectives'));return details;
+};
 const calendarGroups=(nodes,key='current')=>nodes.get('events-'+key).children.filter(child=>child.tag==='section');
 const cards=(nodes,key='current')=>calendarGroups(nodes,key).flatMap(group=>group.children[1].children);
 const titles=(nodes,key='current')=>cards(nodes,key).map(card=>card.children[1].children[1].textContent);
@@ -114,12 +139,13 @@ test('Le résumé rassemble les objectifs actifs, y compris les feeders, sans do
 
 test('Un plafond de scoring reste un maximum, pas un objectif obligatoire',async()=>{
   const nodes=await makePage();
-  const raid=sections(nodes)[0].children[1].children[0];
+  const raid=objectiveNodes(nodes).find(row=>row.children[0].textContent.includes('Iron Raider'));
   const notes=raid.children[1].children.map(x=>x.textContent);
-  assert.ok(notes.includes('Jusqu’à 8 actions comptabilisées'));
-  const login=sections(nodes)[2].children[1].children[0];
+  assert.ok(notes.some(x=>x.includes('Plafond 8 pts')));
+  assert.ok(notes.some(x=>x.includes('Jusqu’à 8 actions comptabilisées')));
+  const login=objectiveNodes(nodes).find(row=>row.children[0].textContent.includes('7 jours'));
   const loginNotes=login.children[1].children.map(x=>x.textContent);
-  assert.ok(loginNotes.includes('Plafond 7 pts'));
+  assert.ok(loginNotes.some(x=>x.includes('Plafond 7 pts')));
   assert.ok(!loginNotes.some(x=>x.includes('7 fois')));
 });
 
@@ -137,7 +163,7 @@ test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP co
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=7"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=8"/);
   assert.match(css,/\.ev-toolbar\{[^}]*background:var\(--panel\)/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -164,7 +190,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=17/);
+  assert.match(html,/evenements\.js\?v=18/);
 });
 
 test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',async()=>{
