@@ -728,7 +728,7 @@ test('switching from trophies to war and raid season ranks redraws real rank val
   const end=source.indexOf('  if(typeof ResizeObserver',begin);
   assert.ok(begin>=0&&end>begin,'render() must be present');
   const stub=()=>({
-    textContent:'',hidden:false,style:{setProperty(){}},
+    textContent:'',hidden:false,dataset:{},style:{setProperty(){}},
     append(){},replaceChildren(){},setAttribute(){},addEventListener(){}
   });
   const refs=Object.fromEntries([
