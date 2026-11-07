@@ -90,9 +90,13 @@
     const group=calendarGroup(e);
     if(group==='phases'||group==='command')return group;
     if(!e.locationHints?.includes('lohub_feeder'))return null;
-    return state.events.some(parent=>calendarGroup(parent)==='command'&&
-      eventNameKey(parent.name)===eventNameKey(e.name)&&
-      parent.startTime<e.endTime&&parent.endTime>e.startTime)?'command':null;
+    const parent=state.events.find(candidate=>{
+      const parentGroup=calendarGroup(candidate);
+      return (parentGroup==='phases'||parentGroup==='command')&&
+        eventNameKey(candidate.name)===eventNameKey(e.name)&&
+        candidate.startTime<e.endTime&&candidate.endTime>e.startTime;
+    });
+    return parent?calendarGroup(parent):null;
   }
   function isCalendarDisplayEvent(e){
     return Boolean(calendarGroup(e,state.includeSecondary));
