@@ -46,6 +46,8 @@ test("append-only archive preserves rank history indefinitely for distinct tenan
   const first=mergeGuestSeasonHistory(old(),data(),approval(),registry,config,now);
   assert.equal(first.added,4);
   assert.equal(first.history.results.length,4);
+  assert.equal(first.history.results[0].startAt,"2026-10-11T20:00:00.000Z");
+  assert.equal(first.history.results[0].endExclusiveAt,"2026-10-25T20:00:00.000Z");
   const rows=first.history.results;
   assert.deepEqual(rows.filter(r=>r.seasonId==="2026-10-25/2026-11-08")
     .map(r=>r.allianceKey).sort(),[
@@ -121,6 +123,17 @@ test("static graph merges durable historical guest seasons without private fetch
   assert.deepEqual(Array.from(red.points,p=>p.value),[100,88]);
   assert.deepEqual(Array.from(orange.points,p=>p.value),[null,120]);
   assert.equal(red.points[0].capturedAt,before);
+  // A future calendar change cannot relabel or erase earlier GitHub results.
+  const changedCalendar={...config,
+    referenceEndExclusiveAt:"2026-10-18T20:00:00.000Z"};
+  const stable=ctx.window.LoSPGuestSeasonLive.fromArchive(
+    archive,registry,key=>key.startsWith("endgame-"),changedCalendar);
+  const stableChart=ctx.window.LoSPStandingsSeries.prepare(stable,
+    registry.filter(a=>a.key.startsWith("endgame-")),chart,changedCalendar);
+  assert.deepEqual(Array.from(stableChart.rows,r=>r.seasonId),[
+    "2026-10-11/2026-10-25","2026-10-25/2026-11-08"]);
+  assert.deepEqual(Array.from(stableChart.series.find(
+    s=>s.key==="endgame-revolution-red").points,p=>p.value),[100,88]);
   const trophies=ctx.window.LoSPStandingsSeries.prepare(available,
     registry, {field:"warTrophies",frequency:"all-snapshots"},config);
   assert.equal(trophies.rows.length,0,"guest season ranks must not add trophy points");
