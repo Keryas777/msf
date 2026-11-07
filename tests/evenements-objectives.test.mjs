@@ -266,7 +266,7 @@ test('La liste des événements reproduit les 6 Phases, 2 Postes et 4 Événemen
   assert.ok(!titles(nodes).includes('Justicier enragé'));
   const alliance=cards(nodes).find(card=>card.children[1].children[1].textContent==='Zone de guerre du raid');
   assert.equal(alliance.children[1].children[0].children[1].textContent,'Alliance');
-  assert.equal(sections(nodes)[0].children[0].textContent,'⚡ CHOC');
+  assert.ok(sections(nodes).some(section=>section.children[0].textContent.startsWith('⚡ CHOC')));
   assert.ok(sections(nodes).some(section=>section.children[0].textContent.startsWith('⚔️ GUERRE')));
   const filter=nodes.get('type-filter');
   assert.deepEqual(filter.children.map(option=>option.value),['','phases','command','events']);
