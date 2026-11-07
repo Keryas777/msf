@@ -11,8 +11,9 @@ on:
         options: [manual, daily, differential]
   schedule:
     # Safety net if the Worker's GitHub dispatch is missed.
-    # The actual provider collection runs at 03:17 UTC.
-    - cron: "47 4 * * *"
+    # The provider is collected from 21:05 UTC; GitHub is dispatched immediately.
+    # A later 22:35 UTC run recovers missed dispatches without a new provider GET.
+    - cron: "35 22 * * *"
 
 permissions:
   contents: write
