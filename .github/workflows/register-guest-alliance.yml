@@ -1,0 +1,84 @@
+name: Prepare a new external MSF alliance
+on:
+  workflow_dispatch:
+    inputs:
+      alliance_key:
+        description: "Canonical slug (example: another-us-team)"
+        type: string
+        required: true
+      alliance_name:
+        description: "Exact official name displayed in MSF"
+        type: string
+        required: true
+      discord_role_id:
+        description: "Discord role ID (16-22 digits)"
+        type: string
+        required: true
+      alliance_color:
+        description: "Hex color (#FFFFFF by default)"
+        type: string
+        default: "#FFFFFF"
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: guest-onboarding-config
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate the onboarding script and existing registries
+        run: |
+          node --check scripts/register-guest-alliance.mjs
+          node --test tests/guest-alliance-registration.test.mjs
+      - name: Add the new alliance and independent Discord access group
+        env:
+          GUEST_KEY: ${{ inputs.alliance_key }}
+          GUEST_NAME: ${{ inputs.alliance_name }}
+          GUEST_ROLE_ID: ${{ inputs.discord_role_id }}
+          GUEST_COLOR: ${{ inputs.alliance_color }}
+        run: node scripts/register-guest-alliance.mjs --write
+      - name: Verify guest isolation and the authentication worker
+        run: |
+          node --test tests/access-group-ui.test.mjs workers/losp-auth/test/access-groups.test.mjs
+          node --test tests/guest-alliance-registration.test.mjs
+      - name: Open a reviewable pull request (no direct production write)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GUEST_KEY: ${{ inputs.alliance_key }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- docs/data/alliances.json docs/data/access-groups.json; then
+            echo "Already registered: no changes to propose."
+            exit 0
+          fi
+          # Verify only the two registries changed.
+          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' |
+            grep -Ev '^(docs/data/alliances[.]json|docs/data/access-groups[.]json)$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected modifications: $unexpected"
+            exit 1
+          fi
+          branch="onboard/guest-$GUEST_KEY-$GITHUB_RUN_ID"
+          git switch -c "$branch"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/alliances.json docs/data/access-groups.json
+          git commit -m "config: onboard guest alliance $GUEST_KEY"
+          git push origin "HEAD:refs/heads/$branch"
+          gh pr create --base main --head "$branch" \
+            --title "Onboard guest alliance $GUEST_KEY" \
+            --body "Ajout du registre d'alliance et de son rôle Discord indépendant. Après fusion et déploiement losp-auth, la collecte nécessite toujours un OAuth Scopely actif, l'approbation invitée et la liaison R2 administrateur. Aucune donnée joueur n'est créée par cette PR."
