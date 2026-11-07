@@ -395,8 +395,8 @@
     refs.note.textContent=chart.requiresSeasonQualification?
       'Les rangs sont ceux des saisons terminées (pas de la saison en cours). Les périodes sont déduites du calendrier de 14 jours, sauf relevé confirmé ; l’API ne fournit pas de numéro de saison. Rang 1 = meilleur classement.':
       'Les trophées représentent le total détenu par chaque alliance à la date du relevé. Les courbes utilisent exclusivement les valeurs réellement capturées.';
-    if(!chart.higherIsBetter&&sharedRankCeiling()>2000)
-      refs.note.textContent+=' Échelle verticale compressée au-delà du rang 1 000 pour rendre toutes les alliances lisibles.';
+    // The selected ranking is drawn from its own measured ranks. drawPlot()
+    // alone determines whether its Y axis needs compression.
     if(state.failures)refs.note.textContent+=' Attention : '+
       state.failures+' instantané(s) indisponible(s).';
     if(chart.field==='warTrophies'&&state.liveCoverage&&
