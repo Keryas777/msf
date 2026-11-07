@@ -116,6 +116,11 @@ test('La recherche trouve aussi le texte des objectifs secondaires',async()=>{
   assert.ok(actions(nodes)[0].includes('Iron Raider'));
 });
 
+test('Le bandeau technique du catalogue est masqué sans supprimer le diagnostic interne',()=>{
+  assert.doesNotMatch(html,/class="ev-source"|Catalogue des événements MSF/);
+  assert.match(html,/<div hidden aria-hidden="true"><span id="source-line"><\/span><span id="source-provenance"><\/span><\/div>/);
+});
+
 test('Les identifiants obligatoires de la vue Objectifs existent dans le HTML',()=>{
   for(const id of ['section-objectives','events-objectives','stat-objectives','count-objectives']){
     assert.match(html,new RegExp('id="'+id+'"'));
