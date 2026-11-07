@@ -443,11 +443,29 @@
     if(/^(?:combattre|jouer|battle|play)\b/i.test(label))return 'Combat';
     return label;
   }
-  function objectiveRow(item,short=false){
+  // Une action identique peut créditer plusieurs jalons indépendants.
+  // Les variantes verbales simples d'un combat désignent la même action,
+  // mais une restriction ou une condition supplémentaire reste distincte.
+  function objectiveActionLabel(item){
+    if(!item.isBattle||item.character||item.team)return item.label;
+    const simple={
+      raid:/^(?:combattre|faire (?:un |des )?combats?) en raid$/i,
+      war:/^(?:combattre|faire (?:un |des )?combats?) en guerre$/i,
+      arena:/^(?:combattre|faire (?:un |des )?combats?) en arène$/i,
+      crucible:/^(?:combattre|faire (?:un |des )?combats?) en épreuve cosmique$/i
+    };
+    const names={
+      raid:'Combattre en raid',war:'Combattre en guerre',
+      arena:'Combattre en arène',crucible:'Combattre en Épreuve cosmique'
+    };
+    return simple[item.mode]?.test(item.label)?names[item.mode]:item.label;
+  }
+  function objectiveRow(item,short=false,hideAction=false){
     const li=create('li','ev-objective-item');
     const label=short?objectiveCondition(item):item.label;
     const action=create('p','ev-objective-action',label);
     if(label!==item.label)action.title=item.label;
+    if(hideAction)action.hidden=true;
     li.append(action);
     const row=create('div','ev-objective-footer');
     if(item.points!==null)row.append(create('span','ev-objective-score',
@@ -465,12 +483,12 @@
     if(item.originalMode==='divers'&&item.mode!=='divers'&&item.isBattle){
       row.append(create('span','ev-objective-general','Tous modes · regroupé ici'));
     }
-    row.append(create('span','ev-objective-origin',eventTitle(item.event)));
+    if(!hideAction)row.append(create('span','ev-objective-origin',eventTitle(item.event)));
     li.append(row);return li;
   }
-  function objectiveList(items,short=false){
+  function objectiveList(items,short=false,hideAction=false){
     const list=create('ul','ev-objective-list');
-    for(const item of items)list.append(objectiveRow(item,short));
+    for(const item of items)list.append(objectiveRow(item,short,hideAction));
     return list;
   }
   function objectiveCharacterCard(member){
@@ -546,7 +564,7 @@
       host.append(holder);return;
     }
     host.append(create('p','ev-objectives-note',
-      fmtNumber.format(items.length)+' méthodes de score, regroupées selon les combats compatibles. '+
+      fmtNumber.format(items.length)+' méthodes de score, regroupées par action et combats compatibles. '+
       '« Tous modes » indique une méthode générale, non limitée au mode affiché. '+
       'Points et plafonds distincts ; progression personnelle non synchronisée.'));
     const grouped=new Map();
@@ -600,34 +618,48 @@
         for(const member of individual)people.append(objectiveCharacterCard(member));
         singles.append(people);eventList.append(singles);
       }
-      // Méthodes sans cible reconnue : préserver le classement par événement
-      // plutôt que d'en déduire une équipe ou un mode par approximation.
-      const byEvent=new Map();
+      // Les méthodes sans équipe ni personnage sont regroupées par action,
+      // et non par événement : un combat peut faire progresser plusieurs
+      // jalons, chacun conservant ses propres points et plafonds.
+      const byAction=new Map();
       for(const item of other){
-        const id=objectiveGroup(item.event)+'|'+eventNameKey(item.event.name);
-        if(!byEvent.has(id))byEvent.set(id,{event:item.event,items:[]});
-        const record=byEvent.get(id);
-        if(item.event.locationHints?.includes('lohub_wrapper'))record.event=item.event;
-        record.items.push(item);
+        const label=objectiveActionLabel(item);
+        const key=item.mode+'|'+eventNameKey(label);
+        if(!byAction.has(key))byAction.set(key,{label,items:[]});
+        byAction.get(key).items.push(item);
       }
-      for(const {event,items:methods} of byEvent.values()){
-        const parent=state.events.find(candidate=>
-          (calendarGroup(candidate)==='phases'||calendarGroup(candidate)==='command')&&
-          eventNameKey(candidate.name)===eventNameKey(event.name)&&
-          candidate.startTime<event.endTime&&candidate.endTime>event.startTime)||event;
-        const eventBlock=create('details','ev-objective-event-group');
-        eventBlock.open=byEvent.size===1;
-        const eventTitleLine=create('summary','ev-objective-event-summary');
-        eventTitleLine.append(create('strong','',eventTitle(parent)));
-        eventTitleLine.append(create('span','ev-objective-scope',
-          parent.milestone?.type==='alliance'?'Alliance':'Solo'));
-        eventTitleLine.append(create('span','ev-objective-mini-count',
+      for(const {label,items:methods} of byAction.values()){
+        const actionBlock=create('details','ev-objective-event-group');
+        actionBlock.open=byAction.size===1;
+        const actionTitle=create('summary','ev-objective-event-summary');
+        actionTitle.append(create('strong','',label));
+        actionTitle.append(create('span','ev-objective-mini-count',
           fmtNumber.format(methods.length)+' méthodes'));
         const body=create('div','ev-objective-event-content');
-        const link=create('button','ev-objective-event','Détails de l’événement');
-        link.type='button';link.addEventListener('click',()=>openDetail(parent,link));
-        body.append(link,objectiveList(methods));
-        eventBlock.append(eventTitleLine,body);eventList.append(eventBlock);
+        const bySource=new Map();
+        for(const item of methods){
+          const parent=state.events.find(candidate=>
+            (calendarGroup(candidate)==='phases'||calendarGroup(candidate)==='command')&&
+            eventNameKey(candidate.name)===eventNameKey(item.event.name)&&
+            candidate.startTime<item.event.endTime&&
+            candidate.endTime>item.event.startTime)||item.event;
+          const sourceKey=parent.id||objectiveGroup(parent)+'|'+eventNameKey(parent.name);
+          if(!bySource.has(sourceKey))bySource.set(sourceKey,{event:parent,items:[]});
+          bySource.get(sourceKey).items.push(item);
+        }
+        for(const {event,items:scorings} of bySource.values()){
+          const source=create('div','ev-objective-source');
+          const sourceHead=create('div','ev-objective-source-head');
+          const link=create('button','ev-objective-event',eventTitle(event));
+          link.type='button';link.title='Détails de l’événement';
+          link.addEventListener('click',()=>openDetail(event,link));
+          sourceHead.append(link);
+          sourceHead.append(create('span','ev-objective-scope',
+            event.milestone?.type==='alliance'?'Alliance':'Solo'));
+          source.append(sourceHead,objectiveList(scorings,false,true));
+          body.append(source);
+        }
+        actionBlock.append(actionTitle,body);eventList.append(actionBlock);
       }
       modeSection.append(heading,eventList);host.append(modeSection);
     }
