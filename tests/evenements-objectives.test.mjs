@@ -388,13 +388,66 @@ test('Un combat transversal est compté une fois même si plusieurs modes lui co
   assert.ok(actions(nodes).includes('Se connecter'));
 });
 
+test('Une même action Raid ou Guerre rassemble les événements et conserve chaque barème',async()=>{
+  const title='Briseur de volontés - Plan de bataille du mois 1';
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    [title,'milestone',{
+      locationHints:['lohub_wrapper'],
+      milestone:{type:'solo',scoring:{methods:[],cappedScorings:[]}}
+    }],
+    [title,'milestone',{
+      locationHints:['lohub_feeder'],
+      milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:24,methods:[{description:'Combattre en raid',points:1}]},
+        {cap:6,methods:[{description:'Combattre en raid',points:1}]},
+        {cap:5,methods:[{description:'Combattre en guerre',points:1}]}
+      ]}}
+    }],
+    ['Zone de guerre du raid','milestone',{
+      milestone:{type:'alliance',scoring:{methods:[],cappedScorings:[
+        {cap:144000,methods:[{description:'Faire un combat en raid',points:125}]},
+        {cap:384000,methods:[{description:'Combattre en guerre',points:800}]}
+      ]}}
+    }]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'5');
+  assert.deepEqual(sections(nodes).map(section=>section.children[0].textContent),
+    ['🛡️ RAID','⚔️ GUERRE']);
+  const raid=sections(nodes)[0].children[1].children;
+  const war=sections(nodes)[1].children[1].children;
+  assert.equal(raid.length,1);
+  assert.equal(war.length,1);
+  assert.equal(raid[0].children[0].children[0].textContent,'Combattre en raid');
+  assert.equal(war[0].children[0].children[0].textContent,'Combattre en guerre');
+  assert.equal(raid[0].children[0].children[1].textContent,'3 méthodes');
+  assert.equal(war[0].children[0].children[1].textContent,'2 méthodes');
+  for(const group of [raid[0],war[0]]){
+    const sources=group.children[1].children;
+    assert.equal(sources.length,2);
+    assert.deepEqual(sources.map(source=>source.children[0].children[0].textContent),
+      [title,'Zone de guerre du raid']);
+    for(const source of sources){
+      assert.equal(source.children[0].children[0].handlers.has('click'),true);
+    }
+  }
+  const items=objectiveNodes(nodes);
+  assert.equal(items.length,5);
+  assert.ok(items.every(row=>row.children[0].hidden===true));
+  const scoring=items.map(row=>row.children[1].children.map(part=>part.textContent).join(' '));
+  const normalized=scoring.join(' / ').replace(/\s/g,'');
+  for(const cap of [24,6,5,144000,384000])
+    assert.ok(normalized.includes('Plafond'+cap+'pts'),cap+' points conservés');
+  assert.ok(normalized.includes('+125pt(s)/action'));
+  assert.ok(normalized.includes('+800pt(s)/action'));
+});
+
 test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP communs',()=>{
   assert.match(commonCss,/background-image:\s*url\("\.\/Background\.webp"\)/);
   assert.match(html,/class="app ev-page"/);
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=10"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=11"/);
   assert.match(css,/\.ev-toolbar\{[^}]*background:var\(--panel\)/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -421,7 +474,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=21/);
+  assert.match(html,/evenements\.js\?v=22/);
 });
 
 test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',async()=>{
