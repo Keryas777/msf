@@ -465,6 +465,10 @@
       row.append(create('span','ev-objective-cap',limit));
     }
     if(item.premium)row.append(create('span','ev-objective-premium','Premium'));
+    if(item.originalMode==='divers'&&item.mode!=='divers'&&item.isBattle){
+      row.append(create('span','ev-objective-general','Tous modes · regroupé ici'));
+    }
+    row.append(create('span','ev-objective-origin',eventTitle(item.event)));
     li.append(row);return li;
   }
   function objectiveList(items,short=false){
@@ -545,8 +549,9 @@
       host.append(holder);return;
     }
     host.append(create('p','ev-objectives-note',
-      fmtNumber.format(items.length)+' méthodes de score, regroupées par mode, événement, équipe et personnage. '+
-      'Les plafonds sont indépendants sauf mention contraire. Progression personnelle non synchronisée.'));
+      fmtNumber.format(items.length)+' méthodes de score, regroupées selon les combats compatibles. '+
+      '« Tous modes » indique une méthode générale, non limitée au mode affiché. '+
+      'Points et plafonds distincts ; progression personnelle non synchronisée.'));
     const grouped=new Map();
     for(const item of items){
       if(!grouped.has(item.mode))grouped.set(item.mode,[]);
@@ -569,8 +574,39 @@
       heading.append(create('span','ev-objective-count',
         fmtNumber.format(entries.length)+' méthodes'));
       const eventList=create('div','ev-objective-events');
+      // On groupe d'abord les exigences d'équipe et leurs personnages,
+      // même lorsqu'elles proviennent d'événements différents.
+      const {teams,individual,other}=objectiveTeams(entries);
+      for(const team of teams){
+        const teamBlock=create('details','ev-objective-team');
+        const summary=create('summary','ev-objective-team-summary');
+        summary.append(create('strong','',team.name));
+        const total=team.goals.length+
+          team.characters.reduce((sum,member)=>sum+member.items.length,0);
+        summary.append(create('span','ev-objective-mini-count',
+          fmtNumber.format(team.characters.length)+' personnages · '+
+          fmtNumber.format(total)+' méthodes'));
+        const people=create('div','ev-objective-people');
+        if(team.goals.length){
+          people.append(create('h4','ev-objective-subhead',
+            team.goals.some(item=>item.teamComplete)?
+              'Conditions d’équipe complète / collectives':'Conditions d’équipe'));
+          people.append(objectiveList(team.goals));
+        }
+        for(const member of team.characters)people.append(objectiveCharacterCard(member));
+        teamBlock.append(summary,people);eventList.append(teamBlock);
+      }
+      if(individual.length){
+        const singles=create('div','ev-objective-singles');
+        singles.append(create('h4','ev-objective-subhead','Personnages'));
+        const people=create('div','ev-objective-people');
+        for(const member of individual)people.append(objectiveCharacterCard(member));
+        singles.append(people);eventList.append(singles);
+      }
+      // Méthodes sans cible reconnue : préserver le classement par événement
+      // plutôt que d'en déduire une équipe ou un mode par approximation.
       const byEvent=new Map();
-      for(const item of entries){
+      for(const item of other){
         const id=objectiveGroup(item.event)+'|'+eventNameKey(item.event.name);
         if(!byEvent.has(id))byEvent.set(id,{event:item.event,items:[]});
         const record=byEvent.get(id);
@@ -583,7 +619,6 @@
           eventNameKey(candidate.name)===eventNameKey(event.name)&&
           candidate.startTime<event.endTime&&candidate.endTime>event.startTime)||event;
         const eventBlock=create('details','ev-objective-event-group');
-        // Un seul événement dans un mode : montrer immédiatement les équipes.
         eventBlock.open=byEvent.size===1;
         const eventTitleLine=create('summary','ev-objective-event-summary');
         eventTitleLine.append(create('strong','',eventTitle(parent)));
@@ -594,31 +629,7 @@
         const body=create('div','ev-objective-event-content');
         const link=create('button','ev-objective-event','Détails de l’événement');
         link.type='button';link.addEventListener('click',()=>openDetail(parent,link));
-        body.append(link);
-        const {teams,individual,other}=objectiveTeams(methods);
-        for(const team of teams){
-          const teamBlock=create('details','ev-objective-team');
-          const summary=create('summary','ev-objective-team-summary');
-          summary.append(create('strong','',team.name));
-          summary.append(create('span','ev-objective-mini-count',
-            fmtNumber.format(team.characters.length)+' personnages · '+
-            fmtNumber.format(team.characters.reduce((sum,entry)=>sum+entry.items.length,0))+' méthodes'));
-          const people=create('div','ev-objective-people');
-          for(const member of team.characters)people.append(objectiveCharacterCard(member));
-          teamBlock.append(summary,people);body.append(teamBlock);
-        }
-        if(individual.length){
-          const heading=create('h4','ev-objective-subhead','Personnages');
-          body.append(heading);
-          const people=create('div','ev-objective-people');
-          for(const member of individual)people.append(objectiveCharacterCard(member));
-          body.append(people);
-        }
-        if(other.length){
-          body.append(create('h4','ev-objective-subhead',
-            'Autres actions · '+fmtNumber.format(other.length)));
-          body.append(objectiveList(other));
-        }
+        body.append(link,objectiveList(methods));
         eventBlock.append(eventTitleLine,body);eventList.append(eventBlock);
       }
       modeSection.append(heading,eventList);host.append(modeSection);
