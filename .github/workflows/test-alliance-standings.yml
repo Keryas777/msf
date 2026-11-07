@@ -10,6 +10,10 @@ on:
       - "tests/alliance-season-live.test.mjs"
       - "tests/alliance-trophy-live.test.mjs"
       - "docs/alliance-history-data.js"
+      - "scripts/lib/guest-season-history.mjs"
+      - "scripts/pull-guest-season-ranks-r2.mjs"
+      - "tests/guest-season-history.test.mjs"
+      - ".github/workflows/archive-guest-season-history.yml"
       - "docs/data/alliances.json"
       - "tests/alliance-standings-data.test.mjs"
       - "tests/alliance-history-charts.test.mjs"
@@ -69,4 +73,5 @@ jobs:
           node --check scripts/pull-rosters-r2.mjs
           node --check scripts/pull-alliance-history-r2.mjs
           node --check scripts/pull-alliance-season-ranks-r2.mjs
-          node --test tests/alliance-season-live.test.mjs tests/alliance-trophy-live.test.mjs tests/alliance-standings-data.test.mjs tests/alliance-history-charts.test.mjs tests/alliance-r2-import.test.mjs tests/roster-r2-import.test.mjs tests/merge-rosters-optional-iso.test.mjs tests/roster-r2-schedule.test.mjs tests/evolution-history-players.test.mjs tests/roster-history-abilities.test.mjs tests/roster-monthly-snapshot-smoke.test.mjs tests/roster-weekly-checkpoints.test.mjs tests/evolution-visuals.test.mjs
+          node --check scripts/pull-guest-season-ranks-r2.mjs
+          node --test tests/guest-season-history.test.mjs tests/alliance-season-live.test.mjs tests/alliance-trophy-live.test.mjs tests/alliance-standings-data.test.mjs tests/alliance-history-charts.test.mjs tests/alliance-r2-import.test.mjs tests/roster-r2-import.test.mjs tests/merge-rosters-optional-iso.test.mjs tests/roster-r2-schedule.test.mjs tests/evolution-history-players.test.mjs tests/roster-history-abilities.test.mjs tests/roster-monthly-snapshot-smoke.test.mjs tests/roster-weekly-checkpoints.test.mjs tests/evolution-visuals.test.mjs

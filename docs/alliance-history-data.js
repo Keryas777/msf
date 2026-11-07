@@ -46,7 +46,12 @@
       if (chart.frequency === 'per-season' && raw.captureType === 'war-trophies') continue;
       if (seen.has(raw.capturedAt)) continue;
       seen.add(raw.capturedAt);
-      if (chart.frequency !== 'per-season' || raw.seasonVerified === true) {
+      const archived = raw.archiveSource === 'github-guest-season-history' &&
+        raw.seasonDerived === true && typeof raw.seasonId === 'string' &&
+        validDate(raw.rankingSeason?.startAt) &&
+        validDate(raw.rankingSeason?.endExclusiveAt);
+      if (chart.frequency !== 'per-season' || raw.seasonVerified === true ||
+          archived) {
         rows.push(raw);
         continue;
       }
@@ -119,8 +124,10 @@
           row.captureType !== 'war-trophies')
         .slice().sort((a,b)=>a.capturedAt.localeCompare(b.capturedAt));
       for(const capture of candidates){
-        const seasonId = capture.seasonVerified === true &&
-          typeof capture.seasonId === 'string' ? capture.seasonId :
+        const fixed = capture.seasonVerified === true ||
+          capture.archiveSource === 'github-guest-season-history';
+        const seasonId = fixed && typeof capture.seasonId === 'string' ?
+          capture.seasonId :
           resolveRankingSeason(capture.capturedAt,calendar)?.seasonId;
         if(!seasonId)continue;
         if(!seasonAdditions.has(seasonId))seasonAdditions.set(seasonId,new Map());
@@ -148,7 +155,10 @@
           seasonAdditions.get(row.seasonId)?.get(alliance.key):null;
         const source = direct || fallback?.source;
         const value = source && source[chart.field];
-        return {capturedAt: fallback?.capturedAt || row.capturedAt,
+        // Per-alliance capture times apply to rank-only archived guest points,
+        // never change the existing timestamp semantics of trophy charts.
+        return {capturedAt: chart.frequency === 'per-season' &&
+            (source?.capturedAt || fallback?.capturedAt) || row.capturedAt,
           plotAt: chart.frequency === 'per-season' && aValidSeasonEnd(row) ?
             row.rankingSeason.endExclusiveAt : row.capturedAt,
           seasonStartAt: aValidSeasonEnd(row) ? row.rankingSeason.startAt : null,

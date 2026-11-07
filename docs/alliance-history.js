@@ -67,6 +67,8 @@
   }
   const readLiveTrophies=()=>readLive(TROPHY_API);
   const readGuestRanks=()=>readLive(GUEST_RANKS_API);
+  const readGuestArchive=()=>json(BASE+'guest-season-history.json')
+    .catch(()=>null);
   async function readSnapshots(index){
     const entries=Array.isArray(index?.snapshots)?index.snapshots:[];
     const valid=entries.filter(item=>typeof item?.capturedAt==='string'&&
@@ -507,8 +509,8 @@
       state.config=config;
       await window.LoSP_AUTH_READY;
       state.registry=registry.filter(a => window.LoSPAccess?.isAllianceAllowed(a?.key));
-      const [published,live,guestRanks]=await Promise.all([
-        readSnapshots(index),readLiveTrophies(),readGuestRanks()]);
+      const [published,archived,live,guestRanks]=await Promise.all([
+        readSnapshots(index),readGuestArchive(),readLiveTrophies(),readGuestRanks()]);
       const recent=live?.snapshots?.at(-1);
       state.liveCoverage=recent?.coverage||null;
       state.liveAvailable=live?.status==='ok';
@@ -516,10 +518,13 @@
       const merged=window.LoSPTrophyLive?
         window.LoSPTrophyLive.merge(published,live,registry,
           key=>window.LoSPAccess?.isAllianceAllowed(key)):published;
+      const guestHistory=window.LoSPGuestSeasonLive?
+        window.LoSPGuestSeasonLive.fromArchive(archived,registry,
+          key=>window.LoSPAccess?.isAllianceAllowed(key),config.rankingSeasons):[];
       const incoming=window.LoSPGuestSeasonLive?
         window.LoSPGuestSeasonLive.fromCloudflare(guestRanks,registry,
           key=>window.LoSPAccess?.isAllianceAllowed(key),config.rankingSeasons):[];
-      state.snapshots=[...merged,...incoming].map(snapshot => ({
+      state.snapshots=[...merged,...guestHistory,...incoming].map(snapshot => ({
         ...snapshot,
         alliances:snapshot.alliances.filter(a =>
           window.LoSPAccess?.isAllianceAllowed(a?.key || a?.alliance))

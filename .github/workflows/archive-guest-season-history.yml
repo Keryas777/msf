@@ -1,0 +1,84 @@
+name: Archive guest raid and war season results
+
+on:
+  schedule:
+    # Worker captures at 03:15 / 15:15 UTC, with no extra Scopely call.
+    - cron: "40 5 * * *"
+    - cron: "40 18 * * *"
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Append eligible guest season results to public GitHub history"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (vars.LOSP_R2_HISTORY_IMPORT_ENABLED == 'true' &&
+       vars.LOSP_GUEST_SEASON_HISTORY_APPROVED == 'true')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify guest history projector
+        run: |
+          node --check scripts/pull-guest-season-ranks-r2.mjs
+          node --test tests/guest-season-history.test.mjs tests/alliance-season-live.test.mjs tests/alliance-history-charts.test.mjs
+      - name: Append rank-only records from authorized private R2 sources
+        env:
+          LOSP_R2_ACCOUNT_ID: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
+          LOSP_R2_ACCESS_KEY_ID: ${{ secrets.LOSP_R2_ACCESS_KEY_ID }}
+          LOSP_R2_SECRET_ACCESS_KEY: ${{ secrets.LOSP_R2_SECRET_ACCESS_KEY }}
+          LOSP_R2_BUCKET: ${{ secrets.LOSP_R2_BUCKET }}
+          LOSP_GUEST_SEASON_HISTORY_APPROVED: ${{ vars.LOSP_GUEST_SEASON_HISTORY_APPROVED }}
+          INPUT_PUBLISH: ${{ inputs.publish }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT_NAME" = "schedule" ] || [ "$INPUT_PUBLISH" = "true" ]; then
+            if [ "$LOSP_GUEST_SEASON_HISTORY_APPROVED" != "true" ]; then
+              echo "Permanent publication of guest ranks needs explicit authorization."
+              exit 1
+            fi
+            node scripts/pull-guest-season-ranks-r2.mjs --write
+          else
+            node scripts/pull-guest-season-ranks-r2.mjs
+          fi
+      - name: Enforce public-file write scope
+        run: |
+          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' | grep -v '^docs/data/alliance-standings/guest-season-history[.]json$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected files:"; echo "$unexpected"; exit 1
+          fi
+      - name: Commit new season results
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PUBLISH: ${{ inputs.publish }}
+        run: |
+          if [ "$EVENT_NAME" != "schedule" ] && [ "$INPUT_PUBLISH" != "true" ]; then
+            echo "Dry run; no commit."
+            exit 0
+          fi
+          git add docs/data/alliance-standings/guest-season-history.json
+          if git diff --cached --quiet; then
+            echo "No new eligible guest season result."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "data: append approved guest raid/war season results"
+          git push origin HEAD:main
