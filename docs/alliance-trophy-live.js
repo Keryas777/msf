@@ -30,7 +30,24 @@
   // when an explicitly registered public ID is available.
   const validPublicId=value=>typeof value==="string"&&
     /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(value);
-  function mappedKey(name,registry,publicId){
+  const validAllianceKey=value=>typeof value==="string"&&
+    /^[a-z][a-z0-9-]{1,63}$/.test(value);
+  function mappedKey(name,registry,publicId,allianceKey){
+    if(allianceKey!==undefined){
+      // Keys emitted by Cloudflare come from the CURRENT approved R2 guest
+      // binding. Do not infer identity from an identical name or a colour.
+      if(!validAllianceKey(allianceKey)||!validPublicId(publicId))return null;
+      const bound=registry.filter(entry=>entry?.key===allianceKey);
+      if(bound.length!==1||!bound[0].group||bound[0].group==="losp")
+        return null;
+      // A previously registered public UUID must never be allowed to
+      // identify a different alliance than the approved canonical key.
+      const identified=registry.filter(entry=>entry?.trophyPublicId===publicId);
+      if(identified.length>1||
+         (identified.length===1&&identified[0].key!==allianceKey))
+        return null;
+      return bound[0].key;
+    }
     if(validPublicId(publicId)){
       const identified=registry.filter(entry=>entry?.trophyPublicId===publicId);
       if(identified.length>1)return null; // Fail closed on conflicting registry IDs.
@@ -45,8 +62,8 @@
         aliases.push(entry.displayParts.join(""));
       return aliases.some(alias=>normalize(alias)===needle);
     });
-    // The two ENDGAME alliances share a displayed name. An ambiguous name
-    // is never silently attributed to either of their charts.
+    // Any number of alliances may share a displayed name. Without a bound
+    // key or unique public ID, never guess which tenant owns the reading.
     return matches.length===1?matches[0].key:null;
   }
   function fromCloudflare(payload,registry,allowed){
@@ -63,7 +80,8 @@
         if(!record||!safeNum(record.warTrophies)||
            !validDate(record.capturedAt)||typeof record.nameAtCapture!=="string")
           continue;
-        const key=mappedKey(record.nameAtCapture,registry,record.publicId);
+        const key=mappedKey(record.nameAtCapture,registry,record.publicId,
+          record.allianceKey);
         if(!key||seen.has(key)||!allowed(key))continue;
         seen.add(key);
         alliances.push({key,nameAtCapture:record.nameAtCapture,
