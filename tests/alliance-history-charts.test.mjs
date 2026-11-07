@@ -719,3 +719,50 @@ test('a single plotted season or capture remains horizontally centered',()=>{
     assert.ok(dots.every(dot=>Math.abs(Number(dot.attrs.cx)-middle)<1e-7));
   }
 });
+
+test('switching from trophies to war and raid season ranks redraws real rank values',()=>{
+  // Execute the actual page render() path: static drawPlot tests alone cannot
+  // catch a ReferenceError before drawPlot() that leaves the old SVG visible.
+  const source=read('docs/alliance-history.js');
+  const begin=source.indexOf('  function render(){');
+  const end=source.indexOf('  if(typeof ResizeObserver',begin);
+  assert.ok(begin>=0&&end>begin,'render() must be present');
+  const stub=()=>({
+    textContent:'',hidden:false,style:{setProperty(){}},
+    append(){},replaceChildren(){},setAttribute(){},addEventListener(){}
+  });
+  const refs=Object.fromEntries([
+    'title','count','legend','latest','plotWrap','note','period','status',
+    'latestTitle','latestCaption','plot'].map(key=>[key,stub()]));
+  const state={mode:'war',warChart:'war-trophies',snapshots:[original],
+    registry,config,failures:0,liveCoverage:null,
+    liveAvailable:true,guestRanksAvailable:true,
+    hiddenAlliances:new Set(),chart:null,prepared:null};
+  const drawn=[];
+  const scope=vm.createContext({
+    refs,state,byId,number:new Intl.NumberFormat('fr-FR'),
+    formatDate:iso=>iso.slice(0,10),safeColor:value=>value,
+    el:(tag,className,value)=>Object.assign(stub(),{
+      tag,className,textContent:value||''
+    }),
+    window:{LoSPStandingsSeries:context.window.LoSPStandingsSeries},
+    drawPlot:(model,chart)=>drawn.push({
+      id:chart.id,
+      zeus:model.series.find(x=>x.key==='zeus')?.points[0]?.value
+    })
+  });
+  vm.runInContext(source.slice(begin,end)+'\nthis.runRender=render;',scope);
+  scope.runRender();
+  state.warChart='war-season-rank';
+  assert.doesNotThrow(()=>scope.runRender(),
+    'a stale rendering helper must not leave the trophy SVG in a rank view');
+  assert.equal(refs.title.textContent,'Classement guerre');
+  state.mode='raid';
+  assert.doesNotThrow(()=>scope.runRender());
+  assert.equal(refs.title.textContent,'Classement raid');
+  assert.deepEqual(drawn,[
+    {id:'war-trophies',zeus:2875},
+    {id:'war-season-rank',zeus:322},
+    {id:'raid-season-rank',zeus:77}
+  ]);
+});
