@@ -575,7 +575,7 @@
       });
     }
     const linkedTab=(location.hash||'').replace(/^#section-/,'');
-    activateTab(TABS.includes(linkedTab)?linkedTab:'current');
+    activateTab(TABS.includes(linkedTab)?linkedTab:'objectives');
     $('date-filter').addEventListener('change',e=>{state.date=e.target.value||localToday();state.manualDate=true;render();});
     $('reset-date').addEventListener('click',()=>{state.date=localToday();state.manualDate=false;$('date-filter').value=state.date;render();});
     $('search-filter').addEventListener('input',e=>{state.search=e.target.value;render();});
