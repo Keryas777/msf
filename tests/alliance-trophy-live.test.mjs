@@ -228,7 +228,7 @@ test("eight ENDGAME variants with the same name and different colours stay separ
     new Set(variants.map(a=>a.key)));
   const white=adapter.fromCloudflare(live,variants,
     key=>key==="endgame-revolution-white");
-  assert.deepEqual(white[0].alliances.map(a=>a.key),
+  assert.deepEqual(Array.from(white[0].alliances,a=>a.key),
     ["endgame-revolution-white"]);
   assert.equal(adapter.mappedKey("ENDGAME R-évolution",variants),null,
     "shared names must remain ambiguous without an approved key");
