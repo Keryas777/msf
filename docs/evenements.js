@@ -342,9 +342,75 @@
     }
     return null;
   }
+  // Une cible peut être un personnage OU l'équipe entière. Les identifiants
+  // proviennent exclusivement des catalogues, les variantes FR/EN étant
+  // normalisées sans associer arbitrairement deux équipes différentes.
+  function objectiveTeamKey(value){
+    return eventNameKey(value).replace(/(?:\b[a-z]\.){2,}/g,word=>word.replace(/\./g,''))
+      .replace(/[^a-z0-9 ]/g,' ')
+      .split(/\s+/).filter(Boolean).map(word=>word.length>3?word.replace(/s$/,''):word)
+      .join(' ');
+  }
+  function objectiveTeam(description){
+    if(!/\b(?:avec|with)\b/i.test(description))return null;
+    const normalized=' '+objectiveTeamKey(description)+' ';
+    const found=state.teams.filter(team=>team&&typeof team.team==='string'&&
+      Array.isArray(team.characters)&&
+      normalized.includes(' '+objectiveTeamKey(team.team)+' '));
+    // Ne jamais choisir une équipe au hasard si plusieurs noms s'emboîtent.
+    return found.length===1?found[0]:null;
+  }
+  function isBattleObjective(description){
+    return /^(?:combattre\b|faire un combat\b|jouer n[’']?importe quel combat\b|battle\b|play (?:any battle|alliance |raid|war|blitz|arena|crucible|with ))/i
+      .test(strip(description));
+  }
+  function isFullTeamObjective(description){
+    return /\b(?:tous les membres|all (?:members|characters))\b/i.test(description);
+  }
+  function battleCompatible(general,specific){
+    if(!general.isBattle||!specific.isBattle)return false;
+    if(general.character){
+      if(specific.character)return general.character.id===specific.character.id;
+      return Boolean(specific.team?.characters.includes(general.character.id));
+    }
+    if(general.team){
+      if(specific.team)return general.team.team===specific.team.team;
+      return Boolean(specific.character&&
+        general.team.characters.includes(specific.character.id));
+    }
+    // « Jouer n'importe quel combat » englobe toute bataille, mais jamais
+    // une connexion, un achat, une amélioration ou une dépense d'énergie.
+    return !general.character&&!general.team;
+  }
+  function routeBattleObjectives(items){
+    const specific=items.filter(item=>item.isBattle&&item.mode!=='divers');
+    for(const item of items){
+      item.originalMode=item.mode;
+      item.relatedModes=[];
+      if(item.mode!=='divers'||!item.isBattle)continue;
+      const scores=new Map();
+      for(const candidate of specific){
+        if(!battleCompatible(item,candidate))continue;
+        scores.set(candidate.mode,(scores.get(candidate.mode)||0)+1);
+      }
+      if(!scores.size)continue;
+      const ranked=[...scores].sort((a,b)=>b[1]-a[1]||
+        a[0].localeCompare(b[0],'fr'));
+      // Une méthode générale est montrée UNE seule fois, dans le contexte
+      // le plus pertinent. Elle reste valable dans tous les modes autorisés.
+      item.mode=ranked[0][0];
+      item.relatedModes=ranked.map(([mode])=>mode);
+    }
+    return items;
+  }
   function objectiveTeams(entries){
-    const members=new Map(),other=[];
+    const members=new Map(),other=[],teamGoals=new Map();
     for(const item of entries){
+      if(item.team){
+        if(!teamGoals.has(item.team.team))teamGoals.set(item.team.team,[]);
+        teamGoals.get(item.team.team).push(item);
+        continue;
+      }
       const character=item.character;
       if(!character){other.push(item);continue;}
       if(!members.has(character.id))members.set(character.id,{character,items:[]});
@@ -352,15 +418,18 @@
     }
     const candidates=state.teams.filter(team=>team&&typeof team.team==='string'&&
       Array.isArray(team.characters)).map(team=>({
-        team,matched:[...new Set(team.characters)].filter(id=>members.has(id))
-      })).filter(group=>group.matched.length>=2).sort((a,b)=>
-        b.matched.length-a.matched.length||a.team.team.localeCompare(b.team.team,'fr'));
+        team,matched:[...new Set(team.characters)].filter(id=>members.has(id)),
+        goals:teamGoals.get(team.team)||[]
+      })).filter(group=>group.matched.length>=2||group.goals.length)
+      .sort((a,b)=>b.matched.length-a.matched.length||
+        a.team.team.localeCompare(b.team.team,'fr'));
     const assigned=new Set(),teams=[];
     for(const candidate of candidates){
       const chars=candidate.matched.filter(id=>!assigned.has(id));
-      if(chars.length<2)continue;
+      if(chars.length<2&&!candidate.goals.length)continue;
       for(const id of chars)assigned.add(id);
-      teams.push({name:candidate.team.team,characters:chars.map(id=>members.get(id))});
+      teams.push({name:candidate.team.team,
+        characters:chars.map(id=>members.get(id)),goals:candidate.goals});
     }
     const individual=[...members.values()].filter(member=>!assigned.has(member.character.id));
     teams.sort((a,b)=>a.name.localeCompare(b.name,'fr'));
@@ -396,6 +465,10 @@
       row.append(create('span','ev-objective-cap',limit));
     }
     if(item.premium)row.append(create('span','ev-objective-premium','Premium'));
+    if(item.originalMode==='divers'&&item.mode!=='divers'&&item.isBattle){
+      row.append(create('span','ev-objective-general','Tous modes · regroupé ici'));
+    }
+    row.append(create('span','ev-objective-origin',eventTitle(item.event)));
     li.append(row);return li;
   }
   function objectiveList(items,short=false){
@@ -420,7 +493,6 @@
     card.append(heading,objectiveList(member.items,true));return card;
   }
   function objectiveEntries(reference){
-    const match=state.search.trim().toLocaleLowerCase('fr');
     const active=state.events.filter(e=>category(e,reference)==='current'&&
       objectiveGroup(e)&&(!state.type||objectiveGroup(e)===state.type));
     const dedup=new Set(),items=[];
@@ -432,12 +504,7 @@
         if(!description)return;
         const label=objectiveLabel(description);
         const character=objectiveCharacter(description);
-        const teamNames=character?state.teams.filter(team=>
-          Array.isArray(team.characters)&&team.characters.includes(character.id))
-          .map(team=>team.team):[];
-        if(match&&![event.name,event.subName,event.details,event.id,description,label,
-          character?.nameKey,...teamNames]
-          .some(value=>strip(value).toLocaleLowerCase('fr').includes(match)))return;
+        const team=objectiveTeam(description);
         const mode=objectiveMode(description);
         const points=Number(method.points);
         const score=Number.isFinite(points)&&points>0?points:null;
@@ -446,7 +513,9 @@
         if(dedup.has(key))return;
         dedup.add(key);
         items.push({event,label,mode,description,points:score,cap:ceiling,
-          premium:Boolean(premium),sharedCap:Boolean(sharedCap),character});
+          premium:Boolean(premium),sharedCap:Boolean(sharedCap),
+          character,team,isBattle:isBattleObjective(description),
+          teamComplete:Boolean(team&&isFullTeamObjective(description))});
       };
       for(const method of Array.isArray(scoring.methods)?scoring.methods:[])add(method,null,false,false);
       for(const capped of Array.isArray(scoring.cappedScorings)?scoring.cappedScorings:[]){
@@ -454,7 +523,18 @@
         for(const method of methods)add(method,Number(capped.cap),capped.isPremium,methods.length>1);
       }
     }
-    return items;
+    routeBattleObjectives(items);
+    const match=state.search.trim().toLocaleLowerCase('fr');
+    if(!match)return items;
+    return items.filter(item=>{
+      const characterTeams=item.character?state.teams.filter(team=>
+        Array.isArray(team.characters)&&team.characters.includes(item.character.id))
+        .map(team=>team.team):[];
+      return [item.event.name,item.event.subName,item.event.details,item.event.id,
+        item.description,item.label,item.character?.nameKey,item.team?.team,
+        ...characterTeams,item.mode,MODE_BY_KEY.get(item.mode)?.label]
+        .some(value=>strip(value).toLocaleLowerCase('fr').includes(match));
+    });
   }
   function renderObjectives(reference){
     const host=$('events-objectives');host.replaceChildren();
@@ -469,8 +549,9 @@
       host.append(holder);return;
     }
     host.append(create('p','ev-objectives-note',
-      fmtNumber.format(items.length)+' méthodes de score, regroupées par mode, événement, équipe et personnage. '+
-      'Les plafonds sont indépendants sauf mention contraire. Progression personnelle non synchronisée.'));
+      fmtNumber.format(items.length)+' méthodes de score, regroupées selon les combats compatibles. '+
+      '« Tous modes » indique une méthode générale, non limitée au mode affiché. '+
+      'Points et plafonds distincts ; progression personnelle non synchronisée.'));
     const grouped=new Map();
     for(const item of items){
       if(!grouped.has(item.mode))grouped.set(item.mode,[]);
@@ -493,8 +574,39 @@
       heading.append(create('span','ev-objective-count',
         fmtNumber.format(entries.length)+' méthodes'));
       const eventList=create('div','ev-objective-events');
+      // On groupe d'abord les exigences d'équipe et leurs personnages,
+      // même lorsqu'elles proviennent d'événements différents.
+      const {teams,individual,other}=objectiveTeams(entries);
+      for(const team of teams){
+        const teamBlock=create('details','ev-objective-team');
+        const summary=create('summary','ev-objective-team-summary');
+        summary.append(create('strong','',team.name));
+        const total=team.goals.length+
+          team.characters.reduce((sum,member)=>sum+member.items.length,0);
+        summary.append(create('span','ev-objective-mini-count',
+          fmtNumber.format(team.characters.length)+' personnages · '+
+          fmtNumber.format(total)+' méthodes'));
+        const people=create('div','ev-objective-people');
+        if(team.goals.length){
+          people.append(create('h4','ev-objective-subhead',
+            team.goals.some(item=>item.teamComplete)?
+              'Conditions d’équipe complète / collectives':'Conditions d’équipe'));
+          people.append(objectiveList(team.goals));
+        }
+        for(const member of team.characters)people.append(objectiveCharacterCard(member));
+        teamBlock.append(summary,people);eventList.append(teamBlock);
+      }
+      if(individual.length){
+        const singles=create('div','ev-objective-singles');
+        singles.append(create('h4','ev-objective-subhead','Personnages'));
+        const people=create('div','ev-objective-people');
+        for(const member of individual)people.append(objectiveCharacterCard(member));
+        singles.append(people);eventList.append(singles);
+      }
+      // Méthodes sans cible reconnue : préserver le classement par événement
+      // plutôt que d'en déduire une équipe ou un mode par approximation.
       const byEvent=new Map();
-      for(const item of entries){
+      for(const item of other){
         const id=objectiveGroup(item.event)+'|'+eventNameKey(item.event.name);
         if(!byEvent.has(id))byEvent.set(id,{event:item.event,items:[]});
         const record=byEvent.get(id);
@@ -507,7 +619,6 @@
           eventNameKey(candidate.name)===eventNameKey(event.name)&&
           candidate.startTime<event.endTime&&candidate.endTime>event.startTime)||event;
         const eventBlock=create('details','ev-objective-event-group');
-        // Un seul événement dans un mode : montrer immédiatement les équipes.
         eventBlock.open=byEvent.size===1;
         const eventTitleLine=create('summary','ev-objective-event-summary');
         eventTitleLine.append(create('strong','',eventTitle(parent)));
@@ -518,31 +629,7 @@
         const body=create('div','ev-objective-event-content');
         const link=create('button','ev-objective-event','Détails de l’événement');
         link.type='button';link.addEventListener('click',()=>openDetail(parent,link));
-        body.append(link);
-        const {teams,individual,other}=objectiveTeams(methods);
-        for(const team of teams){
-          const teamBlock=create('details','ev-objective-team');
-          const summary=create('summary','ev-objective-team-summary');
-          summary.append(create('strong','',team.name));
-          summary.append(create('span','ev-objective-mini-count',
-            fmtNumber.format(team.characters.length)+' personnages · '+
-            fmtNumber.format(team.characters.reduce((sum,entry)=>sum+entry.items.length,0))+' méthodes'));
-          const people=create('div','ev-objective-people');
-          for(const member of team.characters)people.append(objectiveCharacterCard(member));
-          teamBlock.append(summary,people);body.append(teamBlock);
-        }
-        if(individual.length){
-          const heading=create('h4','ev-objective-subhead','Personnages');
-          body.append(heading);
-          const people=create('div','ev-objective-people');
-          for(const member of individual)people.append(objectiveCharacterCard(member));
-          body.append(people);
-        }
-        if(other.length){
-          body.append(create('h4','ev-objective-subhead',
-            'Autres actions · '+fmtNumber.format(other.length)));
-          body.append(objectiveList(other));
-        }
+        body.append(link,objectiveList(methods));
         eventBlock.append(eventTitleLine,body);eventList.append(eventBlock);
       }
       modeSection.append(heading,eventList);host.append(modeSection);
