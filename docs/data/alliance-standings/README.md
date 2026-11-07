@@ -294,8 +294,10 @@ de **7 jours depuis la dernière écriture**. Ce stockage n'est pas modifié.
 La WebApp publie séparément, **uniquement après autorisation de conservation et
 de redistribution**, un historique minimal de résultats par saison :
 `guest-season-history.json`. Chaque entrée contient exclusivement
-`seasonId`, `allianceKey` (clé publique WebApp), `capturedAt`,
-`warRank` et `raidRank`. Aucun fingerprint, jeton, identifiant privé,
+`seasonId`, `startAt`, `endExclusiveAt`, `allianceKey` (clé publique WebApp),
+`capturedAt`, `warRank` et `raidRank`. Les bornes de la saison sont figées lors
+de l’archivage pour qu’une modification ultérieure du calendrier ne réétiquette
+pas les anciennes saisons. Aucun fingerprint, jeton, identifiant privé,
 nom de joueur, roster, trophée inventé ni JSON Scopely complet.
 
 La tâche GitHub Actions `archive-guest-season-history.yml` lit le
