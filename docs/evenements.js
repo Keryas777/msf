@@ -342,9 +342,74 @@
     }
     return null;
   }
+  // Une cible peut être un personnage OU l'équipe entière. Les identifiants
+  // proviennent exclusivement des catalogues, les variantes FR/EN étant
+  // normalisées sans associer arbitrairement deux équipes différentes.
+  function objectiveTeamKey(value){
+    return eventNameKey(value).replace(/[^a-z0-9 ]/g,' ')
+      .split(/\s+/).filter(Boolean).map(word=>word.length>3?word.replace(/s$/,''):word)
+      .join(' ');
+  }
+  function objectiveTeam(description){
+    if(!/\b(?:avec|with)\b/i.test(description))return null;
+    const normalized=' '+objectiveTeamKey(description)+' ';
+    const found=state.teams.filter(team=>team&&typeof team.team==='string'&&
+      Array.isArray(team.characters)&&
+      normalized.includes(' '+objectiveTeamKey(team.team)+' '));
+    // Ne jamais choisir une équipe au hasard si plusieurs noms s'emboîtent.
+    return found.length===1?found[0]:null;
+  }
+  function isBattleObjective(description){
+    return /^(?:combattre\b|faire un combat\b|jouer n[’']?importe quel combat\b|battle\b|play (?:any battle|alliance |raid|war|blitz|arena|crucible|with ))/i
+      .test(strip(description));
+  }
+  function isFullTeamObjective(description){
+    return /\b(?:tous les membres|all (?:members|characters))\b/i.test(description);
+  }
+  function battleCompatible(general,specific){
+    if(!general.isBattle||!specific.isBattle)return false;
+    if(general.character){
+      if(specific.character)return general.character.id===specific.character.id;
+      return Boolean(specific.team?.characters.includes(general.character.id));
+    }
+    if(general.team){
+      if(specific.team)return general.team.team===specific.team.team;
+      return Boolean(specific.character&&
+        general.team.characters.includes(specific.character.id));
+    }
+    // « Jouer n'importe quel combat » englobe toute bataille, mais jamais
+    // une connexion, un achat, une amélioration ou une dépense d'énergie.
+    return !general.character&&!general.team;
+  }
+  function routeBattleObjectives(items){
+    const specific=items.filter(item=>item.isBattle&&item.mode!=='divers');
+    for(const item of items){
+      item.originalMode=item.mode;
+      item.relatedModes=[];
+      if(item.mode!=='divers'||!item.isBattle)continue;
+      const scores=new Map();
+      for(const candidate of specific){
+        if(!battleCompatible(item,candidate))continue;
+        scores.set(candidate.mode,(scores.get(candidate.mode)||0)+1);
+      }
+      if(!scores.size)continue;
+      const ranked=[...scores].sort((a,b)=>b[1]-a[1]||
+        a[0].localeCompare(b[0],'fr'));
+      // Une méthode générale est montrée UNE seule fois, dans le contexte
+      // le plus pertinent. Elle reste valable dans tous les modes autorisés.
+      item.mode=ranked[0][0];
+      item.relatedModes=ranked.map(([mode])=>mode);
+    }
+    return items;
+  }
   function objectiveTeams(entries){
-    const members=new Map(),other=[];
+    const members=new Map(),other=[],teamGoals=new Map();
     for(const item of entries){
+      if(item.team){
+        if(!teamGoals.has(item.team.team))teamGoals.set(item.team.team,[]);
+        teamGoals.get(item.team.team).push(item);
+        continue;
+      }
       const character=item.character;
       if(!character){other.push(item);continue;}
       if(!members.has(character.id))members.set(character.id,{character,items:[]});
@@ -352,15 +417,18 @@
     }
     const candidates=state.teams.filter(team=>team&&typeof team.team==='string'&&
       Array.isArray(team.characters)).map(team=>({
-        team,matched:[...new Set(team.characters)].filter(id=>members.has(id))
-      })).filter(group=>group.matched.length>=2).sort((a,b)=>
-        b.matched.length-a.matched.length||a.team.team.localeCompare(b.team.team,'fr'));
+        team,matched:[...new Set(team.characters)].filter(id=>members.has(id)),
+        goals:teamGoals.get(team.team)||[]
+      })).filter(group=>group.matched.length>=2||group.goals.length)
+      .sort((a,b)=>b.matched.length-a.matched.length||
+        a.team.team.localeCompare(b.team.team,'fr'));
     const assigned=new Set(),teams=[];
     for(const candidate of candidates){
       const chars=candidate.matched.filter(id=>!assigned.has(id));
-      if(chars.length<2)continue;
+      if(chars.length<2&&!candidate.goals.length)continue;
       for(const id of chars)assigned.add(id);
-      teams.push({name:candidate.team.team,characters:chars.map(id=>members.get(id))});
+      teams.push({name:candidate.team.team,
+        characters:chars.map(id=>members.get(id)),goals:candidate.goals});
     }
     const individual=[...members.values()].filter(member=>!assigned.has(member.character.id));
     teams.sort((a,b)=>a.name.localeCompare(b.name,'fr'));
