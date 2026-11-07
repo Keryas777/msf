@@ -151,6 +151,18 @@ test("Endgame : les deux variantes uniquement, et pages LoSP bloquées",async()=
   assert.deepEqual(x.redirects,["./home.html"]);
 });
 
+test("QP : visualiser comme Questionable Propriety depuis le menu Admin",async()=>{
+  const x=await scenario({stored:"questionable-propriety",path:"joueur.html"});
+  assert.equal(x.window.LoSP_SESSION.role,"guest");
+  assert.equal(x.window.LoSP_SESSION.groupKey,"questionable-propriety");
+  assert.deepEqual(Array.from(x.window.LoSP_SESSION.allowedAlliances),["questionable-propriety"]);
+  assert.equal(x.window.LoSPAccess.isAllianceAllowed("questionable-propriety"),true);
+  assert.equal(x.window.LoSPAccess.isAllianceAllowed("endgame-revolution-red"),false);
+  assert.equal(x.window.LoSPAccess.isAllianceAllowed("zeus"),false);
+  assert.ok(x.elements.get("lospAdminPreview").children[1].children.some(
+    option=>option.textContent==="WebApp Questionable Propriety"));
+});
+
 test("LoSP simulé : six alliances, identité admin intacte et accès cosmique",async()=>{
   const x=await scenario({stored:"losp",path:"cosmic.html"});
   assert.equal(x.window.LoSP_SESSION.role,"member");
