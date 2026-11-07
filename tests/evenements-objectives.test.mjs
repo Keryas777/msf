@@ -174,7 +174,7 @@ test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',
   assert.equal(nodes.get('stat-objectives').textContent,count);
 });
 
-test('La localisation FR ne réintroduit pas les épreuves légendaires et jalons S.T.R.I.K.E.',async()=>{
+test('Les Trials FR/EN et les jalons S.T.R.I.K.E. restent hors du calendrier',async()=>{
   const trial=name=>[name,'pickYourPoison',{pickYourPoison:{typeName:'Fléau'}}];
   const milestone=name=>[name,'milestone',{milestone:{scoring:{methods:[],cappedScorings:[]}}}];
   const extraEvents=[
@@ -191,14 +191,41 @@ test('La localisation FR ne réintroduit pas les épreuves légendaires et jalon
   ];
   const nodes=await makePage({extraEvents});
   const visible=nodes.get('events-current').children;
-  assert.equal(nodes.get('stat-current').textContent,'6');
-  assert.equal(visible.length,6);
+  assert.equal(nodes.get('stat-current').textContent,'4');
+  assert.equal(visible.length,4);
   const shown=visible.map(card=>card.children[1].children[1].textContent);
-  assert.ok(shown.includes('KYLN : CODE FLAMMES'));
-  assert.ok(shown.includes('ÉVÉNEMENT BRISEUR : DENTS-DE-SABRE'));
   assert.ok(shown.includes('S.T.R.I.K.E. : raid spécial'));
-  for(const [name] of extraEvents.slice(0,12))assert.ok(!shown.includes(name),name);
+  for(const [name] of extraEvents.slice(0,14))assert.ok(!shown.includes(name),name);
   assert.equal(nodes.get('stat-objectives').textContent,'3');
+});
+
+test('Blitz et Trials sont exclus en cours et passés, sans masquer les jalons Choc',async()=>{
+  const now=Math.floor(Date.now()/1000),day=86400;
+  const extraEvents=[
+    ['Justicier enragé','blitz',{}],
+    ['Rixe rapide','blitz',{startTime:now-3*day,endTime:now-day}],
+    ['Échos de Dystopia','pickYourPoison',{pickYourPoison:{typeName:'Fléau'}}],
+    ['KYLN : CODE FLAMMES','pickYourPoison',{}],
+    ['ÉVÉNEMENT BRISEUR : DENTS-DE-SABRE','pickYourPoison',{}],
+    ['Objectif Choc','milestone',{
+      milestone:{scoring:{methods:[{description:'Gagner des points en Choc',points:100}],cappedScorings:[]}}
+    }]
+  ];
+  const nodes=await makePage({extraEvents});
+  assert.equal(nodes.get('stat-current').textContent,'4');
+  assert.equal(nodes.get('stat-past').textContent,'1');
+  assert.equal(nodes.get('stat-objectives').textContent,'4');
+  const currentTitles=nodes.get('events-current').children.map(card=>card.children[1].children[1].textContent);
+  assert.ok(currentTitles.includes('Objectif Choc'));
+  assert.ok(actions(nodes).includes('Gagner des points en Choc'));
+  const pastTitles=nodes.get('events-past').children.map(card=>card.children[1].children[1].textContent);
+  for(const [name,type] of extraEvents.filter(entry=>entry[1]!=='milestone')){
+    assert.ok(!currentTitles.includes(name),type+': '+name);
+    assert.ok(!pastTitles.includes(name),type+': '+name);
+  }
+  const categories=nodes.get('type-filter').children.map(option=>option.value);
+  assert.ok(!categories.includes('blitz'));
+  assert.ok(!categories.includes('pickYourPoison'));
 });
 
 test('Le calendrier regroupe les paliers et éditions, sans perdre leurs méthodes dans Objectifs',async()=>{
@@ -238,13 +265,13 @@ test('Le calendrier regroupe les paliers et éditions, sans perdre leurs méthod
     }]
   ];
   const nodes=await makePage({extraEvents});
-  assert.equal(nodes.get('stat-current').textContent,'6');
-  assert.equal(nodes.get('events-current').children.length,6);
+  assert.equal(nodes.get('stat-current').textContent,'5');
+  assert.equal(nodes.get('events-current').children.length,5);
   assert.equal(nodes.get('stat-objectives').textContent,'8');
   const titles=nodes.get('events-current').children.map(card=>card.children[1].children[1].textContent);
   assert.equal(titles.filter(title=>title==='Fête de l’équipement').length,1);
   assert.equal(titles.filter(title=>title==='Fils à retordre').length,1);
-  assert.ok(titles.includes('Épreuve Briseur temporaire'));
+  assert.ok(!titles.includes('Épreuve Briseur temporaire'));
   assert.ok(!titles.includes('Récompense Web'));
   assert.ok(!titles.includes('Sauvez le monde !'));
   assert.ok(!titles.includes('Dons du jour'));
