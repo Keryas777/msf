@@ -135,30 +135,16 @@
     const scaled=target/power;
     return (scaled<=1?1:scaled<=2?2:scaled<=5?5:10)*power;
   }
-  function scale(values,rank){
+  function scale(values){
     const min=Math.min(...values),max=Math.max(...values);
-    const pad=Math.max(1,(max-min)*.08,max===min?max*.06:0);
-    const step=niceStep((max-min+2*pad)/4);
-    let lo=Math.floor((min-pad)/step)*step;
+    const spread=max-min;
+    // Reserve about 10% of the visible range on EACH side, even for
+    // a single measured value. Round only to a nearby readable step.
+    const pad=Math.max(1,spread*.1,spread===0?Math.abs(max)*.06:0);
+    const step=niceStep(pad/2);
+    const lo=Math.max(0,Math.floor((min-pad)/step)*step);
     const hi=Math.max(lo+step,Math.ceil((max+pad)/step)*step);
-    lo=Math.max(rank?1:0,lo);
     return {lo,hi};
-  }
-  function sharedRankCeiling(){
-    // Both completed-season charts use the same maximum, based on the
-    // least favorable rank visible in EITHER chart (all available seasons).
-    let worst=1;
-    for(const id of ['raid-season-rank','war-season-rank']){
-      const chart=byId(id);
-      if(!chart)continue;
-      const prepared=window.LoSPStandingsSeries.prepare(
-        state.snapshots,state.registry,chart,state.config.rankingSeasons);
-      for(const series of prepared.series.filter(s=>!state.hiddenAlliances.has(s.key)))
-        for(const point of series.points)
-          if(Number.isSafeInteger(point.value)&&point.value>worst)
-            worst=point.value;
-    }
-    return Math.max(200,Math.ceil(worst/100)*100);
   }
   function drawPlot(model,chart){
     refs.plot.replaceChildren();
@@ -192,27 +178,12 @@
     const values=visibleSeries.flatMap(s=>s.points.map(p=>p.value))
       .filter(v=>v!==null);
     if(!values.length)return;
-    // Rank 1 belongs at the top; use exact hundred boundaries, not
-    // interpolated labels such as 101, 251 or 501.
-    // Keep empty edge areas compact; expand only for real values.
-    const firstDiamond=trophyDivisions.find(b=>
-      b.label===state.config?.trophyAxisAnchorDivision&&
-      Number.isSafeInteger(b.min)&&Number.isSafeInteger(b.max))||
-      trophyDivisions.find(b=>Number.isSafeInteger(b.min)&&
-        Number.isSafeInteger(b.max));
-    const finalDivision=trophyDivisions.at(-1);
-    const tierSize=firstDiamond?.max-firstDiamond?.min+1;
-    const tickStep=tierSize/5;
-    const trophyBounds=tierSize>0&&Number.isSafeInteger(finalDivision?.min)?
-      {lo:Math.max(0,Math.floor(Math.min(
-        firstDiamond.min-tierSize*.4,Math.min(...values)-tierSize*.12)/tickStep)*tickStep),
-       hi:Math.ceil(Math.max(finalDivision.min+tierSize*.6,
-         Math.max(...values)+tierSize*.12)/tickStep)*tickStep}:
-      scale(values,false);
-    const bounds=rank?{lo:1,hi:sharedRankCeiling()}:trophyBounds;
-    const compressedRank=rank&&bounds.hi>2000;
-    // Keep Top 100/200 readable even if a new alliance has a rank above
-    // 10,000. Both ranking charts use this same labelled, piecewise axis.
+    // Both trophy and season axes follow the visible alliance points.
+    // The league thresholds only color the portion inside this viewport.
+    const bounds=scale(values);
+    const compressedRank=rank&&bounds.hi>2000&&bounds.lo<1000;
+    // Preserve the existing Top 100/200 readability when an outlier
+    // pushes an alliance beyond rank 2,000.
     const linearY=v=>margin.top+
       (rank?(v-bounds.lo):(bounds.hi-v))/(bounds.hi-bounds.lo)*h;
     const rankRatio=v=>v<=1000?
@@ -233,7 +204,10 @@
         {from:1,to:100.5,fill:'#147448',opacity:.30},
         {from:100.5,to:200,fill:'#9adc9c',opacity:.20}
       ]){
-        const top=y(band.from),bottom=y(band.to);
+        const from=Math.max(bounds.lo,band.from);
+        const to=Math.min(bounds.hi,band.to);
+        if(to<=from)continue;
+        const top=y(from),bottom=y(to);
         refs.plot.append(svg('rect',{x:margin.left,y:top,width:w,
           height:bottom-top,fill:band.fill,'fill-opacity':band.opacity,
           class:'historyRankBand','aria-hidden':'true'}));
@@ -269,20 +243,26 @@
           class:'historyTrophyLabel','aria-hidden':'true'},band.label));
       }
     }
-    const compressedTicks=[1,100,200,500,1000,2500,5000,10000]
-      .filter(v=>v<bounds.hi);
-    const spacedTicks=[];
-    if(compressedRank){
-      for(const value of compressedTicks){
+    const rankTicks=()=>{
+      const step=niceStep((bounds.hi-bounds.lo)/8);
+      const regular=compressedRank?[1,100,200,500,1000,2500,5000,10000]:
+        Array.from({length:Math.floor((bounds.hi-bounds.lo)/step)+2},
+          (_,i)=>(Math.ceil(bounds.lo/step)+i)*step);
+      const candidates=[...new Set([
+        Math.max(1,bounds.lo),...regular,100,200,bounds.hi
+      ])].filter(v=>v>=1&&v>=bounds.lo&&v<=bounds.hi)
+        .sort((a,b)=>a-b);
+      if(!compressedRank)return candidates;
+      const spaced=[];
+      for(const value of candidates){
         const pos=y(value);
-        if((!spacedTicks.length||pos-y(spacedTicks.at(-1))>=16)&&
-          y(bounds.hi)-pos>=16)spacedTicks.push(value);
+        if(value===bounds.hi||
+          ((!spaced.length||pos-y(spaced.at(-1))>=16)&&
+            y(bounds.hi)-pos>=16))spaced.push(value);
       }
-      spacedTicks.push(bounds.hi);
-    }
-    const ticks=rank?
-      (compressedRank?spacedTicks:
-        [1,...Array.from({length:bounds.hi/100},(_,i)=>(i+1)*100)]):
+      return spaced;
+    };
+    const ticks=rank?rankTicks():
       Array.from({length:5},(_,i)=>bounds.lo+(bounds.hi-bounds.lo)*i/4);
     for(const value of ticks){
       const pos=y(value);
