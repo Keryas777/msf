@@ -24,27 +24,33 @@
   function category(e,t){return e.startTime*1000>t?'future':e.endTime*1000<=t?'past':'current';}
   function secondary(e){return Array.isArray(e.locationHints)&&(e.locationHints.includes('lohub_feeder')||e.locationHints.includes('mercy_orb'));}
   const NON_EVENT_TYPES=new Set(['raid','raidSeason','warSeason','strikePass','battlePass']);
+  // La localisation FR conserve les IDs, mais change les noms et même
+  // pickYourPoison.typeName ("Scourge" devient "Fléau" pour toutes les épreuves).
+  // Ne jamais exclure tout le type "Fléau" : KYLN et les Briseurs sont temporaires.
+  function eventNameKey(value){
+    return strip(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[’‘]/g,"'").toLocaleLowerCase('fr');
+  }
   const ONBOARDING_MILESTONES=new Set([
     'first s.t.r.i.k.e.','second s.t.r.i.k.e.',
-    'third s.t.r.i.k.e.','s.t.r.i.k.e. back'
+    'third s.t.r.i.k.e.','s.t.r.i.k.e. back',
+    's.t.r.i.k.e. : premier assaut','deuxieme s.t.r.i.k.e.',
+    's.t.r.i.k.e. : troisieme assaut','coup du s.t.r.i.k.e.'
   ]);
-  // Not all pickYourPoison entries are permanent legendary trials:
-  // KYLN and Breaker Scorpion are kept as ordinary temporary events.
+  // Épreuves légendaires / Chevaliers de l'Apocalypse, mais pas les KYLN et Briseurs.
   const LEGENDARY_TRIALS=new Set([
-    'shadow king','old man logan','nova','black cat','green goblin (classic)',
-    'pestilence','famine','war','death'
+    'shadow king',"roi d'ombre",'old man logan','nova','black cat',
+    'green goblin (classic)','pestilence','famine','war','guerre','death','mort'
   ]);
   function isCalendarEvent(e){
     if(NON_EVENT_TYPES.has(e.type))return false;
     // Multi-year endpoints represent permanent sagas/unlocks, not calendar events.
     // Use the scheduled duration rather than a list of character names.
     if(e.endTime-e.startTime>=730*86400)return false;
-    const name=(e.name||'').trim().toLowerCase();
-    // Danger Room is a recurring game mode, not a calendar event.
-    if(name==='danger room')return false;
-    if(e.type==='pickYourPoison'&&
-      (String(e.pickYourPoison?.typeName||'').toLowerCase()==='scourge'||
-       LEGENDARY_TRIALS.has(name)))return false;
+    const name=eventNameKey(e.name);
+    // Danger Room est un mode récurrent, même lorsqu'il est localisé en français.
+    if(name==='danger room'||name==='salle des dangers')return false;
+    if(e.type==='pickYourPoison'&&LEGENDARY_TRIALS.has(name))return false;
     // Onboarding/returning-player milestones are not general calendar events.
     if(e.type==='milestone'&&ONBOARDING_MILESTONES.has(name))return false;
     // Some Battle Pass objectives are exposed as milestone feeder entries.
