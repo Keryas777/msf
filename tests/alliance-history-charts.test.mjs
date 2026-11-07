@@ -739,8 +739,9 @@ test('switching from trophies to war and raid season ranks redraws real rank val
     liveAvailable:true,guestRanksAvailable:true,
     hiddenAlliances:new Set(),chart:null,prepared:null};
   const drawn=[];
+  const viewId=()=>state.mode==='raid'?'raid-season-rank':state.warChart;
   const scope=vm.createContext({
-    refs,state,byId,number:new Intl.NumberFormat('fr-FR'),
+    refs,state,byId,viewId,number:new Intl.NumberFormat('fr-FR'),
     formatDate:iso=>iso.slice(0,10),safeColor:value=>value,
     el:(tag,className,value)=>Object.assign(stub(),{
       tag,className,textContent:value||''
