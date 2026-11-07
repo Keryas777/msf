@@ -178,6 +178,63 @@ test('La localisation FR ne réintroduit pas les épreuves légendaires et jalon
   assert.equal(nodes.get('stat-objectives').textContent,'3');
 });
 
+test('Le calendrier regroupe les paliers et éditions, sans perdre leurs méthodes dans Objectifs',async()=>{
+  const now=Math.floor(Date.now()/1000),day=86400;
+  const festival=(name,description)=>[name,'milestone',{
+    subName:'Équipez votre effectif',
+    startTime:now-day,endTime:now+3*day,
+    milestone:{scoring:{methods:[{description,points:50}],cappedScorings:[]}}
+  }];
+  const campaign=(start,end)=>['Fils à retordre','episodic',{
+    subName:'Société des araignées',startTime:start,endTime:end,
+    episodic:{type:'eventCampaign',ids:['TEAM_SPIDERS_A','TEAM_SPIDERS_B']}
+  }];
+  const daily=(start,end)=>['Sauvez le monde !','milestone',{
+    startTime:start,endTime:end,
+    milestone:{scoring:{methods:[{description:'Dépensez 1 énergie de campagne',points:5}],cappedScorings:[]}}
+  }];
+  const extraEvents=[
+    festival('Fête de l’équipement','Atteindre le palier G3'),
+    festival('Fête de l’équipement : II','Atteindre le palier G4'),
+    festival('Fête de l’équipement : III','Atteindre le palier G5'),
+    campaign(now-day*2,now+day*9),
+    campaign(now-day,now+day*10),
+    daily(now-day*2,now-day),
+    daily(now-day,now+60*60),
+    ['Récompense Web','milestone',{
+      locationHints:['web_exclusive'],
+      milestone:{scoring:{methods:[{description:'Récupérer une offre Web',points:1}],cappedScorings:[]}}
+    }],
+    ['Dons du jour','donation',{}],
+    ['Saga permanente','episodic',{
+      endTime:now+360*day,episodic:{type:'eventCampaign',ids:['SAGA']}
+    }],
+    ['Contexte de saga','info',{endTime:now+360*day}],
+    ['Épreuve Briseur temporaire','pickYourPoison',{
+      pickYourPoison:{typeName:'Fléau'},endTime:now+14*day
+    }]
+  ];
+  const nodes=await makePage({extraEvents});
+  assert.equal(nodes.get('stat-current').textContent,'6');
+  assert.equal(nodes.get('events-current').children.length,6);
+  assert.equal(nodes.get('stat-objectives').textContent,'8');
+  const titles=nodes.get('events-current').children.map(card=>card.children[1].children[1].textContent);
+  assert.equal(titles.filter(title=>title==='Fête de l’équipement').length,1);
+  assert.equal(titles.filter(title=>title==='Fils à retordre').length,1);
+  assert.ok(titles.includes('Épreuve Briseur temporaire'));
+  assert.ok(!titles.includes('Récompense Web'));
+  assert.ok(!titles.includes('Sauvez le monde !'));
+  assert.ok(!titles.includes('Dons du jour'));
+  assert.ok(!titles.includes('Saga permanente'));
+  assert.ok(!titles.includes('Contexte de saga'));
+  assert.ok(actions(nodes).some(text=>text.includes('palier G3')));
+  assert.ok(actions(nodes).some(text=>text.includes('palier G4')));
+  assert.ok(actions(nodes).some(text=>text.includes('palier G5')));
+  assert.ok(actions(nodes).some(text=>text.includes('offre Web')));
+  nodes.get('search-filter').handlers.get('input')({target:{value:'Fête de l’équipement'}});
+  assert.equal(nodes.get('stat-current').textContent,'1');
+});
+
 test('Une panne du JSON GitHub n’utilise aucune autre source et affiche une indisponibilité',async()=>{
   const nodes=await makePage({failure:true});
   assert.match(nodes.get('source-line').textContent,/indisponible/);
