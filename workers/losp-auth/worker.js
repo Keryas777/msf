@@ -22,8 +22,9 @@ const PLAYER_PROFILES = {
     role: "admin",
     players: [
       { name: "Keryas I", alliance: "zeus" },
-      { name: "Keryas II", alliance: "dionysos" },
-      { name: "Keryas III", alliance: "poseidon" }
+      { name: "Keryas II", alliance: "kronos" },
+      { name: "Keryas III", alliance: "dionysos" },
+      { name: "Keryas IV", alliance: "poseidon" }
     ]
   }
 };
