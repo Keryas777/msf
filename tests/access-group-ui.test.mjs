@@ -39,9 +39,21 @@ test("invités Marines et Endgame : scopes disjoints", async () => {
   ]);
 });
 
-test("administrateur : les neuf identifiants internes sont visibles", async () => {
+test("Questionable Propriety : registre blanc et accès isolé", async () => {
+  const helper = await openAlliances(["questionable-propriety"]);
+  assert.deepEqual(visibleKeys(helper), ["questionablepropriety"]);
+  const meta = helper.getAllianceMeta("questionable-propriety");
+  assert.equal(meta.name, "Questionable Propriety");
+  assert.equal(meta.color, "#FFFFFF");
+  assert.equal(meta.nameColor, "#FFFFFF");
+  assert.equal(meta.sourceKey, "questionable-propriety");
+  assert.equal(helper.getAllianceMeta("endgame-revolution-red"), null);
+});
+
+test("administrateur : les dix identifiants internes sont visibles", async () => {
   const helper = await openAlliances(data.map(a => a.key));
-  assert.equal(visibleKeys(helper).length, 9);
+  assert.equal(visibleKeys(helper).length, 10);
+  assert.ok(visibleKeys(helper).includes("questionablepropriety"));
   assert.ok(visibleKeys(helper).includes("endgamerevolutionred"));
   assert.ok(visibleKeys(helper).includes("endgamerevolutionorange"));
 });
