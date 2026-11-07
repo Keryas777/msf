@@ -63,6 +63,12 @@ test("Admin LoSP: toutes les neuf alliances sans cumul de rôles", async () => {
   assert.equal(data.allowedAlliances.length, 9);
   assert.ok(data.allowedAlliances.includes("marines"));
   assert.ok(data.allowedAlliances.includes("endgame-revolution-orange"));
+  assert.deepEqual(data.players, [
+    { name: "Keryas I", alliance: "zeus" },
+    { name: "Keryas II", alliance: "kronos" },
+    { name: "Keryas III", alliance: "dionysos" },
+    { name: "Keryas IV", alliance: "poseidon" }
+  ]);
 });
 
 test("Rôles incompatibles et compte sans rôle sont refusés", async () => {
