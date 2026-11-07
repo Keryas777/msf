@@ -741,8 +741,25 @@
         activateTab(TABS[next],true);
       });
     }
-    const linkedTab=(location.hash||'').replace(/^#section-/,'');
-    activateTab(TABS.includes(linkedTab)?linkedTab:'objectives');
+    // Safari iOS peut restaurer l'ancien onglet ET le défilement depuis le
+    // back-forward cache sans réexécuter init(). Le retour sur cette page
+    // doit toujours rouvrir Objectifs sauf si l'URL cible un autre onglet.
+    const showEntryTab=()=>{
+      const linkedTab=(location.hash||'').replace(/^#section-/,'');
+      const explicitTab=TABS.includes(linkedTab);
+      activateTab(explicitTab?linkedTab:'objectives');
+      if(!explicitTab){
+        if(window.history&&'scrollRestoration' in window.history)
+          window.history.scrollRestoration='manual';
+        if(typeof window.scrollTo==='function'){
+          window.scrollTo(0,0);
+          if(typeof window.requestAnimationFrame==='function')
+            window.requestAnimationFrame(()=>window.scrollTo(0,0));
+        }
+      }
+    };
+    window.addEventListener('pageshow',showEntryTab);
+    showEntryTab();
     $('date-filter').addEventListener('change',e=>{state.date=e.target.value||localToday();state.manualDate=true;render();});
     $('reset-date').addEventListener('click',()=>{state.date=localToday();state.manualDate=false;$('date-filter').value=state.date;render();});
     $('search-filter').addEventListener('input',e=>{state.search=e.target.value;render();});
