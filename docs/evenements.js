@@ -14,7 +14,7 @@
   ];
   const SECTIONS={current:'En cours',past:'Passés'};
   const TABS=['objectives','current','past'];
-  const state={events:[],metadata:{},sourceError:false,date:null,manualDate:false,search:'',type:'',includeSecondary:false,lastButton:null,
+  const state={events:[],metadata:{},sourceError:false,date:null,manualDate:false,search:'',type:'',lastButton:null,
     teams:[],characters:[],characterAliases:[]};
   const fmtDate=new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'numeric',month:'short',year:'numeric'});
   const fmtNumber=new Intl.NumberFormat('fr-FR');
@@ -69,11 +69,11 @@
     const image=cleanImage(e.cardArt).split('/').pop()||'';
     return /(?:^Scourge_|_Scourge_)/i.test(image)&&!/Breaker/i.test(image);
   }
-  function calendarGroup(e,includeSecondary=false){
+  function calendarGroup(e){
     if(e.type==='milestone'){
       const hints=Array.isArray(e.locationHints)?e.locationHints:[];
       if(hints.includes('lohub_wrapper'))return 'command';
-      if(hints.includes('lohub_feeder'))return includeSecondary?'command':null;
+      if(hints.includes('lohub_feeder'))return null;
       if(hints.length||!strip(e.name)||isTierCollection(e))return null;
       return cleanImage(e.cardArt)&&cleanImage(e.popupArt)?'phases':null;
     }
@@ -97,9 +97,6 @@
         candidate.startTime<e.endTime&&candidate.endTime>e.startTime;
     });
     return parent?calendarGroup(parent):null;
-  }
-  function isCalendarDisplayEvent(e){
-    return Boolean(calendarGroup(e,state.includeSecondary));
   }
   function calendarTierKey(e){
     const family=eventNameKey(e.name).replace(/\s*:\s*[ivxlcdm]+$/,'');
@@ -149,7 +146,7 @@
   function filterEvents(){
     const match=state.search.trim().toLocaleLowerCase('fr');
     return state.events.filter(e=>{
-      const group=calendarGroup(e,state.includeSecondary);
+      const group=calendarGroup(e);
       if(!group)return false;
       if(state.type&&group!==state.type)return false;
       return !match||[e.name,e.subName,e.details,e.id].some(v=>strip(v).toLocaleLowerCase('fr').includes(match));
@@ -163,7 +160,7 @@
     }
     grouped.current=collapseCurrentEvents(grouped.current);
     grouped.past=collapseCurrentEvents(grouped.past);
-    const rank=e=>GAME_GROUPS.findIndex(group=>group.key===calendarGroup(e,state.includeSecondary));
+    const rank=e=>GAME_GROUPS.findIndex(group=>group.key===calendarGroup(e));
     grouped.current.sort((a,b)=>rank(a)-rank(b)||a.endTime-b.endTime||
       eventTitle(a).localeCompare(eventTitle(b),'fr'));
     grouped.past.sort((a,b)=>rank(a)-rank(b)||b.endTime-a.endTime||
@@ -194,7 +191,7 @@
   function makeCard(e,group,reference){
     const card=create('article','ev-card');card.append(cover(e));
     const body=create('div','ev-card-copy'),top=create('div','ev-card-top');
-    const menu=GAME_GROUPS.find(item=>item.key===calendarGroup(e,state.includeSecondary));
+    const menu=GAME_GROUPS.find(item=>item.key===calendarGroup(e));
     top.append(create('span','ev-category',menu?.label||TYPES[e.type]||e.type));
     if(e.type==='milestone')top.append(create('span','ev-scope',
       e.milestone?.type==='alliance'?'Alliance':'Solo'));
@@ -215,7 +212,7 @@
     holder.append(create('p','ev-empty-emoji',group==='current'?'🪐':'📚'));
     holder.append(create('h3','',group==='current'?'Aucun événement en cours':'Aucun événement passé'));
     let message='Essaie un autre filtre ou une autre date de référence.';
-    if(state.search||state.type||state.includeSecondary)message='Modifie les filtres ou la date de référence pour afficher d’autres événements.';
+    if(state.search||state.type)message='Modifie les filtres ou la date de référence pour afficher d’autres événements.';
     holder.append(create('p','',message));return holder;
   }
 
@@ -669,14 +666,14 @@
       if(!items.length)host.append(emptyState(key));
       for(const category of GAME_GROUPS){
         const entries=items.filter(item=>
-          calendarGroup(item,state.includeSecondary)===category.key);
+          calendarGroup(item)===category.key);
         if(!entries.length)continue;
         const section=create('section','ev-calendar-group');
         const head=create('div','ev-calendar-group-head');
         head.append(create('h3','ev-calendar-group-title',category.icon+' '+category.label));
         head.append(create('span','ev-calendar-group-count',
           fmtNumber.format(items.filter(item=>
-            calendarGroup(item,state.includeSecondary)===category.key).length)));
+            calendarGroup(item)===category.key).length)));
         const grid=create('div','ev-grid');
         for(const item of entries)grid.append(makeCard(item,key,reference));
         section.append(head,grid);host.append(section);
@@ -691,7 +688,7 @@
     const hero=create('div','ev-dialog-header'),art=artwork(e);
     if(art){const img=create('img');img.src=art;img.alt='';img.loading='lazy';hero.append(img);}
     const head=create('div','ev-dialog-headcopy');
-    const group=GAME_GROUPS.find(item=>item.key===calendarGroup(e,true));
+    const group=GAME_GROUPS.find(item=>item.key===calendarGroup(e));
     head.append(create('span','ev-category',group?.label||TYPES[e.type]||e.type),
       create('h2','',eventTitle(e)));hero.append(head);
     const close=create('button','ev-dialog-close','×');close.type='button';close.setAttribute('aria-label','Fermer');close.addEventListener('click',()=>dialog.close());hero.append(close);host.append(hero);
@@ -816,7 +813,7 @@
     $('date-filter').value=state.date;
     for(const [index,key] of TABS.entries()){
       const tab=$('tab-'+key);
-      tab.addEventListener('click',()=>activateTab(key));
+      tab.addEventListener('click',()=>{userChangedTab=true;activateTab(key);});
       tab.addEventListener('keydown',event=>{
         let next;
         if(event.key==='ArrowRight')next=(index+1)%TABS.length;
@@ -825,25 +822,32 @@
         else if(event.key==='End')next=TABS.length-1;
         else return;
         event.preventDefault();
-        activateTab(TABS[next],true);
+        userChangedTab=true;activateTab(TABS[next],true);
       });
     }
-    // Safari iOS peut restaurer l'ancien onglet ET le défilement depuis le
-    // back-forward cache sans réexécuter init(). Le retour sur cette page
-    // doit toujours rouvrir Objectifs sauf si l'URL cible un autre onglet.
+    // Les anciennes versions utilisaient des liens #section-past / #section-current.
+    // Safari conserve parfois ce fragment lors des rafraîchissements :
+    // ne plus le laisser imposer l'onglet Passés à l'ouverture.
+    const removeLegacyTabHash=()=>{
+      if(!/^#section-(?:objectives|current|past)$/.test(location.hash||''))return;
+      if(typeof window.history?.replaceState==='function')
+        window.history.replaceState(window.history.state,null,
+          location.pathname+location.search);
+    };
+    const scrollToTop=()=>{
+      if(typeof window.scrollTo!=='function')return;
+      window.scrollTo(0,0);
+      if(typeof window.requestAnimationFrame==='function')
+        window.requestAnimationFrame(()=>window.scrollTo(0,0));
+    };
+    let userChangedTab=false;
     const showEntryTab=()=>{
-      const linkedTab=(location.hash||'').replace(/^#section-/,'');
-      const explicitTab=TABS.includes(linkedTab);
-      activateTab(explicitTab?linkedTab:'objectives');
-      if(!explicitTab){
-        if(window.history&&'scrollRestoration' in window.history)
-          window.history.scrollRestoration='manual';
-        if(typeof window.scrollTo==='function'){
-          window.scrollTo(0,0);
-          if(typeof window.requestAnimationFrame==='function')
-            window.requestAnimationFrame(()=>window.scrollTo(0,0));
-        }
-      }
+      removeLegacyTabHash();
+      userChangedTab=false;
+      activateTab('objectives');
+      if(window.history&&'scrollRestoration' in window.history)
+        window.history.scrollRestoration='manual';
+      scrollToTop();
     };
     window.addEventListener('pageshow',showEntryTab);
     showEntryTab();
@@ -851,9 +855,8 @@
     $('reset-date').addEventListener('click',()=>{state.date=localToday();state.manualDate=false;$('date-filter').value=state.date;render();});
     $('search-filter').addEventListener('input',e=>{state.search=e.target.value;render();});
     $('type-filter').addEventListener('change',e=>{state.type=e.target.value;render();});
-    $('secondary-filter').addEventListener('change',e=>{state.includeSecondary=e.target.checked;render();});
     const dialog=$('event-dialog');dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});dialog.addEventListener('close',()=>state.lastButton?.focus());
-    load();
+    load().then(()=>{if(!userChangedTab)scrollToTop();});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
