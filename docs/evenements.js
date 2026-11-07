@@ -14,7 +14,8 @@
   ];
   const SECTIONS={current:'En cours',past:'Passés'};
   const TABS=['objectives','current','past'];
-  const state={events:[],metadata:{},sourceError:false,date:null,manualDate:false,search:'',type:'',includeSecondary:false,lastButton:null};
+  const state={events:[],metadata:{},sourceError:false,date:null,manualDate:false,search:'',type:'',includeSecondary:false,lastButton:null,
+    teams:[],characters:[],characterAliases:[]};
   const fmtDate=new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'numeric',month:'short',year:'numeric'});
   const fmtNumber=new Intl.NumberFormat('fr-FR');
   const now=()=>Date.now();
@@ -309,6 +310,115 @@
       return 'Améliorer des personnages au palier G'+m[1]+' ou supérieur';
     return description;
   }
+  // Les équipes sont décrites par teams.json (Google Sheets) et les portraits
+  // par msf-characters.json. Aucun nom de personnage ou d'équipe codé en dur.
+  function characterAliases(characters){
+    const aliases=[];
+    for(const character of characters){
+      if(!character||typeof character.id!=='string')continue;
+      const names=new Set([character.nameKey,character.nameFr,character.nameEn,character.id]
+        .filter(value=>typeof value==='string'&&strip(value))
+        .flatMap(value=>{
+          const name=eventNameKey(value);
+          return [name,name.replace(/^(?:la |le |les |l'|un |une |the )/,'')];
+        }));
+      for(const alias of names)if(alias.length>=3)aliases.push({character,alias});
+    }
+    return aliases.sort((a,b)=>b.alias.length-a.alias.length||
+      a.character.id.localeCompare(b.character.id));
+  }
+  function objectiveCharacter(description){
+    if(!state.characterAliases.length)return null;
+    const text=eventNameKey(description);
+    const markers=/\b(?:avec|with)\s+/g;
+    let marker;
+    while((marker=markers.exec(text))){
+      const remaining=text.slice(marker.index+marker[0].length);
+      const possibilities=[remaining,remaining.replace(/^(?:la |le |les |l'|un |une |a |an |the )/,'')];
+      for(const {character,alias} of state.characterAliases){
+        if(possibilities.some(part=>part.startsWith(alias)&&
+          !/[a-z0-9]/.test(part.charAt(alias.length))))return character;
+      }
+    }
+    return null;
+  }
+  function objectiveTeams(entries){
+    const members=new Map(),other=[];
+    for(const item of entries){
+      const character=item.character;
+      if(!character){other.push(item);continue;}
+      if(!members.has(character.id))members.set(character.id,{character,items:[]});
+      members.get(character.id).items.push(item);
+    }
+    const candidates=state.teams.filter(team=>team&&typeof team.team==='string'&&
+      Array.isArray(team.characters)).map(team=>({
+        team,matched:[...new Set(team.characters)].filter(id=>members.has(id))
+      })).filter(group=>group.matched.length>=2).sort((a,b)=>
+        b.matched.length-a.matched.length||a.team.team.localeCompare(b.team.team,'fr'));
+    const assigned=new Set(),teams=[];
+    for(const candidate of candidates){
+      const chars=candidate.matched.filter(id=>!assigned.has(id));
+      if(chars.length<2)continue;
+      for(const id of chars)assigned.add(id);
+      teams.push({name:candidate.team.team,characters:chars.map(id=>members.get(id))});
+    }
+    const individual=[...members.values()].filter(member=>!assigned.has(member.character.id));
+    teams.sort((a,b)=>a.name.localeCompare(b.name,'fr'));
+    individual.sort((a,b)=>(a.character.nameKey||a.character.id)
+      .localeCompare(b.character.nameKey||b.character.id,'fr'));
+    return {teams,individual,other};
+  }
+  function objectiveCondition(item){
+    const label=item.label;
+    const stars=label.match(/\b(\d+)\s+étoiles?\s+jaunes\b/i);
+    if(stars)return stars[1]+' étoiles jaunes';
+    const gear=label.match(/\bpalier d[’']équipement\s+(\d+)\b/i);
+    if(gear)return 'Palier d’équipement '+gear[1];
+    if(/^(?:combattre|jouer|battle|play)\b/i.test(label))return 'Combat';
+    return label;
+  }
+  function objectiveRow(item,short=false){
+    const li=create('li','ev-objective-item');
+    const label=short?objectiveCondition(item):item.label;
+    const action=create('p','ev-objective-action',label);
+    if(label!==item.label)action.title=item.label;
+    li.append(action);
+    const row=create('div','ev-objective-footer');
+    if(item.points!==null)row.append(create('span','ev-objective-score',
+      '+'+fmtNumber.format(item.points)+' pt(s) / action'));
+    if(item.cap!==null){
+      const repeat=item.points&&item.cap/item.points;
+      const explicitCount=/\b(?:times?|days?|fois|jours)\b/i.test(item.description);
+      let limit=(item.sharedCap?'Plafond partagé ':'Plafond ')+
+        fmtNumber.format(item.cap)+' pts';
+      if(!item.sharedCap&&!explicitCount&&Number.isInteger(repeat)&&repeat>1&&repeat<=200)
+        limit+=' · Jusqu’à '+fmtNumber.format(repeat)+' actions comptabilisées';
+      row.append(create('span','ev-objective-cap',limit));
+    }
+    if(item.premium)row.append(create('span','ev-objective-premium','Premium'));
+    li.append(row);return li;
+  }
+  function objectiveList(items,short=false){
+    const list=create('ul','ev-objective-list');
+    for(const item of items)list.append(objectiveRow(item,short));
+    return list;
+  }
+  function objectiveCharacterCard(member){
+    const card=create('details','ev-objective-character');
+    const heading=create('summary','ev-objective-character-summary');
+    const url=cleanImage(member.character.portraitUrl);
+    if(url){
+      const img=create('img','ev-objective-portrait');img.src=url;img.alt='';
+      img.loading='lazy';img.decoding='async';
+      img.addEventListener('error',()=>img.remove(),{once:true});
+      heading.append(img);
+    }
+    heading.append(create('strong','',strip(member.character.nameKey||
+      member.character.nameFr||member.character.nameEn||member.character.id)));
+    heading.append(create('span','ev-objective-mini-count',
+      fmtNumber.format(member.items.length)+' condition(s)'));
+    card.append(heading,objectiveList(member.items,true));return card;
+  }
   function objectiveEntries(reference){
     const match=state.search.trim().toLocaleLowerCase('fr');
     const active=state.events.filter(e=>category(e,reference)==='current'&&
@@ -321,7 +431,12 @@
         const description=strip(method?.description);
         if(!description)return;
         const label=objectiveLabel(description);
-        if(match&&![event.name,event.subName,event.details,event.id,description,label]
+        const character=objectiveCharacter(description);
+        const teamNames=character?state.teams.filter(team=>
+          Array.isArray(team.characters)&&team.characters.includes(character.id))
+          .map(team=>team.team):[];
+        if(match&&![event.name,event.subName,event.details,event.id,description,label,
+          character?.nameKey,...teamNames]
           .some(value=>strip(value).toLocaleLowerCase('fr').includes(match)))return;
         const mode=objectiveMode(description);
         const points=Number(method.points);
@@ -330,7 +445,8 @@
         const key=[eventTitle(event).toLocaleLowerCase('fr'),description.toLocaleLowerCase('fr'),mode,score,ceiling,Boolean(premium)].join('|');
         if(dedup.has(key))return;
         dedup.add(key);
-        items.push({event,label,mode,description,points:score,cap:ceiling,premium:Boolean(premium),sharedCap:Boolean(sharedCap)});
+        items.push({event,label,mode,description,points:score,cap:ceiling,
+          premium:Boolean(premium),sharedCap:Boolean(sharedCap),character});
       };
       for(const method of Array.isArray(scoring.methods)?scoring.methods:[])add(method,null,false,false);
       for(const capped of Array.isArray(scoring.cappedScorings)?scoring.cappedScorings:[]){
@@ -350,12 +466,11 @@
       holder.append(create('p','ev-empty-emoji','📋'));
       holder.append(create('h3','','Aucun objectif de score disponible'));
       holder.append(create('p','','Les événements en cours ne fournissent pas de méthode de progression exploitable pour cette date ou ces filtres.'));
-      host.append(holder);
-      return;
+      host.append(holder);return;
     }
     host.append(create('p','ev-objectives-note',
-      'Méthodes de progression des Phases et du Poste de commandement actifs.'+
-      ' La progression personnelle n’est pas synchronisée.'));
+      fmtNumber.format(items.length)+' méthodes de score, regroupées par mode, événement, équipe et personnage. '+
+      'Les plafonds sont indépendants sauf mention contraire. Progression personnelle non synchronisée.'));
     const grouped=new Map();
     for(const item of items){
       if(!grouped.has(item.mode))grouped.set(item.mode,[]);
@@ -371,33 +486,66 @@
       entries.sort((a,b)=>a.event.endTime-b.event.endTime||
         eventTitle(a.event).localeCompare(eventTitle(b.event),'fr')||
         a.label.localeCompare(b.label,'fr'));
-      const group=create('section','ev-objective-mode');
+      const modeSection=create('section','ev-objective-mode');
       const meta=key.split('+').map(part=>MODE_BY_KEY.get(part)||MODE_BY_KEY.get('divers'));
-      const heading=create('h3','ev-objective-heading',meta[0].emoji+' '+meta.map(x=>x.label).join(' / '));
-      heading.append(create('span','ev-objective-count',fmtNumber.format(entries.length)));
-      const list=create('ul','ev-objective-list');
+      const heading=create('h3','ev-objective-heading',
+        meta[0].emoji+' '+meta.map(x=>x.label).join(' / '));
+      heading.append(create('span','ev-objective-count',
+        fmtNumber.format(entries.length)+' méthodes'));
+      const eventList=create('div','ev-objective-events');
+      const byEvent=new Map();
       for(const item of entries){
-        const li=create('li','ev-objective-item');
-        li.append(create('p','ev-objective-action',item.label));
-        const row=create('div','ev-objective-footer');
-        const trigger=create('button','ev-objective-event',eventTitle(item.event));
-        trigger.type='button';trigger.addEventListener('click',()=>openDetail(item.event,trigger));
-        row.append(trigger);
-        row.append(create('span','ev-objective-scope',
-          item.event.milestone?.type==='alliance'?'Alliance':'Solo'));
-        if(item.points!==null)row.append(create('span','ev-objective-score','+'+fmtNumber.format(item.points)+' pt(s) / action'));
-        if(item.cap!==null){
-          const repeat=item.points&&item.cap/item.points;
-          const explicitCount=/\b(?:times?|days?|fois|jours)\b/i.test(item.description);
-          const label=!item.sharedCap&&!explicitCount&&Number.isInteger(repeat)&&repeat>1&&repeat<=200?
-            'Jusqu’à '+fmtNumber.format(repeat)+' actions comptabilisées':
-            (item.sharedCap?'Plafond partagé ':'Plafond ')+fmtNumber.format(item.cap)+' pts';
-          row.append(create('span','ev-objective-cap',label));
-        }
-        if(item.premium)row.append(create('span','ev-objective-premium','Premium'));
-        li.append(row);list.append(li);
+        const id=objectiveGroup(item.event)+'|'+eventNameKey(item.event.name);
+        if(!byEvent.has(id))byEvent.set(id,{event:item.event,items:[]});
+        const record=byEvent.get(id);
+        if(item.event.locationHints?.includes('lohub_wrapper'))record.event=item.event;
+        record.items.push(item);
       }
-      group.append(heading,list);host.append(group);
+      for(const {event,items:methods} of byEvent.values()){
+        const parent=state.events.find(candidate=>
+          (calendarGroup(candidate)==='phases'||calendarGroup(candidate)==='command')&&
+          eventNameKey(candidate.name)===eventNameKey(event.name)&&
+          candidate.startTime<event.endTime&&candidate.endTime>event.startTime)||event;
+        const eventBlock=create('details','ev-objective-event-group');
+        // Un seul événement dans un mode : montrer immédiatement les équipes.
+        eventBlock.open=byEvent.size===1;
+        const eventTitleLine=create('summary','ev-objective-event-summary');
+        eventTitleLine.append(create('strong','',eventTitle(parent)));
+        eventTitleLine.append(create('span','ev-objective-scope',
+          parent.milestone?.type==='alliance'?'Alliance':'Solo'));
+        eventTitleLine.append(create('span','ev-objective-mini-count',
+          fmtNumber.format(methods.length)+' méthodes'));
+        const body=create('div','ev-objective-event-content');
+        const link=create('button','ev-objective-event','Détails de l’événement');
+        link.type='button';link.addEventListener('click',()=>openDetail(parent,link));
+        body.append(link);
+        const {teams,individual,other}=objectiveTeams(methods);
+        for(const team of teams){
+          const teamBlock=create('details','ev-objective-team');
+          const summary=create('summary','ev-objective-team-summary');
+          summary.append(create('strong','',team.name));
+          summary.append(create('span','ev-objective-mini-count',
+            fmtNumber.format(team.characters.length)+' personnages · '+
+            fmtNumber.format(team.characters.reduce((sum,entry)=>sum+entry.items.length,0))+' méthodes'));
+          const people=create('div','ev-objective-people');
+          for(const member of team.characters)people.append(objectiveCharacterCard(member));
+          teamBlock.append(summary,people);body.append(teamBlock);
+        }
+        if(individual.length){
+          const heading=create('h4','ev-objective-subhead','Personnages');
+          body.append(heading);
+          const people=create('div','ev-objective-people');
+          for(const member of individual)people.append(objectiveCharacterCard(member));
+          body.append(people);
+        }
+        if(other.length){
+          body.append(create('h4','ev-objective-subhead',
+            'Autres actions · '+fmtNumber.format(other.length)));
+          body.append(objectiveList(other));
+        }
+        eventBlock.append(eventTitleLine,body);eventList.append(eventBlock);
+      }
+      modeSection.append(heading,eventList);host.append(modeSection);
     }
   }
 
@@ -532,6 +680,24 @@
       'Import automatique des données R2 vérifiées ; aucun appel Scopely depuis cette page.';
     render();
   }
+  async function loadObjectiveReferences(){
+    // Catalogues déjà publiés par LoSP ; facultatifs et indépendants du flux
+    // vérifié des événements. Une erreur n'empêche jamais les objectifs bruts.
+    const sources=['./data/teams.json','./data/msf-characters.json'];
+    const results=await Promise.allSettled(sources.map(async url=>{
+      const response=await fetch(url,{cache:'no-store'});
+      if(!response.ok)throw new Error('HTTP '+response.status);
+      return response.json();
+    }));
+    const teams=results[0].status==='fulfilled'?results[0].value:null;
+    const characters=results[1].status==='fulfilled'?results[1].value:null;
+    state.teams=Array.isArray(teams)?teams.filter(team=>team&&
+      typeof team.team==='string'&&Array.isArray(team.characters)):[];
+    state.characters=Array.isArray(characters)?characters.filter(character=>
+      character&&typeof character.id==='string'):[];
+    state.characterAliases=characterAliases(state.characters);
+    if(!state.sourceError)renderObjectives(timestamp());
+  }
   async function load(){
     try{
       const response=await fetch(EVENTS_API,{cache:'no-store'});
@@ -546,6 +712,7 @@
         Date.now()-checkedAt>=48*3600000)
         throw new Error('Catalogue incomplet ou périmé');
       installCatalog(live);
+      await loadObjectiveReferences();
     }catch{
       // Fail closed: never use an outdated GitHub JSON or claim there are
       // no events when the provider's verified R2 projection is unavailable.

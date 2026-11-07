@@ -7,6 +7,8 @@ const script=readFileSync(new URL('../docs/evenements.js',import.meta.url),'utf8
 const html=readFileSync(new URL('../docs/evenements.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../docs/evenements.css',import.meta.url),'utf8');
 const commonCss=readFileSync(new URL('../docs/style.css',import.meta.url),'utf8');
+const realTeams=JSON.parse(readFileSync(new URL('../docs/data/teams.json',import.meta.url),'utf8'));
+const realCharacters=JSON.parse(readFileSync(new URL('../docs/data/msf-characters.json',import.meta.url),'utf8'));
 
 function node(tag='div'){
   const handlers=new Map();
@@ -22,7 +24,8 @@ function node(tag='div'){
     focus(){this.focused=true;}
   };
 }
-async function makePage({failure=false,stale=false,extraEvents=[],includeBase=true}={}){
+async function makePage({failure=false,stale=false,extraEvents=[],includeBase=true,
+  teams=realTeams,characters=realCharacters,failReferences=false}={}){
   const ids=[...html.matchAll(/id="([^"]+)"/g)].map(x=>x[1]);
   const elements=new Map(ids.map(id=>[id,node()]));
   const now=Math.floor(Date.now()/1000),day=86400;
@@ -74,6 +77,10 @@ async function makePage({failure=false,stale=false,extraEvents=[],includeBase=tr
     document,location:{search:''},URLSearchParams,Intl,Date,
     fetch:async url=>{
       fetchCalls.push(url);
+      if(url==='./data/teams.json')
+        return failReferences?{ok:false,status:503}:{ok:true,json:async()=>teams};
+      if(url==='./data/msf-characters.json')
+        return failReferences?{ok:false,status:503}:{ok:true,json:async()=>characters};
       if(failure)return {ok:false,status:503};
       return {ok:true,json:async()=>({
         status:'ok',source:'verified-daily-game-events',schemaVersion:1,
@@ -86,13 +93,31 @@ async function makePage({failure=false,stale=false,extraEvents=[],includeBase=tr
   assert.equal(typeof onReady,'function');
   onReady();
   await new Promise(resolve=>setImmediate(resolve));
-  assert.deepEqual(fetchCalls,[
-    './data/evenements-snapshot.json'
-  ]);
+  assert.deepEqual(fetchCalls,failure||stale?
+    ['./data/evenements-snapshot.json']:
+    ['./data/evenements-snapshot.json','./data/teams.json',
+      './data/msf-characters.json']);
   return elements;
 }
 const sections=nodes=>nodes.get('events-objectives').children.filter(x=>x.tag==='section');
-const actions=nodes=>sections(nodes).flatMap(x=>x.children[1].children.map(item=>item.children[0].textContent));
+const objectiveNodes=nodes=>{
+  const rows=[];
+  const visit=element=>{
+    if(element.className==='ev-objective-item')rows.push(element);
+    for(const child of element.children||[])visit(child);
+  };
+  visit(nodes.get('events-objectives'));
+  return rows;
+};
+const actions=nodes=>objectiveNodes(nodes).map(item=>item.children[0].textContent);
+const objectiveDetails=(nodes,cssClass)=>{
+  const details=[];
+  const visit=element=>{
+    if(element.tag==='details'&&element.className===cssClass)details.push(element);
+    for(const child of element.children||[])visit(child);
+  };
+  visit(nodes.get('events-objectives'));return details;
+};
 const calendarGroups=(nodes,key='current')=>nodes.get('events-'+key).children.filter(child=>child.tag==='section');
 const cards=(nodes,key='current')=>calendarGroups(nodes,key).flatMap(group=>group.children[1].children);
 const titles=(nodes,key='current')=>cards(nodes,key).map(card=>card.children[1].children[1].textContent);
@@ -114,12 +139,13 @@ test('Le résumé rassemble les objectifs actifs, y compris les feeders, sans do
 
 test('Un plafond de scoring reste un maximum, pas un objectif obligatoire',async()=>{
   const nodes=await makePage();
-  const raid=sections(nodes)[0].children[1].children[0];
+  const raid=objectiveNodes(nodes).find(row=>row.children[0].textContent.includes('Iron Raider'));
   const notes=raid.children[1].children.map(x=>x.textContent);
-  assert.ok(notes.includes('Jusqu’à 8 actions comptabilisées'));
-  const login=sections(nodes)[2].children[1].children[0];
+  assert.ok(notes.some(x=>x.includes('Plafond 8 pts')));
+  assert.ok(notes.some(x=>x.includes('Jusqu’à 8 actions comptabilisées')));
+  const login=objectiveNodes(nodes).find(row=>row.children[0].textContent.includes('7 jours'));
   const loginNotes=login.children[1].children.map(x=>x.textContent);
-  assert.ok(loginNotes.includes('Plafond 7 pts'));
+  assert.ok(loginNotes.some(x=>x.includes('Plafond 7 pts')));
   assert.ok(!loginNotes.some(x=>x.includes('7 fois')));
 });
 
@@ -131,13 +157,116 @@ test('La recherche trouve aussi le texte des objectifs secondaires',async()=>{
   assert.ok(actions(nodes)[0].includes('Iron Raider'));
 });
 
+test('Faille cybernétique : 30 conditions réparties sur 2 équipes et 10 portraits',async()=>{
+  const targets=realTeams.filter(team=>['Avengers IA','Fantassin de fer'].includes(team.team));
+  assert.equal(targets.length,2);
+  const characters=targets.flatMap(team=>team.characters.map(id=>{
+    const character=realCharacters.find(c=>c.id===id);
+    assert.ok(character,'Personnage manquant dans le catalogue : '+id);
+    return character;
+  }));
+  const cappedScorings=characters.flatMap(character=>[
+    {cap:13000,methods:[{description:'Combattre en choc avec '+character.nameKey,points:1000}]},
+    {cap:30000,methods:[{description:'Combattre en choc avec '+character.nameKey+' à 7 étoiles jaunes',points:6000}]},
+    {cap:50000,methods:[{description:'Combattre en choc avec '+character.nameKey+' au palier d’équipement 21',points:10000}]}
+  ]);
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Faille cybernétique','milestone',{
+      milestone:{type:'solo',scoring:{
+        methods:[{description:'Dépenser 1 noyau d’énergie',points:20}],
+        cappedScorings
+      }}
+    }]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'31');
+  assert.deepEqual(sections(nodes).map(m=>m.children[0].textContent),['⚡ CHOC','📋 DIVERS']);
+  const teams=objectiveDetails(nodes,'ev-objective-team');
+  assert.deepEqual(teams.map(team=>team.children[0].children[0].textContent),
+    ['Avengers IA','Fantassin de fer']);
+  assert.equal(objectiveDetails(nodes,'ev-objective-character').length,10);
+  assert.equal(objectiveNodes(nodes).length,31);
+  const names=objectiveDetails(nodes,'ev-objective-character').map(card=>
+    card.children[0].children.find(child=>child.tag==='strong').textContent);
+  for(const character of characters)assert.ok(names.includes(character.nameKey));
+  for(const card of objectiveDetails(nodes,'ev-objective-character')){
+    assert.ok(card.children[0].children.some(child=>child.tag==='img'&&
+      child.src?.startsWith('https://assets.marvelstrikeforce.com/imgs/Portrait_')));
+    assert.equal(card.children[1].children.length,3);
+  }
+  const ch=objectiveDetails(nodes,'ev-objective-character')[0];
+  assert.deepEqual(ch.children[1].children.map(row=>row.children[0].textContent),
+    ['Combat','7 étoiles jaunes','Palier d’équipement 21']);
+  const caps=ch.children[1].children.map(row=>row.children[1].children.map(x=>x.textContent).join(' '));
+  assert.ok(caps.some(x=>x.includes('13 000 pts')||x.includes('13 000 pts')));
+  assert.ok(caps.some(x=>x.includes('30 000 pts')||x.includes('30 000 pts')));
+  assert.ok(caps.some(x=>x.includes('50 000 pts')||x.includes('50 000 pts')));
+  assert.doesNotMatch(script,/Avengers IA|Fantassin de fer|IronMonger|HawkeyeRobot/);
+
+  // La recherche retrouve aussi les membres de l'équipe sélectionnée.
+  nodes.get('search-filter').handlers.get('input')({target:{value:'Avengers IA'}});
+  assert.equal(nodes.get('stat-objectives').textContent,'15');
+  assert.equal(objectiveDetails(nodes,'ev-objective-team').length,1);
+  assert.equal(objectiveDetails(nodes,'ev-objective-character').length,5);
+  assert.equal(objectiveNodes(nodes).length,15);
+});
+
+test('Personnage isolé ou équipes qui se chevauchent : aucune méthode dupliquée',async()=>{
+  const names=['Vision','Ultron'].map(id=>realCharacters.find(c=>c.id===id));
+  const extraEvents=[['Objectif test','milestone',{
+    milestone:{type:'solo',scoring:{
+      methods:names.map(c=>({description:'Combattre en choc avec '+c.nameKey,points:1000})),
+      cappedScorings:[]
+    }}
+  }]];
+  const overlapTeams=[
+    {team:'Équipe Alpha',characters:['Vision','Ultron']},
+    {team:'Équipe Bêta',characters:['Vision','Ultron']}
+  ];
+  const nodes=await makePage({includeBase:false,extraEvents,teams:overlapTeams});
+  assert.equal(nodes.get('stat-objectives').textContent,'2');
+  assert.equal(objectiveDetails(nodes,'ev-objective-team').length,1);
+  assert.equal(objectiveDetails(nodes,'ev-objective-character').length,2);
+  assert.equal(objectiveNodes(nodes).length,2);
+  const solo=await makePage({includeBase:false,teams:realTeams,extraEvents:[
+    ['Solo test','milestone',{
+      milestone:{type:'solo',scoring:{methods:[
+        {description:'Combattre en choc avec Vision',points:1000}
+      ],cappedScorings:[]}}
+    }]
+  ]});
+  assert.equal(objectiveDetails(solo,'ev-objective-team').length,0);
+  assert.equal(objectiveDetails(solo,'ev-objective-character').length,1);
+  assert.equal(objectiveNodes(solo).length,1);
+});
+
+test('Catalogues complémentaires indisponibles : méthodes et plafonds restent visibles',async()=>{
+  const nodes=await makePage({includeBase:false,failReferences:true,extraEvents:[
+    ['Phase test','milestone',{
+      milestone:{type:'solo',scoring:{methods:[],
+        cappedScorings:[{cap:13000,methods:[
+          {description:'Combattre en choc avec Vision',points:1000}
+        ]}]
+      }}
+    }]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'1');
+  assert.equal(objectiveDetails(nodes,'ev-objective-team').length,0);
+  assert.equal(objectiveNodes(nodes).length,1);
+  assert.ok(actions(nodes)[0].includes('Vision'));
+  assert.ok(objectiveNodes(nodes)[0].children[1].children
+    .some(x=>x.textContent.includes('13')));
+  assert.ok(!nodes.get('source-line').textContent.includes('indisponible'));
+  assert.match(css,/\.ev-objective-portrait/);
+  assert.match(css,/\.ev-objective-character-summary/);
+});
+
 test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP communs',()=>{
   assert.match(commonCss,/background-image:\s*url\("\.\/Background\.webp"\)/);
   assert.match(html,/class="app ev-page"/);
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=7"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=8"/);
   assert.match(css,/\.ev-toolbar\{[^}]*background:var\(--panel\)/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -164,7 +293,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=17/);
+  assert.match(html,/evenements\.js\?v=18/);
 });
 
 test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',async()=>{
@@ -262,7 +391,9 @@ test('La liste des événements reproduit les 6 Phases, 2 Postes et 4 Événemen
   ]);
   assert.deepEqual(calendarGroups(nodes).map(group=>group.children[1].children.length),[6,2,4]);
   assert.equal(nodes.get('stat-objectives').textContent,'8');
-  assert.ok(actions(nodes).includes('Combattre en choc avec Vision'));
+  assert.ok(objectiveDetails(nodes,'ev-objective-character').some(card=>
+    card.children[0].children.some(part=>part.tag==='strong'&&part.textContent==='Vision')));
+  assert.ok(actions(nodes).includes('Combat'));
   assert.ok(actions(nodes).includes('Gagner un combat en choc'));
   assert.ok(actions(nodes).includes('Jouer un raid'));
   assert.ok(!actions(nodes).includes('Améliorer un équipement'));
