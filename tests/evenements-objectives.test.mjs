@@ -25,7 +25,7 @@ function node(tag='div'){
   };
 }
 async function makePage({failure=false,stale=false,extraEvents=[],includeBase=true,
-  teams=realTeams,characters=realCharacters,failReferences=false}={}){
+  teams=realTeams,characters=realCharacters,failReferences=false,hash=''}={}){
   const ids=[...html.matchAll(/id="([^"]+)"/g)].map(x=>x[1]);
   const elements=new Map(ids.map(id=>[id,node()]));
   const now=Math.floor(Date.now()/1000),day=86400;
@@ -72,9 +72,16 @@ async function makePage({failure=false,stale=false,extraEvents=[],includeBase=tr
     addEventListener:(type,handler)=>{if(type==='DOMContentLoaded')onReady=handler;}
   };
   // The canonical GitHub Pages JSON is mocked. No real external request.
-  const fetchCalls=[];
+  const fetchCalls=[],scrollCalls=[],frames=[],windowHandlers=new Map();
+  const history={scrollRestoration:'auto'};
+  const window={
+    history,
+    addEventListener:(event,handler)=>windowHandlers.set(event,handler),
+    scrollTo:(...coordinates)=>scrollCalls.push(coordinates),
+    requestAnimationFrame:callback=>{frames.push(callback);return frames.length;}
+  };
   runInNewContext(script,{
-    document,location:{search:''},URLSearchParams,Intl,Date,
+    document,window,location:{search:'',hash},URLSearchParams,Intl,Date,
     fetch:async url=>{
       fetchCalls.push(url);
       if(url==='./data/teams.json')
@@ -97,6 +104,9 @@ async function makePage({failure=false,stale=false,extraEvents=[],includeBase=tr
     ['./data/evenements-snapshot.json']:
     ['./data/evenements-snapshot.json','./data/teams.json',
       './data/msf-characters.json']);
+  elements.browser={history,windowHandlers,scrollCalls,runFrames(){
+    while(frames.length)frames.shift()();
+  }};
   return elements;
 }
 const sections=nodes=>nodes.get('events-objectives').children.filter(x=>x.tag==='section');
@@ -293,7 +303,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=18/);
+  assert.match(html,/evenements\.js\?v=19/);
 });
 
 test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',async()=>{
@@ -323,6 +333,35 @@ test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',
   nodes.get('tab-current').handlers.get('keydown')({key:'End',preventDefault(){}});
   assert.deepEqual(visible(),['past']);
   assert.equal(nodes.get('stat-objectives').textContent,count);
+});
+
+test('Retour Safari BFCache : Objectifs et haut de page rétablis, même après Passés',async()=>{
+  const nodes=await makePage();
+  assert.equal(nodes.get('tab-objectives')['aria-selected'],'true');
+  assert.equal(nodes.browser.history.scrollRestoration,'manual');
+  nodes.get('tab-past').handlers.get('click')();
+  assert.equal(nodes.get('section-past').hidden,false);
+  nodes.browser.windowHandlers.get('pageshow')({persisted:true});
+  assert.equal(nodes.get('section-objectives').hidden,false);
+  assert.equal(nodes.get('section-past').hidden,true);
+  assert.equal(nodes.get('tab-objectives')['aria-selected'],'true');
+  assert.equal(nodes.get('tab-past')['aria-selected'],'false');
+  assert.ok(nodes.browser.scrollCalls.length>=2);
+  nodes.browser.runFrames();
+  assert.deepEqual(nodes.browser.scrollCalls.at(-1),[0,0]);
+});
+
+test('Le lien profond Passés reste explicite et ne force pas de retour en haut',async()=>{
+  const nodes=await makePage({hash:'#section-past'});
+  assert.equal(nodes.get('section-past').hidden,false);
+  assert.equal(nodes.get('tab-past')['aria-selected'],'true');
+  assert.equal(nodes.browser.history.scrollRestoration,'auto');
+  assert.equal(nodes.browser.scrollCalls.length,0);
+  nodes.get('tab-objectives').handlers.get('click')();
+  nodes.browser.windowHandlers.get('pageshow')({persisted:true});
+  assert.equal(nodes.get('section-past').hidden,false);
+  assert.equal(nodes.get('section-objectives').hidden,true);
+  assert.equal(nodes.browser.scrollCalls.length,0);
 });
 
 test('La liste des événements reproduit les 6 Phases, 2 Postes et 4 Événements des captures',async()=>{
