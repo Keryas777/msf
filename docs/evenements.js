@@ -460,49 +460,36 @@
     };
     return simple[item.mode]?.test(item.label)?names[item.mode]:item.label;
   }
-  // Des combats peuvent alimenter plusieurs barèmes. La quantité affichée
-  // correspond au nombre d'actions comptabilisables dans chaque plafond,
-  // jamais à une limite quotidienne de combats dans le jeu.
+  // Résumer uniquement les plafonds solo. Les plafonds d'alliance sont
+  // conservés dans les détails de leur événement, jamais assimilés au joueur.
+  // La durée est celle de la fiche source : elle ne prouve pas une récurrence.
   function objectiveActionHints(items){
-    const noun=items.every(item=>item.isBattle)?'combat':'action';
-    const groups=new Map(),uncapped=items.some(item=>item.cap===null);
-    for(const item of items){
+    const solo=items.filter(item=>item.event.milestone?.type!=='alliance');
+    const noun=solo.every(item=>item.isBattle)?'combat':'action';
+    const groups=new Map(),uncapped=solo.some(item=>item.cap===null);
+    for(const item of solo){
       if(item.sharedCap||!(item.cap>0)||!(item.points>0))continue;
       const count=item.cap/item.points;
       if(!Number.isInteger(count)||count<1)continue;
       const seconds=Number(item.event.endTime)-Number(item.event.startTime);
       const days=Number.isFinite(seconds)&&seconds>0?
         Math.ceil(seconds/86400):null;
-      const scope=item.event.milestone?.type==='alliance'?'alliance':'solo';
-      const key=scope+'|'+(days??'');
-      if(!groups.has(key))groups.set(key,{scope,days,counts:new Set()});
+      const key=String(days??'');
+      if(!groups.has(key))groups.set(key,{days,counts:new Set()});
       groups.get(key).counts.add(count);
     }
     const hints=[];
-    const ordered=[...groups.values()].sort((a,b)=>
-      (a.scope==='solo'?0:1)-(b.scope==='solo'?0:1)||
-      (a.days??Infinity)-(b.days??Infinity));
-    for(const group of ordered){
+    for(const group of [...groups.values()].sort((a,b)=>
+      (a.days??Infinity)-(b.days??Infinity))){
       const counts=[...group.counts].sort((a,b)=>a-b);
       const label=counts.map(count=>fmtNumber.format(count)).join(' et ');
       const plural=counts.length!==1||counts[0]!==1;
-      hints.push((group.scope==='alliance'?'Alliance':'Solo')+' : '+label+' '+
-        noun+(plural?'s':'')+' pris en compte'+
-        (group.scope==='alliance'?' collectivement':'')+
-        (group.days!==null?' sur '+fmtNumber.format(group.days)+' j':''));
+      const period=group.days===1?' sur 24 h':
+        group.days!==null?' sur '+fmtNumber.format(group.days)+' jours':'';
+      hints.push('Solo : '+label+' '+noun+(plural?'s':'')+
+        ' comptabilisé'+(plural?'s':'')+period);
     }
-    if(uncapped)hints.push('Autre méthode : aucun plafond indiqué');
-    const candidates=ordered.filter(group=>group.scope==='solo'&&
-      group.days!==null&&group.days>=2&&group.days<=14);
-    const paceGroup=candidates.flatMap(group=>[...group.counts].map(count=>({
-      count,days:group.days
-    }))).filter(goal=>goal.count>goal.days)
-      .sort((a,b)=>b.count-a.count)[0];
-    if(paceGroup){
-      hints.push('Pour atteindre '+fmtNumber.format(paceGroup.count)+' : ≈ '+
-        fmtNumber.format(Math.ceil(paceGroup.count/paceGroup.days))+
-        ' '+noun+'s/j conseillés (pas un plafond quotidien)');
-    }
+    if(uncapped)hints.push('Solo : aucun plafond indiqué');
     return hints;
   }
   function objectiveRow(item,short=false,hideAction=false){
