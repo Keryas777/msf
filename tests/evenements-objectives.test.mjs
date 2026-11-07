@@ -391,7 +391,9 @@ test('La liste des événements reproduit les 6 Phases, 2 Postes et 4 Événemen
   ]);
   assert.deepEqual(calendarGroups(nodes).map(group=>group.children[1].children.length),[6,2,4]);
   assert.equal(nodes.get('stat-objectives').textContent,'8');
-  assert.ok(actions(nodes).includes('Combattre en choc avec Vision'));
+  assert.ok(objectiveDetails(nodes,'ev-objective-character').some(card=>
+    card.children[0].children.some(part=>part.tag==='strong'&&part.textContent==='Vision')));
+  assert.ok(actions(nodes).includes('Combat'));
   assert.ok(actions(nodes).includes('Gagner un combat en choc'));
   assert.ok(actions(nodes).includes('Jouer un raid'));
   assert.ok(!actions(nodes).includes('Améliorer un équipement'));
