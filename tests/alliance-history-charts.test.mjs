@@ -390,8 +390,8 @@ test('intermediate Platinum and Uru outliers also fit the dynamic bounds',()=>{
     ['P-III','P-IV','D-I','D-II','D-III','D-IV','U-I']);
 });
 test('raid and war seasons have independent bounds based on visible dots',()=>{
-  const changed={...original,alliances:original.alliances.map((a,i)=>
-    i===0?{...a,raidRank:930,warRank:722}:a)};
+  const changed={...original,alliances:original.alliances.map(a=>
+    a.key==='zeus'?{...a,raidRank:930,warRank:722}:a)};
   const labels=id=>drawRenderedChart(id,390,[changed]).children.filter(n=>
     n.tag==='text'&&n.attrs['text-anchor']==='end').map(n=>
       Number(String(n.text).replace(/[^\d]/g,'')));
