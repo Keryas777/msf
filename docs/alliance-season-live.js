@@ -124,9 +124,17 @@
       const key=record?.allianceKey;
       if(!known.has(key)||!allowed(key)||!validDate(record.capturedAt)||
          !validRank(record.warRank)||!validRank(record.raidRank))continue;
-      const season=completedSeason(record.capturedAt,
-        record.capturedAt.slice(0,10),calendar);
-      if(!season||season.seasonId!==record.seasonId)continue;
+      // Historical boundaries are immutable, even after calendar changes.
+      const start=Date.parse(record.startAt),end=Date.parse(record.endExclusiveAt);
+      if(!validDate(record.startAt)||!validDate(record.endExclusiveAt)||
+         !(end>start)||end-start<7*DAY_MS||end-start>60*DAY_MS||
+         new Date(start).toISOString().slice(0,10)+"/"+
+           new Date(end).toISOString().slice(0,10)!==record.seasonId||
+         Date.parse(record.capturedAt)<end||
+         Date.parse(record.capturedAt)>=end+(end-start))continue;
+      const season={seasonId:record.seasonId,startAt:record.startAt,
+        endExclusiveAt:record.endExclusiveAt,
+        timezone:calendar?.timezone||"Europe/Paris"};
       const identity=season.seasonId+"\u0000"+key;
       if(seen.has(identity))continue;
       seen.add(identity);
@@ -140,6 +148,7 @@
     return [...groups.values()].map(group=>({
       version:1,kind:"losp-alliance-standings-snapshot",
       capturedAt:group.capturedAt,captureType:"season-ranks",
+      archiveSource:"github-guest-season-history",
       seasonId:group.season.seasonId,seasonVerified:false,seasonDerived:true,
       rankingSeason:{startAt:group.season.startAt,
         endExclusiveAt:group.season.endExclusiveAt,
