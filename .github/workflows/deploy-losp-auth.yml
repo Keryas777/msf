@@ -16,6 +16,8 @@ on:
   push:
     branches: [main]
     paths:
+      - "docs/data/access-groups.json"
+      - "docs/data/alliances.json"
       - "workers/losp-auth/worker.js"
       - "workers/losp-auth/wrangler.jsonc"
       - "scripts/check-losp-auth-preview.mjs"

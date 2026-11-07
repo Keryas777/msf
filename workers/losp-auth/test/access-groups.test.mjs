@@ -6,6 +6,7 @@ const env = { DISCORD_BOT_TOKEN: "test-bot", SESSION_SIGNING_SECRET: "test-signi
 const BASE_URL = "https://losp-auth.test";
 const marineRole = "1567463791543717979";
 const endgameRole = "1567461415495667823";
+const questionableRole = "1568752859137318963";
 const zeusRole = "758722419128401992";
 
 async function sessionFor(id, roles) {
@@ -44,6 +45,15 @@ test("Endgame: les deux couleurs sont accessibles avec le même rôle", async ()
   ]);
 });
 
+test("Questionable Propriety: rôle indépendant et accès à sa seule alliance", async () => {
+  const { status, data } = await sessionFor("123456789012345678", [questionableRole]);
+  assert.equal(status, 200);
+  assert.equal(data.role, "guest");
+  assert.equal(data.groupKey, "questionable-propriety");
+  assert.deepEqual(data.allowedAlliances, ["questionable-propriety"]);
+  assert.deepEqual(data.alliances, []);
+});
+
 test("LoSP: les six alliances sont autorisées indépendamment du rôle d'alliance individuel", async () => {
   const { status, data } = await sessionFor("123456789012345678", [zeusRole]);
   assert.equal(status, 200);
@@ -55,12 +65,13 @@ test("LoSP: les six alliances sont autorisées indépendamment du rôle d'allian
   assert.deepEqual(data.alliances, ["zeus"]);
 });
 
-test("Admin LoSP: toutes les neuf alliances sans cumul de rôles", async () => {
+test("Admin LoSP: toutes les dix alliances sans cumul de rôles", async () => {
   const { status, data } = await sessionFor("300305626926415874", [zeusRole]);
   assert.equal(status, 200);
   assert.equal(data.role, "admin");
   assert.equal(data.groupKey, "all");
-  assert.equal(data.allowedAlliances.length, 9);
+  assert.equal(data.allowedAlliances.length, 10);
+  assert.ok(data.allowedAlliances.includes("questionable-propriety"));
   assert.ok(data.allowedAlliances.includes("marines"));
   assert.ok(data.allowedAlliances.includes("endgame-revolution-orange"));
   assert.deepEqual(data.players, [
@@ -74,6 +85,7 @@ test("Admin LoSP: toutes les neuf alliances sans cumul de rôles", async () => {
 test("Rôles incompatibles et compte sans rôle sont refusés", async () => {
   assert.equal((await sessionFor("123456789012345678", [zeusRole, endgameRole])).data.reason, "conflicting_group_roles");
   assert.equal((await sessionFor("123456789012345678", [marineRole, endgameRole])).status, 401);
+  assert.equal((await sessionFor("123456789012345678", [questionableRole, endgameRole])).data.reason, "conflicting_group_roles");
   assert.equal((await sessionFor("123456789012345678", [])).data.reason, "no_authorized_alliance");
 });
 
