@@ -284,3 +284,50 @@ L'autorisation de publication et les réserves contractuelles de rétention
 restent inchangées : `LOSP_R2_HISTORY_PUBLICATION_APPROVED=true` est
 nécessaire avant tout commit de ces données. L'appel Cloudflare à GitHub
 ne transporte ni carte d'alliance ni jeton OAuth.
+
+## Archivage GitHub permanent des résultats Guerre / Raid invités (novembre 2026)
+
+Les données de capture **brutes** Scopely et les relevés temporaires des
+invités restent dans R2, sous `roster-batches/v1/`, avec le TTL existant
+de **7 jours depuis la dernière écriture**. Ce stockage n'est pas modifié.
+
+La WebApp publie séparément, **uniquement après autorisation de conservation et
+de redistribution**, un historique minimal de résultats par saison :
+`guest-season-history.json`. Chaque entrée contient exclusivement
+`seasonId`, `allianceKey` (clé publique WebApp), `capturedAt`,
+`warRank` et `raidRank`. Aucun fingerprint, jeton, identifiant privé,
+nom de joueur, roster, trophée inventé ni JSON Scopely complet.
+
+La tâche GitHub Actions `archive-guest-season-history.yml` lit le
+`guest-season-ranks/rolling.json` R2 et le registre d'approbation privé
+déjà existants. Elle **n'appelle jamais Scopely**. Elle est programmée
+**tous les jours à 05:40 et 18:40 UTC**, après les captures du Worker à
+03:15 et 15:15 UTC. Les rediffusions sont idempotentes :
+
+- Seules les alliances invitées *encore approuvées* et liées à une clé
+  présente dans `docs/data/alliances.json` peuvent fournir un **nouveau**
+  résultat. Le même nom affiché n'autorise aucun rapprochement : les
+  deux Endgame sont des clés distinctes.
+- La saison achevée provient de `config.json > rankingSeasons`, avec
+  vérification de la fenêtre de publication. Les résultats partiels réels
+  sont conservés pour leur alliance : une autre alliance absente ne bloque pas.
+- Une entrée `seasonId + allianceKey` déjà publiée reste inchangée.
+  Aucun nettoyage temporel, fenêtre glissante ou réécriture rétrospective.
+  Même si une alliance devient inactive, ses résultats précédents demeurent
+  dans l'archive. Une demande légitime de suppression doit faire l'objet
+  d'une procédure dédiée, y compris pour l'historique Git.
+- Le navigateur fusionne ces résultats statiques avec les sources LoSP
+  et les relevés invités récents. Une panne R2/Cloudflare ne fait pas
+  disparaître les saisons déjà archivées. Aucun nouveau point de trophées
+  n'est créé.
+
+**Garde-fou contractuel important :** cette archive publique et sans date
+d'expiration n'est pas activée par la simple approbation d'une collecte
+Scopely. La clause de TTL maximal de l'API peut aussi concerner les rangs
+extraits, même réduits à un résultat par saison. Il faut confirmer l'autorisation
+de conservation/redistribution au-delà de 30 jours (par exemple accord explicite
+de Scopely ou source indépendante autorisée). La variable GitHub
+`LOSP_GUEST_SEASON_HISTORY_APPROVED=true` matérialise cette validation.
+Le cron exige également `LOSP_R2_HISTORY_IMPORT_ENABLED=true`.
+Tant que cette autorisation manque, ne pas activer la publication illimitée.
+Le mode manuel `workflow_dispatch` sans publication permet un essai à blanc.
