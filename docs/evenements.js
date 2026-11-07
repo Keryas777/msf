@@ -23,10 +23,9 @@
   function dayLabel(t){return new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'2-digit',month:'short'}).format(new Date(t*1000));}
   function category(e,t){return e.startTime*1000>t?'future':e.endTime*1000<=t?'past':'current';}
   function secondary(e){return Array.isArray(e.locationHints)&&(e.locationHints.includes('lohub_feeder')||e.locationHints.includes('mercy_orb'));}
-  const NON_EVENT_TYPES=new Set(['raid','raidSeason','warSeason','strikePass','battlePass']);
-  // La localisation FR conserve les IDs, mais change les noms et même
-  // pickYourPoison.typeName ("Scourge" devient "Fléau" pour toutes les épreuves).
-  // Ne jamais exclure tout le type "Fléau" : KYLN et les Briseurs sont temporaires.
+  // Modes de jeu / Trials : ces fiches ne sont pas des événements du calendrier.
+  // Le filtrage par type résiste aux changements de nom et à la localisation FR.
+  const NON_EVENT_TYPES=new Set(['raid','raidSeason','warSeason','strikePass','battlePass','blitz','pickYourPoison']);
   function eventNameKey(value){
     return strip(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
       .replace(/[’‘]/g,"'").toLocaleLowerCase('fr');
@@ -37,11 +36,6 @@
     's.t.r.i.k.e. : premier assaut','deuxieme s.t.r.i.k.e.',
     's.t.r.i.k.e. : troisieme assaut','coup du s.t.r.i.k.e.'
   ]);
-  // Épreuves légendaires / Chevaliers de l'Apocalypse, mais pas les KYLN et Briseurs.
-  const LEGENDARY_TRIALS=new Set([
-    'shadow king',"roi d'ombre",'old man logan','nova','black cat',
-    'green goblin (classic)','pestilence','famine','war','guerre','death','mort'
-  ]);
   function isCalendarEvent(e){
     if(NON_EVENT_TYPES.has(e.type))return false;
     // Multi-year endpoints represent permanent sagas/unlocks, not calendar events.
@@ -50,7 +44,6 @@
     const name=eventNameKey(e.name);
     // Danger Room est un mode récurrent, même lorsqu'il est localisé en français.
     if(name==='danger room'||name==='salle des dangers')return false;
-    if(e.type==='pickYourPoison'&&LEGENDARY_TRIALS.has(name))return false;
     // Onboarding/returning-player milestones are not general calendar events.
     if(e.type==='milestone'&&ONBOARDING_MILESTONES.has(name))return false;
     // Some Battle Pass objectives are exposed as milestone feeder entries.
