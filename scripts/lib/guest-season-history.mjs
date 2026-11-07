@@ -59,6 +59,12 @@ export function validatePublishedGuestHistory(history,registry,calendar){
 export function mergeGuestSeasonHistory(history,source,approval,registry,calendar,
                                         now=Date.now()){
   if(!Number.isFinite(now))throw Error("Invalid current time");
+  if(!validDate(calendar?.referenceEndExclusiveAt)||
+     !Number.isSafeInteger(calendar?.cycleDays)||calendar.cycleDays<7||
+     calendar.cycleDays>60||
+     !Number.isSafeInteger(calendar?.publicationDelayMinutes)||
+     calendar.publicationDelayMinutes<0||calendar.publicationDelayMinutes>2880)
+    throw Error("Invalid dynamic season calendar");
   const seen=validatePublishedGuestHistory(history,registry,calendar);
   const {approved}=approvedGuestSources(registry,approval);
   const byFingerprint=new Map([...approved].map(([key,fp])=>[fp,key]));
