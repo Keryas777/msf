@@ -137,7 +137,7 @@ test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP co
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=6"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=7"/);
   assert.match(css,/\.ev-toolbar\{[^}]*background:var\(--panel\)/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -343,6 +343,72 @@ test('Les événements courts passés restent listés ; ni déblocages ni modes 
   assert.deepEqual(titles(nodes,'past'),['KYLN : CODE FLAMMES','PRISE DE CONTRÔLE DE L’IA']);
   assert.equal(nodes.get('stat-current').textContent,'0');
   assert.equal(nodes.get('stat-objectives').textContent,'0');
+});
+
+test('Tous les événements sont rendus directement, même au-delà des anciens seuils',async()=>{
+  const now=Math.floor(Date.now()/1000),day=86400;
+  const art='https://assets.marvelstrikeforce.com/key_art/Fixture.jpg';
+  const extraEvents=[
+    ...Array.from({length:29},(_,i)=>['Phase '+i,'milestone',{
+      cardArt:art,popupArt:art,
+      milestone:{type:'solo',scoring:{methods:[],cappedScorings:[]}}
+    }]),
+    ...Array.from({length:18},(_,i)=>['Phase terminée '+i,'milestone',{
+      cardArt:art,popupArt:art,
+      startTime:now-day*8,endTime:now-day*2,
+      milestone:{type:'solo',scoring:{methods:[],cappedScorings:[]}}
+    }])
+  ];
+  const nodes=await makePage({includeBase:false,extraEvents});
+  assert.equal(nodes.get('stat-current').textContent,'29');
+  assert.equal(nodes.get('stat-past').textContent,'18');
+  assert.equal(cards(nodes).length,29);
+  assert.equal(cards(nodes,'past').length,18);
+  assert.doesNotMatch(html,/id="more-(?:current|past)"|Voir plus/);
+  assert.doesNotMatch(script,/LIMIT=\{current:|state\.expanded|items\.slice\(0,limit\)/);
+});
+
+test('Poste de commandement : icône transparente seule, de taille adaptée, sans symbole sous-jacent',async()=>{
+  const icon='https://assets.marvelstrikeforce.com/key_art/CommandIcon.png';
+  const hub='https://assets.marvelstrikeforce.com/key_art/CommandBackground.jpg';
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Poste avec image','milestone',{
+      locationHints:['lohub_wrapper'],
+      cardArt:'https://assets.marvelstrikeforce.com/key_art/OtherImage.jpg',
+      icon,hubArt:[hub],
+      milestone:{type:'solo',scoring:{methods:[],cappedScorings:[]}}
+    }]
+  ]});
+  const cover=cards(nodes)[0].children[0];
+  assert.match(cover.className,/ev-cover--command/);
+  assert.equal(cover.children.length,2);
+  const [fallback,image]=cover.children;
+  assert.equal(fallback.hidden,true);
+  assert.equal(image.src,icon);
+  assert.equal(image.className,'ev-command-icon');
+  assert.match(css,/\.ev-cover-fallback\[hidden\]\{display:none\}/);
+  assert.match(css,/\.ev-cover img\.ev-command-icon\{[^}]*object-fit:contain;[^}]*padding:/);
+  image.handlers.get('error')();
+  assert.equal(image.removed,true);
+  assert.equal(fallback.hidden,false);
+  assert.match(cover.className,/ev-cover--placeholder/);
+});
+
+test('Campagnes sans illustration : fond de remplacement, sans URL d’image inventée',async()=>{
+  const now=Math.floor(Date.now()/1000);
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['LA TERRE SAUVAGE','episodic',{
+      endTime:now+27*86400,
+      episodic:{type:'eventCampaign',ids:['ECM_SAVAGELANDS_A']}
+    }]
+  ]});
+  assert.equal(nodes.get('stat-current').textContent,'1');
+  const cover=cards(nodes)[0].children[0];
+  assert.match(cover.className,/ev-cover--placeholder/);
+  assert.equal(cover.children.length,1);
+  assert.equal(cover.children[0].hidden,false);
+  assert.match(css,/\.ev-cover--placeholder\{/);
+  assert.doesNotMatch(script,/cdn\.example|placeholder\.com/);
 });
 
 test('Une panne du JSON GitHub n’utilise aucune autre source et affiche une indisponibilité',async()=>{
