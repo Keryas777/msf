@@ -270,13 +270,125 @@ test('Catalogues complémentaires indisponibles : méthodes et plafonds restent 
   assert.match(css,/\.ev-objective-character-summary/);
 });
 
+test('Objectifs généraux : équipe complète, personnages et Choc se retrouvent dans un seul groupe',async()=>{
+  const fixture=[
+    ['Faille cybernétique','milestone',{
+      milestone:{type:'solo',scoring:{
+        methods:[
+          {description:'Combattre en choc avec Vision',points:1000},
+          {description:'Combattre en choc avec Ultron à 7 étoiles jaunes',points:6000},
+          {description:'Combattre en choc avec Crossbones',points:1000},
+          {description:'Combattre en choc avec Whiplash',points:1000}
+        ],cappedScorings:[]
+      }}
+    }],
+    ['Briseur de volontés - Plan de bataille du mois 1','milestone',{
+      locationHints:['lohub_wrapper'],
+      milestone:{type:'solo',scoring:{methods:[],cappedScorings:[]}}
+    }],
+    ['Briseur de volontés - Plan de bataille du mois 1','milestone',{
+      locationHints:['lohub_feeder'],
+      milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:1,methods:[{description:'Combattre avec tous les membres des Avengers I.A.',points:1}]},
+        {cap:1,methods:[{description:'Combattre avec tous les membres des Fantassins de fer',points:1}]},
+        {cap:1,methods:[{description:'Combattre avec Vision au palier d’équipement 19',points:1}]},
+        {cap:1,methods:[{description:'Combattre avec Crossbones au palier d’équipement 19',points:1}]}
+      ]}}
+    }]
+  ];
+  const nodes=await makePage({includeBase:false,extraEvents:fixture});
+  assert.equal(nodes.get('stat-objectives').textContent,'8');
+  assert.equal(objectiveNodes(nodes).length,8);
+  assert.deepEqual(sections(nodes).map(s=>s.children[0].textContent),['⚡ CHOC']);
+  const teams=objectiveDetails(nodes,'ev-objective-team');
+  assert.deepEqual(teams.map(team=>team.children[0].children[0].textContent),
+    ['Avengers IA','Fantassin de fer']);
+  const teamGoals=teams.map(team=>team.children[1].children.find(c=>c.className==='ev-objective-list'));
+  assert.ok(teamGoals.every(Boolean));
+  assert.ok(teamGoals[0].children[0].children[0].textContent.includes('tous les membres des Avengers'));
+  assert.ok(teamGoals[1].children[0].children[0].textContent.includes('tous les membres des Fantassins'));
+  assert.equal(objectiveDetails(nodes,'ev-objective-character').length,4);
+  assert.equal(objectiveDetails(nodes,'ev-objective-event-group').length,0);
+  const vision=objectiveDetails(nodes,'ev-objective-character').find(card=>
+    card.children[0].children.some(c=>c.tag==='strong'&&c.textContent==='Vision'));
+  assert.equal(vision.children[1].children.length,2);
+  assert.ok(vision.children[1].children.some(row=>row.children[0].textContent==='Palier d’équipement 19'));
+  const general=objectiveNodes(nodes).filter(row=>
+    row.children[1].children.some(c=>c.textContent?.includes('Tous modes')));
+  assert.equal(general.length,4);
+  for(const row of general){
+    assert.ok(row.children[1].children.some(c=>c.textContent?.includes('Briseur de volontés')));
+    assert.ok(row.children[1].children.some(c=>c.textContent?.includes('Plafond 1 pts')));
+  }
+  assert.ok(objectiveNodes(nodes).some(row=>row.children[1].children.some(c=>
+    c.textContent?.includes('1000')||c.textContent?.includes('1 000')||
+    c.textContent?.includes('1 000'))));
+  assert.equal(objectiveNodes(nodes).length,Number(nodes.get('stat-objectives').textContent));
+});
+
+test('Les objectifs Raid et Guerre absorbent leurs combats généraux, sans inclure les non-combats',async()=>{
+  const fixture=[
+    ['Objectifs Raid','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Combattre en raid avec Crossbones',points:100}],
+      cappedScorings:[]}}}],
+    ['Objectifs Guerre','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Combattre en guerre avec Vision',points:200}],
+      cappedScorings:[]}}}],
+    ['Objectifs généraux','milestone',{milestone:{type:'solo',scoring:{
+      methods:[
+        {description:'Combattre avec Crossbones',points:1},
+        {description:'Combattre avec Vision',points:1},
+        {description:'Dépenser de l’énergie de campagne',points:5}
+      ],cappedScorings:[]}}}]
+  ];
+  const nodes=await makePage({includeBase:false,extraEvents:fixture});
+  assert.equal(nodes.get('stat-objectives').textContent,'5');
+  assert.equal(objectiveNodes(nodes).length,5);
+  assert.deepEqual(sections(nodes).map(s=>s.children[0].textContent),
+    ['🛡️ RAID','⚔️ GUERRE','📋 DIVERS']);
+  assert.equal(sections(nodes)[0].children[1].children.length,1);
+  assert.equal(sections(nodes)[1].children[1].children.length,1);
+  assert.equal(sections(nodes)[2].children[1].children.length,1);
+  const general=objectiveNodes(nodes).filter(row=>
+    row.children[1].children.some(c=>c.textContent?.includes('Tous modes')));
+  assert.equal(general.length,2);
+  assert.ok(!sections(nodes)[2].children[1].children.some(group=>
+    group.textContent?.includes('Combattre')));
+});
+
+test('Un combat transversal est compté une fois même si plusieurs modes lui conviennent',async()=>{
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Tests Choc','milestone',{milestone:{type:'solo',scoring:{
+      methods:[
+        {description:'Combattre en choc avec Vision',points:100},
+        {description:'Combattre en choc avec Ultron',points:100}
+      ],cappedScorings:[]}}}],
+    ['Tests Raid','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Combattre en raid avec Crossbones',points:100}],
+      cappedScorings:[]}}}],
+    ['Tests transversaux','milestone',{milestone:{type:'solo',scoring:{
+      methods:[
+        {description:'Jouer n’importe quel combat',points:1},
+        {description:'Se connecter',points:1}
+      ],cappedScorings:[]}}}]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'5');
+  assert.equal(objectiveNodes(nodes).length,5);
+  const modes=sections(nodes).map(s=>s.children[0].textContent);
+  assert.deepEqual(modes,['🛡️ RAID','⚡ CHOC','📋 DIVERS']);
+  const generic=objectiveNodes(nodes).filter(row=>row.children[0].textContent.includes('n’importe quel combat'));
+  assert.equal(generic.length,1);
+  assert.ok(generic[0].children[1].children.some(c=>c.textContent?.includes('Tous modes')));
+  assert.ok(actions(nodes).includes('Se connecter'));
+});
+
 test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP communs',()=>{
   assert.match(commonCss,/background-image:\s*url\("\.\/Background\.webp"\)/);
   assert.match(html,/class="app ev-page"/);
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=8"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=9"/);
   assert.match(css,/\.ev-toolbar\{[^}]*background:var\(--panel\)/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -303,7 +415,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=19/);
+  assert.match(html,/evenements\.js\?v=20/);
 });
 
 test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',async()=>{
