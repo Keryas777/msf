@@ -441,13 +441,65 @@ test('Une même action Raid ou Guerre rassemble les événements et conserve cha
   assert.ok(normalized.includes('+800pt(s)/action'));
 });
 
+test('Les actions montrent les plafonds réels et distinguent le rythme conseillé',async()=>{
+  const now=Math.floor(Date.now()/1000);
+  const sevenDays={startTime:now-86400,endTime:now+6*86400};
+  const twentyEightDays={startTime:now-86400,endTime:now+27*86400};
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Plan de bataille','milestone',{
+      ...sevenDays,milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:24,methods:[{description:'Combattre en raid',points:1}]},
+        {cap:6,methods:[{description:'Combattre en raid',points:1}]},
+        {cap:5,methods:[{description:'Combattre en guerre',points:1}]}
+      ]}}
+    }],
+    ['Zone de guerre','milestone',{
+      ...sevenDays,milestone:{type:'alliance',scoring:{methods:[],cappedScorings:[
+        {cap:144000,methods:[{description:'Faire un combat en raid',points:125}]},
+        {cap:384000,methods:[{description:'Combattre en guerre',points:800}]}
+      ]}}
+    }],
+    ['Arène mensuelle','milestone',{
+      ...twentyEightDays,milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:3,methods:[{description:'Combattre dans l’arène',points:1}]}
+      ]}}
+    }]
+  ]});
+  const heading=(mode)=>sections(nodes).find(section=>
+    section.children[0].textContent.includes(mode)).children[1].children[0].children[0];
+  const hints=(mode)=>heading(mode).children.filter(child=>
+    child.className==='ev-objective-limit').map(child=>child.textContent);
+  const raid=hints('RAID'),war=hints('GUERRE'),arena=hints('ARÈNE');
+  assert.ok(raid.includes('Solo : 6 et 24 combats pris en compte sur 7 j'));
+  assert.ok(raid.includes('Alliance : 1 152 combats pris en compte collectivement sur 7 j'));
+  assert.ok(raid.includes('Pour atteindre 24 : ≈ 4 combats/j conseillés (pas un plafond quotidien)'));
+  assert.ok(war.includes('Solo : 5 combats pris en compte sur 7 j'));
+  assert.ok(war.includes('Alliance : 480 combats pris en compte collectivement sur 7 j'));
+  assert.ok(!war.some(x=>x.includes('/j')));
+  assert.ok(arena.includes('Solo : 3 combats pris en compte sur 28 j'));
+  assert.ok(!arena.some(x=>x.includes('/j')));
+  assert.equal(nodes.get('stat-objectives').textContent,'6');
+  assert.equal(objectiveNodes(nodes).length,6);
+});
+
+test('Une action sans plafond explicite ne devient pas artificiellement illimitée',async()=>{
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Raid sans plafond','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Combattre en raid',points:1}],cappedScorings:[]}}}]
+  ]});
+  const summary=sections(nodes)[0].children[1].children[0].children[0];
+  const hints=summary.children.filter(child=>child.className==='ev-objective-limit')
+    .map(child=>child.textContent);
+  assert.deepEqual(hints,['Autre méthode : aucun plafond indiqué']);
+});
+
 test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP communs',()=>{
   assert.match(commonCss,/background-image:\s*url\("\.\/Background\.webp"\)/);
   assert.match(html,/class="app ev-page"/);
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=11"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=12"/);
   assert.match(css,/\.ev-toolbar\{[^}]*background:var\(--panel\)/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -474,7 +526,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=22/);
+  assert.match(html,/evenements\.js\?v=23/);
 });
 
 test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',async()=>{
