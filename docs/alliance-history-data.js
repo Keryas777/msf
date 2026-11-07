@@ -155,7 +155,10 @@
           seasonAdditions.get(row.seasonId)?.get(alliance.key):null;
         const source = direct || fallback?.source;
         const value = source && source[chart.field];
-        return {capturedAt: source?.capturedAt || fallback?.capturedAt || row.capturedAt,
+        // Per-alliance capture times apply to rank-only archived guest points,
+        // never change the existing timestamp semantics of trophy charts.
+        return {capturedAt: chart.frequency === 'per-season' &&
+            (source?.capturedAt || fallback?.capturedAt) || row.capturedAt,
           plotAt: chart.frequency === 'per-season' && aValidSeasonEnd(row) ?
             row.rankingSeason.endExclusiveAt : row.capturedAt,
           seasonStartAt: aValidSeasonEnd(row) ? row.rankingSeason.startAt : null,
