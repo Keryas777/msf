@@ -48,8 +48,14 @@ export function validatePublishedGuestHistory(history,registry,calendar){
     if(!SEASON.test(item?.seasonId||"")||!KEY.test(item?.allianceKey||"")||
        !validDate(item.capturedAt)||
        !rank(item.warRank)||!rank(item.raidRank)||
-       identity(item)==="\u0000"||seen.has(identity(item))||
-       seasonForObservation(item.capturedAt,calendar)?.seasonId!==item.seasonId)
+       !validDate(item.startAt)||!validDate(item.endExclusiveAt)||
+       asDay(Date.parse(item.startAt))+"/"+asDay(Date.parse(item.endExclusiveAt))!==item.seasonId||
+       Date.parse(item.endExclusiveAt)-Date.parse(item.startAt)<7*DAY||
+       Date.parse(item.endExclusiveAt)-Date.parse(item.startAt)>60*DAY||
+       Date.parse(item.capturedAt)<Date.parse(item.endExclusiveAt)||
+       Date.parse(item.capturedAt)>=
+         2*Date.parse(item.endExclusiveAt)-Date.parse(item.startAt)||
+       seen.has(identity(item)))
       throw Error("Invalid, duplicate or inconsistent archived guest season");
     seen.add(identity(item));
   }
@@ -97,6 +103,7 @@ export function mergeGuestSeasonHistory(history,source,approval,registry,calenda
           item.manualSeasonId!==season.seasonId))
         continue; // Never reinterpret a manually qualified record.
       const row={seasonId:season.seasonId,allianceKey,
+        startAt:season.startAt,endExclusiveAt:season.endExclusiveAt,
         capturedAt:item.capturedAt,warRank:item.warRank,raidRank:item.raidRank};
       const id=identity(row);
       if(seen.has(id))continue;
