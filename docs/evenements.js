@@ -167,8 +167,8 @@
   function makeCard(e,group,reference){
     const card=create('article','ev-card');card.append(cover(e));
     const body=create('div','ev-card-copy'),top=create('div','ev-card-top');
-    const group=GAME_GROUPS.find(item=>item.key===calendarGroup(e,state.includeSecondary));
-    top.append(create('span','ev-category',group?.label||TYPES[e.type]||e.type));
+    const menu=GAME_GROUPS.find(item=>item.key===calendarGroup(e,state.includeSecondary));
+    top.append(create('span','ev-category',menu?.label||TYPES[e.type]||e.type));
     if(e.type==='milestone')top.append(create('span','ev-scope',
       e.milestone?.type==='alliance'?'Alliance':'Solo'));
     if(secondary(e))top.append(create('span','ev-tech-tag','Secondaire'));
