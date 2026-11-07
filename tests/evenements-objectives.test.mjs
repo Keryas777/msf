@@ -338,7 +338,7 @@ test('Les objectifs Raid et Guerre absorbent leurs combats généraux, sans incl
       methods:[
         {description:'Combattre avec Crossbones',points:1},
         {description:'Combattre avec Vision',points:1},
-        {description:'Dépenser de l’énergie de campagne',points:5}
+        {description:'Dépenser des noyaux d’énergie',points:5}
       ],cappedScorings:[]}}}]
   ];
   const nodes=await makePage({includeBase:false,extraEvents:fixture});
