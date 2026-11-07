@@ -73,7 +73,13 @@ async function makePage({failure=false,stale=false,extraEvents=[],includeBase=tr
   };
   // The canonical GitHub Pages JSON is mocked. No real external request.
   const fetchCalls=[],scrollCalls=[],frames=[],windowHandlers=new Map();
-  const history={scrollRestoration:'auto'};
+  const location={search:'',hash,pathname:'/msf/evenements.html'};
+  const history={
+    scrollRestoration:'auto',state:null,replacedUrls:[],
+    replaceState(state,title,url){
+      this.state=state;this.replacedUrls.push(url);location.hash='';
+    }
+  };
   const window={
     history,
     addEventListener:(event,handler)=>windowHandlers.set(event,handler),
@@ -81,7 +87,7 @@ async function makePage({failure=false,stale=false,extraEvents=[],includeBase=tr
     requestAnimationFrame:callback=>{frames.push(callback);return frames.length;}
   };
   runInNewContext(script,{
-    document,window,location:{search:'',hash},URLSearchParams,Intl,Date,
+    document,window,location,URLSearchParams,Intl,Date,
     fetch:async url=>{
       fetchCalls.push(url);
       if(url==='./data/teams.json')
@@ -388,7 +394,7 @@ test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP co
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=9"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=10"/);
   assert.match(css,/\.ev-toolbar\{[^}]*background:var\(--panel\)/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -415,7 +421,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=20/);
+  assert.match(html,/evenements\.js\?v=21/);
 });
 
 test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',async()=>{
@@ -463,17 +469,28 @@ test('Retour Safari BFCache : Objectifs et haut de page rétablis, même après 
   assert.deepEqual(nodes.browser.scrollCalls.at(-1),[0,0]);
 });
 
-test('Le lien profond Passés reste explicite et ne force pas de retour en haut',async()=>{
-  const nodes=await makePage({hash:'#section-past'});
-  assert.equal(nodes.get('section-past').hidden,false);
-  assert.equal(nodes.get('tab-past')['aria-selected'],'true');
-  assert.equal(nodes.browser.history.scrollRestoration,'auto');
-  assert.equal(nodes.browser.scrollCalls.length,0);
-  nodes.get('tab-objectives').handlers.get('click')();
-  nodes.browser.windowHandlers.get('pageshow')({persisted:true});
-  assert.equal(nodes.get('section-past').hidden,false);
-  assert.equal(nodes.get('section-objectives').hidden,true);
-  assert.equal(nodes.browser.scrollCalls.length,0);
+test('Ancres historiques Passés / En cours : Objectifs gagne même après rafraîchissement',async()=>{
+  for(const hash of ['#section-past','#section-current']){
+    const nodes=await makePage({hash});
+    assert.equal(nodes.get('section-objectives').hidden,false);
+    assert.equal(nodes.get('section-past').hidden,true);
+    assert.equal(nodes.get('section-current').hidden,true);
+    assert.equal(nodes.get('tab-objectives')['aria-selected'],'true');
+    assert.equal(nodes.browser.history.scrollRestoration,'manual');
+    assert.deepEqual(nodes.browser.history.replacedUrls,['/msf/evenements.html']);
+    assert.ok(nodes.browser.scrollCalls.length>=2);
+    nodes.get('tab-past').handlers.get('click')();
+    assert.equal(nodes.get('section-past').hidden,false);
+    nodes.browser.windowHandlers.get('pageshow')({persisted:true});
+    assert.equal(nodes.get('section-objectives').hidden,false);
+    assert.equal(nodes.get('section-past').hidden,true);
+  }
+});
+test('Le nettoyage des anciennes ancres se fait dans le HEAD avant le rendu Safari',()=>{
+  const earlyScript=html.slice(0,html.indexOf('</head>'));
+  assert.match(earlyScript,/scrollRestoration\s*=\s*'manual'/);
+  assert.match(earlyScript,/history\.replaceState\(history\.state/);
+  assert.match(earlyScript,/#section-\(\?:objectives\|current\|past\)/);
 });
 
 test('La liste des événements reproduit les 6 Phases, 2 Postes et 4 Événements des captures',async()=>{
@@ -602,10 +619,13 @@ test('Les phases quotidiennes et les feeders sont traités séparément',async()
   assert.deepEqual(groupTitles(nodes),['📋 Phases','🛡️ Poste de commandement']);
   assert.equal(nodes.get('stat-objectives').textContent,'2');
   assert.ok(actions(nodes).includes('Combattre en raid'));
-  const checkbox=nodes.get('secondary-filter');
-  checkbox.handlers.get('change')({target:{checked:true}});
-  assert.equal(nodes.get('stat-current').textContent,'3');
+  assert.equal(nodes.get('secondary-filter'),undefined);
+  assert.equal(cards(nodes).length,2);
+  assert.equal(nodes.get('stat-current').textContent,'2');
   assert.equal(nodes.get('stat-objectives').textContent,'2');
+  assert.doesNotMatch(html,/Afficher aussi les fiches secondaires|secondary-filter/);
+  assert.doesNotMatch(script,/includeSecondary|secondary-filter/);
+  assert.doesNotMatch(css,/\.ev-checkbox/);
 });
 
 test('Les événements courts passés restent listés ; ni déblocages ni modes Blitz',async()=>{
