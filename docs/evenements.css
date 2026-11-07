@@ -128,6 +128,7 @@ details[open]>.ev-objective-event-summary::after,details[open]>.ev-objective-tea
 details[open]>.ev-objective-character-summary::after{transform:rotate(180deg)}
 .ev-objective-event-summary{padding:14px;gap:7px 10px}
 .ev-objective-event-summary strong{font-size:13px;line-height:1.4;overflow-wrap:anywhere;max-width:100%;color:var(--text)}
+.ev-objective-event-summary>.ev-objective-limit{order:1;flex:0 0 100%;font-size:11px;font-weight:500;line-height:1.45;color:#b8c7df;overflow-wrap:anywhere}
 .ev-objective-mini-count{font-size:10px;font-weight:700;color:var(--muted);white-space:normal}
 .ev-objective-event-content{display:flex;flex-direction:column;gap:11px;border-top:1px solid var(--border);padding:12px}
 .ev-objective-event-content>.ev-objective-event{align-self:flex-start}
