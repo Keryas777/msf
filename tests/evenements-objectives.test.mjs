@@ -471,7 +471,8 @@ test('Les actions montrent les plafonds réels et distinguent le rythme conseill
     child.className==='ev-objective-limit').map(child=>child.textContent);
   const raid=hints('RAID'),war=hints('GUERRE'),arena=hints('ARÈNE');
   assert.ok(raid.includes('Solo : 6 et 24 combats pris en compte sur 7 j'));
-  assert.ok(raid.includes('Alliance : 1 152 combats pris en compte collectivement sur 7 j'));
+  assert.ok(raid.includes('Alliance : '+new Intl.NumberFormat('fr-FR').format(1152)+
+    ' combats pris en compte collectivement sur 7 j'));
   assert.ok(raid.includes('Pour atteindre 24 : ≈ 4 combats/j conseillés (pas un plafond quotidien)'));
   assert.ok(war.includes('Solo : 5 combats pris en compte sur 7 j'));
   assert.ok(war.includes('Alliance : 480 combats pris en compte collectivement sur 7 j'));
