@@ -21,7 +21,7 @@ body.ev-body{margin:0;min-height:100vh;color:var(--text);font-family:system-ui,-
 .ev-field{display:flex;flex-direction:column;gap:6px;min-width:0}
 .ev-field>span{font-size:11px;font-weight:770;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
 .ev-input,.ev-select{display:block;min-height:44px;width:100%;min-width:0;border:1px solid var(--border);border-radius:12px;background:rgba(0,0,0,.35);color:var(--text);padding:10px 11px;font:inherit;font-size:16px;outline:none}
-.ev-input:focus-visible,.ev-select:focus-visible,.ev-btn:focus-visible,.ev-more:focus-visible,.ev-dialog-close:focus-visible{outline:2px solid #a4d8ff;outline-offset:2px}
+.ev-input:focus-visible,.ev-select:focus-visible,.ev-btn:focus-visible,.ev-dialog-close:focus-visible{outline:2px solid #a4d8ff;outline-offset:2px}
 .ev-date-controls{display:flex;align-items:flex-end;gap:8px}
 .ev-date-controls .ev-field{flex:1}
 .ev-btn{min-height:44px;border:1px solid var(--toggle-on-border);border-radius:12px;padding:10px 12px;color:var(--text);background:var(--toggle-on-bg);font:inherit;font-size:12px;font-weight:750;white-space:nowrap;cursor:pointer}
@@ -47,9 +47,16 @@ body.ev-body{margin:0;min-height:100vh;color:var(--text);font-family:system-ui,-
 .ev-card{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:var(--panel);min-width:0;display:flex;min-height:137px;box-shadow:var(--shadow);transition:border-color .16s ease,transform .16s ease}
 .ev-card:hover{border-color:rgba(255,255,255,.28);transform:translateY(-1px)}
 .ev-cover{position:relative;flex:0 0 113px;width:113px;min-height:137px;overflow:hidden;background:radial-gradient(circle at 48% 40%,rgba(255,255,255,.09),transparent 73%),rgba(0,0,0,.3)}
+/* Les campagnes episodic ne fournissent pas toujours d'illustration :
+   un fond graphique neutre remplace l'icône flottant sur un bloc presque noir. */
+.ev-cover--placeholder{background:radial-gradient(circle at 35% 25%,rgba(137,116,215,.35),transparent 58%),linear-gradient(145deg,#273249 0%,#182139 52%,#101720 100%)}
+.ev-cover--placeholder::before{content:'';position:absolute;inset:18px;border:1px solid rgba(195,209,255,.13);border-radius:50%;box-shadow:0 0 30px rgba(155,141,232,.08)}
+.ev-cover--command{background:linear-gradient(150deg,#25293a,#151a29)}
+.ev-cover img.ev-command-icon{object-fit:contain;object-position:center;padding:25px 24px}
 .ev-cover img{width:100%;height:100%;position:absolute;inset:0;object-fit:cover;object-position:center;display:block}
 .ev-cover img.ev-icon-img{object-fit:contain;padding:16px}
-.ev-cover-fallback{position:absolute;inset:0;display:grid;place-items:center;font-size:41px;opacity:.82}
+.ev-cover-fallback{position:absolute;inset:0;display:grid;place-items:center;font-size:41px;opacity:.72}
+.ev-cover-fallback[hidden]{display:none}
 .ev-card-copy{flex:1;min-width:0;padding:12px 12px 11px;display:flex;flex-direction:column;gap:6px}
 .ev-card-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .ev-category{width:max-content;font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
@@ -68,8 +75,6 @@ body.ev-body{margin:0;min-height:100vh;color:var(--text);font-family:system-ui,-
 .ev-detail-btn:hover{text-decoration:underline}
 .ev-empty{padding:26px 19px;text-align:center;border:1px dashed var(--border);border-radius:17px;background:var(--panel2)}
 .ev-empty-emoji{font-size:27px;margin:0 0 8px}.ev-empty h3{font-size:14px;margin:0 0 5px}.ev-empty p{font-size:12px;line-height:1.6;margin:0 auto;color:#a8b8d3;max-width:420px}
-.ev-more{min-height:44px;align-self:center;padding:8px 22px;cursor:pointer;border:1px solid var(--border);border-radius:12px;background:var(--panel);color:var(--text);font-size:12px;font-weight:750}
-.ev-more:hover{background:var(--toggle-on-bg)}
 .ev-dialog{width:min(94vw,670px);max-height:min(88dvh,820px);padding:0;background:#141618;color:var(--text);border:1px solid rgba(255,255,255,.22);border-radius:18px;box-shadow:0 23px 90px rgba(0,0,0,.7);overflow-y:auto}
 .ev-dialog::backdrop{background:rgba(1,5,13,.80);backdrop-filter:blur(5px)}
 .ev-dialog-header{position:relative;min-height:150px;background:radial-gradient(ellipse at center,#292f3e,#151719);overflow:hidden;display:flex;align-items:flex-end;padding:18px}
