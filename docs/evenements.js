@@ -18,6 +18,7 @@
     teams:[],characters:[],characterAliases:[]};
   const fmtDate=new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'numeric',month:'short',year:'numeric'});
   const fmtNumber=new Intl.NumberFormat('fr-FR');
+  const objectiveCount=count=>fmtNumber.format(count)+' objectif'+(count===1?'':'s');
   const now=()=>Date.now();
   function create(tag,className,content){const el=document.createElement(tag);if(className)el.className=className;if(content!==undefined)el.textContent=content;return el;}
   function strip(value){return String(value??'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();}
@@ -592,12 +593,12 @@
       const holder=create('div','ev-empty');
       holder.append(create('p','ev-empty-emoji','📋'));
       holder.append(create('h3','','Aucun objectif de score disponible'));
-      holder.append(create('p','','Les événements en cours ne fournissent pas de méthode de progression exploitable pour cette date ou ces filtres.'));
+      holder.append(create('p','','Aucun objectif de score n’est disponible pour cette date ou ces filtres.'));
       host.append(holder);return;
     }
     host.append(create('p','ev-objectives-note',
-      fmtNumber.format(items.length)+' méthodes de score, regroupées par action et combats compatibles. '+
-      '« Tous modes » indique une méthode générale, non limitée au mode affiché. '+
+      objectiveCount(items.length)+', regroupés par action et combats compatibles. '+
+      '« Tous modes » indique un objectif général, non limité au mode affiché. '+
       'Points et plafonds distincts ; progression personnelle non synchronisée.'));
     const grouped=new Map();
     for(const item of items){
@@ -619,7 +620,7 @@
       const heading=create('h3','ev-objective-heading',
         meta[0].emoji+' '+meta.map(x=>x.label).join(' / '));
       heading.append(create('span','ev-objective-count',
-        fmtNumber.format(entries.length)+' méthodes'));
+        objectiveCount(entries.length)));
       const eventList=create('div','ev-objective-events');
       // On groupe d'abord les exigences d'équipe et leurs personnages,
       // même lorsqu'elles proviennent d'événements différents.
@@ -632,7 +633,7 @@
           team.characters.reduce((sum,member)=>sum+member.items.length,0);
         summary.append(create('span','ev-objective-mini-count',
           fmtNumber.format(team.characters.length)+' personnages · '+
-          fmtNumber.format(total)+' méthodes'));
+          objectiveCount(total)));
         const people=create('div','ev-objective-people');
         if(team.goals.length){
           people.append(create('h4','ev-objective-subhead',
@@ -666,7 +667,7 @@
         const actionTitle=create('summary','ev-objective-event-summary');
         actionTitle.append(create('strong','',label));
         actionTitle.append(create('span','ev-objective-mini-count',
-          fmtNumber.format(methods.length)+' méthodes'));
+          objectiveCount(methods.length)));
         for(const hint of objectiveActionHints(methods))
           actionTitle.append(create('span','ev-objective-limit',hint));
         const body=create('div','ev-objective-event-content');
@@ -770,7 +771,7 @@
     const description=strip(e.details||e.subName);if(description){const sec=detailSection(body,'Présentation');sec.append(create('p','',description));}
     const scoring=e.milestone?.scoring;const methods=Array.isArray(scoring?.methods)?scoring.methods:[];
     const caps=Array.isArray(scoring?.cappedScorings)?scoring.cappedScorings:[];
-    if(methods.length){const sec=detailSection(body,'Méthodes de progression');listFor(sec,methods.map(x=>`${strip(x.description)||'Action'} : ${fmtNumber.format(x.points||0)} point(s)`));}
+    if(methods.length){const sec=detailSection(body,'Comment gagner des points');listFor(sec,methods.map(x=>`${strip(x.description)||'Action'} : ${fmtNumber.format(x.points||0)} point(s)`));}
     if(caps.length){const sec=detailSection(body,'Objectifs plafonnés / sous-étapes');const rows=caps.flatMap(c=>(c.methods||[]).map(m=>`${strip(m.description)||'Action'} · ${fmtNumber.format(m.points||0)} pt(s) / action · plafond ${fmtNumber.format(c.cap||0)}${c.rewardTier?' · palier '+c.rewardTier:''}`));listFor(sec,rows);}
     const linked=state.events.filter(other=>other.id!==e.id&&eventTitle(other)===eventTitle(e)&&secondary(other)&&e.locationHints?.includes('lohub_wrapper'));
     if(linked.length){const sec=detailSection(body,'Événements secondaires du même nom');sec.append(create('p','ev-dialog-disclaimer','Rapprochement par nom et type de localisation, sans supposer que tous les identifiants « feeders » du JSON correspondent à cet événement.'));
