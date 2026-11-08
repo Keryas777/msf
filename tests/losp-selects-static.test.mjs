@@ -155,3 +155,14 @@ test("MSF nickname color parser compiles and renders both supported tags", () =>
     assert.equal(container.child.style.color.toLowerCase(), color.toLowerCase());
   }
 });
+
+test("War Counters sorts colored player nicknames by their visible names", () => {
+  const source = read("docs/war-counters.js");
+  const match = source.match(/const visiblePlayerName = \(name\) => ([\s\S]*?);\n\n    const players/);
+  assert.ok(match, "visible player name sorting helper exists");
+  const visiblePlayerName = new Function("name", "return " + match[1]);
+  const names = ["<color=red>JAXX", "Azazel", "<#FF0000>Caps", "Capitaine Aaron", "Caps", "Godrab"];
+  const sorted = names.slice().sort((a, b) => visiblePlayerName(a).localeCompare(visiblePlayerName(b), "fr"));
+  assert.deepEqual(sorted, ["Azazel", "Capitaine Aaron", "<#FF0000>Caps", "Caps", "Godrab", "<color=red>JAXX"]);
+  assert.match(source, /visiblePlayerName\(x\.player\)\.localeCompare\(visiblePlayerName\(y\.player\), "fr"\)/);
+});

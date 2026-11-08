@@ -1041,9 +1041,13 @@
 
     playerSelect.dataset.lospPlayerColors = "true";
 
+    const visiblePlayerName = (name) => String(name || "")
+      .replace(/^\s*(?:<#[0-9a-fA-F]{6}>|<color=(?:red|blue|green|yellow|orange|purple|white|black|#[0-9a-fA-F]{6})>)/i, "")
+      .replace(/<\/color>\s*$/i, "");
+
     const players = (PLAYERS_BY_ALLIANCE.get(allianceKey(a)) || [])
       .slice()
-      .sort((x, y) => x.player.localeCompare(y.player, "fr"));
+      .sort((x, y) => visiblePlayerName(x.player).localeCompare(visiblePlayerName(y.player), "fr"));
 
     players.forEach((p) => {
       const opt = document.createElement("option");
