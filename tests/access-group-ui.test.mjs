@@ -51,9 +51,9 @@ test("Questionable Propriety : registre blanc et accès isolé", async () => {
   assert.deepEqual(visibleKeys(helper), ["questionablepropriety"]);
 });
 
-test("administrateur : les dix identifiants internes sont visibles", async () => {
+test("administrateur : toutes les alliances enregistrées sont visibles", async () => {
   const helper = await openAlliances(data.map(a => a.key));
-  assert.equal(visibleKeys(helper).length, 10);
+  assert.equal(visibleKeys(helper).length, data.length);
   assert.ok(visibleKeys(helper).includes("questionablepropriety"));
   assert.ok(visibleKeys(helper).includes("endgamerevolutionred"));
   assert.ok(visibleKeys(helper).includes("endgamerevolutionorange"));

@@ -80,6 +80,17 @@ test("Invité Endgame : deux identifiants, pas de LoSP",async()=>{
   assert.equal(x.window.LoSPAccess.isAllianceAllowed("hades"),false);
 });
 
+test("Invité Questionable Propriety : accès QP seulement et pages LoSP bloquées",async()=>{
+  const session={ok:true,role:"guest",groupKey:"questionable-propriety",
+    allowedAlliances:["questionable-propriety"]};
+  const x=await authenticate(session,"joueur.html");
+  assert.equal(x.window.LoSPAccess.isAllianceAllowed("questionable-propriety"),true);
+  assert.equal(x.window.LoSPAccess.isAllianceAllowed("marines"),false);
+  assert.equal(x.window.LoSPAccess.isAllianceAllowed("endgame-revolution-red"),false);
+  const blocked=await authenticate(session,"cosmic.html");
+  assert.deepEqual(blocked.redirects,["./home.html"]);
+});
+
 test("Les cinq pages réservées sont bloquées en URL directe pour les invités",async()=>{
   for(const page of ["war-history.html","war-rankings.html","war-graphs.html",
     "cosmic.html","battleworld.html","cosmic-counters.html","cosmic-defenses.html",
