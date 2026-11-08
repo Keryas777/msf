@@ -367,6 +367,16 @@
       }
 
       if (emoji.textContent) stack.appendChild(emoji);
+      // ENDGAME variants have identical names: identify them by canonical key.
+      if (key === "endgame-revolution-red" || key === "endgame-revolution-orange") {
+        const dot = document.createElement("span");
+        dot.className = "endgameAllianceDot";
+        dot.style.backgroundColor = alliance.color || (key.endsWith("-red") ? "#ED3946" : "#F6952C");
+        dot.setAttribute("aria-hidden", "true");
+        stack.appendChild(dot);
+        label.classList.add("endgameAllianceFilter");
+        label.dataset.allianceNameLines = "two";
+      }
       stack.appendChild(name);
       label.appendChild(input);
       label.appendChild(stack);
