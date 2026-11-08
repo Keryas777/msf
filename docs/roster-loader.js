@@ -43,7 +43,12 @@
     const reply = await fetch(PRIVATE+"?alliance="+encodeURIComponent(meta.slug),{
       mode:"cors",cache:"no-store",headers:{Authorization:"Bearer "+token}
     });
-    if (!reply.ok) throw new Error("Roster invité : HTTP "+reply.status);
+    if (!reply.ok) {
+      const reason = reply.status === 409
+        ? "alliance non liée ou non approuvée dans le Roster Service (HTTP 409)"
+        : "HTTP " + reply.status;
+      throw new Error("Roster invité : " + reason);
+    }
     const json = await reply.json();
     if (json?.status !== "ok" || json.kind !== "authorized-guest-rosters" ||
         json.alliance !== meta.slug || json.state !== "complete" ||
