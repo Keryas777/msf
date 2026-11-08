@@ -116,7 +116,7 @@
   }
 
   function normalizePlayerKey(value) {
-    return normalizeKey(value).replace(/[^a-z0-9]/g, "");
+    return normalizeKey(String(value ?? "").replace(/<#[0-9a-fA-F]{6}>|<\/?color(?:=[^>]*)?>/gi, "")).replace(/[^a-z0-9]/g, "");
   }
 
   function allianceHelper() {
