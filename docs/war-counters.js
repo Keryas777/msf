@@ -1039,6 +1039,8 @@
     opt0.textContent = loading ? "Chargement du roster…" : "— Choisir un joueur —";
     playerSelect.appendChild(opt0);
 
+    playerSelect.dataset.lospPlayerColors = "true";
+
     const players = (PLAYERS_BY_ALLIANCE.get(allianceKey(a)) || [])
       .slice()
       .sort((x, y) => x.player.localeCompare(y.player, "fr"));
