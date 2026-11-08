@@ -44,10 +44,26 @@
     container.append(name);
   }
 
+  // MSF player nicknames may contain color markup; render it as styled text,
+  // never HTML. The native option value remains the exact original identity.
+  function playerColorLabel(container, raw) {
+    const text = String(raw || "");
+    const match = text.match(/^\\s*(?:<#([0-9a-fA-F]{6})>|<color=(red|blue|green|yellow|orange|purple|white|black|#[0-9a-fA-F]{6})>)/i);
+    if (!match) { container.textContent = text; return; }
+    const color = match[1] ? "#" + match[1] : match[2].toLowerCase();
+    const label = text.slice(match[0].length).replace(/<\\/color>\\s*$/i, "");
+    const name = document.createElement("span");
+    name.textContent = label;
+    name.style.color = color;
+    container.appendChild(name);
+  }
+
   function optionLabel(container, select, option) {
     container.classList.remove("losp-choice__bicolor");
     const meta = isAllianceSelect(select) ? allianceMeta(option.value) : null;
-    if (meta) {
+    if (select.dataset.lospPlayerColors === "true") {
+      playerColorLabel(container, option.textContent.trim());
+    } else if (meta) {
       allianceLabel(container, meta);
     } else {
       container.textContent = isAllianceSelect(select)
