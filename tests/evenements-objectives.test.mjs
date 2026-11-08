@@ -419,8 +419,8 @@ test('Une même action Raid ou Guerre rassemble les événements et conserve cha
   assert.equal(war.length,1);
   assert.equal(raid[0].children[0].children[0].textContent,'Combattre en raid');
   assert.equal(war[0].children[0].children[0].textContent,'Combattre en guerre');
-  assert.equal(raid[0].children[0].children[1].textContent,'3 méthodes');
-  assert.equal(war[0].children[0].children[1].textContent,'2 méthodes');
+  assert.equal(raid[0].children[0].children[1].textContent,'3 objectifs');
+  assert.equal(war[0].children[0].children[1].textContent,'2 objectifs');
   for(const group of [raid[0],war[0]]){
     const sources=group.children[1].children;
     assert.equal(sources.length,2);
@@ -514,13 +514,49 @@ test('Un objectif uniquement alliance n’ajoute aucune limite solo',async()=>{
     child.textContent?.includes('384')));
 });
 
+test('Les libellés affichés utilisent objectif(s), y compris au singulier',async()=>{
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Mission Raid','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Combattre en raid',points:1}],
+      cappedScorings:[]}}}],
+    ['Mission Guerre','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Combattre en guerre',points:1}],
+      cappedScorings:[]}}}]
+  ]});
+  const visit=(entry)=>{
+    const result=[entry.textContent||''];
+    for(const child of entry.children||[])result.push(...visit(child));
+    return result;
+  };
+  const shown=visit(nodes.get('events-objectives')).join(' | ');
+  assert.ok(shown.includes('2 objectifs, regroupés par action'));
+  assert.equal(nodes.get('count-objectives').textContent,'2');
+  assert.equal(nodes.get('stat-objectives').textContent,'2');
+  assert.deepEqual(sections(nodes).map(section=>section.children[0].textContent),
+    ['🛡️ RAID','⚔️ GUERRE']);
+  for(const section of sections(nodes)){
+    assert.equal(section.children[0].children[0].textContent,'1 objectif');
+    assert.equal(section.children[1].children[0].children[0].children[1].textContent,'1 objectif');
+  }
+  assert.doesNotMatch(shown,/méthodes?/i);
+});
+
+test('Les textes essentiels des objectifs restent lisibles sans modifier le zoom',()=>{
+  assert.ok(css.includes('.ev-objectives-note{font-size:15px;'));
+  assert.ok(css.includes('.ev-objective-event-summary>.ev-objective-limit{order:1;flex:0 0 100%;font-size:15px;'));
+  assert.ok(css.includes('.ev-objective-mini-count{font-size:14px;'));
+  assert.ok(css.includes('.ev-objective-score,.ev-objective-cap,.ev-objective-premium{font-size:14px;'));
+  assert.ok(css.includes('.ev-objective-team-summary strong{font-size:16px;'));
+  assert.ok(html.includes('<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'));
+});
+
 test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP communs',()=>{
   assert.match(commonCss,/background-image:\s*url\("\.\/Background\.webp"\)/);
   assert.match(html,/class="app ev-page"/);
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=12"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=13"/);
   assert.match(css,/\.ev-toolbar\{[^}]*background:var\(--panel\)/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -547,7 +583,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=24/);
+  assert.match(html,/evenements\.js\?v=25/);
 });
 
 test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',async()=>{
