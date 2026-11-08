@@ -244,16 +244,6 @@
         identity.appendChild(emoji);
       }
 
-      // Distinguish the two ENDGAME alliances without changing their names or selection.
-      if (alliance?.group === 'endgame-revolution' &&
-          (key === 'endgame-revolution-red' || key === 'endgame-revolution-orange')) {
-        const dot = document.createElement('span');
-        dot.className = 'evolutionAllianceChipColorDot';
-        dot.style.backgroundColor = key === 'endgame-revolution-red' ? '#ED3946' : '#F28C28';
-        dot.setAttribute('aria-hidden', 'true');
-        identity.appendChild(dot);
-      }
-
       const name = document.createElement('span');
       name.className = 'evolutionAllianceChipName';
       if (Array.isArray(alliance?.displayParts) && alliance.displayParts.length === 2) {
