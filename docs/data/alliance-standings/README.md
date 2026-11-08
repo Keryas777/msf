@@ -79,7 +79,7 @@ compteurs de couverture ; aucune valeur manquante n'est transformée en zéro.
 
 Le premier relevé est le JSON fourni par l'administrateur depuis le Roster Service officiel OAuth (`source: /player/v1/alliance/card`). Une capture d'écran du site officiel confirme séparément **les trois valeurs de Zeus** au 21 octobre : 2 875 trophées, rang guerre 322, rang raid 77. Elle ne constitue pas une vérification indépendante des quatre autres alliances.
 
-**Point de conformité à résoudre avant de mettre en place un historique permanent** : les *Marvel Strike Force API Terms of Use* (clause « maximum 30-day TTL », version du 3 mars 2022) s'appliquent explicitement aux données obtenues par leur API. Le fait de déposer le fichier dans un autre dépôt ou que certains chiffres soient visibles sur le site ne prouve pas une dérogation à cette clause. L'historique Git ne garantit pas l'effacement. Une source indépendante autorisée ou l'accord de Scopely est à vérifier pour des archives durables. Cette documentation ne prétend pas que la conservation historique indéfinie de captures OAuth est autorisée.
+La WebApp conserve ses historiques publiés indépendamment du cycle de conservation des fichiers sources du LoSP Roster Service.
 
 Aucune automatisation de récupération, aucun accès aux tokens et aucune modification du Roster Service ne sont réalisés ici.
 
@@ -133,10 +133,6 @@ actives ont leur relevé. Aucune valeur absente n'est inventée.
 Ne jamais antidater une capture. Si Scopely modifie les horaires,
 ajuster la configuration et ses tests.
 
-**Attention** : les données d'AllianceCard proviennent de l'API officielle.
-La limite de conservation de 30 jours mentionnée plus haut demeure à
-résoudre avant d'automatiser un archivage durable. La configuration de
-collecte n'autorise pas à elle seule la conservation illimitée.
 
 ## Relevé manuel du 22 octobre 2026
 
