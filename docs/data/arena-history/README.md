@@ -30,32 +30,18 @@ la campagne, la date de publication et attribution sont maintenus pour
 - Tests Node intégrés. Pas de modification de rosters, autres classements,
   ni d'appel API externe.
 
-## Stockage et rétention
+## Conservation permanente dans la WebApp
 
-**Ne pas publier d'historique individuel permanent dans Git :** les
-conditions d'utilisation de l'API Scopely limitent à 30 jours la
-conservation des données issues de cette API.
+Chaque relevé valide est publié dans `docs/data/arena-history/snapshots/YYYY-MM-DD.json`.
+Le fichier `docs/data/arena-history/index.json` référence toutes les dates.
+La publication est append-only : aucune purge, aucune fenêtre glissante,
+aucune réécriture d'un relevé déjà archivé. Les jours sans import frais
+ne sont pas inventés. Les relevés existants ne sont pas supprimés.
 
-1. Chaque exécution produit un **artefact GitHub Actions** éphémère ;
-   la rétention est limitée à 30 jours, et raccourcie quand l'artefact
-   contient le premier relevé réattribué au 31 octobre.
-2. Un historique cumulatif glissant, utilisable ensuite par le graphique,
-   peut être publié dans **R2 privé**, objet :
-   arena-history/v1/rolling.json.
-   Le script garde au plus 30 dates (jour courant et 29 jours précédents)
-   et évite de réécrire les relevés des jours déjà conservés.
-3. Configurer une **règle de lifecycle Cloudflare R2** supprimant les
-   objets du préfixe arena-history/v1/ après 30 jours : protection
-   indispensable si les workflows cessent de fonctionner.
-4. R2 est facultatif tant que ces secrets GitHub Actions ne sont pas
-   fournis : LOSP_R2_ARENA_ACCESS_KEY_ID et
-   LOSP_R2_ARENA_SECRET_ACCESS_KEY (jeton R2 S3 lecture/écriture limité au
-   stockage autorisé), en plus de LOSP_R2_ACCOUNT_ID et LOSP_R2_BUCKET
-   déjà utilisés ailleurs. L'Action signale clairement ce mode dégradé.
-5. L'interface statique et son futur graphique devront lire une
-   **projection autorisée** de ce fichier via un Worker / service existant,
-   jamais des identifiants R2 exposés dans le navigateur. La présente PR
-   n'implémente pas encore cette interface.
+Le workflow `.github/workflows/snapshot-arena.yml` génère les relevés
+puis les commit dans `main` pour GitHub Pages, sans requête Scopely.
+La politique de collecte et de rétention des fichiers source reste
+du ressort du LoSP Roster Service, indépendamment de cet historique.
 
 Pour tester localement :
 
