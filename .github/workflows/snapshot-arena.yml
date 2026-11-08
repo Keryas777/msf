@@ -31,7 +31,7 @@ jobs:
         run: |
           node --check scripts/snapshot-arena.mjs
           node --check scripts/archive-arena-history.mjs
-          node --test tests/arena-snapshot.test.mjs
+          node --test tests/arena-snapshot.test.mjs tests/arena-permanent-history.test.mjs
 
       - name: Generate snapshots from published Infos only
         id: generate
