@@ -843,17 +843,13 @@ function homeModel() {
       </section>
 
       <nav class="codexLandingTiles" aria-label="Explorer le Codex">
-        <a class="codexGate codexLandingTile codexLandingTile--characters" href="${escapeHtml(buildCodexHref({ view: "characters" }))}" data-codex-link>
+        <a class="codexGate codexLandingTile codexLandingTile--characters" aria-label="Personnages" href="${escapeHtml(buildCodexHref({ view: "characters" }))}" data-codex-link>
           <span class="codexLandingTileArtwork" aria-hidden="true"></span>
           <span class="codexLandingTilePattern" aria-hidden="true"></span>
-          <span class="codexLandingTileIcon" aria-hidden="true">◉</span>
-          <strong>Personnages</strong>
         </a>
-        <a class="codexGate codexLandingTile codexLandingTile--mechanics" href="${escapeHtml(buildCodexHref({ view: "mechanics" }))}" data-codex-link>
+        <a class="codexGate codexLandingTile codexLandingTile--mechanics" aria-label="Mécaniques" href="${escapeHtml(buildCodexHref({ view: "mechanics" }))}" data-codex-link>
           <span class="codexLandingTileArtwork" aria-hidden="true"></span>
           <span class="codexLandingTilePattern" aria-hidden="true"></span>
-          <span class="codexLandingTileIcon" aria-hidden="true">✧</span>
-          <strong>Mécaniques</strong>
         </a>
       </nav>
 
