@@ -42,6 +42,7 @@
 
   function normalizeKey(value) {
     return String(value ?? '')
+      .replace(/<#[0-9a-fA-F]{6}>|<\/?color(?:=[^>]*)?>/gi, '')
       .trim()
       .toLowerCase()
       .normalize('NFD')

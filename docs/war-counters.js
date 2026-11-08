@@ -141,6 +141,7 @@
   const normalizeKey = (s) =>
     (s ?? "")
       .toString()
+      .replace(/<#[0-9a-fA-F]{6}>|<\/?color(?:=[^>]*)?>/gi, "")
       .trim()
       .toLowerCase()
       .replace(/\s+/g, "")
