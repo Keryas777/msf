@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
-  group: daily-arena-snapshot
+  group: main-data-writer
   cancel-in-progress: false
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
       - name: Validate Arena snapshot tools
         run: |
           node --check scripts/snapshot-arena.mjs
-          node --check scripts/publish-arena-r2.mjs
+          node --check scripts/archive-arena-history.mjs
           node --test tests/arena-snapshot.test.mjs
 
       - name: Generate snapshots from published Infos only
@@ -41,16 +41,6 @@ jobs:
           echo "day=$day" >> "$GITHUB_OUTPUT"
           node scripts/snapshot-arena.mjs --day="$day"
 
-          # Back-attributed 31 Oct snapshot must not be retained longer than
-          # the original 30-day window even when bundled in later artifacts.
-          retention=30
-          if [ -f .tmp/arena-snapshots/2026-10-31.json ]; then
-            retention="$(node --input-type=module -e '
-              const d=Math.floor((Date.now()-Date.parse("2026-10-31T00:00:00Z"))/86400000);
-              console.log(Math.max(1,30-d));
-            ')"
-          fi
-          echo "retention=$retention" >> "$GITHUB_OUTPUT"
           if compgen -G ".tmp/arena-snapshots/*.json" > /dev/null; then
             echo "generated=true" >> "$GITHUB_OUTPUT"
           else
@@ -58,25 +48,25 @@ jobs:
             echo "::notice::No fresh Infos snapshot for this date; no point fabricated."
           fi
 
-      - name: Archive daily temporary snapshots (automatic 30-day expiry)
+      - name: Append permanent Arena snapshots
         if: steps.generate.outputs.generated == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: arena-${ steps.generate.outputs.day }-${ github.run_id }
-          path: .tmp/arena-snapshots/*.json
-          if-no-files-found: error
-          retention-days: ${ steps.generate.outputs.retention }
+        run: node scripts/archive-arena-history.mjs
 
-      - name: Update private R2 rolling history (optional credential-gated)
-        shell: bash
-        env:
-          LOSP_R2_ACCOUNT_ID: ${ secrets.LOSP_R2_ACCOUNT_ID }
-          LOSP_R2_BUCKET: ${ secrets.LOSP_R2_BUCKET }
-          LOSP_R2_ARENA_ACCESS_KEY_ID: ${ secrets.LOSP_R2_ARENA_ACCESS_KEY_ID }
-          LOSP_R2_ARENA_SECRET_ACCESS_KEY: ${ secrets.LOSP_R2_ARENA_SECRET_ACCESS_KEY }
+      - name: Verify archive-only write scope
         run: |
-          if [ -z "$LOSP_R2_ARENA_ACCESS_KEY_ID" ] || [ -z "$LOSP_R2_ARENA_SECRET_ACCESS_KEY" ]; then
-            echo "::notice::R2 Arena credentials missing; daily snapshots retained as expiring Actions artifacts only."
-          else
-            node scripts/publish-arena-r2.mjs --day="${ steps.generate.outputs.day }"
+          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' | grep -v -E '^docs/data/arena-history/(index[.]json|snapshots/[0-9]{4}-[0-9]{2}-[0-9]{2}[.]json)$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected files:"; echo "$unexpected"; exit 1
           fi
+
+      - name: Commit permanent history
+        run: |
+          git add docs/data/arena-history/index.json docs/data/arena-history/snapshots/
+          if git diff --cached --quiet; then
+            echo "No new Arena observation."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "data: append daily Arena history"
+          git push origin HEAD:main
