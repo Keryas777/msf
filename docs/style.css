@@ -368,6 +368,20 @@ button.backBtn{
   line-height: 1;
 }
 
+.endgameAllianceFilter .fStack {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+.endgameAllianceDot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  border-radius: 50%;
+}
+
 .fStack .fName{
   font-size: 13px;
 }
