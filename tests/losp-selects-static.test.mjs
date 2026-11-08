@@ -1,3 +1,4 @@
+import { Script } from "node:vm";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -132,4 +133,25 @@ test("historical character profile also renders bicolor LoSP chips without emoji
   assert.match(js, /name\.textContent = meta\?\.displayName \|\| meta\?\.name/);
   assert.match(css, /\.profileFilterToggle\.is-losp \.profileFilterStack/);
   assert.match(css, /\.profileFilterStack>span:empty\{display:none\}/);
+});
+
+test("MSF nickname color parser compiles and renders both supported tags", () => {
+  const source = read("docs/losp-selects.js");
+  assert.doesNotThrow(() => new Script(source));
+  const start = source.indexOf("  function playerColorLabel(");
+  const end = source.indexOf("\n  function optionLabel(", start);
+  assert.ok(start >= 0 && end > start);
+  const parse = new Function("document", source.slice(start, end) + "\nreturn playerColorLabel;");
+  const document = { createElement: () => ({ textContent: "", style: {} }) };
+  const render = parse(document);
+  for (const [raw, label, color] of [
+    ["<#FF0000>Caps", "Caps", "#FF0000"],
+    ["<color=red>JAXX", "JAXX", "red"],
+    ["<color=red>JAXX</color>", "JAXX", "red"],
+  ]) {
+    const container = { appendChild(node) { this.child = node; } };
+    render(container, raw);
+    assert.equal(container.child.textContent, label);
+    assert.equal(container.child.style.color.toLowerCase(), color.toLowerCase());
+  }
 });

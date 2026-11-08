@@ -48,10 +48,10 @@
   // never HTML. The native option value remains the exact original identity.
   function playerColorLabel(container, raw) {
     const text = String(raw || "");
-    const match = text.match(/^\\s*(?:<#([0-9a-fA-F]{6})>|<color=(red|blue|green|yellow|orange|purple|white|black|#[0-9a-fA-F]{6})>)/i);
+    const match = text.match(/^\s*(?:<#([0-9a-fA-F]{6})>|<color=(red|blue|green|yellow|orange|purple|white|black|#[0-9a-fA-F]{6})>)/i);
     if (!match) { container.textContent = text; return; }
     const color = match[1] ? "#" + match[1] : match[2].toLowerCase();
-    const label = text.slice(match[0].length).replace(/<\\/color>\\s*$/i, "");
+    const label = text.slice(match[0].length).replace(/<\/color>\s*$/i, "");
     const name = document.createElement("span");
     name.textContent = label;
     name.style.color = color;
