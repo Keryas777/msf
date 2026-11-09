@@ -36,9 +36,14 @@ export function validateInfoSnapshot(snapshot,fp,campaign,alliance,now=Date.now(
   const start=Date.parse(day+(period==="am"?"T02:00:00Z":"T14:00:00Z"));
   const end=start+2*3600000;
   const captured=Date.parse(snapshot.capturedAt||"");
-  if(!Number.isFinite(captured)||captured<start||captured>=end||
-     captured>now||!(Date.parse(snapshot.expiresAt||"")>now))
-    throw Error("Expired or out-of-window infos receipt");
+  // Distinguish private receipt timing failures without exposing player data.
+  // Preserve the exact acceptance window and fail-closed behavior.
+  if(!Number.isFinite(captured))throw Error("Invalid infos capturedAt");
+  if(captured<start||captured>=end)
+    throw Error("Out-of-window infos capturedAt for "+campaign);
+  if(captured>now)throw Error("Future infos capturedAt for "+campaign);
+  if(!(Date.parse(snapshot.expiresAt||"")>now))
+    throw Error("Expired infos receipt for "+campaign);
   const names=new Set();
   return snapshot.rows.map(row=>{
     if(!object(row)||typeof row.name!=="string"||!row.name.trim()||

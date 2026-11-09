@@ -40,6 +40,16 @@ test("rejects stale, mismatched or duplicate campaign members",()=>{
   assert.throws(()=>validateInfoSnapshot(r,fp,campaign,"Dionysos",now),/duplicate/);
   const expired=receipt();expired.expiresAt="2026-10-31T03:20:00Z";
   assert.throws(()=>validateInfoSnapshot(expired,fp,campaign,"Dionysos",now),/Expired/);
+  const outOfWindow=receipt();outOfWindow.capturedAt="2026-10-31T04:05:00Z";
+  assert.throws(()=>validateInfoSnapshot(outOfWindow,fp,campaign,"Dionysos",now),
+    /Out-of-window infos capturedAt for 2026-10-31-am/);
+  const future=receipt();future.capturedAt="2026-10-31T03:30:00Z";
+  assert.throws(()=>validateInfoSnapshot(future,fp,campaign,"Dionysos",
+    Date.parse("2026-10-31T03:20:00Z")),
+    /Future infos capturedAt/);
+  const missing=receipt();missing.capturedAt="invalid";
+  assert.throws(()=>validateInfoSnapshot(missing,fp,campaign,"Dionysos",now),
+    /Invalid infos capturedAt/);
   assert.throws(()=>validateInfoSnapshot(receipt(),"b".repeat(64),campaign,"Dionysos",now));
 });
 test("fail closed on a transfer into one newly published alliance",()=>{
