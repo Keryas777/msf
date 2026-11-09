@@ -56,12 +56,10 @@ test('fresh complete approved R2 capture produces ranks only, without private fi
   assert.equal(result.index.snapshots.length,5);
   assert.equal(addSeasonToIndex(result.index,snap,season).updated,false);
 });
-test('bad dates, missing alliance, partial OAuth, repeated fingerprint and other-group data are refused',()=>{
+test('bad dates, repeated fingerprint, invalid ranks and other-group data are refused',()=>{
   const season=mondaySeason('2026-11-09',config);
   const bad=[
     {...source(),capturedAt:'2026-11-08T18:00:00.000Z'},
-    {...source(),unavailableSessions:1,completeSessionScan:false},
-    {...source(),alliances:source().alliances.slice(1)},
     {...source(),alliances:[...source().alliances.slice(0,-1),
       source().alliances[0]]},
     {...source(),alliances:source().alliances.map((a,i)=>i===0?
@@ -78,4 +76,15 @@ test('workflow uses existing R2 credentials and a Monday cron, with no new Scope
   assert.match(workflow,/LOSP_R2_ALLIANCE_MAP_JSON/);
   assert.match(workflow,/LOSP_R2_HISTORY_PUBLICATION_APPROVED/);
   assert.doesNotMatch(workflow,/SCOPELY_CLIENT_SECRET|api\.marvelstrikeforce\.com/);
+});
+
+test('partial authorized capture publishes only observed LoSP ranks',()=>{
+  const season=mondaySeason('2026-11-09',config);
+  const partial={...source(),alliances:source().alliances.slice(0,2),
+    completeSessionScan:false,truncated:true,unavailableSessions:1};
+  const published=publicSeasonSnapshot(partial,registry,mapping,season);
+  assert.equal(published.alliances.length,2);
+  assert.equal(published.coverage.completeSessionScan,false);
+  assert.deepEqual(published.alliances.map(a=>a.key),active.slice(0,2).map(a=>a.key));
+  assert.equal(published.alliances[0].warTrophies,null);
 });
