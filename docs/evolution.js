@@ -12,6 +12,7 @@
   const qs = (selector) => document.querySelector(selector);
   const allianceSelect = qs("#allianceSelect");
   const playerSelect = qs("#playerSelect");
+  const showFormerPlayers = qs("#showFormerPlayers");
   const periodSelect = qs("#periodSelect");
   const endSelect = qs("#endSelect");
   const startSelect = qs("#startSelect");
@@ -140,48 +141,29 @@
   }
 
   function playersForAlliance(allianceKey) {
-    const isGuestAlliance = typeof window !== "undefined" &&
-      window.LoSPEvolutionHistory?.isGuestAlliance?.(allianceKey) === true;
-    const canonical = value => {
-      const raw = String(value || "").trim().toLowerCase();
-      if(isGuestAlliance)return raw; // Keep canonical ENDGAME hyphens.
-      const helper = typeof window !== "undefined" &&
-        window.LoSPAlliances?.getAllianceKey;
-      return String((helper ? helper(value) : value) || "").trim().toLowerCase();
-    };
-    const wanted = canonical(allianceKey);
+    const isGuest = window.LoSPEvolutionHistory?.isGuestAlliance?.(allianceKey) === true;
     const history = state.historyIndex?.players || {};
-    // Current LoSP membership comes from the live roster, never the archive.
-    const currentKeys = new Set(state.rosters.map(getRosterPlayerKey).filter(Boolean));
-    const players = new Map();
-
-    // For LoSP, only the current roster may populate the player selector.
-    // Historical checkpoints remain stored for comparisons, not membership.
-    // Guest alliances retain their existing private directory behavior.
-    if (isGuestAlliance) {
-      for (const [key, entry] of Object.entries(history)) {
-        if (currentKeys.has(key) || canonical(entry?.currentAlliance) !== wanted ||
-            !Array.isArray(entry?.checkpoints) || !entry.checkpoints.length) continue;
-        const label = isGuestAlliance
-          ? String(entry.name || key) : canonicalPlayerName(entry.name || key);
-        if (label) players.set(key, { key, label: label + " (historique)" });
-      }
-  
-    }
-
+    const current = new Map();
+    // Only the live roster establishes membership. History is never a census.
     for (const roster of state.rosters) {
-      if (canonical(roster?.alliance) !== wanted) continue;
+      if (String(roster?.alliance || "").toLowerCase() !==
+          String(allianceKey || "").toLowerCase()) continue;
       const key = getRosterPlayerKey(roster);
-      if (!key || !Array.isArray(history[key]?.checkpoints) ||
-          !history[key].checkpoints.length) continue;
-      const label = isGuestAlliance
-        ? String(roster?.player || roster?.name || roster?.playerKey || "")
-        : canonicalPlayerName(roster?.player || roster?.name || roster?.playerKey || "");
-      if (label) players.set(key, { key, label });
+      if (!key || !history[key]?.checkpoints?.length) continue;
+      const name = roster.player || roster.name || roster.playerKey || key;
+      current.set(key, {key, label:isGuest ? String(name) : canonicalPlayerName(name), former:false});
     }
-
-    return [...players.values()].sort((a, b) =>
-      a.label.localeCompare(b.label, "fr", { sensitivity: "base" }));
+    const players = [...current.values()];
+    if (showFormerPlayers?.checked) {
+      for (const [key, entry] of Object.entries(history)) {
+        if (current.has(key) || !entry?.checkpoints?.length ||
+            String(entry.currentAlliance || "").toLowerCase() !==
+            String(allianceKey || "").toLowerCase()) continue;
+        players.push({key, label:String(entry.name || key), former:true});
+      }
+    }
+    return players.sort((a,b)=>a.former-b.former ||
+      a.label.localeCompare(b.label,"fr",{sensitivity:"base"}));
   }
 
   function sessionPlayerNames(player) {
@@ -376,7 +358,8 @@
     for (const player of players) {
       const option = document.createElement("option");
       option.value = player.key;
-      option.textContent = player.label;
+      option.textContent = player.label + (player.former ? " — Ancien membre" : "");
+      if (player.former) { option.style.color = "#888"; option.dataset.former = "true"; }
       playerSelect.appendChild(option);
     }
 
@@ -918,6 +901,7 @@
       refreshCheckpointControls();
     });
 
+    showFormerPlayers?.addEventListener("change", () => { userChangedSelection = true; populatePlayerSelect(); });
     periodSelect.addEventListener("change", refreshCheckpointControls);
     endSelect.addEventListener("change", refreshStartSelect);
     startSelect.addEventListener("change", compareSelected);
@@ -949,7 +933,7 @@
           window.LoSPEvolutionHistory.isGuestAlliance(entry.currentAlliance))
         .map(([,entry])=>({player:entry.name,alliance:entry.currentAlliance}));
       state.guestRosterDirectory = guestPlayers;
-      state.rosters = [...guestPlayers];
+      state.rosters = [];
       state.characters = Array.isArray(characters) ? characters : [];
       state.historyIndex = history.historyIndex;
       state.isoIcons = isoIcons && typeof isoIcons === "object" ? isoIcons : {};
