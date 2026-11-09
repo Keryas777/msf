@@ -19,7 +19,7 @@ const info=(name,alliance)=>({name,alliance,tcp:500000000,
 const roster=(player,alliance,power)=>({player,alliance,
   chars:{blob:{power}},iso:{blob:{isoClass:"raider",isoColor:"purple"}}});
 function setup(role,keys,{token=signed,missing=false,publishedGuest=false,
-                         publishedDirectory=false}={}){
+                         publishedDirectory=false,badInfoKeys=[]}={}){
   const calls=[];
   const byKey=new Map(registry.map(x=>[x.key,x]));
   const window={LoSP_SESSION:{ok:true,role,allowedAlliances:keys},
@@ -63,7 +63,9 @@ function setup(role,keys,{token=signed,missing=false,publishedGuest=false,
       return Response.json({status:"ok",kind:"authorized-guest-infos",
         alliances:keys.filter(x=>x!=="zeus").map(key=>({
           alliance:key,state:"complete",
-          players:[info("Shared Name",key),info("Not sharing",key)]
+          players:badInfoKeys.includes(key)?[{
+            ...info("Shared Name",key),tcp:"invalid"}]:
+            [info("Shared Name",key),info("Not sharing",key)]
         }))});
     if(url.includes("/guest-rosters"))
       return Response.json({status:"ok",kind:"authorized-guest-rosters",
@@ -182,4 +184,16 @@ test("ISO and player pages scope same-named guest identities by alliance",async(
   assert.match(iso,/ROSTER_ISO_MAP\.set\(pKey, out\)/);
   assert.match(player,/getSelectedInfo\(\) \{\s*return findInfoByPlayerKey\(state\.selectedPlayerKey\)/);
   assert.match(player,/sameAlliance\(i, allianceK\)/);
+});
+
+test("one malformed guest Infos receipt does not hide other authorized alliances",async()=>{
+  const keys=["zeus","marines","endgame-revolution-red"];
+  const x=setup("admin",keys,{badInfoKeys:["marines"]});
+  const r=await load(x,{infos:true,joueurs:true});
+  assert.deepEqual(Array.from(r.infos,p=>p.alliance),
+    ["Zeus","endgame-revolution-red","endgame-revolution-red"]);
+  assert.equal(r.infos.some(p=>p.alliance==="marines"),false);
+  assert.equal(r.joueurs.some(p=>p.alliance==="marines"),false);
+  assert.match(r.warnings.join(" "),/marines : données Infos invalides/);
+  assert.equal(r.warnings.some(w=>w.includes("endgame-revolution-red")),false);
 });
