@@ -7,6 +7,11 @@ on:
         description: Optional Sunday checkpoint (YYYY-MM-DD). Empty means last completed Sunday at 23:00 Europe/Paris.
         required: false
         default: ""
+      repair_egr_nov08:
+        description: "Backfill only EGR red/orange into 2026-11-08 (existing snapshots preserved)"
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -58,9 +63,24 @@ jobs:
           DATA_DIR: docs/data
           ROSTER_HISTORY_TZ: Europe/Paris
         run: |
-          node scripts/snapshot-rosters.mjs \
-            --checkpoint="${{ steps.checkpoint.outputs.checkpoint }}" \
-            --write
+          if [ "${{ inputs.repair_egr_nov08 }}" = "true" ]; then
+            if [ "${{ steps.checkpoint.outputs.checkpoint }}" != "2026-11-08" ]; then
+              echo "EGR repair is restricted to checkpoint 2026-11-08" >&2
+              exit 1
+            fi
+            node scripts/snapshot-rosters.mjs \\
+              --checkpoint=2026-11-08 \\
+              --repair-alliances=endgame-revolution-red,endgame-revolution-orange \\
+              --dry-run
+            node scripts/snapshot-rosters.mjs \\
+              --checkpoint=2026-11-08 \\
+              --repair-alliances=endgame-revolution-red,endgame-revolution-orange \\
+              --write
+          else
+            node scripts/snapshot-rosters.mjs \\
+              --checkpoint="${{ steps.checkpoint.outputs.checkpoint }}" \\
+              --write
+          fi
 
       - name: Build evolution summary
         env:
