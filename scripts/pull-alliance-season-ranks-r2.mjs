@@ -82,11 +82,21 @@ async function main(){
   const mapping=readMapping(secret('LOSP_R2_ALLIANCE_MAP_JSON'),lospRegistry);
   const captures=await privateCaptures(day);
   let published=null;
+  const observations=new Map();
   for(const capture of captures){
-    try{published=publicSeasonSnapshot(capture,lospRegistry,mapping,season);break;}
-    catch{/* Ignore incomplete snapshots; never synthesize missing ranks. */}
+    try{
+      const valid=publicSeasonSnapshot(capture,lospRegistry,mapping,season);
+      for(const alliance of valid.alliances)
+        if(!observations.has(alliance.key))
+          observations.set(alliance.key,alliance);
+      if(!published||valid.capturedAt>published.capturedAt)published=valid;
+    }catch{/* Ignore invalid snapshots; never synthesize missing ranks. */}
   }
-  if(!published)throw Error('No complete authorized season rank snapshot for '+day);
+  if(!published||!observations.size)
+    throw Error('No authorized season rank observation for '+day);
+  published={...published,alliances:[...observations.values()],
+    coverage:{...published.coverage,connectedAlliances:observations.size,
+      completeSessionScan:observations.size===lospRegistry.length}};
   const added=addSeasonToIndex(index,published,season);
   if(!added.updated)return;
   if(!args.includes('--write')){
