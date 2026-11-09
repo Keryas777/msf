@@ -18,7 +18,7 @@
   const allowed=s=>window.LoSPAccess?.isAllianceAllowed(s)===true;
   const guestPath=(key,view,date,playerKey)=>
     "./data/roster-history/guests/"+encodeURIComponent(key)+"/"+
-    (view==="index"?"index.json":view+"/"+date+(view==="player"?"/"+encodeURIComponent(playerKey):"")+".json");
+    (view==="index"?"index.json":view==="player"?"players/"+encodeURIComponent(playerKey)+"/"+date+".json":"group/"+date+".json");
   async function staticJson(url){
     let last;
     for(let attempt=0;attempt<2;attempt++){
