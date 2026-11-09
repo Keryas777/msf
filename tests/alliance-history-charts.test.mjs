@@ -797,8 +797,11 @@ test('partial season captures retain independent LoSP and guest rankings',()=>{
 
 test('Evolution history loads only static GitHub Pages archives',()=>{
   const browser=read('docs/alliance-history.js');
-  assert.doesNotMatch(browser,/workers\\.dev|readLiveTrophies|readGuestRanks|fromCloudflare/);
-  assert.match(browser,/readSnapshots\\(index\\)/);
-  assert.match(browser,/readGuestArchive\\(\\)/);
-  assert.match(browser,/LoSPGuestSeasonLive\\.fromArchive/);
+  assert.equal(browser.includes('workers.dev'),false);
+  assert.equal(browser.includes('readLiveTrophies'),false);
+  assert.equal(browser.includes('readGuestRanks'),false);
+  assert.equal(browser.includes('fromCloudflare'),false);
+  assert.ok(browser.includes('readSnapshots(index)'));
+  assert.ok(browser.includes('readGuestArchive()'));
+  assert.ok(browser.includes('LoSPGuestSeasonLive.fromArchive'));
 });
