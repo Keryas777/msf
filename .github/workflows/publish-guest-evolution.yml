@@ -1,0 +1,91 @@
+name: Publish approved guest Evolution history
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "docs/evolution-history.js"
+      - "scripts/publish-guest-evolution.mjs"
+      - "scripts/lib/private-r2-read.mjs"
+      - "tests/evolution-guests.test.mjs"
+      - "tests/guest-evolution-publication.test.mjs"
+      - "docs/guest-data-contract.md"
+      - ".github/workflows/publish-guest-evolution.yml"
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main' }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Test guest Evolution exporter
+        run: |
+          node --test tests/evolution-guests.test.mjs tests/guest-evolution-publication.test.mjs
+          node --check scripts/publish-guest-evolution.mjs
+          node --check scripts/lib/private-r2-read.mjs
+
+      - name: Export validated R2 checkpoints
+        if: github.event_name != 'pull_request'
+        env:
+          LOSP_R2_ACCOUNT_ID: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
+          LOSP_R2_ACCESS_KEY_ID: ${{ secrets.LOSP_R2_ACCESS_KEY_ID }}
+          LOSP_R2_SECRET_ACCESS_KEY: ${{ secrets.LOSP_R2_SECRET_ACCESS_KEY }}
+          LOSP_R2_BUCKET: ${{ secrets.LOSP_R2_BUCKET }}
+          LOSP_R2_GUEST_EVOLUTION_PUBLICATION_APPROVED: ${{ vars.LOSP_R2_GUEST_EVOLUTION_PUBLICATION_APPROVED }}
+          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
+        shell: bash
+        run: |
+          if [ "$LOSP_R2_GUEST_EVOLUTION_PUBLICATION_APPROVED" = "true" ]; then
+            node scripts/publish-guest-evolution.mjs --write
+          else
+            echo "::warning title=Publication invitée désactivée::La variable LOSP_R2_GUEST_EVOLUTION_PUBLICATION_APPROVED doit être explicitement activée après validation des consentements publics."
+            node scripts/publish-guest-evolution.mjs --dry-run
+          fi
+
+      - name: Verify write scope
+        if: github.event_name != 'pull_request'
+        run: |
+          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' |
+            grep -Ev '^docs/data/roster-history/guests/' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected modifications:"
+            echo "$unexpected"
+            exit 1
+          fi
+
+      - name: Commit static Evolution data
+        if: github.event_name != 'pull_request'
+        shell: bash
+        env:
+          PUBLICATION_APPROVED: ${{ vars.LOSP_R2_GUEST_EVOLUTION_PUBLICATION_APPROVED }}
+        run: |
+          if [ "$PUBLICATION_APPROVED" != "true" ]; then
+            echo "Dry run only: public-history approval is not enabled."
+            exit 0
+          fi
+          if [ -z "$(git status --porcelain -- docs/data/roster-history/guests)" ]; then
+            echo "No Evolution history changes to publish."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/roster-history/guests
+          git commit -m "data: publish approved guest Evolution history"
+          git push origin HEAD:main
