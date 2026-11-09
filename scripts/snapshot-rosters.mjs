@@ -22,10 +22,11 @@ const GIT_TZ = process.env.ROSTER_HISTORY_TZ || ROSTER_CHECKPOINT_TIMEZONE;
 const GIT_MAX_BUFFER = 64 * 1024 * 1024;
 
 function parseArgs(argv) {
-  const options = { checkpoint: lastCompletedWeeklyCheckpoint(), write: false, repairAlliances: [] };
+  const options = { checkpoint: lastCompletedWeeklyCheckpoint(), write: false, repairAlliances: [], allowLateQp: false };
   for (const arg of argv) {
     if (arg === '--write') options.write = true;
     else if (arg === '--dry-run') options.write = false;
+    else if (arg === '--allow-late-qp-nov08') options.allowLateQp = true;
     else if (arg.startsWith('--repair-alliances=')) options.repairAlliances = arg.slice('--repair-alliances='.length).split(',').filter(Boolean);
     else if (arg.startsWith('--checkpoint=')) {
       options.checkpoint = arg.slice('--checkpoint='.length);
@@ -367,6 +368,9 @@ async function main() {
     throw new Error('Roster checkpoint timezone must remain Europe/Paris');
   }
   assertFullGitHistory();
+  if (options.allowLateQp && (options.checkpoint !== '2026-11-08' || options.repairAlliances.join(',') !== 'questionable-propriety')) {
+    throw new Error('Late QP source is permitted only for 2026-11-08 QP-only repair');
+  }
 
   const index = await loadIndex();
   const alreadyExists = index.checkpoints.some((entry) => entry?.date === options.checkpoint);
@@ -388,7 +392,13 @@ async function main() {
 
   for (const alliance of activeAllianceKeys) {
     const file = path.posix.join(DATA_DIR.replaceAll('\\', '/'), `rosters_${alliance}.json`);
-    const revision = findSourceRevision(file, options.checkpoint);
+    let revision = findSourceRevision(file, options.checkpoint);
+    if (!revision && options.allowLateQp && alliance === 'questionable-propriety') {
+      // Explicit exceptional backfill: first collection happened after the checkpoint.
+      // Preserve the actual Git source timestamp and mark every snapshot as late.
+      revision = findSourceRevision(file, '9999-12-31');
+      if (revision) revision = { ...revision, lateBackfill: true };
+    }
     if (!revision) {
       if (options.repairAlliances.length) throw new Error('No source revision before checkpoint for '+alliance);
       continue;
@@ -403,6 +413,12 @@ async function main() {
     if (selected) snapshots.push(selected);
   }
   snapshots.sort((a, b) => a.player.localeCompare(b.player, 'fr', { sensitivity: 'base' }));
+  if (options.allowLateQp) {
+    for (const snapshot of snapshots) {
+      snapshot.source.lateBackfill = true;
+      snapshot.source.note = 'First QP roster collected after 2026-11-08; retrospective inclusion, not observed at cutoff';
+    }
+  }
   if (options.repairAlliances.length) {
     const existing = new Set(Object.entries(index.players).filter(([,entry]) => entry.checkpoints?.includes(options.checkpoint)).map(([key]) => key));
     const collisions = snapshots.filter((snapshot) => existing.has(snapshot.playerKey));
