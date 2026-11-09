@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import {validateApprovals,validateConsent,validateIndex,validateSnapshot,publicAsset,
   publicInfos,assertOperationalResult,pruneLegacyGuestHistory,writeInfosOnly,
-  auditRosterShareByStableId,collectLegacyGuestConsentAudit}
+  auditRosterShareByStableId,collectLegacyGuestConsentAudit,\n  formatLegacyGuestConsentAudit}
   from "../scripts/publish-guest-evolution.mjs";
 
 const fp="a".repeat(64);
@@ -247,6 +247,9 @@ test("legacy consent diagnostic selects latest guest checkpoint dynamically and 
     assert.deepEqual(result,[{alliance:"future-guest",date:latest,
       counts:{valid:0,revoked:0,unverifiable:2},balanced:true}]);
     assert.doesNotMatch(JSON.stringify(result),/Private One|Private Two/);
+    const lines=formatLegacyGuestConsentAudit(result);
+    assert.deepEqual(lines,["Legacy rosterShare audit future-guest 2026-11-08: valid=0; revoked=0; unverifiable=2; balanced=yes"]);
+    assert.doesNotMatch(lines.join("\\n"),/Private One|Private Two|account-/);
     assert.equal(result[0].counts.valid+result[0].counts.revoked+
       result[0].counts.unverifiable,2);
   }finally{await rm(root,{recursive:true,force:true});}
