@@ -90,7 +90,7 @@ export function publicSeasonSnapshot(privateCapture,registry,mapping,season){
     source:'/player/v1/alliance/card',
     seasonId:null,seasonVerified:false,captureType:'season-ranks',
     coverage:{scannedSessions:privateCapture.scannedSessions,
-      validSessions:privateCapture.validSessions,unavailableSessions:0,
+      validSessions:privateCapture.validSessions,unavailableSessions:privateCapture.unavailableSessions,
       truncated:privateCapture.truncated===true,
       connectedAlliances:alliances.length,
       completeSessionScan:privateCapture.completeSessionScan===true},
