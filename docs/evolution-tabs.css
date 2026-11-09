@@ -34,3 +34,26 @@
   color: #d7dbe3;
   font-weight: 700;
 }
+
+/* Preserve the outgoing page while Safari loads the other Evolution document.
+   Native cross-document transitions keep each page's JS isolated. */
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 180ms ease-out both evolutionTabOut;
+  }
+  ::view-transition-new(root) {
+    animation: 180ms ease-in both evolutionTabIn;
+  }
+  @keyframes evolutionTabOut {
+    from { opacity: 1; }
+    to { opacity: 1; }
+  }
+  @keyframes evolutionTabIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
