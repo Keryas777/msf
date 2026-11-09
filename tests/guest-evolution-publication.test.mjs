@@ -147,21 +147,32 @@ test("unverifiable legacy guest consent preserves existing files until verified"
     assert.equal(Object.keys(index.players).length,3);
   }finally{await rm(f.root,{recursive:true,force:true});}
 });
-test("revoked guest approval removes its current public history without changing LoSP",async()=>{
+test("an unverified guest authorization preserves legacy history instead of treating missing R2 as revocation",async()=>{
   const f=await legacyFixture();
   try{
     const result=await pruneLegacyGuestHistory(f.root,new Set(["questionable-propriety"]),
       new Map([["questionable-propriety",null]]));
-    assert.deepEqual(result,{indexPlayers:2,groupRows:2,playerFiles:2});
+    assert.deepEqual(result,{indexPlayers:0,groupRows:0,playerFiles:0});
     const index=JSON.parse(await (await import("node:fs/promises")).readFile(
       path.join(f.history,"index.json"),"utf8"));
-    assert.deepEqual(Object.keys(index.players),["losp"]);
-    assert.equal(index.checkpoints[0].players,1);
+    assert.deepEqual(Object.keys(index.players).sort(),["losp","shared","withdrawn"]);
+    assert.equal(index.checkpoints[0].players,3);
     assert.equal(JSON.parse(await (await import("node:fs/promises")).readFile(
-      path.join(f.history,"group",f.date+".json"),"utf8")).players.length,1);
+      path.join(f.history,"group",f.date+".json"),"utf8")).players.length,3);
   }finally{await rm(f.root,{recursive:true,force:true});}
 });
 
+test("an explicit alliance revocation removes legacy guest files but preserves LoSP",async()=>{
+  const f=await legacyFixture();
+  try{
+    const result=await pruneLegacyGuestHistory(f.root,new Set(["questionable-propriety"]),
+      new Map([["questionable-propriety",false]]));
+    assert.deepEqual(result,{indexPlayers:2,groupRows:2,playerFiles:2});
+    const index=JSON.parse(await readFile(path.join(f.history,"index.json"),"utf8"));
+    assert.deepEqual(Object.keys(index.players),["losp"]);
+    assert.equal(index.checkpoints[0].players,1);
+  }finally{await rm(f.root,{recursive:true,force:true});}
+});
 test("consented portrait metadata can be refreshed without replacing guest history files",async()=>{
   const root=await mkdtemp(path.join(os.tmpdir(),"guest-evolution-infos-"));
   try{
