@@ -4,7 +4,7 @@ import {readFile,mkdtemp,mkdir,writeFile,rm} from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import {validateApprovals,validateConsent,validateIndex,validateSnapshot,publicAsset,
-  publicInfos,assertOperationalResult,pruneLegacyGuestHistory}
+  publicInfos,assertOperationalResult,pruneLegacyGuestHistory,writeInfosOnly}
   from "../scripts/publish-guest-evolution.mjs";
 
 const fp="a".repeat(64);
@@ -160,4 +160,21 @@ test("revoked guest approval removes its current public history without changing
     assert.equal(JSON.parse(await (await import("node:fs/promises")).readFile(
       path.join(f.history,"group",f.date+".json"),"utf8")).players.length,1);
   }finally{await rm(f.root,{recursive:true,force:true});}
+});
+
+test("consented portrait metadata can be refreshed without replacing guest history files",async()=>{
+  const root=await mkdtemp(path.join(os.tmpdir(),"guest-evolution-infos-"));
+  try{
+    const dir=path.join(root,"questionable-propriety");
+    await mkdir(dir,{recursive:true});
+    const indexFile=path.join(dir,"index.json");
+    await writeFile(indexFile,'{"version":1,"players":{},"checkpoints":[]}');
+    const infos=[{name:"Shared",alliance:"questionable-propriety",
+      icon:"https://assets.marvelstrikeforce.com/imgs/a.png"}];
+    assert.equal(await writeInfosOnly(root,"questionable-propriety",infos),true);
+    assert.equal(await writeInfosOnly(root,"questionable-propriety",infos),false);
+    assert.equal(await readFile(indexFile,"utf8"),
+      '{"version":1,"players":{},"checkpoints":[]}');
+    assert.deepEqual(JSON.parse(await readFile(path.join(dir,"infos.json"),"utf8")),infos);
+  }finally{await rm(root,{recursive:true,force:true});}
 });
