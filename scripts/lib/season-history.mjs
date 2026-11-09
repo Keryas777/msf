@@ -12,7 +12,7 @@ export function validateHistory(history){
      !Array.isArray(history.results))throw Error('Invalid unified season history');
   const seen=new Set();
   for(const row of history.results){
-    if(!/^\\d{4}-\\d\\d-\\d\\d\\/\\d{4}-\\d\\d-\\d\\d$/.test(row?.seasonId||'')||
+    if(!/^\d{4}-\d\d-\d\d\/\d{4}-\d\d-\d\d$/.test(row?.seasonId||'')||
        !/^[a-z][a-z0-9-]{1,63}$/.test(row?.allianceKey||'')||
        !valid(row.startAt)||!valid(row.endExclusiveAt)||!valid(row.capturedAt)||
        !rank(row.warRank)||!rank(row.raidRank)||
