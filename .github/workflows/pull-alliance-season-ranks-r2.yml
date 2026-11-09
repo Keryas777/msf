@@ -78,7 +78,7 @@ jobs:
       - name: Validate sanitized season ranks
         run: |
           node --check scripts/pull-alliance-season-ranks-r2.mjs
-          node --test tests/alliance-season-ranks-r2.test.mjs tests/alliance-standings-data.test.mjs tests/alliance-history-charts.test.mjs
+          node --test tests/alliance-season-ranks-r2.test.mjs tests/alliance-standings-data.test.mjs tests/alliance-history-charts.test.mjs tests/season-history.test.mjs
 
       - name: Check output write scope
         run: |
