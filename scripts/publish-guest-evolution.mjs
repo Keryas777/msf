@@ -346,15 +346,15 @@ async function main(){
   const summary='Approved: '+approved.length+'; validated: '+ready.size+
     '; failed closed: '+failed.length+'; revoked: '+revoked.length;
   console.log(summary);
-  const details=failed.map(item=>'- '+item.key+': '+item.reason).join('\\n');
+  const details=failed.map(item=>'- '+item.key+': '+item.reason).join('\n');
   const report=['## Guest Evolution export','',summary,'',
     ready.size===0&&approved.length>0?
       '**Aucune alliance validée : aucun export opérationnel.**':
       ready.size>0?'Validation terminée.':'Aucune alliance invitée approuvée.',
     '',details||'- Aucun échec.','',
-    write?'Publication autorisée par configuration.':'Dry-run : aucun fichier public modifié.'].join('\\n');
+    write?'Publication autorisée par configuration.':'Dry-run : aucun fichier public modifié.'].join('\n');
   if(process.env.GITHUB_STEP_SUMMARY)
-    await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,report+'\\n','utf8');
+    await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,report+'\n','utf8');
   assertOperationalResult(approved.length,ready.size);
   if(!write){console.log('Dry run: no public files changed.');return;}
   // Keep the legacy shared archive in sync with verified guest consent without touching LoSP rows.
