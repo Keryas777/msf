@@ -228,14 +228,14 @@ async function main(){
       ready.set(alliance.key,await readTree(r2,alliance,consent,now));
       console.log(alliance.key+': '+ready.get(alliance.key).size+' validated JSON files');
     }catch(error){
-      failed.push(alliance.key);
+      failed.push({key:alliance.key,reason:String(error?.message||'export failed')});
       console.error(alliance.key+': '+String(error?.message||'export failed'));
     }
   }
   const summary='Approved: '+approved.length+'; validated: '+ready.size+
     '; failed closed: '+failed.length+'; revoked: '+revoked.length;
   console.log(summary);
-  const details=failed.map(key=>'- '+key+': validation failed closed').join('\\n');
+  const details=failed.map(item=>'- '+item.key+': '+item.reason).join('\\n');
   const report=['## Guest Evolution export','',summary,'',
     ready.size===0&&approved.length>0?
       '**Aucune alliance validée : aucun export opérationnel.**':
