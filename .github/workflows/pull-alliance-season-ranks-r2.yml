@@ -32,7 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
 
       - uses: actions/setup-node@v4
@@ -68,6 +68,13 @@ jobs:
           fi
           node scripts/pull-alliance-season-ranks-r2.mjs "${args[@]}"
 
+      - name: Prevent publication outside main
+        if: ${{ github.event_name == 'schedule' || inputs.publish == true }}
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "Publishing is forbidden outside main; run dry-run on PR branch."
+            exit 1
+          fi
       - name: Consolidate permanent season history
         run: |
           if [ "$GITHUB_EVENT_NAME" = "schedule" ] || [ "${{ inputs.publish }}" = "true" ]; then
