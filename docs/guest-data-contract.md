@@ -92,13 +92,12 @@ invités l'accès aux rapports internes des autres alliances.
 
 ## Évolution : publication statique LoSP et alliances invitées
 
-La cible est que les pages `evolution.html` et `evolution-classement.html`
-lisent les historiques depuis GitHub Pages, sans jeton signé pour les JSON.
-Le déploiement est volontairement progressif : cette Phase A met en place et
-vérifie l’export. Le lecteur de production reste inchangé jusqu’à ce que les
-fichiers publics initiaux aient été exportés et contrôlés. La Phase B basculera
-ensuite les deux pages. Les contrôles LoSPAccess filtrent l’interface mais ne
-protègent pas les fichiers publics.
+Les pages `evolution.html` et `evolution-classement.html` lisent les
+historiques LoSP et invités depuis des JSON GitHub Pages, sans jeton Discord
+signé ni appel à l’API privée pour les historiques. Le lecteur commun applique
+les filtres `LoSPAccess`; ces contrôles déterminent ce que l’interface charge
+mais ne protègent pas les fichiers publics. La publication reste une étape
+séparée, derrière l’approbation explicite décrite ci-dessous.
 
 ### Source R2 et synchronisation
 
@@ -168,3 +167,29 @@ cause R2 ou le registre, puis relancer le workflow ; l’export relit les archiv
 existantes sans relancer de collecte. Une prévisualisation locale s’effectue
 avec `node scripts/publish-guest-evolution.mjs --dry-run`. Le mode d’écriture
 nécessite explicitement `--write` et la variable d’approbation ci-dessus.
+
+### Coexistence des historiques et reprise du checkpoint QP
+
+Le format historique LoSP existant reste la référence : l’index racine et les
+fichiers de joueur utilisent un `playerKey` normalisé depuis le pseudo, et les
+groupes associent ce joueur à l’alliance de chaque checkpoint. Les archives
+invitées réutilisent la même normalisation de pseudo, en ajoutant la clé
+canonique d’alliance à la clé de joueur (`g_<alliance>__<pseudo-normalisé>`)
+pour isoler les identités entre alliances. Aucun `aid` n’est requis par le
+lecteur commun.
+
+Les reçus `rosterShare` de l’export invité sont rapprochés selon le nom normalisé
+exact utilisé par le format existant; les doublons normalisés invalident le
+reçu au lieu de sélectionner arbitrairement un joueur. Une ressemblance de
+pseudo seule n’est pas utilisée comme rapprochement approximatif. Les lignes
+anciennes déjà présentes dans l’historique racine ne sont retirées que sur la
+base d’un reçu vérifié ou d’une révocation explicite, conformément au correctif
+Phase A #577.
+
+Le checkpoint QP du 8 novembre 2026 reste dans l’index et les fichiers racine
+qui le contiennent. En l’absence d’index cumulatif R2 QP, le lecteur commun
+reprend ces fichiers statiques; il ne fabrique pas d’archive R2 et ne crée pas
+de doublon si le même joueur et checkpoint apparaissent ensuite dans l’export
+invité. Le fichier invité validé est prioritaire pour ce checkpoint; le
+checkpoint racine sert de repli pour les données QP qui n’existent pas dans
+l’export.
