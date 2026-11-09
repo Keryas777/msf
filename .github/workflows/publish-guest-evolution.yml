@@ -63,7 +63,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' |
-            grep -Ev '^docs/data/roster-history/guests/' || true)"
+            grep -Ev '^docs/data/roster-history/guests/|^docs/data/roster-history/index\\.json$|^docs/data/roster-history/(group|players)/' || true)"
           if [ -n "$unexpected" ]; then
             echo "Unexpected modifications:"
             echo "$unexpected"
