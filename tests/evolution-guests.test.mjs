@@ -85,3 +85,41 @@ test("browser reader has no dependency on private guest APIs or localStorage",()
   assert.doesNotMatch(source,/api\/secure\/guest-evolution|api\/secure\/guest-infos/);
   assert.doesNotMatch(source,/localStorage/);
 });
+
+test("ranking progress remains alliance-scoped for homonymous guests",async()=>{
+  const src=await readFile(new URL("../docs/evolution-classement.js",import.meta.url),"utf8");
+  const start=src.indexOf("  function buildRows(");
+  const end=src.indexOf("  function clear(node)",start);
+  assert.ok(start>=0&&end>start);
+  const before=[{player:"Shared",playerKey:"g_marines__shared",alliance:"marines",totalPower:100},
+    {player:"Shared",playerKey:"g_endgame-revolution-red__shared",
+      alliance:"endgame-revolution-red",totalPower:200}];
+  const after=before.map(row=>({...row,totalPower:row.totalPower+90}));
+  const rows=runInNewContext(src.slice(start,end)+
+    "\nbuildRows({players:arguments[0]},{players:arguments[1]})",{
+      arguments:[before,after],window:{LoSPAccess:{isAllianceAllowed:()=>true}}
+    });
+  assert.equal(rows.length,2);
+  assert.notEqual(rows[0].playerKey,rows[1].playerKey);
+  assert.ok(rows.every(row=>row.gain===90));
+});
+test("ranking portrait lookup stays scoped to alliance and player",async()=>{
+  const src=await readFile(new URL("../docs/evolution-classement.js",import.meta.url),"utf8");
+  const start=src.indexOf("  function infoIdentity(");
+  const end=src.indexOf("  function buildRows(",start);
+  assert.ok(start>=0&&end>start);
+  const rows=runInNewContext(src.slice(start,end)+
+    "\nbuildInfoMap(arguments[0]);"+
+    "\n[playerInfo({player:'Shared',alliance:'marines'}),"+
+    "playerInfo({player:'Shared',alliance:'endgame-revolution-red'})]",{
+      arguments:[[{name:"Shared",alliance:"marines",icon:"M"},
+        {name:"Shared",alliance:"endgame-revolution-red",icon:"E"}]],
+      state:{infosByPlayer:new Map()},
+      normalizeKey:s=>String(s).toLowerCase().replace(/[^a-z0-9]/g,""),
+      allianceKey:s=>String(s).toLowerCase(),
+      window:{LoSPAlliances:{getAllianceKey:s=>s},
+        LoSPAccess:{isAllianceAllowed:()=>true}}
+    });
+  assert.equal(rows[0].icon,"M");
+  assert.equal(rows[1].icon,"E");
+});
