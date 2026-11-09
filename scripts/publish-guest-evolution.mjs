@@ -116,6 +116,24 @@ export function publicInfos(rows,key,consent){
       ...(publicAsset(r.icon)?{icon:publicAsset(r.icon)}:{}),
       ...(publicAsset(r.frame)?{frame:publicAsset(r.frame)}:{})}));
 }
+export async function writeInfosOnly(outputDir,key,infos){
+  const file=path.join(outputDir,key,'infos.json');
+  const encoded=JSON.stringify(infos,null,2)+'\n';
+  let prior;
+  try{prior=await fs.readFile(file,'utf8');}
+  catch(error){if(error?.code!=='ENOENT')throw error;}
+  if(prior===encoded)return false;
+  await fs.mkdir(path.dirname(file),{recursive:true});
+  const staged=file+'.tmp-'+process.pid;
+  try{
+    await fs.writeFile(staged,encoded,'utf8');
+    await fs.rename(staged,file);
+  }catch(error){
+    await fs.rm(staged,{force:true});
+    throw error;
+  }
+  return true;
+}
 export function assertOperationalResult(approvedCount,validatedCount){
   if(approvedCount>0&&validatedCount===0)
     throw Error('No approved guest alliance passed validation; export is not operational.');
@@ -299,7 +317,7 @@ async function main(){
   const prior=await fs.readdir(outDir,{withFileTypes:true}).catch(e=>
     e.code==='ENOENT'?[]:Promise.reject(e));
   const revoked=prior.filter(x=>x.isDirectory()&&!approvedKeys.has(x.name)).map(x=>x.name);
-  const purge=new Set(revoked),ready=new Map(),failed=[];
+  const purge=new Set(revoked),ready=new Map(),failed=[],supplementalInfos=new Map();
   for(const alliance of approved){
     try{
       const consent=await latestConsent(r2,alliance.fingerprint,now);
@@ -309,8 +327,15 @@ async function main(){
         continue;
       }
       legacyConsent.set(alliance.key,consent.sharers);
-      ready.set(alliance.key,await readTree(r2,alliance,consent,now));
-      console.log(alliance.key+': '+ready.get(alliance.key).size+' validated JSON files');
+      try{
+        ready.set(alliance.key,await readTree(r2,alliance,consent,now));
+        console.log(alliance.key+': '+ready.get(alliance.key).size+' validated JSON files');
+      }catch(error){
+        // Portrait metadata is independently consent-checked and may decorate
+        // an already-published legacy checkpoint while R2 history is unavailable.
+        supplementalInfos.set(alliance.key,publicInfos(consent.source.rows,alliance.key,consent));
+        throw error;
+      }
     }catch(error){
       // Preserve existing legacy history if this run cannot verify current consent.
       legacyConsent.delete(alliance.key);
@@ -338,6 +363,8 @@ async function main(){
   // A revocation is actionable even when a different alliance has a temporary R2 error.
   for(const key of purge)await fs.rm(path.join(outDir,key),{recursive:true,force:true});
   for(const [key,files] of ready)await writeAlliance(key,files);
+  for(const [key,infos] of supplementalInfos)
+    if(!purge.has(key))await writeInfosOnly(outDir,key,infos);
   // Remove old checkpoint files only inside alliances whose current consent was verified.
   // writeAlliance replaces that single alliance directory atomically at the workflow scope.
 }
