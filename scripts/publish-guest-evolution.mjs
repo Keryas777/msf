@@ -185,7 +185,8 @@ async function readTree(r2,alliance,consent,now){
       .sort((a,b)=>a.date.localeCompare(b.date))};
   files.set('index.json',indexOut);
   // Publish only portrait fields needed by the optional ranking decoration.
-  const infos=publicInfos(consent.source.rows,key,consent);\n  files.set('infos.json',infos);
+  const infos=publicInfos(consent.source.rows,key,consent);
+  files.set('infos.json',infos);
   return files;
 }
 async function readJson(file){return JSON.parse(await fs.readFile(file,'utf8'));}
