@@ -127,7 +127,15 @@
 
     const previous = pages.get(activeKey);
     previous.scrollY = window.scrollY;
+    // Keep the preview outside the swapped view: it belongs to the session,
+    // not to either tab's DOM or lifecycle.
+    const preview = document.getElementById("lospAdminPreview");
     document.querySelector(MAIN).replaceWith(entry.main);
+    if (preview) {
+      const header = entry.main.querySelector(":scope > .header");
+      if (header) header.after(preview);
+      else entry.main.prepend(preview);
+    }
     document.body.className = entry.bodyClass;
     document.title = entry.title;
     activeKey = key;
