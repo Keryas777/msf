@@ -23,13 +23,13 @@ const rootDir=process.env.DATA_DIR||'docs/data';
 const outDir=path.join(rootDir,'roster-history','guests');
 const args=process.argv.slice(2);
 const write=args.includes('--write');
-if(args.some(x=>!['--write','--dry-run','--help','-h'].includes(x)))
+if(isMain&&args.some(x=>!['--write','--dry-run','--help','-h'].includes(x)))
   throw Error('Usage: node scripts/publish-guest-evolution.mjs [--dry-run|--write]');
-if(args.includes('--help')||args.includes('-h')){
+if(isMain&&(args.includes('--help')||args.includes('-h'))){
   console.log('Usage: node scripts/publish-guest-evolution.mjs [--dry-run|--write]');
   process.exit(0);
 }
-if(write&&process.env.LOSP_R2_GUEST_EVOLUTION_PUBLICATION_APPROVED!=='true')
+if(isMain&&write&&process.env.LOSP_R2_GUEST_EVOLUTION_PUBLICATION_APPROVED!=='true')
   throw Error('Public guest Evolution publication is disabled pending explicit authorization.');
 
 export function validateApprovals(record,alliances){
