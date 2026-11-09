@@ -364,8 +364,10 @@ async function main(){
   assertOperationalResult(approved.length,ready.size);
   if(!write){console.log('Dry run: no public files changed.');return;}
   // Keep the legacy shared archive in sync with verified guest consent without touching LoSP rows.
-  const legacyRemoved=await pruneLegacyGuestHistory(rootDir,guestKeys,legacyConsent);
-  console.log('Legacy guest history removed for consent: '+JSON.stringify(legacyRemoved));
+  // Historical snapshots were published under the consent valid at capture.
+  // Current rosterShare only controls NEW exports; never rewrite past observations.
+  // Keep the old shared archive intact, including former members.
+  console.log('Legacy guest history retained: no historical consent pruning.');
   // A revocation is actionable even when a different alliance has a temporary R2 error.
   for(const key of purge)await fs.rm(path.join(outDir,key),{recursive:true,force:true});
   for(const [key,files] of ready)await writeAlliance(key,files);
