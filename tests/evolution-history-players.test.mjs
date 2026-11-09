@@ -21,7 +21,7 @@ function select(state,alliance){
     state,normalizeKey,getRosterPlayerKey,canonicalPlayerName,arguments:[alliance]
   });
 }
-test('historical players stay selectable when an authorized-only roster omits them',()=>{
+test('LoSP historical checkpoints do not bypass current roster consent',()=>{
   const state={
     rosters:[
       {alliance:'zeus',player:'Active Member',playerKey:'activemember'},
@@ -40,14 +40,15 @@ test('historical players stay selectable when an authorized-only roster omits th
     }}
   };
   const zeus=Array.from(select(state,'zeus'));
-  assert.deepEqual(zeus.map(x=>x.key),['activemember','withheld']);
+  assert.deepEqual(zeus.map(x=>x.key),['activemember']);
   assert.equal(zeus[0].label,'Active Member');
-  assert.equal(zeus[1].label,'Archived Player (historique)');
+  assert.ok(!zeus.some(x=>x.key==='withheld'),
+    'An archived LoSP player without current roster consent must stay hidden');
   assert.ok(!zeus.some(x=>x.key==='transferred'),
     'A player now in another alliance must not be duplicated in the old one');
   const poseidon=Array.from(select(state,'poseidon'));
-  assert.deepEqual(poseidon.map(x=>x.key),['poseidon','transferred']);
-  assert.equal(poseidon[1].label,'Transferred');
+  assert.deepEqual(poseidon.map(x=>x.key),['transferred']);
+  assert.equal(poseidon[0].label,'Transferred');
 });
 test('no past checkpoint means no fake historical player',()=>{
   const state={rosters:[],historyIndex:{players:{
