@@ -1,8 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {readFile} from "node:fs/promises";
+import {readFile,mkdtemp,mkdir,writeFile,rm} from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import {validateApprovals,validateConsent,validateIndex,validateSnapshot,publicAsset,
-  publicInfos,assertOperationalResult} from "../scripts/publish-guest-evolution.mjs";
+  publicInfos,assertOperationalResult,pruneLegacyGuestHistory}
+  from "../scripts/publish-guest-evolution.mjs";
 
 const fp="a".repeat(64);
 const registry=[{key:"zeus",group:"losp"},
@@ -85,4 +88,76 @@ test("a dry-run with approved but zero validated alliances is operational failur
   assert.throws(()=>assertOperationalResult(4,0),/not operational/);
   assert.doesNotThrow(()=>assertOperationalResult(4,1));
   assert.doesNotThrow(()=>assertOperationalResult(0,0));
+});
+
+async function legacyFixture(){
+  const root=await mkdtemp(path.join(os.tmpdir(),"guest-evolution-legacy-"));
+  const history=path.join(root,"roster-history");
+  const date="2026-11-08";
+  const index={version:1,players:{
+    losp:{name:"LoSP",currentAlliance:"zeus",checkpoints:[date]},
+    shared:{name:"Shared",currentAlliance:"questionable-propriety",checkpoints:[date]},
+    withdrawn:{name:"Withdrawn",currentAlliance:"questionable-propriety",checkpoints:[date]}
+  },checkpoints:[{date,players:3}]};
+  const group={version:1,checkpoint:date,players:[
+    {player:"LoSP",playerKey:"losp",alliance:"zeus",totalPower:1},
+    {player:"Shared",playerKey:"shared",alliance:"questionable-propriety",totalPower:2},
+    {player:"Withdrawn",playerKey:"withdrawn",alliance:"questionable-propriety",totalPower:3}
+  ]};
+  await mkdir(path.join(history,"group"),{recursive:true});
+  await mkdir(path.join(history,"players","losp"),{recursive:true});
+  await mkdir(path.join(history,"players","shared"),{recursive:true});
+  await mkdir(path.join(history,"players","withdrawn"),{recursive:true});
+  await writeFile(path.join(history,"index.json"),JSON.stringify(index));
+  await writeFile(path.join(history,"group",date+".json"),JSON.stringify(group));
+  for(const [key,player,alliance] of [
+    ["losp","LoSP","zeus"],["shared","Shared","questionable-propriety"],
+    ["withdrawn","Withdrawn","questionable-propriety"]]){
+    await writeFile(path.join(history,"players",key,date+".json"),
+      JSON.stringify({player,playerKey:key,alliance,checkpoint:date,chars:{},iso:{}}));
+  }
+  return {root,history,date};
+}
+test("legacy guest consent pruning preserves LoSP and sharing players, removes withdrawn history",async()=>{
+  const f=await legacyFixture();
+  try{
+    const result=await pruneLegacyGuestHistory(f.root,new Set(["questionable-propriety"]),
+      new Map([["questionable-propriety",new Set(["shared"])]]));
+    assert.deepEqual(result,{indexPlayers:1,groupRows:1,playerFiles:1});
+    const index=JSON.parse(await (await import("node:fs/promises")).readFile(
+      path.join(f.history,"index.json"),"utf8"));
+    const group=JSON.parse(await (await import("node:fs/promises")).readFile(
+      path.join(f.history,"group",f.date+".json"),"utf8"));
+    assert.deepEqual(Object.keys(index.players).sort(),["losp","shared"]);
+    assert.equal(index.checkpoints[0].players,2);
+    assert.deepEqual(group.players.map(p=>p.player).sort(),["LoSP","Shared"]);
+    await assert.rejects((await import("node:fs/promises")).readFile(
+      path.join(f.history,"players","withdrawn",f.date+".json")));
+    await (await import("node:fs/promises")).readFile(
+      path.join(f.history,"players","shared",f.date+".json"),"utf8");
+  }finally{await rm(f.root,{recursive:true,force:true});}
+});
+test("unverifiable legacy guest consent preserves existing files until verified",async()=>{
+  const f=await legacyFixture();
+  try{
+    const result=await pruneLegacyGuestHistory(f.root,new Set(["questionable-propriety"]),new Map());
+    assert.deepEqual(result,{indexPlayers:0,groupRows:0,playerFiles:0});
+    const index=JSON.parse(await (await import("node:fs/promises")).readFile(
+      path.join(f.history,"index.json"),"utf8"));
+    assert.equal(Object.keys(index.players).length,3);
+  }finally{await rm(f.root,{recursive:true,force:true});}
+});
+test("revoked guest approval removes its current public history without changing LoSP",async()=>{
+  const f=await legacyFixture();
+  try{
+    const result=await pruneLegacyGuestHistory(f.root,new Set(["questionable-propriety"]),
+      new Map([["questionable-propriety",null]]));
+    assert.deepEqual(result,{indexPlayers:2,groupRows:2,playerFiles:2});
+    const index=JSON.parse(await (await import("node:fs/promises")).readFile(
+      path.join(f.history,"index.json"),"utf8"));
+    assert.deepEqual(Object.keys(index.players),["losp"]);
+    assert.equal(index.checkpoints[0].players,1);
+    assert.equal(JSON.parse(await (await import("node:fs/promises")).readFile(
+      path.join(f.history,"group",f.date+".json"),"utf8")).players.length,1);
+  }finally{await rm(f.root,{recursive:true,force:true});}
 });
