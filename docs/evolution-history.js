@@ -40,11 +40,20 @@
     }
     throw last||Error("Chargement historique impossible.");
   }
+  const scopedGuestId=(alliance,name)=>{
+    const n=norm(name);
+    return SLUG.test(alliance||"")&&n?"g_"+alliance+"__"+n:"";
+  };
   function publicIndex(raw){
     const players={};
     for(const [id,entry] of Object.entries(raw?.players||{})){
-      if(entry?.currentAlliance&&allowed(entry.currentAlliance)&&
-         losp(entry.currentAlliance))players[id]=entry;
+      const alliance=entry?.currentAlliance;
+      if(!alliance||!allowed(alliance))continue;
+      if(losp(alliance))players[id]=entry;
+      else if(guest(alliance)){
+        const scoped=scopedGuestId(alliance,entry.name||id);
+        if(scoped)players[scoped]={...entry,playerKey:scoped,legacyPlayerKey:id};
+      }
     }
     const dates=new Map();
     for(const entry of Object.values(players))for(const date of entry.checkpoints||[])
@@ -65,16 +74,27 @@
         throw Error("Checkpoint historique invité invalide.");
     return idx;
   }
-  function mergeIndices(lospIndex,guestIndices){
-    const players={...lospIndex.players},dates=new Map(
-      lospIndex.checkpoints.map(c=>[c.date,c.players]));
-    for(const [key,idx] of guestIndices){
-      for(const [id,row] of Object.entries(idx.players)){
-        if(Object.hasOwn(players,id))throw Error("Identités historiques en collision.");
-        players[id]=row;
-      }
-      for(const c of idx.checkpoints)dates.set(c.date,(dates.get(c.date)||0)+c.players);
-    }
+  function mergeIndices(legacyIndex,guestIndices){
+    const players={};
+    const mergePlayer=(id,row)=>{
+      const prior=players[id];
+      if(!prior){players[id]=row;return;}
+      if(prior.currentAlliance!==row.currentAlliance)
+        throw Error("Identités historiques en collision.");
+      players[id]={...prior,...row,checkpoints:[...new Set([
+        ...(prior.checkpoints||[]),...(row.checkpoints||[])
+      ])].sort()};
+    };
+    for(const [id,row] of Object.entries(legacyIndex.players))mergePlayer(id,row);
+    for(const [alliance,idx] of guestIndices)
+      for(const [id,row] of Object.entries(idx.players))mergePlayer(id,row);
+    const dates=new Map();
+    for(const idx of [legacyIndex,...[...guestIndices.values()]])
+      for(const checkpoint of idx.checkpoints||[])
+        if(DAY.test(checkpoint?.date||""))dates.set(checkpoint.date,0);
+    for(const row of Object.values(players))
+      for(const date of new Set(row.checkpoints||[]))
+        if(DAY.test(date))dates.set(date,(dates.get(date)||0)+1);
     return {version:1,players,checkpoints:[...dates]
       .map(([date,count])=>({date,players:count})).sort((a,b)=>a.date.localeCompare(b.date))};
   }
@@ -91,8 +111,7 @@
     const isGuest=window.LoSP_SESSION.role==="guest";
     if(isGuest&&!guests.length)throw Error("Aucune alliance invitée autorisée.");
     const warnings=[];
-    const lospData=isGuest?{version:1,players:{},checkpoints:[]}:
-      publicIndex(await staticJson("./data/roster-history/index.json"));
+    const legacyData=publicIndex(await staticJson("./data/roster-history/index.json"));
     const results=await Promise.all(guests.map(async a=>{
       try{return [a.key,validateGuestIndex(a.key,await staticJson(guestPath(a.key,"index")))];}
       catch(error){
@@ -102,7 +121,7 @@
       }
     }));
     for(const result of results)if(result)guestIndex.set(...result);
-    return {historyIndex:mergeIndices(lospData,guestIndex),warnings,
+    return {historyIndex:mergeIndices(legacyData,guestIndex),warnings,
       guestAlliances:guests.map(a=>a.key),historyPolicy:"checkpoint-archive"};
   }
   async function infos(){
@@ -133,15 +152,15 @@
   }
   async function group(date){
     if(!DAY.test(date||""))throw Error("Date de comparaison invalide.");
-    const isGuest=window.LoSP_SESSION?.role==="guest";
-    const tasks=[];
-    if(!isGuest)tasks.push(staticJson("./data/roster-history/group/"+date+".json")
-      .then(data=>(data?.players||[]).filter(p=>allowed(p.alliance)&&losp(p.alliance)))
+    const tasks=[staticJson("./data/roster-history/group/"+date+".json")
+      .then(data=>(data?.players||[])
+        .filter(p=>allowed(p.alliance)&&(losp(p.alliance)||guest(p.alliance)))
+        .map(p=>guest(p.alliance)?
+          {...p,playerKey:scopedGuestId(p.alliance,p.player)}:p))
       .catch(error=>{
         if(error?.status===404)return [];
         throw error;
-      }));
-    else tasks.push(Promise.resolve([]));
+      })];
     for(const [key,idx] of guestIndex){
       if(!idx.checkpoints.some(c=>c.date===date))continue;
       tasks.push(staticJson(guestPath(key,"group",date)).then(data=>{
@@ -151,7 +170,13 @@
         return data.players.filter(p=>allowed(p.alliance));
       }));
     }
-    return {version:1,checkpoint:date,players:(await Promise.all(tasks)).flat()};
+    const rows=(await Promise.all(tasks)).flat(),unique=new Map();
+    for(const row of rows){
+      const id=row?.playerKey||"";
+      if(!id)continue;
+      unique.set(row.alliance+"\u0000"+id,row);
+    }
+    return {version:1,checkpoint:date,players:[...unique.values()]};
   }
   async function player(alliance,playerKey,date){
     if(!DAY.test(date||""))throw Error("Date de comparaison invalide.");
@@ -159,10 +184,21 @@
       if(!allowed(alliance)||!PLAYER.test(playerKey||"")||
          !playerKey.startsWith("g_"+alliance+"__"))
         throw Error("Historique invité non autorisé.");
-      const snapshot=await staticJson(guestPath(alliance,"player",date,playerKey));
-      if(snapshot?.alliance!==alliance||snapshot.playerKey!==playerKey||
-         snapshot.checkpoint!==date)throw Error("Historique invité incohérent.");
-      return snapshot;
+      const idx=guestIndex.get(alliance);
+      const indexed=idx?.players?.[playerKey]?.checkpoints?.includes(date);
+      if(indexed){
+        const snapshot=await staticJson(guestPath(alliance,"player",date,playerKey));
+        if(snapshot?.alliance!==alliance||snapshot.playerKey!==playerKey||
+           snapshot.checkpoint!==date)throw Error("Historique invité incohérent.");
+        return snapshot;
+      }
+      const legacyPlayerKey=playerKey.slice(("g_"+alliance+"__").length);
+      const legacy=await staticJson("./data/roster-history/players/"+
+        encodeURIComponent(legacyPlayerKey)+"/"+date+".json");
+      if(legacy?.alliance!==alliance||norm(legacy.player)!==legacyPlayerKey||
+         legacy.playerKey!==legacyPlayerKey||legacy.checkpoint!==date)
+        throw Error("Ancien checkpoint invité incohérent.");
+      return {...legacy,playerKey};
     }
     if(!allowed(alliance)||!losp(alliance))throw Error("Historique LoSP non autorisé.");
     return staticJson("./data/roster-history/players/"+
