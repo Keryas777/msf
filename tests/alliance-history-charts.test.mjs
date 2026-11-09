@@ -794,3 +794,11 @@ test('partial season captures retain independent LoSP and guest rankings',()=>{
       field==='war-season-rank'?88:42);
   }
 });
+
+test('Evolution history loads only static GitHub Pages archives',()=>{
+  const browser=read('docs/alliance-history.js');
+  assert.doesNotMatch(browser,/workers\\.dev|readLiveTrophies|readGuestRanks|fromCloudflare/);
+  assert.match(browser,/readSnapshots\\(index\\)/);
+  assert.match(browser,/readGuestArchive\\(\\)/);
+  assert.match(browser,/LoSPGuestSeasonLive\\.fromArchive/);
+});
