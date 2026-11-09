@@ -328,8 +328,18 @@ async function writeAlliance(key,files){
            !(rel.startsWith('players'+path.sep)||rel.startsWith('group'+path.sep)))continue;
         const dest=path.join(staged,rel);
         await fs.mkdir(path.dirname(dest),{recursive:true});
-        // Preserve the original checkpoint even when a new export has fewer players.
-        await fs.copyFile(src,dest);
+        if(rel.startsWith('group'+path.sep)){
+          const oldGroup=await readJson(src);
+          const newGroup=await readOptionalJson(dest);
+          if(newGroup){
+            const rows=new Map((oldGroup.players||[]).map(p=>[p.playerKey,p]));
+            for(const p of newGroup.players||[])if(!rows.has(p.playerKey))rows.set(p.playerKey,p);
+            await writeJsonIfChanged(dest,{...oldGroup,players:[...rows.values()]});
+          }else await fs.copyFile(src,dest);
+        }else{
+          // Original individual observations are immutable.
+          await fs.copyFile(src,dest);
+        }
       }
     }
     await preserve(base);
