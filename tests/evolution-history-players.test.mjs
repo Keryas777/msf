@@ -12,16 +12,18 @@ const end=script.indexOf('  function sessionPlayerNames(',start);
 assert.ok(start>=0&&end>start,'Could not locate the real player-selector implementation');
 const selectorSource=script.slice(start,end);
 
-function select(state,alliance){
+function select(state,alliance,showFormer=false){
   const normalizeKey=s=>String(s??'').trim().toLowerCase().normalize('NFD')
     .replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
   const getRosterPlayerKey=row=>normalizeKey(row?.playerKey||row?.player);
   const canonicalPlayerName=s=>String(s??'').trim();
   return runInNewContext(selectorSource+'\nplayersForAlliance(arguments[0]);',{
-    state,normalizeKey,getRosterPlayerKey,canonicalPlayerName,arguments:[alliance]
+    state,normalizeKey,getRosterPlayerKey,canonicalPlayerName,arguments:[alliance],
+    window:{LoSPEvolutionHistory:{isGuestAlliance:()=>false}},
+    showFormerPlayers:{checked:showFormer}
   });
 }
-test('LoSP historical checkpoints do not bypass current roster consent',()=>{
+test('LoSP historical members are hidden by default and visible on demand',()=>{
   const state={
     rosters:[
       {alliance:'zeus',player:'Active Member',playerKey:'activemember'},
@@ -46,6 +48,9 @@ test('LoSP historical checkpoints do not bypass current roster consent',()=>{
     'An archived LoSP player without current roster consent must stay hidden');
   assert.ok(!zeus.some(x=>x.key==='transferred'),
     'A player now in another alliance must not be duplicated in the old one');
+  const former=Array.from(select(state,'zeus',true));
+  assert.deepEqual(former.map(x=>x.key),['activemember','withheld','transferred']);
+  assert.equal(former[1].former,true);
   const poseidon=Array.from(select(state,'poseidon'));
   assert.deepEqual(poseidon.map(x=>x.key),['transferred']);
   assert.equal(poseidon[0].label,'Transferred');
