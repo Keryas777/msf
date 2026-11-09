@@ -102,19 +102,22 @@
         if (typeof incoming.key !== 'string') continue;
         const existing = merged.get(incoming.key);
         if (!existing) {
-          merged.set(incoming.key, {...incoming});
+          merged.set(incoming.key, {...incoming,
+            capturedAt: row.capturedAt, seasonVerified: false});
           continue;
         }
         // Keep an actual earlier rank when a later partial observation
         // lacks that metric. Never replace a number with null.
         const next = {...existing};
         for (const field of ['warRank', 'raidRank']) {
-          if (validValue(incoming[field])) next[field] = incoming[field];
+          if (!validValue(next[field]) && validValue(incoming[field]))
+            next[field] = incoming[field];
         }
         merged.set(incoming.key, next);
       }
       prev.alliances = [...merged.values()];
-      if (row.capturedAt > prev.capturedAt) prev.capturedAt = row.capturedAt;
+      // The first observation remains the season representative.
+      // Never backdate or reverify later alliance observations.
     }
     const selected = [...bySeason.values(), ...legacy];
     return selected.sort((a, b) => {
@@ -187,7 +190,8 @@
           seasonStartAt: aValidSeasonEnd(row) ? row.rankingSeason.startAt : null,
           value: validValue(value) ? value : null,
           seasonId: aValidSeasonEnd(row) ? row.seasonId : null,
-          seasonVerified: !fallback && row.seasonVerified === true,
+          seasonVerified: !fallback && row.seasonVerified === true &&
+            source?.seasonVerified !== false,
           seasonDerived: Boolean(fallback) || row.seasonDerived === true};
       })
     }));
