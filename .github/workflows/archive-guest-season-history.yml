@@ -38,7 +38,8 @@ jobs:
       - name: Verify guest history projector
         run: |
           node --check scripts/pull-guest-season-ranks-r2.mjs
-          node --test tests/guest-season-history.test.mjs tests/alliance-season-live.test.mjs tests/alliance-history-charts.test.mjs tests/season-history.test.mjs
+          node --check scripts/diagnose-guest-season-r2.mjs
+          node --test tests/guest-season-history.test.mjs tests/alliance-season-live.test.mjs tests/alliance-history-charts.test.mjs tests/season-history.test.mjs tests/diagnose-guest-season.test.mjs
       - name: Prevent publication outside main
         if: ${{ github.event_name == 'schedule' || inputs.publish == true }}
         run: |
@@ -46,6 +47,14 @@ jobs:
             echo "Publishing is forbidden outside main; run dry-run on PR branch."
             exit 1
           fi
+      - name: Diagnose missing Endgame Revolution Red season (read-only)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish == false }}
+        env:
+          LOSP_R2_ACCOUNT_ID: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
+          LOSP_R2_ACCESS_KEY_ID: ${{ secrets.LOSP_R2_ACCESS_KEY_ID }}
+          LOSP_R2_SECRET_ACCESS_KEY: ${{ secrets.LOSP_R2_SECRET_ACCESS_KEY }}
+          LOSP_R2_BUCKET: ${{ secrets.LOSP_R2_BUCKET }}
+        run: node scripts/diagnose-guest-season-r2.mjs
       - name: Append rank-only records from authorized private R2 sources
         env:
           LOSP_R2_ACCOUNT_ID: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
