@@ -4,7 +4,8 @@ import {readFile,mkdtemp,mkdir,writeFile,rm} from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import {validateApprovals,validateConsent,validateIndex,validateSnapshot,publicAsset,
-  publicInfos,assertOperationalResult,pruneLegacyGuestHistory,writeInfosOnly,\n  auditRosterShareByStableId,collectLegacyGuestConsentAudit}
+  publicInfos,assertOperationalResult,pruneLegacyGuestHistory,writeInfosOnly,
+  auditRosterShareByStableId,collectLegacyGuestConsentAudit}
   from "../scripts/publish-guest-evolution.mjs";
 
 const fp="a".repeat(64);
