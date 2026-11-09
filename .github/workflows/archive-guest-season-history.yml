@@ -58,9 +58,38 @@ jobs:
           else
             node scripts/pull-guest-season-ranks-r2.mjs
           fi
+      - name: Consolidate permanent season history
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ] || [ "${{ inputs.publish }}" = "true" ]; then
+            node scripts/sync-season-history.mjs --write
+          else
+            node scripts/sync-season-history.mjs
+          fi
       - name: Enforce public-file write scope
         run: |
-          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' | grep -v '^docs/data/alliance-standings/guest-season-history[.]json$' || true)"
+          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' | grep -Ev '^docs/data/alliance-standings/(guest-season-history|season-history)[.]json || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected files:"; echo "$unexpected"; exit 1
+          fi
+      - name: Commit new season results
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PUBLISH: ${{ inputs.publish }}
+        run: |
+          if [ "$EVENT_NAME" != "schedule" ] && [ "$INPUT_PUBLISH" != "true" ]; then
+            echo "Dry run; no commit."
+            exit 0
+          fi
+          git add docs/data/alliance-standings/guest-season-history.json docs/data/alliance-standings/season-history.json
+          if git diff --cached --quiet; then
+            echo "No new eligible guest season result."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "data: append approved guest raid/war season results"
+          git push origin HEAD:main
+ || true)"
           if [ -n "$unexpected" ]; then
             echo "Unexpected files:"; echo "$unexpected"; exit 1
           fi
