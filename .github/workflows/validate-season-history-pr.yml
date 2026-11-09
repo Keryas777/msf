@@ -1,0 +1,41 @@
+name: Validate unified season history PR
+
+on:
+  pull_request:
+    paths:
+      - 'docs/alliance-history*.js'
+      - 'docs/alliance-season-live.js'
+      - 'docs/data/alliance-standings/**'
+      - 'scripts/lib/season-history.mjs'
+      - 'scripts/sync-season-history.mjs'
+      - 'scripts/lib/alliance-season-ranks-r2.mjs'
+      - 'scripts/pull-alliance-season-ranks-r2.mjs'
+      - 'tests/**'
+      - '.github/workflows/archive-guest-season-history.yml'
+      - '.github/workflows/pull-alliance-season-ranks-r2.yml'
+      - '.github/workflows/validate-season-history-pr.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Syntax
+        run: |
+          node --check scripts/lib/season-history.mjs
+          node --check scripts/sync-season-history.mjs
+          node --check scripts/pull-alliance-season-ranks-r2.mjs
+          node --check docs/alliance-history.js
+          node --check docs/alliance-season-live.js
+      - name: Non-regression tests
+        run: |
+          node --test tests/season-history.test.mjs tests/guest-season-history.test.mjs tests/alliance-season-live.test.mjs tests/alliance-history-charts.test.mjs tests/alliance-season-ranks-r2.test.mjs tests/alliance-standings-data.test.mjs
+      - name: Validate archive projection without writing
+        run: node scripts/sync-season-history.mjs
