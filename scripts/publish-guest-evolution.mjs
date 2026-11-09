@@ -322,6 +322,13 @@ function validCalendarDate(value){
   return DAY.test(value||"")&&Number.isFinite(Date.parse(value+"T00:00:00Z"))&&
     new Date(value+"T00:00:00Z").toISOString().slice(0,10)===value;
 }
+export function formatLegacyGuestConsentAudit(reports){
+  return reports.map(item=>
+    'Legacy rosterShare audit '+item.alliance+' '+item.date+
+    ': valid='+item.counts.valid+'; revoked='+item.counts.revoked+
+    '; unverifiable='+item.counts.unverifiable+'; balanced='+
+    (item.balanced?'yes':'no'));
+}
 export async function collectLegacyGuestConsentAudit(dataDir,guestKeys,consentByAlliance){
   const history=path.join(dataDir,"roster-history");
   const groupDir=path.join(history,"group");
@@ -434,11 +441,7 @@ async function main(){
     }
   }
   const legacyAudit=await collectLegacyGuestConsentAudit(rootDir,guestKeys,currentConsent);
-  const auditLines=legacyAudit.map(item=>
-    'Legacy rosterShare audit '+item.alliance+' '+item.date+
-    ': valid='+item.counts.valid+'; revoked='+item.counts.revoked+
-    '; unverifiable='+item.counts.unverifiable+'; balanced='+
-    (item.balanced?'yes':'no'));
+  const auditLines=formatLegacyGuestConsentAudit(legacyAudit);
   for(const line of auditLines)console.log(line);
   const summary='Approved: '+approved.length+'; validated: '+ready.size+
     '; failed closed: '+failed.length+'; revoked: '+revoked.length;
