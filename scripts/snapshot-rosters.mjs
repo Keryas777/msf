@@ -135,10 +135,10 @@ function assertFullGitHistory() {
   }
 }
 
-function findSourceRevision(file, checkpoint) {
+function findSourceRevision(file, checkpoint, allowLatest = false) {
   let line = '';
   try {
-    line = runGit(['log', '-1', '--format=%H%x09%cI', `--before=${checkpointCutoff(checkpoint)}`, '--', file]);
+    line = runGit(['log', '-1', '--format=%H%x09%cI', ...(allowLatest ? [] : [`--before=${checkpointCutoff(checkpoint)}`]), '--', file]);
   } catch {
     return null;
   }
@@ -396,7 +396,7 @@ async function main() {
     if (!revision && options.allowLateQp && alliance === 'questionable-propriety') {
       // Explicit exceptional backfill: first collection happened after the checkpoint.
       // Preserve the actual Git source timestamp and mark every snapshot as late.
-      revision = findSourceRevision(file, '9999-12-31');
+      revision = findSourceRevision(file, options.checkpoint, true);
       if (revision) revision = { ...revision, lateBackfill: true };
     }
     if (!revision) {
