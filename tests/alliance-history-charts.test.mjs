@@ -768,3 +768,29 @@ test('switching from trophies to war and raid season ranks redraws real rank val
     {id:'raid-season-rank',zeus:77}
   ]);
 });
+
+
+test('partial season captures retain independent LoSP and guest rankings',()=>{
+  const season={startAt:'2026-10-25T20:00:00.000Z',
+    endExclusiveAt:'2026-11-08T20:00:00.000Z'};
+  const make=(time,alliances)=>({
+    capturedAt:time,captureType:'season-ranks',
+    seasonId:'2026-10-25/2026-11-08',
+    seasonDerived:true,rankingSeason:season,alliances
+  });
+  const rows=[
+    make('2026-11-09T03:15:00.000Z',[
+      {key:'zeus',warRank:125,raidRank:70}]),
+    make('2026-11-09T15:15:00.000Z',[
+      {key:'marines',warRank:88,raidRank:42},
+      {key:'zeus',warRank:null,raidRank:null}])
+  ];
+  for(const field of ['war-season-rank','raid-season-rank']){
+    const model=prepare(rows,registry,byId(field),config.rankingSeasons);
+    assert.equal(model.rows.length,1);
+    assert.equal(model.series.find(s=>s.key==='zeus').points[0].value,
+      field==='war-season-rank'?125:70);
+    assert.equal(model.series.find(s=>s.key==='marines').points[0].value,
+      field==='war-season-rank'?88:42);
+  }
+});
