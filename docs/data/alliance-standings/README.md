@@ -154,7 +154,7 @@ fenêtre prudente suivant la guerre du mercredi (**20:00 UTC mercredi –
 13:00 UTC jeudi**). Le fichier conserve l'heure réelle et ne prétend pas
 qu'une collecte automatique a été exécutée. Aucun jeton, empreinte privée
 ni donnée de session n'est publié.
-Les réserves contractuelles de conservation des données de l'API restent applicables.
+La conservation des historiques publiés est assurée par la WebApp dans GitHub, indépendamment de la rétention temporaire du Roster Service.
 
 ## Importation passive depuis R2 — préparation GitHub Actions
 
@@ -181,15 +181,11 @@ L'import s'exécute côté **GitHub Actions**, pas dans `alliance-history.js`
    permet une vérification manuelle **sans écriture** (`publish=false`).
    Une date passée au format UTC `YYYY-MM-DD` peut être fournie pour
    jeudi/samedi, tant que les objets R2 existent encore.
-4. Avant toute publication automatique et conservation durable, **résoudre
-   les droits de rétention et de redistribution des données Scopely** :
-   les conditions API du 3 mars 2022 imposent un TTL maximum de 30 jours.
-   Un historique permanent dans Git reste problématique sans autorisation
-   explicite ou source indépendante autorisée. Après validation,
+4. La WebApp conserve les historiques publiés en JSON dans GitHub, indépendamment
+   de la rétention des captures temporaires dans R2. Le garde-fou existant
    `LOSP_R2_HISTORY_PUBLICATION_APPROVED=true` déverrouille l'option
    `publish=true` ; `LOSP_R2_HISTORY_IMPORT_ENABLED=true` active en plus
-   les horaires du cron (jeudi/samedi 06:40 UTC). Ces variables de dépôt
-   ne constituent pas, en elles-mêmes, une dérogation contractuelle.
+   les horaires du cron (jeudi/samedi 06:40 UTC).
 
 Le lecteur R2 n'utilise que les objets
 `roster-batches/v1/<fingerprint>/<run>/provider-source/<uuid>/alliance-card.json`,
@@ -247,10 +243,9 @@ La vérification sans écriture s'effectue depuis
 secrets de lecture seule R2 que l'import des trophées. La publication
 exige séparément `LOSP_R2_ROSTERS_PUBLICATION_APPROVED=true` ; l'exécution
 programmée exige en plus `LOSP_R2_ROSTER_IMPORT_ENABLED=true`.
-**Ces variables ne sont pas configurées par la PR.** Les permissions de
-publication/redistribution et la rétention maximale de 30 jours des données
-obtenues par l'API MSF doivent être clarifiées auparavant. Les anciennes
-versions Git restent accessibles même si le JSON est écrasé deux fois par jour.
+**Ces variables ne sont pas configurées par la PR.** Les historiques publiés
+sont conservés dans GitHub ; les anciennes versions Git restent accessibles
+même si le JSON est écrasé deux fois par jour.
 
 **Limites à vérifier en essai réel :** la présence d'un manifeste complet
 dans chaque campagne et les variantes du schéma ISO de l'API `/roster`.
@@ -276,8 +271,8 @@ Le traitement reste idempotent par jour UTC. L'import normal basé sur
 `02:00–06:00 UTC`, conservé en compatibilité, reste disponible lors des
 schedules GitHub de secours ; il n'attend pas des reçus de rosters complets.
 
-L'autorisation de publication et les réserves contractuelles de rétention
-restent inchangées : `LOSP_R2_HISTORY_PUBLICATION_APPROVED=true` est
+Le garde-fou de publication existant reste inchangé :
+`LOSP_R2_HISTORY_PUBLICATION_APPROVED=true` est
 nécessaire avant tout commit de ces données. L'appel Cloudflare à GitHub
 ne transporte ni carte d'alliance ni jeton OAuth.
 
@@ -319,13 +314,9 @@ déjà existants. Elle **n'appelle jamais Scopely**. Elle est programmée
   disparaître les saisons déjà archivées. Aucun nouveau point de trophées
   n'est créé.
 
-**Garde-fou contractuel important :** cette archive publique et sans date
-d'expiration n'est pas activée par la simple approbation d'une collecte
-Scopely. La clause de TTL maximal de l'API peut aussi concerner les rangs
-extraits, même réduits à un résultat par saison. Il faut confirmer l'autorisation
-de conservation/redistribution au-delà de 30 jours (par exemple accord explicite
-de Scopely ou source indépendante autorisée). La variable GitHub
-`LOSP_GUEST_SEASON_HISTORY_APPROVED=true` matérialise cette validation.
-Le cron exige également `LOSP_R2_HISTORY_IMPORT_ENABLED=true`.
-Tant que cette autorisation manque, ne pas activer la publication illimitée.
+Les résultats de saison publiés sont conservés durablement en JSON dans GitHub,
+indépendamment de la durée de vie des captures temporaires R2.
+La variable GitHub `LOSP_GUEST_SEASON_HISTORY_APPROVED=true` reste le
+contrôle de publication existant. Le cron exige également
+`LOSP_R2_HISTORY_IMPORT_ENABLED=true`.
 Le mode manuel `workflow_dispatch` sans publication permet un essai à blanc.
