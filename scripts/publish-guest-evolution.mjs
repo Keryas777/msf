@@ -126,7 +126,13 @@ async function latestConsent(r2,fp,now){
     const day=new Date(base-delta*86400000).toISOString().slice(0,10);
     for(const period of ['pm','am']){
       const campaign=day+'-'+period;
-      const source=await r2.getJSON(CAMPAIGNS+fp+'/campaigns/'+campaign+'-infos.json',MAX_INFOS);
+      let source;
+      try{source=await r2.getJSON(CAMPAIGNS+fp+'/campaigns/'+campaign+'-infos.json',MAX_INFOS);}
+      catch(error){
+        const status=Number(/HTTP (\\d{3})/.exec(String(error?.message||''))?.[1]||0);
+        if(status>=500||error?.name==='AbortError'||error instanceof TypeError)throw error;
+        return null;
+      }
       if(source===null)continue;
       if(source.campaign!==campaign)return null;
       return validateConsent(source,fp,now);
