@@ -16,7 +16,7 @@
   const guest=s=>{
     const m=meta(s);return Boolean(m?.group&&m.group!=="losp");
   };
-  const losp=s=>meta(s)?.group==="losp";
+  // Use the canonical registry for group membership: display metadata may be\n  // unavailable or still on its fallback when archived groups are loaded.\n  const losp=s=>{\n    const key=String(s??"").trim().toLowerCase();\n    const record=canonicalRegistry.find(a=>a?.key===key);\n    return record ? record.group==="losp" : meta(s)?.group==="losp";\n  };
   const allowed=s=>window.LoSPAccess?.isAllianceAllowed(s)===true;
   function signed(){
     try{
