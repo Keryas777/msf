@@ -16,6 +16,8 @@
 
   const initialKey = pageKey(new URL(window.location.href));
   const initialMain = document.querySelector(MAIN);
+  // The auth guard may insert the preview asynchronously after boot.
+  // Its DOM must survive subsequent tab changes.
   if (!initialKey || !initialMain) return;
 
   const pages = new Map([[initialKey, {
@@ -127,6 +129,10 @@
 
     const previous = pages.get(activeKey);
     previous.scrollY = window.scrollY;
+    // Keep the preview outside the swapped view: it belongs to the session,
+    // not to either tab's DOM or lifecycle.
+    const preview = document.getElementById("lospAdminPreview");
+    if (preview && preview.closest(MAIN)) document.body.insertBefore(preview, document.querySelector(MAIN));
     document.querySelector(MAIN).replaceWith(entry.main);
     document.body.className = entry.bodyClass;
     document.title = entry.title;
