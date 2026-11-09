@@ -291,11 +291,58 @@ async function writeAlliance(key,files){
   await fs.rm(staged,{recursive:true,force:true});
   await fs.rm(backup,{recursive:true,force:true});
   try{
+    // Append-only historical snapshots: an absent current rosterShare cannot
+    // erase checkpoints previously published with valid consent.
+    const previousIndex=await readOptionalJson(path.join(base,'index.json'));
+    const incomingIndex=files.get('index.json');
+    if(previousIndex?.players&&incomingIndex?.players){
+      const merged={...incomingIndex,players:{...previousIndex.players}};
+      for(const [id,entry] of Object.entries(incomingIndex.players)){
+        const old=merged.players[id];
+        merged.players[id]={...old,...entry,checkpoints:[...new Set([
+          ...(old?.checkpoints||[]),...(entry.checkpoints||[])
+        ])].sort()};
+      }
+      const dates=new Map();
+      for(const entry of Object.values(merged.players))
+        for(const date of entry.checkpoints||[])
+          dates.set(date,(dates.get(date)||0)+1);
+      merged.checkpoints=[...dates].sort(([a],[b])=>a.localeCompare(b))
+        .map(([date,players])=>({date,players}));
+      files.set('index.json',merged);
+    }
     for(const [relative,value] of files){
       const file=path.join(staged,relative);
       await fs.mkdir(path.dirname(file),{recursive:true});
       await fs.writeFile(file,JSON.stringify(value,null,2)+'\n','utf8');
     }
+    // Retain old player and group JSON files that are absent from this export.
+    // Existing checkpoint files are immutable: never overwrite their bytes.
+    async function preserve(dir,relative=''){
+      const entries=await fs.readdir(dir,{withFileTypes:true}).catch(error=>
+        error?.code==='ENOENT'?[]:Promise.reject(error));
+      for(const entry of entries){
+        const rel=path.join(relative,entry.name),src=path.join(dir,entry.name);
+        if(entry.isDirectory()){await preserve(src,rel);continue;}
+        if(!entry.isFile()||!rel.endsWith('.json')||
+           !(rel.startsWith('players'+path.sep)||rel.startsWith('group'+path.sep)))continue;
+        const dest=path.join(staged,rel);
+        await fs.mkdir(path.dirname(dest),{recursive:true});
+        if(rel.startsWith('group'+path.sep)){
+          const oldGroup=await readJson(src);
+          const newGroup=await readOptionalJson(dest);
+          if(newGroup){
+            const rows=new Map((oldGroup.players||[]).map(p=>[p.playerKey,p]));
+            for(const p of newGroup.players||[])if(!rows.has(p.playerKey))rows.set(p.playerKey,p);
+            await writeJsonIfChanged(dest,{...oldGroup,players:[...rows.values()]});
+          }else await fs.copyFile(src,dest);
+        }else{
+          // Original individual observations are immutable.
+          await fs.copyFile(src,dest);
+        }
+      }
+    }
+    await preserve(base);
     try{await fs.rename(base,backup);}catch(error){if(error?.code!=='ENOENT')throw error;}
     try{await fs.rename(staged,base);}
     catch(error){
@@ -364,8 +411,10 @@ async function main(){
   assertOperationalResult(approved.length,ready.size);
   if(!write){console.log('Dry run: no public files changed.');return;}
   // Keep the legacy shared archive in sync with verified guest consent without touching LoSP rows.
-  const legacyRemoved=await pruneLegacyGuestHistory(rootDir,guestKeys,legacyConsent);
-  console.log('Legacy guest history removed for consent: '+JSON.stringify(legacyRemoved));
+  // Historical snapshots were published under the consent valid at capture.
+  // Current rosterShare only controls NEW exports; never rewrite past observations.
+  // Keep the old shared archive intact, including former members.
+  console.log('Legacy guest history retained: no historical consent pruning.');
   // A revocation is actionable even when a different alliance has a temporary R2 error.
   for(const key of purge)await fs.rm(path.join(outDir,key),{recursive:true,force:true});
   for(const [key,files] of ready)await writeAlliance(key,files);
