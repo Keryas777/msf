@@ -63,7 +63,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' |
-            grep -Ev '^docs/data/roster-history/guests/' || true)"
+            grep -Ev '^docs/data/roster-history/guests/|^docs/data/roster-history/index\.json$|^docs/data/roster-history/(group|players)/' || true)"
           if [ -n "$unexpected" ]; then
             echo "Unexpected modifications:"
             echo "$unexpected"
@@ -80,12 +80,12 @@ jobs:
             echo "Dry run only: public-history approval is not enabled."
             exit 0
           fi
-          if [ -z "$(git status --porcelain -- docs/data/roster-history/guests)" ]; then
+          if [ -z "$(git status --porcelain -- docs/data/roster-history)" ]; then
             echo "No Evolution history changes to publish."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/roster-history/guests
+          git add docs/data/roster-history
           git commit -m "data: publish approved guest Evolution history"
           git push origin HEAD:main
