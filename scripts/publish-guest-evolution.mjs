@@ -207,11 +207,15 @@ async function main(){
   const prior=await fs.readdir(outDir,{withFileTypes:true}).catch(e=>
     e.code==='ENOENT'?[]:Promise.reject(e));
   const revoked=prior.filter(x=>x.isDirectory()&&!approvedKeys.has(x.name)).map(x=>x.name);
-  const ready=new Map(),failed=[];
+  const purge=new Set(revoked),ready=new Map(),failed=[];
   for(const alliance of approved){
     try{
       const consent=await latestConsent(r2,alliance.fingerprint,now);
-      if(!consent)throw Error('Current rosterShare consent is unavailable or invalid; skipped.');
+      if(!consent){
+        purge.add(alliance.key);
+        console.warn(alliance.key+': no recent verifiable rosterShare receipt; existing public files will be removed.');
+        continue;
+      }
       ready.set(alliance.key,await readTree(r2,alliance,consent,now));
       console.log(alliance.key+': '+ready.get(alliance.key).size+' validated JSON files');
     }catch(error){
@@ -223,7 +227,7 @@ async function main(){
     '; failed closed: '+failed.length+'; revoked: '+revoked.length);
   if(!write){console.log('Dry run: no public files changed.');return;}
   // A revocation is actionable even when a different alliance has a temporary R2 error.
-  for(const key of revoked)await fs.rm(path.join(outDir,key),{recursive:true,force:true});
+  for(const key of purge)await fs.rm(path.join(outDir,key),{recursive:true,force:true});
   for(const [key,files] of ready)await writeAlliance(key,files);
   // Remove old checkpoint files only inside alliances whose current consent was verified.
   // writeAlliance replaces that single alliance directory atomically at the workflow scope.
