@@ -71,9 +71,12 @@ export function validateConsent(source,fp,now=Date.now()){
   return {sharers,source};
 }
 export function validateIndex(index,fp,key){
-  if(!object(index)||index.version!==1||index.fingerprint!==fp||
-     index.allianceKey!==key||!Array.isArray(index.checkpoints)||
-     index.checkpoints.length>1000)throw Error('Cumulative R2 index is invalid.');
+  if(!object(index))throw Error('Cumulative R2 index is absent or not a JSON object.');
+  if(index.version!==1)throw Error('Cumulative R2 index has an unsupported version.');
+  if(index.fingerprint!==fp)throw Error('Cumulative R2 index fingerprint does not match the approved archive.');
+  if(index.allianceKey!==key)throw Error('Cumulative R2 index allianceKey does not match the canonical alliance binding.');
+  if(!Array.isArray(index.checkpoints)||index.checkpoints.length>1000)
+    throw Error('Cumulative R2 index checkpoints must be an array of at most 1000 records.');
   const dates=new Set();
   for(const c of index.checkpoints){
     if(!safeDate(c?.date)||dates.has(c.date)||
@@ -174,8 +177,8 @@ async function readTree(r2,alliance,consent,now){
   // Publish only portrait fields needed by the optional ranking decoration.
   const infos=consent.source.rows.filter(r=>allowed.has(norm(r.name)))
     .map(r=>({name:r.name,alliance:key,
-      ...(publicAsset(r.icon)?{icon:profileValue(r.icon)}:{}),
-      ...(publicAsset(r.frame)?{frame:profileValue(r.frame)}:{})}));
+      ...(publicAsset(r.icon)?{icon:publicAsset(r.icon)}:{}),
+      ...(publicAsset(r.frame)?{frame:publicAsset(r.frame)}:{})}));
   files.set('infos.json',infos);
   return files;
 }
@@ -229,8 +232,20 @@ async function main(){
       console.error(alliance.key+': '+String(error?.message||'export failed'));
     }
   }
-  console.log('Approved: '+approved.length+'; validated: '+ready.size+
-    '; failed closed: '+failed.length+'; revoked: '+revoked.length);
+  const summary='Approved: '+approved.length+'; validated: '+ready.size+
+    '; failed closed: '+failed.length+'; revoked: '+revoked.length;
+  console.log(summary);
+  const details=failed.map(key=>'- '+key+': validation failed closed').join('\\n');
+  const report=['## Guest Evolution export','',summary,'',
+    ready.size===0&&approved.length>0?
+      '**Aucune alliance validée : aucun export opérationnel.**':
+      ready.size>0?'Validation terminée.':'Aucune alliance invitée approuvée.',
+    '',details||'- Aucun échec.','',
+    write?'Publication autorisée par configuration.':'Dry-run : aucun fichier public modifié.'].join('\\n');
+  if(process.env.GITHUB_STEP_SUMMARY)
+    await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,report+'\\n','utf8');
+  if(approved.length>0&&ready.size===0)
+    throw Error('No approved guest alliance passed validation; export is not operational.');
   if(!write){console.log('Dry run: no public files changed.');return;}
   // A revocation is actionable even when a different alliance has a temporary R2 error.
   for(const key of purge)await fs.rm(path.join(outDir,key),{recursive:true,force:true});
