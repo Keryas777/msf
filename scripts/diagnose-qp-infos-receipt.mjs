@@ -11,7 +11,7 @@ const start=Date.parse("2026-11-09T02:00:00Z");
 const end=Date.parse("2026-11-09T04:00:00Z");
 const safeTimestamp=value=>
   typeof value==="string"&&value.length<=40&&
-  /^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,9})?Z$/.test(value)&&
+  /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,9})?Z$/.test(value)&&
   Number.isFinite(Date.parse(value))?value:"[missing/invalid]";
 
 const reader=createPrivateR2Reader();
