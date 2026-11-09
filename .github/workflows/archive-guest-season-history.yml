@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -39,6 +39,13 @@ jobs:
         run: |
           node --check scripts/pull-guest-season-ranks-r2.mjs
           node --test tests/guest-season-history.test.mjs tests/alliance-season-live.test.mjs tests/alliance-history-charts.test.mjs tests/season-history.test.mjs
+      - name: Prevent publication outside main
+        if: ${{ github.event_name == 'schedule' || inputs.publish == true }}
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "Publishing is forbidden outside main; run dry-run on PR branch."
+            exit 1
+          fi
       - name: Append rank-only records from authorized private R2 sources
         env:
           LOSP_R2_ACCOUNT_ID: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
