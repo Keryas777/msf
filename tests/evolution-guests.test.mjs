@@ -18,7 +18,7 @@ function setup(role,allowed){
       {version:1,players:{"g_endgame-revolution-red__shared":{name:"Shared",
         currentAlliance:"endgame-revolution-red",checkpoints:["2026-11-08"]}},
        checkpoints:[{date:"2026-11-08",players:1}]}],
-    ["./data/roster-history/guests/marines/group/2026-11-08.json",
+    ["./data/roster-history/guests/endgame-revolution-red/group/2026-11-08.json",\n      {version:1,checkpoint:"2026-11-08",players:[{player:"Shared",\n        playerKey:"g_endgame-revolution-red__shared",alliance:"endgame-revolution-red",totalPower:456}]}],\n    ["./data/roster-history/guests/marines/group/2026-11-08.json",
       {version:1,checkpoint:"2026-11-08",players:[{player:"Shared",
         playerKey:"g_marines__shared",alliance:"marines",totalPower:123}]}],
     ["./data/roster-history/guests/marines/players/g_marines__shared/2026-11-08.json",
