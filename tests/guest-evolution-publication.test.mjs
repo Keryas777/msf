@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
-import {validateApprovals,validateConsent,validateIndex,validateSnapshot}
+import {validateApprovals,validateConsent,validateIndex,validateSnapshot,publicAsset}
   from "../scripts/publish-guest-evolution.mjs";
 
 const fp="a".repeat(64);
