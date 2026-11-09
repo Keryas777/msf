@@ -26,9 +26,13 @@ test("eligible Red observation is detected without leaking private identifiers",
   assert.equal(result.season,TARGET_SEASON);
   assert.equal(result.authorization,"approved");
   assert.equal(result.eligibleRecords,1);
+  assert.deepEqual(result.captureSeasons,[{capturedAt:time,
+    calculatedSeasonId:TARGET_SEASON}]);
   assert.deepEqual(result.reasons,[]);
   assert.ok(!JSON.stringify(result).includes(fingerprint));
   assert.ok(!JSON.stringify(result).includes("warRank"));
+  assert.ok(!JSON.stringify(result).includes("raidRank"));
+  assert.ok(!JSON.stringify(result).includes("manualSeasonId"));
 });
 test("missing, revoked, and wrong-season observations have distinct outcomes",()=>{
   assert.deepEqual(run({source:source([])}).reasons,
@@ -42,8 +46,12 @@ test("missing, revoked, and wrong-season observations have distinct outcomes",()
     snapshots:[{collectionDayUtc:"2026-10-29",
       capturedAt:"2026-10-29T15:15:00.000Z",
       alliances:[record({capturedAt:"2026-10-29T15:15:00.000Z"})]}]};
-  assert.deepEqual(run({source:older}).reasons,
-    ["capture-belongs-to-other-season"]);
+  const other=run({source:older});
+  assert.deepEqual(other.reasons,["capture-belongs-to-other-season"]);
+  assert.deepEqual(other.captureSeasons,[{
+    capturedAt:"2026-10-29T15:15:00.000Z",
+    calculatedSeasonId:"2026-10-11/2026-10-25"
+  }]);
 });
 test("invalid ranks and mismatched manual season never qualify",()=>{
   assert.deepEqual(run({source:source([record({raidRank:null})])}).reasons,

@@ -14,7 +14,7 @@ const validRank=x=>Number.isSafeInteger(x)&&x>=0;
 export function diagnoseGuestSeason({registry,approval,source,history,calendar,now=Date.now()}){
   const result={target:TARGET_KEY,season:TARGET_SEASON,
     archived:false,authorization:"unverified",source:"unavailable",
-    matchedRecords:0,eligibleRecords:0,reasons:[]};
+    matchedRecords:0,eligibleRecords:0,reasons:[],captureSeasons:[]};
   result.archived=Array.isArray(history?.results)&&history.results.some(
     r=>r.allianceKey===TARGET_KEY&&r.seasonId===TARGET_SEASON);
   if(!approval){result.reasons.push("approval-registry-unavailable");return result;}
@@ -35,6 +35,14 @@ export function diagnoseGuestSeason({registry,approval,source,history,calendar,n
     for(const item of snap.alliances){
       if(item?.fingerprint!==fp)continue;
       result.matchedRecords++;
+      // Dates and calculated season only. Never log rank values, fingerprints,
+      // manual confirmations, player data or raw private R2 records.
+      const observedSeason=validDate(item.capturedAt)
+        ?seasonForObservation(item.capturedAt,calendar):null;
+      result.captureSeasons.push({
+        capturedAt:validDate(item.capturedAt)?item.capturedAt:null,
+        calculatedSeasonId:observedSeason?.seasonId??null
+      });
       if(!validDate(item.capturedAt)||!validRank(item.warRank)||
          !validRank(item.raidRank)){
         reasons.add("incomplete-or-invalid-ranks");continue;
