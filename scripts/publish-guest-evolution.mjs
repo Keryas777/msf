@@ -105,7 +105,7 @@ export function validateSnapshot(snapshot,fp,key,record){
 }
 function profileValue(value){
   return typeof value==='string'&&value.length<=320&&
-    /^https:\/\/assets\\.marvelstrikeforce\\.com\/imgs\/[A-Za-z0-9_.%-]+$/.test(value)?value:'';
+    /^https:\/\/assets\.marvelstrikeforce\.com\/imgs\/[A-Za-z0-9_.%-]+$/.test(value)?value:'';
 }
 function publicSnapshot(snapshot,key,consent){
   const players=snapshot.players.filter(p=>consent.sharers.has(norm(p.player)));
