@@ -183,7 +183,7 @@ async function writeAlliance(key,files){
     for(const [relative,value] of files){
       const file=path.join(staged,relative);
       await fs.mkdir(path.dirname(file),{recursive:true});
-      await fs.writeFile(file,JSON.stringify(value,null,2)+'\\n','utf8');
+      await fs.writeFile(file,JSON.stringify(value,null,2)+'\n','utf8');
     }
     try{await fs.rename(base,backup);}catch(error){if(error?.code!=='ENOENT')throw error;}
     try{await fs.rename(staged,base);}
