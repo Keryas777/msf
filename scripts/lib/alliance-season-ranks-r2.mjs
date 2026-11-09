@@ -54,18 +54,17 @@ export function publicSeasonSnapshot(privateCapture,registry,mapping,season){
      !validTime(privateCapture.capturedAt)||
      Date.parse(privateCapture.capturedAt)<Date.parse(season.availableAfter)||
      privateCapture.capturedAt.slice(0,10)!==season.day||
-     privateCapture.truncated!==false||
-     privateCapture.completeSessionScan!==true||
-     privateCapture.unavailableSessions!==0||
      !Array.isArray(privateCapture.alliances)||
      !Number.isSafeInteger(privateCapture.scannedSessions)||
      !Number.isSafeInteger(privateCapture.validSessions)||
      privateCapture.validSessions>privateCapture.scannedSessions)
     throw Error('Incomplete or mistimed private rank capture');
   const active=registry.filter(a=>a&&a.active!==false);
-  if(!active.length||privateCapture.alliances.length!==active.length||
-    privateCapture.connectedAlliances!==active.length)
-    throw Error('Rank capture does not cover all active LoSP alliances');
+  if(!active.length||!privateCapture.alliances.length||
+    !Number.isSafeInteger(privateCapture.connectedAlliances)||
+    privateCapture.connectedAlliances<privateCapture.alliances.length||
+    privateCapture.alliances.length>active.length)
+    throw Error('Invalid partial LoSP rank coverage');
   const byFingerprint=new Map();
   for(const row of privateCapture.alliances){
     if(!FINGERPRINT.test(row?.allianceFingerprint||'')||
@@ -75,13 +74,15 @@ export function publicSeasonSnapshot(privateCapture,registry,mapping,season){
       throw Error('Invalid rank values or duplicate/private identity');
     byFingerprint.set(row.allianceFingerprint,row);
   }
-  const alliances=active.map(a=>{
+  const approvedFingerprints=new Set(active.map(a=>mapping[a.key]));
+  if([...byFingerprint.keys()].some(fp=>!approvedFingerprints.has(fp)))
+    throw Error('Rank capture contains an unapproved alliance');
+  const alliances=active.flatMap(a=>{
     const row=byFingerprint.get(mapping[a.key]);
-    if(!row)throw Error('Rank capture missing approved alliance '+a.key);
-    return {key:a.key,nameAtCapture:row.name,
+    return row?[{key:a.key,nameAtCapture:row.name,
       warRank:row.warRank,raidRank:row.raidRank,
       // Rank-only data must never create a trophy point.
-      warTrophies:null};
+      warTrophies:null}]:[];
   });
   return {
     version:1,kind:'losp-alliance-standings-snapshot',
@@ -90,7 +91,9 @@ export function publicSeasonSnapshot(privateCapture,registry,mapping,season){
     seasonId:null,seasonVerified:false,captureType:'season-ranks',
     coverage:{scannedSessions:privateCapture.scannedSessions,
       validSessions:privateCapture.validSessions,unavailableSessions:0,
-      truncated:false,connectedAlliances:alliances.length,completeSessionScan:true},
+      truncated:privateCapture.truncated===true,
+      connectedAlliances:alliances.length,
+      completeSessionScan:privateCapture.completeSessionScan===true},
     collection:{method:'private-r2-season-ranks',purpose:'season-ranks',
       sourceDayUtc:season.day},
     alliances,
