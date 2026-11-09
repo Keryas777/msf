@@ -131,11 +131,13 @@ sont nécessaires pour calculer une évolution.
 Avant publication, l’export exige un reçu Infos valide et récent (moins de sept
 jours), une autorisation d’alliance approuvée et une clé canonique présente dans
 `alliances.json`. Il ne publie que les joueurs dont le dernier reçu confirme
-`rosterShare === true`. Si le reçu est absent, expiré, invalide ou inaccessible,
-l’alliance est ignorée et ses fichiers précédents sont conservés. Une révocation
-de partage individuelle retire ce joueur de tous les checkpoints exportés lors
-de la prochaine synchronisation. Une approbation d’alliance retirée supprime son
-répertoire statique lors de la prochaine synchronisation.
+`rosterShare === true`. Si les reçus sont valides mais qu’un joueur a retiré son
+partage, ses données historiques sont retirées de tous les JSON générés. Si aucun
+reçu récent et vérifiable n’existe, le répertoire public de l’alliance est purgé.
+Une révocation d’approbation ou de liaison d’alliance supprime également son
+répertoire statique. Une erreur réseau R2 transitoire conserve les fichiers
+précédemment validés pour éviter une suppression massive pendant une panne ;
+aucune nouvelle donnée n’est publiée et la synchronisation suivante réessaie.
 
 Les exports valides sont préparés et contrôlés avant remplacement des fichiers
 d’une alliance. Une panne R2 temporaire ou un checkpoint incohérent ne supprime
