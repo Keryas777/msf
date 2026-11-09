@@ -1,9 +1,6 @@
 name: Snapshot roster history
 
 on:
-  schedule:
-    - cron: "0 23 * * 0"
-      timezone: "Europe/Paris"
   workflow_dispatch:
     inputs:
       checkpoint:
