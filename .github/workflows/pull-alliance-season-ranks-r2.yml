@@ -32,7 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
 
       - uses: actions/setup-node@v4
@@ -68,14 +68,28 @@ jobs:
           fi
           node scripts/pull-alliance-season-ranks-r2.mjs "${args[@]}"
 
+      - name: Prevent publication outside main
+        if: ${{ github.event_name == 'schedule' || inputs.publish == true }}
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "Publishing is forbidden outside main; run dry-run on PR branch."
+            exit 1
+          fi
+      - name: Consolidate permanent season history
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ] || [ "${{ inputs.publish }}" = "true" ]; then
+            node scripts/sync-season-history.mjs --write
+          else
+            node scripts/sync-season-history.mjs
+          fi
       - name: Validate sanitized season ranks
         run: |
           node --check scripts/pull-alliance-season-ranks-r2.mjs
-          node --test tests/alliance-season-ranks-r2.test.mjs tests/alliance-standings-data.test.mjs tests/alliance-history-charts.test.mjs
+          node --test tests/alliance-season-ranks-r2.test.mjs tests/alliance-standings-data.test.mjs tests/alliance-history-charts.test.mjs tests/season-history.test.mjs
 
       - name: Check output write scope
         run: |
-          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' | grep -Ev '^docs/data/alliance-standings/(index[.]json|snapshots/)' || true)"
+          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' | grep -Ev '^docs/data/alliance-standings/(index[.]json|season-history[.]json|snapshots/)' || true)"
           if [ -n "$unexpected" ]; then
             echo "Unexpected files created:"; echo "$unexpected"; exit 1
           fi
@@ -89,7 +103,7 @@ jobs:
             echo "Dry run; no commit."
             exit 0
           fi
-          git add docs/data/alliance-standings/index.json docs/data/alliance-standings/snapshots
+          git add docs/data/alliance-standings/index.json docs/data/alliance-standings/season-history.json docs/data/alliance-standings/snapshots
           if git diff --cached --quiet; then
             echo "No new complete season ranking to publish."
             exit 0

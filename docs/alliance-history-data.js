@@ -88,10 +88,42 @@
         continue;
       }
       const prev = bySeason.get(row.seasonId);
-      // Prefer complete captures, then verified attribution, then newest.
-      const quality = item => (item.coverage?.completeSessionScan === true ? 2 : 0) +
-        (item.seasonVerified === true ? 1 : 0);
-      if (!prev || quality(row) >= quality(prev)) bySeason.set(row.seasonId, row);
+      // A season is a union of real per-alliance observations, not a
+      // winner-takes-all snapshot. A partial collection must not erase
+      // another alliance's verified rank.
+      if (!prev) {
+        bySeason.set(row.seasonId, {
+          ...row, alliances: (row.alliances || []).map(a => ({...a}))
+        });
+        continue;
+      }
+      const merged = new Map((prev.alliances || []).map(a => [a.key, {...a}]));
+      for (const incoming of row.alliances || []) {
+        if (typeof incoming.key !== 'string') continue;
+        const existing = merged.get(incoming.key);
+        if (!existing) {
+          merged.set(incoming.key, {...incoming,
+            capturedAt: row.capturedAt, seasonVerified: false});
+          continue;
+        }
+        // Keep an actual earlier rank when a later partial observation
+        // lacks that metric. Never replace a number with null.
+        const next = {...existing};
+        for (const field of ['warRank', 'raidRank']) {
+          if (validValue(incoming[field]) &&
+              (!validValue(next[field]) ||
+               (!calendar && row.seasonVerified === true &&
+                prev.seasonVerified === true)))
+            next[field] = incoming[field];
+        }
+        merged.set(incoming.key, next);
+      }
+      prev.alliances = [...merged.values()];
+      // Legacy callers without a calendar retain the most recent verified
+      // reading. Calendar-backed permanent history preserves the first
+      // confirmed season capture and only fills genuinely missing ranks.
+      if (!calendar && row.seasonVerified === true &&
+          prev.seasonVerified === true) prev.capturedAt = row.capturedAt;
     }
     const selected = [...bySeason.values(), ...legacy];
     return selected.sort((a, b) => {
@@ -164,7 +196,8 @@
           seasonStartAt: aValidSeasonEnd(row) ? row.rankingSeason.startAt : null,
           value: validValue(value) ? value : null,
           seasonId: aValidSeasonEnd(row) ? row.seasonId : null,
-          seasonVerified: !fallback && row.seasonVerified === true,
+          seasonVerified: !fallback && row.seasonVerified === true &&
+            source?.seasonVerified !== false,
           seasonDerived: Boolean(fallback) || row.seasonDerived === true};
       })
     }));

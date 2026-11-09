@@ -76,17 +76,50 @@ async function main(){
   if(now<Date.parse(season.availableAfter))throw Error('Season still unpublished');
   if(now-Date.parse(day+'T00:00:00.000Z')>6*86400000)
     throw Error('R2 source outside expected 7-day retention');
-  if(alreadyImported(index,season.seasonId)){
-    console.log('Idempotent: season already indexed:',season.seasonId);return;
+  // Previously published observations are immutable. A later R2 capture
+  // may add a missing alliance, but never replace an archived value.
+  const existing=new Set();
+  for(const entry of index.snapshots.filter(row=>
+    row.captureType==='season-ranks'&&row.rankingSeasonId===season.seasonId)){
+    if(!/^snapshots\/\d{4}-\d\d-\d\dT\d{9}Z\.json$/.test(entry.file))
+      throw Error('Invalid existing season snapshot path');
+    const archived=await read('docs/data/alliance-standings/'+entry.file);
+    if(archived.captureType!=='season-ranks'||
+       archived.capturedAt!==entry.capturedAt||
+       !Array.isArray(archived.alliances))
+      throw Error('Invalid existing season snapshot');
+    for(const row of archived.alliances)
+      if(typeof row.key==='string')existing.add(row.key);
   }
   const mapping=readMapping(secret('LOSP_R2_ALLIANCE_MAP_JSON'),lospRegistry);
   const captures=await privateCaptures(day);
   let published=null;
+  const observations=new Map();
   for(const capture of captures){
-    try{published=publicSeasonSnapshot(capture,lospRegistry,mapping,season);break;}
-    catch{/* Ignore incomplete snapshots; never synthesize missing ranks. */}
+    try{
+      const valid=publicSeasonSnapshot(capture,lospRegistry,mapping,season);
+      for(const alliance of valid.alliances)
+        if(!observations.has(alliance.key))
+          observations.set(alliance.key,alliance);
+      if(!published||valid.capturedAt>published.capturedAt)published=valid;
+    }catch{/* Ignore invalid snapshots; never synthesize missing ranks. */}
   }
-  if(!published)throw Error('No complete authorized season rank snapshot for '+day);
+  if(!published||!observations.size)
+    throw Error('No authorized season rank observation for '+day);
+  const newAlliances=[...observations.values()].filter(a=>!existing.has(a.key));
+  if(!newAlliances.length){
+    console.log('Idempotent: no new season ranks for',season.seasonId);return;
+  }
+  // Each appended snapshot contains only genuinely new alliances.
+  // Preserve all earlier JSON files and their original rank values.
+  published={...published,alliances:newAlliances,
+    coverage:{...published.coverage,connectedAlliances:newAlliances.length,
+      completeSessionScan:false}};
+  if(index.snapshots.some(row=>row.capturedAt===published.capturedAt)){
+    // Keep the immutable old snapshot; do not overwrite its timestamp.
+    console.log('Existing capture timestamp; no safe append:',published.capturedAt);
+    return;
+  }
   const added=addSeasonToIndex(index,published,season);
   if(!added.updated)return;
   if(!args.includes('--write')){

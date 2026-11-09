@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -38,7 +38,14 @@ jobs:
       - name: Verify guest history projector
         run: |
           node --check scripts/pull-guest-season-ranks-r2.mjs
-          node --test tests/guest-season-history.test.mjs tests/alliance-season-live.test.mjs tests/alliance-history-charts.test.mjs
+          node --test tests/guest-season-history.test.mjs tests/alliance-season-live.test.mjs tests/alliance-history-charts.test.mjs tests/season-history.test.mjs
+      - name: Prevent publication outside main
+        if: ${{ github.event_name == 'schedule' || inputs.publish == true }}
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "Publishing is forbidden outside main; run dry-run on PR branch."
+            exit 1
+          fi
       - name: Append rank-only records from authorized private R2 sources
         env:
           LOSP_R2_ACCOUNT_ID: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
@@ -58,9 +65,16 @@ jobs:
           else
             node scripts/pull-guest-season-ranks-r2.mjs
           fi
+      - name: Consolidate permanent season history
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ] || [ "${{ inputs.publish }}" = "true" ]; then
+            node scripts/sync-season-history.mjs --write
+          else
+            node scripts/sync-season-history.mjs
+          fi
       - name: Enforce public-file write scope
         run: |
-          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' | grep -v '^docs/data/alliance-standings/guest-season-history[.]json$' || true)"
+          unexpected="$(git status --porcelain --untracked-files=all | sed 's/^...//' | grep -Ev '^docs/data/alliance-standings/(guest-season-history|season-history)[.]json$' || true)"
           if [ -n "$unexpected" ]; then
             echo "Unexpected files:"; echo "$unexpected"; exit 1
           fi
@@ -73,7 +87,7 @@ jobs:
             echo "Dry run; no commit."
             exit 0
           fi
-          git add docs/data/alliance-standings/guest-season-history.json
+          git add docs/data/alliance-standings/guest-season-history.json docs/data/alliance-standings/season-history.json
           if git diff --cached --quiet; then
             echo "No new eligible guest season result."
             exit 0
