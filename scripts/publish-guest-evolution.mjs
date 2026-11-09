@@ -21,7 +21,8 @@ const safeDate=s=>DAY.test(s||'')&&Number.isFinite(Date.parse(s+'T00:00:00Z'))&&
   new Date(s+'T00:00:00Z').getUTCDay()===0;
 const rootDir=process.env.DATA_DIR||'docs/data';
 const outDir=path.join(rootDir,'roster-history','guests');
-const args=process.argv.slice(2);
+const isMain=import.meta.url===pathToFileURL(process.argv[1]||'').href;
+const args=isMain?process.argv.slice(2):[];
 const write=args.includes('--write');
 if(isMain&&args.some(x=>!['--write','--dry-run','--help','-h'].includes(x)))
   throw Error('Usage: node scripts/publish-guest-evolution.mjs [--dry-run|--write]');
@@ -227,5 +228,5 @@ async function main(){
   // Remove old checkpoint files only inside alliances whose current consent was verified.
   // writeAlliance replaces that single alliance directory atomically at the workflow scope.
 }
-if(import.meta.url===pathToFileURL(process.argv[1]||'').href)
+if(isMain)
   main().catch(error=>{console.error('Guest Evolution publisher:',error.message);process.exitCode=1;});
