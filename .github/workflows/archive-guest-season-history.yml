@@ -38,7 +38,7 @@ jobs:
       - name: Verify guest history projector
         run: |
           node --check scripts/pull-guest-season-ranks-r2.mjs
-          node --test tests/guest-season-history.test.mjs tests/alliance-season-live.test.mjs tests/alliance-history-charts.test.mjs
+          node --test tests/guest-season-history.test.mjs tests/alliance-season-live.test.mjs tests/alliance-history-charts.test.mjs tests/season-history.test.mjs
       - name: Append rank-only records from authorized private R2 sources
         env:
           LOSP_R2_ACCOUNT_ID: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
