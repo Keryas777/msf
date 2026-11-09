@@ -103,10 +103,16 @@ async function loadActiveAllianceKeys(registry) {
     throw new TypeError(`Alliance registry must be an array: ${ALLIANCES_FILE}`);
   }
 
-  const activeByKey = new Map(
-    entries.map((entry) => [String(entry?.key ?? '').trim().toLowerCase(), entry?.active !== false]),
-  );
-  return registry.knownKeys.filter((key) => activeByKey.get(key) !== false);
+  // Keep the canonical filename keys from alliances.json: registry.knownKeys
+  // normalizes punctuation (e.g. endgame-revolution-red -> endgamerevolutionred).
+  const knownKeys = new Set(registry.knownKeys);
+  const normalizeKey = (value) => String(value ?? '').normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/['’`´]/g, '').replace(/[-_]/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, '');
+  return entries
+    .filter((entry) => entry?.active !== false && knownKeys.has(normalizeKey(entry?.key)))
+    .map((entry) => String(entry.key).trim().toLowerCase());
 }
 
 function runGit(args, options = {}) {
