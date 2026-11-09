@@ -190,6 +190,79 @@ async function readTree(r2,alliance,consent,now){
   return files;
 }
 async function readJson(file){return JSON.parse(await fs.readFile(file,'utf8'));}
+async function readOptionalJson(file){
+  try{return await readJson(file);}
+  catch(error){if(error?.code==='ENOENT')return null;throw error;}
+}
+async function writeJsonIfChanged(file,value){
+  const encoded=JSON.stringify(value,null,2)+'\n';
+  let prior;
+  try{prior=await fs.readFile(file,'utf8');}
+  catch(error){if(error?.code!=='ENOENT')throw error;}
+  if(prior===encoded)return false;
+  await fs.mkdir(path.dirname(file),{recursive:true});
+  await fs.writeFile(file,encoded,'utf8');
+  return true;
+}
+export async function pruneLegacyGuestHistory(dataDir,guestKeys,consentByAlliance){
+  const history=path.join(dataDir,'roster-history');
+  const canShare=(alliance,name)=>{
+    if(!guestKeys.has(alliance)||!consentByAlliance.has(alliance))return true;
+    const sharers=consentByAlliance.get(alliance);
+    return sharers instanceof Set&&sharers.has(norm(name));
+  };
+  const removed={indexPlayers:0,groupRows:0,playerFiles:0};
+  const groupDir=path.join(history,'group');
+  const groups=await fs.readdir(groupDir,{withFileTypes:true}).catch(error=>
+    error?.code==='ENOENT'?[]:Promise.reject(error));
+  const groupCounts=new Map();
+  for(const entry of groups){
+    if(!entry.isFile()||!entry.name.endsWith('.json'))continue;
+    const file=path.join(groupDir,entry.name),group=await readJson(file);
+    if(!Array.isArray(group?.players))continue;
+    const players=group.players.filter(row=>canShare(row?.alliance,row?.player));
+    const date=entry.name.slice(0,-5);
+    groupCounts.set(date,players.length);
+    removed.groupRows+=group.players.length-players.length;
+    if(players.length!==group.players.length)
+      await writeJsonIfChanged(file,{...group,players});
+  }
+  async function visitPlayers(dir){
+    const entries=await fs.readdir(dir,{withFileTypes:true}).catch(error=>
+      error?.code==='ENOENT'?[]:Promise.reject(error));
+    for(const entry of entries){
+      const file=path.join(dir,entry.name);
+      if(entry.isDirectory()){await visitPlayers(file);continue;}
+      if(!entry.isFile()||!entry.name.endsWith('.json'))continue;
+      const snapshot=await readJson(file);
+      if(guestKeys.has(snapshot?.alliance)&&
+         consentByAlliance.has(snapshot.alliance)&&
+         !canShare(snapshot.alliance,snapshot.player)){
+        await fs.rm(file,{force:true});
+        removed.playerFiles++;
+      }
+    }
+  }
+  await visitPlayers(path.join(history,'players'));
+  const indexFile=path.join(history,'index.json');
+  const index=await readOptionalJson(indexFile);
+  if(index&&object(index)&&object(index.players)&&Array.isArray(index.checkpoints)){
+    for(const [id,entry] of Object.entries(index.players)){
+      if(guestKeys.has(entry?.currentAlliance)&&
+         consentByAlliance.has(entry.currentAlliance)&&
+         !canShare(entry.currentAlliance,entry.name)){
+        delete index.players[id];
+        removed.indexPlayers++;
+      }
+    }
+    index.checkpoints=index.checkpoints.map(checkpoint=>{
+      const count=groupCounts.get(checkpoint?.date);
+      return Number.isSafeInteger(count)?{...checkpoint,players:count}:checkpoint;
+    });
+    await writeJsonIfChanged(indexFile,index);
+  }
+  return removed;
+}
 async function writeAlliance(key,files){
   await fs.mkdir(outDir,{recursive:true});
   const base=path.join(outDir,key),suffix='.tmp-'+process.pid;
@@ -219,6 +292,9 @@ async function main(){
   const [rawApprovals,registry]=await Promise.all([
     r2.getJSON(APPROVALS,200000),readJson(path.join(rootDir,'alliances.json'))]);
   const approved=validateApprovals(rawApprovals,registry);
+  const guestKeys=new Set(registry.filter(a=>a&&KEY.test(a.key||"")&&
+    a.group&&a.group!=="losp").map(a=>a.key));
+  const legacyConsent=new Map([...guestKeys].map(key=>[key,null]));
   const approvedKeys=new Set(approved.map(a=>a.key));
   const prior=await fs.readdir(outDir,{withFileTypes:true}).catch(e=>
     e.code==='ENOENT'?[]:Promise.reject(e));
@@ -232,9 +308,12 @@ async function main(){
         console.warn(alliance.key+': no recent verifiable rosterShare receipt; existing public files will be removed.');
         continue;
       }
+      legacyConsent.set(alliance.key,consent.sharers);
       ready.set(alliance.key,await readTree(r2,alliance,consent,now));
       console.log(alliance.key+': '+ready.get(alliance.key).size+' validated JSON files');
     }catch(error){
+      // Preserve existing legacy history if this run cannot verify current consent.
+      legacyConsent.delete(alliance.key);
       failed.push({key:alliance.key,reason:String(error?.message||'export failed')});
       console.error(alliance.key+': '+String(error?.message||'export failed'));
     }
@@ -253,6 +332,9 @@ async function main(){
     await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,report+'\\n','utf8');
   assertOperationalResult(approved.length,ready.size);
   if(!write){console.log('Dry run: no public files changed.');return;}
+  // Keep the legacy shared archive in sync with verified guest consent without touching LoSP rows.
+  const legacyRemoved=await pruneLegacyGuestHistory(rootDir,guestKeys,legacyConsent);
+  console.log('Legacy guest history removed for consent: '+JSON.stringify(legacyRemoved));
   // A revocation is actionable even when a different alliance has a temporary R2 error.
   for(const key of purge)await fs.rm(path.join(outDir,key),{recursive:true,force:true});
   for(const [key,files] of ready)await writeAlliance(key,files);
