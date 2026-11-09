@@ -226,8 +226,11 @@ export async function pruneLegacyGuestHistory(dataDir,guestKeys,consentByAllianc
   const history=path.join(dataDir,'roster-history');
   const canShare=(alliance,name)=>{
     if(!guestKeys.has(alliance)||!consentByAlliance.has(alliance))return true;
-    const sharers=consentByAlliance.get(alliance);
-    return sharers instanceof Set&&sharers.has(norm(name));
+    const authorization=consentByAlliance.get(alliance);
+    // Only affirmative revocation or a verified rosterShare set can change
+    // legacy public files. Missing/unverifiable consent is not proof of revoke.
+    if(authorization===false)return false;
+    return authorization instanceof Set?authorization.has(norm(name)):true;
   };
   const removed={indexPlayers:0,groupRows:0,playerFiles:0};
   const groupDir=path.join(history,'group');
@@ -312,8 +315,11 @@ async function main(){
   const approved=validateApprovals(rawApprovals,registry);
   const guestKeys=new Set(registry.filter(a=>a&&KEY.test(a.key||"")&&
     a.group&&a.group!=="losp").map(a=>a.key));
-  const legacyConsent=new Map([...guestKeys].map(key=>[key,null]));
   const approvedKeys=new Set(approved.map(a=>a.key));
+  // An absent approval is an explicit alliance revocation. For an approved
+  // alliance, missing R2 history/receipts leave legacy files untouched.
+  const legacyConsent=new Map([...guestKeys].map(key=>[
+    key,approvedKeys.has(key)?null:false]));
   const prior=await fs.readdir(outDir,{withFileTypes:true}).catch(e=>
     e.code==='ENOENT'?[]:Promise.reject(e));
   const revoked=prior.filter(x=>x.isDirectory()&&!approvedKeys.has(x.name)).map(x=>x.name);
