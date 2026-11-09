@@ -157,12 +157,18 @@
     const currentKeys = new Set(state.rosters.map(getRosterPlayerKey).filter(Boolean));
     const players = new Map();
 
-    for (const [key, entry] of Object.entries(history)) {
-      if (currentKeys.has(key) || canonical(entry?.currentAlliance) !== wanted ||
-          !Array.isArray(entry?.checkpoints) || !entry.checkpoints.length) continue;
-      const label = isGuestAlliance
-        ? String(entry.name || key) : canonicalPlayerName(entry.name || key);
-      if (label) players.set(key, { key, label: label + " (historique)" });
+    // For LoSP, only the current roster may populate the player selector.
+    // Historical checkpoints remain stored for comparisons, not membership.
+    // Guest alliances retain their existing private directory behavior.
+    if (isGuestAlliance) {
+      for (const [key, entry] of Object.entries(history)) {
+        if (currentKeys.has(key) || canonical(entry?.currentAlliance) !== wanted ||
+            !Array.isArray(entry?.checkpoints) || !entry.checkpoints.length) continue;
+        const label = isGuestAlliance
+          ? String(entry.name || key) : canonicalPlayerName(entry.name || key);
+        if (label) players.set(key, { key, label: label + " (historique)" });
+      }
+  
     }
 
     for (const roster of state.rosters) {
