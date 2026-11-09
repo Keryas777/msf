@@ -96,7 +96,7 @@ async function main(){
     throw Error('No authorized season rank observation for '+day);
   published={...published,alliances:[...observations.values()],
     coverage:{...published.coverage,connectedAlliances:observations.size,
-      completeSessionScan:observations.size===lospRegistry.length}};
+      completeSessionScan:published.coverage.completeSessionScan===true}};
   const added=addSeasonToIndex(index,published,season);
   if(!added.updated)return;
   if(!args.includes('--write')){
