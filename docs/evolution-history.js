@@ -1,6 +1,10 @@
-// Shared static Evolution history reader for LoSP and approved guest alliances.
+// Shared Evolution history source for both pages; no framework or public guest JSON.
+// Existing LoSP checkpoints stay on GitHub Pages. Guest history is signed,
+// tenant-scoped and read-only from the roster service. No browser persistence.
 (()=>{
   "use strict";
+  const API="https://losp-roster-service.deliriousfan7.workers.dev/api/secure/guest-evolution";
+  const TOKEN=/^v1\.[A-Za-z0-9_-]{12,4096}\.[A-Za-z0-9_-]{40,80}$/;
   const SLUG=/^[a-z][a-z0-9-]{1,63}$/;
   const DAY=/^\d{4}-\d{2}-\d{2}$/;
   const PLAYER=/^g_[a-z][a-z0-9-]{1,63}__[a-z0-9]{1,140}$/;
@@ -9,36 +13,63 @@
   const norm=s=>String(s??"").trim().toLowerCase().normalize("NFD")
     .replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"");
   const meta=s=>window.LoSPAlliances?.getAllianceMeta?.(s);
-  const guest=s=>{const m=meta(s);return Boolean(m?.group&&m.group!=="losp");};
+  const guest=s=>{
+    const m=meta(s);return Boolean(m?.group&&m.group!=="losp");
+  };
+  // Resolve LoSP group membership from the loaded canonical registry.
   const losp=s=>{
     const key=String(s??"").trim().toLowerCase();
     const record=canonicalRegistry.find(a=>a?.key===key);
-    return record?record.group==="losp":meta(s)?.group==="losp";
+    return record ? record.group==="losp" : meta(s)?.group==="losp";
   };
   const allowed=s=>window.LoSPAccess?.isAllianceAllowed(s)===true;
-  const guestPath=(key,view,date,playerKey)=>
-    "./data/roster-history/guests/"+encodeURIComponent(key)+"/"+
-    (view==="index"?"index.json":view==="player"?"players/"+encodeURIComponent(playerKey)+"/"+date+".json":"group/"+date+".json");
+  function signed(){
+    try{
+      const s=localStorage.getItem("losp_session")||"";
+      return TOKEN.test(s)?s:"";
+    }catch{return "";}
+  }
+  function keys(){
+    // The display helper normalizes punctuation in IDs. The private Worker
+    // requires the ORIGINAL canonical key from alliances.json, especially
+    // the two ENDGAME slugs. Never send a display-normalized alias.
+    return [...new Set(canonicalRegistry.filter(a=>
+      SLUG.test(a?.key||"")&&a.group&&a.group!=="losp"&&allowed(a.key))
+      .map(a=>a.key))].sort();
+  }
   async function staticJson(url){
-    let last;
-    for(let attempt=0;attempt<2;attempt++){
-      try{
-        const response=await fetch(url+(url.includes("?")?"&":"?")+"v="+Date.now(),
-          {cache:"no-store"});
-        if(!response.ok){
-          const error=Error("Chargement historique impossible (HTTP "+response.status+").");
-          error.status=response.status;
-          if(attempt===0&&response.status>=500){last=error;continue;}
-          throw error;
-        }
-        return await response.json();
-      }catch(error){
-        last=error;
-        if(attempt||error?.status||!(error instanceof TypeError))throw error;
-        await new Promise(resolve=>setTimeout(resolve,250));
-      }
+    const response=await fetch(url+"?v="+Date.now(),{cache:"no-store"});
+    if(!response.ok)throw Error("Historique LoSP indisponible (HTTP "+
+      response.status+").");
+    return response.json();
+  }
+  async function readPrivate(alliance,view,{date,playerKey}={}){
+    if(!SLUG.test(alliance)||!allowed(alliance)||!guest(alliance))
+      throw Error("Alliance invitée non autorisée.");
+    if(!["index","group","player"].includes(view)||
+       (view!=="index"&&!DAY.test(date||""))||
+       (view==="player"&&!PLAYER.test(playerKey||"")))
+      throw Error("Paramètres historiques invalides.");
+    const token=signed();
+    if(!token)throw Error("Session Discord signée nécessaire. Reconnecte-toi.");
+    const params=new URLSearchParams({alliance,view});
+    if(date)params.set("date",date);
+    if(playerKey)params.set("playerKey",playerKey);
+    const response=await fetch(API+"?"+params.toString(),{
+      cache:"no-store",mode:"cors",headers:{Authorization:"Bearer "+token}});
+    if(!response.ok){
+      const reason=response.status===401?"session expirée":
+        response.status===403?"droits refusés":
+        response.status===409?"alliance non liée ou autorisation révoquée":
+        response.status===404?"API non déployée":
+        "HTTP "+response.status;
+      throw Error("Historique invité : "+reason+".");
     }
-    throw last||Error("Chargement historique impossible.");
+    const result=await response.json();
+    if(result?.kind!=="authorized-guest-evolution"||
+       result?.status!=="ok"||result.alliance!==alliance||
+       result.view!==view)throw Error("Réponse privée incorrecte.");
+    return result;
   }
   function publicIndex(raw){
     const players={};
@@ -46,125 +77,154 @@
       if(entry?.currentAlliance&&allowed(entry.currentAlliance)&&
          losp(entry.currentAlliance))players[id]=entry;
     }
-    const dates=new Map();
-    for(const entry of Object.values(players))for(const date of entry.checkpoints||[])
-      if(DAY.test(date))dates.set(date,(dates.get(date)||0)+1);
-    return {version:1,players,checkpoints:[...dates]
-      .map(([date,count])=>({date,players:count})).sort((a,b)=>a.date.localeCompare(b.date))};
-  }
-  function validateGuestIndex(key,idx){
-    if(!idx||idx.version!==1||!idx.players||Array.isArray(idx.players)||
-       !Array.isArray(idx.checkpoints))throw Error("Index historique invité invalide.");
-    for(const [id,row] of Object.entries(idx.players)){
-      if(!PLAYER.test(id)||row?.currentAlliance!==key||
-         !Array.isArray(row.checkpoints)||row.checkpoints.some(d=>!DAY.test(d)))
-        throw Error("Identité historique invitée incohérente.");
-    }
-    for(const c of idx.checkpoints)
-      if(!DAY.test(c?.date||"")||!Number.isSafeInteger(c.players))
-        throw Error("Checkpoint historique invité invalide.");
-    return idx;
+    const byDate=new Map();
+    for(const entry of Object.values(players))
+      for(const date of entry.checkpoints||[])
+        if(DAY.test(date))byDate.set(date,(byDate.get(date)||0)+1);
+    return {version:1,
+      checkpoints:[...byDate].map(([date,count])=>({date,players:count}))
+        .sort((a,b)=>a.date.localeCompare(b.date)),players};
   }
   function mergeIndices(lospIndex,guestIndices){
     const players={...lospIndex.players},dates=new Map(
       lospIndex.checkpoints.map(c=>[c.date,c.players]));
     for(const [key,idx] of guestIndices){
-      for(const [id,row] of Object.entries(idx.players)){
-        if(Object.hasOwn(players,id))throw Error("Identités historiques en collision.");
-        players[id]=row;
+      for(const [id,record] of Object.entries(idx.players)){
+        if(!PLAYER.test(id)||record?.currentAlliance!==key||
+           Object.hasOwn(players,id)||!Array.isArray(record.checkpoints))
+          throw Error("Identités historiques invitées incohérentes.");
+        players[id]=record;
       }
-      for(const c of idx.checkpoints)dates.set(c.date,(dates.get(c.date)||0)+c.players);
+      for(const c of idx.checkpoints){
+        if(!DAY.test(c?.date||"")||!Number.isSafeInteger(c.players))
+          throw Error("Checkpoints invités invalides.");
+        dates.set(c.date,(dates.get(c.date)||0)+c.players);
+      }
     }
-    return {version:1,players,checkpoints:[...dates]
-      .map(([date,count])=>({date,players:count})).sort((a,b)=>a.date.localeCompare(b.date))};
+    return {version:1,players,
+      checkpoints:[...dates].map(([date,count])=>({date,players:count}))
+        .sort((a,b)=>a.date.localeCompare(b.date))};
   }
   async function loadIndex(){
     if(window.LoSP_AUTH_READY)await window.LoSP_AUTH_READY;
     if(window.LoSP_SESSION?.ok!==true)throw Error("Connexion Discord nécessaire.");
     await window.LoSPAlliances?.loadAlliances?.();
-    const registry=await staticJson("./data/alliances.json");
-    if(!Array.isArray(registry))throw Error("Registre d'alliances invalide.");
-    canonicalRegistry=registry;
+    const rawRegistry=await staticJson("./data/alliances.json");
+    if(!Array.isArray(rawRegistry))throw Error("Registre d'alliances invalide.");
+    canonicalRegistry=rawRegistry;
     guestIndex.clear();
-    const guests=registry.filter(a=>a?.active!==false&&SLUG.test(a?.key||"")&&
-      a.group&&a.group!=="losp"&&allowed(a.key));
     const isGuest=window.LoSP_SESSION.role==="guest";
-    if(isGuest&&!guests.length)throw Error("Aucune alliance invitée autorisée.");
     const warnings=[];
-    const lospData=isGuest?{version:1,players:{},checkpoints:[]}:
+    const wanted=keys();
+    if(isGuest&&!wanted.length)throw Error("Aucune alliance invitée autorisée.");
+    // Guests never load the public LoSP index. Admins only merge information
+    // actually approved by the server and scoped in alliances.json.
+    const publicData=isGuest?{version:1,players:{},checkpoints:[]}:
       publicIndex(await staticJson("./data/roster-history/index.json"));
-    const results=await Promise.all(guests.map(async a=>{
-      try{return [a.key,validateGuestIndex(a.key,await staticJson(guestPath(a.key,"index")))];}
-      catch(error){
-        // Missing files mean this approved alliance has not produced a publishable checkpoint.
-        if(error?.status!==404)warnings.push(a.key+" : "+String(error?.message||"données indisponibles"));
+    const results=await Promise.all(wanted.map(async alliance=>{
+      try{
+        const result=await readPrivate(alliance,"index");
+        if(!result.index||!Array.isArray(result.index.checkpoints)||
+           !result.index.players||Array.isArray(result.index.players))
+          throw Error("index invalide");
+        return [alliance,result.index];
+      }catch(e){
+        warnings.push(alliance+" : "+String(e?.message||"indisponible"));
         return null;
       }
     }));
-    for(const result of results)if(result)guestIndex.set(...result);
-    return {historyIndex:mergeIndices(lospData,guestIndex),warnings,
-      guestAlliances:guests.map(a=>a.key),historyPolicy:"checkpoint-archive"};
+    for(const item of results)if(item)guestIndex.set(...item);
+    return {historyIndex:mergeIndices(publicData,guestIndex),
+      warnings,guestAlliances:wanted,
+      historyPolicy:"checkpoint-archive"};
   }
   async function infos(){
     if(window.LoSP_AUTH_READY)await window.LoSP_AUTH_READY;
     if(window.LoSP_SESSION?.ok!==true)throw Error("Connexion Discord nécessaire.");
-    if(!canonicalRegistry.length)await loadIndex();
+    if(!canonicalRegistry.length)await window.LoSPEvolutionHistory.loadIndex();
+    const isGuest=window.LoSP_SESSION.role==="guest";
     const warnings=[];
-    let rows=[];
-    if(window.LoSP_SESSION.role!=="guest"){
-      try{rows=(await staticJson("./data/infos.json")).filter(p=>
-        allowed(p?.alliance)&&losp(p?.alliance));}
-      catch(error){warnings.push("Fiches Infos LoSP indisponibles.");}
-    }
-    const guests=canonicalRegistry.filter(a=>a?.active!==false&&a.group&&
-      a.group!=="losp"&&allowed(a.key));
-    const guestRows=await Promise.all(guests.map(async a=>{
+    const publicRows=isGuest?[]:
+      (await staticJson("./data/infos.json")).filter(p=>
+        allowed(p?.alliance)&&losp(p?.alliance));
+    const token=signed();
+    const privateRows=await Promise.all(keys().map(async key=>{
+      if(!token){
+        warnings.push(key+" : session Discord signée nécessaire.");
+        return [];
+      }
       try{
-        const data=await staticJson("./data/roster-history/guests/"+
-          encodeURIComponent(a.key)+"/infos.json");
-        if(!Array.isArray(data))throw Error("format invalide");
-        return data.filter(p=>p?.alliance===a.key&&typeof p.name==="string");
+        const res=await fetch("https://losp-roster-service.deliriousfan7.workers.dev"+
+          "/api/secure/guest-infos?alliances="+encodeURIComponent(key),{
+          cache:"no-store",mode:"cors",
+          headers:{Authorization:"Bearer "+token}
+        });
+        if(!res.ok)throw Error("HTTP "+res.status);
+        const payload=await res.json();
+        if(payload?.status!=="ok"||
+           payload.kind!=="authorized-guest-infos"||
+           !Array.isArray(payload.alliances)||
+           payload.alliances.length!==1||
+           payload.alliances[0]?.alliance!==key||
+           !Array.isArray(payload.alliances[0].players))
+          throw Error("réponse invalide");
+        if(payload.alliances[0].state!=="complete"){
+          warnings.push(key+" : fiche Infos en cours de collecte.");
+          return [];
+        }
+        if(payload.alliances[0].players.some(p=>p?.alliance!==key||
+           typeof p.name!=="string"))
+          throw Error("périmètre invalide");
+        return payload.alliances[0].players;
       }catch(error){
-        if(error?.status!==404)warnings.push(a.key+" : portraits facultatifs indisponibles.");
+        warnings.push(key+" : Infos privées "+String(error?.message||"indisponibles"));
         return [];
       }
     }));
-    return {infos:[...rows,...guestRows.flat()],warnings};
+    return {infos:[...publicRows,...privateRows.flat()],warnings};
   }
   async function group(date){
     if(!DAY.test(date||""))throw Error("Date de comparaison invalide.");
     const isGuest=window.LoSP_SESSION?.role==="guest";
-    const tasks=[];
-    if(!isGuest)tasks.push(staticJson("./data/roster-history/group/"+date+".json")
-      .then(data=>(data?.players||[]).filter(p=>allowed(p.alliance)&&losp(p.alliance)))
-      .catch(error=>{
-        if(error?.status===404)return [];
-        throw error;
-      }));
-    else tasks.push(Promise.resolve([]));
-    for(const [key,idx] of guestIndex){
-      if(!idx.checkpoints.some(c=>c.date===date))continue;
-      tasks.push(staticJson(guestPath(key,"group",date)).then(data=>{
-        if(data?.version!==1||data.checkpoint!==date||!Array.isArray(data.players)||
-           data.players.some(p=>p.alliance!==key||!PLAYER.test(p.playerKey||"")))
-          throw Error("Classement invité invalide.");
-        return data.players.filter(p=>allowed(p.alliance));
-      }));
+    let publicData={version:1,checkpoint:date,players:[]};
+    if(!isGuest){
+      try{
+        publicData=await staticJson("./data/roster-history/group/"+date+".json");
+      }catch(error){
+        const guestAvailable=[...guestIndex.values()].some(index=>
+          index.checkpoints.some(c=>c.date===date));
+        // An invited checkpoint can exist before a LoSP static export;
+        // a network or non-404 error still fails visibly.
+        if(!guestAvailable||!String(error?.message||"").includes("HTTP 404"))
+          throw error;
+      }
     }
-    return {version:1,checkpoint:date,players:(await Promise.all(tasks)).flat()};
+    const players=(publicData?.players||[]).filter(p=>allowed(p.alliance)&&
+      losp(p.alliance));
+    const requests=[...guestIndex].filter(([,index])=>
+      index.checkpoints.some(c=>c.date===date)).map(async([key])=>{
+      const result=await readPrivate(key,"group",{date});
+      if(!Array.isArray(result.group?.players)||
+         result.group.players.some(p=>p.alliance!==key||
+           !PLAYER.test(p.playerKey||"")))
+        throw Error("Classement invité invalide.");
+      return result.group.players;
+    });
+    const guestRows=(await Promise.all(requests)).flat();
+    return {version:1,checkpoint:date,players:[...players,...guestRows]};
   }
   async function player(alliance,playerKey,date){
     if(!DAY.test(date||""))throw Error("Date de comparaison invalide.");
     if(guest(alliance)){
-      if(!allowed(alliance)||!PLAYER.test(playerKey||"")||
-         !playerKey.startsWith("g_"+alliance+"__"))
-        throw Error("Historique invité non autorisé.");
-      const snapshot=await staticJson(guestPath(alliance,"player",date,playerKey));
-      if(snapshot?.alliance!==alliance||snapshot.playerKey!==playerKey||
-         snapshot.checkpoint!==date)throw Error("Historique invité incohérent.");
-      return snapshot;
+      const result=await readPrivate(alliance,"player",{date,playerKey});
+      if(!result.snapshot||result.snapshot.alliance!==alliance||
+         result.snapshot.playerKey!==playerKey||
+         result.snapshot.checkpoint!==date)
+        throw Error("Aucun roster invité partagé pour ce checkpoint.");
+      return result.snapshot;
     }
-    if(!allowed(alliance)||!losp(alliance))throw Error("Historique LoSP non autorisé.");
+    if(!allowed(alliance)||!losp(alliance))
+      throw Error("Historique LoSP non autorisé.");
     return staticJson("./data/roster-history/players/"+
       encodeURIComponent(playerKey)+"/"+date+".json");
   }
