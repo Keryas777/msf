@@ -110,14 +110,20 @@
         // lacks that metric. Never replace a number with null.
         const next = {...existing};
         for (const field of ['warRank', 'raidRank']) {
-          if (!validValue(next[field]) && validValue(incoming[field]))
+          if (validValue(incoming[field]) &&
+              (!validValue(next[field]) ||
+               (!calendar && row.seasonVerified === true &&
+                prev.seasonVerified === true)))
             next[field] = incoming[field];
         }
         merged.set(incoming.key, next);
       }
       prev.alliances = [...merged.values()];
-      // The first observation remains the season representative.
-      // Never backdate or reverify later alliance observations.
+      // Legacy callers without a calendar retain the most recent verified
+      // reading. Calendar-backed permanent history preserves the first
+      // confirmed season capture and only fills genuinely missing ranks.
+      if (!calendar && row.seasonVerified === true &&
+          prev.seasonVerified === true) prev.capturedAt = row.capturedAt;
     }
     const selected = [...bySeason.values(), ...legacy];
     return selected.sort((a, b) => {
