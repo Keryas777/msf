@@ -117,8 +117,7 @@
   function fromArchive(payload,registry,allowed,calendar){
     if(payload?.version!==1||payload.kind!=="losp-guest-season-results"||
        !Array.isArray(payload.results)||!Array.isArray(registry))return [];
-    const known=new Set(registry.filter(a=>a?.group!=="losp"&&
-      a?.active!==false).map(a=>a.key));
+    const known=new Set(registry.filter(a=>a?.active!==false).map(a=>a.key));
     const groups=new Map(),seen=new Set();
     for(const record of payload.results){
       const key=record?.allianceKey;
