@@ -114,7 +114,8 @@ export function addSeasonToIndex(index,snapshot,season){
     throw Error('Invalid season-ranks filename');
   const row={capturedAt:snapshot.capturedAt,file,
     allianceCount:snapshot.alliances.length,
-    completeSessionScan:true,seasonVerified:false,seasonId:null,
+    completeSessionScan:snapshot.coverage.completeSessionScan===true,
+    seasonVerified:false,seasonId:null,
     captureType:'season-ranks',rankingSeasonId:season.seasonId};
   const snapshots=[...index.snapshots,row].sort((a,b)=>
     a.capturedAt.localeCompare(b.capturedAt));
