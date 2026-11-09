@@ -54,7 +54,8 @@ test('fresh complete approved R2 capture produces ranks only, without private fi
   assert.equal(result.updated,true);
   assert.equal(result.file,'snapshots/2026-11-09T031500000Z.json');
   assert.equal(result.index.snapshots.length,5);
-  assert.equal(addSeasonToIndex(result.index,snap,season).updated,false);
+  assert.throws(()=>addSeasonToIndex(result.index,snap,season),
+    /Duplicate timestamp/);
 });
 test('bad dates, repeated fingerprint, invalid ranks and other-group data are refused',()=>{
   const season=mondaySeason('2026-11-09',config);
@@ -87,4 +88,18 @@ test('partial authorized capture publishes only observed LoSP ranks',()=>{
   assert.equal(published.coverage.completeSessionScan,false);
   assert.deepEqual(published.alliances.map(a=>a.key),active.slice(0,2).map(a=>a.key));
   assert.equal(published.alliances[0].warTrophies,null);
+});
+
+test('a second immutable capture can add missing alliance ranks to one season',()=>{
+  const season=mondaySeason('2026-11-09',config);
+  const first=publicSeasonSnapshot({...source(),
+    alliances:source().alliances.slice(0,1)},registry,mapping,season);
+  const second=publicSeasonSnapshot({...source('2026-11-09T15:15:00.000Z'),
+    alliances:source().alliances.slice(1,2)},registry,mapping,season);
+  const indexed=addSeasonToIndex(index,first,season);
+  const appended=addSeasonToIndex(indexed.index,second,season);
+  assert.equal(appended.updated,true);
+  assert.equal(appended.index.snapshots.filter(row=>
+    row.rankingSeasonId===season.seasonId).length,2);
+  assert.notEqual(indexed.file,appended.file);
 });
