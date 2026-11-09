@@ -422,7 +422,14 @@ async function main() {
   if (options.repairAlliances.length) {
     const existing = new Set(Object.entries(index.players).filter(([,entry]) => entry.checkpoints?.includes(options.checkpoint)).map(([key]) => key));
     const collisions = snapshots.filter((snapshot) => existing.has(snapshot.playerKey));
-    if (collisions.length) throw new Error('Repair would duplicate checkpoint identities: '+collisions.map((s)=>s.playerKey).join(', '));
+    if (collisions.length && !options.allowLateQp) throw new Error('Repair would duplicate checkpoint identities: '+collisions.map((s)=>s.playerKey).join(', '));
+    if (collisions.length && options.allowLateQp) {
+      const duplicates = new Set(collisions.map((s) => s.playerKey));
+      console.log('[roster-snapshot] QP late backfill: preserving existing checkpoint identities: '+[...duplicates].join(', '));
+      for (let i = snapshots.length - 1; i >= 0; i -= 1) {
+        if (duplicates.has(snapshots[i].playerKey)) snapshots.splice(i, 1);
+      }
+    }
     if (!snapshots.length) throw new Error('Repair source contains no players');
   }
 
