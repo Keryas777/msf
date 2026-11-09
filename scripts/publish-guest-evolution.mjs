@@ -343,8 +343,8 @@ async function main(){
         throw error;
       }
     }catch(error){
-      // Preserve existing legacy history if this run cannot verify current consent.
-      legacyConsent.delete(alliance.key);
+      // A validated receipt remains authoritative even if archive export fails;
+      // an unavailable receipt leaves the initialized null state unchanged.
       failed.push({key:alliance.key,reason:String(error?.message||'export failed')});
       console.error(alliance.key+': '+String(error?.message||'export failed'));
     }
