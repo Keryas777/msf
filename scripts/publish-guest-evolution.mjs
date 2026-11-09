@@ -291,11 +291,48 @@ async function writeAlliance(key,files){
   await fs.rm(staged,{recursive:true,force:true});
   await fs.rm(backup,{recursive:true,force:true});
   try{
+    // Append-only historical snapshots: an absent current rosterShare cannot
+    // erase checkpoints previously published with valid consent.
+    const previousIndex=await readOptionalJson(path.join(base,'index.json'));
+    const incomingIndex=files.get('index.json');
+    if(previousIndex?.players&&incomingIndex?.players){
+      const merged={...incomingIndex,players:{...previousIndex.players}};
+      for(const [id,entry] of Object.entries(incomingIndex.players)){
+        const old=merged.players[id];
+        merged.players[id]={...old,...entry,checkpoints:[...new Set([
+          ...(old?.checkpoints||[]),...(entry.checkpoints||[])
+        ])].sort()};
+      }
+      const dates=new Map();
+      for(const entry of Object.values(merged.players))
+        for(const date of entry.checkpoints||[])
+          dates.set(date,(dates.get(date)||0)+1);
+      merged.checkpoints=[...dates].sort(([a],[b])=>a.localeCompare(b))
+        .map(([date,players])=>({date,players}));
+      files.set('index.json',merged);
+    }
     for(const [relative,value] of files){
       const file=path.join(staged,relative);
       await fs.mkdir(path.dirname(file),{recursive:true});
       await fs.writeFile(file,JSON.stringify(value,null,2)+'\n','utf8');
     }
+    // Retain old player and group JSON files that are absent from this export.
+    // Existing checkpoint files are immutable: never overwrite their bytes.
+    async function preserve(dir,relative=''){
+      const entries=await fs.readdir(dir,{withFileTypes:true}).catch(error=>
+        error?.code==='ENOENT'?[]:Promise.reject(error));
+      for(const entry of entries){
+        const rel=path.join(relative,entry.name),src=path.join(dir,entry.name);
+        if(entry.isDirectory()){await preserve(src,rel);continue;}
+        if(!entry.isFile()||!rel.endsWith('.json')||
+           !(rel.startsWith('players'+path.sep)||rel.startsWith('group'+path.sep)))continue;
+        const dest=path.join(staged,rel);
+        await fs.mkdir(path.dirname(dest),{recursive:true});
+        // Preserve the original checkpoint even when a new export has fewer players.
+        await fs.copyFile(src,dest);
+      }
+    }
+    await preserve(base);
     try{await fs.rename(base,backup);}catch(error){if(error?.code!=='ENOENT')throw error;}
     try{await fs.rename(staged,base);}
     catch(error){
