@@ -4,7 +4,7 @@ import {readFile,mkdtemp,mkdir,writeFile,rm} from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import {validateApprovals,validateConsent,validateIndex,validateSnapshot,publicAsset,
-  publicInfos,assertOperationalResult,pruneLegacyGuestHistory,writeInfosOnly}
+  publicInfos,assertOperationalResult,pruneLegacyGuestHistory,writeInfosOnly,\n  auditRosterShareByStableId,collectLegacyGuestConsentAudit}
   from "../scripts/publish-guest-evolution.mjs";
 
 const fp="a".repeat(64);
@@ -187,5 +187,66 @@ test("consented portrait metadata can be refreshed without replacing guest histo
     assert.equal(await readFile(indexFile,"utf8"),
       '{"version":1,"players":{},"checkpoints":[]}');
     assert.deepEqual(JSON.parse(await readFile(path.join(dir,"infos.json"),"utf8")),infos);
+  }finally{await rm(root,{recursive:true,force:true});}
+});
+
+test("stable aid, not a nickname match, separates homonyms and classifies revocations",()=>{
+  const players=[
+    {player:"SameNick",aid:"account-1"},
+    {player:"SameNick",aid:"account-2"},
+    {player:"NoStableId"}
+  ];
+  const receipt=[
+    {name:"SameNick",aid:"account-1",rosterShare:true},
+    {name:"SameNick",aid:"account-2",rosterShare:false},
+    {name:"NoStableId",rosterShare:true}
+  ];
+  assert.deepEqual(auditRosterShareByStableId(players,receipt),
+    {valid:1,revoked:1,unverifiable:1});
+});
+test("matching pseudo names without stable IDs remains unverifiable",()=>{
+  const players=Array.from({length:22},(_,i)=>({player:"PrivateNickname"+i}));
+  const receipt=players.map(p=>({name:p.player,rosterShare:true}));
+  const result=auditRosterShareByStableId(players,receipt);
+  assert.deepEqual(result,{valid:0,revoked:0,unverifiable:22});
+  assert.equal(Object.values(result).reduce((a,b)=>a+b,0),22);
+  assert.doesNotMatch(JSON.stringify(result),/PrivateNickname/);
+});
+test("ambiguous or absent stable IDs never convert a false pseudo match into consent",()=>{
+  const players=[{player:"Twin",aid:"duplicate"},{player:"Twin",aid:"duplicate"}];
+  const receipt=[{name:"Twin",aid:"duplicate",rosterShare:true},
+    {name:"Twin",aid:"duplicate",rosterShare:false}];
+  assert.deepEqual(auditRosterShareByStableId(players,receipt),
+    {valid:0,revoked:0,unverifiable:2});
+  assert.deepEqual(auditRosterShareByStableId([{player:"Twin",aid:"one"}],
+    [{name:"Twin",aid:"other",rosterShare:false}]),
+    {valid:0,revoked:0,unverifiable:1});
+});
+test("legacy consent diagnostic selects latest guest checkpoint dynamically and emits aggregates only",async()=>{
+  const root=await mkdtemp(path.join(os.tmpdir(),"guest-evolution-consent-audit-"));
+  try{
+    const history=path.join(root,"roster-history");
+    const groupDir=path.join(history,"group");
+    await mkdir(groupDir,{recursive:true});
+    const older="2026-11-01",latest="2026-11-08";
+    const writeGroup=async(date,players)=>writeFile(path.join(groupDir,date+".json"),
+      JSON.stringify({version:1,checkpoint:date,players}));
+    await writeGroup(older,[{player:"OlderOnly",playerKey:"olderonly",
+      alliance:"future-guest",totalPower:1}]);
+    await writeGroup(latest,[
+      {player:"Private One",playerKey:"privateone",alliance:"future-guest",totalPower:2},
+      {player:"Private Two",playerKey:"privatetwo",alliance:"future-guest",totalPower:3},
+      {player:"LoSP",playerKey:"losp",alliance:"zeus",totalPower:4}
+    ]);
+    const consentByAlliance=new Map([["future-guest",{source:{rows:[
+      {name:"Private One",rosterShare:true},{name:"Private Two",rosterShare:false}
+    ]}}]]);
+    const result=await collectLegacyGuestConsentAudit(root,new Set(["future-guest"]),
+      consentByAlliance);
+    assert.deepEqual(result,[{alliance:"future-guest",date:latest,
+      counts:{valid:0,revoked:0,unverifiable:2},balanced:true}]);
+    assert.doesNotMatch(JSON.stringify(result),/Private One|Private Two/);
+    assert.equal(result[0].counts.valid+result[0].counts.revoked+
+      result[0].counts.unverifiable,2);
   }finally{await rm(root,{recursive:true,force:true});}
 });
