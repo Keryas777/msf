@@ -110,6 +110,16 @@ export function publicAsset(value){
   return typeof value==='string'&&value.length<=320&&
     /^https:\/\/assets\.marvelstrikeforce\.com\/imgs\/[A-Za-z0-9_.%-]+$/.test(value)?value:'';
 }
+export function publicInfos(rows,key,consent){
+  return rows.filter(r=>consent.sharers.has(norm(r.name)))
+    .map(r=>({name:r.name,alliance:key,
+      ...(publicAsset(r.icon)?{icon:publicAsset(r.icon)}:{}),
+      ...(publicAsset(r.frame)?{frame:publicAsset(r.frame)}:{})}));
+}
+export function assertOperationalResult(approvedCount,validatedCount){
+  if(approvedCount>0&&validatedCount===0)
+    throw Error('No approved guest alliance passed validation; export is not operational.');
+}
 function publicSnapshot(snapshot,key,consent){
   const players=snapshot.players.filter(p=>consent.sharers.has(norm(p.player)));
   return {version:1,checkpoint:snapshot.date,players:players.map(p=>{
@@ -175,11 +185,7 @@ async function readTree(r2,alliance,consent,now){
       .sort((a,b)=>a.date.localeCompare(b.date))};
   files.set('index.json',indexOut);
   // Publish only portrait fields needed by the optional ranking decoration.
-  const infos=consent.source.rows.filter(r=>allowed.has(norm(r.name)))
-    .map(r=>({name:r.name,alliance:key,
-      ...(publicAsset(r.icon)?{icon:publicAsset(r.icon)}:{}),
-      ...(publicAsset(r.frame)?{frame:publicAsset(r.frame)}:{})}));
-  files.set('infos.json',infos);
+  const infos=publicInfos(consent.source.rows,key,consent);\n  files.set('infos.json',infos);
   return files;
 }
 async function readJson(file){return JSON.parse(await fs.readFile(file,'utf8'));}
@@ -244,8 +250,7 @@ async function main(){
     write?'Publication autorisée par configuration.':'Dry-run : aucun fichier public modifié.'].join('\\n');
   if(process.env.GITHUB_STEP_SUMMARY)
     await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,report+'\\n','utf8');
-  if(approved.length>0&&ready.size===0)
-    throw Error('No approved guest alliance passed validation; export is not operational.');
+  assertOperationalResult(approved.length,ready.size);
   if(!write){console.log('Dry run: no public files changed.');return;}
   // A revocation is actionable even when a different alliance has a temporary R2 error.
   for(const key of purge)await fs.rm(path.join(outDir,key),{recursive:true,force:true});
