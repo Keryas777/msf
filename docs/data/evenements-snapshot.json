@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "status": "ok",
   "source": "verified-daily-game-events",
-  "updatedAt": "2026-11-08T21:05:10.766Z",
-  "revision": "cdcf1ab1cd103c718197",
-  "total": 145,
-  "count": 145,
+  "updatedAt": "2026-11-09T03:35:54.012Z",
+  "revision": "0b6d6128026f10c5a0d4",
+  "total": 144,
+  "count": 144,
   "pages": 2,
   "events": [
     {
@@ -493,23 +493,6 @@
       "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
     },
     {
-      "id": "6aea3d4080ca017386468bd6",
-      "type": "pickYourPoison",
-      "startTime": 1793739600,
-      "endTime": 1794085200,
-      "name": "ÉCHOS DE DYSTOPIA",
-      "subName": "Affrontez Maestro !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/BW_Maestro_Card_6ad01c293a4c3659025916778453c56dba24.jpg",
-      "pickYourPoison": {
-        "typeName": "Fléau",
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
       "id": "6ae8f64c80ca017386467c27",
       "type": "raid",
       "startTime": 1794171600,
@@ -628,145 +611,6 @@
       }
     },
     {
-      "id": "6aef8dccaba9eda13c2698d7",
-      "type": "milestone",
-      "startTime": 1794085200,
-      "endTime": 1794171600,
-      "name": "Récomp. quot. du web",
-      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
-      "locationHints": [
-        "portal_featured",
-        "portal_standard"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Dépensez des noyaux d’énergie",
-          "methods": [
-            {
-              "description": "Dépenser 1 noyau d'énergie",
-              "points": 1
-            }
-          ],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "levels_1_55"
-          },
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6aef8dcdaba9eda13c2698da",
-      "type": "milestone",
-      "startTime": 1794085200,
-      "endTime": 1794171600,
-      "name": "Phases quotidiennes exclusives du web",
-      "details": "Gagnez des récompenses en interagissant avec MSF sur le web, en exclusivité sur MarvelStrikeForce.com ! Jouez à la version web de MSF, récupérez vos cadeaux quotidiens et effectuez des achats dans la boutique web ou la boutique du S.T.R.I.K.E. pour progresser.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_Generic_Card_02_6ad26f8eb9e85a736948df37c93faaad0bb7.jpg",
-      "locationHints": [
-        "web_exclusive"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "",
-          "methods": [],
-          "cappedScorings": [
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Récoltez une offre gratuite.",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 2
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Effectuez un achat dans la boutique du web.",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 6
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Effectuez un achat sur la boutique du S.T.R.I.K.E.",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 3
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Dépensez des noyaux d’énergie",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 5
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6aee3c4caba9eda13c2693ef",
-      "type": "milestone",
-      "startTime": 1793998800,
-      "endTime": 1794085200,
-      "name": "Récomp. quot. du web",
-      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
-      "locationHints": [
-        "portal_featured",
-        "portal_standard"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Dépensez des noyaux d’énergie",
-          "methods": [
-            {
-              "description": "Dépenser 1 noyau d'énergie",
-              "points": 1
-            }
-          ],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "levels_1_55"
-          },
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
       "id": "6af0df4caba9eda13c269dbb",
       "type": "milestone",
       "startTime": 1794171600,
@@ -835,6 +679,59 @@
       }
     },
     {
+      "id": "6aef8dccaba9eda13c2698d7",
+      "type": "milestone",
+      "startTime": 1794085200,
+      "endTime": 1794171600,
+      "name": "Récomp. quot. du web",
+      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
+      "locationHints": [
+        "portal_featured",
+        "portal_standard"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Dépensez des noyaux d’énergie",
+          "methods": [
+            {
+              "description": "Dépenser 1 noyau d'énergie",
+              "points": 1
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "levels_1_55"
+          },
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6aea3d4080ca017386468bd6",
+      "type": "pickYourPoison",
+      "startTime": 1793739600,
+      "endTime": 1794085200,
+      "name": "ÉCHOS DE DYSTOPIA",
+      "subName": "Affrontez Maestro !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/BW_Maestro_Card_6ad01c293a4c3659025916778453c56dba24.jpg",
+      "pickYourPoison": {
+        "typeName": "Fléau",
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
       "id": "6ae7a4cc80ca017386467660",
       "type": "raid",
       "startTime": 1794085200,
@@ -842,6 +739,73 @@
       "name": "Raids d'appréhension",
       "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
       "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
+    },
+    {
+      "id": "6aef8dcdaba9eda13c2698da",
+      "type": "milestone",
+      "startTime": 1794085200,
+      "endTime": 1794171600,
+      "name": "Phases quotidiennes exclusives du web",
+      "details": "Gagnez des récompenses en interagissant avec MSF sur le web, en exclusivité sur MarvelStrikeForce.com ! Jouez à la version web de MSF, récupérez vos cadeaux quotidiens et effectuez des achats dans la boutique web ou la boutique du S.T.R.I.K.E. pour progresser.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_Generic_Card_02_6ad26f8eb9e85a736948df37c93faaad0bb7.jpg",
+      "locationHints": [
+        "web_exclusive"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Récoltez une offre gratuite.",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 2
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Effectuez un achat dans la boutique du web.",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 6
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Effectuez un achat sur la boutique du S.T.R.I.K.E.",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 3
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Dépensez des noyaux d’énergie",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 5
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
     },
     {
       "id": "62e474807f21453ddbe853fa",
@@ -4478,18 +4442,6 @@
       "cardArt": "https://assets.marvelstrikeforce.com/key_art/Legendary_Legacies_Root_Card_6a0b8756afa4ab5eabfa6ff2505ca41f02c4.jpg"
     },
     {
-      "id": "6aed0a7042686c5f634125ba",
-      "type": "donation",
-      "startTime": 1793923200,
-      "endTime": 1794009600
-    },
-    {
-      "id": "6aefad70aba9eda13c26997f",
-      "type": "donation",
-      "startTime": 1794096000,
-      "endTime": 1794182400
-    },
-    {
       "id": "6aee5bf0aba9eda13c269537",
       "type": "donation",
       "startTime": 1794009600,
@@ -4508,16 +4460,28 @@
       "endTime": 1795377600
     },
     {
+      "id": "6ade51b010b069590f811249",
+      "type": "raidSeason",
+      "startTime": 1792958400,
+      "endTime": 1794168000
+    },
+    {
       "id": "6ade5fc010b069590f811262",
       "type": "warSeason",
       "startTime": 1792958405,
       "endTime": 1794168000
     },
     {
-      "id": "6ade51b010b069590f811249",
-      "type": "raidSeason",
-      "startTime": 1792958400,
-      "endTime": 1794168000
+      "id": "6af0fef0aba9eda13c269e45",
+      "type": "donation",
+      "startTime": 1794182400,
+      "endTime": 1794268800
+    },
+    {
+      "id": "6aefad70aba9eda13c26997f",
+      "type": "donation",
+      "startTime": 1794096000,
+      "endTime": 1794182400
     },
     {
       "id": "6580b1fe9746d7f21414ca51",
@@ -4672,7 +4636,7 @@
   ],
   "locale": "fr",
   "localizationStatus": "verified",
-  "localizedFields": 619,
-  "localizedAt": "2026-11-08T21:05:10.766Z",
-  "lastChangedAt": "2026-11-08T21:05:10.766Z"
+  "localizedFields": 615,
+  "localizedAt": "2026-11-09T03:35:54.012Z",
+  "lastChangedAt": "2026-11-09T03:35:54.012Z"
 }
