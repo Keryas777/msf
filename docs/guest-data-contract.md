@@ -92,11 +92,13 @@ invités l'accès aux rapports internes des autres alliances.
 
 ## Évolution : publication statique LoSP et alliances invitées
 
-Les pages `evolution.html` et `evolution-classement.html` lisent les historiques
-depuis GitHub Pages. Les historiques invités ne sont plus lus par le navigateur
-dans `/api/secure/guest-evolution` et ne requièrent aucun jeton Discord signé.
-Les contrôles LoSPAccess filtrent toujours les alliances visibles dans l’interface ;
-ils ne protègent pas les fichiers publics.
+La cible est que les pages `evolution.html` et `evolution-classement.html`
+lisent les historiques depuis GitHub Pages, sans jeton signé pour les JSON.
+Le déploiement est volontairement progressif : cette Phase A met en place et
+vérifie l’export. Le lecteur de production reste inchangé jusqu’à ce que les
+fichiers publics initiaux aient été exportés et contrôlés. La Phase B basculera
+ensuite les deux pages. Les contrôles LoSPAccess filtrent l’interface mais ne
+protègent pas les fichiers publics.
 
 ### Source R2 et synchronisation
 
@@ -114,7 +116,7 @@ Les identifiants R2 en lecture seule réutilisent les secrets existants
 `LOSP_R2_ACCOUNT_ID`, `LOSP_R2_ACCESS_KEY_ID`,
 `LOSP_R2_SECRET_ACCESS_KEY` et `LOSP_R2_BUCKET`.
 
-Les fichiers invités sont séparés par clé d’alliance pour éviter les collisions :
+Les fichiers invités de la Phase A sont séparés par clé d’alliance pour éviter les collisions :
 
 - `docs/data/roster-history/guests/<alliance>/index.json`
 - `docs/data/roster-history/guests/<alliance>/group/<date>.json`
@@ -155,11 +157,11 @@ Supprimer un fichier de la version courante ne retire pas les anciennes copies
 des commits Git, des caches ou des téléchargements déjà effectués : l’effacement
 rétroactif n’est pas garanti.
 
-Une nouvelle alliance est intégrée sans changement de JavaScript ou de workflow
-dès qu’elle est approuvée, liée dans les registres canoniques, visible dans
-`alliances.json`, et possède un premier checkpoint cumulatif ainsi qu’un reçu
-de consentement vérifiable. Les progressions deviennent calculables à son second
-checkpoint réel.
+Une nouvelle alliance est intégrée sans changement de pipeline dès qu’elle est
+approuvée, liée dans les registres canoniques, visible dans `alliances.json`,
+et possède un premier checkpoint cumulatif ainsi qu’un reçu de consentement
+vérifiable. Après la Phase B, les pages la chargeront sans ajout JavaScript.
+Les progressions deviennent calculables à son second checkpoint réel.
 
 En cas d’échec, consulter le résumé et les journaux de l’action. Corriger la
 cause R2 ou le registre, puis relancer le workflow ; l’export relit les archives
