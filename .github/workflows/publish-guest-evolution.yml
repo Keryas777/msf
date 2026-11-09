@@ -80,12 +80,12 @@ jobs:
             echo "Dry run only: public-history approval is not enabled."
             exit 0
           fi
-          if [ -z "$(git status --porcelain -- docs/data/roster-history/guests)" ]; then
+          if [ -z "$(git status --porcelain -- docs/data/roster-history)" ]; then
             echo "No Evolution history changes to publish."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/roster-history/guests
+          git add docs/data/roster-history
           git commit -m "data: publish approved guest Evolution history"
           git push origin HEAD:main
