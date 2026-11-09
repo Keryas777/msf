@@ -319,6 +319,11 @@
     });
 
     wrap.append(label, select);
+    const previewSlot = document.getElementById("lospAdminPreviewSlot");
+    if (previewSlot) {
+      previewSlot.replaceWith(wrap);
+      return;
+    }
     const homeGrid = document.querySelector?.(".homeGrid");
     if (homeGrid && window.location.pathname.split("/").pop() === "home.html") {
       // Après la fraîcheur des rosters, avant les tuiles, loin de Déconnexion.
