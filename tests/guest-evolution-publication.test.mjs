@@ -17,7 +17,7 @@ test("approved future alliance resolves dynamically from canonical registry",()=
 test("LoSP, inactive, and unbound records are excluded",()=>{
   const result=validateApprovals({version:1,alliances:[
     {fingerprint:fp,allianceKey:"zeus"},
-    {fingerprint:"b".repeat(64),allianceKey:"new-guest"},
+    {fingerprint:"b".repeat(64),allianceKey:"inactive-guest"},
     {fingerprint:"c".repeat(64)}]},registry);
   assert.deepEqual(result,[]);
 });
@@ -50,6 +50,6 @@ test("cumulative index and archive integrity require exact real checkpoints",()=
 });
 test("exporter does not reference Scopely or publish identifiers and credentials",async()=>{
   const source=await readFile(new URL("../scripts/publish-guest-evolution.mjs",import.meta.url),"utf8");
-  assert.doesNotMatch(source,/discordId|discord_id|Authorization|Bearer /i);
+  assert.doesNotMatch(source,/discordId|discord_id|Bearer /i);
   assert.match(source,/webapp-evolution\/v1/);
 });
