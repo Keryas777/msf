@@ -151,9 +151,7 @@
     };
     const wanted = canonical(allianceKey);
     const history = state.historyIndex?.players || {};
-    // Live rosters contain only members who shared data during the latest
-    // capture. Historical players must remain selectable without reusing or
-    // republishing their old roster as if it were current.
+    // Current LoSP membership comes from the live roster, never the archive.
     const currentKeys = new Set(state.rosters.map(getRosterPlayerKey).filter(Boolean));
     const players = new Map();
 
@@ -338,8 +336,6 @@
   function populateAllianceSelect() {
     allianceSelect.innerHTML = "";
     for (const alliance of activeAlliances()) {
-      const players = playersForAlliance(alliance.key);
-      if (!players.length) continue;
       const option = document.createElement("option");
       option.value = alliance.key;
       option.textContent = `${alliance.name || alliance.key}${alliance.emoji ? ` ${alliance.emoji}` : ""}`;
@@ -368,7 +364,7 @@
     } catch (error) {
       if (generation === rosterDirectoryGeneration)
         console.warn("[evolution] roster courant non disponible :",error);
-      // Historical checkpoints stay available without current roster data.
+      // Keep the alliance visible; roster load errors must not hide it.
     }
   }
 
