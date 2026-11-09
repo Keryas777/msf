@@ -8,7 +8,8 @@ import {HISTORY_FILE,mergeSeasonHistory,projectRankSnapshots}
 const read=async path=>JSON.parse(await fs.readFile(path,'utf8'));
 async function main(){
   const write=process.argv.includes('--write');
-  if(process.argv.some(arg=>arg!=='--write'))throw Error('Usage: [--write]');
+  if(process.argv.slice(2).some(arg=>arg!=='--write'))
+    throw Error('Usage: [--write]');
   const base='docs/data/alliance-standings/';
   const [history,index,legacy,config]=await Promise.all([
     read(HISTORY_FILE),read(base+'index.json'),
