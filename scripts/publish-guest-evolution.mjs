@@ -103,7 +103,7 @@ export function validateSnapshot(snapshot,fp,key,record){
   if(seen.size!==expected.size)throw Error('Checkpoint player list does not match its index.');
   return snapshot;
 }
-function profileValue(value){
+export function publicAsset(value){
   return typeof value==='string'&&value.length<=320&&
     /^https:\/\/assets\.marvelstrikeforce\.com\/imgs\/[A-Za-z0-9_.%-]+$/.test(value)?value:'';
 }
@@ -168,8 +168,8 @@ async function readTree(r2,alliance,consent,now){
   // Publish only portrait fields needed by the optional ranking decoration.
   const infos=consent.source.rows.filter(r=>allowed.has(norm(r.name)))
     .map(r=>({name:r.name,alliance:key,
-      ...(profileValue(r.icon)?{icon:profileValue(r.icon)}:{}),
-      ...(profileValue(r.frame)?{frame:profileValue(r.frame)}:{})}));
+      ...(publicAsset(r.icon)?{icon:profileValue(r.icon)}:{}),
+      ...(publicAsset(r.frame)?{frame:profileValue(r.frame)}:{})}));
   files.set('infos.json',infos);
   return files;
 }
