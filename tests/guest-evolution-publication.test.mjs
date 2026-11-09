@@ -1,8 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
-import {validateApprovals,validateConsent,validateIndex,validateSnapshot,publicAsset}
-  from "../scripts/publish-guest-evolution.mjs";
+import {validateApprovals,validateConsent,validateIndex,validateSnapshot,publicAsset,
+  publicInfos,assertOperationalResult} from "../scripts/publish-guest-evolution.mjs";
 
 const fp="a".repeat(64);
 const registry=[{key:"zeus",group:"losp"},
@@ -58,4 +58,31 @@ test("exporter does not reference Scopely or publish identifiers and credentials
   const source=await readFile(new URL("../scripts/publish-guest-evolution.mjs",import.meta.url),"utf8");
   assert.doesNotMatch(source,/discordId|discord_id|Bearer /i);
   assert.match(source,/webapp-evolution\/v1/);
+});
+
+test("archive index matches the permanent R2 writer contract exactly",()=>{
+  const writtenByWorker={version:1,fingerprint:fp,allianceKey:"new-guest",
+    checkpoints:[{date:"2026-11-08",sourceCapturedAt:"2026-11-08T22:00:00Z",
+      players:["Share"]}]};
+  assert.equal(validateIndex(writtenByWorker,fp,"new-guest"),writtenByWorker);
+  assert.throws(()=>validateIndex(null,fp,"new-guest"),/absent or not a JSON object/);
+  assert.throws(()=>validateIndex({...writtenByWorker,fingerprint:"b".repeat(64)},
+    fp,"new-guest"),/fingerprint does not match/);
+  assert.throws(()=>validateIndex({...writtenByWorker,allianceKey:"other"},
+    fp,"new-guest"),/allianceKey does not match/);
+});
+test("guest infos project approved portrait URLs without the removed profileValue helper",()=>{
+  const consent={sharers:new Set(["share"])};
+  const rows=[{name:"Share",icon:"https://assets.marvelstrikeforce.com/imgs/a.png",
+    frame:"https://assets.marvelstrikeforce.com/imgs/f.png"},
+    {name:"Private",icon:"https://assets.marvelstrikeforce.com/imgs/private.png"}];
+  assert.deepEqual(publicInfos(rows,"new-guest",consent),[
+    {name:"Share",alliance:"new-guest",
+      icon:"https://assets.marvelstrikeforce.com/imgs/a.png",
+      frame:"https://assets.marvelstrikeforce.com/imgs/f.png"}]);
+});
+test("a dry-run with approved but zero validated alliances is operational failure",()=>{
+  assert.throws(()=>assertOperationalResult(4,0),/not operational/);
+  assert.doesNotThrow(()=>assertOperationalResult(4,1));
+  assert.doesNotThrow(()=>assertOperationalResult(0,0));
 });
