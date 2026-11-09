@@ -12,7 +12,7 @@ const one={version:1,players:{"g_marines__shared":{name:"Shared",
   checkpoints:[{date:"2026-11-08",players:1}]};
 function setup(role,allowed){
   const calls=[],data=new Map([
-    ["./data/alliances.json",catalog],
+    ["./data/alliances.json",catalog],\n    ["./data/roster-history/index.json",{version:1,players:{},checkpoints:[]}],
     ["./data/roster-history/guests/marines/index.json",one],
     ["./data/roster-history/guests/endgame-revolution-red/index.json",
       {version:1,players:{"g_endgame-revolution-red__shared":{name:"Shared",
