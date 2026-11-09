@@ -22,10 +22,11 @@ const GIT_TZ = process.env.ROSTER_HISTORY_TZ || ROSTER_CHECKPOINT_TIMEZONE;
 const GIT_MAX_BUFFER = 64 * 1024 * 1024;
 
 function parseArgs(argv) {
-  const options = { checkpoint: lastCompletedWeeklyCheckpoint(), write: false };
+  const options = { checkpoint: lastCompletedWeeklyCheckpoint(), write: false, repairAlliances: [] };
   for (const arg of argv) {
     if (arg === '--write') options.write = true;
     else if (arg === '--dry-run') options.write = false;
+    else if (arg.startsWith('--repair-alliances=')) options.repairAlliances = arg.slice('--repair-alliances='.length).split(',').filter(Boolean);
     else if (arg.startsWith('--checkpoint=')) {
       options.checkpoint = arg.slice('--checkpoint='.length);
     } else if (arg === '--help' || arg === '-h') {
@@ -332,7 +333,9 @@ async function writeJson(file, value) {
 function mergeIndex(index, checkpoint, snapshots) {
   const next = structuredClone(index);
   next.version = next.version || 1;
-  next.checkpoints.push(isWeeklyCheckpoint(checkpoint)
+  if (next.checkpoints.some((entry) => entry?.date === checkpoint)) {
+    next.checkpoints.find((entry) => entry.date === checkpoint).players += snapshots.length;
+  } else next.checkpoints.push(isWeeklyCheckpoint(checkpoint)
     ? { date: checkpoint, players: snapshots.length, cadence: 'weekly', cutoffLocalTime: '23:00', timezone: GIT_TZ }
     : { date: checkpoint, players: snapshots.length });
   next.checkpoints.sort((a, b) => String(a.date).localeCompare(String(b.date)));
@@ -367,13 +370,18 @@ async function main() {
 
   const index = await loadIndex();
   const alreadyExists = index.checkpoints.some((entry) => entry?.date === options.checkpoint);
-  if (alreadyExists && options.write) {
+  if (options.repairAlliances.length && !alreadyExists) throw new Error('Repair requires an existing checkpoint');
+  if (alreadyExists && options.write && !options.repairAlliances.length) {
     console.log(`[roster-snapshot] Checkpoint ${options.checkpoint} already exists -> no-op.`);
     return;
   }
 
   const registry = loadAllianceRegistry();
-  const activeAllianceKeys = await loadActiveAllianceKeys(registry);
+  const allActiveKeys = await loadActiveAllianceKeys(registry);
+  const activeAllianceKeys = options.repairAlliances.length
+    ? allActiveKeys.filter((key) => options.repairAlliances.includes(key)) : allActiveKeys;
+  if (options.repairAlliances.length && activeAllianceKeys.length !== options.repairAlliances.length)
+    throw new Error('Unknown or inactive repair alliance');
   const aliasMap = await loadPlayerAliases();
   const warnings = [];
   const revisions = [];
@@ -381,7 +389,10 @@ async function main() {
   for (const alliance of activeAllianceKeys) {
     const file = path.posix.join(DATA_DIR.replaceAll('\\', '/'), `rosters_${alliance}.json`);
     const revision = findSourceRevision(file, options.checkpoint);
-    if (!revision) continue;
+    if (!revision) {
+      if (options.repairAlliances.length) throw new Error('No source revision before checkpoint for '+alliance);
+      continue;
+    }
     revisions.push({ ...revision, alliance });
   }
 
@@ -392,6 +403,12 @@ async function main() {
     if (selected) snapshots.push(selected);
   }
   snapshots.sort((a, b) => a.player.localeCompare(b.player, 'fr', { sensitivity: 'base' }));
+  if (options.repairAlliances.length) {
+    const existing = new Set(Object.entries(index.players).filter(([,entry]) => entry.checkpoints?.includes(options.checkpoint)).map(([key]) => key));
+    const collisions = snapshots.filter((snapshot) => existing.has(snapshot.playerKey));
+    if (collisions.length) throw new Error('Repair would duplicate checkpoint identities: '+collisions.map((s)=>s.playerKey).join(', '));
+    if (!snapshots.length) throw new Error('Repair source contains no players');
+  }
 
   console.log(`\n[roster-snapshot] Mode: ${options.write ? 'WRITE' : 'DRY-RUN'}`);
   console.log(`[roster-snapshot] Checkpoint: ${options.checkpoint}`);
