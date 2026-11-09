@@ -284,6 +284,87 @@ export async function pruneLegacyGuestHistory(dataDir,guestKeys,consentByAllianc
   }
   return removed;
 }
+function stableAid(record){
+  const value=record?.aid;
+  if(typeof value==="string"&&value.length>0&&value.length<=256&&
+     value===value.trim())return value;
+  if(Number.isSafeInteger(value)&&value>=0)return String(value);
+  return null;
+}
+export function auditRosterShareByStableId(players,receiptRows){
+  const rows=Array.isArray(players)?players:[];
+  const receipts=Array.isArray(receiptRows)?receiptRows:[];
+  const counts={valid:0,revoked:0,unverifiable:0};
+  const playerIds=new Map(),receiptIds=new Map();
+  for(const player of rows){
+    const id=stableAid(player);
+    if(id)playerIds.set(id,(playerIds.get(id)||0)+1);
+  }
+  for(const row of receipts){
+    const id=stableAid(row);
+    if(id)receiptIds.set(id,(receiptIds.get(id)||0)+1);
+  }
+  for(const player of rows){
+    const id=stableAid(player);
+    const matches=id?receipts.filter(row=>stableAid(row)===id):[];
+    if(!id||playerIds.get(id)!==1||receiptIds.get(id)!==1||
+       matches.length!==1||typeof matches[0]?.rosterShare!=="boolean"){
+      counts.unverifiable++;
+    }else if(matches[0].rosterShare===true){
+      counts.valid++;
+    }else{
+      counts.revoked++;
+    }
+  }
+  return counts;
+}
+function validCalendarDate(value){
+  return DAY.test(value||"")&&Number.isFinite(Date.parse(value+"T00:00:00Z"))&&
+    new Date(value+"T00:00:00Z").toISOString().slice(0,10)===value;
+}
+export async function collectLegacyGuestConsentAudit(dataDir,guestKeys,consentByAlliance){
+  const history=path.join(dataDir,"roster-history");
+  const groupDir=path.join(history,"group");
+  const entries=await fs.readdir(groupDir,{withFileTypes:true}).catch(error=>
+    error?.code==="ENOENT"?[]:Promise.reject(error));
+  const latest=new Map();
+  for(const entry of entries){
+    if(!entry.isFile()||!entry.name.endsWith(".json"))continue;
+    const date=entry.name.slice(0,-5);
+    if(!validCalendarDate(date))continue;
+    const group=await readJson(path.join(groupDir,entry.name));
+    if(!Array.isArray(group?.players))continue;
+    const byAlliance=new Map();
+    for(const row of group.players){
+      if(!object(row)||!guestKeys.has(row.alliance))continue;
+      if(!byAlliance.has(row.alliance))byAlliance.set(row.alliance,[]);
+      byAlliance.get(row.alliance).push(row);
+    }
+    for(const [alliance,rows] of byAlliance){
+      const prior=latest.get(alliance);
+      if(!prior||date>prior.date)latest.set(alliance,{date,rows});
+    }
+  }
+  const reports=[];
+  for(const [alliance,{date,rows}] of [...latest].sort(([a],[b])=>a.localeCompare(b))){
+    const legacyPlayers=[];
+    for(const row of rows){
+      let snapshot=null;
+      if(typeof row.playerKey==="string"&&/^[a-z0-9_-]{1,160}$/i.test(row.playerKey)){
+        try{
+          snapshot=await readOptionalJson(path.join(history,"players",row.playerKey,date+".json"));
+        }catch{}
+      }
+      legacyPlayers.push({...row,aid:row.aid??snapshot?.aid});
+    }
+    const consent=consentByAlliance.get(alliance);
+    const counts=auditRosterShareByStableId(legacyPlayers,consent?.source?.rows);
+    const balanced=counts.valid+counts.revoked+counts.unverifiable===legacyPlayers.length;
+    if(!balanced)throw Error("Legacy rosterShare audit did not balance.");
+    reports.push({alliance,date,counts,balanced});
+  }
+  return reports;
+}
 async function writeAlliance(key,files){
   await fs.mkdir(outDir,{recursive:true});
   const base=path.join(outDir,key),suffix='.tmp-'+process.pid;
@@ -320,6 +401,7 @@ async function main(){
   // alliance, missing R2 history/receipts leave legacy files untouched.
   const legacyConsent=new Map([...guestKeys].map(key=>[
     key,approvedKeys.has(key)?null:false]));
+  const currentConsent=new Map([...guestKeys].map(key=>[key,null]));
   const prior=await fs.readdir(outDir,{withFileTypes:true}).catch(e=>
     e.code==='ENOENT'?[]:Promise.reject(e));
   const revoked=prior.filter(x=>x.isDirectory()&&!approvedKeys.has(x.name)).map(x=>x.name);
@@ -328,10 +410,12 @@ async function main(){
     try{
       const consent=await latestConsent(r2,alliance.fingerprint,now);
       if(!consent){
+        currentConsent.set(alliance.key,null);
         purge.add(alliance.key);
         console.warn(alliance.key+': no recent verifiable rosterShare receipt; existing public files will be removed.');
         continue;
       }
+      currentConsent.set(alliance.key,consent);
       legacyConsent.set(alliance.key,consent.sharers);
       try{
         ready.set(alliance.key,await readTree(r2,alliance,consent,now));
@@ -349,16 +433,23 @@ async function main(){
       console.error(alliance.key+': '+String(error?.message||'export failed'));
     }
   }
+  const legacyAudit=await collectLegacyGuestConsentAudit(rootDir,guestKeys,currentConsent);
+  const auditLines=legacyAudit.map(item=>
+    'Legacy rosterShare audit '+item.alliance+' '+item.date+
+    ': valid='+item.counts.valid+'; revoked='+item.counts.revoked+
+    '; unverifiable='+item.counts.unverifiable+'; balanced='+
+    (item.balanced?'yes':'no'));
+  for(const line of auditLines)console.log(line);
   const summary='Approved: '+approved.length+'; validated: '+ready.size+
     '; failed closed: '+failed.length+'; revoked: '+revoked.length;
   console.log(summary);
-  const details=failed.map(item=>'- '+item.key+': '+item.reason).join('\n');
+  const details=failed.map(item=>'- '+item.key+': '+item.reason).join('\\n');
   const report=['## Guest Evolution export','',summary,'',
     ready.size===0&&approved.length>0?
       '**Aucune alliance validée : aucun export opérationnel.**':
       ready.size>0?'Validation terminée.':'Aucune alliance invitée approuvée.',
-    '',details||'- Aucun échec.','',
-    write?'Publication autorisée par configuration.':'Dry-run : aucun fichier public modifié.'].join('\n');
+    '',...auditLines,'',details||'- Aucun échec.','',
+    write?'Publication autorisée par configuration.':'Dry-run : aucun fichier public modifié.'].join('\\n');
   if(process.env.GITHUB_STEP_SUMMARY)
     await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,report+'\n','utf8');
   assertOperationalResult(approved.length,ready.size);
