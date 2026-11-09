@@ -6,11 +6,12 @@ import {runInNewContext} from "node:vm";
 const source=await readFile(new URL("../docs/evolution-history.js",import.meta.url),"utf8");
 const catalog=[{key:"zeus",group:"losp"},{key:"marines",group:"marines"},
   {key:"endgame-revolution-red",group:"endgame-revolution"},
-  {key:"endgame-revolution-orange",group:"endgame-revolution"}];
+  {key:"endgame-revolution-orange",group:"endgame-revolution"},
+  {key:"questionable-propriety",group:"questionable-propriety"}];
 const one={version:1,players:{"g_marines__shared":{name:"Shared",
   currentAlliance:"marines",checkpoints:["2026-11-08"]}},
   checkpoints:[{date:"2026-11-08",players:1}]};
-function setup(role,allowed){
+function setup(role,allowed,extraData=[]){
   const calls=[],data=new Map([
     ["./data/alliances.json",catalog],
     ["./data/roster-history/index.json",{version:1,players:{},checkpoints:[]}],
@@ -32,6 +33,7 @@ function setup(role,allowed){
     ["./data/roster-history/guests/marines/infos.json",
       [{name:"Shared",alliance:"marines",icon:"avatar"}]]
   ]);
+  for(const [key,value] of extraData)data.set(key,value);
   const window={LoSP_SESSION:{ok:true,role},LoSP_AUTH_READY:Promise.resolve(),
     LoSPAlliances:{loadAlliances:async()=>{},
       getAllianceMeta:k=>catalog.find(a=>a.key===k)},
@@ -122,4 +124,61 @@ test("ranking portrait lookup stays scoped to alliance and player",async()=>{
     });
   assert.equal(rows[0].icon,"M");
   assert.equal(rows[1].icon,"E");
+});
+
+test("legacy QP Nov 8 checkpoint is read from the shared archive without an R2 guest index",async()=>{
+  const date="2026-11-08",players={},rows=[];
+  for(let i=1;i<=22;i++){
+    const name=i===1?"Ada":"QP Player "+i,key=name.toLowerCase().replace(/[^a-z0-9]/g,"");
+    players[key]={name,currentAlliance:"questionable-propriety",checkpoints:[date]};
+    rows.push({player:name,playerKey:key,alliance:"questionable-propriety",totalPower:i*100});
+  }
+  const legacyIndex={version:1,players,checkpoints:[{date,players:22}]};
+  const legacyGroup={version:1,checkpoint:date,players:rows};
+  const legacyPlayer={player:"Ada",playerKey:"ada",alliance:"questionable-propriety",
+    checkpoint:date,source:{lateBackfill:true},chars:{hero:{power:321}},iso:{}};
+  const {app,calls}=setup("admin",["questionable-propriety"],[
+    ["./data/roster-history/index.json",legacyIndex],
+    ["./data/roster-history/group/"+date+".json",legacyGroup],
+    ["./data/roster-history/players/ada/"+date+".json",legacyPlayer]
+  ]);
+  const loaded=await app.loadIndex();
+  assert.equal(loaded.historyIndex.checkpoints.find(c=>c.date===date).players,22);
+  assert.equal(Object.keys(loaded.historyIndex.players).filter(id=>
+    id.startsWith("g_questionable-propriety__")).length,22);
+  const group=await app.group(date);
+  assert.equal(group.players.length,22);
+  assert.ok(group.players.every(row=>row.playerKey.startsWith("g_questionable-propriety__")));
+  const player=await app.player("questionable-propriety",
+    "g_questionable-propriety__ada",date);
+  assert.equal(player.chars.hero.power,321);
+  assert.equal(player.playerKey,"g_questionable-propriety__ada");
+  assert.ok(calls.includes("./data/roster-history/players/ada/"+date+".json"));
+});
+test("legacy and R2 guest representations of the same checkpoint do not duplicate rank rows",async()=>{
+  const date="2026-11-08",legacyIndex={version:1,players:{
+    ada:{name:"Ada",currentAlliance:"questionable-propriety",checkpoints:[date]}
+  },checkpoints:[{date,players:1}]};
+  const guestIndex={version:1,players:{
+    "g_questionable-propriety__ada":{name:"Ada",
+      currentAlliance:"questionable-propriety",checkpoints:[date]}
+  },checkpoints:[{date,players:1}]};
+  const {app}=setup("admin",["questionable-propriety"],[
+    ["./data/roster-history/index.json",legacyIndex],
+    ["./data/roster-history/group/"+date+".json",{version:1,checkpoint:date,
+      players:[{player:"Ada",playerKey:"ada",alliance:"questionable-propriety",
+        totalPower:100}]}],
+    ["./data/roster-history/guests/questionable-propriety/index.json",guestIndex],
+    ["./data/roster-history/guests/questionable-propriety/group/"+date+".json",
+      {version:1,checkpoint:date,players:[{player:"Ada",
+        playerKey:"g_questionable-propriety__ada",
+        alliance:"questionable-propriety",totalPower:125}]}]
+  ]);
+  const loaded=await app.loadIndex();
+  assert.equal(Object.keys(loaded.historyIndex.players).filter(id=>
+    id==="g_questionable-propriety__ada").length,1);
+  assert.equal(loaded.historyIndex.checkpoints.find(c=>c.date===date).players,1);
+  const group=await app.group(date);
+  assert.equal(group.players.length,1);
+  assert.equal(group.players[0].totalPower,125);
 });
