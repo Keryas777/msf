@@ -7,6 +7,11 @@ on:
         description: Optional Sunday checkpoint (YYYY-MM-DD). Empty means last completed Sunday at 23:00 Europe/Paris.
         required: false
         default: ""
+      repair_qp_nov08:
+        description: 'Add QP to 2026-11-08 from first later collection (marked retrospective)'
+        type: boolean
+        required: false
+        default: false
       repair_egr_nov08:
         description: "Backfill only EGR red/orange into 2026-11-08 (existing snapshots preserved)"
         type: boolean
@@ -63,7 +68,22 @@ jobs:
           DATA_DIR: docs/data
           ROSTER_HISTORY_TZ: Europe/Paris
         run: |
-          if [ "${{ inputs.repair_egr_nov08 }}" = "true" ]; then
+          if [ "${{ inputs.repair_qp_nov08 }}" = "true" ]; then
+            if [ "${{ inputs.repair_egr_nov08 }}" = "true" ] || [ "${{ steps.checkpoint.outputs.checkpoint }}" != "2026-11-08" ]; then
+              echo "QP repair requires 2026-11-08 and EGR repair disabled" >&2
+              exit 1
+            fi
+            node scripts/snapshot-rosters.mjs \
+              --checkpoint=2026-11-08 \
+              --repair-alliances=questionable-propriety \
+              --allow-late-qp-nov08 \
+              --dry-run
+            node scripts/snapshot-rosters.mjs \
+              --checkpoint=2026-11-08 \
+              --repair-alliances=questionable-propriety \
+              --allow-late-qp-nov08 \
+              --write
+          elif [ "${{ inputs.repair_egr_nov08 }}" = "true" ]; then
             if [ "${{ steps.checkpoint.outputs.checkpoint }}" != "2026-11-08" ]; then
               echo "EGR repair is restricted to checkpoint 2026-11-08" >&2
               exit 1
