@@ -104,7 +104,7 @@ export function publicSeasonSnapshot(privateCapture,registry,mapping,season){
 export function addSeasonToIndex(index,snapshot,season){
   if(index?.kind!=='losp-alliance-standings-index'||!Array.isArray(index.snapshots))
     throw Error('Invalid standings index');
-  if(alreadyImported(index,season.seasonId))return {updated:false,index};
+  // Multiple immutable captures may contribute new alliances to one season.
   if(index.snapshots.some(row=>row.capturedAt===snapshot.capturedAt))
     throw Error('Duplicate timestamp with another capture');
   const file='snapshots/'+snapshot.capturedAt.replace(/[-:.]/g,'')
