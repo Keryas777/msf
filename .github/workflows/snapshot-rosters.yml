@@ -68,17 +68,17 @@ jobs:
               echo "EGR repair is restricted to checkpoint 2026-11-08" >&2
               exit 1
             fi
-            node scripts/snapshot-rosters.mjs \\
-              --checkpoint=2026-11-08 \\
-              --repair-alliances=endgame-revolution-red,endgame-revolution-orange \\
+            node scripts/snapshot-rosters.mjs \
+              --checkpoint=2026-11-08 \
+              --repair-alliances=endgame-revolution-red,endgame-revolution-orange \
               --dry-run
-            node scripts/snapshot-rosters.mjs \\
-              --checkpoint=2026-11-08 \\
-              --repair-alliances=endgame-revolution-red,endgame-revolution-orange \\
+            node scripts/snapshot-rosters.mjs \
+              --checkpoint=2026-11-08 \
+              --repair-alliances=endgame-revolution-red,endgame-revolution-orange \
               --write
           else
-            node scripts/snapshot-rosters.mjs \\
-              --checkpoint="${{ steps.checkpoint.outputs.checkpoint }}" \\
+            node scripts/snapshot-rosters.mjs \
+              --checkpoint="${{ steps.checkpoint.outputs.checkpoint }}" \
               --write
           fi
 
