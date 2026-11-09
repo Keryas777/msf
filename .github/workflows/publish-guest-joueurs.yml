@@ -27,7 +27,16 @@ jobs:
         run: |
           node --check scripts/lib/guest-player-directory.mjs
           node --check scripts/pull-guest-joueurs-r2.mjs
+          node --check scripts/diagnose-qp-infos-receipt.mjs
           node --test tests/guest-player-directory.test.mjs tests/merge-alliance-data.test.mjs
+      - name: Diagnose QP Info receipt timing (manual runs only, R2 read-only)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          LOSP_R2_ACCOUNT_ID: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
+          LOSP_R2_ACCESS_KEY_ID: ${{ secrets.LOSP_R2_ACCESS_KEY_ID }}
+          LOSP_R2_SECRET_ACCESS_KEY: ${{ secrets.LOSP_R2_SECRET_ACCESS_KEY }}
+          LOSP_R2_BUCKET: ${{ secrets.LOSP_R2_BUCKET }}
+        run: node scripts/diagnose-qp-infos-receipt.mjs
       - name: Read verified guest Info receipts from R2
         env:
           LOSP_R2_ACCOUNT_ID: ${{ secrets.LOSP_R2_ACCOUNT_ID }}
