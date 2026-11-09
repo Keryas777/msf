@@ -115,7 +115,7 @@
   // Immutable GitHub-published season points survive R2's short retention.
   // This reader never consults private sources and never guesses a tenant.
   function fromArchive(payload,registry,allowed,calendar){
-    if(payload?.version!==1||payload.kind!=="losp-guest-season-results"||
+    if(payload?.version!==1||payload.kind!=="losp-season-history"||
        !Array.isArray(payload.results)||!Array.isArray(registry))return [];
     const known=new Set(registry.filter(a=>a?.active!==false).map(a=>a.key));
     const groups=new Map(),seen=new Set();
