@@ -6,7 +6,7 @@ import {validateApprovals,validateConsent,validateIndex,validateSnapshot}
 
 const fp="a".repeat(64);
 const registry=[{key:"zeus",group:"losp"},
-  {key:"new-guest",group:"new-guest",active:true}];
+  {key:"new-guest",group:"new-guest",active:true},\n  {key:"inactive-guest",group:"inactive-guest",active:false}];
 const now=Date.parse("2026-11-09T12:00:00Z");
 test("approved future alliance resolves dynamically from canonical registry",()=>{
   const result=validateApprovals({version:1,alliances:[{fingerprint:fp,
