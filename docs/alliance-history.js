@@ -50,7 +50,7 @@
     if(!response.ok)throw Error('HTTP '+response.status);
     return response.json();
   }
-  const readGuestArchive=()=>json(BASE+'guest-season-history.json')
+  const readGuestArchive=()=>json(BASE+'season-history.json')
     .catch(()=>null);
   async function readSnapshots(index){
     const entries=Array.isArray(index?.snapshots)?index.snapshots:[];
