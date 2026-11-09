@@ -174,12 +174,27 @@ async function readTree(r2,alliance,consent,now){
 }
 async function readJson(file){return JSON.parse(await fs.readFile(file,'utf8'));}
 async function writeAlliance(key,files){
-  const base=path.join(outDir,key);
-  await fs.rm(base,{recursive:true,force:true});
-  for(const [relative,value] of files){
-    const file=path.join(base,relative);
-    await fs.mkdir(path.dirname(file),{recursive:true});
-    await fs.writeFile(file,JSON.stringify(value,null,2)+'\n','utf8');
+  await fs.mkdir(outDir,{recursive:true});
+  const base=path.join(outDir,key),suffix='.tmp-'+process.pid;
+  const staged=base+suffix,backup=base+'.bak-'+process.pid;
+  await fs.rm(staged,{recursive:true,force:true});
+  await fs.rm(backup,{recursive:true,force:true});
+  try{
+    for(const [relative,value] of files){
+      const file=path.join(staged,relative);
+      await fs.mkdir(path.dirname(file),{recursive:true});
+      await fs.writeFile(file,JSON.stringify(value,null,2)+'\\n','utf8');
+    }
+    try{await fs.rename(base,backup);}catch(error){if(error?.code!=='ENOENT')throw error;}
+    try{await fs.rename(staged,base);}
+    catch(error){
+      try{await fs.rename(backup,base);}catch{}
+      throw error;
+    }
+    await fs.rm(backup,{recursive:true,force:true});
+  }catch(error){
+    await fs.rm(staged,{recursive:true,force:true});
+    throw error;
   }
 }
 async function main(){
