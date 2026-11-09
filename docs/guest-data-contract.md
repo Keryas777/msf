@@ -90,32 +90,79 @@ permissions : parité de données collectées ne signifie pas accorder aux
 invités l'accès aux rapports internes des autres alliances.
 
 
-## Évolution : checkpoints cumulés pour les invités
+## Évolution : publication statique LoSP et alliances invitées
 
-Les pages Évolution individuelles et collectives utilisent les mêmes périodes
-et les mêmes calculs pour les alliances invitées et pour LoSP. Chaque alliance
-invitée commence son histoire à son **premier checkpoint réel** (au plus tôt
-le dimanche 8 novembre 2026). Deux checkpoints sont nécessaires pour une
-comparaison ; aucun relevé antérieur n'est inventé.
+Les pages `evolution.html` et `evolution-classement.html` lisent les historiques
+LoSP et invités via GitHub Pages. Le navigateur ne demande aucun jeton Discord
+signé pour les historiques et n’appelle plus l’API privée guest-evolution.
+LoSPAccess continue de filtrer les alliances visibles dans l’interface ; ces
+contrôles ne protègent pas les fichiers publics.
 
-Le collecteur Roster Service alimente un tampon R2 temporaire.
-L'**historique de la WebApp est indépendant de ce tampon** : il possède
-un index cumulatif et un fichier de checkpoint par dimanche sous
-`webapp-evolution/v1/`, distinct du préfixe temporaire
-`roster-batches/v1/`. L'archivage cumulatif est activé par
-`GUEST_EVOLUTION_LONG_TERM_AUTHORIZED=true` dans `wrangler.jsonc`.
-Il n'y a **pas de fenêtre glissante de 29 ou 30 jours dans Évolution**.
+### Source R2 et synchronisation
 
-Un checkpoint enregistré est immuable : si un enregistrement est interrompu
-après l'écriture du fichier mais avant celle de l'index, l'exécution suivante
-vérifie et récupère l'archive existante au lieu de la réécrire. Les objets
-corrompus ou incohérents sont signalés, jamais silencieusement remplacés.
+Le Roster Service conserve l’archive cumulative validée sous
+`webapp-evolution/v1/<fingerprint>/` : un index et un fichier immuable par
+checkpoint réel. Le tampon `roster-batches/v1/guest-evolution/` n’est pas la
+source de publication. L’export ne lance aucune collecte Scopely.
 
-Les **checkpoints d'Évolution invités**, distincts des rosters courants
-publiés, ne sont pas publiés dans les JSON publics de GitHub Pages.
-Leur lecture nécessite une session Discord signée et l'approbation
-administrative de l'alliance. **Un joueur absent du dernier recensement d'alliance n'apparaît
-plus** dans les listes, classements ou comparaisons de la WebApp ; ses anciens
-checkpoints restent enregistrés, sans suppression automatique liée au départ.
-La révocation et la suppression des données sur demande restent du ressort
-du Roster Service.
+Le workflow `publish-guest-evolution.yml` relit les approbations R2, le registre
+canonique `docs/data/alliances.json`, les consentements `rosterShare` courants
+et les archives cumulées. Il s’exécute toutes les six heures et peut être lancé
+manuellement. La publication reste désactivée tant que la variable Actions
+`LOSP_R2_GUEST_EVOLUTION_PUBLICATION_APPROVED` n’est pas réglée à `true`.
+Les identifiants R2 en lecture seule réutilisent les secrets existants
+`LOSP_R2_ACCOUNT_ID`, `LOSP_R2_ACCESS_KEY_ID`,
+`LOSP_R2_SECRET_ACCESS_KEY` et `LOSP_R2_BUCKET`.
+
+Les fichiers invités sont séparés par clé d’alliance pour éviter les collisions :
+
+- `docs/data/roster-history/guests/<alliance>/index.json`
+- `docs/data/roster-history/guests/<alliance>/group/<date>.json`
+- `docs/data/roster-history/guests/<alliance>/players/<playerKey>/<date>.json`
+- `docs/data/roster-history/guests/<alliance>/infos.json` (données visuelles accessoires)
+
+Les identifiants sont `g_<alliance>__<joueur-normalisé>`. Chaque checkpoint conserve
+sa date réelle, son horodatage source, ses personnages, puissances et ISO. Un
+premier checkpoint donne une disponibilité sans progression ; deux relevés réels
+sont nécessaires pour calculer une évolution.
+
+### Consentement et révocations
+
+Avant publication, l’export exige un reçu Infos valide et récent (moins de sept
+jours), une autorisation d’alliance approuvée et une clé canonique présente dans
+`alliances.json`. Il ne publie que les joueurs dont le dernier reçu confirme
+`rosterShare === true`. Si les reçus sont valides mais qu’un joueur a retiré son
+partage, ses données historiques sont retirées de tous les JSON générés. Si aucun
+reçu récent et vérifiable n’existe, le répertoire public de l’alliance est purgé.
+Une révocation d’approbation ou de liaison d’alliance supprime également son
+répertoire statique. Une erreur réseau R2 transitoire conserve les fichiers
+précédemment validés pour éviter une suppression massive pendant une panne ;
+aucune nouvelle donnée n’est publiée et la synchronisation suivante réessaie.
+
+Les exports valides sont préparés et contrôlés avant remplacement des fichiers
+d’une alliance. Une panne R2 temporaire ou un checkpoint incohérent ne supprime
+pas l’historique valide d’une autre alliance. Les exports sont idempotents.
+Les métadonnées publiques excluent les empreintes R2, identifiants Discord,
+jetons, secrets et autres champs privés.
+
+### Confidentialité, intégration et reprise
+
+Tout JSON sous GitHub Pages est public et téléchargeable directement. Le filtre
+Discord de l’interface ne constitue pas une barrière d’accès. L’activation de la
+variable de publication doit donc correspondre à une autorisation explicite de
+rendre ces historiques publics selon les règles de consentement applicables.
+Supprimer un fichier de la version courante ne retire pas les anciennes copies
+des commits Git, des caches ou des téléchargements déjà effectués : l’effacement
+rétroactif n’est pas garanti.
+
+Une nouvelle alliance est intégrée sans changement de pipeline dès qu’elle est
+approuvée, liée dans les registres canoniques, visible dans `alliances.json`,
+et possède un premier checkpoint cumulatif ainsi qu’un reçu de consentement
+vérifiable. Les deux pages la chargent sans ajout JavaScript.
+Les progressions deviennent calculables à son second checkpoint réel.
+
+En cas d’échec, consulter le résumé et les journaux de l’action. Corriger la
+cause R2 ou le registre, puis relancer le workflow ; l’export relit les archives
+existantes sans relancer de collecte. Une prévisualisation locale s’effectue
+avec `node scripts/publish-guest-evolution.mjs --dry-run`. Le mode d’écriture
+nécessite explicitement `--write` et la variable d’approbation ci-dessus.
