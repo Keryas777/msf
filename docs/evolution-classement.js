@@ -26,6 +26,7 @@
     selectedAlliances: new Set(),
     allRows: [],
     currentRange: null,
+    rankingRequestId: 0,
   };
 
   function bust(url) {
@@ -140,7 +141,16 @@
   }
 
   async function fetchGroup(checkpoint) {
-    return window.LoSPEvolutionHistory.group(checkpoint);
+    // The first iOS/PWA request can fail transiently while the page initializes.
+    // Retry only once; never turn a persistent error into an empty ranking.
+    try {
+      return await window.LoSPEvolutionHistory.group(checkpoint);
+    } catch (error) {
+      // A permission or malformed-date error is not transient.
+      if (/401|403|autorisé|invalide|incorrecte/i.test(String(error?.message || ''))) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      return window.LoSPEvolutionHistory.group(checkpoint);
+    }
   }
 
   // An identical nickname in two guest alliances must never inherit
@@ -401,6 +411,7 @@
   }
 
   async function loadRanking() {
+    const requestId = ++state.rankingRequestId;
     const range = selectedRange();
     clear(rankingList);
     summaryCard.hidden = true;
@@ -423,13 +434,15 @@
         fetchGroup(range.start),
         fetchGroup(range.end),
       ]);
+      if (requestId !== state.rankingRequestId) return;
       state.allRows = buildRows(before, current);
       renderCurrentRanking();
     } catch (error) {
-      console.error(error);
+      if (requestId !== state.rankingRequestId) return;
+      console.error('[Evolution] Checkpoint loading failed:', range, error);
       loadingState.hidden = true;
       emptyState.hidden = false;
-      emptyState.textContent = 'Le classement n’est pas encore disponible pour cette période.';
+      emptyState.textContent = 'Impossible de charger le classement. Changez de période pour réessayer.';
     }
   }
 
