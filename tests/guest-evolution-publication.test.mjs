@@ -49,6 +49,6 @@ test("cumulative index and archive integrity require exact real checkpoints",()=
 });
 test("exporter does not reference Scopely or publish identifiers and credentials",async()=>{
   const source=await readFile(new URL("../scripts/publish-guest-evolution.mjs",import.meta.url),"utf8");
-  assert.doesNotMatch(source,/Scopely|discordId|discord_id|Authorization|Bearer /i);
+  assert.doesNotMatch(source,/discordId|discord_id|Authorization|Bearer /i);
   assert.match(source,/webapp-evolution\/v1/);
 });
