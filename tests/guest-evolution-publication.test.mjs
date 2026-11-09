@@ -48,6 +48,12 @@ test("cumulative index and archive integrity require exact real checkpoints",()=
   assert.throws(()=>validateSnapshot({...snapshot,date:"2026-11-01"},fp,
     "new-guest",index.checkpoints[0]),/invalid/);
 });
+test("portrait assets are limited to the official MSF image host",()=>{
+  assert.equal(publicAsset("https://assets.marvelstrikeforce.com/imgs/avatar.png"),
+    "https://assets.marvelstrikeforce.com/imgs/avatar.png");
+  assert.equal(publicAsset("https://example.com/avatar.png"),"");
+  assert.equal(publicAsset("https://assets.marvelstrikeforce.com.evil/imgs/a.png"),"");
+});
 test("exporter does not reference Scopely or publish identifiers and credentials",async()=>{
   const source=await readFile(new URL("../scripts/publish-guest-evolution.mjs",import.meta.url),"utf8");
   assert.doesNotMatch(source,/discordId|discord_id|Bearer /i);
