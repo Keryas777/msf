@@ -75,18 +75,26 @@
       const rows=[],seen=new Set(),permitted=new Set(keys);
       for(const group of body.alliances){
         const key=group?.alliance;
-        if(!SLUG.test(key)||!permitted.has(key)||seen.has(key)||
-           !Array.isArray(group.players))
+        // A malformed or unauthorized tenant must never enter the result.
+        if(!SLUG.test(key)||!permitted.has(key)||seen.has(key))
           throw Error("périmètre Infos invalide");
         seen.add(key);
+        if(!Array.isArray(group.players)){
+          warnings.push(key+" : réponse Infos invalide.");
+          continue;
+        }
         if(group.state!=="complete"){
           warnings.push(key+" : aucune collecte Infos complète récente.");
           continue;
         }
-        if(!group.players.every(p=>validInfo(p,key)))
-          throw Error(key+" : données Infos invalides");
+        if(!group.players.every(p=>validInfo(p,key))){
+          warnings.push(key+" : données Infos invalides.");
+          continue;
+        }
         rows.push(...group.players);
       }
+      for(const key of permitted)
+        if(!seen.has(key))warnings.push(key+" : aucune réponse Infos.");
       return rows;
     }catch(error){
       warnings.push("Infos invitées : "+String(error?.message||"indisponibles"));
