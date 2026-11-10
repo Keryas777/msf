@@ -479,26 +479,42 @@ async function load(){
       for(const [from,to] of Object.entries(entries))S.aliases[norm(from)]=to;
     }
   }catch{/* Aliases are optional; ranks are not invented. */}
-  // Use the existing public Infos publication for alliance metadata,
-  // portraits and frames. R2 is authoritative for historical arena ranks.
-  let infoRows=null;
+  // Share the exact Infos reader used by the rest of the WebApp.
+  // It filters public LoSP rows and requests guest rows only through the
+  // signed Discord session. Arena ranks still come exclusively from R2.
+  let infoRows=null,sharedInfos=[];
   try{
-    if(guest)throw Error("Guest portraits are not published in LoSP Infos");
-    const infos=await fetch("./data/infos.json",{cache:"no-store"});
-    if(infos.ok){
-      const rows=await infos.json();
-      if(Array.isArray(rows)){
-        infoRows=rows;
-        for(const row of rows){
-          const id=norm(canonical(row?.name));
-          if(id&&window.LoSPAccess?.isAllianceAllowed(row?.alliance)&&!S.infos.has(id))S.infos.set(id,row);
-        }
-      }
+    if(window.LoSPAllianceData?.load){
+      const result=await window.LoSPAllianceData.load({infos:true});
+      sharedInfos=result.infos||[];
+      infoRows=sharedInfos.filter(row=>
+        window.LoSPAlliances?.getAllianceMeta(row?.alliance)?.group==="losp");
+    }else if(!guest){
+      // Preserve the pre-existing public LoSP fallback if the shared
+      // reader script cannot load.
+      const infos=await fetch("./data/infos.json",{cache:"no-store"});
+      if(infos.ok)infoRows=await infos.json();
+      sharedInfos=Array.isArray(infoRows)?infoRows:[];
     }
-  }catch{/* History still works if enriched Infos are unavailable. */}
+    for(const row of sharedInfos){
+      const alliance=knownKey(row?.alliance),id=norm(canonical(row?.name));
+      if(!alliance||!id||!window.LoSPAccess?.isAllianceAllowed(alliance))continue;
+      if(window.LoSPAlliances?.getAllianceMeta(alliance)?.group==="losp"&&
+         !S.infos.has(id))S.infos.set(id,row);
+    }
+  }catch{/* Historical ranks remain available when Infos cannot be loaded. */}
   try{
     const data=await readArenaAPI();
     loadGuestProfiles(data);
+    // Prefer the common authorized Infos source for guest portraits too.
+    // Scope every identity to its alliance to avoid cross-tenant collisions.
+    for(const row of sharedInfos){
+      const alliance=knownKey(row?.alliance),id=norm(canonical(row?.name));
+      if(!alliance||!id||!S.guestKeys.has(alliance)||
+         !window.LoSPAccess?.isAllianceAllowed(alliance))continue;
+      const icon=safeAsset(row.icon),frame=safeAsset(row.frame);
+      if(icon||frame)S.guestProfiles.set(alliance+":"+id,{icon,frame});
+    }
     if(data.guestWarning){
       $("arenaStatus").hidden=false;
       $("arenaStatus").textContent="Alliances invitées non chargées : "+
