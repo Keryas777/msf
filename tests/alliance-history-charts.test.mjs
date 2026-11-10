@@ -327,7 +327,7 @@ test('rank bands stay behind data and clip to the visible viewport',()=>{
   }
 });
 test('trophy Y domain hugs visible dots rather than including unused upper leagues',()=>{
-  assert.equal(config.trophyDivisions.length,9);
+  assert.equal(config.trophyDivisions.length,11);
   for(const width of [320,390,680]){
     const plot=drawRenderedChart('war-trophies',width);
     const axis=plot.children.filter(n=>n.tag==='text'&&
@@ -356,7 +356,7 @@ test('trophy Y domain hugs visible dots rather than including unused upper leagu
       n.attrs.class==='historyGridLine').length,0);
   }
 });
-test('outlying trophies reveal all nine exact league bands',()=>{
+test('outlying trophies reveal all visible league bands',()=>{
   const changed={...original,alliances:original.alliances.map((a,i)=>
     i===0?{...a,warTrophies:1375}:
     i===1?{...a,warTrophies:3450}:a)};
@@ -374,6 +374,27 @@ test('outlying trophies reveal all nine exact league bands',()=>{
       ((width<500?350:400)-22-48);
     for(const [i,b] of [1500,1750,2000,2250,2500,2750,3000,3250].entries())
       assert.ok(Math.abs(lines[i].attrs.y1-y(b))<1e-7);
+    assert.ok(bands.every(b=>b.attrs.height>0));
+  }
+});
+test('Ultimate I, II and III boundaries remain exact for high-trophy alliances',()=>{
+  const divisions=config.trophyDivisions.slice(-3);
+  assert.deepEqual(divisions.map(({label,min,max})=>({label,min,max})),[
+    {label:'U-I',min:3250,max:3499},
+    {label:'U-II',min:3500,max:3749},
+    {label:'U-III',min:3750,max:3999}
+  ]);
+  const changed={...original,alliances:original.alliances.map((a,i)=>
+    i===0?{...a,warTrophies:3900}:
+    i===1?{...a,warTrophies:3450}:a)};
+  for(const width of [320,390,680]){
+    const plot=drawRenderedChart('war-trophies',width,[changed]);
+    const labels=plot.children.filter(n=>n.attrs.class==='historyTrophyLabel')
+      .map(n=>n.text);
+    assert.ok(labels.includes('U-I'));
+    assert.ok(labels.includes('U-II'));
+    assert.ok(labels.includes('U-III'));
+    const bands=plot.children.filter(n=>n.attrs.class==='historyTrophyBand');
     assert.ok(bands.every(b=>b.attrs.height>0));
   }
 });
