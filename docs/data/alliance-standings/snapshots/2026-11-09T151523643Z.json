@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "kind": "losp-alliance-standings-snapshot",
+  "capturedAt": "2026-11-09T15:15:23.643Z",
+  "source": "/player/v1/alliance/card",
+  "seasonId": null,
+  "seasonVerified": false,
+  "captureType": "season-ranks",
+  "coverage": {
+    "scannedSessions": 13,
+    "validSessions": 13,
+    "unavailableSessions": 0,
+    "truncated": false,
+    "connectedAlliances": 6,
+    "completeSessionScan": false
+  },
+  "collection": {
+    "method": "private-r2-season-ranks",
+    "purpose": "season-ranks",
+    "sourceDayUtc": "2026-11-09"
+  },
+  "alliances": [
+    {
+      "key": "zeus",
+      "nameAtCapture": "LoSP <#F8FF00>Zεμs",
+      "warRank": 87,
+      "raidRank": 38,
+      "warTrophies": null
+    },
+    {
+      "key": "athena",
+      "nameAtCapture": "LoSP <#F28C28>Athεηα",
+      "warRank": 696,
+      "raidRank": 116,
+      "warTrophies": null
+    },
+    {
+      "key": "kronos",
+      "nameAtCapture": "<#FFFFFF>LoSP <#E10D17>Κroηos",
+      "warRank": 215,
+      "raidRank": 154,
+      "warTrophies": null
+    },
+    {
+      "key": "dionysos",
+      "nameAtCapture": "LoSP <#93328E>Dισπγsσs",
+      "warRank": 1357,
+      "raidRank": 237,
+      "warTrophies": null
+    },
+    {
+      "key": "poseidon",
+      "nameAtCapture": "LoSP <#00D0FF>Pοsειδoη",
+      "warRank": 1943,
+      "raidRank": 822,
+      "warTrophies": null
+    },
+    {
+      "key": "hades",
+      "nameAtCapture": "LoSP <#1EA164>Hαδεs",
+      "warRank": 12228,
+      "raidRank": 6998,
+      "warTrophies": null
+    }
+  ],
+  "note": "Rangs officiels observes apres la fin de saison, attribues par calendrier LoSP. Scopely ne fournit pas l’identifiant de saison. Aucun nouveau point de trophees de guerre."
+}
