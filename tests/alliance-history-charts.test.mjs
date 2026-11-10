@@ -515,8 +515,12 @@ test('Hadès 🔥 first appears in the true 24 October snapshot, not the earlier
   }
 });
 test('Hadès rank outliers retain readable compression on independent Y axes',()=>{
-  const history=index.snapshots.map(s=>
-    JSON.parse(read('docs/data/alliance-standings/'+s.file)));
+  // This chart fixture is intentionally frozen before the 9 November import.
+  // The import workflow writes its fresh real snapshot before running tests;
+  // that new season must not change this test's historical 12-point baseline.
+  const history=index.snapshots.filter(s=>
+    s.capturedAt<'2026-11-09T00:00:00.000Z').map(s=>
+      JSON.parse(read('docs/data/alliance-standings/'+s.file)));
   const labels=[];
   for(const id of ['war-season-rank','raid-season-rank']){
     const plot=drawRenderedChart(id,390,history);
@@ -534,8 +538,12 @@ test('Hadès rank outliers retain readable compression on independent Y axes',()
   assert.notDeepEqual(labels[0],labels[1]);
 });
 test('missing seasons and values never inherit a later observed new alliance',()=>{
-  const history=index.snapshots.map(s=>
-    JSON.parse(read('docs/data/alliance-standings/'+s.file)));
+  // Use only observations published before the targeted 9 November import.
+  // Its new rank snapshot is genuine, but it must not turn this absent-value
+  // fixture into a test of a season where Hadès has since been observed.
+  const history=index.snapshots.filter(s=>
+    s.capturedAt<'2026-11-09T00:00:00.000Z').map(s=>
+      JSON.parse(read('docs/data/alliance-standings/'+s.file)));
   const future={...history.at(-1),capturedAt:'2026-11-10T10:00:00.000Z',
     alliances:history.at(-1).alliances.filter(a=>a.key!=='hades'),
     seasonVerified:false,seasonId:null};
