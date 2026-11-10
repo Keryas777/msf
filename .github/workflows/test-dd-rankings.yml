@@ -1,0 +1,38 @@
+name: DD rankings unit tests
+
+on:
+  push:
+    branches: ["codex/**"]
+    paths:
+      - "docs/data/dark-dimensions.json"
+      - "docs/dd-ranking-engine.mjs"
+      - "docs/dimensions-noires.*"
+      - "tests/dd-ranking-engine.test.mjs"
+      - ".github/workflows/test-dd-rankings.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/data/dark-dimensions.json"
+      - "docs/dd-ranking-engine.mjs"
+      - "docs/dimensions-noires.*"
+      - "tests/dd-ranking-engine.test.mjs"
+      - ".github/workflows/test-dd-rankings.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check JavaScript syntax
+        run: |
+          node --check docs/dd-ranking-engine.mjs
+          node --input-type=module --check < docs/dimensions-noires.js
+          node -e "JSON.parse(require('node:fs').readFileSync('docs/data/dark-dimensions.json','utf8'))"
+      - name: Run DD ranking tests
+        run: node --test tests/dd-ranking-engine.test.mjs
