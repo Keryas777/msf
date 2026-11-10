@@ -99,7 +99,9 @@ test('a second immutable capture can add missing alliance ranks to one season',(
   const indexed=addSeasonToIndex(index,first,season);
   const appended=addSeasonToIndex(indexed.index,second,season);
   assert.equal(appended.updated,true);
+  const priorForSeason=index.snapshots.filter(row=>
+    row.rankingSeasonId===season.seasonId).length;
   assert.equal(appended.index.snapshots.filter(row=>
-    row.rankingSeasonId===season.seasonId).length,2);
+    row.rankingSeasonId===season.seasonId).length,priorForSeason+2);
   assert.notEqual(indexed.file,appended.file);
 });
