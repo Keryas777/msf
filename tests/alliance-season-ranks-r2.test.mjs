@@ -35,9 +35,16 @@ test('alternating Mondays use the official JSON anchor; winter and summer unchan
   assert.throws(()=>scheduledMonday('40 4 * * 4',new Date()));
 });
 test('manual first season capture prevents the next Monday automation from duplicating',()=>{
-  assert.ok(index.snapshots.length>=4);
-  assert.equal(alreadyImported(index,'2026-10-11/2026-10-25'),true);
-  assert.equal(alreadyImported(index,'2026-10-25/2026-11-08'),false);
+  // Test idempotence against a small explicit historical index. The live
+  // archive is expected to gain the 8 November season when the import runs.
+  const fixture={version:1,snapshots:[{
+    capturedAt:'2026-10-25T23:07:38.867Z',
+    file:'snapshots/2026-10-25T230738867Z.json',
+    captureType:'season-ranks',
+    rankingSeasonId:'2026-10-11/2026-10-25'
+  }]};
+  assert.equal(alreadyImported(fixture,'2026-10-11/2026-10-25'),true);
+  assert.equal(alreadyImported(fixture,'2026-10-25/2026-11-08'),false);
 });
 test('fresh complete approved R2 capture produces ranks only, without private fingerprints',()=>{
   const season=mondaySeason('2026-11-09',config);
