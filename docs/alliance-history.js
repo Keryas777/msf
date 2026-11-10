@@ -392,7 +392,7 @@
       refs.period.textContent='Aucune date disponible';
       refs.status.textContent=state.sourceWarnings.length?
         'Aucun relevé dans les archives GitHub ; le service des historiques en direct est indisponible.':
-        'Aucun relevé publié pour ton groupement dans les archives GitHub.';
+        'Aucun relevé disponible pour ton groupement dans les archives GitHub ou le service d’historique.';
       refs.plot.replaceChildren();
       return;
     }
