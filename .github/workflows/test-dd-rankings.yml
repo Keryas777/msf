@@ -17,6 +17,7 @@ on:
       - "docs/dd-ranking-engine.mjs"
       - "docs/dimensions-noires.*"
       - "tests/dd-ranking-engine.test.mjs"
+      - "tests/dimensions-noires-view.test.mjs"
       - ".github/workflows/test-dd-rankings.yml"
 
 permissions:
