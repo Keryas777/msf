@@ -736,7 +736,7 @@ test('switching from trophies to war and raid season ranks redraws real rank val
     'title','count','legend','latest','plotWrap','note','period','status',
     'latestTitle','latestCaption','plot'].map(key=>[key,stub()]));
   const state={mode:'war',warChart:'war-trophies',snapshots:[original],
-    registry,config,failures:0,liveCoverage:null,
+    registry,config,failures:0,sourceWarnings:[],liveCoverage:null,
     liveAvailable:true,guestRanksAvailable:true,
     hiddenAlliances:new Set(),chart:null,prepared:null};
   const drawn=[];
