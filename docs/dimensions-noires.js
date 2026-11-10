@@ -150,6 +150,9 @@ function renderRanking() {
   list.replaceChildren();
   const rows = filteredRankingRows();
   const selectedCount = [...state.selectedAlliances].filter(isAllowed).length;
+  const selectedDimension = dimension();
+  const dimensionLabel = selectedDimension?.shortName || selectedDimension?.name || "Dimension noire";
+  $("ranking-title").textContent = "Classement " + dimensionLabel;
 
   if (!state.alliances.length) {
     setMessage("Aucune alliance autorisée pour cette session.", true);
@@ -199,7 +202,7 @@ function renderRanking() {
   setMessage(state.loading ? "Chargement des rosters autorisés…" : message);
 
   $("ranking-summary").textContent = ordered.length
-    ? completed.length + " DD terminée(s) selon la convention LoSP · " +
+    ? completed.length + " " + dimensionLabel + " terminée(s) selon la convention LoSP · " +
       unknown.length + " progression(s) théorique(s) indéterminée(s)"
     : "";
 
@@ -224,7 +227,7 @@ function renderRanking() {
       window.LoSPAlliances.getAllianceEmoji(entry.roster.alliance) + " " +
       window.LoSPAlliances.getAllianceLabel(entry.roster.alliance);
     button.querySelector(".badge").textContent = finished
-      ? "DD terminée · 100 % · convention Annihilus"
+      ? dimensionLabel + " terminée · 100 % · convention Annihilus"
       : "Progression théorique indéterminée";
     button.addEventListener("click", () => openIndividual(entry.roster));
     list.append(button);
@@ -233,7 +236,7 @@ function renderRanking() {
 
 function playerStatus(evaluation, totalNodes) {
   if (evaluation.completed)
-    return "DD terminée · 100 % selon la convention LoSP fondée sur le roster vérifié.";
+    return (dimension()?.shortName || "Dimension noire") + " terminée · 100 % selon la convention LoSP fondée sur le roster vérifié.";
   if (evaluation.status === "unavailable")
     return "Progression indisponible : aucun roster vérifié n’est chargé.";
   if (evaluation.status === "indeterminate")
@@ -250,7 +253,9 @@ function nodeDescription(id, type, nodeState, completed) {
       ". Les connexions sont visuelles et ne définissent pas les déverrouillages.";
   if (completed)
     return "Salle " + id +
-      " · DD terminée à 100 % selon la convention LoSP Annihilus. Cette convention ne constitue pas un historique officiel.";
+      " · " + (dimension()?.shortName || "Dimension noire") +
+      " terminée à 100 % selon la convention LoSP Annihilus. Cette convention ne constitue pas un historique officiel.";
+
   if (nodeState === "true")
     return "Salle " + id +
       " · le roster vérifié satisfait les exigences officielles connues. C’est une indication théorique, pas une preuve de progression réelle.";
