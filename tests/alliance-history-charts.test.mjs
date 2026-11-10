@@ -736,7 +736,7 @@ test('switching from trophies to war and raid season ranks redraws real rank val
     'title','count','legend','latest','plotWrap','note','period','status',
     'latestTitle','latestCaption','plot'].map(key=>[key,stub()]));
   const state={mode:'war',warChart:'war-trophies',snapshots:[original],
-    registry,config,failures:0,liveCoverage:null,
+    registry,config,failures:0,sourceWarnings:[],liveCoverage:null,
     liveAvailable:true,guestRanksAvailable:true,
     hiddenAlliances:new Set(),chart:null,prepared:null};
   const drawn=[];
@@ -795,13 +795,16 @@ test('partial season captures retain independent LoSP and guest rankings',()=>{
   }
 });
 
-test('Evolution history loads only static GitHub Pages archives',()=>{
+test('alliance history loads authorized live trophy and guest season projections',()=>{
   const browser=read('docs/alliance-history.js');
-  assert.equal(browser.includes('workers.dev'),false);
-  assert.equal(browser.includes('readLiveTrophies'),false);
-  assert.equal(browser.includes('readGuestRanks'),false);
-  assert.equal(browser.includes('fromCloudflare'),false);
-  assert.ok(browser.includes('readSnapshots(index)'));
-  assert.ok(browser.includes('readGuestArchive()'));
+  const html=read('docs/alliance-history.html');
+  assert.ok(browser.includes('/api/public/trophy-history'));
+  assert.ok(browser.includes('/api/public/guest-season-ranks'));
+  assert.ok(browser.includes('LoSPTrophyLive.merge'));
+  assert.ok(browser.includes('LoSPGuestSeasonLive.fromCloudflare'));
   assert.ok(browser.includes('LoSPGuestSeasonLive.fromArchive'));
+  assert.ok(browser.includes('window.LoSPAccess?.isAllianceAllowed'));
+  assert.ok(browser.includes('readSnapshots(index)'));
+  assert.ok(html.includes('alliance-trophy-live.js'));
+  assert.ok(html.includes('alliance-season-live.js'));
 });

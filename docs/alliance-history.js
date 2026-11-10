@@ -3,6 +3,8 @@
 (() => {
   'use strict';
   const BASE='./data/alliance-standings/';
+  const LIVE_TROPHY_URL='https://losp-roster-service.deliriousfan7.workers.dev/api/public/trophy-history';
+  const LIVE_SEASON_URL='https://losp-roster-service.deliriousfan7.workers.dev/api/public/guest-season-ranks';
   const refs={
     tabs:[...document.querySelectorAll('[data-mode]')],
     charts:[...document.querySelectorAll('[data-chart]')],
@@ -27,7 +29,7 @@
     day:'numeric',month:'short',year:'numeric',timeZone:'Europe/Paris'});
   const number=new Intl.NumberFormat('fr-FR');
   const state={mode:'war',warChart:'war-trophies',snapshots:[],
-    registry:[],config:null,failures:0,prepared:null,chart:null,
+    registry:[],config:null,failures:0,sourceWarnings:[],prepared:null,chart:null,
     hiddenAlliances:new Set()};
   const byId=id=>state.config?.charts?.find(chart=>chart.id===id);
   const safeColor=value=>/^#[0-9a-f]{6}$/i.test(value||'')?value:'#ffffff';
@@ -382,10 +384,15 @@
     // alone determines whether its Y axis needs compression.
     if(state.failures)refs.note.textContent+=' Attention : '+
       state.failures+' instantané(s) indisponible(s).';
+    if(state.sourceWarnings.length)
+      refs.note.textContent+=' Source(s) en direct indisponible(s) : '+
+        [...new Set(state.sourceWarnings)].join(', ')+'.';
 
     if(!model.rows.length){
       refs.period.textContent='Aucune date disponible';
-      refs.status.textContent='Aucun relevé publié pour ton groupement dans les archives GitHub.';
+      refs.status.textContent=state.sourceWarnings.length?
+        'Aucun relevé dans les archives GitHub ; le service des historiques en direct est indisponible.':
+        'Aucun relevé disponible pour ton groupement dans les archives GitHub ou le service d’historique.';
       refs.plot.replaceChildren();
       return;
     }
@@ -484,17 +491,36 @@
       state.config=config;
       await window.LoSP_AUTH_READY;
       state.registry=registry.filter(a => window.LoSPAccess?.isAllianceAllowed(a?.key));
-      const [published,archived]=await Promise.all([
-        readSnapshots(index),readGuestArchive()]);
-      // Only immutable GitHub Pages JSON is read by the history view.
-      // Legacy LoSP snapshots remain available during archive migration.
-      const seasonal=window.LoSPGuestSeasonLive?
-        window.LoSPGuestSeasonLive.fromArchive(archived,registry,
-          key=>window.LoSPAccess?.isAllianceAllowed(key),config.rankingSeasons):[];
-      state.snapshots=[...published,...seasonal].map(snapshot=>({
+      const allowed=key=>window.LoSPAccess?.isAllianceAllowed(key)===true;
+      const optionalLiveJson=async(url,label)=>{
+        try{
+          const payload=await json(url);
+          if(payload?.status!=='ok')throw Error('invalid-live-payload');
+          return payload;
+        }catch{
+          state.sourceWarnings.push(label);
+          return null;
+        }
+      };
+      const [published,archived,trophyPayload,seasonPayload]=await Promise.all([
+        readSnapshots(index),readGuestArchive(),
+        optionalLiveJson(LIVE_TROPHY_URL,'trophées'),
+        optionalLiveJson(LIVE_SEASON_URL,'classements invités')]);
+      const archivedSeasonal=window.LoSPGuestSeasonLive?
+        window.LoSPGuestSeasonLive.fromArchive(archived,registry,allowed,
+          config.rankingSeasons):[];
+      const liveSeasonal=window.LoSPGuestSeasonLive?
+        window.LoSPGuestSeasonLive.fromCloudflare(seasonPayload,registry,allowed,
+          config.rankingSeasons):[];
+      // Static LoSP archives remain the source for published history. The
+      // public Worker projections fill authorized guest/live gaps only.
+      const combined=window.LoSPTrophyLive?
+        window.LoSPTrophyLive.merge([...published,...archivedSeasonal,...liveSeasonal],
+          trophyPayload,registry,allowed):
+        [...published,...archivedSeasonal,...liveSeasonal];
+      state.snapshots=combined.map(snapshot=>({
         ...snapshot,
-        alliances:snapshot.alliances.filter(a=>
-          window.LoSPAccess?.isAllianceAllowed(a?.key || a?.alliance))
+        alliances:snapshot.alliances.filter(a=>allowed(a?.key||a?.alliance))
       })).filter(snapshot=>snapshot.alliances.length);
       syncChips();render();
       if (!state.registry.length) refs.status.textContent =
