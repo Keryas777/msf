@@ -208,7 +208,9 @@ function renderRanking() {
 
   if (!ordered.length) {
     const item = document.createElement("li");
-    item.textContent = "Aucun roster partageable dans les alliances sélectionnées.";
+    item.textContent = state.loading
+      ? "Chargement des rosters autorisés…"
+      : "Aucun roster partageable dans les alliances sélectionnées.";
     list.append(item);
     return;
   }
