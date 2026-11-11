@@ -491,27 +491,10 @@ async function load(){
     // Conserver le même élément pour signaler un éventuel repli ou une erreur.
     if(!data.guestWarning)$("arenaStatus").hidden=true;
   }catch(error){
-    // Guest history contains private player names; never fall back to
-    // public LoSP data or bypass server-side Discord authorization.
-    if(guest){
-      $("arenaStatus").hidden=false;
-      $("arenaStatus").textContent=error instanceof Error?
-        error.message:"Historique Arène invité indisponible.";
-      return;
-    }
-    // LoSP's pre-existing static fallback remains visibly undated.
-    try{
-      if(!infoRows)throw Error("Infos indisponibles");
-      const rows=infoRows;
-      S.snapshots=readSnapshots({snapshots:[{
-        date:"2026-11-01",attribution:"fallback-unverified",
-        players:rows.map(p=>({name:p.name,alliance:p.alliance,arenaRank:p.latestArena}))
-      }]});
-      S.fallback=true;
-      $("arenaStatus").textContent="Historique R2 inaccessible : aperçu des derniers Infos publiés (date non vérifiée).";
-    }catch{
-      $("arenaStatus").textContent="Données Arène indisponibles.";return;
-    }
+    $( "arenaStatus" ).hidden=false;
+    $("arenaStatus").textContent=error instanceof Error?
+      error.message:"Historique Arène indisponible.";
+    return;
   }
   rebuildPeople();setupFilters();fillSummary();fillRanking();
   const top=[...(newest()?.players||[])].sort((a,b)=>a.arenaRank-b.arenaRank);
