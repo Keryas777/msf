@@ -181,16 +181,27 @@ function canonical(s){
 }
 function readSnapshots(data){
   if(!Array.isArray(data?.snapshots))throw Error("historique invalide");
-  return data.snapshots.filter(x=>x&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")&&Array.isArray(x.players))
-    .map(source=>{
+  const sources=data.snapshots.filter(x=>x&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")&&Array.isArray(x.players));
+  const identityByName=new Map(),ambiguous=new Set();
+  for(const source of sources)for(const p of source.players){
+    if(typeof p?.playerId!=="string"||!/^p_[a-f0-9]{64}$/.test(p.playerId))continue;
+    const name=canonical(p.name),alliance=resolveAlliance(p.allianceKey||p.alliance,name),
+      key=alliance+"\u0000"+norm(name);
+    if(!name||!alliance||ambiguous.has(key))continue;
+    const previous=identityByName.get(key);
+    if(previous&&previous!==p.playerId){identityByName.delete(key);ambiguous.add(key);}
+    else identityByName.set(key,p.playerId);
+  }
+  return sources.map(source=>{
       const seen=new Set(),players=[];
       for(const p of source.players){
         const name=canonical(p?.name),a=resolveAlliance(p?.allianceKey||p?.alliance,name),
           r=p?.arenaRank,baseId=norm(name),guest=S.guestKeys.has(a);
         if(!name||!a||!baseId||!Number.isSafeInteger(r)||r<1||
            (!S.publicArchive&&!window.LoSPAccess?.isAllianceAllowed(a)))continue;
-        const unique=a+":"+baseId,id=typeof p?.playerKey==="string"?p.playerKey:
-          typeof p?.playerId==="string"?p.playerId:(guest?unique:baseId);
+        const unique=a+":"+baseId,legacy=a+"\u0000"+baseId,
+          id=typeof p?.playerId==="string"?p.playerId:
+            identityByName.get(legacy)||p?.playerKey||(guest?unique:baseId);
         if(seen.has(id))continue;
         seen.add(id);
         const inline=guest?{
