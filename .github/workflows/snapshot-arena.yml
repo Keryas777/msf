@@ -19,7 +19,7 @@ jobs:
   snapshot:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main with original first enriched Infos commit
+      - name: Checkout the current permanent archive
         uses: actions/checkout@v4
         with:
           ref: main
@@ -49,7 +49,7 @@ jobs:
             echo "generated=true" >> "$GITHUB_OUTPUT"
           else
             echo "generated=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::No fresh Infos snapshot for this date; no point fabricated."
+            echo "::notice::No complete Cloudflare Arena campaign; no point fabricated."
           fi
 
       - name: Append permanent Arena snapshots
@@ -73,4 +73,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "data: append daily Arena history"
-          git push origin HEAD:main
+          for attempt in 1 2 3 4 5; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 5 ]; then
+              echo "Arena history push failed after 5 attempts"
+              exit 1
+            fi
+            git fetch origin main
+            git rebase origin/main
+            sleep "$((attempt * 2))"
+          done
