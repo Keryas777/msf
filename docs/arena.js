@@ -52,6 +52,7 @@ function mergeArenaHistories(losp,guest){
 const HISTORY_INDEX="./data/arena-history/index.json";
 const SNAPSHOT_BASE="./data/arena-history/";
 const LIVE_API="https://losp-roster-service.deliriousfan7.workers.dev/api/public/arena-snapshot";
+const LEGACY_HISTORY_API="https://losp-roster-service.deliriousfan7.workers.dev/api/public/arena-history";
 async function readJson(url){
   const response=await fetch(url,{mode:"cors",cache:"no-cache"});
   if(!response.ok)throw Error("Historique Arène indisponible (HTTP "+response.status+").");
@@ -85,17 +86,29 @@ async function readLiveArena(day){
   return null;
 }
 async function readArenaAPI(all=false){
-  const index=await readArchiveIndex(),entries=index.snapshots;
-  const selected=all?entries:entries.slice(-2),snapshots=[];
-  if(all){
-    for(let i=0;i<selected.length;i+=8)
-      snapshots.push(...await Promise.all(selected.slice(i,i+8).map(readArchivePoint)));
-  }else snapshots.push(...await Promise.all(selected.map(readArchivePoint)));
+  let snapshots=[],archiveDates=0;
+  try{
+    const index=await readArchiveIndex(),entries=index.snapshots;
+    const selected=all?entries:entries.slice(-2);
+    if(all){
+      for(let i=0;i<selected.length;i+=8)
+        snapshots.push(...await Promise.all(selected.slice(i,i+8).map(readArchivePoint)));
+    }else snapshots=await Promise.all(selected.map(readArchivePoint));
+    archiveDates=entries.length;
+  }catch{
+    // During the cutover or a temporary Pages delay, use the same sanitized
+    // common R2 history. It includes public ranks from every approved group.
+    const legacy=await readJson(LEGACY_HISTORY_API);
+    if(legacy?.status!=="ok"||!Array.isArray(legacy.snapshots))
+      throw Error("Historique Arène permanent indisponible.");
+    const selected=all?legacy.snapshots:legacy.snapshots.slice(-2);
+    snapshots=selected.filter(point=>point&&Array.isArray(point.players));
+    archiveDates=legacy.snapshots.length;
+  }
   const today=new Date().toISOString().slice(0,10);
   const live=await readLiveArena(today);
   if(live&&!snapshots.some(point=>point.date===live.date))snapshots.push(live);
-  return {kind:"permanent-arena-history",status:"ok",snapshots,
-    archiveDates:entries.length};
+  return {kind:"permanent-arena-history",status:"ok",snapshots,archiveDates};
 }
 const COLORS=["#65b8ff","#f9a44e","#b29aff","#53dfaa"];
 const $=id=>document.getElementById(id);
