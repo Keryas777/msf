@@ -1,10 +1,12 @@
-name: Daily arena standings snapshot
+name: Publish completed Cloudflare Arena campaign
 
 on:
-  schedule:
-    # UTC: after the 16:40 enriched Infos import; not a Scopely collection.
-    - cron: "30 21 * * *"
   workflow_dispatch:
+    inputs:
+      source_date:
+        description: "UTC date of the complete Cloudflare Arena reward campaign"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -17,7 +19,7 @@ jobs:
   snapshot:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main with original first enriched Infos commit
+      - name: Checkout the current permanent archive
         uses: actions/checkout@v4
         with:
           ref: main
@@ -27,25 +29,27 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Validate Arena snapshot tools
+      - name: Validate Arena archive tools
         run: |
-          node --check scripts/snapshot-arena.mjs
+          node --check scripts/snapshot-arena-cloudflare.mjs
           node --check scripts/archive-arena-history.mjs
           node --test tests/arena-snapshot.test.mjs tests/arena-permanent-history.test.mjs
 
-      - name: Generate snapshots from published Infos only
+      - name: Fetch the complete Cloudflare Arena campaign
         id: generate
+        env:
+          SOURCE_DATE: ${{ inputs.source_date }}
         shell: bash
         run: |
-          day="$(date -u +%F)"
+          day="$SOURCE_DATE"
           echo "day=$day" >> "$GITHUB_OUTPUT"
-          node scripts/snapshot-arena.mjs --day="$day"
+          node scripts/snapshot-arena-cloudflare.mjs --date="$day"
 
           if compgen -G ".tmp/arena-snapshots/*.json" > /dev/null; then
             echo "generated=true" >> "$GITHUB_OUTPUT"
           else
             echo "generated=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::No fresh Infos snapshot for this date; no point fabricated."
+            echo "::notice::No complete Cloudflare Arena campaign; no point fabricated."
           fi
 
       - name: Append permanent Arena snapshots
@@ -69,4 +73,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "data: append daily Arena history"
-          git push origin HEAD:main
+          for attempt in 1 2 3 4 5; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 5 ]; then
+              echo "Arena history push failed after 5 attempts"
+              exit 1
+            fi
+            git fetch origin main
+            git rebase origin/main
+            sleep "$((attempt * 2))"
+          done

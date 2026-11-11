@@ -17,7 +17,10 @@ export function appendArenaIndex(index,snapshot){
   const file="snapshots/"+snapshot.date+".json";
   return {added:true,index:{...index,snapshots:
     [...index.snapshots,{date:snapshot.date,file,sourceDay:snapshot.sourceDay,
-      attribution:snapshot.attribution}]
+      ...(snapshot.sourceCampaign?{sourceCampaign:snapshot.sourceCampaign}:{}),
+      ...(snapshot.campaignId?{campaignId:snapshot.campaignId}:{}),
+      attribution:snapshot.attribution,
+      ...(Array.isArray(snapshot.provenance)?{provenance:snapshot.provenance}:{})}]
       .sort((a,b)=>a.date.localeCompare(b.date))}};
 }
 async function main(){
