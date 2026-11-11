@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { buildSnapshot, canonicalPlayer, normalizeKey, validDay, originalArenaAllianceKeys } from "../scripts/snapshot-arena.mjs";
 import { earliestAllowedDay, mergeHistory } from "../scripts/publish-arena-r2.mjs";
-import { validateArenaCampaign } from "../scripts/snapshot-arena-cloudflare.mjs";
+import { validateArenaCampaign, validateArenaExport } from "../scripts/snapshot-arena-cloudflare.mjs";
 
 function snapshot(day, rank = 4) {
   return buildSnapshot([{ name: "Test", alliance: "Zeus", latestArena: rank }], {
@@ -103,4 +103,30 @@ test("Cloudflare archive rejects incomplete, stale, or duplicate campaign rows",
   assert.throws(()=>validateArenaCampaign(duplicate,"2026-11-11"),/Duplicate/);
   const safe=validateArenaCampaign(make(),"2026-11-11");
   assert.doesNotMatch(JSON.stringify(safe),/must not be published|token/);
+});
+
+test("unified R2 export keeps old observation provenance and appends the fresh UTC campaign",()=>{
+  const day="2026-11-11",id="p_"+"d".repeat(64);
+  const data={status:"complete",snapshot:{
+    version:1,date:day,sourceDay:day,sourceCampaign:day+"-reward",
+    campaignId:day+"-reward",attribution:"cloudflare-arena-reward-collection",
+    sourceKind:"reward",alliancesExpected:1,alliancesComplete:1,
+    provenance:[{alliance:"Zeus",capturedAt:day+"T16:01:00Z"}],
+    players:[{playerId:id,name:"Current",alliance:"Zeus",arenaRank:2,token:"hidden"}]
+  },history:[
+    {version:1,date:"2026-10-31",sourceDay:"2026-11-01",
+      attribution:"backdated-from-first-next-day-collection",
+      sourceKind:"onboarding",capturedAt:"2026-11-01T03:15:00Z",
+      players:[{playerId:"p_"+"e".repeat(64),name:"Old",alliance:"Zeus",
+        arenaRank:7,icon:"private-image"}]},
+    {version:1,date:day,sourceDay:day,
+      attribution:"cloudflare-arena-reward-collection",sourceKind:"reward",
+      players:[{playerId:id,name:"Current",alliance:"Zeus",arenaRank:2}]}
+  ]};
+  const snapshots=validateArenaExport(data,day);
+  assert.deepEqual(snapshots.map(x=>x.date),["2026-10-31",day]);
+  assert.equal(snapshots[0].attribution,"backdated-from-first-next-day-collection");
+  assert.equal(snapshots[0].sourceDay,"2026-11-01");
+  assert.equal(snapshots[1].sourceCampaign,day+"-reward");
+  assert.doesNotMatch(JSON.stringify(snapshots),/hidden|private-image|icon/);
 });
