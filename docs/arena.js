@@ -97,6 +97,73 @@ async function readArenaAPI(all=false){
   return {kind:"permanent-arena-history",status:"ok",snapshots,
     archiveDates:entries.length};
 }
+const COLORS=["#65b8ff","#f9a44e","#b29aff","#53dfaa"];
+const $=id=>document.getElementById(id);
+const S={snapshots:[],archiveIndex:null,historyLoaded:false,publicArchive:true,aliases:{},people:new Map(),selected:[],fallback:false,
+  infos:new Map(),sourceAlliances:new Map(),guestKeys:new Set(),
+  guestProfiles:new Map()};
+const cmp=new Intl.Collator("fr",{numeric:true,sensitivity:"base"});
+const rankingFilters=new Map();
+const norm=s=>String(s||"").replace(/<[^>]*>/g,"").normalize("NFD")
+  .replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
+const knownKey=s=>window.LoSPAlliances?.getAllianceMeta(s)?.key||"";
+const key=s=>knownKey(s)||norm(s);
+const label=s=>{
+  const meta=window.LoSPAlliances?.getAllianceMeta(s);
+  return meta?(meta.emoji?meta.emoji+" ":"")+meta.name:"Alliance non identifiée";
+};
+const color=s=>window.LoSPAlliances?.getAllianceMeta(s)?.color||"#84beff";
+const safeAsset=s=>typeof s==="string"&&s.length<=320&&
+  /^https:\/\/assets\.marvelstrikeforce\.com\/imgs\/[A-Za-z0-9_.%-]+$/.test(s)?
+  s:"";
+const plainName=s=>String(s||"").replace(/<[^>]*>/g,"").trim();
+// The reward receipts sometimes contain an encoded alliance display name
+// instead of Zeus/Athéna/etc. Infer the corresponding alliance only from
+// canonical player names already published in docs/data/infos.json.
+function resolveAlliance(source,name){
+  const actual=knownKey(source);
+  if(actual)return actual;
+  const stored=S.sourceAlliances.get(norm(source));
+  if(stored)return stored;
+  const info=S.infos.get(norm(name));
+  return knownKey(info?.alliance)||"unknown";
+}function readSnapshots(data){
+  if(!Array.isArray(data?.snapshots))throw Error("historique invalide");
+  const sources=data.snapshots.filter(x=>x&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")&&Array.isArray(x.players));
+  const identityByName=new Map(),ambiguous=new Set();
+  for(const source of sources)for(const p of source.players){
+    if(typeof p?.playerId!=="string"||!/^p_[a-f0-9]{64}$/.test(p.playerId))continue;
+    const name=canonical(p.name),alliance=resolveAlliance(p.allianceKey||p.alliance,name),
+      key=alliance+"\u0000"+norm(name);
+    if(!name||!alliance||ambiguous.has(key))continue;
+    const previous=identityByName.get(key);
+    if(previous&&previous!==p.playerId){identityByName.delete(key);ambiguous.add(key);}
+    else identityByName.set(key,p.playerId);
+  }
+  return sources.map(source=>{
+      const seen=new Set(),players=[];
+      for(const p of source.players){
+        const name=canonical(p?.name),a=resolveAlliance(p?.allianceKey||p?.alliance,name),
+          r=p?.arenaRank,baseId=norm(name),guest=S.guestKeys.has(a);
+        if(!name||!a||!baseId||!Number.isSafeInteger(r)||r<1||
+           (!S.publicArchive&&!window.LoSPAccess?.isAllianceAllowed(a)))continue;
+        const unique=a+":"+baseId,legacy=a+"\u0000"+baseId,
+          id=typeof p?.playerId==="string"?p.playerId:
+            identityByName.get(legacy)||p?.playerKey||(guest?unique:baseId);
+        if(seen.has(id))continue;
+        seen.add(id);
+        const inline=guest?{icon:safeAsset(p.icon),frame:safeAsset(p.frame)}:null;
+        const profile=guest?(S.guestProfiles.get(unique)||
+          (inline.icon||inline.frame?inline:null)):S.infos.get(baseId)||null;
+        players.push({id,name,alliance:a,arenaRank:r,
+          observedAt:p.observedAt||null,profile,playerKey:id});
+      }
+      return {date:source.date,sourceDay:source.sourceDay,
+        sourceCampaign:source.sourceCampaign||null,campaignId:source.campaignId||null,
+        sourceKind:source.sourceKind||null,provenance:Array.isArray(source.provenance)?
+          source.provenance:[],attribution:source.attribution,players};
+    }).filter(s=>s.players.length).sort((a,b)=>a.date.localeCompare(b.date));
+}
 function mapSourceAlliances(data){
   S.sourceAlliances.clear();
   const votes=new Map();
