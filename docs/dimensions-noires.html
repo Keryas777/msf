@@ -5,20 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#101729">
   <title>Classement Dimensions noires — MSF</title>
-  <link rel="stylesheet" href="./dimensions-noires.css?v=3">
+  <link rel="stylesheet" href="./dimensions-noires.css?v=4">
   <link rel="stylesheet" href="./evolution-tabs.css?v=2">
 </head>
 <body>
   <main class="page">
     <header class="hero">
-      <p class="eyebrow">LoSP · WebApp MSF</p>
-      <h1>Classement Dimensions noires</h1>
+      <a href="./joueurs.html" class="dd-nav dd-back" aria-label="Retour au hub Joueurs">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      </a>
+      <div class="dd-heading">
+        <h1>Dimensions noires</h1>
+        <p class="dd-subtitle">Classement et progression théorique du groupement</p>
+      </div>
+      <a href="./home.html" class="dd-nav dd-home" aria-label="Accueil">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9"/><path d="M9 21v-7h6v7"/></svg>
+      </a>
+    </header>
+
+    <section class="panel dd-overview" aria-label="Dimension et informations">
       <label class="control" for="dimension">Dimension
         <select id="dimension"></select>
       </label>
       <p class="freshness" id="freshness">Fraîcheur des données : chargement…</p>
       <p class="notice">La progression affichée est théorique et fondée sur les rosters autorisés. Elle ne représente pas la progression effective dans le jeu.</p>
-    </header>
+    </section>
 
     <nav class="evolutionTabs ddTabs" id="dd-tabs" role="tablist" aria-label="Vues Dimensions noires">
       <button class="evolutionTab is-active" id="tab-ranking" type="button" role="tab"
