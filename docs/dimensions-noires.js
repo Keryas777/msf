@@ -110,17 +110,25 @@ function renderAllianceChips() {
       } else {
         state.selectedAlliances.delete(alliance.key);
       }
+      renderAllianceChips();
       renderRanking();
     });
+    const emoji = document.createElement("span");
+    emoji.className = "alliance-chip-emoji";
+    emoji.textContent = alliance.emoji || "";
+    emoji.setAttribute("aria-hidden", "true");
     const text = document.createElement("span");
-    text.textContent = (alliance.emoji ? alliance.emoji + " " : "") +
-      (alliance.displayName || alliance.name);
-    label.append(input, text);
+    text.className = "alliance-chip-name";
+    label.dataset.allianceNameLines = "two";
+    window.LoSPAlliances.renderAllianceName(text, alliance.key);
+    label.append(input, emoji, text);
     list.append(label);
   }
 
-  $("select-all").disabled = !state.alliances.length ||
+  const allSelected = state.alliances.length > 0 &&
     state.alliances.every((alliance) => state.selectedAlliances.has(alliance.key));
+  $("select-all").disabled = !state.alliances.length;
+  $("select-all").textContent = allSelected ? "Tout désélectionner" : "Tout sélectionner";
   if (!state.alliances.length) {
     $("select-all").disabled = true;
     setMessage("Aucune alliance autorisée pour cette session.", true);
@@ -537,7 +545,9 @@ async function boot() {
     wireTabs();
     $("select-all").addEventListener("click", () => {
       state.alliances = knownAllowedAlliances();
-      state.selectedAlliances = new Set(state.alliances
+      const allSelected = state.alliances.length > 0 &&
+        state.alliances.every((alliance) => state.selectedAlliances.has(alliance.key));
+      state.selectedAlliances = new Set(allSelected ? [] : state.alliances
         .filter((alliance) => isAllowed(alliance.key))
         .map((alliance) => alliance.key));
       renderAllianceChips();
