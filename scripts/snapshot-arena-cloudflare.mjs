@@ -1,4 +1,4 @@
-// Fetch and validate one complete rank-only Arena campaign from Cloudflare R2.
+// Fetch complete, rank-only Arena history from Cloudflare's validated R2 export.
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -40,12 +40,13 @@ export function validateArenaCampaign(data,day){
        typeof row.alliance!=="string"||!row.alliance.trim()||
        !Number.isSafeInteger(row.arenaRank)||row.arenaRank<1)
       throw Error("Cloudflare Arena campaign contains an invalid player row");
-    const playerKey=row.playerId;
-    const unique=playerKey+"\u0000"+row.alliance;
+    const playerKey=row.playerId,unique=playerKey+"\u0000"+row.alliance;
     if(seen.has(unique))throw Error("Duplicate Arena player identity");
     seen.add(unique);
-    return {playerKey,playerId:row.playerId,name:row.name.trim(),alliance:row.alliance.trim(),
-      arenaRank:row.arenaRank,
+    return {playerKey,playerId:row.playerId,name:row.name.trim(),
+      alliance:row.alliance.trim(),arenaRank:row.arenaRank,
+      ...(typeof row.allianceKey==="string"&&/^[a-z][a-z0-9-]{1,63}$/.test(row.allianceKey)?
+        {allianceKey:row.allianceKey}:{}),
       ...(typeof row.observedAt==="string"&&Number.isFinite(Date.parse(row.observedAt))?
         {observedAt:row.observedAt}:{})};
   }).sort((a,b)=>a.playerKey.localeCompare(b.playerKey));
@@ -54,6 +55,47 @@ export function validateArenaCampaign(data,day){
     alliancesExpected:source.alliancesExpected,
     alliancesComplete:source.alliancesComplete,provenance,
     recordedAt:new Date().toISOString(),players};
+}
+export function validateArenaExport(data,day){
+  const fresh=validateArenaCampaign(data,day),entries=data.history;
+  if(!Array.isArray(entries)||!entries.length)
+    throw Error("Cloudflare Arena history export is missing");
+  const snapshots=new Map();
+  for(const source of entries){
+    if(!validDay(source?.date)||source.date>day||!Array.isArray(source.players)||
+       source.players.length<1||source.players.length>500)
+      throw Error("Cloudflare Arena history contains an invalid snapshot");
+    if(source.date===day){snapshots.set(day,fresh);continue;}
+    const seen=new Set(),players=[];
+    for(const row of source.players){
+      const playerId=row?.playerId;
+      if(typeof playerId!=="string"||!/^p_[a-f0-9]{64}$/.test(playerId)||
+         typeof row.name!=="string"||!row.name.trim()||row.name.length>140||
+         typeof row.alliance!=="string"||!row.alliance.trim()||
+         !Number.isSafeInteger(row.arenaRank)||row.arenaRank<1)
+        throw Error("Cloudflare Arena history contains an invalid player row");
+      const unique=playerId+"\u0000"+row.alliance;
+      if(seen.has(unique))continue;
+      seen.add(unique);
+      players.push({playerKey:playerId,playerId,name:row.name.trim(),
+        alliance:row.alliance.trim(),arenaRank:row.arenaRank,
+        ...(typeof row.allianceKey==="string"&&/^[a-z][a-z0-9-]{1,63}$/.test(row.allianceKey)?
+          {allianceKey:row.allianceKey}:{}),
+        ...(typeof row.observedAt==="string"&&Number.isFinite(Date.parse(row.observedAt))?
+          {observedAt:row.observedAt}:{})});
+    }
+    snapshots.set(source.date,{version:1,date:source.date,
+      sourceDay:validDay(source.sourceDay)?source.sourceDay:source.date,
+      ...(typeof source.sourceCampaign==="string"?{sourceCampaign:source.sourceCampaign}:{}),
+      ...(typeof source.campaignId==="string"?{campaignId:source.campaignId}:{}),
+      attribution:typeof source.attribution==="string"?source.attribution:"legacy-r2-arena-history",
+      sourceKind:typeof source.sourceKind==="string"?source.sourceKind:"legacy-r2",
+      ...(typeof source.capturedAt==="string"?{capturedAt:source.capturedAt}:{}),
+      ...(Array.isArray(source.provenance)?{provenance:source.provenance}:{}),
+      players});
+  }
+  if(!snapshots.has(day))snapshots.set(day,fresh);
+  return [...snapshots.values()].sort((a,b)=>a.date.localeCompare(b.date));
 }
 async function main(){
   const day=args(process.argv.slice(2));
@@ -71,13 +113,15 @@ async function main(){
       await new Promise(resolve=>setTimeout(resolve,1000*(attempt+1)));
     }
   }
-  const snapshot=validateArenaCampaign(await response.json(),day);
+  const snapshots=validateArenaExport(await response.json(),day);
   const outdir=".tmp/arena-snapshots";
   await fs.mkdir(outdir,{recursive:true});
-  const file=path.join(outdir,day+".json");
-  await fs.writeFile(file,JSON.stringify(snapshot,null,2)+"\n");
-  console.log("[arena] Validated Cloudflare campaign "+day+" ("+
-    snapshot.players.length+" players, "+snapshot.alliancesComplete+" alliances)");
+  for(const snapshot of snapshots){
+    const file=path.join(outdir,snapshot.date+".json");
+    await fs.writeFile(file,JSON.stringify(snapshot,null,2)+"\n");
+  }
+  console.log("[arena] Validated "+snapshots.length+
+    " permanent Arena dates through "+day);
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))
   main().catch(error=>{console.error("[arena] "+error.message);process.exitCode=1;});
