@@ -49,104 +49,53 @@ function mergeArenaHistories(losp,guest){
   return {status:"ok",snapshots:[...byDay.values()]
     .sort((a,b)=>a.date.localeCompare(b.date))};
 }
-async function readPublicArena(){
-  const res=await fetch(API,{mode:"cors",cache:"no-store"});
-  if(!res.ok)throw Error("R2 indisponible");
-  return res.json();
+const HISTORY_INDEX="./data/arena-history/index.json";
+const SNAPSHOT_BASE="./data/arena-history/";
+const LIVE_API="https://losp-roster-service.deliriousfan7.workers.dev/api/public/arena-snapshot";
+async function readJson(url){
+  const response=await fetch(url,{mode:"cors",cache:"no-cache"});
+  if(!response.ok)throw Error("Historique Arène indisponible (HTTP "+response.status+").");
+  return response.json();
 }
-async function readPrivateArena(alliances){
-  const token=signedSession();
-  if(!token)throw Error("Session Discord signée nécessaire. Reconnecte-toi pour consulter l’Arène.");
-  const url=GUEST_API+"?alliances="+encodeURIComponent(alliances);
-  const res=await fetch(url,{mode:"cors",cache:"no-store",
-    headers:{Authorization:"Bearer "+token}});
-  // Do not erase the Worker failure stage: the last generic message made
-  // a missing deployment, missing auth binding and R2 fault look identical.
-  // Only expose stable, non-sensitive error codes (never private payloads).
-  if(!res.ok){
-    let fault=null;
-    try{fault=await res.json();}catch{/* 404 HTML, failed deploy, etc. */}
-    if(res.status===401)
-      throw Error("Session Discord expirée ou non signée. Reconnecte-toi.");
-    if(res.status===403)
-      throw Error("Accès Arène refusé pour ce groupement.");
-    if(res.status===409)
-      throw Error("Alliance invitée non liée ou non approuvée dans l’administration.");
-    if(res.status===404)
-      throw Error("API Arène privée absente du Worker déployé (HTTP 404).");
-    const reasons={
-      "r2-binding-missing":"Liaison R2 absente sur le Worker Cloudflare",
-      "auth-binding-missing":"Liaison Cloudflare losp-auth absente",
-      "auth-service-unreachable":"Worker losp-auth inaccessible",
-      "auth-service-error":"Worker losp-auth en erreur",
-      "auth-invalid-response":"Réponse losp-auth invalide",
-      "approval-registry-invalid":"Registre des alliances non conforme",
-      "private-r2-read-failed":"Lecture R2 privée en erreur"
-    };
-    const code=typeof fault?.reason==="string"&&
-      Object.hasOwn(reasons,fault.reason)?fault.reason:
-      typeof fault?.status==="string"&&
-        /^[a-z][a-z-]{1,50}$/.test(fault.status)?fault.status:"inconnue";
-    throw Error("Historique Arène invité indisponible (HTTP "+res.status+
-      " · "+code+"). "+(reasons[code]||"Vérifier le déploiement Cloudflare."));
+async function readArchiveIndex(){
+  const index=await readJson(HISTORY_INDEX);
+  if(index?.version!==1||!Array.isArray(index.snapshots))
+    throw Error("Index permanent Arène invalide.");
+  const days=new Set();
+  for(const entry of index.snapshots){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(entry?.date||"")||
+       entry.file!=="snapshots/"+entry.date+".json"||days.has(entry.date))
+      throw Error("Index permanent Arène invalide.");
+    days.add(entry.date);
   }
-  const data=await res.json();
-  if(data?.kind!=="authorized-guest-arena-history"||
-    data?.status!=="ok"||!Array.isArray(data.snapshots))
-    throw Error("Historique privé Arène invalide.");
-  return data;
+  S.archiveIndex=index;
+  return index;
 }
-async function readArenaAPI(){
-  if(isGuestView()){
-    const keys=guestAllianceKeys();
-    if(!keys.length||keys.length>20)throw Error("Aucune alliance invitée autorisée.");
-    return readPrivateArena(keys.join(","));
-  }
-  const losp=await readPublicArena();
-  if(!isAdminView())return losp;
-  // The signed administrator's SERVER-verified allowlist determines which
-  // currently approved guests are returned; no client group can grant access.
+async function readArchivePoint(entry){
+  const point=await readJson(SNAPSHOT_BASE+entry.file);
+  if(point?.version!==1||point.date!==entry.date||
+     !Array.isArray(point.players))throw Error("Relevé Arène invalide.");
+  return point;
+}
+async function readLiveArena(day){
   try{
-    const guests=await readPrivateArena("approved");
-    return {...mergeArenaHistories(losp,guests),
-      guestAlliances:guests.alliances||[],guestProfiles:guests.profiles||[]};
-  }catch(error){
-    // Keep LoSP available; show the guest failure instead of implying
-    // that all connected groups were included in "Toutes les alliances".
-    return {...losp,guestWarning:error instanceof Error?error.message:
-      "Rangs Arène des invités indisponibles."};
-  }
+    const data=await readJson(LIVE_API+"?date="+encodeURIComponent(day));
+    if(data?.status==="complete"&&data.snapshot?.date===day)return data.snapshot;
+  }catch{/* A missing or incomplete live receipt never becomes an Arena point. */}
+  return null;
 }
-const COLORS=["#65b8ff","#f9a44e","#b29aff","#53dfaa"];
-const $=id=>document.getElementById(id);
-const S={snapshots:[],aliases:{},people:new Map(),selected:[],fallback:false,
-  infos:new Map(),sourceAlliances:new Map(),guestKeys:new Set(),
-  guestProfiles:new Map()};
-const cmp=new Intl.Collator("fr",{numeric:true,sensitivity:"base"});
-const rankingFilters=new Map();
-const norm=s=>String(s||"").replace(/<[^>]*>/g,"").normalize("NFD")
-  .replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
-const knownKey=s=>window.LoSPAlliances?.getAllianceMeta(s)?.key||"";
-const key=s=>knownKey(s)||norm(s);
-const label=s=>{
-  const meta=window.LoSPAlliances?.getAllianceMeta(s);
-  return meta?(meta.emoji?meta.emoji+" ":"")+meta.name:"Alliance non identifiée";
-};
-const color=s=>window.LoSPAlliances?.getAllianceMeta(s)?.color||"#84beff";
-const safeAsset=s=>typeof s==="string"&&s.length<=320&&
-  /^https:\/\/assets\.marvelstrikeforce\.com\/imgs\/[A-Za-z0-9_.%-]+$/.test(s)?
-  s:"";
-const plainName=s=>String(s||"").replace(/<[^>]*>/g,"").trim();
-// The reward receipts sometimes contain an encoded alliance display name
-// instead of Zeus/Athéna/etc. Infer the corresponding alliance only from
-// canonical player names already published in docs/data/infos.json.
-function resolveAlliance(source,name){
-  const actual=knownKey(source);
-  if(actual)return actual;
-  const stored=S.sourceAlliances.get(norm(source));
-  if(stored)return stored;
-  const info=S.infos.get(norm(name));
-  return knownKey(info?.alliance)||"unknown";
+async function readArenaAPI(all=false){
+  const index=await readArchiveIndex(),entries=index.snapshots;
+  const selected=all?entries:entries.slice(-2),snapshots=[];
+  if(all){
+    for(let i=0;i<selected.length;i+=8)
+      snapshots.push(...await Promise.all(selected.slice(i,i+8).map(readArchivePoint)));
+  }else snapshots.push(...await Promise.all(selected.map(readArchivePoint)));
+  const today=new Date().toISOString().slice(0,10);
+  const live=await readLiveArena(today);
+  if(live&&!snapshots.some(point=>point.date===live.date))snapshots.push(live);
+  return {kind:"permanent-arena-history",status:"ok",snapshots,
+    archiveDates:entries.length};
 }
 function mapSourceAlliances(data){
   S.sourceAlliances.clear();
@@ -236,15 +185,14 @@ function readSnapshots(data){
     .map(source=>{
       const seen=new Set(),players=[];
       for(const p of source.players){
-        const name=canonical(p?.name),a=resolveAlliance(p?.alliance,name),
+        const name=canonical(p?.name),a=resolveAlliance(p?.allianceKey||p?.alliance,name),
           r=p?.arenaRank,baseId=norm(name),guest=S.guestKeys.has(a);
         if(!name||!a||!baseId||!Number.isSafeInteger(r)||r<1||
-           !window.LoSPAccess?.isAllianceAllowed(a))continue;
-        const unique=a+":"+baseId;if(seen.has(unique))continue;
-        seen.add(unique);
-        // Preserve existing LoSP IDs; scope invited IDs to their alliance
-        // so future guests with identical names do not collide in charts.
-        const id=guest?unique:baseId;
+           (!S.publicArchive&&!window.LoSPAccess?.isAllianceAllowed(a)))continue;
+        const unique=a+":"+baseId,id=typeof p?.playerKey==="string"?p.playerKey:
+          typeof p?.playerId==="string"?p.playerId:(guest?unique:baseId);
+        if(seen.has(id))continue;
+        seen.add(id);
         const inline=guest?{
           icon:safeAsset(p.icon),frame:safeAsset(p.frame)}:null;
         const profile=guest?(
@@ -252,7 +200,7 @@ function readSnapshots(data){
           (inline.icon||inline.frame?inline:null)):
           S.infos.get(baseId)||null;
         players.push({id,name,alliance:a,arenaRank:r,
-          observedAt:p.observedAt||null,profile});
+          observedAt:p.observedAt||null,profile,playerKey:id});
       }
       return {date:source.date,sourceDay:source.sourceDay,
         attribution:source.attribution,players};
@@ -266,9 +214,10 @@ function rebuildPeople(){
 }
 function knownAlliances(){
   const declared=window.LoSPAlliances?.getKnownAlliances()||[];
+  const allowed=x=>S.publicArchive||window.LoSPAccess?.isAllianceAllowed(x);
   const used=new Set([...S.people.values()].map(x=>x.alliance));
-  return [...declared.filter(x=>window.LoSPAccess?.isAllianceAllowed(x.key)&&used.delete(x.key)),
-    ...[...used].filter(k=>window.LoSPAccess?.isAllianceAllowed(k)).map(k=>({key:k,name:k}))];
+  return [...declared.filter(x=>allowed(x.key)&&used.delete(x.key)),
+    ...[...used].filter(allowed).map(k=>({key:k,name:k}))];
 }
 function updateRankingFilterSummary(){
   const enabled=[...rankingFilters].filter(([,input])=>input.checked);
@@ -368,13 +317,27 @@ function fillRanking(){
     line.append(delta);host.append(line);
   }
 }
-function switchTab(tab){
+async function switchTab(tab){
   const ranking=tab==="rank";
   $("panelRanking").hidden=!ranking;$("panelHistory").hidden=ranking;
   $("tabRanking").classList.toggle("isActive",ranking);
   $("tabHistory").classList.toggle("isActive",!ranking);
   $("tabRanking").setAttribute("aria-selected",String(ranking));
   $("tabHistory").setAttribute("aria-selected",String(!ranking));
+  if(!ranking&&!S.historyLoaded){
+    $("arenaStatus").hidden=false;
+    $("arenaStatus").textContent="Chargement de l’historique complet…";
+    try{
+      const data=await readArenaAPI(true);
+      S.snapshots=readSnapshots(data);S.historyLoaded=true;
+      rebuildPeople();setupFilters();fillSummary();fillRanking();fillSelected();
+      $("arenaStatus").hidden=true;
+    }catch(error){
+      $("arenaStatus").hidden=false;
+      $("arenaStatus").textContent=error instanceof Error?
+        error.message:"Historique Arène indisponible.";
+    }
+  }
   if(!ranking)fillChart();
 }
 function fillSelected(){
@@ -504,7 +467,7 @@ async function load(){
     }
   }catch{/* Historical ranks remain available when Infos cannot be loaded. */}
   try{
-    const data=await readArenaAPI();
+    const data=await readArenaAPI(false);
     loadGuestProfiles(data);
     // Prefer the common authorized Infos source for guest portraits too.
     // Scope every identity to its alliance to avoid cross-tenant collisions.
@@ -522,7 +485,8 @@ async function load(){
     }
     mapSourceAlliances(data);
     S.snapshots=readSnapshots(data);
-    if(!S.snapshots.length)throw Error("Aucun relevé complet");
+    S.historyLoaded=(data?.archiveDates||0)<=2;
+    if(!S.snapshots.length)throw Error("Aucun relevé permanent complet");
     // Le chargement réussi ne nécessite aucun bandeau permanent.
     // Conserver le même élément pour signaler un éventuel repli ou une erreur.
     if(!data.guestWarning)$("arenaStatus").hidden=true;
