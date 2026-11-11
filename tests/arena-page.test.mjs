@@ -223,7 +223,7 @@ test("successful Arena loading hides the redundant banner but keeps error feedba
   assert.match(source,/arenaStatus"\)\.hidden=true/);
   assert.doesNotMatch(source,/Relevés Arène vérifiés — historique disponible/);
   assert.match(source,/Historique Arène indisponible/);
-  assert.match(source,/Données Arène indisponibles/);
+  assert.match(source,/Historique Arène indisponible/);
   assert.match(css,/\.arenaState\[hidden\]\{display:none!important\}/);
   assert.match(html,/id="arenaStatus"/);
   assert.match(html,/arena\.js\?v=\d+/);
