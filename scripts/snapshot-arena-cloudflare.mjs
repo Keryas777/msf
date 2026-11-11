@@ -44,7 +44,7 @@ export function validateArenaCampaign(data,day){
     const unique=playerKey+"\u0000"+row.alliance;
     if(seen.has(unique))throw Error("Duplicate Arena player identity");
     seen.add(unique);
-    return {playerKey,name:row.name.trim(),alliance:row.alliance.trim(),
+    return {playerKey,playerId:row.playerId,name:row.name.trim(),alliance:row.alliance.trim(),
       arenaRank:row.arenaRank,
       ...(typeof row.observedAt==="string"&&Number.isFinite(Date.parse(row.observedAt))?
         {observedAt:row.observedAt}:{})};
