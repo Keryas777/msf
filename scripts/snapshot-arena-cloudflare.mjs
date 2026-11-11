@@ -108,7 +108,7 @@ export function validateArenaExport(data,day){
 }
 async function main(){
   const day=args(process.argv.slice(2));
-  const url="https://losp-roster-service.deliriousfan7.workers.dev/api/public/arena-snapshot?date="+day;
+  const url="https://losp-roster-service.deliriousfan7.workers.dev/api/public/arena-snapshot?date="+day+"&include_history=1;
   let response;
   for(let attempt=0;attempt<5;attempt++){
     try{
