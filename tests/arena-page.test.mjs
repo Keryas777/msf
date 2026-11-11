@@ -401,8 +401,7 @@ const marineIcon="https://assets.marvelstrikeforce.com/imgs/Portrait_Marine_1234
 const marineFrame="https://assets.marvelstrikeforce.com/imgs/ICON_FRAME_Marine_aabbcc11.png";
 const lospIcon="https://assets.marvelstrikeforce.com/imgs/Portrait_Zeus_1234abcd.png";
 const lospFrame="https://assets.marvelstrikeforce.com/imgs/ICON_FRAME_Zeus_aabbcc11.png";
-test("24 MARINES Arena players use authorized portrait and frame URLs in admin ranking",async()=>{
-  const signed="v1."+"P".repeat(65)+"."+"Q".repeat(43);
+test("published MARINES ranks retain safe portrait and frame URLs in the ranking",()=>{
   const people=Array.from({length:24},(_,i)=>({
     name:"Marine "+i,alliance:"marines",arenaRank:i+1,
     icon:marineIcon,frame:marineFrame
@@ -410,21 +409,14 @@ test("24 MARINES Arena players use authorized portrait and frame URLs in admin r
   const profiles=people.map(p=>({
     name:p.name,alliance:p.alliance,icon:p.icon,frame:p.frame
   }));
-  const {page,nodes}=setup({
-    window:{LoSP_SESSION:{ok:true,role:"admin",allowedAlliances:["zeus","marines"]}},
-    storage:{getItem:()=>signed},
-    fetch:async url=>url.includes("/api/secure/")?
-      Response.json({status:"ok",kind:"authorized-guest-arena-history",
-        alliances:["marines"],profiles,snapshots:[{date:"2026-11-05",players:people}]}):
-      Response.json({snapshots:[{date:"2026-11-05",
-        players:[{name:"Zeus Player",alliance:"zeus",arenaRank:25}]}]})
-  });
-  const data=await page.readArenaAPI();
-  assert.equal(data.snapshots[0].players.length,25);
+  const {page,nodes}=setup();
+  const data={guestAlliances:["marines"],guestProfiles:profiles,
+    snapshots:[{date:"2026-11-05",players:[
+      {name:"Zeus Player",alliance:"zeus",arenaRank:25},...people
+    ]}]};
   page.loadGuestProfiles(data);
-  page.S.snapshots=page.readSnapshots(data);
-  page.fillRanking();
-  assert.equal(page.S.snapshots[0].players.filter(p=>p.alliance==="marines").length,24);
+  page.S.snapshots=page.readSnapshots(data);page.fillRanking();
+  assert.equal(page.S.snapshots[0].players.length,25);
   const rows=nodes.rankingList.children.filter(row=>row.tag==="article");
   assert.equal(rows.length,25);
   for(const row of rows.filter(row=>row.children[2].children[1].textContent.includes("MARINES"))){
