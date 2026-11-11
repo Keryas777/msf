@@ -459,9 +459,8 @@ function fillChart(){
   }
 }
 async function load(){
-  // The Discord-auth guard has to resolve first, including admin preview.
-  // Never guess guest permissions from the URL or the selected filter.
-  try{await window.LoSP_AUTH_READY;}catch{/* Auth errors fail closed below. */}
+  // Public rank archives load immediately; Discord authorization remains
+  // relevant only to other private data the shared Infos reader may expose.
   const guest=isGuestView();
   try{
     await window.LoSPAlliances?.loadAlliances();
@@ -471,9 +470,8 @@ async function load(){
       for(const [from,to] of Object.entries(entries))S.aliases[norm(from)]=to;
     }
   }catch{/* Aliases are optional; ranks are not invented. */}
-  // Share the exact Infos reader used by the rest of the WebApp.
-  // It filters public LoSP rows and requests guest rows only through the
-  // signed Discord session. Arena ranks still come exclusively from R2.
+  // Infos remain an optional profile/alias source. Arena ranks come from
+  // the public permanent archive and do not wait for a Discord session.
   let infoRows=null,sharedInfos=[];
   try{
     if(window.LoSPAllianceData?.load){
