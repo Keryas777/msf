@@ -182,18 +182,11 @@ function renderRanking() {
 
   const entries = rows.map((roster) => ({
     roster,
-    result: {
-      completed: owns(roster, dimension()?.completionRule?.characterId),
-      consecutive: null,
-      prepared: null,
-    },
+    result: evaluateDimension({dimension: selectedDimension, roster, catalog: state.catalog}),
   }));
   const completed = entries.filter((entry) => entry.result.completed);
   const unknown = entries.filter((entry) => !entry.result.completed);
-  const ranked = rankResults(completed.map((entry) => ({
-    result: entry.result,
-    entry,
-  }))).ranked.map((item) => item.entry);
+  const ranked = rankResults(completed).ranked;
   const ordered = [...ranked, ...unknown];
 
   const failures = selectedLoadFailures();
@@ -231,13 +224,13 @@ function renderRanking() {
     button.innerHTML =
       '<span class="place"></span><span><span class="player-name"></span>' +
       '<span class="meta"></span><span class="badge"></span></span>';
-    button.querySelector(".place").textContent = finished ? "1" : "—";
+    button.querySelector(".place").textContent = finished ? String(entry.rank) : "—";
     button.querySelector(".player-name").textContent = entry.roster.player;
     button.querySelector(".meta").textContent =
       window.LoSPAlliances.getAllianceEmoji(entry.roster.alliance) + " " +
       window.LoSPAlliances.getAllianceLabel(entry.roster.alliance);
     button.querySelector(".badge").textContent = finished
-      ? dimensionLabel + " terminée · 100 % · convention Annihilus"
+      ? dimensionLabel + " · " + (entry.result.passages === 2 ? "2 passages · 7★ jaunes / 4★ rouges" : "1er passage · 5★ jaunes / 2★ rouges") + " · convention LoSP"
       : "Progression théorique indéterminée";
     button.addEventListener("click", () => openIndividual(entry.roster));
     list.append(button);
@@ -246,7 +239,7 @@ function renderRanking() {
 
 function playerStatus(evaluation, totalNodes) {
   if (evaluation.completed)
-    return (dimension()?.shortName || "Dimension noire") + " terminée · 100 % selon la convention LoSP fondée sur le roster vérifié.";
+    return (dimension()?.shortName || "Dimension noire") + " · " + (evaluation.passages === 2 ? "2 passages (7★ jaunes / 4★ rouges)" : "1er passage (5★ jaunes / 2★ rouges)") + " selon la convention LoSP fondée sur le roster vérifié.";
   if (evaluation.status === "unavailable")
     return "Progression indisponible : aucun roster vérifié n’est chargé.";
   if (evaluation.status === "indeterminate")
