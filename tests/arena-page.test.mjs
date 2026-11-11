@@ -197,7 +197,7 @@ test("ranking caption stays concise and uses the real latest date",()=>{
   page.S.snapshots=page.readSnapshots(history);
   page.fillSummary();
   assert.equal(nodes.rankingSource.textContent,
-    "Classement du 01/11/2026 à 17h et comparatif avec la veille");
+    "Classement du 01/11/2026 et comparatif avec le relevé précédent");
   assert.equal(nodes.arenaLatestDate.textContent,"01/11/2026");
   page.S.snapshots=page.S.snapshots.slice(0,1);
   page.fillSummary();
@@ -222,7 +222,7 @@ test("successful Arena loading hides the redundant banner but keeps error feedba
   const css=fs.readFileSync(new URL("../docs/arena.css",import.meta.url),"utf8");
   assert.match(source,/arenaStatus"\)\.hidden=true/);
   assert.doesNotMatch(source,/Relevés Arène vérifiés — historique disponible/);
-  assert.match(source,/Historique R2 inaccessible/);
+  assert.match(source,/Historique Arène indisponible/);
   assert.match(source,/Données Arène indisponibles/);
   assert.match(css,/\.arenaState\[hidden\]\{display:none!important\}/);
   assert.match(html,/id="arenaStatus"/);
@@ -307,209 +307,95 @@ test("Arena multi-alliance filtering retains absolute ranks and updates its summ
   assert.equal(nodes.rankingAllianceSummaryText.textContent,"Toutes les alliances");
 });
 
-test("MARINES guest session loads ranks from signed, scope-bound API only",async()=>{
-  const signed="v1."+"A".repeat(65)+"."+"B".repeat(43),calls=[];
-  const {page}=setup({
-    window:{LoSP_SESSION:{ok:true,role:"guest",groupKey:"marines",
-      allowedAlliances:["marines"]}},
-    storage:{getItem:key=>key==="losp_session"?signed:null},
-    fetch:async(url,options)=>{
-      calls.push({url,options});
-      return Response.json({status:"ok",kind:"authorized-guest-arena-history",
-        snapshots:[{date:"2026-11-05",players:[{
-          name:"MARINE 01",alliance:"marines",arenaRank:12}]}]});
+test("LoSP and invited Arena ranks read one public GitHub archive without Discord credentials",async()=>{
+  const calls=[],dates=["2026-11-10","2026-11-11"];
+  const index={version:1,snapshots:dates.map(date=>({date,
+    file:"snapshots/"+date+".json"}))};
+  const {page}=setup({fetch:async(url,options)=>{
+    calls.push({url,options});
+    if(url==="./data/arena-history/index.json")return Response.json(index);
+    if(url.startsWith("./data/arena-history/snapshots/")){
+      const day=url.match(/(\d{4}-\d{2}-\d{2})\.json$/)[1];
+      return Response.json({version:1,date:day,players:[
+        {playerKey:"p_"+day.replaceAll("-","").padEnd(64,"0"),
+          name:day==="2026-11-10"?"Marine":"Zeus",alliance:day==="2026-11-10"?"marines":"zeus",
+          arenaRank:day==="2026-11-10"?12:4}
+      ]});
     }
-  });
-  const payload=await page.readArenaAPI();
-  assert.equal(payload.snapshots[0].players[0].name,"MARINE 01");
-  assert.equal(calls.length,1);
-  assert.match(calls[0].url,/\/api\/secure\/guest-arena-history\?alliances=marines$/);
-  assert.equal(calls[0].options.headers.Authorization,"Bearer "+signed);
-  assert.equal(calls[0].options.cache,"no-store");
-});
-test("guest view never falls back to public LoSP ranks or legacy unsigned sessions",async()=>{
-  const {page}=setup({window:{LoSP_SESSION:{ok:true,role:"guest",
-    groupKey:"marines",allowedAlliances:["marines"]}},
-    storage:{getItem:()=> "eyJpZCI6IjMwMDMwNTYyNjkyNjQxNTg3NCJ9"}});
-  await assert.rejects(()=>page.readArenaAPI(),/Session Discord signée nécessaire/);
-});
-test("admin preview does not grant rights; sends real signed session for target guest",async()=>{
-  const token="v1."+"Q".repeat(42)+"."+"W".repeat(43),calls=[];
-  const {page}=setup({
-    window:{LoSP_SESSION:{ok:true,role:"guest",previewMode:true,
-      previewGroupKey:"marines",groupKey:"marines",allowedAlliances:["marines"]},
-      LoSP_REAL_SESSION:{ok:true,role:"admin",groupKey:"all"}},
-    storage:{getItem:()=>token},
-    fetch:async(url,options)=>{
-      calls.push([url,options.headers.Authorization]);
-      return Response.json({kind:"authorized-guest-arena-history",status:"ok",snapshots:[]});
-    }
-  });
-  await page.readArenaAPI();
-  assert.match(calls[0][0],/alliances=marines$/);
-  assert.equal(calls[0][1],"Bearer "+token);
-});
-test("LoSP view retains its existing public API with no bearer token",async()=>{
-  const calls=[];
-  const {page}=setup({
-    window:{LoSP_SESSION:{ok:true,role:"member",groupKey:"losp",
-      allowedAlliances:["zeus"]}},
-    fetch:async(url,options)=>{
-      calls.push([url,options]);
-      return Response.json({snapshots:[]});
-    }
-  });
-  assert.deepEqual(await page.readArenaAPI(),{snapshots:[]});
-  assert.equal(calls.length,1);
-  assert.match(calls[0][0],/\/api\/public\/arena-history$/);
-  assert.equal(calls[0][1].headers,undefined);
-});
-
-test("admin receives LoSP plus 24 consented MARINES in one daily ranking and history",async()=>{
-  const signed="v1."+"J".repeat(65)+"."+"K".repeat(43),calls=[];
-  const publicRows=Array.from({length:121},(_,i)=>({
-    name:"LoSP Player "+i,alliance:i===120?"hades":"zeus",arenaRank:i+100
-  }));
-  const guestRows=Array.from({length:24},(_,i)=>({
-    name:"Marine Player "+i,alliance:"marines",arenaRank:i+1,
-    observedAt:"2026-11-05T16:05:17Z"
-  }));
-  const {page}=setup({
-    window:{LoSP_SESSION:{ok:true,role:"admin",
-      allowedAlliances:["zeus","hades","marines","endgame-revolution-red"]}},
-    storage:{getItem:()=>signed},
-    fetch:async(url,options)=>{
-      calls.push([url,options]);
-      if(url.includes("/api/secure/guest-arena-history"))
-        return Response.json({status:"ok",kind:"authorized-guest-arena-history",
-          snapshots:[{date:"2026-11-05",players:guestRows}]});
-      return Response.json({status:"ok",snapshots:[{
-        date:"2026-11-05",players:publicRows}]});
-    }
-  });
+    return Response.json({status:"incomplete"},{status:409});
+  }});
   const data=await page.readArenaAPI();
-  assert.equal(calls.length,2);
-  assert.equal(calls[0][1].headers,undefined);
-  assert.match(calls[1][0],/\/api\/secure\/guest-arena-history\?alliances=approved$/);
-  assert.equal(calls[1][1].headers.Authorization,"Bearer "+signed);
-  assert.equal(data.snapshots.length,1);
-  assert.equal(data.snapshots[0].players.length,145);
-  const rows=page.readSnapshots(data);
-  assert.equal(rows[0].players.length,145);
-  assert.equal(rows[0].players.filter(p=>p.alliance==="marines").length,24);
-  page.S.snapshots=rows;
-  page.fillRanking();
-  assert.ok(page.label("marines").includes("MARINES"));
+  assert.equal(data.snapshots.length,2);
+  assert.deepEqual(data.snapshots.map(x=>x.date),dates);
+  assert.equal(data.snapshots[0].players[0].alliance,"marines");
+  assert.equal(calls.length,4);
+  assert.ok(calls.every(call=>!call.options?.headers?.Authorization));
 });
-test("member LoSP still uses public history and cannot ask for invited alliance data",async()=>{
-  const calls=[];
-  const {page}=setup({
-    window:{LoSP_SESSION:{ok:true,role:"member",groupKey:"losp",
-      allowedAlliances:["zeus","athena","hades"]}},
-    fetch:async(url,options)=>{
-      calls.push([url,options]);
-      return Response.json({status:"ok",snapshots:[]});
-    }
-  });
-  await page.readArenaAPI();
-  assert.equal(calls.length,1);
-  assert.match(calls[0][0],/\/api\/public\/arena-history$/);
-});
-test("admin without signed session sees LoSP plus an explicit guest warning",async()=>{
-  const calls=[];
-  const {page}=setup({
-    window:{LoSP_SESSION:{ok:true,role:"admin",allowedAlliances:["marines","zeus"]}},
-    storage:{getItem:()=> "base64-legacy-unsigned"},
-    fetch:async(url)=>{
-      calls.push(url);
-      return Response.json({status:"ok",snapshots:[{
-        date:"2026-11-05",players:[{name:"Zeus Player",alliance:"zeus",arenaRank:12}]
-      }]});
-    }
-  });
+test("guest ranks load from the common public archive without an active session",async()=>{
+  const {page}=setup({fetch:async url=>{
+    if(url==="./data/arena-history/index.json")return Response.json({version:1,
+      snapshots:[{date:"2026-11-10",file:"snapshots/2026-11-10.json"}]});
+    if(url.startsWith("./data/arena-history/"))return Response.json({version:1,
+      date:"2026-11-10",players:[{playerKey:"p_"+"a".repeat(64),
+        playerId:"p_"+"a".repeat(64),name:"MARINE 01",allianceKey:"marines",
+        alliance:"MARINES",arenaRank:12}]});
+    return Response.json({status:"incomplete"},{status:409});
+  }});
   const data=await page.readArenaAPI();
-  assert.equal(data.snapshots.length,1);
-  assert.equal(data.snapshots[0].players.length,1);
-  assert.match(data.guestWarning,/Session Discord signée nécessaire/);
-  assert.equal(calls.length,1);
+  assert.equal(page.readSnapshots(data)[0].players[0].alliance,"marines");
 });
-test("admin guest-source error never silently hides missing invited ranks",async()=>{
-  const signed="v1."+"L".repeat(65)+"."+"M".repeat(43);
-  const {page}=setup({
-    window:{LoSP_SESSION:{ok:true,role:"admin",allowedAlliances:["marines","zeus"]}},
-    storage:{getItem:()=>signed},
-    fetch:async(url)=>{
-      if(url.includes("/api/secure/"))return new Response(null,{status:503});
-      return Response.json({snapshots:[{date:"2026-11-05",players:[
-        {name:"Zeus Player",alliance:"zeus",arenaRank:10}
-      ]}]});
+test("permanent Arena history loads more than 365 dates in bounded batches",async()=>{
+  const dates=Array.from({length:400},(_,i)=>
+    new Date(Date.UTC(2025,0,1+i)).toISOString().slice(0,10));
+  let pointCalls=0;
+  const {page}=setup({fetch:async url=>{
+    if(url==="./data/arena-history/index.json")return Response.json({version:1,
+      snapshots:dates.map(date=>({date,file:"snapshots/"+date+".json"}))});
+    if(url.startsWith("./data/arena-history/snapshots/")){
+      pointCalls++;
+      const day=url.match(/(\d{4}-\d{2}-\d{2})\.json$/)[1];
+      return Response.json({version:1,date:day,players:[
+        {playerKey:"p_"+"c".repeat(64),name:"Player",alliance:"zeus",arenaRank:5}
+      ]});
     }
-  });
-  const data=await page.readArenaAPI();
-  assert.equal(data.snapshots.length,1);
-  assert.match(data.guestWarning,/Historique Arène invité indisponible \(HTTP 503/);
+    return Response.json({status:"incomplete"},{status:409});
+  }});
+  const data=await page.readArenaAPI(true);
+  assert.equal(data.snapshots.length,400);
+  assert.equal(pointCalls,400);
 });
-test("merging by date preserves earlier LoSP history without fabricating guest points",()=>{
+test("pseudonymous player ids bridge aliases and keep homonyms separate by alliance",()=>{
   const {page}=setup();
-  const history=page.mergeArenaHistories({
-    snapshots:[{date:"2026-11-04",players:[{name:"Z",alliance:"zeus",arenaRank:2}]},
-      {date:"2026-11-05",players:[{name:"Z",alliance:"zeus",arenaRank:1}]}]},
-    {snapshots:[{date:"2026-11-05",players:[{name:"M",alliance:"marines",arenaRank:4}]}]});
-  assert.deepEqual(history.snapshots.map(x=>x.date),["2026-11-04","2026-11-05"]);
-  assert.equal(history.snapshots[0].players.length,1);
-  assert.equal(history.snapshots[1].players.length,2);
+  page.S.aliases["oldname"]="New Name";
+  const first="p_"+"1".repeat(64),second="p_"+"2".repeat(64);
+  const points=page.readSnapshots({snapshots:[
+    {date:"2026-11-10",players:[
+      {name:"Old Name",alliance:"zeus",arenaRank:7,playerKey:"oldname"},
+      {name:"Shared",alliance:"marines",arenaRank:8,playerKey:"marines:shared"}
+    ]},
+    {date:"2026-11-11",players:[
+      {name:"New Name",alliance:"zeus",arenaRank:5,playerId:first,playerKey:first},
+      {name:"Shared",alliance:"zeus",arenaRank:6,playerId:second,playerKey:second}
+    ]}
+  ]});
+  assert.equal(points[0].players[0].id,first);
+  assert.equal(points[1].players.length,2);
+  assert.notEqual(points[1].players[0].id,points[1].players[1].id);
 });
-
-test("admin sees an exact Cloudflare auth-binding failure instead of a generic unavailable message",async()=>{
-  const signed="v1."+"R".repeat(65)+"."+"S".repeat(43);
-  const {page}=setup({
-    window:{LoSP_SESSION:{ok:true,role:"admin",allowedAlliances:["marines","zeus"]}},
-    storage:{getItem:()=>signed},
-    fetch:async(url)=>{
-      if(url.includes("/api/secure/guest-arena-history"))
-        return Response.json({status:"auth-unavailable",reason:"auth-binding-missing"},{status:503});
-      return Response.json({snapshots:[{date:"2026-11-05",
-        players:[{name:"Zeus",alliance:"zeus",arenaRank:2}]}]});
-    }
-  });
-  const data=await page.readArenaAPI();
-  assert.equal(data.snapshots[0].players.length,1);
-  assert.match(data.guestWarning,/HTTP 503.*auth-binding-missing/);
-  assert.match(data.guestWarning,/Liaison Cloudflare losp-auth absente/);
+test("Arena caption and date table expose actual UTC collection provenance",()=>{
+  const {page,nodes}=setup();
+  const data={snapshots:[{date:"2026-11-11",sourceDay:"2026-11-11",
+    attribution:"cloudflare-arena-reward-collection",
+    provenance:[{alliance:"Zeus",capturedAt:"2026-11-11T16:01:00Z"},
+      {alliance:"MARINES",capturedAt:"2026-11-11T16:08:00Z"}],
+    players:[{name:"A",alliance:"zeus",arenaRank:2,playerId:"p_"+"a".repeat(64)}]}]};
+  page.S.snapshots=page.readSnapshots(data);page.S.selected=[page.S.snapshots[0].players[0].id];
+  page.S.people.set(page.S.selected[0],page.S.snapshots[0].players[0]);
+  page.fillSummary();page.fillChart();
+  assert.match(nodes.rankingSource.textContent,/après 16h01 UTC · 16:01–16:08 UTC/);
+  assert.ok(nodes.historyDetails.children.some(row=>
+    row.children.some(child=>/2 alliances · 16:01–16:08 UTC/.test(child.textContent))));
 });
-test("404 identifies a Worker deployment mismatch without inventing any guests",async()=>{
-  const signed="v1."+"R".repeat(65)+"."+"S".repeat(43);
-  const {page}=setup({
-    window:{LoSP_SESSION:{ok:true,role:"admin",allowedAlliances:["marines","zeus"]}},
-    storage:{getItem:()=>signed},
-    fetch:async(url)=>{
-      if(url.includes("/api/secure/guest-arena-history"))
-        return new Response("<html>Not Found</html>",{status:404,
-          headers:{"Content-Type":"text/html"}});
-      return Response.json({snapshots:[]});
-    }
-  });
-  const data=await page.readArenaAPI();
-  assert.match(data.guestWarning,/API Arène privée absente.*HTTP 404/);
-  assert.deepEqual(data.snapshots,[]);
-});
-test("R2 failure code is rendered as text, no private Worker traces",async()=>{
-  const signed="v1."+"R".repeat(65)+"."+"S".repeat(43);
-  const {page}=setup({
-    window:{LoSP_SESSION:{ok:true,role:"admin",allowedAlliances:["marines","zeus"]}},
-    storage:{getItem:()=>signed},
-    fetch:async(url)=>{
-      if(url.includes("/api/secure/guest-arena-history"))
-        return Response.json({status:"unavailable",reason:"private-r2-read-failed",
-          stack:"private oauth token must not display"}, {status:503});
-      return Response.json({snapshots:[]});
-    }
-  });
-  const data=await page.readArenaAPI();
-  assert.match(data.guestWarning,/private-r2-read-failed/);
-  assert.doesNotMatch(data.guestWarning,/oauth token/);
-});
-
 
 const marineIcon="https://assets.marvelstrikeforce.com/imgs/Portrait_Marine_1234abcd.png";
 const marineFrame="https://assets.marvelstrikeforce.com/imgs/ICON_FRAME_Marine_aabbcc11.png";
