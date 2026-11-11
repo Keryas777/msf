@@ -10,8 +10,9 @@
     hades: Object.freeze({ minimum_attacks: 10, minimum_deviations: 0 })
   });
 
-  // Estimation actuelle des points de guerre par attaque gagnée (12 défenses).
-  const ESTIMATED_POINTS_PER_SUCCESS = 841;
+  // Barème courant : 10 salles défensives, 1 010 points par victoire au premier essai.
+  // Les débriefs historiques déjà publiés restent inchangés.
+  const ESTIMATED_POINTS_PER_SUCCESS = 1010;
 
   const PLAYER_NUMERIC_FIELDS = [
     "rank",
