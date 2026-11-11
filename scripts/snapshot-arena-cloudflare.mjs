@@ -84,15 +84,24 @@ export function validateArenaExport(data,day){
         ...(typeof row.observedAt==="string"&&Number.isFinite(Date.parse(row.observedAt))?
           {observedAt:row.observedAt}:{})});
     }
+    const provenance=Array.isArray(source.provenance)?source.provenance
+      .filter(x=>typeof x?.alliance==="string"&&x.alliance.length<=140&&
+        Number.isFinite(Date.parse(x.capturedAt)))
+      .map(x=>({alliance:x.alliance,capturedAt:x.capturedAt})):[];
     snapshots.set(source.date,{version:1,date:source.date,
       sourceDay:validDay(source.sourceDay)?source.sourceDay:source.date,
-      ...(typeof source.sourceCampaign==="string"?{sourceCampaign:source.sourceCampaign}:{}),
-      ...(typeof source.campaignId==="string"?{campaignId:source.campaignId}:{}),
-      attribution:typeof source.attribution==="string"?source.attribution:"legacy-r2-arena-history",
-      sourceKind:typeof source.sourceKind==="string"?source.sourceKind:"legacy-r2",
-      ...(typeof source.capturedAt==="string"?{capturedAt:source.capturedAt}:{}),
-      ...(Array.isArray(source.provenance)?{provenance:source.provenance}:{}),
-      players});
+      ...(typeof source.sourceCampaign==="string"&&source.sourceCampaign.length<=80?
+        {sourceCampaign:source.sourceCampaign}:{}),
+      ...(typeof source.campaignId==="string"&&source.campaignId.length<=80?
+        {campaignId:source.campaignId}:{}),
+      attribution:typeof source.attribution==="string"&&
+        /^[a-z0-9-]{1,100}$/.test(source.attribution)?
+        source.attribution:"legacy-r2-arena-history",
+      sourceKind:typeof source.sourceKind==="string"&&
+        /^[a-z0-9-]{1,40}$/.test(source.sourceKind)?source.sourceKind:"legacy-r2",
+      ...(typeof source.capturedAt==="string"&&Number.isFinite(Date.parse(source.capturedAt))?
+        {capturedAt:source.capturedAt}:{}),
+      ...(provenance.length?{provenance}:{}),players});
   }
   if(!snapshots.has(day))snapshots.set(day,fresh);
   return [...snapshots.values()].sort((a,b)=>a.date.localeCompare(b.date));
