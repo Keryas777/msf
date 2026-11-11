@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { buildSnapshot, canonicalPlayer, normalizeKey, validDay, originalArenaAllianceKeys } from "../scripts/snapshot-arena.mjs";
 import { earliestAllowedDay, mergeHistory } from "../scripts/publish-arena-r2.mjs";
+import { validateArenaCampaign } from "../scripts/snapshot-arena-cloudflare.mjs";
 
 function snapshot(day, rank = 4) {
   return buildSnapshot([{ name: "Test", alliance: "Zeus", latestArena: rank }], {
@@ -71,4 +72,35 @@ test("31 October arena baseline uses immutable original provenance, not later gu
   assert.throws(()=>originalArenaAllianceKeys({alliances:{...first.alliances,
     marines:"2026-11-05-am"}}),/First Infos provenance/);
   assert.throws(()=>originalArenaAllianceKeys({alliances:{}}),/First Infos provenance/);
+});
+
+test("Cloudflare campaign accepts the same 16:01 UTC cutoff in winter and summer",()=>{
+  const data=day=>({status:"complete",snapshot:{
+    version:1,date:day,sourceDay:day,sourceCampaign:day+"-reward",
+    campaignId:day+"-reward",attribution:"cloudflare-arena-reward-collection",
+    sourceKind:"reward",alliancesExpected:1,alliancesComplete:1,
+    provenance:[{alliance:"Zeus",capturedAt:day+"T16:01:00Z"}],
+    players:[{playerId:"p_"+"a".repeat(64),name:"A",alliance:"Zeus",arenaRank:4}]
+  }});
+  assert.equal(validateArenaCampaign(data("2026-01-15"),"2026-01-15").players.length,1);
+  assert.equal(validateArenaCampaign(data("2026-07-15"),"2026-07-15").players.length,1);
+});
+test("Cloudflare archive rejects incomplete, stale, or duplicate campaign rows",()=>{
+  const make=()=>({status:"complete",snapshot:{
+    version:1,date:"2026-11-11",sourceDay:"2026-11-11",
+    sourceCampaign:"2026-11-11-reward",campaignId:"2026-11-11-reward",
+    attribution:"cloudflare-arena-reward-collection",sourceKind:"reward",
+    alliancesExpected:1,alliancesComplete:1,
+    provenance:[{alliance:"Zeus",capturedAt:"2026-11-11T16:01:00Z"}],
+    players:[{playerId:"p_"+"b".repeat(64),name:"A",alliance:"Zeus",arenaRank:2,
+      token:"must not be published"}]
+  }});
+  const incomplete=make();incomplete.snapshot.alliancesComplete=0;
+  assert.throws(()=>validateArenaCampaign(incomplete,"2026-11-11"),/incomplete/);
+  const stale=make();stale.snapshot.provenance[0].capturedAt="2026-11-11T16:00:59Z";
+  assert.throws(()=>validateArenaCampaign(stale,"2026-11-11"),/stale/);
+  const duplicate=make();duplicate.snapshot.players.push({...duplicate.snapshot.players[0]});
+  assert.throws(()=>validateArenaCampaign(duplicate,"2026-11-11"),/Duplicate/);
+  const safe=validateArenaCampaign(make(),"2026-11-11");
+  assert.doesNotMatch(JSON.stringify(safe),/must not be published|token/);
 });
