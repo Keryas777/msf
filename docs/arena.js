@@ -214,7 +214,9 @@ function readSnapshots(data){
           observedAt:p.observedAt||null,profile,playerKey:id});
       }
       return {date:source.date,sourceDay:source.sourceDay,
-        attribution:source.attribution,players};
+        sourceCampaign:source.sourceCampaign||null,campaignId:source.campaignId||null,
+        sourceKind:source.sourceKind||null,provenance:Array.isArray(source.provenance)?
+          source.provenance:[],attribution:source.attribution,players};
     }).filter(s=>s.players.length).sort((a,b)=>a.date.localeCompare(b.date));
 }
 function newest(){return S.snapshots.at(-1)||null;}
@@ -285,12 +287,19 @@ function fillSummary(){
   $("arenaLatestDate").textContent=S.fallback?"Date non vérifiée":date(current.date);
   $("arenaPlayerCount").textContent=String(current.players.length);
   $("arenaDateCount").textContent=S.fallback?"Indisponible":S.snapshots.length+" date(s)";
+  const captured=(current.provenance||[]).map(x=>Date.parse(x.capturedAt))
+    .filter(Number.isFinite);
+  const first=captured.length?new Date(Math.min(...captured)).toISOString().slice(11,16):null;
+  const last=captured.length?new Date(Math.max(...captured)).toISOString().slice(11,16):null;
   $("rankingSource").textContent=S.fallback?
     "Classement actuel — date non vérifiée":
     current.attribution==="backdated-from-first-next-day-collection"?
     "Classement initial du "+date(current.date):
-    "Classement du "+date(current.date)+" à 17h"+
-      (S.snapshots.length>1?" et comparatif avec la veille":"");
+    current.attribution==="cloudflare-arena-reward-collection"?
+      "Collecte Cloudflare le "+date(current.date)+" après 16h01 UTC"+
+        (last?" · "+(first===last?last:first+"–"+last)+" UTC":""):
+      "Classement du "+date(current.date)+
+        (S.snapshots.length>1?" et comparatif avec le relevé précédent":"");
 }
 function fillRanking(){
   const host=$("rankingList");host.replaceChildren();
@@ -431,7 +440,16 @@ function fillChart(){
   details.append(make("h3","Rangs par date","arenaBlockTitle"));
   for(const s of snaps){
     const row=document.createElement("div");row.className="arenaHistoryLine";
+    const captured=(s.provenance||[]).map(x=>Date.parse(x.capturedAt))
+      .filter(Number.isFinite);
+    const first=captured.length?new Date(Math.min(...captured)).toISOString().slice(11,16):null;
+    const last=captured.length?new Date(Math.max(...captured)).toISOString().slice(11,16):null;
     row.append(make("strong",date(s.date)));
+    if(s.attribution==="cloudflare-arena-reward-collection")
+      row.append(make("small",captured.length+" alliances · "+
+        (first===last?first:first+"–"+last)+" UTC","arenaProvenance"));
+    else if(s.sourceDay)
+      row.append(make("small","Source "+date(s.sourceDay),"arenaProvenance"));
     const scores=S.selected.map(id=>{
       const p=s.players.find(q=>q.id===id);
       return p?(S.people.get(id)?.name||p.name)+" : #"+p.arenaRank:null;
