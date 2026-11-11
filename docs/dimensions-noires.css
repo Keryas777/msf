@@ -310,3 +310,17 @@ button:focus-visible, select:focus-visible { position: relative; z-index: 2; }
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; transition: none !important; }
 }
+
+/* Alliance selectors: same compact two-column identity as LoSP Evolution/Arena. */
+.alliance-filter { padding: 14px; }
+.alliance-filter legend { font-size: 1rem; }
+.alliance-chip-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.alliance-chip { display: flex; justify-content: flex-start; width: 100%; min-width: 0; min-height: 54px; border-radius: 999px; padding: 8px 9px; gap: 6px; background: #34353f; border-color: #656774; font-size: clamp(.67rem, 2.7vw, .91rem); line-height: 1.12; text-align: center; }
+.alliance-chip:has(input:checked) { background: #34353f; border-color: #747782; box-shadow: none; }
+.alliance-chip input { flex: 0 0 auto; width: 20px; height: 20px; margin: 0; accent-color: #8bd15d; }
+.alliance-chip-emoji { flex: 0 0 auto; font-size: 1.3em; }
+.alliance-chip-name { min-width: 0; flex: 1; font-weight: 800; overflow-wrap: anywhere; }
+.alliance-chip-name.alliance-name--two-lines { display: flex; flex-direction: column; align-items: center; }
+.select-all { margin-top: 12px; font-size: .85rem; }
+@media (max-width: 360px) { .alliance-chip { padding: 7px 5px; gap: 4px; font-size: .65rem; } .alliance-chip input { width: 18px; height: 18px; } }
+@media (min-width: 680px) { .alliance-chip-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
