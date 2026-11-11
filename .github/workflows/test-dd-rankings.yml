@@ -8,6 +8,7 @@ on:
       - "docs/dd-ranking-engine.mjs"
       - "docs/dimensions-noires.*"
       - "tests/dd-ranking-engine.test.mjs"
+      - "tests/dimensions-noires-view.test.mjs"
       - ".github/workflows/test-dd-rankings.yml"
   pull_request:
     branches: [main]
@@ -16,6 +17,7 @@ on:
       - "docs/dd-ranking-engine.mjs"
       - "docs/dimensions-noires.*"
       - "tests/dd-ranking-engine.test.mjs"
+      - "tests/dimensions-noires-view.test.mjs"
       - ".github/workflows/test-dd-rankings.yml"
 
 permissions:
@@ -32,7 +34,8 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --check docs/dd-ranking-engine.mjs
+          node --check docs/dimensions-noires-view.mjs
           node --input-type=module --check < docs/dimensions-noires.js
           node -e "JSON.parse(require('node:fs').readFileSync('docs/data/dark-dimensions.json','utf8'))"
       - name: Run DD ranking tests
-        run: node --test tests/dd-ranking-engine.test.mjs
+        run: node --test tests/dd-ranking-engine.test.mjs tests/dimensions-noires-view.test.mjs

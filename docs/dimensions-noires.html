@@ -1,1 +1,80 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#101729"><title>Classement Dimensions noires — MSF</title><link rel="stylesheet" href="./dimensions-noires.css"></head><body><main class="page"><header class="hero"><p class="eyebrow">LoSP · WebApp MSF</p><h1>Classement Dimensions noires</h1><label class="control">Dimension<select id="dimension"><option value="dd9">DD9 · Dimension noire IX</option></select></label><p class="freshness" id="freshness">Fraîcheur des données : chargement…</p><p class="notice">Progression théorique basée sur les rosters autorisés. Elle ne représente pas la progression effective dans le jeu.</p></header><section class="panel controls" aria-label="Sélection des joueurs"><label class="control">Alliance<select id="alliance" disabled><option>Chargement…</option></select></label><label class="control">Rechercher un joueur<input id="search" type="search" placeholder="Pseudo" autocomplete="off"></label></section><section id="state" class="state" role="status" aria-live="polite">Chargement des alliances autorisées…</section><section class="panel"><h2>Classement DD9</h2><p class="explain">Les joueurs avec Annihilus vérifié apparaissent en tête selon la convention LoSP. Les autres restent non classés tant que les exigences officielles de salle manquent.</p><ol id="ranking" class="ranking"></ol></section><section class="panel"><h2 id="detail-title">Carte DD9</h2><p class="subtle">Sélectionnez un joueur ; les salles restent indéterminées sans leurs conditions officielles.</p><div class="legend"><span><i class="dot done"></i> DD9 terminée selon convention LoSP</span><span><i class="dot unknown"></i> Conditions non vérifiables</span><span><i class="dot portal"></i> Passage de la carte</span></div><div class="map-scroll"><div class="map" id="map" aria-label="Carte interactive DD9"></div></div><article id="node-info" class="node-info" aria-live="polite">Touchez une salle pour afficher son identifiant et l’état de ses données.</article></section><footer>La règle Annihilus est une convention LoSP, pas une preuve d’historique officiel. Les rosters ne sont chargés que si le système existant autorise l’accès.</footer></main><script src="./auth-guard.js"></script><script src="./alliances.js"></script><script src="./roster-loader.js"></script><script type="module" src="./dimensions-noires.js"></script></body></html>
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101729">
+  <title>Classement Dimensions noires — MSF</title>
+  <link rel="stylesheet" href="./dimensions-noires.css?v=2">
+  <link rel="stylesheet" href="./evolution-tabs.css?v=2">
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">LoSP · WebApp MSF</p>
+      <h1>Classement Dimensions noires</h1>
+      <label class="control" for="dimension">Dimension
+        <select id="dimension"></select>
+      </label>
+      <p class="freshness" id="freshness">Fraîcheur des données : chargement…</p>
+      <p class="notice">La progression affichée est théorique et fondée sur les rosters autorisés. Elle ne représente pas la progression effective dans le jeu.</p>
+    </header>
+
+    <nav class="evolutionTabs ddTabs" id="dd-tabs" role="tablist" aria-label="Vues Dimensions noires">
+      <button class="evolutionTab is-active" id="tab-ranking" type="button" role="tab"
+        aria-selected="true" aria-controls="panel-ranking" tabindex="0">Classement global</button>
+      <button class="evolutionTab" id="tab-individual" type="button" role="tab"
+        aria-selected="false" aria-controls="panel-individual" tabindex="-1">Avancée individuelle</button>
+    </nav>
+
+    <section class="tab-panel" id="panel-ranking" role="tabpanel"
+      aria-labelledby="tab-ranking">
+      <fieldset class="panel alliance-filter">
+        <legend>Alliances du classement</legend>
+        <div class="alliance-chip-list" id="alliance-chips"></div>
+        <button class="select-all" id="select-all" type="button">Tout sélectionner</button>
+      </fieldset>
+      <p id="state" class="state" role="status" aria-live="polite">Chargement des alliances autorisées…</p>
+      <section class="panel">
+        <h2 id="ranking-title">Classement</h2>
+        <p class="explain">Les joueurs avec Annihilus vérifié apparaissent en tête selon la convention LoSP. Les autres restent non classés tant que les exigences officielles de salle manquent.</p>
+        <p id="ranking-summary" class="ranking-summary" aria-live="polite"></p>
+        <ol id="ranking" class="ranking"></ol>
+      </section>
+      <p class="page-note">La règle Annihilus est une convention LoSP, pas une preuve d’historique officiel. Les rosters sont lus uniquement lorsque le système existant autorise l’accès.</p>
+    </section>
+
+    <section class="tab-panel" id="panel-individual" role="tabpanel"
+      aria-labelledby="tab-individual" hidden>
+      <section class="panel individual-controls">
+        <label class="control" for="player-select">Joueur autorisé
+          <select id="player-select" disabled>
+            <option value="">Chargement des rosters autorisés…</option>
+          </select>
+        </label>
+        <p id="individual-state" class="subtle" role="status" aria-live="polite">Chargement des rosters autorisés…</p>
+      </section>
+      <section class="panel" id="individual-card" hidden>
+        <h2 id="detail-title">Avancée individuelle</h2>
+        <p id="progress-summary" class="explain"></p>
+        <div class="legend" aria-label="Légende de la carte">
+          <span><i class="dot done"></i> DD terminée selon convention LoSP</span>
+          <span><i class="dot met"></i> Exigences théoriques satisfaites</span>
+          <span><i class="dot unmet"></i> Exigences théoriques non satisfaites</span>
+          <span><i class="dot unknown"></i> Conditions non vérifiables</span>
+          <span><i class="dot portal"></i> Passage de la carte</span>
+        </div>
+        <div class="map-frame">
+          <div class="map" id="map" role="group" aria-label="Carte interactive de la Dimension noire"></div>
+        </div>
+        <article id="node-info" class="node-info" aria-live="polite">Sélectionnez une salle pour afficher son état théorique.</article>
+      </section>
+    </section>
+  </main>
+
+  <script src="./auth-guard.js"></script>
+  <script src="./alliances.js"></script>
+  <script src="./roster-loader.js"></script>
+  <script type="module" src="./dimensions-noires.js?v=2"></script>
+</body>
+</html>
