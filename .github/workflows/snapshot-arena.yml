@@ -1,10 +1,12 @@
-name: Daily arena standings snapshot
+name: Publish completed Cloudflare Arena campaign
 
 on:
-  schedule:
-    # UTC: after the 16:40 enriched Infos import; not a Scopely collection.
-    - cron: "30 21 * * *"
   workflow_dispatch:
+    inputs:
+      source_date:
+        description: "UTC date of the complete Cloudflare Arena reward campaign"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -27,19 +29,21 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Validate Arena snapshot tools
+      - name: Validate Arena archive tools
         run: |
-          node --check scripts/snapshot-arena.mjs
+          node --check scripts/snapshot-arena-cloudflare.mjs
           node --check scripts/archive-arena-history.mjs
           node --test tests/arena-snapshot.test.mjs tests/arena-permanent-history.test.mjs
 
-      - name: Generate snapshots from published Infos only
+      - name: Fetch the complete Cloudflare Arena campaign
         id: generate
+        env:
+          SOURCE_DATE: ${{ inputs.source_date }}
         shell: bash
         run: |
-          day="$(date -u +%F)"
+          day="$SOURCE_DATE"
           echo "day=$day" >> "$GITHUB_OUTPUT"
-          node scripts/snapshot-arena.mjs --day="$day"
+          node scripts/snapshot-arena-cloudflare.mjs --date="$day"
 
           if compgen -G ".tmp/arena-snapshots/*.json" > /dev/null; then
             echo "generated=true" >> "$GITHUB_OUTPUT"
