@@ -138,3 +138,9 @@ button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transpare
 .intelFlight .runway{width:96%}
 .intelFlight .runway i{left:30px;right:2px;height:4px;background:repeating-linear-gradient(90deg,#9cefff 0 13px,transparent 13px 18px)}
 .intelFlight .runway .flightControlTower{left:-2px;bottom:9px;width:36px;height:57px}
+
+/* Influence overlays sit above neighboring room borders but below readable content. */
+.intelBoard .intelCell{z-index:auto}
+.intelBoard .intelRoom{z-index:auto}
+.intelBoard .intelConnections{z-index:4;pointer-events:none}
+.intelBoard .intelRoomIcon,.intelBoard .intelRoomHeading,.intelBoard .intelRange,.intelBoard .runway{z-index:5}
