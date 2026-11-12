@@ -118,4 +118,6 @@ button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transpare
 /* Ponts d'envol : marquage de piste lisible et petite tour de contrôle à bâbord. */
 .intelFlight .runway::after{display:none}
 .intelFlight .runway i{left:23px;right:5px;inset-block-start:2px;height:4px;background:repeating-linear-gradient(90deg,#9cefff 0 10px,transparent 10px 16px);opacity:.85}
-.intelFlight .runway::before{content:"";position:absolute;left:4px;bottom:1px;width:13px;height:11px;background:linear-gradient(90deg,transparent 0 3px,#8bc6df 3px 5px,transparent 5px 8px,#8bc6df 8px 10px,transparent 10px),linear-gradient(#a6e5fa,#4e91b5);clip-path:polygon(15% 0,85% 0,100% 29%,77% 29%,77% 100%,23% 100%,23% 29%,0 29%);filter:drop-shadow(0 0 2px #60c8ed);opacity:.9}
+.intelFlight .runway::before{content:none}
+.intelFlight .runway .flightControlTower{position:absolute;left:1px;bottom:0;width:24px;height:27px;overflow:visible;filter:drop-shadow(0 0 3px rgba(96,200,237,.5));pointer-events:none}
+.intelFlight .runway i{left:27px}
