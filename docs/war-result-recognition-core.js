@@ -112,26 +112,73 @@
       width: Math.max(0,Math.min(width,Math.floor(x1))-Math.max(0,Math.floor(x0))),
       height: Math.max(0,Math.min(height,Math.floor(y1))-Math.max(0,Math.floor(y0)))
     });
+    const nameY0 = losp ? box(losp).y0 : height * .13;
+    const nameY1 = losp ? box(losp).y1 : height * .22;
+    const centerX = labelBox ? (labelBox.x0 + labelBox.x1) / 2 : width * .5;
+    const expectedTrophyY = nameY1 + height * .045;
+    const scoreTop = labelBox?.y0 ?? height * .34;
+    const trophyRow = rows.filter((row) => row.y > nameY1 && row.y < scoreTop && row.words.some((w) => /^\d{4}$/.test(text(w))))
+      .sort((a, b) => Math.abs(a.y - expectedTrophyY) - Math.abs(b.y - expectedTrophyY))[0] || null;
+    const trophyY = trophyRow?.y ?? expectedTrophyY;
+    const scoreRow = pointsRow;
+    const scoreWord = (side) => scoreRow?.words.filter((w) => /^\d{4,7}$/.test(text(w)) && (side === "left" ? midX(w) < width * .49 : midX(w) > width * .51))
+      .sort((a, b) => confidence(b) - confidence(a))[0] || null;
+    const localScoreWord = scoreWord("left"), opponentScoreWord = scoreWord("right");
+    const resultRow = rows.filter((row) => row.words.some((w) => /^(?:victoire|defaite|victory|defeat)$/.test(toSearchKey(text(w)))))
+      .sort((a, b) => a.y - b.y)[0] || null;
+    const panelBoxes = [losp && box(losp), opponentName && box(opponentName), labelBox, resultRow && {
+      x0: Math.min(...resultRow.words.map((w) => box(w).x0)), x1: Math.max(...resultRow.words.map((w) => box(w).x1)),
+      y0: Math.min(...resultRow.words.map((w) => box(w).y0)), y1: Math.max(...resultRow.words.map((w) => box(w).y1))
+    }].filter(Boolean);
+    const panel = panelBoxes.length ? clip(Math.min(...panelBoxes.map((b) => b.x0)) - width * .04, Math.min(...panelBoxes.map((b) => b.y0)) - height * .025, Math.max(...panelBoxes.map((b) => b.x1)) + width * .04, Math.max(...panelBoxes.map((b) => b.y1)) + height * .09) : clip(width * .08, height * .06, width * .92, height * .52);
     const zones = {
-      opponentAlliance: clip(width*.595, (losp?.bbox?.y0 ?? height*.14)-height*.015, width*.91, (losp?.bbox?.y1 ?? height*.20)+height*.07),
-      resultBand: clip(width*.30, 0, width*.70, height*.12),
-      anchors: { losp: losp ? box(losp) : null, opponentName: opponentName ? box(opponentName) : null, scoreLabel: labelBox }
+      localAlliance: clip(losp ? box(losp).x0 - width * .025 : width * .18, nameY0 - height * .025, centerX - width * .025, nameY1 + height * .025),
+      opponentAlliance: clip(opponentName ? box(opponentName).x0 - width * .025 : centerX + width * .025, (opponentName ? box(opponentName).y0 : nameY0) - height * .025, width * .96, (opponentName ? box(opponentName).y1 : nameY1) + height * .025),
+      resultBand: resultRow ? clip(Math.min(...resultRow.words.map((w) => box(w).x0)) - width * .08, Math.max(0, resultRow.y - height * .045), Math.max(...resultRow.words.map((w) => box(w).x1)) + width * .08, resultRow.y + height * .045) : clip(width*.30, 0, width*.70, height*.12),
+      panel,
+      anchors: { losp: losp ? box(losp) : null, opponentName: opponentName ? box(opponentName) : null, scoreLabel: labelBox },
+      method: losp && labelBox ? "ocr-anchors-relative" : labelBox ? "score-anchor-layout-fallback" : "proportional-layout-fallback",
+      layout: width / height > 2.35 ? "wide" : width / height < 1.65 ? "compact" : "landscape"
     };
     if (losp) {
-      const y0=box(losp).y1+height*.006, y1=y0+height*.075;
       const opponentX=opponentName ? box(opponentName).x0+width*.02 : width*.635;
-      zones.localTrophies=clip(box(losp).x0-width*.02,y0,box(losp).x0+width*.085,y1);
-      zones.opponentTrophies=clip(opponentX,y0,opponentX+width*.095,y1);
+      zones.localTrophies=clip(box(losp).x0-width*.02,trophyY-height*.035,box(losp).x0+width*.085,trophyY+height*.035);
+      zones.opponentTrophies=clip(opponentX,trophyY-height*.035,opponentX+width*.095,trophyY+height*.035);
     } else {
-      zones.localTrophies=null; zones.opponentTrophies=null;
+      zones.localTrophies=clip(width*.20,height*.205,width*.31,height*.29);
+      zones.opponentTrophies=clip(width*.64,height*.205,width*.76,height*.29);
     }
-    if (labelBox) {
+    zones.trophyRow = trophyRow?.y ?? null;
+    if (localScoreWord && opponentScoreWord) {
+      const scoreCrop = (word) => clip(box(word).x0 - width * .012, box(word).y0 - height * .018, box(word).x1 + width * .012, box(word).y1 + height * .018);
+      zones.localScore = scoreCrop(localScoreWord);
+      zones.opponentScore = scoreCrop(opponentScoreWord);
+    } else if (labelBox) {
       const cy=(labelBox.y0+labelBox.y1)/2;
       const y0=cy-height*.035, y1=cy+height*.035;
       zones.localScore=clip(labelBox.x0-width*.26,y0,labelBox.x0-width*.008,y1);
       zones.opponentScore=clip(labelBox.x1+width*.008,y0,labelBox.x1+width*.24,y1);
-    } else { zones.localScore=null; zones.opponentScore=null; }
-    return { zones, anchorsFound: { losp: Boolean(losp), opponentName: Boolean(opponentName), scoreLabel: Boolean(labelBox) } };
+    } else {
+      zones.localScore=clip(width*.24,height*.34,width*.43,height*.42);
+      zones.opponentScore=clip(width*.57,height*.34,width*.78,height*.42);
+    }
+    zones.geometryConfidence = losp && labelBox ? "anchors" : labelBox ? "partial" : "fallback";
+    const anchorsFound = { losp: Boolean(losp), opponentName: Boolean(opponentName), scoreLabel: Boolean(labelBox), trophyRow: Boolean(trophyRow), scoreValues: Boolean(localScoreWord && opponentScoreWord), resultTitle: Boolean(resultRow) };
+    return { zones, anchorsFound, method: zones.method, layout: zones.layout, panel, panelMethod: panelBoxes.length ? "anchor-union" : "proportional-fallback" };
+  }
+
+  function displayPointToImage(clientX, clientY, displayRect, imageWidth, imageHeight) {
+    if (!displayRect?.width || !displayRect?.height || imageWidth < 1 || imageHeight < 1) return null;
+    return { x: Math.max(0, Math.min(imageWidth, (clientX - displayRect.left) * imageWidth / displayRect.width)), y: Math.max(0, Math.min(imageHeight, (clientY - displayRect.top) * imageHeight / displayRect.height)) };
+  }
+
+  function adjustZoneRect(rect, dx, dy, mode, imageWidth, imageHeight) {
+    const width = Math.max(1, Math.min(imageWidth, Number(rect?.width) || 1));
+    const height = Math.max(1, Math.min(imageHeight, Number(rect?.height) || 1));
+    const x = Math.max(0, Math.min(imageWidth - width, Number(rect?.x) || 0));
+    const y = Math.max(0, Math.min(imageHeight - height, Number(rect?.y) || 0));
+    if (mode === "resize") return { x, y, width: Math.max(8, Math.min(imageWidth - x, width + dx)), height: Math.max(8, Math.min(imageHeight - y, height + dy)) };
+    return { x: Math.max(0, Math.min(imageWidth - width, x + dx)), y: Math.max(0, Math.min(imageHeight - height, y + dy)), width, height };
   }
 
   function allianceFields(words, width, height) {
@@ -241,5 +288,5 @@
     return { valid: problems.length === 0, problems };
   }
 
-  return { FIELDS, parseTsv, extract, validate, toSearchKey, firstDigitGroup, locateZones, arbitrateNumeric };
+  return { FIELDS, parseTsv, extract, validate, toSearchKey, firstDigitGroup, locateZones, arbitrateNumeric, displayPointToImage, adjustZoneRect };
 });
