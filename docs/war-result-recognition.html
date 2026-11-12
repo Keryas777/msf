@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <style>html.authChecking body{opacity:0;pointer-events:none}</style>
+  <script>document.documentElement.classList.add("authChecking");</script>
+  <script src="./auth-guard.js?v=2"></script>
+  <meta name="theme-color" content="#11162c">
+  <title>Import d’un résultat de guerre — prototype local</title>
+  <link rel="stylesheet" href="./war-result-recognition.css?v=1">
+</head>
+<body>
+  <main class="wrap">
+    <header class="topbar"><a href="./home.html" aria-label="Retour à l’accueil">‹ Accueil</a><span>Prototype • traitement sur cet appareil</span></header>
+    <h1>Résultat de guerre</h1>
+    <p class="intro">Importe une capture pour préparer une fiche à vérifier. La reconnaissance tourne dans le navigateur; rien n’est envoyé ni publié.</p>
+    <section class="card">
+      <label class="drop" for="capture">Choisir une capture d’écran <input id="capture" type="file" accept="image/*"></label>
+      <img id="preview" alt="Aperçu de la capture sélectionnée" hidden>
+      <div class="actions"><button id="recognize" type="button" disabled>Reconnaître localement</button><button id="reset" class="secondary" type="button">Effacer</button></div>
+      <p id="status" role="status" aria-live="polite">Le moteur OCR sera chargé seulement au lancement.</p>
+      <progress id="progress" max="100" value="0" hidden></progress>
+    </section>
+    <form id="draft" class="card" hidden>
+      <h2>Brouillon à vérifier</h2>
+      <p class="notice">Les propositions OCR sont indicatives. Vérifie chaque champ sur l’image avant d’utiliser ces données.</p>
+      <div class="grid">
+        <label>Alliance LoSP<input name="localAlliance" autocomplete="off"></label>
+        <label>Alliance adverse<input name="opponentAlliance" autocomplete="off"></label>
+        <label>Score LoSP<input name="localScore" inputmode="numeric" autocomplete="off"></label>
+        <label>Score adverse<input name="opponentScore" inputmode="numeric" autocomplete="off"></label>
+        <label>Trophées LoSP<input name="localTrophies" inputmode="numeric" autocomplete="off"></label>
+        <label>Évolution des trophées LoSP<input name="localTrophyChange" inputmode="numeric" autocomplete="off" placeholder="ex. +75 ou −75"></label>
+        <label>Trophées adverses<input name="opponentTrophies" inputmode="numeric" autocomplete="off"></label>
+        <label>Évolution des trophées adverses<input name="opponentTrophyChange" inputmode="numeric" autocomplete="off" placeholder="ex. +75 ou −75"></label>
+        <label>Résultat<select name="result"><option value="">À vérifier</option><option value="win">Victoire LoSP</option><option value="loss">Défaite LoSP</option></select></label>
+      </div>
+      <label class="confirm"><input id="confirmed" type="checkbox"> J’ai vérifié les champs sur la capture.</label>
+      <button id="export" type="button" disabled>Exporter le brouillon vérifié (.json)</button>
+    </form>
+    <details class="card"><summary>Texte OCR brut</summary><pre id="raw"></pre></details>
+    <p class="foot">Aucune date n’est déduite de la capture. Cette page est un prototype isolé; elle n’écrit pas dans les archives de guerre.</p>
+  </main>
+  <script src="./war-result-recognition.js?v=1" defer></script>
+</body>
+</html>
