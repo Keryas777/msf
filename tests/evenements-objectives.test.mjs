@@ -502,6 +502,85 @@ test('Un combat transversal est compté une fois même si plusieurs modes lui co
   assert.ok(actions(nodes).includes('Se connecter'));
 });
 
+test('Toutes les ouvertures d’orbes et méga-orbes partagent une fiche, sans perdre leurs libellés',async()=>{
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Faille cybernétique','milestone',{milestone:{type:'solo',scoring:{
+      methods:[
+        {description:'Ouvrir un méga orbe orange',points:200000},
+        {description:'Ouvrir un méga orbe des Avengers I.A.',points:200000},
+        {description:'Ouvrir un méga orbe des Fantassins de fer',points:200000}
+      ],cappedScorings:[]
+    }}}],
+    ['Rayonnement de l’ombre','milestone',{milestone:{type:'solo',scoring:{
+      methods:[],cappedScorings:[{cap:300,methods:[
+        {description:'Ouvrir 1 orbe de losange de l’ombre',points:100}
+      ]}]
+    }}}],
+    ['L’essor de l’ombre','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Ouvrir 1 orbe L’essor de l’ombre',points:100}],
+      cappedScorings:[]
+    }}}],
+    ['Orbes du Raid','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Open 1 Raid Orb',points:50}],
+      cappedScorings:[]
+    }}}],
+    ['Fragments','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:"Obtenir 1 fragment d'orbe de ravitaillement allié XIII",points:1}],
+      cappedScorings:[]
+    }}}],
+    ['Récompenses','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Obtenir un méga orbe orange',points:500}],
+      cappedScorings:[]
+    }}}]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'8');
+  assert.equal(objectiveNodes(nodes).length,8);
+  assert.deepEqual(sections(nodes).map(section=>section.children[0].textContent),
+    ['📋 DIVERS']);
+  const groups=objectiveDetails(nodes,'ev-objective-event-group');
+  const orbGroups=groups.filter(group=>
+    group.children[0].children[0].textContent==='Ouverture d’orbes');
+  assert.equal(orbGroups.length,1);
+  const orb=orbGroups[0];
+  assert.equal(orb.children[0].children[1].textContent,'6 objectifs');
+  // Tous les types d'orbes restent visibles avec leur événement, sans
+  // mélanger leurs plafonds ni ajouter un plafond commun fictif.
+  assert.equal(orb.children[0].children.filter(child=>
+    child.className==='ev-objective-limit').length,0);
+  const sources=orb.children[1].children;
+  assert.deepEqual(sources.map(source=>source.children[0].children[0].textContent)
+    .sort(),['Faille cybernétique','Rayonnement de l’ombre','L’essor de l’ombre',
+      'Orbes du Raid'].sort());
+  const rows=sources.flatMap(source=>source.children[1].children);
+  assert.equal(rows.length,6);
+  assert.ok(rows.every(row=>row.children[0].hidden===false));
+  const labels=rows.map(row=>row.children[0].textContent);
+  assert.deepEqual(labels.sort(),[
+    'Ouvrir un méga orbe orange',
+    'Ouvrir un méga orbe des Avengers I.A.',
+    'Ouvrir un méga orbe des Fantassins de fer',
+    'Ouvrir 1 orbe de losange de l’ombre',
+    'Ouvrir 1 orbe L’essor de l’ombre',
+    'Open 1 Raid Orb'
+  ].sort());
+  const capped=rows.find(row=>row.children[0].textContent.includes('losange'));
+  assert.ok(capped.children[1].children.some(x=>x.textContent.includes('Plafond 300 pts')));
+  assert.ok(capped.children[1].children.some(x=>x.textContent.includes('100 pt(s)')));
+  assert.ok(rows[0].children[1].children.some(x=>x.textContent.includes('200')));
+  assert.equal(groups.filter(group=>group!==orb).length,2);
+  assert.ok(groups.some(group=>group.children[0].children[0].textContent.includes('fragment')));
+  assert.ok(groups.some(group=>group.children[0].children[0].textContent.includes('Obtenir un méga orbe')));
+
+  nodes.get('search-filter').handlers.get('input')({target:{value:'Ouverture d’orbes'}});
+  assert.equal(nodes.get('stat-objectives').textContent,'6');
+  assert.equal(objectiveDetails(nodes,'ev-objective-event-group').length,1);
+  assert.equal(objectiveNodes(nodes).length,6);
+  nodes.get('search-filter').handlers.get('input')({target:{value:'fragment'}});
+  assert.equal(nodes.get('stat-objectives').textContent,'1');
+  assert.equal(objectiveDetails(nodes,'ev-objective-event-group')
+    .filter(group=>group.children[0].children[0].textContent==='Ouverture d’orbes').length,0);
+});
+
 test('Une même action Raid ou Guerre rassemble les événements et conserve chaque barème',async()=>{
   const title='Briseur de volontés - Plan de bataille du mois 1';
   const nodes=await makePage({includeBase:false,extraEvents:[
@@ -697,7 +776,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=26/);
+  assert.match(html,/evenements\.js\?v=27/);
 });
 
 test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',async()=>{

@@ -455,6 +455,13 @@
   // Une action identique peut créditer plusieurs jalons indépendants.
   // Les variantes verbales simples d'un combat désignent la même action,
   // mais une restriction ou une condition supplémentaire reste distincte.
+  // Regrouper les ouvertures d'orbes (y compris méga-orbes) sans confondre
+  // l'action avec l'obtention de fragments, d'orbes ou d'autres récompenses.
+  function isOrbOpeningObjective(item){
+    const description=eventNameKey(typeof item==='string'?item:item.description);
+    return /^(?:ouvrir|ouvrez|ouverture|open|opening)\b/.test(description)&&
+      /\b(?:orbes?|orbs?)\b/.test(description);
+  }
   function objectiveActionLabel(item){
     if(!item.isBattle||item.character||item.team)return item.label;
     const simple={
@@ -578,7 +585,9 @@
         const label=objectiveLabel(description);
         const character=objectiveCharacter(description);
         const team=objectiveTeam(description);
-        const mode=objectiveMode(description);
+        // Le nom d'un orbe de raid/guerre ne désigne pas un combat dans ce
+        // mode : toutes les ouvertures d'orbes partagent une seule rubrique.
+        const mode=isOrbOpeningObjective(description)?'divers':objectiveMode(description);
         const points=Number(method.points);
         const score=Number.isFinite(points)&&points>0?points:null;
         const ceiling=Number.isFinite(cap)&&cap>0?cap:null;
@@ -605,7 +614,8 @@
         .map(team=>team.team):[];
       return [item.event.name,item.event.subName,item.event.details,item.event.id,
         item.description,item.label,item.character?.nameKey,item.team?.team,
-        ...characterTeams,item.mode,MODE_BY_KEY.get(item.mode)?.label]
+        ...characterTeams,item.mode,MODE_BY_KEY.get(item.mode)?.label,
+        isOrbOpeningObjective(item)?'Ouverture d’orbes':null]
         .some(value=>strip(value).toLocaleLowerCase('fr').includes(match));
     });
   }
@@ -685,19 +695,22 @@
       // jalons, chacun conservant ses propres points et plafonds.
       const byAction=new Map();
       for(const item of other){
-        const label=objectiveActionLabel(item);
-        const key=item.mode+'|'+eventNameKey(label);
-        if(!byAction.has(key))byAction.set(key,{label,items:[]});
+        const orbOpening=isOrbOpeningObjective(item);
+        const label=orbOpening?'Ouverture d’orbes':objectiveActionLabel(item);
+        const key=item.mode+'|'+(orbOpening?'orb-openings':eventNameKey(label));
+        if(!byAction.has(key))byAction.set(key,{label,items:[],orbOpening});
         byAction.get(key).items.push(item);
       }
-      for(const {label,items:methods} of byAction.values()){
+      for(const {label,items:methods,orbOpening} of byAction.values()){
         const actionBlock=create('details','ev-objective-event-group');
         actionBlock.open=byAction.size===1;
         const actionTitle=create('summary','ev-objective-event-summary');
         actionTitle.append(create('strong','',label));
         actionTitle.append(create('span','ev-objective-mini-count',
           objectiveCount(methods.length)));
-        for(const hint of objectiveActionHints(methods))
+        // Les types d'orbes ont des plafonds indépendants : ne pas
+        // afficher de limite agrégée trompeuse dans l'en-tête commun.
+        for(const hint of (orbOpening?[]:objectiveActionHints(methods)))
           actionTitle.append(create('span','ev-objective-limit',hint));
         const body=create('div','ev-objective-event-content');
         const bySource=new Map();
@@ -720,7 +733,9 @@
           sourceHead.append(link);
           sourceHead.append(create('span','ev-objective-scope',
             event.milestone?.type==='alliance'?'Alliance':'Solo'));
-          source.append(sourceHead,objectiveList(scorings,false,true));
+          // Dans une famille d'orbes, chaque méthode garde son type d'orbe :
+          // cacher les libellés ferait disparaître la différence entre orbes.
+          source.append(sourceHead,objectiveList(scorings,false,!orbOpening));
           body.append(source);
         }
         actionBlock.append(actionTitle,body);eventList.append(actionBlock);
