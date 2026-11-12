@@ -527,9 +527,18 @@
     return list;
   }
   function objectiveTeamRoster(roster){
-    const list=create('div','ev-objective-team-roster');
+    // Phrasing-only elements: the portraits live inside the native <summary>
+    // and remain visible even while the team's <details> is closed.
+    const list=create('span','ev-objective-team-roster');
     for(const character of roster){
+      const name=strip(character.nameKey||
+        character.nameFr||character.nameEn||character.id);
       const item=create('span','ev-objective-team-member');
+      item.title=name;
+      item.append(create('span','ev-objective-team-member-name',name));
+      const initials=name.split(/[\s’'-]+/).filter(Boolean)
+        .slice(0,2).map(part=>part.charAt(0)).join('').toUpperCase();
+      item.append(create('span','ev-objective-team-member-fallback',initials));
       const url=cleanImage(character.portraitUrl);
       if(url){
         const image=create('img','ev-objective-portrait');
@@ -537,8 +546,6 @@
         image.addEventListener('error',()=>image.remove(),{once:true});
         item.append(image);
       }
-      item.append(create('span','',strip(character.nameKey||
-        character.nameFr||character.nameEn||character.id)));
       list.append(item);
     }
     return list;
@@ -645,11 +652,8 @@
         summary.append(create('span','ev-objective-mini-count',
           fmtNumber.format(team.roster.length)+' personnages · '+
           objectiveCount(total)));
+        if(team.roster.length)summary.append(objectiveTeamRoster(team.roster));
         const people=create('div','ev-objective-people');
-        if(team.roster.length){
-          people.append(create('h4','ev-objective-subhead','Composition de l’équipe'));
-          people.append(objectiveTeamRoster(team.roster));
-        }
         if(team.goals.length){
           people.append(create('h4','ev-objective-subhead',
             team.goals.some(item=>item.teamComplete)?
