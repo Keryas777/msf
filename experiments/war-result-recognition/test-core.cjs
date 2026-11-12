@@ -25,6 +25,26 @@ assert.equal(core.parseTsv(tsv.slice(tsv.indexOf("5\t"))).length, 1, "headerless
 assert.equal(core.firstDigitGroup("2627751", 4), "2627");
 assert.equal(core.firstDigitGroup("561", 4), "", "short trophy reads stay unresolved");
 assert.equal(core.firstDigitGroup("2 627", 4), "", "separate numeric groups are not concatenated");
+const conflict = core.arbitrateNumeric(
+  { value: "2624", confidence: 92, source: "full-frame" },
+  { value: "2627", confidence: 38, source: "crop" }
+);
+assert.equal(conflict.value, "", "confidence alone cannot resolve numeric disagreement");
+assert.equal(conflict.uncertain, true);
+assert.deepEqual(conflict.alternatives, ["2624", "2627"]);
+const fallback = core.arbitrateNumeric(
+  { value: "", confidence: null, source: "full-frame" },
+  { value: "2627", confidence: 68, source: "crop" }
+);
+assert.equal(fallback.value, "2627");
+assert.equal(fallback.uncertain, true, "a fallback remains an unverified proposal");
+const agreement = core.arbitrateNumeric(
+  { value: "2627", confidence: 68, source: "full-frame" },
+  { value: "2627", confidence: 88, source: "crop" }
+);
+assert.equal(agreement.value, "2627");
+assert.equal(agreement.confidence, 88);
+assert.equal(agreement.uncertain, false);
 const located = core.locateZones(words, 1000, 500);
 assert.equal(located.anchorsFound.losp, true);
 assert.equal(located.anchorsFound.opponentName, true);
