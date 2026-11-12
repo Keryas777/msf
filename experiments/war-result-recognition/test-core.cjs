@@ -1,5 +1,6 @@
 const assert = require("node:assert/strict");
-const core = require("../../docs/war-result-recognition-core.js");
+const loaded = require("../../docs/war-result-recognition-core.js");
+const core = loaded.extract ? loaded : globalThis.WarResultRecognition;
 
 const word = (value, x, y, confidence = 94) => ({ text: value, confidence, bbox: { x0: x, y0: y, x1: x + 50, y1: y + 20 } });
 const words = [

@@ -1,5 +1,9 @@
 const assert = require('node:assert/strict');
-const { toMatchKey, validate, buildRecord } = require('../../../docs/war-results-vision-data.js');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const dataContext = { module: { exports: {} } };
+vm.runInNewContext(fs.readFileSync(require('node:path').resolve(__dirname, '../../../docs/war-results-vision-data.js'), 'utf8'), dataContext);
+const { toMatchKey, validate, buildRecord } = dataContext.module.exports;
 const valid = { localAlliance: 'LoSP Kronos', opponentAlliance: "St@n Lee’s Misfits", localScore: '297706', opponentScore: '439960', localTrophies: '2663', opponentTrophies: '2814', result: 'loss' };
 assert.equal(toMatchKey("St@n Lee’s  MISFITS"), 'st n lee s misfits');
 assert.equal(validate(valid, '2026-11-01').valid, true);
