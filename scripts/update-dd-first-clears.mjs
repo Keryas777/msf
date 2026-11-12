@@ -17,7 +17,7 @@ for(const dd of config.dimensions||[]){
  const rule=dd.completionRule;
  const tier=rule?.tiers?.find(t=>t.passages===1);
  if(!tier||!rule.characterId||!dd.key)continue;
- const group=archive.observations[dd.key]??={};
+ const group=archive.observations[dd.key]??(archive.observations[dd.key]={});
  for(const roster of Array.isArray(rosters)?rosters:[]){
   const alliance=norm(roster.alliance),player=norm(roster.playerKey||roster.player);
   if(!alliance||!player||!roster.chars||typeof roster.chars!=="object")continue;
