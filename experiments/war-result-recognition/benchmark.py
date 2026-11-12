@@ -13,6 +13,10 @@ CONFIGS = [
     {"id":"autocontrast-2x-psm11", "psm":11, "scale":2, "preprocess":"autocontrast"},
     {"id":"adaptive-threshold-psm11", "psm":11, "scale":2, "preprocess":"adaptive"},
     {"id":"label-guided-score-roi-psm7", "psm":6, "scale":1, "preprocess":"none", "scoreRoi":True},
+    {"id":"label-guided-score-roi-psm13", "psm":6, "scale":1, "preprocess":"none", "scoreRoi":True, "scorePsm":13},
+    {"id":"label-guided-score-roi-psm7-3x", "psm":6, "scale":1, "preprocess":"none", "scoreRoi":True, "scoreScale":3},
+    {"id":"yellow-mask-score-roi-psm7", "psm":6, "scale":1, "preprocess":"none", "scoreRoi":True, "scoreColorMask":"yellow"},
+    {"id":"label-guided-trophy-roi-psm7", "psm":11, "scale":1, "preprocess":"none", "trophyRoi":True, "colorResult":True},
     {"id":"hybrid-dual-pass-color-result", "psm":6, "secondPsm":11, "scale":1, "preprocess":"none", "colorResult":True},
     {"id":"hybrid-dual-pass-score-roi-fallback-color-result", "psm":6, "secondPsm":11, "scale":1, "preprocess":"none", "scoreRoi":True, "scoreRoiFallback":True, "colorResult":True},
 ]
@@ -88,14 +92,49 @@ def run_one(image_path, config):
                     if config.get("scoreRoiFallback") and has_six_digit_candidate:
                         continue
                     crop = source.crop((int(w*x1), y1, int(w*x2), y2))
-                    crop = ImageOps.autocontrast(ImageOps.grayscale(crop), cutoff=1)
-                    crop = crop.resize((crop.width*2, crop.height*2), Image.Resampling.LANCZOS)
+                    if config.get("scoreColorMask") == "yellow":
+                        pixels=crop.load()
+                        for yy in range(crop.height):
+                            for xx in range(crop.width):
+                                red,green,blue=pixels[xx,yy]
+                                value=255 if red>185 and green>150 and blue<165 and red-green<140 else 0
+                                pixels[xx,yy]=(value,value,value)
+                    else:
+                        crop = ImageOps.autocontrast(ImageOps.grayscale(crop), cutoff=1)
+                    score_scale = int(config.get("scoreScale", 2))
+                    crop = crop.resize((crop.width*score_scale, crop.height*score_scale), Image.Resampling.LANCZOS)
                     crop_path = Path(tmp) / f"{side}.png"
                     crop.save(crop_path)
-                    digit_text = subprocess.run(["tesseract", str(crop_path), "stdout", "-l", "eng", "--psm", "7", "-c", "tessedit_char_whitelist=0123456789"], capture_output=True, text=True, check=True).stdout.strip()
+                    score_psm = int(config.get("scorePsm", 7))
+                    digit_text = subprocess.run(["tesseract", str(crop_path), "stdout", "-l", "eng", "--psm", str(score_psm), "-c", "tessedit_char_whitelist=0123456789"], capture_output=True, text=True, check=True).stdout.strip()
                     roi_text.append(digit_text)
                 if roi_text:
                     texts.append("POINTS " + " ".join(roi_text))
+        if config.get("trophyRoi"):
+            tsv = subprocess.run(["tesseract", str(prepared), "stdout", "-l", "eng", "--psm", "11", "tsv"], capture_output=True, text=True, check=True).stdout
+            rows = tsv.splitlines()
+            header = rows[0].split("\t") if rows else []
+            label_row = None
+            for row in rows[1:]:
+                values = row.split("\t")
+                if len(values) >= 12 and values[11].strip().upper() == "LOSP":
+                    label_row = dict(zip(header, values))
+                    break
+            if label_row:
+                source = Image.open(image_path).convert("RGB")
+                w,h = source.size
+                cy = int(label_row["top"]) + int(label_row["height"]) / 2 + .067*h
+                y1, y2 = max(0, int(cy - .035*h)), min(h, int(cy + .035*h))
+                roi_text=[]
+                for side, (x1,x2) in [("left",(.12,.38)),("right",(.58,.78))]:
+                    crop = source.crop((int(w*x1), y1, int(w*x2), y2))
+                    crop = ImageOps.autocontrast(ImageOps.grayscale(crop), cutoff=1)
+                    crop = crop.resize((crop.width*3, crop.height*3), Image.Resampling.LANCZOS)
+                    crop_path = Path(tmp) / f"trophy-{side}.png"
+                    crop.save(crop_path)
+                    trophy_text = subprocess.run(["tesseract", str(crop_path), "stdout", "-l", "eng", "--psm", "7", "-c", "tessedit_char_whitelist=0123456789+-"], capture_output=True, text=True, check=True).stdout.strip()
+                    roi_text.append(trophy_text)
+                texts.append("TROPHIES " + " ".join(roi_text))
         return "\n".join(texts), (time.perf_counter() - start) * 1000
 
 def title_color_result(image_path):

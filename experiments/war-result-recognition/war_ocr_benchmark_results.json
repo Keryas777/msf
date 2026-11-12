@@ -1755,6 +1755,790 @@
           }
         }
       ]
+    },
+    {
+      "config": {
+        "id": "label-guided-trophy-roi-psm7",
+        "psm": 11,
+        "scale": 1,
+        "preprocess": "none",
+        "trophyRoi": true,
+        "colorResult": true
+      },
+      "accuracy": {
+        "localAlliance": {
+          "correct": 7,
+          "total": 9
+        },
+        "opponentAlliance": {
+          "correct": 7,
+          "total": 8
+        },
+        "localScore": {
+          "correct": 0,
+          "total": 9
+        },
+        "opponentScore": {
+          "correct": 0,
+          "total": 9
+        },
+        "localTrophies": {
+          "correct": 8,
+          "total": 9
+        },
+        "opponentTrophies": {
+          "correct": 5,
+          "total": 9
+        },
+        "result": {
+          "correct": 9,
+          "total": 9
+        }
+      },
+      "meanMs": 1507.8,
+      "captures": [
+        {
+          "id": "capture-01",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": false,
+            "opponentScore": false,
+            "localTrophies": false,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 14625,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-02",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": false,
+            "opponentScore": false,
+            "localTrophies": true,
+            "opponentTrophies": true,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 63763,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-03",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": false,
+            "opponentScore": false,
+            "localTrophies": true,
+            "opponentTrophies": true,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 22795,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-04",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": false,
+            "opponentScore": false,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 0,
+            "red": 19066
+          }
+        },
+        {
+          "id": "capture-05",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": false,
+            "opponentScore": false,
+            "localTrophies": true,
+            "opponentTrophies": true,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 63763,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-06",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": false,
+            "opponentScore": false,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 14644,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-07",
+          "split": "train",
+          "fields": {
+            "localAlliance": false,
+            "opponentAlliance": false,
+            "localScore": false,
+            "opponentScore": false,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 0,
+            "red": 16699
+          }
+        },
+        {
+          "id": "capture-08",
+          "split": "holdout",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": false,
+            "opponentScore": false,
+            "localTrophies": true,
+            "opponentTrophies": true,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 16563,
+            "red": 182
+          }
+        },
+        {
+          "id": "capture-09",
+          "split": "holdout",
+          "fields": {
+            "localAlliance": false,
+            "opponentAlliance": null,
+            "localScore": false,
+            "opponentScore": false,
+            "localTrophies": true,
+            "opponentTrophies": true,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 0,
+            "red": 47493
+          }
+        }
+      ]
+    },
+    {
+      "config": {
+        "id": "label-guided-score-roi-psm13",
+        "psm": 6,
+        "scale": 1,
+        "preprocess": "none",
+        "scoreRoi": true,
+        "scorePsm": 13
+      },
+      "accuracy": {
+        "localAlliance": {
+          "correct": 6,
+          "total": 9
+        },
+        "opponentAlliance": {
+          "correct": 7,
+          "total": 8
+        },
+        "localScore": {
+          "correct": 6,
+          "total": 9
+        },
+        "opponentScore": {
+          "correct": 9,
+          "total": 9
+        },
+        "localTrophies": {
+          "correct": 5,
+          "total": 9
+        },
+        "opponentTrophies": {
+          "correct": 1,
+          "total": 9
+        },
+        "result": {
+          "correct": 5,
+          "total": 9
+        }
+      },
+      "meanMs": 1396.3,
+      "captures": [
+        {
+          "id": "capture-01",
+          "split": "train",
+          "fields": {
+            "localAlliance": false,
+            "opponentAlliance": true,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 14625,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-02",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": false,
+            "opponentScore": true,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": false
+          },
+          "titleColor": {
+            "blue": 63763,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-03",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": false,
+            "opponentScore": true,
+            "localTrophies": false,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 22795,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-04",
+          "split": "train",
+          "fields": {
+            "localAlliance": false,
+            "opponentAlliance": true,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": false,
+            "opponentTrophies": false,
+            "result": false
+          },
+          "titleColor": {
+            "blue": 0,
+            "red": 19066
+          }
+        },
+        {
+          "id": "capture-05",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": false,
+            "opponentTrophies": true,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 63763,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-06",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 14644,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-07",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": false,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": false,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 0,
+            "red": 16699
+          }
+        },
+        {
+          "id": "capture-08",
+          "split": "holdout",
+          "fields": {
+            "localAlliance": false,
+            "opponentAlliance": true,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": false
+          },
+          "titleColor": {
+            "blue": 16563,
+            "red": 182
+          }
+        },
+        {
+          "id": "capture-09",
+          "split": "holdout",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": null,
+            "localScore": false,
+            "opponentScore": true,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": false
+          },
+          "titleColor": {
+            "blue": 0,
+            "red": 47493
+          }
+        }
+      ]
+    },
+    {
+      "config": {
+        "id": "label-guided-score-roi-psm7-3x",
+        "psm": 6,
+        "scale": 1,
+        "preprocess": "none",
+        "scoreRoi": true,
+        "scoreScale": 3
+      },
+      "accuracy": {
+        "localAlliance": {
+          "correct": 6,
+          "total": 9
+        },
+        "opponentAlliance": {
+          "correct": 7,
+          "total": 8
+        },
+        "localScore": {
+          "correct": 6,
+          "total": 9
+        },
+        "opponentScore": {
+          "correct": 9,
+          "total": 9
+        },
+        "localTrophies": {
+          "correct": 5,
+          "total": 9
+        },
+        "opponentTrophies": {
+          "correct": 1,
+          "total": 9
+        },
+        "result": {
+          "correct": 5,
+          "total": 9
+        }
+      },
+      "meanMs": 1370.1,
+      "captures": [
+        {
+          "id": "capture-01",
+          "split": "train",
+          "fields": {
+            "localAlliance": false,
+            "opponentAlliance": true,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 14625,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-02",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": false,
+            "opponentScore": true,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": false
+          },
+          "titleColor": {
+            "blue": 63763,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-03",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": false,
+            "opponentScore": true,
+            "localTrophies": false,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 22795,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-04",
+          "split": "train",
+          "fields": {
+            "localAlliance": false,
+            "opponentAlliance": true,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": false,
+            "opponentTrophies": false,
+            "result": false
+          },
+          "titleColor": {
+            "blue": 0,
+            "red": 19066
+          }
+        },
+        {
+          "id": "capture-05",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": false,
+            "opponentTrophies": true,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 63763,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-06",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 14644,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-07",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": false,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": false,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 0,
+            "red": 16699
+          }
+        },
+        {
+          "id": "capture-08",
+          "split": "holdout",
+          "fields": {
+            "localAlliance": false,
+            "opponentAlliance": true,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": false
+          },
+          "titleColor": {
+            "blue": 16563,
+            "red": 182
+          }
+        },
+        {
+          "id": "capture-09",
+          "split": "holdout",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": null,
+            "localScore": false,
+            "opponentScore": true,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": false
+          },
+          "titleColor": {
+            "blue": 0,
+            "red": 47493
+          }
+        }
+      ]
+    },
+    {
+      "config": {
+        "id": "yellow-mask-score-roi-psm7",
+        "psm": 6,
+        "scale": 1,
+        "preprocess": "none",
+        "scoreRoi": true,
+        "scoreColorMask": "yellow"
+      },
+      "accuracy": {
+        "localAlliance": {
+          "correct": 6,
+          "total": 9
+        },
+        "opponentAlliance": {
+          "correct": 7,
+          "total": 8
+        },
+        "localScore": {
+          "correct": 6,
+          "total": 9
+        },
+        "opponentScore": {
+          "correct": 9,
+          "total": 9
+        },
+        "localTrophies": {
+          "correct": 5,
+          "total": 9
+        },
+        "opponentTrophies": {
+          "correct": 1,
+          "total": 9
+        },
+        "result": {
+          "correct": 5,
+          "total": 9
+        }
+      },
+      "meanMs": 1427.5,
+      "captures": [
+        {
+          "id": "capture-01",
+          "split": "train",
+          "fields": {
+            "localAlliance": false,
+            "opponentAlliance": true,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 14625,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-02",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": false,
+            "opponentScore": true,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": false
+          },
+          "titleColor": {
+            "blue": 63763,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-03",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": false,
+            "opponentScore": true,
+            "localTrophies": false,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 22795,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-04",
+          "split": "train",
+          "fields": {
+            "localAlliance": false,
+            "opponentAlliance": true,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": false,
+            "opponentTrophies": false,
+            "result": false
+          },
+          "titleColor": {
+            "blue": 0,
+            "red": 19066
+          }
+        },
+        {
+          "id": "capture-05",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": false,
+            "opponentTrophies": true,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 63763,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-06",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": true,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 14644,
+            "red": 0
+          }
+        },
+        {
+          "id": "capture-07",
+          "split": "train",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": false,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": false,
+            "opponentTrophies": false,
+            "result": true
+          },
+          "titleColor": {
+            "blue": 0,
+            "red": 16699
+          }
+        },
+        {
+          "id": "capture-08",
+          "split": "holdout",
+          "fields": {
+            "localAlliance": false,
+            "opponentAlliance": true,
+            "localScore": true,
+            "opponentScore": true,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": false
+          },
+          "titleColor": {
+            "blue": 16563,
+            "red": 182
+          }
+        },
+        {
+          "id": "capture-09",
+          "split": "holdout",
+          "fields": {
+            "localAlliance": true,
+            "opponentAlliance": null,
+            "localScore": false,
+            "opponentScore": true,
+            "localTrophies": true,
+            "opponentTrophies": false,
+            "result": false
+          },
+          "titleColor": {
+            "blue": 0,
+            "red": 47493
+          }
+        }
+      ]
     }
   ]
 }
