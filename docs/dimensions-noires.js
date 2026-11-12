@@ -267,6 +267,11 @@ function playerStatus(evaluation, totalNodes) {
 }
 
 function nodeDescription(id, type, nodeState, completed) {
+  const officialNode=dimension()?.nodes?.find(node=>node.id===id);
+  const label=officialNode?.name ? officialNode.name+" ("+id+")" : "Salle "+id;
+  const raw=officialNode?.requirementDescription?.[0];
+  const requirements=typeof raw==="string"?" · "+raw.replace(/<[^>]*>/g,"").replace(/^REQUIRES:\\s*/i,"Exigences : "):"";
+  const prefix=label+requirements;
   if (type === "portal")
     return (id === dimension()?.map?.startId ? "Départ " : "Passage ") + id +
       ". Les connexions sont visuelles et ne définissent pas les déverrouillages.";
@@ -281,7 +286,7 @@ function nodeDescription(id, type, nodeState, completed) {
   if (nodeState === "false")
     return "Salle " + id +
       " · le roster vérifié ne satisfait pas actuellement les exigences officielles de cette salle.";
-  return "Salle " + id +
+  return prefix +
     " · exigences officielles absentes ou non interprétables ; état indéterminé.";
 }
 
