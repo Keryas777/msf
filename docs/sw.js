@@ -1,6 +1,6 @@
 // docs/sw.js
 
-const CACHE = "losp-v24";
+const CACHE = "losp-v25";
 
 const CORE_ASSETS = [
   "./",
@@ -9,12 +9,6 @@ const CORE_ASSETS = [
   "./home.css",
   "./install-banner.js",
   "./manifest.webmanifest",
-
-  // Renseignements de guerre (page et carte tactique)
-  "./renseignements-guerre.html",
-  "./renseignements-guerre.css",
-  "./renseignements-guerre.js",
-  "./RenseignementsGuerre.svg",
 
   // Images home
   "./HeaderHome.webp",
