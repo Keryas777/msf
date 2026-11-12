@@ -148,25 +148,63 @@
     return element;
   }
 
-  function drawConnections(targets) {
+  function drawConnections() {
     const rect = board.getBoundingClientRect();
     svg.setAttribute("viewBox", "0 0 " + rect.width + " " + rect.height);
     svg.replaceChildren();
     if (!currentObservation) return;
-    if (mode === "emitted" && roomAt(selected)?.range === "adjacent") {
-      targets.forEach(position => {
-        const item = line(selected, position);
-        if (item) svg.append(item);
-      });
+
+    let emitters = [];
+    if (mode === "overview") {
+      emitters = [...board.querySelectorAll(".intelCell")]
+        .filter(cell => roomAt(Number(cell.dataset.cell))?.range === "adjacent")
+        .map(cell => Number(cell.dataset.cell));
+    } else if (mode === "emitted" && roomAt(selected)?.range === "adjacent") {
+      emitters = [selected];
+    } else if (mode === "received") {
+      emitters = receivedSources(selected)
+        .filter(item => item.room.range === "adjacent")
+        .map(item => item.position);
     }
-    if (mode === "received") {
-      targets.forEach(position => {
-        if (roomAt(position)?.range === "adjacent") {
-          const item = line(position, selected);
-          if (item) svg.append(item);
-        }
+
+    emitters.forEach(position => {
+      const sourceCell = board.querySelector('[data-cell="' + position + '"]');
+      const room = roomAt(position);
+      if (!sourceCell || !room) return;
+      adjacent(position).forEach(targetPosition => {
+        const targetCell = board.querySelector('[data-cell="' + targetPosition + '"]');
+        if (!targetCell) return;
+        const source = sourceCell.getBoundingClientRect();
+        const target = targetCell.getBoundingClientRect();
+        const sx = source.left + source.width / 2 - rect.left;
+        const sy = source.top + source.height / 2 - rect.top;
+        const tx = target.left + target.width / 2 - rect.left;
+        const ty = target.top + target.height / 2 - rect.top;
+        const dx = tx - sx;
+        const dy = ty - sy;
+        const distance = Math.hypot(dx, dy);
+        if (!distance || (dx !== 0 && dy !== 0)) return;
+        const ux = dx / distance;
+        const uy = dy / distance;
+        const half = Math.min(source.width, source.height) * 0.34;
+        const penetration = 13;
+        const edge = Math.abs(dx) > 0 ? source.width / 2 : source.height / 2;
+        const depth = Math.min(distance * 0.58, edge + Math.max(0, distance - edge - (Math.abs(dx) > 0 ? target.width / 2 : target.height / 2)) + penetration);
+        const bx = sx + ux * edge;
+        const by = sy + uy * edge;
+        const px = bx + ux * depth;
+        const py = by + uy * depth;
+        const nx = -uy * half;
+        const ny = ux * half;
+        const triangle = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        triangle.setAttribute("points", (bx + nx) + "," + (by + ny) + " " + (bx - nx) + "," + (by - ny) + " " + px + "," + py);
+        triangle.setAttribute("fill", room.color);
+        triangle.style.setProperty("--triangle-color", room.color);
+        triangle.setAttribute("class", "intelInfluenceTriangle");
+        triangle.setAttribute("data-source", String(position));
+        svg.append(triangle);
       });
-    }
+    });
   }
 
   function rangeLabel(room) {
@@ -228,15 +266,28 @@
 
   function render() {
     const targets = currentTargets();
+    let emitterPositions = [];
+    if (mode === "overview") {
+      emitterPositions = [...board.querySelectorAll(".intelCell")]
+        .filter(cell => roomAt(Number(cell.dataset.cell))?.range === "adjacent")
+        .map(cell => Number(cell.dataset.cell));
+    } else if (mode === "emitted" && roomAt(selected)?.range === "adjacent") {
+      emitterPositions = [selected];
+    } else if (mode === "received") {
+      emitterPositions = receivedSources(selected)
+        .filter(item => item.room.range === "adjacent")
+        .map(item => item.position);
+    }
     board.dataset.mode = mode;
     board.querySelectorAll(".intelCell").forEach(cell => {
       const position = Number(cell.dataset.cell);
       cell.classList.toggle("is-selected", position === selected);
       cell.classList.toggle("is-target", position !== selected && targets.includes(position));
       cell.classList.toggle("is-muted", mode !== "overview" && position !== selected && !targets.includes(position));
+      cell.classList.toggle("is-emitter", emitterPositions.includes(position));
       cell.querySelector("button").setAttribute("aria-pressed", String(position === selected));
     });
-    drawConnections(targets);
+    drawConnections();
     renderDetail();
   }
 
@@ -299,6 +350,6 @@
     });
     render();
   }));
-  window.addEventListener("resize", () => drawConnections(currentTargets()), { passive: true });
+  window.addEventListener("resize", () => drawConnections(), { passive: true });
   window.addEventListener("pageshow", () => drawConnections(currentTargets()));
 })();

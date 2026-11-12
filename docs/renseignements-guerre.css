@@ -106,3 +106,11 @@ button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transpare
   .intelRange{font-size:6px}
   .intelFlight strong{font-size:8px}
 }
+
+/* Adjacent influence triangles: overlays remain below room labels and never capture taps. */
+.intelConnections{z-index:3;pointer-events:none}
+.intelInfluenceTriangle{opacity:.38;stroke:var(--triangle-color);stroke-width:1;stroke-opacity:.55;animation:influenceFade .28s ease-out both}
+.intelRoom{background:linear-gradient(145deg,rgba(22,45,62,.48),rgba(8,19,32,.54)),linear-gradient(135deg,color-mix(in srgb,var(--room-color),transparent 77%),transparent 68%)}
+.intelCell.is-emitter .intelRoom{border-color:var(--room-color);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--room-color),transparent 62%),0 0 13px color-mix(in srgb,var(--room-color),transparent 55%)}
+@keyframes influenceFade{from{opacity:0}to{opacity:.38}}
+@media(prefers-reduced-motion:reduce){.intelInfluenceTriangle{animation:none}}
