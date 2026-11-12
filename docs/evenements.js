@@ -678,8 +678,8 @@
         byAction.get(key).items.push(item);
       }
       for(const {label,items:methods,orbOpening} of byAction.values()){
+        // Les menus restent fermés au chargement, même pour une action unique.
         const actionBlock=create('details','ev-objective-event-group');
-        actionBlock.open=byAction.size===1;
         const actionTitle=create('summary','ev-objective-event-summary');
         actionTitle.append(create('strong','',label));
         actionTitle.append(create('span','ev-objective-mini-count',
