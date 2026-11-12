@@ -27,3 +27,82 @@ button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transpare
 .intelConnectionLine{stroke:#a591ff;stroke-width:2.2;stroke-linecap:round;stroke-dasharray:5 7;filter:drop-shadow(0 0 5px rgba(175,136,255,.92));animation:intelFlow 1.5s linear infinite}@keyframes intelFlow{to{stroke-dashoffset:-24}}
 @media(min-width:1100px){.intelWorkspace{grid-template-columns:260px minmax(0,1fr)}.intelSidePanel{grid-column:1;grid-row:auto}.intelMapPanel{grid-column:2}}
 @media(prefers-reduced-motion:reduce){.intelConnectionLine{animation:none}}
+
+/* Compact player view: keep the original tactical map and trim the framing. */
+.intelShell{padding-top:max(8px,env(safe-area-inset-top))}
+.intelHeader{min-height:0;margin-bottom:8px;padding:10px 13px;border-radius:12px}
+.intelHeaderText{display:flex;align-items:center}
+.intelHeader h1{margin:0;font-size:clamp(20px,5.6vw,25px);letter-spacing:-.025em}
+.intelPrototypeMarker{position:relative;z-index:1;margin-left:auto;color:#91a4ba;font-size:9px;white-space:nowrap}
+.intelWorkspace{display:block}
+.intelControls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:8px}
+.intelField{display:grid;gap:4px;min-width:0;color:#b7c7d8;font-size:11px;font-weight:750}
+.intelSelectWrap{display:block;min-width:0}
+.intelSelect{min-height:43px;padding:8px 28px 8px 9px;border-radius:9px;font-size:12px;font-weight:750;white-space:nowrap;text-overflow:ellipsis}
+.intelSelectWrap>span{top:8px;right:9px}
+.intelMapPanel{padding:8px;border-radius:13px}
+.intelModeBar{margin-bottom:7px;padding:3px}
+.intelMode{min-height:39px;gap:4px;font-size:10px}
+.intelBoard{gap:5px;padding:6px;border-radius:11px}
+.intelRoom{min-height:82px;aspect-ratio:1.08/1;padding:6px 5px}
+.intelRoom strong{align-self:center;text-align:center;font-size:clamp(9px,2.7vw,12px);white-space:nowrap}
+.intelRoomIcon{width:29px;height:29px;margin:0 auto;font-size:17px}
+.intelRange{align-self:center;font-size:7px;letter-spacing:.05em}
+.intelFlight{min-height:82px}
+.intelFlightIcon{position:relative;z-index:1;display:grid;place-items:center;align-self:center;width:24px;height:24px;border:1px solid rgba(143,221,255,.5);border-radius:50%;background:rgba(9,30,48,.8);color:#bdeaff;font-size:13px;box-shadow:0 0 14px rgba(94,199,255,.2)}
+.intelFlight strong{position:relative;z-index:1;align-self:center;text-align:center;font-size:clamp(8px,2.35vw,10px);line-height:1.1;white-space:nowrap}
+.intelFlight .runway{height:10px}
+.intelFlight .runway::after{top:3px}
+.intelFlight .runway i{inset:2px 4px auto}
+.intelDetail{display:grid;gap:7px;margin-top:8px;padding:10px;border:1px solid rgba(117,180,226,.18);border-radius:11px;background:rgba(5,14,25,.68)}
+.intelDetailLead{display:flex;align-items:center;gap:8px;min-width:0}
+.intelDetailIcon{width:32px;height:32px;flex:0 0 32px}
+.intelDetailLead h3{font-size:14px}
+.intelDetailMeta{margin:0;color:#aabbd0;font-size:11px}
+.intelDetailBody{font-size:12px;line-height:1.4}
+.intelEffectList{display:grid;gap:7px;margin:0;padding:0;list-style:none}
+.intelEffectList li{display:grid;gap:2px;padding-top:6px;border-top:1px solid rgba(117,180,226,.14);font-size:11px;line-height:1.35}
+.intelEffectList li strong{color:#dbeaff;font-size:11px}
+.intelEffectList li span{color:#b9c8d8}
+.intelEmpty{margin:4px 0 0;padding:13px;border:1px solid rgba(117,180,226,.18);border-radius:10px;background:rgba(5,14,25,.68);color:#c2d0df;text-align:center;font-size:13px}
+.intelFlightCell .intelRoom::after{opacity:.45}
+.intelCell.is-target .intelRoom{animation:targetPulse 1.7s ease-in-out infinite}
+.intelFooter,.intelDemoNotice,.intelSidePanel,.intelMapTopline,.intelMapSubline,.intelMapFooter{display:none!important}
+@media(min-width:700px){
+  .intelShell{padding:18px 20px}
+  .intelHeader{margin-bottom:12px;padding:13px 17px}
+  .intelHeader h1{font-size:27px}
+  .intelPrototypeMarker{font-size:10px}
+  .intelControls{gap:12px;margin-bottom:12px}
+  .intelField{gap:5px;font-size:12px}
+  .intelSelect{min-height:46px;padding:9px 34px 9px 12px;font-size:14px}
+  .intelSelectWrap>span{top:10px;right:13px}
+  .intelMapPanel{padding:14px}
+  .intelBoard{gap:8px;padding:10px}
+  .intelRoom,.intelFlight{min-height:105px}
+  .intelRoom{padding:9px}
+  .intelRoomIcon{width:40px;height:40px;font-size:22px}
+  .intelRoom strong{font-size:clamp(14px,1.6vw,19px)}
+  .intelRange{font-size:8px}
+  .intelFlightIcon{width:34px;height:34px;font-size:18px}
+  .intelFlight strong{font-size:clamp(13px,1.5vw,17px)}
+  .intelDetail{grid-template-columns:minmax(180px,.55fr) 1.45fr;align-items:center;padding:13px}
+  .intelDetailBody{font-size:13px}
+  .intelEffectList{grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px}
+}
+@media(max-width:359px){
+  .intelShell{padding-left:max(7px,env(safe-area-inset-left));padding-right:max(7px,env(safe-area-inset-right))}
+  .intelHeader{padding:9px 10px}
+  .intelHeader h1{font-size:19px}
+  .intelPrototypeMarker{font-size:8px}
+  .intelControls{gap:6px}
+  .intelSelect{min-height:41px;padding-left:7px;font-size:11px}
+  .intelMapPanel{padding:6px}
+  .intelMode{font-size:9px}
+  .intelBoard{gap:4px;padding:5px}
+  .intelRoom,.intelFlight{min-height:78px;padding:4px}
+  .intelRoomIcon{width:26px;height:26px;font-size:15px}
+  .intelRoom strong{font-size:9px}
+  .intelRange{font-size:6px}
+  .intelFlight strong{font-size:8px}
+}
