@@ -126,11 +126,12 @@
     button.setAttribute("aria-label", "Sélectionner " + (room?.name || flightDecks[position].name));
     button.setAttribute("aria-pressed", "false");
 
-    const icon = document.createElement("span");
-    icon.className = room ? "intelRoomIcon" : "intelFlightIcon";
-    icon.setAttribute("aria-hidden", "true");
-    if (room) icon.append(roomIcon(room));
-    else icon.textContent = "✦";
+    const icon = room ? document.createElement("span") : null;
+    if (icon) {
+      icon.className = "intelRoomIcon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.append(roomIcon(room));
+    }
     const name = document.createElement("strong");
     name.textContent = room?.name || flightDecks[position].name;
 
@@ -144,7 +145,7 @@
       runway.className = "runway";
       runway.setAttribute("aria-hidden", "true");
       runway.append(document.createElement("i"));
-      button.append(icon, name, runway);
+      button.append(name, runway);
     }
     cell.append(button);
     return cell;
