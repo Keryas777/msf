@@ -198,9 +198,10 @@ function renderRanking() {
     result: evaluateDimension({dimension: selectedDimension, roster, catalog: state.catalog, firstClearObservedAt: firstClearAt(roster, selectedDimension)}),
   }));
   const completed = entries.filter((entry) => entry.result.completed);
-  const unknown = entries.filter((entry) => !entry.result.completed);
-  const ranked = rankResults(completed).ranked;
-  const ordered = [...ranked, ...unknown];
+  const ranking = rankResults(entries);
+  const ordered = [...ranking.ranked, ...ranking.indeterminate];
+  const theoretical = ranking.ranked.filter((entry) => !entry.result.completed);
+  const unknown = ranking.indeterminate;
 
   const failures = selectedLoadFailures();
   const message = rows.length
@@ -217,7 +218,8 @@ function renderRanking() {
 
   $("ranking-summary").textContent = ordered.length
     ? completed.length + " " + dimensionLabel + " terminée(s) selon la convention LoSP · " +
-      unknown.length + " progression(s) théorique(s) indéterminée(s)"
+      theoretical.length + " progression(s) théorique(s) classée(s) · " +
+      unknown.length + " progression(s) indéterminée(s)"
     : "";
 
   if (!ordered.length) {
@@ -237,14 +239,19 @@ function renderRanking() {
     button.innerHTML =
       '<span class="place"></span><span><span class="player-name"></span>' +
       '<span class="meta"></span><span class="badge"></span></span>';
-    button.querySelector(".place").textContent = finished ? String(entry.rank) : "—";
+    button.querySelector(".place").textContent = Number.isFinite(entry.rank) ? String(entry.rank) : "—";
     button.querySelector(".player-name").textContent = entry.roster.player;
     button.querySelector(".meta").textContent =
       window.LoSPAlliances.getAllianceEmoji(entry.roster.alliance) + " " +
       window.LoSPAlliances.getAllianceLabel(entry.roster.alliance);
     button.querySelector(".badge").textContent = finished
       ? dimensionLabel + " · " + passageLabel(selectedDimension, entry.result.passages) + " · convention LoSP"
-      : "Progression théorique indéterminée";
+      : entry.result.status === "theoretical"
+        ? "Théorique : " + entry.result.consecutive + "/" + (selectedDimension?.nodes?.length || 0) +
+          " salles consécutives · " + entry.result.prepared + " salles préparées (roster, pas progression réelle)"
+        : entry.result.status === "unavailable"
+          ? "Roster non disponible pour le calcul"
+          : "Progression théorique indéterminée (données incomplètes)";
     if (finished && entry.result.firstClearObservedAt) button.querySelector(".badge").textContent +=
       " · 1er passage observé le " + new Date(entry.result.firstClearObservedAt).toLocaleDateString("fr-FR") +
       (Number.isFinite(entry.result.firstClearDays) ? " (" + entry.result.firstClearDays + " jours)" : "");
