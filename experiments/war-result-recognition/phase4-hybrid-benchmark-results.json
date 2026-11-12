@@ -1,0 +1,1340 @@
+{
+  "schemaVersion": "1.0.0",
+  "method": "truth-blind conservative two-pass arbitration; missing primary is filled only when isolated-glyph classifier agrees with at least one of eight localized OCR hypotheses; existing primary is never replaced by glyph model; opponent trophy uses phase 3 proven ROI fallback",
+  "engine": "Frozen local experiment artifacts: Tesseract CLI 5.5, Python/Pillow/NumPy/SciPy glyph classifier; no browser inference",
+  "corpus": {
+    "captures": 9,
+    "scoredFields": 62,
+    "train": 7,
+    "contaminatedHoldout": 2,
+    "unknownTruth": [
+      {
+        "capture": "capture-09",
+        "field": "opponentAlliance"
+      }
+    ]
+  },
+  "policies": {
+    "systematic": {
+      "digitClassifierCalls": 36,
+      "localizedTrophyCropCalls": 9,
+      "calls": 45,
+      "description": "run visual digit and crop methods on every numeric field; only fill absent primary on cross-method agreement"
+    },
+    "adaptive": {
+      "digitClassifierCalls": 20,
+      "localizedTrophyCropCalls": 9,
+      "calls": 29,
+      "description": "run second pass for missing/invalid/under-50-confidence numeric primary; same arbitration; confidence does not detect confident errors"
+    }
+  },
+  "complementarity": {
+    "primaryNumericExact": 22,
+    "visualDigitExact": 8,
+    "commonNumericErrors": 8,
+    "classifierRescuesBeforeConsensusGate": 6,
+    "classifierRegressionsIfUsedAlone": 20,
+    "combinedHybridRescuesOverPrimary": 9,
+    "combinedHybridRegressions": 0,
+    "incorrectHybridValuesAccepted": 0,
+    "systematicFlags": {
+      "conflicts": 22,
+      "correctlyFlaggedWrongPrimary": 1
+    },
+    "adaptiveFlags": {
+      "conflicts": 6,
+      "correctlyFlaggedWrongPrimary": 1,
+      "triggered": 20,
+      "missedWrongPrimary": 0
+    }
+  },
+  "summaries": {
+    "train": {
+      "systematic": {
+        "localAlliance": {
+          "exact": 7,
+          "total": 7
+        },
+        "opponentAlliance": {
+          "exact": 5,
+          "total": 7
+        },
+        "localScore": {
+          "exact": 5,
+          "total": 7
+        },
+        "opponentScore": {
+          "exact": 5,
+          "total": 7
+        },
+        "localTrophies": {
+          "exact": 6,
+          "total": 7
+        },
+        "opponentTrophies": {
+          "exact": 7,
+          "total": 7
+        },
+        "result": {
+          "exact": 7,
+          "total": 7
+        },
+        "overall": {
+          "exact": 42,
+          "total": 49,
+          "percent": 85.7
+        }
+      },
+      "adaptive": {
+        "localAlliance": {
+          "exact": 7,
+          "total": 7
+        },
+        "opponentAlliance": {
+          "exact": 5,
+          "total": 7
+        },
+        "localScore": {
+          "exact": 5,
+          "total": 7
+        },
+        "opponentScore": {
+          "exact": 5,
+          "total": 7
+        },
+        "localTrophies": {
+          "exact": 6,
+          "total": 7
+        },
+        "opponentTrophies": {
+          "exact": 7,
+          "total": 7
+        },
+        "result": {
+          "exact": 7,
+          "total": 7
+        },
+        "overall": {
+          "exact": 42,
+          "total": 49,
+          "percent": 85.7
+        }
+      }
+    },
+    "holdout": {
+      "systematic": {
+        "localAlliance": {
+          "exact": 2,
+          "total": 2
+        },
+        "opponentAlliance": {
+          "exact": 1,
+          "total": 1
+        },
+        "localScore": {
+          "exact": 2,
+          "total": 2
+        },
+        "opponentScore": {
+          "exact": 2,
+          "total": 2
+        },
+        "localTrophies": {
+          "exact": 2,
+          "total": 2
+        },
+        "opponentTrophies": {
+          "exact": 2,
+          "total": 2
+        },
+        "result": {
+          "exact": 2,
+          "total": 2
+        },
+        "overall": {
+          "exact": 13,
+          "total": 13,
+          "percent": 100.0
+        }
+      },
+      "adaptive": {
+        "localAlliance": {
+          "exact": 2,
+          "total": 2
+        },
+        "opponentAlliance": {
+          "exact": 1,
+          "total": 1
+        },
+        "localScore": {
+          "exact": 2,
+          "total": 2
+        },
+        "opponentScore": {
+          "exact": 2,
+          "total": 2
+        },
+        "localTrophies": {
+          "exact": 2,
+          "total": 2
+        },
+        "opponentTrophies": {
+          "exact": 2,
+          "total": 2
+        },
+        "result": {
+          "exact": 2,
+          "total": 2
+        },
+        "overall": {
+          "exact": 13,
+          "total": 13,
+          "percent": 100.0
+        }
+      }
+    },
+    "all": {
+      "systematic": {
+        "localAlliance": {
+          "exact": 9,
+          "total": 9
+        },
+        "opponentAlliance": {
+          "exact": 6,
+          "total": 8
+        },
+        "localScore": {
+          "exact": 7,
+          "total": 9
+        },
+        "opponentScore": {
+          "exact": 7,
+          "total": 9
+        },
+        "localTrophies": {
+          "exact": 8,
+          "total": 9
+        },
+        "opponentTrophies": {
+          "exact": 9,
+          "total": 9
+        },
+        "result": {
+          "exact": 9,
+          "total": 9
+        },
+        "overall": {
+          "exact": 55,
+          "total": 62,
+          "percent": 88.7
+        }
+      },
+      "adaptive": {
+        "localAlliance": {
+          "exact": 9,
+          "total": 9
+        },
+        "opponentAlliance": {
+          "exact": 6,
+          "total": 8
+        },
+        "localScore": {
+          "exact": 7,
+          "total": 9
+        },
+        "opponentScore": {
+          "exact": 7,
+          "total": 9
+        },
+        "localTrophies": {
+          "exact": 8,
+          "total": 9
+        },
+        "opponentTrophies": {
+          "exact": 9,
+          "total": 9
+        },
+        "result": {
+          "exact": 9,
+          "total": 9
+        },
+        "overall": {
+          "exact": 55,
+          "total": 62,
+          "percent": 88.7
+        }
+      }
+    }
+  },
+  "captures": [
+    {
+      "id": "capture-01",
+      "split": "train",
+      "fields": {
+        "localAlliance": {
+          "expected": "Kronos",
+          "primary": "Kronos",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "Kronos",
+          "source": "same-row-after-LoSP",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "B.B.A.",
+          "primary": "B.B.A",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "B.B.A",
+          "source": "same-row-right-side",
+          "alternatives": null,
+          "exact": false,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localScore": {
+          "expected": 411597,
+          "primary": "411597",
+          "visualDigit": "411897",
+          "localizedOcrHypotheses": [
+            "411597",
+            "411549",
+            "411597"
+          ],
+          "hybrid": "411597",
+          "source": "psm6+psm11-agree",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentScore": {
+          "expected": 257149,
+          "primary": "257149",
+          "visualDigit": "257149",
+          "localizedOcrHypotheses": [
+            "257149",
+            "257145",
+            "257149",
+            "257148",
+            "257149",
+            "257149",
+            "257454"
+          ],
+          "hybrid": "257149",
+          "source": "psm6+psm11-agree",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localTrophies": {
+          "expected": 2778,
+          "primary": "2778",
+          "visualDigit": "2778",
+          "localizedOcrHypotheses": [
+            "2778",
+            "2778",
+            "2778",
+            "2778"
+          ],
+          "hybrid": "2778",
+          "source": "trophy-header-joined-glyph",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2627,
+          "primary": null,
+          "visualDigit": "2864",
+          "localizedOcrHypotheses": [
+            "2627",
+            "2627",
+            "9927",
+            "2827",
+            "2827",
+            "2627",
+            "2827"
+          ],
+          "hybrid": "2627",
+          "source": "localized-gray-contrast-3x-psm7-first-number-group",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "result": {
+          "expected": "win",
+          "primary": "win",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "win",
+          "source": "title-color",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-02",
+      "split": "train",
+      "fields": {
+        "localAlliance": {
+          "expected": "Athena",
+          "primary": "Athena",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "Athena",
+          "source": "same-row-after-LoSP",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "Allspark X-Men",
+          "primary": "Allspark X-Men",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "Allspark X-Men",
+          "source": "same-row-right-side",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localScore": {
+          "expected": 343311,
+          "primary": null,
+          "visualDigit": "343311",
+          "localizedOcrHypotheses": [
+            "349311"
+          ],
+          "hybrid": null,
+          "source": "points-row",
+          "alternatives": null,
+          "exact": false,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "opponentScore": {
+          "expected": 314689,
+          "primary": "314689",
+          "visualDigit": "414669",
+          "localizedOcrHypotheses": [
+            "346894"
+          ],
+          "hybrid": "314689",
+          "source": "psm6+psm11-agree",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localTrophies": {
+          "expected": 2792,
+          "primary": null,
+          "visualDigit": "2792",
+          "localizedOcrHypotheses": [
+            "2792",
+            "2792",
+            "2792",
+            "2792",
+            "2792",
+            "2792",
+            "2792",
+            "2792"
+          ],
+          "hybrid": "2792",
+          "source": "phase4-visual-glyph+localized-ocr-consensus",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2680,
+          "primary": "2680",
+          "visualDigit": "2660",
+          "localizedOcrHypotheses": [
+            "5611",
+            "2660",
+            "2680"
+          ],
+          "hybrid": "2680",
+          "source": "trophy-header-row",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "result": {
+          "expected": "win",
+          "primary": "win",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "win",
+          "source": "title-color",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-03",
+      "split": "train",
+      "fields": {
+        "localAlliance": {
+          "expected": "Dionysos",
+          "primary": "Dionysos",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "Dionysos",
+          "source": "same-row-after-LoSP",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "German Avenger's",
+          "primary": "German Avenger's",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "German Avenger's",
+          "source": "same-row-right-side",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localScore": {
+          "expected": 363432,
+          "primary": null,
+          "visualDigit": "363432",
+          "localizedOcrHypotheses": [
+            "969432"
+          ],
+          "hybrid": null,
+          "source": "points-row",
+          "alternatives": null,
+          "exact": false,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "opponentScore": {
+          "expected": 153303,
+          "primary": null,
+          "visualDigit": "159909",
+          "localizedOcrHypotheses": [
+            "153303",
+            "159303",
+            "153303"
+          ],
+          "hybrid": null,
+          "source": "pass-conflict",
+          "alternatives": null,
+          "exact": false,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "localTrophies": {
+          "expected": 2738,
+          "primary": null,
+          "visualDigit": "2738",
+          "localizedOcrHypotheses": [
+            "2731",
+            "2735",
+            "2731",
+            "2735",
+            "2735",
+            "2731"
+          ],
+          "hybrid": null,
+          "source": "trophy-header-row",
+          "alternatives": null,
+          "exact": false,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2438,
+          "primary": null,
+          "visualDigit": "2166",
+          "localizedOcrHypotheses": [
+            "2438",
+            "2438",
+            "2436"
+          ],
+          "hybrid": "2438",
+          "source": "localized-gray-contrast-3x-psm7-first-number-group",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "result": {
+          "expected": "win",
+          "primary": "win",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "win",
+          "source": "title-color",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-04",
+      "split": "train",
+      "fields": {
+        "localAlliance": {
+          "expected": "Kronos",
+          "primary": "Kronos",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "Kronos",
+          "source": "same-row-after-LoSP",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "Infinity X",
+          "primary": "INFINITY X",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "INFINITY X",
+          "source": "same-row-right-side",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localScore": {
+          "expected": 319841,
+          "primary": "319841",
+          "visualDigit": "316941",
+          "localizedOcrHypotheses": [
+            "319847",
+            "319847",
+            "319847"
+          ],
+          "hybrid": "319841",
+          "source": "psm6+psm11-agree",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentScore": {
+          "expected": 458874,
+          "primary": "458874",
+          "visualDigit": "459974",
+          "localizedOcrHypotheses": [
+            "456887",
+            "458874",
+            "458874",
+            "458874",
+            "458874",
+            "458874",
+            "458874",
+            "458874"
+          ],
+          "hybrid": "458874",
+          "source": "psm6+psm11-agree",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localTrophies": {
+          "expected": 2783,
+          "primary": null,
+          "visualDigit": "2783",
+          "localizedOcrHypotheses": [
+            "2744",
+            "2783",
+            "2744"
+          ],
+          "hybrid": "2783",
+          "source": "phase4-visual-glyph+localized-ocr-consensus",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2926,
+          "primary": null,
+          "visualDigit": "2223",
+          "localizedOcrHypotheses": [
+            "2926"
+          ],
+          "hybrid": "2926",
+          "source": "localized-gray-contrast-3x-psm7-first-number-group",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "result": {
+          "expected": "loss",
+          "primary": "loss",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "loss",
+          "source": "title-color",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-05",
+      "split": "train",
+      "fields": {
+        "localAlliance": {
+          "expected": "Athena",
+          "primary": "Athena",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "Athena",
+          "source": "same-row-after-LoSP",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "HYPERACTIF",
+          "primary": "HYPERACTIF",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "HYPERACTIF",
+          "source": "same-row-right-side",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localScore": {
+          "expected": 340136,
+          "primary": "340136",
+          "visualDigit": "343136",
+          "localizedOcrHypotheses": [
+            "340173",
+            "340196",
+            "840136",
+            "340136"
+          ],
+          "hybrid": "340136",
+          "source": "psm6+psm11-agree",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentScore": {
+          "expected": 291856,
+          "primary": "291856",
+          "visualDigit": "731656",
+          "localizedOcrHypotheses": [
+            "291856",
+            "231856",
+            "291856",
+            "291856",
+            "251856"
+          ],
+          "hybrid": "291856",
+          "source": "psm6+psm11-agree",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localTrophies": {
+          "expected": 2791,
+          "primary": null,
+          "visualDigit": "2791",
+          "localizedOcrHypotheses": [
+            "2791",
+            "2791",
+            "2791",
+            "2791",
+            "2791",
+            "2791",
+            "2791",
+            "2791"
+          ],
+          "hybrid": "2791",
+          "source": "phase4-visual-glyph+localized-ocr-consensus",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2640,
+          "primary": "2640",
+          "visualDigit": "2680",
+          "localizedOcrHypotheses": [
+            "2640",
+            "2407",
+            "2640",
+            "2640",
+            "2640",
+            "2640",
+            "2075"
+          ],
+          "hybrid": "2640",
+          "source": "localized-gray-contrast-3x-psm7-first-number-group",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "result": {
+          "expected": "win",
+          "primary": "win",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "win",
+          "source": "title-color",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-06",
+      "split": "train",
+      "fields": {
+        "localAlliance": {
+          "expected": "Poseidon",
+          "primary": "Poseidon",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "Poseidon",
+          "source": "same-row-after-LoSP",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "SpaceEmperors",
+          "primary": "SpaceEmperors",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "SpaceEmperors",
+          "source": "same-row-right-side",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localScore": {
+          "expected": 366816,
+          "primary": "366816",
+          "visualDigit": "369919",
+          "localizedOcrHypotheses": [
+            "366816",
+            "846566",
+            "866681",
+            "366816"
+          ],
+          "hybrid": "366816",
+          "source": "psm6+psm11-agree",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentScore": {
+          "expected": 168062,
+          "primary": "168062",
+          "visualDigit": "199052",
+          "localizedOcrHypotheses": [
+            "680627",
+            "168062",
+            "680620",
+            "680627"
+          ],
+          "hybrid": "168062",
+          "source": "psm6+psm11-agree",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localTrophies": {
+          "expected": 2414,
+          "primary": "2414",
+          "visualDigit": "2616",
+          "localizedOcrHypotheses": [
+            "2414",
+            "7414",
+            "7414",
+            "2414"
+          ],
+          "hybrid": "2414",
+          "source": "psm6-fallback",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2264,
+          "primary": "2268",
+          "visualDigit": "2627",
+          "localizedOcrHypotheses": [
+            "2264",
+            "2284",
+            "2475",
+            "2258",
+            "2264",
+            "2284"
+          ],
+          "hybrid": "2264",
+          "source": "localized-gray-contrast-3x-psm7-first-number-group",
+          "alternatives": [
+            "2268"
+          ],
+          "exact": true,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "result": {
+          "expected": "win",
+          "primary": "win",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "win",
+          "source": "title-color",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-07",
+      "split": "train",
+      "fields": {
+        "localAlliance": {
+          "expected": "Dionysos",
+          "primary": "Dionysos",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "Dionysos",
+          "source": "same-row-after-LoSP",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "STAN LEE'S MISFITS",
+          "primary": "ST@NLEE’S MISFITS",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "ST@NLEE’S MISFITS",
+          "source": "same-row-right-side",
+          "alternatives": null,
+          "exact": false,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localScore": {
+          "expected": 297706,
+          "primary": "297706",
+          "visualDigit": "287799",
+          "localizedOcrHypotheses": [
+            "297706",
+            "297706",
+            "297706",
+            "297706",
+            "297706",
+            "297706",
+            "297706",
+            "297706"
+          ],
+          "hybrid": "297706",
+          "source": "psm6+psm11-agree",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentScore": {
+          "expected": 439960,
+          "primary": null,
+          "visualDigit": "488888",
+          "localizedOcrHypotheses": [
+            "439360",
+            "439360",
+            "439360",
+            "439360",
+            "439560",
+            "439360",
+            "439360",
+            "439360"
+          ],
+          "hybrid": null,
+          "source": "pass-conflict",
+          "alternatives": null,
+          "exact": false,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "localTrophies": {
+          "expected": 2663,
+          "primary": "2663",
+          "visualDigit": "2883",
+          "localizedOcrHypotheses": null,
+          "hybrid": "2663",
+          "source": "trophy-header-row",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2814,
+          "primary": null,
+          "visualDigit": "2634",
+          "localizedOcrHypotheses": [
+            "2814",
+            "2814"
+          ],
+          "hybrid": "2814",
+          "source": "localized-gray-contrast-3x-psm7-first-number-group",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "result": {
+          "expected": "loss",
+          "primary": "loss",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "loss",
+          "source": "title-color",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-08",
+      "split": "holdout",
+      "fields": {
+        "localAlliance": {
+          "expected": "Kronos",
+          "primary": "Kronos",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "Kronos",
+          "source": "same-row-after-LoSP",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "Blurred Vision",
+          "primary": "Blurred Vision",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "Blurred Vision",
+          "source": "same-row-right-side",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localScore": {
+          "expected": 371356,
+          "primary": "371356",
+          "visualDigit": "371366",
+          "localizedOcrHypotheses": [
+            "147135",
+            "371356"
+          ],
+          "hybrid": "371356",
+          "source": "psm6+psm11-agree",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentScore": {
+          "expected": 284300,
+          "primary": "284300",
+          "visualDigit": "294300",
+          "localizedOcrHypotheses": [
+            "284300",
+            "284300",
+            "284300",
+            "284300",
+            "244300",
+            "284300",
+            "284300",
+            "284300"
+          ],
+          "hybrid": "284300",
+          "source": "psm6+psm11-agree",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localTrophies": {
+          "expected": 2858,
+          "primary": "2858",
+          "visualDigit": "2868",
+          "localizedOcrHypotheses": [
+            "2858",
+            "2858",
+            "2858",
+            "2858"
+          ],
+          "hybrid": "2858",
+          "source": "trophy-header-row",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2708,
+          "primary": null,
+          "visualDigit": "2224",
+          "localizedOcrHypotheses": [
+            "2708",
+            "2708",
+            "2708"
+          ],
+          "hybrid": "2708",
+          "source": "localized-gray-contrast-3x-psm7-first-number-group",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": false,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "result": {
+          "expected": "win",
+          "primary": "win",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "win",
+          "source": "title-color",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-09",
+      "split": "holdout",
+      "fields": {
+        "localAlliance": {
+          "expected": "Athena",
+          "primary": "Athena",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "Athena",
+          "source": "same-row-after-LoSP",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentAlliance": {
+          "expected": null,
+          "primary": null,
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": null,
+          "source": "same-row-right-side",
+          "alternatives": null,
+          "exact": null,
+          "primaryExact": null,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localScore": {
+          "expected": 348354,
+          "primary": "348354",
+          "visualDigit": "348364",
+          "localizedOcrHypotheses": [
+            "348354",
+            "348954",
+            "388489",
+            "848554",
+            "348354"
+          ],
+          "hybrid": "348354",
+          "source": "points-row",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "opponentScore": {
+          "expected": 481264,
+          "primary": "481264",
+          "visualDigit": "461284",
+          "localizedOcrHypotheses": [
+            "481264",
+            "481264",
+            "481264",
+            "481264"
+          ],
+          "hybrid": "481264",
+          "source": "psm6+psm11-agree",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        },
+        "localTrophies": {
+          "expected": 2715,
+          "primary": "2715",
+          "visualDigit": "2716",
+          "localizedOcrHypotheses": [
+            "2715",
+            "2715",
+            "2715",
+            "2715",
+            "2715",
+            "2715"
+          ],
+          "hybrid": "2715",
+          "source": "trophy-header-row",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2864,
+          "primary": "2864",
+          "visualDigit": "9664",
+          "localizedOcrHypotheses": [
+            "2864",
+            "0070",
+            "2864",
+            "2864",
+            "0070"
+          ],
+          "hybrid": "2864",
+          "source": "localized-gray-contrast-3x-psm7-first-number-group",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": true,
+          "manualReviewRequired": true
+        },
+        "result": {
+          "expected": "loss",
+          "primary": "loss",
+          "visualDigit": null,
+          "localizedOcrHypotheses": null,
+          "hybrid": "loss",
+          "source": "title-color",
+          "alternatives": null,
+          "exact": true,
+          "primaryExact": true,
+          "secondPassTriggeredAdaptive": false,
+          "manualReviewRequired": true
+        }
+      }
+    }
+  ]
+}
