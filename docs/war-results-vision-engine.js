@@ -112,11 +112,21 @@
     if (!CORE) throw new Error("Le module de reconnaissance partagé n’est pas chargé.");
     activeProgress = onProgress;
     const totalStart = performance.now();
+    const heapBefore = performance.memory?.usedJSHeapSize ?? null;
     const source = await decode(file);
-    const { canvas, scale } = makeCanvas(source);
+    let canvas, scale;
+    try {
+      const prepared = makeCanvas(source);
+      canvas = prepared.canvas; scale = prepared.scale;
+    } catch (error) {
+      source.close?.();
+      throw error;
+    }
     const dimensions = { width: source.width, height: source.height };
     const engineStart = performance.now();
-    let engine = await getWorker(onProgress);
+    let engine;
+    try { engine = await getWorker(onProgress); }
+    catch (error) { source.close?.(); canvas.width = canvas.height = 1; throw error; }
     const workerLoadMs = Math.round(performance.now() - engineStart);
     const calls = [];
     const run = async (name, image, psm, whitelist = "") => {
@@ -167,7 +177,12 @@
           cropMethodResults[key] = value;
           const expected = key.includes("Score") ? 6 : 4;
           const normalized = value.length === expected ? value : "";
-          if (normalized) fields[key] = CORE.arbitrateNumeric(fields[key], { value: normalized, confidence: output.data?.confidence ?? null, source: `${key}-targeted-native-crop`, uncertain: true });
+          if (normalized) {
+            const targeted = { value: normalized, confidence: output.data?.confidence ?? null, source: `${key}-targeted-native-crop`, uncertain: true };
+            if (existing.alternatives?.length) {
+              fields[key] = { value: "", confidence: null, source: "three-read-disagreement", uncertain: true, alternatives: [...new Set([...existing.alternatives, normalized])] };
+            } else fields[key] = CORE.arbitrateNumeric(existing, targeted);
+          }
         }
         image.width = image.height = 1;
       }
@@ -182,7 +197,9 @@
           image.width = image.height = 1;
           const clean = (v) => v.replace(/[^\p{L}\p{N}'’ -]/gu, "").replace(/\s+/g, " ").trim();
           const candidate = clean(opponentCropCandidate);
-          if (candidate.length > 1 && fields.opponentAlliance.value && clean(fields.opponentAlliance.value).toLocaleLowerCase() !== candidate.toLocaleLowerCase()) {
+          if (candidate.length > 1 && fields.opponentAlliance.alternatives?.length) {
+            fields.opponentAlliance = { value: "", confidence: null, source: "three-read-disagreement", uncertain: true, alternatives: [...new Set([...fields.opponentAlliance.alternatives, candidate])] };
+          } else if (candidate.length > 1 && fields.opponentAlliance.value && clean(fields.opponentAlliance.value).toLocaleLowerCase() !== candidate.toLocaleLowerCase()) {
             fields.opponentAlliance = { value: "", confidence: null, source: "opponent-name-disagreement", uncertain: true, alternatives: [fields.opponentAlliance.value, candidate] };
           } else if (candidate.length > 1 && !fields.opponentAlliance.value) {
             fields.opponentAlliance = { value: candidate, confidence: read.data?.confidence ?? null, source: "opponent-name-targeted-crop", uncertain: true };
@@ -195,7 +212,7 @@
       const fieldStatusSummary = Object.fromEntries(Object.entries(fields).map(([key, value]) => [key, value.alternatives?.length ? "conflict" : value.value ? (value.uncertain ? "uncertain" : "recognized") : "missing"]));
       return {
         fields, warnings: [...new Set(warnings)], rawText: `${full.data?.text || ""}\n${sparse.data?.text || ""}`,
-        metrics: { engine: "Tesseract.js v5 local browser", engineVersion: VERSION, workerLoadMs, totalMs: Math.round(performance.now() - totalStart), calls, dimensions, analyzedCanvas: { width: canvas.width, height: canvas.height }, downscale: scale, methods: calls.map((item) => item.method), colorCue: color || null, zonesFound: zoneInfo.anchorsFound, cropMethodResults, opponentCropCandidate: opponentCropCandidate || null, fieldStatusSummary, bytes: file.size }
+        metrics: { engine: "Tesseract.js v5 local browser", engineVersion: VERSION, workerLoadMs, totalMs: Math.round(performance.now() - totalStart), calls, dimensions, analyzedCanvas: { width: canvas.width, height: canvas.height }, downscale: scale, methods: calls.map((item) => item.method), colorCue: color || null, zonesFound: zoneInfo.anchorsFound, cropMethodResults, opponentCropCandidate: opponentCropCandidate || null, fieldStatusSummary, bytes: file.size, jsHeapBeforeBytes: heapBefore, jsHeapAfterBytes: performance.memory?.usedJSHeapSize ?? null, jsHeapDeltaBytes: heapBefore != null && performance.memory?.usedJSHeapSize != null ? performance.memory.usedJSHeapSize - heapBefore : null }
       };
     } finally {
       source.close?.();

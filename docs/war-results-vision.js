@@ -104,7 +104,7 @@
 
   async function analyzePending(oneId = null) {
     if (analyzing) return;
-    const pending = records.filter((r) => r.file && ["queued", "error"].includes(r.state) && (!oneId || r.id === oneId));
+    const pending = records.filter((r) => r.file && (!oneId ? ["queued", "error"].includes(r.state) : r.id === oneId));
     if (!pending.length) return;
     analyzing = true; progress.hidden = false; progress.value = 0; analyzeButton.disabled = true;
     diagnostics = [];
@@ -147,7 +147,7 @@
     const record = records.find((r) => r.id === button.dataset.id); if (!record) return;
     const action = button.dataset.action;
     if (action === "remove") { if (record.url) URL.revokeObjectURL(record.url); records = records.filter((r) => r !== record); saveDrafts(); render(); return; }
-    if (action === "analyze-one") { analyzePending(record.id); return; }
+    if (action === "analyze-one") { if (record.corrected.length && !confirm("Relancer l’OCR remplacera les corrections de cette fiche. Continuer ?")) return; analyzePending(record.id); return; }
     if (action === "choose") {
       record.values[button.dataset.field] = button.dataset.value;
       record.fields[button.dataset.field] = { ...record.fields[button.dataset.field], value: button.dataset.value, alternatives: [], uncertain: true };
