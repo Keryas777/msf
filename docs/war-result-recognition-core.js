@@ -78,6 +78,20 @@
     return match[0].slice(0, expectedLength);
   }
 
+  function arbitrateNumeric(primary, secondary) {
+    const a = primary || { value: "", confidence: null, source: "primary" };
+    const b = secondary || { value: "", confidence: null, source: "secondary" };
+    if (!a.value && b.value) return { ...b, uncertain: true, source: `${b.source || "secondary"}-fallback` };
+    if (a.value && !b.value) return { ...a, uncertain: Boolean(a.uncertain) };
+    if (!a.value && !b.value) return { ...a, uncertain: true };
+    if (a.value !== b.value) {
+      return { ...a, value: "", uncertain: true, alternatives: [...new Set([a.value, b.value])], source: "two-pass-disagreement" };
+    }
+    const confidences = [a.confidence, b.confidence].filter(Number.isFinite);
+    return { ...a, confidence: confidences.length ? Math.max(...confidences) : null,
+      uncertain: Boolean(a.uncertain || b.uncertain), alternatives: undefined };
+  }
+
   function locateZones(words, width, height) {
     const safeWords = Array.isArray(words) ? words : [];
     const rows = groupRows(safeWords, height * 0.025);
@@ -227,5 +241,5 @@
     return { valid: problems.length === 0, problems };
   }
 
-  return { FIELDS, parseTsv, extract, validate, toSearchKey, firstDigitGroup, locateZones };
+  return { FIELDS, parseTsv, extract, validate, toSearchKey, firstDigitGroup, locateZones, arbitrateNumeric };
 });
