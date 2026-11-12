@@ -121,3 +121,8 @@ button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transpare
 .intelFlight .runway::before{content:none}
 .intelFlight .runway .flightControlTower{position:absolute;left:1px;bottom:0;width:24px;height:27px;overflow:visible;filter:drop-shadow(0 0 3px rgba(96,200,237,.5));pointer-events:none}
 .intelFlight .runway i{left:27px}
+
+/* Flight decks: longer runway and elevated control tower beside the landing strip. */
+.intelFlight .runway{width:91%}
+.intelFlight .runway .flightControlTower{left:0;bottom:8px;width:32px;height:43px}
+.intelFlight .runway i{left:36px;right:5px}
