@@ -128,7 +128,35 @@
     return digits.length === 4 || digits.length === 6 ? digits : "";
   }
 
-  async function analyze(file, onProgress = () => {}) {
+  const FIELD_SIDES = { localAlliance: "text", opponentAlliance: "text", localScore: "numeric", opponentScore: "numeric", localTrophies: "numeric", opponentTrophies: "numeric", result: "result" };
+  function cleanAlliance(value, field) {
+    let text = String(value || "").replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim();
+    if (field === "localAlliance") text = text.replace(/^LoSP\s*/i, "").trim();
+    return text.replace(/^[|:;]+|[|:;]+$/g, "").trim();
+  }
+  function mergeText(primary, secondary, source) {
+    const a = cleanAlliance(primary?.value, source), b = cleanAlliance(secondary?.value, source);
+    if (primary?.alternatives?.length) return { value: "", confidence: null, source: "multiple-reads-disagree", uncertain: true, alternatives: [...new Set([...primary.alternatives.map((value) => cleanAlliance(value, source)).filter(Boolean), ...(b ? [b] : [])])] };
+    if (a && b && a.normalize("NFKC").toLocaleLowerCase() !== b.normalize("NFKC").toLocaleLowerCase()) {
+      return { value: "", confidence: null, source: "whole-image-vs-zone-disagreement", uncertain: true, alternatives: [...new Set([a, b])] };
+    }
+    const picked = a ? primary : b ? secondary : null;
+    return picked ? { ...picked, value: a || b, uncertain: true, source: a && b ? "whole-image-and-zone-agree" : picked.source } : { value: "", confidence: null, source: "zone-unreadable", uncertain: true };
+  }
+  function arbitrateZoneNumeric(primary, secondary) {
+    if (primary?.alternatives?.length) return { value: "", confidence: null, source: "multiple-reads-disagree", uncertain: true, alternatives: [...new Set([...primary.alternatives, ...(secondary?.value ? [secondary.value] : [])])] };
+    return CORE.arbitrateNumeric(primary, secondary);
+  }
+  function normalizeRect(rect, width, height) {
+    if (!rect) return null;
+    const x = Math.max(0, Math.min(width - 1, Math.floor(Number(rect.x) || 0)));
+    const y = Math.max(0, Math.min(height - 1, Math.floor(Number(rect.y) || 0)));
+    const right = Math.max(x + 1, Math.min(width, Math.ceil((Number(rect.x) || 0) + (Number(rect.width) || 0))));
+    const bottom = Math.max(y + 1, Math.min(height, Math.ceil((Number(rect.y) || 0) + (Number(rect.height) || 0))));
+    return { x, y, width: right - x, height: bottom - y };
+  }
+
+  async function analyze(file, onProgress = () => {}, zoneOverrides = {}) {
     if (!CORE) throw new Error("Le module de reconnaissance partagé n’est pas chargé.");
     activeProgress = onProgress;
     activeProgress({ status: "Ouverture et préparation de l’image…", progress: .01 });
@@ -177,69 +205,106 @@
         ? { value: "", confidence: null, source: "color-text-disagreement", uncertain: true, alternatives: [color, titleCue] }
         : { value: color || titleCue, confidence: null, source: color ? (titleCue ? "color-and-title-text" : "color-cue") : "title-text-cue", uncertain: !(color || titleCue) };
       const zoneInfo = CORE.locateZones(sparseWords, source.width, source.height);
+      zoneInfo.method = zoneInfo.zones.method;
+      zoneInfo.layout = zoneInfo.zones.layout;
+      for (const [key, rect] of Object.entries(zoneOverrides || {})) if (FIELD_SIDES[key] && rect) zoneInfo.zones[key === "result" ? "resultBand" : key] = normalizeRect(rect, source.width, source.height);
 
-      // Adaptive second pass: only numerals whose primary reads are absent/uncertain get native-resolution targeted crops.
-      const label = fullWords.find((word) => CORE.toSearchKey(word.text) === "points");
-      const cropTargets = {
-        localScore: label ? { x: source.width * .18, y: Math.max(0, ((label.bbox.y0 + label.bbox.y1) / 2) - source.height * .04), width: source.width * .25, height: source.height * .08 } : null,
-        opponentScore: label ? { x: source.width * .58, y: Math.max(0, ((label.bbox.y0 + label.bbox.y1) / 2) - source.height * .04), width: source.width * .25, height: source.height * .08 } : null,
-        localTrophies: zoneInfo.zones.localTrophies,
-        opponentTrophies: zoneInfo.zones.opponentTrophies
-      };
-      const cropMethodResults = {};
-      for (const key of Object.keys(cropTargets)) {
-        const existing = fields[key];
-        const shouldRead = !existing.value || existing.uncertain || existing.alternatives?.length;
-        if (!shouldRead || !cropTargets[key]) continue;
-        onProgress({ status: `Recadrage ciblé : ${key}`, progress: .55 });
-        const image = crop(source, cropTargets[key], key.includes("Trophies") ? 3 : 2, key.includes("Trophies"));
-        if (!image) continue;
-        const output = await run(`${key}-targeted-psm7`, image, 7, "0123456789");
-        const value = numericRead(output.data?.text);
-        if (value) {
-          cropMethodResults[key] = value;
-          const expected = key.includes("Score") ? 6 : 4;
-          const normalized = value.length === expected ? value : "";
-          if (normalized) {
-            const targeted = { value: normalized, confidence: output.data?.confidence ?? null, source: `${key}-targeted-native-crop`, uncertain: true };
-            if (existing.alternatives?.length) {
-              fields[key] = { value: "", confidence: null, source: "three-read-disagreement", uncertain: true, alternatives: [...new Set([...existing.alternatives, normalized])] };
-            } else fields[key] = CORE.arbitrateNumeric(existing, targeted);
-          }
+      // Every proposal below is read from its displayed field crop. The full-image reads
+      // are used only as independent hypotheses and as anchors for locating the crops.
+      const zoneImages = {};
+      const zoneReads = {};
+      const expected = { localScore: 6, opponentScore: 6, localTrophies: 4, opponentTrophies: 4 };
+      const zoneKeys = ["localAlliance", "opponentAlliance", "localScore", "opponentScore", "localTrophies", "opponentTrophies", "result"];
+      for (const [zoneIndex, key] of zoneKeys.entries()) {
+        onProgress({ status: `Découpe et lecture ciblée ${zoneIndex + 1}/7 : ${key}`, progress: .52 + zoneIndex * .055 });
+        const rect = normalizeRect(zoneInfo.zones[key === "result" ? "resultBand" : key], source.width, source.height);
+        if (!rect || rect.width < 2 || rect.height < 2) {
+          zoneReads[key] = { value: "", confidence: null, source: "zone-not-located", uncertain: true };
+          continue;
         }
-        image.width = image.height = 1;
-      }
-      const opponentZone = zoneInfo.zones.opponentAlliance;
-      let opponentCropCandidate = "";
-      if (opponentZone && (fields.opponentAlliance.uncertain || fields.opponentAlliance.alternatives?.length || !fields.opponentAlliance.value)) {
-        const image = crop(source, opponentZone, 2, true);
-        if (image) {
-          await engine.setParameters({ tessedit_pageseg_mode: "6", preserve_interword_spaces: "1", tessedit_char_whitelist: "" });
-          const read = await run("opponent-alliance-targeted-psm6", image, 6);
-          opponentCropCandidate = String(read.data?.text || "").replace(/\s+/g, " ").trim();
-          image.width = image.height = 1;
-          const clean = (v) => v.replace(/[^\p{L}\p{N}'’ -]/gu, "").replace(/\s+/g, " ").trim();
-          const candidate = clean(opponentCropCandidate);
-          if (candidate.length > 1 && fields.opponentAlliance.alternatives?.length) {
-            fields.opponentAlliance = { value: "", confidence: null, source: "three-read-disagreement", uncertain: true, alternatives: [...new Set([...fields.opponentAlliance.alternatives, candidate])] };
-          } else if (candidate.length > 1 && fields.opponentAlliance.value && clean(fields.opponentAlliance.value).toLocaleLowerCase() !== candidate.toLocaleLowerCase()) {
-            fields.opponentAlliance = { value: "", confidence: null, source: "opponent-name-disagreement", uncertain: true, alternatives: [fields.opponentAlliance.value, candidate] };
-          } else if (candidate.length > 1 && !fields.opponentAlliance.value) {
-            fields.opponentAlliance = { value: candidate, confidence: read.data?.confidence ?? null, source: "opponent-name-targeted-crop", uncertain: true };
+        const numericField = Object.hasOwn(expected, key);
+        const sourceCrop = crop(source, rect, 1, false);
+        const sourcePreview = sourceCrop?.toDataURL("image/jpeg", .86) || "";
+        if (sourceCrop) sourceCrop.width = sourceCrop.height = 1;
+        const fieldImage = crop(source, rect, numericField ? 3 : 2, numericField);
+        if (!fieldImage) continue;
+        try {
+          const anchored = key.includes("Score") ? zoneInfo.anchorsFound.scoreValues || zoneInfo.anchorsFound.scoreLabel : key.includes("Trophies") ? zoneInfo.anchorsFound.trophyRow || zoneInfo.anchorsFound.losp : key === "localAlliance" ? zoneInfo.anchorsFound.losp : key === "opponentAlliance" ? zoneInfo.anchorsFound.opponentName : zoneInfo.anchorsFound.resultTitle;
+          zoneImages[key] = { rect, sourcePreview, preview: fieldImage.toDataURL("image/jpeg", .86), width: fieldImage.width, height: fieldImage.height, geometryConfidence: anchored ? "anchor-based" : "fallback" };
+          if (key === "result") {
+            const cue = resultColor(fieldImage);
+            zoneReads[key] = { value: cue || "", confidence: null, source: "result-band-color-crop", uncertain: !cue };
+          } else {
+            const whitelist = numericField ? "0123456789" : "";
+            const output = await run(`${key}-zone-psm7`, fieldImage, 7, whitelist);
+            const raw = String(output.data?.text || "").replace(/\s+/g, " ").trim();
+            const value = numericField ? numericRead(raw) : cleanAlliance(raw, key);
+            const valid = numericField ? value.length === expected[key] : value.length > 1;
+            zoneReads[key] = { value: valid ? value : "", confidence: output.data?.confidence ?? null, source: `${key}-zone-psm7`, uncertain: !valid || (output.data?.confidence ?? 0) < 60, raw };
           }
+        } finally {
+          fieldImage.width = fieldImage.height = 1;
         }
       }
+      for (const key of ["localAlliance", "opponentAlliance"]) {
+        const zone = zoneReads[key];
+        const whole = fields[key];
+        fields[key] = mergeText(whole, zone, key);
+        if (zone.value && fields[key].value && fields[key].value === zone.value && fields[key].source === "whole-image-and-zone-agree") fields[key].uncertain = Boolean(whole.uncertain || zone.uncertain);
+      }
+      for (const key of Object.keys(expected)) {
+        const zone = zoneReads[key];
+        fields[key] = arbitrateZoneNumeric(fields[key], zone);
+      }
+      const resultZone = zoneReads.result;
+      if (fields.result?.alternatives?.length) {
+        fields.result = { ...fields.result, alternatives: [...new Set([...fields.result.alternatives, ...(resultZone?.value ? [resultZone.value] : [])])] };
+      } else if (resultZone?.value && fields.result?.value && resultZone.value !== fields.result.value) {
+        fields.result = { value: "", confidence: null, source: "result-color-disagreement", uncertain: true, alternatives: [...new Set([fields.result.value, resultZone.value])] };
+      } else if (!fields.result?.value && resultZone?.value) fields.result = resultZone;
+
+      const cropMethodResults = Object.fromEntries(Object.entries(zoneReads).map(([key, value]) => [key, value.value || null]));
       const warnings = [...new Set([...first.warnings, ...second.warnings])];
       for (const [key, item] of Object.entries(fields)) if (key !== "result" && (!item.value || item.uncertain || item.alternatives?.length)) warnings.push(`${key}_requires_review`);
       if (fields.localScore.value && fields.opponentScore.value && color && ((Number(fields.localScore.value) > Number(fields.opponentScore.value)) !== (color === "win"))) warnings.push("score_result_conflict");
       const fieldStatusSummary = Object.fromEntries(Object.entries(fields).map(([key, value]) => [key, value.alternatives?.length ? "conflict" : value.value ? (value.uncertain ? "uncertain" : "recognized") : "missing"]));
       return {
         fields, warnings: [...new Set(warnings)], rawText: `${full.data?.text || ""}\n${sparse.data?.text || ""}`,
-        metrics: { engine: "Tesseract.js v5 local browser", engineVersion: VERSION, workerLoadMs, totalMs: Math.round(performance.now() - totalStart), calls, dimensions, analyzedCanvas: { width: canvas.width, height: canvas.height }, downscale: scale, methods: calls.map((item) => item.method), colorCue: color || null, zonesFound: zoneInfo.anchorsFound, cropMethodResults, opponentCropCandidate: opponentCropCandidate || null, fieldStatusSummary, bytes: file.size, jsHeapBeforeBytes: heapBefore, jsHeapAfterBytes: performance.memory?.usedJSHeapSize ?? null, jsHeapDeltaBytes: heapBefore != null && performance.memory?.usedJSHeapSize != null ? performance.memory.usedJSHeapSize - heapBefore : null }
+        zones: Object.fromEntries(Object.entries(zoneImages).map(([key, value]) => [key, { ...value, method: zoneInfo.method, ocrMethod: zoneReads[key]?.source || "color-analysis", layout: zoneInfo.layout }])),
+        metrics: { engine: "Tesseract.js v5 local browser", engineVersion: VERSION, workerLoadMs, totalMs: Math.round(performance.now() - totalStart), calls, dimensions, analyzedCanvas: { width: canvas.width, height: canvas.height }, downscale: scale, methods: calls.map((item) => item.method), colorCue: color || null, panel: zoneInfo.panel, panelMethod: zoneInfo.panelMethod, zonesFound: zoneInfo.anchorsFound, zoneMethod: zoneInfo.method, layout: zoneInfo.layout, zoneReads, cropMethodResults, fieldStatusSummary, bytes: file.size, jsHeapBeforeBytes: heapBefore, jsHeapAfterBytes: performance.memory?.usedJSHeapSize ?? null, jsHeapDeltaBytes: heapBefore != null && performance.memory?.usedJSHeapSize != null ? performance.memory.usedJSHeapSize - heapBefore : null }
       };
     } finally {
       source.close?.();
       canvas.width = canvas.height = 1;
+    }
+  }
+
+  async function analyzeField(file, field, rect, onProgress = () => {}) {
+    if (!CORE || !FIELD_SIDES[field]) throw new Error("Champ OCR inconnu.");
+    activeProgress = onProgress;
+    const source = await decode(file);
+    let image;
+    try {
+      const safe = normalizeRect(rect, source.width, source.height);
+      if (!safe || safe.width < 2 || safe.height < 2) throw new Error("La zone corrigée est trop petite ou hors image.");
+      const numericField = FIELD_SIDES[field] === "numeric";
+      image = crop(source, safe, numericField ? 3 : 2, numericField);
+      if (!image) throw new Error("Impossible de créer la découpe de ce champ.");
+      const sourceCrop = crop(source, safe, 1, false);
+      const sourcePreview = sourceCrop?.toDataURL("image/jpeg", .86) || "";
+      if (sourceCrop) sourceCrop.width = sourceCrop.height = 1;
+      if (field === "result") { const value = resultColor(image); return { field, value, confidence: null, uncertain: !value, source: "result-band-color-crop", rect: safe, sourcePreview, preview: image.toDataURL("image/jpeg", .86) }; }
+      const engine = await getWorker();
+      await engine.setParameters({ tessedit_pageseg_mode: "7", preserve_interword_spaces: "1", tessedit_char_whitelist: numericField ? "0123456789" : "" });
+      const output = await engine.recognize(image);
+      const raw = String(output.data?.text || "").replace(/\s+/g, " ").trim();
+      const value = numericField ? numericRead(raw) : cleanAlliance(raw, field);
+      const expectedLength = field.includes("Score") ? 6 : 4;
+      const valid = numericField ? value.length === expectedLength : value.length > 1;
+      return { field, value: valid ? value : "", confidence: output.data?.confidence ?? null, uncertain: !valid || (output.data?.confidence ?? 0) < 60, source: `${field}-manual-zone-psm7`, raw, rect: safe, sourcePreview, preview: image.toDataURL("image/jpeg", .86) };
+    } finally {
+      source.close?.();
+      if (image) image.width = image.height = 1;
     }
   }
 
@@ -248,5 +313,5 @@
     if (worker) { await worker.terminate(); worker = null; }
     workerPromise = null;
   }
-  window.WarResultsVisionEngine = { analyze, release, version: VERSION };
+  window.WarResultsVisionEngine = { analyze, analyzeField, release, version: VERSION };
 })();
