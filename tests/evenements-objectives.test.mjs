@@ -282,6 +282,64 @@ test('Une équipe avec 2 bonus individuels montre 5 membres sans inventer de mé
   assert.equal(nodes.get('stat-objectives').textContent,'3');
 });
 
+test('Événements distincts : combat avec toute une équipe et ses personnages restent associés',async()=>{
+  const scenarios=[
+    {
+      team:"Combattre en guerre avec tous les membres du Conclave de l'Ombre",
+      thanos:'Combattre avec Thanos',
+      sylvie:'Combattre avec Sylvie'
+    },
+    {
+      team:"Combattre avec tous les membres du Conclave de l'Ombre",
+      thanos:'Combattre en guerre avec Thanos',
+      sylvie:'Combattre en guerre avec Sylvie'
+    }
+  ];
+  for(const scenario of scenarios){
+    // Trois événements indépendants, dont deux méthodes sans mode précisé
+    // selon le scénario. Les points et leurs provenances restent indépendants.
+    const nodes=await makePage({includeBase:false,extraEvents:[
+      ['Événement Équipe','milestone',{milestone:{type:'solo',scoring:{
+        methods:[],cappedScorings:[{cap:200,methods:[
+          {description:scenario.team,points:25}
+        ]}]
+      }}}],
+      ['Événement Thanos','milestone',{milestone:{type:'solo',scoring:{
+        methods:[{description:scenario.thanos,points:10}],
+        cappedScorings:[]
+      }}}],
+      ['Événement Sylvie','milestone',{milestone:{type:'solo',scoring:{
+        methods:[{description:scenario.sylvie,points:15}],
+        cappedScorings:[]
+      }}}]
+    ]});
+    assert.equal(nodes.get('stat-objectives').textContent,'3');
+    assert.equal(objectiveNodes(nodes).length,3);
+    assert.deepEqual(sections(nodes).map(section=>section.children[0].textContent),
+      ['⚔️ GUERRE']);
+    const groups=objectiveDetails(nodes,'ev-objective-team');
+    assert.equal(groups.length,1);
+    const group=groups[0];
+    assert.equal(group.children[0].children[0].textContent,"Conclave de l'Ombre");
+    assert.equal(group.children[0].children[1].textContent,'5 personnages · 3 objectifs');
+    const roster=group.children[1].children.find(child=>
+      child.className==='ev-objective-team-roster');
+    assert.equal(roster.children.length,5);
+    const members=objectiveDetails(nodes,'ev-objective-character');
+    assert.equal(members.length,2);
+    const names=members.map(member=>
+      member.children[0].children.find(part=>part.tag==='strong').textContent);
+    assert.deepEqual(names.sort(),['Sylvie','Thanos']);
+    assert.equal(objectiveDetails(nodes,'ev-objective-event-group').length,0);
+    const sources=objectiveNodes(nodes).map(row=>row.children[1].children
+      .map(part=>part.textContent).join(' ')).join(' | ');
+    for(const title of ['Événement Équipe','Événement Thanos','Événement Sylvie'])
+      assert.ok(sources.includes(title),'Source manquante : '+title);
+    assert.ok(sources.includes('200'),'Le plafond officiel doit être conservé');
+    assert.ok(sources.includes('25'),'Les points de l’équipe doivent être conservés');
+  }
+});
+
 test('Personnage isolé ou équipes qui se chevauchent : aucune méthode dupliquée',async()=>{
   const names=['Vision','Ultron'].map(id=>realCharacters.find(c=>c.id===id));
   const extraEvents=[['Objectif test','milestone',{
