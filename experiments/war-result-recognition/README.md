@@ -84,3 +84,16 @@ WAR_OCR_JS_BASELINE=/tmp/tessjs-summary.json \
 ```
 
 Les mesures de Tesseract CLI, Tesseract.js 7 sous Node et le prototype navigateur épinglé à Tesseract.js 5 sont séparées dans `REPORT.md` et leurs JSON. Les scripts Node sont des bancs natifs, pas une validation Safari/Chrome.
+
+## Phase 4 — consensus hybride conservateur
+
+Le résultat spécialisé isolé s’est avéré trop peu fiable pour remplacer Tesseract. `phase4-hybrid-benchmark.py` compare les sorties figées de la reconnaissance primaire, des variantes de recadrage et du classificateur visuel par chiffre. La vérité terrain est utilisée uniquement après sélection, pour le score. En l’absence de lecture primaire, la règle n’accepte un chiffre que si le classificateur isolé et au moins une lecture OCR localisée concordent. Les divergences sur une valeur primaire existante sont signalées sans substitution.
+
+Rejouer la recombinaison et ses tests :
+
+```sh
+python experiments/war-result-recognition/phase4-hybrid-benchmark.py
+python -m unittest discover -s experiments/war-result-recognition -p 'test_*.py' -v
+```
+
+`phase4-hybrid-benchmark-results.json` fournit le détail par capture et champ, les deux politiques, les conflits, les erreurs partagées/corrigées et les champs de validation manuelle. Le 55/62 mesuré est un résultat exploratoire sur les neuf captures déjà examinées; il ne justifie pas d’intégrer le classificateur au navigateur sans nouvelles captures réelles et mesures mobiles. Le module de production conserve la règle d’arbitrage Tesseract avec abstention sur désaccord.
