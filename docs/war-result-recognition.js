@@ -170,13 +170,7 @@
     const numericFields = ["localScore", "opponentScore", "localTrophies", "opponentTrophies"];
     for (const key of numericFields) {
       const a = primary.fields[key], b = secondary.fields[key];
-      if (!a.value && b.value) fields[key] = b;
-      else if (a.value && b.value && a.value !== b.value) {
-        const delta = Math.abs((a.confidence || 0) - (b.confidence || 0));
-        fields[key] = delta >= 18 ? (a.confidence > b.confidence ? a : b) : { ...a, value: "", uncertain: true, alternatives: [a.value, b.value] };
-      } else if (a.value && b.value && a.value === b.value) {
-        fields[key] = { ...a, confidence: Math.max(a.confidence || 0, b.confidence || 0), uncertain: a.uncertain && b.uncertain };
-      }
+      fields[key] = WarResultRecognition.arbitrateNumeric(a, b);
     }
     const knownLocal = ["Zeus", "Dionysos", "Poseidon", "Athena", "Kronos"];
     const isKnownLocal = (entry) => knownLocal.some((name) => WarResultRecognition.toSearchKey(name) === WarResultRecognition.toSearchKey(entry.value));
