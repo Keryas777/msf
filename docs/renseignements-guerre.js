@@ -12,6 +12,34 @@
     { id: "reactor", name: "Réacteur", icon: "☢", range: "room", color: "#ffcb72", effect: "+15 % de Barrière max. pour les alliés en défense." },
     { id: "barracks", name: "Caserne", icon: "✣", range: "global", color: "#ffe27c", effect: "Apparition → tous les personnages gagnent Augmentation d’attaque." }
   ];
+  // Inline SVG pictograms: recognizable at mobile size, with no external assets or dependencies.
+  const roomIconPaths = {
+    soute: '<path d="m3 7 9-4 9 4v10l-9 4-9-4z"/><path d="m3 7 9 5 9-5M12 12v9"/>',
+    hangar: '<path d="M22 2 9.5 14.5 3 13l-2 2 8 4 4 8 2-2-1.5-6.5L26 6z" transform="translate(2 2) scale(.78)"/>',
+    security: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+    tech: '<path d="M9 3h6M10 3v7l-6.7 9.3A2 2 0 0 0 4.9 22h14.2a2 2 0 0 0 1.6-2.7L14 10V3M7.5 16h9"/>',
+    armory: '<path d="M5 21V8m0 0L3 11m2-3 2 3M12 21V8m0 0-2 3m2-3 2 3M19 21V8m0 0-2 3m2-3 2 3"/><path d="M3 21h18"/>',
+    infirmary: '<path d="M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7z"/>',
+    bridge: '<circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16M7 7l10 10M17 7 7 17"/>',
+    reactor: '<circle cx="12" cy="12" r="2"/><path d="M9.5 7.7 7 3.5a10 10 0 0 1 10 0l-2.5 4.2M16.4 13l4.8 1a10 10 0 0 1-5 8.6l-2.4-4.3M7.6 13l-4.8 1a10 10 0 0 0 5 8.6l2.4-4.3"/>',
+    barracks: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20v-3a6 6 0 0 1 12 0v3zM16 14a5 5 0 0 1 5 5v1h-4"/>'
+  };
+
+  function roomIcon(room) {
+    const svgIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgIcon.setAttribute("viewBox", "0 0 24 24");
+    svgIcon.setAttribute("width", "23");
+    svgIcon.setAttribute("height", "23");
+    svgIcon.setAttribute("fill", "none");
+    svgIcon.setAttribute("stroke", "currentColor");
+    svgIcon.setAttribute("stroke-width", "1.9");
+    svgIcon.setAttribute("stroke-linecap", "round");
+    svgIcon.setAttribute("stroke-linejoin", "round");
+    svgIcon.setAttribute("aria-hidden", "true");
+    svgIcon.innerHTML = roomIconPaths[room.id] || "";
+    return svgIcon;
+  }
+
   const flightDecks = [
     { name: "Pont d’envol 1", position: 0 },
     { name: "Pont d’envol 2", position: 1 },
@@ -101,7 +129,8 @@
     const icon = document.createElement("span");
     icon.className = room ? "intelRoomIcon" : "intelFlightIcon";
     icon.setAttribute("aria-hidden", "true");
-    icon.textContent = room?.icon || "✦";
+    if (room) icon.append(roomIcon(room));
+    else icon.textContent = "✦";
     const name = document.createElement("strong");
     name.textContent = room?.name || flightDecks[position].name;
 
@@ -239,7 +268,8 @@
     const lead = document.createElement("div");
     lead.className = "intelDetailLead";
     lead.style.setProperty("--room-color", room?.color || "#8edfff");
-    const icon = addText(lead, "span", "intelDetailIcon", room?.icon || "✦");
+    const icon = addText(lead, "span", "intelDetailIcon", room ? "" : "✦");
+    if (room) icon.append(roomIcon(room));
     icon.setAttribute("aria-hidden", "true");
     const heading = document.createElement("div");
     addText(heading, "h3", "", room?.name || flight?.name || "Salle");
