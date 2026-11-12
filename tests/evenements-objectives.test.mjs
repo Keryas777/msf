@@ -254,7 +254,7 @@ test('Conclave de l’Ombre : les 5 membres sont visibles même sans objectifs i
   const roster=summary.children.find(node=>node.className==='ev-objective-team-roster');
   assert.ok(roster,'La composition reste visible dans le summary fermé');
   assert.equal(roster.tag,'span');
-  assert.equal(teams[0].open,false);
+  assert.ok(!teams[0].open);
   assert.equal(roster.children.length,5);
   assert.ok(!people.children.some(node=>node.className==='ev-objective-team-roster'),
     'Ne pas répéter les portraits dans le contenu ouvert');
@@ -292,7 +292,7 @@ test('Avengers IA et Fantassin de fer affichent chacun leurs 5 portraits sur le 
     const roster=summary.children.find(child=>child.className==='ev-objective-team-roster');
     assert.ok(roster);
     assert.equal(roster.children.length,5);
-    assert.equal(group.open,false);
+    assert.ok(!group.open);
     assert.ok(roster.children.every(member=>
       member.children.some(child=>child.tag==='img')));
     assert.ok(!group.children[1].children.some(child=>
