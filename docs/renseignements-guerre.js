@@ -194,8 +194,8 @@
     return element;
   }
 
-  // Render all labels and symbols above the SVG: child z-index cannot escape
-  // the room's stacking context (opacity/filters on muted rooms).
+  // Mirror only room icons above the influence layer. Do not mirror text:
+  // labels inside flight decks have different layout and must not be duplicated.
   function refreshIconOverlay() {
     let overlay = board.querySelector(".intelIconOverlay");
     if (!overlay) {
@@ -205,14 +205,11 @@
     }
     overlay.replaceChildren();
     const boardRect = board.getBoundingClientRect();
-    board.querySelectorAll(".intelCell .intelRoomIcon, .intelCell .intelRoomHeading, .intelCell .intelRange").forEach(element => {
-      const rect = element.getBoundingClientRect();
-      const copy = element.cloneNode(true);
-      copy.classList.add("intelForegroundMirror");
-      const cell = element.closest(".intelCell");
-      if (cell?.classList.contains("is-muted")) copy.classList.add("is-muted");
-      const room = element.closest(".intelRoom");
-      if (room) copy.style.setProperty("--room-color", room.style.getPropertyValue("--room-color"));
+    board.querySelectorAll(".intelCell .intelRoomIcon").forEach(icon => {
+      const rect = icon.getBoundingClientRect();
+      const copy = icon.cloneNode(true);
+      copy.classList.add("intelIconMirror");
+      if (icon.closest(".intelCell")?.classList.contains("is-muted")) copy.classList.add("is-muted");
       copy.style.left = (rect.left - boardRect.left) + "px";
       copy.style.top = (rect.top - boardRect.top) + "px";
       copy.style.width = rect.width + "px";
