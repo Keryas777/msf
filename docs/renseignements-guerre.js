@@ -2,15 +2,15 @@
   "use strict";
 
   const rooms = [
-    { id: "soute", name: "Soute", icon: "▣", range: "adjacent", color: "#FACC15", effect: "Au tour, les personnages avec Augmentation d’attaque gagnent +10 % de Barrière." },
-    { id: "hangar", name: "Hangar", icon: "✈", range: "adjacent", color: "#F97316", effect: "+15 % de Barrière max. pour les alliés en défense." },
-    { id: "security", name: "Sécurité", icon: "⬡", range: "adjacent", color: "#EF4444", effect: "Apparition → Réduction de défense sur les alliés attaquants." },
-    { id: "tech", name: "Labo technique", icon: "⌬", range: "adjacent", color: "#3DCE73", effect: "Apparition → Augmentation de défense sur les alliés en défense." },
-    { id: "armory", name: "Armurerie", icon: "⫶", range: "adjacent", color: "#3B82F6", effect: "Au tour, les alliés attaquants avec Réduction de défense retournent tous les effets actifs sur eux-mêmes." },
-    { id: "infirmary", name: "Infirmerie", icon: "✚", range: "adjacent", color: "#D946EF", effect: "Frappe réussie → les alliés en défense gagnent Régénération." },
-    { id: "bridge", name: "Pont", icon: "◉", range: "room", color: "#d6acff", effect: "Apparition → +10 effets positifs aléatoires pour les alliés en défense." },
-    { id: "reactor", name: "Réacteur", icon: "☢", range: "room", color: "#ffcb72", effect: "+15 % de Barrière max. pour les alliés en défense." },
-    { id: "barracks", name: "Caserne", icon: "✣", range: "global", color: "#ffe27c", effect: "Apparition → tous les personnages gagnent Augmentation d’attaque." }
+    { id: "soute", name: "Soute", icon: "▣", range: "adjacent", color: "#FACC15", effect: "À chaque tour, les personnages avec Attaque augmentée gagnent +10 % de Barrière." },
+    { id: "hangar", name: "Hangar", icon: "✈", range: "adjacent", color: "#F97316", effect: "+15 % de Barrière max pour tous les alliés en défense." },
+    { id: "security", name: "Sécurité", icon: "⬡", range: "adjacent", color: "#EF4444", effect: "À l’apparition, applique Défense réduite aux alliés en attaque." },
+    { id: "tech", name: "Labo technique", icon: "⌬", range: "adjacent", color: "#3DCE73", effect: "À l’apparition, applique Défense augmentée aux alliés en défense." },
+    { id: "armory", name: "Armurerie", icon: "⫶", range: "adjacent", color: "#3B82F6", effect: "À chaque tour, les alliés en attaque avec Défense réduite inversent tous les effets actifs sur soi." },
+    { id: "infirmary", name: "Infirmerie", icon: "✚", range: "adjacent", color: "#D946EF", effect: "Lors d’un coup réussi, les alliés en défense gagnent Régénération." },
+    { id: "bridge", name: "Pont", icon: "◉", range: "room", color: "#d6acff", effect: "À l’apparition, applique 10 effets bénéfiques aléatoires aux alliés en défense." },
+    { id: "reactor", name: "Réacteur", icon: "☢", range: "room", color: "#ffcb72", effect: "À l’apparition, applique Saignement aux alliés en attaque." },
+    { id: "barracks", name: "Caserne", icon: "✣", range: "global", color: "#ffe27c", effect: "À l’apparition, tous les personnages obtiennent Attaque augmentée." }
   ];
   // Inline SVG pictograms: recognizable at mobile size, with no external assets or dependencies.
   const roomIconPaths = {
