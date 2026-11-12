@@ -24,10 +24,11 @@
     </section>
     <form id="draft" class="card" hidden>
       <h2>Brouillon à vérifier</h2>
-      <p class="notice">Les propositions OCR sont indicatives. Vérifie chaque champ sur l’image avant d’utiliser ces données.</p>
+      <p class="notice">Les propositions OCR sont indicatives et toujours à vérifier. Les champs incertains sont signalés; aucun export définitif sans contrôle manuel.</p>
+      <p id="fieldWarnings" class="notice" role="status"></p>
       <div class="grid">
         <label>Alliance LoSP<input name="localAlliance" autocomplete="off"></label>
-        <label>Alliance adverse<input name="opponentAlliance" autocomplete="off"></label>
+        <label>Alliance adverse<input name="opponentAlliance" autocomplete="off"><small id="opponentMatchKey">Clé de rapprochement : —</small></label>
         <label>Score LoSP<input name="localScore" inputmode="numeric" autocomplete="off"></label>
         <label>Score adverse<input name="opponentScore" inputmode="numeric" autocomplete="off"></label>
         <label>Trophées LoSP<input name="localTrophies" inputmode="numeric" autocomplete="off"></label>
@@ -42,6 +43,7 @@
     <details class="card"><summary>Texte OCR brut</summary><pre id="raw"></pre></details>
     <p class="foot">Aucune date n’est déduite de la capture. Cette page est un prototype isolé; elle n’écrit pas dans les archives de guerre.</p>
   </main>
-  <script src="./war-result-recognition.js?v=1" defer></script>
+  <script src="./war-result-recognition-core.js?v=2" defer></script>
+  <script src="./war-result-recognition.js?v=2" defer></script>
 </body>
 </html>

@@ -7,6 +7,8 @@
   const progress = document.querySelector("#progress");
   const form = document.querySelector("#draft");
   const raw = document.querySelector("#raw");
+  const fieldWarnings = document.querySelector("#fieldWarnings");
+  const opponentMatchKey = document.querySelector("#opponentMatchKey");
   const confirmBox = document.querySelector("#confirmed");
   const exportButton = document.querySelector("#export");
   let file = null;
@@ -29,6 +31,10 @@
   runButton.addEventListener("click", recognize);
   resetButton.addEventListener("click", reset);
   confirmBox.addEventListener("change", () => { exportButton.disabled = !confirmBox.checked; });
+  form.addEventListener("input", (event) => {
+    if (event.target !== confirmBox) { confirmBox.checked = false; exportButton.disabled = true; }
+    if (event.target?.name === "opponentAlliance") updateMatchKey();
+  });
   exportButton.addEventListener("click", exportDraft);
 
   async function loadEngine() {
@@ -66,25 +72,26 @@
       const fullPage = await worker.recognize(canvas);
       await worker.setParameters({ tessedit_pageseg_mode: "11", preserve_interword_spaces: "1" });
       const sparseText = await worker.recognize(canvas);
-      const data = {
-        text: `${fullPage.data.text || ""}\n${sparseText.data.text || ""}`,
-        words: sparseText.data.words || [],
-        scoreWords: fullPage.data.words || [],
-        scoreText: fullPage.data.text || ""
-      };
-      const suggestions = detectSuggestions(data, canvas);
-      const pointWord = data.scoreWords.find((word) => normalize(word.text) === "points");
-      if (pointWord && (!suggestions.localScore || !suggestions.opponentScore)) {
+      const fullData = fullPage.data || {};
+      const sparseData = sparseText.data || {};
+      const colorResult = detectResultFromColor(canvas);
+      const primary = WarResultRecognition.extract(sparseData.words || [], canvas.width, canvas.height, { colorResult });
+      const secondary = WarResultRecognition.extract(fullData.words || [], canvas.width, canvas.height, { colorResult });
+      const extraction = mergePasses(primary, secondary, colorResult);
+      const pointWord = (fullData.words || []).find((word) => normalize(word.text) === "points");
+      if (pointWord && (!extraction.fields.localScore.value || !extraction.fields.opponentScore.value)) {
         await worker.setParameters({ tessedit_pageseg_mode: "7", tessedit_char_whitelist: "0123456789" });
-        if (!suggestions.localScore) {
-          suggestions.localScore = await recognizeScoreCrop(canvas, pointWord, "left");
+        if (!extraction.fields.localScore.value) {
+          const value = await recognizeScoreCrop(canvas, pointWord, "left");
+          if (value) extraction.fields.localScore = { value, confidence: 45, source: "score-crop-psm7", uncertain: true };
         }
-        if (!suggestions.opponentScore) {
-          suggestions.opponentScore = await recognizeScoreCrop(canvas, pointWord, "right");
+        if (!extraction.fields.opponentScore.value) {
+          const value = await recognizeScoreCrop(canvas, pointWord, "right");
+          if (value) extraction.fields.opponentScore = { value, confidence: 45, source: "score-crop-psm7", uncertain: true };
         }
       }
-      renderDraft(data, canvas.width, canvas.height, canvas, suggestions);
-      status.textContent = "Reconnaissance terminée. Corrige les propositions en comparant avec la capture.";
+      renderDraft({ text: `${fullData.text || ""}\n${sparseData.text || ""}` }, canvas.width, canvas.height, extraction);
+      status.textContent = "Reconnaissance terminée. Vérifie manuellement les sept champs avant tout export.";
       progress.value = 100;
     } catch (error) {
       status.textContent = error.message || "La reconnaissance a échoué.";
@@ -118,69 +125,66 @@
     });
   }
 
-  function renderDraft(data, width, height, canvas, suggestions) {
+  function renderDraft(data, width, height, extraction) {
     const text = data.text || "";
     raw.textContent = text;
     const fields = form.elements;
-    fields.localAlliance.value = detectLocalAlliance(text);
-    fields.opponentAlliance.value = "";
-    fields.localScore.value = suggestions.localScore || "";
-    fields.opponentScore.value = suggestions.opponentScore || "";
-    fields.localTrophies.value = suggestions.localTrophies || "";
+    fields.localAlliance.value = extraction.fields.localAlliance.value || "";
+    fields.opponentAlliance.value = extraction.fields.opponentAlliance.value || "";
+    fields.localScore.value = extraction.fields.localScore.value || "";
+    fields.opponentScore.value = extraction.fields.opponentScore.value || "";
+    fields.localTrophies.value = extraction.fields.localTrophies.value || "";
     fields.localTrophyChange.value = "";
-    fields.opponentTrophies.value = suggestions.opponentTrophies || "";
+    fields.opponentTrophies.value = extraction.fields.opponentTrophies.value || "";
     fields.opponentTrophyChange.value = "";
-    fields.result.value = detectResultFromColor(canvas) || detectResult(text);
+    fields.result.value = extraction.fields.result.value || "";
     form.hidden = false;
     confirmBox.checked = false;
     exportButton.disabled = true;
-    form.dataset.width = String(width);
-    form.dataset.height = String(height);
+    form.dataset.opponentNameOriginal = fields.opponentAlliance.value;
+    form.dataset.opponentNameMatchKey = WarResultRecognition.toSearchKey(fields.opponentAlliance.value);
+    updateMatchKey();
+    form.dataset.needsManualReview = "true";
+    form.dataset.warnings = JSON.stringify(extraction.warnings);
+    fieldWarnings.textContent = extraction.warnings.length
+      ? `À vérifier : ${extraction.warnings.map((warning) => warning.replaceAll("_", " ")).join(" · ")}`
+      : "Aucune incohérence automatique détectée; la vérification manuelle reste obligatoire.";
   }
 
-  function detectLocalAlliance(text) {
-    const canonical = ["Zeus", "Athena", "Kronos", "Dionysos", "Poseidon"];
-    const normalized = normalize(text);
-    return canonical.find((name) => normalized.includes(normalize(name))) || "";
+  function updateMatchKey() {
+    const original = form.elements.opponentAlliance.value;
+    opponentMatchKey.textContent = `Clé de rapprochement : ${WarResultRecognition.toSearchKey(original) || "—"}`;
+    form.dataset.opponentNameOriginal = original;
+    form.dataset.opponentNameMatchKey = WarResultRecognition.toSearchKey(original);
   }
 
-  function detectSuggestions(data, canvas) {
-    const words = Array.isArray(data.words) ? data.words : [];
-    const pointWord = words.find((word) => normalize(word.text) === "points");
-    const lineText = String(data.scoreText || data.text || "").split("\n").find((line) => normalize(line).includes("points")) || "";
-    let leftScore = "";
-    let rightScore = "";
-    if (lineText && pointWord) {
-      const before = lineText.slice(0, lineText.toLowerCase().indexOf("points"));
-      const after = lineText.slice(lineText.toLowerCase().indexOf("points") + 6);
-      leftScore = sixDigits(before);
-      rightScore = sixDigits(after);
-    }
-
-    const width = canvas.width;
-    const height = canvas.height;
-    const trophies = { left: new Set(), right: new Set() };
-    for (const word of words) {
-      const y = (word.bbox?.y0 ?? height) / height;
-      const x = ((word.bbox?.x0 ?? width) + (word.bbox?.x1 ?? width)) / 2 / width;
-      if (y < 0.34 && Number(word.confidence || 0) >= 20) {
-        const digits = String(word.text || "").replace(/\D/g, "");
-        if (digits.length === 4) trophies[x < 0.5 ? "left" : "right"].add(digits);
+  function mergePasses(primary, secondary, colorResult) {
+    const fields = { ...primary.fields };
+    const numericFields = ["localScore", "opponentScore", "localTrophies", "opponentTrophies"];
+    for (const key of numericFields) {
+      const a = primary.fields[key], b = secondary.fields[key];
+      if (!a.value && b.value) fields[key] = b;
+      else if (a.value && b.value && a.value !== b.value) {
+        const delta = Math.abs((a.confidence || 0) - (b.confidence || 0));
+        fields[key] = delta >= 18 ? (a.confidence > b.confidence ? a : b) : { ...a, value: "", uncertain: true, alternatives: [a.value, b.value] };
+      } else if (a.value && b.value && a.value === b.value) {
+        fields[key] = { ...a, confidence: Math.max(a.confidence || 0, b.confidence || 0), uncertain: a.uncertain && b.uncertain };
       }
     }
-    const localTrophies = trophies.left.size === 1 ? [...trophies.left][0] : "";
-    const opponentTrophies = trophies.right.size === 1 ? [...trophies.right][0] : "";
-    return {
-      localScore: leftScore,
-      opponentScore: rightScore,
-      localTrophies,
-      opponentTrophies
-    };
-  }
-
-  function sixDigits(value) {
-    const match = String(value || "").match(/\d(?:[\s,.]*\d){5}/);
-    return match ? match[0].replace(/\D/g, "") : "";
+    const knownLocal = ["Zeus", "Dionysos", "Poseidon", "Athena", "Kronos"];
+    const isKnownLocal = (entry) => knownLocal.some((name) => WarResultRecognition.toSearchKey(name) === WarResultRecognition.toSearchKey(entry.value));
+    if ((!fields.localAlliance.value || !isKnownLocal(fields.localAlliance)) && isKnownLocal(secondary.fields.localAlliance)) fields.localAlliance = secondary.fields.localAlliance;
+    if (!fields.opponentAlliance.value && secondary.fields.opponentAlliance.value) fields.opponentAlliance = secondary.fields.opponentAlliance;
+    fields.result = { value: colorResult || "", confidence: null, source: "title-color-cue", uncertain: !colorResult };
+    const warnings = new Set([...primary.warnings, ...secondary.warnings]);
+    for (const key of [...numericFields, "localAlliance", "opponentAlliance"]) {
+      if (!fields[key].value || fields[key].uncertain || fields[key].alternatives) warnings.add(`${key}_uncertain`);
+    }
+    if (colorResult && fields.localScore.value && fields.opponentScore.value) {
+      const expected = Number(fields.localScore.value) > Number(fields.opponentScore.value) ? "win" : "loss";
+      if (expected !== colorResult) warnings.add("score_result_conflict");
+    }
+    return { ...primary, fields, warnings: [...warnings], needsManualReview: true };
   }
 
   async function recognizeScoreCrop(source, labelWord, side) {
@@ -255,6 +259,13 @@
   function exportDraft() {
     if (!confirmBox.checked || !file) return;
     const formData = Object.fromEntries(new FormData(form).entries());
+    const validation = WarResultRecognition.validate(formData, 1, 1);
+    if (!validation.valid) {
+      status.textContent = `Export bloqué. Vérifie : ${validation.problems.join(" · ")}`;
+      confirmBox.checked = false;
+      exportButton.disabled = true;
+      return;
+    }
     const payload = {
       schemaVersion: "1.0.0",
       status: "manually-verified-draft",
@@ -263,12 +274,15 @@
       result: formData.result || null,
       localAlliance: formData.localAlliance.trim() || null,
       opponentAlliance: formData.opponentAlliance.trim() || null,
+      opponentAllianceOriginal: formData.opponentAlliance.trim() || null,
+      opponentAllianceMatchKey: WarResultRecognition.toSearchKey(formData.opponentAlliance),
       localScore: parseNullableNumber(formData.localScore),
       opponentScore: parseNullableNumber(formData.opponentScore),
       localTrophies: parseNullableNumber(formData.localTrophies),
       localTrophyChange: parseNullableSignedNumber(formData.localTrophyChange),
       opponentTrophies: parseNullableNumber(formData.opponentTrophies),
-      opponentTrophyChange: parseNullableSignedNumber(formData.opponentTrophyChange)
+      opponentTrophyChange: parseNullableSignedNumber(formData.opponentTrophyChange),
+      requiresManualReview: true
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -298,6 +312,8 @@
     previewUrl = null;
     form.hidden = true;
     raw.textContent = "";
+    fieldWarnings.textContent = "";
+    opponentMatchKey.textContent = "Clé de rapprochement : —";
     progress.hidden = true;
     progress.value = 0;
     runButton.disabled = true;
