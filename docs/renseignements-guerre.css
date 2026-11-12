@@ -133,3 +133,8 @@ button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transpare
 .intelRoomPoints{display:block;color:#f8d08b;font-size:clamp(9px,2.4vw,12px);font-weight:850;line-height:1.1;white-space:nowrap;font-variant-numeric:tabular-nums;text-shadow:0 1px 5px rgba(0,0,0,.8)}
 .intelFlight .intelRoomHeading{align-self:center}
 @media(max-width:359px){.intelRoomHeading{gap:1px}.intelRoomPoints{font-size:9px}}
+
+/* Flight deck refinement: extended runway markings and taller port-side tower. */
+.intelFlight .runway{width:96%}
+.intelFlight .runway i{left:30px;right:2px;height:4px;background:repeating-linear-gradient(90deg,#9cefff 0 13px,transparent 13px 18px)}
+.intelFlight .runway .flightControlTower{left:-2px;bottom:9px;width:36px;height:57px}
