@@ -12,8 +12,9 @@ assert.doesNotMatch(html, /auth-guard|home\.html|navigation/i, 'page has no adde
 const engine = fs.readFileSync(path.join(root, 'war-results-vision-engine.js'), 'utf8');
 assert.match(engine, /CORE\.extract/, 'uses the existing local OCR core');
 assert.match(engine, /createWorker/, 'Tesseract worker runs in browser');
-assert.match(engine, /three-read-disagreement/, 'third-read disagreements remain unresolved');
-assert.match(engine, /opponent-alliance-targeted-psm6/, 'targeted adversary crop remains a second pass');
+assert.match(engine, /zone-psm7/, 'field crops are read using targeted segmentation');
+assert.match(engine, /analyzeField/, 'a single corrected field can be reread');
+assert.match(engine, /whole-image-vs-zone-disagreement/, 'contradictory reads remain unresolved');
 assert.doesNotMatch(engine, /fetch\(|XMLHttpRequest|gemini|groq|\/api\//i, 'no app-level remote OCR or publishing call');
 const app = fs.readFileSync(path.join(root, 'war-results-vision.js'), 'utf8');
 assert.match(app, /type="date"/, 'manual war date control exists');
