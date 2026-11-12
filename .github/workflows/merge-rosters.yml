@@ -44,6 +44,7 @@ jobs:
           node --version
           node scripts/merge-rosters.mjs
           node scripts/update-roster-freshness.mjs
+          node scripts/update-dd-first-clears.mjs
           echo "----- git status after merge -----"
           git status --porcelain
 
@@ -52,7 +53,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add docs/data/rosters.json docs/data/rosters-meta.json
+          git add docs/data/rosters.json docs/data/rosters-meta.json docs/data/dd-first-clears.json
 
           if git diff --staged --quiet; then
             echo "No changes to commit."
