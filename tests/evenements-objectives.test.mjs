@@ -749,14 +749,16 @@ test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP co
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=14"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=15"/);
   assert.match(css,/\.ev-toolbar\{[^}]*background:var\(--panel\)/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
   assert.doesNotMatch(css,/body\.ev-body\{[^}]*background(?:-image|-color)?:/);
-  for(const id of ['tab-objectives','tab-current','tab-past','events-objectives','events-current','events-past']){
+  for(const id of ['tab-objectives','tab-current','events-objectives','events-current']){
     assert.match(html,new RegExp('id="'+id+'"'));
   }
+  assert.doesNotMatch(html,/id="(?:tab|section|events|count|stat)-past"/);
+  assert.match(css,/\.ev-overview\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 });
 
 test('Le bandeau technique du catalogue est masqué sans supprimer le diagnostic interne',()=>{
@@ -776,69 +778,70 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=27/);
+  assert.match(html,/evenements\.js\?v=28/);
 });
 
-test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',async()=>{
+test('Les compteurs sont deux onglets exclusifs, accessibles au clavier',async()=>{
   const nodes=await makePage();
-  const tabs=['objectives','current','past'];
+  const tabs=['objectives','current'];
   const visible=()=>tabs.filter(key=>!nodes.get('section-'+key).hidden);
   assert.match(html,/role="tablist"/);
   assert.doesNotMatch(html,/href="#section-(?:objectives|current|past)"/);
+  assert.equal(nodes.get('tab-past'),undefined);
+  assert.equal(nodes.get('section-past'),undefined);
   assert.deepEqual(visible(),['objectives']);
   assert.equal(nodes.get('tab-objectives')['aria-selected'],'true');
   assert.equal(nodes.get('tab-current')['aria-selected'],'false');
-
   const count=nodes.get('stat-objectives').textContent;
-  nodes.get('tab-objectives').handlers.get('click')();
-  assert.deepEqual(visible(),['objectives']);
-  assert.equal(nodes.get('tab-objectives')['aria-selected'],'true');
-  assert.equal(nodes.get('tab-current')['aria-selected'],'false');
-  assert.equal(nodes.get('tab-objectives').tabIndex,0);
-
+  nodes.get('tab-current').handlers.get('click')();
+  assert.deepEqual(visible(),['current']);
+  assert.equal(nodes.get('tab-current')['aria-selected'],'true');
   let prevented=false;
-  nodes.get('tab-objectives').handlers.get('keydown')({
+  nodes.get('tab-current').handlers.get('keydown')({
     key:'ArrowRight',preventDefault(){prevented=true;}
   });
   assert.equal(prevented,true);
+  assert.deepEqual(visible(),['objectives']);
+  assert.equal(nodes.get('tab-objectives').focused,true);
+  nodes.get('tab-objectives').handlers.get('keydown')({key:'End',preventDefault(){}});
   assert.deepEqual(visible(),['current']);
-  assert.equal(nodes.get('tab-current').focused,true);
-  nodes.get('tab-current').handlers.get('keydown')({key:'End',preventDefault(){}});
-  assert.deepEqual(visible(),['past']);
+  nodes.get('tab-current').handlers.get('keydown')({key:'Home',preventDefault(){}});
+  assert.deepEqual(visible(),['objectives']);
   assert.equal(nodes.get('stat-objectives').textContent,count);
 });
 
-test('Retour Safari BFCache : Objectifs et haut de page rétablis, même après Passés',async()=>{
+test('Retour Safari BFCache : Objectifs et haut de page rétablis depuis En cours',async()=>{
   const nodes=await makePage();
   assert.equal(nodes.get('tab-objectives')['aria-selected'],'true');
   assert.equal(nodes.browser.history.scrollRestoration,'manual');
-  nodes.get('tab-past').handlers.get('click')();
-  assert.equal(nodes.get('section-past').hidden,false);
+  nodes.get('tab-current').handlers.get('click')();
+  assert.equal(nodes.get('section-current').hidden,false);
   nodes.browser.windowHandlers.get('pageshow')({persisted:true});
   assert.equal(nodes.get('section-objectives').hidden,false);
-  assert.equal(nodes.get('section-past').hidden,true);
+  assert.equal(nodes.get('section-current').hidden,true);
   assert.equal(nodes.get('tab-objectives')['aria-selected'],'true');
-  assert.equal(nodes.get('tab-past')['aria-selected'],'false');
+  assert.equal(nodes.get('tab-current')['aria-selected'],'false');
   assert.ok(nodes.browser.scrollCalls.length>=2);
   nodes.browser.runFrames();
   assert.deepEqual(nodes.browser.scrollCalls.at(-1),[0,0]);
 });
 
-test('Ancres historiques Passés / En cours : Objectifs gagne même après rafraîchissement',async()=>{
+test('Les anciennes ancres Passés / En cours sont nettoyées sans restaurer un troisième onglet',async()=>{
   for(const hash of ['#section-past','#section-current']){
     const nodes=await makePage({hash});
     assert.equal(nodes.get('section-objectives').hidden,false);
-    assert.equal(nodes.get('section-past').hidden,true);
+    assert.equal(nodes.get('section-past'),undefined);
+    assert.equal(nodes.get('tab-past'),undefined);
     assert.equal(nodes.get('section-current').hidden,true);
     assert.equal(nodes.get('tab-objectives')['aria-selected'],'true');
     assert.equal(nodes.browser.history.scrollRestoration,'manual');
     assert.deepEqual(nodes.browser.history.replacedUrls,['/msf/evenements.html']);
     assert.ok(nodes.browser.scrollCalls.length>=2);
-    nodes.get('tab-past').handlers.get('click')();
-    assert.equal(nodes.get('section-past').hidden,false);
+    nodes.get('tab-current').handlers.get('click')();
+    assert.equal(nodes.get('section-current').hidden,false);
     nodes.browser.windowHandlers.get('pageshow')({persisted:true});
     assert.equal(nodes.get('section-objectives').hidden,false);
-    assert.equal(nodes.get('section-past').hidden,true);
+    assert.equal(nodes.get('section-current').hidden,true);
   }
 });
 test('Le nettoyage des anciennes ancres se fait dans le HEAD avant le rendu Safari',()=>{
@@ -983,7 +986,7 @@ test('Les phases quotidiennes et les feeders sont traités séparément',async()
   assert.doesNotMatch(css,/\.ev-checkbox/);
 });
 
-test('Les événements courts passés restent listés ; ni déblocages ni modes Blitz',async()=>{
+test('Les événements terminés ne sont plus rendus dans les deux onglets',async()=>{
   const now=Math.floor(Date.now()/1000),day=86400;
   const extraEvents=[
     ['KYLN : CODE FLAMMES','pickYourPoison',{
@@ -995,23 +998,22 @@ test('Les événements courts passés restent listés ; ni déblocages ni modes 
       episodic:{type:'eventCampaign',ids:['ECM_AIAVENGERS_A']},
       startTime:now-30*day,endTime:now-2*day
     }],
-    ['Rixe rapide','blitz',{startTime:now-3*day,endTime:now-day}],
-    ['ÉPREUVES','info',{startTime:now-400*day,endTime:now-2*day}],
-    ['FAMINE','pickYourPoison',{
-      cardArt:'https://assets.marvelstrikeforce.com/key_art/Scourge_Famine_Card.jpg',
-      pickYourPoison:{typeName:'Fléau',brackets:[{id:'victor'},{id:'default'}]},
-      startTime:now-8*day,endTime:now-day
+    ['Ancien objectif','milestone',{
+      startTime:now-10*day,endTime:now-day,
+      milestone:{type:'solo',scoring:{methods:[
+        {description:'Combattre en raid',points:20}
+      ],cappedScorings:[]}}
     }]
   ];
   const nodes=await makePage({includeBase:false,extraEvents});
-  assert.equal(nodes.get('stat-past').textContent,'2');
-  assert.deepEqual(groupTitles(nodes,'past'),['⚔️ Événements']);
-  assert.deepEqual(titles(nodes,'past'),['KYLN : CODE FLAMMES','PRISE DE CONTRÔLE DE L’IA']);
   assert.equal(nodes.get('stat-current').textContent,'0');
   assert.equal(nodes.get('stat-objectives').textContent,'0');
+  assert.equal(nodes.get('stat-past'),undefined);
+  assert.equal(nodes.get('events-past'),undefined);
+  assert.equal(cards(nodes).length,0);
 });
 
-test('Tous les événements sont rendus directement, même au-delà des anciens seuils',async()=>{
+test('Tous les événements en cours sont rendus directement, même avec des archives',async()=>{
   const now=Math.floor(Date.now()/1000),day=86400;
   const art='https://assets.marvelstrikeforce.com/key_art/Fixture.jpg';
   const extraEvents=[
@@ -1027,9 +1029,9 @@ test('Tous les événements sont rendus directement, même au-delà des anciens 
   ];
   const nodes=await makePage({includeBase:false,extraEvents});
   assert.equal(nodes.get('stat-current').textContent,'29');
-  assert.equal(nodes.get('stat-past').textContent,'18');
   assert.equal(cards(nodes).length,29);
-  assert.equal(cards(nodes,'past').length,18);
+  assert.equal(nodes.get('stat-past'),undefined);
+  assert.equal(nodes.get('events-past'),undefined);
   assert.doesNotMatch(html,/id="more-(?:current|past)"|Voir plus/);
   assert.doesNotMatch(script,/LIMIT=\{current:|state\.expanded|items\.slice\(0,limit\)/);
 });

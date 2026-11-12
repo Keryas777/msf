@@ -12,8 +12,8 @@
     {key:'command',label:'Poste de commandement',icon:'🛡️'},
     {key:'events',label:'Événements',icon:'⚔️'}
   ];
-  const SECTIONS={current:'En cours',past:'Passés'};
-  const TABS=['objectives','current','past'];
+  const SECTIONS={current:'En cours'};
+  const TABS=['objectives','current'];
   const state={events:[],metadata:{},sourceError:false,date:null,manualDate:false,search:'',type:'',lastButton:null,
     teams:[],characters:[],characterAliases:[]};
   const fmtDate=new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'numeric',month:'short',year:'numeric'});
@@ -154,17 +154,13 @@
     });
   }
   function groupEvents(){
-    const reference=timestamp();const grouped={current:[],past:[]};
+    const reference=timestamp();const grouped={current:[]};
     for(const e of filterEvents()){
-      const status=category(e,reference);
-      if(status!=='future')grouped[status].push(e);
+      if(category(e,reference)==='current')grouped.current.push(e);
     }
     grouped.current=collapseCurrentEvents(grouped.current);
-    grouped.past=collapseCurrentEvents(grouped.past);
     const rank=e=>GAME_GROUPS.findIndex(group=>group.key===calendarGroup(e));
     grouped.current.sort((a,b)=>rank(a)-rank(b)||a.endTime-b.endTime||
-      eventTitle(a).localeCompare(eventTitle(b),'fr'));
-    grouped.past.sort((a,b)=>rank(a)-rank(b)||b.endTime-a.endTime||
       eventTitle(a).localeCompare(eventTitle(b),'fr'));
     return {grouped,reference};
   }
@@ -756,7 +752,7 @@
 
   function render(){
     if(state.sourceError){
-      for(const key of ['current','past']){
+      for(const key of Object.keys(SECTIONS)){
         $('events-'+key).replaceChildren(create('p','ev-empty',
           'Événements temporairement indisponibles : données non vérifiées.'));
         $('count-'+key).textContent='—';
