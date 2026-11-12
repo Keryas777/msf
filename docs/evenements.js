@@ -458,7 +458,7 @@
   // Regrouper les ouvertures d'orbes (y compris méga-orbes) sans confondre
   // l'action avec l'obtention de fragments, d'orbes ou d'autres récompenses.
   function isOrbOpeningObjective(item){
-    const description=eventNameKey(item.description);
+    const description=eventNameKey(typeof item==='string'?item:item.description);
     return /^(?:ouvrir|ouvrez|ouverture|open|opening)\b/.test(description)&&
       /\b(?:orbes?|orbs?)\b/.test(description);
   }
@@ -585,7 +585,9 @@
         const label=objectiveLabel(description);
         const character=objectiveCharacter(description);
         const team=objectiveTeam(description);
-        const mode=objectiveMode(description);
+        // Le nom d'un orbe de raid/guerre ne désigne pas un combat dans ce
+        // mode : toutes les ouvertures d'orbes partagent une seule rubrique.
+        const mode=isOrbOpeningObjective(description)?'divers':objectiveMode(description);
         const points=Number(method.points);
         const score=Number.isFinite(points)&&points>0?points:null;
         const ceiling=Number.isFinite(cap)&&cap>0?cap:null;
@@ -612,7 +614,8 @@
         .map(team=>team.team):[];
       return [item.event.name,item.event.subName,item.event.details,item.event.id,
         item.description,item.label,item.character?.nameKey,item.team?.team,
-        ...characterTeams,item.mode,MODE_BY_KEY.get(item.mode)?.label]
+        ...characterTeams,item.mode,MODE_BY_KEY.get(item.mode)?.label,
+        isOrbOpeningObjective(item)?'Ouverture d’orbes':null]
         .some(value=>strip(value).toLocaleLowerCase('fr').includes(match));
     });
   }
@@ -705,7 +708,9 @@
         actionTitle.append(create('strong','',label));
         actionTitle.append(create('span','ev-objective-mini-count',
           objectiveCount(methods.length)));
-        for(const hint of objectiveActionHints(methods))
+        // Les types d'orbes ont des plafonds indépendants : ne pas
+        // afficher de limite agrégée trompeuse dans l'en-tête commun.
+        for(const hint of orbOpening?[]:objectiveActionHints(methods))
           actionTitle.append(create('span','ev-objective-limit',hint));
         const body=create('div','ev-objective-event-content');
         const bySource=new Map();
