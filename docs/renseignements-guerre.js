@@ -18,11 +18,11 @@
     hangar: '<path d="M22 2 9.5 14.5 3 13l-2 2 8 4 4 8 2-2-1.5-6.5L26 6z" transform="translate(2 2) scale(.78)"/>',
     security: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
     tech: '<path d="M9 3h6M10 3v7l-6.7 9.3A2 2 0 0 0 4.9 22h14.2a2 2 0 0 0 1.6-2.7L14 10V3M7.5 16h9"/>',
-    armory: '<path d="M5 21V8m0 0L3 11m2-3 2 3M12 21V8m0 0-2 3m2-3 2 3M19 21V8m0 0-2 3m2-3 2 3"/><path d="M3 21h18"/>',
+    armory: '<path d="M3 20V9h5v11zM10 20V9h5v11zM17 20V9h5v11z"/><path d="M3 9V6l2.5-3L8 6v3M10 9V6l2.5-3L15 6v3M17 9V6l2.5-3L22 6v3"/><path d="M3 17h5M10 17h5M17 17h5"/>',
     infirmary: '<path d="M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7z"/>',
     bridge: '<circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16M7 7l10 10M17 7 7 17"/>',
     reactor: '<circle cx="12" cy="12" r="2"/><path d="M9.5 7.7 7 3.5a10 10 0 0 1 10 0l-2.5 4.2M16.4 13l4.8 1a10 10 0 0 1-5 8.6l-2.4-4.3M7.6 13l-4.8 1a10 10 0 0 0 5 8.6l2.4-4.3"/>',
-    barracks: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20v-3a6 6 0 0 1 12 0v3zM16 14a5 5 0 0 1 5 5v1h-4"/>'
+    barracks: '<circle cx="5" cy="8" r="2"/><circle cx="12" cy="6" r="2.5"/><circle cx="19" cy="8" r="2"/><path d="M1.5 19v-4a3.5 3.5 0 0 1 7 0v4zM8 20v-6a4 4 0 0 1 8 0v6zM15.5 19v-4a3.5 3.5 0 0 1 7 0v4z"/>'
   };
 
   function roomIcon(room) {
