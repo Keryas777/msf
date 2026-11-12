@@ -26,6 +26,7 @@
 
     <link rel="stylesheet" href="./style.css?v=4" />
     <link rel="stylesheet" href="./home.css?v=17" />
+    <link rel="stylesheet" href="./hub-chantier.css?v=1" />
     <style>.homeTile[hidden], .homeRosterUpdate[hidden] { display: none !important; }</style>
 
     <link rel="manifest" href="./manifest.webmanifest" />
@@ -130,6 +131,31 @@
           />
           <span class="srOnly">Codex Personnages</span>
         </a>
+              <div class="homeTile hubTile--disabled" role="group" aria-disabled="true" aria-label="Résumé Objectifs : en chantier, indisponible">
+          <img class="homeTileImg" src="./ResumeObjectifs.webp" alt="" loading="lazy" decoding="async" />
+          <span class="hubTileWorkBadge" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7h18v10H3z"/>
+            <path d="m7 7 5 10m1-10 5 10M7 17v4m10-4v4"/>
+          </svg>
+          CHANTIER
+        </span>
+          <span class="srOnly">Résumé Objectifs — fonctionnalité temporairement indisponible</span>
+        </div>
+
+        <div class="homeTile hubTile--disabled" role="group" aria-disabled="true" aria-label="Guides — Tours, DD, Trials : en chantier, indisponible">
+          <img class="homeTileImg" src="./GuidesToursDD.webp" alt="" loading="lazy" decoding="async" />
+          <span class="hubTileWorkBadge" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7h18v10H3z"/>
+            <path d="m7 7 5 10m1-10 5 10M7 17v4m10-4v4"/>
+          </svg>
+          CHANTIER
+        </span>
+          <span class="srOnly">Guides — Tours, DD, Trials — fonctionnalité temporairement indisponible</span>
+        </div>
       </section>
 
       <footer class="homeLogoutSection" aria-label="Déconnexion">
