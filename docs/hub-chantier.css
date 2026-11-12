@@ -1,0 +1,32 @@
+/* Tuiles en chantier des hubs : même pictogramme que l'Épreuve cosmique. */
+.homeTile.hubTile--disabled,
+.rankingsTile.hubTile--disabled{
+  cursor:default;
+  border-color:rgba(190,190,190,.32);
+  box-shadow:0 8px 23px rgba(0,0,0,.48),0 0 12px rgba(160,160,160,.2);
+}
+.hubTile--disabled .homeTileImg,
+.hubTile--disabled .rankingsTileImg{
+  filter:grayscale(1) brightness(.48);
+}
+.homeTile.hubTile--disabled:hover,
+.homeTile.hubTile--disabled:active,
+.rankingsTile.hubTile--disabled:hover,
+.rankingsTile.hubTile--disabled:active{
+  transform:none;filter:none;border-color:rgba(190,190,190,.32);
+}
+.homeTile.hubTile--disabled::after,
+.rankingsTile.hubTile--disabled::after{
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
+}
+.hubTileWorkBadge{
+  position:absolute;left:50%;top:43%;z-index:3;
+  transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;padding:8px 13px;border-radius:12px;
+  background:#f6ad27;color:#211600;border:1px solid #ffe4a0;
+  box-shadow:0 4px 15px rgba(0,0,0,.5);
+  font-size:clamp(10px,2.5vw,13px);font-weight:900;
+  letter-spacing:.035em;white-space:nowrap;pointer-events:none;
+}
+.hubTileWorkBadge svg{width:30px;height:30px;flex:none}
