@@ -1,1 +1,1499 @@
-{"schemaVersion":1,"source":{"kind":"official-game-archive","endpoint":"/game/v1/dds/dd_id_insanity_event_card_info_09","sha256":"97d3bc0c8da033208471f51f0a00f554c827d341fc7c234ff04b4b18a68be9fb","requirementsAvailable":false},"dimensions":[{"id":"dd_id_insanity_event_card_info_09","key":"dd9","name":"Dimension noire IX","shortName":"DD9","active":true,"official":{"name":"DARK DIMENSION IX","subName":"Total Annihilation","combatNodesPerTeam":16,"rayCount":9,"rayDepth":9,"startingRoomId":"A1","rays":[["A1","A2","A3","A4","A5","A6","A7","A8","A9"],["B9"],["C4","C5","C6","C7","C9"],["D4","D9"],["E4","E5","E6","E7","E8","E9"]]},"completionRule":{"characterId":"Annihilus","status":"DD9 terminée","percent":100,"kind":"application-convention","note":"Convention LoSP : les étoiles vérifiées d’Annihilus indiquent un niveau de récompense compatible avec un ou deux passages, sans prouver les passages ni leur date.","tiers":[{"passages":1,"minYellowStars":5,"minRedStars":2},{"passages":2,"minYellowStars":7,"minRedStars":4}]},"map":{"columns":["A","B","C","D","E"],"rows":[1,2,3,4,5,6,7,8,9],"combatNodeIds":["A2","A3","A5","A6","A7","B9","C4","C5","C6","C7","C9","D4","D9","E5","E6","E7"],"portalIds":["A4","A8","A9","E4","E8","E9"],"startId":"A1","visualEdges":[["A1","A2"],["A2","A3"],["A3","A4"],["A4","A5"],["A5","A6"],["A6","A7"],["A7","A8"],["A8","A9"],["A9","B9"],["B9","C9"],["C9","D9"],["D9","E9"],["A4","C4"],["C4","D4"],["D4","E4"],["E4","E5"],["E5","E6"],["E6","E7"],["E7","E8"]],"edgeSemantics":"Reconstruction graphique de la capture fournie ; ces traits ne définissent pas les déverrouillages mécaniques."},"nodes":[{"id":"A2","order":1,"requirement":null},{"id":"A3","order":2,"requirement":null},{"id":"A5","order":3,"requirement":null},{"id":"A6","order":4,"requirement":null},{"id":"A7","order":5,"requirement":null},{"id":"B9","order":6,"requirement":null},{"id":"C4","order":7,"requirement":null},{"id":"C5","order":8,"requirement":null},{"id":"C6","order":9,"requirement":null},{"id":"C7","order":10,"requirement":null},{"id":"C9","order":11,"requirement":null},{"id":"D4","order":12,"requirement":null},{"id":"D9","order":13,"requirement":null},{"id":"E5","order":14,"requirement":null},{"id":"E6","order":15,"requirement":null},{"id":"E7","order":16,"requirement":null}],"launchDate":"2026-04-15T21:00:00Z"}]}
+{
+  "schemaVersion": 2,
+  "source": {
+    "kind": "official-game-archive",
+    "endpoint": "/game/v1/dds/dd_id_insanity_event_card_info_09",
+    "sha256": "97d3bc0c8da033208471f51f0a00f554c827d341fc7c234ff04b4b18a68be9fb",
+    "requirementsAvailable": true,
+    "roomCount": 16,
+    "roomSource": "Cloudflare R2 official /game/v1/dds/{ddId}/{roomId} baseline snapshots, 2026-11-12"
+  },
+  "dimensions": [
+    {
+      "id": "dd_id_insanity_event_card_info_09",
+      "key": "dd9",
+      "name": "Dimension noire IX",
+      "shortName": "DD9",
+      "active": true,
+      "official": {
+        "name": "DARK DIMENSION IX",
+        "subName": "Total Annihilation",
+        "combatNodesPerTeam": 16,
+        "rayCount": 9,
+        "rayDepth": 9,
+        "startingRoomId": "A1",
+        "rays": [
+          [
+            "A1",
+            "A2",
+            "A3",
+            "A4",
+            "A5",
+            "A6",
+            "A7",
+            "A8",
+            "A9"
+          ],
+          [
+            "B9"
+          ],
+          [
+            "C4",
+            "C5",
+            "C6",
+            "C7",
+            "C9"
+          ],
+          [
+            "D4",
+            "D9"
+          ],
+          [
+            "E4",
+            "E5",
+            "E6",
+            "E7",
+            "E8",
+            "E9"
+          ]
+        ]
+      },
+      "completionRule": {
+        "characterId": "Annihilus",
+        "status": "DD9 terminée",
+        "percent": 100,
+        "kind": "application-convention",
+        "note": "Convention LoSP : les étoiles vérifiées d’Annihilus indiquent un niveau de récompense compatible avec un ou deux passages, sans prouver les passages ni leur date.",
+        "tiers": [
+          {
+            "passages": 1,
+            "minYellowStars": 5,
+            "minRedStars": 2
+          },
+          {
+            "passages": 2,
+            "minYellowStars": 7,
+            "minRedStars": 4
+          }
+        ]
+      },
+      "map": {
+        "columns": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "rows": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "combatNodeIds": [
+          "A2",
+          "A3",
+          "A5",
+          "A6",
+          "A7",
+          "B9",
+          "C4",
+          "C5",
+          "C6",
+          "C7",
+          "C9",
+          "D4",
+          "D9",
+          "E5",
+          "E6",
+          "E7"
+        ],
+        "portalIds": [
+          "A4",
+          "A8",
+          "A9",
+          "E4",
+          "E8",
+          "E9"
+        ],
+        "startId": "A1",
+        "visualEdges": [
+          [
+            "A1",
+            "A2"
+          ],
+          [
+            "A2",
+            "A3"
+          ],
+          [
+            "A3",
+            "A4"
+          ],
+          [
+            "A4",
+            "A5"
+          ],
+          [
+            "A5",
+            "A6"
+          ],
+          [
+            "A6",
+            "A7"
+          ],
+          [
+            "A7",
+            "A8"
+          ],
+          [
+            "A8",
+            "A9"
+          ],
+          [
+            "A9",
+            "B9"
+          ],
+          [
+            "B9",
+            "C9"
+          ],
+          [
+            "C9",
+            "D9"
+          ],
+          [
+            "D9",
+            "E9"
+          ],
+          [
+            "A4",
+            "C4"
+          ],
+          [
+            "C4",
+            "D4"
+          ],
+          [
+            "D4",
+            "E4"
+          ],
+          [
+            "E4",
+            "E5"
+          ],
+          [
+            "E5",
+            "E6"
+          ],
+          [
+            "E6",
+            "E7"
+          ],
+          [
+            "E7",
+            "E8"
+          ]
+        ],
+        "edgeSemantics": "Reconstruction graphique de la capture fournie ; ces traits ne définissent pas les déverrouillages mécaniques."
+      },
+      "nodes": [
+        {
+          "id": "A2",
+          "order": 1,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "name": "Mission 1",
+          "combatId": "insanity_annihilation_01_c9bc8d07",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21</color>"
+            ]
+          },
+          "rewards": {
+            "allOf": [
+              {
+                "item": {
+                  "id": "GEAR_RED_ARMOR_MAT_BIT",
+                  "name": "Crimson Armor Catalyst Part",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_GEAR_RED_ARMOR_MAT_BIT_22b82ca9.png",
+                  "noDeco": true,
+                  "tier": 18
+                },
+                "quantity": 50
+              },
+              {
+                "item": {
+                  "id": "SC",
+                  "name": "Gold",
+                  "description": "Gold is required to upgrade your character's level, abilities, and Star rank. Earn Gold in Campaign missions and Challenges.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_SC_d7dd0bbc.png"
+                },
+                "quantity": 9000000
+              }
+            ]
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/A2",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/140ee6d52e76437e5d5c83eb37f37960e1fc54e1bc6296e0da231142083d33b8.json"
+        },
+        {
+          "id": "A3",
+          "order": 2,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "name": "Mission 2",
+          "combatId": "insanity_annihilation_02_86b098f8",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21</color>"
+            ]
+          },
+          "rewards": {
+            "allOf": [
+              {
+                "item": {
+                  "id": "ABILITY_MATERIAL_ORANGE_ABILITY_MAT",
+                  "name": "T4 Ability Material",
+                  "description": "Used to upgrade character abilities.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_ABILITY_MATERIAL_ORANGE_ABILITY_MAT_bb60fc90.png"
+                },
+                "quantity": 330
+              },
+              {
+                "item": {
+                  "id": "SC",
+                  "name": "Gold",
+                  "description": "Gold is required to upgrade your character's level, abilities, and Star rank. Earn Gold in Campaign missions and Challenges.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_SC_d7dd0bbc.png"
+                },
+                "quantity": 9000000
+              },
+              {
+                "item": {
+                  "id": "CONSUMABLE_XPLVL80",
+                  "name": "L4 Training Module",
+                  "description": "Provides immense XP when used to train characters.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_CONSUMABLE_XPLVL80_4ae2e7af.png"
+                },
+                "quantity": 2250
+              }
+            ]
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/A3",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/060e45934084b11355bd2674bf2f86f9bcbeda88ea2dd495178053a22544fa9d.json"
+        },
+        {
+          "id": "A5",
+          "order": 3,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [
+                  "City"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": [
+                  "Epic",
+                  "Legendary",
+                  "Mythic"
+                ]
+              }
+            ]
+          },
+          "name": "Mission 3",
+          "combatId": "insanity_annihilation_03_afea3a89",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21 CITY (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "anyTraits": [
+                  {
+                    "id": "City",
+                    "name": "CITY"
+                  }
+                ],
+                "exceptTraits": [
+                  {
+                    "id": "Epic",
+                    "name": "EPIC"
+                  },
+                  {
+                    "id": "Legendary",
+                    "name": "LEGENDARY"
+                  },
+                  {
+                    "id": "Mythic",
+                    "name": "MYTHIC"
+                  }
+                ],
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21 CITY (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+            ]
+          },
+          "rewards": {
+            "allOf": [
+              {
+                "item": {
+                  "id": "GEAR_RED_BASIC_CAT_BIT",
+                  "name": "Crimson Basic Catalyst Part",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_GEAR_RED_BASIC_CAT_BIT_8781b124.png",
+                  "noDeco": true,
+                  "tier": 18
+                },
+                "quantity": 300
+              },
+              {
+                "item": {
+                  "id": "SC",
+                  "name": "Gold",
+                  "description": "Gold is required to upgrade your character's level, abilities, and Star rank. Earn Gold in Campaign missions and Challenges.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_SC_d7dd0bbc.png"
+                },
+                "quantity": 9000000
+              }
+            ]
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/A5",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/96834c1895a8baab1fe25a6257c3df53d838f5219a1f3d283bfcc4418b3bc21e.json"
+        },
+        {
+          "id": "A6",
+          "order": 4,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [
+                  "City"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": [
+                  "Epic",
+                  "Legendary",
+                  "Mythic"
+                ]
+              }
+            ]
+          },
+          "name": "Mission 4",
+          "combatId": "insanity_annihilation_04_aed60130",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21 CITY (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "anyTraits": [
+                  {
+                    "id": "City",
+                    "name": "CITY"
+                  }
+                ],
+                "exceptTraits": [
+                  {
+                    "id": "Epic",
+                    "name": "EPIC"
+                  },
+                  {
+                    "id": "Legendary",
+                    "name": "LEGENDARY"
+                  },
+                  {
+                    "id": "Mythic",
+                    "name": "MYTHIC"
+                  }
+                ],
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21 CITY (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+            ]
+          },
+          "rewards": {
+            "allOf": [
+              {
+                "item": {
+                  "id": "GEAR_RED_DAMAGE_MAT_BIT",
+                  "name": "Crimson Damage Catalyst Part",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_GEAR_RED_DAMAGE_MAT_BIT_024fb1fa.png",
+                  "noDeco": true,
+                  "tier": 18
+                },
+                "quantity": 550
+              },
+              {
+                "item": {
+                  "id": "SC",
+                  "name": "Gold",
+                  "description": "Gold is required to upgrade your character's level, abilities, and Star rank. Earn Gold in Campaign missions and Challenges.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_SC_d7dd0bbc.png"
+                },
+                "quantity": 9000000
+              }
+            ]
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/A6",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/ac25fba28abeb8b43e67c27827cc4088890d9de4163c3b5ebbb2ae3aba3db867.json"
+        },
+        {
+          "id": "A7",
+          "order": 5,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [
+                  "City"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": [
+                  "Epic",
+                  "Legendary",
+                  "Mythic"
+                ]
+              }
+            ]
+          },
+          "name": "Mission 5",
+          "combatId": "insanity_annihilation_05_61f08aab",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21 CITY (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "anyTraits": [
+                  {
+                    "id": "City",
+                    "name": "CITY"
+                  }
+                ],
+                "exceptTraits": [
+                  {
+                    "id": "Epic",
+                    "name": "EPIC"
+                  },
+                  {
+                    "id": "Legendary",
+                    "name": "LEGENDARY"
+                  },
+                  {
+                    "id": "Mythic",
+                    "name": "MYTHIC"
+                  }
+                ],
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21 CITY (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+            ]
+          },
+          "rewards": {
+            "allOf": [
+              {
+                "item": {
+                  "id": "ABILITY_MATERIAL_ORANGE_ABILITY_MAT",
+                  "name": "T4 Ability Material",
+                  "description": "Used to upgrade character abilities.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_ABILITY_MATERIAL_ORANGE_ABILITY_MAT_bb60fc90.png"
+                },
+                "quantity": 330
+              },
+              {
+                "item": {
+                  "id": "SC",
+                  "name": "Gold",
+                  "description": "Gold is required to upgrade your character's level, abilities, and Star rank. Earn Gold in Campaign missions and Challenges.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_SC_d7dd0bbc.png"
+                },
+                "quantity": 9000000
+              },
+              {
+                "item": {
+                  "id": "CONSUMABLE_XPLVL80",
+                  "name": "L4 Training Module",
+                  "description": "Provides immense XP when used to train characters.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_CONSUMABLE_XPLVL80_4ae2e7af.png"
+                },
+                "quantity": 2250
+              }
+            ]
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/A7",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/323025ace86de0539bc331fba8c5eb2f71fc19fe825c7b6b1aa6602d6cdf91a5.json"
+        },
+        {
+          "id": "B9",
+          "order": 6,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [
+                  "Cosmic"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": [
+                  "Epic",
+                  "Legendary",
+                  "Mythic"
+                ]
+              }
+            ]
+          },
+          "name": "Mission 6",
+          "combatId": "insanity_annihilation_06_919fc4f5",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21 COSMIC (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "anyTraits": [
+                  {
+                    "id": "Cosmic",
+                    "name": "COSMIC"
+                  }
+                ],
+                "exceptTraits": [
+                  {
+                    "id": "Epic",
+                    "name": "EPIC"
+                  },
+                  {
+                    "id": "Legendary",
+                    "name": "LEGENDARY"
+                  },
+                  {
+                    "id": "Mythic",
+                    "name": "MYTHIC"
+                  }
+                ],
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21 COSMIC (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+            ]
+          },
+          "rewards": {
+            "allOf": [
+              {
+                "item": {
+                  "id": "GEAR_RED_BASIC_CAT_BIT",
+                  "name": "Crimson Basic Catalyst Part",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_GEAR_RED_BASIC_CAT_BIT_8781b124.png",
+                  "noDeco": true,
+                  "tier": 18
+                },
+                "quantity": 300
+              },
+              {
+                "item": {
+                  "id": "SC",
+                  "name": "Gold",
+                  "description": "Gold is required to upgrade your character's level, abilities, and Star rank. Earn Gold in Campaign missions and Challenges.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_SC_d7dd0bbc.png"
+                },
+                "quantity": 9000000
+              }
+            ]
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/B9",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/eb25605ba349ade59b416bb9b1cea7a604db5b5ebfd53ed3971068724623bcfe.json"
+        },
+        {
+          "id": "C9",
+          "order": 7,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [
+                  "Cosmic"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": [
+                  "Epic",
+                  "Legendary",
+                  "Mythic"
+                ]
+              }
+            ]
+          },
+          "name": "Mission 7",
+          "combatId": "insanity_annihilation_07_19dfd7c8",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21 COSMIC (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "anyTraits": [
+                  {
+                    "id": "Cosmic",
+                    "name": "COSMIC"
+                  }
+                ],
+                "exceptTraits": [
+                  {
+                    "id": "Epic",
+                    "name": "EPIC"
+                  },
+                  {
+                    "id": "Legendary",
+                    "name": "LEGENDARY"
+                  },
+                  {
+                    "id": "Mythic",
+                    "name": "MYTHIC"
+                  }
+                ],
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21 COSMIC (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+            ]
+          },
+          "rewards": {
+            "allOf": [
+              {
+                "item": {
+                  "id": "GEAR_RED_FOCUS_MAT_BIT",
+                  "name": "Crimson Focus Catalyst Part",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_GEAR_RED_FOCUS_MAT_BIT_b04810dd.png",
+                  "noDeco": true,
+                  "tier": 18
+                },
+                "quantity": 550
+              },
+              {
+                "item": {
+                  "id": "SC",
+                  "name": "Gold",
+                  "description": "Gold is required to upgrade your character's level, abilities, and Star rank. Earn Gold in Campaign missions and Challenges.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_SC_d7dd0bbc.png"
+                },
+                "quantity": 9000000
+              }
+            ]
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/C9",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/3002f0d7ac4de63b3debfcf04a0a8ffdfcf63a9dbb61fc223d48bd4da09d21a5.json"
+        },
+        {
+          "id": "D9",
+          "order": 8,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [
+                  "Cosmic"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": [
+                  "Epic",
+                  "Legendary",
+                  "Mythic"
+                ]
+              }
+            ]
+          },
+          "name": "Mission 8",
+          "combatId": "insanity_annihilation_08_2c8e3d0f",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21 COSMIC (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "anyTraits": [
+                  {
+                    "id": "Cosmic",
+                    "name": "COSMIC"
+                  }
+                ],
+                "exceptTraits": [
+                  {
+                    "id": "Epic",
+                    "name": "EPIC"
+                  },
+                  {
+                    "id": "Legendary",
+                    "name": "LEGENDARY"
+                  },
+                  {
+                    "id": "Mythic",
+                    "name": "MYTHIC"
+                  }
+                ],
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21 COSMIC (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+            ]
+          },
+          "rewards": {
+            "allOf": [
+              {
+                "item": {
+                  "id": "GEAR_RED_TECH_MAT_BIT",
+                  "name": "Crimson Unstable Molecules",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_GEAR_RED_TECH_MAT_BIT_b6ebdc86.png",
+                  "noDeco": true,
+                  "tier": 18
+                },
+                "quantity": 900
+              },
+              {
+                "item": {
+                  "id": "ABILITY_MATERIAL_ORANGE_ABILITY_MAT",
+                  "name": "T4 Ability Material",
+                  "description": "Used to upgrade character abilities.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_ABILITY_MATERIAL_ORANGE_ABILITY_MAT_bb60fc90.png"
+                },
+                "quantity": 330
+              },
+              {
+                "item": {
+                  "id": "SC",
+                  "name": "Gold",
+                  "description": "Gold is required to upgrade your character's level, abilities, and Star rank. Earn Gold in Campaign missions and Challenges.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_SC_d7dd0bbc.png"
+                },
+                "quantity": 9000000
+              },
+              {
+                "item": {
+                  "id": "CONSUMABLE_XPLVL80",
+                  "name": "L4 Training Module",
+                  "description": "Provides immense XP when used to train characters.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_CONSUMABLE_XPLVL80_4ae2e7af.png"
+                },
+                "quantity": 2250
+              }
+            ]
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/D9",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/b16e853e8abab714993854fa60b021bb9c00909b7fb34bbf3cb997468d5689ce.json"
+        },
+        {
+          "id": "E7",
+          "order": 9,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [
+                  "Global"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": [
+                  "Epic",
+                  "Legendary",
+                  "Mythic"
+                ]
+              }
+            ]
+          },
+          "name": "Mission 9",
+          "combatId": "insanity_annihilation_09_c6e753ed",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21 GLOBAL (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "anyTraits": [
+                  {
+                    "id": "Global",
+                    "name": "GLOBAL"
+                  }
+                ],
+                "exceptTraits": [
+                  {
+                    "id": "Epic",
+                    "name": "EPIC"
+                  },
+                  {
+                    "id": "Legendary",
+                    "name": "LEGENDARY"
+                  },
+                  {
+                    "id": "Mythic",
+                    "name": "MYTHIC"
+                  }
+                ],
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21 GLOBAL (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+            ]
+          },
+          "rewards": {
+            "allOf": [
+              {
+                "item": {
+                  "id": "GEAR_RED_BASIC_CAT_BIT",
+                  "name": "Crimson Basic Catalyst Part",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_GEAR_RED_BASIC_CAT_BIT_8781b124.png",
+                  "noDeco": true,
+                  "tier": 18
+                },
+                "quantity": 300
+              },
+              {
+                "item": {
+                  "id": "SC",
+                  "name": "Gold",
+                  "description": "Gold is required to upgrade your character's level, abilities, and Star rank. Earn Gold in Campaign missions and Challenges.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_SC_d7dd0bbc.png"
+                },
+                "quantity": 9000000
+              }
+            ]
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/E7",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/4f1f3d22aa5d29217645c7596b5c56d5b16dde88f2a8cf7fa6cd427e5f9322fe.json"
+        },
+        {
+          "id": "E6",
+          "order": 10,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [
+                  "Global"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": [
+                  "Epic",
+                  "Legendary",
+                  "Mythic"
+                ]
+              }
+            ]
+          },
+          "name": "Mission 10",
+          "combatId": "insanity_annihilation_10_ab51ad81",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21 GLOBAL (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "anyTraits": [
+                  {
+                    "id": "Global",
+                    "name": "GLOBAL"
+                  }
+                ],
+                "exceptTraits": [
+                  {
+                    "id": "Epic",
+                    "name": "EPIC"
+                  },
+                  {
+                    "id": "Legendary",
+                    "name": "LEGENDARY"
+                  },
+                  {
+                    "id": "Mythic",
+                    "name": "MYTHIC"
+                  }
+                ],
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21 GLOBAL (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+            ]
+          },
+          "rewards": {
+            "allOf": [
+              {
+                "item": {
+                  "id": "GEAR_RED_HEALTH_MAT_BIT",
+                  "name": "Crimson Health Catalyst Part",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_GEAR_RED_HEALTH_MAT_BIT_2489b141.png",
+                  "noDeco": true,
+                  "tier": 18
+                },
+                "quantity": 1000
+              },
+              {
+                "item": {
+                  "id": "SC",
+                  "name": "Gold",
+                  "description": "Gold is required to upgrade your character's level, abilities, and Star rank. Earn Gold in Campaign missions and Challenges.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_SC_d7dd0bbc.png"
+                },
+                "quantity": 9000000
+              }
+            ]
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/E6",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/57526ce9647fe9b81c654a6972c5edc547f011ecb607f2a8ddc0fc794bf5961a.json"
+        },
+        {
+          "id": "E5",
+          "order": 11,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [
+                  "Global"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": [
+                  "Epic",
+                  "Legendary",
+                  "Mythic"
+                ]
+              }
+            ]
+          },
+          "name": "Mission 11",
+          "combatId": "insanity_annihilation_11_9416b498",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21 GLOBAL (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "anyTraits": [
+                  {
+                    "id": "Global",
+                    "name": "GLOBAL"
+                  }
+                ],
+                "exceptTraits": [
+                  {
+                    "id": "Epic",
+                    "name": "EPIC"
+                  },
+                  {
+                    "id": "Legendary",
+                    "name": "LEGENDARY"
+                  },
+                  {
+                    "id": "Mythic",
+                    "name": "MYTHIC"
+                  }
+                ],
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21 GLOBAL (NON-EPIC, NON-LEGENDARY, NON-MYTHIC)</color>"
+            ]
+          },
+          "rewards": {
+            "allOf": [
+              {
+                "item": {
+                  "id": "GEAR_RED_TECH_MAT_C2",
+                  "name": "Crimson Laser Torch",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_GEAR_RED_TECH_MAT_C2_9e069e59.png",
+                  "noDeco": true,
+                  "tier": 18
+                },
+                "quantity": 750
+              },
+              {
+                "item": {
+                  "id": "ABILITY_MATERIAL_ORANGE_ABILITY_MAT",
+                  "name": "T4 Ability Material",
+                  "description": "Used to upgrade character abilities.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_ABILITY_MATERIAL_ORANGE_ABILITY_MAT_bb60fc90.png"
+                },
+                "quantity": 330
+              },
+              {
+                "item": {
+                  "id": "SC",
+                  "name": "Gold",
+                  "description": "Gold is required to upgrade your character's level, abilities, and Star rank. Earn Gold in Campaign missions and Challenges.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_SC_d7dd0bbc.png"
+                },
+                "quantity": 9000000
+              },
+              {
+                "item": {
+                  "id": "CONSUMABLE_XPLVL80",
+                  "name": "L4 Training Module",
+                  "description": "Provides immense XP when used to train characters.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_CONSUMABLE_XPLVL80_4ae2e7af.png"
+                },
+                "quantity": 2250
+              }
+            ]
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/E5",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/6c5adefbc523711d0ccc08c0a071e476bd4194505bc046531c7c588f05e1d855.json"
+        },
+        {
+          "id": "D4",
+          "order": 12,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [
+                  "Legendary"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": []
+              },
+              {
+                "minGear": 21,
+                "tagIds": [],
+                "allTagIds": [
+                  "Villain",
+                  "Epic"
+                ],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "name": "Mission 12",
+          "combatId": "insanity_annihilation_12_60b7723f",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21 LEGENDARY</color> or <color=#fff568>VILLAIN EPIC</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "anyTraits": [
+                  {
+                    "id": "Legendary",
+                    "name": "LEGENDARY"
+                  }
+                ],
+                "gearTier": 21
+              },
+              {
+                "allTraits": [
+                  {
+                    "id": "Villain",
+                    "name": "VILLAIN"
+                  },
+                  {
+                    "id": "Epic",
+                    "name": "EPIC"
+                  }
+                ],
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21 LEGENDARY</color> or <color=#fff568>VILLAIN EPIC</color>"
+            ]
+          },
+          "rewards": {
+            "allOf": [
+              {
+                "item": {
+                  "id": "GEAR_RED_BASIC_CAT_BIT",
+                  "name": "Crimson Basic Catalyst Part",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_GEAR_RED_BASIC_CAT_BIT_8781b124.png",
+                  "noDeco": true,
+                  "tier": 18
+                },
+                "quantity": 300
+              },
+              {
+                "item": {
+                  "id": "SC",
+                  "name": "Gold",
+                  "description": "Gold is required to upgrade your character's level, abilities, and Star rank. Earn Gold in Campaign missions and Challenges.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_SC_d7dd0bbc.png"
+                },
+                "quantity": 9000000
+              }
+            ]
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/D4",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/960dacfd1d2c2634ca76aa5ef7034a97945101d05392698157fab6ac0a841b57.json"
+        },
+        {
+          "id": "C4",
+          "order": 13,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [
+                  "Legendary"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": []
+              },
+              {
+                "minGear": 21,
+                "tagIds": [],
+                "allTagIds": [
+                  "Villain",
+                  "Epic"
+                ],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "name": "Mission 13",
+          "combatId": "insanity_annihilation_13_8492da15",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21 LEGENDARY</color> or <color=#fff568>VILLAIN EPIC</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "anyTraits": [
+                  {
+                    "id": "Legendary",
+                    "name": "LEGENDARY"
+                  }
+                ],
+                "gearTier": 21
+              },
+              {
+                "allTraits": [
+                  {
+                    "id": "Villain",
+                    "name": "VILLAIN"
+                  },
+                  {
+                    "id": "Epic",
+                    "name": "EPIC"
+                  }
+                ],
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21 LEGENDARY</color> or <color=#fff568>VILLAIN EPIC</color>"
+            ]
+          },
+          "rewards": {
+            "allOf": [
+              {
+                "item": {
+                  "id": "GEAR_RED_RESIST_MAT_BIT",
+                  "name": "Crimson Resistance Catalyst Part",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_GEAR_RED_RESIST_MAT_BIT_eaf6731a.png",
+                  "noDeco": true,
+                  "tier": 18
+                },
+                "quantity": 50
+              },
+              {
+                "item": {
+                  "id": "SC",
+                  "name": "Gold",
+                  "description": "Gold is required to upgrade your character's level, abilities, and Star rank. Earn Gold in Campaign missions and Challenges.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_SC_d7dd0bbc.png"
+                },
+                "quantity": 9000000
+              }
+            ]
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/C4",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/e10b3224c93a2472bfec2a6139efb071a2d35e6225240971a63b512c6f58cdfc.json"
+        },
+        {
+          "id": "C5",
+          "order": 14,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [
+                  "Mythic"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": []
+              },
+              {
+                "minGear": 21,
+                "tagIds": [],
+                "allTagIds": [
+                  "Epic",
+                  "Hero"
+                ],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "name": "Mission 14",
+          "combatId": "insanity_annihilation_14_42244616",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21 MYTHIC</color> or <color=#fff568>HERO EPIC</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "anyTraits": [
+                  {
+                    "id": "Mythic",
+                    "name": "MYTHIC"
+                  }
+                ],
+                "gearTier": 21
+              },
+              {
+                "allTraits": [
+                  {
+                    "id": "Epic",
+                    "name": "EPIC"
+                  },
+                  {
+                    "id": "Hero",
+                    "name": "HERO"
+                  }
+                ],
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21 MYTHIC</color> or <color=#fff568>HERO EPIC</color>"
+            ]
+          },
+          "rewards": {
+            "allOf": [
+              {
+                "item": {
+                  "id": "GEAR_RED_BASIC_CAT_BIT",
+                  "name": "Crimson Basic Catalyst Part",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_GEAR_RED_BASIC_CAT_BIT_8781b124.png",
+                  "noDeco": true,
+                  "tier": 18
+                },
+                "quantity": 300
+              },
+              {
+                "item": {
+                  "id": "SC",
+                  "name": "Gold",
+                  "description": "Gold is required to upgrade your character's level, abilities, and Star rank. Earn Gold in Campaign missions and Challenges.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_SC_d7dd0bbc.png"
+                },
+                "quantity": 9000000
+              }
+            ]
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/C5",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/5f56d9f04d22c3dac7e5eb30bdce93329cb71cc6a7bceebb54dc89c762529861.json"
+        },
+        {
+          "id": "C6",
+          "order": 15,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [
+                  "Mythic"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": []
+              },
+              {
+                "minGear": 21,
+                "tagIds": [],
+                "allTagIds": [
+                  "Epic",
+                  "Hero"
+                ],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "name": "Mission 15",
+          "combatId": "insanity_annihilation_15_245fcda4",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21 MYTHIC</color> or <color=#fff568>HERO EPIC</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "anyTraits": [
+                  {
+                    "id": "Mythic",
+                    "name": "MYTHIC"
+                  }
+                ],
+                "gearTier": 21
+              },
+              {
+                "allTraits": [
+                  {
+                    "id": "Epic",
+                    "name": "EPIC"
+                  },
+                  {
+                    "id": "Hero",
+                    "name": "HERO"
+                  }
+                ],
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21 MYTHIC</color> or <color=#fff568>HERO EPIC</color>"
+            ]
+          },
+          "rewards": {
+            "allOf": [
+              {
+                "item": {
+                  "id": "GEAR_RED_TECH_MAT_C3",
+                  "name": "Crimson Charged Particles",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_GEAR_RED_TECH_MAT_C3_e75ee1cd.png",
+                  "noDeco": true,
+                  "tier": 18
+                },
+                "quantity": 600
+              },
+              {
+                "item": {
+                  "id": "SC",
+                  "name": "Gold",
+                  "description": "Gold is required to upgrade your character's level, abilities, and Star rank. Earn Gold in Campaign missions and Challenges.",
+                  "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_SC_d7dd0bbc.png"
+                },
+                "quantity": 9000000
+              }
+            ]
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/C6",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/f0579da77f6a7b0de3ac3e7bc509d1e62e92f99fca772754d0bdf7becffa634d.json"
+        },
+        {
+          "id": "C7",
+          "order": 16,
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minGear": 21,
+                "tagIds": [],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "name": "Mission 16",
+          "combatId": "insanity_annihilation_16_baaa7d90",
+          "requirementDescription": [
+            "REQUIRES: 5 <color=#fff568>GEAR TIER 21</color>"
+          ],
+          "officialRequirements": {
+            "minCharacters": 5,
+            "anyCharacterFilters": [
+              {
+                "gearTier": 21
+              }
+            ],
+            "description": [
+              "REQUIRES: 5 <color=#fff568>GEAR TIER 21</color>"
+            ]
+          },
+          "rewards": {
+            "item": {
+              "id": "ABILITY_MATERIAL_ORANGE_ABILITY_MAT",
+              "name": "T4 Ability Material",
+              "description": "Used to upgrade character abilities.",
+              "icon": "https://assets.marvelstrikeforce.com/imgs/ICON_ABILITY_MATERIAL_ORANGE_ABILITY_MAT_bb60fc90.png"
+            },
+            "quantity": 330
+          },
+          "sourcePath": "/game/v1/dds/dd_id_insanity_event_card_info_09/C7",
+          "sourceArchiveKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/e2442314e5218402d3b974c377ab2550865c3c6ab4966bf64fdcb04d072751f5.json"
+        }
+      ],
+      "launchDate": "2026-04-15T21:00:00Z"
+    }
+  ]
+}
