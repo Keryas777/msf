@@ -194,6 +194,29 @@
     return element;
   }
 
+  // Icons are mirrored in a separate board layer so influence SVG cannot cover them.
+  function refreshIconOverlay() {
+    let overlay = board.querySelector(".intelIconOverlay");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.className = "intelIconOverlay";
+      board.append(overlay);
+    }
+    overlay.replaceChildren();
+    const boardRect = board.getBoundingClientRect();
+    board.querySelectorAll(".intelCell .intelRoomIcon").forEach(icon => {
+      const rect = icon.getBoundingClientRect();
+      const copy = icon.cloneNode(true);
+      copy.classList.add("intelIconMirror");
+      if (icon.closest(".intelCell")?.classList.contains("is-muted")) copy.classList.add("is-muted");
+      copy.style.left = (rect.left - boardRect.left) + "px";
+      copy.style.top = (rect.top - boardRect.top) + "px";
+      copy.style.width = rect.width + "px";
+      copy.style.height = rect.height + "px";
+      overlay.append(copy);
+    });
+  }
+
   function drawConnections() {
     const rect = board.getBoundingClientRect();
     svg.setAttribute("viewBox", "0 0 " + rect.width + " " + rect.height);
@@ -259,6 +282,7 @@
         svg.append(triangle);
       });
     });
+    refreshIconOverlay();
   }
 
   function rangeLabel(room) {
