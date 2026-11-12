@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#08101d" />
+  <title>Renseignements de guerre — LoSP</title>
+  <style>html.authChecking body{opacity:0;pointer-events:none}</style>
+  <script>document.documentElement.classList.add("authChecking");</script>
+  <script src="./auth-guard.js?v=8"></script>
+  <link rel="stylesheet" href="./style.css?v=ts" />
+  <link rel="stylesheet" href="./renseignements-guerre.css?v=1" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+</head>
+<body class="warIntelPage">
+  <a class="intelSkip" href="#intelMain">Aller à la carte tactique</a>
+  <main id="intelMain" class="intelShell">
+    <header class="intelHeader">
+      <a class="intelHome" href="./home.html" aria-label="Accueil LoSP">⌂</a>
+      <div class="intelHeaderText">
+        <p class="intelEyebrow"><span class="intelSignal"></span> CENTRE DE RENSEIGNEMENT · LOSP</p>
+        <h1>Renseignements <span>de guerre</span></h1>
+        <p class="intelIntro">Les plans connus des héliporteurs adverses, partagés pour préparer les prochaines offensives.</p>
+      </div>
+      <div class="intelHeaderMark" aria-hidden="true"><span>◉</span><small>TACTICAL<br />INTELLIGENCE</small></div>
+    </header>
+
+    <div class="intelDemoNotice" role="note">
+      <span class="intelDemoIcon" aria-hidden="true">!</span>
+      <div><strong>PROTOTYPE — DONNÉES FICTIVES</strong><span>Aucun renseignement réel ni relevé de guerre n’est enregistré.</span></div>
+      <span class="intelDemoTag">DÉMO</span>
+    </div>
+
+    <section class="intelWorkspace" aria-label="Plan tactique de démonstration">
+      <aside class="intelSidePanel">
+        <div class="intelSideHeading"><span class="intelSectionCode">01 / CIBLE</span><span class="intelLiveDot">DOSSIER LOCAL</span></div>
+        <label class="intelFieldLabel" for="intelAlliance">Alliance adverse</label>
+        <div class="intelSelectWrap"><select id="intelAlliance" class="intelSelect"><option value="demo">Aegis Meridian — fictif</option></select><span aria-hidden="true">⌄</span></div>
+        <div class="intelAllianceCard">
+          <div class="intelCrest" aria-hidden="true"><span>✦</span></div>
+          <div class="intelAllianceMeta"><strong>Aegis Meridian</strong><span>Identité de démonstration</span></div>
+          <span class="intelVerified" title="Identité fictive">◉</span>
+        </div>
+        <div class="intelDivider"></div>
+        <div class="intelSideHeading"><span class="intelSectionCode">02 / DERNIÈRE OBSERVATION</span></div>
+        <div class="intelObservation">
+          <div class="intelObservationDate"><span class="intelCalendar" aria-hidden="true">▦</span><div><strong>Exemple fictif</strong><span>Pas un relevé réel</span></div></div>
+          <p>Disposition complète de démonstration</p>
+          <div class="intelObservationFoot"><span><i></i> Configuration d’exemple</span><span>12 / 12</span></div>
+        </div>
+        <div class="intelSideHint"><span aria-hidden="true">⌁</span><p>Les informations d’un vrai relevé indiqueront leur date et leur alliance observatrice.</p></div>
+        <div class="intelLegend"><span class="intelSectionCode">LÉGENDE TACTIQUE</span><div><i class="legendGlobal"></i>Portée globale</div><div><i class="legendAdjacent"></i>Voisin direct</div><div><i class="legendRoom"></i>Effet de salle</div></div>
+      </aside>
+
+      <section class="intelMapPanel" aria-labelledby="mapTitle">
+        <div class="intelMapTopline"><div><p class="intelSectionCode">OPÉRATION / ALPHA-09 <span>· SIMULATION</span></p><h2 id="mapTitle">Configuration du porte-héliporteur</h2></div><div class="intelMapStatus"><i></i> PLAN DISPONIBLE</div></div>
+        <div class="intelMapSubline"><span>STRUCTURE · 12 ZONES</span><span>DERNIÈRE SYNCHRO <b>—</b></span></div>
+
+        <div class="intelModeBar" role="group" aria-label="Mode de lecture tactique">
+          <button type="button" class="intelMode is-active" data-mode="overview" aria-pressed="true"><span aria-hidden="true">⌗</span><span>Vue générale</span></button>
+          <button type="button" class="intelMode" data-mode="emitted" aria-pressed="false"><span aria-hidden="true">◎</span><span>Bonus émis</span></button>
+          <button type="button" class="intelMode" data-mode="received" aria-pressed="false"><span aria-hidden="true">◌</span><span>Bonus reçus</span></button>
+        </div>
+
+        <div id="intelBoard" class="intelBoard" data-mode="overview" aria-label="Carte tactique interactive de douze emplacements">
+          <svg id="intelConnections" class="intelConnections" aria-hidden="true"></svg>
+          <div class="intelCell intelFlightCell" data-cell="0"><button class="intelRoom intelFlight" type="button" data-position="0" aria-label="Sélectionner Pont d’envol 1"><span class="flightLabel"><i>01</i>PONT D’ENVOL</span><span class="flightNo">01</span><span class="runway"><i></i></span><span class="flightFoot">ZONE D’ENTRÉE <b>FIXE</b></span></button></div>
+          <div class="intelCell intelFlightCell" data-cell="1"><button class="intelRoom intelFlight" type="button" data-position="1" aria-label="Sélectionner Pont d’envol 2"><span class="flightLabel"><i>02</i>PONT D’ENVOL</span><span class="flightNo">02</span><span class="runway"><i></i></span><span class="flightFoot">ZONE D’ENTRÉE <b>FIXE</b></span></button></div>
+          <div class="intelCell intelFlightCell" data-cell="2"><button class="intelRoom intelFlight" type="button" data-position="2" aria-label="Sélectionner Pont d’envol 3"><span class="flightLabel"><i>03</i>PONT D’ENVOL</span><span class="flightNo">03</span><span class="runway"><i></i></span><span class="flightFoot">ZONE D’ENTRÉE <b>FIXE</b></span></button></div>
+          <div class="intelCell" data-cell="3"><button class="intelRoom room-soute" type="button" data-position="3" aria-label="Sélectionner Soute"><span class="intelRoomCode">CARGO · 04</span><span class="intelRoomIcon" aria-hidden="true">▣</span><strong>Soute</strong><span class="intelRange">ADJACENT</span></button></div>
+          <div class="intelCell" data-cell="4"><button class="intelRoom room-hangar" type="button" data-position="4" aria-label="Sélectionner Hangar"><span class="intelRoomCode">AVIATION · 05</span><span class="intelRoomIcon" aria-hidden="true">✈</span><strong>Hangar</strong><span class="intelRange">ADJACENT</span></button></div>
+          <div class="intelCell" data-cell="5"><button class="intelRoom room-security" type="button" data-position="5" aria-label="Sélectionner Sécurité"><span class="intelRoomCode">DEFENSE · 06</span><span class="intelRoomIcon" aria-hidden="true">⬡</span><strong>Sécurité</strong><span class="intelRange">ADJACENT</span></button></div>
+          <div class="intelCell" data-cell="6"><button class="intelRoom room-tech" type="button" data-position="6" aria-label="Sélectionner Labo technique"><span class="intelRoomCode">RESEARCH · 07</span><span class="intelRoomIcon" aria-hidden="true">⌬</span><strong>Labo technique</strong><span class="intelRange">ADJACENT</span></button></div>
+          <div class="intelCell" data-cell="7"><button class="intelRoom room-armory" type="button" data-position="7" aria-label="Sélectionner Armurerie"><span class="intelRoomCode">ARMAMENT · 08</span><span class="intelRoomIcon" aria-hidden="true">⫶</span><strong>Armurerie</strong><span class="intelRange">ADJACENT</span></button></div>
+          <div class="intelCell" data-cell="8"><button class="intelRoom room-infirmary" type="button" data-position="8" aria-label="Sélectionner Infirmerie"><span class="intelRoomCode">MEDICAL · 09</span><span class="intelRoomIcon" aria-hidden="true">✚</span><strong>Infirmerie</strong><span class="intelRange">ADJACENT</span></button></div>
+          <div class="intelCell" data-cell="9"><button class="intelRoom room-bridge" type="button" data-position="9" aria-label="Sélectionner Pont"><span class="intelRoomCode">COMMAND · 10</span><span class="intelRoomIcon" aria-hidden="true">◉</span><strong>Pont</strong><span class="intelRange">SALLE</span></button></div>
+          <div class="intelCell" data-cell="10"><button class="intelRoom room-reactor" type="button" data-position="10" aria-label="Sélectionner Réacteur"><span class="intelRoomCode">POWER · 11</span><span class="intelRoomIcon" aria-hidden="true">☢</span><strong>Réacteur</strong><span class="intelRange">SALLE</span></button></div>
+          <div class="intelCell" data-cell="11"><button class="intelRoom room-barracks" type="button" data-position="11" aria-label="Sélectionner Caserne"><span class="intelRoomCode">PERSONNEL · 12</span><span class="intelRoomIcon" aria-hidden="true">✣</span><strong>Caserne</strong><span class="intelRange">GLOBAL</span></button></div>
+        </div>
+
+        <div class="intelMapFooter"><span><i></i> PORTÉE ACTIVE</span><span>Adjacence orthogonale · aucune diagonale</span><span class="intelBoardKey">LSP / WAR INTEL</span></div>
+        <section id="intelDetail" class="intelDetail" aria-live="polite" aria-label="Détail tactique de la sélection"></section>
+      </section>
+    </section>
+    <footer class="intelFooter"><span>LoSP · RENSEIGNEMENTS DE GUERRE</span><span>Prototype d’interface · pas une source tactique</span></footer>
+  </main>
+  <script src="./renseignements-guerre.js?v=1" defer></script>
+</body>
+</html>
