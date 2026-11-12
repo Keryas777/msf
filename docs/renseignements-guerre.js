@@ -194,28 +194,39 @@
     return element;
   }
 
-  // Mirror only room icons above the influence layer. Do not mirror text:
-  // labels inside flight decks have different layout and must not be duplicated.
-  function refreshIconOverlay() {
+  // Preserve the original elements for layout and accessibility. Render a single
+  // visual foreground copy above the SVG, positioned from measured screen boxes.
+  // Original content is hidden only after all foreground copies are ready.
+  function refreshForegroundOverlay() {
     let overlay = board.querySelector(".intelIconOverlay");
     if (!overlay) {
       overlay = document.createElement("div");
       overlay.className = "intelIconOverlay";
       board.append(overlay);
     }
-    overlay.replaceChildren();
     const boardRect = board.getBoundingClientRect();
-    board.querySelectorAll(".intelCell .intelRoomIcon").forEach(icon => {
-      const rect = icon.getBoundingClientRect();
-      const copy = icon.cloneNode(true);
-      copy.classList.add("intelIconMirror");
-      if (icon.closest(".intelCell")?.classList.contains("is-muted")) copy.classList.add("is-muted");
+    const fragment = document.createDocumentFragment();
+    board.querySelectorAll(".intelCell .intelRoomIcon, .intelCell .intelRoomHeading, .intelCell .intelRange, .intelCell .runway").forEach(element => {
+      const rect = element.getBoundingClientRect();
+      const copy = element.cloneNode(true);
+      copy.classList.add("intelForegroundMirror");
+      copy.setAttribute("aria-hidden", "true");
       copy.style.left = (rect.left - boardRect.left) + "px";
       copy.style.top = (rect.top - boardRect.top) + "px";
       copy.style.width = rect.width + "px";
       copy.style.height = rect.height + "px";
-      overlay.append(copy);
+      copy.style.setProperty("--room-color", element.closest(".intelRoom")?.style.getPropertyValue("--room-color") || "#8edfff");
+      if (element.closest(".intelCell")?.classList.contains("is-muted")) copy.classList.add("is-muted");
+      // Flight deck headings use a narrower font than room headings.
+      if (element.classList.contains("intelRoomHeading")) {
+        const originalName = element.querySelector("strong");
+        const copiedName = copy.querySelector("strong");
+        if (originalName && copiedName) copiedName.style.fontSize = getComputedStyle(originalName).fontSize;
+      }
+      fragment.append(copy);
     });
+    overlay.replaceChildren(fragment);
+    board.classList.add("has-foreground-overlay");
   }
 
   function drawConnections() {
@@ -283,7 +294,7 @@
         svg.append(triangle);
       });
     });
-    refreshIconOverlay();
+    refreshForegroundOverlay();
   }
 
   function rangeLabel(room) {
