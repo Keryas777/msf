@@ -269,6 +269,9 @@ test('Conclave de l’Ombre : les 5 membres sont visibles même sans objectifs i
   assert.ok(details.some(value=>value.includes('25')));
   assert.ok(details.some(value=>value.includes('200')));
   assert.match(css,/\.ev-objective-team-summary>\.ev-objective-team-roster\{/);
+  assert.match(css,/\.ev-objective-heading\{[^}]*font-size:20px/);
+  assert.match(css,/\.ev-objective-team-member\{[^}]*clamp\(32px,10\.5vw,44px\)/);
+  assert.match(css,/\.ev-objective-team-member \.ev-objective-portrait\{[^}]*object-fit:contain/);
   assert.match(css,/flex-wrap:nowrap/);
   assert.match(css,/order:1;flex:0 0 100%/);
   assert.match(css,/\.ev-objective-team-member-name\{position:absolute/);
@@ -787,7 +790,7 @@ test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP co
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=17"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=18"/);
   assert.doesNotMatch(css,/\.ev-toolbar\{|\.ev-filters\{|\.ev-date-controls\{/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
