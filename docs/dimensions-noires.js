@@ -64,6 +64,12 @@ function identity(roster) {
   return key + "\u0000" + player;
 }
 
+function passageLabel(selectedDimension, passages) {
+  const tier = selectedDimension?.completionRule?.tiers?.find((item) => item.passages === passages);
+  return (passages === 1 ? "1er passage" : passages + " passages") +
+    (tier ? " · " + tier.minYellowStars + "★ jaunes / " + tier.minRedStars + "★ rouges" : "");
+}
+
 function firstClearAt(roster, selectedDimension) {
   const key = normalize(roster?.alliance) + ":" + normalize(roster?.playerKey || roster?.player);
   const record = state.firstClearObservations?.[selectedDimension?.key]?.[key];
@@ -237,7 +243,7 @@ function renderRanking() {
       window.LoSPAlliances.getAllianceEmoji(entry.roster.alliance) + " " +
       window.LoSPAlliances.getAllianceLabel(entry.roster.alliance);
     button.querySelector(".badge").textContent = finished
-      ? dimensionLabel + " · " + (entry.result.passages === 2 ? "2 passages · 7★ jaunes / 4★ rouges" : "1er passage · 5★ jaunes / 2★ rouges") + " · convention LoSP"
+      ? dimensionLabel + " · " + passageLabel(selectedDimension, entry.result.passages) + " · convention LoSP"
       : "Progression théorique indéterminée";
     if (finished && entry.result.firstClearObservedAt) button.querySelector(".badge").textContent +=
       " · 1er passage observé le " + new Date(entry.result.firstClearObservedAt).toLocaleDateString("fr-FR") +
@@ -249,7 +255,7 @@ function renderRanking() {
 
 function playerStatus(evaluation, totalNodes) {
   if (evaluation.completed)
-    return (dimension()?.shortName || "Dimension noire") + " · " + (evaluation.passages === 2 ? "2 passages (7★ jaunes / 4★ rouges)" : "1er passage (5★ jaunes / 2★ rouges)") + " selon la convention LoSP fondée sur le roster vérifié.";
+    return (dimension()?.shortName || "Dimension noire") + " · " + passageLabel(dimension(), evaluation.passages) + " selon la convention LoSP fondée sur le roster vérifié.";
   if (evaluation.status === "unavailable")
     return "Progression indisponible : aucun roster vérifié n’est chargé.";
   if (evaluation.status === "indeterminate")
@@ -267,7 +273,7 @@ function nodeDescription(id, type, nodeState, completed) {
   if (completed)
     return "Salle " + id +
       " · " + (dimension()?.shortName || "Dimension noire") +
-      " terminée à 100 % selon la convention LoSP Annihilus. Cette convention ne constitue pas un historique officiel.";
+      " terminée à 100 % selon la convention LoSP de récompense. Cette convention ne constitue pas un historique officiel.";
 
   if (nodeState === "true")
     return "Salle " + id +
