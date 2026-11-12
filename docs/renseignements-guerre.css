@@ -189,3 +189,7 @@ button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transpare
 /* Flight deck: no yellow centerline; keep only full-width cyan runway dashes. */
 .intelBoard .intelFlight .runway::after{content:none!important;display:none!important;background:none!important;box-shadow:none!important}
 .intelBoard .intelFlight .runway i{left:4px;right:1px;background:repeating-linear-gradient(90deg,#9cefff 0 15px,transparent 15px 18px)}
+
+/* Overview only: keep influence readable without overpowering the room map.
+   Disable the shared fade animation here because its fill-mode sets opacity. */
+.intelBoard[data-mode="overview"] .intelInfluenceTriangle{opacity:.28;stroke-opacity:.3;animation:none}
