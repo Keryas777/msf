@@ -25,7 +25,7 @@ function node(tag='div'){
   };
 }
 async function makePage({failure=false,stale=false,extraEvents=[],includeBase=true,
-  teams=realTeams,characters=realCharacters,failReferences=false,hash=''}={}){
+  teams=realTeams,characters=realCharacters,failReferences=false,hash='',search=''}={}){
   const ids=[...html.matchAll(/id="([^"]+)"/g)].map(x=>x[1]);
   const elements=new Map(ids.map(id=>[id,node()]));
   const now=Math.floor(Date.now()/1000),day=86400;
@@ -73,7 +73,7 @@ async function makePage({failure=false,stale=false,extraEvents=[],includeBase=tr
   };
   // The canonical GitHub Pages JSON is mocked. No real external request.
   const fetchCalls=[],scrollCalls=[],frames=[],windowHandlers=new Map();
-  const location={search:'',hash,pathname:'/msf/evenements.html'};
+  const location={search,hash,pathname:'/msf/evenements.html'};
   const history={
     scrollRestoration:'auto',state:null,replacedUrls:[],
     replaceState(state,title,url){
@@ -165,12 +165,17 @@ test('Un plafond de scoring reste un maximum, pas un objectif obligatoire',async
   assert.ok(!loginNotes.some(x=>x.includes('7 fois')));
 });
 
-test('La recherche trouve aussi le texte des objectifs secondaires',async()=>{
+test('Les objectifs secondaires restent présents sans barre de recherche',async()=>{
   const nodes=await makePage();
-  nodes.get('search-filter').handlers.get('input')({target:{value:'Iron Raider'}});
-  assert.equal(nodes.get('stat-objectives').textContent,'1');
-  assert.equal(actions(nodes).length,1);
-  assert.ok(actions(nodes)[0].includes('Iron Raider'));
+  assert.equal(nodes.get('stat-objectives').textContent,'3');
+  assert.ok(actions(nodes).some(x=>x.includes('Iron Raider')));
+  assert.equal(nodes.get('search-filter'),undefined);
+  assert.equal(nodes.get('type-filter'),undefined);
+  assert.equal(nodes.get('date-filter'),undefined);
+  assert.equal(nodes.get('reset-date'),undefined);
+  assert.equal(nodes.get('filter-context'),undefined);
+  assert.doesNotMatch(html,/class="ev-toolbar"|Filtres du calendrier/);
+  assert.doesNotMatch(script,/state\.search|state\.type|manualDate|localToday/);
 });
 
 test('Faille cybernétique : 30 conditions réparties sur 2 équipes et 10 portraits',async()=>{
@@ -218,12 +223,11 @@ test('Faille cybernétique : 30 conditions réparties sur 2 équipes et 10 portr
   assert.ok(caps.some(x=>x.includes('50 000 pts')||x.includes('50 000 pts')));
   assert.doesNotMatch(script,/Avengers IA|Fantassin de fer|IronMonger|HawkeyeRobot/);
 
-  // La recherche retrouve aussi les membres de l'équipe sélectionnée.
-  nodes.get('search-filter').handlers.get('input')({target:{value:'Avengers IA'}});
-  assert.equal(nodes.get('stat-objectives').textContent,'15');
-  assert.equal(objectiveDetails(nodes,'ev-objective-team').length,1);
-  assert.equal(objectiveDetails(nodes,'ev-objective-character').length,5);
-  assert.equal(objectiveNodes(nodes).length,15);
+  // Le regroupement des deux équipes reste intact sans filtre de catégorie.
+  assert.equal(nodes.get('stat-objectives').textContent,'31');
+  assert.equal(objectiveDetails(nodes,'ev-objective-team').length,2);
+  assert.equal(objectiveDetails(nodes,'ev-objective-character').length,10);
+  assert.equal(objectiveNodes(nodes).length,31);
 });
 
 test('Conclave de l’Ombre : les 5 membres sont visibles même sans objectifs individuels',async()=>{
@@ -571,14 +575,10 @@ test('Toutes les ouvertures d’orbes et méga-orbes partagent une fiche, sans p
   assert.ok(groups.some(group=>group.children[0].children[0].textContent.includes('fragment')));
   assert.ok(groups.some(group=>group.children[0].children[0].textContent.includes('Obtenir un méga orbe')));
 
-  nodes.get('search-filter').handlers.get('input')({target:{value:'Ouverture d’orbes'}});
-  assert.equal(nodes.get('stat-objectives').textContent,'6');
-  assert.equal(objectiveDetails(nodes,'ev-objective-event-group').length,1);
-  assert.equal(objectiveNodes(nodes).length,6);
-  nodes.get('search-filter').handlers.get('input')({target:{value:'fragment'}});
-  assert.equal(nodes.get('stat-objectives').textContent,'1');
-  assert.equal(objectiveDetails(nodes,'ev-objective-event-group')
-    .filter(group=>group.children[0].children[0].textContent==='Ouverture d’orbes').length,0);
+  assert.equal(nodes.get('stat-objectives').textContent,'8');
+  assert.equal(objectiveDetails(nodes,'ev-objective-event-group').length,3);
+  assert.equal(objectiveNodes(nodes).length,8);
+  assert.equal(nodes.get('search-filter'),undefined);
 });
 
 test('Une même action Raid ou Guerre rassemble les événements et conserve chaque barème',async()=>{
@@ -749,8 +749,8 @@ test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP co
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=15"/);
-  assert.match(css,/\.ev-toolbar\{[^}]*background:var\(--panel\)/);
+  assert.match(html,/href="\.\/evenements\.css\?v=16"/);
+  assert.doesNotMatch(css,/\.ev-toolbar\{|\.ev-filters\{|\.ev-date-controls\{/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
   assert.doesNotMatch(css,/body\.ev-body\{[^}]*background(?:-image|-color)?:/);
@@ -778,7 +778,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=28/);
+  assert.match(html,/evenements\.js\?v=29/);
 });
 
 test('Les compteurs sont deux onglets exclusifs, accessibles au clavier',async()=>{
@@ -934,18 +934,21 @@ test('La liste des événements reproduit les 6 Phases, 2 Postes et 4 Événemen
   assert.equal(alliance.children[1].children[0].children[1].textContent,'Alliance');
   assert.ok(sections(nodes).some(section=>section.children[0].textContent.startsWith('⚡ CHOC')));
   assert.ok(sections(nodes).some(section=>section.children[0].textContent.startsWith('⚔️ GUERRE')));
-  const filter=nodes.get('type-filter');
-  assert.deepEqual(filter.children.map(option=>option.value),['','phases','command','events']);
-  filter.handlers.get('change')({target:{value:'command'}});
+  // Sans sélecteurs, toutes les rubriques actives restent visibles.
+  assert.equal(nodes.get('type-filter'),undefined);
+  assert.equal(nodes.get('search-filter'),undefined);
+  assert.equal(nodes.get('stat-current').textContent,'12');
+  assert.equal(nodes.get('stat-objectives').textContent,'8');
+});
+
+test('Une ancienne date en URL ne modifie pas les événements et objectifs actifs',async()=>{
+  const nodes=await makePage({search:'?date=2020-01-01'});
+  assert.equal(nodes.get('stat-objectives').textContent,'3');
   assert.equal(nodes.get('stat-current').textContent,'2');
-  assert.equal(nodes.get('stat-objectives').textContent,'2');
-  filter.handlers.get('change')({target:{value:'events'}});
-  assert.equal(nodes.get('stat-current').textContent,'4');
-  assert.equal(nodes.get('stat-objectives').textContent,'0');
-  filter.handlers.get('change')({target:{value:''}});
-  nodes.get('search-filter').handlers.get('input')({target:{value:'Fête de l’équipement'}});
-  assert.equal(nodes.get('stat-current').textContent,'0');
-  assert.equal(nodes.get('stat-objectives').textContent,'0');
+  assert.equal(nodes.get('date-filter'),undefined);
+  assert.equal(nodes.get('reset-date'),undefined);
+  assert.doesNotMatch(script,/new URLSearchParams\(location\.search\)/);
+  assert.doesNotMatch(script,/get\('date'\)/);
 });
 
 test('Les phases quotidiennes et les feeders sont traités séparément',async()=>{
@@ -1086,7 +1089,7 @@ test('Une panne du JSON GitHub n’utilise aucune autre source et affiche une in
   assert.match(nodes.get('events-current').children[0].textContent,
     /temporairement indisponibles/);
   assert.equal(nodes.get('stat-current').textContent,'—');
-  nodes.get('search-filter').handlers.get('input')({target:{value:'raid'}});
+  assert.equal(nodes.get('search-filter'),undefined);
   assert.match(nodes.get('events-current').children[0].textContent,
     /temporairement indisponibles/);
   assert.ok(script.includes('evenements-snapshot.json'));
