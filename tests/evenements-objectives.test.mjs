@@ -311,7 +311,7 @@ test('Événements distincts : combat avec toute une équipe et ses personnages 
       ['Événement Sylvie','milestone',{milestone:{type:'solo',scoring:{
         methods:[{description:scenario.sylvie,points:15}],
         cappedScorings:[]
-      }}]
+      }}}]
     ]});
     assert.equal(nodes.get('stat-objectives').textContent,'3');
     assert.equal(objectiveNodes(nodes).length,3);
