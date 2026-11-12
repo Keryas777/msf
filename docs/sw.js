@@ -175,6 +175,12 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // War intelligence UI: always fetch the current script, bypassing the HTTP cache.
+  if (url.pathname.endsWith("/renseignements-guerre.js")) {
+    event.respondWith(networkFirst(request, null, true));
+    return;
+  }
+
   // JS/CSS : réseau d'abord pour éviter les vieux fichiers après modif.
   if (isScriptOrStyle(url)) {
     event.respondWith(networkFirst(request));
