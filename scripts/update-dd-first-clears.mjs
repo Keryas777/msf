@@ -25,7 +25,7 @@ for(const dd of config.dimensions||[]){
   const key=alliance+":"+player;
   const old=group[key];
   // The published complete roster lacks the reward character before unlock.
-  const complete=Number(progress.yellowStars)>=tier.minYellowStars&&Number(progress.redStars)>=tier.minRedStars;
+  const complete=Number(progress?.yellowStars)>=tier.minYellowStars&&Number(progress?.redStars)>=tier.minRedStars;
   if(!old){group[key]=complete?{firstClearObservedAt:null,baseline:true}:{firstClearObservedAt:null,baseline:false,lastIncompleteObservedAt:at};changed=true;continue}
   if(!complete&&old.firstClearObservedAt===null&&!old.baseline){old.lastIncompleteObservedAt=at;changed=true}
   if(complete&&old.firstClearObservedAt===null&&!old.baseline&&old.lastIncompleteObservedAt&&Date.parse(at)>Date.parse(old.lastIncompleteObservedAt)){old.firstClearObservedAt=at;changed=true}
