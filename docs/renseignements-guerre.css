@@ -144,3 +144,7 @@ button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transpare
 .intelBoard .intelRoom{z-index:auto}
 .intelBoard .intelConnections{z-index:4;pointer-events:none}
 .intelBoard .intelRoomIcon,.intelBoard .intelRoomHeading,.intelBoard .intelRange,.intelBoard .runway{z-index:5}
+
+/* Stronger room-owned tint, kept below the adjacent-influence SVG layer. */
+.intelBoard .intelRoom:not(.intelFlight){background:linear-gradient(145deg,rgba(17,34,49,.35),rgba(6,17,30,.55)),linear-gradient(145deg,color-mix(in srgb,var(--room-color),transparent 47%),color-mix(in srgb,var(--room-color),transparent 76%) 65%,rgba(8,19,32,.8))}
+.intelBoard .intelRoom:not(.intelFlight)::before{opacity:.11}
