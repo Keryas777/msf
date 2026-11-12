@@ -157,3 +157,13 @@ button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transpare
 .intelBoard .intelRoomIcon,.intelBoard .intelRoomHeading,.intelBoard .intelRange,.intelBoard .runway{z-index:7}
 .intelInfluenceTriangle{opacity:.72;stroke-opacity:.85;stroke-width:1.5}
 @keyframes influenceFade{from{opacity:0}to{opacity:.72}}
+
+/* Room symbols remain legible above the independent influence SVG layer. */
+.intelBoard .intelIconOverlay{position:absolute;inset:0;z-index:9;pointer-events:none}
+.intelBoard .intelIconMirror{position:absolute;display:grid;place-items:center;margin:0;box-sizing:border-box;pointer-events:none}
+.intelBoard .intelIconMirror.is-muted{opacity:.38}
+/* Stronger adjacent wedges, still underneath the mirrored room symbols. */
+.intelBoard .intelInfluenceTriangle{opacity:.84;stroke-opacity:.9}
+@keyframes influenceFade{from{opacity:0}to{opacity:.84}}
+/* Runway markings span the entire strip, including the port-side segment. */
+.intelFlight .runway i{left:4px;right:1px;background:repeating-linear-gradient(90deg,#9cefff 0 15px,transparent 15px 18px)}
