@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "1.0.0",
+  "engine": "Tesseract.js 7.0.0 in Node.js v24.22.1; local traineddata; not a browser test",
+  "method": "Same dynamic opponent-trophy crop and gray/contrast 3x pixels as CLI sweep; PSM 7 and numeric whitelist; accept only a 4-digit first group, otherwise retain phase 2 result",
+  "measurements": {
+    "startupMs": 296,
+    "meanRecognitionMs": 28,
+    "totalRecognitionMs": 248,
+    "peakRssMb": 117
+  },
+  "cropOnly": {
+    "exact": 7,
+    "total": 9
+  },
+  "hybrid": {
+    "exact": 8,
+    "total": 9
+  },
+  "captures": [
+    {
+      "id": "capture-01",
+      "expected": 2627,
+      "raw": "2627751",
+      "firstGroup": "2627751",
+      "cropValue": "2627",
+      "cropConfidence": 0,
+      "phase2TesseractJs": null,
+      "phase2Cli": null,
+      "selected": "2627",
+      "exact": true
+    },
+    {
+      "id": "capture-02",
+      "expected": 2680,
+      "raw": "561",
+      "firstGroup": "561",
+      "cropValue": null,
+      "cropConfidence": 0,
+      "phase2TesseractJs": "2680",
+      "phase2Cli": "2680",
+      "selected": "2680",
+      "exact": true
+    },
+    {
+      "id": "capture-03",
+      "expected": 2438,
+      "raw": "243611501",
+      "firstGroup": "243611501",
+      "cropValue": "2436",
+      "cropConfidence": 0,
+      "phase2TesseractJs": null,
+      "phase2Cli": null,
+      "selected": "2436",
+      "exact": false
+    },
+    {
+      "id": "capture-04",
+      "expected": 2926,
+      "raw": "2926171",
+      "firstGroup": "2926171",
+      "cropValue": "2926",
+      "cropConfidence": 0,
+      "phase2TesseractJs": null,
+      "phase2Cli": null,
+      "selected": "2926",
+      "exact": true
+    },
+    {
+      "id": "capture-05",
+      "expected": 2640,
+      "raw": "26401751",
+      "firstGroup": "26401751",
+      "cropValue": "2640",
+      "cropConfidence": 0,
+      "phase2TesseractJs": "2640",
+      "phase2Cli": "2640",
+      "selected": "2640",
+      "exact": true
+    },
+    {
+      "id": "capture-06",
+      "expected": 2264,
+      "raw": "2264751",
+      "firstGroup": "2264751",
+      "cropValue": "2264",
+      "cropConfidence": 0,
+      "phase2TesseractJs": "2208",
+      "phase2Cli": "2268",
+      "selected": "2264",
+      "exact": true
+    },
+    {
+      "id": "capture-07",
+      "expected": 2814,
+      "raw": "2814751",
+      "firstGroup": "2814751",
+      "cropValue": "2814",
+      "cropConfidence": 0,
+      "phase2TesseractJs": null,
+      "phase2Cli": null,
+      "selected": "2814",
+      "exact": true
+    },
+    {
+      "id": "capture-08",
+      "expected": 2708,
+      "raw": "2708175",
+      "firstGroup": "2708175",
+      "cropValue": "2708",
+      "cropConfidence": 0,
+      "phase2TesseractJs": null,
+      "phase2Cli": null,
+      "selected": "2708",
+      "exact": true
+    },
+    {
+      "id": "capture-09",
+      "expected": 2864,
+      "raw": "2864176",
+      "firstGroup": "2864176",
+      "cropValue": "2864",
+      "cropConfidence": 0,
+      "phase2TesseractJs": "2864",
+      "phase2Cli": "2864",
+      "selected": "2864",
+      "exact": true
+    }
+  ]
+}

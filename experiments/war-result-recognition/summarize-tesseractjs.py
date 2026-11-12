@@ -5,13 +5,16 @@ from benchmark import FIELDS, color_cue, compare
 from PIL import Image
 
 BASE=Path(__file__).parent
+IMAGE_ROOT=Path(__import__('os').environ.get('WAR_OCR_IMAGES_DIR',str(BASE/'../../upload')))
+RAW_PATH=Path(__import__('os').environ.get('WAR_OCR_NODE_RAW',str(BASE/'tesseractjs-node-raw-results.json')))
+SUMMARY_PATH=Path(__import__('os').environ.get('WAR_OCR_NODE_SUMMARY',str(BASE/'tesseractjs-node-results.json')))
 truth=json.loads((BASE/'ground-truth.json').read_text())['captures']
-runtime=json.loads((BASE/'tesseractjs-node-raw-results.json').read_text())
+runtime=json.loads(RAW_PATH.read_text())
 captures=[]
 totals={field:{'exact':0,'total':0} for field in FIELDS}
 for result in runtime['captures']:
     expected=next(item for item in truth if item['id']==result['id'])
-    image=Image.open(BASE/'../../upload'/expected['file']).convert('RGB')
+    image=Image.open(IMAGE_ROOT/expected['file']).convert('RGB')
     cue,_=color_cue(image)
     primary=result['passes']['psm11']['fields']['fields']
     secondary=result['passes']['psm6']['fields']['fields']
@@ -37,7 +40,7 @@ for result in runtime['captures']:
 runtime['fieldSummary']=totals
 runtime['eligibleExact']={'exact':sum(v['exact'] for v in totals.values()),'total':sum(v['total'] for v in totals.values())}
 runtime['captures']=captures
-(BASE/'tesseractjs-node-results.json').write_text(json.dumps(runtime,ensure_ascii=False,indent=2)+'\n')
+SUMMARY_PATH.write_text(json.dumps(runtime,ensure_ascii=False,indent=2)+'\n')
 print(runtime['engine'],runtime['measurements'])
 print(runtime['eligibleExact'])
 print(totals)

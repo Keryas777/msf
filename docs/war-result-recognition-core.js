@@ -72,6 +72,54 @@
     return rows.filter((row) => row.words.some((w) => toSearchKey(text(w)).includes(label))).sort((a, b) => b.words.filter((w) => toSearchKey(text(w)).includes(label)).reduce((s,w)=>s+confidence(w),0) - a.words.filter((w) => toSearchKey(text(w)).includes(label)).reduce((s,w)=>s+confidence(w),0))[0] || null;
   }
 
+  function firstDigitGroup(value, expectedLength) {
+    const match = String(value || "").match(/\d+/);
+    if (!match || match[0].length < expectedLength) return "";
+    return match[0].slice(0, expectedLength);
+  }
+
+  function locateZones(words, width, height) {
+    const safeWords = Array.isArray(words) ? words : [];
+    const rows = groupRows(safeWords, height * 0.025);
+    const lospRow = rows.find((row) => row.y < height * 0.28 && row.words.some((w) => toSearchKey(text(w)) === "losp"));
+    const losp = lospRow?.words.find((w) => toSearchKey(text(w)) === "losp");
+    const opponentName = lospRow?.words.filter((w) => midX(w) > width * 0.59 && /\p{L}/u.test(text(w))).sort((a,b)=>box(a).x0-box(b).x0)[0] || null;
+    const pointsRow = rows.find((row) => {
+      const labels = row.words.map((w) => toSearchKey(text(w)));
+      return labels.includes("points") && labels.includes("guerre");
+    });
+    const labelWords = pointsRow?.words.filter((w) => ["points", "de", "guerre"].includes(toSearchKey(text(w)))) || [];
+    const labelBox = labelWords.length ? {
+      x0: Math.min(...labelWords.map((w)=>box(w).x0)), x1: Math.max(...labelWords.map((w)=>box(w).x1)),
+      y0: Math.min(...labelWords.map((w)=>box(w).y0)), y1: Math.max(...labelWords.map((w)=>box(w).y1))
+    } : null;
+    const clip = (x0,y0,x1,y1) => ({
+      x: Math.max(0,Math.floor(x0)), y: Math.max(0,Math.floor(y0)),
+      width: Math.max(0,Math.min(width,Math.floor(x1))-Math.max(0,Math.floor(x0))),
+      height: Math.max(0,Math.min(height,Math.floor(y1))-Math.max(0,Math.floor(y0)))
+    });
+    const zones = {
+      opponentAlliance: clip(width*.595, (losp?.bbox?.y0 ?? height*.14)-height*.015, width*.91, (losp?.bbox?.y1 ?? height*.20)+height*.07),
+      resultBand: clip(width*.30, 0, width*.70, height*.12),
+      anchors: { losp: losp ? box(losp) : null, opponentName: opponentName ? box(opponentName) : null, scoreLabel: labelBox }
+    };
+    if (losp) {
+      const y0=box(losp).y1+height*.006, y1=y0+height*.075;
+      const opponentX=opponentName ? box(opponentName).x0+width*.02 : width*.635;
+      zones.localTrophies=clip(box(losp).x0-width*.02,y0,box(losp).x0+width*.085,y1);
+      zones.opponentTrophies=clip(opponentX,y0,opponentX+width*.095,y1);
+    } else {
+      zones.localTrophies=null; zones.opponentTrophies=null;
+    }
+    if (labelBox) {
+      const cy=(labelBox.y0+labelBox.y1)/2;
+      const y0=cy-height*.035, y1=cy+height*.035;
+      zones.localScore=clip(labelBox.x0-width*.26,y0,labelBox.x0-width*.008,y1);
+      zones.opponentScore=clip(labelBox.x1+width*.008,y0,labelBox.x1+width*.24,y1);
+    } else { zones.localScore=null; zones.opponentScore=null; }
+    return { zones, anchorsFound: { losp: Boolean(losp), opponentName: Boolean(opponentName), scoreLabel: Boolean(labelBox) } };
+  }
+
   function allianceFields(words, width, height) {
     const rows = groupRows(words, height * 0.028);
     const lospRow = rows.filter((r) => r.words.some((w) => toSearchKey(text(w)) === "losp")).sort((a,b)=>Math.max(...b.words.map(confidence))-Math.max(...a.words.map(confidence)))[0];
@@ -179,5 +227,5 @@
     return { valid: problems.length === 0, problems };
   }
 
-  return { FIELDS, parseTsv, extract, validate, toSearchKey };
+  return { FIELDS, parseTsv, extract, validate, toSearchKey, firstDigitGroup, locateZones };
 });

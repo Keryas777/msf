@@ -1,0 +1,1585 @@
+{
+  "schemaVersion": "1.0.0",
+  "method": "Tesseract-anchored, HSV/pale-glyph segmentation + capture-disjoint, per-digit 5-NN binary shape prototypes; no whole-number templates",
+  "engine": "Tesseract CLI 5.5.0 for structural word boxes; Python/Pillow/NumPy/SciPy for local visual prototype; not browser performance",
+  "corpus": {
+    "images": 9,
+    "developmentImages": 7,
+    "historicHoldouts": 2,
+    "holdoutStatus": "Previously examined and contaminated; no independent validation claim.",
+    "unknownTruth": [
+      {
+        "capture": "capture-09",
+        "field": "opponentAlliance"
+      }
+    ]
+  },
+  "trainingProtocol": "Verified ground truth supplies individual glyph labels only. Templates are trained on the seven train captures; each train prediction excludes its own capture. No expected multi-digit number is stored as a template.",
+  "summary": {
+    "numeric": [
+      {
+        "field": "localScore",
+        "metric": {
+          "exact": 2,
+          "eligible": 9,
+          "segmentable": 9,
+          "baselineExact": 7,
+          "baselineEligible": 9
+        }
+      },
+      {
+        "field": "opponentScore",
+        "metric": {
+          "exact": 1,
+          "eligible": 9,
+          "segmentable": 9,
+          "baselineExact": 7,
+          "baselineEligible": 9
+        }
+      },
+      {
+        "field": "localTrophies",
+        "metric": {
+          "exact": 5,
+          "eligible": 9,
+          "segmentable": 9,
+          "baselineExact": 5,
+          "baselineEligible": 9
+        }
+      },
+      {
+        "field": "opponentTrophies",
+        "metric": {
+          "exact": 0,
+          "eligible": 9,
+          "segmentable": 9,
+          "baselineExact": 3,
+          "baselineEligible": 9
+        }
+      }
+    ]
+  },
+  "elapsedMs": 5394.0,
+  "captures": [
+    {
+      "id": "capture-01",
+      "split": "train",
+      "fields": {
+        "localScore": {
+          "expected": 411597,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "411597",
+          "truth": 411597,
+          "visualClassifier": {
+            "predicted": "411897",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 36,
+            "trainImages": [
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "opponentScore": {
+          "expected": 257149,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "257149",
+          "truth": 257149,
+          "visualClassifier": {
+            "predicted": "257149",
+            "exact": true,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 36,
+            "trainImages": [
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": true
+        },
+        "localTrophies": {
+          "expected": 2778,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "2778",
+          "truth": 2778,
+          "visualClassifier": {
+            "predicted": "2778",
+            "exact": true,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 24,
+            "trainImages": [
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": true
+        },
+        "opponentTrophies": {
+          "expected": 2627,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": null,
+          "truth": 2627,
+          "visualClassifier": {
+            "predicted": "2864",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 24,
+            "trainImages": [
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        }
+      },
+      "rois": {
+        "localScore": [
+          0.18685,
+          0.32562,
+          0.4388,
+          0.39508
+        ],
+        "opponentScore": [
+          0.55924,
+          0.32562,
+          0.79102,
+          0.39508
+        ],
+        "localTrophies": [
+          0.20964,
+          0.21418,
+          0.35482,
+          0.28799
+        ],
+        "opponentTrophies": [
+          0.63932,
+          0.21418,
+          0.7793,
+          0.28799
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 687.0,
+          "y0": 240.0,
+          "x1": 847.0,
+          "y1": 259.0
+        },
+        "losp": {
+          "x0": 346.0,
+          "y0": 109.0,
+          "x1": 440.0,
+          "y1": 144.0
+        },
+        "opponent": {
+          "x0": 952.0,
+          "y0": 110.0,
+          "x1": 1039.0,
+          "y1": 144.0
+        }
+      }
+    },
+    {
+      "id": "capture-02",
+      "split": "train",
+      "fields": {
+        "localScore": {
+          "expected": 343311,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": null,
+          "truth": 343311,
+          "visualClassifier": {
+            "predicted": "343311",
+            "exact": true,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 36,
+            "trainImages": [
+              "capture-01",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": true
+        },
+        "opponentScore": {
+          "expected": 314689,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "314689",
+          "truth": 314689,
+          "visualClassifier": {
+            "predicted": "414669",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 36,
+            "trainImages": [
+              "capture-01",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "localTrophies": {
+          "expected": 2792,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": null,
+          "truth": 2792,
+          "visualClassifier": {
+            "predicted": "2792",
+            "exact": true,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 24,
+            "trainImages": [
+              "capture-01",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": true
+        },
+        "opponentTrophies": {
+          "expected": 2680,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "2680",
+          "truth": 2680,
+          "visualClassifier": {
+            "predicted": "2660",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 24,
+            "trainImages": [
+              "capture-01",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        }
+      },
+      "rois": {
+        "localScore": [
+          0.21238,
+          0.32569,
+          0.46455,
+          0.39514
+        ],
+        "opponentScore": [
+          0.58364,
+          0.32569,
+          0.81561,
+          0.39514
+        ],
+        "localTrophies": [
+          0.23383,
+          0.21389,
+          0.37904,
+          0.28889
+        ],
+        "opponentTrophies": [
+          0.66294,
+          0.21389,
+          0.80286,
+          0.28889
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 1520.0,
+          "y0": 501.0,
+          "x1": 1852.0,
+          "y1": 538.0
+        },
+        "losp": {
+          "x0": 801.0,
+          "y0": 226.0,
+          "x1": 1056.0,
+          "y1": 300.0
+        },
+        "opponent": {
+          "x0": 2068.0,
+          "y0": 226.0,
+          "x1": 2364.0,
+          "y1": 313.0
+        }
+      }
+    },
+    {
+      "id": "capture-03",
+      "split": "train",
+      "fields": {
+        "localScore": {
+          "expected": 363432,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": null,
+          "truth": 363432,
+          "visualClassifier": {
+            "predicted": "363432",
+            "exact": true,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 36,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": true
+        },
+        "opponentScore": {
+          "expected": 153303,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": null,
+          "truth": 153303,
+          "visualClassifier": {
+            "predicted": "159909",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 36,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "localTrophies": {
+          "expected": 2738,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": null,
+          "truth": 2738,
+          "visualClassifier": {
+            "predicted": "2738",
+            "exact": true,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 24,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": true
+        },
+        "opponentTrophies": {
+          "expected": 2438,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": null,
+          "truth": 2438,
+          "visualClassifier": {
+            "predicted": "2166",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 24,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        }
+      },
+      "rois": {
+        "localScore": [
+          0.16406,
+          0.33201,
+          0.41602,
+          0.40139
+        ],
+        "opponentScore": [
+          0.58138,
+          0.33201,
+          0.81315,
+          0.40139
+        ],
+        "localTrophies": [
+          0.11719,
+          0.18533,
+          0.26237,
+          0.25966
+        ],
+        "opponentTrophies": [
+          0.66992,
+          0.18533,
+          0.8099,
+          0.25966
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 652.0,
+          "y0": 358.0,
+          "x1": 881.0,
+          "y1": 383.0
+        },
+        "losp": {
+          "x0": 204.0,
+          "y0": 138.0,
+          "x1": 319.0,
+          "y1": 181.0
+        },
+        "opponent": {
+          "x0": 999.0,
+          "y0": 140.0,
+          "x1": 1148.0,
+          "y1": 178.0
+        }
+      }
+    },
+    {
+      "id": "capture-04",
+      "split": "train",
+      "fields": {
+        "localScore": {
+          "expected": 319841,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "319841",
+          "truth": 319841,
+          "visualClassifier": {
+            "predicted": "316941",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 36,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "opponentScore": {
+          "expected": 458874,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "458874",
+          "truth": 458874,
+          "visualClassifier": {
+            "predicted": "459974",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 36,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "localTrophies": {
+          "expected": 2783,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": null,
+          "truth": 2783,
+          "visualClassifier": {
+            "predicted": "2783",
+            "exact": true,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 24,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": true
+        },
+        "opponentTrophies": {
+          "expected": 2926,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": null,
+          "truth": 2926,
+          "visualClassifier": {
+            "predicted": "2223",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 24,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        }
+      },
+      "rois": {
+        "localScore": [
+          0.15299,
+          0.33223,
+          0.40495,
+          0.40154
+        ],
+        "opponentScore": [
+          0.56055,
+          0.33223,
+          0.79232,
+          0.40154
+        ],
+        "localTrophies": [
+          0.10091,
+          0.21782,
+          0.24609,
+          0.29263
+        ],
+        "opponentTrophies": [
+          0.66471,
+          0.21782,
+          0.80469,
+          0.29263
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 635.0,
+          "y0": 322.0,
+          "x1": 849.0,
+          "y1": 346.0
+        },
+        "losp": {
+          "x0": 179.0,
+          "y0": 146.0,
+          "x1": 303.0,
+          "y1": 193.0
+        },
+        "opponent": {
+          "x0": 991.0,
+          "y0": 148.0,
+          "x1": 1186.0,
+          "y1": 192.0
+        }
+      }
+    },
+    {
+      "id": "capture-05",
+      "split": "train",
+      "fields": {
+        "localScore": {
+          "expected": 340136,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "340136",
+          "truth": 340136,
+          "visualClassifier": {
+            "predicted": "343136",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 36,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "opponentScore": {
+          "expected": 291856,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "291856",
+          "truth": 291856,
+          "visualClassifier": {
+            "predicted": "731656",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 36,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "localTrophies": {
+          "expected": 2791,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": null,
+          "truth": 2791,
+          "visualClassifier": {
+            "predicted": "2791",
+            "exact": true,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 24,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": true
+        },
+        "opponentTrophies": {
+          "expected": 2640,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "2640",
+          "truth": 2640,
+          "visualClassifier": {
+            "predicted": "2680",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 24,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        }
+      },
+      "rois": {
+        "localScore": [
+          0.21238,
+          0.32569,
+          0.46455,
+          0.39514
+        ],
+        "opponentScore": [
+          0.58364,
+          0.32569,
+          0.81561,
+          0.39514
+        ],
+        "localTrophies": [
+          0.23383,
+          0.21389,
+          0.37904,
+          0.28889
+        ],
+        "opponentTrophies": [
+          0.66418,
+          0.21389,
+          0.8041,
+          0.28889
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 1520.0,
+          "y0": 501.0,
+          "x1": 1852.0,
+          "y1": 538.0
+        },
+        "losp": {
+          "x0": 801.0,
+          "y0": 226.0,
+          "x1": 1056.0,
+          "y1": 300.0
+        },
+        "opponent": {
+          "x0": 2072.0,
+          "y0": 230.0,
+          "x1": 2504.0,
+          "y1": 299.0
+        }
+      }
+    },
+    {
+      "id": "capture-06",
+      "split": "train",
+      "fields": {
+        "localScore": {
+          "expected": 366816,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "366816",
+          "truth": 366816,
+          "visualClassifier": {
+            "predicted": "369919",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 36,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "opponentScore": {
+          "expected": 168062,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "168062",
+          "truth": 168062,
+          "visualClassifier": {
+            "predicted": "199052",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 36,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "localTrophies": {
+          "expected": 2414,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "2414",
+          "truth": 2414,
+          "visualClassifier": {
+            "predicted": "2616",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 24,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "opponentTrophies": {
+          "expected": 2264,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "2268",
+          "truth": 2264,
+          "visualClassifier": {
+            "predicted": "2627",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 24,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        }
+      },
+      "rois": {
+        "localScore": [
+          0.18685,
+          0.32562,
+          0.4388,
+          0.39508
+        ],
+        "opponentScore": [
+          0.55924,
+          0.32562,
+          0.79102,
+          0.39508
+        ],
+        "localTrophies": [
+          0.19076,
+          0.21274,
+          0.33594,
+          0.28654
+        ],
+        "opponentTrophies": [
+          0.63997,
+          0.21274,
+          0.77995,
+          0.28654
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 687.0,
+          "y0": 240.0,
+          "x1": 847.0,
+          "y1": 259.0
+        },
+        "losp": {
+          "x0": 317.0,
+          "y0": 110.0,
+          "x1": 403.0,
+          "y1": 143.0
+        },
+        "opponent": {
+          "x0": 953.0,
+          "y0": 110.0,
+          "x1": 1218.0,
+          "y1": 150.0
+        }
+      }
+    },
+    {
+      "id": "capture-07",
+      "split": "train",
+      "fields": {
+        "localScore": {
+          "expected": 297706,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "297706",
+          "truth": 297706,
+          "visualClassifier": {
+            "predicted": "287799",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 36,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06"
+            ]
+          },
+          "exact": false
+        },
+        "opponentScore": {
+          "expected": 439960,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": null,
+          "truth": 439960,
+          "visualClassifier": {
+            "predicted": "488888",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 36,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06"
+            ]
+          },
+          "exact": false
+        },
+        "localTrophies": {
+          "expected": 2663,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "2663",
+          "truth": 2663,
+          "visualClassifier": {
+            "predicted": "2883",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 24,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06"
+            ]
+          },
+          "exact": false
+        },
+        "opponentTrophies": {
+          "expected": 2814,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": null,
+          "truth": 2814,
+          "visualClassifier": {
+            "predicted": "2634",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 24,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06"
+            ]
+          },
+          "exact": false
+        }
+      },
+      "rois": {
+        "localScore": [
+          0.16406,
+          0.33201,
+          0.41602,
+          0.40139
+        ],
+        "opponentScore": [
+          0.58138,
+          0.33201,
+          0.81315,
+          0.40139
+        ],
+        "localTrophies": [
+          0.11719,
+          0.18533,
+          0.26237,
+          0.25966
+        ],
+        "opponentTrophies": [
+          0.66992,
+          0.18533,
+          0.8099,
+          0.25966
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 652.0,
+          "y0": 358.0,
+          "x1": 881.0,
+          "y1": 383.0
+        },
+        "losp": {
+          "x0": 204.0,
+          "y0": 138.0,
+          "x1": 319.0,
+          "y1": 181.0
+        },
+        "opponent": {
+          "x0": 999.0,
+          "y0": 139.0,
+          "x1": 1203.0,
+          "y1": 176.0
+        }
+      }
+    },
+    {
+      "id": "capture-08",
+      "split": "holdout",
+      "fields": {
+        "localScore": {
+          "expected": 371356,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "371356",
+          "truth": 371356,
+          "visualClassifier": {
+            "predicted": "371366",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 42,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "opponentScore": {
+          "expected": 284300,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "284300",
+          "truth": 284300,
+          "visualClassifier": {
+            "predicted": "294300",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 42,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "localTrophies": {
+          "expected": 2858,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "2858",
+          "truth": 2858,
+          "visualClassifier": {
+            "predicted": "2868",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 28,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "opponentTrophies": {
+          "expected": 2708,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": null,
+          "truth": 2708,
+          "visualClassifier": {
+            "predicted": "2224",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 28,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        }
+      },
+      "rois": {
+        "localScore": [
+          0.16016,
+          0.29398,
+          0.41211,
+          0.36482
+        ],
+        "opponentScore": [
+          0.5625,
+          0.29398,
+          0.79427,
+          0.36482
+        ],
+        "localTrophies": [
+          0.11849,
+          0.17591,
+          0.26367,
+          0.2503
+        ],
+        "opponentTrophies": [
+          0.66276,
+          0.17591,
+          0.80273,
+          0.2503
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 646.0,
+          "y0": 268.0,
+          "x1": 852.0,
+          "y1": 291.0
+        },
+        "losp": {
+          "x0": 206.0,
+          "y0": 98.0,
+          "x1": 326.0,
+          "y1": 144.0
+        },
+        "opponent": {
+          "x0": 988.0,
+          "y0": 98.0,
+          "x1": 1153.0,
+          "y1": 143.0
+        }
+      }
+    },
+    {
+      "id": "capture-09",
+      "split": "holdout",
+      "fields": {
+        "localScore": {
+          "expected": 348354,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "348354",
+          "truth": 348354,
+          "visualClassifier": {
+            "predicted": "348364",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 42,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "opponentScore": {
+          "expected": 481264,
+          "segmentCount": 6,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "481264",
+          "truth": 481264,
+          "visualClassifier": {
+            "predicted": "461284",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 42,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "localTrophies": {
+          "expected": 2715,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "2715",
+          "truth": 2715,
+          "visualClassifier": {
+            "predicted": "2716",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 28,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        },
+        "opponentTrophies": {
+          "expected": 2864,
+          "segmentCount": 4,
+          "segmentStatus": "segmented",
+          "tesseractPhase2": "2864",
+          "truth": 2864,
+          "visualClassifier": {
+            "predicted": "9664",
+            "exact": false,
+            "reason": null,
+            "glyphUncertainty": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "trainGlyphs": 28,
+            "trainImages": [
+              "capture-01",
+              "capture-02",
+              "capture-03",
+              "capture-04",
+              "capture-05",
+              "capture-06",
+              "capture-07"
+            ]
+          },
+          "exact": false
+        }
+      },
+      "rois": {
+        "localScore": [
+          0.21238,
+          0.32569,
+          0.46455,
+          0.39514
+        ],
+        "opponentScore": [
+          0.58364,
+          0.32569,
+          0.81561,
+          0.39514
+        ],
+        "localTrophies": [
+          0.23383,
+          0.21389,
+          0.37904,
+          0.28889
+        ],
+        "opponentTrophies": [
+          0.6334,
+          0.21389,
+          0.77332,
+          0.28889
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 1520.0,
+          "y0": 501.0,
+          "x1": 1852.0,
+          "y1": 538.0
+        },
+        "losp": {
+          "x0": 801.0,
+          "y0": 226.0,
+          "x1": 981.0,
+          "y1": 300.0
+        },
+        "opponent": {
+          "x0": 1973.0,
+          "y0": 296.0,
+          "x1": 1998.0,
+          "y1": 326.0
+        }
+      }
+    }
+  ]
+}

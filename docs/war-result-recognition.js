@@ -78,6 +78,7 @@
       const primary = WarResultRecognition.extract(sparseData.words || [], canvas.width, canvas.height, { colorResult });
       const secondary = WarResultRecognition.extract(fullData.words || [], canvas.width, canvas.height, { colorResult });
       const extraction = mergePasses(primary, secondary, colorResult);
+      await refineOpponentTrophies(canvas, sparseData.words || [], extraction);
       const pointWord = (fullData.words || []).find((word) => normalize(word.text) === "points");
       if (pointWord && (!extraction.fields.localScore.value || !extraction.fields.opponentScore.value)) {
         await worker.setParameters({ tessedit_pageseg_mode: "7", tessedit_char_whitelist: "0123456789" });
@@ -90,7 +91,8 @@
           if (value) extraction.fields.opponentScore = { value, confidence: 45, source: "score-crop-psm7", uncertain: true };
         }
       }
-      renderDraft({ text: `${fullData.text || ""}\n${sparseData.text || ""}` }, canvas.width, canvas.height, extraction);
+      const cropText = extraction.trophyCropText ? `\nTrophées adverses — crop local : ${extraction.trophyCropText}` : "";
+      renderDraft({ text: `${fullData.text || ""}\n${sparseData.text || ""}${cropText}` }, canvas.width, canvas.height, extraction);
       status.textContent = "Reconnaissance terminée. Vérifie manuellement les sept champs avant tout export.";
       progress.value = 100;
     } catch (error) {
@@ -146,8 +148,13 @@
     updateMatchKey();
     form.dataset.needsManualReview = "true";
     form.dataset.warnings = JSON.stringify(extraction.warnings);
-    fieldWarnings.textContent = extraction.warnings.length
-      ? `À vérifier : ${extraction.warnings.map((warning) => warning.replaceAll("_", " ")).join(" · ")}`
+    const conflictLabels = { localScore: "Score LoSP", opponentScore: "Score adverse", localTrophies: "Trophées LoSP", opponentTrophies: "Trophées adverses" };
+    const conflicts = Object.entries(extraction.fields)
+      .filter(([, value]) => value.alternatives?.length)
+      .map(([key, value]) => `${conflictLabels[key] || key} : lectures en désaccord (${value.alternatives.join(" / ")})`);
+    const warningMessages = [...extraction.warnings.map((warning) => warning.replaceAll("_", " ")), ...conflicts];
+    fieldWarnings.textContent = warningMessages.length
+      ? `À vérifier : ${warningMessages.join(" · ")}`
       : "Aucune incohérence automatique détectée; la vérification manuelle reste obligatoire.";
   }
 
@@ -193,6 +200,62 @@
     const result = await worker.recognize(canvas);
     const digits = String(result.data.text || "").replace(/\D/g, "");
     return digits.length === 6 ? digits : "";
+  }
+
+  async function refineOpponentTrophies(source, words, extraction) {
+    const located = WarResultRecognition.locateZones(words, source.width, source.height);
+    const zone = located.zones.opponentTrophies;
+    if (!located.anchorsFound.losp || !zone) {
+      extraction.warnings.push("opponent_trophies_crop_unresolved");
+      return;
+    }
+    const crop = makeGrayContrastCrop(source, zone.x, zone.y, zone.width, zone.height);
+    if (!crop) return;
+    await worker.setParameters({ tessedit_pageseg_mode: "7", tessedit_char_whitelist: "0123456789" });
+    const result = await worker.recognize(crop);
+    extraction.trophyCropText = String(result.data?.text || "").trim();
+    const firstDigits = WarResultRecognition.firstDigitGroup(result.data?.text, 4);
+    // In this layout the trophy total is the first numeric group before the
+    // rating change. A short/ambiguous read is not substituted into the form.
+    if (!firstDigits) {
+      extraction.warnings.push("opponent_trophies_crop_unresolved");
+      return;
+    }
+    const previous = extraction.fields.opponentTrophies;
+    const confidence = Number.isFinite(result.data?.confidence) ? Math.max(0, Math.min(100, result.data.confidence)) : null;
+    const conflict = previous.value && previous.value !== firstDigits;
+    extraction.fields.opponentTrophies = {
+      value: firstDigits,
+      confidence,
+      source: "opponent-trophy-gray-contrast-3x-psm7",
+      uncertain: true,
+      ...(conflict ? { alternatives: [firstDigits, previous.value] } : {})
+    };
+    extraction.warnings.push("opponent_trophies_crop_requires_manual_review");
+    if (conflict) extraction.warnings.push("opponent_trophies_methods_disagree");
+    else extraction.warnings = extraction.warnings.filter((warning) => warning !== "opponent_trophies_crop_unresolved");
+  }
+
+  function makeGrayContrastCrop(source, sx, sy, sw, sh) {
+    if (sw <= 0 || sh <= 0) return null;
+    const scale = 3;
+    const crop = document.createElement("canvas");
+    crop.width = sw * scale;
+    crop.height = sh * scale;
+    const context = crop.getContext("2d", { alpha: false, willReadFrequently: true });
+    if (!context) return null;
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
+    context.drawImage(source, sx, sy, sw, sh, 0, 0, crop.width, crop.height);
+    const image = context.getImageData(0, 0, crop.width, crop.height);
+    for (let i = 0; i < image.data.length; i += 4) {
+      const gray = 0.299 * image.data[i] + 0.587 * image.data[i + 1] + 0.114 * image.data[i + 2];
+      const contrasted = Math.max(0, Math.min(255, (gray - 127.5) * 1.7 + 127.5));
+      const value = Math.max(0, Math.min(255, Math.round(contrasted * 1.12)));
+      image.data[i] = image.data[i + 1] = image.data[i + 2] = value;
+    }
+    context.putImageData(image, 0, 0);
+    return crop;
   }
 
   function makeScoreCrop(source, labelWord, side) {

@@ -3,6 +3,7 @@ const fs = require("node:fs");
 const { createWorker } = require("tesseract.js");
 const core = require("../../docs/war-result-recognition-core.js");
 const truth = JSON.parse(fs.readFileSync(`${__dirname}/ground-truth.json`, "utf8"));
+const imageRoot = process.env.WAR_OCR_IMAGES_DIR || `${__dirname}/../../upload`;
 
 (async () => {
   const startup = Date.now();
@@ -16,7 +17,7 @@ const truth = JSON.parse(fs.readFileSync(`${__dirname}/ground-truth.json`, "utf8
   const times = [];
   try {
     for (const item of truth.captures) {
-      const imagePath = `${__dirname}/../../upload/${item.file}`;
+      const imagePath = `${imageRoot}/${item.file}`;
       const image = await createImageData(imagePath);
       const passes = {};
       for (const psm of [6, 11]) {
@@ -35,7 +36,8 @@ const truth = JSON.parse(fs.readFileSync(`${__dirname}/ground-truth.json`, "utf8
     measurements: { startupMs: loadedAt - startup, meanRecognitionPassMs: Math.round(times.reduce((a,b)=>a+b,0)/times.length), totalPasses: times.length, elapsedMs: Date.now()-startup, peakMemoryRssMb: Math.round(process.resourceUsage().maxRSS/1024) },
     captures
   };
-  fs.writeFileSync(`${__dirname}/tesseractjs-node-raw-results.json`, `${JSON.stringify(output,null,2)}\n`);
+  const outputPath = process.env.WAR_OCR_NODE_OUTPUT || `${__dirname}/tesseractjs-node-raw-results.json`;
+  fs.writeFileSync(outputPath, `${JSON.stringify(output,null,2)}\n`);
   console.log(JSON.stringify(output.measurements));
 })().catch((error) => { console.error(error); process.exitCode = 1; });
 

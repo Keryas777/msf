@@ -138,3 +138,77 @@ Les captures montrent une seule famille de composition écran large. Il faut un 
 - Le corpus est réel; aucune ligne ou image fictive n’a été ajoutée aux archives publiques.
 - Les sorties stockées dans les JSON de benchmark servent uniquement à l’évaluation du prototype.
 - La PR #605 reste brouillon et non fusionnée. Aucune intégration dans l’historique des adversaires n’a été commencée.
+
+## Phase 3 — reconnaissance visuelle spécialisée
+
+### Résultat principal
+
+La phase 3 a produit une amélioration ciblée et reproductible des trophées adverses grâce à un recadrage proportionnel, un contraste local et une lecture numérique PSM 7. Le meilleur benchmark Tesseract CLI strict atteint **52/62 (83,9 %)**, contre 46/62 en phase 2. Six champs supplémentaires sont exacts; aucun des six autres champs n’est remplacé par la nouvelle méthode. Cette mesure est le résultat du moteur CLI natif, pas une mesure de navigateur.
+
+Le meilleur modèle complet transposable au prototype n’obtient pas le même gain global : sous Tesseract.js 7 dans Node, sur les images limitées à 1800 px comme dans la page, le résultat passe de **40/62 à 46/62**. L’augmentation ciblée est nette pour les trophées adverses, de 0/9 à 6/9, mais le résultat total reste égal à la référence stricte phase 2 de 46/62. La page utilise Tesseract.js 5; ce chiffre Node 7 n’est pas une validation de cette version dans Safari ou Chrome.
+
+| Champ | Phase 2, Tesseract CLI | Phase 3, hybride CLI | Phase 3, hybride Tesseract.js 7 Node, largeur max 1800 |
+|---|---:|---:|---:|
+| Alliance LoSP | 9/9 | 9/9 | 8/9 |
+| Alliance adverse | 6/8 | 6/8 | 6/8 |
+| Score LoSP | 7/9 | 7/9 | 7/9 |
+| Score adverse | 7/9 | 7/9 | 7/9 |
+| Trophées LoSP | 5/9 | 5/9 | 3/9 |
+| Trophées adverses | 3/9 | **9/9** | **6/9** |
+| Victoire/défaite | 9/9 | 9/9 | 9/9 |
+| **Total strict** | **46/62 — 74,2 %** | **52/62 — 83,9 %** | **46/62 — 74,2 %** |
+
+Le nom adverse de la capture 09 reste exclu : sa vérité terrain est toujours `null`. Les images 08 et 09 restent des captures déjà consultées; le résultat 13/13 du sous-ensemble anciennement réservé n’est pas indépendant.
+
+### Zones et reconnaissance des nombres
+
+Le parseur partagé expose maintenant `locateZones(words, width, height)`. Il repère les lignes « LoSP » et « POINTS DE GUERRE » dans les boîtes Tesseract, puis retourne les zones des alliances, des deux scores, des deux trophées et du bandeau. Les coordonnées sont calculées en fonction de la taille de l’image. `visualize-zones.py` produit des aperçus annotés localement; les aperçus générés et les captures d’origine ne sont pas inclus dans la PR.
+
+Le recadrage des scores ancré sur le libellé, agrandi 3×, essayé avec niveaux de gris, masque de couleur et seuillage, n’a pas dépassé le plein écran : la meilleure passe PSM 7 en niveaux de gris obtient 4/9 pour chaque score, contre 7/9 dans le benchmark strict phase 2. Elle est rejetée pour ces deux champs. Pour les trophées LoSP, elle obtient 4/9 contre 5/9; elle est aussi rejetée.
+
+Pour les trophées adverses, la variante PSM 7 en niveaux de gris avec contraste et luminosité, agrandie 3×, lit exactement 8/9 totaux en CLI. Le premier groupe numérique doit comporter au moins quatre chiffres; on retient les quatre premiers, le total apparaissant avant le delta sur cette interface. Pour la capture 02, la passe locale ne produit que `561`; elle est donc refusée et l’extraction précédente `2680` est conservée. Avec ce repli déterministe, le champ atteint 9/9 en CLI. Les valeurs en désaccord gardent les deux propositions et déclenchent une alerte; elles ne sont jamais présentées comme confirmées. Les sorties du prototype restent toutes soumises à validation manuelle.
+
+| Variante de recadrage, 36 champs numériques | Scores LoSP | Scores adverses | Trophées LoSP | Trophées adverses | Total |
+|---|---:|---:|---:|---:|---:|
+| Phase 2 dual-pass, champs attribués | 7/9 | 7/9 | 5/9 | 3/9 | 22/36 |
+| PSM 7, brut 3× | 5/9 | 4/9 | 4/9 | 5/9 | 18/36 |
+| PSM 7, gris/contraste 3× | 4/9 | 4/9 | 4/9 | **8/9** | 20/36 |
+| PSM 7, Otsu 3× | 2/9 | 4/9 | 5/9 | 5/9 | 16/36 |
+| PSM 7, masque couleur 3× | 1/9 | 6/9 | 5/9 | 1/9 | 13/36 |
+| PSM 8, meilleur des traitements | 1/9 | 3/9 | 4/9 | 1/9 | 9/36 |
+
+Les crops de noms adverses ont été réessayés en resserrant la hauteur à la seule ligne du nom. Sur huit noms vérifiables, la meilleure variante exacte n’obtient que 1/8, contre 6/8 au moteur existant. Les cas `B.B.A.` (ponctuation perdue) et `STAN LEE'S MISFITS` (lettres stylisées) restent non résolus. Aucun nom attendu n’est substitué; aucune correction de vocabulaire par liste d’alliances n’est ajoutée.
+
+L’essai d’un classifieur de glyphes individuels sépare les composantes connexes, conserve uniquement des gabarits de chiffres isolés et utilise une validation laissant chaque capture d’entraînement hors de ses propres prototypes. Il ne mémorise pas des nombres entiers. Ses résultats (scores LoSP 2/9, scores adverses 1/9, trophées LoSP 5/9 et trophées adverses 0/9; 0/2 sur les anciennes captures réservées) ne sont pas meilleurs. La normalisation de formes et les confusions entre les glyphes restent trop sensibles à la résolution, aux ombres et aux traits joints. Cette voie est rejetée comme extracteur automatique.
+
+### Comparaison Tesseract.js et dimensionnement de la page
+
+Une nouvelle vérification a reproduit le redimensionnement de la page : les images de largeur supérieure à 1800 px sont proportionnellement réduites avant les lectures Tesseract.js. Sous Tesseract.js 7 / Node, cette réduction fait passer le double passage plein écran de la mesure native 44/62 à 40/62. Le recadrage seul, sur ces mêmes images redimensionnées, obtient 6/9 trophées adverses. Le repli sur la lecture précédente quand le recadrage ne donne pas quatre chiffres laisse le score complet à 46/62; le trophée adverse passe de 0/9 à 6/9, sans changement des six autres champs.
+
+| Exécution Tesseract.js 7 sous Node | Chargement initial | Reconnaissance | Durée corpus | RSS processus maximum |
+|---|---:|---:|---:|---:|
+| Double passe plein écran, images natives | 328 ms | 652 ms/passe | 12,45 s | 209 Mo |
+| Double passe plein écran, largeur limitée à 1800 px | 306 ms | 537 ms/passe | 10,22 s | 176 Mo |
+| Passe seule sur les neuf petits crops, images natives | 296 ms | 28 ms/crop en moyenne | 248 ms | 117 Mo |
+| Passe seule sur les neuf petits crops, source limitée à 1800 px | 202 ms | 24 ms/crop en moyenne | 219 ms | 110 Mo |
+
+Les mesures de mémoire des crops concernent un processus qui ne fait que ces neuf petits crops, pas un worker navigateur combinant les passes pleine image et le crop. Les nombres ne sont pas des mesures de Safari. Les lectures Tesseract.js 7 pleine résolution donnent 49/62 après le crop (44/62 avant); les lectures à 1800 px donnent 46/62 (40/62 avant). La page reste épinglée à Tesseract.js 5; aucun appareil iOS, Android ou navigateur Discord n’était accessible pour tester cette intégration.
+
+### Modèle visuel et dépendances alternatives
+
+Le modèle léger de formes, la lecture spécialisée des chiffres et les indices Canvas sont évalués séparément. OpenCV.js, AKAZE et un second moteur OCR n’ont pas été ajoutés. Aucun second moteur OCR local (Ocrad, PaddleOCR, EasyOCR ou runtime ONNX) ni OpenCV n’est installé dans l’environnement, et aucun test navigateur ne permettait d’évaluer leur coût de chargement, mémoire ou compatibilité. Ajouter ces ressources sans résultat comparatif local favorable aurait augmenté le poids et les risques de maintenance sans preuve de bénéfice.
+
+### Fichiers de résultats phase 3
+
+- `phase3-hybrid-benchmark-results.json` : tableau strict par capture et agrégation du meilleur hybride CLI.
+- `phase3-localized-tesseract-results.json` : sorties détaillées de chaque crop, PSM et prétraitement.
+- `phase3-name-results.json` : résultats de la campagne sur les noms adverses.
+- `phase3-visual-digit-results.json` : segmentation, prototypes par glyphes et résultats par champ.
+- `phase3-tessjs-hybrid-benchmark-results.json` et `phase3-tessjs-resized-hybrid-benchmark-results.json` : résultats Node 7 à pleine résolution et à 1800 px.
+- `tesseractjs-node-resized-raw-results.json` et `tesseractjs-node-resized-results.json` : sorties des deux passes de base sur les images dimensionnées comme la page.
+
+### Conclusion et limites
+
+La voie des crops améliore nettement un champ prioritaire et fournit un garde-fou utile : une lecture plus courte que quatre chiffres n’est jamais retenue. Cependant, le meilleur résultat strict de 52/62 vient de Tesseract CLI plein écran, et le protocole Tesseract.js 7 dimensionné comme la page reste à 46/62. Le crop Tesseract.js donne encore une mauvaise lecture sur la capture 03 (`2436` au lieu de `2438`) et sur la capture 09 redimensionnée (`2084` au lieu de `2864`); ces cas restent signalés comme incertains dans le prototype.
+
+Les noms adverses ne progressent pas, les scores ne progressent pas, et les trophées adverses ne sont pas suffisamment fiables pour une publication automatique. Les neuf images ne démontrent pas la généralisation. Il faut un nouveau lot réel jamais consulté, plus des mesures Tesseract.js 5 dans un navigateur réel, avant de décider de l’activation pour l’usage de guerre. L’export reste manuel et aucun résultat n’est versé aux archives. La PR #605 demeure brouillon et non fusionnée.

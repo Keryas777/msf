@@ -1,0 +1,850 @@
+{
+  "schemaVersion": "1.0.0",
+  "engine": "Tesseract.js 7.0.0 in Node.js v24.22.1; local traineddata; not a browser test",
+  "metric": "strict expected value equality after field attribution; contaminated historical holdouts",
+  "method": "Baseline Tesseract.js 7 dual full-frame output, replacing only opponentTrophies when the local PSM 7 crop yields a first numeric group of at least four digits; take its first four. Short reads retain the previous candidate. Conflicting method outputs are retained as alternatives and still require manual verification.",
+  "measurements": {
+    "startupMs": 202,
+    "meanRecognitionMs": 24,
+    "totalRecognitionMs": 219,
+    "peakRssMb": 110
+  },
+  "baseline": {
+    "fieldSummary": {
+      "localAlliance": {
+        "exact": 8,
+        "total": 9
+      },
+      "opponentAlliance": {
+        "exact": 6,
+        "total": 8
+      },
+      "localScore": {
+        "exact": 7,
+        "total": 9
+      },
+      "opponentScore": {
+        "exact": 7,
+        "total": 9
+      },
+      "localTrophies": {
+        "exact": 3,
+        "total": 9
+      },
+      "opponentTrophies": {
+        "exact": 0,
+        "total": 9
+      },
+      "result": {
+        "exact": 9,
+        "total": 9
+      }
+    },
+    "eligibleExact": {
+      "exact": 40,
+      "total": 62
+    }
+  },
+  "summary": {
+    "train": {
+      "localAlliance": {
+        "exact": 6,
+        "total": 7
+      },
+      "opponentAlliance": {
+        "exact": 5,
+        "total": 7
+      },
+      "localScore": {
+        "exact": 5,
+        "total": 7
+      },
+      "opponentScore": {
+        "exact": 5,
+        "total": 7
+      },
+      "localTrophies": {
+        "exact": 3,
+        "total": 7
+      },
+      "opponentTrophies": {
+        "exact": 5,
+        "total": 7
+      },
+      "result": {
+        "exact": 7,
+        "total": 7
+      },
+      "overall": {
+        "exact": 36,
+        "total": 49,
+        "percent": 73.5
+      }
+    },
+    "holdout": {
+      "localAlliance": {
+        "exact": 2,
+        "total": 2
+      },
+      "opponentAlliance": {
+        "exact": 1,
+        "total": 1
+      },
+      "localScore": {
+        "exact": 2,
+        "total": 2
+      },
+      "opponentScore": {
+        "exact": 2,
+        "total": 2
+      },
+      "localTrophies": {
+        "exact": 0,
+        "total": 2
+      },
+      "opponentTrophies": {
+        "exact": 1,
+        "total": 2
+      },
+      "result": {
+        "exact": 2,
+        "total": 2
+      },
+      "overall": {
+        "exact": 10,
+        "total": 13,
+        "percent": 76.9
+      }
+    },
+    "all": {
+      "localAlliance": {
+        "exact": 8,
+        "total": 9
+      },
+      "opponentAlliance": {
+        "exact": 6,
+        "total": 8
+      },
+      "localScore": {
+        "exact": 7,
+        "total": 9
+      },
+      "opponentScore": {
+        "exact": 7,
+        "total": 9
+      },
+      "localTrophies": {
+        "exact": 3,
+        "total": 9
+      },
+      "opponentTrophies": {
+        "exact": 6,
+        "total": 9
+      },
+      "result": {
+        "exact": 9,
+        "total": 9
+      },
+      "overall": {
+        "exact": 46,
+        "total": 62,
+        "percent": 74.2
+      }
+    }
+  },
+  "captures": [
+    {
+      "id": "capture-01",
+      "split": "train",
+      "fields": {
+        "localAlliance": {
+          "expected": "Kronos",
+          "extracted": "Kronos",
+          "exact": true,
+          "confidence": 96,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "B.B.A.",
+          "extracted": "B.B.A",
+          "exact": false,
+          "confidence": 29,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "localScore": {
+          "expected": 411597,
+          "extracted": "411597",
+          "exact": true,
+          "confidence": 94,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "opponentScore": {
+          "expected": 257149,
+          "extracted": "257149",
+          "exact": true,
+          "confidence": 80,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "localTrophies": {
+          "expected": 2778,
+          "extracted": "2778",
+          "exact": true,
+          "confidence": 28,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2627,
+          "extracted": "2627",
+          "exact": true,
+          "confidence": 0,
+          "source": "tesseractjs7-local-gray-contrast-3x-psm7",
+          "alternatives": [
+            "2027",
+            "2627"
+          ],
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "result": {
+          "expected": "win",
+          "extracted": "win",
+          "exact": true,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-02",
+      "split": "train",
+      "fields": {
+        "localAlliance": {
+          "expected": "Athena",
+          "extracted": "Athena",
+          "exact": true,
+          "confidence": 95,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "Allspark X-Men",
+          "extracted": "Allspark X-Men",
+          "exact": true,
+          "confidence": 96,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "localScore": {
+          "expected": 343311,
+          "extracted": "343311",
+          "exact": true,
+          "confidence": 66,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "opponentScore": {
+          "expected": 314689,
+          "extracted": "314689",
+          "exact": true,
+          "confidence": 79,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "localTrophies": {
+          "expected": 2792,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2680,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "result": {
+          "expected": "win",
+          "extracted": "win",
+          "exact": true,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-03",
+      "split": "train",
+      "fields": {
+        "localAlliance": {
+          "expected": "Dionysos",
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "German Avenger's",
+          "extracted": "German Avenger's",
+          "exact": true,
+          "confidence": 77,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "localScore": {
+          "expected": 363432,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "opponentScore": {
+          "expected": 153303,
+          "extracted": "153307",
+          "exact": false,
+          "confidence": 70,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "localTrophies": {
+          "expected": 2738,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2438,
+          "extracted": "2436",
+          "exact": false,
+          "confidence": 0,
+          "source": "tesseractjs7-local-gray-contrast-3x-psm7",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "result": {
+          "expected": "win",
+          "extracted": "win",
+          "exact": true,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-04",
+      "split": "train",
+      "fields": {
+        "localAlliance": {
+          "expected": "Kronos",
+          "extracted": "Kronos",
+          "exact": true,
+          "confidence": 96,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "Infinity X",
+          "extracted": "INFINITY X",
+          "exact": true,
+          "confidence": 91,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "localScore": {
+          "expected": 319841,
+          "extracted": "319841",
+          "exact": true,
+          "confidence": 62,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "opponentScore": {
+          "expected": 458874,
+          "extracted": "458874",
+          "exact": true,
+          "confidence": 93,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "localTrophies": {
+          "expected": 2783,
+          "extracted": "2783",
+          "exact": true,
+          "confidence": 93,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2926,
+          "extracted": "2926",
+          "exact": true,
+          "confidence": 0,
+          "source": "tesseractjs7-local-gray-contrast-3x-psm7",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "result": {
+          "expected": "loss",
+          "extracted": "loss",
+          "exact": true,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-05",
+      "split": "train",
+      "fields": {
+        "localAlliance": {
+          "expected": "Athena",
+          "extracted": "Athena",
+          "exact": true,
+          "confidence": 96,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "HYPERACTIF",
+          "extracted": "HYPERACTIF",
+          "exact": true,
+          "confidence": 60,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "localScore": {
+          "expected": 340136,
+          "extracted": "940136",
+          "exact": false,
+          "confidence": 73,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "opponentScore": {
+          "expected": 291856,
+          "extracted": "291856",
+          "exact": true,
+          "confidence": 70,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "localTrophies": {
+          "expected": 2791,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2640,
+          "extracted": "2640",
+          "exact": true,
+          "confidence": 0,
+          "source": "tesseractjs7-local-gray-contrast-3x-psm7",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "result": {
+          "expected": "win",
+          "extracted": "win",
+          "exact": true,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-06",
+      "split": "train",
+      "fields": {
+        "localAlliance": {
+          "expected": "Poseidon",
+          "extracted": "Poseidon",
+          "exact": true,
+          "confidence": 52,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "SpaceEmperors",
+          "extracted": "SpaceEmperors",
+          "exact": true,
+          "confidence": 89,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "localScore": {
+          "expected": 366816,
+          "extracted": "366816",
+          "exact": true,
+          "confidence": 67,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "opponentScore": {
+          "expected": 168062,
+          "extracted": "168062",
+          "exact": true,
+          "confidence": 93,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "localTrophies": {
+          "expected": 2414,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2264,
+          "extracted": "2264",
+          "exact": true,
+          "confidence": 0,
+          "source": "tesseractjs7-local-gray-contrast-3x-psm7",
+          "alternatives": [
+            "2284",
+            "2264"
+          ],
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "result": {
+          "expected": "win",
+          "extracted": "win",
+          "exact": true,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-07",
+      "split": "train",
+      "fields": {
+        "localAlliance": {
+          "expected": "Dionysos",
+          "extracted": "Dionysos",
+          "exact": true,
+          "confidence": 53,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "STAN LEE'S MISFITS",
+          "extracted": "LEE’S MISFITS",
+          "exact": false,
+          "confidence": 87,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "localScore": {
+          "expected": 297706,
+          "extracted": "297706",
+          "exact": true,
+          "confidence": 83,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "opponentScore": {
+          "expected": 439960,
+          "extracted": "439560",
+          "exact": false,
+          "confidence": 81,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "localTrophies": {
+          "expected": 2663,
+          "extracted": "2663",
+          "exact": true,
+          "confidence": 89,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2814,
+          "extracted": "2814",
+          "exact": true,
+          "confidence": 0,
+          "source": "tesseractjs7-local-gray-contrast-3x-psm7",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "result": {
+          "expected": "loss",
+          "extracted": "loss",
+          "exact": true,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-08",
+      "split": "holdout",
+      "fields": {
+        "localAlliance": {
+          "expected": "Kronos",
+          "extracted": "Kronos",
+          "exact": true,
+          "confidence": 95,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "opponentAlliance": {
+          "expected": "Blurred Vision",
+          "extracted": "Blurred Vision",
+          "exact": true,
+          "confidence": 95,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "localScore": {
+          "expected": 371356,
+          "extracted": "371356",
+          "exact": true,
+          "confidence": 68,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "opponentScore": {
+          "expected": 284300,
+          "extracted": "284300",
+          "exact": true,
+          "confidence": 95,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "localTrophies": {
+          "expected": 2858,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2708,
+          "extracted": "2708",
+          "exact": true,
+          "confidence": 0,
+          "source": "tesseractjs7-local-gray-contrast-3x-psm7",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "result": {
+          "expected": "win",
+          "extracted": "win",
+          "exact": true,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        }
+      }
+    },
+    {
+      "id": "capture-09",
+      "split": "holdout",
+      "fields": {
+        "localAlliance": {
+          "expected": "Athena",
+          "extracted": "Athena",
+          "exact": true,
+          "confidence": 95,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "opponentAlliance": {
+          "expected": null,
+          "extracted": null,
+          "exact": null,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "localScore": {
+          "expected": 348354,
+          "extracted": "348354",
+          "exact": true,
+          "confidence": 58,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "opponentScore": {
+          "expected": 481264,
+          "extracted": "481264",
+          "exact": true,
+          "confidence": 77,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        },
+        "localTrophies": {
+          "expected": 2715,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "opponentTrophies": {
+          "expected": 2864,
+          "extracted": "2084",
+          "exact": false,
+          "confidence": 0,
+          "source": "tesseractjs7-local-gray-contrast-3x-psm7",
+          "alternatives": [
+            "2086",
+            "2084"
+          ],
+          "manualCorrectionRequired": true,
+          "manualValidationRequired": true
+        },
+        "result": {
+          "expected": "loss",
+          "extracted": "loss",
+          "exact": true,
+          "confidence": null,
+          "source": "phase2-tesseractjs7-dual-full-frame",
+          "alternatives": null,
+          "manualCorrectionRequired": false,
+          "manualValidationRequired": true
+        }
+      }
+    }
+  ]
+}

@@ -41,3 +41,46 @@ node --check docs/war-result-recognition-core.js
 ```
 
 Voir `REPORT.md` pour les mesures, les limites, les configurations rejetées et la table par capture. `war_ocr_benchmark_results.json` conserve le premier essai. `REPORT.md` le marque comme mesure de présence textuelle non comparable et le remplace pour les conclusions de précision.
+
+## Phase 3 — essais visuels et moteur hybride
+
+Les expériences phase 3 utilisent toujours les neuf mêmes captures; les deux anciennes captures réservées restent contaminées. Elles ne sont pas présentées comme une validation indépendante.
+
+Le module `docs/war-result-recognition-core.js` expose `locateZones(words, width, height)`. Il propose les zones alliance adverse, scores, trophées et bandeau à partir des mots OCR « LoSP » et « POINTS DE GUERRE », avec coordonnées relatives à la résolution. `visualize-zones.py` écrit des aperçus PNG localement; ces images de guerre ne sont pas ajoutées au dépôt.
+
+Le modèle visuel de chiffres dans `visual-digit-experiment.py` segmente des glyphes isolés, construit des prototypes de formes à partir des sept captures d’apprentissage et laisse la capture entière hors des prototypes lors du score correspondant. Il n’enregistre pas et ne prédit pas de nombres entiers par mémorisation. Ses résultats n’ont pas dépassé Tesseract; il reste un essai rejeté. Les autres variantes de recadrage Tesseract, les modes PSM 7/8, les masques de couleur, niveaux de gris et seuillage sont détaillés dans les JSON phase 3.
+
+Rejouer les essais Tesseract CLI (sorties déterministes avec versions et modèles identiques) :
+
+```sh
+python experiments/war-result-recognition/localized-tesseract-sweep.py \
+  --images-dir /chemin/vers/les-captures
+python experiments/war-result-recognition/phase3-hybrid-benchmark.py
+python experiments/war-result-recognition/localized-name-sweep.py \
+  --images-dir /chemin/vers/les-captures
+python experiments/war-result-recognition/visual-digit-experiment.py \
+  --images-dir /chemin/vers/les-captures
+python experiments/war-result-recognition/visualize-zones.py \
+  --images-dir /chemin/vers/les-captures --out-dir /chemin/vers/aperçus
+```
+
+Pour mesurer Tesseract.js localement sous Node, le paquet `tesseract.js` et le modèle anglais doivent être disponibles; aucune capture n’est envoyée. Les scripts peuvent prendre des images pré-réduites pour reproduire le plafond de 1800 px de la page :
+
+```sh
+python experiments/war-result-recognition/resize-benchmark-images.py \
+  --images-dir /chemin/vers/les-captures --out-dir /tmp/captures-1800 --max-width 1800
+python experiments/war-result-recognition/export-phase3-tessjs-crops.py \
+  --images-dir /chemin/vers/les-captures --out-dir /tmp/war-crops --max-width 1800
+WAR_OCR_IMAGES_DIR=/tmp/captures-1800 \
+WAR_OCR_NODE_OUTPUT=/tmp/tessjs-raw.json \
+  node experiments/war-result-recognition/benchmark-tesseractjs.cjs
+WAR_OCR_IMAGES_DIR=/tmp/captures-1800 \
+WAR_OCR_NODE_RAW=/tmp/tessjs-raw.json \
+WAR_OCR_NODE_SUMMARY=/tmp/tessjs-summary.json \
+  python experiments/war-result-recognition/summarize-tesseractjs.py
+WAR_OCR_JS_BASELINE=/tmp/tessjs-summary.json \
+  node experiments/war-result-recognition/benchmark-phase3-tessjs.cjs \
+  /tmp/war-crops /tmp/tessjs-crop-results.json
+```
+
+Les mesures de Tesseract CLI, Tesseract.js 7 sous Node et le prototype navigateur épinglé à Tesseract.js 5 sont séparées dans `REPORT.md` et leurs JSON. Les scripts Node sont des bancs natifs, pas une validation Safari/Chrome.
