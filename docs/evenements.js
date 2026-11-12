@@ -14,7 +14,7 @@
   ];
   const SECTIONS={current:'En cours'};
   const TABS=['objectives','current'];
-  const state={events:[],metadata:{},sourceError:false,date:null,manualDate:false,search:'',type:'',lastButton:null,
+  const state={events:[],metadata:{},sourceError:false,lastButton:null,
     teams:[],characters:[],characterAliases:[]};
   const fmtDate=new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'numeric',month:'short',year:'numeric'});
   const fmtNumber=new Intl.NumberFormat('fr-FR');
@@ -24,8 +24,6 @@
   function strip(value){return String(value??'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();}
   function cleanImage(url){return typeof url==='string'&&/^https:\/\/assets\.marvelstrikeforce\.com\/(?:key_art|imgs)\/[\w.%-]+\.(?:png|jpg|jpeg|webp)$/i.test(url)?url:'';}
   function dateLabel(ts){return Number.isFinite(ts)?fmtDate.format(new Date(ts*1000)):'Date inconnue';}
-  function timestamp(){if(!state.manualDate)return now();const d=state.date;return new Date(d+'T12:00:00').getTime();}
-  function localToday(){const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');}
   function dayLabel(t){return new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'2-digit',month:'short'}).format(new Date(t*1000));}
   function category(e,t){return e.startTime*1000>t?'future':e.endTime*1000<=t?'past':'current';}
   function secondary(e){return Array.isArray(e.locationHints)&&(e.locationHints.includes('lohub_feeder')||e.locationHints.includes('mercy_orb'));}
@@ -145,16 +143,10 @@
     return 'Terminé';
   }
   function filterEvents(){
-    const match=state.search.trim().toLocaleLowerCase('fr');
-    return state.events.filter(e=>{
-      const group=calendarGroup(e);
-      if(!group)return false;
-      if(state.type&&group!==state.type)return false;
-      return !match||[e.name,e.subName,e.details,e.id].some(v=>strip(v).toLocaleLowerCase('fr').includes(match));
-    });
+    return state.events.filter(e=>Boolean(calendarGroup(e)));
   }
   function groupEvents(){
-    const reference=timestamp();const grouped={current:[]};
+    const reference=now();const grouped={current:[]};
     for(const e of filterEvents()){
       if(category(e,reference)==='current')grouped.current.push(e);
     }
@@ -204,13 +196,12 @@
     bottom.append(create('span','ev-relative',relative(e,group,reference)),cta);body.append(bottom);
     card.append(body);return card;
   }
-  function emptyState(group){
+  function emptyState(){
     const holder=create('div','ev-empty');
-    holder.append(create('p','ev-empty-emoji',group==='current'?'🪐':'📚'));
-    holder.append(create('h3','',group==='current'?'Aucun événement en cours':'Aucun événement passé'));
-    let message='Essaie un autre filtre ou une autre date de référence.';
-    if(state.search||state.type)message='Modifie les filtres ou la date de référence pour afficher d’autres événements.';
-    holder.append(create('p','',message));return holder;
+    holder.append(create('p','ev-empty-emoji','🪐'));
+    holder.append(create('h3','','Aucun événement en cours'));
+    holder.append(create('p','','Aucun événement actif dans le catalogue actuellement.'));
+    return holder;
   }
 
   // Vue transversale des objectifs : seules les méthodes de scoring archivées
@@ -570,7 +561,7 @@
   }
   function objectiveEntries(reference){
     const active=state.events.filter(e=>category(e,reference)==='current'&&
-      objectiveGroup(e)&&(!state.type||objectiveGroup(e)===state.type));
+      objectiveGroup(e));
     const dedup=new Set(),items=[];
     for(const event of active){
       const scoring=event.milestone?.scoring;
@@ -602,18 +593,7 @@
       }
     }
     routeBattleObjectives(items);
-    const match=state.search.trim().toLocaleLowerCase('fr');
-    if(!match)return items;
-    return items.filter(item=>{
-      const characterTeams=item.character?state.teams.filter(team=>
-        Array.isArray(team.characters)&&team.characters.includes(item.character.id))
-        .map(team=>team.team):[];
-      return [item.event.name,item.event.subName,item.event.details,item.event.id,
-        item.description,item.label,item.character?.nameKey,item.team?.team,
-        ...characterTeams,item.mode,MODE_BY_KEY.get(item.mode)?.label,
-        isOrbOpeningObjective(item)?'Ouverture d’orbes':null]
-        .some(value=>strip(value).toLocaleLowerCase('fr').includes(match));
-    });
+    return items;
   }
   function renderObjectives(reference){
     const host=$('events-objectives');host.replaceChildren();
@@ -770,7 +750,7 @@
       const items=grouped[key],host=$(`events-${key}`);host.replaceChildren();
       $(`count-${key}`).textContent=fmtNumber.format(items.length);
       $(`stat-${key}`).textContent=fmtNumber.format(items.length);
-      if(!items.length)host.append(emptyState(key));
+      if(!items.length)host.append(emptyState());
       for(const category of GAME_GROUPS){
         const entries=items.filter(item=>
           calendarGroup(item)===category.key);
@@ -786,7 +766,6 @@
         section.append(head,grid);host.append(section);
       }
     }
-    $('filter-context').textContent=state.manualDate?'Simulation au '+state.date.split('-').reverse().join('/'):'Classement selon les dates archivées, à l’instant présent.';
   }
   function listFor(parent,rows){const ul=create('ul','ev-detail-list');for(const row of rows){const li=create('li','');li.textContent=row;ul.append(li);}parent.append(ul);}
   function detailSection(parent,title){const section=create('section','ev-dialog-section');section.append(create('h3','',title));parent.append(section);return section;}
@@ -846,17 +825,6 @@
     state.events=data.events.filter(isCalendarEvent);
     state.sourceError=false;
     state.metadata={liveSource:true,updatedAt:data.updatedAt};
-    const groups=GAME_GROUPS.filter(group=>
-      state.events.some(event=>calendarGroup(event)===group.key));
-    const selected=state.type,type=$('type-filter');
-    type.replaceChildren();
-    const all=create('option','','Toutes les rubriques');all.value='';type.append(all);
-    for(const group of groups){
-      const option=create('option','',group.label);
-      option.value=group.key;type.append(option);
-    }
-    state.type=groups.some(group=>group.key===selected)?selected:'';
-    type.value=state.type;
     const time=Date.parse(data.updatedAt||'');
     const dated=Number.isFinite(time)?fmtDate.format(new Date(time)):'date inconnue';
     $('source-line').textContent='Catalogue GitHub vérifié · '+data.events.length+
@@ -887,7 +855,7 @@
     state.characters=Array.isArray(characters)?characters.filter(character=>
       character&&typeof character.id==='string'):[];
     state.characterAliases=characterAliases(state.characters);
-    if(!state.sourceError)renderObjectives(timestamp());
+    if(!state.sourceError)renderObjectives(now());
   }
   async function load(){
     try{
@@ -915,9 +883,6 @@
     }
   }
   function init(){
-    const initial=new URLSearchParams(location.search).get('date');
-    if(initial&&/^\d{4}-\d{2}-\d{2}$/.test(initial)&&!Number.isNaN(new Date(initial+'T12:00:00').getTime())){state.manualDate=true;state.date=initial;}else{state.date=localToday();}
-    $('date-filter').value=state.date;
     for(const [index,key] of TABS.entries()){
       const tab=$('tab-'+key);
       tab.addEventListener('click',()=>{userChangedTab=true;activateTab(key);});
@@ -952,16 +917,13 @@
       removeLegacyTabHash();
       userChangedTab=false;
       activateTab('objectives');
+      if(state.metadata.liveSource)render();
       if(window.history&&'scrollRestoration' in window.history)
         window.history.scrollRestoration='manual';
       scrollToTop();
     };
     window.addEventListener('pageshow',showEntryTab);
     showEntryTab();
-    $('date-filter').addEventListener('change',e=>{state.date=e.target.value||localToday();state.manualDate=true;render();});
-    $('reset-date').addEventListener('click',()=>{state.date=localToday();state.manualDate=false;$('date-filter').value=state.date;render();});
-    $('search-filter').addEventListener('input',e=>{state.search=e.target.value;render();});
-    $('type-filter').addEventListener('change',e=>{state.type=e.target.value;render();});
     const dialog=$('event-dialog');dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});dialog.addEventListener('close',()=>state.lastButton?.focus());
     load().then(()=>{if(!userChangedTab)scrollToTop();});
   }
