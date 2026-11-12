@@ -455,6 +455,13 @@
   // Une action identique peut créditer plusieurs jalons indépendants.
   // Les variantes verbales simples d'un combat désignent la même action,
   // mais une restriction ou une condition supplémentaire reste distincte.
+  // Regrouper les ouvertures d'orbes (y compris méga-orbes) sans confondre
+  // l'action avec l'obtention de fragments, d'orbes ou d'autres récompenses.
+  function isOrbOpeningObjective(item){
+    const description=eventNameKey(item.description);
+    return /^(?:ouvrir|ouvrez|ouverture|open|opening)\b/.test(description)&&
+      /\b(?:orbes?|orbs?)\b/.test(description);
+  }
   function objectiveActionLabel(item){
     if(!item.isBattle||item.character||item.team)return item.label;
     const simple={
@@ -685,12 +692,13 @@
       // jalons, chacun conservant ses propres points et plafonds.
       const byAction=new Map();
       for(const item of other){
-        const label=objectiveActionLabel(item);
-        const key=item.mode+'|'+eventNameKey(label);
-        if(!byAction.has(key))byAction.set(key,{label,items:[]});
+        const orbOpening=isOrbOpeningObjective(item);
+        const label=orbOpening?'Ouverture d’orbes':objectiveActionLabel(item);
+        const key=item.mode+'|'+(orbOpening?'orb-openings':eventNameKey(label));
+        if(!byAction.has(key))byAction.set(key,{label,items:[],orbOpening});
         byAction.get(key).items.push(item);
       }
-      for(const {label,items:methods} of byAction.values()){
+      for(const {label,items:methods,orbOpening} of byAction.values()){
         const actionBlock=create('details','ev-objective-event-group');
         actionBlock.open=byAction.size===1;
         const actionTitle=create('summary','ev-objective-event-summary');
@@ -720,7 +728,9 @@
           sourceHead.append(link);
           sourceHead.append(create('span','ev-objective-scope',
             event.milestone?.type==='alliance'?'Alliance':'Solo'));
-          source.append(sourceHead,objectiveList(scorings,false,true));
+          // Dans une famille d'orbes, chaque méthode garde son type d'orbe :
+          // cacher les libellés ferait disparaître la différence entre orbes.
+          source.append(sourceHead,objectiveList(scorings,false,!orbOpening));
           body.append(source);
         }
         actionBlock.append(actionTitle,body);eventList.append(actionBlock);
