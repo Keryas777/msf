@@ -168,15 +168,21 @@ button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transpare
 /* Runway markings span the entire strip, including the port-side segment. */
 .intelFlight .runway i{left:4px;right:1px;background:repeating-linear-gradient(90deg,#9cefff 0 15px,transparent 15px 18px)}
 
-/* Balanced translucent influence; independent foreground keeps every label readable. */
+/* One foreground copy per label, symbol and runway, aligned to the real DOM
+   geometry. Originals remain in layout but are visually hidden, not duplicated. */
 .intelBoard .intelInfluenceTriangle{opacity:.58;stroke-opacity:.68}
 @keyframes influenceFade{from{opacity:0}to{opacity:.58}}
-.intelBoard .intelIconOverlay{z-index:9;pointer-events:none}
+.intelBoard .intelIconOverlay{position:absolute;inset:0;z-index:9;pointer-events:none}
+.intelBoard.has-foreground-overlay .intelCell .intelRoomIcon,
+.intelBoard.has-foreground-overlay .intelCell .intelRoomHeading,
+.intelBoard.has-foreground-overlay .intelCell .intelRange,
+.intelBoard.has-foreground-overlay .intelCell .runway{visibility:hidden}
 .intelBoard .intelForegroundMirror{position:absolute;box-sizing:border-box;pointer-events:none;margin:0;transform:none}
 .intelBoard .intelForegroundMirror.intelRoomIcon{display:grid;place-items:center;align-self:auto}
 .intelBoard .intelForegroundMirror.intelRoomHeading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;max-width:none;text-align:center}
-.intelBoard .intelForegroundMirror.intelRoomHeading strong{font-size:clamp(10px,2.8vw,13px);line-height:1.05;letter-spacing:-.02em;white-space:nowrap}
+.intelBoard .intelForegroundMirror.intelRoomHeading strong{line-height:1.05;letter-spacing:-.02em;white-space:nowrap}
 .intelBoard .intelForegroundMirror.intelRange{display:inline-flex;align-items:center;justify-content:center}
+.intelBoard .intelForegroundMirror.runway{display:block;align-self:auto}
+.intelBoard .intelForegroundMirror.runway i{left:4px;right:1px}
+.intelBoard .intelForegroundMirror.runway .flightControlTower{left:-2px;bottom:3px;width:36px;height:48px}
 .intelBoard .intelForegroundMirror.is-muted{opacity:.31;filter:saturate(.55)}
-@media(min-width:700px){.intelBoard .intelForegroundMirror.intelRoomHeading strong{font-size:clamp(14px,1.6vw,19px)}}
-@media(max-width:359px){.intelBoard .intelForegroundMirror.intelRoomHeading strong{font-size:10px}}
