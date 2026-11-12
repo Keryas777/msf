@@ -781,6 +781,43 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/evenements\.js\?v=29/);
 });
 
+test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
+  const options={includeBase:false,extraEvents:[
+    ['Objectifs en cours','milestone',{
+      milestone:{type:'solo',scoring:{methods:[
+        {description:"Combattre en guerre avec tous les membres du Conclave de l'Ombre",points:25},
+        {description:'Combattre en guerre avec Thanos',points:10},
+        {description:'Combattre en raid',points:2},
+        {description:'Se connecter quotidiennement',points:1}
+      ],cappedScorings:[]}}
+    }]
+  ]};
+  const getMenus=nodes=>[
+    ...objectiveDetails(nodes,'ev-objective-team'),
+    ...objectiveDetails(nodes,'ev-objective-character'),
+    ...objectiveDetails(nodes,'ev-objective-event-group')
+  ];
+  const nodes=await makePage(options);
+  assert.equal(nodes.get('tab-objectives')['aria-selected'],'true');
+  assert.equal(nodes.get('stat-objectives').textContent,'4');
+  assert.equal(getMenus(nodes).length,4);
+  assert.ok(getMenus(nodes).every(menu=>!menu.open),
+    'Toutes les équipes, personnages et actions doivent être repliés');
+  // L'utilisateur peut toujours ouvrir les menus pendant sa visite.
+  for(const menu of getMenus(nodes))menu.open=true;
+  assert.ok(getMenus(nodes).every(menu=>menu.open));
+  // Safari réutilise parfois l'ancienne page au lieu de la recharger.
+  nodes.browser.windowHandlers.get('pageshow')({persisted:true});
+  assert.equal(nodes.get('stat-objectives').textContent,'4');
+  assert.equal(getMenus(nodes).length,4);
+  assert.ok(getMenus(nodes).every(menu=>!menu.open),
+    'Une page restaurée depuis le cache Safari doit être repliée');
+  // Rechargement complet : pas de persistance implicite des ouvertures.
+  const reloaded=await makePage(options);
+  assert.equal(getMenus(reloaded).length,4);
+  assert.ok(getMenus(reloaded).every(menu=>!menu.open));
+});
+
 test('Les compteurs sont deux onglets exclusifs, accessibles au clavier',async()=>{
   const nodes=await makePage();
   const tabs=['objectives','current'];
