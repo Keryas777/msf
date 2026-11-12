@@ -322,7 +322,10 @@
         }));
       for(const alias of names)if(alias.length>=3)aliases.push({character,alias});
     }
+    // Un nom peut aussi désigner une version PVE non jouable. Pour les
+    // objectifs d'équipe, privilégier le personnage jouable du roster.
     return aliases.sort((a,b)=>b.alias.length-a.alias.length||
+      Number(b.character.player_Character===true)-Number(a.character.player_Character===true)||
       a.character.id.localeCompare(b.character.id));
   }
   function objectiveCharacter(description){
