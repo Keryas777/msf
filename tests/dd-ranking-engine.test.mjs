@@ -10,3 +10,20 @@ test("missing timing does not invent a duration or override a known time",()=>{c
 test("evaluateDimension only computes timing when both configuration and observation exist",()=>{const d={...dim(),launchDate:"2026-11-01T00:00:00Z"};const roster={chars:{annihilus:{yellowStars:7,redStars:4}}};assert.equal(evaluateDimension({dimension:d,roster,catalog,firstClearObservedAt:"2026-11-14T12:00:00Z"}).firstClearDays,13);assert.equal(evaluateDimension({dimension:d,roster,catalog}).firstClearDays,null);assert.equal(evaluateDimension({dimension:dim(),roster,catalog,firstClearObservedAt:"2026-11-14T12:00:00Z"}).firstClearDays,null)});
 
 test("earlier verified first observation ranks first within equal passages",()=>{const a={completed:true,passages:2,firstClearDays:null,firstClearObservedAt:"2026-11-14T14:00:00Z",consecutive:16,prepared:16};const b={...a,firstClearObservedAt:"2026-11-13T02:00:00Z"};assert.deepEqual(rankResults([{result:a},{result:b}]).ranked.map(x=>x.result),[b,a])});
+
+test("DD9 official alternatives: unrestricted gear and OR filters",()=>{
+  const official={minCharacters:2,alternatives:[{minGear:21,tagIds:[],allTagIds:[],excludeTagIds:[]}]};
+  const d=dim([{id:"A2",order:1,requirement:official}]);
+  const r=calc({heroa:{gear:21},herob:{gear:21}},d);
+  assert.equal(r.nodeStates[0].state,"true");
+  assert.equal(calc({heroa:{gear:21}},d).nodeStates[0].state,"false");
+  const alternatives={minCharacters:1,alternatives:[
+    {minGear:21,tagIds:["Mythic"],allTagIds:[],excludeTagIds:[]},
+    {minGear:21,tagIds:[],allTagIds:["Epic","Hero"],excludeTagIds:[]}
+  ]};
+  const d2=dim([{id:"C6",order:1,requirement:alternatives}]);
+  assert.equal(calc({heroa:{gear:21}},d2).nodeStates[0].state,"false");
+  const custom=[...catalog,{id:"HeroEpic",nameKey:"HeroEpic",tags:["Hero","Epic"]}];
+  const r2=evaluateDimension({dimension:d2,roster:{chars:{HeroEpic:{gear:21}}},catalog:custom});
+  assert.equal(r2.nodeStates[0].state,"true");
+});

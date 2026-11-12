@@ -267,21 +267,26 @@ function playerStatus(evaluation, totalNodes) {
 }
 
 function nodeDescription(id, type, nodeState, completed) {
+  const officialNode=dimension()?.nodes?.find(node=>node.id===id);
+  const label=officialNode?.name ? officialNode.name+" ("+id+")" : "Salle "+id;
+  const raw=officialNode?.requirementDescription?.[0];
+  const requirements=typeof raw==="string"?" · "+raw.replace(/<[^>]*>/g,"").replace(/^REQUIRES:\s*/i,"Exigences : "):"";
+  const prefix=label+requirements;
   if (type === "portal")
     return (id === dimension()?.map?.startId ? "Départ " : "Passage ") + id +
       ". Les connexions sont visuelles et ne définissent pas les déverrouillages.";
   if (completed)
-    return "Salle " + id +
+    return prefix +
       " · " + (dimension()?.shortName || "Dimension noire") +
       " terminée à 100 % selon la convention LoSP de récompense. Cette convention ne constitue pas un historique officiel.";
 
   if (nodeState === "true")
-    return "Salle " + id +
+    return prefix +
       " · le roster vérifié satisfait les exigences officielles connues. C’est une indication théorique, pas une preuve de progression réelle.";
   if (nodeState === "false")
-    return "Salle " + id +
+    return prefix +
       " · le roster vérifié ne satisfait pas actuellement les exigences officielles de cette salle.";
-  return "Salle " + id +
+  return prefix +
     " · exigences officielles absentes ou non interprétables ; état indéterminé.";
 }
 
