@@ -322,7 +322,10 @@
         }));
       for(const alias of names)if(alias.length>=3)aliases.push({character,alias});
     }
+    // Un nom peut aussi désigner une version PVE non jouable. Pour les
+    // objectifs d'équipe, privilégier le personnage jouable du roster.
     return aliases.sort((a,b)=>b.alias.length-a.alias.length||
+      Number(b.character.player_Character===true)-Number(a.character.player_Character===true)||
       a.character.id.localeCompare(b.character.id));
   }
   function objectiveCharacter(description){
@@ -422,11 +425,16 @@
       .sort((a,b)=>b.matched.length-a.matched.length||
         a.team.team.localeCompare(b.team.team,'fr'));
     const assigned=new Set(),teams=[];
+    const charactersById=new Map(state.characters.map(character=>[character.id,character]));
     for(const candidate of candidates){
       const chars=candidate.matched.filter(id=>!assigned.has(id));
       if(chars.length<2&&!candidate.goals.length)continue;
       for(const id of chars)assigned.add(id);
-      teams.push({name:candidate.team.team,
+      // La composition provient du catalogue d'équipes, pas des seuls
+      // personnages ayant une méthode de score individuelle.
+      const roster=[...new Set(candidate.team.characters)].map(id=>
+        charactersById.get(id)||{id,nameKey:id});
+      teams.push({name:candidate.team.team,roster,
         characters:chars.map(id=>members.get(id)),goals:candidate.goals});
     }
     const individual=[...members.values()].filter(member=>!assigned.has(member.character.id));
@@ -522,6 +530,23 @@
   function objectiveList(items,short=false,hideAction=false){
     const list=create('ul','ev-objective-list');
     for(const item of items)list.append(objectiveRow(item,short,hideAction));
+    return list;
+  }
+  function objectiveTeamRoster(roster){
+    const list=create('div','ev-objective-team-roster');
+    for(const character of roster){
+      const item=create('span','ev-objective-team-member');
+      const url=cleanImage(character.portraitUrl);
+      if(url){
+        const image=create('img','ev-objective-portrait');
+        image.alt='';image.src=url;image.loading='lazy';image.decoding='async';
+        image.addEventListener('error',()=>image.remove(),{once:true});
+        item.append(image);
+      }
+      item.append(create('span','',strip(character.nameKey||
+        character.nameFr||character.nameEn||character.id)));
+      list.append(item);
+    }
     return list;
   }
   function objectiveCharacterCard(member){
@@ -632,9 +657,13 @@
         const total=team.goals.length+
           team.characters.reduce((sum,member)=>sum+member.items.length,0);
         summary.append(create('span','ev-objective-mini-count',
-          fmtNumber.format(team.characters.length)+' personnages · '+
+          fmtNumber.format(team.roster.length)+' personnages · '+
           objectiveCount(total)));
         const people=create('div','ev-objective-people');
+        if(team.roster.length){
+          people.append(create('h4','ev-objective-subhead','Composition de l’équipe'));
+          people.append(objectiveTeamRoster(team.roster));
+        }
         if(team.goals.length){
           people.append(create('h4','ev-objective-subhead',
             team.goals.some(item=>item.teamComplete)?
