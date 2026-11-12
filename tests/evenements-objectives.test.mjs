@@ -226,6 +226,62 @@ test('Faille cybernétique : 30 conditions réparties sur 2 équipes et 10 portr
   assert.equal(objectiveNodes(nodes).length,15);
 });
 
+test('Conclave de l’Ombre : les 5 membres sont visibles même sans objectifs individuels',async()=>{
+  const team=realTeams.find(entry=>entry.team==="Conclave de l'Ombre"&&entry.mode==='Guerre');
+  assert.ok(team);
+  assert.equal(team.characters.length,5);
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['L’essor de l’ombre','milestone',{
+      milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:200,methods:[{
+          description:"Combattre en guerre avec le Conclave de l'Ombre",
+          points:25
+        }]}
+      ]}}
+    }]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'1');
+  const teams=objectiveDetails(nodes,'ev-objective-team');
+  assert.equal(teams.length,1);
+  assert.equal(teams[0].children[0].children[0].textContent,"Conclave de l'Ombre");
+  assert.equal(teams[0].children[0].children[1].textContent,'5 personnages · 1 objectif');
+  const people=teams[0].children[1];
+  const roster=people.children.find(node=>node.className==='ev-objective-team-roster');
+  assert.ok(roster);
+  assert.equal(roster.children.length,5);
+  assert.deepEqual(roster.children.map(member=>
+    member.children.find(child=>child.tag==='span')?.textContent),
+    team.characters.map(id=>realCharacters.find(character=>character.id===id).nameKey));
+  assert.equal(roster.children.filter(member=>
+    member.children.some(child=>child.tag==='img')).length,5);
+  assert.equal(objectiveDetails(nodes,'ev-objective-character').length,0);
+  assert.equal(objectiveNodes(nodes).length,1);
+  const details=objectiveNodes(nodes)[0].children[1].children.map(child=>child.textContent);
+  assert.ok(details.some(value=>value.includes('25')));
+  assert.ok(details.some(value=>value.includes('200')));
+  assert.match(css,/\.ev-objective-team-roster\{/);
+});
+
+test('Une équipe avec 2 bonus individuels montre 5 membres sans inventer de méthodes',async()=>{
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Objectif Guerre','milestone',{
+      milestone:{type:'solo',scoring:{methods:[
+        {description:"Combattre en guerre avec le Conclave de l'Ombre",points:25},
+        {description:'Combattre en guerre avec Thanos',points:10},
+        {description:'Combattre en guerre avec Sylvie',points:10}
+      ],cappedScorings:[]}}
+    }]
+  ]});
+  const team=objectiveDetails(nodes,'ev-objective-team')[0];
+  assert.ok(team);
+  assert.equal(team.children[0].children[1].textContent,'5 personnages · 3 objectifs');
+  assert.equal(team.children[1].children.find(child=>
+    child.className==='ev-objective-team-roster').children.length,5);
+  assert.equal(objectiveDetails(nodes,'ev-objective-character').length,2);
+  assert.equal(objectiveNodes(nodes).length,3);
+  assert.equal(nodes.get('stat-objectives').textContent,'3');
+});
+
 test('Personnage isolé ou équipes qui se chevauchent : aucune méthode dupliquée',async()=>{
   const names=['Vision','Ultron'].map(id=>realCharacters.find(c=>c.id===id));
   const extraEvents=[['Objectif test','milestone',{
@@ -556,7 +612,7 @@ test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP co
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=13"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=14"/);
   assert.match(css,/\.ev-toolbar\{[^}]*background:var\(--panel\)/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -583,7 +639,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=25/);
+  assert.match(html,/evenements\.js\?v=26/);
 });
 
 test('Les compteurs sont trois onglets exclusifs, utilisables aussi au clavier',async()=>{
