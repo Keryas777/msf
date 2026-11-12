@@ -6,6 +6,7 @@ const state = {
   rows: [],
   catalog: [],
   config: null,
+  firstClearObservations: {},
   alliances: [],
   selectedAlliances: new Set(),
   individualRows: [],
@@ -61,6 +62,12 @@ function identity(roster) {
   const key = allianceKey(roster?.alliance);
   const player = String(roster?.playerKey || roster?.player || roster?.name || "");
   return key + "\u0000" + player;
+}
+
+function firstClearAt(roster, selectedDimension) {
+  const key = normalize(roster?.alliance) + ":" + normalize(roster?.playerKey || roster?.player);
+  const record = state.firstClearObservations?.[selectedDimension?.key]?.[key];
+  return typeof record?.firstClearObservedAt === "string" ? record.firstClearObservedAt : null;
 }
 
 function setMessage(text, error = false) {
@@ -182,7 +189,7 @@ function renderRanking() {
 
   const entries = rows.map((roster) => ({
     roster,
-    result: evaluateDimension({dimension: selectedDimension, roster, catalog: state.catalog}),
+    result: evaluateDimension({dimension: selectedDimension, roster, catalog: state.catalog, firstClearObservedAt: firstClearAt(roster, selectedDimension)}),
   }));
   const completed = entries.filter((entry) => entry.result.completed);
   const unknown = entries.filter((entry) => !entry.result.completed);
@@ -232,6 +239,9 @@ function renderRanking() {
     button.querySelector(".badge").textContent = finished
       ? dimensionLabel + " · " + (entry.result.passages === 2 ? "2 passages · 7★ jaunes / 4★ rouges" : "1er passage · 5★ jaunes / 2★ rouges") + " · convention LoSP"
       : "Progression théorique indéterminée";
+    if (finished && entry.result.firstClearObservedAt) button.querySelector(".badge").textContent +=
+      " · 1er passage observé le " + new Date(entry.result.firstClearObservedAt).toLocaleDateString("fr-FR") +
+      (Number.isFinite(entry.result.firstClearDays) ? " (" + entry.result.firstClearDays + " jours)" : "");
     button.addEventListener("click", () => openIndividual(entry.roster));
     list.append(button);
   }
@@ -301,6 +311,7 @@ function renderMap(roster) {
     dimension: selectedDimension,
     roster,
     catalog: state.catalog,
+    firstClearObservedAt: firstClearAt(roster, selectedDimension),
   });
   const nodeStates = new Map(evaluation.nodeStates.map((item) => [item.id, item.state]));
   mapElement.setAttribute("aria-label", "Carte " + selectedDimension.shortName +
@@ -511,7 +522,7 @@ async function boot() {
   try {
     await window.LoSP_AUTH_READY;
     await window.LoSPAlliances.loadAlliances();
-    const [config, characters, rosterMeta] = await Promise.all([
+    const [config, characters, rosterMeta, firstClears] = await Promise.all([
       fetch("./data/dark-dimensions.json", {cache: "no-store"}).then((response) => {
         if (!response.ok) throw new Error("Configuration Dimensions noires indisponible.");
         return response.json();
@@ -522,9 +533,13 @@ async function boot() {
       }),
       fetch("./data/rosters-meta.json", {cache: "no-store"})
         .then((response) => response.ok ? response.json() : {}),
+      fetch("./data/dd-first-clears.json", {cache: "no-store"})
+        .then((response) => response.ok ? response.json() : {})
+        .catch(() => ({})),
     ]);
 
     state.config = config;
+    state.firstClearObservations = firstClears?.observations || {};
     state.catalog = characters.filter((character) => character.player_Character === true);
     populateDimensions();
     $("freshness").textContent = "Rosters publiés le " +
