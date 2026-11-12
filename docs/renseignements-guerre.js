@@ -145,6 +145,12 @@
       runway.className = "runway";
       runway.setAttribute("aria-hidden", "true");
       runway.append(document.createElement("i"));
+      const tower = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      tower.setAttribute("class", "flightControlTower");
+      tower.setAttribute("viewBox", "0 0 32 36");
+      tower.setAttribute("aria-hidden", "true");
+      tower.innerHTML = '<path d="M12 32V18h12v14" fill="#305b75" stroke="#93d8f3" stroke-width="1.5"/><path d="M7 13h21l-3 6H10z" fill="#5b9bb9" stroke="#b2eaff" stroke-width="1.4"/><path d="M9 14h17l-2 3H11z" fill="#102c40"/><path d="M14 13V6h9v7" fill="#457d9b" stroke="#93d8f3" stroke-width="1.2"/><path d="M19 6V2m0 1 5 2" fill="none" stroke="#a7e9ff" stroke-width="1.2"/><path d="M15 22h6m-6 4h6" stroke="#a5dff3" stroke-width="1.3"/><path d="M5 32h24" stroke="#7bc2e5" stroke-width="1.5"/>';
+      runway.append(tower);
       button.append(name, runway);
     }
     cell.append(button);
