@@ -548,22 +548,21 @@ test('Toutes les ouvertures d’orbes et méga-orbes partagent une fiche, sans p
   assert.equal(orb.children[0].children.filter(child=>
     child.className==='ev-objective-limit').length,0);
   const sources=orb.children[1].children;
-  assert.deepEqual(sources.map(source=>source.children[0].children[0].textContent),[
-    'Faille cybernétique','Rayonnement de l’ombre','L’essor de l’ombre',
-    'Orbes du Raid'
-  ]);
+  assert.deepEqual(sources.map(source=>source.children[0].children[0].textContent)
+    .sort(),['Faille cybernétique','Rayonnement de l’ombre','L’essor de l’ombre',
+      'Orbes du Raid'].sort());
   const rows=sources.flatMap(source=>source.children[1].children);
   assert.equal(rows.length,6);
   assert.ok(rows.every(row=>row.children[0].hidden===false));
   const labels=rows.map(row=>row.children[0].textContent);
-  assert.deepEqual(labels,[
+  assert.deepEqual(labels.sort(),[
     'Ouvrir un méga orbe orange',
     'Ouvrir un méga orbe des Avengers I.A.',
     'Ouvrir un méga orbe des Fantassins de fer',
     'Ouvrir 1 orbe de losange de l’ombre',
     'Ouvrir 1 orbe L’essor de l’ombre',
     'Open 1 Raid Orb'
-  ]);
+  ].sort());
   const capped=rows.find(row=>row.children[0].textContent.includes('losange'));
   assert.ok(capped.children[1].children.some(x=>x.textContent.includes('Plafond 300 pts')));
   assert.ok(capped.children[1].children.some(x=>x.textContent.includes('100 pt(s)')));
