@@ -15,7 +15,7 @@
   // Inline SVG pictograms: recognizable at mobile size, with no external assets or dependencies.
   const roomIconPaths = {
     soute: '<path d="m3 7 9-4 9 4v10l-9 4-9-4z"/><path d="m3 7 9 5 9-5M12 12v9"/>',
-    hangar: '<path d="M22 2 9.5 14.5 3 13l-2 2 8 4 4 8 2-2-1.5-6.5L26 6z" transform="translate(2 2) scale(.78)"/>',
+    hangar: '<path d="M12 2.5c-.8 0-1.4.7-1.4 1.6v6.1L3 14.3v2.8l7.6-2.1v4.2l-2.7 1.9v1.5l4.1-1.1 4.1 1.1v-1.5l-2.7-1.9V15l7.6 2.1v-2.8l-7.6-4.1V4.1c0-.9-.6-1.6-1.4-1.6Z"/>',
     security: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
     tech: '<path d="M9 3h6M10 3v7l-6.7 9.3A2 2 0 0 0 4.9 22h14.2a2 2 0 0 0 1.6-2.7L14 10V3M7.5 16h9"/>',
     armory: '<path d="M3 20V9h5v11zM10 20V9h5v11zM17 20V9h5v11z"/><path d="M3 9V6l2.5-3L8 6v3M10 9V6l2.5-3L15 6v3M17 9V6l2.5-3L22 6v3"/><path d="M3 17h5M10 17h5M17 17h5"/>',
