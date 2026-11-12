@@ -2,12 +2,12 @@
   "use strict";
 
   const rooms = [
-    { id: "soute", name: "Soute", icon: "▣", range: "adjacent", color: "#77d8ff", effect: "Au tour, les personnages avec Augmentation d’attaque gagnent +10 % de Barrière." },
-    { id: "hangar", name: "Hangar", icon: "✈", range: "adjacent", color: "#77bcff", effect: "+15 % de Barrière max. pour les alliés en défense." },
-    { id: "security", name: "Sécurité", icon: "⬡", range: "adjacent", color: "#7dffd0", effect: "Apparition → Réduction de défense sur les alliés attaquants." },
-    { id: "tech", name: "Labo technique", icon: "⌬", range: "adjacent", color: "#86f587", effect: "Apparition → Augmentation de défense sur les alliés en défense." },
-    { id: "armory", name: "Armurerie", icon: "⫶", range: "adjacent", color: "#ff9f8b", effect: "Au tour, les alliés attaquants avec Réduction de défense retournent tous les effets actifs sur eux-mêmes." },
-    { id: "infirmary", name: "Infirmerie", icon: "✚", range: "adjacent", color: "#ff8bd0", effect: "Frappe réussie → les alliés en défense gagnent Régénération." },
+    { id: "soute", name: "Soute", icon: "▣", range: "adjacent", color: "#FACC15", effect: "Au tour, les personnages avec Augmentation d’attaque gagnent +10 % de Barrière." },
+    { id: "hangar", name: "Hangar", icon: "✈", range: "adjacent", color: "#F97316", effect: "+15 % de Barrière max. pour les alliés en défense." },
+    { id: "security", name: "Sécurité", icon: "⬡", range: "adjacent", color: "#EF4444", effect: "Apparition → Réduction de défense sur les alliés attaquants." },
+    { id: "tech", name: "Labo technique", icon: "⌬", range: "adjacent", color: "#3DCE73", effect: "Apparition → Augmentation de défense sur les alliés en défense." },
+    { id: "armory", name: "Armurerie", icon: "⫶", range: "adjacent", color: "#3B82F6", effect: "Au tour, les alliés attaquants avec Réduction de défense retournent tous les effets actifs sur eux-mêmes." },
+    { id: "infirmary", name: "Infirmerie", icon: "✚", range: "adjacent", color: "#D946EF", effect: "Frappe réussie → les alliés en défense gagnent Régénération." },
     { id: "bridge", name: "Pont", icon: "◉", range: "room", color: "#d6acff", effect: "Apparition → +10 effets positifs aléatoires pour les alliés en défense." },
     { id: "reactor", name: "Réacteur", icon: "☢", range: "room", color: "#ffcb72", effect: "+15 % de Barrière max. pour les alliés en défense." },
     { id: "barracks", name: "Caserne", icon: "✣", range: "global", color: "#ffe27c", effect: "Apparition → tous les personnages gagnent Augmentation d’attaque." }
@@ -186,7 +186,15 @@
         if (!distance || (dx !== 0 && dy !== 0)) return;
         const ux = dx / distance;
         const uy = dy / distance;
-        const half = Math.min(source.width, source.height) * 0.34;
+        // Fill the straight part of the emitting room's edge, without entering its rounded corners.
+        const sourceRoom = sourceCell.querySelector(".intelRoom");
+        const style = sourceRoom ? getComputedStyle(sourceRoom) : null;
+        const cornerRadius = style ? Math.max(...[
+          style.borderTopLeftRadius, style.borderTopRightRadius,
+          style.borderBottomLeftRadius, style.borderBottomRightRadius
+        ].map(value => parseFloat(value) || 0)) : 8;
+        const perpendicularSize = Math.abs(dx) > 0 ? source.height : source.width;
+        const half = Math.max(0, perpendicularSize / 2 - cornerRadius - 1);
         const penetration = 13;
         const edge = Math.abs(dx) > 0 ? source.width / 2 : source.height / 2;
         const depth = Math.min(distance * 0.58, edge + Math.max(0, distance - edge - (Math.abs(dx) > 0 ? target.width / 2 : target.height / 2)) + penetration);
