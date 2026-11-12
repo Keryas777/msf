@@ -531,7 +531,7 @@ test('Toutes les ouvertures d’orbes et méga-orbes partagent une fiche, sans p
     ['Récompenses','milestone',{milestone:{type:'solo',scoring:{
       methods:[{description:'Obtenir un méga orbe orange',points:500}],
       cappedScorings:[]
-    }}]
+    }}}]
   ]});
   assert.equal(nodes.get('stat-objectives').textContent,'8');
   assert.equal(objectiveNodes(nodes).length,8);
