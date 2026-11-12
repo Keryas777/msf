@@ -148,3 +148,12 @@ button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transpare
 /* Stronger room-owned tint, kept below the adjacent-influence SVG layer. */
 .intelBoard .intelRoom:not(.intelFlight){background:linear-gradient(145deg,rgba(17,34,49,.35),rgba(6,17,30,.55)),linear-gradient(145deg,color-mix(in srgb,var(--room-color),transparent 47%),color-mix(in srgb,var(--room-color),transparent 76%) 65%,rgba(8,19,32,.8))}
 .intelBoard .intelRoom:not(.intelFlight)::before{opacity:.11}
+
+/* Refinement: runway marks reach the usable deck width; control tower sits closer to the strip. */
+.intelFlight .runway i{left:24px;right:1px;background:repeating-linear-gradient(90deg,#9cefff 0 15px,transparent 15px 18px)}
+.intelFlight .runway .flightControlTower{left:-2px;bottom:3px;width:36px;height:48px}
+/* Keep the room tint beneath neighboring influence wedges; make wedges visually dominant over borders. */
+.intelBoard .intelConnections{z-index:6}
+.intelBoard .intelRoomIcon,.intelBoard .intelRoomHeading,.intelBoard .intelRange,.intelBoard .runway{z-index:7}
+.intelInfluenceTriangle{opacity:.72;stroke-opacity:.85;stroke-width:1.5}
+@keyframes influenceFade{from{opacity:0}to{opacity:.72}}
