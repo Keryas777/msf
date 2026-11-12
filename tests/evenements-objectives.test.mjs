@@ -942,9 +942,12 @@ test('La liste des événements reproduit les 6 Phases, 2 Postes et 4 Événemen
 });
 
 test('Une ancienne date en URL ne modifie pas les événements et objectifs actifs',async()=>{
+  const defaultNodes=await makePage();
   const nodes=await makePage({search:'?date=2020-01-01'});
-  assert.equal(nodes.get('stat-objectives').textContent,'3');
-  assert.equal(nodes.get('stat-current').textContent,'2');
+  assert.equal(nodes.get('stat-objectives').textContent,
+    defaultNodes.get('stat-objectives').textContent);
+  assert.equal(nodes.get('stat-current').textContent,
+    defaultNodes.get('stat-current').textContent);
   assert.equal(nodes.get('date-filter'),undefined);
   assert.equal(nodes.get('reset-date'),undefined);
   assert.doesNotMatch(script,/new URLSearchParams\(location\.search\)/);
