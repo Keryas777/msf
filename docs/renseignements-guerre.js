@@ -13,6 +13,9 @@
     { id: "barracks", name: "Caserne", icon: "✣", range: "global", color: "#ffe27c", effect: "À l’apparition, tous les personnages obtiennent Attaque augmentée." }
   ];
   // Inline SVG pictograms: recognizable at mobile size, with no external assets or dependencies.
+  const roomPoints = { soute: 40000, hangar: 15000, security: 20000, tech: 20000, armory: 15000, infirmary: 25000, bridge: 50000, reactor: 10000, barracks: 25000 };
+  const flightDeckPoints = 10000;
+  const formatRoomPoints = points => new Intl.NumberFormat("fr-FR").format(points) + " pts";
   const roomIconPaths = {
     soute: '<path d="m3 7 9-4 9 4v10l-9 4-9-4z"/><path d="m3 7 9 5 9-5M12 12v9"/>',
     hangar: '<path d="M12 2.5c-.8 0-1.4.7-1.4 1.6v6.1L3 14.3v2.8l7.6-2.1v4.2l-2.7 1.9v1.5l4.1-1.1 4.1 1.1v-1.5l-2.7-1.9V15l7.6 2.1v-2.8l-7.6-4.1V4.1c0-.9-.6-1.6-1.4-1.6Z"/>',
@@ -135,11 +138,18 @@
     const name = document.createElement("strong");
     name.textContent = room?.name || flightDecks[position].name;
 
+    const heading = document.createElement("span");
+    heading.className = "intelRoomHeading";
+    const points = document.createElement("span");
+    points.className = "intelRoomPoints";
+    points.textContent = formatRoomPoints(room ? roomPoints[room.id] : flightDeckPoints);
+    heading.append(name, points);
+
     if (room) {
       const range = document.createElement("span");
       range.className = "intelRange";
       range.textContent = room.range === "room" ? "SALLE" : room.range === "global" ? "GLOBALE" : "ADJACENTE";
-      button.append(icon, name, range);
+      button.append(icon, heading, range);
     } else {
       const runway = document.createElement("span");
       runway.className = "runway";
@@ -151,7 +161,7 @@
       tower.setAttribute("aria-hidden", "true");
       tower.innerHTML = '<path d="M12 32V18h12v14" fill="#305b75" stroke="#93d8f3" stroke-width="1.5"/><path d="M7 13h21l-3 6H10z" fill="#5b9bb9" stroke="#b2eaff" stroke-width="1.4"/><path d="M9 14h17l-2 3H11z" fill="#102c40"/><path d="M14 13V6h9v7" fill="#457d9b" stroke="#93d8f3" stroke-width="1.2"/><path d="M19 6V2m0 1 5 2" fill="none" stroke="#a7e9ff" stroke-width="1.2"/><path d="M15 22h6m-6 4h6" stroke="#a5dff3" stroke-width="1.3"/><path d="M5 32h24" stroke="#7bc2e5" stroke-width="1.5"/>';
       runway.append(tower);
-      button.append(name, runway);
+      button.append(heading, runway);
     }
     cell.append(button);
     return cell;
