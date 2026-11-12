@@ -27,3 +27,13 @@ test("DD9 official alternatives: unrestricted gear and OR filters",()=>{
   const r2=evaluateDimension({dimension:d2,roster:{chars:{HeroEpic:{gear:21}}},catalog:custom});
   assert.equal(r2.nodeStates[0].state,"true");
 });
+
+test("ranking places verifiable theoretical players after LoSP finishers",()=>{
+  const completed=calc({annihilus:{yellowStars:5,redStars:2}});
+  const theoretical=calc({heroa:good},dim([{id:"x",order:1,requirement:req}]));
+  const unavailable=evaluateDimension({dimension:dim(),roster:null,catalog});
+  const out=rankResults([{result:theoretical},{result:unavailable},{result:completed}]);
+  assert.deepEqual(out.ranked.map(x=>x.result.status),["completed","theoretical"]);
+  assert.deepEqual(out.ranked.map(x=>x.rank),[1,2]);
+  assert.equal(out.indeterminate.length,1);
+});
