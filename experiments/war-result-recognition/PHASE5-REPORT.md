@@ -31,7 +31,7 @@ La nouvelle page autonome `docs/war-results-vision.html` fournit un flux d’imp
 
 Le 55/62 demeure une mesure exploratoire Phase 4, pas une mesure de cette page ni une validation indépendante. Les neuf images ont déjà influencé les réglages; le nom adverse de la capture 09 reste inconnu.
 
-Aucune mesure de précision Phase 5 n’est annoncée. Le démarrage de Chromium automatisé a échoué dans le conteneur avant le chargement de la page (socket process singleton refusé). Les appareils iOS Safari, Android Chrome et Discord n’étaient pas accessibles. Aucun temps/mémoire navigateur ne peut donc être rapporté, et aucune URL de déploiement HTTPS de la branche n’a été vérifiée. La page n’a pas été déployée.
+Aucune mesure de précision Phase 5 n’est annoncée. Le démarrage de Chromium automatisé a échoué dans le conteneur avant le chargement de la page (socket process singleton refusé). Les appareils iOS Safari, Android Chrome et Discord n’étaient pas accessibles. Aucun temps/mémoire navigateur ne peut donc être rapporté. Le contrôle HTTPS du chemin GitHub Pages a répondu HTTP 503 au moment de l’essai; aucune URL opérationnelle ne peut être fournie. Le compte Cloudflare connecté ne contient aucun projet Pages utilisable comme aperçu isolé. Aucun déploiement temporaire ni nouvelle infrastructure n’a été créé. La page n’a pas été déployée.
 
 ## Tests
 
