@@ -24,7 +24,7 @@ for(const dd of config.dimensions||[]){
   const progress=Object.entries(roster.chars).find(([key])=>norm(key)===norm(rule.characterId))?.[1];
   const key=alliance+":"+player;
   const old=group[key];
-  if(!progress){continue} // Absent character is not evidence of a verified incomplete reward.
+  // The published complete roster lacks the reward character before unlock.
   const complete=Number(progress.yellowStars)>=tier.minYellowStars&&Number(progress.redStars)>=tier.minRedStars;
   if(!old){group[key]=complete?{firstClearObservedAt:null,baseline:true}:{firstClearObservedAt:null,baseline:false,lastIncompleteObservedAt:at};changed=true;continue}
   if(!complete&&old.firstClearObservedAt===null&&!old.baseline){old.lastIncompleteObservedAt=at;changed=true}
