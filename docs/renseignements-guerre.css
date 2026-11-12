@@ -126,3 +126,10 @@ button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transpare
 .intelFlight .runway{width:91%}
 .intelFlight .runway .flightControlTower{left:0;bottom:8px;width:32px;height:43px}
 .intelFlight .runway i{left:36px;right:5px}
+
+/* War room point values: compact second line beneath each room title. */
+.intelRoomHeading{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;align-self:center;gap:2px;max-width:100%;text-align:center}
+.intelRoomHeading strong{display:block;max-width:100%}
+.intelRoomPoints{display:block;color:#f8d08b;font-size:clamp(9px,2.4vw,12px);font-weight:850;line-height:1.1;white-space:nowrap;font-variant-numeric:tabular-nums;text-shadow:0 1px 5px rgba(0,0,0,.8)}
+.intelFlight .intelRoomHeading{align-self:center}
+@media(max-width:359px){.intelRoomHeading{gap:1px}.intelRoomPoints{font-size:9px}}
