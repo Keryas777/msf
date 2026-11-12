@@ -1,0 +1,447 @@
+{
+  "schemaVersion": "1.0.0",
+  "engine": "tesseract 5.5.0; field attribution via shared JS core; result color measured separately",
+  "metric": "strict field value and side attribution; result cue excluded from the segmentation mode comparison",
+  "results": [
+    {
+      "id": "full-page-psm3",
+      "parameters": {
+        "psm": 3,
+        "lang": "eng",
+        "preprocess": "none"
+      },
+      "summary": {
+        "train": {
+          "localAlliance": {
+            "exact": 4,
+            "total": 7
+          },
+          "opponentAlliance": {
+            "exact": 4,
+            "total": 7
+          },
+          "localScore": {
+            "exact": 5,
+            "total": 7
+          },
+          "opponentScore": {
+            "exact": 4,
+            "total": 7
+          },
+          "localTrophies": {
+            "exact": 2,
+            "total": 7
+          },
+          "opponentTrophies": {
+            "exact": 2,
+            "total": 7
+          }
+        },
+        "holdout": {
+          "localAlliance": {
+            "exact": 0,
+            "total": 2
+          },
+          "opponentAlliance": {
+            "exact": 1,
+            "total": 1
+          },
+          "localScore": {
+            "exact": 0,
+            "total": 2
+          },
+          "opponentScore": {
+            "exact": 2,
+            "total": 2
+          },
+          "localTrophies": {
+            "exact": 0,
+            "total": 2
+          },
+          "opponentTrophies": {
+            "exact": 0,
+            "total": 2
+          }
+        },
+        "all": {
+          "localAlliance": {
+            "exact": 4,
+            "total": 9
+          },
+          "opponentAlliance": {
+            "exact": 5,
+            "total": 8
+          },
+          "localScore": {
+            "exact": 5,
+            "total": 9
+          },
+          "opponentScore": {
+            "exact": 6,
+            "total": 9
+          },
+          "localTrophies": {
+            "exact": 2,
+            "total": 9
+          },
+          "opponentTrophies": {
+            "exact": 2,
+            "total": 9
+          }
+        }
+      }
+    },
+    {
+      "id": "full-page-psm6",
+      "parameters": {
+        "psm": 6,
+        "lang": "eng",
+        "preprocess": "none"
+      },
+      "summary": {
+        "train": {
+          "localAlliance": {
+            "exact": 4,
+            "total": 7
+          },
+          "opponentAlliance": {
+            "exact": 4,
+            "total": 7
+          },
+          "localScore": {
+            "exact": 5,
+            "total": 7
+          },
+          "opponentScore": {
+            "exact": 7,
+            "total": 7
+          },
+          "localTrophies": {
+            "exact": 1,
+            "total": 7
+          },
+          "opponentTrophies": {
+            "exact": 1,
+            "total": 7
+          }
+        },
+        "holdout": {
+          "localAlliance": {
+            "exact": 1,
+            "total": 2
+          },
+          "opponentAlliance": {
+            "exact": 1,
+            "total": 1
+          },
+          "localScore": {
+            "exact": 1,
+            "total": 2
+          },
+          "opponentScore": {
+            "exact": 2,
+            "total": 2
+          },
+          "localTrophies": {
+            "exact": 0,
+            "total": 2
+          },
+          "opponentTrophies": {
+            "exact": 0,
+            "total": 2
+          }
+        },
+        "all": {
+          "localAlliance": {
+            "exact": 5,
+            "total": 9
+          },
+          "opponentAlliance": {
+            "exact": 5,
+            "total": 8
+          },
+          "localScore": {
+            "exact": 6,
+            "total": 9
+          },
+          "opponentScore": {
+            "exact": 9,
+            "total": 9
+          },
+          "localTrophies": {
+            "exact": 1,
+            "total": 9
+          },
+          "opponentTrophies": {
+            "exact": 1,
+            "total": 9
+          }
+        }
+      }
+    },
+    {
+      "id": "full-page-psm7",
+      "parameters": {
+        "psm": 7,
+        "lang": "eng",
+        "preprocess": "none"
+      },
+      "summary": {
+        "train": {
+          "localAlliance": {
+            "exact": 0,
+            "total": 7
+          },
+          "opponentAlliance": {
+            "exact": 0,
+            "total": 7
+          },
+          "localScore": {
+            "exact": 0,
+            "total": 7
+          },
+          "opponentScore": {
+            "exact": 0,
+            "total": 7
+          },
+          "localTrophies": {
+            "exact": 0,
+            "total": 7
+          },
+          "opponentTrophies": {
+            "exact": 0,
+            "total": 7
+          }
+        },
+        "holdout": {
+          "localAlliance": {
+            "exact": 0,
+            "total": 2
+          },
+          "opponentAlliance": {
+            "exact": 0,
+            "total": 1
+          },
+          "localScore": {
+            "exact": 0,
+            "total": 2
+          },
+          "opponentScore": {
+            "exact": 0,
+            "total": 2
+          },
+          "localTrophies": {
+            "exact": 0,
+            "total": 2
+          },
+          "opponentTrophies": {
+            "exact": 0,
+            "total": 2
+          }
+        },
+        "all": {
+          "localAlliance": {
+            "exact": 0,
+            "total": 9
+          },
+          "opponentAlliance": {
+            "exact": 0,
+            "total": 8
+          },
+          "localScore": {
+            "exact": 0,
+            "total": 9
+          },
+          "opponentScore": {
+            "exact": 0,
+            "total": 9
+          },
+          "localTrophies": {
+            "exact": 0,
+            "total": 9
+          },
+          "opponentTrophies": {
+            "exact": 0,
+            "total": 9
+          }
+        }
+      }
+    },
+    {
+      "id": "full-page-psm11",
+      "parameters": {
+        "psm": 11,
+        "lang": "eng",
+        "preprocess": "none"
+      },
+      "summary": {
+        "train": {
+          "localAlliance": {
+            "exact": 6,
+            "total": 7
+          },
+          "opponentAlliance": {
+            "exact": 5,
+            "total": 7
+          },
+          "localScore": {
+            "exact": 5,
+            "total": 7
+          },
+          "opponentScore": {
+            "exact": 5,
+            "total": 7
+          },
+          "localTrophies": {
+            "exact": 2,
+            "total": 7
+          },
+          "opponentTrophies": {
+            "exact": 2,
+            "total": 7
+          }
+        },
+        "holdout": {
+          "localAlliance": {
+            "exact": 1,
+            "total": 2
+          },
+          "opponentAlliance": {
+            "exact": 1,
+            "total": 1
+          },
+          "localScore": {
+            "exact": 2,
+            "total": 2
+          },
+          "opponentScore": {
+            "exact": 2,
+            "total": 2
+          },
+          "localTrophies": {
+            "exact": 2,
+            "total": 2
+          },
+          "opponentTrophies": {
+            "exact": 1,
+            "total": 2
+          }
+        },
+        "all": {
+          "localAlliance": {
+            "exact": 7,
+            "total": 9
+          },
+          "opponentAlliance": {
+            "exact": 6,
+            "total": 8
+          },
+          "localScore": {
+            "exact": 7,
+            "total": 9
+          },
+          "opponentScore": {
+            "exact": 7,
+            "total": 9
+          },
+          "localTrophies": {
+            "exact": 4,
+            "total": 9
+          },
+          "opponentTrophies": {
+            "exact": 3,
+            "total": 9
+          }
+        }
+      }
+    },
+    {
+      "id": "full-page-psm13",
+      "parameters": {
+        "psm": 13,
+        "lang": "eng",
+        "preprocess": "none"
+      },
+      "summary": {
+        "train": {
+          "localAlliance": {
+            "exact": 0,
+            "total": 7
+          },
+          "opponentAlliance": {
+            "exact": 0,
+            "total": 7
+          },
+          "localScore": {
+            "exact": 0,
+            "total": 7
+          },
+          "opponentScore": {
+            "exact": 0,
+            "total": 7
+          },
+          "localTrophies": {
+            "exact": 0,
+            "total": 7
+          },
+          "opponentTrophies": {
+            "exact": 0,
+            "total": 7
+          }
+        },
+        "holdout": {
+          "localAlliance": {
+            "exact": 0,
+            "total": 2
+          },
+          "opponentAlliance": {
+            "exact": 0,
+            "total": 1
+          },
+          "localScore": {
+            "exact": 0,
+            "total": 2
+          },
+          "opponentScore": {
+            "exact": 0,
+            "total": 2
+          },
+          "localTrophies": {
+            "exact": 0,
+            "total": 2
+          },
+          "opponentTrophies": {
+            "exact": 0,
+            "total": 2
+          }
+        },
+        "all": {
+          "localAlliance": {
+            "exact": 0,
+            "total": 9
+          },
+          "opponentAlliance": {
+            "exact": 0,
+            "total": 8
+          },
+          "localScore": {
+            "exact": 0,
+            "total": 9
+          },
+          "opponentScore": {
+            "exact": 0,
+            "total": 9
+          },
+          "localTrophies": {
+            "exact": 0,
+            "total": 9
+          },
+          "opponentTrophies": {
+            "exact": 0,
+            "total": 9
+          }
+        }
+      }
+    }
+  ]
+}

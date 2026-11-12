@@ -1,0 +1,5137 @@
+{
+  "schemaVersion": "1.0.0",
+  "method": "PSM 11 TSV structural anchors for label/alignment; proportional ROIs; Tesseract CLI numeric whitelist; independent score/trophy crops; RGB-derived key, grayscale contrast and Otsu variants",
+  "engine": "Tesseract CLI 5.5.0 local Linux; not browser performance",
+  "corpus": {
+    "images": 9,
+    "train": 7,
+    "historicHoldout": 2,
+    "holdoutStatus": "Previously examined; contaminated and not independent.",
+    "unknownTruth": [
+      {
+        "capture": "capture-09",
+        "field": "opponentAlliance"
+      }
+    ]
+  },
+  "parameters": {
+    "psm": [
+      7,
+      8
+    ],
+    "scale": 3,
+    "variants": [
+      "raw-3x",
+      "gray-contrast-3x",
+      "otsu-3x",
+      "color-key-3x"
+    ],
+    "scoreAnchors": "recognized POINTS DE GUERRE words, excluding numeric words",
+    "trophyAnchors": "LoSP and same-row opponent alliance text; fixed relative field bands"
+  },
+  "summary": {
+    "raw-3x-psm7": {
+      "localScore": {
+        "exact": 5,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 411597,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 343311,
+            "raw": "43301",
+            "value": "43301",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 363432,
+            "raw": "64352",
+            "value": "64352",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 319841,
+            "raw": "19841",
+            "value": "19841",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 340136,
+            "raw": "340136",
+            "value": "340136",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 366816,
+            "raw": "366816",
+            "value": "366816",
+            "exact": true
+          },
+          "capture-07": {
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          },
+          "capture-08": {
+            "expected": 371356,
+            "raw": "371356",
+            "value": "371356",
+            "exact": true
+          },
+          "capture-09": {
+            "expected": 348354,
+            "raw": "348354",
+            "value": "348354",
+            "exact": true
+          }
+        }
+      },
+      "opponentScore": {
+        "exact": 4,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 257149,
+            "raw": "257149",
+            "value": "257149",
+            "exact": true
+          },
+          "capture-02": {
+            "expected": 314689,
+            "raw": "346894",
+            "value": "346894",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 153303,
+            "raw": "1530",
+            "value": "1530",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 458874,
+            "raw": "458874",
+            "value": "458874",
+            "exact": true
+          },
+          "capture-05": {
+            "expected": 291856,
+            "raw": "251856",
+            "value": "251856",
+            "exact": false
+          },
+          "capture-06": {
+            "expected": 168062,
+            "raw": "027",
+            "value": "027",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 439960,
+            "raw": "439360",
+            "value": "439360",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 284300,
+            "raw": "284300",
+            "value": "284300",
+            "exact": true
+          },
+          "capture-09": {
+            "expected": 481264,
+            "raw": "481264",
+            "value": "481264",
+            "exact": true
+          }
+        }
+      },
+      "localTrophies": {
+        "exact": 4,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2778,
+            "raw": "78",
+            "value": "78",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          },
+          "capture-03": {
+            "expected": 2738,
+            "raw": "275",
+            "value": "275",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 2783,
+            "raw": "2744",
+            "value": "2744",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 2791,
+            "raw": "2791",
+            "value": "2791",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 2414,
+            "raw": "2414",
+            "value": "2414",
+            "exact": true
+          },
+          "capture-07": {
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 2858,
+            "raw": "2858",
+            "value": "2858",
+            "exact": true
+          },
+          "capture-09": {
+            "expected": 2715,
+            "raw": "25",
+            "value": "25",
+            "exact": false
+          }
+        }
+      },
+      "opponentTrophies": {
+        "exact": 5,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2627,
+            "raw": "26271751",
+            "value": "2627",
+            "exact": true
+          },
+          "capture-02": {
+            "expected": 2680,
+            "raw": "561",
+            "value": "561",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 2438,
+            "raw": "243615011",
+            "value": "2436",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 2926,
+            "raw": "2 292671",
+            "value": "2",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 2640,
+            "raw": "26401751",
+            "value": "2640",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 2264,
+            "raw": "2264751",
+            "value": "2264",
+            "exact": true
+          },
+          "capture-07": {
+            "expected": 2814,
+            "raw": "4 2814175",
+            "value": "4",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 2708,
+            "raw": "270875",
+            "value": "2708",
+            "exact": true
+          },
+          "capture-09": {
+            "expected": 2864,
+            "raw": "286476",
+            "value": "2864",
+            "exact": true
+          }
+        }
+      },
+      "overall": {
+        "exact": 18,
+        "total": 36
+      }
+    },
+    "raw-3x-psm8": {
+      "localScore": {
+        "exact": 1,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 411597,
+            "raw": "457",
+            "value": "457",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 343311,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 363432,
+            "raw": "62492",
+            "value": "62492",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 319841,
+            "raw": "984",
+            "value": "984",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 340136,
+            "raw": "413",
+            "value": "413",
+            "exact": false
+          },
+          "capture-06": {
+            "expected": 366816,
+            "raw": "6681",
+            "value": "6681",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          },
+          "capture-08": {
+            "expected": 371356,
+            "raw": "05",
+            "value": "05",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 348354,
+            "raw": "48954",
+            "value": "48954",
+            "exact": false
+          }
+        }
+      },
+      "opponentScore": {
+        "exact": 3,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 257149,
+            "raw": "257454",
+            "value": "257454",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 314689,
+            "raw": "46894",
+            "value": "46894",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 153303,
+            "raw": "153303",
+            "value": "153303",
+            "exact": true
+          },
+          "capture-04": {
+            "expected": 458874,
+            "raw": "458874",
+            "value": "458874",
+            "exact": true
+          },
+          "capture-05": {
+            "expected": 291856,
+            "raw": "2185",
+            "value": "2185",
+            "exact": false
+          },
+          "capture-06": {
+            "expected": 168062,
+            "raw": "680627",
+            "value": "680627",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 439960,
+            "raw": "439360",
+            "value": "439360",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 284300,
+            "raw": "284300",
+            "value": "284300",
+            "exact": true
+          },
+          "capture-09": {
+            "expected": 481264,
+            "raw": "24",
+            "value": "24",
+            "exact": false
+          }
+        }
+      },
+      "localTrophies": {
+        "exact": 4,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2778,
+            "raw": "2778",
+            "value": "2778",
+            "exact": true
+          },
+          "capture-02": {
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          },
+          "capture-03": {
+            "expected": 2738,
+            "raw": "2731",
+            "value": "2731",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 2783,
+            "raw": "7",
+            "value": "7",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 2791,
+            "raw": "2791",
+            "value": "2791",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 2414,
+            "raw": "244",
+            "value": "244",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 2858,
+            "raw": "85",
+            "value": "85",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 2715,
+            "raw": "2715",
+            "value": "2715",
+            "exact": true
+          }
+        }
+      },
+      "opponentTrophies": {
+        "exact": 0,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2627,
+            "raw": "28275",
+            "value": "2827",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 2680,
+            "raw": "056",
+            "value": "056",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 2438,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 2926,
+            "raw": "7",
+            "value": "7",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 2640,
+            "raw": "2075",
+            "value": "2075",
+            "exact": false
+          },
+          "capture-06": {
+            "expected": 2264,
+            "raw": "228478",
+            "value": "2284",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 2814,
+            "raw": "75",
+            "value": "75",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 2708,
+            "raw": "75",
+            "value": "75",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 2864,
+            "raw": "0070",
+            "value": "0070",
+            "exact": false
+          }
+        }
+      },
+      "overall": {
+        "exact": 8,
+        "total": 36
+      }
+    },
+    "gray-contrast-3x-psm7": {
+      "localScore": {
+        "exact": 4,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 411597,
+            "raw": "411597",
+            "value": "411597",
+            "exact": true
+          },
+          "capture-02": {
+            "expected": 343311,
+            "raw": "4330",
+            "value": "4330",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 363432,
+            "raw": "6432",
+            "value": "6432",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 319841,
+            "raw": "319847",
+            "value": "319847",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 340136,
+            "raw": "3401736",
+            "value": "340173",
+            "exact": false
+          },
+          "capture-06": {
+            "expected": 366816,
+            "raw": "366816",
+            "value": "366816",
+            "exact": true
+          },
+          "capture-07": {
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          },
+          "capture-08": {
+            "expected": 371356,
+            "raw": "71356",
+            "value": "71356",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 348354,
+            "raw": "348354",
+            "value": "348354",
+            "exact": true
+          }
+        }
+      },
+      "opponentScore": {
+        "exact": 4,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 257149,
+            "raw": "257149",
+            "value": "257149",
+            "exact": true
+          },
+          "capture-02": {
+            "expected": 314689,
+            "raw": "34689",
+            "value": "34689",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 153303,
+            "raw": "1530",
+            "value": "1530",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 458874,
+            "raw": "4568874",
+            "value": "456887",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 291856,
+            "raw": "291856",
+            "value": "291856",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 168062,
+            "raw": "0627",
+            "value": "0627",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 439960,
+            "raw": "439360",
+            "value": "439360",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 284300,
+            "raw": "284300",
+            "value": "284300",
+            "exact": true
+          },
+          "capture-09": {
+            "expected": 481264,
+            "raw": "481264",
+            "value": "481264",
+            "exact": true
+          }
+        }
+      },
+      "localTrophies": {
+        "exact": 4,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2778,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          },
+          "capture-03": {
+            "expected": 2738,
+            "raw": "275",
+            "value": "275",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 2783,
+            "raw": "2744",
+            "value": "2744",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 2791,
+            "raw": "2791",
+            "value": "2791",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 2414,
+            "raw": "2414",
+            "value": "2414",
+            "exact": true
+          },
+          "capture-07": {
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 2858,
+            "raw": "2858",
+            "value": "2858",
+            "exact": true
+          },
+          "capture-09": {
+            "expected": 2715,
+            "raw": "25",
+            "value": "25",
+            "exact": false
+          }
+        }
+      },
+      "opponentTrophies": {
+        "exact": 8,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2627,
+            "raw": "2627751",
+            "value": "2627",
+            "exact": true
+          },
+          "capture-02": {
+            "expected": 2680,
+            "raw": "561",
+            "value": "561",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 2438,
+            "raw": "243811501",
+            "value": "2438",
+            "exact": true
+          },
+          "capture-04": {
+            "expected": 2926,
+            "raw": "2926171",
+            "value": "2926",
+            "exact": true
+          },
+          "capture-05": {
+            "expected": 2640,
+            "raw": "26401751",
+            "value": "2640",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 2264,
+            "raw": "2264751",
+            "value": "2264",
+            "exact": true
+          },
+          "capture-07": {
+            "expected": 2814,
+            "raw": "2814751",
+            "value": "2814",
+            "exact": true
+          },
+          "capture-08": {
+            "expected": 2708,
+            "raw": "2708175",
+            "value": "2708",
+            "exact": true
+          },
+          "capture-09": {
+            "expected": 2864,
+            "raw": "2864176",
+            "value": "2864",
+            "exact": true
+          }
+        }
+      },
+      "overall": {
+        "exact": 20,
+        "total": 36
+      }
+    },
+    "gray-contrast-3x-psm8": {
+      "localScore": {
+        "exact": 1,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 411597,
+            "raw": "4597",
+            "value": "4597",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 343311,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 363432,
+            "raw": "492",
+            "value": "492",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 319841,
+            "raw": "19840",
+            "value": "19840",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 340136,
+            "raw": "403",
+            "value": "403",
+            "exact": false
+          },
+          "capture-06": {
+            "expected": 366816,
+            "raw": "66816",
+            "value": "66816",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          },
+          "capture-08": {
+            "expected": 371356,
+            "raw": "5",
+            "value": "5",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 348354,
+            "raw": "348954",
+            "value": "348954",
+            "exact": false
+          }
+        }
+      },
+      "opponentScore": {
+        "exact": 3,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 257149,
+            "raw": "2571454",
+            "value": "257145",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 314689,
+            "raw": "464",
+            "value": "464",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 153303,
+            "raw": "153303",
+            "value": "153303",
+            "exact": true
+          },
+          "capture-04": {
+            "expected": 458874,
+            "raw": "458874",
+            "value": "458874",
+            "exact": true
+          },
+          "capture-05": {
+            "expected": 291856,
+            "raw": "231856",
+            "value": "231856",
+            "exact": false
+          },
+          "capture-06": {
+            "expected": 168062,
+            "raw": "680627",
+            "value": "680627",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 439960,
+            "raw": "439360",
+            "value": "439360",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 284300,
+            "raw": "284300",
+            "value": "284300",
+            "exact": true
+          },
+          "capture-09": {
+            "expected": 481264,
+            "raw": "24",
+            "value": "24",
+            "exact": false
+          }
+        }
+      },
+      "localTrophies": {
+        "exact": 4,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2778,
+            "raw": "2778",
+            "value": "2778",
+            "exact": true
+          },
+          "capture-02": {
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          },
+          "capture-03": {
+            "expected": 2738,
+            "raw": "2731",
+            "value": "2731",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 2783,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 2791,
+            "raw": "2791",
+            "value": "2791",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 2414,
+            "raw": "244",
+            "value": "244",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 2858,
+            "raw": "85",
+            "value": "85",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 2715,
+            "raw": "2715",
+            "value": "2715",
+            "exact": true
+          }
+        }
+      },
+      "opponentTrophies": {
+        "exact": 1,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2627,
+            "raw": "262715",
+            "value": "2627",
+            "exact": true
+          },
+          "capture-02": {
+            "expected": 2680,
+            "raw": "056",
+            "value": "056",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 2438,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 2926,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 2640,
+            "raw": "24075",
+            "value": "2407",
+            "exact": false
+          },
+          "capture-06": {
+            "expected": 2264,
+            "raw": "22841751",
+            "value": "2284",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 2814,
+            "raw": "76",
+            "value": "76",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 2708,
+            "raw": "75",
+            "value": "75",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 2864,
+            "raw": "0070",
+            "value": "0070",
+            "exact": false
+          }
+        }
+      },
+      "overall": {
+        "exact": 9,
+        "total": 36
+      }
+    },
+    "otsu-3x-psm7": {
+      "localScore": {
+        "exact": 2,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 411597,
+            "raw": "411597",
+            "value": "411597",
+            "exact": true
+          },
+          "capture-02": {
+            "expected": 343311,
+            "raw": "433",
+            "value": "433",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 363432,
+            "raw": "6492",
+            "value": "6492",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 319841,
+            "raw": "319847",
+            "value": "319847",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 340136,
+            "raw": "840136",
+            "value": "840136",
+            "exact": false
+          },
+          "capture-06": {
+            "expected": 366816,
+            "raw": "66816",
+            "value": "66816",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          },
+          "capture-08": {
+            "expected": 371356,
+            "raw": "1471356",
+            "value": "147135",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 348354,
+            "raw": "848554",
+            "value": "848554",
+            "exact": false
+          }
+        }
+      },
+      "opponentScore": {
+        "exact": 4,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 257149,
+            "raw": "257149",
+            "value": "257149",
+            "exact": true
+          },
+          "capture-02": {
+            "expected": 314689,
+            "raw": "469",
+            "value": "469",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 153303,
+            "raw": "1530",
+            "value": "1530",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 458874,
+            "raw": "458874",
+            "value": "458874",
+            "exact": true
+          },
+          "capture-05": {
+            "expected": 291856,
+            "raw": "291856",
+            "value": "291856",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 168062,
+            "raw": "062",
+            "value": "062",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 439960,
+            "raw": "439560",
+            "value": "439560",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 284300,
+            "raw": "244300",
+            "value": "244300",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 481264,
+            "raw": "481264",
+            "value": "481264",
+            "exact": true
+          }
+        }
+      },
+      "localTrophies": {
+        "exact": 5,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2778,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          },
+          "capture-03": {
+            "expected": 2738,
+            "raw": "2735",
+            "value": "2735",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 2783,
+            "raw": "2783",
+            "value": "2783",
+            "exact": true
+          },
+          "capture-05": {
+            "expected": 2791,
+            "raw": "2791",
+            "value": "2791",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 2414,
+            "raw": "7414",
+            "value": "7414",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 2858,
+            "raw": "2858",
+            "value": "2858",
+            "exact": true
+          },
+          "capture-09": {
+            "expected": 2715,
+            "raw": "2715",
+            "value": "2715",
+            "exact": true
+          }
+        }
+      },
+      "opponentTrophies": {
+        "exact": 5,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2627,
+            "raw": "282775",
+            "value": "2827",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 2680,
+            "raw": "56",
+            "value": "56",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 2438,
+            "raw": "243817507",
+            "value": "2438",
+            "exact": true
+          },
+          "capture-04": {
+            "expected": 2926,
+            "raw": "4 282871",
+            "value": "4",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 2640,
+            "raw": "26407511",
+            "value": "2640",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 2264,
+            "raw": "225875",
+            "value": "2258",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 2814,
+            "raw": "281475",
+            "value": "2814",
+            "exact": true
+          },
+          "capture-08": {
+            "expected": 2708,
+            "raw": "2708175",
+            "value": "2708",
+            "exact": true
+          },
+          "capture-09": {
+            "expected": 2864,
+            "raw": "2864176",
+            "value": "2864",
+            "exact": true
+          }
+        }
+      },
+      "overall": {
+        "exact": 16,
+        "total": 36
+      }
+    },
+    "otsu-3x-psm8": {
+      "localScore": {
+        "exact": 1,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 411597,
+            "raw": "457",
+            "value": "457",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 343311,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 363432,
+            "raw": "9492",
+            "value": "9492",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 319841,
+            "raw": "19840",
+            "value": "19840",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 340136,
+            "raw": "403",
+            "value": "403",
+            "exact": false
+          },
+          "capture-06": {
+            "expected": 366816,
+            "raw": "61",
+            "value": "61",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          },
+          "capture-08": {
+            "expected": 371356,
+            "raw": "15",
+            "value": "15",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 348354,
+            "raw": "48954",
+            "value": "48954",
+            "exact": false
+          }
+        }
+      },
+      "opponentScore": {
+        "exact": 2,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 257149,
+            "raw": "74",
+            "value": "74",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 314689,
+            "raw": "46",
+            "value": "46",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 153303,
+            "raw": "53303",
+            "value": "53303",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 458874,
+            "raw": "458874",
+            "value": "458874",
+            "exact": true
+          },
+          "capture-05": {
+            "expected": 291856,
+            "raw": "25",
+            "value": "25",
+            "exact": false
+          },
+          "capture-06": {
+            "expected": 168062,
+            "raw": "6062",
+            "value": "6062",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 439960,
+            "raw": "439360",
+            "value": "439360",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 284300,
+            "raw": "284300",
+            "value": "284300",
+            "exact": true
+          },
+          "capture-09": {
+            "expected": 481264,
+            "raw": "24",
+            "value": "24",
+            "exact": false
+          }
+        }
+      },
+      "localTrophies": {
+        "exact": 4,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2778,
+            "raw": "2778",
+            "value": "2778",
+            "exact": true
+          },
+          "capture-02": {
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          },
+          "capture-03": {
+            "expected": 2738,
+            "raw": "27351",
+            "value": "2735",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 2783,
+            "raw": "7",
+            "value": "7",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 2791,
+            "raw": "2791",
+            "value": "2791",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 2414,
+            "raw": "244",
+            "value": "244",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 2858,
+            "raw": "85",
+            "value": "85",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 2715,
+            "raw": "2715",
+            "value": "2715",
+            "exact": true
+          }
+        }
+      },
+      "opponentTrophies": {
+        "exact": 1,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2627,
+            "raw": "22",
+            "value": "22",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 2680,
+            "raw": "266056",
+            "value": "2660",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 2438,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 2926,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 2640,
+            "raw": "264075",
+            "value": "2640",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 2264,
+            "raw": "7",
+            "value": "7",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 2814,
+            "raw": "76",
+            "value": "76",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 2708,
+            "raw": "078",
+            "value": "078",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 2864,
+            "raw": "07",
+            "value": "07",
+            "exact": false
+          }
+        }
+      },
+      "overall": {
+        "exact": 8,
+        "total": 36
+      }
+    },
+    "color-key-3x-psm7": {
+      "localScore": {
+        "exact": 1,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 411597,
+            "raw": "4115497",
+            "value": "411549",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 343311,
+            "raw": "349311",
+            "value": "349311",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 363432,
+            "raw": "492",
+            "value": "492",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 319841,
+            "raw": "319847",
+            "value": "319847",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 340136,
+            "raw": "340196",
+            "value": "340196",
+            "exact": false
+          },
+          "capture-06": {
+            "expected": 366816,
+            "raw": "846566816",
+            "value": "846566",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          },
+          "capture-08": {
+            "expected": 371356,
+            "raw": "7156",
+            "value": "7156",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 348354,
+            "raw": "38848954",
+            "value": "388489",
+            "exact": false
+          }
+        }
+      },
+      "opponentScore": {
+        "exact": 6,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 257149,
+            "raw": "257149",
+            "value": "257149",
+            "exact": true
+          },
+          "capture-02": {
+            "expected": 314689,
+            "raw": "34689",
+            "value": "34689",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 153303,
+            "raw": "15307",
+            "value": "15307",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 458874,
+            "raw": "458874",
+            "value": "458874",
+            "exact": true
+          },
+          "capture-05": {
+            "expected": 291856,
+            "raw": "291856",
+            "value": "291856",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 168062,
+            "raw": "168062",
+            "value": "168062",
+            "exact": true
+          },
+          "capture-07": {
+            "expected": 439960,
+            "raw": "439360",
+            "value": "439360",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 284300,
+            "raw": "284300",
+            "value": "284300",
+            "exact": true
+          },
+          "capture-09": {
+            "expected": 481264,
+            "raw": "481264",
+            "value": "481264",
+            "exact": true
+          }
+        }
+      },
+      "localTrophies": {
+        "exact": 5,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2778,
+            "raw": "2778",
+            "value": "2778",
+            "exact": true
+          },
+          "capture-02": {
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          },
+          "capture-03": {
+            "expected": 2738,
+            "raw": "2735",
+            "value": "2735",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 2783,
+            "raw": "278",
+            "value": "278",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 2791,
+            "raw": "2791",
+            "value": "2791",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 2414,
+            "raw": "7414",
+            "value": "7414",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 2858,
+            "raw": "2858",
+            "value": "2858",
+            "exact": true
+          },
+          "capture-09": {
+            "expected": 2715,
+            "raw": "2715",
+            "value": "2715",
+            "exact": true
+          }
+        }
+      },
+      "opponentTrophies": {
+        "exact": 1,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2627,
+            "raw": "992775",
+            "value": "9927",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 2680,
+            "raw": "5611",
+            "value": "5611",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 2438,
+            "raw": "4 24981501",
+            "value": "4",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 2926,
+            "raw": "4 78",
+            "value": "4",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 2640,
+            "raw": "26407511",
+            "value": "2640",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 2264,
+            "raw": "2475",
+            "value": "2475",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 2814,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 2708,
+            "raw": "4 2708175",
+            "value": "4",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 2864,
+            "raw": "",
+            "value": "",
+            "exact": false
+          }
+        }
+      },
+      "overall": {
+        "exact": 13,
+        "total": 36
+      }
+    },
+    "color-key-3x-psm8": {
+      "localScore": {
+        "exact": 1,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 411597,
+            "raw": "7",
+            "value": "7",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 343311,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 363432,
+            "raw": "9694320",
+            "value": "969432",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 319841,
+            "raw": "9840",
+            "value": "9840",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 340136,
+            "raw": "4",
+            "value": "4",
+            "exact": false
+          },
+          "capture-06": {
+            "expected": 366816,
+            "raw": "866681",
+            "value": "866681",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          },
+          "capture-08": {
+            "expected": 371356,
+            "raw": "735",
+            "value": "735",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 348354,
+            "raw": "",
+            "value": "",
+            "exact": false
+          }
+        }
+      },
+      "opponentScore": {
+        "exact": 2,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 257149,
+            "raw": "257148",
+            "value": "257148",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 314689,
+            "raw": "49",
+            "value": "49",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 153303,
+            "raw": "159303",
+            "value": "159303",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 458874,
+            "raw": "458874",
+            "value": "458874",
+            "exact": true
+          },
+          "capture-05": {
+            "expected": 291856,
+            "raw": "2185",
+            "value": "2185",
+            "exact": false
+          },
+          "capture-06": {
+            "expected": 168062,
+            "raw": "680620",
+            "value": "680620",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 439960,
+            "raw": "439360",
+            "value": "439360",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 284300,
+            "raw": "284300",
+            "value": "284300",
+            "exact": true
+          },
+          "capture-09": {
+            "expected": 481264,
+            "raw": "24",
+            "value": "24",
+            "exact": false
+          }
+        }
+      },
+      "localTrophies": {
+        "exact": 3,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2778,
+            "raw": "778",
+            "value": "778",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          },
+          "capture-03": {
+            "expected": 2738,
+            "raw": "2731",
+            "value": "2731",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 2783,
+            "raw": "7",
+            "value": "7",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 2791,
+            "raw": "27910",
+            "value": "2791",
+            "exact": true
+          },
+          "capture-06": {
+            "expected": 2414,
+            "raw": "744",
+            "value": "744",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 2858,
+            "raw": "85",
+            "value": "85",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 2715,
+            "raw": "2715",
+            "value": "2715",
+            "exact": true
+          }
+        }
+      },
+      "opponentTrophies": {
+        "exact": 0,
+        "total": 9,
+        "values": {
+          "capture-01": {
+            "expected": 2627,
+            "raw": "2827",
+            "value": "2827",
+            "exact": false
+          },
+          "capture-02": {
+            "expected": 2680,
+            "raw": "56",
+            "value": "56",
+            "exact": false
+          },
+          "capture-03": {
+            "expected": 2438,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-04": {
+            "expected": 2926,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-05": {
+            "expected": 2640,
+            "raw": "207",
+            "value": "207",
+            "exact": false
+          },
+          "capture-06": {
+            "expected": 2264,
+            "raw": "751",
+            "value": "751",
+            "exact": false
+          },
+          "capture-07": {
+            "expected": 2814,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "capture-08": {
+            "expected": 2708,
+            "raw": "75",
+            "value": "75",
+            "exact": false
+          },
+          "capture-09": {
+            "expected": 2864,
+            "raw": "",
+            "value": "",
+            "exact": false
+          }
+        }
+      },
+      "overall": {
+        "exact": 6,
+        "total": 36
+      }
+    }
+  },
+  "captures": [
+    {
+      "id": "capture-01",
+      "split": "train",
+      "fields": {
+        "localScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localScore",
+            "expected": 411597,
+            "raw": "411597",
+            "value": "411597",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localScore",
+            "expected": 411597,
+            "raw": "4597",
+            "value": "4597",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localScore",
+            "expected": 411597,
+            "raw": "4115497",
+            "value": "411549",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localScore",
+            "expected": 411597,
+            "raw": "7",
+            "value": "7",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localScore",
+            "expected": 411597,
+            "raw": "411597",
+            "value": "411597",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localScore",
+            "expected": 411597,
+            "raw": "457",
+            "value": "457",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localScore",
+            "expected": 411597,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localScore",
+            "expected": 411597,
+            "raw": "457",
+            "value": "457",
+            "exact": false
+          }
+        },
+        "opponentScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 257149,
+            "raw": "257149",
+            "value": "257149",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 257149,
+            "raw": "2571454",
+            "value": "257145",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 257149,
+            "raw": "257149",
+            "value": "257149",
+            "exact": true
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 257149,
+            "raw": "257148",
+            "value": "257148",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 257149,
+            "raw": "257149",
+            "value": "257149",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 257149,
+            "raw": "74",
+            "value": "74",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 257149,
+            "raw": "257149",
+            "value": "257149",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 257149,
+            "raw": "257454",
+            "value": "257454",
+            "exact": false
+          }
+        },
+        "localTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2778,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2778,
+            "raw": "2778",
+            "value": "2778",
+            "exact": true
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2778,
+            "raw": "2778",
+            "value": "2778",
+            "exact": true
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2778,
+            "raw": "778",
+            "value": "778",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2778,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2778,
+            "raw": "2778",
+            "value": "2778",
+            "exact": true
+          },
+          "raw-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2778,
+            "raw": "78",
+            "value": "78",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2778,
+            "raw": "2778",
+            "value": "2778",
+            "exact": true
+          }
+        },
+        "opponentTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2627,
+            "raw": "2627751",
+            "value": "2627",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2627,
+            "raw": "262715",
+            "value": "2627",
+            "exact": true
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2627,
+            "raw": "992775",
+            "value": "9927",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2627,
+            "raw": "2827",
+            "value": "2827",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2627,
+            "raw": "282775",
+            "value": "2827",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2627,
+            "raw": "22",
+            "value": "22",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2627,
+            "raw": "26271751",
+            "value": "2627",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-01",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2627,
+            "raw": "28275",
+            "value": "2827",
+            "exact": false
+          }
+        }
+      },
+      "regions": {
+        "localScore": [
+          0.18685,
+          0.32562,
+          0.4388,
+          0.39508
+        ],
+        "opponentScore": [
+          0.55924,
+          0.32562,
+          0.79102,
+          0.39508
+        ],
+        "localTrophies": [
+          0.20508,
+          0.21418,
+          0.3099,
+          0.28799
+        ],
+        "opponentTrophies": [
+          0.63932,
+          0.21418,
+          0.73438,
+          0.28799
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 687.0,
+          "y0": 240.0,
+          "x1": 847.0,
+          "y1": 259.0
+        },
+        "losp": {
+          "x0": 346.0,
+          "y0": 109.0,
+          "x1": 440.0,
+          "y1": 144.0
+        },
+        "opponent": {
+          "x0": 952.0,
+          "y0": 110.0,
+          "x1": 1039.0,
+          "y1": 144.0
+        }
+      }
+    },
+    {
+      "id": "capture-02",
+      "split": "train",
+      "fields": {
+        "localScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localScore",
+            "expected": 343311,
+            "raw": "4330",
+            "value": "4330",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localScore",
+            "expected": 343311,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localScore",
+            "expected": 343311,
+            "raw": "349311",
+            "value": "349311",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localScore",
+            "expected": 343311,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localScore",
+            "expected": 343311,
+            "raw": "433",
+            "value": "433",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localScore",
+            "expected": 343311,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localScore",
+            "expected": 343311,
+            "raw": "43301",
+            "value": "43301",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localScore",
+            "expected": 343311,
+            "raw": "",
+            "value": "",
+            "exact": false
+          }
+        },
+        "opponentScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 314689,
+            "raw": "34689",
+            "value": "34689",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 314689,
+            "raw": "464",
+            "value": "464",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 314689,
+            "raw": "34689",
+            "value": "34689",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 314689,
+            "raw": "49",
+            "value": "49",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 314689,
+            "raw": "469",
+            "value": "469",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 314689,
+            "raw": "46",
+            "value": "46",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 314689,
+            "raw": "346894",
+            "value": "346894",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 314689,
+            "raw": "46894",
+            "value": "46894",
+            "exact": false
+          }
+        },
+        "localTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          },
+          "raw-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2792,
+            "raw": "2792",
+            "value": "2792",
+            "exact": true
+          }
+        },
+        "opponentTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2680,
+            "raw": "561",
+            "value": "561",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2680,
+            "raw": "056",
+            "value": "056",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2680,
+            "raw": "5611",
+            "value": "5611",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2680,
+            "raw": "56",
+            "value": "56",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2680,
+            "raw": "56",
+            "value": "56",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2680,
+            "raw": "266056",
+            "value": "2660",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2680,
+            "raw": "561",
+            "value": "561",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-02",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2680,
+            "raw": "056",
+            "value": "056",
+            "exact": false
+          }
+        }
+      },
+      "regions": {
+        "localScore": [
+          0.21238,
+          0.32569,
+          0.46455,
+          0.39514
+        ],
+        "opponentScore": [
+          0.58364,
+          0.32569,
+          0.81561,
+          0.39514
+        ],
+        "localTrophies": [
+          0.22886,
+          0.21389,
+          0.33396,
+          0.28889
+        ],
+        "opponentTrophies": [
+          0.66294,
+          0.21389,
+          0.75777,
+          0.28889
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 1520.0,
+          "y0": 501.0,
+          "x1": 1852.0,
+          "y1": 538.0
+        },
+        "losp": {
+          "x0": 801.0,
+          "y0": 226.0,
+          "x1": 1056.0,
+          "y1": 300.0
+        },
+        "opponent": {
+          "x0": 2068.0,
+          "y0": 226.0,
+          "x1": 2364.0,
+          "y1": 313.0
+        }
+      }
+    },
+    {
+      "id": "capture-03",
+      "split": "train",
+      "fields": {
+        "localScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localScore",
+            "expected": 363432,
+            "raw": "6432",
+            "value": "6432",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localScore",
+            "expected": 363432,
+            "raw": "492",
+            "value": "492",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localScore",
+            "expected": 363432,
+            "raw": "492",
+            "value": "492",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localScore",
+            "expected": 363432,
+            "raw": "9694320",
+            "value": "969432",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localScore",
+            "expected": 363432,
+            "raw": "6492",
+            "value": "6492",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localScore",
+            "expected": 363432,
+            "raw": "9492",
+            "value": "9492",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localScore",
+            "expected": 363432,
+            "raw": "64352",
+            "value": "64352",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localScore",
+            "expected": 363432,
+            "raw": "62492",
+            "value": "62492",
+            "exact": false
+          }
+        },
+        "opponentScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 153303,
+            "raw": "1530",
+            "value": "1530",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 153303,
+            "raw": "153303",
+            "value": "153303",
+            "exact": true
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 153303,
+            "raw": "15307",
+            "value": "15307",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 153303,
+            "raw": "159303",
+            "value": "159303",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 153303,
+            "raw": "1530",
+            "value": "1530",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 153303,
+            "raw": "53303",
+            "value": "53303",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 153303,
+            "raw": "1530",
+            "value": "1530",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 153303,
+            "raw": "153303",
+            "value": "153303",
+            "exact": true
+          }
+        },
+        "localTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2738,
+            "raw": "275",
+            "value": "275",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2738,
+            "raw": "2731",
+            "value": "2731",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2738,
+            "raw": "2735",
+            "value": "2735",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2738,
+            "raw": "2731",
+            "value": "2731",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2738,
+            "raw": "2735",
+            "value": "2735",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2738,
+            "raw": "27351",
+            "value": "2735",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2738,
+            "raw": "275",
+            "value": "275",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2738,
+            "raw": "2731",
+            "value": "2731",
+            "exact": false
+          }
+        },
+        "opponentTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2438,
+            "raw": "243811501",
+            "value": "2438",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2438,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2438,
+            "raw": "4 24981501",
+            "value": "4",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2438,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2438,
+            "raw": "243817507",
+            "value": "2438",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2438,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2438,
+            "raw": "243615011",
+            "value": "2436",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-03",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2438,
+            "raw": "",
+            "value": "",
+            "exact": false
+          }
+        }
+      },
+      "regions": {
+        "localScore": [
+          0.16406,
+          0.33201,
+          0.41602,
+          0.40139
+        ],
+        "opponentScore": [
+          0.58138,
+          0.33201,
+          0.81315,
+          0.40139
+        ],
+        "localTrophies": [
+          0.11263,
+          0.18533,
+          0.21745,
+          0.25966
+        ],
+        "opponentTrophies": [
+          0.66992,
+          0.18533,
+          0.76497,
+          0.25966
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 652.0,
+          "y0": 358.0,
+          "x1": 881.0,
+          "y1": 383.0
+        },
+        "losp": {
+          "x0": 204.0,
+          "y0": 138.0,
+          "x1": 319.0,
+          "y1": 181.0
+        },
+        "opponent": {
+          "x0": 999.0,
+          "y0": 140.0,
+          "x1": 1148.0,
+          "y1": 178.0
+        }
+      }
+    },
+    {
+      "id": "capture-04",
+      "split": "train",
+      "fields": {
+        "localScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localScore",
+            "expected": 319841,
+            "raw": "319847",
+            "value": "319847",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localScore",
+            "expected": 319841,
+            "raw": "19840",
+            "value": "19840",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localScore",
+            "expected": 319841,
+            "raw": "319847",
+            "value": "319847",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localScore",
+            "expected": 319841,
+            "raw": "9840",
+            "value": "9840",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localScore",
+            "expected": 319841,
+            "raw": "319847",
+            "value": "319847",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localScore",
+            "expected": 319841,
+            "raw": "19840",
+            "value": "19840",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localScore",
+            "expected": 319841,
+            "raw": "19841",
+            "value": "19841",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localScore",
+            "expected": 319841,
+            "raw": "984",
+            "value": "984",
+            "exact": false
+          }
+        },
+        "opponentScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 458874,
+            "raw": "4568874",
+            "value": "456887",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 458874,
+            "raw": "458874",
+            "value": "458874",
+            "exact": true
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 458874,
+            "raw": "458874",
+            "value": "458874",
+            "exact": true
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 458874,
+            "raw": "458874",
+            "value": "458874",
+            "exact": true
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 458874,
+            "raw": "458874",
+            "value": "458874",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 458874,
+            "raw": "458874",
+            "value": "458874",
+            "exact": true
+          },
+          "raw-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 458874,
+            "raw": "458874",
+            "value": "458874",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 458874,
+            "raw": "458874",
+            "value": "458874",
+            "exact": true
+          }
+        },
+        "localTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2783,
+            "raw": "2744",
+            "value": "2744",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2783,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2783,
+            "raw": "278",
+            "value": "278",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2783,
+            "raw": "7",
+            "value": "7",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2783,
+            "raw": "2783",
+            "value": "2783",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2783,
+            "raw": "7",
+            "value": "7",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2783,
+            "raw": "2744",
+            "value": "2744",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2783,
+            "raw": "7",
+            "value": "7",
+            "exact": false
+          }
+        },
+        "opponentTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2926,
+            "raw": "2926171",
+            "value": "2926",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2926,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2926,
+            "raw": "4 78",
+            "value": "4",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2926,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2926,
+            "raw": "4 282871",
+            "value": "4",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2926,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2926,
+            "raw": "2 292671",
+            "value": "2",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-04",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2926,
+            "raw": "7",
+            "value": "7",
+            "exact": false
+          }
+        }
+      },
+      "regions": {
+        "localScore": [
+          0.15299,
+          0.33223,
+          0.40495,
+          0.40154
+        ],
+        "opponentScore": [
+          0.56055,
+          0.33223,
+          0.79232,
+          0.40154
+        ],
+        "localTrophies": [
+          0.09635,
+          0.21782,
+          0.20117,
+          0.29263
+        ],
+        "opponentTrophies": [
+          0.66471,
+          0.21782,
+          0.75977,
+          0.29263
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 635.0,
+          "y0": 322.0,
+          "x1": 849.0,
+          "y1": 346.0
+        },
+        "losp": {
+          "x0": 179.0,
+          "y0": 146.0,
+          "x1": 303.0,
+          "y1": 193.0
+        },
+        "opponent": {
+          "x0": 991.0,
+          "y0": 148.0,
+          "x1": 1186.0,
+          "y1": 192.0
+        }
+      }
+    },
+    {
+      "id": "capture-05",
+      "split": "train",
+      "fields": {
+        "localScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localScore",
+            "expected": 340136,
+            "raw": "3401736",
+            "value": "340173",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localScore",
+            "expected": 340136,
+            "raw": "403",
+            "value": "403",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localScore",
+            "expected": 340136,
+            "raw": "340196",
+            "value": "340196",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localScore",
+            "expected": 340136,
+            "raw": "4",
+            "value": "4",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localScore",
+            "expected": 340136,
+            "raw": "840136",
+            "value": "840136",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localScore",
+            "expected": 340136,
+            "raw": "403",
+            "value": "403",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localScore",
+            "expected": 340136,
+            "raw": "340136",
+            "value": "340136",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localScore",
+            "expected": 340136,
+            "raw": "413",
+            "value": "413",
+            "exact": false
+          }
+        },
+        "opponentScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 291856,
+            "raw": "291856",
+            "value": "291856",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 291856,
+            "raw": "231856",
+            "value": "231856",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 291856,
+            "raw": "291856",
+            "value": "291856",
+            "exact": true
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 291856,
+            "raw": "2185",
+            "value": "2185",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 291856,
+            "raw": "291856",
+            "value": "291856",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 291856,
+            "raw": "25",
+            "value": "25",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 291856,
+            "raw": "251856",
+            "value": "251856",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 291856,
+            "raw": "2185",
+            "value": "2185",
+            "exact": false
+          }
+        },
+        "localTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2791,
+            "raw": "2791",
+            "value": "2791",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2791,
+            "raw": "2791",
+            "value": "2791",
+            "exact": true
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2791,
+            "raw": "2791",
+            "value": "2791",
+            "exact": true
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2791,
+            "raw": "27910",
+            "value": "2791",
+            "exact": true
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2791,
+            "raw": "2791",
+            "value": "2791",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2791,
+            "raw": "2791",
+            "value": "2791",
+            "exact": true
+          },
+          "raw-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2791,
+            "raw": "2791",
+            "value": "2791",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2791,
+            "raw": "2791",
+            "value": "2791",
+            "exact": true
+          }
+        },
+        "opponentTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2640,
+            "raw": "26401751",
+            "value": "2640",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2640,
+            "raw": "24075",
+            "value": "2407",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2640,
+            "raw": "26407511",
+            "value": "2640",
+            "exact": true
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2640,
+            "raw": "207",
+            "value": "207",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2640,
+            "raw": "26407511",
+            "value": "2640",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2640,
+            "raw": "264075",
+            "value": "2640",
+            "exact": true
+          },
+          "raw-3x-psm7": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2640,
+            "raw": "26401751",
+            "value": "2640",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-05",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2640,
+            "raw": "2075",
+            "value": "2075",
+            "exact": false
+          }
+        }
+      },
+      "regions": {
+        "localScore": [
+          0.21238,
+          0.32569,
+          0.46455,
+          0.39514
+        ],
+        "opponentScore": [
+          0.58364,
+          0.32569,
+          0.81561,
+          0.39514
+        ],
+        "localTrophies": [
+          0.22886,
+          0.21389,
+          0.33396,
+          0.28889
+        ],
+        "opponentTrophies": [
+          0.66418,
+          0.21389,
+          0.75902,
+          0.28889
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 1520.0,
+          "y0": 501.0,
+          "x1": 1852.0,
+          "y1": 538.0
+        },
+        "losp": {
+          "x0": 801.0,
+          "y0": 226.0,
+          "x1": 1056.0,
+          "y1": 300.0
+        },
+        "opponent": {
+          "x0": 2072.0,
+          "y0": 230.0,
+          "x1": 2504.0,
+          "y1": 299.0
+        }
+      }
+    },
+    {
+      "id": "capture-06",
+      "split": "train",
+      "fields": {
+        "localScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localScore",
+            "expected": 366816,
+            "raw": "366816",
+            "value": "366816",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localScore",
+            "expected": 366816,
+            "raw": "66816",
+            "value": "66816",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localScore",
+            "expected": 366816,
+            "raw": "846566816",
+            "value": "846566",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localScore",
+            "expected": 366816,
+            "raw": "866681",
+            "value": "866681",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localScore",
+            "expected": 366816,
+            "raw": "66816",
+            "value": "66816",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localScore",
+            "expected": 366816,
+            "raw": "61",
+            "value": "61",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localScore",
+            "expected": 366816,
+            "raw": "366816",
+            "value": "366816",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localScore",
+            "expected": 366816,
+            "raw": "6681",
+            "value": "6681",
+            "exact": false
+          }
+        },
+        "opponentScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 168062,
+            "raw": "0627",
+            "value": "0627",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 168062,
+            "raw": "680627",
+            "value": "680627",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 168062,
+            "raw": "168062",
+            "value": "168062",
+            "exact": true
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 168062,
+            "raw": "680620",
+            "value": "680620",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 168062,
+            "raw": "062",
+            "value": "062",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 168062,
+            "raw": "6062",
+            "value": "6062",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 168062,
+            "raw": "027",
+            "value": "027",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 168062,
+            "raw": "680627",
+            "value": "680627",
+            "exact": false
+          }
+        },
+        "localTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2414,
+            "raw": "2414",
+            "value": "2414",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2414,
+            "raw": "244",
+            "value": "244",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2414,
+            "raw": "7414",
+            "value": "7414",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2414,
+            "raw": "744",
+            "value": "744",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2414,
+            "raw": "7414",
+            "value": "7414",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2414,
+            "raw": "244",
+            "value": "244",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2414,
+            "raw": "2414",
+            "value": "2414",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2414,
+            "raw": "244",
+            "value": "244",
+            "exact": false
+          }
+        },
+        "opponentTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2264,
+            "raw": "2264751",
+            "value": "2264",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2264,
+            "raw": "22841751",
+            "value": "2284",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2264,
+            "raw": "2475",
+            "value": "2475",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2264,
+            "raw": "751",
+            "value": "751",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2264,
+            "raw": "225875",
+            "value": "2258",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2264,
+            "raw": "7",
+            "value": "7",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2264,
+            "raw": "2264751",
+            "value": "2264",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-06",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2264,
+            "raw": "228478",
+            "value": "2284",
+            "exact": false
+          }
+        }
+      },
+      "regions": {
+        "localScore": [
+          0.18685,
+          0.32562,
+          0.4388,
+          0.39508
+        ],
+        "opponentScore": [
+          0.55924,
+          0.32562,
+          0.79102,
+          0.39508
+        ],
+        "localTrophies": [
+          0.1862,
+          0.21274,
+          0.29102,
+          0.28654
+        ],
+        "opponentTrophies": [
+          0.63997,
+          0.21274,
+          0.73503,
+          0.28654
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 687.0,
+          "y0": 240.0,
+          "x1": 847.0,
+          "y1": 259.0
+        },
+        "losp": {
+          "x0": 317.0,
+          "y0": 110.0,
+          "x1": 403.0,
+          "y1": 143.0
+        },
+        "opponent": {
+          "x0": 953.0,
+          "y0": 110.0,
+          "x1": 1218.0,
+          "y1": 150.0
+        }
+      }
+    },
+    {
+      "id": "capture-07",
+      "split": "train",
+      "fields": {
+        "localScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localScore",
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localScore",
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localScore",
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localScore",
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localScore",
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localScore",
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          },
+          "raw-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localScore",
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localScore",
+            "expected": 297706,
+            "raw": "297706",
+            "value": "297706",
+            "exact": true
+          }
+        },
+        "opponentScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 439960,
+            "raw": "439360",
+            "value": "439360",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 439960,
+            "raw": "439360",
+            "value": "439360",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 439960,
+            "raw": "439360",
+            "value": "439360",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 439960,
+            "raw": "439360",
+            "value": "439360",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 439960,
+            "raw": "439560",
+            "value": "439560",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 439960,
+            "raw": "439360",
+            "value": "439360",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 439960,
+            "raw": "439360",
+            "value": "439360",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentScore",
+            "expected": 439960,
+            "raw": "439360",
+            "value": "439360",
+            "exact": false
+          }
+        },
+        "localTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "localTrophies",
+            "expected": 2663,
+            "raw": "266",
+            "value": "266",
+            "exact": false
+          }
+        },
+        "opponentTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2814,
+            "raw": "2814751",
+            "value": "2814",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2814,
+            "raw": "76",
+            "value": "76",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2814,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2814,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2814,
+            "raw": "281475",
+            "value": "2814",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2814,
+            "raw": "76",
+            "value": "76",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2814,
+            "raw": "4 2814175",
+            "value": "4",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-07",
+            "split": "train",
+            "field": "opponentTrophies",
+            "expected": 2814,
+            "raw": "75",
+            "value": "75",
+            "exact": false
+          }
+        }
+      },
+      "regions": {
+        "localScore": [
+          0.16406,
+          0.33201,
+          0.41602,
+          0.40139
+        ],
+        "opponentScore": [
+          0.58138,
+          0.33201,
+          0.81315,
+          0.40139
+        ],
+        "localTrophies": [
+          0.11263,
+          0.18533,
+          0.21745,
+          0.25966
+        ],
+        "opponentTrophies": [
+          0.66992,
+          0.18533,
+          0.76497,
+          0.25966
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 652.0,
+          "y0": 358.0,
+          "x1": 881.0,
+          "y1": 383.0
+        },
+        "losp": {
+          "x0": 204.0,
+          "y0": 138.0,
+          "x1": 319.0,
+          "y1": 181.0
+        },
+        "opponent": {
+          "x0": 999.0,
+          "y0": 139.0,
+          "x1": 1203.0,
+          "y1": 176.0
+        }
+      }
+    },
+    {
+      "id": "capture-08",
+      "split": "holdout",
+      "fields": {
+        "localScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 371356,
+            "raw": "71356",
+            "value": "71356",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 371356,
+            "raw": "5",
+            "value": "5",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 371356,
+            "raw": "7156",
+            "value": "7156",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 371356,
+            "raw": "735",
+            "value": "735",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 371356,
+            "raw": "1471356",
+            "value": "147135",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 371356,
+            "raw": "15",
+            "value": "15",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 371356,
+            "raw": "371356",
+            "value": "371356",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 371356,
+            "raw": "05",
+            "value": "05",
+            "exact": false
+          }
+        },
+        "opponentScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 284300,
+            "raw": "284300",
+            "value": "284300",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 284300,
+            "raw": "284300",
+            "value": "284300",
+            "exact": true
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 284300,
+            "raw": "284300",
+            "value": "284300",
+            "exact": true
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 284300,
+            "raw": "284300",
+            "value": "284300",
+            "exact": true
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 284300,
+            "raw": "244300",
+            "value": "244300",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 284300,
+            "raw": "284300",
+            "value": "284300",
+            "exact": true
+          },
+          "raw-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 284300,
+            "raw": "284300",
+            "value": "284300",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 284300,
+            "raw": "284300",
+            "value": "284300",
+            "exact": true
+          }
+        },
+        "localTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2858,
+            "raw": "2858",
+            "value": "2858",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2858,
+            "raw": "85",
+            "value": "85",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2858,
+            "raw": "2858",
+            "value": "2858",
+            "exact": true
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2858,
+            "raw": "85",
+            "value": "85",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2858,
+            "raw": "2858",
+            "value": "2858",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2858,
+            "raw": "85",
+            "value": "85",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2858,
+            "raw": "2858",
+            "value": "2858",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2858,
+            "raw": "85",
+            "value": "85",
+            "exact": false
+          }
+        },
+        "opponentTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2708,
+            "raw": "2708175",
+            "value": "2708",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2708,
+            "raw": "75",
+            "value": "75",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2708,
+            "raw": "4 2708175",
+            "value": "4",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2708,
+            "raw": "75",
+            "value": "75",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2708,
+            "raw": "2708175",
+            "value": "2708",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2708,
+            "raw": "078",
+            "value": "078",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2708,
+            "raw": "270875",
+            "value": "2708",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-08",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2708,
+            "raw": "75",
+            "value": "75",
+            "exact": false
+          }
+        }
+      },
+      "regions": {
+        "localScore": [
+          0.16016,
+          0.29398,
+          0.41211,
+          0.36482
+        ],
+        "opponentScore": [
+          0.5625,
+          0.29398,
+          0.79427,
+          0.36482
+        ],
+        "localTrophies": [
+          0.11393,
+          0.17591,
+          0.21875,
+          0.2503
+        ],
+        "opponentTrophies": [
+          0.66276,
+          0.17591,
+          0.75781,
+          0.2503
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 646.0,
+          "y0": 268.0,
+          "x1": 852.0,
+          "y1": 291.0
+        },
+        "losp": {
+          "x0": 206.0,
+          "y0": 98.0,
+          "x1": 326.0,
+          "y1": 144.0
+        },
+        "opponent": {
+          "x0": 988.0,
+          "y0": 98.0,
+          "x1": 1153.0,
+          "y1": 143.0
+        }
+      }
+    },
+    {
+      "id": "capture-09",
+      "split": "holdout",
+      "fields": {
+        "localScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 348354,
+            "raw": "348354",
+            "value": "348354",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 348354,
+            "raw": "348954",
+            "value": "348954",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 348354,
+            "raw": "38848954",
+            "value": "388489",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 348354,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 348354,
+            "raw": "848554",
+            "value": "848554",
+            "exact": false
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 348354,
+            "raw": "48954",
+            "value": "48954",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 348354,
+            "raw": "348354",
+            "value": "348354",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localScore",
+            "expected": 348354,
+            "raw": "48954",
+            "value": "48954",
+            "exact": false
+          }
+        },
+        "opponentScore": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 481264,
+            "raw": "481264",
+            "value": "481264",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 481264,
+            "raw": "24",
+            "value": "24",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 481264,
+            "raw": "481264",
+            "value": "481264",
+            "exact": true
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 481264,
+            "raw": "24",
+            "value": "24",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 481264,
+            "raw": "481264",
+            "value": "481264",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 481264,
+            "raw": "24",
+            "value": "24",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 481264,
+            "raw": "481264",
+            "value": "481264",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentScore",
+            "expected": 481264,
+            "raw": "24",
+            "value": "24",
+            "exact": false
+          }
+        },
+        "localTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2715,
+            "raw": "25",
+            "value": "25",
+            "exact": false
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2715,
+            "raw": "2715",
+            "value": "2715",
+            "exact": true
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2715,
+            "raw": "2715",
+            "value": "2715",
+            "exact": true
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2715,
+            "raw": "2715",
+            "value": "2715",
+            "exact": true
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2715,
+            "raw": "2715",
+            "value": "2715",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2715,
+            "raw": "2715",
+            "value": "2715",
+            "exact": true
+          },
+          "raw-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2715,
+            "raw": "25",
+            "value": "25",
+            "exact": false
+          },
+          "raw-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "localTrophies",
+            "expected": 2715,
+            "raw": "2715",
+            "value": "2715",
+            "exact": true
+          }
+        },
+        "opponentTrophies": {
+          "gray-contrast-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2864,
+            "raw": "2864176",
+            "value": "2864",
+            "exact": true
+          },
+          "gray-contrast-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2864,
+            "raw": "0070",
+            "value": "0070",
+            "exact": false
+          },
+          "color-key-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2864,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "color-key-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2864,
+            "raw": "",
+            "value": "",
+            "exact": false
+          },
+          "otsu-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2864,
+            "raw": "2864176",
+            "value": "2864",
+            "exact": true
+          },
+          "otsu-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2864,
+            "raw": "07",
+            "value": "07",
+            "exact": false
+          },
+          "raw-3x-psm7": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2864,
+            "raw": "286476",
+            "value": "2864",
+            "exact": true
+          },
+          "raw-3x-psm8": {
+            "id": "capture-09",
+            "split": "holdout",
+            "field": "opponentTrophies",
+            "expected": 2864,
+            "raw": "0070",
+            "value": "0070",
+            "exact": false
+          }
+        }
+      },
+      "regions": {
+        "localScore": [
+          0.21238,
+          0.32569,
+          0.46455,
+          0.39514
+        ],
+        "opponentScore": [
+          0.58364,
+          0.32569,
+          0.81561,
+          0.39514
+        ],
+        "localTrophies": [
+          0.22886,
+          0.21389,
+          0.33396,
+          0.28889
+        ],
+        "opponentTrophies": [
+          0.6334,
+          0.21389,
+          0.72823,
+          0.28889
+        ]
+      },
+      "anchors": {
+        "scoreLabel": {
+          "x0": 1520.0,
+          "y0": 501.0,
+          "x1": 1852.0,
+          "y1": 538.0
+        },
+        "losp": {
+          "x0": 801.0,
+          "y0": 226.0,
+          "x1": 981.0,
+          "y1": 300.0
+        },
+        "opponent": {
+          "x0": 1973.0,
+          "y0": 296.0,
+          "x1": 1998.0,
+          "y1": 326.0
+        }
+      }
+    }
+  ],
+  "elapsedMs": 43265.9
+}

@@ -1,0 +1,1318 @@
+{
+  "schemaVersion": "1.0.0",
+  "engine": "Tesseract.js 7.0.0 in Node.js v24.22.1; local traineddata; not a browser test",
+  "measurements": {
+    "startupMs": 306,
+    "meanRecognitionPassMs": 537,
+    "totalPasses": 18,
+    "elapsedMs": 10220,
+    "peakMemoryRssMb": 176
+  },
+  "captures": [
+    {
+      "id": "capture-01",
+      "split": "train",
+      "width": 1536,
+      "height": 691,
+      "passes": {
+        "psm6": {
+          "text": "                             VICTOIRE [GUERRE)\nLOSP 00s   GY       or   BBA.\nP2778 ([[+75]]           wy)                2          WP ze27 0750\ns\\ r\\ Je 411597               POINTS DE GUERRE                257 149\nWh *\\   4261804  Puintsnec.asseMeNt |i| 2406 915\n%  4       \\                   ki                  MVP                  Cobalt                   Dine |\n v         Vz é                       12                     Attaques terminées         840 jetons de guerre                              3\n“a                               142                     Défenses restantes          500 jetons de guerre\nRee\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "00s GY",
+                "confidence": 26,
+                "source": "same-row-after-LoSP",
+                "uncertain": true
+              },
+              "opponentAlliance": {
+                "value": "BBA.",
+                "confidence": 94,
+                "source": "same-row-right-side",
+                "uncertain": false
+              },
+              "localScore": {
+                "value": "411597",
+                "confidence": 78,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "opponentScore": {
+                "value": "257149",
+                "confidence": 77,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "opponentTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "00s GY",
+              "opponentAlliance": "BBA.",
+              "localScore": "411597",
+              "opponentScore": "257149",
+              "localTrophies": "",
+              "opponentTrophies": "",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "BBA.",
+              "matchKey": "bba",
+              "uncertain": false
+            },
+            "warnings": [
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        },
+        "psm11": {
+          "text": "\\ WIETOIRE (GUERRE] /\n\nB.B.A\n\nLoSP Kronos\n\n92778 ({-75]]\n\nCY\n\nWD 2027 0-750\n\ni\n\n=\n\n411597\n\nPOINTS DE GUERRE\n\n257 149\n\n4 261 804\n\nPOINTSDECLASSEMENT ||| 2 406 915\n\n% é\n\nFki\n\nMVP\n\nCobalt\n\nwW\n\na\n\n12\n\nAttaques terminées\n\n840 jetons de guerre\n\n142\n\nDéfenses restantes\n\n500 jetons de guerre\n\nQe  XG04) K  e K\n\nEE LL oe\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "Kronos",
+                "confidence": 96,
+                "source": "same-row-after-LoSP",
+                "uncertain": false
+              },
+              "opponentAlliance": {
+                "value": "B.B.A",
+                "confidence": 29,
+                "source": "same-row-right-side",
+                "uncertain": true
+              },
+              "localScore": {
+                "value": "411597",
+                "confidence": 94,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "opponentScore": {
+                "value": "257149",
+                "confidence": 80,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "2778",
+                "confidence": 28,
+                "source": "trophy-header-joined-glyph",
+                "uncertain": true
+              },
+              "opponentTrophies": {
+                "value": "2027",
+                "confidence": 20,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "Kronos",
+              "opponentAlliance": "B.B.A",
+              "localScore": "411597",
+              "opponentScore": "257149",
+              "localTrophies": "2778",
+              "opponentTrophies": "2027",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "B.B.A",
+              "matchKey": "b b a",
+              "uncertain": true
+            },
+            "warnings": [
+              "opponent_alliance_uncertain",
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        }
+      }
+    },
+    {
+      "id": "capture-02",
+      "split": "train",
+      "width": 1800,
+      "height": 806,
+      "passes": {
+        "psm6": {
+          "text": "VIETOIRE (GUERRE]\nLoSP Athena  Oe     Si  Allspark X-Men\nP2792 if [ +56]]       WJ P            ae   WD zen00-s80\n7          343 311      POINTS DE GUERRE       314 689         —_—\nTe SO 3560717 rowrsoecussement |) = 2945 489    Y ay\nK At } A         Zaraheo             MVP             Demolition      ‘ At   hy\n: <    /         13       Attaquesterminées 910 jetons de guerre       ‘     D4\nf                                 Ng                    wr restantes          a mea                  cal\nRee\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "Athena",
+                "confidence": 96,
+                "source": "same-row-after-LoSP",
+                "uncertain": false
+              },
+              "opponentAlliance": {
+                "value": "Allspark X-Men",
+                "confidence": 96,
+                "source": "same-row-right-side",
+                "uncertain": false
+              },
+              "localScore": {
+                "value": "343311",
+                "confidence": 66,
+                "source": "points-row",
+                "uncertain": true
+              },
+              "opponentScore": {
+                "value": "314689",
+                "confidence": 88,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "opponentTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "Athena",
+              "opponentAlliance": "Allspark X-Men",
+              "localScore": "343311",
+              "opponentScore": "314689",
+              "localTrophies": "",
+              "opponentTrophies": "",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "Allspark X-Men",
+              "matchKey": "allspark x men",
+              "uncertain": false
+            },
+            "warnings": [
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        },
+        "psm11": {
+          "text": "\\ WETOIRE (GUERRE] /\n\nLoSP Athena\n\nAllspark X-Men\n\nWD zen00-s80\n\n2792 [[+56)]\n\nwy Gy\n\n343 31\n\nPOINTS DE GUERRE\n\n314 689\n\n9 560 117\n\nPOINTSDECLASSEMENT ||| 2945 489\n\nip\n\nZaraheo\n\nMVP\n\nDemolitionH\n\nvax\n\n17\n\nAttaques terminées\n\n910 jetons de querre\n\nNd\n\nDefenses restantes\n\nea\n\n500 jetons de guerre\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "Athena",
+                "confidence": 95,
+                "source": "same-row-after-LoSP",
+                "uncertain": false
+              },
+              "opponentAlliance": {
+                "value": "Allspark X-Men",
+                "confidence": 96,
+                "source": "same-row-right-side",
+                "uncertain": false
+              },
+              "localScore": {
+                "value": "",
+                "confidence": null,
+                "source": "points-row",
+                "uncertain": true
+              },
+              "opponentScore": {
+                "value": "314689",
+                "confidence": 79,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "opponentTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "Athena",
+              "opponentAlliance": "Allspark X-Men",
+              "localScore": "",
+              "opponentScore": "314689",
+              "localTrophies": "",
+              "opponentTrophies": "",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "Allspark X-Men",
+              "matchKey": "allspark x men",
+              "uncertain": false
+            },
+            "warnings": [
+              "score_missing_or_invalid",
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        }
+      }
+    },
+    {
+      "id": "capture-03",
+      "split": "train",
+      "width": 1536,
+      "height": 1009,
+      "passes": {
+        "psm6": {
+          "text": "\\ WIETOIRE (GUERRE]                 |\nLoSP lionysos     2\"   German Avenger's\nP27. 38 if [ +50] ] Le La         \"      \\ d 2436 [1-150]\nUG.      , ~ J69 492          POINTS DE GUERRE          1539 303        or\nA aS  ea   3763306 Pontsoeciassement || 74394916 = Mee\nb> \\        DAY          Spidey                MVP                Todeshringer       4   4\nNa a  ds                4              Attaques terminées      280 jetons de guerre           \\y        ‘\n7         :                 194                   Défensesrestantes 500 jetons de guerre                        z\nQe@e\n|  y100 a4 xa04aK |\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "",
+                "confidence": null,
+                "source": "same-row-after-LoSP",
+                "uncertain": true
+              },
+              "opponentAlliance": {
+                "value": "German Avenger's",
+                "confidence": 88,
+                "source": "same-row-right-side",
+                "uncertain": false
+              },
+              "localScore": {
+                "value": "",
+                "confidence": null,
+                "source": "points-row",
+                "uncertain": true
+              },
+              "opponentScore": {
+                "value": "",
+                "confidence": null,
+                "source": "points-row",
+                "uncertain": true
+              },
+              "localTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "opponentTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "",
+              "opponentAlliance": "German Avenger's",
+              "localScore": "",
+              "opponentScore": "",
+              "localTrophies": "",
+              "opponentTrophies": "",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "German Avenger's",
+              "matchKey": "german avenger s",
+              "uncertain": false
+            },
+            "warnings": [
+              "score_missing_or_invalid",
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        },
+        "psm11": {
+          "text": "\\ WIETOIRE (GUERRE] ,\n\nLoSP fionysos\n\nGerman Avenger's\n\n©\n\n227398 [[+150)]\n\nOy\n\n\\ d 2438 [f-150]]\n\nJ63 432\n\nPOINTS DE GUERRE\n\n153 307\n\n3 763 306\n\nPOINTS DE CLASSEMENT | j |\n\n1434 SIG\n\n@)\n\nIe\n\nMVP\n\na.)\n\nay\n\nSpidey\n\nTodesbringer\n\naM\n\na\n\n4\n\nAttaques terminées\n\n280 jetons de guerre\n\nDéfenses restantes\n\nv\n\n’\n\n194\n\n500 jetons de guerre\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "",
+                "confidence": null,
+                "source": "same-row-after-LoSP",
+                "uncertain": true
+              },
+              "opponentAlliance": {
+                "value": "German Avenger's",
+                "confidence": 77,
+                "source": "same-row-right-side",
+                "uncertain": false
+              },
+              "localScore": {
+                "value": "",
+                "confidence": null,
+                "source": "points-row",
+                "uncertain": true
+              },
+              "opponentScore": {
+                "value": "153307",
+                "confidence": 70,
+                "source": "points-row",
+                "uncertain": true
+              },
+              "localTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "opponentTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "",
+              "opponentAlliance": "German Avenger's",
+              "localScore": "",
+              "opponentScore": "153307",
+              "localTrophies": "",
+              "opponentTrophies": "",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "German Avenger's",
+              "matchKey": "german avenger s",
+              "uncertain": false
+            },
+            "warnings": [
+              "score_missing_or_invalid",
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        }
+      }
+    },
+    {
+      "id": "capture-04",
+      "split": "train",
+      "width": 1536,
+      "height": 909,
+      "passes": {
+        "psm6": {
+          "text": "LoSP oe           ¢      \\60   INFINITY X\n\n2783 [[-71]]     of      i 2 GL)\n\noe         319 841        POINTS DE GUERRE         458 874                uF\n\n}  yury      2993 71Z POINTS DE CLASSEMENT (i)    4756 722     oe SC\n<    J            Tauhawk              MVP              /BurnThings       er   S\n\nec) y         14       Attaquesterminées 980 jetons de querre       .    : A\n\nns af                  16                       Défenses restantes           80 jetons de guerre                    a\n\nXFZ00 xXd2Z0K xd2Z0K\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "¢",
+                "confidence": 56,
+                "source": "same-row-after-LoSP",
+                "uncertain": false
+              },
+              "opponentAlliance": {
+                "value": "INFINITY X",
+                "confidence": 93,
+                "source": "same-row-right-side",
+                "uncertain": false
+              },
+              "localScore": {
+                "value": "319841",
+                "confidence": 85,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "opponentScore": {
+                "value": "458874",
+                "confidence": 85,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "opponentTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "¢",
+              "opponentAlliance": "INFINITY X",
+              "localScore": "319841",
+              "opponentScore": "458874",
+              "localTrophies": "",
+              "opponentTrophies": "",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "INFINITY X",
+              "matchKey": "infinity x",
+              "uncertain": false
+            },
+            "warnings": [
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        },
+        "psm11": {
+          "text": "DEFAITE [GUERREJ\n\nLoSP Kronos\n\nINFINITY X\n\n‘Y 2783 (f-71)]\n\nCY\n\nWD eeze 0-710\n\n319 841\n\nPOINTS DE GUERRE\n\n458 874\n\nj\n\nea\n\n2993 712\n\nPOINTS DECLASSEMENT | j |\n\n4756 722\n\nmas\n\n&\n\nTauhawk\n\nMVP\n\n/BurnThings\n\n14\n\nAttaques terminées\n\n980 jetons de guerre\n\n16\n\nDefenses restantes\n\n80 jetons de guerre\n\nSRY\n\nDOE\n\nXIZ0K\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "Kronos",
+                "confidence": 96,
+                "source": "same-row-after-LoSP",
+                "uncertain": false
+              },
+              "opponentAlliance": {
+                "value": "INFINITY X",
+                "confidence": 91,
+                "source": "same-row-right-side",
+                "uncertain": false
+              },
+              "localScore": {
+                "value": "319841",
+                "confidence": 62,
+                "source": "points-row",
+                "uncertain": true
+              },
+              "opponentScore": {
+                "value": "458874",
+                "confidence": 93,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "2783",
+                "confidence": 93,
+                "source": "trophy-header-row",
+                "uncertain": false
+              },
+              "opponentTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "Kronos",
+              "opponentAlliance": "INFINITY X",
+              "localScore": "319841",
+              "opponentScore": "458874",
+              "localTrophies": "2783",
+              "opponentTrophies": "",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "INFINITY X",
+              "matchKey": "infinity x",
+              "uncertain": false
+            },
+            "warnings": [
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        }
+      }
+    },
+    {
+      "id": "capture-05",
+      "split": "train",
+      "width": 1800,
+      "height": 806,
+      "passes": {
+        "psm6": {
+          "text": "VICTOIRE (GUERRE]            |\nLoSP Athena    Oe          Sy    HYPERACTIF\nP2791  if [- +7; 5]                WJ  2                       Sa¢       WD 250000750\n7                    340 136              POINTS DE GUERRE              291856                       =\nTe Son          35278539 POINTS DECLASSEMENT  (iJ        27351772         \\\na                Zaraheo                        MVP                        Aula\n2   <                       1Z                  Attaques terminées        910 jetons de guerre\n94                    Défenses restantes         470 jetons de guerre\nRee\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "Athena",
+                "confidence": 96,
+                "source": "same-row-after-LoSP",
+                "uncertain": false
+              },
+              "opponentAlliance": {
+                "value": "HYPERACTIF",
+                "confidence": 86,
+                "source": "same-row-right-side",
+                "uncertain": false
+              },
+              "localScore": {
+                "value": "340136",
+                "confidence": 87,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "opponentScore": {
+                "value": "291856",
+                "confidence": 95,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "opponentTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "Athena",
+              "opponentAlliance": "HYPERACTIF",
+              "localScore": "340136",
+              "opponentScore": "291856",
+              "localTrophies": "",
+              "opponentTrophies": "",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "HYPERACTIF",
+              "matchKey": "hyperactif",
+              "uncertain": false
+            },
+            "warnings": [
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        },
+        "psm11": {
+          "text": "\\ WETOIRE (GUERRE] /\n\nLoSP Athena\n\nHYPERACTIF\n\nP2791 (f+75)]\n\nRy\n\nWD 250000750\n\n940 136\n\nPOINTS DE GUERRE\n\n291 856\n\n95278539\n\n\\\n\nip\n\nZaraheo\n\nPOINTS DECLASSEMENT ||| 2797772\n\nMVP\n\nAyla\n\n17\n\nAttaques terminées\n\n910 jetons de querre\n\n54\n\nDefenses restantes\n\n470 jetons de guerre\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "Athena",
+                "confidence": 96,
+                "source": "same-row-after-LoSP",
+                "uncertain": false
+              },
+              "opponentAlliance": {
+                "value": "HYPERACTIF",
+                "confidence": 60,
+                "source": "same-row-right-side",
+                "uncertain": false
+              },
+              "localScore": {
+                "value": "940136",
+                "confidence": 73,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "opponentScore": {
+                "value": "291856",
+                "confidence": 70,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "opponentTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "Athena",
+              "opponentAlliance": "HYPERACTIF",
+              "localScore": "940136",
+              "opponentScore": "291856",
+              "localTrophies": "",
+              "opponentTrophies": "",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "HYPERACTIF",
+              "matchKey": "hyperactif",
+              "uncertain": false
+            },
+            "warnings": [
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        }
+      }
+    },
+    {
+      "id": "capture-06",
+      "split": "train",
+      "width": 1536,
+      "height": 691,
+      "passes": {
+        "psm6": {
+          "text": "                             VICTOIRE\nLoSP Poseidon   (Or      2   SpaceEmperors\nP72. 4 I 4 if [ +7) LAL         oka              .         yp 2284 [1-751]\n\n366 816               POINTS DE GUERRE               168 062                    pe 5)\nOa, 3792483  roirsoeciassement |i) 7579060 |  < a\n‘i |           jay              Mv              _TUINA..          (=)\n) SY:                  2                  Attaquesterminées 140 jetons de guerre                  eet\n\n118        Défenses restantes    500 jetons de guerre         =\nQeo@\nyI000 XZBBK x26BK\nGe        LL ee\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "Poseidon",
+                "confidence": 74,
+                "source": "same-row-after-LoSP",
+                "uncertain": false
+              },
+              "opponentAlliance": {
+                "value": "SpaceEmperors",
+                "confidence": 91,
+                "source": "same-row-right-side",
+                "uncertain": false
+              },
+              "localScore": {
+                "value": "366816",
+                "confidence": 67,
+                "source": "points-row",
+                "uncertain": true
+              },
+              "opponentScore": {
+                "value": "168062",
+                "confidence": 91,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "opponentTrophies": {
+                "value": "2284",
+                "confidence": 81,
+                "source": "trophy-header-row",
+                "uncertain": false
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "Poseidon",
+              "opponentAlliance": "SpaceEmperors",
+              "localScore": "366816",
+              "opponentScore": "168062",
+              "localTrophies": "",
+              "opponentTrophies": "2284",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "SpaceEmperors",
+              "matchKey": "spaceemperors",
+              "uncertain": false
+            },
+            "warnings": [
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        },
+        "psm11": {
+          "text": "(éu\n\nF\n\nVICTOIRE\n\nLoSP Poseidon\n\nSpaceEmperors\n\nY2414 [[+75]]\n\nO\n\nDP 2268 0-750\n\n366 G16\n\nPOINTS DE GUERRE\n\n168 062\n\nSr\n\n“ 3792483\n\nPOINTS DE CLASSEMENT | j |\n\n1573 O60\n\nNY\n\nv\n\njay\n\nMVP\n\n—TUINA_\n\nNa\n\n=\n\n4\n\nAttaques terminées\n\n740 jetons de guerre\n\n1a\n\nDéfenses restantes\n\n400 jetons de guerre\n\nZt\n\n_\n\n®\n\nF000 xZ6BK\n\naa\n\n~~\n\nLL ee\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "Poseidon",
+                "confidence": 52,
+                "source": "same-row-after-LoSP",
+                "uncertain": true
+              },
+              "opponentAlliance": {
+                "value": "SpaceEmperors",
+                "confidence": 89,
+                "source": "same-row-right-side",
+                "uncertain": false
+              },
+              "localScore": {
+                "value": "",
+                "confidence": null,
+                "source": "points-row",
+                "uncertain": true
+              },
+              "opponentScore": {
+                "value": "168062",
+                "confidence": 93,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "opponentTrophies": {
+                "value": "2268",
+                "confidence": 34,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "Poseidon",
+              "opponentAlliance": "SpaceEmperors",
+              "localScore": "",
+              "opponentScore": "168062",
+              "localTrophies": "",
+              "opponentTrophies": "2268",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "SpaceEmperors",
+              "matchKey": "spaceemperors",
+              "uncertain": false
+            },
+            "warnings": [
+              "score_missing_or_invalid",
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        }
+      }
+    },
+    {
+      "id": "capture-07",
+      "split": "train",
+      "width": 1536,
+      "height": 1009,
+      "passes": {
+        "psm6": {
+          "text": "DEFAITE (GUERRE]\nLoSP Dionysos              g   STON LEE’S MISFITS\nY 2663 [[-75]]      ¢           Re WP eee\n7                      297706               POINTS DE GUERRE                439 960             ey            “\nI    { Aa          2786528 PontsoeciasseMent || 4552100            Ow\neh |                   Fge                    MVP                    Domwazheere7zo “ » wid\n,                          17                   Attaques terminées         910 jetons de querre             \\              4\ndZ                    Défenses restantes         320 jetons de guerre                 agg\n@O@oe\nXdTO0 §=xXs04K §xs04K\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "Dionysos",
+                "confidence": 53,
+                "source": "same-row-after-LoSP",
+                "uncertain": true
+              },
+              "opponentAlliance": {
+                "value": "STON LEE’S MISFITS",
+                "confidence": 77,
+                "source": "same-row-right-side",
+                "uncertain": false
+              },
+              "localScore": {
+                "value": "297706",
+                "confidence": 88,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "opponentScore": {
+                "value": "439960",
+                "confidence": 91,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "2663",
+                "confidence": 79,
+                "source": "trophy-header-row",
+                "uncertain": false
+              },
+              "opponentTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "Dionysos",
+              "opponentAlliance": "STON LEE’S MISFITS",
+              "localScore": "297706",
+              "opponentScore": "439960",
+              "localTrophies": "2663",
+              "opponentTrophies": "",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "STON LEE’S MISFITS",
+              "matchKey": "ston lee s misfits",
+              "uncertain": false
+            },
+            "warnings": [
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        },
+        "psm11": {
+          "text": "_ DEFAITE [GUERREJ\n\nSTON LEE’S MISFITS\n\nLoSP fionysos\n\nY 2663 [[-75]]\n\nOm @\n\nWP zens t-750\n\n297 706\n\nPOINTS DE GUERRE\n\n439 560\n\n2 786 528\n\nPOINTSDECLASSEMENT || 4552700\n\nPeay\n\nindie\n\nFilge\n\nMVP\n\nDomwazheere7Z20\n\nann\n\n17\n\nAttaques terminées\n\n910 jetons de guerre\n\nJ\n\nSey Ay\n\nJZ\n\nDéfenses restantes\n\n320 jetons de guerre\n\n eee\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "",
+                "confidence": null,
+                "source": "same-row-after-LoSP",
+                "uncertain": true
+              },
+              "opponentAlliance": {
+                "value": "LEE’S MISFITS",
+                "confidence": 87,
+                "source": "same-row-right-side",
+                "uncertain": false
+              },
+              "localScore": {
+                "value": "297706",
+                "confidence": 83,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "opponentScore": {
+                "value": "439560",
+                "confidence": 81,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "2663",
+                "confidence": 89,
+                "source": "trophy-header-row",
+                "uncertain": false
+              },
+              "opponentTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "",
+              "opponentAlliance": "LEE’S MISFITS",
+              "localScore": "297706",
+              "opponentScore": "439560",
+              "localTrophies": "2663",
+              "opponentTrophies": "",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "LEE’S MISFITS",
+              "matchKey": "lee s misfits",
+              "uncertain": false
+            },
+            "warnings": [
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        }
+      }
+    },
+    {
+      "id": "capture-08",
+      "split": "holdout",
+      "width": 1536,
+      "height": 847,
+      "passes": {
+        "psm6": {
+          "text": "MIB IOIKE (OULKKES\nLaSP Kronos      YY               ¢ Blurred Vision\nP2858 if [ +75 | J      a yD           DP eros t-rs\ns\\ 7 \\ fe I71956      POINTS DE GUERRE      284 300\na ,  Ne 3848408 rowrsoeciassement |; 2667048\nAWey!                 -_                                         :\na        Aq 1             Eki               MVP               HonestVoid\nSS       J            y4          Attaquesterminées 840 jetons de guerre          1\nb\"                          97                  Défenses restantes        500 jetons de guerre                wen\n| OD\nxXFZ200 xXIZ0K xXaZ0K\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "",
+                "confidence": null,
+                "source": "top-header",
+                "uncertain": true
+              },
+              "opponentAlliance": {
+                "value": "",
+                "confidence": null,
+                "source": "top-header",
+                "uncertain": true
+              },
+              "localScore": {
+                "value": "",
+                "confidence": null,
+                "source": "points-row",
+                "uncertain": true
+              },
+              "opponentScore": {
+                "value": "284300",
+                "confidence": 92,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "opponentTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "",
+              "opponentAlliance": "",
+              "localScore": "",
+              "opponentScore": "284300",
+              "localTrophies": "",
+              "opponentTrophies": "",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "",
+              "matchKey": "",
+              "uncertain": true
+            },
+            "warnings": [
+              "score_missing_or_invalid",
+              "opponent_alliance_uncertain",
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        },
+        "psm11": {
+          "text": "MIGIMINE (OUEKKES\n\nLoSP Kronos\n\nBlurred Vision\n\nY2858 ((+75)]\n\nCY Gr\n\nWD 2708 t-750\n\nPOINTS DE GUERRE\n\n371 356\n\n284 300\n\ntee\n\n848 408\n\nPOINTSDECLASSEMENT || 2667 04@\n\nEki\n\nMVP\n\nHonestVoid\n\nSy\n\nA\n\n12\n\nAttaques terminées\n\n840 jetons de guerre\n\n‘a\n\n97\n\nDefenses restantes\n\n500 jetons de guerre\n\neee)\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "Kronos",
+                "confidence": 95,
+                "source": "same-row-after-LoSP",
+                "uncertain": false
+              },
+              "opponentAlliance": {
+                "value": "Blurred Vision",
+                "confidence": 95,
+                "source": "same-row-right-side",
+                "uncertain": false
+              },
+              "localScore": {
+                "value": "371356",
+                "confidence": 68,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "opponentScore": {
+                "value": "284300",
+                "confidence": 95,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "opponentTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "Kronos",
+              "opponentAlliance": "Blurred Vision",
+              "localScore": "371356",
+              "opponentScore": "284300",
+              "localTrophies": "",
+              "opponentTrophies": "",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "Blurred Vision",
+              "matchKey": "blurred vision",
+              "uncertain": false
+            },
+            "warnings": [
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        }
+      }
+    },
+    {
+      "id": "capture-09",
+      "split": "holdout",
+      "width": 1800,
+      "height": 806,
+      "passes": {
+        "psm6": {
+          "text": ";        ee\nLoSP Athena           g\nP2715 if [ 7 / GI]         a           Ne DP caes 70\n(fide?)   348 354      POINTS DE GUERRE       481264     Q mae\nos    ~  3260593 POINTS DECLASSEMENT fi     4977167      ’ = 1\n4 PN  '      fredydyl7              MVP              Brian             ‘NJ    A NV;\n4 Le                         Fy,       if              VES\nJE         14        Attaquesterminées 980 jetons de guerre     ii   wanes\nue                            1                        Défenses restantes            10 jetons de guerre                            -          7\ni=_      —_\n@O@O@e\nX10 =xXd04K xd04K\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "Athena",
+                "confidence": 96,
+                "source": "same-row-after-LoSP",
+                "uncertain": false
+              },
+              "opponentAlliance": {
+                "value": "",
+                "confidence": null,
+                "source": "same-row-right-side",
+                "uncertain": true
+              },
+              "localScore": {
+                "value": "348354",
+                "confidence": 79,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "opponentScore": {
+                "value": "481264",
+                "confidence": 96,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "opponentTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "Athena",
+              "opponentAlliance": "",
+              "localScore": "348354",
+              "opponentScore": "481264",
+              "localTrophies": "",
+              "opponentTrophies": "",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "",
+              "matchKey": "",
+              "uncertain": true
+            },
+            "warnings": [
+              "opponent_alliance_uncertain",
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        },
+        "psm11": {
+          "text": "_ DEFAITE ([GUERRE]\n\nLoSP Athena\n\n22715 [-76])\n\nWP 2086 11-70\n\n348 354\n\nPOINTS DE GUERRE\n\n481264\n\n5 vat)\n\n\\a aa\n\n7 ty\n\nad\n\n3 260 5939\n\nPOINTS DECLASSEMENT | j |\n\n4977167\n\nd)\n\nLa\n\nVy\n\n(2\n\nfredydyl7\n\nMVP\n\nArian\n\nA J\n\nve\n\nes\n\n14\n\nAttaques terminées\n\n980 jetons de guerre\n\n\\/—\n\n|\n\nDefenses restantes\n\n10 jetons de guerre\n\noe) ll oe\n",
+          "fields": {
+            "fields": {
+              "localAlliance": {
+                "value": "Athena",
+                "confidence": 95,
+                "source": "same-row-after-LoSP",
+                "uncertain": false
+              },
+              "opponentAlliance": {
+                "value": "",
+                "confidence": null,
+                "source": "same-row-right-side",
+                "uncertain": true
+              },
+              "localScore": {
+                "value": "348354",
+                "confidence": 58,
+                "source": "points-row",
+                "uncertain": true
+              },
+              "opponentScore": {
+                "value": "481264",
+                "confidence": 77,
+                "source": "points-row",
+                "uncertain": false
+              },
+              "localTrophies": {
+                "value": "",
+                "confidence": null,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "opponentTrophies": {
+                "value": "2086",
+                "confidence": 43,
+                "source": "trophy-header-row",
+                "uncertain": true
+              },
+              "result": {
+                "value": "",
+                "confidence": null,
+                "source": "title-color",
+                "uncertain": true
+              }
+            },
+            "suggestions": {
+              "localAlliance": "Athena",
+              "opponentAlliance": "",
+              "localScore": "348354",
+              "opponentScore": "481264",
+              "localTrophies": "",
+              "opponentTrophies": "2086",
+              "result": ""
+            },
+            "opponentName": {
+              "original": "",
+              "matchKey": "",
+              "uncertain": true
+            },
+            "warnings": [
+              "opponent_alliance_uncertain",
+              "numeric_value_uncertain",
+              "result_color_uncertain"
+            ],
+            "needsManualReview": true
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+/* Additions to the War Counter Vision style system; base tokens/components stay shared. */
+#captureInput{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%)}
+.import-actions{align-items:center}
+#analysisProgress{display:block;width:100%;height:12px;margin-top:12px;accent-color:#58b9ff}
+#analysisProgress[hidden]{display:none}
+.capture-card{display:grid;gap:14px}
+.result-card{scroll-margin-top:14px}
+.result-card.is-current{border-color:#53baff;box-shadow:0 0 0 1px #53baff55,0 12px 30px #0005}
+.result-card.is-error{border-color:#91516a}
+.result-card-top{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:12px}
+.result-card-top h2{margin:0;overflow-wrap:anywhere;font-size:1.08rem}
+.result-card-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.result-card-actions button{min-height:42px}
+.result-preview{display:block;width:100%;max-height:340px;object-fit:contain;background:#080d1a;border:1px solid #293957;border-radius:13px}
+.result-status{margin:0;color:#b9c4dc;line-height:1.45}
+.result-fields{display:grid;grid-template-columns:1fr;gap:10px}
+.result-team{padding:13px;border:1px solid #34446d;border-radius:15px;background:#0c1528}
+.result-team h3{margin:0 0 10px;font-size:1rem}
+.result-team-opponent{border-color:#6b4a70;background:#1a1530}
+.result-field{display:grid;gap:5px;margin:9px 0}
+.result-field>span{font-size:.88rem;font-weight:800;color:#c8d5ef}
+.result-field input,.result-field select{width:100%;min-height:48px;padding:10px 12px;border:1px solid #40517d;border-radius:11px;background:#080f20;color:#fff;font-size:1rem}
+.result-field input[inputmode=numeric]{font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.result-field small{color:#aab9d5;line-height:1.35;overflow-wrap:anywhere}
+.result-field.is-uncertain input,.result-field.is-conflict input{border-color:#e5aa43;box-shadow:0 0 0 1px #e5aa4340}
+.result-field.is-missing input{border-color:#91516a}
+.result-field.is-corrected input,.result-field.is-corrected select{border-color:#2d7f58}
+.field-state{font-size:.76rem!important;font-weight:750;color:#b9c4dc!important}
+.field-proposals{display:flex;flex-wrap:wrap;gap:7px}
+.field-proposals button{min-height:38px;padding:5px 10px;border:1px solid #997336;border-radius:10px;background:#362b18;color:#ffe2a0}
+.result-review{display:flex;align-items:flex-start;gap:10px;min-height:46px;padding:10px 2px;color:#d8def1;line-height:1.4}
+.result-review input{width:22px;height:22px;flex:0 0 auto;accent-color:#2879ff}
+.result-card-footer{display:flex;gap:10px;flex-wrap:wrap}
+.result-card-footer button{min-height:48px;flex:1 1 180px}
+.result-diagnostics{overflow-wrap:anywhere}
+.result-diagnostics pre,.diagnostic-panel pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#b9c4dc;font-size:.82rem}
+.result-summary #validatedList{display:grid;gap:8px;margin:12px 0}
+.validated-row{padding:10px;border:1px solid #2d7f58;border-radius:10px;background:#153626;color:#c9f6dd}
+.results-footnote{margin-top:18px}
+@media(min-width:760px){
+ .result-fields{grid-template-columns:1fr 1fr;align-items:start}
+ .result-card{padding:20px}
+ .result-preview{max-height:440px}
+}
+@media(max-width:480px){
+ .result-card-top{grid-template-columns:1fr}
+ .result-card-actions{justify-content:flex-start}
+ .result-card-actions button{flex:1 1 auto}
+ .result-card-footer button{flex-basis:100%}
+ .result-preview{max-height:260px}
+}

@@ -1,0 +1,17 @@
+const assert = require('node:assert/strict');
+const { toMatchKey, validate, buildRecord } = require('../../../docs/war-results-vision-data.js');
+const valid = { localAlliance: 'LoSP Kronos', opponentAlliance: "St@n Lee’s Misfits", localScore: '297706', opponentScore: '439960', localTrophies: '2663', opponentTrophies: '2814', result: 'loss' };
+assert.equal(toMatchKey("St@n Lee’s  MISFITS"), 'st n lee s misfits');
+assert.equal(validate(valid, '2026-11-01').valid, true);
+assert.equal(validate(valid, '').valid, false);
+assert.equal(validate(valid, '2026-02-31').valid, false);
+assert.ok(validate({ ...valid, opponentScore: '2814' }, '2026-11-01').problems.includes('opponentScore:invalid'));
+assert.ok(validate({ ...valid, localScore: '500000' }, '2026-11-01').problems.includes('result:score_conflict'));
+assert.ok(validate({ ...valid, opponentAlliance: '' }, '2026-11-01').problems.includes('opponentAlliance:missing_or_uncertain'));
+const payload = buildRecord(valid, '2026-11-01', { fileName: 'result.png', methods: ['full-psm6'], manualCorrections: ['opponentAlliance'] });
+assert.equal(payload.status, 'validated-locally-not-published');
+assert.equal(payload.warDate, '2026-11-01');
+assert.equal(payload.opponentAllianceOriginal, "St@n Lee’s Misfits");
+assert.equal(payload.localAllianceId, null);
+assert.equal(payload.provenance.publication, 'none');
+console.log('war results vision data tests: ok');

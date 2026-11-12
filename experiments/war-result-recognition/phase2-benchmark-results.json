@@ -1,0 +1,1356 @@
+{
+  "schemaVersion": "2.0.0",
+  "engine": "tesseract 5.5.0; local only; not browser Tesseract.js",
+  "metric": "strict normalized value equality after field and side attribution; no text-presence credit",
+  "corpus": {
+    "captureCount": 9,
+    "train": 7,
+    "holdout": 2,
+    "fieldSlots": 63,
+    "eligibleTruthFields": 62,
+    "unknownTruth": [
+      {
+        "capture": "capture-09",
+        "field": "opponentAlliance"
+      }
+    ],
+    "holdoutStatus": "Contaminated: these images were examined in prior tuning and are not an independent validation set."
+  },
+  "configurationHistory": [
+    {
+      "id": "baseline-full-psm6",
+      "iterations": [
+        "initial benchmark"
+      ],
+      "result": "legacy metric: 36/54 text-presence matches; not comparable to strict field accuracy"
+    },
+    {
+      "id": "hybrid-dual-pass-score-roi-fallback-color-result",
+      "iterations": [
+        "initial sweep"
+      ],
+      "result": "legacy metric: 48/54 text-presence matches; opponent alliance omitted; not a strict field result"
+    },
+    {
+      "id": "psm6-strict-field-attribution",
+      "parameters": {
+        "psm": 6,
+        "lang": "eng",
+        "preprocess": "none"
+      }
+    },
+    {
+      "id": "psm11-strict-field-attribution",
+      "parameters": {
+        "psm": 11,
+        "lang": "eng",
+        "preprocess": "none"
+      }
+    },
+    {
+      "id": "dual-pass-conservative",
+      "parameters": {
+        "passes": [
+          6,
+          11
+        ],
+        "numericConflict": "blank unless one confidence is ahead by at least 18 points",
+        "trophyCandidate": "same header row, proportional side zone, four digits"
+      }
+    }
+  ],
+  "performance": {
+    "cliMeanMs": {
+      "psm6": 546.1,
+      "psm11": 546.1
+    },
+    "note": "Native Linux CLI timings only; not Tesseract.js browser or mobile timings."
+  },
+  "summary": {
+    "tesseract-cli-psm6": {
+      "train": {
+        "localAlliance": {
+          "exact": 4,
+          "total": 7,
+          "readFailure": 0,
+          "attributionFailure": 1,
+          "validationFailure": 2
+        },
+        "opponentAlliance": {
+          "exact": 4,
+          "total": 7,
+          "readFailure": 2,
+          "attributionFailure": 1,
+          "validationFailure": 0
+        },
+        "localScore": {
+          "exact": 5,
+          "total": 7,
+          "readFailure": 2,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "opponentScore": {
+          "exact": 7,
+          "total": 7,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "localTrophies": {
+          "exact": 1,
+          "total": 7,
+          "readFailure": 0,
+          "attributionFailure": 6,
+          "validationFailure": 0
+        },
+        "opponentTrophies": {
+          "exact": 1,
+          "total": 7,
+          "readFailure": 3,
+          "attributionFailure": 2,
+          "validationFailure": 1
+        },
+        "result": {
+          "exact": 7,
+          "total": 7,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "overall": {
+          "exact": 29,
+          "total": 49,
+          "percent": 59.2
+        }
+      },
+      "holdout": {
+        "localAlliance": {
+          "exact": 1,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 1
+        },
+        "opponentAlliance": {
+          "exact": 1,
+          "total": 1,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "localScore": {
+          "exact": 1,
+          "total": 2,
+          "readFailure": 1,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "opponentScore": {
+          "exact": 2,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "localTrophies": {
+          "exact": 0,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 2,
+          "validationFailure": 0
+        },
+        "opponentTrophies": {
+          "exact": 0,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 2,
+          "validationFailure": 0
+        },
+        "result": {
+          "exact": 2,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "overall": {
+          "exact": 7,
+          "total": 13,
+          "percent": 53.8
+        }
+      },
+      "all": {
+        "localAlliance": {
+          "exact": 5,
+          "total": 9,
+          "readFailure": 0,
+          "attributionFailure": 1,
+          "validationFailure": 3
+        },
+        "opponentAlliance": {
+          "exact": 5,
+          "total": 8,
+          "readFailure": 2,
+          "attributionFailure": 1,
+          "validationFailure": 0
+        },
+        "localScore": {
+          "exact": 6,
+          "total": 9,
+          "readFailure": 3,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "opponentScore": {
+          "exact": 9,
+          "total": 9,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "localTrophies": {
+          "exact": 1,
+          "total": 9,
+          "readFailure": 0,
+          "attributionFailure": 8,
+          "validationFailure": 0
+        },
+        "opponentTrophies": {
+          "exact": 1,
+          "total": 9,
+          "readFailure": 3,
+          "attributionFailure": 4,
+          "validationFailure": 1
+        },
+        "result": {
+          "exact": 9,
+          "total": 9,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "overall": {
+          "exact": 36,
+          "total": 62,
+          "percent": 58.1
+        }
+      }
+    },
+    "tesseract-cli-psm11": {
+      "train": {
+        "localAlliance": {
+          "exact": 6,
+          "total": 7,
+          "readFailure": 0,
+          "attributionFailure": 1,
+          "validationFailure": 0
+        },
+        "opponentAlliance": {
+          "exact": 5,
+          "total": 7,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 2
+        },
+        "localScore": {
+          "exact": 5,
+          "total": 7,
+          "readFailure": 2,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "opponentScore": {
+          "exact": 5,
+          "total": 7,
+          "readFailure": 1,
+          "attributionFailure": 0,
+          "validationFailure": 1
+        },
+        "localTrophies": {
+          "exact": 2,
+          "total": 7,
+          "readFailure": 0,
+          "attributionFailure": 5,
+          "validationFailure": 0
+        },
+        "opponentTrophies": {
+          "exact": 2,
+          "total": 7,
+          "readFailure": 3,
+          "attributionFailure": 1,
+          "validationFailure": 1
+        },
+        "result": {
+          "exact": 7,
+          "total": 7,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "overall": {
+          "exact": 32,
+          "total": 49,
+          "percent": 65.3
+        }
+      },
+      "holdout": {
+        "localAlliance": {
+          "exact": 1,
+          "total": 2,
+          "readFailure": 1,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "opponentAlliance": {
+          "exact": 1,
+          "total": 1,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "localScore": {
+          "exact": 2,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "opponentScore": {
+          "exact": 2,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "localTrophies": {
+          "exact": 2,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "opponentTrophies": {
+          "exact": 1,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 1,
+          "validationFailure": 0
+        },
+        "result": {
+          "exact": 2,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "overall": {
+          "exact": 11,
+          "total": 13,
+          "percent": 84.6
+        }
+      },
+      "all": {
+        "localAlliance": {
+          "exact": 7,
+          "total": 9,
+          "readFailure": 1,
+          "attributionFailure": 1,
+          "validationFailure": 0
+        },
+        "opponentAlliance": {
+          "exact": 6,
+          "total": 8,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 2
+        },
+        "localScore": {
+          "exact": 7,
+          "total": 9,
+          "readFailure": 2,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "opponentScore": {
+          "exact": 7,
+          "total": 9,
+          "readFailure": 1,
+          "attributionFailure": 0,
+          "validationFailure": 1
+        },
+        "localTrophies": {
+          "exact": 4,
+          "total": 9,
+          "readFailure": 0,
+          "attributionFailure": 5,
+          "validationFailure": 0
+        },
+        "opponentTrophies": {
+          "exact": 3,
+          "total": 9,
+          "readFailure": 3,
+          "attributionFailure": 2,
+          "validationFailure": 1
+        },
+        "result": {
+          "exact": 9,
+          "total": 9,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "overall": {
+          "exact": 43,
+          "total": 62,
+          "percent": 69.4
+        }
+      }
+    },
+    "tesseract-cli-dual-pass-conservative": {
+      "train": {
+        "localAlliance": {
+          "exact": 7,
+          "total": 7,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "opponentAlliance": {
+          "exact": 5,
+          "total": 7,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 2
+        },
+        "localScore": {
+          "exact": 5,
+          "total": 7,
+          "readFailure": 2,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "opponentScore": {
+          "exact": 5,
+          "total": 7,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 2
+        },
+        "localTrophies": {
+          "exact": 3,
+          "total": 7,
+          "readFailure": 0,
+          "attributionFailure": 4,
+          "validationFailure": 0
+        },
+        "opponentTrophies": {
+          "exact": 2,
+          "total": 7,
+          "readFailure": 3,
+          "attributionFailure": 1,
+          "validationFailure": 1
+        },
+        "result": {
+          "exact": 7,
+          "total": 7,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "overall": {
+          "exact": 34,
+          "total": 49,
+          "percent": 69.4
+        }
+      },
+      "holdout": {
+        "localAlliance": {
+          "exact": 2,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "opponentAlliance": {
+          "exact": 1,
+          "total": 1,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "localScore": {
+          "exact": 2,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "opponentScore": {
+          "exact": 2,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "localTrophies": {
+          "exact": 2,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "opponentTrophies": {
+          "exact": 1,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 1,
+          "validationFailure": 0
+        },
+        "result": {
+          "exact": 2,
+          "total": 2,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "overall": {
+          "exact": 12,
+          "total": 13,
+          "percent": 92.3
+        }
+      },
+      "all": {
+        "localAlliance": {
+          "exact": 9,
+          "total": 9,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "opponentAlliance": {
+          "exact": 6,
+          "total": 8,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 2
+        },
+        "localScore": {
+          "exact": 7,
+          "total": 9,
+          "readFailure": 2,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "opponentScore": {
+          "exact": 7,
+          "total": 9,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 2
+        },
+        "localTrophies": {
+          "exact": 5,
+          "total": 9,
+          "readFailure": 0,
+          "attributionFailure": 4,
+          "validationFailure": 0
+        },
+        "opponentTrophies": {
+          "exact": 3,
+          "total": 9,
+          "readFailure": 3,
+          "attributionFailure": 2,
+          "validationFailure": 1
+        },
+        "result": {
+          "exact": 9,
+          "total": 9,
+          "readFailure": 0,
+          "attributionFailure": 0,
+          "validationFailure": 0
+        },
+        "overall": {
+          "exact": 46,
+          "total": 62,
+          "percent": 74.2
+        }
+      }
+    }
+  },
+  "captures": [
+    {
+      "id": "capture-01",
+      "split": "train",
+      "width": 1536,
+      "height": 691,
+      "fields": {
+        "localAlliance": {
+          "expected": "Kronos",
+          "extracted": "Kronos",
+          "exact": true,
+          "confidence": 96,
+          "source": "same-row-after-LoSP",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentAlliance": {
+          "expected": "B.B.A.",
+          "extracted": "B.B.A",
+          "exact": false,
+          "confidence": 52,
+          "source": "same-row-right-side",
+          "manualCorrectionRequired": true,
+          "failureType": "validation_failure",
+          "alternatives": null
+        },
+        "localScore": {
+          "expected": 411597,
+          "extracted": "411597",
+          "exact": true,
+          "confidence": 95,
+          "source": "psm6+psm11-agree",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentScore": {
+          "expected": 257149,
+          "extracted": "257149",
+          "exact": true,
+          "confidence": 83,
+          "source": "psm6+psm11-agree",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "localTrophies": {
+          "expected": 2778,
+          "extracted": "2778",
+          "exact": true,
+          "confidence": 45,
+          "source": "trophy-header-joined-glyph",
+          "manualCorrectionRequired": true,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentTrophies": {
+          "expected": 2627,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "trophy-header-row",
+          "manualCorrectionRequired": true,
+          "failureType": "read_failure",
+          "alternatives": null
+        },
+        "result": {
+          "expected": "win",
+          "extracted": "win",
+          "exact": true,
+          "confidence": null,
+          "source": "title-color",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        }
+      },
+      "resultColorCue": "win",
+      "automaticWarnings": [
+        "numeric_value_uncertain",
+        "opponent_alliance_uncertain",
+        "opponentAlliance_uncertain",
+        "localTrophies_uncertain",
+        "opponentTrophies_uncertain"
+      ]
+    },
+    {
+      "id": "capture-02",
+      "split": "train",
+      "width": 3216,
+      "height": 1440,
+      "fields": {
+        "localAlliance": {
+          "expected": "Athena",
+          "extracted": "Athena",
+          "exact": true,
+          "confidence": 95,
+          "source": "same-row-after-LoSP",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentAlliance": {
+          "expected": "Allspark X-Men",
+          "extracted": "Allspark X-Men",
+          "exact": true,
+          "confidence": 87,
+          "source": "same-row-right-side",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "localScore": {
+          "expected": 343311,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "points-row",
+          "manualCorrectionRequired": true,
+          "failureType": "read_failure",
+          "alternatives": null
+        },
+        "opponentScore": {
+          "expected": 314689,
+          "extracted": "314689",
+          "exact": true,
+          "confidence": 77,
+          "source": "psm6+psm11-agree",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "localTrophies": {
+          "expected": 2792,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "trophy-header-row",
+          "manualCorrectionRequired": true,
+          "failureType": "attribution_failure",
+          "alternatives": null
+        },
+        "opponentTrophies": {
+          "expected": 2680,
+          "extracted": "2680",
+          "exact": true,
+          "confidence": 70,
+          "source": "trophy-header-row",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "result": {
+          "expected": "win",
+          "extracted": "win",
+          "exact": true,
+          "confidence": null,
+          "source": "title-color",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        }
+      },
+      "resultColorCue": "win",
+      "automaticWarnings": [
+        "score_missing_or_invalid",
+        "opponent_alliance_uncertain",
+        "numeric_value_uncertain",
+        "localScore_uncertain",
+        "localTrophies_uncertain"
+      ]
+    },
+    {
+      "id": "capture-03",
+      "split": "train",
+      "width": 1536,
+      "height": 1009,
+      "fields": {
+        "localAlliance": {
+          "expected": "Dionysos",
+          "extracted": "Dionysos",
+          "exact": true,
+          "confidence": 23,
+          "source": "same-row-after-LoSP",
+          "manualCorrectionRequired": true,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentAlliance": {
+          "expected": "German Avenger's",
+          "extracted": "German Avenger's",
+          "exact": true,
+          "confidence": 77,
+          "source": "same-row-right-side",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "localScore": {
+          "expected": 363432,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "points-row",
+          "manualCorrectionRequired": true,
+          "failureType": "read_failure",
+          "alternatives": null
+        },
+        "opponentScore": {
+          "expected": 153303,
+          "extracted": null,
+          "exact": false,
+          "confidence": 70,
+          "source": "pass-conflict",
+          "manualCorrectionRequired": true,
+          "failureType": "validation_failure",
+          "alternatives": [
+            "153307",
+            "153303"
+          ]
+        },
+        "localTrophies": {
+          "expected": 2738,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "trophy-header-row",
+          "manualCorrectionRequired": true,
+          "failureType": "attribution_failure",
+          "alternatives": null
+        },
+        "opponentTrophies": {
+          "expected": 2438,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "trophy-header-row",
+          "manualCorrectionRequired": true,
+          "failureType": "attribution_failure",
+          "alternatives": null
+        },
+        "result": {
+          "expected": "win",
+          "extracted": "win",
+          "exact": true,
+          "confidence": null,
+          "source": "title-color",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        }
+      },
+      "resultColorCue": "win",
+      "automaticWarnings": [
+        "score_missing_or_invalid",
+        "numeric_value_uncertain",
+        "localAlliance_uncertain",
+        "localScore_uncertain",
+        "opponentScore_uncertain",
+        "localTrophies_uncertain",
+        "opponentTrophies_uncertain"
+      ]
+    },
+    {
+      "id": "capture-04",
+      "split": "train",
+      "width": 1536,
+      "height": 909,
+      "fields": {
+        "localAlliance": {
+          "expected": "Kronos",
+          "extracted": "Kronos",
+          "exact": true,
+          "confidence": 96,
+          "source": "same-row-after-LoSP",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentAlliance": {
+          "expected": "Infinity X",
+          "extracted": "INFINITY X",
+          "exact": true,
+          "confidence": 90,
+          "source": "same-row-right-side",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "localScore": {
+          "expected": 319841,
+          "extracted": "319841",
+          "exact": true,
+          "confidence": 94,
+          "source": "psm6+psm11-agree",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentScore": {
+          "expected": 458874,
+          "extracted": "458874",
+          "exact": true,
+          "confidence": 95,
+          "source": "psm6+psm11-agree",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "localTrophies": {
+          "expected": 2783,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "trophy-header-row",
+          "manualCorrectionRequired": true,
+          "failureType": "attribution_failure",
+          "alternatives": null
+        },
+        "opponentTrophies": {
+          "expected": 2926,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "trophy-header-row",
+          "manualCorrectionRequired": true,
+          "failureType": "read_failure",
+          "alternatives": null
+        },
+        "result": {
+          "expected": "loss",
+          "extracted": "loss",
+          "exact": true,
+          "confidence": null,
+          "source": "title-color",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        }
+      },
+      "resultColorCue": "loss",
+      "automaticWarnings": [
+        "numeric_value_uncertain",
+        "localTrophies_uncertain",
+        "opponentTrophies_uncertain"
+      ]
+    },
+    {
+      "id": "capture-05",
+      "split": "train",
+      "width": 3216,
+      "height": 1440,
+      "fields": {
+        "localAlliance": {
+          "expected": "Athena",
+          "extracted": "Athena",
+          "exact": true,
+          "confidence": 95,
+          "source": "same-row-after-LoSP",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentAlliance": {
+          "expected": "HYPERACTIF",
+          "extracted": "HYPERACTIF",
+          "exact": true,
+          "confidence": 90,
+          "source": "same-row-right-side",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "localScore": {
+          "expected": 340136,
+          "extracted": "340136",
+          "exact": true,
+          "confidence": 86,
+          "source": "psm6+psm11-agree",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentScore": {
+          "expected": 291856,
+          "extracted": "291856",
+          "exact": true,
+          "confidence": 74,
+          "source": "psm6+psm11-agree",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "localTrophies": {
+          "expected": 2791,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "trophy-header-row",
+          "manualCorrectionRequired": true,
+          "failureType": "attribution_failure",
+          "alternatives": null
+        },
+        "opponentTrophies": {
+          "expected": 2640,
+          "extracted": "2640",
+          "exact": true,
+          "confidence": 93,
+          "source": "psm6+psm11-agree",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "result": {
+          "expected": "win",
+          "extracted": "win",
+          "exact": true,
+          "confidence": null,
+          "source": "title-color",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        }
+      },
+      "resultColorCue": "win",
+      "automaticWarnings": [
+        "opponent_alliance_uncertain",
+        "numeric_value_uncertain",
+        "localTrophies_uncertain"
+      ]
+    },
+    {
+      "id": "capture-06",
+      "split": "train",
+      "width": 1536,
+      "height": 691,
+      "fields": {
+        "localAlliance": {
+          "expected": "Poseidon",
+          "extracted": "Poseidon",
+          "exact": true,
+          "confidence": 70,
+          "source": "same-row-after-LoSP",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentAlliance": {
+          "expected": "SpaceEmperors",
+          "extracted": "SpaceEmperors",
+          "exact": true,
+          "confidence": 90,
+          "source": "same-row-right-side",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "localScore": {
+          "expected": 366816,
+          "extracted": "366816",
+          "exact": true,
+          "confidence": 69,
+          "source": "psm6+psm11-agree",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentScore": {
+          "expected": 168062,
+          "extracted": "168062",
+          "exact": true,
+          "confidence": 93,
+          "source": "psm6+psm11-agree",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "localTrophies": {
+          "expected": 2414,
+          "extracted": "2414",
+          "exact": true,
+          "confidence": 32,
+          "source": "psm6-fallback",
+          "manualCorrectionRequired": true,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentTrophies": {
+          "expected": 2264,
+          "extracted": "2268",
+          "exact": false,
+          "confidence": 36,
+          "source": "psm6+psm11-agree",
+          "manualCorrectionRequired": true,
+          "failureType": "validation_failure",
+          "alternatives": null
+        },
+        "result": {
+          "expected": "win",
+          "extracted": "win",
+          "exact": true,
+          "confidence": null,
+          "source": "title-color",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        }
+      },
+      "resultColorCue": "win",
+      "automaticWarnings": [
+        "numeric_value_uncertain",
+        "localTrophies_uncertain",
+        "opponentTrophies_uncertain"
+      ]
+    },
+    {
+      "id": "capture-07",
+      "split": "train",
+      "width": 1536,
+      "height": 1009,
+      "fields": {
+        "localAlliance": {
+          "expected": "Dionysos",
+          "extracted": "Dionysos",
+          "exact": true,
+          "confidence": 95,
+          "source": "same-row-after-LoSP",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentAlliance": {
+          "expected": "STAN LEE'S MISFITS",
+          "extracted": "ST@NLEE’S MISFITS",
+          "exact": false,
+          "confidence": 76,
+          "source": "same-row-right-side",
+          "manualCorrectionRequired": true,
+          "failureType": "validation_failure",
+          "alternatives": null
+        },
+        "localScore": {
+          "expected": 297706,
+          "extracted": "297706",
+          "exact": true,
+          "confidence": 95,
+          "source": "psm6+psm11-agree",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentScore": {
+          "expected": 439960,
+          "extracted": null,
+          "exact": false,
+          "confidence": 79,
+          "source": "pass-conflict",
+          "manualCorrectionRequired": true,
+          "failureType": "validation_failure",
+          "alternatives": [
+            "439560",
+            "439960"
+          ]
+        },
+        "localTrophies": {
+          "expected": 2663,
+          "extracted": "2663",
+          "exact": true,
+          "confidence": 91,
+          "source": "trophy-header-row",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentTrophies": {
+          "expected": 2814,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "trophy-header-row",
+          "manualCorrectionRequired": true,
+          "failureType": "read_failure",
+          "alternatives": null
+        },
+        "result": {
+          "expected": "loss",
+          "extracted": "loss",
+          "exact": true,
+          "confidence": null,
+          "source": "title-color",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        }
+      },
+      "resultColorCue": "loss",
+      "automaticWarnings": [
+        "numeric_value_uncertain",
+        "opponent_alliance_uncertain",
+        "opponentAlliance_uncertain",
+        "opponentScore_uncertain",
+        "opponentTrophies_uncertain"
+      ]
+    },
+    {
+      "id": "capture-08",
+      "split": "holdout",
+      "width": 1536,
+      "height": 847,
+      "fields": {
+        "localAlliance": {
+          "expected": "Kronos",
+          "extracted": "Kronos",
+          "exact": true,
+          "confidence": 95,
+          "source": "same-row-after-LoSP",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentAlliance": {
+          "expected": "Blurred Vision",
+          "extracted": "Blurred Vision",
+          "exact": true,
+          "confidence": 95,
+          "source": "same-row-right-side",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "localScore": {
+          "expected": 371356,
+          "extracted": "371356",
+          "exact": true,
+          "confidence": 81,
+          "source": "psm6+psm11-agree",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentScore": {
+          "expected": 284300,
+          "extracted": "284300",
+          "exact": true,
+          "confidence": 93,
+          "source": "psm6+psm11-agree",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "localTrophies": {
+          "expected": 2858,
+          "extracted": "2858",
+          "exact": true,
+          "confidence": 64,
+          "source": "trophy-header-row",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentTrophies": {
+          "expected": 2708,
+          "extracted": null,
+          "exact": false,
+          "confidence": null,
+          "source": "trophy-header-row",
+          "manualCorrectionRequired": true,
+          "failureType": "attribution_failure",
+          "alternatives": null
+        },
+        "result": {
+          "expected": "win",
+          "extracted": "win",
+          "exact": true,
+          "confidence": null,
+          "source": "title-color",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        }
+      },
+      "resultColorCue": "win",
+      "automaticWarnings": [
+        "numeric_value_uncertain",
+        "opponentTrophies_uncertain"
+      ]
+    },
+    {
+      "id": "capture-09",
+      "split": "holdout",
+      "width": 3216,
+      "height": 1440,
+      "fields": {
+        "localAlliance": {
+          "expected": "Athena",
+          "extracted": "Athena",
+          "exact": true,
+          "confidence": 97,
+          "source": "same-row-after-LoSP",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentAlliance": {
+          "expected": null,
+          "extracted": null,
+          "exact": null,
+          "confidence": null,
+          "source": "same-row-right-side",
+          "manualCorrectionRequired": true,
+          "failureType": "unknown_truth",
+          "alternatives": null
+        },
+        "localScore": {
+          "expected": 348354,
+          "extracted": "348354",
+          "exact": true,
+          "confidence": 75,
+          "source": "points-row",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentScore": {
+          "expected": 481264,
+          "extracted": "481264",
+          "exact": true,
+          "confidence": 88,
+          "source": "psm6+psm11-agree",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "localTrophies": {
+          "expected": 2715,
+          "extracted": "2715",
+          "exact": true,
+          "confidence": 42,
+          "source": "trophy-header-row",
+          "manualCorrectionRequired": true,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "opponentTrophies": {
+          "expected": 2864,
+          "extracted": "2864",
+          "exact": true,
+          "confidence": 80,
+          "source": "trophy-header-row",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        },
+        "result": {
+          "expected": "loss",
+          "extracted": "loss",
+          "exact": true,
+          "confidence": null,
+          "source": "title-color",
+          "manualCorrectionRequired": false,
+          "failureType": "exact",
+          "alternatives": null
+        }
+      },
+      "resultColorCue": "loss",
+      "automaticWarnings": [
+        "score_missing_or_invalid",
+        "opponent_alliance_uncertain",
+        "numeric_value_uncertain",
+        "opponentAlliance_uncertain",
+        "localTrophies_uncertain"
+      ]
+    }
+  ]
+}

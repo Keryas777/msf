@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#11162c">
+  <meta name="robots" content="noindex,nofollow">
+  <title>MSF War Results Vision</title>
+  <link rel="stylesheet" href="./war-counter-lab.css?v=r7-entry-5">
+  <link rel="stylesheet" href="./war-results-vision.css?v=1">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="page-header">
+      <p class="eyebrow">Traitement local • aucune publication</p>
+      <h1>MSF War Results Vision</h1>
+      <p>Importe les écrans finaux de guerre, vérifie chaque proposition et prépare un fichier local. Les images restent sur cet appareil.</p>
+    </header>
+
+    <section class="panel import-panel" aria-labelledby="importTitle">
+      <div class="section-heading">
+        <div class="section-title"><span class="step">1</span><h2 id="importTitle">Captures de résultats</h2></div>
+        <span id="batchBadge" class="status-chip">Aucune capture</span>
+      </div>
+      <p class="muted">Sélectionne une ou plusieurs images PNG ou JPEG. L’OCR est chargé seulement au lancement de l’analyse.</p>
+      <div class="import-actions">
+        <label class="primary-button upload-button" for="captureInput">Choisir des captures</label>
+        <input id="captureInput" type="file" accept="image/png,image/jpeg" multiple>
+        <button id="analyzeButton" class="primary-button" type="button" disabled>Analyser les captures</button>
+        <button id="clearButton" class="secondary-button" type="button">Effacer la session</button>
+      </div>
+      <p id="selectionSummary" class="selection-summary">Images JPEG ou PNG, analysées une par une.</p>
+      <p id="analysisStatus" class="analysis-status" role="status" aria-live="polite"></p>
+      <progress id="analysisProgress" max="100" value="0" hidden></progress>
+    </section>
+
+    <section id="batchSummary" class="panel batch-summary" hidden aria-live="polite"><strong id="batchSummaryText"></strong></section>
+    <div id="captureResults" class="capture-results"></div>
+    <section id="validatedSummary" class="panel result-summary" hidden>
+      <div class="section-heading"><div class="section-title"><span class="step">2</span><h2>Fiches validées dans cette session</h2></div></div>
+      <div id="validatedList"></div>
+      <button id="exportAllButton" type="button" class="secondary-button">Télécharger le récapitulatif local (.json)</button>
+      <p class="muted">Ce fichier reste local. Il n’est pas publié et ne modifie aucune archive.</p>
+    </section>
+    <details class="panel diagnostic-panel">
+      <summary>Diagnostic OCR (mesures de ce navigateur)</summary>
+      <p id="diagnosticText" class="muted">Aucune analyse exécutée.</p>
+      <pre id="diagnosticLog"></pre>
+    </details>
+    <p class="muted results-footnote">La date de guerre doit être saisie manuellement. Chaque fiche reste à vérifier avant sa validation locale. Aucun envoi, historique officiel ou export automatique.</p>
+  </main>
+  <script src="./war-result-recognition-core.js?v=4" defer></script>
+  <script src="./war-results-vision-engine.js?v=1" defer></script>
+  <script src="./war-results-vision-data.js?v=1" defer></script>
+  <script src="./war-results-vision.js?v=1" defer></script>
+</body>
+</html>

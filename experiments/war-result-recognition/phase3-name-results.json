@@ -1,0 +1,567 @@
+{
+  "schemaVersion": "1.0.0",
+  "method": "Proportional opponent-name band crop anchored to OCR LoSP word; raw, grayscale contrast, saturation/neutral-light color mask, sharp grayscale; PSM 7/11; exact normalized string comparison",
+  "engine": "Tesseract CLI 5.5.0 local Linux; not browser performance",
+  "corpus": {
+    "images": 9,
+    "train": 7,
+    "historicHoldout": 2,
+    "unknownOpponentTruth": "capture-09",
+    "holdoutStatus": "Previously examined; contaminated and not independent."
+  },
+  "summary": {
+    "raw-2x-psm7": {
+      "all": 0,
+      "eligible": 8,
+      "train": 0,
+      "trainTotal": 7,
+      "historicHoldout": 0,
+      "holdoutTotal": 1
+    },
+    "raw-2x-psm11": {
+      "all": 0,
+      "eligible": 8,
+      "train": 0,
+      "trainTotal": 7,
+      "historicHoldout": 0,
+      "holdoutTotal": 1
+    },
+    "gray-contrast-2x-psm7": {
+      "all": 1,
+      "eligible": 8,
+      "train": 1,
+      "trainTotal": 7,
+      "historicHoldout": 0,
+      "holdoutTotal": 1
+    },
+    "gray-contrast-2x-psm11": {
+      "all": 1,
+      "eligible": 8,
+      "train": 1,
+      "trainTotal": 7,
+      "historicHoldout": 0,
+      "holdoutTotal": 1
+    },
+    "color-isolation-2x-psm7": {
+      "all": 0,
+      "eligible": 8,
+      "train": 0,
+      "trainTotal": 7,
+      "historicHoldout": 0,
+      "holdoutTotal": 1
+    },
+    "color-isolation-2x-psm11": {
+      "all": 0,
+      "eligible": 8,
+      "train": 0,
+      "trainTotal": 7,
+      "historicHoldout": 0,
+      "holdoutTotal": 1
+    },
+    "sharp-gray-2x-psm7": {
+      "all": 0,
+      "eligible": 8,
+      "train": 0,
+      "trainTotal": 7,
+      "historicHoldout": 0,
+      "holdoutTotal": 1
+    },
+    "sharp-gray-2x-psm11": {
+      "all": 0,
+      "eligible": 8,
+      "train": 0,
+      "trainTotal": 7,
+      "historicHoldout": 0,
+      "holdoutTotal": 1
+    }
+  },
+  "captures": [
+    {
+      "id": "capture-01",
+      "split": "train",
+      "expected": "B.B.A.",
+      "phase2": "B.B.A",
+      "variants": {
+        "raw-2x-psm7": {
+          "raw": "BBA.",
+          "value": "BBA.",
+          "exact": false
+        },
+        "raw-2x-psm11": {
+          "raw": "BBA.",
+          "value": "BBA.",
+          "exact": false
+        },
+        "gray-contrast-2x-psm7": {
+          "raw": "! BBA.",
+          "value": "! BBA.",
+          "exact": false
+        },
+        "gray-contrast-2x-psm11": {
+          "raw": "! BBA.",
+          "value": "! BBA.",
+          "exact": false
+        },
+        "color-isolation-2x-psm7": {
+          "raw": "! BBA.",
+          "value": "! BBA.",
+          "exact": false
+        },
+        "color-isolation-2x-psm11": {
+          "raw": "! BBA.",
+          "value": "! BBA.",
+          "exact": false
+        },
+        "sharp-gray-2x-psm7": {
+          "raw": "f BBA.",
+          "value": "f BBA.",
+          "exact": false
+        },
+        "sharp-gray-2x-psm11": {
+          "raw": "f BBA.",
+          "value": "f BBA.",
+          "exact": false
+        }
+      },
+      "roi": [
+        0.5944,
+        0.14182,
+        0.90951,
+        0.22721
+      ]
+    },
+    {
+      "id": "capture-02",
+      "split": "train",
+      "expected": "Allspark X-Men",
+      "phase2": "Allspark X-Men",
+      "variants": {
+        "raw-2x-psm7": {
+          "raw": "“4 Allspark X-Men",
+          "value": "“4 Allspark X-Men",
+          "exact": false
+        },
+        "raw-2x-psm11": {
+          "raw": "“4 Allspark X-Men",
+          "value": "“4 Allspark X-Men",
+          "exact": false
+        },
+        "gray-contrast-2x-psm7": {
+          "raw": "4 Allspark X-Men",
+          "value": "4 Allspark X-Men",
+          "exact": false
+        },
+        "gray-contrast-2x-psm11": {
+          "raw": "4 Allspark X-Men",
+          "value": "4 Allspark X-Men",
+          "exact": false
+        },
+        "color-isolation-2x-psm7": {
+          "raw": "fy Allspark X-Men",
+          "value": "fy Allspark X-Men",
+          "exact": false
+        },
+        "color-isolation-2x-psm11": {
+          "raw": "fy Allspark X-Men",
+          "value": "fy Allspark X-Men",
+          "exact": false
+        },
+        "sharp-gray-2x-psm7": {
+          "raw": "4 Allspark X-Men",
+          "value": "4 Allspark X-Men",
+          "exact": false
+        },
+        "sharp-gray-2x-psm11": {
+          "raw": "4 Allspark X-Men",
+          "value": "4 Allspark X-Men",
+          "exact": false
+        }
+      },
+      "roi": [
+        0.59484,
+        0.14167,
+        0.90983,
+        0.22778
+      ]
+    },
+    {
+      "id": "capture-03",
+      "split": "train",
+      "expected": "German Avenger's",
+      "phase2": "German Avenger's",
+      "variants": {
+        "raw-2x-psm7": {
+          "raw": "af German Avenger's",
+          "value": "af German Avenger's",
+          "exact": false
+        },
+        "raw-2x-psm11": {
+          "raw": "af German Avenger's",
+          "value": "af German Avenger's",
+          "exact": false
+        },
+        "gray-contrast-2x-psm7": {
+          "raw": "ye German Avenger's",
+          "value": "ye German Avenger's",
+          "exact": false
+        },
+        "gray-contrast-2x-psm11": {
+          "raw": "ye German Avenger's",
+          "value": "ye German Avenger's",
+          "exact": false
+        },
+        "color-isolation-2x-psm7": {
+          "raw": "a German Avenger's",
+          "value": "a German Avenger's",
+          "exact": false
+        },
+        "color-isolation-2x-psm11": {
+          "raw": "ff German Avenger's",
+          "value": "ff German Avenger's",
+          "exact": false
+        },
+        "sharp-gray-2x-psm7": {
+          "raw": "ye German Avenger's",
+          "value": "ye German Avenger's",
+          "exact": false
+        },
+        "sharp-gray-2x-psm11": {
+          "raw": "ye German Avenger's",
+          "value": "ye German Avenger's",
+          "exact": false
+        }
+      },
+      "roi": [
+        0.5944,
+        0.12091,
+        0.90951,
+        0.19921
+      ]
+    },
+    {
+      "id": "capture-04",
+      "split": "train",
+      "expected": "Infinity X",
+      "phase2": "INFINITY X",
+      "variants": {
+        "raw-2x-psm7": {
+          "raw": "x «INFINITYX",
+          "value": "x «INFINITYX",
+          "exact": false
+        },
+        "raw-2x-psm11": {
+          "raw": "x «INFINITYX",
+          "value": "x «INFINITYX",
+          "exact": false
+        },
+        "gray-contrast-2x-psm7": {
+          "raw": "INFINITY X",
+          "value": "INFINITY X",
+          "exact": true
+        },
+        "gray-contrast-2x-psm11": {
+          "raw": "INFINITY X",
+          "value": "INFINITY X",
+          "exact": true
+        },
+        "color-isolation-2x-psm7": {
+          "raw": "if INFINITY X",
+          "value": "if INFINITY X",
+          "exact": false
+        },
+        "color-isolation-2x-psm11": {
+          "raw": "if INFINITY X",
+          "value": "if INFINITY X",
+          "exact": false
+        },
+        "sharp-gray-2x-psm7": {
+          "raw": "i =INFINITYX",
+          "value": "i =INFINITYX",
+          "exact": false
+        },
+        "sharp-gray-2x-psm11": {
+          "raw": "i =INFINITYX",
+          "value": "i =INFINITYX",
+          "exact": false
+        }
+      },
+      "roi": [
+        0.5944,
+        0.14521,
+        0.90951,
+        0.23212
+      ]
+    },
+    {
+      "id": "capture-05",
+      "split": "train",
+      "expected": "HYPERACTIF",
+      "phase2": "HYPERACTIF",
+      "variants": {
+        "raw-2x-psm7": {
+          "raw": "Ng HYPERACTIF",
+          "value": "Ng HYPERACTIF",
+          "exact": false
+        },
+        "raw-2x-psm11": {
+          "raw": "tf HYPERACTIF",
+          "value": "tf HYPERACTIF",
+          "exact": false
+        },
+        "gray-contrast-2x-psm7": {
+          "raw": "Sf HYPERALTIF",
+          "value": "Sf HYPERALTIF",
+          "exact": false
+        },
+        "gray-contrast-2x-psm11": {
+          "raw": "Sf HYPERALTIF",
+          "value": "Sf HYPERALTIF",
+          "exact": false
+        },
+        "color-isolation-2x-psm7": {
+          "raw": "iy HYPERACTIF",
+          "value": "iy HYPERACTIF",
+          "exact": false
+        },
+        "color-isolation-2x-psm11": {
+          "raw": "Me\n\nHYPERAL TIF",
+          "value": "Me HYPERAL TIF",
+          "exact": false
+        },
+        "sharp-gray-2x-psm7": {
+          "raw": "4 HYPERALTIF",
+          "value": "4 HYPERALTIF",
+          "exact": false
+        },
+        "sharp-gray-2x-psm11": {
+          "raw": "4 HYPERALTIF",
+          "value": "4 HYPERALTIF",
+          "exact": false
+        }
+      },
+      "roi": [
+        0.59484,
+        0.14167,
+        0.90983,
+        0.22778
+      ]
+    },
+    {
+      "id": "capture-06",
+      "split": "train",
+      "expected": "SpaceEmperors",
+      "phase2": "SpaceEmperors",
+      "variants": {
+        "raw-2x-psm7": {
+          "raw": "{ SpaceEmperors",
+          "value": "{ SpaceEmperors",
+          "exact": false
+        },
+        "raw-2x-psm11": {
+          "raw": "{ SpaceEmperors",
+          "value": "{ SpaceEmperors",
+          "exact": false
+        },
+        "gray-contrast-2x-psm7": {
+          "raw": "{ SpaceEmperors",
+          "value": "{ SpaceEmperors",
+          "exact": false
+        },
+        "gray-contrast-2x-psm11": {
+          "raw": "{ SpaceEmperors",
+          "value": "{ SpaceEmperors",
+          "exact": false
+        },
+        "color-isolation-2x-psm7": {
+          "raw": "{ SpaceEmperors",
+          "value": "{ SpaceEmperors",
+          "exact": false
+        },
+        "color-isolation-2x-psm11": {
+          "raw": "{ SpaceEmperors",
+          "value": "{ SpaceEmperors",
+          "exact": false
+        },
+        "sharp-gray-2x-psm7": {
+          "raw": "{ SpaceEmperors",
+          "value": "{ SpaceEmperors",
+          "exact": false
+        },
+        "sharp-gray-2x-psm11": {
+          "raw": "{ SpaceEmperors",
+          "value": "{ SpaceEmperors",
+          "exact": false
+        }
+      },
+      "roi": [
+        0.5944,
+        0.14327,
+        0.90951,
+        0.22576
+      ]
+    },
+    {
+      "id": "capture-07",
+      "split": "train",
+      "expected": "STAN LEE'S MISFITS",
+      "phase2": "ST@NLEE’S MISFITS",
+      "variants": {
+        "raw-2x-psm7": {
+          "raw": "A ST@N LEE’S MISFITS",
+          "value": "A ST@N LEE’S MISFITS",
+          "exact": false
+        },
+        "raw-2x-psm11": {
+          "raw": "A ST@N LEE’S MISFITS",
+          "value": "A ST@N LEE’S MISFITS",
+          "exact": false
+        },
+        "gray-contrast-2x-psm7": {
+          "raw": "Y/ ST@N LEE’S MISFITS",
+          "value": "Y/ ST@N LEE’S MISFITS",
+          "exact": false
+        },
+        "gray-contrast-2x-psm11": {
+          "raw": "Y/ ST@N LEE’S MISFITS",
+          "value": "Y/ ST@N LEE’S MISFITS",
+          "exact": false
+        },
+        "color-isolation-2x-psm7": {
+          "raw": "¥/ ST@N LEE'S MISFITS",
+          "value": "¥/ ST@N LEE'S MISFITS",
+          "exact": false
+        },
+        "color-isolation-2x-psm11": {
+          "raw": "¥/ ST@N LEE'S MISFITS",
+          "value": "¥/ ST@N LEE'S MISFITS",
+          "exact": false
+        },
+        "sharp-gray-2x-psm7": {
+          "raw": "Y/ ST@N LEE’S MISFITS",
+          "value": "Y/ ST@N LEE’S MISFITS",
+          "exact": false
+        },
+        "sharp-gray-2x-psm11": {
+          "raw": "Y/ ST@N LEE’S MISFITS",
+          "value": "Y/ ST@N LEE’S MISFITS",
+          "exact": false
+        }
+      },
+      "roi": [
+        0.5944,
+        0.12091,
+        0.90951,
+        0.19921
+      ]
+    },
+    {
+      "id": "capture-08",
+      "split": "holdout",
+      "expected": "Blurred Vision",
+      "phase2": "Blurred Vision",
+      "variants": {
+        "raw-2x-psm7": {
+          "raw": "¢ Blurred Vision",
+          "value": "¢ Blurred Vision",
+          "exact": false
+        },
+        "raw-2x-psm11": {
+          "raw": "¢ Blurred Vision",
+          "value": "¢ Blurred Vision",
+          "exact": false
+        },
+        "gray-contrast-2x-psm7": {
+          "raw": "¢ Blurred Vision",
+          "value": "¢ Blurred Vision",
+          "exact": false
+        },
+        "gray-contrast-2x-psm11": {
+          "raw": "¢ Blurred Vision",
+          "value": "¢ Blurred Vision",
+          "exact": false
+        },
+        "color-isolation-2x-psm7": {
+          "raw": "& Blurred Vision",
+          "value": "& Blurred Vision",
+          "exact": false
+        },
+        "color-isolation-2x-psm11": {
+          "raw": "& Blurred Vision",
+          "value": "& Blurred Vision",
+          "exact": false
+        },
+        "sharp-gray-2x-psm7": {
+          "raw": "¢ Blurred Vision",
+          "value": "¢ Blurred Vision",
+          "exact": false
+        },
+        "sharp-gray-2x-psm11": {
+          "raw": "¢ Blurred Vision",
+          "value": "¢ Blurred Vision",
+          "exact": false
+        }
+      },
+      "roi": [
+        0.5944,
+        0.10035,
+        0.90951,
+        0.1889
+      ]
+    },
+    {
+      "id": "capture-09",
+      "split": "holdout",
+      "expected": null,
+      "phase2": null,
+      "variants": {
+        "raw-2x-psm7": {
+          "raw": "",
+          "value": "",
+          "exact": null
+        },
+        "raw-2x-psm11": {
+          "raw": "%",
+          "value": "%",
+          "exact": null
+        },
+        "gray-contrast-2x-psm7": {
+          "raw": "",
+          "value": "",
+          "exact": null
+        },
+        "gray-contrast-2x-psm11": {
+          "raw": "‘4",
+          "value": "‘4",
+          "exact": null
+        },
+        "color-isolation-2x-psm7": {
+          "raw": "",
+          "value": "",
+          "exact": null
+        },
+        "color-isolation-2x-psm11": {
+          "raw": "Ne\n\nFAA",
+          "value": "Ne FAA",
+          "exact": null
+        },
+        "sharp-gray-2x-psm7": {
+          "raw": "",
+          "value": "",
+          "exact": null
+        },
+        "sharp-gray-2x-psm11": {
+          "raw": "4s",
+          "value": "4s",
+          "exact": null
+        }
+      },
+      "roi": [
+        0.59484,
+        0.14167,
+        0.90983,
+        0.22778
+      ]
+    }
+  ],
+  "elapsedMs": 14586.3
+}

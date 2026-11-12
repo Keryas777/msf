@@ -1,0 +1,562 @@
+{
+  "schemaVersion": "1.0.0",
+  "engine": "Tesseract CLI; local-only numeric ROI experiment",
+  "method": "Proportional crop around OCR label anchor; grayscale, autocontrast, upscale, PSM 7 digit whitelist. These are candidate values only and not used by the default extractor.",
+  "configurationHistory": [
+    {
+      "id": "score-wide-3x",
+      "anchor": "POINTS row from PSM 11",
+      "xRanges": {
+        "local": [
+          0.18,
+          0.43
+        ],
+        "opponent": [
+          0.59,
+          0.8
+        ]
+      },
+      "yRange": "label midpoint +/- .035 * image height",
+      "scale": 3,
+      "psm": 7,
+      "whitelist": "0123456789"
+    },
+    {
+      "id": "score-narrow-3x",
+      "anchor": "POINTS row from PSM 11",
+      "xRanges": {
+        "local": [
+          0.26,
+          0.46
+        ],
+        "opponent": [
+          0.58,
+          0.82
+        ]
+      },
+      "yRange": "label midpoint +/- .035 * image height",
+      "scale": 3,
+      "psm": 7,
+      "whitelist": "0123456789"
+    },
+    {
+      "id": "trophy-narrow-4x",
+      "anchor": "LoSP row from PSM 11; crop midpoint = row midpoint + .075 * image height",
+      "xRanges": {
+        "local": [
+          0.14,
+          0.29
+        ],
+        "opponent": [
+          0.59,
+          0.69
+        ]
+      },
+      "yRange": "anchor midpoint +/- .035 * image height",
+      "scale": 4,
+      "psm": 7,
+      "whitelist": "0123456789"
+    }
+  ],
+  "meanMsPerCapture": {
+    "score-wide-3x": 267.1,
+    "score-narrow-3x": 271.9,
+    "trophy-narrow-4x": 274.6
+  },
+  "summary": {
+    "score-wide-3x": {
+      "localScore": {
+        "exact": 5,
+        "total": 9
+      },
+      "opponentScore": {
+        "exact": 7,
+        "total": 9
+      },
+      "localTrophies": {
+        "exact": 0,
+        "total": 9
+      },
+      "opponentTrophies": {
+        "exact": 0,
+        "total": 9
+      }
+    },
+    "score-narrow-3x": {
+      "localScore": {
+        "exact": 4,
+        "total": 9
+      },
+      "opponentScore": {
+        "exact": 3,
+        "total": 9
+      },
+      "localTrophies": {
+        "exact": 0,
+        "total": 9
+      },
+      "opponentTrophies": {
+        "exact": 0,
+        "total": 9
+      }
+    },
+    "trophy-narrow-4x": {
+      "localScore": {
+        "exact": 0,
+        "total": 9
+      },
+      "opponentScore": {
+        "exact": 0,
+        "total": 9
+      },
+      "localTrophies": {
+        "exact": 4,
+        "total": 9
+      },
+      "opponentTrophies": {
+        "exact": 2,
+        "total": 9
+      }
+    }
+  },
+  "captures": {
+    "score-wide-3x": [
+      {
+        "id": "capture-01",
+        "split": "train",
+        "expected": {
+          "localScore": 411597,
+          "opponentScore": 257149,
+          "localTrophies": 2778,
+          "opponentTrophies": 2627
+        },
+        "extracted": {
+          "localScore": "411597",
+          "opponentScore": "257149",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-02",
+        "split": "train",
+        "expected": {
+          "localScore": 343311,
+          "opponentScore": 314689,
+          "localTrophies": 2792,
+          "opponentTrophies": 2680
+        },
+        "extracted": {
+          "localScore": "4331",
+          "opponentScore": "314689",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-03",
+        "split": "train",
+        "expected": {
+          "localScore": 363432,
+          "opponentScore": 153303,
+          "localTrophies": 2738,
+          "opponentTrophies": 2438
+        },
+        "extracted": {
+          "localScore": "6492",
+          "opponentScore": "1530",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-04",
+        "split": "train",
+        "expected": {
+          "localScore": 319841,
+          "opponentScore": 458874,
+          "localTrophies": 2783,
+          "opponentTrophies": 2926
+        },
+        "extracted": {
+          "localScore": "19841",
+          "opponentScore": "458874",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-05",
+        "split": "train",
+        "expected": {
+          "localScore": 340136,
+          "opponentScore": 291856,
+          "localTrophies": 2791,
+          "opponentTrophies": 2640
+        },
+        "extracted": {
+          "localScore": "340136",
+          "opponentScore": "291856",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-06",
+        "split": "train",
+        "expected": {
+          "localScore": 366816,
+          "opponentScore": 168062,
+          "localTrophies": 2414,
+          "opponentTrophies": 2264
+        },
+        "extracted": {
+          "localScore": "366816",
+          "opponentScore": "168062",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-07",
+        "split": "train",
+        "expected": {
+          "localScore": 297706,
+          "opponentScore": 439960,
+          "localTrophies": 2663,
+          "opponentTrophies": 2814
+        },
+        "extracted": {
+          "localScore": "297706",
+          "opponentScore": "439360",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-08",
+        "split": "holdout",
+        "expected": {
+          "localScore": 371356,
+          "opponentScore": 284300,
+          "localTrophies": 2858,
+          "opponentTrophies": 2708
+        },
+        "extracted": {
+          "localScore": "371356",
+          "opponentScore": "284300",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-09",
+        "split": "holdout",
+        "expected": {
+          "localScore": 348354,
+          "opponentScore": 481264,
+          "localTrophies": 2715,
+          "opponentTrophies": 2864
+        },
+        "extracted": {
+          "localScore": "4348954",
+          "opponentScore": "481264",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      }
+    ],
+    "score-narrow-3x": [
+      {
+        "id": "capture-01",
+        "split": "train",
+        "expected": {
+          "localScore": 411597,
+          "opponentScore": 257149,
+          "localTrophies": 2778,
+          "opponentTrophies": 2627
+        },
+        "extracted": {
+          "localScore": "411597",
+          "opponentScore": "257140",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-02",
+        "split": "train",
+        "expected": {
+          "localScore": 343311,
+          "opponentScore": 314689,
+          "localTrophies": 2792,
+          "opponentTrophies": 2680
+        },
+        "extracted": {
+          "localScore": "343311",
+          "opponentScore": "314689",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-03",
+        "split": "train",
+        "expected": {
+          "localScore": 363432,
+          "opponentScore": 153303,
+          "localTrophies": 2738,
+          "opponentTrophies": 2438
+        },
+        "extracted": {
+          "localScore": "452",
+          "opponentScore": "1530",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-04",
+        "split": "train",
+        "expected": {
+          "localScore": 319841,
+          "opponentScore": 458874,
+          "localTrophies": 2783,
+          "opponentTrophies": 2926
+        },
+        "extracted": {
+          "localScore": "7847",
+          "opponentScore": "4568874",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-05",
+        "split": "train",
+        "expected": {
+          "localScore": 340136,
+          "opponentScore": 291856,
+          "localTrophies": 2791,
+          "opponentTrophies": 2640
+        },
+        "extracted": {
+          "localScore": "340136",
+          "opponentScore": "2918563",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-06",
+        "split": "train",
+        "expected": {
+          "localScore": 366816,
+          "opponentScore": 168062,
+          "localTrophies": 2414,
+          "opponentTrophies": 2264
+        },
+        "extracted": {
+          "localScore": "366816",
+          "opponentScore": "1680627",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-07",
+        "split": "train",
+        "expected": {
+          "localScore": 297706,
+          "opponentScore": 439960,
+          "localTrophies": 2663,
+          "opponentTrophies": 2814
+        },
+        "extracted": {
+          "localScore": "1706",
+          "opponentScore": "439360",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-08",
+        "split": "holdout",
+        "expected": {
+          "localScore": 371356,
+          "opponentScore": 284300,
+          "localTrophies": 2858,
+          "opponentTrophies": 2708
+        },
+        "extracted": {
+          "localScore": "356",
+          "opponentScore": "284300",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      },
+      {
+        "id": "capture-09",
+        "split": "holdout",
+        "expected": {
+          "localScore": 348354,
+          "opponentScore": 481264,
+          "localTrophies": 2715,
+          "opponentTrophies": 2864
+        },
+        "extracted": {
+          "localScore": "348554",
+          "opponentScore": "481264",
+          "localTrophies": null,
+          "opponentTrophies": null
+        }
+      }
+    ],
+    "trophy-narrow-4x": [
+      {
+        "id": "capture-01",
+        "split": "train",
+        "expected": {
+          "localScore": 411597,
+          "opponentScore": 257149,
+          "localTrophies": 2778,
+          "opponentTrophies": 2627
+        },
+        "extracted": {
+          "localScore": null,
+          "opponentScore": null,
+          "localTrophies": "2778",
+          "opponentTrophies": "2627"
+        }
+      },
+      {
+        "id": "capture-02",
+        "split": "train",
+        "expected": {
+          "localScore": 343311,
+          "opponentScore": 314689,
+          "localTrophies": 2792,
+          "opponentTrophies": 2680
+        },
+        "extracted": {
+          "localScore": null,
+          "opponentScore": null,
+          "localTrophies": "279",
+          "opponentTrophies": "4"
+        }
+      },
+      {
+        "id": "capture-03",
+        "split": "train",
+        "expected": {
+          "localScore": 363432,
+          "opponentScore": 153303,
+          "localTrophies": 2738,
+          "opponentTrophies": 2438
+        },
+        "extracted": {
+          "localScore": null,
+          "opponentScore": null,
+          "localTrophies": "2738",
+          "opponentTrophies": ""
+        }
+      },
+      {
+        "id": "capture-04",
+        "split": "train",
+        "expected": {
+          "localScore": 319841,
+          "opponentScore": 458874,
+          "localTrophies": 2783,
+          "opponentTrophies": 2926
+        },
+        "extracted": {
+          "localScore": null,
+          "opponentScore": null,
+          "localTrophies": "18371",
+          "opponentTrophies": ""
+        }
+      },
+      {
+        "id": "capture-05",
+        "split": "train",
+        "expected": {
+          "localScore": 340136,
+          "opponentScore": 291856,
+          "localTrophies": 2791,
+          "opponentTrophies": 2640
+        },
+        "extracted": {
+          "localScore": null,
+          "opponentScore": null,
+          "localTrophies": "279",
+          "opponentTrophies": ""
+        }
+      },
+      {
+        "id": "capture-06",
+        "split": "train",
+        "expected": {
+          "localScore": 366816,
+          "opponentScore": 168062,
+          "localTrophies": 2414,
+          "opponentTrophies": 2264
+        },
+        "extracted": {
+          "localScore": null,
+          "opponentScore": null,
+          "localTrophies": "2414",
+          "opponentTrophies": "2264"
+        }
+      },
+      {
+        "id": "capture-07",
+        "split": "train",
+        "expected": {
+          "localScore": 297706,
+          "opponentScore": 439960,
+          "localTrophies": 2663,
+          "opponentTrophies": 2814
+        },
+        "extracted": {
+          "localScore": null,
+          "opponentScore": null,
+          "localTrophies": "2663",
+          "opponentTrophies": ""
+        }
+      },
+      {
+        "id": "capture-08",
+        "split": "holdout",
+        "expected": {
+          "localScore": 371356,
+          "opponentScore": 284300,
+          "localTrophies": 2858,
+          "opponentTrophies": 2708
+        },
+        "extracted": {
+          "localScore": null,
+          "opponentScore": null,
+          "localTrophies": "8587",
+          "opponentTrophies": ""
+        }
+      },
+      {
+        "id": "capture-09",
+        "split": "holdout",
+        "expected": {
+          "localScore": 348354,
+          "opponentScore": 481264,
+          "localTrophies": 2715,
+          "opponentTrophies": 2864
+        },
+        "extracted": {
+          "localScore": null,
+          "opponentScore": null,
+          "localTrophies": "21",
+          "opponentTrophies": ""
+        }
+      }
+    ]
+  }
+}
