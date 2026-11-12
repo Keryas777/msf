@@ -249,10 +249,15 @@ test('Conclave de l’Ombre : les 5 membres sont visibles même sans objectifs i
   assert.equal(teams.length,1);
   assert.equal(teams[0].children[0].children[0].textContent,"Conclave de l'Ombre");
   assert.equal(teams[0].children[0].children[1].textContent,'5 personnages · 1 objectif');
+  const summary=teams[0].children[0];
   const people=teams[0].children[1];
-  const roster=people.children.find(node=>node.className==='ev-objective-team-roster');
-  assert.ok(roster);
+  const roster=summary.children.find(node=>node.className==='ev-objective-team-roster');
+  assert.ok(roster,'La composition reste visible dans le summary fermé');
+  assert.equal(roster.tag,'span');
+  assert.ok(!teams[0].open);
   assert.equal(roster.children.length,5);
+  assert.ok(!people.children.some(node=>node.className==='ev-objective-team-roster'),
+    'Ne pas répéter les portraits dans le contenu ouvert');
   assert.deepEqual(roster.children.map(member=>
     member.children.find(child=>child.tag==='span')?.textContent),
     team.characters.map(id=>realCharacters.find(character=>character.id===id).nameKey));
@@ -263,7 +268,36 @@ test('Conclave de l’Ombre : les 5 membres sont visibles même sans objectifs i
   const details=objectiveNodes(nodes)[0].children[1].children.map(child=>child.textContent);
   assert.ok(details.some(value=>value.includes('25')));
   assert.ok(details.some(value=>value.includes('200')));
-  assert.match(css,/\.ev-objective-team-roster\{/);
+  assert.match(css,/\.ev-objective-team-summary>\.ev-objective-team-roster\{/);
+  assert.match(css,/flex-wrap:nowrap/);
+  assert.match(css,/order:1;flex:0 0 100%/);
+  assert.match(css,/\.ev-objective-team-member-name\{position:absolute/);
+});
+
+test('Avengers IA et Fantassin de fer affichent chacun leurs 5 portraits sur le panneau fermé',async()=>{
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Objectifs d’équipe','milestone',{milestone:{type:'solo',scoring:{
+      methods:[
+        {description:'Combattre en choc avec tous les membres des Avengers I.A.',points:10},
+        {description:'Combattre en choc avec tous les membres des Fantassins de fer',points:10}
+      ],cappedScorings:[]
+    }}}]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'2');
+  const groups=objectiveDetails(nodes,'ev-objective-team');
+  assert.deepEqual(groups.map(group=>group.children[0].children[0].textContent),
+    ['Avengers IA','Fantassin de fer']);
+  for(const group of groups){
+    const summary=group.children[0];
+    const roster=summary.children.find(child=>child.className==='ev-objective-team-roster');
+    assert.ok(roster);
+    assert.equal(roster.children.length,5);
+    assert.ok(!group.open);
+    assert.ok(roster.children.every(member=>
+      member.children.some(child=>child.tag==='img')));
+    assert.ok(!group.children[1].children.some(child=>
+      child.className==='ev-objective-team-roster'));
+  }
 });
 
 test('Une équipe avec 2 bonus individuels montre 5 membres sans inventer de méthodes',async()=>{
@@ -279,8 +313,10 @@ test('Une équipe avec 2 bonus individuels montre 5 membres sans inventer de mé
   const team=objectiveDetails(nodes,'ev-objective-team')[0];
   assert.ok(team);
   assert.equal(team.children[0].children[1].textContent,'5 personnages · 3 objectifs');
-  assert.equal(team.children[1].children.find(child=>
+  assert.equal(team.children[0].children.find(child=>
     child.className==='ev-objective-team-roster').children.length,5);
+  assert.ok(!team.children[1].children.some(child=>
+    child.className==='ev-objective-team-roster'));
   assert.equal(objectiveDetails(nodes,'ev-objective-character').length,2);
   assert.equal(objectiveNodes(nodes).length,3);
   assert.equal(nodes.get('stat-objectives').textContent,'3');
@@ -326,9 +362,11 @@ test('Événements distincts : combat avec toute une équipe et ses personnages 
     const group=groups[0];
     assert.equal(group.children[0].children[0].textContent,"Conclave de l'Ombre");
     assert.equal(group.children[0].children[1].textContent,'5 personnages · 3 objectifs');
-    const roster=group.children[1].children.find(child=>
+    const roster=group.children[0].children.find(child=>
       child.className==='ev-objective-team-roster');
     assert.equal(roster.children.length,5);
+    assert.ok(!group.children[1].children.some(child=>
+      child.className==='ev-objective-team-roster'));
     const members=objectiveDetails(nodes,'ev-objective-character');
     assert.equal(members.length,2);
     const names=members.map(member=>
@@ -749,7 +787,7 @@ test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP co
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=16"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=17"/);
   assert.doesNotMatch(css,/\.ev-toolbar\{|\.ev-filters\{|\.ev-date-controls\{/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -778,7 +816,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=30/);
+  assert.match(html,/evenements\.js\?v=31/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{

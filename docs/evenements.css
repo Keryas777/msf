@@ -129,9 +129,12 @@ details[open]>.ev-objective-character-summary::after{transform:rotate(180deg)}
 .ev-objective-team-summary{padding:12px;gap:7px 10px;min-width:0}
 .ev-objective-team-summary strong{font-size:16px;color:var(--text)}
 .ev-objective-people{display:flex;flex-direction:column;gap:7px;min-width:0;padding:9px}
-.ev-objective-team-roster{display:grid;grid-template-columns:repeat(auto-fit,minmax(91px,1fr));gap:6px;min-width:0}
-.ev-objective-team-member{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;min-width:0;text-align:center;padding:8px 5px;border:1px solid var(--border);border-radius:10px;background:rgba(0,0,0,.15);color:var(--text);font-size:10px;line-height:1.3;overflow-wrap:anywhere}
-.ev-objective-team-member .ev-objective-portrait{width:43px;height:43px;flex:0 0 43px}
+/* Cinq portraits sur une ligne, toujours visibles dans l'en-tête replié. */
+.ev-objective-team-summary>.ev-objective-team-roster{display:flex;order:1;flex:0 0 100%;align-items:center;flex-wrap:nowrap;gap:6px;min-width:0;max-width:100%;margin-top:3px}
+.ev-objective-team-member{position:relative;display:flex;align-items:center;justify-content:center;flex:0 1 clamp(34px,13vw,52px);min-width:0;aspect-ratio:1;border:1px solid var(--border);border-radius:9px;background:rgba(0,0,0,.2);overflow:hidden}
+.ev-objective-team-member .ev-objective-portrait{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:8px}
+.ev-objective-team-member-fallback{font-size:13px;font-weight:800;color:var(--muted)}
+.ev-objective-team-member-name{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
 .ev-objective-team>.ev-objective-people{border-top:1px solid var(--border)}
 .ev-objective-character{border:1px solid var(--border);border-radius:10px;background:rgba(0,0,0,.20);min-width:0}
