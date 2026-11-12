@@ -13,7 +13,16 @@
 
   restoreDrafts();
   input.addEventListener("change", () => addFiles([...input.files || []]));
-  analyzeButton.addEventListener("click", analyzePending);
+  analyzeButton.addEventListener("click", () => {
+    status.textContent = "Démarrage de l’analyse des captures…";
+    analyzePending().catch(showGlobalError);
+  });
+  window.addEventListener("error", (event) => {
+    showGlobalError(event.error || event.message || "Erreur JavaScript non détaillée.");
+  });
+  window.addEventListener("unhandledrejection", (event) => {
+    showGlobalError(event.reason || "Promesse OCR rejetée sans détail.");
+  });
   $("#clearButton").addEventListener("click", clearSession);
   $("#exportAllButton").addEventListener("click", exportValidated);
   list.addEventListener("input", onEdit);
@@ -60,13 +69,13 @@
     const preview = r.url ? `<img class="result-preview" src="${r.url}" alt="Aperçu de ${escapeAttr(r.fileName)}" loading="lazy">` : `<p class="result-status">Image à sélectionner de nouveau pour afficher l’aperçu.</p>`;
     const diag = r.analysis ? `<details class="result-diagnostics"><summary>Mesures OCR de cette capture</summary><p>${escapeHtml(JSON.stringify(r.analysis.metrics, null, 2))}</p><pre>${escapeHtml(r.rawText)}</pre></details>` : "";
     return `<article class="capture-card result-card ${r.state === "error" ? "is-error" : ""}" data-id="${r.id}" id="result-${r.id}">
-      <div class="result-card-top"><div><h2>Capture ${index + 1} · ${escapeHtml(r.fileName)}</h2><p class="capture-meta">État : <span class="status-chip ${badgeClass}">${stateText}</span></p></div><div class="result-card-actions"><button class="secondary-button" data-action="analyze-one" ${analyzing || !r.file ? "disabled" : ""}>Relancer l’analyse</button><button class="secondary-button" data-action="remove" ${r.state === "analyzing" ? "disabled" : ""}>Supprimer</button></div></div>
+      <div class="result-card-top"><div><h2>Capture ${index + 1} · ${escapeHtml(r.fileName)}</h2><p class="capture-meta">État : <span class="status-chip ${badgeClass}">${stateText}</span></p></div><div class="result-card-actions"><button class="secondary-button" data-action="analyze-one" data-id="${r.id}" ${analyzing || !r.file ? "disabled" : ""}>Relancer l’analyse</button><button class="secondary-button" data-action="remove" data-id="${r.id}" ${r.state === "analyzing" ? "disabled" : ""}>Supprimer</button></div></div>
       ${preview}<p class="result-status" role="status">${escapeHtml(r.error || (r.state === "analyzing" ? "Traitement local en cours…" : r.state === "queued" ? "Prête pour l’analyse." : r.state === "validated" ? "Vérification manuelle confirmée. Fiche locale uniquement." : "Vérifie les propositions et les incertitudes avant de continuer."))}</p>
       <div class="result-fields">${fields}</div>
       <p class="result-status">Clé de rapprochement de l’adversaire : <strong class="match-key-value">${escapeHtml(WarResultsVisionData.toMatchKey(r.values.opponentAlliance) || "—")}</strong> (aucun rapprochement automatique)</p>
       ${diag}
       <label class="result-review"><input type="checkbox" data-confirm="${r.id}" ${r.confirmed ? "checked" : ""}> J’ai comparé les huit champs, y compris la date, à mes informations de guerre.</label>
-      <div class="result-card-footer"><button class="primary-button" data-action="validate" ${r.state === "analyzing" ? "disabled" : ""}>Valider cette fiche localement</button><button class="secondary-button" data-action="export-one" ${r.state !== "validated" ? "disabled" : ""}>Télécharger cette fiche (.json)</button></div>
+      <div class="result-card-footer"><button class="primary-button" data-action="validate" data-id="${r.id}" ${r.state === "analyzing" ? "disabled" : ""}>Valider cette fiche localement</button><button class="secondary-button" data-action="export-one" data-id="${r.id}" ${r.state !== "validated" ? "disabled" : ""}>Télécharger cette fiche (.json)</button></div>
     </article>`;
   }
 
@@ -104,20 +113,30 @@
 
   async function analyzePending(oneId = null) {
     if (analyzing) return;
-    const pending = records.filter((r) => r.file && (!oneId ? ["queued", "error"].includes(r.state) : r.id === oneId));
-    if (!pending.length) return;
-    analyzing = true; progress.hidden = false; progress.value = 0; analyzeButton.disabled = true;
-    diagnostics = [];
     try {
+      const targetId = typeof oneId === "string" ? oneId : null;
+      const pending = records.filter((r) => r.file && (!targetId ? ["queued", "error"].includes(r.state) : r.id === targetId));
+      if (!pending.length) {
+        status.textContent = targetId
+          ? "Cette capture n’est plus disponible pour une nouvelle analyse."
+          : "Aucune capture en attente. Sélectionne d’abord une ou plusieurs images.";
+        return;
+      }
+      analyzing = true;
+      progress.hidden = false;
+      progress.value = 0;
+      diagnostics = [];
+      status.textContent = `Démarrage de l’analyse (${pending.length} capture${pending.length > 1 ? "s" : ""})…`;
+      render();
       let done = 0;
       for (const record of pending) {
         record.state = "analyzing"; record.error = ""; render();
-        status.textContent = `Analyse ${done + 1}/${pending.length} : ${record.fileName}`;
+        status.textContent = `Analyse ${done + 1}/${pending.length} : préparation de ${record.fileName}…`;
         try {
           const before = performance.now();
           const result = await WarResultsVisionEngine.analyze(record.file, (message) => {
             if (message.status) status.textContent = `${record.fileName} — ${message.status}`;
-            if (Number.isFinite(message.progress)) progress.value = Math.round((done + message.progress) / pending.length * 100);
+            if (Number.isFinite(message.progress)) progress.value = Math.max(progress.value, Math.round((done + message.progress) / pending.length * 100));
           });
           record.fields = result.fields;
           record.values = Object.fromEntries(FIELDS.map((key) => [key, result.fields[key]?.value || ""]));
@@ -130,15 +149,31 @@
           record.error = "";
           diagnostics.push({ file: record.fileName, ...result.metrics, pageElapsedMs: Math.round(performance.now() - before) });
         } catch (error) {
-          record.state = "error"; record.error = error.message || "Échec de cette capture.";
+          record.state = "error";
+          record.error = errorMessage(error);
           diagnostics.push({ file: record.fileName, error: record.error });
         }
-        done++; progress.value = Math.round(done / pending.length * 100); saveDrafts(); render();
+        done++;
+        progress.value = Math.round(done / pending.length * 100);
+        saveDrafts(); render();
       }
       status.textContent = "Analyse terminée. Vérifie et corrige chaque fiche avant validation locale.";
+    } catch (error) {
+      const message = `Erreur avant ou pendant le démarrage de l’analyse : ${errorMessage(error)}`;
+      status.textContent = message;
+      diagnostics.push({ error: message });
+      const failed = records.find((r) => r.state === "analyzing");
+      if (failed) { failed.state = "error"; failed.error = message; }
+      saveDrafts(); render();
     } finally {
-      try { await WarResultsVisionEngine.release(); } catch (_) {}
-      analyzing = false; progress.hidden = true; render(); updateDiagnostics();
+      if (analyzing) {
+        try { await WarResultsVisionEngine.release(); }
+        catch (error) { status.textContent = `Analyse terminée, mais libération du moteur impossible : ${errorMessage(error)}`; }
+        analyzing = false;
+        progress.hidden = true;
+        render();
+      }
+      updateDiagnostics();
     }
   }
 
@@ -147,7 +182,7 @@
     const record = records.find((r) => r.id === button.dataset.id); if (!record) return;
     const action = button.dataset.action;
     if (action === "remove") { if (record.url) URL.revokeObjectURL(record.url); records = records.filter((r) => r !== record); saveDrafts(); render(); return; }
-    if (action === "analyze-one") { if (record.corrected.length && !confirm("Relancer l’OCR remplacera les corrections de cette fiche. Continuer ?")) return; analyzePending(record.id); return; }
+    if (action === "analyze-one") { if (record.corrected.length && !confirm("Relancer l’OCR remplacera les corrections de cette fiche. Continuer ?")) return; status.textContent = `Relance de l’analyse de ${record.fileName}…`; analyzePending(record.id).catch(showGlobalError); return; }
     if (action === "choose") {
       record.values[button.dataset.field] = button.dataset.value;
       record.fields[button.dataset.field] = { ...record.fields[button.dataset.field], value: button.dataset.value, alternatives: [], uncertain: true };
@@ -185,6 +220,15 @@
       for (const s of saved) records.push({ ...s, id: crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`, file: null, url: "", state: s.state === "analyzing" ? "review" : s.state, confirmed: false, error: "" });
       if (saved.length) status.textContent = "Brouillons textuels restaurés; aucune image n’a été stockée. Réimporte l’image pour afficher l’aperçu ou relancer l’OCR.";
     } catch (_) { sessionStorage.removeItem(KEY); }
+  }
+  function errorMessage(error) {
+    const message = error instanceof Error ? error.message : String(error ?? "Erreur inconnue.");
+    return message.slice(0, 500) || "Erreur inconnue.";
+  }
+  function showGlobalError(error) {
+    status.textContent = `Erreur de l’interface OCR : ${errorMessage(error)}`;
+    diagnostics.push({ error: errorMessage(error) });
+    updateDiagnostics();
   }
   function updateDiagnostics() {
     const ms = diagnostics.flatMap(d => d.calls || []).map(c => c.ms);

@@ -20,16 +20,36 @@
     return workerPromise;
   }
 
-  async function getWorker(logger) {
+  function readableWorkerStatus(value) {
+    const raw = String(value || "");
+    const normalized = raw.toLowerCase();
+    if (normalized.includes("loading tesseract core")) return "Chargement de Tesseract Core (ressources WASM)…";
+    if (normalized.includes("initializing tesseract")) return "Initialisation du moteur Tesseract…";
+    if (normalized.includes("loading language traineddata")) return "Chargement du modèle OCR anglais…";
+    if (normalized.includes("initializing api")) return "Initialisation de l’API OCR locale…";
+    if (normalized.includes("recognizing text")) return "Reconnaissance du texte…";
+    return raw ? `Ressource OCR : ${raw}` : "Chargement des ressources OCR locales…";
+  }
+
+  async function getWorker() {
     if (worker) return worker;
+    activeProgress({ status: "Chargement du script Tesseract.js…", progress: .03 });
     await loadScript();
-    worker = await window.Tesseract.createWorker("eng", 1, {
-      logger: (message) => activeProgress(message),
-      workerPath: "https://cdn.jsdelivr.net/npm/tesseract.js@v5.0.0/dist/worker.min.js",
-      corePath: "https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.0.0",
-      langPath: "https://tessdata.projectnaptha.com/4.0.0",
-      cacheMethod: "write", gzip: true
-    });
+    activeProgress({ status: "Démarrage du Worker; chargement WASM et du modèle OCR…", progress: .06 });
+    try {
+      worker = await window.Tesseract.createWorker("eng", 1, {
+        logger: (message) => activeProgress({ status: readableWorkerStatus(message.status), progress: message.progress }),
+        workerPath: "https://cdn.jsdelivr.net/npm/tesseract.js@v5.0.0/dist/worker.min.js",
+        corePath: "https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.0.0",
+        langPath: "https://tessdata.projectnaptha.com/4.0.0",
+        cacheMethod: "write", gzip: true
+      });
+    } catch (error) {
+      worker = null;
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new Error(`Échec du Worker ou du chargement WASM/modèle OCR : ${detail}`);
+    }
+    activeProgress({ status: "Worker OCR prêt.", progress: .09 });
     return worker;
   }
 
@@ -111,6 +131,7 @@
   async function analyze(file, onProgress = () => {}) {
     if (!CORE) throw new Error("Le module de reconnaissance partagé n’est pas chargé.");
     activeProgress = onProgress;
+    activeProgress({ status: "Ouverture et préparation de l’image…", progress: .01 });
     const totalStart = performance.now();
     const heapBefore = performance.memory?.usedJSHeapSize ?? null;
     const source = await decode(file);
@@ -125,7 +146,7 @@
     const dimensions = { width: source.width, height: source.height };
     const engineStart = performance.now();
     let engine;
-    try { engine = await getWorker(onProgress); }
+    try { engine = await getWorker(); }
     catch (error) { source.close?.(); canvas.width = canvas.height = 1; throw error; }
     const workerLoadMs = Math.round(performance.now() - engineStart);
     const calls = [];
@@ -138,8 +159,10 @@
     };
     try {
       onProgress({ status: "Lecture générale", progress: .1 });
+      onProgress({ status: "Première lecture OCR (PSM 6)…", progress: .12 });
       const full = await run("full-psm6", canvas, 6);
       onProgress({ status: "Lecture des éléments isolés", progress: .48 });
+      onProgress({ status: "Seconde lecture OCR (PSM 11)…", progress: .42 });
       const sparse = await run("sparse-psm11", canvas, 11);
       const fullWords = parse(full, scale), sparseWords = parse(sparse, scale);
       const color = resultColor(canvas);
