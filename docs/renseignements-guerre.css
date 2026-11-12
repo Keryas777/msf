@@ -185,3 +185,7 @@ button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transpare
 /* Runways and towers must never be cloned into the foreground: their original
    geometry stays within each flight deck, and the tower remains beside its strip. */
 .intelBoard .intelFlight .runway{z-index:1}
+
+/* Flight deck: no yellow centerline; keep only full-width cyan runway dashes. */
+.intelBoard .intelFlight .runway::after{content:none!important;display:none!important;background:none!important;box-shadow:none!important}
+.intelBoard .intelFlight .runway i{left:4px;right:1px;background:repeating-linear-gradient(90deg,#9cefff 0 15px,transparent 15px 18px)}
