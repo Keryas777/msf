@@ -710,7 +710,7 @@
           objectiveCount(methods.length)));
         // Les types d'orbes ont des plafonds indépendants : ne pas
         // afficher de limite agrégée trompeuse dans l'en-tête commun.
-        for(const hint of orbOpening?[]:objectiveActionHints(methods))
+        for(const hint of (orbOpening?[]:objectiveActionHints(methods)))
           actionTitle.append(create('span','ev-objective-limit',hint));
         const body=create('div','ev-objective-event-content');
         const bySource=new Map();
