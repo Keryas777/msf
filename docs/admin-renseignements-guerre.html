@@ -10,7 +10,7 @@
   <script src="./auth-guard.js?v=8"></script>
   <link rel="stylesheet" href="./style.css?v=ts" />
   <link rel="stylesheet" href="./renseignements-guerre.css?v=16-live-rooms" />
-  <link rel="stylesheet" href="./admin-renseignements-guerre.css?v=3-ios-zoom" />
+  <link rel="stylesheet" href="./admin-renseignements-guerre.css?v=4-create-first" />
   <link rel="manifest" href="./manifest.webmanifest" />
 </head>
 <body class="warIntelPage" data-war-intel-admin="true">
@@ -24,7 +24,13 @@
     <p id="intelAdminStatus" class="intelAdminStatus" role="status" aria-live="polite">Vérification de la session Discord…</p>
     <section id="intelAdminApp" class="intelAdminLayout" hidden>
       <section class="intelAdminPanel" aria-labelledby="intelAdminAllianceTitle">
-        <h2 id="intelAdminAllianceTitle">Alliance adverse</h2>
+        <h2 id="intelAdminAllianceTitle">1 · Alliance adverse</h2>
+        <div class="intelAdminCreate intelAdminCreatePrimary">
+          <label class="intelAdminField" for="intelNewAlliance">Nouvelle alliance — commencer ici</label>
+          <p class="intelAdminFootnote">Saisis le nom classique puis touche « Créer ». Tu pourras ensuite placer les salles sur la carte.</p>
+          <div class="intelAdminInline"><input id="intelNewAlliance" class="intelAdminInput" maxlength="80" type="text" autocomplete="off" placeholder="Nom classique de l’alliance" /><button id="intelCreateAlliance" class="intelAdminButton" type="button">Créer l’alliance</button></div>
+        </div>
+        <div class="intelAdminExisting"><h3>Alliance déjà rencontrée ?</h3>
         <label class="intelAdminField" for="intelAllianceSearch">Rechercher dans les alliances enregistrées</label>
         <input id="intelAllianceSearch" class="intelAdminInput" type="search" autocomplete="off" placeholder="Nom classique de l’alliance" />
         <label class="intelAdminField" for="intelAlliance">Sélectionner une alliance</label>
@@ -33,13 +39,11 @@
           <label class="intelAdminField" for="intelClassicName">Nom classique conservé</label>
           <div class="intelAdminInline"><input id="intelClassicName" class="intelAdminInput" maxlength="80" type="text" autocomplete="off" /><button id="intelSaveAllianceName" class="intelAdminButton intelAdminSecondary" type="button">Enregistrer</button></div>
         </div>
-        <div class="intelAdminCreate">
-          <label class="intelAdminField" for="intelNewAlliance">Créer une alliance</label>
-          <div class="intelAdminInline"><input id="intelNewAlliance" class="intelAdminInput" maxlength="80" type="text" autocomplete="off" placeholder="Nom classique" /><button id="intelCreateAlliance" class="intelAdminButton" type="button">Créer</button></div>
+        
         </div>
       </section>
       <section class="intelAdminPanel" aria-labelledby="intelObservationTitle">
-        <h2 id="intelObservationTitle">Relevé</h2>
+        <h2 id="intelObservationTitle">2 · Date et relevé</h2>
         <label class="intelAdminField" for="intelDate">Date du relevé</label>
         <input id="intelDate" class="intelAdminInput" type="date" />
         <label class="intelAdminField" for="intelHistory">Historique publié</label>
@@ -54,7 +58,7 @@
       </section>
 
       <section class="intelMapPanel intelAdminMap" aria-label="Saisie et aperçu de la carte tactique">
-        <div class="intelMapTopline"><div><p class="intelSectionCode">CARTE DE DÉFENSE</p><h2>Carte et bonus adjacents</h2></div><span class="intelMapStatus"><i></i> Aperçu fidèle</span></div>
+        <div class="intelMapTopline"><div><p class="intelSectionCode">3 · SAISIE DES SALLES</p><h2>Touche une salle pour la renseigner</h2></div><span class="intelMapStatus"><i></i> Aperçu fidèle</span></div>
         <div class="intelModeBar" role="group" aria-label="Mode tactique">
           <button type="button" class="intelMode is-active" data-mode="overview" aria-pressed="true"><span aria-hidden="true">⌗</span><span>Vue générale</span></button>
           <button type="button" class="intelMode" data-mode="emitted" aria-pressed="false"><span aria-hidden="true">◎</span><span>Bonus émis</span></button>
@@ -63,7 +67,7 @@
         <p id="intelEmpty" class="intelEmpty" hidden>Choisis une alliance ou commence une carte vide.</p>
         <p id="intelLoadError" class="intelLoadError" role="status" hidden></p>
         <div id="intelBoard" class="intelBoard" data-mode="overview" aria-label="Carte interactive de l’héliporteur"><svg id="intelConnections" class="intelConnections" aria-hidden="true"></svg></div>
-        <div id="intelRoomPicker" class="intelRoomPicker" hidden>
+        <div id="intelRoomPicker" class="intelRoomPicker" hidden role="region" aria-label="Choisir une salle pour l’emplacement sélectionné">
           <label class="intelAdminField" for="intelRoomChoice">Emplacement <span id="intelPositionLabel"></span></label>
           <select id="intelRoomChoice" class="intelSelect" aria-label="Choisir la salle à placer immédiatement"></select>
           <p class="intelAdminFootnote">Le choix s’applique immédiatement à la carte. Publie uniquement quand le plan est prêt.</p>
@@ -75,6 +79,6 @@
     </section>
   </main>
   <script src="./renseignements-guerre.js?v=14-refresh-return" defer></script>
-  <script src="./admin-renseignements-guerre.js?v=3-fast-entry" defer></script>
+  <script src="./admin-renseignements-guerre.js?v=4-picker-navigation" defer></script>
 </body>
 </html>
