@@ -44,6 +44,8 @@
         <input id="intelDate" class="intelAdminInput" type="date" />
         <label class="intelAdminField" for="intelHistory">Historique publié</label>
         <select id="intelHistory" class="intelSelect"><option value="">Aucun relevé</option></select>
+        <!-- Sélecteur interne requis par le moteur de carte partagé ; la liste visible est intelHistory. -->
+        <select id="intelObservation" hidden aria-hidden="true" tabindex="-1"></select>
         <div class="intelAdminActions">
           <button id="intelBlank" class="intelAdminButton intelAdminSecondary" type="button">Carte vide</button>
           <button id="intelDuplicate" class="intelAdminButton intelAdminSecondary" type="button">Dupliquer le relevé sélectionné</button>
@@ -71,7 +73,7 @@
       </section>
     </section>
   </main>
-  <script src="./renseignements-guerre.js?v=12-live-data" defer></script>
+  <script src="./renseignements-guerre.js?v=13-admin-observation" defer></script>
   <script src="./admin-renseignements-guerre.js?v=2-login-mobile" defer></script>
 </body>
 </html>
