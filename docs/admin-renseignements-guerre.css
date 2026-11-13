@@ -26,3 +26,6 @@
 .intelAdminStatusActions{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}
 .intelAdminStatusActions a{display:inline-flex;align-items:center;min-height:40px;padding:8px 11px;border:1px solid rgba(121,232,255,.4);border-radius:9px;color:#d1f4ff;text-decoration:none;font-weight:800}
 @media(max-width:650px){.intelAdminShell .intelHeader{grid-template-columns:minmax(0,1fr);align-items:start}.intelAdminShell .intelAdminHome{justify-self:start;margin-left:0}.intelAdminShell .intelHeader h1{font-size:clamp(24px,7vw,32px)}.intelAdminShell .intelIntro{max-width:100%}}
+
+/* iOS Safari/Chrome : 16px minimum pour éviter le zoom automatique au focus. */
+.intelAdminShell input,.intelAdminShell select,.intelAdminShell textarea{font-size:16px}

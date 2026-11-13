@@ -106,12 +106,12 @@
       setStatus("Nom classique mis à jour. Les relevés gardent leur identifiant d’alliance.","ok");
     }));
     window.LoSPWarIntel.setEditHandler((position,current)=>{
-      selectedPosition=position;positionLabel.textContent=String(position-2);choice.value=current||"";picker.hidden=false;choice.focus({preventScroll:true});
+      selectedPosition=position;positionLabel.textContent=String(position-2);choice.value=current||"";picker.hidden=false;
     });
-    $("intelApplyRoom").addEventListener("click",()=>{
+    choice.addEventListener("change",()=>{
       if(selectedPosition==null)return;const room=choice.value||null;const index=selectedPosition-3;
       if(room&&layout.some((item,i)=>i!==index&&item===room)){setStatus("Cette salle est déjà présente sur la carte.","error");return;}
-      layout[index]=room;picker.hidden=true;preview();setStatus("Position "+(index+1)+" mise à jour. Le brouillon est gardé en mémoire jusqu’à l’enregistrement.","ok");
+      layout[index]=room;picker.hidden=true;preview();setStatus("Position "+(index+1)+" mise à jour. Continue à placer les salles, puis valide le plan complet.","ok");
     });
     publishButton.addEventListener("click",()=>runBusy(async()=>{
       validateLayout();if(!currentAlliance())throw Error("Sélectionne ou crée une alliance.");
