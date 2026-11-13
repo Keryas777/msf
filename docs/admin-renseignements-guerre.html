@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#08101d" />
+  <title>Administration des renseignements de guerre — LoSP</title>
+  <style>html.authChecking body{opacity:0;pointer-events:none}</style>
+  <script>document.documentElement.classList.add("authChecking");</script>
+  <script src="./auth-guard.js?v=8"></script>
+  <link rel="stylesheet" href="./style.css?v=ts" />
+  <link rel="stylesheet" href="./renseignements-guerre.css?v=16-live-rooms" />
+  <link rel="stylesheet" href="./admin-renseignements-guerre.css?v=1-owner-editor" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+</head>
+<body class="warIntelPage" data-war-intel-admin="true">
+  <a class="intelSkip" href="#intelAdminMain">Aller au formulaire</a>
+  <main id="intelAdminMain" class="intelShell intelAdminShell">
+    <header class="intelHeader">
+      <div class="intelHeaderText"><p class="intelEyebrow">LoSP · Administration</p><h1>Plans de défense adverses</h1>
+        <p class="intelIntro">Enregistre les positions et conserve les relevés précédents.</p></div>
+      <a class="intelAdminHome" href="./renseignements-guerre.html">← Consultation</a>
+    </header>
+    <p id="intelAdminStatus" class="intelAdminStatus" role="status" aria-live="polite">Vérification de la session Discord…</p>
+    <section id="intelAdminApp" class="intelAdminLayout" hidden>
+      <section class="intelAdminPanel" aria-labelledby="intelAdminAllianceTitle">
+        <h2 id="intelAdminAllianceTitle">Alliance adverse</h2>
+        <label class="intelAdminField" for="intelAllianceSearch">Rechercher dans les alliances enregistrées</label>
+        <input id="intelAllianceSearch" class="intelAdminInput" type="search" autocomplete="off" placeholder="Nom classique de l’alliance" />
+        <label class="intelAdminField" for="intelAlliance">Sélectionner une alliance</label>
+        <select id="intelAlliance" class="intelSelect" aria-label="Alliance adverse"></select>
+        <div class="intelAdminRename">
+          <label class="intelAdminField" for="intelClassicName">Nom classique conservé</label>
+          <div class="intelAdminInline"><input id="intelClassicName" class="intelAdminInput" maxlength="80" type="text" autocomplete="off" /><button id="intelSaveAllianceName" class="intelAdminButton intelAdminSecondary" type="button">Enregistrer</button></div>
+        </div>
+        <div class="intelAdminCreate">
+          <label class="intelAdminField" for="intelNewAlliance">Créer une alliance</label>
+          <div class="intelAdminInline"><input id="intelNewAlliance" class="intelAdminInput" maxlength="80" type="text" autocomplete="off" placeholder="Nom classique" /><button id="intelCreateAlliance" class="intelAdminButton" type="button">Créer</button></div>
+        </div>
+      </section>
+      <section class="intelAdminPanel" aria-labelledby="intelObservationTitle">
+        <h2 id="intelObservationTitle">Relevé</h2>
+        <label class="intelAdminField" for="intelDate">Date du relevé</label>
+        <input id="intelDate" class="intelAdminInput" type="date" />
+        <label class="intelAdminField" for="intelHistory">Historique publié</label>
+        <select id="intelHistory" class="intelSelect"><option value="">Aucun relevé</option></select>
+        <div class="intelAdminActions">
+          <button id="intelBlank" class="intelAdminButton intelAdminSecondary" type="button">Carte vide</button>
+          <button id="intelDuplicate" class="intelAdminButton intelAdminSecondary" type="button">Dupliquer le relevé sélectionné</button>
+          <button id="intelSaveDraft" class="intelAdminButton intelAdminSecondary" type="button">Enregistrer le brouillon sur cet appareil</button>
+        </div>
+      </section>
+
+      <section class="intelMapPanel intelAdminMap" aria-label="Saisie et aperçu de la carte tactique">
+        <div class="intelMapTopline"><div><p class="intelSectionCode">CARTE DE DÉFENSE</p><h2>Carte et bonus adjacents</h2></div><span class="intelMapStatus"><i></i> Aperçu fidèle</span></div>
+        <div class="intelModeBar" role="group" aria-label="Mode tactique">
+          <button type="button" class="intelMode is-active" data-mode="overview" aria-pressed="true"><span aria-hidden="true">⌗</span><span>Vue générale</span></button>
+          <button type="button" class="intelMode" data-mode="emitted" aria-pressed="false"><span aria-hidden="true">◎</span><span>Bonus émis</span></button>
+          <button type="button" class="intelMode" data-mode="received" aria-pressed="false"><span aria-hidden="true">◌</span><span>Bonus reçus</span></button>
+        </div>
+        <p id="intelEmpty" class="intelEmpty" hidden>Choisis une alliance ou commence une carte vide.</p>
+        <p id="intelLoadError" class="intelLoadError" role="status" hidden></p>
+        <div id="intelBoard" class="intelBoard" data-mode="overview" aria-label="Carte interactive de l’héliporteur"><svg id="intelConnections" class="intelConnections" aria-hidden="true"></svg></div>
+        <div id="intelRoomPicker" class="intelRoomPicker" hidden>
+          <label class="intelAdminField" for="intelRoomChoice">Emplacement <span id="intelPositionLabel"></span></label>
+          <div class="intelAdminInline"><select id="intelRoomChoice" class="intelSelect"></select><button id="intelApplyRoom" class="intelAdminButton" type="button">Placer</button></div>
+        </div>
+        <section id="intelDetail" class="intelDetail" aria-live="polite" aria-label="Informations de la salle sélectionnée"></section>
+        <div class="intelAdminPublishActions"><button id="intelPublish" class="intelAdminButton intelAdminPublish" type="button">Valider et publier</button><button id="intelDelete" class="intelAdminButton intelAdminDanger" type="button" hidden>Supprimer définitivement ce relevé</button></div>
+        <p class="intelAdminFootnote">Une salle vide est considérée inconnue. Les ponts d’envol sont fixes. Une correction à la même date remplace le relevé; les autres dates restent consultables.</p>
+      </section>
+    </section>
+  </main>
+  <script src="./renseignements-guerre.js?v=12-live-data" defer></script>
+  <script src="./admin-renseignements-guerre.js?v=1-owner-editor" defer></script>
+</body>
+</html>

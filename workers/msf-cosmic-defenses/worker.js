@@ -6,7 +6,10 @@ const REPO = "Keryas777/msf";
 const PATH = "docs/data/cosmic-defenses.json";
 const AUTH_URL = "https://losp-auth.internal/signed-me";
 const API = "https://api.github.com/repos/" + REPO;
+const WAR_INTEL_PATH = "docs/data/war-intelligence.json";
+const WAR_INTEL_OWNER_ID = "300305626926415874";
 const MAX_BODY = 12000;
+const MAX_WAR_INTEL_BODY = 32000;
 const HEADERS = { "Cache-Control":"no-store", "Content-Type":"application/json; charset=utf-8" };
 const encode = value => {
   const bytes = new TextEncoder().encode(value);
@@ -109,7 +112,7 @@ async function requireDiscord(request,env) {
   }
   const name=clean(data.displayName||data.global_name||data.username,80);
   if (!name) throw new HttpError(401,"missing_discord_name");
-  return { id:String(data.id),name };
+  return { id:String(data.id),name,role:String(data.role||"") };
 }
 function parseRooms(payload,season,knownIds){
   if (!payload||payload.season!==season||!Array.isArray(payload.rooms) ||
@@ -241,6 +244,158 @@ async function publish(request,env){
   }
   throw new HttpError(409,"busy");
 }
+
+const WAR_INTEL_ROOMS=new Set(["soute","hangar","security","tech","armory","infirmary","bridge","reactor","barracks"]);
+function validWarDate(value){
+  if(typeof value!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
+  const date=new Date(value+"T00:00:00Z");
+  return !Number.isNaN(date.valueOf())&&date.toISOString().slice(0,10)===value;
+}
+function validRichName(value){
+  if(value==null)return null;
+  if(value.schemaVersion!==1||!Array.isArray(value.segments)||value.segments.length>40)
+    throw new HttpError(400,"invalid_rich_name","Nom enrichi invalide.");
+  const segments=value.segments.map(segment=>{
+    if(!segment||typeof segment.text!=="string"||segment.text.length>80)
+      throw new HttpError(400,"invalid_rich_name","Segment de nom invalide.");
+    const safe={text:clean(segment.text,80)};
+    if(segment.color!=null){
+      if(typeof segment.color!=="string"||!/^#[0-9a-f]{6}$/i.test(segment.color))
+        throw new HttpError(400,"invalid_rich_name","Couleur du nom invalide.");
+      safe.color=segment.color.toLowerCase();
+    }
+    if(segment.symbol!=null){
+      if(typeof segment.symbol!=="string"||segment.symbol.length>12)
+        throw new HttpError(400,"invalid_rich_name","Symbole du nom invalide.");
+      safe.symbol=clean(segment.symbol,12);
+    }
+    return safe;
+  });
+  if(!segments.some(segment=>segment.text))throw new HttpError(400,"invalid_rich_name","Nom enrichi vide.");
+  return {schemaVersion:1,segments};
+}
+function validateWarIntel(data){
+  if(data?.schemaVersion!==1||!Array.isArray(data.alliances)||!Array.isArray(data.observations))
+    throw new HttpError(503,"invalid_war_intel_data");
+  const ids=new Set();
+  for(const alliance of data.alliances){
+    if(!alliance||typeof alliance.id!=="string"||!/^wi-[a-f0-9-]{36}$/i.test(alliance.id)||
+      typeof alliance.name!=="string"||!alliance.name.trim()||alliance.name.length>80||ids.has(alliance.id))
+      throw new HttpError(503,"invalid_war_intel_alliance");
+    ids.add(alliance.id);
+    validRichName(alliance.richName);
+  }
+  const observationKeys=new Set();
+  for(const row of data.observations){
+    if(!row||typeof row.id!=="string"||!/^wir-[a-f0-9-]{36}$/i.test(row.id)||
+      typeof row.allianceId!=="string"||!ids.has(row.allianceId)||!validWarDate(row.date)||
+      !Array.isArray(row.layout)||row.layout.length!==9||
+      row.layout.some(room=>room!==null&&(typeof room!=="string"||!WAR_INTEL_ROOMS.has(room)))||row.status!=="published")
+      throw new HttpError(503,"invalid_war_intel_observation");
+    const placed=row.layout.filter(Boolean);
+    if(new Set(placed).size!==placed.length)throw new HttpError(503,"duplicate_stored_room");
+    const key=row.allianceId+"\u0000"+row.date;
+    if(observationKeys.has(key))throw new HttpError(503,"duplicate_stored_observation");
+    observationKeys.add(key);
+  }
+  return data;
+}
+async function warIntelSnapshot(env){
+  const sha=await head(env);
+  const content=await api(env,"/contents/"+WAR_INTEL_PATH+"?ref="+encodeURIComponent(sha));
+  if(content.encoding!=="base64"||typeof content.content!=="string")
+    throw new HttpError(502,"invalid_github_blob");
+  let data;
+  try{data=JSON.parse(decode(content.content));}catch{throw new HttpError(503,"invalid_war_intel_json");}
+  return {sha,data:validateWarIntel(data)};
+}
+async function commitWarIntel(env,snapshot,data,message){
+  const base=await api(env,"/git/commits/"+snapshot.sha);
+  const tree=await api(env,"/git/trees",{method:"POST",body:{base_tree:base.tree.sha,tree:[{
+    path:WAR_INTEL_PATH,mode:"100644",type:"blob",content:JSON.stringify(data,null,2)+"\n"
+  }]}});
+  const commit=await api(env,"/git/commits",{method:"POST",body:{
+    message,tree:tree.sha,parents:[snapshot.sha]
+  }});
+  await api(env,"/git/refs/heads/main",{method:"PATCH",body:{sha:commit.sha,force:false}});
+  return commit.sha;
+}
+async function writeWarIntel(request,env){
+  if(request.headers.get("Origin")!==ORIGIN)throw new HttpError(403,"forbidden_origin");
+  if(Number(request.headers.get("Content-Length")||0)>MAX_WAR_INTEL_BODY)
+    throw new HttpError(413,"payload_too_large");
+  const owner=await requireDiscord(request,env);
+  if(owner.role!=="admin"||owner.id!==WAR_INTEL_OWNER_ID)
+    throw new HttpError(403,"owner_only","Cette opération est réservée au propriétaire du projet.");
+  if(!request.headers.get("Content-Type")?.toLowerCase().includes("application/json"))
+    throw new HttpError(415,"json_required");
+  const raw=await request.text();
+  if(raw.length>MAX_WAR_INTEL_BODY)throw new HttpError(413,"payload_too_large");
+  let input;try{input=JSON.parse(raw);}catch{throw new HttpError(400,"invalid_json");}
+  for(let attempt=0;attempt<4;attempt++){
+    const snapshot=await warIntelSnapshot(env);
+    const data=structuredClone(snapshot.data);
+    let message="data(war-intel): mise à jour administrateur";
+    if(input?.action==="createAlliance"){
+      if(typeof input.name!=="string"||!input.name.trim()||input.name.trim().length>80)
+        throw new HttpError(400,"invalid_alliance_name","Saisis un nom classique (80 caractères maximum).");
+      const alliance={id:"wi-"+crypto.randomUUID(),name:input.name.trim(),richName:null,
+        createdAt:new Date().toISOString()};
+      data.alliances.push(alliance);input.resultAllianceId=alliance.id;
+      message="data(war-intel): création alliance";
+    }else if(input?.action==="updateAlliance"){
+      const alliance=data.alliances.find(item=>item.id===input.allianceId);
+      if(!alliance)throw new HttpError(404,"alliance_not_found");
+      if(typeof input.name!=="string"||!input.name.trim()||input.name.trim().length>80)
+        throw new HttpError(400,"invalid_alliance_name","Saisis un nom classique (80 caractères maximum).");
+      alliance.name=input.name.trim();
+      if(Object.hasOwn(input,"richName"))alliance.richName=validRichName(input.richName);
+      alliance.updatedAt=new Date().toISOString();message="data(war-intel): mise à jour alliance";
+    }else if(input?.action==="publish"){
+      const observation=input.observation;
+      const alliance=data.alliances.find(item=>item.id===observation?.allianceId);
+      if(!alliance)throw new HttpError(400,"alliance_required","Sélectionne une alliance existante.");
+      if(!validWarDate(observation?.date)||!Array.isArray(observation?.layout)||observation.layout.length!==9)
+        throw new HttpError(400,"invalid_observation","La date et les neuf emplacements sont nécessaires.");
+      const used=new Set();
+      for(const room of observation.layout){
+        if(room===null)continue;
+        if(typeof room!=="string"||!WAR_INTEL_ROOMS.has(room)||used.has(room))
+          throw new HttpError(400,"invalid_or_duplicate_room","Salle inconnue ou déjà placée.");
+        used.add(room);
+      }
+      const now=new Date().toISOString();
+      const existingIndex=data.observations.findIndex(item=>item.allianceId===alliance.id&&item.date===observation.date);
+      const existing=existingIndex<0?null:data.observations[existingIndex];
+      const row={id:existing?.id||"wir-"+crypto.randomUUID(),allianceId:alliance.id,date:observation.date,
+        layout:[...observation.layout],status:"published",createdAt:existing?.createdAt||now,publishedAt:now};
+      if(existingIndex<0)data.observations.push(row);else data.observations[existingIndex]=row;
+      input.resultObservationId=row.id;input.resultCreated=!existing;
+      message=existing?"data(war-intel): correction relevé":"data(war-intel): publication relevé";
+    }else if(input?.action==="delete"){
+      const index=data.observations.findIndex(item=>item.id===input.observationId);
+      if(index<0)throw new HttpError(404,"observation_not_found");
+      data.observations.splice(index,1);input.resultObservationId=input.observationId;
+      message="data(war-intel): suppression relevé";
+    }else throw new HttpError(400,"unknown_action");
+    if(data.alliances.length>2000||data.observations.length>10000)
+      throw new HttpError(409,"catalog_full","Historique trop volumineux.");
+    try{
+      const commit=await commitWarIntel(env,snapshot,data,message);
+      return {ok:true,action:input.action,allianceId:input.resultAllianceId||input.allianceId||null,
+        observationId:input.resultObservationId||null,created:input.resultCreated,commit};
+    }catch(error){if(error.code!=="git_conflict"||attempt===3)throw error;}
+  }
+  throw new HttpError(409,"busy");
+}
+async function warIntelRoute(request,env){
+  if(request.method==="GET"){
+    const snapshot=await warIntelSnapshot(env);
+    return {ok:true,schemaVersion:1,alliances:snapshot.data.alliances,observations:snapshot.data.observations};
+  }
+  if(request.method==="POST")return writeWarIntel(request,env);
+  throw new HttpError(405,"method_not_allowed");
+}
 export default {
   async fetch(request,env){
     const url=new URL(request.url);
@@ -248,6 +403,11 @@ export default {
       return new Response(null,{status:204,headers:cors(request)});
     if(url.pathname==="/health")
       return reply(request,{ok:true,configured:Boolean(env?.GITHUB_TOKEN&&env?.LOSP_AUTH?.fetch)});
+    if(url.pathname==="/api/war-intelligence"){
+      try{return reply(request,await warIntelRoute(request,env));}
+      catch(error){return reply(request,{ok:false,error:error.code||"server_error",
+        message:error.status?error.message:"Service de publication temporairement indisponible."},error.status||502);}
+    }
     if(url.pathname!=="/api/cosmic-defenses")
       return reply(request,{ok:false,error:"not_found"},404);
     try{
