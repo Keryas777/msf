@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "status": "ok",
   "source": "verified-daily-game-events",
-  "updatedAt": "2026-11-13T13:34:11.143Z",
-  "revision": "f96f533981e3bdb40d8a",
-  "total": 124,
-  "count": 124,
+  "updatedAt": "2026-11-13T21:05:17.960Z",
+  "revision": null,
+  "total": 142,
+  "count": 142,
   "pages": 2,
   "events": [
     {
@@ -249,47 +249,6 @@
       }
     },
     {
-      "id": "6ac947c09a886b7bfdf8532c",
-      "type": "milestone",
-      "startTime": 1791579600,
-      "endTime": 1794603600,
-      "name": "ORBE ÉCHO",
-      "locationHints": [
-        "mercy_orb"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "",
-          "methods": [],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6ae4f7403b51fc5c4f5564c7",
-      "type": "pickYourPoison",
-      "startTime": 1793394000,
-      "endTime": 1794603600,
-      "name": "SALLE DES DANGERS",
-      "subName": "La salle des dangers est ouverte.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Event_HalloweenDangerRoom_Card_6ad7bf391f7338d6f0940586ee05bc4e4330.jpg",
-      "pickYourPoison": {
-        "typeName": "Fléau",
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
       "id": "6ae67d7c80ca017386467230",
       "type": "episodic",
       "startTime": 1793491200,
@@ -421,15 +380,6 @@
       }
     },
     {
-      "id": "6aef8dcdaba9eda13c2698d9",
-      "type": "raid",
-      "startTime": 1794603600,
-      "endTime": 1794689700,
-      "name": "Raids d'appréhension",
-      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
-      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
-    },
-    {
       "id": "6af0df4caba9eda13c269db8",
       "type": "raid",
       "startTime": 1794690000,
@@ -479,16 +429,6 @@
       "name": "PASS DU S.T.R.I.K.E. I",
       "cardArt": "https://assets.marvelstrikeforce.com/key_art/StrikePass_S123_BPWidget_6ae98da260682c20f718d1b5a75de53de17d.jpg",
       "popupArt": "https://assets.marvelstrikeforce.com/key_art/StrikePass_S123_Banner_6ae98dc060682c20f718d1b6c9092b09f291.jpg"
-    },
-    {
-      "id": "6af22640aba9eda13c26a179",
-      "type": "blitz",
-      "startTime": 1794258000,
-      "endTime": 1794603600,
-      "name": "Guerrière temporelle",
-      "subName": "Gagnez des éclats de Rachel Summers !",
-      "details": "Affrontez des équipes d'autres joueurs pour gagner des récompenses de phase, avec une chance d'obtenir des éclats de Rachel Summers !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Blitz_RachelSummers_Card_6acc56d8213231553d2a642e659bd1c74e0f.jpg"
     },
     {
       "id": "6af22d48aba9eda13c26a213",
@@ -545,13 +485,82 @@
       "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
     },
     {
-      "id": "6aee3c4caba9eda13c2693f1",
+      "id": "6af776ce47f5070146e7b864",
       "type": "raid",
-      "startTime": 1794517200,
-      "endTime": 1794603300,
+      "startTime": 1795122000,
+      "endTime": 1795208100,
       "name": "Raids d'appréhension",
       "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
       "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
+    },
+    {
+      "id": "6ac947c09a886b7bfdf8532c",
+      "type": "milestone",
+      "startTime": 1791579600,
+      "endTime": 1794603600,
+      "name": "ORBE ÉCHO",
+      "locationHints": [
+        "mercy_orb"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "",
+          "methods": [],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6aef8dcdaba9eda13c2698d9",
+      "type": "raid",
+      "startTime": 1794603600,
+      "endTime": 1794689700,
+      "name": "Raids d'appréhension",
+      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
+      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
+    },
+    {
+      "id": "6af6254c47f5070146e7b305",
+      "type": "milestone",
+      "startTime": 1794517200,
+      "endTime": 1794603600,
+      "name": "Récomp. quot. du web",
+      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
+      "locationHints": [
+        "portal_featured",
+        "portal_standard"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Dépensez des noyaux d’énergie",
+          "methods": [
+            {
+              "description": "Dépenser 1 noyau d'énergie",
+              "points": 1
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "levels_1_55"
+          },
+          {
+            "id": "default"
+          }
+        ]
+      }
     },
     {
       "id": "6af6254c47f5070146e7b308",
@@ -622,35 +631,17 @@
       }
     },
     {
-      "id": "6af6254c47f5070146e7b305",
-      "type": "milestone",
-      "startTime": 1794517200,
-      "endTime": 1794603600,
-      "name": "Récomp. quot. du web",
-      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
-      "locationHints": [
-        "portal_featured",
-        "portal_standard"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Dépensez des noyaux d’énergie",
-          "methods": [
-            {
-              "description": "Dépenser 1 noyau d'énergie",
-              "points": 1
-            }
-          ],
-          "cappedScorings": []
-        },
+      "id": "6af776d147f5070146e7b876",
+      "type": "pickYourPoison",
+      "startTime": 1794603600,
+      "endTime": 1797022800,
+      "name": "TOUR DES PUISSANTS : CYCLOPE",
+      "subName": "Grimpez pour gagner Cyclope (Puissant) !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/CyclopsMightyTower_TopCard_6aee3f461ff73ed2af6d591ecfcec945d2eb.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Leaderboard_ExatledX-Men_Banner_6aee3f5b1ff73ed2af6d591f076b08813012.jpg",
+      "pickYourPoison": {
+        "typeName": "Fléau",
         "brackets": [
-          {
-            "id": "levels_1_55"
-          },
           {
             "id": "default"
           }
@@ -658,55 +649,10 @@
       }
     },
     {
-      "id": "6aeceacd42686c5f634123ec",
-      "type": "raid",
-      "startTime": 1794430800,
-      "endTime": 1794516900,
-      "name": "Raids d'appréhension",
-      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
-      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
-    },
-    {
-      "id": "6af4d3cc47f5070146e7ae14",
+      "id": "6af776ce47f5070146e7b865",
       "type": "milestone",
-      "startTime": 1794430800,
-      "endTime": 1794517200,
-      "name": "Récomp. quot. du web",
-      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
-      "locationHints": [
-        "portal_featured",
-        "portal_standard"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Dépensez des noyaux d’énergie",
-          "methods": [
-            {
-              "description": "Dépenser 1 noyau d'énergie",
-              "points": 1
-            }
-          ],
-          "cappedScorings": []
-        },
-        "brackets": [
-          {
-            "id": "levels_1_55"
-          },
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6af4d3cc47f5070146e7ae17",
-      "type": "milestone",
-      "startTime": 1794430800,
-      "endTime": 1794517200,
+      "startTime": 1794603600,
+      "endTime": 1794690000,
       "name": "Phases quotidiennes exclusives du web",
       "details": "Gagnez des récompenses en interagissant avec MSF sur le web, en exclusivité sur MarvelStrikeForce.com ! Jouez à la version web de MSF, récupérez vos cadeaux quotidiens et effectuez des achats dans la boutique web ou la boutique du S.T.R.I.K.E. pour progresser.",
       "cardArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_Generic_Card_6863aeca0459d9fd89c3f2b8a4e170b2ffd4_6aecb6c7ef88d351ed5dfef244d14ed24c44.jpg",
@@ -764,6 +710,114 @@
           ]
         },
         "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af776cd47f5070146e7b862",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1794690000,
+      "name": "Récomp. quot. du web",
+      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
+      "locationHints": [
+        "portal_featured",
+        "portal_standard"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Dépensez des noyaux d’énergie",
+          "methods": [
+            {
+              "description": "Dépenser 1 noyau d'énergie",
+              "points": 1
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "levels_1_55"
+          },
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6aee3c4caba9eda13c2693f1",
+      "type": "raid",
+      "startTime": 1794517200,
+      "endTime": 1794603300,
+      "name": "Raids d'appréhension",
+      "subName": "Gagnez de l'équipement allant jusqu'au palier 21",
+      "details": "Coordonnez-vous avec votre alliance pour repousser la propagation de la peur. Confrontez-vous à vos propres difficultés pour obtenir de puissantes récompenses individuelles ou jouez avec toute votre alliance pour obtenir des récompenses de complétion de fin de raid encore plus précieuses !"
+    },
+    {
+      "id": "6ae4f7403b51fc5c4f5564c7",
+      "type": "pickYourPoison",
+      "startTime": 1793394000,
+      "endTime": 1794603600,
+      "name": "SALLE DES DANGERS",
+      "subName": "La salle des dangers est ouverte.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Event_HalloweenDangerRoom_Card_6ad7bf391f7338d6f0940586ee05bc4e4330.jpg",
+      "pickYourPoison": {
+        "typeName": "Fléau",
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af22640aba9eda13c26a179",
+      "type": "blitz",
+      "startTime": 1794258000,
+      "endTime": 1794603600,
+      "name": "Guerrière temporelle",
+      "subName": "Gagnez des éclats de Rachel Summers !",
+      "details": "Affrontez des équipes d'autres joueurs pour gagner des récompenses de phase, avec une chance d'obtenir des éclats de Rachel Summers !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Blitz_RachelSummers_Card_6acc56d8213231553d2a642e659bd1c74e0f.jpg"
+    },
+    {
+      "id": "6af4d3cc47f5070146e7ae14",
+      "type": "milestone",
+      "startTime": 1794430800,
+      "endTime": 1794517200,
+      "name": "Récomp. quot. du web",
+      "subName": "Dépenser des NOYAUX D'ÉNERGIE.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Card_OrbFountain_621576163f0bbec45e6889fb17d7dc7abeec.png",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Orb_Banner_OrbFountain_62156c0e3f0bbec45e6889f01b9421b10556.png",
+      "locationHints": [
+        "portal_featured",
+        "portal_standard"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Dépensez des noyaux d’énergie",
+          "methods": [
+            {
+              "description": "Dépenser 1 noyau d'énergie",
+              "points": 1
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "levels_1_55"
+          },
           {
             "id": "default"
           }
@@ -1217,6 +1271,16 @@
       }
     },
     {
+      "id": "6af76c4047f5070146e7b679",
+      "type": "blitz",
+      "startTime": 1794603600,
+      "endTime": 1794776400,
+      "name": "Rixe rapide",
+      "subName": "Pièces de catalyseur de base",
+      "details": "Affrontez des équipes d'autres joueurs pour gagner des récompenses spéciales grâce à la phase de Rixe rapide !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Blitz_Splash_Card_01_626ac1ef0dc527c8466f2bdaa1c6b29bf38a.jpg"
+    },
+    {
       "id": "6320e902d139a267582c160b",
       "type": "episodic",
       "startTime": 1666126800,
@@ -1471,6 +1535,37 @@
         "typeName": "Solo",
         "scoring": {
           "description": "Fêtez l'anniversaire de la série animée des X-Men !",
+          "methods": [],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af7502047f5070146e7b5f5",
+      "type": "milestone",
+      "startTime": 1794596400,
+      "endTime": 1795460400,
+      "name": "L'arme vivante",
+      "subName": "Obtenez des étoiles rouges pour le Destructeur !",
+      "details": "Obtenez des étoiles rouges pour le Destructeur !",
+      "icon": "https://assets.marvelstrikeforce.com/key_art/2026-11-13_Destroyer-RS_Icon_6af66701e8e5472878159e3c0e7252cfe39e.png",
+      "hubArt": [
+        "https://assets.marvelstrikeforce.com/key_art/2026-11-13_Destroyer-RS_Background_6af66695e8e5472878159e2ae0c3a20c013d.jpg",
+        "https://assets.marvelstrikeforce.com/key_art/2026-11-13_Destroyer-RS_Foreground_6af666dae8e5472878159e35e958ed7f94bb.png"
+      ],
+      "locationHints": [
+        "lohub_wrapper"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Obtenez des étoiles rouges pour le Destructeur !",
           "methods": [],
           "cappedScorings": []
         },
@@ -2549,6 +2644,369 @@
       }
     },
     {
+      "id": "6af7502047f5070146e7b604",
+      "type": "milestone",
+      "startTime": 1794596400,
+      "endTime": 1795460400,
+      "name": "L'arme vivante",
+      "subName": "Obtenez des étoiles rouges pour le Destructeur !",
+      "details": "Obtenez des étoiles rouges pour le Destructeur !",
+      "locationHints": [
+        "lohub_feeder"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 7,
+              "methods": [
+                {
+                  "description": "Connectez-vous pendant 7 jours d'affilée",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 2
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec le Destructeur à 5 étoiles jaunes",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 3
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec le Destructeur à 6 étoiles jaunes",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 4
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec le Destructeur à 7 étoiles jaunes",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 5
+            },
+            {
+              "cap": 3,
+              "methods": [
+                {
+                  "description": "Jouer en guerre",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 6
+            },
+            {
+              "cap": 5,
+              "methods": [
+                {
+                  "description": "Jouer en guerre",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 7
+            },
+            {
+              "cap": 10,
+              "methods": [
+                {
+                  "description": "Jouer en guerre",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 8
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af76c4047f5070146e7b67b",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1797022800,
+      "name": "Prêt au combat : Cyclope (Puissant)",
+      "subName": "Jouez avec Cyclope (Puissant) !",
+      "details": "<color=#fff568>Phase Prêt au combat : Cyclope (Puissant)</color>Progressez dans cet événement en jouant avec Cyclope (Puissant) au palier d’équipement 12 ou supérieur.Renforcez vos forces, dominez le champ de bataille et obtenez des <color=#fff568>noyaux d'énergie, des marques d’effroi, de l’essence épique, des crédits de promotion noirs et des crédits de losange noirs</color> en cours de route !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Blitz_CyclopsMighty_Card_6af2d54719d4ab5a1e93fac80bb26376baa7.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Blitz_CyclopsMighty_Banner_6af2d55319d4ab5a1e93fac920aeeddfdc8c.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Jouez avec Cyclope (Puissant) !",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 50,
+              "methods": [
+                {
+                  "description": "Jouer avec Cyclope (Puissant)",
+                  "points": 50
+                }
+              ]
+            },
+            {
+              "cap": 100,
+              "methods": [
+                {
+                  "description": "Jouer avec Cyclope (Puissant) au palier d'équipement 12",
+                  "points": 100
+                }
+              ]
+            },
+            {
+              "cap": 100,
+              "methods": [
+                {
+                  "description": "Jouer avec Cyclope (Puissant) au palier d'équipement 13",
+                  "points": 100
+                }
+              ]
+            },
+            {
+              "cap": 100,
+              "methods": [
+                {
+                  "description": "Jouer avec Cyclope (Puissant) au palier d'équipement 14",
+                  "points": 100
+                }
+              ]
+            },
+            {
+              "cap": 100,
+              "methods": [
+                {
+                  "description": "Jouer avec Cyclope (Puissant) au palier d'équipement 15",
+                  "points": 100
+                }
+              ]
+            },
+            {
+              "cap": 100,
+              "methods": [
+                {
+                  "description": "Jouer avec Cyclope (Puissant) au palier d'équipement 16",
+                  "points": 100
+                }
+              ]
+            },
+            {
+              "cap": 100,
+              "methods": [
+                {
+                  "description": "Jouer avec Cyclope (Puissant) au palier d'équipement 17",
+                  "points": 100
+                }
+              ]
+            },
+            {
+              "cap": 100,
+              "methods": [
+                {
+                  "description": "Jouer avec Cyclope (Puissant) au palier d'équipement 18",
+                  "points": 100
+                }
+              ]
+            },
+            {
+              "cap": 100,
+              "methods": [
+                {
+                  "description": "Jouer avec Cyclope (Puissant) au palier d'équipement 19",
+                  "points": 100
+                }
+              ]
+            },
+            {
+              "cap": 100,
+              "methods": [
+                {
+                  "description": "Jouer avec Cyclope (Puissant) au palier d'équipement 20",
+                  "points": 100
+                }
+              ]
+            },
+            {
+              "cap": 200,
+              "methods": [
+                {
+                  "description": "Jouer avec Cyclope (Puissant) au palier d'équipement 21",
+                  "points": 200
+                }
+              ]
+            },
+            {
+              "cap": 200,
+              "methods": [
+                {
+                  "description": "Jouer avec Cyclope (Puissant) à 5 étoiles jaunes et au palier d'équipement 19",
+                  "points": 200
+                }
+              ]
+            },
+            {
+              "cap": 200,
+              "methods": [
+                {
+                  "description": "Jouer avec Cyclope (Puissant) à 6 étoiles jaunes et au palier d'équipement 20",
+                  "points": 200
+                }
+              ]
+            },
+            {
+              "cap": 450,
+              "methods": [
+                {
+                  "description": "Jouer avec Cyclope (Puissant) à 7 étoiles jaunes et au palier d'équipement 21",
+                  "points": 450
+                }
+              ]
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af776d047f5070146e7b872",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1794690000,
+      "name": "Briseur de volontés - Plan de bataille du mois 1",
+      "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
+      "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
+      "locationHints": [
+        "lohub_feeder"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec la Torche humaine (Jim)",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 2
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec Whiplash",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 3
+            },
+            {
+              "cap": 1,
+              "methods": [
+                {
+                  "description": "Combattre avec des personnages Nightreaver",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 4
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af776ce47f5070146e7b866",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1794690000,
+      "name": "Battle Pass du chapitre : Objectifs quotidiens",
+      "subName": "Obtenez des éclats de la Guêpe (Janet)",
+      "details": "Obtenez des éclats de la Guêpe (Janet)",
+      "locationHints": [
+        "lohub_feeder"
+      ],
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "",
+          "methods": [],
+          "cappedScorings": [
+            {
+              "cap": 20000,
+              "methods": [
+                {
+                  "description": "Obtenir des cachets lunaires et des marques d’effroi",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 2
+            },
+            {
+              "cap": 200,
+              "methods": [
+                {
+                  "description": "Dépenser de l’énergie (campagne, iso ou incursion)",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 3
+            },
+            {
+              "cap": 3,
+              "methods": [
+                {
+                  "description": "Jouer dans l’arène, en guerre, en arène en temps réel ou dans l’Épreuve",
+                  "points": 1
+                }
+              ],
+              "rewardTier": 4
+            }
+          ]
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
       "id": "6af6254c47f5070146e7b30d",
       "type": "milestone",
       "startTime": 1794517200,
@@ -2777,67 +3235,10 @@
       }
     },
     {
-      "id": "6af6254c47f5070146e7b309",
+      "id": "6af776d147f5070146e7b875",
       "type": "milestone",
-      "startTime": 1794517200,
-      "endTime": 1794603600,
-      "name": "Battle Pass du chapitre : Objectifs quotidiens",
-      "subName": "Obtenez des éclats de la Guêpe (Janet)",
-      "details": "Obtenez des éclats de la Guêpe (Janet)",
-      "locationHints": [
-        "lohub_feeder"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "",
-          "methods": [],
-          "cappedScorings": [
-            {
-              "cap": 20000,
-              "methods": [
-                {
-                  "description": "Obtenir des cachets lunaires et des marques d’effroi",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 2
-            },
-            {
-              "cap": 200,
-              "methods": [
-                {
-                  "description": "Dépenser de l’énergie (campagne, iso ou incursion)",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 3
-            },
-            {
-              "cap": 3,
-              "methods": [
-                {
-                  "description": "Jouer dans l’arène, en guerre, en arène en temps réel ou dans l’Épreuve",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 4
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6af4d3cc47f5070146e7ae1c",
-      "type": "milestone",
-      "startTime": 1794430800,
-      "endTime": 1794517200,
+      "startTime": 1794603600,
+      "endTime": 1794690000,
       "name": "Nuit des Sentinelles",
       "subName": "Fêtez l'anniversaire de la série animée des X-Men !",
       "details": "Fêtez l'anniversaire de la série animée des X-Men !",
@@ -2891,10 +3292,10 @@
       }
     },
     {
-      "id": "6af4d3cc47f5070146e7ae1b",
+      "id": "6af776d047f5070146e7b874",
       "type": "milestone",
-      "startTime": 1794430800,
-      "endTime": 1794517200,
+      "startTime": 1794603600,
+      "endTime": 1794690000,
       "name": "Briseur de volontés - Plan de bataille du mois 1",
       "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
       "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
@@ -2948,10 +3349,10 @@
       }
     },
     {
-      "id": "6af4d3cc47f5070146e7ae1a",
+      "id": "6af776d047f5070146e7b873",
       "type": "milestone",
-      "startTime": 1794430800,
-      "endTime": 1794517200,
+      "startTime": 1794603600,
+      "endTime": 1794690000,
       "name": "Briseur de volontés - Plan de bataille du mois 1",
       "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
       "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
@@ -2990,63 +3391,6 @@
               "methods": [
                 {
                   "description": "Jouer n’importe quel combat",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 4
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6af4d3cc47f5070146e7ae19",
-      "type": "milestone",
-      "startTime": 1794430800,
-      "endTime": 1794517200,
-      "name": "Briseur de volontés - Plan de bataille du mois 1",
-      "subName": "Renforcez vos équipes pour Dents-de-sabre (Briseur) et Cyclope (Puissant) !",
-      "details": "Jouez tout au long du mois pour gagner de l’équipement, des éclats de personnage et bien plus encore.",
-      "locationHints": [
-        "lohub_feeder"
-      ],
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "",
-          "methods": [],
-          "cappedScorings": [
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Combattre avec Jocaste",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 2
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Combattre avec Ulysses Klaue",
-                  "points": 1
-                }
-              ],
-              "rewardTier": 3
-            },
-            {
-              "cap": 1,
-              "methods": [
-                {
-                  "description": "Combattre avec des personnages Nightstalker",
                   "points": 1
                 }
               ],
@@ -3557,6 +3901,468 @@
       }
     },
     {
+      "id": "6af776d047f5070146e7b86c",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1794949200,
+      "name": "Fête de l’équipement : XI",
+      "subName": "Équipez votre effectif dès aujourd’hui !",
+      "details": "Phase Fête de l'équipementMaximisez la puissance de votre effectif en augmentant son palier d’équipement !Gagnez des points de phase en montant un personnage à son palier d'équipement maximum ! Chaque phase rapporte des orbes d'équipement, de l'or et de l'EXP pour continuer à faire progresser votre effectif et votre niveau de joueur afin de dominer plus de contenu !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Orange_Gear_EventCard_6a680afc7ae476eb3a433ae4646cbf80585c.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Orange_Gear_Event_Banner_6a687530abc5d636ff93cde51ac450fc0849.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Gagnez des points de phase Fête de l'équipement",
+          "methods": [
+            {
+              "description": "Monter un personnage héros au palier d’équipement 13",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 13",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage héros au palier d’équipement 14",
+              "points": 100
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 14",
+              "points": 100
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af776cf47f5070146e7b86b",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1794949200,
+      "name": "Fête de l’équipement : X",
+      "subName": "Équipez votre effectif dès aujourd’hui !",
+      "details": "Phase Fête de l'équipementMaximisez la puissance de votre effectif en augmentant son palier d’équipement !Gagnez des points de phase en montant un personnage à son palier d'équipement maximum ! Chaque phase rapporte des orbes d'équipement, de l'or et de l'EXP pour continuer à faire progresser votre effectif et votre niveau de joueur afin de dominer plus de contenu !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Orange_Gear_EventCard_6a680af27ae476eb3a433ae3a95885400ab5.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Orange_Gear_Event_Banner_6a687530abc5d636ff93cde51ac450fc0849.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Gagnez des points de phase Fête de l'équipement",
+          "methods": [
+            {
+              "description": "Monter un personnage héros au palier d’équipement 12",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 12",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage héros au palier d’équipement 13",
+              "points": 100
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 13",
+              "points": 100
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af776cf47f5070146e7b868",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1794949200,
+      "name": "Fête de l’équipement : IX",
+      "subName": "Équipez votre effectif dès aujourd’hui !",
+      "details": "Phase Fête de l'équipementMaximisez la puissance de votre effectif en augmentant son palier d’équipement !Gagnez des points de phase en montant un personnage à son palier d'équipement maximum ! Chaque phase rapporte des orbes d'équipement, de l'or et de l'EXP pour continuer à faire progresser votre effectif et votre niveau de joueur afin de dominer plus de contenu !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Purple_Gear_EventCard_6a680ae47ae476eb3a433ae24089ce140d24.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Purple_Gear_Event_Banner_6a68754fabc5d636ff93cde64b2db5ffb62d.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Gagnez des points de phase Fête de l'équipement",
+          "methods": [
+            {
+              "description": "Monter un personnage héros au palier d’équipement 11",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 11",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage héros au palier d’équipement 12",
+              "points": 100
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 12",
+              "points": 100
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af776ce47f5070146e7b867",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1794949200,
+      "name": "Fête de l’équipement : VIII",
+      "subName": "Équipez votre effectif dès aujourd’hui !",
+      "details": "Phase Fête de l'équipementMaximisez la puissance de votre effectif en augmentant son palier d’équipement !Gagnez des points de phase en montant un personnage à son palier d'équipement maximum ! Chaque phase rapporte des orbes d'équipement, de l'or et de l'EXP pour continuer à faire progresser votre effectif et votre niveau de joueur afin de dominer plus de contenu !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Purple_Gear_EventCard_6a680adc7ae476eb3a433ae15705f8997152.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Purple_Gear_Event_Banner_6a68754fabc5d636ff93cde64b2db5ffb62d.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Gagnez des points de phase Fête de l'équipement",
+          "methods": [
+            {
+              "description": "Monter un personnage héros au palier d’équipement 10",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 10",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage héros au palier d’équipement 11",
+              "points": 100
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 11",
+              "points": 100
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af776cf47f5070146e7b869",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1794949200,
+      "name": "Fête de l’équipement : VII",
+      "subName": "Équipez votre effectif dès aujourd’hui !",
+      "details": "Phase Fête de l'équipementMaximisez la puissance de votre effectif en augmentant son palier d’équipement !Gagnez des points de phase en montant un personnage à son palier d'équipement maximum ! Chaque phase rapporte des orbes d'équipement, de l'or et de l'EXP pour continuer à faire progresser votre effectif et votre niveau de joueur afin de dominer plus de contenu !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Purple_Gear_EventCard_6a680ad17ae476eb3a433ae0fe3e816a1f37.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Purple_Gear_Event_Banner_6a68754fabc5d636ff93cde64b2db5ffb62d.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Gagnez des points de phase Fête de l'équipement",
+          "methods": [
+            {
+              "description": "Monter un personnage héros au palier d’équipement 9",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 9",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage héros au palier d’équipement 10",
+              "points": 100
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 10",
+              "points": 100
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af776cf47f5070146e7b86a",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1794949200,
+      "name": "Fête de l’équipement : VI",
+      "subName": "Équipez votre effectif dès aujourd’hui !",
+      "details": "Phase Fête de l'équipementMaximisez la puissance de votre effectif en augmentant son palier d’équipement !Gagnez des points de phase en montant un personnage à son palier d'équipement maximum ! Chaque phase rapporte des orbes d'équipement, de l'or et de l'EXP pour continuer à faire progresser votre effectif et votre niveau de joueur afin de dominer plus de contenu !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Purple_Gear_EventCard_6a680ac97ae476eb3a433adfb3639ad5f780.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Purple_Gear_Event_Banner_6a68754fabc5d636ff93cde64b2db5ffb62d.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Gagnez des points de phase Fête de l'équipement",
+          "methods": [
+            {
+              "description": "Monter un personnage héros au palier d’équipement 8",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 8",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage héros au palier d’équipement 9",
+              "points": 100
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 9",
+              "points": 100
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af776d047f5070146e7b86d",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1794949200,
+      "name": "Fête de l’équipement : V",
+      "subName": "Équipez votre effectif dès aujourd’hui !",
+      "details": "Phase Fête de l'équipementMaximisez la puissance de votre effectif en augmentant son palier d’équipement !Gagnez des points de phase en montant un personnage à son palier d'équipement maximum ! Chaque phase rapporte des orbes d'équipement, de l'or et de l'EXP pour continuer à faire progresser votre effectif et votre niveau de joueur afin de dominer plus de contenu !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Blue_Gear_EventCard_6a680ab17ae476eb3a433adeb177af8587f8.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Bue_Gear_Event_Banner_6a68750aabc5d636ff93cde330cb6bd926c0.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Gagnez des points de phase Fête de l'équipement",
+          "methods": [
+            {
+              "description": "Monter un personnage héros au palier d’équipement 7",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 7",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage héros au palier d’équipement 8",
+              "points": 100
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 8",
+              "points": 100
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af776d047f5070146e7b870",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1794949200,
+      "name": "Fête de l’équipement : IV",
+      "subName": "Équipez votre effectif dès aujourd’hui !",
+      "details": "Phase Fête de l'équipementMaximisez la puissance de votre effectif en augmentant son palier d’équipement !Gagnez des points de phase en montant un personnage à son palier d'équipement maximum ! Chaque phase rapporte des orbes d'équipement, de l'or et de l'EXP pour continuer à faire progresser votre effectif et votre niveau de joueur afin de dominer plus de contenu !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Blue_Gear_EventCard_6a680aa87ae476eb3a433add03b6395be973.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Bue_Gear_Event_Banner_6a68750aabc5d636ff93cde330cb6bd926c0.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Gagnez des points de phase Fête de l'équipement",
+          "methods": [
+            {
+              "description": "Monter un personnage héros au palier d’équipement 6",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 6",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage héros au palier d’équipement 7",
+              "points": 100
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 7",
+              "points": 100
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af776d047f5070146e7b86f",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1794949200,
+      "name": "Fête de l’équipement : III",
+      "subName": "Équipez votre effectif dès aujourd’hui !",
+      "details": "Phase Fête de l'équipementMaximisez la puissance de votre effectif en augmentant son palier d’équipement !Gagnez des points de phase en montant un personnage à son palier d'équipement maximum ! Chaque phase rapporte des orbes d'équipement, de l'or et de l'EXP pour continuer à faire progresser votre effectif et votre niveau de joueur afin de dominer plus de contenu !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Blue_Gear_EventCard_6a680a937ae476eb3a433adceb1cc47764e3.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Bue_Gear_Event_Banner_6a68750aabc5d636ff93cde330cb6bd926c0.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Gagnez des points de phase Fête de l'équipement",
+          "methods": [
+            {
+              "description": "Monter un personnage héros au palier d’équipement 5",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 5",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage héros au palier d’équipement 6",
+              "points": 100
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 6",
+              "points": 100
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af776d047f5070146e7b871",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1794949200,
+      "name": "Fête de l’équipement : II",
+      "subName": "Équipez votre effectif dès aujourd’hui !",
+      "details": "Phase Fête de l'équipementMaximisez la puissance de votre effectif en augmentant son palier d’équipement !Gagnez des points de phase en montant un personnage à son palier d'équipement maximum ! Chaque phase rapporte des orbes d'équipement, de l'or et de l'EXP pour continuer à faire progresser votre effectif et votre niveau de joueur afin de dominer plus de contenu !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Blue_Gear_EventCard_6a680a8b7ae476eb3a433adb2ca50bc659d5.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Bue_Gear_Event_Banner_6a68750aabc5d636ff93cde330cb6bd926c0.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Gagnez des points de phase Fête de l'équipement",
+          "methods": [
+            {
+              "description": "Monter un personnage héros au palier d’équipement 4",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 4",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage héros au palier d’équipement 5",
+              "points": 100
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 5",
+              "points": 100
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af776d047f5070146e7b86e",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1794949200,
+      "name": "Fête de l’équipement",
+      "subName": "Équipez votre effectif dès aujourd’hui !",
+      "details": "Phase Fête de l'équipementMaximisez la puissance de votre effectif en augmentant son palier d’équipement !Gagnez des points de phase en montant un personnage à son palier d'équipement maximum ! Chaque phase rapporte des orbes d'équipement, de l'or et de l'EXP pour continuer à faire progresser votre effectif et votre niveau de joueur afin de dominer plus de contenu !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Green_Gear_EventCard_6a680a4b7ae476eb3a433ad9ebd64617709d.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Green_Gear_Event_Banner_6a68751babc5d636ff93cde4a2b5e64fc166.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Gagnez des points de phase Fête de l'équipement",
+          "methods": [
+            {
+              "description": "Monter un personnage héros au palier d’équipement 3",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 3",
+              "points": 50
+            },
+            {
+              "description": "Monter un personnage héros au palier d’équipement 4",
+              "points": 100
+            },
+            {
+              "description": "Monter un personnage super-vilain au palier d’équipement 4",
+              "points": 100
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default"
+          }
+        ]
+      }
+    },
+    {
       "id": "6aeb994c42686c5f63411b16",
       "type": "pickYourPoison",
       "startTime": 1793826000,
@@ -3831,6 +4637,36 @@
           {
             "id": "default",
             "firstPremiumMilestone": 16
+          }
+        ]
+      }
+    },
+    {
+      "id": "6af776cd47f5070146e7b863",
+      "type": "milestone",
+      "startTime": 1794603600,
+      "endTime": 1794690000,
+      "name": "Sauvez le monde !",
+      "subName": "Dépensez de l’énergie de campagne",
+      "details": "Dépensez de l’énergie de campagne pour obtenir des récompenses de phase.",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Event_7DLS_Card_02_68630e9fa33fa5d5d348e5833f385a00da32.jpg",
+      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Event_7DLS_Banner_02_68630ec0a33fa5d5d348e584c275c86c25ed.jpg",
+      "milestone": {
+        "type": "solo",
+        "typeName": "Solo",
+        "scoring": {
+          "description": "Dépenser de l'ÉNERGIE DE CAMPAGNE.",
+          "methods": [
+            {
+              "description": "Dépensez 1 point d’énergie de campagne",
+              "points": 5
+            }
+          ],
+          "cappedScorings": []
+        },
+        "brackets": [
+          {
+            "id": "default"
           }
         ]
       }
@@ -4111,7 +4947,7 @@
   ],
   "locale": "fr",
   "localizationStatus": "verified",
-  "localizedFields": 525,
-  "localizedAt": "2026-11-13T13:34:11.143Z",
-  "lastChangedAt": "2026-11-13T09:23:34.129Z"
+  "localizedFields": 659,
+  "localizedAt": "2026-11-13T21:05:17.960Z",
+  "lastChangedAt": "2026-11-13T21:05:17.960Z"
 }
