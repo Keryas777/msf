@@ -481,7 +481,7 @@
   window.LoSPWarIntel = Object.freeze({
     getRooms: () => rooms.map(room => ({ ...room })),
     getState: () => ({ alliances, observations, currentObservation, dataLoaded }),
-    refresh: async () => { await loadData(); refreshAlliances(); updateObservations(true); },
+    refresh: async () => { const loaded = await loadData(); if (!ADMIN_MODE) { refreshAlliances(); updateObservations(true); } return loaded; },
     setEditHandler(handler) { editHandler = typeof handler === "function" ? handler : null; },
     setPreview(observation) {
       currentObservation = observation ? { ...observation, layout: [...observation.layout] } : null;
