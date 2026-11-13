@@ -107,13 +107,16 @@
     }));
     window.LoSPWarIntel.setEditHandler((position,current)=>{
       selectedPosition=position;positionLabel.textContent=String(position-2);choice.value=current||"";picker.hidden=false;
-      picker.scrollIntoView({behavior:"smooth",block:"center"});
+      choice.focus({preventScroll:true});
       setStatus("Emplacement "+(position-2)+" sélectionné : choisis une salle dans la liste qui vient de s’ouvrir.","info");
     });
+    $("intelClosePicker").addEventListener("click",()=>{picker.hidden=true;selectedPosition=null;});
+    picker.addEventListener("click",event=>{if(event.target===picker){picker.hidden=true;selectedPosition=null;}});
+    document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!picker.hidden){picker.hidden=true;selectedPosition=null;}});
     choice.addEventListener("change",()=>{
       if(selectedPosition==null)return;const room=choice.value||null;const index=selectedPosition-3;
       if(room&&layout.some((item,i)=>i!==index&&item===room)){setStatus("Cette salle est déjà présente sur la carte.","error");return;}
-      layout[index]=room;picker.hidden=true;preview();setStatus("Position "+(index+1)+" mise à jour. Continue à placer les salles, puis valide le plan complet.","ok");
+      layout[index]=room;picker.hidden=true;selectedPosition=null;preview();setStatus("Position "+(index+1)+" mise à jour. Continue à placer les salles, puis valide le plan complet.","ok");
     });
     publishButton.addEventListener("click",()=>runBusy(async()=>{
       validateLayout();if(!currentAlliance())throw Error("Sélectionne ou crée une alliance.");
