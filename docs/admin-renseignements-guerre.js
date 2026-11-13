@@ -97,7 +97,7 @@
     $("intelSaveDraft").addEventListener("click",saveDraft);
     $("intelCreateAlliance").addEventListener("click",async()=>{
       const name=newAlliance.value.trim();if(!name){setStatus("Saisis le nom classique de l’alliance.","error");return;}
-      await runBusy(async()=>{const result=await api("createAlliance",{name});newAlliance.value="";search.value="";await reload(result.allianceId);allianceSelect.value=result.allianceId;classicName.value=currentAlliance()?.name||"";clearDraft();setStatus("Alliance créée avec son identifiant stable.","ok");});
+      await runBusy(async()=>{const result=await api("createAlliance",{name});newAlliance.value="";search.value="";await reload(result.allianceId);allianceSelect.value=result.allianceId;classicName.value=currentAlliance()?.name||"";clearDraft();setStatus("Alliance créée et sélectionnée. Choisis la date, puis touche une salle sur la carte pour la renseigner.","ok");});
     });
     $("intelSaveAllianceName").addEventListener("click",()=>runBusy(async()=>{
       if(!currentAlliance())throw Error("Sélectionne une alliance.");
@@ -107,6 +107,8 @@
     }));
     window.LoSPWarIntel.setEditHandler((position,current)=>{
       selectedPosition=position;positionLabel.textContent=String(position-2);choice.value=current||"";picker.hidden=false;
+      picker.scrollIntoView({behavior:"smooth",block:"center"});
+      setStatus("Emplacement "+(position-2)+" sélectionné : choisis une salle dans la liste qui vient de s’ouvrir.","info");
     });
     choice.addEventListener("change",()=>{
       if(selectedPosition==null)return;const room=choice.value||null;const index=selectedPosition-3;
