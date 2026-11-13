@@ -275,8 +275,8 @@ function validRichName(value){
   return {schemaVersion:1,segments};
 }
 function validateWarIntel(data){
-  if(data?.schemaVersion!==1||!Array.isArray(data.alliances)||!Array.isArray(data.observations)||
-    !Array.isArray(data.withdrawnObservationIds))throw new HttpError(503,"invalid_war_intel_data");
+  if(data?.schemaVersion!==1||!Array.isArray(data.alliances)||!Array.isArray(data.observations))
+    throw new HttpError(503,"invalid_war_intel_data");
   const ids=new Set();
   for(const alliance of data.alliances){
     if(!alliance||typeof alliance.id!=="string"||!/^wi-[a-f0-9-]{36}$/i.test(alliance.id)||
@@ -285,6 +285,7 @@ function validateWarIntel(data){
     ids.add(alliance.id);
     validRichName(alliance.richName);
   }
+  const observationKeys=new Set();
   for(const row of data.observations){
     if(!row||typeof row.id!=="string"||!/^wir-[a-f0-9-]{36}$/i.test(row.id)||
       typeof row.allianceId!=="string"||!ids.has(row.allianceId)||!validWarDate(row.date)||
@@ -293,6 +294,9 @@ function validateWarIntel(data){
       throw new HttpError(503,"invalid_war_intel_observation");
     const placed=row.layout.filter(Boolean);
     if(new Set(placed).size!==placed.length)throw new HttpError(503,"duplicate_stored_room");
+    const key=row.allianceId+"\u0000"+row.date;
+    if(observationKeys.has(key))throw new HttpError(503,"duplicate_stored_observation");
+    observationKeys.add(key);
   }
   return data;
 }
@@ -360,25 +364,26 @@ async function writeWarIntel(request,env){
           throw new HttpError(400,"invalid_or_duplicate_room","Salle inconnue ou déjà placée.");
         used.add(room);
       }
-      const series=data.observations.filter(item=>item.allianceId===alliance.id&&item.date===observation.date)
-        .sort((a,b)=>String(b.publishedAt).localeCompare(String(a.publishedAt)));
-      const row={id:"wir-"+crypto.randomUUID(),allianceId:alliance.id,date:observation.date,
-        layout:[...observation.layout],status:"published",revision:(series[0]?.revision||0)+1,
-        supersedesId:series[0]?.id||null,publishedAt:new Date().toISOString()};
-      data.observations.push(row);input.resultObservationId=row.id;
-      message="data(war-intel): publication relevé";
-    }else if(input?.action==="withdraw"){
-      const row=data.observations.find(item=>item.id===input.observationId&&item.status==="published");
-      if(!row)throw new HttpError(404,"observation_not_found");
-      if(!data.withdrawnObservationIds.includes(row.id))data.withdrawnObservationIds.push(row.id);
-      input.resultObservationId=row.id;message="data(war-intel): retrait relevé";
+      const now=new Date().toISOString();
+      const existingIndex=data.observations.findIndex(item=>item.allianceId===alliance.id&&item.date===observation.date);
+      const existing=existingIndex<0?null:data.observations[existingIndex];
+      const row={id:existing?.id||"wir-"+crypto.randomUUID(),allianceId:alliance.id,date:observation.date,
+        layout:[...observation.layout],status:"published",createdAt:existing?.createdAt||now,publishedAt:now};
+      if(existingIndex<0)data.observations.push(row);else data.observations[existingIndex]=row;
+      input.resultObservationId=row.id;input.resultCreated=!existing;
+      message=existing?"data(war-intel): correction relevé":"data(war-intel): publication relevé";
+    }else if(input?.action==="delete"){
+      const index=data.observations.findIndex(item=>item.id===input.observationId);
+      if(index<0)throw new HttpError(404,"observation_not_found");
+      data.observations.splice(index,1);input.resultObservationId=input.observationId;
+      message="data(war-intel): suppression relevé";
     }else throw new HttpError(400,"unknown_action");
     if(data.alliances.length>2000||data.observations.length>10000)
       throw new HttpError(409,"catalog_full","Historique trop volumineux.");
     try{
       const commit=await commitWarIntel(env,snapshot,data,message);
       return {ok:true,action:input.action,allianceId:input.resultAllianceId||input.allianceId||null,
-        observationId:input.resultObservationId||null,commit};
+        observationId:input.resultObservationId||null,created:input.resultCreated,commit};
     }catch(error){if(error.code!=="git_conflict"||attempt===3)throw error;}
   }
   throw new HttpError(409,"busy");
@@ -386,9 +391,7 @@ async function writeWarIntel(request,env){
 async function warIntelRoute(request,env){
   if(request.method==="GET"){
     const snapshot=await warIntelSnapshot(env);
-    const withdrawn=new Set(snapshot.data.withdrawnObservationIds);
-    return {ok:true,schemaVersion:1,alliances:snapshot.data.alliances,
-      observations:snapshot.data.observations.map(row=>({...row,withdrawn:withdrawn.has(row.id)}))};
+    return {ok:true,schemaVersion:1,alliances:snapshot.data.alliances,observations:snapshot.data.observations};
   }
   if(request.method==="POST")return writeWarIntel(request,env);
   throw new HttpError(405,"method_not_allowed");

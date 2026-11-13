@@ -437,10 +437,7 @@
   }
 
   function updateObservations(selectLatest) {
-    const allItems = byRecentDate(observations.filter(item => item.allianceId === allianceSelect.value));
-    const latestByDate = new Map();
-    allItems.forEach(item => { if (!latestByDate.has(item.date)) latestByDate.set(item.date, item); });
-    const items = [...latestByDate.values()].filter(item => !item.withdrawn);
+    const items = byRecentDate(observations.filter(item => item.allianceId === allianceSelect.value));
     observationSelect.replaceChildren();
     if (!items.length) {
       const option = document.createElement("option");

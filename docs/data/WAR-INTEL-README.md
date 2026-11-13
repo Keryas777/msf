@@ -7,9 +7,9 @@ The versioned file `war-intelligence.json` is the shared source for public allia
 - `schemaVersion` is `1`.
 - `alliances[].id` is a stable generated identifier. `name` is the manually maintained classic name.
 - `richName` is optional. Version 1 is `{ "schemaVersion": 1, "segments": [{ "text": "…", "color": "#aabbcc", "symbol": "◆" }] }`. Only valid hex colors are rendered. The classic name is the fallback.
-- `observations[]` contains published immutable revisions. Each record refers to `allianceId`, never a display name. A correction appends a new record and sets `supersedesId`.
+- `observations[]` contains one published record per `allianceId` + `date`. A correction replaces that record in place; another date creates an independent record. Alliance IDs are stable and records never store a display name.
 - `layout` contains nine entries corresponding to the nine internal positions. A room ID or `null` is allowed; each known room can appear at most once. The three flight decks are fixed UI positions.
-- `withdrawnObservationIds` hides a published record from public selection without deleting its historical contents.
+- Deleting a record removes it from the business data permanently. Other dates for that alliance remain unchanged.
 
 ## Access and publication
 

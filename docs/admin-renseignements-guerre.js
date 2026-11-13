@@ -9,7 +9,7 @@
     search=$("intelAllianceSearch"), newAlliance=$("intelNewAlliance"), dateInput=$("intelDate"),
     classicName=$("intelClassicName"),
     historySelect=$("intelHistory"), picker=$("intelRoomPicker"), choice=$("intelRoomChoice"),
-    positionLabel=$("intelPositionLabel"), publishButton=$("intelPublish"), withdrawButton=$("intelWithdraw");
+    positionLabel=$("intelPositionLabel"), publishButton=$("intelPublish"), deleteButton=$("intelDelete");
   const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
   let data={alliances:[],observations:[]},layout=Array(9).fill(null),selectedPosition=null,selectedHistory=null;
   let busy=false;
@@ -43,20 +43,20 @@
   function currentAlliance(){return data.alliances.find(item=>item.id===allianceSelect.value)||null;}
   function renderHistory(){
     const rows=data.observations.filter(row=>row.allianceId===allianceSelect.value).sort((a,b)=>
-      b.date.localeCompare(a.date)||Number(b.revision||0)-Number(a.revision||0));
+      b.date.localeCompare(a.date));
     historySelect.replaceChildren();
     const blank=document.createElement("option");blank.value="";blank.textContent=rows.length?"Choisir un relevé":"Aucun relevé publié";historySelect.append(blank);
-    for(const row of rows){const option=document.createElement("option");option.value=row.id;option.textContent=new Date(row.date+"T12:00:00Z").toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"})+" · v"+(row.revision||1)+(row.withdrawn?" · retiré":"");historySelect.append(option);}
+    for(const row of rows){const option=document.createElement("option");option.value=row.id;option.textContent=new Date(row.date+"T12:00:00Z").toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"});historySelect.append(option);}
     historySelect.disabled=!rows.length;
     if(selectedHistory&&!rows.some(item=>item.id===selectedHistory.id))selectedHistory=null;
-    withdrawButton.hidden=!selectedHistory||selectedHistory.withdrawn;
+    deleteButton.hidden=!selectedHistory;
   }
   function preview(){
     if(!window.LoSPWarIntel)return;
     window.LoSPWarIntel.setPreview({id:selectedHistory?.id||"draft-preview",allianceId:allianceSelect.value,date:dateInput.value||today(),layout:[...layout]});
   }
   function setLayout(next){layout=[...next];preview();}
-  function clearDraft(){selectedHistory=null;historySelect.value="";dateInput.value=today();setLayout(Array(9).fill(null));withdrawButton.hidden=true;}
+  function clearDraft(){selectedHistory=null;historySelect.value="";dateInput.value=today();setLayout(Array(9).fill(null));deleteButton.hidden=true;}
   function validateLayout(){
     const used=new Map();
     layout.forEach((room,index)=>{if(!room)return;if(used.has(room))throw Error("« "+(window.LoSPWarIntel.getRooms().find(item=>item.id===room)?.name||room)+" » est déjà placé en position "+(used.get(room)+1)+".");used.set(room,index);});
@@ -78,8 +78,8 @@
     dateInput.addEventListener("change",preview);
     historySelect.addEventListener("change",()=>{
       selectedHistory=data.observations.find(row=>row.id===historySelect.value)||null;
-      if(selectedHistory){dateInput.value=selectedHistory.date;setLayout(selectedHistory.layout);withdrawButton.hidden=Boolean(selectedHistory.withdrawn);setStatus("Relevé historique chargé. Publier une correction créera une nouvelle version.");}
-      else{withdrawButton.hidden=true;}
+      if(selectedHistory){dateInput.value=selectedHistory.date;setLayout(selectedHistory.layout);deleteButton.hidden=false;setStatus("Relevé chargé. Une publication à cette date remplacera ce relevé.");}
+      else{deleteButton.hidden=true;}
     });
     $("intelBlank").addEventListener("click",()=>{clearDraft();setStatus("Carte vide prête à être renseignée.");});
     $("intelDuplicate").addEventListener("click",()=>{
@@ -111,12 +111,13 @@
       const result=await api("publish",{observation:{allianceId:allianceSelect.value,date:dateInput.value,layout:[...layout]}});
       localStorage.removeItem(DRAFT_KEY);selectedHistory={id:result.observationId,allianceId:allianceSelect.value,date:dateInput.value,layout:[...layout],status:"published"};
       await reload(allianceSelect.value);historySelect.value=result.observationId;
-      setStatus("Relevé publié. L’historique précédent est conservé.","ok");
+      setStatus(result.created?"Nouveau relevé publié.":"Relevé de cette date mis à jour.","ok");
     }));
-    withdrawButton.addEventListener("click",()=>{
+    deleteButton.addEventListener("click",()=>{
       if(!selectedHistory)return;
-      if(!window.confirm("Retirer ce relevé de la consultation publique ? L’historique restera conservé."))return;
-      runBusy(async()=>{await api("withdraw",{observationId:selectedHistory.id});await reload(allianceSelect.value);selectedHistory=data.observations.find(row=>row.id===selectedHistory.id)||selectedHistory;renderHistory();historySelect.value=selectedHistory.id;withdrawButton.hidden=true;setStatus("Relevé retiré de la consultation; son historique reste conservé.","ok");});
+      const date=selectedHistory.date;
+      if(!window.confirm("Supprimer définitivement le relevé du "+new Date(date+"T12:00:00Z").toLocaleDateString("fr-FR")+" ? Cette action est irréversible."))return;
+      runBusy(async()=>{await api("delete",{observationId:selectedHistory.id});selectedHistory=null;await reload(allianceSelect.value);clearDraft();setStatus("Relevé supprimé définitivement. Les autres dates sont conservées.","ok");});
     });
   }
   async function runBusy(work){if(busy)return;busy=true;for(const button of app.querySelectorAll("button"))button.disabled=true;try{await work();}catch(error){setStatus(error?.message||"Opération impossible.","error");}finally{busy=false;for(const button of app.querySelectorAll("button"))button.disabled=false;}}

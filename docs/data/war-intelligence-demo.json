@@ -5,9 +5,8 @@
     { "id": "demo-beta", "name": "Alliance de test B" }
   ],
   "observations": [
-    { "id": "demo-a-2026-11-11", "allianceId": "demo-alpha", "date": "2026-11-11", "layout": ["soute", "hangar", "security", "tech", "armory", "infirmary", "bridge", "reactor", "barracks"], "status": "published", "revision": 1 },
-    { "id": "demo-a-partial", "allianceId": "demo-alpha", "date": "2026-11-04", "layout": ["hangar", null, "soute", "armory", "infirmary", null, "reactor", null, "bridge"], "status": "published", "revision": 1 },
-    { "id": "demo-b-2026-11-09", "allianceId": "demo-beta", "date": "2026-11-09", "layout": ["security", "soute", "hangar", "infirmary", "tech", "armory", "barracks", "bridge", "reactor"], "status": "published", "revision": 1 }
-  ],
-  "withdrawnObservationIds": []
+    { "id": "demo-a-2026-11-11", "allianceId": "demo-alpha", "date": "2026-11-11", "layout": ["soute", "hangar", "security", "tech", "armory", "infirmary", "bridge", "reactor", "barracks"], "status": "published" },
+    { "id": "demo-a-partial", "allianceId": "demo-alpha", "date": "2026-11-04", "layout": ["hangar", null, "soute", "armory", "infirmary", null, "reactor", null, "bridge"], "status": "published" },
+    { "id": "demo-b-2026-11-09", "allianceId": "demo-beta", "date": "2026-11-09", "layout": ["security", "soute", "hangar", "infirmary", "tech", "armory", "barracks", "bridge", "reactor"], "status": "published" }
+  ]
 }
