@@ -18,3 +18,11 @@
 .intelAdminPublishActions{display:flex;gap:8px;margin-top:12px}.intelAdminFootnote{margin:10px 0 0;color:#91a4ba;font-size:11px;line-height:1.45}
 @media(min-width:900px){.intelAdminLayout{grid-template-columns:minmax(250px,.75fr) minmax(250px,.75fr) minmax(400px,1.5fr);align-items:start}.intelAdminMap{grid-column:1/-1}.intelAdminActions{grid-template-columns:1fr 1fr}.intelAdminActions #intelSaveDraft{grid-column:1/-1}}
 @media(max-width:480px){.intelAdminShell{padding-left:10px;padding-right:10px}.intelAdminHome{font-size:10px;padding:9px}.intelAdminPublishActions{flex-direction:column}.intelAdminInline{flex-wrap:wrap}.intelAdminInline .intelAdminButton{flex:0 0 100%}}
+
+/* En-tête administrateur : aucun chevauchement sur écran étroit. */
+.intelAdminShell .intelHeader{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px}
+.intelAdminShell .intelHeaderText{min-width:0;overflow-wrap:anywhere}
+.intelAdminShell .intelHeader h1{font-size:clamp(22px,4.5vw,34px)}
+.intelAdminStatusActions{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}
+.intelAdminStatusActions a{display:inline-flex;align-items:center;min-height:40px;padding:8px 11px;border:1px solid rgba(121,232,255,.4);border-radius:9px;color:#d1f4ff;text-decoration:none;font-weight:800}
+@media(max-width:650px){.intelAdminShell .intelHeader{grid-template-columns:minmax(0,1fr);align-items:start}.intelAdminShell .intelAdminHome{justify-self:start;margin-left:0}.intelAdminShell .intelHeader h1{font-size:clamp(24px,7vw,32px)}.intelAdminShell .intelIntro{max-width:100%}}
