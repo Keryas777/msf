@@ -1,0 +1,1027 @@
+{
+  "schema": "phase6-zone-corpus-replay-1",
+  "engine": "Tesseract CLI 5.5.0 anchor PSM11 + field PSM7; local Linux. Mirrors locator and crop scale/gray parameters from browser module, not a browser/Tesseract.js measurement.",
+  "corpusStatus": "Nine real images matched to ground-truth SHA-256; previously used development corpus; not independent validation.",
+  "summary": {
+    "localAlliance": 3,
+    "opponentAlliance": 4,
+    "localScore": 6,
+    "opponentScore": 5,
+    "localTrophies": 6,
+    "opponentTrophies": 6,
+    "result": 9,
+    "verifiedFields": 62,
+    "exactTotal": 39,
+    "totalSlots": 63
+  },
+  "captures": [
+    {
+      "id": "capture-01",
+      "file": "Screenshot_20261030-200037.jpeg",
+      "dimensions": [
+        1536,
+        691
+      ],
+      "ratio": 2.2229,
+      "anchorsFound": {
+        "losp": true,
+        "opponentName": true,
+        "scoreLabel": true,
+        "trophyRow": false,
+        "scoreValues": false,
+        "resultTitle": false
+      },
+      "geometryMethod": "ocr-anchors-relative",
+      "panelMethod": "anchor-union",
+      "fields": {
+        "localAlliance": {
+          "expected": "Kronos",
+          "ocr": "Kronos",
+          "rawOcr": "losP Kronos",
+          "rect": {
+            "x": 333,
+            "y": 91,
+            "width": 279,
+            "height": 70
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "opponentAlliance": {
+          "expected": "B.B.A.",
+          "ocr": "B.E.A.",
+          "rawOcr": "B.E.A.",
+          "rect": {
+            "x": 927,
+            "y": 91,
+            "width": 136,
+            "height": 70
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "localScore": {
+          "expected": 411597,
+          "ocr": "411597",
+          "rawOcr": "411597",
+          "rect": {
+            "x": 287,
+            "y": 225,
+            "width": 387,
+            "height": 48
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "opponentScore": {
+          "expected": 257149,
+          "ocr": "257149",
+          "rawOcr": "257149",
+          "rect": {
+            "x": 859,
+            "y": 225,
+            "width": 356,
+            "height": 48
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "localTrophies": {
+          "expected": 2778,
+          "ocr": "2778",
+          "rawOcr": "2778",
+          "rect": {
+            "x": 315,
+            "y": 150,
+            "width": 161,
+            "height": 49
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "opponentTrophies": {
+          "expected": 2627,
+          "ocr": null,
+          "rawOcr": "26271751",
+          "rect": {
+            "x": 982,
+            "y": 150,
+            "width": 146,
+            "height": 49
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "result": {
+          "expected": "win",
+          "ocr": "win",
+          "rawOcr": null,
+          "rect": {
+            "x": 460,
+            "y": 0,
+            "width": 615,
+            "height": 82
+          },
+          "exact": true,
+          "status": "exact"
+        }
+      }
+    },
+    {
+      "id": "capture-02",
+      "file": "Screenshot_2026-10-30-20-04-38-96_739a42e8e21224657982c43bc631f015.jpeg",
+      "dimensions": [
+        3216,
+        1440
+      ],
+      "ratio": 2.2333,
+      "anchorsFound": {
+        "losp": true,
+        "opponentName": true,
+        "scoreLabel": true,
+        "trophyRow": true,
+        "scoreValues": false,
+        "resultTitle": false
+      },
+      "geometryMethod": "ocr-anchors-relative",
+      "panelMethod": "anchor-union",
+      "fields": {
+        "localAlliance": {
+          "expected": "Athena",
+          "ocr": "Athena",
+          "rawOcr": "LoSP Athena",
+          "rect": {
+            "x": 775,
+            "y": 190,
+            "width": 587,
+            "height": 146
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "opponentAlliance": {
+          "expected": "Allspark X-Men",
+          "ocr": "Allspark X-Men",
+          "rawOcr": "Allspark X-Men",
+          "rect": {
+            "x": 2017,
+            "y": 190,
+            "width": 640,
+            "height": 146
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "localScore": {
+          "expected": 343311,
+          "ocr": null,
+          "rawOcr": "43311",
+          "rect": {
+            "x": 683,
+            "y": 469,
+            "width": 811,
+            "height": 100
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "opponentScore": {
+          "expected": 314689,
+          "ocr": null,
+          "rawOcr": "46894",
+          "rect": {
+            "x": 1877,
+            "y": 469,
+            "width": 746,
+            "height": 100
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "localTrophies": {
+          "expected": 2792,
+          "ocr": "2792",
+          "rawOcr": "2792",
+          "rect": {
+            "x": 736,
+            "y": 321,
+            "width": 338,
+            "height": 101
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "opponentTrophies": {
+          "expected": 2680,
+          "ocr": "2680",
+          "rawOcr": "2680",
+          "rect": {
+            "x": 2124,
+            "y": 334,
+            "width": 163,
+            "height": 79
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "result": {
+          "expected": "win",
+          "ocr": "win",
+          "rawOcr": null,
+          "rect": {
+            "x": 964,
+            "y": 0,
+            "width": 1287,
+            "height": 172
+          },
+          "exact": true,
+          "status": "exact"
+        }
+      }
+    },
+    {
+      "id": "capture-03",
+      "file": "IMG_2150(1).jpeg",
+      "dimensions": [
+        1536,
+        1009
+      ],
+      "ratio": 1.5223,
+      "anchorsFound": {
+        "losp": true,
+        "opponentName": true,
+        "scoreLabel": true,
+        "trophyRow": true,
+        "scoreValues": false,
+        "resultTitle": false
+      },
+      "geometryMethod": "ocr-anchors-relative",
+      "panelMethod": "anchor-union",
+      "fields": {
+        "localAlliance": {
+          "expected": "Dionysos",
+          "ocr": "Tonysos —",
+          "rawOcr": "LosP Tonysos —",
+          "rect": {
+            "x": 191,
+            "y": 112,
+            "width": 386,
+            "height": 94
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "opponentAlliance": {
+          "expected": "German Avenger's",
+          "ocr": "German Avenger's",
+          "rawOcr": "German Avenger's",
+          "rect": {
+            "x": 963,
+            "y": 112,
+            "width": 418,
+            "height": 94
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "localScore": {
+          "expected": 363432,
+          "ocr": null,
+          "rawOcr": "6492",
+          "rect": {
+            "x": 252,
+            "y": 335,
+            "width": 387,
+            "height": 70
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "opponentScore": {
+          "expected": 153303,
+          "ocr": null,
+          "rawOcr": "1530",
+          "rect": {
+            "x": 893,
+            "y": 335,
+            "width": 356,
+            "height": 70
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "localTrophies": {
+          "expected": 2738,
+          "ocr": "2731",
+          "rawOcr": "2731",
+          "rect": {
+            "x": 173,
+            "y": 180,
+            "width": 161,
+            "height": 71
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "opponentTrophies": {
+          "expected": 2438,
+          "ocr": "2438",
+          "rawOcr": "2438",
+          "rect": {
+            "x": 1026,
+            "y": 198,
+            "width": 102,
+            "height": 52
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "result": {
+          "expected": "win",
+          "ocr": "win",
+          "rawOcr": null,
+          "rect": {
+            "x": 460,
+            "y": 0,
+            "width": 615,
+            "height": 121
+          },
+          "exact": true,
+          "status": "exact"
+        }
+      }
+    },
+    {
+      "id": "capture-04",
+      "file": "Screenshot_2026-11-06-20-00-34-308_com.foxnextgames.m3(1).jpeg",
+      "dimensions": [
+        1536,
+        909
+      ],
+      "ratio": 1.6898,
+      "anchorsFound": {
+        "losp": true,
+        "opponentName": true,
+        "scoreLabel": true,
+        "trophyRow": false,
+        "scoreValues": false,
+        "resultTitle": true
+      },
+      "geometryMethod": "ocr-anchors-relative",
+      "panelMethod": "anchor-union",
+      "fields": {
+        "localAlliance": {
+          "expected": "Kronos",
+          "ocr": "l[o5P 0",
+          "rawOcr": "l[o5P 0",
+          "rect": {
+            "x": 166,
+            "y": 123,
+            "width": 366,
+            "height": 92
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "opponentAlliance": {
+          "expected": "Infinity X",
+          "ocr": "INFINITY X",
+          "rawOcr": "INFINITY X",
+          "rect": {
+            "x": 959,
+            "y": 123,
+            "width": 298,
+            "height": 92
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "localScore": {
+          "expected": 319841,
+          "ocr": "319841",
+          "rawOcr": "319841",
+          "rect": {
+            "x": 235,
+            "y": 302,
+            "width": 387,
+            "height": 63
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "opponentScore": {
+          "expected": 458874,
+          "ocr": "458874",
+          "rawOcr": "458874",
+          "rect": {
+            "x": 861,
+            "y": 302,
+            "width": 356,
+            "height": 63
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "localTrophies": {
+          "expected": 2783,
+          "ocr": "2783",
+          "rawOcr": "2783",
+          "rect": {
+            "x": 148,
+            "y": 202,
+            "width": 161,
+            "height": 63
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "opponentTrophies": {
+          "expected": 2926,
+          "ocr": null,
+          "rawOcr": "4 292671",
+          "rect": {
+            "x": 1021,
+            "y": 202,
+            "width": 146,
+            "height": 63
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "result": {
+          "expected": "loss",
+          "ocr": "loss",
+          "rawOcr": null,
+          "rect": {
+            "x": 324,
+            "y": 14,
+            "width": 839,
+            "height": 81
+          },
+          "exact": true,
+          "status": "exact"
+        }
+      }
+    },
+    {
+      "id": "capture-05",
+      "file": "Screenshot_2026-11-06-20-52-27-15_739a42e8e21224657982c43bc631f015(1).jpeg",
+      "dimensions": [
+        3216,
+        1440
+      ],
+      "ratio": 2.2333,
+      "anchorsFound": {
+        "losp": true,
+        "opponentName": true,
+        "scoreLabel": true,
+        "trophyRow": true,
+        "scoreValues": false,
+        "resultTitle": false
+      },
+      "geometryMethod": "ocr-anchors-relative",
+      "panelMethod": "anchor-union",
+      "fields": {
+        "localAlliance": {
+          "expected": "Athena",
+          "ocr": "Athena",
+          "rawOcr": "LoSP Athena",
+          "rect": {
+            "x": 775,
+            "y": 190,
+            "width": 587,
+            "height": 146
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "opponentAlliance": {
+          "expected": "HYPERACTIF",
+          "ocr": null,
+          "rawOcr": "",
+          "rect": {
+            "x": 2021,
+            "y": 190,
+            "width": 533,
+            "height": 146
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "localScore": {
+          "expected": 340136,
+          "ocr": "340136",
+          "rawOcr": "340136",
+          "rect": {
+            "x": 683,
+            "y": 469,
+            "width": 811,
+            "height": 100
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "opponentScore": {
+          "expected": 291856,
+          "ocr": "291856",
+          "rawOcr": "291856",
+          "rect": {
+            "x": 1877,
+            "y": 469,
+            "width": 746,
+            "height": 100
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "localTrophies": {
+          "expected": 2791,
+          "ocr": "2791",
+          "rawOcr": "2791",
+          "rect": {
+            "x": 736,
+            "y": 322,
+            "width": 338,
+            "height": 100
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "opponentTrophies": {
+          "expected": 2640,
+          "ocr": "2640",
+          "rawOcr": "2640",
+          "rect": {
+            "x": 2125,
+            "y": 334,
+            "width": 164,
+            "height": 79
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "result": {
+          "expected": "win",
+          "ocr": "win",
+          "rawOcr": null,
+          "rect": {
+            "x": 964,
+            "y": 0,
+            "width": 1287,
+            "height": 172
+          },
+          "exact": true,
+          "status": "exact"
+        }
+      }
+    },
+    {
+      "id": "capture-06",
+      "file": "Screenshot_20261111-200235(1).jpeg",
+      "dimensions": [
+        1536,
+        691
+      ],
+      "ratio": 2.2229,
+      "anchorsFound": {
+        "losp": true,
+        "opponentName": true,
+        "scoreLabel": true,
+        "trophyRow": true,
+        "scoreValues": false,
+        "resultTitle": true
+      },
+      "geometryMethod": "ocr-anchors-relative",
+      "panelMethod": "anchor-union",
+      "fields": {
+        "localAlliance": {
+          "expected": "Poseidon",
+          "ocr": "Pose oon",
+          "rawOcr": "LoSP Pose oon",
+          "rect": {
+            "x": 304,
+            "y": 92,
+            "width": 305,
+            "height": 68
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "opponentAlliance": {
+          "expected": "SpaceEmperors",
+          "ocr": "WAY?",
+          "rawOcr": "WAY?",
+          "rect": {
+            "x": 769,
+            "y": 92,
+            "width": 473,
+            "height": 68
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "localScore": {
+          "expected": 366816,
+          "ocr": "366816",
+          "rawOcr": "366816",
+          "rect": {
+            "x": 287,
+            "y": 225,
+            "width": 387,
+            "height": 48
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "opponentScore": {
+          "expected": 168062,
+          "ocr": null,
+          "rawOcr": "027",
+          "rect": {
+            "x": 859,
+            "y": 225,
+            "width": 356,
+            "height": 48
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "localTrophies": {
+          "expected": 2414,
+          "ocr": "2414",
+          "rawOcr": "2414",
+          "rect": {
+            "x": 286,
+            "y": 154,
+            "width": 161,
+            "height": 49
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "opponentTrophies": {
+          "expected": 2264,
+          "ocr": "2264",
+          "rawOcr": "2264",
+          "rect": {
+            "x": 977,
+            "y": 160,
+            "width": 78,
+            "height": 38
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "result": {
+          "expected": "win",
+          "ocr": "win",
+          "rawOcr": null,
+          "rect": {
+            "x": 417,
+            "y": 15,
+            "width": 521,
+            "height": 63
+          },
+          "exact": true,
+          "status": "exact"
+        }
+      }
+    },
+    {
+      "id": "capture-07",
+      "file": "IMG_2169(1).jpeg",
+      "dimensions": [
+        1536,
+        1009
+      ],
+      "ratio": 1.5223,
+      "anchorsFound": {
+        "losp": true,
+        "opponentName": true,
+        "scoreLabel": true,
+        "trophyRow": true,
+        "scoreValues": false,
+        "resultTitle": true
+      },
+      "geometryMethod": "ocr-anchors-relative",
+      "panelMethod": "anchor-union",
+      "fields": {
+        "localAlliance": {
+          "expected": "Dionysos",
+          "ocr": "_LoSP onysos yey",
+          "rawOcr": "_LoSP onysos yey",
+          "rect": {
+            "x": 165,
+            "y": 112,
+            "width": 563,
+            "height": 94
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "opponentAlliance": {
+          "expected": "STAN LEE'S MISFITS",
+          "ocr": "at @WN LEE’S MISFITS",
+          "rawOcr": "at @WN LEE’S MISFITS",
+          "rect": {
+            "x": 963,
+            "y": 112,
+            "width": 419,
+            "height": 94
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "localScore": {
+          "expected": 297706,
+          "ocr": "297706",
+          "rawOcr": "297706",
+          "rect": {
+            "x": 252,
+            "y": 335,
+            "width": 387,
+            "height": 70
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "opponentScore": {
+          "expected": 439960,
+          "ocr": "439360",
+          "rawOcr": "439360",
+          "rect": {
+            "x": 893,
+            "y": 335,
+            "width": 356,
+            "height": 70
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "localTrophies": {
+          "expected": 2663,
+          "ocr": "2663",
+          "rawOcr": "2663",
+          "rect": {
+            "x": 195,
+            "y": 182,
+            "width": 191,
+            "height": 80
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "opponentTrophies": {
+          "expected": 2814,
+          "ocr": null,
+          "rawOcr": "2814751",
+          "rect": {
+            "x": 1029,
+            "y": 190,
+            "width": 146,
+            "height": 70
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "result": {
+          "expected": "loss",
+          "ocr": "loss",
+          "rawOcr": null,
+          "rect": {
+            "x": 223,
+            "y": 0,
+            "width": 629,
+            "height": 63
+          },
+          "exact": true,
+          "status": "exact"
+        }
+      }
+    },
+    {
+      "id": "capture-08",
+      "file": "Screenshot_2026-11-11-20-10-38-053_com.foxnextgames.m3(1).jpeg",
+      "dimensions": [
+        1536,
+        847
+      ],
+      "ratio": 1.8135,
+      "anchorsFound": {
+        "losp": true,
+        "opponentName": true,
+        "scoreLabel": true,
+        "trophyRow": true,
+        "scoreValues": false,
+        "resultTitle": false
+      },
+      "geometryMethod": "ocr-anchors-relative",
+      "panelMethod": "anchor-union",
+      "fields": {
+        "localAlliance": {
+          "expected": "Kronos",
+          "ocr": "LasP Kronos",
+          "rawOcr": "LasP Kronos",
+          "rect": {
+            "x": 193,
+            "y": 76,
+            "width": 353,
+            "height": 89
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "opponentAlliance": {
+          "expected": "Blurred Vision",
+          "ocr": "Blurred Vision",
+          "rawOcr": "Blurred Vision",
+          "rect": {
+            "x": 958,
+            "y": 76,
+            "width": 365,
+            "height": 89
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "localScore": {
+          "expected": 371356,
+          "ocr": "371356",
+          "rawOcr": "371356",
+          "rect": {
+            "x": 246,
+            "y": 249,
+            "width": 387,
+            "height": 60
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "opponentScore": {
+          "expected": 284300,
+          "ocr": "284300",
+          "rawOcr": "284300",
+          "rect": {
+            "x": 864,
+            "y": 249,
+            "width": 356,
+            "height": 60
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "localTrophies": {
+          "expected": 2858,
+          "ocr": "2856",
+          "rawOcr": "2856",
+          "rect": {
+            "x": 163,
+            "y": 149,
+            "width": 188,
+            "height": 75
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "opponentTrophies": {
+          "expected": 2708,
+          "ocr": "2708",
+          "rawOcr": "2708",
+          "rect": {
+            "x": 1021,
+            "y": 164,
+            "width": 99,
+            "height": 49
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "result": {
+          "expected": "win",
+          "ocr": "win",
+          "rawOcr": null,
+          "rect": {
+            "x": 460,
+            "y": 0,
+            "width": 615,
+            "height": 101
+          },
+          "exact": true,
+          "status": "exact"
+        }
+      }
+    },
+    {
+      "id": "capture-09",
+      "file": "Screenshot_2026-11-11-20-55-19-98_739a42e8e21224657982c43bc631f015(1).jpeg",
+      "dimensions": [
+        3216,
+        1440
+      ],
+      "ratio": 2.2333,
+      "anchorsFound": {
+        "losp": true,
+        "opponentName": false,
+        "scoreLabel": true,
+        "trophyRow": true,
+        "scoreValues": false,
+        "resultTitle": false
+      },
+      "geometryMethod": "ocr-anchors-relative",
+      "panelMethod": "anchor-union",
+      "fields": {
+        "localAlliance": {
+          "expected": "Athena",
+          "ocr": "Athena Ne ‘ENS",
+          "rawOcr": "LoSP Athena Ne ‘ENS",
+          "rect": {
+            "x": 775,
+            "y": 190,
+            "width": 1248,
+            "height": 146
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "opponentAlliance": {
+          "expected": null,
+          "ocr": null,
+          "rawOcr": "",
+          "rect": {
+            "x": 1766,
+            "y": 190,
+            "width": 1321,
+            "height": 146
+          },
+          "exact": false,
+          "status": "unknown-truth"
+        },
+        "localScore": {
+          "expected": 348354,
+          "ocr": "348554",
+          "rawOcr": "348554",
+          "rect": {
+            "x": 683,
+            "y": 469,
+            "width": 811,
+            "height": 100
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "opponentScore": {
+          "expected": 481264,
+          "ocr": "481264",
+          "rawOcr": "481264",
+          "rect": {
+            "x": 1877,
+            "y": 469,
+            "width": 746,
+            "height": 100
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "localTrophies": {
+          "expected": 2715,
+          "ocr": null,
+          "rawOcr": "215",
+          "rect": {
+            "x": 668,
+            "y": 306,
+            "width": 356,
+            "height": 126
+          },
+          "exact": false,
+          "status": "mismatch"
+        },
+        "opponentTrophies": {
+          "expected": 2864,
+          "ocr": "2864",
+          "rawOcr": "2864",
+          "rect": {
+            "x": 2124,
+            "y": 334,
+            "width": 162,
+            "height": 79
+          },
+          "exact": true,
+          "status": "exact"
+        },
+        "result": {
+          "expected": "loss",
+          "ocr": "loss",
+          "rawOcr": null,
+          "rect": {
+            "x": 964,
+            "y": 0,
+            "width": 1287,
+            "height": 172
+          },
+          "exact": true,
+          "status": "exact"
+        }
+      }
+    }
+  ]
+}

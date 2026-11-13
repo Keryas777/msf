@@ -19,6 +19,17 @@ assert.equal(result.anchorsFound.scoreLabel, true);
 assert.ok(result.panel && result.panel.width > 0 && result.panel.height > 0, "result panel bounds are exposed for diagnostics");
 assert.equal(result.panelMethod, "anchor-union");
 
+const measuredNameAndTrophyWords = [
+  w("LoSP", 180, 75, 70), w("Kronos", 255, 75, 110), w("Rival", 670, 75, 100),
+  w("2778", 205, 130, 65), w("2627", 700, 130, 65),
+  w("411597", 170, 245, 110), w("POINTS", 415, 245, 80), w("DE", 500, 245, 25), w("GUERRE", 530, 245, 90), w("257149", 680, 245, 110)
+];
+const measured = core.locateZones(measuredNameAndTrophyWords, 1000, 500).zones;
+assert.ok(measured.localAlliance.x <= 180 && measured.localAlliance.x + measured.localAlliance.width < 410, "local name crop includes LoSP and ends before the center emblem");
+assert.ok(measured.opponentAlliance.x > 600 && measured.opponentAlliance.x + measured.opponentAlliance.width < 800, "opponent name crop ends at the detected name instead of spanning the panel");
+assert.ok(measured.localTrophies.x < 270 && measured.localTrophies.x + measured.localTrophies.width < 300, "local trophy crop follows its four-digit anchor");
+assert.ok(measured.opponentTrophies.x > 650 && measured.opponentTrophies.x + measured.opponentTrophies.width < 800, "opponent trophy crop follows its own four-digit anchor");
+
 const point = core.displayPointToImage(260, 140, { left: 10, top: 20, width: 500, height: 250 }, 1000, 500);
 assert.deepEqual(point, { x: 500, y: 240 });
 assert.deepEqual(core.adjustZoneRect({ x: 100, y: 80, width: 60, height: 30 }, 20, -10, "move", 500, 300), { x: 120, y: 70, width: 60, height: 30 });

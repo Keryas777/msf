@@ -120,6 +120,20 @@
     const trophyRow = rows.filter((row) => row.y > nameY1 && row.y < scoreTop && row.words.some((w) => /^\d{4}$/.test(text(w))))
       .sort((a, b) => Math.abs(a.y - expectedTrophyY) - Math.abs(b.y - expectedTrophyY))[0] || null;
     const trophyY = trophyRow?.y ?? expectedTrophyY;
+    const nameTokens = (side) => lospRow?.words.filter((w) => {
+      const x = midX(w), value = text(w);
+      if (side === "left") return x > (losp ? box(losp).x1 - height * .01 : width * .2) && x < centerX - width * .025 && /\p{L}/u.test(value) && !/^losp$/i.test(value);
+      return x > centerX + width * .025 && /\p{L}/u.test(value);
+    }).sort((a,b)=>box(a).x0-box(b).x0) || [];
+    const localNameTokens = nameTokens("left"), opponentNameTokens = nameTokens("right");
+    // Crop alliance text from its detected word boxes, not from the whole side of the panel.
+    const textRect = (tokens, fallback, side) => tokens.length
+      ? clip(side === "left" && losp ? box(losp).x0-width*.008 : Math.min(...tokens.map((w)=>box(w).x0))-height*.035,
+          nameY0-height*.025, Math.max(...tokens.map((w)=>box(w).x1))+height*.035, nameY1+height*.025)
+      : fallback;
+    const trophyWord = (side) => trophyRow?.words.filter((w) => /^\d{4}$/.test(text(w)) && (side === "left" ? midX(w) < centerX : midX(w) > centerX))
+      .sort((a,b)=>Math.abs(midX(a)-(side === "left" ? width*.255 : width*.65))-Math.abs(midX(b)-(side === "left" ? width*.255 : width*.65)))[0] || null;
+    const localTrophyWord = trophyWord("left"), opponentTrophyWord = trophyWord("right");
     const scoreRow = pointsRow;
     const scoreWord = (side) => scoreRow?.words.filter((w) => /^\d{4,7}$/.test(text(w)) && (side === "left" ? midX(w) < width * .49 : midX(w) > width * .51))
       .sort((a, b) => confidence(b) - confidence(a))[0] || null;
@@ -132,8 +146,8 @@
     }].filter(Boolean);
     const panel = panelBoxes.length ? clip(Math.min(...panelBoxes.map((b) => b.x0)) - width * .04, Math.min(...panelBoxes.map((b) => b.y0)) - height * .025, Math.max(...panelBoxes.map((b) => b.x1)) + width * .04, Math.max(...panelBoxes.map((b) => b.y1)) + height * .09) : clip(width * .08, height * .06, width * .92, height * .52);
     const zones = {
-      localAlliance: clip(losp ? box(losp).x0 - width * .025 : width * .18, nameY0 - height * .025, centerX - width * .025, nameY1 + height * .025),
-      opponentAlliance: clip(opponentName ? box(opponentName).x0 - width * .025 : centerX + width * .025, (opponentName ? box(opponentName).y0 : nameY0) - height * .025, width * .96, (opponentName ? box(opponentName).y1 : nameY1) + height * .025),
+      localAlliance: textRect(localNameTokens, clip(losp ? box(losp).x0 - width * .025 : width * .18, nameY0 - height * .025, centerX - width * .025, nameY1 + height * .025), "left"),
+      opponentAlliance: textRect(opponentNameTokens, clip(opponentName ? box(opponentName).x0 - width * .025 : centerX + width * .025, nameY0 - height * .025, width * .96, nameY1 + height * .025), "right"),
       resultBand: resultRow ? clip(Math.min(...resultRow.words.map((w) => box(w).x0)) - width * .08, Math.max(0, resultRow.y - height * .045), Math.max(...resultRow.words.map((w) => box(w).x1)) + width * .08, resultRow.y + height * .045) : clip(width*.30, 0, width*.70, height*.12),
       panel,
       anchors: { losp: losp ? box(losp) : null, opponentName: opponentName ? box(opponentName) : null, scoreLabel: labelBox },
@@ -142,8 +156,12 @@
     };
     if (losp) {
       const opponentX=opponentName ? box(opponentName).x0+width*.02 : width*.635;
-      zones.localTrophies=clip(box(losp).x0-width*.02,trophyY-height*.035,box(losp).x0+width*.085,trophyY+height*.035);
-      zones.opponentTrophies=clip(opponentX,trophyY-height*.035,opponentX+width*.095,trophyY+height*.035);
+      zones.localTrophies=localTrophyWord
+        ? clip(box(localTrophyWord).x0-height*.025,box(localTrophyWord).y0-height*.018,box(localTrophyWord).x1+height*.025,box(localTrophyWord).y1+height*.018)
+        : clip(box(losp).x0-width*.02,trophyY-height*.035,box(losp).x0+width*.085,trophyY+height*.035);
+      zones.opponentTrophies=opponentTrophyWord
+        ? clip(box(opponentTrophyWord).x0-height*.025,box(opponentTrophyWord).y0-height*.018,box(opponentTrophyWord).x1+height*.025,box(opponentTrophyWord).y1+height*.018)
+        : clip(opponentX,trophyY-height*.035,opponentX+width*.095,trophyY+height*.035);
     } else {
       zones.localTrophies=clip(width*.20,height*.205,width*.31,height*.29);
       zones.opponentTrophies=clip(width*.64,height*.205,width*.76,height*.29);
