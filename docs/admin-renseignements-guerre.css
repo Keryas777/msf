@@ -42,3 +42,11 @@
 .intelAdminShell .intelRoomPicker .intelAdminField,.intelAdminShell .intelRoomPicker .intelSelect,.intelAdminShell .intelRoomPicker .intelAdminFootnote{width:100%;max-width:460px;margin-left:auto;margin-right:auto}
 .intelAdminShell .intelRoomPicker .intelSelect{min-height:56px;font-size:17px}
 .intelAdminShell .intelPickerClose{align-self:flex-end;position:absolute;top:max(16px,env(safe-area-inset-top));right:20px;width:44px;height:44px;border:1px solid rgba(121,232,255,.5);border-radius:12px;background:#11263d;color:#e8f8ff;font-size:22px}
+
+/* Liste tactile de salles : pas de menu natif iOS, sélection immédiate. */
+.intelAdminShell .intelRoomPicker:not([hidden]){justify-content:flex-start;overflow-y:auto;overscroll-behavior:contain;padding-top:max(76px,env(safe-area-inset-top))}
+.intelRoomChoices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;width:100%;max-width:460px;margin:0 auto}
+.intelRoomOption{min-height:54px;padding:10px 8px;border:1px solid rgba(121,232,255,.4);border-radius:11px;background:#10253d;color:#e8f6ff;font-size:16px;font-weight:700;line-height:1.25;overflow-wrap:anywhere;touch-action:manipulation}
+.intelRoomOption[aria-current="true"]{border-color:#ffe1a0;background:#28405a}
+.intelAdminShell .intelRoomPicker>.intelAdminField{width:100%;max-width:460px;margin:0 auto;color:#c4d7e9;font-size:17px}
+@media(max-width:360px){.intelRoomChoices{grid-template-columns:1fr}}
