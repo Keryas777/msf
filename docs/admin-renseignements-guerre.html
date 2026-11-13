@@ -10,7 +10,7 @@
   <script src="./auth-guard.js?v=8"></script>
   <link rel="stylesheet" href="./style.css?v=ts" />
   <link rel="stylesheet" href="./renseignements-guerre.css?v=16-live-rooms" />
-  <link rel="stylesheet" href="./admin-renseignements-guerre.css?v=5-room-modal" />
+  <link rel="stylesheet" href="./admin-renseignements-guerre.css?v=6-reliable-choices" />
   <link rel="manifest" href="./manifest.webmanifest" />
 </head>
 <body class="warIntelPage" data-war-intel-admin="true">
@@ -69,8 +69,8 @@
         <div id="intelBoard" class="intelBoard" data-mode="overview" aria-label="Carte interactive de l’héliporteur"><svg id="intelConnections" class="intelConnections" aria-hidden="true"></svg></div>
         <div id="intelRoomPicker" class="intelRoomPicker" hidden role="dialog" aria-modal="true" aria-label="Choisir une salle pour l’emplacement sélectionné">
           <button id="intelClosePicker" class="intelPickerClose" type="button" aria-label="Fermer le choix de salle">✕</button>
-          <label class="intelAdminField" for="intelRoomChoice">Emplacement <span id="intelPositionLabel"></span></label>
-          <select id="intelRoomChoice" class="intelSelect" aria-label="Choisir la salle à placer immédiatement"></select>
+          <p class="intelAdminField">Emplacement <span id="intelPositionLabel"></span> — choisir une salle</p>
+          <div id="intelRoomChoice" class="intelRoomChoices" role="group" aria-label="Salles disponibles"></div>
           <p class="intelAdminFootnote">Le choix s’applique immédiatement à la carte. Publie uniquement quand le plan est prêt.</p>
         </div>
         <section id="intelDetail" class="intelDetail" aria-live="polite" aria-label="Informations de la salle sélectionnée"></section>
@@ -80,6 +80,6 @@
     </section>
   </main>
   <script src="./renseignements-guerre.js?v=14-refresh-return" defer></script>
-  <script src="./admin-renseignements-guerre.js?v=5-room-modal" defer></script>
+  <script src="./admin-renseignements-guerre.js?v=6-reliable-choices" defer></script>
 </body>
 </html>

@@ -71,9 +71,23 @@
     if(layout.length!==9||!/^\d{4}-\d{2}-\d{2}$/.test(dateInput.value))throw Error("Vérifie la date et les neuf emplacements.");
   }
   function populateRoomChoices(){
+    const rooms=window.LoSPWarIntel.getRooms().slice().sort((a,b)=>a.name.localeCompare(b.name,"fr",{sensitivity:"base"}));
     choice.replaceChildren();
-    const unknown=document.createElement("option");unknown.value="";unknown.textContent="Salle inconnue / emplacement vide";choice.append(unknown);
-    for(const room of window.LoSPWarIntel.getRooms()){const option=document.createElement("option");option.value=room.id;option.textContent=room.name;choice.append(option);}
+    const options=[{id:"",name:"Salle inconnue / emplacement vide"},...rooms.filter(room=>
+      room.id===layout[selectedPosition-3]||!layout.includes(room.id))];
+    for(const room of options){
+      const button=document.createElement("button");button.type="button";button.className="intelRoomOption";
+      button.textContent=room.name;button.dataset.room=room.id;
+      if(room.id===(layout[selectedPosition-3]||""))button.setAttribute("aria-current","true");
+      choice.append(button);
+    }
+  }
+  function applyRoom(room){
+    if(selectedPosition==null)return;
+    const index=selectedPosition-3;
+    if(room&&layout.some((item,i)=>i!==index&&item===room)){setStatus("Cette salle est déjà présente sur la carte.","error");return;}
+    layout[index]=room||null;picker.hidden=true;selectedPosition=null;preview();
+    setStatus("Position "+(index+1)+" mise à jour. Continue à placer les salles, puis valide le plan complet.","ok");
   }
   async function reload(keepAlliance=allianceSelect.value){
     const loaded=await window.LoSPWarIntel.refresh();data=loaded;fillAllianceSelect(keepAlliance);renderHistory();
@@ -106,18 +120,13 @@
       setStatus("Nom classique mis à jour. Les relevés gardent leur identifiant d’alliance.","ok");
     }));
     window.LoSPWarIntel.setEditHandler((position,current)=>{
-      selectedPosition=position;positionLabel.textContent=String(position-2);choice.value=current||"";picker.hidden=false;
-      choice.focus({preventScroll:true});
+      selectedPosition=position;positionLabel.textContent=String(position-2);populateRoomChoices();picker.hidden=false;
       setStatus("Emplacement "+(position-2)+" sélectionné : choisis une salle dans la liste qui vient de s’ouvrir.","info");
     });
     $("intelClosePicker").addEventListener("click",()=>{picker.hidden=true;selectedPosition=null;});
     picker.addEventListener("click",event=>{if(event.target===picker){picker.hidden=true;selectedPosition=null;}});
     document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!picker.hidden){picker.hidden=true;selectedPosition=null;}});
-    choice.addEventListener("change",()=>{
-      if(selectedPosition==null)return;const room=choice.value||null;const index=selectedPosition-3;
-      if(room&&layout.some((item,i)=>i!==index&&item===room)){setStatus("Cette salle est déjà présente sur la carte.","error");return;}
-      layout[index]=room;picker.hidden=true;selectedPosition=null;preview();setStatus("Position "+(index+1)+" mise à jour. Continue à placer les salles, puis valide le plan complet.","ok");
-    });
+    choice.addEventListener("click",event=>{const button=event.target.closest("button[data-room]");if(button)applyRoom(button.dataset.room);});
     publishButton.addEventListener("click",()=>runBusy(async()=>{
       validateLayout();if(!currentAlliance())throw Error("Sélectionne ou crée une alliance.");
       const result=await api("publish",{observation:{allianceId:allianceSelect.value,date:dateInput.value,layout:[...layout]}});
