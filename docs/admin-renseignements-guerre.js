@@ -16,7 +16,14 @@
   function setStatus(message,state="info"){status.textContent=message;status.dataset.state=state;}
   function signedToken(){try{return localStorage.getItem("losp_session")||"";}catch{return "";}}
   function realSession(){return window.LoSP_REAL_SESSION||window.LoSP_SESSION||null;}
-  function ownerAllowed(){const session=realSession();return session?.ok===true&&session.role==="admin"&&String(session.id||"")===OWNER_ID&&SIGNED.test(signedToken());}
+  function ownerAllowed(){const session=realSession();return session?.ok===true&&session.role==="admin"&&String(session.id||"")===OWNER_ID;}
+  function showLoginHelp(message){
+    setStatus(message,"error");
+    const actions=document.createElement("span");actions.className="intelAdminStatusActions";
+    const login=document.createElement("a");login.href="https://losp-auth.deliriousfan7.workers.dev/login?next=admin-renseignements-guerre.html";login.textContent="Se reconnecter avec Discord";
+    const home=document.createElement("a");home.href="./home.html";home.textContent="Accueil LoSP";
+    actions.append(login,home);status.append(actions);
+  }
   async function api(action,payload={}){
     const token=signedToken();
     if(!SIGNED.test(token))throw Error("Reconnecte-toi à Discord pour obtenir une session signée.");
@@ -125,7 +132,15 @@
     const auth=await (window.LoSP_AUTH_READY||Promise.resolve(window.LoSP_SESSION));
     document.documentElement.classList.remove("authChecking");
     const session=realSession();
-    if(!ownerAllowed()||auth?.ok!==true||session?.role!=="admin"||String(session?.id||"")!==OWNER_ID){setStatus("Accès refusé : cette interface est réservée au propriétaire administrateur du projet.","error");return;}
+    if(!ownerAllowed()){
+      if(session?.ok===true) setStatus("Accès refusé : seul le compte Discord du propriétaire peut administrer les plans adverses.","error");
+      else showLoginHelp("Session Discord absente ou expirée. Connecte-toi pour accéder à cette administration.");
+      return;
+    }
+    if(!SIGNED.test(signedToken())){
+      showLoginHelp("Ton compte administrateur est reconnu, mais ce navigateur ne possède pas de session Discord signée pour publier. Reconnecte-toi avec Discord.");
+      return;
+    }
     try{
       const rooms=await window.LoSPWarIntel;
       if(!rooms)throw Error("La carte tactique n’est pas chargée.");
