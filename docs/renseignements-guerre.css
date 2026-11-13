@@ -190,6 +190,10 @@ button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transpare
 .intelBoard .intelFlight .runway::after{content:none!important;display:none!important;background:none!important;box-shadow:none!important}
 .intelBoard .intelFlight .runway i{left:4px;right:1px;background:repeating-linear-gradient(90deg,#9cefff 0 15px,transparent 15px 18px)}
 
+/* An empty interior slot means that the room has not been identified yet. */
+.intelRoom.intelUnknown{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:1px dashed rgba(142,223,255,.37)!important;background:linear-gradient(145deg,rgba(17,34,49,.45),rgba(6,17,30,.72))!important;color:#b8cadd}
+.intelUnknownMark{position:relative;z-index:7;display:grid;place-items:center;width:25px;height:25px;border:1px solid rgba(142,223,255,.45);border-radius:50%;color:#85dff6;font-size:16px;font-weight:900}
+
 /* Overview only: keep influence readable without overpowering the room map.
    Disable the shared fade animation here because its fill-mode sets opacity. */
 .intelBoard[data-mode="overview"] .intelInfluenceTriangle{opacity:.28;stroke-opacity:.3;animation:none}

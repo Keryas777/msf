@@ -1,0 +1,138 @@
+(() => {
+  "use strict";
+  const API="https://msf-cosmic-defenses.deliriousfan7.workers.dev/api/war-intelligence";
+  const OWNER_ID="300305626926415874";
+  const DRAFT_KEY="losp-war-intel-draft-v1";
+  const SIGNED=/^v1\.[A-Za-z0-9_-]{12,4096}\.[A-Za-z0-9_-]{40,80}$/;
+  const $=id=>document.getElementById(id);
+  const status=$("intelAdminStatus"), app=$("intelAdminApp"), allianceSelect=$("intelAlliance"),
+    search=$("intelAllianceSearch"), newAlliance=$("intelNewAlliance"), dateInput=$("intelDate"),
+    classicName=$("intelClassicName"),
+    historySelect=$("intelHistory"), picker=$("intelRoomPicker"), choice=$("intelRoomChoice"),
+    positionLabel=$("intelPositionLabel"), publishButton=$("intelPublish"), withdrawButton=$("intelWithdraw");
+  const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+  let data={alliances:[],observations:[]},layout=Array(9).fill(null),selectedPosition=null,selectedHistory=null;
+  let busy=false;
+  function setStatus(message,state="info"){status.textContent=message;status.dataset.state=state;}
+  function signedToken(){try{return localStorage.getItem("losp_session")||"";}catch{return "";}}
+  function realSession(){return window.LoSP_REAL_SESSION||window.LoSP_SESSION||null;}
+  function ownerAllowed(){const session=realSession();return session?.ok===true&&session.role==="admin"&&String(session.id||"")===OWNER_ID&&SIGNED.test(signedToken());}
+  async function api(action,payload={}){
+    const token=signedToken();
+    if(!SIGNED.test(token))throw Error("Reconnecte-toi à Discord pour obtenir une session signée.");
+    const response=await fetch(API,{method:"POST",mode:"cors",cache:"no-store",credentials:"omit",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({action,...payload})});
+    const result=await response.json().catch(()=>null);
+    if(!response.ok||result?.ok!==true)throw Error(result?.message||"Opération impossible. Réessaie.");
+    return result;
+  }
+  function saveDraft(){
+    try{localStorage.setItem(DRAFT_KEY,JSON.stringify({schemaVersion:1,allianceId:allianceSelect.value,date:dateInput.value,layout,observationId:selectedHistory?.id||null,savedAt:new Date().toISOString()}));setStatus("Brouillon enregistré sur cet appareil.","ok");}
+    catch{setStatus("Le navigateur n’a pas pu enregistrer le brouillon local.","error");}
+  }
+  function fillAllianceSelect(keep=allianceSelect.value){
+    const query=search.value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+    allianceSelect.replaceChildren();
+    const matches=data.alliances.filter(item=>!query||item.name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().includes(query));
+    matches.sort((a,b)=>a.name.localeCompare(b.name,"fr"));
+    for(const alliance of matches){const option=document.createElement("option");option.value=alliance.id;option.textContent=alliance.name;allianceSelect.append(option);}
+    if(matches.some(item=>item.id===keep))allianceSelect.value=keep;
+    classicName.value=currentAlliance()?.name||"";
+    renderHistory();
+  }
+  function currentAlliance(){return data.alliances.find(item=>item.id===allianceSelect.value)||null;}
+  function renderHistory(){
+    const rows=data.observations.filter(row=>row.allianceId===allianceSelect.value).sort((a,b)=>
+      b.date.localeCompare(a.date)||Number(b.revision||0)-Number(a.revision||0));
+    historySelect.replaceChildren();
+    const blank=document.createElement("option");blank.value="";blank.textContent=rows.length?"Choisir un relevé":"Aucun relevé publié";historySelect.append(blank);
+    for(const row of rows){const option=document.createElement("option");option.value=row.id;option.textContent=new Date(row.date+"T12:00:00Z").toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"})+" · v"+(row.revision||1)+(row.withdrawn?" · retiré":"");historySelect.append(option);}
+    historySelect.disabled=!rows.length;
+    if(selectedHistory&&!rows.some(item=>item.id===selectedHistory.id))selectedHistory=null;
+    withdrawButton.hidden=!selectedHistory||selectedHistory.withdrawn;
+  }
+  function preview(){
+    if(!window.LoSPWarIntel)return;
+    window.LoSPWarIntel.setPreview({id:selectedHistory?.id||"draft-preview",allianceId:allianceSelect.value,date:dateInput.value||today(),layout:[...layout]});
+  }
+  function setLayout(next){layout=[...next];preview();}
+  function clearDraft(){selectedHistory=null;historySelect.value="";dateInput.value=today();setLayout(Array(9).fill(null));withdrawButton.hidden=true;}
+  function validateLayout(){
+    const used=new Map();
+    layout.forEach((room,index)=>{if(!room)return;if(used.has(room))throw Error("« "+(window.LoSPWarIntel.getRooms().find(item=>item.id===room)?.name||room)+" » est déjà placé en position "+(used.get(room)+1)+".");used.set(room,index);});
+    if(!layout.some(Boolean))throw Error("Ajoute au moins une salle avant la publication.");
+    if(layout.length!==9||!/^\d{4}-\d{2}-\d{2}$/.test(dateInput.value))throw Error("Vérifie la date et les neuf emplacements.");
+  }
+  function populateRoomChoices(){
+    choice.replaceChildren();
+    const unknown=document.createElement("option");unknown.value="";unknown.textContent="Salle inconnue / emplacement vide";choice.append(unknown);
+    for(const room of window.LoSPWarIntel.getRooms()){const option=document.createElement("option");option.value=room.id;option.textContent=room.name;choice.append(option);}
+  }
+  async function reload(keepAlliance=allianceSelect.value){
+    const loaded=await window.LoSPWarIntel.refresh();data=loaded;fillAllianceSelect(keepAlliance);renderHistory();
+    if(selectedHistory){selectedHistory=data.observations.find(row=>row.id===selectedHistory.id)||null;}
+  }
+  function bind(){
+    search.addEventListener("input",()=>fillAllianceSelect());
+    allianceSelect.addEventListener("change",()=>{selectedHistory=null;classicName.value=currentAlliance()?.name||"";renderHistory();clearDraft();});
+    dateInput.addEventListener("change",preview);
+    historySelect.addEventListener("change",()=>{
+      selectedHistory=data.observations.find(row=>row.id===historySelect.value)||null;
+      if(selectedHistory){dateInput.value=selectedHistory.date;setLayout(selectedHistory.layout);withdrawButton.hidden=Boolean(selectedHistory.withdrawn);setStatus("Relevé historique chargé. Publier une correction créera une nouvelle version.");}
+      else{withdrawButton.hidden=true;}
+    });
+    $("intelBlank").addEventListener("click",()=>{clearDraft();setStatus("Carte vide prête à être renseignée.");});
+    $("intelDuplicate").addEventListener("click",()=>{
+      const row=selectedHistory||data.observations.filter(item=>item.allianceId===allianceSelect.value).sort((a,b)=>b.date.localeCompare(a.date))[0];
+      if(!row){setStatus("Aucun relevé à dupliquer pour cette alliance.","error");return;}
+      selectedHistory=null;historySelect.value="";dateInput.value=today();setLayout(row.layout);setStatus("Relevé dupliqué. Modifie la date ou les salles, puis publie.","ok");
+    });
+    $("intelSaveDraft").addEventListener("click",saveDraft);
+    $("intelCreateAlliance").addEventListener("click",async()=>{
+      const name=newAlliance.value.trim();if(!name){setStatus("Saisis le nom classique de l’alliance.","error");return;}
+      await runBusy(async()=>{const result=await api("createAlliance",{name});newAlliance.value="";search.value="";await reload(result.allianceId);allianceSelect.value=result.allianceId;classicName.value=currentAlliance()?.name||"";clearDraft();setStatus("Alliance créée avec son identifiant stable.","ok");});
+    });
+    $("intelSaveAllianceName").addEventListener("click",()=>runBusy(async()=>{
+      if(!currentAlliance())throw Error("Sélectionne une alliance.");
+      const name=classicName.value.trim();if(!name)throw Error("Le nom classique ne peut pas être vide.");
+      const id=allianceSelect.value;await api("updateAlliance",{allianceId:id,name});search.value="";await reload(id);
+      setStatus("Nom classique mis à jour. Les relevés gardent leur identifiant d’alliance.","ok");
+    }));
+    window.LoSPWarIntel.setEditHandler((position,current)=>{
+      selectedPosition=position;positionLabel.textContent=String(position-2);choice.value=current||"";picker.hidden=false;choice.focus({preventScroll:true});
+    });
+    $("intelApplyRoom").addEventListener("click",()=>{
+      if(selectedPosition==null)return;const room=choice.value||null;const index=selectedPosition-3;
+      if(room&&layout.some((item,i)=>i!==index&&item===room)){setStatus("Cette salle est déjà présente sur la carte.","error");return;}
+      layout[index]=room;picker.hidden=true;preview();setStatus("Position "+(index+1)+" mise à jour. Le brouillon est gardé en mémoire jusqu’à l’enregistrement.","ok");
+    });
+    publishButton.addEventListener("click",()=>runBusy(async()=>{
+      validateLayout();if(!currentAlliance())throw Error("Sélectionne ou crée une alliance.");
+      const result=await api("publish",{observation:{allianceId:allianceSelect.value,date:dateInput.value,layout:[...layout]}});
+      localStorage.removeItem(DRAFT_KEY);selectedHistory={id:result.observationId,allianceId:allianceSelect.value,date:dateInput.value,layout:[...layout],status:"published"};
+      await reload(allianceSelect.value);historySelect.value=result.observationId;
+      setStatus("Relevé publié. L’historique précédent est conservé.","ok");
+    }));
+    withdrawButton.addEventListener("click",()=>{
+      if(!selectedHistory)return;
+      if(!window.confirm("Retirer ce relevé de la consultation publique ? L’historique restera conservé."))return;
+      runBusy(async()=>{await api("withdraw",{observationId:selectedHistory.id});await reload(allianceSelect.value);selectedHistory=data.observations.find(row=>row.id===selectedHistory.id)||selectedHistory;renderHistory();historySelect.value=selectedHistory.id;withdrawButton.hidden=true;setStatus("Relevé retiré de la consultation; son historique reste conservé.","ok");});
+    });
+  }
+  async function runBusy(work){if(busy)return;busy=true;for(const button of app.querySelectorAll("button"))button.disabled=true;try{await work();}catch(error){setStatus(error?.message||"Opération impossible.","error");}finally{busy=false;for(const button of app.querySelectorAll("button"))button.disabled=false;}}
+  async function boot(){
+    const auth=await (window.LoSP_AUTH_READY||Promise.resolve(window.LoSP_SESSION));
+    document.documentElement.classList.remove("authChecking");
+    const session=realSession();
+    if(!ownerAllowed()||auth?.ok!==true||session?.role!=="admin"||String(session?.id||"")!==OWNER_ID){setStatus("Accès refusé : cette interface est réservée au propriétaire administrateur du projet.","error");return;}
+    try{
+      const rooms=await window.LoSPWarIntel;
+      if(!rooms)throw Error("La carte tactique n’est pas chargée.");
+      await reload();populateRoomChoices();app.hidden=false;dateInput.value=today();bind();clearDraft();
+      try{const saved=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null");if(saved?.schemaVersion===1&&Array.isArray(saved.layout)&&saved.layout.length===9){allianceSelect.value=data.alliances.some(item=>item.id===saved.allianceId)?saved.allianceId:allianceSelect.value;renderHistory();dateInput.value=saved.date||today();setLayout(saved.layout);}}
+      catch{}
+      setStatus("Session propriétaire vérifiée. Les brouillons enregistrés sont propres à cet appareil.","ok");
+    }catch(error){setStatus(error?.message||"Impossible de charger les relevés.","error");}
+  }
+  boot();
+})();

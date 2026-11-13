@@ -4,6 +4,11 @@ on:
     paths:
       - "workers/msf-cosmic-defenses/**"
       - "workers/losp-auth/**"
+      - "docs/renseignements-guerre*"
+      - "docs/admin-renseignements-guerre*"
+      - "docs/data/war-intelligence.json"
+      - "tests/war-intelligence-static.test.mjs"
+      - "workers/msf-cosmic-defenses/test/war-intelligence.test.mjs"
       - "docs/cosmic-defenses.js"
       - "docs/cosmic-defense-propose.html"
       - "docs/cosmic-defenses.html"
@@ -37,6 +42,7 @@ jobs:
           node --test workers/msf-cosmic-defenses/test/worker.test.mjs
           node --test workers/msf-cosmic-defenses/test/auth.test.mjs
           node --test workers/msf-cosmic-defenses/test/legacy-session.test.mjs
+          node --test workers/msf-cosmic-defenses/test/war-intelligence.test.mjs
   test-ui:
     runs-on: ubuntu-latest
     steps:
@@ -45,7 +51,7 @@ jobs:
         with:
           node-version: "22"
       - name: Validate Cosmic UI (independent of Worker deployment)
-        run: node --test tests/cosmic-static.test.mjs
+        run: node --test tests/cosmic-static.test.mjs tests/war-intelligence-static.test.mjs
   deploy:
     if: github.event_name != 'pull_request'
     needs: test

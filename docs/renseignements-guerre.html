@@ -9,7 +9,7 @@
   <script>document.documentElement.classList.add("authChecking");</script>
   <script src="./auth-guard.js?v=8"></script>
   <link rel="stylesheet" href="./style.css?v=ts" />
-  <link rel="stylesheet" href="./renseignements-guerre.css?v=15-overview-triangles" />
+  <link rel="stylesheet" href="./renseignements-guerre.css?v=16-live-rooms" />
   <link rel="manifest" href="./manifest.webmanifest" />
 </head>
 <body class="warIntelPage">
@@ -19,10 +19,12 @@
       <div class="intelHeaderText">
         <h1>Renseignements de guerre</h1>
       </div>
-      <span class="intelPrototypeMarker">Données d’essai</span>
+      <a class="intelAdminHome" href="./admin-renseignements-guerre.html">Administration</a>
+      <span id="intelAllianceDisplay" class="intelAllianceRich" hidden></span>
     </header>
 
     <section class="intelWorkspace" aria-label="Renseignements sur l’alliance adverse">
+      <p id="intelDemoStatus" class="intelDemoNotice" hidden>Données de test. Retire le paramètre <code>?demo=1</code> pour revenir aux données publiées.</p>
       <div class="intelControls">
         <label class="intelField">
           <span>Alliance adverse</span>
@@ -42,6 +44,7 @@
         </div>
 
         <p id="intelEmpty" class="intelEmpty" hidden>Aucun relevé disponible</p>
+        <p id="intelLoadError" class="intelLoadError" role="status" hidden></p>
         <div id="intelBoard" class="intelBoard" data-mode="overview" aria-label="Carte interactive de l’héliporteur">
           <svg id="intelConnections" class="intelConnections" aria-hidden="true"></svg>
         </div>
@@ -49,6 +52,6 @@
       </section>
     </section>
   </main>
-  <script src="./renseignements-guerre.js?v=11-room-points" defer></script>
+  <script src="./renseignements-guerre.js?v=12-live-data" defer></script>
 </body>
 </html>

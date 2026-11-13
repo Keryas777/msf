@@ -1,6 +1,6 @@
 // docs/sw.js
 
-const CACHE = "losp-v25";
+const CACHE = "losp-v26";
 
 const CORE_ASSETS = [
   "./",
@@ -9,6 +9,13 @@ const CORE_ASSETS = [
   "./home.css",
   "./install-banner.js",
   "./manifest.webmanifest",
+  "./admin-renseignements-guerre.html",
+  "./admin-renseignements-guerre.css",
+  "./admin-renseignements-guerre.js",
+  "./renseignements-guerre.html",
+  "./renseignements-guerre.css",
+  "./renseignements-guerre.js",
+  "./data/war-intelligence.json",
 
   // Images home
   "./HeaderHome.webp",
@@ -177,6 +184,16 @@ self.addEventListener("fetch", (event) => {
 
   // War intelligence UI: always fetch the current script, bypassing the HTTP cache.
   if (url.pathname.endsWith("/renseignements-guerre.js")) {
+    event.respondWith(networkFirst(request, null, true));
+    return;
+  }
+
+  if (url.pathname.endsWith("/admin-renseignements-guerre.js") ||
+      url.pathname.endsWith("/admin-renseignements-guerre.css") ||
+      url.pathname.endsWith("/admin-renseignements-guerre.html") ||
+      url.pathname.endsWith("/renseignements-guerre.html") ||
+      url.pathname.endsWith("/renseignements-guerre.css") ||
+      url.pathname.endsWith("/data/war-intelligence.json")) {
     event.respondWith(networkFirst(request, null, true));
     return;
   }

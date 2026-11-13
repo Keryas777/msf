@@ -1,0 +1,20 @@
+.intelAllianceRich{display:block;margin:7px 0 0;color:#f3f7ff;font-size:15px;font-weight:850;letter-spacing:.02em}
+.intelLoadError{margin:10px 0;padding:11px;border:1px solid rgba(255,111,131,.38);border-radius:10px;color:#ffd4db;background:rgba(110,24,42,.22)}
+.intelAdminHome{position:relative;z-index:1;margin-left:auto;padding:10px 12px;border:1px solid rgba(121,232,255,.3);border-radius:10px;color:#c5efff;text-decoration:none;font-size:12px;font-weight:800;white-space:nowrap}
+.intelAdminLayout{display:grid;gap:12px}
+.intelAdminPanel{min-width:0;padding:15px;border:1px solid var(--intel-line);border-radius:15px;background:linear-gradient(150deg,rgba(13,25,42,.96),rgba(7,16,29,.94));box-shadow:0 16px 40px rgba(0,0,0,.22)}
+.intelAdminPanel h2{margin:0 0 12px;font-size:17px}
+.intelAdminField{display:block;margin:13px 0 6px;color:#b7c7d8;font-size:12px;font-weight:800}
+.intelAdminInput,.intelAdminPanel .intelSelect,.intelRoomPicker .intelSelect{width:100%;min-height:46px;padding:10px 12px;border:1px solid rgba(122,190,238,.33);border-radius:10px;background:#0b1b2e;color:#f2f7ff;font:inherit;font-size:14px}
+.intelAdminInline{display:flex;align-items:stretch;gap:8px}.intelAdminInline>*{min-width:0}.intelAdminInline .intelAdminInput,.intelAdminInline .intelSelect{flex:1}
+.intelAdminCreate{margin-top:15px;padding-top:10px;border-top:1px solid rgba(117,180,226,.16)}
+.intelAdminActions{display:grid;gap:8px;margin-top:12px}
+.intelAdminButton{min-height:46px;padding:10px 13px;border:1px solid rgba(122,190,238,.34);border-radius:10px;background:linear-gradient(140deg,#193c58,#172b49);color:#f3f7ff;font:inherit;font-size:13px;font-weight:850;cursor:pointer;touch-action:manipulation}
+.intelAdminButton:disabled{opacity:.48;cursor:not-allowed}.intelAdminSecondary{background:rgba(8,21,37,.8);color:#c4d7e9}.intelAdminPublish{flex:1;background:linear-gradient(135deg,#146b66,#183e61);border-color:rgba(91,232,198,.45);color:#e1fff6}.intelAdminDanger{background:rgba(97,30,46,.55);border-color:rgba(255,111,131,.36);color:#ffd6dd}
+.intelAdminStatus{min-height:42px;margin:0 0 12px;padding:11px 13px;border:1px solid rgba(121,232,255,.2);border-radius:11px;background:rgba(10,23,39,.8);color:#b9d9ea;font-size:13px}.intelAdminStatus[data-state="error"]{border-color:rgba(255,111,131,.45);color:#ffd4db}.intelAdminStatus[data-state="ok"]{border-color:rgba(87,231,187,.35);color:#c8ffeb}
+.intelAdminMap{min-width:0}.intelRoomPicker{position:relative;z-index:2;margin-top:12px;padding:10px;border:1px solid rgba(121,232,255,.22);border-radius:12px;background:rgba(8,18,31,.95)}
+.intelUnknown{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:1px dashed rgba(142,223,255,.37)!important;background:linear-gradient(145deg,rgba(17,34,49,.35),rgba(6,17,30,.55))!important;color:#b8cadd!important}
+.intelUnknownMark{display:grid;place-items:center;width:26px;height:26px;border:1px solid rgba(142,223,255,.45);border-radius:50%;color:#85dff6;font-size:16px;font-weight:900}
+.intelAdminPublishActions{display:flex;gap:8px;margin-top:12px}.intelAdminFootnote{margin:10px 0 0;color:#91a4ba;font-size:11px;line-height:1.45}
+@media(min-width:900px){.intelAdminLayout{grid-template-columns:minmax(250px,.75fr) minmax(250px,.75fr) minmax(400px,1.5fr);align-items:start}.intelAdminMap{grid-column:1/-1}.intelAdminActions{grid-template-columns:1fr 1fr}.intelAdminActions #intelSaveDraft{grid-column:1/-1}}
+@media(max-width:480px){.intelAdminShell{padding-left:10px;padding-right:10px}.intelAdminHome{font-size:10px;padding:9px}.intelAdminPublishActions{flex-direction:column}.intelAdminInline{flex-wrap:wrap}.intelAdminInline .intelAdminButton{flex:0 0 100%}}

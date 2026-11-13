@@ -1,6 +1,11 @@
 (() => {
   "use strict";
 
+  const WAR_INTEL_API = "https://msf-cosmic-defenses.deliriousfan7.workers.dev/api/war-intelligence";
+  const DATA_FALLBACK = "./data/war-intelligence.json";
+  const ADMIN_MODE = document.body?.dataset?.warIntelAdmin === "true";
+  const DEMO_MODE = !ADMIN_MODE && new URLSearchParams(location.search).get("demo") === "1";
+
   const rooms = [
     { id: "soute", name: "Soute", icon: "▣", range: "adjacent", color: "#FACC15", effect: "À chaque tour, les personnages avec Attaque augmentée gagnent +10 % de Barrière." },
     { id: "hangar", name: "Hangar", icon: "✈", range: "adjacent", color: "#F97316", effect: "+15 % de Barrière max pour tous les alliés en défense." },
@@ -48,16 +53,8 @@
     { name: "Pont d’envol 2", position: 1 },
     { name: "Pont d’envol 3", position: 2 }
   ];
-  const observations = [
-    { id: "a-2026-11-11", allianceId: "test-a", date: "2026-11-11", layout: ["soute", "hangar", "security", "tech", "armory", "infirmary", "bridge", "reactor", "barracks"] },
-    { id: "a-2026-11-04", allianceId: "test-a", date: "2026-11-04", layout: ["hangar", "security", "soute", "armory", "infirmary", "tech", "reactor", "barracks", "bridge"] },
-    { id: "b-2026-11-09", allianceId: "test-b", date: "2026-11-09", layout: ["security", "soute", "hangar", "infirmary", "tech", "armory", "barracks", "bridge", "reactor"] }
-  ];
-  const alliances = [
-    { id: "test-a", name: "Alliance de test A" },
-    { id: "test-b", name: "Alliance de test B" },
-    { id: "test-empty", name: "Alliance sans relevé" }
-  ];
+  let observations = [];
+  let alliances = [];
   const positions = Array.from({ length: 12 }, (_, index) => index);
   const roomsById = new Map(rooms.map(room => [room.id, room]));
   const board = document.getElementById("intelBoard");
@@ -69,6 +66,55 @@
   let mode = "overview";
   let selected = 11;
   let currentObservation = null;
+  let editHandler = null;
+  let dataLoaded = false;
+
+  function displayName(alliance) {
+    const rich = alliance?.richName;
+    if (rich?.schemaVersion === 1 && Array.isArray(rich.segments) && rich.segments.length) {
+      return rich.segments.map(segment => String(segment?.text || "")).join("").trim() || alliance.name;
+    }
+    return String(alliance?.name || "Alliance inconnue");
+  }
+  function renderAllianceDisplay(alliance) {
+    const target = document.getElementById("intelAllianceDisplay");
+    if (!target) return;
+    target.replaceChildren();
+    const rich = alliance?.richName;
+    if (rich?.schemaVersion === 1 && Array.isArray(rich.segments) && rich.segments.some(segment => segment?.text)) {
+      rich.segments.forEach(segment => {
+        const span = document.createElement("span");
+        span.textContent = String(segment?.symbol || "") + String(segment?.text || "");
+        if (/^#[0-9a-f]{6}$/i.test(String(segment?.color || ""))) span.style.color = segment.color;
+        target.append(span);
+      });
+    } else target.textContent = String(alliance?.name || "");
+    target.hidden = !alliance;
+  }
+
+  async function loadData() {
+    let data;
+    if (DEMO_MODE) {
+      const response = await fetch("./data/war-intelligence-demo.json", { cache: "no-store" });
+      if (!response.ok) throw new Error("Données de démonstration indisponibles.");
+      data = await response.json();
+    } else try {
+      const response = await fetch(WAR_INTEL_API, { cache: "no-store", mode: "cors", credentials: "omit" });
+      if (!response.ok) throw new Error("api_unavailable");
+      data = await response.json();
+      if (data?.ok !== true || !Array.isArray(data.alliances) || !Array.isArray(data.observations)) throw new Error("invalid_api_data");
+    } catch {
+      const response = await fetch(DATA_FALLBACK, { cache: "no-store" });
+      if (!response.ok) throw new Error("Données des renseignements indisponibles.");
+      data = await response.json();
+    }
+    if (data?.schemaVersion !== 1 || !Array.isArray(data.alliances) || !Array.isArray(data.observations))
+      throw new Error("Format des renseignements invalide.");
+    alliances = data.alliances.filter(item => item && typeof item.id === "string" && typeof item.name === "string");
+    observations = data.observations.filter(item => item && item.status === "published" && Array.isArray(item.layout) && item.layout.length === 9);
+    dataLoaded = true;
+    return { alliances, observations };
+  }
 
   function byRecentDate(items) {
     return [...items].sort((a, b) => b.date.localeCompare(a.date));
@@ -121,12 +167,13 @@
     cell.dataset.cell = String(position);
     if (room) cell.dataset.roomId = room.id;
 
+    const isFlight = position < 3;
     const button = document.createElement("button");
     button.type = "button";
-    button.className = room ? "intelRoom room-" + room.id : "intelRoom intelFlight";
+    button.className = room ? "intelRoom room-" + room.id : isFlight ? "intelRoom intelFlight" : "intelRoom intelUnknown";
     button.dataset.position = String(position);
     button.style.setProperty("--room-color", room?.color || "#8edfff");
-    button.setAttribute("aria-label", "Sélectionner " + (room?.name || flightDecks[position].name));
+    button.setAttribute("aria-label", (ADMIN_MODE && !isFlight ? "Choisir la salle, emplacement " + (position - 2) + ". " : "Sélectionner ") + (room?.name || (isFlight ? flightDecks[position].name : "Salle inconnue")));
     button.setAttribute("aria-pressed", "false");
 
     const icon = room ? document.createElement("span") : null;
@@ -136,13 +183,13 @@
       icon.append(roomIcon(room));
     }
     const name = document.createElement("strong");
-    name.textContent = room?.name || flightDecks[position].name;
+    name.textContent = room?.name || (isFlight ? flightDecks[position].name : "Salle inconnue");
 
     const heading = document.createElement("span");
     heading.className = "intelRoomHeading";
     const points = document.createElement("span");
     points.className = "intelRoomPoints";
-    points.textContent = formatRoomPoints(room ? roomPoints[room.id] : flightDeckPoints);
+    points.textContent = formatRoomPoints(room ? roomPoints[room.id] : isFlight ? flightDeckPoints : 0);
     heading.append(name, points);
 
     if (room) {
@@ -150,7 +197,7 @@
       range.className = "intelRange";
       range.textContent = room.range === "room" ? "SALLE" : room.range === "global" ? "GLOBALE" : "ADJACENTE";
       button.append(icon, heading, range);
-    } else {
+    } else if (isFlight) {
       const runway = document.createElement("span");
       runway.className = "runway";
       runway.setAttribute("aria-hidden", "true");
@@ -162,6 +209,12 @@
       tower.innerHTML = '<path d="M12 32V18h12v14" fill="#305b75" stroke="#93d8f3" stroke-width="1.5"/><path d="M7 13h21l-3 6H10z" fill="#5b9bb9" stroke="#b2eaff" stroke-width="1.4"/><path d="M9 14h17l-2 3H11z" fill="#102c40"/><path d="M14 13V6h9v7" fill="#457d9b" stroke="#93d8f3" stroke-width="1.2"/><path d="M19 6V2m0 1 5 2" fill="none" stroke="#a7e9ff" stroke-width="1.2"/><path d="M15 22h6m-6 4h6" stroke="#a5dff3" stroke-width="1.3"/><path d="M5 32h24" stroke="#7bc2e5" stroke-width="1.5"/>';
       runway.append(tower);
       button.append(heading, runway);
+    } else {
+      const unknown = document.createElement("span");
+      unknown.className = "intelUnknownMark";
+      unknown.setAttribute("aria-hidden", "true");
+      unknown.textContent = "?";
+      button.append(unknown, heading);
     }
     cell.append(button);
     return cell;
@@ -173,7 +226,7 @@
       currentObservation.layout.forEach((roomId, index) => cells.push(makeCell(index + 3, roomsById.get(roomId) || null)));
     }
     board.replaceChildren(svg, ...cells);
-    board.hidden = !currentObservation;
+    board.hidden = !currentObservation && !ADMIN_MODE;
     emptyState.hidden = Boolean(currentObservation);
     if (currentObservation && !rooms.some(room => room.id === roomAt(selected)?.id)) selected = 11;
   }
@@ -348,6 +401,10 @@
       addText(detail, "p", "intelDetailBody", "Aucun bonus émis.");
       return;
     }
+    if (!room) {
+      addText(detail, "p", "intelDetailBody", "Salle non renseignée pour ce relevé.");
+      return;
+    }
     addText(detail, "p", "intelDetailMeta", "Portée : " + rangeLabel(room));
     addText(detail, "p", "intelDetailBody", room.effect || "Effet à confirmer");
   }
@@ -380,7 +437,10 @@
   }
 
   function updateObservations(selectLatest) {
-    const items = byRecentDate(observations.filter(item => item.allianceId === allianceSelect.value));
+    const allItems = byRecentDate(observations.filter(item => item.allianceId === allianceSelect.value));
+    const latestByDate = new Map();
+    allItems.forEach(item => { if (!latestByDate.has(item.date)) latestByDate.set(item.date, item); });
+    const items = [...latestByDate.values()].filter(item => !item.withdrawn);
     observationSelect.replaceChildren();
     if (!items.length) {
       const option = document.createElement("option");
@@ -408,15 +468,55 @@
     render();
   }
 
-  alliances.forEach(alliance => {
-    const option = document.createElement("option");
-    option.value = alliance.id;
-    option.textContent = alliance.name;
-    allianceSelect.append(option);
+  function refreshAlliances(selectedId = allianceSelect.value) {
+    allianceSelect.replaceChildren();
+    const sorted = [...alliances].sort((a, b) => displayName(a).localeCompare(displayName(b), "fr"));
+    sorted.forEach(alliance => {
+      const option = document.createElement("option");
+      option.value = alliance.id;
+      option.textContent = displayName(alliance);
+      allianceSelect.append(option);
+    });
+    allianceSelect.value = sorted.some(item => item.id === selectedId) ? selectedId : (sorted[0]?.id || "");
+    renderAllianceDisplay(sorted.find(item => item.id === allianceSelect.value));
+  }
+
+  window.LoSPWarIntel = Object.freeze({
+    getRooms: () => rooms.map(room => ({ ...room })),
+    getState: () => ({ alliances, observations, currentObservation, dataLoaded }),
+    refresh: async () => { await loadData(); refreshAlliances(); updateObservations(true); },
+    setEditHandler(handler) { editHandler = typeof handler === "function" ? handler : null; },
+    setPreview(observation) {
+      currentObservation = observation ? { ...observation, layout: [...observation.layout] } : null;
+      if (observation?.allianceId) allianceSelect.value = observation.allianceId;
+      if (observation?.date) observationSelect.value = observation.id || "";
+      selected = 11;
+      renderBoard();
+      render();
+    },
+    render: () => { renderBoard(); render(); },
+    selectRoom(position, roomId) {
+      if (!currentObservation || position < 3 || position > 11) return false;
+      currentObservation.layout[position - 3] = roomId || null;
+      renderBoard(); render();
+      return true;
+    }
   });
-  allianceSelect.value = alliances[0].id;
-  updateObservations(true);
-  allianceSelect.addEventListener("change", () => updateObservations(true));
+
+  loadData().then(() => {
+    const demo = document.getElementById("intelDemoStatus");
+    if (demo) demo.hidden = !DEMO_MODE;
+    refreshAlliances();
+    if (alliances.length) updateObservations(true);
+    else { currentObservation = null; renderBoard(); render(); }
+  }).catch(() => {
+    currentObservation = null;
+    renderBoard();
+    render();
+    const message = document.getElementById("intelLoadError");
+    if (message) { message.hidden = false; message.textContent = "Impossible de charger les relevés publiés. Réessaie lorsque le service sera disponible."; }
+  });
+  allianceSelect.addEventListener("change", () => { renderAllianceDisplay(alliances.find(item => item.id === allianceSelect.value)); updateObservations(true); });
   observationSelect.addEventListener("change", () => {
     currentObservation = observations.find(item => item.id === observationSelect.value && item.allianceId === allianceSelect.value) || null;
     selected = 11;
@@ -427,6 +527,10 @@
     const button = event.target.closest("button[data-position]");
     if (!button) return;
     selected = Number(button.dataset.position);
+    if (ADMIN_MODE && selected >= 3 && editHandler) {
+      editHandler(selected, currentObservation?.layout?.[selected - 3] || null);
+      return;
+    }
     render();
   });
   document.querySelectorAll(".intelMode").forEach(button => button.addEventListener("click", () => {
