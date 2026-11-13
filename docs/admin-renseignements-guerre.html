@@ -10,7 +10,7 @@
   <script src="./auth-guard.js?v=8"></script>
   <link rel="stylesheet" href="./style.css?v=ts" />
   <link rel="stylesheet" href="./renseignements-guerre.css?v=16-live-rooms" />
-  <link rel="stylesheet" href="./admin-renseignements-guerre.css?v=4-create-first" />
+  <link rel="stylesheet" href="./admin-renseignements-guerre.css?v=5-room-modal" />
   <link rel="manifest" href="./manifest.webmanifest" />
 </head>
 <body class="warIntelPage" data-war-intel-admin="true">
@@ -67,7 +67,7 @@
         <p id="intelEmpty" class="intelEmpty" hidden>Choisis une alliance ou commence une carte vide.</p>
         <p id="intelLoadError" class="intelLoadError" role="status" hidden></p>
         <div id="intelBoard" class="intelBoard" data-mode="overview" aria-label="Carte interactive de l’héliporteur"><svg id="intelConnections" class="intelConnections" aria-hidden="true"></svg></div>
-        <div id="intelRoomPicker" class="intelRoomPicker" hidden role="region" aria-label="Choisir une salle pour l’emplacement sélectionné">
+        <div id="intelRoomPicker" class="intelRoomPicker" hidden role="dialog" aria-modal="true" aria-label="Choisir une salle pour l’emplacement sélectionné">\n          <button id="intelClosePicker" class="intelPickerClose" type="button" aria-label="Fermer le choix de salle">✕</button>
           <label class="intelAdminField" for="intelRoomChoice">Emplacement <span id="intelPositionLabel"></span></label>
           <select id="intelRoomChoice" class="intelSelect" aria-label="Choisir la salle à placer immédiatement"></select>
           <p class="intelAdminFootnote">Le choix s’applique immédiatement à la carte. Publie uniquement quand le plan est prêt.</p>
@@ -79,6 +79,6 @@
     </section>
   </main>
   <script src="./renseignements-guerre.js?v=14-refresh-return" defer></script>
-  <script src="./admin-renseignements-guerre.js?v=4-picker-navigation" defer></script>
+  <script src="./admin-renseignements-guerre.js?v=5-room-modal" defer></script>
 </body>
 </html>
