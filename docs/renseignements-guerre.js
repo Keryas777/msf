@@ -468,13 +468,19 @@
   function refreshAlliances(selectedId = allianceSelect.value) {
     allianceSelect.replaceChildren();
     const sorted = [...alliances].sort((a, b) => displayName(a).localeCompare(displayName(b), "fr"));
+    if (!ADMIN_MODE) {
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "Choisir une alliance";
+      allianceSelect.append(placeholder);
+    }
     sorted.forEach(alliance => {
       const option = document.createElement("option");
       option.value = alliance.id;
       option.textContent = displayName(alliance);
       allianceSelect.append(option);
     });
-    allianceSelect.value = sorted.some(item => item.id === selectedId) ? selectedId : (sorted[0]?.id || "");
+    allianceSelect.value = sorted.some(item => item.id === selectedId) ? selectedId : (ADMIN_MODE ? (sorted[0]?.id || "") : "");
     renderAllianceDisplay(sorted.find(item => item.id === allianceSelect.value));
   }
 
@@ -504,7 +510,7 @@
     const demo = document.getElementById("intelDemoStatus");
     if (demo) demo.hidden = !DEMO_MODE;
     refreshAlliances();
-    if (alliances.length) updateObservations(true);
+    if (ADMIN_MODE && alliances.length) updateObservations(true);
     else { currentObservation = null; renderBoard(); render(); }
   }).catch(() => {
     currentObservation = null;
