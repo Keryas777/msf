@@ -325,7 +325,8 @@ function rebuildPeople(){
 }
 function knownAlliances(){
   const declared=window.LoSPAlliances?.getKnownAlliances()||[];
-  const allowed=x=>visibleAlliance(x)&&\n    (S.publicArchive||window.LoSPAccess?.isAllianceAllowed(x));
+  const allowed=x=>visibleAlliance(x)&&
+    (S.publicArchive||window.LoSPAccess?.isAllianceAllowed(x));
   const used=new Set([...S.people.values()].map(x=>x.alliance));
   return [...declared.filter(x=>allowed(x.key)&&used.delete(x.key)),
     ...[...used].filter(allowed).map(k=>({key:k,name:k}))];
