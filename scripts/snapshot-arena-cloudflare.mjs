@@ -14,7 +14,7 @@ function args(argv){
 }
 export function validateArenaCampaign(data,day){
   const source=data?.snapshot;
-  if(data?.status!=="complete"||source?.version!==1||
+  if(!["complete","partial"].includes(data?.status)||source?.version!==1||
      source.date!==day||source.sourceDay!==day||
      source.sourceCampaign!==day+"-reward"||
      source.campaignId!==day+"-reward"||
@@ -22,8 +22,8 @@ export function validateArenaCampaign(data,day){
      source.sourceKind!=="reward"||
      !Number.isSafeInteger(source.alliancesExpected)||
      source.alliancesExpected<1||
-     source.alliancesComplete!==source.alliancesExpected||
-     !Array.isArray(source.provenance)||source.provenance.length!==source.alliancesExpected||
+     !Number.isSafeInteger(source.alliancesComplete)||\n     source.alliancesComplete<1||source.alliancesComplete>source.alliancesExpected||
+     !Array.isArray(source.provenance)||source.provenance.length!==source.alliancesComplete||
      !Array.isArray(source.players)||!source.players.length||source.players.length>500)
     throw Error("Cloudflare Arena campaign is incomplete or has invalid provenance");
   const cutoff=Date.parse(day+"T16:01:00Z"),seen=new Set();
