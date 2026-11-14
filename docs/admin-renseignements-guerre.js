@@ -13,7 +13,7 @@
   const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
   let data={alliances:[],observations:[]},layout=Array(9).fill(null),selectedPosition=null,selectedHistory=null;
   let busy=false, mode="create",createAllianceId=null;
-  function setStatus(message,state="info"){status.textContent=message;status.dataset.state=state;}
+  function setStatus(message,state="info"){status.hidden=false;status.textContent=message;status.dataset.state=state;}
   function signedToken(){try{return localStorage.getItem("losp_session")||"";}catch{return "";}}
   function realSession(){return window.LoSP_REAL_SESSION||window.LoSP_SESSION||null;}
   function ownerAllowed(){const session=realSession();return session?.ok===true&&session.role==="admin"&&String(session.id||"")===OWNER_ID;}
@@ -212,7 +212,7 @@
       await reload();populateRoomChoices();app.hidden=false;dateInput.value=today();bind();setAllianceTab("create");
       try{const saved=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null");if(saved?.schemaVersion===1&&Array.isArray(saved.layout)&&saved.layout.length===9){if(data.alliances.some(item=>item.id===saved.allianceId)){setAllianceTab("create");createAllianceId=saved.allianceId;newAlliance.value=data.alliances.find(item=>item.id===saved.allianceId).name;renderSuggestions();}dateInput.value=saved.date||today();setLayout(saved.layout);}}
       catch{}
-      setStatus("Session propriétaire vérifiée. Les brouillons enregistrés sont propres à cet appareil.","ok");
+      status.hidden=true;
     }catch(error){setStatus(error?.message||"Impossible de charger les relevés.","error");}
   }
   boot();
