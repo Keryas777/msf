@@ -303,6 +303,8 @@
       const room = roomAt(position);
       if (!sourceCell || !room) return;
       adjacent(position).forEach(targetPosition => {
+        // En bonus reçus, ne dessiner que le triangle dirigé vers la salle sélectionnée.
+        if (mode === "received" && targetPosition !== selected) return;
         const targetCell = board.querySelector('[data-cell="' + targetPosition + '"]');
         if (!targetCell) return;
         const source = sourceCell.getBoundingClientRect();
