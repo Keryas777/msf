@@ -52,16 +52,22 @@ test("Questionable Propriety est isolée des autres groupes",async()=>{
 
 test("EGR Violet rejoint le groupe Discord existant sans modifier Red ni Orange",async()=>{
   const [a,g]=await Promise.all([get("docs/data/alliances.json"),get("docs/data/access-groups.json")]);
-  const violet={key:"endgame-revolution-violet",name:"ENDGAME R-évolution",
+  // The workflow runs this test both before and after writing the new alliance.
+  // Build a clean baseline so the fixture does not depend on production state.
+  const key="endgame-revolution-violet";
+  const baselineAlliances=a.filter(x=>x.key!==key);
+  const baselineGroups={...g,groups:g.groups.map(group=>group.key==="endgame-revolution"?
+    {...group,alliances:group.alliances.filter(k=>k!==key)}:group)};
+  const violet={key,name:"ENDGAME R-évolution",
     roleId:"1567461415495667823",color:"#660077"};
-  const result=planGuestRegistration(a,g,violet);
+  const result=planGuestRegistration(baselineAlliances,baselineGroups,violet);
   assert.equal(result.changed,true);
-  assert.equal(result.accessGroups.groups.length,g.groups.length);
+  assert.equal(result.accessGroups.groups.length,baselineGroups.groups.length);
   assert.deepEqual(result.accessGroups.groups.find(x=>x.key==="endgame-revolution").alliances,
     ["endgame-revolution-red","endgame-revolution-orange","endgame-revolution-violet"]);
-  assert.deepEqual(result.alliances.slice(0,a.length),a);
+  assert.deepEqual(result.alliances.slice(0,baselineAlliances.length),baselineAlliances);
   assert.deepEqual(result.accessGroups.groups.filter(x=>x.key!=="endgame-revolution"),
-    g.groups.filter(x=>x.key!=="endgame-revolution"));
+    baselineGroups.groups.filter(x=>x.key!=="endgame-revolution"));
   assert.equal(result.alliances.at(-1).group,"endgame-revolution");
   assert.equal(planGuestRegistration(result.alliances,result.accessGroups,violet).changed,false);
   assert.throws(()=>planGuestRegistration(result.alliances,result.accessGroups,
