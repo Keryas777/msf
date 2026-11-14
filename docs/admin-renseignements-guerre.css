@@ -57,3 +57,9 @@
 .intelAdminTab[aria-selected="true"]{background:linear-gradient(140deg,#1b4866,#233d64);border-color:#81cbe9;color:#fff}
 .intelAdminCreatePrimary{border-bottom:0;padding-bottom:0;margin-bottom:0}
 .intelAdminShell [role="tabpanel"][hidden]{display:none}
+
+/* Propositions en direct, triées, accessibles au toucher sur iPhone. */
+.intelAllianceSuggestions:not([hidden]){display:grid;gap:5px;max-height:260px;overflow-y:auto;margin:8px 0;border:1px solid rgba(121,232,255,.4);border-radius:12px;padding:7px;background:#091d31}
+.intelAllianceSuggestion{min-height:48px;text-align:left;border:1px solid rgba(121,232,255,.2);border-radius:8px;padding:10px 12px;background:#122b45;color:#eef9ff;font:inherit;font-size:16px;touch-action:manipulation}
+.intelAllianceSuggestion:focus-visible{outline:2px solid #7adcf4}
+.intelAdminCreatePrimary>.intelAdminButton{width:100%;margin-top:10px}
