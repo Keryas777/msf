@@ -39,13 +39,15 @@ test("Marines: une seule alliance, sans visibilité LoSP ou Endgame", async () =
   assert.deepEqual(data.alliances, []);
 });
 
-test("Endgame: les deux couleurs sont accessibles avec le même rôle", async () => {
+test("Endgame: les alliances du groupement sont accessibles avec le même rôle", async () => {
   const { status, data } = await sessionFor("123456789012345678", [endgameRole]);
   assert.equal(status, 200);
   assert.equal(data.groupKey, "endgame-revolution");
-  assert.deepEqual(data.allowedAlliances, [
-    "endgame-revolution-red", "endgame-revolution-orange"
-  ]);
+  assert.deepEqual(data.allowedAlliances,
+    registry.groups.find(g=>g.key==="endgame-revolution").alliances);
+  assert.ok(data.allowedAlliances.includes("endgame-revolution-red"));
+  assert.ok(data.allowedAlliances.includes("endgame-revolution-orange"));
+  assert.ok(!data.allowedAlliances.includes("marines"));
 });
 
 test("Questionable Propriety: rôle indépendant et accès à sa seule alliance", async () => {
