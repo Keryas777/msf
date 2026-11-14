@@ -22,7 +22,8 @@ export function validateArenaCampaign(data,day){
      source.sourceKind!=="reward"||
      !Number.isSafeInteger(source.alliancesExpected)||
      source.alliancesExpected<1||
-     !Number.isSafeInteger(source.alliancesComplete)||\n     source.alliancesComplete<1||source.alliancesComplete>source.alliancesExpected||
+     !Number.isSafeInteger(source.alliancesComplete)||
+     source.alliancesComplete<1||source.alliancesComplete>source.alliancesExpected||
      !Array.isArray(source.provenance)||source.provenance.length!==source.alliancesComplete||
      !Array.isArray(source.players)||!source.players.length||source.players.length>500)
     throw Error("Cloudflare Arena campaign is incomplete or has invalid provenance");
