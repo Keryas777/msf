@@ -93,7 +93,23 @@
     const loaded=await window.LoSPWarIntel.refresh();data=loaded;fillAllianceSelect(keepAlliance);renderHistory();
     if(selectedHistory){selectedHistory=data.observations.find(row=>row.id===selectedHistory.id)||null;}
   }
+  function setAllianceTab(mode){
+    const creating=mode==="create";
+    $("intelTabCreate").setAttribute("aria-selected",String(creating));
+    $("intelTabEdit").setAttribute("aria-selected",String(!creating));
+    $("intelCreatePanel").hidden=!creating;
+    $("intelEditPanel").hidden=creating;
+    // A new creation must never silently publish under a previously selected alliance.
+    if(creating){allianceSelect.selectedIndex=-1;classicName.value="";selectedHistory=null;clearDraft();}
+    else{
+      if(!currentAlliance()&&allianceSelect.options.length)allianceSelect.selectedIndex=0;
+      classicName.value=currentAlliance()?.name||"";
+      selectedHistory=null;clearDraft();renderHistory();
+    }
+  }
   function bind(){
+    $("intelTabCreate").addEventListener("click",()=>setAllianceTab("create"));
+    $("intelTabEdit").addEventListener("click",()=>setAllianceTab("edit"));
     search.addEventListener("input",()=>fillAllianceSelect());
     allianceSelect.addEventListener("change",()=>{selectedHistory=null;classicName.value=currentAlliance()?.name||"";renderHistory();clearDraft();});
     dateInput.addEventListener("change",preview);
@@ -158,8 +174,8 @@
     try{
       const rooms=await window.LoSPWarIntel;
       if(!rooms)throw Error("La carte tactique n’est pas chargée.");
-      await reload();populateRoomChoices();app.hidden=false;dateInput.value=today();bind();clearDraft();
-      try{const saved=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null");if(saved?.schemaVersion===1&&Array.isArray(saved.layout)&&saved.layout.length===9){allianceSelect.value=data.alliances.some(item=>item.id===saved.allianceId)?saved.allianceId:allianceSelect.value;renderHistory();dateInput.value=saved.date||today();setLayout(saved.layout);}}
+      await reload();populateRoomChoices();app.hidden=false;dateInput.value=today();bind();setAllianceTab("create");
+      try{const saved=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null");if(saved?.schemaVersion===1&&Array.isArray(saved.layout)&&saved.layout.length===9){if(data.alliances.some(item=>item.id===saved.allianceId)){setAllianceTab("edit");allianceSelect.value=saved.allianceId;classicName.value=currentAlliance()?.name||"";}renderHistory();dateInput.value=saved.date||today();setLayout(saved.layout);}}
       catch{}
       setStatus("Session propriétaire vérifiée. Les brouillons enregistrés sont propres à cet appareil.","ok");
     }catch(error){setStatus(error?.message||"Impossible de charger les relevés.","error");}
