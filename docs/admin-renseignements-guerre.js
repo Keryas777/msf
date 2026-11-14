@@ -58,6 +58,8 @@
     const blank=document.createElement("option");blank.value="";blank.textContent=rows.length?"Choisir un relevé":"Aucun relevé publié";historySelect.append(blank);
     for(const row of rows){const option=document.createElement("option");option.value=row.id;option.textContent=new Date(row.date+"T12:00:00Z").toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"});historySelect.append(option);}
     historySelect.disabled=mode==="create"||!rows.length;
+    $("intelEditDateField").hidden=mode!=="edit"||!selectedHistory;
+    $("intelCorrectedDate").disabled=mode!=="edit"||!selectedHistory;
     if(selectedHistory&&!rows.some(item=>item.id===selectedHistory.id))selectedHistory=null;
     deleteButton.hidden=mode!=="edit"||!selectedHistory;
   }
@@ -108,6 +110,8 @@
     if(creating){createAllianceId=null;newAlliance.value="";renderSuggestions();}
     else{if(!currentAlliance()&&allianceSelect.options.length)allianceSelect.selectedIndex=0;classicName.value=currentAlliance()?.name||"";}
     $("intelCreateDateField").hidden=!creating;
+    $("intelEditDateField").hidden=creating||!selectedHistory;
+    $("intelCorrectedDate").disabled=creating||!selectedHistory;
     dateInput.readOnly=!creating;
     dateInput.disabled=!creating;
     historySelect.disabled=creating;
@@ -144,8 +148,8 @@
     historySelect.addEventListener("change",()=>{
       if(mode!=="edit")return;
       selectedHistory=data.observations.find(row=>row.id===historySelect.value)||null;
-      if(selectedHistory){dateInput.value=selectedHistory.date;setLayout(selectedHistory.layout);deleteButton.hidden=false;setStatus("Relevé chargé. Une publication à cette date remplacera ce relevé.");}
-      else{deleteButton.hidden=true;setLayout(Array(9).fill(null));}
+      if(selectedHistory){dateInput.value=selectedHistory.date;$("intelCorrectedDate").value=selectedHistory.date;setLayout(selectedHistory.layout);deleteButton.hidden=false;setStatus("Relevé chargé. Une publication à cette date remplacera ce relevé.");}
+      else{$("intelEditDateField").hidden=true;$("intelCorrectedDate").disabled=true;deleteButton.hidden=true;setLayout(Array(9).fill(null));}
     });
     $("intelBlank").addEventListener("click",()=>{clearDraft();setStatus("Carte vide prête à être renseignée.");});
     $("intelDuplicate").addEventListener("click",()=>{
@@ -178,11 +182,19 @@
     publishButton.addEventListener("click",()=>runBusy(async()=>{
       validateLayout();const id=activeAllianceId();if(!id)throw Error("Choisis une alliance existante ou crée-la avant de publier.");
       if(mode==="edit"&&(!selectedHistory||selectedHistory.allianceId!==id||selectedHistory.date!==dateInput.value))throw Error("Choisis un relevé publié à corriger.");
+      const targetDate=mode==="edit"?$("intelCorrectedDate").value:dateInput.value;
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(targetDate))throw Error("Choisis une date de début de guerre valide.");
+      if(mode==="edit"&&targetDate!==selectedHistory.date){
+        if(data.observations.some(row=>row.id!==selectedHistory.id&&row.allianceId===id&&row.date===targetDate))throw Error("Un relevé existe déjà à cette date. Aucune correction effectuée.");
+        if(!window.confirm("Déplacer le relevé du "+selectedHistory.date+" au "+targetDate+" ? L’ancienne date sera supprimée, sans copie ni révision."))return;
+      }
       if(mode==="create"&&data.observations.some(row=>row.allianceId===id&&row.date===dateInput.value))throw Error("Un relevé existe déjà pour cette alliance et cette date. Utilise l’onglet Modifier.");
-      const result=await api("publish",{observation:{allianceId:id,date:dateInput.value,layout:[...layout]}});
-      localStorage.removeItem(DRAFT_KEY);const publishedDate=dateInput.value;
+      const result=mode==="edit"
+        ?await api("updateObservation",{observationId:selectedHistory.id,observation:{allianceId:id,date:targetDate,layout:[...layout]}})
+        :await api("publish",{observation:{allianceId:id,date:targetDate,layout:[...layout]}});
+      localStorage.removeItem(DRAFT_KEY);const publishedDate=targetDate;
       await reload(id);
-      if(mode==="edit"){selectedHistory=data.observations.find(row=>row.id===result.observationId)||null;historySelect.value=result.observationId;dateInput.value=publishedDate;setLayout(selectedHistory?.layout||layout);}
+      if(mode==="edit"){selectedHistory=data.observations.find(row=>row.id===result.observationId)||null;renderHistory();historySelect.value=result.observationId;dateInput.value=publishedDate;$("intelCorrectedDate").value=publishedDate;setLayout(selectedHistory?.layout||layout);}
       else{
         // A successful creation starts a fresh observation; never keep the previous alliance or rooms.
         createAllianceId=null;
@@ -196,7 +208,7 @@
         renderHistory();
         setStatus("Nouveau relevé publié. Le formulaire est prêt pour une nouvelle saisie.","ok");
       }
-      if(mode==="edit")setStatus("Relevé corrigé à sa date d’origine.","ok");
+      if(mode==="edit")setStatus("Relevé corrigé et date enregistrée. Aucune copie créée.","ok");
     }));
     deleteButton.addEventListener("click",()=>{
       if(mode!=="edit"||!selectedHistory)return;
