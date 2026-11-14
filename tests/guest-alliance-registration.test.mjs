@@ -27,8 +27,9 @@ test("nouvel invité : deux registres dynamiques, couleur et rôle uniques",asyn
 });
 test("rôle déjà utilisé, collision de clé et valeurs dangereuses refusés",async()=>{
   const [a,g]=await Promise.all([get("docs/data/alliances.json"),get("docs/data/access-groups.json")]);
-  const used=g.groups.find(x=>x.roleIds?.length)?.roleIds[0];
-  assert.throws(()=>planGuestRegistration(a,g,{...input,roleId:used}),/discord-role-already-assigned/);
+  const used=g.groups.find(x=>x.allianceRoles)?.allianceRoles;
+  const role=Object.keys(used)[0];
+  assert.throws(()=>planGuestRegistration(a,g,{...input,roleId:role}),/discord-role-already-assigned/);
   assert.throws(()=>planGuestRegistration(a,g,{...input,key:"marines"}),/different-configuration/);
   for(const wrong of [
     {...input,name:"<script>alert(1)</script>"},
@@ -47,4 +48,22 @@ test("Questionable Propriety est isolée des autres groupes",async()=>{
   assert.deepEqual(role?.alliances,["questionable-propriety"]);
   assert.deepEqual(role?.roleIds,["1568752859137318963"]);
   assert.equal(g.groups.filter(x=>(x.roleIds||[]).includes("1568752859137318963")).length,1);
+});
+
+test("EGR Violet rejoint le groupe Discord existant sans modifier Red ni Orange",async()=>{
+  const [a,g]=await Promise.all([get("docs/data/alliances.json"),get("docs/data/access-groups.json")]);
+  const violet={key:"endgame-revolution-violet",name:"ENDGAME R-évolution",
+    roleId:"1567461415495667823",color:"#660077"};
+  const result=planGuestRegistration(a,g,violet);
+  assert.equal(result.changed,true);
+  assert.equal(result.accessGroups.groups.length,g.groups.length);
+  assert.deepEqual(result.accessGroups.groups.find(x=>x.key==="endgame-revolution").alliances,
+    ["endgame-revolution-red","endgame-revolution-orange","endgame-revolution-violet"]);
+  assert.deepEqual(result.alliances.slice(0,a.length),a);
+  assert.deepEqual(result.accessGroups.groups.filter(x=>x.key!=="endgame-revolution"),
+    g.groups.filter(x=>x.key!=="endgame-revolution"));
+  assert.equal(result.alliances.at(-1).group,"endgame-revolution");
+  assert.equal(planGuestRegistration(result.alliances,result.accessGroups,violet).changed,false);
+  assert.throws(()=>planGuestRegistration(result.alliances,result.accessGroups,
+    {...violet,color:"#FFFFFF"}),/different-configuration/);
 });
