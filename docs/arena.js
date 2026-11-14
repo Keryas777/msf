@@ -218,6 +218,12 @@ function mapSourceAlliances(data){
 function loadGuestProfiles(data){
   S.guestProfiles.clear();
   S.guestKeys.clear();
+  // Public archives carry no private profile bundle. Authorized guest keys
+  // still need to be recognized to attach separately loaded Infos portraits.
+  for(const alliance of window.LoSPAlliances?.getKnownAlliances?.()||[]){
+    if(alliance.group&&alliance.group!=="losp"&&visibleAlliance(alliance.key))
+      S.guestKeys.add(alliance.key);
+  }
   const names=Array.isArray(data?.guestAlliances)?data.guestAlliances:
     Array.isArray(data?.alliances)?data.alliances:[];
   for(const k of names){
