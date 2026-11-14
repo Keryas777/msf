@@ -52,12 +52,12 @@
   }
   function currentAlliance(){return data.alliances.find(item=>item.id===allianceSelect.value)||null;}
   function renderHistory(){
-    const rows=data.observations.filter(row=>row.allianceId===allianceSelect.value).sort((a,b)=>
+    const rows=data.observations.filter(row=>row.allianceId===activeAllianceId()).sort((a,b)=>
       b.date.localeCompare(a.date));
     historySelect.replaceChildren();
     const blank=document.createElement("option");blank.value="";blank.textContent=rows.length?"Choisir un relevé":"Aucun relevé publié";historySelect.append(blank);
     for(const row of rows){const option=document.createElement("option");option.value=row.id;option.textContent=new Date(row.date+"T12:00:00Z").toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"});historySelect.append(option);}
-    historySelect.disabled=!rows.length;
+    historySelect.disabled=mode==="create"||!rows.length;
     if(selectedHistory&&!rows.some(item=>item.id===selectedHistory.id))selectedHistory=null;
     deleteButton.hidden=mode!=="edit"||!selectedHistory;
   }
@@ -114,6 +114,7 @@
     $("intelDuplicate").hidden=!creating;
     $("intelBlank").hidden=!creating;
     $("intelCreateSelection").hidden=!creating;
+    $("intelSaveDraft").hidden=!creating;
     publishButton.textContent=creating?"Créer et publier le relevé":"Enregistrer les corrections";
     renderHistory();
   }
