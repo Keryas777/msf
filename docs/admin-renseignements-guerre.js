@@ -68,7 +68,7 @@
     window.LoSPWarIntel.setPreview({id:selectedHistory?.id||"draft-preview",allianceId:activeAllianceId(),date:dateInput.value||today(),layout:[...layout]});
   }
   function setLayout(next){layout=[...next];preview();}
-  function clearDraft(){selectedHistory=null;historySelect.value="";dateInput.value=today();setLayout(Array(9).fill(null));deleteButton.hidden=true;}
+  function clearDraft({resetDate=false}={}){selectedHistory=null;historySelect.value="";if(resetDate)dateInput.value=today();setLayout(Array(9).fill(null));deleteButton.hidden=true;}
   function validateLayout(){
     const used=new Map();
     layout.forEach((room,index)=>{if(!room)return;if(used.has(room))throw Error("« "+(window.LoSPWarIntel.getRooms().find(item=>item.id===room)?.name||room)+" » est déjà placé en position "+(used.get(room)+1)+".");used.set(room,index);});
@@ -106,7 +106,7 @@
     $("intelCreatePanel").hidden=!creating;
     $("intelEditPanel").hidden=creating;
     // A new creation must never silently publish under a previously selected alliance.
-    selectedHistory=null;clearDraft();
+    selectedHistory=null;clearDraft({resetDate:true});
     if(creating){createAllianceId=null;newAlliance.value="";renderSuggestions();}
     else{if(!currentAlliance()&&allianceSelect.options.length)allianceSelect.selectedIndex=0;classicName.value=currentAlliance()?.name||"";}
     $("intelCreateDateField").hidden=!creating;
@@ -203,7 +203,7 @@
         selectedHistory=null;
         selectedPosition=null;
         picker.hidden=true;
-        clearDraft();
+        clearDraft({resetDate:true});
         renderSuggestions();
         renderHistory();
         setStatus("Nouveau relevé publié. Le formulaire est prêt pour une nouvelle saisie.","ok");
