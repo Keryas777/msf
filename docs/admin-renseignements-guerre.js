@@ -107,6 +107,7 @@
     selectedHistory=null;clearDraft();
     if(creating){createAllianceId=null;newAlliance.value="";renderSuggestions();}
     else{if(!currentAlliance()&&allianceSelect.options.length)allianceSelect.selectedIndex=0;classicName.value=currentAlliance()?.name||"";}
+    $("intelCreateDateField").hidden=!creating;
     dateInput.readOnly=!creating;
     dateInput.disabled=!creating;
     historySelect.disabled=creating;
