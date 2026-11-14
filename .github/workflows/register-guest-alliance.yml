@@ -43,7 +43,7 @@ jobs:
         run: |
           node --check scripts/register-guest-alliance.mjs
           node --test tests/guest-alliance-registration.test.mjs
-      - name: Add the new alliance and independent Discord access group
+      - name: Add the alliance and reuse its existing Discord group when applicable
         env:
           GUEST_KEY: ${{ inputs.alliance_key }}
           GUEST_NAME: ${{ inputs.alliance_name }}
@@ -81,4 +81,4 @@ jobs:
           git push origin "HEAD:refs/heads/$branch"
           gh pr create --base main --head "$branch" \
             --title "Onboard guest alliance $GUEST_KEY" \
-            --body "Ajout du registre d'alliance et de son rôle Discord indépendant. Après fusion et déploiement losp-auth, la collecte nécessite toujours un OAuth Scopely actif, l'approbation invitée et la liaison R2 administrateur. Aucune donnée joueur n'est créée par cette PR."
+            --body "Ajout de l'alliance dans le groupe Discord existant si le rôle est déjà attribué à un groupe, sinon création d'un groupe indépendant. Après fusion et déploiement losp-auth, la collecte nécessite toujours un OAuth Scopely actif, l'approbation invitée et la liaison R2 administrateur. Aucune donnée joueur n'est créée par cette PR."
