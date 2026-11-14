@@ -197,3 +197,8 @@ button,select{font:inherit}button,a,select{-webkit-tap-highlight-color:transpare
 /* Overview only: keep influence readable without overpowering the room map.
    Disable the shared fade animation here because its fill-mode sets opacity. */
 .intelBoard[data-mode="overview"] .intelInfluenceTriangle{opacity:.28;stroke-opacity:.3;animation:none}
+
+/* Navigation de la consultation publique : accessible au tactile, sans lien admin. */
+.intelNav{position:relative;z-index:1;display:flex;align-items:center;gap:7px;flex:0 0 auto}
+.intelNav .intelHome{flex:0 0 40px;width:40px;height:40px;font-size:27px;line-height:1}
+@media(max-width:480px){.intelHeader{gap:9px;padding:12px 10px;min-height:78px}.intelNav{gap:5px}.intelNav .intelHome{flex-basis:36px;width:36px;height:40px;font-size:25px}.intelHeader h1{font-size:clamp(19px,5vw,24px)}}
