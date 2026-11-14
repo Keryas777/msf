@@ -183,7 +183,19 @@
       localStorage.removeItem(DRAFT_KEY);const publishedDate=dateInput.value;
       await reload(id);
       if(mode==="edit"){selectedHistory=data.observations.find(row=>row.id===result.observationId)||null;historySelect.value=result.observationId;dateInput.value=publishedDate;setLayout(selectedHistory?.layout||layout);}
-      else{setStatus("Nouveau relevé publié. Pour corriger ce relevé, utilise l’onglet Modifier.","ok");}
+      else{
+        // A successful creation starts a fresh observation; never keep the previous alliance or rooms.
+        createAllianceId=null;
+        newAlliance.value="";
+        search.value="";
+        selectedHistory=null;
+        selectedPosition=null;
+        picker.hidden=true;
+        clearDraft();
+        renderSuggestions();
+        renderHistory();
+        setStatus("Nouveau relevé publié. Le formulaire est prêt pour une nouvelle saisie.","ok");
+      }
       if(mode==="edit")setStatus("Relevé corrigé à sa date d’origine.","ok");
     }));
     deleteButton.addEventListener("click",()=>{
