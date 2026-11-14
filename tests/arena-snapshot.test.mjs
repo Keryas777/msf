@@ -130,3 +130,26 @@ test("unified R2 export keeps old observation provenance and appends the fresh U
   assert.equal(snapshots[1].sourceCampaign,day+"-reward");
   assert.doesNotMatch(JSON.stringify(snapshots),/hidden|private-image|icon/);
 });
+
+test("verified partial campaigns publish only real rows and preserve missing-alliance counts",()=>{
+  const day="2026-11-14";
+  const data={status:"partial",snapshot:{
+    version:1,date:day,sourceDay:day,sourceCampaign:day+"-reward",
+    campaignId:day+"-reward",attribution:"cloudflare-arena-reward-collection",
+    sourceKind:"reward",alliancesExpected:11,alliancesComplete:9,
+    provenance:Array.from({length:9},(_,i)=>({alliance:"Alliance "+i,
+      capturedAt:day+"T16:01:00Z"})),
+    players:[{playerId:"p_"+"c".repeat(64),name:"Observed",
+      alliance:"MARINES",allianceKey:"marines",arenaRank:5}]
+  }};
+  const snapshot=validateArenaCampaign(data,day);
+  assert.equal(snapshot.alliancesExpected,11);
+  assert.equal(snapshot.alliancesComplete,9);
+  assert.deepEqual(snapshot.players.map(x=>x.allianceKey),["marines"]);
+  const absent=structuredClone(data);
+  absent.snapshot.alliancesComplete=0;
+  assert.throws(()=>validateArenaCampaign(absent,day),/incomplete/);
+  const mismatch=structuredClone(data);
+  mismatch.snapshot.provenance.pop();
+  assert.throws(()=>validateArenaCampaign(mismatch,day),/incomplete/);
+});
