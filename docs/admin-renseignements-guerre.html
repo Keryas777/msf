@@ -49,8 +49,10 @@
       </section>
       <section class="intelAdminPanel" aria-labelledby="intelObservationTitle">
         <h2 id="intelObservationTitle">2 · Date et relevé</h2>
-        <label class="intelAdminField" for="intelDate">Date de début de guerre</label>
-        <input id="intelDate" class="intelAdminInput" type="date" />
+        <div id="intelCreateDateField">
+          <label class="intelAdminField" for="intelDate">Date de début de guerre</label>
+          <input id="intelDate" class="intelAdminInput" type="date" />
+        </div>
         <label id="intelHistoryLabel" class="intelAdminField" for="intelHistory">Relevés précédents (facultatif, pour dupliquer)</label>
         <select id="intelHistory" class="intelSelect"><option value="">Aucun relevé</option></select>
         <!-- Sélecteur interne requis par le moteur de carte partagé ; la liste visible est intelHistory. -->
@@ -85,6 +87,6 @@
     </section>
   </main>
   <script src="./renseignements-guerre.js?v=14-refresh-return" defer></script>
-  <script src="./admin-renseignements-guerre.js?v=8-observation-tabs" defer></script>
+  <script src="./admin-renseignements-guerre.js?v=9-hide-edit-date" defer></script>
 </body>
 </html>
