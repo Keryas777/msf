@@ -372,6 +372,30 @@ async function writeWarIntel(request,env){
       if(existingIndex<0)data.observations.push(row);else data.observations[existingIndex]=row;
       input.resultObservationId=row.id;input.resultCreated=!existing;
       message=existing?"data(war-intel): correction relevé":"data(war-intel): publication relevé";
+    }else if(input?.action==="updateObservation"){
+      const observation=input.observation;
+      const index=data.observations.findIndex(item=>item.id===input.observationId);
+      if(index<0)throw new HttpError(404,"observation_not_found","Le relevé à corriger n'existe plus.");
+      const existing=data.observations[index];
+      if(observation?.allianceId!==existing.allianceId)
+        throw new HttpError(400,"alliance_mismatch","Le relevé ne correspond pas à cette alliance.");
+      if(!validWarDate(observation?.date)||!Array.isArray(observation?.layout)||observation.layout.length!==9)
+        throw new HttpError(400,"invalid_observation","Vérifie la date et les neuf emplacements.");
+      const used=new Set();
+      for(const room of observation.layout){
+        if(room===null)continue;
+        if(typeof room!=="string"||!WAR_INTEL_ROOMS.has(room)||used.has(room))
+          throw new HttpError(400,"invalid_or_duplicate_room","Salle inconnue ou déjà placée.");
+        used.add(room);
+      }
+      if(data.observations.some((item,i)=>i!==index&&item.allianceId===existing.allianceId&&item.date===observation.date))
+        throw new HttpError(409,"date_already_used","Un relevé existe déjà pour cette alliance à cette date. Aucune donnée n'a été modifiée.");
+      existing.date=observation.date;
+      existing.layout=[...observation.layout];
+      existing.publishedAt=new Date().toISOString();
+      input.resultObservationId=existing.id;
+      input.resultCreated=false;
+      message="data(war-intel): correction date et plan du relevé";
     }else if(input?.action==="delete"){
       const index=data.observations.findIndex(item=>item.id===input.observationId);
       if(index<0)throw new HttpError(404,"observation_not_found");
