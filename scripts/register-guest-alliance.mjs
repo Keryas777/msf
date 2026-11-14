@@ -25,27 +25,36 @@ export function planGuestRegistration(alliances,access,{key,name,roleId,color}){
     throw Error("duplicate-registry-keys");
   const existingAlliance=alliances.find(a=>a.key===key);
   const existingGroup=access.groups.find(g=>g.key===key);
+  const roleGroups=access.groups.filter(g=>(g.roleIds||[]).includes(roleId)||
+    Object.hasOwn(g.allianceRoles||{},roleId));
+  // A group-wide Discord role can legitimately grant access to multiple alliances.
+  // Per-alliance roles must never be reused as group-wide roles.
+  const sharedGroup=roleGroups.length===1&&
+    (roleGroups[0].roleIds||[]).includes(roleId)?roleGroups[0]:null;
   if(existingAlliance||existingGroup){
-    if(existingAlliance?.name===name&&existingAlliance?.group===key&&
+    if(existingAlliance?.name===name&&
+       existingAlliance?.group===(sharedGroup?.key||key)&&
        existingAlliance?.color?.toUpperCase()===shade&&
        existingAlliance?.nameColor?.toUpperCase()===shade&&
-       existingGroup?.name===name&&
-       JSON.stringify(existingGroup.alliances)==='["'+key+'"]'&&
-       JSON.stringify(existingGroup.roleIds)==='["'+roleId+'"]')
+       (sharedGroup?sharedGroup.alliances.includes(key):
+         existingGroup?.name===name&&
+         JSON.stringify(existingGroup.alliances)==='["'+key+'"]'&&
+         JSON.stringify(existingGroup.roleIds)==='["'+roleId+'"]'))
       return {alliances,accessGroups:access,changed:false};
     throw Error("alliance-already-exists-with-different-configuration");
   }
-  if(access.groups.some(g=>(g.roleIds||[]).includes(roleId)||
-       Object.hasOwn(g.allianceRoles||{},roleId)))
+  if(roleGroups.length>1||roleGroups.length===1&&!sharedGroup)
     throw Error("discord-role-already-assigned");
   const existingKeys=new Set(alliances.map(a=>a.key));
   if(access.groups.some(g=>(g.alliances||[]).some(k=>!existingKeys.has(k))))
     throw Error("broken-existing-group-reference");
   const order=Math.max(0,...alliances.map(a=>Number.isSafeInteger(a.order)?a.order:0))+1;
-  const row={key,name,group:key,color:shade,nameColor:shade,order,aliases:[name]};
-  const group={key,name,alliances:[key],roleIds:[roleId]};
+  const row={key,name,group:sharedGroup?.key||key,color:shade,nameColor:shade,order,aliases:[name]};
+  const groups=sharedGroup?access.groups.map(g=>g.key===sharedGroup.key?
+    {...g,alliances:[...g.alliances,key]}:g):
+    [...access.groups,{key,name,alliances:[key],roleIds:[roleId]}];
   return {alliances:[...alliances,row],
-    accessGroups:{...access,groups:[...access.groups,group]},changed:true};
+    accessGroups:{...access,groups},changed:true};
 }
 
 async function main(){
