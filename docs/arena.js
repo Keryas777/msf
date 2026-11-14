@@ -295,7 +295,7 @@ function readSnapshots(data){
       for(const p of source.players){
         const name=canonical(p?.name),a=resolveAlliance(p?.allianceKey||p?.alliance,name),
           r=p?.arenaRank,baseId=norm(name),guest=S.guestKeys.has(a);
-        if(!name||!a||!baseId||!Number.isSafeInteger(r)||r<1||
+        if(!name||!a||!baseId||!visibleAlliance(a)||!Number.isSafeInteger(r)||r<1||
            (!S.publicArchive&&!window.LoSPAccess?.isAllianceAllowed(a)))continue;
         const unique=a+":"+baseId,legacy=a+"\u0000"+baseId,
           id=typeof p?.playerId==="string"?p.playerId:
@@ -325,7 +325,8 @@ function rebuildPeople(){
 }
 function knownAlliances(){
   const declared=window.LoSPAlliances?.getKnownAlliances()||[];
-  const allowed=x=>visibleAlliance(x)&&\n    (S.publicArchive||window.LoSPAccess?.isAllianceAllowed(x));
+  const allowed=x=>visibleAlliance(x)&&
+    (S.publicArchive||window.LoSPAccess?.isAllianceAllowed(x));
   const used=new Set([...S.people.values()].map(x=>x.alliance));
   return [...declared.filter(x=>allowed(x.key)&&used.delete(x.key)),
     ...[...used].filter(allowed).map(k=>({key:k,name:k}))];
