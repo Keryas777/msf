@@ -487,3 +487,44 @@ test("guest profile metadata can be supplied separately from immutable older ran
   assert.equal(points[0].profile.icon,marineIcon);
   assert.equal(points[0].profile.frame,marineFrame);
 });
+
+test("guest group preview isolates rankings, counters, and alliance filters",()=>{
+  const {page,nodes}=setup({window:{LoSP_SESSION:{
+    ok:true,role:"guest",groupKey:"marines",allowedAlliances:["marines"]}}});
+  const data={snapshots:[
+    {date:"2026-11-13",players:[
+      {name:"LoSP A",alliance:"zeus",arenaRank:1},
+      {name:"Marine A",allianceKey:"marines",alliance:"MARINES",arenaRank:4}]},
+    {date:"2026-11-14",players:[
+      {name:"LoSP B",alliance:"zeus",arenaRank:2},
+      {name:"Marine B",allianceKey:"marines",alliance:"MARINES",arenaRank:3}]}
+  ]};
+  page.S.snapshots=page.readSnapshots(data);
+  assert.deepEqual(page.S.snapshots.map(s=>s.players.map(p=>p.name)),
+    [["Marine A"],["Marine B"]]);
+  for(const snap of page.S.snapshots)for(const p of snap.players)
+    page.S.people.set(p.id,p);
+  page.setupFilters();page.fillSummary();page.fillRanking();
+  assert.deepEqual(nodes.rankingAllianceFilters.children.map(x=>
+    x.children[0].dataset.allianceKey),["marines"]);
+  assert.equal(nodes.arenaPlayerCount.textContent,"1");
+  assert.equal(nodes.arenaDateCount.textContent,"2 date(s)");
+  assert.deepEqual(nodes.rankingList.children.map(x=>
+    x.children[2].children[0].textContent),["Marine B"]);
+});
+test("a guest without a matching observation never inherits LoSP ranks or unknown",()=>{
+  const {page}=setup({window:{LoSP_SESSION:{
+    ok:true,role:"guest",groupKey:"marines",allowedAlliances:["marines"]}}});
+  const data={snapshots:[{date:"2026-11-14",players:[
+    {name:"LoSP A",alliance:"zeus",arenaRank:1},
+    {name:"Unresolved",alliance:"mystery",arenaRank:2}]}]};
+  assert.deepEqual(page.readSnapshots(data),[]);
+});
+test("LoSP preview excludes invited alliances even from common public archives",()=>{
+  const {page}=setup({window:{LoSP_SESSION:{
+    ok:true,role:"member",groupKey:"losp",allowedAlliances:["zeus","athena"]}}});
+  const data={snapshots:[{date:"2026-11-14",players:[
+    {name:"Zeus A",alliance:"zeus",arenaRank:1},
+    {name:"Marine A",allianceKey:"marines",alliance:"MARINES",arenaRank:2}]}]};
+  assert.deepEqual(page.readSnapshots(data)[0].players.map(p=>p.name),["Zeus A"]);
+});
