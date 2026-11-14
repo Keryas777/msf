@@ -10,7 +10,7 @@
   <script src="./auth-guard.js?v=8"></script>
   <link rel="stylesheet" href="./style.css?v=ts" />
   <link rel="stylesheet" href="./renseignements-guerre.css?v=16-live-rooms" />
-  <link rel="stylesheet" href="./admin-renseignements-guerre.css?v=6-reliable-choices" />
+  <link rel="stylesheet" href="./admin-renseignements-guerre.css?v=7-tabs" />
 </head>
 <body class="warIntelPage" data-war-intel-admin="true">
   <a class="intelSkip" href="#intelAdminMain">Aller au formulaire</a>
@@ -18,18 +18,21 @@
     <header class="intelHeader">
       <div class="intelHeaderText"><p class="intelEyebrow">LoSP · Administration</p><h1>Plans de défense adverses</h1>
         <p class="intelIntro">Enregistre les positions et conserve les relevés précédents.</p></div>
-      <a class="intelAdminHome" href="./renseignements-guerre.html">← Consultation</a>
     </header>
     <p id="intelAdminStatus" class="intelAdminStatus" role="status" aria-live="polite">Vérification de la session Discord…</p>
     <section id="intelAdminApp" class="intelAdminLayout" hidden>
       <section class="intelAdminPanel" aria-labelledby="intelAdminAllianceTitle">
         <h2 id="intelAdminAllianceTitle">1 · Alliance adverse</h2>
-        <div class="intelAdminCreate intelAdminCreatePrimary">
+        <div class="intelAdminTabs" role="tablist" aria-label="Gestion de l’alliance">
+          <button id="intelTabCreate" class="intelAdminTab" type="button" role="tab" aria-selected="true" aria-controls="intelCreatePanel">Créer</button>
+          <button id="intelTabEdit" class="intelAdminTab" type="button" role="tab" aria-selected="false" aria-controls="intelEditPanel">Modifier</button>
+        </div>
+        <div id="intelCreatePanel" class="intelAdminCreate intelAdminCreatePrimary" role="tabpanel" aria-labelledby="intelTabCreate">
           <label class="intelAdminField" for="intelNewAlliance">Nouvelle alliance — commencer ici</label>
           <p class="intelAdminFootnote">Saisis le nom classique puis touche « Créer ». Tu pourras ensuite placer les salles sur la carte.</p>
           <div class="intelAdminInline"><input id="intelNewAlliance" class="intelAdminInput" maxlength="80" type="text" autocomplete="off" placeholder="Nom classique de l’alliance" /><button id="intelCreateAlliance" class="intelAdminButton" type="button">Créer l’alliance</button></div>
         </div>
-        <div class="intelAdminExisting"><h3>Alliance déjà rencontrée ?</h3>
+        <div id="intelEditPanel" class="intelAdminExisting" role="tabpanel" aria-labelledby="intelTabEdit" hidden><h3>Alliance déjà rencontrée</h3>
         <label class="intelAdminField" for="intelAllianceSearch">Rechercher dans les alliances enregistrées</label>
         <input id="intelAllianceSearch" class="intelAdminInput" type="search" autocomplete="off" placeholder="Nom classique de l’alliance" />
         <label class="intelAdminField" for="intelAlliance">Sélectionner une alliance</label>
@@ -79,6 +82,6 @@
     </section>
   </main>
   <script src="./renseignements-guerre.js?v=14-refresh-return" defer></script>
-  <script src="./admin-renseignements-guerre.js?v=6-reliable-choices" defer></script>
+  <script src="./admin-renseignements-guerre.js?v=7-tabs" defer></script>
 </body>
 </html>
