@@ -126,6 +126,18 @@ const label=s=>{
   return meta?(meta.emoji?meta.emoji+" ":"")+meta.name:"Alliance non identifiée";
 };
 const color=s=>window.LoSPAlliances?.getAllianceMeta(s)?.color||"#84beff";
+// The preview and real Discord session define the visible tenant scope.
+// Public archives may contain several groups; never render another group's
+// players, even when the requested group has no Arena observation.
+function visibleAllianceKeys(){
+  const session=window.LoSP_SESSION;
+  if(session?.ok!==true||!Array.isArray(session.allowedAlliances))return null;
+  return new Set(session.allowedAlliances.map(knownKey).filter(Boolean));
+}
+function visibleAlliance(alliance){
+  const allowed=visibleAllianceKeys();
+  return allowed===null||allowed.has(alliance);
+}
 const safeAsset=s=>typeof s==="string"&&s.length<=320&&
   /^https:\/\/assets\.marvelstrikeforce\.com\/imgs\/[A-Za-z0-9_.%-]+$/.test(s)?
   s:"";
@@ -158,7 +170,7 @@ function resolveAlliance(source,name){
       for(const p of source.players){
         const name=canonical(p?.name),a=resolveAlliance(p?.allianceKey||p?.alliance,name),
           r=p?.arenaRank,baseId=norm(name),guest=S.guestKeys.has(a);
-        if(!name||!a||!baseId||!Number.isSafeInteger(r)||r<1||
+        if(!name||!a||!baseId||!visibleAlliance(a)||!Number.isSafeInteger(r)||r<1||
            (!S.publicArchive&&!window.LoSPAccess?.isAllianceAllowed(a)))continue;
         const unique=a+":"+baseId,legacy=a+"\u0000"+baseId,
           id=typeof p?.playerId==="string"?p.playerId:
@@ -307,7 +319,7 @@ function rebuildPeople(){
 }
 function knownAlliances(){
   const declared=window.LoSPAlliances?.getKnownAlliances()||[];
-  const allowed=x=>S.publicArchive||window.LoSPAccess?.isAllianceAllowed(x);
+  const allowed=x=>visibleAlliance(x)&&\n    (S.publicArchive||window.LoSPAccess?.isAllianceAllowed(x));
   const used=new Set([...S.people.values()].map(x=>x.alliance));
   return [...declared.filter(x=>allowed(x.key)&&used.delete(x.key)),
     ...[...used].filter(allowed).map(k=>({key:k,name:k}))];
@@ -593,7 +605,7 @@ async function load(){
     mapSourceAlliances(data);
     S.snapshots=readSnapshots(data);
     S.historyLoaded=(data?.archiveDates||0)<=2;
-    if(!S.snapshots.length)throw Error("Aucun relevé permanent complet");
+    if(!S.snapshots.length)throw Error("Aucun classement Arène disponible pour ce groupement.");
     // Le chargement réussi ne nécessite aucun bandeau permanent.
     // Conserver le même élément pour signaler un éventuel repli ou une erreur.
     if(!data.guestWarning)$("arenaStatus").hidden=true;
