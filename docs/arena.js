@@ -295,7 +295,7 @@ function readSnapshots(data){
       for(const p of source.players){
         const name=canonical(p?.name),a=resolveAlliance(p?.allianceKey||p?.alliance,name),
           r=p?.arenaRank,baseId=norm(name),guest=S.guestKeys.has(a);
-        if(!name||!a||!baseId||!Number.isSafeInteger(r)||r<1||
+        if(!name||!a||!baseId||!visibleAlliance(a)||!Number.isSafeInteger(r)||r<1||
            (!S.publicArchive&&!window.LoSPAccess?.isAllianceAllowed(a)))continue;
         const unique=a+":"+baseId,legacy=a+"\u0000"+baseId,
           id=typeof p?.playerId==="string"?p.playerId:
