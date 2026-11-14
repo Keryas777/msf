@@ -74,13 +74,13 @@
 
   // Contrôle des vues uniquement : les JSON GitHub Pages restent publics par choix du projet.
   const LOSP_ONLY_PAGES = new Set([
-    "war-history.html", "war-rankings.html", "war-graphs.html",
+    "war-history.html", "war-rankings.html", "war-graphs.html", "renseignements-guerre.html",
     "cosmic.html", "cosmic-counters.html", "cosmic-defenses.html",
     "cosmic-defense-propose.html", "battleworld.html",
     "recommandations.html", "conseils.html", "iso.html"
   ]);
   const LOSP_ONLY_TILES = new Set([
-    "war-history.html", "war-rankings.html", "war-graphs.html",
+    "war-history.html", "war-rankings.html", "war-graphs.html", "renseignements-guerre.html",
     "cosmic.html", "battleworld.html", "recommandations.html"
   ]);
 
