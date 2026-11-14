@@ -53,6 +53,11 @@
           <label class="intelAdminField" for="intelDate">Date de début de guerre</label>
           <input id="intelDate" class="intelAdminInput" type="date" />
         </div>
+        <div id="intelEditDateField" hidden>
+          <label class="intelAdminField" for="intelCorrectedDate">Corriger la date de début de guerre</label>
+          <input id="intelCorrectedDate" class="intelAdminInput" type="date" disabled />
+          <p class="intelAdminFootnote">Le relevé sera déplacé à cette date sans conserver de copie à l’ancienne date.</p>
+        </div>
         <label id="intelHistoryLabel" class="intelAdminField" for="intelHistory">Relevés précédents (facultatif, pour dupliquer)</label>
         <select id="intelHistory" class="intelSelect"><option value="">Aucun relevé</option></select>
         <!-- Sélecteur interne requis par le moteur de carte partagé ; la liste visible est intelHistory. -->
@@ -87,6 +92,6 @@
     </section>
   </main>
   <script src="./renseignements-guerre.js?v=14-refresh-return" defer></script>
-  <script src="./admin-renseignements-guerre.js?v=10-reset-after-publish" defer></script>
+  <script src="./admin-renseignements-guerre.js?v=11-correct-existing-date" defer></script>
 </body>
 </html>
