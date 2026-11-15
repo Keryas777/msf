@@ -223,7 +223,7 @@ test('Le détail distingue pt et pts, la journée et la période de sept jours',
   assert.equal(shared.length,2);
   assert.ok(shared.every(row=>field(row,'ev-objective-quantity')==='Période : 7 jours'));
   assert.ok(allRows.every(row=>
-    !row.children[1].children.some(child=>/pt\\(s\\)|\\/ action|Jusqu’à/.test(child.textContent))));
+    !row.children[1].children.some(child=>/pt\(s\)|\/ action|Jusqu’à/.test(child.textContent))));
 });
 
 test('Les objectifs secondaires restent présents sans barre de recherche',async()=>{
