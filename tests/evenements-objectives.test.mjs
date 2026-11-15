@@ -157,7 +157,7 @@ test('Un plafond de scoring reste un maximum, pas un objectif obligatoire',async
   const nodes=await makePage();
   const raid=objectiveNodes(nodes).find(row=>row.children[0].textContent.includes('Iron Raider'));
   const notes=raid.children[1].children.map(x=>x.textContent);
-  assert.ok(notes.some(x=>x.includes('(plafond 8 pts)')));
+  assert.ok(notes.some(x=>x.includes('(plafond 8 pts de progression)')));
   assert.ok(notes.some(x=>x.includes('8 actions comptabilisées en 3 jours')));
   const login=objectiveNodes(nodes).find(row=>row.children[0].textContent.includes('7 jours'));
   const loginNotes=login.children[1].children.map(x=>x.textContent);
@@ -224,6 +224,67 @@ test('Le détail distingue pt et pts, la journée et la période de sept jours',
   assert.ok(shared.every(row=>field(row,'ev-objective-quantity')==='Période : 7 jours'));
   assert.ok(allRows.every(row=>
     !row.children[1].children.some(child=>/pt\(s\)|\/ action|Jusqu’à/.test(child.textContent))));
+});
+
+test('Les points internes sont distincts des points d’événement gagnés',async()=>{
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Plan de bataille','milestone',{
+      locationHints:['lohub_wrapper'],milestone:{type:'solo',scoring:{
+        methods:[],cappedScorings:[]}}}],
+    ['Plan de bataille','milestone',{
+      locationHints:['lohub_feeder'],milestone:{type:'solo',scoring:{
+        methods:[],cappedScorings:[
+          {cap:1,rewardTier:8,isPremium:true,eventPoints:5,
+            methods:[{description:'Combattre avec Ultron au palier d’équipement 21',points:1}]},
+          {cap:3,rewardTier:2,eventPoints:20,
+            methods:[{description:'Combattre avec Cyclope (Puissant)',points:1}]}
+        ]}}}],
+    ['Plan de bataille','milestone',{
+      locationHints:['lohub_feeder'],milestone:{type:'solo',scoring:{
+        methods:[],cappedScorings:[
+          {cap:2,rewardTier:2,methods:[{description:'Combattre dans l’arène',points:1}]}
+        ]}}}]
+  ]});
+  const rows=objectiveNodes(nodes);
+  assert.equal(rows.length,3);
+  const field=(row,cls)=>row.children[1].children.find(c=>c.className===cls)?.textContent;
+  // Les fiches de personnage affichent une condition courte dans la ligne ;
+  // sélectionner par récompense, pas par le nom porté par la fiche parent.
+  const ultron=rows.find(row=>field(row,'ev-objective-reward')==='Récompense : 5 pts d’événement');
+  const cyclops=rows.find(row=>field(row,'ev-objective-reward')==='Récompense : 20 pts d’événement');
+  const missing=rows.find(row=>!field(row,'ev-objective-reward'));
+  assert.ok(ultron);
+  assert.ok(cyclops);
+  assert.ok(missing);
+  assert.equal(field(ultron,'ev-objective-score'),'+ 1 pt de progression par action');
+  assert.equal(field(ultron,'ev-objective-cap'),'(plafond 1 pt de progression)');
+  assert.equal(field(ultron,'ev-objective-reward'),'Récompense : 5 pts d’événement');
+  assert.equal(field(ultron,'ev-objective-premium'),'Objectif supérieur');
+  assert.equal(field(cyclops,'ev-objective-reward'),'Récompense : 20 pts d’événement');
+  assert.equal(field(missing,'ev-objective-reward'),undefined);
+  assert.equal(field(missing,'ev-objective-score'),'+ 1 pt de progression par action');
+});
+
+test('Des objectifs avec mêmes conditions mais récompenses distinctes restent visibles',async()=>{
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Plan de bataille','milestone',{
+      locationHints:['lohub_wrapper'],milestone:{type:'solo',scoring:{
+        methods:[],cappedScorings:[]}}}],
+    ['Plan de bataille','milestone',{
+      locationHints:['lohub_feeder'],milestone:{type:'solo',scoring:{
+        methods:[],cappedScorings:[
+          {cap:1,rewardTier:2,eventPoints:10,
+            methods:[{description:'Combattre en raid',points:1}]},
+          {cap:1,rewardTier:3,eventPoints:30,
+            methods:[{description:'Combattre en raid',points:1}]}
+        ]}}}]
+  ]});
+  const rows=objectiveNodes(nodes);
+  assert.equal(rows.length,2);
+  const earned=rows.map(row=>row.children[1].children
+    .find(c=>c.className==='ev-objective-reward')?.textContent);
+  assert.ok(earned.includes('Récompense : 10 pts d’événement'));
+  assert.ok(earned.includes('Récompense : 30 pts d’événement'));
 });
 
 test('Les objectifs secondaires restent présents sans barre de recherche',async()=>{
@@ -544,7 +605,7 @@ test('Objectifs généraux : équipe complète, personnages et Choc se retrouven
   assert.equal(general.length,4);
   for(const row of general){
     assert.ok(row.children[1].children.some(c=>c.textContent?.includes('Briseur de volontés')));
-    assert.ok(row.children[1].children.some(c=>c.textContent?.includes('(plafond 1 pt)')));
+    assert.ok(row.children[1].children.some(c=>c.textContent?.includes('(plafond 1 pt de progression)')));
   }
   assert.ok(objectiveNodes(nodes).some(row=>row.children[1].children.some(c=>
     c.textContent?.includes('1000')||c.textContent?.includes('1 000')||
@@ -730,8 +791,10 @@ test('Une même action Raid ou Guerre rassemble les événements et conserve cha
   assert.ok(items.every(row=>row.children[0].hidden===true));
   const scoring=items.map(row=>row.children[1].children.map(part=>part.textContent).join(' '));
   const normalized=scoring.join(' / ').replace(/\s/g,'');
-  for(const cap of [24,6,5,144000,384000])
-    assert.ok(normalized.includes('(plafond'+cap+'pts)'),cap+' points conservés');
+  for(const cap of [24,6,5])
+    assert.ok(normalized.includes('(plafond'+cap+'ptsdeprogression)'),cap+' progression conservée');
+  for(const cap of [144000,384000])
+    assert.ok(normalized.includes('(plafond'+cap+'pts)'),cap+' barème alliance conservé');
   assert.ok(normalized.includes('+125ptsparaction'));
   assert.ok(normalized.includes('+800ptsparaction'));
 });
@@ -1032,7 +1095,7 @@ test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP co
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=19"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=20"/);
   assert.doesNotMatch(css,/\.ev-toolbar\{|\.ev-filters\{|\.ev-date-controls\{/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -1061,7 +1124,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=35/);
+  assert.match(html,/evenements\.js\?v=36/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
