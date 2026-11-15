@@ -737,6 +737,55 @@ test('Jouer et combattre en guerre forment une seule action, sans fusionner les 
     '2 objectifs');
 });
 
+test('Épreuve abrégée : classement en Épreuve cosmique, jamais sous Choc',async()=>{
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Choc','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Combattre en choc',points:1},
+        {description:'Gagner un combat en choc',points:1}],
+      cappedScorings:[]}}}],
+    ['Épreuve cosmique','milestone',{milestone:{type:'solo',scoring:{
+      methods:[],
+      cappedScorings:[
+        {cap:3,methods:[{description:"Combattre dans l'Épreuve",points:1}]},
+        {cap:6,methods:[{description:"Combattre dans l'Épreuve cosmique",points:1}]},
+        {cap:1000,methods:[{description:"Combattez dans l'Épreuve cosmique (niveau 60)",points:1000}]}
+      ]}}}],
+    ['Objectif multimode','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Jouer dans l’arène, en guerre, en arène en temps réel ou dans l’Épreuve',points:1}],
+      cappedScorings:[]}}}],
+    ['Épreuve sans rapport','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:"Récupérer une récompense dans l'épreuve de force",points:1}],
+      cappedScorings:[]}}}]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'7');
+  assert.equal(objectiveNodes(nodes).length,7);
+  const modes=sections(nodes).map(section=>section.children[0].textContent);
+  assert.deepEqual(modes,[
+    '⚔️ GUERRE / ARÈNE / ÉPREUVE COSMIQUE',
+    '⚡ CHOC','🔷 ÉPREUVE COSMIQUE','📋 DIVERS'
+  ]);
+  const choc=sections(nodes).find(section=>section.children[0].textContent==='⚡ CHOC');
+  const crucible=sections(nodes).find(section=>
+    section.children[0].textContent==='🔷 ÉPREUVE COSMIQUE');
+  assert.equal(choc.children[0].children[0].textContent,'2 objectifs');
+  assert.equal(crucible.children[0].children[0].textContent,'3 objectifs');
+  const labels=crucible.children[1].children.map(card=>
+    card.children[0].children[0].textContent);
+  assert.ok(labels.includes('Combattre en Épreuve cosmique'));
+  assert.ok(labels.includes("Combattez dans l'Épreuve cosmique (niveau 60)"));
+  const merged=crucible.children[1].children.find(card=>
+    card.children[0].children[0].textContent==='Combattre en Épreuve cosmique');
+  assert.equal(merged.children[0].children[1].textContent,'2 objectifs');
+  assert.equal(merged.children[1].children[0].children[1].children.length,2);
+  assert.ok(!choc.children[1].children.some(card=>
+    card.children[0].children[0].textContent?.includes('Épreuve')));
+  const bounds=objectiveNodes(nodes).flatMap(row=>row.children[1].children
+    .map(part=>part.textContent)).join(' ');
+  assert.ok(bounds.includes('Plafond 3 pts'));
+  assert.ok(bounds.includes('Plafond 6 pts'));
+  assert.ok(bounds.includes('Plafond 1 000 pts')||bounds.includes('Plafond 1 000 pts'));
+});
+
 test('Les actions composées ou avec personnage ne sont pas fusionnées aux combats simples',async()=>{
   const nodes=await makePage({includeBase:false,extraEvents:[
     ['Guerre simple','milestone',{milestone:{type:'solo',scoring:{
@@ -902,7 +951,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=32/);
+  assert.match(html,/evenements\.js\?v=33/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
