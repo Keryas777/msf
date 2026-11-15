@@ -37,6 +37,20 @@ export function verifyEventsPublication(doc,now=Date.now(),previous=null){
   if(!["fr","en"].includes(doc.locale)||
      typeof doc.localizationStatus!=="string")
     throw Error("Invalid event localization");
+  if(doc.objectiveEligibility!==undefined){
+    const ref=doc.objectiveEligibility;
+    const keys=Object.keys(ref||{}).sort().join(",");
+    if(!isObject(ref)||
+      keys!=="bracket,eligibleEventIds,observedAt,source"||
+      ref.source!=="scopely-player-level110-reference"||
+      ref.bracket!=="85_and_up"||!isTime(ref.observedAt)||
+      Math.abs(Date.parse(ref.observedAt)-Date.parse(doc.updatedAt))>10*60000||
+      !Array.isArray(ref.eligibleEventIds)||!ref.eligibleEventIds.length||
+      ref.eligibleEventIds.length>doc.total||
+      new Set(ref.eligibleEventIds).size!==ref.eligibleEventIds.length||
+      ref.eligibleEventIds.some(id=>!ids.has(id)))
+      throw Error("Invalid level-110 reference: no private data or unknown IDs allowed");
+  }
   // Use one stable JSON representation; only official projected public fields.
   return {...doc};
 }
