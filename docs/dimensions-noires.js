@@ -498,31 +498,28 @@ function renderIndividualAlliances(rows) {
     state.selectedIndividualAlliance = "";
     state.selectedPlayerIdentity = "";
   }
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = alliances.length ? "— Choisir une alliance —" : "Aucune alliance disponible";
+  list.append(placeholder);
   for (const alliance of alliances) {
-    const label = document.createElement("label");
-    label.className = "alliance-chip individual-alliance-chip";
-    label.dataset.allianceNameLines = "two";
-    const radio = document.createElement("input");
-    radio.type = "radio";
-    radio.name = "dd-individual-alliance";
-    radio.value = alliance.key;
-    radio.checked = state.selectedIndividualAlliance === alliance.key;
-    radio.addEventListener("change", () => {
-      if (!radio.checked || !isAllowed(alliance.key)) return;
-      if (state.selectedIndividualAlliance !== alliance.key) state.selectedPlayerIdentity = "";
-      state.selectedIndividualAlliance = alliance.key;
-      renderPlayerChoices();
-    });
-    const emoji = document.createElement("span");
-    emoji.className = "alliance-chip-emoji";
-    emoji.textContent = alliance.emoji || "";
-    emoji.setAttribute("aria-hidden", "true");
-    const name = document.createElement("span");
-    name.className = "alliance-chip-name";
-    window.LoSPAlliances.renderAllianceName(name, alliance.key);
-    label.append(radio, emoji, name);
-    list.append(label);
+    const option = document.createElement("option");
+    option.value = alliance.key;
+    option.textContent = (alliance.emoji ? alliance.emoji + " " : "") + (alliance.name || alliance.label || alliance.key);
+    list.append(option);
   }
+  list.value = state.selectedIndividualAlliance;
+  list.disabled = !alliances.length;
+  list.onchange = () => {
+    const key = list.value;
+    if (key && !isAllowed(key)) {
+      list.value = state.selectedIndividualAlliance;
+      return;
+    }
+    if (state.selectedIndividualAlliance !== key) state.selectedPlayerIdentity = "";
+    state.selectedIndividualAlliance = key;
+    renderPlayerChoices();
+  };
   $("individual-alliance-help").textContent = alliances.length
     ? "Choisissez une alliance pour afficher ses joueurs."
     : "Aucune alliance avec roster partageable accessible.";

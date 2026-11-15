@@ -724,3 +724,11 @@ h2 { margin-bottom: 9px; font-size: 1.06rem; font-weight: 800; }
 .player.theoretical .place { background: #ffb43d; color: #2b1a00; }
 .player.finished .place { background: #3ddc97; color: #062c1c; }
 .player.finished-twice .place { background: #74baff; color: #07172e; }
+
+/* Compact native alliance picker in individual DD progression. */
+.individual-alliance-filter select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
