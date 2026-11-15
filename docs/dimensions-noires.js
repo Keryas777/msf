@@ -238,9 +238,10 @@ function renderRanking() {
 
   for (const entry of ordered) {
     const finished = entry.result.completed;
+    const twiceFinished = finished && entry.result.passages >= 2;
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "player" + (finished ? " finished" : "");
+    button.className = "player" + (finished ? " finished" : "") + (twiceFinished ? " finished-twice" : "");
     button.innerHTML =
       '<span class="place"></span><span class="player-details"><span class="player-name"></span>' +
       '<span class="meta"></span><span class="badge"></span></span>';
@@ -272,9 +273,9 @@ function renderRanking() {
       const count = finished ? total : Math.max(0, Math.min(total, entry.result.consecutive || 0));
       if (total > 0) {
         const wrap = document.createElement("span");
-        wrap.className = "dd-progress" + (finished ? " dd-progress--complete" : "");
+        wrap.className = "dd-progress" + (finished ? " dd-progress--complete" : "") + (twiceFinished ? " dd-progress--twice" : "");
         wrap.setAttribute("role", "progressbar");
-        wrap.setAttribute("aria-label", finished ? "Dimension noire terminée (convention LoSP)" : "Salles théoriquement accessibles consécutivement");
+        wrap.setAttribute("aria-label", finished ? (twiceFinished ? "Deux passages terminés (convention LoSP)" : "Premier passage terminé (convention LoSP)") : "Salles théoriquement accessibles consécutivement");
         wrap.setAttribute("aria-valuemin", "0");
         wrap.setAttribute("aria-valuemax", String(total));
         wrap.setAttribute("aria-valuenow", String(count));
@@ -291,7 +292,7 @@ function renderRanking() {
         button.querySelector(".player-details").append(wrap);
       }
     }
-    if (finished) {
+    if (twiceFinished) {
       // SVG viewBox is normalized, so the arcs follow responsive card dimensions.
       const ns = "http://www.w3.org/2000/svg";
       const frame = document.createElementNS(ns, "svg");
