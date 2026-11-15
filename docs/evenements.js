@@ -220,7 +220,11 @@
     if(/\b(?:alliance war|battle in war|in war|en guerre|guerre d.alliance)\b|^play war\b|\bwar or\b/.test(text))modes.push('war');
     if(/\b(?:arena|arène)\b/.test(text))modes.push('arena');
     if(/\b(?:blitz|choc)\b/.test(text))modes.push('blitz');
-    if(/\b(?:cosmic crucible|crucible|épreuve cosmique)\b/.test(text))modes.push('crucible');
+    // Scopely abrège parfois « Épreuve cosmique » en « l'Épreuve ».
+    // Ne reconnaître cette abréviation que dans « dans l'Épreuve »,
+    // pas dans n'importe quelle épreuve ou événement du catalogue.
+    if(/\b(?:cosmic crucible|crucible|épreuve cosmique)\b|\bdans l[’']épreuve(?: cosmique)?(?=\s*(?:$|[,(]))/.test(text))
+      modes.push('crucible');
     if(/\b(?:campaign|campagne)\b/.test(text))modes.push('campaign');
     if(/\bbattleworld\b/.test(text))modes.push('battleworld');
     return modes.length?modes.join('+'):'divers';
@@ -352,7 +356,7 @@
     const text=strip(description);
     // « Jouer » désigne aussi un combat pour les formulations sans
     // restriction. Ne pas assimiler les objectifs multimodes ou qualifiés.
-    return /^(?:combattre\b|faire un combat\b|jouer n[’']?importe quel combat\b|battle\b|play (?:any battle|alliance |raid|war|blitz|arena|crucible|with ))/i.test(text)||
+    return /^(?:combattre\b|combattez\b|faire un combat\b|jouer n[’']?importe quel combat\b|battle\b|play (?:any battle|alliance |raid|war|blitz|arena|crucible|with ))/i.test(text)||
       /^jouer (?:en (?:raid|guerre|arène|épreuve cosmique)|dans l[’']arène|(?:un |1 )?combat (?:d[’']arène|en (?:raid|guerre)))$/i.test(text);
   }
   function isFullTeamObjective(description){
@@ -458,7 +462,7 @@
       raid:/^(?:(?:combattre|jouer|faire (?:un |des )?combats?) en raid|jouer (?:un |1 )?combat en raid)$/i,
       war:/^(?:(?:combattre|jouer|faire (?:un |des )?combats?) en guerre|jouer (?:un |1 )?combat en guerre)$/i,
       arena:/^(?:(?:combattre|jouer|faire (?:un |des )?combats?) (?:en arène|dans l[’']arène)|jouer (?:un |1 )?combat d[’']arène)$/i,
-      crucible:/^(?:combattre|jouer|faire (?:un |des )?combats?) en épreuve cosmique$/i
+      crucible:/^(?:(?:combattre|combattez|jouer|faire (?:un |des )?combats?) (?:en épreuve cosmique|dans l[’']épreuve(?: cosmique)?)|jouer (?:un |1 )?combat dans l[’']épreuve)$/i
     };
     const names={
       raid:'Combattre en raid',war:'Combattre en guerre',
