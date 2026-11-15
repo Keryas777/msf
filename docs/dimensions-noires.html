@@ -58,6 +58,11 @@
     <section class="tab-panel" id="panel-individual" role="tabpanel"
       aria-labelledby="tab-individual" hidden>
       <section class="panel individual-controls">
+        <fieldset class="individual-alliance-filter">
+          <legend>Alliance</legend>
+          <div class="alliance-chip-list" id="individual-alliance-choices" role="radiogroup" aria-label="Alliance du joueur"></div>
+          <p id="individual-alliance-help" class="subtle">Chargement des alliances autorisées…</p>
+        </fieldset>
         <label class="control" for="player-select">Joueur autorisé
           <select id="player-select" disabled>
             <option value="">Chargement des rosters autorisés…</option>
