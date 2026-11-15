@@ -1,0 +1,39 @@
+name: Refresh DD character traits from official Codex
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: main-data-writer
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Generate verified official trait catalogue
+        run: |
+          python -m unittest discover -s tests -p "test_build_dd_character_traits.py" -v
+          python scripts/build_dd_character_traits.py
+          python scripts/build_dd_character_traits.py --check
+      - name: Commit only if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- docs/data/dd-character-traits.json
+          if git diff --staged --quiet; then
+            echo "DD character traits already current."
+            exit 0
+          fi
+          git commit -m "Refresh DD character traits from official Codex"
+          git pull --rebase origin main
+          git push origin HEAD:main
