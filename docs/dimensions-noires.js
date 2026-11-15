@@ -181,7 +181,6 @@ function renderRanking() {
 
   if (!state.alliances.length) {
     setMessage("Aucune alliance autorisée pour cette session.", true);
-    $("ranking-summary").textContent = "";
     const item = document.createElement("li");
     item.textContent = "Aucun roster autorisé pour cette session.";
     list.append(item);
@@ -190,7 +189,6 @@ function renderRanking() {
 
   if (!selectedCount) {
     setMessage("Aucune alliance sélectionnée. Sélectionnez au moins une alliance pour afficher le classement.");
-    $("ranking-summary").textContent = "";
     const item = document.createElement("li");
     item.textContent = "Sélectionnez une ou plusieurs alliances.";
     list.append(item);
@@ -218,14 +216,12 @@ function renderRanking() {
         (failures === 1 ? " alliance n’a pas pu être chargée." :
           " alliances n’ont pas pu être chargées.")
       : "Aucun roster partageable dans les alliances sélectionnées.";
+  // Keep loading, empty-selection and data warnings; hide routine roster counters.
   setMessage(state.loading ? "Chargement des rosters autorisés…" :
-    message + (state.traitsWarning ? " · " + state.traitsWarning : ""));
+    (!ordered.length || failures ? message : "") +
+    (state.traitsWarning ? (ordered.length && !failures ? "" : " · ") + state.traitsWarning : ""));
 
-  $("ranking-summary").textContent = ordered.length
-    ? completed.length + " " + dimensionLabel + " terminée(s) selon la convention LoSP · " +
-      theoretical.length + " progression(s) théorique(s) classée(s) · " +
-      unknown.length + " progression(s) indéterminée(s)"
-    : "";
+
 
   if (!ordered.length) {
     const item = document.createElement("li");
