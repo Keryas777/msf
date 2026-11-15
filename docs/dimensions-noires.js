@@ -246,9 +246,15 @@ function renderRanking() {
       '<span class="meta"></span><span class="badge"></span></span>';
     button.querySelector(".place").textContent = Number.isFinite(entry.rank) ? String(entry.rank) : "—";
     button.querySelector(".player-name").textContent = entry.roster.player;
-    button.querySelector(".meta").textContent =
-      window.LoSPAlliances.getAllianceEmoji(entry.roster.alliance) + " " +
-      window.LoSPAlliances.getAllianceLabel(entry.roster.alliance);
+    const allianceMeta = button.querySelector(".meta");
+    const allianceId = allianceKey(entry.roster.alliance);
+    const emoji = document.createElement("span");
+    emoji.textContent = window.LoSPAlliances.getAllianceEmoji(allianceId);
+    emoji.setAttribute("aria-hidden", "true");
+    const allianceName = document.createElement("span");
+    allianceName.className = "ranking-alliance-name";
+    window.LoSPAlliances.renderAllianceName(allianceName, allianceId);
+    allianceMeta.replaceChildren(emoji, document.createTextNode(" "), allianceName);
     button.querySelector(".badge").textContent = finished
       ? dimensionLabel + " · " + passageLabel(selectedDimension, entry.result.passages) + " · convention LoSP"
       : entry.result.status === "theoretical"
