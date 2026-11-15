@@ -282,15 +282,31 @@ function renderRanking() {
           track.append(segment);
         }
         wrap.append(track);
-        if (finished) {
-          const sparks = document.createElement("span");
-          sparks.className = "dd-progress-sparks";
-          sparks.setAttribute("aria-hidden", "true");
-          sparks.textContent = "⚡";
-          wrap.append(sparks);
-        }
         button.querySelector(".player-details").append(wrap);
       }
+    }
+    if (finished) {
+      // SVG viewBox is normalized, so the arcs follow responsive card dimensions.
+      const ns = "http://www.w3.org/2000/svg";
+      const frame = document.createElementNS(ns, "svg");
+      frame.setAttribute("class", "dd-electric-frame");
+      frame.setAttribute("viewBox", "0 0 1000 400");
+      frame.setAttribute("preserveAspectRatio", "none");
+      frame.setAttribute("aria-hidden", "true");
+      frame.setAttribute("focusable", "false");
+      const paths = [
+        ["dd-electric-core", "M22 2 L145 2 178 9 218 2 302 2 333 10 361 2 449 2 475 9 506 2 609 2 638 10 669 2 773 2 810 8 838 2 978 2 Q998 2 998 22 L998 378 Q998 398 978 398 L815 398 787 390 760 398 653 398 620 390 591 398 474 398 446 391 412 398 305 398 275 390 245 398 22 398 Q2 398 2 378 L2 22 Q2 2 22 2 Z"],
+        ["dd-electric-arc dd-electric-arc-a", "M18 6 L105 12 128 1 156 9 193 2 225 14 251 4 310 8 344 1 389 10 421 3 472 12 512 2 549 10 589 4 625 13 664 3 715 9 756 1 796 11 844 4 886 12 922 3 984 8 994 31 988 77 999 117 989 163 998 211 990 256 998 301 988 353 986 390"],
+        ["dd-electric-arc dd-electric-arc-b", "M13 11 L4 58 14 91 3 129 11 174 2 218 13 259 3 303 12 345 10 385 47 392 92 386 130 399 179 388 224 395 264 387 301 399 349 388 390 395 434 386 477 397 521 388 565 397 612 386 650 396 697 388 746 399 793 386 836 395 876 388 918 397 984 391"],
+        ["dd-electric-arc dd-electric-arc-c", "M20 4 L148 5 181 1 226 6 272 3 321 8 373 2 421 6 468 2 519 8 562 2 617 7 668 1 715 6 762 3 810 7 863 2 910 6 979 4 997 27 993 76 997 129 991 180 997 228 992 278 997 327 992 377 978 396"]
+      ];
+      for (const [className, d] of paths) {
+        const path = document.createElementNS(ns, "path");
+        path.setAttribute("class", className);
+        path.setAttribute("d", d);
+        frame.append(path);
+      }
+      button.append(frame);
     }
     button.addEventListener("click", () => openIndividual(entry.roster));
     list.append(button);
