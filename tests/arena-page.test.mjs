@@ -8,12 +8,13 @@ const source=fs.readFileSync(new URL("../docs/arena.js",import.meta.url),"utf8")
 const cut=source.indexOf('$("tabRanking").addEventListener(');
 if(cut<0)throw Error("Arena event attachment marker missing");
 const isolated=source.slice(source.indexOf("(()=>{"),cut)+
-  "return {S,canonical,mapSourceAlliances,readSnapshots,label,fillRanking,setupFilters,setupPeople,fillChart,fillSummary,isGuestView,isAdminView,guestAllianceKeys,signedSession,mergeArenaHistories,readArenaAPI,loadGuestProfiles};\n})();";
+  "return {S,canonical,mapSourceAlliances,readSnapshots,label,fillRanking,setupFilters,setupPeople,fillChart,fillSummary,isGuestView,isAdminView,guestAllianceKeys,signedSession,mergeArenaHistories,readArenaAPI,loadGuestProfiles,currentRanking};\n})();";
 const metadata=[
   {key:"zeus",name:"Zeus",emoji:"⚡️",color:"#ffff00"},
   {key:"athena",name:"Athéna",emoji:"🦉",color:"#ff9900"},
   {key:"hades",name:"Hadès",emoji:"🔥",color:"#21bb77"},
-  {key:"marines",name:"MARINES",emoji:"⚓",color:"#e53935"}
+  {key:"marines",name:"MARINES",emoji:"⚓",color:"#e53935"},
+  {key:"kronos",name:"Kronos",emoji:"⏳",color:"#cccccc"}
 ];
 const allianceApi={
   getAllianceMeta:value=>metadata.find(a=>value===a.key||value===a.name)||null,
