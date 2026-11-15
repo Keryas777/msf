@@ -786,6 +786,55 @@ test('Épreuve abrégée : classement en Épreuve cosmique, jamais sous Choc',as
   assert.ok(bounds.includes('Plafond 1 000 pts')||bounds.includes('Plafond 1 000 pts'));
 });
 
+test('Dépenser 1 point ou dépenser de l’énergie de campagne partage une seule action',async()=>{
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Sauvez le monde !','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Dépensez 1 point d’énergie de campagne',points:5}],
+      cappedScorings:[]}}}],
+    ['Briseur de volontés','milestone',{milestone:{type:'solo',scoring:{
+      methods:[],cappedScorings:[{cap:50,methods:[
+        {description:"Dépenser de l'énergie de campagne",points:1}
+      ]}]}}}],
+    ['S.T.R.I.K.E.','milestone',{milestone:{type:'solo',scoring:{
+      methods:[],cappedScorings:[{cap:100,methods:[
+        {description:"Dépenser 1 point d'énergie de campagne",points:2}
+      ]}]}}}],
+    ['Terre Sauvage','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:"Dépenser de l'énergie préhistorique dans la campagne Terre Sauvage",points:1}],
+      cappedScorings:[]}}}],
+    ['Iso-8','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:"Dépenser 1 point d'énergie de campagne Iso-8 (joueur de niveau 55)",points:20}],
+      cappedScorings:[]}}}],
+    ['Iso-8 2','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:"Dépenser 1 point d'énergie de campagne d'iso-8",points:3}],
+      cappedScorings:[]}}}]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'6');
+  assert.equal(objectiveNodes(nodes).length,6);
+  const campaign=sections(nodes).find(section=>
+    section.children[0].textContent==='📖 CAMPAGNE');
+  assert.ok(campaign);
+  const cards=campaign.children[1].children;
+  assert.equal(cards.length,4);
+  const action=cards.find(card=>
+    card.children[0].children[0].textContent==='Dépenser de l’énergie de campagne');
+  assert.ok(action);
+  assert.equal(action.children[0].children[1].textContent,'3 objectifs');
+  assert.equal(action.children[1].children.length,3);
+  const rows=action.children[1].children.flatMap(source=>source.children[1].children);
+  assert.equal(rows.length,3);
+  const details=rows.map(row=>row.children[1].children.map(span=>span.textContent).join(' ')).join(' | ');
+  assert.ok(details.includes('+5 pt(s) / action'));
+  assert.ok(details.includes('+1 pt(s) / action'));
+  assert.ok(details.includes('+2 pt(s) / action'));
+  assert.ok(details.includes('Plafond 50 pts'));
+  assert.ok(details.includes('Plafond 100 pts'));
+  const otherLabels=cards.filter(card=>card!==action).map(card=>
+    card.children[0].children[0].textContent);
+  assert.ok(otherLabels.some(label=>label.includes('énergie préhistorique')));
+  assert.equal(otherLabels.filter(label=>/iso-8/i.test(label)).length,2);
+});
+
 test('Les actions composées ou avec personnage ne sont pas fusionnées aux combats simples',async()=>{
   const nodes=await makePage({includeBase:false,extraEvents:[
     ['Guerre simple','milestone',{milestone:{type:'solo',scoring:{
@@ -951,7 +1000,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=33/);
+  assert.match(html,/evenements\.js\?v=34/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
