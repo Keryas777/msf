@@ -578,3 +578,61 @@ h2 { margin-bottom: 9px; font-size: 1.06rem; font-weight: 800; }
 @media (prefers-reduced-motion: reduce) {
   .player, .dd-nav, .alliance-chip { transition: none; }
 }
+
+/* DD progression: section boundaries follow the official requirement groups. */
+.player-details { display: block; min-width: 0; }
+.dd-progress {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 2px 0;
+}
+.dd-progress-track {
+  display: flex;
+  gap: 3px;
+  height: 13px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #283349;
+}
+.dd-progress-segment {
+  flex-basis: 0;
+  min-width: 0;
+  border-radius: 3px;
+  background: linear-gradient(to right, #f6a623 0%, #ffbd54 var(--dd-fill), #293750 var(--dd-fill), #293750 100%);
+}
+.dd-progress--complete .dd-progress-track {
+  box-shadow: 0 0 10px rgba(53, 233, 137, .6), 0 0 22px rgba(53, 233, 137, .24);
+}
+.dd-progress--complete .dd-progress-segment {
+  background: linear-gradient(180deg, #8afbb1, #20bd67);
+  box-shadow: inset 0 0 5px rgba(255,255,255,.24);
+}
+.dd-progress-sparks {
+  position: absolute;
+  right: -8px;
+  top: -13px;
+  font-size: 1.1rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 5px #74ffb3);
+  animation: dd-spark-pulse 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+.dd-progress--complete::before {
+  content: "⚡";
+  position: absolute;
+  left: -9px;
+  top: -13px;
+  font-size: 1.1rem;
+  filter: drop-shadow(0 0 5px #74ffb3);
+  animation: dd-spark-pulse 2.8s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes dd-spark-pulse {
+  0%, 100% { opacity: .55; transform: scale(.9); }
+  50% { opacity: 1; transform: scale(1.12); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dd-progress-sparks, .dd-progress--complete::before { animation: none; }
+}
