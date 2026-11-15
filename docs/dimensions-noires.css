@@ -636,3 +636,29 @@ h2 { margin-bottom: 9px; font-size: 1.06rem; font-weight: 800; }
 @media (prefers-reduced-motion: reduce) {
   .dd-progress-sparks, .dd-progress--complete::before { animation: none; }
 }
+
+/* Individual DD: select the alliance first, with the shared rich-name styling. */
+.individual-alliance-filter {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.individual-alliance-filter legend {
+  padding: 0 0 10px;
+  color: #dae5fa;
+  font-weight: 800;
+}
+.individual-alliance-filter .alliance-chip-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.individual-alliance-chip { cursor: pointer; }
+.individual-alliance-chip input[type="radio"] { accent-color: #8bd15d; }
+.individual-alliance-filter .subtle { margin: 9px 0 14px; }
+@media (min-width: 680px) {
+  .individual-alliance-filter .alliance-chip-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
