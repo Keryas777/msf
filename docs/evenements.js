@@ -15,7 +15,7 @@
   const SECTIONS={current:'En cours'};
   const TABS=['objectives','current'];
   const state={events:[],metadata:{},sourceError:false,lastButton:null,
-    teams:[],characters:[],characterAliases:[]};
+    eligibleEventIds:null,teams:[],characters:[],characterAliases:[]};
   const fmtDate=new Intl.DateTimeFormat('fr-FR',{timeZone:TIMEZONE,day:'numeric',month:'short',year:'numeric'});
   const fmtNumber=new Intl.NumberFormat('fr-FR');
   const objectiveCount=count=>fmtNumber.format(count)+' objectif'+(count===1?'':'s');
@@ -609,7 +609,9 @@
   }
   function objectiveEntries(reference){
     const active=state.events.filter(e=>category(e,reference)==='current'&&
-      objectiveGroup(e));
+      objectiveGroup(e)&&(!state.eligibleEventIds||
+        !e.locationHints?.includes('lohub_feeder')||
+        state.eligibleEventIds.has(e.id)));
     const dedup=new Set(),items=[];
     for(const event of active){
       const scoring=event.milestone?.scoring;
@@ -661,6 +663,9 @@
     host.append(create('p','ev-objectives-note',
       objectiveCount(items.length)+', regroupés par action et combats compatibles. '+
       '« Tous modes » indique un objectif général, non limité au mode affiché. '+
+      (state.eligibleEventIds?
+        'Référence niveau 110 vérifiée : seules les missions éligibles sont affichées. ':
+        'Catalogue général : l’éligibilité personnelle des missions n’est pas vérifiée. ')+
       'Points et plafonds distincts ; progression personnelle non synchronisée.'));
     const grouped=new Map();
     for(const item of items){
@@ -871,6 +876,20 @@
     if(!validCatalog(data.events))throw new Error('Catalogue invalide');
     // The verified GitHub Pages JSON is the sole browser source.
     state.events=data.events.filter(isCalendarEvent);
+    const selection=data.objectiveEligibility;
+    const allIds=new Set(data.events.map(e=>e.id));
+    const checked=Date.parse(selection?.observedAt||'');
+    const published=Date.parse(data.updatedAt||'');
+    const valid=selection?.source==='scopely-player-level110-reference'&&
+      selection.bracket==='85_and_up'&&
+      Array.isArray(selection.eligibleEventIds)&&
+      selection.eligibleEventIds.length>0&&
+      selection.eligibleEventIds.every(id=>
+        typeof id==='string'&&allIds.has(id))&&
+      new Set(selection.eligibleEventIds).size===selection.eligibleEventIds.length&&
+      Number.isFinite(checked)&&Number.isFinite(published)&&
+      Math.abs(checked-published)<10*60000;
+    state.eligibleEventIds=valid?new Set(selection.eligibleEventIds):null;
     state.sourceError=false;
     state.metadata={liveSource:true,updatedAt:data.updatedAt};
     const time=Date.parse(data.updatedAt||'');
