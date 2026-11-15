@@ -719,3 +719,8 @@ h2 { margin-bottom: 9px; font-size: 1.06rem; font-weight: 800; }
   background: linear-gradient(180deg, #a6e6ff, #2888f0);
   box-shadow: inset 0 0 5px rgba(255,255,255,.28);
 }
+
+/* Rank badge follows the same state palette as the segmented progress bar. */
+.player.theoretical .place { background: #ffb43d; color: #2b1a00; }
+.player.finished .place { background: #3ddc97; color: #062c1c; }
+.player.finished-twice .place { background: #74baff; color: #07172e; }

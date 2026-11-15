@@ -241,7 +241,7 @@ function renderRanking() {
     const twiceFinished = finished && entry.result.passages >= 2;
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "player" + (finished ? " finished" : "") + (twiceFinished ? " finished-twice" : "");
+    button.className = "player" + (finished ? " finished" : "") + (twiceFinished ? " finished-twice" : "") + (!finished && entry.result.status === "theoretical" ? " theoretical" : "");
     button.innerHTML =
       '<span class="place"></span><span class="player-details"><span class="player-name"></span>' +
       '<span class="meta"></span><span class="badge"></span></span>';
