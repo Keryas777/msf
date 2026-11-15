@@ -143,7 +143,10 @@
     return 'Terminé';
   }
   function filterEvents(){
-    return state.events.filter(e=>Boolean(calendarGroup(e)));
+    return state.events.filter(e=>Boolean(calendarGroup(e))&&
+      (!state.eligibleEventIds||
+        !e.locationHints?.includes('lohub_wrapper')||
+        state.eligibleEventIds.has(e.id)));
   }
   function groupEvents(){
     const reference=now();const grouped={current:[]};
