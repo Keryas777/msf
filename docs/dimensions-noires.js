@@ -1,10 +1,12 @@
 import {rankResults, evaluateDimension} from "./dd-ranking-engine.mjs";
 import {filterVisibleRosters, createMapLayout} from "./dimensions-noires-view.mjs";
+import {mergeOfficialCodexTraits} from "./dd-character-traits.mjs";
 
 const $ = (id) => document.getElementById(id);
 const state = {
   rows: [],
   catalog: [],
+  traitsWarning: "",
   config: null,
   firstClearObservations: {},
   alliances: [],
@@ -214,7 +216,8 @@ function renderRanking() {
         (failures === 1 ? " alliance n’a pas pu être chargée." :
           " alliances n’ont pas pu être chargées.")
       : "Aucun roster partageable dans les alliances sélectionnées.";
-  setMessage(state.loading ? "Chargement des rosters autorisés…" : message);
+  setMessage(state.loading ? "Chargement des rosters autorisés…" :
+    message + (state.traitsWarning ? " · " + state.traitsWarning : ""));
 
   $("ranking-summary").textContent = ordered.length
     ? completed.length + " " + dimensionLabel + " terminée(s) selon la convention LoSP · " +
@@ -540,7 +543,7 @@ async function boot() {
   try {
     await window.LoSP_AUTH_READY;
     await window.LoSPAlliances.loadAlliances();
-    const [config, characters, rosterMeta, firstClears] = await Promise.all([
+    const [config, characters, rosterMeta, firstClears, traitsFile, codexManifest] = await Promise.all([
       fetch("./data/dark-dimensions.json", {cache: "no-store"}).then((response) => {
         if (!response.ok) throw new Error("Configuration Dimensions noires indisponible.");
         return response.json();
@@ -554,11 +557,25 @@ async function boot() {
       fetch("./data/dd-first-clears.json", {cache: "no-store"})
         .then((response) => response.ok ? response.json() : {})
         .catch(() => ({})),
+      fetch("./data/dd-character-traits.json", {cache: "no-store"})
+        .then((response) => response.ok ? response.json() : null)
+        .catch(() => null),
+      fetch("./data/msf-capabilities-explorer/manifest.json", {cache: "no-store"})
+        .then((response) => response.ok ? response.json() : null)
+        .catch(() => null),
     ]);
 
     state.config = config;
     state.firstClearObservations = firstClears?.observations || {};
-    state.catalog = characters.filter((character) => character.player_Character === true);
+    const playable = characters.filter((character) => character.player_Character === true);
+    try {
+      state.catalog = mergeOfficialCodexTraits(playable, traitsFile, codexManifest);
+    } catch (error) {
+      // Keep completion rankings, but never infer filtered DD9 eligibility from partial tags.
+      state.catalog = playable;
+      state.traitsWarning = "Tags officiels du Codex indisponibles ou à actualiser";
+      console.warn("dd9-official-traits", error);
+    }
     populateDimensions();
     $("freshness").textContent = "Rosters publiés le " +
       (rosterMeta.updatedAt
