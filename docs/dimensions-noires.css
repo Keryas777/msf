@@ -6,8 +6,8 @@
   --muted: #b7c1d2;
   --gold: #f5c654;
   --green: #3ddc97;
-  --ready: #65c7ed;
-  --unmet: #e5a94d;
+  --ready: #3ddc97;
+  --unmet: #f06b72;
   --unknown: #9aa7bb;
   --portal: #53bde7;
 }
@@ -277,8 +277,8 @@ select {
 .node.portal { border-color: var(--portal); background: #14374a; color: #b8eeff; }
 .node.start { border-color: var(--green); color: #c5ffe5; }
 .node.done { border-color: var(--green); background: #146143; color: #effff7; }
-.node.requirements-met { border-color: var(--ready); background: #15405a; }
-.node.requirements-unmet { border-color: var(--unmet); background: #503c22; }
+.node.requirements-met { border-color: var(--ready); background: #146143; color: #effff7; }
+.node.requirements-unmet { border-color: var(--unmet); background: #682b38; color: #fff1f2; }
 .map-tracks {
   position: absolute;
   inset: 0;
