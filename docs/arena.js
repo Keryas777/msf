@@ -131,7 +131,7 @@ const color=s=>window.LoSPAlliances?.getAllianceMeta(s)?.color||"#84beff";
 // players, even when the requested group has no Arena observation.
 function visibleAllianceKeys(){
   const session=window.LoSP_SESSION;
-  if(session?.ok!==true||!Array.isArray(session.allowedAlliances))return null;
+  if(session?.ok!==true||session.role==="admin"||!Array.isArray(session.allowedAlliances))return null;
   return new Set(session.allowedAlliances.map(knownKey).filter(Boolean));
 }
 function visibleAlliance(alliance){
@@ -318,6 +318,24 @@ function readSnapshots(data){
     }).filter(s=>s.players.length).sort((a,b)=>a.date.localeCompare(b.date));
 }
 function newest(){return S.snapshots.at(-1)||null;}
+function currentRanking(){
+  const latest=newest();
+  if(!latest)return null;
+  const cutoff=Date.parse(latest.date+"T00:00:00Z")-86400000;
+  const chosen=new Map();
+  for(const snapshot of S.snapshots){
+    if(Date.parse(snapshot.date+"T00:00:00Z")<cutoff)continue;
+    for(const player of snapshot.players){
+      const prior=chosen.get(player.alliance);
+      if(!prior||prior.date<snapshot.date)
+        chosen.set(player.alliance,{date:snapshot.date,players:[]});
+      if(chosen.get(player.alliance).date===snapshot.date)
+        chosen.get(player.alliance).players.push({...player,readingDate:snapshot.date});
+    }
+  }
+  const players=[...chosen.values()].flatMap(entry=>entry.players);
+  return {...latest,players,mixedDates:[...new Set(players.map(p=>p.readingDate))]};
+}
 function rebuildPeople(){
   S.people.clear();
   for(const snap of S.snapshots)
@@ -381,7 +399,7 @@ function setupPeople(){
   $("addPlayer").disabled=!select.value||S.selected.length>=4;
 }
 function fillSummary(){
-  const current=newest();$("arenaSummary").hidden=!current;
+  const current=currentRanking();$("arenaSummary").hidden=!current;
   if(!current)return;
   $("arenaLatestDate").textContent=S.fallback?"Date non vérifiée":date(current.date);
   $("arenaPlayerCount").textContent=String(current.players.length);
@@ -390,7 +408,8 @@ function fillSummary(){
     .filter(Number.isFinite);
   const first=captured.length?new Date(Math.min(...captured)).toISOString().slice(11,16):null;
   const last=captured.length?new Date(Math.max(...captured)).toISOString().slice(11,16):null;
-  $("rankingSource").textContent=S.fallback?
+  $("rankingSource").textContent=current.mixedDates?.length>1?
+    "Derniers relevés disponibles par alliance ("+current.mixedDates.map(date).join(" et ")+") — les rangs ne sont pas tous du même jour":S.fallback?
     "Classement actuel — date non vérifiée":
     current.attribution==="backdated-from-first-next-day-collection"?
     "Classement initial du "+date(current.date):
@@ -402,7 +421,7 @@ function fillSummary(){
 }
 function fillRanking(){
   const host=$("rankingList");host.replaceChildren();
-  const current=newest();if(!current)return;
+  const current=currentRanking();if(!current)return;
   const rows=current.players.filter(p=>rankingFilters.get(p.alliance)?.checked!==false)
     .sort((a,b)=>a.arenaRank-b.arenaRank||cmp.compare(a.name,b.name));
   const previousSnapshot=S.fallback?null:S.snapshots.at(-2);
@@ -623,7 +642,7 @@ async function load(){
     return;
   }
   rebuildPeople();setupFilters();fillSummary();fillRanking();
-  const top=[...(newest()?.players||[])].sort((a,b)=>a.arenaRank-b.arenaRank);
+  const top=[...(currentRanking()?.players||[])].sort((a,b)=>a.arenaRank-b.arenaRank);
   S.selected=[...new Set(top.map(p=>p.id))].slice(0,2);
   fillSelected();fillChart();
 }

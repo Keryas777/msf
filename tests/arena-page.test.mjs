@@ -8,12 +8,13 @@ const source=fs.readFileSync(new URL("../docs/arena.js",import.meta.url),"utf8")
 const cut=source.indexOf('$("tabRanking").addEventListener(');
 if(cut<0)throw Error("Arena event attachment marker missing");
 const isolated=source.slice(source.indexOf("(()=>{"),cut)+
-  "return {S,canonical,mapSourceAlliances,readSnapshots,label,fillRanking,setupFilters,setupPeople,fillChart,fillSummary,isGuestView,isAdminView,guestAllianceKeys,signedSession,mergeArenaHistories,readArenaAPI,loadGuestProfiles};\n})();";
+  "return {S,canonical,mapSourceAlliances,readSnapshots,label,fillRanking,setupFilters,setupPeople,fillChart,fillSummary,isGuestView,isAdminView,guestAllianceKeys,signedSession,mergeArenaHistories,readArenaAPI,loadGuestProfiles,currentRanking};\n})();";
 const metadata=[
   {key:"zeus",name:"Zeus",emoji:"⚡️",color:"#ffff00"},
   {key:"athena",name:"Athéna",emoji:"🦉",color:"#ff9900"},
   {key:"hades",name:"Hadès",emoji:"🔥",color:"#21bb77"},
-  {key:"marines",name:"MARINES",emoji:"⚓",color:"#e53935"}
+  {key:"marines",name:"MARINES",emoji:"⚓",color:"#e53935"},
+  {key:"kronos",name:"Kronos",emoji:"⏳",color:"#cccccc"}
 ];
 const allianceApi={
   getAllianceMeta:value=>metadata.find(a=>value===a.key||value===a.name)||null,
@@ -527,4 +528,27 @@ test("LoSP preview excludes invited alliances even from common public archives",
     {name:"Zeus A",alliance:"zeus",arenaRank:1},
     {name:"Marine A",allianceKey:"marines",alliance:"MARINES",arenaRank:2}]}]};
   assert.deepEqual(page.readSnapshots(data)[0].players.map(p=>p.name),["Zeus A"]);
+});
+
+test("admin sees all alliances despite preview allowedAlliances scope",()=>{
+  const {page}=setup({window:{LoSP_SESSION:{
+    ok:true,role:"admin",allowedAlliances:["endgame-violet"]}}});
+  const points=page.readSnapshots({snapshots:[{date:"2026-11-14",players:[
+    {name:"Zeus A",alliance:"zeus",arenaRank:12},
+    {name:"Marine A",allianceKey:"marines",alliance:"MARINES",arenaRank:5}]}]});
+  assert.deepEqual(points[0].players.map(p=>p.name),["Zeus A","Marine A"]);
+});
+test("new onboarding does not hide yesterday's verified alliance ranks",()=>{
+  const {page}=setup();
+  page.S.snapshots=page.readSnapshots({snapshots:[
+    {date:"2026-11-14",sourceKind:"reward",players:[
+      {name:"Orange A",alliance:"marines",arenaRank:9},
+      {name:"Zeus A",alliance:"zeus",arenaRank:14}]},
+    {date:"2026-11-15",sourceKind:"onboarding",players:[
+      {name:"Violet A",alliance:"kronos",arenaRank:3}]}
+  ]});
+  const current=page.currentRanking();
+  assert.deepEqual(current.players.map(p=>p.name).sort(),
+    ["Orange A","Violet A","Zeus A"]);
+  assert.deepEqual(current.mixedDates,["2026-11-14","2026-11-15"]);
 });
