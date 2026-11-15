@@ -248,9 +248,11 @@ test('Les points internes sont distincts des points d’événement gagnés',asy
   const rows=objectiveNodes(nodes);
   assert.equal(rows.length,3);
   const field=(row,cls)=>row.children[1].children.find(c=>c.className===cls)?.textContent;
-  const ultron=rows.find(row=>row.children[0].textContent.includes('Ultron'));
-  const cyclops=rows.find(row=>row.children[0].textContent.includes('Cyclope'));
-  const missing=rows.find(row=>row.children[0].textContent.includes('arène'));
+  // Les fiches de personnage affichent une condition courte dans la ligne ;
+  // sélectionner par récompense, pas par le nom porté par la fiche parent.
+  const ultron=rows.find(row=>field(row,'ev-objective-reward')==='Récompense : 5 pts d’événement');
+  const cyclops=rows.find(row=>field(row,'ev-objective-reward')==='Récompense : 20 pts d’événement');
+  const missing=rows.find(row=>!field(row,'ev-objective-reward'));
   assert.ok(ultron);
   assert.ok(cyclops);
   assert.ok(missing);
