@@ -457,6 +457,13 @@
       /\b(?:orbes?|orbs?)\b/.test(description);
   }
   function objectiveActionLabel(item){
+    // « Dépenser 1 point d'énergie de campagne » et « Dépenser de
+    // l'énergie de campagne » sont une seule action côté joueur.
+    // Ne jamais confondre avec l'ISO-8 ou l'énergie préhistorique.
+    const description=eventNameKey(item.description).replace(/\s+/g,' ').trim();
+    if(!item.character&&!item.team&&item.mode==='campaign'&&
+      /^depens(?:er|ez) (?:(?:1|un) point d'energie|de l'energie) de campagne$/.test(description))
+      return 'Dépenser de l’énergie de campagne';
     if(!item.isBattle||item.character||item.team)return item.label;
     const simple={
       raid:/^(?:(?:combattre|jouer|faire (?:un |des )?combats?) en raid|jouer (?:un |1 )?combat en raid)$/i,
