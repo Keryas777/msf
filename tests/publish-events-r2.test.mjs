@@ -25,6 +25,28 @@ test("accepts a complete daily catalogue and rejects stale, corrupt or duplicate
   assert.throws(()=>verifyEventsPublication(fixture(),NOW,fixture({checkedAt:NOW+1000})),/older/);
 });
 
+test("only verified public level-110 event IDs may be published",()=>{
+  const data=fixture();
+  data.objectiveEligibility={
+    source:"scopely-player-level110-reference",bracket:"85_and_up",
+    observedAt:data.updatedAt,eligibleEventIds:[data.events[0].id]
+  };
+  assert.deepEqual(verifyEventsPublication(data,NOW).objectiveEligibility,
+    data.objectiveEligibility);
+  assert.throws(()=>verifyEventsPublication({
+    ...data,objectiveEligibility:{...data.objectiveEligibility,
+      personalProgress:{value:5}}
+  },NOW),/private data/);
+  assert.throws(()=>verifyEventsPublication({
+    ...data,objectiveEligibility:{...data.objectiveEligibility,
+      eligibleEventIds:["f".repeat(24)]}
+  },NOW),/unknown IDs/);
+  assert.throws(()=>verifyEventsPublication({
+    ...data,objectiveEligibility:{...data.objectiveEligibility,
+      observedAt:new Date(NOW-86400000).toISOString()}
+  },NOW),/reference/);
+});
+
 test("writes only validated GitHub JSON; unchanged reimports are idempotent",async()=>{
   const dir=await mkdtemp(join(tmpdir(),"losp-events-"));
   try{
