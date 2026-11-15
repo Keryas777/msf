@@ -748,11 +748,11 @@ test('Les actions composées ou avec personnage ne sont pas fusionnées aux comb
       cappedScorings:[]}}}]
   ]});
   const war=sections(nodes).find(s=>s.children[0].textContent==='⚔️ GUERRE');
-  assert.ok(war.children[1].children.some(card=>
-    card.children[0].children[0].textContent==='Combattre en guerre'));
-  assert.equal(war.children[1].children.find(card=>
-    card.children[0].children[0].textContent==='Combattre en guerre')
-    .children[0].children[1].textContent,'1 objectif');
+  const actions=war.children[1].children.filter(card=>
+    card.className==='ev-objective-event-group');
+  assert.equal(actions.length,1);
+  assert.equal(actions[0].children[0].children[0].textContent,'Combattre en guerre');
+  assert.equal(actions[0].children[0].children[1].textContent,'1 objectif');
   assert.ok(objectiveDetails(nodes,'ev-objective-character').some(card=>
     card.children[0].children.some(child=>child.tag==='strong'&&child.textContent==='Vision')));
   assert.ok(sections(nodes).some(s=>s.children[0].textContent.includes('/')));
