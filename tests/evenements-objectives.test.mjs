@@ -243,17 +243,56 @@ test('Le détail distingue pt et pts, la journée et la période de sept jours',
   assert.equal(field(dayRow,'ev-objective-score'),'+ 1 pt par action');
   assert.equal(field(dayRow,'ev-objective-quantity'),
     '1 action comptabilisée par jour');
-  const alliance=rowForCap('(plafond 144 000 pts)')||
-    rowForCap('(plafond 144 000 pts)');
+  const alliance=allRows.find(row=>field(row,'ev-objective-quantity')===
+    'Plafond d’alliance : '+new Intl.NumberFormat('fr-FR').format(144000)+' pts sur 7 jours');
   assert.ok(alliance);
   assert.equal(field(alliance,'ev-objective-score'),'+ 125 pts par action');
-  assert.equal(field(alliance,'ev-objective-quantity'),'Période : 7 jours');
+  assert.equal(field(alliance,'ev-objective-cap'),undefined);
   const shared=allRows.filter(row=>
     (field(row,'ev-objective-cap')||'').includes('plafond partagé'));
   assert.equal(shared.length,2);
   assert.ok(shared.every(row=>field(row,'ev-objective-quantity')==='Période : 7 jours'));
   assert.ok(allRows.every(row=>
     !row.children[1].children.some(child=>/pt\(s\)|\/ action|Jusqu’à/.test(child.textContent))));
+});
+
+test('Le plafond alliance indique sa portée collective et sa période sur une ligne dédiée',async()=>{
+  const day=86400,now=Math.floor(Date.now()/1000);
+  const week={startTime:now-day,endTime:now+6*day};
+  const daily={startTime:now-3600,endTime:now+23*3600};
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Zone de guerre du raid','milestone',{
+      ...week,milestone:{type:'alliance',scoring:{methods:[],cappedScorings:[
+        {cap:384000,methods:[{description:'Combattre en guerre',points:800}]}
+      ]}}
+    }],
+    ['Alliance quotidienne','milestone',{
+      ...daily,milestone:{type:'alliance',scoring:{methods:[],cappedScorings:[
+        {cap:1,methods:[{description:'Combattre en raid',points:1}]}
+      ]}}
+    }],
+    ['Objectif solo','milestone',{
+      ...week,milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:6,methods:[{description:'Combattre en raid',points:1}]}
+      ]}}
+    }]
+  ]});
+  const rows=objectiveNodes(nodes);
+  assert.equal(rows.length,3);
+  const value=(row,cls)=>row.children[1].children.find(c=>c.className===cls)?.textContent;
+  const alliance=rows.find(row=>value(row,'ev-objective-score')==='+ 800 pts par action');
+  assert.ok(alliance);
+  assert.equal(value(alliance,'ev-objective-quantity'),
+    'Plafond d’alliance : '+new Intl.NumberFormat('fr-FR').format(384000)+' pts sur 7 jours');
+  assert.equal(value(alliance,'ev-objective-cap'),undefined);
+  assert.ok(!alliance.children[1].children.some(x=>x.textContent.includes('Période :')));
+  const today=rows.find(row=>value(row,'ev-objective-quantity')==='Plafond d’alliance : 1 pt sur 24 h');
+  assert.ok(today);
+  assert.equal(value(today,'ev-objective-score'),'+ 1 pt par action');
+  const solo=rows.find(row=>value(row,'ev-objective-cap')==='(plafond 6 pts)');
+  assert.ok(solo);
+  assert.equal(value(solo,'ev-objective-quantity'),'6 actions comptabilisées en 7 jours');
+  assert.ok(!solo.children[1].children.some(x=>x.textContent.includes('Plafond d’alliance')));
 });
 
 test('Les points internes sont distincts des points d’événement gagnés',async()=>{
@@ -824,7 +863,8 @@ test('Une même action Raid ou Guerre rassemble les événements et conserve cha
   for(const cap of [24,6,5])
     assert.ok(normalized.includes('(plafond'+cap+'ptsdeprogression)'),cap+' progression conservée');
   for(const cap of [144000,384000])
-    assert.ok(normalized.includes('(plafond'+cap+'pts)'),cap+' barème alliance conservé');
+    assert.ok(normalized.includes('Plafondd’alliance:'+cap+'ptssur7jours'),
+      cap+' plafond collectif conservé');
   assert.ok(normalized.includes('+125ptsparaction'));
   assert.ok(normalized.includes('+800ptsparaction'));
 });
@@ -1154,7 +1194,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=37/);
+  assert.match(html,/evenements\.js\?v=38/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
