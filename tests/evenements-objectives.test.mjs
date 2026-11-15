@@ -753,7 +753,8 @@ test('Les actions composées ou avec personnage ne sont pas fusionnées aux comb
   assert.equal(war.children[1].children.find(card=>
     card.children[0].children[0].textContent==='Combattre en guerre')
     .children[0].children[1].textContent,'1 objectif');
-  assert.ok(objectiveNodes(nodes).some(row=>row.children[0].textContent.includes('Vision')));
+  assert.ok(objectiveDetails(nodes,'ev-objective-character').some(card=>
+    card.children[0].children.some(child=>child.tag==='strong'&&child.textContent==='Vision')));
   assert.ok(sections(nodes).some(s=>s.children[0].textContent.includes('/')));
 });
 
@@ -901,7 +902,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=31/);
+  assert.match(html,/evenements\.js\?v=32/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
