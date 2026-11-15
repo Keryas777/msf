@@ -1,6 +1,7 @@
 import {rankResults, evaluateDimension} from "./dd-ranking-engine.mjs";
 import {filterVisibleRosters, createMapLayout} from "./dimensions-noires-view.mjs";
 import {mergeOfficialCodexTraits} from "./dd-character-traits.mjs";
+import {progressSections, progressFills} from "./dd-progress-sections.mjs";
 
 const $ = (id) => document.getElementById(id);
 const state = {
@@ -240,7 +241,7 @@ function renderRanking() {
     button.type = "button";
     button.className = "player" + (finished ? " finished" : "");
     button.innerHTML =
-      '<span class="place"></span><span><span class="player-name"></span>' +
+      '<span class="place"></span><span class="player-details"><span class="player-name"></span>' +
       '<span class="meta"></span><span class="badge"></span></span>';
     button.querySelector(".place").textContent = Number.isFinite(entry.rank) ? String(entry.rank) : "—";
     button.querySelector(".player-name").textContent = entry.roster.player;
@@ -258,6 +259,38 @@ function renderRanking() {
     if (finished && entry.result.firstClearObservedAt) button.querySelector(".badge").textContent +=
       " · 1er passage observé le " + new Date(entry.result.firstClearObservedAt).toLocaleDateString("fr-FR") +
       (Number.isFinite(entry.result.firstClearDays) ? " (" + entry.result.firstClearDays + " jours)" : "");
+    if (finished || entry.result.status === "theoretical") {
+      const sizes = progressSections(selectedDimension?.nodes || []);
+      const total = sizes.reduce((sum, size) => sum + size, 0);
+      const count = finished ? total : Math.max(0, Math.min(total, entry.result.consecutive || 0));
+      if (total > 0) {
+        const wrap = document.createElement("span");
+        wrap.className = "dd-progress" + (finished ? " dd-progress--complete" : "");
+        wrap.setAttribute("role", "progressbar");
+        wrap.setAttribute("aria-label", finished ? "Dimension noire terminée (convention LoSP)" : "Salles théoriquement accessibles consécutivement");
+        wrap.setAttribute("aria-valuemin", "0");
+        wrap.setAttribute("aria-valuemax", String(total));
+        wrap.setAttribute("aria-valuenow", String(count));
+        const track = document.createElement("span");
+        track.className = "dd-progress-track";
+        for (const [index, size] of sizes.entries()) {
+          const segment = document.createElement("span");
+          segment.className = "dd-progress-segment";
+          segment.style.flexGrow = String(size);
+          segment.style.setProperty("--dd-fill", progressFills(sizes, count, finished)[index] + "%");
+          track.append(segment);
+        }
+        wrap.append(track);
+        if (finished) {
+          const sparks = document.createElement("span");
+          sparks.className = "dd-progress-sparks";
+          sparks.setAttribute("aria-hidden", "true");
+          sparks.textContent = "⚡";
+          wrap.append(sparks);
+        }
+        button.querySelector(".player-details").append(wrap);
+      }
+    }
     button.addEventListener("click", () => openIndividual(entry.roster));
     list.append(button);
   }
