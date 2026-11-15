@@ -36,6 +36,38 @@ class DDCharacterTraitsTest(unittest.TestCase):
             self.assertEqual(data["characters"]["Hero0"], ["City", "Hero", "Legendary"])
             self.assertNotIn("Héros", data["characters"]["Hero0"])
 
+    def test_accepts_explicit_official_status_for_playable_character(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            base = root / "docs/data/msf-capabilities-explorer"
+            generation = base / "g"
+            (generation / "characters").mkdir(parents=True)
+            (base / "manifest.json").write_text(json.dumps({
+                "currentPath": "g/", "currentPayloadSetChecksum": "verified",
+            }), encoding="utf-8")
+            records = [{"id": f"Hero{i}"} for i in range(300)]
+            records.append({"id": "Destroyer"})
+            (generation / "characters.json").write_text(
+                json.dumps({"records": records}), encoding="utf-8"
+            )
+            for i in range(300):
+                (generation / "characters" / f"Hero{i}.json").write_text(
+                    json.dumps({"character": {
+                        "id": f"Hero{i}", "official": True,
+                        "playable": True, "traits": ["Global"],
+                    }}), encoding="utf-8"
+                )
+            (generation / "characters/Destroyer.json").write_text(
+                json.dumps({"character": {
+                    "id": "Destroyer", "official": False,
+                    "status": {"kind": "official"}, "playable": True,
+                    "traits": ["Asgard", "Brawler", "Cosmic", "Mystic", "Villain"],
+                }}), encoding="utf-8"
+            )
+            result = build(root)
+            self.assertEqual(result["characters"]["Destroyer"],
+                             ["Asgard", "Brawler", "Cosmic", "Mystic", "Villain"])
+
     def test_rejects_inconsistent_official_shard(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
