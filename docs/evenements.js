@@ -530,10 +530,11 @@
     // Les feeders du Poste de commandement utilisent des points internes
     // pour atteindre le palier ; les vrais points gagnés sont une récompense.
     const feeder=item.event.locationHints?.includes('lohub_feeder');
+    const alliance=item.event.milestone?.type==='alliance';
     if(item.points!==null)row.append(create('span','ev-objective-score',
       '+ '+objectivePointLabel(item.points)+
       (feeder?' de progression par action':' par action')));
-    if(item.cap!==null)row.append(create('span','ev-objective-cap',
+    if(item.cap!==null&&!alliance)row.append(create('span','ev-objective-cap',
       '('+(item.sharedCap?'plafond partagé ':'plafond ')+
       objectivePointLabel(item.cap)+(feeder?' de progression':'')+')'));
     // Un plafond en points n'est convertible en actions que pour une
@@ -544,9 +545,16 @@
       'en '+fmtNumber.format(days)+' jours':'';
     const repeat=item.points&&item.cap!==null?item.cap/item.points:null;
     const explicitCount=/\b(?:times?|days?|fois|jours)\b/i.test(item.description);
-    const countable=item.event.milestone?.type!=='alliance'&&!item.sharedCap&&
+    const countable=!alliance&&!item.sharedCap&&
       !explicitCount&&Number.isInteger(repeat)&&repeat>=1&&repeat<=200;
-    if(countable){
+    if(alliance&&item.cap!==null){
+      // Un plafond d'alliance est collectif, jamais une limite par joueur.
+      // Afficher sa durée sur la même ligne, sans répéter « Période ».
+      const duration=days===1?' sur 24 h':days!==null?
+        ' sur '+fmtNumber.format(days)+' jours':'';
+      row.append(create('span','ev-objective-quantity',
+        'Plafond d’alliance : '+objectivePointLabel(item.cap)+duration));
+    }else if(countable){
       const plural=repeat!==1;
       row.append(create('span','ev-objective-quantity',
         fmtNumber.format(repeat)+' action'+(plural?'s':'')+
