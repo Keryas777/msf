@@ -97,6 +97,7 @@ body.ev-body{margin:0;min-height:100vh;color:var(--text);font-family:system-ui,-
 .ev-objective-event:focus-visible{outline:2px solid #86b9ff;outline-offset:3px}
 .ev-objective-score,.ev-objective-cap,.ev-objective-premium{font-size:14px;line-height:1.45;color:var(--muted)}
 .ev-objective-score{color:#81d5bd}
+.ev-objective-quantity{order:1;flex:0 0 100%;min-width:0;color:var(--muted);font-size:14px;line-height:1.5;overflow-wrap:anywhere}
 .ev-objective-premium{color:#e7bc81}
 /* Hiérarchie : mode > équipe complète > personnages > méthodes de tous les événements. */
 .ev-objective-origin{font-size:14px;color:#b8c7df;line-height:1.4;max-width:100%;overflow-wrap:anywhere}

@@ -509,6 +509,13 @@
     if(uncapped)hints.push('Solo : aucun plafond indiqué');
     return hints;
   }
+  function objectivePointLabel(points){
+    return fmtNumber.format(points)+' '+(Number(points)===1?'pt':'pts');
+  }
+  function objectivePeriodDays(event){
+    const seconds=Number(event.endTime)-Number(event.startTime);
+    return Number.isFinite(seconds)&&seconds>0?Math.ceil(seconds/86400):null;
+  }
   function objectiveRow(item,short=false,hideAction=false){
     const li=create('li','ev-objective-item');
     const label=short?objectiveCondition(item):item.label;
@@ -518,15 +525,28 @@
     li.append(action);
     const row=create('div','ev-objective-footer');
     if(item.points!==null)row.append(create('span','ev-objective-score',
-      '+'+fmtNumber.format(item.points)+' pt(s) / action'));
-    if(item.cap!==null){
-      const repeat=item.points&&item.cap/item.points;
-      const explicitCount=/\b(?:times?|days?|fois|jours)\b/i.test(item.description);
-      let limit=(item.sharedCap?'Plafond partagé ':'Plafond ')+
-        fmtNumber.format(item.cap)+' pts';
-      if(!item.sharedCap&&!explicitCount&&Number.isInteger(repeat)&&repeat>1&&repeat<=200)
-        limit+=' · Jusqu’à '+fmtNumber.format(repeat)+' actions comptabilisées';
-      row.append(create('span','ev-objective-cap',limit));
+      '+ '+objectivePointLabel(item.points)+' par action'));
+    if(item.cap!==null)row.append(create('span','ev-objective-cap',
+      '('+(item.sharedCap?'plafond partagé ':'plafond ')+
+      objectivePointLabel(item.cap)+')'));
+    // Un plafond en points n'est convertible en actions que pour une
+    // méthode solo non partagée, sans quantité déjà explicite dans le texte.
+    // La durée vient de CET événement, pas d'une règle quotidienne inventée.
+    const days=objectivePeriodDays(item.event);
+    const period=days===1?'par jour':days!==null?
+      'en '+fmtNumber.format(days)+' jours':'';
+    const repeat=item.points&&item.cap!==null?item.cap/item.points:null;
+    const explicitCount=/\b(?:times?|days?|fois|jours)\b/i.test(item.description);
+    const countable=item.event.milestone?.type!=='alliance'&&!item.sharedCap&&
+      !explicitCount&&Number.isInteger(repeat)&&repeat>=1&&repeat<=200;
+    if(countable){
+      const plural=repeat!==1;
+      row.append(create('span','ev-objective-quantity',
+        fmtNumber.format(repeat)+' action'+(plural?'s':'')+
+        ' comptabilisée'+(plural?'s':'')+(period?' '+period:'')));
+    }else if(days!==null){
+      row.append(create('span','ev-objective-quantity',
+        'Période : '+(days===1?'24 h':fmtNumber.format(days)+' jours')));
     }
     if(item.premium)row.append(create('span','ev-objective-premium','Premium'));
     if(item.originalMode==='divers'&&item.mode!=='divers'&&item.isBattle){
@@ -809,7 +829,7 @@
     const scoring=e.milestone?.scoring;const methods=Array.isArray(scoring?.methods)?scoring.methods:[];
     const caps=Array.isArray(scoring?.cappedScorings)?scoring.cappedScorings:[];
     if(methods.length){const sec=detailSection(body,'Comment gagner des points');listFor(sec,methods.map(x=>`${strip(x.description)||'Action'} : ${fmtNumber.format(x.points||0)} point(s)`));}
-    if(caps.length){const sec=detailSection(body,'Objectifs plafonnés / sous-étapes');const rows=caps.flatMap(c=>(c.methods||[]).map(m=>`${strip(m.description)||'Action'} · ${fmtNumber.format(m.points||0)} pt(s) / action · plafond ${fmtNumber.format(c.cap||0)}${c.rewardTier?' · palier '+c.rewardTier:''}`));listFor(sec,rows);}
+    if(caps.length){const sec=detailSection(body,'Objectifs plafonnés / sous-étapes');const rows=caps.flatMap(c=>(c.methods||[]).map(m=>`${strip(m.description)||'Action'} · ${objectivePointLabel(m.points||0)} par action · plafond ${objectivePointLabel(c.cap||0)}${c.rewardTier?' · palier '+c.rewardTier:''}`));listFor(sec,rows);}
     const linked=state.events.filter(other=>other.id!==e.id&&eventTitle(other)===eventTitle(e)&&secondary(other)&&e.locationHints?.includes('lohub_wrapper'));
     if(linked.length){const sec=detailSection(body,'Événements secondaires du même nom');sec.append(create('p','ev-dialog-disclaimer','Rapprochement par nom et type de localisation, sans supposer que tous les identifiants « feeders » du JSON correspondent à cet événement.'));
       const rows=linked.flatMap(item=>(item.milestone?.scoring?.cappedScorings||[]).flatMap(c=>(c.methods||[]).map(m=>strip(m.description))));

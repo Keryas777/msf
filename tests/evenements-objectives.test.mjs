@@ -157,12 +157,73 @@ test('Un plafond de scoring reste un maximum, pas un objectif obligatoire',async
   const nodes=await makePage();
   const raid=objectiveNodes(nodes).find(row=>row.children[0].textContent.includes('Iron Raider'));
   const notes=raid.children[1].children.map(x=>x.textContent);
-  assert.ok(notes.some(x=>x.includes('Plafond 8 pts')));
-  assert.ok(notes.some(x=>x.includes('Jusqu’à 8 actions comptabilisées')));
+  assert.ok(notes.some(x=>x.includes('(plafond 8 pts)')));
+  assert.ok(notes.some(x=>x.includes('8 actions comptabilisées en 3 jours')));
   const login=objectiveNodes(nodes).find(row=>row.children[0].textContent.includes('7 jours'));
   const loginNotes=login.children[1].children.map(x=>x.textContent);
-  assert.ok(loginNotes.some(x=>x.includes('Plafond 7 pts')));
+  assert.ok(loginNotes.some(x=>x.includes('(plafond 7 pts)')));
   assert.ok(!loginNotes.some(x=>x.includes('7 fois')));
+});
+
+test('Le détail distingue pt et pts, la journée et la période de sept jours',async()=>{
+  const now=Math.floor(Date.now()/1000),day=86400;
+  const week={startTime:now-day,endTime:now+6*day};
+  const daily={startTime:now-3600,endTime:now+23*3600};
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Raid de la semaine','milestone',{
+      ...week,milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:6,methods:[{description:'Combattre en raid',points:1}]},
+        {cap:24,methods:[{description:'Combattre en raid',points:1}]}
+      ]}}
+    }],
+    ['Raid quotidien','milestone',{
+      ...daily,milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:1,methods:[{description:'Combattre en raid',points:1}]}
+      ]}}
+    }],
+    ['Raid alliance','milestone',{
+      ...week,milestone:{type:'alliance',scoring:{methods:[],cappedScorings:[
+        {cap:144000,methods:[{description:'Faire un combat en raid',points:125}]}
+      ]}}
+    }],
+    ['Guerre à plafond partagé','milestone',{
+      ...week,milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:10,methods:[
+          {description:'Combattre en guerre',points:1},
+          {description:'Faire un combat en guerre',points:2}
+        ]}
+      ]}}
+    }]
+  ]});
+  const allRows=objectiveNodes(nodes);
+  assert.equal(allRows.length,6);
+  const field=(row,name)=>row.children[1].children
+    .find(el=>el.className===name)?.textContent;
+  const rowForCap=cap=>allRows.find(row=>
+    field(row,'ev-objective-cap')===cap);
+  for(const [cap,count] of [['(plafond 6 pts)',6],['(plafond 24 pts)',24]]){
+    const row=rowForCap(cap);
+    assert.ok(row,cap);
+    assert.equal(field(row,'ev-objective-score'),'+ 1 pt par action');
+    assert.equal(field(row,'ev-objective-quantity'),
+      count+' actions comptabilisées en 7 jours');
+  }
+  const dayRow=rowForCap('(plafond 1 pt)');
+  assert.ok(dayRow);
+  assert.equal(field(dayRow,'ev-objective-score'),'+ 1 pt par action');
+  assert.equal(field(dayRow,'ev-objective-quantity'),
+    '1 action comptabilisée par jour');
+  const alliance=rowForCap('(plafond 144 000 pts)')||
+    rowForCap('(plafond 144 000 pts)');
+  assert.ok(alliance);
+  assert.equal(field(alliance,'ev-objective-score'),'+ 125 pts par action');
+  assert.equal(field(alliance,'ev-objective-quantity'),'Période : 7 jours');
+  const shared=allRows.filter(row=>
+    (field(row,'ev-objective-cap')||'').includes('plafond partagé'));
+  assert.equal(shared.length,2);
+  assert.ok(shared.every(row=>field(row,'ev-objective-quantity')==='Période : 7 jours'));
+  assert.ok(allRows.every(row=>
+    !row.children[1].children.some(child=>/pt\(s\)|\/ action|Jusqu’à/.test(child.textContent))));
 });
 
 test('Les objectifs secondaires restent présents sans barre de recherche',async()=>{
@@ -483,7 +544,7 @@ test('Objectifs généraux : équipe complète, personnages et Choc se retrouven
   assert.equal(general.length,4);
   for(const row of general){
     assert.ok(row.children[1].children.some(c=>c.textContent?.includes('Briseur de volontés')));
-    assert.ok(row.children[1].children.some(c=>c.textContent?.includes('Plafond 1 pts')));
+    assert.ok(row.children[1].children.some(c=>c.textContent?.includes('(plafond 1 pt)')));
   }
   assert.ok(objectiveNodes(nodes).some(row=>row.children[1].children.some(c=>
     c.textContent?.includes('1000')||c.textContent?.includes('1 000')||
@@ -609,8 +670,8 @@ test('Toutes les ouvertures d’orbes et méga-orbes partagent une fiche, sans p
     'Open 1 Raid Orb'
   ].sort());
   const capped=rows.find(row=>row.children[0].textContent.includes('losange'));
-  assert.ok(capped.children[1].children.some(x=>x.textContent.includes('Plafond 300 pts')));
-  assert.ok(capped.children[1].children.some(x=>x.textContent.includes('100 pt(s)')));
+  assert.ok(capped.children[1].children.some(x=>x.textContent.includes('(plafond 300 pts)')));
+  assert.ok(capped.children[1].children.some(x=>x.textContent.includes('100 pts par action')));
   assert.ok(rows[0].children[1].children.some(x=>x.textContent.includes('200')));
   assert.equal(groups.filter(group=>group!==orb).length,2);
   assert.ok(groups.some(group=>group.children[0].children[0].textContent.includes('fragment')));
@@ -670,9 +731,9 @@ test('Une même action Raid ou Guerre rassemble les événements et conserve cha
   const scoring=items.map(row=>row.children[1].children.map(part=>part.textContent).join(' '));
   const normalized=scoring.join(' / ').replace(/\s/g,'');
   for(const cap of [24,6,5,144000,384000])
-    assert.ok(normalized.includes('Plafond'+cap+'pts'),cap+' points conservés');
-  assert.ok(normalized.includes('+125pt(s)/action'));
-  assert.ok(normalized.includes('+800pt(s)/action'));
+    assert.ok(normalized.includes('(plafond'+cap+'pts)'),cap+' points conservés');
+  assert.ok(normalized.includes('+125ptsparaction'));
+  assert.ok(normalized.includes('+800ptsparaction'));
 });
 
 test('Jouer et combattre en guerre forment une seule action, sans fusionner les conditions',async()=>{
@@ -781,9 +842,9 @@ test('Épreuve abrégée : classement en Épreuve cosmique, jamais sous Choc',as
     card.children[0].children[0].textContent?.includes('Épreuve')));
   const bounds=objectiveNodes(nodes).flatMap(row=>row.children[1].children
     .map(part=>part.textContent)).join(' ');
-  assert.ok(bounds.includes('Plafond 3 pts'));
-  assert.ok(bounds.includes('Plafond 6 pts'));
-  assert.ok(bounds.includes('Plafond 1 000 pts')||bounds.includes('Plafond 1 000 pts'));
+  assert.ok(bounds.includes('(plafond 3 pts)'));
+  assert.ok(bounds.includes('(plafond 6 pts)'));
+  assert.ok(bounds.includes('(plafond 1 000 pts)')||bounds.includes('(plafond 1 000 pts)'));
 });
 
 test('Dépenser 1 point ou dépenser de l’énergie de campagne partage une seule action',async()=>{
@@ -824,11 +885,11 @@ test('Dépenser 1 point ou dépenser de l’énergie de campagne partage une seu
   const rows=action.children[1].children.flatMap(source=>source.children[1].children);
   assert.equal(rows.length,3);
   const details=rows.map(row=>row.children[1].children.map(span=>span.textContent).join(' ')).join(' | ');
-  assert.ok(details.includes('+5 pt(s) / action'));
-  assert.ok(details.includes('+1 pt(s) / action'));
-  assert.ok(details.includes('+2 pt(s) / action'));
-  assert.ok(details.includes('Plafond 50 pts'));
-  assert.ok(details.includes('Plafond 100 pts'));
+  assert.ok(details.includes('+ 5 pts par action'));
+  assert.ok(details.includes('+ 1 pt par action'));
+  assert.ok(details.includes('+ 2 pts par action'));
+  assert.ok(details.includes('(plafond 50 pts)'));
+  assert.ok(details.includes('(plafond 100 pts)'));
   const otherLabels=cards.filter(card=>card!==action).map(card=>
     card.children[0].children[0].textContent);
   assert.ok(otherLabels.some(label=>label.includes('énergie préhistorique')));
@@ -971,7 +1032,7 @@ test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP co
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=18"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=19"/);
   assert.doesNotMatch(css,/\.ev-toolbar\{|\.ev-filters\{|\.ev-date-controls\{/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -1000,7 +1061,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=34/);
+  assert.match(html,/evenements\.js\?v=35/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
