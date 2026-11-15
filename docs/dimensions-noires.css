@@ -609,33 +609,6 @@ h2 { margin-bottom: 9px; font-size: 1.06rem; font-weight: 800; }
   background: linear-gradient(180deg, #8afbb1, #20bd67);
   box-shadow: inset 0 0 5px rgba(255,255,255,.24);
 }
-.dd-progress-sparks {
-  position: absolute;
-  right: -8px;
-  top: -13px;
-  font-size: 1.1rem;
-  line-height: 1;
-  filter: drop-shadow(0 0 5px #74ffb3);
-  animation: dd-spark-pulse 2.8s ease-in-out infinite;
-  pointer-events: none;
-}
-.dd-progress--complete::before {
-  content: "⚡";
-  position: absolute;
-  left: -9px;
-  top: -13px;
-  font-size: 1.1rem;
-  filter: drop-shadow(0 0 5px #74ffb3);
-  animation: dd-spark-pulse 2.8s ease-in-out infinite alternate;
-  pointer-events: none;
-}
-@keyframes dd-spark-pulse {
-  0%, 100% { opacity: .55; transform: scale(.9); }
-  50% { opacity: 1; transform: scale(1.12); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .dd-progress-sparks, .dd-progress--complete::before { animation: none; }
-}
 
 /* Individual DD: select the alliance first, with the shared rich-name styling. */
 .individual-alliance-filter {
@@ -661,4 +634,67 @@ h2 { margin-bottom: 9px; font-size: 1.06rem; font-weight: 800; }
   .individual-alliance-filter .alliance-chip-list {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+/* Animated electric perimeter for LoSP-confirmed DD finishers only.
+   The SVG is decorative, pointer-transparent and never changes card geometry. */
+.player.finished {
+  position: relative;
+  isolation: isolate;
+  border-color: #547fd2;
+  box-shadow: 0 0 8px rgba(71,137,255,.25), inset 0 0 12px rgba(56,104,223,.1);
+}
+.dd-electric-frame {
+  position: absolute;
+  inset: -3px;
+  width: calc(100% + 6px);
+  height: calc(100% + 6px);
+  overflow: visible;
+  pointer-events: none;
+  border-radius: inherit;
+  fill: none;
+  z-index: 2;
+}
+.dd-electric-core {
+  stroke: #9ad6ff;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+  opacity: .82;
+  filter: drop-shadow(0 0 4px #278dff);
+}
+.dd-electric-arc {
+  stroke: #e0f5ff;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 36 19 12 70;
+  filter: drop-shadow(0 0 3px #5ea8ff) drop-shadow(0 0 7px #285aff);
+  animation: dd-electric-flow 3.1s linear infinite, dd-electric-flicker 2.6s steps(5,end) infinite;
+}
+.dd-electric-arc-b {
+  stroke: #6eaaff;
+  stroke-width: 2.5;
+  stroke-dasharray: 22 50 65 27;
+  animation-duration: 4.2s, 3.7s;
+  animation-direction: reverse, normal;
+}
+.dd-electric-arc-c {
+  stroke: #fff;
+  stroke-width: 1.5;
+  stroke-dasharray: 8 85 19 100;
+  animation-duration: 2.4s, 4.1s;
+}
+@keyframes dd-electric-flow {
+  to { stroke-dashoffset: -360; }
+}
+@keyframes dd-electric-flicker {
+  0%, 100% { opacity: .45; }
+  20% { opacity: .95; }
+  35% { opacity: .35; }
+  60% { opacity: 1; }
+  80% { opacity: .6; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dd-electric-arc { animation: none; stroke-dasharray: none; opacity: .65; }
 }
