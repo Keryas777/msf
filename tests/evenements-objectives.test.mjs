@@ -25,7 +25,7 @@ function node(tag='div'){
   };
 }
 async function makePage({failure=false,stale=false,extraEvents=[],includeBase=true,
-  teams=realTeams,characters=realCharacters,failReferences=false,hash='',search=''}={}){
+  teams=realTeams,characters=realCharacters,failReferences=false,hash='',search='',eligibleIds=null}={}){
   const ids=[...html.matchAll(/id="([^"]+)"/g)].map(x=>x[1]);
   const elements=new Map(ids.map(id=>[id,node()]));
   const now=Math.floor(Date.now()/1000),day=86400;
@@ -99,7 +99,13 @@ async function makePage({failure=false,stale=false,extraEvents=[],includeBase=tr
         status:'ok',source:'verified-daily-game-events',schemaVersion:1,
         total:events.length,count:events.length,
         pages:1,updatedAt:new Date(Date.now()-(stale?3*86400000:0)).toISOString(),locale:'en',
-        localizationStatus:'no-translated-text',events
+        localizationStatus:'no-translated-text',events,
+        ...(eligibleIds?{objectiveEligibility:{
+          source:'scopely-player-level110-reference',
+          bracket:'85_and_up',
+          observedAt:new Date().toISOString(),
+          eligibleEventIds:eligibleIds
+        }}:{})
       })};
     }
   });
@@ -139,6 +145,30 @@ const cards=(nodes,key='current')=>calendarGroups(nodes,key).flatMap(group=>grou
 const titles=(nodes,key='current')=>cards(nodes,key).map(card=>card.children[1].children[1].textContent);
 const groupTitles=(nodes,key='current')=>calendarGroups(nodes,key).map(group=>group.children[0].children[0].textContent);
 
+
+test('Le profil niveau 110 affiche seulement les feeders autorisés par ID Scopely',async()=>{
+  const extra=[
+    ['Briseur','milestone',{locationHints:['lohub_wrapper']}],
+    ['Briseur','milestone',{locationHints:['lohub_feeder'],milestone:{
+      type:'solo',scoring:{methods:[{description:'Combattre en raid',points:1}],cappedScorings:[]}}}],
+    ['Briseur','milestone',{locationHints:['lohub_feeder'],milestone:{
+      type:'solo',scoring:{methods:[{description:'Combattre en guerre',points:1}],cappedScorings:[]}}}]
+  ];
+  const unfiltered=await makePage({includeBase:false,extraEvents:extra});
+  assert.equal(unfiltered.get('stat-objectives').textContent,'2');
+  const selected=await makePage({includeBase:false,extraEvents:extra,
+    eligibleIds:['fixture-1','fixture-2']});
+  assert.equal(selected.get('stat-objectives').textContent,'1');
+  assert.ok(actions(selected).some(x=>x.includes('raid')));
+  assert.ok(!actions(selected).some(x=>x.includes('guerre')));
+  assert.ok(selected.get('events-objectives').children[0].textContent.includes(
+    'Référence niveau 110 vérifiée'));
+  const invalid=await makePage({includeBase:false,extraEvents:extra,
+    eligibleIds:['unknown-event-id']});
+  assert.equal(invalid.get('stat-objectives').textContent,'2');
+  assert.ok(invalid.get('events-objectives').children[0].textContent.includes(
+    'éligibilité personnelle des missions n’est pas vérifiée'));
+});
 
 test('Le résumé rassemble les objectifs actifs, y compris les feeders, sans doublons',async()=>{
   const nodes=await makePage();
@@ -1124,7 +1154,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=36/);
+  assert.match(html,/evenements\.js\?v=37/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
