@@ -524,11 +524,15 @@
     if(hideAction)action.hidden=true;
     li.append(action);
     const row=create('div','ev-objective-footer');
+    // Les feeders du Poste de commandement utilisent des points internes
+    // pour atteindre le palier ; les vrais points gagnés sont une récompense.
+    const feeder=item.event.locationHints?.includes('lohub_feeder');
     if(item.points!==null)row.append(create('span','ev-objective-score',
-      '+ '+objectivePointLabel(item.points)+' par action'));
+      '+ '+objectivePointLabel(item.points)+
+      (feeder?' de progression par action':' par action')));
     if(item.cap!==null)row.append(create('span','ev-objective-cap',
       '('+(item.sharedCap?'plafond partagé ':'plafond ')+
-      objectivePointLabel(item.cap)+')'));
+      objectivePointLabel(item.cap)+(feeder?' de progression':'')+')'));
     // Un plafond en points n'est convertible en actions que pour une
     // méthode solo non partagée, sans quantité déjà explicite dans le texte.
     // La durée vient de CET événement, pas d'une règle quotidienne inventée.
@@ -548,7 +552,10 @@
       row.append(create('span','ev-objective-quantity',
         'Période : '+(days===1?'24 h':fmtNumber.format(days)+' jours')));
     }
-    if(item.premium)row.append(create('span','ev-objective-premium','Premium'));
+    if(item.eventPoints!==null)row.append(create('span',
+      'ev-objective-reward','Récompense : '+
+      objectivePointLabel(item.eventPoints)+' d’événement'));
+    if(item.premium)row.append(create('span','ev-objective-premium','Objectif supérieur'));
     if(item.originalMode==='divers'&&item.mode!=='divers'&&item.isBattle){
       row.append(create('span','ev-objective-general','Tous modes · regroupé ici'));
     }
@@ -607,7 +614,7 @@
     for(const event of active){
       const scoring=event.milestone?.scoring;
       if(!scoring)continue;
-      const add=(method,cap,premium,sharedCap)=>{
+      const add=(method,cap,premium,sharedCap,eventPoints=null)=>{
         const description=strip(method?.description);
         if(!description)return;
         const label=objectiveLabel(description);
@@ -619,18 +626,21 @@
         const points=Number(method.points);
         const score=Number.isFinite(points)&&points>0?points:null;
         const ceiling=Number.isFinite(cap)&&cap>0?cap:null;
-        const key=[eventTitle(event).toLocaleLowerCase('fr'),description.toLocaleLowerCase('fr'),mode,score,ceiling,Boolean(premium)].join('|');
+        const earned=Number.isSafeInteger(eventPoints)&&eventPoints>0?
+          eventPoints:null;
+        const key=[eventTitle(event).toLocaleLowerCase('fr'),description.toLocaleLowerCase('fr'),mode,score,ceiling,Boolean(premium),earned].join('|');
         if(dedup.has(key))return;
         dedup.add(key);
         items.push({event,label,mode,description,points:score,cap:ceiling,
-          premium:Boolean(premium),sharedCap:Boolean(sharedCap),
+          eventPoints:earned,premium:Boolean(premium),sharedCap:Boolean(sharedCap),
           character,team,isBattle:isBattleObjective(description),
           teamComplete:Boolean(team&&isFullTeamObjective(description))});
       };
       for(const method of Array.isArray(scoring.methods)?scoring.methods:[])add(method,null,false,false);
       for(const capped of Array.isArray(scoring.cappedScorings)?scoring.cappedScorings:[]){
         const methods=Array.isArray(capped.methods)?capped.methods:[];
-        for(const method of methods)add(method,Number(capped.cap),capped.isPremium,methods.length>1);
+        for(const method of methods)add(method,Number(capped.cap),
+          capped.isPremium,methods.length>1,capped.eventPoints);
       }
     }
     routeBattleObjectives(items);
