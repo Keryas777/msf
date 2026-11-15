@@ -863,7 +863,7 @@ test('Une même action Raid ou Guerre rassemble les événements et conserve cha
   for(const cap of [24,6,5])
     assert.ok(normalized.includes('(plafond'+cap+'ptsdeprogression)'),cap+' progression conservée');
   for(const cap of [144000,384000])
-    assert.ok(normalized.includes('Plafondd’alliance:'+cap+'ptssur7jours'),
+    assert.ok(normalized.includes('Plafondd’alliance:'+cap+'ptssur3jours'),
       cap+' plafond collectif conservé');
   assert.ok(normalized.includes('+125ptsparaction'));
   assert.ok(normalized.includes('+800ptsparaction'));
