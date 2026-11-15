@@ -349,8 +349,11 @@
     return found.length===1?found[0]:null;
   }
   function isBattleObjective(description){
-    return /^(?:combattre\b|faire un combat\b|jouer n[’']?importe quel combat\b|battle\b|play (?:any battle|alliance |raid|war|blitz|arena|crucible|with ))/i
-      .test(strip(description));
+    const text=strip(description);
+    // « Jouer » désigne aussi un combat pour les formulations sans
+    // restriction. Ne pas assimiler les objectifs multimodes ou qualifiés.
+    return /^(?:combattre\b|faire un combat\b|jouer n[’']?importe quel combat\b|battle\b|play (?:any battle|alliance |raid|war|blitz|arena|crucible|with ))/i.test(text)||
+      /^jouer (?:en (?:raid|guerre|arène|épreuve cosmique)|dans l[’']arène|(?:un |1 )?combat (?:d[’']arène|en (?:raid|guerre)))$/i.test(text);
   }
   function isFullTeamObjective(description){
     return /\b(?:tous les membres|all (?:members|characters))\b/i.test(description);
@@ -452,10 +455,10 @@
   function objectiveActionLabel(item){
     if(!item.isBattle||item.character||item.team)return item.label;
     const simple={
-      raid:/^(?:combattre|faire (?:un |des )?combats?) en raid$/i,
-      war:/^(?:combattre|faire (?:un |des )?combats?) en guerre$/i,
-      arena:/^(?:combattre|faire (?:un |des )?combats?) en arène$/i,
-      crucible:/^(?:combattre|faire (?:un |des )?combats?) en épreuve cosmique$/i
+      raid:/^(?:(?:combattre|jouer|faire (?:un |des )?combats?) en raid|jouer (?:un |1 )?combat en raid)$/i,
+      war:/^(?:(?:combattre|jouer|faire (?:un |des )?combats?) en guerre|jouer (?:un |1 )?combat en guerre)$/i,
+      arena:/^(?:(?:combattre|jouer|faire (?:un |des )?combats?) (?:en arène|dans l[’']arène)|jouer (?:un |1 )?combat d[’']arène)$/i,
+      crucible:/^(?:combattre|jouer|faire (?:un |des )?combats?) en épreuve cosmique$/i
     };
     const names={
       raid:'Combattre en raid',war:'Combattre en guerre',
