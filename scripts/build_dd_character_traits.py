@@ -20,7 +20,14 @@ def build(root: Path) -> dict:
         shard = json.loads(path.read_text(encoding="utf-8"))["character"]
         if shard.get("id") != character_id:
             raise ValueError(f"Codex character ID mismatch: {character_id}")
-        if shard.get("official") is not True or shard.get("playable") is not True:
+        # Codex can mark a playable character official in its explicit status
+        # even when the legacy `official` boolean is false (e.g. Destroyer).
+        # Require verified provenance; never infer tags from display labels.
+        is_official = shard.get("official") is True or (
+            isinstance(shard.get("status"), dict)
+            and shard["status"].get("kind") == "official"
+        )
+        if not is_official or shard.get("playable") is not True:
             continue
         traits = shard.get("traits")
         if not isinstance(traits, list) or not traits or any(not isinstance(t, str) for t in traits):

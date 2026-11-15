@@ -263,7 +263,10 @@ function renderRanking() {
           " salles consécutives · " + entry.result.prepared + " salles préparées (roster, pas progression réelle)"
         : entry.result.status === "unavailable"
           ? "Roster non disponible pour le calcul"
-          : "Progression théorique indéterminée (données incomplètes)";
+          : Number.isFinite(entry.result.consecutive)
+            ? "Théorique : " + entry.result.consecutive + "/" + (selectedDimension?.nodes?.length || 0) +
+              " salles consécutives confirmées · préparation totale indéterminée (non classé)"
+            : "Progression théorique indéterminée (données incomplètes)";
     if (finished && entry.result.firstClearObservedAt) button.querySelector(".badge").textContent +=
       " · 1er passage observé le " + new Date(entry.result.firstClearObservedAt).toLocaleDateString("fr-FR") +
       (Number.isFinite(entry.result.firstClearDays) ? " (" + entry.result.firstClearDays + " jours)" : "");
