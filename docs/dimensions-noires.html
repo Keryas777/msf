@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#101729">
   <title>Classement Dimensions noires — MSF</title>
-  <link rel="stylesheet" href="./dimensions-noires.css?v=6">
+  <link rel="stylesheet" href="./dimensions-noires.css?v=7">
   <link rel="stylesheet" href="./evolution-tabs.css?v=2">
 </head>
 <body>
@@ -75,10 +75,8 @@
         <p id="progress-summary" class="explain"></p>
         <div class="legend" aria-label="Légende de la carte">
           <span><i class="dot done"></i> DD terminée selon convention LoSP</span>
-          <span><i class="dot met"></i> Exigences théoriques satisfaites</span>
-          <span><i class="dot unmet"></i> Exigences théoriques non satisfaites</span>
-          <span><i class="dot unknown"></i> Conditions non vérifiables</span>
-          <span><i class="dot portal"></i> Passage de la carte</span>
+          <span><i class="dot met"></i> Pré-requis validé</span>
+          <span><i class="dot unmet"></i> Pré-requis non validé</span>
         </div>
         <div class="map-frame">
           <div class="map" id="map" role="group" aria-label="Carte interactive de la Dimension noire"></div>
@@ -91,6 +89,6 @@
   <script src="./auth-guard.js"></script>
   <script src="./alliances.js"></script>
   <script src="./roster-loader.js"></script>
-  <script type="module" src="./dimensions-noires.js?v=8"></script>
+  <script type="module" src="./dimensions-noires.js?v=9"></script>
 </body>
 </html>
