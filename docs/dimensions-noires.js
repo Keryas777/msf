@@ -14,6 +14,7 @@ const state = {
   selectedAlliances: new Set(),
   individualRows: [],
   selectedPlayerIdentity: "",
+  selectedIndividualAlliance: "",
   loadErrors: new Set(),
   loading: true,
 };
@@ -464,30 +465,72 @@ function clearMap(message) {
   $("individual-state").textContent = message;
 }
 
+function renderIndividualAlliances(rows) {
+  const list = $("individual-alliance-choices");
+  list.replaceChildren();
+  const available = new Set(rows.map((roster) => allianceKey(roster.alliance)));
+  const alliances = knownAllowedAlliances().filter((alliance) => available.has(alliance.key));
+  if (!alliances.some((alliance) => alliance.key === state.selectedIndividualAlliance)) {
+    state.selectedIndividualAlliance = "";
+    state.selectedPlayerIdentity = "";
+  }
+  for (const alliance of alliances) {
+    const label = document.createElement("label");
+    label.className = "alliance-chip individual-alliance-chip";
+    label.dataset.allianceNameLines = "two";
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.name = "dd-individual-alliance";
+    radio.value = alliance.key;
+    radio.checked = state.selectedIndividualAlliance === alliance.key;
+    radio.addEventListener("change", () => {
+      if (!radio.checked || !isAllowed(alliance.key)) return;
+      if (state.selectedIndividualAlliance !== alliance.key) state.selectedPlayerIdentity = "";
+      state.selectedIndividualAlliance = alliance.key;
+      renderPlayerChoices();
+    });
+    const emoji = document.createElement("span");
+    emoji.className = "alliance-chip-emoji";
+    emoji.textContent = alliance.emoji || "";
+    emoji.setAttribute("aria-hidden", "true");
+    const name = document.createElement("span");
+    name.className = "alliance-chip-name";
+    window.LoSPAlliances.renderAllianceName(name, alliance.key);
+    label.append(radio, emoji, name);
+    list.append(label);
+  }
+  $("individual-alliance-help").textContent = alliances.length
+    ? "Choisissez une alliance pour afficher ses joueurs."
+    : "Aucune alliance avec roster partageable accessible.";
+}
+
 function renderPlayerChoices() {
   const select = $("player-select");
   const previousIdentity = state.selectedPlayerIdentity;
-  const rows = authorizedRows();
+  const authorized = authorizedRows();
+  renderIndividualAlliances(authorized);
+  const rows = state.selectedIndividualAlliance
+    ? authorized.filter((roster) => allianceKey(roster.alliance) === state.selectedIndividualAlliance)
+    : [];
   state.individualRows = rows;
   select.replaceChildren();
 
   const placeholder = document.createElement("option");
   placeholder.value = "";
-  placeholder.textContent = rows.length
-    ? "— Choisir un joueur —"
-    : "Aucun roster autorisé disponible";
+  placeholder.textContent = !state.selectedIndividualAlliance
+    ? "— Choisir d’abord une alliance —"
+    : rows.length ? "— Choisir un joueur —" : "Aucun joueur autorisé";
   select.append(placeholder);
 
   rows.forEach((roster, index) => {
     const option = document.createElement("option");
     option.value = String(index);
-    option.textContent = roster.player + " · " +
-      window.LoSPAlliances.getAllianceLabel(roster.alliance);
+    option.textContent = roster.player;
     option.dataset.identity = identity(roster);
     select.append(option);
   });
 
-  select.disabled = !rows.length;
+  select.disabled = !state.selectedIndividualAlliance || !rows.length;
   const selectedIndex = rows.findIndex((roster) => identity(roster) === previousIdentity);
   if (selectedIndex >= 0) {
     select.value = String(selectedIndex);
@@ -496,17 +539,24 @@ function renderPlayerChoices() {
   } else {
     select.value = "";
     state.selectedPlayerIdentity = "";
-    clearMap(rows.length
-      ? "Sélectionnez un joueur autorisé pour afficher sa progression théorique."
-      : "Aucun roster partageable accessible pour cette session.");
+    clearMap(!state.selectedIndividualAlliance
+      ? "Sélectionnez d’abord une alliance, puis un joueur autorisé."
+      : rows.length
+        ? "Sélectionnez un joueur pour afficher sa progression théorique."
+        : "Aucun roster partageable pour cette alliance.");
   }
-  $("individual-state").textContent = rows.length
-    ? rows.length + " joueurs issus des rosters autorisés."
-    : "Aucun roster partageable accessible pour cette session.";
+  $("individual-state").textContent = !state.selectedIndividualAlliance
+    ? authorized.length + " joueurs issus des rosters autorisés."
+    : rows.length + " joueurs autorisés dans cette alliance.";
 }
 
 function selectPlayer(roster) {
-  if (!isAllowed(allianceKey(roster?.alliance))) return;
+  const key = allianceKey(roster?.alliance);
+  if (!isAllowed(key)) return;
+  if (state.selectedIndividualAlliance !== key) {
+    state.selectedIndividualAlliance = key;
+    renderPlayerChoices();
+  }
   const index = state.individualRows.findIndex((item) => identity(item) === identity(roster));
   if (index < 0) {
     renderPlayerChoices();
