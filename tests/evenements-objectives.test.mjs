@@ -675,6 +675,89 @@ test('Une même action Raid ou Guerre rassemble les événements et conserve cha
   assert.ok(normalized.includes('+800pt(s)/action'));
 });
 
+test('Jouer et combattre en guerre forment une seule action, sans fusionner les conditions',async()=>{
+  const day=86400,now=Math.floor(Date.now()/1000);
+  const week={startTime:now-day,endTime:now+6*day};
+  const tenDays={startTime:now-day,endTime:now+9*day};
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Plan de bataille','milestone',{
+      ...week,milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:5,methods:[{description:'Combattre en guerre',points:1}]}
+      ]}}
+    }],
+    ["L'arme vivante",'milestone',{
+      ...tenDays,milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:3,methods:[{description:'Jouer en guerre',points:1}]},
+        {cap:5,methods:[{description:'Jouer en guerre',points:1}]},
+        {cap:10,methods:[{description:'Jouer en guerre',points:1}]}
+      ]}}
+    }],
+    ['Zone de guerre du raid','milestone',{
+      ...week,milestone:{type:'alliance',scoring:{methods:[],cappedScorings:[
+        {cap:384000,methods:[{description:'Combattre en guerre',points:800}]}
+      ]}}
+    }],
+    ['Mission avec condition','milestone',{
+      ...week,milestone:{type:'solo',scoring:{methods:[
+        {description:"Combattre en guerre (niveau d'alliance 20)",points:250}
+      ],cappedScorings:[]}}
+    }],
+    ['Objectifs arène','milestone',{
+      ...week,milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:20,methods:[{description:'Jouer 1 combat d’arène',points:1}]},
+        {cap:3,methods:[{description:'Combattre dans l’arène',points:1}]}
+      ]}}
+    }]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'8');
+  const war=sections(nodes).find(s=>s.children[0].textContent==='⚔️ GUERRE');
+  const arena=sections(nodes).find(s=>s.children[0].textContent==='🏟️ ARÈNE');
+  assert.ok(war);
+  assert.ok(arena);
+  const warActions=war.children[1].children;
+  assert.equal(warActions.length,2);
+  const merged=warActions.find(card=>
+    card.children[0].children[0].textContent==='Combattre en guerre');
+  assert.ok(merged);
+  assert.equal(merged.children[0].children[1].textContent,'5 objectifs');
+  assert.equal(merged.children[1].children.length,3);
+  assert.equal(merged.children[1].children.reduce((n,source)=>
+    n+source.children[1].children.length,0),5);
+  const hints=merged.children[0].children.filter(child=>
+    child.className==='ev-objective-limit').map(child=>child.textContent);
+  assert.ok(hints.includes('Solo : 5 combats comptabilisés sur 7 jours'));
+  assert.ok(hints.includes('Solo : 3 et 5 et 10 combats comptabilisés sur 10 jours'));
+  assert.ok(!hints.some(text=>text.includes('384 000')));
+  assert.ok(warActions.some(card=>card.children[0].children[0].textContent.includes(
+    "niveau d'alliance 20")));
+  assert.equal(arena.children[1].children.length,1);
+  assert.equal(arena.children[1].children[0].children[0].children[0].textContent,
+    'Combattre en arène');
+  assert.equal(arena.children[1].children[0].children[0].children[1].textContent,
+    '2 objectifs');
+});
+
+test('Les actions composées ou avec personnage ne sont pas fusionnées aux combats simples',async()=>{
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Guerre simple','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Jouer en guerre',points:1}],cappedScorings:[]}}}],
+    ['Guerre avec personnage','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Combattre en guerre avec Vision',points:2}],cappedScorings:[]}}}],
+    ['Événement multimode','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Jouer dans l’arène, en guerre, en arène en temps réel ou dans l’Épreuve',points:1}],
+      cappedScorings:[]}}}]
+  ]});
+  const war=sections(nodes).find(s=>s.children[0].textContent==='⚔️ GUERRE');
+  const actions=war.children[1].children.filter(card=>
+    card.className==='ev-objective-event-group');
+  assert.equal(actions.length,1);
+  assert.equal(actions[0].children[0].children[0].textContent,'Combattre en guerre');
+  assert.equal(actions[0].children[0].children[1].textContent,'1 objectif');
+  assert.ok(objectiveDetails(nodes,'ev-objective-character').some(card=>
+    card.children[0].children.some(child=>child.tag==='strong'&&child.textContent==='Vision')));
+  assert.ok(sections(nodes).some(s=>s.children[0].textContent.includes('/')));
+});
+
 test('Les actions montrent les plafonds réels et distinguent le rythme conseillé',async()=>{
   const now=Math.floor(Date.now()/1000);
   const oneDay={startTime:now-3600,endTime:now+23*3600};
@@ -819,7 +902,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=31/);
+  assert.match(html,/evenements\.js\?v=32/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
