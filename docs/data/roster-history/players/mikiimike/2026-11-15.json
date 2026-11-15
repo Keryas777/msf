@@ -1,0 +1,7340 @@
+{
+  "player": "Mikiimike",
+  "playerKey": "mikiimike",
+  "alliance": "endgame-revolution-violet",
+  "checkpoint": "2026-11-15",
+  "source": {
+    "file": "docs/data/rosters_endgame-revolution-violet.json",
+    "commit": "efa1778e21e71552f96f51b53b05f431420af8db",
+    "committedAt": "2026-11-15T14:21:26Z"
+  },
+  "chars": {
+    "shieldsupportheal": {
+      "power": 105145,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 5
+      }
+    },
+    "spiderman": {
+      "power": 3437921,
+      "level": 108,
+      "gear": 20,
+      "isoMax": 16,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "lukecage": {
+      "power": 136432,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 5,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "punisher": {
+      "power": 1883391,
+      "level": 108,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "elektra": {
+      "power": 1425422,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "crossbones": {
+      "power": 3249744,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "mercdmggeneral": {
+      "power": 69341,
+      "level": 64,
+      "gear": 11,
+      "isoMax": 3,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 5
+      }
+    },
+    "shielddmgdefense": {
+      "power": 78290,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "handsupportheal": {
+      "power": 6654,
+      "level": 26,
+      "gear": 5,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 3,
+        "special": 2,
+        "ultimate": 0,
+        "passive": 1
+      }
+    },
+    "bullseye": {
+      "power": 636945,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "merctankdebuff": {
+      "power": 111374,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "quake": {
+      "power": 1200509,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 12,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "wolverine": {
+      "power": 2183487,
+      "level": 107,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "shieldsupportstealth": {
+      "power": 54114,
+      "level": 58,
+      "gear": 10,
+      "isoMax": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "hydrasupportheal": {
+      "power": 53560,
+      "level": 60,
+      "gear": 10,
+      "isoMax": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "handdmgunbuff": {
+      "power": 13212,
+      "level": 35,
+      "gear": 6,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 4,
+        "special": 3,
+        "ultimate": 0,
+        "passive": 2
+      }
+    },
+    "nebula": {
+      "power": 194413,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 7,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "hawkeye": {
+      "power": 1192533,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "handtankstealth": {
+      "power": 36184,
+      "level": 53,
+      "gear": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 5,
+        "special": 5,
+        "ultimate": 0,
+        "passive": 3
+      }
+    },
+    "ravagertanktaunt": {
+      "power": 116028,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "drax": {
+      "power": 76652,
+      "level": 63,
+      "gear": 11,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "jessicajones": {
+      "power": 1981829,
+      "level": 108,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "shieldtankstun": {
+      "power": 80866,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "yondu": {
+      "power": 107870,
+      "level": 67,
+      "gear": 12,
+      "isoMax": 4,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "handcontrolhealblock": {
+      "power": 45523,
+      "level": 55,
+      "gear": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 5,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "shielddmgaoe": {
+      "power": 58020,
+      "level": 60,
+      "gear": 11,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "ravagersupportheal": {
+      "power": 116814,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "hulk": {
+      "power": 3697085,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 16,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "antman": {
+      "power": 541481,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "hydradmgaoe": {
+      "power": 62091,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 3,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "gamora": {
+      "power": 213123,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ironfist": {
+      "power": 2158196,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "hydradmgbuff": {
+      "power": 59582,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "daredevil": {
+      "power": 2444067,
+      "level": 110,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ronan": {
+      "power": 1291704,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 4
+      }
+    },
+    "hydratanktaunt": {
+      "power": 58951,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "korath": {
+      "power": 83556,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "ravagerdmgaoe": {
+      "power": 115898,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "kreesupporthot": {
+      "power": 58303,
+      "level": 60,
+      "gear": 11,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "nightnurse": {
+      "power": 146517,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 5,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "aimtanktaunt": {
+      "power": 70198,
+      "level": 66,
+      "gear": 12,
+      "isoMax": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "handdmgbonus": {
+      "power": 26294,
+      "level": 45,
+      "gear": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 5,
+        "special": 4,
+        "ultimate": 0,
+        "passive": 3
+      }
+    },
+    "kreetankcounter": {
+      "power": 46474,
+      "level": 55,
+      "gear": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 5,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "scarletwitch": {
+      "power": 505494,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "captainamerica": {
+      "power": 1107698,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "blackwidow": {
+      "power": 597880,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "wintersoldier": {
+      "power": 335017,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "msmarvel": {
+      "power": 1482357,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "baronmordo": {
+      "power": 960306,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "mercdmgsingle": {
+      "power": 680,
+      "level": 1,
+      "gear": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 1,
+        "special": 1,
+        "ultimate": 0,
+        "passive": 0
+      }
+    },
+    "thor": {
+      "power": 229992,
+      "level": 85,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "kreecontrolassist": {
+      "power": 45346,
+      "level": 55,
+      "gear": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 5,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "kingpin": {
+      "power": 140520,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "kreedmgoffense": {
+      "power": 57561,
+      "level": 60,
+      "gear": 11,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "kreedmgspeed": {
+      "power": 51409,
+      "level": 58,
+      "gear": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "deadpool": {
+      "power": 1819551,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "cable": {
+      "power": 911210,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "hydradmgsingle": {
+      "power": 58444,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "storm": {
+      "power": 2005348,
+      "level": 107,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "thanos": {
+      "power": 3292979,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "aimdmgoffense": {
+      "power": 61571,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 3,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "mercsupportbuffs": {
+      "power": 109281,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "scientistsupreme": {
+      "power": 1555328,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "venom": {
+      "power": 3795768,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "wasp": {
+      "power": 1027087,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "loki": {
+      "power": 956984,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "aimsupportheal": {
+      "power": 670,
+      "level": 1,
+      "gear": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 1,
+        "special": 1,
+        "ultimate": 0,
+        "passive": 0
+      }
+    },
+    "vision": {
+      "power": 1719992,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "rocketraccoon": {
+      "power": 1101594,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "groot": {
+      "power": 1245892,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "nobu": {
+      "power": 109336,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 4,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "aimdmgspeed": {
+      "power": 76470,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 3,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 6,
+        "ultimate": 0,
+        "passive": 4
+      }
+    },
+    "doctorstrange": {
+      "power": 1381551,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 8,
+        "passive": 6
+      }
+    },
+    "ironman": {
+      "power": 654722,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "mystique": {
+      "power": 94400,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 3,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "juggernaut": {
+      "power": 1293839,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "pyro": {
+      "power": 97288,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 3,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "blackpanther": {
+      "power": 258384,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "aimcontrolinfect": {
+      "power": 670,
+      "level": 1,
+      "gear": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 1,
+        "special": 1,
+        "ultimate": 0,
+        "passive": 0
+      }
+    },
+    "ultspiderman": {
+      "power": 1554294,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "starlord": {
+      "power": 1473495,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 8,
+        "special": 8,
+        "ultimate": 8,
+        "passive": 5
+      }
+    },
+    "sabretooth": {
+      "power": 173730,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 4
+      }
+    },
+    "ultgreengoblin": {
+      "power": 103974,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 4,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "warmachine": {
+      "power": 1575344,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 11,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "mantis": {
+      "power": 81718,
+      "level": 60,
+      "gear": 11,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "minerva": {
+      "power": 1311964,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "nickfury": {
+      "power": 453200,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "captainmarvel": {
+      "power": 267939,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "killmonger": {
+      "power": 137392,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "magneto": {
+      "power": 309492,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "carnage": {
+      "power": 1045994,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "mbaku": {
+      "power": 114359,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 5,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "okoye": {
+      "power": 242964,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "falcon": {
+      "power": 1329225,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "rescue": {
+      "power": 603475,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "colossus": {
+      "power": 171046,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "psylocke": {
+      "power": 345413,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "americachavez": {
+      "power": 197613,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "rhino": {
+      "power": 228115,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 5,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "shocker": {
+      "power": 1771002,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "mysterio": {
+      "power": 689781,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "vulture": {
+      "power": 3597965,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "thing": {
+      "power": 1313759,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ultron": {
+      "power": 1979496,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "namor": {
+      "power": 834701,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "shuri": {
+      "power": 235903,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "humantorch": {
+      "power": 1642447,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ultimus": {
+      "power": 957938,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "mrfantastic": {
+      "power": 690418,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "graviton": {
+      "power": 76165,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "ghostrider": {
+      "power": 134647,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 4,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "elsabloodstone": {
+      "power": 447193,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 4
+      }
+    },
+    "coulson": {
+      "power": 245199,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "hela": {
+      "power": 1123495,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "phoenix": {
+      "power": 1337443,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "mrsinister": {
+      "power": 214515,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "stryfe": {
+      "power": 822019,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "invisiblewoman": {
+      "power": 520959,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 4
+      }
+    },
+    "sif": {
+      "power": 183739,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "heimdall": {
+      "power": 177734,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "yoyo": {
+      "power": 1123637,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 12,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "karnak": {
+      "power": 83734,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "crystal": {
+      "power": 100593,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 3,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "cyclops": {
+      "power": 676784,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "symbiotespiderman": {
+      "power": 268052,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "toad": {
+      "power": 849545,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "blob": {
+      "power": 799422,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "redskull": {
+      "power": 64761,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "proximamidnight": {
+      "power": 191941,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "corvusglaive": {
+      "power": 160099,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "blackbolt": {
+      "power": 684174,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "taskmaster": {
+      "power": 2155469,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "cullobsidian": {
+      "power": 2223603,
+      "level": 110,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ebonymaw": {
+      "power": 1692617,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ironheart": {
+      "power": 687230,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 12,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "domino": {
+      "power": 1093682,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "negasonic": {
+      "power": 976623,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "x23": {
+      "power": 303237,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "beast": {
+      "power": 1310715,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "squirrelgirl": {
+      "power": 1841635,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "emmafrost": {
+      "power": 1361438,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "swarm": {
+      "power": 419341,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "zemo": {
+      "power": 209798,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "electro": {
+      "power": 677464,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "doctoroctopus": {
+      "power": 670937,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "scream": {
+      "power": 259298,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "antivenom": {
+      "power": 308400,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "shehulk": {
+      "power": 1128315,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "stature": {
+      "power": 74989,
+      "level": 60,
+      "gear": 11,
+      "isoMax": 1,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "yellowjacket": {
+      "power": 3223949,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "ghost": {
+      "power": 1056988,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "shatterstar": {
+      "power": 200713,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "longshot": {
+      "power": 195722,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "yelena": {
+      "power": 3309154,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "redguardian": {
+      "power": 3394641,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "kittypryde": {
+      "power": 306279,
+      "level": 82,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "bishop": {
+      "power": 224582,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "iceman": {
+      "power": 184734,
+      "level": 83,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "jubilee": {
+      "power": 2020014,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "whitetiger": {
+      "power": 163541,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "moonknight": {
+      "power": 981759,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "silversurfer": {
+      "power": 841352,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "polaris": {
+      "power": 916095,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "multipleman": {
+      "power": 146443,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "sybil": {
+      "power": 773369,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "doom": {
+      "power": 778291,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "colleenwing": {
+      "power": 148686,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "phylavell": {
+      "power": 237449,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "mistyknight": {
+      "power": 229122,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "moondragon": {
+      "power": 1287442,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 8,
+        "passive": 6
+      }
+    },
+    "adamwarlock": {
+      "power": 521543,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 8,
+        "ultimate": 8,
+        "passive": 6
+      }
+    },
+    "samwilson": {
+      "power": 1430230,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "sharoncarter": {
+      "power": 224339,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 4
+      }
+    },
+    "mariahill": {
+      "power": 228329,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "deathpool": {
+      "power": 519130,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "shangchi": {
+      "power": 224964,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "dagger": {
+      "power": 255783,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "cloak": {
+      "power": 250673,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "silversamurai": {
+      "power": 915476,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ladydeathstrike": {
+      "power": 2144117,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "omegared": {
+      "power": 3759279,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "sersi": {
+      "power": 2160478,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ikaris": {
+      "power": 2801459,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ghostspider": {
+      "power": 777332,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "magik": {
+      "power": 1246449,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "scarletspider": {
+      "power": 224675,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "spiderpunk": {
+      "power": 179891,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "tchalla": {
+      "power": 98036,
+      "level": 65,
+      "gear": 12,
+      "isoMax": 4,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 4
+      }
+    },
+    "echo": {
+      "power": 522553,
+      "level": 100,
+      "gear": 18,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "katebishop": {
+      "power": 220740,
+      "level": 85,
+      "gear": 15,
+      "isoMax": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "doctorvoodoo": {
+      "power": 178660,
+      "level": 75,
+      "gear": 14,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 4
+      }
+    },
+    "morbius": {
+      "power": 1448539,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "strangesupreme": {
+      "power": 1689206,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "wong": {
+      "power": 309219,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "morganlefay": {
+      "power": 583635,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 6,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 8,
+        "ultimate": 7,
+        "passive": 6
+      }
+    },
+    "agathaharkness": {
+      "power": 1077232,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "madelynepryor": {
+      "power": 1809018,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "spiderwoman": {
+      "power": 225279,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "nicominoru": {
+      "power": 130111,
+      "level": 70,
+      "gear": 13,
+      "isoMax": 4,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "fantomex": {
+      "power": 392933,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "gambit": {
+      "power": 929220,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "dazzler": {
+      "power": 319368,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "sunfire": {
+      "power": 766606,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "rogue": {
+      "power": 1734939,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 8,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 6
+      }
+    },
+    "janethor": {
+      "power": 234867,
+      "level": 85,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "valkyrie": {
+      "power": 207342,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "dormammu": {
+      "power": 631440,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 5,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "vivvision": {
+      "power": 249649,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "deathlok": {
+      "power": 221206,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "hulkbuster": {
+      "power": 240869,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "spiderweaver": {
+      "power": 524656,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "amadeuscho": {
+      "power": 1584026,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "abomination": {
+      "power": 343023,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "redhulk": {
+      "power": 387142,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 5,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 8,
+        "ultimate": 7,
+        "passive": 6
+      }
+    },
+    "spiderman2099": {
+      "power": 209193,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "spidermannoir": {
+      "power": 705646,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "zombieironman": {
+      "power": 2075966,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "nakia": {
+      "power": 239999,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "blackpantherbc": {
+      "power": 241465,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "darkbeast": {
+      "power": 304052,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "archangel": {
+      "power": 270977,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 5,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 8,
+        "passive": 6
+      }
+    },
+    "nemesis": {
+      "power": 395184,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "mrnegative": {
+      "power": 696356,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "usagent": {
+      "power": 334629,
+      "level": 90,
+      "gear": 15,
+      "isoMax": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "captaincarter": {
+      "power": 507030,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "agentvenom": {
+      "power": 320625,
+      "level": 90,
+      "gear": 16,
+      "isoMax": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "absorbingman": {
+      "power": 311480,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "titania": {
+      "power": 285816,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "kangtheconqueror": {
+      "power": 843512,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "moonstone": {
+      "power": 242420,
+      "level": 87,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "apocalypse": {
+      "power": 1288611,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 8,
+        "special": 8,
+        "ultimate": 8,
+        "passive": 6
+      }
+    },
+    "captainamericaww2": {
+      "power": 277451,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "buckybarnes": {
+      "power": 305059,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "unionjack": {
+      "power": 276897,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ironfistorson": {
+      "power": 1541316,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "quicksilver": {
+      "power": 540208,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 5,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "firestar": {
+      "power": 192079,
+      "level": 80,
+      "gear": 15,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "nova": {
+      "power": 408435,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 5,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 8,
+        "special": 8,
+        "ultimate": 7,
+        "passive": 6
+      }
+    },
+    "gwenpool": {
+      "power": 1745857,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "cosmo": {
+      "power": 237203,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "korg": {
+      "power": 233723,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "starlordannihilation": {
+      "power": 227459,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "vahl": {
+      "power": 753565,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "thorinfinitywar": {
+      "power": 247911,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 8,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "lokiteen": {
+      "power": 607468,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "betaraybill": {
+      "power": 750669,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "sylvie": {
+      "power": 2843743,
+      "level": 109,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "spidermanbigtime": {
+      "power": 1080103,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 5,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "photon": {
+      "power": 484150,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "kamalakhan": {
+      "power": 465745,
+      "level": 96,
+      "gear": 18,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "blackcat": {
+      "power": 857271,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 8,
+        "special": 7,
+        "ultimate": 8,
+        "passive": 6
+      }
+    },
+    "ghostriderrobbie": {
+      "power": 723240,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ronin": {
+      "power": 263409,
+      "level": 85,
+      "gear": 16,
+      "isoMax": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "mockingbird": {
+      "power": 1340343,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ironmaninfinitywar": {
+      "power": 660335,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "tigra": {
+      "power": 1297915,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "darkhawk": {
+      "power": 488298,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ironheartmcu": {
+      "power": 585376,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "zombiejuggernaut": {
+      "power": 3129722,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "greengoblinglider": {
+      "power": 849014,
+      "level": 103,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 8,
+        "special": 7,
+        "ultimate": 8,
+        "passive": 6
+      }
+    },
+    "kraventhehunter": {
+      "power": 704874,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "spiderslayer": {
+      "power": 440993,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "lizard": {
+      "power": 791796,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "nightcrawler": {
+      "power": 875370,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "forge": {
+      "power": 693501,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "sunspot": {
+      "power": 1419738,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "superskrull": {
+      "power": 1218731,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "symbiotesilversurfer": {
+      "power": 1335399,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "gwenom": {
+      "power": 1048110,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "redgoblin": {
+      "power": 1013583,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "blackknight": {
+      "power": 1040386,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "starbrand": {
+      "power": 454538,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 9,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "cosmicghostrider": {
+      "power": 512804,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 10,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ironpatriot": {
+      "power": 906667,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "theleader": {
+      "power": 865957,
+      "level": 102,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "peterbparker": {
+      "power": 837994,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "spidermanpavitr": {
+      "power": 733262,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "peniparker": {
+      "power": 773196,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "pandapool": {
+      "power": 750384,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "oldmanlogan": {
+      "power": 1409631,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 8,
+        "special": 8,
+        "ultimate": 8,
+        "passive": 5
+      }
+    },
+    "daken": {
+      "power": 1115688,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "northstar": {
+      "power": 718425,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "guardian": {
+      "power": 895406,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "sasquatch": {
+      "power": 799739,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "blackpanthershuri": {
+      "power": 756525,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "hankpym": {
+      "power": 849087,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ares": {
+      "power": 1114322,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 8,
+        "special": 8,
+        "ultimate": 7,
+        "passive": 6
+      }
+    },
+    "gladiator": {
+      "power": 1550575,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "gorr": {
+      "power": 2041842,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "thanosendgame": {
+      "power": 1666029,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "sentinel": {
+      "power": 1108421,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "nimrod": {
+      "power": 1562986,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "blade": {
+      "power": 1635051,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 8,
+        "special": 8,
+        "ultimate": 8,
+        "passive": 6
+      }
+    },
+    "oath": {
+      "power": 2286325,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "omegasentinel": {
+      "power": 1560620,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "mephisto": {
+      "power": 2319167,
+      "level": 110,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "manthing": {
+      "power": 947794,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "captainbritain": {
+      "power": 787898,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 8,
+        "special": 8,
+        "ultimate": 8,
+        "passive": 6
+      }
+    },
+    "zombiescarletwitch": {
+      "power": 2271839,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "odin": {
+      "power": 2425966,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ancientone": {
+      "power": 1442374,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 8,
+        "ultimate": 7,
+        "passive": 6
+      }
+    },
+    "shadowking": {
+      "power": 1498961,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 8,
+        "special": 8,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "emmafrostxmen": {
+      "power": 1959274,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 8,
+        "ultimate": 7,
+        "passive": 6
+      }
+    },
+    "kahhori": {
+      "power": 1896171,
+      "level": 108,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "msmarvelclassic": {
+      "power": 1105714,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "medusa": {
+      "power": 704316,
+      "level": 95,
+      "gear": 18,
+      "isoMax": 12,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "jeangrey": {
+      "power": 1566903,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "hercules": {
+      "power": 1579190,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "omegaredphoenix": {
+      "power": 1337071,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 6,
+      "redStars": 6,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 8,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 6
+      }
+    },
+    "peggycarter": {
+      "power": 1655331,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "falconjoaquin": {
+      "power": 1629315,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "lilandra": {
+      "power": 1764328,
+      "level": 106,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "patriot": {
+      "power": 1588556,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "howardtheduck": {
+      "power": 1672910,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "knull": {
+      "power": 4233966,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "havok": {
+      "power": 2327012,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "daredevilmodern": {
+      "power": 2139712,
+      "level": 107,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "silversable": {
+      "power": 1971852,
+      "level": 107,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "hitmonkey": {
+      "power": 1703412,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "victoriahand": {
+      "power": 1979314,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "songbird": {
+      "power": 2169812,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "quasar": {
+      "power": 2180474,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 8,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 6
+      }
+    },
+    "hyperion": {
+      "power": 1725136,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "hellverine": {
+      "power": 1929133,
+      "level": 108,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "thehood": {
+      "power": 1615270,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "satana": {
+      "power": 1880700,
+      "level": 108,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "invisiblewomanmcu": {
+      "power": 2934751,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "mrfantasticmcu": {
+      "power": 1903595,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "franklinrichards": {
+      "power": 2342521,
+      "level": 108,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "azazel": {
+      "power": 1486085,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "blastaar": {
+      "power": 1609638,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "rachelsummers": {
+      "power": 1601118,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "sebastianshaw": {
+      "power": 1600154,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "xavier": {
+      "power": 2662006,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "scorpion": {
+      "power": 1990487,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "hobgoblin": {
+      "power": 2654778,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "superiorspiderman": {
+      "power": 1868335,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "phantomrider": {
+      "power": 939542,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 5,
+      "redStars": 5,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 8,
+        "special": 8,
+        "ultimate": 8,
+        "passive": 6
+      }
+    },
+    "daimonhellstrom": {
+      "power": 2775906,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "livingmummy": {
+      "power": 1810372,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "zombiekestrel": {
+      "power": 868704,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 5,
+      "redStars": 0,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "hellcat": {
+      "power": 1879831,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ladybullseye": {
+      "power": 2381360,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "thunderstrike": {
+      "power": 1381610,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 6
+      }
+    },
+    "swordmaster": {
+      "power": 1703133,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "steelserpent": {
+      "power": 1638478,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "wolfsbane": {
+      "power": 2177426,
+      "level": 108,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "warlock": {
+      "power": 1714289,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "cannonball": {
+      "power": 2153606,
+      "level": 109,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "sentry": {
+      "power": 1591846,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "darkstar": {
+      "power": 3646577,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ursamajor": {
+      "power": 3408442,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 5,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "magnetophoenixforce": {
+      "power": 813653,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 4,
+      "redStars": 4,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "moongirl": {
+      "power": 1906127,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "novasamalexander": {
+      "power": 1708858,
+      "level": 105,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "jeffthelandshark": {
+      "power": 1581017,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 8,
+        "special": 7,
+        "ultimate": 8,
+        "passive": 6
+      }
+    },
+    "nightthrasher": {
+      "power": 2723909,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "eclipse": {
+      "power": 2029948,
+      "level": 110,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "speedball": {
+      "power": 2621146,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "highevolutionary": {
+      "power": 2449534,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 4,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "executioner": {
+      "power": 3149017,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "malekith": {
+      "power": 2156599,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "silversurferbreaker": {
+      "power": 3008730,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "stormmighty": {
+      "power": 2952804,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "angel": {
+      "power": 2707671,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "symbiotequicksilver": {
+      "power": 2739011,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "morph": {
+      "power": 1286483,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "toxin": {
+      "power": 3237865,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "riot": {
+      "power": 3425366,
+      "level": 110,
+      "gear": 21,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "blademighty": {
+      "power": 2361470,
+      "level": 107,
+      "gear": 20,
+      "isoMax": 16,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "rachelcolealves": {
+      "power": 2501784,
+      "level": 108,
+      "gear": 20,
+      "isoMax": 16,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "spiderwomanjulia": {
+      "power": 2629832,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 16,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "scorpionbreaker": {
+      "power": 1921934,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 1,
+      "abilities": {
+        "basic": 8,
+        "special": 8,
+        "ultimate": 7,
+        "passive": 6
+      }
+    },
+    "kingo": {
+      "power": 2823303,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "gilgamesh": {
+      "power": 2606677,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "bluemarvel": {
+      "power": 2536205,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "thena": {
+      "power": 2081457,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 6,
+      "redStars": 6,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ulyssesklaue": {
+      "power": 2743523,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 16,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 3,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "maestro": {
+      "power": 1394277,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "whiplash": {
+      "power": 1992132,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 16,
+      "yellowStars": 6,
+      "redStars": 6,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "ironmonger": {
+      "power": 1643356,
+      "level": 110,
+      "gear": 20,
+      "isoMax": 16,
+      "yellowStars": 5,
+      "redStars": 5,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "waspjanet": {
+      "power": 957376,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 5,
+      "redStars": 5,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "humantorchjim": {
+      "power": 1235889,
+      "level": 101,
+      "gear": 19,
+      "isoMax": 13,
+      "yellowStars": 7,
+      "redStars": 7,
+      "diamonds": 2,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "jocasta": {
+      "power": 659695,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 4,
+      "redStars": 4,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 7,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "dracula": {
+      "power": 933314,
+      "level": 100,
+      "gear": 19,
+      "isoMax": 14,
+      "yellowStars": 3,
+      "redStars": 3,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "hawkeyerobot": {
+      "power": 951923,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 14,
+      "yellowStars": 4,
+      "redStars": 4,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "sabretoothbreaker": {
+      "power": 1645744,
+      "level": 105,
+      "gear": 20,
+      "isoMax": 15,
+      "yellowStars": 6,
+      "redStars": 6,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "kazar": {
+      "power": 242487,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 14,
+      "yellowStars": 1,
+      "redStars": 1,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 6,
+        "ultimate": 6,
+        "passive": 5
+      }
+    },
+    "cyclopsmighty": {
+      "power": 334949,
+      "level": 90,
+      "gear": 17,
+      "isoMax": 14,
+      "yellowStars": 3,
+      "redStars": 3,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 7,
+        "special": 7,
+        "ultimate": 7,
+        "passive": 5
+      }
+    },
+    "destroyer": {
+      "power": 42436,
+      "level": 55,
+      "gear": 10,
+      "yellowStars": 5,
+      "redStars": 0,
+      "diamonds": 0,
+      "abilities": {
+        "basic": 6,
+        "special": 0,
+        "ultimate": 0,
+        "passive": 4
+      }
+    }
+  },
+  "iso": {
+    "shieldsupportheal": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "spiderman": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "lukecage": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "punisher": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "elektra": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "crossbones": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "mercdmggeneral": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "shielddmgdefense": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "bullseye": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "merctankdebuff": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "quake": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "wolverine": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "shieldsupportstealth": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "hydrasupportheal": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "nebula": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "hawkeye": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "ravagertanktaunt": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "jessicajones": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "shieldtankstun": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "yondu": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "ravagersupportheal": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "hulk": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "antman": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "hydradmgaoe": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "gamora": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "ironfist": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "hydradmgbuff": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "daredevil": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "ronan": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "hydratanktaunt": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "korath": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "ravagerdmgaoe": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "nightnurse": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "aimtanktaunt": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "scarletwitch": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "captainamerica": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "blackwidow": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "wintersoldier": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "msmarvel": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "baronmordo": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "thor": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "kingpin": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "deadpool": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "cable": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "hydradmgsingle": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "storm": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "thanos": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "aimdmgoffense": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "mercsupportbuffs": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "scientistsupreme": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "venom": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "wasp": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "loki": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "vision": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "rocketraccoon": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "groot": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "nobu": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "aimdmgspeed": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "doctorstrange": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "ironman": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "mystique": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "juggernaut": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "pyro": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "blackpanther": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "ultspiderman": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "starlord": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "sabretooth": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "ultgreengoblin": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "warmachine": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "minerva": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "nickfury": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "captainmarvel": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "killmonger": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "magneto": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "carnage": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "mbaku": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "okoye": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "falcon": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "rescue": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "colossus": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "psylocke": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "americachavez": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "rhino": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "shocker": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "mysterio": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "vulture": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "thing": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "ultron": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "namor": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "shuri": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "humantorch": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "ultimus": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "mrfantastic": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "graviton": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "ghostrider": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "elsabloodstone": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "coulson": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "hela": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "phoenix": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "mrsinister": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "stryfe": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "invisiblewoman": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "sif": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "heimdall": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "yoyo": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "karnak": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "crystal": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "cyclops": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "symbiotespiderman": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "toad": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "blob": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "redskull": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "proximamidnight": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "corvusglaive": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "blackbolt": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "taskmaster": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "cullobsidian": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "ebonymaw": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "ironheart": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "domino": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "negasonic": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "x23": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "beast": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "squirrelgirl": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "emmafrost": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "swarm": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "zemo": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "electro": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "doctoroctopus": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "scream": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "antivenom": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "shehulk": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "stature": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "yellowjacket": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "ghost": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "shatterstar": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "longshot": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "yelena": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "redguardian": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "kittypryde": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "bishop": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "iceman": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "jubilee": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "whitetiger": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "moonknight": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "silversurfer": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "polaris": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "multipleman": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "sybil": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "doom": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "colleenwing": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "phylavell": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "mistyknight": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "moondragon": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "adamwarlock": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "samwilson": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "sharoncarter": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "mariahill": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "deathpool": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "shangchi": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "dagger": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "cloak": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "silversamurai": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "ladydeathstrike": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "omegared": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "sersi": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "ikaris": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "ghostspider": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "magik": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "scarletspider": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "spiderpunk": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "tchalla": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "echo": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "katebishop": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "doctorvoodoo": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "morbius": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "strangesupreme": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "wong": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "morganlefay": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "agathaharkness": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "madelynepryor": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "spiderwoman": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "nicominoru": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "fantomex": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "gambit": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "dazzler": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "sunfire": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "rogue": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "janethor": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "valkyrie": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "dormammu": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "vivvision": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "deathlok": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "hulkbuster": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "spiderweaver": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "amadeuscho": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "abomination": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "redhulk": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "spiderman2099": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "spidermannoir": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "zombieironman": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "nakia": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "blackpantherbc": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "darkbeast": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "archangel": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "nemesis": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "mrnegative": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "usagent": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "captaincarter": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "agentvenom": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "absorbingman": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "titania": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "kangtheconqueror": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "moonstone": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "apocalypse": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "captainamericaww2": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "buckybarnes": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "unionjack": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "ironfistorson": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "quicksilver": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "firestar": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "nova": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "gwenpool": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "cosmo": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "korg": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "starlordannihilation": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "vahl": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "thorinfinitywar": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "lokiteen": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "betaraybill": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "sylvie": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "spidermanbigtime": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "photon": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "kamalakhan": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "blackcat": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "ghostriderrobbie": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "ronin": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "mockingbird": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "ironmaninfinitywar": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "tigra": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "darkhawk": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "ironheartmcu": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "zombiejuggernaut": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "greengoblinglider": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "kraventhehunter": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "spiderslayer": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "lizard": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "nightcrawler": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "forge": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "sunspot": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "superskrull": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "symbiotesilversurfer": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "gwenom": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "redgoblin": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "blackknight": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "starbrand": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "cosmicghostrider": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "ironpatriot": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "theleader": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "peterbparker": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "spidermanpavitr": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "peniparker": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "pandapool": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "oldmanlogan": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "daken": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "northstar": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "guardian": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "sasquatch": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "blackpanthershuri": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "hankpym": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "ares": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "gladiator": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "gorr": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "thanosendgame": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "sentinel": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "nimrod": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "blade": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "oath": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "omegasentinel": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "mephisto": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "manthing": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "captainbritain": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "zombiescarletwitch": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "odin": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "ancientone": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "shadowking": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "emmafrostxmen": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "kahhori": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "msmarvelclassic": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "medusa": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "jeangrey": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "hercules": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "omegaredphoenix": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "peggycarter": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "falconjoaquin": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "lilandra": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "patriot": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "howardtheduck": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "knull": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "havok": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "daredevilmodern": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "silversable": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "hitmonkey": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "victoriahand": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "songbird": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "quasar": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "hyperion": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "hellverine": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "thehood": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "satana": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "invisiblewomanmcu": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "mrfantasticmcu": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "franklinrichards": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "azazel": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "blastaar": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "rachelsummers": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "sebastianshaw": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "xavier": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "scorpion": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "hobgoblin": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "superiorspiderman": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "phantomrider": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "daimonhellstrom": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "livingmummy": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "zombiekestrel": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "hellcat": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "ladybullseye": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "thunderstrike": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "swordmaster": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "steelserpent": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "wolfsbane": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "warlock": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "cannonball": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "sentry": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "darkstar": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "ursamajor": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "magnetophoenixforce": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "moongirl": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "novasamalexander": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "jeffthelandshark": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "nightthrasher": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "eclipse": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "speedball": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "highevolutionary": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "executioner": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "malekith": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "silversurferbreaker": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "stormmighty": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "angel": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "symbiotequicksilver": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "morph": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "toxin": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "riot": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "blademighty": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "rachelcolealves": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "spiderwomanjulia": {
+      "isoClass": "skirmisher",
+      "isoColor": ""
+    },
+    "scorpionbreaker": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "kingo": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "gilgamesh": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "bluemarvel": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "thena": {
+      "isoClass": "fortifier",
+      "isoColor": ""
+    },
+    "ulyssesklaue": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "maestro": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "whiplash": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "ironmonger": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "waspjanet": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "humantorchjim": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "jocasta": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "dracula": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "hawkeyerobot": {
+      "isoClass": "striker",
+      "isoColor": ""
+    },
+    "sabretoothbreaker": {
+      "isoClass": "raider",
+      "isoColor": ""
+    },
+    "kazar": {
+      "isoClass": "healer",
+      "isoColor": ""
+    },
+    "cyclopsmighty": {
+      "isoClass": "raider",
+      "isoColor": ""
+    }
+  }
+}
