@@ -37,3 +37,18 @@ test("ranking places verifiable theoretical players after LoSP finishers",()=>{
   assert.deepEqual(out.ranked.map(x=>x.rank),[1,2]);
   assert.equal(out.indeterminate.length,1);
 });
+
+
+test("unknown after a confirmed block preserves the known consecutive count",()=>{
+  const d=dim([
+    {id:"A",order:1,requirement:req},
+    {id:"B",order:2,requirement:{groups:[{tagIds:["Cosmic"],minCharacters:3}]}},
+    {id:"C",order:3,requirement:null}
+  ]);
+  const r=calc({heroa:good},d);
+  assert.equal(r.status,"indeterminate");
+  assert.equal(r.consecutive,1);
+  assert.equal(r.percent,33);
+  assert.equal(r.prepared,null);
+  assert.equal(rankResults([{result:r}]).ranked.length,0);
+});
