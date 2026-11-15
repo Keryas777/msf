@@ -434,11 +434,9 @@ function renderMap(roster) {
     mapElement.append(label);
   });
 
-  const roomIds = [...new Set([
-    ...(map.combatNodeIds || []),
-    ...(map.portalIds || []),
-    map.startId,
-  ].filter(Boolean))];
+  // Keep official visualEdges (including intermediate coordinates) for the
+  // route, but only combat rooms are interactive nodes.
+  const roomIds = [...new Set(map.combatNodeIds || [])];
 
   for (const id of roomIds) {
     const position = layout.gridPosition(id);
