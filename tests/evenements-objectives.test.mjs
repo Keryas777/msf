@@ -157,7 +157,7 @@ test('Un plafond de scoring reste un maximum, pas un objectif obligatoire',async
   const nodes=await makePage();
   const raid=objectiveNodes(nodes).find(row=>row.children[0].textContent.includes('Iron Raider'));
   const notes=raid.children[1].children.map(x=>x.textContent);
-  assert.ok(notes.some(x=>x.includes('(plafond 8 pts)')));
+  assert.ok(notes.some(x=>x.includes('(plafond 8 pts de progression)')));
   assert.ok(notes.some(x=>x.includes('8 actions comptabilisées en 3 jours')));
   const login=objectiveNodes(nodes).find(row=>row.children[0].textContent.includes('7 jours'));
   const loginNotes=login.children[1].children.map(x=>x.textContent);
@@ -229,6 +229,9 @@ test('Le détail distingue pt et pts, la journée et la période de sept jours',
 test('Les points internes sont distincts des points d’événement gagnés',async()=>{
   const nodes=await makePage({includeBase:false,extraEvents:[
     ['Plan de bataille','milestone',{
+      locationHints:['lohub_wrapper'],milestone:{type:'solo',scoring:{
+        methods:[],cappedScorings:[]}}}],
+    ['Plan de bataille','milestone',{
       locationHints:['lohub_feeder'],milestone:{type:'solo',scoring:{
         methods:[],cappedScorings:[
           {cap:1,rewardTier:8,isPremium:true,eventPoints:5,
@@ -236,7 +239,7 @@ test('Les points internes sont distincts des points d’événement gagnés',asy
           {cap:3,rewardTier:2,eventPoints:20,
             methods:[{description:'Combattre avec Cyclope (Puissant)',points:1}]}
         ]}}}],
-    ['Mission sans détail','milestone',{
+    ['Plan de bataille','milestone',{
       locationHints:['lohub_feeder'],milestone:{type:'solo',scoring:{
         methods:[],cappedScorings:[
           {cap:2,rewardTier:2,methods:[{description:'Combattre dans l’arène',points:1}]}
@@ -262,6 +265,9 @@ test('Les points internes sont distincts des points d’événement gagnés',asy
 
 test('Des objectifs avec mêmes conditions mais récompenses distinctes restent visibles',async()=>{
   const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Plan de bataille','milestone',{
+      locationHints:['lohub_wrapper'],milestone:{type:'solo',scoring:{
+        methods:[],cappedScorings:[]}}}],
     ['Plan de bataille','milestone',{
       locationHints:['lohub_feeder'],milestone:{type:'solo',scoring:{
         methods:[],cappedScorings:[
@@ -597,7 +603,7 @@ test('Objectifs généraux : équipe complète, personnages et Choc se retrouven
   assert.equal(general.length,4);
   for(const row of general){
     assert.ok(row.children[1].children.some(c=>c.textContent?.includes('Briseur de volontés')));
-    assert.ok(row.children[1].children.some(c=>c.textContent?.includes('(plafond 1 pt)')));
+    assert.ok(row.children[1].children.some(c=>c.textContent?.includes('(plafond 1 pt de progression)')));
   }
   assert.ok(objectiveNodes(nodes).some(row=>row.children[1].children.some(c=>
     c.textContent?.includes('1000')||c.textContent?.includes('1 000')||
@@ -783,8 +789,10 @@ test('Une même action Raid ou Guerre rassemble les événements et conserve cha
   assert.ok(items.every(row=>row.children[0].hidden===true));
   const scoring=items.map(row=>row.children[1].children.map(part=>part.textContent).join(' '));
   const normalized=scoring.join(' / ').replace(/\s/g,'');
-  for(const cap of [24,6,5,144000,384000])
-    assert.ok(normalized.includes('(plafond'+cap+'pts)'),cap+' points conservés');
+  for(const cap of [24,6,5])
+    assert.ok(normalized.includes('(plafond'+cap+'ptsdeprogression)'),cap+' progression conservée');
+  for(const cap of [144000,384000])
+    assert.ok(normalized.includes('(plafond'+cap+'pts)'),cap+' barème alliance conservé');
   assert.ok(normalized.includes('+125ptsparaction'));
   assert.ok(normalized.includes('+800ptsparaction'));
 });
