@@ -732,3 +732,17 @@ h2 { margin-bottom: 9px; font-size: 1.06rem; font-weight: 800; }
   min-width: 0;
   box-sizing: border-box;
 }
+
+/* Fine dashed separators for each node inside the seven DD9 sections. */
+.dd-progress-segment { position: relative; }
+.dd-progress-node-divider {
+  position: absolute;
+  top: 18%;
+  bottom: 18%;
+  width: 0;
+  border-left: 1px dashed rgba(9, 21, 43, .55);
+  pointer-events: none;
+}
+.dd-progress--complete .dd-progress-node-divider {
+  border-left-color: rgba(5, 44, 45, .55);
+}

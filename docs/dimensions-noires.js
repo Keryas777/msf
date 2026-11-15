@@ -289,6 +289,14 @@ function renderRanking() {
           segment.className = "dd-progress-segment";
           segment.style.flexGrow = String(size);
           segment.style.setProperty("--dd-fill", progressFills(sizes, count, finished)[index] + "%");
+          // Delimit individual combat nodes without changing the seven section widths.
+          for (let node = 1; node < size; node++) {
+            const divider = document.createElement("span");
+            divider.className = "dd-progress-node-divider";
+            divider.style.left = (node / size * 100) + "%";
+            divider.setAttribute("aria-hidden", "true");
+            segment.append(divider);
+          }
           track.append(segment);
         }
         wrap.append(track);
