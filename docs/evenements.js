@@ -525,7 +525,7 @@
     li.append(action);
     const row=create('div','ev-objective-footer');
     if(item.points!==null)row.append(create('span','ev-objective-score',
-      '+'+objectivePointLabel(item.points)+' par action'));
+      '+ '+objectivePointLabel(item.points)+' par action'));
     if(item.cap!==null)row.append(create('span','ev-objective-cap',
       '('+(item.sharedCap?'plafond partagé ':'plafond ')+
       objectivePointLabel(item.cap)+')'));
