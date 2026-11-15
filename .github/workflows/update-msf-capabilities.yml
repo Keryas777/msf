@@ -124,7 +124,7 @@ jobs:
           python -m scripts.msf_capabilities_indexer.cli
           python -m scripts.msf_capabilities_web_publisher.cli
           python -m scripts.msf_capabilities_explorer_builder.cli
-      - name: Report historical health redistribution expectations (advisory)
+      - name: Refresh official DD character traits\n        if: (steps.primary.outcome == 'success' && steps.primary.outputs.content_changed == 'true') || (steps.fallback.outcome == 'success' && steps.fallback.outputs.changed == 'true') || steps.french.outputs.changed == 'true'\n        run: |\n          python -m unittest discover -s tests -p "test_build_dd_character_traits.py" -v\n          python scripts/build_dd_character_traits.py\n          python scripts/build_dd_character_traits.py --check\n      - name: Report historical health redistribution expectations (advisory)
         if: (steps.primary.outcome == 'success' && steps.primary.outputs.content_changed == 'true') || (steps.fallback.outcome == 'success' && steps.fallback.outputs.changed == 'true') || steps.french.outputs.changed == 'true'
         continue-on-error: true
         run: |
@@ -148,7 +148,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm --ignore-unmatch data/msf-capabilities/bootstrap-sources.tar.gz
           git add data/msf-capabilities/raw data/msf-capabilities/source-manifest.json
-          git add -- docs/data/msf-capabilities docs/data/msf-capabilities-explorer
+          git add -- docs/data/msf-capabilities docs/data/msf-capabilities-explorer docs/data/dd-character-traits.json
           if git diff --staged --quiet; then
             echo "No source or Codex changes; no commit created."
             exit 0
