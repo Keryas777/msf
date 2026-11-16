@@ -362,8 +362,10 @@ function playerStatus(evaluation, totalNodes) {
   if (evaluation.status === "indeterminate")
     return "Progression théorique indéterminée : une ou plusieurs exigences officielles ne sont pas vérifiables. Aucune salle inconnue n’est déclarée franchissable.";
   if (evaluation.status === "theoretical")
-    return "Progression théorique : " + evaluation.consecutive + " salle(s) consécutive(s) sur " +
-      totalNodes + " ; " + evaluation.prepared + " exigence(s) de salle satisfaite(s) par le roster. Cela ne prouve pas la progression réelle en jeu.";
+    return "Progression théorique\n" +
+      evaluation.consecutive + " / " + totalNodes + " salle" + (evaluation.consecutive > 1 ? "s" : "") + " consécutive" + (evaluation.consecutive > 1 ? "s" : "") + " prête" + (evaluation.consecutive > 1 ? "s" : "") + "\n" +
+      evaluation.prepared + " / " + totalNodes + " pré-requis validés dans le roster.\n" +
+      "Cela ne prouve pas la progression réelle en jeu.";
   return "Progression théorique non disponible.";
 }
 
@@ -495,6 +497,7 @@ function renderMap(roster) {
       nodeStates.get(id) || "unknown", evaluation.completed
     ));
     button.addEventListener("click", () => {
+      info.hidden = false;
       info.textContent = nodeDescription(
         id, portal ? "portal" : combat ? "combat" : "start",
         nodeStates.get(id) || "unknown", evaluation.completed
@@ -510,7 +513,8 @@ function renderMap(roster) {
     roster.player + " · " + selectedDimension.shortName;
   $("progress-summary").textContent =
     playerStatus(evaluation, selectedDimension.nodes?.length || 0);
-  info.textContent = playerStatus(evaluation, selectedDimension.nodes?.length || 0);
+  info.hidden = true;
+  info.textContent = "";
 }
 
 function clearMap(message) {
