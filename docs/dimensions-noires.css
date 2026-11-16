@@ -276,7 +276,7 @@ select {
 .node.combat { width: min(46px, 92%); aspect-ratio: 46 / 48; border-radius: 12px; }
 .node.portal { border-color: var(--portal); background: #14374a; color: #b8eeff; }
 .node.start { border-color: var(--green); color: #c5ffe5; }
-.node.done { border-color: var(--green); background: #146143; color: #effff7; }
+.node.done { border-color: #65b5ff; background: #204a79; color: #eff7ff; }
 .node.requirements-met { border-color: var(--ready); background: #146143; color: #effff7; }
 .node.requirements-unmet { border-color: var(--unmet); background: #682b38; color: #fff1f2; }
 .map-tracks {
