@@ -357,7 +357,9 @@ function renderRanking() {
 function playerStatus(evaluation, totalNodes) {
   if (evaluation.completed)
     return (dimension()?.shortName || "Dimension noire") + " · " + passageLabel(dimension(), evaluation.passages) + " selon la convention LoSP fondée sur le roster vérifié.";
-  if (evaluation.checkpointReached)\n    return "Nœud 3 terminé selon la convention LoSP (7 étoiles jaunes et rouges sur la récompense). Premier passage non confirmé. La préparation des autres nœuds reste théorique.";\n  if (evaluation.status === "unavailable")
+  if (evaluation.checkpointReached)
+    return "Nœud 3 terminé selon la convention LoSP (7 étoiles jaunes et rouges sur la récompense). Premier passage non confirmé. La préparation des autres nœuds reste théorique.";
+  if (evaluation.status === "unavailable")
     return "Progression indisponible : aucun roster vérifié n’est chargé.";
   if (evaluation.status === "indeterminate")
     return "Progression théorique indéterminée : une ou plusieurs exigences officielles ne sont pas vérifiables. Aucune salle inconnue n’est déclarée franchissable.";
