@@ -265,7 +265,7 @@ function renderRanking() {
       if (tier) {
         const rewards = document.createElement("span");
         rewards.className = "dd-badge-line";
-        rewards.append(document.createTextNode("Annihilus " + tier.minYellowStars + " "));
+        rewards.append(document.createTextNode((selectedDimension?.completionRule?.characterId || "Récompense") + " " + tier.minYellowStars + " "));
         const yellow = document.createElement("span");
         yellow.className = "dd-star-yellow";
         yellow.textContent = "★";
@@ -276,7 +276,7 @@ function renderRanking() {
         rewards.append(red);
         badge.append(rewards);
       }
-    } else if (entry.result.status === "theoretical") {
+    } else if (entry.result.checkpointReached) {\n      const checkpoint = document.createElement("span");\n      checkpoint.className = "dd-badge-line";\n      checkpoint.textContent = "Nœud 3 terminé · 7 ★ jaunes / 7 ★ rouges (convention LoSP)";\n      badge.append(checkpoint);\n    } else if (entry.result.status === "theoretical") {
       const total = selectedDimension?.nodes?.length || 0;
       const first = document.createElement("span");
       first.className = "dd-badge-line";
@@ -357,7 +357,7 @@ function renderRanking() {
 function playerStatus(evaluation, totalNodes) {
   if (evaluation.completed)
     return (dimension()?.shortName || "Dimension noire") + " · " + passageLabel(dimension(), evaluation.passages) + " selon la convention LoSP fondée sur le roster vérifié.";
-  if (evaluation.status === "unavailable")
+  if (evaluation.checkpointReached)\n    return "Nœud 3 terminé selon la convention LoSP (7 étoiles jaunes et rouges sur la récompense). Premier passage non confirmé. La préparation des autres nœuds reste théorique.";\n  if (evaluation.status === "unavailable")
     return "Progression indisponible : aucun roster vérifié n’est chargé.";
   if (evaluation.status === "indeterminate")
     return "Progression théorique indéterminée : une ou plusieurs exigences officielles ne sont pas vérifiables. Aucune salle inconnue n’est déclarée franchissable.";
