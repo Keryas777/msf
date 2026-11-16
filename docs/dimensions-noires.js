@@ -70,8 +70,10 @@ function identity(roster) {
 
 function passageLabel(selectedDimension, passages) {
   const tier = selectedDimension?.completionRule?.tiers?.find((item) => item.passages === passages);
-  return (passages === 1 ? "1er passage" : passages + " passages") +
-    (tier ? " · " + tier.minYellowStars + "★ jaunes / " + tier.minRedStars + "★ rouges" + (tier.minDiamonds != null ? " / " + tier.minDiamonds + " diamant" + (tier.minDiamonds > 1 ? "s" : "") : "") : "");
+  const label = passages === 1 ? "1er passage" : passages + " passages";
+  if (!tier) return label;
+  if (tier.minDiamonds != null) return label + " · " + tier.minDiamonds + " diamant" + (tier.minDiamonds > 1 ? "s" : "");
+  return label + " · " + tier.minYellowStars + "★ jaunes / " + tier.minRedStars + "★ rouges";
 }
 
 function firstClearAt(roster, selectedDimension) {
@@ -265,17 +267,18 @@ function renderRanking() {
       if (tier) {
         const rewards = document.createElement("span");
         rewards.className = "dd-badge-line";
-        rewards.append(document.createTextNode((selectedDimension?.completionRule?.characterId === "MagikBreaker" ? "Magik (Briseuse)" : selectedDimension?.completionRule?.characterId || "Récompense") + " " + tier.minYellowStars + " "));
-        const yellow = document.createElement("span");
-        yellow.className = "dd-star-yellow";
-        yellow.textContent = "★";
-        rewards.append(yellow, document.createTextNode(" - " + tier.minRedStars + " "));
-        const red = document.createElement("span");
-        red.className = "dd-star-red";
-        red.textContent = "★";
-        rewards.append(red);
         if (tier.minDiamonds != null) {
-          rewards.append(document.createTextNode(" · " + tier.minDiamonds + " diamant" + (tier.minDiamonds > 1 ? "s" : "")));
+          rewards.textContent = tier.minDiamonds + " diamant" + (tier.minDiamonds > 1 ? "s" : "") + " · Magik (Briseuse)";
+        } else {
+          rewards.append(document.createTextNode((selectedDimension?.completionRule?.characterId || "Récompense") + " " + tier.minYellowStars + " "));
+          const yellow = document.createElement("span");
+          yellow.className = "dd-star-yellow";
+          yellow.textContent = "★";
+          rewards.append(yellow, document.createTextNode(" - " + tier.minRedStars + " "));
+          const red = document.createElement("span");
+          red.className = "dd-star-red";
+          red.textContent = "★";
+          rewards.append(red);
         }
         badge.append(rewards);
       }
