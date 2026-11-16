@@ -1428,6 +1428,10 @@
     });
   }
 
+  function visiblePlayerName(value) {
+    return String(value ?? "").replace(/^(?:(?:<\/?b>)|(?:<\/?color(?:=[^>]*)?>)|(?:<#[0-9a-fA-F]{3,8}>))+/gi, "").trim();
+  }
+
   function playersForAlliance(allianceK) {
     const rows = new Map();
 
@@ -1465,7 +1469,7 @@
     });
 
     return Array.from(rows.values()).sort((a, b) =>
-      a.sortName.localeCompare(b.sortName, "fr", {
+      visiblePlayerName(a.sortName).localeCompare(visiblePlayerName(b.sortName), "fr", {
         sensitivity: "base",
       })
     );
@@ -1542,7 +1546,13 @@
     const allianceLabel = getAllianceLabel(allianceK || allianceRaw);
     const allianceEmoji = getAllianceEmoji(allianceK || allianceRaw);
 
-    playerNameEl.textContent = name;
+    playerNameEl.replaceChildren();
+    const playerNameLabel = document.createElement("span");
+    playerNameLabel.textContent = visiblePlayerName(name);
+    const nameColor = String(name).match(/<\#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})>/i);
+    if (nameColor) playerNameLabel.style.color = "#" + nameColor[1];
+    if (/<b>/i.test(name)) playerNameLabel.style.fontWeight = "700";
+    playerNameEl.appendChild(playerNameLabel);
     playerAllianceEl.textContent = `${allianceEmoji} ${allianceLabel}`.trim();
     playerAllianceEl.style.color = allianceMeta?.color || "";
 
