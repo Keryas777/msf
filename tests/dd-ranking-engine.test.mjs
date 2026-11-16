@@ -119,3 +119,21 @@ test("existing node readiness remains unchanged at five eligible characters",()=
  assert.equal(result.consecutive,1);
  assert.equal(result.nextReadiness,null);
 });
+
+test("missing ISO-8 data is not mistaken for zero eligible characters",()=>{
+ const d=dim([{id:"A2",order:1,requirement:{minCharacters:5,alternatives:[{minIsoTier:18,tagIds:[],allTagIds:[],excludeTagIds:[]}]}}]);
+ const chars=Array.from({length:5},(_,i)=>({id:"Iso"+i,nameKey:"Iso"+i,tags:[]}));
+ const roster={chars:Object.fromEntries(chars.map((c,i)=>[c.id,i<4?{isoMax:18}:{}]))};
+ const result=evaluateDimension({dimension:d,roster,catalog:chars});
+ assert.equal(result.status,"indeterminate");
+ assert.equal(result.nextReadiness.ready,4);
+ assert.equal(result.incompleteData.missingIso,1);
+});
+test("confirmed zero ISO-8 eligible characters remains theoretical zero",()=>{
+ const d=dim([{id:"A2",order:1,requirement:{minCharacters:5,alternatives:[{minIsoTier:18,tagIds:[],allTagIds:[],excludeTagIds:[]}]}}]);
+ const chars=Array.from({length:5},(_,i)=>({id:"Iso"+i,nameKey:"Iso"+i,tags:[]}));
+ const roster={chars:Object.fromEntries(chars.map(c=>[c.id,{isoMax:17}]))};
+ const result=evaluateDimension({dimension:d,roster,catalog:chars});
+ assert.equal(result.status,"theoretical");
+ assert.equal(result.nextReadiness.ready,0);
+});
