@@ -2174,15 +2174,17 @@
         "status": "Cible : Blue Marvel terminée",
         "percent": 100,
         "kind": "application-convention",
-        "note": "Convention LoSP : les étoiles jaunes vérifiées de Blue Marvel sont compatibles avec un ou deux passages, sans en prouver la date.",
+        "note": "Convention LoSP : les étoiles jaunes et rouges vérifiées de Blue Marvel sont compatibles avec un ou deux passages, sans en prouver la date.",
         "tiers": [
           {
             "passages": 1,
-            "minYellowStars": 5
+            "minYellowStars": 5,
+            "minRedStars": 5
           },
           {
             "passages": 2,
-            "minYellowStars": 7
+            "minYellowStars": 7,
+            "minRedStars": 7
           }
         ]
       }
