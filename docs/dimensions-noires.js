@@ -265,7 +265,7 @@ function renderRanking() {
       if (tier) {
         const rewards = document.createElement("span");
         rewards.className = "dd-badge-line";
-        rewards.append(document.createTextNode((selectedDimension?.completionRule?.characterId || "Récompense") + " " + tier.minYellowStars + " "));
+        rewards.append(document.createTextNode((selectedDimension?.completionRule?.characterId === "MagikBreaker" ? "Magik (Briseuse)" : selectedDimension?.completionRule?.characterId || "Récompense") + " " + tier.minYellowStars + " "));
         const yellow = document.createElement("span");
         yellow.className = "dd-star-yellow";
         yellow.textContent = "★";
@@ -274,6 +274,9 @@ function renderRanking() {
         red.className = "dd-star-red";
         red.textContent = "★";
         rewards.append(red);
+        if (tier.minDiamonds != null) {
+          rewards.append(document.createTextNode(" · " + tier.minDiamonds + " diamant" + (tier.minDiamonds > 1 ? "s" : "")));
+        }
         badge.append(rewards);
       }
     } else if (entry.result.checkpointReached) {
