@@ -71,7 +71,7 @@ function identity(roster) {
 function passageLabel(selectedDimension, passages) {
   const tier = selectedDimension?.completionRule?.tiers?.find((item) => item.passages === passages);
   return (passages === 1 ? "1er passage" : passages + " passages") +
-    (tier ? " · " + tier.minYellowStars + "★ jaunes / " + tier.minRedStars + "★ rouges" : "");
+    (tier ? " · " + tier.minYellowStars + "★ jaunes / " + tier.minRedStars + "★ rouges" + (tier.minDiamonds != null ? " / " + tier.minDiamonds + " diamant" + (tier.minDiamonds > 1 ? "s" : "") : "") : "");
 }
 
 function firstClearAt(roster, selectedDimension) {
@@ -265,7 +265,7 @@ function renderRanking() {
       if (tier) {
         const rewards = document.createElement("span");
         rewards.className = "dd-badge-line";
-        rewards.append(document.createTextNode("Annihilus " + tier.minYellowStars + " "));
+        rewards.append(document.createTextNode((selectedDimension?.completionRule?.characterId || "Récompense") + " " + tier.minYellowStars + " "));
         const yellow = document.createElement("span");
         yellow.className = "dd-star-yellow";
         yellow.textContent = "★";
@@ -276,6 +276,11 @@ function renderRanking() {
         rewards.append(red);
         badge.append(rewards);
       }
+    } else if (entry.result.checkpointReached) {
+      const checkpoint = document.createElement("span");
+      checkpoint.className = "dd-badge-line";
+      checkpoint.textContent = "Nœud 3 terminé · 7 ★ jaunes / 7 ★ rouges (convention LoSP)";
+      badge.append(checkpoint);
     } else if (entry.result.status === "theoretical") {
       const total = selectedDimension?.nodes?.length || 0;
       const first = document.createElement("span");
@@ -357,6 +362,8 @@ function renderRanking() {
 function playerStatus(evaluation, totalNodes) {
   if (evaluation.completed)
     return (dimension()?.shortName || "Dimension noire") + " · " + passageLabel(dimension(), evaluation.passages) + " selon la convention LoSP fondée sur le roster vérifié.";
+  if (evaluation.checkpointReached)
+    return "Nœud 3 terminé selon la convention LoSP (7 étoiles jaunes et rouges sur la récompense). Premier passage non confirmé. La préparation des autres nœuds reste théorique.";
   if (evaluation.status === "unavailable")
     return "Progression indisponible : aucun roster vérifié n’est chargé.";
   if (evaluation.status === "indeterminate")

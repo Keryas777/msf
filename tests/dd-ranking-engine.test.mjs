@@ -52,3 +52,39 @@ test("unknown after a confirmed block preserves the known consecutive count",()=
   assert.equal(r.prepared,null);
   assert.equal(rankResults([{result:r}]).ranked.length,0);
 });
+
+
+test("Magik-style checkpoint and diamond completions remain separate from DD9",()=>{
+ const magik={key:"magik",checkpointRule:{characterId:"MagikBreaker",minYellowStars:7,minRedStars:7},completionRule:{characterId:"MagikBreaker",tiers:[{passages:1,minYellowStars:7,minRedStars:7,minDiamonds:1},{passages:2,minYellowStars:7,minRedStars:7,minDiamonds:3}]},nodes:[{id:"A2",order:1,requirement:req}]};
+ const characters=[...catalog,{id:"MagikBreaker",nameKey:"MagikBreaker",tags:["City"]}];
+ const run=(progress)=>evaluateDimension({dimension:magik,roster:{chars:{MagikBreaker:progress}},catalog:characters});
+ assert.equal(run({yellowStars:6,redStars:6,diamonds:0}).checkpointReached,false);
+ const checkpoint=run({yellowStars:7,redStars:7,diamonds:0});
+ assert.equal(checkpoint.checkpointReached,true);
+ assert.equal(checkpoint.completed,false);
+ assert.equal(run({yellowStars:7,redStars:7,diamonds:1}).passages,1);
+ assert.equal(run({yellowStars:7,redStars:7,diamonds:3}).passages,2);
+ assert.equal(calc({annihilus:{yellowStars:5,redStars:2}}).passages,1);
+});
+
+
+test("Magik orange ISO-8 level 3 requires isoMax >= 18 and preserves trait filtering",()=>{
+ const iso={minCharacters:5,alternatives:[{minIsoTier:18,tagIds:["City"],allTagIds:[],excludeTagIds:[]}]};
+ const d=dim([{id:"B4",order:1,requirement:iso}]);
+ const chars=Array.from({length:5},(_,i)=>({id:"City"+i,nameKey:"City"+i,tags:["City"]}));
+ const roster=(level)=>({chars:Object.fromEntries(chars.map(c=>[c.id,{isoMax:level}]))});
+ assert.equal(evaluateDimension({dimension:d,roster:roster(17),catalog:chars}).nodeStates[0].state,"false");
+ assert.equal(evaluateDimension({dimension:d,roster:roster(18),catalog:chars}).nodeStates[0].state,"true");
+ assert.equal(evaluateDimension({dimension:d,roster:roster(20),catalog:chars}).nodeStates[0].state,"true");
+ assert.equal(evaluateDimension({dimension:d,roster:roster(18),catalog:chars.map(c=>({...c,tags:["Global"]}))}).nodeStates[0].state,"false");
+ assert.equal(evaluateDimension({dimension:d,roster:roster(undefined),catalog:chars}).nodeStates[0].state,"unknown");
+});
+
+
+test("DD9 gear-only requirements do not demand ISO-8 progress",()=>{
+ const dd9=dim([{id:"A2",order:1,requirement:{minCharacters:1,alternatives:[{minGear:21,tagIds:[],allTagIds:[],excludeTagIds:[]}]}}]);
+ const result=calc({heroa:{gear:21}},dd9);
+ assert.equal(result.nodeStates[0].state,"true");
+ assert.equal(result.consecutive,1);
+ assert.equal(result.prepared,1);
+});
