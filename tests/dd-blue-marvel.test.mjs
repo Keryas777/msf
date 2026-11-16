@@ -31,3 +31,12 @@ test("DD9 and Magik configurations remain available", () => {
   assert.ok(config.dimensions.some(d => d.key === "magik-first-breaker" && d.nodes.length === 10));
   assert.equal(blue.completionRule.characterId, "BlueMarvel");
 });
+
+test("Blue Marvel completion requires red stars at both reward tiers", () => {
+  assert.deepEqual(blue.completionRule.tiers.map(t => [t.minYellowStars, t.minRedStars]),
+    [[5, 5], [7, 7]]);
+  const progression = JSON.parse(readFileSync(new URL("../docs/data/player-progression-rules.json", import.meta.url)));
+  const reward = progression.find(item => item.id === "target-blue-marvel");
+  assert.deepEqual(reward.steps.map(step => [step.requirements.yellowStars, step.requirements.redStars]),
+    [[5, 5], [7, 7]]);
+});
