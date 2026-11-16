@@ -1501,7 +1501,7 @@
       "name": "Première Briseuse : Magik",
       "shortName": "Magik",
       "active": false,
-      "sourceStatus": "Carte reconstruite depuis la capture du joueur ; règles officielles des salles non encore validées",
+      "sourceStatus": "Carte et restrictions fournies par le joueur ; correspondance technique ISO-8 orange à vérifier avant activation",
       "map": {
         "columns": [
           "A",
@@ -1578,71 +1578,203 @@
           "id": "A2",
           "order": 1,
           "name": "Mission 1",
-          "requirement": null,
-          "requirementDescription": []
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 3,
+                "tagIds": [],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 orange niveau 3 · aucun trait imposé"
+          ]
         },
         {
           "id": "A3",
           "order": 2,
           "name": "Mission 2",
-          "requirement": null,
-          "requirementDescription": []
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 3,
+                "tagIds": [],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 orange niveau 3 · aucun trait imposé"
+          ]
         },
         {
           "id": "A4",
           "order": 3,
           "name": "Mission 3",
-          "requirement": null,
-          "requirementDescription": []
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 3,
+                "tagIds": [],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 orange niveau 3 · aucun trait imposé"
+          ]
         },
         {
           "id": "B4",
           "order": 4,
           "name": "Mission 4",
-          "requirement": null,
-          "requirementDescription": []
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 3,
+                "tagIds": [
+                  "City"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 orange niveau 3 · Ville"
+          ]
         },
         {
           "id": "C4",
           "order": 5,
           "name": "Mission 5",
-          "requirement": null,
-          "requirementDescription": []
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 3,
+                "tagIds": [
+                  "City"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 orange niveau 3 · Ville"
+          ]
         },
         {
           "id": "D4",
           "order": 6,
           "name": "Mission 6",
-          "requirement": null,
-          "requirementDescription": []
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 3,
+                "tagIds": [
+                  "Global"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 orange niveau 3 · Global"
+          ]
         },
         {
           "id": "D3",
           "order": 7,
           "name": "Mission 7",
-          "requirement": null,
-          "requirementDescription": []
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 3,
+                "tagIds": [
+                  "Global"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 orange niveau 3 · Global"
+          ]
         },
         {
           "id": "D2",
           "order": 8,
           "name": "Mission 8",
-          "requirement": null,
-          "requirementDescription": []
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 3,
+                "tagIds": [
+                  "Cosmic"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 orange niveau 3 · Cosmique"
+          ]
         },
         {
           "id": "C2",
           "order": 9,
           "name": "Mission 9",
-          "requirement": null,
-          "requirementDescription": []
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 3,
+                "tagIds": [
+                  "Cosmic"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 orange niveau 3 · Cosmique"
+          ]
         },
         {
           "id": "B2",
           "order": 10,
           "name": "Mission 10",
-          "requirement": null,
-          "requirementDescription": []
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 3,
+                "tagIds": [],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 orange niveau 3 · aucun trait imposé"
+          ]
         }
       ]
     }
