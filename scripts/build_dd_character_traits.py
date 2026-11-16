@@ -33,6 +33,16 @@ def build(root: Path) -> dict:
         if not isinstance(traits, list) or not traits or any(not isinstance(t, str) for t in traits):
             raise ValueError(f"Official character lacks verified traits: {character_id}")
         result[character_id] = sorted(set(traits))
+    event_path = root / "docs/data/dd-event-character-traits.json"
+    if event_path.exists():
+        event_data = json.loads(event_path.read_text(encoding="utf-8"))
+        if event_data.get("schemaVersion") != 1 or not isinstance(event_data.get("characters"), dict):
+            raise ValueError("Invalid official event trait catalogue")
+        for character_id, event_traits in event_data["characters"].items():
+            if not isinstance(event_traits, list) or any(not isinstance(tag, str) or not tag for tag in event_traits):
+                raise ValueError(f"Invalid event traits for {character_id}")
+            if character_id in result:
+                result[character_id] = sorted(set(result[character_id]) | set(event_traits))
     if len(result) < 300:
         raise ValueError(f"Unexpected official Codex coverage: {len(result)}")
     return {
