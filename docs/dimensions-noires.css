@@ -746,3 +746,28 @@ h2 { margin-bottom: 9px; font-size: 1.06rem; font-weight: 800; }
 .dd-progress--complete .dd-progress-node-divider {
   border-left-color: rgba(5, 44, 45, .55);
 }
+
+/* Ranking status mirrors the segmented progression palette. */
+.player .badge {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 16px;
+  padding: 6px 10px;
+  line-height: 1.35;
+}
+.player.theoretical .badge {
+  background: rgba(255, 180, 61, .23);
+  color: #ffda92;
+}
+.player.finished:not(.finished-twice) .badge {
+  background: rgba(61, 220, 151, .2);
+  color: #b3ffdb;
+}
+.player.finished-twice .badge {
+  background: #1d3c69;
+  color: #d6edff;
+}
+.dd-badge-line { display: block; }
+.dd-star-yellow { color: #ffd74f; }
+.dd-star-red { color: #ff6868; }
