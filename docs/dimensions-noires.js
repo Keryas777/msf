@@ -71,7 +71,7 @@ function identity(roster) {
 function passageLabel(selectedDimension, passages) {
   const tier = selectedDimension?.completionRule?.tiers?.find((item) => item.passages === passages);
   return (passages === 1 ? "1er passage" : passages + " passages") +
-    (tier ? " · " + tier.minYellowStars + "★ jaunes / " + tier.minRedStars + "★ rouges" : "");
+    (tier ? " · " + tier.minYellowStars + "★ jaunes / " + tier.minRedStars + "★ rouges" + (tier.minDiamonds != null ? " / " + tier.minDiamonds + " diamant" + (tier.minDiamonds > 1 ? "s" : "") : "") : "");
 }
 
 function firstClearAt(roster, selectedDimension) {
