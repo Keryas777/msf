@@ -1500,8 +1500,8 @@
       "key": "magik-first-breaker",
       "name": "Première Briseuse : Magik",
       "shortName": "Magik",
-      "active": false,
-      "sourceStatus": "Carte et restrictions fournies par le joueur ; correspondance technique ISO-8 orange à vérifier avant activation",
+      "active": true,
+      "sourceStatus": "Parcours et exigences fournis par le joueur ; progression calculée sur roster vérifié",
       "map": {
         "columns": [
           "A",
@@ -1582,7 +1582,7 @@
             "minCharacters": 5,
             "alternatives": [
               {
-                "minIsoTier": 3,
+                "minIsoTier": 18,
                 "tagIds": [],
                 "allTagIds": [],
                 "excludeTagIds": []
@@ -1601,7 +1601,7 @@
             "minCharacters": 5,
             "alternatives": [
               {
-                "minIsoTier": 3,
+                "minIsoTier": 18,
                 "tagIds": [],
                 "allTagIds": [],
                 "excludeTagIds": []
@@ -1620,7 +1620,7 @@
             "minCharacters": 5,
             "alternatives": [
               {
-                "minIsoTier": 3,
+                "minIsoTier": 18,
                 "tagIds": [],
                 "allTagIds": [],
                 "excludeTagIds": []
@@ -1639,7 +1639,7 @@
             "minCharacters": 5,
             "alternatives": [
               {
-                "minIsoTier": 3,
+                "minIsoTier": 18,
                 "tagIds": [
                   "City"
                 ],
@@ -1660,7 +1660,7 @@
             "minCharacters": 5,
             "alternatives": [
               {
-                "minIsoTier": 3,
+                "minIsoTier": 18,
                 "tagIds": [
                   "City"
                 ],
@@ -1681,7 +1681,7 @@
             "minCharacters": 5,
             "alternatives": [
               {
-                "minIsoTier": 3,
+                "minIsoTier": 18,
                 "tagIds": [
                   "Global"
                 ],
@@ -1702,7 +1702,7 @@
             "minCharacters": 5,
             "alternatives": [
               {
-                "minIsoTier": 3,
+                "minIsoTier": 18,
                 "tagIds": [
                   "Global"
                 ],
@@ -1723,7 +1723,7 @@
             "minCharacters": 5,
             "alternatives": [
               {
-                "minIsoTier": 3,
+                "minIsoTier": 18,
                 "tagIds": [
                   "Cosmic"
                 ],
@@ -1744,7 +1744,7 @@
             "minCharacters": 5,
             "alternatives": [
               {
-                "minIsoTier": 3,
+                "minIsoTier": 18,
                 "tagIds": [
                   "Cosmic"
                 ],
@@ -1765,7 +1765,7 @@
             "minCharacters": 5,
             "alternatives": [
               {
-                "minIsoTier": 3,
+                "minIsoTier": 18,
                 "tagIds": [],
                 "allTagIds": [],
                 "excludeTagIds": []
@@ -1776,7 +1776,35 @@
             "5 personnages ISO-8 orange niveau 3 · aucun trait imposé"
           ]
         }
-      ]
+      ],
+      "checkpointRule": {
+        "characterId": "MagikBreaker",
+        "minYellowStars": 7,
+        "minRedStars": 7,
+        "nodeId": "A4",
+        "nodeOrder": 3
+      },
+      "completionRule": {
+        "characterId": "MagikBreaker",
+        "status": "Première Briseuse : Magik terminée",
+        "percent": 100,
+        "kind": "application-convention",
+        "note": "Convention LoSP : étoiles et diamants de Magik (Briseuse) sont compatibles avec des passages, sans en prouver la date ni l'historique.",
+        "tiers": [
+          {
+            "passages": 1,
+            "minYellowStars": 7,
+            "minRedStars": 7,
+            "minDiamonds": 1
+          },
+          {
+            "passages": 2,
+            "minYellowStars": 7,
+            "minRedStars": 7,
+            "minDiamonds": 3
+          }
+        ]
+      }
     }
   ]
 }
