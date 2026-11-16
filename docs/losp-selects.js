@@ -47,14 +47,22 @@
   // MSF player nicknames may contain color markup; render it as styled text,
   // never HTML. The native option value remains the exact original identity.
   function playerColorLabel(container, raw) {
-    const text = String(raw || "");
-    const match = text.match(/^\s*(?:<#([0-9a-fA-F]{6})>|<color=(red|blue|green|yellow|orange|purple|white|black|#[0-9a-fA-F]{6})>)/i);
-    if (!match) { container.textContent = text; return; }
-    const color = match[1] ? "#" + match[1] : match[2].toLowerCase();
-    const label = text.slice(match[0].length).replace(/<\/color>\s*$/i, "");
+    let text = String(raw || "");
+    let color = "";
+    let bold = false;
+    // Interpret only known MSF formatting prefixes; never inject player HTML.
+    while (true) {
+      const match = text.match(/^\s*(?:<(b)>|<#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})>|<color=(red|blue|green|yellow|orange|purple|white|black|#[0-9a-fA-F]{3}|#[0-9a-fA-F]{6})>)/i);
+      if (!match) break;
+      if (match[1]) bold = true;
+      if (match[2]) color = "#" + match[2];
+      if (match[3]) color = match[3].toLowerCase();
+      text = text.slice(match[0].length);
+    }
     const name = document.createElement("span");
-    name.textContent = label;
-    name.style.color = color;
+    name.textContent = text.replace(/(?:<\/b>|<\/color>)\s*$/gi, "");
+    if (color) name.style.color = color;
+    if (bold) name.style.fontWeight = "700";
     container.appendChild(name);
   }
 
