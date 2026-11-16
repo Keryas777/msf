@@ -88,3 +88,34 @@ test("DD9 gear-only requirements do not demand ISO-8 progress",()=>{
  assert.equal(result.consecutive,1);
  assert.equal(result.prepared,1);
 });
+
+test("next blocked node counts individually ready characters without unlocking the node",()=>{
+ const five={minCharacters:5,alternatives:[{minGear:21,tagIds:["City"],allTagIds:[],excludeTagIds:[]}]};
+ const d=dim([{id:"A2",order:1,requirement:five}]);
+ const extra=[...Array(5)].map((_,i)=>({id:"TestCity"+i,nameKey:"Test City "+i,tags:["City"]}));
+ const roster={chars:Object.fromEntries(extra.slice(0,4).map(c=>[c.id,{gear:21}]))};
+ const result=evaluateDimension({dimension:d,roster,catalog:extra});
+ assert.equal(result.consecutive,0);
+ assert.equal(result.prepared,0);
+ assert.deepEqual(result.nextReadiness,{nodeId:"A2",ready:4,required:5});
+});
+test("next node count respects ISO-8 and traits and breaks equal progress ties",()=>{
+ const req={minCharacters:5,alternatives:[{minIsoTier:18,tagIds:["Cosmic"],allTagIds:[],excludeTagIds:[]}]};
+ const d=dim([{id:"A2",order:1,requirement:req}]);
+ const chars=Array.from({length:5},(_,i)=>({id:"Cosmic"+i,nameKey:"Cosmic"+i,tags:["Cosmic"]}));
+ const roster=n=>({chars:Object.fromEntries(chars.map((c,i)=>[c.id,{isoMax:i<n?18:17}]))});
+ const a=evaluateDimension({dimension:d,roster:roster(4),catalog:chars});
+ const b=evaluateDimension({dimension:d,roster:roster(2),catalog:chars});
+ assert.equal(a.consecutive,0);
+ assert.equal(a.nextReadiness.ready,4);
+ assert.equal(b.nextReadiness.ready,2);
+ assert.equal(rankResults([{result:b},{result:a}]).ranked[0].result,a);
+});
+test("existing node readiness remains unchanged at five eligible characters",()=>{
+ const req={minCharacters:5,alternatives:[{minIsoTier:18,tagIds:[],allTagIds:[],excludeTagIds:[]}]};
+ const d=dim([{id:"A2",order:1,requirement:req}]);
+ const chars=Array.from({length:5},(_,i)=>({id:"Hero"+i,nameKey:"Hero"+i,tags:[]}));
+ const result=evaluateDimension({dimension:d,roster:{chars:Object.fromEntries(chars.map(c=>[c.id,{isoMax:18}]))},catalog:chars});
+ assert.equal(result.consecutive,1);
+ assert.equal(result.nextReadiness,null);
+});
