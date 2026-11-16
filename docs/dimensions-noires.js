@@ -73,7 +73,7 @@ function passageLabel(selectedDimension, passages) {
   const label = passages === 1 ? "1er passage" : passages + " passages";
   if (!tier) return label;
   if (tier.minDiamonds != null) return label + " · " + tier.minDiamonds + " diamant" + (tier.minDiamonds > 1 ? "s" : "");
-  return label + " · " + tier.minYellowStars + "★ jaunes / " + tier.minRedStars + "★ rouges";
+  return label + " · " + tier.minYellowStars + "★ jaunes" + (tier.minRedStars != null ? " / " + tier.minRedStars + "★ rouges" : "");
 }
 
 function firstClearAt(roster, selectedDimension) {
