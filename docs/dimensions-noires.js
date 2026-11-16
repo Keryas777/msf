@@ -87,6 +87,21 @@ function setMessage(text, error = false) {
   $("state").classList.toggle("error", error);
 }
 
+function updateRewardPortrait() {
+  const portrait = $("dd-reward-portrait");
+  const rewardId = dimension()?.completionRule?.characterId;
+  const character = state.catalog.find((item) => item.id === rewardId);
+  if (!character?.portraitUrl) {
+    portrait.hidden = true;
+    portrait.removeAttribute("src");
+    portrait.alt = "";
+    return;
+  }
+  portrait.src = character.portraitUrl;
+  portrait.alt = "Portrait de " + (character.nameFr || character.nameEn || character.nameKey || rewardId);
+  portrait.hidden = false;
+}
+
 function populateDimensions() {
   const select = $("dimension");
   const previous = select.value;
@@ -100,7 +115,10 @@ function populateDimensions() {
     option.textContent = (item.shortName ? item.shortName + " · " : "") + item.name;
     select.append(option);
   }
+  // Dimensions are published chronologically in the configuration: newest last.
   if (dimensions.some((item) => item.key === previous)) select.value = previous;
+  else if (dimensions.length) select.value = dimensions[dimensions.length - 1].key;
+  updateRewardPortrait();
 }
 
 function renderAllianceChips() {
@@ -756,6 +774,7 @@ async function boot() {
       renderRanking();
     });
     $("dimension").addEventListener("change", () => {
+      updateRewardPortrait();
       renderRanking();
       if (state.selectedPlayerIdentity) renderPlayerChoices();
     });
