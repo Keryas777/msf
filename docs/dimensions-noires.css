@@ -223,7 +223,7 @@ select {
   border-radius: 50%;
   background: var(--unknown);
 }
-.dot.done { background: var(--green); }
+.dot.done { background: #65b5ff; }
 .dot.met { background: var(--ready); }
 .dot.unmet { background: var(--unmet); }
 .dot.portal { background: var(--portal); }
@@ -774,3 +774,6 @@ h2 { margin-bottom: 9px; font-size: 1.06rem; font-weight: 800; }
 
 /* Do not reserve a bordered status box when there is no message to show. */
 #state:empty { display: none; }
+
+/* Preserve the requested four-line theoretical progress summary. */
+#progress-summary { white-space: pre-line; }
