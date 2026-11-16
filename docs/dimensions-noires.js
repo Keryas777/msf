@@ -335,6 +335,13 @@ function renderRanking() {
         }
         wrap.append(track);
         button.querySelector(".player-details").append(wrap);
+        if (!finished && entry.result.nextReadiness) {
+          const {ready,required} = entry.result.nextReadiness;
+          const detail = document.createElement("span");
+          detail.className = "dd-next-readiness";
+          detail.textContent = ready + " / " + required + " personnages prêts pour la restriction suivante";
+          button.querySelector(".player-details").append(detail);
+        }
       }
     }
     if (twiceFinished) {
