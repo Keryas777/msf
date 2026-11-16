@@ -1,0 +1,1416 @@
+{
+  "schemaVersion": 1,
+  "source": "Scopely /game/v1/characters eventTraits",
+  "retrievedFrom": "Cloudflare R2 game-archive/v1/diff/latest",
+  "pages": [
+    {
+      "path": "/game/v1/characters?page=1&perPage=100",
+      "sha256": "bfa512c05f6ec0ea81ac54eee29353539de0af9a85babab12163bbb47df4fa70",
+      "objectKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/bfa512c05f6ec0ea81ac54eee29353539de0af9a85babab12163bbb47df4fa70.json",
+      "count": 100
+    },
+    {
+      "path": "/game/v1/characters?page=2&perPage=100",
+      "sha256": "8c51e8310af188eba9be4e68359efde40b2897266bdde0109100f248f37801e8",
+      "objectKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/8c51e8310af188eba9be4e68359efde40b2897266bdde0109100f248f37801e8.json",
+      "count": 100
+    },
+    {
+      "path": "/game/v1/characters?page=3&perPage=100",
+      "sha256": "f33d1d2bb8fec9f359eda9b33d2b59b3815cccef64b666681e04682c455a8481",
+      "objectKey": "game-archive/v1/diff/runs/ca6d8645-b5cf-4f03-865d-025f3f633f67/objects/f33d1d2bb8fec9f359eda9b33d2b59b3815cccef64b666681e04682c455a8481.json",
+      "count": 100
+    },
+    {
+      "path": "/game/v1/characters?page=4&perPage=100",
+      "sha256": "0d8cc5458e698239da53538118ce41219b097b02c4ed4dcf2577d7d743e52ab0",
+      "objectKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/0d8cc5458e698239da53538118ce41219b097b02c4ed4dcf2577d7d743e52ab0.json",
+      "count": 100
+    },
+    {
+      "path": "/game/v1/characters?page=5&perPage=100",
+      "sha256": "289a6244179a275005f1d99e1900a0d54f1ae5ccfbb50fef873966163d53e6ef",
+      "objectKey": "game-archive/v1/diff/runs/ca6d8645-b5cf-4f03-865d-025f3f633f67/objects/289a6244179a275005f1d99e1900a0d54f1ae5ccfbb50fef873966163d53e6ef.json",
+      "count": 100
+    },
+    {
+      "path": "/game/v1/characters?page=6&perPage=100",
+      "sha256": "8eb83703e4ac7650306d685a666e4dec451393a60dc875420ed3f9eac909fd8f",
+      "objectKey": "game-archive/v1/diff/runs/8d58ce63-888e-4fae-add4-cf761420b784/objects/8eb83703e4ac7650306d685a666e4dec451393a60dc875420ed3f9eac909fd8f.json",
+      "count": 29
+    }
+  ],
+  "characters": {
+    "Abomination": [
+      "BestVillainBuddies"
+    ],
+    "AbsorbingMan": [
+      "BestVillainBuddies"
+    ],
+    "AdamWarlock": [
+      "AnnihilationWave",
+      "SPB_05_Omega"
+    ],
+    "AgathaHarkness": [
+      "BestVillainBuddies",
+      "SPB_05_Alpha"
+    ],
+    "AgentVenom": [
+      "BestSpiderBuddies",
+      "SentryChallengers"
+    ],
+    "AmadeusCho": [
+      "AnnihilationWave",
+      "SPB_05_Gamma",
+      "TowerChallenger2"
+    ],
+    "AmericaChavez": [
+      "BestAvengerBuddies"
+    ],
+    "AncientOne": [
+      "Encore",
+      "SPB_05_Alpha"
+    ],
+    "Angel": [
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger"
+    ],
+    "Annihilus": [
+      "SPB_05_Omega",
+      "TowerChallenger",
+      "TowerChallenger2",
+      "TowerChallenger3",
+      "TowerChallenger4"
+    ],
+    "AntiVenom": [
+      "BestSpiderBuddies",
+      "SentryChallengers"
+    ],
+    "AntMan": [
+      "BestAvengerBuddies",
+      "Couples",
+      "Encore"
+    ],
+    "Apocalypse": [
+      "TowerChallenger",
+      "TowerChallenger2"
+    ],
+    "Archangel": [
+      "BestVillainBuddies",
+      "TowerChallenger3"
+    ],
+    "Ares": [
+      "TowerChallenger4"
+    ],
+    "Azazel": [
+      "Conqueror",
+      "KnullChallengers",
+      "SPB_05_Beta"
+    ],
+    "BaronMordo": [
+      "Harbingers",
+      "KnullChallengers",
+      "SPB_05_Beta"
+    ],
+    "Beast": [
+      "BestMutantBuddies",
+      "SPB_05_Alpha"
+    ],
+    "Bishop": [
+      "BestMutantBuddies"
+    ],
+    "BlackBolt": [
+      "Couples"
+    ],
+    "BlackCat": [
+      "BestSpiderBuddies",
+      "TowerChallenger2"
+    ],
+    "BlackPanther": [
+      "BestAvengerBuddies",
+      "Couples",
+      "Encore"
+    ],
+    "BlackPantherShuri": [
+      "Encore"
+    ],
+    "BlackWidow": [
+      "BestAvengerBuddies",
+      "Encore",
+      "Golden_Age"
+    ],
+    "Blade": [
+      "SPB_05_Alpha"
+    ],
+    "BladeMighty": [
+      "ChaosTeam",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger2",
+      "TowerChallenger3",
+      "TowerChallenger4"
+    ],
+    "Blastaar": [
+      "AnnihilationWave",
+      "Conqueror",
+      "KnullChallengers",
+      "SPB_05_Omega",
+      "TowerChallenger",
+      "TowerChallenger4"
+    ],
+    "Blob": [
+      "BestVillainBuddies",
+      "SPB_05_Omega",
+      "TowerChallenger4"
+    ],
+    "BlueMarvel": [
+      "SPB_05_Omega",
+      "TowerChallenger"
+    ],
+    "Bullseye": [
+      "BestVillainBuddies",
+      "SPB_05_Omega",
+      "TowerChallenger2"
+    ],
+    "Cable": [
+      "BestMutantBuddies",
+      "SPB_05_Alpha"
+    ],
+    "Cannonball": [
+      "BestMutantBuddies",
+      "SPB_05_Beta",
+      "Stormbound",
+      "TowerChallenger"
+    ],
+    "CaptainAmerica": [
+      "BestBuddies",
+      "Couples",
+      "Encore",
+      "Golden_Age"
+    ],
+    "CaptainMarvel": [
+      "Encore"
+    ],
+    "Carnage": [
+      "BestSpiderBuddies",
+      "BestVillainBuddies",
+      "SentryChallengers"
+    ],
+    "Cloak": [
+      "TowerChallenger3"
+    ],
+    "Colossus": [
+      "BestMutantBuddies"
+    ],
+    "CorvusGlaive": [
+      "BestVillainBuddies",
+      "TowerChallenger4"
+    ],
+    "Coulson": [
+      "BestAvengerBuddies"
+    ],
+    "Crossbones": [
+      "BestVillainBuddies",
+      "ChaosTeam",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger3",
+      "TowerChallenger4"
+    ],
+    "Crystal": [
+      "Couples"
+    ],
+    "CullObsidian": [
+      "BestVillainBuddies",
+      "SPB_05_Omega",
+      "TowerChallenger",
+      "TowerChallenger4"
+    ],
+    "Cyclops": [
+      "BestMutantBuddies",
+      "Couples"
+    ],
+    "CyclopsMighty": [
+      "SPB_05_Gamma"
+    ],
+    "Dagger": [
+      "TowerChallenger3"
+    ],
+    "DaimonHellstrom": [
+      "Conqueror",
+      "KnullChallengers",
+      "SPB_05_Beta",
+      "SentryChallengers",
+      "Stormbound",
+      "TowerChallenger2"
+    ],
+    "Daken": [
+      "BestBuddies",
+      "TowerChallenger2",
+      "TowerChallenger4"
+    ],
+    "Daredevil": [
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "SentryChallengers"
+    ],
+    "DaredevilModern": [
+      "Harbingers",
+      "SPB_05_Alpha"
+    ],
+    "Darkhawk": [
+      "TowerChallenger3"
+    ],
+    "Darkstar": [
+      "AnnihilationWave",
+      "SPB_05_Gamma",
+      "Stormbound",
+      "TowerChallenger",
+      "TowerChallenger2"
+    ],
+    "Dazzler": [
+      "BestMutantBuddies"
+    ],
+    "Deadpool": [
+      "AnnihilationWave",
+      "BestBuddies",
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger4"
+    ],
+    "Deathlok": [
+      "BestAvengerBuddies"
+    ],
+    "Deathpool": [
+      "MSFOriginal",
+      "TowerChallenger3"
+    ],
+    "Destroyer": [
+      "SPB_05_Omega"
+    ],
+    "DoctorOctopus": [
+      "BestVillainBuddies",
+      "KnowhereHeist"
+    ],
+    "DoctorStrange": [
+      "Encore",
+      "SPB_05_Alpha"
+    ],
+    "Domino": [
+      "BestMutantBuddies",
+      "SPB_05_Beta"
+    ],
+    "Doom": [
+      "TowerChallenger2",
+      "TowerChallenger4"
+    ],
+    "Dormammu": [
+      "TowerChallenger3"
+    ],
+    "Dracula": [
+      "SPB_05_Gamma",
+      "TowerChallenger4"
+    ],
+    "Drax": [
+      "Encore"
+    ],
+    "EbonyMaw": [
+      "BestVillainBuddies",
+      "SPB_05_Omega",
+      "TowerChallenger",
+      "TowerChallenger4"
+    ],
+    "Echo": [
+      "BestAvengerBuddies"
+    ],
+    "Eclipse": [
+      "MSFOriginal",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger"
+    ],
+    "Electro": [
+      "BestVillainBuddies",
+      "SPB_05_Omega"
+    ],
+    "Elektra": [
+      "Harbingers",
+      "SPB_05_Alpha"
+    ],
+    "ElsaBloodstone": [
+      "Conqueror",
+      "KnullChallengers",
+      "SPB_05_Beta",
+      "SentryChallengers",
+      "Stormbound"
+    ],
+    "EmmaFrost": [
+      "Conqueror",
+      "SPB_05_Beta",
+      "TowerChallenger"
+    ],
+    "EmmaFrostXMen": [
+      "BestMutantBuddies",
+      "SPB_05_Alpha",
+      "TowerChallenger"
+    ],
+    "Executioner": [
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger",
+      "TowerChallenger2"
+    ],
+    "Falcon": [
+      "BestAvengerBuddies",
+      "Encore",
+      "SPB_05_Alpha"
+    ],
+    "FalconJoaquin": [
+      "SPB_05_Alpha"
+    ],
+    "Fantomex": [
+      "BestMutantBuddies"
+    ],
+    "Forge": [
+      "BestMutantBuddies"
+    ],
+    "FranklinRichards": [
+      "Conqueror",
+      "Harbingers",
+      "SPB_05_Beta",
+      "TowerChallenger"
+    ],
+    "Gambit": [
+      "BestMutantBuddies",
+      "Couples"
+    ],
+    "Gamora": [
+      "Encore"
+    ],
+    "Ghost": [
+      "BestVillainBuddies",
+      "Harbingers",
+      "KnullChallengers",
+      "SPB_05_Alpha"
+    ],
+    "GhostSpider": [
+      "BestSpiderBuddies",
+      "Couples",
+      "WebSlinger"
+    ],
+    "Gilgamesh": [
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger2",
+      "TowerChallenger3"
+    ],
+    "Gladiator": [
+      "BestVillainBuddies"
+    ],
+    "Gorr": [
+      "BestVillainBuddies",
+      "SentryChallengers"
+    ],
+    "Groot": [
+      "Encore",
+      "SPB_05_Alpha"
+    ],
+    "Gwenom": [
+      "BestSpiderBuddies",
+      "SentryChallengers"
+    ],
+    "Gwenpool": [
+      "AnnihilationWave",
+      "SPB_05_Gamma",
+      "SentryChallengers"
+    ],
+    "HankPym": [
+      "BestAvengerBuddies"
+    ],
+    "Havok": [
+      "BestMutantBuddies",
+      "SPB_05_Alpha",
+      "TowerChallenger"
+    ],
+    "Hawkeye": [
+      "BestAvengerBuddies",
+      "ChaosTeam",
+      "Couples",
+      "Encore",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger4"
+    ],
+    "HawkeyeRobot": [
+      "SPB_05_Gamma"
+    ],
+    "Hela": [
+      "BestVillainBuddies",
+      "SPB_05_Beta"
+    ],
+    "Hellcat": [
+      "Conqueror",
+      "KnullChallengers",
+      "SPB_05_Beta",
+      "SentryChallengers",
+      "Stormbound"
+    ],
+    "Hellverine": [
+      "Harbingers",
+      "KnullChallengers",
+      "SPB_05_Beta"
+    ],
+    "Hercules": [
+      "BestAvengerBuddies",
+      "SPB_05_Alpha"
+    ],
+    "HighEvolutionary": [
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger",
+      "TowerChallenger2"
+    ],
+    "HitMonkey": [
+      "Harbingers",
+      "MaestroChallengers",
+      "SPB_05_Alpha"
+    ],
+    "Hobgoblin": [
+      "BestVillainBuddies",
+      "Conqueror",
+      "SPB_05_Beta",
+      "TowerChallenger3"
+    ],
+    "HowardTheDuck": [
+      "SPB_05_Alpha"
+    ],
+    "Hulk": [
+      "BestAvengerBuddies",
+      "ChaosTeam",
+      "Encore",
+      "SPB_05_Gamma",
+      "TowerChallenger",
+      "TowerChallenger2"
+    ],
+    "Hulkbuster": [
+      "BestAvengerBuddies"
+    ],
+    "HumanTorch": [
+      "Conqueror",
+      "Golden_Age",
+      "Harbingers",
+      "SPB_05_Beta"
+    ],
+    "HumanTorchJim": [
+      "SPB_05_Gamma"
+    ],
+    "Hyperion": [
+      "Harbingers",
+      "KnullChallengers",
+      "SPB_05_Alpha"
+    ],
+    "Iceman": [
+      "BestMutantBuddies"
+    ],
+    "Ikaris": [
+      "Couples",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger2",
+      "TowerChallenger3"
+    ],
+    "InvisibleWoman": [
+      "BestAvengerBuddies",
+      "Couples",
+      "Golden_Age",
+      "KnowhereHeist",
+      "SPB_05_Alpha"
+    ],
+    "InvisibleWomanMCU": [
+      "Conqueror",
+      "Couples",
+      "Harbingers",
+      "SPB_05_Beta",
+      "TowerChallenger"
+    ],
+    "IronFist": [
+      "KnullChallengers",
+      "SPB_05_Beta",
+      "Stormbound",
+      "TowerChallenger3"
+    ],
+    "IronFistOrson": [
+      "KnullChallengers",
+      "SPB_05_Beta",
+      "Stormbound",
+      "TowerChallenger3"
+    ],
+    "Ironheart": [
+      "SPB_05_Alpha"
+    ],
+    "IronheartMCU": [
+      "TowerChallenger3"
+    ],
+    "IronMan": [
+      "BestAvengerBuddies",
+      "Encore"
+    ],
+    "IronManInfinityWar": [
+      "BestAvengerBuddies",
+      "Couples",
+      "Encore"
+    ],
+    "IronMonger": [
+      "ChaosTeam",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger3",
+      "TowerChallenger4"
+    ],
+    "IronPatriot": [
+      "TowerChallenger4"
+    ],
+    "JaneThor": [
+      "Couples"
+    ],
+    "JeanGrey": [
+      "BestMutantBuddies",
+      "Couples",
+      "SPB_05_Alpha"
+    ],
+    "JeffTheLandShark": [
+      "AnnihilationWave",
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger",
+      "TowerChallenger2",
+      "TowerChallenger4"
+    ],
+    "JessicaJones": [
+      "Couples",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "SentryChallengers"
+    ],
+    "Jocasta": [
+      "SPB_05_Gamma"
+    ],
+    "Jubilee": [
+      "BestMutantBuddies",
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger"
+    ],
+    "Juggernaut": [
+      "Harbingers",
+      "KnullChallengers",
+      "SPB_05_Beta"
+    ],
+    "Kahhori": [
+      "SPB_05_Alpha",
+      "TowerChallenger",
+      "TowerChallenger4"
+    ],
+    "KangTheConqueror": [
+      "TowerChallenger2"
+    ],
+    "KateBishop": [
+      "BestAvengerBuddies"
+    ],
+    "Kazar": [
+      "SPB_05_Gamma"
+    ],
+    "Kingo": [
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger2",
+      "TowerChallenger3"
+    ],
+    "Kingpin": [
+      "BestVillainBuddies"
+    ],
+    "KittyPryde": [
+      "BestMutantBuddies",
+      "KnowhereHeist"
+    ],
+    "Knull": [
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger"
+    ],
+    "KravenTheHunter": [
+      "BestVillainBuddies"
+    ],
+    "LadyBullseye": [
+      "KnullChallengers",
+      "MaestroChallengers",
+      "SPB_05_Beta",
+      "Stormbound",
+      "TowerChallenger3"
+    ],
+    "LadyDeathstrike": [
+      "BestVillainBuddies"
+    ],
+    "Lilandra": [
+      "SPB_05_Alpha",
+      "TowerChallenger"
+    ],
+    "LivingMummy": [
+      "Conqueror",
+      "KnullChallengers",
+      "SPB_05_Beta",
+      "SentryChallengers",
+      "Stormbound"
+    ],
+    "Lizard": [
+      "BestVillainBuddies"
+    ],
+    "Loki": [
+      "BestVillainBuddies"
+    ],
+    "LukeCage": [
+      "Couples"
+    ],
+    "MadelynePryor": [
+      "Conqueror",
+      "SPB_05_Beta"
+    ],
+    "Maestro": [
+      "SPB_05_Omega",
+      "TowerChallenger2",
+      "TowerChallenger3",
+      "TowerChallenger4"
+    ],
+    "Magik": [
+      "BestMutantBuddies",
+      "SPB_05_Beta",
+      "Stormbound"
+    ],
+    "MagikBreaker": [
+      "SPB_05_Omega",
+      "TowerChallenger4"
+    ],
+    "MagnetoPhoenixForce": [
+      "AnnihilationWave",
+      "SPB_05_Omega"
+    ],
+    "Malekith": [
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger",
+      "TowerChallenger2"
+    ],
+    "ManThing": [
+      "SPB_05_Alpha"
+    ],
+    "Mantis": [
+      "Encore"
+    ],
+    "MariaHill": [
+      "BestAvengerBuddies"
+    ],
+    "MBaku": [
+      "Encore"
+    ],
+    "Medusa": [
+      "Couples",
+      "SPB_05_Alpha"
+    ],
+    "Minerva": [
+      "SPB_05_Omega",
+      "TowerChallenger"
+    ],
+    "Mockingbird": [
+      "BestAvengerBuddies",
+      "ChaosTeam",
+      "Couples",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger4"
+    ],
+    "Moondragon": [
+      "Couples",
+      "SPB_05_Alpha"
+    ],
+    "MoonGirl": [
+      "AnnihilationWave",
+      "SPB_05_Gamma",
+      "TowerChallenger"
+    ],
+    "MoonKnight": [
+      "SPB_05_Alpha"
+    ],
+    "Morbius": [
+      "BestSpiderBuddies",
+      "SPB_05_Gamma",
+      "TowerChallenger4"
+    ],
+    "MorganLeFay": [
+      "TowerChallenger4"
+    ],
+    "Morph": [
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger"
+    ],
+    "MrFantastic": [
+      "Couples",
+      "Golden_Age"
+    ],
+    "MrFantasticMCU": [
+      "Conqueror",
+      "Couples",
+      "Harbingers",
+      "SPB_05_Beta",
+      "TowerChallenger"
+    ],
+    "MrNegative": [
+      "BestSpiderBuddies",
+      "SPB_05_Omega",
+      "TowerChallenger2"
+    ],
+    "MsMarvel": [
+      "AnnihilationWave",
+      "BestAvengerBuddies",
+      "SPB_05_Gamma"
+    ],
+    "MsMarvelClassic": [
+      "SPB_05_Alpha",
+      "TowerChallenger"
+    ],
+    "Mysterio": [
+      "BestVillainBuddies"
+    ],
+    "Nebula": [
+      "Encore"
+    ],
+    "Negasonic": [
+      "BestMutantBuddies",
+      "SPB_05_Beta"
+    ],
+    "NickFury": [
+      "BestAvengerBuddies",
+      "TowerChallenger2"
+    ],
+    "Nightcrawler": [
+      "BestMutantBuddies",
+      "TowerChallenger3"
+    ],
+    "NightThrasher": [
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "SentryChallengers"
+    ],
+    "Nimrod": [
+      "BestVillainBuddies"
+    ],
+    "Northstar": [
+      "TowerChallenger3"
+    ],
+    "NovaSamAlexander": [
+      "AnnihilationWave",
+      "SPB_05_Gamma",
+      "TowerChallenger"
+    ],
+    "Oath": [
+      "SPB_05_Gamma",
+      "TowerChallenger",
+      "TowerChallenger4"
+    ],
+    "Okoye": [
+      "Encore"
+    ],
+    "OmegaRed": [
+      "AnnihilationWave",
+      "BestVillainBuddies",
+      "SPB_05_Gamma",
+      "Stormbound"
+    ],
+    "OmegaRedPhoenix": [
+      "AnnihilationWave",
+      "SPB_05_Omega"
+    ],
+    "PandaPool": [
+      "TowerChallenger4"
+    ],
+    "Patriot": [
+      "Golden_Age",
+      "SPB_05_Alpha"
+    ],
+    "PeggyCarter": [
+      "Couples",
+      "SPB_05_Alpha"
+    ],
+    "PeniParker": [
+      "BestSpiderBuddies"
+    ],
+    "PeterBParker": [
+      "BestSpiderBuddies"
+    ],
+    "PhantomRider": [
+      "SPB_05_Beta",
+      "TowerChallenger"
+    ],
+    "Phoenix": [
+      "AnnihilationWave",
+      "BestMutantBuddies",
+      "SPB_05_Omega"
+    ],
+    "PhylaVell": [
+      "Couples"
+    ],
+    "Polaris": [
+      "BestMutantBuddies",
+      "SPB_05_Alpha"
+    ],
+    "ProximaMidnight": [
+      "TowerChallenger4"
+    ],
+    "Psylocke": [
+      "BestMutantBuddies"
+    ],
+    "Punisher": [
+      "Harbingers",
+      "SPB_05_Alpha"
+    ],
+    "Quake": [
+      "SPB_05_Beta"
+    ],
+    "Quasar": [
+      "AnnihilationWave",
+      "Conqueror",
+      "Harbingers",
+      "KnullChallengers",
+      "SPB_05_Omega",
+      "TowerChallenger",
+      "TowerChallenger2"
+    ],
+    "Quicksilver": [
+      "Couples"
+    ],
+    "RachelColeAlves": [
+      "ChaosTeam",
+      "SPB_05_Gamma",
+      "TowerChallenger2"
+    ],
+    "RachelSummers": [
+      "BestMutantBuddies",
+      "Conqueror",
+      "SPB_05_Beta",
+      "TowerChallenger"
+    ],
+    "RedGoblin": [
+      "BestSpiderBuddies",
+      "BestVillainBuddies",
+      "SentryChallengers"
+    ],
+    "RedGuardian": [
+      "AnnihilationWave",
+      "SPB_05_Gamma",
+      "Stormbound"
+    ],
+    "RedHulk": [
+      "BestVillainBuddies",
+      "TowerChallenger2"
+    ],
+    "Rescue": [
+      "Couples",
+      "Encore"
+    ],
+    "Rhino": [
+      "BestVillainBuddies",
+      "SPB_05_Omega",
+      "TowerChallenger2"
+    ],
+    "Riot": [
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger"
+    ],
+    "RocketRaccoon": [
+      "Encore",
+      "KnowhereHeist",
+      "SPB_05_Alpha"
+    ],
+    "Rogue": [
+      "BestMutantBuddies",
+      "Couples",
+      "SPB_05_Gamma"
+    ],
+    "Ronan": [
+      "SPB_05_Omega",
+      "TowerChallenger"
+    ],
+    "Ronin": [
+      "BestAvengerBuddies"
+    ],
+    "SabretoothBreaker": [
+      "SPB_05_Omega",
+      "TowerChallenger4"
+    ],
+    "SamWilson": [
+      "BestAvengerBuddies",
+      "SPB_05_Alpha"
+    ],
+    "Sasquatch": [
+      "TowerChallenger3"
+    ],
+    "Satana": [
+      "Harbingers",
+      "KnullChallengers",
+      "SPB_05_Beta"
+    ],
+    "Sauron": [
+      "SPB_05_Gamma"
+    ],
+    "ScarletSpider": [
+      "BestSpiderBuddies",
+      "WebSlinger"
+    ],
+    "ScarletWitch": [
+      "BestAvengerBuddies",
+      "Couples",
+      "Encore",
+      "SPB_05_Alpha"
+    ],
+    "Scorpion": [
+      "Conqueror",
+      "SPB_05_Beta",
+      "TowerChallenger3"
+    ],
+    "ScorpionBreaker": [
+      "ChaosTeam",
+      "MaestroChallengers",
+      "SPB_05_Omega",
+      "TowerChallenger2",
+      "TowerChallenger3",
+      "TowerChallenger4"
+    ],
+    "Scream": [
+      "SentryChallengers"
+    ],
+    "SebastianShaw": [
+      "Conqueror",
+      "SPB_05_Beta"
+    ],
+    "Sentinel": [
+      "BestVillainBuddies"
+    ],
+    "Sentry": [
+      "MaestroChallengers",
+      "SPB_05_Omega",
+      "TowerChallenger"
+    ],
+    "Sersi": [
+      "Couples",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger2",
+      "TowerChallenger3"
+    ],
+    "ShadowKing": [
+      "SPB_05_Alpha"
+    ],
+    "SharonCarter": [
+      "BestAvengerBuddies"
+    ],
+    "SheHulk": [
+      "AnnihilationWave",
+      "SPB_05_Gamma",
+      "SentryChallengers"
+    ],
+    "Shocker": [
+      "BestVillainBuddies",
+      "Conqueror",
+      "SPB_05_Beta"
+    ],
+    "SilverSable": [
+      "BestSpiderBuddies",
+      "Harbingers",
+      "SPB_05_Alpha"
+    ],
+    "SilverSamurai": [
+      "SPB_05_Omega",
+      "TowerChallenger4"
+    ],
+    "SilverSurferBreaker": [
+      "ChaosTeam",
+      "MaestroChallengers",
+      "SPB_05_Omega",
+      "SentryChallengers",
+      "TowerChallenger",
+      "TowerChallenger2",
+      "TowerChallenger3",
+      "TowerChallenger4"
+    ],
+    "Songbird": [
+      "Harbingers",
+      "KnullChallengers",
+      "SPB_05_Alpha"
+    ],
+    "Speedball": [
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "SentryChallengers"
+    ],
+    "SpiderMan": [
+      "BestBuddies",
+      "ChaosTeam",
+      "Encore",
+      "SPB_05_Gamma",
+      "TowerChallenger",
+      "TowerChallenger2",
+      "WebSlinger"
+    ],
+    "SpiderMan2099": [
+      "BestSpiderBuddies",
+      "WebSlinger"
+    ],
+    "SpiderManBigTime": [
+      "BestSpiderBuddies",
+      "WebSlinger"
+    ],
+    "SpiderManNoir": [
+      "BestSpiderBuddies",
+      "WebSlinger"
+    ],
+    "SpiderManPavitr": [
+      "BestSpiderBuddies"
+    ],
+    "SpiderPunk": [
+      "BestSpiderBuddies",
+      "WebSlinger"
+    ],
+    "SpiderSlayer": [
+      "BestVillainBuddies"
+    ],
+    "SpiderWeaver": [
+      "BestSpiderBuddies",
+      "MSFOriginal",
+      "WebSlinger"
+    ],
+    "SpiderWoman": [
+      "BestSpiderBuddies"
+    ],
+    "SpiderWomanJulia": [
+      "ChaosTeam",
+      "SPB_05_Gamma",
+      "TowerChallenger2"
+    ],
+    "SquirrelGirl": [
+      "AnnihilationWave",
+      "BestAvengerBuddies",
+      "SPB_05_Gamma",
+      "SentryChallengers"
+    ],
+    "StarLord": [
+      "AnnihilationWave",
+      "Encore",
+      "KnowhereHeist",
+      "SPB_05_Omega",
+      "TowerChallenger2"
+    ],
+    "SteelSerpent": [
+      "KnullChallengers",
+      "SPB_05_Beta",
+      "Stormbound",
+      "TowerChallenger3"
+    ],
+    "Storm": [
+      "BestMutantBuddies",
+      "Couples",
+      "SPB_05_Alpha"
+    ],
+    "StormMighty": [
+      "ChaosTeam",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger",
+      "TowerChallenger2",
+      "TowerChallenger3",
+      "TowerChallenger4"
+    ],
+    "StrangeSupreme": [
+      "Conqueror",
+      "KnullChallengers",
+      "SPB_05_Beta",
+      "SentryChallengers",
+      "Stormbound"
+    ],
+    "Stryfe": [
+      "SPB_05_Omega",
+      "TowerChallenger4"
+    ],
+    "Sunfire": [
+      "BestMutantBuddies",
+      "TowerChallenger3"
+    ],
+    "Sunspot": [
+      "BestMutantBuddies",
+      "SPB_05_Beta",
+      "Stormbound",
+      "TowerChallenger3"
+    ],
+    "SuperiorSpiderMan": [
+      "BestSpiderBuddies",
+      "Conqueror",
+      "SPB_05_Beta",
+      "TowerChallenger3"
+    ],
+    "SuperSkrull": [
+      "TowerChallenger3"
+    ],
+    "SwordMaster": [
+      "BestAvengerBuddies",
+      "KnullChallengers",
+      "SPB_05_Beta",
+      "Stormbound",
+      "TowerChallenger3"
+    ],
+    "Sybil": [
+      "MSFOriginal",
+      "TowerChallenger3"
+    ],
+    "Sylvie": [
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger",
+      "TowerChallenger2"
+    ],
+    "SymbioteQuicksilver": [
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger"
+    ],
+    "SymbioteSilverSurfer": [
+      "BestSpiderBuddies",
+      "SentryChallengers"
+    ],
+    "SymbioteSpiderMan": [
+      "BestSpiderBuddies",
+      "SentryChallengers"
+    ],
+    "Taskmaster": [
+      "BestVillainBuddies",
+      "Harbingers",
+      "KnullChallengers",
+      "SPB_05_Alpha",
+      "TowerChallenger2"
+    ],
+    "Thanos": [
+      "BestVillainBuddies",
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger",
+      "TowerChallenger2",
+      "TowerChallenger4"
+    ],
+    "ThanosEndgame": [
+      "BestVillainBuddies",
+      "MaestroChallengers"
+    ],
+    "TheHood": [
+      "Harbingers",
+      "KnullChallengers",
+      "SPB_05_Beta"
+    ],
+    "Thena": [
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger2",
+      "TowerChallenger3"
+    ],
+    "Thing": [
+      "BestAvengerBuddies",
+      "Conqueror",
+      "Golden_Age",
+      "Harbingers",
+      "SPB_05_Beta"
+    ],
+    "Thor": [
+      "BestAvengerBuddies",
+      "Couples",
+      "Encore"
+    ],
+    "Thor_InfinityWar": [
+      "BestAvengerBuddies",
+      "Encore"
+    ],
+    "Thunderstrike": [
+      "AnnihilationWave",
+      "KnullChallengers",
+      "SPB_05_Omega",
+      "Stormbound",
+      "TowerChallenger"
+    ],
+    "Tigra": [
+      "BestAvengerBuddies",
+      "ChaosTeam",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger4"
+    ],
+    "Toad": [
+      "SPB_05_Omega",
+      "TowerChallenger4"
+    ],
+    "Toxin": [
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger"
+    ],
+    "UltGreenGoblin": [
+      "BestVillainBuddies"
+    ],
+    "Ultron": [
+      "BestVillainBuddies",
+      "SPB_05_Gamma",
+      "TowerChallenger3"
+    ],
+    "UltSpiderMan": [
+      "AnnihilationWave",
+      "BestSpiderBuddies",
+      "Couples",
+      "SPB_05_Gamma",
+      "WebSlinger"
+    ],
+    "UlyssesKlaue": [
+      "ChaosTeam",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger3",
+      "TowerChallenger4"
+    ],
+    "UrsaMajor": [
+      "AnnihilationWave",
+      "SPB_05_Gamma",
+      "Stormbound"
+    ],
+    "Vahl": [
+      "MSFOriginal"
+    ],
+    "Valkyrie": [
+      "Encore"
+    ],
+    "Venom": [
+      "BestSpiderBuddies",
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger"
+    ],
+    "VictoriaHand": [
+      "Harbingers",
+      "KnullChallengers",
+      "SPB_05_Alpha"
+    ],
+    "Vision": [
+      "BestAvengerBuddies",
+      "Couples",
+      "SPB_05_Alpha",
+      "TowerChallenger3"
+    ],
+    "VivVision": [
+      "BestAvengerBuddies"
+    ],
+    "Vulture": [
+      "BestVillainBuddies",
+      "Conqueror",
+      "SPB_05_Beta"
+    ],
+    "Warlock": [
+      "BestMutantBuddies",
+      "SPB_05_Beta",
+      "Stormbound",
+      "TowerChallenger"
+    ],
+    "WarMachine": [
+      "BestAvengerBuddies",
+      "ChaosTeam",
+      "Encore",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger4"
+    ],
+    "Wasp": [
+      "Couples",
+      "Encore",
+      "SPB_05_Alpha"
+    ],
+    "WaspJanet": [
+      "ChaosTeam",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger4"
+    ],
+    "Whiplash": [
+      "ChaosTeam",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger3",
+      "TowerChallenger4"
+    ],
+    "WinterSoldier": [
+      "Golden_Age"
+    ],
+    "Wolfsbane": [
+      "BestMutantBuddies",
+      "SPB_05_Beta",
+      "Stormbound",
+      "TowerChallenger"
+    ],
+    "Wolverine": [
+      "BestBuddies",
+      "SPB_05_Gamma",
+      "SentryChallengers",
+      "TowerChallenger"
+    ],
+    "Wong": [
+      "Encore"
+    ],
+    "X23": [
+      "BestMutantBuddies",
+      "SPB_05_Gamma"
+    ],
+    "Xavier": [
+      "MaestroChallengers",
+      "SPB_05_Omega",
+      "TowerChallenger"
+    ],
+    "Yelena": [
+      "AnnihilationWave",
+      "SPB_05_Gamma",
+      "Stormbound"
+    ],
+    "Yellowjacket": [
+      "ChaosTeam",
+      "MaestroChallengers",
+      "SPB_05_Gamma",
+      "TowerChallenger3",
+      "TowerChallenger4"
+    ],
+    "YoYo": [
+      "SPB_05_Beta"
+    ],
+    "ZombieIronMan": [
+      "SPB_05_Beta"
+    ],
+    "ZombieJuggernaut": [
+      "MaestroChallengers",
+      "SPB_05_Beta",
+      "TowerChallenger2"
+    ],
+    "ZombieKestrel": [
+      "MSFOriginal",
+      "SPB_05_Beta",
+      "TowerChallenger2"
+    ],
+    "ZombieScarletWitch": [
+      "SPB_05_Beta",
+      "TowerChallenger2"
+    ]
+  }
+}

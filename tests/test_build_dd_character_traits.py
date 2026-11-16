@@ -68,6 +68,37 @@ class DDCharacterTraitsTest(unittest.TestCase):
             self.assertEqual(result["characters"]["Destroyer"],
                              ["Asgard", "Brawler", "Cosmic", "Mystic", "Villain"])
 
+    def test_merges_official_event_traits_without_dropping_base_traits(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            base = root / "docs/data/msf-capabilities-explorer"
+            generation = base / "g"
+            (generation / "characters").mkdir(parents=True)
+            (base / "manifest.json").write_text(json.dumps({
+                "currentPath": "g", "currentPayloadSetChecksum": "verified",
+            }), encoding="utf-8")
+            records = [{"id": f"Hero{i}"} for i in range(300)]
+            (generation / "characters.json").write_text(
+                json.dumps({"records": records}), encoding="utf-8")
+            for i in range(300):
+                (generation / "characters" / f"Hero{i}.json").write_text(
+                    json.dumps({"character": {
+                        "id": f"Hero{i}", "official": True,
+                        "playable": True, "traits": ["Cosmic"],
+                    }}), encoding="utf-8")
+            event_path = root / "docs/data/dd-event-character-traits.json"
+            event_path.parent.mkdir(parents=True, exist_ok=True)
+            event_path.write_text(json.dumps({
+                "schemaVersion": 1,
+                "characters": {"Hero0": ["Conqueror", "Harbingers"],
+                               "NotInCodex": ["Conqueror"]},
+            }), encoding="utf-8")
+            result = build(root)
+            self.assertEqual(result["characters"]["Hero0"],
+                             ["Conqueror", "Cosmic", "Harbingers"])
+            self.assertEqual(result["characters"]["Hero1"], ["Cosmic"])
+            self.assertNotIn("NotInCodex", result["characters"])
+
     def test_rejects_inconsistent_official_shard(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

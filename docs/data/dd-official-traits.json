@@ -1,0 +1,739 @@
+{
+  "schemaVersion": 1,
+  "source": "Scopely /game/v1/traits",
+  "pages": [
+    {
+      "path": "/game/v1/traits?page=1&perPage=100",
+      "sha256": "3e242bb3b51011546202deb90727a8165bb9cffbc3883c9167b2d55caffbadb5",
+      "objectKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/3e242bb3b51011546202deb90727a8165bb9cffbc3883c9167b2d55caffbadb5.json",
+      "count": 100
+    },
+    {
+      "path": "/game/v1/traits?page=2&perPage=100",
+      "sha256": "c00d5aff8018129529a9e655b69c6397ebdc5e14a5a3dab9c5a4641b53b669a2",
+      "objectKey": "game-archive/v1/diff/runs/6f7da6ac-b319-49ab-8b77-4e8f53fa26a7/objects/c00d5aff8018129529a9e655b69c6397ebdc5e14a5a3dab9c5a4641b53b669a2.json",
+      "count": 76
+    }
+  ],
+  "traits": [
+    {
+      "id": "Villain",
+      "name": "VILLAIN"
+    },
+    {
+      "id": "Global",
+      "name": "GLOBAL"
+    },
+    {
+      "id": "Bio",
+      "name": "BIO"
+    },
+    {
+      "id": "Brawler",
+      "name": "BRAWLER"
+    },
+    {
+      "id": "Gamma",
+      "name": "GAMMA"
+    },
+    {
+      "id": "Mystic",
+      "name": "MYSTIC"
+    },
+    {
+      "id": "Protector",
+      "name": "PROTECTOR"
+    },
+    {
+      "id": "MastersOfEvil",
+      "name": "MASTERS OF EVIL"
+    },
+    {
+      "id": "Hero",
+      "name": "HERO"
+    },
+    {
+      "id": "Cosmic",
+      "name": "COSMIC"
+    },
+    {
+      "id": "Support",
+      "name": "SUPPORT"
+    },
+    {
+      "id": "InfinityWatch",
+      "name": "INFINITY WATCH"
+    },
+    {
+      "id": "GalacticCouncil",
+      "name": "GALACTIC COUNCIL"
+    },
+    {
+      "id": "Legendary",
+      "name": "LEGENDARY"
+    },
+    {
+      "id": "Darkhold",
+      "name": "DARKHOLD"
+    },
+    {
+      "id": "Nightstalker",
+      "name": "NIGHTSTALKER"
+    },
+    {
+      "id": "Blaster",
+      "name": "BLASTER"
+    },
+    {
+      "id": "SpiderVerse",
+      "name": "SPIDER-VERSE"
+    },
+    {
+      "id": "Symbiote",
+      "name": "SYMBIOTE"
+    },
+    {
+      "id": "Rebirth",
+      "name": "REBIRTH"
+    },
+    {
+      "id": "Controller",
+      "name": "CONTROLLER"
+    },
+    {
+      "id": "Aim",
+      "name": "A.I.M."
+    },
+    {
+      "id": "Minion",
+      "name": "MINION"
+    },
+    {
+      "id": "Tech",
+      "name": "TECH"
+    },
+    {
+      "id": "Operator"
+    },
+    {
+      "id": "Skill",
+      "name": "SKILL"
+    },
+    {
+      "id": "Champion",
+      "name": "CHAMPION"
+    },
+    {
+      "id": "YoungAvenger",
+      "name": "YOUNG AVENGER"
+    },
+    {
+      "id": "Avenger",
+      "name": "AVENGER"
+    },
+    {
+      "id": "Astral",
+      "name": "ASTRAL"
+    },
+    {
+      "id": "Mutant",
+      "name": "MUTANT"
+    },
+    {
+      "id": "ExaltedXMen",
+      "name": "EXALTED X-MEN"
+    },
+    {
+      "id": "Xmen",
+      "name": "X-MEN"
+    },
+    {
+      "id": "Mythic",
+      "name": "MYTHIC"
+    },
+    {
+      "id": "PymTech",
+      "name": "PYM TECH"
+    },
+    {
+      "id": "Infestation",
+      "name": "INFESTATION"
+    },
+    {
+      "id": "City",
+      "name": "CITY"
+    },
+    {
+      "id": "Chargeable",
+      "alwaysInvisible": true
+    },
+    {
+      "id": "Deathseed",
+      "name": "DEATH SEED"
+    },
+    {
+      "id": "Horseman",
+      "name": "HORSEMAN"
+    },
+    {
+      "id": "HellfireClub",
+      "name": "HELLFIRE CLUB"
+    },
+    {
+      "id": "Accursed",
+      "name": "ACCURSED"
+    },
+    {
+      "id": "Supernatural",
+      "name": "SUPERNATURAL"
+    },
+    {
+      "id": "DarkHunter",
+      "name": "DARK HUNTER"
+    },
+    {
+      "id": "Uncanny",
+      "name": "UNCANNY X-MEN"
+    },
+    {
+      "id": "Astonishing",
+      "name": "ASTONISHING X-MEN"
+    },
+    {
+      "id": "ImmortalXMen",
+      "name": "IMMORTAL X-MEN"
+    },
+    {
+      "id": "UncannyAvenger",
+      "name": "UNCANNY AVENGER"
+    },
+    {
+      "id": "Bifrost",
+      "name": "BIFROST"
+    },
+    {
+      "id": "Asgard",
+      "name": "ASGARDIAN"
+    },
+    {
+      "id": "Inhuman",
+      "name": "INHUMAN"
+    },
+    {
+      "id": "Illuminati",
+      "name": "ILLUMINATI"
+    },
+    {
+      "id": "SecretDefender",
+      "name": "SECRET DEFENDER"
+    },
+    {
+      "id": "Defender",
+      "name": "DEFENDER"
+    },
+    {
+      "id": "OutOfTime",
+      "name": "OUT OF TIME"
+    },
+    {
+      "id": "Wakanda",
+      "name": "WAKANDAN"
+    },
+    {
+      "id": "WarDog",
+      "name": "WAR DOG"
+    },
+    {
+      "id": "Shield",
+      "name": "S.H.I.E.L.D."
+    },
+    {
+      "id": "Wave1Avenger",
+      "name": "WAVE I - AVENGER"
+    },
+    {
+      "id": "Military",
+      "name": "MILITARY"
+    },
+    {
+      "id": "Wave1",
+      "alwaysInvisible": true
+    },
+    {
+      "id": "Vampire",
+      "name": "VAMPIRE"
+    },
+    {
+      "id": "AmazingAvenger",
+      "name": "AMAZING AVENGER"
+    },
+    {
+      "id": "Brotherhood",
+      "name": "BROTHERHOOD"
+    },
+    {
+      "id": "Menace",
+      "name": "MENACE"
+    },
+    {
+      "id": "Epic",
+      "name": "EPIC"
+    },
+    {
+      "id": "Invader",
+      "name": "INVADER"
+    },
+    {
+      "id": "Mercenary",
+      "name": "MERCENARY"
+    },
+    {
+      "id": "Dread",
+      "name": "DREAD"
+    },
+    {
+      "id": "Xforce",
+      "name": "X-FORCE"
+    },
+    {
+      "id": "NewMutant",
+      "name": "NEW MUTANT"
+    },
+    {
+      "id": "Kree",
+      "name": "KREE"
+    },
+    {
+      "id": "AForce",
+      "name": "A-FORCE"
+    },
+    {
+      "id": "HiveMind",
+      "name": "HIVE-MIND"
+    },
+    {
+      "id": "SymbioteSix",
+      "name": "SYMBIOTE SIX"
+    },
+    {
+      "id": "NewWarrior",
+      "name": "NEW WARRIOR"
+    },
+    {
+      "id": "HeroesForHire",
+      "name": "HEROES FOR HIRE"
+    },
+    {
+      "id": "BlackOrder",
+      "name": "BLACK ORDER"
+    },
+    {
+      "id": "GotG",
+      "name": "GUARDIAN"
+    },
+    {
+      "id": "Knowhere",
+      "name": "KNOWHERE"
+    },
+    {
+      "id": "NewAvenger",
+      "name": "NEW AVENGER"
+    },
+    {
+      "id": "Hydra",
+      "name": "HYDRA"
+    },
+    {
+      "id": "IronRaider",
+      "name": "IRON RAIDER"
+    },
+    {
+      "id": "Omen",
+      "name": "OMEN"
+    },
+    {
+      "id": "XTreme",
+      "name": "X-TREME X-MEN"
+    },
+    {
+      "id": "SavageLand",
+      "name": "SAVAGE LAND"
+    },
+    {
+      "id": "Brimstone",
+      "name": "BRIMSTONE"
+    },
+    {
+      "id": "MercsForMoney",
+      "name": "MERCS FOR MONEY"
+    },
+    {
+      "id": "Shadowland",
+      "name": "SHADOWLAND"
+    },
+    {
+      "id": "DaringWarrior",
+      "name": "DARING WARRIOR"
+    },
+    {
+      "id": "Vigilante",
+      "name": "VIGILANTE"
+    },
+    {
+      "id": "PhoenixForce",
+      "name": "PHOENIX FORCE"
+    },
+    {
+      "id": "Pegasus",
+      "name": "P.E.G.A.S.U.S."
+    },
+    {
+      "id": "WinterGuard",
+      "name": "WINTER GUARD"
+    },
+    {
+      "id": "Unlimited",
+      "name": "UNLIMITED X-MEN"
+    },
+    {
+      "id": "Retcon",
+      "name": "RETCON"
+    },
+    {
+      "id": "BionicAvenger",
+      "name": "BIONIC AVENGER"
+    },
+    {
+      "id": "SinisterSix",
+      "name": "SINISTER SIX"
+    },
+    {
+      "id": "SuperiorSix",
+      "name": "SUPERIOR SIX"
+    },
+    {
+      "id": "SecretWarrior",
+      "name": "SECRET WARRIOR"
+    },
+    {
+      "id": "DoomBot"
+    },
+    {
+      "id": "Nightreaver",
+      "name": "NIGHTREAVER"
+    },
+    {
+      "id": "Hand",
+      "name": "HAND"
+    },
+    {
+      "id": "ShadowConclave",
+      "name": "SHADOW CONCLAVE"
+    },
+    {
+      "id": "PowerArmor",
+      "name": "POWER ARMOR"
+    },
+    {
+      "id": "MightyAvenger",
+      "name": "MIGHTY AVENGER"
+    },
+    {
+      "id": "Liberty",
+      "name": "LIBERTY"
+    },
+    {
+      "id": "FantasticFourMCU",
+      "name": "FANTASTIC FOUR (MCU)"
+    },
+    {
+      "id": "FantasticFour",
+      "name": "FANTASTIC FOUR"
+    },
+    {
+      "id": "Thunderbolt",
+      "name": "THUNDERBOLT"
+    },
+    {
+      "id": "WebWarrior",
+      "name": "WEB-WARRIOR"
+    },
+    {
+      "id": "SpiderSociety",
+      "name": "SPIDER-SOCIETY"
+    },
+    {
+      "id": "TimelessEternal",
+      "name": "TIMELESS ETERNAL"
+    },
+    {
+      "id": "Eternal",
+      "name": "ETERNAL"
+    },
+    {
+      "id": "Annihilator",
+      "name": "ANNIHILATOR"
+    },
+    {
+      "id": "Summon"
+    },
+    {
+      "id": "Undying",
+      "name": "UNDYING"
+    },
+    {
+      "id": "Starjammer",
+      "name": "STARJAMMER"
+    },
+    {
+      "id": "AlphaFlight",
+      "name": "ALPHA FLIGHT"
+    },
+    {
+      "id": "WestCoastAvenger",
+      "name": "WEST COAST AVENGER"
+    },
+    {
+      "id": "AIAvenger",
+      "name": "A.I. AVENGER"
+    },
+    {
+      "id": "Exposed",
+      "alwaysInvisible": true,
+      "name": "EXPOSED"
+    },
+    {
+      "id": "InsidiousSix",
+      "name": "INSIDIOUS SIX"
+    },
+    {
+      "id": "InnerDemonSummon"
+    },
+    {
+      "id": "Underworld",
+      "name": "UNDERWORLD"
+    },
+    {
+      "id": "ImmortalWeapon",
+      "name": "IMMORTAL WEAPON"
+    },
+    {
+      "id": "Cabal",
+      "name": "CABAL"
+    },
+    {
+      "id": "AbsoluteAForce",
+      "name": "ABSOLUTE A-FORCE"
+    },
+    {
+      "id": "WeaponX",
+      "name": "WEAPON X"
+    },
+    {
+      "id": "Orchis",
+      "name": "ORCHIS"
+    },
+    {
+      "id": "Loki"
+    },
+    {
+      "id": "XFactor",
+      "name": "X-FACTOR"
+    },
+    {
+      "id": "Marauders",
+      "name": "MARAUDER"
+    },
+    {
+      "id": "SecretAvenger",
+      "name": "SECRET AVENGER"
+    },
+    {
+      "id": "Exhausted",
+      "alwaysInvisible": true
+    },
+    {
+      "id": "XFactorDupe"
+    },
+    {
+      "id": "Boss",
+      "alwaysInvisible": true
+    },
+    {
+      "id": "Aphelion",
+      "alwaysInvisible": true
+    },
+    {
+      "id": "DestroyerSummon"
+    },
+    {
+      "id": "ApostleofWar"
+    },
+    {
+      "id": "PvEDDDoom"
+    },
+    {
+      "id": "DoomBomb"
+    },
+    {
+      "id": "Ravager",
+      "name": "RAVAGER"
+    },
+    {
+      "id": "TangledWeb",
+      "name": "TANGLED WEB"
+    },
+    {
+      "id": "Trait"
+    },
+    {
+      "id": "Thanos_BlackOrder",
+      "alwaysInvisible": true
+    },
+    {
+      "id": "Ultron"
+    },
+    {
+      "id": "Civilian"
+    },
+    {
+      "id": "KnowhereHeist",
+      "isEvent": true,
+      "name": "KNOWHERE HEIST"
+    },
+    {
+      "id": "MSFOriginal",
+      "isEvent": true,
+      "name": "MSF ORIGINAL"
+    },
+    {
+      "id": "WebSlinger",
+      "isEvent": true,
+      "name": "WEB-SLINGER"
+    },
+    {
+      "id": "Couples",
+      "isEvent": true,
+      "name": "COUPLES"
+    },
+    {
+      "id": "Harbingers",
+      "isEvent": true,
+      "name": "CHAPTER 1 - HARBINGER"
+    },
+    {
+      "id": "ChaosTeam",
+      "isEvent": true,
+      "name": "CHAOS TEAM"
+    },
+    {
+      "id": "KnullChallengers",
+      "isEvent": true,
+      "name": "KNULL CHALLENGERS"
+    },
+    {
+      "id": "SentryChallengers",
+      "isEvent": true,
+      "name": "SENTRY CHALLENGERS"
+    },
+    {
+      "id": "MaestroChallengers",
+      "isEvent": true,
+      "name": "MAESTRO CHALLENGERS"
+    },
+    {
+      "id": "Conqueror",
+      "isEvent": true,
+      "name": "CHAPTER 2 - CONQUEROR"
+    },
+    {
+      "id": "Stormbound",
+      "isEvent": true,
+      "name": "CHAPTER 3 - STORMBOUND"
+    },
+    {
+      "id": "AnnihilationWave",
+      "isEvent": true,
+      "name": "CHAPTER 4 - ANNIHILATION WAVE"
+    },
+    {
+      "id": "BestMutantBuddies",
+      "isEvent": true,
+      "name": "BEST MUTANT BUDDIES"
+    },
+    {
+      "id": "BestAvengerBuddies",
+      "isEvent": true,
+      "name": "BEST AVENGER BUDDIES"
+    },
+    {
+      "id": "BestSpiderBuddies",
+      "isEvent": true,
+      "name": "BEST SPIDER BUDDIES"
+    },
+    {
+      "id": "BestVillainBuddies",
+      "isEvent": true,
+      "name": "BEST VILLAIN BUDDIES"
+    },
+    {
+      "id": "BestBuddies",
+      "isEvent": true,
+      "name": "BEST BUDDIES"
+    },
+    {
+      "id": "SPB_05_Alpha",
+      "isEvent": true,
+      "name": "ANXIETY"
+    },
+    {
+      "id": "SPB_05_Beta",
+      "isEvent": true,
+      "name": "PANIC"
+    },
+    {
+      "id": "SPB_05_Gamma",
+      "isEvent": true,
+      "name": "FEAR"
+    },
+    {
+      "id": "SPB_05_Omega",
+      "isEvent": true,
+      "name": "TERROR"
+    },
+    {
+      "id": "TowerChallenger",
+      "isEvent": true,
+      "name": "TOWER CHALLENGER I"
+    },
+    {
+      "id": "Golden_Age",
+      "isEvent": true,
+      "name": "GOLDEN AGE"
+    },
+    {
+      "id": "TowerChallenger2",
+      "isEvent": true,
+      "name": "TOWER CHALLENGER II"
+    },
+    {
+      "id": "TowerChallenger3",
+      "isEvent": true,
+      "name": "TOWER CHALLENGER III"
+    },
+    {
+      "id": "TowerChallenger4",
+      "isEvent": true,
+      "name": "TOWER CHALLENGER IV"
+    },
+    {
+      "id": "Encore",
+      "isEvent": true,
+      "name": "ENCORE"
+    },
+    {
+      "id": "DARK_PROMOTION",
+      "name": "DARK PROMOTION"
+    }
+  ]
+}
