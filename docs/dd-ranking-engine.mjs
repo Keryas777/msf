@@ -17,9 +17,15 @@ function evaluateAlternativeRequirement(req,owned){
       if(any.length&&!any.some(t=>c.tags.includes(t)))continue;
       if(all.length&&!all.every(t=>c.tags.includes(t)))continue;
       if(except.some(t=>c.tags.includes(t)))continue;
-      const gear=Number(c.progress?.gear);
-      if(f.minGear!=null&&!Number.isFinite(gear)){uncertain=true;continue;}
-      if(f.minGear!=null&&gear<Number(f.minGear))continue;
+      let insufficient=false,missing=false;
+      for(const [minimum,field] of [["minGear","gear"],["minLevel","level"],["minIsoTier","isoMax"]]){
+        if(f[minimum]==null)continue;
+        const value=Number(c.progress?.[field]);
+        if(c.progress?.[field]==null||!Number.isFinite(value)){missing=true;break;}
+        if(value<Number(f[minimum])){insufficient=true;break;}
+      }
+      if(missing){uncertain=true;continue;}
+      if(insufficient)continue;
       matched=true;break;
     }
     if(matched)yes++;else if(uncertain)unknown++;
