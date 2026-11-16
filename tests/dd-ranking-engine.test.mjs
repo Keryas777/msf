@@ -79,3 +79,12 @@ test("Magik orange ISO-8 level 3 requires isoMax >= 18 and preserves trait filte
  assert.equal(evaluateDimension({dimension:d,roster:roster(18),catalog:chars.map(c=>({...c,tags:["Global"]}))}).nodeStates[0].state,"false");
  assert.equal(evaluateDimension({dimension:d,roster:roster(undefined),catalog:chars}).nodeStates[0].state,"unknown");
 });
+
+
+test("DD9 gear-only requirements do not demand ISO-8 progress",()=>{
+ const dd9=dim([{id:"A2",order:1,requirement:{minCharacters:1,alternatives:[{minGear:21,tagIds:[],allTagIds:[],excludeTagIds:[]}]}}]);
+ const result=calc({heroa:{gear:21}},dd9);
+ assert.equal(result.nodeStates[0].state,"true");
+ assert.equal(result.consecutive,1);
+ assert.equal(result.prepared,1);
+});
