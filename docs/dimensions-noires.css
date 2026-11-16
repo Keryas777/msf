@@ -771,3 +771,6 @@ h2 { margin-bottom: 9px; font-size: 1.06rem; font-weight: 800; }
 .dd-badge-line { display: block; }
 .dd-star-yellow { color: #ffd74f; }
 .dd-star-red { color: #ff6868; }
+
+/* Do not reserve a bordered status box when there is no message to show. */
+#state:empty { display: none; }
