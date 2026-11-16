@@ -779,3 +779,14 @@ h2 { margin-bottom: 9px; font-size: 1.06rem; font-weight: 800; }
 #progress-summary { white-space: pre-line; }
 
 .dd-next-readiness { display: block; margin-top: 0.45rem; font-size: 0.82rem; line-height: 1.35; color: #b9c9e4; }
+
+/* Dimension picker: reward portrait beside the native mobile select. */
+.dd-dimension-picker { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; align-items: center; }
+.dd-dimension-picker .control { min-width: 0; margin: 0; }
+.dd-dimension-picker select { width: 100%; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+.dd-reward-portrait { width: 72px; height: 72px; object-fit: contain; border-radius: 12px; background: rgba(5,12,26,.45); }
+.dd-reward-portrait[hidden] { visibility: hidden; display: block !important; }
+@media (max-width: 360px) {
+  .dd-dimension-picker { grid-template-columns: 60px minmax(0, 1fr); gap: 10px; }
+  .dd-reward-portrait { width: 60px; height: 60px; }
+}
