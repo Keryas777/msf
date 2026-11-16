@@ -232,6 +232,7 @@ function renderRanking() {
     return;
   }
 
+  let previousRank = null;
   for (const entry of ordered) {
     const finished = entry.result.completed;
     const twiceFinished = finished && entry.result.passages >= 2;
@@ -241,7 +242,9 @@ function renderRanking() {
     button.innerHTML =
       '<span class="place"></span><span class="player-details"><span class="player-name"></span>' +
       '<span class="meta"></span><span class="badge"></span></span>';
-    button.querySelector(".place").textContent = Number.isFinite(entry.rank) ? String(entry.rank) : "—";
+    const rank = Number.isFinite(entry.rank) ? entry.rank : null;
+    button.querySelector(".place").textContent = rank !== null && rank !== previousRank ? String(rank) : "—";
+    previousRank = rank;
     button.querySelector(".player-name").textContent = entry.roster.player;
     const allianceMeta = button.querySelector(".meta");
     const allianceId = allianceKey(entry.roster.alliance);
@@ -252,20 +255,44 @@ function renderRanking() {
     allianceName.className = "ranking-alliance-name";
     window.LoSPAlliances.renderAllianceName(allianceName, allianceId);
     allianceMeta.replaceChildren(emoji, document.createTextNode(" "), allianceName);
-    button.querySelector(".badge").textContent = finished
-      ? dimensionLabel + " · " + passageLabel(selectedDimension, entry.result.passages) + " · convention LoSP"
-      : entry.result.status === "theoretical"
-        ? "Théorique : " + entry.result.consecutive + "/" + (selectedDimension?.nodes?.length || 0) +
-          " salles consécutives · " + entry.result.prepared + " salles préparées (roster, pas progression réelle)"
-        : entry.result.status === "unavailable"
-          ? "Roster non disponible pour le calcul"
-          : Number.isFinite(entry.result.consecutive)
-            ? "Théorique : " + entry.result.consecutive + "/" + (selectedDimension?.nodes?.length || 0) +
-              " salles consécutives confirmées · préparation totale indéterminée (non classé)"
-            : "Progression théorique indéterminée (données incomplètes)";
-    if (finished && entry.result.firstClearObservedAt) button.querySelector(".badge").textContent +=
-      " · 1er passage observé le " + new Date(entry.result.firstClearObservedAt).toLocaleDateString("fr-FR") +
-      (Number.isFinite(entry.result.firstClearDays) ? " (" + entry.result.firstClearDays + " jours)" : "");
+    const badge = button.querySelector(".badge");
+    if (finished) {
+      const tier = selectedDimension?.completionRule?.tiers?.find((item) => item.passages === entry.result.passages);
+      const heading = document.createElement("span");
+      heading.className = "dd-badge-line";
+      heading.textContent = twiceFinished ? "2ème passage terminé" : "1er passage terminé";
+      badge.append(heading);
+      if (tier) {
+        const rewards = document.createElement("span");
+        rewards.className = "dd-badge-line";
+        rewards.append(document.createTextNode("Annihilus " + tier.minYellowStars + " "));
+        const yellow = document.createElement("span");
+        yellow.className = "dd-star-yellow";
+        yellow.textContent = "★";
+        rewards.append(yellow, document.createTextNode(" - " + tier.minRedStars + " "));
+        const red = document.createElement("span");
+        red.className = "dd-star-red";
+        red.textContent = "★";
+        rewards.append(red);
+        badge.append(rewards);
+      }
+    } else if (entry.result.status === "theoretical") {
+      const total = selectedDimension?.nodes?.length || 0;
+      const first = document.createElement("span");
+      first.className = "dd-badge-line";
+      first.textContent = entry.result.consecutive + " / " + total + " salles consécutives prêtes";
+      const second = document.createElement("span");
+      second.className = "dd-badge-line";
+      second.textContent = entry.result.prepared + " / " + total + " salles prêtes au total";
+      badge.append(first, second);
+    } else {
+      badge.textContent = entry.result.status === "unavailable"
+        ? "Roster non disponible pour le calcul"
+        : Number.isFinite(entry.result.consecutive)
+          ? "Théorique : " + entry.result.consecutive + "/" + (selectedDimension?.nodes?.length || 0) +
+            " salles consécutives confirmées · préparation totale indéterminée (non classé)"
+          : "Progression théorique indéterminée (données incomplètes)";
+    }
     if (finished || entry.result.status === "theoretical") {
       const sizes = progressSections(selectedDimension?.nodes || []);
       const total = sizes.reduce((sum, size) => sum + size, 0);
