@@ -320,7 +320,15 @@ function renderRanking() {
         : Number.isFinite(entry.result.consecutive)
           ? "Théorique : " + entry.result.consecutive + "/" + (selectedDimension?.nodes?.length || 0) +
             " salles consécutives confirmées · préparation totale indéterminée (non classé)"
-          : "Progression théorique indéterminée (données incomplètes)";
+          : entry.result.status === "indeterminate" && entry.result.incompleteData?.requiresIso
+            ? "Progression non calculable : " +
+              (entry.result.incompleteData.missingIso
+                ? "données ISO-8 manquantes pour " + entry.result.incompleteData.missingIso + " personnage(s)"
+                : "données de traits ou de personnages incomplètes") +
+              (entry.result.nextReadiness
+                ? " · " + entry.result.nextReadiness.ready + " / " + entry.result.nextReadiness.required + " personnages confirmés pour la restriction suivante"
+                : "")
+            : "Progression théorique indéterminée (données incomplètes)";
     }
     if (finished || entry.result.status === "theoretical") {
       const sizes = progressSections(selectedDimension?.nodes || []);
