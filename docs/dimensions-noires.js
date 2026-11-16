@@ -276,7 +276,12 @@ function renderRanking() {
         rewards.append(red);
         badge.append(rewards);
       }
-    } else if (entry.result.checkpointReached) {\n      const checkpoint = document.createElement("span");\n      checkpoint.className = "dd-badge-line";\n      checkpoint.textContent = "Nœud 3 terminé · 7 ★ jaunes / 7 ★ rouges (convention LoSP)";\n      badge.append(checkpoint);\n    } else if (entry.result.status === "theoretical") {
+    } else if (entry.result.checkpointReached) {
+      const checkpoint = document.createElement("span");
+      checkpoint.className = "dd-badge-line";
+      checkpoint.textContent = "Nœud 3 terminé · 7 ★ jaunes / 7 ★ rouges (convention LoSP)";
+      badge.append(checkpoint);
+    } else if (entry.result.status === "theoretical") {
       const total = selectedDimension?.nodes?.length || 0;
       const first = document.createElement("span");
       first.className = "dd-badge-line";
