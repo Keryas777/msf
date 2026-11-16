@@ -52,3 +52,17 @@ test("unknown after a confirmed block preserves the known consecutive count",()=
   assert.equal(r.prepared,null);
   assert.equal(rankResults([{result:r}]).ranked.length,0);
 });
+
+
+test("Magik-style checkpoint and diamond completions remain separate from DD9",()=>{
+ const magik={key:"magik",checkpointRule:{characterId:"Magik",minYellowStars:7,minRedStars:7},completionRule:{characterId:"Magik",tiers:[{passages:1,minYellowStars:7,minRedStars:7,minDiamonds:1},{passages:2,minYellowStars:7,minRedStars:7,minDiamonds:3}]},nodes:[{id:"A2",order:1,requirement:req}]};
+ const characters=[...catalog,{id:"Magik",nameKey:"Magik",tags:["City"]}];
+ const run=(progress)=>evaluateDimension({dimension:magik,roster:{chars:{magik:progress}},catalog:characters});
+ assert.equal(run({yellowStars:6,redStars:6,diamonds:0}).checkpointReached,false);
+ const checkpoint=run({yellowStars:7,redStars:7,diamonds:0});
+ assert.equal(checkpoint.checkpointReached,true);
+ assert.equal(checkpoint.completed,false);
+ assert.equal(run({yellowStars:7,redStars:7,diamonds:1}).passages,1);
+ assert.equal(run({yellowStars:7,redStars:7,diamonds:3}).passages,2);
+ assert.equal(calc({annihilus:{yellowStars:5,redStars:2}}).passages,1);
+});
