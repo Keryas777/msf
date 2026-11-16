@@ -1494,6 +1494,157 @@
         }
       ],
       "launchDate": "2026-04-15T21:00:00Z"
+    },
+    {
+      "id": "insanity_limbo",
+      "key": "magik-first-breaker",
+      "name": "Première Briseuse : Magik",
+      "shortName": "Magik",
+      "active": false,
+      "sourceStatus": "Carte reconstruite depuis la capture du joueur ; règles officielles des salles non encore validées",
+      "map": {
+        "columns": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "rows": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "combatNodeIds": [
+          "A2",
+          "A3",
+          "A4",
+          "B4",
+          "C4",
+          "D4",
+          "D3",
+          "D2",
+          "C2",
+          "B2"
+        ],
+        "portalIds": [],
+        "startId": "A1",
+        "visualEdges": [
+          [
+            "A1",
+            "A2"
+          ],
+          [
+            "A2",
+            "A3"
+          ],
+          [
+            "A3",
+            "A4"
+          ],
+          [
+            "A4",
+            "B4"
+          ],
+          [
+            "B4",
+            "C4"
+          ],
+          [
+            "C4",
+            "D4"
+          ],
+          [
+            "D4",
+            "D3"
+          ],
+          [
+            "D3",
+            "D2"
+          ],
+          [
+            "D2",
+            "C2"
+          ],
+          [
+            "C2",
+            "B2"
+          ]
+        ],
+        "edgeSemantics": "Parcours fourni par le joueur ; les traits sont visuels et ne constituent pas des données de déverrouillage officielles."
+      },
+      "nodes": [
+        {
+          "id": "A2",
+          "order": 1,
+          "name": "Mission 1",
+          "requirement": null,
+          "requirementDescription": []
+        },
+        {
+          "id": "A3",
+          "order": 2,
+          "name": "Mission 2",
+          "requirement": null,
+          "requirementDescription": []
+        },
+        {
+          "id": "A4",
+          "order": 3,
+          "name": "Mission 3",
+          "requirement": null,
+          "requirementDescription": []
+        },
+        {
+          "id": "B4",
+          "order": 4,
+          "name": "Mission 4",
+          "requirement": null,
+          "requirementDescription": []
+        },
+        {
+          "id": "C4",
+          "order": 5,
+          "name": "Mission 5",
+          "requirement": null,
+          "requirementDescription": []
+        },
+        {
+          "id": "D4",
+          "order": 6,
+          "name": "Mission 6",
+          "requirement": null,
+          "requirementDescription": []
+        },
+        {
+          "id": "D3",
+          "order": 7,
+          "name": "Mission 7",
+          "requirement": null,
+          "requirementDescription": []
+        },
+        {
+          "id": "D2",
+          "order": 8,
+          "name": "Mission 8",
+          "requirement": null,
+          "requirementDescription": []
+        },
+        {
+          "id": "C2",
+          "order": 9,
+          "name": "Mission 9",
+          "requirement": null,
+          "requirementDescription": []
+        },
+        {
+          "id": "B2",
+          "order": 10,
+          "name": "Mission 10",
+          "requirement": null,
+          "requirementDescription": []
+        }
+      ]
     }
   ]
 }
