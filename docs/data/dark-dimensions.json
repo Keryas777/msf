@@ -10,6 +10,387 @@
   },
   "dimensions": [
     {
+      "id": "dd_id_target_bluemarvel_details_bm",
+      "key": "target-blue-marvel",
+      "name": "Cible : Blue Marvel",
+      "shortName": "Blue Marvel",
+      "active": true,
+      "sourceStatus": "Carte officielle archivée ; exigences des missions relevées dans le jeu et fournies par le joueur",
+      "official": {
+        "name": "TARGET: BLUE MARVEL",
+        "subName": "Featuring CONQUEROR",
+        "combatNodesPerTeam": 10,
+        "rayCount": 5,
+        "rayDepth": 6,
+        "startingRoomId": "A1",
+        "rays": [
+          [
+            "A1",
+            "A2",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "B1",
+            "B2",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "C1",
+            "C2",
+            "",
+            "",
+            "C5",
+            "C6"
+          ],
+          [
+            "",
+            "",
+            "",
+            "",
+            "D5",
+            "D6"
+          ],
+          [
+            "",
+            "",
+            "",
+            "",
+            "E5",
+            ""
+          ]
+        ]
+      },
+      "map": {
+        "columns": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "rows": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "combatNodeIds": [
+          "A2",
+          "B2",
+          "B1",
+          "C1",
+          "C2",
+          "C5",
+          "C6",
+          "D6",
+          "D5",
+          "E5"
+        ],
+        "portalIds": [],
+        "startId": "A1",
+        "visualEdges": [
+          [
+            "A1",
+            "A2"
+          ],
+          [
+            "A2",
+            "B2"
+          ],
+          [
+            "B2",
+            "B1"
+          ],
+          [
+            "B1",
+            "C1"
+          ],
+          [
+            "C1",
+            "C2"
+          ],
+          [
+            "C2",
+            "C5"
+          ],
+          [
+            "C5",
+            "C6"
+          ],
+          [
+            "C6",
+            "D6"
+          ],
+          [
+            "D6",
+            "D5"
+          ],
+          [
+            "D5",
+            "E5"
+          ]
+        ],
+        "edgeSemantics": "Parcours visuel des dix missions ; les liens ne définissent pas les déverrouillages officiels."
+      },
+      "nodes": [
+        {
+          "id": "A2",
+          "order": 1,
+          "name": "Mission 1",
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 14,
+                "tagIds": [],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 violet niveau 4 · tous les personnages"
+          ]
+        },
+        {
+          "id": "B2",
+          "order": 2,
+          "name": "Mission 2",
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 14,
+                "tagIds": [
+                  "Conqueror"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 violet niveau 4 · Conquérant"
+          ]
+        },
+        {
+          "id": "B1",
+          "order": 3,
+          "name": "Mission 3",
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 15,
+                "tagIds": [
+                  "Conqueror"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 violet niveau 5 · Conquérant"
+          ]
+        },
+        {
+          "id": "C1",
+          "order": 4,
+          "name": "Mission 4",
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 14,
+                "tagIds": [
+                  "Cosmic"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": [
+                  "Epic",
+                  "Legendary",
+                  "Mythic"
+                ]
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 violet niveau 4 · Cosmique (hors Épique, Légendaire et Mythique)"
+          ]
+        },
+        {
+          "id": "C2",
+          "order": 5,
+          "name": "Mission 5",
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 15,
+                "tagIds": [
+                  "Cosmic"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": [
+                  "Epic",
+                  "Legendary",
+                  "Mythic"
+                ]
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 violet niveau 5 · Cosmique (hors Épique, Légendaire et Mythique)"
+          ]
+        },
+        {
+          "id": "C5",
+          "order": 6,
+          "name": "Mission 6",
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 14,
+                "tagIds": [
+                  "City"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": [
+                  "Epic",
+                  "Legendary",
+                  "Mythic"
+                ]
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 violet niveau 4 · Ville (hors Épique, Légendaire et Mythique)"
+          ]
+        },
+        {
+          "id": "C6",
+          "order": 7,
+          "name": "Mission 7",
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 15,
+                "tagIds": [
+                  "City"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": [
+                  "Epic",
+                  "Legendary",
+                  "Mythic"
+                ]
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 violet niveau 5 · Ville (hors Épique, Légendaire et Mythique)"
+          ]
+        },
+        {
+          "id": "D6",
+          "order": 8,
+          "name": "Mission 8",
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 14,
+                "tagIds": [
+                  "Global"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": [
+                  "Epic",
+                  "Legendary",
+                  "Mythic"
+                ]
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 violet niveau 4 · Mondial (hors Épique, Légendaire et Mythique)"
+          ]
+        },
+        {
+          "id": "D5",
+          "order": 9,
+          "name": "Mission 9",
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 15,
+                "tagIds": [
+                  "Global"
+                ],
+                "allTagIds": [],
+                "excludeTagIds": [
+                  "Epic",
+                  "Legendary",
+                  "Mythic"
+                ]
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 violet niveau 5 · Mondial (hors Épique, Légendaire et Mythique)"
+          ]
+        },
+        {
+          "id": "E5",
+          "order": 10,
+          "name": "Mission 10",
+          "requirement": {
+            "minCharacters": 5,
+            "alternatives": [
+              {
+                "minIsoTier": 15,
+                "tagIds": [],
+                "allTagIds": [],
+                "excludeTagIds": []
+              }
+            ]
+          },
+          "requirementDescription": [
+            "5 personnages ISO-8 violet niveau 5 · tous les personnages"
+          ]
+        }
+      ],
+      "completionRule": {
+        "characterId": "BlueMarvel",
+        "status": "Cible : Blue Marvel terminée",
+        "percent": 100,
+        "kind": "application-convention",
+        "note": "Convention LoSP : les étoiles jaunes vérifiées de Blue Marvel sont compatibles avec un ou deux passages, sans en prouver la date.",
+        "tiers": [
+          {
+            "passages": 1,
+            "minYellowStars": 5
+          },
+          {
+            "passages": 2,
+            "minYellowStars": 7
+          }
+        ]
+      }
+    },
+    {
       "id": "dd_id_insanity_event_card_info_09",
       "key": "dd9",
       "name": "Dimension noire IX",
@@ -1802,387 +2183,6 @@
             "minYellowStars": 7,
             "minRedStars": 7,
             "minDiamonds": 3
-          }
-        ]
-      }
-    },
-    {
-      "id": "dd_id_target_bluemarvel_details_bm",
-      "key": "target-blue-marvel",
-      "name": "Cible : Blue Marvel",
-      "shortName": "Blue Marvel",
-      "active": true,
-      "sourceStatus": "Carte officielle archivée ; exigences des missions relevées dans le jeu et fournies par le joueur",
-      "official": {
-        "name": "TARGET: BLUE MARVEL",
-        "subName": "Featuring CONQUEROR",
-        "combatNodesPerTeam": 10,
-        "rayCount": 5,
-        "rayDepth": 6,
-        "startingRoomId": "A1",
-        "rays": [
-          [
-            "A1",
-            "A2",
-            "",
-            "",
-            "",
-            ""
-          ],
-          [
-            "B1",
-            "B2",
-            "",
-            "",
-            "",
-            ""
-          ],
-          [
-            "C1",
-            "C2",
-            "",
-            "",
-            "C5",
-            "C6"
-          ],
-          [
-            "",
-            "",
-            "",
-            "",
-            "D5",
-            "D6"
-          ],
-          [
-            "",
-            "",
-            "",
-            "",
-            "E5",
-            ""
-          ]
-        ]
-      },
-      "map": {
-        "columns": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E"
-        ],
-        "rows": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "combatNodeIds": [
-          "A2",
-          "B2",
-          "B1",
-          "C1",
-          "C2",
-          "C5",
-          "C6",
-          "D6",
-          "D5",
-          "E5"
-        ],
-        "portalIds": [],
-        "startId": "A1",
-        "visualEdges": [
-          [
-            "A1",
-            "A2"
-          ],
-          [
-            "A2",
-            "B2"
-          ],
-          [
-            "B2",
-            "B1"
-          ],
-          [
-            "B1",
-            "C1"
-          ],
-          [
-            "C1",
-            "C2"
-          ],
-          [
-            "C2",
-            "C5"
-          ],
-          [
-            "C5",
-            "C6"
-          ],
-          [
-            "C6",
-            "D6"
-          ],
-          [
-            "D6",
-            "D5"
-          ],
-          [
-            "D5",
-            "E5"
-          ]
-        ],
-        "edgeSemantics": "Parcours visuel des dix missions ; les liens ne définissent pas les déverrouillages officiels."
-      },
-      "nodes": [
-        {
-          "id": "A2",
-          "order": 1,
-          "name": "Mission 1",
-          "requirement": {
-            "minCharacters": 5,
-            "alternatives": [
-              {
-                "minIsoTier": 14,
-                "tagIds": [],
-                "allTagIds": [],
-                "excludeTagIds": []
-              }
-            ]
-          },
-          "requirementDescription": [
-            "5 personnages ISO-8 violet niveau 4 · tous les personnages"
-          ]
-        },
-        {
-          "id": "B2",
-          "order": 2,
-          "name": "Mission 2",
-          "requirement": {
-            "minCharacters": 5,
-            "alternatives": [
-              {
-                "minIsoTier": 14,
-                "tagIds": [
-                  "Conqueror"
-                ],
-                "allTagIds": [],
-                "excludeTagIds": []
-              }
-            ]
-          },
-          "requirementDescription": [
-            "5 personnages ISO-8 violet niveau 4 · Conquérant"
-          ]
-        },
-        {
-          "id": "B1",
-          "order": 3,
-          "name": "Mission 3",
-          "requirement": {
-            "minCharacters": 5,
-            "alternatives": [
-              {
-                "minIsoTier": 15,
-                "tagIds": [
-                  "Conqueror"
-                ],
-                "allTagIds": [],
-                "excludeTagIds": []
-              }
-            ]
-          },
-          "requirementDescription": [
-            "5 personnages ISO-8 violet niveau 5 · Conquérant"
-          ]
-        },
-        {
-          "id": "C1",
-          "order": 4,
-          "name": "Mission 4",
-          "requirement": {
-            "minCharacters": 5,
-            "alternatives": [
-              {
-                "minIsoTier": 14,
-                "tagIds": [
-                  "Cosmic"
-                ],
-                "allTagIds": [],
-                "excludeTagIds": [
-                  "Epic",
-                  "Legendary",
-                  "Mythic"
-                ]
-              }
-            ]
-          },
-          "requirementDescription": [
-            "5 personnages ISO-8 violet niveau 4 · Cosmique (hors Épique, Légendaire et Mythique)"
-          ]
-        },
-        {
-          "id": "C2",
-          "order": 5,
-          "name": "Mission 5",
-          "requirement": {
-            "minCharacters": 5,
-            "alternatives": [
-              {
-                "minIsoTier": 15,
-                "tagIds": [
-                  "Cosmic"
-                ],
-                "allTagIds": [],
-                "excludeTagIds": [
-                  "Epic",
-                  "Legendary",
-                  "Mythic"
-                ]
-              }
-            ]
-          },
-          "requirementDescription": [
-            "5 personnages ISO-8 violet niveau 5 · Cosmique (hors Épique, Légendaire et Mythique)"
-          ]
-        },
-        {
-          "id": "C5",
-          "order": 6,
-          "name": "Mission 6",
-          "requirement": {
-            "minCharacters": 5,
-            "alternatives": [
-              {
-                "minIsoTier": 14,
-                "tagIds": [
-                  "City"
-                ],
-                "allTagIds": [],
-                "excludeTagIds": [
-                  "Epic",
-                  "Legendary",
-                  "Mythic"
-                ]
-              }
-            ]
-          },
-          "requirementDescription": [
-            "5 personnages ISO-8 violet niveau 4 · Ville (hors Épique, Légendaire et Mythique)"
-          ]
-        },
-        {
-          "id": "C6",
-          "order": 7,
-          "name": "Mission 7",
-          "requirement": {
-            "minCharacters": 5,
-            "alternatives": [
-              {
-                "minIsoTier": 15,
-                "tagIds": [
-                  "City"
-                ],
-                "allTagIds": [],
-                "excludeTagIds": [
-                  "Epic",
-                  "Legendary",
-                  "Mythic"
-                ]
-              }
-            ]
-          },
-          "requirementDescription": [
-            "5 personnages ISO-8 violet niveau 5 · Ville (hors Épique, Légendaire et Mythique)"
-          ]
-        },
-        {
-          "id": "D6",
-          "order": 8,
-          "name": "Mission 8",
-          "requirement": {
-            "minCharacters": 5,
-            "alternatives": [
-              {
-                "minIsoTier": 14,
-                "tagIds": [
-                  "Global"
-                ],
-                "allTagIds": [],
-                "excludeTagIds": [
-                  "Epic",
-                  "Legendary",
-                  "Mythic"
-                ]
-              }
-            ]
-          },
-          "requirementDescription": [
-            "5 personnages ISO-8 violet niveau 4 · Mondial (hors Épique, Légendaire et Mythique)"
-          ]
-        },
-        {
-          "id": "D5",
-          "order": 9,
-          "name": "Mission 9",
-          "requirement": {
-            "minCharacters": 5,
-            "alternatives": [
-              {
-                "minIsoTier": 15,
-                "tagIds": [
-                  "Global"
-                ],
-                "allTagIds": [],
-                "excludeTagIds": [
-                  "Epic",
-                  "Legendary",
-                  "Mythic"
-                ]
-              }
-            ]
-          },
-          "requirementDescription": [
-            "5 personnages ISO-8 violet niveau 5 · Mondial (hors Épique, Légendaire et Mythique)"
-          ]
-        },
-        {
-          "id": "E5",
-          "order": 10,
-          "name": "Mission 10",
-          "requirement": {
-            "minCharacters": 5,
-            "alternatives": [
-              {
-                "minIsoTier": 15,
-                "tagIds": [],
-                "allTagIds": [],
-                "excludeTagIds": []
-              }
-            ]
-          },
-          "requirementDescription": [
-            "5 personnages ISO-8 violet niveau 5 · tous les personnages"
-          ]
-        }
-      ],
-      "completionRule": {
-        "characterId": "BlueMarvel",
-        "status": "Cible : Blue Marvel terminée",
-        "percent": 100,
-        "kind": "application-convention",
-        "note": "Convention LoSP : les étoiles jaunes vérifiées de Blue Marvel sont compatibles avec un ou deux passages, sans en prouver la date.",
-        "tiers": [
-          {
-            "passages": 1,
-            "minYellowStars": 5
-          },
-          {
-            "passages": 2,
-            "minYellowStars": 7
           }
         ]
       }
