@@ -25,7 +25,7 @@ Le groupe de quatre nouveaux résultats initialement réservé à la validation 
 
 ## Segmentation et classificateur
 
-Sur les 36 zones trophées de l’ancien et du nouveau corpus, le segmentateur JavaScript a proposé quatre composantes glyphes pour 36/36. Ce décompte mesure le nombre de composantes retenues, pas la justesse sémantique de chaque glyphe. Les sorties détaillées et les images de diagnostic restent hors du dépôt.
+Sur les 36 zones trophées de l’ancien et du nouveau corpus, le segmentateur JavaScript a proposé quatre composantes glyphes pour 36/36. Le module expérimental publié a ensuite été exécuté lui-même sur les bandes de pixels couleur d’origine conservées localement : il a retourné quatre limites de glyphes pour 36/36 zones. Ce décompte mesure les composantes retenues, pas la justesse sémantique de chaque glyphe. Les sorties détaillées et les images de diagnostic restent hors du dépôt.
 
 | Évaluation du classificateur JavaScript, seuils gelés (.79 / marge .035) | Champs | Propositions exactes | Acceptées exactes | Acceptées incorrectes | Refusées |
 |---|---:|---:|---:|---:|---:|
