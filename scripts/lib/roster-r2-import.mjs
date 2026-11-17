@@ -165,6 +165,8 @@ export function resolveAlias(name,aliases){
 // Require at least one explicitly reported class level before inferring ISO.
 function isoFromProviderCsv(iso8){
   if(typeof iso8!=='string')return null;
+  // Scopely uses the literal string "0" for characters with no ISO-8 assigned.
+  if(iso8==='0')return {isoMax:0,isoClass:null,explicitZero:true};
   const fields=iso8.split(',');
   if(fields.length<8||fields.length>12)return null;
   const isoClass=fields[6].trim().toLowerCase();
@@ -202,7 +204,7 @@ export function convertCharacter(raw,prior){
   // Preserve known CSV measurements, but use actual reported ISO class
   // levels to detect newer progress. Never infer ISO 0 from absent levels.
   const csvIso=isoFromProviderCsv(raw.iso8);
-  if(csvIso)value.isoMax=num(value.isoMax)?
+  if(csvIso)value.isoMax=csvIso.explicitZero?0:num(value.isoMax)?
     Math.max(value.isoMax,csvIso.isoMax):csvIso.isoMax;
   else if(!prior&&num(raw.isoMax))value.isoMax=raw.isoMax;
   return {key,value,isoClass:csvIso?.isoClass??

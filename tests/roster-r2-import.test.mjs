@@ -233,12 +233,20 @@ test('real R2 ISO8 CSV class levels reconstruct the historic five-column ISO max
   assert.equal(convertCharacter({...source,
     iso8:'0,0,0,0,0,0,raider,0,0,0,0,10'},old).value.isoMax,12);
   // No explicit level (even if class info was absent) must not invent ISO 0.
-  for(const iso8 of ['0','0,0,0,0,0,0','0,0,0,0,0,0,raider',
+  for(const iso8 of ['0,0,0,0,0,0,0','0,0,0,0,0,0,raider',
     '0,0,0,0,0,0,raider,13,bad']){
     const fresh=convertCharacter({...source,iso8});
     assert.equal(Object.hasOwn(fresh.value,'isoMax'),false);
     assert.equal(convertCharacter({...source,iso8},old).value.isoMax,12);
   }
+  // Verified against Keryas II's raw /player/v1/roster responses (2026-11-16):
+  // 51 characters explicitly report iso8: "0", including high-level characters.
+  assert.equal(convertCharacter({...source,iso8:'0'}).value.isoMax,0);
+  assert.equal(convertCharacter({...source,iso8:'0'},old).value.isoMax,0);
+  assert.equal(convertCharacter({...source,iso8:'0'}).isoClass,null);
+  assert.equal(Object.hasOwn(convertCharacter({...source,iso8:undefined}).value,'isoMax'),false);
+  assert.equal(convertCharacter({...source,iso8:undefined},old).value.isoMax,12);
+  assert.equal(convertCharacter({...source,iso8:'garbage'},old).value.isoMax,12);
   const newCaptain=convertAllianceRosters('poseidon',[{
     name:'ISO CSV Captain',characters:[{...source,
       iso8:'0,0,0,0,0,0,raider,0,0,0,0,15'}]
