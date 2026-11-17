@@ -112,7 +112,7 @@
 
         window.addEventListener("load", async () => {
           try {
-            const reg = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+            const reg = await navigator.serviceWorker.register("./sw.js", { scope: "./", updateViaCache: "none" });
             if (reg && typeof reg.update === "function") reg.update();
           } catch (e) {
             console.error(e);
