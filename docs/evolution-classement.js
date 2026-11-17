@@ -314,6 +314,8 @@
     if (info?.icon) {
       const icon = document.createElement('img');
       icon.className = 'evolutionRankingIcon';
+      // Official event icons may reject hotlinks carrying the GitHub Pages referrer.
+      icon.referrerPolicy = 'no-referrer';
       icon.src = info.icon;
       icon.alt = '';
       icon.loading = 'lazy';
@@ -329,6 +331,7 @@
     if (info?.frame) {
       const frame = document.createElement('img');
       frame.className = 'evolutionRankingFrame';
+      frame.referrerPolicy = 'no-referrer';
       frame.src = info.frame;
       frame.alt = '';
       frame.loading = 'lazy';
