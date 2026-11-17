@@ -283,7 +283,9 @@
 
   // Diagnostic-only A/B comparison. It shares this page's Tesseract.js worker,
   // OCR parameters and source image; it does not replace the production zones.
-  async function compareTrophyLocators(file, onProgress = () => {}) {
+  async function compareTrophyLocators(file, onProgress = () => {}, options = {}) {
+    const marginPercent = [0, 18, 30].includes(Number(options.marginPercent)) ? Number(options.marginPercent) : 18;
+    const locatorOptions = { paddingByGlyphHeight: marginPercent / 100, minimumPaddingPixels: marginPercent === 0 ? 0 : 2 };
     if (!CORE || !TROPHY_LOCATOR || !DIGIT_READER) throw new Error("Les modules de diagnostic des zones trophées ne sont pas chargés.");
     activeProgress = onProgress;
     const totalStart = performance.now();
@@ -325,20 +327,20 @@
         let adaptive;
         if (!yBand) adaptive = { rect: null, value: "", raw: "", confidence: null, ms: null, reason: "zone-verticale-production-absente", preview: "", segmentation: null };
         else {
-          const bandRect = TROPHY_LOCATOR.proportionalBand(source.width, source.height, yBand, field.side);
+          const bandRect = TROPHY_LOCATOR.proportionalBand(source.width, source.height, yBand, field.side, locatorOptions);
           if (!bandRect) adaptive = { rect: null, value: "", raw: "", confidence: null, ms: null, reason: "bande-proportionnelle-invalide", preview: "", segmentation: null };
           else {
             const bandCanvas = crop(source, bandRect, 1, false);
             try {
               const bandData = bandCanvas.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, bandCanvas.width, bandCanvas.height);
-              const located = TROPHY_LOCATOR.locateBand(bandData, bandRect, source.width, source.height, DIGIT_READER);
+              const located = TROPHY_LOCATOR.locateBand(bandData, bandRect, source.width, source.height, DIGIT_READER, locatorOptions);
               adaptive = located.reason
                 ? { rect: null, value: "", raw: "", confidence: null, ms: null, reason: located.reason, preview: "", segmentation: located.segmented || null }
                 : await readTrophyVariant(source, located.rect, field.key, "proportionnel+composantes", run, callTimings, located.segmented);
             } finally { bandCanvas.width = bandCanvas.height = 1; }
           }
         }
-        results.push({ field: field.key, label: field.label, current, adaptive,
+        results.push({ field: field.key, label: field.label, current, adaptive: { ...adaptive, marginPercent },
           rectDelta: current.rect && adaptive.rect ? {
             x: adaptive.rect.x - current.rect.x, y: adaptive.rect.y - current.rect.y,
             width: adaptive.rect.width - current.rect.width, height: adaptive.rect.height - current.rect.height
@@ -348,7 +350,7 @@
         totalMs: Math.round(performance.now() - totalStart), calls: callMetrics,
         dimensions: { width: source.width, height: source.height }, analyzedCanvas: { width: analysisCanvas.width, height: analysisCanvas.height },
         layout: localized.zones.layout, anchorsFound: localized.anchorsFound,
-        OCRParams: { fullPsm: 6, sparsePsm: 11, fieldPsm: 7, whitelist: "0123456789", sourceCropScale: 3, grayscaleContrast: 1.7 } } };
+        OCRParams: { fullPsm: 6, sparsePsm: 11, fieldPsm: 7, whitelist: "0123456789", sourceCropScale: 3, grayscaleContrast: 1.7, adaptiveMarginPercent: marginPercent } } };
     } finally {
       source.close?.();
       if (analysisCanvas) analysisCanvas.width = analysisCanvas.height = 1;

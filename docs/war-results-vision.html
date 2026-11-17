@@ -49,7 +49,7 @@
       <div class="locator-ab-panel">
         <h2>Comparaison des découpes trophées (expérimental)</h2>
         <p class="muted">Compare le localisateur actuel et la recherche adaptative avec le même Tesseract.js local. La comparaison relit l’image et peut prendre du temps sur mobile; elle ne modifie pas les champs ni la reconnaissance normale.</p>
-        <button id="compareTrophyLocatorsButton" class="secondary-button" type="button" disabled>Comparer les captures chargées</button>
+        <label for="trophyMarginSelect">Marge des glyphes adaptatifs</label><select id="trophyMarginSelect" class="trophy-margin-select"><option value="0">0 %</option><option value="18" selected>18 %</option><option value="30">30 %</option></select><button id="compareTrophyLocatorsButton" class="secondary-button" type="button" disabled>Comparer les captures chargées</button>
         <button id="clearLocatorComparisonButton" class="secondary-button" type="button" disabled>Effacer le diagnostic</button>
         <button id="copyLocatorComparisonButton" class="secondary-button" type="button" disabled>Copier JSON</button>
         <button id="exportLocatorComparisonButton" class="secondary-button" type="button" disabled>Télécharger les mesures locales (.json)</button>
@@ -62,9 +62,9 @@
   </main>
   <script src="./war-result-recognition-core.js?v=5" defer></script>
   <script src="./war-results-digit-reader.js?v=0.2.0-experimental" defer></script>
-  <script src="./war-results-trophy-locator-experiment.js?v=0.2.0-experimental" defer></script>
-  <script src="./war-results-locator-comparison-store.js?v=1.1.0" defer></script>
-  <script src="./war-results-vision-engine.js?v=2" defer></script>
+  <script src="./war-results-trophy-locator-experiment.js?v=0.3.0-experimental" defer></script>
+  <script src="./war-results-locator-comparison-store.js?v=1.2.0" defer></script>
+  <script src="./war-results-vision-engine.js?v=3" defer></script>
   <script src="./war-results-vision-data.js?v=1" defer></script>
   <script src="./war-results-vision.js?v=2" defer></script>
 </body>

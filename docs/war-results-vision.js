@@ -3,13 +3,15 @@
   const $ = (selector) => document.querySelector(selector);
   const input = $("#captureInput"), list = $("#captureResults"), analyzeButton = $("#analyzeButton");
   const compareLocatorsButton = $("#compareTrophyLocatorsButton");
+  const trophyMarginSelect = $("#trophyMarginSelect");
   const locatorCompareStatus = $("#locatorCompareStatus");
   const locatorComparisonResults = $("#locatorComparisonResults");
   const exportLocatorComparisonButton = $("#exportLocatorComparisonButton");
   const copyLocatorComparisonButton = $("#copyLocatorComparisonButton");
   const status = $("#analysisStatus"), progress = $("#analysisProgress"), badge = $("#batchBadge");
   const KEY = "msf-war-results-vision-drafts-v1";
-  const LOCATOR_COMPARISON_KEY = "msf-war-results-locator-ab-v1";
+  const LOCATOR_COMPARISON_KEY = "msf-war-results-locator-ab-v2";
+  const LEGACY_LOCATOR_COMPARISON_KEY = "msf-war-results-locator-ab-v1";
   const FIELDS = ["localAlliance", "opponentAlliance", "localScore", "opponentScore", "localTrophies", "opponentTrophies", "result"];
   const LABELS = { localAlliance: "Alliance LoSP", opponentAlliance: "Alliance adverse", localScore: "Score LoSP", opponentScore: "Score adverse", localTrophies: "Trophées LoSP", opponentTrophies: "Trophées adverses", result: "Résultat", warDate: "Date réelle de la guerre" };
   let records = [];
@@ -38,6 +40,7 @@
     locatorComparisonResults.innerHTML = "";
     locatorComparisonSummary = [];
     sessionStorage.removeItem(LOCATOR_COMPARISON_KEY);
+    sessionStorage.removeItem(LEGACY_LOCATOR_COMPARISON_KEY);
     locatorCompareStatus.textContent = "Diagnostic comparatif effacé.";
     $("#clearLocatorComparisonButton").disabled = true;
     exportLocatorComparisonButton.disabled = true;
@@ -231,7 +234,7 @@
           locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords(locatorComparisonSummary, [summary]);
           saveLocatorComparison();
           locatorComparisonResults.insertAdjacentHTML("beforeend", locatorComparisonHtml(record.fileName, result));
-          locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} terminée : ${record.fileName} (${result.metrics.totalMs} ms).`;
+          locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} terminée : ${record.fileName}, marge ${marginPercent} % (${result.metrics.totalMs} ms).`;
         } catch (error) {
           const message = errorMessage(error);
           const failed = { file: record.fileName, sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), error: message };
@@ -275,7 +278,7 @@
 
   function restoreLocatorComparison() {
     try {
-      const saved = JSON.parse(sessionStorage.getItem(LOCATOR_COMPARISON_KEY) || "null");
+      const saved = JSON.parse(sessionStorage.getItem(LOCATOR_COMPARISON_KEY) || sessionStorage.getItem(LEGACY_LOCATOR_COMPARISON_KEY) || "null");
       if (!saved || saved.diagnostic !== "local-tesseractjs-trophy-locator-ab" || !Array.isArray(saved.records)) return;
       locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords([], saved.records);
       for (const item of locatorComparisonSummary) {
@@ -314,7 +317,7 @@
     const rectText = (rect) => rect ? `x=${rect.x}, y=${rect.y}, l=${rect.width}, h=${rect.height}` : "zone absente";
     const variantHtml = (item, label) => `<section class="locator-comparison-variant"><h4>${label}</h4>${item.preview ? `<img src="${escapeAttr(item.preview)}" alt="${label} : découpe originale de ${escapeAttr(fileName)}" loading="lazy">` : `<p>Découpe indisponible${item.reason ? ` — ${escapeHtml(item.reason)}` : ""}</p>`}<p>OCR : <strong>${escapeHtml(item.value || "—")}</strong>${item.raw ? ` · brut : ${escapeHtml(item.raw)}` : ""}<br>Confiance Tesseract : ${Number.isFinite(item.confidence) ? `${Math.round(item.confidence)} %` : "non fournie"} · durée : ${Number.isFinite(item.ms) ? `${item.ms} ms` : "—"}<br>Rectangle source : ${escapeHtml(rectText(item.rect))}<br>Segmentation : ${item.segmentation ? `${item.segmentation.glyphs}/4 glyphes${item.segmentation.reason ? ` · ${escapeHtml(item.segmentation.reason)}` : ""}${item.segmentation.warnings?.length ? ` · ${escapeHtml(item.segmentation.warnings.join(", "))}` : ""}` : "non disponible"}</p></section>`;
     const fieldsHtml = (result.fields || []).map((field) => `<section class="locator-comparison-card"><h3>${escapeHtml(field.label)}</h3><p>Écart de rectangle (adaptatif − actuel) : ${escapeHtml(field.rectDelta ? JSON.stringify(field.rectDelta) : "non calculé")}</p><div class="locator-comparison-pair">${variantHtml(field.current, "Localisateur actuel")}${variantHtml(field.adaptive, "Localisateur adaptatif expérimental")}</div></section>`).join("");
-    return `<article class="locator-comparison-card"><h3>${escapeHtml(fileName)}</h3><p>${escapeHtml(metrics.engine || "Tesseract.js")} · total ${Number(metrics.totalMs) || 0} ms · chargement moteur ${Number(metrics.workerLoadMs) || 0} ms · ${Number(metrics.dimensions?.width) || 0}×${Number(metrics.dimensions?.height) || 0} px</p><p>Ancrages : ${escapeHtml(JSON.stringify(metrics.anchorsFound || {}))} · disposition : ${escapeHtml(metrics.layout || "inconnue")}</p>${fieldsHtml}<details><summary>Temps des appels Tesseract</summary><pre>${escapeHtml(JSON.stringify(metrics.calls || [], null, 2))}</pre></details></article>`;
+    return `<article class="locator-comparison-card"><h3>${escapeHtml(fileName)} — marge adaptative ${Number(result.fields?.[0]?.adaptive?.marginPercent ?? result.marginPercent ?? 18)} %</h3><p>${escapeHtml(metrics.engine || "Tesseract.js")} · total ${Number(metrics.totalMs) || 0} ms · chargement moteur ${Number(metrics.workerLoadMs) || 0} ms · ${Number(metrics.dimensions?.width) || 0}×${Number(metrics.dimensions?.height) || 0} px</p><p>Ancrages : ${escapeHtml(JSON.stringify(metrics.anchorsFound || {}))} · disposition : ${escapeHtml(metrics.layout || "inconnue")}</p>${fieldsHtml}<details><summary>Temps des appels Tesseract</summary><pre>${escapeHtml(JSON.stringify(metrics.calls || [], null, 2))}</pre></details></article>`;
   }
 
   function onAction(event) {

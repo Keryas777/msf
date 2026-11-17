@@ -20,4 +20,10 @@ if (!engine.includes('tessedit_pageseg_mode: String(psm)') || !engine.includes('
 if (!app.includes("compareTrophyLocators()") || !app.includes("locatorComparisonHtml")) {
   throw new Error("The diagnostic control is not connected to a visible comparison report.");
 }
-console.log("War Results Vision trophy A/B diagnostic wiring tests: OK");
+const locator = fs.readFileSync(path.join(root, "docs/war-results-trophy-locator-experiment.js"), "utf8");
+const store = fs.readFileSync(path.join(root, "docs/war-results-locator-comparison-store.js"), "utf8");
+if (!html.includes(`id="trophyMarginSelect"`) || !html.includes(`<option value="18" selected>18 %</option>`)) throw new Error("Margin selector defaults are incorrect.");
+if (!locator.includes("minimumPaddingPixels") || !locator.includes("Math.max(minimumPaddingPixels")) throw new Error("Zero-percent padding is not supported.");
+if (!store.includes("record.marginPercent ?? 18")) throw new Error("Stored records are not separated by margin.");
+if (!app.includes("LEGACY_LOCATOR_COMPARISON_KEY") || !app.includes("Number(item.marginPercent ?? 18) === marginPercent")) throw new Error("Resume does not distinguish margin variants.");
+console.log("War Results Vision trophy margin comparison tests: OK");

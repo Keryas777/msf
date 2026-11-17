@@ -15,6 +15,7 @@
     rightBand: [0.54, 0.92],
     glyphCount: 4,
     paddingByGlyphHeight: 0.18,
+    minimumPaddingPixels: 2,
     minBandWidth: 24,
     minBandHeight: 12
   });
@@ -52,14 +53,14 @@
     return { width: safe.width, height: safe.height, data: out, rect: safe };
   }
 
-  function boundsFromSegments(segments, offsetX, offsetY, imageWidth, imageHeight, paddingRatio) {
+  function boundsFromSegments(segments, offsetX, offsetY, imageWidth, imageHeight, paddingRatio, minimumPaddingPixels = 2) {
     if (!Array.isArray(segments) || !segments.length) return null;
     const minX = Math.min(...segments.map((b) => b.x));
     const minY = Math.min(...segments.map((b) => b.y));
     const maxX = Math.max(...segments.map((b) => b.x + b.width));
     const maxY = Math.max(...segments.map((b) => b.y + b.height));
     const glyphHeight = segments.map((b) => b.height).sort((a, b) => a - b)[Math.floor(segments.length / 2)];
-    const pad = Math.max(2, Math.ceil(glyphHeight * paddingRatio));
+    const pad = Math.max(minimumPaddingPixels, Math.ceil(glyphHeight * paddingRatio));
     return clampRect({
       x: offsetX + minX - pad, y: offsetY + minY - pad,
       width: maxX - minX + 2 * pad, height: maxY - minY + 2 * pad
@@ -74,7 +75,7 @@
     if (segmented.reason || segmented.bounds?.length !== cfg.glyphCount) {
       return { rect: null, bandRect, reason: segmented.reason || "glyph-count-mismatch", segmented };
     }
-    const rect = boundsFromSegments(segmented.bounds, bandRect.x, bandRect.y, imageWidth, imageHeight, cfg.paddingByGlyphHeight);
+    const rect = boundsFromSegments(segmented.bounds, bandRect.x, bandRect.y, imageWidth, imageHeight, cfg.paddingByGlyphHeight, cfg.minimumPaddingPixels);
     if (!rect || rect.width <= 0 || rect.height <= 0) return { rect: null, bandRect, reason: "empty-refined-rect", segmented };
     return { rect, bandRect, method: "proportional-side-band+color-components", geometryConfidence: segmented.confidence ?? null, segmented, reason: null };
   }

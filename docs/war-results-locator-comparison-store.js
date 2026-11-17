@@ -18,13 +18,16 @@
       .map(([key, item]) => [key, clean(item)]));
   }
 
+  function recordKey(record) { return `${record.sourceKey}\u001fmargin:${Number(record.marginPercent ?? 18)}`; }
+
   function mergeRecords(records, incoming) {
     const merged = [...(Array.isArray(records) ? records : [])];
     for (const record of Array.isArray(incoming) ? incoming : []) {
       if (!record?.sourceKey) continue;
-      const index = merged.findIndex((item) => item.sourceKey === record.sourceKey);
-      if (index < 0) merged.push(clean(record));
-      else merged[index] = clean(record);
+      const normalized = { ...record, marginPercent: Number(record.marginPercent ?? 18) };
+      const index = merged.findIndex((item) => recordKey(item) === recordKey(normalized));
+      if (index < 0) merged.push(clean(normalized));
+      else merged[index] = clean(normalized);
     }
     return merged;
   }
@@ -37,5 +40,5 @@
     return JSON.stringify(snapshot(records, updatedAt), null, 2);
   }
 
-  return { fileKey, mergeRecords, snapshot, stringify };
+  return { fileKey, recordKey, mergeRecords, snapshot, stringify };
 });
