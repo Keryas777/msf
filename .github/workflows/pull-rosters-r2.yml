@@ -19,6 +19,10 @@ on:
         description: "Guest alliance WebApp key (empty = existing LoSP import)"
         required: false
         default: ""
+      losp_alliance:
+        description: "Single LoSP alliance key (empty = all LoSP alliances)"
+        required: false
+        default: ""
       strict:
         description: "Require all alliance receipts (Worker-triggered import)"
         type: boolean
@@ -61,6 +65,7 @@ jobs:
           LOSP_R2_ALLIANCE_MAP_JSON: ${{ secrets.LOSP_R2_ALLIANCE_MAP_JSON }}
           LOSP_R2_ROSTERS_PUBLICATION_APPROVED: ${{ vars.LOSP_R2_ROSTERS_PUBLICATION_APPROVED }}
           INPUT_GUEST_ALLIANCE: ${{ inputs.guest_alliance }}
+          INPUT_LOSP_ALLIANCE: ${{ inputs.losp_alliance }}
           INPUT_DATE: ${{ inputs.date }}
           INPUT_PERIOD: ${{ inputs.period }}
           INPUT_PUBLISH: ${{ inputs.publish }}
@@ -73,6 +78,9 @@ jobs:
           args+=("--period=$INPUT_PERIOD")
           if [ -n "$INPUT_GUEST_ALLIANCE" ]; then
             args+=("--guest-alliance=$INPUT_GUEST_ALLIANCE")
+          fi
+          if [ -n "$INPUT_LOSP_ALLIANCE" ]; then
+            args+=("--losp-alliance=$INPUT_LOSP_ALLIANCE")
           fi
           if [ "$INPUT_STRICT" = "true" ]; then
             args+=("--require-complete")
