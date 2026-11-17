@@ -125,5 +125,21 @@
       });
     })();
   </script>
+  <script>
+    // Vérifier les mises à jour PWA même lors d'un accès direct au hub Joueurs.
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", async () => {
+        try {
+          const registration = await navigator.serviceWorker.register("./sw.js", {
+            scope: "./",
+            updateViaCache: "none"
+          });
+          await registration.update();
+        } catch (error) {
+          console.warn("Mise à jour PWA indisponible", error);
+        }
+      });
+    }
+  </script>
 </body>
 </html>
