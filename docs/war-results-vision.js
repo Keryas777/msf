@@ -6,8 +6,10 @@
   const locatorCompareStatus = $("#locatorCompareStatus");
   const locatorComparisonResults = $("#locatorComparisonResults");
   const exportLocatorComparisonButton = $("#exportLocatorComparisonButton");
+  const copyLocatorComparisonButton = $("#copyLocatorComparisonButton");
   const status = $("#analysisStatus"), progress = $("#analysisProgress"), badge = $("#batchBadge");
   const KEY = "msf-war-results-vision-drafts-v1";
+  const LOCATOR_COMPARISON_KEY = "msf-war-results-locator-ab-v1";
   const FIELDS = ["localAlliance", "opponentAlliance", "localScore", "opponentScore", "localTrophies", "opponentTrophies", "result"];
   const LABELS = { localAlliance: "Alliance LoSP", opponentAlliance: "Alliance adverse", localScore: "Score LoSP", opponentScore: "Score adverse", localTrophies: "Trophées LoSP", opponentTrophies: "Trophées adverses", result: "Résultat", warDate: "Date réelle de la guerre" };
   let records = [];
@@ -18,6 +20,7 @@
   let zoneDrag = null;
 
   restoreDrafts();
+  restoreLocatorComparison();
   input.addEventListener("change", () => addFiles([...input.files || []]));
   analyzeButton.addEventListener("click", () => {
     status.textContent = "Démarrage de l’analyse des captures…";
@@ -34,13 +37,16 @@
   $("#clearLocatorComparisonButton").addEventListener("click", () => {
     locatorComparisonResults.innerHTML = "";
     locatorComparisonSummary = [];
+    sessionStorage.removeItem(LOCATOR_COMPARISON_KEY);
     locatorCompareStatus.textContent = "Diagnostic comparatif effacé.";
     $("#clearLocatorComparisonButton").disabled = true;
     exportLocatorComparisonButton.disabled = true;
+    copyLocatorComparisonButton.disabled = true;
   });
   exportLocatorComparisonButton.addEventListener("click", () => {
-    if (locatorComparisonSummary.length) download({ schemaVersion: "1.0.0", diagnostic: "local-tesseractjs-trophy-locator-ab", records: locatorComparisonSummary }, `war-results-locator-ab-${new Date().toISOString().slice(0, 10)}.json`);
+    if (locatorComparisonSummary.length) download(locatorComparisonPayload(), `war-results-locator-ab-${new Date().toISOString().slice(0, 10)}.json`);
   });
+  copyLocatorComparisonButton.addEventListener("click", () => copyLocatorComparisonJson().catch(showGlobalError));
   $("#exportAllButton").addEventListener("click", exportValidated);
   list.addEventListener("input", onEdit);
   list.addEventListener("change", onEdit);
@@ -58,7 +64,7 @@
     let duplicates = 0;
     for (const file of accepted) {
       if (records.some((r) => r.file && r.fileName === file.name && r.file.size === file.size && r.file.lastModified === file.lastModified)) { duplicates++; continue; }
-      records.push({ id: crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`, file, fileName: file.name, url: URL.createObjectURL(file), state: "queued", values: Object.fromEntries(FIELDS.map((k) => [k, ""])), fields: makeFieldState(), date: "", corrected: [], zoneOverrides: {}, confirmed: false, error: "", analysis: null, rawText: "", warnings: [] });
+      records.push({ id: crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`, file, fileName: file.name, fileKey: WarResultsLocatorComparisonStore.fileKey(file), url: URL.createObjectURL(file), state: "queued", values: Object.fromEntries(FIELDS.map((k) => [k, ""])), fields: makeFieldState(), date: "", corrected: [], zoneOverrides: {}, confirmed: false, error: "", analysis: null, rawText: "", warnings: [] });
     }
     input.value = "";
     if (!accepted.length && files.length) status.textContent = "Format ignoré. Sélectionne une image PNG ou JPEG.";
@@ -203,17 +209,16 @@
 
   async function compareTrophyLocators() {
     if (analyzing) return;
-    const batch = records.filter((record) => record.file);
+    const batch = records.filter((record) => record.file && !locatorComparisonSummary.some((item) => item.fields?.length && item.sourceKey === (record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file))));
     if (!batch.length) {
-      locatorCompareStatus.textContent = "Charge une capture avant de lancer la comparaison.";
+      locatorCompareStatus.textContent = records.some((record) => record.file)
+        ? "Toutes les captures chargées disposent déjà d’un résultat conservé. Aucune image n’a été retraitée."
+        : "Charge une capture avant de lancer la comparaison.";
       return;
     }
     analyzing = true;
     render();
-    locatorComparisonResults.innerHTML = "";
-    locatorComparisonSummary = [];
     $("#clearLocatorComparisonButton").disabled = true;
-    const summaries = [];
     try {
       for (const [index, record] of batch.entries()) {
         locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} : ${record.fileName} — chargement OCR local…`;
@@ -221,20 +226,23 @@
           const result = await WarResultsVisionEngine.compareTrophyLocators(record.file, (message) => {
             if (message.status) locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} : ${record.fileName} — ${message.status}`;
           });
-          const summary = { file: record.fileName, metrics: result.metrics,
+          const summary = { file: record.fileName, sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), metrics: result.metrics,
             fields: (result.fields || []).map(({ field, label, current, adaptive, rectDelta }) => ({ field, label, current: { ...current, preview: undefined }, adaptive: { ...adaptive, preview: undefined }, rectDelta })) };
-          summaries.push(summary);
+          locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords(locatorComparisonSummary, [summary]);
+          saveLocatorComparison();
           locatorComparisonResults.insertAdjacentHTML("beforeend", locatorComparisonHtml(record.fileName, result));
           locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} terminée : ${record.fileName} (${result.metrics.totalMs} ms).`;
         } catch (error) {
           const message = errorMessage(error);
-          summaries.push({ file: record.fileName, error: message });
+          const failed = { file: record.fileName, sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), error: message };
+          locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords(locatorComparisonSummary, [failed]);
+          saveLocatorComparison();
           locatorComparisonResults.insertAdjacentHTML("beforeend", `<article class="locator-comparison-card is-error"><h3>${escapeHtml(record.fileName)}</h3><p>Erreur du diagnostic : ${escapeHtml(message)}</p></article>`);
         }
+        updateLocatorComparisonButtons();
       }
-      locatorCompareStatus.textContent = `${batch.length} capture(s) comparée(s). Les propositions affichées sont expérimentales et n’ont modifié aucun champ du formulaire.`;
-      locatorComparisonSummary = summaries;
-      exportLocatorComparisonButton.disabled = !summaries.some((item) => item.fields?.length);
+      locatorCompareStatus.textContent = `${batch.length} capture(s) traitée(s). Les propositions affichées sont expérimentales et n’ont modifié aucun champ du formulaire.`;
+      updateLocatorComparisonButtons();
       updateDiagnostics();
     } finally {
       try { await WarResultsVisionEngine.release(); }
@@ -242,6 +250,62 @@
       analyzing = false;
       $("#clearLocatorComparisonButton").disabled = !locatorComparisonResults.childElementCount;
       render();
+    }
+  }
+
+  function locatorComparisonPayload() {
+    return WarResultsLocatorComparisonStore.snapshot(locatorComparisonSummary);
+  }
+
+  function updateLocatorComparisonButtons() {
+    const hasRecords = locatorComparisonSummary.length > 0;
+    const hasFields = locatorComparisonSummary.some((item) => item.fields?.length);
+    exportLocatorComparisonButton.disabled = !hasFields;
+    copyLocatorComparisonButton.disabled = !hasRecords;
+    $("#clearLocatorComparisonButton").disabled = !hasRecords;
+  }
+
+  function saveLocatorComparison() {
+    try {
+      sessionStorage.setItem(LOCATOR_COMPARISON_KEY, WarResultsLocatorComparisonStore.stringify(locatorComparisonSummary));
+    } catch (_) {
+      locatorCompareStatus.textContent = "Stockage temporaire indisponible ou saturé. Les résultats restent visibles; copie ou télécharge le JSON avant de quitter la page.";
+    }
+  }
+
+  function restoreLocatorComparison() {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(LOCATOR_COMPARISON_KEY) || "null");
+      if (!saved || saved.diagnostic !== "local-tesseractjs-trophy-locator-ab" || !Array.isArray(saved.records)) return;
+      locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords([], saved.records);
+      for (const item of locatorComparisonSummary) {
+        if (item.fields?.length) {
+          const report = { fields: item.fields, metrics: item.metrics || {} };
+          locatorComparisonResults.insertAdjacentHTML("beforeend", locatorComparisonHtml(item.file, report));
+        } else if (item.error) {
+          locatorComparisonResults.insertAdjacentHTML("beforeend", `<article class="locator-comparison-card is-error"><h3>${escapeHtml(item.file || "Capture")}</h3><p>Erreur du diagnostic : ${escapeHtml(item.error)}</p></article>`);
+        }
+      }
+      if (locatorComparisonSummary.length) locatorCompareStatus.textContent = `${locatorComparisonSummary.length} résultat(s) A/B restauré(s) depuis le stockage temporaire de cette session. Réimporte les captures pour reprendre sans retraiter celles-ci.`;
+      updateLocatorComparisonButtons();
+    } catch (_) {
+      sessionStorage.removeItem(LOCATOR_COMPARISON_KEY);
+    }
+  }
+
+  async function copyLocatorComparisonJson() {
+    if (!locatorComparisonSummary.length) return;
+    const json = WarResultsLocatorComparisonStore.stringify(locatorComparisonSummary);
+    try {
+      await navigator.clipboard.writeText(json);
+      locatorCompareStatus.textContent = "JSON A/B copié dans le presse-papiers.";
+    } catch (_) {
+      const area = document.createElement("textarea");
+      area.value = json; area.setAttribute("readonly", "");
+      area.style.position = "fixed"; area.style.opacity = "0";
+      document.body.appendChild(area); area.select();
+      const copied = document.execCommand("copy"); area.remove();
+      locatorCompareStatus.textContent = copied ? "JSON A/B copié dans le presse-papiers." : "Copie automatique refusée par le navigateur. Le JSON reste téléchargeable.";
     }
   }
 
@@ -367,7 +431,7 @@
   }
   function download(data, name) { const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
   function safeName(name) { return String(name || "capture").replace(/[^\p{L}\p{N}-]+/gu, "-").replace(/^-|-$/g, "").slice(0, 64) || "capture"; }
-  function clearSession() { if (!confirm("Effacer les brouillons textuels locaux et les captures de cette session ?")) return; records.forEach(r => r.url && URL.revokeObjectURL(r.url)); records = []; sessionStorage.removeItem(KEY); status.textContent = "Session effacée."; render(); }
+  function clearSession() { if (!confirm("Effacer les brouillons, les diagnostics A/B et les captures de cette session ?")) return; records.forEach(r => r.url && URL.revokeObjectURL(r.url)); records = []; locatorComparisonSummary = []; locatorComparisonResults.innerHTML = ""; sessionStorage.removeItem(KEY); sessionStorage.removeItem(LOCATOR_COMPARISON_KEY); status.textContent = "Session effacée."; updateLocatorComparisonButtons(); render(); }
 
   function saveDrafts() {
     try { sessionStorage.setItem(KEY, JSON.stringify(records.map(r => ({ fileName: r.fileName, state: r.state, output: r.output || null, values: r.values, fields: r.fields, date: r.date, corrected: r.corrected, zoneOverrides: r.zoneOverrides || {}, confirmed: false, analysis: r.analysis ? { metrics: r.analysis.metrics, warnings: r.analysis.warnings } : null, rawText: r.rawText, warnings: r.warnings })))); }
