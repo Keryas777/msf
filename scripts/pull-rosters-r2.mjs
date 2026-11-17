@@ -15,7 +15,7 @@ import {rosterWindow,loadRosterCampaign,convertAllianceRosters,keyOf}
 
 async function json(path){return JSON.parse(await fs.readFile(path,'utf8'));}
 function args(argv){
-  let day=null,period=null,write=false,early=false,requireComplete=false,schedule=null,guestAlliance=null;
+  let day=null,period=null,write=false,early=false,requireComplete=false,schedule=null,guestAlliance=null,lospAlliance=null,lospFingerprint=null;
   for(const arg of argv){
     if(arg==='--write')write=true;
     else if(arg==='--early')early=true;
@@ -24,8 +24,10 @@ function args(argv){
     else if(/^--period=(am|pm)$/.test(arg))period=arg.slice(9);
     else if(arg.startsWith('--schedule='))schedule=arg.slice('--schedule='.length);
     else if(/^--guest-alliance=[a-z][a-z0-9-]{1,63}$/.test(arg))guestAlliance=arg.slice(17);
+    else if(/^--losp-fingerprint=[a-f0-9]{64}$/.test(arg))lospFingerprint=arg.slice(19);
     else throw Error('Usage: [--date=YYYY-MM-DD] [--period=am|pm] [--schedule=CRON] [--write] [--early] [--require-complete]');
   }
+  if(guestAlliance&&lospFingerprint)throw Error('Cannot combine guest and LoSP alliance selections');
   if(early&&!['30 4 * * *','30 16 * * *'].includes(schedule))
     throw Error('Early import allowed only for dedicated scheduled trigger');
   const current=new Date();
@@ -38,10 +40,10 @@ function args(argv){
     day??=current.toISOString().slice(0,10);
     period??=current.getUTCHours()>=14?'pm':'am';
   }
-  return {day,period,write,early,requireComplete,guestAlliance};
+  return {day,period,write,early,requireComplete,guestAlliance,lospFingerprint};
 }
 async function main(){
-  const {day,period,write,early,requireComplete,guestAlliance}=args(process.argv.slice(2));
+  const {day,period,write,early,requireComplete,guestAlliance,lospFingerprint}=args(process.argv.slice(2));
   const window=rosterWindow(day,period),end=Date.parse(window.endExclusive);
   // Strict monotonic checkpoint across delayed, duplicated and out-of-order
   // scheduled events. The checkpoint contains NO token, player ID or roster.
@@ -58,15 +60,17 @@ async function main(){
   if(end<Date.now()-6*86400000)throw Error('Campaign window exceeds R2 retention');
   const allAlliances=await json('docs/data/alliances.json');
   const lospRegistry=selectLoSPRosterAlliances(allAlliances);
-  const registry=guestAlliance
-    ?allAlliances.filter(a=>a?.key===guestAlliance&&
-      a.active!==false&&a.group&&a.group!=='losp')
-    :lospRegistry;
-  if(guestAlliance&&registry.length!==1)
-    throw Error('Invalid guest alliance selection');
   const secret=process.env.LOSP_R2_ALLIANCE_MAP_JSON;
   if(!secret)throw Error('Missing private LoSP alliance mapping');
   const lospFp=readMapping(secret,lospRegistry);
+  const registry=guestAlliance
+    ?allAlliances.filter(a=>a?.key===guestAlliance&&
+      a.active!==false&&a.group&&a.group!=='losp')
+    :lospFingerprint?lospRegistry.filter(a=>lospFp[a.key]===lospFingerprint):lospRegistry;
+  if(lospFingerprint&&registry.length!==1)
+    throw Error('Invalid or unapproved LoSP fingerprint selection');
+  if(guestAlliance&&registry.length!==1)
+    throw Error('Invalid guest alliance selection');
   const r2=createPrivateR2Reader();
   const fp=guestAlliance?{
     [guestAlliance]:guestRosterFingerprint(allAlliances,
