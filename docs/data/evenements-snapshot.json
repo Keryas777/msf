@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "status": "ok",
   "source": "verified-daily-game-events",
-  "updatedAt": "2026-11-17T00:13:36.603Z",
-  "revision": "9dafdf7047ca2aa95ee2",
-  "total": 152,
-  "count": 152,
+  "updatedAt": "2026-11-17T02:33:10.264Z",
+  "revision": "051d86c7ae8e2add65a3",
+  "total": 151,
+  "count": 151,
   "pages": 2,
   "events": [
     {
@@ -1324,16 +1324,6 @@
       }
     },
     {
-      "id": "6afa0f40fb365c004bfbbee0",
-      "type": "blitz",
-      "startTime": 1794776400,
-      "endTime": 1794862800,
-      "name": "Avalanche d’orbes",
-      "subName": "Gagnez des fragments d’orbe !",
-      "details": "Affrontez d’autres joueurs pour gagner des fragments d’orbe et autres récompenses de phase !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Blitz_OrbAssault_Card_6288394120f847539e0b722b01ce967ad7cd.jpg"
-    },
-    {
       "id": "6afa0f40fb365c004bfbbedf",
       "type": "blitz",
       "startTime": 1794776400,
@@ -1342,6 +1332,16 @@
       "subName": "Gagnez des orbes d'étoile rouge !",
       "details": "Affrontez des équipes d'autres joueurs pour gagner des orbes d'étoile rouge en récompenses de phase et de classement !",
       "cardArt": "https://assets.marvelstrikeforce.com/key_art/UI_KeyArt_Blitz_Package_Generic_Card_RedStar2_6ab1b6bc701df087179b2220a4101030b465.jpg"
+    },
+    {
+      "id": "6afa0f40fb365c004bfbbee0",
+      "type": "blitz",
+      "startTime": 1794776400,
+      "endTime": 1794862800,
+      "name": "Avalanche d’orbes",
+      "subName": "Gagnez des fragments d’orbe !",
+      "details": "Affrontez d’autres joueurs pour gagner des fragments d’orbe et autres récompenses de phase !",
+      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Blitz_OrbAssault_Card_6288394120f847539e0b722b01ce967ad7cd.jpg"
     },
     {
       "id": "63bf36c18d37c83eaa75a446",
@@ -2392,64 +2392,6 @@
                 {
                   "description": "Jouer avec Cyclope (Puissant) à 7 étoiles jaunes et au palier d'équipement 21",
                   "points": 450
-                }
-              ]
-            }
-          ]
-        },
-        "brackets": [
-          {
-            "id": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "6abd9efce1ef7637bd7365b3",
-      "type": "milestone",
-      "startTime": 1790812800,
-      "endTime": 1794700800,
-      "name": "S.T.R.I.K.E. : premier assaut",
-      "subName": "Participez aux campagnes, combattez en raid et dans l'arène",
-      "details": "Dépensez de l’énergie de campagne, utilisez des noyaux d’énergie et combattez en raid (à partir du niveau de joueur 25) et en arène (niveau 30).Les récompenses incluent de nouveaux personnages pour votre effectif, et d’autres surprises !",
-      "cardArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_FirstStrike_Card_65c673d80339d98fca9097daf2d1019baf06.jpg",
-      "popupArt": "https://assets.marvelstrikeforce.com/key_art/Milestone_FirstStrike_EventBanner_65c677040339d98fca9097e1abdbdea223e5.jpg",
-      "milestone": {
-        "type": "solo",
-        "typeName": "Solo",
-        "scoring": {
-          "description": "Participez aux campagnes, combattez en raid et dans l'arène",
-          "methods": [
-            {
-              "description": "Utiliser 1 noyau d’énergie",
-              "points": 5
-            }
-          ],
-          "cappedScorings": [
-            {
-              "cap": 35000,
-              "methods": [
-                {
-                  "description": "Dépenser 1 point d'énergie de campagne",
-                  "points": 2
-                }
-              ]
-            },
-            {
-              "cap": 31500,
-              "methods": [
-                {
-                  "description": "Combattre en raid (niveau de joueur 25)",
-                  "points": 250
-                }
-              ]
-            },
-            {
-              "cap": 21000,
-              "methods": [
-                {
-                  "description": "Combattre en arène (niveau de joueur 30)",
-                  "points": 500
                 }
               ]
             }
@@ -5479,12 +5421,12 @@
   ],
   "locale": "fr",
   "localizationStatus": "verified",
-  "localizedFields": 711,
-  "localizedAt": "2026-11-17T00:13:36.603Z",
+  "localizedFields": 703,
+  "localizedAt": "2026-11-17T02:33:10.264Z",
   "objectiveEligibility": {
     "source": "scopely-player-level110-reference",
     "bracket": "85_and_up",
-    "observedAt": "2026-11-17T00:13:36.603Z",
+    "observedAt": "2026-11-17T02:33:10.264Z",
     "eligibleEventIds": [
       "6ae8f64d80ca017386467c2d",
       "6ae8f64d80ca017386467c30",
@@ -5499,5 +5441,5 @@
       "6afb6b4dfb365c004bfbcc96"
     ]
   },
-  "lastChangedAt": "2026-11-17T00:13:36.603Z"
+  "lastChangedAt": "2026-11-17T02:33:10.264Z"
 }
