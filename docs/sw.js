@@ -1,6 +1,6 @@
 // docs/sw.js
 
-const CACHE = "losp-v27";
+const CACHE = "losp-v28";
 
 const CORE_ASSETS = [
   "./",
@@ -204,22 +204,10 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Images/fonts : cache-first, car ça change beaucoup moins souvent.
+  // Images/fonts : réseau d'abord, avec repli hors ligne.
+  // Les anciennes illustrations de tuiles ne doivent pas rester affichées.
   if (isImageOrFont(url)) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        const fetchAndCache = fetch(request)
-          .then((response) => {
-            if (response && response.ok) {
-              caches.open(CACHE).then((cache) => cache.put(request, response.clone()));
-            }
-
-            return response;
-          })
-          .catch(() => cached);
-
-        return cached || fetchAndCache;
-      })
-    );
+    event.respondWith(networkFirst(request));
+    return;
   }
 });
