@@ -66,6 +66,19 @@
     }, imageWidth, imageHeight);
   }
 
+  function locateBand(bandImageData, bandRect, imageWidth, imageHeight, reader, options = {}) {
+    const cfg = { ...DEFAULTS, ...options };
+    if (!reader || typeof reader.segment !== "function") return { rect: null, reason: "segmenter-unavailable" };
+    if (!bandImageData?.width || !bandImageData?.height || !bandRect || !Number.isFinite(bandRect.x) || !Number.isFinite(bandRect.y)) return { rect: null, reason: "invalid-search-band" };
+    const segmented = reader.segment(bandImageData, "trophy", cfg.glyphCount);
+    if (segmented.reason || segmented.bounds?.length !== cfg.glyphCount) {
+      return { rect: null, bandRect, reason: segmented.reason || "glyph-count-mismatch", segmented };
+    }
+    const rect = boundsFromSegments(segmented.bounds, bandRect.x, bandRect.y, imageWidth, imageHeight, cfg.paddingByGlyphHeight);
+    if (!rect || rect.width <= 0 || rect.height <= 0) return { rect: null, bandRect, reason: "empty-refined-rect", segmented };
+    return { rect, bandRect, method: "proportional-side-band+color-components", geometryConfidence: segmented.confidence ?? null, segmented, reason: null };
+  }
+
   /**
    * Refine one trophy crop from the original-color full-image ImageData.
    * verticalRect is supplied by the existing layout localizer in original-image
@@ -79,19 +92,15 @@
     const bandRect = proportionalBand(width, height, verticalRect, side, cfg);
     if (!bandRect) return { rect: null, reason: "invalid-search-band" };
     const band = cropImageData(imageData, bandRect);
-    const segmented = reader.segment(band, "trophy", cfg.glyphCount);
-    if (segmented.reason || segmented.bounds?.length !== cfg.glyphCount) {
-      return { rect: null, bandRect, reason: segmented.reason || "glyph-count-mismatch", segmented };
-    }
-    const rect = boundsFromSegments(segmented.bounds, bandRect.x, bandRect.y, width, height, cfg.paddingByGlyphHeight);
-    if (!rect || rect.width <= 0 || rect.height <= 0) return { rect: null, bandRect, reason: "empty-refined-rect", segmented };
+    const refined = locateBand(band, bandRect, width, height, reader, cfg);
+    if (refined.reason) return refined;
+    const { rect, segmented } = refined;
     const preview = cropImageData(imageData, rect);
     return {
       rect, bandRect, preview: preview && { width: preview.width, height: preview.height, data: preview.data },
-      method: "proportional-side-band+color-components", geometryConfidence: segmented.confidence ?? null,
-      segmented, reason: null
+      method: refined.method, geometryConfidence: refined.geometryConfidence, segmented, reason: null
     };
   }
 
-  return { version: "0.1.0-experimental", defaults: DEFAULTS, proportionalBand, cropImageData, locate };
+  return { version: "0.2.0-experimental", defaults: DEFAULTS, proportionalBand, cropImageData, locateBand, locate };
 });

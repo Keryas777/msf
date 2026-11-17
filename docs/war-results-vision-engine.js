@@ -2,6 +2,8 @@
 (() => {
   "use strict";
   const CORE = window.WarResultRecognition;
+  const TROPHY_LOCATOR = window.WarResultsTrophyLocatorExperiment;
+  const DIGIT_READER = window.WarResultsDigitReader;
   const VERSION = "5.1-local";
   let workerPromise = null;
   let worker = null;
@@ -279,6 +281,99 @@
     }
   }
 
+  // Diagnostic-only A/B comparison. It shares this page's Tesseract.js worker,
+  // OCR parameters and source image; it does not replace the production zones.
+  async function compareTrophyLocators(file, onProgress = () => {}) {
+    if (!CORE || !TROPHY_LOCATOR || !DIGIT_READER) throw new Error("Les modules de diagnostic des zones trophées ne sont pas chargés.");
+    activeProgress = onProgress;
+    const totalStart = performance.now();
+    const source = await decode(file);
+    let analysisCanvas;
+    const callMetrics = [];
+    const callTimings = {};
+    try {
+      const prepared = makeCanvas(source);
+      analysisCanvas = prepared.canvas;
+      const workerStart = performance.now();
+      const engine = await getWorker();
+      const workerLoadMs = Math.round(performance.now() - workerStart);
+      const run = async (label, image, psm, whitelist = "") => {
+        await engine.setParameters({ tessedit_pageseg_mode: String(psm), preserve_interword_spaces: "1", tessedit_char_whitelist: whitelist });
+        const start = performance.now();
+        const result = await engine.recognize(image);
+        const metric = { method: label, ms: Math.round(performance.now() - start), confidence: result.data?.confidence ?? null };
+        callMetrics.push(metric);
+        callTimings[label] = metric.ms;
+        return result;
+      };
+
+      onProgress({ status: "Comparaison des localisateurs — lecture des ancres…", progress: .12 });
+      const full = await run("comparison-full-psm6", analysisCanvas, 6);
+      const sparse = await run("comparison-sparse-psm11", analysisCanvas, 11);
+      const sparseWords = parse(sparse, prepared.scale);
+      const localized = CORE.locateZones(sparseWords, source.width, source.height);
+      const fields = [
+        { key: "localTrophies", side: "left", label: "Trophées LoSP" },
+        { key: "opponentTrophies", side: "right", label: "Trophées adverses" }
+      ];
+      const results = [];
+      for (const [index, field] of fields.entries()) {
+        onProgress({ status: `Comparaison des découpes — ${field.label}…`, progress: .42 + index * .22 });
+        const originalRect = normalizeRect(localized.zones[field.key], source.width, source.height);
+        const yBand = originalRect && { x: 0, y: originalRect.y, width: 0, height: originalRect.height };
+        const current = await readTrophyVariant(source, originalRect, field.key, "production", run, callTimings);
+        let adaptive;
+        if (!yBand) adaptive = { rect: null, value: "", raw: "", confidence: null, ms: null, reason: "zone-verticale-production-absente", preview: "", segmentation: null };
+        else {
+          const bandRect = TROPHY_LOCATOR.proportionalBand(source.width, source.height, yBand, field.side);
+          if (!bandRect) adaptive = { rect: null, value: "", raw: "", confidence: null, ms: null, reason: "bande-proportionnelle-invalide", preview: "", segmentation: null };
+          else {
+            const bandCanvas = crop(source, bandRect, 1, false);
+            try {
+              const bandData = bandCanvas.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, bandCanvas.width, bandCanvas.height);
+              const located = TROPHY_LOCATOR.locateBand(bandData, bandRect, source.width, source.height, DIGIT_READER);
+              adaptive = located.reason
+                ? { rect: null, value: "", raw: "", confidence: null, ms: null, reason: located.reason, preview: "", segmentation: located.segmented || null }
+                : await readTrophyVariant(source, located.rect, field.key, "proportionnel+composantes", run, callTimings, located.segmented);
+            } finally { bandCanvas.width = bandCanvas.height = 1; }
+          }
+        }
+        results.push({ field: field.key, label: field.label, current, adaptive,
+          rectDelta: current.rect && adaptive.rect ? {
+            x: adaptive.rect.x - current.rect.x, y: adaptive.rect.y - current.rect.y,
+            width: adaptive.rect.width - current.rect.width, height: adaptive.rect.height - current.rect.height
+          } : null });
+      }
+      return { fields: results, metrics: { engine: "Tesseract.js v5 local browser", workerLoadMs,
+        totalMs: Math.round(performance.now() - totalStart), calls: callMetrics,
+        dimensions: { width: source.width, height: source.height }, analyzedCanvas: { width: analysisCanvas.width, height: analysisCanvas.height },
+        layout: localized.zones.layout, anchorsFound: localized.anchorsFound,
+        OCRParams: { fullPsm: 6, sparsePsm: 11, fieldPsm: 7, whitelist: "0123456789", sourceCropScale: 3, grayscaleContrast: 1.7 } } };
+    } finally {
+      source.close?.();
+      if (analysisCanvas) analysisCanvas.width = analysisCanvas.height = 1;
+    }
+  }
+
+  async function readTrophyVariant(source, rect, field, variant, run, callTimings, segmentation = null) {
+    if (!rect) return { rect: null, value: "", raw: "", confidence: null, ms: null, reason: "zone-production-absente", preview: "", segmentation };
+    const original = crop(source, rect, 1, false);
+    const prepared = crop(source, rect, 3, true);
+    if (!original || !prepared) return { rect, value: "", raw: "", confidence: null, ms: null, reason: "creation-decoupe-impossible", preview: "", segmentation };
+    const preview = original.toDataURL("image/jpeg", .86);
+    const observed = segmentation || DIGIT_READER.segment(original.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, original.width, original.height), "trophy", 4);
+    const segmentationSummary = { glyphs: observed.glyphs?.length || 0, reason: observed.reason || null,
+      warnings: observed.warnings || [], componentBounds: observed.bounds || [] };
+    original.width = original.height = 1;
+    try {
+      const output = await run(`comparison-${variant}-${field}-psm7`, prepared, 7, "0123456789");
+      const raw = String(output.data?.text || "").replace(/\s+/g, " ").trim();
+      return { rect, value: numericRead(raw), raw, confidence: output.data?.confidence ?? null,
+        ms: callTimings[`comparison-${variant}-${field}-psm7`] ?? null, reason: null, preview,
+        segmentation: segmentationSummary };
+    } finally { prepared.width = prepared.height = 1; }
+  }
+
   async function analyzeField(file, field, rect, onProgress = () => {}) {
     if (!CORE || !FIELD_SIDES[field]) throw new Error("Champ OCR inconnu.");
     activeProgress = onProgress;
@@ -313,5 +408,5 @@
     if (worker) { await worker.terminate(); worker = null; }
     workerPromise = null;
   }
-  window.WarResultsVisionEngine = { analyze, analyzeField, release, version: VERSION };
+  window.WarResultsVisionEngine = { analyze, analyzeField, compareTrophyLocators, release, version: VERSION };
 })();

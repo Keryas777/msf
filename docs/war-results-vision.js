@@ -2,6 +2,10 @@
   "use strict";
   const $ = (selector) => document.querySelector(selector);
   const input = $("#captureInput"), list = $("#captureResults"), analyzeButton = $("#analyzeButton");
+  const compareLocatorsButton = $("#compareTrophyLocatorsButton");
+  const locatorCompareStatus = $("#locatorCompareStatus");
+  const locatorComparisonResults = $("#locatorComparisonResults");
+  const exportLocatorComparisonButton = $("#exportLocatorComparisonButton");
   const status = $("#analysisStatus"), progress = $("#analysisProgress"), badge = $("#batchBadge");
   const KEY = "msf-war-results-vision-drafts-v1";
   const FIELDS = ["localAlliance", "opponentAlliance", "localScore", "opponentScore", "localTrophies", "opponentTrophies", "result"];
@@ -10,6 +14,7 @@
   let analyzing = false;
   let loadMs = null;
   let diagnostics = [];
+  let locatorComparisonSummary = [];
   let zoneDrag = null;
 
   restoreDrafts();
@@ -25,6 +30,17 @@
     showGlobalError(event.reason || "Promesse OCR rejetée sans détail.");
   });
   $("#clearButton").addEventListener("click", clearSession);
+  compareLocatorsButton.addEventListener("click", () => compareTrophyLocators().catch(showGlobalError));
+  $("#clearLocatorComparisonButton").addEventListener("click", () => {
+    locatorComparisonResults.innerHTML = "";
+    locatorComparisonSummary = [];
+    locatorCompareStatus.textContent = "Diagnostic comparatif effacé.";
+    $("#clearLocatorComparisonButton").disabled = true;
+    exportLocatorComparisonButton.disabled = true;
+  });
+  exportLocatorComparisonButton.addEventListener("click", () => {
+    if (locatorComparisonSummary.length) download({ schemaVersion: "1.0.0", diagnostic: "local-tesseractjs-trophy-locator-ab", records: locatorComparisonSummary }, `war-results-locator-ab-${new Date().toISOString().slice(0, 10)}.json`);
+  });
   $("#exportAllButton").addEventListener("click", exportValidated);
   list.addEventListener("input", onEdit);
   list.addEventListener("change", onEdit);
@@ -53,6 +69,7 @@
   function render() {
     list.innerHTML = records.map((record, index) => cardHtml(record, index)).join("");
     analyzeButton.disabled = analyzing || !records.some((r) => ["queued", "error"].includes(r.state) && r.file);
+    compareLocatorsButton.disabled = analyzing || !records.some((r) => r.file);
     badge.textContent = !records.length ? "Aucune capture" : `${records.length} capture${records.length > 1 ? "s" : ""}`;
     const validated = records.filter((r) => r.state === "validated");
     $("#validatedSummary").hidden = !validated.length;
@@ -182,6 +199,58 @@
       }
       updateDiagnostics();
     }
+  }
+
+  async function compareTrophyLocators() {
+    if (analyzing) return;
+    const batch = records.filter((record) => record.file);
+    if (!batch.length) {
+      locatorCompareStatus.textContent = "Charge une capture avant de lancer la comparaison.";
+      return;
+    }
+    analyzing = true;
+    render();
+    locatorComparisonResults.innerHTML = "";
+    locatorComparisonSummary = [];
+    $("#clearLocatorComparisonButton").disabled = true;
+    const summaries = [];
+    try {
+      for (const [index, record] of batch.entries()) {
+        locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} : ${record.fileName} — chargement OCR local…`;
+        try {
+          const result = await WarResultsVisionEngine.compareTrophyLocators(record.file, (message) => {
+            if (message.status) locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} : ${record.fileName} — ${message.status}`;
+          });
+          const summary = { file: record.fileName, metrics: result.metrics,
+            fields: (result.fields || []).map(({ field, label, current, adaptive, rectDelta }) => ({ field, label, current: { ...current, preview: undefined }, adaptive: { ...adaptive, preview: undefined }, rectDelta })) };
+          summaries.push(summary);
+          locatorComparisonResults.insertAdjacentHTML("beforeend", locatorComparisonHtml(record.fileName, result));
+          locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} terminée : ${record.fileName} (${result.metrics.totalMs} ms).`;
+        } catch (error) {
+          const message = errorMessage(error);
+          summaries.push({ file: record.fileName, error: message });
+          locatorComparisonResults.insertAdjacentHTML("beforeend", `<article class="locator-comparison-card is-error"><h3>${escapeHtml(record.fileName)}</h3><p>Erreur du diagnostic : ${escapeHtml(message)}</p></article>`);
+        }
+      }
+      locatorCompareStatus.textContent = `${batch.length} capture(s) comparée(s). Les propositions affichées sont expérimentales et n’ont modifié aucun champ du formulaire.`;
+      locatorComparisonSummary = summaries;
+      exportLocatorComparisonButton.disabled = !summaries.some((item) => item.fields?.length);
+      updateDiagnostics();
+    } finally {
+      try { await WarResultsVisionEngine.release(); }
+      catch (error) { locatorCompareStatus.textContent += ` Libération OCR : ${errorMessage(error)}`; }
+      analyzing = false;
+      $("#clearLocatorComparisonButton").disabled = !locatorComparisonResults.childElementCount;
+      render();
+    }
+  }
+
+  function locatorComparisonHtml(fileName, result) {
+    const metrics = result.metrics || {};
+    const rectText = (rect) => rect ? `x=${rect.x}, y=${rect.y}, l=${rect.width}, h=${rect.height}` : "zone absente";
+    const variantHtml = (item, label) => `<section class="locator-comparison-variant"><h4>${label}</h4>${item.preview ? `<img src="${escapeAttr(item.preview)}" alt="${label} : découpe originale de ${escapeAttr(fileName)}" loading="lazy">` : `<p>Découpe indisponible${item.reason ? ` — ${escapeHtml(item.reason)}` : ""}</p>`}<p>OCR : <strong>${escapeHtml(item.value || "—")}</strong>${item.raw ? ` · brut : ${escapeHtml(item.raw)}` : ""}<br>Confiance Tesseract : ${Number.isFinite(item.confidence) ? `${Math.round(item.confidence)} %` : "non fournie"} · durée : ${Number.isFinite(item.ms) ? `${item.ms} ms` : "—"}<br>Rectangle source : ${escapeHtml(rectText(item.rect))}<br>Segmentation : ${item.segmentation ? `${item.segmentation.glyphs}/4 glyphes${item.segmentation.reason ? ` · ${escapeHtml(item.segmentation.reason)}` : ""}${item.segmentation.warnings?.length ? ` · ${escapeHtml(item.segmentation.warnings.join(", "))}` : ""}` : "non disponible"}</p></section>`;
+    const fieldsHtml = (result.fields || []).map((field) => `<section class="locator-comparison-card"><h3>${escapeHtml(field.label)}</h3><p>Écart de rectangle (adaptatif − actuel) : ${escapeHtml(field.rectDelta ? JSON.stringify(field.rectDelta) : "non calculé")}</p><div class="locator-comparison-pair">${variantHtml(field.current, "Localisateur actuel")}${variantHtml(field.adaptive, "Localisateur adaptatif expérimental")}</div></section>`).join("");
+    return `<article class="locator-comparison-card"><h3>${escapeHtml(fileName)}</h3><p>${escapeHtml(metrics.engine || "Tesseract.js")} · total ${Number(metrics.totalMs) || 0} ms · chargement moteur ${Number(metrics.workerLoadMs) || 0} ms · ${Number(metrics.dimensions?.width) || 0}×${Number(metrics.dimensions?.height) || 0} px</p><p>Ancrages : ${escapeHtml(JSON.stringify(metrics.anchorsFound || {}))} · disposition : ${escapeHtml(metrics.layout || "inconnue")}</p>${fieldsHtml}<details><summary>Temps des appels Tesseract</summary><pre>${escapeHtml(JSON.stringify(metrics.calls || [], null, 2))}</pre></details></article>`;
   }
 
   function onAction(event) {
