@@ -212,7 +212,8 @@
 
   async function compareTrophyLocators() {
     if (analyzing) return;
-    const batch = records.filter((record) => record.file && !locatorComparisonSummary.some((item) => item.fields?.length && item.sourceKey === (record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file))));
+        const marginPercent = [0, 18, 30].includes(Number(trophyMarginSelect?.value)) ? Number(trophyMarginSelect.value) : 18;
+    const batch = records.filter((record) => record.file && !locatorComparisonSummary.some((item) => item.fields?.length && item.sourceKey === (record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file)) && Number(item.marginPercent ?? 18) === marginPercent));
     if (!batch.length) {
       locatorCompareStatus.textContent = records.some((record) => record.file)
         ? "Toutes les captures chargées disposent déjà d’un résultat conservé. Aucune image n’a été retraitée."
@@ -228,8 +229,8 @@
         try {
           const result = await WarResultsVisionEngine.compareTrophyLocators(record.file, (message) => {
             if (message.status) locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} : ${record.fileName} — ${message.status}`;
-          });
-          const summary = { file: record.fileName, sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), metrics: result.metrics,
+          }, { marginPercent });
+          const summary = { file: record.fileName, sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), marginPercent, metrics: result.metrics,
             fields: (result.fields || []).map(({ field, label, current, adaptive, rectDelta }) => ({ field, label, current: { ...current, preview: undefined }, adaptive: { ...adaptive, preview: undefined }, rectDelta })) };
           locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords(locatorComparisonSummary, [summary]);
           saveLocatorComparison();
@@ -237,7 +238,7 @@
           locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} terminée : ${record.fileName}, marge ${marginPercent} % (${result.metrics.totalMs} ms).`;
         } catch (error) {
           const message = errorMessage(error);
-          const failed = { file: record.fileName, sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), error: message };
+          const failed = { file: record.fileName, sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), marginPercent, error: message };
           locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords(locatorComparisonSummary, [failed]);
           saveLocatorComparison();
           locatorComparisonResults.insertAdjacentHTML("beforeend", `<article class="locator-comparison-card is-error"><h3>${escapeHtml(record.fileName)}</h3><p>Erreur du diagnostic : ${escapeHtml(message)}</p></article>`);
@@ -278,9 +279,15 @@
 
   function restoreLocatorComparison() {
     try {
-      const saved = JSON.parse(sessionStorage.getItem(LOCATOR_COMPARISON_KEY) || sessionStorage.getItem(LEGACY_LOCATOR_COMPARISON_KEY) || "null");
+      const current = sessionStorage.getItem(LOCATOR_COMPARISON_KEY);
+      const legacy = !current ? sessionStorage.getItem(LEGACY_LOCATOR_COMPARISON_KEY) : null;
+      const saved = JSON.parse(current || legacy || "null");
       if (!saved || saved.diagnostic !== "local-tesseractjs-trophy-locator-ab" || !Array.isArray(saved.records)) return;
       locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords([], saved.records);
+      if (legacy && locatorComparisonSummary.length) {
+        sessionStorage.setItem(LOCATOR_COMPARISON_KEY, WarResultsLocatorComparisonStore.stringify(locatorComparisonSummary));
+        sessionStorage.removeItem(LEGACY_LOCATOR_COMPARISON_KEY);
+      }
       for (const item of locatorComparisonSummary) {
         if (item.fields?.length) {
           const report = { fields: item.fields, metrics: item.metrics || {} };
@@ -293,6 +300,7 @@
       updateLocatorComparisonButtons();
     } catch (_) {
       sessionStorage.removeItem(LOCATOR_COMPARISON_KEY);
+      sessionStorage.removeItem(LEGACY_LOCATOR_COMPARISON_KEY);
     }
   }
 

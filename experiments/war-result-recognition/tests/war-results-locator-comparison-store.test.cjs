@@ -24,3 +24,19 @@ assert.equal(merged[0].metrics.totalMs, 11);
 assert.equal(store.mergeRecords(merged, [{ file: "no-key.png" }]).length, 1, "records without a source key cannot block a retry");
 
 console.log("War Results A/B comparison storage tests: OK");
+
+const variants = store.mergeRecords([], [
+  { ...first, marginPercent: 0 },
+  { ...first, marginPercent: 18 },
+  { ...first, marginPercent: 30 }
+]);
+assert.equal(variants.length, 3, "the same source must retain each margin variant");
+assert.deepEqual(variants.map((item) => item.marginPercent).sort((a, b) => a - b), [0, 18, 30]);
+const rerun18 = store.mergeRecords(variants, [{ ...first, marginPercent: 18, metrics: { totalMs: 22 } }]);
+assert.equal(rerun18.length, 3, "rerunning one margin must preserve the other variants");
+assert.equal(rerun18.find((item) => item.marginPercent === 18).metrics.totalMs, 22);
+const migratedLegacy = store.mergeRecords([{ ...first }], [{ ...first, marginPercent: 18, metrics: { totalMs: 23 } }]);
+assert.equal(migratedLegacy.length, 1, "legacy records without margin migrate to the 18-percent key");
+assert.equal(migratedLegacy[0].marginPercent, 18);
+assert.equal(migratedLegacy[0].metrics.totalMs, 23);
+assert.match(store.stringify(variants), /"marginPercent": 30/);

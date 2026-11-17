@@ -27,3 +27,10 @@ if (!locator.includes("minimumPaddingPixels") || !locator.includes("Math.max(min
 if (!store.includes("record.marginPercent ?? 18")) throw new Error("Stored records are not separated by margin.");
 if (!app.includes("LEGACY_LOCATOR_COMPARISON_KEY") || !app.includes("Number(item.marginPercent ?? 18) === marginPercent")) throw new Error("Resume does not distinguish margin variants.");
 console.log("War Results Vision trophy margin comparison tests: OK");
+
+if (!app.includes("Number(item.marginPercent ?? 18) === marginPercent")) throw new Error("Resume does not separate completed results by selected margin.");
+if (!app.includes("}, { marginPercent });")) throw new Error("The selected margin is not passed to the adaptive comparison.");
+if (!app.includes("sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), marginPercent")) throw new Error("Results do not persist the selected margin.");
+if (!app.includes("if (legacy && locatorComparisonSummary.length)")) throw new Error("Legacy results are not migrated into the v2 session store.");
+
+if (!app.includes("sessionStorage.setItem(LOCATOR_COMPARISON_KEY, WarResultsLocatorComparisonStore.stringify(locatorComparisonSummary))")) throw new Error("Migrated results are not persisted for reload recovery.");
