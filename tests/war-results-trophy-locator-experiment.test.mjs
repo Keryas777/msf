@@ -53,3 +53,16 @@ test("invalid sides and vertical bands are rejected", () => {
   assert.equal(locator.proportionalBand(1200, 400, { x: 0, y: 2, width: 5, height: 50 }, "center"), null);
   assert.equal(locator.proportionalBand(1200, 400, { x: 0, y: 2, width: 5, height: 0 }, "left"), null);
 });
+
+test("glyph rectangles convert from local crop to original-image coordinates", () => {
+  const local = [{ x: 8, y: 11, width: 12, height: 27 }, { x: 29, y: 11, width: 13, height: 27 }];
+  assert.deepEqual(locator.translateBoundsToSource(local, { x: 500, y: 240 }), [
+    { x: 508, y: 251, width: 12, height: 27 },
+    { x: 529, y: 251, width: 13, height: 27 }
+  ]);
+  assert.deepEqual(locator.translateBoundsToSource(local, { x: 500.5, y: 240 }), [
+    { x: 508.5, y: 251, width: 12, height: 27 },
+    { x: 529.5, y: 251, width: 13, height: 27 }
+  ]);
+});
+

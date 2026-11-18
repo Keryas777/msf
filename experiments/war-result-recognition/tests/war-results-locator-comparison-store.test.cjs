@@ -40,3 +40,7 @@ assert.equal(migratedLegacy.length, 1, "legacy records without margin migrate to
 assert.equal(migratedLegacy[0].marginPercent, 18);
 assert.equal(migratedLegacy[0].metrics.totalMs, 23);
 assert.match(store.stringify(variants), /"marginPercent": 30/);
+const privatePreview = store.stringify([{ ...first, fields: [{ current: { preview: "data:image/jpeg;base64,PRIVATE", sourcePreview: "data:image/jpeg;base64,PRIVATE_SOURCE" } }] }]);
+assert.ok(!privatePreview.includes("data:image/"), "image previews must never enter the JSON export");
+assert.ok(!privatePreview.includes("sourcePreview"), "source crops must never enter the JSON export");
+

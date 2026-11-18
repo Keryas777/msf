@@ -14,7 +14,7 @@
     if (Array.isArray(value)) return value.map(clean);
     if (!value || typeof value !== "object") return value;
     return Object.fromEntries(Object.entries(value)
-      .filter(([key]) => key !== "preview")
+      .filter(([key]) => !/preview$/i.test(key))
       .map(([key, item]) => [key, clean(item)]));
   }
 
@@ -42,3 +42,4 @@
 
   return { fileKey, recordKey, mergeRecords, snapshot, stringify };
 });
+

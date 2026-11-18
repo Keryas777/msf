@@ -336,7 +336,7 @@
               const located = TROPHY_LOCATOR.locateBand(bandData, bandRect, source.width, source.height, DIGIT_READER, locatorOptions);
               adaptive = located.reason
                 ? { rect: null, value: "", raw: "", confidence: null, ms: null, reason: located.reason, preview: "", segmentation: located.segmented || null }
-                : await readTrophyVariant(source, located.rect, field.key, "proportionnel+composantes", run, callTimings, located.segmented);
+              : await readTrophyVariant(source, located.rect, field.key, "proportionnel+composantes", run, callTimings, located.segmented, located.bandRect, marginPercent);
             } finally { bandCanvas.width = bandCanvas.height = 1; }
           }
         }
@@ -346,7 +346,11 @@
             width: adaptive.rect.width - current.rect.width, height: adaptive.rect.height - current.rect.height
           } : null });
       }
-      return { fields: results, metrics: { engine: "Tesseract.js v5 local browser", workerLoadMs,
+      const overviewScale = Math.min(1, 1200 / source.width, 1200 / source.height);
+      const overview = crop(source, { x: 0, y: 0, width: source.width, height: source.height }, overviewScale, false);
+      const sourcePreview = overview?.toDataURL("image/jpeg", .82) || "";
+      if (overview) overview.width = overview.height = 1;
+      return { fields: results, preview: sourcePreview, dimensions: { width: source.width, height: source.height }, metrics: { engine: "Tesseract.js v5 local browser", workerLoadMs,
         totalMs: Math.round(performance.now() - totalStart), calls: callMetrics,
         dimensions: { width: source.width, height: source.height }, analyzedCanvas: { width: analysisCanvas.width, height: analysisCanvas.height },
         layout: localized.zones.layout, anchorsFound: localized.anchorsFound,
@@ -357,21 +361,23 @@
     }
   }
 
-  async function readTrophyVariant(source, rect, field, variant, run, callTimings, segmentation = null) {
+  async function readTrophyVariant(source, rect, field, variant, run, callTimings, segmentation = null, segmentationOrigin = rect, marginPercent = null) {
     if (!rect) return { rect: null, value: "", raw: "", confidence: null, ms: null, reason: "zone-production-absente", preview: "", segmentation };
     const original = crop(source, rect, 1, false);
     const prepared = crop(source, rect, 3, true);
     if (!original || !prepared) return { rect, value: "", raw: "", confidence: null, ms: null, reason: "creation-decoupe-impossible", preview: "", segmentation };
-    const preview = original.toDataURL("image/jpeg", .86);
+    const sourcePreview = original.toDataURL("image/jpeg", .86);
     const observed = segmentation || DIGIT_READER.segment(original.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, original.width, original.height), "trophy", 4);
+    const origin = segmentationOrigin || rect;
+    const glyphRects = TROPHY_LOCATOR.translateBoundsToSource(observed.bounds || [], origin);
     const segmentationSummary = { glyphs: observed.glyphs?.length || 0, reason: observed.reason || null,
-      warnings: observed.warnings || [], componentBounds: observed.bounds || [] };
+      warnings: observed.warnings || [], componentBounds: observed.bounds || [], glyphRects };
     original.width = original.height = 1;
     try {
       const output = await run(`comparison-${variant}-${field}-psm7`, prepared, 7, "0123456789");
       const raw = String(output.data?.text || "").replace(/\s+/g, " ").trim();
       return { rect, value: numericRead(raw), raw, confidence: output.data?.confidence ?? null,
-        ms: callTimings[`comparison-${variant}-${field}-psm7`] ?? null, reason: null, preview,
+        ms: callTimings[`comparison-${variant}-${field}-psm7`] ?? null, reason: null, preview: prepared.toDataURL("image/jpeg", .86), sourcePreview, marginPercent,
         segmentation: segmentationSummary };
     } finally { prepared.width = prepared.height = 1; }
   }
@@ -412,3 +418,4 @@
   }
   window.WarResultsVisionEngine = { analyze, analyzeField, compareTrophyLocators, release, version: VERSION };
 })();
+

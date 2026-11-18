@@ -53,6 +53,12 @@
     return { width: safe.width, height: safe.height, data: out, rect: safe };
   }
 
+  function translateBoundsToSource(bounds, origin) {
+    if (!Array.isArray(bounds) || !origin || !Number.isFinite(origin.x) || !Number.isFinite(origin.y)) return [];
+    return bounds.filter((box) => box && [box.x, box.y, box.width, box.height].every(Number.isFinite))
+      .map((box) => ({ x: origin.x + box.x, y: origin.y + box.y, width: box.width, height: box.height }));
+  }
+
   function boundsFromSegments(segments, offsetX, offsetY, imageWidth, imageHeight, paddingRatio, minimumPaddingPixels = 2) {
     if (!Array.isArray(segments) || !segments.length) return null;
     const minX = Math.min(...segments.map((b) => b.x));
@@ -103,5 +109,6 @@
     };
   }
 
-  return { version: "0.2.0-experimental", defaults: DEFAULTS, proportionalBand, cropImageData, locateBand, locate };
+  return { version: "0.3.0-experimental", defaults: DEFAULTS, proportionalBand, cropImageData, translateBoundsToSource, locateBand, locate };
 });
+

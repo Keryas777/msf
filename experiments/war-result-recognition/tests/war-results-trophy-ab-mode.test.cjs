@@ -34,3 +34,7 @@ if (!app.includes("sourceKey: record.fileKey || WarResultsLocatorComparisonStore
 if (!app.includes("if (legacy && locatorComparisonSummary.length)")) throw new Error("Legacy results are not migrated into the v2 session store.");
 
 if (!app.includes("sessionStorage.setItem(LOCATOR_COMPARISON_KEY, WarResultsLocatorComparisonStore.stringify(locatorComparisonSummary))")) throw new Error("Migrated results are not persisted for reload recovery.");
+if (!app.includes("locator-source-overview") || !app.includes("locator-glyph-adaptive")) throw new Error("The A/B view must show source-image rectangles and segmented glyphs.");
+if (!app.includes("Image réellement transmise à Tesseract")) throw new Error("The view must distinguish the OCR input crop from the unprocessed source crop.");
+if (!engine.includes("translateBoundsToSource(observed.bounds || [], origin)")) throw new Error("Glyph diagnostics are not converted into original-image coordinates.");
+
