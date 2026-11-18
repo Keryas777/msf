@@ -327,17 +327,16 @@
         let adaptive;
         if (!yBand) adaptive = { rect: null, value: "", raw: "", confidence: null, ms: null, reason: "zone-verticale-production-absente", preview: "", segmentation: null };
         else {
-          const bandRect = TROPHY_LOCATOR.proportionalBand(source.width, source.height, yBand, field.side, locatorOptions);
-          if (!bandRect) adaptive = { rect: null, value: "", raw: "", confidence: null, ms: null, reason: "bande-proportionnelle-invalide", preview: "", segmentation: null };
-          else {
+          const readBandImageData = (bandRect) => {
             const bandCanvas = crop(source, bandRect, 1, false);
-            try {
-              const bandData = bandCanvas.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, bandCanvas.width, bandCanvas.height);
-              const located = TROPHY_LOCATOR.locateBand(bandData, bandRect, source.width, source.height, DIGIT_READER, locatorOptions);
-              adaptive = located.reason
-                ? { rect: null, value: "", raw: "", confidence: null, ms: null, reason: located.reason, preview: "", segmentation: located.segmented || null }
-              : await readTrophyVariant(source, located.rect, field.key, "proportionnel+composantes", run, callTimings, located.segmented, located.bandRect, marginPercent);
-            } finally { bandCanvas.width = bandCanvas.height = 1; }
+            try { return bandCanvas.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, bandCanvas.width, bandCanvas.height); }
+            finally { bandCanvas.width = bandCanvas.height = 1; }
+          };
+          const located = TROPHY_LOCATOR.locateWithVerticalRecovery(readBandImageData, source.width, source.height, yBand, field.side, DIGIT_READER, locatorOptions);
+          if (located.reason) adaptive = { rect: null, value: "", raw: "", confidence: null, ms: null, reason: located.reason, preview: "", segmentation: located.segmented || null, recovery: located.recovery || null };
+          else {
+            adaptive = await readTrophyVariant(source, located.rect, field.key, "proportionnel+composantes", run, callTimings, located.segmented, located.bandRect, marginPercent);
+            adaptive.recovery = located.recovery || null;
           }
         }
         results.push({ field: field.key, label: field.label, current, adaptive: { ...adaptive, marginPercent },

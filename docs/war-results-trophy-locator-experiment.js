@@ -86,6 +86,47 @@
     return { rect, bandRect, method: "proportional-side-band+color-components", geometryConfidence: segmented.confidence ?? null, segmented, reason: null };
   }
 
+  // Search nearby vertical strips only when the original band contains too few
+  // components. The strip height scales with the supplied row, while offsets are
+  // relative to that row; this recovers layouts whose existing OCR rectangle is
+  // vertically displaced without changing already-segmentable fields.
+  function verticalSearchBands(width, height, verticalRect, side, options = {}) {
+    const cfg = { ...DEFAULTS, ...options };
+    if (!verticalRect || !Number.isFinite(verticalRect.y) || !Number.isFinite(verticalRect.height) || verticalRect.height <= 0) return [];
+    const searchHeight = Math.min(height, Math.max(cfg.minBandHeight, Math.round(verticalRect.height * 0.8)));
+    if (searchHeight < cfg.minBandHeight || height < searchHeight) return [];
+    const bands = [], seen = new Set();
+    for (const offset of [-1, -0.375, -0.5, -0.625, -0.75, -0.875, -0.25, -0.125, 0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875]) {
+      const y = Math.max(0, Math.min(height - searchHeight, Math.round(verticalRect.y + offset * verticalRect.height)));
+      if (seen.has(y)) continue;
+      seen.add(y);
+      const bandRect = proportionalBand(width, height, { ...verticalRect, y, height: searchHeight }, side, cfg);
+      if (bandRect) bands.push({ bandRect, offset, searchHeight });
+    }
+    return bands;
+  }
+
+  /**
+   * Use nearby proportional bands only after the primary segmentation finds too
+   * few components. Edge-touching and ambiguous successful runs keep their
+   * original result so a retry cannot silently replace a crop that already has
+   * four glyph components.
+   */
+  function locateWithVerticalRecovery(readBandImageData, imageWidth, imageHeight, verticalRect, side, reader, options = {}) {
+    if (typeof readBandImageData !== "function") return { rect: null, reason: "band-reader-unavailable", recovery: null };
+    const bandRect = proportionalBand(imageWidth, imageHeight, verticalRect, side, options);
+    if (!bandRect) return { rect: null, reason: "invalid-search-band", recovery: null };
+    const primary = locateBand(readBandImageData(bandRect), bandRect, imageWidth, imageHeight, reader, options);
+    if (primary.reason !== "too-few-components") return { ...primary, recovery: null };
+    for (const candidate of verticalSearchBands(imageWidth, imageHeight, verticalRect, side, options)) {
+      const recovered = locateBand(readBandImageData(candidate.bandRect), candidate.bandRect, imageWidth, imageHeight, reader, options);
+      if (!recovered.reason && !recovered.segmented?.warnings?.length) {
+        return { ...recovered, recovery: { method: "proportional-vertical-search", offset: candidate.offset, initialReason: primary.reason } };
+      }
+    }
+    return { ...primary, recovery: null };
+  }
+
   /**
    * Refine one trophy crop from the original-color full-image ImageData.
    * verticalRect is supplied by the existing layout localizer in original-image
@@ -109,6 +150,6 @@
     };
   }
 
-  return { version: "0.3.0-experimental", defaults: DEFAULTS, proportionalBand, cropImageData, translateBoundsToSource, locateBand, locate };
+  return { version: "0.4.0-experimental", defaults: DEFAULTS, proportionalBand, cropImageData, translateBoundsToSource, locateBand, verticalSearchBands, locateWithVerticalRecovery, locate };
 });
 

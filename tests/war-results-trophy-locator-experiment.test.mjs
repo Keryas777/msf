@@ -88,6 +88,30 @@ test("invalid sides and vertical bands are rejected", () => {
   assert.equal(locator.proportionalBand(1200, 400, { x: 0, y: 2, width: 5, height: 0 }, "left"), null);
 });
 
+test("vertical recovery uses proportional offsets only after too-few-components", () => {
+  for (const scale of [1, 2]) {
+    const image = syntheticImage(scale);
+    const wrongRow = { x: 0, y: 225 * scale, width: 1, height: 60 * scale };
+    const readBand = (rect) => locator.cropImageData(image, rect);
+    const result = locator.locateWithVerticalRecovery(readBand, image.width, image.height, wrongRow, "left", reader);
+    assert.equal(result.reason, null);
+    assert.equal(result.segmented.bounds.length, 4);
+    assert.equal(result.recovery.method, "proportional-vertical-search");
+    assert.ok(result.rect.y < 170 * scale);
+    assert.ok(result.rect.y + result.rect.height > 202 * scale);
+    assert.deepEqual(result.segmented.warnings, []);
+  }
+});
+
+test("vertical recovery does not replace a valid primary segmentation", () => {
+  const image = syntheticImage(1);
+  const primaryRow = { x: 0, y: 160, width: 1, height: 60 };
+  const result = locator.locateWithVerticalRecovery((rect) => locator.cropImageData(image, rect), image.width, image.height, primaryRow, "left", reader);
+  assert.equal(result.reason, null);
+  assert.equal(result.recovery, null);
+  assert.equal(result.bandRect.y, 160);
+});
+
 test("glyph rectangles convert from local crop to original-image coordinates", () => {
   const local = [{ x: 8, y: 11, width: 12, height: 27 }, { x: 29, y: 11, width: 13, height: 27 }];
   assert.deepEqual(locator.translateBoundsToSource(local, { x: 500, y: 240 }), [
