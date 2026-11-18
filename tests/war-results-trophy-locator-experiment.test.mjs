@@ -49,6 +49,40 @@ test("refinement refuses missing glyphs instead of returning an arbitrary crop",
   assert.ok(result.reason);
 });
 
+test("adaptive padding scales from glyph height and honors each selected margin", () => {
+  const image = syntheticImage(1);
+  const band = { x: 96, y: 160, width: 456, height: 60 };
+  const crop = locator.cropImageData(image, band);
+  for (const [margin, expectedPad] of [[0, 0], [18, 6], [30, 10]]) {
+    const result = locator.locateBand(crop, band, image.width, image.height, reader, {
+      paddingByGlyphHeight: margin / 100,
+      minimumPaddingPixels: margin === 0 ? 0 : 2
+    });
+    assert.equal(result.reason, null);
+    assert.deepEqual(result.rect, { x: 220 - expectedPad, y: 170 - expectedPad, width: 97 + expectedPad * 2, height: 32 + expectedPad * 2 });
+  }
+});
+
+test("coherent trophy glyph run excludes separate icon and bracketed change", () => {
+  const image = syntheticImage(1);
+  const paint = (x, y, w, h) => {
+    for (let py = y; py < y + h; py++) for (let px = x; px < x + w; px++) image.data.set([218, 210, 202, 255], (py * image.width + px) * 4);
+  };
+  paint(170, 170, 14, 32); // isolated icon-sized component
+  paint(360, 168, 2, 36); // opening bracket
+  paint(390, 176, 14, 24); // two smaller change digits
+  paint(417, 176, 14, 24);
+  paint(442, 168, 2, 36); // closing bracket
+  const band = { x: 96, y: 160, width: 456, height: 60 };
+  const result = locator.locateBand(locator.cropImageData(image, band), band, image.width, image.height, reader, {
+    paddingByGlyphHeight: .18, minimumPaddingPixels: 2
+  });
+  assert.equal(result.reason, null);
+  assert.equal(result.segmented.bounds.length, 4);
+  assert.equal(result.rect.x, 214);
+  assert.equal(result.rect.x + result.rect.width, 323);
+});
+
 test("invalid sides and vertical bands are rejected", () => {
   assert.equal(locator.proportionalBand(1200, 400, { x: 0, y: 2, width: 5, height: 50 }, "center"), null);
   assert.equal(locator.proportionalBand(1200, 400, { x: 0, y: 2, width: 5, height: 0 }, "left"), null);

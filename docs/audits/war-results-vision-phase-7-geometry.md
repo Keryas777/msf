@@ -28,7 +28,7 @@ No third locator was added: current inputs do not contain the nine original benc
 
 ## Validation performed
 
-Synthetic tests cover proportional bands at multiple resolutions, conversion to original-image coordinates, four-component detection/refusal, invalid bands, A/B result separation by margin, 18% legacy migration, and removal of image data from JSON exports. Static checks cover the comparison UI's source overlay, glyph diagnostics, and distinction between OCR input and source crops.
+Synthetic tests cover proportional bands at multiple resolutions, conversion to original-image coordinates, four-component detection/refusal, exclusion of separate icon/bracket/change components, all three glyph-height margins (0/18/30%), invalid bands, A/B result separation by margin, 18% legacy migration, and removal of image data from JSON exports. Static checks cover the comparison UI's source overlay, glyph diagnostics, and distinction between OCR input and source crops.
 
 The nine original captures were not present in this session. Therefore no claim is made that a specific real crop fully contains its four expected digits, excludes its icon/bracket change, or is stable across the real corpus. No Tesseract benchmark was run. The previously reported 5/18 vs 14/18 and 6/18 vs 15/18 totals remain separate historical runs; they are not updated or reconciled here.
 
