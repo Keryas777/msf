@@ -11,6 +11,15 @@ body.page-war-counters .counterCard.is-green.is-overkill-plus{
   --label-spacing: .025em;
 }
 
+/* Couleurs distinctes pour les bandes, sans modifier le niveau de sûreté. */
+body.page-war-counters .counterCard.is-green.is-overkill{
+  --band: #77b9e8;
+}
+
+body.page-war-counters .counterCard.is-green.is-overkill-plus{
+  --band: #28669c;
+}
+
 body.page-war-counters .counterCard.is-green.is-overkill::after,
 body.page-war-counters .counterCard.is-green.is-overkill-plus::after{
   content: "";
