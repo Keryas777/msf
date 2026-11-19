@@ -4,7 +4,9 @@
   const CORE = window.WarResultRecognition;
   const TROPHY_LOCATOR = window.WarResultsTrophyLocatorExperiment;
   const DIGIT_READER = window.WarResultsDigitReader;
-  const VERSION = "5.6-combined-experiment";
+  const IDENTITY_ENGINE = window.WarResultsIdentityEngine;
+  const RESULT_ENGINE = window.WarResultsResultEngine;
+  const VERSION = "6.0-three-engines";
   let workerPromise = null;
   let worker = null;
   let activeProgress = () => {};
@@ -77,21 +79,6 @@
     return { canvas, scale };
   }
 
-  function resultColor(canvas) {
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    const x = Math.floor(canvas.width * .30), y2 = Math.ceil(canvas.height * .12);
-    const data = ctx.getImageData(x, 0, Math.ceil(canvas.width * .40), y2).data;
-    let blue = 0, red = 0;
-    for (let i = 0; i < data.length; i += 16) {
-      const r = data[i], g = data[i + 1], b = data[i + 2];
-      if (b > 150 && b > r * 1.18 && b > g * 1.08) blue++;
-      if (r > 165 && r > g * 1.25 && r > b * 1.1) red++;
-    }
-    const high = Math.max(blue, red), low = Math.min(blue, red);
-    if (high < 3 || high < 3 * low) return "";
-    return blue > red ? "win" : "loss";
-  }
-
   function crop(source, rect, scale = 3, grayscale = false) {
     if (!rect || rect.width < 1 || rect.height < 1) return null;
     const canvas = document.createElement("canvas");
@@ -116,35 +103,12 @@
     return CORE.parseTsv(result?.data?.tsv || "", { x: 0, y: 0 }, scale);
   }
 
-  function mergeTextFields(a, b) {
-    const first = a || { value: "", confidence: null, uncertain: true, source: "pass-1" };
-    const second = b || { value: "", confidence: null, uncertain: true, source: "pass-2" };
-    const norm = (value) => String(value || "").normalize("NFKC").replace(/\s+/g, " ").trim().toLocaleLowerCase();
-    if (!first.value && second.value) return { ...second, uncertain: true, alternatives: undefined };
-    if (first.value && second.value && norm(first.value) !== norm(second.value)) return { value: "", confidence: null, source: "two-pass-disagreement", uncertain: true, alternatives: [first.value, second.value] };
-    return { ...first, uncertain: Boolean(first.uncertain || second.uncertain), confidence: Number.isFinite(first.confidence) && Number.isFinite(second.confidence) ? Math.max(first.confidence, second.confidence) : first.confidence ?? second.confidence };
-  }
-
   function numericRead(text) {
     const digits = String(text || "").replace(/\D/g, "");
     return digits.length === 4 || digits.length === 6 ? digits : "";
   }
 
   const FIELD_SIDES = { localAlliance: "text", opponentAlliance: "text", localScore: "numeric", opponentScore: "numeric", localTrophies: "numeric", opponentTrophies: "numeric", result: "result" };
-  function cleanAlliance(value, field) {
-    let text = String(value || "").replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim();
-    if (field === "localAlliance") text = text.replace(/^LoSP\s*/i, "").trim();
-    return text.replace(/^[|:;]+|[|:;]+$/g, "").trim();
-  }
-  function mergeText(primary, secondary, source) {
-    const a = cleanAlliance(primary?.value, source), b = cleanAlliance(secondary?.value, source);
-    if (primary?.alternatives?.length) return { value: "", confidence: null, source: "multiple-reads-disagree", uncertain: true, alternatives: [...new Set([...primary.alternatives.map((value) => cleanAlliance(value, source)).filter(Boolean), ...(b ? [b] : [])])] };
-    if (a && b && a.normalize("NFKC").toLocaleLowerCase() !== b.normalize("NFKC").toLocaleLowerCase()) {
-      return { value: "", confidence: null, source: "whole-image-vs-zone-disagreement", uncertain: true, alternatives: [...new Set([a, b])] };
-    }
-    const picked = a ? primary : b ? secondary : null;
-    return picked ? { ...picked, value: a || b, uncertain: true, source: a && b ? "whole-image-and-zone-agree" : picked.source } : { value: "", confidence: null, source: "zone-unreadable", uncertain: true };
-  }
   function arbitrateZoneNumeric(primary, secondary) {
     if (primary?.alternatives?.length) return { value: "", confidence: null, source: "multiple-reads-disagree", uncertain: true, alternatives: [...new Set([...primary.alternatives, ...(secondary?.value ? [secondary.value] : [])])] };
     return CORE.arbitrateNumeric(primary, secondary);
@@ -160,6 +124,7 @@
 
   async function analyze(file, onProgress = () => {}, zoneOverrides = {}) {
     if (!CORE) throw new Error("Le module de reconnaissance partagé n’est pas chargé.");
+    if (!IDENTITY_ENGINE || !RESULT_ENGINE) throw new Error("Les moteurs spécialisés Identité et Résultat ne sont pas chargés.");
     activeProgress = onProgress;
     activeProgress({ status: "Ouverture et préparation de l’image…", progress: .01 });
     const totalStart = performance.now();
@@ -195,17 +160,10 @@
       onProgress({ status: "Seconde lecture OCR (PSM 11)…", progress: .42 });
       const sparse = await run("sparse-psm11", canvas, 11);
       const fullWords = parse(full, scale), sparseWords = parse(sparse, scale);
-      const color = resultColor(canvas);
-      const first = CORE.extract(fullWords, source.width, source.height, { colorResult: color });
-      const second = CORE.extract(sparseWords, source.width, source.height, { colorResult: color });
+      const first = CORE.extract(fullWords, source.width, source.height, { colorResult: null });
+      const second = CORE.extract(sparseWords, source.width, source.height, { colorResult: null });
       const fields = { ...first.fields };
-      for (const key of ["localAlliance", "opponentAlliance"]) fields[key] = mergeTextFields(first.fields[key], second.fields[key]);
       for (const key of ["localScore", "opponentScore", "localTrophies", "opponentTrophies"]) fields[key] = CORE.arbitrateNumeric(first.fields[key], second.fields[key]);
-      const titleText = `${full.data?.text || ""} ${sparse.data?.text || ""}`.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-      const titleCue = /victoire|victory/.test(titleText) ? "win" : /defaite|defeat/.test(titleText) ? "loss" : "";
-      fields.result = color && titleCue && color !== titleCue
-        ? { value: "", confidence: null, source: "color-text-disagreement", uncertain: true, alternatives: [color, titleCue] }
-        : { value: color || titleCue, confidence: null, source: color ? (titleCue ? "color-and-title-text" : "color-cue") : "title-text-cue", uncertain: !(color || titleCue) };
       const zoneInfo = CORE.locateZones(sparseWords, source.width, source.height);
       zoneInfo.method = zoneInfo.zones.method;
       zoneInfo.layout = zoneInfo.zones.layout;
@@ -257,6 +215,7 @@
       // are used only as independent hypotheses and as anchors for locating the crops.
       const zoneImages = {};
       const zoneReads = {};
+      const identityReads = {};
       const expected = { localScore: 6, opponentScore: 6, localTrophies: 4, opponentTrophies: 4 };
       const zoneKeys = ["localAlliance", "opponentAlliance", "localScore", "opponentScore", "localTrophies", "opponentTrophies", "result"];
       for (const [zoneIndex, key] of zoneKeys.entries()) {
@@ -278,15 +237,21 @@
             ...(trophyGeometry[key] ? { locatorMethod: trophyGeometry[key].method, locatorMarginPercent: trophyGeometry[key].marginPercent, locatorFallback: trophyGeometry[key].fallback,
               locatorRecovery: trophyGeometry[key].recovery || null, segmentedGlyphs: trophyGeometry[key].glyphs ?? null, segmentationConfidence: trophyGeometry[key].confidence ?? null,
               segmentationReason: trophyGeometry[key].reason || null } : {}) };
-          if (key === "result") {
-            const cue = resultColor(fieldImage);
-            zoneReads[key] = { value: cue || "", confidence: null, source: "result-band-color-crop", uncertain: !cue };
+          if (key === "localAlliance" || key === "opponentAlliance") {
+            const identity = await IDENTITY_ENGINE.analyzeRegion(source, rect, async (image, psm) => run(`${key}-identity-psm${psm}`, image, psm), { side: key === "localAlliance" ? "local" : "opponent" });
+            identityReads[key] = identity;
+            zoneImages[key] = { ...zoneImages[key], sourcePreview: identity.sourcePreview, preview: identity.preview,
+              width: identity.diagnostics.ocrDimensions.width, height: identity.diagnostics.ocrDimensions.height, ocrMethod: "identity-color-preserving-psm11" };
+            zoneReads[key] = { value: identity.text, confidence: identity.confidence, source: "identity-ocr-and-original-color", uncertain: identity.uncertain,
+              colorUncertain: identity.colorUncertain, alternatives: identity.alternatives, normalizedName: identity.normalizedName, richName: identity.richName, symbols: identity.symbols,
+              identityUncertainty: identity.uncertainty };
+          } else if (key === "result") {
+            zoneReads[key] = { value: "", confidence: null, source: "awaiting-result-color-engine", uncertain: true };
           } else {
-            const whitelist = numericField ? "0123456789" : "";
-            const output = await run(`${key}-zone-psm7`, fieldImage, 7, whitelist);
+            const output = await run(`${key}-zone-psm7`, fieldImage, 7, "0123456789");
             const raw = String(output.data?.text || "").replace(/\s+/g, " ").trim();
-            const value = numericField ? numericRead(raw) : cleanAlliance(raw, key);
-            const valid = numericField ? value.length === expected[key] : value.length > 1;
+            const value = numericRead(raw);
+            const valid = value.length === expected[key];
             zoneReads[key] = { value: valid ? value : "", confidence: output.data?.confidence ?? null, source: `${key}-zone-psm7`, uncertain: !valid || (output.data?.confidence ?? 0) < 60, raw };
           }
         } finally {
@@ -294,31 +259,40 @@
         }
       }
       for (const key of ["localAlliance", "opponentAlliance"]) {
-        const zone = zoneReads[key];
-        const whole = fields[key];
-        fields[key] = mergeText(whole, zone, key);
-        if (zone.value && fields[key].value && fields[key].value === zone.value && fields[key].source === "whole-image-and-zone-agree") fields[key].uncertain = Boolean(whole.uncertain || zone.uncertain);
+        const identity = identityReads[key];
+        fields[key] = identity
+          ? { value: identity.text, confidence: identity.confidence, source: "identity-ocr-and-original-color", uncertain: identity.uncertain,
+              colorUncertain: identity.colorUncertain, alternatives: identity.alternatives, normalizedName: identity.normalizedName, richName: identity.richName, symbols: identity.symbols, identityUncertainty: identity.uncertainty }
+          : { value: "", confidence: null, source: "identity-zone-unavailable", uncertain: true, alternatives: [] };
       }
       for (const key of Object.keys(expected)) {
         const zone = zoneReads[key];
         fields[key] = arbitrateZoneNumeric(fields[key], zone);
       }
-      const resultZone = zoneReads.result;
-      if (fields.result?.alternatives?.length) {
-        fields.result = { ...fields.result, alternatives: [...new Set([...fields.result.alternatives, ...(resultZone?.value ? [resultZone.value] : [])])] };
-      } else if (resultZone?.value && fields.result?.value && resultZone.value !== fields.result.value) {
-        fields.result = { value: "", confidence: null, source: "result-color-disagreement", uncertain: true, alternatives: [...new Set([fields.result.value, resultZone.value])] };
-      } else if (!fields.result?.value && resultZone?.value) fields.result = resultZone;
+      const resultRect = normalizeRect(zoneInfo.zones.resultBand, source.width, source.height);
+      const resultRead = await RESULT_ENGINE.analyze(source, {
+        titleRect: resultRect,
+        zone: resultRect,
+        recognize: async (image) => run("result-title-ocr-fallback-psm7", image, 7, "ACDEFIORTUVY")
+      });
+      zoneReads.result = { value: resultRead.value || "", confidence: resultRead.confidence, source: resultRead.source, uncertain: resultRead.uncertain,
+        resultDiagnostics: resultRead.diagnostics };
+      fields.result = { value: resultRead.value || "", confidence: resultRead.confidence, source: resultRead.source, uncertain: resultRead.uncertain,
+        resultDiagnostics: resultRead.diagnostics };
+      zoneImages.result = { ...zoneImages.result, ocrMethod: resultRead.source, resultDiagnostics: resultRead.diagnostics };
 
       const cropMethodResults = Object.fromEntries(Object.entries(zoneReads).map(([key, value]) => [key, value.value || null]));
-      const warnings = [...new Set([...first.warnings, ...second.warnings])];
-      for (const [key, item] of Object.entries(fields)) if (key !== "result" && (!item.value || item.uncertain || item.alternatives?.length)) warnings.push(`${key}_requires_review`);
-      if (fields.localScore.value && fields.opponentScore.value && color && ((Number(fields.localScore.value) > Number(fields.opponentScore.value)) !== (color === "win"))) warnings.push("score_result_conflict");
+      const warnings = [...new Set([...first.warnings, ...second.warnings].filter((warning) => !["result_color_uncertain", "opponent_alliance_uncertain"].includes(warning)))];
+      for (const [key, item] of Object.entries(fields)) if (!item.value || item.uncertain || item.alternatives?.length) warnings.push(`${key}_requires_review`);
+      if (fields.localScore.value && fields.opponentScore.value && fields.result.value && ((Number(fields.localScore.value) > Number(fields.opponentScore.value)) !== (fields.result.value === "win"))) warnings.push("score_result_conflict");
       const fieldStatusSummary = Object.fromEntries(Object.entries(fields).map(([key, value]) => [key, value.alternatives?.length ? "conflict" : value.value ? (value.uncertain ? "uncertain" : "recognized") : "missing"]));
       return {
-        fields, warnings: [...new Set(warnings)], rawText: `${full.data?.text || ""}\n${sparse.data?.text || ""}`,
+        fields, identity: identityReads, warnings: [...new Set(warnings)], rawText: `${full.data?.text || ""}\n${sparse.data?.text || ""}`,
         zones: Object.fromEntries(Object.entries(zoneImages).map(([key, value]) => [key, { ...value, method: zoneInfo.method, ocrMethod: zoneReads[key]?.source || "color-analysis", layout: zoneInfo.layout }])),
-        metrics: { engine: "Tesseract.js v5 local browser", engineVersion: VERSION, workerLoadMs, totalMs: Math.round(performance.now() - totalStart), calls, dimensions, analyzedCanvas: { width: canvas.width, height: canvas.height }, downscale: scale, methods: calls.map((item) => item.method), colorCue: color || null, panel: zoneInfo.panel, panelMethod: zoneInfo.panelMethod, zonesFound: zoneInfo.anchorsFound, zoneMethod: zoneInfo.method, layout: zoneInfo.layout, trophyGeometry, trophyLocatorDefault: "adaptive+vertical-recovery", trophyMarginPercent: 18, zoneReads, cropMethodResults, fieldStatusSummary, bytes: file.size, jsHeapBeforeBytes: heapBefore, jsHeapAfterBytes: performance.memory?.usedJSHeapSize ?? null, jsHeapDeltaBytes: heapBefore != null && performance.memory?.usedJSHeapSize != null ? performance.memory.usedJSHeapSize - heapBefore : null }
+        metrics: { engine: "Three specialized local browser engines", engineVersion: VERSION, workerLoadMs, totalMs: Math.round(performance.now() - totalStart), calls, dimensions, analyzedCanvas: { width: canvas.width, height: canvas.height }, downscale: scale, methods: calls.map((item) => item.method), panel: zoneInfo.panel, panelMethod: zoneInfo.panelMethod, zonesFound: zoneInfo.anchorsFound, zoneMethod: zoneInfo.method, layout: zoneInfo.layout, trophyGeometry, trophyLocatorDefault: "adaptive+vertical-recovery", trophyMarginPercent: 18, zoneReads, cropMethodResults, fieldStatusSummary,
+          engines: { numeric: { methods: calls.filter((item) => /full-|sparse-|Score|Trophies/.test(item.method)).map((item) => item.method), trophyGeometry },
+            identity: Object.fromEntries(Object.entries(identityReads).map(([key, item]) => [key, item.diagnostics])), result: resultRead.diagnostics },
+          bytes: file.size, jsHeapBeforeBytes: heapBefore, jsHeapAfterBytes: performance.memory?.usedJSHeapSize ?? null, jsHeapDeltaBytes: heapBefore != null && performance.memory?.usedJSHeapSize != null ? performance.memory.usedJSHeapSize - heapBefore : null }
       };
     } finally {
       source.close?.();
@@ -455,19 +429,40 @@
       const safe = normalizeRect(rect, source.width, source.height);
       if (!safe || safe.width < 2 || safe.height < 2) throw new Error("La zone corrigée est trop petite ou hors image.");
       const numericField = FIELD_SIDES[field] === "numeric";
+      if (field === "localAlliance" || field === "opponentAlliance") {
+        const identity = await IDENTITY_ENGINE.analyzeRegion(source, safe, async (input, psm) => {
+          const engine = await getWorker();
+          await engine.setParameters({ tessedit_pageseg_mode: String(psm), preserve_interword_spaces: "1", tessedit_char_whitelist: "" });
+          const output = await engine.recognize(input);
+          return output;
+        }, { side: field === "localAlliance" ? "local" : "opponent" });
+        return { field, value: identity.text, confidence: identity.confidence, uncertain: identity.uncertain, source: "identity-ocr-and-original-color",
+          colorUncertain: identity.colorUncertain, alternatives: identity.alternatives, normalizedName: identity.normalizedName, richName: identity.richName, symbols: identity.symbols,
+          identityUncertainty: identity.uncertainty, identityDiagnostics: identity.diagnostics, rect: safe,
+          sourcePreview: identity.sourcePreview, preview: identity.preview };
+      }
       image = crop(source, safe, numericField ? 3 : 2, numericField);
       if (!image) throw new Error("Impossible de créer la découpe de ce champ.");
       const sourceCrop = crop(source, safe, 1, false);
       const sourcePreview = sourceCrop?.toDataURL("image/jpeg", .86) || "";
       if (sourceCrop) sourceCrop.width = sourceCrop.height = 1;
-      if (field === "result") { const value = resultColor(image); return { field, value, confidence: null, uncertain: !value, source: "result-band-color-crop", rect: safe, sourcePreview, preview: image.toDataURL("image/jpeg", .86) }; }
+      if (field === "result") {
+        const result = await RESULT_ENGINE.analyze(image, { titleRect: { x: 0, y: 0, width: image.width, height: image.height }, zone: safe,
+          recognize: async (input) => {
+            const engine = await getWorker();
+            await engine.setParameters({ tessedit_pageseg_mode: "7", preserve_interword_spaces: "1", tessedit_char_whitelist: "ACDEFIORTUVY" });
+            return engine.recognize(input);
+          } });
+        return { field, value: result.value || "", confidence: result.confidence, uncertain: result.uncertain, source: result.source,
+          resultDiagnostics: result.diagnostics, rect: safe, sourcePreview, preview: image.toDataURL("image/jpeg", .86) };
+      }
       const engine = await getWorker();
       await engine.setParameters({ tessedit_pageseg_mode: "7", preserve_interword_spaces: "1", tessedit_char_whitelist: numericField ? "0123456789" : "" });
       const output = await engine.recognize(image);
       const raw = String(output.data?.text || "").replace(/\s+/g, " ").trim();
-      const value = numericField ? numericRead(raw) : cleanAlliance(raw, field);
+      const value = numericRead(raw);
       const expectedLength = field.includes("Score") ? 6 : 4;
-      const valid = numericField ? value.length === expectedLength : value.length > 1;
+      const valid = value.length === expectedLength;
       return { field, value: valid ? value : "", confidence: output.data?.confidence ?? null, uncertain: !valid || (output.data?.confidence ?? 0) < 60, source: `${field}-manual-zone-psm7`, raw, rect: safe, sourcePreview, preview: image.toDataURL("image/jpeg", .86) };
     } finally {
       source.close?.();

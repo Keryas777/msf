@@ -205,11 +205,7 @@
     if (!lospRow) return { localAlliance: evidence("", [], "top-header"), opponentAlliance: evidence("", [], "top-header") };
     const losp = lospRow.words.find((w) => toSearchKey(text(w)) === "losp");
     const localParts = lospRow.words.filter((w) => midX(w) > box(losp).x1 - width * 0.006 && midX(w) < width * 0.48 && w !== losp);
-    let localWords = localParts.filter(validWord).sort((a,b)=>midX(a)-midX(b));
-    const knownLocal = ["Zeus", "Dionysos", "Poseidon", "Athena", "Kronos"];
-    const localPool = [...safeWordsFromRows(rows)];
-    const knownHit = localPool.filter((w) => knownLocal.some((name) => toSearchKey(text(w)) === toSearchKey(name)) && midX(w) > width * 0.20 && midX(w) < width * 0.49 && midY(w) < height * 0.24).sort((a,b)=>confidence(b)-confidence(a))[0];
-    if (knownHit) localWords = [knownHit];
+    const localWords = localParts.filter(validWord).sort((a,b)=>midX(a)-midX(b));
     const opponentWords = lospRow.words.filter((w) => midX(w) > width * 0.62 && validWord(w) && /\p{L}/u.test(text(w)));
     const opponentValue = opponentWords.map(text).join(" ");
     const opponentEvidence = evidence(opponentValue, opponentWords, "same-row-right-side");
@@ -219,8 +215,6 @@
       opponentAlliance: opponentEvidence
     };
   }
-
-  function safeWordsFromRows(rows) { return rows.flatMap((row) => row.words); }
 
   function numericField(words, labelRow, width, height, digits, source) {
     if (!labelRow) return evidence("", [], source);

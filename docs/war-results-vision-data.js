@@ -16,9 +16,23 @@
     if (/^\d{6}$/.test(fields.localScore || "") && /^\d{6}$/.test(fields.opponentScore || "") && fields.localScore !== fields.opponentScore && ((Number(fields.localScore) > Number(fields.opponentScore)) !== (fields.result === "win"))) problems.push("result:score_conflict");
     return { valid: problems.length === 0, problems };
   }
+  function cleanRichName(richName, expectedText) {
+    if (richName?.schemaVersion !== 1 || !Array.isArray(richName.segments)) return null;
+    const segments = richName.segments.map((segment) => ({
+      text: String(segment?.text || ""),
+      color: /^#[0-9a-f]{6}$/i.test(String(segment?.color || "")) ? String(segment.color).toLowerCase() : null
+    })).filter((segment) => segment.text);
+    if (!segments.length || segments.map((segment) => segment.text).join("").normalize("NFKC") !== clean(expectedText).normalize("NFKC")) return null;
+    return { schemaVersion: 1, segments };
+  }
   function buildRecord(fields, date, provenance = {}) {
     const validation = validate(fields, date);
     if (!validation.valid) throw new Error(`Fiche invalide : ${validation.problems.join(", ")}`);
+    const alliancePresentation = {
+      localAlliance: cleanRichName(provenance.alliancePresentation?.localAlliance, fields.localAlliance),
+      opponentAlliance: cleanRichName(provenance.alliancePresentation?.opponentAlliance, fields.opponentAlliance)
+    };
+    const hasAlliancePresentation = alliancePresentation.localAlliance || alliancePresentation.opponentAlliance;
     return {
       schemaVersion: "1.0.0",
       status: "validated-locally-not-published",
@@ -32,6 +46,7 @@
       localTrophies: Number(fields.localTrophies),
       opponentTrophies: Number(fields.opponentTrophies),
       result: fields.result,
+      ...(hasAlliancePresentation ? { alliancePresentation } : {}),
       provenance: {
         source: "local-screenshot-ocr",
         sourceFileName: provenance.fileName || null,

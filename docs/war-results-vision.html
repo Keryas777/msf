@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex,nofollow">
   <title>MSF War Results Vision</title>
   <link rel="stylesheet" href="./war-counter-lab.css?v=r7-entry-5">
-  <link rel="stylesheet" href="./war-results-vision.css?v=4">
+  <link rel="stylesheet" href="./war-results-vision.css?v=5">
 </head>
 <body>
   <main class="app-shell">
@@ -43,7 +43,7 @@
       <p class="muted">Ce fichier reste local. Il n’est pas publié et ne modifie aucune archive.</p>
     </section>
     <details class="panel diagnostic-panel">
-      <summary>Diagnostic OCR (mesures de ce navigateur)</summary>
+      <summary>Diagnostic des moteurs (mesures de ce navigateur)</summary>
       <p id="diagnosticText" class="muted">Aucune analyse exécutée.</p>
       <pre id="diagnosticLog"></pre>
       <div class="locator-ab-panel">
@@ -61,13 +61,15 @@
     </details>
     <p class="muted results-footnote">La date de guerre doit être saisie manuellement. Chaque fiche reste à vérifier avant sa validation locale. Aucun envoi, historique officiel ou export automatique.</p>
   </main>
-  <script src="./war-result-recognition-core.js?v=5" defer></script>
+  <script src="./war-result-recognition-core.js?v=6-three-engines" defer></script>
   <script src="./war-results-digit-reader.js?v=0.3.0-icon-aware" defer></script>
   <script src="./war-results-trophy-locator-experiment.js?v=0.6.0-combined" defer></script>
   <script src="./war-results-locator-comparison-store.js?v=1.2.0" defer></script>
-  <script src="./war-results-vision-engine.js?v=5.6-combined-experiment" defer></script>
-  <script src="./war-results-vision-data.js?v=1" defer></script>
-  <script src="./war-results-vision.js?v=4.3-ab-combined" defer></script>
+  <script src="./war-results-identity-engine.js?v=1.0.0" defer></script>
+  <script src="./war-results-result-engine.js?v=1.0.0" defer></script>
+  <script src="./war-results-vision-engine.js?v=6.0-three-engines" defer></script>
+  <script src="./war-results-vision-data.js?v=2-rich-name" defer></script>
+  <script src="./war-results-vision.js?v=4.4-three-engines" defer></script>
 </body>
 </html>
 
