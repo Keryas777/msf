@@ -53,3 +53,20 @@ test("combined-variant diagnostics survive JSON export and keep images out", () 
   assert.equal(adaptive.preview, undefined);
   assert.equal(adaptive.sourcePreview, undefined);
 });
+
+test("laboratory records persist independently by engine, field, variant and margin", () => {
+  const sourceKey = "private-local-image\u001f123\u001f1";
+  const oldAb = [{ sourceKey, marginPercent: 18, variantId: "adaptive", fields: [{ value: "1234" }] }];
+  const records = store.mergeLaboratoryRecords([], [
+    { sourceKey, engine: "numeric", field: "localScore", variantId: "score-proportional", marginPercent: 0, diagnostic: { value: "123456", preview: "data:image/jpeg;base64,private" } },
+    { sourceKey, engine: "numeric", field: "localTrophies", variantId: "vertical-recovery", marginPercent: 18, diagnostic: { value: "1234" } }
+  ]);
+  assert.equal(records.length, 2);
+  assert.notEqual(store.laboratoryRecordKey(records[0]), store.laboratoryRecordKey(records[1]));
+  const replaced = store.mergeLaboratoryRecords(records, [{ ...records[1], diagnostic: { value: "2345" } }]);
+  assert.equal(replaced.length, 2);
+  const exported = JSON.parse(JSON.stringify(store.laboratorySnapshot(replaced)));
+  assert.equal(exported.diagnostic, "local-war-results-recognition-laboratory");
+  assert.equal(exported.records[0].diagnostic.preview, undefined);
+  assert.deepEqual(oldAb[0].fields, [{ value: "1234" }], "existing A/B payload remains separate and unchanged");
+});

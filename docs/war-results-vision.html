@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex,nofollow">
   <title>MSF War Results Vision</title>
   <link rel="stylesheet" href="./war-counter-lab.css?v=r7-entry-5">
-  <link rel="stylesheet" href="./war-results-vision.css?v=5">
+  <link rel="stylesheet" href="./war-results-vision.css?v=6-numeric-lab">
 </head>
 <body>
   <main class="app-shell">
@@ -34,6 +34,27 @@
       <progress id="analysisProgress" max="100" value="0" hidden></progress>
     </section>
 
+    <section class="panel recognition-lab" aria-labelledby="recognitionLabTitle">
+      <div class="section-heading"><div class="section-title"><span class="step">L</span><h2 id="recognitionLabTitle">Laboratoire de reconnaissance</h2></div><span class="status-chip">Traitement local</span></div>
+      <p class="muted">Teste un moteur sans lancer les deux autres. Les images et diagnostics restent dans cet onglet.</p>
+      <label class="lab-engine-label" for="labEngineSelect">Moteur</label>
+      <select id="labEngineSelect" class="lab-engine-select"><option value="identity">Identité</option><option value="numeric" selected>Numérique</option><option value="result">Résultat</option></select>
+      <fieldset class="lab-fieldset"><legend>Champs à reconnaître</legend><div id="laboratoryFields" class="lab-field-options"></div></fieldset>
+      <div id="labNumericOptions" class="lab-options">
+        <label for="labTrophyLocatorSelect">Localisateur des trophées</label>
+        <select id="labTrophyLocatorSelect" class="trophy-margin-select"><option value="adaptive">Adaptatif</option><option value="vertical-recovery">Reprise verticale</option><option value="vertical-recovery-edge-safe">Reprise + marge de bord</option><option value="vertical-recovery-icon-aware">Reprise + exclusion de pictogramme</option><option value="vertical-recovery-combined">Reprise + corrections combinées</option></select>
+        <label for="labTrophyMarginSelect">Marge des glyphes</label>
+        <select id="labTrophyMarginSelect" class="trophy-margin-select"><option value="0">0 %</option><option value="18" selected>18 %</option><option value="30">30 %</option></select>
+        <p class="muted">Le comparateur A/B conserve ses cinq variantes, ses mesures, sa sauvegarde et ses exports dans le panneau de diagnostic plus bas.</p>
+      </div>
+      <button id="runRecognitionLabButton" class="primary-button" type="button" disabled>Lancer le moteur sélectionné</button>
+      <progress id="labProgress" max="100" value="0" hidden></progress>
+      <p id="labStatus" class="analysis-status" role="status" aria-live="polite"></p>
+      <div id="labResults" class="lab-results"></div>
+      <div class="lab-export-actions"><button id="copyLabJsonButton" class="secondary-button" type="button" disabled>Copier les diagnostics</button><button id="exportLabJsonButton" class="secondary-button" type="button" disabled>Télécharger les diagnostics (.json)</button></div>
+      <p class="muted">Pour relancer un champ après interruption, réimporte la capture : les résultats par moteur, champ, variante et marge sont restaurés depuis le stockage temporaire.</p>
+      <a class="lab-diagnostic-link" href="#diagnosticPanel">Ouvrir le comparateur A/B des trophées</a>
+    </section>
     <section id="batchSummary" class="panel batch-summary" hidden aria-live="polite"><strong id="batchSummaryText"></strong></section>
     <div id="captureResults" class="capture-results"></div>
     <section id="validatedSummary" class="panel result-summary" hidden>
@@ -42,7 +63,7 @@
       <button id="exportAllButton" type="button" class="secondary-button">Télécharger le récapitulatif local (.json)</button>
       <p class="muted">Ce fichier reste local. Il n’est pas publié et ne modifie aucune archive.</p>
     </section>
-    <details class="panel diagnostic-panel">
+    <details id="diagnosticPanel" class="panel diagnostic-panel">
       <summary>Diagnostic des moteurs (mesures de ce navigateur)</summary>
       <p id="diagnosticText" class="muted">Aucune analyse exécutée.</p>
       <pre id="diagnosticLog"></pre>
@@ -64,12 +85,12 @@
   <script src="./war-result-recognition-core.js?v=6-three-engines" defer></script>
   <script src="./war-results-digit-reader.js?v=0.3.0-icon-aware" defer></script>
   <script src="./war-results-trophy-locator-experiment.js?v=0.6.0-combined" defer></script>
-  <script src="./war-results-locator-comparison-store.js?v=1.2.0" defer></script>
+  <script src="./war-results-locator-comparison-store.js?v=1.3.0" defer></script>
   <script src="./war-results-identity-engine.js?v=1.0.0" defer></script>
   <script src="./war-results-result-engine.js?v=1.0.0" defer></script>
-  <script src="./war-results-vision-engine.js?v=6.0-three-engines" defer></script>
+  <script src="./war-results-vision-engine.js?v=6.1-numeric-lab" defer></script>
   <script src="./war-results-vision-data.js?v=2-rich-name" defer></script>
-  <script src="./war-results-vision.js?v=4.4-three-engines" defer></script>
+  <script src="./war-results-vision.js?v=4.5-numeric-lab" defer></script>
 </body>
 </html>
 
