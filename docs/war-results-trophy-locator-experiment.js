@@ -1,7 +1,8 @@
-/* Experimental trophy ROI refinement for local MSF war-result images.
- * This module is intentionally not loaded by War Results Vision production.
- * It uses proportional side search bands and the existing color component
- * segmenter; it never reads labels or expected values.
+/* Trophy ROI refinement for local MSF war-result images.
+ * The normal analysis uses adaptive vertical recovery at 18%; the edge-safe
+ * and icon-aware combinations are opt-in variants in the local comparator.
+ * It uses proportional side search bands and color components only, never
+ * alliance labels or expected values.
  */
 (function (root, factory) {
   const api = factory();
@@ -81,6 +82,13 @@
     if (segmented.reason || segmented.bounds?.length !== cfg.glyphCount) {
       return { rect: null, bandRect, reason: segmented.reason || "glyph-count-mismatch", segmented };
     }
+    const excludedLeadingComponents = segmented.excludedLeadingComponents || [];
+    const iconRejection = {
+      requested: cfg.iconAware === true,
+      applied: cfg.iconAware === true && excludedLeadingComponents.length > 0,
+      excludedComponentCount: cfg.iconAware === true ? excludedLeadingComponents.length : 0,
+      reason: cfg.iconAware !== true ? "disabled" : excludedLeadingComponents.length ? "leading-component-penalty-selected-four-glyph-run" : "no-leading-component-excluded"
+    };
     let rect = boundsFromSegments(segmented.bounds, bandRect.x, bandRect.y, imageWidth, imageHeight, cfg.paddingByGlyphHeight, cfg.minimumPaddingPixels);
     if (rect && cfg.iconAware === true && segmented.excludedLeadingComponents?.length) {
       const first = segmented.bounds[0], previous = segmented.excludedLeadingComponents.at(-1);
@@ -93,7 +101,7 @@
       rect = { ...rect, x: safeX, width: Math.max(0, originalRight - safeX) };
     }
     if (!rect || rect.width <= 0 || rect.height <= 0) return { rect: null, bandRect, reason: "empty-refined-rect", segmented };
-    return { rect, bandRect, method: "proportional-side-band+color-components", geometryConfidence: segmented.confidence ?? null, segmented, reason: null };
+    return { rect, bandRect, method: "proportional-side-band+color-components", geometryConfidence: segmented.confidence ?? null, segmented, iconRejection, edgeWarning: segmented.warnings?.includes("glyph-touches-crop-edge") || false, reason: null };
   }
 
   // Search nearby vertical strips only when the original band contains too few
@@ -129,25 +137,33 @@
     const primary = locateBand(readBandImageData(bandRect), bandRect, imageWidth, imageHeight, reader, options);
     const requestedPadding = Number(options.paddingByGlyphHeight ?? DEFAULTS.paddingByGlyphHeight);
     const edgeSafePadding = Number(options.edgeSafePaddingByGlyphHeight);
-    if (!primary.reason && primary.segmented?.warnings?.includes("glyph-touches-crop-edge") &&
-        Number.isFinite(edgeSafePadding) && edgeSafePadding > requestedPadding) {
-      const safe = locateBand(readBandImageData(bandRect), bandRect, imageWidth, imageHeight, reader, {
+    const applyEdgeSafePadding = (located, selectedBand, priorRecovery = null) => {
+      if (located.reason || !located.segmented?.warnings?.includes("glyph-touches-crop-edge") ||
+          !Number.isFinite(edgeSafePadding) || edgeSafePadding <= requestedPadding) return located;
+      const safe = locateBand(readBandImageData(selectedBand), selectedBand, imageWidth, imageHeight, reader, {
         ...options, paddingByGlyphHeight: edgeSafePadding
       });
-      if (!safe.reason) return {
+      if (safe.reason) return located;
+      const edgeSafe = { method: "edge-safe-padding", requestedPaddingByGlyphHeight: requestedPadding, appliedPaddingByGlyphHeight: edgeSafePadding };
+      return {
         ...safe,
-        recovery: { method: "edge-safe-padding", requestedPaddingByGlyphHeight: requestedPadding, appliedPaddingByGlyphHeight: edgeSafePadding },
+        recovery: priorRecovery || edgeSafe,
+        edgeSafePadding: edgeSafe,
+        recoveries: [...(priorRecovery ? [priorRecovery] : []), edgeSafe],
         appliedMarginPercent: edgeSafePadding * 100
       };
-    }
-    if (primary.reason !== "too-few-components") return { ...primary, recovery: null };
+    };
+    const primaryWithSafety = applyEdgeSafePadding(primary, bandRect);
+    if (primary.reason !== "too-few-components") return { ...primaryWithSafety, recovery: primaryWithSafety.recovery || null };
     for (const candidate of verticalSearchBands(imageWidth, imageHeight, verticalRect, side, options)) {
       const recovered = locateBand(readBandImageData(candidate.bandRect), candidate.bandRect, imageWidth, imageHeight, reader, options);
-      if (!recovered.reason && !recovered.segmented?.warnings?.length) {
-        return { ...recovered, recovery: { method: "proportional-vertical-search", offset: candidate.offset, initialReason: primary.reason } };
+      const vertical = { method: "proportional-vertical-search", offset: candidate.offset, initialReason: primary.reason };
+      if (!recovered.reason && (!recovered.segmented?.warnings?.length || (Number.isFinite(edgeSafePadding) && edgeSafePadding > requestedPadding))) {
+        const result = applyEdgeSafePadding(recovered, candidate.bandRect, vertical);
+        if (!result.reason) return { ...result, recovery: result.recovery || vertical };
       }
     }
-    return { ...primary, recovery: null };
+    return { ...primaryWithSafety, recovery: primaryWithSafety.recovery || null };
   }
 
   /**
@@ -173,6 +189,6 @@
     };
   }
 
-  return { version: "0.5.0-experimental", defaults: DEFAULTS, proportionalBand, cropImageData, translateBoundsToSource, locateBand, verticalSearchBands, locateWithVerticalRecovery, locate };
+  return { version: "0.6.0-experimental", defaults: DEFAULTS, proportionalBand, cropImageData, translateBoundsToSource, locateBand, verticalSearchBands, locateWithVerticalRecovery, locate };
 });
 

@@ -40,4 +40,12 @@ if (!engine.includes("translateBoundsToSource(observed.bounds || [], origin)")) 
 if (!engine.includes('trophyLocatorDefault: "adaptive+vertical-recovery"') || !engine.includes('paddingByGlyphHeight: 0.18, minimumPaddingPixels: 2')) throw new Error("Normal analysis must default to adaptive vertical recovery at an 18% glyph margin.");
 if (!engine.includes('method: "manual-override"') || !engine.includes('method: "existing-zone-fallback"')) throw new Error("Manual trophy corrections and existing-zone fallback must remain available.");
 if (!html.includes('<option value="vertical-recovery" selected>')) throw new Error("The comparator should open on the confirmed Safari variant.");
+if (!html.includes('<option value="vertical-recovery-combined">Adaptatif + reprise + corrections combinées</option>')) throw new Error("The combined experimental variant is missing from the official comparator.");
+if (!app.includes('selection === "vertical-recovery-combined" ? "adaptive-vertical-recovery-combined"')) throw new Error("The combined variant must have a stable, distinct identifier.");
+if (!app.includes('variantId === "adaptive-vertical-recovery-combined"') || !app.includes('variantId === "adaptive-vertical-recovery-combined";')) throw new Error("The combined variant must independently enable edge safety and icon-aware segmentation.");
+for (const field of ["initialRect", "finalRect", "requestedMarginPercent", "appliedMarginPercent", "componentsDetected", "edgeWarning", "iconRejection", "verticalRecovery"]) {
+  if (!engine.includes(field)) throw new Error(`Exportable diagnostics are missing ${field}.`);
+}
+if (!engine.includes('trophyLocatorDefault: "adaptive+vertical-recovery"')) throw new Error("The normal OCR default must remain unchanged.");
+if (!engine.includes('edgeSafePaddingByGlyphHeight: 0.3') || !engine.includes('), iconAware };')) throw new Error("The comparator must pass both independent mechanisms to the combined variant.");
 

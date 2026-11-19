@@ -4,7 +4,7 @@
   const CORE = window.WarResultRecognition;
   const TROPHY_LOCATOR = window.WarResultsTrophyLocatorExperiment;
   const DIGIT_READER = window.WarResultsDigitReader;
-  const VERSION = "5.5-adaptive-recovery-default";
+  const VERSION = "5.6-combined-experiment";
   let workerPromise = null;
   let worker = null;
   let activeProgress = () => {};
@@ -394,7 +394,13 @@
             adaptive.appliedMarginPercent = located.appliedMarginPercent ?? marginPercent;
           }
         }
-        results.push({ field: field.key, label: field.label, current, adaptive: { ...adaptive, marginPercent },
+        results.push({ field: field.key, label: field.label, current, adaptive: { ...adaptive, initialRect: originalRect, finalRect: adaptive.rect || null,
+          requestedMarginPercent: marginPercent, marginPercent, appliedMarginPercent: adaptive.appliedMarginPercent ?? marginPercent,
+          componentsDetected: adaptive.segmentation?.componentCount ?? adaptive.segmentation?.components?.length ?? adaptive.componentsDetected ?? null,
+          edgeWarning: adaptive.segmentation?.edgeWarning ?? adaptive.segmentation?.warnings?.includes("glyph-touches-crop-edge") ?? adaptive.edgeWarning ?? false,
+          iconRejection: adaptive.segmentation?.iconRejection || adaptive.iconRejection || { requested: iconAware, applied: false, excludedComponentCount: 0, reason: iconAware ? "segmentation-unavailable" : "disabled" },
+          verticalRecovery: adaptive.recoveries?.find((step) => step.method === "proportional-vertical-search") || (adaptive.recovery?.method === "proportional-vertical-search" ? adaptive.recovery : null),
+          edgeSafePadding: adaptive.edgeSafePadding || adaptive.recoveries?.find((step) => step.method === "edge-safe-padding") || null },
           rectDelta: current.rect && adaptive.rect ? {
             x: adaptive.rect.x - current.rect.x, y: adaptive.rect.y - current.rect.y,
             width: adaptive.rect.width - current.rect.width, height: adaptive.rect.height - current.rect.height
@@ -424,8 +430,12 @@
     const observed = segmentation || DIGIT_READER.segment(original.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, original.width, original.height), "trophy", 4);
     const origin = segmentationOrigin || rect;
     const glyphRects = TROPHY_LOCATOR.translateBoundsToSource(observed.bounds || [], origin);
-    const segmentationSummary = { glyphs: observed.glyphs?.length || 0, reason: observed.reason || null,
-      warnings: observed.warnings || [], componentBounds: observed.bounds || [], glyphRects };
+    const excluded = observed.excludedLeadingComponents || [];
+    const segmentationSummary = { glyphs: observed.glyphs?.length || 0, componentCount: observed.components?.length ?? null, reason: observed.reason || null,
+      warnings: observed.warnings || [], edgeWarning: observed.warnings?.includes("glyph-touches-crop-edge") || false,
+      iconRejection: { requested: Array.isArray(observed.excludedLeadingComponents), applied: excluded.length > 0, excludedComponentCount: excluded.length,
+        reason: !Array.isArray(observed.excludedLeadingComponents) ? "disabled" : excluded.length ? "leading-component-penalty-selected-four-glyph-run" : "no-leading-component-excluded" },
+      excludedLeadingBounds: TROPHY_LOCATOR.translateBoundsToSource(excluded, origin), componentBounds: observed.bounds || [], glyphRects };
     original.width = original.height = 1;
     try {
       const output = await run(`comparison-${variant}-${field}-psm7`, prepared, 7, "0123456789");
