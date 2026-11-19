@@ -52,14 +52,40 @@ rect(outlined, 8, 7, 52, 15, [255, 105, 125, 255]);
 const outlinedRead = identity.colorSegments("Shade", outlined, [word("Shade", 4, 56)]);
 assert.match(outlinedRead.segments[0].color, /^#[0-9a-f]{6}$/i, "a bright outline and darker shadow still produce a color sample");
 
+const shaded = image(60, 22);
+[[2, 16, [240, 240, 245, 255]], [16, 30, [246, 246, 250, 255]], [30, 44, [250, 250, 254, 255]], [44, 58, [244, 244, 249, 255]]].forEach(([x0, x1, color]) => rect(shaded, x0, 4, x1, 18, color));
+const shadedRead = identity.colorSegments("ABCD", shaded, [word("ABCD", 2, 58)]);
+assert.equal(shadedRead.segments.length, 1, "nearby antialias shades are consolidated into one monochrome run");
+assert.equal(shadedRead.segments[0].text, "ABCD", "color consolidation keeps the recognized characters");
+
+const gradient = image(60, 22);
+[[2, 16, [240, 240, 245, 255]], [16, 30, [250, 250, 254, 255]], [30, 44, [225, 225, 230, 255]], [44, 58, [195, 195, 200, 255]]].forEach(([x0, x1, color]) => rect(gradient, x0, 4, x1, 18, color));
+const gradientRead = identity.colorSegments("WXYZ", gradient, [word("WXYZ", 2, 58)]);
+assert.ok(gradientRead.segments.length > 1, "a wide color drift is not collapsed by chaining nearby shades");
+
 const ambiguous = identity.arbitrateReads(
-  { data: { text: "C0dεx", confidence: 38 } },
+  { data: { text: "C0dεx", confidence: 50 } },
   { data: { text: "Codex", confidence: 72 } },
   "opponent"
 );
 assert.equal(ambiguous.text, "", "contradictory ambiguous characters are not silently rewritten");
 assert.equal(ambiguous.uncertain, true);
 assert.deepEqual(ambiguous.alternatives, ["C0dεx", "Codex"]);
+const clearlyPreferred = identity.arbitrateReads(
+  { data: { text: "ALPHABBET", confidence: 1 } },
+  { data: { text: "ALPHABET", confidence: 52 } },
+  "opponent"
+);
+assert.equal(clearlyPreferred.text, "ALPHABET", "a substantially stronger alternative resolves the text proposal");
+assert.equal(clearlyPreferred.uncertain, true, "resolved conflicts remain marked for manual review");
+assert.deepEqual(clearlyPreferred.alternatives, ["ALPHABBET", "ALPHABET"], "the competing readings remain available");
+const missingConfidence = identity.arbitrateReads(
+  { data: { text: "ALPHABBET" } },
+  { data: { text: "ALPHABET", confidence: 90 } },
+  "opponent"
+);
+assert.equal(missingConfidence.text, "", "a missing confidence score cannot create a false confidence margin");
+assert.equal(missingConfidence.uncertain, true);
 const partial = identity.arbitrateReads({ data: { text: "Orion", confidence: 41 } }, null, "opponent");
 assert.equal(partial.text, "Orion");
 assert.equal(partial.uncertain, true, "low-confidence partial text remains available for correction but marked uncertain");
