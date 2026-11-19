@@ -36,10 +36,29 @@
     return { schemaVersion: "1.1.0", diagnostic: "local-tesseractjs-trophy-locator-ab", updatedAt, records: clean(records || []) };
   }
 
+  function laboratoryRecordKey(record) {
+    return [record.sourceKey, record.engine, record.field, record.variantId || "default", Number(record.marginPercent ?? 18)].join("\u001f");
+  }
+
+  function mergeLaboratoryRecords(records, incoming) {
+    const merged = [...(Array.isArray(records) ? records : [])];
+    for (const item of Array.isArray(incoming) ? incoming : []) {
+      if (!item?.sourceKey || !item?.engine || !item?.field) continue;
+      const index = merged.findIndex((record) => laboratoryRecordKey(record) === laboratoryRecordKey(item));
+      if (index < 0) merged.push(clean(item));
+      else merged[index] = clean(item);
+    }
+    return merged;
+  }
+
+  function laboratorySnapshot(records, updatedAt = new Date().toISOString()) {
+    return { schemaVersion: "1.0.0", diagnostic: "local-war-results-recognition-laboratory", updatedAt, records: clean(records || []) };
+  }
+
   function stringify(records, updatedAt) {
     return JSON.stringify(snapshot(records, updatedAt), null, 2);
   }
 
-  return { fileKey, recordKey, mergeRecords, snapshot, stringify };
+  return { fileKey, recordKey, mergeRecords, snapshot, stringify, laboratoryRecordKey, mergeLaboratoryRecords, laboratorySnapshot };
 });
 

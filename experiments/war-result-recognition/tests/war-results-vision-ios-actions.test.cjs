@@ -19,9 +19,11 @@ const makeFieldData = () => {
 function makeApp(saved = []) {
   const handlers = {};
   const elements = new Map();
-  for (const selector of ['#captureInput','#captureResults','#analyzeButton','#analysisStatus','#analysisProgress','#batchBadge','#validatedSummary','#validatedList','#batchSummary','#batchSummaryText','#clearButton','#exportAllButton','#diagnosticText','#diagnosticLog','#compareTrophyLocatorsButton','#trophyMarginSelect','#trophyRecoverySelect','#locatorCompareStatus','#locatorComparisonResults','#exportLocatorComparisonButton','#copyLocatorComparisonButton','#clearLocatorComparisonButton']) {
+  for (const selector of ['#captureInput','#captureResults','#analyzeButton','#analysisStatus','#analysisProgress','#batchBadge','#validatedSummary','#validatedList','#batchSummary','#batchSummaryText','#clearButton','#exportAllButton','#diagnosticText','#diagnosticLog','#compareTrophyLocatorsButton','#trophyMarginSelect','#trophyRecoverySelect','#locatorCompareStatus','#locatorComparisonResults','#exportLocatorComparisonButton','#copyLocatorComparisonButton','#clearLocatorComparisonButton','#labEngineSelect','#laboratoryFields','#labResults','#labStatus','#labProgress','#runRecognitionLabButton','#copyLabJsonButton','#exportLabJsonButton','#labNumericOptions','#labTrophyMarginSelect','#labTrophyLocatorSelect']) {
     elements.set(selector, { addEventListener(type, fn) { handlers[`${selector}:${type}`] = fn; }, dataset:{}, disabled:false, value:'', innerHTML:'', childElementCount:0, classList:{add(){},remove(){}}, querySelector(){return {textContent:'',checked:false};} });
   }
+  elements.get('#labEngineSelect').value='numeric';
+  elements.get('#laboratoryFields').querySelectorAll=()=>[];
   const list = elements.get('#captureResults');
   let html = '';
   Object.defineProperty(list,'innerHTML',{get(){return html;},set(v){html=v;}});
