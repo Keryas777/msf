@@ -1,0 +1,31 @@
+name: Validate alliance ranking locator
+
+on:
+  pull_request:
+    paths:
+      - "docs/alliance-ranking-geometry.js"
+      - "docs/alliance-ranking-locator*"
+      - "docs/sw.js"
+      - "docs/audits/alliance-ranking-geometry-benchmark-*.md"
+      - "tests/alliance-ranking-geometry.test.mjs"
+      - ".github/workflows/test-alliance-ranking-locator.yml"
+  push:
+    branches: [main]
+    paths:
+      - "docs/alliance-ranking-geometry.js"
+      - "docs/alliance-ranking-locator*"
+      - "docs/sw.js"
+      - "docs/audits/alliance-ranking-geometry-benchmark-*.md"
+      - "tests/alliance-ranking-geometry.test.mjs"
+      - ".github/workflows/test-alliance-ranking-locator.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/alliance-ranking-geometry.test.mjs
+      - run: node --check docs/alliance-ranking-geometry.js && node --check docs/alliance-ranking-locator.js && node --check docs/sw.js
