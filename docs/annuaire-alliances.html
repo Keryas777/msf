@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#08101d" />
+  <title>Annuaire des alliances — LoSP</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./annuaire-alliances.css?v=1" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+</head>
+<body class="allianceDirectoryPage">
+  <main class="directoryShell">
+    <header class="directoryHeader">
+      <a class="directoryBack" href="./war-choose.html" aria-label="Retour au menu Guerre">‹</a>
+      <div><p class="directoryEyebrow">RÉFÉRENTIEL COMMUN</p><h1>Annuaire des alliances</h1></div>
+    </header>
+    <section class="directorySearch" aria-label="Recherche d’alliance">
+      <label for="allianceQuery">Rechercher un nom ou un alias</label>
+      <input id="allianceQuery" type="search" autocomplete="off" enterkeyhint="search" placeholder="Ex. MARINES, Omega Protocol…" />
+      <p id="directoryStatus" class="directoryStatus" role="status">Chargement de l’annuaire…</p>
+    </section>
+    <section id="directoryResults" class="directoryResults" aria-label="Alliances"></section>
+    <dialog id="allianceDetail" class="directoryDialog">
+      <form method="dialog"><button class="dialogClose" aria-label="Fermer">×</button></form>
+      <div id="detailRichName" class="detailRichName"></div>
+      <p id="detailSimpleName" class="detailSimpleName"></p>
+      <dl id="detailFacts" class="detailFacts"></dl>
+      <p id="detailStatus" class="detailStatus"></p>
+      <div id="detailAliases" class="detailAliases"></div>
+      <div id="detailSources" class="detailSources"></div>
+    </dialog>
+  </main>
+  <script type="module" src="./annuaire-alliances-page.js?v=1"></script>
+</body>
+</html>
