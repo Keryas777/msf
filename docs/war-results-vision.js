@@ -4,6 +4,7 @@
   const input = $("#captureInput"), list = $("#captureResults"), analyzeButton = $("#analyzeButton");
   const compareLocatorsButton = $("#compareTrophyLocatorsButton");
   const trophyMarginSelect = $("#trophyMarginSelect");
+  const trophyRecoverySelect = $("#trophyRecoverySelect");
   const locatorCompareStatus = $("#locatorCompareStatus");
   const locatorComparisonResults = $("#locatorComparisonResults");
   const exportLocatorComparisonButton = $("#exportLocatorComparisonButton");
@@ -212,8 +213,11 @@
 
   async function compareTrophyLocators() {
     if (analyzing) return;
-        const marginPercent = [0, 18, 30].includes(Number(trophyMarginSelect?.value)) ? Number(trophyMarginSelect.value) : 18;
-    const batch = records.filter((record) => record.file && !locatorComparisonSummary.some((item) => item.fields?.length && item.sourceKey === (record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file)) && Number(item.marginPercent ?? 18) === marginPercent));
+    const marginPercent = [0, 18, 30].includes(Number(trophyMarginSelect?.value)) ? Number(trophyMarginSelect.value) : 18;
+    const variantId = trophyRecoverySelect?.value === "vertical-recovery" ? "adaptive-vertical-recovery" : "adaptive";
+    const variantLabel = variantId === "adaptive-vertical-recovery" ? "Adaptatif + reprise verticale" : "Adaptatif sans reprise";
+    const verticalRecovery = variantId === "adaptive-vertical-recovery";
+    const batch = records.filter((record) => record.file && !locatorComparisonSummary.some((item) => item.fields?.length && item.sourceKey === (record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file)) && Number(item.marginPercent ?? 18) === marginPercent && (item.variantId || "adaptive") === variantId));
     if (!batch.length) {
       locatorCompareStatus.textContent = records.some((record) => record.file)
         ? "Toutes les captures chargées disposent déjà d’un résultat conservé. Aucune image n’a été retraitée."
@@ -229,19 +233,19 @@
         try {
           const result = await WarResultsVisionEngine.compareTrophyLocators(record.file, (message) => {
             if (message.status) locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} : ${record.fileName} — ${message.status}`;
-          }, { marginPercent });
-          const summary = { file: record.fileName, sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), marginPercent, metrics: result.metrics,
+          }, { marginPercent, verticalRecovery });
+          const summary = { file: record.fileName, sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), marginPercent, variantId, variantLabel, metrics: result.metrics,
             fields: (result.fields || []).map(({ field, label, current, adaptive, rectDelta }) => ({ field, label, current: { ...current, preview: undefined }, adaptive: { ...adaptive, preview: undefined }, rectDelta })) };
           locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords(locatorComparisonSummary, [summary]);
           saveLocatorComparison();
-          locatorComparisonResults.insertAdjacentHTML("beforeend", locatorComparisonHtml(record.fileName, result));
+          locatorComparisonResults.insertAdjacentHTML("beforeend", locatorComparisonHtml(record.fileName, { ...result, variantLabel }));
           locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} terminée : ${record.fileName}, marge ${marginPercent} % (${result.metrics.totalMs} ms).`;
         } catch (error) {
           const message = errorMessage(error);
-          const failed = { file: record.fileName, sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), marginPercent, error: message };
+          const failed = { file: record.fileName, sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), marginPercent, variantId, variantLabel, error: message };
           locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords(locatorComparisonSummary, [failed]);
           saveLocatorComparison();
-          locatorComparisonResults.insertAdjacentHTML("beforeend", `<article class="locator-comparison-card is-error"><h3>${escapeHtml(record.fileName)}</h3><p>Erreur du diagnostic : ${escapeHtml(message)}</p></article>`);
+          locatorComparisonResults.insertAdjacentHTML("beforeend", `<article class="locator-comparison-card is-error"><h3>${escapeHtml(record.fileName)} · ${escapeHtml(variantLabel)} · marge ${marginPercent} %</h3><p>Erreur du diagnostic : ${escapeHtml(message)}</p></article>`);
         }
         updateLocatorComparisonButtons();
       }
@@ -290,10 +294,10 @@
       }
       for (const item of locatorComparisonSummary) {
         if (item.fields?.length) {
-          const report = { fields: item.fields, metrics: item.metrics || {} };
+          const report = { fields: item.fields, metrics: item.metrics || {}, variantLabel: item.variantLabel || "Adaptatif sans reprise" };
           locatorComparisonResults.insertAdjacentHTML("beforeend", locatorComparisonHtml(item.file, report));
         } else if (item.error) {
-          locatorComparisonResults.insertAdjacentHTML("beforeend", `<article class="locator-comparison-card is-error"><h3>${escapeHtml(item.file || "Capture")}</h3><p>Erreur du diagnostic : ${escapeHtml(item.error)}</p></article>`);
+          locatorComparisonResults.insertAdjacentHTML("beforeend", `<article class="locator-comparison-card is-error"><h3>${escapeHtml(item.file || "Capture")} · ${escapeHtml(item.variantLabel || "Adaptatif sans reprise")} · marge ${Number(item.marginPercent ?? 18)} %</h3><p>Erreur du diagnostic : ${escapeHtml(item.error)}</p></article>`);
         }
       }
       if (locatorComparisonSummary.length) locatorCompareStatus.textContent = `${locatorComparisonSummary.length} résultat(s) A/B restauré(s) depuis le stockage temporaire de cette session. Réimporte les captures pour reprendre sans retraiter celles-ci.`;
@@ -331,7 +335,7 @@
       ...(field.adaptive?.segmentation?.glyphRects || []).map((glyph, index) => `<rect class="locator-glyph-adaptive" x="${glyph.x}" y="${glyph.y}" width="${glyph.width}" height="${glyph.height}"><title>${escapeHtml(field.label)} — glyphe adaptatif ${index + 1}</title></rect>`)
     ].filter(Boolean).join("")).join("")}</g></svg></div><p class="locator-legend"><span>Bleu : rectangle actuel</span><span>Orange : rectangle adaptatif</span><span>Turquoise : glyphes actuels</span><span>Vert : glyphes adaptatifs</span></p>` : `<p class="muted">Capture source non restaurée. Les images restent uniquement dans l’onglet actif; le JSON ne contient que les mesures.</p>`;
     const fieldsHtml = (result.fields || []).map((field) => `<section class="locator-comparison-card"><h3>${escapeHtml(field.label)}</h3><p>Écart de rectangle (adaptatif − actuel) : ${escapeHtml(field.rectDelta ? JSON.stringify(field.rectDelta) : "non calculé")}</p><div class="locator-comparison-pair">${variantHtml(field.current, "Localisateur actuel")}${variantHtml(field.adaptive, "Localisateur adaptatif expérimental")}</div></section>`).join("");
-    return `<article class="locator-comparison-card"><h3>${escapeHtml(fileName)} — marge adaptative ${Number(result.fields?.[0]?.adaptive?.marginPercent ?? result.marginPercent ?? 18)} %</h3><p>${escapeHtml(metrics.engine || "Tesseract.js")} · total ${Number(metrics.totalMs) || 0} ms · chargement moteur ${Number(metrics.workerLoadMs) || 0} ms · ${Number(metrics.dimensions?.width) || 0}×${Number(metrics.dimensions?.height) || 0} px</p><p>Ancrages : ${escapeHtml(JSON.stringify(metrics.anchorsFound || {}))} · disposition : ${escapeHtml(metrics.layout || "inconnue")}</p>${overlay}${fieldsHtml}<details><summary>Temps des appels Tesseract</summary><pre>${escapeHtml(JSON.stringify(metrics.calls || [], null, 2))}</pre></details></article>`;
+    return `<article class="locator-comparison-card"><h3>${escapeHtml(fileName)} — ${escapeHtml(result.variantLabel || "Adaptatif sans reprise")} — marge ${Number(result.fields?.[0]?.adaptive?.marginPercent ?? result.marginPercent ?? 18)} %</h3><p>${escapeHtml(metrics.engine || "Tesseract.js")} · total ${Number(metrics.totalMs) || 0} ms · chargement moteur ${Number(metrics.workerLoadMs) || 0} ms · ${Number(metrics.dimensions?.width) || 0}×${Number(metrics.dimensions?.height) || 0} px</p><p>Ancrages : ${escapeHtml(JSON.stringify(metrics.anchorsFound || {}))} · disposition : ${escapeHtml(metrics.layout || "inconnue")}</p>${overlay}${fieldsHtml}<details><summary>Temps des appels Tesseract</summary><pre>${escapeHtml(JSON.stringify(metrics.calls || [], null, 2))}</pre></details></article>`;
   }
 
   function onAction(event) {

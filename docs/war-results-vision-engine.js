@@ -285,6 +285,7 @@
   // OCR parameters and source image; it does not replace the production zones.
   async function compareTrophyLocators(file, onProgress = () => {}, options = {}) {
     const marginPercent = [0, 18, 30].includes(Number(options.marginPercent)) ? Number(options.marginPercent) : 18;
+    const verticalRecovery = options.verticalRecovery === true;
     const locatorOptions = { paddingByGlyphHeight: marginPercent / 100, minimumPaddingPixels: marginPercent === 0 ? 0 : 2 };
     if (!CORE || !TROPHY_LOCATOR || !DIGIT_READER) throw new Error("Les modules de diagnostic des zones trophées ne sont pas chargés.");
     activeProgress = onProgress;
@@ -332,7 +333,12 @@
             try { return bandCanvas.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, bandCanvas.width, bandCanvas.height); }
             finally { bandCanvas.width = bandCanvas.height = 1; }
           };
-          const located = TROPHY_LOCATOR.locateWithVerticalRecovery(readBandImageData, source.width, source.height, yBand, field.side, DIGIT_READER, locatorOptions);
+          const primaryBand = TROPHY_LOCATOR.proportionalBand(source.width, source.height, yBand, field.side, locatorOptions);
+          const located = verticalRecovery
+            ? TROPHY_LOCATOR.locateWithVerticalRecovery(readBandImageData, source.width, source.height, yBand, field.side, DIGIT_READER, locatorOptions)
+            : primaryBand
+              ? TROPHY_LOCATOR.locateBand(readBandImageData(primaryBand), primaryBand, source.width, source.height, DIGIT_READER, locatorOptions)
+              : { rect: null, reason: "invalid-search-band", recovery: null };
           if (located.reason) adaptive = { rect: null, value: "", raw: "", confidence: null, ms: null, reason: located.reason, preview: "", segmentation: located.segmented || null, recovery: located.recovery || null };
           else {
             adaptive = await readTrophyVariant(source, located.rect, field.key, "proportionnel+composantes", run, callTimings, located.segmented, located.bandRect, marginPercent);
@@ -353,7 +359,7 @@
         totalMs: Math.round(performance.now() - totalStart), calls: callMetrics,
         dimensions: { width: source.width, height: source.height }, analyzedCanvas: { width: analysisCanvas.width, height: analysisCanvas.height },
         layout: localized.zones.layout, anchorsFound: localized.anchorsFound,
-        OCRParams: { fullPsm: 6, sparsePsm: 11, fieldPsm: 7, whitelist: "0123456789", sourceCropScale: 3, grayscaleContrast: 1.7, adaptiveMarginPercent: marginPercent } } };
+        OCRParams: { fullPsm: 6, sparsePsm: 11, fieldPsm: 7, whitelist: "0123456789", sourceCropScale: 3, grayscaleContrast: 1.7, adaptiveMarginPercent: marginPercent, verticalRecovery } } };
     } finally {
       source.close?.();
       if (analysisCanvas) analysisCanvas.width = analysisCanvas.height = 1;

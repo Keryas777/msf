@@ -18,13 +18,13 @@
       .map(([key, item]) => [key, clean(item)]));
   }
 
-  function recordKey(record) { return `${record.sourceKey}\u001fmargin:${Number(record.marginPercent ?? 18)}`; }
+  function recordKey(record) { return `${record.sourceKey}\u001fmargin:${Number(record.marginPercent ?? 18)}\u001fvariant:${record.variantId || "adaptive"}`; }
 
   function mergeRecords(records, incoming) {
     const merged = [...(Array.isArray(records) ? records : [])];
     for (const record of Array.isArray(incoming) ? incoming : []) {
       if (!record?.sourceKey) continue;
-      const normalized = { ...record, marginPercent: Number(record.marginPercent ?? 18) };
+      const normalized = { ...record, marginPercent: Number(record.marginPercent ?? 18), variantId: record.variantId || "adaptive" };
       const index = merged.findIndex((item) => recordKey(item) === recordKey(normalized));
       if (index < 0) merged.push(clean(normalized));
       else merged[index] = clean(normalized);
