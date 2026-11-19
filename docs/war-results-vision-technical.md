@@ -1,20 +1,31 @@
-# War Results Vision — phase 5
+# War Results Vision — trois moteurs spécialisés
 
-Page autonome : `war-results-vision.html`. Elle réutilise `war-counter-lab.css` (base UI War Counter Vision) et ajoute uniquement les styles des champs de résultat dans `war-results-vision.css`. Aucun lien de navigation, workflow de publication, archive ni écriture distante n’est ajouté.
+La page reste statique et traite chaque capture sur l’appareil. La capture décodée est la source commune; les moteurs reçoivent chacun leurs propres zones et leurs propres images de travail.
 
-## Traitement
+## Moteur numérique
 
-- `war-result-recognition-core.js` reste la source commune d’extraction, d’arbitrage prudent et de validation OCR.
-- `war-results-vision-engine.js` charge Tesseract.js 5 uniquement au lancement, utilise un worker pendant une file séquentielle, puis le termine. Les deux lectures PSM 6/11 sont comparées; les désaccords restent vides avec propositions à examiner.
-- L’image source reste disponible pendant la tâche. La lecture générale est bornée à 10 millions de pixels; les zones numériques et l’alliance adverse sont recadrées depuis la source native lorsqu’une lecture est absente ou incertaine.
-- Les ressources Tesseract et le modèle anglais sont servis par CDN statiques existants. L’OCR s’exécute localement, mais le premier chargement nécessite une connexion et ne constitue pas un fonctionnement initial hors ligne.
-- `war-results-vision.js` gère les fichiers, les fiches isolées, corrections, date manuelle, récapitulatif et export local après confirmation. Les images ne sont jamais placées dans `sessionStorage`; seuls les brouillons textuels/diagnostics le sont.
-- `war-results-vision-data.js` valide les huit champs et produit le schéma local versionné. La clé adversaire est un outil de recherche, sans fusion ni rapprochement automatique.
+Le lecteur des scores et trophées, ses prétraitements, les localisateurs, la reprise verticale à 18 % et les cinq variantes du comparateur A/B restent inchangés. Les zones numériques sont toujours découpées depuis la capture et les quatre champs numériques gardent leur whitelist de chiffres.
 
-## Diagnostic et mesure
+## Moteur Identité
 
-Le panneau diagnostic affiche les temps de chargement du worker, appels OCR et traitement par image depuis `performance.now()`, les dimensions, méthodes, zones d’ancrage, taille du fichier et les propositions. Ce panneau ne contient aucune vérité terrain; les neuf anciennes captures ont déjà servi au réglage. Aucun résultat 55/62 n’est présenté comme une mesure de cette page.
+`war-results-identity-engine.js` lit séparément chaque nom dans un recadrage couleur tiré de la capture originale. Il utilise Tesseract.js 5 déjà chargé par la page, sans whitelist, d’abord en PSM 11 puis en PSM 7 seulement si la première lecture est vide ou sous 35 % de confiance. Les lectures qui se contredisent restent incertaines. Aucun nom d’alliance n’est imposé à partir d’une liste.
 
-## Limitations de validation
+Le nom métier reste du texte Unicode. Le diagnostic contient la clé de recherche normalisée, les symboles lus, les incertitudes et les estimations de couleur. Les segments utilisent le format compatible avec `richName` v1 de Renseignements de guerre (`schemaVersion: 1`, `segments: [{ text, color }]`); cette page ne charge pas ce module et n’en dépend pas. L’export garde les champs texte actuels et ajoute `alliancePresentation` seulement lorsque les segments correspondent exactement au texte exporté.
 
-La compatibilité fonctionnelle sur iOS Safari, Android Chrome et navigateur Discord n’a pas été vérifiée sur appareils réels. L’exécution navigateur avec Tesseract.js doit être mesurée depuis une URL HTTPS accessible. Les tests Node du modèle de données ne remplacent pas ce test. La validation locale demeure manuelle et aucune publication officielle n’est possible depuis cette page.
+Les couleurs sont estimées par caractère à partir des pixels RGB lumineux autour des boîtes OCR. Le découpage s’appuie sur les boîtes de mots puis répartit approximativement chaque mot en caractères : il ne s’agit pas d’une segmentation typographique exacte. Tesseract utilise toujours son modèle anglais existant; les polices stylisées et les symboles décoratifs ne sont donc pas garantis. La page ne remplace jamais un symbole illisible par un caractère supposé.
+
+## Moteur Résultat
+
+`war-results-result-engine.js` compte les pixels bleus et rouges dans la zone du titre, puis examine ses trois sous-zones seulement si le signal principal est faible. Une décision couleur exige au moins quatre pixels qualifiés, une part dominante d’au moins 68 % et un écart d’au moins 35 points. Bleu signifie victoire; rouge signifie défaite. Une bande voisine peut confirmer le titre. Une contradiction persistante produit un résultat vide et incertain.
+
+Tesseract ne relit le titre qu’en dernier recours, si les couleurs restent ambiguës sans contradiction. Il cherche uniquement un libellé « VICTOIRE », « DÉFAITE », « VICTORY » ou « DEFEAT ». Les diagnostics détaillent la zone, les comptes et ratios, les sous-zones, la décision, la confiance, le rattrapage OCR et la durée.
+
+## Interface, données et validation
+
+Les champs conservés par le formulaire restent des chaînes simples; les corrections manuelles gardent la priorité et masquent l’aperçu coloré automatique du nom corrigé. Les diagnostics spécialisés sont dans le panneau replié. Les recadrages restent en mémoire de page et ne sont pas écrits dans les exports de mesures.
+
+Les tests automatisés utilisent des pixels synthétiques. Ils couvrent les couleurs monochromes et multiples, accents, symboles, ponctuation, ombres, texte incertain, victoire, défaite, bruit, ambiguïté et contradiction. Ils ne mesurent pas l’exactitude sur des captures réelles. Tesseract.js et son modèle anglais continuent d’être servis par les CDN déjà utilisés; un premier chargement hors ligne n’est pas garanti.
+
+Mesures reproductibles de cette version sur données synthétiques : les cinq chaînes de texte fournies au reconstructeur (`Kronos`, `LoSP Dionysos`, `Étoile`, `Nova ⚔`, `St@n-Lee’s`) sont conservées à l’identique; le symbole `⚔` est conservé (1/1); les deux aplats multicolores retrouvent exactement leur couleur source (2/2). Ces résultats vérifient la restitution après OCR, pas l’exactitude de Tesseract sur une capture réelle. Dans Node v24.22.3, sur 420 000 pixels synthétiques (1400 × 300), après 5 échauffements et 31 mesures : la segmentation couleur Identité a une médiane de 58,855 ms et un p90 de 74,637 ms; la classification couleur Résultat, 7,492 ms et 9,688 ms. Ces mesures CPU synthétiques excluent l’OCR et le rendu Canvas et ne prédisent pas les performances sur iPhone. Les diagnostics enregistrent la durée d’analyse de chaque moteur dans le navigateur.
+
+Safari iOS, Chrome Android et le navigateur Discord doivent encore être vérifiés sur appareils réels avec des captures autorisées. Pour valider sur iPhone : ouvrir l’URL HTTPS de la page, sélectionner une capture dont l’usage local est autorisé, lancer l’analyse, vérifier les deux noms et leurs couleurs, vérifier victoire/défaite, puis corriger chaque champ ambigu et confirmer qu’une nouvelle lecture ne remplace pas une correction manuelle.

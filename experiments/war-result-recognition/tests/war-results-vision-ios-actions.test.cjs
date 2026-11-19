@@ -5,16 +5,22 @@ const vm = require('node:vm');
 const dataContext = { module: { exports: {} } };
 vm.runInNewContext(fs.readFileSync(path.resolve(__dirname, '../../../docs/war-results-vision-data.js'), 'utf8'), dataContext);
 const data = dataContext.module.exports;
+require('../../../docs/war-results-locator-comparison-store.js');
+const locatorStore = globalThis.WarResultsLocatorComparisonStore;
 const appSource = fs.readFileSync(path.resolve(__dirname, '../../../docs/war-results-vision.js'), 'utf8');
 const keys = ['localAlliance','opponentAlliance','localScore','opponentScore','localTrophies','opponentTrophies','result'];
 const validValues = {localAlliance:'LoSP Kronos',opponentAlliance:'Opponent',localScore:'500000',opponentScore:'400000',localTrophies:'2750',opponentTrophies:'2650',result:'win'};
-const makeFieldData = () => Object.fromEntries(keys.map(key => [key,{value:validValues[key],uncertain:false,confidence:90,source:'test',alternatives:[]} ]));
+const makeFieldData = () => {
+  const fields = Object.fromEntries(keys.map(key => [key,{value:validValues[key],uncertain:false,confidence:90,source:'test',alternatives:[]} ]));
+  fields.localAlliance.richName = {schemaVersion:1,segments:[{text:'LoSP ',color:'#f5f5fa'},{text:'Kronos',color:'#8f6aff'}]};
+  return fields;
+};
 
 function makeApp(saved = []) {
   const handlers = {};
   const elements = new Map();
-  for (const selector of ['#captureInput','#captureResults','#analyzeButton','#analysisStatus','#analysisProgress','#batchBadge','#validatedSummary','#validatedList','#batchSummary','#batchSummaryText','#clearButton','#exportAllButton','#diagnosticText','#diagnosticLog']) {
-    elements.set(selector, { addEventListener(type, fn) { handlers[`${selector}:${type}`] = fn; }, dataset:{}, classList:{add(){},remove(){}}, querySelector(){return {textContent:'',checked:false};} });
+  for (const selector of ['#captureInput','#captureResults','#analyzeButton','#analysisStatus','#analysisProgress','#batchBadge','#validatedSummary','#validatedList','#batchSummary','#batchSummaryText','#clearButton','#exportAllButton','#diagnosticText','#diagnosticLog','#compareTrophyLocatorsButton','#trophyMarginSelect','#trophyRecoverySelect','#locatorCompareStatus','#locatorComparisonResults','#exportLocatorComparisonButton','#copyLocatorComparisonButton','#clearLocatorComparisonButton']) {
+    elements.set(selector, { addEventListener(type, fn) { handlers[`${selector}:${type}`] = fn; }, dataset:{}, disabled:false, value:'', innerHTML:'', childElementCount:0, classList:{add(){},remove(){}}, querySelector(){return {textContent:'',checked:false};} });
   }
   const list = elements.get('#captureResults');
   let html = '';
@@ -34,7 +40,7 @@ function makeApp(saved = []) {
     async analyze(file){engineCalls.push(file.name);return {fields:makeFieldData(),warnings:[],rawText:'test OCR',metrics:{calls:[],methods:['mock']}};},
     async release(){}
   };
-  const context=vm.createContext({window:win,WarResultsVisionData:data,WarResultsVisionEngine:win.WarResultsVisionEngine,document:doc,sessionStorage:storage,crypto:{randomUUID:()=>`capture-${engineCalls.length+1}`},URL:{createObjectURL:()=>`blob:${engineCalls.length}`,revokeObjectURL(){}},Blob,performance:{now:()=>1},confirm:()=>true,setTimeout:()=>{},console,Math,Date});
+  const context=vm.createContext({window:win,WarResultsVisionData:data,WarResultsVisionEngine:win.WarResultsVisionEngine,WarResultsLocatorComparisonStore:locatorStore,document:doc,sessionStorage:storage,crypto:{randomUUID:()=>`capture-${engineCalls.length+1}`},URL:{createObjectURL:()=>`blob:${engineCalls.length}`,revokeObjectURL(){}},Blob,performance:{now:()=>1},confirm:()=>true,setTimeout:()=>{},console,Math,Date});
   vm.runInContext(appSource,context);
   return {handlers,elements,list,status,progress,storage,engineCalls,clicks,setFiles(files){inputFiles=files;},data};
 }
@@ -73,6 +79,15 @@ function click(app, action, id='capture-1') {
   const draft={fileName:'review.png',state:'review',output:null,values:validValues,fields:makeFieldData(),date:'2026-11-12',corrected:[],analysis:null,rawText:'',warnings:[]};
   const review=makeApp([draft]);
   const id='capture-1';
+  assert.match(review.list.innerHTML,/identity-color-preview/,'an uncorrected name can display its recognized color segments');
+  let richPreviewRemoved=false;
+  const confirmControl={checked:true};
+  const fieldState={textContent:''};
+  const wrapper={classList:{add(){},remove(){}},querySelector(selector){return selector==='.identity-color-preview'?{remove(){richPreviewRemoved=true;}}:fieldState;}};
+  const resultCard={querySelector(){return confirmControl;}};
+  const nameInput={dataset:{id,field:'localAlliance'},value:'Corrected Kronos',closest(selector){return selector==='.result-field'?wrapper:resultCard;}};
+  review.handlers['#captureResults:input']({target:nameInput});
+  assert.equal(richPreviewRemoved,true,'manual name editing immediately removes stale automatic colors');
   review.handlers['#captureResults:change']({target:{dataset:{confirm:id},checked:true}});
   click(review,'validate',id);
   assert.match(review.list.innerHTML,/Validée localement/,'validation action uses the matching capture id');
