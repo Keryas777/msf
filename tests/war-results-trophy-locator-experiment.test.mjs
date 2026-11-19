@@ -113,6 +113,70 @@ test("icon-aware variant skips an oversized leading trophy icon and keeps a narr
   }
 });
 
+test("combined refinement rejects a leading icon and enlarges only when the retained glyphs touch the band edge", () => {
+  const width = 400, height = 120;
+  const data = new Uint8ClampedArray(width * height * 4);
+  const color = [218, 210, 202, 255];
+  for (const [x, w, h, top] of [[5, 81, 74, 4], [89, 64, 70, 8], [158, 58, 70, 8], [221, 63, 71, 7], [289, 36, 71, 7]]) {
+    for (let y = top; y < top + h; y++) for (let px = x; px < x + w; px++) data.set(color, (y * width + px) * 4);
+  }
+  const image = { width, height, data };
+  const result = locator.locateWithVerticalRecovery(
+    (rect) => locator.cropImageData(image, rect), width, height,
+    { x: 0, y: 0, width: 1, height }, "left", reader,
+    { leftBand: [0, 325 / width], iconAware: true, paddingByGlyphHeight: .18, minimumPaddingPixels: 2, edgeSafePaddingByGlyphHeight: .3 }
+  );
+  assert.equal(result.reason, null);
+  assert.equal(result.iconRejection.applied, true);
+  assert.equal(result.iconRejection.excludedComponentCount, 1);
+  assert.deepEqual(result.segmented.bounds.map((glyph) => glyph.x), [89, 158, 221, 289]);
+  assert.deepEqual(result.segmented.warnings, ["glyph-touches-crop-edge"]);
+  assert.equal(result.edgeSafePadding.appliedPaddingByGlyphHeight, .3);
+  assert.equal(result.appliedMarginPercent, 30);
+  assert.equal(result.recoveries.length, 1, "the margin must be applied once");
+  assert.ok(result.rect.x + result.rect.width > 325, "the final crop uses the selected digits and adds edge margin");
+});
+
+test("combined options leave a clean four-glyph run unchanged when neither condition is present", () => {
+  const image = syntheticImage(1);
+  const band = { x: 96, y: 160, width: 456, height: 60 };
+  const result = locator.locateWithVerticalRecovery((rect) => locator.cropImageData(image, rect), image.width, image.height,
+    { x: 0, y: band.y, width: 1, height: band.height }, "left", reader,
+    { iconAware: true, paddingByGlyphHeight: .18, minimumPaddingPixels: 2, edgeSafePaddingByGlyphHeight: .3 });
+  assert.equal(result.reason, null);
+  assert.equal(result.iconRejection.applied, false);
+  assert.equal(result.edgeSafePadding, undefined);
+  assert.equal(result.recovery, null);
+  assert.deepEqual(result.rect, { x: 214, y: 164, width: 109, height: 44 });
+});
+
+test("combined refinement keeps incomplete segmentation as a failure for the existing fallback", () => {
+  const image = syntheticImage(1, { x: 0, y: 0 }, 3);
+  const result = locator.locateWithVerticalRecovery((rect) => locator.cropImageData(image, rect), image.width, image.height,
+    { x: 0, y: 160, width: 1, height: 60 }, "left", reader,
+    { iconAware: true, paddingByGlyphHeight: .18, minimumPaddingPixels: 2, edgeSafePaddingByGlyphHeight: .3 });
+  assert.equal(result.rect, null);
+  assert.ok(result.reason);
+});
+
+test("combined conditions are applied after vertical recovery to the recovered glyph run", () => {
+  const width = 400, height = 240;
+  const data = new Uint8ClampedArray(width * height * 4);
+  const color = [218, 210, 202, 255];
+  for (const [x, w, h, top] of [[5, 81, 74, 44], [89, 64, 70, 48], [158, 58, 70, 48], [221, 63, 71, 47], [289, 36, 71, 47]]) {
+    for (let y = top; y < top + h; y++) for (let px = x; px < x + w; px++) data.set(color, (y * width + px) * 4);
+  }
+  const image = { width, height, data };
+  const result = locator.locateWithVerticalRecovery((rect) => locator.cropImageData(image, rect), width, height,
+    { x: 0, y: 140, width: 1, height: 100 }, "left", reader,
+    { leftBand: [0, 325 / width], iconAware: true, paddingByGlyphHeight: .18, minimumPaddingPixels: 2, edgeSafePaddingByGlyphHeight: .3 });
+  assert.equal(result.reason, null);
+  assert.equal(result.recovery.method, "proportional-vertical-search");
+  assert.equal(result.edgeSafePadding.appliedPaddingByGlyphHeight, .3);
+  assert.equal(result.iconRejection.applied, true);
+  assert.deepEqual(result.recoveries.map((item) => item.method), ["proportional-vertical-search", "edge-safe-padding"]);
+});
+
 test("invalid sides and vertical bands are rejected", () => {
   assert.equal(locator.proportionalBand(1200, 400, { x: 0, y: 2, width: 5, height: 50 }, "center"), null);
   assert.equal(locator.proportionalBand(1200, 400, { x: 0, y: 2, width: 5, height: 0 }, "left"), null);

@@ -10,14 +10,16 @@ test("comparison storage keeps margin and experimental locator variants separate
     { sourceKey, marginPercent: 18, variantId: "adaptive-vertical-recovery", fields: [{ value: "1235" }] },
     { sourceKey, marginPercent: 18, variantId: "adaptive-vertical-recovery-edge-safe", fields: [{ value: "1234" }] },
     { sourceKey, marginPercent: 18, variantId: "adaptive-vertical-recovery-icon-aware", fields: [{ value: "1236" }] },
+    { sourceKey, marginPercent: 18, variantId: "adaptive-vertical-recovery-combined", fields: [{ value: "1234" }] },
     { sourceKey, marginPercent: 30, variantId: "adaptive-vertical-recovery", fields: [{ value: "1234" }] }
   ]);
-  assert.equal(records.length, 5);
+  assert.equal(records.length, 6);
   assert.deepEqual(records.map(store.recordKey), [
     `${sourceKey}\u001fmargin:18\u001fvariant:adaptive`,
     `${sourceKey}\u001fmargin:18\u001fvariant:adaptive-vertical-recovery`,
     `${sourceKey}\u001fmargin:18\u001fvariant:adaptive-vertical-recovery-edge-safe`,
     `${sourceKey}\u001fmargin:18\u001fvariant:adaptive-vertical-recovery-icon-aware`,
+    `${sourceKey}\u001fmargin:18\u001fvariant:adaptive-vertical-recovery-combined`,
     `${sourceKey}\u001fmargin:30\u001fvariant:adaptive-vertical-recovery`
   ]);
 });
@@ -29,4 +31,25 @@ test("legacy comparisons migrate to the no-recovery variant and remain replaceab
   const updated = store.mergeRecords(migrated, [{ sourceKey, marginPercent: 18, fields: [{ value: "1235" }] }]);
   assert.equal(updated.length, 1);
   assert.equal(updated[0].fields[0].value, "1235");
+});
+
+test("combined-variant diagnostics survive JSON export and keep images out", () => {
+  const sourceKey = "synthetic-combined-image\u001f123\u001f1";
+  const record = store.mergeRecords([], [{ sourceKey, marginPercent: 18, variantId: "adaptive-vertical-recovery-combined", fields: [{ adaptive: {
+    initialRect: { x: 1, y: 2, width: 30, height: 12 }, finalRect: { x: 3, y: 2, width: 31, height: 15 },
+    requestedMarginPercent: 18, appliedMarginPercent: 30, componentsDetected: 5, edgeWarning: true,
+    iconRejection: { requested: true, applied: true, excludedComponentCount: 1, reason: "synthetic geometry" },
+    verticalRecovery: { method: "proportional-vertical-search", offset: -.375 },
+    raw: "2791", value: "2791", confidence: 87, ms: 14,
+    preview: "data:image/jpeg;base64,synthetic", sourcePreview: "data:image/jpeg;base64,synthetic"
+  } }] }]);
+  const exported = JSON.parse(store.stringify(record));
+  const adaptive = exported.records[0].fields[0].adaptive;
+  assert.equal(exported.records[0].variantId, "adaptive-vertical-recovery-combined");
+  assert.equal(adaptive.iconRejection.applied, true);
+  assert.equal(adaptive.appliedMarginPercent, 30);
+  assert.equal(adaptive.verticalRecovery.method, "proportional-vertical-search");
+  assert.equal(adaptive.raw, "2791");
+  assert.equal(adaptive.preview, undefined);
+  assert.equal(adaptive.sourcePreview, undefined);
 });
