@@ -18,4 +18,13 @@ assert.equal(payload.warDate, '2026-11-01');
 assert.equal(payload.opponentAllianceOriginal, "St@n Lee’s Misfits");
 assert.equal(payload.localAllianceId, null);
 assert.equal(payload.provenance.publication, 'none');
+assert.equal(payload.localAllianceName, 'LoSP Kronos', 'classic alliance field remains a plain string');
+const richPayload = buildRecord(valid, '2026-11-01', { alliancePresentation: {
+  localAlliance: { schemaVersion: 1, segments: [{ text: 'LoSP ', color: '#f5f5fa' }, { text: 'Kronos', color: '#8f6aff' }] },
+  opponentAlliance: { schemaVersion: 1, segments: [{ text: 'Wrong text', color: '#ff0000' }] }
+} });
+assert.deepEqual(JSON.parse(JSON.stringify(richPayload.alliancePresentation)), {
+  localAlliance: { schemaVersion: 1, segments: [{ text: 'LoSP ', color: '#f5f5fa' }, { text: 'Kronos', color: '#8f6aff' }] },
+  opponentAlliance: null
+}, 'optional richName v1 presentation is separate from the classic text and mismatched text is rejected');
 console.log('war results vision data tests: ok');
