@@ -83,6 +83,36 @@ test("coherent trophy glyph run excludes separate icon and bracketed change", ()
   assert.equal(result.rect.x + result.rect.width, 323);
 });
 
+test("icon-aware variant skips an oversized leading trophy icon and keeps a narrow final digit", () => {
+  for (const scale of [1, 2]) {
+    const width = 360 * scale, height = 100 * scale;
+    const data = new Uint8ClampedArray(width * height * 4);
+    const color = [218, 210, 202, 255];
+    // Generic icon + four glyphs. The final glyph is intentionally narrow,
+    // matching the common geometry of a trailing "1" without encoding a value.
+    for (const [x, w, h, top] of [[5, 81, 74, 4], [89, 64, 70, 8], [158, 58, 70, 8], [221, 63, 71, 7], [289, 36, 71, 7]]) {
+      for (let y = top * scale; y < (top + h) * scale; y++) {
+        for (let px = x * scale; px < (x + w) * scale; px++) data.set(color, (y * width + px) * 4);
+      }
+    }
+    const imageData = { width, height, data };
+    const existing = reader.segment(imageData, "trophy", 4);
+    assert.deepEqual(existing.bounds.map((glyph) => glyph.x / scale), [5, 89, 158, 221]);
+    const segmented = reader.segment(imageData, "trophy", 4, { iconAware: true });
+    assert.equal(segmented.reason, null);
+    assert.deepEqual(segmented.bounds.map((glyph) => glyph.x / scale), [89, 158, 221, 289]);
+    assert.equal(segmented.bounds.at(-1).width / scale, 36);
+    assert.ok(segmented.metrics.leadingWidthRatio < 1.18);
+    assert.equal(segmented.excludedLeadingComponents.length, 1);
+    const refined = locator.locateBand(imageData, { x: 0, y: 0, width, height }, width, height, reader, {
+      iconAware: true, paddingByGlyphHeight: 0.18, minimumPaddingPixels: 2
+    });
+    assert.equal(refined.reason, null);
+    assert.ok(refined.rect.x / scale >= 86, "left margin must stop after the discarded icon");
+    assert.ok(refined.rect.x + refined.rect.width >= 325 * scale, "right edge must preserve the narrow final digit");
+  }
+});
+
 test("invalid sides and vertical bands are rejected", () => {
   assert.equal(locator.proportionalBand(1200, 400, { x: 0, y: 2, width: 5, height: 50 }, "center"), null);
   assert.equal(locator.proportionalBand(1200, 400, { x: 0, y: 2, width: 5, height: 0 }, "left"), null);

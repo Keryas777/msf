@@ -215,10 +215,11 @@
     if (analyzing) return;
     const marginPercent = [0, 18, 30].includes(Number(trophyMarginSelect?.value)) ? Number(trophyMarginSelect.value) : 18;
     const selection = trophyRecoverySelect?.value;
-    const variantId = selection === "vertical-recovery-edge-safe" ? "adaptive-vertical-recovery-edge-safe" : selection === "vertical-recovery" ? "adaptive-vertical-recovery" : "adaptive";
-    const variantLabel = variantId === "adaptive-vertical-recovery-edge-safe" ? "Adaptatif + reprise + marge bord" : variantId === "adaptive-vertical-recovery" ? "Adaptatif + reprise verticale" : "Adaptatif sans reprise";
+    const variantId = selection === "vertical-recovery-icon-aware" ? "adaptive-vertical-recovery-icon-aware" : selection === "vertical-recovery-edge-safe" ? "adaptive-vertical-recovery-edge-safe" : selection === "vertical-recovery" ? "adaptive-vertical-recovery" : "adaptive";
+    const variantLabel = variantId === "adaptive-vertical-recovery-icon-aware" ? "Adaptatif + reprise + rejet d’icône" : variantId === "adaptive-vertical-recovery-edge-safe" ? "Adaptatif + reprise + marge bord" : variantId === "adaptive-vertical-recovery" ? "Adaptatif + reprise verticale" : "Adaptatif sans reprise";
     const verticalRecovery = variantId !== "adaptive";
     const edgeSafePadding = variantId === "adaptive-vertical-recovery-edge-safe";
+    const iconAware = variantId === "adaptive-vertical-recovery-icon-aware";
     const batch = records.filter((record) => record.file && !locatorComparisonSummary.some((item) => item.fields?.length && item.sourceKey === (record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file)) && Number(item.marginPercent ?? 18) === marginPercent && (item.variantId || "adaptive") === variantId));
     if (!batch.length) {
       locatorCompareStatus.textContent = records.some((record) => record.file)
@@ -235,7 +236,7 @@
         try {
           const result = await WarResultsVisionEngine.compareTrophyLocators(record.file, (message) => {
             if (message.status) locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} : ${record.fileName} — ${message.status}`;
-          }, { marginPercent, verticalRecovery, edgeSafePadding });
+          }, { marginPercent, verticalRecovery, edgeSafePadding, iconAware });
           const summary = { file: record.fileName, sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), marginPercent, variantId, variantLabel, metrics: result.metrics,
             fields: (result.fields || []).map(({ field, label, current, adaptive, rectDelta }) => ({ field, label, current: { ...current, preview: undefined }, adaptive: { ...adaptive, preview: undefined }, rectDelta })) };
           locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords(locatorComparisonSummary, [summary]);

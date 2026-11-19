@@ -4,7 +4,7 @@
   const CORE = window.WarResultRecognition;
   const TROPHY_LOCATOR = window.WarResultsTrophyLocatorExperiment;
   const DIGIT_READER = window.WarResultsDigitReader;
-  const VERSION = "5.1-local";
+  const VERSION = "5.2-icon-aware-experiment";
   let workerPromise = null;
   let worker = null;
   let activeProgress = () => {};
@@ -287,8 +287,9 @@
     const marginPercent = [0, 18, 30].includes(Number(options.marginPercent)) ? Number(options.marginPercent) : 18;
     const verticalRecovery = options.verticalRecovery === true;
     const edgeSafePadding = options.edgeSafePadding === true;
+    const iconAware = options.iconAware === true;
     const locatorOptions = { paddingByGlyphHeight: marginPercent / 100, minimumPaddingPixels: marginPercent === 0 ? 0 : 2,
-      ...(edgeSafePadding ? { edgeSafePaddingByGlyphHeight: 0.3 } : {}) };
+      ...(edgeSafePadding ? { edgeSafePaddingByGlyphHeight: 0.3 } : {}), iconAware };
     if (!CORE || !TROPHY_LOCATOR || !DIGIT_READER) throw new Error("Les modules de diagnostic des zones trophées ne sont pas chargés.");
     activeProgress = onProgress;
     const totalStart = performance.now();
@@ -362,7 +363,7 @@
         totalMs: Math.round(performance.now() - totalStart), calls: callMetrics,
         dimensions: { width: source.width, height: source.height }, analyzedCanvas: { width: analysisCanvas.width, height: analysisCanvas.height },
         layout: localized.zones.layout, anchorsFound: localized.anchorsFound,
-        OCRParams: { fullPsm: 6, sparsePsm: 11, fieldPsm: 7, whitelist: "0123456789", sourceCropScale: 3, grayscaleContrast: 1.7, adaptiveMarginPercent: marginPercent, verticalRecovery, edgeSafePadding } } };
+        OCRParams: { fullPsm: 6, sparsePsm: 11, fieldPsm: 7, whitelist: "0123456789", sourceCropScale: 3, grayscaleContrast: 1.7, adaptiveMarginPercent: marginPercent, verticalRecovery, edgeSafePadding, iconAware } } };
     } finally {
       source.close?.();
       if (analysisCanvas) analysisCanvas.width = analysisCanvas.height = 1;

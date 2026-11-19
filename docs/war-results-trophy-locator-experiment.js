@@ -77,11 +77,21 @@
     const cfg = { ...DEFAULTS, ...options };
     if (!reader || typeof reader.segment !== "function") return { rect: null, reason: "segmenter-unavailable" };
     if (!bandImageData?.width || !bandImageData?.height || !bandRect || !Number.isFinite(bandRect.x) || !Number.isFinite(bandRect.y)) return { rect: null, reason: "invalid-search-band" };
-    const segmented = reader.segment(bandImageData, "trophy", cfg.glyphCount);
+    const segmented = reader.segment(bandImageData, "trophy", cfg.glyphCount, { iconAware: cfg.iconAware === true });
     if (segmented.reason || segmented.bounds?.length !== cfg.glyphCount) {
       return { rect: null, bandRect, reason: segmented.reason || "glyph-count-mismatch", segmented };
     }
-    const rect = boundsFromSegments(segmented.bounds, bandRect.x, bandRect.y, imageWidth, imageHeight, cfg.paddingByGlyphHeight, cfg.minimumPaddingPixels);
+    let rect = boundsFromSegments(segmented.bounds, bandRect.x, bandRect.y, imageWidth, imageHeight, cfg.paddingByGlyphHeight, cfg.minimumPaddingPixels);
+    if (rect && cfg.iconAware === true && segmented.excludedLeadingComponents?.length) {
+      const first = segmented.bounds[0], previous = segmented.excludedLeadingComponents.at(-1);
+      const glyphHeight = segmented.bounds.map((box) => box.height).sort((a, b) => a - b)[Math.floor(segmented.bounds.length / 2)];
+      const desiredPadding = Math.max(cfg.minimumPaddingPixels, Math.ceil(glyphHeight * cfg.paddingByGlyphHeight));
+      const availableGap = Math.max(0, first.x - (previous.x + previous.width));
+      const leftPadding = Math.min(desiredPadding, availableGap);
+      const safeX = Math.max(0, Math.floor(bandRect.x + first.x - leftPadding));
+      const originalRight = rect.x + rect.width;
+      rect = { ...rect, x: safeX, width: Math.max(0, originalRight - safeX) };
+    }
     if (!rect || rect.width <= 0 || rect.height <= 0) return { rect: null, bandRect, reason: "empty-refined-rect", segmented };
     return { rect, bandRect, method: "proportional-side-band+color-components", geometryConfidence: segmented.confidence ?? null, segmented, reason: null };
   }

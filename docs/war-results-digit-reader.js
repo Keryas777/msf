@@ -74,7 +74,7 @@
    * boundaries come from actual color-mask connectivity; they are not evenly
    * divided. Enumerating runs lets the icon/bracket/noise in a crop be rejected.
    */
-  function segment(imageData, category, count) {
+  function segment(imageData, category, count, options = {}) {
     const {width,height}=imageData||{};
     if(!width||!height||!Number.isInteger(count)||count<1)return {glyphs:[],reason:"invalid-input",components:[]};
     const mask=foreground(imageData,category),rawComponents=components(mask,width,height),all=splitWideComponents(mask,width,rawComponents);
@@ -98,11 +98,18 @@
       const gaps=[];for(let i=1;i<run.length;i++)gaps.push(run[i].x-(run[i-1].x+run[i-1].width));
       const gapVar=gaps.length?gaps.reduce((s,g)=>s+Math.abs(g-median(gaps))/Math.max(1,hmed),0)/gaps.length:0;
       const totalArea=areas.reduce((s,a)=>s+a,0),areaPerHeight=totalArea/(count*hmed*hmed);
-      // Penalize implausible width, inconsistent baselines, and irregular runs;
-      // prefer dense, tall components without imposing a fixed glyph width.
+      // A decorative icon immediately before a number can have the same height
+      // and color as its digits. Its silhouette is often wider than the numeral
+      // run that follows. Compare only the first component with the remaining
+      // glyph widths so a narrow final "1" does not distort this cue.
+      const trailingMedianWidth=median(run.slice(1).map(c=>c.width));
+      const leadingWidthRatio=run[0].width/Math.max(1,trailingMedianWidth);
+      const leadingWidthPenalty=options.iconAware===true?Math.max(0,leadingWidthRatio-1.18):0;
+      // Penalize implausible width, inconsistent baselines, irregular runs,
+      // and icon-like leading components; no fixed image coordinates or values.
       const widthPenalty=Math.max(0,.5-perChar,perChar-1.55);
-      const score=2.2*hVar+1.8*baseline+1.0*topVar+.5*gapVar+.45*widthPenalty-.12*Math.log1p(totalArea)-.38*Math.min(areaPerHeight,1.8);
-      if(!best||score<best.score)best={run,score,confidence:Math.max(0,Math.min(1,1-score)),metrics:{heightVariation:hVar,baselineVariation:baseline,spacingVariation:gapVar,meanWidthRatio:perChar}};
+      const score=2.2*hVar+1.8*baseline+1.0*topVar+.5*gapVar+.45*widthPenalty+1.5*leadingWidthPenalty-.12*Math.log1p(totalArea)-.38*Math.min(areaPerHeight,1.8);
+      if(!best||score<best.score)best={run,start,score,confidence:Math.max(0,Math.min(1,1-score)),metrics:{heightVariation:hVar,baselineVariation:baseline,spacingVariation:gapVar,meanWidthRatio:perChar,leadingWidthRatio}};
     }
     if(!best||best.confidence<.24)return {glyphs:[],reason:"ambiguous-component-run",confidence:best?.confidence??0,components:all,candidates};
     const glyphs=best.run.map(c=>{
@@ -111,8 +118,9 @@
       return {bitmap:normalize(cell,c.width,c.height),rect:{x:c.x,y:c.y,width:c.width,height:c.height},area:c.area};
     });
     const bounds=best.run.map(c=>({x:c.x,y:c.y,width:c.width,height:c.height,area:c.area}));
+    const excludedLeadingComponents=options.iconAware===true?candidates.slice(0,best.start).map(({x,y,width,height,area})=>({x,y,width,height,area})):[];
     const warnings=bounds.some(b=>b.x===0||b.y===0||b.x+b.width>=width||b.y+b.height>=height)?["glyph-touches-crop-edge"]:[];
-    return {glyphs,reason:null,warnings,confidence:best.confidence,metrics:best.metrics,components:all,candidates,bounds};
+    return {glyphs,reason:null,warnings,confidence:best.confidence,metrics:best.metrics,components:all,candidates,bounds,excludedLeadingComponents};
   }
 
   function similarity(a,b){
@@ -147,5 +155,5 @@
     if(minMargin<marginMin)return {value:null,reason:"ambiguous-glyph",minScore,minMargin,digits,segmentation:segmented};
     return {value:digits.map(d=>d.digit).join(""),reason:null,minScore,minMargin,digits,segmentation:segmented};
   }
-  return {version:"0.2.0-experimental",foreground,components,segment,classify};
+  return {version:"0.3.0-experimental",foreground,components,segment,classify};
 });
