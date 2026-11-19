@@ -49,6 +49,16 @@
     return "#" + [r, g, b].map((part) => Math.max(0, Math.min(255, Math.round(part))).toString(16).padStart(2, "0")).join("");
   }
 
+  function rgbDistance(first, second) {
+    if (!first || !second) return Infinity;
+    return Math.hypot(first[0] - second[0], first[1] - second[1], first[2] - second[2]);
+  }
+
+  function parseHexColor(value) {
+    const match = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(String(value || ""));
+    return match ? match.slice(1).map((part) => parseInt(part, 16)) : null;
+  }
+
   function dominantColor(imageData, bounds) {
     const width = Number(imageData?.width) || 0, height = Number(imageData?.height) || 0, data = imageData?.data;
     if (!width || !height || !data) return { color: null, confidence: 0, samples: 0 };
@@ -143,10 +153,18 @@
     const segments = [];
     for (const item of items) {
       const prior = segments[segments.length - 1];
-      if (prior && prior.color === item.color && prior.uncertain === !item.color) {
+      const rgb = parseHexColor(item.color);
+      const priorRgb = prior && parseHexColor(prior.color);
+      if (prior && ((!rgb && !priorRgb) || (rgb && priorRgb && rgbDistance(prior.anchorRgb, rgb) <= 20))) {
         prior.text += item.text; prior.end = item.end; prior.confidence = Math.min(prior.confidence, Number(item.confidence) || 0); prior.colorConfidence = Math.min(prior.colorConfidence, Number(item.colorConfidence) || 0);
-      } else segments.push({ text: item.text, color: item.color, start: item.start, end: item.end, confidence: Number(item.confidence) || 0, colorConfidence: Number(item.colorConfidence) || 0, uncertain: !item.color });
+        if (rgb) {
+          prior.colorSamples.push(rgb);
+          const mean = prior.colorSamples.reduce((sum, sample) => [sum[0] + sample[0], sum[1] + sample[1], sum[2] + sample[2]], [0, 0, 0]).map((part) => part / prior.colorSamples.length);
+          prior.color = hexColor(...mean);
+        }
+      } else segments.push({ text: item.text, color: item.color, start: item.start, end: item.end, confidence: Number(item.confidence) || 0, colorConfidence: Number(item.colorConfidence) || 0, uncertain: !item.color, anchorRgb: rgb, colorSamples: rgb ? [rgb] : [] });
     }
+    for (const segment of segments) { delete segment.anchorRgb; delete segment.colorSamples; }
     const symbols = items.flatMap((item) => /\p{S}/u.test(item.text) ? [{ text: item.text, index: item.start, recognized: true, confidence: Number.isFinite(item.confidence) ? item.confidence : null }] : []);
     return { segments, symbols, colorCoverage: items.length ? coverage / items.length : 0 };
   }
@@ -168,9 +186,16 @@
     const firstConfidence = confidenceOf(primary), secondConfidence = confidenceOf(fallback);
     const firstGood = Boolean(firstText), secondGood = Boolean(secondText);
     const conflict = firstGood && secondGood && normalizedRead(firstText) !== normalizedRead(secondText);
-    const text = conflict ? "" : firstGood && (!secondGood || (firstConfidence ?? 0) >= (secondConfidence ?? 0)) ? firstText : secondText;
-    const confidence = text === firstText ? firstConfidence : secondConfidence;
-    return { text, confidence, conflict, alternatives: conflict ? [...new Set([firstText, secondText])] : [], chosenResult: text === firstText ? primary : fallback || primary,
+    // A clear confidence margin can resolve an OCR disagreement without discarding
+    // the alternatives. Keep the result uncertain so the user can still review it.
+    const margin = 30;
+    const text = conflict
+      ? firstConfidence != null && secondConfidence != null && Math.abs(firstConfidence - secondConfidence) >= margin
+        ? (firstConfidence ?? 0) > (secondConfidence ?? 0) ? firstText : secondText
+        : ""
+      : firstGood && (!secondGood || (firstConfidence ?? 0) >= (secondConfidence ?? 0)) ? firstText : secondText;
+    const confidence = text ? (text === firstText ? firstConfidence : secondConfidence) : null;
+    return { text, confidence, conflict, alternatives: conflict ? [...new Set([firstText, secondText])] : [], chosenResult: text ? (text === firstText ? primary : fallback || primary) : null,
       uncertain: !text || conflict || confidence == null || confidence < 55 };
   }
 
