@@ -4,8 +4,29 @@ export function normalizeAllianceName(value) {
   return String(value ?? "")
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
+    // A few commonly used Latin/Greek/Cyrillic lookalikes occur in stylized
+    // alliance names. Fold them for lookup while keeping the displayed text intact.
+    .replace(/[øØœŒæÆßłŁđĐðÐþÞΛλЯяΙιІіΠπΣσςΩωАаВвЕеКкМмНнОоРрСсТтХхУу]/g, character => ({
+      ø: "o", Ø: "o", œ: "oe", Œ: "oe", æ: "ae", Æ: "ae", ß: "ss", ł: "l", Ł: "l",
+      đ: "d", Đ: "d", ð: "d", Ð: "d", þ: "th", Þ: "th",
+      Λ: "a", λ: "a", Я: "r", я: "r", Ι: "i", ι: "i", І: "i", і: "i",
+      Π: "p", π: "p", Σ: "s", σ: "s", ς: "s", Ω: "o", ω: "o",
+      А: "a", а: "a", В: "b", в: "b", Е: "e", е: "e", К: "k", к: "k",
+      М: "m", м: "m", Н: "h", н: "h", О: "o", о: "o", Р: "p", р: "p",
+      С: "c", с: "c", Т: "t", т: "t", Х: "x", х: "x", У: "y", у: "y"
+    })[character] || character)
     .toLocaleLowerCase("fr")
     .replace(/[^a-z0-9]+/g, "");
+}
+
+function nameTerms(alliance) {
+  const values = [
+    alliance.name,
+    ...(alliance.aliases || []).map(item => typeof item === "string" ? item : item?.name),
+    ...(alliance.previousNames || []).map(item => typeof item === "string" ? item : item?.name),
+    (alliance.richName?.segments || []).map(segment => segment?.text).join("")
+  ];
+  return values.filter(value => typeof value === "string" && value.trim());
 }
 
 export function validateDirectory(payload) {
@@ -70,7 +91,7 @@ export function createDirectoryIndex(payload) {
   const byId = new Map(payload.alliances.map(alliance => [alliance.allianceId, alliance]));
   const byName = new Map();
   for (const alliance of payload.alliances) {
-    for (const value of [alliance.name, ...(alliance.aliases || []).map(item => typeof item === "string" ? item : item?.name), ...(alliance.previousNames || []).map(item => typeof item === "string" ? item : item?.name)]) {
+    for (const value of nameTerms(alliance)) {
       const key = normalizeAllianceName(value);
       if (!key) continue;
       const matches = byName.get(key) || [];
@@ -101,8 +122,7 @@ export function searchAll(index, query, { limit = 100 } = {}) {
   const exact = index.byName.get(needle);
   if (exact?.length) return exact.slice(0, limit);
   return rows.filter(alliance => {
-    const values = [alliance.searchName, ...(alliance.aliases || []).map(value => typeof value === "string" ? value : value?.name), ...(alliance.previousNames || []).map(value => typeof value === "string" ? value : value?.name)];
-    return values.some(value => normalizeAllianceName(value).includes(needle));
+    return nameTerms(alliance).some(value => normalizeAllianceName(value).includes(needle));
   }).slice(0, limit);
 }
 

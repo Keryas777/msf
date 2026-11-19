@@ -31,6 +31,8 @@ test("imports 28 unique alliance identities with a non-empty independent ID", ()
   ]);
   assert.ok(directory.alliances.every(item => item.observations[0]?.observedAt === null));
   assert.ok(directory.alliances.every(item => !("rank" in item.observations[0].source) && !("row" in item.observations[0].source) && !("captureOrder" in item.observations[0].source)));
+  assert.ok(directory.alliances.every(item => item.observations.every(observation => !("captureFile" in (observation.source || {})))));
+  assert.ok(directory.alliances.every(item => item.officialAllianceId === null));
 });
 
 test("keeps verified existing War Intelligence IDs without duplicating those records", () => {
@@ -53,6 +55,9 @@ test("preserves Unicode, colored segments and the separation of rich and simple 
   assert.ok(voidAlliance.richName.segments.map(segment => segment.text).join("").includes("Vøid"));
   assert.ok(voidAlliance.richName.segments.every(segment => /^#[0-9a-f]{6}$/i.test(segment.color)));
   assert.equal(findByName(index, "SOVEREIGN REIGN").richName.segments.length, 1);
+  assert.equal(searchAll(index, "Lords of the Vøid")[0]?.name, "Lords of the Void");
+  assert.equal(searchAll(index, "MΛЯΙΠΣ")[0]?.name, "MARINES");
+  assert.equal(searchAll(index, "+:.Green STAR*.:+")[0]?.name, "Green STAR");
 });
 
 test("search ignores case, accents, punctuation and known aliases", () => {
@@ -62,6 +67,7 @@ test("search ignores case, accents, punctuation and known aliases", () => {
   assert.equal(findByAlias(index, "DA Galaxy Rangers")?.name, "Galaxy Rangers");
   assert.equal(searchAll(index, "mephistos demons")[0]?.name, "Mephisto’s Demons");
   assert.equal(findByName(index, "legion")?.name, "LEGION");
+  assert.equal(findByName(index, "not an alliance"), null);
 });
 
 test("does not merge identities on name similarity; suggestions remain proposals", () => {
@@ -85,6 +91,30 @@ test("new identities get independent IDs and no fabricated official ID or observ
   assert.equal(first.firstObservedAt, null);
   assert.equal(first.lastObservedAt, null);
   assert.deepEqual(first.observations, []);
+});
+
+test("keeps a dated ranking and its rank on an observation, not on the identity", () => {
+  const alliance = createAllianceIdentity({ name: "Ranked Alliance", allianceId: "wi-ranking-test" });
+  alliance.observations.push({ observedAt: "2026-11-19T12:00:00Z", rank: 25, source: { type: "official-ranking" } });
+  const before = { allianceId: alliance.allianceId, name: alliance.name, searchName: alliance.searchName };
+  assert.equal(alliance.observations[0].rank, 25);
+  assert.deepEqual({ allianceId: alliance.allianceId, name: alliance.name, searchName: alliance.searchName }, before);
+  assert.equal("rank" in alliance, false);
+});
+
+test("searches a 1,000-entry directory and keeps near names distinct", () => {
+  const rows = Array.from({ length: 1000 }, (_, i) => createAllianceIdentity({
+    name: `Alliance ${String(i).padStart(4, "0")}`,
+    allianceId: `wi-large-${i}`,
+    aliases: [`A${i}`]
+  }));
+  rows.push(createAllianceIdentity({ name: "Omega Protocol", allianceId: "wi-omega-a" }));
+  rows.push(createAllianceIdentity({ name: "Sigma Omega Protocol", allianceId: "wi-omega-b" }));
+  const index = createDirectoryIndex({ schemaVersion: 1, alliances: rows });
+  assert.equal(findByAlias(index, "A999")?.allianceId, "wi-large-999");
+  assert.equal(findByName(index, "Omega Protocol")?.allianceId, "wi-omega-a");
+  assert.equal(findByName(index, "Sigma Omega Protocol")?.allianceId, "wi-omega-b");
+  assert.equal(searchAll(index, "Alliance 0999")[0]?.allianceId, "wi-large-999");
 });
 
 test("rejects duplicate internal IDs", () => {

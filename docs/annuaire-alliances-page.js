@@ -72,7 +72,7 @@ function showDetail(alliance) {
   sources.append(textElement("h3", "", "Provenance"));
   for (const observation of alliance.observations || []) {
     const source = observation.source?.type === "user-supplied-ranking-capture"
-      ? `Capture fournie par l’utilisateur · ${observation.source.captureFile || "fichier source"}`
+      ? "Capture de classement fournie par l’utilisateur"
       : observation.source?.type || "Source non précisée";
     sources.append(textElement("p", "", `${source} · date non fournie · confiance ${observation.confidence || "non précisée"}`));
   }
