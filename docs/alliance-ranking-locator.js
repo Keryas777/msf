@@ -3,6 +3,7 @@ import {
   createIdentityImageInput,
   detectRankingRows
 } from "./alliance-ranking-geometry.js";
+import { loadAllianceDirectory, findByName, suggestMatches } from "./alliance-directory.js";
 
 const $ = id => document.getElementById(id);
 const input = $("captureFiles");
@@ -10,7 +11,80 @@ const list = $("captureList");
 const status = $("globalStatus");
 const exportButton = $("exportJson");
 const clearButton = $("clearCaptures");
+const compactButton = $("compactToggle");
 const captures = [];
+const OCR_STORE = "losp-ranking-identity-v1";
+let directoryIndex = null;
+let ocrBusy = false;
+
+function savedResults() { try { return JSON.parse(localStorage.getItem(OCR_STORE) || "{}"); } catch (_) { return {}; } }
+function persistableIdentity(result) {
+  if (!result) return null;
+  const { sourcePreview, preview, ...safe } = result;
+  return safe;
+}
+function saveRow(capture, row) {
+  const all = savedResults();
+  all[`${capture.fingerprint}:${row.rowIndex}`] = {
+    captureIndex: capture.index, rowIndex: row.rowIndex, rankCrop: row.crops.rank, nameCrop: row.crops.allianceName,
+    powerCrop: row.crops.power, identity: persistableIdentity(row.identity), correction: row.correction || "", verified: Boolean(row.verified), confirmedAllianceId: row.confirmedAllianceId || null
+  };
+  try { localStorage.setItem(OCR_STORE, JSON.stringify(all)); } catch (_) { status.textContent = "Stockage local saturé : exporte les résultats avant de quitter."; }
+}
+function imageFingerprint(source) {
+  const sample = document.createElement("canvas"); sample.width = 32; sample.height = 32;
+  const context = sample.getContext("2d", { willReadFrequently: true });
+  context.drawImage(source, 0, 0, 32, 32);
+  const bytes = context.getImageData(0, 0, 32, 32).data;
+  let hash = 2166136261;
+  for (let i = 0; i < bytes.length; i += 4) { hash ^= bytes[i]; hash = Math.imul(hash, 16777619); hash ^= bytes[i + 1]; hash = Math.imul(hash, 16777619); hash ^= bytes[i + 2]; hash = Math.imul(hash, 16777619); }
+  sample.width = sample.height = 1;
+  return `${source.width}x${source.height}-${(hash >>> 0).toString(16)}`;
+}
+
+function directoryMatches(name) {
+  if (!directoryIndex || !name) return { exact: null, possible: [] };
+  return { exact: findByName(directoryIndex, name), possible: suggestMatches(directoryIndex, name, { limit: 4 }) };
+}
+
+function renderIdentity(capture, row, panel) {
+  panel.replaceChildren();
+  const result = row.identity;
+  const current = row.correction || result?.text || "";
+  if (result) {
+    const title = element("strong", "identityRaw", result.text || "Aucun texte reconnu");
+    panel.append(title);
+    const rich = element("div", "identityRich");
+    for (const segment of result.segments || []) {
+      const span = element("span", "", segment.text);
+      if (/^#[0-9a-f]{6}$/i.test(segment.color || "")) span.style.color = segment.color;
+      rich.append(span);
+    }
+    panel.append(rich);
+    const confidence = result.confidence == null ? "non fournie" : `${Math.round(result.confidence)} %`;
+    panel.append(element("p", "identityMeta", `Confiance texte : ${confidence} · ${result.diagnostics?.durationMs ?? "—"} ms · couleur couverte : ${Math.round((result.diagnostics?.colorCoverage || 0) * 100)} %`));
+    if (result.uncertainty?.length) panel.append(element("pre", "identityMeta", JSON.stringify(result.uncertainty)));
+    const matches = directoryMatches(current);
+    panel.append(element("p", "identityMeta", matches.exact ? `Correspondance exacte : ${matches.exact.name} (${matches.exact.allianceId})` : matches.possible.length ? `Correspondances possibles : ${matches.possible.map(item => `${item.alliance.name} · ${Math.round(item.score * 100)} %`).join("; ")}` : "Aucune correspondance dans l’annuaire."));
+    const choices = [...new Map([...(matches.exact ? [{ alliance: matches.exact }] : []), ...matches.possible].map(item => [item.alliance.allianceId, item.alliance])).values()];
+    const select = element("select", "identityCorrection");
+    select.setAttribute("aria-label", "Alliance de l’annuaire confirmée manuellement");
+    const empty = element("option", "", "Choisir une identité à confirmer…"); empty.value = ""; select.append(empty);
+    for (const alliance of choices) { const option = element("option", "", `${alliance.name} · ${alliance.allianceId}`); option.value = alliance.allianceId; select.append(option); }
+    select.value = row.confirmedAllianceId || "";
+    select.addEventListener("change", () => { row.confirmedAllianceId = select.value || null; row.verified = Boolean(select.value); saveRow(capture, row); renderIdentity(capture, row, panel); });
+    panel.append(select);
+  }
+  const correction = element("input", "identityCorrection");
+  correction.type = "text"; correction.autocomplete = "off"; correction.value = row.correction || "";
+  correction.setAttribute("aria-label", "Correction manuelle du texte reconnu");
+  correction.placeholder = "Correction manuelle (facultative)";
+  correction.addEventListener("change", () => { row.correction = correction.value; row.confirmedAllianceId = null; row.verified = false; saveRow(capture, row); renderIdentity(capture, row, panel); });
+  panel.append(correction);
+  const verify = element("button", "secondary", row.verified ? "Nom confirmé par l’utilisateur" : "Confirmer le texte reconnu");
+  verify.type = "button"; verify.addEventListener("click", () => { row.verified = !row.verified; saveRow(capture, row); renderIdentity(capture, row, panel); });
+  panel.append(verify);
+}
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -189,7 +263,33 @@ function renderRowCards(capture) {
     readout.append(element("strong", "", "Coordonnées normalisées · x / y / largeur / hauteur"), rectLine, cropLine);
     capture.geometryOutputs.set(row.rowIndex, { rect: rectLine, crops: cropLine });
     controls.append(controlGrid, readout);
-    card.append(heading, crops, controls);
+    const identityPanel = element("section", "identityPanel");
+    identityPanel.append(element("h4", "", "Identité OCR et annuaire"));
+    const ocrStatus = element("p", "identityMeta", row.identity ? "Résultat restauré depuis le stockage local." : "En attente d’analyse.");
+    const analyze = element("button", "primary-button", row.identity ? "Relancer l’analyse OCR" : "Analyser ce nom");
+    analyze.type = "button";
+    analyze.disabled = ocrBusy;
+    analyze.addEventListener("click", async () => {
+      if (ocrBusy) return;
+      ocrBusy = true;
+      analyze.disabled = true;
+      ocrStatus.textContent = "Préparation de l’OCR local…";
+      const rect = Object.fromEntries(Object.entries(row.crops.allianceName).map(([key, value]) => [key, key === "x" || key === "width" ? Math.round(value * capture.sourceCanvas.width) : Math.round(value * capture.sourceCanvas.height)]));
+      try {
+        const engine = window.WarResultsVisionEngine;
+        if (!engine?.analyzeIdentityRegion) throw new Error("Le moteur Identité partagé n’est pas disponible.");
+        row.identity = await engine.analyzeIdentityRegion(capture.sourceCanvas, rect, progress => { ocrStatus.textContent = progress.status || "Analyse…"; });
+        saveRow(capture, row);
+        renderIdentity(capture, row, identityPanel);
+        ocrStatus.textContent = "Analyse terminée; vérifie le texte et les suggestions.";
+      } catch (error) {
+        row.ocrError = error.message || "Erreur OCR inconnue.";
+        ocrStatus.textContent = `Échec OCR : ${row.ocrError}`;
+      } finally { ocrBusy = false; analyze.disabled = false; }
+    });
+    identityPanel.append(ocrStatus, analyze);
+    if (row.identity) renderIdentity(capture, row, identityPanel);
+    card.append(heading, crops, controls, identityPanel);
     capture.rowContainer.append(card);
     updateGeometryReadout(capture, row);
   }
@@ -236,6 +336,7 @@ async function addCapture(file, index) {
 
   const capture = {
     index: index + 1,
+    fingerprint: imageFingerprint(sourceCanvas),
     sourceCanvas,
     overlay,
     analysis,
@@ -245,6 +346,11 @@ async function addCapture(file, index) {
     cropCanvases: new Map(),
     geometryOutputs: new Map()
   };
+  const stored = savedResults();
+  for (const row of analysis.rows) {
+    const previous = stored[`${capture.fingerprint}:${row.rowIndex}`];
+    if (previous) Object.assign(row, { identity: previous.identity, correction: previous.correction || "", verified: Boolean(previous.verified), confirmedAllianceId: previous.confirmedAllianceId || null });
+  }
   captures.push(capture);
   renderDiagnostics(capture);
   drawCapture(capture);
@@ -265,7 +371,12 @@ function serializeGeometry() {
         confidence: row.confidence,
         inferredTop: row.inferredTop,
         rect: { ...row.rect },
-        crops: Object.fromEntries(Object.entries(row.crops).map(([key, box]) => [key, { ...box }]))
+        crops: Object.fromEntries(Object.entries(row.crops).map(([key, box]) => [key, { ...box }])),
+        identity: row.identity ? { text: row.identity.text, normalizedName: row.identity.normalizedName, confidence: row.identity.confidence,
+          uncertain: row.identity.uncertain, colorUncertain: row.identity.colorUncertain, segments: row.identity.segments, symbols: row.identity.symbols,
+          uncertainty: row.identity.uncertainty, diagnostics: row.identity.diagnostics } : null,
+        correction: row.correction || "", verified: Boolean(row.verified), confirmedAllianceId: row.confirmedAllianceId || null,
+        matches: directoryMatches(row.correction || row.identity?.text || "")
       })),
       rejected: capture.analysis.rejected.map(item => ({ ...item })),
       diagnostics: { ...capture.analysis.diagnostics }
@@ -324,6 +435,16 @@ clearButton.addEventListener("click", () => {
   captures.splice(0, captures.length);
   list.replaceChildren();
   updateExportState();
+});
+
+compactButton.addEventListener("click", () => {
+  const compact = document.body.classList.toggle("compactResults");
+  compactButton.setAttribute("aria-pressed", String(compact));
+  compactButton.textContent = compact ? "Vue détaillée" : "Vue compacte";
+});
+
+loadAllianceDirectory().then(index => { directoryIndex = index; }).catch(error => {
+  status.textContent = `OCR disponible; annuaire indisponible : ${error.message}`;
 });
 
 // Future identity-engine contract: call this with captureIndex and rowIndex.

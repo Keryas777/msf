@@ -48,5 +48,16 @@
 .coordinateReadout{margin-top:9px;padding:9px;border-radius:9px;background:#07111e;color:#aebfd3;font-size:.72rem;overflow-wrap:anywhere}
 .coordinateReadout p{margin:5px 0;font-family:ui-monospace,monospace;color:#fff}
 .coordinateReadout pre{max-height:110px;margin:0;overflow:auto;white-space:pre-wrap;font-family:ui-monospace,monospace}
+.identityPanel{display:grid;gap:8px;margin-top:12px;padding:11px;border:1px solid #315071;border-radius:12px;background:#091524}
+.identityPanel h4{margin:0;color:#83d9ff}
+.identityPanel button{min-height:44px;padding:8px 12px;border:1px solid #37baff;border-radius:10px;background:#103b5b;color:#fff;font:inherit;font-weight:750;touch-action:manipulation}
+.identityPanel button:disabled{opacity:.55}
+.identityCorrection{box-sizing:border-box;width:100%;min-height:44px;padding:9px;border:1px solid #536b86;border-radius:9px;background:#07111f;color:#fff;font:inherit}
+.identityRaw{overflow-wrap:anywhere;color:#fff}
+.identityRich{overflow-wrap:anywhere;font-size:1.1rem;font-weight:800}
+.identityMeta{margin:0;color:#afc2d9;font-size:.78rem;line-height:1.4;overflow-wrap:anywhere}
+.compactResults .cropGrid,.compactResults .geometryDetails{display:none}
+.compactResults .rowCards{gap:6px}
+.compactResults .rowCard{padding:8px}
 @media(min-width:760px){.locatorShell{padding-top:30px}.captureCard{padding:16px}.rowCards{grid-template-columns:repeat(2,minmax(0,1fr))}.cropPreview canvas{height:82px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}

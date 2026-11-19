@@ -5,6 +5,8 @@ on:
     paths:
       - "docs/alliance-ranking-geometry.js"
       - "docs/alliance-ranking-locator*"
+      - "docs/war-results-vision-engine.js"
+      - "docs/war-results-identity-engine.js"
       - "docs/sw.js"
       - "docs/audits/alliance-ranking-geometry-benchmark-*.md"
       - "tests/alliance-ranking-geometry.test.mjs"
@@ -14,6 +16,8 @@ on:
     paths:
       - "docs/alliance-ranking-geometry.js"
       - "docs/alliance-ranking-locator*"
+      - "docs/war-results-vision-engine.js"
+      - "docs/war-results-identity-engine.js"
       - "docs/sw.js"
       - "docs/audits/alliance-ranking-geometry-benchmark-*.md"
       - "tests/alliance-ranking-geometry.test.mjs"
@@ -28,4 +32,4 @@ jobs:
         with:
           node-version: 22
       - run: node --test tests/alliance-ranking-geometry.test.mjs
-      - run: node --check docs/alliance-ranking-geometry.js && node --check docs/alliance-ranking-locator.js && node --check docs/sw.js
+      - run: node --check docs/alliance-ranking-geometry.js && node --check docs/alliance-ranking-locator.js && node --check docs/war-results-identity-engine.js && node --check docs/war-results-vision-engine.js && node --check docs/sw.js

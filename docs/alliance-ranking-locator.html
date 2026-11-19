@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#08101d" />
   <title>Localisateur de classements — LoSP</title>
   <link rel="stylesheet" href="./style.css" />
-  <link rel="stylesheet" href="./alliance-ranking-locator.css?v=1" />
+  <link rel="stylesheet" href="./alliance-ranking-locator.css?v=2" />
   <link rel="manifest" href="./manifest.webmanifest" />
 </head>
 <body class="rankingLocatorPage">
@@ -14,22 +14,27 @@
     <header class="locatorHeader">
       <p class="locatorEyebrow">OUTIL EXPÉRIMENTAL · TRAITEMENT LOCAL</p>
       <h1>Localisateur de classements</h1>
-      <p>Détection géométrique des lignes et prévisualisation des trois découpes. Aucun OCR n’est effectué.</p>
+      <p>Localisation des lignes, OCR Identité partagé et suggestions non fusionnantes de l’annuaire.</p>
     </header>
 
     <section class="locatorImport card">
       <label for="captureFiles">Ajouter une ou plusieurs captures</label>
       <input id="captureFiles" type="file" accept="image/*" multiple />
-      <p>Les images restent dans cette page. L’export contient uniquement des coordonnées normalisées, jamais les images ni les noms de fichiers.</p>
+      <p>Les images sont traitées sur cet appareil avec le même moteur Identité que War Results Vision. Elles ne sont pas envoyées. Les résultats sont sauvegardés localement après chaque analyse; l’export exclut les images et les noms de fichiers.</p>
       <div class="locatorActions">
         <button id="exportJson" type="button" disabled>Exporter les coordonnées JSON</button>
         <button id="clearCaptures" type="button" class="secondary" disabled>Effacer les captures</button>
+        <button id="compactToggle" type="button" class="secondary" aria-pressed="false">Vue compacte</button>
       </div>
       <p id="globalStatus" class="locatorStatus" role="status">Aucune capture chargée.</p>
     </section>
 
     <section id="captureList" class="captureList" aria-live="polite"></section>
   </main>
-  <script type="module" src="./alliance-ranking-locator.js?v=1"></script>
+  <script src="./war-result-recognition-core.js?v=6-three-engines" defer></script>
+  <script src="./war-results-identity-engine.js?v=1.0.0" defer></script>
+  <script src="./war-results-result-engine.js?v=1.0.0" defer></script>
+  <script src="./war-results-vision-engine.js?v=6.0-three-engines" defer></script>
+  <script type="module" src="./alliance-ranking-locator.js?v=2-identity"></script>
 </body>
 </html>
