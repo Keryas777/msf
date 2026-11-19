@@ -25,6 +25,8 @@ rect(multicolor, 42, 4, 78, 18, [120, 75, 245, 255]);
 const multicolorRead = identity.colorSegments("LoSP Dionysos", multicolor, [word("LoSP", 2, 37), word("Dionysos", 42, 78)]);
 assert.equal(multicolorRead.segments.map((item) => item.text).join(""), "LoSP Dionysos", "spaces and multiple words are preserved");
 assert.ok(multicolorRead.segments.some((item) => item.color && item.color !== multicolorRead.segments[0].color), "color changes remain separate across name segments");
+assert.equal(multicolorRead.segments[0].color, "#f7f7fa", "uniform first-color segment matches its synthetic source pixels exactly");
+assert.equal(multicolorRead.segments.at(-1).color, "#784bf5", "uniform second-color segment matches its synthetic source pixels exactly");
 
 const accent = image(60, 22);
 rect(accent, 2, 4, 58, 18, [50, 190, 245, 255]);
