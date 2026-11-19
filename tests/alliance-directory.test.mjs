@@ -30,6 +30,7 @@ test("imports 28 unique alliance identities with a non-empty independent ID", ()
     "undying Warriors", "SIGMA Omega Protocol", "Mephisto’s Demons", "DOOM-IMMORTAL"
   ]);
   assert.ok(directory.alliances.every(item => item.observations[0]?.observedAt === null));
+  assert.ok(directory.alliances.every(item => !("rank" in item.observations[0].source) && !("row" in item.observations[0].source) && !("captureOrder" in item.observations[0].source)));
 });
 
 test("keeps verified existing War Intelligence IDs without duplicating those records", () => {
