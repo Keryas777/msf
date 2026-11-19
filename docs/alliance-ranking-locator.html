@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#08101d" />
+  <title>Localisateur de classements — LoSP</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./alliance-ranking-locator.css?v=1" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+</head>
+<body class="rankingLocatorPage">
+  <main class="locatorShell">
+    <header class="locatorHeader">
+      <p class="locatorEyebrow">OUTIL EXPÉRIMENTAL · TRAITEMENT LOCAL</p>
+      <h1>Localisateur de classements</h1>
+      <p>Détection géométrique des lignes et prévisualisation des trois découpes. Aucun OCR n’est effectué.</p>
+    </header>
+
+    <section class="locatorImport card">
+      <label for="captureFiles">Ajouter une ou plusieurs captures</label>
+      <input id="captureFiles" type="file" accept="image/*" multiple />
+      <p>Les images restent dans cette page. L’export contient uniquement des coordonnées normalisées, jamais les images ni les noms de fichiers.</p>
+      <div class="locatorActions">
+        <button id="exportJson" type="button" disabled>Exporter les coordonnées JSON</button>
+        <button id="clearCaptures" type="button" class="secondary" disabled>Effacer les captures</button>
+      </div>
+      <p id="globalStatus" class="locatorStatus" role="status">Aucune capture chargée.</p>
+    </section>
+
+    <section id="captureList" class="captureList" aria-live="polite"></section>
+  </main>
+  <script type="module" src="./alliance-ranking-locator.js?v=1"></script>
+</body>
+</html>
