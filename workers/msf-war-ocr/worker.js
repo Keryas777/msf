@@ -197,7 +197,8 @@ const ANALYSIS_MAX_LENGTH = 700;
 const ANALYSIS_MAX_SENTENCES = 3;
 const WAR_ANALYSIS_TIMEOUT_MS = 180 * 1000;
 const WAR_ANALYSIS_STREAM_HEARTBEAT_MS = 5000;
-export const WAR_ANALYSIS_MODEL = "@cf/meta/llama-4-scout-17b-16e-instruct";
+export const WAR_ANALYSIS_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+export const WAR_ANALYSIS_FALLBACK_MODEL = "@cf/meta/llama-4-scout-17b-16e-instruct";
 export const GROQ_ANALYSES_RESPONSE_FORMAT = {
   type: "json_schema",
   json_schema: {
@@ -796,9 +797,11 @@ function workersAiErrorResponse(error) {
 }
 
 function normalizeWorkersAiResponse(result) {
-  const value = isPlainObject(result) && Object.hasOwn(result, "response")
-    ? result.response
-    : result;
+  const choiceContent = result?.choices?.[0]?.message?.content;
+  const value = typeof choiceContent === "string"
+    ? choiceContent
+    : (isPlainObject(result) && Object.hasOwn(result, "response")
+      ? result.response : result);
 
   if (isPlainObject(value)) return value;
   if (typeof value !== "string" || !value.trim()) {
@@ -817,52 +820,58 @@ async function requestWorkersAiAnalyses(prompt, ai, trace) {
     throw new Error("Le binding Workers AI env.AI est absent ou invalide.");
   }
 
-  console.log("WAR_ANALYSIS_AI_START", {
-    request_id: trace.requestId,
-    model: WAR_ANALYSIS_MODEL,
-    player_count: trace.playerCount,
-    completion: trace.completion,
-    max_tokens: 10000,
-    temperature: 0.55
-  });
-  const aiStartedAt = Date.now();
-  const runPromise = ai.run(WAR_ANALYSIS_MODEL, {
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0.55,
-    max_tokens: 10000,
-    response_format: WORKERS_AI_ANALYSES_RESPONSE_FORMAT
-  });
-  let timeoutId;
-  const timeoutPromise = new Promise((_, reject) => {
-    timeoutId = setTimeout(() => {
-      const error = new Error("Workers AI n’a pas répondu dans le délai maximal de 180 secondes.");
-      error.code = 3007;
-      reject(error);
-    }, WAR_ANALYSIS_TIMEOUT_MS);
-  });
-
-  try {
-    const result = await Promise.race([runPromise, timeoutPromise]);
-    const responseValue = isPlainObject(result) && Object.hasOwn(result, "response")
-      ? result.response
-      : result;
-    const receivedAnalyses = isPlainObject(responseValue) && Array.isArray(responseValue.analyses)
-      ? responseValue.analyses.length
-      : null;
-    console.log("WAR_ANALYSIS_AI_SUCCESS", {
+  const models = [WAR_ANALYSIS_MODEL, WAR_ANALYSIS_FALLBACK_MODEL];
+  let lastError;
+  for (const [index, model] of models.entries()) {
+    console.log("WAR_ANALYSIS_AI_START", {
       request_id: trace.requestId,
-      duration_ms: Date.now() - aiStartedAt,
-      response_type: Array.isArray(result) ? "array" : typeof result,
-      has_response: isPlainObject(result) && Object.hasOwn(result, "response"),
-      analysis_count: receivedAnalyses
+      model,
+      fallback: index > 0,
+      player_count: trace.playerCount,
+      completion: trace.completion,
+      max_tokens: 10000,
+      temperature: 0.55
     });
-    return normalizeWorkersAiResponse(result);
-  } catch (error) {
-    console.error("WAR_ANALYSIS_AI_ERROR", safeAnalysisError(trace.requestId, error, true));
-    throw error;
-  } finally {
-    clearTimeout(timeoutId);
+    const aiStartedAt = Date.now();
+    let timeoutId;
+    try {
+      const runPromise = ai.run(model, {
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.55,
+        max_tokens: 10000,
+        response_format: WORKERS_AI_ANALYSES_RESPONSE_FORMAT
+      });
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+          const error = new Error("Workers AI n’a pas répondu dans le délai maximal.");
+          error.code = 3007;
+          reject(error);
+        }, index === 0 ? 90 * 1000 : WAR_ANALYSIS_TIMEOUT_MS);
+      });
+      const result = await Promise.race([runPromise, timeoutPromise]);
+      const parsed = normalizeWorkersAiResponse(result);
+      if (!isPlainObject(parsed) || !Array.isArray(parsed.analyses)) {
+        throw new Error("Workers AI a renvoyé une structure d’analyses invalide.");
+      }
+      console.log("WAR_ANALYSIS_AI_SUCCESS", {
+        request_id: trace.requestId,
+        model,
+        duration_ms: Date.now() - aiStartedAt,
+        analysis_count: parsed.analyses.length
+      });
+      return parsed;
+    } catch (error) {
+      lastError = error;
+      console.error("WAR_ANALYSIS_AI_ERROR", {
+        ...safeAnalysisError(trace.requestId, error, true),
+        model,
+        duration_ms: Date.now() - aiStartedAt
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
   }
+  throw lastError;
 }
 
 function buildCompletionBody(body, missingPlayers) {
