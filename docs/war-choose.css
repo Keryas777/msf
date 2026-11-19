@@ -175,3 +175,8 @@
   .rankingsTile, .rankingsTile::after{ transition: none !important; }
 }
 
+
+/* Annuaire central */
+.directoryTile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;background:radial-gradient(circle at 50% 28%,#293e69 0,#111c32 56%,#090f1b 100%);--glow:rgba(109,164,255,.58);--glow-strong:rgba(109,164,255,.95)}
+.directoryTileIcon{color:#a9d8ff;font-size:clamp(2.4rem,9vw,4.2rem);line-height:1;text-shadow:0 0 20px #59baff}
+.directoryTileTitle{font-size:clamp(.78rem,3.5vw,1.12rem);font-weight:900;line-height:1.15;text-shadow:0 2px 12px #000}

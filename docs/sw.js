@@ -1,6 +1,6 @@
 // docs/sw.js
 
-const CACHE = "losp-v28";
+const CACHE = "losp-v29";
 
 const CORE_ASSETS = [
   "./",
@@ -16,6 +16,11 @@ const CORE_ASSETS = [
   "./renseignements-guerre.css",
   "./renseignements-guerre.js",
   "./data/war-intelligence.json",
+  "./annuaire-alliances.html",
+  "./annuaire-alliances.css",
+  "./annuaire-alliances-page.js",
+  "./alliance-directory.js",
+  "./data/alliance-directory.json",
 
   // Images home
   "./HeaderHome.webp",

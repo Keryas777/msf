@@ -1,0 +1,38 @@
+name: Validate central alliance directory
+
+on:
+  pull_request:
+    paths:
+      - "docs/alliance-directory.js"
+      - "docs/annuaire-alliances*"
+      - "docs/data/alliance-directory.json"
+      - "docs/war-choose.html"
+      - "docs/war-choose.css"
+      - "docs/sw.js"
+      - "docs/audits/alliance-directory-identity-audit-*.md"
+      - "tests/alliance-directory.test.mjs"
+      - ".github/workflows/test-alliance-directory.yml"
+  push:
+    branches: [main]
+    paths:
+      - "docs/alliance-directory.js"
+      - "docs/annuaire-alliances*"
+      - "docs/data/alliance-directory.json"
+      - "docs/war-choose.html"
+      - "docs/war-choose.css"
+      - "docs/sw.js"
+      - "docs/audits/alliance-directory-identity-audit-*.md"
+      - "tests/alliance-directory.test.mjs"
+      - ".github/workflows/test-alliance-directory.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/alliance-directory.test.mjs workers/msf-cosmic-defenses/test/war-intelligence.test.mjs
+      - run: node --check docs/alliance-directory.js && node --check docs/annuaire-alliances-page.js
+      - run: node -e "JSON.parse(require('node:fs').readFileSync('docs/data/alliance-directory.json','utf8'))"
