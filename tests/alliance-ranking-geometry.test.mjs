@@ -91,4 +91,3 @@ test("keeps the experimental page out of public navigation and precaches version
   assert.match(page, /type="module"/);
   assert.doesNotMatch(page, /auth-guard|password|secret/i);
 });
-
