@@ -71,6 +71,8 @@ const ambiguous = identity.arbitrateReads(
 assert.equal(ambiguous.text, "", "contradictory ambiguous characters are not silently rewritten");
 assert.equal(ambiguous.uncertain, true);
 assert.deepEqual(ambiguous.alternatives, ["C0dεx", "Codex"]);
+assert.equal(ambiguous.confidence, null, "an unresolved conflict has no selected-candidate confidence");
+assert.equal(ambiguous.chosenResult, null, "an unresolved conflict has no chosen OCR result");
 const clearlyPreferred = identity.arbitrateReads(
   { data: { text: "ALPHABBET", confidence: 1 } },
   { data: { text: "ALPHABET", confidence: 52 } },
@@ -79,6 +81,22 @@ const clearlyPreferred = identity.arbitrateReads(
 assert.equal(clearlyPreferred.text, "ALPHABET", "a substantially stronger alternative resolves the text proposal");
 assert.equal(clearlyPreferred.uncertain, true, "resolved conflicts remain marked for manual review");
 assert.deepEqual(clearlyPreferred.alternatives, ["ALPHABBET", "ALPHABET"], "the competing readings remain available");
+const exactThreshold = identity.arbitrateReads(
+  { data: { text: "Alpha", confidence: 40 } },
+  { data: { text: "Alpba", confidence: 70 } },
+  "opponent"
+);
+assert.equal(exactThreshold.text, "Alpba", "a 30-point margin is inclusive");
+assert.equal(exactThreshold.uncertain, true, "the threshold does not confirm the identity");
+const equalConfidence = identity.arbitrateReads(
+  { data: { text: "Alpha", confidence: 60 } },
+  { data: { text: "Alpba", confidence: 60 } },
+  "opponent"
+);
+assert.equal(equalConfidence.text, "", "equal-confidence conflicts remain unresolved");
+assert.equal(equalConfidence.confidence, null, "equal-confidence conflicts do not expose a winner's confidence");
+assert.equal(equalConfidence.chosenResult, null);
+assert.deepEqual(equalConfidence.alternatives, ["Alpha", "Alpba"]);
 const missingConfidence = identity.arbitrateReads(
   { data: { text: "ALPHABBET" } },
   { data: { text: "ALPHABET", confidence: 90 } },
@@ -86,8 +104,18 @@ const missingConfidence = identity.arbitrateReads(
 );
 assert.equal(missingConfidence.text, "", "a missing confidence score cannot create a false confidence margin");
 assert.equal(missingConfidence.uncertain, true);
+assert.equal(missingConfidence.confidence, null, "a missing confidence cannot leak the other candidate's score");
+assert.equal(missingConfidence.chosenResult, null);
 const partial = identity.arbitrateReads({ data: { text: "Orion", confidence: 41 } }, null, "opponent");
 assert.equal(partial.text, "Orion");
 assert.equal(partial.uncertain, true, "low-confidence partial text remains available for correction but marked uncertain");
+const bothWrong = identity.arbitrateReads(
+  { data: { text: "Wronq", confidence: 20 } },
+  { data: { text: "Wrong", confidence: 51 } },
+  "opponent"
+);
+assert.equal(bothWrong.text, "Wrong", "the stronger reading remains a proposal even if the OCR candidates are both wrong");
+assert.equal(bothWrong.uncertain, true, "confidence arbitration cannot confirm an identity");
+assert.deepEqual(bothWrong.alternatives, ["Wronq", "Wrong"]);
 
 console.log("War Results Vision identity engine tests: OK");

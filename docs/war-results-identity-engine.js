@@ -194,8 +194,8 @@
         ? (firstConfidence ?? 0) > (secondConfidence ?? 0) ? firstText : secondText
         : ""
       : firstGood && (!secondGood || (firstConfidence ?? 0) >= (secondConfidence ?? 0)) ? firstText : secondText;
-    const confidence = text === firstText ? firstConfidence : secondConfidence;
-    return { text, confidence, conflict, alternatives: conflict ? [...new Set([firstText, secondText])] : [], chosenResult: text === firstText ? primary : fallback || primary,
+    const confidence = text ? (text === firstText ? firstConfidence : secondConfidence) : null;
+    return { text, confidence, conflict, alternatives: conflict ? [...new Set([firstText, secondText])] : [], chosenResult: text ? (text === firstText ? primary : fallback || primary) : null,
       uncertain: !text || conflict || confidence == null || confidence < 55 };
   }
 
