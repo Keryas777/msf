@@ -2,17 +2,28 @@
   "use strict";
   const $ = (selector) => document.querySelector(selector);
   const input = $("#captureInput"), list = $("#captureResults"), analyzeButton = $("#analyzeButton");
+  const compareLocatorsButton = $("#compareTrophyLocatorsButton");
+  const trophyMarginSelect = $("#trophyMarginSelect");
+  const trophyRecoverySelect = $("#trophyRecoverySelect");
+  const locatorCompareStatus = $("#locatorCompareStatus");
+  const locatorComparisonResults = $("#locatorComparisonResults");
+  const exportLocatorComparisonButton = $("#exportLocatorComparisonButton");
+  const copyLocatorComparisonButton = $("#copyLocatorComparisonButton");
   const status = $("#analysisStatus"), progress = $("#analysisProgress"), badge = $("#batchBadge");
   const KEY = "msf-war-results-vision-drafts-v1";
+  const LOCATOR_COMPARISON_KEY = "msf-war-results-locator-ab-v2";
+  const LEGACY_LOCATOR_COMPARISON_KEY = "msf-war-results-locator-ab-v1";
   const FIELDS = ["localAlliance", "opponentAlliance", "localScore", "opponentScore", "localTrophies", "opponentTrophies", "result"];
   const LABELS = { localAlliance: "Alliance LoSP", opponentAlliance: "Alliance adverse", localScore: "Score LoSP", opponentScore: "Score adverse", localTrophies: "Trophées LoSP", opponentTrophies: "Trophées adverses", result: "Résultat", warDate: "Date réelle de la guerre" };
   let records = [];
   let analyzing = false;
   let loadMs = null;
   let diagnostics = [];
+  let locatorComparisonSummary = [];
   let zoneDrag = null;
 
   restoreDrafts();
+  restoreLocatorComparison();
   input.addEventListener("change", () => addFiles([...input.files || []]));
   analyzeButton.addEventListener("click", () => {
     status.textContent = "Démarrage de l’analyse des captures…";
@@ -25,6 +36,21 @@
     showGlobalError(event.reason || "Promesse OCR rejetée sans détail.");
   });
   $("#clearButton").addEventListener("click", clearSession);
+  compareLocatorsButton.addEventListener("click", () => compareTrophyLocators().catch(showGlobalError));
+  $("#clearLocatorComparisonButton").addEventListener("click", () => {
+    locatorComparisonResults.innerHTML = "";
+    locatorComparisonSummary = [];
+    sessionStorage.removeItem(LOCATOR_COMPARISON_KEY);
+    sessionStorage.removeItem(LEGACY_LOCATOR_COMPARISON_KEY);
+    locatorCompareStatus.textContent = "Diagnostic comparatif effacé.";
+    $("#clearLocatorComparisonButton").disabled = true;
+    exportLocatorComparisonButton.disabled = true;
+    copyLocatorComparisonButton.disabled = true;
+  });
+  exportLocatorComparisonButton.addEventListener("click", () => {
+    if (locatorComparisonSummary.length) download(locatorComparisonPayload(), `war-results-locator-ab-${new Date().toISOString().slice(0, 10)}.json`);
+  });
+  copyLocatorComparisonButton.addEventListener("click", () => copyLocatorComparisonJson().catch(showGlobalError));
   $("#exportAllButton").addEventListener("click", exportValidated);
   list.addEventListener("input", onEdit);
   list.addEventListener("change", onEdit);
@@ -42,7 +68,7 @@
     let duplicates = 0;
     for (const file of accepted) {
       if (records.some((r) => r.file && r.fileName === file.name && r.file.size === file.size && r.file.lastModified === file.lastModified)) { duplicates++; continue; }
-      records.push({ id: crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`, file, fileName: file.name, url: URL.createObjectURL(file), state: "queued", values: Object.fromEntries(FIELDS.map((k) => [k, ""])), fields: makeFieldState(), date: "", corrected: [], zoneOverrides: {}, confirmed: false, error: "", analysis: null, rawText: "", warnings: [] });
+      records.push({ id: crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`, file, fileName: file.name, fileKey: WarResultsLocatorComparisonStore.fileKey(file), url: URL.createObjectURL(file), state: "queued", values: Object.fromEntries(FIELDS.map((k) => [k, ""])), fields: makeFieldState(), date: "", corrected: [], zoneOverrides: {}, confirmed: false, error: "", analysis: null, rawText: "", warnings: [] });
     }
     input.value = "";
     if (!accepted.length && files.length) status.textContent = "Format ignoré. Sélectionne une image PNG ou JPEG.";
@@ -53,6 +79,7 @@
   function render() {
     list.innerHTML = records.map((record, index) => cardHtml(record, index)).join("");
     analyzeButton.disabled = analyzing || !records.some((r) => ["queued", "error"].includes(r.state) && r.file);
+    compareLocatorsButton.disabled = analyzing || !records.some((r) => r.file);
     badge.textContent = !records.length ? "Aucune capture" : `${records.length} capture${records.length > 1 ? "s" : ""}`;
     const validated = records.filter((r) => r.state === "validated");
     $("#validatedSummary").hidden = !validated.length;
@@ -184,6 +211,136 @@
     }
   }
 
+  async function compareTrophyLocators() {
+    if (analyzing) return;
+    const marginPercent = [0, 18, 30].includes(Number(trophyMarginSelect?.value)) ? Number(trophyMarginSelect.value) : 18;
+    const selection = trophyRecoverySelect?.value;
+    const variantId = selection === "vertical-recovery-icon-aware" ? "adaptive-vertical-recovery-icon-aware" : selection === "vertical-recovery-edge-safe" ? "adaptive-vertical-recovery-edge-safe" : selection === "vertical-recovery" ? "adaptive-vertical-recovery" : "adaptive";
+    const variantLabel = variantId === "adaptive-vertical-recovery-icon-aware" ? "Adaptatif + reprise + rejet d’icône" : variantId === "adaptive-vertical-recovery-edge-safe" ? "Adaptatif + reprise + marge bord" : variantId === "adaptive-vertical-recovery" ? "Adaptatif + reprise verticale" : "Adaptatif sans reprise";
+    const verticalRecovery = variantId !== "adaptive";
+    const edgeSafePadding = variantId === "adaptive-vertical-recovery-edge-safe";
+    const iconAware = variantId === "adaptive-vertical-recovery-icon-aware";
+    const batch = records.filter((record) => record.file && !locatorComparisonSummary.some((item) => item.fields?.length && item.sourceKey === (record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file)) && Number(item.marginPercent ?? 18) === marginPercent && (item.variantId || "adaptive") === variantId));
+    if (!batch.length) {
+      locatorCompareStatus.textContent = records.some((record) => record.file)
+        ? "Toutes les captures chargées disposent déjà d’un résultat conservé. Aucune image n’a été retraitée."
+        : "Charge une capture avant de lancer la comparaison.";
+      return;
+    }
+    analyzing = true;
+    render();
+    $("#clearLocatorComparisonButton").disabled = true;
+    try {
+      for (const [index, record] of batch.entries()) {
+        locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} : ${record.fileName} — chargement OCR local…`;
+        try {
+          const result = await WarResultsVisionEngine.compareTrophyLocators(record.file, (message) => {
+            if (message.status) locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} : ${record.fileName} — ${message.status}`;
+          }, { marginPercent, verticalRecovery, edgeSafePadding, iconAware });
+          const summary = { file: record.fileName, sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), marginPercent, variantId, variantLabel, metrics: result.metrics,
+            fields: (result.fields || []).map(({ field, label, current, adaptive, rectDelta }) => ({ field, label, current: { ...current, preview: undefined }, adaptive: { ...adaptive, preview: undefined }, rectDelta })) };
+          locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords(locatorComparisonSummary, [summary]);
+          saveLocatorComparison();
+          locatorComparisonResults.insertAdjacentHTML("beforeend", locatorComparisonHtml(record.fileName, { ...result, variantLabel }));
+          locatorCompareStatus.textContent = `Comparaison ${index + 1}/${batch.length} terminée : ${record.fileName}, marge ${marginPercent} % (${result.metrics.totalMs} ms).`;
+        } catch (error) {
+          const message = errorMessage(error);
+          const failed = { file: record.fileName, sourceKey: record.fileKey || WarResultsLocatorComparisonStore.fileKey(record.file), marginPercent, variantId, variantLabel, error: message };
+          locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords(locatorComparisonSummary, [failed]);
+          saveLocatorComparison();
+          locatorComparisonResults.insertAdjacentHTML("beforeend", `<article class="locator-comparison-card is-error"><h3>${escapeHtml(record.fileName)} · ${escapeHtml(variantLabel)} · marge ${marginPercent} %</h3><p>Erreur du diagnostic : ${escapeHtml(message)}</p></article>`);
+        }
+        updateLocatorComparisonButtons();
+      }
+      locatorCompareStatus.textContent = `${batch.length} capture(s) traitée(s). Les propositions affichées sont expérimentales et n’ont modifié aucun champ du formulaire.`;
+      updateLocatorComparisonButtons();
+      updateDiagnostics();
+    } finally {
+      try { await WarResultsVisionEngine.release(); }
+      catch (error) { locatorCompareStatus.textContent += ` Libération OCR : ${errorMessage(error)}`; }
+      analyzing = false;
+      $("#clearLocatorComparisonButton").disabled = !locatorComparisonResults.childElementCount;
+      render();
+    }
+  }
+
+  function locatorComparisonPayload() {
+    return WarResultsLocatorComparisonStore.snapshot(locatorComparisonSummary);
+  }
+
+  function updateLocatorComparisonButtons() {
+    const hasRecords = locatorComparisonSummary.length > 0;
+    const hasFields = locatorComparisonSummary.some((item) => item.fields?.length);
+    exportLocatorComparisonButton.disabled = !hasFields;
+    copyLocatorComparisonButton.disabled = !hasRecords;
+    $("#clearLocatorComparisonButton").disabled = !hasRecords;
+  }
+
+  function saveLocatorComparison() {
+    try {
+      sessionStorage.setItem(LOCATOR_COMPARISON_KEY, WarResultsLocatorComparisonStore.stringify(locatorComparisonSummary));
+    } catch (_) {
+      locatorCompareStatus.textContent = "Stockage temporaire indisponible ou saturé. Les résultats restent visibles; copie ou télécharge le JSON avant de quitter la page.";
+    }
+  }
+
+  function restoreLocatorComparison() {
+    try {
+      const current = sessionStorage.getItem(LOCATOR_COMPARISON_KEY);
+      const legacy = !current ? sessionStorage.getItem(LEGACY_LOCATOR_COMPARISON_KEY) : null;
+      const saved = JSON.parse(current || legacy || "null");
+      if (!saved || saved.diagnostic !== "local-tesseractjs-trophy-locator-ab" || !Array.isArray(saved.records)) return;
+      locatorComparisonSummary = WarResultsLocatorComparisonStore.mergeRecords([], saved.records);
+      if (legacy && locatorComparisonSummary.length) {
+        sessionStorage.setItem(LOCATOR_COMPARISON_KEY, WarResultsLocatorComparisonStore.stringify(locatorComparisonSummary));
+        sessionStorage.removeItem(LEGACY_LOCATOR_COMPARISON_KEY);
+      }
+      for (const item of locatorComparisonSummary) {
+        if (item.fields?.length) {
+          const report = { fields: item.fields, metrics: item.metrics || {}, variantLabel: item.variantLabel || "Adaptatif sans reprise" };
+          locatorComparisonResults.insertAdjacentHTML("beforeend", locatorComparisonHtml(item.file, report));
+        } else if (item.error) {
+          locatorComparisonResults.insertAdjacentHTML("beforeend", `<article class="locator-comparison-card is-error"><h3>${escapeHtml(item.file || "Capture")} · ${escapeHtml(item.variantLabel || "Adaptatif sans reprise")} · marge ${Number(item.marginPercent ?? 18)} %</h3><p>Erreur du diagnostic : ${escapeHtml(item.error)}</p></article>`);
+        }
+      }
+      if (locatorComparisonSummary.length) locatorCompareStatus.textContent = `${locatorComparisonSummary.length} résultat(s) A/B restauré(s) depuis le stockage temporaire de cette session. Réimporte les captures pour reprendre sans retraiter celles-ci.`;
+      updateLocatorComparisonButtons();
+    } catch (_) {
+      sessionStorage.removeItem(LOCATOR_COMPARISON_KEY);
+      sessionStorage.removeItem(LEGACY_LOCATOR_COMPARISON_KEY);
+    }
+  }
+
+  async function copyLocatorComparisonJson() {
+    if (!locatorComparisonSummary.length) return;
+    const json = WarResultsLocatorComparisonStore.stringify(locatorComparisonSummary);
+    try {
+      await navigator.clipboard.writeText(json);
+      locatorCompareStatus.textContent = "JSON A/B copié dans le presse-papiers.";
+    } catch (_) {
+      const area = document.createElement("textarea");
+      area.value = json; area.setAttribute("readonly", "");
+      area.style.position = "fixed"; area.style.opacity = "0";
+      document.body.appendChild(area); area.select();
+      const copied = document.execCommand("copy"); area.remove();
+      locatorCompareStatus.textContent = copied ? "JSON A/B copié dans le presse-papiers." : "Copie automatique refusée par le navigateur. Le JSON reste téléchargeable.";
+    }
+  }
+
+  function locatorComparisonHtml(fileName, result) {
+    const metrics = result.metrics || {};
+    const rectText = (rect) => rect ? `x=${rect.x}, y=${rect.y}, l=${rect.width}, h=${rect.height}` : "zone absente";
+    const variantHtml = (item, label) => `<section class="locator-comparison-variant"><h4>${label}</h4>${item.preview ? `<img src="${escapeAttr(item.preview)}" alt="Image réellement transmise à Tesseract pour ${label} de ${escapeAttr(fileName)}" loading="lazy"><small>Entrée Tesseract : agrandie ×3, niveaux de gris, contraste ×1,7</small>` : `<p>Découpe OCR indisponible${item.reason ? ` — ${escapeHtml(item.reason)}` : ""}</p>`}${item.sourcePreview ? `<details><summary>Voir la découpe à la résolution source</summary><img class="locator-source-crop" src="${escapeAttr(item.sourcePreview)}" alt="Découpe source non prétraitée pour ${label}" loading="lazy"></details>` : ""}<p>OCR : <strong>${escapeHtml(item.value || "—")}</strong>${item.raw ? ` · brut : ${escapeHtml(item.raw)}` : ""}<br>Confiance Tesseract : ${Number.isFinite(item.confidence) ? `${Math.round(item.confidence)} %` : "non fournie"} · durée : ${Number.isFinite(item.ms) ? `${item.ms} ms` : "—"}<br>Rectangle source : ${escapeHtml(rectText(item.rect))}<br>Marge : ${Number.isFinite(item.marginPercent) ? `${item.marginPercent} % sélectionnée${Number.isFinite(item.appliedMarginPercent) && item.appliedMarginPercent !== item.marginPercent ? ` · ${item.appliedMarginPercent} % appliquée (glyphe au bord)` : " de la hauteur des glyphes"}` : "géométrie d’origine"}<br>Glyphes détectés : ${item.segmentation ? `${item.segmentation.glyphs}/4${item.segmentation.reason ? ` · ${escapeHtml(item.segmentation.reason)}` : ""}${item.segmentation.warnings?.length ? ` · ${escapeHtml(item.segmentation.warnings.join(", "))}` : ""}` : "non disponible"}</p></section>`;
+    const overlay = result.preview && result.dimensions ? `<div class="locator-source-overview" style="aspect-ratio:${Number(result.dimensions.width)}/${Number(result.dimensions.height)}"><img src="${escapeAttr(result.preview)}" alt="Capture originale avec zones trophées détectées pour ${escapeAttr(fileName)}" loading="lazy"><svg viewBox="0 0 ${Number(result.dimensions.width)} ${Number(result.dimensions.height)}" preserveAspectRatio="none" role="img" aria-label="Rectangles des deux localisateurs"><g>${(result.fields || []).map((field) => [
+      field.current?.rect && `<rect class="locator-box-current" x="${field.current.rect.x}" y="${field.current.rect.y}" width="${field.current.rect.width}" height="${field.current.rect.height}"><title>${escapeHtml(field.label)} — actuel</title></rect>`,
+      field.adaptive?.rect && `<rect class="locator-box-adaptive" x="${field.adaptive.rect.x}" y="${field.adaptive.rect.y}" width="${field.adaptive.rect.width}" height="${field.adaptive.rect.height}"><title>${escapeHtml(field.label)} — adaptatif</title></rect>`,
+      ...(field.current?.segmentation?.glyphRects || []).map((glyph, index) => `<rect class="locator-glyph-current" x="${glyph.x}" y="${glyph.y}" width="${glyph.width}" height="${glyph.height}"><title>${escapeHtml(field.label)} — glyphe actuel ${index + 1}</title></rect>`),
+      ...(field.adaptive?.segmentation?.glyphRects || []).map((glyph, index) => `<rect class="locator-glyph-adaptive" x="${glyph.x}" y="${glyph.y}" width="${glyph.width}" height="${glyph.height}"><title>${escapeHtml(field.label)} — glyphe adaptatif ${index + 1}</title></rect>`)
+    ].filter(Boolean).join("")).join("")}</g></svg></div><p class="locator-legend"><span>Bleu : rectangle actuel</span><span>Orange : rectangle adaptatif</span><span>Turquoise : glyphes actuels</span><span>Vert : glyphes adaptatifs</span></p>` : `<p class="muted">Capture source non restaurée. Les images restent uniquement dans l’onglet actif; le JSON ne contient que les mesures.</p>`;
+    const fieldsHtml = (result.fields || []).map((field) => `<section class="locator-comparison-card"><h3>${escapeHtml(field.label)}</h3><p>Écart de rectangle (adaptatif − actuel) : ${escapeHtml(field.rectDelta ? JSON.stringify(field.rectDelta) : "non calculé")}</p><div class="locator-comparison-pair">${variantHtml(field.current, "Localisateur actuel")}${variantHtml(field.adaptive, "Localisateur adaptatif expérimental")}</div></section>`).join("");
+    return `<article class="locator-comparison-card"><h3>${escapeHtml(fileName)} — ${escapeHtml(result.variantLabel || "Adaptatif sans reprise")} — marge ${Number(result.fields?.[0]?.adaptive?.marginPercent ?? result.marginPercent ?? 18)} %</h3><p>${escapeHtml(metrics.engine || "Tesseract.js")} · total ${Number(metrics.totalMs) || 0} ms · chargement moteur ${Number(metrics.workerLoadMs) || 0} ms · ${Number(metrics.dimensions?.width) || 0}×${Number(metrics.dimensions?.height) || 0} px</p><p>Ancrages : ${escapeHtml(JSON.stringify(metrics.anchorsFound || {}))} · disposition : ${escapeHtml(metrics.layout || "inconnue")}</p>${overlay}${fieldsHtml}<details><summary>Temps des appels Tesseract</summary><pre>${escapeHtml(JSON.stringify(metrics.calls || [], null, 2))}</pre></details></article>`;
+  }
+
   function onAction(event) {
     const button = event.target.closest("button[data-action]"); if (!button) return;
     const record = records.find((r) => r.id === button.dataset.id); if (!record) return;
@@ -298,7 +455,7 @@
   }
   function download(data, name) { const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
   function safeName(name) { return String(name || "capture").replace(/[^\p{L}\p{N}-]+/gu, "-").replace(/^-|-$/g, "").slice(0, 64) || "capture"; }
-  function clearSession() { if (!confirm("Effacer les brouillons textuels locaux et les captures de cette session ?")) return; records.forEach(r => r.url && URL.revokeObjectURL(r.url)); records = []; sessionStorage.removeItem(KEY); status.textContent = "Session effacée."; render(); }
+  function clearSession() { if (!confirm("Effacer les brouillons, les diagnostics A/B et les captures de cette session ?")) return; records.forEach(r => r.url && URL.revokeObjectURL(r.url)); records = []; locatorComparisonSummary = []; locatorComparisonResults.innerHTML = ""; sessionStorage.removeItem(KEY); sessionStorage.removeItem(LOCATOR_COMPARISON_KEY); status.textContent = "Session effacée."; updateLocatorComparisonButtons(); render(); }
 
   function saveDrafts() {
     try { sessionStorage.setItem(KEY, JSON.stringify(records.map(r => ({ fileName: r.fileName, state: r.state, output: r.output || null, values: r.values, fields: r.fields, date: r.date, corrected: r.corrected, zoneOverrides: r.zoneOverrides || {}, confirmed: false, analysis: r.analysis ? { metrics: r.analysis.metrics, warnings: r.analysis.warnings } : null, rawText: r.rawText, warnings: r.warnings })))); }
@@ -328,3 +485,4 @@
   function escapeHtml(value) { return String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
   function escapeAttr(value) { return escapeHtml(value); }
 })();
+

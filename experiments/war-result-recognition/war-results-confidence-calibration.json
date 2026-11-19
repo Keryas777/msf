@@ -1,0 +1,244 @@
+{
+  "schema": "war-results-confidence-calibration-v1",
+  "thresholdSource": "captures 01-07 only; capture-grouped out-of-fold predictions",
+  "defaultThresholds": {
+    "minSimilarity": 0.79,
+    "minMargin": 0.035
+  },
+  "categories": {
+    "score": {
+      "missingModelDigits": 0,
+      "crossValidationMargins": {
+        "correct": {
+          "n": 5,
+          "min": 0.005363,
+          "median": 0.006947,
+          "max": 0.042195
+        },
+        "incorrect": {
+          "n": 9,
+          "min": 0.000637,
+          "median": 0.005274,
+          "max": 0.011239
+        }
+      },
+      "holdoutMargins": {
+        "correct": {
+          "n": 4,
+          "min": 0.000648,
+          "median": 0.011674,
+          "max": 0.013807
+        },
+        "incorrect": {
+          "n": 0,
+          "min": null,
+          "median": null,
+          "max": null
+        }
+      },
+      "crossValidationDefault": {
+        "fields": 14,
+        "proposalsExact": 5,
+        "accepted": 1,
+        "acceptedExact": 1,
+        "wrongAccepted": 0,
+        "refused": 13
+      },
+      "holdoutDefault": {
+        "fields": 4,
+        "proposalsExact": 4,
+        "accepted": 0,
+        "acceptedExact": 0,
+        "wrongAccepted": 0,
+        "refused": 4
+      },
+      "selectedThreshold": 0.016074,
+      "crossValidationSelectedHypothetical": {
+        "fields": 14,
+        "proposalsExact": 5,
+        "accepted": 2,
+        "acceptedExact": 2,
+        "wrongAccepted": 0,
+        "refused": 12
+      },
+      "crossValidationSelectedWithClassGate": {
+        "fields": 14,
+        "proposalsExact": 5,
+        "accepted": 2,
+        "acceptedExact": 2,
+        "wrongAccepted": 0,
+        "refused": 12
+      },
+      "holdoutSelectedHypothetical": {
+        "fields": 4,
+        "proposalsExact": 4,
+        "accepted": 0,
+        "acceptedExact": 0,
+        "wrongAccepted": 0,
+        "refused": 4
+      },
+      "holdoutSelectedWithClassGate": {
+        "fields": 4,
+        "proposalsExact": 4,
+        "accepted": 0,
+        "acceptedExact": 0,
+        "wrongAccepted": 0,
+        "refused": 4
+      },
+      "nestedCaptureHoldoutHypothetical": {
+        "heldOutCaptureCount": 7,
+        "thresholdAvailableFolds": 7,
+        "thresholdMin": 0.015268,
+        "thresholdMax": 0.026717,
+        "fields": 14,
+        "accepted": 1,
+        "acceptedExact": 1,
+        "wrongAccepted": 0,
+        "refused": 13
+      },
+      "nestedCaptureHoldoutWithClassGate": {
+        "heldOutCaptureCount": 7,
+        "thresholdAvailableFolds": 7,
+        "thresholdMin": 0.015268,
+        "thresholdMax": 0.026717,
+        "fields": 14,
+        "accepted": 1,
+        "acceptedExact": 1,
+        "wrongAccepted": 0,
+        "refused": 13
+      },
+      "refusalReasons": {
+        "crossValidation": {
+          "accepted-by-current-rules": 1,
+          "ambiguous-glyph": 13
+        },
+        "holdout": {
+          "ambiguous-glyph": 4
+        }
+      }
+    },
+    "trophy": {
+      "missingModelDigits": 1,
+      "crossValidationMargins": {
+        "correct": {
+          "n": 10,
+          "min": 0.009048,
+          "median": 0.037822,
+          "max": 0.158498
+        },
+        "incorrect": {
+          "n": 3,
+          "min": 0.004359,
+          "median": 0.00457,
+          "max": 0.016736
+        }
+      },
+      "holdoutMargins": {
+        "correct": {
+          "n": 2,
+          "min": 0.0025,
+          "median": 0.00635,
+          "max": 0.00635
+        },
+        "incorrect": {
+          "n": 2,
+          "min": 0.00276,
+          "median": 0.015516,
+          "max": 0.015516
+        }
+      },
+      "crossValidationDefault": {
+        "fields": 14,
+        "proposalsExact": 10,
+        "accepted": 0,
+        "acceptedExact": 0,
+        "wrongAccepted": 0,
+        "refused": 14
+      },
+      "holdoutDefault": {
+        "fields": 4,
+        "proposalsExact": 2,
+        "accepted": 0,
+        "acceptedExact": 0,
+        "wrongAccepted": 0,
+        "refused": 4
+      },
+      "selectedThreshold": 0.016806,
+      "crossValidationSelectedHypothetical": {
+        "fields": 14,
+        "proposalsExact": 10,
+        "accepted": 7,
+        "acceptedExact": 7,
+        "wrongAccepted": 0,
+        "refused": 7
+      },
+      "crossValidationSelectedWithClassGate": {
+        "fields": 14,
+        "proposalsExact": 10,
+        "accepted": 0,
+        "acceptedExact": 0,
+        "wrongAccepted": 0,
+        "refused": 14
+      },
+      "holdoutSelectedHypothetical": {
+        "fields": 4,
+        "proposalsExact": 2,
+        "accepted": 0,
+        "acceptedExact": 0,
+        "wrongAccepted": 0,
+        "refused": 4
+      },
+      "holdoutSelectedWithClassGate": {
+        "fields": 4,
+        "proposalsExact": 2,
+        "accepted": 0,
+        "acceptedExact": 0,
+        "wrongAccepted": 0,
+        "refused": 4
+      },
+      "nestedCaptureHoldoutHypothetical": {
+        "heldOutCaptureCount": 7,
+        "thresholdAvailableFolds": 7,
+        "thresholdMin": 0.006809,
+        "thresholdMax": 0.02424,
+        "fields": 14,
+        "accepted": 7,
+        "acceptedExact": 6,
+        "wrongAccepted": 1,
+        "refused": 7
+      },
+      "nestedCaptureHoldoutWithClassGate": {
+        "heldOutCaptureCount": 7,
+        "thresholdAvailableFolds": 7,
+        "thresholdMin": 0.006809,
+        "thresholdMax": 0.02424,
+        "fields": 14,
+        "accepted": 0,
+        "acceptedExact": 0,
+        "wrongAccepted": 0,
+        "refused": 14
+      },
+      "refusalReasons": {
+        "crossValidation": {
+          "glyph-touches-crop-edge": 1,
+          "incomplete-class-set": 13
+        },
+        "holdout": {
+          "incomplete-class-set": 4
+        }
+      }
+    }
+  },
+  "allFields": {
+    "crossValidation": {
+      "fields": 28,
+      "proposalExact": 15,
+      "tesseractExact": 18
+    },
+    "holdout": {
+      "fields": 8,
+      "proposalExact": 6,
+      "tesseractExact": 5
+    }
+  }
+}

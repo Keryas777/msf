@@ -2,7 +2,9 @@
 (() => {
   "use strict";
   const CORE = window.WarResultRecognition;
-  const VERSION = "5.1-local";
+  const TROPHY_LOCATOR = window.WarResultsTrophyLocatorExperiment;
+  const DIGIT_READER = window.WarResultsDigitReader;
+  const VERSION = "5.5-adaptive-recovery-default";
   let workerPromise = null;
   let worker = null;
   let activeProgress = () => {};
@@ -207,7 +209,49 @@
       const zoneInfo = CORE.locateZones(sparseWords, source.width, source.height);
       zoneInfo.method = zoneInfo.zones.method;
       zoneInfo.layout = zoneInfo.zones.layout;
-      for (const [key, rect] of Object.entries(zoneOverrides || {})) if (FIELD_SIDES[key] && rect) zoneInfo.zones[key === "result" ? "resultBand" : key] = normalizeRect(rect, source.width, source.height);
+      const manuallyCorrected = new Set();
+      for (const [key, rect] of Object.entries(zoneOverrides || {})) if (FIELD_SIDES[key] && rect) {
+        zoneInfo.zones[key === "result" ? "resultBand" : key] = normalizeRect(rect, source.width, source.height);
+        manuallyCorrected.add(key);
+      }
+
+      // The confirmed Safari configuration (adaptive + vertical recovery, 18%)
+      // is the normal trophy geometry. Manual rectangles retain priority; if
+      // segmentation cannot identify four clean glyphs, keep the existing zone.
+      const trophyGeometry = {};
+      if (TROPHY_LOCATOR && DIGIT_READER) {
+        for (const [key, side] of [["localTrophies", "left"], ["opponentTrophies", "right"]]) {
+          if (manuallyCorrected.has(key)) {
+            trophyGeometry[key] = { method: "manual-override", marginPercent: 18, fallback: false };
+            continue;
+          }
+          const originalRect = normalizeRect(zoneInfo.zones[key], source.width, source.height);
+          if (!originalRect) {
+            trophyGeometry[key] = { method: "existing-zone-unavailable", marginPercent: 18, fallback: true };
+            continue;
+          }
+          const verticalRect = { x: 0, y: originalRect.y, width: 0, height: originalRect.height };
+          const readBandImageData = (bandRect) => {
+            const bandCanvas = crop(source, bandRect, 1, false);
+            if (!bandCanvas) return null;
+            try { return bandCanvas.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, bandCanvas.width, bandCanvas.height); }
+            finally { bandCanvas.width = bandCanvas.height = 1; }
+          };
+          const located = TROPHY_LOCATOR.locateWithVerticalRecovery(
+            readBandImageData, source.width, source.height, verticalRect, side, DIGIT_READER,
+            { paddingByGlyphHeight: 0.18, minimumPaddingPixels: 2 }
+          );
+          const cleanFourDigits = !located.reason && located.segmented?.bounds?.length === 4 && !located.segmented?.warnings?.length;
+          if (cleanFourDigits) {
+            zoneInfo.zones[key] = located.rect;
+            trophyGeometry[key] = { method: located.recovery?.method || "adaptive-components", marginPercent: 18, fallback: false,
+              recovery: located.recovery || null, glyphs: located.segmented.glyphs?.length || 0, confidence: located.geometryConfidence ?? null };
+          } else {
+            trophyGeometry[key] = { method: "existing-zone-fallback", marginPercent: 18, fallback: true,
+              reason: located.reason || located.segmented?.warnings?.join(",") || "four-clean-glyphs-not-confirmed" };
+          }
+        }
+      }
 
       // Every proposal below is read from its displayed field crop. The full-image reads
       // are used only as independent hypotheses and as anchors for locating the crops.
@@ -230,7 +274,10 @@
         if (!fieldImage) continue;
         try {
           const anchored = key.includes("Score") ? zoneInfo.anchorsFound.scoreValues || zoneInfo.anchorsFound.scoreLabel : key.includes("Trophies") ? zoneInfo.anchorsFound.trophyRow || zoneInfo.anchorsFound.losp : key === "localAlliance" ? zoneInfo.anchorsFound.losp : key === "opponentAlliance" ? zoneInfo.anchorsFound.opponentName : zoneInfo.anchorsFound.resultTitle;
-          zoneImages[key] = { rect, sourcePreview, preview: fieldImage.toDataURL("image/jpeg", .86), width: fieldImage.width, height: fieldImage.height, geometryConfidence: anchored ? "anchor-based" : "fallback" };
+          zoneImages[key] = { rect, sourcePreview, preview: fieldImage.toDataURL("image/jpeg", .86), width: fieldImage.width, height: fieldImage.height, geometryConfidence: anchored ? "anchor-based" : "fallback",
+            ...(trophyGeometry[key] ? { locatorMethod: trophyGeometry[key].method, locatorMarginPercent: trophyGeometry[key].marginPercent, locatorFallback: trophyGeometry[key].fallback,
+              locatorRecovery: trophyGeometry[key].recovery || null, segmentedGlyphs: trophyGeometry[key].glyphs ?? null, segmentationConfidence: trophyGeometry[key].confidence ?? null,
+              segmentationReason: trophyGeometry[key].reason || null } : {}) };
           if (key === "result") {
             const cue = resultColor(fieldImage);
             zoneReads[key] = { value: cue || "", confidence: null, source: "result-band-color-crop", uncertain: !cue };
@@ -271,12 +318,122 @@
       return {
         fields, warnings: [...new Set(warnings)], rawText: `${full.data?.text || ""}\n${sparse.data?.text || ""}`,
         zones: Object.fromEntries(Object.entries(zoneImages).map(([key, value]) => [key, { ...value, method: zoneInfo.method, ocrMethod: zoneReads[key]?.source || "color-analysis", layout: zoneInfo.layout }])),
-        metrics: { engine: "Tesseract.js v5 local browser", engineVersion: VERSION, workerLoadMs, totalMs: Math.round(performance.now() - totalStart), calls, dimensions, analyzedCanvas: { width: canvas.width, height: canvas.height }, downscale: scale, methods: calls.map((item) => item.method), colorCue: color || null, panel: zoneInfo.panel, panelMethod: zoneInfo.panelMethod, zonesFound: zoneInfo.anchorsFound, zoneMethod: zoneInfo.method, layout: zoneInfo.layout, zoneReads, cropMethodResults, fieldStatusSummary, bytes: file.size, jsHeapBeforeBytes: heapBefore, jsHeapAfterBytes: performance.memory?.usedJSHeapSize ?? null, jsHeapDeltaBytes: heapBefore != null && performance.memory?.usedJSHeapSize != null ? performance.memory.usedJSHeapSize - heapBefore : null }
+        metrics: { engine: "Tesseract.js v5 local browser", engineVersion: VERSION, workerLoadMs, totalMs: Math.round(performance.now() - totalStart), calls, dimensions, analyzedCanvas: { width: canvas.width, height: canvas.height }, downscale: scale, methods: calls.map((item) => item.method), colorCue: color || null, panel: zoneInfo.panel, panelMethod: zoneInfo.panelMethod, zonesFound: zoneInfo.anchorsFound, zoneMethod: zoneInfo.method, layout: zoneInfo.layout, trophyGeometry, trophyLocatorDefault: "adaptive+vertical-recovery", trophyMarginPercent: 18, zoneReads, cropMethodResults, fieldStatusSummary, bytes: file.size, jsHeapBeforeBytes: heapBefore, jsHeapAfterBytes: performance.memory?.usedJSHeapSize ?? null, jsHeapDeltaBytes: heapBefore != null && performance.memory?.usedJSHeapSize != null ? performance.memory.usedJSHeapSize - heapBefore : null }
       };
     } finally {
       source.close?.();
       canvas.width = canvas.height = 1;
     }
+  }
+
+  // Diagnostic-only A/B comparison. It shares this page's Tesseract.js worker,
+  // OCR parameters and source image; it does not replace the production zones.
+  async function compareTrophyLocators(file, onProgress = () => {}, options = {}) {
+    const marginPercent = [0, 18, 30].includes(Number(options.marginPercent)) ? Number(options.marginPercent) : 18;
+    const verticalRecovery = options.verticalRecovery === true;
+    const edgeSafePadding = options.edgeSafePadding === true;
+    const iconAware = options.iconAware === true;
+    const locatorOptions = { paddingByGlyphHeight: marginPercent / 100, minimumPaddingPixels: marginPercent === 0 ? 0 : 2,
+      ...(edgeSafePadding ? { edgeSafePaddingByGlyphHeight: 0.3 } : {}), iconAware };
+    if (!CORE || !TROPHY_LOCATOR || !DIGIT_READER) throw new Error("Les modules de diagnostic des zones trophées ne sont pas chargés.");
+    activeProgress = onProgress;
+    const totalStart = performance.now();
+    const source = await decode(file);
+    let analysisCanvas;
+    const callMetrics = [];
+    const callTimings = {};
+    try {
+      const prepared = makeCanvas(source);
+      analysisCanvas = prepared.canvas;
+      const workerStart = performance.now();
+      const engine = await getWorker();
+      const workerLoadMs = Math.round(performance.now() - workerStart);
+      const run = async (label, image, psm, whitelist = "") => {
+        await engine.setParameters({ tessedit_pageseg_mode: String(psm), preserve_interword_spaces: "1", tessedit_char_whitelist: whitelist });
+        const start = performance.now();
+        const result = await engine.recognize(image);
+        const metric = { method: label, ms: Math.round(performance.now() - start), confidence: result.data?.confidence ?? null };
+        callMetrics.push(metric);
+        callTimings[label] = metric.ms;
+        return result;
+      };
+
+      onProgress({ status: "Comparaison des localisateurs — lecture des ancres…", progress: .12 });
+      const full = await run("comparison-full-psm6", analysisCanvas, 6);
+      const sparse = await run("comparison-sparse-psm11", analysisCanvas, 11);
+      const sparseWords = parse(sparse, prepared.scale);
+      const localized = CORE.locateZones(sparseWords, source.width, source.height);
+      const fields = [
+        { key: "localTrophies", side: "left", label: "Trophées LoSP" },
+        { key: "opponentTrophies", side: "right", label: "Trophées adverses" }
+      ];
+      const results = [];
+      for (const [index, field] of fields.entries()) {
+        onProgress({ status: `Comparaison des découpes — ${field.label}…`, progress: .42 + index * .22 });
+        const originalRect = normalizeRect(localized.zones[field.key], source.width, source.height);
+        const yBand = originalRect && { x: 0, y: originalRect.y, width: 0, height: originalRect.height };
+        const current = await readTrophyVariant(source, originalRect, field.key, "production", run, callTimings);
+        let adaptive;
+        if (!yBand) adaptive = { rect: null, value: "", raw: "", confidence: null, ms: null, reason: "zone-verticale-production-absente", preview: "", segmentation: null };
+        else {
+          const readBandImageData = (bandRect) => {
+            const bandCanvas = crop(source, bandRect, 1, false);
+            try { return bandCanvas.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, bandCanvas.width, bandCanvas.height); }
+            finally { bandCanvas.width = bandCanvas.height = 1; }
+          };
+          const primaryBand = TROPHY_LOCATOR.proportionalBand(source.width, source.height, yBand, field.side, locatorOptions);
+          const located = verticalRecovery
+            ? TROPHY_LOCATOR.locateWithVerticalRecovery(readBandImageData, source.width, source.height, yBand, field.side, DIGIT_READER, locatorOptions)
+            : primaryBand
+              ? TROPHY_LOCATOR.locateBand(readBandImageData(primaryBand), primaryBand, source.width, source.height, DIGIT_READER, locatorOptions)
+              : { rect: null, reason: "invalid-search-band", recovery: null };
+          if (located.reason) adaptive = { rect: null, value: "", raw: "", confidence: null, ms: null, reason: located.reason, preview: "", segmentation: located.segmented || null, recovery: located.recovery || null };
+          else {
+            adaptive = await readTrophyVariant(source, located.rect, field.key, "proportionnel+composantes", run, callTimings, located.segmented, located.bandRect, marginPercent);
+            adaptive.recovery = located.recovery || null;
+            adaptive.appliedMarginPercent = located.appliedMarginPercent ?? marginPercent;
+          }
+        }
+        results.push({ field: field.key, label: field.label, current, adaptive: { ...adaptive, marginPercent },
+          rectDelta: current.rect && adaptive.rect ? {
+            x: adaptive.rect.x - current.rect.x, y: adaptive.rect.y - current.rect.y,
+            width: adaptive.rect.width - current.rect.width, height: adaptive.rect.height - current.rect.height
+          } : null });
+      }
+      const overviewScale = Math.min(1, 1200 / source.width, 1200 / source.height);
+      const overview = crop(source, { x: 0, y: 0, width: source.width, height: source.height }, overviewScale, false);
+      const sourcePreview = overview?.toDataURL("image/jpeg", .82) || "";
+      if (overview) overview.width = overview.height = 1;
+      return { fields: results, preview: sourcePreview, dimensions: { width: source.width, height: source.height }, metrics: { engine: "Tesseract.js v5 local browser", workerLoadMs,
+        totalMs: Math.round(performance.now() - totalStart), calls: callMetrics,
+        dimensions: { width: source.width, height: source.height }, analyzedCanvas: { width: analysisCanvas.width, height: analysisCanvas.height },
+        layout: localized.zones.layout, anchorsFound: localized.anchorsFound,
+        OCRParams: { fullPsm: 6, sparsePsm: 11, fieldPsm: 7, whitelist: "0123456789", sourceCropScale: 3, grayscaleContrast: 1.7, adaptiveMarginPercent: marginPercent, verticalRecovery, edgeSafePadding, iconAware } } };
+    } finally {
+      source.close?.();
+      if (analysisCanvas) analysisCanvas.width = analysisCanvas.height = 1;
+    }
+  }
+
+  async function readTrophyVariant(source, rect, field, variant, run, callTimings, segmentation = null, segmentationOrigin = rect, marginPercent = null) {
+    if (!rect) return { rect: null, value: "", raw: "", confidence: null, ms: null, reason: "zone-production-absente", preview: "", segmentation };
+    const original = crop(source, rect, 1, false);
+    const prepared = crop(source, rect, 3, true);
+    if (!original || !prepared) return { rect, value: "", raw: "", confidence: null, ms: null, reason: "creation-decoupe-impossible", preview: "", segmentation };
+    const sourcePreview = original.toDataURL("image/jpeg", .86);
+    const observed = segmentation || DIGIT_READER.segment(original.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, original.width, original.height), "trophy", 4);
+    const origin = segmentationOrigin || rect;
+    const glyphRects = TROPHY_LOCATOR.translateBoundsToSource(observed.bounds || [], origin);
+    const segmentationSummary = { glyphs: observed.glyphs?.length || 0, reason: observed.reason || null,
+      warnings: observed.warnings || [], componentBounds: observed.bounds || [], glyphRects };
+    original.width = original.height = 1;
+    try {
+      const output = await run(`comparison-${variant}-${field}-psm7`, prepared, 7, "0123456789");
+      const raw = String(output.data?.text || "").replace(/\s+/g, " ").trim();
+      return { rect, value: numericRead(raw), raw, confidence: output.data?.confidence ?? null,
+        ms: callTimings[`comparison-${variant}-${field}-psm7`] ?? null, reason: null, preview: prepared.toDataURL("image/jpeg", .86), sourcePreview, marginPercent,
+        segmentation: segmentationSummary };
+    } finally { prepared.width = prepared.height = 1; }
   }
 
   async function analyzeField(file, field, rect, onProgress = () => {}) {
@@ -313,5 +470,6 @@
     if (worker) { await worker.terminate(); worker = null; }
     workerPromise = null;
   }
-  window.WarResultsVisionEngine = { analyze, analyzeField, release, version: VERSION };
+  window.WarResultsVisionEngine = { analyze, analyzeField, compareTrophyLocators, release, version: VERSION };
 })();
+

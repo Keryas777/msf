@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex,nofollow">
   <title>MSF War Results Vision</title>
   <link rel="stylesheet" href="./war-counter-lab.css?v=r7-entry-5">
-  <link rel="stylesheet" href="./war-results-vision.css?v=2">
+  <link rel="stylesheet" href="./war-results-vision.css?v=4">
 </head>
 <body>
   <main class="app-shell">
@@ -46,12 +46,28 @@
       <summary>Diagnostic OCR (mesures de ce navigateur)</summary>
       <p id="diagnosticText" class="muted">Aucune analyse exécutée.</p>
       <pre id="diagnosticLog"></pre>
+      <div class="locator-ab-panel">
+        <h2>Comparaison des découpes trophées (expérimental)</h2>
+        <p class="muted">L’analyse normale utilise l’adaptatif avec reprise verticale et marge 18 %. Cette comparaison relit les captures avec les variantes choisies, sans modifier les champs déjà analysés.</p>
+        <label for="trophyRecoverySelect">Variante adaptative à comparer</label><select id="trophyRecoverySelect" class="trophy-margin-select"><option value="adaptive">Sans reprise verticale</option><option value="vertical-recovery" selected>Avec reprise verticale</option><option value="vertical-recovery-edge-safe">Reprise + marge de sécurité si glyphe au bord</option><option value="vertical-recovery-icon-aware">Reprise + sélection des chiffres sans pictogramme</option></select>
+        <label for="trophyMarginSelect">Marge des glyphes adaptatifs</label><select id="trophyMarginSelect" class="trophy-margin-select"><option value="0">0 %</option><option value="18" selected>18 %</option><option value="30">30 %</option></select><button id="compareTrophyLocatorsButton" class="secondary-button" type="button" disabled>Comparer les captures chargées</button>
+        <button id="clearLocatorComparisonButton" class="secondary-button" type="button" disabled>Effacer le diagnostic</button>
+        <button id="copyLocatorComparisonButton" class="secondary-button" type="button" disabled>Copier JSON</button>
+        <button id="exportLocatorComparisonButton" class="secondary-button" type="button" disabled>Télécharger les mesures locales (.json)</button>
+        <p class="muted">Les résultats sont sauvegardés temporairement dans cette session de navigateur après chaque capture. Réimporte une capture terminée pour retrouver son résultat sans la retraiter. Utilise « Effacer le diagnostic » pour supprimer ces mesures.</p>
+        <p id="locatorCompareStatus" class="analysis-status" role="status" aria-live="polite"></p>
+        <div id="locatorComparisonResults" class="locator-comparison-results"></div>
+      </div>
     </details>
     <p class="muted results-footnote">La date de guerre doit être saisie manuellement. Chaque fiche reste à vérifier avant sa validation locale. Aucun envoi, historique officiel ou export automatique.</p>
   </main>
   <script src="./war-result-recognition-core.js?v=5" defer></script>
-  <script src="./war-results-vision-engine.js?v=2" defer></script>
+  <script src="./war-results-digit-reader.js?v=0.3.0-icon-aware" defer></script>
+  <script src="./war-results-trophy-locator-experiment.js?v=0.5.0-experimental" defer></script>
+  <script src="./war-results-locator-comparison-store.js?v=1.2.0" defer></script>
+  <script src="./war-results-vision-engine.js?v=5.5-adaptive-recovery-default" defer></script>
   <script src="./war-results-vision-data.js?v=1" defer></script>
-  <script src="./war-results-vision.js?v=2" defer></script>
+  <script src="./war-results-vision.js?v=4.2-ab-icon-aware" defer></script>
 </body>
 </html>
+
