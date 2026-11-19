@@ -83,11 +83,30 @@ test("keeps the experimental page out of public navigation and precaches version
     readFile(new URL("../docs/alliance-ranking-locator.html", import.meta.url), "utf8")
   ]);
   assert.doesNotMatch(menu, /alliance-ranking-locator/);
-  assert.match(worker, /losp-v30/);
+  assert.match(worker, /losp-v31/);
   assert.match(worker, /alliance-ranking-locator\.html/);
-  assert.match(worker, /alliance-ranking-locator\.css\?v=1/);
-  assert.match(worker, /alliance-ranking-locator\.js\?v=1/);
+  assert.match(worker, /alliance-ranking-locator\.css\?v=2/);
+  assert.match(worker, /alliance-ranking-locator\.js\?v=2-identity/);
   assert.match(worker, /alliance-ranking-geometry\.js/);
   assert.match(page, /type="module"/);
   assert.doesNotMatch(page, /auth-guard|password|secret/i);
+});
+
+test("ranking page delegates OCR to the shared identity adapter and keeps export image-free", async () => {
+  const [page, locator, adapter, directory] = await Promise.all([
+    readFile(new URL("../docs/alliance-ranking-locator.html", import.meta.url), "utf8"),
+    readFile(new URL("../docs/alliance-ranking-locator.js", import.meta.url), "utf8"),
+    readFile(new URL("../docs/war-results-vision-engine.js", import.meta.url), "utf8"),
+    readFile(new URL("../docs/alliance-directory.js", import.meta.url), "utf8")
+  ]);
+  assert.match(page, /war-results-identity-engine\.js/);
+  assert.match(page, /war-results-vision-engine\.js/);
+  assert.match(adapter, /analyzeIdentityRegion/);
+  assert.match(adapter, /IDENTITY_ENGINE\.analyzeRegion/);
+  assert.match(locator, /engine\.analyzeIdentityRegion/);
+  assert.match(locator, /loadAllianceDirectory/);
+  assert.match(locator, /suggestMatches/);
+  assert.match(locator, /localStorage\.setItem\(OCR_STORE/);
+  assert.match(locator, /persistableIdentity/);
+  assert.match(directory, /Suggestions are informational only; callers must not merge identities automatically/);
 });

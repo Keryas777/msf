@@ -470,11 +470,28 @@
     }
   }
 
+  // Shared OCR Identity entry point for tools that already own image geometry.
+  // It deliberately delegates text, symbols, colors and diagnostics to the same
+  // identity engine used by War Results Vision.
+  async function analyzeIdentityRegion(source, rect, onProgress = () => {}) {
+    if (!IDENTITY_ENGINE) throw new Error("Le moteur Identité partagé n’est pas chargé.");
+    if (!source || !Number.isFinite(source.width) || !Number.isFinite(source.height)) throw new TypeError("Image source invalide.");
+    activeProgress = onProgress;
+    const safe = normalizeRect(rect, source.width, source.height);
+    if (!safe || safe.width < 2 || safe.height < 2) throw new Error("La zone de nom est trop petite ou hors image.");
+    const engine = await getWorker();
+    return IDENTITY_ENGINE.analyzeRegion(source, safe, async (image, psm) => {
+      activeProgress({ status: `Lecture Identité (PSM ${psm})…`, progress: 0.2 });
+      await engine.setParameters({ tessedit_pageseg_mode: String(psm), preserve_interword_spaces: "1", tessedit_char_whitelist: "" });
+      return engine.recognize(image);
+    }, { side: "opponent" });
+  }
+
   async function release() {
     activeProgress = () => {};
     if (worker) { await worker.terminate(); worker = null; }
     workerPromise = null;
   }
-  window.WarResultsVisionEngine = { analyze, analyzeField, compareTrophyLocators, release, version: VERSION };
+  window.WarResultsVisionEngine = { analyze, analyzeField, analyzeIdentityRegion, compareTrophyLocators, release, version: VERSION };
 })();
 
