@@ -48,8 +48,8 @@
       <pre id="diagnosticLog"></pre>
       <div class="locator-ab-panel">
         <h2>Comparaison des découpes trophées (expérimental)</h2>
-        <p class="muted">Compare le localisateur actuel et la recherche adaptative avec le même Tesseract.js local. La comparaison relit l’image et peut prendre du temps sur mobile; elle ne modifie pas les champs ni la reconnaissance normale.</p>
-        <label for="trophyRecoverySelect">Variante adaptative</label><select id="trophyRecoverySelect" class="trophy-margin-select"><option value="adaptive" selected>Sans reprise verticale</option><option value="vertical-recovery">Avec reprise verticale</option><option value="vertical-recovery-edge-safe">Reprise + marge de sécurité si glyphe au bord</option><option value="vertical-recovery-icon-aware">Reprise + sélection des chiffres sans pictogramme</option></select>
+        <p class="muted">L’analyse normale utilise l’adaptatif avec reprise verticale et marge 18 %. Cette comparaison relit les captures avec les variantes choisies, sans modifier les champs déjà analysés.</p>
+        <label for="trophyRecoverySelect">Variante adaptative à comparer</label><select id="trophyRecoverySelect" class="trophy-margin-select"><option value="adaptive">Sans reprise verticale</option><option value="vertical-recovery" selected>Avec reprise verticale</option><option value="vertical-recovery-edge-safe">Reprise + marge de sécurité si glyphe au bord</option><option value="vertical-recovery-icon-aware">Reprise + sélection des chiffres sans pictogramme</option></select>
         <label for="trophyMarginSelect">Marge des glyphes adaptatifs</label><select id="trophyMarginSelect" class="trophy-margin-select"><option value="0">0 %</option><option value="18" selected>18 %</option><option value="30">30 %</option></select><button id="compareTrophyLocatorsButton" class="secondary-button" type="button" disabled>Comparer les captures chargées</button>
         <button id="clearLocatorComparisonButton" class="secondary-button" type="button" disabled>Effacer le diagnostic</button>
         <button id="copyLocatorComparisonButton" class="secondary-button" type="button" disabled>Copier JSON</button>
@@ -65,7 +65,7 @@
   <script src="./war-results-digit-reader.js?v=0.3.0-icon-aware" defer></script>
   <script src="./war-results-trophy-locator-experiment.js?v=0.5.0-experimental" defer></script>
   <script src="./war-results-locator-comparison-store.js?v=1.2.0" defer></script>
-  <script src="./war-results-vision-engine.js?v=5.4-ab-icon-aware" defer></script>
+  <script src="./war-results-vision-engine.js?v=5.5-adaptive-recovery-default" defer></script>
   <script src="./war-results-vision-data.js?v=1" defer></script>
   <script src="./war-results-vision.js?v=4.2-ab-icon-aware" defer></script>
 </body>

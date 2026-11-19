@@ -4,7 +4,7 @@
   const CORE = window.WarResultRecognition;
   const TROPHY_LOCATOR = window.WarResultsTrophyLocatorExperiment;
   const DIGIT_READER = window.WarResultsDigitReader;
-  const VERSION = "5.2-icon-aware-experiment";
+  const VERSION = "5.5-adaptive-recovery-default";
   let workerPromise = null;
   let worker = null;
   let activeProgress = () => {};
@@ -209,7 +209,49 @@
       const zoneInfo = CORE.locateZones(sparseWords, source.width, source.height);
       zoneInfo.method = zoneInfo.zones.method;
       zoneInfo.layout = zoneInfo.zones.layout;
-      for (const [key, rect] of Object.entries(zoneOverrides || {})) if (FIELD_SIDES[key] && rect) zoneInfo.zones[key === "result" ? "resultBand" : key] = normalizeRect(rect, source.width, source.height);
+      const manuallyCorrected = new Set();
+      for (const [key, rect] of Object.entries(zoneOverrides || {})) if (FIELD_SIDES[key] && rect) {
+        zoneInfo.zones[key === "result" ? "resultBand" : key] = normalizeRect(rect, source.width, source.height);
+        manuallyCorrected.add(key);
+      }
+
+      // The confirmed Safari configuration (adaptive + vertical recovery, 18%)
+      // is the normal trophy geometry. Manual rectangles retain priority; if
+      // segmentation cannot identify four clean glyphs, keep the existing zone.
+      const trophyGeometry = {};
+      if (TROPHY_LOCATOR && DIGIT_READER) {
+        for (const [key, side] of [["localTrophies", "left"], ["opponentTrophies", "right"]]) {
+          if (manuallyCorrected.has(key)) {
+            trophyGeometry[key] = { method: "manual-override", marginPercent: 18, fallback: false };
+            continue;
+          }
+          const originalRect = normalizeRect(zoneInfo.zones[key], source.width, source.height);
+          if (!originalRect) {
+            trophyGeometry[key] = { method: "existing-zone-unavailable", marginPercent: 18, fallback: true };
+            continue;
+          }
+          const verticalRect = { x: 0, y: originalRect.y, width: 0, height: originalRect.height };
+          const readBandImageData = (bandRect) => {
+            const bandCanvas = crop(source, bandRect, 1, false);
+            if (!bandCanvas) return null;
+            try { return bandCanvas.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, bandCanvas.width, bandCanvas.height); }
+            finally { bandCanvas.width = bandCanvas.height = 1; }
+          };
+          const located = TROPHY_LOCATOR.locateWithVerticalRecovery(
+            readBandImageData, source.width, source.height, verticalRect, side, DIGIT_READER,
+            { paddingByGlyphHeight: 0.18, minimumPaddingPixels: 2 }
+          );
+          const cleanFourDigits = !located.reason && located.segmented?.bounds?.length === 4 && !located.segmented?.warnings?.length;
+          if (cleanFourDigits) {
+            zoneInfo.zones[key] = located.rect;
+            trophyGeometry[key] = { method: located.recovery?.method || "adaptive-components", marginPercent: 18, fallback: false,
+              recovery: located.recovery || null, glyphs: located.segmented.glyphs?.length || 0, confidence: located.geometryConfidence ?? null };
+          } else {
+            trophyGeometry[key] = { method: "existing-zone-fallback", marginPercent: 18, fallback: true,
+              reason: located.reason || located.segmented?.warnings?.join(",") || "four-clean-glyphs-not-confirmed" };
+          }
+        }
+      }
 
       // Every proposal below is read from its displayed field crop. The full-image reads
       // are used only as independent hypotheses and as anchors for locating the crops.
@@ -232,7 +274,10 @@
         if (!fieldImage) continue;
         try {
           const anchored = key.includes("Score") ? zoneInfo.anchorsFound.scoreValues || zoneInfo.anchorsFound.scoreLabel : key.includes("Trophies") ? zoneInfo.anchorsFound.trophyRow || zoneInfo.anchorsFound.losp : key === "localAlliance" ? zoneInfo.anchorsFound.losp : key === "opponentAlliance" ? zoneInfo.anchorsFound.opponentName : zoneInfo.anchorsFound.resultTitle;
-          zoneImages[key] = { rect, sourcePreview, preview: fieldImage.toDataURL("image/jpeg", .86), width: fieldImage.width, height: fieldImage.height, geometryConfidence: anchored ? "anchor-based" : "fallback" };
+          zoneImages[key] = { rect, sourcePreview, preview: fieldImage.toDataURL("image/jpeg", .86), width: fieldImage.width, height: fieldImage.height, geometryConfidence: anchored ? "anchor-based" : "fallback",
+            ...(trophyGeometry[key] ? { locatorMethod: trophyGeometry[key].method, locatorMarginPercent: trophyGeometry[key].marginPercent, locatorFallback: trophyGeometry[key].fallback,
+              locatorRecovery: trophyGeometry[key].recovery || null, segmentedGlyphs: trophyGeometry[key].glyphs ?? null, segmentationConfidence: trophyGeometry[key].confidence ?? null,
+              segmentationReason: trophyGeometry[key].reason || null } : {}) };
           if (key === "result") {
             const cue = resultColor(fieldImage);
             zoneReads[key] = { value: cue || "", confidence: null, source: "result-band-color-crop", uncertain: !cue };
@@ -273,7 +318,7 @@
       return {
         fields, warnings: [...new Set(warnings)], rawText: `${full.data?.text || ""}\n${sparse.data?.text || ""}`,
         zones: Object.fromEntries(Object.entries(zoneImages).map(([key, value]) => [key, { ...value, method: zoneInfo.method, ocrMethod: zoneReads[key]?.source || "color-analysis", layout: zoneInfo.layout }])),
-        metrics: { engine: "Tesseract.js v5 local browser", engineVersion: VERSION, workerLoadMs, totalMs: Math.round(performance.now() - totalStart), calls, dimensions, analyzedCanvas: { width: canvas.width, height: canvas.height }, downscale: scale, methods: calls.map((item) => item.method), colorCue: color || null, panel: zoneInfo.panel, panelMethod: zoneInfo.panelMethod, zonesFound: zoneInfo.anchorsFound, zoneMethod: zoneInfo.method, layout: zoneInfo.layout, zoneReads, cropMethodResults, fieldStatusSummary, bytes: file.size, jsHeapBeforeBytes: heapBefore, jsHeapAfterBytes: performance.memory?.usedJSHeapSize ?? null, jsHeapDeltaBytes: heapBefore != null && performance.memory?.usedJSHeapSize != null ? performance.memory.usedJSHeapSize - heapBefore : null }
+        metrics: { engine: "Tesseract.js v5 local browser", engineVersion: VERSION, workerLoadMs, totalMs: Math.round(performance.now() - totalStart), calls, dimensions, analyzedCanvas: { width: canvas.width, height: canvas.height }, downscale: scale, methods: calls.map((item) => item.method), colorCue: color || null, panel: zoneInfo.panel, panelMethod: zoneInfo.panelMethod, zonesFound: zoneInfo.anchorsFound, zoneMethod: zoneInfo.method, layout: zoneInfo.layout, trophyGeometry, trophyLocatorDefault: "adaptive+vertical-recovery", trophyMarginPercent: 18, zoneReads, cropMethodResults, fieldStatusSummary, bytes: file.size, jsHeapBeforeBytes: heapBefore, jsHeapAfterBytes: performance.memory?.usedJSHeapSize ?? null, jsHeapDeltaBytes: heapBefore != null && performance.memory?.usedJSHeapSize != null ? performance.memory.usedJSHeapSize - heapBefore : null }
       };
     } finally {
       source.close?.();
