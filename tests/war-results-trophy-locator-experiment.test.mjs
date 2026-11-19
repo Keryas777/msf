@@ -112,6 +112,37 @@ test("vertical recovery does not replace a valid primary segmentation", () => {
   assert.equal(result.bandRect.y, 160);
 });
 
+test("edge-safe variant expands only a crop whose glyphs touch the search-band edge", () => {
+  const image = syntheticImage(1);
+  const readBand = (rect) => locator.cropImageData(image, rect);
+  const edgeBand = { x: 0, y: 170, width: 1, height: 60 };
+  const repaired = locator.locateWithVerticalRecovery(readBand, image.width, image.height, edgeBand, "left", reader, {
+    paddingByGlyphHeight: 0.18,
+    minimumPaddingPixels: 2,
+    edgeSafePaddingByGlyphHeight: 0.3
+  });
+  assert.equal(repaired.reason, null);
+  assert.deepEqual(repaired.segmented.warnings, ["glyph-touches-crop-edge"]);
+  assert.deepEqual(repaired.recovery, {
+    method: "edge-safe-padding",
+    requestedPaddingByGlyphHeight: 0.18,
+    appliedPaddingByGlyphHeight: 0.3
+  });
+  assert.equal(repaired.appliedMarginPercent, 30);
+  assert.deepEqual(repaired.rect, { x: 210, y: 160, width: 117, height: 52 });
+
+  const normalBand = { x: 0, y: 160, width: 1, height: 60 };
+  const unchanged = locator.locateWithVerticalRecovery(readBand, image.width, image.height, normalBand, "left", reader, {
+    paddingByGlyphHeight: 0.18,
+    minimumPaddingPixels: 2,
+    edgeSafePaddingByGlyphHeight: 0.3
+  });
+  assert.equal(unchanged.reason, null);
+  assert.equal(unchanged.recovery, null);
+  assert.equal(unchanged.appliedMarginPercent, undefined);
+  assert.deepEqual(unchanged.rect, { x: 214, y: 164, width: 109, height: 44 });
+});
+
 test("glyph rectangles convert from local crop to original-image coordinates", () => {
   const local = [{ x: 8, y: 11, width: 12, height: 27 }, { x: 29, y: 11, width: 13, height: 27 }];
   assert.deepEqual(locator.translateBoundsToSource(local, { x: 500, y: 240 }), [

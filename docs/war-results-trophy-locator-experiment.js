@@ -117,6 +117,19 @@
     const bandRect = proportionalBand(imageWidth, imageHeight, verticalRect, side, options);
     if (!bandRect) return { rect: null, reason: "invalid-search-band", recovery: null };
     const primary = locateBand(readBandImageData(bandRect), bandRect, imageWidth, imageHeight, reader, options);
+    const requestedPadding = Number(options.paddingByGlyphHeight ?? DEFAULTS.paddingByGlyphHeight);
+    const edgeSafePadding = Number(options.edgeSafePaddingByGlyphHeight);
+    if (!primary.reason && primary.segmented?.warnings?.includes("glyph-touches-crop-edge") &&
+        Number.isFinite(edgeSafePadding) && edgeSafePadding > requestedPadding) {
+      const safe = locateBand(readBandImageData(bandRect), bandRect, imageWidth, imageHeight, reader, {
+        ...options, paddingByGlyphHeight: edgeSafePadding
+      });
+      if (!safe.reason) return {
+        ...safe,
+        recovery: { method: "edge-safe-padding", requestedPaddingByGlyphHeight: requestedPadding, appliedPaddingByGlyphHeight: edgeSafePadding },
+        appliedMarginPercent: edgeSafePadding * 100
+      };
+    }
     if (primary.reason !== "too-few-components") return { ...primary, recovery: null };
     for (const candidate of verticalSearchBands(imageWidth, imageHeight, verticalRect, side, options)) {
       const recovered = locateBand(readBandImageData(candidate.bandRect), candidate.bandRect, imageWidth, imageHeight, reader, options);
@@ -150,6 +163,6 @@
     };
   }
 
-  return { version: "0.4.0-experimental", defaults: DEFAULTS, proportionalBand, cropImageData, translateBoundsToSource, locateBand, verticalSearchBands, locateWithVerticalRecovery, locate };
+  return { version: "0.5.0-experimental", defaults: DEFAULTS, proportionalBand, cropImageData, translateBoundsToSource, locateBand, verticalSearchBands, locateWithVerticalRecovery, locate };
 });
 

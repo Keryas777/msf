@@ -286,7 +286,9 @@
   async function compareTrophyLocators(file, onProgress = () => {}, options = {}) {
     const marginPercent = [0, 18, 30].includes(Number(options.marginPercent)) ? Number(options.marginPercent) : 18;
     const verticalRecovery = options.verticalRecovery === true;
-    const locatorOptions = { paddingByGlyphHeight: marginPercent / 100, minimumPaddingPixels: marginPercent === 0 ? 0 : 2 };
+    const edgeSafePadding = options.edgeSafePadding === true;
+    const locatorOptions = { paddingByGlyphHeight: marginPercent / 100, minimumPaddingPixels: marginPercent === 0 ? 0 : 2,
+      ...(edgeSafePadding ? { edgeSafePaddingByGlyphHeight: 0.3 } : {}) };
     if (!CORE || !TROPHY_LOCATOR || !DIGIT_READER) throw new Error("Les modules de diagnostic des zones trophées ne sont pas chargés.");
     activeProgress = onProgress;
     const totalStart = performance.now();
@@ -343,6 +345,7 @@
           else {
             adaptive = await readTrophyVariant(source, located.rect, field.key, "proportionnel+composantes", run, callTimings, located.segmented, located.bandRect, marginPercent);
             adaptive.recovery = located.recovery || null;
+            adaptive.appliedMarginPercent = located.appliedMarginPercent ?? marginPercent;
           }
         }
         results.push({ field: field.key, label: field.label, current, adaptive: { ...adaptive, marginPercent },
@@ -359,7 +362,7 @@
         totalMs: Math.round(performance.now() - totalStart), calls: callMetrics,
         dimensions: { width: source.width, height: source.height }, analyzedCanvas: { width: analysisCanvas.width, height: analysisCanvas.height },
         layout: localized.zones.layout, anchorsFound: localized.anchorsFound,
-        OCRParams: { fullPsm: 6, sparsePsm: 11, fieldPsm: 7, whitelist: "0123456789", sourceCropScale: 3, grayscaleContrast: 1.7, adaptiveMarginPercent: marginPercent, verticalRecovery } } };
+        OCRParams: { fullPsm: 6, sparsePsm: 11, fieldPsm: 7, whitelist: "0123456789", sourceCropScale: 3, grayscaleContrast: 1.7, adaptiveMarginPercent: marginPercent, verticalRecovery, edgeSafePadding } } };
     } finally {
       source.close?.();
       if (analysisCanvas) analysisCanvas.width = analysisCanvas.height = 1;
