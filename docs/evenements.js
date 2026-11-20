@@ -360,7 +360,7 @@
     const text=strip(description);
     // « Jouer » désigne aussi un combat pour les formulations sans
     // restriction. Ne pas assimiler les objectifs multimodes ou qualifiés.
-    return /^(?:combattre\b|combattez\b|faire un combat\b|jouer n[’']?importe quel combat\b|battle\b|play (?:any battle|alliance |raid|war|blitz|arena|crucible|with ))/i.test(text)||
+    return /^(?:combattre\b|combattez\b|faire (?:un |des )?combats?\b|gagner (?:un |des )?combats?\b|remporter (?:un |des )?combats?\b|jouer avec\b|jouer n[’']?importe quel combat\b|battle\b|play (?:any battle|alliance |raid|war|blitz|arena|crucible|with ))/i.test(text)||
       /^jouer (?:en (?:raid|guerre|arène|épreuve cosmique)|dans l[’']arène|(?:un |1 )?combat (?:d[’']arène|en (?:raid|guerre)))$/i.test(text);
   }
   function isFullTeamObjective(description){
