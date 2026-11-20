@@ -904,8 +904,18 @@
     }));
     const teams=results[0].status==='fulfilled'?results[0].value:null;
     const characters=results[1].status==='fulfilled'?results[1].value:null;
-    state.teams=Array.isArray(teams)?teams.filter(team=>team&&
-      typeof team.team==='string'&&Array.isArray(team.characters)):[];
+    // Le catalogue LoSP contient une ligne par équipe et mode de jeu.
+    // Ici seule l'identité (nom + composition) importe : les modes des
+    // objectifs sont déterminés indépendamment par leur libellé officiel.
+    // Conserver les compositions réellement différentes comme ambiguës.
+    const uniqueTeams=new Map();
+    for(const team of Array.isArray(teams)?teams:[]){
+      if(!team||typeof team.team!=='string'||!Array.isArray(team.characters))continue;
+      const roster=[...new Set(team.characters)].sort();
+      const key=JSON.stringify([eventNameKey(team.team).trim(),roster]);
+      if(!uniqueTeams.has(key))uniqueTeams.set(key,team);
+    }
+    state.teams=[...uniqueTeams.values()];
     state.characters=Array.isArray(characters)?characters.filter(character=>
       character&&typeof character.id==='string'):[];
     state.characterAliases=characterAliases(state.characters);
