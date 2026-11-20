@@ -1136,13 +1136,18 @@ test('Amélioration regroupe les progressions de personnages et ressources dédi
     "Level Up Any Character to Level 111",
     "Upgrade Any Character to Gear Tier 22",
     "Spend 1 T2 Ion",
-    "Spend Training Modules"
+    "Spend Training Modules",
+    "Dépenser de l’or",
+    "Spend 100 Gold",
+    "Dépenser 500 000 or",
+    "Spend 1 Tier 2 Level 4 Ion",
+    "Passer un personnage G22"
   ];
   const choc=["Combattre avec n’importe quel personnage au palier d’équipement 21",
     "Combattre en choc avec Vision à 7 étoiles jaunes"];
   const war=["Combattre en guerre avec Vision à l’iso-8 P4 niveau 3"];
   const campaign=["Dépenser de l’énergie ISO-8"];
-  const other=["Dépenser de l’or","Obtenir des ions","Ouvrir un orbe ISO-8",
+  const other=["Obtenir de l’or","Obtenir des ions","Ouvrir un orbe ISO-8",
     "Dépenser des noyaux d’énergie","Se connecter"];
   const labels=[...upgrade,...choc,...war,...campaign,...other];
   const nodes=await makePage({includeBase:false,extraEvents:labels.map((description,i)=>
@@ -1157,9 +1162,31 @@ test('Amélioration regroupe les progressions de personnages et ressources dédi
   assert.deepEqual(sections(nodes).map(s=>s.children[0].textContent),
     ['⚔️ GUERRE','⚡ CHOC','📖 CAMPAGNE','⬆️ AMÉLIORATION','📋 DIVERS']);
   const improvements=rows('⬆️ AMÉLIORATION');
-  const expected=upgrade.map(label=>label==="Upgrade Any Character to Gear Tier 22"?
-    "Améliorer un personnage au palier G22":label.replace(/\s+/g,' '));
+  const translated={
+    "Upgrade Any Character to Gear Tier 22":"Améliorer un personnage au palier G22",
+    "Spend 100 Gold":"Dépenser 100 or",
+    "Spend 1 Tier 2 Level 4 Ion":"Dépenser 1 ion(s) ISO-8 (palier 2, niveau 4)"
+  };
+  const expected=upgrade.map(label=>translated[label]||label.replace(/\s+/g,' '));
   assert.deepEqual(improvements.map(r=>r.children[0].textContent).sort(),expected.sort());
+  const upgradeSection=sections(nodes).find(s=>s.children[0].textContent==='⬆️ AMÉLIORATION');
+  const groups=upgradeSection.children[1].children;
+  assert.deepEqual(groups.map(g=>g.children[0].children[0].textContent),
+    ['ISO','Modules & Or','Équipement','Autres améliorations']);
+  const byGroup=[
+    [5,6,7,8,9,15,20],
+    [0,1,10,13,16,17,18,19],
+    [2,3,4,14,21],
+    [11,12]
+  ];
+  for(const [index,group] of groups.entries()){
+    const groupRows=walk(group).filter(n=>n.className==='ev-objective-item');
+    const expectedLabels=byGroup[index].map(i=>translated[upgrade[i]]||upgrade[i].replace(/\s+/g,' '));
+    assert.deepEqual(groupRows.map(r=>r.children[0].textContent).sort(),expectedLabels.sort());
+    assert.equal(group.children[0].children[1].textContent,
+      byGroup[index].length+' objectifs');
+    assert.ok(!group.open);
+  }
   assert.equal(rows('⚡ CHOC').length,choc.length);
   assert.equal(rows('⚔️ GUERRE').length,war.length);
   assert.equal(rows('📖 CAMPAGNE').length,campaign.length);
@@ -1439,7 +1466,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=44/);
+  assert.match(html,/evenements\.js\?v=45/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
