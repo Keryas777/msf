@@ -1118,6 +1118,55 @@ test('Épreuve abrégée : classement en Épreuve cosmique, jamais sous Choc',as
   assert.ok(bounds.includes('(plafond 1 000 pts)')||bounds.includes('(plafond 1 000 pts)'));
 });
 
+test('Amélioration regroupe les progressions de personnages et ressources dédiées, pas les combats',async()=>{
+  const upgrade=[
+    "Faire monter n'importe quel personnage au niveau 101",
+    "Faire monter n'importe quel personnage au niveau 110",
+    "Faire monter n'importe quel personnage au palier d’équipement 19",
+    "Faire monter n'importe quel personnage au palier d’équipement 20",
+    "Faire monter n'importe quel personnage au palier d’équipement 21",
+    "Améliorer n'importe quel personnage à l’iso-8 P3 niveau 5",
+    "Améliorer n'importe quel personnage à l’iso-8 P4 niveau 3",
+    "Dépenser 1 ion palier 2 niveau 1",
+    "Dépenser 1 ion palier 3 niveau 4",
+    "Dépenser des ions palier 4 niveau 1",
+    "Dépenser des modules d'entraînement N4",
+    "Améliorer les capacités d’un personnage",
+    "Faire monter un personnage à 7 étoiles jaunes",
+    "Level Up Any Character to Level 111",
+    "Upgrade Any Character to Gear Tier 22",
+    "Spend 1 T2 Ion",
+    "Spend Training Modules"
+  ];
+  const choc=["Combattre avec n’importe quel personnage au palier d’équipement 21",
+    "Combattre en choc avec Vision à 7 étoiles jaunes"];
+  const war=["Combattre en guerre avec Vision à l’iso-8 P4 niveau 3"];
+  const campaign=["Dépenser de l’énergie ISO-8"];
+  const other=["Dépenser de l’or","Obtenir des ions","Ouvrir un orbe ISO-8",
+    "Dépenser des noyaux d’énergie","Se connecter"];
+  const labels=[...upgrade,...choc,...war,...campaign,...other];
+  const nodes=await makePage({includeBase:false,extraEvents:labels.map((description,i)=>
+    ['Événement '+i,'milestone',{milestone:{type:'solo',scoring:{
+      methods:[],cappedScorings:[{cap:100,methods:[{description,points:5}]}]
+    }}}])});
+  assert.equal(nodes.get('stat-objectives').textContent,String(labels.length));
+  assert.equal(objectiveNodes(nodes).length,labels.length);
+  const walk=node=>[node,...node.children.flatMap(walk)];
+  const rows=title=>walk(sections(nodes).find(s=>s.children[0].textContent===title))
+    .filter(node=>node.className==='ev-objective-item');
+  assert.deepEqual(sections(nodes).map(s=>s.children[0].textContent),
+    ['⚔️ GUERRE','⚡ CHOC','📖 CAMPAGNE','⬆️ AMÉLIORATION','📋 DIVERS']);
+  const improvements=rows('⬆️ AMÉLIORATION');
+  assert.deepEqual(improvements.map(r=>r.children[0].textContent).sort(),upgrade.slice().sort());
+  assert.equal(rows('⚡ CHOC').length,choc.length);
+  assert.equal(rows('⚔️ GUERRE').length,war.length);
+  assert.equal(rows('📖 CAMPAGNE').length,campaign.length);
+  assert.equal(rows('📋 DIVERS').length,other.length);
+  assert.ok(improvements.every(r=>r.children[1].children.some(c=>c.textContent==='+ 5 pts par action')));
+  assert.ok(improvements.every(r=>r.children[1].children.some(c=>c.textContent==='(plafond 100 pts)')));
+  assert.ok(improvements.every(r=>!r.children[1].children.some(c=>/Tous modes/.test(c.textContent))));
+});
+
 test('Les gains de jetons de guerre sont classés en Guerre sans être comptés comme des combats',async()=>{
   const war=['Obtenir 1 jeton de guerre','Obtenir un jeton de guerre',
     'Gagner des jetons de guerre','Obtenez 1 crédit de guerre',
@@ -1388,7 +1437,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=43/);
+  assert.match(html,/evenements\.js\?v=44/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
