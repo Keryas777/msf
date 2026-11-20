@@ -221,7 +221,10 @@
     const text=eventNameKey(description);
     const modes=[];
     if(/\braids?\b/.test(text))modes.push('raid');
-    if(/\b(?:alliance war|battle in war|in war|en guerre|guerre d.alliance)\b|^play war\b|\bwar or\b/.test(text))modes.push('war');
+    // Les jetons gagnés en guerre sont un objectif de Guerre, sans
+    // assimiler chaque jeton à un combat ni les achats à des victoires.
+    const earnsWarTokens=/^(?:(?:obtenir|obtenez|gagner|gagnez|collecter|collectez|recevoir|recevez)\s+(?:(?:\d+|un|une|des|les|du)\s+)?(?:jetons?|credits?)\s+de guerre\b|(?:earn|gain|get|obtain|collect)\s+(?:(?:\d+|a|one|some|any)\s+)?(?:alliance )?war (?:tokens?|credits?)\b)/.test(text);
+    if(earnsWarTokens||/\b(?:alliance war|battle in war|in war|en guerre|guerre d.alliance)\b|^play war\b|\bwar or\b/.test(text))modes.push('war');
     if(/\b(?:arena|arene)\b/.test(text))modes.push('arena');
     if(/\b(?:blitz|choc)\b/.test(text))modes.push('blitz');
     // Scopely abrège parfois « Épreuve cosmique » en « l'Épreuve ».
