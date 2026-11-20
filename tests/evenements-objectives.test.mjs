@@ -1446,7 +1446,16 @@ test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP co
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=23"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=24"/);
+  const header=html.match(/<header class="header ev-header"[^>]*>([\s\S]*?)<\/header>/)[1];
+  assert.match(header,/<h1 class="ev-header-banner"><img src="\.\/HeaderObjectifs\.webp" alt="Résumé Objectifs"><\/h1>/);
+  assert.doesNotMatch(header,/class="(?:title|subtitle|headerLeft)"|Objectifs et événements en cours/);
+  const banner=readFileSync(new URL('../docs/HeaderObjectifs.webp',import.meta.url));
+  assert.equal(banner.toString('ascii',0,4),'RIFF');
+  assert.equal(banner.toString('ascii',8,12),'WEBP');
+  assert.match(css,/\.ev-header-banner img\{display:block;width:100%;height:auto\}/);
+  assert.match(css,/\.ev-header\{min-height:0;padding:0;display:block;background:none;border:0;/);
+  assert.doesNotMatch(css,/\.ev-header\{padding-left:/);
   assert.doesNotMatch(css,/\.ev-toolbar\{|\.ev-filters\{|\.ev-date-controls\{/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
