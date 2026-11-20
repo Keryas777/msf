@@ -931,6 +931,53 @@ test('Jouer et combattre en guerre forment une seule action, sans fusionner les 
     '2 objectifs');
 });
 
+test('Les combats explicites en Épreuve cosmique avec une équipe ne sont jamais routés vers Choc',async()=>{
+  const now=Math.floor(Date.now()/1000),day=86400;
+  const week={startTime:now-day,endTime:now+6*day};
+  const labels=[
+    "Combattre dans l'Épreuve cosmique avec les Guerriers audacieux",
+    'Combattre en choc avec les Guerriers audacieux',
+    'Combattre en Épreuve cosmique avec Vision',
+    'Combattre dans l’Epreuve cosmique avec Vision',
+    'Combattre en choc ou en Épreuve cosmique avec Vision'
+  ];
+  const nodes=await makePage({includeBase:false,teams:[],characters:[],extraEvents:[
+    ['Avènement des Guerriers audacieux','milestone',{
+      ...week,milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:50,methods:[{description:labels[0],points:5}]},
+        {cap:50,methods:[{description:labels[1],points:2}]}
+      ]}}
+    }],
+    ['Variantes','milestone',{
+      ...week,milestone:{type:'solo',scoring:{
+        methods:labels.slice(2).map(description=>({description,points:1})),
+        cappedScorings:[]
+      }}
+    }]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'5');
+  const sectionFor=title=>sections(nodes).find(s=>s.children[0].textContent===title);
+  const rows=section=>{
+    const results=[];
+    const walk=node=>{
+      if(node.className==='ev-objective-item')results.push(node);
+      for(const child of node.children||[])walk(child);
+    };
+    walk(section);
+    return results;
+  };
+  const choc=rows(sectionFor('⚡ CHOC'));
+  const crucible=rows(sectionFor('🔷 ÉPREUVE COSMIQUE'));
+  const mixed=rows(sectionFor('⚡ CHOC / ÉPREUVE COSMIQUE'));
+  assert.deepEqual(choc.map(row=>row.children[0].textContent),[labels[1]]);
+  assert.deepEqual(crucible.map(row=>row.children[0].textContent).sort(),
+    [labels[0],labels[2],labels[3]].sort());
+  assert.deepEqual(mixed.map(row=>row.children[0].textContent),[labels[4]]);
+  assert.ok(crucible.find(row=>row.children[0].textContent===labels[0])
+    .children[1].children.some(c=>c.textContent==='10 actions comptabilisées en 7 jours'));
+  assert.ok(choc[0].children[1].children.some(c=>c.textContent==='25 actions comptabilisées en 7 jours'));
+});
+
 test('Épreuve abrégée : classement en Épreuve cosmique, jamais sous Choc',async()=>{
   const nodes=await makePage({includeBase:false,extraEvents:[
     ['Choc','milestone',{milestone:{type:'solo',scoring:{
@@ -1194,7 +1241,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=38/);
+  assert.match(html,/evenements\.js\?v=39/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
