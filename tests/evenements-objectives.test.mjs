@@ -973,6 +973,55 @@ test('Jouer et combattre en guerre forment une seule action, sans fusionner les 
     '2 objectifs');
 });
 
+test('Les Guerriers audacieux multimodes sont une seule équipe par rubrique avec cinq portraits',async()=>{
+  const teamName='Guerriers Audacieux';
+  const source=realTeams.filter(team=>team.team===teamName);
+  assert.ok(source.length>=2);
+  const teams=[...realTeams,{...source[0],characters:[...source[0].characters].reverse()}];
+  const nodes=await makePage({includeBase:false,teams,extraEvents:[
+    ['Avènement des Guerriers audacieux','milestone',{
+      milestone:{type:'solo',scoring:{methods:[],cappedScorings:[
+        {cap:50,methods:[{description:"Combattre dans l'Épreuve cosmique avec les Guerriers audacieux",points:5}]},
+        {cap:50,methods:[{description:'Combattre en choc avec les Guerriers audacieux',points:2}]}
+      ]}}
+    }]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'2');
+  assert.equal(objectiveNodes(nodes).length,2);
+  assert.deepEqual(sections(nodes).map(section=>section.children[0].textContent),
+    ['⚡ CHOC','🔷 ÉPREUVE COSMIQUE']);
+  const cards=objectiveDetails(nodes,'ev-objective-team');
+  assert.equal(cards.length,2);
+  for(const card of cards){
+    const summary=card.children[0];
+    assert.equal(summary.children[0].textContent,teamName);
+    assert.equal(summary.children[1].textContent,'5 personnages · 1 objectif');
+    const roster=summary.children.find(c=>c.className==='ev-objective-team-roster');
+    assert.equal(roster.children.length,5);
+    const expected=source[0].characters.map(id=>realCharacters.find(c=>c.id===id).portraitUrl);
+    assert.deepEqual(roster.children.map(member=>member.children.find(c=>c.tag==='img')?.src),expected);
+  }
+  assert.equal(objectiveDetails(nodes,'ev-objective-event-group').length,0);
+  const rows=objectiveNodes(nodes);
+  assert.ok(rows[0].children[1].children.some(c=>c.textContent==='25 actions comptabilisées en 3 jours'));
+  assert.ok(rows[1].children[1].children.some(c=>c.textContent==='10 actions comptabilisées en 3 jours'));
+});
+
+test('Deux compositions différentes portant le même nom restent ambiguës',async()=>{
+  const nodes=await makePage({includeBase:false,teams:[
+    {team:'Équipe Alpha',mode:'Guerre',characters:['Vision','Ultron']},
+    {team:'Équipe Alpha',mode:'Raid',characters:['Crossbones','Whiplash']}
+  ],extraEvents:[
+    ['Événement ambigu','milestone',{milestone:{type:'solo',scoring:{
+      methods:[{description:'Combattre avec Équipe Alpha',points:1}],cappedScorings:[]
+    }}}]
+  ]});
+  assert.equal(nodes.get('stat-objectives').textContent,'1');
+  assert.equal(objectiveNodes(nodes).length,1);
+  assert.equal(objectiveDetails(nodes,'ev-objective-team').length,0);
+  assert.ok(actions(nodes).includes('Combattre avec Équipe Alpha'));
+});
+
 test('Les combats explicites en Épreuve cosmique avec une équipe ne sont jamais routés vers Choc',async()=>{
   const now=Math.floor(Date.now()/1000),day=86400;
   const week={startTime:now-day,endTime:now+6*day};
@@ -1283,7 +1332,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=40/);
+  assert.match(html,/evenements\.js\?v=41/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
