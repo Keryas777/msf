@@ -128,3 +128,26 @@ test("Les vues de joueurs et classements filtrent toutes leurs sources",async()=
   for(const page of ["war-history.html","war-rankings.html","war-graphs.html"])
     assert.ok(war.includes('href="./'+page+'"'));
 });
+
+test("Résumé Objectifs est accessible aux membres et invités, sans publier la tuile Annuaire",async()=>{
+  const home=await read("docs/home.html");
+  const war=await read("docs/war-choose.html");
+  const link=home.match(/<a href="\.\/evenements\.html" class="homeTile">([\s\S]*?)<\/a>/);
+  assert.ok(link);
+  assert.match(link[1],/src="\.\/ResumeObjectifs\.webp"/);
+  assert.doesNotMatch(link[0],/hubTile--disabled|aria-disabled|CHANTIER|hubTileWorkBadge/);
+  assert.doesNotMatch(home+war,/href="\.\/annuaire-alliances\.html"/);
+  assert.match(home,/aria-label="Guides — Tours, DD, Trials : en chantier, indisponible"/);
+  assert.match(war,/aria-label="Historique Confrontations : en chantier, indisponible"/);
+  for(const role of ["member","guest","admin"]){
+    const session={ok:true,role,groupKey:role==="guest"?"marines":role==="admin"?"all":"losp",
+      allowedAlliances:role==="guest"?["marines"]:["zeus"]};
+    const target=tile("./evenements.html");
+    const hub=await authenticate(session,"home.html",[target]);
+    assert.deepEqual(hub.redirects,[]);
+    assert.equal(target.getAttribute("href"),"./evenements.html");
+    assert.equal(target.getAttribute("aria-disabled"),null);
+    const page=await authenticate(session,"evenements.html");
+    assert.deepEqual(page.redirects,[]);
+  }
+});
