@@ -173,7 +173,6 @@ test('Le profil niveau 110 affiche seulement les feeders autorisés par ID Scope
 test('Le résumé rassemble les objectifs actifs, y compris les feeders, sans doublons',async()=>{
   const nodes=await makePage();
   assert.equal(nodes.get('stat-objectives').textContent,'3');
-  assert.equal(nodes.get('count-objectives').textContent,'3');
   assert.deepEqual(sections(nodes).map(x=>x.children[0].textContent),[
     '🛡️ RAID','⚔️ GUERRE','📋 DIVERS'
   ]);
@@ -1421,7 +1420,6 @@ test('Les libellés affichés utilisent objectif(s), y compris au singulier',asy
   const shown=visit(nodes.get('events-objectives')).join(' | ');
   assert.equal(nodes.get('events-objectives').children[0].textContent,
     "Objectifs regroupés par catégorie pour simplifier la visualisation globale.\nAttention : la progression personnelle n'est pas synchronisée");
-  assert.equal(nodes.get('count-objectives').textContent,'2');
   assert.equal(nodes.get('stat-objectives').textContent,'2');
   assert.deepEqual(sections(nodes).map(section=>section.children[0].textContent),
     ['🛡️ RAID','⚔️ GUERRE']);
@@ -1466,10 +1464,12 @@ test('Le bandeau technique du catalogue est masqué sans supprimer le diagnostic
 });
 
 test('Les identifiants obligatoires de la vue Objectifs existent dans le HTML',()=>{
-  for(const id of ['section-objectives','events-objectives','stat-objectives','count-objectives']){
+  for(const id of ['section-objectives','events-objectives','stat-objectives']){
     assert.match(html,new RegExp('id="'+id+'"'));
   }
   assert.doesNotMatch(html,/section-future|events-future|stat-future/);
+  assert.doesNotMatch(html,/id="(?:title|count)-objectives"|Objectifs à réaliser|Comment gagner des points, par mode de jeu/);
+  assert.match(html,/<section[^>]*id="section-objectives"[^>]*><div class="ev-objectives" id="events-objectives"><\/div><\/section>/);
 });
 
 test('Objectifs est sélectionné au premier affichage, même avant chargement JS',()=>{
@@ -1477,7 +1477,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=47/);
+  assert.match(html,/evenements\.js\?v=48/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{

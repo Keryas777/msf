@@ -758,7 +758,6 @@
     const host=$('events-objectives');host.replaceChildren();
     const items=objectiveEntries(reference);
     $('stat-objectives').textContent=fmtNumber.format(items.length);
-    $('count-objectives').textContent=fmtNumber.format(items.length);
     if(!items.length){
       const holder=create('div','ev-empty');
       holder.append(create('p','ev-empty-emoji','📋'));
@@ -828,7 +827,6 @@
       }
       $('events-objectives').replaceChildren(create('p','ev-empty',
         'Objectifs temporairement indisponibles : données non vérifiées.'));
-      $('count-objectives').textContent='—';
       $('stat-objectives').textContent='—';
       return;
     }
