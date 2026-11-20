@@ -1118,6 +1118,28 @@ test('Épreuve abrégée : classement en Épreuve cosmique, jamais sous Choc',as
   assert.ok(bounds.includes('(plafond 1 000 pts)')||bounds.includes('(plafond 1 000 pts)'));
 });
 
+test('Les gains de jetons de guerre sont classés en Guerre sans être comptés comme des combats',async()=>{
+  const war=['Obtenir 1 jeton de guerre','Obtenir un jeton de guerre',
+    'Gagner des jetons de guerre','Obtenez 1 crédit de guerre',
+    'Earn War Credits','Collect 1 War Token'];
+  const other=["Ouvrir un orbe de guerre",'Dépenser 1 jeton de guerre',
+    "Obtenir 1 fragment d’orbe de ravitaillement allié XIII"];
+  const labels=[...war,...other];
+  const nodes=await makePage({includeBase:false,extraEvents:labels.map((description,i)=>
+    ['Événement '+i,'milestone',{milestone:{type:i===0?'alliance':'solo',
+      scoring:{methods:[{description,points:10}],cappedScorings:[]}}}])});
+  assert.equal(nodes.get('stat-objectives').textContent,String(labels.length));
+  assert.equal(objectiveNodes(nodes).length,labels.length);
+  const walk=node=>[node,...node.children.flatMap(walk)];
+  const rows=title=>walk(sections(nodes).find(s=>s.children[0].textContent===title))
+    .filter(node=>node.className==='ev-objective-item');
+  assert.deepEqual(rows('⚔️ GUERRE').map(row=>row.children[0].textContent).sort(),war.slice().sort());
+  assert.equal(rows('📋 DIVERS').length,other.length);
+  const token=rows('⚔️ GUERRE').find(row=>row.children[0].textContent===war[0]);
+  assert.ok(token.children[1].children.some(c=>c.textContent==='+ 10 pts par action'));
+  assert.ok(rows('⚔️ GUERRE').every(row=>!row.children[1].children.some(c=>/Tous modes|combats? comptabilis/.test(c.textContent))));
+});
+
 test('Les dépenses d’énergie vont dans Campagne sauf mode explicite ou monnaie',async()=>{
   const campaign=[
     "Dépenser de l'énergie de Doomsday dans Doomsday : Incursion",
@@ -1366,7 +1388,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=42/);
+  assert.match(html,/evenements\.js\?v=43/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
