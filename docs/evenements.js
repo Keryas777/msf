@@ -231,6 +231,15 @@
       modes.push('crucible');
     if(/\b(?:campaign|campagne)\b/.test(text))modes.push('campaign');
     if(/\bbattleworld\b/.test(text))modes.push('battleworld');
+    // Une dépense d'énergie de jeu sans autre mode identifié relève
+    // généralement d'une campagne (Doomsday, Terre Sauvage, Iso-8, etc.).
+    // Les noyaux d'énergie sont une monnaie distincte, pas de l'énergie.
+    const spendsEnergy=/^(?:depens(?:er|ez)|utilis(?:er|ez)|spend|use)\s+(?:(?:\d+|un|une|one)\s+(?:(?:points?|unites?|units?)\s+(?:d'|of\s+))?|(?:de\s+l'|de\s+la\s+|de\s+|l'|des\s+|some\s+|any\s+))?(?:energie|energy)\b/.test(text);
+    const spendsSpecialEnergy=/^(?:spend|use)\s+(?:(?:\d+|one|some|any)\s+)?(?:doomsday|incursion|prehistoric|iso-?8|war)\s+energy\b/.test(text);
+    if((spendsEnergy||spendsSpecialEnergy)&&!modes.length&&!/\b(?:noyaux?|cores?)\b/.test(text)){
+      if(/\b(?:war energy|energie de guerre|energie d'alliance)\b/.test(text))modes.push('war');
+      else modes.push('campaign');
+    }
     return modes.length?modes.join('+'):'divers';
   }
   function objectiveLabel(raw){
