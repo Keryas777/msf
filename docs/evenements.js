@@ -822,7 +822,6 @@
       for(const key of Object.keys(SECTIONS)){
         $('events-'+key).replaceChildren(create('p','ev-empty',
           'Événements temporairement indisponibles : données non vérifiées.'));
-        $('count-'+key).textContent='—';
         $('stat-'+key).textContent='—';
       }
       $('events-objectives').replaceChildren(create('p','ev-empty',
@@ -834,7 +833,6 @@
     renderObjectives(reference);
     for(const key of Object.keys(SECTIONS)){
       const items=grouped[key],host=$(`events-${key}`);host.replaceChildren();
-      $(`count-${key}`).textContent=fmtNumber.format(items.length);
       $(`stat-${key}`).textContent=fmtNumber.format(items.length);
       if(!items.length)host.append(emptyState());
       for(const category of GAME_GROUPS){
