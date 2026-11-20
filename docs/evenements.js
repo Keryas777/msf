@@ -767,12 +767,8 @@
       host.append(holder);return;
     }
     host.append(create('p','ev-objectives-note',
-      objectiveCount(items.length)+', regroupés par action et combats compatibles. '+
-      '« Tous modes » indique un objectif général, non limité au mode affiché. '+
-      (state.eligibleEventIds?
-        'Référence niveau 110 vérifiée : seules les missions éligibles sont affichées. ':
-        'Catalogue général : l’éligibilité personnelle des missions n’est pas vérifiée. ')+
-      'Points et plafonds distincts ; progression personnelle non synchronisée.'));
+      'Objectifs regroupés par catégorie pour simplifier la visualisation globale.\n'+
+      "Attention : la progression personnelle n'est pas synchronisée"));
     const grouped=new Map();
     for(const item of items){
       if(!grouped.has(item.mode))grouped.set(item.mode,[]);
