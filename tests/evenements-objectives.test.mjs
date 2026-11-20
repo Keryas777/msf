@@ -1188,8 +1188,14 @@ test('Amélioration regroupe les progressions de personnages et ressources dédi
     assert.deepEqual(groupRows.map(r=>r.children[0].textContent).sort(),expectedLabels.sort());
     assert.equal(group.children[0].children[1].textContent,
       byGroup[index].length+' objectifs');
-    assert.ok(!group.open);
+    assert.equal(group.tag,'section');
+    assert.equal(group.children[0].tag,'h4');
+    assert.equal(group.children[0].className,'ev-objective-upgrade-heading');
+    assert.equal(group.children[1].className,'ev-objective-events');
+    assert.equal(group.children[1].hidden,false);
+    assert.ok(group.children[1].children.length);
   }
+  assert.match(css,/\.ev-objective-upgrade-heading\{[^}]*text-align:center/);
   assert.equal(rows('⚡ CHOC').length,choc.length);
   assert.equal(rows('⚔️ GUERRE').length,war.length);
   assert.equal(rows('📖 CAMPAGNE').length,campaign.length);
@@ -1440,7 +1446,7 @@ test('La page Événements reprend le fond, l’en-tête et les panneaux LoSP co
   assert.match(html,/class="header ev-header"/);
   assert.match(html,/class="homeBtn" href="\.\/home\.html"/);
   assert.match(html,/href="\.\/style\.css\?v=4"/);
-  assert.match(html,/href="\.\/evenements\.css\?v=21"/);
+  assert.match(html,/href="\.\/evenements\.css\?v=22"/);
   assert.doesNotMatch(css,/\.ev-toolbar\{|\.ev-filters\{|\.ev-date-controls\{/);
   assert.match(css,/\.ev-card\{[^}]*background:var\(--panel\)/);
   assert.doesNotMatch(css,/\.ev-body::before|\.ev-hero(?:\{|::after)/);
@@ -1469,7 +1475,7 @@ test('Objectifs est sélectionné au premier affichage, même avant chargement J
   assert.match(html,/id="tab-current"[^>]*aria-selected="false" tabindex="-1"/);
   assert.match(html,/id="section-objectives"[^>]*aria-labelledby="tab-objectives"(?! hidden)/);
   assert.match(html,/id="section-current"[^>]*hidden>/);
-  assert.match(html,/evenements\.js\?v=45/);
+  assert.match(html,/evenements\.js\?v=46/);
 });
 
 test('Tous les menus d’objectifs sont fermés au chargement et au retour Safari',async()=>{
@@ -1745,6 +1751,32 @@ test('Les événements terminés ne sont plus rendus dans les deux onglets',asyn
   assert.equal(nodes.get('stat-past'),undefined);
   assert.equal(nodes.get('events-past'),undefined);
   assert.equal(cards(nodes).length,0);
+});
+
+test('La présentation Scopely restitue les puces et paragraphes collés sans interpréter le HTML',async()=>{
+  const details="Phase <color=#fff568>Sang, gloire et fortune</color>Progressez dans cet événement en\u00a0:- Vous connectant chaque jour.- Dépensant des noyaux d'énergie.- Améliorant l’iso-8 P4 niveau 3.Obtenez des récompenses fantastiques.Faites-vous une place dans le classement !<br>Rendez-vous sur MarvelStrikeForce.com. S.T.R.I.K.E. et ISO-8.<p>Autre paragraphe.</p><ul><li>Premier point</li><li>Second point</li></ul>";
+  const nodes=await makePage({includeBase:false,extraEvents:[
+    ['Sang, gloire et fortune','milestone',{details,milestone:{type:'solo',scoring:{
+      methods:[{description:'Dépenser de l’or',points:5}],cappedScorings:[]
+    }}}]
+  ]});
+  const walk=node=>[node,...node.children.flatMap(walk)];
+  const button=walk(cards(nodes)[0]).find(n=>n.className==='ev-detail-btn');
+  assert.ok(button);button.handlers.get('click')();
+  assert.equal(nodes.get('event-dialog').open,true);
+  const dialog=nodes.get('event-dialog-content');
+  const presentation=walk(dialog).find(n=>n.className==='ev-dialog-section ev-presentation');
+  assert.ok(presentation);
+  assert.deepEqual(presentation.children.map(n=>n.tag),['h3','p','p','ul','p','p','p','p','ul']);
+  assert.deepEqual(presentation.children[3].children.map(n=>n.textContent),
+    ['Vous connectant chaque jour.',"Dépensant des noyaux d'énergie.",'Améliorant l’iso-8 P4 niveau 3.']);
+  assert.equal(presentation.children[1].textContent,'Phase Sang, gloire et fortune');
+  assert.equal(presentation.children[4].textContent,'Obtenez des récompenses fantastiques.');
+  assert.equal(presentation.children[6].textContent,'Rendez-vous sur MarvelStrikeForce.com. S.T.R.I.K.E. et ISO-8.');
+  assert.deepEqual(presentation.children[8].children.map(n=>n.textContent),['Premier point','Second point']);
+  assert.ok(walk(dialog).some(n=>n.textContent==='Comment gagner des points'));
+  assert.ok(walk(dialog).some(n=>n.textContent==='Dépenser de l’or : 5 point(s)'));
+  assert.ok(walk(presentation).every(n=>['section','h3','p','ul','li'].includes(n.tag)));
 });
 
 test('Tous les événements en cours sont rendus directement, même avec des archives',async()=>{
