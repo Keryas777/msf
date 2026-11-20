@@ -217,16 +217,17 @@
   ];
   const MODE_BY_KEY=new Map(OBJECTIVE_MODES.map(([key,emoji,label])=>[key,{emoji,label}]));
   function objectiveMode(description){
-    const text=strip(description).toLocaleLowerCase('fr');
+    // Normaliser les accents avant les frontières de mots JS (\b est ASCII).
+    const text=eventNameKey(description);
     const modes=[];
     if(/\braids?\b/.test(text))modes.push('raid');
     if(/\b(?:alliance war|battle in war|in war|en guerre|guerre d.alliance)\b|^play war\b|\bwar or\b/.test(text))modes.push('war');
-    if(/\b(?:arena|arène)\b/.test(text))modes.push('arena');
+    if(/\b(?:arena|arene)\b/.test(text))modes.push('arena');
     if(/\b(?:blitz|choc)\b/.test(text))modes.push('blitz');
     // Scopely abrège parfois « Épreuve cosmique » en « l'Épreuve ».
     // Ne reconnaître cette abréviation que dans « dans l'Épreuve »,
     // pas dans n'importe quelle épreuve ou événement du catalogue.
-    if(/\b(?:cosmic crucible|crucible|épreuve cosmique)\b|\bdans l[’']épreuve(?: cosmique)?(?=\s*(?:$|[,(]))/.test(text))
+    if(/\b(?:cosmic crucible|crucible|epreuve cosmique)\b|\bdans l'epreuve(?: cosmique)?(?=\s*(?:$|[,(]))/.test(text))
       modes.push('crucible');
     if(/\b(?:campaign|campagne)\b/.test(text))modes.push('campaign');
     if(/\bbattleworld\b/.test(text))modes.push('battleworld');
